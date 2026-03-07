@@ -1,5 +1,4 @@
 package com.fpetrola.z80.bytecode.tests.minimal;
-
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.MiniZXIO;
@@ -18,7 +17,6 @@ public class JetSetWilly2Converted {
   public static int[] mem = new int[0x10000];
   static public IO<WordNumber> io;
   private final Stack<Integer> stack = new Stack<>();
-
 
   public int carry(int f) {
     return f & 1;
@@ -58,7 +56,6 @@ public class JetSetWilly2Converted {
     return frame;
   }
 
-
   public JetSetWilly2Converted(MiniZXIO<WordNumber> rzxPlayerIO, Predicate<Integer> interruptionCondition) {
     io = rzxPlayerIO;
     init();
@@ -69,17 +66,17 @@ public class JetSetWilly2Converted {
   }
 
   public static int _rrc(int a) {
-    return ((a & 0xff) >> 1) | ((a & 0x01) << 7) & 0xff;
+    return ((a & 0xff) >> 1) | (((a & 0x1) << 7) & 0xff);
   }
 
   public static int _rlc(int a) {
-    return ((a << 1) & 0xfe) | (a & 0xFF) >> 7;
+    return ((a << 1) & 0xfe) | ((a & 0xff) >> 7);
   }
 
   public int[] _rl(int a, int f) {
-    int lastCarry = f & 0x01;
+    int lastCarry = f & 0x1;
     f = (a & 128) >> 7;
-    return new int[]{((a << 1) & 0xfe) | lastCarry, f};
+    return new int[]{ ((a << 1) & 0xfe) | lastCarry, f };
   }
 
   public static int cp(int value1, int value2) {
@@ -126,14 +123,25 @@ public class JetSetWilly2Converted {
   }
 
   public void $34463() {
-    int HL, BC, DE, IX, A, F, H, L, B, C, D, E;
+    int HL;
+    int BC;
+    int DE;
+    int IX;
+    int A;
+    int F;
+    int H;
+    int L;
+    int B;
+    int C;
+    int D;
+    int E;
     HL = 16384;
     DE = 16385;
     BC = 6911;
-    int var1 = HL;
-    mem[var1] = 0;
-    while (BC-- != 0)
+    mem[HL] = 0;
+    while ((BC--) != 0)
       mem[DE++] = mem[HL++];
+
     IX = 34187;
     int[] r1 = $34499(IX);
     A = r1[0];
@@ -146,423 +154,259 @@ public class JetSetWilly2Converted {
       if (F != 0) {
       }
     }
-
     while (true) {
-      label325:
-      while (true) {
-        int var2 = A;
-        int var3 = A ^ var2;
-        A = var3;
-        int var4 = A;
-        int var5 = flagZ(var4);
-        F = var5;
-        int var6 = A;
-        mem[34254] = var6;
-        int var7 = A;
-        mem[34273] = var7;
-        int var8 = A;
-        mem[34253] = var8;
-        int var9 = A;
-        mem[34257] = var9;
-        int var10 = A;
-        mem[34251] = var10;
-        int var11 = A;
-        mem[34272] = var11;
-        int var12 = A;
-        mem[34271] = var12;
+      label325 : while (true) {
+        A = A ^ A;
+        F = flagZ(A);
+        mem[34254] = A;
+        mem[34273] = A;
+        mem[34253] = A;
+        mem[34257] = A;
+        mem[34251] = A;
+        mem[34272] = A;
+        mem[34271] = A;
         A = 7;
-        int var13 = A;
-        mem[34252] = var13;
+        mem[34252] = A;
         A = 208;
-        int var14 = A;
-        mem[34255] = var14;
+        mem[34255] = A;
         A = 33;
-        int var15 = A;
-        mem[33824] = var15;
+        mem[33824] = A;
         HL = 23988;
         int var16 = HL;
-        mem[34259] = var16 & 0xFF;
+        mem[34259] = var16 & 0xff;
         mem[34259 + 1] = var16 >>> 8;
         HL = 34172;
-        int var17 = HL;
-        mem[var17] = 48;
-        int var18 = HL;
-        int var19 = inc16(var18);
-        HL = var19;
-        int var20 = HL;
-        mem[var20] = 48;
-        int var21 = HL;
-        int var22 = inc16(var21);
-        HL = var22;
-        int var23 = HL;
-        mem[var23] = 48;
+        mem[HL] = 48;
+        HL = inc16(HL);
+        mem[HL] = 48;
+        HL = inc16(HL);
+        mem[HL] = 48;
         H = 164 & 0xff;
-        int var24 = mem[41983];
-        A = var24;
-        int var25 = A;
-        L = var25;
-        int var26 = A;
-        mem[34270] = var26;
-
+        A = mem[41983];
+        L = A;
+        mem[34270] = A;
         do {
-          int var27 = H << 8 | L;
-          int var28 = mem[var27] | 64;
-          int var29 = H << 8 | L;
-          mem[var29] = var28;
-          int var30 = L;
-          int var31 = inc(var30);
+          mem[(H << 8) | L] = mem[(H << 8) | L] | 64;
+          int var31 = inc(L);
           L = var31;
           F = var31;
-        } while (F != 0);
-
+        } while (F != 0 );
         HL = 34274;
-        int var32 = HL;
-        int var33 = mem[var32] | 1;
-        int var34 = HL;
-        mem[var34] = var33;
-
-        label207:
-        while (true) {
+        mem[HL] = mem[HL] | 1;
+        label207 : while (true) {
           HL = 16384;
           DE = 16385;
           BC = 6143;
-          int var35 = HL;
-          mem[var35] = 0;
-          while (BC-- != 0)
+          mem[HL] = 0;
+          while ((BC--) != 0)
             mem[DE++] = mem[HL++];
+
           HL = 38912;
           BC = 768;
-          while (BC-- != 0)
+          while ((BC--) != 0)
             mem[DE++] = mem[HL++];
+
           HL = 23136;
           DE = 23137;
           BC = 31;
-          int var36 = HL;
-          mem[var36] = 70;
-          while (BC-- != 0)
+          mem[HL] = 70;
+          while ((BC--) != 0)
             mem[DE++] = mem[HL++];
+
           IX = 33876;
           DE = 20576;
           C = 32;
           $38528(C, DE, IX);
           DE = 22528;
-
           do {
-            int var37 = DE;
-            int var38 = mem[var37];
-            A = var38;
-            int var39 = A;
-            int var40 = A | var39;
-            A = var40;
-            int var41 = A;
-            int var42 = flagZ(var41);
-            F = var42;
+            A = mem[DE];
+            A = A | A;
+            F = flagZ(A);
             if (F != 0) {
-              int var602 = A;
-              int var603 = cp(var602, 211);
-              F = var603;
+              F = cp(A, 211);
               if (F != 0) {
-                int var604 = A;
-                int var605 = cp(var604, 9);
-                F = var605;
+                F = cp(A, 9);
                 if (F != 0) {
-                  int var606 = A;
-                  int var607 = cp(var606, 45);
-                  F = var607;
+                  F = cp(A, 45);
                   if (F != 0) {
-                    int var608 = A;
-                    int var609 = cp(var608, 36);
-                    F = var609;
+                    F = cp(A, 36);
                     if (F != 0) {
                       C = 0;
-                      int var610 = A;
-                      int var611 = cp(var610, 8);
-                      F = var611;
+                      F = cp(A, 8);
                       if (F != 0) {
-                        int var633 = A;
-                        int var634 = cp(var633, 41);
-                        F = var634;
+                        F = cp(A, 41);
                         if (F != 0) {
-                          int var635 = A;
-                          int var636 = cp(var635, 44);
-                          F = var636;
+                          F = cp(A, 44);
                           if (F != 0) {
-                            int var639 = A;
-                            int var640 = cp(var639, 5);
-                            F = var640;
+                            F = cp(A, 5);
                             if (F != 0) {
                               C = 16;
                             }
                           } else {
                             A = 37;
-                            int var637 = A;
-                            int var638 = DE;
-                            mem[var638] = var637;
+                            mem[DE] = A;
                           }
                         }
                       }
-
-                      int var612 = DE & 0xff;
-                      A = var612;
-                      int var613 = A & 1;
-                      A = var613;
-                      int var614 = A;
-                      int var615 = flagZ(var614);
-                      F = var615;
-                      int var616 = A;
-                      int var617 = _rlc(var616);
-                      A = var617;
-                      int var618 = A;
-                      int var619 = _rlc(var618);
-                      A = var619;
-                      int var620 = A;
-                      int var621 = _rlc(var620);
-                      A = var621;
-                      int var622 = C;
-                      int var623 = A | var622;
-                      A = var623;
-                      int var624 = A;
-                      int var625 = flagZ(var624);
-                      F = var625;
-                      int var626 = A;
-                      C = var626;
+                      A = DE & 0xff;
+                      A = A & 1;
+                      F = flagZ(A);
+                      A = _rlc(A);
+                      A = _rlc(A);
+                      A = _rlc(A);
+                      A = A | C;
+                      F = flagZ(A);
+                      C = A;
                       B = 0;
                       HL = 33841;
-                      int var627 = B << 8 | C;
-                      int var628 = HL;
-                      int var629 = add16(var628, var627);
-                      HL = var629;
-                      int var630 = DE;
-                      push(var630);
-                      int var631 = DE >> 8 & 1;
-                      F = var631;
+                      HL = add16(HL, (B << 8) | C);
+                      push(DE);
+                      F = (DE >> 8) & 1;
                       D = 64;
                       if (F != 0) {
                         D = 72;
                       }
-
                       B = 8;
-                      DE = D << 8 | DE & 0xff;
+                      DE = (D << 8) | (DE & 0xff);
                       DE = $38555(B, DE, HL);
-                      int var632 = pop();
-                      DE = var632;
+                      DE = pop();
                     }
                   }
                 }
               }
             }
-
-            int var43 = DE;
-            int var44 = inc16(var43);
-            DE = var44;
-            int var45 = DE >> 8;
-            A = var45;
-            int var46 = A;
-            int var47 = cp(var46, 90);
-            F = var47;
-          } while (F != 0);
-
+            DE = inc16(DE);
+            A = DE >> 8;
+            F = cp(A, 90);
+          } while (F != 0 );
           BC = 31;
-          int var48 = A;
-          int var49 = A ^ var48;
-          A = var49;
-          int var50 = A;
-          int var51 = flagZ(var50);
-          F = var51;
-
+          A = A ^ A;
+          F = flagZ(A);
           do {
-            int var52 = BC;
-            int var53 = in(var52, 34970);
-            E = var53;
-            int var54 = E;
-            int var55 = A | var54;
-            A = var55;
-            int var56 = A;
-            int var57 = flagZ(var56);
-            F = var57;
-            int var58 = (BC >> 8) - 1 & 255;
-            BC = BC & 0xff | ((var58 & 0xff) << 8);
-          } while (BC >> 8 != 0);
-
-          int var59 = A & 32;
-          A = var59;
-          int var60 = A;
-          int var61 = flagZ(var60);
-          F = var61;
+            E = in(BC, 34970);
+            A = A | E;
+            F = flagZ(A);
+            BC = (BC & 0xff) | (((((BC >> 8) - 1) & 255) & 0xff) << 8);
+          } while ((BC >> 8) != 0 );
+          A = A & 32;
+          F = flagZ(A);
           if (F == 0) {
             A = 1;
-            int var601 = A;
-            mem[34254] = var601;
+            mem[34254] = A;
           }
-
           HL = 34299;
           F = $38562(HL);
           if (F != 0) {
             break;
           }
-
-          int var571 = A;
-          int var572 = A ^ var571;
-          A = var572;
-          int var573 = A;
-          int var574 = flagZ(var573);
-          F = var574;
-          int var575 = A;
-          mem[34276] = var575;
-
+          A = A ^ A;
+          F = flagZ(A);
+          mem[34276] = A;
           do {
             $35563();
             HL = 23136;
             DE = 23137;
             BC = 31;
-            int var576 = HL;
-            mem[var576] = 79;
-            while (BC-- != 0)
+            mem[HL] = 79;
+            while ((BC--) != 0)
               mem[DE++] = mem[HL++];
-            int var577 = mem[34276];
-            A = var577;
+
+            A = mem[34276];
             IX = 33876;
-            int var578 = A;
-            E = var578;
+            E = A;
             D = 0;
-            int var579 = DE;
-            int var580 = IX;
-            int var581 = add16(var580, var579);
-            IX = var581;
+            IX = add16(IX, DE);
             DE = 20576;
             C = 32;
             $38528(C, DE, IX);
-            int var582 = mem[34276];
-            A = var582;
-            int var583 = A & 31;
-            A = var583;
-            int var584 = A;
-            int var585 = flagZ(var584);
-            F = var585;
-            int var586 = A;
-            int var587 = add(var586, 50);
+            A = mem[34276];
+            A = A & 31;
+            F = flagZ(A);
+            int var587 = add(A, 50);
             A = var587;
             F = var587;
             $38622(A);
             BC = 45054;
-            int var588 = BC;
-            int var589 = in(var588, 35046);
-            A = var589;
-            int var590 = A & 1;
-            A = var590;
-            int var591 = A;
-            int var592 = flagZ(var591);
-            F = var592;
-            int var593 = A;
-            int var594 = cp(var593, 1);
-            F = var594;
+            A = in(BC, 35046);
+            A = A & 1;
+            F = flagZ(A);
+            F = cp(A, 1);
             if (F != 0) {
               break label207;
             }
-
-            int var595 = mem[34276];
-            A = var595;
-            int var596 = A;
-            int var597 = inc(var596);
+            A = mem[34276];
+            int var597 = inc(A);
             A = var597;
             F = var597;
-            int var598 = A;
-            int var599 = cp(var598, 224);
-            F = var599;
-            int var600 = A;
-            mem[34276] = var600;
-          } while (F != 0);
-
+            F = cp(A, 224);
+            mem[34276] = A;
+          } while (F != 0 );
         }
-
         HL = 34181;
         DE = 34175;
         BC = 6;
-        while (BC-- != 0)
+        while ((BC--) != 0)
           mem[DE++] = mem[HL++];
+
         HL = 39424;
         DE = 23040;
         BC = 256;
-        while (BC-- != 0)
+        while ((BC--) != 0)
           mem[DE++] = mem[HL++];
 
         while (true) {
           while (true) {
-            int var62 = mem[33824];
-            A = var62;
-            int var63 = A | 192;
-            A = var63;
-            int var64 = A;
-            int var65 = flagZ(var64);
-            F = var65;
-            int var66 = A;
-            H = var66 & 0xff;
+            A = mem[33824];
+            A = A | 192;
+            F = flagZ(A);
+            H = A & 0xff;
             L = 0;
             DE = 32768;
             BC = 256;
-            HL = H << 8 | L;
-            while (BC-- != 0)
+            HL = (H << 8) | L;
+            while ((BC--) != 0)
               mem[DE++] = mem[HL++];
+
             IX = 33008;
             DE = 33024;
             A = 8;
-
             do {
-              int var67 = IX + 0;
-              int var68 = mem[var67];
-              L = var68;
-              int var69 = L & -129;
-              L = var69;
+              L = mem[IX + 0];
+              L = L & (-129);
               H = 20 & 0xff;
-              int var70 = H << 8 | L;
-              int var71 = H << 8 | L;
-              int var72 = add16(var71, var70);
-              HL = var72;
-              int var73 = HL;
-              int var74 = HL;
-              int var75 = add16(var74, var73);
-              HL = var75;
-              int var76 = HL;
-              int var77 = HL;
-              int var78 = add16(var77, var76);
-              HL = var78;
+              HL = add16((H << 8) | L, (H << 8) | L);
+              HL = add16(HL, HL);
+              HL = add16(HL, HL);
               BC = 2;
-              while (BC-- != 0)
+              while ((BC--) != 0)
                 mem[DE++] = mem[HL++];
-              int var79 = IX + 1;
-              int var80 = mem[var79];
-              C = var80;
-              int var81 = C;
-              int var82 = HL;
-              mem[var82] = var81;
+
+              C = mem[IX + 1];
+              mem[HL] = C;
               BC = 6;
-              while (BC-- != 0)
+              while ((BC--) != 0)
                 mem[DE++] = mem[HL++];
-              int var83 = IX;
-              int var84 = inc16(var83);
-              IX = var84;
-              int var85 = IX;
-              int var86 = inc16(var85);
-              IX = var86;
-              int var87 = A;
-              int var88 = dec(var87);
+
+              IX = inc16(IX);
+              IX = inc16(IX);
+              int var88 = dec(A);
               A = var88;
               F = var88;
-            } while (F != 0);
-
+            } while (F != 0 );
             HL = 34255;
             DE = 34263;
             BC = 7;
-            while (BC-- != 0)
+            while ((BC--) != 0)
               mem[DE++] = mem[HL++];
+
             $36147();
             HL = 20480;
             DE = 20481;
             BC = 2047;
-            int var89 = HL;
-            mem[var89] = 0;
-            while (BC-- != 0)
+            mem[HL] = 0;
+            while ((BC--) != 0)
               mem[DE++] = mem[HL++];
+
             IX = 32896;
             C = 32;
             DE = 20480;
@@ -571,49 +415,34 @@ public class JetSetWilly2Converted {
             DE = 20576;
             C = 32;
             $38528(C, DE, IX);
-            int var90 = mem[32990];
-            A = var90;
+            A = mem[32990];
             C = 254;
-            int var91 = A;
-            int var92 = A ^ var91;
-            A = var92;
-            int var93 = A;
-            int var94 = flagZ(var93);
-            F = var94;
-            int var95 = A;
-            mem[34262] = var95;
-
+            A = A ^ A;
+            F = flagZ(A);
+            mem[34262] = A;
             while (true) {
-              label363:
-              {
+              label363 : {
                 $35211();
                 HL = 24064;
                 DE = 23552;
                 BC = 512;
-                while (BC-- != 0)
+                while ((BC--) != 0)
                   mem[DE++] = mem[HL++];
+
                 HL = 28672;
                 DE = 24576;
                 BC = 4096;
-                while (BC-- != 0)
+                while ((BC--) != 0)
                   mem[DE++] = mem[HL++];
-                $37056();
-                int var96 = mem[34271];
-                A = var96;
-                int var97 = A;
-                int var98 = cp(var97, 3);
-                F = var98;
 
-                label283:
-                {
-                  label282:
-                  {
-                    label412:
-                    {
-                      label279:
-                      {
-                        label358:
-                        {
+                $37056();
+                A = mem[34271];
+                F = cp(A, 3);
+                label283 : {
+                  label282 : {
+                    label412 : {
+                      label279 : {
+                        label358 : {
                           try {
                             if (F != 0) {
                               $36307();
@@ -623,30 +452,21 @@ public class JetSetWilly2Converted {
                             if (var99 == 37048) {
                               break label412;
                             }
-
                             if (var99 == 38043) {
                               break;
                             }
-
                             if (var99 == 38061) {
                               break;
                             }
-
                             if (var99 == 38134) {
                               break;
                             }
-
                             if (var99 == 38095) {
                               break label358;
                             }
                           }
-
-                          int var562 = mem[34255];
-                          A = var562;
-                          int var563 = A;
-                          int var564 = cp(var563, 225);
-                          F = var564;
-
+                          A = mem[34255];
+                          F = cp(A, 225);
                           try {
                             if (F >= 0) {
                               $38064();
@@ -658,16 +478,10 @@ public class JetSetWilly2Converted {
                             }
                           }
                         }
-
                         break;
                       }
-
-                      int var565 = mem[34271];
-                      A = var565;
-                      int var566 = A;
-                      int var567 = cp(var566, 3);
-                      F = var567;
-
+                      A = mem[34271];
+                      F = cp(A, 3);
                       try {
                         if (F != 0) {
                           $38344();
@@ -677,16 +491,11 @@ public class JetSetWilly2Converted {
                           break label412;
                         }
                       }
-
-                      int var568 = mem[34271];
-                      A = var568;
-                      int var569 = A;
-                      int var570 = cp(var569, 2);
-                      F = var570;
+                      A = mem[34271];
+                      F = cp(A, 2);
                       if (F == 0) {
                         $38276();
                       }
-
                       try {
                         $38196();
                       } catch (RuntimeException var642) {
@@ -694,7 +503,6 @@ public class JetSetWilly2Converted {
                           break label412;
                         }
                       }
-
                       try {
                         $37310();
                         break label282;
@@ -704,87 +512,54 @@ public class JetSetWilly2Converted {
                         }
                       }
                     }
-
                     A = 255;
-                    int var100 = A;
-//                    mem[34257] = var100;
+                    // mem[34257] = var100;
                     break label283;
                   }
-
                   $38137();
                   $37841();
                 }
-
                 HL = 24576;
                 DE = 16384;
                 BC = 4096;
-                while (BC-- != 0)
+                while ((BC--) != 0)
                   mem[DE++] = mem[HL++];
-                int var101 = mem[34271];
-                A = var101;
-                int var102 = A & 2;
-                A = var102;
-                int var103 = A;
-                int var104 = flagZ(var103);
-                F = var104;
-                int var105 = A;
-                int var106 = _rrc(var105);
-                A = var106;
+
+                A = mem[34271];
+                A = A & 2;
+                F = flagZ(A);
+                A = _rrc(A);
                 HL = 34258;
-                int var107 = HL;
-                int var108 = mem[var107];
-                int var109 = A | var108;
-                A = var109;
-                int var110 = A;
-                int var111 = flagZ(var110);
-                F = var111;
-                int var112 = A;
-                int var113 = HL;
-                mem[var113] = var112;
-                int var114 = mem[34253];
-                A = var114;
-                int var115 = A;
-                int var116 = A | var115;
-                A = var116;
-                int var117 = A;
-                int var118 = flagZ(var117);
-                F = var118;
+                A = A | mem[HL];
+                F = flagZ(A);
+                mem[HL] = A;
+                A = mem[34253];
+                A = A | A;
+                F = flagZ(A);
                 if (F != 0) {
-                  int var548 = A;
-                  int var549 = dec(var548);
+                  int var549 = dec(A);
                   A = var549;
                   F = var549;
-                  int var550 = A;
-                  mem[34253] = var550;
-                  int var551 = A;
-                  int var552 = _rlc(var551);
-                  A = var552;
-                  int var553 = A;
-                  int var554 = _rlc(var553);
-                  A = var554;
-                  int var555 = A;
-                  int var556 = _rlc(var555);
-                  A = var556;
-                  int var557 = A & 56;
-                  A = var557;
-                  int var558 = A;
-                  int var559 = flagZ(var558);
-                  F = var559;
+                  mem[34253] = A;
+                  A = _rlc(A);
+                  A = _rlc(A);
+                  A = _rlc(A);
+                  A = A & 56;
+                  F = flagZ(A);
                   HL = 23552;
                   DE = 23553;
                   BC = 511;
-                  int var560 = A;
-                  int var561 = HL;
-                  mem[var561] = var560;
-                  while (BC-- != 0)
+                  mem[HL] = A;
+                  while ((BC--) != 0)
                     mem[DE++] = mem[HL++];
-                }
 
+                }
                 HL = 23552;
                 DE = 22528;
                 BC = 512;
-                while (BC-- != 0)
+                while ((BC--) != 0)
                   mem[DE++] = mem[HL++];
+
                 IX = 34175;
                 DE = 20601;
                 C = 6;
@@ -793,460 +568,259 @@ public class JetSetWilly2Converted {
                 DE = 20592;
                 C = 3;
                 $38528(C, DE, IX);
-                int var119 = mem[34251];
-                A = var119;
-                int var120 = A;
-                int var121 = inc(var120);
+                A = mem[34251];
+                int var121 = inc(A);
                 A = var121;
                 F = var121;
-                int var122 = A;
-                mem[34251] = var122;
+                mem[34251] = A;
                 if (F == 0) {
                   IX = 34175;
                   int var505 = IX + 4;
-                  int var506 = mem[var505];
-                  int var507 = inc(var506);
+                  int var507 = inc(mem[var505]);
                   mem[var505] = var507;
                   F = var507;
-                  int var508 = IX + 4;
-                  int var509 = mem[var508];
-                  A = var509;
-                  int var510 = A;
-                  int var511 = cp(var510, 58);
-                  F = var511;
+                  A = mem[IX + 4];
+                  F = cp(A, 58);
                   if (F == 0) {
-                    int var512 = IX + 4;
-                    mem[var512] = 48;
+                    mem[IX + 4] = 48;
                     int var513 = IX + 3;
-                    int var514 = mem[var513];
-                    int var515 = inc(var514);
+                    int var515 = inc(mem[var513]);
                     mem[var513] = var515;
                     F = var515;
-                    int var516 = IX + 3;
-                    int var517 = mem[var516];
-                    A = var517;
-                    int var518 = A;
-                    int var519 = cp(var518, 54);
-                    F = var519;
+                    A = mem[IX + 3];
+                    F = cp(A, 54);
                     if (F == 0) {
-                      int var520 = IX + 3;
-                      mem[var520] = 48;
-                      int var521 = IX + 0;
-                      int var522 = mem[var521];
-                      A = var522;
-                      int var523 = A;
-                      int var524 = cp(var523, 49);
-                      F = var524;
+                      mem[IX + 3] = 48;
+                      A = mem[IX + 0];
+                      F = cp(A, 49);
                       if (F == 0) {
                         int var534 = IX + 1;
-                        int var535 = mem[var534];
-                        int var536 = inc(var535);
+                        int var536 = inc(mem[var534]);
                         mem[var534] = var536;
                         F = var536;
-                        int var537 = IX + 1;
-                        int var538 = mem[var537];
-                        A = var538;
-                        int var539 = A;
-                        int var540 = cp(var539, 51);
-                        F = var540;
+                        A = mem[IX + 1];
+                        F = cp(A, 51);
                         if (F == 0) {
-                          int var541 = IX + 5;
-                          int var542 = mem[var541];
-                          A = var542;
-                          int var543 = A;
-                          int var544 = cp(var543, 112);
-                          F = var544;
+                          A = mem[IX + 5];
+                          F = cp(A, 112);
                           if (F == 0) {
                             continue label325;
                           }
-
-                          int var545 = IX + 0;
-                          mem[var545] = 32;
-                          int var546 = IX + 1;
-                          mem[var546] = 49;
-                          int var547 = IX + 5;
-                          mem[var547] = 112;
+                          mem[IX + 0] = 32;
+                          mem[IX + 1] = 49;
+                          mem[IX + 5] = 112;
                         }
                       } else {
                         int var525 = IX + 1;
-                        int var526 = mem[var525];
-                        int var527 = inc(var526);
+                        int var527 = inc(mem[var525]);
                         mem[var525] = var527;
                         F = var527;
-                        int var528 = IX + 1;
-                        int var529 = mem[var528];
-                        A = var529;
-                        int var530 = A;
-                        int var531 = cp(var530, 58);
-                        F = var531;
+                        A = mem[IX + 1];
+                        F = cp(A, 58);
                         if (F == 0) {
-                          int var532 = IX + 1;
-                          mem[var532] = 48;
-                          int var533 = IX + 0;
-                          mem[var533] = 49;
+                          mem[IX + 1] = 48;
+                          mem[IX + 0] = 49;
                         }
                       }
                     }
                   }
                 }
-
                 BC = 65278;
-                int var123 = BC;
-                int var124 = in(var123, 35502);
-                A = var124;
-                int var125 = A;
-                E = var125;
+                A = in(BC, 35502);
+                E = A;
                 B = 127;
-                int var126 = B << 8 | BC & 0xff;
-                int var127 = in(var126, 35507);
-                A = var127;
-                int var128 = E;
-                int var129 = A | var128;
-                A = var129;
-                int var130 = A;
-                int var131 = flagZ(var130);
-                F = var131;
-                int var132 = A & 1;
-                A = var132;
-                int var133 = A;
-                int var134 = flagZ(var133);
-                F = var134;
+                A = in((B << 8) | (BC & 0xff), 35507);
+                A = A | E;
+                F = flagZ(A);
+                A = A & 1;
+                F = flagZ(A);
                 if (F == 0) {
                   continue label325;
                 }
-
-                int var135 = mem[34272];
-                A = var135;
-                int var136 = A;
-                mem[34272] = var136;
+                A = mem[34272];
+                mem[34272] = A;
                 if (F != 0) {
                   B = 253;
-                  int var498 = B << 8 | BC & 0xff;
-                  int var499 = in(var498, 35526);
-                  A = var499;
-                  int var500 = A & 31;
-                  A = var500;
-                  int var501 = A;
-                  int var502 = flagZ(var501);
-                  F = var502;
-                  int var503 = A;
-                  int var504 = cp(var503, 31);
-                  F = var504;
+                  A = in((B << 8) | (BC & 0xff), 35526);
+                  A = A & 31;
+                  F = flagZ(A);
+                  F = cp(A, 31);
                   if (F == 0) {
                     break label363;
                   }
-
                   DE = 0;
                 }
-
                 while (true) {
                   B = 2;
-                  int var137 = B << 8 | C;
-                  int var138 = in(var137, 35539);
-                  A = var138;
-                  int var139 = A & 31;
-                  A = var139;
-                  int var140 = A;
-                  int var141 = flagZ(var140);
-                  F = var141;
-                  int var142 = A;
-                  int var143 = cp(var142, 31);
-                  F = var143;
+                  A = in((B << 8) | C, 35539);
+                  A = A & 31;
+                  F = flagZ(A);
+                  F = cp(A, 31);
                   if (F != 0) {
                     HL = 39424;
                     DE = 23040;
                     BC = 256;
-                    while (BC-- != 0)
+                    while ((BC--) != 0)
                       mem[DE++] = mem[HL++];
-                    int var144 = mem[32990];
-                    A = var144;
+
+                    A = mem[32990];
                     break;
                   }
-
-                  int var491 = E;
-                  int var492 = inc(var491);
+                  int var492 = inc(E);
                   E = var492;
                   F = var492;
-
                   D = (DE >> 8) & 0xff;
                   if (F == 0) {
-                    int var493 = D;
-                    int var494 = inc(var493);
+                    int var494 = inc(D);
                     D = var494;
                     F = var494;
                     if (F == 0) {
-                      int var495 = mem[34275];
-                      A = var495;
-                      int var496 = A;
-                      int var497 = cp(var496, 10);
-                      F = var497;
+                      A = mem[34275];
+                      F = cp(A, 10);
                       if (F != 0) {
                         $35563();
                       }
-
                     }
                   }
                 }
               }
-
-              int var145 = mem[34257];
-              A = var145;
-              int var146 = A;
-              int var147 = cp(var146, 255);
-              F = var147;
+              A = mem[34257];
+              F = cp(A, 255);
               if (F == 0) {
                 A = 71;
-
                 do {
                   HL = 22528;
                   DE = 22529;
                   BC = 511;
-                  int var148 = A;
-                  int var149 = HL;
-                  mem[var149] = var148;
-                  while (BC-- != 0)
+                  mem[HL] = A;
+                  while ((BC--) != 0)
                     mem[DE++] = mem[HL++];
-                  int var150 = A;
-                  E = var150;
-                  int var151 = ~A;
-                  A = var151;
-                  int var152 = A;
-                  F = var152;
-                  int var153 = A & 7;
-                  A = var153;
-                  int var154 = A;
-                  int var155 = flagZ(var154);
-                  F = var155;
-                  int var156 = A;
-                  int var157 = _rlc(var156);
-                  A = var157;
-                  int var158 = A;
-                  int var159 = _rlc(var158);
-                  A = var159;
-                  int var160 = A;
-                  int var161 = _rlc(var160);
-                  A = var161;
-                  int var162 = A | 7;
-                  A = var162;
-                  int var163 = A;
-                  int var164 = flagZ(var163);
-                  F = var164;
-                  int var165 = A;
-                  D = var165;
-                  int var166 = E;
-                  C = var166;
-                  int var167 = C;
-                  int var168 = _rrc(var167);
-                  C = var168;
-                  int var169 = C;
-                  int var170 = _rrc(var169);
-                  C = var170;
-                  int var171 = C;
-                  int var172 = _rrc(var171);
-                  C = var172;
-                  int var173 = A | 16;
-                  A = var173;
-                  int var174 = A;
-                  int var175 = flagZ(var174);
-                  F = var175;
-                  int var176 = A;
-                  int var177 = A ^ var176;
-                  A = var177;
-                  int var178 = A;
-                  int var179 = flagZ(var178);
-                  F = var179;
 
+                  E = A;
+                  A = ~A;
+                  F = A;
+                  A = A & 7;
+                  F = flagZ(A);
+                  A = _rlc(A);
+                  A = _rlc(A);
+                  A = _rlc(A);
+                  A = A | 7;
+                  F = flagZ(A);
+                  D = A;
+                  C = E;
+                  C = _rrc(C);
+                  C = _rrc(C);
+                  C = _rrc(C);
+                  A = A | 16;
+                  F = flagZ(A);
+                  A = A ^ A;
+                  F = flagZ(A);
                   do {
-                    int var180 = A ^ 24;
-                    A = var180;
-                    int var181 = A;
-                    int var182 = flagZ(var181);
-                    F = var182;
-                    int var183 = D;
-                    B = var183;
-
+                    A = A ^ 24;
+                    F = flagZ(A);
+                    B = D;
                     do {
-                      int var184 = B - 1 & 255;
-                      B = var184;
-                    } while (B != 0);
-
-                    int var185 = C;
-                    int var186 = dec(var185);
+                      B = (B - 1) & 255;
+                    } while (B != 0 );
+                    int var186 = dec(C);
                     C = var186;
                     F = var186;
-                  } while (F != 0);
-
-                  int var187 = E;
-                  A = var187;
-                  int var188 = A;
-                  int var189 = dec(var188);
+                  } while (F != 0 );
+                  A = E;
+                  int var189 = dec(A);
                   A = var189;
                   F = var189;
-                  int var190 = A;
-                  int var191 = cp(var190, 63);
-                  F = var191;
-                } while (F != 0);
-
+                  F = cp(A, 63);
+                } while (F != 0 );
                 HL = 34252;
-                int var192 = HL;
-                int var193 = mem[var192];
-                A = var193;
-                int var194 = A;
-                int var195 = A | var194;
-                A = var195;
-                int var196 = A;
-                int var197 = flagZ(var196);
-                F = var197;
+                A = mem[HL];
+                A = A | A;
+                F = flagZ(A);
                 if (F == 0) {
                   HL = 16384;
                   DE = 16385;
                   BC = 4095;
-                  int var198 = HL;
-                  mem[var198] = 0;
-                  while (BC-- != 0)
+                  mem[HL] = 0;
+                  while ((BC--) != 0)
                     mem[DE++] = mem[HL++];
-                  int var199 = A;
-                  int var200 = A ^ var199;
-                  A = var200;
-                  int var201 = A;
-                  int var202 = flagZ(var201);
-                  F = var202;
-                  int var203 = A;
-                  mem[34276] = var203;
+
+                  A = A ^ A;
+                  F = flagZ(A);
+                  mem[34276] = A;
                   DE = 40256;
                   HL = 18575;
                   C = 0;
                   r1 = $37974(C, DE, HL);
                   F = r1[0];
-
                   DE = 40032;
                   HL = 18639;
                   C = 0;
                   r1 = $37974(C, DE, HL);
                   F = r1[0];
-
                   do {
-                    int var204 = mem[34276];
-                    A = var204;
-                    int var205 = A;
-                    C = var205;
+                    A = mem[34276];
+                    C = A;
                     B = 130;
-                    int var206 = B << 8 | C;
-                    int var207 = mem[var206];
-                    A = var207;
-                    int var208 = A | 15;
-                    A = var208;
-                    int var209 = A;
-                    int var210 = flagZ(var209);
-                    F = var210;
-                    int var211 = A;
-                    L = var211;
-                    int var212 = B << 8 | C;
-                    int var213 = inc16(var212);
-                    BC = var213;
-                    int var214 = BC;
-                    int var215 = mem[var214];
-                    A = var215;
+                    A = mem[(B << 8) | C];
+                    A = A | 15;
+                    F = flagZ(A);
+                    L = A;
+                    BC = inc16((B << 8) | C);
+                    A = mem[BC];
                     int var216 = A - 32;
-                    int var217 = var216 & 255;
-                    A = var217;
+                    A = var216 & 255;
                     F = var216;
-                    int var218 = A;
-                    H = var218 & 0xff;
+                    H = A & 0xff;
                     DE = 40000;
                     C = 0;
                     r1 = $37974(C, DE, HL);
                     F = r1[0];
-                    int var219 = mem[34276];
-                    A = var219;
-                    int var220 = ~A;
-                    A = var220;
-                    int var221 = A;
-                    F = var221;
-                    int var222 = A;
-                    E = var222;
-                    int var223 = A;
-                    int var224 = A ^ var223;
-                    A = var224;
-                    int var225 = A;
-                    int var226 = flagZ(var225);
-                    F = var226;
+                    A = mem[34276];
+                    A = ~A;
+                    F = A;
+                    E = A;
+                    A = A ^ A;
+                    F = flagZ(A);
                     BC = 64;
-
                     do {
-                      int var227 = A ^ 24;
-                      A = var227;
-                      int var228 = A;
-                      int var229 = flagZ(var228);
-                      F = var229;
-                      int var230 = E;
-                      B = var230;
-
+                      A = A ^ 24;
+                      F = flagZ(A);
+                      B = E;
                       do {
-                        int var231 = B - 1 & 255;
-                        B = var231;
-                      } while (B != 0);
-
-                      int var232 = C;
-                      int var233 = dec(var232);
+                        B = (B - 1) & 255;
+                      } while (B != 0 );
+                      int var233 = dec(C);
                       C = var233;
                       F = var233;
-                    } while (F != 0);
-
+                    } while (F != 0 );
                     HL = 22528;
                     DE = 22529;
                     BC = 511;
-                    int var234 = mem[34276];
-                    A = var234;
-                    int var235 = A & 12;
-                    A = var235;
-                    int var236 = A;
-                    int var237 = flagZ(var236);
-                    F = var237;
-                    int var238 = A;
-                    int var239 = _rlc(var238);
-                    A = var239;
-                    int var240 = A | 71;
-                    A = var240;
-                    int var241 = A;
-                    int var242 = flagZ(var241);
-                    F = var242;
-                    int var243 = A;
-                    int var244 = HL;
-                    mem[var244] = var243;
-                    while (BC-- != 0)
+                    A = mem[34276];
+                    A = A & 12;
+                    F = flagZ(A);
+                    A = _rlc(A);
+                    A = A | 71;
+                    F = flagZ(A);
+                    mem[HL] = A;
+                    while ((BC--) != 0)
                       mem[DE++] = mem[HL++];
-                    int var245 = A & 250;
-                    A = var245;
-                    int var246 = A;
-                    int var247 = flagZ(var246);
-                    F = var247;
-                    int var248 = A | 2;
-                    A = var248;
-                    int var249 = A;
-                    int var250 = flagZ(var249);
-                    F = var250;
-                    int var251 = A;
-                    mem[22991] = var251;
-                    int var252 = A;
-                    mem[22992] = var252;
-                    int var253 = A;
-                    mem[23023] = var253;
-                    int var254 = A;
-                    mem[23024] = var254;
-                    int var255 = mem[34276];
-                    A = var255;
-                    int var256 = A;
-                    int var257 = add(var256, 4);
+
+                    A = A & 250;
+                    F = flagZ(A);
+                    A = A | 2;
+                    F = flagZ(A);
+                    mem[22991] = A;
+                    mem[22992] = A;
+                    mem[23023] = A;
+                    mem[23024] = A;
+                    A = mem[34276];
+                    int var257 = add(A, 4);
                     A = var257;
                     F = var257;
-                    int var258 = A;
-                    mem[34276] = var258;
-                    int var259 = A;
-                    int var260 = cp(var259, 196);
-                    F = var260;
-                  } while (F != 0);
-
+                    mem[34276] = A;
+                    F = cp(A, 196);
+                  } while (F != 0 );
                   IX = 34164;
                   C = 4;
                   DE = 16586;
@@ -1259,146 +833,77 @@ public class JetSetWilly2Converted {
                   B = 0;
                   C = 0;
                   D = 6;
-
                   while (true) {
                     do {
-                      int var261 = B - 1 & 255;
-                      B = var261;
-                    } while (B != 0);
-
-                    int var262 = C;
-                    A = var262;
-                    int var263 = A & 7;
-                    A = var263;
-                    int var264 = A;
-                    int var265 = flagZ(var264);
-                    F = var265;
-                    int var266 = A | 64;
-                    A = var266;
-                    int var267 = A;
-                    int var268 = flagZ(var267);
-                    F = var268;
-                    int var269 = A;
-                    mem[22730] = var269;
-                    int var270 = A;
-                    int var271 = inc(var270);
+                      B = (B - 1) & 255;
+                    } while (B != 0 );
+                    A = C;
+                    A = A & 7;
+                    F = flagZ(A);
+                    A = A | 64;
+                    F = flagZ(A);
+                    mem[22730] = A;
+                    int var271 = inc(A);
                     A = var271;
                     F = var271;
-                    int var272 = A & 7;
-                    A = var272;
-                    int var273 = A;
-                    int var274 = flagZ(var273);
-                    F = var274;
-                    int var275 = A | 64;
-                    A = var275;
-                    int var276 = A;
-                    int var277 = flagZ(var276);
-                    F = var277;
-                    int var278 = A;
-                    mem[22731] = var278;
-                    int var279 = A;
-                    int var280 = inc(var279);
+                    A = A & 7;
+                    F = flagZ(A);
+                    A = A | 64;
+                    F = flagZ(A);
+                    mem[22731] = A;
+                    int var280 = inc(A);
                     A = var280;
                     F = var280;
-                    int var281 = A & 7;
-                    A = var281;
-                    int var282 = A;
-                    int var283 = flagZ(var282);
-                    F = var283;
-                    int var284 = A | 64;
-                    A = var284;
-                    int var285 = A;
-                    int var286 = flagZ(var285);
-                    F = var286;
-                    int var287 = A;
-                    mem[22732] = var287;
-                    int var288 = A;
-                    int var289 = inc(var288);
+                    A = A & 7;
+                    F = flagZ(A);
+                    A = A | 64;
+                    F = flagZ(A);
+                    mem[22732] = A;
+                    int var289 = inc(A);
                     A = var289;
                     F = var289;
-                    int var290 = A & 7;
-                    A = var290;
-                    int var291 = A;
-                    int var292 = flagZ(var291);
-                    F = var292;
-                    int var293 = A | 64;
-                    A = var293;
-                    int var294 = A;
-                    int var295 = flagZ(var294);
-                    F = var295;
-                    int var296 = A;
-                    mem[22733] = var296;
-                    int var297 = A;
-                    int var298 = inc(var297);
+                    A = A & 7;
+                    F = flagZ(A);
+                    A = A | 64;
+                    F = flagZ(A);
+                    mem[22733] = A;
+                    int var298 = inc(A);
                     A = var298;
                     F = var298;
-                    int var299 = A & 7;
-                    A = var299;
-                    int var300 = A;
-                    int var301 = flagZ(var300);
-                    F = var301;
-                    int var302 = A | 64;
-                    A = var302;
-                    int var303 = A;
-                    int var304 = flagZ(var303);
-                    F = var304;
-                    int var305 = A;
-                    mem[22738] = var305;
-                    int var306 = A;
-                    int var307 = inc(var306);
+                    A = A & 7;
+                    F = flagZ(A);
+                    A = A | 64;
+                    F = flagZ(A);
+                    mem[22738] = A;
+                    int var307 = inc(A);
                     A = var307;
                     F = var307;
-                    int var308 = A & 7;
-                    A = var308;
-                    int var309 = A;
-                    int var310 = flagZ(var309);
-                    F = var310;
-                    int var311 = A | 64;
-                    A = var311;
-                    int var312 = A;
-                    int var313 = flagZ(var312);
-                    F = var313;
-                    int var314 = A;
-                    mem[22739] = var314;
-                    int var315 = A;
-                    int var316 = inc(var315);
+                    A = A & 7;
+                    F = flagZ(A);
+                    A = A | 64;
+                    F = flagZ(A);
+                    mem[22739] = A;
+                    int var316 = inc(A);
                     A = var316;
                     F = var316;
-                    int var317 = A & 7;
-                    A = var317;
-                    int var318 = A;
-                    int var319 = flagZ(var318);
-                    F = var319;
-                    int var320 = A | 64;
-                    A = var320;
-                    int var321 = A;
-                    int var322 = flagZ(var321);
-                    F = var322;
-                    int var323 = A;
-                    mem[22740] = var323;
-                    int var324 = A;
-                    int var325 = inc(var324);
+                    A = A & 7;
+                    F = flagZ(A);
+                    A = A | 64;
+                    F = flagZ(A);
+                    mem[22740] = A;
+                    int var325 = inc(A);
                     A = var325;
                     F = var325;
-                    int var326 = A & 7;
-                    A = var326;
-                    int var327 = A;
-                    int var328 = flagZ(var327);
-                    F = var328;
-                    int var329 = A | 64;
-                    A = var329;
-                    int var330 = A;
-                    int var331 = flagZ(var330);
-                    F = var331;
-                    int var332 = A;
-                    mem[22741] = var332;
-                    int var333 = C;
-                    int var334 = dec(var333);
+                    A = A & 7;
+                    F = flagZ(A);
+                    A = A | 64;
+                    F = flagZ(A);
+                    mem[22741] = A;
+                    int var334 = dec(C);
                     C = var334;
                     F = var334;
                     if (F == 0) {
-                      int var335 = D;
-                      int var336 = dec(var335);
+                      int var336 = dec(D);
                       D = var336;
                       F = var336;
                       if (F == 0) {
@@ -1407,313 +912,159 @@ public class JetSetWilly2Converted {
                     }
                   }
                 }
-
-                int var337 = HL;
-                int var338 = mem[var337];
-                int var339 = dec(var338);
-                int var340 = HL;
-                mem[var340] = var339;
+                int var339 = dec(mem[HL]);
+                mem[HL] = var339;
                 F = var339;
                 HL = 34263;
                 DE = 34255;
                 BC = 7;
-                while (BC-- != 0)
+                while ((BC--) != 0)
                   mem[DE++] = mem[HL++];
+
                 break;
               }
-
               A = 191;
               HL = 34274;
-              int var341 = A << 8 | 254;
-              int var342 = in(var341, 35620);
-              A = var342;
-              int var343 = A & 31;
-              A = var343;
-              int var344 = A;
-              int var345 = flagZ(var344);
-              F = var345;
-              int var346 = A;
-              int var347 = cp(var346, 31);
-              F = var347;
+              A = in((A << 8) | 254, 35620);
+              A = A & 31;
+              F = flagZ(A);
+              F = cp(A, 31);
               if (F != 0) {
-                int var482 = HL;
-                int var483 = mem[var482] & 1;
-                F = var483;
+                F = mem[HL] & 1;
                 if (F == 0) {
-                  int var484 = HL;
-                  int var485 = mem[var484];
-                  A = var485;
-                  int var486 = A ^ 3;
-                  A = var486;
-                  int var487 = A;
-                  int var488 = flagZ(var487);
-                  F = var488;
-                  int var489 = A;
-                  int var490 = HL;
-                  mem[var490] = var489;
+                  A = mem[HL];
+                  A = A ^ 3;
+                  F = flagZ(A);
+                  mem[HL] = A;
                 }
               } else {
-                int var348 = HL;
-                int var349 = mem[var348] & -2;
-                int var350 = HL;
-                mem[var350] = var349;
+                mem[HL] = mem[HL] & (-2);
               }
-
-              int var351 = HL;
-              int var352 = mem[var351] & 2;
-              F = var352;
+              F = mem[HL] & 2;
               if (F == 0) {
-                int var440 = A;
-                int var441 = A ^ var440;
-                A = var441;
-                int var442 = A;
-                int var443 = flagZ(var442);
-                F = var443;
-                int var444 = A;
-                mem[34272] = var444;
-                int var445 = mem[34273];
-                A = var445;
-                int var446 = A;
-                int var447 = inc(var446);
+                A = A ^ A;
+                F = flagZ(A);
+                mem[34272] = A;
+                A = mem[34273];
+                int var447 = inc(A);
                 A = var447;
                 F = var447;
-                int var448 = A;
-                mem[34273] = var448;
-                int var449 = A & 126;
-                A = var449;
-                int var450 = A;
-                int var451 = flagZ(var450);
-                F = var451;
-                int var452 = A;
-                int var453 = _rrc(var452);
-                A = var453;
-                int var454 = A;
-                E = var454;
+                mem[34273] = A;
+                A = A & 126;
+                F = flagZ(A);
+                A = _rrc(A);
+                E = A;
                 D = 0;
                 HL = 34399;
-                int var455 = D << 8 | E;
-                int var456 = HL;
-                int var457 = add16(var456, var455);
-                HL = var457;
-                int var458 = mem[34252];
-                A = var458;
-                int var459 = A;
-                int var460 = _rlc(var459);
-                A = var460;
-                int var461 = A;
-                int var462 = _rlc(var461);
-                A = var462;
+                HL = add16(HL, (D << 8) | E);
+                A = mem[34252];
+                A = _rlc(A);
+                A = _rlc(A);
                 int var463 = A - 28;
-                int var464 = var463 & 255;
-                A = var464;
+                A = var463 & 255;
                 F = var463;
-                int var465 = -A & 255;
-                A = var465;
-                int var466 = HL;
-                int var467 = mem[var466];
-                int var468 = A;
-                int var469 = add(var468, var467);
+                A = (-A) & 255;
+                int var469 = add(A, mem[HL]);
                 A = var469;
                 F = var469;
-                int var470 = A;
-                D = var470;
-                int var471 = mem[32990];
-                A = var471;
-                int var472 = D;
-                E = var472;
+                D = A;
+                A = mem[32990];
+                E = D;
                 BC = 3;
-
                 do {
                   do {
-                    int var473 = E;
-                    int var474 = dec(var473);
+                    int var474 = dec(E);
                     E = var474;
                     F = var474;
                     if (F == 0) {
-                      int var478 = D;
-                      E = var478;
-                      int var479 = A ^ 24;
-                      A = var479;
-                      int var480 = A;
-                      int var481 = flagZ(var480);
-                      F = var481;
+                      E = D;
+                      A = A ^ 24;
+                      F = flagZ(A);
                     }
-
-                    int var475 = (BC >> 8) - 1 & 255;
-                    BC = BC & 0xff | ((var475 & 0xff) << 8);
-                  } while (BC >> 8 != 0);
-
-                  int var476 = BC & 0xff;
-                  int var477 = dec(var476);
-                  BC = BC & 0xff00 | var477;
+                    BC = (BC & 0xff) | (((((BC >> 8) - 1) & 255) & 0xff) << 8);
+                  } while ((BC >> 8) != 0 );
+                  int var477 = dec(BC & 0xff);
+                  BC = (BC & 0xff00) | var477;
                   F = var477;
-                } while (F != 0);
+                } while (F != 0 );
               }
-
               BC = 61438;
-              int var353 = BC;
-              int var354 = in(var353, 35699);
-              A = var354;
-              int var355 = A & 2;
-              F = var355;
+              A = in(BC, 35699);
+              F = A & 2;
               if (F == 0) {
-                int var416 = A & 16;
-                A = var416;
-                int var417 = A;
-                int var418 = flagZ(var417);
-                F = var418;
-                int var419 = A ^ 16;
-                A = var419;
-                int var420 = A;
-                int var421 = flagZ(var420);
-                F = var421;
-                int var422 = A;
-                int var423 = _rlc(var422);
-                A = var423;
-                int var424 = A;
-                D = var424;
-                int var425 = mem[34275];
-                A = var425;
-                int var426 = A;
-                int var427 = cp(var426, 10);
-                F = var427;
+                A = A & 16;
+                F = flagZ(A);
+                A = A ^ 16;
+                F = flagZ(A);
+                A = _rlc(A);
+                D = A;
+                A = mem[34275];
+                F = cp(A, 10);
                 if (F == 0) {
                   BC = 63486;
-                  int var428 = BC;
-                  int var429 = in(var428, 35723);
-                  A = var429;
-                  int var430 = ~A;
-                  A = var430;
-                  int var431 = A;
-                  F = var431;
-                  int var432 = A & 31;
-                  A = var432;
-                  int var433 = A;
-                  int var434 = flagZ(var433);
-                  F = var434;
-                  int var435 = D;
-                  int var436 = A | var435;
-                  A = var436;
-                  int var437 = A;
-                  int var438 = flagZ(var437);
-                  F = var438;
-                  int var439 = A;
-                  mem[33824] = var439;
+                  A = in(BC, 35723);
+                  A = ~A;
+                  F = A;
+                  A = A & 31;
+                  F = flagZ(A);
+                  A = A | D;
+                  F = flagZ(A);
+                  mem[33824] = A;
                   break;
                 }
               }
-
-              int var356 = mem[34275];
-              A = var356;
-              int var357 = A;
-              int var358 = cp(var357, 10);
-              F = var358;
+              A = mem[34275];
+              F = cp(A, 10);
               if (F != 0) {
-                int var359 = mem[33824];
-                A = var359;
-                int var360 = A;
-                int var361 = cp(var360, 28);
-                F = var361;
+                A = mem[33824];
+                F = cp(A, 28);
                 if (F == 0) {
-                  int var362 = mem[34255];
-                  A = var362;
-                  int var363 = A;
-                  int var364 = cp(var363, 208);
-                  F = var364;
+                  A = mem[34255];
+                  F = cp(A, 208);
                   if (F == 0) {
-                    int var365 = mem[34275];
-                    A = var365;
-                    int var366 = A;
-                    int var367 = _rlc(var366);
-                    A = var367;
-                    int var368 = A;
-                    E = var368;
+                    A = mem[34275];
+                    A = _rlc(A);
+                    E = A;
                     D = 0;
                     IX = 34279;
-                    int var369 = D << 8 | E;
-                    int var370 = IX;
-                    int var371 = add16(var370, var369);
-                    IX = var371;
+                    IX = add16(IX, (D << 8) | E);
                     BC = 64510;
-                    int var372 = BC;
-                    int var373 = in(var372, 35775);
-                    A = var373;
-                    int var374 = A & 31;
-                    A = var374;
-                    int var375 = A;
-                    int var376 = flagZ(var375);
-                    F = var376;
-                    int var377 = IX + 0;
-                    int var378 = mem[var377];
-                    int var379 = A;
-                    int var380 = cp(var379, var378);
-                    F = var380;
+                    A = in(BC, 35775);
+                    A = A & 31;
+                    F = flagZ(A);
+                    F = cp(A, mem[IX + 0]);
                     if (F != 0) {
-                      int var405 = A;
-                      int var406 = cp(var405, 31);
-                      F = var406;
+                      F = cp(A, 31);
                       if (F != 0) {
-                        int var407 = IX + -2;
-                        int var408 = mem[var407];
-                        int var409 = A;
-                        int var410 = cp(var409, var408);
-                        F = var410;
+                        F = cp(A, mem[IX + (-2)]);
                         if (F != 0) {
-                          int var411 = A;
-                          int var412 = A ^ var411;
-                          A = var412;
-                          int var413 = A;
-                          int var414 = flagZ(var413);
-                          F = var414;
-                          int var415 = A;
-                          mem[34275] = var415;
+                          A = A ^ A;
+                          F = flagZ(A);
+                          mem[34275] = A;
                         }
                       }
                     } else {
                       B = 223;
-                      int var381 = BC;
-                      int var382 = in(var381, 35804);
-                      A = var382;
-                      int var383 = A & 31;
-                      A = var383;
-                      int var384 = A;
-                      int var385 = flagZ(var384);
-                      F = var385;
-                      int var386 = IX + 1;
-                      int var387 = mem[var386];
-                      int var388 = A;
-                      int var389 = cp(var388, var387);
-                      F = var389;
+                      A = in(BC, 35804);
+                      A = A & 31;
+                      F = flagZ(A);
+                      F = cp(A, mem[IX + 1]);
                       if (F != 0) {
-                        int var394 = A;
-                        int var395 = cp(var394, 31);
-                        F = var395;
+                        F = cp(A, 31);
                         if (F != 0) {
-                          int var396 = IX + -1;
-                          int var397 = mem[var396];
-                          int var398 = A;
-                          int var399 = cp(var398, var397);
-                          F = var399;
+                          F = cp(A, mem[IX + (-1)]);
                           if (F != 0) {
-                            int var400 = A;
-                            int var401 = A ^ var400;
-                            A = var401;
-                            int var402 = A;
-                            int var403 = flagZ(var402);
-                            F = var403;
-                            int var404 = A;
-                            mem[34275] = var404;
+                            A = A ^ A;
+                            F = flagZ(A);
+                            mem[34275] = A;
                           }
                         }
                       } else {
-                        int var390 = mem[34275];
-                        A = var390;
-                        int var391 = A;
-                        int var392 = inc(var391);
+                        A = mem[34275];
+                        int var392 = inc(A);
                         A = var392;
                         F = var392;
-                        int var393 = A;
-                        mem[34275] = var393;
+                        mem[34275] = A;
                       }
                     }
                   }
@@ -1727,8 +1078,16 @@ public class JetSetWilly2Converted {
   }
 
   public static int[] $34499(int IX) {
-    int DE, C, HL, BC, A, F, L, H, E, D;
-
+    int DE;
+    int C;
+    int HL;
+    int BC;
+    int A;
+    int F;
+    int L;
+    int H;
+    int E;
+    int D;
     DE = 18432;
     C = 32;
     $38528(C, DE, IX);
@@ -1753,70 +1112,47 @@ public class JetSetWilly2Converted {
     HL = 39808;
     DE = 22784;
     BC = 128;
-    while (BC-- != 0)
+    while ((BC--) != 0)
       mem[DE++] = mem[HL++];
-    int var1 = mem[23672];
-    A = var1;
-    int var2 = A;
-    int var3 = add(var2, 37);
+
+    A = mem[23672];
+    int var3 = add(A, 37);
     A = var3;
     F = var3;
-    int var4 = A;
-    mem[23672] = var4;
-    int var5 = A;
-    int var6 = cp(var5, 179);
-    F = var6;
+    mem[23672] = A;
+    F = cp(A, 179);
     if (F > 0) {
       int var44 = A - 180;
-      int var45 = var44 & 255;
-      A = var45;
+      A = var44 & 255;
       F = var44;
     }
-
-    int var7 = A;
-    L = var7;
+    L = A;
     H = 158 & 0xff;
-    int var8 = H << 8 | L;
-    int var9 = mem[var8];
-    A = var9;
-    int var10 = L;
-    int var11 = A;
-    int var12 = add(var11, var10);
+    A = mem[(H << 8) | L];
+    int var12 = add(A, L);
     A = var12;
     F = var12;
-    int var13 = A;
-    mem[34276] = var13;
-    int var14 = L;
-    C = var14;
+    mem[34276] = A;
+    C = L;
     E = 47;
-
     while (true) {
-      int var15 = E;
-      int var16 = inc(var15);
+      int var16 = inc(E);
       E = var16;
       F = var16;
-      int var17 = C;
-      A = var17;
-      int var18 = A;
-      int var19 = cp(var18, 18);
-      F = var19;
+      A = C;
+      F = cp(A, 18);
       if (F <= 0) {
-        int var20 = E;
-        A = var20;
+        A = E;
         DE = 18462;
         DE = $38545(A, DE);
-        int var21 = C;
-        A = var21;
-        int var22 = A;
-        int var23 = add(var22, 65);
+        A = C;
+        int var23 = add(A, 65);
         A = var23;
         F = var23;
         DE = 18461;
         DE = $38545(A, DE);
-
         while (true) {
           IX = 22864;
-
           do {
             try {
               int[] r4 = $34620(IX);
@@ -1825,778 +1161,487 @@ public class JetSetWilly2Converted {
               IX = r4[2];
             } catch (RuntimeException var46) {
               if (Integer.parseInt(var46.getMessage()) == 34687) {
-                int var24 = C;
-                int var25 = A | var24;
-                A = var25;
-                int var26 = A;
-                int var27 = flagZ(var26);
-                F = var27;
+                A = A | C;
+                F = flagZ(A);
                 HL = 34276;
-                int var28 = HL;
-                int var29 = mem[var28];
-                int var30 = A;
-                int var31 = cp(var30, var29);
-                F = var31;
-                return new int[]{A, F};
+                F = cp(A, mem[HL]);
+                return new int[]{ A, F };
               }
             }
-
-            int var32 = IX;
-            int var33 = inc16(var32);
-            IX = var33;
-            int var34 = IX;
-            int var35 = inc16(var34);
-            IX = var35;
-            int var36 = IX;
-            int var37 = inc16(var36);
-            IX = var37;
-            int var38 = IX & 0xff;
-            A = var38;
-            int var39 = A;
-            int var40 = cp(var39, 92);
-            F = var40;
-          } while (F != 0);
-
+            IX = inc16(IX);
+            IX = inc16(IX);
+            IX = inc16(IX);
+            A = IX & 0xff;
+            F = cp(A, 92);
+          } while (F != 0 );
         }
       }
-
       int var41 = A - 18;
-      int var42 = var41 & 255;
-      A = var42;
+      A = var41 & 255;
       F = var41;
-      int var43 = A;
-      C = var43;
+      C = A;
     }
   }
 
   public static int[] $34620(int IX) {
-    int BC, C, A, F, B, E, D;
+    int BC;
+    int C;
+    int A;
+    int F;
+    int B;
+    int E;
+    int D;
     do {
       BC = 63486;
       C = BC & 0xff;
-      int var1 = BC;
-      int var2 = in(var1, 34623);
-      A = var2;
-      int var3 = A & 15;
-      A = var3;
-      int var4 = A;
-      int var5 = flagZ(var4);
-      F = var5;
-      int var6 = A;
-      int var7 = cp(var6, 15);
-      F = var7;
-    } while (F != 0);
-
+      A = in(BC, 34623);
+      A = A & 15;
+      F = flagZ(A);
+      F = cp(A, 15);
+    } while (F != 0 );
     do {
       B = 191;
-      int var8 = B << 8 | C;
-      int var9 = in(var8, 34633);
-      A = var9;
-      int var10 = A & 1;
-      F = var10;
+      A = in((B << 8) | C, 34633);
+      F = A & 1;
       if (F == 0) {
-        int var43 = mem[22873];
-        A = var43;
-        int var44 = A & 127;
-        A = var44;
-        int var45 = A;
-        int var46 = flagZ(var45);
-        F = var46;
-        int var47 = A;
-        int var48 = cp(var47, 7);
-        F = var48;
+        A = mem[22873];
+        A = A & 127;
+        F = flagZ(A);
+        F = cp(A, 7);
         if (F != 0) {
           int var49 = A - 8;
-          int var50 = var49 & 255;
-          A = var50;
+          A = var49 & 255;
           F = var49;
-          int var51 = A & 24;
-          A = var51;
-          int var52 = A;
-          int var53 = flagZ(var52);
-          F = var53;
-          int var54 = A;
-          int var55 = _rrc(var54);
-          A = var55;
-          int var56 = A;
-          int var57 = _rrc(var56);
-          A = var57;
-          int var58 = A;
-          int var59 = _rrc(var58);
-          A = var59;
-          int var60 = A;
-          C = var60;
-          int var61 = mem[22867];
-          A = var61;
+          A = A & 24;
+          F = flagZ(A);
+          A = _rrc(A);
+          A = _rrc(A);
+          A = _rrc(A);
+          C = A;
+          A = mem[22867];
           int var62 = A - 8;
-          int var63 = var62 & 255;
-          A = var63;
+          A = var62 & 255;
           F = var62;
-          int var64 = A & 24;
-          A = var64;
-          int var65 = A;
-          int var66 = flagZ(var65);
-          F = var66;
-          int var67 = A;
-          int var68 = _rlc(var67);
-          A = var68;
-          int var69 = C;
-          int var70 = A | var69;
-          A = var70;
-          int var71 = A;
-          int var72 = flagZ(var71);
-          F = var72;
-          int var73 = A;
-          C = var73;
-          int var74 = mem[22870];
-          A = var74;
+          A = A & 24;
+          F = flagZ(A);
+          A = _rlc(A);
+          A = A | C;
+          F = flagZ(A);
+          C = A;
+          A = mem[22870];
           int var75 = A - 8;
-          int var76 = var75 & 255;
-          A = var76;
+          A = var75 & 255;
           F = var75;
-          int var77 = A & 24;
-          A = var77;
-          int var78 = A;
-          int var79 = flagZ(var78);
-          F = var79;
-          int var80 = A;
-          int var81 = _rrc(var80);
-          A = var81;
-          int var82 = C;
-          int var83 = A | var82;
-          A = var83;
-          int var84 = A;
-          int var85 = flagZ(var84);
-          F = var85;
-          int var86 = A;
-          C = var86;
-          int var87 = mem[22864];
-          A = var87;
+          A = A & 24;
+          F = flagZ(A);
+          A = _rrc(A);
+          A = A | C;
+          F = flagZ(A);
+          C = A;
+          A = mem[22864];
           int var88 = A - 8;
-          int var89 = var88 & 255;
-          A = var89;
+          A = var88 & 255;
           F = var88;
-          int var90 = A & 24;
-          A = var90;
-          int var91 = A;
-          int var92 = flagZ(var91);
-          F = var92;
-          int var93 = A;
-          int var94 = _rlc(var93);
-          A = var94;
-          int var95 = A;
-          int var96 = _rlc(var95);
-          A = var96;
-          int var97 = A;
-          int var98 = _rlc(var97);
-          A = var98;
+          A = A & 24;
+          F = flagZ(A);
+          A = _rlc(A);
+          A = _rlc(A);
+          A = _rlc(A);
           throw new RuntimeException("34687");
         }
       }
-
       int var11 = IX + 0;
-      int var12 = mem[var11] | 128;
-      mem[var11] = var12;
+      mem[var11] = mem[var11] | 128;
       int var13 = IX + 1;
-      int var14 = mem[var13] | 128;
-      mem[var13] = var14;
+      mem[var13] = mem[var13] | 128;
       int var15 = IX + 32;
-      int var16 = mem[var15] | 128;
-      mem[var15] = var16;
+      mem[var15] = mem[var15] | 128;
       int var17 = IX + 33;
-      int var18 = mem[var17] | 128;
-      mem[var17] = var18;
+      mem[var17] = mem[var17] | 128;
       BC = 63486;
       C = BC & 0xff;
-      int var19 = BC;
-      int var20 = in(var19, 34712);
-      A = var20;
-      int var21 = A & 15;
-      A = var21;
-      int var22 = A;
-      int var23 = flagZ(var22);
-      F = var23;
+      A = in(BC, 34712);
+      A = A & 15;
+      F = flagZ(A);
       E = 8;
-      int var24 = A;
-      int var25 = cp(var24, 14);
-      F = var25;
+      F = cp(A, 14);
       if (F == 0) {
         break;
       }
-
       E = 16;
-      int var37 = A;
-      int var38 = cp(var37, 13);
-      F = var38;
+      F = cp(A, 13);
       if (F == 0) {
         break;
       }
-
       E = 24;
-      int var39 = A;
-      int var40 = cp(var39, 11);
-      F = var40;
+      F = cp(A, 11);
       if (F == 0) {
         break;
       }
-
       E = 32;
-      int var41 = A;
-      int var42 = cp(var41, 7);
-      F = var42;
-    } while (F != 0);
-
-    int var26 = IX + 0;
-    int var27 = E;
-    mem[var26] = var27;
-    int var28 = IX + 1;
-    int var29 = E;
-    mem[var28] = var29;
-    int var30 = IX + 32;
-    int var31 = E;
-    mem[var30] = var31;
-    int var32 = IX + 33;
-    int var33 = E;
-    mem[var32] = var33;
+      F = cp(A, 7);
+    } while (F != 0 );
+    mem[IX + 0] = E;
+    mem[IX + 1] = E;
+    mem[IX + 32] = E;
+    mem[IX + 33] = E;
     BC = 24;
     C = BC & 0xff;
-
     do {
       do {
-        int var34 = (BC >> 8) - 1 & 255;
-        BC = BC & 0xff | ((var34 & 0xff) << 8);
-      } while (BC >> 8 != 0);
-
-      int var35 = BC & 0xff;
-      int var36 = dec(var35);
-      BC = BC & 0xff00 | var36;
+        BC = (BC & 0xff) | (((((BC >> 8) - 1) & 255) & 0xff) << 8);
+      } while ((BC >> 8) != 0 );
+      int var36 = dec(BC & 0xff);
+      BC = (BC & 0xff00) | var36;
       F = var36;
-    } while (F != 0);
-
-    return new int[]{A, C, IX};
+    } while (F != 0 );
+    return new int[]{ A, C, IX };
   }
 
   public void $35211() {
-    int A, B, C, D, E, H, L, IX, IY, F, HL, DE, BC;
-
-    int var1 = mem[34252];
-    A = var1;
+    int A;
+    int B;
+    int C;
+    int D;
+    int E;
+    int H;
+    int L;
+    int IX;
+    int IY;
+    int F;
+    int HL;
+    int DE;
+    int BC;
+    A = mem[34252];
     HL = 20640;
-    int var2 = A;
-    int var3 = A | var2;
-    A = var3;
-    int var4 = A;
-    int var5 = flagZ(var4);
-    F = var5;
+    A = A | A;
+    F = flagZ(A);
     if (F != 0) {
-      int var6 = A;
-      B = var6;
-
+      B = A;
       do {
         C = 0;
-        int var7 = HL;
-        push(var7);
-        int var8 = B << 8 | C;
-        push(var8);
-        int var9 = mem[34273];
-        A = var9;
-        int var10 = A;
-        int var11 = _rlc(var10);
-        A = var11;
-        int var12 = A;
-        int var13 = _rlc(var12);
-        A = var13;
-        int var14 = A;
-        int var15 = _rlc(var14);
-        A = var15;
-        int var16 = A & 96;
-        A = var16;
-        int var17 = A;
-        int var18 = flagZ(var17);
-        F = var18;
-        int var19 = A;
-        E = var19;
+        push(HL);
+        push((B << 8) | C);
+        A = mem[34273];
+        A = _rlc(A);
+        A = _rlc(A);
+        A = _rlc(A);
+        A = A & 96;
+        F = flagZ(A);
+        E = A;
         D = 157;
-        DE = D << 8 | E;
+        DE = (D << 8) | E;
         int[] r1 = $37974(C, DE, HL);
         F = r1[0];
         DE = r1[1];
-        int var20 = pop();
-        BC = var20;
+        BC = pop();
         B = BC >> 8;
         C = BC & 0xff;
-        int var21 = pop();
-        HL = var21;
-        int var22 = HL;
-        int var23 = inc16(var22);
-        HL = var23;
-        int var24 = HL;
-        int var25 = inc16(var24);
-        HL = var25;
-        int var26 = B - 1 & 255;
-        B = var26;
-      } while (B != 0);
-
+        HL = pop();
+        HL = inc16(HL);
+        HL = inc16(HL);
+        B = (B - 1) & 255;
+      } while (B != 0 );
     }
   }
 
   public void $35563() {
-    int A, B, C, D, E, H, L, IX, IY, F, HL, DE, BC;
-
+    int A;
+    int B;
+    int C;
+    int D;
+    int E;
+    int H;
+    int L;
+    int IX;
+    int IY;
+    int F;
+    int HL;
+    int DE;
+    int BC;
     HL = 22528;
-    int var1 = HL;
-    int var2 = mem[var1];
-    A = var2;
-    int var3 = A & 7;
-    A = var3;
-    int var4 = A;
-    int var5 = flagZ(var4);
-    F = var5;
-
+    A = mem[HL];
+    A = A & 7;
+    F = flagZ(A);
     do {
-      int var6 = HL;
-      int var7 = mem[var6];
-      A = var7;
-      int var8 = A;
-      int var9 = add(var8, 3);
+      A = mem[HL];
+      int var9 = add(A, 3);
       A = var9;
       F = var9;
-      int var10 = A & 7;
-      A = var10;
-      int var11 = A;
-      int var12 = flagZ(var11);
-      F = var12;
-      int var13 = A;
-      D = var13;
-      int var14 = HL;
-      int var15 = mem[var14];
-      A = var15;
-      int var16 = A;
-      int var17 = add(var16, 24);
+      A = A & 7;
+      F = flagZ(A);
+      D = A;
+      A = mem[HL];
+      int var17 = add(A, 24);
       A = var17;
       F = var17;
-      int var18 = A & 184;
-      A = var18;
-      int var19 = A;
-      int var20 = flagZ(var19);
-      F = var20;
-      int var21 = D;
-      int var22 = A | var21;
-      A = var22;
-      int var23 = A;
-      int var24 = flagZ(var23);
-      F = var24;
-      int var25 = A;
-      int var26 = HL;
-      mem[var26] = var25;
-      int var27 = HL;
-      int var28 = inc16(var27);
-      HL = var28;
-      int var29 = HL >> 8;
-      A = var29;
-      int var30 = A;
-      int var31 = cp(var30, 91);
-      F = var31;
-    } while (F != 0);
-
+      A = A & 184;
+      F = flagZ(A);
+      A = A | D;
+      F = flagZ(A);
+      mem[HL] = A;
+      HL = inc16(HL);
+      A = HL >> 8;
+      F = cp(A, 91);
+    } while (F != 0 );
   }
 
   public void $36147() {
-    int IX, A;
+    int IX;
+    int A;
     $36203();
     IX = 24064;
     A = 112;
-    int var1 = A;
-    mem[36189] = var1;
+    mem[36189] = A;
     $36171(IX);
     IX = 24320;
     A = 120;
-    int var2 = A;
-    mem[36189] = var2;
+    mem[36189] = A;
     $36171(IX);
   }
 
   public void $36171(int IX) {
-    int BC, DE, HL, B, C, D, E, H, L, A, F;
+    int BC;
+    int DE;
+    int HL;
+    int B;
+    int C;
+    int D;
+    int E;
+    int H;
+    int L;
+    int A;
+    int F;
     C = 0;
-
     do {
-      int var1 = C;
-      E = var1;
-      int var2 = IX + 0;
-      int var3 = mem[var2];
-      A = var3;
+      E = C;
+      A = mem[IX + 0];
       HL = 32928;
       BC = 54;
-      while (BC-- != 0 && mem[HL++] != A) ;
-      int var4 = E;
-      C = var4;
+      while (((BC--) != 0) && (mem[HL++] != A));
+      C = E;
       B = 8;
-
       D = mem[36188 + 1];
-
       do {
-        int var5 = HL;
-        int var6 = mem[var5];
-        A = var6;
-        int var7 = A;
-        int var8 = D << 8 | E;
-        mem[var8] = var7;
-        int var9 = HL;
-        int var10 = inc16(var9);
-        HL = var10;
-        int var11 = D;
-        int var12 = inc(var11);
+        A = mem[HL];
+        mem[(D << 8) | E] = A;
+        HL = inc16(HL);
+        int var12 = inc(D);
         D = var12;
         F = var12;
-        int var13 = B - 1 & 255;
-        B = var13;
-      } while (B != 0);
-
-      int var14 = IX;
-      int var15 = inc16(var14);
-      IX = var15;
-      int var16 = C;
-      int var17 = inc(var16);
+        B = (B - 1) & 255;
+      } while (B != 0 );
+      IX = inc16(IX);
+      int var17 = inc(C);
       C = var17;
       F = var17;
-    } while (F != 0);
-
+    } while (F != 0 );
   }
 
   public void $36203() {
-    int A, B, C, D, E, H, L, IX, IY, F, HL, DE, BC;
-
+    int A;
+    int B;
+    int C;
+    int D;
+    int E;
+    int H;
+    int L;
+    int IX;
+    int IY;
+    int F;
+    int HL;
+    int DE;
+    int BC;
     HL = 32768;
     IX = 24064;
-
     do {
-      int var1 = HL;
-      int var2 = mem[var1];
-      A = var2;
-      int var3 = A;
-      int var4 = _rlc(var3);
-      A = var4;
-      int var5 = A;
-      int var6 = _rlc(var5);
-      A = var6;
+      A = mem[HL];
+      A = _rlc(A);
+      A = _rlc(A);
       IX = $36288(A, IX);
-      int var7 = HL;
-      int var8 = mem[var7];
-      A = var8;
-      int var9 = A;
-      int var10 = _rrc(var9);
-      A = var10;
-      int var11 = A;
-      int var12 = _rrc(var11);
-      A = var12;
-      int var13 = A;
-      int var14 = _rrc(var13);
-      A = var14;
-      int var15 = A;
-      int var16 = _rrc(var15);
-      A = var16;
+      A = mem[HL];
+      A = _rrc(A);
+      A = _rrc(A);
+      A = _rrc(A);
+      A = _rrc(A);
       IX = $36288(A, IX);
-      int var17 = HL;
-      int var18 = mem[var17];
-      A = var18;
-      int var19 = A;
-      int var20 = _rrc(var19);
-      A = var20;
-      int var21 = A;
-      int var22 = _rrc(var21);
-      A = var22;
+      A = mem[HL];
+      A = _rrc(A);
+      A = _rrc(A);
       IX = $36288(A, IX);
-      int var23 = HL;
-      int var24 = mem[var23];
-      A = var24;
+      A = mem[HL];
       IX = $36288(A, IX);
-      int var25 = HL;
-      int var26 = inc16(var25);
-      HL = var26;
-      int var27 = HL & 0xff;
-      A = var27;
-      int var28 = A & 128;
-      A = var28;
-      int var29 = A;
-      int var30 = flagZ(var29);
-      F = var30;
-    } while (F == 0);
-
-    int var31 = mem[32985];
-    A = var31;
-    int var32 = A;
-    int var33 = A | var32;
-    A = var33;
-    int var34 = A;
-    int var35 = flagZ(var34);
-    F = var35;
+      HL = inc16(HL);
+      A = HL & 0xff;
+      A = A & 128;
+      F = flagZ(A);
+    } while (F == 0 );
+    A = mem[32985];
+    A = A | A;
+    F = flagZ(A);
     if (F != 0) {
-      int var60 = (mem[32983 + 1] << 8) + mem[32983];
-      HL = var60;
-      int var61 = A;
-      B = var61;
-      int var62 = mem[32973];
-      A = var62;
-
+      HL = (mem[32983 + 1] << 8) + mem[32983];
+      B = A;
+      A = mem[32973];
       do {
-        int var63 = A;
-        int var64 = HL;
-        mem[var64] = var63;
-        int var65 = HL;
-        int var66 = inc16(var65);
-        HL = var66;
-        int var67 = B - 1 & 255;
-        B = var67;
-      } while (B != 0);
+        mem[HL] = A;
+        HL = inc16(HL);
+        B = (B - 1) & 255;
+      } while (B != 0 );
     }
-
-    int var36 = mem[32989];
-    A = var36;
-    int var37 = A;
-    int var38 = A | var37;
-    A = var38;
-    int var39 = A;
-    int var40 = flagZ(var39);
-    F = var40;
+    A = mem[32989];
+    A = A | A;
+    F = flagZ(A);
     if (F != 0) {
-      int var41 = (mem[32987 + 1] << 8) + mem[32987];
-      HL = var41;
-      int var42 = mem[32986];
-      A = var42;
-      int var43 = A & 1;
-      A = var43;
-      int var44 = A;
-      int var45 = flagZ(var44);
-      F = var45;
-      int var46 = A;
-      int var47 = _rlc(var46);
-      A = var47;
-      int var48 = A;
-      int var49 = add(var48, 223);
+      HL = (mem[32987 + 1] << 8) + mem[32987];
+      A = mem[32986];
+      A = A & 1;
+      F = flagZ(A);
+      A = _rlc(A);
+      int var49 = add(A, 223);
       A = var49;
       F = var49;
-      int var50 = A;
-      E = var50;
+      E = A;
       D = 255;
-      int var51 = mem[32989];
-      A = var51;
-      int var52 = A;
-      B = var52;
-      int var53 = mem[32964];
-      A = var53;
-
+      A = mem[32989];
+      B = A;
+      A = mem[32964];
       do {
-        int var54 = A;
-        int var55 = HL;
-        mem[var55] = var54;
-        int var56 = D << 8 | E;
-        int var57 = HL;
-        int var58 = add16(var57, var56);
-        HL = var58;
-        int var59 = B - 1 & 255;
-        B = var59;
-      } while (B != 0);
-
+        mem[HL] = A;
+        HL = add16(HL, (D << 8) | E);
+        B = (B - 1) & 255;
+      } while (B != 0 );
     }
   }
 
   public int $36288(int A, int IX) {
-    int B, C, D, E, H, L, IY, F, HL, DE, BC;
-
-    int var1 = A & 3;
-    A = var1;
-    int var2 = A;
-    int var3 = flagZ(var2);
-    F = var3;
-    int var4 = A;
-    C = var4;
-    int var5 = A;
-    int var6 = _rlc(var5);
-    A = var6;
-    int var7 = A;
-    int var8 = _rlc(var7);
-    A = var8;
-    int var9 = A;
-    int var10 = _rlc(var9);
-    A = var10;
-    int var11 = C;
-    int var12 = A;
-    int var13 = add(var12, var11);
+    int B;
+    int C;
+    int D;
+    int E;
+    int H;
+    int L;
+    int IY;
+    int F;
+    int HL;
+    int DE;
+    int BC;
+    A = A & 3;
+    F = flagZ(A);
+    C = A;
+    A = _rlc(A);
+    A = _rlc(A);
+    A = _rlc(A);
+    int var13 = add(A, C);
     A = var13;
     F = var13;
-    int var14 = A;
-    int var15 = add(var14, 160);
+    int var15 = add(A, 160);
     A = var15;
     F = var15;
-    int var16 = A;
-    E = var16;
+    E = A;
     D = 128;
-    int var17 = D << 8 | E;
-    int var18 = mem[var17];
-    A = var18;
-    int var19 = IX + 0;
-    int var20 = A;
-    mem[var19] = var20;
-    int var21 = IX;
-    int var22 = inc16(var21);
-    IX = var22;
+    A = mem[(D << 8) | E];
+    mem[IX + 0] = A;
+    IX = inc16(IX);
     return IX;
   }
 
   public void $36307() {
-    int A, B, C = 0, D, E, H, L, IX, IY, F, HL = 0, DE, BC;
-
-    label213:
-    {
-      label226:
-      {
-        int var1 = mem[34262];
-        A = var1;
-        int var2 = A;
-        int var3 = dec(var2);
+    int A;
+    int B;
+    int C = 0;
+    int D;
+    int E;
+    int H;
+    int L;
+    int IX;
+    int IY;
+    int F;
+    int HL = 0;
+    int DE;
+    int BC;
+    label213 : {
+      label226 : {
+        A = mem[34262];
+        int var3 = dec(A);
         A = var3;
         F = var3;
-        int var4 = A & 128;
-        F = var4;
+        F = A & 128;
         if (F != 0) {
-          label223:
-          {
-            int var430 = mem[34257];
-            A = var430;
-            int var431 = A;
-            int var432 = cp(var431, 1);
-            F = var432;
+          label223 : {
+            A = mem[34257];
+            F = cp(A, 1);
             if (F == 0) {
-              int var520 = mem[34261];
-              A = var520;
-              int var521 = A & 254;
-              A = var521;
-              int var522 = A;
-              int var523 = flagZ(var522);
-              F = var523;
+              A = mem[34261];
+              A = A & 254;
+              F = flagZ(A);
               int var524 = A - 8;
-              int var525 = var524 & 255;
-              A = var525;
+              A = var524 & 255;
               F = var524;
               HL = 34255;
-              int var526 = HL;
-              int var527 = mem[var526];
-              int var528 = A;
-              int var529 = add(var528, var527);
+              int var529 = add(A, mem[HL]);
               A = var529;
               F = var529;
-              int var530 = A;
-              int var531 = HL;
-              mem[var531] = var530;
-              int var532 = A;
-              int var533 = cp(var532, 240);
-              F = var533;
+              mem[HL] = A;
+              F = cp(A, 240);
               if (F >= 0) {
                 $38064();
                 return;
               }
-
               int[] r3 = $36508(A);
               H = r3[0];
               L = r3[1];
-              int var534 = mem[32946];
-              A = var534;
-              int var535 = H << 8 | L;
-              int var536 = mem[var535];
-              int var537 = A;
-              int var538 = cp(var537, var536);
-              F = var538;
+              A = mem[32946];
+              F = cp(A, mem[(H << 8) | L]);
               if (F == 0) {
                 break label213;
               }
-
-              int var550 = H << 8 | L;
-              int var551 = inc16(var550);
-              HL = var551;
-              int var552 = HL;
-              int var553 = mem[var552];
-              int var554 = A;
-              int var555 = cp(var554, var553);
-              F = var555;
+              HL = inc16((H << 8) | L);
+              F = cp(A, mem[HL]);
               if (F == 0) {
                 break label213;
               }
-
-              int var556 = mem[34261];
-              A = var556;
-              int var557 = A;
-              int var558 = inc(var557);
+              A = mem[34261];
+              int var558 = inc(A);
               A = var558;
               F = var558;
-              int var559 = A;
-              mem[34261] = var559;
+              mem[34261] = A;
               int var560 = A - 8;
-              int var561 = var560 & 255;
-              A = var561;
+              A = var560 & 255;
               F = var560;
               if (F < 0) {
-                int var587 = -A & 255;
-                A = var587;
+                A = (-A) & 255;
               }
-
-              int var562 = A;
-              int var563 = inc(var562);
+              int var563 = inc(A);
               A = var563;
               F = var563;
-              int var564 = A;
-              int var565 = _rlc(var564);
-              A = var565;
-              int var566 = A;
-              int var567 = _rlc(var566);
-              A = var567;
-              int var568 = A;
-              int var569 = _rlc(var568);
-              A = var569;
-              int var570 = A;
-              D = var570;
+              A = _rlc(A);
+              A = _rlc(A);
+              A = _rlc(A);
+              D = A;
               C = 32;
-              int var571 = mem[32990];
-              A = var571;
-
+              A = mem[32990];
               while (true) {
-                int var572 = A ^ 24;
-                A = var572;
-                int var573 = A;
-                int var574 = flagZ(var573);
-                F = var574;
-                int var575 = D;
-                B = var575;
-
+                A = A ^ 24;
+                F = flagZ(A);
+                B = D;
                 do {
-                  int var576 = B - 1 & 255;
-                  B = var576;
-                } while (B != 0);
-
-                int var577 = C;
-                int var578 = dec(var577);
+                  B = (B - 1) & 255;
+                } while (B != 0 );
+                int var578 = dec(C);
                 C = var578;
                 F = var578;
                 if (F == 0) {
-                  int var579 = mem[34261];
-                  A = var579;
-                  int var580 = A;
-                  int var581 = cp(var580, 18);
-                  F = var581;
+                  A = mem[34261];
+                  F = cp(A, 18);
                   if (F == 0) {
                     A = 6;
-                    int var582 = A;
-                    mem[34257] = var582;
+                    mem[34257] = A;
                     return;
                   }
-
-                  int var583 = A;
-                  int var584 = cp(var583, 16);
-                  F = var584;
+                  F = cp(A, 16);
                   if (F != 0) {
-                    int var585 = A;
-                    int var586 = cp(var585, 13);
-                    F = var586;
+                    F = cp(A, 13);
                     if (F != 0) {
                       break label226;
                     }
@@ -2605,193 +1650,98 @@ public class JetSetWilly2Converted {
                 }
               }
             }
-
-            int var433 = mem[34255];
-            A = var433;
-            int var434 = A & 14;
-            A = var434;
-            int var435 = A;
-            int var436 = flagZ(var435);
-            F = var436;
+            A = mem[34255];
+            A = A & 14;
+            F = flagZ(A);
             if (F == 0) {
-              int var475 = (mem[34259 + 1] << 8) + mem[34259];
-              HL = var475;
+              HL = (mem[34259 + 1] << 8) + mem[34259];
               DE = 64;
-              int var476 = DE;
-              int var477 = HL;
-              int var478 = add16(var477, var476);
-              HL = var478;
-              int var479 = HL >> 8 & 2;
-              F = var479;
+              HL = add16(HL, DE);
+              F = (HL >> 8) & 2;
               if (F != 0) {
-                int var480 = mem[33004];
-                A = var480;
-                int var481 = A;
-                mem[33824] = var481;
-                int var482 = A;
-                int var483 = A ^ var482;
-                A = var483;
-                int var484 = A;
-                int var485 = flagZ(var484);
-                F = var485;
-                int var486 = A;
-                mem[34255] = var486;
-                int var487 = mem[34257];
-                A = var487;
-                int var488 = A;
-                int var489 = cp(var488, 11);
-                F = var489;
+                A = mem[33004];
+                mem[33824] = A;
+                A = A ^ A;
+                F = flagZ(A);
+                mem[34255] = A;
+                A = mem[34257];
+                F = cp(A, 11);
                 if (F < 0) {
                   A = 2;
-                  int var496 = A;
-                  mem[34257] = var496;
+                  mem[34257] = A;
                 }
-
-                int var490 = mem[34259];
-                A = var490;
-                int var491 = A & 31;
-                A = var491;
-                int var492 = A;
-                int var493 = flagZ(var492);
-                F = var493;
-                int var494 = A;
-                mem[34259] = var494;
+                A = mem[34259];
+                A = A & 31;
+                F = flagZ(A);
+                mem[34259] = A;
                 A = 92;
-                int var495 = A;
-                mem[34260] = var495;
+                mem[34260] = A;
                 throw new RuntimeException("38134");
               }
-
-              int var497 = mem[32955];
-              A = var497;
-              int var498 = HL;
-              int var499 = mem[var498];
-              int var500 = A;
-              int var501 = cp(var500, var499);
-              F = var501;
+              A = mem[32955];
+              F = cp(A, mem[HL]);
               if (F != 0) {
-                int var502 = HL;
-                int var503 = inc16(var502);
-                HL = var503;
-                int var504 = mem[32955];
-                A = var504;
-                int var505 = HL;
-                int var506 = mem[var505];
-                int var507 = A;
-                int var508 = cp(var507, var506);
-                F = var508;
+                HL = inc16(HL);
+                A = mem[32955];
+                F = cp(A, mem[HL]);
                 if (F != 0) {
-                  int var509 = mem[32928];
-                  A = var509;
-                  int var510 = HL;
-                  int var511 = mem[var510];
-                  int var512 = A;
-                  int var513 = cp(var512, var511);
-                  F = var513;
-                  int var514 = HL;
-                  int var515 = dec16(var514);
-                  HL = var515;
+                  A = mem[32928];
+                  F = cp(A, mem[HL]);
+                  HL = dec16(HL);
                   if (F != 0) {
                     break label223;
                   }
-
-                  int var516 = HL;
-                  int var517 = mem[var516];
-                  int var518 = A;
-                  int var519 = cp(var518, var517);
-                  F = var519;
+                  F = cp(A, mem[HL]);
                   if (F != 0) {
                     break label223;
                   }
                 }
               }
             }
-
-            int var437 = mem[34257];
-            A = var437;
-            int var438 = A;
-            int var439 = cp(var438, 1);
-            F = var439;
+            A = mem[34257];
+            F = cp(A, 1);
             if (F != 0) {
               HL = 34256;
-              int var440 = HL;
-              int var441 = mem[var440] & -3;
-              int var442 = HL;
-              mem[var442] = var441;
-              int var443 = mem[34257];
-              A = var443;
-              int var444 = A;
-              int var445 = A | var444;
-              A = var445;
-              int var446 = A;
-              int var447 = flagZ(var446);
-              F = var447;
+              mem[HL] = mem[HL] & (-3);
+              A = mem[34257];
+              A = A | A;
+              F = flagZ(A);
               if (F == 0) {
                 A = 2;
-                int var448 = A;
-                mem[34257] = var448;
+                mem[34257] = A;
                 return;
               }
-
-              int var449 = A;
-              int var450 = inc(var449);
+              int var450 = inc(A);
               A = var450;
               F = var450;
-              int var451 = A;
-              int var452 = cp(var451, 16);
-              F = var452;
+              F = cp(A, 16);
               if (F == 0) {
                 A = 12;
               }
-
-              int var453 = A;
-              mem[34257] = var453;
-              int var454 = A;
-              int var455 = _rlc(var454);
-              A = var455;
-              int var456 = A;
-              int var457 = _rlc(var456);
-              A = var457;
-              int var458 = A;
-              int var459 = _rlc(var458);
-              A = var459;
-              int var460 = A;
-              int var461 = _rlc(var460);
-              A = var461;
-              int var462 = A;
-              D = var462;
+              mem[34257] = A;
+              A = _rlc(A);
+              A = _rlc(A);
+              A = _rlc(A);
+              A = _rlc(A);
+              D = A;
               C = 32;
-              int var463 = mem[32990];
-              A = var463;
-
+              A = mem[32990];
               do {
-                int var464 = A ^ 24;
-                A = var464;
-                int var465 = A;
-                int var466 = flagZ(var465);
-                F = var466;
-                int var467 = D;
-                B = var467;
-
+                A = A ^ 24;
+                F = flagZ(A);
+                B = D;
                 do {
-                  int var468 = B - 1 & 255;
-                  B = var468;
-                } while (B != 0);
-
-                int var469 = C;
-                int var470 = dec(var469);
+                  B = (B - 1) & 255;
+                } while (B != 0 );
+                int var470 = dec(C);
                 C = var470;
                 F = var470;
-              } while (F != 0);
-
-              int var471 = mem[34255];
-              A = var471;
-              int var472 = A;
-              int var473 = add(var472, 8);
+              } while (F != 0 );
+              A = mem[34255];
+              int var473 = add(A, 8);
               A = var473;
               F = var473;
-              int var474 = A;
-              mem[34255] = var474;
+              mem[34255] = A;
               int[] r3 = $36508(A);
               H = r3[0];
               L = r3[1];
@@ -2800,1634 +1750,824 @@ public class JetSetWilly2Converted {
             break label226;
           }
         }
-
         E = 255;
-        int var5 = mem[34262];
-        A = var5;
-        int var6 = A;
-        int var7 = dec(var6);
+        A = mem[34262];
+        int var7 = dec(A);
         A = var7;
         F = var7;
-        int var8 = A & 128;
-        F = var8;
+        F = A & 128;
         if (F != 0) {
-          label225:
-          {
-            int var407 = mem[34257];
-            A = var407;
-            int var408 = A;
-            int var409 = cp(var408, 12);
-            F = var409;
+          label225 : {
+            A = mem[34257];
+            F = cp(A, 12);
             if (F >= 0) {
               throw new RuntimeException("37048");
             }
-
-            int var410 = A;
-            int var411 = A ^ var410;
-            A = var411;
-            int var412 = A;
-            int var413 = flagZ(var412);
-            F = var413;
-            int var414 = A;
-            mem[34257] = var414;
-            int var415 = mem[32973];
-            A = var415;
-            int var416 = HL;
-            int var417 = mem[var416];
-            int var418 = A;
-            int var419 = cp(var418, var417);
-            F = var419;
+            A = A ^ A;
+            F = flagZ(A);
+            mem[34257] = A;
+            A = mem[32973];
+            F = cp(A, mem[HL]);
             if (F != 0) {
-              int var424 = HL;
-              int var425 = inc16(var424);
-              HL = var425;
-              int var426 = HL;
-              int var427 = mem[var426];
-              int var428 = A;
-              int var429 = cp(var428, var427);
-              F = var429;
+              HL = inc16(HL);
+              F = cp(A, mem[HL]);
               if (F != 0) {
                 break label225;
               }
             }
-
-            int var420 = mem[32982];
-            A = var420;
+            A = mem[32982];
             int var421 = A - 3;
-            int var422 = var421 & 255;
-            A = var422;
+            A = var421 & 255;
             F = var421;
-            int var423 = A;
-            E = var423;
+            E = A;
           }
         }
-
         BC = 57342;
-        int var9 = BC;
-        int var10 = in(var9, 36605);
-        A = var10;
-        int var11 = A & 31;
-        A = var11;
-        int var12 = A;
-        int var13 = flagZ(var12);
-        F = var13;
-        int var14 = A | 32;
-        A = var14;
-        int var15 = A;
-        int var16 = flagZ(var15);
-        F = var16;
-        int var17 = E;
-        int var18 = A & var17;
-        A = var18;
-        int var19 = A;
-        int var20 = flagZ(var19);
-        F = var20;
-        int var21 = A;
-        E = var21;
-        int var22 = mem[34271];
-        A = var22;
-        int var23 = A & 2;
-        A = var23;
-        int var24 = A;
-        int var25 = flagZ(var24);
-        F = var25;
-        int var26 = A;
-        int var27 = _rrc(var26);
-        A = var27;
-        int var28 = E;
-        int var29 = A ^ var28;
-        A = var29;
-        int var30 = A;
-        int var31 = flagZ(var30);
-        F = var31;
-        int var32 = A;
-        E = var32;
+        A = in(BC, 36605);
+        A = A & 31;
+        F = flagZ(A);
+        A = A | 32;
+        F = flagZ(A);
+        A = A & E;
+        F = flagZ(A);
+        E = A;
+        A = mem[34271];
+        A = A & 2;
+        F = flagZ(A);
+        A = _rrc(A);
+        A = A ^ E;
+        F = flagZ(A);
+        E = A;
         BC = 64510;
-        int var33 = BC;
-        int var34 = in(var33, 36624);
-        A = var34;
-        int var35 = A & 31;
-        A = var35;
-        int var36 = A;
-        int var37 = flagZ(var36);
-        F = var37;
-        int var38 = A;
-        int var39 = _rlc(var38);
-        A = var39;
-        int var40 = A | 1;
-        A = var40;
-        int var41 = A;
-        int var42 = flagZ(var41);
-        F = var42;
-        int var43 = E;
-        int var44 = A & var43;
-        A = var44;
-        int var45 = A;
-        int var46 = flagZ(var45);
-        F = var46;
-        int var47 = A;
-        E = var47;
+        A = in(BC, 36624);
+        A = A & 31;
+        F = flagZ(A);
+        A = _rlc(A);
+        A = A | 1;
+        F = flagZ(A);
+        A = A & E;
+        F = flagZ(A);
+        E = A;
         B = 231;
-        int var48 = B << 8 | BC & 0xff;
-        int var49 = in(var48, 36636);
-        A = var49;
-        int var50 = A;
-        int var51 = _rrc(var50);
-        A = var51;
-        int var52 = A | 247;
-        A = var52;
-        int var53 = A;
-        int var54 = flagZ(var53);
-        F = var54;
-        int var55 = E;
-        int var56 = A & var55;
-        A = var56;
-        int var57 = A;
-        int var58 = flagZ(var57);
-        F = var58;
-        int var59 = A;
-        E = var59;
+        A = in((B << 8) | (BC & 0xff), 36636);
+        A = _rrc(A);
+        A = A | 247;
+        F = flagZ(A);
+        A = A & E;
+        F = flagZ(A);
+        E = A;
         B = 239;
-        int var60 = B << 8 | BC & 0xff;
-        int var61 = in(var60, 36645);
-        A = var61;
-        int var62 = A | 251;
-        A = var62;
-        int var63 = A;
-        int var64 = flagZ(var63);
-        F = var64;
-        int var65 = E;
-        int var66 = A & var65;
-        A = var66;
-        int var67 = A;
-        int var68 = flagZ(var67);
-        F = var68;
-        int var69 = A;
-        E = var69;
-        int var70 = B << 8 | C;
-        int var71 = in(var70, 36651);
-        A = var71;
-        int var72 = A;
-        int var73 = _rrc(var72);
-        A = var73;
-        int var74 = A | 251;
-        A = var74;
-        int var75 = A;
-        int var76 = flagZ(var75);
-        F = var76;
-        int var77 = E;
-        int var78 = A & var77;
-        A = var78;
-        int var79 = A;
-        int var80 = flagZ(var79);
-        F = var80;
-        int var81 = A;
-        E = var81;
-        int var82 = mem[34254];
-        A = var82;
-        int var83 = A;
-        int var84 = A | var83;
-        A = var84;
-        int var85 = A;
-        int var86 = flagZ(var85);
-        F = var86;
+        A = in((B << 8) | (BC & 0xff), 36645);
+        A = A | 251;
+        F = flagZ(A);
+        A = A & E;
+        F = flagZ(A);
+        E = A;
+        A = in((B << 8) | C, 36651);
+        A = _rrc(A);
+        A = A | 251;
+        F = flagZ(A);
+        A = A & E;
+        F = flagZ(A);
+        E = A;
+        A = mem[34254];
+        A = A | A;
+        F = flagZ(A);
         if (F != 0) {
           BC = 31;
-          int var395 = BC;
-          int var396 = in(var395, 36667);
-          A = var396;
-          int var397 = A & 3;
-          A = var397;
-          int var398 = A;
-          int var399 = flagZ(var398);
-          F = var399;
-          int var400 = ~A;
-          A = var400;
-          int var401 = A;
-          F = var401;
-          int var402 = E;
-          int var403 = A & var402;
-          A = var403;
-          int var404 = A;
-          int var405 = flagZ(var404);
-          F = var405;
-          int var406 = A;
-          E = var406;
+          A = in(BC, 36667);
+          A = A & 3;
+          F = flagZ(A);
+          A = ~A;
+          F = A;
+          A = A & E;
+          F = flagZ(A);
+          E = A;
         }
-
         C = 0;
-        int var87 = E;
-        A = var87;
-        int var88 = A & 42;
-        A = var88;
-        int var89 = A;
-        int var90 = flagZ(var89);
-        F = var90;
-        int var91 = A;
-        int var92 = cp(var91, 42);
-        F = var92;
+        A = E;
+        A = A & 42;
+        F = flagZ(A);
+        F = cp(A, 42);
         if (F != 0) {
           C = 4;
-          int var390 = A;
-          int var391 = A ^ var390;
-          A = var391;
-          int var392 = A;
-          int var393 = flagZ(var392);
-          F = var393;
-          int var394 = A;
-          mem[34272] = var394;
+          A = A ^ A;
+          F = flagZ(A);
+          mem[34272] = A;
         }
-
-        int var93 = E;
-        A = var93;
-        int var94 = A & 21;
-        A = var94;
-        int var95 = A;
-        int var96 = flagZ(var95);
-        F = var96;
-        int var97 = A;
-        int var98 = cp(var97, 21);
-        F = var98;
+        A = E;
+        A = A & 21;
+        F = flagZ(A);
+        F = cp(A, 21);
         if (F != 0) {
-          int var384 = C | 8;
-          C = var384;
-          int var385 = A;
-          int var386 = A ^ var385;
-          A = var386;
-          int var387 = A;
-          int var388 = flagZ(var387);
-          F = var388;
-          int var389 = A;
-          mem[34272] = var389;
+          C = C | 8;
+          A = A ^ A;
+          F = flagZ(A);
+          mem[34272] = A;
         }
-
-        int var99 = mem[34256];
-        A = var99;
-        int var100 = C;
-        int var101 = A;
-        int var102 = add(var101, var100);
+        A = mem[34256];
+        int var102 = add(A, C);
         A = var102;
         F = var102;
-        int var103 = A;
-        C = var103;
+        C = A;
         B = 0;
         HL = 33825;
-        int var104 = B << 8 | C;
-        int var105 = HL;
-        int var106 = add16(var105, var104);
-        HL = var106;
-        int var107 = HL;
-        int var108 = mem[var107];
-        A = var108;
-        int var109 = A;
-        mem[34256] = var109;
+        HL = add16(HL, (B << 8) | C);
+        A = mem[HL];
+        mem[34256] = A;
         BC = 32510;
-        int var110 = BC;
-        int var111 = in(var110, 36720);
-        A = var111;
-        int var112 = A & 31;
-        A = var112;
-        int var113 = A;
-        int var114 = flagZ(var113);
-        F = var114;
-        int var115 = A;
-        int var116 = cp(var115, 31);
-        F = var116;
+        A = in(BC, 36720);
+        A = A & 31;
+        F = flagZ(A);
+        F = cp(A, 31);
         if (F == 0) {
           B = 239;
-          int var373 = B << 8 | BC & 0xff;
-          int var374 = in(var373, 36730);
-          A = var374;
-          int var375 = A & 1;
-          F = var375;
+          A = in((B << 8) | (BC & 0xff), 36730);
+          F = A & 1;
           if (F != 0) {
-            int var376 = mem[34254];
-            A = var376;
-            int var377 = A;
-            int var378 = A | var377;
-            A = var378;
-            int var379 = A;
-            int var380 = flagZ(var379);
-            F = var380;
+            A = mem[34254];
+            A = A | A;
+            F = flagZ(A);
             if (F == 0) {
               break label226;
             }
-
             BC = 31;
-            int var381 = BC;
-            int var382 = in(var381, 36745);
-            A = var382;
-            int var383 = A & 16;
-            F = var383;
+            A = in(BC, 36745);
+            F = A & 16;
             if (F == 0) {
               break label226;
             }
           }
         }
-
-        int var117 = mem[34271];
-        A = var117;
-        int var118 = A & 2;
-        F = var118;
+        A = mem[34271];
+        F = A & 2;
         if (F == 0) {
-          int var351 = A;
-          int var352 = A ^ var351;
-          A = var352;
-          int var353 = A;
-          int var354 = flagZ(var353);
-          F = var354;
-          int var355 = A;
-          mem[34261] = var355;
-          int var356 = A;
-          mem[34272] = var356;
-          int var357 = A;
-          int var358 = inc(var357);
+          A = A ^ A;
+          F = flagZ(A);
+          mem[34261] = A;
+          mem[34272] = A;
+          int var358 = inc(A);
           A = var358;
           F = var358;
-          int var359 = A;
-          mem[34257] = var359;
-          int var360 = mem[34262];
-          A = var360;
-          int var361 = A;
-          int var362 = dec(var361);
+          mem[34257] = A;
+          A = mem[34262];
+          int var362 = dec(A);
           A = var362;
           F = var362;
-          int var363 = A & 128;
-          F = var363;
+          F = A & 128;
           if (F == 0) {
             A = 240;
-            int var364 = A;
-            mem[34262] = var364;
-            int var365 = mem[34255];
-            A = var365;
-            int var366 = A & 240;
-            A = var366;
-            int var367 = A;
-            int var368 = flagZ(var367);
-            F = var368;
-            int var369 = A;
-            mem[34255] = var369;
+            mem[34262] = A;
+            A = mem[34255];
+            A = A & 240;
+            F = flagZ(A);
+            mem[34255] = A;
             HL = 34256;
-            int var370 = HL;
-            int var371 = mem[var370] | 2;
-            int var372 = HL;
-            mem[var372] = var371;
+            mem[HL] = mem[HL] | 2;
             return;
           }
         }
       }
-
-      int var119 = mem[34256];
-      A = var119;
-      int var120 = A & 2;
-      A = var120;
-      int var121 = A;
-      int var122 = flagZ(var121);
-      F = var122;
+      A = mem[34256];
+      A = A & 2;
+      F = flagZ(A);
       if (F == 0) {
         return;
       }
-
-      int var123 = mem[34262];
-      A = var123;
-      int var124 = A;
-      int var125 = dec(var124);
+      A = mem[34262];
+      int var125 = dec(A);
       A = var125;
       F = var125;
-      int var126 = A & 128;
-      F = var126;
+      F = A & 128;
       if (F == 0) {
         return;
       }
-
-      int var127 = mem[34256];
-      A = var127;
-      int var128 = A & 1;
-      A = var128;
-      int var129 = A;
-      int var130 = flagZ(var129);
-      F = var130;
+      A = mem[34256];
+      A = A & 1;
+      F = flagZ(A);
       if (F != 0) {
-        int var246 = mem[34258];
-        A = var246;
-        int var247 = A;
-        int var248 = A | var247;
-        A = var248;
-        int var249 = A;
-        int var250 = flagZ(var249);
-        F = var250;
+        A = mem[34258];
+        A = A | A;
+        F = flagZ(A);
         if (F != 0) {
-          int var348 = A;
-          int var349 = dec(var348);
+          int var349 = dec(A);
           A = var349;
           F = var349;
-          int var350 = A;
-          mem[34258] = var350;
+          mem[34258] = A;
           return;
         }
-
-        int var251 = mem[34257];
-        A = var251;
+        A = mem[34257];
         BC = 0;
-        int var252 = A;
-        int var253 = cp(var252, 0);
-        F = var253;
+        F = cp(A, 0);
         if (F == 0) {
-          int var324 = (mem[34259 + 1] << 8) + mem[34259];
-          HL = var324;
+          HL = (mem[34259 + 1] << 8) + mem[34259];
           BC = 0;
-          int var325 = mem[32986];
-          A = var325;
-          int var326 = A;
-          int var327 = dec(var326);
+          A = mem[32986];
+          int var327 = dec(A);
           A = var327;
           F = var327;
-          int var328 = A | 161;
-          A = var328;
-          int var329 = A;
-          int var330 = flagZ(var329);
-          F = var330;
-          int var331 = A ^ 224;
-          A = var331;
-          int var332 = A;
-          int var333 = flagZ(var332);
-          F = var333;
-          int var334 = A;
-          E = var334;
+          A = A | 161;
+          F = flagZ(A);
+          A = A ^ 224;
+          F = flagZ(A);
+          E = A;
           D = 0;
-          int var335 = D << 8 | E;
-          int var336 = HL;
-          int var337 = add16(var336, var335);
-          HL = var337;
-          int var338 = mem[32964];
-          A = var338;
-          int var339 = HL;
-          int var340 = mem[var339];
-          int var341 = A;
-          int var342 = cp(var341, var340);
-          F = var342;
+          HL = add16(HL, (D << 8) | E);
+          A = mem[32964];
+          F = cp(A, mem[HL]);
           if (F == 0) {
             BC = 32;
-            int var343 = mem[32986];
-            A = var343;
-            int var344 = A;
-            int var345 = A | var344;
-            A = var345;
-            int var346 = A;
-            int var347 = flagZ(var346);
-            F = var347;
+            A = mem[32986];
+            A = A | A;
+            F = flagZ(A);
             if (F == 0) {
               BC = 65504;
             }
           }
         }
-
-        int var254 = (mem[34259 + 1] << 8) + mem[34259];
-        HL = var254;
-        int var255 = HL & 0xff;
-        A = var255;
-        int var256 = A & 31;
-        A = var256;
-        int var257 = A;
-        int var258 = flagZ(var257);
-        F = var258;
+        HL = (mem[34259 + 1] << 8) + mem[34259];
+        A = HL & 0xff;
+        A = A & 31;
+        F = flagZ(A);
         if (F != 0) {
-          int var269 = BC;
-          int var270 = HL;
-          int var271 = add16(var270, var269);
-          HL = var271;
-          int var272 = HL;
-          int var273 = dec16(var272);
-          HL = var273;
+          HL = add16(HL, BC);
+          HL = dec16(HL);
           DE = 32;
-          int var274 = DE;
-          int var275 = HL;
-          int var276 = add16(var275, var274);
-          HL = var276;
-          int var277 = mem[32946];
-          A = var277;
-          int var278 = HL;
-          int var279 = mem[var278];
-          int var280 = A;
-          int var281 = cp(var280, var279);
-          F = var281;
+          HL = add16(HL, DE);
+          A = mem[32946];
+          F = cp(A, mem[HL]);
           if (F == 0) {
             return;
           }
-
-          int var282 = mem[34255];
-          A = var282;
-          int var283 = BC & 0xff;
-          int var284 = sra(var283);
-          C = var284;
-          int var285 = C;
-          int var286 = A;
-          int var287 = add(var286, var285);
+          A = mem[34255];
+          C = sra(BC & 0xff);
+          int var287 = add(A, C);
           A = var287;
           F = var287;
-          int var288 = A;
-          B = var288;
-          int var289 = A & 15;
-          A = var289;
-          int var290 = A;
-          int var291 = flagZ(var290);
-          F = var291;
+          B = A;
+          A = A & 15;
+          F = flagZ(A);
           if (F != 0) {
-            int var306 = mem[32946];
-            A = var306;
-            int var307 = DE;
-            int var308 = HL;
-            int var309 = add16(var308, var307);
-            HL = var309;
-            int var310 = HL;
-            int var311 = mem[var310];
-            int var312 = A;
-            int var313 = cp(var312, var311);
-            F = var313;
+            A = mem[32946];
+            HL = add16(HL, DE);
+            F = cp(A, mem[HL]);
             if (F == 0) {
               return;
             }
-
-            int var314 = A;
-            int var315 = A | var314;
-            A = var315;
-            int var316 = A;
-            int var317 = flagZ(var316);
-            F = var317;
-            int var318 = DE;
-            int var319 = HL - var318;
-            int var320 = F;
-            int var321 = carry(var320);
-            int var322 = var319 - var321 & 65535;
-            HL = var322;
-            int var323 = HL;
-            F = var323;
+            A = A | A;
+            F = flagZ(A);
+            HL = ((HL - DE) - carry(F)) & 65535;
+            F = HL;
           }
-
-          int var292 = A;
-          int var293 = A | var292;
-          A = var293;
-          int var294 = A;
-          int var295 = flagZ(var294);
-          F = var295;
-          int var296 = DE;
-          int var297 = HL - var296;
-          int var298 = F;
-          int var299 = carry(var298);
-          int var300 = var297 - var299 & 65535;
-          HL = var300;
-          int var301 = HL;
-          F = var301;
+          A = A | A;
+          F = flagZ(A);
+          HL = ((HL - DE) - carry(F)) & 65535;
+          F = HL;
           int var302 = HL;
-          mem[34259] = var302 & 0xFF;
+          mem[34259] = var302 & 0xff;
           mem[34259 + 1] = var302 >>> 8;
-          int var303 = B;
-          A = var303;
-          int var304 = A;
-          mem[34255] = var304;
+          A = B;
+          mem[34255] = A;
           A = 3;
-          int var305 = A;
-          mem[34258] = var305;
+          mem[34258] = A;
           return;
         }
-
-        int var259 = mem[33001];
-        A = var259;
-        int var260 = A;
-        mem[33824] = var260;
-        int var261 = mem[34259];
-        A = var261;
-        int var262 = A | 31;
-        A = var262;
-        int var263 = A;
-        int var264 = flagZ(var263);
-        F = var264;
-        int var265 = A & 254;
-        A = var265;
-        int var266 = A;
-        int var267 = flagZ(var266);
-        F = var267;
-        int var268 = A;
-        mem[34259] = var268;
+        A = mem[33001];
+        mem[33824] = A;
+        A = mem[34259];
+        A = A | 31;
+        F = flagZ(A);
+        A = A & 254;
+        F = flagZ(A);
+        mem[34259] = A;
         throw new RuntimeException("38043");
       }
-
-      int var131 = mem[34258];
-      A = var131;
-      int var132 = A;
-      int var133 = cp(var132, 3);
-      F = var133;
+      A = mem[34258];
+      F = cp(A, 3);
       if (F != 0) {
-        int var243 = A;
-        int var244 = inc(var243);
+        int var244 = inc(A);
         A = var244;
         F = var244;
-        int var245 = A;
-        mem[34258] = var245;
+        mem[34258] = A;
         return;
       }
-
-      int var134 = mem[34257];
-      A = var134;
+      A = mem[34257];
       BC = 0;
-      int var135 = A;
-      int var136 = A | var135;
-      A = var136;
-      int var137 = A;
-      int var138 = flagZ(var137);
-      F = var138;
+      A = A | A;
+      F = flagZ(A);
       if (F == 0) {
-        int var219 = (mem[34259 + 1] << 8) + mem[34259];
-        HL = var219;
-        int var220 = mem[32986];
-        A = var220;
-        int var221 = A;
-        int var222 = dec(var221);
+        HL = (mem[34259 + 1] << 8) + mem[34259];
+        A = mem[32986];
+        int var222 = dec(A);
         A = var222;
         F = var222;
-        int var223 = A | 157;
-        A = var223;
-        int var224 = A;
-        int var225 = flagZ(var224);
-        F = var225;
-        int var226 = A ^ 191;
-        A = var226;
-        int var227 = A;
-        int var228 = flagZ(var227);
-        F = var228;
-        int var229 = A;
-        E = var229;
+        A = A | 157;
+        F = flagZ(A);
+        A = A ^ 191;
+        F = flagZ(A);
+        E = A;
         D = 0;
-        int var230 = D << 8 | E;
-        int var231 = HL;
-        int var232 = add16(var231, var230);
-        HL = var232;
-        int var233 = mem[32964];
-        A = var233;
-        int var234 = HL;
-        int var235 = mem[var234];
-        int var236 = A;
-        int var237 = cp(var236, var235);
-        F = var237;
+        HL = add16(HL, (D << 8) | E);
+        A = mem[32964];
+        F = cp(A, mem[HL]);
         if (F == 0) {
           BC = 32;
-          int var238 = mem[32986];
-          A = var238;
-          int var239 = A;
-          int var240 = A | var239;
-          A = var240;
-          int var241 = A;
-          int var242 = flagZ(var241);
-          F = var242;
+          A = mem[32986];
+          A = A | A;
+          F = flagZ(A);
           if (F != 0) {
             BC = 65504;
           }
         }
       }
-
-      int var139 = (mem[34259 + 1] << 8) + mem[34259];
-      HL = var139;
-      int var140 = BC;
-      int var141 = HL;
-      int var142 = add16(var141, var140);
-      HL = var142;
-      int var143 = HL;
-      int var144 = inc16(var143);
-      HL = var144;
-      int var145 = HL;
-      int var146 = inc16(var145);
-      HL = var146;
-      int var147 = HL & 0xff;
-      A = var147;
-      int var148 = A & 31;
-      A = var148;
-      int var149 = A;
-      int var150 = flagZ(var149);
-      F = var150;
+      HL = (mem[34259 + 1] << 8) + mem[34259];
+      HL = add16(HL, BC);
+      HL = inc16(HL);
+      HL = inc16(HL);
+      A = HL & 0xff;
+      A = A & 31;
+      F = flagZ(A);
       if (F != 0) {
         DE = 32;
-        int var158 = mem[32946];
-        A = var158;
-        int var159 = DE;
-        int var160 = HL;
-        int var161 = add16(var160, var159);
-        HL = var161;
-        int var162 = HL;
-        int var163 = mem[var162];
-        int var164 = A;
-        int var165 = cp(var164, var163);
-        F = var165;
+        A = mem[32946];
+        HL = add16(HL, DE);
+        F = cp(A, mem[HL]);
         if (F == 0) {
           return;
         }
-
-        int var166 = mem[34255];
-        A = var166;
-        int var167 = BC & 0xff;
-        int var168 = sra(var167);
-        C = var168;
-        int var169 = C;
-        int var170 = A;
-        int var171 = add(var170, var169);
+        A = mem[34255];
+        C = sra(BC & 0xff);
+        int var171 = add(A, C);
         A = var171;
         F = var171;
-        int var172 = A;
-        B = var172;
-        int var173 = A & 15;
-        A = var173;
-        int var174 = A;
-        int var175 = flagZ(var174);
-        F = var175;
+        B = A;
+        A = A & 15;
+        F = flagZ(A);
         if (F != 0) {
-          int var201 = mem[32946];
-          A = var201;
-          int var202 = DE;
-          int var203 = HL;
-          int var204 = add16(var203, var202);
-          HL = var204;
-          int var205 = HL;
-          int var206 = mem[var205];
-          int var207 = A;
-          int var208 = cp(var207, var206);
-          F = var208;
+          A = mem[32946];
+          HL = add16(HL, DE);
+          F = cp(A, mem[HL]);
           if (F == 0) {
             return;
           }
-
-          int var209 = A;
-          int var210 = A | var209;
-          A = var210;
-          int var211 = A;
-          int var212 = flagZ(var211);
-          F = var212;
-          int var213 = DE;
-          int var214 = HL - var213;
-          int var215 = F;
-          int var216 = carry(var215);
-          int var217 = var214 - var216 & 65535;
-          HL = var217;
-          int var218 = HL;
-          F = var218;
+          A = A | A;
+          F = flagZ(A);
+          HL = ((HL - DE) - carry(F)) & 65535;
+          F = HL;
         }
-
-        int var176 = mem[32946];
-        A = var176;
-        int var177 = A;
-        int var178 = A | var177;
-        A = var178;
-        int var179 = A;
-        int var180 = flagZ(var179);
-        F = var180;
-        int var181 = DE;
-        int var182 = HL - var181;
-        int var183 = F;
-        int var184 = carry(var183);
-        int var185 = var182 - var184 & 65535;
-        HL = var185;
-        int var186 = HL;
-        F = var186;
-        int var187 = HL;
-        int var188 = mem[var187];
-        int var189 = A;
-        int var190 = cp(var189, var188);
-        F = var190;
+        A = mem[32946];
+        A = A | A;
+        F = flagZ(A);
+        HL = ((HL - DE) - carry(F)) & 65535;
+        F = HL;
+        F = cp(A, mem[HL]);
         if (F == 0) {
           return;
         }
-
-        int var191 = HL;
-        int var192 = dec16(var191);
-        HL = var192;
+        HL = dec16(HL);
         int var193 = HL;
-        mem[34259] = var193 & 0xFF;
+        mem[34259] = var193 & 0xff;
         mem[34259 + 1] = var193 >>> 8;
-        int var194 = A;
-        int var195 = A ^ var194;
-        A = var195;
-        int var196 = A;
-        int var197 = flagZ(var196);
-        F = var197;
-        int var198 = A;
-        mem[34258] = var198;
-        int var199 = B;
-        A = var199;
-        int var200 = A;
-        mem[34255] = var200;
+        A = A ^ A;
+        F = flagZ(A);
+        mem[34258] = A;
+        A = B;
+        mem[34255] = A;
         return;
       }
-
-      int var151 = mem[33002];
-      A = var151;
-      int var152 = A;
-      mem[33824] = var152;
-      int var153 = mem[34259];
-      A = var153;
-      int var154 = A & 224;
-      A = var154;
-      int var155 = A;
-      int var156 = flagZ(var155);
-      F = var156;
-      int var157 = A;
-      mem[34259] = var157;
+      A = mem[33002];
+      mem[33824] = A;
+      A = mem[34259];
+      A = A & 224;
+      F = flagZ(A);
+      mem[34259] = A;
       throw new RuntimeException("38061");
     }
-
-    int var539 = mem[34255];
-    A = var539;
-    int var540 = A;
-    int var541 = add(var540, 16);
+    A = mem[34255];
+    int var541 = add(A, 16);
     A = var541;
     F = var541;
-    int var542 = A & 240;
-    A = var542;
-    int var543 = A;
-    int var544 = flagZ(var543);
-    F = var544;
-    int var545 = A;
-    mem[34255] = var545;
+    A = A & 240;
+    F = flagZ(A);
+    mem[34255] = A;
     int[] r3 = $36508(A);
     H = r3[0];
     L = r3[1];
     A = 2;
-    int var546 = A;
-    mem[34257] = var546;
+    mem[34257] = A;
     HL = 34256;
-    int var547 = HL;
-    int var548 = mem[var547] & -3;
-    int var549 = HL;
-    mem[var549] = var548;
+    mem[HL] = mem[HL] & (-3);
   }
 
   public int[] $36508(int A) {
-    int F, H, L;
-    int var1 = A & 240;
-    A = var1;
-    int var2 = A;
-    int var3 = flagZ(var2);
-    F = var3;
-    int var4 = A;
-    L = var4;
-    int var5 = A;
-    int var6 = A ^ var5;
-    A = var6;
-    int var7 = A;
-    int var8 = flagZ(var7);
-    F = var8;
-    int var9 = L;
-    int[] var10_0 = _rl(var9, F);
-    int var10 = var10_0[0];
+    int F;
+    int H;
+    int L;
+    A = A & 240;
+    F = flagZ(A);
+    L = A;
+    A = A ^ A;
+    F = flagZ(A);
+    int[] var10_0 = _rl(L, F);
     F = var10_0[1];
-    L = var10;
-    int var11 = A + 92;
-    int var12 = F;
-    int var13 = carry(var12) & 255;
-    int var14 = var11 + var13;
-    A = var14;
-    int var15 = A;
-    F = var15;
-    int var16 = A;
-    H = var16 & 0xff;
-    int var17 = mem[34259];
-    A = var17;
-    int var18 = A & 31;
-    A = var18;
-    int var19 = A;
-    int var20 = flagZ(var19);
-    F = var20;
-    int var21 = L;
-    int var22 = A | var21;
-    A = var22;
-    int var23 = A;
-    int var24 = flagZ(var23);
-    F = var24;
-    int var25 = A;
-    L = var25;
-    int var26 = H << 8 | L;
-    mem[34259] = var26 & 0xFF;
+    L = var10_0[0];
+    A = (A + 92) + (carry(F) & 255);
+    F = A;
+    H = A & 0xff;
+    A = mem[34259];
+    A = A & 31;
+    F = flagZ(A);
+    A = A | L;
+    F = flagZ(A);
+    L = A;
+    int var26 = (H << 8) | L;
+    mem[34259] = var26 & 0xff;
     mem[34259 + 1] = var26 >>> 8;
-    return new int[]{H, L};
+    return new int[]{ H, L };
   }
 
   public void $37056() {
-    int A, B, C, D, E, H, L, IX, IY, F, HL, DE, BC;
-
+    int A;
+    int B;
+    int C;
+    int D;
+    int E;
+    int H;
+    int L;
+    int IX;
+    int IY;
+    int F;
+    int HL;
+    int DE;
+    int BC;
     IX = 33024;
-
     while (true) {
-      int var1 = IX + 0;
-      int var2 = mem[var1];
-      A = var2;
-      int var3 = A;
-      int var4 = cp(var3, 255);
-      F = var4;
+      A = mem[IX + 0];
+      F = cp(A, 255);
       if (F == 0) {
         return;
       }
-
-      int var5 = A & 3;
-      A = var5;
-      int var6 = A;
-      int var7 = flagZ(var6);
-      F = var7;
+      A = A & 3;
+      F = flagZ(A);
       if (F != 0) {
-        int var11 = A;
-        int var12 = cp(var11, 1);
-        F = var12;
+        F = cp(A, 1);
         if (F != 0) {
-          int var63 = A;
-          int var64 = cp(var63, 2);
-          F = var64;
+          F = cp(A, 2);
           if (F != 0) {
-            int var106 = IX + 0;
-            int var107 = mem[var106] & 128;
-            F = var107;
+            F = mem[IX + 0] & 128;
             if (F != 0) {
-              int var143 = IX + 1;
-              int var144 = mem[var143];
-              A = var144;
-              int var145 = A & 128;
-              F = var145;
+              A = mem[IX + 1];
+              F = A & 128;
               if (F != 0) {
                 int var152 = A - 2;
-                int var153 = var152 & 255;
-                A = var153;
+                A = var152 & 255;
                 F = var152;
-                int var154 = A;
-                int var155 = cp(var154, 148);
-                F = var155;
+                F = cp(A, 148);
                 if (F < 0) {
                   int var156 = A - 2;
-                  int var157 = var156 & 255;
-                  A = var157;
+                  A = var156 & 255;
                   F = var156;
-                  int var158 = A;
-                  int var159 = cp(var158, 128);
-                  F = var159;
+                  F = cp(A, 128);
                   if (F == 0) {
-                    int var160 = A;
-                    int var161 = A ^ var160;
-                    A = var161;
-                    int var162 = A;
-                    int var163 = flagZ(var162);
-                    F = var163;
+                    A = A ^ A;
+                    F = flagZ(A);
                   }
                 }
               } else {
-                int var146 = A;
-                int var147 = add(var146, 2);
+                int var147 = add(A, 2);
                 A = var147;
                 F = var147;
-                int var148 = A;
-                int var149 = cp(var148, 18);
-                F = var149;
+                F = cp(A, 18);
                 if (F < 0) {
-                  int var150 = A;
-                  int var151 = add(var150, 2);
+                  int var151 = add(A, 2);
                   A = var151;
                   F = var151;
                 }
               }
             } else {
-              int var108 = IX + 1;
-              int var109 = mem[var108];
-              A = var109;
-              int var110 = A & 128;
-              F = var110;
+              A = mem[IX + 1];
+              F = A & 128;
               if (F == 0) {
                 int var133 = A - 2;
-                int var134 = var133 & 255;
-                A = var134;
+                A = var133 & 255;
                 F = var133;
-                int var135 = A;
-                int var136 = cp(var135, 20);
-                F = var136;
+                F = cp(A, 20);
                 if (F < 0) {
                   int var137 = A - 2;
-                  int var138 = var137 & 255;
-                  A = var138;
+                  A = var137 & 255;
                   F = var137;
-                  int var139 = A;
-                  int var140 = A | var139;
-                  A = var140;
-                  int var141 = A;
-                  int var142 = flagZ(var141);
-                  F = var142;
+                  A = A | A;
+                  F = flagZ(A);
                   if (F == 0) {
                     A = 128;
                   }
                 }
               } else {
-                int var111 = A;
-                int var112 = add(var111, 2);
+                int var112 = add(A, 2);
                 A = var112;
                 F = var112;
-                int var113 = A;
-                int var114 = cp(var113, 146);
-                F = var114;
+                F = cp(A, 146);
                 if (F < 0) {
-                  int var131 = A;
-                  int var132 = add(var131, 2);
+                  int var132 = add(A, 2);
                   A = var132;
                   F = var132;
                 }
               }
             }
-
-            int var115 = IX + 1;
-            int var116 = A;
-            mem[var115] = var116;
-            int var117 = A & 127;
-            A = var117;
-            int var118 = A;
-            int var119 = flagZ(var118);
-            F = var119;
-            int var120 = IX + 7;
-            int var121 = mem[var120];
-            int var122 = A;
-            int var123 = cp(var122, var121);
-            F = var123;
+            mem[IX + 1] = A;
+            A = A & 127;
+            F = flagZ(A);
+            F = cp(A, mem[IX + 7]);
             if (F == 0) {
-              int var124 = IX + 0;
-              int var125 = mem[var124];
-              A = var125;
-              int var126 = A ^ 128;
-              A = var126;
-              int var127 = A;
-              int var128 = flagZ(var127);
-              F = var128;
-              int var129 = IX + 0;
-              int var130 = A;
-              mem[var129] = var130;
+              A = mem[IX + 0];
+              A = A ^ 128;
+              F = flagZ(A);
+              mem[IX + 0] = A;
             }
           } else {
-            label82:
-            {
-              int var65 = IX + 0;
-              int var66 = mem[var65];
-              A = var66;
-              int var67 = A ^ 8;
-              A = var67;
-              int var68 = A;
-              int var69 = flagZ(var68);
-              F = var69;
-              int var70 = IX + 0;
-              int var71 = A;
-              mem[var70] = var71;
-              int var72 = A & 24;
-              A = var72;
-              int var73 = A;
-              int var74 = flagZ(var73);
-              F = var74;
+            label82 : {
+              A = mem[IX + 0];
+              A = A ^ 8;
+              F = flagZ(A);
+              mem[IX + 0] = A;
+              A = A & 24;
+              F = flagZ(A);
               if (F != 0) {
-                int var100 = IX + 0;
-                int var101 = mem[var100];
-                A = var101;
-                int var102 = A;
-                int var103 = add(var102, 32);
+                A = mem[IX + 0];
+                int var103 = add(A, 32);
                 A = var103;
                 F = var103;
-                int var104 = IX + 0;
-                int var105 = A;
-                mem[var104] = var105;
+                mem[IX + 0] = A;
               }
-
-              int var75 = IX + 3;
-              int var76 = mem[var75];
-              A = var76;
-              int var77 = IX + 4;
-              int var78 = mem[var77];
-              int var79 = A;
-              int var80 = add(var79, var78);
+              A = mem[IX + 3];
+              int var80 = add(A, mem[IX + 4]);
               A = var80;
               F = var80;
-              int var81 = IX + 3;
-              int var82 = A;
-              mem[var81] = var82;
-              int var83 = IX + 7;
-              int var84 = mem[var83];
-              int var85 = A;
-              int var86 = cp(var85, var84);
-              F = var86;
+              mem[IX + 3] = A;
+              F = cp(A, mem[IX + 7]);
               if (F < 0) {
-                int var92 = IX + 6;
-                int var93 = mem[var92];
-                int var94 = A;
-                int var95 = cp(var94, var93);
-                F = var95;
+                F = cp(A, mem[IX + 6]);
                 if (F != 0) {
                   if (F >= 0) {
                     break label82;
                   }
                 }
-
-                int var96 = IX + 6;
-                int var97 = mem[var96];
-                A = var97;
-                int var98 = IX + 3;
-                int var99 = A;
-                mem[var98] = var99;
+                A = mem[IX + 6];
+                mem[IX + 3] = A;
               }
-
-              int var87 = IX + 4;
-              int var88 = mem[var87];
-              A = var88;
-              int var89 = -A & 255;
-              A = var89;
-              int var90 = IX + 4;
-              int var91 = A;
-              mem[var90] = var91;
+              A = mem[IX + 4];
+              A = (-A) & 255;
+              mem[IX + 4] = A;
             }
           }
         } else {
-          int var13 = IX + 0;
-          int var14 = mem[var13] & 128;
-          F = var14;
+          F = mem[IX + 0] & 128;
           if (F == 0) {
-            int var39 = IX + 0;
-            int var40 = mem[var39];
-            A = var40;
+            A = mem[IX + 0];
             int var41 = A - 32;
-            int var42 = var41 & 255;
-            A = var42;
+            A = var41 & 255;
             F = var41;
-            int var43 = A & 127;
-            A = var43;
-            int var44 = A;
-            int var45 = flagZ(var44);
-            F = var45;
-            int var46 = IX + 0;
-            int var47 = A;
-            mem[var46] = var47;
-            int var48 = A;
-            int var49 = cp(var48, 96);
-            F = var49;
+            A = A & 127;
+            F = flagZ(A);
+            mem[IX + 0] = A;
+            F = cp(A, 96);
             if (F > 0) {
-              int var50 = IX + 2;
-              int var51 = mem[var50];
-              A = var51;
-              int var52 = A & 31;
-              A = var52;
-              int var53 = A;
-              int var54 = flagZ(var53);
-              F = var54;
-              int var55 = IX + 6;
-              int var56 = mem[var55];
-              int var57 = A;
-              int var58 = cp(var57, var56);
-              F = var58;
+              A = mem[IX + 2];
+              A = A & 31;
+              F = flagZ(A);
+              F = cp(A, mem[IX + 6]);
               if (F != 0) {
                 int var60 = IX + 2;
-                int var61 = mem[var60];
-                int var62 = dec(var61);
+                int var62 = dec(mem[var60]);
                 mem[var60] = var62;
                 F = var62;
               } else {
-                int var59 = IX + 0;
-                mem[var59] = 129;
+                mem[IX + 0] = 129;
               }
             }
           } else {
-            int var15 = IX + 0;
-            int var16 = mem[var15];
-            A = var16;
-            int var17 = A;
-            int var18 = add(var17, 32);
+            A = mem[IX + 0];
+            int var18 = add(A, 32);
             A = var18;
             F = var18;
-            int var19 = A | 128;
-            A = var19;
-            int var20 = A;
-            int var21 = flagZ(var20);
-            F = var21;
-            int var22 = IX + 0;
-            int var23 = A;
-            mem[var22] = var23;
-            int var24 = A;
-            int var25 = cp(var24, 160);
-            F = var25;
+            A = A | 128;
+            F = flagZ(A);
+            mem[IX + 0] = A;
+            F = cp(A, 160);
             if (F < 0) {
-              int var26 = IX + 2;
-              int var27 = mem[var26];
-              A = var27;
-              int var28 = A & 31;
-              A = var28;
-              int var29 = A;
-              int var30 = flagZ(var29);
-              F = var30;
-              int var31 = IX + 7;
-              int var32 = mem[var31];
-              int var33 = A;
-              int var34 = cp(var33, var32);
-              F = var34;
+              A = mem[IX + 2];
+              A = A & 31;
+              F = flagZ(A);
+              F = cp(A, mem[IX + 7]);
               if (F != 0) {
                 int var36 = IX + 2;
-                int var37 = mem[var36];
-                int var38 = inc(var37);
+                int var38 = inc(mem[var36]);
                 mem[var36] = var38;
                 F = var38;
               } else {
-                int var35 = IX + 0;
-                mem[var35] = 97;
+                mem[IX + 0] = 97;
               }
             }
           }
         }
       }
-
       DE = 8;
-      int var8 = DE;
-      int var9 = IX;
-      int var10 = add16(var9, var8);
-      IX = var10;
+      IX = add16(IX, DE);
     }
   }
 
   public void $37310() {
-    int A, B, C, D, E, H, L, IX, IY, F, HL = 0, DE = 0, BC = 0;
-
+    int A;
+    int B;
+    int C;
+    int D;
+    int E;
+    int H;
+    int L;
+    int IX;
+    int IY;
+    int F;
+    int HL = 0;
+    int DE = 0;
+    int BC = 0;
     IX = 33024;
-
     while (true) {
-      int var1 = IX + 0;
-      int var2 = mem[var1];
-      A = var2;
-      int var3 = A;
-      int var4 = cp(var3, 255);
-      F = var4;
+      A = mem[IX + 0];
+      F = cp(A, 255);
       if (F == 0) {
         return;
       }
-
-      int var5 = A & 7;
-      A = var5;
-      int var6 = A;
-      int var7 = flagZ(var6);
-      F = var7;
+      A = A & 7;
+      F = flagZ(A);
       if (F != 0) {
-        int var11 = A;
-        int var12 = cp(var11, 3);
-        F = var12;
+        F = cp(A, 3);
         if (F != 0) {
-          int var190 = A;
-          int var191 = cp(var190, 4);
-          F = var191;
+          F = cp(A, 4);
           if (F != 0) {
-            int var280 = IX + 3;
-            int var281 = mem[var280];
-            E = var281;
+            E = mem[IX + 3];
             D = 130;
-            int var282 = D << 8 | E;
-            int var283 = mem[var282];
-            A = var283;
-            int var284 = A;
-            L = var284;
-            int var285 = IX + 2;
-            int var286 = mem[var285];
-            A = var286;
-            int var287 = A & 31;
-            A = var287;
-            int var288 = A;
-            int var289 = flagZ(var288);
-            F = var289;
-            int var290 = L;
-            int var291 = A;
-            int var292 = add(var291, var290);
+            A = mem[(D << 8) | E];
+            L = A;
+            A = mem[IX + 2];
+            A = A & 31;
+            F = flagZ(A);
+            int var292 = add(A, L);
             A = var292;
             F = var292;
-            int var293 = A;
-            L = var293;
-            int var294 = E;
-            A = var294;
-            int var295 = A;
-            int var296 = _rlc(var295);
-            A = var296;
-            int var297 = A & 1;
-            A = var297;
-            int var298 = A;
-            int var299 = flagZ(var298);
-            F = var299;
-            int var300 = A | 92;
-            A = var300;
-            int var301 = A;
-            int var302 = flagZ(var301);
-            F = var302;
-            int var303 = A;
-            H = var303 & 0xff;
+            L = A;
+            A = E;
+            A = _rlc(A);
+            A = A & 1;
+            F = flagZ(A);
+            A = A | 92;
+            F = flagZ(A);
+            H = A & 0xff;
             DE = 31;
-            int var304 = IX + 1;
-            int var305 = mem[var304];
-            A = var305;
-            int var306 = A & 15;
-            A = var306;
-            int var307 = A;
-            int var308 = flagZ(var307);
-            F = var308;
-            int var309 = A;
-            int var310 = add(var309, 56);
+            A = mem[IX + 1];
+            A = A & 15;
+            F = flagZ(A);
+            int var310 = add(A, 56);
             A = var310;
             F = var310;
-            int var311 = A & 71;
-            A = var311;
-            int var312 = A;
-            int var313 = flagZ(var312);
-            F = var313;
-            int var314 = A;
-            C = var314;
-            int var315 = H << 8 | L;
-            int var316 = mem[var315];
-            A = var316;
-            int var317 = A & 56;
-            A = var317;
-            int var318 = A;
-            int var319 = flagZ(var318);
-            F = var319;
-            int var320 = C;
-            int var321 = A ^ var320;
-            A = var321;
-            int var322 = A;
-            int var323 = flagZ(var322);
-            F = var323;
-            int var324 = A;
-            C = var324;
-            int var325 = C;
-            int var326 = H << 8 | L;
-            mem[var326] = var325;
-            int var327 = H << 8 | L;
-            int var328 = inc16(var327);
-            HL = var328;
-            int var329 = C;
-            int var330 = HL;
-            mem[var330] = var329;
-            int var331 = DE;
-            int var332 = HL;
-            int var333 = add16(var332, var331);
-            HL = var333;
-            int var334 = C;
-            int var335 = HL;
-            mem[var335] = var334;
-            int var336 = HL;
-            int var337 = inc16(var336);
-            HL = var337;
-            int var338 = C;
-            int var339 = HL;
-            mem[var339] = var338;
-            int var340 = IX + 3;
-            int var341 = mem[var340];
-            A = var341;
-            int var342 = A & 14;
-            A = var342;
-            int var343 = A;
-            int var344 = flagZ(var343);
-            F = var344;
+            A = A & 71;
+            F = flagZ(A);
+            C = A;
+            A = mem[(H << 8) | L];
+            A = A & 56;
+            F = flagZ(A);
+            A = A ^ C;
+            F = flagZ(A);
+            C = A;
+            mem[(H << 8) | L] = C;
+            HL = inc16((H << 8) | L);
+            mem[HL] = C;
+            HL = add16(HL, DE);
+            mem[HL] = C;
+            HL = inc16(HL);
+            mem[HL] = C;
+            A = mem[IX + 3];
+            A = A & 14;
+            F = flagZ(A);
             if (F != 0) {
-              int var380 = DE;
-              int var381 = HL;
-              int var382 = add16(var381, var380);
-              HL = var382;
-              int var383 = C;
-              int var384 = HL;
-              mem[var384] = var383;
-              int var385 = HL;
-              int var386 = inc16(var385);
-              HL = var386;
-              int var387 = C;
-              int var388 = HL;
-              mem[var388] = var387;
+              HL = add16(HL, DE);
+              mem[HL] = C;
+              HL = inc16(HL);
+              mem[HL] = C;
             }
-
             C = 1;
-            int var345 = IX + 1;
-            int var346 = mem[var345];
-            A = var346;
-            int var347 = IX + 0;
-            int var348 = mem[var347];
-            int var349 = A & var348;
-            A = var349;
-            int var350 = A;
-            int var351 = flagZ(var350);
-            F = var351;
-            int var352 = IX + 2;
-            int var353 = mem[var352];
-            int var354 = A | var353;
-            A = var354;
-            int var355 = A;
-            int var356 = flagZ(var355);
-            F = var356;
-            int var357 = A & 224;
-            A = var357;
-            int var358 = A;
-            int var359 = flagZ(var358);
-            F = var359;
-            int var360 = A;
-            E = var360;
-            int var361 = IX + 5;
-            int var362 = mem[var361];
-            D = var362;
+            A = mem[IX + 1];
+            A = A & mem[IX + 0];
+            F = flagZ(A);
+            A = A | mem[IX + 2];
+            F = flagZ(A);
+            A = A & 224;
+            F = flagZ(A);
+            E = A;
+            D = mem[IX + 5];
             H = 130 & 0xff;
-            int var363 = IX + 3;
-            int var364 = mem[var363];
-            L = var364;
-            int var365 = IX + 2;
-            int var366 = mem[var365];
-            A = var366;
-            int var367 = A & 31;
-            A = var367;
-            int var368 = A;
-            int var369 = flagZ(var368);
-            F = var369;
-            int var370 = H << 8 | L;
-            int var371 = mem[var370];
-            int var372 = A | var371;
-            A = var372;
-            int var373 = A;
-            int var374 = flagZ(var373);
-            F = var374;
-            int var375 = H << 8 | L;
-            int var376 = inc16(var375);
-            HL = var376;
-            int var377 = HL;
-            int var378 = mem[var377];
-            H = var378 & 0xff;
-            int var379 = A;
-            L = var379;
-            HL = H << 8 | L;
-            DE = D << 8 | E;
+            L = mem[IX + 3];
+            A = mem[IX + 2];
+            A = A & 31;
+            F = flagZ(A);
+            A = A | mem[(H << 8) | L];
+            F = flagZ(A);
+            HL = inc16((H << 8) | L);
+            H = mem[HL] & 0xff;
+            L = A;
+            HL = (H << 8) | L;
+            DE = (D << 8) | E;
             int[] r1 = $37974(C, DE, HL);
             F = r1[0];
             DE = r1[1];
             if (F != 0) {
               throw new RuntimeException("37048");
             }
-
           } else {
-            int var192 = IX + 0;
-            int var193 = mem[var192] & 128;
-            F = var193;
+            F = mem[IX + 0] & 128;
             if (F == 0) {
               int var277 = IX + 4;
-              int var278 = mem[var277];
-              int var279 = dec(var278);
+              int var279 = dec(mem[var277]);
               mem[var277] = var279;
               F = var279;
               C = 44;
             } else {
               int var194 = IX + 4;
-              int var195 = mem[var194];
-              int var196 = inc(var195);
+              int var196 = inc(mem[var194]);
               mem[var194] = var196;
               F = var196;
               C = 244;
             }
-
-            int var197 = IX + 4;
-            int var198 = mem[var197];
-            A = var198;
-            int var199 = C;
-            int var200 = A;
-            int var201 = cp(var200, var199);
-            F = var201;
+            A = mem[IX + 4];
+            F = cp(A, C);
             if (F != 0) {
-              int var202 = A & 224;
-              A = var202;
-              int var203 = A;
-              int var204 = flagZ(var203);
-              F = var204;
+              A = A & 224;
+              F = flagZ(A);
               if (F == 0) {
-                int var205 = IX + 2;
-                int var206 = mem[var205];
-                E = var206;
+                E = mem[IX + 2];
                 D = 130;
-                int var207 = D << 8 | E;
-                int var208 = mem[var207];
-                A = var208;
-                int var209 = IX + 4;
-                int var210 = mem[var209];
-                int var211 = A;
-                int var212 = add(var211, var210);
+                A = mem[(D << 8) | E];
+                int var212 = add(A, mem[IX + 4]);
                 A = var212;
                 F = var212;
-                int var213 = A;
-                L = var213;
-                int var214 = E;
-                A = var214;
-                int var215 = A & 128;
-                A = var215;
-                int var216 = A;
-                int var217 = flagZ(var216);
-                F = var217;
-                int var218 = A;
-                int var219 = _rlc(var218);
-                A = var219;
-                int var220 = A | 92;
-                A = var220;
-                int var221 = A;
-                int var222 = flagZ(var221);
-                F = var222;
-                int var223 = A;
-                H = var223 & 0xff;
-                int var224 = IX + 5;
-                mem[var224] = 0;
-                int var225 = H << 8 | L;
-                int var226 = mem[var225];
-                A = var226;
-                int var227 = A & 7;
-                A = var227;
-                int var228 = A;
-                int var229 = flagZ(var228);
-                F = var229;
-                int var230 = A;
-                int var231 = cp(var230, 7);
-                F = var231;
+                L = A;
+                A = E;
+                A = A & 128;
+                F = flagZ(A);
+                A = _rlc(A);
+                A = A | 92;
+                F = flagZ(A);
+                H = A & 0xff;
+                mem[IX + 5] = 0;
+                A = mem[(H << 8) | L];
+                A = A & 7;
+                F = flagZ(A);
+                F = cp(A, 7);
                 if (F == 0) {
                   int var266 = IX + 5;
-                  int var267 = mem[var266];
-                  int var268 = dec(var267);
+                  int var268 = dec(mem[var266]);
                   mem[var266] = var268;
                   F = var268;
                 }
-
-                int var232 = H << 8 | L;
-                int var233 = mem[var232];
-                A = var233;
-                int var234 = A | 7;
-                A = var234;
-                int var235 = A;
-                int var236 = flagZ(var235);
-                F = var236;
-                int var237 = A;
-                int var238 = H << 8 | L;
-                mem[var238] = var237;
-                int var239 = D << 8 | E;
-                int var240 = inc16(var239);
-                DE = var240;
-                int var241 = DE;
-                int var242 = mem[var241];
-                A = var242;
-                int var243 = A;
-                H = var243 & 0xff;
-                int var244 = H;
-                int var245 = dec(var244);
+                A = mem[(H << 8) | L];
+                A = A | 7;
+                F = flagZ(A);
+                mem[(H << 8) | L] = A;
+                DE = inc16((D << 8) | E);
+                A = mem[DE];
+                H = A & 0xff;
+                int var245 = dec(H);
                 H = var245 & 0xff;
                 F = var245;
-                int var246 = IX + 6;
-                int var247 = mem[var246];
-                A = var247;
-                int var248 = A;
-                int var249 = H << 8 | L;
-                mem[var249] = var248;
-                int var250 = H;
-                int var251 = inc(var250);
+                A = mem[IX + 6];
+                mem[(H << 8) | L] = A;
+                int var251 = inc(H);
                 H = var251 & 0xff;
                 F = var251;
-                int var252 = H << 8 | L;
-                int var253 = mem[var252];
-                A = var253;
-                int var254 = IX + 5;
-                int var255 = mem[var254];
-                int var256 = A & var255;
-                A = var256;
-                int var257 = A;
-                int var258 = flagZ(var257);
-                F = var258;
+                A = mem[(H << 8) | L];
+                A = A & mem[IX + 5];
+                F = flagZ(A);
                 if (F != 0) {
                   throw new RuntimeException("37048");
                 }
-
-                int var259 = H << 8 | L;
-                mem[var259] = 255;
-                int var260 = H;
-                int var261 = inc(var260);
+                mem[(H << 8) | L] = 255;
+                int var261 = inc(H);
                 H = var261 & 0xff;
                 F = var261;
-                int var262 = IX + 6;
-                int var263 = mem[var262];
-                A = var263;
-                int var264 = A;
-                int var265 = H << 8 | L;
-                mem[var265] = var264;
+                A = mem[IX + 6];
+                mem[(H << 8) | L] = A;
               }
             } else {
               BC = 640;
-              int var269 = mem[32990];
-              A = var269;
-
+              A = mem[32990];
               while (true) {
-                int var270 = A ^ 24;
-                A = var270;
-                int var271 = A;
-                int var272 = flagZ(var271);
-                F = var272;
-
+                A = A ^ 24;
+                F = flagZ(A);
                 do {
-                  int var273 = (BC >> 8) - 1 & 255;
-                  BC = BC & 0xff | ((var273 & 0xff) << 8);
-                } while (BC >> 8 != 0);
-
-                int var274 = BC & 0xff;
-                BC = BC & 0xff | ((var274 & 0xff) << 8);
-                int var275 = BC & 0xff;
-                int var276 = dec(var275);
-                BC = BC & 0xff00 | var276;
+                  BC = (BC & 0xff) | (((((BC >> 8) - 1) & 255) & 0xff) << 8);
+                } while ((BC >> 8) != 0 );
+                BC = (BC & 0xff) | (((BC & 0xff) & 0xff) << 8);
+                int var276 = dec(BC & 0xff);
+                BC = (BC & 0xff00) | var276;
                 F = var276;
                 if (F == 0) {
                   break;
@@ -4437,200 +2577,104 @@ public class JetSetWilly2Converted {
           }
         } else {
           IY = 33280;
-          int var13 = IX + 9;
-          mem[var13] = 0;
-          int var14 = IX + 2;
-          int var15 = mem[var14];
-          A = var15;
-          int var16 = IX + 3;
-          int var17 = A;
-          mem[var16] = var17;
-          int var18 = IX + 5;
-          mem[var18] = 128;
-
+          mem[IX + 9] = 0;
+          A = mem[IX + 2];
+          mem[IX + 3] = A;
+          mem[IX + 5] = 128;
           while (true) {
-            label116:
-            {
-              int var19 = IY + 0;
-              int var20 = mem[var19];
-              A = var20;
-              int var21 = IX + 3;
-              int var22 = mem[var21];
-              int var23 = A;
-              int var24 = add(var23, var22);
+            label116 : {
+              A = mem[IY + 0];
+              int var24 = add(A, mem[IX + 3]);
               A = var24;
               F = var24;
-              int var25 = A;
-              L = var25;
-              int var26 = IY + 1;
-              int var27 = mem[var26];
-              H = var27 & 0xff;
-              int var28 = mem[34262];
-              A = var28;
-              int var29 = A;
-              int var30 = A | var29;
-              A = var30;
-              int var31 = A;
-              int var32 = flagZ(var31);
-              F = var32;
+              L = A;
+              H = mem[IY + 1] & 0xff;
+              A = mem[34262];
+              A = A | A;
+              F = flagZ(A);
               if (F == 0) {
-                int var178 = IX + 5;
-                int var179 = mem[var178];
-                A = var179;
-                int var180 = HL;
-                int var181 = mem[var180];
-                int var182 = A & var181;
-                A = var182;
-                int var183 = A;
-                int var184 = flagZ(var183);
-                F = var184;
+                A = mem[IX + 5];
+                A = A & mem[HL];
+                F = flagZ(A);
                 if (F == 0) {
                   break label116;
                 }
-
-                int var185 = IX + 9;
-                int var186 = mem[var185];
-                A = var186;
-                int var187 = A;
-                mem[34262] = var187;
+                A = mem[IX + 9];
+                mem[34262] = A;
                 int var188 = IX + 11;
-                int var189 = mem[var188] | 1;
-                mem[var188] = var189;
+                mem[var188] = mem[var188] | 1;
               }
-
-              int var33 = IX + 9;
-              int var34 = mem[var33];
-              int var35 = A;
-              int var36 = cp(var35, var34);
-              F = var36;
+              F = cp(A, mem[IX + 9]);
               if (F == 0) {
-                int var157 = IX + 11;
-                int var158 = mem[var157] & 1;
-                F = var158;
+                F = mem[IX + 11] & 1;
                 if (F != 0) {
-                  int var159 = IX + 3;
-                  int var160 = mem[var159];
-                  B = var160;
-                  int var161 = IX + 5;
-                  int var162 = mem[var161];
-                  A = var162;
+                  B = mem[IX + 3];
+                  A = mem[IX + 5];
                   C = 1;
-                  int var163 = A;
-                  int var164 = cp(var163, 4);
-                  F = var164;
+                  F = cp(A, 4);
                   if (F > 0) {
                     C = 0;
-                    int var172 = A;
-                    int var173 = cp(var172, 16);
-                    F = var173;
+                    F = cp(A, 16);
                     if (F > 0) {
-                      int var174 = B;
-                      int var175 = dec(var174);
+                      int var175 = dec(B);
                       B = var175;
                       F = var175;
                       C = 3;
-                      int var176 = A;
-                      int var177 = cp(var176, 64);
-                      F = var177;
+                      F = cp(A, 64);
                       if (F > 0) {
                         C = 2;
                       }
                     }
                   }
-
                   int var165 = BC;
-                  mem[34258] = var165 & 0xFF;
+                  mem[34258] = var165 & 0xff;
                   mem[34258 + 1] = var165 >>> 8;
-                  int var166 = IY & 0xff;
-                  A = var166;
+                  A = IY & 0xff;
                   int var167 = A - 16;
-                  int var168 = var167 & 255;
-                  A = var168;
+                  A = var167 & 255;
                   F = var167;
-                  int var169 = A;
-                  mem[34255] = var169;
-                  int var170 = HL;
-                  push(var170);
+                  mem[34255] = A;
+                  push(HL);
                   int[] r3 = $36508(A);
                   H = r3[0];
                   L = r3[1];
-                  int var171 = pop();
-                  HL = var171;
+                  HL = pop();
                 }
               }
             }
-
-            int var37 = IX + 5;
-            int var38 = mem[var37];
-            A = var38;
-            int var39 = HL;
-            int var40 = mem[var39];
-            int var41 = A | var40;
-            A = var41;
-            int var42 = A;
-            int var43 = flagZ(var42);
-            F = var43;
-            int var44 = A;
-            int var45 = HL;
-            mem[var45] = var44;
-            int var46 = IX + 9;
-            int var47 = mem[var46];
-            A = var47;
-            int var48 = IX + 1;
-            int var49 = mem[var48];
-            int var50 = A;
-            int var51 = add(var50, var49);
+            A = mem[IX + 5];
+            A = A | mem[HL];
+            F = flagZ(A);
+            mem[HL] = A;
+            A = mem[IX + 9];
+            int var51 = add(A, mem[IX + 1]);
             A = var51;
             F = var51;
-            int var52 = A;
-            L = var52;
-            int var53 = L | 128;
-            L = var53;
+            L = A;
+            L = L | 128;
             H = 131 & 0xff;
-            int var54 = HL;
-            int var55 = mem[var54];
-            E = var55;
+            E = mem[HL];
             D = 0;
-            int var56 = DE;
-            int var57 = IY;
-            int var58 = add16(var57, var56);
-            IY = var58;
-            int var59 = L & -129;
-            L = var59;
-            int var60 = HL;
-            int var61 = mem[var60];
-            A = var61;
-            int var62 = A;
-            int var63 = A | var62;
-            A = var63;
-            int var64 = A;
-            int var65 = flagZ(var64);
-            F = var65;
+            IY = add16(IY, DE);
+            L = L & (-129);
+            A = mem[HL];
+            A = A | A;
+            F = flagZ(A);
             if (F != 0) {
-              int var136 = A;
-              B = var136;
-              int var137 = IX + 1;
-              int var138 = mem[var137] & 128;
-              F = var138;
+              B = A;
+              F = mem[IX + 1] & 128;
               if (F != 0) {
                 while (true) {
                   int var148 = IX + 5;
-                  int var149 = mem[var148];
-                  int var150 = _rlc(var149);
-                  mem[var148] = var150;
-                  int var151 = IX + 5;
-                  int var152 = mem[var151] & 1;
-                  F = var152;
+                  mem[var148] = _rlc(mem[var148]);
+                  F = mem[IX + 5] & 1;
                   if (F != 0) {
                     int var154 = IX + 3;
-                    int var155 = mem[var154];
-                    int var156 = dec(var155);
+                    int var156 = dec(mem[var154]);
                     mem[var154] = var156;
                     F = var156;
                   }
-
-                  int var153 = B - 1 & 255;
-                  B = var153;
+                  B = (B - 1) & 255;
                   if (B == 0) {
                     break;
                   }
@@ -4638,146 +2682,74 @@ public class JetSetWilly2Converted {
               } else {
                 do {
                   int var139 = IX + 5;
-                  int var140 = mem[var139];
-                  int var141 = _rrc(var140);
-                  mem[var139] = var141;
-                  int var142 = IX + 5;
-                  int var143 = mem[var142] & 128;
-                  F = var143;
+                  mem[var139] = _rrc(mem[var139]);
+                  F = mem[IX + 5] & 128;
                   if (F != 0) {
                     int var145 = IX + 3;
-                    int var146 = mem[var145];
-                    int var147 = inc(var146);
+                    int var147 = inc(mem[var145]);
                     mem[var145] = var147;
                     F = var147;
                   }
-
-                  int var144 = B - 1 & 255;
-                  B = var144;
-                } while (B != 0);
+                  B = (B - 1) & 255;
+                } while (B != 0 );
               }
             }
-
-            int var66 = IX + 9;
-            int var67 = mem[var66];
-            A = var67;
-            int var68 = IX + 4;
-            int var69 = mem[var68];
-            int var70 = A;
-            int var71 = cp(var70, var69);
-            F = var71;
+            A = mem[IX + 9];
+            F = cp(A, mem[IX + 4]);
             if (F == 0) {
-              int var72 = mem[34262];
-              A = var72;
-              int var73 = A & 128;
-              F = var73;
+              A = mem[34262];
+              F = A & 128;
               if (F != 0) {
-                int var128 = A;
-                int var129 = inc(var128);
+                int var129 = inc(A);
                 A = var129;
                 F = var129;
-                int var130 = A;
-                mem[34262] = var130;
+                mem[34262] = A;
                 int var131 = IX + 11;
-                int var132 = mem[var131] & -2;
-                mem[var131] = var132;
+                mem[var131] = mem[var131] & (-2);
               } else {
-                int var74 = IX + 11;
-                int var75 = mem[var74] & 1;
-                F = var75;
+                F = mem[IX + 11] & 1;
                 if (F != 0) {
-                  int var76 = mem[34256];
-                  A = var76;
-                  int var77 = A & 2;
-                  F = var77;
+                  A = mem[34256];
+                  F = A & 2;
                   if (F != 0) {
-                    int var78 = A;
-                    int var79 = _rrc(var78);
-                    A = var79;
-                    int var80 = IX + 0;
-                    int var81 = mem[var80];
-                    int var82 = A ^ var81;
-                    A = var82;
-                    int var83 = A;
-                    int var84 = flagZ(var83);
-                    F = var84;
-                    int var85 = A;
-                    int var86 = _rlc(var85);
-                    A = var86;
-                    int var87 = A;
-                    int var88 = _rlc(var87);
-                    A = var88;
-                    int var89 = A & 2;
-                    A = var89;
-                    int var90 = A;
-                    int var91 = flagZ(var90);
-                    F = var91;
-                    int var92 = A;
-                    int var93 = dec(var92);
+                    A = _rrc(A);
+                    A = A ^ mem[IX + 0];
+                    F = flagZ(A);
+                    A = _rlc(A);
+                    A = _rlc(A);
+                    A = A & 2;
+                    F = flagZ(A);
+                    int var93 = dec(A);
                     A = var93;
                     F = var93;
                     HL = 34262;
-                    int var94 = HL;
-                    int var95 = mem[var94];
-                    int var96 = A;
-                    int var97 = add(var96, var95);
+                    int var97 = add(A, mem[HL]);
                     A = var97;
                     F = var97;
-                    int var98 = A;
-                    int var99 = HL;
-                    mem[var99] = var98;
-                    int var100 = mem[33003];
-                    A = var100;
-                    int var101 = A;
-                    C = var101;
-                    int var102 = mem[33824];
-                    A = var102;
-                    int var103 = C;
-                    int var104 = A;
-                    int var105 = cp(var104, var103);
-                    F = var105;
+                    mem[HL] = A;
+                    A = mem[33003];
+                    C = A;
+                    A = mem[33824];
+                    F = cp(A, C);
                     if (F == 0) {
-                      int var123 = HL;
-                      int var124 = mem[var123];
-                      A = var124;
-                      int var125 = A;
-                      int var126 = cp(var125, 15);
-                      F = var126;
+                      A = mem[HL];
+                      F = cp(A, 15);
                       if (F < 0) {
-                        int var127 = HL;
-                        mem[var127] = 15;
+                        mem[HL] = 15;
                       }
                     }
-
-                    int var106 = HL;
-                    int var107 = mem[var106];
-                    A = var107;
-                    int var108 = IX + 4;
-                    int var109 = mem[var108];
-                    int var110 = A;
-                    int var111 = cp(var110, var109);
-                    F = var111;
+                    A = mem[HL];
+                    F = cp(A, mem[IX + 4]);
                     if (F > 0) {
                       if (F != 0) {
-                        int var112 = HL;
-                        mem[var112] = 240;
-                        int var113 = mem[34255];
-                        A = var113;
-                        int var114 = A & 248;
-                        A = var114;
-                        int var115 = A;
-                        int var116 = flagZ(var115);
-                        F = var116;
-                        int var117 = A;
-                        mem[34255] = var117;
-                        int var118 = A;
-                        int var119 = A ^ var118;
-                        A = var119;
-                        int var120 = A;
-                        int var121 = flagZ(var120);
-                        F = var121;
-                        int var122 = A;
-                        mem[34257] = var122;
+                        mem[HL] = 240;
+                        A = mem[34255];
+                        A = A & 248;
+                        F = flagZ(A);
+                        mem[34255] = A;
+                        A = A ^ A;
+                        F = flagZ(A);
+                        mem[34257] = A;
                       }
                     }
                   }
@@ -4785,521 +2757,318 @@ public class JetSetWilly2Converted {
               }
               break;
             }
-
             int var133 = IX + 9;
-            int var134 = mem[var133];
-            int var135 = inc(var134);
+            int var135 = inc(mem[var133]);
             mem[var133] = var135;
             F = var135;
           }
         }
       }
-
       DE = 8;
-      int var8 = DE;
-      int var9 = IX;
-      int var10 = add16(var9, var8);
-      IX = var10;
+      IX = add16(IX, DE);
     }
   }
 
   public void $37841() {
-    int A, B, C, D, E, H, L, IX, IY, F, HL, DE, BC;
-
+    int A;
+    int B;
+    int C;
+    int D;
+    int E;
+    int H;
+    int L;
+    int IX;
+    int IY;
+    int F;
+    int HL;
+    int DE;
+    int BC;
     H = 164 & 0xff;
-    int var1 = mem[41983];
-    A = var1;
-    int var2 = A;
-    L = var2;
-
+    A = mem[41983];
+    L = A;
     do {
-      int var3 = H << 8 | L;
-      int var4 = mem[var3];
-      C = var4;
-      int var5 = C & -129;
-      C = var5;
-      int var6 = mem[33824];
-      A = var6;
-      int var7 = A | 64;
-      A = var7;
-      int var8 = A;
-      int var9 = flagZ(var8);
-      F = var9;
-      int var10 = C;
-      int var11 = A;
-      int var12 = cp(var11, var10);
-      F = var12;
+      C = mem[(H << 8) | L];
+      C = C & (-129);
+      A = mem[33824];
+      A = A | 64;
+      F = flagZ(A);
+      F = cp(A, C);
       if (F == 0) {
-        int var15 = H << 8 | L;
-        int var16 = mem[var15];
-        A = var16;
-        int var17 = A;
-        int var18 = _rlc(var17);
-        A = var18;
-        int var19 = A & 1;
-        A = var19;
-        int var20 = A;
-        int var21 = flagZ(var20);
-        F = var21;
-        int var22 = A;
-        int var23 = add(var22, 92);
+        A = mem[(H << 8) | L];
+        A = _rlc(A);
+        A = A & 1;
+        F = flagZ(A);
+        int var23 = add(A, 92);
         A = var23;
         F = var23;
-        int var24 = A;
-        D = var24;
-        int var25 = H;
-        int var26 = inc(var25);
+        D = A;
+        int var26 = inc(H);
         H = var26 & 0xff;
         F = var26;
-        int var27 = H << 8 | L;
-        int var28 = mem[var27];
-        E = var28;
-        int var29 = H;
-        int var30 = dec(var29);
+        E = mem[(H << 8) | L];
+        int var30 = dec(H);
         H = var30 & 0xff;
         F = var30;
-        int var31 = D << 8 | E;
-        int var32 = mem[var31];
-        A = var32;
-        int var33 = A & 7;
-        A = var33;
-        int var34 = A;
-        int var35 = flagZ(var34);
-        F = var35;
-        int var36 = A;
-        int var37 = cp(var36, 7);
-        F = var37;
+        A = mem[(D << 8) | E];
+        A = A & 7;
+        F = flagZ(A);
+        F = cp(A, 7);
         if (F != 0) {
-          int var38 = mem[34251];
-          A = var38;
-          int var39 = L;
-          int var40 = A;
-          int var41 = add(var40, var39);
+          A = mem[34251];
+          int var41 = add(A, L);
           A = var41;
           F = var41;
-          int var42 = A & 3;
-          A = var42;
-          int var43 = A;
-          int var44 = flagZ(var43);
-          F = var44;
-          int var45 = A;
-          int var46 = add(var45, 3);
+          A = A & 3;
+          F = flagZ(A);
+          int var46 = add(A, 3);
           A = var46;
           F = var46;
-          int var47 = A;
-          C = var47;
-          int var48 = D << 8 | E;
-          int var49 = mem[var48];
-          A = var49;
-          int var50 = A & 248;
-          A = var50;
-          int var51 = A;
-          int var52 = flagZ(var51);
-          F = var52;
-          int var53 = C;
-          int var54 = A | var53;
-          A = var54;
-          int var55 = A;
-          int var56 = flagZ(var55);
-          F = var56;
-          int var57 = A;
-          int var58 = D << 8 | E;
-          mem[var58] = var57;
-          int var59 = H << 8 | L;
-          int var60 = mem[var59];
-          A = var60;
-          int var61 = A;
-          int var62 = _rlc(var61);
-          A = var62;
-          int var63 = A;
-          int var64 = _rlc(var63);
-          A = var64;
-          int var65 = A;
-          int var66 = _rlc(var65);
-          A = var66;
-          int var67 = A;
-          int var68 = _rlc(var67);
-          A = var68;
-          int var69 = A & 8;
-          A = var69;
-          int var70 = A;
-          int var71 = flagZ(var70);
-          F = var71;
-          int var72 = A;
-          int var73 = add(var72, 96);
+          C = A;
+          A = mem[(D << 8) | E];
+          A = A & 248;
+          F = flagZ(A);
+          A = A | C;
+          F = flagZ(A);
+          mem[(D << 8) | E] = A;
+          A = mem[(H << 8) | L];
+          A = _rlc(A);
+          A = _rlc(A);
+          A = _rlc(A);
+          A = _rlc(A);
+          A = A & 8;
+          F = flagZ(A);
+          int var73 = add(A, 96);
           A = var73;
           F = var73;
-          int var74 = A;
-          D = var74;
-          int var75 = H << 8 | L;
-          push(var75);
+          D = A;
+          push((H << 8) | L);
           HL = 32993;
           B = 8;
-          DE = D << 8 | E;
+          DE = (D << 8) | E;
           DE = $38555(B, DE, HL);
           int var76 = pop();
           H = var76 >> 8;
           L = var76;
         } else {
           IX = 34172;
-
           while (true) {
             int var77 = IX + 2;
-            int var78 = mem[var77];
-            int var79 = inc(var78);
+            int var79 = inc(mem[var77]);
             mem[var77] = var79;
             F = var79;
-            int var80 = IX + 2;
-            int var81 = mem[var80];
-            A = var81;
-            int var82 = A;
-            int var83 = cp(var82, 58);
-            F = var83;
+            A = mem[IX + 2];
+            F = cp(A, 58);
             if (F != 0) {
-              int var84 = mem[32990];
-              A = var84;
+              A = mem[32990];
               C = 128;
-
               do {
-                int var85 = A ^ 24;
-                A = var85;
-                int var86 = A;
-                int var87 = flagZ(var86);
-                F = var87;
-                int var88 = A;
-                E = var88;
+                A = A ^ 24;
+                F = flagZ(A);
+                E = A;
                 A = 144;
-                int var89 = C;
-                int var90 = A - var89;
-                int var91 = var90 & 255;
-                A = var91;
+                int var90 = A - C;
+                A = var90 & 255;
                 F = var90;
-                int var92 = A;
-                B = var92;
-                int var93 = E;
-                A = var93;
-
+                B = A;
+                A = E;
                 do {
-                  int var94 = B - 1 & 255;
-                  B = var94;
-                } while (B != 0);
-
-                int var95 = C;
-                int var96 = dec(var95);
+                  B = (B - 1) & 255;
+                } while (B != 0 );
+                int var96 = dec(C);
                 C = var96;
                 F = var96;
-                int var97 = C;
-                int var98 = dec(var97);
+                int var98 = dec(C);
                 C = var98;
                 F = var98;
-              } while (F != 0);
-
-              int var99 = mem[34270];
-              A = var99;
-              int var100 = A;
-              int var101 = inc(var100);
+              } while (F != 0 );
+              A = mem[34270];
+              int var101 = inc(A);
               A = var101;
               F = var101;
-              int var102 = A;
-              mem[34270] = var102;
+              mem[34270] = A;
               if (F == 0) {
                 A = 1;
-                int var106 = A;
-                mem[34271] = var106;
+                mem[34271] = A;
               }
-
-              int var103 = H << 8 | L;
-              int var104 = mem[var103] & -65;
-              int var105 = H << 8 | L;
-              mem[var105] = var104;
+              mem[(H << 8) | L] = mem[(H << 8) | L] & (-65);
               break;
             }
-
-            int var107 = IX + 2;
-            mem[var107] = 48;
-            int var108 = IX;
-            int var109 = dec16(var108);
-            IX = var109;
+            mem[IX + 2] = 48;
+            IX = dec16(IX);
           }
         }
       }
-
-      int var13 = L;
-      int var14 = inc(var13);
+      int var14 = inc(L);
       L = var14;
       F = var14;
-    } while (F != 0);
-
+    } while (F != 0 );
   }
 
   public static int[] $37974(int C, int DE, int HL) {
-    int B, F, A;
-
+    int B;
+    int F;
+    int A;
     B = 16;
-
     do {
-      int var1 = C & 1;
-      F = var1;
-      int var2 = DE;
-      int var3 = mem[var2];
-      A = var3;
+      F = C & 1;
+      A = mem[DE];
       if (F != 0) {
-        int var57 = HL;
-        int var58 = mem[var57];
-        int var59 = A & var58;
-        A = var59;
-        int var60 = A;
-        int var61 = flagZ(var60);
-        F = var61;
+        A = A & mem[HL];
+        F = flagZ(A);
         if (F != 0) {
-          return new int[] {F, DE};
+          return new int[]{ F, DE };
         }
-
-        int var62 = DE;
-        int var63 = mem[var62];
-        A = var63;
-        int var64 = HL;
-        int var65 = mem[var64];
-        int var66 = A | var65;
-        A = var66;
-        int var67 = A;
-        int var68 = flagZ(var67);
-        F = var68;
+        A = mem[DE];
+        A = A | mem[HL];
+        F = flagZ(A);
       }
-
-      int var4 = A;
-      int var5 = HL;
-      mem[var5] = var4;
-      int var6 = HL & 0xff;
-      int var7 = inc(var6);
-      HL = HL & 0xff00 | var7;
+      mem[HL] = A;
+      int var7 = inc(HL & 0xff);
+      HL = (HL & 0xff00) | var7;
       F = var7;
-      int var8 = DE;
-      int var9 = inc16(var8);
-      DE = var9;
-      int var10 = C & 1;
-      F = var10;
-      int var11 = DE;
-      int var12 = mem[var11];
-      A = var12;
+      DE = inc16(DE);
+      F = C & 1;
+      A = mem[DE];
       if (F != 0) {
-        int var45 = HL;
-        int var46 = mem[var45];
-        int var47 = A & var46;
-        A = var47;
-        int var48 = A;
-        int var49 = flagZ(var48);
-        F = var49;
+        A = A & mem[HL];
+        F = flagZ(A);
         if (F != 0) {
-          return new int[] {F, DE};
+          return new int[]{ F, DE };
         }
-
-        int var50 = DE;
-        int var51 = mem[var50];
-        A = var51;
-        int var52 = HL;
-        int var53 = mem[var52];
-        int var54 = A | var53;
-        A = var54;
-        int var55 = A;
-        int var56 = flagZ(var55);
-        F = var56;
+        A = mem[DE];
+        A = A | mem[HL];
+        F = flagZ(A);
       }
-
-      int var13 = A;
-      int var14 = HL;
-      mem[var14] = var13;
-      int var15 = HL & 0xff;
-      int var16 = dec(var15);
-      HL = HL & 0xff00 | var16;
+      mem[HL] = A;
+      int var16 = dec(HL & 0xff);
+      HL = (HL & 0xff00) | var16;
       F = var16;
-      int var17 = HL >> 8;
-      int var18 = inc(var17);
-      HL = HL & 0xff | var18 << 8;
+      int var18 = inc(HL >> 8);
+      HL = (HL & 0xff) | (var18 << 8);
       F = var18;
-      int var19 = DE;
-      int var20 = inc16(var19);
-      DE = var20;
-      int var21 = HL >> 8;
-      A = var21;
-      int var22 = A & 7;
-      A = var22;
-      int var23 = A;
-      int var24 = flagZ(var23);
-      F = var24;
+      DE = inc16(DE);
+      A = HL >> 8;
+      A = A & 7;
+      F = flagZ(A);
       if (F == 0) {
-        int var30 = HL >> 8;
-        A = var30;
+        A = HL >> 8;
         int var31 = A - 8;
-        int var32 = var31 & 255;
-        A = var32;
+        A = var31 & 255;
         F = var31;
-        int var33 = A;
-        HL = HL & 0xff | var33 << 8;
-        int var34 = HL & 0xff;
-        A = var34;
-        int var35 = A;
-        int var36 = add(var35, 32);
+        HL = (HL & 0xff) | (A << 8);
+        A = HL & 0xff;
+        int var36 = add(A, 32);
         A = var36;
         F = var36;
-        int var37 = A;
-        HL = HL & 0xff00 | var37;
-        int var38 = A & 224;
-        A = var38;
-        int var39 = A;
-        int var40 = flagZ(var39);
-        F = var40;
+        HL = (HL & 0xff00) | A;
+        A = A & 224;
+        F = flagZ(A);
         if (F == 0) {
-          int var41 = HL >> 8;
-          A = var41;
-          int var42 = A;
-          int var43 = add(var42, 8);
+          A = HL >> 8;
+          int var43 = add(A, 8);
           A = var43;
           F = var43;
-          int var44 = A;
-          HL = HL & 0xff | var44 << 8;
+          HL = (HL & 0xff) | (A << 8);
         }
       }
-
-      int var25 = B - 1 & 255;
-      B = var25;
-    } while (B != 0);
-
-    int var26 = A;
-    int var27 = A ^ var26;
-    A = var27;
-    int var28 = A;
-    int var29 = flagZ(var28);
-    F = var29;
-    return new int[]{F, DE};
+      B = (B - 1) & 255;
+    } while (B != 0 );
+    A = A ^ A;
+    F = flagZ(A);
+    return new int[]{ F, DE };
   }
 
   public void $38064() {
-    int A, F;
-
-    int var1 = mem[33003];
-    A = var1;
-    int var2 = A;
-    mem[33824] = var2;
-    int var3 = mem[34259];
-    A = var3;
-    int var4 = A & 31;
-    A = var4;
-    int var5 = A;
-    int var6 = flagZ(var5);
-    F = var6;
-    int var7 = A;
-    int var8 = add(var7, 160);
+    int A;
+    int F;
+    A = mem[33003];
+    mem[33824] = A;
+    A = mem[34259];
+    A = A & 31;
+    F = flagZ(A);
+    int var8 = add(A, 160);
     A = var8;
     F = var8;
-    int var9 = A;
-    mem[34259] = var9;
+    mem[34259] = A;
     A = 93;
-    int var10 = A;
-    mem[34260] = var10;
+    mem[34260] = A;
     A = 208;
-    int var11 = A;
-    mem[34255] = var11;
-    int var12 = A;
-    int var13 = A ^ var12;
-    A = var13;
-    int var14 = A;
-    int var15 = flagZ(var14);
-    F = var15;
-    int var16 = A;
-    mem[34257] = var16;
+    mem[34255] = A;
+    A = A ^ A;
+    F = flagZ(A);
+    mem[34257] = A;
     throw new RuntimeException("38095");
   }
 
   public void $38137() {
     int i = (mem[32984] << 8) + mem[32983];
-    int i1 = add(_rlc(_rlc(_rlc(i >> 8 & 1))), 112) & 255;
+    int i1 = add(_rlc(_rlc(_rlc((i >> 8) & 1))), 112) & 255;
     int i4 = mem[32985];
     if (flagZ(i4) != 0) {
       int i5 = 0;
       int i6 = 0;
       int i7 = 0;
       int i8 = 0;
-      int i9 = mem[32982];
-      if (flagZ(i9) != 0) {
-        i5 = _rrc(_rrc(mem[i1 << 8 | i & 255]));
+      if (flagZ(mem[32982]) != 0) {
+        i5 = _rrc(_rrc(mem[(i1 << 8) | (i & 255)]));
         i6 = inc(inc(i1) & 255) & 255;
-        i7 = _rlc(_rlc(mem[i6 << 8 | i & 255]));
+        i7 = _rlc(_rlc(mem[(i6 << 8) | (i & 255)]));
       } else {
-        i5 = _rlc(_rlc(mem[i1 << 8 | i & 255]));
+        i5 = _rlc(_rlc(mem[(i1 << 8) | (i & 255)]));
         i6 = inc(inc(i1) & 255) & 255;
-        i7 = _rrc(_rrc(mem[i6 << 8 | i & 255]));
+        i7 = _rrc(_rrc(mem[(i6 << 8) | (i & 255)]));
       }
       int i2 = i & 255;
       do {
-        mem[i1 << 8 | i2] = i5;
-        mem[i6 << 8 | i8] = i7;
+        mem[(i1 << 8) | i2] = i5;
+        mem[(i6 << 8) | i8] = i7;
         i8 = inc(i & 255);
         i2 = inc(i2);
-        i4 = i4 - 1 & 255;
-      } while (i4 != 0);
+        i4 = (i4 - 1) & 255;
+      } while (i4 != 0 );
     }
   }
 
   public void $38196() {
-    int A, B, C, D, E, H, L, IX, IY, F, HL, DE = 0, BC;
-
-    int var1 = mem[33824];
-    A = var1;
-    int var2 = A;
-    int var3 = cp(var2, 35);
-    F = var3;
+    int A;
+    int B;
+    int C;
+    int D;
+    int E;
+    int H;
+    int L;
+    int IX;
+    int IY;
+    int F;
+    int HL;
+    int DE = 0;
+    int BC;
+    A = mem[33824];
+    F = cp(A, 35);
     if (F == 0) {
-      int var24 = mem[34271];
-      A = var24;
-      int var25 = A;
-      int var26 = A | var25;
-      A = var26;
-      int var27 = A;
-      int var28 = flagZ(var27);
-      F = var28;
+      A = mem[34271];
+      A = A | A;
+      F = flagZ(A);
       if (F == 0) {
-        int var36 = mem[34251];
-        A = var36;
-        int var37 = A & 2;
-        A = var37;
-        int var38 = A;
-        int var39 = flagZ(var38);
-        F = var39;
-        int var40 = A;
-        int var41 = _rrc(var40);
-        A = var41;
-        int var42 = A;
-        int var43 = _rrc(var42);
-        A = var43;
-        int var44 = A;
-        int var45 = _rrc(var44);
-        A = var45;
-        int var46 = A;
-        int var47 = _rrc(var46);
-        A = var47;
-        int var48 = A | 128;
-        A = var48;
-        int var49 = A;
-        int var50 = flagZ(var49);
-        F = var50;
-        int var51 = A;
-        E = var51;
-        int var52 = mem[34255];
-        A = var52;
-        int var53 = A;
-        int var54 = cp(var53, 208);
-        F = var54;
+        A = mem[34251];
+        A = A & 2;
+        F = flagZ(A);
+        A = _rrc(A);
+        A = _rrc(A);
+        A = _rrc(A);
+        A = _rrc(A);
+        A = A | 128;
+        F = flagZ(A);
+        E = A;
+        A = mem[34255];
+        F = cp(A, 208);
         if (F != 0) {
           E = 192;
-          int var57 = A;
-          int var58 = cp(var57, 192);
-          F = var58;
+          F = cp(A, 192);
           if (F < 0) {
             E = 224;
           }
         }
-
         D = 156;
         HL = 26734;
         C = 1;
@@ -5311,65 +3080,39 @@ public class JetSetWilly2Converted {
         } else {
           HL = 17733;
           int var55 = HL;
-          mem[23918] = var55 & 0xFF;
+          mem[23918] = var55 & 0xff;
           mem[23918 + 1] = var55 >>> 8;
           HL = 1799;
           int var56 = HL;
-          mem[23950] = var56 & 0xFF;
+          mem[23950] = var56 & 0xff;
           mem[23950 + 1] = var56 >>> 8;
         }
       } else {
-        int var29 = mem[34259];
-        A = var29;
-        int var30 = A & 31;
-        A = var30;
-        int var31 = A;
-        int var32 = flagZ(var31);
-        F = var32;
-        int var33 = A;
-        int var34 = cp(var33, 6);
-        F = var34;
+        A = mem[34259];
+        A = A & 31;
+        F = flagZ(A);
+        F = cp(A, 6);
         if (F < 0) {
           A = 2;
-          int var35 = A;
-          mem[34271] = var35;
+          mem[34271] = A;
         }
       }
     } else {
-      int var4 = mem[33824];
-      A = var4;
-      int var5 = A;
-      int var6 = cp(var5, 33);
-      F = var6;
+      A = mem[33824];
+      F = cp(A, 33);
       if (F == 0) {
-        int var7 = mem[34251];
-        A = var7;
-        int var8 = A & 1;
-        A = var8;
-        int var9 = A;
-        int var10 = flagZ(var9);
-        F = var10;
-        int var11 = A;
-        int var12 = _rrc(var11);
-        A = var12;
-        int var13 = A;
-        int var14 = _rrc(var13);
-        A = var14;
-        int var15 = A;
-        int var16 = _rrc(var15);
-        A = var16;
-        int var17 = A;
-        E = var17;
-        int var18 = mem[34271];
-        A = var18;
-        int var19 = A;
-        int var20 = cp(var19, 3);
-        F = var20;
+        A = mem[34251];
+        A = A & 1;
+        F = flagZ(A);
+        A = _rrc(A);
+        A = _rrc(A);
+        A = _rrc(A);
+        E = A;
+        A = mem[34271];
+        F = cp(A, 3);
         if (F == 0) {
-          int var23 = E | 64;
-          E = var23;
+          E = E | 64;
         }
-
         D = 166;
         IX = 33488;
         BC = 4124;
@@ -5378,138 +3121,100 @@ public class JetSetWilly2Converted {
         $38504(B, C, D, E, IX);
         HL = 1799;
         int var21 = HL;
-        mem[23996] = var21 & 0xFF;
+        mem[23996] = var21 & 0xff;
         mem[23996 + 1] = var21 >>> 8;
         int var22 = HL;
-        mem[24028] = var22 & 0xFF;
+        mem[24028] = var22 & 0xff;
         mem[24028 + 1] = var22 >>> 8;
       }
     }
   }
 
   public void $38276() {
-    int A, B, C, D, E, H, L, IX, IY, F, HL, DE, BC;
-
-    int var1 = mem[33824];
-    A = var1;
-    int var2 = A;
-    int var3 = cp(var2, 33);
-    F = var3;
+    int A;
+    int B;
+    int C;
+    int D;
+    int E;
+    int H;
+    int L;
+    int IX;
+    int IY;
+    int F;
+    int HL;
+    int DE;
+    int BC;
+    A = mem[33824];
+    F = cp(A, 33);
     if (F == 0) {
-      int var4 = mem[34259];
-      A = var4;
-      int var5 = A;
-      int var6 = cp(var5, 188);
-      F = var6;
+      A = mem[34259];
+      F = cp(A, 188);
       if (F == 0) {
-        int var7 = A;
-        int var8 = A ^ var7;
-        A = var8;
-        int var9 = A;
-        int var10 = flagZ(var9);
-        F = var10;
-        int var11 = A;
-        mem[34251] = var11;
+        A = A ^ A;
+        F = flagZ(A);
+        mem[34251] = A;
         A = 3;
-        int var12 = A;
-        mem[34271] = var12;
+        mem[34271] = A;
       }
     }
   }
 
   public void $38344() {
-    int A, B, C, D, E, H, L, IX, IY, F, HL, DE, BC;
-
-    int var1 = (mem[34259 + 1] << 8) + mem[34259];
-    HL = var1;
+    int A;
+    int B;
+    int C;
+    int D;
+    int E;
+    int H;
+    int L;
+    int IX;
+    int IY;
+    int F;
+    int HL;
+    int DE;
+    int BC;
+    HL = (mem[34259 + 1] << 8) + mem[34259];
     B = 0;
-    int var2 = mem[32986];
-    A = var2;
-    int var3 = A & 1;
-    A = var3;
-    int var4 = A;
-    int var5 = flagZ(var4);
-    F = var5;
-    int var6 = A;
-    int var7 = add(var6, 64);
+    A = mem[32986];
+    A = A & 1;
+    F = flagZ(A);
+    int var7 = add(A, 64);
     A = var7;
     F = var7;
-    int var8 = A;
-    E = var8;
+    E = A;
     D = 0;
-    int var9 = D << 8 | E;
-    int var10 = HL;
-    int var11 = add16(var10, var9);
-    HL = var11;
-    int var12 = mem[32964];
-    A = var12;
-    int var13 = HL;
-    int var14 = mem[var13];
-    int var15 = A;
-    int var16 = cp(var15, var14);
-    F = var16;
+    HL = add16(HL, (D << 8) | E);
+    A = mem[32964];
+    F = cp(A, mem[HL]);
     if (F == 0) {
-      int var76 = mem[34257];
-      A = var76;
-      int var77 = A;
-      int var78 = A | var77;
-      A = var78;
-      int var79 = A;
-      int var80 = flagZ(var79);
-      F = var80;
+      A = mem[34257];
+      A = A | A;
+      F = flagZ(A);
       if (F == 0) {
-        int var81 = mem[34258];
-        A = var81;
-        int var82 = A & 3;
-        A = var82;
-        int var83 = A;
-        int var84 = flagZ(var83);
-        F = var84;
-        int var85 = A;
-        int var86 = _rlc(var85);
-        A = var86;
-        int var87 = A;
-        int var88 = _rlc(var87);
-        A = var88;
-        int var89 = A;
-        B = var89;
-        int var90 = mem[32986];
-        A = var90;
-        int var91 = A & 1;
-        A = var91;
-        int var92 = A;
-        int var93 = flagZ(var92);
-        F = var93;
-        int var94 = A;
-        int var95 = dec(var94);
+        A = mem[34258];
+        A = A & 3;
+        F = flagZ(A);
+        A = _rlc(A);
+        A = _rlc(A);
+        B = A;
+        A = mem[32986];
+        A = A & 1;
+        F = flagZ(A);
+        int var95 = dec(A);
         A = var95;
         F = var95;
-        int var96 = A ^ 12;
-        A = var96;
-        int var97 = A;
-        int var98 = flagZ(var97);
-        F = var98;
-        int var99 = B;
-        int var100 = A ^ var99;
-        A = var100;
-        int var101 = A;
-        int var102 = flagZ(var101);
-        F = var102;
-        int var103 = A & 12;
-        A = var103;
-        int var104 = A;
-        int var105 = flagZ(var104);
-        F = var105;
-        int var106 = A;
-        B = var106;
+        A = A ^ 12;
+        F = flagZ(A);
+        A = A ^ B;
+        F = flagZ(A);
+        A = A & 12;
+        F = flagZ(A);
+        B = A;
       }
     }
-
-    int var17 = (mem[34259 + 1] << 8) + mem[34259];
-    HL = var17;
+    HL = (mem[34259 + 1] << 8) + mem[34259];
     DE = 31;
     C = 15;
-
     try {
       $38430(C, HL);
     } catch (RuntimeException var107) {
@@ -5517,153 +3222,85 @@ public class JetSetWilly2Converted {
         throw new RuntimeException("37048");
       }
     }
-
-    int var19 = HL;
-    int var20 = inc16(var19);
-    HL = var20;
+    HL = inc16(HL);
     $38430(C, HL);
-    int var21 = DE;
-    int var22 = HL;
-    int var23 = add16(var22, var21);
-    HL = var23;
+    HL = add16(HL, DE);
     $38430(C, HL);
-    int var24 = HL;
-    int var25 = inc16(var24);
-    HL = var25;
+    HL = inc16(HL);
     $38430(C, HL);
-    int var26 = mem[34255];
-    A = var26;
-    int var27 = B;
-    int var28 = A;
-    int var29 = add(var28, var27);
+    A = mem[34255];
+    int var29 = add(A, B);
     A = var29;
     F = var29;
-    int var30 = A;
-    C = var30;
-    int var31 = DE;
-    int var32 = HL;
-    int var33 = add16(var32, var31);
-    HL = var33;
+    C = A;
+    HL = add16(HL, DE);
     $38430(C, HL);
-    int var34 = HL;
-    int var35 = inc16(var34);
-    HL = var35;
+    HL = inc16(HL);
     $38430(C, HL);
-    int var36 = mem[34255];
-    A = var36;
-    int var37 = B;
-    int var38 = A;
-    int var39 = add(var38, var37);
+    A = mem[34255];
+    int var39 = add(A, B);
     A = var39;
     F = var39;
     IX = (130 << 8) | A;
-    int var41 = mem[34256];
-    A = var41;
-    int var42 = A & 1;
-    A = var42;
-    int var43 = A;
-    int var44 = flagZ(var43);
-    F = var44;
-    int var45 = A;
-    int var46 = _rrc(var45);
-    A = var46;
-    int var47 = A;
-    E = var47;
-    int var48 = mem[34258];
-    A = var48;
-    int var49 = A & 3;
-    A = var49;
-    int var50 = A;
-    int var51 = flagZ(var50);
-    F = var51;
-    int var52 = A;
-    int var53 = _rrc(var52);
-    A = var53;
-    int var54 = A;
-    int var55 = _rrc(var54);
-    A = var55;
-    int var56 = A;
-    int var57 = _rrc(var56);
-    A = var57;
-    int var58 = E;
-    int var59 = A | var58;
-    A = var59;
-    int var60 = A;
-    int var61 = flagZ(var60);
-    F = var61;
-    int var62 = A;
-    E = var62;
+    A = mem[34256];
+    A = A & 1;
+    F = flagZ(A);
+    A = _rrc(A);
+    E = A;
+    A = mem[34258];
+    A = A & 3;
+    F = flagZ(A);
+    A = _rrc(A);
+    A = _rrc(A);
+    A = _rrc(A);
+    A = A | E;
+    F = flagZ(A);
+    E = A;
     D = 157;
-    int var63 = mem[33824];
-    A = var63;
-    int var64 = A;
-    int var65 = cp(var64, 29);
-    F = var65;
+    A = mem[33824];
+    F = cp(A, 29);
     if (F == 0) {
       D = 182;
-      int var71 = E;
-      A = var71;
-      int var72 = A ^ 128;
-      A = var72;
-      int var73 = A;
-      int var74 = flagZ(var73);
-      F = var74;
-      int var75 = A;
-      E = var75;
+      A = E;
+      A = A ^ 128;
+      F = flagZ(A);
+      E = A;
     }
-
     B = 16;
-    int var66 = mem[34259];
-    A = var66;
-    int var67 = A & 31;
-    A = var67;
-    int var68 = A;
-    int var69 = flagZ(var68);
-    F = var69;
-    int var70 = A;
-    C = var70;
+    A = mem[34259];
+    A = A & 31;
+    F = flagZ(A);
+    C = A;
     $38504(B, C, D, E, IX);
   }
 
   public void $38430(int C, int HL) {
-    int A, B, D, E, H, L, IX, IY, F, DE, BC;
-
-    int var1 = mem[32928];
-    A = var1;
-    int var2 = HL;
-    int var3 = mem[var2];
-    int var4 = A;
-    int var5 = cp(var4, var3);
-    F = var5;
+    int A;
+    int B;
+    int D;
+    int E;
+    int H;
+    int L;
+    int IX;
+    int IY;
+    int F;
+    int DE;
+    int BC;
+    A = mem[32928];
+    F = cp(A, mem[HL]);
     if (F == 0) {
-      int var11 = C;
-      A = var11;
-      int var12 = A & 15;
-      A = var12;
-      int var13 = A;
-      int var14 = flagZ(var13);
-      F = var14;
+      A = C;
+      A = A & 15;
+      F = flagZ(A);
       if (F != 0) {
-        int var15 = mem[32928];
-        A = var15;
-        int var16 = A | 7;
-        A = var16;
-        int var17 = A;
-        int var18 = flagZ(var17);
-        F = var18;
-        int var19 = A;
-        int var20 = HL;
-        mem[var20] = var19;
+        A = mem[32928];
+        A = A | 7;
+        F = flagZ(A);
+        mem[HL] = A;
       }
     }
-
-    int var6 = mem[32955];
-    A = var6;
-    int var7 = HL;
-    int var8 = mem[var7];
-    int var9 = A;
-    int var10 = cp(var9, var8);
-    F = var10;
+    A = mem[32955];
+    F = cp(A, mem[HL]);
     if (F == 0) {
       throw new RuntimeException("37047");
     } else {
@@ -5671,227 +3308,145 @@ public class JetSetWilly2Converted {
   }
 
   public void $38504(int B, int C, int D, int E, int IX) {
-    int A, H, L, IY, F, HL, DE;
-
-    DE = D << 8 | E;
+    int A;
+    int H;
+    int L;
+    int IY;
+    int F;
+    int HL;
+    int DE;
+    DE = (D << 8) | E;
     do {
-      int var1 = IX + 0;
-      int var2 = mem[var1];
-      A = var2;
-      int var3 = IX + 1;
-      int var4 = mem[var3];
-      H = var4 & 0xff;
-      int var5 = C;
-      int var6 = A | var5;
-      A = var6;
-      int var7 = A;
-      int var8 = flagZ(var7);
-      F = var8;
-      int var9 = A;
-      L = var9;
-      HL = H << 8 | L;
-      int var10 = DE;
-      int var11 = mem[var10];
-      A = var11;
-      int var12 = HL;
-      int var13 = mem[var12];
-      int var14 = A | var13;
-      A = var14;
-      int var15 = A;
-      int var16 = flagZ(var15);
-      F = var16;
-      int var17 = A;
-      int var18 = HL;
-      mem[var18] = var17;
-      int var19 = HL;
-      int var20 = inc16(var19);
-      HL = var20;
-      int var21 = DE;
-      int var22 = inc16(var21);
-      DE = var22;
-      int var23 = DE;
-      int var24 = mem[var23];
-      A = var24;
-      int var25 = HL;
-      int var26 = mem[var25];
-      int var27 = A | var26;
-      A = var27;
-      int var28 = A;
-      int var29 = flagZ(var28);
-      F = var29;
-      int var30 = A;
-      int var31 = HL;
-      mem[var31] = var30;
-      int var32 = IX;
-      int var33 = inc16(var32);
-      IX = var33;
-      int var34 = IX;
-      int var35 = inc16(var34);
-      IX = var35;
-      int var36 = DE;
-      int var37 = inc16(var36);
-      DE = var37;
-      int var38 = B - 1 & 255;
-      B = var38;
-    } while (B != 0);
-
+      A = mem[IX + 0];
+      H = mem[IX + 1] & 0xff;
+      A = A | C;
+      F = flagZ(A);
+      L = A;
+      HL = (H << 8) | L;
+      A = mem[DE];
+      A = A | mem[HL];
+      F = flagZ(A);
+      mem[HL] = A;
+      HL = inc16(HL);
+      DE = inc16(DE);
+      A = mem[DE];
+      A = A | mem[HL];
+      F = flagZ(A);
+      mem[HL] = A;
+      IX = inc16(IX);
+      IX = inc16(IX);
+      DE = inc16(DE);
+      B = (B - 1) & 255;
+    } while (B != 0 );
   }
 
   public static void $38528(int C, int DE, int IX) {
-    int A, F;
-
+    int A;
+    int F;
     do {
-      int var1 = IX + 0;
-      int var2 = mem[var1];
-      A = var2;
+      A = mem[IX + 0];
       DE = $38545(A, DE);
-      int var3 = IX;
-      int var4 = inc16(var3);
-      IX = var4;
-      int var5 = DE & 0xff;
-      int var6 = inc(var5);
-      DE = DE & 0xff00 | var6;
+      IX = inc16(IX);
+      int var6 = inc(DE & 0xff);
+      DE = (DE & 0xff00) | var6;
       F = var6;
-      int var7 = DE >> 8;
-      A = var7;
+      A = DE >> 8;
       int var8 = A - 8;
-      int var9 = var8 & 255;
-      A = var9;
+      A = var8 & 255;
       F = var8;
-      int var10 = A;
-      DE = DE & 0xff | ((var10) << 8);
-      int var11 = C;
-      int var12 = dec(var11);
+      DE = (DE & 0xff) | (A << 8);
+      int var12 = dec(C);
       C = var12;
       F = var12;
-    } while (F != 0);
-
+    } while (F != 0 );
   }
 
   public static int $38545(int A, int DE) {
-    int H, L, HL, B;
+    int H;
+    int L;
+    int HL;
+    int B;
     H = 7 & 0xff;
-    int var1 = A;
-    L = var1;
-    int var2 = L | 128;
-    L = var2;
-    int var3 = H << 8 | L;
-    int var4 = H << 8 | L;
-    int var5 = add16(var4, var3);
-    HL = var5;
-    int var6 = HL;
-    int var7 = HL;
-    int var8 = add16(var7, var6);
-    HL = var8;
-    int var9 = HL;
-    int var10 = HL;
-    int var11 = add16(var10, var9);
-    HL = var11;
+    L = A;
+    L = L | 128;
+    HL = add16((H << 8) | L, (H << 8) | L);
+    HL = add16(HL, HL);
+    HL = add16(HL, HL);
     B = 8;
     DE = $38555(B, DE, HL);
     return DE;
   }
 
   public static int $38555(int B, int DE, int HL) {
-    int A, F;
+    int A;
+    int F;
     do {
-      int var1 = HL;
-      int var2 = mem[var1];
-      A = var2;
-      int var3 = A;
-      int var4 = DE;
-      mem[var4] = var3;
-      int var5 = HL;
-      int var6 = inc16(var5);
-      HL = var6;
-      int var7 = DE >> 8;
-      int var8 = inc(var7);
-      DE = DE & 0xff | ((var8) << 8);
+      A = mem[HL];
+      mem[DE] = A;
+      HL = inc16(HL);
+      int var8 = inc(DE >> 8);
+      DE = (DE & 0xff) | (var8 << 8);
       F = var8;
-      int var9 = B - 1 & 255;
-      B = var9;
-    } while (B != 0);
-
+      B = (B - 1) & 255;
+    } while (B != 0 );
     return DE;
   }
 
   public int $38562(int HL) {
-    int A, B, C, D, E, H, L, IX, IY, F, DE, BC, AF;
-
+    int A;
+    int B;
+    int C;
+    int D;
+    int E;
+    int H;
+    int L;
+    int IX;
+    int IY;
+    int F;
+    int DE;
+    int BC;
+    int AF;
     while (true) {
-      int var1 = HL;
-      int var2 = mem[var1];
-      A = var2;
-      int var3 = A;
-      int var4 = cp(var3, 255);
-      F = var4;
+      A = mem[HL];
+      F = cp(A, 255);
       if (F == 0) {
         return F;
       }
-
       BC = 100;
-      int var5 = A;
-      int var6 = A ^ var5;
-      A = var6;
-      int var7 = A;
-      int var8 = flagZ(var7);
-      F = var8;
-      int var9 = HL;
-      int var10 = mem[var9];
-      E = var10;
-      int var11 = E;
-      D = var11;
-
+      A = A ^ A;
+      F = flagZ(A);
+      E = mem[HL];
+      D = E;
       while (true) {
-        int var12 = D;
-        int var13 = dec(var12);
+        int var13 = dec(D);
         D = var13;
         F = var13;
         if (F == 0) {
-          int var26 = E;
-          D = var26;
-          int var27 = A ^ 24;
-          A = var27;
-          int var28 = A;
-          int var29 = flagZ(var28);
-          F = var29;
+          D = E;
+          A = A ^ 24;
+          F = flagZ(A);
         }
-
-        int var14 = (BC >> 8) - 1 & 255;
-        BC = BC & 0xff | ((var14 & 0xff) << 8);
-        if (BC >> 8 == 0) {
-          int var15 = A << 8 | F;
-          AF = A << 8 | F;
-          int AF_ = AF;
-          int var16 = BC & 0xff;
-          A = var16;
-          int var17 = A;
-          int var18 = cp(var17, 50);
-          F = var18;
+        BC = (BC & 0xff) | (((((BC >> 8) - 1) & 255) & 0xff) << 8);
+        if ((BC >> 8) == 0) {
+          AF = (A << 8) | F;
+          A = BC & 0xff;
+          F = cp(A, 50);
           if (F == 0) {
-            int var24 = E;
-            int[] var25_0 = _rl(var24, F);
-            int var25 = var25_0[0];
+            int[] var25_0 = _rl(E, F);
             F = var25_0[1];
-            E = var25;
+            E = var25_0[0];
           }
-
-          int var19 = A << 8 | F;
-          AF = AF_;
+          AF = AF;
           A = AF >> 8;
-          int var20 = BC & 0xff;
-          int var21 = dec(var20);
-          BC = BC & 0xff00 | var21;
+          int var21 = dec(BC & 0xff);
+          BC = (BC & 0xff00) | var21;
           F = var21;
           if (F == 0) {
             F = $38601();
             if (F != 0) {
               return F;
             }
-
-            int var22 = HL;
-            int var23 = inc16(var22);
-            HL = var23;
+            HL = inc16(HL);
             break;
           }
         }
@@ -5904,54 +3459,48 @@ public class JetSetWilly2Converted {
     A = A | A;
     int F = flagZ(A);
     if (F != 0) {
-      A = in(A << 8 | 31, 38607);
+      A = in((A << 8) | 31, 38607);
       F = A & 16;
       if (F != 0) {
         return F;
       }
     }
-
-    int BC = 45054;
-    A = in(BC, 38615);
+    A = in(45054, 38615);
     A = A & 1;
     F = cp(A, 1);
     return F;
   }
 
   public void $38622(int A) {
-    int B, C, D, E, H, L, IX, IY, F, HL, DE, BC;
-    int var1 = A;
-    E = var1;
+    int B;
+    int C;
+    int D;
+    int E;
+    int H;
+    int L;
+    int IX;
+    int IY;
+    int F;
+    int HL;
+    int DE;
+    int BC;
+    E = A;
     C = 254;
-
     do {
-      int var2 = A;
-      D = var2;
-      int var3 = D & -17;
-      D = var3;
-      int var4 = D & -9;
-      D = var4;
-      int var5 = E;
-      B = var5;
-
+      D = A;
+      D = D & (-17);
+      D = D & (-9);
+      B = E;
       do {
-        int var6 = B;
-        int var7 = A;
-        int var8 = cp(var7, var6);
-        F = var8;
+        F = cp(A, B);
         if (F == 0) {
           D = 24;
         }
-
-        int var9 = B - 1 & 255;
-        B = var9;
-      } while (B != 0);
-
-      int var10 = A;
-      int var11 = dec(var10);
+        B = (B - 1) & 255;
+      } while (B != 0 );
+      int var11 = dec(A);
       A = var11;
       F = var11;
-    } while (F != 0);
-
+    } while (F != 0 );
   }
 }
