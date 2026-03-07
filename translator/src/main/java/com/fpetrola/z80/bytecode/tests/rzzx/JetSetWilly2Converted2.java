@@ -1015,14 +1015,10 @@ public class JetSetWilly2Converted2 {
                     BC = 64510;
                     A = in(BC, 35775);
                     A = A & 31;
-                    F = flagZ(A);
-                    F = cp(A, mem[IX + 0]);
-                    if (F != 0) {
+                    if (A != mem[IX + 0]) {
                       if (A != 31) {
-                        F = cp(A, mem[IX + (-2)]);
-                        if (F != 0) {
-                          A = A ^ A;
-                          F = flagZ(A);
+                        if (A != mem[IX + (-2)]) {
+                          A = 0;
                           mem[34275] = A;
                         }
                       }
@@ -1030,22 +1026,16 @@ public class JetSetWilly2Converted2 {
                       B = 223;
                       A = in(BC, 35804);
                       A = A & 31;
-                      F = flagZ(A);
-                      F = cp(A, mem[IX + 1]);
-                      if (F != 0) {
+                      if (A != mem[IX + 1]) {
                         if (A != 31) {
-                          F = cp(A, mem[IX + (-1)]);
-                          if (F != 0) {
-                            A = A ^ A;
-                            F = flagZ(A);
+                          if (A != mem[IX + (-1)]) {
+                            A = 0;
                             mem[34275] = A;
                           }
                         }
                       } else {
                         A = mem[34275];
-                        int var392 = inc(A);
-                        A = var392;
-                        F = var392;
+                        A = inc(A);
                         mem[34275] = A;
                       }
                     }
@@ -1346,10 +1336,9 @@ public class JetSetWilly2Converted2 {
           i1 = 0;
           break label8;
         }
-        int i4 = cp(mem[34257], 1);
         label9:
         {
-          if (i4 != 0) {
+          if (mem[34257] != 1) {
             i0 = 0;
             break label9;
           }
@@ -1364,14 +1353,13 @@ public class JetSetWilly2Converted2 {
           int i7 = a[0];
           int i8 = a[1];
           int i9 = mem[32946];
-          int i10 = cp(i9, mem[i7 << 8 | i8]);
           label10:
           {
             label12:
             {
               label11:
               {
-                if (i10 != 0) {
+                if (i9 != mem[i7 << 8 | i8]) {
                   break label11;
                 }
                 break label12;
@@ -1506,12 +1494,11 @@ public class JetSetWilly2Converted2 {
         int i37 = 0;
         mem[34257] = i37;
         int i38 = mem[32973];
-        int i39 = cp(i38, mem[i1]);
         label3:
         {
           label4:
           {
-            if (i39 == 0) {
+            if (i38 == mem[i1]) {
               break label4;
             }
             int i40 = inc16(i1);
@@ -1559,10 +1546,9 @@ public class JetSetWilly2Converted2 {
       }
       mem[34256] = mem[add16(33825, 0 << 8 | add(mem[34256], i3))];
       int i63 = in(32510, 36720) & 31;
-      int i64 = cp(i63, 31);
       label0:
       {
-        if (i64 != 0) {
+        if (i63 != 31) {
           break label0;
         }
         if ((in(239 << 8 | 32510 & 255, 36730) & 1) == 0) {
@@ -1762,10 +1748,9 @@ public class JetSetWilly2Converted2 {
           }
           int i12 = add(mem[i + 3], mem[i + 4]);
           mem[i + 3] = i12;
-          int i13 = cp(i12, mem[i + 7]);
           label2:
           {
-            if (i13 >= 0) {
+            if (i12 >= mem[i + 7]) {
               break label2;
             }
             int i14 = cp(i12, mem[i + 6]);
