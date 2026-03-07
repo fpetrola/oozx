@@ -1598,7 +1598,6 @@ public class JetSetWilly2Converted {
               A = mem[34261];
               int var558 = inc(A);
               A = var558;
-              F = var558;
               mem[34261] = A;
               int var560 = A - 8;
               A = var560 & 255;
@@ -1608,7 +1607,6 @@ public class JetSetWilly2Converted {
               }
               int var563 = inc(A);
               A = var563;
-              F = var563;
               A = _rlc(A);
               A = _rlc(A);
               A = _rlc(A);
