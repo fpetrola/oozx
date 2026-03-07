@@ -14,7 +14,7 @@ import java.util.Stack;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class JetSetWilly2Converted2 {
+public class JetSetWilly2Converted3 {
   public static int[] mem = new int[0x10000];
   static public IO<WordNumber> io;
   private final Stack<Integer> stack = new Stack<>();
@@ -57,7 +57,7 @@ public class JetSetWilly2Converted2 {
     return frame;
   }
 
-  public JetSetWilly2Converted2(MiniZXIO<WordNumber> rzxPlayerIO, Predicate<Integer> interruptionCondition) {
+  public JetSetWilly2Converted3(MiniZXIO<WordNumber> rzxPlayerIO, Predicate<Integer> interruptionCondition) {
     io = rzxPlayerIO;
     init();
   }
@@ -1352,616 +1352,429 @@ public class JetSetWilly2Converted2 {
   }
 
   public void $36307() {
-    int A;
-    int B;
-    int C = 0;
-    int D;
-    int E;
-    int H;
-    int L;
-    int IX;
-    int IY;
-    int F;
-    int HL = 0;
-    int DE;
-    int BC;
-    label213 : {
-      label226 : {
-        A = mem[34262];
-        int var3 = dec(A);
-        A = var3;
-        F = var3;
-        F = A & 128;
-        if (F != 0) {
-          label223 : {
-            A = mem[34257];
-            F = cp(A, 1);
-            if (F == 0) {
-              A = mem[34261];
-              A = A & 254;
-              F = flagZ(A);
-              int var524 = A - 8;
-              A = var524 & 255;
-              F = var524;
-              HL = 34255;
-              int var529 = add(A, mem[HL]);
-              A = var529;
-              F = var529;
-              mem[HL] = A;
-              F = cp(A, 240);
-              if (F >= 0) {
-                $38064();
-                return;
-              }
-              int[] r3 = $36508(A);
-              H = r3[0];
-              L = r3[1];
-              A = mem[32946];
-              F = cp(A, mem[(H << 8) | L]);
-              if (F == 0) {
-                break label213;
-              }
-              HL = inc16((H << 8) | L);
-              F = cp(A, mem[HL]);
-              if (F == 0) {
-                break label213;
-              }
-              A = mem[34261];
-              int var558 = inc(A);
-              A = var558;
-              F = var558;
-              mem[34261] = A;
-              int var560 = A - 8;
-              A = var560 & 255;
-              F = var560;
-              if (F < 0) {
-                A = (-A) & 255;
-              }
-              int var563 = inc(A);
-              A = var563;
-              F = var563;
-              A = _rlc(A);
-              A = _rlc(A);
-              A = _rlc(A);
-              D = A;
-              C = 32;
-              A = mem[32990];
-              while (true) {
-                A = A ^ 24;
-                F = flagZ(A);
-                B = D;
-                do {
-                  B = (B - 1) & 255;
-                } while (B != 0 );
-                int var578 = dec(C);
-                C = var578;
-                F = var578;
-                if (F == 0) {
-                  A = mem[34261];
-                  F = cp(A, 18);
-                  if (F == 0) {
-                    A = 6;
-                    mem[34257] = A;
-                    return;
-                  }
-                  F = cp(A, 16);
-                  if (F != 0) {
-                    F = cp(A, 13);
-                    if (F != 0) {
-                      break label226;
-                    }
-                  }
-                  break;
-                }
-              }
-            }
-            A = mem[34255];
-            A = A & 14;
-            F = flagZ(A);
-            if (F == 0) {
-              HL = (mem[34259 + 1] << 8) + mem[34259];
-              DE = 64;
-              HL = add16(HL, DE);
-              F = (HL >> 8) & 2;
-              if (F != 0) {
-                A = mem[33004];
-                mem[33824] = A;
-                A = A ^ A;
-                F = flagZ(A);
-                mem[34255] = A;
-                A = mem[34257];
-                F = cp(A, 11);
-                if (F < 0) {
-                  A = 2;
-                  mem[34257] = A;
-                }
-                A = mem[34259];
-                A = A & 31;
-                F = flagZ(A);
-                mem[34259] = A;
-                A = 92;
-                mem[34260] = A;
-                throw new RuntimeException("38134");
-              }
-              A = mem[32955];
-              F = cp(A, mem[HL]);
-              if (F != 0) {
-                HL = inc16(HL);
-                A = mem[32955];
-                F = cp(A, mem[HL]);
-                if (F != 0) {
-                  A = mem[32928];
-                  F = cp(A, mem[HL]);
-                  HL = dec16(HL);
-                  if (F != 0) {
-                    break label223;
-                  }
-                  F = cp(A, mem[HL]);
-                  if (F != 0) {
-                    break label223;
-                  }
-                }
-              }
-            }
-            A = mem[34257];
-            F = cp(A, 1);
-            if (F != 0) {
-              HL = 34256;
-              mem[HL] = mem[HL] & (-3);
-              A = mem[34257];
-              A = A | A;
-              F = flagZ(A);
-              if (F == 0) {
-                A = 2;
-                mem[34257] = A;
-                return;
-              }
-              int var450 = inc(A);
-              A = var450;
-              F = var450;
-              F = cp(A, 16);
-              if (F == 0) {
-                A = 12;
-              }
-              mem[34257] = A;
-              A = _rlc(A);
-              A = _rlc(A);
-              A = _rlc(A);
-              A = _rlc(A);
-              D = A;
-              C = 32;
-              A = mem[32990];
-              do {
-                A = A ^ 24;
-                F = flagZ(A);
-                B = D;
-                do {
-                  B = (B - 1) & 255;
-                } while (B != 0 );
-                int var470 = dec(C);
-                C = var470;
-                F = var470;
-              } while (F != 0 );
-              A = mem[34255];
-              int var473 = add(A, 8);
-              A = var473;
-              F = var473;
-              mem[34255] = A;
-              int[] r3 = $36508(A);
-              H = r3[0];
-              L = r3[1];
-              return;
-            }
-            break label226;
+    int i = dec(mem[34262]) & 128;
+    label2: {
+      int i0 = 0;
+      int i1 = 0;
+      int i2 = 0;
+      int i3 = 0;
+      label8: {
+        if (i == 0) {
+          i0 = 0;
+          i1 = 0;
+          break label8;
+        }
+        int i4 = cp(mem[34257], 1);
+        label9: {
+          if (i4 != 0) {
+            i0 = 0;
+            break label9;
           }
-        }
-        E = 255;
-        A = mem[34262];
-        int var7 = dec(A);
-        A = var7;
-        F = var7;
-        F = A & 128;
-        if (F != 0) {
-          label225 : {
-            A = mem[34257];
-            F = cp(A, 12);
-            if (F >= 0) {
-              throw new RuntimeException("37048");
-            }
-            A = A ^ A;
-            F = flagZ(A);
-            mem[34257] = A;
-            A = mem[32973];
-            F = cp(A, mem[HL]);
-            if (F != 0) {
-              HL = inc16(HL);
-              F = cp(A, mem[HL]);
-              if (F != 0) {
-                break label225;
-              }
-            }
-            A = mem[32982];
-            int var421 = A - 3;
-            A = var421 & 255;
-            F = var421;
-            E = A;
-          }
-        }
-        BC = 57342;
-        A = in(BC, 36605);
-        A = A & 31;
-        F = flagZ(A);
-        A = A | 32;
-        F = flagZ(A);
-        A = A & E;
-        F = flagZ(A);
-        E = A;
-        A = mem[34271];
-        A = A & 2;
-        F = flagZ(A);
-        A = _rrc(A);
-        A = A ^ E;
-        F = flagZ(A);
-        E = A;
-        BC = 64510;
-        A = in(BC, 36624);
-        A = A & 31;
-        F = flagZ(A);
-        A = _rlc(A);
-        A = A | 1;
-        F = flagZ(A);
-        A = A & E;
-        F = flagZ(A);
-        E = A;
-        B = 231;
-        A = in((B << 8) | (BC & 0xff), 36636);
-        A = _rrc(A);
-        A = A | 247;
-        F = flagZ(A);
-        A = A & E;
-        F = flagZ(A);
-        E = A;
-        B = 239;
-        A = in((B << 8) | (BC & 0xff), 36645);
-        A = A | 251;
-        F = flagZ(A);
-        A = A & E;
-        F = flagZ(A);
-        E = A;
-        A = in((B << 8) | C, 36651);
-        A = _rrc(A);
-        A = A | 251;
-        F = flagZ(A);
-        A = A & E;
-        F = flagZ(A);
-        E = A;
-        A = mem[34254];
-        A = A | A;
-        F = flagZ(A);
-        if (F != 0) {
-          BC = 31;
-          A = in(BC, 36667);
-          A = A & 3;
-          F = flagZ(A);
-          A = ~A;
-          F = A;
-          A = A & E;
-          F = flagZ(A);
-          E = A;
-        }
-        C = 0;
-        A = E;
-        A = A & 42;
-        F = flagZ(A);
-        F = cp(A, 42);
-        if (F != 0) {
-          C = 4;
-          A = A ^ A;
-          F = flagZ(A);
-          mem[34272] = A;
-        }
-        A = E;
-        A = A & 21;
-        F = flagZ(A);
-        F = cp(A, 21);
-        if (F != 0) {
-          C = C | 8;
-          A = A ^ A;
-          F = flagZ(A);
-          mem[34272] = A;
-        }
-        A = mem[34256];
-        int var102 = add(A, C);
-        A = var102;
-        F = var102;
-        C = A;
-        B = 0;
-        HL = 33825;
-        HL = add16(HL, (B << 8) | C);
-        A = mem[HL];
-        mem[34256] = A;
-        BC = 32510;
-        A = in(BC, 36720);
-        A = A & 31;
-        F = flagZ(A);
-        F = cp(A, 31);
-        if (F == 0) {
-          B = 239;
-          A = in((B << 8) | (BC & 0xff), 36730);
-          F = A & 1;
-          if (F != 0) {
-            A = mem[34254];
-            A = A | A;
-            F = flagZ(A);
-            if (F == 0) {
-              break label226;
-            }
-            BC = 31;
-            A = in(BC, 36745);
-            F = A & 16;
-            if (F == 0) {
-              break label226;
-            }
-          }
-        }
-        A = mem[34271];
-        F = A & 2;
-        if (F == 0) {
-          A = A ^ A;
-          F = flagZ(A);
-          mem[34261] = A;
-          mem[34272] = A;
-          int var358 = inc(A);
-          A = var358;
-          F = var358;
-          mem[34257] = A;
-          A = mem[34262];
-          int var362 = dec(A);
-          A = var362;
-          F = var362;
-          F = A & 128;
-          if (F == 0) {
-            A = 240;
-            mem[34262] = A;
-            A = mem[34255];
-            A = A & 240;
-            F = flagZ(A);
-            mem[34255] = A;
-            HL = 34256;
-            mem[HL] = mem[HL] | 2;
+          int i5 = mem[34261] & 254;
+          flagZ(i5);
+          int i6 = add(i5 - 8 & 255, mem[34255]);
+          mem[34255] = i6;
+          if (cp(i6, 240) >= 0) {
+            this.$38064();
             return;
           }
-        }
-      }
-      A = mem[34256];
-      A = A & 2;
-      F = flagZ(A);
-      if (F == 0) {
-        return;
-      }
-      A = mem[34262];
-      int var125 = dec(A);
-      A = var125;
-      F = var125;
-      F = A & 128;
-      if (F == 0) {
-        return;
-      }
-      A = mem[34256];
-      A = A & 1;
-      F = flagZ(A);
-      if (F != 0) {
-        A = mem[34258];
-        A = A | A;
-        F = flagZ(A);
-        if (F != 0) {
-          int var349 = dec(A);
-          A = var349;
-          F = var349;
-          mem[34258] = A;
-          return;
-        }
-        A = mem[34257];
-        BC = 0;
-        F = cp(A, 0);
-        if (F == 0) {
-          HL = (mem[34259 + 1] << 8) + mem[34259];
-          BC = 0;
-          A = mem[32986];
-          int var327 = dec(A);
-          A = var327;
-          F = var327;
-          A = A | 161;
-          F = flagZ(A);
-          A = A ^ 224;
-          F = flagZ(A);
-          E = A;
-          D = 0;
-          HL = add16(HL, (D << 8) | E);
-          A = mem[32964];
-          F = cp(A, mem[HL]);
-          if (F == 0) {
-            BC = 32;
-            A = mem[32986];
-            A = A | A;
-            F = flagZ(A);
-            if (F == 0) {
-              BC = 65504;
+          int[] a = this.$36508(i6);
+          int i7 = a[0];
+          int i8 = a[1];
+          int i9 = mem[32946];
+          int i10 = cp(i9, mem[i7 << 8 | i8]);
+          label10: {
+            label12: {
+              label11: {
+                if (i10 != 0) {
+                  break label11;
+                }
+                break label12;
+              }
+              int i11 = inc16(i7 << 8 | i8);
+              if (cp(i9, mem[i11]) != 0) {
+                break label10;
+              }
             }
-          }
-        }
-        HL = (mem[34259 + 1] << 8) + mem[34259];
-        A = HL & 0xff;
-        A = A & 31;
-        F = flagZ(A);
-        if (F != 0) {
-          HL = add16(HL, BC);
-          HL = dec16(HL);
-          DE = 32;
-          HL = add16(HL, DE);
-          A = mem[32946];
-          F = cp(A, mem[HL]);
-          if (F == 0) {
+            int i12 = add(mem[34255], 16) & 240;
+            flagZ(i12);
+            mem[34255] = i12;
+            int[] a0 = this.$36508(i12);
+            int dummy = a0[0];
+            int dummy0 = a0[1];
+            mem[34257] = 2;
+            mem[34256] = mem[34256] & -3;
             return;
           }
-          A = mem[34255];
-          C = sra(BC & 0xff);
-          int var287 = add(A, C);
-          A = var287;
-          F = var287;
-          B = A;
-          A = A & 15;
-          F = flagZ(A);
-          if (F != 0) {
-            A = mem[32946];
-            HL = add16(HL, DE);
-            F = cp(A, mem[HL]);
-            if (F == 0) {
-              return;
-            }
-            A = A | A;
-            F = flagZ(A);
-            HL = ((HL - DE) - carry(F)) & 65535;
-            F = HL;
+          int i13 = inc(mem[34261]);
+          mem[34261] = i13;
+          int i14 = i13 - 8;
+          int i15 = i14 & 255;
+          if (i14 < 0) {
+            i15 = -i15 & 255;
           }
-          A = A | A;
-          F = flagZ(A);
-          HL = ((HL - DE) - carry(F)) & 65535;
-          F = HL;
-          int var302 = HL;
-          mem[34259] = var302 & 0xff;
-          mem[34259 + 1] = var302 >>> 8;
-          A = B;
-          mem[34255] = A;
-          A = 3;
-          mem[34258] = A;
+          int i16 = _rlc(_rlc(_rlc(inc(i15))));
+          int i17 = mem[32990];
+          i0 = 32;
+          while(true) {
+            i17 = i17 ^ 24;
+            flagZ(i17);
+            int i18 = i16;
+            while(true) {
+              i18 = i18 - 1 & 255;
+              if (i18 == 0) {
+                break;
+              }
+            }
+            i0 = dec(i0);
+            if (i0 == 0) {
+              break;
+            }
+          }
+          int i19 = mem[34261];
+          if (cp(i19, 18) == 0) {
+            mem[34257] = 6;
+            return;
+          }
+          if (cp(i19, 16) == 0) {
+            break label9;
+          }
+          if (cp(i19, 13) == 0) {
+            break label9;
+          }
+          break label2;
+        }
+        int i20 = flagZ(mem[34255] & 14);
+        label6: {
+          if (i20 != 0) {
+            break label6;
+          }
+          int i21 = add16((mem[34260] << 8) + mem[34259], 64);
+          if ((i21 >> 8 & 2) != 0) {
+            int i22 = mem[33004];
+            mem[33824] = i22;
+            int i23 = i22 ^ i22;
+            flagZ(i23);
+            mem[34255] = i23;
+            if (cp(mem[34257], 11) < 0) {
+              mem[34257] = 2;
+            }
+            int i24 = mem[34259] & 31;
+            flagZ(i24);
+            mem[34259] = i24;
+            mem[34260] = 92;
+            throw new RuntimeException("38134");
+          }
+          if (cp(mem[32955], mem[i21]) == 0) {
+            break label6;
+          }
+          int i25 = inc16(i21);
+          if (cp(mem[32955], mem[i25]) == 0) {
+            break label6;
+          }
+          int i26 = mem[32928];
+          int i27 = cp(i26, mem[i25]);
+          i1 = this.dec16(i25);
+          label7: {
+            if (i27 == 0) {
+              break label7;
+            }
+            break label8;
+          }
+          if (cp(i26, mem[i1]) == 0) {
+            break label6;
+          }
+          break label8;
+        }
+        if (cp(mem[34257], 1) == 0) {
+          break label2;
+        }
+        mem[34256] = mem[34256] & -3;
+        int i28 = mem[34257];
+        int i29 = i28 | i28;
+        if (flagZ(i29) == 0) {
+          mem[34257] = 2;
           return;
         }
-        A = mem[33001];
-        mem[33824] = A;
-        A = mem[34259];
-        A = A | 31;
-        F = flagZ(A);
-        A = A & 254;
-        F = flagZ(A);
-        mem[34259] = A;
+        int i30 = inc(i29);
+        if (cp(i30, 16) == 0) {
+          i30 = 12;
+        }
+        mem[34257] = i30;
+        int i31 = _rlc(_rlc(_rlc(_rlc(i30))));
+        int i32 = mem[32990];
+        int i33 = 32;
+        while(true) {
+          i32 = i32 ^ 24;
+          flagZ(i32);
+          int i34 = i31;
+          while(true) {
+            i34 = i34 - 1 & 255;
+            if (i34 == 0) {
+              i33 = dec(i33);
+              if (i33 == 0) {
+                int i35 = add(mem[34255], 8);
+                mem[34255] = i35;
+                int[] a1 = this.$36508(i35);
+                int dummy1 = a1[0];
+                int dummy2 = a1[1];
+                return;
+              }
+              break;
+            }
+          }
+        }
+      }
+      label5: if ((dec(mem[34262]) & 128) == 0) {
+        i2 = 255;
+      } else {
+        int i36 = mem[34257];
+        if (cp(i36, 12) >= 0) {
+          throw new RuntimeException("37048");
+        }
+        int i37 = i36 ^ i36;
+        flagZ(i37);
+        mem[34257] = i37;
+        int i38 = mem[32973];
+        int i39 = cp(i38, mem[i1]);
+        label3: {
+          label4: {
+            if (i39 == 0) {
+              break label4;
+            }
+            int i40 = inc16(i1);
+            if (cp(i38, mem[i40]) != 0) {
+              break label3;
+            }
+          }
+          i2 = mem[32982] - 3 & 255;
+          break label5;
+        }
+        i2 = 255;
+      }
+      int i41 = in(57342, 36605) & 31;
+      flagZ(i41);
+      int i42 = i41 | 32;
+      flagZ(i42);
+      int i43 = i42 & i2;
+      flagZ(i43);
+      int i44 = mem[34271] & 2;
+      flagZ(i44);
+      int i45 = _rrc(i44) ^ i43;
+      flagZ(i45);
+      int i46 = in(64510, 36624) & 31;
+      flagZ(i46);
+      int i47 = _rlc(i46) | 1;
+      flagZ(i47);
+      int i48 = i47 & i45;
+      flagZ(i48);
+      int i49 = _rrc(in(59390, 36636)) | 247;
+      flagZ(i49);
+      int i50 = i49 & i48;
+      flagZ(i50);
+      int i51 = in(61438, 36645) | 251;
+      flagZ(i51);
+      int i52 = i51 & i50;
+      flagZ(i52);
+      int i53 = _rrc(in(61184 | i0, 36651)) | 251;
+      flagZ(i53);
+      int i54 = i53 & i52;
+      flagZ(i54);
+      int i55 = mem[34254];
+      if (flagZ(i55 | i55) != 0) {
+        int i56 = in(31, 36667) & 3;
+        flagZ(i56);
+        i54 = (~i56) & i54;
+        flagZ(i54);
+      }
+      int i57 = i54 & 42;
+      flagZ(i57);
+      if (cp(i57, 42) == 0) {
+        i3 = 0;
+      } else {
+        int i58 = i57 ^ i57;
+        flagZ(i58);
+        mem[34272] = i58;
+        i3 = 4;
+      }
+      int i59 = i54 & 21;
+      flagZ(i59);
+      if (cp(i59, 21) != 0) {
+        i3 = i3 | 8;
+        int i60 = i59 ^ i59;
+        flagZ(i60);
+        mem[34272] = i60;
+      }
+      int i61 = add16(33825, ((0 | add(mem[34256], i3)) != 0) ? 1 : 0);
+      int i62 = mem[i61];
+      mem[34256] = i62;
+      int i63 = in(32510, 36720) & 31;
+      flagZ(i63);
+      int i64 = cp(i63, 31);
+      label0: {
+        if (i64 != 0) {
+          break label0;
+        }
+        if ((in(61438, 36730) & 1) == 0) {
+          break label0;
+        }
+        int i65 = mem[34254];
+        int i66 = flagZ(i65 | i65);
+        label1: {
+          if (i66 != 0) {
+            break label1;
+          }
+          break label2;
+        }
+        if ((in(31, 36745) & 16) != 0) {
+          break label0;
+        }
+        break label2;
+      }
+      int i67 = mem[34271];
+      if ((i67 & 2) == 0) {
+        int i68 = i67 ^ i67;
+        flagZ(i68);
+        mem[34261] = i68;
+        mem[34272] = i68;
+        int i69 = inc(i68);
+        mem[34257] = i69;
+        if ((dec(mem[34262]) & 128) == 0) {
+          mem[34262] = 240;
+          int i70 = mem[34255] & 240;
+          flagZ(i70);
+          mem[34255] = i70;
+          mem[34256] = mem[34256] | 2;
+          return;
+        }
+      }
+    }
+    if (flagZ(mem[34256] & 2) == 0) {
+      return;
+    }
+    if ((dec(mem[34262]) & 128) == 0) {
+      return;
+    }
+    if (flagZ(mem[34256] & 1) == 0) {
+      int i71 = 0;
+      int i72 = mem[34258];
+      if (cp(i72, 3) != 0) {
+        int i73 = inc(i72);
+        mem[34258] = i73;
+        return;
+      }
+      int i74 = mem[34257];
+      if (flagZ(i74 | i74) != 0) {
+        i71 = 0;
+      } else {
+        int i75 = (mem[34260] << 8) + mem[34259];
+        int i76 = dec(mem[32986]) | 157;
+        flagZ(i76);
+        int i77 = i76 ^ 191;
+        flagZ(i77);
+        int i78 = add16(i75, ((0 | i77) != 0) ? 1 : 0);
+        if (cp(mem[32964], mem[i78]) != 0) {
+          i71 = 0;
+        } else {
+          int i79 = mem[32986];
+          i71 = (flagZ(i79 | i79) == 0) ? 32 : 65504;
+        }
+      }
+      int i80 = inc16(inc16(add16((mem[34260] << 8) + mem[34259], i71)));
+      if (flagZ(i80 & 255 & 31) == 0) {
+        int i81 = mem[33002];
+        mem[33824] = i81;
+        int i82 = mem[34259] & 224;
+        flagZ(i82);
+        mem[34259] = i82;
+        throw new RuntimeException("38061");
+      }
+      int i83 = mem[32946];
+      int i84 = add16(i80, 32);
+      if (cp(i83, mem[i84]) == 0) {
+        return;
+      }
+      int i85 = add(mem[34255], this.sra(i71 & 255));
+      if (flagZ(i85 & 15) != 0) {
+        int i86 = mem[32946];
+        int i87 = add16(i84, 32);
+        if (cp(i86, mem[i87]) == 0) {
+          return;
+        }
+        i84 = i87 - 32 - this.carry(flagZ(i86 | i86)) & 65535;
+      }
+      int i88 = mem[32946];
+      int i89 = i88 | i88;
+      int i90 = i84 - 32 - this.carry(flagZ(i89)) & 65535;
+      if (cp(i89, mem[i90]) == 0) {
+        return;
+      }
+      int i91 = this.dec16(i90);
+      mem[34259] = i91 & 255;
+      mem[34260] = i91 >>> 8;
+      int i92 = i89 ^ i89;
+      flagZ(i92);
+      mem[34258] = i92;
+      mem[34255] = i85;
+      return;
+    } else {
+      int i93 = 0;
+      int i94 = mem[34258];
+      int i95 = i94 | i94;
+      if (flagZ(i95) != 0) {
+        int i96 = dec(i95);
+        mem[34258] = i96;
+        return;
+      }
+      if (cp(mem[34257], 0) != 0) {
+        i93 = 0;
+      } else {
+        int i97 = (mem[34260] << 8) + mem[34259];
+        int i98 = dec(mem[32986]) | 161;
+        flagZ(i98);
+        int i99 = i98 ^ 224;
+        flagZ(i99);
+        int i100 = add16(i97, ((0 | i99) != 0) ? 1 : 0);
+        if (cp(mem[32964], mem[i100]) != 0) {
+          i93 = 0;
+        } else {
+          int i101 = mem[32986];
+          i93 = (flagZ(i101 | i101) != 0) ? 32 : 65504;
+        }
+      }
+      int i102 = (mem[34260] << 8) + mem[34259];
+      if (flagZ(i102 & 255 & 31) == 0) {
+        int i103 = mem[33001];
+        mem[33824] = i103;
+        int i104 = mem[34259] | 31;
+        flagZ(i104);
+        int i105 = i104 & 254;
+        flagZ(i105);
+        mem[34259] = i105;
         throw new RuntimeException("38043");
       }
-      A = mem[34258];
-      F = cp(A, 3);
-      if (F != 0) {
-        int var244 = inc(A);
-        A = var244;
-        F = var244;
-        mem[34258] = A;
+      int i106 = add16(this.dec16(add16(i102, i93)), 32);
+      if (cp(mem[32946], mem[i106]) == 0) {
         return;
       }
-      A = mem[34257];
-      BC = 0;
-      A = A | A;
-      F = flagZ(A);
-      if (F == 0) {
-        HL = (mem[34259 + 1] << 8) + mem[34259];
-        A = mem[32986];
-        int var222 = dec(A);
-        A = var222;
-        F = var222;
-        A = A | 157;
-        F = flagZ(A);
-        A = A ^ 191;
-        F = flagZ(A);
-        E = A;
-        D = 0;
-        HL = add16(HL, (D << 8) | E);
-        A = mem[32964];
-        F = cp(A, mem[HL]);
-        if (F == 0) {
-          BC = 32;
-          A = mem[32986];
-          A = A | A;
-          F = flagZ(A);
-          if (F != 0) {
-            BC = 65504;
-          }
-        }
-      }
-      HL = (mem[34259 + 1] << 8) + mem[34259];
-      HL = add16(HL, BC);
-      HL = inc16(HL);
-      HL = inc16(HL);
-      A = HL & 0xff;
-      A = A & 31;
-      F = flagZ(A);
-      if (F != 0) {
-        DE = 32;
-        A = mem[32946];
-        HL = add16(HL, DE);
-        F = cp(A, mem[HL]);
-        if (F == 0) {
+      int i107 = add(mem[34255], this.sra(i93 & 255));
+      int i108 = i107 & 15;
+      if (flagZ(i108) != 0) {
+        int i109 = mem[32946];
+        int i110 = add16(i106, 32);
+        if (cp(i109, mem[i110]) == 0) {
           return;
         }
-        A = mem[34255];
-        C = sra(BC & 0xff);
-        int var171 = add(A, C);
-        A = var171;
-        F = var171;
-        B = A;
-        A = A & 15;
-        F = flagZ(A);
-        if (F != 0) {
-          A = mem[32946];
-          HL = add16(HL, DE);
-          F = cp(A, mem[HL]);
-          if (F == 0) {
-            return;
-          }
-          A = A | A;
-          F = flagZ(A);
-          HL = ((HL - DE) - carry(F)) & 65535;
-          F = HL;
-        }
-        A = mem[32946];
-        A = A | A;
-        F = flagZ(A);
-        HL = ((HL - DE) - carry(F)) & 65535;
-        F = HL;
-        F = cp(A, mem[HL]);
-        if (F == 0) {
-          return;
-        }
-        HL = dec16(HL);
-        int var193 = HL;
-        mem[34259] = var193 & 0xff;
-        mem[34259 + 1] = var193 >>> 8;
-        A = A ^ A;
-        F = flagZ(A);
-        mem[34258] = A;
-        A = B;
-        mem[34255] = A;
-        return;
+        i108 = i109 | i109;
+        i106 = i110 - 32 - this.carry(flagZ(i108)) & 65535;
       }
-      A = mem[33002];
-      mem[33824] = A;
-      A = mem[34259];
-      A = A & 224;
-      F = flagZ(A);
-      mem[34259] = A;
-      throw new RuntimeException("38061");
+      int i111 = i106 - 32 - this.carry(flagZ(i108 | i108)) & 65535;
+      mem[34259] = i111 & 255;
+      mem[34260] = i111 >>> 8;
+      mem[34255] = i107;
+      mem[34258] = 3;
+      return;
     }
-    A = mem[34255];
-    int var541 = add(A, 16);
-    A = var541;
-    F = var541;
-    A = A & 240;
-    F = flagZ(A);
-    mem[34255] = A;
-    int[] r3 = $36508(A);
-    H = r3[0];
-    L = r3[1];
-    A = 2;
-    mem[34257] = A;
-    HL = 34256;
-    mem[HL] = mem[HL] & (-3);
   }
 
   public int[] $36508(int i) {
