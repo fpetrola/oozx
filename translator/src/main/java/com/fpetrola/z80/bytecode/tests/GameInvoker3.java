@@ -20,12 +20,13 @@ package com.fpetrola.z80.bytecode.tests;
 
 import com.fpetrola.z80.bytecode.tests.minimal.JetSetWilly2Converted;
 import com.fpetrola.z80.bytecode.tests.rzzx.JetSetWilly2Converted2;
+import com.fpetrola.z80.bytecode.tests.rzzx.JetSetWilly2Converted2_R;
 import com.fpetrola.z80.minizx.DefaultMiniZXIO;
 
 public class GameInvoker3 {
   public static void main(String[] args) throws InstantiationException {
-    JetSetWilly2Converted2 zxGame1 = new JetSetWilly2Converted2(new DefaultMiniZXIO<>(), i -> false);
+    JetSetWilly2Converted2_R zxGame1 = new JetSetWilly2Converted2_R(new DefaultMiniZXIO<>(), i -> false);
 //    zxGame1.setSyncChecker(new DefaultSyncChecker());
-    zxGame1.$34463();
+    zxGame1.giveTwoChancesForCodeEntry();
   }
 }
