@@ -7,30 +7,30 @@ import java.io.*;
 
 public class JetSetWillyMemoryRefactor {
 
-  private static final Pattern MEM_PATTERN = Pattern.compile("mem\\[(\\d+)]");
+  private static final Pattern MEM_PATTERN = Pattern.compile("\\b(\\d{4,})\\b");
 
   private static final Map<Integer, String> ADDRESS_NAMES = new HashMap<>();
 
-  static {
-    ADDRESS_NAMES.put(33824, "currentRoomNumber");
-    ADDRESS_NAMES.put(34251, "minuteCounter");
-    ADDRESS_NAMES.put(34252, "livesRemaining");
-    ADDRESS_NAMES.put(34253, "screenFlashCounter");
-    ADDRESS_NAMES.put(34254, "kempstonJoystickIndicator");
-    ADDRESS_NAMES.put(34255, "willyYCoordinate");
-    ADDRESS_NAMES.put(34256, "willyDirectionAndMovementFlags");
-    ADDRESS_NAMES.put(34257, "airborneStatusIndicator");
-    ADDRESS_NAMES.put(34258, "willyAnimationFrame");
-    ADDRESS_NAMES.put(34262, "ropeStatusIndicator");
-    ADDRESS_NAMES.put(34270, "itemsRemainingComplement");
-    ADDRESS_NAMES.put(34271, "gameModeIndicator");
-    ADDRESS_NAMES.put(34272, "inactivityTimer");
-    ADDRESS_NAMES.put(34273, "inGameMusicNoteIndex");
-    ADDRESS_NAMES.put(34274, "musicFlags");
-    ADDRESS_NAMES.put(34275, "writetyperKeyCounter");
-    ADDRESS_NAMES.put(34276, "temporaryVariable");
-    ADDRESS_NAMES.put(32990, "borderColour");
-  }
+//  static {
+//    ADDRESS_NAMES.put(33824, "currentRoomNumber");
+//    ADDRESS_NAMES.put(34251, "minuteCounter");
+//    ADDRESS_NAMES.put(34252, "livesRemaining");
+//    ADDRESS_NAMES.put(34253, "screenFlashCounter");
+//    ADDRESS_NAMES.put(34254, "kempstonJoystickIndicator");
+//    ADDRESS_NAMES.put(34255, "willyYCoordinate");
+//    ADDRESS_NAMES.put(34256, "willyDirectionAndMovementFlags");
+//    ADDRESS_NAMES.put(34257, "airborneStatusIndicator");
+//    ADDRESS_NAMES.put(34258, "willyAnimationFrame");
+//    ADDRESS_NAMES.put(34262, "ropeStatusIndicator");
+//    ADDRESS_NAMES.put(34270, "itemsRemainingComplement");
+//    ADDRESS_NAMES.put(34271, "gameModeIndicator");
+//    ADDRESS_NAMES.put(34272, "inactivityTimer");
+//    ADDRESS_NAMES.put(34273, "inGameMusicNoteIndex");
+//    ADDRESS_NAMES.put(34274, "musicFlags");
+//    ADDRESS_NAMES.put(34275, "writetyperKeyCounter");
+//    ADDRESS_NAMES.put(34276, "temporaryVariable");
+//    ADDRESS_NAMES.put(32990, "borderColour");
+//  }
 
   public static void main(String[] args) throws Exception {
 
@@ -54,15 +54,12 @@ public class JetSetWillyMemoryRefactor {
 
       String property = ADDRESS_NAMES.get(address);
 
-      if (property != null) {
-//        property = "mem_" + address;
+      property = "mem_" + address;
 
-        refactored = refactored.replaceAll(
-            "mem\\[" + address + "]",
-            property
-        );
-      } else
-        foundAddresses.remove(address);
+      refactored = refactored.replaceAll(
+          "" + address + "",
+          "" + property + ""
+      );
     }
 
     String properties = generateProperties(foundAddresses);
@@ -83,11 +80,12 @@ public class JetSetWillyMemoryRefactor {
 
       String name = ADDRESS_NAMES.get(address);
 
-      if (name != null) {
-//        name = "mem_" + address;
+      if (name == null) {
+        name = "mem_" + address;
 
         sb.append("    private int ")
             .append(name)
+            .append("= " + address)
             .append("; // ")
             .append(address)
             .append("\n");

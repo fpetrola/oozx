@@ -16,23 +16,188 @@ import java.util.function.Predicate;
 
 public class JetSetWilly2Converted2_R {
   // Generated memory properties
-  static private int currentRoomNumber; // 33824
-  static private int minuteCounter; // 34251
-  static private int livesRemaining; // 34252
-  static private int screenFlashCounter; // 34253
-  static private int kempstonJoystickIndicator; // 34254
-  static private int willyYCoordinate; // 34255
-  static private int willyDirectionAndMovementFlags; // 34256
-  static private int airborneStatusIndicator; // 34257
-  static private int willyAnimationFrame; // 34258
-  static private int ropeStatusIndicator; // 34262
-  static private int itemsRemainingComplement; // 34270
-  static private int borderColour; // 32990
-  static private int gameModeIndicator; // 34271
-  static private int inactivityTimer; // 34272
-  static private int inGameMusicNoteIndex; // 34273
-  static private int writetyperKeyCounter; // 34275
-  static private int temporaryVariable; // 34276
+  static private int EMPTY_ROOM_SCREEN_BUFFER = 28672; // 28672
+  static private int TITLE_SCREEN_BOTTOM = 23040; // 23040
+  static private int ROOM_LAYOUT = 32768; // 32768
+  static private int SCREEN_PIXEL_BUFFER = 16384; // 16384
+  static private int ATTRIBUTE_COPY_SIZE = 4096; // 4096
+  static private int TITLE_SCREEN_ATTR_TOP = 38912; // 38912
+  static private int SCREEN_ATTRIBUTE_BUFFER = 22528; // 22528
+  static private int UNKNOWN_39424 = 39424; // 39424
+  static private int CODES_AREA = 40448; // 40448
+  static private int mem_24064 = 24064; // 24064
+  static private int GAME_PIXEL_BUFFER = 24576; // 24576
+  static private int ATTRIBUTES_MEMORY = 23552; // 23552
+  static private int SCREEN_BUFFER_ADDRESS_LOOKUP_TABLE = 33280; // 33280
+  static private int TEMP_BUFFER_20480 = 20480; // 20480
+  static private int TEMP_BUFFER_18432 = 18432; // 18432
+  static private int MEMORY_SIZE = 65536; // 65536
+  static private int mem_16385 = 16385; // 16385
+  static private int mem_20481 = 20481; // 20481
+  static private int mem_23553 = 23553; // 23553
+  static private int mem_22529 = 22529; // 22529
+  static private int mem_18461 = 18461; // 18461
+  static private int mem_18462 = 18462; // 18462
+  static private int CHECK_WILLY_CELL = 38430; // 38430
+  static private int CURRENT_ROOM = 33824; // 33824
+  static private int LEFT_RIGHT_MOVEMENT_TABLE = 33825; // 33825
+  static private int TRIANGLE_UDGS = 33841; // 33841
+  static private int FOOT_BARREL_GRAPHIC = 40000; // 40000
+  static private int mem_18498 = 18498; // 18498
+  static private int mem_18501 = 18501; // 18501
+  static private int mem_18504 = 18504; // 18504
+  static private int mem_18507 = 18507; // 18507
+  static private int PRESS_ENTER_TEXT = 33876; // 33876
+  static private int DRAW_SPRITE = 37974; // 37974
+  static private int mem_34399 = 34399; // 34399
+  static private int MESSAGE_BUFFER = 23136; // 23136
+  static private int mem_20576 = 20576; // 20576
+  static private int MARIA_GRAPHIC = 40032; // 40032
+  static private int mem_23137 = 23137; // 23137
+  static private int OR_BYTES_TO_BUFFER = 38504; // 38504
+  static private int mem_26734 = 26734; // 26734
+  static private int mem_20592 = 20592; // 20592
+  static private int mem_23672 = 23672; // 23672
+  static private int mem_20601 = 20601; // 20601
+  static private int PRINT_MESSAGE = 38528; // 38528
+  static private int ROOM_NAME = 32896; // 32896
+  static private int mem_18575 = 18575; // 18575
+  static private int PRINT_CHAR = 38545; // 38545
+  static private int COPY_BYTES = 38555; // 38555
+  static private int mem_38043 = 38043; // 38043
+  static private int CODE_ENTRY_ROUTINE = 34463; // 34463
+  static private int mem_20640 = 20640; // 20640
+  static private int ROOM_TILES = 32928; // 32928
+  static private int PLAY_THEME_TUNE = 38562; // 38562
+  static private int mem_38061 = 38061; // 38061
+  static private int ENTER_ROOM_ABOVE = 38064; // 38064
+  static private int WALL_TILE = 32946; // 32946
+  static private int COLLISION_FATAL_1 = 37047; // 37047
+  static private int COLLISION_FATAL_2 = 37048; // 37048
+  static private int NASTY_TILE = 32955; // 32955
+  static private int MOVE_ROPE_AND_GUARDIANS = 37056; // 37056
+  static private int DISPLAY_CODE_ENTRY_SCREEN = 34499; // 34499
+  static private int RAMP_TILE = 32964; // 32964
+  static private int mem_35526 = 35526; // 35526
+  static private int CHECK_ENTER_FIRE = 38601; // 38601
+  static private int mem_16586 = 16586; // 16586
+  static private int mem_22730 = 22730; // 22730
+  static private int mem_22731 = 22731; // 22731
+  static private int mem_22732 = 22732; // 22732
+  static private int mem_22733 = 22733; // 22733
+  static private int CONVEYOR_TILE = 32973; // 32973
+  static private int mem_38095 = 38095; // 38095
+  static private int mem_18639 = 18639; // 18639
+  static private int mem_33488 = 33488; // 33488
+  static private int mem_16594 = 16594; // 16594
+  static private int mem_22738 = 22738; // 22738
+  static private int mem_22739 = 22739; // 22739
+  static private int mem_22740 = 22740; // 22740
+  static private int mem_22741 = 22741; // 22741
+  static private int CONVEYOR_DIRECTION = 32982; // 32982
+  static private int CONVEYOR_ATTR_ADDRESS = 32983; // 32983
+  static private int mem_32984 = 32984; // 32984
+  static private int CONVEYOR_LENGTH = 32985; // 32985
+  static private int RAMP_DEFINITION = 32986; // 32986
+  static private int RAMP_ATTR_ADDRESS = 32987; // 32987
+  static private int mem_32988 = 32988; // 32988
+  static private int RAMP_LENGTH = 32989; // 32989
+  static private int PLAY_INTRO_SOUND = 38622; // 38622
+  static private int BORDER_COLOUR = 32990; // 32990
+  static private int ITEM_GRAPHIC = 32993; // 32993
+  static private int ROOM_EXITS = 33001; // 33001
+  static private int mem_33002 = 33002; // 33002
+  static private int CYCLE_INK_PAPER_COLOURS = 35563; // 35563
+  static private int mem_33003 = 33003; // 33003
+  static private int mem_33004 = 33004; // 33004
+  static private int ENTITY_SPECIFICATIONS = 33008; // 33008
+  static private int mem_38134 = 38134; // 38134
+  static private int MOVE_CONVEYOR = 38137; // 38137
+  static private int mem_2301 = 2301; // 2301
+  static private int KEYBOARD_READ_2 = 36605; // 36605
+  static private int KEYBOARD_PORT = 65278; // 65278
+  static private int KEYBOARD_PORT_2 = 32510; // 32510
+  static private int CLEAR_SCREEN_SIZE = 6911; // 6911
+  static private int NUMBER_KEY_GRAPHICS = 39680; // 39680
+  static private int TEMP_22784 = 22784; // 22784
+  static private int UDG_BASE = 1792; // 1792
+  static private int WILLY_SPRITE_GRAPHIC = 40192; // 40192
+  static private int KEYBOARD_READ = 48896; // 48896
+  static private int STACK_BASE = 65280; // 65280
+  static private int TEMP_24320 = 24320; // 24320
+  static private int ENTITY_BUFFERS = 33024; // 33024
+  static private int DRAW_CURRENT_ROOM = 36147; // 36147
+  static private int SPECIAL_ROOM_HANDLER = 38196; // 38196
+  static private int READ_KEYBOARD_CODE_ENTRY = 34620; // 34620
+  static private int mem_40256 = 40256; // 40256
+  static private int mem_22864 = 22864; // 22864
+  static private int mem_22867 = 22867; // 22867
+  static private int ITEMS_COLLECTED_TIME_TEXT = 34132; // 34132
+  static private int mem_22870 = 22870; // 22870
+  static private int mem_22873 = 22873; // 22873
+  static private int ATTRIBUTE_BUFFER_ADDRESS = 36189; // 36189
+  static private int FILL_ATTRIBUTE_BUFFER_24064 = 36203; // 36203
+  static private int mem_23918 = 23918; // 23918
+  static private int mem_23919 = 23919; // 23919
+  static private int GAME_TEXT = 34164; // 34164
+  static private int OVER_TEXT = 34168; // 34168
+  static private int ITEMS_COLLECTED = 34172; // 34172
+  static private int CURRENT_TIME = 34175; // 34175
+  static private int mem_34687 = 34687; // 34687
+  static private int CODE_ENTRY_ATTR = 39808; // 39808
+  static private int CHECK_TOILET = 38276; // 38276
+  static private int SEVEN_AM_TEXT = 34181; // 34181
+  static private int ENTER_CODE_TEXT = 34187; // 34187
+  static private int DRAW_REMAINING_LIVES = 35211; // 35211
+  static private int mem_23950 = 23950; // 23950
+  static private int mem_23951 = 23951; // 23951
+  static private int SORRY_TRY_CODE_TEXT = 34219; // 34219
+  static private int mem_23988 = 23988; // 23988
+  static private int mem_23996 = 23996; // 23996
+  static private int mem_23997 = 23997; // 23997
+  static private int DRAW_ROPE_ARROWS_GUARDIANS = 37310; // 37310
+  static private int COPY_ROOM_ATTRIBUTE = 36288; // 36288
+  static private int SET_WILLY_ATTRIBUTES = 38344; // 38344
+  static private int MINUTE_COUNTER = 34251; // 34251
+  static private int LIVES_REMAINING = 34252; // 34252
+  static private int SCREEN_FLASH_COUNTER = 34253; // 34253
+  static private int KEMPSTON_JOYSTICK = 34254; // 34254
+  static private int WILLY_Y = 34255; // 34255
+  static private int mem_22991 = 22991; // 22991
+  static private int mem_22992 = 22992; // 22992
+  static private int WILLY_DIRECTION_FLAGS = 34256; // 34256
+  static private int AIRBORNE_STATUS = 34257; // 34257
+  static private int DRAW_ITEMS_AND_COLLECT = 37841; // 37841
+  static private int WILLY_ANIMATION_FRAME = 34258; // 34258
+  static private int WILLY_ATTR_BUFFER_ADDR = 34259; // 34259
+  static private int MOVE_WILLY_1 = 36307; // 36307
+  static private int JUMPING_ANIMATION_COUNTER = 34261; // 34261
+  static private int ROPE_STATUS = 34262; // 34262
+  static private int WILLY_STATE_ON_ENTRY = 34263; // 34263
+  static private int mem_24028 = 24028; // 24028
+  static private int mem_24029 = 24029; // 24029
+  static private int ITEMS_REMAINING_256_MINUS = 34270; // 34270
+  static private int GAME_MODE = 34271; // 34271
+  static private int INACTIVITY_TIMER = 34272; // 34272
+  static private int mem_65504 = 65504; // 65504
+  static private int MUSIC_NOTE_INDEX = 34273; // 34273
+  static private int MUSIC_FLAGS = 34274; // 34274
+  static private int WRITETYPER_KEY_COUNTER = 34275; // 34275
+  static private int TEMPORARY_VARIABLE = 34276; // 34276
+  static private int mem_34279 = 34279; // 34279
+  static private int mem_23023 = 23023; // 23023
+  static private int mem_23024 = 23024; // 23024
+  static private int TITLE_SCREEN_TUNE_DATA = 34299; // 34299
+  static private int mem_45054 = 45054; // 45054
+  static private int mem_61438 = 61438; // 61438
+  static private int mem_63486 = 63486; // 63486
+  static private int mem_64510 = 64510; // 64510
+  static private int mem_57342 = 57342; // 57342
+  static private int FIRST_ITEM_INDEX = 41983; // 41983
+  static private int CLEAR_SCREEN_SIZE_2 = 6143; // 6143
+  static private int PIXEL_COPY_SIZE = 2047; // 2047
+  static private int FULL_SCREEN_SIZE = 4095; // 4095
+  static private int MEMORY_END = 65535; // 65535
 
   public static int[] mem = new int[0x10000];
   static public IO<WordNumber> io;
@@ -55,12 +220,12 @@ public class JetSetWilly2Converted2_R {
   }
 
   public void init() {
-    this.mem = new int[65536];
+    this.mem = new int[MEMORY_SIZE];
     MiniZX.createScreen(((MiniZXIO) io).getMiniZXKeyboard(), new MiniZXScreen(this.getMemFunction()));
     final byte[] rom = MiniZXWithEmulationBase.createROM();
     final byte[] bytes = MiniZXWithEmulationBase.gzipDecompressFromBase64(this.getProgramBytes());
-    for (int i = 0; i < 65536; ++i) {
-      mem[i] = ((i < 16384) ? rom[i] : bytes[i]) & 0xff;
+    for (int i = 0; i < MEMORY_SIZE; ++i) {
+      mem[i] = ((i < SCREEN_PIXEL_BUFFER) ? rom[i] : bytes[i]) & 0xff;
     }
   }
 
@@ -135,14 +300,14 @@ public class JetSetWilly2Converted2_R {
     return (value1 >> 1) | (value1 & 0x80);
   }
 
-  public static int in(int port, int pc) {
+  public static int in(int port) {
     return io.in(WordNumber.createValue(port)).intValue();
   }
 
-  public void routine_0() {
+  public void $0() {
   }
 
-  public void giveTwoChancesForCodeEntry() {
+  public void $CODE_ENTRY_ROUTINE() {
     int HL;
     int BC;
     int DE;
@@ -155,20 +320,20 @@ public class JetSetWilly2Converted2_R {
     int C;
     int D;
     int E;
-    HL = 16384;
-    DE = 16385;
-    BC = 6911;
+    HL = SCREEN_PIXEL_BUFFER;
+    DE = mem_16385;
+    BC = CLEAR_SCREEN_SIZE;
     mem[HL] = 0;
     while ((BC--) != 0)
       mem[DE++] = mem[HL++];
 
-    IX = 34187;
-    int[] r1 = displayCodeEntryScreen(IX);
+    IX = ENTER_CODE_TEXT;
+    int[] r1 = $DISPLAY_CODE_ENTRY_SCREEN(IX);
     A = r1[0];
     F = r1[1];
     if (F != 0) {
-      IX = 34219;
-      int[] r2 = displayCodeEntryScreen(IX);
+      IX = SORRY_TRY_CODE_TEXT;
+      int[] r2 = $DISPLAY_CODE_ENTRY_SCREEN(IX);
       A = r2[0];
       F = r2[1];
       if (F != 0) {
@@ -177,68 +342,37 @@ public class JetSetWilly2Converted2_R {
     while (true) {
       label325:
       while (true) {
-        A = 0;
-        kempstonJoystickIndicator = A;
-        inGameMusicNoteIndex = A;
-        screenFlashCounter = A;
-        airborneStatusIndicator = A;
-        minuteCounter = A;
-        inactivityTimer = A;
-        gameModeIndicator = A;
-        A = 7;
-        livesRemaining = A;
-        A = 208;
-        willyYCoordinate = A;
-        A = 33;
-        currentRoomNumber = A;
-        HL = 23988;
-        int var16 = HL;
-        mem[34259] = var16 & 0xff;
-        mem[34259 + 1] = var16 >>> 8;
-        HL = 34172;
-        mem[HL] = 48;
-        HL = inc16(HL);
-        mem[HL] = 48;
-        HL = inc16(HL);
-        mem[HL] = 48;
+        extracted();
         H = 164 & 0xff;
-        A = mem[41983];
+        A = mem[FIRST_ITEM_INDEX];
         L = A;
-        itemsRemainingComplement = A;
+        mem[ITEMS_REMAINING_256_MINUS] = A;
         do {
           mem[(H << 8) | L] = mem[(H << 8) | L] | 64;
           int var31 = inc(L);
           L = var31;
           F = var31;
         } while (F != 0);
-        HL = 34274;
+        HL = MUSIC_FLAGS;
         mem[HL] = mem[HL] | 1;
         label207:
         while (true) {
-          HL = 16384;
-          DE = 16385;
-          BC = 6143;
-          mem[HL] = 0;
-          while ((BC--) != 0)
-            mem[DE++] = mem[HL++];
+          DE = clearScreen();
 
-          HL = 38912;
-          BC = 768;
-          while ((BC--) != 0)
-            mem[DE++] = mem[HL++];
+          copyAttributes(DE);
 
-          HL = 23136;
-          DE = 23137;
+          HL = MESSAGE_BUFFER;
+          DE = mem_23137;
           BC = 31;
           mem[HL] = 70;
           while ((BC--) != 0)
             mem[DE++] = mem[HL++];
 
-          IX = 33876;
-          DE = 20576;
+          IX = PRESS_ENTER_TEXT;
+          DE = mem_20576;
           C = 32;
-          printMessage(C, DE, IX);
-          DE = 22528;
+          $PRINT_MESSAGE(C, DE, IX);
+          DE = SCREEN_ATTRIBUTE_BUFFER;
           do {
             A = mem[DE];
             A = A | A;
@@ -269,7 +403,7 @@ public class JetSetWilly2Converted2_R {
                       A = A | C;
                       C = A;
                       B = 0;
-                      HL = 33841;
+                      HL = TRIANGLE_UDGS;
                       HL = add16(HL, (B << 8) | C);
                       push(DE);
                       F = (DE >> 8) & 1;
@@ -279,7 +413,7 @@ public class JetSetWilly2Converted2_R {
                       }
                       B = 8;
                       DE = (D << 8) | (DE & 0xff);
-                      DE = routine_38555(B, DE, HL);
+                      DE = $COPY_BYTES(B, DE, HL);
                       DE = pop();
                     }
                   }
@@ -293,7 +427,7 @@ public class JetSetWilly2Converted2_R {
           BC = 31;
           A = 0;
           do {
-            E = in(BC, 34970);
+            E = in(BC);
             A = A | E;
             BC = (BC & 0xff) | (((((BC >> 8) - 1) & 255) & 0xff) << 8);
           } while ((BC >> 8) != 0);
@@ -301,144 +435,119 @@ public class JetSetWilly2Converted2_R {
           F = flagZ(A);
           if (F == 0) {
             A = 1;
-            kempstonJoystickIndicator = A;
+            mem[KEMPSTON_JOYSTICK] = A;
           }
-          HL = 34299;
-          F = playThemeTuneMoonlightSonata(HL);
+          HL = TITLE_SCREEN_TUNE_DATA;
+          F = $PLAY_THEME_TUNE(HL);
           if (F != 0) {
             break;
           }
           A = 0;
-          temporaryVariable = A;
+          mem[TEMPORARY_VARIABLE] = A;
           do {
-            cycleInkAndPaperColours();
-            HL = 23136;
-            DE = 23137;
+            $CYCLE_INK_PAPER_COLOURS();
+            HL = MESSAGE_BUFFER;
+            DE = mem_23137;
             BC = 31;
             mem[HL] = 79;
             while ((BC--) != 0)
               mem[DE++] = mem[HL++];
 
-            A = temporaryVariable;
-            IX = 33876;
+            A = mem[TEMPORARY_VARIABLE];
+            IX = PRESS_ENTER_TEXT;
             E = A;
             D = 0;
             IX = add16(IX, DE);
-            DE = 20576;
+            DE = mem_20576;
             C = 32;
-            printMessage(C, DE, IX);
-            A = temporaryVariable;
+            $PRINT_MESSAGE(C, DE, IX);
+            A = mem[TEMPORARY_VARIABLE];
             A = A & 31;
             A = add(A, 50);
-            playIntroMessageSound(A);
-            BC = 45054;
-            A = in(BC, 35046);
+            $PLAY_INTRO_SOUND(A);
+            BC = mem_45054;
+            A = in(BC);
             A = A & 1;
             if (A != 1) {
               break label207;
             }
-            A = temporaryVariable;
+            A = mem[TEMPORARY_VARIABLE];
             A = inc(A);
             F = cp(A, 224);
-            temporaryVariable = A;
+            mem[TEMPORARY_VARIABLE] = A;
           } while (F != 0);
         }
-        HL = 34181;
-        DE = 34175;
+        HL = SEVEN_AM_TEXT;
+        DE = CURRENT_TIME;
         BC = 6;
         while ((BC--) != 0)
           mem[DE++] = mem[HL++];
 
-        HL = 39424;
-        DE = 23040;
+        HL = UNKNOWN_39424;
+        DE = TITLE_SCREEN_BOTTOM;
         BC = 256;
         while ((BC--) != 0)
           mem[DE++] = mem[HL++];
 
         while (true) {
           while (true) {
-            A = currentRoomNumber;
+            A = mem[CURRENT_ROOM];
             A = A | 192;
             F = flagZ(A);
             H = A & 0xff;
             L = 0;
-            DE = 32768;
+            DE = ROOM_LAYOUT;
             BC = 256;
             HL = (H << 8) | L;
             while ((BC--) != 0)
               mem[DE++] = mem[HL++];
 
-            IX = 33008;
-            DE = 33024;
-            A = 8;
-            do {
-              L = mem[IX];
-              L = L & (-129);
-              H = 20 & 0xff;
-              HL = add16((H << 8) | L, (H << 8) | L);
-              HL = add16(HL, HL);
-              HL = add16(HL, HL);
-              BC = 2;
-              while ((BC--) != 0)
-                mem[DE++] = mem[HL++];
-
-              C = mem[IX + 1];
-              mem[HL] = C;
-              BC = 6;
-              while ((BC--) != 0)
-                mem[DE++] = mem[HL++];
-
-              IX = inc16(IX);
-              IX = inc16(IX);
-              int var88 = dec(A);
-              A = var88;
-              F = var88;
-            } while (F != 0);
-            HL = 34255;
-            DE = 34263;
+            copyEntities();
+            HL = WILLY_Y;
+            DE = WILLY_STATE_ON_ENTRY;
             BC = 7;
             while ((BC--) != 0)
               mem[DE++] = mem[HL++];
 
-            drawCurrentRoomToScreenBuffer();
-            HL = 20480;
-            DE = 20481;
-            BC = 2047;
+            $DRAW_CURRENT_ROOM();
+            HL = TEMP_BUFFER_20480;
+            DE = mem_20481;
+            BC = PIXEL_COPY_SIZE;
             mem[HL] = 0;
             while ((BC--) != 0)
               mem[DE++] = mem[HL++];
 
-            IX = 32896;
+            IX = ROOM_NAME;
             C = 32;
-            DE = 20480;
-            printMessage(C, DE, IX);
-            IX = 34132;
-            DE = 20576;
+            DE = TEMP_BUFFER_20480;
+            $PRINT_MESSAGE(C, DE, IX);
+            IX = ITEMS_COLLECTED_TIME_TEXT;
+            DE = mem_20576;
             C = 32;
-            printMessage(C, DE, IX);
-            A = borderColour;
+            $PRINT_MESSAGE(C, DE, IX);
+            A = mem[BORDER_COLOUR];
             C = 254;
             A = A ^ A;
             F = flagZ(A);
-            ropeStatusIndicator = A;
+            mem[ROPE_STATUS] = A;
             while (true) {
               label363:
               {
-                drawRemainingLives();
-                HL = 24064;
-                DE = 23552;
+                $DRAW_REMAINING_LIVES();
+                HL = mem_24064;
+                DE = ATTRIBUTES_MEMORY;
                 BC = 512;
                 while ((BC--) != 0)
                   mem[DE++] = mem[HL++];
 
-                HL = 28672;
-                DE = 24576;
-                BC = 4096;
+                HL = EMPTY_ROOM_SCREEN_BUFFER;
+                DE = GAME_PIXEL_BUFFER;
+                BC = ATTRIBUTE_COPY_SIZE;
                 while ((BC--) != 0)
                   mem[DE++] = mem[HL++];
 
-                moveRopeAndGuardians();
-                A = gameModeIndicator;
+                $MOVE_ROPE_AND_GUARDIANS();
+                A = mem[GAME_MODE];
                 F = cp(A, 3);
                 label283:
                 {
@@ -452,133 +561,133 @@ public class JetSetWilly2Converted2_R {
                         {
                           try {
                             if (F != 0) {
-                              moveWillyPart1();
+                              $MOVE_WILLY_1();
                             }
                           } catch (RuntimeException var645) {
                             int var99 = Integer.parseInt(var645.getMessage());
-                            if (var99 == 37048) {
+                            if (var99 == COLLISION_FATAL_2) {
                               break label412;
                             }
-                            if (var99 == 38043) {
+                            if (var99 == mem_38043) {
                               break;
                             }
-                            if (var99 == 38061) {
+                            if (var99 == mem_38061) {
                               break;
                             }
-                            if (var99 == 38134) {
+                            if (var99 == mem_38134) {
                               break;
                             }
-                            if (var99 == 38095) {
+                            if (var99 == mem_38095) {
                               break label358;
                             }
                           }
-                          A = willyYCoordinate;
+                          A = mem[WILLY_Y];
                           F = cp(A, 225);
                           try {
                             if (F >= 0) {
-                              moveWillyToRoomAbove();
+                              $ENTER_ROOM_ABOVE();
                             }
                             break label279;
                           } catch (RuntimeException var644) {
-                            if (Integer.parseInt(var644.getMessage()) != 38095) {
+                            if (Integer.parseInt(var644.getMessage()) != mem_38095) {
                               break label279;
                             }
                           }
                         }
                         break;
                       }
-                      A = gameModeIndicator;
+                      A = mem[GAME_MODE];
                       F = cp(A, 3);
                       try {
                         if (F != 0) {
-                          checkAndSetWillySpriteAttributes();
+                          $SET_WILLY_ATTRIBUTES();
                         }
                       } catch (RuntimeException var643) {
-                        if (Integer.parseInt(var643.getMessage()) == 37048) {
+                        if (Integer.parseInt(var643.getMessage()) == COLLISION_FATAL_2) {
                           break label412;
                         }
                       }
-                      A = gameModeIndicator;
+                      A = mem[GAME_MODE];
                       if (A == 2) {
-                        checkReachedToilet();
+                        $CHECK_TOILET();
                       }
                       try {
-                        dealWithSpecialRooms();
+                        $SPECIAL_ROOM_HANDLER();
                       } catch (RuntimeException var642) {
-                        if (Integer.parseInt(var642.getMessage()) == 37048) {
+                        if (Integer.parseInt(var642.getMessage()) == COLLISION_FATAL_2) {
                           break label412;
                         }
                       }
                       try {
-                        drawRopeArrowsGuardians();
+                        $DRAW_ROPE_ARROWS_GUARDIANS();
                         break label282;
                       } catch (RuntimeException var641) {
-                        if (Integer.parseInt(var641.getMessage()) != 37048) {
+                        if (Integer.parseInt(var641.getMessage()) != COLLISION_FATAL_2) {
                           break label282;
                         }
                       }
                     }
                     A = 255;
-                    // airborneStatusIndicator = var100;
+                    // mem[AIRBORNE_STATUS] = var100;
                     break label283;
                   }
-                  moveConveyor();
-                  drawItemsAndCollect();
+                  $MOVE_CONVEYOR();
+                  $DRAW_ITEMS_AND_COLLECT();
                 }
-                HL = 24576;
-                DE = 16384;
-                BC = 4096;
+                HL = GAME_PIXEL_BUFFER;
+                DE = SCREEN_PIXEL_BUFFER;
+                BC = ATTRIBUTE_COPY_SIZE;
                 while ((BC--) != 0)
                   mem[DE++] = mem[HL++];
 
-                A = gameModeIndicator;
+                A = mem[GAME_MODE];
                 A = A & 2;
                 F = flagZ(A);
                 A = _rrc(A);
-                HL = 34258;
+                HL = WILLY_ANIMATION_FRAME;
                 A = A | mem[HL];
                 F = flagZ(A);
                 mem[HL] = A;
-                A = screenFlashCounter;
+                A = mem[SCREEN_FLASH_COUNTER];
                 A = A | A;
                 F = flagZ(A);
                 if (F != 0) {
                   int var549 = dec(A);
                   A = var549;
                   F = var549;
-                  screenFlashCounter = A;
+                  mem[SCREEN_FLASH_COUNTER] = A;
                   A = _rlc(A);
                   A = _rlc(A);
                   A = _rlc(A);
                   A = A & 56;
                   F = flagZ(A);
-                  HL = 23552;
-                  DE = 23553;
+                  HL = ATTRIBUTES_MEMORY;
+                  DE = mem_23553;
                   BC = 511;
                   mem[HL] = A;
                   while ((BC--) != 0)
                     mem[DE++] = mem[HL++];
 
                 }
-                HL = 23552;
-                DE = 22528;
+                HL = ATTRIBUTES_MEMORY;
+                DE = SCREEN_ATTRIBUTE_BUFFER;
                 BC = 512;
                 while ((BC--) != 0)
                   mem[DE++] = mem[HL++];
 
-                IX = 34175;
-                DE = 20601;
+                IX = CURRENT_TIME;
+                DE = mem_20601;
                 C = 6;
-                printMessage(C, DE, IX);
-                IX = 34172;
-                DE = 20592;
+                $PRINT_MESSAGE(C, DE, IX);
+                IX = ITEMS_COLLECTED;
+                DE = mem_20592;
                 C = 3;
-                printMessage(C, DE, IX);
-                A = minuteCounter;
+                $PRINT_MESSAGE(C, DE, IX);
+                A = mem[MINUTE_COUNTER];
                 A = inc(A);
-                minuteCounter = A;
+                mem[MINUTE_COUNTER] = A;
                 if (F == 0) {
-                  IX = 34175;
+                  IX = CURRENT_TIME;
                   mem[IX + 4] = inc(mem[IX + 4]);
                   A = mem[IX + 4];
                   if (A == 58) {
@@ -611,11 +720,11 @@ public class JetSetWilly2Converted2_R {
                     }
                   }
                 }
-                BC = 65278;
-                A = in(BC, 35502);
+                BC = KEYBOARD_PORT;
+                A = in(BC);
                 E = A;
                 B = 127;
-                A = in((B << 8) | (BC & 0xff), 35507);
+                A = in((B << 8) | (BC & 0xff));
                 A = A | E;
                 F = flagZ(A);
                 A = A & 1;
@@ -623,11 +732,11 @@ public class JetSetWilly2Converted2_R {
                 if (F == 0) {
                   continue label325;
                 }
-                A = inactivityTimer;
-                inactivityTimer = A;
+                A = mem[INACTIVITY_TIMER];
+                mem[INACTIVITY_TIMER] = A;
                 if (F != 0) {
                   B = 253;
-                  A = in((B << 8) | (BC & 0xff), 35526);
+                  A = in((B << 8) | (BC & 0xff));
                   A = A & 31;
                   F = flagZ(A);
                   if (A == 31) {
@@ -637,17 +746,17 @@ public class JetSetWilly2Converted2_R {
                 }
                 while (true) {
                   B = 2;
-                  A = in((B << 8) | C, 35539);
+                  A = in((B << 8) | C);
                   A = A & 31;
                   F = flagZ(A);
                   if (A != 31) {
-                    HL = 39424;
-                    DE = 23040;
+                    HL = UNKNOWN_39424;
+                    DE = TITLE_SCREEN_BOTTOM;
                     BC = 256;
                     while ((BC--) != 0)
                       mem[DE++] = mem[HL++];
 
-                    A = borderColour;
+                    A = mem[BORDER_COLOUR];
                     break;
                   }
                   int var492 = inc(E);
@@ -659,20 +768,20 @@ public class JetSetWilly2Converted2_R {
                     D = var494;
                     F = var494;
                     if (F == 0) {
-                      A = writetyperKeyCounter;
+                      A = mem[WRITETYPER_KEY_COUNTER];
                       if (A != 10) {
-                        cycleInkAndPaperColours();
+                        $CYCLE_INK_PAPER_COLOURS();
                       }
                     }
                   }
                 }
               }
-              A = airborneStatusIndicator;
+              A = mem[AIRBORNE_STATUS];
               if (A == 255) {
                 A = 71;
                 do {
-                  HL = 22528;
-                  DE = 22529;
+                  HL = SCREEN_ATTRIBUTE_BUFFER;
+                  DE = mem_22529;
                   BC = 511;
                   mem[HL] = A;
                   while ((BC--) != 0)
@@ -714,33 +823,33 @@ public class JetSetWilly2Converted2_R {
                   F = var189;
                   F = cp(A, 63);
                 } while (F != 0);
-                HL = 34252;
+                HL = LIVES_REMAINING;
                 A = mem[HL];
                 A = A | A;
                 F = flagZ(A);
                 if (F == 0) {
-                  HL = 16384;
-                  DE = 16385;
-                  BC = 4095;
+                  HL = SCREEN_PIXEL_BUFFER;
+                  DE = mem_16385;
+                  BC = FULL_SCREEN_SIZE;
                   mem[HL] = 0;
                   while ((BC--) != 0)
                     mem[DE++] = mem[HL++];
 
                   A = A ^ A;
                   F = flagZ(A);
-                  temporaryVariable = A;
-                  DE = 40256;
-                  HL = 18575;
+                  mem[TEMPORARY_VARIABLE] = A;
+                  DE = mem_40256;
+                  HL = mem_18575;
                   C = 0;
-                  r1 = drawSprite(C, DE, HL);
+                  r1 = $DRAW_SPRITE(C, DE, HL);
                   F = r1[0];
-                  DE = 40032;
-                  HL = 18639;
+                  DE = MARIA_GRAPHIC;
+                  HL = mem_18639;
                   C = 0;
-                  r1 = drawSprite(C, DE, HL);
+                  r1 = $DRAW_SPRITE(C, DE, HL);
                   F = r1[0];
                   do {
-                    A = temporaryVariable;
+                    A = mem[TEMPORARY_VARIABLE];
                     C = A;
                     B = 130;
                     A = mem[(B << 8) | C];
@@ -753,11 +862,11 @@ public class JetSetWilly2Converted2_R {
                     A = var216 & 255;
                     F = var216;
                     H = A & 0xff;
-                    DE = 40000;
+                    DE = FOOT_BARREL_GRAPHIC;
                     C = 0;
-                    r1 = drawSprite(C, DE, HL);
+                    r1 = $DRAW_SPRITE(C, DE, HL);
                     F = r1[0];
-                    A = temporaryVariable;
+                    A = mem[TEMPORARY_VARIABLE];
                     A = ~A;
                     F = A;
                     E = A;
@@ -775,10 +884,10 @@ public class JetSetWilly2Converted2_R {
                       C = var233;
                       F = var233;
                     } while (F != 0);
-                    HL = 22528;
-                    DE = 22529;
+                    HL = SCREEN_ATTRIBUTE_BUFFER;
+                    DE = mem_22529;
                     BC = 511;
-                    A = temporaryVariable;
+                    A = mem[TEMPORARY_VARIABLE];
                     A = A & 12;
                     F = flagZ(A);
                     A = _rlc(A);
@@ -792,25 +901,25 @@ public class JetSetWilly2Converted2_R {
                     F = flagZ(A);
                     A = A | 2;
                     F = flagZ(A);
-                    mem[22991] = A;
-                    mem[22992] = A;
-                    mem[23023] = A;
-                    mem[23024] = A;
-                    A = temporaryVariable;
+                    mem[mem_22991] = A;
+                    mem[mem_22992] = A;
+                    mem[mem_23023] = A;
+                    mem[mem_23024] = A;
+                    A = mem[TEMPORARY_VARIABLE];
                     int var257 = add(A, 4);
                     A = var257;
                     F = var257;
-                    temporaryVariable = A;
+                    mem[TEMPORARY_VARIABLE] = A;
                     F = cp(A, 196);
                   } while (F != 0);
-                  IX = 34164;
+                  IX = GAME_TEXT;
                   C = 4;
-                  DE = 16586;
-                  printMessage(C, DE, IX);
-                  IX = 34168;
+                  DE = mem_16586;
+                  $PRINT_MESSAGE(C, DE, IX);
+                  IX = OVER_TEXT;
                   C = 4;
-                  DE = 16594;
-                  printMessage(C, DE, IX);
+                  DE = mem_16594;
+                  $PRINT_MESSAGE(C, DE, IX);
                   BC = 0;
                   B = 0;
                   C = 0;
@@ -824,7 +933,7 @@ public class JetSetWilly2Converted2_R {
                     F = flagZ(A);
                     A = A | 64;
                     F = flagZ(A);
-                    mem[22730] = A;
+                    mem[mem_22730] = A;
                     int var271 = inc(A);
                     A = var271;
                     F = var271;
@@ -832,7 +941,7 @@ public class JetSetWilly2Converted2_R {
                     F = flagZ(A);
                     A = A | 64;
                     F = flagZ(A);
-                    mem[22731] = A;
+                    mem[mem_22731] = A;
                     int var280 = inc(A);
                     A = var280;
                     F = var280;
@@ -840,7 +949,7 @@ public class JetSetWilly2Converted2_R {
                     F = flagZ(A);
                     A = A | 64;
                     F = flagZ(A);
-                    mem[22732] = A;
+                    mem[mem_22732] = A;
                     int var289 = inc(A);
                     A = var289;
                     F = var289;
@@ -848,7 +957,7 @@ public class JetSetWilly2Converted2_R {
                     F = flagZ(A);
                     A = A | 64;
                     F = flagZ(A);
-                    mem[22733] = A;
+                    mem[mem_22733] = A;
                     int var298 = inc(A);
                     A = var298;
                     F = var298;
@@ -856,7 +965,7 @@ public class JetSetWilly2Converted2_R {
                     F = flagZ(A);
                     A = A | 64;
                     F = flagZ(A);
-                    mem[22738] = A;
+                    mem[mem_22738] = A;
                     int var307 = inc(A);
                     A = var307;
                     F = var307;
@@ -864,7 +973,7 @@ public class JetSetWilly2Converted2_R {
                     F = flagZ(A);
                     A = A | 64;
                     F = flagZ(A);
-                    mem[22739] = A;
+                    mem[mem_22739] = A;
                     int var316 = inc(A);
                     A = var316;
                     F = var316;
@@ -872,7 +981,7 @@ public class JetSetWilly2Converted2_R {
                     F = flagZ(A);
                     A = A | 64;
                     F = flagZ(A);
-                    mem[22740] = A;
+                    mem[mem_22740] = A;
                     int var325 = inc(A);
                     A = var325;
                     F = var325;
@@ -880,7 +989,7 @@ public class JetSetWilly2Converted2_R {
                     F = flagZ(A);
                     A = A | 64;
                     F = flagZ(A);
-                    mem[22741] = A;
+                    mem[mem_22741] = A;
                     int var334 = dec(C);
                     C = var334;
                     F = var334;
@@ -897,8 +1006,8 @@ public class JetSetWilly2Converted2_R {
                 int var339 = dec(mem[HL]);
                 mem[HL] = var339;
                 F = var339;
-                HL = 34263;
-                DE = 34255;
+                HL = WILLY_STATE_ON_ENTRY;
+                DE = WILLY_Y;
                 BC = 7;
                 while ((BC--) != 0)
                   mem[DE++] = mem[HL++];
@@ -906,8 +1015,8 @@ public class JetSetWilly2Converted2_R {
                 break;
               }
               A = 191;
-              HL = 34274;
-              A = in((A << 8) | 254, 35620);
+              HL = MUSIC_FLAGS;
+              A = in((A << 8) | 254);
               A = A & 31;
               F = flagZ(A);
               if (A != 31) {
@@ -925,20 +1034,20 @@ public class JetSetWilly2Converted2_R {
               if (F == 0) {
                 A = A ^ A;
                 F = flagZ(A);
-                inactivityTimer = A;
-                A = inGameMusicNoteIndex;
+                mem[INACTIVITY_TIMER] = A;
+                A = mem[MUSIC_NOTE_INDEX];
                 int var447 = inc(A);
                 A = var447;
                 F = var447;
-                inGameMusicNoteIndex = A;
+                mem[MUSIC_NOTE_INDEX] = A;
                 A = A & 126;
                 F = flagZ(A);
                 A = _rrc(A);
                 E = A;
                 D = 0;
-                HL = 34399;
+                HL = mem_34399;
                 HL = add16(HL, (D << 8) | E);
-                A = livesRemaining;
+                A = mem[LIVES_REMAINING];
                 A = _rlc(A);
                 A = _rlc(A);
                 int var463 = A - 28;
@@ -949,7 +1058,7 @@ public class JetSetWilly2Converted2_R {
                 A = var469;
                 F = var469;
                 D = A;
-                A = borderColour;
+                A = mem[BORDER_COLOUR];
                 E = D;
                 BC = 3;
                 do {
@@ -969,8 +1078,8 @@ public class JetSetWilly2Converted2_R {
                   F = var477;
                 } while (F != 0);
               }
-              BC = 61438;
-              A = in(BC, 35699);
+              BC = mem_61438;
+              A = in(BC);
               F = A & 2;
               if (F == 0) {
                 A = A & 16;
@@ -979,57 +1088,57 @@ public class JetSetWilly2Converted2_R {
                 F = flagZ(A);
                 A = _rlc(A);
                 D = A;
-                A = writetyperKeyCounter;
+                A = mem[WRITETYPER_KEY_COUNTER];
                 if (A == 10) {
-                  BC = 63486;
-                  A = in(BC, 35723);
+                  BC = mem_63486;
+                  A = in(BC);
                   A = ~A;
                   F = A;
                   A = A & 31;
                   F = flagZ(A);
                   A = A | D;
                   F = flagZ(A);
-                  currentRoomNumber = A;
+                  mem[CURRENT_ROOM] = A;
                   break;
                 }
               }
-              A = writetyperKeyCounter;
+              A = mem[WRITETYPER_KEY_COUNTER];
               if (A != 10) {
-                A = currentRoomNumber;
+                A = mem[CURRENT_ROOM];
                 if (A == 28) {
-                  A = willyYCoordinate;
+                  A = mem[WILLY_Y];
                   if (A == 208) {
-                    A = writetyperKeyCounter;
+                    A = mem[WRITETYPER_KEY_COUNTER];
                     A = _rlc(A);
                     E = A;
                     D = 0;
-                    IX = 34279;
+                    IX = mem_34279;
                     IX = add16(IX, (D << 8) | E);
-                    BC = 64510;
-                    A = in(BC, 35775);
+                    BC = mem_64510;
+                    A = in(BC);
                     A = A & 31;
                     if (A != mem[IX]) {
                       if (A != 31) {
                         if (A != mem[IX + (-2)]) {
                           A = 0;
-                          writetyperKeyCounter = A;
+                          mem[WRITETYPER_KEY_COUNTER] = A;
                         }
                       }
                     } else {
                       B = 223;
-                      A = in(BC, 35804);
+                      A = in(BC);
                       A = A & 31;
                       if (A != mem[IX + 1]) {
                         if (A != 31) {
                           if (A != mem[IX + (-1)]) {
                             A = 0;
-                            writetyperKeyCounter = A;
+                            mem[WRITETYPER_KEY_COUNTER] = A;
                           }
                         }
                       } else {
-                        A = writetyperKeyCounter;
+                        A = mem[WRITETYPER_KEY_COUNTER];
                         A = inc(A);
-                        writetyperKeyCounter = A;
+                        mem[WRITETYPER_KEY_COUNTER] = A;
                       }
                     }
                   }
@@ -1042,39 +1151,128 @@ public class JetSetWilly2Converted2_R {
     }
   }
 
-  public static int[] displayCodeEntryScreen(int i) {
+  private void copyEntities() {
+    int DE;
+    int A;
+    int BC;
+    int L;
+    int HL;
+    int C;
+    int IX;
+    int F;
+    int H;
+    IX = ENTITY_SPECIFICATIONS;
+    DE = ENTITY_BUFFERS;
+    A = 8;
+    do {
+      L = mem[IX];
+      L = L & (-129);
+      H = 20 & 0xff;
+      HL = add16((H << 8) | L, (H << 8) | L);
+      HL = add16(HL, HL);
+      HL = add16(HL, HL);
+      BC = 2;
+      while ((BC--) != 0)
+        mem[DE++] = mem[HL++];
+
+      C = mem[IX + 1];
+      mem[HL] = C;
+      BC = 6;
+      while ((BC--) != 0)
+        mem[DE++] = mem[HL++];
+
+      IX = inc16(IX);
+      IX = inc16(IX);
+      int var88 = dec(A);
+      A = var88;
+      F = var88;
+    } while (F != 0);
+  }
+
+  private void copyAttributes(int DE) {
+    int BC;
+    int HL;
+    HL = TITLE_SCREEN_ATTR_TOP;
+    BC = 768;
+    while ((BC--) != 0)
+      mem[DE++] = mem[HL++];
+  }
+
+  private int clearScreen() {
+    int BC;
+    int DE;
+    int HL;
+    HL = SCREEN_PIXEL_BUFFER;
+    DE = mem_16385;
+    BC = CLEAR_SCREEN_SIZE_2;
+    mem[HL] = 0;
+    while ((BC--) != 0)
+      mem[DE++] = mem[HL++];
+    return DE;
+  }
+
+  private void extracted() {
+    int A;
+    int HL;
+    A = 0;
+    mem[KEMPSTON_JOYSTICK] = A;
+    mem[MUSIC_NOTE_INDEX] = A;
+    mem[SCREEN_FLASH_COUNTER] = A;
+    mem[AIRBORNE_STATUS] = A;
+    mem[MINUTE_COUNTER] = A;
+    mem[INACTIVITY_TIMER] = A;
+    mem[GAME_MODE] = A;
+    A = 7;
+    mem[LIVES_REMAINING] = A;
+    A = 208;
+    mem[WILLY_Y] = A;
+    A = 33;
+    mem[CURRENT_ROOM] = A;
+    HL = mem_23988;
+    int var16 = HL;
+    mem[WILLY_ATTR_BUFFER_ADDR] = var16 & 0xff;
+    mem[WILLY_ATTR_BUFFER_ADDR + 1] = var16 >>> 8;
+    HL = ITEMS_COLLECTED;
+    mem[HL] = 48;
+    HL = inc16(HL);
+    mem[HL] = 48;
+    HL = inc16(HL);
+    mem[HL] = 48;
+  }
+
+  public static int[] $DISPLAY_CODE_ENTRY_SCREEN(int i) {
     int i0 = 0;
     int i1 = 0;
-    printMessage(32, 18432, i);
-    int[] a = drawSprite(0, 39680, 18498);
-    int[] a0 = drawSprite(0, a[1], 18501);
-    int[] a1 = drawSprite(0, a0[1], 18504);
-    int[] a2 = drawSprite(0, a1[1], 18507);
-    int i2 = 22784;
-    int i3 = 39808;
+    $PRINT_MESSAGE(32, TEMP_BUFFER_18432, i);
+    int[] a = $DRAW_SPRITE(0, NUMBER_KEY_GRAPHICS, mem_18498);
+    int[] a0 = $DRAW_SPRITE(0, a[1], mem_18501);
+    int[] a1 = $DRAW_SPRITE(0, a0[1], mem_18504);
+    int[] a2 = $DRAW_SPRITE(0, a1[1], mem_18507);
+    int i2 = TEMP_22784;
+    int i3 = CODE_ENTRY_ATTR;
     int i4 = 128;
     label0:
     while (true) {
       int i5 = i4 + -1;
       if (i4 == 0) {
-        i0 = add(mem[23672], 37);
-        mem[23672] = i0;
+        i0 = add(mem[mem_23672], 37);
+        mem[mem_23672] = i0;
         if (i0 > 179) {
           i0 = i0 - 180 & 255;
         }
-        int i6 = add(mem[40448 | i0], i0);
-        temporaryVariable = i6;
+        int i6 = add(mem[CODES_AREA | i0], i0);
+        mem[TEMPORARY_VARIABLE] = i6;
         int i7 = 47;
         while (true) {
           i7 = inc(i7);
           if (i0 > 18) {
             i0 = i0 - 18 & 255;
           } else {
-            printSingleCharacter(i7, 18462);
+            $PRINT_CHAR(i7, mem_18462);
             i1 = add(i0, 65);
-            printSingleCharacter(i1, 18461);
+            $PRINT_CHAR(i1, mem_18461);
             while (true) {
-              int i8 = 22864;
+              int i8 = mem_22864;
               do {
                 label2:
                 {
@@ -1082,7 +1280,7 @@ public class JetSetWilly2Converted2_R {
                   label1:
                   {
                     try {
-                      int[] a4 = readKeyboardDuringCodeEntry(i8);
+                      int[] a4 = $READ_KEYBOARD_CODE_ENTRY(i8);
                       i1 = a4[0];
                       i0 = a4[1];
                       i8 = a4[2];
@@ -1092,7 +1290,7 @@ public class JetSetWilly2Converted2_R {
                     }
                     break label2;
                   }
-                  if (Integer.parseInt(a3.getMessage()) == 34687) {
+                  if (Integer.parseInt(a3.getMessage()) == mem_34687) {
                     break label0;
                   }
                 }
@@ -1116,28 +1314,28 @@ public class JetSetWilly2Converted2_R {
     int i11 = i1 | i0;
     int[] a8 = new int[2];
     a8[0] = i11;
-    a8[1] = cp(i11, temporaryVariable);
+    a8[1] = cp(i11, mem[TEMPORARY_VARIABLE]);
     return a8;
   }
 
-  public static int[] readKeyboardDuringCodeEntry(int i) {
+  public static int[] $READ_KEYBOARD_CODE_ENTRY(int i) {
     while (true) {
-      int i0 = in(63486, 34623) & 15;
+      int i0 = in(mem_63486) & 15;
       if (i0 == 15) {
         label0:
         while (true) {
           int i1 = 0;
-          if ((in(48896 | 254, 34633) & 1) == 0) {
-            int i2 = mem[22873] & 127;
+          if ((in(KEYBOARD_READ | 254) & 1) == 0) {
+            int i2 = mem[mem_22873] & 127;
             if (i2 != 7) {
               int i3 = i2 - 8 & 255 & 24;
               int i4 = _rrc(_rrc(_rrc(i3)));
-              int i5 = mem[22867] - 8 & 255 & 24;
+              int i5 = mem[mem_22867] - 8 & 255 & 24;
               int i6 = _rlc(i5) | i4;
-              int i7 = mem[22870] - 8 & 255 & 24;
-              int i8 = mem[22864] - 8 & 255 & 24;
+              int i7 = mem[mem_22870] - 8 & 255 & 24;
+              int i8 = mem[mem_22864] - 8 & 255 & 24;
               _rlc(_rlc(_rlc(i8)));
-              throw new RuntimeException("34687");
+              throw new RuntimeException(mem_34687 + "");
             }
           }
           int i9 = i + 0;
@@ -1148,7 +1346,7 @@ public class JetSetWilly2Converted2_R {
           mem[i11] = mem[i11] | 128;
           int i12 = i + 33;
           mem[i12] = mem[i12] | 128;
-          int i13 = in(63486, 34712) & 15;
+          int i13 = in(mem_63486) & 15;
           if (i13 != 14) {
             if (i13 != 13) {
               if (i13 != 11) {
@@ -1174,7 +1372,7 @@ public class JetSetWilly2Converted2_R {
             i14 = i14 & 255 | ((i14 >> 8) - 1 & 255 & 255) << 8;
             if (i14 >> 8 == 0) {
               int i15 = dec(i14 & 255);
-              i14 = i14 & 65280 | i15;
+              i14 = i14 & STACK_BASE | i15;
               if (i15 == 0) {
                 int[] a = new int[3];
                 a[0] = i13;
@@ -1189,16 +1387,16 @@ public class JetSetWilly2Converted2_R {
     }
   }
 
-  public void drawRemainingLives() {
-    int i = livesRemaining;
+  public void $DRAW_REMAINING_LIVES() {
+    int i = mem[LIVES_REMAINING];
     int i0 = i | i;
     if (flagZ(i0) != 0) {
-      int i1 = 20640;
+      int i1 = mem_20640;
       do {
         this.push(i1);
         this.push(i0 << 8 | 0);
-        int i2 = _rlc(_rlc(_rlc(inGameMusicNoteIndex))) & 96;
-        int[] a = drawSprite(0, 40192 | i2, i1);
+        int i2 = _rlc(_rlc(_rlc(mem[MUSIC_NOTE_INDEX]))) & 96;
+        int[] a = $DRAW_SPRITE(0, WILLY_SPRITE_GRAPHIC | i2, i1);
         int i3 = this.pop() >> 8;
         i1 = inc16(inc16(this.pop()));
         i0 = i3 - 1 & 255;
@@ -1206,8 +1404,8 @@ public class JetSetWilly2Converted2_R {
     }
   }
 
-  public void cycleInkAndPaperColours() {
-    int i = 22528;
+  public void $CYCLE_INK_PAPER_COLOURS() {
+    int i = SCREEN_ATTRIBUTE_BUFFER;
     while (true) {
       mem[i] = add(mem[i], 24) & 184 | add(mem[i], 3) & 7;
       i = inc16(i);
@@ -1217,21 +1415,21 @@ public class JetSetWilly2Converted2_R {
     }
   }
 
-  public void drawCurrentRoomToScreenBuffer() {
-    this.fillAttributeBufferForCurrentRoom();
-    mem[36189] = 112;
-    this.routine_36171(24064);
-    mem[36189] = 120;
-    this.routine_36171(24320);
+  public void $DRAW_CURRENT_ROOM() {
+    this.$FILL_ATTRIBUTE_BUFFER_24064();
+    mem[ATTRIBUTE_BUFFER_ADDRESS] = 112;
+    this.$DRAW_ROOM_TILES(mem_24064);
+    mem[ATTRIBUTE_BUFFER_ADDRESS] = 120;
+    this.$DRAW_ROOM_TILES(TEMP_24320);
   }
 
-  public void routine_36171(int i) {
+  public void $DRAW_ROOM_TILES(int i) {
     int i0 = 0;
     label0:
     while (true) {
       int i1 = mem[i + 0];
       int i2 = 54;
-      int i3 = 32928;
+      int i3 = ROOM_TILES;
       label1:
       while (true) {
         int i4 = i2 + -1;
@@ -1246,7 +1444,7 @@ public class JetSetWilly2Converted2_R {
             continue label1;
           }
         }
-        int i6 = mem[36189];
+        int i6 = mem[ATTRIBUTE_BUFFER_ADDRESS];
         int i7 = 8;
         while (true) {
           int i8 = mem[i3];
@@ -1268,36 +1466,36 @@ public class JetSetWilly2Converted2_R {
     }
   }
 
-  public void fillAttributeBufferForCurrentRoom() {
-    int i = 24064;
-    int i0 = 32768;
+  public void $FILL_ATTRIBUTE_BUFFER_24064() {
+    int i = mem_24064;
+    int i0 = ROOM_LAYOUT;
     while (true) {
-      int i1 = this.copyRoomAttributeByte(_rlc(_rlc(mem[i0])), i);
-      int i2 = this.copyRoomAttributeByte(_rrc(_rrc(_rrc(_rrc(mem[i0])))), i1);
-      int i3 = this.copyRoomAttributeByte(_rrc(_rrc(mem[i0])), i2);
-      i = this.copyRoomAttributeByte(mem[i0], i3);
+      int i1 = this.$COPY_ROOM_ATTRIBUTE(_rlc(_rlc(mem[i0])), i);
+      int i2 = this.$COPY_ROOM_ATTRIBUTE(_rrc(_rrc(_rrc(_rrc(mem[i0])))), i1);
+      int i3 = this.$COPY_ROOM_ATTRIBUTE(_rrc(_rrc(mem[i0])), i2);
+      i = this.$COPY_ROOM_ATTRIBUTE(mem[i0], i3);
       i0 = inc16(i0);
       if (flagZ(i0 & 255 & 128) != 0) {
-        int i4 = mem[32985];
+        int i4 = mem[CONVEYOR_LENGTH];
         int i5 = i4 | i4;
         if (flagZ(i5) != 0) {
-          int i6 = (mem[32984] << 8) + mem[32983];
-          int i7 = mem[32973];
+          int i6 = (mem[CONVEYOR_ATTR_ADDRESS + 1] << 8) + mem[CONVEYOR_ATTR_ADDRESS];
+          int i7 = mem[CONVEYOR_TILE];
           do {
             mem[i6] = i7;
             i6 = inc16(i6);
             i5 = i5 - 1 & 255;
           } while (i5 != 0);
         }
-        int i8 = mem[32989];
+        int i8 = mem[RAMP_LENGTH];
         if (flagZ(i8 | i8) != 0) {
-          int i9 = (mem[32988] << 8) + mem[32987];
-          int i11 = add(_rlc(mem[32986] & 1), 223);
-          int i12 = mem[32989];
-          int i13 = mem[32964];
+          int i9 = (mem[RAMP_ATTR_ADDRESS + 1] << 8) + mem[RAMP_ATTR_ADDRESS];
+          int i11 = add(_rlc(mem[RAMP_DEFINITION] & 1), 223);
+          int i12 = mem[RAMP_LENGTH];
+          int i13 = mem[RAMP_TILE];
           do {
             mem[i9] = i13;
-            i9 = add16(i9, 65280 | i11);
+            i9 = add16(i9, STACK_BASE | i11);
             i12 = i12 - 1 & 255;
           } while (i12 != 0);
         }
@@ -1306,16 +1504,16 @@ public class JetSetWilly2Converted2_R {
     }
   }
 
-  public int copyRoomAttributeByte(int i, int i0) {
+  public int $COPY_ROOM_ATTRIBUTE(int i, int i0) {
     int i1 = i & 3;
     int i2 = add(add(_rlc(_rlc(_rlc(i1))), i1), 160);
-    int i3 = mem[32768 | i2];
+    int i3 = mem[ROOM_LAYOUT | i2];
     mem[i0 + 0] = i3;
     return inc16(i0);
   }
 
-  public void moveWillyPart1() {
-    int i = dec(ropeStatusIndicator) & 128;
+  public void $MOVE_WILLY_1() {
+    int i = dec(mem[ROPE_STATUS]) & 128;
     label2:
     {
       int i0 = 0;
@@ -1331,21 +1529,21 @@ public class JetSetWilly2Converted2_R {
         }
         label9:
         {
-          if (airborneStatusIndicator != 1) {
+          if (mem[AIRBORNE_STATUS] != 1) {
             i0 = 0;
             break label9;
           }
-          int i5 = mem[34261] & 254;
-          int i6 = add(i5 - 8 & 255, willyYCoordinate);
-          willyYCoordinate = i6;
+          int i5 = mem[JUMPING_ANIMATION_COUNTER] & 254;
+          int i6 = add(i5 - 8 & 255, mem[WILLY_Y]);
+          mem[WILLY_Y] = i6;
           if (i6 >= 240) {
-            this.moveWillyToRoomAbove();
+            this.$ENTER_ROOM_ABOVE();
             return;
           }
-          int[] a = this.routine_36508(i6);
+          int[] a = this.$UPDATE_WILLY_ATTRIBUTE(i6);
           int i7 = a[0];
           int i8 = a[1];
-          int i9 = mem[32946];
+          int i9 = mem[WALL_TILE];
           label10:
           {
             label12:
@@ -1362,22 +1560,22 @@ public class JetSetWilly2Converted2_R {
                 break label10;
               }
             }
-            int i12 = add(willyYCoordinate, 16) & 240;
-            willyYCoordinate = i12;
-            int[] a0 = this.routine_36508(i12);
-            airborneStatusIndicator = 2;
-            willyDirectionAndMovementFlags = willyDirectionAndMovementFlags & -3;
+            int i12 = add(mem[WILLY_Y], 16) & 240;
+            mem[WILLY_Y] = i12;
+            int[] a0 = this.$UPDATE_WILLY_ATTRIBUTE(i12);
+            mem[AIRBORNE_STATUS] = 2;
+            mem[WILLY_DIRECTION_FLAGS] = mem[WILLY_DIRECTION_FLAGS] & -3;
             return;
           }
-          int i13 = inc(mem[34261]);
-          mem[34261] = i13;
+          int i13 = inc(mem[JUMPING_ANIMATION_COUNTER]);
+          mem[JUMPING_ANIMATION_COUNTER] = i13;
           int i14 = i13 - 8;
           int i15 = i14 & 255;
           if (i14 < 0) {
             i15 = -i15 & 255;
           }
           int i16 = _rlc(_rlc(_rlc(inc(i15))));
-          int i17 = borderColour;
+          int i17 = mem[BORDER_COLOUR];
           i0 = 32;
           do {
             i17 = i17 ^ 24;
@@ -1388,9 +1586,9 @@ public class JetSetWilly2Converted2_R {
             } while (i18 != 0);
             i0 = dec(i0);
           } while (i0 != 0);
-          int i19 = mem[34261];
+          int i19 = mem[JUMPING_ANIMATION_COUNTER];
           if (i19 == 18) {
-            airborneStatusIndicator = 6;
+            mem[AIRBORNE_STATUS] = 6;
             return;
           }
           if (i19 == 16) {
@@ -1401,32 +1599,32 @@ public class JetSetWilly2Converted2_R {
           }
           break label2;
         }
-        int i20 = flagZ(willyYCoordinate & 14);
+        int i20 = flagZ(mem[WILLY_Y] & 14);
         label6:
         {
           if (i20 != 0) {
             break label6;
           }
-          int i21 = add16((mem[34260] << 8) + mem[34259], 64);
+          int i21 = add16((mem[WILLY_ATTR_BUFFER_ADDR + 1] << 8) + mem[WILLY_ATTR_BUFFER_ADDR], 64);
           if ((i21 >> 8 & 2) != 0) {
-            int i22 = mem[33004];
-            currentRoomNumber = i22;
-            willyYCoordinate = 0;
-            if (airborneStatusIndicator < 11) {
-              airborneStatusIndicator = 2;
+            int i22 = mem[mem_33004];
+            mem[CURRENT_ROOM] = i22;
+            mem[WILLY_Y] = 0;
+            if (mem[AIRBORNE_STATUS] < 11) {
+              mem[AIRBORNE_STATUS] = 2;
             }
-            mem[34259] = mem[34259] & 31;
-            mem[34260] = 92;
-            throw new RuntimeException("38134");
+            mem[WILLY_ATTR_BUFFER_ADDR] = mem[WILLY_ATTR_BUFFER_ADDR] & 31;
+            mem[WILLY_ATTR_BUFFER_ADDR + 1] = 92;
+            throw new RuntimeException(mem_38134 + "");
           }
-          if (mem[32955] == mem[i21]) {
+          if (mem[NASTY_TILE] == mem[i21]) {
             break label6;
           }
           int i25 = inc16(i21);
-          if (mem[32955] == mem[i25]) {
+          if (mem[NASTY_TILE] == mem[i25]) {
             break label6;
           }
-          int i27 = cp(mem[32928], mem[i25]);
+          int i27 = cp(mem[ROOM_TILES], mem[i25]);
           i1 = this.dec16(i25);
           label7:
           {
@@ -1435,28 +1633,28 @@ public class JetSetWilly2Converted2_R {
             }
             break label8;
           }
-          if (mem[32928] == mem[i1]) {
+          if (mem[ROOM_TILES] == mem[i1]) {
             break label6;
           }
           break label8;
         }
-        if (airborneStatusIndicator == 1) {
+        if (mem[AIRBORNE_STATUS] == 1) {
           break label2;
         }
-        willyDirectionAndMovementFlags = willyDirectionAndMovementFlags & -3;
-        int i28 = airborneStatusIndicator;
+        mem[WILLY_DIRECTION_FLAGS] = mem[WILLY_DIRECTION_FLAGS] & -3;
+        int i28 = mem[AIRBORNE_STATUS];
         int i29 = i28;
         if (flagZ(i29) == 0) {
-          airborneStatusIndicator = 2;
+          mem[AIRBORNE_STATUS] = 2;
           return;
         }
         int i30 = inc(i29);
         if (i30 == 16) {
           i30 = 12;
         }
-        airborneStatusIndicator = i30;
+        mem[AIRBORNE_STATUS] = i30;
         int i31 = _rlc(_rlc(_rlc(_rlc(i30))));
-        int i32 = borderColour;
+        int i32 = mem[BORDER_COLOUR];
         int i33 = 32;
         while (true) {
           i32 = i32 ^ 24;
@@ -1466,9 +1664,9 @@ public class JetSetWilly2Converted2_R {
             if (i34 == 0) {
               i33 = dec(i33);
               if (i33 == 0) {
-                int i35 = add(willyYCoordinate, 8);
-                willyYCoordinate = i35;
-                int[] a1 = this.routine_36508(i35);
+                int i35 = add(mem[WILLY_Y], 8);
+                mem[WILLY_Y] = i35;
+                int[] a1 = this.$UPDATE_WILLY_ATTRIBUTE(i35);
                 return;
               }
               break;
@@ -1477,16 +1675,16 @@ public class JetSetWilly2Converted2_R {
         }
       }
       label5:
-      if ((dec(ropeStatusIndicator) & 128) == 0) {
+      if ((dec(mem[ROPE_STATUS]) & 128) == 0) {
         i2 = 255;
       } else {
-        int i36 = airborneStatusIndicator;
+        int i36 = mem[AIRBORNE_STATUS];
         if (i36 >= 12) {
-          throw new RuntimeException("37048");
+          throw new RuntimeException(COLLISION_FATAL_2 + "");
         }
         int i37 = 0;
-        airborneStatusIndicator = i37;
-        int i38 = mem[32973];
+        mem[AIRBORNE_STATUS] = i37;
+        int i38 = mem[CONVEYOR_TILE];
         label3:
         {
           label4:
@@ -1499,28 +1697,28 @@ public class JetSetWilly2Converted2_R {
               break label3;
             }
           }
-          i2 = mem[32982] - 3 & 255;
+          i2 = mem[CONVEYOR_DIRECTION] - 3 & 255;
           break label5;
         }
         i2 = 255;
       }
-      int i41 = in(57342, 36605) & 31;
+      int i41 = in(mem_57342) & 31;
       int i42 = i41 | 32;
       int i43 = i42 & i2;
-      int i44 = gameModeIndicator & 2;
+      int i44 = mem[GAME_MODE] & 2;
       int i45 = _rrc(i44) ^ i43;
-      int i46 = in(64510, 36624) & 31;
+      int i46 = in(mem_64510) & 31;
       int i47 = _rlc(i46) | 1;
       int i48 = i47 & i45;
-      int i49 = _rrc(in(231 << 8 | 64510 & 255, 36636)) | 247;
+      int i49 = _rrc(in(231 << 8 | mem_64510 & 255)) | 247;
       int i50 = i49 & i48;
-      int i51 = in(239 << 8 | 64510 & 255, 36645) | 251;
+      int i51 = in(239 << 8 | mem_64510 & 255) | 251;
       int i52 = i51 & i50;
-      int i53 = _rrc(in(239 << 8 | i0, 36651)) | 251;
+      int i53 = _rrc(in(239 << 8 | i0)) | 251;
       int i54 = i53 & i52;
-      int i55 = kempstonJoystickIndicator;
+      int i55 = mem[KEMPSTON_JOYSTICK];
       if (flagZ(i55 | i55) != 0) {
-        int i56 = in(31, 36667) & 3;
+        int i56 = in(31) & 3;
         i54 = (i56 ^ -1) & i54;
       }
       int i57 = i54 & 42;
@@ -1528,26 +1726,26 @@ public class JetSetWilly2Converted2_R {
         i3 = 0;
       } else {
         int i58 = 0;
-        inactivityTimer = i58;
+        mem[INACTIVITY_TIMER] = i58;
         i3 = 4;
       }
       int i59 = i54 & 21;
       if (i59 != 21) {
         i3 = i3 | 8;
         int i60 = 0;
-        inactivityTimer = i60;
+        mem[INACTIVITY_TIMER] = i60;
       }
-      willyDirectionAndMovementFlags = mem[add16(33825, 0 << 8 | add(willyDirectionAndMovementFlags, i3))];
-      int i63 = in(32510, 36720) & 31;
+      mem[WILLY_DIRECTION_FLAGS] = mem[add16(LEFT_RIGHT_MOVEMENT_TABLE, 0 << 8 | add(mem[WILLY_DIRECTION_FLAGS], i3))];
+      int i63 = in(KEYBOARD_PORT_2) & 31;
       label0:
       {
         if (i63 != 31) {
           break label0;
         }
-        if ((in(239 << 8 | 32510 & 255, 36730) & 1) == 0) {
+        if ((in(239 << 8 | KEYBOARD_PORT_2 & 255) & 1) == 0) {
           break label0;
         }
-        int i65 = kempstonJoystickIndicator;
+        int i65 = mem[KEMPSTON_JOYSTICK];
         int i66 = flagZ(i65 | i65);
         label1:
         {
@@ -1556,150 +1754,150 @@ public class JetSetWilly2Converted2_R {
           }
           break label2;
         }
-        if ((in(31, 36745) & 16) != 0) {
+        if ((in(31) & 16) != 0) {
           break label0;
         }
         break label2;
       }
-      if ((gameModeIndicator & 2) == 0) {
-        mem[34261] = 0;
-        inactivityTimer = 0;
-        airborneStatusIndicator = inc(0);
-        if ((dec(ropeStatusIndicator) & 128) == 0) {
-          ropeStatusIndicator = 240;
-          willyYCoordinate = willyYCoordinate & 240;
-          willyDirectionAndMovementFlags = willyDirectionAndMovementFlags | 2;
+      if ((mem[GAME_MODE] & 2) == 0) {
+        mem[JUMPING_ANIMATION_COUNTER] = 0;
+        mem[INACTIVITY_TIMER] = 0;
+        mem[AIRBORNE_STATUS] = inc(0);
+        if ((dec(mem[ROPE_STATUS]) & 128) == 0) {
+          mem[ROPE_STATUS] = 240;
+          mem[WILLY_Y] = mem[WILLY_Y] & 240;
+          mem[WILLY_DIRECTION_FLAGS] = mem[WILLY_DIRECTION_FLAGS] | 2;
           return;
         }
       }
     }
-    if (flagZ(willyDirectionAndMovementFlags & 2) == 0) {
+    if (flagZ(mem[WILLY_DIRECTION_FLAGS] & 2) == 0) {
       return;
     }
-    if ((dec(ropeStatusIndicator) & 128) == 0) {
+    if ((dec(mem[ROPE_STATUS]) & 128) == 0) {
       return;
     }
-    if (flagZ(willyDirectionAndMovementFlags & 1) == 0) {
+    if (flagZ(mem[WILLY_DIRECTION_FLAGS] & 1) == 0) {
       int i71 = 0;
-      int i72 = willyAnimationFrame;
+      int i72 = mem[WILLY_ANIMATION_FRAME];
       if (i72 != 3) {
-        willyAnimationFrame = inc(i72);
+        mem[WILLY_ANIMATION_FRAME] = inc(i72);
         return;
       }
-      int i74 = airborneStatusIndicator;
+      int i74 = mem[AIRBORNE_STATUS];
       if (flagZ(i74 | i74) != 0) {
         i71 = 0;
       } else {
-        int i75 = (mem[34260] << 8) + mem[34259];
-        int i76 = dec(mem[32986]) | 157;
+        int i75 = (mem[WILLY_ATTR_BUFFER_ADDR + 1] << 8) + mem[WILLY_ATTR_BUFFER_ADDR];
+        int i76 = dec(mem[RAMP_DEFINITION]) | 157;
         int i77 = i76 ^ 191;
         int i78 = add16(i75, 0 << 8 | i77);
-        if (mem[32964] != mem[i78]) {
+        if (mem[RAMP_TILE] != mem[i78]) {
           i71 = 0;
         } else {
-          int i79 = mem[32986];
-          i71 = (flagZ(i79 | i79) == 0) ? 32 : 65504;
+          int i79 = mem[RAMP_DEFINITION];
+          i71 = (flagZ(i79 | i79) == 0) ? 32 : mem_65504;
         }
       }
-      int i80 = inc16(inc16(add16((mem[34260] << 8) + mem[34259], i71)));
+      int i80 = inc16(inc16(add16((mem[WILLY_ATTR_BUFFER_ADDR + 1] << 8) + mem[WILLY_ATTR_BUFFER_ADDR], i71)));
       if (flagZ(i80 & 255 & 31) == 0) {
-        currentRoomNumber = mem[33002];
-        mem[34259] = mem[34259] & 224;
-        throw new RuntimeException("38061");
+        mem[CURRENT_ROOM] = mem[mem_33002];
+        mem[WILLY_ATTR_BUFFER_ADDR] = mem[WILLY_ATTR_BUFFER_ADDR] & 224;
+        throw new RuntimeException(mem_38061 + "");
       }
-      int i83 = mem[32946];
+      int i83 = mem[WALL_TILE];
       int i84 = add16(i80, 32);
       if (i83 == mem[i84]) {
         return;
       }
-      int i85 = add(willyYCoordinate, this.sra(i71 & 255));
+      int i85 = add(mem[WILLY_Y], this.sra(i71 & 255));
       if (flagZ(i85 & 15) != 0) {
-        int i86 = mem[32946];
+        int i86 = mem[WALL_TILE];
         int i87 = add16(i84, 32);
         if (i86 == mem[i87]) {
           return;
         }
-        i84 = i87 - 32 - this.carry(flagZ(i86 | i86)) & 65535;
+        i84 = i87 - 32 - this.carry(flagZ(i86 | i86)) & MEMORY_END;
       }
-      int i89 = mem[32946];
-      int i90 = i84 - 32 - this.carry(flagZ(i89)) & 65535;
+      int i89 = mem[WALL_TILE];
+      int i90 = i84 - 32 - this.carry(flagZ(i89)) & MEMORY_END;
       if (i89 == mem[i90]) {
         return;
       }
       int i91 = this.dec16(i90);
-      mem[34259] = i91 & 255;
-      mem[34260] = i91 >>> 8;
-      willyAnimationFrame = 0;
-      willyYCoordinate = i85;
+      mem[WILLY_ATTR_BUFFER_ADDR] = i91 & 255;
+      mem[WILLY_ATTR_BUFFER_ADDR + 1] = i91 >>> 8;
+      mem[WILLY_ANIMATION_FRAME] = 0;
+      mem[WILLY_Y] = i85;
       return;
     } else {
       int i93 = 0;
-      int i95 = willyAnimationFrame;
+      int i95 = mem[WILLY_ANIMATION_FRAME];
       if (flagZ(i95) != 0) {
         int i96 = dec(i95);
-        willyAnimationFrame = i96;
+        mem[WILLY_ANIMATION_FRAME] = i96;
         return;
       }
-      if (airborneStatusIndicator != 0) {
+      if (mem[AIRBORNE_STATUS] != 0) {
         i93 = 0;
       } else {
-        int i97 = (mem[34260] << 8) + mem[34259];
-        int i98 = dec(mem[32986]) | 161;
+        int i97 = (mem[WILLY_ATTR_BUFFER_ADDR + 1] << 8) + mem[WILLY_ATTR_BUFFER_ADDR];
+        int i98 = dec(mem[RAMP_DEFINITION]) | 161;
         int i99 = i98 ^ 224;
         int i100 = add16(i97, 0 << 8 | i99);
-        if (mem[32964] != mem[i100]) {
+        if (mem[RAMP_TILE] != mem[i100]) {
           i93 = 0;
         } else {
-          int i101 = mem[32986];
-          i93 = (flagZ(i101 | i101) != 0) ? 32 : 65504;
+          int i101 = mem[RAMP_DEFINITION];
+          i93 = (flagZ(i101 | i101) != 0) ? 32 : mem_65504;
         }
       }
-      int i102 = (mem[34260] << 8) + mem[34259];
+      int i102 = (mem[WILLY_ATTR_BUFFER_ADDR + 1] << 8) + mem[WILLY_ATTR_BUFFER_ADDR];
       if (flagZ(i102 & 255 & 31) == 0) {
-        int i103 = mem[33001];
-        currentRoomNumber = i103;
-        mem[34259] = (mem[34259] | 31) & 254;
-        throw new RuntimeException("38043");
+        int i103 = mem[ROOM_EXITS];
+        mem[CURRENT_ROOM] = i103;
+        mem[WILLY_ATTR_BUFFER_ADDR] = (mem[WILLY_ATTR_BUFFER_ADDR] | 31) & 254;
+        throw new RuntimeException(mem_38043 + "");
       }
       int i106 = add16(this.dec16(add16(i102, i93)), 32);
-      if (mem[32946] == mem[i106]) {
+      if (mem[WALL_TILE] == mem[i106]) {
         return;
       }
-      int i107 = add(willyYCoordinate, this.sra(i93 & 255));
+      int i107 = add(mem[WILLY_Y], this.sra(i93 & 255));
       int i108 = i107 & 15;
       if (flagZ(i108) != 0) {
-        int i109 = mem[32946];
+        int i109 = mem[WALL_TILE];
         int i110 = add16(i106, 32);
         if (i109 == mem[i110]) {
           return;
         }
         i108 = i109;
-        i106 = i110 - 32 - this.carry(flagZ(i108)) & 65535;
+        i106 = i110 - 32 - this.carry(flagZ(i108)) & MEMORY_END;
       }
-      int i111 = i106 - 32 - this.carry(flagZ(i108 | i108)) & 65535;
-      mem[34259] = i111 & 255;
-      mem[34260] = i111 >>> 8;
-      willyYCoordinate = i107;
-      willyAnimationFrame = 3;
+      int i111 = i106 - 32 - this.carry(flagZ(i108 | i108)) & MEMORY_END;
+      mem[WILLY_ATTR_BUFFER_ADDR] = i111 & 255;
+      mem[WILLY_ATTR_BUFFER_ADDR + 1] = i111 >>> 8;
+      mem[WILLY_Y] = i107;
+      mem[WILLY_ANIMATION_FRAME] = 3;
       return;
     }
   }
 
-  public int[] routine_36508(int i) {
+  public int[] $UPDATE_WILLY_ATTRIBUTE(int i) {
     int i1 = 0;
     int[] a = this._rl(i & 240, flagZ(i1));
     int i4 = i1 + 92 + (this.carry(a[1]) & 255) & 255;
-    int i7 = i4 << 8 | (mem[34259] & 31 | a[0]);
-    mem[34259] = i7 & 255;
-    mem[34260] = i7 >>> 8;
+    int i7 = i4 << 8 | (mem[WILLY_ATTR_BUFFER_ADDR] & 31 | a[0]);
+    mem[WILLY_ATTR_BUFFER_ADDR] = i7 & 255;
+    mem[WILLY_ATTR_BUFFER_ADDR + 1] = i7 >>> 8;
     int[] a0 = new int[2];
     a0[0] = i4;
-    a0[1] = mem[34259] & 31 | a[0];
+    a0[1] = mem[WILLY_ATTR_BUFFER_ADDR] & 31 | a[0];
     return a0;
   }
 
-  public void moveRopeAndGuardians() {
-    int i = 33024;
+  public void $MOVE_ROPE_AND_GUARDIANS() {
+    int i = ENTITY_BUFFERS;
     while (true) {
       int i0 = mem[i];
       if (i0 == 255) {
@@ -1811,8 +2009,8 @@ public class JetSetWilly2Converted2_R {
     }
   }
 
-  public void drawRopeArrowsGuardians() {
-    int i = 33024;
+  public void $DRAW_ROPE_ARROWS_GUARDIANS() {
+    int i = ENTITY_BUFFERS;
     int i0 = 0;
     int i1 = 0;
     int i2 = 0;
@@ -1825,12 +2023,14 @@ public class JetSetWilly2Converted2_R {
       if (flagZ(i4) != 0) {
         if (i4 == 3) {
           mem[i + 9] = 0;
-          mem[i + 3] = mem[i + 2];
+          int i5 = mem[i + 2];
+          mem[i + 3] = i5;
           mem[i + 5] = 128;
-          int i6 = 33280;
+          int i6 = SCREEN_BUFFER_ADDRESS_LOOKUP_TABLE;
           while (true) {
-            add(mem[i6], mem[i + 3]);
-            int i7 = ropeStatusIndicator;
+            add(mem[i6 + 0], mem[i + 3]);
+            int dummy = mem[i6 + 1];
+            int i7 = mem[ROPE_STATUS];
             int i8 = i7 | i7;
             int i9 = flagZ(i8);
             label0:
@@ -1846,7 +2046,7 @@ public class JetSetWilly2Converted2_R {
                     break label0;
                   }
                   i8 = mem[i + 9];
-                  ropeStatusIndicator = i8;
+                  mem[ROPE_STATUS] = i8;
                   int i11 = i + 11;
                   mem[i11] = mem[i11] | 1;
                   break label1;
@@ -1860,12 +2060,12 @@ public class JetSetWilly2Converted2_R {
                   if (i13 > 64) {
                   }
                 }
-                willyAnimationFrame = i2 & 255;
-                mem[34259] = i2 >>> 8;
+                mem[WILLY_ANIMATION_FRAME] = i2 & 255;
+                mem[WILLY_ATTR_BUFFER_ADDR] = i2 >>> 8;
                 int i14 = (i6 & 255) - 16 & 255;
-                willyYCoordinate = i14;
+                mem[WILLY_Y] = i14;
                 this.push(i0);
-                int[] a = this.routine_36508(i14);
+                int[] a = this.$UPDATE_WILLY_ATTRIBUTE(i14);
                 i0 = this.pop();
               }
             }
@@ -1908,32 +2108,32 @@ public class JetSetWilly2Converted2_R {
             int i25 = inc(mem[i24]);
             mem[i24] = i25;
           }
-          int i26 = ropeStatusIndicator;
+          int i26 = mem[ROPE_STATUS];
           if ((i26 & 128) == 0) {
             if ((mem[i + 11] & 1) != 0) {
-              int i27 = willyDirectionAndMovementFlags;
+              int i27 = mem[WILLY_DIRECTION_FLAGS];
               if ((i27 & 2) != 0) {
                 int i28 = _rrc(i27) ^ mem[i + 0];
                 int i29 = _rlc(_rlc(i28)) & 2;
-                int i30 = add(dec(i29), ropeStatusIndicator);
-                ropeStatusIndicator = i30;
-                int i31 = mem[33003];
-                if (currentRoomNumber == i31 && ropeStatusIndicator < 15) {
-                  ropeStatusIndicator = 15;
+                int i30 = add(dec(i29), mem[ROPE_STATUS]);
+                mem[ROPE_STATUS] = i30;
+                int i31 = mem[mem_33003];
+                if (mem[CURRENT_ROOM] == i31 && mem[ROPE_STATUS] < 15) {
+                  mem[ROPE_STATUS] = 15;
                 }
-                if (ropeStatusIndicator > mem[i + 4]) {
-                  ropeStatusIndicator = 240;
-                  int i32 = willyYCoordinate & 248;
-                  willyYCoordinate = i32;
+                if (mem[ROPE_STATUS] > mem[i + 4]) {
+                  mem[ROPE_STATUS] = 240;
+                  int i32 = mem[WILLY_Y] & 248;
+                  mem[WILLY_Y] = i32;
                   int i33 = i32 ^ i32;
-                  airborneStatusIndicator = i33;
+                  mem[AIRBORNE_STATUS] = i33;
                 }
-                i0 = 34262;
+                i0 = ROPE_STATUS;
               }
             }
           } else {
             int i34 = inc(i26);
-            ropeStatusIndicator = i34;
+            mem[ROPE_STATUS] = i34;
             int i35 = i + 11;
             mem[i35] = mem[i35] & -2;
           }
@@ -1952,7 +2152,7 @@ public class JetSetWilly2Converted2_R {
           }
           int i41 = mem[i + 4];
           if (i41 == i36) {
-            int i42 = borderColour;
+            int i42 = mem[BORDER_COLOUR];
             i2 = 640;
             while (true) {
               i42 = i42 ^ 24;
@@ -1961,14 +2161,14 @@ public class JetSetWilly2Converted2_R {
               } while (i2 >> 8 != 0);
               int i43 = i2 & 255 | (i2 & 255 & 255) << 8;
               int i44 = dec(i43 & 255);
-              i2 = i43 & 65280 | i44;
+              i2 = i43 & STACK_BASE | i44;
               if (i44 == 0) {
                 break;
               }
             }
           } else if (flagZ(i41 & 224) == 0) {
             int i45 = mem[i + 2];
-            int i46 = add(mem[33280 | i45], mem[i + 4]);
+            int i46 = add(mem[SCREEN_BUFFER_ADDRESS_LOOKUP_TABLE | i45], mem[i + 4]);
             int i47 = i45 & 128;
             int i48 = _rlc(i47) | 92;
             int i49 = i48 & 255;
@@ -1981,13 +2181,13 @@ public class JetSetWilly2Converted2_R {
             }
             int i53 = mem[i49 << 8 | i46] | 7;
             mem[i49 << 8 | i46] = i53;
-            int i54 = inc16(33280 | i45);
+            int i54 = inc16(SCREEN_BUFFER_ADDRESS_LOOKUP_TABLE | i45);
             int i55 = dec(mem[i54] & 255) & 255;
             int i56 = mem[i + 6];
             mem[i55 << 8 | i46] = i56;
             int i57 = inc(i55) & 255;
             if (flagZ(mem[i57 << 8 | i46] & mem[i + 5]) != 0) {
-              throw new RuntimeException("37048");
+              throw new RuntimeException(COLLISION_FATAL_2 + "");
             }
             mem[i57 << 8 | i46] = 255;
             int i58 = inc(i57) & 255;
@@ -1996,7 +2196,7 @@ public class JetSetWilly2Converted2_R {
           }
         } else {
           int i60 = mem[i + 3];
-          int i63 = add(mem[i + 2] & 31, mem[33280 | i60]);
+          int i63 = add(mem[i + 2] & 31, mem[SCREEN_BUFFER_ADDRESS_LOOKUP_TABLE | i60]);
           int i66 = (_rlc(i60) & 1 | 92) & 255;
           int i67 = mem[i + 1] & 15;
           int i70 = mem[i66 << 8 | i63] & 56 ^ add(i67, 56) & 71;
@@ -2015,12 +2215,12 @@ public class JetSetWilly2Converted2_R {
           int i78 = (mem[i + 1] & mem[i] | mem[i + 2]) & 224;
           int i79 = mem[i + 5];
           int i80 = mem[i + 3];
-          int i82 = mem[i + 2] & 31 | mem[33280 | i80];
-          i0 = (mem[inc16(33280 | i80)] & 255) << 8 | i82;
-          int[] a0 = drawSprite(1, i79 << 8 | i78, i0);
+          int i82 = mem[i + 2] & 31 | mem[SCREEN_BUFFER_ADDRESS_LOOKUP_TABLE | i80];
+          i0 = (mem[inc16(SCREEN_BUFFER_ADDRESS_LOOKUP_TABLE | i80)] & 255) << 8 | i82;
+          int[] a0 = $DRAW_SPRITE(1, i79 << 8 | i78, i0);
           int i84 = a0[0];
           if (i84 != 0) {
-            throw new RuntimeException("37048");
+            throw new RuntimeException(COLLISION_FATAL_2 + "");
           }
         }
       }
@@ -2029,12 +2229,12 @@ public class JetSetWilly2Converted2_R {
     }
   }
 
-  public void drawItemsAndCollect() {
-    int i = mem[41983];
+  public void $DRAW_ITEMS_AND_COLLECT() {
+    int i = mem[FIRST_ITEM_INDEX];
     int i0 = 164;
     while (true) {
       int i1 = mem[i0 << 8 | i] & -129;
-      int i2 = currentRoomNumber | 64;
+      int i2 = mem[CURRENT_ROOM] | 64;
       if (i2 == i1) {
         int i3 = _rlc(mem[i0 << 8 | i]) & 1;
         int i4 = add(i3, 92);
@@ -2043,7 +2243,7 @@ public class JetSetWilly2Converted2_R {
         i0 = dec(i5) & 255;
         int i7 = mem[i4 << 8 | i6] & 7;
         if (i7 == 7) {
-          int i8 = 34172;
+          int i8 = ITEMS_COLLECTED;
           while (true) {
             int i9 = i8 + 2;
             int i10 = inc(mem[i9]);
@@ -2054,7 +2254,7 @@ public class JetSetWilly2Converted2_R {
             mem[i8 + 2] = 48;
             i8 = this.dec16(i8);
           }
-          int i11 = borderColour;
+          int i11 = mem[BORDER_COLOUR];
           int i12 = 128;
           do {
             i11 = i11 ^ 24;
@@ -2064,14 +2264,14 @@ public class JetSetWilly2Converted2_R {
             } while (i13 != 0);
             i12 = dec(dec(i12));
           } while (i12 != 0);
-          int i14 = inc(itemsRemainingComplement);
-          itemsRemainingComplement = i14;
+          int i14 = inc(mem[ITEMS_REMAINING_256_MINUS]);
+          mem[ITEMS_REMAINING_256_MINUS] = i14;
           if (i14 == 0) {
-            gameModeIndicator = 1;
+            mem[GAME_MODE] = 1;
           }
           mem[i0 << 8 | i] = mem[i0 << 8 | i] & -65;
         } else {
-          int i15 = add(minuteCounter, i) & 3;
+          int i15 = add(mem[MINUTE_COUNTER], i) & 3;
           int i16 = add(i15, 3);
           int i17 = mem[i4 << 8 | i6] & 248;
           int i18 = i17 | i16;
@@ -2079,7 +2279,7 @@ public class JetSetWilly2Converted2_R {
           int i19 = _rlc(_rlc(_rlc(_rlc(mem[i0 << 8 | i])))) & 8;
           int i20 = add(i19, 96);
           this.push(i0 << 8 | i);
-          routine_38555(8, i20 << 8 | i6, 32993);
+          $COPY_BYTES(8, i20 << 8 | i6, ITEM_GRAPHIC);
           i = this.pop();
           i0 = i >> 8;
         }
@@ -2091,7 +2291,7 @@ public class JetSetWilly2Converted2_R {
     }
   }
 
-  public static int[] drawSprite(int i, int i0, int i1) {
+  public static int[] $DRAW_SPRITE(int i, int i0, int i1) {
     int i2 = 16;
     while (true) {
       int i3 = i & 1;
@@ -2107,7 +2307,7 @@ public class JetSetWilly2Converted2_R {
         i4 = mem[i0] | mem[i1];
       }
       mem[i1] = i4;
-      int i6 = i1 & 65280 | inc(i1 & 255);
+      int i6 = i1 & STACK_BASE | inc(i1 & 255);
       int i7 = inc16(i0);
       int i8 = i & 1;
       int i9 = mem[i7];
@@ -2122,14 +2322,14 @@ public class JetSetWilly2Converted2_R {
         i9 = mem[i7] | mem[i6];
       }
       mem[i6] = i9;
-      int i11 = i6 & 65280 | dec(i6 & 255);
+      int i11 = i6 & STACK_BASE | dec(i6 & 255);
       int i12 = i11 & 255 | inc(i11 >> 8) << 8;
       int i13 = inc16(i7);
       int i14 = i12 >> 8 & 7;
       if (flagZ(i14) == 0) {
         int i15 = i12 & 255 | ((i12 >> 8) - 8 & 255) << 8;
         int i16 = add(i15 & 255, 32);
-        i12 = i15 & 65280 | i16;
+        i12 = i15 & STACK_BASE | i16;
         i14 = i16 & 224;
         if (flagZ(i14) == 0) {
           i14 = add(i12 >> 8, 8);
@@ -2149,24 +2349,24 @@ public class JetSetWilly2Converted2_R {
     }
   }
 
-  public void moveWillyToRoomAbove() {
-    currentRoomNumber = mem[33003];
-    mem[34259] = add(mem[34259] & 31, 160);
-    mem[34260] = 93;
-    willyYCoordinate = 208;
-    airborneStatusIndicator = 0;
-    throw new RuntimeException("38095");
+  public void $ENTER_ROOM_ABOVE() {
+    mem[CURRENT_ROOM] = mem[mem_33003];
+    mem[WILLY_ATTR_BUFFER_ADDR] = add(mem[WILLY_ATTR_BUFFER_ADDR] & 31, 160);
+    mem[WILLY_ATTR_BUFFER_ADDR + 1] = 93;
+    mem[WILLY_Y] = 208;
+    mem[AIRBORNE_STATUS] = 0;
+    throw new RuntimeException(mem_38095 + "");
   }
 
-  public void moveConveyor() {
-    int i = (mem[32984] << 8) + mem[32983];
+  public void $MOVE_CONVEYOR() {
+    int i = (mem[CONVEYOR_ATTR_ADDRESS + 1] << 8) + mem[CONVEYOR_ATTR_ADDRESS];
     int i0 = add(_rlc(_rlc(_rlc(i >> 8 & 1))), 112) & 255;
-    int i1 = mem[32985];
+    int i1 = mem[CONVEYOR_LENGTH];
     if (flagZ(i1) != 0) {
       int i2 = 0;
       int i3 = 0;
       int i4 = 0;
-      if (flagZ(mem[32982]) == 0) {
+      if (flagZ(mem[CONVEYOR_DIRECTION]) == 0) {
         i2 = _rlc(_rlc(mem[i0 << 8 | i & 255]));
         i3 = inc(inc(i0) & 255) & 255;
         i4 = _rrc(_rrc(mem[i3 << 8 | i & 255]));
@@ -2187,119 +2387,119 @@ public class JetSetWilly2Converted2_R {
     }
   }
 
-  public void dealWithSpecialRooms() {
-    if (currentRoomNumber != 35) {
-      if (currentRoomNumber == 33) {
-        int i = minuteCounter & 1;
+  public void $SPECIAL_ROOM_HANDLER() {
+    if (mem[CURRENT_ROOM] != 35) {
+      if (mem[CURRENT_ROOM] == 33) {
+        int i = mem[MINUTE_COUNTER] & 1;
         int i0 = _rrc(_rrc(_rrc(i)));
-        if (gameModeIndicator == 3) {
+        if (mem[GAME_MODE] == 3) {
           i0 = i0 | 64;
         }
-        this.routine_38504(16, 28, 166, i0, 33488);
-        mem[23996] = 7;
-        mem[23997] = 7;
-        mem[24028] = 7;
-        mem[24029] = 7;
+        this.$OR_BYTES_TO_BUFFER(16, 28, 166, i0, mem_33488);
+        mem[mem_23996] = 7;
+        mem[mem_23997] = 7;
+        mem[mem_24028] = 7;
+        mem[mem_24029] = 7;
       }
     } else {
-      if (flagZ(gameModeIndicator) != 0) {
-        if ((mem[34259] & 31) < 6) {
-          gameModeIndicator = 2;
+      if (flagZ(mem[GAME_MODE]) != 0) {
+        if ((mem[WILLY_ATTR_BUFFER_ADDR] & 31) < 6) {
+          mem[GAME_MODE] = 2;
         }
       } else {
-        int i3 = minuteCounter & 2;
+        int i3 = mem[MINUTE_COUNTER] & 2;
         flagZ(_rrc(_rrc(_rrc(_rrc(i3)))) | 128);
-        int i4 = willyYCoordinate;
+        int i4 = mem[WILLY_Y];
         if (i4 != 208 && i4 < 192) {
         }
-        int[] a = drawSprite(1, 0, 26734);
+        int[] a = $DRAW_SPRITE(1, 0, mem_26734);
         int i5 = a[0];
         if (i5 != 0) {
-          throw new RuntimeException("37048");
+          throw new RuntimeException(COLLISION_FATAL_2 + "");
         }
-        mem[23918] = 69;
-        mem[23919] = 69;
-        mem[23950] = 7;
-        mem[23951] = 7;
+        mem[mem_23918] = 69;
+        mem[mem_23919] = 69;
+        mem[mem_23950] = 7;
+        mem[mem_23951] = 7;
       }
     }
   }
 
-  public void checkReachedToilet() {
-    if (currentRoomNumber == 33) {
-      int i = mem[34259];
+  public void $CHECK_TOILET() {
+    if (mem[CURRENT_ROOM] == 33) {
+      int i = mem[WILLY_ATTR_BUFFER_ADDR];
       if (i == 188) {
-        minuteCounter = 0;
-        gameModeIndicator = 3;
+        mem[MINUTE_COUNTER] = 0;
+        mem[GAME_MODE] = 3;
       }
     }
   }
 
-  public void checkAndSetWillySpriteAttributes() {
+  public void $SET_WILLY_ATTRIBUTES() {
     int i = 0;
     int i0 = 0;
-    int i1 = (mem[34260] << 8) + mem[34259];
-    int i2 = mem[32986] & 1;
+    int i1 = (mem[WILLY_ATTR_BUFFER_ADDR + 1] << 8) + mem[WILLY_ATTR_BUFFER_ADDR];
+    int i2 = mem[RAMP_DEFINITION] & 1;
     int i3 = add16(i1, ((0 | add(i2, 64)) != 0) ? 1 : 0);
-    if (mem[32964] != mem[i3]) {
+    if (mem[RAMP_TILE] != mem[i3]) {
       i = 0;
     } else {
-      int i4 = airborneStatusIndicator;
+      int i4 = mem[AIRBORNE_STATUS];
       if (flagZ(i4 | i4) != 0) {
         i = 0;
       } else {
-        int i5 = willyAnimationFrame & 3;
+        int i5 = mem[WILLY_ANIMATION_FRAME] & 3;
         int i6 = _rlc(_rlc(i5));
-        int i7 = mem[32986] & 1;
+        int i7 = mem[RAMP_DEFINITION] & 1;
         int i8 = dec(i7) ^ 12;
         int i9 = i8 ^ i6;
         i = i9 & 12;
       }
     }
-    int i10 = (mem[34260] << 8) + mem[34259];
+    int i10 = (mem[WILLY_ATTR_BUFFER_ADDR + 1] << 8) + mem[WILLY_ATTR_BUFFER_ADDR];
     try {
-      this.checkSetAttributeForSpriteCell(15, i10);
+      this.$CHECK_WILLY_CELL(15, i10);
     } catch (RuntimeException a) {
-      if (Integer.parseInt(a.getMessage()) == 37047) {
-        throw new RuntimeException("37048");
+      if (Integer.parseInt(a.getMessage()) == COLLISION_FATAL_1) {
+        throw new RuntimeException(COLLISION_FATAL_2 + "");
       }
     }
     int i11 = inc16(i10);
-    this.checkSetAttributeForSpriteCell(15, i11);
+    this.$CHECK_WILLY_CELL(15, i11);
     int i12 = add16(i11, 31);
-    this.checkSetAttributeForSpriteCell(15, i12);
+    this.$CHECK_WILLY_CELL(15, i12);
     int i13 = inc16(i12);
-    this.checkSetAttributeForSpriteCell(15, i13);
-    int i14 = add(willyYCoordinate, i);
+    this.$CHECK_WILLY_CELL(15, i13);
+    int i14 = add(mem[WILLY_Y], i);
     int i15 = add16(i13, 31);
-    this.checkSetAttributeForSpriteCell(i14, i15);
-    this.checkSetAttributeForSpriteCell(i14, inc16(i15));
-    int i16 = 33280 | add(willyYCoordinate, i);
-    int i17 = willyDirectionAndMovementFlags & 1;
+    this.$CHECK_WILLY_CELL(i14, i15);
+    this.$CHECK_WILLY_CELL(i14, inc16(i15));
+    int i16 = SCREEN_BUFFER_ADDRESS_LOOKUP_TABLE | add(mem[WILLY_Y], i);
+    int i17 = mem[WILLY_DIRECTION_FLAGS] & 1;
     int i18 = _rrc(i17);
-    int i19 = willyAnimationFrame & 3;
+    int i19 = mem[WILLY_ANIMATION_FRAME] & 3;
     int i20 = _rrc(_rrc(_rrc(i19))) | i18;
-    if (currentRoomNumber != 29) {
+    if (mem[CURRENT_ROOM] != 29) {
       i0 = 157;
     } else {
       i20 = i20 ^ 128;
       i0 = 182;
     }
-    int i21 = mem[34259] & 31;
-    this.routine_38504(16, i21, i0, i20, i16);
+    int i21 = mem[WILLY_ATTR_BUFFER_ADDR] & 31;
+    this.$OR_BYTES_TO_BUFFER(16, i21, i0, i20, i16);
   }
 
-  public void checkSetAttributeForSpriteCell(int i, int i0) {
-    if (mem[32928] == mem[i0] && flagZ(i & 15) != 0) {
-      int i1 = mem[32928] | 7;
+  public void $CHECK_WILLY_CELL(int i, int i0) {
+    if (mem[ROOM_TILES] == mem[i0] && flagZ(i & 15) != 0) {
+      int i1 = mem[ROOM_TILES] | 7;
       mem[i0] = i1;
     }
-    if (mem[32955] == mem[i0]) {
-      throw new RuntimeException("37047");
+    if (mem[NASTY_TILE] == mem[i0]) {
+      throw new RuntimeException(COLLISION_FATAL_1 + "");
     }
   }
 
-  public void routine_38504(int i, int i0, int i1, int i2, int i3) {
+  public void $OR_BYTES_TO_BUFFER(int i, int i0, int i1, int i2, int i3) {
     int i4 = i1 << 8 | i2;
     while (true) {
       int i5 = mem[i3 + 0];
@@ -2323,46 +2523,46 @@ public class JetSetWilly2Converted2_R {
     }
   }
 
-  public static void printMessage(int i, int i0, int i1) {
+  public static void $PRINT_MESSAGE(int length, int displayAddress, int messageAddress) {
     while (true) {
-      int i2 = printSingleCharacter(mem[i1 + 0], i0);
-      int i3 = inc16(i1);
-      int i4 = i2 & 65280 | inc(i2 & 255);
+      int i2 = $PRINT_CHAR(mem[messageAddress], displayAddress);
+      int i3 = inc16(messageAddress);
+      int i4 = i2 & STACK_BASE | inc(i2 & 255);
       int i5 = i4 & 255 | ((i4 >> 8) - 8 & 255) << 8;
-      int i6 = dec(i);
+      int i6 = dec(length);
       if (i6 == 0) {
         return;
       }
-      i = i6;
-      i0 = i5;
-      i1 = i3;
+      length = i6;
+      displayAddress = i5;
+      messageAddress = i3;
     }
   }
 
-  public static int printSingleCharacter(int i, int i0) {
-    int i1 = i | 128;
-    int i2 = add16(1792 | i1, 1792 | i1);
+  public static int $PRINT_CHAR(int character, int displayAddress) {
+    int i1 = character | 128;
+    int i2 = add16(UDG_BASE | i1, UDG_BASE | i1);
     int i3 = add16(i2, i2);
-    return routine_38555(8, i0, add16(i3, i3));
+    return $COPY_BYTES(8, displayAddress, add16(i3, i3));
   }
 
-  public static int routine_38555(int i, int i0, int i1) {
+  public static int $COPY_BYTES(int count, int displayAddress, int sourceAddress) {
     while (true) {
-      int i2 = mem[i1];
-      mem[i0] = i2;
-      int i3 = inc16(i1);
-      int i4 = i0 & 255 | inc(i0 >> 8) << 8;
-      int i5 = i - 1 & 255;
+      int i2 = mem[sourceAddress];
+      mem[displayAddress] = i2;
+      int i3 = inc16(sourceAddress);
+      int i4 = displayAddress & 255 | inc(displayAddress >> 8) << 8;
+      int i5 = count - 1 & 255;
       if (i5 == 0) {
         return i4;
       }
-      i = i5;
-      i0 = i4;
-      i1 = i3;
+      count = i5;
+      displayAddress = i4;
+      sourceAddress = i3;
     }
   }
 
-  public int playThemeTuneMoonlightSonata(int i) {
+  public int $PLAY_THEME_TUNE(int i) {
     while (true) {
       int i0 = mem[i];
       int i1 = cp(i0, 255);
@@ -2392,9 +2592,9 @@ public class JetSetWilly2Converted2_R {
           }
           i2 = i7 >> 8;
           int i9 = dec(i5 & 255);
-          i5 = i5 & 65280 | i9;
+          i5 = i5 & STACK_BASE | i9;
           if (i9 == 0) {
-            int i10 = this.checkEnterZeroOrFirePressed();
+            int i10 = this.$CHECK_ENTER_FIRE();
             if (i10 != 0) {
               return i10;
             }
@@ -2406,18 +2606,18 @@ public class JetSetWilly2Converted2_R {
     }
   }
 
-  public int checkEnterZeroOrFirePressed() {
-    int i0 = kempstonJoystickIndicator;
+  public int $CHECK_ENTER_FIRE() {
+    int i0 = mem[KEMPSTON_JOYSTICK];
     if (flagZ(i0) != 0) {
-      int i1 = in(i0 << 8 | 31, 38607) & 16;
+      int i1 = in(i0 << 8 | 31) & 16;
       if (i1 != 0) {
         return i1;
       }
     }
-    return cp(in(45054, 38615) & 1, 1);
+    return cp(in(mem_45054) & 1, 1);
   }
 
-  public void playIntroMessageSound(int i) {
+  public void $PLAY_INTRO_SOUND(int i) {
     int i0 = i;
     while (true) {
       int i1 = i;
