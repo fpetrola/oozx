@@ -1,0 +1,19 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.fpetrola</groupId>
+        <artifactId>devices</artifactId>
+        <version>0.0.2-alu-SNAPSHOT</version>
+    </parent>
+    <artifactId>devices-ide</artifactId>
+    <packaging>jar</packaging>
+    <name>IDE and MMC stack</name>
+    <!--
+      What the cards and the boards that carry them are made of: a channel with two drives on it,
+      a disk image behind each, an SD card spoken to over SPI, and the two shapes of board that
+      page a ROM to reach them. Not a device: no machine has one, and nobody plugs this in. It is
+      what the six that ARE devices - DivIDE, DivMMC, Simple 8-bit IDE, ZXATASP, ZXCF, ZXMMC -
+      are built out of, the way the kit is what their windows are built out of.
+    -->
+</project>
