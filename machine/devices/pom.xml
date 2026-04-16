@@ -1,0 +1,68 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.fpetrola</groupId>
+        <artifactId>machine</artifactId>
+        <version>0.0.2-alu-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>devices</artifactId>
+    <packaging>pom</packaging>
+
+    <name>devices</name>
+
+    <!--
+      The peripherals somebody plugs in: a printer, a mouse, a sound box, a joystick interface -
+      each in a module of its own, with whatever it needs to work and whatever it needs to be
+      looked at. A device that connects to another one depends on that one, and on nothing else
+      here but the kit.
+
+      What a machine comes with is NOT here. The 128's pager, the +3's drive, the ULA, the AY a
+      128K has on its board: that is the computer, and it lives with the emulator. This module is
+      for what somebody bought separately and cabled on.
+
+      The emulator does not depend on this and does not know these exist: it finds them through
+      META-INF/services, which is the whole point of the arrangement. The application depends on
+      `all`, which is every device this build offers and nothing else.
+    -->
+    <modules>
+        <module>ide</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>machines</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- The emulator's test harness: a machine to run a test on, and the loops that run it. -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
