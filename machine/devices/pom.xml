@@ -28,6 +28,7 @@
     -->
     <modules>
         <module>ide</module>
+        <module>kit</module>
     </modules>
 
     <properties>
