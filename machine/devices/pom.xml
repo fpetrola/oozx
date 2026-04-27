@@ -30,6 +30,7 @@
         <module>debugger</module>
         <module>ide</module>
         <module>kit</module>
+        <module>printer</module>
     </modules>
 
     <properties>
