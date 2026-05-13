@@ -29,6 +29,7 @@
     <modules>
         <module>debugger</module>
         <module>ide</module>
+        <module>interface2</module>
         <module>joystick</module>
         <module>kit</module>
         <module>mouse</module>
