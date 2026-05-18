@@ -33,6 +33,7 @@
         <module>joystick</module>
         <module>kit</module>
         <module>mouse</module>
+        <module>multiface</module>
         <module>parallel-printer</module>
         <module>printer</module>
     </modules>
