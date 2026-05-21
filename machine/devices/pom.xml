@@ -27,6 +27,7 @@
       `all`, which is every device this build offers and nothing else.
     -->
     <modules>
+        <module>covox</module>
         <module>debugger</module>
         <module>ide</module>
         <module>interface2</module>
