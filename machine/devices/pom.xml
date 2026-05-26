@@ -37,6 +37,7 @@
         <module>multiface</module>
         <module>parallel-printer</module>
         <module>printer</module>
+        <module>specdrum</module>
     </modules>
 
     <properties>
