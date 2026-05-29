@@ -33,6 +33,7 @@
         <module>interface2</module>
         <module>joystick</module>
         <module>kit</module>
+        <module>melodik</module>
         <module>mouse</module>
         <module>multiface</module>
         <module>parallel-printer</module>
