@@ -29,6 +29,7 @@
     <modules>
         <module>covox</module>
         <module>debugger</module>
+        <module>fuller</module>
         <module>ide</module>
         <module>interface2</module>
         <module>joystick</module>
