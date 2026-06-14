@@ -33,6 +33,7 @@
         <module>didaktik</module>
         <module>fuller</module>
         <module>ide</module>
+        <module>interface1</module>
         <module>interface2</module>
         <module>joystick</module>
         <module>kit</module>
