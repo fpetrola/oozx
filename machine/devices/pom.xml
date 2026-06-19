@@ -41,6 +41,7 @@
         <module>mouse</module>
         <module>multiface</module>
         <module>parallel-printer</module>
+        <module>plusd</module>
         <module>printer</module>
         <module>specdrum</module>
     </modules>
