@@ -47,6 +47,7 @@
         <module>parallel-printer</module>
         <module>plusd</module>
         <module>printer</module>
+        <module>simpleide</module>
         <module>specdrum</module>
     </modules>
 
