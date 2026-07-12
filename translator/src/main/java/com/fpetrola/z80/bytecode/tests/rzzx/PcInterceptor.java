@@ -51,7 +51,7 @@ public class PcInterceptor {
         thiz.F(1);
 
       if (address == 34738) {
-        String url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/jsw/Jet Set Willy - Mildly Patched.rzx";
+        String url = "/home/fernando/detodo/spectrum/oozx/Jet Set Willy - Mildly Patched.rzx";
 
         EmulatedMiniZX.setupRzx(new MyRegistersSetter(thiz), (MiniZXIO) thiz.io, url, new MyMemorySetter(thiz));
         initializing = false;
