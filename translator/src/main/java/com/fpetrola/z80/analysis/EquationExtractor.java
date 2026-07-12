@@ -58,6 +58,26 @@ public class EquationExtractor {
   static final String GENERATED_PACKAGE = "com.fpetrola.z80.analysis.generated";
   static final String GENERATED_CLASS = "JetSetWilly2Instrumented";
 
+  // roles estáticos por (site, canal): a qué destina el site cada dependencia que le llega
+  static final int ROLE_ADDR = 1, ROLE_VAL = 2, ROLE_COND = 4;
+  static final Map<String, String[]> REG_CH = new HashMap<>();
+
+  static {
+    for (String r : new String[]{"A", "F", "B", "C", "D", "E", "H", "L",
+        "IXH", "IXL", "IYH", "IYL", "SP", "I", "R"})
+      REG_CH.put(r, new String[]{r});
+    REG_CH.put("AF", new String[]{"A", "F"});
+    REG_CH.put("BC", new String[]{"B", "C"});
+    REG_CH.put("DE", new String[]{"D", "E"});
+    REG_CH.put("HL", new String[]{"H", "L"});
+    REG_CH.put("IX", new String[]{"IXH", "IXL"});
+    REG_CH.put("IY", new String[]{"IYH", "IYL"});
+    REG_CH.put("AFx", new String[]{"AX", "FX"});
+    REG_CH.put("BCx", new String[]{"BX", "CX"});
+    REG_CH.put("DEx", new String[]{"DX", "EX"});
+    REG_CH.put("HLx", new String[]{"HX", "LX"});
+  }
+
   static class Site {
     final int pc;
     final String method;
@@ -100,6 +120,7 @@ public class EquationExtractor {
     Factory F = cls.getFactory();
 
     List<Site> sites = new ArrayList<>();
+    Map<Integer, Map<String, Integer>> rolesByPc = new TreeMap<>();
     int readCount = 0, writeCount = 0;
     // global (line -> pc, method) markers for the per-instruction source equations (F2)
     TreeMap<Integer, int[]> pcByLine = new TreeMap<>();
@@ -167,6 +188,61 @@ public class EquationExtractor {
               "IO_IN", inv.getArguments().get(0).toString(), null, inv.toString()));
       }
 
+      // --- pass 1.6: static roles — intra-site def-use following the varN locals -------
+      // (must run BEFORE pass 2: it needs the original AST and source positions)
+      Map<String, Set<String>> varDeps = new HashMap<>();
+      List<CtLocalVariable<?>> locals =
+          new ArrayList<>(method.getBody().getElements(new TypeFilter<>(CtLocalVariable.class)));
+      locals.sort(Comparator.comparingLong(EquationExtractor::posKey));
+      for (CtLocalVariable<?> lv : locals)
+        if (lv.getDefaultExpression() != null)
+          varDeps.put(lv.getSimpleName(),
+              channels(lv.getDefaultExpression(), varDeps, pcByPos, methodAddr, rolesByPc));
+      for (CtAssignment<?, ?> a : method.getBody().getElements(new TypeFilter<>(CtAssignment.class)))
+        if (a.getAssigned() instanceof CtVariableWrite<?> vw)
+          varDeps.merge(vw.getVariable().getSimpleName(),
+              channels(a.getAssignment(), varDeps, pcByPos, methodAddr, rolesByPc),
+              (x, y) -> {
+                Set<String> u = new HashSet<>(x);
+                u.addAll(y);
+                return u;
+              });
+      for (CtArrayRead<?> r : reads)
+        addRole(rolesByPc, siteOf.get(r),
+            channels(r.getIndexExpression(), varDeps, pcByPos, methodAddr, rolesByPc), ROLE_ADDR);
+      for (CtAssignment<?, ?> a : writes) {
+        CtArrayWrite<?> aw = (CtArrayWrite<?>) a.getAssigned();
+        addRole(rolesByPc, siteOf.get(a),
+            channels(aw.getIndexExpression(), varDeps, pcByPos, methodAddr, rolesByPc), ROLE_ADDR);
+        addRole(rolesByPc, siteOf.get(a),
+            channels(a.getAssignment(), varDeps, pcByPos, methodAddr, rolesByPc), ROLE_VAL);
+      }
+      for (CtInvocation<?> inv : method.getBody().getElements(new TypeFilter<>(CtInvocation.class))) {
+        if (inv.getExecutable() == null)
+          continue;
+        String name = inv.getExecutable().getSimpleName();
+        int site = siteFor(pcByPos, inv, methodAddr);
+        if (inv.getArguments().size() == 1 && (REG_CH.containsKey(name) || "push".equals(name)))
+          addRole(rolesByPc, site,
+              channels(inv.getArguments().get(0), varDeps, pcByPos, methodAddr, rolesByPc), ROLE_VAL);
+        else if ("ldir".equals(name) && inv.getArguments().isEmpty()) {
+          addRole(rolesByPc, site, Set.of("H", "L", "D", "E"), ROLE_ADDR);
+          addRole(rolesByPc, site, Set.of("B", "C"), ROLE_COND);
+          addRole(rolesByPc, site, Set.of("MEM"), ROLE_VAL);
+        }
+      }
+      List<CtExpression<?>> conds = new ArrayList<>();
+      for (CtIf s : method.getBody().getElements(new TypeFilter<>(CtIf.class)))
+        conds.add(s.getCondition());
+      for (CtWhile s : method.getBody().getElements(new TypeFilter<>(CtWhile.class)))
+        conds.add(s.getLoopingExpression());
+      for (CtDo s : method.getBody().getElements(new TypeFilter<>(CtDo.class)))
+        conds.add(s.getLoopingExpression());
+      for (CtExpression<?> cond : conds)
+        if (cond != null)
+          addRole(rolesByPc, siteFor(pcByPos, cond, methodAddr),
+              channels(cond, varDeps, pcByPos, methodAddr, rolesByPc), ROLE_COND);
+
       // --- pass 2: replace reads (deepest first so nested reads print correctly) -------
       reads.sort(Comparator.comparingInt(EquationExtractor::depth).reversed());
       for (CtArrayRead<?> r : reads) {
@@ -223,7 +299,7 @@ public class EquationExtractor {
     launcher.setSourceOutputDirectory(outSrcDir);
     launcher.prettyprint();
 
-    writeSitesJson(sites, Path.of(sitesJson));
+    writeSitesJson(sites, rolesByPc, Path.of(sitesJson));
 
     System.out.println("Instrumented class: " + outSrcDir + "/" + GENERATED_PACKAGE.replace('.', '/')
         + "/" + GENERATED_CLASS + ".java");
@@ -233,6 +309,74 @@ public class EquationExtractor {
 
   private static boolean isMemAccess(CtExpression<?> target) {
     return target != null && "mem".equals(target.toString());
+  }
+
+  /** channels (register names / MEM / STK) that feed the given expression. */
+  private static Set<String> channels(CtElement e, Map<String, Set<String>> varDeps,
+                                      TreeMap<Long, Integer> pcByPos, int methodAddr,
+                                      Map<Integer, Map<String, Integer>> roles) {
+    Set<String> out = new HashSet<>();
+    collectChannels(e, out, varDeps, pcByPos, methodAddr, roles);
+    return out;
+  }
+
+  private static void collectChannels(CtElement e, Set<String> out, Map<String, Set<String>> varDeps,
+                                      TreeMap<Long, Integer> pcByPos, int methodAddr,
+                                      Map<Integer, Map<String, Integer>> roles) {
+    if (e instanceof CtInvocation<?> inv && inv.getExecutable() != null) {
+      String name = inv.getExecutable().getSimpleName();
+      if (inv.getArguments().isEmpty()) {
+        if (REG_CH.containsKey(name)) {
+          out.addAll(Arrays.asList(REG_CH.get(name)));
+          return;
+        }
+        if ("pop".equals(name)) {
+          out.add("STK");
+          return;
+        }
+      }
+      for (CtExpression<?> arg : inv.getArguments())
+        collectChannels(arg, out, varDeps, pcByPos, methodAddr, roles);
+      return;
+    }
+    // a mem read contributes through the MEM channel; whatever fed its index is
+    // an ADDR dependency of this same site — recorded right here, not propagated up
+    if (e instanceof CtArrayRead<?> r && isMemAccess(r.getTarget())) {
+      addRole(roles, siteFor(pcByPos, r, methodAddr),
+          channels(r.getIndexExpression(), varDeps, pcByPos, methodAddr, roles), ROLE_ADDR);
+      out.add("MEM");
+      return;
+    }
+    if (e instanceof CtVariableRead<?> vr) {
+      Set<String> d = varDeps.get(vr.getVariable().getSimpleName());
+      if (d != null)
+        out.addAll(d);
+      return;
+    }
+    for (CtElement c : e.getDirectChildren())
+      collectChannels(c, out, varDeps, pcByPos, methodAddr, roles);
+  }
+
+  private static void addRole(Map<Integer, Map<String, Integer>> roles, int pc, Set<String> chs, int role) {
+    if (pc < 0 || chs.isEmpty())
+      return;
+    Map<String, Integer> m = roles.computeIfAbsent(pc, k -> new TreeMap<>());
+    for (String ch : chs)
+      m.merge(ch, role, (a, b) -> a | b);
+  }
+
+  private static String rolesToString(Map<String, Integer> chRoles) {
+    StringBuilder sb = new StringBuilder();
+    for (Map.Entry<String, Integer> e : chRoles.entrySet()) {
+      if (sb.length() > 0)
+        sb.append(';');
+      sb.append(e.getKey()).append('=');
+      int m = e.getValue();
+      if ((m & ROLE_ADDR) != 0) sb.append('A');
+      if ((m & ROLE_VAL) != 0) sb.append('V');
+      if ((m & ROLE_COND) != 0) sb.append('C');
+    }
+    return sb.toString();
   }
 
   private static int siteFor(TreeMap<Long, Integer> pcByPos, CtElement e, int methodAddr) {
@@ -274,8 +418,10 @@ public class EquationExtractor {
     return c.toString().replace('\n', ' ');
   }
 
-  private static void writeSitesJson(List<Site> sites, Path out) throws IOException {
+  private static void writeSitesJson(List<Site> sites, Map<Integer, Map<String, Integer>> rolesByPc,
+                                     Path out) throws IOException {
     sites.sort(Comparator.comparingInt((Site s) -> s.pc).thenComparing(s -> s.kind));
+    Set<Integer> rolesEmitted = new HashSet<>();
     StringBuilder sb = new StringBuilder("[\n");
     for (int i = 0; i < sites.size(); i++) {
       Site s = sites.get(i);
@@ -289,6 +435,8 @@ public class EquationExtractor {
         sb.append(", \"value\": ").append(json(s.value));
       if (s.stmt != null)
         sb.append(", \"stmt\": ").append(json(s.stmt));
+      if (rolesByPc.containsKey(s.pc) && rolesEmitted.add(s.pc))
+        sb.append(", \"roles\": ").append(json(rolesToString(rolesByPc.get(s.pc))));
       sb.append("}").append(i < sites.size() - 1 ? "," : "").append("\n");
     }
     sb.append("]\n");

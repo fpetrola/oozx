@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,15 +48,16 @@ public class AnalysisDump {
             " first_frame INT, last_frame INT)");
         st.execute("CREATE TABLE bulk_stats(pc INT, count INT, src_min INT, src_max INT," +
             " dst_min INT, dst_max INT, len_min INT, len_max INT)");
-        st.execute("CREATE TABLE edges(src INT, dst INT, count INT)");
+        st.execute("CREATE TABLE edges(src INT, dst INT, ch TEXT, role TEXT, count INT)");
         st.execute("CREATE TABLE cfg(src INT, dst INT, count INT)");
         st.execute("CREATE TABLE flags(pc INT, reads_f INT, io INT)");
+        st.execute("CREATE TABLE site_roles(pc INT, ch TEXT, role TEXT)");
       }
 
-      loadSites(c, sitesJsonPath);
+      Map<Integer, Map<String, String>> roles = loadSites(c, sitesJsonPath);
       dumpStats(c);
-      dumpEdges(c, "INSERT INTO edges VALUES(?,?,?)", Tracer.edges);
-      dumpEdges(c, "INSERT INTO cfg VALUES(?,?,?)", Tracer.cfg);
+      dumpEdges(c, roles);
+      dumpCfg(c);
       dumpFlags(c);
 
       try (Statement st = c.createStatement()) {
@@ -120,10 +123,34 @@ public class AnalysisDump {
     ps.addBatch();
   }
 
-  private static void dumpEdges(Connection c, String sql, EdgeMap map) throws SQLException {
-    try (PreparedStatement ps = c.prepareStatement(sql)) {
+  /** data-flow edges: resolves each edge's role by (dst site, channel) from sites.json. */
+  private static void dumpEdges(Connection c, Map<Integer, Map<String, String>> roles) throws SQLException {
+    try (PreparedStatement ps = c.prepareStatement("INSERT INTO edges VALUES(?,?,?,?,?)")) {
       final SQLException[] err = new SQLException[1];
-      map.forEach((src, dst, count) -> {
+      Tracer.edges.forEach((src, dst, ch, count) -> {
+        try {
+          String chName = Tracer.CH_NAME[ch];
+          Map<String, String> siteRoles = roles.get(dst);
+          ps.setInt(1, src);
+          ps.setInt(2, dst);
+          ps.setString(3, chName);
+          ps.setString(4, siteRoles != null ? siteRoles.get(chName) : null);
+          ps.setLong(5, count);
+          ps.addBatch();
+        } catch (SQLException e) {
+          err[0] = e;
+        }
+      });
+      if (err[0] != null)
+        throw err[0];
+      ps.executeBatch();
+    }
+  }
+
+  private static void dumpCfg(Connection c) throws SQLException {
+    try (PreparedStatement ps = c.prepareStatement("INSERT INTO cfg VALUES(?,?,?)")) {
+      final SQLException[] err = new SQLException[1];
+      Tracer.cfg.forEach((src, dst, ch, count) -> {
         try {
           ps.setInt(1, src);
           ps.setInt(2, dst);
@@ -152,18 +179,24 @@ public class AnalysisDump {
     }
   }
 
-  /** minimal parser for our own sites.json (flat objects, no nesting). */
-  private static void loadSites(Connection c, String sitesJsonPath) throws SQLException, IOException {
+  /**
+   * minimal parser for our own sites.json (flat objects, no nesting).
+   * Returns the static role table: pc -> channel -> role ("ADDR", "VAL", "COND" or "+"-joined).
+   */
+  private static Map<Integer, Map<String, String>> loadSites(Connection c, String sitesJsonPath)
+      throws SQLException, IOException {
+    Map<Integer, Map<String, String>> rolesByPc = new HashMap<>();
     if (sitesJsonPath == null || !Files.exists(Path.of(sitesJsonPath)))
-      return;
-    Pattern field = Pattern.compile("\"(pc|method|line|kind|index|value|stmt)\": (\\d+|\"(?:[^\"\\\\]|\\\\.)*\")");
+      return rolesByPc;
+    Pattern field = Pattern.compile("\"(pc|method|line|kind|index|value|stmt|roles)\": (\\d+|\"(?:[^\"\\\\]|\\\\.)*\")");
     List<String> lines = Files.readAllLines(Path.of(sitesJsonPath));
-    try (PreparedStatement ps = c.prepareStatement("INSERT INTO sites VALUES(?,?,?,?,?,?,?)")) {
+    try (PreparedStatement ps = c.prepareStatement("INSERT INTO sites VALUES(?,?,?,?,?,?,?)");
+         PreparedStatement pr = c.prepareStatement("INSERT INTO site_roles VALUES(?,?,?)")) {
       for (String line : lines) {
         if (!line.trim().startsWith("{"))
           continue;
         int pc = -1, ln = -1;
-        String method = null, kind = null, idx = null, value = null, stmt = null;
+        String method = null, kind = null, idx = null, value = null, stmt = null, roles = null;
         Matcher m = field.matcher(line);
         while (m.find()) {
           String k = m.group(1), v = m.group(2);
@@ -176,6 +209,7 @@ public class AnalysisDump {
             case "index" -> idx = sv;
             case "value" -> value = sv;
             case "stmt" -> stmt = sv;
+            case "roles" -> roles = sv;
           }
         }
         if (pc < 0)
@@ -188,8 +222,39 @@ public class AnalysisDump {
         ps.setString(6, value);
         ps.setString(7, stmt);
         ps.addBatch();
+        if (roles != null) {
+          Map<String, String> chRoles = rolesByPc.computeIfAbsent(pc, k2 -> new HashMap<>());
+          for (String entry : roles.split(";")) {
+            int eq = entry.indexOf('=');
+            if (eq <= 0)
+              continue;
+            String ch = entry.substring(0, eq), role = expandRole(entry.substring(eq + 1));
+            chRoles.put(ch, role);
+            pr.setInt(1, pc);
+            pr.setString(2, ch);
+            pr.setString(3, role);
+            pr.addBatch();
+          }
+        }
       }
       ps.executeBatch();
+      pr.executeBatch();
     }
+    return rolesByPc;
+  }
+
+  private static String expandRole(String letters) {
+    StringBuilder sb = new StringBuilder();
+    for (char ch : letters.toCharArray()) {
+      if (sb.length() > 0)
+        sb.append('+');
+      sb.append(switch (ch) {
+        case 'A' -> "ADDR";
+        case 'V' -> "VAL";
+        case 'C' -> "COND";
+        default -> String.valueOf(ch);
+      });
+    }
+    return sb.toString();
   }
 }

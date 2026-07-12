@@ -33,28 +33,42 @@ public class BackwardSlicer {
   }
 
   public void slice(int addrLo, int addrHi, int maxDepth, int fanout) {
+    slice(addrLo, addrHi, maxDepth, fanout, null);
+  }
+
+  /**
+   * roleFilter (null = todos): "ADDR" | "VAL" | "COND" — filtra los edges entrantes del
+   * ROOT por rol (cómo se construyó la dirección vs. el valor vs. la condición); los
+   * niveles más profundos se recorren completos, con el rol etiquetado en cada edge.
+   */
+  public void slice(int addrLo, int addrHi, int maxDepth, int fanout, String roleFilter) {
     List<AnalysisDB.Stat> writers = db.writersIntersecting(addrLo, addrHi);
-    System.out.println("=== Backward slice de mem[" + addrLo + ".." + addrHi + "] ===");
+    System.out.println("=== Backward slice de mem[" + addrLo + ".." + addrHi + "] ==="
+        + (roleFilter != null ? " [rol=" + roleFilter + "]" : ""));
     System.out.println(writers.size() + " write-sites tocan el rango\n");
     for (AnalysisDB.Stat w : writers) {
       System.out.println("ROOT " + db.describe(w.pc()));
-      walk(w.pc(), 1, maxDepth, fanout, new HashSet<>(List.of(w.pc())));
+      walk(w.pc(), 1, maxDepth, fanout, new HashSet<>(List.of(w.pc())), roleFilter);
       System.out.println();
     }
   }
 
-  private void walk(int pc, int depth, int maxDepth, int fanout, Set<Integer> seen) {
+  private void walk(int pc, int depth, int maxDepth, int fanout, Set<Integer> seen, String roleFilter) {
     if (depth > maxDepth)
       return;
     List<AnalysisDB.Edge> in = db.edgesIn.getOrDefault(pc, List.of());
     int shown = 0;
     for (AnalysisDB.Edge e : in) {
+      if (roleFilter != null && (e.role() == null || !e.role().contains(roleFilter)))
+        continue;
       if (shown++ >= fanout)
         break;
       String indent = "  ".repeat(depth);
-      System.out.println(indent + "<- x" + e.count() + " " + db.describe(e.src()));
+      String label = e.label();
+      System.out.println(indent + "<- x" + e.count() + (label.isEmpty() ? "" : " [" + label + "]")
+          + " " + db.describe(e.src()));
       if (e.src() != 0 && !db.ioSites.contains(e.src()) && seen.add(e.src()))
-        walk(e.src(), depth + 1, maxDepth, fanout, seen);
+        walk(e.src(), depth + 1, maxDepth, fanout, seen, null);
     }
   }
 }

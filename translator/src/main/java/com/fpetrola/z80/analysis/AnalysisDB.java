@@ -34,7 +34,11 @@ public class AnalysisDB {
   public record Bulk(int pc, long count, int srcMin, int srcMax, int dstMin, int dstMax, int lenMin, int lenMax) {
   }
 
-  public record Edge(int src, int dst, long count) {
+  public record Edge(int src, int dst, String ch, String role, long count) {
+    /** "H:ADDR" / "MEM:VAL" / "F" (channel without static role). */
+    public String label() {
+      return ch == null ? "" : role == null ? ch : ch + ":" + role;
+    }
   }
 
   public final Map<Integer, String> equation = new HashMap<>();     // pc -> INSTR/BRANCH stmt
@@ -76,9 +80,9 @@ public class AnalysisDB {
           bulks.put(rs.getInt(1), new Bulk(rs.getInt(1), rs.getLong(2), rs.getInt(3), rs.getInt(4),
               rs.getInt(5), rs.getInt(6), rs.getInt(7), rs.getInt(8)));
       }
-      try (ResultSet rs = c.createStatement().executeQuery("SELECT src, dst, count FROM edges")) {
+      try (ResultSet rs = c.createStatement().executeQuery("SELECT src, dst, ch, role, count FROM edges")) {
         while (rs.next()) {
-          Edge e = new Edge(rs.getInt(1), rs.getInt(2), rs.getLong(3));
+          Edge e = new Edge(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getString(4), rs.getLong(5));
           edgesIn.computeIfAbsent(e.dst, k -> new ArrayList<>()).add(e);
           edgesOut.computeIfAbsent(e.src, k -> new ArrayList<>()).add(e);
         }
@@ -86,7 +90,7 @@ public class AnalysisDB {
       try (ResultSet rs = c.createStatement().executeQuery("SELECT src, dst, count FROM cfg")) {
         while (rs.next())
           cfgOut.computeIfAbsent(rs.getInt(1), k -> new ArrayList<>())
-              .add(new Edge(rs.getInt(1), rs.getInt(2), rs.getLong(3)));
+              .add(new Edge(rs.getInt(1), rs.getInt(2), null, null, rs.getLong(3)));
       }
       try (ResultSet rs = c.createStatement().executeQuery("SELECT pc, reads_f, io FROM flags")) {
         while (rs.next()) {

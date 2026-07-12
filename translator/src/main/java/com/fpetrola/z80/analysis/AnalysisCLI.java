@@ -21,7 +21,7 @@ package com.fpetrola.z80.analysis;
 /**
  * Entry point for exploring the capture:
  * <pre>
- *   AnalysisCLI slice <addrLo> <addrHi> [depth] [fanout]   backward slice de un rango
+ *   AnalysisCLI slice <addrLo> <addrHi> [depth] [fanout] [addr|val|cond]   backward slice de un rango
  *   AnalysisCLI sprites                                     rutinas de dibujado + datos graficos
  *   AnalysisCLI regions [totalFrames]                       variables / tablas / buffers / branches
  *   AnalysisCLI copychains                                  pipelines de bulk copies
@@ -38,7 +38,8 @@ public class AnalysisCLI {
         int lo = Integer.parseInt(args[1]), hi = Integer.parseInt(args[2]);
         int depth = args.length > 3 ? Integer.parseInt(args[3]) : 4;
         int fanout = args.length > 4 ? Integer.parseInt(args[4]) : 4;
-        new BackwardSlicer(db).slice(lo, hi, depth, fanout);
+        String role = args.length > 5 ? args[5].toUpperCase() : null;
+        new BackwardSlicer(db).slice(lo, hi, depth, fanout, role);
       }
       case "sprites" -> new SpriteFinder(db).report();
       case "regions" -> new RegionClassifier(db, args.length > 1 ? Integer.parseInt(args[1]) : 20583).report();
@@ -48,10 +49,10 @@ public class AnalysisCLI {
         System.out.println(db.describe(pc));
         System.out.println("in-edges:");
         db.edgesIn.getOrDefault(pc, java.util.List.of())
-            .forEach(e -> System.out.println("  <- x" + e.count() + " " + db.describe(e.src())));
+            .forEach(e -> System.out.println("  <- x" + e.count() + " [" + e.label() + "] " + db.describe(e.src())));
         System.out.println("out-edges:");
         db.edgesOut.getOrDefault(pc, java.util.List.of())
-            .forEach(e -> System.out.println("  -> x" + e.count() + " " + db.describe(e.dst())));
+            .forEach(e -> System.out.println("  -> x" + e.count() + " [" + e.label() + "] " + db.describe(e.dst())));
         System.out.println("cfg-out:");
         db.cfgOut.getOrDefault(pc, java.util.List.of())
             .forEach(e -> System.out.println("  -> " + e.dst() + " x" + e.count()));

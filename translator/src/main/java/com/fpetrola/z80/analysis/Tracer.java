@@ -70,11 +70,19 @@ public final class Tracer {
       R_I = 21, R_R = 22, REG_SLOTS = 23;
   public static final int[] regProv = new int[REG_SLOTS];
 
-  /** sources (sites) read so far by the CURRENT Z80 instruction (one instruction = one site). */
+  // channels: through which medium a dependency reached the consuming site.
+  // 0..22 = the register slots above; MEM = value read from memory; STK = via pop.
+  public static final int CH_MEM = REG_SLOTS, CH_STK = REG_SLOTS + 1, CHANNELS = REG_SLOTS + 2;
+  public static final String[] CH_NAME = {
+      "A", "F", "B", "C", "D", "E", "H", "L", "IXH", "IXL", "IYH", "IYL", "SP",
+      "AX", "FX", "BX", "CX", "DX", "EX", "HX", "LX", "I", "R", "MEM", "STK"};
+
+  /** sources (site, channel) read so far by the CURRENT Z80 instruction (one instruction = one site). */
   private static final int[] curSrc = new int[64];
+  private static final int[] curCh = new int[64];
   private static int curSrcN;
 
-  /** data-flow edges: srcSite -> dstSite with count. */
+  /** data-flow edges: (srcSite, dstSite, channel) with count. */
   public static final EdgeMap edges = new EdgeMap(1 << 16);
   /** dynamic CFG: instruction transitions prevPc -> nextPc with count. */
   public static final EdgeMap cfg = new EdgeMap(1 << 16);
@@ -86,25 +94,27 @@ public final class Tracer {
   /** provenance travelling through the Z80 stack: one source-set snapshot per push. */
   private static final java.util.ArrayDeque<int[]> stackProv = new java.util.ArrayDeque<>();
 
-  public static void src(int site) {
+  public static void src(int site, int ch) {
     if (site < 0)
       return;
     for (int i = 0; i < curSrcN; i++)
-      if (curSrc[i] == site)
+      if (curSrc[i] == site && curCh[i] == ch)
         return;
-    if (curSrcN < curSrc.length)
-      curSrc[curSrcN++] = site;
+    if (curSrcN < curSrc.length) {
+      curSrc[curSrcN] = site;
+      curCh[curSrcN++] = ch;
+    }
   }
 
   public static void regRead(int slot) {
-    src(regProv[slot]);
+    src(regProv[slot], slot);
     if (slot == R_F && currentPc >= 0)
       readsF[currentPc] = true;
   }
 
   public static void regRead2(int hi, int lo) {
-    src(regProv[hi]);
-    src(regProv[lo]);
+    src(regProv[hi], hi);
+    src(regProv[lo], lo);
   }
 
   public static void regWrite(int slot) {
@@ -136,7 +146,7 @@ public final class Tracer {
     int[] saved = stackProv.poll();
     if (saved != null)
       for (int s : saved)
-        src(s);
+        src(s, CH_STK);
   }
 
   /**
@@ -148,7 +158,7 @@ public final class Tracer {
     if (pc >= 0) {
       for (int i = 0; i < curSrcN; i++)
         if (curSrc[i] != pc)
-          edges.increment(curSrc[i], pc);
+          edges.increment(curSrc[i], pc, curCh[i]);
       cfg.increment(pc, nextPc);
     }
     curSrcN = 0;
@@ -208,7 +218,7 @@ public final class Tracer {
   }
 
   public static void rd(int site, int addr, int val) {
-    src(lastWriterMem[addr & 0xFFFF]);
+    src(lastWriterMem[addr & 0xFFFF], CH_MEM);
     rCount[site]++;
     if (addr < rAddrMin[site]) rAddrMin[site] = addr;
     if (addr > rAddrMax[site]) rAddrMax[site] = addr;
@@ -235,10 +245,10 @@ public final class Tracer {
     // provenance of the copied block: sample the writers of the source range BEFORE
     // tagging the destination, so copy chains stay connected.
     if (src >= 0 && src < SIZE) {
-      edges.increment(lastWriterMem[src], site);
+      edges.increment(lastWriterMem[src], site, CH_MEM);
       int mid = src + len / 2, last = src + len - 1;
-      if (mid < SIZE) edges.increment(lastWriterMem[mid], site);
-      if (last < SIZE) edges.increment(lastWriterMem[last], site);
+      if (mid < SIZE) edges.increment(lastWriterMem[mid], site, CH_MEM);
+      if (last < SIZE) edges.increment(lastWriterMem[last], site, CH_MEM);
     }
     int end = Math.min(dst + len, SIZE);
     for (int a = Math.max(dst, 0); a < end; a++)
@@ -285,16 +295,17 @@ public final class Tracer {
 
     sb.append("\"edges\": [\n");
     StringBuilder eb = new StringBuilder();
-    edges.forEach((src, dst, count) -> {
+    edges.forEach((src, dst, ch, count) -> {
       if (eb.length() > 0) eb.append(",\n");
       eb.append("  {\"src\": ").append(src).append(", \"dst\": ").append(dst)
-          .append(", \"count\": ").append(count).append('}');
+          .append(", \"ch\": \"").append(CH_NAME[ch])
+          .append("\", \"count\": ").append(count).append('}');
     });
     sb.append(eb).append("\n],\n");
 
     sb.append("\"cfg\": [\n");
     StringBuilder cb = new StringBuilder();
-    cfg.forEach((src, dst, count) -> {
+    cfg.forEach((src, dst, ch, count) -> {
       if (cb.length() > 0) cb.append(",\n");
       cb.append("  {\"src\": ").append(src).append(", \"dst\": ").append(dst)
           .append(", \"count\": ").append(count).append('}');

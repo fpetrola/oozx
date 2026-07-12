@@ -19,7 +19,9 @@
 package com.fpetrola.z80.analysis;
 
 /**
- * Open-addressing hash map from (srcSite&lt;&lt;16 | dstSite) to a count.
+ * Open-addressing hash map from (srcSite&lt;&lt;32 | dstSite&lt;&lt;16 | channel) to a count.
+ * The channel identifies through which register/medium the dependency arrived
+ * (see {@link Tracer} CH_* constants); channel 0 is used for untyped maps (cfg).
  * No boxing, no allocation per increment — safe for the capture hot path.
  */
 public final class EdgeMap {
@@ -37,12 +39,16 @@ public final class EdgeMap {
     mask = cap - 1;
   }
 
-  public static long key(int src, int dst) {
-    return ((long) (src & 0xFFFF) << 16) | (dst & 0xFFFF);
+  public static long key(int src, int dst, int ch) {
+    return ((long) (src & 0xFFFF) << 32) | ((long) (dst & 0xFFFF) << 16) | (ch & 0xFFFF);
   }
 
   public void increment(int src, int dst) {
-    increment(key(src, dst), 1);
+    increment(key(src, dst, 0), 1);
+  }
+
+  public void increment(int src, int dst, int ch) {
+    increment(key(src, dst, ch), 1);
   }
 
   public void increment(long key, long delta) {
@@ -74,15 +80,15 @@ public final class EdgeMap {
     size = 0;
   }
 
-  /** visits each entry as (key, count) packed calls: consumer receives index i; use keyAt/countAt. */
   public void forEach(EntryConsumer consumer) {
     for (int i = 0; i < keys.length; i++)
       if (keys[i] != EMPTY)
-        consumer.accept((int) (keys[i] >>> 16), (int) (keys[i] & 0xFFFF), counts[i]);
+        consumer.accept((int) (keys[i] >>> 32), (int) ((keys[i] >>> 16) & 0xFFFF),
+            (int) (keys[i] & 0xFFFF), counts[i]);
   }
 
   public interface EntryConsumer {
-    void accept(int src, int dst, long count);
+    void accept(int src, int dst, int ch, long count);
   }
 
   private void rehash() {
