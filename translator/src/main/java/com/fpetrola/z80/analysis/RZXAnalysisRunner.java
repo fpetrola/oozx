@@ -162,6 +162,11 @@ public class RZXAnalysisRunner extends JetSetWilly2Instrumented {
     System.out.println("Elapsed: " + (System.currentTimeMillis() - start) / 1000 + "s");
     game.bootstrap.hasher.dump("analysis/instrumented-hashes.txt");
     Tracer.dump("analysis/analysis-f1.json");
+    try {
+      AnalysisDump.dump("analysis/analysis.db", "translator/src/main/resources/analysis/sites.json");
+    } catch (Exception e) {
+      System.out.println("SQLite dump failed: " + e);
+    }
     System.out.println(Tracer.summary());
     System.exit(0);
   }
