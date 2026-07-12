@@ -64,6 +64,29 @@ public class RegionClassifier {
     for (int[] t : staticRanges)
       System.out.printf("  [%5d..%5d] leida por %d (x%d) %s%n", t[0], t[1], t[2], t[3], shortEq(t[2]));
 
+    System.out.println("\n=== Punteros/indices/coordenadas (su valor alimenta calculos de direccion) ===");
+    List<AnalysisDB.Stat> ptrReads = new ArrayList<>(db.reads.values());
+    ptrReads.sort(Comparator.comparingInt(AnalysisDB.Stat::addrMin));
+    for (AnalysisDB.Stat r : ptrReads) {
+      long addrFlow = 0, totalFlow = 0;
+      AnalysisDB.Edge top = null;
+      for (AnalysisDB.Edge e : db.edgesOut.getOrDefault(r.pc(), List.of())) {
+        totalFlow += e.count();
+        if (e.role() != null && e.role().contains("ADDR")) {
+          addrFlow += e.count();
+          if (top == null || e.count() > top.count())
+            top = e;
+        }
+      }
+      if (addrFlow == 0)
+        continue;
+      String kind = r.addrMin() == r.addrMax() ? "variable" : "tabla   ";
+      System.out.printf("  %s [%5d..%5d] leida en %d (x%d): %d%% del flujo a direcciones, ej -> %d [%s] %s%n",
+          kind, r.addrMin(), r.addrMax(), r.pc(), r.count(),
+          Math.round(100.0 * addrFlow / Math.max(totalFlow, 1)),
+          top.dst(), top.label(), shortEq(top.dst()));
+    }
+
     System.out.println("\n=== Buffers por frame (writes ~1x/frame o mas) ===");
     for (AnalysisDB.Stat w : db.writes.values()) {
       if (w.addrMin() == w.addrMax() || totalFrames <= 0)

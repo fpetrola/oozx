@@ -42,7 +42,7 @@ public class AnalysisDump {
     try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
       c.setAutoCommit(false);
       try (Statement st = c.createStatement()) {
-        st.execute("CREATE TABLE sites(pc INT, method TEXT, line INT, kind TEXT, idx TEXT, value TEXT, stmt TEXT)");
+        st.execute("CREATE TABLE sites(pc INT, method TEXT, line INT, kind TEXT, idx TEXT, value TEXT, stmt TEXT, equation TEXT)");
         st.execute("CREATE TABLE site_stats(pc INT, op TEXT, count INT, addr_min INT, addr_max INT," +
             " addr_and INT, addr_or INT, val_min INT, val_max INT, val_and INT, val_or INT," +
             " first_frame INT, last_frame INT)");
@@ -188,15 +188,15 @@ public class AnalysisDump {
     Map<Integer, Map<String, String>> rolesByPc = new HashMap<>();
     if (sitesJsonPath == null || !Files.exists(Path.of(sitesJsonPath)))
       return rolesByPc;
-    Pattern field = Pattern.compile("\"(pc|method|line|kind|index|value|stmt|roles)\": (\\d+|\"(?:[^\"\\\\]|\\\\.)*\")");
+    Pattern field = Pattern.compile("\"(pc|method|line|kind|index|value|stmt|roles|equation)\": (\\d+|\"(?:[^\"\\\\]|\\\\.)*\")");
     List<String> lines = Files.readAllLines(Path.of(sitesJsonPath));
-    try (PreparedStatement ps = c.prepareStatement("INSERT INTO sites VALUES(?,?,?,?,?,?,?)");
+    try (PreparedStatement ps = c.prepareStatement("INSERT INTO sites VALUES(?,?,?,?,?,?,?,?)");
          PreparedStatement pr = c.prepareStatement("INSERT INTO site_roles VALUES(?,?,?)")) {
       for (String line : lines) {
         if (!line.trim().startsWith("{"))
           continue;
         int pc = -1, ln = -1;
-        String method = null, kind = null, idx = null, value = null, stmt = null, roles = null;
+        String method = null, kind = null, idx = null, value = null, stmt = null, roles = null, equation = null;
         Matcher m = field.matcher(line);
         while (m.find()) {
           String k = m.group(1), v = m.group(2);
@@ -210,6 +210,7 @@ public class AnalysisDump {
             case "value" -> value = sv;
             case "stmt" -> stmt = sv;
             case "roles" -> roles = sv;
+            case "equation" -> equation = sv;
           }
         }
         if (pc < 0)
@@ -221,6 +222,7 @@ public class AnalysisDump {
         ps.setString(5, idx);
         ps.setString(6, value);
         ps.setString(7, stmt);
+        ps.setString(8, equation);
         ps.addBatch();
         if (roles != null) {
           Map<String, String> chRoles = rolesByPc.computeIfAbsent(pc, k2 -> new HashMap<>());

@@ -112,9 +112,17 @@ consulta que más información da sobre el juego.
 - **`SpriteFinder`**: writers de pantalla/backbuffer → slice a lecturas INIT-rooted =
   zonas de datos gráficos.
 - **`RegionClassifier`**: reglas componibles sobre stats (estático/por-frame/contador/
-  flag/puntero...) → mapa de regiones de los 64K.
+  flag...) → mapa de regiones de los 64K. Incluye la regla por roles: lecturas cuyo
+  flujo de salida tiene edges ADDR = **punteros/índices/coordenadas** (encuentra sola la
+  tabla de entidades [33027..33075] y la tabla de punteros [33281..33489]).
 - **`CopyChainFinder`**: encadena `bulk_stats` donde dst de uno solapa src de otro →
   pipelines de buffers.
+- **`EquationLister`**: listado tipo "desensamblado algebraico anotado" — una línea por
+  site con la **ecuación normalizada** (cadenas `varN` inlineadas por el pase 1.7 del
+  extractor: `mem[HL] = A`, `A = (A - 8) & 255`, `B = (B - 1) & 255; while (B != 0)`),
+  conteo de ejecuciones (del CFG) y rangos W/R observados. Las ecuaciones normalizadas
+  viven en `sites.json` (campo `equation`) y en la columna `sites.equation` de la DB;
+  `AnalysisDB` las prefiere sobre el stmt crudo, así que slices y reports las usan.
 - **`AnalysisCLI`**: punto de entrada (ver §6).
 
 ## 5. Modelo de captura en una imagen
@@ -149,6 +157,8 @@ mvn -q -pl translator exec:java -Dexec.mainClass=com.fpetrola.z80.analysis.Verif
 # 4. explorar
 mvn -q -pl translator exec:java -Dexec.mainClass=com.fpetrola.z80.analysis.AnalysisCLI \
     -Dexec.args="slice 16384 22527"        # también: sprites | regions | copychains | site <pc>
+#   slice lo hi [depth] [fanout] [addr|val|cond]   — slice filtrado por rol
+#   equations [metodo | pcLo pcHi]                 — listado de ecuaciones normalizadas
 ```
 
 ## 7. Qué ya se dedujo del juego (sanity checks vivientes)
@@ -218,8 +228,6 @@ la misma instrucción comparten canal (el rol queda como conjunto).
 
 - **F5 — trace exacto por ventana de frames**: log por instancia limitado a una ventana,
   para trace pixel-a-pixel puntual. La infraestructura de sites lo permite sin rediseño.
-- **Normalización simbólica de ecuaciones**: sustituir las cadenas de `varN` para que las
-  ecuaciones queden algebraicas (`mem[HL+1]` en vez de `int var5 = HL(); ...`).
 - **Forward slicing** ("¿qué cosas dependen de X?"): es transponer los edges, la DB ya
   lo permite (`edgesOut`).
 - **Refinar geometría de sprites**: entry size desde la estructura de loops

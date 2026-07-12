@@ -121,6 +121,7 @@ public class EquationExtractor {
 
     List<Site> sites = new ArrayList<>();
     Map<Integer, Map<String, Integer>> rolesByPc = new TreeMap<>();
+    Map<Integer, TreeMap<Long, String>> eqByPc = new TreeMap<>();
     int readCount = 0, writeCount = 0;
     // global (line -> pc, method) markers for the per-instruction source equations (F2)
     TreeMap<Integer, int[]> pcByLine = new TreeMap<>();
@@ -231,17 +232,56 @@ public class EquationExtractor {
           addRole(rolesByPc, site, Set.of("MEM"), ROLE_VAL);
         }
       }
-      List<CtExpression<?>> conds = new ArrayList<>();
+      // --- pass 1.7: normalized algebraic equations (inline the varN chains) -----------
+      Map<String, String> varSym = new HashMap<>();
+      for (CtLocalVariable<?> lv : locals)
+        if (lv.getDefaultExpression() != null)
+          varSym.put(lv.getSimpleName(), sym(lv.getDefaultExpression(), varSym));
+      List<CtAssignment<?, ?>> varAsgs = new ArrayList<>();
+      for (CtAssignment<?, ?> a : method.getBody().getElements(new TypeFilter<>(CtAssignment.class)))
+        if (a.getAssigned() instanceof CtVariableWrite<?>)
+          varAsgs.add(a);
+      varAsgs.sort(Comparator.comparingLong(EquationExtractor::posKey));
+      for (CtAssignment<?, ?> a : varAsgs)
+        varSym.put(((CtVariableWrite<?>) a.getAssigned()).getVariable().getSimpleName(),
+            sym(a.getAssignment(), varSym));
+
+      for (CtInvocation<?> inv : method.getBody().getElements(new TypeFilter<>(CtInvocation.class))) {
+        if (inv.getExecutable() == null)
+          continue;
+        String name = inv.getExecutable().getSimpleName();
+        int site = siteFor(pcByPos, inv, methodAddr);
+        if (inv.getArguments().size() == 1 && REG_CH.containsKey(name))
+          effect(eqByPc, site, posKey(inv), name + " = " + sym(inv.getArguments().get(0), varSym));
+        else if (inv.getArguments().size() == 1 && "push".equals(name))
+          effect(eqByPc, site, posKey(inv), "push(" + sym(inv.getArguments().get(0), varSym) + ")");
+        else if (inv.getArguments().isEmpty() && "ldir".equals(name))
+          effect(eqByPc, site, posKey(inv), "ldir: mem[DE..DE+BC-1] = mem[HL..HL+BC-1]");
+        else if (inv.getArguments().isEmpty() && name.startsWith("$"))
+          effect(eqByPc, site, posKey(inv), "call " + name);
+      }
+      for (CtAssignment<?, ?> a : writes) {
+        CtArrayWrite<?> aw = (CtArrayWrite<?>) a.getAssigned();
+        effect(eqByPc, siteOf.get(a), posKey(a),
+            "mem[" + sym(aw.getIndexExpression(), varSym) + "] = " + sym(a.getAssignment(), varSym));
+      }
+
+      // --- branch/loop conditions: COND role + normalized equation ---------------------
+      List<Object[]> condExprs = new ArrayList<>();
       for (CtIf s : method.getBody().getElements(new TypeFilter<>(CtIf.class)))
-        conds.add(s.getCondition());
+        condExprs.add(new Object[]{s.getCondition(), "if"});
       for (CtWhile s : method.getBody().getElements(new TypeFilter<>(CtWhile.class)))
-        conds.add(s.getLoopingExpression());
+        condExprs.add(new Object[]{s.getLoopingExpression(), "while"});
       for (CtDo s : method.getBody().getElements(new TypeFilter<>(CtDo.class)))
-        conds.add(s.getLoopingExpression());
-      for (CtExpression<?> cond : conds)
-        if (cond != null)
-          addRole(rolesByPc, siteFor(pcByPos, cond, methodAddr),
-              channels(cond, varDeps, pcByPos, methodAddr, rolesByPc), ROLE_COND);
+        condExprs.add(new Object[]{s.getLoopingExpression(), "while"});
+      for (Object[] ce : condExprs) {
+        CtExpression<?> cond = (CtExpression<?>) ce[0];
+        if (cond == null)
+          continue;
+        int site = siteFor(pcByPos, cond, methodAddr);
+        addRole(rolesByPc, site, channels(cond, varDeps, pcByPos, methodAddr, rolesByPc), ROLE_COND);
+        effect(eqByPc, site, posKey(cond), ce[1] + " (" + sym(cond, varSym) + ")");
+      }
 
       // --- pass 2: replace reads (deepest first so nested reads print correctly) -------
       reads.sort(Comparator.comparingInt(EquationExtractor::depth).reversed());
@@ -299,7 +339,7 @@ public class EquationExtractor {
     launcher.setSourceOutputDirectory(outSrcDir);
     launcher.prettyprint();
 
-    writeSitesJson(sites, rolesByPc, Path.of(sitesJson));
+    writeSitesJson(sites, rolesByPc, eqByPc, Path.of(sitesJson));
 
     System.out.println("Instrumented class: " + outSrcDir + "/" + GENERATED_PACKAGE.replace('.', '/')
         + "/" + GENERATED_CLASS + ".java");
@@ -355,6 +395,76 @@ public class EquationExtractor {
     }
     for (CtElement c : e.getDirectChildren())
       collectChannels(c, out, varDeps, pcByPos, methodAddr, roles);
+  }
+
+  /** symbolic pretty-print of an expression with the varN locals inlined. */
+  private static String sym(CtElement e, Map<String, String> varSym) {
+    if (e instanceof CtInvocation<?> inv && inv.getExecutable() != null) {
+      String name = inv.getExecutable().getSimpleName();
+      if (inv.getArguments().isEmpty() && REG_CH.containsKey(name))
+        return name;
+      if (inv.getArguments().isEmpty() && "pop".equals(name))
+        return "pop()";
+      if (inv.getArguments().size() == 2 && "in".equals(name))
+        return "in(" + sym(inv.getArguments().get(0), varSym) + ")";
+      StringBuilder sb = new StringBuilder(name).append('(');
+      for (int i = 0; i < inv.getArguments().size(); i++) {
+        if (i > 0)
+          sb.append(", ");
+        sb.append(sym(inv.getArguments().get(i), varSym));
+      }
+      return sb.append(')').toString();
+    }
+    if (e instanceof CtArrayRead<?> r && isMemAccess(r.getTarget()))
+      return "mem[" + sym(r.getIndexExpression(), varSym) + "]";
+    if (e instanceof CtVariableRead<?> vr) {
+      String s = varSym.get(vr.getVariable().getSimpleName());
+      return s != null ? s : vr.getVariable().getSimpleName();
+    }
+    if (e instanceof CtBinaryOperator<?> b)
+      return wrap(b.getLeftHandOperand(), varSym) + " " + opText(b.getKind()) + " "
+          + wrap(b.getRightHandOperand(), varSym);
+    if (e instanceof CtUnaryOperator<?> u) {
+      String s = wrap(u.getOperand(), varSym);
+      return switch (u.getKind()) {
+        case NOT -> "!" + s;
+        case NEG -> "-" + s;
+        case COMPL -> "~" + s;
+        case POSTINC, PREINC -> s + "++";
+        case POSTDEC, PREDEC -> s + "--";
+        default -> u.toString();
+      };
+    }
+    if (e instanceof CtLiteral<?> l)
+      return String.valueOf(l.getValue());
+    if (e instanceof CtConditional<?> c)
+      return wrap(c.getCondition(), varSym) + " ? " + sym(c.getThenExpression(), varSym)
+          + " : " + sym(c.getElseExpression(), varSym);
+    return e.toString();
+  }
+
+  private static String wrap(CtExpression<?> e, Map<String, String> varSym) {
+    String s = sym(e, varSym);
+    boolean composite = e instanceof CtBinaryOperator<?> || e instanceof CtConditional<?>
+        || (e instanceof CtVariableRead<?> && s.contains(" "));
+    return composite ? "(" + s + ")" : s;
+  }
+
+  private static String opText(BinaryOperatorKind k) {
+    return switch (k) {
+      case PLUS -> "+"; case MINUS -> "-"; case MUL -> "*"; case DIV -> "/"; case MOD -> "%";
+      case BITAND -> "&"; case BITOR -> "|"; case BITXOR -> "^";
+      case SL -> "<<"; case SR -> ">>"; case USR -> ">>>";
+      case EQ -> "=="; case NE -> "!="; case LT -> "<"; case GT -> ">"; case LE -> "<="; case GE -> ">=";
+      case AND -> "&&"; case OR -> "||";
+      default -> k.toString();
+    };
+  }
+
+  private static void effect(Map<Integer, TreeMap<Long, String>> eqByPc, int pc, long pos, String text) {
+    if (pc < 0)
+      return;
+    eqByPc.computeIfAbsent(pc, k -> new TreeMap<>()).put(pos, text);
   }
 
   private static void addRole(Map<Integer, Map<String, Integer>> roles, int pc, Set<String> chs, int role) {
@@ -419,9 +529,10 @@ public class EquationExtractor {
   }
 
   private static void writeSitesJson(List<Site> sites, Map<Integer, Map<String, Integer>> rolesByPc,
+                                     Map<Integer, TreeMap<Long, String>> eqByPc,
                                      Path out) throws IOException {
     sites.sort(Comparator.comparingInt((Site s) -> s.pc).thenComparing(s -> s.kind));
-    Set<Integer> rolesEmitted = new HashSet<>();
+    Set<Integer> rolesEmitted = new HashSet<>(), eqEmitted = new HashSet<>();
     StringBuilder sb = new StringBuilder("[\n");
     for (int i = 0; i < sites.size(); i++) {
       Site s = sites.get(i);
@@ -437,6 +548,8 @@ public class EquationExtractor {
         sb.append(", \"stmt\": ").append(json(s.stmt));
       if (rolesByPc.containsKey(s.pc) && rolesEmitted.add(s.pc))
         sb.append(", \"roles\": ").append(json(rolesToString(rolesByPc.get(s.pc))));
+      if (eqByPc.containsKey(s.pc) && eqEmitted.add(s.pc))
+        sb.append(", \"equation\": ").append(json(String.join("; ", eqByPc.get(s.pc).values())));
       sb.append("}").append(i < sites.size() - 1 ? "," : "").append("\n");
     }
     sb.append("]\n");

@@ -26,6 +26,7 @@ package com.fpetrola.z80.analysis;
  *   AnalysisCLI regions [totalFrames]                       variables / tablas / buffers / branches
  *   AnalysisCLI copychains                                  pipelines de bulk copies
  *   AnalysisCLI site <pc>                                   detalle de un site
+ *   AnalysisCLI equations [metodo | pcLo pcHi]              listado de ecuaciones normalizadas
  * </pre>
  */
 public class AnalysisCLI {
@@ -40,6 +41,17 @@ public class AnalysisCLI {
         int fanout = args.length > 4 ? Integer.parseInt(args[4]) : 4;
         String role = args.length > 5 ? args[5].toUpperCase() : null;
         new BackwardSlicer(db).slice(lo, hi, depth, fanout, role);
+      }
+      case "equations" -> {
+        String methodFilter = null;
+        int lo = 0, hi = 0xFFFF;
+        if (args.length == 2)
+          methodFilter = args[1];
+        else if (args.length >= 3) {
+          lo = Integer.parseInt(args[1]);
+          hi = Integer.parseInt(args[2]);
+        }
+        new EquationLister(db).report(methodFilter, lo, hi);
       }
       case "sprites" -> new SpriteFinder(db).report();
       case "regions" -> new RegionClassifier(db, args.length > 1 ? Integer.parseInt(args[1]) : 20583).report();

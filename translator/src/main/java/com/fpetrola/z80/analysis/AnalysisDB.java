@@ -55,7 +55,8 @@ public class AnalysisDB {
 
   public AnalysisDB(String dbPath) throws SQLException {
     try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
-      try (ResultSet rs = c.createStatement().executeQuery("SELECT pc, method, kind, stmt FROM sites")) {
+      Map<Integer, String> eqNorm = new HashMap<>();
+      try (ResultSet rs = c.createStatement().executeQuery("SELECT pc, method, kind, stmt, equation FROM sites")) {
         while (rs.next()) {
           int pc = rs.getInt(1);
           String kind = rs.getString(3);
@@ -65,8 +66,11 @@ public class AnalysisDB {
             if ("BRANCH".equals(kind))
               kindOf.put(pc, kind);
           }
+          if (rs.getString(5) != null)
+            eqNorm.put(pc, rs.getString(5));
         }
       }
+      equation.putAll(eqNorm); // la ecuación normalizada (varN inlineadas) pisa el stmt crudo
       try (ResultSet rs = c.createStatement().executeQuery("SELECT * FROM site_stats")) {
         while (rs.next()) {
           Stat s = new Stat(rs.getInt(1), rs.getString(2), rs.getLong(3), rs.getInt(4), rs.getInt(5),
