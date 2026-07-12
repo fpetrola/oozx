@@ -101,6 +101,9 @@ public class EquationExtractor {
 
     List<Site> sites = new ArrayList<>();
     int readCount = 0, writeCount = 0;
+    // global (line -> pc, method) markers for the per-instruction source equations (F2)
+    TreeMap<Integer, int[]> pcByLine = new TreeMap<>();
+    Map<Integer, String> methodOfLine = new HashMap<>();
 
     for (CtMethod<?> method : new ArrayList<>(cls.getMethods())) {
       if (!method.getSimpleName().startsWith("$") || method.getBody() == null)
@@ -114,6 +117,10 @@ public class EquationExtractor {
             && inv.getArguments().get(0) instanceof CtLiteral<?> lit
             && lit.getValue() instanceof Integer address) {
           pcByPos.put(posKey(inv), address);
+          if (inv.getPosition().isValidPosition()) {
+            pcByLine.put(inv.getPosition().getLine(), new int[]{address});
+            methodOfLine.put(inv.getPosition().getLine(), method.getSimpleName());
+          }
         }
       }
       int methodAddr = parseMethodAddress(method.getSimpleName());
@@ -178,6 +185,33 @@ public class EquationExtractor {
         a.replace(sn);
         writeCount++;
       }
+    }
+
+    // --- F2: per-instruction source equations + branch sites (from the raw source) -----
+    List<String> rawLines = Files.readAllLines(Path.of(src));
+    List<Integer> markerLines = new ArrayList<>(pcByLine.keySet());
+    for (int i = 0; i < markerLines.size(); i++) {
+      int lineNo = markerLines.get(i);
+      int pcVal = pcByLine.get(lineNo)[0];
+      int endLine = i + 1 < markerLines.size() ? markerLines.get(i + 1) : Math.min(lineNo + 9, rawLines.size() + 1);
+      StringBuilder text = new StringBuilder();
+      int taken = 0;
+      for (int ln = lineNo + 1; ln < endLine && ln <= rawLines.size() && taken < 8; ln++) {
+        String t = rawLines.get(ln - 1).trim();
+        if (t.isEmpty() || t.equals("}") || t.startsWith("public ") || t.startsWith("//") || t.startsWith("label"))
+          continue;
+        if (text.length() > 0)
+          text.append(' ');
+        text.append(t);
+        taken++;
+      }
+      String stmt = text.toString();
+      if (stmt.isEmpty())
+        continue;
+      boolean branch = stmt.contains("if (F()") || stmt.contains("while (F()")
+          || stmt.contains("if ((F()") || stmt.contains("while ((F()");
+      sites.add(new Site(pcVal, methodOfLine.get(lineNo), lineNo,
+          branch ? "BRANCH" : "INSTR", null, null, stmt));
     }
 
     // --- rename + move to the generated package ---------------------------------------

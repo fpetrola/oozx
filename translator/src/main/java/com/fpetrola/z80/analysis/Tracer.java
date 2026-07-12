@@ -62,11 +62,115 @@ public final class Tracer {
   public static int currentPc = -1;
   public static int currentFrame = -1;
 
+  // ================= F2: provenance =================
+  // register provenance slots (last site that wrote each register)
+  public static final int R_A = 0, R_F = 1, R_B = 2, R_C = 3, R_D = 4, R_E = 5, R_H = 6, R_L = 7,
+      R_IXH = 8, R_IXL = 9, R_IYH = 10, R_IYL = 11, R_SP = 12,
+      R_AX = 13, R_FX = 14, R_BX = 15, R_CX = 16, R_DX = 17, R_EX = 18, R_HX = 19, R_LX = 20,
+      R_I = 21, R_R = 22, REG_SLOTS = 23;
+  public static final int[] regProv = new int[REG_SLOTS];
+
+  /** sources (sites) read so far by the CURRENT Z80 instruction (one instruction = one site). */
+  private static final int[] curSrc = new int[64];
+  private static int curSrcN;
+
+  /** data-flow edges: srcSite -> dstSite with count. */
+  public static final EdgeMap edges = new EdgeMap(1 << 16);
+  /** dynamic CFG: instruction transitions prevPc -> nextPc with count. */
+  public static final EdgeMap cfg = new EdgeMap(1 << 16);
+  /** sites whose instruction reads the F register (conditional branches / flag users). */
+  public static final boolean[] readsF = new boolean[SIZE];
+  /** sites that read external input (RZX in()): roots for backward slicing. */
+  public static final boolean[] ioSites = new boolean[SIZE];
+
+  /** provenance travelling through the Z80 stack: one source-set snapshot per push. */
+  private static final java.util.ArrayDeque<int[]> stackProv = new java.util.ArrayDeque<>();
+
+  public static void src(int site) {
+    if (site < 0)
+      return;
+    for (int i = 0; i < curSrcN; i++)
+      if (curSrc[i] == site)
+        return;
+    if (curSrcN < curSrc.length)
+      curSrc[curSrcN++] = site;
+  }
+
+  public static void regRead(int slot) {
+    src(regProv[slot]);
+    if (slot == R_F && currentPc >= 0)
+      readsF[currentPc] = true;
+  }
+
+  public static void regRead2(int hi, int lo) {
+    src(regProv[hi]);
+    src(regProv[lo]);
+  }
+
+  public static void regWrite(int slot) {
+    if (currentPc >= 0)
+      regProv[slot] = currentPc;
+  }
+
+  public static void regWrite2(int hi, int lo) {
+    if (currentPc >= 0) {
+      regProv[hi] = currentPc;
+      regProv[lo] = currentPc;
+    }
+  }
+
+  public static void flagWrite() {
+    regWrite(R_F);
+  }
+
+  public static void ioIn() {
+    if (currentPc >= 0)
+      ioSites[currentPc] = true;
+  }
+
+  public static void pushProv() {
+    stackProv.push(java.util.Arrays.copyOf(curSrc, curSrcN));
+  }
+
+  public static void popProv() {
+    int[] saved = stackProv.poll();
+    if (saved != null)
+      for (int s : saved)
+        src(s);
+  }
+
+  /**
+   * instruction boundary: flush data-flow edges of the finished instruction and record
+   * the CFG transition. Called from pc(nextPc) BEFORE currentPc is updated.
+   */
+  public static void boundary(int nextPc) {
+    int pc = currentPc;
+    if (pc >= 0) {
+      for (int i = 0; i < curSrcN; i++)
+        if (curSrc[i] != pc)
+          edges.increment(curSrc[i], pc);
+      cfg.increment(pc, nextPc);
+    }
+    curSrcN = 0;
+  }
+  // ================= end F2 =================
+
   static {
     reset();
   }
 
   public static void reset() {
+    Arrays.fill(regProv, SITE_INIT);
+    curSrcN = 0;
+    edges.clear();
+    cfg.clear();
+    Arrays.fill(readsF, false);
+    Arrays.fill(ioSites, false);
+    stackProv.clear();
+    resetF1();
+  }
+
+  private static void resetF1() {
     Arrays.fill(lastWriterMem, SITE_INIT);
     Arrays.fill(wCount, 0);
     Arrays.fill(rCount, 0);
@@ -104,6 +208,7 @@ public final class Tracer {
   }
 
   public static void rd(int site, int addr, int val) {
+    src(lastWriterMem[addr & 0xFFFF]);
     rCount[site]++;
     if (addr < rAddrMin[site]) rAddrMin[site] = addr;
     if (addr > rAddrMax[site]) rAddrMax[site] = addr;
@@ -127,6 +232,14 @@ public final class Tracer {
     if (dst > bDstMax[site]) bDstMax[site] = dst;
     if (len < bLenMin[site]) bLenMin[site] = len;
     if (len > bLenMax[site]) bLenMax[site] = len;
+    // provenance of the copied block: sample the writers of the source range BEFORE
+    // tagging the destination, so copy chains stay connected.
+    if (src >= 0 && src < SIZE) {
+      edges.increment(lastWriterMem[src], site);
+      int mid = src + len / 2, last = src + len - 1;
+      if (mid < SIZE) edges.increment(lastWriterMem[mid], site);
+      if (last < SIZE) edges.increment(lastWriterMem[last], site);
+    }
     int end = Math.min(dst + len, SIZE);
     for (int a = Math.max(dst, 0); a < end; a++)
       lastWriterMem[a] = site;
@@ -134,7 +247,7 @@ public final class Tracer {
 
   /** dump all active sites as JSON for inspection (SQLite arrives in F3). */
   public static void dump(String path) {
-    StringBuilder sb = new StringBuilder("[\n");
+    StringBuilder sb = new StringBuilder("{\n\"sites\": [\n");
     boolean first = true;
     for (int s = 0; s < SIZE; s++) {
       if (wCount[s] == 0 && rCount[s] == 0 && bCount[s] == 0)
@@ -162,9 +275,31 @@ public final class Tracer {
             .append(", \"src\": [").append(bSrcMin[s]).append(", ").append(bSrcMax[s]).append(']')
             .append(", \"dst\": [").append(bDstMin[s]).append(", ").append(bDstMax[s]).append(']')
             .append(", \"len\": [").append(bLenMin[s]).append(", ").append(bLenMax[s]).append("]}");
+      if (readsF[s])
+        sb.append(", \"readsF\": true");
+      if (ioSites[s])
+        sb.append(", \"io\": true");
       sb.append('}');
     }
-    sb.append("\n]\n");
+    sb.append("\n],\n");
+
+    sb.append("\"edges\": [\n");
+    StringBuilder eb = new StringBuilder();
+    edges.forEach((src, dst, count) -> {
+      if (eb.length() > 0) eb.append(",\n");
+      eb.append("  {\"src\": ").append(src).append(", \"dst\": ").append(dst)
+          .append(", \"count\": ").append(count).append('}');
+    });
+    sb.append(eb).append("\n],\n");
+
+    sb.append("\"cfg\": [\n");
+    StringBuilder cb = new StringBuilder();
+    cfg.forEach((src, dst, count) -> {
+      if (cb.length() > 0) cb.append(",\n");
+      cb.append("  {\"src\": ").append(src).append(", \"dst\": ").append(dst)
+          .append(", \"count\": ").append(count).append('}');
+    });
+    sb.append(cb).append("\n]\n}\n");
     try {
       if (Path.of(path).getParent() != null)
         Files.createDirectories(Path.of(path).getParent());
@@ -183,7 +318,8 @@ public final class Tracer {
       if (bCount[s] > 0) activeB++;
     }
     return "Tracer: " + activeW + " write-sites (" + totalW + " ops), "
-        + activeR + " read-sites (" + totalR + " ops), " + activeB + " bulk-sites";
+        + activeR + " read-sites (" + totalR + " ops), " + activeB + " bulk-sites, "
+        + edges.size() + " data-flow edges, " + cfg.size() + " cfg edges";
   }
 
   private Tracer() {

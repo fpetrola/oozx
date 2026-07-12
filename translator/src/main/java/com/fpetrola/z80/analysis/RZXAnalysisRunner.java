@@ -60,11 +60,94 @@ public class RZXAnalysisRunner extends JetSetWilly2Instrumented {
   @Override
   public void pc(int address, int rdelta) {
     if (address >= 0) {
+      Tracer.boundary(address);
       Tracer.currentPc = address;
       bootstrap.onPc(address);
     }
     super.pc(address, rdelta);
   }
+
+  // ================= F2: register provenance =================
+  // 8-bit registers
+  @Override public int A() { Tracer.regRead(Tracer.R_A); return super.A(); }
+  @Override public void A(int v) { Tracer.regWrite(Tracer.R_A); super.A(v); }
+  @Override public int F() { Tracer.regRead(Tracer.R_F); return super.F(); }
+  @Override public void F(int v) { Tracer.regWrite(Tracer.R_F); super.F(v); }
+  @Override public int B() { Tracer.regRead(Tracer.R_B); return super.B(); }
+  @Override public void B(int v) { Tracer.regWrite(Tracer.R_B); super.B(v); }
+  @Override public int C() { Tracer.regRead(Tracer.R_C); return super.C(); }
+  @Override public void C(int v) { Tracer.regWrite(Tracer.R_C); super.C(v); }
+  @Override public int D() { Tracer.regRead(Tracer.R_D); return super.D(); }
+  @Override public void D(int v) { Tracer.regWrite(Tracer.R_D); super.D(v); }
+  @Override public int E() { Tracer.regRead(Tracer.R_E); return super.E(); }
+  @Override public void E(int v) { Tracer.regWrite(Tracer.R_E); super.E(v); }
+  @Override public int H() { Tracer.regRead(Tracer.R_H); return super.H(); }
+  @Override public void H(int v) { Tracer.regWrite(Tracer.R_H); super.H(v); }
+  @Override public int L() { Tracer.regRead(Tracer.R_L); return super.L(); }
+  @Override public void L(int v) { Tracer.regWrite(Tracer.R_L); super.L(v); }
+
+  // 16-bit pairs (implemented over independent fields in SpectrumApplication, so both
+  // 8-bit provenance slots are touched)
+  @Override public int AF() { Tracer.regRead2(Tracer.R_A, Tracer.R_F); return super.AF(); }
+  @Override public void AF(int v) { Tracer.regWrite2(Tracer.R_A, Tracer.R_F); super.AF(v); }
+  @Override public int BC() { Tracer.regRead2(Tracer.R_B, Tracer.R_C); return super.BC(); }
+  @Override public void BC(int v) { Tracer.regWrite2(Tracer.R_B, Tracer.R_C); super.BC(v); }
+  @Override public int DE() { Tracer.regRead2(Tracer.R_D, Tracer.R_E); return super.DE(); }
+  @Override public void DE(int v) { Tracer.regWrite2(Tracer.R_D, Tracer.R_E); super.DE(v); }
+  @Override public int HL() { Tracer.regRead2(Tracer.R_H, Tracer.R_L); return super.HL(); }
+  @Override public void HL(int v) { Tracer.regWrite2(Tracer.R_H, Tracer.R_L); super.HL(v); }
+  @Override public int IX() { Tracer.regRead2(Tracer.R_IXH, Tracer.R_IXL); return super.IX(); }
+  @Override public void IX(int v) { Tracer.regWrite2(Tracer.R_IXH, Tracer.R_IXL); super.IX(v); }
+  @Override public int IY() { Tracer.regRead2(Tracer.R_IYH, Tracer.R_IYL); return super.IY(); }
+  @Override public void IY(int v) { Tracer.regWrite2(Tracer.R_IYH, Tracer.R_IYL); super.IY(v); }
+
+  @Override public int IXH() { Tracer.regRead(Tracer.R_IXH); return super.IXH(); }
+  @Override public void IXH(int v) { Tracer.regWrite(Tracer.R_IXH); super.IXH(v); }
+  @Override public int IXL() { Tracer.regRead(Tracer.R_IXL); return super.IXL(); }
+  @Override public void IXL(int v) { Tracer.regWrite(Tracer.R_IXL); super.IXL(v); }
+  @Override public int IYH() { Tracer.regRead(Tracer.R_IYH); return super.IYH(); }
+  @Override public void IYH(int v) { Tracer.regWrite(Tracer.R_IYH); super.IYH(v); }
+  @Override public int IYL() { Tracer.regRead(Tracer.R_IYL); return super.IYL(); }
+  @Override public void IYL(int v) { Tracer.regWrite(Tracer.R_IYL); super.IYL(v); }
+
+  // shadow registers
+  @Override public int AFx() { Tracer.regRead2(Tracer.R_AX, Tracer.R_FX); return super.AFx(); }
+  @Override public void AFx(int v) { Tracer.regWrite2(Tracer.R_AX, Tracer.R_FX); super.AFx(v); }
+  @Override public int BCx() { Tracer.regRead2(Tracer.R_BX, Tracer.R_CX); return super.BCx(); }
+  @Override public void BCx(int v) { Tracer.regWrite2(Tracer.R_BX, Tracer.R_CX); super.BCx(v); }
+  @Override public int DEx() { Tracer.regRead2(Tracer.R_DX, Tracer.R_EX); return super.DEx(); }
+  @Override public void DEx(int v) { Tracer.regWrite2(Tracer.R_DX, Tracer.R_EX); super.DEx(v); }
+  @Override public int HLx() { Tracer.regRead2(Tracer.R_HX, Tracer.R_LX); return super.HLx(); }
+  @Override public void HLx(int v) { Tracer.regWrite2(Tracer.R_HX, Tracer.R_LX); super.HLx(v); }
+
+  @Override public int SP() { Tracer.regRead(Tracer.R_SP); return super.SP(); }
+  @Override public void SP(int v) { Tracer.regWrite(Tracer.R_SP); super.SP(v); }
+  @Override public int I() { Tracer.regRead(Tracer.R_I); return super.I(); }
+  @Override public void I(int v) { Tracer.regWrite(Tracer.R_I); super.I(v); }
+  @Override public int R() { Tracer.regRead(Tracer.R_R); return super.R(); }
+  @Override public void R(int v) { Tracer.regWrite(Tracer.R_R); super.R(v); }
+
+  // helpers that write the F flag internally (bypassing the F(int) setter)
+  @Override public int rlc(int a) { Tracer.flagWrite(); return super.rlc(a); }
+  @Override public int rrc(int a) { Tracer.flagWrite(); return super.rrc(a); }
+  @Override public int rl(int a) { Tracer.flagWrite(); return super.rl(a); }
+  @Override public int rr(int a) { Tracer.flagWrite(); return super.rr(a); }
+  @Override public int sl(int a) { Tracer.flagWrite(); return super.sl(a); }
+  @Override public int sr(int a) { Tracer.flagWrite(); return super.sr(a); }
+
+  // provenance through the Z80 stack
+  @Override public void push(int value) { Tracer.pushProv(); super.push(value); }
+  @Override public int pop() { Tracer.popProv(); return super.pop(); }
+
+  // external input (RZX recording): slice root
+  @Override public int in(int port, int pc) { Tracer.ioIn(); return super.in(port, pc); }
+
+  // cpir reads mem[] directly in SpectrumApplication: register the reads coarsely
+  @Override public void cpir() {
+    Tracer.rd(Tracer.currentPc, HL(), 0);
+    super.cpir();
+  }
+  // ================= end F2 =================
 
   public static void main(String[] args) {
     String rzxPath = args.length > 0 ? args[0] : RzxBootstrap.DEFAULT_RZX;
