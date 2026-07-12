@@ -1,5 +1,9 @@
 # Guía de implementación: Análisis por ecuaciones algebraicas de la ejecución RZX
 
+> **NOTA (2026-07-12)**: esta guía es el *plan original* (F1–F4 ya implementados con
+> desvíos deliberados). El estado real del sistema, cómo funciona lo construido y las
+> extensiones en curso están en **`doc/COMO-FUNCIONA-ANALISIS.md`** — leer ese primero.
+
 **Objetivo**: instrumentar `JetSetWilly2Converted.java` (conversión automática Z80→Java de Jet Set Willy)
 para capturar, durante la reproducción de un RZX completo, ecuaciones algebraicas de cada operación
 de memoria/registro con sus rangos de datos y dependencias, y con eso deducir automáticamente:
