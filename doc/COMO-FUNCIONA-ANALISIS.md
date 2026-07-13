@@ -166,6 +166,7 @@ mvn -q -pl translator exec:java -Dexec.mainClass=com.fpetrola.z80.analysis.Analy
 #   explain lo hi [depth] [fanout]                 — narrativa recursiva de un rango (§9bis)
 #   map [rzxPath]                                  — mapa completo del juego en un comando (§9ter)
 #   export [salida.json]                           — modelo del juego consolidado en JSON
+#   structs [metodo]                               — estructuras/arreglos por rutina + variantes
 ```
 
 ## 7. Qué ya se dedujo del juego (sanity checks vivientes)
