@@ -49,6 +49,7 @@
         <module>printer</module>
         <module>simpleide</module>
         <module>specdrum</module>
+        <module>zxatasp</module>
     </modules>
 
     <properties>
