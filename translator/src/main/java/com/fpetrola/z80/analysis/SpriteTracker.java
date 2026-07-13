@@ -119,6 +119,7 @@ public class SpriteTracker {
   }
 
   public static void run(String dbPath, String rzxPath) throws Exception {
+    System.setProperty("minizx.headless", "true");
     if (!Files.exists(Path.of(dbPath))) {
       System.out.println("No existe " + dbPath + ": corriendo primero la pasada de agregados...\n");
       RZXAnalysisRunner.runAggregate(rzxPath);
@@ -148,7 +149,10 @@ public class SpriteTracker {
     int gfxSites = 0;
     for (int s : valReads) {
       AnalysisDB.Stat r = db.reads.get(s);
-      if (gfxRegions.stream().anyMatch(g -> r.addrMax() >= g[0] && r.addrMin() <= g[1])) {
+      // a site that always reads the same single cell is a lookup byte, not sprite data
+      // (sprite reads sweep a range across invocations)
+      if (r.addrMax() > r.addrMin()
+          && gfxRegions.stream().anyMatch(g -> r.addrMax() >= g[0] && r.addrMin() <= g[1])) {
         TrackLog.readSites[s] = true;
         gfxSites++;
       }
@@ -179,12 +183,21 @@ public class SpriteTracker {
     System.out.println(draws.size() + " dibujados (clusters) reconstruidos, "
         + distinctGfx + " origenes graficos distintos (identidad de sprite)");
 
-    Correlation corr = correlate(plan, draws);
-    List<CoordTable> tables = detectTables(plan, corr.matches());
-    dumpTables(dbPath, draws, corr, tables);
-    spritesFound(draws, plan.drawMethods(), dbPath);
-    report(corr, tables);
-    episodes(db, plan, corr, draws, dbPath);
+    try {
+      System.out.println("correlacionando...");
+      Correlation corr = correlate(plan, draws);
+      List<CoordTable> tables = detectTables(plan, corr.matches());
+      System.out.println("volcando tablas...");
+      dumpTables(dbPath, draws, corr, tables);
+      spritesFound(draws, plan.drawMethods(), dbPath);
+      report(corr, tables);
+      System.out.println("analizando episodios...");
+      episodes(db, plan, corr, draws, dbPath);
+    } catch (Throwable t) {
+      System.out.println("FALLO en el analisis post-corrida: " + t);
+      t.printStackTrace(System.out);
+      throw t;
+    }
 
     // muestra automática: un frame con varios sprites, ya anotado
     draws.stream().filter(d -> d.kind() == 'P')
@@ -262,14 +275,20 @@ public class SpriteTracker {
     int[] vals = new int[cells.length];
     List<Draw> out = new ArrayList<>();
     Cluster cur = null;
+    // snapshots are SHARED between clusters until a cell changes: with millions of
+    // clusters per run, copying 170 bytes per cluster would not fit in memory
+    byte[] curSnap = snapshot(vals);
+    boolean dirty = false;
     for (int i = 0; i < TrackLog.size(); i++) {
       long ev = TrackLog.event(i);
       int frame = TrackLog.frame(ev), a = TrackLog.a(ev), b = TrackLog.b(ev);
       switch (TrackLog.type(ev)) {
         case TrackLog.EV_CELL -> {
           Integer ci = cellIdx.get(a);
-          if (ci != null)
+          if (ci != null) {
             vals[ci] = b;
+            dirty = true;
+          }
         }
         case TrackLog.EV_FRAME -> {
           if (cur != null)
@@ -279,7 +298,11 @@ public class SpriteTracker {
         case TrackLog.EV_ENTRY -> {
           if (cur != null)
             cur.close(out);
-          cur = new Cluster(frame, a, snapshot(vals));
+          if (dirty) {
+            curSnap = snapshot(vals);
+            dirty = false;
+          }
+          cur = new Cluster(frame, a, curSnap);
         }
         case TrackLog.EV_READ -> {
           if (cur != null) {
@@ -319,7 +342,11 @@ public class SpriteTracker {
           if (cur == null || cur.frame != frame)  {
             if (cur != null)
               cur.close(out);
-            cur = new Cluster(frame, siteEntry.getOrDefault(a, -1), snapshot(vals));
+            if (dirty) {
+              curSnap = snapshot(vals);
+              dirty = false;
+            }
+            cur = new Cluster(frame, siteEntry.getOrDefault(a, -1), curSnap);
           }
           cur.add(kindIdx, x, y, reg.lo());
         }
@@ -356,8 +383,21 @@ public class SpriteTracker {
     Map<Integer, List<Draw>> byMethod = new TreeMap<>();
     for (Draw d : draws)
       byMethod.computeIfAbsent(d.methodEntry(), k -> new ArrayList<>()).add(d);
+    // correlation is statistical: on very long runs a uniform sample per method keeps
+    // the quadratic loops inside the time/memory budget without moving the rates
+    for (Map.Entry<Integer, List<Draw>> me : byMethod.entrySet()) {
+      List<Draw> ds = me.getValue();
+      if (ds.size() > 400_000) {
+        int k = (ds.size() + 399_999) / 400_000;
+        List<Draw> sampled = new ArrayList<>(ds.size() / k + 1);
+        for (int i = 0; i < ds.size(); i += k)
+          sampled.add(ds.get(i));
+        me.setValue(sampled);
+      }
+    }
 
     // prefilter: a coordinate must actually vary
+    System.out.println("  prefiltro de celdas variables...");
     int[] distinct = new int[cells.length];
     {
       BitSet[] seen = new BitSet[cells.length];
@@ -390,6 +430,7 @@ public class SpriteTracker {
       int framesWithDraws = framesByMethod.get(me.getKey());
       if (framesWithDraws < 50)
         continue;
+      System.out.println("  votacion $" + me.getKey() + " (" + ds.size() + " draws)...");
       for (int ci = 0; ci < cells.length; ci++) {
         if (distinct[ci] < 6)
           continue;
@@ -437,6 +478,7 @@ public class SpriteTracker {
       }
     }
     // joint X-Y validation over neighbour candidate cells, trying transform combinations
+    System.out.println("  validacion conjunta X-Y (" + cand.size() + " candidatos)...");
     record PairCand(CoordMatch mx, CoordMatch my, int joint, int frames) {
     }
     List<PairCand> rawPairs = new ArrayList<>();
@@ -591,6 +633,7 @@ public class SpriteTracker {
             " y_addr INT, y_transform TEXT, y_off INT, joint INT, frames INT, rate REAL)");
       }
       try (PreparedStatement ps = c.prepareStatement("INSERT INTO sprite_draws VALUES(?,?,?,?,?,?,?,?,?,?,?,?)")) {
+        int pending = 0;
         for (Draw d : draws) {
           ps.setInt(1, d.frame());
           ps.setInt(2, d.methodEntry());
@@ -605,10 +648,13 @@ public class SpriteTracker {
           ps.setInt(11, d.gfxHi());
           ps.setInt(12, d.path());
           ps.addBatch();
+          if (++pending % 100_000 == 0)
+            ps.executeBatch();
         }
         ps.executeBatch();
       }
       try (PreparedStatement ps = c.prepareStatement("INSERT INTO frame_cells VALUES(?,?,?)")) {
+        int pending = 0;
         for (int i = 0; i < TrackLog.size(); i++) {
           long ev = TrackLog.event(i);
           if (TrackLog.type(ev) != TrackLog.EV_CELL)
@@ -617,6 +663,8 @@ public class SpriteTracker {
           ps.setInt(2, TrackLog.a(ev));
           ps.setInt(3, TrackLog.b(ev));
           ps.addBatch();
+          if (++pending % 100_000 == 0)
+            ps.executeBatch();
         }
         ps.executeBatch();
       }
@@ -728,21 +776,6 @@ public class SpriteTracker {
     for (int i = 0; i < cells.length; i++)
       cellIdx.put(cells[i], i);
 
-    // which entity record produced each draw: the validated pair that predicts its (x,y)
-    Map<Draw, Integer> recOf = new IdentityHashMap<>();
-    if (stride > 0)
-      for (Draw d : draws)
-        for (CoordPair p : strong) {
-          Integer xi = cellIdx.get(p.xAddr()), yi = cellIdx.get(p.yAddr());
-          if (xi == null || yi == null)
-            continue;
-          if (applyTransform(p.xTransform(), d.cells()[xi] & 0xFF) + p.xOff() == d.x()
-              && applyTransform(p.yTransform(), d.cells()[yi] & 0xFF) + p.yOff() == d.y()) {
-            recOf.put(d, p.xAddr() - xOffRec);
-            break;
-          }
-        }
-
     Map<Long, List<Draw>> groups = new HashMap<>();
     for (Draw d : draws)
       groups.computeIfAbsent(((long) d.methodEntry() << 32) | (d.path() & 0xFFFFFFFFL),
@@ -765,24 +798,41 @@ public class SpriteTracker {
         continue;
       System.out.println(me.getValue() + ": " + paths.size() + " caminos sobre " + total + " invocaciones");
 
-      // per-path constants over the entity record (offset -> "&mask=val")
+      // per-path constants over the entity record (offset -> "&mask=val"); the record
+      // of each draw is inferred here per path (a run-wide map would not fit in memory)
       List<Map<Integer, String>> consts = new ArrayList<>();
       for (Map.Entry<Long, List<Draw>> g : top) {
+        List<Draw> ds = g.getValue();
+        int[] recs = new int[ds.size()];
+        for (int di = 0; di < ds.size(); di++) {
+          Draw d = ds.get(di);
+          recs[di] = -1;
+          if (stride > 0)
+            for (CoordPair p : strong) {
+              Integer xi = cellIdx.get(p.xAddr()), yi = cellIdx.get(p.yAddr());
+              if (xi == null || yi == null)
+                continue;
+              if (applyTransform(p.xTransform(), d.cells()[xi] & 0xFF) + p.xOff() == d.x()
+                  && applyTransform(p.yTransform(), d.cells()[yi] & 0xFF) + p.yOff() == d.y()) {
+                recs[di] = p.xAddr() - xOffRec;
+                break;
+              }
+            }
+        }
         Map<Integer, String> cs = new TreeMap<>();
         for (int o = 0; o < stride; o++)
           for (int mask : masks) {
             int val = -1, slotted = 0;
             boolean constant = true;
-            for (Draw d : g.getValue()) {
-              Integer rec = recOf.get(d);
-              if (rec == null)
+            for (int di = 0; di < ds.size(); di++) {
+              if (recs[di] < 0)
                 continue;
-              Integer ci = cellIdx.get(rec + o);
+              Integer ci = cellIdx.get(recs[di] + o);
               if (ci == null) {
                 constant = false;
                 break;
               }
-              int v = (d.cells()[ci] & 0xFF) & mask;
+              int v = (ds.get(di).cells()[ci] & 0xFF) & mask;
               slotted++;
               if (val < 0)
                 val = v;
@@ -858,51 +908,27 @@ public class SpriteTracker {
    */
   static void spritesFound(List<Draw> draws, SortedMap<Integer, String> methodNames, String dbPath)
       throws SQLException {
-    record Key(int frame, int method, int x) {
-    }
-    Map<Key, List<int[]>> byKey = new HashMap<>();
-    for (Draw d : draws)
-      if (d.gfx() >= 0)
-        byKey.computeIfAbsent(new Key(d.frame(), d.methodEntry(), d.x()), k -> new ArrayList<>())
-            .add(new int[]{d.gfx(), d.gfxHi()});
-
-    // coalescing exists ONLY to reassemble row-by-row blits (Willy: 16 fragments of 2
-    // bytes) — it must never fuse two complete neighbour sprites (two guardians sharing
-    // a column in the same frame do happen), so only small fragments merge
-    List<int[]> instances = new ArrayList<>(); // {lo, hi, method, frame}
-    for (Map.Entry<Key, List<int[]>> e : byKey.entrySet()) {
-      List<int[]> list = e.getValue();
-      list.sort(Comparator.comparingInt(a -> a[0]));
-      int lo = list.get(0)[0], hi = list.get(0)[1];
-      boolean fragments = hi - lo + 1 <= 4;
-      for (int i = 1; i < list.size(); i++) {
-        int[] r = list.get(i);
-        if (fragments && r[0] <= hi + 2 && r[1] - r[0] + 1 <= 4)
-          hi = Math.max(hi, r[1]);
-        else {
-          instances.add(new int[]{lo, hi, e.getKey().method(), e.getKey().frame()});
-          lo = r[0];
-          hi = r[1];
-          fragments = hi - lo + 1 <= 4;
-        }
-      }
-      instances.add(new int[]{lo, hi, e.getKey().method(), e.getKey().frame()});
-    }
-
-    // per base: the sprite's extent is the MODE of the observed ends, not the max —
-    // a rare coalesce of two neighbours (same frame/column, adjacent entries) must not
-    // poison the whole sprite
+    // grouping is streamed frame by frame (draws come in temporal order): a global map
+    // keyed by (frame, method, x) would not fit in memory on a full-game run
     Map<Integer, long[]> byBase = new TreeMap<>(); // base -> {veces, modeHi, frameFirst, frameLast}
     Map<Integer, Map<Integer, Integer>> hiHist = new HashMap<>();
     Map<Integer, Set<Integer>> methodsOf = new HashMap<>();
-    for (int[] ins : instances) {
-      long[] agg = byBase.computeIfAbsent(ins[0], k -> new long[]{0, -1, Integer.MAX_VALUE, -1});
-      agg[0]++;
-      agg[2] = Math.min(agg[2], ins[3]);
-      agg[3] = Math.max(agg[3], ins[3]);
-      hiHist.computeIfAbsent(ins[0], k -> new HashMap<>()).merge(ins[1], 1, Integer::sum);
-      methodsOf.computeIfAbsent(ins[0], k -> new TreeSet<>()).add(ins[2]);
+    Map<Long, List<int[]>> frameBuf = new HashMap<>(); // (method<<16|x) -> intervals of this frame
+    int curFrame = -1;
+    for (Draw d : draws) {
+      if (d.gfx() < 0)
+        continue;
+      if (d.frame() != curFrame) {
+        flushSpriteFrame(frameBuf, curFrame, byBase, hiHist, methodsOf);
+        curFrame = d.frame();
+      }
+      frameBuf.computeIfAbsent(((long) d.methodEntry() << 16) | d.x(), k -> new ArrayList<>())
+          .add(new int[]{d.gfx(), d.gfxHi(), d.methodEntry()});
     }
+    flushSpriteFrame(frameBuf, curFrame, byBase, hiHist, methodsOf);
+
+    // per base: the sprite's extent is the MODE of the observed ends, not the max —
+    // a rare fusion of two neighbours must not poison the whole sprite
     byBase.forEach((base, agg) -> agg[1] = hiHist.get(base).entrySet().stream()
         .max(Map.Entry.comparingByValue()).get().getKey());
     // absorb only what looks like a CLIPPED read of the covering sprite: it starts inside
@@ -952,6 +978,47 @@ public class SpriteTracker {
             e.getValue()[2], e.getValue()[3], methodsOf.get(e.getKey()).stream()
                 .map(m -> methodNames.getOrDefault(m, "$" + m))
                 .reduce((x, y) -> x + " " + y).orElse("")));
+  }
+
+  /**
+   * one frame's intervals: coalesce ONLY small fragments (row-by-row blits like Willy's
+   * 16 stripes of 2 bytes) — two complete neighbour sprites must never fuse — and
+   * aggregate the resulting instances by base address.
+   */
+  private static void flushSpriteFrame(Map<Long, List<int[]>> frameBuf, int frame,
+                                       Map<Integer, long[]> byBase,
+                                       Map<Integer, Map<Integer, Integer>> hiHist,
+                                       Map<Integer, Set<Integer>> methodsOf) {
+    for (List<int[]> list : frameBuf.values()) {
+      list.sort(Comparator.comparingInt(a -> a[0]));
+      int lo = list.get(0)[0], hi = list.get(0)[1], method = list.get(0)[2];
+      boolean fragments = hi - lo + 1 <= 4;
+      for (int i = 1; i < list.size(); i++) {
+        int[] r = list.get(i);
+        if (fragments && r[0] <= hi + 2 && r[1] - r[0] + 1 <= 4)
+          hi = Math.max(hi, r[1]);
+        else {
+          spriteInstance(lo, hi, method, frame, byBase, hiHist, methodsOf);
+          lo = r[0];
+          hi = r[1];
+          fragments = hi - lo + 1 <= 4;
+        }
+      }
+      spriteInstance(lo, hi, method, frame, byBase, hiHist, methodsOf);
+    }
+    frameBuf.clear();
+  }
+
+  private static void spriteInstance(int lo, int hi, int method, int frame,
+                                     Map<Integer, long[]> byBase,
+                                     Map<Integer, Map<Integer, Integer>> hiHist,
+                                     Map<Integer, Set<Integer>> methodsOf) {
+    long[] agg = byBase.computeIfAbsent(lo, k -> new long[]{0, -1, Integer.MAX_VALUE, -1});
+    agg[0]++;
+    agg[2] = Math.min(agg[2], frame);
+    agg[3] = Math.max(agg[3], frame);
+    hiHist.computeIfAbsent(lo, k -> new HashMap<>()).merge(hi, 1, Integer::sum);
+    methodsOf.computeIfAbsent(lo, k -> new TreeSet<>()).add(method);
   }
 
   public static void main(String[] args) throws Exception {

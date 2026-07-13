@@ -364,6 +364,29 @@ dependientes de píxeles de colisión inflan la cola) — el reporte muestra los
 agrega el resto; una firma que ignore los branches de datos de píxel es refinamiento
 futuro.
 
+**Escalado a la partida completa (2026-07-13)**: con el corte de frames removido del
+RZXPlayerIO la grabación llega al final del juego (72929 frames, 34.5M eventos, 4.2M
+clusters) y hubo que hacer escalable el post-procesamiento en una máquina de 7GB:
+snapshots de celdas COMPARTIDOS entre clusters (solo se copian cuando una celda cambió),
+`sprites_found` agrupa en streaming frame a frame (nada global por cluster), la
+correlación muestrea uniformemente por método (>400K draws) y los INSERTs van en tandas
+de 100K. **Trampa descubierta**: `MiniZX.init()` abría la pantalla del juego con
+`EXIT_ON_CLOSE` — cerrar esa ventana hacía `System.exit(0)` y mataba el análisis a mitad
+de camino con exit 0, sin excepción (se diagnosticó con un shutdown hook que volcó los
+threads vivos). Las corridas de análisis ahora setean `minizx.headless=true` y no abren
+ventana.
+
+**Corrección de `sprites_found` (bug reportado por el usuario: 3 sprites con size>32)**:
+tres causas encadenadas — (1) el coalesce por (frame, método, x) fusionaba dos guardianes
+que comparten columna en el mismo frame con entradas adyacentes → ahora solo se fusionan
+FRAGMENTOS (≤4 bytes, los blits fila-a-fila de Willy); (2) la extensión del sprite tomaba
+el máximo hi visto → ahora es la MODA, y la absorción solo come lecturas que terminan
+exactamente donde termina el sprite que las cubre (recortes de pantalla); (3) el
+dibujador de ítems `$37841` lee un byte índice fijo (41983) además del ítem → los
+read-sites cuyo rango observado es UNA sola celda son lookups y se excluyen de la
+identidad. Resultado final partida completa: 239 sprites, 172 de 32 bytes y los ítems
+de 1-2 bytes, ninguno inflado.
+
 ## 10. Roadmap / ideas pendientes
 
 - **F5 completo — trace exacto por ventana de frames**: log por instancia de TODOS los

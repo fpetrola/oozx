@@ -51,6 +51,7 @@ public class GameRZXInvokerConverted {
 
       jetSetWilly1.$34463();
     } catch (Exception e) {
+      System.exit(0);
       RZXPlayerIO.stop= true;
       throw new RuntimeException(e);
     }

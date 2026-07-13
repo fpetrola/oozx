@@ -66,7 +66,10 @@ public abstract class MiniZX extends SpectrumApplication {
 
   public void init() {
     this.mem = new int[65536];
-    MiniZX.createScreen(((MiniZXIO) io).getMiniZXKeyboard(), new MiniZXScreen(this.getMemFunction()));
+    // -Dminizx.headless=true: analysis runs must not open the live screen — its frame
+    // uses EXIT_ON_CLOSE, so closing it would System.exit(0) mid-analysis
+    if (!Boolean.getBoolean("minizx.headless"))
+      MiniZX.createScreen(((MiniZXIO) io).getMiniZXKeyboard(), new MiniZXScreen(this.getMemFunction()));
     final byte[] rom = MiniZXWithEmulationBase.createROM();
     final byte[] bytes = MiniZXWithEmulationBase.gzipDecompressFromBase64(this.getProgramBytes());
     for (int i = 0; i < 65536; ++i) {

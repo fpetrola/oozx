@@ -151,6 +151,7 @@ public class RZXAnalysisRunner extends JetSetWilly2Instrumented {
 
   /** full aggregate pass: runs the RZX and dumps hashes + JSON + SQLite. Reusable from SpriteTracker. */
   public static void runAggregate(String rzxPath) {
+    System.setProperty("minizx.headless", "true");
     RZXPlayerIO<WordNumber> io = new RZXPlayerIO<>();
     RZXAnalysisRunner game = new RZXAnalysisRunner(io, io.getInterruptionCondition(), rzxPath);
     long start = System.currentTimeMillis();

@@ -46,6 +46,7 @@ public class BaselineRunner extends JetSetWilly2 {
   }
 
   public static void main(String[] args) {
+    System.setProperty("minizx.headless", "true");
     String rzxPath = args.length > 0 ? args[0] : RzxBootstrap.DEFAULT_RZX;
     RZXPlayerIO<WordNumber> io = new RZXPlayerIO<>();
     BaselineRunner game = new BaselineRunner(io, io.getInterruptionCondition(), rzxPath);
