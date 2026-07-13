@@ -84,7 +84,7 @@ public class SpriteTracker {
    * graphics source it read (sprite identity) and its execution-path signature.
    */
   public record Draw(int frame, int methodEntry, char kind, int x, int y, int w, int h,
-                     int nWrites, int buffer, int gfx, int path, byte[] cells) {
+                     int nWrites, int buffer, int gfx, int gfxHi, int path, byte[] cells) {
   }
 
   public record CoordMatch(int addr, char axis, String transform, int off,
@@ -182,6 +182,7 @@ public class SpriteTracker {
     Correlation corr = correlate(plan, draws);
     List<CoordTable> tables = detectTables(plan, corr.matches());
     dumpTables(dbPath, draws, corr, tables);
+    spritesFound(draws, plan.drawMethods(), dbPath);
     report(corr, tables);
     episodes(db, plan, corr, draws, dbPath);
 
@@ -222,7 +223,7 @@ public class SpriteTracker {
     final int[] minX = {Integer.MAX_VALUE, Integer.MAX_VALUE}, minY = {Integer.MAX_VALUE, Integer.MAX_VALUE};
     final int[] maxX = {Integer.MIN_VALUE, Integer.MIN_VALUE}, maxY = {Integer.MIN_VALUE, Integer.MIN_VALUE};
     final int[] n = {0, 0}, buffer = {-1, -1};
-    int gfxMin = Integer.MAX_VALUE;
+    int gfxMin = Integer.MAX_VALUE, gfxMax = -1;
     int path;
 
     Cluster(int frame, int methodEntry, byte[] cells) {
@@ -245,7 +246,7 @@ public class SpriteTracker {
         if (n[k] > 0)
           out.add(new Draw(frame, methodEntry, k == 0 ? 'P' : 'A', minX[k], minY[k],
               maxX[k] - minX[k] + 8, maxY[k] - minY[k] + (k == 0 ? 1 : 8), n[k], buffer[k],
-              gfxMin == Integer.MAX_VALUE ? -1 : gfxMin, path, cells));
+              gfxMin == Integer.MAX_VALUE ? -1 : gfxMin, gfxMax, path, cells));
     }
   }
 
@@ -281,8 +282,12 @@ public class SpriteTracker {
           cur = new Cluster(frame, a, snapshot(vals));
         }
         case TrackLog.EV_READ -> {
-          if (cur != null && b < cur.gfxMin)
-            cur.gfxMin = b;
+          if (cur != null) {
+            if (b < cur.gfxMin)
+              cur.gfxMin = b;
+            if (b > cur.gfxMax)
+              cur.gfxMax = b;
+          }
         }
         case TrackLog.EV_PATH -> {
           if (cur != null)
@@ -573,10 +578,10 @@ public class SpriteTracker {
       c.setAutoCommit(false);
       try (Statement st = c.createStatement()) {
         for (String t : new String[]{"sprite_draws", "frame_cells", "coord_cells", "coord_tables",
-            "coord_pairs", "episodes"})
+            "coord_pairs", "episodes", "sprites_found"})
           st.execute("DROP TABLE IF EXISTS " + t);
         st.execute("CREATE TABLE sprite_draws(frame INT, method INT, kind TEXT, x INT, y INT," +
-            " w INT, h INT, nwrites INT, buffer INT, gfx INT, path INT)");
+            " w INT, h INT, nwrites INT, buffer INT, gfx INT, gfx_hi INT, path INT)");
         st.execute("CREATE TABLE frame_cells(frame INT, addr INT, val INT)");
         st.execute("CREATE TABLE coord_cells(addr INT, axis TEXT, transform TEXT, off INT," +
             " matched INT, frames INT, rate REAL)");
@@ -585,7 +590,7 @@ public class SpriteTracker {
         st.execute("CREATE TABLE coord_pairs(x_addr INT, x_transform TEXT, x_off INT," +
             " y_addr INT, y_transform TEXT, y_off INT, joint INT, frames INT, rate REAL)");
       }
-      try (PreparedStatement ps = c.prepareStatement("INSERT INTO sprite_draws VALUES(?,?,?,?,?,?,?,?,?,?,?)")) {
+      try (PreparedStatement ps = c.prepareStatement("INSERT INTO sprite_draws VALUES(?,?,?,?,?,?,?,?,?,?,?,?)")) {
         for (Draw d : draws) {
           ps.setInt(1, d.frame());
           ps.setInt(2, d.methodEntry());
@@ -597,7 +602,8 @@ public class SpriteTracker {
           ps.setInt(8, d.nWrites());
           ps.setInt(9, d.buffer());
           ps.setInt(10, d.gfx());
-          ps.setInt(11, d.path());
+          ps.setInt(11, d.gfxHi());
+          ps.setInt(12, d.path());
           ps.addBatch();
         }
         ps.executeBatch();
@@ -840,6 +846,101 @@ public class SpriteTracker {
       c.commit();
     }
     System.out.println("Tabla episodes -> " + dbPath);
+  }
+
+  /**
+   * groups the graphics addresses belonging to each sprite: the per-invocation read
+   * intervals of the same (frame, method, x) coalesce when contiguous (Willy's 16
+   * row-blits of 2 bytes become one 32-byte sprite), instances then aggregate by base
+   * address, and bases falling inside another sprite's extent (partial reads when the
+   * sprite is clipped at a screen edge) get absorbed into it. Result: table
+   * {@code sprites_found(base, last, size, veces, frame_first, frame_last, methods)}.
+   */
+  static void spritesFound(List<Draw> draws, SortedMap<Integer, String> methodNames, String dbPath)
+      throws SQLException {
+    record Key(int frame, int method, int x) {
+    }
+    Map<Key, List<int[]>> byKey = new HashMap<>();
+    for (Draw d : draws)
+      if (d.gfx() >= 0)
+        byKey.computeIfAbsent(new Key(d.frame(), d.methodEntry(), d.x()), k -> new ArrayList<>())
+            .add(new int[]{d.gfx(), d.gfxHi()});
+
+    List<int[]> instances = new ArrayList<>(); // {lo, hi, method, frame}
+    for (Map.Entry<Key, List<int[]>> e : byKey.entrySet()) {
+      List<int[]> list = e.getValue();
+      list.sort(Comparator.comparingInt(a -> a[0]));
+      int lo = list.get(0)[0], hi = list.get(0)[1];
+      for (int i = 1; i < list.size(); i++) {
+        int[] r = list.get(i);
+        if (r[0] <= hi + 2)
+          hi = Math.max(hi, r[1]);
+        else {
+          instances.add(new int[]{lo, hi, e.getKey().method(), e.getKey().frame()});
+          lo = r[0];
+          hi = r[1];
+        }
+      }
+      instances.add(new int[]{lo, hi, e.getKey().method(), e.getKey().frame()});
+    }
+
+    Map<Integer, long[]> byBase = new TreeMap<>(); // base -> {veces, maxHi, frameFirst, frameLast}
+    Map<Integer, Set<Integer>> methodsOf = new HashMap<>();
+    for (int[] ins : instances) {
+      long[] agg = byBase.computeIfAbsent(ins[0], k -> new long[]{0, -1, Integer.MAX_VALUE, -1});
+      agg[0]++;
+      agg[1] = Math.max(agg[1], ins[1]);
+      agg[2] = Math.min(agg[2], ins[3]);
+      agg[3] = Math.max(agg[3], ins[3]);
+      methodsOf.computeIfAbsent(ins[0], k -> new TreeSet<>()).add(ins[2]);
+    }
+    // absorb clipped starts: a base inside the previous sprite's extent belongs to it
+    Integer prev = null;
+    for (int base : new ArrayList<>(byBase.keySet())) {
+      if (prev != null && base <= byBase.get(prev)[1]) {
+        long[] into = byBase.get(prev), from = byBase.remove(base);
+        into[0] += from[0];
+        into[1] = Math.max(into[1], from[1]);
+        into[2] = Math.min(into[2], from[2]);
+        into[3] = Math.max(into[3], from[3]);
+        methodsOf.get(prev).addAll(methodsOf.remove(base));
+      } else
+        prev = base;
+    }
+
+    try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
+      c.setAutoCommit(false);
+      try (Statement st = c.createStatement()) {
+        st.execute("CREATE TABLE sprites_found(base INT, last INT, size INT, veces INT," +
+            " frame_first INT, frame_last INT, methods TEXT)");
+      }
+      try (PreparedStatement ps = c.prepareStatement("INSERT INTO sprites_found VALUES(?,?,?,?,?,?,?)")) {
+        for (Map.Entry<Integer, long[]> e : byBase.entrySet()) {
+          long[] a = e.getValue();
+          ps.setInt(1, e.getKey());
+          ps.setInt(2, (int) a[1]);
+          ps.setInt(3, (int) a[1] - e.getKey() + 1);
+          ps.setInt(4, (int) a[0]);
+          ps.setInt(5, (int) a[2]);
+          ps.setInt(6, (int) a[3]);
+          ps.setString(7, methodsOf.get(e.getKey()).stream()
+              .map(m -> methodNames.getOrDefault(m, "$" + m))
+              .reduce((x, y) -> x + " " + y).orElse(""));
+          ps.addBatch();
+        }
+        ps.executeBatch();
+      }
+      c.commit();
+    }
+    System.out.println("\n=== SPRITES ENCONTRADOS: " + byBase.size() + " (tabla sprites_found) ===");
+    byBase.entrySet().stream()
+        .sorted(Comparator.comparingLong(e -> -e.getValue()[0]))
+        .limit(12)
+        .forEach(e -> System.out.printf("  sprite [%d..%d] (%d bytes) x%d  frames %d..%d  por %s%n",
+            e.getKey(), e.getValue()[1], e.getValue()[1] - e.getKey() + 1, e.getValue()[0],
+            e.getValue()[2], e.getValue()[3], methodsOf.get(e.getKey()).stream()
+                .map(m -> methodNames.getOrDefault(m, "$" + m))
+                .reduce((x, y) -> x + " " + y).orElse("")));
   }
 
   public static void main(String[] args) throws Exception {
