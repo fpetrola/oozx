@@ -142,6 +142,11 @@ public class GameMapper {
 
   // ---------- BFS por rol desde los draw sites ----------
   private Set<Integer> reads(String role) {
+    return roleReads(db, plan, role);
+  }
+
+  /** read-sites reachable backwards from the draw sites, first hop restricted to a role. */
+  public static Set<Integer> roleReads(AnalysisDB db, CoordinateFinder.Plan plan, String role) {
     Set<Integer> out = new TreeSet<>();
     for (int w : plan.drawWriteSites()) {
       Set<Integer> seen = new HashSet<>();
@@ -336,7 +341,7 @@ public class GameMapper {
     return plan.regions().stream().anyMatch(r -> hi >= r.lo() && lo <= r.hi());
   }
 
-  private static List<int[]> mergeRanges(List<int[]> ranges, int maxGap) {
+  public static List<int[]> mergeRanges(List<int[]> ranges, int maxGap) {
     List<int[]> sorted = new ArrayList<>(ranges);
     sorted.sort(Comparator.comparingInt(a -> a[0]));
     List<int[]> out = new ArrayList<>();

@@ -55,14 +55,17 @@ public class PositionReport {
       // per-frame draws in range
       Map<Integer, List<String>> drawsByFrame = new TreeMap<>();
       try (PreparedStatement ps = c.prepareStatement(
-          "SELECT frame, method, kind, x, y, w, h FROM sprite_draws WHERE frame BETWEEN ? AND ? ORDER BY frame")) {
+          "SELECT frame, method, kind, x, y, w, h, gfx, path FROM sprite_draws WHERE frame BETWEEN ? AND ? ORDER BY frame")) {
         ps.setInt(1, frameLo);
         ps.setInt(2, frameHi);
         try (ResultSet rs = ps.executeQuery()) {
-          while (rs.next())
+          while (rs.next()) {
+            int gfx = rs.getInt(8);
             drawsByFrame.computeIfAbsent(rs.getInt(1), k -> new ArrayList<>())
-                .add(String.format("$%d %s (%d,%d) %dx%d", rs.getInt(2), rs.getString(3),
-                    rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getInt(7)));
+                .add(String.format("$%d %s (%d,%d) %dx%d%s path:%08x", rs.getInt(2), rs.getString(3),
+                    rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getInt(7),
+                    gfx >= 0 ? " gfx@" + gfx : "", rs.getInt(9)));
+          }
         }
       }
       if (drawsByFrame.isEmpty()) {

@@ -333,6 +333,37 @@ son chicas (<1KB), las zonas grandes del lado VAL son gráficos. Límite conocid
 fuente ROM (15616) no aparece en §3 porque el rango agregado min/max de su lector la
 mezcla con celdas dinámicas (partir rangos por instancia queda para el F5 completo).
 
+## 9quater. Episodios: qué sprite, por qué camino, bajo qué condición (2026-07-13)
+
+**Idea del usuario que lo motivó**: los datos son miles de millones de operaciones, pero
+el universo de datos es diminuto (32K) y las ejecuciones se repiten muchísimo — entonces
+en vez de guardar cada instancia, se guarda la **relación por invocación** (el "episodio")
+y se deduplica sola.
+
+Extensiones al `track` (mismo comando, sin pasos extra):
+- **Identidad del sprite**: se loguean también las LECTURAS de las zonas de gráficos
+  (los read-sites del lado VAL sobre regiones estáticas ≥1KB, descubiertos solos); el
+  mínimo leído por invocación = dirección base del sprite dibujado → columna `gfx` en
+  `sprite_draws`. Resultado: `positions` muestra `gfx@40384` en cada draw (las filas de
+  Willy avanzan de a 2 bytes: 40384, 40386, ...), y hay ~1047 orígenes gráficos
+  distintos en toda la partida.
+- **Firma del camino de ejecución**: hash rodante de todos los pc ejecutados entre dos
+  entries de rutina → columna `path`. Los caminos se repiten masivamente: en `$37974`
+  el camino más frecuente cubre 18771 de 47837 invocaciones y 8 caminos explican ~72%.
+- **Condiciones del camino** (tabla `episodes`): para los draws apareados a un registro
+  de entidad (via los pares validados), se busca por camino qué byte/máscara del registro
+  es constante y difiere entre caminos → emite p.ej. `camino 4806aefe x2114 cuando
+  rec+0&7=2` — **el campo de tipo del registro (offset +0, bits bajos) es lo que
+  selecciona la variante de dibujado**, exactamente el "if que identifica guardián
+  vertical" buscado. También aparece `$37841` (ítems) con un gfx distinto por camino
+  (42427..42494 = tabla de ítems).
+
+Costo: la re-corrida pasa de ~4s a ~7s y el log de ~2.9M a ~5.1M eventos. IDENTICAL
+se re-verifica en cada corrida. Límite conocido: `$37974` tiene 1159 caminos (branches
+dependientes de píxeles de colisión inflan la cola) — el reporte muestra los top y
+agrega el resto; una firma que ignore los branches de datos de píxel es refinamiento
+futuro.
+
 ## 10. Roadmap / ideas pendientes
 
 - **F5 completo — trace exacto por ventana de frames**: log por instancia de TODOS los

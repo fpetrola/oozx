@@ -61,16 +61,30 @@ public class SpriteTracker {
     }
 
     @Override
+    public int mem(int address, int pc) {
+      int v = super.mem(address, pc);
+      if (TrackLog.readSites[pc & 0xFFFF])
+        TrackLog.read(pc, address);
+      return v;
+    }
+
+    @Override
     public void pc(int address, int rdelta) {
       super.pc(address, rdelta);
-      if (address >= 0 && TrackLog.entrySites[address])
-        TrackLog.entry(address, mem);
+      if (address >= 0) {
+        if (TrackLog.entrySites[address])
+          TrackLog.entry(address, mem);
+        TrackLog.pcHash(address);
+      }
     }
   }
 
-  /** one routine invocation that touched the screen: its top-left position and size. */
+  /**
+   * one routine invocation that touched the screen: its top-left position and size, the
+   * graphics source it read (sprite identity) and its execution-path signature.
+   */
   public record Draw(int frame, int methodEntry, char kind, int x, int y, int w, int h,
-                     int nWrites, int buffer, byte[] cells) {
+                     int nWrites, int buffer, int gfx, int path, byte[] cells) {
   }
 
   public record CoordMatch(int addr, char axis, String transform, int off,
@@ -120,6 +134,28 @@ public class SpriteTracker {
     for (int e : plan.drawMethods().keySet())
       if (e >= 0)
         TrackLog.entrySites[e] = true;
+    // sprite identity: log the reads over the static graphics zones (VAL side)
+    Explainer explainer = new Explainer(db, dbPath);
+    Set<Integer> valReads = GameMapper.roleReads(db, plan, "VAL");
+    List<int[]> gfxRegions = GameMapper.mergeRanges(valReads.stream()
+        .map(db.reads::get)
+        .filter(r -> {
+          String c = explainer.classifyRange(r.addrMin(), r.addrMax());
+          return c.startsWith("ESTATICA") || c.startsWith("mayormente") || c.startsWith("MIXTA");
+        })
+        .map(r -> new int[]{r.addrMin(), r.addrMax()}).toList(), 64)
+        .stream().filter(g -> g[1] - g[0] + 1 >= 1024).toList();
+    int gfxSites = 0;
+    for (int s : valReads) {
+      AnalysisDB.Stat r = db.reads.get(s);
+      if (gfxRegions.stream().anyMatch(g -> r.addrMax() >= g[0] && r.addrMin() <= g[1])) {
+        TrackLog.readSites[s] = true;
+        gfxSites++;
+      }
+    }
+    System.out.print("Zonas de graficos a identificar por dibujo (" + gfxSites + " read-sites): ");
+    gfxRegions.forEach(g -> System.out.print("[" + g[0] + ".." + g[1] + "] "));
+    System.out.println();
 
     System.out.println("\n=== Re-corrida con tracking dirigido ===");
     RZXPlayerIO<WordNumber> io = new RZXPlayerIO<>();
@@ -139,12 +175,15 @@ public class SpriteTracker {
       FrameHasher.compare("analysis/instrumented-hashes.txt", "analysis/track-hashes.txt");
 
     List<Draw> draws = cluster(plan);
-    System.out.println(draws.size() + " dibujados (clusters) reconstruidos");
+    long distinctGfx = draws.stream().mapToInt(Draw::gfx).filter(g -> g >= 0).distinct().count();
+    System.out.println(draws.size() + " dibujados (clusters) reconstruidos, "
+        + distinctGfx + " origenes graficos distintos (identidad de sprite)");
 
     Correlation corr = correlate(plan, draws);
     List<CoordTable> tables = detectTables(plan, corr.matches());
     dumpTables(dbPath, draws, corr, tables);
     report(corr, tables);
+    episodes(db, plan, corr, draws, dbPath);
 
     // muestra automática: un frame con varios sprites, ya anotado
     draws.stream().filter(d -> d.kind() == 'P')
@@ -183,6 +222,8 @@ public class SpriteTracker {
     final int[] minX = {Integer.MAX_VALUE, Integer.MAX_VALUE}, minY = {Integer.MAX_VALUE, Integer.MAX_VALUE};
     final int[] maxX = {Integer.MIN_VALUE, Integer.MIN_VALUE}, maxY = {Integer.MIN_VALUE, Integer.MIN_VALUE};
     final int[] n = {0, 0}, buffer = {-1, -1};
+    int gfxMin = Integer.MAX_VALUE;
+    int path;
 
     Cluster(int frame, int methodEntry, byte[] cells) {
       this.frame = frame;
@@ -203,7 +244,8 @@ public class SpriteTracker {
       for (int k = 0; k < 2; k++)
         if (n[k] > 0)
           out.add(new Draw(frame, methodEntry, k == 0 ? 'P' : 'A', minX[k], minY[k],
-              maxX[k] - minX[k] + 8, maxY[k] - minY[k] + (k == 0 ? 1 : 8), n[k], buffer[k], cells));
+              maxX[k] - minX[k] + 8, maxY[k] - minY[k] + (k == 0 ? 1 : 8), n[k], buffer[k],
+              gfxMin == Integer.MAX_VALUE ? -1 : gfxMin, path, cells));
     }
   }
 
@@ -237,6 +279,14 @@ public class SpriteTracker {
           if (cur != null)
             cur.close(out);
           cur = new Cluster(frame, a, snapshot(vals));
+        }
+        case TrackLog.EV_READ -> {
+          if (cur != null && b < cur.gfxMin)
+            cur.gfxMin = b;
+        }
+        case TrackLog.EV_PATH -> {
+          if (cur != null)
+            cur.path = (a << 16) | b;
         }
         case TrackLog.EV_WRITE -> {
           CoordinateFinder.Region reg = null;
@@ -522,10 +572,11 @@ public class SpriteTracker {
     try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
       c.setAutoCommit(false);
       try (Statement st = c.createStatement()) {
-        for (String t : new String[]{"sprite_draws", "frame_cells", "coord_cells", "coord_tables", "coord_pairs"})
+        for (String t : new String[]{"sprite_draws", "frame_cells", "coord_cells", "coord_tables",
+            "coord_pairs", "episodes"})
           st.execute("DROP TABLE IF EXISTS " + t);
         st.execute("CREATE TABLE sprite_draws(frame INT, method INT, kind TEXT, x INT, y INT," +
-            " w INT, h INT, nwrites INT, buffer INT)");
+            " w INT, h INT, nwrites INT, buffer INT, gfx INT, path INT)");
         st.execute("CREATE TABLE frame_cells(frame INT, addr INT, val INT)");
         st.execute("CREATE TABLE coord_cells(addr INT, axis TEXT, transform TEXT, off INT," +
             " matched INT, frames INT, rate REAL)");
@@ -534,7 +585,7 @@ public class SpriteTracker {
         st.execute("CREATE TABLE coord_pairs(x_addr INT, x_transform TEXT, x_off INT," +
             " y_addr INT, y_transform TEXT, y_off INT, joint INT, frames INT, rate REAL)");
       }
-      try (PreparedStatement ps = c.prepareStatement("INSERT INTO sprite_draws VALUES(?,?,?,?,?,?,?,?,?)")) {
+      try (PreparedStatement ps = c.prepareStatement("INSERT INTO sprite_draws VALUES(?,?,?,?,?,?,?,?,?,?,?)")) {
         for (Draw d : draws) {
           ps.setInt(1, d.frame());
           ps.setInt(2, d.methodEntry());
@@ -545,6 +596,8 @@ public class SpriteTracker {
           ps.setInt(7, d.h());
           ps.setInt(8, d.nWrites());
           ps.setInt(9, d.buffer());
+          ps.setInt(10, d.gfx());
+          ps.setInt(11, d.path());
           ps.addBatch();
         }
         ps.executeBatch();
@@ -631,6 +684,162 @@ public class SpriteTracker {
               " Y = mem[%d + %d*k] via %s%+d%n",
           t.stride(), t.slots(), t.x0(), t.stride(), t.xTransform(), t.xOff(),
           t.y0(), t.stride(), t.yTransform(), t.yOff());
+  }
+
+  /**
+   * per-invocation episode analysis: the same execution paths repeat massively (the data
+   * universe fits in 32K), so a handful of (path, graphics, record-condition) episodes
+   * explains the whole run. For draws matched to an entity record via the validated
+   * pairs, derives the record byte/mask that selects each path (e.g. the type field
+   * that distinguishes a vertical from a horizontal guardian).
+   */
+  static void episodes(AnalysisDB db, CoordinateFinder.Plan plan, Correlation corr,
+                       List<Draw> draws, String dbPath) throws SQLException {
+    // record geometry from the strong pairs + the copies that load the table
+    List<CoordPair> strong = corr.pairs().stream().filter(p -> p.rate() >= 0.10)
+        .sorted(Comparator.comparingInt(CoordPair::xAddr)).toList();
+    int stride = 0;
+    for (int i = 1; i < strong.size(); i++) {
+      int diff = strong.get(i).xAddr() - strong.get(i - 1).xAddr();
+      if (diff >= 2 && diff <= 32) {
+        stride = diff;
+        break;
+      }
+    }
+    int xOffRec = 0;
+    if (stride > 0) {
+      int x0 = strong.get(0).xAddr(), tableBase = x0;
+      for (AnalysisDB.Bulk b : db.bulks.values()) {
+        int dstHi = b.dstMax() + Math.max(0, b.lenMax() - 1);
+        if (dstHi >= x0 && b.dstMin() <= x0)
+          tableBase = Math.min(tableBase, b.dstMin());
+      }
+      xOffRec = (x0 - tableBase) % stride;
+    }
+
+    int[] cells = plan.watchCells();
+    Map<Integer, Integer> cellIdx = new HashMap<>();
+    for (int i = 0; i < cells.length; i++)
+      cellIdx.put(cells[i], i);
+
+    // which entity record produced each draw: the validated pair that predicts its (x,y)
+    Map<Draw, Integer> recOf = new IdentityHashMap<>();
+    if (stride > 0)
+      for (Draw d : draws)
+        for (CoordPair p : strong) {
+          Integer xi = cellIdx.get(p.xAddr()), yi = cellIdx.get(p.yAddr());
+          if (xi == null || yi == null)
+            continue;
+          if (applyTransform(p.xTransform(), d.cells()[xi] & 0xFF) + p.xOff() == d.x()
+              && applyTransform(p.yTransform(), d.cells()[yi] & 0xFF) + p.yOff() == d.y()) {
+            recOf.put(d, p.xAddr() - xOffRec);
+            break;
+          }
+        }
+
+    Map<Long, List<Draw>> groups = new HashMap<>();
+    for (Draw d : draws)
+      groups.computeIfAbsent(((long) d.methodEntry() << 32) | (d.path() & 0xFFFFFFFFL),
+          k -> new ArrayList<>()).add(d);
+
+    System.out.println("\n=== EPISODIOS: caminos de ejecucion por rutina (se repiten; pocos explican todo) ===");
+    int[] masks = {255, 240, 15, 7, 3, 1};
+    List<Object[]> dbRows = new ArrayList<>();
+    for (Map.Entry<Integer, String> me : plan.drawMethods().entrySet()) {
+      List<Map.Entry<Long, List<Draw>>> paths = groups.entrySet().stream()
+          .filter(g -> (int) (g.getKey() >> 32) == me.getKey().intValue())
+          .sorted(Comparator.comparingInt(g -> -g.getValue().size()))
+          .toList();
+      if (paths.isEmpty())
+        continue;
+      long total = paths.stream().mapToLong(g -> g.getValue().size()).sum();
+      List<Map.Entry<Long, List<Draw>>> top = paths.stream()
+          .filter(g -> g.getValue().size() >= 100).limit(8).toList();
+      if (top.isEmpty())
+        continue;
+      System.out.println(me.getValue() + ": " + paths.size() + " caminos sobre " + total + " invocaciones");
+
+      // per-path constants over the entity record (offset -> "&mask=val")
+      List<Map<Integer, String>> consts = new ArrayList<>();
+      for (Map.Entry<Long, List<Draw>> g : top) {
+        Map<Integer, String> cs = new TreeMap<>();
+        for (int o = 0; o < stride; o++)
+          for (int mask : masks) {
+            int val = -1, slotted = 0;
+            boolean constant = true;
+            for (Draw d : g.getValue()) {
+              Integer rec = recOf.get(d);
+              if (rec == null)
+                continue;
+              Integer ci = cellIdx.get(rec + o);
+              if (ci == null) {
+                constant = false;
+                break;
+              }
+              int v = (d.cells()[ci] & 0xFF) & mask;
+              slotted++;
+              if (val < 0)
+                val = v;
+              else if (v != val) {
+                constant = false;
+                break;
+              }
+            }
+            if (constant && slotted >= 30 && val >= 0) {
+              cs.put(o, "&" + mask + "=" + val);
+              break;
+            }
+          }
+        consts.add(cs);
+      }
+      // offsets whose constant DIFFERS between paths = the fields that select the path
+      Set<Integer> discr = new TreeSet<>();
+      for (int i = 0; i < consts.size(); i++)
+        for (int j = i + 1; j < consts.size(); j++)
+          for (int o : consts.get(i).keySet())
+            if (consts.get(j).containsKey(o) && !consts.get(j).get(o).equals(consts.get(i).get(o)))
+              discr.add(o);
+
+      for (int i = 0; i < top.size(); i++) {
+        List<Draw> ds = top.get(i).getValue();
+        int gfxLo = Integer.MAX_VALUE, gfxHi = -1;
+        for (Draw d : ds)
+          if (d.gfx() >= 0) {
+            gfxLo = Math.min(gfxLo, d.gfx());
+            gfxHi = Math.max(gfxHi, d.gfx());
+          }
+        StringBuilder cond = new StringBuilder();
+        for (int o : discr)
+          if (consts.get(i).containsKey(o))
+            cond.append(cond.length() > 0 ? " " : "").append("rec+").append(o).append(consts.get(i).get(o));
+        System.out.printf("  camino %08x x%d%s%s%n", (int) (long) top.get(i).getKey(), ds.size(),
+            gfxHi >= 0 ? "  gfx[" + gfxLo + ".." + gfxHi + "]" : "",
+            cond.length() > 0 ? "  cuando " + cond : "");
+        dbRows.add(new Object[]{me.getKey(), (int) (long) top.get(i).getKey(), ds.size(),
+            gfxHi >= 0 ? gfxLo : -1, gfxHi, cond.toString()});
+      }
+      long rest = total - top.stream().mapToLong(g -> g.getValue().size()).sum();
+      if (rest > 0)
+        System.out.println("  ... y " + (paths.size() - top.size()) + " caminos menos frecuentes (x" + rest + ")");
+    }
+
+    try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
+      c.setAutoCommit(false);
+      try (Statement st = c.createStatement()) {
+        st.execute("CREATE TABLE episodes(method INT, path INT, count INT, gfx_lo INT, gfx_hi INT, cond TEXT)");
+      }
+      try (PreparedStatement ps = c.prepareStatement("INSERT INTO episodes VALUES(?,?,?,?,?,?)")) {
+        for (Object[] r : dbRows) {
+          for (int i = 0; i < 5; i++)
+            ps.setInt(i + 1, (int) r[i]);
+          ps.setString(6, (String) r[5]);
+          ps.addBatch();
+        }
+        ps.executeBatch();
+      }
+      c.commit();
+    }
+    System.out.println("Tabla episodes -> " + dbPath);
   }
 
   public static void main(String[] args) throws Exception {
