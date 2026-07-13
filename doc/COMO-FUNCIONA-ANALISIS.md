@@ -4,7 +4,9 @@
 entendiendo qué pensamos, cómo lo fuimos construyendo y cuál es la idea general.
 `doc/GUIA-ANALISIS-ECUACIONES.md` fue el *plan original*; este documento describe
 **cómo quedó construido realmente** (hubo desvíos deliberados respecto de la guía) y
-hacia dónde sigue.
+hacia dónde sigue. Para la explicación **conceptual y de referencia** (modelo de datos
+tabla por tabla, qué es precalculado vs. consulta, por qué las deducciones funcionan,
+usos y análisis futuros) ver **`doc/MANUAL-ANALISIS.md`**.
 
 ---
 
