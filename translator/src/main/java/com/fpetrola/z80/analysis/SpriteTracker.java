@@ -866,41 +866,52 @@ public class SpriteTracker {
         byKey.computeIfAbsent(new Key(d.frame(), d.methodEntry(), d.x()), k -> new ArrayList<>())
             .add(new int[]{d.gfx(), d.gfxHi()});
 
+    // coalescing exists ONLY to reassemble row-by-row blits (Willy: 16 fragments of 2
+    // bytes) — it must never fuse two complete neighbour sprites (two guardians sharing
+    // a column in the same frame do happen), so only small fragments merge
     List<int[]> instances = new ArrayList<>(); // {lo, hi, method, frame}
     for (Map.Entry<Key, List<int[]>> e : byKey.entrySet()) {
       List<int[]> list = e.getValue();
       list.sort(Comparator.comparingInt(a -> a[0]));
       int lo = list.get(0)[0], hi = list.get(0)[1];
+      boolean fragments = hi - lo + 1 <= 4;
       for (int i = 1; i < list.size(); i++) {
         int[] r = list.get(i);
-        if (r[0] <= hi + 2)
+        if (fragments && r[0] <= hi + 2 && r[1] - r[0] + 1 <= 4)
           hi = Math.max(hi, r[1]);
         else {
           instances.add(new int[]{lo, hi, e.getKey().method(), e.getKey().frame()});
           lo = r[0];
           hi = r[1];
+          fragments = hi - lo + 1 <= 4;
         }
       }
       instances.add(new int[]{lo, hi, e.getKey().method(), e.getKey().frame()});
     }
 
-    Map<Integer, long[]> byBase = new TreeMap<>(); // base -> {veces, maxHi, frameFirst, frameLast}
+    // per base: the sprite's extent is the MODE of the observed ends, not the max —
+    // a rare coalesce of two neighbours (same frame/column, adjacent entries) must not
+    // poison the whole sprite
+    Map<Integer, long[]> byBase = new TreeMap<>(); // base -> {veces, modeHi, frameFirst, frameLast}
+    Map<Integer, Map<Integer, Integer>> hiHist = new HashMap<>();
     Map<Integer, Set<Integer>> methodsOf = new HashMap<>();
     for (int[] ins : instances) {
       long[] agg = byBase.computeIfAbsent(ins[0], k -> new long[]{0, -1, Integer.MAX_VALUE, -1});
       agg[0]++;
-      agg[1] = Math.max(agg[1], ins[1]);
       agg[2] = Math.min(agg[2], ins[3]);
       agg[3] = Math.max(agg[3], ins[3]);
+      hiHist.computeIfAbsent(ins[0], k -> new HashMap<>()).merge(ins[1], 1, Integer::sum);
       methodsOf.computeIfAbsent(ins[0], k -> new TreeSet<>()).add(ins[2]);
     }
-    // absorb clipped starts: a base inside the previous sprite's extent belongs to it
+    byBase.forEach((base, agg) -> agg[1] = hiHist.get(base).entrySet().stream()
+        .max(Map.Entry.comparingByValue()).get().getKey());
+    // absorb only what looks like a CLIPPED read of the covering sprite: it starts inside
+    // it and ends exactly at its end (a neighbour sprite ends elsewhere and stays apart)
     Integer prev = null;
     for (int base : new ArrayList<>(byBase.keySet())) {
-      if (prev != null && base <= byBase.get(prev)[1]) {
+      if (prev != null && base <= byBase.get(prev)[1] && byBase.get(base)[1] <= byBase.get(prev)[1]) {
         long[] into = byBase.get(prev), from = byBase.remove(base);
         into[0] += from[0];
-        into[1] = Math.max(into[1], from[1]);
         into[2] = Math.min(into[2], from[2]);
         into[3] = Math.max(into[3], from[3]);
         methodsOf.get(prev).addAll(methodsOf.remove(base));
