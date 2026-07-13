@@ -159,6 +159,8 @@ mvn -q -pl translator exec:java -Dexec.mainClass=com.fpetrola.z80.analysis.Analy
     -Dexec.args="slice 16384 22527"        # también: sprites | regions | copychains | site <pc>
 #   slice lo hi [depth] [fanout] [addr|val|cond]   — slice filtrado por rol
 #   equations [metodo | pcLo pcHi]                 — listado de ecuaciones normalizadas
+#   track [rzxPath]                                — pipeline completo de posiciones (§9)
+#   positions frameLo [frameHi]                    — sprites dibujados + pares coordenada
 ```
 
 ## 7. Qué ya se dedujo del juego (sanity checks vivientes)
@@ -224,10 +226,62 @@ la corrida — la unión de "qué depende de qué" con conteos y rangos — no l
 de una instancia puntual (ese es F5). `MEM` es un solo canal: dos lecturas de memoria en
 la misma instrucción comparten canal (el rol queda como conjunto).
 
-## 9. Roadmap / ideas pendientes
+## 9. F5 dirigido — "track": posiciones de sprites por frame — IMPLEMENTADO (2026-07-13)
 
-- **F5 — trace exacto por ventana de frames**: log por instancia limitado a una ventana,
-  para trace pixel-a-pixel puntual. La infraestructura de sites lo permite sin rediseño.
+**Qué resuelve**: la captura agregada da rangos por site, no valores por instancia; con
+esto solo se sabía *dónde viven* las coordenadas, no *dónde está cada sprite en cada
+frame*. El comando `track` cierra ese hueco de punta a punta y **sin interpretación
+manual**: ningún paso requiere leer un slice a ojo y decidir qué observar.
+
+**Pipeline (una sola invocación, `AnalysisCLI track`)**:
+1. **`CoordinateFinder`** deriva de la DB de agregados, automáticamente:
+   regiones tipo-pantalla (pantalla + todo buffer bulk-copiado hacia ella, transitivo,
+   con el delta que mapea cada buffer sobre la pantalla real), métodos de dibujado
+   (dueños de write-sites que tocan esas regiones), **celdas a observar** (rangos de RAM
+   chicos y mutables cuyas lecturas alimentan la DIRECCIÓN de esos writes — BFS hacia
+   atrás con primer salto por edges ADDR) y tablas de consulta estáticas.
+   (Si `analysis/analysis.db` no existe, corre primero la pasada de agregados.)
+2. **Re-corrida con `TrackLog`** (`SpriteTracker.TrackRunner extends RZXAnalysisRunner`):
+   log por instancia SOLO de lo descubierto — cada write de los draw-sites, cada entrada
+   a un método de dibujado y cada cambio de celda observada, en un único stream ordenado
+   de longs empaquetados (~3M eventos, +0 s de overhead perceptible). Se auto-verifica:
+   hashes por frame IDENTICAL contra la corrida de agregados.
+3. **Clustering offline**: un cluster = una invocación de rutina de dibujado (marcada por
+   su entry); sus writes se decodifican con el layout ZX (backbuffers incluidos vía los
+   deltas de región) → tabla **`sprite_draws(frame, method, kind P/A, x, y, w, h, ...)`**
+   con la posición real de TODO lo dibujado en los 20583 frames.
+4. **Correlación automática** (la "interpretación" hecha por el sistema): votación afín
+   por (celda, eje, transform) con filtro de posiciones distintas ≥10, y la validación
+   decisiva **conjunta**: un par de celdas vecinas es (X, Y) real si EL MISMO cluster
+   satisface ambas a la vez (azar ≈1%/frame vs ~30% por eje suelto). Se prueban los
+   top-3 transforms por eje y se aplica exclusividad greedy (cada celda pertenece a su
+   mejor par). Salidas: **`coord_pairs`**, `coord_cells`, `coord_tables`,
+   **`frame_cells`** (valores por frame de las celdas observadas).
+
+**`AnalysisCLI positions <frameLo> [frameHi]`**: imprime por frame los draws reales al
+lado de las posiciones predichas por los pares (aplicando los transforms a los valores
+de `frame_cells` de ese frame) — la coincidencia se ve sola.
+
+**Hallazgos automáticos verificados (JSW2)**:
+- Willy: **X=mem[34259]** (`(v&31)*8`), **Y=mem[34255]** (`v>>1`), par validado al 95%;
+  lo dibuja `$38504` fila por fila (16 clusters de 16×1 por frame).
+- Tabla de entidades: slot 0 = **(mem[33026], mem[33027])** (38% de los frames — solo
+  cuando el slot está activo), slot 1 = (33034, 33035), slot 2 = (33042, ...); X con
+  `(v&31)*8`, Y con `v>>1`/`(v&240)>>1` (guardianes verticales guardan Y en medios píxeles).
+- Sanity vivo: en el frame 12001 el par del slot 0 predice (200,96) y `sprite_draws`
+  tiene `$37974 P (200,96) 16x16`; el par de Willy predice x=96 y Willy está en x=96.
+- Los pares con confianza baja (≤7%) son ruido de correlación entre guardianes — el
+  porcentaje reportado los delata; no se filtran para no ocultar evidencia.
+
+**Límite conocido**: la muestra impresa al final usa un frame temprano que puede caer en
+el modo demo (celdas con valores que no corresponden a sprites en pantalla); `positions`
+sobre frames de gameplay muestra la correspondencia exacta.
+
+## 10. Roadmap / ideas pendientes
+
+- **F5 completo — trace exacto por ventana de frames**: log por instancia de TODOS los
+  sites en una ventana, para trace pixel-a-pixel puntual (el `TrackLog` de §9 es la
+  versión dirigida de esto; la infraestructura queda lista).
 - **Forward slicing** ("¿qué cosas dependen de X?"): es transponer los edges, la DB ya
   lo permite (`edgesOut`).
 - **Refinar geometría de sprites**: entry size desde la estructura de loops
@@ -235,7 +289,7 @@ la misma instrucción comparten canal (el rol queda como conjunto).
 - **Generalizar a otros juegos**: nada del pipeline depende de JSW salvo el bootstrap
   del RZX (`RzxBootstrap`) y las direcciones de los sanity checks.
 
-## 10. Decisiones ya tomadas (no re-preguntar)
+## 11. Decisiones ya tomadas (no re-preguntar)
 
 - Vehículo: transformación Spoon mínima + captura por overrides en subclase (no wrappers
   simbólicos, no edición manual, no ByteBuddy).

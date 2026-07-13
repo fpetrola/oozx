@@ -27,13 +27,26 @@ package com.fpetrola.z80.analysis;
  *   AnalysisCLI copychains                                  pipelines de bulk copies
  *   AnalysisCLI site <pc>                                   detalle de un site
  *   AnalysisCLI equations [metodo | pcLo pcHi]              listado de ecuaciones normalizadas
+ *   AnalysisCLI track [rzxPath]                             pipeline automatico completo de posiciones
+ *   AnalysisCLI positions <frameLo> [frameHi]               sprites dibujados + celdas-coordenada por frame
  * </pre>
  */
 public class AnalysisCLI {
   public static void main(String[] args) throws Exception {
     String dbPath = System.getProperty("analysis.db", "analysis/analysis.db");
-    AnalysisDB db = new AnalysisDB(dbPath);
     String cmd = args.length > 0 ? args[0] : "sprites";
+    switch (cmd) {
+      case "track" -> {
+        SpriteTracker.run(dbPath, args.length > 1 ? args[1] : RzxBootstrap.DEFAULT_RZX);
+        System.exit(0);
+      }
+      case "positions" -> {
+        int lo = Integer.parseInt(args[1]);
+        PositionReport.print(dbPath, lo, args.length > 2 ? Integer.parseInt(args[2]) : lo);
+        return;
+      }
+    }
+    AnalysisDB db = new AnalysisDB(dbPath);
     switch (cmd) {
       case "slice" -> {
         int lo = Integer.parseInt(args[1]), hi = Integer.parseInt(args[2]);

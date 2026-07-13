@@ -71,6 +71,7 @@ public class RzxBootstrap {
         hasher.onFrame(frame, app.mem);
         lastFrame = frame;
         Tracer.currentFrame = frame;
+        TrackLog.onFrame(frame, app.mem);
       }
     }
   }

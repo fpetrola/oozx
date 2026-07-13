@@ -149,8 +149,8 @@ public class RZXAnalysisRunner extends JetSetWilly2Instrumented {
   }
   // ================= end F2 =================
 
-  public static void main(String[] args) {
-    String rzxPath = args.length > 0 ? args[0] : RzxBootstrap.DEFAULT_RZX;
+  /** full aggregate pass: runs the RZX and dumps hashes + JSON + SQLite. Reusable from SpriteTracker. */
+  public static void runAggregate(String rzxPath) {
     RZXPlayerIO<WordNumber> io = new RZXPlayerIO<>();
     RZXAnalysisRunner game = new RZXAnalysisRunner(io, io.getInterruptionCondition(), rzxPath);
     long start = System.currentTimeMillis();
@@ -168,6 +168,10 @@ public class RZXAnalysisRunner extends JetSetWilly2Instrumented {
       System.out.println("SQLite dump failed: " + e);
     }
     System.out.println(Tracer.summary());
+  }
+
+  public static void main(String[] args) {
+    runAggregate(args.length > 0 ? args[0] : RzxBootstrap.DEFAULT_RZX);
     System.exit(0);
   }
 }
