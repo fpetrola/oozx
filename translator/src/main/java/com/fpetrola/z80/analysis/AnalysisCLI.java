@@ -33,6 +33,7 @@ package com.fpetrola.z80.analysis;
  *                                                           direccion/valor/condicion, hasta INIT/IO
  *   AnalysisCLI map [rzxPath]                               mapa completo: buffers, rutinas, graficos,
  *                                                           tablas, estructura de entidades, variables
+ *   AnalysisCLI export [salida.json]                        modelo del juego consolidado en JSON
  * </pre>
  */
 public class AnalysisCLI {
@@ -51,6 +52,12 @@ public class AnalysisCLI {
       }
       case "map" -> {
         GameMapper.run(dbPath, args.length > 1 ? args[1] : RzxBootstrap.DEFAULT_RZX);
+        System.exit(0);
+      }
+      case "export" -> {
+        GameMapper.ensureTracked(dbPath, RzxBootstrap.DEFAULT_RZX);
+        new GameModelExporter(new AnalysisDB(dbPath), dbPath)
+            .export(args.length > 1 ? args[1] : "analysis/game-model.json");
         System.exit(0);
       }
     }

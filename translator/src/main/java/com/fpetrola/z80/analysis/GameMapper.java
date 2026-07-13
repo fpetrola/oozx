@@ -255,27 +255,19 @@ public class GameMapper {
   // ---------- 5. entity structure ----------
   private void entities() {
     System.out.println("== 5. ESTRUCTURA DE ENTIDADES (pares (X,Y) validados por track) ==");
-    // stride runs over the X addresses of the STRONG pairs (weak ones are noise-prone
-    // and would fabricate bogus record layouts)
+    // best confidence-weighted stride run over the X addresses of the STRONG pairs
+    // (noise pairs can line up by chance at odd strides, so neither "first found" nor
+    // "longest" work: the true record table maximizes the summed confidence)
     List<Integer> xs = pairRows.stream().filter(p -> p[2] >= 0.10)
         .map(p -> (int) p[0]).sorted().distinct().toList();
+    Map<Integer, Double> weights = new HashMap<>();
+    for (double[] p : pairRows)
+      if (p[2] >= 0.10)
+        weights.merge((int) p[0], p[2], Double::sum);
     Set<Integer> inRun = new HashSet<>();
-    for (int i = 0; i < xs.size(); i++) {
-      if (inRun.contains(xs.get(i)))
-        continue;
-      int bestStride = 0, bestLen = 1;
-      for (int stride = 2; stride <= 32; stride++) {
-        int len = 1;
-        while (xs.contains(xs.get(i) + len * stride))
-          len++;
-        if (len > bestLen) {
-          bestLen = len;
-          bestStride = stride;
-        }
-      }
-      if (bestLen < 2)
-        continue;
-      int x0 = xs.get(i), stride = bestStride;
+    int[] run = bestStrideRun(xs, weights);
+    if (run != null) {
+      int x0 = run[0], stride = run[1], bestLen = run[2];
       for (int k = 0; k < bestLen; k++)
         inRun.add(x0 + k * stride);
       // base and full size from the copies that load the table
@@ -341,6 +333,32 @@ public class GameMapper {
     return plan.regions().stream().anyMatch(r -> hi >= r.lo() && lo <= r.hi());
   }
 
+  /**
+   * best strided run over sorted addresses, weighted: the TRUE record table maximizes
+   * the sum of pair confidences, not the run length (noise pairs can line up by chance
+   * at odd strides). Returns {start, stride, len} or null.
+   */
+  public static int[] bestStrideRun(List<Integer> sortedAddrs, Map<Integer, Double> weightByAddr) {
+    int bestStart = -1, bestStride = 0, bestLen = 0;
+    double bestW = -1;
+    for (int start : sortedAddrs)
+      for (int stride = 2; stride <= 32; stride++) {
+        int len = 1;
+        double w = weightByAddr.getOrDefault(start, 0.0);
+        while (sortedAddrs.contains(start + len * stride)) {
+          w += weightByAddr.getOrDefault(start + len * stride, 0.0);
+          len++;
+        }
+        if (len >= 2 && w > bestW) {
+          bestW = w;
+          bestLen = len;
+          bestStride = stride;
+          bestStart = start;
+        }
+      }
+    return bestLen >= 2 ? new int[]{bestStart, bestStride, bestLen} : null;
+  }
+
   public static List<int[]> mergeRanges(List<int[]> ranges, int maxGap) {
     List<int[]> sorted = new ArrayList<>(ranges);
     sorted.sort(Comparator.comparingInt(a -> a[0]));
@@ -359,8 +377,8 @@ public class GameMapper {
     return "@" + pc + (m != null ? " [" + m + "]" : "");
   }
 
-  /** ensures the track tables exist (runs the track pipeline if not), then reports. */
-  public static void run(String dbPath, String rzxPath) throws Exception {
+  /** ensures the track tables exist, running the track pipeline if they are missing. */
+  public static void ensureTracked(String dbPath, String rzxPath) throws Exception {
     boolean hasTrack;
     try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
       c.createStatement().executeQuery("SELECT 1 FROM coord_pairs LIMIT 1").close();
@@ -373,6 +391,10 @@ public class GameMapper {
       SpriteTracker.run(dbPath, rzxPath);
       System.out.println();
     }
+  }
+
+  public static void run(String dbPath, String rzxPath) throws Exception {
+    ensureTracked(dbPath, rzxPath);
     new GameMapper(new AnalysisDB(dbPath), dbPath).report(dbPath);
   }
 }

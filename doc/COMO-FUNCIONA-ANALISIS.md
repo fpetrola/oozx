@@ -165,6 +165,7 @@ mvn -q -pl translator exec:java -Dexec.mainClass=com.fpetrola.z80.analysis.Analy
 #   positions frameLo [frameHi]                    — sprites dibujados + pares coordenada
 #   explain lo hi [depth] [fanout]                 — narrativa recursiva de un rango (§9bis)
 #   map [rzxPath]                                  — mapa completo del juego en un comando (§9ter)
+#   export [salida.json]                           — modelo del juego consolidado en JSON
 ```
 
 ## 7. Qué ya se dedujo del juego (sanity checks vivientes)

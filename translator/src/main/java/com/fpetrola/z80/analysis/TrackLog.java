@@ -130,7 +130,7 @@ public final class TrackLog {
       return;
     if (logN == log.length)
       log = Arrays.copyOf(log, log.length * 2);
-    log[logN++] = ((long) type << 52) | ((long) (Tracer.currentFrame & 0xFFFFF) << 32)
+    log[logN++] = ((long) type << 52) | ((long) (Math.max(0, Tracer.currentFrame) & 0xFFFFF) << 32)
         | ((long) (a & 0xFFFF) << 16) | (b & 0xFFFF);
   }
 

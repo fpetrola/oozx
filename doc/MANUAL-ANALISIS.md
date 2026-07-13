@@ -117,6 +117,7 @@ cruzar millones de filas (correlación, clustering, deduplicación de caminos).
 | `map` | todas las recetas juntas (§6) | el inventario del juego en 6 secciones |
 | `positions f1 [f2]` | `sprite_draws` + `coord_pairs` aplicados a `frame_cells` | "¿qué había en pantalla en el frame N y dónde estaba cada entidad?" |
 | `sprites`, `regions`, `copychains`, `equations`, `site pc` | vistas directas de agregados | exploración de bajo nivel |
+| `export [salida.json]` | TODO lo anterior consolidado en un JSON legible por máquina (`analysis/game-model.json`): zonas de memoria con tipo, cada sprite con dirección/tamaño/uso, fuente, estructura de entidades con campos y fórmulas, variables con sus rangos de valores, rutinas clasificadas por evidencia, episodios | el "modelo del juego" para consumir desde otras herramientas |
 | SQL libre (python3/sqlite) | cualquier corte | trayectorias, apariciones de un sprite, joins píxel↔atributo... |
 
 La regla de diseño: **capturar es caro (re-correr el RZX), consultar es gratis**. Por

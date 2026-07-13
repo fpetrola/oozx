@@ -752,17 +752,15 @@ public class SpriteTracker {
     // record geometry from the strong pairs + the copies that load the table
     List<CoordPair> strong = corr.pairs().stream().filter(p -> p.rate() >= 0.10)
         .sorted(Comparator.comparingInt(CoordPair::xAddr)).toList();
-    int stride = 0;
-    for (int i = 1; i < strong.size(); i++) {
-      int diff = strong.get(i).xAddr() - strong.get(i - 1).xAddr();
-      if (diff >= 2 && diff <= 32) {
-        stride = diff;
-        break;
-      }
-    }
+    List<Integer> xsAddrs = strong.stream().map(CoordPair::xAddr).sorted().distinct().toList();
+    Map<Integer, Double> xWeights = new HashMap<>();
+    for (CoordPair p : strong)
+      xWeights.merge(p.xAddr(), p.rate(), Double::sum);
+    int[] runInfo = GameMapper.bestStrideRun(xsAddrs, xWeights);
+    int stride = runInfo != null ? runInfo[1] : 0;
     int xOffRec = 0;
     if (stride > 0) {
-      int x0 = strong.get(0).xAddr(), tableBase = x0;
+      int x0 = runInfo[0], tableBase = x0;
       for (AnalysisDB.Bulk b : db.bulks.values()) {
         int dstHi = b.dstMax() + Math.max(0, b.lenMax() - 1);
         if (dstHi >= x0 && b.dstMin() <= x0)
