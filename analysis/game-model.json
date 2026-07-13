@@ -1,0 +1,5437 @@
+{
+  "meta": {
+    "generado": "2026-07-13T16:29:53.033353202",
+    "descripcion": "Modelo del juego deducido automaticamente del replay RZX instrumentado; toda afirmacion esta respaldada por evidencia observada (ver doc/MANUAL-ANALISIS.md)",
+    "dibujados": 4244108,
+    "frames_con_dibujos": 41457,
+    "sprites_encontrados": 239
+  },
+  "pantalla": {
+    "atributos": [
+      22528,
+      23295
+    ],
+    "pixels": [
+      16384,
+      22527
+    ]
+  },
+  "buffers": [
+    {
+      "rango": [
+        38912,
+        39679
+      ],
+      "delta_a_pantalla": -16384,
+      "tipo": "datos_estaticos_copiados_a_pantalla"
+    },
+    {
+      "rango": [
+        23552,
+        24063
+      ],
+      "delta_a_pantalla": -1024,
+      "tipo": "buffer",
+      "alimentado_por": [
+        {
+          "copia_desde": [
+            24064,
+            24575
+          ],
+          "site": 35257,
+          "veces": 22752
+        }
+      ]
+    },
+    {
+      "rango": [
+        39424,
+        39679
+      ],
+      "delta_a_pantalla": -16384,
+      "tipo": "datos_estaticos_copiados_a_pantalla"
+    },
+    {
+      "rango": [
+        24064,
+        24575
+      ],
+      "delta_a_pantalla": -1536,
+      "tipo": "buffer"
+    },
+    {
+      "rango": [
+        24576,
+        28671
+      ],
+      "delta_a_pantalla": -8192,
+      "tipo": "buffer",
+      "alimentado_por": [
+        {
+          "copia_desde": [
+            28672,
+            32767
+          ],
+          "site": 35268,
+          "veces": 22752
+        }
+      ]
+    },
+    {
+      "rango": [
+        28672,
+        32767
+      ],
+      "delta_a_pantalla": -12288,
+      "tipo": "buffer"
+    }
+  ],
+  "zonas_memoria": [
+    {
+      "rango": [
+        15616,
+        16383
+      ],
+      "rutina": "$38555",
+      "nota": "el rango agregado del site puede mezclar zonas; el tramo <16384 es ROM",
+      "tipo": "fuente_texto_rom"
+    },
+    {
+      "rango": [
+        32946,
+        32946
+      ],
+      "tipo": "variables_dinamicas",
+      "nota": "alimentan direcciones de dibujo; serie temporal en frame_cells"
+    },
+    {
+      "rango": [
+        32983,
+        32988
+      ],
+      "tipo": "variables_dinamicas",
+      "nota": "alimentan direcciones de dibujo; serie temporal en frame_cells"
+    },
+    {
+      "rango": [
+        33004,
+        33084
+      ],
+      "tipo": "variables_dinamicas",
+      "nota": "alimentan direcciones de dibujo; serie temporal en frame_cells"
+    },
+    {
+      "rango": [
+        33024,
+        33079
+      ],
+      "tipo": "tabla_entidades"
+    },
+    {
+      "rango": [
+        33280,
+        33535
+      ],
+      "tipo": "tabla_consulta_direcciones",
+      "usada_por": [
+        "$37310",
+        "$38504"
+      ]
+    },
+    {
+      "rango": [
+        33664,
+        33750
+      ],
+      "tipo": "tabla_consulta_direcciones",
+      "usada_por": [
+        "$37310"
+      ]
+    },
+    {
+      "rango": [
+        33824,
+        33824
+      ],
+      "tipo": "variables_dinamicas",
+      "nota": "alimentan direcciones de dibujo; serie temporal en frame_cells"
+    },
+    {
+      "rango": [
+        34255,
+        34261
+      ],
+      "tipo": "variables_dinamicas",
+      "nota": "alimentan direcciones de dibujo; serie temporal en frame_cells"
+    },
+    {
+      "rango": [
+        34271,
+        34271
+      ],
+      "tipo": "variables_dinamicas",
+      "nota": "alimentan direcciones de dibujo; serie temporal en frame_cells"
+    },
+    {
+      "rango": [
+        39680,
+        49151
+      ],
+      "tipo": "graficos_sprites",
+      "clasificacion": "MIXTA: 89% nunca escrita (cassette), dinamica en [40962..41978] [42159..42239] | serie por frame disponible en frame_cells",
+      "leida_por": [
+        "$37841",
+        "$37974",
+        "$38504"
+      ]
+    },
+    {
+      "rango": [
+        41983,
+        41983
+      ],
+      "tipo": "tabla_consulta_direcciones",
+      "usada_por": [
+        "$37841"
+      ]
+    },
+    {
+      "rango": [
+        42159,
+        42239
+      ],
+      "tipo": "variables_dinamicas",
+      "nota": "alimentan direcciones de dibujo; serie temporal en frame_cells"
+    },
+    {
+      "rango": [
+        42415,
+        42495
+      ],
+      "tipo": "tabla_consulta_direcciones",
+      "usada_por": [
+        "$37841"
+      ]
+    }
+  ],
+  "sprites": [
+    {
+      "base": 39680,
+      "fin": 39711,
+      "bytes": 32,
+      "veces_dibujado": 2,
+      "frames": [
+        0,
+        254
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 39712,
+      "fin": 39743,
+      "bytes": 32,
+      "veces_dibujado": 2,
+      "frames": [
+        0,
+        254
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 39744,
+      "fin": 39775,
+      "bytes": 32,
+      "veces_dibujado": 2,
+      "frames": [
+        0,
+        254
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 39776,
+      "fin": 39807,
+      "bytes": 32,
+      "veces_dibujado": 3,
+      "frames": [
+        0,
+        254
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 40000,
+      "fin": 40031,
+      "bytes": 32,
+      "veces_dibujado": 1791,
+      "frames": [
+        32072,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 40032,
+      "fin": 40063,
+      "bytes": 32,
+      "veces_dibujado": 1994,
+      "frames": [
+        5630,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 40064,
+      "fin": 40095,
+      "bytes": 32,
+      "veces_dibujado": 2699,
+      "frames": [
+        32072,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 40096,
+      "fin": 40127,
+      "bytes": 32,
+      "veces_dibujado": 1787,
+      "frames": [
+        32072,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 40128,
+      "fin": 40159,
+      "bytes": 32,
+      "veces_dibujado": 2668,
+      "frames": [
+        32096,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 40160,
+      "fin": 40191,
+      "bytes": 32,
+      "veces_dibujado": 2675,
+      "frames": [
+        32072,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 40192,
+      "fin": 40223,
+      "bytes": 32,
+      "veces_dibujado": 15864,
+      "frames": [
+        1086,
+        337378
+      ],
+      "rutinas": [
+        "$37974",
+        "$38504"
+      ],
+      "dibujo_tipico": "16x1"
+    },
+    {
+      "base": 40224,
+      "fin": 40255,
+      "bytes": 32,
+      "veces_dibujado": 8970,
+      "frames": [
+        1097,
+        337378
+      ],
+      "rutinas": [
+        "$37974",
+        "$38504"
+      ],
+      "dibujo_tipico": "16x1"
+    },
+    {
+      "base": 40256,
+      "fin": 40287,
+      "bytes": 32,
+      "veces_dibujado": 97638,
+      "frames": [
+        1120,
+        337378
+      ],
+      "rutinas": [
+        "$37974",
+        "$38504"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 40288,
+      "fin": 40319,
+      "bytes": 32,
+      "veces_dibujado": 8926,
+      "frames": [
+        1144,
+        337378
+      ],
+      "rutinas": [
+        "$37974",
+        "$38504"
+      ],
+      "dibujo_tipico": "16x1"
+    },
+    {
+      "base": 40320,
+      "fin": 40351,
+      "bytes": 32,
+      "veces_dibujado": 1752,
+      "frames": [
+        1470,
+        327095
+      ],
+      "rutinas": [
+        "$38504"
+      ],
+      "dibujo_tipico": "16x1"
+    },
+    {
+      "base": 40352,
+      "fin": 40383,
+      "bytes": 32,
+      "veces_dibujado": 1606,
+      "frames": [
+        1447,
+        327071
+      ],
+      "rutinas": [
+        "$38504"
+      ],
+      "dibujo_tipico": "16x1"
+    },
+    {
+      "base": 40384,
+      "fin": 40415,
+      "bytes": 32,
+      "veces_dibujado": 1699,
+      "frames": [
+        1424,
+        327170
+      ],
+      "rutinas": [
+        "$38504"
+      ],
+      "dibujo_tipico": "16x1"
+    },
+    {
+      "base": 40416,
+      "fin": 40447,
+      "bytes": 32,
+      "veces_dibujado": 2049,
+      "frames": [
+        1493,
+        327120
+      ],
+      "rutinas": [
+        "$38504"
+      ],
+      "dibujo_tipico": "16x1"
+    },
+    {
+      "base": 42415,
+      "fin": 42415,
+      "bytes": 1,
+      "veces_dibujado": 123,
+      "frames": [
+        227376,
+        230407
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42416,
+      "fin": 42416,
+      "bytes": 1,
+      "veces_dibujado": 324,
+      "frames": [
+        126679,
+        134604
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42417,
+      "fin": 42417,
+      "bytes": 1,
+      "veces_dibujado": 167,
+      "frames": [
+        126679,
+        128734
+      ],
+      "rutinas": [
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42418,
+      "fin": 42419,
+      "bytes": 2,
+      "veces_dibujado": 751,
+      "frames": [
+        126679,
+        134530
+      ],
+      "rutinas": [
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42420,
+      "fin": 42420,
+      "bytes": 1,
+      "veces_dibujado": 83,
+      "frames": [
+        83615,
+        85596
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42421,
+      "fin": 42421,
+      "bytes": 1,
+      "veces_dibujado": 87,
+      "frames": [
+        83615,
+        84631
+      ],
+      "rutinas": [
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42422,
+      "fin": 42423,
+      "bytes": 2,
+      "veces_dibujado": 139,
+      "frames": [
+        83615,
+        85896
+      ],
+      "rutinas": [
+        "$37841",
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42424,
+      "fin": 42424,
+      "bytes": 1,
+      "veces_dibujado": 39,
+      "frames": [
+        64661,
+        65589
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42425,
+      "fin": 42425,
+      "bytes": 1,
+      "veces_dibujado": 102,
+      "frames": [
+        64661,
+        66447
+      ],
+      "rutinas": [
+        "$37841",
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42426,
+      "fin": 42427,
+      "bytes": 2,
+      "veces_dibujado": 320,
+      "frames": [
+        64661,
+        71614
+      ],
+      "rutinas": [
+        "$37841",
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42428,
+      "fin": 42428,
+      "bytes": 1,
+      "veces_dibujado": 8,
+      "frames": [
+        91061,
+        91236
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42429,
+      "fin": 42429,
+      "bytes": 1,
+      "veces_dibujado": 108,
+      "frames": [
+        115853,
+        118564
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42430,
+      "fin": 42430,
+      "bytes": 1,
+      "veces_dibujado": 162,
+      "frames": [
+        143724,
+        147786
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42431,
+      "fin": 42431,
+      "bytes": 1,
+      "veces_dibujado": 254,
+      "frames": [
+        125001,
+        143574
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42432,
+      "fin": 42432,
+      "bytes": 1,
+      "veces_dibujado": 156,
+      "frames": [
+        120978,
+        124852
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42433,
+      "fin": 42433,
+      "bytes": 1,
+      "veces_dibujado": 175,
+      "frames": [
+        238108,
+        245430
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42434,
+      "fin": 42434,
+      "bytes": 1,
+      "veces_dibujado": 207,
+      "frames": [
+        234238,
+        243374
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42435,
+      "fin": 42435,
+      "bytes": 1,
+      "veces_dibujado": 28,
+      "frames": [
+        73148,
+        73835
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42436,
+      "fin": 42436,
+      "bytes": 1,
+      "veces_dibujado": 374,
+      "frames": [
+        73148,
+        81395
+      ],
+      "rutinas": [
+        "$37841",
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42437,
+      "fin": 42437,
+      "bytes": 1,
+      "veces_dibujado": 438,
+      "frames": [
+        73148,
+        78728
+      ],
+      "rutinas": [
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42438,
+      "fin": 42438,
+      "bytes": 1,
+      "veces_dibujado": 219,
+      "frames": [
+        16045,
+        21521
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42439,
+      "fin": 42439,
+      "bytes": 1,
+      "veces_dibujado": 69,
+      "frames": [
+        98543,
+        101134
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42440,
+      "fin": 42440,
+      "bytes": 1,
+      "veces_dibujado": 131,
+      "frames": [
+        5631,
+        8646
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42441,
+      "fin": 42441,
+      "bytes": 1,
+      "veces_dibujado": 24,
+      "frames": [
+        260155,
+        260827
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42442,
+      "fin": 42442,
+      "bytes": 1,
+      "veces_dibujado": 145,
+      "frames": [
+        260155,
+        263127
+      ],
+      "rutinas": [
+        "$37841",
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42443,
+      "fin": 42443,
+      "bytes": 1,
+      "veces_dibujado": 304,
+      "frames": [
+        260155,
+        265591
+      ],
+      "rutinas": [
+        "$37841",
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42444,
+      "fin": 42444,
+      "bytes": 1,
+      "veces_dibujado": 117,
+      "frames": [
+        262927,
+        266141
+      ],
+      "rutinas": [
+        "$37841",
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42445,
+      "fin": 42445,
+      "bytes": 1,
+      "veces_dibujado": 421,
+      "frames": [
+        226593,
+        281949
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42446,
+      "fin": 42446,
+      "bytes": 1,
+      "veces_dibujado": 2,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42447,
+      "fin": 42447,
+      "bytes": 1,
+      "veces_dibujado": 2,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42448,
+      "fin": 42448,
+      "bytes": 1,
+      "veces_dibujado": 56,
+      "frames": [
+        205325,
+        206699
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42449,
+      "fin": 42449,
+      "bytes": 1,
+      "veces_dibujado": 1,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42450,
+      "fin": 42450,
+      "bytes": 1,
+      "veces_dibujado": 2,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42451,
+      "fin": 42451,
+      "bytes": 1,
+      "veces_dibujado": 1,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42452,
+      "fin": 42452,
+      "bytes": 1,
+      "veces_dibujado": 1,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42453,
+      "fin": 42453,
+      "bytes": 1,
+      "veces_dibujado": 1,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42454,
+      "fin": 42454,
+      "bytes": 1,
+      "veces_dibujado": 1,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42455,
+      "fin": 42455,
+      "bytes": 1,
+      "veces_dibujado": 2,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42456,
+      "fin": 42456,
+      "bytes": 1,
+      "veces_dibujado": 398,
+      "frames": [
+        188281,
+        198658
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42457,
+      "fin": 42457,
+      "bytes": 1,
+      "veces_dibujado": 2,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42458,
+      "fin": 42458,
+      "bytes": 1,
+      "veces_dibujado": 2,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42459,
+      "fin": 42460,
+      "bytes": 2,
+      "veces_dibujado": 1,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42460,
+      "fin": 42461,
+      "bytes": 2,
+      "veces_dibujado": 2,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42462,
+      "fin": 42462,
+      "bytes": 1,
+      "veces_dibujado": 210,
+      "frames": [
+        147936,
+        157842
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42463,
+      "fin": 42463,
+      "bytes": 1,
+      "veces_dibujado": 34,
+      "frames": [
+        169502,
+        170348
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42464,
+      "fin": 42464,
+      "bytes": 1,
+      "veces_dibujado": 2,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42465,
+      "fin": 42465,
+      "bytes": 1,
+      "veces_dibujado": 1,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42466,
+      "fin": 42466,
+      "bytes": 1,
+      "veces_dibujado": 223,
+      "frames": [
+        147936,
+        157842
+      ],
+      "rutinas": [
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42467,
+      "fin": 42467,
+      "bytes": 1,
+      "veces_dibujado": 1,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42468,
+      "fin": 42468,
+      "bytes": 1,
+      "veces_dibujado": 2,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42469,
+      "fin": 42469,
+      "bytes": 1,
+      "veces_dibujado": 74,
+      "frames": [
+        152935,
+        154836
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42470,
+      "fin": 42470,
+      "bytes": 1,
+      "veces_dibujado": 262,
+      "frames": [
+        315797,
+        322945
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42471,
+      "fin": 42471,
+      "bytes": 1,
+      "veces_dibujado": 2,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42472,
+      "fin": 42473,
+      "bytes": 2,
+      "veces_dibujado": 4,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37841",
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42474,
+      "fin": 42474,
+      "bytes": 1,
+      "veces_dibujado": 196,
+      "frames": [
+        270736,
+        295367
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42475,
+      "fin": 42475,
+      "bytes": 1,
+      "veces_dibujado": 668,
+      "frames": [
+        270736,
+        301928
+      ],
+      "rutinas": [
+        "$37841",
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42476,
+      "fin": 42476,
+      "bytes": 1,
+      "veces_dibujado": 143,
+      "frames": [
+        293313,
+        297140
+      ],
+      "rutinas": [
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42477,
+      "fin": 42478,
+      "bytes": 2,
+      "veces_dibujado": 973,
+      "frames": [
+        270736,
+        310265
+      ],
+      "rutinas": [
+        "$37841",
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42478,
+      "fin": 42479,
+      "bytes": 2,
+      "veces_dibujado": 1365,
+      "frames": [
+        270736,
+        311350
+      ],
+      "rutinas": [
+        "$37841",
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42480,
+      "fin": 42480,
+      "bytes": 1,
+      "veces_dibujado": 2,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42481,
+      "fin": 42484,
+      "bytes": 4,
+      "veces_dibujado": 4,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42483,
+      "fin": 42485,
+      "bytes": 3,
+      "veces_dibujado": 2,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37841",
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42485,
+      "fin": 42491,
+      "bytes": 7,
+      "veces_dibujado": 7,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$38555"
+      ],
+      "dibujo_tipico": "8x1"
+    },
+    {
+      "base": 42492,
+      "fin": 42492,
+      "bytes": 1,
+      "veces_dibujado": 1,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42493,
+      "fin": 42493,
+      "bytes": 1,
+      "veces_dibujado": 463,
+      "frames": [
+        32072,
+        44665
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42494,
+      "fin": 42494,
+      "bytes": 1,
+      "veces_dibujado": 256,
+      "frames": [
+        49857,
+        337378
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42495,
+      "fin": 42495,
+      "bytes": 1,
+      "veces_dibujado": 8,
+      "frames": [
+        1098,
+        337378
+      ],
+      "rutinas": [
+        "$37841"
+      ]
+    },
+    {
+      "base": 42496,
+      "fin": 42527,
+      "bytes": 32,
+      "veces_dibujado": 102,
+      "frames": [
+        1097,
+        337378
+      ],
+      "rutinas": [
+        "$38504"
+      ],
+      "dibujo_tipico": "16x1"
+    },
+    {
+      "base": 42528,
+      "fin": 42559,
+      "bytes": 32,
+      "veces_dibujado": 103,
+      "frames": [
+        1120,
+        5585
+      ],
+      "rutinas": [
+        "$38504"
+      ],
+      "dibujo_tipico": "16x1"
+    },
+    {
+      "base": 43776,
+      "fin": 43807,
+      "bytes": 32,
+      "veces_dibujado": 253,
+      "frames": [
+        49928,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 43808,
+      "fin": 43839,
+      "bytes": 32,
+      "veces_dibujado": 260,
+      "frames": [
+        49857,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 43840,
+      "fin": 43871,
+      "bytes": 32,
+      "veces_dibujado": 260,
+      "frames": [
+        49881,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 43872,
+      "fin": 43903,
+      "bytes": 32,
+      "veces_dibujado": 253,
+      "frames": [
+        49905,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 43904,
+      "fin": 43935,
+      "bytes": 32,
+      "veces_dibujado": 342,
+      "frames": [
+        16116,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 43936,
+      "fin": 43967,
+      "bytes": 32,
+      "veces_dibujado": 354,
+      "frames": [
+        16045,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 43968,
+      "fin": 43999,
+      "bytes": 32,
+      "veces_dibujado": 360,
+      "frames": [
+        16069,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44000,
+      "fin": 44031,
+      "bytes": 32,
+      "veces_dibujado": 345,
+      "frames": [
+        16093,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44032,
+      "fin": 44063,
+      "bytes": 32,
+      "veces_dibujado": 532,
+      "frames": [
+        16116,
+        222697
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44064,
+      "fin": 44095,
+      "bytes": 32,
+      "veces_dibujado": 544,
+      "frames": [
+        16045,
+        222623
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44096,
+      "fin": 44127,
+      "bytes": 32,
+      "veces_dibujado": 531,
+      "frames": [
+        16069,
+        222648
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44128,
+      "fin": 44159,
+      "bytes": 32,
+      "veces_dibujado": 530,
+      "frames": [
+        16092,
+        222672
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44160,
+      "fin": 44191,
+      "bytes": 32,
+      "veces_dibujado": 484,
+      "frames": [
+        49928,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44192,
+      "fin": 44223,
+      "bytes": 32,
+      "veces_dibujado": 486,
+      "frames": [
+        49857,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44224,
+      "fin": 44255,
+      "bytes": 32,
+      "veces_dibujado": 495,
+      "frames": [
+        49881,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44256,
+      "fin": 44287,
+      "bytes": 32,
+      "veces_dibujado": 478,
+      "frames": [
+        49904,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44288,
+      "fin": 44319,
+      "bytes": 32,
+      "veces_dibujado": 441,
+      "frames": [
+        64732,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44320,
+      "fin": 44351,
+      "bytes": 32,
+      "veces_dibujado": 447,
+      "frames": [
+        64660,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44352,
+      "fin": 44383,
+      "bytes": 32,
+      "veces_dibujado": 438,
+      "frames": [
+        64684,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44384,
+      "fin": 44415,
+      "bytes": 32,
+      "veces_dibujado": 446,
+      "frames": [
+        64708,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44416,
+      "fin": 44447,
+      "bytes": 32,
+      "veces_dibujado": 492,
+      "frames": [
+        5698,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44448,
+      "fin": 44479,
+      "bytes": 32,
+      "veces_dibujado": 502,
+      "frames": [
+        5630,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44480,
+      "fin": 44511,
+      "bytes": 32,
+      "veces_dibujado": 493,
+      "frames": [
+        5653,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44512,
+      "fin": 44543,
+      "bytes": 32,
+      "veces_dibujado": 495,
+      "frames": [
+        5676,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44544,
+      "fin": 44575,
+      "bytes": 32,
+      "veces_dibujado": 514,
+      "frames": [
+        64732,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44576,
+      "fin": 44607,
+      "bytes": 32,
+      "veces_dibujado": 524,
+      "frames": [
+        64708,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44608,
+      "fin": 44639,
+      "bytes": 32,
+      "veces_dibujado": 519,
+      "frames": [
+        64684,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44640,
+      "fin": 44671,
+      "bytes": 32,
+      "veces_dibujado": 521,
+      "frames": [
+        64660,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44672,
+      "fin": 44703,
+      "bytes": 32,
+      "veces_dibujado": 81,
+      "frames": [
+        333882,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44704,
+      "fin": 44735,
+      "bytes": 32,
+      "veces_dibujado": 82,
+      "frames": [
+        333857,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44736,
+      "fin": 44767,
+      "bytes": 32,
+      "veces_dibujado": 81,
+      "frames": [
+        333833,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44768,
+      "fin": 44799,
+      "bytes": 32,
+      "veces_dibujado": 86,
+      "frames": [
+        333808,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44800,
+      "fin": 44831,
+      "bytes": 32,
+      "veces_dibujado": 588,
+      "frames": [
+        5699,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44832,
+      "fin": 44863,
+      "bytes": 32,
+      "veces_dibujado": 587,
+      "frames": [
+        5630,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44864,
+      "fin": 44895,
+      "bytes": 32,
+      "veces_dibujado": 587,
+      "frames": [
+        5653,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44896,
+      "fin": 44927,
+      "bytes": 32,
+      "veces_dibujado": 582,
+      "frames": [
+        5676,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44928,
+      "fin": 44959,
+      "bytes": 32,
+      "veces_dibujado": 490,
+      "frames": [
+        222819,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44960,
+      "fin": 44991,
+      "bytes": 32,
+      "veces_dibujado": 498,
+      "frames": [
+        222746,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 44992,
+      "fin": 45023,
+      "bytes": 32,
+      "veces_dibujado": 500,
+      "frames": [
+        222770,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 45024,
+      "fin": 45055,
+      "bytes": 32,
+      "veces_dibujado": 500,
+      "frames": [
+        222795,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 45056,
+      "fin": 45087,
+      "bytes": 32,
+      "veces_dibujado": 678,
+      "frames": [
+        211792,
+        215003
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 45088,
+      "fin": 45119,
+      "bytes": 32,
+      "veces_dibujado": 699,
+      "frames": [
+        211742,
+        215028
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 45120,
+      "fin": 45151,
+      "bytes": 32,
+      "veces_dibujado": 99,
+      "frames": [
+        211792,
+        215003
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 45152,
+      "fin": 45183,
+      "bytes": 32,
+      "veces_dibujado": 97,
+      "frames": [
+        211743,
+        215028
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 45184,
+      "fin": 45215,
+      "bytes": 32,
+      "veces_dibujado": 126,
+      "frames": [
+        147961,
+        158115
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 45216,
+      "fin": 45247,
+      "bytes": 32,
+      "veces_dibujado": 124,
+      "frames": [
+        147936,
+        158091
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 45248,
+      "fin": 45279,
+      "bytes": 32,
+      "veces_dibujado": 754,
+      "frames": [
+        88638,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 45280,
+      "fin": 45311,
+      "bytes": 32,
+      "veces_dibujado": 766,
+      "frames": [
+        88588,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 45568,
+      "fin": 45599,
+      "bytes": 32,
+      "veces_dibujado": 173,
+      "frames": [
+        153007,
+        250873
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 45600,
+      "fin": 45631,
+      "bytes": 32,
+      "veces_dibujado": 160,
+      "frames": [
+        152935,
+        250799
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 45632,
+      "fin": 45663,
+      "bytes": 32,
+      "veces_dibujado": 160,
+      "frames": [
+        152959,
+        250824
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 45664,
+      "fin": 45695,
+      "bytes": 32,
+      "veces_dibujado": 162,
+      "frames": [
+        152983,
+        250848
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 45696,
+      "fin": 45727,
+      "bytes": 32,
+      "veces_dibujado": 787,
+      "frames": [
+        73220,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 45728,
+      "fin": 45759,
+      "bytes": 32,
+      "veces_dibujado": 790,
+      "frames": [
+        73148,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 45760,
+      "fin": 45791,
+      "bytes": 32,
+      "veces_dibujado": 787,
+      "frames": [
+        73172,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 45792,
+      "fin": 45823,
+      "bytes": 32,
+      "veces_dibujado": 770,
+      "frames": [
+        73196,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46080,
+      "fin": 46111,
+      "bytes": 32,
+      "veces_dibujado": 1997,
+      "frames": [
+        11539,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46112,
+      "fin": 46143,
+      "bytes": 32,
+      "veces_dibujado": 1993,
+      "frames": [
+        11516,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46144,
+      "fin": 46175,
+      "bytes": 32,
+      "veces_dibujado": 1997,
+      "frames": [
+        11493,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46176,
+      "fin": 46207,
+      "bytes": 32,
+      "veces_dibujado": 2020,
+      "frames": [
+        11469,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46208,
+      "fin": 46239,
+      "bytes": 32,
+      "veces_dibujado": 1970,
+      "frames": [
+        11005,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46240,
+      "fin": 46271,
+      "bytes": 32,
+      "veces_dibujado": 1975,
+      "frames": [
+        10936,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46272,
+      "fin": 46303,
+      "bytes": 32,
+      "veces_dibujado": 1981,
+      "frames": [
+        10959,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46304,
+      "fin": 46335,
+      "bytes": 32,
+      "veces_dibujado": 1974,
+      "frames": [
+        10982,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46336,
+      "fin": 46367,
+      "bytes": 32,
+      "veces_dibujado": 936,
+      "frames": [
+        49928,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46368,
+      "fin": 46399,
+      "bytes": 32,
+      "veces_dibujado": 950,
+      "frames": [
+        49905,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46400,
+      "fin": 46431,
+      "bytes": 32,
+      "veces_dibujado": 948,
+      "frames": [
+        49881,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46432,
+      "fin": 46463,
+      "bytes": 32,
+      "veces_dibujado": 957,
+      "frames": [
+        49857,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46464,
+      "fin": 46495,
+      "bytes": 32,
+      "veces_dibujado": 911,
+      "frames": [
+        50141,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46496,
+      "fin": 46527,
+      "bytes": 32,
+      "veces_dibujado": 898,
+      "frames": [
+        50164,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46528,
+      "fin": 46559,
+      "bytes": 32,
+      "veces_dibujado": 888,
+      "frames": [
+        50188,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46560,
+      "fin": 46591,
+      "bytes": 32,
+      "veces_dibujado": 900,
+      "frames": [
+        50211,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46592,
+      "fin": 46623,
+      "bytes": 32,
+      "veces_dibujado": 460,
+      "frames": [
+        32072,
+        337378
+      ],
+      "rutinas": [
+        "$37974",
+        "$38504"
+      ],
+      "dibujo_tipico": "16x1"
+    },
+    {
+      "base": 46624,
+      "fin": 46655,
+      "bytes": 32,
+      "veces_dibujado": 412,
+      "frames": [
+        32430,
+        337378
+      ],
+      "rutinas": [
+        "$37974",
+        "$38504"
+      ],
+      "dibujo_tipico": "16x1"
+    },
+    {
+      "base": 46656,
+      "fin": 46687,
+      "bytes": 32,
+      "veces_dibujado": 452,
+      "frames": [
+        32406,
+        337378
+      ],
+      "rutinas": [
+        "$37974",
+        "$38504"
+      ],
+      "dibujo_tipico": "16x1"
+    },
+    {
+      "base": 46688,
+      "fin": 46719,
+      "bytes": 32,
+      "veces_dibujado": 415,
+      "frames": [
+        32382,
+        337378
+      ],
+      "rutinas": [
+        "$37974",
+        "$38504"
+      ],
+      "dibujo_tipico": "16x1"
+    },
+    {
+      "base": 46720,
+      "fin": 46751,
+      "bytes": 32,
+      "veces_dibujado": 384,
+      "frames": [
+        37321,
+        337378
+      ],
+      "rutinas": [
+        "$37974",
+        "$38504"
+      ],
+      "dibujo_tipico": "16x1"
+    },
+    {
+      "base": 46752,
+      "fin": 46783,
+      "bytes": 32,
+      "veces_dibujado": 326,
+      "frames": [
+        37036,
+        337378
+      ],
+      "rutinas": [
+        "$37974",
+        "$38504"
+      ],
+      "dibujo_tipico": "16x1"
+    },
+    {
+      "base": 46784,
+      "fin": 46815,
+      "bytes": 32,
+      "veces_dibujado": 312,
+      "frames": [
+        37061,
+        337378
+      ],
+      "rutinas": [
+        "$37974",
+        "$38504"
+      ],
+      "dibujo_tipico": "16x1"
+    },
+    {
+      "base": 46816,
+      "fin": 46847,
+      "bytes": 32,
+      "veces_dibujado": 341,
+      "frames": [
+        37084,
+        337378
+      ],
+      "rutinas": [
+        "$37974",
+        "$38504"
+      ],
+      "dibujo_tipico": "16x1"
+    },
+    {
+      "base": 46848,
+      "fin": 46879,
+      "bytes": 32,
+      "veces_dibujado": 2954,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46880,
+      "fin": 46911,
+      "bytes": 32,
+      "veces_dibujado": 2968,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46912,
+      "fin": 46943,
+      "bytes": 32,
+      "veces_dibujado": 365,
+      "frames": [
+        95534,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46944,
+      "fin": 46975,
+      "bytes": 32,
+      "veces_dibujado": 366,
+      "frames": [
+        95509,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 46976,
+      "fin": 47007,
+      "bytes": 32,
+      "veces_dibujado": 320,
+      "frames": [
+        222819,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47008,
+      "fin": 47039,
+      "bytes": 32,
+      "veces_dibujado": 323,
+      "frames": [
+        222795,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47040,
+      "fin": 47071,
+      "bytes": 32,
+      "veces_dibujado": 321,
+      "frames": [
+        222770,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47072,
+      "fin": 47103,
+      "bytes": 32,
+      "veces_dibujado": 313,
+      "frames": [
+        222746,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47104,
+      "fin": 47135,
+      "bytes": 32,
+      "veces_dibujado": 357,
+      "frames": [
+        116197,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47136,
+      "fin": 47167,
+      "bytes": 32,
+      "veces_dibujado": 357,
+      "frames": [
+        116172,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47168,
+      "fin": 47199,
+      "bytes": 32,
+      "veces_dibujado": 358,
+      "frames": [
+        116148,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47200,
+      "fin": 47231,
+      "bytes": 32,
+      "veces_dibujado": 361,
+      "frames": [
+        116123,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47232,
+      "fin": 47263,
+      "bytes": 32,
+      "veces_dibujado": 388,
+      "frames": [
+        115927,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47264,
+      "fin": 47295,
+      "bytes": 32,
+      "veces_dibujado": 388,
+      "frames": [
+        115853,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47296,
+      "fin": 47327,
+      "bytes": 32,
+      "veces_dibujado": 388,
+      "frames": [
+        115878,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47328,
+      "fin": 47359,
+      "bytes": 32,
+      "veces_dibujado": 388,
+      "frames": [
+        115902,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47360,
+      "fin": 47391,
+      "bytes": 32,
+      "veces_dibujado": 322,
+      "frames": [
+        1167,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47392,
+      "fin": 47423,
+      "bytes": 32,
+      "veces_dibujado": 330,
+      "frames": [
+        1144,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47424,
+      "fin": 47455,
+      "bytes": 32,
+      "veces_dibujado": 328,
+      "frames": [
+        1121,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47456,
+      "fin": 47487,
+      "bytes": 32,
+      "veces_dibujado": 1269,
+      "frames": [
+        1097,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47488,
+      "fin": 47519,
+      "bytes": 32,
+      "veces_dibujado": 71,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47520,
+      "fin": 47551,
+      "bytes": 32,
+      "veces_dibujado": 73,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47552,
+      "fin": 47583,
+      "bytes": 32,
+      "veces_dibujado": 73,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47584,
+      "fin": 47615,
+      "bytes": 32,
+      "veces_dibujado": 73,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47616,
+      "fin": 47647,
+      "bytes": 32,
+      "veces_dibujado": 2688,
+      "frames": [
+        158164,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47648,
+      "fin": 47679,
+      "bytes": 32,
+      "veces_dibujado": 1481,
+      "frames": [
+        158165,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47680,
+      "fin": 47711,
+      "bytes": 32,
+      "veces_dibujado": 4253,
+      "frames": [
+        158189,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47712,
+      "fin": 47743,
+      "bytes": 32,
+      "veces_dibujado": 1481,
+      "frames": [
+        158189,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47744,
+      "fin": 47775,
+      "bytes": 32,
+      "veces_dibujado": 2226,
+      "frames": [
+        16044,
+        201914
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47776,
+      "fin": 47807,
+      "bytes": 32,
+      "veces_dibujado": 2251,
+      "frames": [
+        16044,
+        201914
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47808,
+      "fin": 47839,
+      "bytes": 32,
+      "veces_dibujado": 1116,
+      "frames": [
+        16068,
+        201890
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47840,
+      "fin": 47871,
+      "bytes": 32,
+      "veces_dibujado": 1118,
+      "frames": [
+        16045,
+        201914
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47872,
+      "fin": 47903,
+      "bytes": 32,
+      "veces_dibujado": 415,
+      "frames": [
+        60128,
+        267614
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47904,
+      "fin": 47935,
+      "bytes": 32,
+      "veces_dibujado": 436,
+      "frames": [
+        60057,
+        267639
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47936,
+      "fin": 47967,
+      "bytes": 32,
+      "veces_dibujado": 444,
+      "frames": [
+        60081,
+        267639
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 47968,
+      "fin": 47999,
+      "bytes": 32,
+      "veces_dibujado": 426,
+      "frames": [
+        60104,
+        267614
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48000,
+      "fin": 48031,
+      "bytes": 32,
+      "veces_dibujado": 616,
+      "frames": [
+        126752,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48032,
+      "fin": 48063,
+      "bytes": 32,
+      "veces_dibujado": 625,
+      "frames": [
+        126679,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48064,
+      "fin": 48095,
+      "bytes": 32,
+      "veces_dibujado": 613,
+      "frames": [
+        126703,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48096,
+      "fin": 48127,
+      "bytes": 32,
+      "veces_dibujado": 614,
+      "frames": [
+        126728,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48128,
+      "fin": 48159,
+      "bytes": 32,
+      "veces_dibujado": 1670,
+      "frames": [
+        56647,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48160,
+      "fin": 48191,
+      "bytes": 32,
+      "veces_dibujado": 1676,
+      "frames": [
+        56624,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48192,
+      "fin": 48223,
+      "bytes": 32,
+      "veces_dibujado": 1696,
+      "frames": [
+        56600,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48224,
+      "fin": 48255,
+      "bytes": 32,
+      "veces_dibujado": 1707,
+      "frames": [
+        56576,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48256,
+      "fin": 48287,
+      "bytes": 32,
+      "veces_dibujado": 1653,
+      "frames": [
+        56764,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48288,
+      "fin": 48319,
+      "bytes": 32,
+      "veces_dibujado": 1666,
+      "frames": [
+        56787,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48320,
+      "fin": 48351,
+      "bytes": 32,
+      "veces_dibujado": 1650,
+      "frames": [
+        56811,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48352,
+      "fin": 48383,
+      "bytes": 32,
+      "veces_dibujado": 1639,
+      "frames": [
+        56835,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48384,
+      "fin": 48415,
+      "bytes": 32,
+      "veces_dibujado": 155,
+      "frames": [
+        260229,
+        267589
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48416,
+      "fin": 48447,
+      "bytes": 32,
+      "veces_dibujado": 158,
+      "frames": [
+        260204,
+        267564
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48448,
+      "fin": 48479,
+      "bytes": 32,
+      "veces_dibujado": 157,
+      "frames": [
+        260179,
+        267639
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48480,
+      "fin": 48511,
+      "bytes": 32,
+      "veces_dibujado": 158,
+      "frames": [
+        260155,
+        267614
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48512,
+      "fin": 48543,
+      "bytes": 32,
+      "veces_dibujado": 150,
+      "frames": [
+        260229,
+        267639
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48544,
+      "fin": 48575,
+      "bytes": 32,
+      "veces_dibujado": 149,
+      "frames": [
+        260155,
+        267564
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48576,
+      "fin": 48607,
+      "bytes": 32,
+      "veces_dibujado": 149,
+      "frames": [
+        260180,
+        267589
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48608,
+      "fin": 48639,
+      "bytes": 32,
+      "veces_dibujado": 152,
+      "frames": [
+        260204,
+        267614
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48640,
+      "fin": 48671,
+      "bytes": 32,
+      "veces_dibujado": 666,
+      "frames": [
+        110333,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48672,
+      "fin": 48703,
+      "bytes": 32,
+      "veces_dibujado": 676,
+      "frames": [
+        110260,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48704,
+      "fin": 48735,
+      "bytes": 32,
+      "veces_dibujado": 675,
+      "frames": [
+        110284,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48736,
+      "fin": 48767,
+      "bytes": 32,
+      "veces_dibujado": 672,
+      "frames": [
+        110309,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48768,
+      "fin": 48799,
+      "bytes": 32,
+      "veces_dibujado": 272,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48800,
+      "fin": 48831,
+      "bytes": 32,
+      "veces_dibujado": 272,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48832,
+      "fin": 48863,
+      "bytes": 32,
+      "veces_dibujado": 272,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48864,
+      "fin": 48895,
+      "bytes": 32,
+      "veces_dibujado": 272,
+      "frames": [
+        337378,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48896,
+      "fin": 48927,
+      "bytes": 32,
+      "veces_dibujado": 3065,
+      "frames": [
+        110333,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48928,
+      "fin": 48959,
+      "bytes": 32,
+      "veces_dibujado": 3129,
+      "frames": [
+        110260,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48960,
+      "fin": 48991,
+      "bytes": 32,
+      "veces_dibujado": 736,
+      "frames": [
+        110284,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 48992,
+      "fin": 49023,
+      "bytes": 32,
+      "veces_dibujado": 730,
+      "frames": [
+        110309,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 49024,
+      "fin": 49055,
+      "bytes": 32,
+      "veces_dibujado": 2381,
+      "frames": [
+        121003,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 49056,
+      "fin": 49087,
+      "bytes": 32,
+      "veces_dibujado": 2401,
+      "frames": [
+        120978,
+        337378
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 49088,
+      "fin": 49119,
+      "bytes": 32,
+      "veces_dibujado": 618,
+      "frames": [
+        98591,
+        158115
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    },
+    {
+      "base": 49120,
+      "fin": 49151,
+      "bytes": 32,
+      "veces_dibujado": 633,
+      "frames": [
+        98543,
+        158115
+      ],
+      "rutinas": [
+        "$37974"
+      ],
+      "dibujo_tipico": "16x16"
+    }
+  ],
+  "fuente_texto": {
+    "rango": [
+      15616,
+      16383
+    ],
+    "rutina": "$38555",
+    "nota": "el rango agregado del site puede mezclar zonas; el tramo <16384 es ROM"
+  },
+  "entidades": {
+    "tabla": {
+      "base": 33024,
+      "registro_bytes": 8,
+      "slots": 7,
+      "campos": {
+        "x": {
+          "formula": "(v&31)*8",
+          "offset": 2
+        },
+        "y": {
+          "formula": "(v&240)>>1",
+          "offset": 3
+        },
+        "selector_grafico_offset_0": {
+          "nota": "elige que sprite/frame se dibuja",
+          "offset": 0
+        },
+        "selector_grafico_offset_1": {
+          "nota": "elige que sprite/frame se dibuja",
+          "offset": 1
+        },
+        "selector_grafico_offset_2": {
+          "nota": "elige que sprite/frame se dibuja",
+          "offset": 2
+        },
+        "selector_grafico_offset_5": {
+          "nota": "elige que sprite/frame se dibuja",
+          "offset": 5
+        }
+      },
+      "slots_validados": [
+        {
+          "x_addr": 33026,
+          "y_addr": 33027,
+          "confianza": 0.9244839857651246
+        },
+        {
+          "x_addr": 33034,
+          "y_addr": 33035,
+          "confianza": 0.3343295827473043
+        }
+      ],
+      "cargada_por": [
+        {
+          "site": 35137,
+          "veces": 8544,
+          "desde": [
+            40962,
+            41983
+          ]
+        },
+        {
+          "site": 35128,
+          "veces": 8544,
+          "desde": [
+            40960,
+            41977
+          ]
+        }
+      ],
+      "actualizada_por": [
+        "$37056",
+        "$37310"
+      ]
+    },
+    "individuales": [
+      {
+        "x_formula": "(v&15)*8+48",
+        "y_formula": "v+168",
+        "confianza": 0.16725269573370838,
+        "x_addr": 32983,
+        "y_addr": 32985
+      },
+      {
+        "x_formula": "(v&31)*8",
+        "y_formula": "v>>1+41",
+        "confianza": 0.10182255039849976,
+        "x_addr": 33015,
+        "y_addr": 33014
+      },
+      {
+        "x_formula": "(v&31)*8+48",
+        "y_formula": "v>>1+168",
+        "confianza": 0.11064228785747773,
+        "x_addr": 33038,
+        "y_addr": 33030
+      },
+      {
+        "x_formula": "(v&240)>>1+64",
+        "y_formula": "v>>1+168",
+        "confianza": 0.12599624941397095,
+        "x_addr": 33044,
+        "y_addr": 33042
+      },
+      {
+        "x_formula": "(v&15)*8+48",
+        "y_formula": "v>>1+168",
+        "confianza": 0.23781059540553212,
+        "x_addr": 33052,
+        "y_addr": 33050
+      },
+      {
+        "x_formula": "(v&31)*8",
+        "y_formula": "v>>1+168",
+        "confianza": 0.30719643694327237,
+        "x_addr": 33066,
+        "y_addr": 33058
+      },
+      {
+        "x_formula": "(v&31)*8+48",
+        "y_formula": "(v&31)*8+24",
+        "confianza": 0.14750351617440224,
+        "x_addr": 34257,
+        "y_addr": 34261
+      },
+      {
+        "x_formula": "(v&31)*8",
+        "y_formula": "v>>1+13",
+        "confianza": 0.9532703791140119,
+        "x_addr": 34259,
+        "y_addr": 34255
+      }
+    ],
+    "pares_debiles_posible_ruido": [
+      {
+        "x_addr": 33004,
+        "y_addr": 33008,
+        "confianza": 0.0646390060947023
+      },
+      {
+        "x_addr": 33009,
+        "y_addr": 33013,
+        "confianza": 0.04704626334519573
+      },
+      {
+        "x_addr": 33011,
+        "y_addr": 33012,
+        "confianza": 0.021536568213783403
+      },
+      {
+        "x_addr": 33017,
+        "y_addr": 33024,
+        "confianza": 0.02812939521800281
+      },
+      {
+        "x_addr": 33031,
+        "y_addr": 33029,
+        "confianza": 0.06384786685419597
+      },
+      {
+        "x_addr": 33033,
+        "y_addr": 33032,
+        "confianza": 0.03938115330520394
+      },
+      {
+        "x_addr": 33047,
+        "y_addr": 33040,
+        "confianza": 0.022884126407555393
+      },
+      {
+        "x_addr": 33048,
+        "y_addr": 33043,
+        "confianza": 0.04390637610976594
+      }
+    ]
+  },
+  "variables": [
+    {
+      "rango": [
+        32946,
+        32946
+      ],
+      "celdas": [
+        {
+          "addr": 32946,
+          "min": 0,
+          "max": 243,
+          "valores_distintos": 30
+        }
+      ]
+    },
+    {
+      "rango": [
+        32983,
+        32988
+      ],
+      "celdas": [
+        {
+          "addr": 32983,
+          "min": 0,
+          "max": 251,
+          "valores_distintos": 30,
+          "coordenada": "X"
+        },
+        {
+          "addr": 32984,
+          "min": 0,
+          "max": 95,
+          "valores_distintos": 3
+        },
+        {
+          "addr": 32985,
+          "min": 0,
+          "max": 32,
+          "valores_distintos": 17,
+          "coordenada": "Y"
+        },
+        {
+          "addr": 32986,
+          "min": 0,
+          "max": 1,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 32987,
+          "min": 0,
+          "max": 252,
+          "valores_distintos": 41
+        },
+        {
+          "addr": 32988,
+          "min": 0,
+          "max": 95,
+          "valores_distintos": 3
+        }
+      ]
+    },
+    {
+      "rango": [
+        33004,
+        33084
+      ],
+      "celdas": [
+        {
+          "addr": 33004,
+          "min": 0,
+          "max": 55,
+          "valores_distintos": 33,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33008,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 49,
+          "coordenada": "Y"
+        },
+        {
+          "addr": 33009,
+          "min": 0,
+          "max": 203,
+          "valores_distintos": 37,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33010,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 42
+        },
+        {
+          "addr": 33011,
+          "min": 0,
+          "max": 204,
+          "valores_distintos": 33,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33012,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 35,
+          "coordenada": "Y"
+        },
+        {
+          "addr": 33013,
+          "min": 0,
+          "max": 218,
+          "valores_distintos": 30,
+          "coordenada": "Y"
+        },
+        {
+          "addr": 33014,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 23,
+          "coordenada": "Y"
+        },
+        {
+          "addr": 33015,
+          "min": 0,
+          "max": 209,
+          "valores_distintos": 21,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33016,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 14
+        },
+        {
+          "addr": 33017,
+          "min": 0,
+          "max": 150,
+          "valores_distintos": 13,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33018,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 9
+        },
+        {
+          "addr": 33019,
+          "min": 0,
+          "max": 151,
+          "valores_distintos": 8
+        },
+        {
+          "addr": 33020,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 8
+        },
+        {
+          "addr": 33021,
+          "min": 0,
+          "max": 156,
+          "valores_distintos": 6
+        },
+        {
+          "addr": 33022,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 4
+        },
+        {
+          "addr": 33023,
+          "min": 0,
+          "max": 146,
+          "valores_distintos": 3
+        },
+        {
+          "addr": 33024,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 39,
+          "coordenada": "Y"
+        },
+        {
+          "addr": 33025,
+          "min": 0,
+          "max": 237,
+          "valores_distintos": 70
+        },
+        {
+          "addr": 33026,
+          "min": 0,
+          "max": 203,
+          "valores_distintos": 61,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33027,
+          "min": 0,
+          "max": 224,
+          "valores_distintos": 118,
+          "coordenada": "Y"
+        },
+        {
+          "addr": 33028,
+          "min": 0,
+          "max": 254,
+          "valores_distintos": 15
+        },
+        {
+          "addr": 33029,
+          "min": 0,
+          "max": 191,
+          "valores_distintos": 28,
+          "coordenada": "Y"
+        },
+        {
+          "addr": 33030,
+          "min": 0,
+          "max": 131,
+          "valores_distintos": 20,
+          "coordenada": "Y"
+        },
+        {
+          "addr": 33031,
+          "min": 0,
+          "max": 224,
+          "valores_distintos": 26,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33032,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 39,
+          "coordenada": "Y"
+        },
+        {
+          "addr": 33033,
+          "min": 0,
+          "max": 235,
+          "valores_distintos": 82,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33034,
+          "min": 0,
+          "max": 204,
+          "valores_distintos": 65,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33035,
+          "min": 0,
+          "max": 224,
+          "valores_distintos": 119,
+          "coordenada": "Y"
+        },
+        {
+          "addr": 33036,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 256
+        },
+        {
+          "addr": 33037,
+          "min": 0,
+          "max": 191,
+          "valores_distintos": 25
+        },
+        {
+          "addr": 33038,
+          "min": 0,
+          "max": 131,
+          "valores_distintos": 19,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33039,
+          "min": 0,
+          "max": 224,
+          "valores_distintos": 25,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33040,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 39,
+          "coordenada": "Y"
+        },
+        {
+          "addr": 33041,
+          "min": 0,
+          "max": 234,
+          "valores_distintos": 52
+        },
+        {
+          "addr": 33042,
+          "min": 0,
+          "max": 218,
+          "valores_distintos": 59,
+          "coordenada": "Y"
+        },
+        {
+          "addr": 33043,
+          "min": 0,
+          "max": 224,
+          "valores_distintos": 105,
+          "coordenada": "Y"
+        },
+        {
+          "addr": 33044,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 256,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33045,
+          "min": 0,
+          "max": 191,
+          "valores_distintos": 18
+        },
+        {
+          "addr": 33046,
+          "min": 0,
+          "max": 130,
+          "valores_distintos": 21
+        },
+        {
+          "addr": 33047,
+          "min": 0,
+          "max": 224,
+          "valores_distintos": 19,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33048,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 37,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33049,
+          "min": 0,
+          "max": 237,
+          "valores_distintos": 20
+        },
+        {
+          "addr": 33050,
+          "min": 0,
+          "max": 209,
+          "valores_distintos": 39,
+          "coordenada": "Y"
+        },
+        {
+          "addr": 33051,
+          "min": 0,
+          "max": 208,
+          "valores_distintos": 105,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33052,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 256,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33053,
+          "min": 0,
+          "max": 191,
+          "valores_distintos": 11
+        },
+        {
+          "addr": 33054,
+          "min": 0,
+          "max": 144,
+          "valores_distintos": 13
+        },
+        {
+          "addr": 33055,
+          "min": 0,
+          "max": 208,
+          "valores_distintos": 16
+        },
+        {
+          "addr": 33056,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 38
+        },
+        {
+          "addr": 33057,
+          "min": 0,
+          "max": 230,
+          "valores_distintos": 55
+        },
+        {
+          "addr": 33058,
+          "min": 0,
+          "max": 158,
+          "valores_distintos": 62,
+          "coordenada": "Y"
+        },
+        {
+          "addr": 33059,
+          "min": 0,
+          "max": 208,
+          "valores_distintos": 78
+        },
+        {
+          "addr": 33060,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 256
+        },
+        {
+          "addr": 33061,
+          "min": 0,
+          "max": 188,
+          "valores_distintos": 16
+        },
+        {
+          "addr": 33062,
+          "min": 0,
+          "max": 131,
+          "valores_distintos": 8
+        },
+        {
+          "addr": 33063,
+          "min": 0,
+          "max": 208,
+          "valores_distintos": 10
+        },
+        {
+          "addr": 33064,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 36
+        },
+        {
+          "addr": 33065,
+          "min": 0,
+          "max": 233,
+          "valores_distintos": 36
+        },
+        {
+          "addr": 33066,
+          "min": 0,
+          "max": 151,
+          "valores_distintos": 26,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33067,
+          "min": 0,
+          "max": 208,
+          "valores_distintos": 106
+        },
+        {
+          "addr": 33068,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 170,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33069,
+          "min": 0,
+          "max": 188,
+          "valores_distintos": 6
+        },
+        {
+          "addr": 33070,
+          "min": 0,
+          "max": 112,
+          "valores_distintos": 7
+        },
+        {
+          "addr": 33071,
+          "min": 0,
+          "max": 208,
+          "valores_distintos": 8
+        },
+        {
+          "addr": 33072,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 21
+        },
+        {
+          "addr": 33073,
+          "min": 0,
+          "max": 228,
+          "valores_distintos": 5
+        },
+        {
+          "addr": 33074,
+          "min": 0,
+          "max": 158,
+          "valores_distintos": 25
+        },
+        {
+          "addr": 33075,
+          "min": 0,
+          "max": 208,
+          "valores_distintos": 34
+        },
+        {
+          "addr": 33076,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 227,
+          "coordenada": "X"
+        },
+        {
+          "addr": 33077,
+          "min": 0,
+          "max": 187,
+          "valores_distintos": 5
+        },
+        {
+          "addr": 33078,
+          "min": 0,
+          "max": 130,
+          "valores_distintos": 6
+        },
+        {
+          "addr": 33079,
+          "min": 0,
+          "max": 192,
+          "valores_distintos": 6
+        },
+        {
+          "addr": 33080,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 11
+        },
+        {
+          "addr": 33081,
+          "min": 0,
+          "max": 226,
+          "valores_distintos": 3
+        },
+        {
+          "addr": 33082,
+          "min": 0,
+          "max": 146,
+          "valores_distintos": 10
+        },
+        {
+          "addr": 33083,
+          "min": 0,
+          "max": 208,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 33084,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 134
+        }
+      ]
+    },
+    {
+      "rango": [
+        33824,
+        33824
+      ],
+      "celdas": [
+        {
+          "addr": 33824,
+          "min": 0,
+          "max": 60,
+          "valores_distintos": 59
+        }
+      ]
+    },
+    {
+      "rango": [
+        34255,
+        34261
+      ],
+      "celdas": [
+        {
+          "addr": 34255,
+          "min": 0,
+          "max": 252,
+          "valores_distintos": 87,
+          "coordenada": "Y"
+        },
+        {
+          "addr": 34256,
+          "min": 0,
+          "max": 3,
+          "valores_distintos": 4
+        },
+        {
+          "addr": 34257,
+          "min": 0,
+          "max": 255,
+          "valores_distintos": 17,
+          "coordenada": "X"
+        },
+        {
+          "addr": 34258,
+          "min": 0,
+          "max": 3,
+          "valores_distintos": 4
+        },
+        {
+          "addr": 34259,
+          "min": 0,
+          "max": 254,
+          "valores_distintos": 248,
+          "coordenada": "X"
+        },
+        {
+          "addr": 34260,
+          "min": 0,
+          "max": 93,
+          "valores_distintos": 3
+        },
+        {
+          "addr": 34261,
+          "min": 0,
+          "max": 18,
+          "valores_distintos": 19,
+          "coordenada": "Y"
+        }
+      ]
+    },
+    {
+      "rango": [
+        34271,
+        34271
+      ],
+      "celdas": [
+        {
+          "addr": 34271,
+          "min": 0,
+          "max": 3,
+          "valores_distintos": 4
+        }
+      ]
+    },
+    {
+      "rango": [
+        42159,
+        42239
+      ],
+      "celdas": [
+        {
+          "addr": 42159,
+          "min": 186,
+          "max": 250,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42160,
+          "min": 178,
+          "max": 242,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42161,
+          "min": 178,
+          "max": 242,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42162,
+          "min": 178,
+          "max": 242,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42163,
+          "min": 178,
+          "max": 242,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42164,
+          "min": 184,
+          "max": 248,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42165,
+          "min": 184,
+          "max": 248,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42166,
+          "min": 184,
+          "max": 248,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42167,
+          "min": 184,
+          "max": 248,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42168,
+          "min": 171,
+          "max": 235,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42169,
+          "min": 171,
+          "max": 235,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42170,
+          "min": 171,
+          "max": 235,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42171,
+          "min": 171,
+          "max": 235,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42172,
+          "min": 159,
+          "max": 223,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42173,
+          "min": 146,
+          "max": 210,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42174,
+          "min": 15,
+          "max": 79,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42175,
+          "min": 16,
+          "max": 80,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42176,
+          "min": 17,
+          "max": 81,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42177,
+          "min": 188,
+          "max": 252,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42178,
+          "min": 187,
+          "max": 251,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42179,
+          "min": 37,
+          "max": 101,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42180,
+          "min": 37,
+          "max": 101,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42181,
+          "min": 165,
+          "max": 229,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42182,
+          "min": 27,
+          "max": 91,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42183,
+          "min": 185,
+          "max": 249,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42184,
+          "min": 162,
+          "max": 226,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42185,
+          "min": 25,
+          "max": 89,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42186,
+          "min": 25,
+          "max": 89,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42187,
+          "min": 153,
+          "max": 217,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42188,
+          "min": 153,
+          "max": 217,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42189,
+          "min": 179,
+          "max": 243,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42190,
+          "min": 22,
+          "max": 86,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42191,
+          "min": 150,
+          "max": 214,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42192,
+          "min": 40,
+          "max": 104,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42193,
+          "min": 140,
+          "max": 204,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42194,
+          "min": 12,
+          "max": 76,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42195,
+          "min": 12,
+          "max": 76,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42196,
+          "min": 137,
+          "max": 201,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42197,
+          "min": 7,
+          "max": 71,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42198,
+          "min": 46,
+          "max": 110,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42199,
+          "min": 46,
+          "max": 110,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42200,
+          "min": 38,
+          "max": 102,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42201,
+          "min": 149,
+          "max": 213,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42202,
+          "min": 149,
+          "max": 213,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42203,
+          "min": 149,
+          "max": 213,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42204,
+          "min": 149,
+          "max": 213,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42205,
+          "min": 149,
+          "max": 213,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42206,
+          "min": 14,
+          "max": 78,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42207,
+          "min": 10,
+          "max": 74,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42208,
+          "min": 149,
+          "max": 213,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42209,
+          "min": 149,
+          "max": 213,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42210,
+          "min": 14,
+          "max": 78,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42211,
+          "min": 13,
+          "max": 77,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42212,
+          "min": 13,
+          "max": 77,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42213,
+          "min": 44,
+          "max": 108,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42214,
+          "min": 19,
+          "max": 83,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42215,
+          "min": 131,
+          "max": 195,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42216,
+          "min": 131,
+          "max": 195,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42217,
+          "min": 131,
+          "max": 195,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42218,
+          "min": 49,
+          "max": 113,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42219,
+          "min": 49,
+          "max": 113,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42220,
+          "min": 49,
+          "max": 113,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42221,
+          "min": 177,
+          "max": 241,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42222,
+          "min": 177,
+          "max": 241,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42223,
+          "min": 177,
+          "max": 241,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42224,
+          "min": 0,
+          "max": 64,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42225,
+          "min": 0,
+          "max": 64,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42226,
+          "min": 0,
+          "max": 64,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42227,
+          "min": 0,
+          "max": 64,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42228,
+          "min": 0,
+          "max": 64,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42229,
+          "min": 0,
+          "max": 64,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42230,
+          "min": 0,
+          "max": 64,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42231,
+          "min": 0,
+          "max": 64,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42232,
+          "min": 0,
+          "max": 64,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42233,
+          "min": 0,
+          "max": 64,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42234,
+          "min": 0,
+          "max": 64,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42235,
+          "min": 0,
+          "max": 64,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42236,
+          "min": 2,
+          "max": 66,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42237,
+          "min": 157,
+          "max": 221,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42238,
+          "min": 158,
+          "max": 222,
+          "valores_distintos": 2
+        },
+        {
+          "addr": 42239,
+          "min": 161,
+          "max": 225,
+          "valores_distintos": 2
+        }
+      ]
+    }
+  ],
+  "rutinas": [
+    {
+      "entry": 34463,
+      "nombre": "$34463",
+      "tipo": "dibujo_sprites_por_filas",
+      "evidencia": {
+        "dibujos_pixels": 1,
+        "tipico_pixels": "8x1",
+        "dibujos_atributos": 15,
+        "tipico_atributos": "8x8",
+        "caminos_de_ejecucion": 1
+      }
+    },
+    {
+      "entry": 34499,
+      "nombre": "$34499",
+      "tipo": "dibujo_atributos",
+      "evidencia": {
+        "dibujos_atributos": 1,
+        "tipico_atributos": "8x8",
+        "caminos_de_ejecucion": 1
+      }
+    },
+    {
+      "entry": 34620,
+      "nombre": "$34620",
+      "tipo": "dibujo_sprites_por_filas",
+      "evidencia": {
+        "dibujos_pixels": 1,
+        "tipico_pixels": "8x1",
+        "dibujos_atributos": 562,
+        "tipico_atributos": "16x16",
+        "caminos_de_ejecucion": 10
+      }
+    },
+    {
+      "entry": 36171,
+      "nombre": "$36171",
+      "tipo": "render_fondo",
+      "evidencia": {
+        "dibujos_pixels": 2498,
+        "tipico_pixels": "256x64",
+        "caminos_de_ejecucion": 171
+      }
+    },
+    {
+      "entry": 36203,
+      "nombre": "$36203",
+      "tipo": "dibujo",
+      "evidencia": {}
+    },
+    {
+      "entry": 36288,
+      "nombre": "$36288",
+      "tipo": "dibujo_atributos",
+      "evidencia": {
+        "dibujos_atributos": 546816,
+        "tipico_atributos": "8x8",
+        "caminos_de_ejecucion": 54
+      }
+    },
+    {
+      "entry": 37310,
+      "nombre": "$37310",
+      "tipo": "dibujo_sprites",
+      "evidencia": {
+        "dibujos_pixels": 760,
+        "tipico_pixels": "16x97",
+        "dibujos_atributos": 22093,
+        "tipico_atributos": "16x16",
+        "caminos_de_ejecucion": 318
+      }
+    },
+    {
+      "entry": 37841,
+      "nombre": "$37841",
+      "tipo": "dibujo_atributos",
+      "evidencia": {
+        "dibujos_atributos": 10254,
+        "tipico_atributos": "8x8",
+        "caminos_de_ejecucion": 70
+      }
+    },
+    {
+      "entry": 37974,
+      "nombre": "$37974",
+      "tipo": "dibujo_sprites",
+      "evidencia": {
+        "dibujos_pixels": 201921,
+        "tipico_pixels": "16x16",
+        "dibujos_atributos": 52847,
+        "tipico_atributos": "16x16",
+        "caminos_de_ejecucion": 6390
+      }
+    },
+    {
+      "entry": 38137,
+      "nombre": "$38137",
+      "tipo": "dibujo_sprites",
+      "evidencia": {
+        "dibujos_pixels": 12383,
+        "tipico_pixels": "32x3",
+        "caminos_de_ejecucion": 76
+      }
+    },
+    {
+      "entry": 38196,
+      "nombre": "$38196",
+      "tipo": "dibujo_atributos",
+      "evidencia": {
+        "dibujos_atributos": 1,
+        "tipico_atributos": "16x16",
+        "caminos_de_ejecucion": 1
+      }
+    },
+    {
+      "entry": 38430,
+      "nombre": "$38430",
+      "tipo": "dibujo_atributos",
+      "evidencia": {
+        "dibujos_atributos": 96820,
+        "tipico_atributos": "8x8",
+        "caminos_de_ejecucion": 31
+      }
+    },
+    {
+      "entry": 38504,
+      "nombre": "$38504",
+      "tipo": "dibujo_sprites_por_filas",
+      "evidencia": {
+        "dibujos_pixels": 381317,
+        "tipico_pixels": "16x1",
+        "dibujos_atributos": 1334,
+        "tipico_atributos": "16x16",
+        "caminos_de_ejecucion": 20
+      }
+    },
+    {
+      "entry": 38555,
+      "nombre": "$38555",
+      "tipo": "texto",
+      "evidencia": {
+        "dibujos_pixels": 2903784,
+        "tipico_pixels": "8x1",
+        "dibujos_atributos": 10700,
+        "tipico_atributos": "8x8",
+        "caminos_de_ejecucion": 2280
+      }
+    },
+    {
+      "nombre": "$36307",
+      "tipo": "logica_estado",
+      "evidencia": {
+        "escrituras_a_variables": 75969
+      }
+    },
+    {
+      "nombre": "$36508",
+      "tipo": "logica_estado",
+      "evidencia": {
+        "escrituras_a_variables": 17048
+      }
+    },
+    {
+      "nombre": "$37056",
+      "tipo": "logica_estado",
+      "evidencia": {
+        "escrituras_a_variables": 155483
+      }
+    },
+    {
+      "nombre": "$38064",
+      "tipo": "logica_estado",
+      "evidencia": {
+        "escrituras_a_variables": 95
+      }
+    },
+    {
+      "nombre": "$38276",
+      "tipo": "logica_estado",
+      "evidencia": {
+        "escrituras_a_variables": 1
+      }
+    }
+  ],
+  "episodios": [
+    {
+      "rutina": "$38555",
+      "camino": "910c9c1d",
+      "veces": 2540229
+    },
+    {
+      "rutina": "$38504",
+      "camino": "84ea140b",
+      "veces": 356707,
+      "gfx": [
+        40192,
+        46844
+      ]
+    },
+    {
+      "rutina": "$38555",
+      "camino": "2438d04b",
+      "veces": 253572
+    },
+    {
+      "rutina": "$36288",
+      "camino": "2fa7af28",
+      "veces": 136677,
+      "condicion": "rec+2&1=0"
+    },
+    {
+      "rutina": "$36288",
+      "camino": "d2374bea",
+      "veces": 136671,
+      "condicion": "rec+2&1=0"
+    },
+    {
+      "rutina": "$36288",
+      "camino": "e48764a9",
+      "veces": 136670,
+      "condicion": "rec+2&3=1"
+    },
+    {
+      "rutina": "$36288",
+      "camino": "476942ac",
+      "veces": 135610,
+      "condicion": "rec+2&1=1"
+    },
+    {
+      "rutina": "$37974",
+      "camino": "2d14dce0",
+      "veces": 95361,
+      "gfx": [
+        40192,
+        40288
+      ],
+      "condicion": "rec+2&1=0"
+    },
+    {
+      "rutina": "$37974",
+      "camino": "f08107bc",
+      "veces": 37732,
+      "gfx": [
+        40000,
+        49088
+      ]
+    },
+    {
+      "rutina": "$38555",
+      "camino": "e33e92a1",
+      "veces": 22582
+    },
+    {
+      "rutina": "$38504",
+      "camino": "ba8ef5fa",
+      "veces": 22247,
+      "gfx": [
+        40222,
+        46846
+      ]
+    },
+    {
+      "rutina": "$38430",
+      "camino": "6b5770cb",
+      "veces": 21417
+    },
+    {
+      "rutina": "$38430",
+      "camino": "6b57714b",
+      "veces": 21412
+    },
+    {
+      "rutina": "$38430",
+      "camino": "77846e67",
+      "veces": 20762
+    },
+    {
+      "rutina": "$38430",
+      "camino": "6b5771cb",
+      "veces": 20455
+    },
+    {
+      "rutina": "$38555",
+      "camino": "a3fd18eb",
+      "veces": 16944
+    },
+    {
+      "rutina": "$37310",
+      "camino": "acbe7df3",
+      "veces": 14180,
+      "condicion": "rec+3&15=0"
+    },
+    {
+      "rutina": "$38555",
+      "camino": "c66c1f22",
+      "veces": 13310,
+      "gfx": [
+        42417,
+        42491
+      ]
+    },
+    {
+      "rutina": "$37974",
+      "camino": "8cb77d55",
+      "veces": 13097,
+      "gfx": [
+        40192,
+        40288
+      ],
+      "condicion": "rec+2&240=0"
+    },
+    {
+      "rutina": "$37974",
+      "camino": "4b9151d2",
+      "veces": 10464,
+      "gfx": [
+        40064,
+        49024
+      ]
+    },
+    {
+      "rutina": "$37974",
+      "camino": "da5a64fe",
+      "veces": 9714,
+      "gfx": [
+        40032,
+        49120
+      ],
+      "condicion": "rec+6&1=0"
+    },
+    {
+      "rutina": "$37974",
+      "camino": "00000000",
+      "veces": 8827,
+      "gfx": [
+        40002,
+        49150
+      ]
+    },
+    {
+      "rutina": "$37310",
+      "camino": "b1f3e7b5",
+      "veces": 7345,
+      "condicion": "rec+3&1=0"
+    },
+    {
+      "rutina": "$38430",
+      "camino": "6b57736b",
+      "veces": 6659
+    },
+    {
+      "rutina": "$37974",
+      "camino": "4806aefe",
+      "veces": 5854,
+      "gfx": [
+        40032,
+        49120
+      ],
+      "condicion": "rec+6&7=0"
+    },
+    {
+      "rutina": "$38430",
+      "camino": "ef6077b7",
+      "veces": 5822
+    },
+    {
+      "rutina": "$37974",
+      "camino": "00b69028",
+      "veces": 5590,
+      "gfx": [
+        40000,
+        49088
+      ]
+    },
+    {
+      "rutina": "$38555",
+      "camino": "1d46caad",
+      "veces": 4724
+    },
+    {
+      "rutina": "$38555",
+      "camino": "8b930bbd",
+      "veces": 3780
+    },
+    {
+      "rutina": "$38555",
+      "camino": "e0069383",
+      "veces": 2835
+    },
+    {
+      "rutina": "$38504",
+      "camino": "440fafd2",
+      "veces": 2668,
+      "gfx": [
+        42526,
+        42622
+      ]
+    },
+    {
+      "rutina": "$38137",
+      "camino": "a74b5594",
+      "veces": 1869
+    },
+    {
+      "rutina": "$38137",
+      "camino": "46cd1c43",
+      "veces": 1316
+    },
+    {
+      "rutina": "$36171",
+      "camino": "384530a5",
+      "veces": 984
+    },
+    {
+      "rutina": "$36171",
+      "camino": "8b222c6c",
+      "veces": 984
+    },
+    {
+      "rutina": "$38137",
+      "camino": "8a03b307",
+      "veces": 961
+    },
+    {
+      "rutina": "$37841",
+      "camino": "37a8f23c",
+      "veces": 950,
+      "gfx": [
+        42495,
+        42495
+      ]
+    },
+    {
+      "rutina": "$36288",
+      "camino": "7417362a",
+      "veces": 945
+    },
+    {
+      "rutina": "$38137",
+      "camino": "0bc6c2c7",
+      "veces": 866
+    },
+    {
+      "rutina": "$37310",
+      "camino": "00000000",
+      "veces": 806,
+      "condicion": "rec+3&1=0"
+    },
+    {
+      "rutina": "$38137",
+      "camino": "33bfcaf8",
+      "veces": 711
+    },
+    {
+      "rutina": "$38137",
+      "camino": "384f5498",
+      "veces": 691
+    },
+    {
+      "rutina": "$38137",
+      "camino": "853a3c34",
+      "veces": 564
+    },
+    {
+      "rutina": "$34620",
+      "camino": "00000000",
+      "veces": 553
+    },
+    {
+      "rutina": "$38137",
+      "camino": "daf30514",
+      "veces": 544
+    },
+    {
+      "rutina": "$37841",
+      "camino": "f5c7c4e4",
+      "veces": 538,
+      "gfx": [
+        42467,
+        42467
+      ]
+    },
+    {
+      "rutina": "$37841",
+      "camino": "f3f34bc0",
+      "veces": 531,
+      "gfx": [
+        42473,
+        42473
+      ]
+    },
+    {
+      "rutina": "$38504",
+      "camino": "00000000",
+      "veces": 466,
+      "gfx": [
+        40193,
+        46847
+      ]
+    },
+    {
+      "rutina": "$37841",
+      "camino": "c484a548",
+      "veces": 463,
+      "gfx": [
+        42493,
+        42493
+      ]
+    },
+    {
+      "rutina": "$37841",
+      "camino": "230f4050",
+      "veces": 459,
+      "gfx": [
+        42449,
+        42449
+      ]
+    },
+    {
+      "rutina": "$37841",
+      "camino": "97e38e68",
+      "veces": 421,
+      "gfx": [
+        42445,
+        42445
+      ]
+    },
+    {
+      "rutina": "$37841",
+      "camino": "03c4cea6",
+      "veces": 398,
+      "gfx": [
+        42456,
+        42456
+      ]
+    },
+    {
+      "rutina": "$37841",
+      "camino": "00000000",
+      "veces": 374
+    },
+    {
+      "rutina": "$36171",
+      "camino": "00000000",
+      "veces": 362
+    },
+    {
+      "rutina": "$38430",
+      "camino": "623e729b",
+      "veces": 133
+    },
+    {
+      "rutina": "$38504",
+      "camino": "0a0d0f92",
+      "veces": 122,
+      "gfx": [
+        40222,
+        40414
+      ]
+    }
+  ]
+}
