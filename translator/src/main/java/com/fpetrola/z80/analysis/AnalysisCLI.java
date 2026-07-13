@@ -31,6 +31,8 @@ package com.fpetrola.z80.analysis;
  *   AnalysisCLI positions <frameLo> [frameHi]               sprites dibujados + celdas-coordenada por frame
  *   AnalysisCLI explain <lo> <hi> [depth] [fanout]          narrativa recursiva: quien escribe el rango,
  *                                                           direccion/valor/condicion, hasta INIT/IO
+ *   AnalysisCLI map [rzxPath]                               mapa completo: buffers, rutinas, graficos,
+ *                                                           tablas, estructura de entidades, variables
  * </pre>
  */
 public class AnalysisCLI {
@@ -46,6 +48,10 @@ public class AnalysisCLI {
         int lo = Integer.parseInt(args[1]);
         PositionReport.print(dbPath, lo, args.length > 2 ? Integer.parseInt(args[2]) : lo);
         return;
+      }
+      case "map" -> {
+        GameMapper.run(dbPath, args.length > 1 ? args[1] : RzxBootstrap.DEFAULT_RZX);
+        System.exit(0);
       }
     }
     AnalysisDB db = new AnalysisDB(dbPath);

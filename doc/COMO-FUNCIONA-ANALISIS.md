@@ -162,6 +162,7 @@ mvn -q -pl translator exec:java -Dexec.mainClass=com.fpetrola.z80.analysis.Analy
 #   track [rzxPath]                                — pipeline completo de posiciones (§9)
 #   positions frameLo [frameHi]                    — sprites dibujados + pares coordenada
 #   explain lo hi [depth] [fanout]                 — narrativa recursiva de un rango (§9bis)
+#   map [rzxPath]                                  — mapa completo del juego en un comando (§9ter)
 ```
 
 ## 7. Qué ya se dedujo del juego (sanity checks vivientes)
@@ -303,6 +304,34 @@ y en VALOR del sprite: tabla [39680..48382] MIXTA ← INIT. `explain 33024 33088
 la tabla de entidades: carga por copias desde [40960..41977] indexadas por
 `HL = habitación*8` (tres `add16(HL,HL)`), movimiento en `$37056` con stride 8, y las
 celdas-coordenada anotadas.
+
+## 9ter. "map" — el inventario completo en un comando (2026-07-13)
+
+`map` consolida todo lo derivable en un solo reporte sin enlaces manuales (y corre
+`track` primero si faltan sus tablas). Secciones, todas deducidas automáticamente:
+
+1. **BUFFERS**: regiones tipo-pantalla con sus deltas + qué copia alimenta a cuál
+   (distingue fuentes estáticas del cassette de buffers reales).
+2. **RUTINAS DE DIBUJADO**: por método, write-sites, volumen, y qué dibuja según
+   `sprite_draws` (cantidad y tamaño típico de clusters pixel/atributo — ej. `$37974`
+   38243 dibujados típico 16x16; `$38555` 281096 de 8x1 = texto).
+3. **GRAFICOS ESTATICOS** (lado VALOR): zonas de datos que van a pantalla como píxeles,
+   con clasificación (la zona [39680..48383] es MIXTA por el estado persistido), quién
+   las lee y — clave — el **selector dinámico** (las celdas mutables que alimentan la
+   dirección de lectura del gráfico: mem[33009..33077] = qué sprite/frame se dibuja).
+4. **TABLAS DE CONSULTA** (lado DIRECCION, estáticas): tabla de filas [33280..33535], etc.
+5. **ESTRUCTURA DE ENTIDADES**: de los pares fuertes de `track` deduce base=33024,
+   registros de 8 bytes, 7 slots, offsets +2=X/+3=Y, quién la actualiza (`$37056`) y las
+   copias que la cargan (desde [40960..41983], indexadas por habitación). Willy queda
+   como SPRITE INDIVIDUAL (95%); los pares débiles se listan marcados como posible ruido.
+6. **VARIABLES DINAMICAS** que alimentan la escritura (con serie por frame en
+   `frame_cells`): habitación 33824, zona de Willy 34255..34261, flags de ítems, etc.
+
+Separación GRAFICOS vs TABLAS: ambos son estáticos y ambos viajan como VALOR en algún
+punto; la regla es que las tablas de consulta llegan por el BFS de primer salto ADDR y
+son chicas (<1KB), las zonas grandes del lado VAL son gráficos. Límite conocido: la
+fuente ROM (15616) no aparece en §3 porque el rango agregado min/max de su lector la
+mezcla con celdas dinámicas (partir rangos por instancia queda para el F5 completo).
 
 ## 10. Roadmap / ideas pendientes
 

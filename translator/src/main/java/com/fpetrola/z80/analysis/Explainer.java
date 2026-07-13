@@ -161,7 +161,7 @@ public class Explainer {
   }
 
   /** ESTATICA (cassette) vs DINAMICA (game variable), with track annotations if present. */
-  private String classifyRange(int lo, int hi) {
+  public String classifyRange(int lo, int hi) {
     List<AnalysisDB.Stat> ws = db.writersIntersecting(lo, hi);
     boolean bulkDst = db.bulks.values().stream()
         .anyMatch(b -> b.dstMax() + Math.max(0, b.lenMax() - 1) >= lo && b.dstMin() <= hi);
