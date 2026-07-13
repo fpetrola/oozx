@@ -68,30 +68,358 @@ public class GameModelExporter {
     return c.startsWith("ESTATICA") || c.startsWith("mayormente") || c.startsWith("MIXTA");
   }
 
+  /**
+   * Two layers: {@code hallazgos} are FINAL, readable conclusions (already grouped and
+   * interpreted, only the most important items inline); {@code evidencia} holds the raw
+   * supporting data, keyed by the finding's id.
+   */
   public void export(String outPath) throws Exception {
+    Map<String, Object> evEnt = entidades();
+    List<Map<String, Object>> structs = new StructFinder(db, dbPath).analyze(null);
+
+    List<Object> hallazgos = new ArrayList<>();
+    Map<String, Object> evidencia = new LinkedHashMap<>();
+
+    hallazgoPantalla(hallazgos, evidencia);
+    Map<String, Object> mapa = hallazgo(hallazgos, evidencia, "mapa-memoria",
+        "Mapa de memoria: que hay en cada rango", null);
+    mapa.put("zonas", zonas(evEnt));
+    hallazgoEntidades(hallazgos, evidencia, evEnt, structs);
+    hallazgoProtagonista(hallazgos, evidencia, evEnt);
+    hallazgoSprites(hallazgos, evidencia);
+    hallazgoFuente(hallazgos, evidencia);
+    hallazgoTablas(hallazgos, evidencia);
+    hallazgoVariables(hallazgos, evidencia);
+    hallazgoRutinas(hallazgos, evidencia);
+    hallazgoEstructuras(hallazgos, evidencia, structs, evEnt);
+
     Map<String, Object> root = new LinkedHashMap<>();
-    Map<String, Object> entidades = entidades();
     root.put("meta", meta());
-    root.put("pantalla", Map.of("pixels", List.of(16384, 22527), "atributos", List.of(22528, 23295)));
-    root.put("buffers", buffers());
-    root.put("zonas_memoria", zonas(entidades));
-    root.put("sprites", sprites());
-    root.put("fuente_texto", fuente());
-    root.put("entidades", entidades);
-    root.put("estructuras", new StructFinder(db, dbPath).analyze(null));
-    root.put("variables", variables());
-    root.put("rutinas", rutinas());
-    root.put("episodios", episodios());
+    root.put("hallazgos", hallazgos);
+    root.put("evidencia", evidencia);
     String json = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(root);
     Files.writeString(Path.of(outPath), json);
-    System.out.println("Modelo del juego -> " + outPath + " (" + json.length() / 1024 + " KB)");
+    System.out.println("Modelo del juego -> " + outPath + " (" + json.length() / 1024 + " KB, "
+        + hallazgos.size() + " hallazgos)");
+  }
+
+  private Map<String, Object> hallazgo(List<Object> hallazgos, Map<String, Object> evidencia,
+                                       String id, String titulo, Object evidence) {
+    Map<String, Object> h = new LinkedHashMap<>();
+    h.put("id", id);
+    h.put("titulo", titulo);
+    hallazgos.add(h);
+    if (evidence != null) {
+      evidencia.put(id, evidence);
+      h.put("evidencia", id);
+    }
+    return h;
+  }
+
+  // ---------- hallazgo: pantalla y composicion ----------
+  private void hallazgoPantalla(List<Object> hallazgos, Map<String, Object> evidencia) {
+    Map<String, Object> h = hallazgo(hallazgos, evidencia, "pantalla",
+        "La pantalla se compone por etapas de buffers (doble buffer)", buffers());
+    h.put("pixels", pipeline(16384, 22527));
+    h.put("colores", pipeline(22528, 23295));
+  }
+
+  /** chain of copies ending at the given screen slice, rendered as one readable line. */
+  private String pipeline(int lo, int hi) {
+    StringBuilder sb = new StringBuilder("pantalla [" + lo + ".." + hi + "]");
+    int curLo = lo, curHi = hi;
+    for (int hop = 0; hop < 4; hop++) {
+      AnalysisDB.Bulk best = null;
+      for (AnalysisDB.Bulk b : db.bulks.values()) {
+        int dstHi = b.dstMax() + Math.max(0, b.lenMax() - 1);
+        if (dstHi < curLo || b.dstMin() > curHi || b.srcMin() >= curLo && b.srcMin() <= curHi)
+          continue;
+        if (best == null || b.count() > best.count())
+          best = b;
+      }
+      if (best == null)
+        break;
+      int srcHi = best.srcMax() + best.lenMax() - 1;
+      sb.insert(0, "[" + best.srcMin() + ".." + srcHi + "] --copia x" + best.count() + "--> ");
+      curLo = best.srcMin();
+      curHi = srcHi;
+    }
+    return sb.toString();
+  }
+
+  // ---------- hallazgo: tabla de entidades ----------
+  @SuppressWarnings("unchecked")
+  private void hallazgoEntidades(List<Object> hallazgos, Map<String, Object> evidencia,
+                                 Map<String, Object> evEnt, List<Map<String, Object>> structs) {
+    Object tablaObj = evEnt.get("tabla");
+    if (!(tablaObj instanceof Map<?, ?> tabla))
+      return;
+    int base = ((Number) tabla.get("base")).intValue();
+    int stride = ((Number) tabla.get("registro_bytes")).intValue();
+    int slots = ((Number) tabla.get("slots")).intValue();
+
+    Map<String, Object> h = hallazgo(hallazgos, evidencia, "tabla-entidades",
+        String.format("Tabla de %d entidades moviles en [%d..%d], registros de %d bytes",
+            slots, base, base + stride * slots - 1, base), null);
+    h.put("titulo", String.format("Tabla de %d entidades moviles en [%d..%d], registros de %d bytes",
+        slots, base, base + stride * slots - 1, stride));
+
+    // consolidated field meanings
+    Map<Integer, List<String>> notas = new TreeMap<>();
+    Map<String, Object> campos = (Map<String, Object>) tabla.get("campos");
+    for (Map.Entry<String, Object> ce : campos.entrySet()) {
+      Map<String, Object> c = (Map<String, Object>) ce.getValue();
+      int off = ((Number) c.get("offset")).intValue();
+      if (ce.getKey().equals("x"))
+        notas.computeIfAbsent(off, k -> new ArrayList<>())
+            .add("coordenada X en pantalla: pixel = " + c.get("formula"));
+      else if (ce.getKey().equals("y"))
+        notas.computeIfAbsent(off, k -> new ArrayList<>())
+            .add("coordenada Y en pantalla: pixel = " + c.get("formula"));
+      else
+        notas.computeIfAbsent(off, k -> new ArrayList<>())
+            .add("participa en la seleccion del grafico/frame del sprite");
+    }
+    // variant behaviour from the updater routine's structure
+    List<Object> variantes = new ArrayList<>();
+    for (Map<String, Object> st : structs) {
+      if (((Number) st.get("base")).intValue() != base
+          || ((Number) st.get("registro_bytes")).intValue() != stride)
+        continue;
+      Integer xOff = offsetOf(campos, "x"), yOff = offsetOf(campos, "y");
+      for (Object vo : (List<Object>) st.get("variantes")) {
+        Map<String, Object> v = (Map<String, Object>) vo;
+        String cond = (String) v.get("condicion");
+        List<Map<String, Object>> ramas = (List<Map<String, Object>>) (List<?>) v.get("ramas");
+        long total = ramas.stream().mapToLong(r -> ((Number) r.get("veces")).longValue()).sum();
+        if (!cond.contains("==") || total < 2000)
+          continue;
+        if (cond.endsWith("== 255")) {
+          notas.computeIfAbsent(fieldOfCond(cond), k -> new ArrayList<>())
+              .add("el valor 255 marca el FIN de la tabla");
+          continue;
+        }
+        Map<String, Object> ve = new LinkedHashMap<>();
+        ve.put("cuando", cond + " (en " + st.get("rutina") + ")");
+        for (Map<String, Object> rama : ramas) {
+          List<Integer> excl = (List<Integer>) rama.get("campos_exclusivos");
+          ve.put(ve.containsKey("un_camino") ? "otro_camino" : "un_camino", armDescription(excl, xOff, yOff));
+        }
+        variantes.add(ve);
+        notas.computeIfAbsent(fieldOfCond(cond), k -> new ArrayList<>())
+            .add("sus bits eligen la variante de comportamiento");
+      }
+    }
+    Map<String, String> camposFinales = new LinkedHashMap<>();
+    notas.forEach((off, ns) -> camposFinales.put("+" + off, String.join("; ", new LinkedHashSet<>(ns))));
+    h.put("campos", camposFinales);
+    if (!variantes.isEmpty())
+      h.put("variantes_de_comportamiento", variantes.stream().distinct().limit(5).toList());
+    h.put("cargada_desde", tabla.get("cargada_por"));
+    h.put("actualizada_por", tabla.get("actualizada_por"));
+    h.put("evidencia", "tabla-entidades");
+    evidencia.put("tabla-entidades", Map.of("deteccion", evEnt,
+        "estructuras", structs.stream()
+            .filter(st -> ((Number) st.get("base")).intValue() == base).toList()));
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Integer offsetOf(Map<String, Object> campos, String key) {
+    Object c = campos.get(key);
+    return c instanceof Map<?, ?> m ? ((Number) ((Map<String, Object>) m).get("offset")).intValue() : null;
+  }
+
+  private static int fieldOfCond(String cond) {
+    java.util.regex.Matcher m = java.util.regex.Pattern.compile("campo \\+(\\d+)").matcher(cond);
+    return m.find() ? Integer.parseInt(m.group(1)) : 0;
+  }
+
+  private static String armDescription(List<Integer> excl, Integer xOff, Integer yOff) {
+    boolean x = xOff != null && excl.contains(xOff), y = yOff != null && excl.contains(yOff);
+    if (y && !x)
+      return "modifica la coordenada Y (movimiento vertical); usa +"
+          + excl.stream().map(String::valueOf).reduce((a, b) -> a + " +" + b).orElse("");
+    if (x && !y)
+      return "modifica la coordenada X (movimiento horizontal); usa +"
+          + excl.stream().map(String::valueOf).reduce((a, b) -> a + " +" + b).orElse("");
+    return "usa exclusivamente los campos +"
+        + excl.stream().map(String::valueOf).reduce((a, b) -> a + " +" + b).orElse("");
+  }
+
+  // ---------- hallazgo: protagonista ----------
+  @SuppressWarnings("unchecked")
+  private void hallazgoProtagonista(List<Object> hallazgos, Map<String, Object> evidencia,
+                                    Map<String, Object> evEnt) throws SQLException {
+    List<Object> indiv = (List<Object>) evEnt.get("individuales");
+    Map<String, Object> best = null;
+    for (Object io : indiv) {
+      Map<String, Object> i = (Map<String, Object>) io;
+      if (((Number) i.get("confianza")).doubleValue() >= 0.6
+          && (best == null || ((Number) i.get("confianza")).doubleValue() > ((Number) best.get("confianza")).doubleValue()))
+        best = i;
+    }
+    if (best == null)
+      return;
+    Map<String, Object> h = hallazgo(hallazgos, evidencia, "protagonista",
+        "Sprite individual (protagonista): posicion fuera de la tabla de entidades", indiv);
+    h.put("x", "mem[" + best.get("x_addr") + "], pixel = " + best.get("x_formula"));
+    h.put("y", "mem[" + best.get("y_addr") + "], pixel = " + best.get("y_formula"));
+    h.put("confianza", best.get("confianza"));
+    // its main animation: the biggest contiguous sprite group drawn by the row renderer
+    try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
+         ResultSet rs = c.createStatement().executeQuery(
+             "SELECT base, last, veces FROM sprites_found ORDER BY base")) {
+      int gLo = -1, gHi = -1;
+      long gVeces = 0, bLo = -1, bHi = -1, bVeces = -1;
+      while (rs.next()) {
+        if (rs.getInt(1) == gHi + 1) {
+          gHi = rs.getInt(2);
+          gVeces += rs.getLong(3);
+        } else {
+          if (gVeces > bVeces) {
+            bLo = gLo;
+            bHi = gHi;
+            bVeces = gVeces;
+          }
+          gLo = rs.getInt(1);
+          gHi = rs.getInt(2);
+          gVeces = rs.getLong(3);
+        }
+      }
+      if (gVeces > bVeces) {
+        bLo = gLo;
+        bHi = gHi;
+        bVeces = gVeces;
+      }
+      if (bLo >= 0)
+        h.put("animacion_principal", "sprites contiguos [" + bLo + ".." + bHi + "] ("
+            + ((bHi - bLo + 1) / 32) + " frames de 32 bytes, dibujados x" + bVeces + ")");
+    }
+  }
+
+  // ---------- hallazgo: sprites ----------
+  private void hallazgoSprites(List<Object> hallazgos, Map<String, Object> evidencia) throws SQLException {
+    List<Object> full = sprites();
+    Map<String, Object> h = hallazgo(hallazgos, evidencia, "sprites",
+        "Catalogo de sprites (datos graficos del cassette realmente dibujados)", full);
+    try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
+      h.put("total", scalar(c, "SELECT COUNT(*) FROM sprites_found"));
+      h.put("tamanio_tipico_bytes", scalar(c,
+          "SELECT size FROM sprites_found GROUP BY size ORDER BY COUNT(*) DESC LIMIT 1"));
+      List<Object> top = new ArrayList<>();
+      try (ResultSet rs = c.createStatement().executeQuery(
+          "SELECT base, last, size, veces, methods FROM sprites_found WHERE size >= 8 ORDER BY veces DESC LIMIT 8")) {
+        while (rs.next())
+          top.add(Map.of("rango", List.of(rs.getInt(1), rs.getInt(2)), "bytes", rs.getInt(3),
+              "veces_dibujado", rs.getInt(4), "rutinas", rs.getString(5)));
+      }
+      h.put("mas_dibujados", top);
+      List<Object> items = new ArrayList<>();
+      int[] itemZone = {Integer.MAX_VALUE, -1};
+      long nItems = 0;
+      try (ResultSet rs = c.createStatement().executeQuery(
+          "SELECT base, last FROM sprites_found WHERE size <= 2")) {
+        while (rs.next()) {
+          itemZone[0] = Math.min(itemZone[0], rs.getInt(1));
+          itemZone[1] = Math.max(itemZone[1], rs.getInt(2));
+          nItems++;
+        }
+      }
+      if (nItems > 0)
+        h.put("items", "ademas hay " + nItems + " graficos chicos (1-2 bytes) en ["
+            + itemZone[0] + ".." + itemZone[1] + "] (objetos/decoraciones)");
+    }
+  }
+
+  // ---------- hallazgos: fuente, tablas, variables, rutinas, otras estructuras ----------
+  private void hallazgoFuente(List<Object> hallazgos, Map<String, Object> evidencia) {
+    Map<String, Object> f = fuente();
+    if (f == null)
+      return;
+    Map<String, Object> h = hallazgo(hallazgos, evidencia, "fuente",
+        "Fuente de caracteres: la ROM del Spectrum, usada por la rutina de texto", f);
+    h.put("rango", f.get("rango"));
+    h.put("rutina_de_texto", f.get("rutina"));
+  }
+
+  private void hallazgoTablas(List<Object> hallazgos, Map<String, Object> evidencia) {
+    List<Object> tablas = new ArrayList<>();
+    for (int[] t : lookupTables)
+      tablas.add(Map.of("rango", List.of(t[0], t[1]),
+          "usada_por", methodsReading(addrReads, t[0], t[1])));
+    Map<String, Object> h = hallazgo(hallazgos, evidencia, "tablas-consulta",
+        "Tablas de consulta estaticas (traducen indices a direcciones, ej. filas de pantalla)", tablas);
+    h.put("tablas", tablas);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void hallazgoVariables(List<Object> hallazgos, Map<String, Object> evidencia) throws SQLException {
+    List<Object> full = variables();
+    Map<String, Object> h = hallazgo(hallazgos, evidencia, "variables",
+        "Variables dinamicas que gobiernan el dibujado (serie temporal completa en frame_cells)", full);
+    List<Object> top = new ArrayList<>();
+    for (Object zo : full)
+      for (Object co : (List<Object>) ((Map<String, Object>) zo).get("celdas")) {
+        Map<String, Object> cell = (Map<String, Object>) co;
+        if (!cell.containsKey("coordenada") && ((Number) cell.get("valores_distintos")).intValue() >= 5)
+          top.add(cell);
+      }
+    top.sort(Comparator.comparingInt(cm -> -((Number) ((Map<String, Object>) cm).get("valores_distintos")).intValue()));
+    h.put("mas_activas", top.stream().limit(10).toList());
+    h.put("nota", "las celdas de coordenadas estan en tabla-entidades y protagonista");
+  }
+
+  @SuppressWarnings("unchecked")
+  private void hallazgoRutinas(List<Object> hallazgos, Map<String, Object> evidencia) throws SQLException {
+    List<Object> full = rutinas();
+    Map<String, Object> h = hallazgo(hallazgos, evidencia, "rutinas",
+        "Rutinas del juego clasificadas por lo que hacen", full);
+    Map<String, String> frases = Map.of(
+        "texto", "imprime texto con la fuente ROM",
+        "render_fondo", "renderiza el fondo de la habitacion al buffer",
+        "dibujo_sprites", "dibuja sprites de entidades",
+        "dibujo_sprites_por_filas", "dibuja un sprite fila por fila (el protagonista)",
+        "dibujo_atributos", "pinta colores (atributos)",
+        "logica_estado", "logica de juego: actualiza variables y entidades",
+        "dibujo", "dibuja en pantalla");
+    List<Object> lista = new ArrayList<>();
+    for (Object ro : full) {
+      Map<String, Object> r = (Map<String, Object>) ro;
+      lista.add(Map.of("rutina", r.get("nombre"),
+          "hace", frases.getOrDefault((String) r.get("tipo"), (String) r.get("tipo"))));
+    }
+    h.put("lista", lista);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void hallazgoEstructuras(List<Object> hallazgos, Map<String, Object> evidencia,
+                                   List<Map<String, Object>> structs, Map<String, Object> evEnt) {
+    Object tabla = evEnt.get("tabla");
+    int entBase = tabla instanceof Map<?, ?> tm ? ((Number) ((Map<String, Object>) tm).get("base")).intValue() : -1;
+    List<Map<String, Object>> otras = structs.stream()
+        .filter(st -> ((Number) st.get("base")).intValue() != entBase).toList();
+    if (otras.isEmpty())
+      return;
+    Map<String, Object> h = hallazgo(hallazgos, evidencia, "otras-estructuras",
+        "Otros arreglos de registros que las rutinas recorren", otras);
+    List<Object> lista = new ArrayList<>();
+    for (Map<String, Object> st : otras)
+      lista.add(Map.of("rutina", st.get("rutina"), "cursor", st.get("cursor"),
+          "resumen", String.format("arreglo en [%d..%d], registros de %d bytes, %d campos",
+              ((List<Number>) st.get("rango")).get(0).intValue(),
+              ((List<Number>) st.get("rango")).get(1).intValue(),
+              ((Number) st.get("registro_bytes")).intValue(),
+              ((List<?>) st.get("campos")).size())));
+    h.put("lista", lista);
   }
 
   private Map<String, Object> meta() throws SQLException {
     Map<String, Object> m = new LinkedHashMap<>();
     m.put("generado", LocalDateTime.now().toString());
-    m.put("descripcion", "Modelo del juego deducido automaticamente del replay RZX instrumentado;"
-        + " toda afirmacion esta respaldada por evidencia observada (ver doc/MANUAL-ANALISIS.md)");
+    m.put("descripcion", "Modelo del juego deducido automaticamente del replay RZX instrumentado."
+        + " Dos capas: 'hallazgos' son las conclusiones finales, agrupadas e interpretadas"
+        + " (lo mas importante de cada cosa encontrada); 'evidencia' tiene los datos crudos"
+        + " que las respaldan, asociados por el id del hallazgo (ver doc/MANUAL-ANALISIS.md)");
     try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
       m.put("dibujados", scalar(c, "SELECT COUNT(*) FROM sprite_draws"));
       m.put("frames_con_dibujos", scalar(c, "SELECT COUNT(DISTINCT frame) FROM sprite_draws"));
