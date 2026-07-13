@@ -161,6 +161,7 @@ mvn -q -pl translator exec:java -Dexec.mainClass=com.fpetrola.z80.analysis.Analy
 #   equations [metodo | pcLo pcHi]                 — listado de ecuaciones normalizadas
 #   track [rzxPath]                                — pipeline completo de posiciones (§9)
 #   positions frameLo [frameHi]                    — sprites dibujados + pares coordenada
+#   explain lo hi [depth] [fanout]                 — narrativa recursiva de un rango (§9bis)
 ```
 
 ## 7. Qué ya se dedujo del juego (sanity checks vivientes)
@@ -276,6 +277,32 @@ de `frame_cells` de ese frame) — la coincidencia se ve sola.
 **Límite conocido**: la muestra impresa al final usa un frame temprano que puede caer en
 el modo demo (celdas con valores que no corresponden a sprites en pantalla); `positions`
 sobre frames de gameplay muestra la correspondencia exacta.
+
+## 9bis. "explain" — la consulta narrativa (2026-07-13)
+
+**Qué resuelve**: las preguntas "¿quién escribe acá? ¿de dónde salen el valor y la
+dirección? ¿a través de qué buffers pasó? ¿cuál es el dato original y cuál la variable
+que cambia?" requerían encadenar `slice addr` / `slice val` / `copychains` / `site` a
+mano. `explain lo hi` hace el recorrido completo en un paso:
+
+- **Roots**: ecuaciones que escriben el rango Y copias en bloque cuyo destino lo toca
+  (el `slice` también incluye ahora bulk-roots).
+- Primer nivel agrupado por rol: **DIRECCION / VALOR / CONDICION** — cómo se construyó
+  cada cosa.
+- Cada lectura de memoria cruzada se **clasifica en el momento**:
+  `ESTATICA` (nunca escrita = cassette), `DINAMICA` (con cuántas ecuaciones la
+  escriben), `MIXTA` (p.ej. la zona de sprites [39680..48382]: `88% nunca escrita,
+  dinamica en [40962..41978] [42159..42239]` — JSW2 persiste estado de guardianes y
+  flags de ítems dentro de la zona de datos), y si `track` corrió, anota
+  "coordenadas de sprite: X=mem[33026] Y=mem[33027]..." y "serie por frame en frame_cells".
+- Las ramas cortan en **DATO ORIGINAL DEL CASSETTE (INIT)** o **INPUT DEL JUGADOR (RZX)**.
+
+Demo que responde todo junto (`explain 24576 28671`): backbuffer ← ldir 28672→24576 ←
+compositor `$36171` ← layout de habitación [32929..32981] ← copia desde [56064..] ← INIT;
+y en VALOR del sprite: tabla [39680..48382] MIXTA ← INIT. `explain 33024 33088` muestra
+la tabla de entidades: carga por copias desde [40960..41977] indexadas por
+`HL = habitación*8` (tres `add16(HL,HL)`), movimiento en `$37056` con stride 8, y las
+celdas-coordenada anotadas.
 
 ## 10. Roadmap / ideas pendientes
 

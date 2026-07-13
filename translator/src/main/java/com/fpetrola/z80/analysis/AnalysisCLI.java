@@ -29,6 +29,8 @@ package com.fpetrola.z80.analysis;
  *   AnalysisCLI equations [metodo | pcLo pcHi]              listado de ecuaciones normalizadas
  *   AnalysisCLI track [rzxPath]                             pipeline automatico completo de posiciones
  *   AnalysisCLI positions <frameLo> [frameHi]               sprites dibujados + celdas-coordenada por frame
+ *   AnalysisCLI explain <lo> <hi> [depth] [fanout]          narrativa recursiva: quien escribe el rango,
+ *                                                           direccion/valor/condicion, hasta INIT/IO
  * </pre>
  */
 public class AnalysisCLI {
@@ -65,6 +67,12 @@ public class AnalysisCLI {
           hi = Integer.parseInt(args[2]);
         }
         new EquationLister(db).report(methodFilter, lo, hi);
+      }
+      case "explain" -> {
+        int lo = Integer.parseInt(args[1]), hi = Integer.parseInt(args[2]);
+        int depth = args.length > 3 ? Integer.parseInt(args[3]) : 5;
+        int fanout = args.length > 4 ? Integer.parseInt(args[4]) : 3;
+        new Explainer(db, dbPath).explain(lo, hi, depth, fanout);
       }
       case "sprites" -> new SpriteFinder(db).report();
       case "regions" -> new RegionClassifier(db, args.length > 1 ? Integer.parseInt(args[1]) : 20583).report();

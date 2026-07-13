@@ -43,12 +43,21 @@ public class BackwardSlicer {
    */
   public void slice(int addrLo, int addrHi, int maxDepth, int fanout, String roleFilter) {
     List<AnalysisDB.Stat> writers = db.writersIntersecting(addrLo, addrHi);
+    List<AnalysisDB.Bulk> copies = db.bulks.values().stream()
+        .filter(b -> b.dstMax() + Math.max(0, b.lenMax() - 1) >= addrLo && b.dstMin() <= addrHi)
+        .sorted(Comparator.comparingLong((AnalysisDB.Bulk b) -> -b.count()))
+        .toList();
     System.out.println("=== Backward slice de mem[" + addrLo + ".." + addrHi + "] ==="
         + (roleFilter != null ? " [rol=" + roleFilter + "]" : ""));
-    System.out.println(writers.size() + " write-sites tocan el rango\n");
+    System.out.println(writers.size() + " write-sites y " + copies.size() + " bulk-copies tocan el rango\n");
     for (AnalysisDB.Stat w : writers) {
       System.out.println("ROOT " + db.describe(w.pc()));
       walk(w.pc(), 1, maxDepth, fanout, new HashSet<>(List.of(w.pc())), roleFilter);
+      System.out.println();
+    }
+    for (AnalysisDB.Bulk b : copies) {
+      System.out.println("ROOT (copia) " + db.describe(b.pc()));
+      walk(b.pc(), 1, maxDepth, fanout, new HashSet<>(List.of(b.pc())), roleFilter);
       System.out.println();
     }
   }
