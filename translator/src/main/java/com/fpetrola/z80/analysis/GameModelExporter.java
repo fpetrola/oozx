@@ -78,6 +78,7 @@ public class GameModelExporter {
     root.put("sprites", sprites());
     root.put("fuente_texto", fuente());
     root.put("entidades", entidades);
+    root.put("estructuras", new StructFinder(db, dbPath).analyze(null));
     root.put("variables", variables());
     root.put("rutinas", rutinas());
     root.put("episodios", episodios());

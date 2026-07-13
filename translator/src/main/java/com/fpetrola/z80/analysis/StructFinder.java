@@ -40,6 +40,8 @@ import java.util.regex.Pattern;
  *       two CFG arms are walked and the fields touched EXCLUSIVELY by each arm are the
  *       per-variant layout (the "vertical vs horizontal guardian" structures).</li>
  * </ul>
+ * {@link #analyze(String)} returns the structures as data (consumed by the JSON
+ * export); {@link #report(String)} prints them.
  */
 public class StructFinder {
   private static final Pattern FIELD = Pattern.compile("mem\\[(I[XY]) \\+ (\\d+)\\]");
@@ -72,21 +74,28 @@ public class StructFinder {
         .stream().filter(g -> g[1] - g[0] + 1 >= 1024).toList();
   }
 
-  public void report(String methodFilter) {
+  /** all recovered structures as data, ready for the JSON export. */
+  public List<Map<String, Object>> analyze(String methodFilter) {
     Map<String, List<Integer>> byMethod = new TreeMap<>();
     db.method.forEach((pc, m) -> byMethod.computeIfAbsent(m, k -> new ArrayList<>()).add(pc));
+    List<Map<String, Object>> out = new ArrayList<>();
     for (Map.Entry<String, List<Integer>> me : byMethod.entrySet()) {
       if (methodFilter != null && !me.getKey().contains(methodFilter))
         continue;
-      analyzeMethod(me.getKey(), me.getValue());
+      out.addAll(structsOfMethod(me.getKey(), me.getValue()));
     }
+    return out;
+  }
+
+  public void report(String methodFilter) {
+    for (Map<String, Object> st : analyze(methodFilter))
+      print(st);
   }
 
   private record FieldAccess(int site, char op, int offset) {
   }
 
-  private void analyzeMethod(String method, List<Integer> sites) {
-    // collect mem[IX+k] / mem[IY+k] accesses per index register
+  private List<Map<String, Object>> structsOfMethod(String method, List<Integer> sites) {
     Map<String, List<FieldAccess>> byReg = new TreeMap<>();
     for (int pc : sites) {
       String eq = db.equation.get(pc);
@@ -103,91 +112,104 @@ public class StructFinder {
           byReg.computeIfAbsent(reg, k -> new ArrayList<>()).add(new FieldAccess(pc, 'R', off));
       }
     }
-    if (byReg.isEmpty())
-      return;
-
+    List<Map<String, Object>> out = new ArrayList<>();
     for (Map.Entry<String, List<FieldAccess>> re : byReg.entrySet()) {
       List<FieldAccess> accesses = re.getValue();
       if (accesses.stream().mapToInt(FieldAccess::offset).distinct().count() < 2)
         continue; // one lone field is not a structure
-
-      // geometry from observed addresses: stride first (lowest varying address bit),
-      // then base/end folding offsets >= stride (those reach the NEXT element: +9 in an
-      // 8-byte record is really field +1 of element+1)
-      int stride = 0;
-      for (FieldAccess fa : accesses) {
-        AnalysisDB.Stat s = (fa.op() == 'W' ? db.writes : db.reads).get(fa.site());
-        if (s == null)
-          continue;
-        int varying = s.addrAnd() ^ s.addrOr();
-        if (varying != 0) {
-          int lowest = Integer.lowestOneBit(varying);
-          stride = stride == 0 ? lowest : Math.min(stride, lowest);
-        }
-      }
-      if (stride == 0)
-        stride = accesses.stream().mapToInt(FieldAccess::offset).max().orElse(0) + 1;
-      int base = Integer.MAX_VALUE, end = Integer.MIN_VALUE;
-      for (FieldAccess fa : accesses) {
-        AnalysisDB.Stat s = (fa.op() == 'W' ? db.writes : db.reads).get(fa.site());
-        if (s == null)
-          continue;
-        int effOff = fa.offset() % stride;
-        base = Math.min(base, s.addrMin() - effOff);
-        end = Math.max(end, s.addrMax() - effOff);
-      }
-      if (base == Integer.MAX_VALUE)
-        continue;
-      int elems = (end - base) / stride + 1;
-      int tableEnd = base + stride * elems - 1;
-
-      // cross-check: the cursor increment parsed from the equations, if present
-      String incNote = "";
-      for (int pc : sites) {
-        String eq = db.equation.get(pc);
-        if (eq != null && eq.matches(".*" + re.getKey() + " = add16\\(" + re.getKey() + ", \\d+\\).*")) {
-          Matcher m = Pattern.compile("add16\\(" + re.getKey() + ", (\\d+)\\)").matcher(eq);
-          if (m.find())
-            incNote = "  (avance del cursor: +" + m.group(1) + " @" + pc + ")";
-        }
-      }
-
-      System.out.printf("%n=== %s via %s: ARREGLO base=%d, registro de %d bytes, %d elementos [%d..%d]%s ===%n",
-          method, re.getKey(), base, stride, elems, base, end + stride - 1, incNote);
-
-      // fields with semantics
-      Map<Integer, List<FieldAccess>> byOffset = new TreeMap<>();
-      for (FieldAccess fa : accesses)
-        byOffset.computeIfAbsent(fa.offset(), k -> new ArrayList<>()).add(fa);
-      for (Map.Entry<Integer, List<FieldAccess>> oe : byOffset.entrySet()) {
-        int off = oe.getKey();
-        StringBuilder sb = new StringBuilder(String.format("  +%d:", off));
-        long reads = 0, writes = 0;
-        int vMin = 256, vMax = -1;
-        for (FieldAccess fa : oe.getValue()) {
-          AnalysisDB.Stat s = (fa.op() == 'W' ? db.writes : db.reads).get(fa.site());
-          if (s == null)
-            continue;
-          if (fa.op() == 'R')
-            reads += s.count();
-          else
-            writes += s.count();
-          vMin = Math.min(vMin, s.valMin());
-          vMax = Math.max(vMax, s.valMax());
-        }
-        sb.append(String.format(" R x%d, W x%d, val[%d..%d]", reads, writes, vMin, vMax));
-        if (off >= stride)
-          sb.append(String.format("  (= +%d del elemento siguiente)", off % stride));
-        sb.append(semantics(base, off % stride, stride, tableEnd, oe.getValue()));
-        System.out.println(sb);
-      }
-
-      variants(method, sites, byOffset);
+      Map<String, Object> st = buildStruct(method, sites, re.getKey(), accesses);
+      if (st != null)
+        out.add(st);
     }
+    return out;
+  }
+
+  private Map<String, Object> buildStruct(String method, List<Integer> sites, String reg,
+                                          List<FieldAccess> accesses) {
+    // geometry from observed addresses: stride first (lowest varying address bit),
+    // then base/end folding offsets >= stride (those reach the NEXT element: +9 in an
+    // 8-byte record is really field +1 of element+1)
+    int stride = 0;
+    for (FieldAccess fa : accesses) {
+      AnalysisDB.Stat s = (fa.op() == 'W' ? db.writes : db.reads).get(fa.site());
+      if (s == null)
+        continue;
+      int varying = s.addrAnd() ^ s.addrOr();
+      if (varying != 0) {
+        int lowest = Integer.lowestOneBit(varying);
+        stride = stride == 0 ? lowest : Math.min(stride, lowest);
+      }
+    }
+    if (stride == 0)
+      stride = accesses.stream().mapToInt(FieldAccess::offset).max().orElse(0) + 1;
+    int base = Integer.MAX_VALUE, end = Integer.MIN_VALUE;
+    for (FieldAccess fa : accesses) {
+      AnalysisDB.Stat s = (fa.op() == 'W' ? db.writes : db.reads).get(fa.site());
+      if (s == null)
+        continue;
+      int effOff = fa.offset() % stride;
+      base = Math.min(base, s.addrMin() - effOff);
+      end = Math.max(end, s.addrMax() - effOff);
+    }
+    if (base == Integer.MAX_VALUE)
+      return null;
+    int elems = (end - base) / stride + 1;
+    int tableEnd = base + stride * elems - 1;
+
+    Map<String, Object> st = new LinkedHashMap<>();
+    st.put("rutina", method);
+    st.put("cursor", reg);
+    st.put("base", base);
+    st.put("registro_bytes", stride);
+    st.put("elementos", elems);
+    st.put("rango", List.of(base, tableEnd));
+    for (int pc : sites) {
+      String eq = db.equation.get(pc);
+      if (eq != null && eq.matches(".*" + reg + " = add16\\(" + reg + ", \\d+\\).*")) {
+        Matcher m = Pattern.compile("add16\\(" + reg + ", (\\d+)\\)").matcher(eq);
+        if (m.find())
+          st.put("avance_cursor", Map.of("paso", Integer.parseInt(m.group(1)), "site", pc));
+      }
+    }
+
+    Map<Integer, List<FieldAccess>> byOffset = new TreeMap<>();
+    for (FieldAccess fa : accesses)
+      byOffset.computeIfAbsent(fa.offset(), k -> new ArrayList<>()).add(fa);
+    List<Object> campos = new ArrayList<>();
+    for (Map.Entry<Integer, List<FieldAccess>> oe : byOffset.entrySet()) {
+      int off = oe.getKey();
+      long reads = 0, writes = 0;
+      int vMin = 256, vMax = -1;
+      for (FieldAccess fa : oe.getValue()) {
+        AnalysisDB.Stat s = (fa.op() == 'W' ? db.writes : db.reads).get(fa.site());
+        if (s == null)
+          continue;
+        if (fa.op() == 'R')
+          reads += s.count();
+        else
+          writes += s.count();
+        vMin = Math.min(vMin, s.valMin());
+        vMax = Math.max(vMax, s.valMax());
+      }
+      Map<String, Object> f = new LinkedHashMap<>();
+      f.put("offset", off);
+      f.put("lecturas", reads);
+      f.put("escrituras", writes);
+      f.put("valores", List.of(vMin, vMax));
+      if (off >= stride)
+        f.put("campo_del_elemento_siguiente", off % stride);
+      List<String> tags = semantics(base, off % stride, stride, tableEnd, oe.getValue());
+      if (!tags.isEmpty())
+        f.put("semantica", tags);
+      campos.add(f);
+    }
+    st.put("campos", campos);
+    st.put("variantes", variants(sites, byOffset));
+    return st;
   }
 
   /** what the field feeds, from its outgoing edges and the track annotations. */
-  private String semantics(int base, int off, int stride, int tableEnd, List<FieldAccess> fas) {
+  private List<String> semantics(int base, int off, int stride, int tableEnd, List<FieldAccess> fas) {
     List<String> tags = new ArrayList<>();
     for (Map.Entry<Integer, Character> ce : coordAxis.entrySet())
       if (ce.getKey() >= base && ce.getKey() <= tableEnd && (ce.getKey() - base) % stride == off) {
@@ -205,7 +227,6 @@ public class StructFinder {
         if (role.contains("COND"))
           cond = true;
         if (role.contains("ADDR")) {
-          // does the consumer read the graphics zones?
           AnalysisDB.Stat r = db.reads.get(e.dst());
           if (r != null && gfxRegions.stream().anyMatch(g -> r.addrMax() >= g[0] && r.addrMin() <= g[1]))
             addrGfx = true;
@@ -213,7 +234,6 @@ public class StructFinder {
             addrOther = true;
         }
       }
-      // second hop for COND: the field often goes through a mask/cp first
       for (AnalysisDB.Edge e : db.edgesOut.getOrDefault(fa.site(), List.of()))
         for (AnalysisDB.Edge e2 : db.edgesOut.getOrDefault(e.dst(), List.of()))
           if (e2.role() != null && e2.role().contains("COND"))
@@ -225,30 +245,28 @@ public class StructFinder {
       tags.add("selector de grafico");
     if (addrOther)
       tags.add("indice/puntero");
-    return tags.isEmpty() ? "" : "  <- " + String.join(", ", tags);
+    return tags;
   }
 
   /**
    * variant layouts: for each branch whose condition traces back to a field read, walk
    * both CFG arms; the fields accessed EXCLUSIVELY inside one arm belong to that variant.
    */
-  private void variants(String method, List<Integer> sites, Map<Integer, List<FieldAccess>> byOffset) {
+  private List<Object> variants(List<Integer> sites, Map<Integer, List<FieldAccess>> byOffset) {
     Set<Integer> methodSites = new HashSet<>(sites);
     Map<Integer, Integer> siteToOffset = new HashMap<>();
     byOffset.forEach((off, fas) -> fas.forEach(fa -> siteToOffset.put(fa.site(), off)));
 
+    List<Object> out = new ArrayList<>();
     for (int branchPc : sites) {
       if (!db.branchSites.contains(branchPc))
         continue;
       List<AnalysisDB.Edge> succs = db.cfgOut.getOrDefault(branchPc, List.of());
       if (succs.size() != 2)
         continue;
-      // does the branch condition come (<=3 hops) from a field of this structure?
       Integer srcOffset = condSourceOffset(branchPc, siteToOffset, 3, new HashSet<>());
       if (srcOffset == null)
         continue;
-      String condDesc = describeCondition(branchPc, srcOffset);
-
       Set<Integer> armA = cfgClosure(succs.get(0).dst(), methodSites, 300);
       Set<Integer> armB = cfgClosure(succs.get(1).dst(), methodSites, 300);
       Set<Integer> onlyA = new TreeSet<>(), onlyB = new TreeSet<>();
@@ -260,18 +278,20 @@ public class StructFinder {
           onlyB.add(siteToOffset.get(s));
       if (onlyA.isEmpty() && onlyB.isEmpty())
         continue;
-      System.out.printf("  VARIANTE en @%d (%s): x%d / x%d%n", branchPc, condDesc,
-          succs.get(0).count(), succs.get(1).count());
-      if (!onlyA.isEmpty())
-        System.out.println("    rama @" + succs.get(0).dst() + " usa exclusivamente: +"
-            + onlyA.stream().map(String::valueOf).reduce((a, b) -> a + " +" + b).orElse(""));
-      if (!onlyB.isEmpty())
-        System.out.println("    rama @" + succs.get(1).dst() + " usa exclusivamente: +"
-            + onlyB.stream().map(String::valueOf).reduce((a, b) -> a + " +" + b).orElse(""));
+      Map<String, Object> v = new LinkedHashMap<>();
+      v.put("branch", branchPc);
+      v.put("condicion", describeCondition(branchPc, srcOffset));
+      List<Object> ramas = new ArrayList<>();
+      ramas.add(Map.of("pc", succs.get(0).dst(), "veces", succs.get(0).count(),
+          "campos_exclusivos", new ArrayList<>(onlyA)));
+      ramas.add(Map.of("pc", succs.get(1).dst(), "veces", succs.get(1).count(),
+          "campos_exclusivos", new ArrayList<>(onlyB)));
+      v.put("ramas", ramas);
+      out.add(v);
     }
+    return out;
   }
 
-  /** walks the COND input chain of a branch back to a field read of this structure. */
   private Integer condSourceOffset(int pc, Map<Integer, Integer> siteToOffset, int depth, Set<Integer> seen) {
     if (depth < 0)
       return null;
@@ -325,5 +345,39 @@ public class StructFinder {
         queue.add(e.dst());
     }
     return out;
+  }
+
+  // ---------- text rendering of the data model ----------
+  @SuppressWarnings("unchecked")
+  private void print(Map<String, Object> st) {
+    System.out.printf("%n=== %s via %s: ARREGLO base=%d, registro de %d bytes, %d elementos [%d..%d]%s ===%n",
+        st.get("rutina"), st.get("cursor"), (int) st.get("base"), (int) st.get("registro_bytes"),
+        (int) st.get("elementos"), ((List<Integer>) st.get("rango")).get(0), ((List<Integer>) st.get("rango")).get(1),
+        st.containsKey("avance_cursor")
+            ? "  (avance del cursor: +" + ((Map<String, Object>) st.get("avance_cursor")).get("paso") + ")" : "");
+    for (Object fo : (List<Object>) st.get("campos")) {
+      Map<String, Object> f = (Map<String, Object>) fo;
+      List<Integer> val = (List<Integer>) f.get("valores");
+      StringBuilder sb = new StringBuilder(String.format("  +%d: R x%d, W x%d, val[%d..%d]",
+          (int) f.get("offset"), (long) f.get("lecturas"), (long) f.get("escrituras"), val.get(0), val.get(1)));
+      if (f.containsKey("campo_del_elemento_siguiente"))
+        sb.append(String.format("  (= +%d del elemento siguiente)", (int) f.get("campo_del_elemento_siguiente")));
+      if (f.containsKey("semantica"))
+        sb.append("  <- ").append(String.join(", ", (List<String>) f.get("semantica")));
+      System.out.println(sb);
+    }
+    for (Object vo : (List<Object>) st.get("variantes")) {
+      Map<String, Object> v = (Map<String, Object>) vo;
+      List<Object> ramas = (List<Object>) v.get("ramas");
+      Map<String, Object> a = (Map<String, Object>) ramas.get(0), b = (Map<String, Object>) ramas.get(1);
+      System.out.printf("  VARIANTE en @%d (%s): x%d / x%d%n", (int) v.get("branch"), v.get("condicion"),
+          (long) a.get("veces"), (long) b.get("veces"));
+      for (Map<String, Object> rama : List.of(a, b)) {
+        List<Integer> campos = (List<Integer>) rama.get("campos_exclusivos");
+        if (!campos.isEmpty())
+          System.out.println("    rama @" + rama.get("pc") + " usa exclusivamente: +"
+              + campos.stream().map(String::valueOf).reduce((x, y) -> x + " +" + y).orElse(""));
+      }
+    }
   }
 }
