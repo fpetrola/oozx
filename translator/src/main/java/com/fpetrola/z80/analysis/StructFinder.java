@@ -51,18 +51,23 @@ public class StructFinder {
   private final AnalysisDB db;
   private final Map<Integer, Character> coordAxis = new HashMap<>();
   private final List<int[]> gfxRegions;
+  private final List<CoordinateFinder.Region> screenRegions;
 
   public StructFinder(AnalysisDB db, String dbPath) {
     this.db = db;
     Explainer explainer = new Explainer(db, dbPath);
+    // coordinates only from the STRONG validated pairs: single-axis matches carry noise
     try (java.sql.Connection c = java.sql.DriverManager.getConnection("jdbc:sqlite:" + dbPath);
          java.sql.ResultSet rs = c.createStatement().executeQuery(
-             "SELECT addr, axis FROM coord_cells WHERE rate >= 0.3")) {
-      while (rs.next())
-        coordAxis.putIfAbsent(rs.getInt(1), rs.getString(2).charAt(0));
+             "SELECT x_addr, y_addr FROM coord_pairs WHERE rate >= 0.3")) {
+      while (rs.next()) {
+        coordAxis.putIfAbsent(rs.getInt(1), 'X');
+        coordAxis.putIfAbsent(rs.getInt(2), 'Y');
+      }
     } catch (java.sql.SQLException ignored) {
     }
     CoordinateFinder.Plan plan = new CoordinateFinder(db).find();
+    this.screenRegions = plan.regions();
     Set<Integer> valReads = GameMapper.roleReads(db, plan, "VAL");
     this.gfxRegions = GameMapper.mergeRanges(valReads.stream()
         .map(db.reads::get)
@@ -204,8 +209,213 @@ public class StructFinder {
       campos.add(f);
     }
     st.put("campos", campos);
-    st.put("variantes", variants(sites, byOffset));
+    List<Object> vars = variants(sites, byOffset);
+    st.put("variantes", vars);
+    enrichRelations(campos, vars, byOffset, sites);
     return st;
+  }
+
+  // ==================== relaciones campo<->campo y nombres propuestos ====================
+
+  /**
+   * How the fields of the structure relate to each other and where each one lands:
+   * <ul>
+   *   <li><b>se_actualiza_con</b>: read→...→write of the SAME field, with the operations
+   *       seen on the path (inc/dec/suma/resta/invierte) — counters, positions;</li>
+   *   <li><b>escribe_a</b>: read of A reaches the write of B — derived fields;</li>
+   *   <li><b>comparado_con</b>: both fields feed the same {@code cp(...)} — limits;</li>
+   *   <li><b>decide_sobre</b>: A drives a branch whose arms touch other fields
+   *       exclusively (from the variants) — type/direction selectors;</li>
+   *   <li><b>impacta_en</b>: forward influence classified — posicion en pantalla (ADDR de
+   *       un write a region tipo-pantalla), pixeles (VAL), color (region de atributos),
+   *       eleccion del grafico (ADDR de una lectura de la zona de sprites);</li>
+   *   <li><b>nombre_propuesto</b>: síntesis de todo lo anterior.</li>
+   * </ul>
+   */
+  @SuppressWarnings("unchecked")
+  private void enrichRelations(List<Object> campos, List<Object> variantes,
+                               Map<Integer, List<FieldAccess>> byOffset, List<Integer> sites) {
+    Map<Integer, Integer> writeSiteOffset = new HashMap<>(), readSiteOffset = new HashMap<>();
+    byOffset.forEach((off, fas) -> fas.forEach(fa -> {
+      if (fa.op() == 'W')
+        writeSiteOffset.put(fa.site(), off);
+      else
+        readSiteOffset.put(fa.site(), off);
+    }));
+
+    // comparado_con: cp-sites whose inputs trace back to two different fields
+    Map<Integer, Set<Integer>> comparado = new HashMap<>();
+    for (int pc : sites) {
+      String eq = db.equation.get(pc);
+      if (eq == null || !eq.contains("cp("))
+        continue;
+      Set<Integer> offs = new TreeSet<>();
+      for (AnalysisDB.Edge e : db.edgesIn.getOrDefault(pc, List.of())) {
+        if (readSiteOffset.containsKey(e.src()))
+          offs.add(readSiteOffset.get(e.src()));
+        for (AnalysisDB.Edge e2 : db.edgesIn.getOrDefault(e.src(), List.of()))
+          if (readSiteOffset.containsKey(e2.src()))
+            offs.add(readSiteOffset.get(e2.src()));
+      }
+      if (offs.size() >= 2)
+        for (int a : offs)
+          for (int b : offs)
+            if (a != b)
+              comparado.computeIfAbsent(a, k -> new TreeSet<>()).add(b);
+    }
+
+    // decide_sobre: from the variants whose condition field is this one; a field whose
+    // condition carries mask/comparison is a variant SELECTOR (type field)
+    Map<Integer, Set<Integer>> decide = new HashMap<>();
+    Set<Integer> selectorOffs = new HashSet<>();
+    for (Object vo : variantes) {
+      Map<String, Object> v = (Map<String, Object>) vo;
+      String cond = (String) v.get("condicion");
+      java.util.regex.Matcher m = java.util.regex.Pattern.compile("campo \\+(\\d+)").matcher(cond);
+      if (!m.find())
+        continue;
+      int condOff = Integer.parseInt(m.group(1));
+      if (cond.contains("&") || cond.contains("=="))
+        selectorOffs.add(condOff);
+      for (Object ro : (List<Object>) v.get("ramas"))
+        decide.computeIfAbsent(condOff, k -> new TreeSet<>())
+            .addAll((List<Integer>) ((Map<String, Object>) ro).get("campos_exclusivos"));
+      if (decide.containsKey(condOff))
+        decide.get(condOff).remove(condOff);
+    }
+
+    for (Object fo : campos) {
+      Map<String, Object> f = (Map<String, Object>) fo;
+      int off = (int) f.get("offset");
+      List<FieldAccess> fas = byOffset.get(off);
+
+      // forward walk from the field's reads: self-updates, writes to other fields, impacts
+      Set<String> selfOps = new TreeSet<>(), escribeA = new TreeSet<>(), impacta = new TreeSet<>();
+      for (FieldAccess fa : fas) {
+        if (fa.op() != 'R')
+          continue;
+        walkForward(fa.site(), 0, new HashSet<>(), off, writeSiteOffset, new ArrayList<>(),
+            selfOps, escribeA, impacta);
+      }
+      Map<String, Object> rel = new LinkedHashMap<>();
+      if (!selfOps.isEmpty())
+        rel.put("se_actualiza_con", new ArrayList<>(selfOps));
+      if (!escribeA.isEmpty())
+        rel.put("escribe_a", new ArrayList<>(escribeA));
+      if (comparado.containsKey(off))
+        rel.put("comparado_con", comparado.get(off).stream().map(o -> "+" + o).toList());
+      if (decide.containsKey(off) && !decide.get(off).isEmpty())
+        rel.put("decide_sobre", decide.get(off).stream().map(o -> "+" + o).toList());
+      if (!impacta.isEmpty())
+        rel.put("impacta_en", new ArrayList<>(impacta));
+      if (!rel.isEmpty())
+        f.put("relaciones", rel);
+
+      String nombre = proposeName(f, selfOps, comparado.get(off), decide.get(off), impacta,
+          selectorOffs.contains(off));
+      if (nombre != null)
+        f.put("nombre_propuesto", nombre);
+    }
+  }
+
+  /** bounded forward DFS collecting ops on the path and classifying the endpoints. */
+  private void walkForward(int pc, int depth, Set<Integer> seen, int selfOff,
+                           Map<Integer, Integer> writeSiteOffset, List<String> opsPath,
+                           Set<String> selfOps, Set<String> escribeA, Set<String> impacta) {
+    if (depth > 4)
+      return;
+    int shown = 0;
+    for (AnalysisDB.Edge e : db.edgesOut.getOrDefault(pc, List.of())) {
+      if (shown++ >= 6 || e.src() == e.dst() || !seen.add(e.dst()))
+        continue;
+      int dst = e.dst();
+      String ops = opsOf(dst);
+      List<String> path = ops.isEmpty() ? opsPath : concat(opsPath, ops);
+
+      Integer wOff = writeSiteOffset.get(dst);
+      if (wOff != null) {
+        if (wOff == selfOff && !path.isEmpty())
+          selfOps.addAll(path);
+        else if (wOff != selfOff)
+          escribeA.add("+" + wOff);
+      }
+      AnalysisDB.Stat w = db.writes.get(dst);
+      if (w != null)
+        for (CoordinateFinder.Region r : screenRegions)
+          if (w.addrMax() >= r.lo() && w.addrMin() <= r.hi()) {
+            int sLo = w.addrMin() + r.delta();
+            boolean attr = sLo >= 22528 && sLo <= 23295;
+            String role = e.role() == null ? "" : e.role();
+            impacta.add(attr ? "color (atributos)"
+                : role.contains("ADDR") ? "posicion en pantalla" : "pixeles en pantalla");
+            break;
+          }
+      AnalysisDB.Stat rd = db.reads.get(dst);
+      if (rd != null && e.role() != null && e.role().contains("ADDR")
+          && gfxRegions.stream().anyMatch(g -> rd.addrMax() >= g[0] && rd.addrMin() <= g[1]))
+        impacta.add("eleccion del grafico");
+      walkForward(dst, depth + 1, seen, selfOff, writeSiteOffset, path, selfOps, escribeA, impacta);
+    }
+  }
+
+  private static List<String> concat(List<String> a, String b) {
+    List<String> out = new ArrayList<>(a);
+    out.add(b);
+    return out;
+  }
+
+  /** operation keywords readable from a site's equation. */
+  private String opsOf(int pc) {
+    String eq = db.equation.get(pc);
+    if (eq == null)
+      return "";
+    if (eq.contains("inc("))
+      return "incrementa";
+    if (eq.contains("dec("))
+      return "decrementa";
+    if (eq.contains("add("))
+      return "suma";
+    if (eq.matches(".*= 0 - .*") || eq.contains("sub("))
+      return "resta/niega";
+    if (eq.contains(" ^ "))
+      return "invierte bits (xor)";
+    return "";
+  }
+
+  @SuppressWarnings("unchecked")
+  private String proposeName(Map<String, Object> f, Set<String> selfOps,
+                             Set<Integer> comparadoCon, Set<Integer> decideSobre,
+                             Set<String> impacta, boolean isSelector) {
+    List<String> sem = f.containsKey("semantica") ? (List<String>) f.get("semantica") : List.of();
+    for (String s : sem) {
+      if (s.equals("coordenada X"))
+        return "posicion_x";
+      if (s.equals("coordenada Y"))
+        return "posicion_y";
+    }
+    boolean mueve = selfOps.contains("incrementa") || selfOps.contains("decrementa")
+        || selfOps.contains("suma") || selfOps.contains("resta/niega");
+    boolean invierte = selfOps.contains("invierte bits (xor)") || selfOps.contains("resta/niega");
+    if (impacta.contains("eleccion del grafico") && mueve)
+      return "frame_animacion (cambia y elige el grafico)";
+    if (invierte && isSelector)
+      return "tipo_y_direccion (bits de tipo + sentido que se invierte al rebotar)";
+    if (invierte && decideSobre != null && !decideSobre.isEmpty())
+      return "direccion_sentido (se invierte y decide el movimiento)";
+    if (isSelector)
+      return "tipo_flags (sus bits seleccionan la variante)";
+    if (comparadoCon != null && !comparadoCon.isEmpty() && !mueve)
+      return "limite (se compara con " + comparadoCon.stream().map(o -> "+" + o)
+          .reduce((a, b) -> a + " " + b).orElse("") + ")";
+    if (impacta.contains("color (atributos)") && !impacta.contains("posicion en pantalla"))
+      return "color";
+    if (impacta.contains("eleccion del grafico"))
+      return "grafico_frame";
+    if (decideSobre != null && decideSobre.size() >= 2)
+      return "controla_condiciones (posible limite o flag)";
+    if (mueve && !impacta.contains("posicion en pantalla"))
+      return "contador";
+    return null;
   }
 
   /** what the field feeds, from its outgoing edges and the track annotations. */
@@ -364,6 +574,14 @@ public class StructFinder {
         sb.append(String.format("  (= +%d del elemento siguiente)", (int) f.get("campo_del_elemento_siguiente")));
       if (f.containsKey("semantica"))
         sb.append("  <- ").append(String.join(", ", (List<String>) f.get("semantica")));
+      if (f.containsKey("nombre_propuesto"))
+        sb.append("\n      NOMBRE: ").append(f.get("nombre_propuesto"));
+      if (f.containsKey("relaciones")) {
+        Map<String, Object> rel = (Map<String, Object>) f.get("relaciones");
+        for (Map.Entry<String, Object> re : rel.entrySet())
+          sb.append("\n      ").append(re.getKey()).append(": ")
+              .append(String.join(", ", ((List<String>) re.getValue())));
+      }
       System.out.println(sb);
     }
     for (Object vo : (List<Object>) st.get("variantes")) {

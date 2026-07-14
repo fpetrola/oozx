@@ -210,6 +210,21 @@ public class GameModelExporter {
             .add("sus bits eligen la variante de comportamiento");
       }
     }
+    // proposed names from the relation analysis of the structures over this table
+    for (Map<String, Object> st : structs) {
+      if (((Number) st.get("base")).intValue() != base)
+        continue;
+      for (Object fo : (List<Object>) st.get("campos")) {
+        Map<String, Object> f = (Map<String, Object>) fo;
+        if (f.containsKey("nombre_propuesto")) {
+          int off = ((Number) f.get("offset")).intValue() % stride;
+          List<String> ns = notas.computeIfAbsent(off, k -> new ArrayList<>());
+          String nombre = "nombre sugerido: " + f.get("nombre_propuesto");
+          if (ns.stream().noneMatch(s -> s.startsWith("nombre sugerido")))
+            ns.add(nombre);
+        }
+      }
+    }
     Map<String, String> camposFinales = new LinkedHashMap<>();
     notas.forEach((off, ns) -> camposFinales.put("+" + off, String.join("; ", new LinkedHashSet<>(ns))));
     h.put("campos", camposFinales);
