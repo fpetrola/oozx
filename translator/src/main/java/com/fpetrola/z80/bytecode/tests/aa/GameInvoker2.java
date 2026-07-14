@@ -22,10 +22,10 @@ import com.fpetrola.z80.bytecode.tests.ZxGame1C;
 
 public class GameInvoker2 {
   public static void main(String[] args) throws InstantiationException {
-    ZxGame1C zxGame1 = new ZxGame1C();
+    ZxGame1 zxGame1 = new ZxGame1();
 //    zxGame1.setSyncChecker(new DefaultSyncChecker());
 //    zxGame1.$34762(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0);
-//    zxGame1.$8185();
+    zxGame1.$8185();
 //    zxGame1.$35090();
 
 //    ZxGame1 o= new ZxGame1();

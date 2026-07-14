@@ -397,9 +397,9 @@ public class InstructionsBytecodeGenerator<T extends WordNumber> implements Inst
   }
 
   private Variable getF() {
-    Variable variable1 = routineByteCodeGenerator.variables.get("F");
-    return variable1;
-//    return routineByteCodeGenerator.getExistingVariable("F");
+//    Variable variable1 = routineByteCodeGenerator.variables.get("F");
+//    return variable1;
+    return routineByteCodeGenerator.getExistingVariable("F");
   }
 
   public void visitingSub(Sub sub) {
