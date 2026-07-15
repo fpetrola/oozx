@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated": "2026-07-15T14:40:13.538059790",
+    "generated": "2026-07-15T14:47:49.841217265",
     "description": "Game model deduced automatically from the instrumented RZX replay. Layers: 'findings' are the final, interpreted conclusions (the most important part of each discovery); 'model' is the formal machine-readable layer meant to drive source transformations; 'evidence' holds the raw data backing them, keyed by finding id (see doc/MANUAL-ANALISIS.md)",
     "draws": 4244108,
     "frames_with_draws": 41457,
@@ -1141,20 +1141,20 @@
       },
       "loaded_from": [
         {
-          "site": 35137,
+          "times": 8544,
           "from": [
             40962,
             41983
           ],
-          "times": 8544
+          "site": 35137
         },
         {
-          "site": 35128,
+          "times": 8544,
           "from": [
             40960,
             41977
           ],
-          "times": 8544
+          "site": 35128
         }
       ],
       "updated_by": [
@@ -1180,76 +1180,76 @@
       "typical_size_bytes": 32,
       "most_drawn": [
         {
-          "routines": "$37974 $38504",
+          "times_drawn": 97638,
+          "bytes": 32,
           "range": [
             40256,
             40287
           ],
-          "bytes": 32,
-          "times_drawn": 97638
+          "routines": "$37974 $38504"
         },
         {
-          "routines": "$37974 $38504",
+          "times_drawn": 15864,
+          "bytes": 32,
           "range": [
             40192,
             40223
           ],
-          "bytes": 32,
-          "times_drawn": 15864
+          "routines": "$37974 $38504"
         },
         {
-          "routines": "$37974 $38504",
+          "times_drawn": 8970,
+          "bytes": 32,
           "range": [
             40224,
             40255
           ],
-          "bytes": 32,
-          "times_drawn": 8970
+          "routines": "$37974 $38504"
         },
         {
-          "routines": "$37974 $38504",
+          "times_drawn": 8926,
+          "bytes": 32,
           "range": [
             40288,
             40319
           ],
-          "bytes": 32,
-          "times_drawn": 8926
+          "routines": "$37974 $38504"
         },
         {
-          "routines": "$37974",
+          "times_drawn": 4253,
+          "bytes": 32,
           "range": [
             47680,
             47711
           ],
-          "bytes": 32,
-          "times_drawn": 4253
+          "routines": "$37974"
         },
         {
-          "routines": "$37974",
+          "times_drawn": 3129,
+          "bytes": 32,
           "range": [
             48928,
             48959
           ],
-          "bytes": 32,
-          "times_drawn": 3129
+          "routines": "$37974"
         },
         {
-          "routines": "$37974",
+          "times_drawn": 3065,
+          "bytes": 32,
           "range": [
             48896,
             48927
           ],
-          "bytes": 32,
-          "times_drawn": 3065
+          "routines": "$37974"
         },
         {
-          "routines": "$37974",
+          "times_drawn": 2968,
+          "bytes": 32,
           "range": [
             46880,
             46911
           ],
-          "bytes": 32,
-          "times_drawn": 2968
+          "routines": "$37974"
         }
       ],
       "items": "there are also 64 small graphics (1-2 bytes) at [42415..42495] (objects/decorations)"
@@ -1270,40 +1270,40 @@
       "evidence": "lookup-tables",
       "tablas": [
         {
-          "used_by": [
-            "$37310",
-            "$38504"
-          ],
           "range": [
             33280,
             33535
+          ],
+          "used_by": [
+            "$37310",
+            "$38504"
           ]
         },
         {
-          "used_by": [
-            "$37310"
-          ],
           "range": [
             33664,
             33750
+          ],
+          "used_by": [
+            "$37310"
           ]
         },
         {
-          "used_by": [
-            "$37841"
-          ],
           "range": [
             41983,
             41983
+          ],
+          "used_by": [
+            "$37841"
           ]
         },
         {
-          "used_by": [
-            "$37841"
-          ],
           "range": [
             42415,
             42495
+          ],
+          "used_by": [
+            "$37841"
           ]
         }
       ]
@@ -1382,80 +1382,80 @@
       "evidence": "routines",
       "list": [
         {
-          "does": "draws a sprite row by row (the protagonist)",
-          "routine": "$34463"
+          "routine": "$34463",
+          "does": "draws a sprite row by row (the protagonist)"
         },
         {
-          "does": "paints colors (attributes)",
-          "routine": "$34499"
+          "routine": "$34499",
+          "does": "paints colors (attributes)"
         },
         {
-          "does": "draws a sprite row by row (the protagonist)",
-          "routine": "$34620"
+          "routine": "$34620",
+          "does": "draws a sprite row by row (the protagonist)"
         },
         {
-          "does": "renders the room background into the buffer",
-          "routine": "$36171"
+          "routine": "$36171",
+          "does": "renders the room background into the buffer"
         },
         {
-          "does": "draws to the screen",
-          "routine": "$36203"
+          "routine": "$36203",
+          "does": "draws to the screen"
         },
         {
-          "does": "paints colors (attributes)",
-          "routine": "$36288"
+          "routine": "$36288",
+          "does": "paints colors (attributes)"
         },
         {
-          "does": "draws entity sprites",
-          "routine": "$37310"
+          "routine": "$37310",
+          "does": "draws entity sprites"
         },
         {
-          "does": "paints colors (attributes)",
-          "routine": "$37841"
+          "routine": "$37841",
+          "does": "paints colors (attributes)"
         },
         {
-          "does": "draws entity sprites",
-          "routine": "$37974"
+          "routine": "$37974",
+          "does": "draws entity sprites"
         },
         {
-          "does": "draws entity sprites",
-          "routine": "$38137"
+          "routine": "$38137",
+          "does": "draws entity sprites"
         },
         {
-          "does": "paints colors (attributes)",
-          "routine": "$38196"
+          "routine": "$38196",
+          "does": "paints colors (attributes)"
         },
         {
-          "does": "paints colors (attributes)",
-          "routine": "$38430"
+          "routine": "$38430",
+          "does": "paints colors (attributes)"
         },
         {
-          "does": "draws a sprite row by row (the protagonist)",
-          "routine": "$38504"
+          "routine": "$38504",
+          "does": "draws a sprite row by row (the protagonist)"
         },
         {
-          "does": "prints text with the ROM font",
-          "routine": "$38555"
+          "routine": "$38555",
+          "does": "prints text with the ROM font"
         },
         {
-          "does": "game logic: updates variables and entities",
-          "routine": "$36307"
+          "routine": "$36307",
+          "does": "game logic: updates variables and entities"
         },
         {
-          "does": "game logic: updates variables and entities",
-          "routine": "$36508"
+          "routine": "$36508",
+          "does": "game logic: updates variables and entities"
         },
         {
-          "does": "game logic: updates variables and entities",
-          "routine": "$37056"
+          "routine": "$37056",
+          "does": "game logic: updates variables and entities"
         },
         {
-          "does": "game logic: updates variables and entities",
-          "routine": "$38064"
+          "routine": "$38064",
+          "does": "game logic: updates variables and entities"
         },
         {
-          "does": "game logic: updates variables and entities",
-          "routine": "$38276"
+          "routine": "$38276",
+          "does": "game logic: updates variables and entities"
         }
       ]
     },
@@ -1465,29 +1465,29 @@
       "evidence": "other-structures",
       "list": [
         {
-          "summary": "array at [33008..33023], records of 2 bytes, 2 fields",
+          "routine": "$34463",
           "cursor": "IX",
-          "routine": "$34463"
+          "summary": "array at [33008..33023], records of 2 bytes, 2 fields"
         },
         {
-          "summary": "array at [34175..34179], records of 5 bytes, 4 fields",
+          "routine": "$34463",
           "cursor": "IX",
-          "routine": "$34463"
+          "summary": "array at [34175..34179], records of 5 bytes, 4 fields"
         },
         {
-          "summary": "array at [22864..22906], records of 1 bytes, 4 fields",
+          "routine": "$34620",
           "cursor": "IX",
-          "routine": "$34620"
+          "summary": "array at [22864..22906], records of 1 bytes, 4 fields"
         },
         {
-          "summary": "array at [33280..33479], records of 8 bytes, 2 fields",
+          "routine": "$37310",
           "cursor": "IY",
-          "routine": "$37310"
+          "summary": "array at [33280..33479], records of 8 bytes, 2 fields"
         },
         {
-          "summary": "array at [33280..33535], records of 2 bytes, 2 fields",
+          "routine": "$38504",
           "cursor": "IX",
-          "routine": "$38504"
+          "summary": "array at [33280..33535], records of 2 bytes, 2 fields"
         }
       ]
     }
@@ -1953,22 +1953,22 @@
           ],
           "ladders": [
             {
+              "routine": "$37056",
+              "mask": 3,
               "tested_values": [
                 0,
                 1,
                 2
-              ],
-              "mask": 3,
-              "routine": "$37056"
+              ]
             },
             {
+              "routine": "$37310",
+              "mask": 7,
               "tested_values": [
                 0,
                 3,
                 4
-              ],
-              "mask": 7,
-              "routine": "$37310"
+              ]
             }
           ]
         },
@@ -2174,18 +2174,18 @@
                 "condition": "field +0 & 127 == 96",
                 "arms": [
                   {
-                    "exclusive_fields": [],
+                    "times": 13642,
                     "pc": 37302,
-                    "times": 13642
+                    "exclusive_fields": []
                   },
                   {
+                    "times": 5579,
+                    "pc": 37191,
                     "exclusive_fields": [
                       0,
                       2,
                       6
-                    ],
-                    "pc": 37191,
-                    "times": 5579
+                    ]
                   }
                 ]
               },
@@ -2194,18 +2194,18 @@
                 "condition": "field +6 & 31",
                 "arms": [
                   {
+                    "times": 386,
+                    "pc": 37206,
                     "exclusive_fields": [
                       0
-                    ],
-                    "pc": 37206,
-                    "times": 386
+                    ]
                   },
                   {
+                    "times": 5193,
+                    "pc": 37201,
                     "exclusive_fields": [
                       2
-                    ],
-                    "pc": 37201,
-                    "times": 5193
+                    ]
                   }
                 ]
               },
@@ -2214,18 +2214,18 @@
                 "condition": "field +7 & 31",
                 "arms": [
                   {
+                    "times": 347,
+                    "pc": 37241,
                     "exclusive_fields": [
                       0
-                    ],
-                    "pc": 37241,
-                    "times": 347
+                    ]
                   },
                   {
+                    "times": 4128,
+                    "pc": 37236,
                     "exclusive_fields": [
                       2
-                    ],
-                    "pc": 37236,
-                    "times": 4128
+                    ]
                   }
                 ]
               }
@@ -2442,16 +2442,16 @@
                 "condition": "field +0 & 24",
                 "arms": [
                   {
-                    "exclusive_fields": [],
+                    "times": 6446,
                     "pc": 37267,
-                    "times": 6446
+                    "exclusive_fields": []
                   },
                   {
+                    "times": 30659,
+                    "pc": 37259,
                     "exclusive_fields": [
                       0
-                    ],
-                    "pc": 37259,
-                    "times": 30659
+                    ]
                   }
                 ]
               }
@@ -2681,16 +2681,16 @@
                 "condition": "field +7 & 127",
                 "arms": [
                   {
+                    "times": 24,
+                    "pc": 37160,
                     "exclusive_fields": [
                       0
-                    ],
-                    "pc": 37160,
-                    "times": 24
+                    ]
                   },
                   {
-                    "exclusive_fields": [],
+                    "times": 1189,
                     "pc": 37302,
-                    "times": 1189
+                    "exclusive_fields": []
                   }
                 ]
               },
@@ -2699,20 +2699,20 @@
                 "condition": "field +9 & 128",
                 "arms": [
                   {
+                    "times": 96,
+                    "pc": 37733,
                     "exclusive_fields": [
                       11
-                    ],
-                    "pc": 37733,
-                    "times": 96
+                    ]
                   },
                   {
+                    "times": 1110,
+                    "pc": 37743,
                     "exclusive_fields": [
                       0,
                       4,
                       11
-                    ],
-                    "pc": 37743,
-                    "times": 1110
+                    ]
                   }
                 ]
               }
@@ -2828,19 +2828,19 @@
                 "condition": "field +4 & 224",
                 "arms": [
                   {
+                    "times": 876,
+                    "pc": 37479,
                     "exclusive_fields": [
                       2,
                       4,
                       5,
                       6
-                    ],
-                    "pc": 37479,
-                    "times": 876
+                    ]
                   },
                   {
-                    "exclusive_fields": [],
+                    "times": 3850,
                     "pc": 37811,
-                    "times": 3850
+                    "exclusive_fields": []
                   }
                 ]
               }
@@ -2857,13 +2857,13 @@
         ],
         "selector": 33824,
         "template": {
+          "used_records": 61,
+          "base": 49152,
+          "record_bytes": 256,
           "range": [
             49152,
             64767
-          ],
-          "record_bytes": 256,
-          "base": 49152,
-          "used_records": 61
+          ]
         },
         "fields": [
           {
@@ -3514,144 +3514,424 @@
           15616,
           16383
         ],
-        "read_by": [],
-        "written_by": []
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$38555"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $38555"
       },
       {
         "segment": "screen",
         "range": [
           16384,
-          23295
+          22783
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463"
         ],
         "read_by": [
           "$34463"
         ],
-        "written_by": [],
-        "encapsulatable": "only 1 routines see it: $34463"
-      },
-      {
-        "segment": "pixel_buffer_2",
-        "range": [
-          16384,
-          22526
-        ],
-        "read_by": [],
-        "written_by": [
-          "$34463"
-        ],
-        "encapsulatable": "only 1 routines see it: $34463"
-      },
-      {
-        "segment": "pixel_buffer_1",
-        "range": [
-          20480,
-          22526
-        ],
-        "read_by": [],
-        "written_by": [
-          "$34463"
-        ],
+        "single_owner": true,
         "encapsulatable": "only 1 routines see it: $34463"
       },
       {
         "segment": "attribute_buffer_2",
         "range": [
-          22528,
-          23038
+          22784,
+          22863
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$34499"
         ],
         "read_by": [
+          "$34463"
+        ],
+        "encapsulatable": "only 2 routines see it: $34463 $34499"
+      },
+      {
+        "segment": "attribute_buffer_2",
+        "range": [
+          22864,
+          22874
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$34499",
           "$34620"
         ],
-        "written_by": [
+        "read_by": [
           "$34463",
           "$34620"
         ],
-        "encapsulatable": "only 2 routines see it: $34463 $34620"
+        "encapsulatable": "only 3 routines see it: $34463 $34499 $34620"
       },
       {
-        "segment": "attribute_buffer_6",
+        "segment": "attribute_buffer_2",
         "range": [
-          23136,
-          23166
+          22875,
+          22895
         ],
-        "read_by": [],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$34499"
+        ],
+        "read_by": [
+          "$34463"
+        ],
+        "encapsulatable": "only 2 routines see it: $34463 $34499"
+      },
+      {
+        "segment": "attribute_buffer_2",
+        "range": [
+          22896,
+          22906
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$34499",
+          "$34620"
+        ],
+        "read_by": [
+          "$34463",
+          "$34620"
+        ],
+        "encapsulatable": "only 3 routines see it: $34463 $34499 $34620"
+      },
+      {
+        "segment": "attribute_buffer_2",
+        "range": [
+          22907,
+          22911
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$34499"
+        ],
+        "read_by": [
+          "$34463"
+        ],
+        "encapsulatable": "only 2 routines see it: $34463 $34499"
+      },
+      {
+        "segment": "screen",
+        "range": [
+          22912,
+          23295
+        ],
+        "kind": "read-write",
         "written_by": [
           "$34463"
         ],
+        "read_by": [
+          "$34463"
+        ],
+        "single_owner": true,
         "encapsulatable": "only 1 routines see it: $34463"
+      },
+      {
+        "segment": "mem_23296",
+        "range": [
+          23296,
+          23528
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$37974",
+          "$38555"
+        ],
+        "read_by": [
+          "$38555"
+        ],
+        "encapsulatable": "only 2 routines see it: $37974 $38555"
+      },
+      {
+        "segment": "mem_23529",
+        "range": [
+          23529,
+          23551
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$36307"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $36307"
       },
       {
         "segment": "attribute_buffer_3",
         "range": [
           23552,
-          24063
+          23554
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$38430"
         ],
         "read_by": [
+          "$34463",
+          "$36307"
+        ],
+        "encapsulatable": "only 3 routines see it: $34463 $36307 $38430"
+      },
+      {
+        "segment": "attribute_buffer_3",
+        "range": [
+          23555,
+          23573
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$37310",
+          "$38430"
+        ],
+        "read_by": [
+          "$34463",
+          "$36307",
+          "$37310"
+        ],
+        "encapsulatable": "only 4 routines see it: $34463 $36307 $37310 $38430"
+      },
+      {
+        "segment": "attribute_buffer_3",
+        "range": [
+          23574,
+          23671
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$37310",
+          "$37841",
+          "$38430"
+        ],
+        "read_by": [
+          "$34463",
+          "$36307",
+          "$37310",
+          "$37841",
+          "$38344"
+        ]
+      },
+      {
+        "segment": "attribute_buffer_3",
+        "range": [
+          23672,
+          23672
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$34499",
+          "$37310",
+          "$37841",
+          "$38430"
+        ],
+        "read_by": [
+          "$34463",
           "$34499",
           "$36307",
           "$37310",
-          "$37841"
+          "$37841",
+          "$38344"
+        ]
+      },
+      {
+        "segment": "attribute_buffer_3",
+        "range": [
+          23673,
+          23995
         ],
+        "kind": "read-write",
         "written_by": [
-          "$34499",
+          "$34463",
+          "$37310",
+          "$37841",
+          "$38430"
+        ],
+        "read_by": [
+          "$34463",
+          "$36307",
+          "$37310",
+          "$37841",
+          "$38344"
+        ]
+      },
+      {
+        "segment": "attribute_buffer_3",
+        "range": [
+          23996,
+          23997
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
           "$37310",
           "$37841",
           "$38196",
           "$38430"
+        ],
+        "read_by": [
+          "$34463",
+          "$36307",
+          "$37310",
+          "$37841",
+          "$38344"
         ]
+      },
+      {
+        "segment": "attribute_buffer_3",
+        "range": [
+          23998,
+          24013
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$37310",
+          "$37841",
+          "$38430"
+        ],
+        "read_by": [
+          "$34463",
+          "$36307",
+          "$37310",
+          "$37841",
+          "$38344"
+        ]
+      },
+      {
+        "segment": "attribute_buffer_3",
+        "range": [
+          24014,
+          24027
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$37310",
+          "$38430"
+        ],
+        "read_by": [
+          "$34463",
+          "$36307",
+          "$37310",
+          "$38344"
+        ]
+      },
+      {
+        "segment": "attribute_buffer_3",
+        "range": [
+          24028,
+          24029
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$37310",
+          "$38196",
+          "$38430"
+        ],
+        "read_by": [
+          "$34463",
+          "$36307",
+          "$37310",
+          "$38344"
+        ]
+      },
+      {
+        "segment": "attribute_buffer_3",
+        "range": [
+          24030,
+          24056
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$37310",
+          "$38430"
+        ],
+        "read_by": [
+          "$34463",
+          "$36307",
+          "$37310",
+          "$38344"
+        ]
+      },
+      {
+        "segment": "attribute_buffer_3",
+        "range": [
+          24057,
+          24063
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$37310"
+        ],
+        "read_by": [
+          "$34463",
+          "$36307",
+          "$38344"
+        ],
+        "encapsulatable": "only 4 routines see it: $34463 $36307 $37310 $38344"
       },
       {
         "segment": "attribute_buffer_7",
         "range": [
           24064,
-          24575
+          24064
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$36288"
         ],
         "read_by": [
-          "$36171"
+          "$34463",
+          "$36171",
+          "$38344"
         ],
+        "single_owner": true,
+        "encapsulatable": "only 4 routines see it: $34463 $36171 $36288 $38344"
+      },
+      {
+        "segment": "attribute_buffer_7",
+        "range": [
+          24065,
+          24575
+        ],
+        "kind": "read-write",
         "written_by": [
           "$36203",
           "$36288"
         ],
-        "encapsulatable": "only 3 routines see it: $36171 $36203 $36288"
+        "read_by": [
+          "$34463",
+          "$36171",
+          "$38344"
+        ]
       },
       {
-        "segment": "pixel_buffer_3",
+        "segment": "mem_24576",
         "range": [
           24576,
-          28671
-        ],
-        "read_by": [
-          "$37310",
-          "$37974",
-          "$38504"
-        ],
-        "written_by": [
-          "$37310",
-          "$38504"
-        ],
-        "encapsulatable": "only 3 routines see it: $37310 $37974 $38504"
-      },
-      {
-        "segment": "pixel_buffer_4",
-        "range": [
-          28672,
-          32767
-        ],
-        "read_by": [
-          "$38137"
-        ],
-        "written_by": [
-          "$36171",
-          "$38137"
-        ],
-        "encapsulatable": "only 2 routines see it: $36171 $38137"
-      },
-      {
-        "segment": "current_record_1",
-        "range": [
-          32768,
           33023
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463"
         ],
         "read_by": [
           "$34463",
@@ -3666,36 +3946,160 @@
           "$38344",
           "$38430"
         ],
-        "written_by": []
+        "single_owner": true
       },
       {
         "segment": "entities",
         "range": [
           33024,
-          33087
+          33026
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$37056"
         ],
         "read_by": [
           "$37056",
           "$37310"
         ],
+        "encapsulatable": "only 3 routines see it: $34463 $37056 $37310"
+      },
+      {
+        "segment": "entities",
+        "range": [
+          33027,
+          33082
+        ],
+        "kind": "read-write",
         "written_by": [
+          "$34463",
+          "$37056",
+          "$37310"
+        ],
+        "read_by": [
+          "$37056",
+          "$37310"
+        ],
+        "encapsulatable": "only 3 routines see it: $34463 $37056 $37310"
+      },
+      {
+        "segment": "entities",
+        "range": [
+          33083,
+          33085
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$37310"
+        ],
+        "read_by": [
+          "$37056",
+          "$37310"
+        ],
+        "encapsulatable": "only 3 routines see it: $34463 $37056 $37310"
+      },
+      {
+        "segment": "entities",
+        "range": [
+          33086,
+          33087
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463"
+        ],
+        "read_by": [
+          "$37056",
+          "$37310"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 3 routines see it: $34463 $37056 $37310"
+      },
+      {
+        "segment": "mem_33088",
+        "range": [
+          33088,
+          33088
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
           "$37056",
           "$37310"
         ],
         "encapsulatable": "only 2 routines see it: $37056 $37310"
       },
       {
+        "segment": "mem_33089",
+        "range": [
+          33089,
+          33279
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$38528",
+          "$38555"
+        ],
+        "encapsulatable": "only 2 routines see it: $38528 $38555"
+      },
+      {
         "segment": "lookup_table_1",
         "range": [
           33280,
-          33535
+          33505
         ],
+        "kind": "read-only",
+        "written_by": [],
         "read_by": [
           "$37310",
           "$38504"
         ],
-        "written_by": [],
         "encapsulatable": "only 2 routines see it: $37310 $38504"
+      },
+      {
+        "segment": "lookup_table_1",
+        "range": [
+          33506,
+          33535
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$38504"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $38504"
+      },
+      {
+        "segment": "mem_33536",
+        "range": [
+          33536,
+          33622
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$37310"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $37310"
+      },
+      {
+        "segment": "mem_33623",
+        "range": [
+          33623,
+          33663
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$38528",
+          "$38555"
+        ],
+        "encapsulatable": "only 2 routines see it: $38528 $38555"
       },
       {
         "segment": "lookup_table_2",
@@ -3703,11 +4107,27 @@
           33664,
           33750
         ],
+        "kind": "read-only",
+        "written_by": [],
         "read_by": [
           "$37310"
         ],
-        "written_by": [],
+        "single_owner": true,
         "encapsulatable": "only 1 routines see it: $37310"
+      },
+      {
+        "segment": "mem_33751",
+        "range": [
+          33751,
+          33823
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$38528",
+          "$38555"
+        ],
+        "encapsulatable": "only 2 routines see it: $38528 $38555"
       },
       {
         "segment": "record_selector_1",
@@ -3715,6 +4135,12 @@
           33824,
           33824
         ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$36307",
+          "$38064"
+        ],
         "read_by": [
           "$34463",
           "$37310",
@@ -3722,12 +4148,146 @@
           "$38196",
           "$38276",
           "$38344"
+        ]
+      },
+      {
+        "segment": "mem_33825",
+        "range": [
+          33825,
+          33840
         ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$36307"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $36307"
+      },
+      {
+        "segment": "mem_33841",
+        "range": [
+          33841,
+          33872
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$38528",
+          "$38555"
+        ],
+        "encapsulatable": "only 2 routines see it: $38528 $38555"
+      },
+      {
+        "segment": "mem_33873",
+        "range": [
+          33873,
+          34171
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$38528"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $38528"
+      },
+      {
+        "segment": "mem_34172",
+        "range": [
+          34172,
+          34172
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463"
+        ],
+        "read_by": [],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $34463"
+      },
+      {
+        "segment": "mem_34173",
+        "range": [
+          34173,
+          34174
+        ],
+        "kind": "read-write",
         "written_by": [
           "$34463",
+          "$37841"
+        ],
+        "read_by": [
+          "$37841"
+        ],
+        "encapsulatable": "only 2 routines see it: $34463 $37841"
+      },
+      {
+        "segment": "mem_34175",
+        "range": [
+          34175,
+          34186
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463"
+        ],
+        "read_by": [
+          "$34463"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $34463"
+      },
+      {
+        "segment": "mem_34187",
+        "range": [
+          34187,
+          34250
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$38528"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $38528"
+      },
+      {
+        "segment": "mem_34251",
+        "range": [
+          34251,
+          34251
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$38276"
+        ],
+        "read_by": [
+          "$34463",
+          "$37841",
+          "$38196"
+        ],
+        "encapsulatable": "only 4 routines see it: $34463 $37841 $38196 $38276"
+      },
+      {
+        "segment": "mem_34252",
+        "range": [
+          34252,
+          34254
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463"
+        ],
+        "read_by": [
+          "$34463",
+          "$35211",
           "$36307",
-          "$38064"
-        ]
+          "$38601"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 4 routines see it: $34463 $35211 $36307 $38601"
       },
       {
         "segment": "protagonist_y",
@@ -3735,18 +4295,76 @@
           34255,
           34255
         ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$36307",
+          "$37310",
+          "$38064"
+        ],
+        "read_by": [
+          "$34463",
+          "$36307",
+          "$37310",
+          "$38344"
+        ]
+      },
+      {
+        "segment": "mem_34256",
+        "range": [
+          34256,
+          34256
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$36307"
+        ],
         "read_by": [
           "$34463",
           "$36307",
           "$37310",
           "$38344"
         ],
+        "encapsulatable": "only 4 routines see it: $34463 $36307 $37310 $38344"
+      },
+      {
+        "segment": "mem_34257",
+        "range": [
+          34257,
+          34257
+        ],
+        "kind": "read-write",
         "written_by": [
           "$34463",
           "$36307",
           "$37310",
           "$38064"
+        ],
+        "read_by": [
+          "$34463",
+          "$36307",
+          "$38344"
         ]
+      },
+      {
+        "segment": "mem_34258",
+        "range": [
+          34258,
+          34258
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$36307",
+          "$37310"
+        ],
+        "read_by": [
+          "$34463",
+          "$36307",
+          "$38344"
+        ],
+        "encapsulatable": "only 4 routines see it: $34463 $36307 $37310 $38344"
       },
       {
         "segment": "protagonist_x",
@@ -3754,18 +4372,233 @@
           34259,
           34259
         ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$36307",
+          "$36508",
+          "$37310",
+          "$38064"
+        ],
         "read_by": [
+          "$34463",
           "$36307",
           "$36508",
           "$38064",
           "$38196",
           "$38276",
           "$38344"
-        ],
-        "written_by": [
-          "$36307",
-          "$38064"
         ]
+      },
+      {
+        "segment": "mem_34260",
+        "range": [
+          34260,
+          34260
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$36307",
+          "$36508",
+          "$38064"
+        ],
+        "read_by": [
+          "$34463",
+          "$36307",
+          "$38344"
+        ]
+      },
+      {
+        "segment": "mem_34261",
+        "range": [
+          34261,
+          34261
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$36307"
+        ],
+        "read_by": [
+          "$34463",
+          "$36307"
+        ],
+        "encapsulatable": "only 2 routines see it: $34463 $36307"
+      },
+      {
+        "segment": "mem_34262",
+        "range": [
+          34262,
+          34262
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$36307",
+          "$37310"
+        ],
+        "read_by": [
+          "$36307",
+          "$37310"
+        ],
+        "encapsulatable": "only 3 routines see it: $34463 $36307 $37310"
+      },
+      {
+        "segment": "mem_34263",
+        "range": [
+          34263,
+          34269
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463"
+        ],
+        "read_by": [
+          "$34463"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $34463"
+      },
+      {
+        "segment": "mem_34270",
+        "range": [
+          34270,
+          34270
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$37841"
+        ],
+        "read_by": [
+          "$37841"
+        ],
+        "encapsulatable": "only 2 routines see it: $34463 $37841"
+      },
+      {
+        "segment": "mem_34271",
+        "range": [
+          34271,
+          34271
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$37841",
+          "$38196",
+          "$38276"
+        ],
+        "read_by": [
+          "$34463",
+          "$36307",
+          "$38196"
+        ]
+      },
+      {
+        "segment": "mem_34272",
+        "range": [
+          34272,
+          34272
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$36307"
+        ],
+        "read_by": [
+          "$34463"
+        ],
+        "encapsulatable": "only 2 routines see it: $34463 $36307"
+      },
+      {
+        "segment": "mem_34273",
+        "range": [
+          34273,
+          34275
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463"
+        ],
+        "read_by": [
+          "$34463",
+          "$35211"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 2 routines see it: $34463 $35211"
+      },
+      {
+        "segment": "mem_34276",
+        "range": [
+          34276,
+          34276
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34499"
+        ],
+        "read_by": [
+          "$34499"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $34499"
+      },
+      {
+        "segment": "mem_34279",
+        "range": [
+          34279,
+          34279
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$34463"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $34463"
+      },
+      {
+        "segment": "mem_34299",
+        "range": [
+          34299,
+          34330
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$38562"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $38562"
+      },
+      {
+        "segment": "mem_34399",
+        "range": [
+          34399,
+          34462
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$34463"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $34463"
+      },
+      {
+        "segment": "mem_36189",
+        "range": [
+          36189,
+          36189
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$36147"
+        ],
+        "read_by": [],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $36147"
       },
       {
         "segment": "attribute_buffer_1",
@@ -3773,35 +4606,27 @@
           38912,
           39679
         ],
-        "read_by": [],
-        "written_by": []
-      },
-      {
-        "segment": "attribute_buffer_4",
-        "range": [
-          39424,
-          39679
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$34463"
         ],
-        "read_by": [],
-        "written_by": []
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $34463"
       },
       {
         "segment": "graphics_1",
         "range": [
           39680,
-          49151
+          39807
         ],
+        "kind": "read-only",
+        "written_by": [],
         "read_by": [
-          "$34463",
-          "$34499",
-          "$37841",
-          "$37974",
-          "$38504"
+          "$37974"
         ],
-        "written_by": [
-          "$34463",
-          "$37841"
-        ]
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $37974"
       },
       {
         "segment": "attribute_buffer_5",
@@ -3809,8 +4634,83 @@
           39808,
           39935
         ],
-        "read_by": [],
-        "written_by": []
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$34499"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $34499"
+      },
+      {
+        "segment": "graphics_1",
+        "range": [
+          39936,
+          40191
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$37974"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $37974"
+      },
+      {
+        "segment": "graphics_1",
+        "range": [
+          40192,
+          40517
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$37974",
+          "$38504"
+        ],
+        "encapsulatable": "only 2 routines see it: $37974 $38504"
+      },
+      {
+        "segment": "graphics_1",
+        "range": [
+          40518,
+          40518
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$34499"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $34499"
+      },
+      {
+        "segment": "graphics_1",
+        "range": [
+          40519,
+          40959
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$37974",
+          "$38504"
+        ],
+        "encapsulatable": "only 2 routines see it: $37974 $38504"
+      },
+      {
+        "segment": "graphics_1",
+        "range": [
+          40960,
+          41982
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$34463"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $34463"
       },
       {
         "segment": "lookup_table_3",
@@ -3818,12 +4718,58 @@
           41983,
           41983
         ],
+        "kind": "read-only",
+        "written_by": [],
         "read_by": [
           "$34463",
           "$37841"
         ],
-        "written_by": [],
         "encapsulatable": "only 2 routines see it: $34463 $37841"
+      },
+      {
+        "segment": "graphics_1",
+        "range": [
+          41984,
+          42158
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$37974",
+          "$38504"
+        ],
+        "encapsulatable": "only 2 routines see it: $37974 $38504"
+      },
+      {
+        "segment": "graphics_1",
+        "range": [
+          42159,
+          42239
+        ],
+        "kind": "read-write",
+        "written_by": [
+          "$34463",
+          "$37841"
+        ],
+        "read_by": [
+          "$34463",
+          "$37841"
+        ],
+        "encapsulatable": "only 2 routines see it: $34463 $37841"
+      },
+      {
+        "segment": "graphics_1",
+        "range": [
+          42240,
+          42414
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$37974",
+          "$38504"
+        ],
+        "encapsulatable": "only 2 routines see it: $37974 $38504"
       },
       {
         "segment": "lookup_table_4",
@@ -3831,11 +4777,41 @@
           42415,
           42495
         ],
+        "kind": "read-only",
+        "written_by": [],
         "read_by": [
           "$37841"
         ],
-        "written_by": [],
+        "single_owner": true,
         "encapsulatable": "only 1 routines see it: $37841"
+      },
+      {
+        "segment": "graphics_1",
+        "range": [
+          42496,
+          46847
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$37974",
+          "$38504"
+        ],
+        "encapsulatable": "only 2 routines see it: $37974 $38504"
+      },
+      {
+        "segment": "graphics_1",
+        "range": [
+          46848,
+          49151
+        ],
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$37974"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $37974"
       },
       {
         "segment": "record_catalog_1",
@@ -3843,45 +4819,308 @@
           49152,
           64767
         ],
-        "read_by": [],
-        "written_by": []
+        "kind": "read-only",
+        "written_by": [],
+        "read_by": [
+          "$34463"
+        ],
+        "single_owner": true,
+        "encapsulatable": "only 1 routines see it: $34463"
       }
     ],
+    "segment_links": {
+      "pipes": [
+        {
+          "from": [
+            24064,
+            24575
+          ],
+          "to": [
+            23552,
+            24063
+          ],
+          "times": 22752,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            23552,
+            24063
+          ],
+          "to": [
+            22528,
+            23039
+          ],
+          "times": 22630,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            24576,
+            28671
+          ],
+          "to": [
+            16384,
+            20479
+          ],
+          "times": 22630,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            40962,
+            41983
+          ],
+          "to": [
+            33026,
+            33087
+          ],
+          "times": 8544,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            40960,
+            41977
+          ],
+          "to": [
+            33024,
+            33081
+          ],
+          "times": 8544,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            49152,
+            64767
+          ],
+          "to": [
+            32768,
+            33023
+          ],
+          "times": 1068,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            34255,
+            34261
+          ],
+          "to": [
+            34263,
+            34269
+          ],
+          "times": 1068,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            38912,
+            39679
+          ],
+          "to": [
+            22528,
+            23295
+          ],
+          "times": 945,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            39424,
+            39679
+          ],
+          "to": [
+            23040,
+            23295
+          ],
+          "times": 944,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            34263,
+            34269
+          ],
+          "to": [
+            34255,
+            34261
+          ],
+          "times": 2,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            39808,
+            39935
+          ],
+          "to": [
+            22784,
+            22911
+          ],
+          "times": 1,
+          "routine": "$34499"
+        }
+      ],
+      "shared_helpers": [
+        {
+          "routine": "$38555",
+          "segments_spanned": 39,
+          "example": [
+            15616,
+            33872
+          ]
+        },
+        {
+          "routine": "$37974",
+          "segments_spanned": 23,
+          "example": [
+            18498,
+            28670
+          ]
+        },
+        {
+          "routine": "$38528",
+          "segments_spanned": 21,
+          "example": [
+            32896,
+            34250
+          ]
+        },
+        {
+          "routine": "$38430",
+          "segments_spanned": 13,
+          "example": [
+            23552,
+            24091
+          ]
+        },
+        {
+          "routine": "$34463",
+          "segments_spanned": 11,
+          "example": [
+            23552,
+            24063
+          ]
+        },
+        {
+          "routine": "$36307",
+          "segments_spanned": 11,
+          "example": [
+            23554,
+            24058
+          ]
+        },
+        {
+          "routine": "$38344",
+          "segments_spanned": 11,
+          "example": [
+            23617,
+            24091
+          ]
+        },
+        {
+          "routine": "$38504",
+          "segments_spanned": 10,
+          "example": [
+            40192,
+            46846
+          ]
+        },
+        {
+          "routine": "$37310",
+          "segments_spanned": 9,
+          "example": [
+            23587,
+            24062
+          ]
+        },
+        {
+          "routine": "$34499",
+          "segments_spanned": 5,
+          "example": [
+            22784,
+            22911
+          ]
+        },
+        {
+          "routine": "$37056",
+          "segments_spanned": 5,
+          "example": [
+            33024,
+            33088
+          ]
+        },
+        {
+          "routine": "$37841",
+          "segments_spanned": 5,
+          "example": [
+            23574,
+            24013
+          ]
+        },
+        {
+          "routine": "$36171",
+          "segments_spanned": 2,
+          "example": [
+            24064,
+            24575
+          ]
+        },
+        {
+          "routine": "$36288",
+          "segments_spanned": 2,
+          "example": [
+            24064,
+            24575
+          ]
+        },
+        {
+          "routine": "$36508",
+          "segments_spanned": 2,
+          "example": [
+            34259,
+            34260
+          ]
+        }
+      ]
+    },
     "refactor_suggestions": [
       {
-        "detail": "a base class with the common fields and one subclass per value of +0 & 7; the type-ladder ifs become polymorphic methods",
+        "refactor": "class with polymorphic subtypes",
         "target": "entities",
-        "refactor": "class with polymorphic subtypes"
+        "detail": "a base class with the common fields and one subclass per value of +0 & 7; the type-ladder ifs become polymorphic methods"
       },
       {
-        "detail": "each field of the record becomes a property; the catalog is an array of instances and the selector a reference to the current instance",
+        "refactor": "class with named properties",
         "target": "current_record_1",
-        "refactor": "class with named properties"
+        "detail": "each field of the record becomes a property; the catalog is an array of instances and the selector a reference to the current instance"
       },
       {
-        "detail": "replace mem[33824] with the property record_selector_1",
+        "refactor": "named property",
         "target": "record_selector_1",
-        "refactor": "named property"
+        "detail": "replace mem[33824] with the property record_selector_1"
       },
       {
-        "detail": "replace mem[34259] with the property protagonist_x",
+        "refactor": "named property",
         "target": "protagonist_x",
-        "refactor": "named property"
+        "detail": "replace mem[34259] with the property protagonist_x"
       },
       {
-        "detail": "replace mem[34255] with the property protagonist_y",
+        "refactor": "named property",
         "target": "protagonist_y",
-        "refactor": "named property"
+        "detail": "replace mem[34255] with the property protagonist_y"
       },
       {
-        "detail": "13 segments are seen by <=4 routines: move each one into its routines' class and take the data out of the global mem[] array",
+        "refactor": "restricted visibility",
         "target": "segments",
-        "refactor": "restricted visibility"
+        "detail": "64 segments are seen by <=4 routines: move each one into its routines' class and take the data out of the global mem[] array"
       },
       {
-        "detail": "the graphics_data zones and static catalogs can be extracted to files and loaded at initialization",
+        "refactor": "external resources",
         "target": "graphics_data",
-        "refactor": "external resources"
+        "detail": "the graphics_data zones and static catalogs can be extracted to files and loaded at initialization"
       }
     ]
   },
@@ -3904,12 +5143,12 @@
         "type": "buffer",
         "alimentado_por": [
           {
-            "site": 35257,
+            "times": 22752,
             "copia_desde": [
               24064,
               24575
             ],
-            "times": 22752
+            "site": 35257
           }
         ]
       },
@@ -3938,12 +5177,12 @@
         "type": "buffer",
         "alimentado_por": [
           {
-            "site": 35268,
+            "times": 22752,
             "copia_desde": [
               28672,
               32767
             ],
-            "times": 22752
+            "site": 35268
           }
         ]
       },
@@ -3968,49 +5207,49 @@
           "distinct_values": 59,
           "written_by": [
             {
-              "site": 34796,
-              "times": 945,
-              "routine": "$34463",
               "values": [
                 33,
                 33
-              ]
+              ],
+              "routine": "$34463",
+              "times": 945,
+              "site": 34796
             },
             {
-              "site": 38029,
-              "times": 47,
-              "routine": "$36307",
               "values": [
                 1,
                 60
-              ]
+              ],
+              "routine": "$36307",
+              "times": 47,
+              "site": 38029
             },
             {
-              "site": 38049,
-              "times": 42,
-              "routine": "$36307",
               "values": [
                 0,
                 59
-              ]
+              ],
+              "routine": "$36307",
+              "times": 42,
+              "site": 38049
             },
             {
-              "site": 38067,
-              "times": 19,
-              "routine": "$38064",
               "values": [
                 4,
                 57
-              ]
+              ],
+              "routine": "$38064",
+              "times": 19,
+              "site": 38067
             },
             {
-              "site": 38101,
-              "times": 14,
-              "routine": "$36307",
               "values": [
                 3,
                 54
-              ]
+              ],
+              "routine": "$36307",
+              "times": 14,
+              "site": 38101
             }
           ]
         },
@@ -4021,13 +5260,13 @@
             "times": 1068,
             "formula": "source = 49152 + selector*256",
             "indexed_table": {
+              "used_records": 61,
+              "base": 49152,
+              "record_bytes": 256,
               "range": [
                 49152,
                 64767
-              ],
-              "record_bytes": 256,
-              "base": 49152,
-              "used_records": 61
+              ]
             },
             "destination": [
               32768,
@@ -4112,41 +5351,41 @@
         "destination_read_by": {
           "[20481..22527]": [
             {
-              "reads": 2903512,
+              "routine": "$38555",
               "sites": 1,
-              "routine": "$38555"
+              "reads": 2903512
             }
           ],
           "[32768..33087]": [
             {
-              "reads": 4921344,
+              "routine": "$36171",
               "sites": 2,
-              "routine": "$36171"
+              "reads": 4921344
             },
             {
-              "reads": 2903512,
+              "routine": "$38555",
               "sites": 1,
-              "routine": "$38555"
+              "reads": 2903512
             },
             {
-              "reads": 1323179,
+              "routine": "$37310",
               "sites": 48,
-              "routine": "$37310"
+              "reads": 1323179
             },
             {
-              "reads": 557217,
+              "routine": "$36203",
               "sites": 12,
-              "routine": "$36203"
+              "reads": 557217
             },
             {
-              "reads": 546816,
+              "routine": "$36288",
               "sites": 1,
-              "routine": "$36288"
+              "reads": 546816
             },
             {
-              "reads": 428241,
+              "routine": "$37056",
               "sites": 23,
-              "routine": "$37056"
+              "reads": 428241
             }
           ],
           "[34263..34269]": []
@@ -4161,13 +5400,13 @@
         ],
         "selector": 33824,
         "template": {
+          "used_records": 61,
+          "base": 49152,
+          "record_bytes": 256,
           "range": [
             49152,
             64767
-          ],
-          "record_bytes": 256,
-          "base": 49152,
-          "used_records": 61
+          ]
         },
         "fields": [
           {
@@ -4563,11 +5802,11 @@
     "texts": [
       {
         "font": {
+          "read_by": "$38555",
           "range": [
             15616,
             16383
-          ],
-          "read_by": "$38555"
+          ]
         },
         "char_sources": [
           "$38555 [15616..33872]"
@@ -4583,244 +5822,244 @@
             "printed_by": "$38555",
             "texts": [
               {
-                "text": "The Off Licence",
-                "record": 0
+                "record": 0,
+                "text": "The Off Licence"
               },
               {
-                "text": "UU         The Bridge",
-                "record": 1
+                "record": 1,
+                "text": "UU         The Bridge"
               },
               {
-                "text": "Under the MegaTree",
-                "record": 2
+                "record": 2,
+                "text": "Under the MegaTree"
               },
               {
-                "text": "At the Foot of the MegaTree",
-                "record": 3
+                "record": 3,
+                "text": "At the Foot of the MegaTree"
               },
               {
-                "text": "UUZUU            The Drive",
-                "record": 4
+                "record": 4,
+                "text": "UUZUU            The Drive"
               },
               {
-                "text": "The Security Guard",
-                "record": 5
+                "record": 5,
+                "text": "The Security Guard"
               },
               {
-                "text": "Entrance to Hades       4",
-                "record": 6
+                "record": 6,
+                "text": "Entrance to Hades       4"
               },
               {
-                "text": "Cuckoo's Nest",
-                "record": 7
+                "record": 7,
+                "text": "Cuckoo's Nest"
               },
               {
-                "text": "Inside the MegaTrunk",
-                "record": 8
+                "record": 8,
+                "text": "Inside the MegaTrunk"
               },
               {
-                "text": "On a Branch Over the Drive",
-                "record": 9
+                "record": 9,
+                "text": "On a Branch Over the Drive"
               },
               {
-                "text": "The Front Door         (",
-                "record": 10
+                "record": 10,
+                "text": "The Front Door         ("
               },
               {
-                "text": "The Hall",
-                "record": 11
+                "record": 11,
+                "text": "The Hall"
               },
               {
-                "text": "Tree Top",
-                "record": 12
+                "record": 12,
+                "text": "Tree Top"
               },
               {
-                "text": "Out on a limb",
-                "record": 13
+                "record": 13,
+                "text": "Out on a limb"
               },
               {
-                "text": "Rescue Esmerelda",
-                "record": 14
+                "record": 14,
+                "text": "Rescue Esmerelda"
               },
               {
-                "text": "I'm sure I've seen this before..",
-                "record": 15
+                "record": 15,
+                "text": "I'm sure I've seen this before.."
               },
               {
-                "text": "We must perform a Quirkafleeg",
-                "record": 16
+                "record": 16,
+                "text": "We must perform a Quirkafleeg"
               },
               {
-                "text": "Up on the Battlements",
-                "record": 17
+                "record": 17,
+                "text": "Up on the Battlements"
               },
               {
-                "text": "On the Roof           D",
-                "record": 18
+                "record": 18,
+                "text": "On the Roof           D"
               },
               {
-                "text": "The Forgotten Abbey",
-                "record": 19
+                "record": 19,
+                "text": "The Forgotten Abbey"
               },
               {
-                "text": "Ballroom East",
-                "record": 20
+                "record": 20,
+                "text": "Ballroom East"
               },
               {
-                "text": "Ballroom West",
-                "record": 21
+                "record": 21,
+                "text": "Ballroom West"
               },
               {
-                "text": "To the Kitchens    Main Stairway",
-                "record": 22
+                "record": 22,
+                "text": "To the Kitchens    Main Stairway"
               },
               {
-                "text": "The Kitchen",
-                "record": 23
+                "record": 23,
+                "text": "The Kitchen"
               },
               {
-                "text": "West of Kitchen",
-                "record": 24
+                "record": 24,
+                "text": "West of Kitchen"
               },
               {
-                "text": "Cold Store",
-                "record": 25
+                "record": 25,
+                "text": "Cold Store"
               },
               {
-                "text": "East Wall Base",
-                "record": 26
+                "record": 26,
+                "text": "East Wall Base"
               },
               {
-                "text": "The Chapel",
-                "record": 27
+                "record": 27,
+                "text": "The Chapel"
               },
               {
-                "text": "First Landing",
-                "record": 28
+                "record": 28,
+                "text": "First Landing"
               },
               {
-                "text": "The Nightmare Room",
-                "record": 29
+                "record": 29,
+                "text": "The Nightmare Room"
               },
               {
-                "text": "The Banyan Tree",
-                "record": 30
+                "record": 30,
+                "text": "The Banyan Tree"
               },
               {
-                "text": "Swimming Pool",
-                "record": 31
+                "record": 31,
+                "text": "Swimming Pool"
               },
               {
-                "text": "Halfway up the East Wall",
-                "record": 32
+                "record": 32,
+                "text": "Halfway up the East Wall"
               },
               {
-                "text": "Z          The Bathroom",
-                "record": 33
+                "record": 33,
+                "text": "Z          The Bathroom"
               },
               {
-                "text": "UU          Top Landing",
-                "record": 34
+                "record": 34,
+                "text": "UU          Top Landing"
               },
               {
-                "text": "UUU         Master Bedroom",
-                "record": 35
+                "record": 35,
+                "text": "UUU         Master Bedroom"
               },
               {
-                "text": "A bit of tree",
-                "record": 36
+                "record": 36,
+                "text": "A bit of tree"
               },
               {
-                "text": "Orangery",
-                "record": 37
+                "record": 37,
+                "text": "Orangery"
               },
               {
-                "text": "Priests' Hole",
-                "record": 38
+                "record": 38,
+                "text": "Priests' Hole"
               },
               {
-                "text": "Emergency Generator",
-                "record": 39
+                "record": 39,
+                "text": "Emergency Generator"
               },
               {
-                "text": "Dr Jones will never believe this",
-                "record": 40
+                "record": 40,
+                "text": "Dr Jones will never believe this"
               },
               {
-                "text": "VY          The Attic",
-                "record": 41
+                "record": 41,
+                "text": "VY          The Attic"
               },
               {
-                "text": "Under the Roof",
-                "record": 42
+                "record": 42,
+                "text": "Under the Roof"
               },
               {
-                "text": "Conservatory Roof",
-                "record": 43
+                "record": 43,
+                "text": "Conservatory Roof"
               },
               {
-                "text": "On top of the house",
-                "record": 44
+                "record": 44,
+                "text": "On top of the house"
               },
               {
-                "text": "Under the Drive",
-                "record": 45
+                "record": 45,
+                "text": "Under the Drive"
               },
               {
-                "text": "Tree Root",
-                "record": 46
+                "record": 46,
+                "text": "Tree Root"
               },
               {
-                "text": "Nomen Luni",
-                "record": 48
+                "record": 48,
+                "text": "Nomen Luni"
               },
               {
-                "text": "The Wine Cellar",
-                "record": 49
+                "record": 49,
+                "text": "The Wine Cellar"
               },
               {
-                "text": "Watch Tower",
-                "record": 50
+                "record": 50,
+                "text": "Watch Tower"
               },
               {
-                "text": "Tool  Shed",
-                "record": 51
+                "record": 51,
+                "text": "Tool  Shed"
               },
               {
-                "text": "Back Stairway",
-                "record": 52
+                "record": 52,
+                "text": "Back Stairway"
               },
               {
-                "text": "Back Door",
-                "record": 53
+                "record": 53,
+                "text": "Back Door"
               },
               {
-                "text": "West  Wing",
-                "record": 54
+                "record": 54,
+                "text": "West  Wing"
               },
               {
-                "text": "West Bedroom",
-                "record": 55
+                "record": 55,
+                "text": "West Bedroom"
               },
               {
-                "text": "West Wing Roof",
-                "record": 56
+                "record": 56,
+                "text": "West Wing Roof"
               },
               {
-                "text": "Above the West Bedroom",
-                "record": 57
+                "record": 57,
+                "text": "Above the West Bedroom"
               },
               {
-                "text": "The Beach",
-                "record": 58
+                "record": 58,
+                "text": "The Beach"
               },
               {
-                "text": "The Yacht",
-                "record": 59
+                "record": 59,
+                "text": "The Yacht"
               },
               {
-                "text": "The Bow",
-                "record": 60
+                "record": 60,
+                "text": "The Bow"
               }
             ]
           }
@@ -4845,6 +6084,10 @@
           "read_by": [
             "$38555"
           ],
+          "writers": [],
+          "readers": [
+            "$38555"
+          ],
           "private": true,
           "single_owner": true
         },
@@ -4856,6 +6099,12 @@
           "size": 6400,
           "kind": "read-write",
           "owners": [
+            "$34463"
+          ],
+          "writers": [
+            "$34463"
+          ],
+          "readers": [
             "$34463"
           ],
           "private": true,
@@ -4872,6 +6121,13 @@
             "$34463",
             "$34499"
           ],
+          "writers": [
+            "$34463",
+            "$34499"
+          ],
+          "readers": [
+            "$34463"
+          ],
           "private": true
         },
         {
@@ -4884,6 +6140,15 @@
           "owners": [
             "$34463",
             "$34499",
+            "$34620"
+          ],
+          "writers": [
+            "$34463",
+            "$34499",
+            "$34620"
+          ],
+          "readers": [
+            "$34463",
             "$34620"
           ],
           "private": true
@@ -4899,6 +6164,13 @@
             "$34463",
             "$34499"
           ],
+          "writers": [
+            "$34463",
+            "$34499"
+          ],
+          "readers": [
+            "$34463"
+          ],
           "private": true
         },
         {
@@ -4911,6 +6183,15 @@
           "owners": [
             "$34463",
             "$34499",
+            "$34620"
+          ],
+          "writers": [
+            "$34463",
+            "$34499",
+            "$34620"
+          ],
+          "readers": [
+            "$34463",
             "$34620"
           ],
           "private": true
@@ -4926,6 +6207,13 @@
             "$34463",
             "$34499"
           ],
+          "writers": [
+            "$34463",
+            "$34499"
+          ],
+          "readers": [
+            "$34463"
+          ],
           "private": true
         },
         {
@@ -4936,6 +6224,12 @@
           "size": 384,
           "kind": "read-write",
           "owners": [
+            "$34463"
+          ],
+          "writers": [
+            "$34463"
+          ],
+          "readers": [
             "$34463"
           ],
           "private": true,
@@ -4952,6 +6246,13 @@
             "$37974",
             "$38555"
           ],
+          "writers": [
+            "$37974",
+            "$38555"
+          ],
+          "readers": [
+            "$38555"
+          ],
           "private": true
         },
         {
@@ -4965,6 +6266,10 @@
             "$36307"
           ],
           "read_by": [
+            "$36307"
+          ],
+          "writers": [],
+          "readers": [
             "$36307"
           ],
           "private": true,
@@ -4984,6 +6289,14 @@
           "read_by": [
             "$36307"
           ],
+          "writers": [
+            "$34463",
+            "$38430"
+          ],
+          "readers": [
+            "$34463",
+            "$36307"
+          ],
           "private": true
         },
         {
@@ -5000,6 +6313,16 @@
           ],
           "read_by": [
             "$36307"
+          ],
+          "writers": [
+            "$34463",
+            "$37310",
+            "$38430"
+          ],
+          "readers": [
+            "$34463",
+            "$36307",
+            "$37310"
           ],
           "private": true
         },
@@ -5018,6 +6341,19 @@
           ],
           "read_by": [
             "$36307",
+            "$38344"
+          ],
+          "writers": [
+            "$34463",
+            "$37310",
+            "$37841",
+            "$38430"
+          ],
+          "readers": [
+            "$34463",
+            "$36307",
+            "$37310",
+            "$37841",
             "$38344"
           ]
         },
@@ -5038,6 +6374,21 @@
           "read_by": [
             "$36307",
             "$38344"
+          ],
+          "writers": [
+            "$34463",
+            "$34499",
+            "$37310",
+            "$37841",
+            "$38430"
+          ],
+          "readers": [
+            "$34463",
+            "$34499",
+            "$36307",
+            "$37310",
+            "$37841",
+            "$38344"
           ]
         },
         {
@@ -5055,6 +6406,19 @@
           ],
           "read_by": [
             "$36307",
+            "$38344"
+          ],
+          "writers": [
+            "$34463",
+            "$37310",
+            "$37841",
+            "$38430"
+          ],
+          "readers": [
+            "$34463",
+            "$36307",
+            "$37310",
+            "$37841",
             "$38344"
           ]
         },
@@ -5075,6 +6439,20 @@
           "read_by": [
             "$36307",
             "$38344"
+          ],
+          "writers": [
+            "$34463",
+            "$37310",
+            "$37841",
+            "$38196",
+            "$38430"
+          ],
+          "readers": [
+            "$34463",
+            "$36307",
+            "$37310",
+            "$37841",
+            "$38344"
           ]
         },
         {
@@ -5093,6 +6471,19 @@
           "read_by": [
             "$36307",
             "$38344"
+          ],
+          "writers": [
+            "$34463",
+            "$37310",
+            "$37841",
+            "$38430"
+          ],
+          "readers": [
+            "$34463",
+            "$36307",
+            "$37310",
+            "$37841",
+            "$38344"
           ]
         },
         {
@@ -5109,6 +6500,17 @@
           ],
           "read_by": [
             "$36307",
+            "$38344"
+          ],
+          "writers": [
+            "$34463",
+            "$37310",
+            "$38430"
+          ],
+          "readers": [
+            "$34463",
+            "$36307",
+            "$37310",
             "$38344"
           ]
         },
@@ -5128,6 +6530,18 @@
           "read_by": [
             "$36307",
             "$38344"
+          ],
+          "writers": [
+            "$34463",
+            "$37310",
+            "$38196",
+            "$38430"
+          ],
+          "readers": [
+            "$34463",
+            "$36307",
+            "$37310",
+            "$38344"
           ]
         },
         {
@@ -5145,6 +6559,17 @@
           "read_by": [
             "$36307",
             "$38344"
+          ],
+          "writers": [
+            "$34463",
+            "$37310",
+            "$38430"
+          ],
+          "readers": [
+            "$34463",
+            "$36307",
+            "$37310",
+            "$38344"
           ]
         },
         {
@@ -5159,6 +6584,15 @@
             "$37310"
           ],
           "read_by": [
+            "$36307",
+            "$38344"
+          ],
+          "writers": [
+            "$34463",
+            "$37310"
+          ],
+          "readers": [
+            "$34463",
             "$36307",
             "$38344"
           ],
@@ -5179,6 +6613,14 @@
             "$36171",
             "$38344"
           ],
+          "writers": [
+            "$36288"
+          ],
+          "readers": [
+            "$34463",
+            "$36171",
+            "$38344"
+          ],
           "private": true,
           "single_owner": true
         },
@@ -5194,6 +6636,15 @@
             "$36288"
           ],
           "read_by": [
+            "$34463",
+            "$36171",
+            "$38344"
+          ],
+          "writers": [
+            "$36203",
+            "$36288"
+          ],
+          "readers": [
             "$34463",
             "$36171",
             "$38344"
@@ -5221,6 +6672,22 @@
             "$38344",
             "$38430"
           ],
+          "writers": [
+            "$34463"
+          ],
+          "readers": [
+            "$34463",
+            "$36171",
+            "$36203",
+            "$36288",
+            "$36307",
+            "$37310",
+            "$37841",
+            "$38064",
+            "$38137",
+            "$38344",
+            "$38430"
+          ],
           "single_owner": true
         },
         {
@@ -5237,6 +6704,14 @@
           "read_by": [
             "$37310"
           ],
+          "writers": [
+            "$34463",
+            "$37056"
+          ],
+          "readers": [
+            "$37056",
+            "$37310"
+          ],
           "private": true
         },
         {
@@ -5248,6 +6723,15 @@
           "kind": "read-write",
           "owners": [
             "$34463",
+            "$37056",
+            "$37310"
+          ],
+          "writers": [
+            "$34463",
+            "$37056",
+            "$37310"
+          ],
+          "readers": [
             "$37056",
             "$37310"
           ],
@@ -5267,6 +6751,14 @@
           "read_by": [
             "$37056"
           ],
+          "writers": [
+            "$34463",
+            "$37310"
+          ],
+          "readers": [
+            "$37056",
+            "$37310"
+          ],
           "private": true
         },
         {
@@ -5280,6 +6772,13 @@
             "$34463"
           ],
           "read_by": [
+            "$37056",
+            "$37310"
+          ],
+          "writers": [
+            "$34463"
+          ],
+          "readers": [
             "$37056",
             "$37310"
           ],
@@ -5301,6 +6800,11 @@
             "$37056",
             "$37310"
           ],
+          "writers": [],
+          "readers": [
+            "$37056",
+            "$37310"
+          ],
           "private": true
         },
         {
@@ -5315,6 +6819,11 @@
             "$38555"
           ],
           "read_by": [
+            "$38528",
+            "$38555"
+          ],
+          "writers": [],
+          "readers": [
             "$38528",
             "$38555"
           ],
@@ -5335,6 +6844,11 @@
             "$37310",
             "$38504"
           ],
+          "writers": [],
+          "readers": [
+            "$37310",
+            "$38504"
+          ],
           "private": true
         },
         {
@@ -5348,6 +6862,10 @@
             "$38504"
           ],
           "read_by": [
+            "$38504"
+          ],
+          "writers": [],
+          "readers": [
             "$38504"
           ],
           "private": true,
@@ -5364,6 +6882,10 @@
             "$37310"
           ],
           "read_by": [
+            "$37310"
+          ],
+          "writers": [],
+          "readers": [
             "$37310"
           ],
           "private": true,
@@ -5384,6 +6906,11 @@
             "$38528",
             "$38555"
           ],
+          "writers": [],
+          "readers": [
+            "$38528",
+            "$38555"
+          ],
           "private": true
         },
         {
@@ -5397,6 +6924,10 @@
             "$37310"
           ],
           "read_by": [
+            "$37310"
+          ],
+          "writers": [],
+          "readers": [
             "$37310"
           ],
           "private": true,
@@ -5414,6 +6945,11 @@
             "$38555"
           ],
           "read_by": [
+            "$38528",
+            "$38555"
+          ],
+          "writers": [],
+          "readers": [
             "$38528",
             "$38555"
           ],
@@ -5437,6 +6973,19 @@
             "$38196",
             "$38276",
             "$38344"
+          ],
+          "writers": [
+            "$34463",
+            "$36307",
+            "$38064"
+          ],
+          "readers": [
+            "$34463",
+            "$37310",
+            "$37841",
+            "$38196",
+            "$38276",
+            "$38344"
           ]
         },
         {
@@ -5450,6 +6999,10 @@
             "$36307"
           ],
           "read_by": [
+            "$36307"
+          ],
+          "writers": [],
+          "readers": [
             "$36307"
           ],
           "private": true,
@@ -5470,6 +7023,11 @@
             "$38528",
             "$38555"
           ],
+          "writers": [],
+          "readers": [
+            "$38528",
+            "$38555"
+          ],
           "private": true
         },
         {
@@ -5485,6 +7043,10 @@
           "read_by": [
             "$38528"
           ],
+          "writers": [],
+          "readers": [
+            "$38528"
+          ],
           "private": true,
           "single_owner": true
         },
@@ -5498,6 +7060,10 @@
           "owners": [
             "$34463"
           ],
+          "writers": [
+            "$34463"
+          ],
+          "readers": [],
           "private": true,
           "single_owner": true
         },
@@ -5512,6 +7078,13 @@
             "$34463",
             "$37841"
           ],
+          "writers": [
+            "$34463",
+            "$37841"
+          ],
+          "readers": [
+            "$37841"
+          ],
           "private": true
         },
         {
@@ -5522,6 +7095,12 @@
           "size": 12,
           "kind": "read-write",
           "owners": [
+            "$34463"
+          ],
+          "writers": [
+            "$34463"
+          ],
+          "readers": [
             "$34463"
           ],
           "private": true,
@@ -5538,6 +7117,10 @@
             "$38528"
           ],
           "read_by": [
+            "$38528"
+          ],
+          "writers": [],
+          "readers": [
             "$38528"
           ],
           "private": true,
@@ -5558,6 +7141,15 @@
             "$37841",
             "$38196"
           ],
+          "writers": [
+            "$34463",
+            "$38276"
+          ],
+          "readers": [
+            "$34463",
+            "$37841",
+            "$38196"
+          ],
           "private": true
         },
         {
@@ -5571,6 +7163,15 @@
             "$34463"
           ],
           "read_by": [
+            "$35211",
+            "$36307",
+            "$38601"
+          ],
+          "writers": [
+            "$34463"
+          ],
+          "readers": [
+            "$34463",
             "$35211",
             "$36307",
             "$38601"
@@ -5593,6 +7194,18 @@
           ],
           "read_by": [
             "$38344"
+          ],
+          "writers": [
+            "$34463",
+            "$36307",
+            "$37310",
+            "$38064"
+          ],
+          "readers": [
+            "$34463",
+            "$36307",
+            "$37310",
+            "$38344"
           ]
         },
         {
@@ -5607,6 +7220,16 @@
             "$36307"
           ],
           "read_by": [
+            "$37310",
+            "$38344"
+          ],
+          "writers": [
+            "$34463",
+            "$36307"
+          ],
+          "readers": [
+            "$34463",
+            "$36307",
             "$37310",
             "$38344"
           ],
@@ -5627,6 +7250,17 @@
           ],
           "read_by": [
             "$38344"
+          ],
+          "writers": [
+            "$34463",
+            "$36307",
+            "$37310",
+            "$38064"
+          ],
+          "readers": [
+            "$34463",
+            "$36307",
+            "$38344"
           ]
         },
         {
@@ -5642,6 +7276,16 @@
             "$37310"
           ],
           "read_by": [
+            "$38344"
+          ],
+          "writers": [
+            "$34463",
+            "$36307",
+            "$37310"
+          ],
+          "readers": [
+            "$34463",
+            "$36307",
             "$38344"
           ],
           "private": true
@@ -5664,6 +7308,22 @@
             "$38196",
             "$38276",
             "$38344"
+          ],
+          "writers": [
+            "$34463",
+            "$36307",
+            "$36508",
+            "$37310",
+            "$38064"
+          ],
+          "readers": [
+            "$34463",
+            "$36307",
+            "$36508",
+            "$38064",
+            "$38196",
+            "$38276",
+            "$38344"
           ]
         },
         {
@@ -5681,6 +7341,17 @@
           ],
           "read_by": [
             "$38344"
+          ],
+          "writers": [
+            "$34463",
+            "$36307",
+            "$36508",
+            "$38064"
+          ],
+          "readers": [
+            "$34463",
+            "$36307",
+            "$38344"
           ]
         },
         {
@@ -5691,6 +7362,14 @@
           "size": 1,
           "kind": "read-write",
           "owners": [
+            "$34463",
+            "$36307"
+          ],
+          "writers": [
+            "$34463",
+            "$36307"
+          ],
+          "readers": [
             "$34463",
             "$36307"
           ],
@@ -5708,6 +7387,15 @@
             "$36307",
             "$37310"
           ],
+          "writers": [
+            "$34463",
+            "$36307",
+            "$37310"
+          ],
+          "readers": [
+            "$36307",
+            "$37310"
+          ],
           "private": true
         },
         {
@@ -5718,6 +7406,12 @@
           "size": 7,
           "kind": "read-write",
           "owners": [
+            "$34463"
+          ],
+          "writers": [
+            "$34463"
+          ],
+          "readers": [
             "$34463"
           ],
           "private": true,
@@ -5732,6 +7426,13 @@
           "kind": "read-write",
           "owners": [
             "$34463",
+            "$37841"
+          ],
+          "writers": [
+            "$34463",
+            "$37841"
+          ],
+          "readers": [
             "$37841"
           ],
           "private": true
@@ -5751,6 +7452,17 @@
           ],
           "read_by": [
             "$36307"
+          ],
+          "writers": [
+            "$34463",
+            "$37841",
+            "$38196",
+            "$38276"
+          ],
+          "readers": [
+            "$34463",
+            "$36307",
+            "$38196"
           ]
         },
         {
@@ -5763,6 +7475,13 @@
           "owners": [
             "$34463",
             "$36307"
+          ],
+          "writers": [
+            "$34463",
+            "$36307"
+          ],
+          "readers": [
+            "$34463"
           ],
           "private": true
         },
@@ -5779,6 +7498,13 @@
           "read_by": [
             "$35211"
           ],
+          "writers": [
+            "$34463"
+          ],
+          "readers": [
+            "$34463",
+            "$35211"
+          ],
           "private": true,
           "single_owner": true
         },
@@ -5790,6 +7516,12 @@
           "size": 1,
           "kind": "read-write",
           "owners": [
+            "$34499"
+          ],
+          "writers": [
+            "$34499"
+          ],
+          "readers": [
             "$34499"
           ],
           "private": true,
@@ -5808,6 +7540,10 @@
           "read_by": [
             "$34463"
           ],
+          "writers": [],
+          "readers": [
+            "$34463"
+          ],
           "private": true,
           "single_owner": true
         },
@@ -5822,6 +7558,10 @@
             "$38562"
           ],
           "read_by": [
+            "$38562"
+          ],
+          "writers": [],
+          "readers": [
             "$38562"
           ],
           "private": true,
@@ -5840,6 +7580,10 @@
           "read_by": [
             "$34463"
           ],
+          "writers": [],
+          "readers": [
+            "$34463"
+          ],
           "private": true,
           "single_owner": true
         },
@@ -5853,6 +7597,10 @@
           "owners": [
             "$36147"
           ],
+          "writers": [
+            "$36147"
+          ],
+          "readers": [],
           "private": true,
           "single_owner": true
         },
@@ -5867,6 +7615,10 @@
             "$34463"
           ],
           "read_by": [
+            "$34463"
+          ],
+          "writers": [],
+          "readers": [
             "$34463"
           ],
           "private": true,
@@ -5885,6 +7637,10 @@
           "read_by": [
             "$37974"
           ],
+          "writers": [],
+          "readers": [
+            "$37974"
+          ],
           "private": true,
           "single_owner": true
         },
@@ -5901,6 +7657,10 @@
           "read_by": [
             "$34499"
           ],
+          "writers": [],
+          "readers": [
+            "$34499"
+          ],
           "private": true,
           "single_owner": true
         },
@@ -5915,6 +7675,10 @@
             "$37974"
           ],
           "read_by": [
+            "$37974"
+          ],
+          "writers": [],
+          "readers": [
             "$37974"
           ],
           "private": true,
@@ -5935,6 +7699,11 @@
             "$37974",
             "$38504"
           ],
+          "writers": [],
+          "readers": [
+            "$37974",
+            "$38504"
+          ],
           "private": true
         },
         {
@@ -5948,6 +7717,10 @@
             "$34499"
           ],
           "read_by": [
+            "$34499"
+          ],
+          "writers": [],
+          "readers": [
             "$34499"
           ],
           "private": true,
@@ -5968,6 +7741,11 @@
             "$37974",
             "$38504"
           ],
+          "writers": [],
+          "readers": [
+            "$37974",
+            "$38504"
+          ],
           "private": true
         },
         {
@@ -5981,6 +7759,10 @@
             "$34463"
           ],
           "read_by": [
+            "$34463"
+          ],
+          "writers": [],
+          "readers": [
             "$34463"
           ],
           "private": true,
@@ -6001,6 +7783,11 @@
             "$34463",
             "$37841"
           ],
+          "writers": [],
+          "readers": [
+            "$34463",
+            "$37841"
+          ],
           "private": true
         },
         {
@@ -6018,6 +7805,11 @@
             "$37974",
             "$38504"
           ],
+          "writers": [],
+          "readers": [
+            "$37974",
+            "$38504"
+          ],
           "private": true
         },
         {
@@ -6028,6 +7820,14 @@
           "size": 81,
           "kind": "read-write",
           "owners": [
+            "$34463",
+            "$37841"
+          ],
+          "writers": [
+            "$34463",
+            "$37841"
+          ],
+          "readers": [
             "$34463",
             "$37841"
           ],
@@ -6048,6 +7848,11 @@
             "$37974",
             "$38504"
           ],
+          "writers": [],
+          "readers": [
+            "$37974",
+            "$38504"
+          ],
           "private": true
         },
         {
@@ -6061,6 +7866,10 @@
             "$37841"
           ],
           "read_by": [
+            "$37841"
+          ],
+          "writers": [],
+          "readers": [
             "$37841"
           ],
           "private": true,
@@ -6081,6 +7890,11 @@
             "$37974",
             "$38504"
           ],
+          "writers": [],
+          "readers": [
+            "$37974",
+            "$38504"
+          ],
           "private": true
         },
         {
@@ -6094,6 +7908,10 @@
             "$37974"
           ],
           "read_by": [
+            "$37974"
+          ],
+          "writers": [],
+          "readers": [
             "$37974"
           ],
           "private": true,
@@ -6110,6 +7928,10 @@
             "$34463"
           ],
           "read_by": [
+            "$34463"
+          ],
+          "writers": [],
+          "readers": [
             "$34463"
           ],
           "private": true,
@@ -6381,58 +8203,58 @@
           "slots": 7,
           "fields": {
             "x": {
-              "offset": 2,
-              "formula": "(v&31)*8"
+              "formula": "(v&31)*8",
+              "offset": 2
             },
             "y": {
-              "offset": 3,
-              "formula": "(v&240)>>1"
+              "formula": "(v&240)>>1",
+              "offset": 3
             },
             "graphic_selector_offset_0": {
-              "offset": 0,
-              "note": "picks which sprite/frame is drawn"
+              "note": "picks which sprite/frame is drawn",
+              "offset": 0
             },
             "graphic_selector_offset_1": {
-              "offset": 1,
-              "note": "picks which sprite/frame is drawn"
+              "note": "picks which sprite/frame is drawn",
+              "offset": 1
             },
             "graphic_selector_offset_2": {
-              "offset": 2,
-              "note": "picks which sprite/frame is drawn"
+              "note": "picks which sprite/frame is drawn",
+              "offset": 2
             },
             "graphic_selector_offset_5": {
-              "offset": 5,
-              "note": "picks which sprite/frame is drawn"
+              "note": "picks which sprite/frame is drawn",
+              "offset": 5
             }
           },
           "validated_slots": [
             {
-              "y_addr": 33027,
+              "confidence": 0.9244839857651246,
               "x_addr": 33026,
-              "confidence": 0.9244839857651246
+              "y_addr": 33027
             },
             {
-              "y_addr": 33035,
+              "confidence": 0.3343295827473043,
               "x_addr": 33034,
-              "confidence": 0.3343295827473043
+              "y_addr": 33035
             }
           ],
           "loaded_by": [
             {
-              "site": 35137,
+              "times": 8544,
               "from": [
                 40962,
                 41983
               ],
-              "times": 8544
+              "site": 35137
             },
             {
-              "site": 35128,
+              "times": 8544,
               "from": [
                 40960,
                 41977
               ],
-              "times": 8544
+              "site": 35128
             }
           ],
           "updated_by": [
@@ -6442,102 +8264,102 @@
         },
         "individual": [
           {
-            "y_formula": "v+168",
-            "x_formula": "(v&15)*8+48",
-            "confidence": 0.16725269573370838,
+            "x_addr": 32983,
             "y_addr": 32985,
-            "x_addr": 32983
-          },
-          {
-            "y_formula": "v>>1+41",
-            "x_formula": "(v&31)*8",
-            "confidence": 0.10182255039849976,
-            "y_addr": 33014,
-            "x_addr": 33015
-          },
-          {
-            "y_formula": "v>>1+168",
-            "x_formula": "(v&31)*8+48",
-            "confidence": 0.11064228785747773,
-            "y_addr": 33030,
-            "x_addr": 33038
-          },
-          {
-            "y_formula": "v>>1+168",
-            "x_formula": "(v&240)>>1+64",
-            "confidence": 0.12599624941397095,
-            "y_addr": 33042,
-            "x_addr": 33044
-          },
-          {
-            "y_formula": "v>>1+168",
+            "confidence": 0.16725269573370838,
             "x_formula": "(v&15)*8+48",
-            "confidence": 0.23781059540553212,
-            "y_addr": 33050,
-            "x_addr": 33052
+            "y_formula": "v+168"
           },
           {
-            "y_formula": "v>>1+168",
+            "x_addr": 33015,
+            "y_addr": 33014,
+            "confidence": 0.10182255039849976,
             "x_formula": "(v&31)*8",
-            "confidence": 0.30719643694327237,
-            "y_addr": 33058,
-            "x_addr": 33066
+            "y_formula": "v>>1+41"
           },
           {
-            "y_formula": "(v&31)*8+24",
+            "x_addr": 33038,
+            "y_addr": 33030,
+            "confidence": 0.11064228785747773,
             "x_formula": "(v&31)*8+48",
-            "confidence": 0.14750351617440224,
-            "y_addr": 34261,
-            "x_addr": 34257
+            "y_formula": "v>>1+168"
           },
           {
-            "y_formula": "v>>1+13",
+            "x_addr": 33044,
+            "y_addr": 33042,
+            "confidence": 0.12599624941397095,
+            "x_formula": "(v&240)>>1+64",
+            "y_formula": "v>>1+168"
+          },
+          {
+            "x_addr": 33052,
+            "y_addr": 33050,
+            "confidence": 0.23781059540553212,
+            "x_formula": "(v&15)*8+48",
+            "y_formula": "v>>1+168"
+          },
+          {
+            "x_addr": 33066,
+            "y_addr": 33058,
+            "confidence": 0.30719643694327237,
             "x_formula": "(v&31)*8",
-            "confidence": 0.9532703791140119,
+            "y_formula": "v>>1+168"
+          },
+          {
+            "x_addr": 34257,
+            "y_addr": 34261,
+            "confidence": 0.14750351617440224,
+            "x_formula": "(v&31)*8+48",
+            "y_formula": "(v&31)*8+24"
+          },
+          {
+            "x_addr": 34259,
             "y_addr": 34255,
-            "x_addr": 34259
+            "confidence": 0.9532703791140119,
+            "x_formula": "(v&31)*8",
+            "y_formula": "v>>1+13"
           }
         ],
         "weak_pairs_possible_noise": [
           {
-            "y_addr": 33008,
+            "confidence": 0.0646390060947023,
             "x_addr": 33004,
-            "confidence": 0.0646390060947023
+            "y_addr": 33008
           },
           {
-            "y_addr": 33013,
+            "confidence": 0.04704626334519573,
             "x_addr": 33009,
-            "confidence": 0.04704626334519573
+            "y_addr": 33013
           },
           {
-            "y_addr": 33012,
+            "confidence": 0.021536568213783403,
             "x_addr": 33011,
-            "confidence": 0.021536568213783403
+            "y_addr": 33012
           },
           {
-            "y_addr": 33024,
+            "confidence": 0.02812939521800281,
             "x_addr": 33017,
-            "confidence": 0.02812939521800281
+            "y_addr": 33024
           },
           {
-            "y_addr": 33029,
+            "confidence": 0.06384786685419597,
             "x_addr": 33031,
-            "confidence": 0.06384786685419597
+            "y_addr": 33029
           },
           {
-            "y_addr": 33032,
+            "confidence": 0.03938115330520394,
             "x_addr": 33033,
-            "confidence": 0.03938115330520394
+            "y_addr": 33032
           },
           {
-            "y_addr": 33040,
+            "confidence": 0.022884126407555393,
             "x_addr": 33047,
-            "confidence": 0.022884126407555393
+            "y_addr": 33040
           },
           {
-            "y_addr": 33043,
+            "confidence": 0.04390637610976594,
             "x_addr": 33048,
-            "confidence": 0.04390637610976594
+            "y_addr": 33043
           }
         ]
       },
@@ -6554,8 +8376,8 @@
             33087
           ],
           "cursor_advance": {
-            "site": 37305,
-            "step": 8
+            "step": 8,
+            "site": 37305
           },
           "terminator": {
             "value": 255,
@@ -6757,6 +8579,8 @@
               "condition": "field +0 == 255",
               "arms": [
                 {
+                  "times": 80353,
+                  "pc": 37066,
                   "exclusive_fields": [
                     0,
                     1,
@@ -6765,14 +8589,12 @@
                     4,
                     6,
                     7
-                  ],
-                  "pc": 37066,
-                  "times": 80353
+                  ]
                 },
                 {
-                  "exclusive_fields": [],
+                  "times": 22752,
                   "pc": 35273,
-                  "times": 22752
+                  "exclusive_fields": []
                 }
               ]
             },
@@ -6781,6 +8603,8 @@
               "condition": "field +0 & 3",
               "arms": [
                 {
+                  "times": 75571,
+                  "pc": 37071,
                   "exclusive_fields": [
                     0,
                     1,
@@ -6789,14 +8613,12 @@
                     4,
                     6,
                     7
-                  ],
-                  "pc": 37071,
-                  "times": 75571
+                  ]
                 },
                 {
-                  "exclusive_fields": [],
+                  "times": 4782,
                   "pc": 37302,
-                  "times": 4782
+                  "exclusive_fields": []
                 }
               ]
             },
@@ -6805,6 +8627,8 @@
               "condition": "field +0 & 3 == 1",
               "arms": [
                 {
+                  "times": 38318,
+                  "pc": 37076,
                   "exclusive_fields": [
                     0,
                     1,
@@ -6812,19 +8636,17 @@
                     4,
                     6,
                     7
-                  ],
-                  "pc": 37076,
-                  "times": 38318
+                  ]
                 },
                 {
+                  "times": 37253,
+                  "pc": 37171,
                   "exclusive_fields": [
                     0,
                     2,
                     6,
                     7
-                  ],
-                  "pc": 37171,
-                  "times": 37253
+                  ]
                 }
               ]
             },
@@ -6833,24 +8655,24 @@
               "condition": "field +0 & 3 == 2",
               "arms": [
                 {
+                  "times": 37105,
+                  "pc": 37247,
                   "exclusive_fields": [
                     0,
                     3,
                     4,
                     6,
                     7
-                  ],
-                  "pc": 37247,
-                  "times": 37105
+                  ]
                 },
                 {
+                  "times": 1213,
+                  "pc": 37081,
                   "exclusive_fields": [
                     0,
                     1,
                     7
-                  ],
-                  "pc": 37081,
-                  "times": 1213
+                  ]
                 }
               ]
             },
@@ -6859,18 +8681,18 @@
               "condition": "field +0",
               "arms": [
                 {
+                  "times": 529,
+                  "pc": 37087,
                   "exclusive_fields": [
                     1
-                  ],
-                  "pc": 37087,
-                  "times": 529
+                  ]
                 },
                 {
+                  "times": 684,
+                  "pc": 37119,
                   "exclusive_fields": [
                     1
-                  ],
-                  "pc": 37119,
-                  "times": 684
+                  ]
                 }
               ]
             },
@@ -6879,16 +8701,16 @@
               "condition": "field +7 & 127",
               "arms": [
                 {
+                  "times": 24,
+                  "pc": 37160,
                   "exclusive_fields": [
                     0
-                  ],
-                  "pc": 37160,
-                  "times": 24
+                  ]
                 },
                 {
-                  "exclusive_fields": [],
+                  "times": 1189,
                   "pc": 37302,
-                  "times": 1189
+                  "exclusive_fields": []
                 }
               ]
             },
@@ -6897,22 +8719,22 @@
               "condition": "field +0",
               "arms": [
                 {
+                  "times": 19221,
+                  "pc": 37177,
                   "exclusive_fields": [
                     0,
                     2,
                     6
-                  ],
-                  "pc": 37177,
-                  "times": 19221
+                  ]
                 },
                 {
+                  "times": 18032,
+                  "pc": 37212,
                   "exclusive_fields": [
                     0,
                     2,
                     7
-                  ],
-                  "pc": 37212,
-                  "times": 18032
+                  ]
                 }
               ]
             },
@@ -6921,18 +8743,18 @@
               "condition": "field +0 & 127 == 96",
               "arms": [
                 {
-                  "exclusive_fields": [],
+                  "times": 13642,
                   "pc": 37302,
-                  "times": 13642
+                  "exclusive_fields": []
                 },
                 {
+                  "times": 5579,
+                  "pc": 37191,
                   "exclusive_fields": [
                     0,
                     2,
                     6
-                  ],
-                  "pc": 37191,
-                  "times": 5579
+                  ]
                 }
               ]
             },
@@ -6941,18 +8763,18 @@
               "condition": "field +6 & 31",
               "arms": [
                 {
+                  "times": 386,
+                  "pc": 37206,
                   "exclusive_fields": [
                     0
-                  ],
-                  "pc": 37206,
-                  "times": 386
+                  ]
                 },
                 {
+                  "times": 5193,
+                  "pc": 37201,
                   "exclusive_fields": [
                     2
-                  ],
-                  "pc": 37201,
-                  "times": 5193
+                  ]
                 }
               ]
             },
@@ -6961,18 +8783,18 @@
               "condition": "field +0 == 160",
               "arms": [
                 {
-                  "exclusive_fields": [],
+                  "times": 13557,
                   "pc": 37302,
-                  "times": 13557
+                  "exclusive_fields": []
                 },
                 {
+                  "times": 4475,
+                  "pc": 37226,
                   "exclusive_fields": [
                     0,
                     2,
                     7
-                  ],
-                  "pc": 37226,
-                  "times": 4475
+                  ]
                 }
               ]
             },
@@ -6981,18 +8803,18 @@
               "condition": "field +7 & 31",
               "arms": [
                 {
+                  "times": 347,
+                  "pc": 37241,
                   "exclusive_fields": [
                     0
-                  ],
-                  "pc": 37241,
-                  "times": 347
+                  ]
                 },
                 {
+                  "times": 4128,
+                  "pc": 37236,
                   "exclusive_fields": [
                     2
-                  ],
-                  "pc": 37236,
-                  "times": 4128
+                  ]
                 }
               ]
             },
@@ -7001,16 +8823,16 @@
               "condition": "field +0 & 24",
               "arms": [
                 {
-                  "exclusive_fields": [],
+                  "times": 6446,
                   "pc": 37267,
-                  "times": 6446
+                  "exclusive_fields": []
                 },
                 {
+                  "times": 30659,
+                  "pc": 37259,
                   "exclusive_fields": [
                     0
-                  ],
-                  "pc": 37259,
-                  "times": 30659
+                  ]
                 }
               ]
             },
@@ -7019,17 +8841,17 @@
               "condition": "field +7",
               "arms": [
                 {
-                  "exclusive_fields": [],
+                  "times": 716,
                   "pc": 37294,
-                  "times": 716
+                  "exclusive_fields": []
                 },
                 {
+                  "times": 36389,
+                  "pc": 37281,
                   "exclusive_fields": [
                     3,
                     6
-                  ],
-                  "pc": 37281,
-                  "times": 36389
+                  ]
                 }
               ]
             },
@@ -7038,18 +8860,18 @@
               "condition": "field +6",
               "arms": [
                 {
+                  "times": 6,
+                  "pc": 37288,
                   "exclusive_fields": [
                     3,
                     4,
                     6
-                  ],
-                  "pc": 37288,
-                  "times": 6
+                  ]
                 },
                 {
-                  "exclusive_fields": [],
+                  "times": 35712,
                   "pc": 37302,
-                  "times": 35712
+                  "exclusive_fields": []
                 }
               ]
             }
@@ -7068,8 +8890,8 @@
             33087
           ],
           "cursor_advance": {
-            "site": 37814,
-            "step": 8
+            "step": 8,
+            "site": 37814
           },
           "terminator": {
             "value": 255,
@@ -7328,6 +9150,8 @@
               "condition": "field +0 == 255",
               "arms": [
                 {
+                  "times": 79945,
+                  "pc": 37320,
                   "exclusive_fields": [
                     0,
                     1,
@@ -7338,14 +9162,12 @@
                     6,
                     9,
                     11
-                  ],
-                  "pc": 37320,
-                  "times": 79945
+                  ]
                 },
                 {
-                  "exclusive_fields": [],
+                  "times": 22628,
                   "pc": 35311,
-                  "times": 22628
+                  "exclusive_fields": []
                 }
               ]
             },
@@ -7354,6 +9176,8 @@
               "condition": "field +0 & 7 == 3",
               "arms": [
                 {
+                  "times": 1206,
+                  "pc": 37540,
                   "exclusive_fields": [
                     0,
                     1,
@@ -7363,11 +9187,11 @@
                     5,
                     9,
                     11
-                  ],
-                  "pc": 37540,
-                  "times": 1206
+                  ]
                 },
                 {
+                  "times": 78739,
+                  "pc": 37330,
                   "exclusive_fields": [
                     0,
                     1,
@@ -7376,9 +9200,7 @@
                     4,
                     5,
                     6
-                  ],
-                  "pc": 37330,
-                  "times": 78739
+                  ]
                 }
               ]
             },
@@ -7387,26 +9209,26 @@
               "condition": "field +0 & 7 == 4",
               "arms": [
                 {
+                  "times": 4747,
+                  "pc": 37431,
                   "exclusive_fields": [
                     0,
                     2,
                     4,
                     5,
                     6
-                  ],
-                  "pc": 37431,
-                  "times": 4747
+                  ]
                 },
                 {
+                  "times": 73992,
+                  "pc": 37334,
                   "exclusive_fields": [
                     0,
                     1,
                     2,
                     3,
                     5
-                  ],
-                  "pc": 37334,
-                  "times": 73992
+                  ]
                 }
               ]
             },
@@ -7415,18 +9237,18 @@
               "condition": "field +0",
               "arms": [
                 {
+                  "times": 1536,
+                  "pc": 37437,
                   "exclusive_fields": [
                     4
-                  ],
-                  "pc": 37437,
-                  "times": 1536
+                  ]
                 },
                 {
+                  "times": 3211,
+                  "pc": 37444,
                   "exclusive_fields": [
                     4
-                  ],
-                  "pc": 37444,
-                  "times": 3211
+                  ]
                 }
               ]
             },
@@ -7435,19 +9257,19 @@
               "condition": "field +4",
               "arms": [
                 {
-                  "exclusive_fields": [],
+                  "times": 21,
                   "pc": 37455,
-                  "times": 21
+                  "exclusive_fields": []
                 },
                 {
+                  "times": 4726,
+                  "pc": 37474,
                   "exclusive_fields": [
                     2,
                     4,
                     5,
                     6
-                  ],
-                  "pc": 37474,
-                  "times": 4726
+                  ]
                 }
               ]
             },
@@ -7456,19 +9278,19 @@
               "condition": "field +4 & 224",
               "arms": [
                 {
+                  "times": 876,
+                  "pc": 37479,
                   "exclusive_fields": [
                     2,
                     4,
                     5,
                     6
-                  ],
-                  "pc": 37479,
-                  "times": 876
+                  ]
                 },
                 {
-                  "exclusive_fields": [],
+                  "times": 3850,
                   "pc": 37811,
-                  "times": 3850
+                  "exclusive_fields": []
                 }
               ]
             },
@@ -7477,18 +9299,18 @@
               "condition": "field +9",
               "arms": [
                 {
-                  "exclusive_fields": [],
+                  "times": 16291,
                   "pc": 37590,
-                  "times": 16291
+                  "exclusive_fields": []
                 },
                 {
+                  "times": 23507,
+                  "pc": 37574,
                   "exclusive_fields": [
                     5,
                     9,
                     11
-                  ],
-                  "pc": 37574,
-                  "times": 23507
+                  ]
                 }
               ]
             },
@@ -7497,19 +9319,19 @@
               "condition": "field +3",
               "arms": [
                 {
-                  "exclusive_fields": [],
+                  "times": 23500,
                   "pc": 37646,
-                  "times": 23500
+                  "exclusive_fields": []
                 },
                 {
+                  "times": 7,
+                  "pc": 37580,
                   "exclusive_fields": [
                     3,
                     5,
                     9,
                     11
-                  ],
-                  "pc": 37580,
-                  "times": 7
+                  ]
                 }
               ]
             },
@@ -7518,6 +9340,8 @@
               "condition": "field +9",
               "arms": [
                 {
+                  "times": 15894,
+                  "pc": 37646,
                   "exclusive_fields": [
                     0,
                     1,
@@ -7526,18 +9350,16 @@
                     5,
                     9,
                     11
-                  ],
-                  "pc": 37646,
-                  "times": 15894
+                  ]
                 },
                 {
+                  "times": 404,
+                  "pc": 37595,
                   "exclusive_fields": [
                     3,
                     5,
                     11
-                  ],
-                  "pc": 37595,
-                  "times": 404
+                  ]
                 }
               ]
             },
@@ -7546,20 +9368,20 @@
               "condition": "field +1",
               "arms": [
                 {
+                  "times": 14751,
+                  "pc": 37697,
                   "exclusive_fields": [
                     3,
                     5
-                  ],
-                  "pc": 37697,
-                  "times": 14751
+                  ]
                 },
                 {
+                  "times": 16105,
+                  "pc": 37680,
                   "exclusive_fields": [
                     3,
                     5
-                  ],
-                  "pc": 37680,
-                  "times": 16105
+                  ]
                 }
               ]
             },
@@ -7568,20 +9390,20 @@
               "condition": "field +4",
               "arms": [
                 {
+                  "times": 1206,
+                  "pc": 37726,
                   "exclusive_fields": [
                     0,
                     4,
                     11
-                  ],
-                  "pc": 37726,
-                  "times": 1206
+                  ]
                 },
                 {
+                  "times": 38592,
+                  "pc": 37720,
                   "exclusive_fields": [
                     9
-                  ],
-                  "pc": 37720,
-                  "times": 38592
+                  ]
                 }
               ]
             },
@@ -7590,20 +9412,20 @@
               "condition": "field +9 & 128",
               "arms": [
                 {
+                  "times": 96,
+                  "pc": 37733,
                   "exclusive_fields": [
                     11
-                  ],
-                  "pc": 37733,
-                  "times": 96
+                  ]
                 },
                 {
+                  "times": 1110,
+                  "pc": 37743,
                   "exclusive_fields": [
                     0,
                     4,
                     11
-                  ],
-                  "pc": 37743,
-                  "times": 1110
+                  ]
                 }
               ]
             },
@@ -7612,17 +9434,17 @@
               "condition": "field +11",
               "arms": [
                 {
+                  "times": 404,
+                  "pc": 37749,
                   "exclusive_fields": [
                     0,
                     4
-                  ],
-                  "pc": 37749,
-                  "times": 404
+                  ]
                 },
                 {
-                  "exclusive_fields": [],
+                  "times": 706,
                   "pc": 37811,
-                  "times": 706
+                  "exclusive_fields": []
                 }
               ]
             }
@@ -7829,22 +9651,22 @@
           ],
           "ladders": [
             {
+              "routine": "$37056",
+              "mask": 3,
               "tested_values": [
                 0,
                 1,
                 2
-              ],
-              "mask": 3,
-              "routine": "$37056"
+              ]
             },
             {
+              "routine": "$37310",
+              "mask": 7,
               "tested_values": [
                 0,
                 3,
                 4
-              ],
-              "mask": 7,
-              "routine": "$37310"
+              ]
             }
           ]
         },
@@ -8050,18 +9872,18 @@
                 "condition": "field +0 & 127 == 96",
                 "arms": [
                   {
-                    "exclusive_fields": [],
+                    "times": 13642,
                     "pc": 37302,
-                    "times": 13642
+                    "exclusive_fields": []
                   },
                   {
+                    "times": 5579,
+                    "pc": 37191,
                     "exclusive_fields": [
                       0,
                       2,
                       6
-                    ],
-                    "pc": 37191,
-                    "times": 5579
+                    ]
                   }
                 ]
               },
@@ -8070,18 +9892,18 @@
                 "condition": "field +6 & 31",
                 "arms": [
                   {
+                    "times": 386,
+                    "pc": 37206,
                     "exclusive_fields": [
                       0
-                    ],
-                    "pc": 37206,
-                    "times": 386
+                    ]
                   },
                   {
+                    "times": 5193,
+                    "pc": 37201,
                     "exclusive_fields": [
                       2
-                    ],
-                    "pc": 37201,
-                    "times": 5193
+                    ]
                   }
                 ]
               },
@@ -8090,18 +9912,18 @@
                 "condition": "field +7 & 31",
                 "arms": [
                   {
+                    "times": 347,
+                    "pc": 37241,
                     "exclusive_fields": [
                       0
-                    ],
-                    "pc": 37241,
-                    "times": 347
+                    ]
                   },
                   {
+                    "times": 4128,
+                    "pc": 37236,
                     "exclusive_fields": [
                       2
-                    ],
-                    "pc": 37236,
-                    "times": 4128
+                    ]
                   }
                 ]
               }
@@ -8318,16 +10140,16 @@
                 "condition": "field +0 & 24",
                 "arms": [
                   {
-                    "exclusive_fields": [],
+                    "times": 6446,
                     "pc": 37267,
-                    "times": 6446
+                    "exclusive_fields": []
                   },
                   {
+                    "times": 30659,
+                    "pc": 37259,
                     "exclusive_fields": [
                       0
-                    ],
-                    "pc": 37259,
-                    "times": 30659
+                    ]
                   }
                 ]
               }
@@ -8557,16 +10379,16 @@
                 "condition": "field +7 & 127",
                 "arms": [
                   {
+                    "times": 24,
+                    "pc": 37160,
                     "exclusive_fields": [
                       0
-                    ],
-                    "pc": 37160,
-                    "times": 24
+                    ]
                   },
                   {
-                    "exclusive_fields": [],
+                    "times": 1189,
                     "pc": 37302,
-                    "times": 1189
+                    "exclusive_fields": []
                   }
                 ]
               },
@@ -8575,20 +10397,20 @@
                 "condition": "field +9 & 128",
                 "arms": [
                   {
+                    "times": 96,
+                    "pc": 37733,
                     "exclusive_fields": [
                       11
-                    ],
-                    "pc": 37733,
-                    "times": 96
+                    ]
                   },
                   {
+                    "times": 1110,
+                    "pc": 37743,
                     "exclusive_fields": [
                       0,
                       4,
                       11
-                    ],
-                    "pc": 37743,
-                    "times": 1110
+                    ]
                   }
                 ]
               }
@@ -8704,19 +10526,19 @@
                 "condition": "field +4 & 224",
                 "arms": [
                   {
+                    "times": 876,
+                    "pc": 37479,
                     "exclusive_fields": [
                       2,
                       4,
                       5,
                       6
-                    ],
-                    "pc": 37479,
-                    "times": 876
+                    ]
                   },
                   {
-                    "exclusive_fields": [],
+                    "times": 3850,
                     "pc": 37811,
-                    "times": 3850
+                    "exclusive_fields": []
                   }
                 ]
               }
@@ -8727,60 +10549,60 @@
     },
     "protagonist": [
       {
-        "y_formula": "v+168",
-        "x_formula": "(v&15)*8+48",
-        "confidence": 0.16725269573370838,
+        "x_addr": 32983,
         "y_addr": 32985,
-        "x_addr": 32983
-      },
-      {
-        "y_formula": "v>>1+41",
-        "x_formula": "(v&31)*8",
-        "confidence": 0.10182255039849976,
-        "y_addr": 33014,
-        "x_addr": 33015
-      },
-      {
-        "y_formula": "v>>1+168",
-        "x_formula": "(v&31)*8+48",
-        "confidence": 0.11064228785747773,
-        "y_addr": 33030,
-        "x_addr": 33038
-      },
-      {
-        "y_formula": "v>>1+168",
-        "x_formula": "(v&240)>>1+64",
-        "confidence": 0.12599624941397095,
-        "y_addr": 33042,
-        "x_addr": 33044
-      },
-      {
-        "y_formula": "v>>1+168",
+        "confidence": 0.16725269573370838,
         "x_formula": "(v&15)*8+48",
-        "confidence": 0.23781059540553212,
-        "y_addr": 33050,
-        "x_addr": 33052
+        "y_formula": "v+168"
       },
       {
-        "y_formula": "v>>1+168",
+        "x_addr": 33015,
+        "y_addr": 33014,
+        "confidence": 0.10182255039849976,
         "x_formula": "(v&31)*8",
-        "confidence": 0.30719643694327237,
-        "y_addr": 33058,
-        "x_addr": 33066
+        "y_formula": "v>>1+41"
       },
       {
-        "y_formula": "(v&31)*8+24",
+        "x_addr": 33038,
+        "y_addr": 33030,
+        "confidence": 0.11064228785747773,
         "x_formula": "(v&31)*8+48",
-        "confidence": 0.14750351617440224,
-        "y_addr": 34261,
-        "x_addr": 34257
+        "y_formula": "v>>1+168"
       },
       {
-        "y_formula": "v>>1+13",
+        "x_addr": 33044,
+        "y_addr": 33042,
+        "confidence": 0.12599624941397095,
+        "x_formula": "(v&240)>>1+64",
+        "y_formula": "v>>1+168"
+      },
+      {
+        "x_addr": 33052,
+        "y_addr": 33050,
+        "confidence": 0.23781059540553212,
+        "x_formula": "(v&15)*8+48",
+        "y_formula": "v>>1+168"
+      },
+      {
+        "x_addr": 33066,
+        "y_addr": 33058,
+        "confidence": 0.30719643694327237,
         "x_formula": "(v&31)*8",
-        "confidence": 0.9532703791140119,
+        "y_formula": "v>>1+168"
+      },
+      {
+        "x_addr": 34257,
+        "y_addr": 34261,
+        "confidence": 0.14750351617440224,
+        "x_formula": "(v&31)*8+48",
+        "y_formula": "(v&31)*8+24"
+      },
+      {
+        "x_addr": 34259,
         "y_addr": 34255,
-        "x_addr": 34259
+        "confidence": 0.9532703791140119,
+        "x_formula": "(v&31)*8",
+        "y_formula": "v>>1+13"
       }
     ],
     "sprites": [
@@ -12128,40 +13950,40 @@
     },
     "lookup-tables": [
       {
-        "used_by": [
-          "$37310",
-          "$38504"
-        ],
         "range": [
           33280,
           33535
+        ],
+        "used_by": [
+          "$37310",
+          "$38504"
         ]
       },
       {
-        "used_by": [
-          "$37310"
-        ],
         "range": [
           33664,
           33750
+        ],
+        "used_by": [
+          "$37310"
         ]
       },
       {
-        "used_by": [
-          "$37841"
-        ],
         "range": [
           41983,
           41983
+        ],
+        "used_by": [
+          "$37841"
         ]
       },
       {
-        "used_by": [
-          "$37841"
-        ],
         "range": [
           42415,
           42495
+        ],
+        "used_by": [
+          "$37841"
         ]
       }
     ],
@@ -13463,39 +15285,39 @@
         }
       },
       {
-        "name": "$36307",
+        "type": "state_logic",
         "evidence": {
           "writes_to_variables": 75969
         },
-        "type": "state_logic"
+        "name": "$36307"
       },
       {
-        "name": "$36508",
+        "type": "state_logic",
         "evidence": {
           "writes_to_variables": 17048
         },
-        "type": "state_logic"
+        "name": "$36508"
       },
       {
-        "name": "$37056",
+        "type": "state_logic",
         "evidence": {
           "writes_to_variables": 155483
         },
-        "type": "state_logic"
+        "name": "$37056"
       },
       {
-        "name": "$38064",
+        "type": "state_logic",
         "evidence": {
           "writes_to_variables": 95
         },
-        "type": "state_logic"
+        "name": "$38064"
       },
       {
-        "name": "$38276",
+        "type": "state_logic",
         "evidence": {
           "writes_to_variables": 1
         },
-        "type": "state_logic"
+        "name": "$38276"
       }
     ],
     "other-structures": [
@@ -13622,19 +15444,19 @@
             "condition": "field +4 == 58",
             "arms": [
               {
+                "times": 8,
+                "pc": 35424,
                 "exclusive_fields": [
                   0,
                   1,
                   3,
                   4
-                ],
-                "pc": 35424,
-                "times": 8
+                ]
               },
               {
-                "exclusive_fields": [],
+                "times": 76,
                 "pc": 35499,
-                "times": 76
+                "exclusive_fields": []
               }
             ]
           },
@@ -13643,18 +15465,18 @@
             "condition": "field +3 == 54",
             "arms": [
               {
-                "exclusive_fields": [],
+                "times": 7,
                 "pc": 35499,
-                "times": 7
+                "exclusive_fields": []
               },
               {
+                "times": 1,
+                "pc": 35438,
                 "exclusive_fields": [
                   0,
                   1,
                   3
-                ],
-                "pc": 35438,
-                "times": 1
+                ]
               }
             ]
           }
@@ -13726,19 +15548,19 @@
             "condition": "field +0 & 127 == 7",
             "arms": [
               {
-                "exclusive_fields": [],
+                "times": 2,
                 "pc": 34648,
-                "times": 2
+                "exclusive_fields": []
               },
               {
+                "times": 1366,
+                "pc": 34693,
                 "exclusive_fields": [
                   0,
                   1,
                   32,
                   33
-                ],
-                "pc": 34693,
-                "times": 1366
+                ]
               }
             ]
           }
@@ -13756,8 +15578,8 @@
           33479
         ],
         "cursor_advance": {
-          "site": 37665,
-          "step": 8
+          "step": 8,
+          "site": 37665
         },
         "fields": [
           {

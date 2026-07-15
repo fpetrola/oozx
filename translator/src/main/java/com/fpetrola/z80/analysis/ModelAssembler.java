@@ -41,8 +41,10 @@ import java.util.*;
  *       "memory range → class with named properties");</li>
  *   <li><b>rutinas</b>: role classification + which named regions each one reads and
  *       writes (the input for moving code into the classes it belongs to);</li>
- *   <li><b>segmentos</b>: the inverse view — per region, the routines that touch it,
- *       with an encapsulation proposal when few routines see it;</li>
+ *   <li><b>segmentos</b>: the address space partitioned by access-set (from SegmentFinder),
+ *       each named by the region it falls in, with an encapsulation proposal when few
+ *       routines see it; {@code segment_links} carries the pipes/shared-helpers that block
+ *       clean encapsulation;</li>
  *   <li><b>refactor_suggestions</b>: mechanical hints derived from the above.</li>
  * </ul>
  * Names are role-based and generic (nothing game-specific); the evidence behind each
@@ -68,7 +70,8 @@ class ModelAssembler {
                                List<Object> rutinasClasificadas,
                                Map<String, Object> fuente,
                                Map<String, Object> protagonista,
-                               List<Map<String, Object>> texts) {
+                               List<Map<String, Object>> texts,
+                               Map<String, Object> segments) {
     List<Map<String, Object>> espacio = new ArrayList<>();
 
     // screen and buffers, named by where their content lands
@@ -220,31 +223,33 @@ class ModelAssembler {
       rutinas.add(rt);
     }
 
-    // segments: the inverse view, with an encapsulation proposal
+    // segments: the address space partitioned by access-set (from SegmentFinder), each named
+    // by the address_space region it falls in — the basis for turning a privately-owned
+    // segment into a class with a 0-indexed local array
     List<Map<String, Object>> segmentos = new ArrayList<>();
-    for (Map<String, Object> e : espacio) {
-      String nombre = (String) e.get("name");
-      List<String> leen = new ArrayList<>(), escriben = new ArrayList<>();
-      porRutina.forEach((rutina, acc) -> {
-        long[] c = acc.get(nombre);
-        if (c == null)
-          return;
-        if (c[0] > 0)
-          leen.add(rutina);
-        if (c[1] > 0)
-          escriben.add(rutina);
-      });
+    for (Map<String, Object> ss : (List<Map<String, Object>>) segments.get("segments")) {
+      List<Integer> r = (List<Integer>) ss.get("range");
+      List<String> writers = (List<String>) ss.get("writers");
+      List<String> readers = (List<String>) ss.get("readers");
+      String nombre = regionDe(espacio, r.get(0), r.get(1));
       Map<String, Object> s = new LinkedHashMap<>();
-      s.put("segment", nombre);
-      s.put("range", e.get("range"));
-      s.put("read_by", leen);
-      s.put("written_by", escriben);
-      Set<String> todas = new TreeSet<>(leen);
-      todas.addAll(escriben);
-      if (todas.size() > 0 && todas.size() <= 4)
+      s.put("segment", nombre != null ? nombre : "mem_" + r.get(0));
+      s.put("range", r);
+      s.put("kind", ss.get("kind"));
+      s.put("written_by", writers);
+      s.put("read_by", readers);
+      if (Boolean.TRUE.equals(ss.get("single_owner")))
+        s.put("single_owner", true);
+      Set<String> todas = new TreeSet<>(writers);
+      todas.addAll(readers);
+      if (Boolean.TRUE.equals(ss.get("private")))
         s.put("encapsulatable", "only " + todas.size() + " routines see it: " + String.join(" ", todas));
       segmentos.add(s);
     }
+    // the cross-segment links that block clean encapsulation: bulk data pipes + shared helpers
+    Map<String, Object> enlaces = new LinkedHashMap<>();
+    enlaces.put("pipes", segments.get("pipes"));
+    enlaces.put("shared_helpers", segments.get("spanners"));
 
     Map<String, Object> modelo = new LinkedHashMap<>();
     modelo.put("version", 1);
@@ -259,6 +264,7 @@ class ModelAssembler {
       modelo.put("texts", textos);
     modelo.put("routines", rutinas);
     modelo.put("segments", segmentos);
+    modelo.put("segment_links", enlaces);
     modelo.put("refactor_suggestions", sugerencias(estructuras, records, vars, segmentos));
     return modelo;
   }

@@ -250,6 +250,8 @@ public class SegmentFinder {
     m.put("owners", new ArrayList<>(s.owners()));
     if (!consumers.isEmpty())
       m.put("read_by", consumers);
+    m.put("writers", new ArrayList<>(s.writers()));
+    m.put("readers", new ArrayList<>(s.readers()));
     if (s.isPrivate())
       m.put("private", true);
     if (s.owners().size() == 1)

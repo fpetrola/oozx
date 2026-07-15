@@ -108,7 +108,7 @@ public class GameModelExporter {
     root.put("meta", meta());
     root.put("findings", findings);
     root.put("model", new ModelAssembler(db, plan, gfxRegions, lookupTables)
-        .assemble(canonicos, records, rebuilds, rutinasFull, font(), bestProtagonist(evEnt), texts));
+        .assemble(canonicos, records, rebuilds, rutinasFull, font(), bestProtagonist(evEnt), texts, segments));
     root.put("evidence", evidence);
     String json = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(root);
     Files.writeString(Path.of(outPath), json);
