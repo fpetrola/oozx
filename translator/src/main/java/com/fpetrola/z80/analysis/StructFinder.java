@@ -148,6 +148,7 @@ public class StructFinder {
           m.put("escrituras", 0L);
           m.put("valores", new int[]{256, -1});
           m.put("semantica", new LinkedHashSet<String>());
+          m.put("bits", new LinkedHashSet<String>());
           m.put("nombre_propuesto", (String) null);
           return m;
         });
@@ -159,6 +160,10 @@ public class StructFinder {
         vr[1] = Math.max(vr[1], fv.get(1));
         if (f.containsKey("semantica"))
           ((Set<String>) c.get("semantica")).addAll((List<String>) f.get("semantica"));
+        if (f.containsKey("descomposicion_bits"))
+          ((Set<String>) c.get("bits")).addAll((List<String>) f.get("descomposicion_bits"));
+        if (f.containsKey("apunta_a_grafico"))
+          c.putIfAbsent("apunta_a_grafico", f.get("apunta_a_grafico"));
         String cand = (String) f.get("nombre_propuesto");
         if (nameScore(cand) > nameScore((String) c.get("nombre_propuesto")))
           c.put("nombre_propuesto", cand);
@@ -178,6 +183,11 @@ public class StructFinder {
       Set<String> sem = (Set<String>) c.get("semantica");
       if (!sem.isEmpty())
         out.put("semantica", new ArrayList<>(sem));
+      Set<String> bits = (Set<String>) c.get("bits");
+      if (!bits.isEmpty())
+        out.put("descomposicion_bits", new ArrayList<>(bits));
+      if (c.containsKey("apunta_a_grafico"))
+        out.put("apunta_a_grafico", c.get("apunta_a_grafico"));
       if (c.get("nombre_propuesto") != null)
         out.put("nombre_propuesto", c.get("nombre_propuesto"));
       List<String> ap = aportes.get((int) c.get("offset"));
@@ -191,6 +201,9 @@ public class StructFinder {
     rec.put("registro_bytes", stride);
     rec.put("rango", List.of(base, tableEnd));
     rec.put("rutinas", g.stream().map(s -> (String) s.get("rutina")).distinct().sorted().toList());
+    for (Map<String, Object> st : g)
+      if (st.containsKey("terminador"))
+        rec.putIfAbsent("terminador", st.get("terminador"));
     rec.put("campos", campos);
     return rec;
   }
@@ -241,6 +254,113 @@ public class StructFinder {
         out.add(st);
     }
     return out;
+  }
+
+  /**
+   * Sentinel that ends a null-terminated array: the leading field is read and compared
+   * against a constant sitting at the value extreme (0, 255 or the field's own max), and
+   * that test stops the sweep. Generic to any {@code while (mem[cursor] != MARK)} loop.
+   */
+  private Map<String, Object> detectTerminator(List<Integer> sites, String reg, int minOff,
+                                               List<FieldAccess> leadAccesses) {
+    int vMax = -1;
+    if (leadAccesses != null)
+      for (FieldAccess fa : leadAccesses) {
+        AnalysisDB.Stat s = (fa.op() == 'W' ? db.writes : db.reads).get(fa.site());
+        if (s != null)
+          vMax = Math.max(vMax, s.valMax());
+      }
+    for (int pc : sites) {
+      String eq = db.equation.get(pc);
+      if (eq == null || !eq.contains("cp("))
+        continue;
+      Matcher m = CMP.matcher(eq);
+      if (!m.find())
+        continue;
+      int c = Integer.parseInt(m.group(1));
+      if (c != 0 && c != 255 && c != vMax) // a sentinel sits at the value extreme
+        continue;
+      if (tracesToFieldRead(pc, reg, minOff, 3, new HashSet<>())) {
+        Map<String, Object> t = new LinkedHashMap<>();
+        t.put("valor", c);
+        t.put("site", pc);
+        t.put("nota", "el ultimo slot es un marcador de fin, no un registro");
+        return t;
+      }
+    }
+    return null;
+  }
+
+  /** does site {@code pc} consume, within a few hops, a read of {@code mem[reg + off]}? */
+  private boolean tracesToFieldRead(int pc, String reg, int off, int depth, Set<Integer> seen) {
+    if (depth < 0)
+      return false;
+    String eq = db.equation.get(pc);
+    if (eq != null && eq.contains("mem[" + reg + " + " + off + "]"))
+      return true;
+    for (AnalysisDB.Edge e : db.edgesIn.getOrDefault(pc, List.of()))
+      if (e.src() != 0 && seen.add(e.src()) && tracesToFieldRead(e.src(), reg, off, depth - 1, seen))
+        return true;
+    return false;
+  }
+
+  /**
+   * Bit-field decomposition of a packed byte: the distinct AND-masks applied to the field's
+   * reads (in the read site itself or one hop later), rendered as the bit range each isolates.
+   * A byte carrying several sub-fields (type + direction + frame) shows up as several masks.
+   */
+  private List<String> fieldBits(List<FieldAccess> fas) {
+    Set<Integer> masks = new TreeSet<>();
+    for (FieldAccess fa : fas) {
+      if (fa.op() != 'R')
+        continue;
+      collectMasks(db.equation.get(fa.site()), masks);
+      for (AnalysisDB.Edge e : db.edgesOut.getOrDefault(fa.site(), List.of()))
+        collectMasks(db.equation.get(e.dst()), masks);
+    }
+    masks.remove(255); // the whole byte is not a sub-field
+    List<String> out = new ArrayList<>();
+    for (int mk : masks)
+      out.add("& " + mk + " (" + maskBits(mk) + ")");
+    return out;
+  }
+
+  private void collectMasks(String eq, Set<Integer> masks) {
+    if (eq == null)
+      return;
+    Matcher m = Pattern.compile("& (\\d+)").matcher(eq);
+    while (m.find())
+      masks.add(Integer.parseInt(m.group(1)));
+  }
+
+  private String maskBits(int mask) {
+    if (mask <= 0)
+      return "ninguno";
+    int lo = Integer.numberOfTrailingZeros(mask);
+    int hi = 31 - Integer.numberOfLeadingZeros(mask);
+    boolean contiguous = mask == (((1 << (hi - lo + 1)) - 1) << lo);
+    if (lo == hi)
+      return "bit " + lo;
+    return (contiguous ? "bits " : "bits no contiguos ") + lo + "-" + hi;
+  }
+
+  /** graphics zone a field indexes into: an ADDR out-edge landing in a discovered gfx region. */
+  private List<Integer> fieldGfxTarget(List<FieldAccess> fas) {
+    for (FieldAccess fa : fas) {
+      if (fa.op() != 'R')
+        continue;
+      for (AnalysisDB.Edge e : db.edgesOut.getOrDefault(fa.site(), List.of())) {
+        if (e.role() == null || !e.role().contains("ADDR"))
+          continue;
+        AnalysisDB.Stat r = db.reads.get(e.dst());
+        if (r == null)
+          continue;
+        for (int[] g : gfxRegions)
+          if (r.addrMax() >= g[0] && r.addrMin() <= g[1])
+            return List.of(g[0], g[1]);
+      }
+    }
+    return null;
   }
 
   /**
@@ -348,6 +468,22 @@ public class StructFinder {
     Map<Integer, List<FieldAccess>> byOffset = new TreeMap<>();
     for (FieldAccess fa : accesses)
       byOffset.computeIfAbsent(fa.offset(), k -> new ArrayList<>()).add(fa);
+
+    // terminator/sentinel: a null-terminated array ends with a marker the loop tests for
+    // (the leading field is compared against a constant that stops the sweep). Detecting it
+    // keeps the last, marker-only slot from being counted as a real record.
+    int minOff = byOffset.isEmpty() ? 0 : Collections.min(byOffset.keySet());
+    Map<String, Object> term = detectTerminator(sites, reg, minOff, byOffset.get(minOff));
+    if (term != null) {
+      st.put("terminador", term);
+      if (elems > 1) {
+        elems--;
+        tableEnd = base + stride * elems - 1;
+        st.put("elementos", elems);
+        st.put("rango", List.of(base, tableEnd));
+      }
+    }
+
     List<Object> campos = new ArrayList<>();
     for (Map.Entry<Integer, List<FieldAccess>> oe : byOffset.entrySet()) {
       int off = oe.getKey();
@@ -374,6 +510,12 @@ public class StructFinder {
       List<String> tags = semantics(base, off % stride, stride, tableEnd, oe.getValue());
       if (!tags.isEmpty())
         f.put("semantica", tags);
+      List<String> bits = fieldBits(oe.getValue());
+      if (!bits.isEmpty())
+        f.put("descomposicion_bits", bits);
+      List<Integer> gfx = fieldGfxTarget(oe.getValue());
+      if (gfx != null)
+        f.put("apunta_a_grafico", gfx);
       campos.add(f);
     }
     st.put("campos", campos);
@@ -772,17 +914,34 @@ public class StructFinder {
   }
 
   @SuppressWarnings("unchecked")
+  private int minOffOf(Map<String, Object> st) {
+    return ((List<Object>) st.get("campos")).stream()
+        .mapToInt(o -> (int) ((Map<String, Object>) o).get("offset")).min().orElse(0);
+  }
+
+  @SuppressWarnings("unchecked")
   private void printCanonical(Map<String, Object> rec) {
     List<Integer> rango = (List<Integer>) rec.get("rango");
     System.out.printf("%n########## REGISTRO CANONICO base=%d, %d bytes [%d..%d] ##########%n",
         (int) rec.get("base"), (int) rec.get("registro_bytes"), rango.get(0), rango.get(1));
     System.out.println("  (union de: " + String.join(", ", (List<String>) rec.get("rutinas")) + ")");
+    if (rec.containsKey("terminador")) {
+      Map<String, Object> t = (Map<String, Object>) rec.get("terminador");
+      System.out.printf("  (valor %s marca FIN de la tabla; el ultimo slot no es un registro)%n",
+          t.get("valor"));
+    }
     for (Object fo : (List<Object>) rec.get("campos")) {
       Map<String, Object> f = (Map<String, Object>) fo;
       List<Integer> val = (List<Integer>) f.get("valores");
       System.out.printf("  +%d: R x%d, W x%d, val[%d..%d]  %s%n",
           (int) f.get("offset"), (long) f.get("lecturas"), (long) f.get("escrituras"),
           val.get(0), val.get(1), f.getOrDefault("nombre_propuesto", "(sin nombre)"));
+      if (f.containsKey("descomposicion_bits"))
+        System.out.println("        bits: " + String.join(", ", (List<String>) f.get("descomposicion_bits")));
+      if (f.containsKey("apunta_a_grafico")) {
+        List<Integer> gg = (List<Integer>) f.get("apunta_a_grafico");
+        System.out.printf("        apunta a graficos [%d..%d]%n", gg.get(0), gg.get(1));
+      }
       if (f.containsKey("aportado_por"))
         for (String a : (List<String>) f.get("aportado_por"))
           System.out.println("        " + a);
@@ -800,6 +959,11 @@ public class StructFinder {
     String sf = (String) st.get("stride_fuente");
     if (sf != null && !sf.startsWith("avance del cursor"))
       System.out.printf("    (stride estimado por %s)%n", sf);
+    if (st.containsKey("terminador")) {
+      Map<String, Object> t = (Map<String, Object>) st.get("terminador");
+      System.out.printf("    (+%d = valor %s marca FIN de la tabla @%d, no se cuenta como registro)%n",
+          minOffOf(st), t.get("valor"), t.get("site"));
+    }
     for (Object fo : (List<Object>) st.get("campos")) {
       Map<String, Object> f = (Map<String, Object>) fo;
       List<Integer> val = (List<Integer>) f.get("valores");
@@ -811,6 +975,12 @@ public class StructFinder {
         sb.append("  <- ").append(String.join(", ", (List<String>) f.get("semantica")));
       if (f.containsKey("nombre_propuesto"))
         sb.append("\n      NOMBRE: ").append(f.get("nombre_propuesto"));
+      if (f.containsKey("descomposicion_bits"))
+        sb.append("\n      bits: ").append(String.join(", ", (List<String>) f.get("descomposicion_bits")));
+      if (f.containsKey("apunta_a_grafico")) {
+        List<Integer> g = (List<Integer>) f.get("apunta_a_grafico");
+        sb.append(String.format("%n      apunta a graficos [%d..%d]", g.get(0), g.get(1)));
+      }
       if (f.containsKey("relaciones")) {
         Map<String, Object> rel = (Map<String, Object>) f.get("relaciones");
         for (Map.Entry<String, Object> re : rel.entrySet())

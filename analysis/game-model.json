@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generado": "2026-07-13T17:47:29.871827485",
+    "generado": "2026-07-15T00:26:48.901256883",
     "descripcion": "Modelo del juego deducido automaticamente del replay RZX instrumentado. Dos capas: 'hallazgos' son las conclusiones finales, agrupadas e interpretadas (lo mas importante de cada cosa encontrada); 'evidencia' tiene los datos crudos que las respaldan, asociados por el id del hallazgo (ver doc/MANUAL-ANALISIS.md)",
     "dibujados": 4244108,
     "frames_con_dibujos": 41457,
@@ -150,11 +150,14 @@
       "id": "tabla-entidades",
       "titulo": "Tabla de 7 entidades moviles en [33024..33079], registros de 8 bytes",
       "campos": {
-        "+0": "participa en la seleccion del grafico/frame del sprite; el valor 255 marca el FIN de la tabla; sus bits eligen la variante de comportamiento",
-        "+1": "participa en la seleccion del grafico/frame del sprite",
-        "+2": "coordenada X en pantalla: pixel = (v&31)*8; participa en la seleccion del grafico/frame del sprite",
-        "+3": "coordenada Y en pantalla: pixel = (v&240)>>1",
-        "+5": "participa en la seleccion del grafico/frame del sprite"
+        "+0": "participa en la seleccion del grafico/frame del sprite; el valor 255 marca el FIN de la tabla; sus bits eligen la variante de comportamiento; nombre sugerido: tipo_y_direccion (bits de tipo + sentido que se invierte al rebotar)",
+        "+1": "participa en la seleccion del grafico/frame del sprite; nombre sugerido: contador",
+        "+2": "coordenada X en pantalla: pixel = (v&31)*8; participa en la seleccion del grafico/frame del sprite; nombre sugerido: posicion_x",
+        "+3": "coordenada Y en pantalla: pixel = (v&240)>>1; nombre sugerido: posicion_y",
+        "+4": "nombre sugerido: incremento_y (paso que se suma a la posicion Y)",
+        "+5": "participa en la seleccion del grafico/frame del sprite; nombre sugerido: grafico_frame",
+        "+6": "nombre sugerido: limite_x (borde en X; al alcanzarlo invierte el movimiento)",
+        "+7": "nombre sugerido: limite_y (borde en Y; al alcanzarlo invierte el movimiento)"
       },
       "variantes_de_comportamiento": [
         {
@@ -519,7 +522,7 @@
           "rutina": "$34620"
         },
         {
-          "resumen": "arreglo en [33280..33473], registros de 2 bytes, 2 campos",
+          "resumen": "arreglo en [33280..33479], registros de 8 bytes, 2 campos",
           "cursor": "IY",
           "rutina": "$37310"
         },
@@ -603,17 +606,194 @@
       }
     ],
     "tabla-entidades": {
+      "deteccion": {
+        "tabla": {
+          "base": 33024,
+          "registro_bytes": 8,
+          "slots": 7,
+          "campos": {
+            "x": {
+              "formula": "(v&31)*8",
+              "offset": 2
+            },
+            "y": {
+              "formula": "(v&240)>>1",
+              "offset": 3
+            },
+            "selector_grafico_offset_0": {
+              "nota": "elige que sprite/frame se dibuja",
+              "offset": 0
+            },
+            "selector_grafico_offset_1": {
+              "nota": "elige que sprite/frame se dibuja",
+              "offset": 1
+            },
+            "selector_grafico_offset_2": {
+              "nota": "elige que sprite/frame se dibuja",
+              "offset": 2
+            },
+            "selector_grafico_offset_5": {
+              "nota": "elige que sprite/frame se dibuja",
+              "offset": 5
+            }
+          },
+          "slots_validados": [
+            {
+              "x_addr": 33026,
+              "y_addr": 33027,
+              "confianza": 0.9244839857651246
+            },
+            {
+              "x_addr": 33034,
+              "y_addr": 33035,
+              "confianza": 0.3343295827473043
+            }
+          ],
+          "cargada_por": [
+            {
+              "site": 35137,
+              "veces": 8544,
+              "desde": [
+                40962,
+                41983
+              ]
+            },
+            {
+              "site": 35128,
+              "veces": 8544,
+              "desde": [
+                40960,
+                41977
+              ]
+            }
+          ],
+          "actualizada_por": [
+            "$37056",
+            "$37310"
+          ]
+        },
+        "individuales": [
+          {
+            "x_formula": "(v&15)*8+48",
+            "y_formula": "v+168",
+            "confianza": 0.16725269573370838,
+            "x_addr": 32983,
+            "y_addr": 32985
+          },
+          {
+            "x_formula": "(v&31)*8",
+            "y_formula": "v>>1+41",
+            "confianza": 0.10182255039849976,
+            "x_addr": 33015,
+            "y_addr": 33014
+          },
+          {
+            "x_formula": "(v&31)*8+48",
+            "y_formula": "v>>1+168",
+            "confianza": 0.11064228785747773,
+            "x_addr": 33038,
+            "y_addr": 33030
+          },
+          {
+            "x_formula": "(v&240)>>1+64",
+            "y_formula": "v>>1+168",
+            "confianza": 0.12599624941397095,
+            "x_addr": 33044,
+            "y_addr": 33042
+          },
+          {
+            "x_formula": "(v&15)*8+48",
+            "y_formula": "v>>1+168",
+            "confianza": 0.23781059540553212,
+            "x_addr": 33052,
+            "y_addr": 33050
+          },
+          {
+            "x_formula": "(v&31)*8",
+            "y_formula": "v>>1+168",
+            "confianza": 0.30719643694327237,
+            "x_addr": 33066,
+            "y_addr": 33058
+          },
+          {
+            "x_formula": "(v&31)*8+48",
+            "y_formula": "(v&31)*8+24",
+            "confianza": 0.14750351617440224,
+            "x_addr": 34257,
+            "y_addr": 34261
+          },
+          {
+            "x_formula": "(v&31)*8",
+            "y_formula": "v>>1+13",
+            "confianza": 0.9532703791140119,
+            "x_addr": 34259,
+            "y_addr": 34255
+          }
+        ],
+        "pares_debiles_posible_ruido": [
+          {
+            "x_addr": 33004,
+            "y_addr": 33008,
+            "confianza": 0.0646390060947023
+          },
+          {
+            "x_addr": 33009,
+            "y_addr": 33013,
+            "confianza": 0.04704626334519573
+          },
+          {
+            "x_addr": 33011,
+            "y_addr": 33012,
+            "confianza": 0.021536568213783403
+          },
+          {
+            "x_addr": 33017,
+            "y_addr": 33024,
+            "confianza": 0.02812939521800281
+          },
+          {
+            "x_addr": 33031,
+            "y_addr": 33029,
+            "confianza": 0.06384786685419597
+          },
+          {
+            "x_addr": 33033,
+            "y_addr": 33032,
+            "confianza": 0.03938115330520394
+          },
+          {
+            "x_addr": 33047,
+            "y_addr": 33040,
+            "confianza": 0.022884126407555393
+          },
+          {
+            "x_addr": 33048,
+            "y_addr": 33043,
+            "confianza": 0.04390637610976594
+          }
+        ]
+      },
       "estructuras": [
         {
           "rutina": "$37056",
           "cursor": "IX",
           "base": 33024,
           "registro_bytes": 8,
-          "elementos": 9,
+          "stride_fuente": "avance del cursor",
+          "elementos": 8,
           "rango": [
             33024,
-            33095
+            33087
           ],
+          "avance_cursor": {
+            "site": 37305,
+            "paso": 8
+          },
+          "terminador": {
+            "valor": 255,
+            "site": 37063,
+            "nota": "el ultimo slot es un marcador de fin, no un registro"
+          },
           "campos": [
             {
               "offset": 0,
@@ -625,7 +805,26 @@
               ],
               "semantica": [
                 "controla branches (tipo/flag)"
-              ]
+              ],
+              "descomposicion_bits": [
+                "& 3 (bits 0-1)",
+                "& 128 (bit 7)"
+              ],
+              "relaciones": {
+                "se_actualiza_con": [
+                  "invierte bits (xor)",
+                  "suma"
+                ],
+                "decide_sobre": [
+                  "+1",
+                  "+2",
+                  "+3",
+                  "+4",
+                  "+6",
+                  "+7"
+                ]
+              },
+              "nombre_propuesto": "tipo_y_direccion (bits de tipo + sentido que se invierte al rebotar)"
             },
             {
               "offset": 1,
@@ -636,9 +835,17 @@
                 182
               ],
               "semantica": [
-                "coordenada X",
                 "controla branches (tipo/flag)"
-              ]
+              ],
+              "descomposicion_bits": [
+                "& 128 (bit 7)"
+              ],
+              "relaciones": {
+                "se_actualiza_con": [
+                  "suma"
+                ]
+              },
+              "nombre_propuesto": "contador"
             },
             {
               "offset": 2,
@@ -650,7 +857,26 @@
               ],
               "semantica": [
                 "coordenada X"
-              ]
+              ],
+              "descomposicion_bits": [
+                "& 31 (bits 0-4)"
+              ],
+              "relaciones": {
+                "se_actualiza_con": [
+                  "decrementa",
+                  "incrementa"
+                ],
+                "comparado_con": [
+                  "+6",
+                  "+7"
+                ],
+                "impacta_en": [
+                  "color (atributos)",
+                  "eleccion del grafico",
+                  "pixeles en pantalla"
+                ]
+              },
+              "nombre_propuesto": "posicion_x"
             },
             {
               "offset": 3,
@@ -662,7 +888,18 @@
               ],
               "semantica": [
                 "coordenada Y"
-              ]
+              ],
+              "relaciones": {
+                "se_actualiza_con": [
+                  "suma"
+                ],
+                "comparado_con": [
+                  "+4",
+                  "+6",
+                  "+7"
+                ]
+              },
+              "nombre_propuesto": "posicion_y"
             },
             {
               "offset": 4,
@@ -673,9 +910,22 @@
                 254
               ],
               "semantica": [
-                "coordenada X",
                 "controla branches (tipo/flag)"
-              ]
+              ],
+              "relaciones": {
+                "escribe_a": [
+                  "+3"
+                ],
+                "comparado_con": [
+                  "+3",
+                  "+6",
+                  "+7"
+                ],
+                "impacta_en": [
+                  "posicion en pantalla"
+                ]
+              },
+              "nombre_propuesto": "incremento_y (paso que se suma a la posicion Y)"
             },
             {
               "offset": 6,
@@ -687,7 +937,24 @@
               ],
               "semantica": [
                 "controla branches (tipo/flag)"
-              ]
+              ],
+              "relaciones": {
+                "escribe_a": [
+                  "+3"
+                ],
+                "comparado_con": [
+                  "+2",
+                  "+3",
+                  "+4"
+                ],
+                "decide_sobre": [
+                  "+0",
+                  "+2",
+                  "+3",
+                  "+4"
+                ]
+              },
+              "nombre_propuesto": "limite_x (borde en X; al alcanzarlo invierte el movimiento)"
             },
             {
               "offset": 7,
@@ -698,9 +965,22 @@
                 224
               ],
               "semantica": [
-                "coordenada X",
                 "controla branches (tipo/flag)"
-              ]
+              ],
+              "relaciones": {
+                "comparado_con": [
+                  "+2",
+                  "+3",
+                  "+4"
+                ],
+                "decide_sobre": [
+                  "+0",
+                  "+2",
+                  "+3",
+                  "+6"
+                ]
+              },
+              "nombre_propuesto": "limite_y (borde en Y; al alcanzarlo invierte el movimiento)"
             }
           ],
           "variantes": [
@@ -1012,11 +1292,21 @@
           "cursor": "IX",
           "base": 33024,
           "registro_bytes": 8,
-          "elementos": 9,
+          "stride_fuente": "avance del cursor",
+          "elementos": 8,
           "rango": [
             33024,
-            33095
+            33087
           ],
+          "avance_cursor": {
+            "site": 37814,
+            "paso": 8
+          },
+          "terminador": {
+            "valor": 255,
+            "site": 37317,
+            "nota": "el ultimo slot es un marcador de fin, no un registro"
+          },
           "campos": [
             {
               "offset": 0,
@@ -1028,7 +1318,28 @@
               ],
               "semantica": [
                 "controla branches (tipo/flag)"
-              ]
+              ],
+              "descomposicion_bits": [
+                "& 7 (bits 0-2)",
+                "& 128 (bit 7)"
+              ],
+              "relaciones": {
+                "decide_sobre": [
+                  "+1",
+                  "+2",
+                  "+3",
+                  "+4",
+                  "+5",
+                  "+6",
+                  "+9",
+                  "+11"
+                ],
+                "impacta_en": [
+                  "eleccion del grafico",
+                  "pixeles en pantalla"
+                ]
+              },
+              "nombre_propuesto": "tipo_flags (sus bits seleccionan la variante)"
             },
             {
               "offset": 1,
@@ -1039,9 +1350,22 @@
                 237
               ],
               "semantica": [
-                "coordenada X",
                 "controla branches (tipo/flag)"
-              ]
+              ],
+              "descomposicion_bits": [
+                "& 15 (bits 0-3)",
+                "& 128 (bit 7)"
+              ],
+              "relaciones": {
+                "decide_sobre": [
+                  "+3",
+                  "+5"
+                ],
+                "impacta_en": [
+                  "eleccion del grafico"
+                ]
+              },
+              "nombre_propuesto": "grafico_frame"
             },
             {
               "offset": 2,
@@ -1054,7 +1378,23 @@
               "semantica": [
                 "coordenada X",
                 "indice/puntero"
-              ]
+              ],
+              "descomposicion_bits": [
+                "& 31 (bits 0-4)",
+                "& 224 (bits 5-7)"
+              ],
+              "relaciones": {
+                "escribe_a": [
+                  "+3"
+                ],
+                "impacta_en": [
+                  "color (atributos)",
+                  "eleccion del grafico",
+                  "pixeles en pantalla",
+                  "posicion en pantalla"
+                ]
+              },
+              "nombre_propuesto": "posicion_x"
             },
             {
               "offset": 3,
@@ -1068,7 +1408,23 @@
                 "coordenada Y",
                 "controla branches (tipo/flag)",
                 "indice/puntero"
-              ]
+              ],
+              "descomposicion_bits": [
+                "& 14 (bits 1-3)"
+              ],
+              "relaciones": {
+                "decide_sobre": [
+                  "+5",
+                  "+9",
+                  "+11"
+                ],
+                "impacta_en": [
+                  "color (atributos)",
+                  "pixeles en pantalla",
+                  "posicion en pantalla"
+                ]
+              },
+              "nombre_propuesto": "posicion_y"
             },
             {
               "offset": 4,
@@ -1079,9 +1435,29 @@
                 255
               ],
               "semantica": [
-                "coordenada X",
                 "controla branches (tipo/flag)"
-              ]
+              ],
+              "descomposicion_bits": [
+                "& 224 (bits 5-7)"
+              ],
+              "relaciones": {
+                "comparado_con": [
+                  "+9"
+                ],
+                "decide_sobre": [
+                  "+0",
+                  "+2",
+                  "+5",
+                  "+6",
+                  "+9",
+                  "+11"
+                ],
+                "impacta_en": [
+                  "color (atributos)",
+                  "posicion en pantalla"
+                ]
+              },
+              "nombre_propuesto": "tipo_flags (sus bits seleccionan la variante)"
             },
             {
               "offset": 5,
@@ -1094,7 +1470,22 @@
               "semantica": [
                 "controla branches (tipo/flag)",
                 "selector de grafico"
-              ]
+              ],
+              "descomposicion_bits": [
+                "& 1 (bit 0)",
+                "& 128 (bit 7)"
+              ],
+              "apunta_a_grafico": [
+                39680,
+                49151
+              ],
+              "relaciones": {
+                "impacta_en": [
+                  "eleccion del grafico",
+                  "pixeles en pantalla"
+                ]
+              },
+              "nombre_propuesto": "grafico_frame"
             },
             {
               "offset": 6,
@@ -1103,7 +1494,12 @@
               "valores": [
                 65,
                 130
-              ]
+              ],
+              "relaciones": {
+                "impacta_en": [
+                  "pixeles en pantalla"
+                ]
+              }
             },
             {
               "offset": 9,
@@ -1115,9 +1511,22 @@
               ],
               "campo_del_elemento_siguiente": 1,
               "semantica": [
-                "coordenada X",
                 "controla branches (tipo/flag)"
-              ]
+              ],
+              "relaciones": {
+                "comparado_con": [
+                  "+4"
+                ],
+                "decide_sobre": [
+                  "+0",
+                  "+1",
+                  "+3",
+                  "+4",
+                  "+5",
+                  "+11"
+                ]
+              },
+              "nombre_propuesto": "tipo_flags (sus bits seleccionan la variante)"
             },
             {
               "offset": 11,
@@ -1131,7 +1540,17 @@
               "semantica": [
                 "coordenada Y",
                 "controla branches (tipo/flag)"
-              ]
+              ],
+              "descomposicion_bits": [
+                "& 1 (bit 0)"
+              ],
+              "relaciones": {
+                "decide_sobre": [
+                  "+0",
+                  "+4"
+                ]
+              },
+              "nombre_propuesto": "posicion_y"
             }
           ],
           "variantes": [
@@ -1440,174 +1859,7 @@
             }
           ]
         }
-      ],
-      "deteccion": {
-        "tabla": {
-          "base": 33024,
-          "registro_bytes": 8,
-          "slots": 7,
-          "campos": {
-            "x": {
-              "formula": "(v&31)*8",
-              "offset": 2
-            },
-            "y": {
-              "formula": "(v&240)>>1",
-              "offset": 3
-            },
-            "selector_grafico_offset_0": {
-              "nota": "elige que sprite/frame se dibuja",
-              "offset": 0
-            },
-            "selector_grafico_offset_1": {
-              "nota": "elige que sprite/frame se dibuja",
-              "offset": 1
-            },
-            "selector_grafico_offset_2": {
-              "nota": "elige que sprite/frame se dibuja",
-              "offset": 2
-            },
-            "selector_grafico_offset_5": {
-              "nota": "elige que sprite/frame se dibuja",
-              "offset": 5
-            }
-          },
-          "slots_validados": [
-            {
-              "x_addr": 33026,
-              "y_addr": 33027,
-              "confianza": 0.9244839857651246
-            },
-            {
-              "x_addr": 33034,
-              "y_addr": 33035,
-              "confianza": 0.3343295827473043
-            }
-          ],
-          "cargada_por": [
-            {
-              "site": 35137,
-              "veces": 8544,
-              "desde": [
-                40962,
-                41983
-              ]
-            },
-            {
-              "site": 35128,
-              "veces": 8544,
-              "desde": [
-                40960,
-                41977
-              ]
-            }
-          ],
-          "actualizada_por": [
-            "$37056",
-            "$37310"
-          ]
-        },
-        "individuales": [
-          {
-            "x_formula": "(v&15)*8+48",
-            "y_formula": "v+168",
-            "confianza": 0.16725269573370838,
-            "x_addr": 32983,
-            "y_addr": 32985
-          },
-          {
-            "x_formula": "(v&31)*8",
-            "y_formula": "v>>1+41",
-            "confianza": 0.10182255039849976,
-            "x_addr": 33015,
-            "y_addr": 33014
-          },
-          {
-            "x_formula": "(v&31)*8+48",
-            "y_formula": "v>>1+168",
-            "confianza": 0.11064228785747773,
-            "x_addr": 33038,
-            "y_addr": 33030
-          },
-          {
-            "x_formula": "(v&240)>>1+64",
-            "y_formula": "v>>1+168",
-            "confianza": 0.12599624941397095,
-            "x_addr": 33044,
-            "y_addr": 33042
-          },
-          {
-            "x_formula": "(v&15)*8+48",
-            "y_formula": "v>>1+168",
-            "confianza": 0.23781059540553212,
-            "x_addr": 33052,
-            "y_addr": 33050
-          },
-          {
-            "x_formula": "(v&31)*8",
-            "y_formula": "v>>1+168",
-            "confianza": 0.30719643694327237,
-            "x_addr": 33066,
-            "y_addr": 33058
-          },
-          {
-            "x_formula": "(v&31)*8+48",
-            "y_formula": "(v&31)*8+24",
-            "confianza": 0.14750351617440224,
-            "x_addr": 34257,
-            "y_addr": 34261
-          },
-          {
-            "x_formula": "(v&31)*8",
-            "y_formula": "v>>1+13",
-            "confianza": 0.9532703791140119,
-            "x_addr": 34259,
-            "y_addr": 34255
-          }
-        ],
-        "pares_debiles_posible_ruido": [
-          {
-            "x_addr": 33004,
-            "y_addr": 33008,
-            "confianza": 0.0646390060947023
-          },
-          {
-            "x_addr": 33009,
-            "y_addr": 33013,
-            "confianza": 0.04704626334519573
-          },
-          {
-            "x_addr": 33011,
-            "y_addr": 33012,
-            "confianza": 0.021536568213783403
-          },
-          {
-            "x_addr": 33017,
-            "y_addr": 33024,
-            "confianza": 0.02812939521800281
-          },
-          {
-            "x_addr": 33031,
-            "y_addr": 33029,
-            "confianza": 0.06384786685419597
-          },
-          {
-            "x_addr": 33033,
-            "y_addr": 33032,
-            "confianza": 0.03938115330520394
-          },
-          {
-            "x_addr": 33047,
-            "y_addr": 33040,
-            "confianza": 0.022884126407555393
-          },
-          {
-            "x_addr": 33048,
-            "y_addr": 33043,
-            "confianza": 0.04390637610976594
-          }
-        ]
-      }
+      ]
     },
     "protagonista": [
       {
@@ -6388,6 +6640,7 @@
         "cursor": "IX",
         "base": 33008,
         "registro_bytes": 2,
+        "stride_fuente": "bit de direccion mas bajo que varia (solo detecta potencias de 2)",
         "elementos": 636,
         "rango": [
           33008,
@@ -6405,7 +6658,8 @@
             "semantica": [
               "coordenada X",
               "controla branches (tipo/flag)"
-            ]
+            ],
+            "nombre_propuesto": "posicion_x"
           },
           {
             "offset": 1,
@@ -6416,9 +6670,16 @@
               218
             ],
             "semantica": [
-              "coordenada Y",
+              "coordenada X",
               "controla branches (tipo/flag)"
-            ]
+            ],
+            "relaciones": {
+              "impacta_en": [
+                "eleccion del grafico",
+                "pixeles en pantalla"
+              ]
+            },
+            "nombre_propuesto": "posicion_x"
           },
           {
             "offset": 3,
@@ -6430,9 +6691,16 @@
             ],
             "campo_del_elemento_siguiente": 1,
             "semantica": [
-              "coordenada Y",
+              "coordenada X",
               "controla branches (tipo/flag)"
-            ]
+            ],
+            "relaciones": {
+              "decide_sobre": [
+                "+0",
+                "+1"
+              ]
+            },
+            "nombre_propuesto": "posicion_x"
           },
           {
             "offset": 4,
@@ -6446,7 +6714,15 @@
             "semantica": [
               "coordenada X",
               "controla branches (tipo/flag)"
-            ]
+            ],
+            "relaciones": {
+              "decide_sobre": [
+                "+0",
+                "+1",
+                "+3"
+              ]
+            },
+            "nombre_propuesto": "posicion_x"
           }
         ],
         "variantes": [
@@ -6498,6 +6774,7 @@
         "cursor": "IX",
         "base": 22864,
         "registro_bytes": 1,
+        "stride_fuente": "bit de direccion mas bajo que varia (solo detecta potencias de 2)",
         "elementos": 43,
         "rango": [
           22864,
@@ -6511,7 +6788,15 @@
             "valores": [
               7,
               160
-            ]
+            ],
+            "relaciones": {
+              "decide_sobre": [
+                "+1",
+                "+32",
+                "+33"
+              ]
+            },
+            "nombre_propuesto": "tipo_flags (sus bits seleccionan la variante)"
           },
           {
             "offset": 1,
@@ -6572,12 +6857,17 @@
         "rutina": "$37310",
         "cursor": "IY",
         "base": 33280,
-        "registro_bytes": 2,
-        "elementos": 97,
+        "registro_bytes": 8,
+        "stride_fuente": "avance del cursor",
+        "elementos": 25,
         "rango": [
           33280,
-          33473
+          33479
         ],
+        "avance_cursor": {
+          "site": 37665,
+          "paso": 8
+        },
         "campos": [
           {
             "offset": 0,
@@ -6586,7 +6876,12 @@
             "valores": [
               0,
               224
-            ]
+            ],
+            "relaciones": {
+              "impacta_en": [
+                "posicion en pantalla"
+              ]
+            }
           },
           {
             "offset": 1,
@@ -6599,7 +6894,12 @@
             "semantica": [
               "controla branches (tipo/flag)",
               "indice/puntero"
-            ]
+            ],
+            "relaciones": {
+              "impacta_en": [
+                "posicion en pantalla"
+              ]
+            }
           }
         ],
         "variantes": []
@@ -6609,6 +6909,7 @@
         "cursor": "IX",
         "base": 33280,
         "registro_bytes": 2,
+        "stride_fuente": "bit de direccion mas bajo que varia (solo detecta potencias de 2)",
         "elementos": 128,
         "rango": [
           33280,
@@ -6622,7 +6923,13 @@
             "valores": [
               0,
               224
-            ]
+            ],
+            "relaciones": {
+              "impacta_en": [
+                "pixeles en pantalla",
+                "posicion en pantalla"
+              ]
+            }
           },
           {
             "offset": 1,
@@ -6634,7 +6941,13 @@
             ],
             "semantica": [
               "indice/puntero"
-            ]
+            ],
+            "relaciones": {
+              "impacta_en": [
+                "pixeles en pantalla",
+                "posicion en pantalla"
+              ]
+            }
           }
         ],
         "variantes": []
