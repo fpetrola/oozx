@@ -84,12 +84,69 @@ public class StructFinder {
     Map<String, List<Integer>> byMethod = new TreeMap<>();
     db.method.forEach((pc, m) -> byMethod.computeIfAbsent(m, k -> new ArrayList<>()).add(pc));
     List<Map<String, Object>> out = new ArrayList<>();
+    List<int[]> expansions = new ArrayList<>();
     for (Map.Entry<String, List<Integer>> me : byMethod.entrySet()) {
       if (methodFilter != null && !me.getKey().contains(methodFilter))
         continue;
       out.addAll(structsOfMethod(me.getKey(), me.getValue()));
+      expansions.addAll(findExpansions(me.getValue()));
     }
+    linkExpansions(out, expansions);
     return out;
+  }
+
+  /**
+   * Template -> instance expansion loops: a compact source table is unpacked into a wider
+   * working buffer, one record per iteration. The pattern is generic -- an indexed source
+   * cursor set to a constant base, a destination base, a per-iteration {@code ldir} copy,
+   * and the source cursor advancing -- and covers the "8 entity specs (2 bytes) expand into
+   * the 8 entity buffers (8 bytes)" shape without any game-specific knowledge.
+   */
+  private List<int[]> findExpansions(List<Integer> sites) {
+    List<Integer> ord = new ArrayList<>(sites);
+    Collections.sort(ord);
+    List<int[]> res = new ArrayList<>();
+    for (int i = 0; i < ord.size(); i++) {
+      String eq = db.equation.get(ord.get(i));
+      if (eq == null)
+        continue;
+      Matcher m = Pattern.compile("^(I[XY]) = (\\d{4,5})\\b").matcher(eq);
+      if (!m.find())
+        continue;
+      String srcReg = m.group(1);
+      int src = Integer.parseInt(m.group(2));
+      Integer dst = null;
+      boolean ldir = false;
+      for (int j = i + 1; j < Math.min(i + 40, ord.size()); j++) {
+        String e2 = db.equation.get(ord.get(j));
+        if (e2 == null)
+          continue;
+        if (e2.matches("^" + srcReg + " = (inc16|add16)\\(" + srcReg + ".*")) {
+          if (dst != null && ldir && dst != src) // the source cursor advances = loop body ends
+            res.add(new int[]{src, dst});
+          break;
+        }
+        Matcher md = Pattern.compile("^(DE|HL) = (\\d{4,5})\\b").matcher(e2);
+        if (dst == null && md.find())
+          dst = Integer.parseInt(md.group(2));
+        if (e2.startsWith("ldir"))
+          ldir = true;
+      }
+    }
+    return res;
+  }
+
+  /** annotate the source struct with {@code expande_a} and the destination with {@code se_llena_desde}. */
+  private void linkExpansions(List<Map<String, Object>> structs, List<int[]> expansions) {
+    for (int[] ex : expansions) {
+      for (Map<String, Object> st : structs) {
+        int base = (int) st.get("base");
+        if (base == ex[0])
+          st.putIfAbsent("expande_a", ex[1]);
+        if (base == ex[1])
+          st.putIfAbsent("se_llena_desde", ex[0]);
+      }
+    }
   }
 
   public void report(String methodFilter) {
@@ -201,9 +258,14 @@ public class StructFinder {
     rec.put("registro_bytes", stride);
     rec.put("rango", List.of(base, tableEnd));
     rec.put("rutinas", g.stream().map(s -> (String) s.get("rutina")).distinct().sorted().toList());
-    for (Map<String, Object> st : g)
+    for (Map<String, Object> st : g) {
       if (st.containsKey("terminador"))
         rec.putIfAbsent("terminador", st.get("terminador"));
+      if (st.containsKey("expande_a"))
+        rec.putIfAbsent("expande_a", st.get("expande_a"));
+      if (st.containsKey("se_llena_desde"))
+        rec.putIfAbsent("se_llena_desde", st.get("se_llena_desde"));
+    }
     rec.put("campos", campos);
     return rec;
   }
@@ -246,14 +308,56 @@ public class StructFinder {
     }
     List<Map<String, Object>> out = new ArrayList<>();
     for (Map.Entry<String, List<FieldAccess>> re : byReg.entrySet()) {
-      List<FieldAccess> accesses = re.getValue();
-      if (accesses.stream().mapToInt(FieldAccess::offset).distinct().count() < 2)
-        continue; // one lone field is not a structure
-      Map<String, Object> st = buildStruct(method, sites, re.getKey(), accesses);
-      if (st != null)
-        out.add(st);
+      // one register can be re-pointed at several tables inside the same routine (a main
+      // loop reuses IX for the entity spec, the clock, the input map...). Segment the
+      // accesses by the base each one implies so we recover separate arrays instead of one
+      // bogus 636-element span from min-to-max.
+      for (List<FieldAccess> cluster : segmentByBase(re.getValue())) {
+        if (cluster.stream().mapToInt(FieldAccess::offset).distinct().count() < 2)
+          continue; // one lone field is not a structure
+        Map<String, Object> st = buildStruct(method, sites, re.getKey(), cluster);
+        if (st != null)
+          out.add(st);
+      }
     }
     return out;
+  }
+
+  private static final int BASE_GAP = 48;
+
+  /**
+   * Split a register's accesses into the distinct arrays it walks. Each access anchors to
+   * the base it implies (its lowest observed address minus its offset); accesses whose
+   * anchors sit far apart belong to different tables. Generic to any register reused for
+   * several structures.
+   */
+  private List<List<FieldAccess>> segmentByBase(List<FieldAccess> accesses) {
+    List<FieldAccess> sorted = new ArrayList<>();
+    for (FieldAccess fa : accesses)
+      if (anchorOf(fa) != Integer.MIN_VALUE)
+        sorted.add(fa);
+    sorted.sort(Comparator.comparingInt(this::anchorOf));
+    List<List<FieldAccess>> clusters = new ArrayList<>();
+    List<FieldAccess> cur = new ArrayList<>();
+    int prev = Integer.MIN_VALUE;
+    for (FieldAccess fa : sorted) {
+      int a = anchorOf(fa);
+      if (!cur.isEmpty() && a - prev > BASE_GAP) {
+        clusters.add(cur);
+        cur = new ArrayList<>();
+      }
+      cur.add(fa);
+      prev = a;
+    }
+    if (!cur.isEmpty())
+      clusters.add(cur);
+    return clusters;
+  }
+
+  /** the array base an access implies: its lowest touched address minus its field offset. */
+  private int anchorOf(FieldAccess fa) {
+    AnalysisDB.Stat s = (fa.op() == 'W' ? db.writes : db.reads).get(fa.site());
+    return s == null ? Integer.MIN_VALUE : s.addrMin() - fa.offset();
   }
 
   /**
@@ -930,6 +1034,10 @@ public class StructFinder {
       System.out.printf("  (valor %s marca FIN de la tabla; el ultimo slot no es un registro)%n",
           t.get("valor"));
     }
+    if (rec.containsKey("se_llena_desde"))
+      System.out.printf("  (se llena expandiendo la tabla compacta de %d)%n", rec.get("se_llena_desde"));
+    if (rec.containsKey("expande_a"))
+      System.out.printf("  (plantilla: se expande en el buffer de %d)%n", rec.get("expande_a"));
     for (Object fo : (List<Object>) rec.get("campos")) {
       Map<String, Object> f = (Map<String, Object>) fo;
       List<Integer> val = (List<Integer>) f.get("valores");
@@ -964,6 +1072,12 @@ public class StructFinder {
       System.out.printf("    (+%d = valor %s marca FIN de la tabla @%d, no se cuenta como registro)%n",
           minOffOf(st), t.get("valor"), t.get("site"));
     }
+    if (st.containsKey("expande_a"))
+      System.out.printf("    (PLANTILLA: se expande en el buffer de %d, un registro por elemento)%n",
+          st.get("expande_a"));
+    if (st.containsKey("se_llena_desde"))
+      System.out.printf("    (INSTANCIA: se llena expandiendo la tabla compacta de %d)%n",
+          st.get("se_llena_desde"));
     for (Object fo : (List<Object>) st.get("campos")) {
       Map<String, Object> f = (Map<String, Object>) fo;
       List<Integer> val = (List<Integer>) f.get("valores");

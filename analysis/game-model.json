@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generado": "2026-07-15T00:26:48.901256883",
+    "generado": "2026-07-15T00:58:24.044916161",
     "descripcion": "Modelo del juego deducido automaticamente del replay RZX instrumentado. Dos capas: 'hallazgos' son las conclusiones finales, agrupadas e interpretadas (lo mas importante de cada cosa encontrada); 'evidencia' tiene los datos crudos que las respaldan, asociados por el id del hallazgo (ver doc/MANUAL-ANALISIS.md)",
     "dibujados": 4244108,
     "frames_con_dibujos": 41457,
@@ -227,76 +227,76 @@
       "tamanio_tipico_bytes": 32,
       "mas_dibujados": [
         {
-          "bytes": 32,
           "rango": [
             40256,
             40287
           ],
           "veces_dibujado": 97638,
-          "rutinas": "$37974 $38504"
+          "rutinas": "$37974 $38504",
+          "bytes": 32
         },
         {
-          "bytes": 32,
           "rango": [
             40192,
             40223
           ],
           "veces_dibujado": 15864,
-          "rutinas": "$37974 $38504"
+          "rutinas": "$37974 $38504",
+          "bytes": 32
         },
         {
-          "bytes": 32,
           "rango": [
             40224,
             40255
           ],
           "veces_dibujado": 8970,
-          "rutinas": "$37974 $38504"
+          "rutinas": "$37974 $38504",
+          "bytes": 32
         },
         {
-          "bytes": 32,
           "rango": [
             40288,
             40319
           ],
           "veces_dibujado": 8926,
-          "rutinas": "$37974 $38504"
+          "rutinas": "$37974 $38504",
+          "bytes": 32
         },
         {
-          "bytes": 32,
           "rango": [
             47680,
             47711
           ],
           "veces_dibujado": 4253,
-          "rutinas": "$37974"
+          "rutinas": "$37974",
+          "bytes": 32
         },
         {
-          "bytes": 32,
           "rango": [
             48928,
             48959
           ],
           "veces_dibujado": 3129,
-          "rutinas": "$37974"
+          "rutinas": "$37974",
+          "bytes": 32
         },
         {
-          "bytes": 32,
           "rango": [
             48896,
             48927
           ],
           "veces_dibujado": 3065,
-          "rutinas": "$37974"
+          "rutinas": "$37974",
+          "bytes": 32
         },
         {
-          "bytes": 32,
           "rango": [
             46880,
             46911
           ],
           "veces_dibujado": 2968,
-          "rutinas": "$37974"
+          "rutinas": "$37974",
+          "bytes": 32
         }
       ],
       "items": "ademas hay 64 graficos chicos (1-2 bytes) en [42415..42495] (objetos/decoraciones)"
@@ -512,7 +512,12 @@
       "evidencia": "otras-estructuras",
       "lista": [
         {
-          "resumen": "arreglo en [33008..34279], registros de 2 bytes, 4 campos",
+          "resumen": "arreglo en [33008..33023], registros de 2 bytes, 2 campos",
+          "cursor": "IX",
+          "rutina": "$34463"
+        },
+        {
+          "resumen": "arreglo en [34175..34179], registros de 5 bytes, 4 campos",
           "cursor": "IX",
           "rutina": "$34463"
         },
@@ -606,173 +611,6 @@
       }
     ],
     "tabla-entidades": {
-      "deteccion": {
-        "tabla": {
-          "base": 33024,
-          "registro_bytes": 8,
-          "slots": 7,
-          "campos": {
-            "x": {
-              "formula": "(v&31)*8",
-              "offset": 2
-            },
-            "y": {
-              "formula": "(v&240)>>1",
-              "offset": 3
-            },
-            "selector_grafico_offset_0": {
-              "nota": "elige que sprite/frame se dibuja",
-              "offset": 0
-            },
-            "selector_grafico_offset_1": {
-              "nota": "elige que sprite/frame se dibuja",
-              "offset": 1
-            },
-            "selector_grafico_offset_2": {
-              "nota": "elige que sprite/frame se dibuja",
-              "offset": 2
-            },
-            "selector_grafico_offset_5": {
-              "nota": "elige que sprite/frame se dibuja",
-              "offset": 5
-            }
-          },
-          "slots_validados": [
-            {
-              "x_addr": 33026,
-              "y_addr": 33027,
-              "confianza": 0.9244839857651246
-            },
-            {
-              "x_addr": 33034,
-              "y_addr": 33035,
-              "confianza": 0.3343295827473043
-            }
-          ],
-          "cargada_por": [
-            {
-              "site": 35137,
-              "veces": 8544,
-              "desde": [
-                40962,
-                41983
-              ]
-            },
-            {
-              "site": 35128,
-              "veces": 8544,
-              "desde": [
-                40960,
-                41977
-              ]
-            }
-          ],
-          "actualizada_por": [
-            "$37056",
-            "$37310"
-          ]
-        },
-        "individuales": [
-          {
-            "x_formula": "(v&15)*8+48",
-            "y_formula": "v+168",
-            "confianza": 0.16725269573370838,
-            "x_addr": 32983,
-            "y_addr": 32985
-          },
-          {
-            "x_formula": "(v&31)*8",
-            "y_formula": "v>>1+41",
-            "confianza": 0.10182255039849976,
-            "x_addr": 33015,
-            "y_addr": 33014
-          },
-          {
-            "x_formula": "(v&31)*8+48",
-            "y_formula": "v>>1+168",
-            "confianza": 0.11064228785747773,
-            "x_addr": 33038,
-            "y_addr": 33030
-          },
-          {
-            "x_formula": "(v&240)>>1+64",
-            "y_formula": "v>>1+168",
-            "confianza": 0.12599624941397095,
-            "x_addr": 33044,
-            "y_addr": 33042
-          },
-          {
-            "x_formula": "(v&15)*8+48",
-            "y_formula": "v>>1+168",
-            "confianza": 0.23781059540553212,
-            "x_addr": 33052,
-            "y_addr": 33050
-          },
-          {
-            "x_formula": "(v&31)*8",
-            "y_formula": "v>>1+168",
-            "confianza": 0.30719643694327237,
-            "x_addr": 33066,
-            "y_addr": 33058
-          },
-          {
-            "x_formula": "(v&31)*8+48",
-            "y_formula": "(v&31)*8+24",
-            "confianza": 0.14750351617440224,
-            "x_addr": 34257,
-            "y_addr": 34261
-          },
-          {
-            "x_formula": "(v&31)*8",
-            "y_formula": "v>>1+13",
-            "confianza": 0.9532703791140119,
-            "x_addr": 34259,
-            "y_addr": 34255
-          }
-        ],
-        "pares_debiles_posible_ruido": [
-          {
-            "x_addr": 33004,
-            "y_addr": 33008,
-            "confianza": 0.0646390060947023
-          },
-          {
-            "x_addr": 33009,
-            "y_addr": 33013,
-            "confianza": 0.04704626334519573
-          },
-          {
-            "x_addr": 33011,
-            "y_addr": 33012,
-            "confianza": 0.021536568213783403
-          },
-          {
-            "x_addr": 33017,
-            "y_addr": 33024,
-            "confianza": 0.02812939521800281
-          },
-          {
-            "x_addr": 33031,
-            "y_addr": 33029,
-            "confianza": 0.06384786685419597
-          },
-          {
-            "x_addr": 33033,
-            "y_addr": 33032,
-            "confianza": 0.03938115330520394
-          },
-          {
-            "x_addr": 33047,
-            "y_addr": 33040,
-            "confianza": 0.022884126407555393
-          },
-          {
-            "x_addr": 33048,
-            "y_addr": 33043,
-            "confianza": 0.04390637610976594
-          }
-        ]
-      },
       "estructuras": [
         {
           "rutina": "$37056",
@@ -989,6 +827,8 @@
               "condicion": "campo +0 == 255",
               "ramas": [
                 {
+                  "veces": 80353,
+                  "pc": 37066,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -997,14 +837,12 @@
                     4,
                     6,
                     7
-                  ],
-                  "veces": 80353,
-                  "pc": 37066
+                  ]
                 },
                 {
-                  "campos_exclusivos": [],
                   "veces": 22752,
-                  "pc": 35273
+                  "pc": 35273,
+                  "campos_exclusivos": []
                 }
               ]
             },
@@ -1013,6 +851,8 @@
               "condicion": "campo +0 & 3",
               "ramas": [
                 {
+                  "veces": 75571,
+                  "pc": 37071,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1021,14 +861,12 @@
                     4,
                     6,
                     7
-                  ],
-                  "veces": 75571,
-                  "pc": 37071
+                  ]
                 },
                 {
-                  "campos_exclusivos": [],
                   "veces": 4782,
-                  "pc": 37302
+                  "pc": 37302,
+                  "campos_exclusivos": []
                 }
               ]
             },
@@ -1037,6 +875,8 @@
               "condicion": "campo +0 & 3 == 1",
               "ramas": [
                 {
+                  "veces": 38318,
+                  "pc": 37076,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1044,19 +884,17 @@
                     4,
                     6,
                     7
-                  ],
-                  "veces": 38318,
-                  "pc": 37076
+                  ]
                 },
                 {
+                  "veces": 37253,
+                  "pc": 37171,
                   "campos_exclusivos": [
                     0,
                     2,
                     6,
                     7
-                  ],
-                  "veces": 37253,
-                  "pc": 37171
+                  ]
                 }
               ]
             },
@@ -1065,24 +903,24 @@
               "condicion": "campo +0 & 3 == 2",
               "ramas": [
                 {
+                  "veces": 37105,
+                  "pc": 37247,
                   "campos_exclusivos": [
                     0,
                     3,
                     4,
                     6,
                     7
-                  ],
-                  "veces": 37105,
-                  "pc": 37247
+                  ]
                 },
                 {
+                  "veces": 1213,
+                  "pc": 37081,
                   "campos_exclusivos": [
                     0,
                     1,
                     7
-                  ],
-                  "veces": 1213,
-                  "pc": 37081
+                  ]
                 }
               ]
             },
@@ -1091,18 +929,18 @@
               "condicion": "campo +0",
               "ramas": [
                 {
+                  "veces": 529,
+                  "pc": 37087,
                   "campos_exclusivos": [
                     1
-                  ],
-                  "veces": 529,
-                  "pc": 37087
+                  ]
                 },
                 {
+                  "veces": 684,
+                  "pc": 37119,
                   "campos_exclusivos": [
                     1
-                  ],
-                  "veces": 684,
-                  "pc": 37119
+                  ]
                 }
               ]
             },
@@ -1111,16 +949,16 @@
               "condicion": "campo +7 & 127",
               "ramas": [
                 {
+                  "veces": 24,
+                  "pc": 37160,
                   "campos_exclusivos": [
                     0
-                  ],
-                  "veces": 24,
-                  "pc": 37160
+                  ]
                 },
                 {
-                  "campos_exclusivos": [],
                   "veces": 1189,
-                  "pc": 37302
+                  "pc": 37302,
+                  "campos_exclusivos": []
                 }
               ]
             },
@@ -1129,22 +967,22 @@
               "condicion": "campo +0",
               "ramas": [
                 {
+                  "veces": 19221,
+                  "pc": 37177,
                   "campos_exclusivos": [
                     0,
                     2,
                     6
-                  ],
-                  "veces": 19221,
-                  "pc": 37177
+                  ]
                 },
                 {
+                  "veces": 18032,
+                  "pc": 37212,
                   "campos_exclusivos": [
                     0,
                     2,
                     7
-                  ],
-                  "veces": 18032,
-                  "pc": 37212
+                  ]
                 }
               ]
             },
@@ -1153,18 +991,18 @@
               "condicion": "campo +0 & 127 == 96",
               "ramas": [
                 {
-                  "campos_exclusivos": [],
                   "veces": 13642,
-                  "pc": 37302
+                  "pc": 37302,
+                  "campos_exclusivos": []
                 },
                 {
+                  "veces": 5579,
+                  "pc": 37191,
                   "campos_exclusivos": [
                     0,
                     2,
                     6
-                  ],
-                  "veces": 5579,
-                  "pc": 37191
+                  ]
                 }
               ]
             },
@@ -1173,18 +1011,18 @@
               "condicion": "campo +6 & 31",
               "ramas": [
                 {
+                  "veces": 386,
+                  "pc": 37206,
                   "campos_exclusivos": [
                     0
-                  ],
-                  "veces": 386,
-                  "pc": 37206
+                  ]
                 },
                 {
+                  "veces": 5193,
+                  "pc": 37201,
                   "campos_exclusivos": [
                     2
-                  ],
-                  "veces": 5193,
-                  "pc": 37201
+                  ]
                 }
               ]
             },
@@ -1193,18 +1031,18 @@
               "condicion": "campo +0 == 160",
               "ramas": [
                 {
-                  "campos_exclusivos": [],
                   "veces": 13557,
-                  "pc": 37302
+                  "pc": 37302,
+                  "campos_exclusivos": []
                 },
                 {
+                  "veces": 4475,
+                  "pc": 37226,
                   "campos_exclusivos": [
                     0,
                     2,
                     7
-                  ],
-                  "veces": 4475,
-                  "pc": 37226
+                  ]
                 }
               ]
             },
@@ -1213,18 +1051,18 @@
               "condicion": "campo +7 & 31",
               "ramas": [
                 {
+                  "veces": 347,
+                  "pc": 37241,
                   "campos_exclusivos": [
                     0
-                  ],
-                  "veces": 347,
-                  "pc": 37241
+                  ]
                 },
                 {
+                  "veces": 4128,
+                  "pc": 37236,
                   "campos_exclusivos": [
                     2
-                  ],
-                  "veces": 4128,
-                  "pc": 37236
+                  ]
                 }
               ]
             },
@@ -1233,16 +1071,16 @@
               "condicion": "campo +0 & 24",
               "ramas": [
                 {
-                  "campos_exclusivos": [],
                   "veces": 6446,
-                  "pc": 37267
+                  "pc": 37267,
+                  "campos_exclusivos": []
                 },
                 {
+                  "veces": 30659,
+                  "pc": 37259,
                   "campos_exclusivos": [
                     0
-                  ],
-                  "veces": 30659,
-                  "pc": 37259
+                  ]
                 }
               ]
             },
@@ -1251,17 +1089,17 @@
               "condicion": "campo +7",
               "ramas": [
                 {
-                  "campos_exclusivos": [],
                   "veces": 716,
-                  "pc": 37294
+                  "pc": 37294,
+                  "campos_exclusivos": []
                 },
                 {
+                  "veces": 36389,
+                  "pc": 37281,
                   "campos_exclusivos": [
                     3,
                     6
-                  ],
-                  "veces": 36389,
-                  "pc": 37281
+                  ]
                 }
               ]
             },
@@ -1270,22 +1108,23 @@
               "condicion": "campo +6",
               "ramas": [
                 {
+                  "veces": 6,
+                  "pc": 37288,
                   "campos_exclusivos": [
                     3,
                     4,
                     6
-                  ],
-                  "veces": 6,
-                  "pc": 37288
+                  ]
                 },
                 {
-                  "campos_exclusivos": [],
                   "veces": 35712,
-                  "pc": 37302
+                  "pc": 37302,
+                  "campos_exclusivos": []
                 }
               ]
             }
-          ]
+          ],
+          "se_llena_desde": 33008
         },
         {
           "rutina": "$37310",
@@ -1559,6 +1398,8 @@
               "condicion": "campo +0 == 255",
               "ramas": [
                 {
+                  "veces": 79945,
+                  "pc": 37320,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1569,14 +1410,12 @@
                     6,
                     9,
                     11
-                  ],
-                  "veces": 79945,
-                  "pc": 37320
+                  ]
                 },
                 {
-                  "campos_exclusivos": [],
                   "veces": 22628,
-                  "pc": 35311
+                  "pc": 35311,
+                  "campos_exclusivos": []
                 }
               ]
             },
@@ -1585,6 +1424,8 @@
               "condicion": "campo +0 & 7 == 3",
               "ramas": [
                 {
+                  "veces": 1206,
+                  "pc": 37540,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1594,11 +1435,11 @@
                     5,
                     9,
                     11
-                  ],
-                  "veces": 1206,
-                  "pc": 37540
+                  ]
                 },
                 {
+                  "veces": 78739,
+                  "pc": 37330,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1607,9 +1448,7 @@
                     4,
                     5,
                     6
-                  ],
-                  "veces": 78739,
-                  "pc": 37330
+                  ]
                 }
               ]
             },
@@ -1618,26 +1457,26 @@
               "condicion": "campo +0 & 7 == 4",
               "ramas": [
                 {
+                  "veces": 4747,
+                  "pc": 37431,
                   "campos_exclusivos": [
                     0,
                     2,
                     4,
                     5,
                     6
-                  ],
-                  "veces": 4747,
-                  "pc": 37431
+                  ]
                 },
                 {
+                  "veces": 73992,
+                  "pc": 37334,
                   "campos_exclusivos": [
                     0,
                     1,
                     2,
                     3,
                     5
-                  ],
-                  "veces": 73992,
-                  "pc": 37334
+                  ]
                 }
               ]
             },
@@ -1646,18 +1485,18 @@
               "condicion": "campo +0",
               "ramas": [
                 {
+                  "veces": 1536,
+                  "pc": 37437,
                   "campos_exclusivos": [
                     4
-                  ],
-                  "veces": 1536,
-                  "pc": 37437
+                  ]
                 },
                 {
+                  "veces": 3211,
+                  "pc": 37444,
                   "campos_exclusivos": [
                     4
-                  ],
-                  "veces": 3211,
-                  "pc": 37444
+                  ]
                 }
               ]
             },
@@ -1666,19 +1505,19 @@
               "condicion": "campo +4",
               "ramas": [
                 {
-                  "campos_exclusivos": [],
                   "veces": 21,
-                  "pc": 37455
+                  "pc": 37455,
+                  "campos_exclusivos": []
                 },
                 {
+                  "veces": 4726,
+                  "pc": 37474,
                   "campos_exclusivos": [
                     2,
                     4,
                     5,
                     6
-                  ],
-                  "veces": 4726,
-                  "pc": 37474
+                  ]
                 }
               ]
             },
@@ -1687,19 +1526,19 @@
               "condicion": "campo +4 & 224",
               "ramas": [
                 {
+                  "veces": 876,
+                  "pc": 37479,
                   "campos_exclusivos": [
                     2,
                     4,
                     5,
                     6
-                  ],
-                  "veces": 876,
-                  "pc": 37479
+                  ]
                 },
                 {
-                  "campos_exclusivos": [],
                   "veces": 3850,
-                  "pc": 37811
+                  "pc": 37811,
+                  "campos_exclusivos": []
                 }
               ]
             },
@@ -1708,18 +1547,18 @@
               "condicion": "campo +9",
               "ramas": [
                 {
-                  "campos_exclusivos": [],
                   "veces": 16291,
-                  "pc": 37590
+                  "pc": 37590,
+                  "campos_exclusivos": []
                 },
                 {
+                  "veces": 23507,
+                  "pc": 37574,
                   "campos_exclusivos": [
                     5,
                     9,
                     11
-                  ],
-                  "veces": 23507,
-                  "pc": 37574
+                  ]
                 }
               ]
             },
@@ -1728,19 +1567,19 @@
               "condicion": "campo +3",
               "ramas": [
                 {
-                  "campos_exclusivos": [],
                   "veces": 23500,
-                  "pc": 37646
+                  "pc": 37646,
+                  "campos_exclusivos": []
                 },
                 {
+                  "veces": 7,
+                  "pc": 37580,
                   "campos_exclusivos": [
                     3,
                     5,
                     9,
                     11
-                  ],
-                  "veces": 7,
-                  "pc": 37580
+                  ]
                 }
               ]
             },
@@ -1749,6 +1588,8 @@
               "condicion": "campo +9",
               "ramas": [
                 {
+                  "veces": 15894,
+                  "pc": 37646,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1757,18 +1598,16 @@
                     5,
                     9,
                     11
-                  ],
-                  "veces": 15894,
-                  "pc": 37646
+                  ]
                 },
                 {
+                  "veces": 404,
+                  "pc": 37595,
                   "campos_exclusivos": [
                     3,
                     5,
                     11
-                  ],
-                  "veces": 404,
-                  "pc": 37595
+                  ]
                 }
               ]
             },
@@ -1777,20 +1616,20 @@
               "condicion": "campo +1",
               "ramas": [
                 {
+                  "veces": 14751,
+                  "pc": 37697,
                   "campos_exclusivos": [
                     3,
                     5
-                  ],
-                  "veces": 14751,
-                  "pc": 37697
+                  ]
                 },
                 {
+                  "veces": 16105,
+                  "pc": 37680,
                   "campos_exclusivos": [
                     3,
                     5
-                  ],
-                  "veces": 16105,
-                  "pc": 37680
+                  ]
                 }
               ]
             },
@@ -1799,20 +1638,20 @@
               "condicion": "campo +4",
               "ramas": [
                 {
+                  "veces": 1206,
+                  "pc": 37726,
                   "campos_exclusivos": [
                     0,
                     4,
                     11
-                  ],
-                  "veces": 1206,
-                  "pc": 37726
+                  ]
                 },
                 {
+                  "veces": 38592,
+                  "pc": 37720,
                   "campos_exclusivos": [
                     9
-                  ],
-                  "veces": 38592,
-                  "pc": 37720
+                  ]
                 }
               ]
             },
@@ -1821,20 +1660,20 @@
               "condicion": "campo +9 & 128",
               "ramas": [
                 {
+                  "veces": 96,
+                  "pc": 37733,
                   "campos_exclusivos": [
                     11
-                  ],
-                  "veces": 96,
-                  "pc": 37733
+                  ]
                 },
                 {
+                  "veces": 1110,
+                  "pc": 37743,
                   "campos_exclusivos": [
                     0,
                     4,
                     11
-                  ],
-                  "veces": 1110,
-                  "pc": 37743
+                  ]
                 }
               ]
             },
@@ -1843,80 +1682,248 @@
               "condicion": "campo +11",
               "ramas": [
                 {
+                  "veces": 404,
+                  "pc": 37749,
                   "campos_exclusivos": [
                     0,
                     4
-                  ],
-                  "veces": 404,
-                  "pc": 37749
+                  ]
                 },
                 {
-                  "campos_exclusivos": [],
                   "veces": 706,
-                  "pc": 37811
+                  "pc": 37811,
+                  "campos_exclusivos": []
                 }
               ]
             }
-          ]
+          ],
+          "se_llena_desde": 33008
         }
-      ]
+      ],
+      "deteccion": {
+        "tabla": {
+          "base": 33024,
+          "registro_bytes": 8,
+          "slots": 7,
+          "campos": {
+            "x": {
+              "offset": 2,
+              "formula": "(v&31)*8"
+            },
+            "y": {
+              "offset": 3,
+              "formula": "(v&240)>>1"
+            },
+            "selector_grafico_offset_0": {
+              "offset": 0,
+              "nota": "elige que sprite/frame se dibuja"
+            },
+            "selector_grafico_offset_1": {
+              "offset": 1,
+              "nota": "elige que sprite/frame se dibuja"
+            },
+            "selector_grafico_offset_2": {
+              "offset": 2,
+              "nota": "elige que sprite/frame se dibuja"
+            },
+            "selector_grafico_offset_5": {
+              "offset": 5,
+              "nota": "elige que sprite/frame se dibuja"
+            }
+          },
+          "slots_validados": [
+            {
+              "x_addr": 33026,
+              "y_addr": 33027,
+              "confianza": 0.9244839857651246
+            },
+            {
+              "x_addr": 33034,
+              "y_addr": 33035,
+              "confianza": 0.3343295827473043
+            }
+          ],
+          "cargada_por": [
+            {
+              "site": 35137,
+              "veces": 8544,
+              "desde": [
+                40962,
+                41983
+              ]
+            },
+            {
+              "site": 35128,
+              "veces": 8544,
+              "desde": [
+                40960,
+                41977
+              ]
+            }
+          ],
+          "actualizada_por": [
+            "$37056",
+            "$37310"
+          ]
+        },
+        "individuales": [
+          {
+            "confianza": 0.16725269573370838,
+            "x_addr": 32983,
+            "y_addr": 32985,
+            "x_formula": "(v&15)*8+48",
+            "y_formula": "v+168"
+          },
+          {
+            "confianza": 0.10182255039849976,
+            "x_addr": 33015,
+            "y_addr": 33014,
+            "x_formula": "(v&31)*8",
+            "y_formula": "v>>1+41"
+          },
+          {
+            "confianza": 0.11064228785747773,
+            "x_addr": 33038,
+            "y_addr": 33030,
+            "x_formula": "(v&31)*8+48",
+            "y_formula": "v>>1+168"
+          },
+          {
+            "confianza": 0.12599624941397095,
+            "x_addr": 33044,
+            "y_addr": 33042,
+            "x_formula": "(v&240)>>1+64",
+            "y_formula": "v>>1+168"
+          },
+          {
+            "confianza": 0.23781059540553212,
+            "x_addr": 33052,
+            "y_addr": 33050,
+            "x_formula": "(v&15)*8+48",
+            "y_formula": "v>>1+168"
+          },
+          {
+            "confianza": 0.30719643694327237,
+            "x_addr": 33066,
+            "y_addr": 33058,
+            "x_formula": "(v&31)*8",
+            "y_formula": "v>>1+168"
+          },
+          {
+            "confianza": 0.14750351617440224,
+            "x_addr": 34257,
+            "y_addr": 34261,
+            "x_formula": "(v&31)*8+48",
+            "y_formula": "(v&31)*8+24"
+          },
+          {
+            "confianza": 0.9532703791140119,
+            "x_addr": 34259,
+            "y_addr": 34255,
+            "x_formula": "(v&31)*8",
+            "y_formula": "v>>1+13"
+          }
+        ],
+        "pares_debiles_posible_ruido": [
+          {
+            "x_addr": 33004,
+            "y_addr": 33008,
+            "confianza": 0.0646390060947023
+          },
+          {
+            "x_addr": 33009,
+            "y_addr": 33013,
+            "confianza": 0.04704626334519573
+          },
+          {
+            "x_addr": 33011,
+            "y_addr": 33012,
+            "confianza": 0.021536568213783403
+          },
+          {
+            "x_addr": 33017,
+            "y_addr": 33024,
+            "confianza": 0.02812939521800281
+          },
+          {
+            "x_addr": 33031,
+            "y_addr": 33029,
+            "confianza": 0.06384786685419597
+          },
+          {
+            "x_addr": 33033,
+            "y_addr": 33032,
+            "confianza": 0.03938115330520394
+          },
+          {
+            "x_addr": 33047,
+            "y_addr": 33040,
+            "confianza": 0.022884126407555393
+          },
+          {
+            "x_addr": 33048,
+            "y_addr": 33043,
+            "confianza": 0.04390637610976594
+          }
+        ]
+      }
     },
     "protagonista": [
       {
-        "x_formula": "(v&15)*8+48",
-        "y_formula": "v+168",
         "confianza": 0.16725269573370838,
         "x_addr": 32983,
-        "y_addr": 32985
+        "y_addr": 32985,
+        "x_formula": "(v&15)*8+48",
+        "y_formula": "v+168"
       },
       {
-        "x_formula": "(v&31)*8",
-        "y_formula": "v>>1+41",
         "confianza": 0.10182255039849976,
         "x_addr": 33015,
-        "y_addr": 33014
+        "y_addr": 33014,
+        "x_formula": "(v&31)*8",
+        "y_formula": "v>>1+41"
       },
       {
-        "x_formula": "(v&31)*8+48",
-        "y_formula": "v>>1+168",
         "confianza": 0.11064228785747773,
         "x_addr": 33038,
-        "y_addr": 33030
+        "y_addr": 33030,
+        "x_formula": "(v&31)*8+48",
+        "y_formula": "v>>1+168"
       },
       {
-        "x_formula": "(v&240)>>1+64",
-        "y_formula": "v>>1+168",
         "confianza": 0.12599624941397095,
         "x_addr": 33044,
-        "y_addr": 33042
+        "y_addr": 33042,
+        "x_formula": "(v&240)>>1+64",
+        "y_formula": "v>>1+168"
       },
       {
-        "x_formula": "(v&15)*8+48",
-        "y_formula": "v>>1+168",
         "confianza": 0.23781059540553212,
         "x_addr": 33052,
-        "y_addr": 33050
+        "y_addr": 33050,
+        "x_formula": "(v&15)*8+48",
+        "y_formula": "v>>1+168"
       },
       {
-        "x_formula": "(v&31)*8",
-        "y_formula": "v>>1+168",
         "confianza": 0.30719643694327237,
         "x_addr": 33066,
-        "y_addr": 33058
+        "y_addr": 33058,
+        "x_formula": "(v&31)*8",
+        "y_formula": "v>>1+168"
       },
       {
-        "x_formula": "(v&31)*8+48",
-        "y_formula": "(v&31)*8+24",
         "confianza": 0.14750351617440224,
         "x_addr": 34257,
-        "y_addr": 34261
+        "y_addr": 34261,
+        "x_formula": "(v&31)*8+48",
+        "y_formula": "(v&31)*8+24"
       },
       {
-        "x_formula": "(v&31)*8",
-        "y_formula": "v>>1+13",
         "confianza": 0.9532703791140119,
         "x_addr": 34259,
-        "y_addr": 34255
+        "y_addr": 34255,
+        "x_formula": "(v&31)*8",
+        "y_formula": "v>>1+13"
       }
     ],
     "sprites": [
@@ -6599,39 +6606,39 @@
         }
       },
       {
-        "nombre": "$36307",
         "tipo": "logica_estado",
         "evidencia": {
           "escrituras_a_variables": 75969
-        }
+        },
+        "nombre": "$36307"
       },
       {
-        "nombre": "$36508",
         "tipo": "logica_estado",
         "evidencia": {
           "escrituras_a_variables": 17048
-        }
+        },
+        "nombre": "$36508"
       },
       {
-        "nombre": "$37056",
         "tipo": "logica_estado",
         "evidencia": {
           "escrituras_a_variables": 155483
-        }
+        },
+        "nombre": "$37056"
       },
       {
-        "nombre": "$38064",
         "tipo": "logica_estado",
         "evidencia": {
           "escrituras_a_variables": 95
-        }
+        },
+        "nombre": "$38064"
       },
       {
-        "nombre": "$38276",
         "tipo": "logica_estado",
         "evidencia": {
           "escrituras_a_variables": 1
-        }
+        },
+        "nombre": "$38276"
       }
     ],
     "otras-estructuras": [
@@ -6641,37 +6648,28 @@
         "base": 33008,
         "registro_bytes": 2,
         "stride_fuente": "bit de direccion mas bajo que varia (solo detecta potencias de 2)",
-        "elementos": 636,
+        "elementos": 8,
         "rango": [
           33008,
-          34279
+          33023
         ],
         "campos": [
           {
             "offset": 0,
-            "lecturas": 8729,
+            "lecturas": 8544,
             "escrituras": 0,
             "valores": [
               0,
               255
-            ],
-            "semantica": [
-              "coordenada X",
-              "controla branches (tipo/flag)"
-            ],
-            "nombre_propuesto": "posicion_x"
+            ]
           },
           {
             "offset": 1,
-            "lecturas": 8548,
-            "escrituras": 3,
+            "lecturas": 8544,
+            "escrituras": 0,
             "valores": [
               0,
               218
-            ],
-            "semantica": [
-              "coordenada X",
-              "controla branches (tipo/flag)"
             ],
             "relaciones": {
               "impacta_en": [
@@ -6679,7 +6677,47 @@
                 "pixeles en pantalla"
               ]
             },
-            "nombre_propuesto": "posicion_x"
+            "nombre_propuesto": "grafico_frame"
+          }
+        ],
+        "variantes": [],
+        "expande_a": 33024
+      },
+      {
+        "rutina": "$34463",
+        "cursor": "IX",
+        "base": 34175,
+        "registro_bytes": 5,
+        "stride_fuente": "maximo offset visto (sin evidencia de avance)",
+        "elementos": 1,
+        "rango": [
+          34175,
+          34179
+        ],
+        "campos": [
+          {
+            "offset": 0,
+            "lecturas": 1,
+            "escrituras": 0,
+            "valores": [
+              32,
+              32
+            ],
+            "semantica": [
+              "controla branches (tipo/flag)"
+            ]
+          },
+          {
+            "offset": 1,
+            "lecturas": 4,
+            "escrituras": 3,
+            "valores": [
+              55,
+              56
+            ],
+            "semantica": [
+              "controla branches (tipo/flag)"
+            ]
           },
           {
             "offset": 3,
@@ -6689,9 +6727,7 @@
               48,
               54
             ],
-            "campo_del_elemento_siguiente": 1,
             "semantica": [
-              "coordenada X",
               "controla branches (tipo/flag)"
             ],
             "relaciones": {
@@ -6700,7 +6736,7 @@
                 "+1"
               ]
             },
-            "nombre_propuesto": "posicion_x"
+            "nombre_propuesto": "tipo_flags (sus bits seleccionan la variante)"
           },
           {
             "offset": 4,
@@ -6710,9 +6746,7 @@
               48,
               58
             ],
-            "campo_del_elemento_siguiente": 0,
             "semantica": [
-              "coordenada X",
               "controla branches (tipo/flag)"
             ],
             "relaciones": {
@@ -6722,7 +6756,7 @@
                 "+3"
               ]
             },
-            "nombre_propuesto": "posicion_x"
+            "nombre_propuesto": "tipo_flags (sus bits seleccionan la variante)"
           }
         ],
         "variantes": [
@@ -6731,19 +6765,19 @@
             "condicion": "campo +4 == 58",
             "ramas": [
               {
+                "veces": 8,
+                "pc": 35424,
                 "campos_exclusivos": [
                   0,
                   1,
                   3,
                   4
-                ],
-                "veces": 8,
-                "pc": 35424
+                ]
               },
               {
-                "campos_exclusivos": [],
                 "veces": 76,
-                "pc": 35499
+                "pc": 35499,
+                "campos_exclusivos": []
               }
             ]
           },
@@ -6752,18 +6786,18 @@
             "condicion": "campo +3 == 54",
             "ramas": [
               {
-                "campos_exclusivos": [],
                 "veces": 7,
-                "pc": 35499
+                "pc": 35499,
+                "campos_exclusivos": []
               },
               {
+                "veces": 1,
+                "pc": 35438,
                 "campos_exclusivos": [
                   0,
                   1,
                   3
-                ],
-                "veces": 1,
-                "pc": 35438
+                ]
               }
             ]
           }
@@ -6835,19 +6869,19 @@
             "condicion": "campo +0 & 127 == 7",
             "ramas": [
               {
-                "campos_exclusivos": [],
                 "veces": 2,
-                "pc": 34648
+                "pc": 34648,
+                "campos_exclusivos": []
               },
               {
+                "veces": 1366,
+                "pc": 34693,
                 "campos_exclusivos": [
                   0,
                   1,
                   32,
                   33
-                ],
-                "veces": 1366,
-                "pc": 34693
+                ]
               }
             ]
           }
