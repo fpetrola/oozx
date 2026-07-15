@@ -465,6 +465,40 @@ relleno de pantalla; el bloque reconstruido lo consumen $36171 (render del fondo
 (texto: el nombre de la pantalla vive ahí), $37310/$37056 (entidades) y $36203/$36288
 (atributos).
 
+## 9septies. "records" + capa formal "modelo" en game-model.json (2026-07-15)
+
+**Paso 3 del plan "construcción de pantalla"**: recuperar la estructura del bloque que
+el selector reconstruye. `RecordFinder` (CLI `records`, hallazgo
+`registros-reconstruidos`) agrupa todos los accesos cuyos rangos observados caen dentro
+del bloque (un singleton se accede por direcciones absolutas, no con cursor IX):
+
+- **mapa empaquetado**: k lecturas del MISMO rango barrido cuyos consumidores rotan el
+  byte (rlc/rrc) = k sub-celdas de 8/k bits por byte (el layout de la pantalla:
+  4×2 bits, 512 celdas);
+- **familia periódica**: campos de 1 byte cuyas distancias comparten un divisor, dentro
+  de un rango barrido = tabla interna de registros de paso N (las definiciones de tiles:
+  cabecera de atributo + 8 filas de gráfico, paso 9, 6 registros);
+- **enlaces**: un campo cuyo valor fluye a la ESCRITURA de una celda selectora es una
+  salida — los registros se nombran entre sí y forman un grafo (33001..33004 = las 4
+  salidas de la habitación → el mapa del juego);
+- **punteros de 16 bits** (2 bytes → ADDR, con la región apuntada), **flags** (0/1),
+  **ascii probable** (valores siempre en [32..127]);
+- **huecos**: sub-rangos sin acceso tipado, con las rutinas genéricas que los solapan
+  (el nombre de la pantalla [32896..32927] queda señalado por los impresores de texto
+  $38528/$38555 — insumo del futuro detector de texto).
+
+**Capa formal `modelo`** (`ModelAssembler`, pedida por el usuario para transformar el
+fuente Java generado leyendo el JSON): secciones `espacio_direcciones` (mapa de memoria
+tipificado y NOMBRADO estilo skoolkit: pantalla, buffers con delta, gráficos, tablas,
+arreglos, registro singleton, catálogo, variables), `variables` (selector, coordenadas
+del protagonista, con rol y quién las escribe), `estructuras` (registros canónicos con
+sus tipos discriminados), `registros` (singleton con campos), `rutinas` (rol + qué
+regiones nombradas lee/escribe cada una), `segmentos` (vista inversa: región → rutinas,
+con propuesta "encapsulable" cuando ≤4 rutinas la ven) y `sugerencias_de_refactor`
+(entidades → clase con subtipos polimórficos; registro → clase con propiedades; mem[x]
+→ propiedad nombrada; segmentos → visibilidad restringida; gráficos → recursos
+externos). Los nombres son por rol, genéricos, estables — ningún dato del juego.
+
 ## 10. Roadmap / ideas pendientes
 
 - **F5 completo — trace exacto por ventana de frames**: log por instancia de TODOS los

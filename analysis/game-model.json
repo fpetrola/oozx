@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generado": "2026-07-15T10:19:41.957144600",
+    "generado": "2026-07-15T10:42:10.784339058",
     "descripcion": "Modelo del juego deducido automaticamente del replay RZX instrumentado. Dos capas: 'hallazgos' son las conclusiones finales, agrupadas e interpretadas (lo mas importante de cada cosa encontrada); 'evidencia' tiene los datos crudos que las respaldan, asociados por el id del hallazgo (ver doc/MANUAL-ANALISIS.md)",
     "dibujados": 4244108,
     "frames_con_dibujos": 41457,
@@ -187,6 +187,45 @@
       ]
     },
     {
+      "id": "registros-reconstruidos",
+      "titulo": "El registro que el selector reconstruye, campo por campo (layout del contenido actual)",
+      "evidencia": "registros-reconstruidos",
+      "registros": [
+        {
+          "rango": [
+            32768,
+            33023
+          ],
+          "selector": "mem[33824]",
+          "campos": {
+            "[32768..32895]": "mapa_empaquetado — mapa empaquetado: 4 lecturas por byte con rotaciones = 4 celdas de 2 bits por byte (512 celdas en total)",
+            "[32928..32928]": "cabecera_registro_0 — alimenta direcciones (indice/puntero); cabecera del registro 0 de la familia periodica: 6 registros de 9 bytes desde 32928",
+            "[32928..32955]": "datos_de_registros_de_9_bytes — carga util de la familia periodica: 8 bytes por registro tras la cabecera (paso 9, 4 registros)",
+            "[32929..32981]": "datos_de_registros_de_9_bytes — carga util de la familia periodica: 8 bytes por registro tras la cabecera (paso 9, 6 registros)",
+            "[32946..32946]": "cabecera_registro_2 — cabecera del registro 2 de la familia periodica: 6 registros de 9 bytes desde 32928",
+            "[32955..32955]": "cabecera_registro_3 — cabecera del registro 3 de la familia periodica: 6 registros de 9 bytes desde 32928",
+            "[32964..32964]": "cabecera_registro_4 — cabecera del registro 4 de la familia periodica: 6 registros de 9 bytes desde 32928",
+            "[32973..32973]": "cabecera_registro_5 — cabecera del registro 5 de la familia periodica: 6 registros de 9 bytes desde 32928",
+            "[32982..32982]": "flag — solo 0/1: flag",
+            "[32983..32984]": "puntero — puntero de 16 bits hacia [24186..24575]",
+            "[32985..32985]": "leido por $36203 $38137",
+            "[32986..32986]": "flag — solo 0/1: flag",
+            "[32987..32988]": "puntero — puntero de 16 bits hacia [24065..24572]",
+            "[32989..32989]": "leido por $36203",
+            "[32990..32990]": "leido por $34463 $36307 $37310 $37841",
+            "[33001..33001]": "enlace_a_registro_vecino — su valor se escribe en el selector mem[33824]: es un ENLACE hacia otro registro (los registros forman un grafo)",
+            "[33002..33002]": "enlace_a_registro_vecino — su valor se escribe en el selector mem[33824]: es un ENLACE hacia otro registro (los registros forman un grafo)",
+            "[33003..33003]": "enlace_a_registro_vecino — su valor se escribe en el selector mem[33824]: es un ENLACE hacia otro registro (los registros forman un grafo)",
+            "[33004..33004]": "enlace_a_registro_vecino — su valor se escribe en el selector mem[33824]: es un ENLACE hacia otro registro (los registros forman un grafo)",
+            "[33008..33022]": "leido por $34463",
+            "[33009..33023]": "leido por $34463",
+            "[32896..32927]": "HUECO sin acceso tipado; lo leen rutinas genericas: [$38528, $38555]",
+            "[32991..33000]": "HUECO sin acceso tipado; lo leen rutinas genericas: [$38528, $38555]"
+          }
+        }
+      ]
+    },
+    {
       "id": "tabla-entidades",
       "titulo": "Tabla de entidades en [33024..33087]: 8 slots de 8 bytes, 5 tipos de entidad",
       "slots_con_datos_observados": 8,
@@ -294,16 +333,16 @@
             40962,
             41983
           ],
-          "site": 35137,
-          "veces": 8544
+          "veces": 8544,
+          "site": 35137
         },
         {
           "desde": [
             40960,
             41977
           ],
-          "site": 35128,
-          "veces": 8544
+          "veces": 8544,
+          "site": 35128
         }
       ],
       "actualizada_por": [
@@ -329,76 +368,76 @@
       "tamanio_tipico_bytes": 32,
       "mas_dibujados": [
         {
-          "rutinas": "$37974 $38504",
           "bytes": 32,
+          "rutinas": "$37974 $38504",
+          "veces_dibujado": 97638,
           "rango": [
             40256,
             40287
-          ],
-          "veces_dibujado": 97638
+          ]
         },
         {
-          "rutinas": "$37974 $38504",
           "bytes": 32,
+          "rutinas": "$37974 $38504",
+          "veces_dibujado": 15864,
           "rango": [
             40192,
             40223
-          ],
-          "veces_dibujado": 15864
+          ]
         },
         {
-          "rutinas": "$37974 $38504",
           "bytes": 32,
+          "rutinas": "$37974 $38504",
+          "veces_dibujado": 8970,
           "rango": [
             40224,
             40255
-          ],
-          "veces_dibujado": 8970
+          ]
         },
         {
-          "rutinas": "$37974 $38504",
           "bytes": 32,
+          "rutinas": "$37974 $38504",
+          "veces_dibujado": 8926,
           "rango": [
             40288,
             40319
-          ],
-          "veces_dibujado": 8926
+          ]
         },
         {
-          "rutinas": "$37974",
           "bytes": 32,
+          "rutinas": "$37974",
+          "veces_dibujado": 4253,
           "rango": [
             47680,
             47711
-          ],
-          "veces_dibujado": 4253
+          ]
         },
         {
-          "rutinas": "$37974",
           "bytes": 32,
+          "rutinas": "$37974",
+          "veces_dibujado": 3129,
           "rango": [
             48928,
             48959
-          ],
-          "veces_dibujado": 3129
+          ]
         },
         {
-          "rutinas": "$37974",
           "bytes": 32,
+          "rutinas": "$37974",
+          "veces_dibujado": 3065,
           "rango": [
             48896,
             48927
-          ],
-          "veces_dibujado": 3065
+          ]
         },
         {
-          "rutinas": "$37974",
           "bytes": 32,
+          "rutinas": "$37974",
+          "veces_dibujado": 2968,
           "rango": [
             46880,
             46911
-          ],
-          "veces_dibujado": 2968
+          ]
         }
       ],
       "items": "ademas hay 64 graficos chicos (1-2 bytes) en [42415..42495] (objetos/decoraciones)"
@@ -419,40 +458,40 @@
       "evidencia": "tablas-consulta",
       "tablas": [
         {
-          "rango": [
-            33280,
-            33535
-          ],
           "usada_por": [
             "$37310",
             "$38504"
+          ],
+          "rango": [
+            33280,
+            33535
           ]
         },
         {
+          "usada_por": [
+            "$37310"
+          ],
           "rango": [
             33664,
             33750
-          ],
-          "usada_por": [
-            "$37310"
           ]
         },
         {
+          "usada_por": [
+            "$37841"
+          ],
           "rango": [
             41983,
             41983
-          ],
-          "usada_por": [
-            "$37841"
           ]
         },
         {
+          "usada_por": [
+            "$37841"
+          ],
           "rango": [
             42415,
             42495
-          ],
-          "usada_por": [
-            "$37841"
           ]
         }
       ]
@@ -531,80 +570,80 @@
       "evidencia": "rutinas",
       "lista": [
         {
-          "rutina": "$34463",
-          "hace": "dibuja un sprite fila por fila (el protagonista)"
+          "hace": "dibuja un sprite fila por fila (el protagonista)",
+          "rutina": "$34463"
         },
         {
-          "rutina": "$34499",
-          "hace": "pinta colores (atributos)"
+          "hace": "pinta colores (atributos)",
+          "rutina": "$34499"
         },
         {
-          "rutina": "$34620",
-          "hace": "dibuja un sprite fila por fila (el protagonista)"
+          "hace": "dibuja un sprite fila por fila (el protagonista)",
+          "rutina": "$34620"
         },
         {
-          "rutina": "$36171",
-          "hace": "renderiza el fondo de la habitacion al buffer"
+          "hace": "renderiza el fondo de la habitacion al buffer",
+          "rutina": "$36171"
         },
         {
-          "rutina": "$36203",
-          "hace": "dibuja en pantalla"
+          "hace": "dibuja en pantalla",
+          "rutina": "$36203"
         },
         {
-          "rutina": "$36288",
-          "hace": "pinta colores (atributos)"
+          "hace": "pinta colores (atributos)",
+          "rutina": "$36288"
         },
         {
-          "rutina": "$37310",
-          "hace": "dibuja sprites de entidades"
+          "hace": "dibuja sprites de entidades",
+          "rutina": "$37310"
         },
         {
-          "rutina": "$37841",
-          "hace": "pinta colores (atributos)"
+          "hace": "pinta colores (atributos)",
+          "rutina": "$37841"
         },
         {
-          "rutina": "$37974",
-          "hace": "dibuja sprites de entidades"
+          "hace": "dibuja sprites de entidades",
+          "rutina": "$37974"
         },
         {
-          "rutina": "$38137",
-          "hace": "dibuja sprites de entidades"
+          "hace": "dibuja sprites de entidades",
+          "rutina": "$38137"
         },
         {
-          "rutina": "$38196",
-          "hace": "pinta colores (atributos)"
+          "hace": "pinta colores (atributos)",
+          "rutina": "$38196"
         },
         {
-          "rutina": "$38430",
-          "hace": "pinta colores (atributos)"
+          "hace": "pinta colores (atributos)",
+          "rutina": "$38430"
         },
         {
-          "rutina": "$38504",
-          "hace": "dibuja un sprite fila por fila (el protagonista)"
+          "hace": "dibuja un sprite fila por fila (el protagonista)",
+          "rutina": "$38504"
         },
         {
-          "rutina": "$38555",
-          "hace": "imprime texto con la fuente ROM"
+          "hace": "imprime texto con la fuente ROM",
+          "rutina": "$38555"
         },
         {
-          "rutina": "$36307",
-          "hace": "logica de juego: actualiza variables y entidades"
+          "hace": "logica de juego: actualiza variables y entidades",
+          "rutina": "$36307"
         },
         {
-          "rutina": "$36508",
-          "hace": "logica de juego: actualiza variables y entidades"
+          "hace": "logica de juego: actualiza variables y entidades",
+          "rutina": "$36508"
         },
         {
-          "rutina": "$37056",
-          "hace": "logica de juego: actualiza variables y entidades"
+          "hace": "logica de juego: actualiza variables y entidades",
+          "rutina": "$37056"
         },
         {
-          "rutina": "$38064",
-          "hace": "logica de juego: actualiza variables y entidades"
+          "hace": "logica de juego: actualiza variables y entidades",
+          "rutina": "$38064"
         },
         {
-          "rutina": "$38276",
-          "hace": "logica de juego: actualiza variables y entidades"
+          "hace": "logica de juego: actualiza variables y entidades",
+          "rutina": "$38276"
         }
       ]
     },
@@ -615,32 +654,2400 @@
       "lista": [
         {
           "rutina": "$34463",
-          "resumen": "arreglo en [33008..33023], registros de 2 bytes, 2 campos",
-          "cursor": "IX"
+          "cursor": "IX",
+          "resumen": "arreglo en [33008..33023], registros de 2 bytes, 2 campos"
         },
         {
           "rutina": "$34463",
-          "resumen": "arreglo en [34175..34179], registros de 5 bytes, 4 campos",
-          "cursor": "IX"
+          "cursor": "IX",
+          "resumen": "arreglo en [34175..34179], registros de 5 bytes, 4 campos"
         },
         {
           "rutina": "$34620",
-          "resumen": "arreglo en [22864..22906], registros de 1 bytes, 4 campos",
-          "cursor": "IX"
+          "cursor": "IX",
+          "resumen": "arreglo en [22864..22906], registros de 1 bytes, 4 campos"
         },
         {
           "rutina": "$37310",
-          "resumen": "arreglo en [33280..33479], registros de 8 bytes, 2 campos",
-          "cursor": "IY"
+          "cursor": "IY",
+          "resumen": "arreglo en [33280..33479], registros de 8 bytes, 2 campos"
         },
         {
           "rutina": "$38504",
-          "resumen": "arreglo en [33280..33535], registros de 2 bytes, 2 campos",
-          "cursor": "IX"
+          "cursor": "IX",
+          "resumen": "arreglo en [33280..33535], registros de 2 bytes, 2 campos"
         }
       ]
     }
   ],
+  "modelo": {
+    "version": 1,
+    "proposito": "capa formal del modelo, pensada para leerla y transformar el fuente Java generado: renombres, clases de entidades con subtipos, mem[..] -> propiedades con nombre, segmentacion de la memoria por visibilidad, extraccion de datos a recursos",
+    "espacio_direcciones": [
+      {
+        "nombre": "fuente_texto",
+        "rango": [
+          15616,
+          16383
+        ],
+        "tipo": "datos_graficos",
+        "hallazgo": "fuente"
+      },
+      {
+        "nombre": "pantalla",
+        "rango": [
+          16384,
+          23295
+        ],
+        "tipo": "hardware_pantalla",
+        "hallazgo": "pantalla"
+      },
+      {
+        "nombre": "buffer_pixels_2",
+        "rango": [
+          16384,
+          22526
+        ],
+        "tipo": "buffer_de_trabajo",
+        "hallazgo": "pantalla",
+        "delta_a_pantalla": 1
+      },
+      {
+        "nombre": "buffer_pixels_1",
+        "rango": [
+          20480,
+          22526
+        ],
+        "tipo": "buffer_de_trabajo",
+        "hallazgo": "pantalla",
+        "delta_a_pantalla": 1
+      },
+      {
+        "nombre": "buffer_atributos_2",
+        "rango": [
+          22528,
+          23038
+        ],
+        "tipo": "buffer_de_trabajo",
+        "hallazgo": "pantalla",
+        "delta_a_pantalla": 1
+      },
+      {
+        "nombre": "buffer_atributos_6",
+        "rango": [
+          23136,
+          23166
+        ],
+        "tipo": "buffer_de_trabajo",
+        "hallazgo": "pantalla",
+        "delta_a_pantalla": 1
+      },
+      {
+        "nombre": "buffer_atributos_3",
+        "rango": [
+          23552,
+          24063
+        ],
+        "tipo": "buffer_de_trabajo",
+        "hallazgo": "pantalla",
+        "delta_a_pantalla": -1024
+      },
+      {
+        "nombre": "buffer_atributos_7",
+        "rango": [
+          24064,
+          24575
+        ],
+        "tipo": "buffer_de_trabajo",
+        "hallazgo": "pantalla",
+        "delta_a_pantalla": -1536
+      },
+      {
+        "nombre": "buffer_pixels_3",
+        "rango": [
+          24576,
+          28671
+        ],
+        "tipo": "buffer_de_trabajo",
+        "hallazgo": "pantalla",
+        "delta_a_pantalla": -8192
+      },
+      {
+        "nombre": "buffer_pixels_4",
+        "rango": [
+          28672,
+          32767
+        ],
+        "tipo": "buffer_de_trabajo",
+        "hallazgo": "pantalla",
+        "delta_a_pantalla": -12288
+      },
+      {
+        "nombre": "registro_actual_1",
+        "rango": [
+          32768,
+          33023
+        ],
+        "tipo": "registro_singleton",
+        "hallazgo": "registros-reconstruidos"
+      },
+      {
+        "nombre": "entidades",
+        "rango": [
+          33024,
+          33087
+        ],
+        "tipo": "arreglo_de_registros",
+        "hallazgo": "tabla-entidades",
+        "registro_bytes": 8
+      },
+      {
+        "nombre": "tabla_consulta_1",
+        "rango": [
+          33280,
+          33535
+        ],
+        "tipo": "tabla_consulta",
+        "hallazgo": "tablas-consulta"
+      },
+      {
+        "nombre": "tabla_consulta_2",
+        "rango": [
+          33664,
+          33750
+        ],
+        "tipo": "tabla_consulta",
+        "hallazgo": "tablas-consulta"
+      },
+      {
+        "nombre": "selector_registro_1",
+        "rango": [
+          33824,
+          33824
+        ],
+        "tipo": "variable",
+        "hallazgo": "reconstruccion-por-selector"
+      },
+      {
+        "nombre": "protagonista_y",
+        "rango": [
+          34255,
+          34255
+        ],
+        "tipo": "variable",
+        "hallazgo": "protagonista"
+      },
+      {
+        "nombre": "protagonista_x",
+        "rango": [
+          34259,
+          34259
+        ],
+        "tipo": "variable",
+        "hallazgo": "protagonista"
+      },
+      {
+        "nombre": "buffer_atributos_1",
+        "rango": [
+          38912,
+          39679
+        ],
+        "tipo": "buffer_de_trabajo",
+        "hallazgo": "pantalla",
+        "delta_a_pantalla": -16384
+      },
+      {
+        "nombre": "buffer_atributos_4",
+        "rango": [
+          39424,
+          39679
+        ],
+        "tipo": "buffer_de_trabajo",
+        "hallazgo": "pantalla",
+        "delta_a_pantalla": -16384
+      },
+      {
+        "nombre": "graficos_1",
+        "rango": [
+          39680,
+          49151
+        ],
+        "tipo": "datos_graficos",
+        "hallazgo": "graficos"
+      },
+      {
+        "nombre": "buffer_atributos_5",
+        "rango": [
+          39808,
+          39935
+        ],
+        "tipo": "buffer_de_trabajo",
+        "hallazgo": "pantalla",
+        "delta_a_pantalla": -17024
+      },
+      {
+        "nombre": "tabla_consulta_3",
+        "rango": [
+          41983,
+          41983
+        ],
+        "tipo": "tabla_consulta",
+        "hallazgo": "tablas-consulta"
+      },
+      {
+        "nombre": "tabla_consulta_4",
+        "rango": [
+          42415,
+          42495
+        ],
+        "tipo": "tabla_consulta",
+        "hallazgo": "tablas-consulta"
+      },
+      {
+        "nombre": "catalogo_registros_1",
+        "rango": [
+          49152,
+          64767
+        ],
+        "tipo": "catalogo_estatico",
+        "hallazgo": "reconstruccion-por-selector",
+        "registro_bytes": 256,
+        "registros": 61
+      }
+    ],
+    "variables": [
+      {
+        "nombre": "selector_registro_1",
+        "addr": 33824,
+        "bytes": 1,
+        "rol": "elige que registro del catalogo_registros_1 se copia a registro_actual_1",
+        "escrita_por": [
+          "$34463",
+          "$36307",
+          "$38064"
+        ]
+      },
+      {
+        "nombre": "protagonista_x",
+        "addr": 34259,
+        "bytes": 1,
+        "rol": "coordenada X del sprite individual; pixel = (v&31)*8"
+      },
+      {
+        "nombre": "protagonista_y",
+        "addr": 34255,
+        "bytes": 1,
+        "rol": "coordenada Y del sprite individual; pixel = v>>1+13"
+      }
+    ],
+    "estructuras": [
+      {
+        "nombre": "entidades",
+        "base": 33024,
+        "registro_bytes": 8,
+        "rango": [
+          33024,
+          33087
+        ],
+        "rutinas": [
+          "$37056",
+          "$37310"
+        ],
+        "terminador": {
+          "valor": 255,
+          "site": 37063,
+          "nota": "el ultimo slot es un marcador de fin, no un registro"
+        },
+        "se_llena_desde": 33008,
+        "campos": [
+          {
+            "offset": 0,
+            "lecturas": 428015,
+            "escrituras": 105774,
+            "valores": [
+              1,
+              255
+            ],
+            "semantica": [
+              "controla branches (tipo/flag)"
+            ],
+            "descomposicion_bits": [
+              "& 3 (bits 0-1)",
+              "& 128 (bit 7)",
+              "& 7 (bits 0-2)"
+            ],
+            "nombre_propuesto": "tipo_y_direccion (bits de tipo + sentido que se invierte al rebotar)",
+            "aportado_por": [
+              "$37056: tipo_y_direccion (bits de tipo + sentido que se invierte al rebotar)",
+              "$37310: tipo_flags (sus bits seleccionan la variante)"
+            ]
+          },
+          {
+            "offset": 1,
+            "lecturas": 471326,
+            "escrituras": 118195,
+            "valores": [
+              0,
+              237
+            ],
+            "semantica": [
+              "controla branches (tipo/flag)"
+            ],
+            "descomposicion_bits": [
+              "& 128 (bit 7)",
+              "& 15 (bits 0-3)"
+            ],
+            "nombre_propuesto": "grafico_frame",
+            "aportado_por": [
+              "$37056: contador",
+              "$37310: grafico_frame",
+              "$37310: tipo_flags (sus bits seleccionan la variante)"
+            ]
+          },
+          {
+            "offset": 2,
+            "lecturas": 262075,
+            "escrituras": 27963,
+            "valores": [
+              0,
+              218
+            ],
+            "semantica": [
+              "coordenada X",
+              "indice/puntero"
+            ],
+            "descomposicion_bits": [
+              "& 31 (bits 0-4)",
+              "& 224 (bits 5-7)"
+            ],
+            "nombre_propuesto": "posicion_x",
+            "aportado_por": [
+              "$37056: posicion_x",
+              "$37310: posicion_x"
+            ]
+          },
+          {
+            "offset": 3,
+            "lecturas": 360319,
+            "escrituras": 58712,
+            "valores": [
+              0,
+              224
+            ],
+            "semantica": [
+              "coordenada Y",
+              "controla branches (tipo/flag)",
+              "indice/puntero"
+            ],
+            "descomposicion_bits": [
+              "& 14 (bits 1-3)",
+              "& 1 (bit 0)"
+            ],
+            "nombre_propuesto": "posicion_y",
+            "aportado_por": [
+              "$37056: posicion_y",
+              "$37310: posicion_y",
+              "$37310: posicion_y"
+            ]
+          },
+          {
+            "offset": 4,
+            "lecturas": 136232,
+            "escrituras": 15634,
+            "valores": [
+              0,
+              255
+            ],
+            "semantica": [
+              "controla branches (tipo/flag)"
+            ],
+            "descomposicion_bits": [
+              "& 224 (bits 5-7)"
+            ],
+            "nombre_propuesto": "incremento_y (paso que se suma a la posicion Y)",
+            "aportado_por": [
+              "$37056: incremento_y (paso que se suma a la posicion Y)",
+              "$37310: tipo_flags (sus bits seleccionan la variante)"
+            ]
+          },
+          {
+            "offset": 5,
+            "lecturas": 293956,
+            "escrituras": 105668,
+            "valores": [
+              0,
+              191
+            ],
+            "semantica": [
+              "controla branches (tipo/flag)",
+              "selector de grafico"
+            ],
+            "descomposicion_bits": [
+              "& 1 (bit 0)",
+              "& 128 (bit 7)"
+            ],
+            "apunta_a_grafico": [
+              39680,
+              49151
+            ],
+            "nombre_propuesto": "grafico_frame",
+            "aportado_por": [
+              "$37310: grafico_frame"
+            ]
+          },
+          {
+            "offset": 6,
+            "lecturas": 44397,
+            "escrituras": 0,
+            "valores": [
+              0,
+              144
+            ],
+            "semantica": [
+              "controla branches (tipo/flag)"
+            ],
+            "nombre_propuesto": "limite_y (borde en Y; al alcanzarlo invierte el movimiento)",
+            "aportado_por": [
+              "$37056: limite_y (borde en Y; al alcanzarlo invierte el movimiento)"
+            ]
+          },
+          {
+            "offset": 7,
+            "lecturas": 42793,
+            "escrituras": 0,
+            "valores": [
+              5,
+              224
+            ],
+            "semantica": [
+              "controla branches (tipo/flag)"
+            ],
+            "nombre_propuesto": "limite_y (borde en Y; al alcanzarlo invierte el movimiento)",
+            "aportado_por": [
+              "$37056: limite_y (borde en Y; al alcanzarlo invierte el movimiento)"
+            ]
+          }
+        ],
+        "discriminante": {
+          "campo": "+0",
+          "mascara": 7,
+          "bits": "bits 0-2",
+          "valores_observados": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "escaleras": [
+            {
+              "rutina": "$37056",
+              "mascara": 3,
+              "valores_testeados": [
+                0,
+                1,
+                2
+              ]
+            },
+            {
+              "rutina": "$37310",
+              "mascara": 7,
+              "valores_testeados": [
+                0,
+                3,
+                4
+              ]
+            }
+          ]
+        },
+        "slots_con_datos_observados": 8,
+        "tipos": [
+          {
+            "valor": 0,
+            "nombre_propuesto": "sin_comportamiento (slot vacio o tipo sin codigo propio)",
+            "frames_observados": 116,
+            "seleccionado_en": {
+              "$37056": "campo +0 & 3 == 0 x4782",
+              "$37310": "campo +0 & 7 == 0 (rama nunca ejecutada en este replay) x0"
+            },
+            "campos": []
+          },
+          {
+            "valor": 1,
+            "nombre_propuesto": "movil_horizontal",
+            "frames_observados": 38277,
+            "bits_que_varian_fuera_de_la_mascara": "& 224 (bits 5-7)",
+            "seleccionado_en": {
+              "$37056": "campo +0 & 3 == 1 x37253",
+              "$37310": "resto (ningun test de $37310 lo captura) x73992"
+            },
+            "campos": [
+              {
+                "offset": 0,
+                "lecturas": 148498,
+                "escrituras": 37986,
+                "valores": [
+                  1,
+                  250
+                ],
+                "semantica": [
+                  "controla branches (tipo/flag)"
+                ],
+                "descomposicion_bits": [
+                  "& 128 (bit 7)"
+                ],
+                "relaciones": {
+                  "se_actualiza_con": [
+                    "suma"
+                  ],
+                  "decide_sobre": [
+                    "+2",
+                    "+6",
+                    "+7"
+                  ],
+                  "impacta_en": [
+                    "eleccion del grafico",
+                    "pixeles en pantalla"
+                  ]
+                },
+                "nombre_propuesto": "frame_animacion (cambia y elige el grafico)"
+              },
+              {
+                "offset": 1,
+                "lecturas": 147984,
+                "escrituras": 0,
+                "valores": [
+                  4,
+                  237
+                ],
+                "descomposicion_bits": [
+                  "& 15 (bits 0-3)"
+                ],
+                "relaciones": {
+                  "impacta_en": [
+                    "eleccion del grafico"
+                  ]
+                },
+                "nombre_propuesto": "grafico_frame"
+              },
+              {
+                "offset": 2,
+                "lecturas": 259993,
+                "escrituras": 27963,
+                "valores": [
+                  0,
+                  218
+                ],
+                "semantica": [
+                  "coordenada X"
+                ],
+                "descomposicion_bits": [
+                  "& 31 (bits 0-4)",
+                  "& 224 (bits 5-7)"
+                ],
+                "relaciones": {
+                  "se_actualiza_con": [
+                    "decrementa",
+                    "incrementa"
+                  ],
+                  "comparado_con": [
+                    "+6",
+                    "+7"
+                  ],
+                  "impacta_en": [
+                    "color (atributos)",
+                    "eleccion del grafico",
+                    "pixeles en pantalla",
+                    "posicion en pantalla"
+                  ]
+                },
+                "nombre_propuesto": "posicion_x"
+              },
+              {
+                "offset": 3,
+                "lecturas": 221976,
+                "escrituras": 0,
+                "valores": [
+                  0,
+                  224
+                ],
+                "semantica": [
+                  "coordenada Y",
+                  "controla branches (tipo/flag)",
+                  "indice/puntero"
+                ],
+                "descomposicion_bits": [
+                  "& 14 (bits 1-3)"
+                ],
+                "relaciones": {
+                  "impacta_en": [
+                    "color (atributos)",
+                    "pixeles en pantalla",
+                    "posicion en pantalla"
+                  ]
+                },
+                "nombre_propuesto": "posicion_y"
+              },
+              {
+                "offset": 5,
+                "lecturas": 73992,
+                "escrituras": 0,
+                "valores": [
+                  156,
+                  191
+                ],
+                "semantica": [
+                  "selector de grafico"
+                ],
+                "apunta_a_grafico": [
+                  39680,
+                  49151
+                ],
+                "relaciones": {
+                  "impacta_en": [
+                    "eleccion del grafico",
+                    "pixeles en pantalla"
+                  ]
+                },
+                "nombre_propuesto": "grafico_frame"
+              },
+              {
+                "offset": 6,
+                "lecturas": 5579,
+                "escrituras": 0,
+                "valores": [
+                  0,
+                  24
+                ],
+                "semantica": [
+                  "controla branches (tipo/flag)"
+                ],
+                "relaciones": {
+                  "comparado_con": [
+                    "+2"
+                  ],
+                  "decide_sobre": [
+                    "+0",
+                    "+2"
+                  ]
+                },
+                "nombre_propuesto": "limite_x (borde en X; al alcanzarlo invierte el movimiento)"
+              },
+              {
+                "offset": 7,
+                "lecturas": 4475,
+                "escrituras": 0,
+                "valores": [
+                  5,
+                  30
+                ],
+                "semantica": [
+                  "controla branches (tipo/flag)"
+                ],
+                "relaciones": {
+                  "comparado_con": [
+                    "+2"
+                  ],
+                  "decide_sobre": [
+                    "+0",
+                    "+2"
+                  ]
+                },
+                "nombre_propuesto": "limite_x (borde en X; al alcanzarlo invierte el movimiento)"
+              }
+            ],
+            "variantes_internas": [
+              {
+                "branch": 37189,
+                "condicion": "campo +0 & 127 == 96",
+                "ramas": [
+                  {
+                    "campos_exclusivos": [],
+                    "pc": 37302,
+                    "veces": 13642
+                  },
+                  {
+                    "campos_exclusivos": [
+                      0,
+                      2,
+                      6
+                    ],
+                    "pc": 37191,
+                    "veces": 5579
+                  }
+                ]
+              },
+              {
+                "branch": 37199,
+                "condicion": "campo +6 & 31",
+                "ramas": [
+                  {
+                    "campos_exclusivos": [
+                      0
+                    ],
+                    "pc": 37206,
+                    "veces": 386
+                  },
+                  {
+                    "campos_exclusivos": [
+                      2
+                    ],
+                    "pc": 37201,
+                    "veces": 5193
+                  }
+                ]
+              },
+              {
+                "branch": 37234,
+                "condicion": "campo +7 & 31",
+                "ramas": [
+                  {
+                    "campos_exclusivos": [
+                      0
+                    ],
+                    "pc": 37241,
+                    "veces": 347
+                  },
+                  {
+                    "campos_exclusivos": [
+                      2
+                    ],
+                    "pc": 37236,
+                    "veces": 4128
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "valor": 2,
+            "nombre_propuesto": "movil_vertical",
+            "frames_observados": 37192,
+            "bits_que_varian_fuera_de_la_mascara": "& 248 (bits 3-7)",
+            "seleccionado_en": {
+              "$37056": "campo +0 & 3 == 2 (polaridad estimada) x37105",
+              "$37310": "resto (ningun test de $37310 lo captura) x73992"
+            },
+            "campos": [
+              {
+                "offset": 0,
+                "lecturas": 141756,
+                "escrituras": 67764,
+                "valores": [
+                  1,
+                  250
+                ],
+                "relaciones": {
+                  "se_actualiza_con": [
+                    "invierte bits (xor)",
+                    "suma"
+                  ],
+                  "impacta_en": [
+                    "eleccion del grafico",
+                    "pixeles en pantalla"
+                  ]
+                },
+                "nombre_propuesto": "frame_animacion (cambia y elige el grafico)"
+              },
+              {
+                "offset": 1,
+                "lecturas": 147984,
+                "escrituras": 0,
+                "valores": [
+                  4,
+                  237
+                ],
+                "descomposicion_bits": [
+                  "& 15 (bits 0-3)"
+                ],
+                "relaciones": {
+                  "impacta_en": [
+                    "eleccion del grafico"
+                  ]
+                },
+                "nombre_propuesto": "grafico_frame"
+              },
+              {
+                "offset": 2,
+                "lecturas": 221976,
+                "escrituras": 0,
+                "valores": [
+                  0,
+                  218
+                ],
+                "semantica": [
+                  "coordenada X"
+                ],
+                "descomposicion_bits": [
+                  "& 31 (bits 0-4)",
+                  "& 224 (bits 5-7)"
+                ],
+                "relaciones": {
+                  "impacta_en": [
+                    "color (atributos)",
+                    "eleccion del grafico",
+                    "pixeles en pantalla",
+                    "posicion en pantalla"
+                  ]
+                },
+                "nombre_propuesto": "posicion_x"
+              },
+              {
+                "offset": 3,
+                "lecturas": 259081,
+                "escrituras": 37782,
+                "valores": [
+                  0,
+                  224
+                ],
+                "semantica": [
+                  "coordenada Y",
+                  "controla branches (tipo/flag)",
+                  "indice/puntero"
+                ],
+                "descomposicion_bits": [
+                  "& 14 (bits 1-3)"
+                ],
+                "relaciones": {
+                  "se_actualiza_con": [
+                    "suma"
+                  ],
+                  "comparado_con": [
+                    "+4",
+                    "+6",
+                    "+7"
+                  ],
+                  "impacta_en": [
+                    "color (atributos)",
+                    "pixeles en pantalla",
+                    "posicion en pantalla"
+                  ]
+                },
+                "nombre_propuesto": "posicion_y"
+              },
+              {
+                "offset": 4,
+                "lecturas": 75603,
+                "escrituras": 1393,
+                "valores": [
+                  0,
+                  254
+                ],
+                "semantica": [
+                  "controla branches (tipo/flag)"
+                ],
+                "relaciones": {
+                  "escribe_a": [
+                    "+3"
+                  ],
+                  "comparado_con": [
+                    "+3",
+                    "+6",
+                    "+7"
+                  ],
+                  "impacta_en": [
+                    "posicion en pantalla"
+                  ]
+                },
+                "nombre_propuesto": "incremento_y (paso que se suma a la posicion Y)"
+              },
+              {
+                "offset": 5,
+                "lecturas": 73992,
+                "escrituras": 0,
+                "valores": [
+                  156,
+                  191
+                ],
+                "semantica": [
+                  "selector de grafico"
+                ],
+                "apunta_a_grafico": [
+                  39680,
+                  49151
+                ],
+                "relaciones": {
+                  "impacta_en": [
+                    "eleccion del grafico",
+                    "pixeles en pantalla"
+                  ]
+                },
+                "nombre_propuesto": "grafico_frame"
+              },
+              {
+                "offset": 6,
+                "lecturas": 37066,
+                "escrituras": 0,
+                "valores": [
+                  0,
+                  144
+                ],
+                "semantica": [
+                  "controla branches (tipo/flag)"
+                ],
+                "relaciones": {
+                  "escribe_a": [
+                    "+3"
+                  ],
+                  "comparado_con": [
+                    "+3",
+                    "+4"
+                  ],
+                  "decide_sobre": [
+                    "+3",
+                    "+4"
+                  ]
+                },
+                "nombre_propuesto": "limite_y (borde en Y; al alcanzarlo invierte el movimiento)"
+              },
+              {
+                "offset": 7,
+                "lecturas": 37105,
+                "escrituras": 0,
+                "valores": [
+                  32,
+                  224
+                ],
+                "semantica": [
+                  "controla branches (tipo/flag)"
+                ],
+                "relaciones": {
+                  "comparado_con": [
+                    "+3",
+                    "+4"
+                  ],
+                  "decide_sobre": [
+                    "+3",
+                    "+6"
+                  ]
+                },
+                "nombre_propuesto": "limite_y (borde en Y; al alcanzarlo invierte el movimiento)"
+              }
+            ],
+            "variantes_internas": [
+              {
+                "branch": 37257,
+                "condicion": "campo +0 & 24",
+                "ramas": [
+                  {
+                    "campos_exclusivos": [],
+                    "pc": 37267,
+                    "veces": 6446
+                  },
+                  {
+                    "campos_exclusivos": [
+                      0
+                    ],
+                    "pc": 37259,
+                    "veces": 30659
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "valor": 3,
+            "nombre_propuesto": "movil_vertical_extendido",
+            "frames_observados": 31,
+            "bits_que_varian_fuera_de_la_mascara": "& 128 (bit 7)",
+            "ocupa_registros": 2,
+            "seleccionado_en": {
+              "$37056": "resto (ningun test de $37056 lo captura) x1213",
+              "$37310": "campo +0 & 7 == 3 x1206"
+            },
+            "campos": [
+              {
+                "offset": 0,
+                "lecturas": 1328,
+                "escrituras": 24,
+                "valores": [
+                  3,
+                  131
+                ],
+                "semantica": [
+                  "controla branches (tipo/flag)"
+                ],
+                "descomposicion_bits": [
+                  "& 128 (bit 7)"
+                ],
+                "relaciones": {
+                  "se_actualiza_con": [
+                    "invierte bits (xor)"
+                  ],
+                  "decide_sobre": [
+                    "+1"
+                  ]
+                },
+                "nombre_propuesto": "direccion_sentido (se invierte y decide el movimiento)"
+              },
+              {
+                "offset": 1,
+                "lecturas": 111665,
+                "escrituras": 1213,
+                "valores": [
+                  0,
+                  182
+                ],
+                "semantica": [
+                  "controla branches (tipo/flag)"
+                ],
+                "descomposicion_bits": [
+                  "& 128 (bit 7)"
+                ],
+                "relaciones": {
+                  "se_actualiza_con": [
+                    "suma"
+                  ],
+                  "decide_sobre": [
+                    "+3",
+                    "+5"
+                  ]
+                },
+                "nombre_propuesto": "controla_condiciones (posible limite o flag)"
+              },
+              {
+                "offset": 2,
+                "lecturas": 1206,
+                "escrituras": 0,
+                "valores": [
+                  14,
+                  16
+                ],
+                "semantica": [
+                  "coordenada X"
+                ],
+                "relaciones": {
+                  "escribe_a": [
+                    "+3"
+                  ],
+                  "impacta_en": [
+                    "posicion en pantalla"
+                  ]
+                },
+                "nombre_propuesto": "posicion_x"
+              },
+              {
+                "offset": 3,
+                "lecturas": 99518,
+                "escrituras": 20724,
+                "valores": [
+                  5,
+                  24
+                ],
+                "semantica": [
+                  "coordenada Y"
+                ],
+                "relaciones": {
+                  "decide_sobre": [
+                    "+5",
+                    "+9",
+                    "+11"
+                  ],
+                  "impacta_en": [
+                    "posicion en pantalla"
+                  ]
+                },
+                "nombre_propuesto": "posicion_y"
+              },
+              {
+                "offset": 4,
+                "lecturas": 39889,
+                "escrituras": 0,
+                "valores": [
+                  32,
+                  32
+                ],
+                "semantica": [
+                  "controla branches (tipo/flag)"
+                ],
+                "relaciones": {
+                  "comparado_con": [
+                    "+9"
+                  ],
+                  "decide_sobre": [
+                    "+0",
+                    "+9",
+                    "+11"
+                  ]
+                },
+                "nombre_propuesto": "limite (se compara con +9)"
+              },
+              {
+                "offset": 5,
+                "lecturas": 219088,
+                "escrituras": 104792,
+                "valores": [
+                  1,
+                  128
+                ],
+                "semantica": [
+                  "controla branches (tipo/flag)"
+                ],
+                "descomposicion_bits": [
+                  "& 1 (bit 0)",
+                  "& 128 (bit 7)"
+                ],
+                "relaciones": {
+                  "impacta_en": [
+                    "pixeles en pantalla"
+                  ]
+                }
+              },
+              {
+                "offset": 7,
+                "lecturas": 1213,
+                "escrituras": 0,
+                "valores": [
+                  54,
+                  54
+                ],
+                "semantica": [
+                  "controla branches (tipo/flag)"
+                ],
+                "relaciones": {
+                  "decide_sobre": [
+                    "+0"
+                  ]
+                },
+                "nombre_propuesto": "tipo_flags (sus bits seleccionan la variante)"
+              },
+              {
+                "offset": 9,
+                "lecturas": 211677,
+                "escrituras": 116982,
+                "valores": [
+                  0,
+                  32
+                ],
+                "campo_del_registro_siguiente": 1,
+                "semantica": [
+                  "controla branches (tipo/flag)"
+                ],
+                "relaciones": {
+                  "comparado_con": [
+                    "+4"
+                  ],
+                  "decide_sobre": [
+                    "+0",
+                    "+1",
+                    "+3",
+                    "+4",
+                    "+5",
+                    "+11"
+                  ]
+                },
+                "nombre_propuesto": "tipo_flags (sus bits seleccionan la variante)"
+              },
+              {
+                "offset": 11,
+                "lecturas": 1720,
+                "escrituras": 206,
+                "valores": [
+                  0,
+                  1
+                ],
+                "campo_del_registro_siguiente": 3,
+                "semantica": [
+                  "coordenada Y",
+                  "controla branches (tipo/flag)"
+                ],
+                "descomposicion_bits": [
+                  "& 1 (bit 0)"
+                ],
+                "relaciones": {
+                  "decide_sobre": [
+                    "+0",
+                    "+4"
+                  ]
+                },
+                "nombre_propuesto": "posicion_y"
+              }
+            ],
+            "variantes_internas": [
+              {
+                "branch": 37157,
+                "condicion": "campo +7 & 127",
+                "ramas": [
+                  {
+                    "campos_exclusivos": [
+                      0
+                    ],
+                    "pc": 37160,
+                    "veces": 24
+                  },
+                  {
+                    "campos_exclusivos": [],
+                    "pc": 37302,
+                    "veces": 1189
+                  }
+                ]
+              },
+              {
+                "branch": 37731,
+                "condicion": "campo +9 & 128",
+                "ramas": [
+                  {
+                    "campos_exclusivos": [
+                      11
+                    ],
+                    "pc": 37733,
+                    "veces": 96
+                  },
+                  {
+                    "campos_exclusivos": [
+                      0,
+                      4,
+                      11
+                    ],
+                    "pc": 37743,
+                    "veces": 1110
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "valor": 4,
+            "nombre_propuesto": "con_estado_propio",
+            "frames_observados": 32,
+            "bits_que_varian_fuera_de_la_mascara": "& 128 (bit 7)",
+            "seleccionado_en": {
+              "$37056": "campo +0 & 3 == 0 x4782",
+              "$37310": "campo +0 & 7 == 4 (polaridad estimada) x4747"
+            },
+            "campos": [
+              {
+                "offset": 0,
+                "lecturas": 4747,
+                "escrituras": 0,
+                "valores": [
+                  4,
+                  132
+                ],
+                "semantica": [
+                  "controla branches (tipo/flag)"
+                ],
+                "descomposicion_bits": [
+                  "& 128 (bit 7)"
+                ],
+                "relaciones": {
+                  "decide_sobre": [
+                    "+4"
+                  ]
+                }
+              },
+              {
+                "offset": 2,
+                "lecturas": 876,
+                "escrituras": 0,
+                "valores": [
+                  22,
+                  194
+                ],
+                "semantica": [
+                  "coordenada X",
+                  "indice/puntero"
+                ],
+                "relaciones": {
+                  "impacta_en": [
+                    "color (atributos)",
+                    "posicion en pantalla"
+                  ]
+                },
+                "nombre_propuesto": "posicion_x"
+              },
+              {
+                "offset": 4,
+                "lecturas": 20740,
+                "escrituras": 14241,
+                "valores": [
+                  0,
+                  255
+                ],
+                "semantica": [
+                  "controla branches (tipo/flag)"
+                ],
+                "descomposicion_bits": [
+                  "& 224 (bits 5-7)"
+                ],
+                "relaciones": {
+                  "decide_sobre": [
+                    "+2",
+                    "+5",
+                    "+6"
+                  ],
+                  "impacta_en": [
+                    "color (atributos)",
+                    "posicion en pantalla"
+                  ]
+                },
+                "nombre_propuesto": "tipo_flags (sus bits seleccionan la variante)"
+              },
+              {
+                "offset": 5,
+                "lecturas": 876,
+                "escrituras": 876,
+                "valores": [
+                  0,
+                  0
+                ],
+                "semantica": [
+                  "controla branches (tipo/flag)"
+                ]
+              },
+              {
+                "offset": 6,
+                "lecturas": 1752,
+                "escrituras": 0,
+                "valores": [
+                  65,
+                  130
+                ],
+                "relaciones": {
+                  "impacta_en": [
+                    "pixeles en pantalla"
+                  ]
+                }
+              }
+            ],
+            "variantes_internas": [
+              {
+                "branch": 37476,
+                "condicion": "campo +4 & 224",
+                "ramas": [
+                  {
+                    "campos_exclusivos": [
+                      2,
+                      4,
+                      5,
+                      6
+                    ],
+                    "pc": 37479,
+                    "veces": 876
+                  },
+                  {
+                    "campos_exclusivos": [],
+                    "pc": 37811,
+                    "veces": 3850
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "registros": [
+      {
+        "rango": [
+          32768,
+          33023
+        ],
+        "selector": 33824,
+        "plantilla": {
+          "registros_usados": 61,
+          "base": 49152,
+          "rango": [
+            49152,
+            64767
+          ],
+          "registro_bytes": 256
+        },
+        "campos": [
+          {
+            "rango": [
+              32768,
+              32895
+            ],
+            "bytes": 128,
+            "lecturas": 546816,
+            "escrituras": 0,
+            "valores": [
+              0,
+              255
+            ],
+            "leido_por": "$36203",
+            "nombre_propuesto": "mapa_empaquetado",
+            "etiquetas": [
+              "mapa empaquetado: 4 lecturas por byte con rotaciones = 4 celdas de 2 bits por byte (512 celdas en total)"
+            ]
+          },
+          {
+            "rango": [
+              32928,
+              32928
+            ],
+            "bytes": 1,
+            "lecturas": 793746,
+            "escrituras": 0,
+            "valores": [
+              0,
+              68
+            ],
+            "leido_por": "$36171 $36307 $38430",
+            "etiquetas": [
+              "alimenta direcciones (indice/puntero)",
+              "cabecera del registro 0 de la familia periodica: 6 registros de 9 bytes desde 32928"
+            ],
+            "nombre_propuesto": "cabecera_registro_0"
+          },
+          {
+            "rango": [
+              32928,
+              32955
+            ],
+            "bytes": 28,
+            "lecturas": 546816,
+            "escrituras": 0,
+            "valores": [
+              0,
+              245
+            ],
+            "leido_por": "$36288",
+            "etiquetas": [
+              "carga util de la familia periodica: 8 bytes por registro tras la cabecera (paso 9, 4 registros)"
+            ],
+            "nombre_propuesto": "datos_de_registros_de_9_bytes"
+          },
+          {
+            "rango": [
+              32929,
+              32981
+            ],
+            "bytes": 53,
+            "lecturas": 4374528,
+            "escrituras": 0,
+            "valores": [
+              0,
+              255
+            ],
+            "leido_por": "$36171",
+            "etiquetas": [
+              "carga util de la familia periodica: 8 bytes por registro tras la cabecera (paso 9, 6 registros)"
+            ],
+            "nombre_propuesto": "datos_de_registros_de_9_bytes"
+          },
+          {
+            "rango": [
+              32946,
+              32946
+            ],
+            "bytes": 1,
+            "lecturas": 14796,
+            "escrituras": 0,
+            "valores": [
+              4,
+              243
+            ],
+            "leido_por": "$36307",
+            "etiquetas": [
+              "cabecera del registro 2 de la familia periodica: 6 registros de 9 bytes desde 32928"
+            ],
+            "nombre_propuesto": "cabecera_registro_2"
+          },
+          {
+            "rango": [
+              32955,
+              32955
+            ],
+            "bytes": 1,
+            "lecturas": 165297,
+            "escrituras": 0,
+            "valores": [
+              2,
+              255
+            ],
+            "leido_por": "$36307 $38430",
+            "etiquetas": [
+              "cabecera del registro 3 de la familia periodica: 6 registros de 9 bytes desde 32928"
+            ],
+            "nombre_propuesto": "cabecera_registro_3"
+          },
+          {
+            "rango": [
+              32964,
+              32964
+            ],
+            "bytes": 1,
+            "lecturas": 25699,
+            "escrituras": 0,
+            "valores": [
+              4,
+              255
+            ],
+            "leido_por": "$36203 $36307 $38344",
+            "etiquetas": [
+              "cabecera del registro 4 de la familia periodica: 6 registros de 9 bytes desde 32928"
+            ],
+            "nombre_propuesto": "cabecera_registro_4"
+          },
+          {
+            "rango": [
+              32973,
+              32973
+            ],
+            "bytes": 1,
+            "lecturas": 15233,
+            "escrituras": 0,
+            "valores": [
+              2,
+              255
+            ],
+            "leido_por": "$36203 $36307",
+            "etiquetas": [
+              "cabecera del registro 5 de la familia periodica: 6 registros de 9 bytes desde 32928"
+            ],
+            "nombre_propuesto": "cabecera_registro_5"
+          },
+          {
+            "rango": [
+              32982,
+              32982
+            ],
+            "bytes": 1,
+            "lecturas": 13223,
+            "escrituras": 0,
+            "valores": [
+              0,
+              1
+            ],
+            "leido_por": "$36307 $38137",
+            "nombre_propuesto": "flag",
+            "etiquetas": [
+              "solo 0/1: flag"
+            ]
+          },
+          {
+            "rango": [
+              32983,
+              32984
+            ],
+            "bytes": 2,
+            "lecturas": 47266,
+            "escrituras": 0,
+            "valores": [
+              0,
+              251
+            ],
+            "leido_por": "$36203 $38137",
+            "nombre_propuesto": "puntero",
+            "etiquetas": [
+              "puntero de 16 bits hacia [24186..24575]"
+            ]
+          },
+          {
+            "rango": [
+              32985,
+              32985
+            ],
+            "bytes": 1,
+            "lecturas": 23696,
+            "escrituras": 0,
+            "valores": [
+              0,
+              32
+            ],
+            "leido_por": "$36203 $38137"
+          },
+          {
+            "rango": [
+              32986,
+              32986
+            ],
+            "bytes": 1,
+            "lecturas": 27650,
+            "escrituras": 0,
+            "valores": [
+              0,
+              1
+            ],
+            "leido_por": "$36203 $36307 $38344",
+            "nombre_propuesto": "flag",
+            "etiquetas": [
+              "solo 0/1: flag"
+            ]
+          },
+          {
+            "rango": [
+              32987,
+              32988
+            ],
+            "bytes": 2,
+            "lecturas": 2100,
+            "escrituras": 0,
+            "valores": [
+              7,
+              252
+            ],
+            "leido_por": "$36203",
+            "nombre_propuesto": "puntero",
+            "etiquetas": [
+              "puntero de 16 bits hacia [24065..24572]"
+            ]
+          },
+          {
+            "rango": [
+              32989,
+              32989
+            ],
+            "bytes": 1,
+            "lecturas": 2118,
+            "escrituras": 0,
+            "valores": [
+              0,
+              16
+            ],
+            "leido_por": "$36203"
+          },
+          {
+            "rango": [
+              32990,
+              32990
+            ],
+            "bytes": 1,
+            "lecturas": 13623,
+            "escrituras": 0,
+            "valores": [
+              1,
+              6
+            ],
+            "leido_por": "$34463 $36307 $37310 $37841"
+          },
+          {
+            "rango": [
+              33001,
+              33001
+            ],
+            "bytes": 1,
+            "lecturas": 47,
+            "escrituras": 0,
+            "valores": [
+              1,
+              60
+            ],
+            "leido_por": "$36307",
+            "nombre_propuesto": "enlace_a_registro_vecino",
+            "etiquetas": [
+              "su valor se escribe en el selector mem[33824]: es un ENLACE hacia otro registro (los registros forman un grafo)"
+            ]
+          },
+          {
+            "rango": [
+              33002,
+              33002
+            ],
+            "bytes": 1,
+            "lecturas": 42,
+            "escrituras": 0,
+            "valores": [
+              0,
+              59
+            ],
+            "leido_por": "$36307",
+            "nombre_propuesto": "enlace_a_registro_vecino",
+            "etiquetas": [
+              "su valor se escribe en el selector mem[33824]: es un ENLACE hacia otro registro (los registros forman un grafo)"
+            ]
+          },
+          {
+            "rango": [
+              33003,
+              33003
+            ],
+            "bytes": 1,
+            "lecturas": 110,
+            "escrituras": 0,
+            "valores": [
+              4,
+              58
+            ],
+            "leido_por": "$37310 $38064",
+            "nombre_propuesto": "enlace_a_registro_vecino",
+            "etiquetas": [
+              "su valor se escribe en el selector mem[33824]: es un ENLACE hacia otro registro (los registros forman un grafo)"
+            ]
+          },
+          {
+            "rango": [
+              33004,
+              33004
+            ],
+            "bytes": 1,
+            "lecturas": 14,
+            "escrituras": 0,
+            "valores": [
+              3,
+              54
+            ],
+            "leido_por": "$36307",
+            "nombre_propuesto": "enlace_a_registro_vecino",
+            "etiquetas": [
+              "su valor se escribe en el selector mem[33824]: es un ENLACE hacia otro registro (los registros forman un grafo)"
+            ]
+          },
+          {
+            "rango": [
+              33008,
+              33022
+            ],
+            "bytes": 15,
+            "lecturas": 8544,
+            "escrituras": 0,
+            "valores": [
+              0,
+              255
+            ],
+            "leido_por": "$34463"
+          },
+          {
+            "rango": [
+              33009,
+              33023
+            ],
+            "bytes": 15,
+            "lecturas": 8544,
+            "escrituras": 0,
+            "valores": [
+              0,
+              218
+            ],
+            "leido_por": "$34463"
+          }
+        ],
+        "huecos": [
+          {
+            "rango": [
+              32896,
+              32927
+            ],
+            "nota": "sin acceso directo tipado",
+            "lectores_genericos": [
+              "$38528",
+              "$38555"
+            ]
+          },
+          {
+            "rango": [
+              32991,
+              33000
+            ],
+            "nota": "sin acceso directo tipado",
+            "lectores_genericos": [
+              "$38528",
+              "$38555"
+            ]
+          }
+        ],
+        "nombre": "registro_actual_1"
+      }
+    ],
+    "rutinas": [
+      {
+        "nombre": "$34463",
+        "rol": "dibujo_sprites_por_filas",
+        "lee": [
+          "pantalla",
+          "graficos_1",
+          "protagonista_y",
+          "selector_registro_1",
+          "registro_actual_1",
+          "tabla_consulta_3"
+        ],
+        "escribe": [
+          "graficos_1",
+          "protagonista_y",
+          "selector_registro_1",
+          "buffer_atributos_2",
+          "buffer_pixels_1",
+          "buffer_atributos_6",
+          "buffer_pixels_2"
+        ]
+      },
+      {
+        "nombre": "$34499",
+        "rol": "dibujo_atributos",
+        "lee": [
+          "buffer_atributos_3",
+          "graficos_1"
+        ],
+        "escribe": [
+          "buffer_atributos_3"
+        ]
+      },
+      {
+        "nombre": "$34620",
+        "rol": "dibujo_sprites_por_filas",
+        "lee": [
+          "buffer_atributos_2"
+        ],
+        "escribe": [
+          "buffer_atributos_2"
+        ]
+      },
+      {
+        "nombre": "$36171",
+        "rol": "render_fondo",
+        "lee": [
+          "registro_actual_1",
+          "buffer_atributos_7"
+        ],
+        "escribe": [
+          "buffer_pixels_4"
+        ]
+      },
+      {
+        "nombre": "$36203",
+        "rol": "dibujo",
+        "lee": [
+          "registro_actual_1"
+        ],
+        "escribe": [
+          "buffer_atributos_7"
+        ]
+      },
+      {
+        "nombre": "$36288",
+        "rol": "dibujo_atributos",
+        "lee": [
+          "registro_actual_1"
+        ],
+        "escribe": [
+          "buffer_atributos_7"
+        ]
+      },
+      {
+        "nombre": "$36307",
+        "rol": "logica_estado",
+        "lee": [
+          "buffer_atributos_3",
+          "registro_actual_1",
+          "protagonista_y",
+          "protagonista_x"
+        ],
+        "escribe": [
+          "protagonista_y",
+          "protagonista_x",
+          "selector_registro_1"
+        ]
+      },
+      {
+        "nombre": "$36508",
+        "rol": "logica_estado",
+        "lee": [
+          "protagonista_x"
+        ],
+        "escribe": []
+      },
+      {
+        "nombre": "$37056",
+        "rol": "logica_estado",
+        "lee": [
+          "entidades"
+        ],
+        "escribe": [
+          "entidades"
+        ]
+      },
+      {
+        "nombre": "$37310",
+        "rol": "dibujo_sprites",
+        "lee": [
+          "entidades",
+          "buffer_atributos_3",
+          "tabla_consulta_1",
+          "buffer_pixels_3",
+          "tabla_consulta_2",
+          "protagonista_y",
+          "registro_actual_1",
+          "selector_registro_1"
+        ],
+        "escribe": [
+          "entidades",
+          "buffer_atributos_3",
+          "buffer_pixels_3",
+          "protagonista_y"
+        ]
+      },
+      {
+        "nombre": "$37841",
+        "rol": "dibujo_atributos",
+        "lee": [
+          "graficos_1",
+          "selector_registro_1",
+          "buffer_atributos_3",
+          "tabla_consulta_3",
+          "tabla_consulta_4",
+          "registro_actual_1"
+        ],
+        "escribe": [
+          "graficos_1",
+          "buffer_atributos_3"
+        ]
+      },
+      {
+        "nombre": "$37974",
+        "rol": "dibujo_sprites",
+        "lee": [
+          "graficos_1",
+          "buffer_pixels_3"
+        ],
+        "escribe": []
+      },
+      {
+        "nombre": "$38064",
+        "rol": "logica_estado",
+        "lee": [
+          "protagonista_x",
+          "registro_actual_1"
+        ],
+        "escribe": [
+          "protagonista_x",
+          "protagonista_y",
+          "selector_registro_1"
+        ]
+      },
+      {
+        "nombre": "$38137",
+        "rol": "dibujo_sprites",
+        "lee": [
+          "buffer_pixels_4",
+          "registro_actual_1"
+        ],
+        "escribe": [
+          "buffer_pixels_4"
+        ]
+      },
+      {
+        "nombre": "$38196",
+        "rol": "dibujo_atributos",
+        "lee": [
+          "selector_registro_1",
+          "protagonista_x"
+        ],
+        "escribe": [
+          "buffer_atributos_3"
+        ]
+      },
+      {
+        "nombre": "$38276",
+        "rol": "logica_estado",
+        "lee": [
+          "selector_registro_1",
+          "protagonista_x"
+        ],
+        "escribe": []
+      },
+      {
+        "nombre": "$38344",
+        "lee": [
+          "registro_actual_1",
+          "protagonista_y",
+          "protagonista_x",
+          "selector_registro_1"
+        ],
+        "escribe": []
+      },
+      {
+        "nombre": "$38430",
+        "rol": "dibujo_atributos",
+        "lee": [
+          "registro_actual_1"
+        ],
+        "escribe": [
+          "buffer_atributos_3"
+        ]
+      },
+      {
+        "nombre": "$38504",
+        "rol": "dibujo_sprites_por_filas",
+        "lee": [
+          "buffer_pixels_3",
+          "graficos_1",
+          "tabla_consulta_1"
+        ],
+        "escribe": [
+          "buffer_pixels_3"
+        ]
+      }
+    ],
+    "segmentos": [
+      {
+        "segmento": "fuente_texto",
+        "rango": [
+          15616,
+          16383
+        ],
+        "leido_por": [],
+        "escrito_por": []
+      },
+      {
+        "segmento": "pantalla",
+        "rango": [
+          16384,
+          23295
+        ],
+        "leido_por": [
+          "$34463"
+        ],
+        "escrito_por": [],
+        "encapsulable": "solo 1 rutinas lo ven: $34463"
+      },
+      {
+        "segmento": "buffer_pixels_2",
+        "rango": [
+          16384,
+          22526
+        ],
+        "leido_por": [],
+        "escrito_por": [
+          "$34463"
+        ],
+        "encapsulable": "solo 1 rutinas lo ven: $34463"
+      },
+      {
+        "segmento": "buffer_pixels_1",
+        "rango": [
+          20480,
+          22526
+        ],
+        "leido_por": [],
+        "escrito_por": [
+          "$34463"
+        ],
+        "encapsulable": "solo 1 rutinas lo ven: $34463"
+      },
+      {
+        "segmento": "buffer_atributos_2",
+        "rango": [
+          22528,
+          23038
+        ],
+        "leido_por": [
+          "$34620"
+        ],
+        "escrito_por": [
+          "$34463",
+          "$34620"
+        ],
+        "encapsulable": "solo 2 rutinas lo ven: $34463 $34620"
+      },
+      {
+        "segmento": "buffer_atributos_6",
+        "rango": [
+          23136,
+          23166
+        ],
+        "leido_por": [],
+        "escrito_por": [
+          "$34463"
+        ],
+        "encapsulable": "solo 1 rutinas lo ven: $34463"
+      },
+      {
+        "segmento": "buffer_atributos_3",
+        "rango": [
+          23552,
+          24063
+        ],
+        "leido_por": [
+          "$34499",
+          "$36307",
+          "$37310",
+          "$37841"
+        ],
+        "escrito_por": [
+          "$34499",
+          "$37310",
+          "$37841",
+          "$38196",
+          "$38430"
+        ]
+      },
+      {
+        "segmento": "buffer_atributos_7",
+        "rango": [
+          24064,
+          24575
+        ],
+        "leido_por": [
+          "$36171"
+        ],
+        "escrito_por": [
+          "$36203",
+          "$36288"
+        ],
+        "encapsulable": "solo 3 rutinas lo ven: $36171 $36203 $36288"
+      },
+      {
+        "segmento": "buffer_pixels_3",
+        "rango": [
+          24576,
+          28671
+        ],
+        "leido_por": [
+          "$37310",
+          "$37974",
+          "$38504"
+        ],
+        "escrito_por": [
+          "$37310",
+          "$38504"
+        ],
+        "encapsulable": "solo 3 rutinas lo ven: $37310 $37974 $38504"
+      },
+      {
+        "segmento": "buffer_pixels_4",
+        "rango": [
+          28672,
+          32767
+        ],
+        "leido_por": [
+          "$38137"
+        ],
+        "escrito_por": [
+          "$36171",
+          "$38137"
+        ],
+        "encapsulable": "solo 2 rutinas lo ven: $36171 $38137"
+      },
+      {
+        "segmento": "registro_actual_1",
+        "rango": [
+          32768,
+          33023
+        ],
+        "leido_por": [
+          "$34463",
+          "$36171",
+          "$36203",
+          "$36288",
+          "$36307",
+          "$37310",
+          "$37841",
+          "$38064",
+          "$38137",
+          "$38344",
+          "$38430"
+        ],
+        "escrito_por": []
+      },
+      {
+        "segmento": "entidades",
+        "rango": [
+          33024,
+          33087
+        ],
+        "leido_por": [
+          "$37056",
+          "$37310"
+        ],
+        "escrito_por": [
+          "$37056",
+          "$37310"
+        ],
+        "encapsulable": "solo 2 rutinas lo ven: $37056 $37310"
+      },
+      {
+        "segmento": "tabla_consulta_1",
+        "rango": [
+          33280,
+          33535
+        ],
+        "leido_por": [
+          "$37310",
+          "$38504"
+        ],
+        "escrito_por": [],
+        "encapsulable": "solo 2 rutinas lo ven: $37310 $38504"
+      },
+      {
+        "segmento": "tabla_consulta_2",
+        "rango": [
+          33664,
+          33750
+        ],
+        "leido_por": [
+          "$37310"
+        ],
+        "escrito_por": [],
+        "encapsulable": "solo 1 rutinas lo ven: $37310"
+      },
+      {
+        "segmento": "selector_registro_1",
+        "rango": [
+          33824,
+          33824
+        ],
+        "leido_por": [
+          "$34463",
+          "$37310",
+          "$37841",
+          "$38196",
+          "$38276",
+          "$38344"
+        ],
+        "escrito_por": [
+          "$34463",
+          "$36307",
+          "$38064"
+        ]
+      },
+      {
+        "segmento": "protagonista_y",
+        "rango": [
+          34255,
+          34255
+        ],
+        "leido_por": [
+          "$34463",
+          "$36307",
+          "$37310",
+          "$38344"
+        ],
+        "escrito_por": [
+          "$34463",
+          "$36307",
+          "$37310",
+          "$38064"
+        ]
+      },
+      {
+        "segmento": "protagonista_x",
+        "rango": [
+          34259,
+          34259
+        ],
+        "leido_por": [
+          "$36307",
+          "$36508",
+          "$38064",
+          "$38196",
+          "$38276",
+          "$38344"
+        ],
+        "escrito_por": [
+          "$36307",
+          "$38064"
+        ]
+      },
+      {
+        "segmento": "buffer_atributos_1",
+        "rango": [
+          38912,
+          39679
+        ],
+        "leido_por": [],
+        "escrito_por": []
+      },
+      {
+        "segmento": "buffer_atributos_4",
+        "rango": [
+          39424,
+          39679
+        ],
+        "leido_por": [],
+        "escrito_por": []
+      },
+      {
+        "segmento": "graficos_1",
+        "rango": [
+          39680,
+          49151
+        ],
+        "leido_por": [
+          "$34463",
+          "$34499",
+          "$37841",
+          "$37974",
+          "$38504"
+        ],
+        "escrito_por": [
+          "$34463",
+          "$37841"
+        ]
+      },
+      {
+        "segmento": "buffer_atributos_5",
+        "rango": [
+          39808,
+          39935
+        ],
+        "leido_por": [],
+        "escrito_por": []
+      },
+      {
+        "segmento": "tabla_consulta_3",
+        "rango": [
+          41983,
+          41983
+        ],
+        "leido_por": [
+          "$34463",
+          "$37841"
+        ],
+        "escrito_por": [],
+        "encapsulable": "solo 2 rutinas lo ven: $34463 $37841"
+      },
+      {
+        "segmento": "tabla_consulta_4",
+        "rango": [
+          42415,
+          42495
+        ],
+        "leido_por": [
+          "$37841"
+        ],
+        "escrito_por": [],
+        "encapsulable": "solo 1 rutinas lo ven: $37841"
+      },
+      {
+        "segmento": "catalogo_registros_1",
+        "rango": [
+          49152,
+          64767
+        ],
+        "leido_por": [],
+        "escrito_por": []
+      }
+    ],
+    "sugerencias_de_refactor": [
+      {
+        "objetivo": "entidades",
+        "refactor": "clase con subtipos polimorficos",
+        "detalle": "una clase base con los campos comunes y una subclase por cada valor de +0 & 7; los ifs de la escalera de tipos pasan a metodos polimorficos"
+      },
+      {
+        "objetivo": "registro_actual_1",
+        "refactor": "clase con propiedades nombradas",
+        "detalle": "cada campo del registro pasa a ser una propiedad; el catalogo es un arreglo de instancias y el selector una referencia a la instancia actual"
+      },
+      {
+        "objetivo": "selector_registro_1",
+        "refactor": "propiedad con nombre",
+        "detalle": "reemplazar mem[33824] por la propiedad selector_registro_1"
+      },
+      {
+        "objetivo": "protagonista_x",
+        "refactor": "propiedad con nombre",
+        "detalle": "reemplazar mem[34259] por la propiedad protagonista_x"
+      },
+      {
+        "objetivo": "protagonista_y",
+        "refactor": "propiedad con nombre",
+        "detalle": "reemplazar mem[34255] por la propiedad protagonista_y"
+      },
+      {
+        "objetivo": "segmentos",
+        "refactor": "visibilidad restringida",
+        "detalle": "13 segmentos los ven <=4 rutinas: mover cada uno a la clase de sus rutinas y sacar el dato del arreglo global mem[]"
+      },
+      {
+        "objetivo": "datos_graficos",
+        "refactor": "recursos externos",
+        "detalle": "las zonas datos_graficos y los catalogos estaticos pueden extraerse a archivos y cargarse en la inicializacion"
+      }
+    ]
+  },
   "evidencia": {
     "pantalla": [
       {
@@ -660,12 +3067,12 @@
         "tipo": "buffer",
         "alimentado_por": [
           {
+            "veces": 22752,
+            "site": 35257,
             "copia_desde": [
               24064,
               24575
-            ],
-            "site": 35257,
-            "veces": 22752
+            ]
           }
         ]
       },
@@ -694,12 +3101,12 @@
         "tipo": "buffer",
         "alimentado_por": [
           {
+            "veces": 22752,
+            "site": 35268,
             "copia_desde": [
               28672,
               32767
-            ],
-            "site": 35268,
-            "veces": 22752
+            ]
           }
         ]
       },
@@ -724,48 +3131,48 @@
           "valores_distintos": 59,
           "escrito_por": [
             {
-              "veces": 945,
-              "rutina": "$34463",
               "valores": [
                 33,
                 33
               ],
+              "rutina": "$34463",
+              "veces": 945,
               "site": 34796
             },
             {
-              "veces": 47,
-              "rutina": "$36307",
               "valores": [
                 1,
                 60
               ],
+              "rutina": "$36307",
+              "veces": 47,
               "site": 38029
             },
             {
-              "veces": 42,
-              "rutina": "$36307",
               "valores": [
                 0,
                 59
               ],
+              "rutina": "$36307",
+              "veces": 42,
               "site": 38049
             },
             {
-              "veces": 19,
-              "rutina": "$38064",
               "valores": [
                 4,
                 57
               ],
+              "rutina": "$38064",
+              "veces": 19,
               "site": 38067
             },
             {
-              "veces": 14,
-              "rutina": "$36307",
               "valores": [
                 3,
                 54
               ],
+              "rutina": "$36307",
+              "veces": 14,
               "site": 38101
             }
           ]
@@ -777,13 +3184,13 @@
             "veces": 1068,
             "formula": "origen = 49152 + selector*256",
             "tabla_indexada": {
-              "base": 49152,
               "registros_usados": 61,
-              "registro_bytes": 256,
+              "base": 49152,
               "rango": [
                 49152,
                 64767
-              ]
+              ],
+              "registro_bytes": 256
             },
             "destino": [
               32768,
@@ -868,45 +3275,449 @@
         "destino_leido_por": {
           "[20481..22527]": [
             {
-              "rutina": "$38555",
               "lecturas": 2903512,
+              "rutina": "$38555",
               "sites": 1
             }
           ],
           "[32768..33087]": [
             {
-              "rutina": "$36171",
               "lecturas": 4921344,
+              "rutina": "$36171",
               "sites": 2
             },
             {
-              "rutina": "$38555",
               "lecturas": 2903512,
+              "rutina": "$38555",
               "sites": 1
             },
             {
-              "rutina": "$37310",
               "lecturas": 1323179,
+              "rutina": "$37310",
               "sites": 48
             },
             {
-              "rutina": "$36203",
               "lecturas": 557217,
+              "rutina": "$36203",
               "sites": 12
             },
             {
-              "rutina": "$36288",
               "lecturas": 546816,
+              "rutina": "$36288",
               "sites": 1
             },
             {
-              "rutina": "$37056",
               "lecturas": 428241,
+              "rutina": "$37056",
               "sites": 23
             }
           ],
           "[34263..34269]": []
         }
+      }
+    ],
+    "registros-reconstruidos": [
+      {
+        "rango": [
+          32768,
+          33023
+        ],
+        "selector": 33824,
+        "plantilla": {
+          "registros_usados": 61,
+          "base": 49152,
+          "rango": [
+            49152,
+            64767
+          ],
+          "registro_bytes": 256
+        },
+        "campos": [
+          {
+            "rango": [
+              32768,
+              32895
+            ],
+            "bytes": 128,
+            "lecturas": 546816,
+            "escrituras": 0,
+            "valores": [
+              0,
+              255
+            ],
+            "leido_por": "$36203",
+            "nombre_propuesto": "mapa_empaquetado",
+            "etiquetas": [
+              "mapa empaquetado: 4 lecturas por byte con rotaciones = 4 celdas de 2 bits por byte (512 celdas en total)"
+            ]
+          },
+          {
+            "rango": [
+              32928,
+              32928
+            ],
+            "bytes": 1,
+            "lecturas": 793746,
+            "escrituras": 0,
+            "valores": [
+              0,
+              68
+            ],
+            "leido_por": "$36171 $36307 $38430",
+            "etiquetas": [
+              "alimenta direcciones (indice/puntero)",
+              "cabecera del registro 0 de la familia periodica: 6 registros de 9 bytes desde 32928"
+            ],
+            "nombre_propuesto": "cabecera_registro_0"
+          },
+          {
+            "rango": [
+              32928,
+              32955
+            ],
+            "bytes": 28,
+            "lecturas": 546816,
+            "escrituras": 0,
+            "valores": [
+              0,
+              245
+            ],
+            "leido_por": "$36288",
+            "etiquetas": [
+              "carga util de la familia periodica: 8 bytes por registro tras la cabecera (paso 9, 4 registros)"
+            ],
+            "nombre_propuesto": "datos_de_registros_de_9_bytes"
+          },
+          {
+            "rango": [
+              32929,
+              32981
+            ],
+            "bytes": 53,
+            "lecturas": 4374528,
+            "escrituras": 0,
+            "valores": [
+              0,
+              255
+            ],
+            "leido_por": "$36171",
+            "etiquetas": [
+              "carga util de la familia periodica: 8 bytes por registro tras la cabecera (paso 9, 6 registros)"
+            ],
+            "nombre_propuesto": "datos_de_registros_de_9_bytes"
+          },
+          {
+            "rango": [
+              32946,
+              32946
+            ],
+            "bytes": 1,
+            "lecturas": 14796,
+            "escrituras": 0,
+            "valores": [
+              4,
+              243
+            ],
+            "leido_por": "$36307",
+            "etiquetas": [
+              "cabecera del registro 2 de la familia periodica: 6 registros de 9 bytes desde 32928"
+            ],
+            "nombre_propuesto": "cabecera_registro_2"
+          },
+          {
+            "rango": [
+              32955,
+              32955
+            ],
+            "bytes": 1,
+            "lecturas": 165297,
+            "escrituras": 0,
+            "valores": [
+              2,
+              255
+            ],
+            "leido_por": "$36307 $38430",
+            "etiquetas": [
+              "cabecera del registro 3 de la familia periodica: 6 registros de 9 bytes desde 32928"
+            ],
+            "nombre_propuesto": "cabecera_registro_3"
+          },
+          {
+            "rango": [
+              32964,
+              32964
+            ],
+            "bytes": 1,
+            "lecturas": 25699,
+            "escrituras": 0,
+            "valores": [
+              4,
+              255
+            ],
+            "leido_por": "$36203 $36307 $38344",
+            "etiquetas": [
+              "cabecera del registro 4 de la familia periodica: 6 registros de 9 bytes desde 32928"
+            ],
+            "nombre_propuesto": "cabecera_registro_4"
+          },
+          {
+            "rango": [
+              32973,
+              32973
+            ],
+            "bytes": 1,
+            "lecturas": 15233,
+            "escrituras": 0,
+            "valores": [
+              2,
+              255
+            ],
+            "leido_por": "$36203 $36307",
+            "etiquetas": [
+              "cabecera del registro 5 de la familia periodica: 6 registros de 9 bytes desde 32928"
+            ],
+            "nombre_propuesto": "cabecera_registro_5"
+          },
+          {
+            "rango": [
+              32982,
+              32982
+            ],
+            "bytes": 1,
+            "lecturas": 13223,
+            "escrituras": 0,
+            "valores": [
+              0,
+              1
+            ],
+            "leido_por": "$36307 $38137",
+            "nombre_propuesto": "flag",
+            "etiquetas": [
+              "solo 0/1: flag"
+            ]
+          },
+          {
+            "rango": [
+              32983,
+              32984
+            ],
+            "bytes": 2,
+            "lecturas": 47266,
+            "escrituras": 0,
+            "valores": [
+              0,
+              251
+            ],
+            "leido_por": "$36203 $38137",
+            "nombre_propuesto": "puntero",
+            "etiquetas": [
+              "puntero de 16 bits hacia [24186..24575]"
+            ]
+          },
+          {
+            "rango": [
+              32985,
+              32985
+            ],
+            "bytes": 1,
+            "lecturas": 23696,
+            "escrituras": 0,
+            "valores": [
+              0,
+              32
+            ],
+            "leido_por": "$36203 $38137"
+          },
+          {
+            "rango": [
+              32986,
+              32986
+            ],
+            "bytes": 1,
+            "lecturas": 27650,
+            "escrituras": 0,
+            "valores": [
+              0,
+              1
+            ],
+            "leido_por": "$36203 $36307 $38344",
+            "nombre_propuesto": "flag",
+            "etiquetas": [
+              "solo 0/1: flag"
+            ]
+          },
+          {
+            "rango": [
+              32987,
+              32988
+            ],
+            "bytes": 2,
+            "lecturas": 2100,
+            "escrituras": 0,
+            "valores": [
+              7,
+              252
+            ],
+            "leido_por": "$36203",
+            "nombre_propuesto": "puntero",
+            "etiquetas": [
+              "puntero de 16 bits hacia [24065..24572]"
+            ]
+          },
+          {
+            "rango": [
+              32989,
+              32989
+            ],
+            "bytes": 1,
+            "lecturas": 2118,
+            "escrituras": 0,
+            "valores": [
+              0,
+              16
+            ],
+            "leido_por": "$36203"
+          },
+          {
+            "rango": [
+              32990,
+              32990
+            ],
+            "bytes": 1,
+            "lecturas": 13623,
+            "escrituras": 0,
+            "valores": [
+              1,
+              6
+            ],
+            "leido_por": "$34463 $36307 $37310 $37841"
+          },
+          {
+            "rango": [
+              33001,
+              33001
+            ],
+            "bytes": 1,
+            "lecturas": 47,
+            "escrituras": 0,
+            "valores": [
+              1,
+              60
+            ],
+            "leido_por": "$36307",
+            "nombre_propuesto": "enlace_a_registro_vecino",
+            "etiquetas": [
+              "su valor se escribe en el selector mem[33824]: es un ENLACE hacia otro registro (los registros forman un grafo)"
+            ]
+          },
+          {
+            "rango": [
+              33002,
+              33002
+            ],
+            "bytes": 1,
+            "lecturas": 42,
+            "escrituras": 0,
+            "valores": [
+              0,
+              59
+            ],
+            "leido_por": "$36307",
+            "nombre_propuesto": "enlace_a_registro_vecino",
+            "etiquetas": [
+              "su valor se escribe en el selector mem[33824]: es un ENLACE hacia otro registro (los registros forman un grafo)"
+            ]
+          },
+          {
+            "rango": [
+              33003,
+              33003
+            ],
+            "bytes": 1,
+            "lecturas": 110,
+            "escrituras": 0,
+            "valores": [
+              4,
+              58
+            ],
+            "leido_por": "$37310 $38064",
+            "nombre_propuesto": "enlace_a_registro_vecino",
+            "etiquetas": [
+              "su valor se escribe en el selector mem[33824]: es un ENLACE hacia otro registro (los registros forman un grafo)"
+            ]
+          },
+          {
+            "rango": [
+              33004,
+              33004
+            ],
+            "bytes": 1,
+            "lecturas": 14,
+            "escrituras": 0,
+            "valores": [
+              3,
+              54
+            ],
+            "leido_por": "$36307",
+            "nombre_propuesto": "enlace_a_registro_vecino",
+            "etiquetas": [
+              "su valor se escribe en el selector mem[33824]: es un ENLACE hacia otro registro (los registros forman un grafo)"
+            ]
+          },
+          {
+            "rango": [
+              33008,
+              33022
+            ],
+            "bytes": 15,
+            "lecturas": 8544,
+            "escrituras": 0,
+            "valores": [
+              0,
+              255
+            ],
+            "leido_por": "$34463"
+          },
+          {
+            "rango": [
+              33009,
+              33023
+            ],
+            "bytes": 15,
+            "lecturas": 8544,
+            "escrituras": 0,
+            "valores": [
+              0,
+              218
+            ],
+            "leido_por": "$34463"
+          }
+        ],
+        "huecos": [
+          {
+            "rango": [
+              32896,
+              32927
+            ],
+            "nota": "sin acceso directo tipado",
+            "lectores_genericos": [
+              "$38528",
+              "$38555"
+            ]
+          },
+          {
+            "rango": [
+              32991,
+              33000
+            ],
+            "nota": "sin acceso directo tipado",
+            "lectores_genericos": [
+              "$38528",
+              "$38555"
+            ]
+          }
+        ],
+        "nombre": "registro_actual_1"
       }
     ],
     "tabla-entidades": {
@@ -917,40 +3728,40 @@
           "slots": 7,
           "campos": {
             "x": {
-              "formula": "(v&31)*8",
-              "offset": 2
+              "offset": 2,
+              "formula": "(v&31)*8"
             },
             "y": {
-              "formula": "(v&240)>>1",
-              "offset": 3
+              "offset": 3,
+              "formula": "(v&240)>>1"
             },
             "selector_grafico_offset_0": {
-              "nota": "elige que sprite/frame se dibuja",
-              "offset": 0
+              "offset": 0,
+              "nota": "elige que sprite/frame se dibuja"
             },
             "selector_grafico_offset_1": {
-              "nota": "elige que sprite/frame se dibuja",
-              "offset": 1
+              "offset": 1,
+              "nota": "elige que sprite/frame se dibuja"
             },
             "selector_grafico_offset_2": {
-              "nota": "elige que sprite/frame se dibuja",
-              "offset": 2
+              "offset": 2,
+              "nota": "elige que sprite/frame se dibuja"
             },
             "selector_grafico_offset_5": {
-              "nota": "elige que sprite/frame se dibuja",
-              "offset": 5
+              "offset": 5,
+              "nota": "elige que sprite/frame se dibuja"
             }
           },
           "slots_validados": [
             {
-              "x_addr": 33026,
+              "confianza": 0.9244839857651246,
               "y_addr": 33027,
-              "confianza": 0.9244839857651246
+              "x_addr": 33026
             },
             {
-              "x_addr": 33034,
+              "confianza": 0.3343295827473043,
               "y_addr": 33035,
-              "confianza": 0.3343295827473043
+              "x_addr": 33034
             }
           ],
           "cargada_por": [
@@ -959,16 +3770,16 @@
                 40962,
                 41983
               ],
-              "site": 35137,
-              "veces": 8544
+              "veces": 8544,
+              "site": 35137
             },
             {
               "desde": [
                 40960,
                 41977
               ],
-              "site": 35128,
-              "veces": 8544
+              "veces": 8544,
+              "site": 35128
             }
           ],
           "actualizada_por": [
@@ -978,102 +3789,102 @@
         },
         "individuales": [
           {
+            "x_formula": "(v&15)*8+48",
             "y_addr": 32985,
-            "x_formula": "(v&15)*8+48",
-            "y_formula": "v+168",
+            "x_addr": 32983,
             "confianza": 0.16725269573370838,
-            "x_addr": 32983
+            "y_formula": "v+168"
           },
           {
+            "x_formula": "(v&31)*8",
             "y_addr": 33014,
-            "x_formula": "(v&31)*8",
-            "y_formula": "v>>1+41",
+            "x_addr": 33015,
             "confianza": 0.10182255039849976,
-            "x_addr": 33015
+            "y_formula": "v>>1+41"
           },
           {
+            "x_formula": "(v&31)*8+48",
             "y_addr": 33030,
-            "x_formula": "(v&31)*8+48",
-            "y_formula": "v>>1+168",
+            "x_addr": 33038,
             "confianza": 0.11064228785747773,
-            "x_addr": 33038
+            "y_formula": "v>>1+168"
           },
           {
-            "y_addr": 33042,
             "x_formula": "(v&240)>>1+64",
-            "y_formula": "v>>1+168",
+            "y_addr": 33042,
+            "x_addr": 33044,
             "confianza": 0.12599624941397095,
-            "x_addr": 33044
+            "y_formula": "v>>1+168"
           },
           {
-            "y_addr": 33050,
             "x_formula": "(v&15)*8+48",
-            "y_formula": "v>>1+168",
+            "y_addr": 33050,
+            "x_addr": 33052,
             "confianza": 0.23781059540553212,
-            "x_addr": 33052
+            "y_formula": "v>>1+168"
           },
           {
+            "x_formula": "(v&31)*8",
             "y_addr": 33058,
-            "x_formula": "(v&31)*8",
-            "y_formula": "v>>1+168",
+            "x_addr": 33066,
             "confianza": 0.30719643694327237,
-            "x_addr": 33066
+            "y_formula": "v>>1+168"
           },
           {
-            "y_addr": 34261,
             "x_formula": "(v&31)*8+48",
-            "y_formula": "(v&31)*8+24",
+            "y_addr": 34261,
+            "x_addr": 34257,
             "confianza": 0.14750351617440224,
-            "x_addr": 34257
+            "y_formula": "(v&31)*8+24"
           },
           {
-            "y_addr": 34255,
             "x_formula": "(v&31)*8",
-            "y_formula": "v>>1+13",
+            "y_addr": 34255,
+            "x_addr": 34259,
             "confianza": 0.9532703791140119,
-            "x_addr": 34259
+            "y_formula": "v>>1+13"
           }
         ],
         "pares_debiles_posible_ruido": [
           {
-            "x_addr": 33004,
+            "confianza": 0.0646390060947023,
             "y_addr": 33008,
-            "confianza": 0.0646390060947023
+            "x_addr": 33004
           },
           {
-            "x_addr": 33009,
+            "confianza": 0.04704626334519573,
             "y_addr": 33013,
-            "confianza": 0.04704626334519573
+            "x_addr": 33009
           },
           {
-            "x_addr": 33011,
+            "confianza": 0.021536568213783403,
             "y_addr": 33012,
-            "confianza": 0.021536568213783403
+            "x_addr": 33011
           },
           {
-            "x_addr": 33017,
+            "confianza": 0.02812939521800281,
             "y_addr": 33024,
-            "confianza": 0.02812939521800281
+            "x_addr": 33017
           },
           {
-            "x_addr": 33031,
+            "confianza": 0.06384786685419597,
             "y_addr": 33029,
-            "confianza": 0.06384786685419597
+            "x_addr": 33031
           },
           {
-            "x_addr": 33033,
+            "confianza": 0.03938115330520394,
             "y_addr": 33032,
-            "confianza": 0.03938115330520394
+            "x_addr": 33033
           },
           {
-            "x_addr": 33047,
+            "confianza": 0.022884126407555393,
             "y_addr": 33040,
-            "confianza": 0.022884126407555393
+            "x_addr": 33047
           },
           {
-            "x_addr": 33048,
+            "confianza": 0.04390637610976594,
             "y_addr": 33043,
-            "confianza": 0.04390637610976594
+            "x_addr": 33048
           }
         ]
       },
@@ -1293,7 +4104,6 @@
               "condicion": "campo +0 == 255",
               "ramas": [
                 {
-                  "pc": 37066,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1303,11 +4113,12 @@
                     6,
                     7
                   ],
+                  "pc": 37066,
                   "veces": 80353
                 },
                 {
-                  "pc": 35273,
                   "campos_exclusivos": [],
+                  "pc": 35273,
                   "veces": 22752
                 }
               ]
@@ -1317,7 +4128,6 @@
               "condicion": "campo +0 & 3",
               "ramas": [
                 {
-                  "pc": 37071,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1327,11 +4137,12 @@
                     6,
                     7
                   ],
+                  "pc": 37071,
                   "veces": 75571
                 },
                 {
-                  "pc": 37302,
                   "campos_exclusivos": [],
+                  "pc": 37302,
                   "veces": 4782
                 }
               ]
@@ -1341,7 +4152,6 @@
               "condicion": "campo +0 & 3 == 1",
               "ramas": [
                 {
-                  "pc": 37076,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1350,16 +4160,17 @@
                     6,
                     7
                   ],
+                  "pc": 37076,
                   "veces": 38318
                 },
                 {
-                  "pc": 37171,
                   "campos_exclusivos": [
                     0,
                     2,
                     6,
                     7
                   ],
+                  "pc": 37171,
                   "veces": 37253
                 }
               ]
@@ -1369,7 +4180,6 @@
               "condicion": "campo +0 & 3 == 2",
               "ramas": [
                 {
-                  "pc": 37247,
                   "campos_exclusivos": [
                     0,
                     3,
@@ -1377,15 +4187,16 @@
                     6,
                     7
                   ],
+                  "pc": 37247,
                   "veces": 37105
                 },
                 {
-                  "pc": 37081,
                   "campos_exclusivos": [
                     0,
                     1,
                     7
                   ],
+                  "pc": 37081,
                   "veces": 1213
                 }
               ]
@@ -1395,17 +4206,17 @@
               "condicion": "campo +0",
               "ramas": [
                 {
-                  "pc": 37087,
                   "campos_exclusivos": [
                     1
                   ],
+                  "pc": 37087,
                   "veces": 529
                 },
                 {
-                  "pc": 37119,
                   "campos_exclusivos": [
                     1
                   ],
+                  "pc": 37119,
                   "veces": 684
                 }
               ]
@@ -1415,15 +4226,15 @@
               "condicion": "campo +7 & 127",
               "ramas": [
                 {
-                  "pc": 37160,
                   "campos_exclusivos": [
                     0
                   ],
+                  "pc": 37160,
                   "veces": 24
                 },
                 {
-                  "pc": 37302,
                   "campos_exclusivos": [],
+                  "pc": 37302,
                   "veces": 1189
                 }
               ]
@@ -1433,21 +4244,21 @@
               "condicion": "campo +0",
               "ramas": [
                 {
-                  "pc": 37177,
                   "campos_exclusivos": [
                     0,
                     2,
                     6
                   ],
+                  "pc": 37177,
                   "veces": 19221
                 },
                 {
-                  "pc": 37212,
                   "campos_exclusivos": [
                     0,
                     2,
                     7
                   ],
+                  "pc": 37212,
                   "veces": 18032
                 }
               ]
@@ -1457,17 +4268,17 @@
               "condicion": "campo +0 & 127 == 96",
               "ramas": [
                 {
-                  "pc": 37302,
                   "campos_exclusivos": [],
+                  "pc": 37302,
                   "veces": 13642
                 },
                 {
-                  "pc": 37191,
                   "campos_exclusivos": [
                     0,
                     2,
                     6
                   ],
+                  "pc": 37191,
                   "veces": 5579
                 }
               ]
@@ -1477,17 +4288,17 @@
               "condicion": "campo +6 & 31",
               "ramas": [
                 {
-                  "pc": 37206,
                   "campos_exclusivos": [
                     0
                   ],
+                  "pc": 37206,
                   "veces": 386
                 },
                 {
-                  "pc": 37201,
                   "campos_exclusivos": [
                     2
                   ],
+                  "pc": 37201,
                   "veces": 5193
                 }
               ]
@@ -1497,17 +4308,17 @@
               "condicion": "campo +0 == 160",
               "ramas": [
                 {
-                  "pc": 37302,
                   "campos_exclusivos": [],
+                  "pc": 37302,
                   "veces": 13557
                 },
                 {
-                  "pc": 37226,
                   "campos_exclusivos": [
                     0,
                     2,
                     7
                   ],
+                  "pc": 37226,
                   "veces": 4475
                 }
               ]
@@ -1517,17 +4328,17 @@
               "condicion": "campo +7 & 31",
               "ramas": [
                 {
-                  "pc": 37241,
                   "campos_exclusivos": [
                     0
                   ],
+                  "pc": 37241,
                   "veces": 347
                 },
                 {
-                  "pc": 37236,
                   "campos_exclusivos": [
                     2
                   ],
+                  "pc": 37236,
                   "veces": 4128
                 }
               ]
@@ -1537,15 +4348,15 @@
               "condicion": "campo +0 & 24",
               "ramas": [
                 {
-                  "pc": 37267,
                   "campos_exclusivos": [],
+                  "pc": 37267,
                   "veces": 6446
                 },
                 {
-                  "pc": 37259,
                   "campos_exclusivos": [
                     0
                   ],
+                  "pc": 37259,
                   "veces": 30659
                 }
               ]
@@ -1555,16 +4366,16 @@
               "condicion": "campo +7",
               "ramas": [
                 {
-                  "pc": 37294,
                   "campos_exclusivos": [],
+                  "pc": 37294,
                   "veces": 716
                 },
                 {
-                  "pc": 37281,
                   "campos_exclusivos": [
                     3,
                     6
                   ],
+                  "pc": 37281,
                   "veces": 36389
                 }
               ]
@@ -1574,17 +4385,17 @@
               "condicion": "campo +6",
               "ramas": [
                 {
-                  "pc": 37288,
                   "campos_exclusivos": [
                     3,
                     4,
                     6
                   ],
+                  "pc": 37288,
                   "veces": 6
                 },
                 {
-                  "pc": 37302,
                   "campos_exclusivos": [],
+                  "pc": 37302,
                   "veces": 35712
                 }
               ]
@@ -1864,7 +4675,6 @@
               "condicion": "campo +0 == 255",
               "ramas": [
                 {
-                  "pc": 37320,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1876,11 +4686,12 @@
                     9,
                     11
                   ],
+                  "pc": 37320,
                   "veces": 79945
                 },
                 {
-                  "pc": 35311,
                   "campos_exclusivos": [],
+                  "pc": 35311,
                   "veces": 22628
                 }
               ]
@@ -1890,7 +4701,6 @@
               "condicion": "campo +0 & 7 == 3",
               "ramas": [
                 {
-                  "pc": 37540,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1901,10 +4711,10 @@
                     9,
                     11
                   ],
+                  "pc": 37540,
                   "veces": 1206
                 },
                 {
-                  "pc": 37330,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1914,6 +4724,7 @@
                     5,
                     6
                   ],
+                  "pc": 37330,
                   "veces": 78739
                 }
               ]
@@ -1923,7 +4734,6 @@
               "condicion": "campo +0 & 7 == 4",
               "ramas": [
                 {
-                  "pc": 37431,
                   "campos_exclusivos": [
                     0,
                     2,
@@ -1931,10 +4741,10 @@
                     5,
                     6
                   ],
+                  "pc": 37431,
                   "veces": 4747
                 },
                 {
-                  "pc": 37334,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1942,6 +4752,7 @@
                     3,
                     5
                   ],
+                  "pc": 37334,
                   "veces": 73992
                 }
               ]
@@ -1951,17 +4762,17 @@
               "condicion": "campo +0",
               "ramas": [
                 {
-                  "pc": 37437,
                   "campos_exclusivos": [
                     4
                   ],
+                  "pc": 37437,
                   "veces": 1536
                 },
                 {
-                  "pc": 37444,
                   "campos_exclusivos": [
                     4
                   ],
+                  "pc": 37444,
                   "veces": 3211
                 }
               ]
@@ -1971,18 +4782,18 @@
               "condicion": "campo +4",
               "ramas": [
                 {
-                  "pc": 37455,
                   "campos_exclusivos": [],
+                  "pc": 37455,
                   "veces": 21
                 },
                 {
-                  "pc": 37474,
                   "campos_exclusivos": [
                     2,
                     4,
                     5,
                     6
                   ],
+                  "pc": 37474,
                   "veces": 4726
                 }
               ]
@@ -1992,18 +4803,18 @@
               "condicion": "campo +4 & 224",
               "ramas": [
                 {
-                  "pc": 37479,
                   "campos_exclusivos": [
                     2,
                     4,
                     5,
                     6
                   ],
+                  "pc": 37479,
                   "veces": 876
                 },
                 {
-                  "pc": 37811,
                   "campos_exclusivos": [],
+                  "pc": 37811,
                   "veces": 3850
                 }
               ]
@@ -2013,17 +4824,17 @@
               "condicion": "campo +9",
               "ramas": [
                 {
-                  "pc": 37590,
                   "campos_exclusivos": [],
+                  "pc": 37590,
                   "veces": 16291
                 },
                 {
-                  "pc": 37574,
                   "campos_exclusivos": [
                     5,
                     9,
                     11
                   ],
+                  "pc": 37574,
                   "veces": 23507
                 }
               ]
@@ -2033,18 +4844,18 @@
               "condicion": "campo +3",
               "ramas": [
                 {
-                  "pc": 37646,
                   "campos_exclusivos": [],
+                  "pc": 37646,
                   "veces": 23500
                 },
                 {
-                  "pc": 37580,
                   "campos_exclusivos": [
                     3,
                     5,
                     9,
                     11
                   ],
+                  "pc": 37580,
                   "veces": 7
                 }
               ]
@@ -2054,7 +4865,6 @@
               "condicion": "campo +9",
               "ramas": [
                 {
-                  "pc": 37646,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -2064,15 +4874,16 @@
                     9,
                     11
                   ],
+                  "pc": 37646,
                   "veces": 15894
                 },
                 {
-                  "pc": 37595,
                   "campos_exclusivos": [
                     3,
                     5,
                     11
                   ],
+                  "pc": 37595,
                   "veces": 404
                 }
               ]
@@ -2082,19 +4893,19 @@
               "condicion": "campo +1",
               "ramas": [
                 {
-                  "pc": 37697,
                   "campos_exclusivos": [
                     3,
                     5
                   ],
+                  "pc": 37697,
                   "veces": 14751
                 },
                 {
-                  "pc": 37680,
                   "campos_exclusivos": [
                     3,
                     5
                   ],
+                  "pc": 37680,
                   "veces": 16105
                 }
               ]
@@ -2104,19 +4915,19 @@
               "condicion": "campo +4",
               "ramas": [
                 {
-                  "pc": 37726,
                   "campos_exclusivos": [
                     0,
                     4,
                     11
                   ],
+                  "pc": 37726,
                   "veces": 1206
                 },
                 {
-                  "pc": 37720,
                   "campos_exclusivos": [
                     9
                   ],
+                  "pc": 37720,
                   "veces": 38592
                 }
               ]
@@ -2126,19 +4937,19 @@
               "condicion": "campo +9 & 128",
               "ramas": [
                 {
-                  "pc": 37733,
                   "campos_exclusivos": [
                     11
                   ],
+                  "pc": 37733,
                   "veces": 96
                 },
                 {
-                  "pc": 37743,
                   "campos_exclusivos": [
                     0,
                     4,
                     11
                   ],
+                  "pc": 37743,
                   "veces": 1110
                 }
               ]
@@ -2148,16 +4959,16 @@
               "condicion": "campo +11",
               "ramas": [
                 {
-                  "pc": 37749,
                   "campos_exclusivos": [
                     0,
                     4
                   ],
+                  "pc": 37749,
                   "veces": 404
                 },
                 {
-                  "pc": 37811,
                   "campos_exclusivos": [],
+                  "pc": 37811,
                   "veces": 706
                 }
               ]
@@ -2366,21 +5177,21 @@
           "escaleras": [
             {
               "rutina": "$37056",
+              "mascara": 3,
               "valores_testeados": [
                 0,
                 1,
                 2
-              ],
-              "mascara": 3
+              ]
             },
             {
               "rutina": "$37310",
+              "mascara": 7,
               "valores_testeados": [
                 0,
                 3,
                 4
-              ],
-              "mascara": 7
+              ]
             }
           ]
         },
@@ -2586,17 +5397,17 @@
                 "condicion": "campo +0 & 127 == 96",
                 "ramas": [
                   {
-                    "pc": 37302,
                     "campos_exclusivos": [],
+                    "pc": 37302,
                     "veces": 13642
                   },
                   {
-                    "pc": 37191,
                     "campos_exclusivos": [
                       0,
                       2,
                       6
                     ],
+                    "pc": 37191,
                     "veces": 5579
                   }
                 ]
@@ -2606,17 +5417,17 @@
                 "condicion": "campo +6 & 31",
                 "ramas": [
                   {
-                    "pc": 37206,
                     "campos_exclusivos": [
                       0
                     ],
+                    "pc": 37206,
                     "veces": 386
                   },
                   {
-                    "pc": 37201,
                     "campos_exclusivos": [
                       2
                     ],
+                    "pc": 37201,
                     "veces": 5193
                   }
                 ]
@@ -2626,17 +5437,17 @@
                 "condicion": "campo +7 & 31",
                 "ramas": [
                   {
-                    "pc": 37241,
                     "campos_exclusivos": [
                       0
                     ],
+                    "pc": 37241,
                     "veces": 347
                   },
                   {
-                    "pc": 37236,
                     "campos_exclusivos": [
                       2
                     ],
+                    "pc": 37236,
                     "veces": 4128
                   }
                 ]
@@ -2854,15 +5665,15 @@
                 "condicion": "campo +0 & 24",
                 "ramas": [
                   {
-                    "pc": 37267,
                     "campos_exclusivos": [],
+                    "pc": 37267,
                     "veces": 6446
                   },
                   {
-                    "pc": 37259,
                     "campos_exclusivos": [
                       0
                     ],
+                    "pc": 37259,
                     "veces": 30659
                   }
                 ]
@@ -3093,15 +5904,15 @@
                 "condicion": "campo +7 & 127",
                 "ramas": [
                   {
-                    "pc": 37160,
                     "campos_exclusivos": [
                       0
                     ],
+                    "pc": 37160,
                     "veces": 24
                   },
                   {
-                    "pc": 37302,
                     "campos_exclusivos": [],
+                    "pc": 37302,
                     "veces": 1189
                   }
                 ]
@@ -3111,19 +5922,19 @@
                 "condicion": "campo +9 & 128",
                 "ramas": [
                   {
-                    "pc": 37733,
                     "campos_exclusivos": [
                       11
                     ],
+                    "pc": 37733,
                     "veces": 96
                   },
                   {
-                    "pc": 37743,
                     "campos_exclusivos": [
                       0,
                       4,
                       11
                     ],
+                    "pc": 37743,
                     "veces": 1110
                   }
                 ]
@@ -3240,18 +6051,18 @@
                 "condicion": "campo +4 & 224",
                 "ramas": [
                   {
-                    "pc": 37479,
                     "campos_exclusivos": [
                       2,
                       4,
                       5,
                       6
                     ],
+                    "pc": 37479,
                     "veces": 876
                   },
                   {
-                    "pc": 37811,
                     "campos_exclusivos": [],
+                    "pc": 37811,
                     "veces": 3850
                   }
                 ]
@@ -3263,60 +6074,60 @@
     },
     "protagonista": [
       {
+        "x_formula": "(v&15)*8+48",
         "y_addr": 32985,
-        "x_formula": "(v&15)*8+48",
-        "y_formula": "v+168",
+        "x_addr": 32983,
         "confianza": 0.16725269573370838,
-        "x_addr": 32983
+        "y_formula": "v+168"
       },
       {
+        "x_formula": "(v&31)*8",
         "y_addr": 33014,
-        "x_formula": "(v&31)*8",
-        "y_formula": "v>>1+41",
+        "x_addr": 33015,
         "confianza": 0.10182255039849976,
-        "x_addr": 33015
+        "y_formula": "v>>1+41"
       },
       {
+        "x_formula": "(v&31)*8+48",
         "y_addr": 33030,
-        "x_formula": "(v&31)*8+48",
-        "y_formula": "v>>1+168",
+        "x_addr": 33038,
         "confianza": 0.11064228785747773,
-        "x_addr": 33038
+        "y_formula": "v>>1+168"
       },
       {
-        "y_addr": 33042,
         "x_formula": "(v&240)>>1+64",
-        "y_formula": "v>>1+168",
+        "y_addr": 33042,
+        "x_addr": 33044,
         "confianza": 0.12599624941397095,
-        "x_addr": 33044
+        "y_formula": "v>>1+168"
       },
       {
-        "y_addr": 33050,
         "x_formula": "(v&15)*8+48",
-        "y_formula": "v>>1+168",
+        "y_addr": 33050,
+        "x_addr": 33052,
         "confianza": 0.23781059540553212,
-        "x_addr": 33052
+        "y_formula": "v>>1+168"
       },
       {
+        "x_formula": "(v&31)*8",
         "y_addr": 33058,
-        "x_formula": "(v&31)*8",
-        "y_formula": "v>>1+168",
+        "x_addr": 33066,
         "confianza": 0.30719643694327237,
-        "x_addr": 33066
+        "y_formula": "v>>1+168"
       },
       {
-        "y_addr": 34261,
         "x_formula": "(v&31)*8+48",
-        "y_formula": "(v&31)*8+24",
+        "y_addr": 34261,
+        "x_addr": 34257,
         "confianza": 0.14750351617440224,
-        "x_addr": 34257
+        "y_formula": "(v&31)*8+24"
       },
       {
-        "y_addr": 34255,
         "x_formula": "(v&31)*8",
-        "y_formula": "v>>1+13",
+        "y_addr": 34255,
+        "x_addr": 34259,
         "confianza": 0.9532703791140119,
-        "x_addr": 34259
+        "y_formula": "v>>1+13"
       }
     ],
     "sprites": [
@@ -6664,40 +9475,40 @@
     },
     "tablas-consulta": [
       {
-        "rango": [
-          33280,
-          33535
-        ],
         "usada_por": [
           "$37310",
           "$38504"
+        ],
+        "rango": [
+          33280,
+          33535
         ]
       },
       {
+        "usada_por": [
+          "$37310"
+        ],
         "rango": [
           33664,
           33750
-        ],
-        "usada_por": [
-          "$37310"
         ]
       },
       {
+        "usada_por": [
+          "$37841"
+        ],
         "rango": [
           41983,
           41983
-        ],
-        "usada_por": [
-          "$37841"
         ]
       },
       {
+        "usada_por": [
+          "$37841"
+        ],
         "rango": [
           42415,
           42495
-        ],
-        "usada_por": [
-          "$37841"
         ]
       }
     ],
@@ -7999,38 +10810,38 @@
         }
       },
       {
+        "nombre": "$36307",
         "evidencia": {
           "escrituras_a_variables": 75969
         },
-        "nombre": "$36307",
         "tipo": "logica_estado"
       },
       {
+        "nombre": "$36508",
         "evidencia": {
           "escrituras_a_variables": 17048
         },
-        "nombre": "$36508",
         "tipo": "logica_estado"
       },
       {
+        "nombre": "$37056",
         "evidencia": {
           "escrituras_a_variables": 155483
         },
-        "nombre": "$37056",
         "tipo": "logica_estado"
       },
       {
+        "nombre": "$38064",
         "evidencia": {
           "escrituras_a_variables": 95
         },
-        "nombre": "$38064",
         "tipo": "logica_estado"
       },
       {
+        "nombre": "$38276",
         "evidencia": {
           "escrituras_a_variables": 1
         },
-        "nombre": "$38276",
         "tipo": "logica_estado"
       }
     ],
@@ -8158,18 +10969,18 @@
             "condicion": "campo +4 == 58",
             "ramas": [
               {
-                "pc": 35424,
                 "campos_exclusivos": [
                   0,
                   1,
                   3,
                   4
                 ],
+                "pc": 35424,
                 "veces": 8
               },
               {
-                "pc": 35499,
                 "campos_exclusivos": [],
+                "pc": 35499,
                 "veces": 76
               }
             ]
@@ -8179,17 +10990,17 @@
             "condicion": "campo +3 == 54",
             "ramas": [
               {
-                "pc": 35499,
                 "campos_exclusivos": [],
+                "pc": 35499,
                 "veces": 7
               },
               {
-                "pc": 35438,
                 "campos_exclusivos": [
                   0,
                   1,
                   3
                 ],
+                "pc": 35438,
                 "veces": 1
               }
             ]
@@ -8262,18 +11073,18 @@
             "condicion": "campo +0 & 127 == 7",
             "ramas": [
               {
-                "pc": 34648,
                 "campos_exclusivos": [],
+                "pc": 34648,
                 "veces": 2
               },
               {
-                "pc": 34693,
                 "campos_exclusivos": [
                   0,
                   1,
                   32,
                   33
                 ],
+                "pc": 34693,
                 "veces": 1366
               }
             ]

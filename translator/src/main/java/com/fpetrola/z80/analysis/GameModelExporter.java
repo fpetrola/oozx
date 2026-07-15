@@ -78,6 +78,9 @@ public class GameModelExporter {
     StructFinder structFinder = new StructFinder(db, dbPath);
     List<Map<String, Object>> structs = structFinder.analyze(null);
     List<Map<String, Object>> canonicos = structFinder.canonical(structs);
+    List<Map<String, Object>> rebuilds = new RebuildFinder(db, dbPath).analyze();
+    List<Map<String, Object>> registros = new RecordFinder(db, dbPath).analyze();
+    List<Object> rutinasFull = rutinas();
 
     List<Object> hallazgos = new ArrayList<>();
     Map<String, Object> evidencia = new LinkedHashMap<>();
@@ -86,19 +89,22 @@ public class GameModelExporter {
     Map<String, Object> mapa = hallazgo(hallazgos, evidencia, "mapa-memoria",
         "Mapa de memoria: que hay en cada rango", null);
     mapa.put("zonas", zonas(evEnt));
-    hallazgoReconstruccion(hallazgos, evidencia);
+    hallazgoReconstruccion(hallazgos, evidencia, rebuilds);
+    hallazgoRegistros(hallazgos, evidencia, registros);
     hallazgoEntidades(hallazgos, evidencia, evEnt, structs, canonicos);
     hallazgoProtagonista(hallazgos, evidencia, evEnt);
     hallazgoSprites(hallazgos, evidencia);
     hallazgoFuente(hallazgos, evidencia);
     hallazgoTablas(hallazgos, evidencia);
     hallazgoVariables(hallazgos, evidencia);
-    hallazgoRutinas(hallazgos, evidencia);
+    hallazgoRutinas(hallazgos, evidencia, rutinasFull);
     hallazgoEstructuras(hallazgos, evidencia, structs, evEnt);
 
     Map<String, Object> root = new LinkedHashMap<>();
     root.put("meta", meta());
     root.put("hallazgos", hallazgos);
+    root.put("modelo", new ModelAssembler(db, plan, gfxRegions, lookupTables)
+        .assemble(canonicos, registros, rebuilds, rutinasFull, fuente(), mejorProtagonista(evEnt)));
     root.put("evidencia", evidencia);
     String json = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(root);
     Files.writeString(Path.of(outPath), json);
@@ -152,8 +158,8 @@ public class GameModelExporter {
 
   // ---------- hallazgo: variables selectoras y su cluster de reconstruccion ----------
   @SuppressWarnings("unchecked")
-  private void hallazgoReconstruccion(List<Object> hallazgos, Map<String, Object> evidencia) {
-    List<Map<String, Object>> all = new RebuildFinder(db, dbPath).analyze();
+  private void hallazgoReconstruccion(List<Object> hallazgos, Map<String, Object> evidencia,
+                                      List<Map<String, Object>> all) {
     if (all.isEmpty())
       return;
     Map<String, Object> h = hallazgo(hallazgos, evidencia, "reconstruccion-por-selector",
@@ -199,6 +205,46 @@ public class GameModelExporter {
       lista.add(item);
     }
     h.put("selectores", lista);
+  }
+
+  // ---------- hallazgo: el registro singleton reconstruido, campo por campo ----------
+  @SuppressWarnings("unchecked")
+  private void hallazgoRegistros(List<Object> hallazgos, Map<String, Object> evidencia,
+                                 List<Map<String, Object>> registros) {
+    if (registros.isEmpty())
+      return;
+    Map<String, Object> h = hallazgo(hallazgos, evidencia, "registros-reconstruidos",
+        "El registro que el selector reconstruye, campo por campo (layout del contenido actual)",
+        registros);
+    List<Object> lista = new ArrayList<>();
+    for (Map<String, Object> rec : registros) {
+      Map<String, Object> item = new LinkedHashMap<>();
+      List<Integer> r = (List<Integer>) rec.get("rango");
+      item.put("rango", r);
+      item.put("selector", "mem[" + rec.get("selector") + "]");
+      Map<String, String> campos = new LinkedHashMap<>();
+      for (Map<String, Object> f : (List<Map<String, Object>>) rec.get("campos")) {
+        List<Integer> fr = (List<Integer>) f.get("rango");
+        StringBuilder sb = new StringBuilder();
+        if (f.containsKey("nombre_propuesto"))
+          sb.append(f.get("nombre_propuesto"));
+        if (f.containsKey("etiquetas"))
+          sb.append(sb.isEmpty() ? "" : " — ")
+              .append(String.join("; ", (List<String>) f.get("etiquetas")));
+        if (sb.isEmpty())
+          sb.append("leido por ").append(f.getOrDefault("leido_por", "?"));
+        campos.put("[" + fr.get(0) + ".." + fr.get(1) + "]", sb.toString());
+      }
+      for (Map<String, Object> g : (List<Map<String, Object>>) rec.get("huecos")) {
+        List<Integer> gr = (List<Integer>) g.get("rango");
+        campos.put("[" + gr.get(0) + ".." + gr.get(1) + "]", "HUECO sin acceso tipado"
+            + (g.containsKey("lectores_genericos")
+                ? "; lo leen rutinas genericas: " + g.get("lectores_genericos") : ""));
+      }
+      item.put("campos", campos);
+      lista.add(item);
+    }
+    h.put("registros", lista);
   }
 
   // ---------- hallazgo: tabla de entidades ----------
@@ -379,8 +425,7 @@ public class GameModelExporter {
 
   // ---------- hallazgo: protagonista ----------
   @SuppressWarnings("unchecked")
-  private void hallazgoProtagonista(List<Object> hallazgos, Map<String, Object> evidencia,
-                                    Map<String, Object> evEnt) throws SQLException {
+  private static Map<String, Object> mejorProtagonista(Map<String, Object> evEnt) {
     List<Object> indiv = (List<Object>) evEnt.get("individuales");
     Map<String, Object> best = null;
     for (Object io : indiv) {
@@ -389,6 +434,13 @@ public class GameModelExporter {
           && (best == null || ((Number) i.get("confianza")).doubleValue() > ((Number) best.get("confianza")).doubleValue()))
         best = i;
     }
+    return best;
+  }
+
+  private void hallazgoProtagonista(List<Object> hallazgos, Map<String, Object> evidencia,
+                                    Map<String, Object> evEnt) throws SQLException {
+    List<Object> indiv = (List<Object>) evEnt.get("individuales");
+    Map<String, Object> best = mejorProtagonista(evEnt);
     if (best == null)
       return;
     Map<String, Object> h = hallazgo(hallazgos, evidencia, "protagonista",
@@ -501,8 +553,8 @@ public class GameModelExporter {
   }
 
   @SuppressWarnings("unchecked")
-  private void hallazgoRutinas(List<Object> hallazgos, Map<String, Object> evidencia) throws SQLException {
-    List<Object> full = rutinas();
+  private void hallazgoRutinas(List<Object> hallazgos, Map<String, Object> evidencia,
+                               List<Object> full) throws SQLException {
     Map<String, Object> h = hallazgo(hallazgos, evidencia, "rutinas",
         "Rutinas del juego clasificadas por lo que hacen", full);
     Map<String, String> frases = Map.of(
