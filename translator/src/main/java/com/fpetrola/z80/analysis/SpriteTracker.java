@@ -207,7 +207,7 @@ public class SpriteTracker {
           try {
             System.out.println("\n=== Muestra (frame " + e.getKey() + ") ===");
             PositionReport.print(dbPath, e.getKey(), e.getKey());
-          } catch (SQLException ex) {
+          } catch (RuntimeException ex) {
             System.out.println("muestra fallida: " + ex);
           }
         });

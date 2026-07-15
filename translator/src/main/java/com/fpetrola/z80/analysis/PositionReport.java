@@ -18,7 +18,8 @@
 
 package com.fpetrola.z80.analysis;
 
-import java.sql.*;
+import com.fpetrola.z80.analysis.query.Db;
+
 import java.util.*;
 
 /**
@@ -29,45 +30,33 @@ import java.util.*;
  */
 public class PositionReport {
 
-  public static void print(String dbPath, int frameLo, int frameHi) throws SQLException {
-    try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
+  public static void print(String dbPath, int frameLo, int frameHi) {
+    try (Db q = new Db(dbPath)) {
       // validated (X, Y) cell pairs: xAddr, xT, xOff, yAddr, yT, yOff, rate
       List<Object[]> pairs = new ArrayList<>();
       Set<Integer> pairCells = new HashSet<>();
-      try (ResultSet rs = c.createStatement().executeQuery(
-          "SELECT x_addr, x_transform, x_off, y_addr, y_transform, y_off, rate FROM coord_pairs ORDER BY joint DESC")) {
-        while (rs.next()) {
-          pairs.add(new Object[]{rs.getInt(1), rs.getString(2), rs.getInt(3),
-              rs.getInt(4), rs.getString(5), rs.getInt(6), rs.getDouble(7)});
-          pairCells.add(rs.getInt(1));
-          pairCells.add(rs.getInt(4));
-        }
-      }
+      q.forEach("SELECT x_addr, x_transform, x_off, y_addr, y_transform, y_off, rate FROM coord_pairs ORDER BY joint DESC", rs -> {
+        pairs.add(new Object[]{rs.getInt(1), rs.getString(2), rs.getInt(3),
+            rs.getInt(4), rs.getString(5), rs.getInt(6), rs.getDouble(7)});
+        pairCells.add(rs.getInt(1));
+        pairCells.add(rs.getInt(4));
+      });
       // high-confidence single cells not already covered by a pair
       List<Object[]> singles = new ArrayList<>();  // addr, axis, transform, off
-      try (ResultSet rs = c.createStatement().executeQuery(
-          "SELECT addr, axis, transform, off FROM coord_cells WHERE rate >= 0.6 ORDER BY matched DESC")) {
-        while (rs.next())
-          if (!pairCells.contains(rs.getInt(1)))
-            singles.add(new Object[]{rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4)});
-      }
+      q.forEach("SELECT addr, axis, transform, off FROM coord_cells WHERE rate >= 0.6 ORDER BY matched DESC", rs -> {
+        if (!pairCells.contains(rs.getInt(1)))
+          singles.add(new Object[]{rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4)});
+      });
 
       // per-frame draws in range
       Map<Integer, List<String>> drawsByFrame = new TreeMap<>();
-      try (PreparedStatement ps = c.prepareStatement(
-          "SELECT frame, method, kind, x, y, w, h, gfx, path FROM sprite_draws WHERE frame BETWEEN ? AND ? ORDER BY frame")) {
-        ps.setInt(1, frameLo);
-        ps.setInt(2, frameHi);
-        try (ResultSet rs = ps.executeQuery()) {
-          while (rs.next()) {
-            int gfx = rs.getInt(8);
-            drawsByFrame.computeIfAbsent(rs.getInt(1), k -> new ArrayList<>())
-                .add(String.format("$%d %s (%d,%d) %dx%d%s path:%08x", rs.getInt(2), rs.getString(3),
-                    rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getInt(7),
-                    gfx >= 0 ? " gfx@" + gfx : "", rs.getInt(9)));
-          }
-        }
-      }
+      q.forEach("SELECT frame, method, kind, x, y, w, h, gfx, path FROM sprite_draws WHERE frame BETWEEN ? AND ? ORDER BY frame", rs -> {
+        int gfx = rs.getInt(8);
+        drawsByFrame.computeIfAbsent(rs.getInt(1), k -> new ArrayList<>())
+            .add(String.format("$%d %s (%d,%d) %dx%d%s path:%08x", rs.getInt(2), rs.getString(3),
+                rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getInt(7),
+                gfx >= 0 ? " gfx@" + gfx : "", rs.getInt(9)));
+      }, frameLo, frameHi);
       if (drawsByFrame.isEmpty()) {
         System.out.println("sin draws en frames [" + frameLo + ".." + frameHi + "]");
         return;
@@ -77,25 +66,19 @@ public class PositionReport {
       int[] cur = new int[0x10000];
       Arrays.fill(cur, -1);
       Map<Integer, int[]> memAtFrame = new HashMap<>();
-      try (PreparedStatement ps = c.prepareStatement(
-          "SELECT frame, addr, val FROM frame_cells WHERE frame <= ? ORDER BY frame, rowid")) {
-        ps.setInt(1, frameHi);
-        try (ResultSet rs = ps.executeQuery()) {
-          Iterator<Integer> frames = drawsByFrame.keySet().iterator();
-          Integer next = frames.hasNext() ? frames.next() : null;
-          while (rs.next()) {
-            int f = rs.getInt(1);
-            while (next != null && f > next) {
-              memAtFrame.put(next, cur.clone());
-              next = frames.hasNext() ? frames.next() : null;
-            }
-            cur[rs.getInt(2)] = rs.getInt(3);
-          }
-          while (next != null) {
-            memAtFrame.put(next, cur.clone());
-            next = frames.hasNext() ? frames.next() : null;
-          }
+      Iterator<Integer> frames = drawsByFrame.keySet().iterator();
+      Integer[] next = {frames.hasNext() ? frames.next() : null};
+      q.forEach("SELECT frame, addr, val FROM frame_cells WHERE frame <= ? ORDER BY frame, rowid", rs -> {
+        int f = rs.getInt(1);
+        while (next[0] != null && f > next[0]) {
+          memAtFrame.put(next[0], cur.clone());
+          next[0] = frames.hasNext() ? frames.next() : null;
         }
+        cur[rs.getInt(2)] = rs.getInt(3);
+      }, frameHi);
+      while (next[0] != null) {
+        memAtFrame.put(next[0], cur.clone());
+        next[0] = frames.hasNext() ? frames.next() : null;
       }
 
       for (Map.Entry<Integer, List<String>> e : drawsByFrame.entrySet()) {
