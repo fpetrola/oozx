@@ -93,8 +93,122 @@ public class StructFinder {
   }
 
   public void report(String methodFilter) {
-    for (Map<String, Object> st : analyze(methodFilter))
+    List<Map<String, Object>> structs = analyze(methodFilter);
+    for (Map<String, Object> st : structs)
       print(st);
+    for (Map<String, Object> rec : canonical(structs))
+      printCanonical(rec);
+  }
+
+  /**
+   * A single canonical record per {@code (base, stride)}, built by UNIONING the partial
+   * views that each routine exposes. No routine sees the whole record: the mover reads the
+   * position, increment and bounds; the drawer reads the graphics pointer; the initialiser
+   * writes the original values. Merging them — exactly as a human disassembler assembles
+   * one record definition from several routines — recovers every byte with its best name.
+   * Only emitted when at least two routines contribute, since that is what union adds.
+   */
+  @SuppressWarnings("unchecked")
+  public List<Map<String, Object>> canonical(List<Map<String, Object>> structs) {
+    Map<String, List<Map<String, Object>>> groups = new LinkedHashMap<>();
+    for (Map<String, Object> st : structs)
+      groups.computeIfAbsent(st.get("base") + "|" + st.get("registro_bytes"), k -> new ArrayList<>())
+          .add(st);
+    List<Map<String, Object>> out = new ArrayList<>();
+    for (List<Map<String, Object>> g : groups.values()) {
+      long rutinas = g.stream().map(s -> s.get("rutina")).distinct().count();
+      if (rutinas < 2)
+        continue;
+      out.add(mergeGroup(g));
+    }
+    return out;
+  }
+
+  @SuppressWarnings("unchecked")
+  private Map<String, Object> mergeGroup(List<Map<String, Object>> g) {
+    Map<String, Object> first = g.get(0);
+    int stride = (int) first.get("registro_bytes");
+    int base = (int) first.get("base");
+    int tableEnd = base;
+    for (Map<String, Object> st : g)
+      tableEnd = Math.max(tableEnd, ((List<Integer>) st.get("rango")).get(1));
+
+    // fold every routine's field at offset (off % stride) into one canonical field
+    Map<Integer, Map<String, Object>> byOff = new TreeMap<>();
+    Map<Integer, List<String>> aportes = new TreeMap<>();
+    for (Map<String, Object> st : g) {
+      String rutina = (String) st.get("rutina");
+      for (Object fo : (List<Object>) st.get("campos")) {
+        Map<String, Object> f = (Map<String, Object>) fo;
+        int off = ((int) f.get("offset")) % stride;
+        Map<String, Object> c = byOff.computeIfAbsent(off, k -> {
+          Map<String, Object> m = new LinkedHashMap<>();
+          m.put("offset", k);
+          m.put("lecturas", 0L);
+          m.put("escrituras", 0L);
+          m.put("valores", new int[]{256, -1});
+          m.put("semantica", new LinkedHashSet<String>());
+          m.put("nombre_propuesto", (String) null);
+          return m;
+        });
+        c.put("lecturas", (long) c.get("lecturas") + (long) f.get("lecturas"));
+        c.put("escrituras", (long) c.get("escrituras") + (long) f.get("escrituras"));
+        int[] vr = (int[]) c.get("valores");
+        List<Integer> fv = (List<Integer>) f.get("valores");
+        vr[0] = Math.min(vr[0], fv.get(0));
+        vr[1] = Math.max(vr[1], fv.get(1));
+        if (f.containsKey("semantica"))
+          ((Set<String>) c.get("semantica")).addAll((List<String>) f.get("semantica"));
+        String cand = (String) f.get("nombre_propuesto");
+        if (nameScore(cand) > nameScore((String) c.get("nombre_propuesto")))
+          c.put("nombre_propuesto", cand);
+        if (cand != null)
+          aportes.computeIfAbsent(off, k -> new ArrayList<>()).add(rutina + ": " + cand);
+      }
+    }
+
+    List<Object> campos = new ArrayList<>();
+    for (Map<String, Object> c : byOff.values()) {
+      int[] vr = (int[]) c.get("valores");
+      Map<String, Object> out = new LinkedHashMap<>();
+      out.put("offset", c.get("offset"));
+      out.put("lecturas", c.get("lecturas"));
+      out.put("escrituras", c.get("escrituras"));
+      out.put("valores", List.of(vr[0] <= vr[1] ? vr[0] : 0, vr[1] >= 0 ? vr[1] : 0));
+      Set<String> sem = (Set<String>) c.get("semantica");
+      if (!sem.isEmpty())
+        out.put("semantica", new ArrayList<>(sem));
+      if (c.get("nombre_propuesto") != null)
+        out.put("nombre_propuesto", c.get("nombre_propuesto"));
+      List<String> ap = aportes.get((int) c.get("offset"));
+      if (ap != null)
+        out.put("aportado_por", ap);
+      campos.add(out);
+    }
+
+    Map<String, Object> rec = new LinkedHashMap<>();
+    rec.put("base", base);
+    rec.put("registro_bytes", stride);
+    rec.put("rango", List.of(base, tableEnd));
+    rec.put("rutinas", g.stream().map(s -> (String) s.get("rutina")).distinct().sorted().toList());
+    rec.put("campos", campos);
+    return rec;
+  }
+
+  /** how specific/trustworthy a proposed name is, so union keeps the most informative one. */
+  private int nameScore(String n) {
+    if (n == null)
+      return 0;
+    if (n.startsWith("posicion_") || n.startsWith("limite_") || n.startsWith("incremento_"))
+      return 5;
+    if (n.startsWith("frame_animacion") || n.startsWith("direccion_sentido")
+        || n.startsWith("tipo_y_direccion"))
+      return 4;
+    if (n.startsWith("grafico_frame") || n.equals("color"))
+      return 3;
+    if (n.startsWith("limite") || n.startsWith("contador"))
+      return 2;
+    return 1; // tipo_flags, controla_condiciones — generic fallbacks
   }
 
   private record FieldAccess(int site, char op, int offset) {
@@ -304,6 +418,10 @@ public class StructFinder {
       if (eq == null || !eq.contains("cp("))
         continue;
       Set<Integer> offs = new TreeSet<>();
+      // one cp operand may be the field the site itself reads (cp(A, mem[IX+k])),
+      // the other traces back through the incoming edges — capture both sides
+      if (readSiteOffset.containsKey(pc))
+        offs.add(readSiteOffset.get(pc));
       for (AnalysisDB.Edge e : db.edgesIn.getOrDefault(pc, List.of())) {
         if (readSiteOffset.containsKey(e.src()))
           offs.add(readSiteOffset.get(e.src()));
@@ -338,6 +456,21 @@ public class StructFinder {
         decide.get(condOff).remove(condOff);
     }
 
+    // which offsets are coordinates, and on which axis — a field that writes INTO a
+    // coordinate is its increment/velocity; a field COMPARED against a coordinate but
+    // never written is its bound/limit (a static edge from the entity template)
+    Map<Integer, Character> coordOffAxis = new HashMap<>();
+    for (Object fo : campos) {
+      Map<String, Object> f = (Map<String, Object>) fo;
+      if (f.containsKey("semantica"))
+        for (String s : (List<String>) f.get("semantica")) {
+          if (s.equals("coordenada X"))
+            coordOffAxis.put((int) f.get("offset"), 'X');
+          if (s.equals("coordenada Y"))
+            coordOffAxis.put((int) f.get("offset"), 'Y');
+        }
+    }
+
     for (Object fo : campos) {
       Map<String, Object> f = (Map<String, Object>) fo;
       int off = (int) f.get("offset");
@@ -365,8 +498,21 @@ public class StructFinder {
       if (!rel.isEmpty())
         f.put("relaciones", rel);
 
+      // axis of a coordinate this field WRITES into (increment) vs one it is COMPARED
+      // against without writing (bound)
+      Character writesCoordAxis = null, comparedCoordAxis = null;
+      for (String w : escribeA) {
+        int t = Integer.parseInt(w.substring(1));
+        if (coordOffAxis.containsKey(t))
+          writesCoordAxis = coordOffAxis.get(t);
+      }
+      if (comparado.containsKey(off))
+        for (int cmp : comparado.get(off))
+          if (coordOffAxis.containsKey(cmp) && !escribeA.contains("+" + cmp))
+            comparedCoordAxis = coordOffAxis.get(cmp);
+
       String nombre = proposeName(f, selfOps, comparado.get(off), decide.get(off), impacta,
-          selectorOffs.contains(off));
+          selectorOffs.contains(off), comparedCoordAxis, writesCoordAxis);
       if (nombre != null)
         f.put("nombre_propuesto", nombre);
     }
@@ -439,7 +585,8 @@ public class StructFinder {
   @SuppressWarnings("unchecked")
   private String proposeName(Map<String, Object> f, Set<String> selfOps,
                              Set<Integer> comparadoCon, Set<Integer> decideSobre,
-                             Set<String> impacta, boolean isSelector) {
+                             Set<String> impacta, boolean isSelector,
+                             Character comparedCoordAxis, Character writesCoordAxis) {
     List<String> sem = f.containsKey("semantica") ? (List<String>) f.get("semantica") : List.of();
     for (String s : sem) {
       if (s.equals("coordenada X"))
@@ -447,15 +594,28 @@ public class StructFinder {
       if (s.equals("coordenada Y"))
         return "posicion_y";
     }
+    long escrituras = (long) f.get("escrituras");
     boolean mueve = selfOps.contains("incrementa") || selfOps.contains("decrementa")
         || selfOps.contains("suma") || selfOps.contains("resta/niega");
     boolean invierte = selfOps.contains("invierte bits (xor)") || selfOps.contains("resta/niega");
+    // a field that feeds a coordinate's new value is its step/velocity along that axis
+    if (writesCoordAxis != null && (comparedCoordAxis == null || comparedCoordAxis == writesCoordAxis))
+      return "incremento_" + Character.toLowerCase(writesCoordAxis)
+          + " (paso que se suma a la posicion " + writesCoordAxis + ")";
+    // a field compared against a coordinate but never written is a static edge/bound: the
+    // guardian reverses when its coordinate reaches it
+    if (comparedCoordAxis != null && escrituras == 0)
+      return "limite_" + Character.toLowerCase(comparedCoordAxis)
+          + " (borde en " + comparedCoordAxis + "; al alcanzarlo invierte el movimiento)";
     if (impacta.contains("eleccion del grafico") && mueve)
       return "frame_animacion (cambia y elige el grafico)";
     if (invierte && isSelector)
       return "tipo_y_direccion (bits de tipo + sentido que se invierte al rebotar)";
     if (invierte && decideSobre != null && !decideSobre.isEmpty())
       return "direccion_sentido (se invierte y decide el movimiento)";
+    if (comparedCoordAxis != null)
+      return "limite_" + Character.toLowerCase(comparedCoordAxis)
+          + " (borde en " + comparedCoordAxis + ")";
     if (isSelector)
       return "tipo_flags (sus bits seleccionan la variante)";
     if (comparadoCon != null && !comparadoCon.isEmpty() && !mueve)
@@ -609,6 +769,24 @@ public class StructFinder {
         queue.add(e.dst());
     }
     return out;
+  }
+
+  @SuppressWarnings("unchecked")
+  private void printCanonical(Map<String, Object> rec) {
+    List<Integer> rango = (List<Integer>) rec.get("rango");
+    System.out.printf("%n########## REGISTRO CANONICO base=%d, %d bytes [%d..%d] ##########%n",
+        (int) rec.get("base"), (int) rec.get("registro_bytes"), rango.get(0), rango.get(1));
+    System.out.println("  (union de: " + String.join(", ", (List<String>) rec.get("rutinas")) + ")");
+    for (Object fo : (List<Object>) rec.get("campos")) {
+      Map<String, Object> f = (Map<String, Object>) fo;
+      List<Integer> val = (List<Integer>) f.get("valores");
+      System.out.printf("  +%d: R x%d, W x%d, val[%d..%d]  %s%n",
+          (int) f.get("offset"), (long) f.get("lecturas"), (long) f.get("escrituras"),
+          val.get(0), val.get(1), f.getOrDefault("nombre_propuesto", "(sin nombre)"));
+      if (f.containsKey("aportado_por"))
+        for (String a : (List<String>) f.get("aportado_por"))
+          System.out.println("        " + a);
+    }
   }
 
   // ---------- text rendering of the data model ----------
