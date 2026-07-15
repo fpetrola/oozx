@@ -744,12 +744,9 @@ public class StructFinder {
 
       // forward walk from the field's reads: self-updates, writes to other fields, impacts
       Set<String> selfOps = new TreeSet<>(), escribeA = new TreeSet<>(), impacta = new TreeSet<>();
-      for (FieldAccess fa : fas) {
-        if (fa.op() != 'R')
-          continue;
-        walkForward(fa.site(), 0, new HashSet<>(), off, writeSiteOffset, new ArrayList<>(),
-            selfOps, escribeA, impacta);
-      }
+      Flow.forward(db).from(readSites(fas)).depth(5).fanOut(6).skipSelfLoops()
+          .dfs(this::opsToken, (e, path) ->
+              classifyImpact(e, path, off, writeSiteOffset, selfOps, escribeA, impacta));
       Map<String, Object> rel = new LinkedHashMap<>();
       if (!selfOps.isEmpty())
         rel.put("updated_with", new ArrayList<>(selfOps));
@@ -784,50 +781,44 @@ public class StructFinder {
     }
   }
 
-  /** bounded forward DFS collecting ops on the path and classifying the endpoints. */
-  private void walkForward(int pc, int depth, Set<Integer> seen, int selfOff,
-                           Map<Integer, Integer> writeSiteOffset, List<String> opsPath,
-                           Set<String> selfOps, Set<String> escribeA, Set<String> impacta) {
-    if (depth > 4)
-      return;
-    int shown = 0;
-    for (AnalysisDB.Edge e : db.edgesOut.getOrDefault(pc, List.of())) {
-      if (shown++ >= 6 || e.src() == e.dst() || !seen.add(e.dst()))
-        continue;
-      int dst = e.dst();
-      String ops = opsOf(dst);
-      List<String> path = ops.isEmpty() ? opsPath : concat(opsPath, ops);
-
-      Integer wOff = writeSiteOffset.get(dst);
-      if (wOff != null) {
-        if (wOff == selfOff && !path.isEmpty())
-          selfOps.addAll(path);
-        else if (wOff != selfOff)
-          escribeA.add("+" + wOff);
-      }
-      AnalysisDB.Stat w = db.writes.get(dst);
-      if (w != null)
-        for (CoordinateFinder.Region r : screenRegions)
-          if (Ranges.intersects(w.addrMin(), w.addrMax(), r.lo(), r.hi())) {
-            int sLo = w.addrMin() + r.delta();
-            boolean attr = sLo >= 22528 && sLo <= 23295;
-            String role = e.role() == null ? "" : e.role();
-            impacta.add(attr ? "color (attributes)"
-                : role.contains("ADDR") ? "screen position" : "screen pixels");
-            break;
-          }
-      AnalysisDB.Stat rd = db.reads.get(dst);
-      if (rd != null && e.role() != null && e.role().contains("ADDR")
-          && gfxRegions.stream().anyMatch(g -> Ranges.intersects(rd.addrMin(), rd.addrMax(), g[0], g[1])))
-        impacta.add("graphic choice");
-      walkForward(dst, depth + 1, seen, selfOff, writeSiteOffset, path, selfOps, escribeA, impacta);
-    }
+  /** an operation keyword to lay on the path when the walk steps onto this site (null = none). */
+  private String opsToken(int pc) {
+    String o = opsOf(pc);
+    return o.isEmpty() ? null : o;
   }
 
-  private static List<String> concat(List<String> a, String b) {
-    List<String> out = new ArrayList<>(a);
-    out.add(b);
-    return out;
+  /**
+   * Classify one edge of the field's forward walk: a write back to the SAME field dumps the
+   * operations gathered on the path (a counter/position update); a write to another field is
+   * a derived field; a write into a screen region is pixels/color/position by role; an ADDR
+   * read of the graphics zone is a graphic choice.
+   */
+  private void classifyImpact(Flow.FlowEdge e, List<String> path, int selfOff,
+                              Map<Integer, Integer> writeSiteOffset, Set<String> selfOps,
+                              Set<String> escribeA, Set<String> impacta) {
+    int dst = e.dst();
+    Integer wOff = writeSiteOffset.get(dst);
+    if (wOff != null) {
+      if (wOff == selfOff && !path.isEmpty())
+        selfOps.addAll(path);
+      else if (wOff != selfOff)
+        escribeA.add("+" + wOff);
+    }
+    AnalysisDB.Stat w = db.writes.get(dst);
+    if (w != null)
+      for (CoordinateFinder.Region r : screenRegions)
+        if (Ranges.intersects(w.addrMin(), w.addrMax(), r.lo(), r.hi())) {
+          int sLo = w.addrMin() + r.delta();
+          boolean attr = sLo >= 22528 && sLo <= 23295;
+          String role = e.role() == null ? "" : e.role();
+          impacta.add(attr ? "color (attributes)"
+              : role.contains("ADDR") ? "screen position" : "screen pixels");
+          break;
+        }
+    AnalysisDB.Stat rd = db.reads.get(dst);
+    if (rd != null && e.roleIs("ADDR")
+        && gfxRegions.stream().anyMatch(g -> Ranges.intersects(rd.addrMin(), rd.addrMax(), g[0], g[1])))
+      impacta.add("graphic choice");
   }
 
   /** operation keywords readable from a site's equation. */

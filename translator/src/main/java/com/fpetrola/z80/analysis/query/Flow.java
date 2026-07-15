@@ -21,6 +21,7 @@ package com.fpetrola.z80.analysis.query;
 import com.fpetrola.z80.analysis.AnalysisDB;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.IntPredicate;
 
 /**
@@ -39,6 +40,8 @@ public final class Flow {
   private final List<Integer> roots = new ArrayList<>();
   private String firstHopRole;
   private int depth = 4;
+  private int fanOut = 0; // 0 = unbounded
+  private boolean skipSelfLoops = false;
   private IntPredicate prune = pc -> false;
 
   private Flow(AnalysisDB db, boolean backward) {
@@ -72,6 +75,19 @@ public final class Flow {
 
   public Flow depth(int d) {
     this.depth = d;
+    return this;
+  }
+
+  /** follow at most the first {@code n} out-edges examined per node (a fan-out cap that keeps
+   * a hot node from exploding the walk). Every examined edge counts toward the cap. */
+  public Flow fanOut(int n) {
+    this.fanOut = n;
+    return this;
+  }
+
+  /** never step across a self-edge (src == dst). */
+  public Flow skipSelfLoops() {
+    this.skipSelfLoops = true;
     return this;
   }
 
@@ -147,6 +163,56 @@ public final class Flow {
       }
       frontier = new ArrayList<>(next);
     }
+    return out;
+  }
+
+  /** called once per traversed edge with the tokens gathered from the root down to it. */
+  @FunctionalInterface
+  public interface PathVisitor<T> {
+    void visit(FlowEdge edge, List<T> path);
+  }
+
+  /**
+   * Depth-first provenance walk that threads a per-PATH accumulator — the shape of
+   * "classify the endpoint while remembering the operations seen on the way" walks that a
+   * flat {@link #edges()} cannot express. {@code token} maps each destination to an optional
+   * token (null = none) and the visitor receives every traversed edge with the token list
+   * accumulated root→edge. A fresh visited-set per root (a node is walked once per root, by
+   * its first-discovery path); {@code depth}, {@link #fanOut} and {@link #skipSelfLoops}
+   * apply. Unlike {@link #sites()}/{@link #edges()} the 0 sink is NOT special-cased, so the
+   * cap and dedup match a hand-rolled DFS exactly.
+   */
+  public <T> void dfs(Function<Integer, T> token, PathVisitor<T> visitor) {
+    for (int root : roots)
+      dfsFrom(root, 0, new ArrayList<>(), new HashSet<>(), token, visitor);
+  }
+
+  private <T> void dfsFrom(int pc, int d, List<T> path, Set<Integer> seen,
+                           Function<Integer, T> token, PathVisitor<T> visitor) {
+    if (d >= depth)
+      return;
+    int examined = 0;
+    for (AnalysisDB.Edge e : edgesOf(pc)) {
+      if (fanOut > 0 && examined++ >= fanOut)
+        break;
+      if (skipSelfLoops && e.src() == e.dst())
+        continue;
+      int to = backward ? e.src() : e.dst();
+      if (!seen.add(to))
+        continue;
+      if (d == 0 && firstHopRole != null
+          && (e.role() == null || !e.role().contains(firstHopRole)))
+        continue;
+      T tok = token == null ? null : token.apply(to);
+      List<T> childPath = tok == null ? path : append(path, tok);
+      visitor.visit(new FlowEdge(e.src(), e.dst(), e.ch(), e.role(), e.count(), d + 1), childPath);
+      dfsFrom(to, d + 1, childPath, seen, token, visitor);
+    }
+  }
+
+  private static <T> List<T> append(List<T> a, T b) {
+    List<T> out = new ArrayList<>(a);
+    out.add(b);
     return out;
   }
 
