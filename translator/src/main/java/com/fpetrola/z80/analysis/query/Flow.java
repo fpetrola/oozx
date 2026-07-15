@@ -216,6 +216,38 @@ public final class Flow {
     return out;
   }
 
+  /**
+   * The first value {@code fn} returns non-null for, in depth-first pre-order over reached
+   * nodes (a fresh visited-set, root excluded; {@code depth} levels). The early-exit form of
+   * the walk — "trace back until you hit a site you recognise" — without collecting the rest.
+   */
+  public <T> T firstMatch(Function<Integer, T> fn) {
+    Set<Integer> seen = new HashSet<>();
+    for (int root : roots) {
+      T hit = firstMatchFrom(root, 0, seen, fn);
+      if (hit != null)
+        return hit;
+    }
+    return null;
+  }
+
+  private <T> T firstMatchFrom(int pc, int d, Set<Integer> seen, Function<Integer, T> fn) {
+    if (d >= depth)
+      return null;
+    for (AnalysisDB.Edge e : edgesOf(pc)) {
+      int to = backward ? e.src() : e.dst();
+      if (to == 0 || !seen.add(to))
+        continue;
+      T hit = fn.apply(to);
+      if (hit != null)
+        return hit;
+      T deeper = firstMatchFrom(to, d + 1, seen, fn);
+      if (deeper != null)
+        return deeper;
+    }
+    return null;
+  }
+
   public Sites reads() {
     return Sites.reads(db, sites());
   }

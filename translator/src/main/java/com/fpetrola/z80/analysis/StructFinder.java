@@ -25,6 +25,7 @@ import com.fpetrola.z80.analysis.query.Flow;
 import com.fpetrola.z80.analysis.query.Ranges;
 
 import java.util.*;
+import java.util.function.IntPredicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -402,7 +403,7 @@ public class StructFinder {
       int c = cc.getAsInt();
       if (c != 0 && c != 255 && c != vMax) // a sentinel sits at the value extreme
         continue;
-      if (tracesToFieldRead(pc, reg, minOff, 3, new HashSet<>())) {
+      if (tracesToFieldRead(pc, reg, minOff)) {
         Map<String, Object> t = new LinkedHashMap<>();
         t.put("value", c);
         t.put("site", pc);
@@ -413,17 +414,14 @@ public class StructFinder {
     return null;
   }
 
-  /** does site {@code pc} consume, within a few hops, a read of {@code mem[reg + off]}? */
-  private boolean tracesToFieldRead(int pc, String reg, int off, int depth, Set<Integer> seen) {
-    if (depth < 0)
-      return false;
-    String eq = db.equation.get(pc);
-    if (eq != null && eq.contains("mem[" + reg + " + " + off + "]"))
-      return true;
-    for (AnalysisDB.Edge e : db.edgesIn.getOrDefault(pc, List.of()))
-      if (e.src() != 0 && seen.add(e.src()) && tracesToFieldRead(e.src(), reg, off, depth - 1, seen))
-        return true;
-    return false;
+  /** does site {@code pc} — or a site within a few hops back of it — read {@code mem[reg + off]}? */
+  private boolean tracesToFieldRead(int pc, String reg, int off) {
+    String field = "mem[" + reg + " + " + off + "]";
+    IntPredicate readsField = p -> {
+      String eq = db.equation.get(p);
+      return eq != null && eq.contains(field);
+    };
+    return readsField.test(pc) || Flow.back(db).from(pc).depth(3).reaches(readsField);
   }
 
   /**
@@ -433,13 +431,10 @@ public class StructFinder {
    */
   List<String> fieldBits(List<FieldAccess> fas) {
     Set<Integer> masks = new TreeSet<>();
-    for (FieldAccess fa : fas) {
-      if (fa.op() != 'R')
-        continue;
-      collectMasks(db.equation.get(fa.site()), masks);
-      for (AnalysisDB.Edge e : db.edgesOut.getOrDefault(fa.site(), List.of()))
-        collectMasks(db.equation.get(e.dst()), masks);
-    }
+    for (int site : readSites(fas))
+      collectMasks(db.equation.get(site), masks);
+    for (Flow.FlowEdge e : Flow.forward(db).from(readSites(fas)).depth(1).edges())
+      collectMasks(db.equation.get(e.dst()), masks);
     masks.remove(255); // the whole byte is not a sub-field
     List<String> out = new ArrayList<>();
     for (int mk : masks)
@@ -684,17 +679,13 @@ public class StructFinder {
       if (eq == null || !eq.contains("cp("))
         continue;
       Set<Integer> offs = new TreeSet<>();
-      // one cp operand may be the field the site itself reads (cp(A, mem[IX+k])),
-      // the other traces back through the incoming edges — capture both sides
+      // one cp operand may be the field the site itself reads (cp(A, mem[IX+k])), the other
+      // traces back through the incoming edges (two hops) — capture both sides
       if (readSiteOffset.containsKey(pc))
         offs.add(readSiteOffset.get(pc));
-      for (AnalysisDB.Edge e : db.edgesIn.getOrDefault(pc, List.of())) {
+      for (Flow.FlowEdge e : Flow.back(db).from(pc).depth(2).edges())
         if (readSiteOffset.containsKey(e.src()))
           offs.add(readSiteOffset.get(e.src()));
-        for (AnalysisDB.Edge e2 : db.edgesIn.getOrDefault(e.src(), List.of()))
-          if (readSiteOffset.containsKey(e2.src()))
-            offs.add(readSiteOffset.get(e2.src()));
-      }
       if (offs.size() >= 2)
         for (int a : offs)
           for (int b : offs)
@@ -936,7 +927,7 @@ public class StructFinder {
       List<AnalysisDB.Edge> succs = db.cfgOut.getOrDefault(branchPc, List.of());
       if (succs.size() != 2)
         continue;
-      Integer srcOffset = condSourceOffset(branchPc, siteToOffset, 3, new HashSet<>());
+      Integer srcOffset = Flow.back(db).from(branchPc).depth(4).firstMatch(siteToOffset::get);
       if (srcOffset == null)
         continue;
       Set<Integer> armA = Closure.cfg(db, succs.get(0).dst(), methodSites, Set.of(), 300);
@@ -964,43 +955,23 @@ public class StructFinder {
     return out;
   }
 
-  private Integer condSourceOffset(int pc, Map<Integer, Integer> siteToOffset, int depth, Set<Integer> seen) {
-    if (depth < 0)
-      return null;
-    for (AnalysisDB.Edge e : db.edgesIn.getOrDefault(pc, List.of())) {
-      if (e.src() == 0 || !seen.add(e.src()))
-        continue;
-      if (siteToOffset.containsKey(e.src()))
-        return siteToOffset.get(e.src());
-      Integer r = condSourceOffset(e.src(), siteToOffset, depth - 1, seen);
-      if (r != null)
-        return r;
-    }
-    return null;
-  }
-
   /** "field +0 & 7 == 3" cuando la máscara y la comparación se pueden leer de las ecuaciones. */
   private String describeCondition(int branchPc, int offset) {
     String mask = "", cmp = "";
-    Set<Integer> seen = new HashSet<>();
-    ArrayDeque<Integer> queue = new ArrayDeque<>(List.of(branchPc));
-    for (int d = 0; d < 3 && !queue.isEmpty(); d++) {
-      int n = queue.size();
-      for (int i = 0; i < n; i++) {
-        int pc = queue.poll();
-        String eq = db.equation.get(pc);
-        if (eq != null) {
-          Matcher mm = MASK.matcher(eq);
-          if (mm.find())
-            mask = " & " + mm.group(1);
-          Matcher cm = CMP.matcher(eq);
-          if (cm.find())
-            cmp = " == " + cm.group(1);
-        }
-        for (AnalysisDB.Edge e : db.edgesIn.getOrDefault(pc, List.of()))
-          if (e.src() != 0 && seen.add(e.src()))
-            queue.add(e.src());
-      }
+    // the branch site plus two hops back, in BFS order — last mask/comparison found wins
+    List<Integer> chain = new ArrayList<>();
+    chain.add(branchPc);
+    chain.addAll(Flow.back(db).from(branchPc).depth(2).sites());
+    for (int pc : chain) {
+      String eq = db.equation.get(pc);
+      if (eq == null)
+        continue;
+      Matcher mm = MASK.matcher(eq);
+      if (mm.find())
+        mask = " & " + mm.group(1);
+      Matcher cm = CMP.matcher(eq);
+      if (cm.find())
+        cmp = " == " + cm.group(1);
     }
     return "field +" + offset + mask + cmp;
   }
