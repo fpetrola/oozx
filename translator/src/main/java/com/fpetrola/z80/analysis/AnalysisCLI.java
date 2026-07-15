@@ -34,6 +34,8 @@ package com.fpetrola.z80.analysis;
  *   AnalysisCLI map [rzxPath]                               mapa completo: buffers, rutinas, graficos,
  *                                                           tablas, estructura de entidades, variables
  *   AnalysisCLI export [salida.json]                        modelo del juego consolidado en JSON
+ *   AnalysisCLI segments                                    particion de la memoria por conjunto-de-acceso:
+ *                                                           segmentos privados (encapsulables) + fugas
  *   AnalysisCLI structs [metodo]                            estructuras de datos por rutina: campos,
  *                                                           geometria del arreglo, semantica y variantes
  *   AnalysisCLI rebuilds                                    variables selectoras (pantalla/nivel actual) y
@@ -93,6 +95,7 @@ public class AnalysisCLI {
         int fanout = args.length > 4 ? Integer.parseInt(args[4]) : 3;
         new Explainer(db, dbPath).explain(lo, hi, depth, fanout);
       }
+      case "segments" -> new SegmentFinder(db).report();
       case "structs" -> new StructFinder(db, dbPath).report(args.length > 1 ? args[1] : null);
       case "rebuilds" -> new RebuildFinder(db, dbPath).report();
       case "records" -> new RecordFinder(db, dbPath).report();
