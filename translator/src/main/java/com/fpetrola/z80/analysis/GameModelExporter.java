@@ -75,7 +75,9 @@ public class GameModelExporter {
    */
   public void export(String outPath) throws Exception {
     Map<String, Object> evEnt = entidades();
-    List<Map<String, Object>> structs = new StructFinder(db, dbPath).analyze(null);
+    StructFinder structFinder = new StructFinder(db, dbPath);
+    List<Map<String, Object>> structs = structFinder.analyze(null);
+    List<Map<String, Object>> canonicos = structFinder.canonical(structs);
 
     List<Object> hallazgos = new ArrayList<>();
     Map<String, Object> evidencia = new LinkedHashMap<>();
@@ -84,7 +86,7 @@ public class GameModelExporter {
     Map<String, Object> mapa = hallazgo(hallazgos, evidencia, "mapa-memoria",
         "Mapa de memoria: que hay en cada rango", null);
     mapa.put("zonas", zonas(evEnt));
-    hallazgoEntidades(hallazgos, evidencia, evEnt, structs);
+    hallazgoEntidades(hallazgos, evidencia, evEnt, structs, canonicos);
     hallazgoProtagonista(hallazgos, evidencia, evEnt);
     hallazgoSprites(hallazgos, evidencia);
     hallazgoFuente(hallazgos, evidencia);
@@ -150,7 +152,8 @@ public class GameModelExporter {
   // ---------- hallazgo: tabla de entidades ----------
   @SuppressWarnings("unchecked")
   private void hallazgoEntidades(List<Object> hallazgos, Map<String, Object> evidencia,
-                                 Map<String, Object> evEnt, List<Map<String, Object>> structs) {
+                                 Map<String, Object> evEnt, List<Map<String, Object>> structs,
+                                 List<Map<String, Object>> canonicos) {
     Object tablaObj = evEnt.get("tabla");
     if (!(tablaObj instanceof Map<?, ?> tabla))
       return;
@@ -227,15 +230,76 @@ public class GameModelExporter {
     }
     Map<String, String> camposFinales = new LinkedHashMap<>();
     notas.forEach((off, ns) -> camposFinales.put("+" + off, String.join("; ", new LinkedHashSet<>(ns))));
-    h.put("campos", camposFinales);
-    if (!variantes.isEmpty())
-      h.put("variantes_de_comportamiento", variantes.stream().distinct().limit(5).toList());
+
+    // the canonical record with the discriminated types (the final, skoolkit-like view)
+    Map<String, Object> canon = canonicos.stream()
+        .filter(r -> ((Number) r.get("base")).intValue() == base
+            && ((Number) r.get("registro_bytes")).intValue() == stride)
+        .findFirst().orElse(null);
+    if (canon != null && canon.containsKey("tipos")) {
+      Map<String, Object> disc = (Map<String, Object>) canon.get("discriminante");
+      List<Object> tipos = (List<Object>) canon.get("tipos");
+      int slotsObs = canon.containsKey("slots_con_datos_observados")
+          ? ((Number) canon.get("slots_con_datos_observados")).intValue() : slots;
+      h.put("titulo", String.format(
+          "Tabla de entidades en [%d..%d]: %d slots de %d bytes, %d tipos de entidad",
+          base, base + stride * Math.max(slots, slotsObs) - 1, Math.max(slots, slotsObs),
+          stride, tipos.size()));
+      if (canon.containsKey("slots_con_datos_observados"))
+        h.put("slots_con_datos_observados", canon.get("slots_con_datos_observados"));
+      if (canon.containsKey("terminador"))
+        h.put("terminador", "el valor "
+            + ((Map<String, Object>) canon.get("terminador")).get("valor") + " marca el fin de la tabla");
+      h.put("tipo_de_entidad", "campo " + disc.get("campo") + " & " + disc.get("mascara")
+          + " (" + disc.get("bits") + "); valores observados: "
+          + ((List<Integer>) disc.get("valores_observados")).stream()
+              .map(String::valueOf).reduce((a, b) -> a + ", " + b).orElse(""));
+      h.put("tipos", tipos.stream().map(to -> fichaTipo((Map<String, Object>) to)).toList());
+      h.put("campos_comunes", camposFinales);
+    } else {
+      h.put("campos", camposFinales);
+      if (!variantes.isEmpty())
+        h.put("variantes_de_comportamiento", variantes.stream().distinct().limit(5).toList());
+    }
     h.put("cargada_desde", tabla.get("cargada_por"));
     h.put("actualizada_por", tabla.get("actualizada_por"));
     h.put("evidencia", "tabla-entidades");
-    evidencia.put("tabla-entidades", Map.of("deteccion", evEnt,
-        "estructuras", structs.stream()
-            .filter(st -> ((Number) st.get("base")).intValue() == base).toList()));
+    Map<String, Object> ev = new LinkedHashMap<>();
+    ev.put("deteccion", evEnt);
+    ev.put("estructuras", structs.stream()
+        .filter(st -> ((Number) st.get("base")).intValue() == base).toList());
+    if (canon != null)
+      ev.put("registro_canonico", canon);
+    evidencia.put("tabla-entidades", ev);
+  }
+
+  /** one entity type rendered for the final layer: fields as readable one-liners. */
+  @SuppressWarnings("unchecked")
+  private static Map<String, Object> fichaTipo(Map<String, Object> tipo) {
+    Map<String, Object> tf = new LinkedHashMap<>();
+    tf.put("valor", tipo.get("valor"));
+    tf.put("nombre", tipo.get("nombre_propuesto"));
+    if (tipo.containsKey("ocupa_registros"))
+      tf.put("ocupa_registros", tipo.get("ocupa_registros"));
+    if (tipo.containsKey("frames_observados"))
+      tf.put("frames_observados", tipo.get("frames_observados"));
+    tf.put("seleccionado_en", tipo.get("seleccionado_en"));
+    Map<String, String> campos = new LinkedHashMap<>();
+    for (Object fo : (List<Object>) tipo.get("campos")) {
+      Map<String, Object> f = (Map<String, Object>) fo;
+      List<Integer> val = (List<Integer>) f.get("valores");
+      StringBuilder sb = new StringBuilder();
+      sb.append(f.getOrDefault("nombre_propuesto", "(sin nombre)"));
+      sb.append("; val [").append(val.get(0)).append("..").append(val.get(1)).append("]");
+      if (f.containsKey("descomposicion_bits"))
+        sb.append("; sub-campos: ").append(String.join(", ", (List<String>) f.get("descomposicion_bits")));
+      if (f.containsKey("campo_del_registro_siguiente"))
+        sb.append("; es el +").append(f.get("campo_del_registro_siguiente"))
+            .append(" del registro SIGUIENTE (registro extendido)");
+      campos.put("+" + f.get("offset"), sb.toString());
+    }
+    tf.put("campos", campos);
+    return tf;
   }
 
   @SuppressWarnings("unchecked")

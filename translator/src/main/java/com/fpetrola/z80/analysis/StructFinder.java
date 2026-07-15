@@ -49,12 +49,16 @@ public class StructFinder {
   private static final Pattern MASK = Pattern.compile("[A-Z] = [A-Z] & (\\d+)");
 
   private final AnalysisDB db;
+  private final String dbPath;
   private final Map<Integer, Character> coordAxis = new HashMap<>();
   private final List<int[]> gfxRegions;
   private final List<CoordinateFinder.Region> screenRegions;
+  /** raw sites/accesses behind each struct map, for the type splitter (not serialized). */
+  private final Map<Map<String, Object>, Raw> raws = new IdentityHashMap<>();
 
   public StructFinder(AnalysisDB db, String dbPath) {
     this.db = db;
+    this.dbPath = dbPath;
     Explainer explainer = new Explainer(db, dbPath);
     // coordinates only from the STRONG validated pairs: single-axis matches carry noise
     try (java.sql.Connection c = java.sql.DriverManager.getConnection("jdbc:sqlite:" + dbPath);
@@ -267,6 +271,16 @@ public class StructFinder {
         rec.putIfAbsent("se_llena_desde", st.get("se_llena_desde"));
     }
     rec.put("campos", campos);
+
+    // discriminated union: when the routines test one field against several constants,
+    // split the record into its REAL types and re-analyse the fields inside each one
+    Integer termValor = rec.containsKey("terminador")
+        ? ((Number) ((Map<String, Object>) rec.get("terminador")).get("valor")).intValue() : null;
+    List<Raw> groupRaws = g.stream().map(raws::get).filter(Objects::nonNull).toList();
+    Map<String, Object> tipos = new TypeSplitter(this, db, dbPath)
+        .discriminate(base, stride, tableEnd, termValor, groupRaws);
+    if (tipos != null)
+      rec.putAll(tipos);
     return rec;
   }
 
@@ -286,7 +300,11 @@ public class StructFinder {
     return 1; // tipo_flags, controla_condiciones — generic fallbacks
   }
 
-  private record FieldAccess(int site, char op, int offset) {
+  record FieldAccess(int site, char op, int offset) {
+  }
+
+  /** the evidence behind one struct view: the routine's sites and its field accesses. */
+  record Raw(String method, List<Integer> sites, List<FieldAccess> accesses) {
   }
 
   private List<Map<String, Object>> structsOfMethod(String method, List<Integer> sites) {
@@ -413,7 +431,7 @@ public class StructFinder {
    * reads (in the read site itself or one hop later), rendered as the bit range each isolates.
    * A byte carrying several sub-fields (type + direction + frame) shows up as several masks.
    */
-  private List<String> fieldBits(List<FieldAccess> fas) {
+  List<String> fieldBits(List<FieldAccess> fas) {
     Set<Integer> masks = new TreeSet<>();
     for (FieldAccess fa : fas) {
       if (fa.op() != 'R')
@@ -437,7 +455,7 @@ public class StructFinder {
       masks.add(Integer.parseInt(m.group(1)));
   }
 
-  private String maskBits(int mask) {
+  String maskBits(int mask) {
     if (mask <= 0)
       return "ninguno";
     int lo = Integer.numberOfTrailingZeros(mask);
@@ -449,7 +467,7 @@ public class StructFinder {
   }
 
   /** graphics zone a field indexes into: an ADDR out-edge landing in a discovered gfx region. */
-  private List<Integer> fieldGfxTarget(List<FieldAccess> fas) {
+  List<Integer> fieldGfxTarget(List<FieldAccess> fas) {
     for (FieldAccess fa : fas) {
       if (fa.op() != 'R')
         continue;
@@ -626,6 +644,7 @@ public class StructFinder {
     List<Object> vars = variants(sites, byOffset);
     st.put("variantes", vars);
     enrichRelations(campos, vars, byOffset, sites);
+    raws.put(st, new Raw(method, sites, accesses));
     return st;
   }
 
@@ -647,7 +666,7 @@ public class StructFinder {
    * </ul>
    */
   @SuppressWarnings("unchecked")
-  private void enrichRelations(List<Object> campos, List<Object> variantes,
+  void enrichRelations(List<Object> campos, List<Object> variantes,
                                Map<Integer, List<FieldAccess>> byOffset, List<Integer> sites) {
     Map<Integer, Integer> writeSiteOffset = new HashMap<>(), readSiteOffset = new HashMap<>();
     byOffset.forEach((off, fas) -> fas.forEach(fa -> {
@@ -754,7 +773,7 @@ public class StructFinder {
       }
       if (comparado.containsKey(off))
         for (int cmp : comparado.get(off))
-          if (coordOffAxis.containsKey(cmp) && !escribeA.contains("+" + cmp))
+          if (coordOffAxis.containsKey(cmp))
             comparedCoordAxis = coordOffAxis.get(cmp);
 
       String nombre = proposeName(f, selfOps, comparado.get(off), decide.get(off), impacta,
@@ -844,15 +863,15 @@ public class StructFinder {
     boolean mueve = selfOps.contains("incrementa") || selfOps.contains("decrementa")
         || selfOps.contains("suma") || selfOps.contains("resta/niega");
     boolean invierte = selfOps.contains("invierte bits (xor)") || selfOps.contains("resta/niega");
-    // a field that feeds a coordinate's new value is its step/velocity along that axis
-    if (writesCoordAxis != null && (comparedCoordAxis == null || comparedCoordAxis == writesCoordAxis))
-      return "incremento_" + Character.toLowerCase(writesCoordAxis)
-          + " (paso que se suma a la posicion " + writesCoordAxis + ")";
-    // a field compared against a coordinate but never written is a static edge/bound: the
-    // guardian reverses when its coordinate reaches it
+    // a field compared against a coordinate and never written itself is a static
+    // edge/bound — even when its value gets copied into the coordinate (the clamp on
+    // the bounce); a field that is REWRITTEN and feeds the coordinate is the step
     if (comparedCoordAxis != null && escrituras == 0)
       return "limite_" + Character.toLowerCase(comparedCoordAxis)
           + " (borde en " + comparedCoordAxis + "; al alcanzarlo invierte el movimiento)";
+    if (writesCoordAxis != null && (comparedCoordAxis == null || comparedCoordAxis == writesCoordAxis))
+      return "incremento_" + Character.toLowerCase(writesCoordAxis)
+          + " (paso que se suma a la posicion " + writesCoordAxis + ")";
     if (impacta.contains("eleccion del grafico") && mueve)
       return "frame_animacion (cambia y elige el grafico)";
     if (invierte && isSelector)
@@ -879,7 +898,7 @@ public class StructFinder {
   }
 
   /** what the field feeds, from its outgoing edges and the track annotations. */
-  private List<String> semantics(int base, int off, int stride, int tableEnd, List<FieldAccess> fas) {
+  List<String> semantics(int base, int off, int stride, int tableEnd, List<FieldAccess> fas) {
     List<String> tags = new ArrayList<>();
     for (Map.Entry<Integer, Character> ce : coordAxis.entrySet())
       if (ce.getKey() >= base && ce.getKey() <= tableEnd && (ce.getKey() - base) % stride == off) {
@@ -922,7 +941,7 @@ public class StructFinder {
    * variant layouts: for each branch whose condition traces back to a field read, walk
    * both CFG arms; the fields accessed EXCLUSIVELY inside one arm belong to that variant.
    */
-  private List<Object> variants(List<Integer> sites, Map<Integer, List<FieldAccess>> byOffset) {
+  List<Object> variants(List<Integer> sites, Map<Integer, List<FieldAccess>> byOffset) {
     Set<Integer> methodSites = new HashSet<>(sites);
     Map<Integer, Integer> siteToOffset = new HashMap<>();
     byOffset.forEach((off, fas) -> fas.forEach(fa -> siteToOffset.put(fa.site(), off)));
@@ -1053,6 +1072,42 @@ public class StructFinder {
       if (f.containsKey("aportado_por"))
         for (String a : (List<String>) f.get("aportado_por"))
           System.out.println("        " + a);
+    }
+    printTipos(rec);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void printTipos(Map<String, Object> rec) {
+    if (!rec.containsKey("tipos"))
+      return;
+    Map<String, Object> disc = (Map<String, Object>) rec.get("discriminante");
+    System.out.printf("  DISCRIMINANTE: campo %s & %s (%s) — valores observados: %s%s%n",
+        disc.get("campo"), disc.get("mascara"), disc.get("bits"),
+        ((List<Integer>) disc.get("valores_observados")).stream()
+            .map(String::valueOf).reduce((a, b) -> a + " " + b).orElse(""),
+        rec.containsKey("slots_con_datos_observados")
+            ? "  (" + rec.get("slots_con_datos_observados") + " slots con datos)" : "");
+    for (Object to : (List<Object>) rec.get("tipos")) {
+      Map<String, Object> t = (Map<String, Object>) to;
+      System.out.printf("  TIPO %s \"%s\"%s%s%n", t.get("valor"), t.get("nombre_propuesto"),
+          t.containsKey("ocupa_registros") ? "  (ocupa " + t.get("ocupa_registros") + " registros)" : "",
+          t.containsKey("frames_observados") ? "  [frames x" + t.get("frames_observados") + "]" : "");
+      ((Map<String, Object>) t.get("seleccionado_en"))
+          .forEach((rutina, cond) -> System.out.printf("      en %s: %s%n", rutina, cond));
+      if (t.containsKey("bits_que_varian_fuera_de_la_mascara"))
+        System.out.println("      bits que varian fuera de la mascara: "
+            + t.get("bits_que_varian_fuera_de_la_mascara"));
+      for (Object fo : (List<Object>) t.get("campos")) {
+        Map<String, Object> f = (Map<String, Object>) fo;
+        List<Integer> val = (List<Integer>) f.get("valores");
+        System.out.printf("      +%d: R x%d, W x%d, val[%d..%d]  %s%s%n",
+            (int) f.get("offset"), (long) f.get("lecturas"), (long) f.get("escrituras"),
+            val.get(0), val.get(1), f.getOrDefault("nombre_propuesto", "(sin nombre)"),
+            f.containsKey("campo_del_registro_siguiente")
+                ? "  (= +" + f.get("campo_del_registro_siguiente") + " del registro SIGUIENTE)" : "");
+        if (f.containsKey("descomposicion_bits"))
+          System.out.println("          bits: " + String.join(", ", (List<String>) f.get("descomposicion_bits")));
+      }
     }
   }
 

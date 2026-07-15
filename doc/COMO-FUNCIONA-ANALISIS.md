@@ -391,6 +391,47 @@ read-sites cuyo rango observado es UNA sola celda son lookups y se excluyen de l
 identidad. Resultado final partida completa: 239 sprites, 172 de 32 bytes y los ítems
 de 1-2 bytes, ninguno inflado.
 
+## 9quinquies. Analizador de tipos: union discriminada → tipos de entidad (2026-07-15)
+
+**Qué resuelve**: el registro canónico unía la evidencia de TODAS las instancias, y los
+campos de un variant record salían con nombres contradictorios (el +1 es "contador" para
+la soga pero "color" para los guardianes; los límites +6/+7 son en X para el horizontal
+y en Y para el vertical). `TypeSplitter` recupera los tipos reales del union:
+
+1. **Escalera de tests**: branches de IGUALDAD (`cp(A,c)` / `flagZ` tras una máscara;
+   los umbrales `if (F < 0)` se excluyen) cuya condición llega por dataflow a la misma
+   lectura de campo con la misma máscara AND (ignorando `& 255`, que es truncado de
+   byte). Un solo test = flag; dos o más = escalera de tipos.
+2. **Polaridad de las ramas por eliminación**: la rama "distinto" cae al siguiente test
+   de la escalera; el último test se calibra con la polaridad de los resueltos (queda
+   marcado "estimada"). Un branch con UN solo sucesor observado también vale: su tipo
+   nunca corrió en el replay (handler vacío, x0 — se reporta igual).
+3. **Discriminante**: el offset testeado en más rutinas (mover Y drawer), con máscara,
+   con más tests. Máscara consolidada = OR de las máscaras de las escaleras.
+4. **Valores de tipo REALES**: los valores por frame de las celdas discriminantes de
+   todos los slots (`frame_cells`), enmascarados — no se enumeran constantes: un valor
+   que nunca existió no aparece, y los bits que varían FUERA de la máscara se reportan
+   aparte (animación/dirección montados en el mismo byte).
+5. **Vista por tipo**: para cada valor se camina cada escalera hasta su handler
+   (clausura CFG del brazo "igual" menos la del hermano, sin expandir a través de las
+   lecturas del discriminante para no dar la vuelta al loop) y se RE-ANALIZAN los campos
+   restringidos a esos sites: nombres por tipo, sub-bits, variantes internas, y
+   registros EXTENDIDOS (offsets ≥ stride = el tipo ocupa más de un slot).
+
+**Resultado en JSW2 (validado contra el disassembly de skoolkid)**: discriminante
+`+0 & 7` (bits 0-2), valores {0,1,2,3,4}; tipo 1 = móvil horizontal (+6/+7 = límites en
+X); tipo 2 = móvil vertical (+4 = incremento Y, +6/+7 = límites en Y); tipo 3 = soga
+(extendido, ocupa 2 registros, usa +9/+11 del slot siguiente, +4 = 32 = largo, +7 = 54 =
+frame de inversión — ambos exactos al documento); tipo 4 = flecha; 8 slots con datos +
+terminador 255. La ficha final va en `game-model.json` (hallazgo `tabla-entidades`:
+`tipo_de_entidad`, `tipos`, `campos_comunes`) con el registro canónico completo en la
+evidencia.
+
+**Límite conocido**: las etiquetas "coordenada X/Y" por celda vienen de la correlación
+global de `track`, dominada por el tipo mayoritario — en el tipo soga el +3 real es la X
+del segmento, pero conserva la etiqueta Y global. Separar la correlación por tipo es
+refinamiento futuro.
+
 ## 10. Roadmap / ideas pendientes
 
 - **F5 completo — trace exacto por ventana de frames**: log por instancia de TODOS los
