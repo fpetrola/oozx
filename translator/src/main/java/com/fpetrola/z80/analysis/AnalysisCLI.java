@@ -96,6 +96,7 @@ public class AnalysisCLI {
       case "structs" -> new StructFinder(db, dbPath).report(args.length > 1 ? args[1] : null);
       case "rebuilds" -> new RebuildFinder(db, dbPath).report();
       case "records" -> new RecordFinder(db, dbPath).report();
+      case "texts" -> new TextFinder(db, dbPath).report();
       case "sprites" -> new SpriteFinder(db).report();
       case "regions" -> new RegionClassifier(db, args.length > 1 ? Integer.parseInt(args[1]) : 20583).report();
       case "copychains" -> new CopyChainFinder(db).report();
