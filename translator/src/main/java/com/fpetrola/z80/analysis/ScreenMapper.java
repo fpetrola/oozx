@@ -18,10 +18,9 @@
 
 package com.fpetrola.z80.analysis;
 
+import com.fpetrola.z80.analysis.query.MemoryImage;
 import com.fpetrola.z80.analysis.query.Ranges;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -38,36 +37,16 @@ import java.util.*;
  * anti-transform {@code T-1(addr) -> (x,y)} that turns the buffer into {@code rect[y][x]}.
  */
 public class ScreenMapper {
-  private static final String INIT_MEM = "analysis/init-mem.bin";
   private static final int MIN_ROWS = 16;
 
   private final AnalysisDB db;
-  private final byte[] memory;
-  private final boolean[] written = new boolean[0x10000];
+  private final MemoryImage mem;
   private final List<CoordinateFinder.Region> screenRegions;
 
   public ScreenMapper(AnalysisDB db) {
     this.db = db;
     this.screenRegions = new CoordinateFinder(db).find().regions();
-    byte[] mem = null;
-    try {
-      mem = Files.readAllBytes(Path.of(INIT_MEM));
-    } catch (Exception ignored) {
-    }
-    this.memory = mem;
-    for (AnalysisDB.Stat w : db.writes.values())
-      mark(w.addrMin(), w.addrMax());
-    for (AnalysisDB.Bulk b : db.bulks.values())
-      mark(b.dstMin(), b.dstMax() + Math.max(0, b.lenMax() - 1));
-  }
-
-  private void mark(int lo, int hi) {
-    for (int a = Math.max(0, lo); a <= Math.min(0xffff, hi); a++)
-      written[a] = true;
-  }
-
-  private int word(int a) {
-    return (memory[a] & 255) | ((memory[a + 1] & 255) << 8);
+    this.mem = MemoryImage.of(db);
   }
 
   /** a recovered row-address table and the screen rectangle it describes. */
@@ -87,21 +66,21 @@ public class ScreenMapper {
    * — the row-address table. Width is the uniform gap between sorted row bases (bytes/row).
    */
   public RowTable detect() {
-    if (memory == null)
+    if (!mem.present())
       return null;
     RowTable best = null;
     for (CoordinateFinder.Region region : screenRegions) {
       int lo = region.lo(), hi = region.hi();
       int a = 0;
       while (a + 1 <= 0xffff) {
-        if (written[a] || written[a + 1] || !inScreen(word(a), lo, hi)) {
+        if (mem.written(a) || mem.written(a + 1) || !inScreen(mem.word(a), lo, hi)) {
           a += 2;
           continue;
         }
         int start = a;
         List<Integer> vals = new ArrayList<>();
-        while (a + 1 <= 0xffff && !written[a] && !written[a + 1] && inScreen(word(a), lo, hi)) {
-          vals.add(word(a));
+        while (a + 1 <= 0xffff && !mem.written(a) && !mem.written(a + 1) && inScreen(mem.word(a), lo, hi)) {
+          vals.add(mem.word(a));
           a += 2;
         }
         if (vals.size() >= MIN_ROWS && (best == null || vals.size() > best.rows.length)) {
@@ -163,8 +142,8 @@ public class ScreenMapper {
   // ---------- rendering ----------
 
   public void report() {
-    if (memory == null) {
-      System.out.println("no " + INIT_MEM + " (run RZXAnalysisRunner first)");
+    if (!mem.present()) {
+      System.out.println("no " + MemoryImage.INIT_MEM + " (run RZXAnalysisRunner first)");
       return;
     }
     RowTable rt = detect();

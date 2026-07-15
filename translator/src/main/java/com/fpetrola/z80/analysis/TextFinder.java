@@ -19,11 +19,10 @@
 package com.fpetrola.z80.analysis;
 
 import com.fpetrola.z80.analysis.query.Flow;
+import com.fpetrola.z80.analysis.query.MemoryImage;
 import com.fpetrola.z80.analysis.query.Ranges;
 import com.fpetrola.z80.analysis.query.Sites;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -50,35 +49,19 @@ import java.util.regex.Pattern;
  * only alphabet heuristic).
  */
 public class TextFinder {
-  private static final String INIT_MEM = "analysis/init-mem.bin";
   private static final Pattern WORD = Pattern.compile("[A-Za-z]{3}");
 
   private final AnalysisDB db;
   private final String dbPath;
   private final List<CoordinateFinder.Region> screenRegions;
-  private final byte[] memory;
-  private final boolean[] written = new boolean[0x10000];
+  private final MemoryImage mem;
 
   public TextFinder(AnalysisDB db, String dbPath) {
     this.db = db;
     this.dbPath = dbPath;
     this.screenRegions = new CoordinateFinder(db).find().regions();
-    byte[] mem = null;
-    try {
-      mem = Files.readAllBytes(Path.of(INIT_MEM));
-    } catch (Exception ignored) {
-    }
-    this.memory = mem;
-    // addresses the game writes are not cassette data: exclude them from decoding
-    for (AnalysisDB.Stat w : db.writes.values())
-      mark(w.addrMin(), w.addrMax());
-    for (AnalysisDB.Bulk b : db.bulks.values())
-      mark(b.dstMin(), b.dstMax() + Math.max(0, b.lenMax() - 1));
-  }
-
-  private void mark(int lo, int hi) {
-    for (int a = Math.max(0, lo); a <= Math.min(0xffff, hi); a++)
-      written[a] = true;
+    // the cassette image with the game's writes masked out (they are not cassette data)
+    this.mem = MemoryImage.of(db);
   }
 
   @SuppressWarnings("unchecked")
@@ -93,14 +76,14 @@ public class TextFinder {
     // it actually decodes into text.
     List<AnalysisDB.Stat> fonts = Sites.reads(db)
         .sweeping().spanningAtLeast(64)
-        .where(f -> largestUnwrittenRun(f.addrMin(), f.addrMax()) != null)
+        .where(f -> mem.largestUnwrittenRun(f.addrMin(), f.addrMax(), 64) != null)
         .where(f -> Flow.forward(db).from(f.pc()).depth(4)
             .reachesVia("VAL", this::writesToScreen))
         .list();
 
     List<int[]> acceptedRuns = new ArrayList<>();
     for (AnalysisDB.Stat font : fonts) {
-      int[] glyphs = largestUnwrittenRun(font.addrMin(), font.addrMax());
+      int[] glyphs = mem.largestUnwrittenRun(font.addrMin(), font.addrMax(), 64);
       if (glyphs == null || overlapsAccepted(acceptedRuns, glyphs))
         continue;
       acceptedRuns.add(glyphs);
@@ -146,8 +129,8 @@ public class TextFinder {
               strings.add(str);
       }
       result.put("char_sources", srcDesc);
-      if (memory == null)
-        result.put("note", "run RZXAnalysisRunner to produce " + INIT_MEM
+      if (!mem.present())
+        result.put("note", "run RZXAnalysisRunner to produce " + MemoryImage.INIT_MEM
             + "; without it the strings cannot be decoded");
       if (!strings.isEmpty())
         result.put("strings", strings);
@@ -156,7 +139,7 @@ public class TextFinder {
       // a real text font decodes into real text; a sprite sheet also painted via VAL yields
       // at most a few incidental fragments. Keep the candidate only with structured per-record
       // text or a meaningful density of strings (or when we could not decode at all).
-      if (!recordTexts.isEmpty() || strings.size() >= 6 || memory == null)
+      if (!recordTexts.isEmpty() || strings.size() >= 6 || !mem.present())
         out.add(result);
     }
     return out;
@@ -202,7 +185,7 @@ public class TextFinder {
   /** decode the same field of every catalogue record; kept when enough records read as text. */
   private Map<String, Object> decodePerRecord(Map<String, Object> block, int offLo, int offHi,
                                               String printedBy) {
-    if (memory == null)
+    if (!mem.present())
       return null;
     int base = (int) block.get("base"), stride = (int) block.get("stride"),
         count = (int) block.get("count");
@@ -240,13 +223,13 @@ public class TextFinder {
    */
   private List<Map<String, Object>> decodeRuns(int lo, int hi, boolean requireUnwritten) {
     List<Map<String, Object>> out = new ArrayList<>();
-    if (memory == null)
+    if (!mem.present())
       return out;
     StringBuilder run = new StringBuilder();
     int start = -1;
     for (int a = Math.max(0, lo); a <= Math.min(0xffff, hi) + 1; a++) {
-      int b = a <= hi ? memory[a] & 255 : 0;
-      boolean usable = a <= hi && (!requireUnwritten || !written[a]);
+      int b = a <= hi ? mem.byteAt(a) : 0;
+      boolean usable = a <= hi && (!requireUnwritten || !mem.written(a));
       boolean printable = b >= 32 && b <= 126;
       boolean terminator = (b & 128) != 0 && (b & 127) >= 32 && (b & 127) <= 126;
       if (usable && (printable || terminator)) {
@@ -304,32 +287,6 @@ public class TextFinder {
     s.put("address", start);
     s.put("text", text);
     out.add(s);
-  }
-
-  /**
-   * The longest fully never-written sub-run inside [lo..hi], or null when none reaches 64
-   * bytes. A glyph font is static reference data, but the reading instruction's aggregated
-   * range often spans both the ROM/cassette font and the RAM it also touches — so the font
-   * is the never-written island inside that range, not the whole span.
-   */
-  private int[] largestUnwrittenRun(int lo, int hi) {
-    lo = Math.max(0, lo);
-    hi = Math.min(0xffff, hi);
-    int bestLo = -1, bestHi = -1, curLo = -1;
-    for (int a = lo; a <= hi + 1; a++) {
-      boolean blocked = a > hi || written[a];
-      if (!blocked) {
-        if (curLo < 0)
-          curLo = a;
-      } else {
-        if (curLo >= 0 && a - 1 - curLo > bestHi - bestLo) {
-          bestLo = curLo;
-          bestHi = a - 1;
-        }
-        curLo = -1;
-      }
-    }
-    return bestLo >= 0 && bestHi - bestLo + 1 >= 64 ? new int[]{bestLo, bestHi} : null;
   }
 
   private boolean writesToScreen(int pc) {
