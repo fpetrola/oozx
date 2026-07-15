@@ -110,6 +110,46 @@ public final class Flow {
     return out;
   }
 
+  /** a traversed edge with the destination's BFS depth (1-based) and a role probe. */
+  public record FlowEdge(int src, int dst, String ch, String role, long count, int depth) {
+    public boolean roleIs(String tag) {
+      return role != null && role.contains(tag);
+    }
+  }
+
+  /**
+   * Every edge the walk traverses, with its role and depth — the visitor form of the walk,
+   * for the analyzers that classify by edge role at each hop ("this read feeds a COND at
+   * depth 1", "an ADDR edge lands in the graphics zone") instead of only collecting the set
+   * of reached sites. A node is expanded once, but every edge INTO a node is emitted, so no
+   * role is lost to node dedup. {@code firstHop}/{@code depth}/{@code pruneAt} apply as in
+   * {@link #sites()}.
+   */
+  public List<FlowEdge> edges() {
+    List<FlowEdge> out = new ArrayList<>();
+    Set<Integer> expanded = new HashSet<>();
+    List<Integer> frontier = new ArrayList<>(new LinkedHashSet<>(roots));
+    for (int d = 0; d < depth && !frontier.isEmpty(); d++) {
+      LinkedHashSet<Integer> next = new LinkedHashSet<>();
+      for (int node : frontier) {
+        if (!expanded.add(node) || prune.test(node))
+          continue;
+        for (AnalysisDB.Edge e : edgesOf(node)) {
+          int to = backward ? e.src() : e.dst();
+          if (to == 0)
+            continue;
+          if (d == 0 && firstHopRole != null
+              && (e.role() == null || !e.role().contains(firstHopRole)))
+            continue;
+          out.add(new FlowEdge(e.src(), e.dst(), e.ch(), e.role(), e.count(), d + 1));
+          next.add(to);
+        }
+      }
+      frontier = new ArrayList<>(next);
+    }
+    return out;
+  }
+
   public Sites reads() {
     return Sites.reads(db, sites());
   }

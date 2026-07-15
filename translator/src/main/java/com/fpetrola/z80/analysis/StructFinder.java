@@ -21,6 +21,7 @@ package com.fpetrola.z80.analysis;
 import com.fpetrola.z80.analysis.query.Closure;
 import com.fpetrola.z80.analysis.query.Db;
 import com.fpetrola.z80.analysis.query.Eq;
+import com.fpetrola.z80.analysis.query.Flow;
 import com.fpetrola.z80.analysis.query.Ranges;
 
 import java.util.*;
@@ -467,21 +468,22 @@ public class StructFinder {
 
   /** graphics zone a field indexes into: an ADDR out-edge landing in a discovered gfx region. */
   List<Integer> fieldGfxTarget(List<FieldAccess> fas) {
-    for (FieldAccess fa : fas) {
-      if (fa.op() != 'R')
+    for (Flow.FlowEdge e : Flow.forward(db).from(readSites(fas)).depth(1).edges()) {
+      if (!e.roleIs("ADDR"))
         continue;
-      for (AnalysisDB.Edge e : db.edgesOut.getOrDefault(fa.site(), List.of())) {
-        if (e.role() == null || !e.role().contains("ADDR"))
-          continue;
-        AnalysisDB.Stat r = db.reads.get(e.dst());
-        if (r == null)
-          continue;
-        for (int[] g : gfxRegions)
-          if (Ranges.intersects(r.addrMin(), r.addrMax(), g[0], g[1]))
-            return List.of(g[0], g[1]);
-      }
+      AnalysisDB.Stat r = db.reads.get(e.dst());
+      if (r == null)
+        continue;
+      for (int[] g : gfxRegions)
+        if (Ranges.intersects(r.addrMin(), r.addrMax(), g[0], g[1]))
+          return List.of(g[0], g[1]);
     }
     return null;
+  }
+
+  /** the read sites among a field's accesses — the roots of any forward dataflow query. */
+  private List<Integer> readSites(List<FieldAccess> fas) {
+    return fas.stream().filter(fa -> fa.op() == 'R').map(FieldAccess::site).toList();
   }
 
   /**
@@ -904,28 +906,19 @@ public class StructFinder {
         tags.add(ce.getValue() + " coordinate");
         break;
       }
+    // COND anywhere within two hops = drives a branch; an ADDR out-edge (first hop) whose
+    // destination reads the graphics zone = a graphic selector, elsewhere an index/pointer
     boolean cond = false, addrGfx = false, addrOther = false;
-    for (FieldAccess fa : fas) {
-      if (fa.op() != 'R')
-        continue;
-      for (AnalysisDB.Edge e : db.edgesOut.getOrDefault(fa.site(), List.of())) {
-        String role = e.role();
-        if (role == null)
-          continue;
-        if (role.contains("COND"))
-          cond = true;
-        if (role.contains("ADDR")) {
-          AnalysisDB.Stat r = db.reads.get(e.dst());
-          if (r != null && gfxRegions.stream().anyMatch(g -> Ranges.intersects(r.addrMin(), r.addrMax(), g[0], g[1])))
-            addrGfx = true;
-          else
-            addrOther = true;
-        }
+    for (Flow.FlowEdge e : Flow.forward(db).from(readSites(fas)).depth(2).edges()) {
+      if (e.roleIs("COND"))
+        cond = true;
+      if (e.depth() == 1 && e.roleIs("ADDR")) {
+        AnalysisDB.Stat r = db.reads.get(e.dst());
+        if (r != null && gfxRegions.stream().anyMatch(g -> Ranges.intersects(r.addrMin(), r.addrMax(), g[0], g[1])))
+          addrGfx = true;
+        else
+          addrOther = true;
       }
-      for (AnalysisDB.Edge e : db.edgesOut.getOrDefault(fa.site(), List.of()))
-        for (AnalysisDB.Edge e2 : db.edgesOut.getOrDefault(e.dst(), List.of()))
-          if (e2.role() != null && e2.role().contains("COND"))
-            cond = true;
     }
     if (cond)
       tags.add("drives branches (type/flag)");
