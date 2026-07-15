@@ -19,6 +19,7 @@
 package com.fpetrola.z80.analysis;
 
 import com.fpetrola.z80.analysis.query.Ranges;
+import com.fpetrola.z80.analysis.query.Rec;
 
 import java.util.*;
 
@@ -243,20 +244,16 @@ public class SegmentFinder {
   private Map<String, Object> segMap(Segment s) {
     List<String> consumers = new ArrayList<>(s.readers());
     consumers.removeAll(s.writers());
-    Map<String, Object> m = new LinkedHashMap<>();
-    m.put("range", List.of(s.lo(), s.hi()));
-    m.put("size", s.size());
-    m.put("kind", s.readOnly() ? "read-only" : "read-write");
-    m.put("owners", new ArrayList<>(s.owners()));
-    if (!consumers.isEmpty())
-      m.put("read_by", consumers);
-    m.put("writers", new ArrayList<>(s.writers()));
-    m.put("readers", new ArrayList<>(s.readers()));
-    if (s.isPrivate())
-      m.put("private", true);
-    if (s.owners().size() == 1)
-      m.put("single_owner", true);
-    return m;
+    return Rec.of("range", List.of(s.lo(), s.hi()))
+        .put("size", s.size())
+        .put("kind", s.readOnly() ? "read-only" : "read-write")
+        .put("owners", new ArrayList<>(s.owners()))
+        .putIf(!consumers.isEmpty(), "read_by", consumers)
+        .put("writers", new ArrayList<>(s.writers()))
+        .put("readers", new ArrayList<>(s.readers()))
+        .putIf(s.isPrivate(), "private", true)
+        .putIf(s.owners().size() == 1, "single_owner", true)
+        .map();
   }
 
   /** the whole segmentation as data, for the JSON model. */
