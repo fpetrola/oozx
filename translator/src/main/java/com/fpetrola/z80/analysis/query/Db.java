@@ -23,11 +23,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Single place that talks to the SQLite side tables (frame_cells, coord_pairs,
+ * Single place that talks to the SQLite tables (sites, frame_cells, coord_pairs,
  * sprite_draws, ...). One lazily opened connection instead of a DriverManager call at
- * every query site; results come back as plain long rows so analyzers stay free of JDBC.
+ * every query site. Numeric rows come back as {@code long[]} via {@link #rows}; mixed
+ * string/int rows go through a {@link RowMapper} ({@link #query}) or a stateful
+ * {@link RowConsumer} ({@link #forEach}) so analyzers never touch Connection/ResultSet.
  */
 public final class Db implements AutoCloseable {
+  /** maps one {@link ResultSet} row (already positioned) to a value. */
+  @FunctionalInterface
+  public interface RowMapper<T> {
+    T map(ResultSet rs) throws SQLException;
+  }
+
+  /** consumes one {@link ResultSet} row — for stateful scans that fold rather than collect. */
+  @FunctionalInterface
+  public interface RowConsumer {
+    void accept(ResultSet rs) throws SQLException;
+  }
+
   private final String path;
   private Connection conn;
 
@@ -66,6 +80,32 @@ public final class Db implements AutoCloseable {
   public long scalar(String sql, long fallback, Object... params) {
     List<long[]> rows = rows(sql, params);
     return rows.isEmpty() ? fallback : rows.get(0)[0];
+  }
+
+  /** whether a table exists (present but empty still counts — unlike an empty {@link #rows}). */
+  public boolean hasTable(String name) {
+    return !rows("SELECT name FROM sqlite_master WHERE type='table' AND name=?", name).isEmpty();
+  }
+
+  /** each row mapped to a T (mixed string/int columns), in query order. */
+  public <T> List<T> query(String sql, RowMapper<T> mapper, Object... params) {
+    List<T> out = new ArrayList<>();
+    forEach(sql, rs -> out.add(mapper.map(rs)), params);
+    return out;
+  }
+
+  /** run {@code consumer} over every row — for scans that accumulate into their own state. */
+  public void forEach(String sql, RowConsumer consumer, Object... params) {
+    try (PreparedStatement ps = conn().prepareStatement(sql)) {
+      for (int i = 0; i < params.length; i++)
+        ps.setObject(i + 1, params[i]);
+      try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next())
+          consumer.accept(rs);
+      }
+    } catch (SQLException ignored) {
+      // a missing side table (track not run) just yields no rows
+    }
   }
 
   @Override

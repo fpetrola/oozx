@@ -18,7 +18,8 @@
 
 package com.fpetrola.z80.analysis;
 
-import java.sql.*;
+import com.fpetrola.z80.analysis.query.Db;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,23 +49,22 @@ public class GameMapper {
   private final List<double[]> pairRows = new ArrayList<>();     // xAddr, yAddr, rate
   private final Map<Integer, String> pairDesc = new HashMap<>(); // xAddr -> printable pair
 
-  public GameMapper(AnalysisDB db, String dbPath) throws SQLException {
+  public GameMapper(AnalysisDB db, String dbPath) {
     this.db = db;
     this.explainer = new Explainer(db, dbPath);
     this.plan = new CoordinateFinder(db).find();
-    try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-         ResultSet rs = c.createStatement().executeQuery(
-             "SELECT x_addr, x_transform, x_off, y_addr, y_transform, y_off, rate FROM coord_pairs ORDER BY x_addr")) {
-      while (rs.next()) {
-        pairRows.add(new double[]{rs.getInt(1), rs.getInt(4), rs.getDouble(7)});
-        pairDesc.put(rs.getInt(1), String.format("X=mem[%d] (%s%+d), Y=mem[%d] (%s%+d), conf %.0f%%",
-            rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getString(5), rs.getInt(6),
-            rs.getDouble(7) * 100));
-      }
+    try (Db q = new Db(dbPath)) {
+      q.forEach("SELECT x_addr, x_transform, x_off, y_addr, y_transform, y_off, rate FROM coord_pairs ORDER BY x_addr",
+          rs -> {
+            pairRows.add(new double[]{rs.getInt(1), rs.getInt(4), rs.getDouble(7)});
+            pairDesc.put(rs.getInt(1), String.format("X=mem[%d] (%s%+d), Y=mem[%d] (%s%+d), conf %.0f%%",
+                rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4), rs.getString(5), rs.getInt(6),
+                rs.getDouble(7) * 100));
+          });
     }
   }
 
-  public void report(String dbPath) throws SQLException {
+  public void report(String dbPath) {
     System.out.println("=== MAPA AUTOMATICO DE LA ESCRITURA EN PANTALLA ===\n");
     buffers();
     drawMethods(dbPath);
@@ -101,14 +101,12 @@ public class GameMapper {
   }
 
   // ---------- 2. draw methods ----------
-  private void drawMethods(String dbPath) throws SQLException {
+  private void drawMethods(String dbPath) {
     System.out.println("== 2. RUTINAS DE DIBUJADO ==");
     // most common cluster size per method/kind, from the track run
     Map<String, long[]> top = new HashMap<>(); // "entry|kind" -> {count, w, h, total}
-    try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-         ResultSet rs = c.createStatement().executeQuery(
-             "SELECT method, kind, w, h, COUNT(*) FROM sprite_draws GROUP BY 1,2,3,4")) {
-      while (rs.next()) {
+    try (Db q = new Db(dbPath)) {
+      q.forEach("SELECT method, kind, w, h, COUNT(*) FROM sprite_draws GROUP BY 1,2,3,4", rs -> {
         String key = rs.getInt(1) + "|" + rs.getString(2);
         long n = rs.getLong(5);
         long[] cur = top.get(key);
@@ -122,7 +120,7 @@ public class GameMapper {
             cur[2] = rs.getInt(4);
           }
         }
-      }
+      });
     }
     for (Map.Entry<Integer, String> m : plan.drawMethods().entrySet()) {
       List<Integer> sites = plan.drawWriteSites().stream()
@@ -380,11 +378,8 @@ public class GameMapper {
   /** ensures the track tables exist, running the track pipeline if they are missing. */
   public static void ensureTracked(String dbPath, String rzxPath) throws Exception {
     boolean hasTrack;
-    try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
-      c.createStatement().executeQuery("SELECT 1 FROM coord_pairs LIMIT 1").close();
-      hasTrack = true;
-    } catch (SQLException e) {
-      hasTrack = false;
+    try (Db q = new Db(dbPath)) {
+      hasTrack = q.hasTable("coord_pairs");
     }
     if (!hasTrack) {
       System.out.println("Faltan las tablas de track: corriendo el pipeline completo primero...\n");

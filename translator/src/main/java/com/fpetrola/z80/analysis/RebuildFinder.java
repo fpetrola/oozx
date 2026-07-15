@@ -18,6 +18,8 @@
 
 package com.fpetrola.z80.analysis;
 
+import com.fpetrola.z80.analysis.query.Db;
+
 import java.util.*;
 
 /**
@@ -231,15 +233,10 @@ public class RebuildFinder {
 
   /** value changes of the cell over the whole replay, from the per-frame track log. */
   private long[] cellChanges(int cell) {
-    try (java.sql.Connection c = java.sql.DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-         java.sql.PreparedStatement ps = c.prepareStatement(
-             "SELECT COUNT(*), COUNT(DISTINCT val) FROM frame_cells WHERE addr = ?")) {
-      ps.setInt(1, cell);
-      try (java.sql.ResultSet rs = ps.executeQuery()) {
-        if (rs.next())
-          return new long[]{rs.getLong(1), rs.getLong(2)};
-      }
-    } catch (java.sql.SQLException ignored) {
+    try (Db q = new Db(dbPath)) {
+      List<long[]> r = q.rows("SELECT COUNT(*), COUNT(DISTINCT val) FROM frame_cells WHERE addr = ?", cell);
+      if (!r.isEmpty())
+        return r.get(0);
     }
     return new long[]{0, 0};
   }

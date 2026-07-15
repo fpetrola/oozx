@@ -18,7 +18,8 @@
 
 package com.fpetrola.z80.analysis;
 
-import java.sql.*;
+import com.fpetrola.z80.analysis.query.Db;
+
 import java.util.*;
 
 /**
@@ -43,18 +44,12 @@ public class Explainer {
 
   public Explainer(AnalysisDB db, String dbPath) {
     this.db = db;
-    // optional enrichment from a previous "track" run
-    try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
-      try (ResultSet rs = c.createStatement().executeQuery("SELECT addr, axis FROM coord_cells")) {
-        while (rs.next())
-          coordAxis.putIfAbsent(rs.getInt(1), rs.getString(2).charAt(0));
-      }
-      try (ResultSet rs = c.createStatement().executeQuery("SELECT DISTINCT addr FROM frame_cells")) {
-        while (rs.next())
-          trackedCells.add(rs.getInt(1));
-      }
-    } catch (SQLException ignored) {
-      // no track tables yet: explain still works, without coordinate/series annotations
+    // optional enrichment from a previous "track" run (absent tables just yield nothing)
+    try (Db q = new Db(dbPath)) {
+      q.forEach("SELECT addr, axis FROM coord_cells",
+          rs -> coordAxis.putIfAbsent(rs.getInt(1), rs.getString(2).charAt(0)));
+      q.forEach("SELECT DISTINCT addr FROM frame_cells",
+          rs -> trackedCells.add(rs.getInt(1)));
     }
   }
 
