@@ -81,6 +81,7 @@ public class GameModelExporter {
     List<Map<String, Object>> rebuilds = new RebuildFinder(db, dbPath).analyze();
     List<Map<String, Object>> records = new RecordFinder(db, dbPath).analyze();
     List<Map<String, Object>> texts = new TextFinder(db, dbPath).analyze();
+    Map<String, Object> segments = new SegmentFinder(db).data();
     List<Object> rutinasFull = routines();
 
     List<Object> findings = new ArrayList<>();
@@ -93,6 +94,7 @@ public class GameModelExporter {
     findingRebuild(findings, evidence, rebuilds);
     findingRecords(findings, evidence, records);
     findingTexts(findings, evidence, texts);
+    findingSegments(findings, evidence, segments);
     findingEntities(findings, evidence, evEnt, structs, canonicos);
     findingProtagonist(findings, evidence, evEnt);
     findingSprites(findings, evidence);
@@ -285,6 +287,42 @@ public class GameModelExporter {
       lista.add(item);
     }
     h.put("texts", lista);
+  }
+
+  // ---------- hallazgo: segmentacion de memoria por conjunto-de-acceso ----------
+  @SuppressWarnings("unchecked")
+  private void findingSegments(List<Object> findings, Map<String, Object> evidence,
+                               Map<String, Object> seg) {
+    List<Map<String, Object>> segs = (List<Map<String, Object>>) seg.get("segments");
+    if (segs == null || segs.isEmpty())
+      return;
+    Map<String, Object> h = finding(findings, evidence, "memory-segments",
+        String.format("Memory partitioned by which routines use it: %d segments, %d private "
+                + "(candidates to become a class with a 0-indexed local array)",
+            seg.get("segments_total"), seg.get("private")), seg);
+
+    // owned buffers/structures: private read-write segments >1 byte, the encapsulation targets
+    List<Object> owned = new ArrayList<>();
+    List<Object> data = new ArrayList<>();
+    for (Map<String, Object> s : segs) {
+      List<Integer> r = (List<Integer>) s.get("range");
+      if (!Boolean.TRUE.equals(s.get("private")))
+        continue;
+      Map<String, Object> item = new LinkedHashMap<>();
+      item.put("range", r);
+      item.put("owner", String.join(" ", (List<String>) s.get("owners")));
+      if (s.containsKey("read_by"))
+        item.put("read_by", s.get("read_by"));
+      if ("read-only".equals(s.get("kind")))
+        data.add(item);
+      else if (r.get(1) - r.get(0) >= 1)
+        owned.add(item);
+    }
+    h.put("owned_buffers", owned);
+    h.put("shared_data_tables", data);
+    // what blocks clean encapsulation
+    h.put("data_pipes", ((List<Object>) seg.get("pipes")).stream().limit(12).toList());
+    h.put("shared_helpers", ((List<Object>) seg.get("spanners")).stream().limit(10).toList());
   }
 
   // ---------- hallazgo: tabla de entidades ----------

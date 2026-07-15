@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated": "2026-07-15T12:26:55.640345442",
+    "generated": "2026-07-15T14:40:13.538059790",
     "description": "Game model deduced automatically from the instrumented RZX replay. Layers: 'findings' are the final, interpreted conclusions (the most important part of each discovery); 'model' is the formal machine-readable layer meant to drive source transformations; 'evidence' holds the raw data backing them, keyed by finding id (see doc/MANUAL-ANALISIS.md)",
     "draws": 4244108,
     "frames_with_draws": 41457,
@@ -306,6 +306,738 @@
       ]
     },
     {
+      "id": "memory-segments",
+      "title": "Memory partitioned by which routines use it: 80 segments, 64 private (candidates to become a class with a 0-indexed local array)",
+      "evidence": "memory-segments",
+      "owned_buffers": [
+        {
+          "range": [
+            16384,
+            22783
+          ],
+          "owner": "$34463"
+        },
+        {
+          "range": [
+            22784,
+            22863
+          ],
+          "owner": "$34463 $34499"
+        },
+        {
+          "range": [
+            22864,
+            22874
+          ],
+          "owner": "$34463 $34499 $34620"
+        },
+        {
+          "range": [
+            22875,
+            22895
+          ],
+          "owner": "$34463 $34499"
+        },
+        {
+          "range": [
+            22896,
+            22906
+          ],
+          "owner": "$34463 $34499 $34620"
+        },
+        {
+          "range": [
+            22907,
+            22911
+          ],
+          "owner": "$34463 $34499"
+        },
+        {
+          "range": [
+            22912,
+            23295
+          ],
+          "owner": "$34463"
+        },
+        {
+          "range": [
+            23296,
+            23528
+          ],
+          "owner": "$37974 $38555"
+        },
+        {
+          "range": [
+            23552,
+            23554
+          ],
+          "owner": "$34463 $38430",
+          "read_by": [
+            "$36307"
+          ]
+        },
+        {
+          "range": [
+            23555,
+            23573
+          ],
+          "owner": "$34463 $37310 $38430",
+          "read_by": [
+            "$36307"
+          ]
+        },
+        {
+          "range": [
+            24057,
+            24063
+          ],
+          "owner": "$34463 $37310",
+          "read_by": [
+            "$36307",
+            "$38344"
+          ]
+        },
+        {
+          "range": [
+            33024,
+            33026
+          ],
+          "owner": "$34463 $37056",
+          "read_by": [
+            "$37310"
+          ]
+        },
+        {
+          "range": [
+            33027,
+            33082
+          ],
+          "owner": "$34463 $37056 $37310"
+        },
+        {
+          "range": [
+            33083,
+            33085
+          ],
+          "owner": "$34463 $37310",
+          "read_by": [
+            "$37056"
+          ]
+        },
+        {
+          "range": [
+            33086,
+            33087
+          ],
+          "owner": "$34463",
+          "read_by": [
+            "$37056",
+            "$37310"
+          ]
+        },
+        {
+          "range": [
+            34173,
+            34174
+          ],
+          "owner": "$34463 $37841"
+        },
+        {
+          "range": [
+            34175,
+            34186
+          ],
+          "owner": "$34463"
+        },
+        {
+          "range": [
+            34252,
+            34254
+          ],
+          "owner": "$34463",
+          "read_by": [
+            "$35211",
+            "$36307",
+            "$38601"
+          ]
+        },
+        {
+          "range": [
+            34263,
+            34269
+          ],
+          "owner": "$34463"
+        },
+        {
+          "range": [
+            34273,
+            34275
+          ],
+          "owner": "$34463",
+          "read_by": [
+            "$35211"
+          ]
+        },
+        {
+          "range": [
+            42159,
+            42239
+          ],
+          "owner": "$34463 $37841"
+        }
+      ],
+      "shared_data_tables": [
+        {
+          "range": [
+            15616,
+            16383
+          ],
+          "owner": "$38555",
+          "read_by": [
+            "$38555"
+          ]
+        },
+        {
+          "range": [
+            23529,
+            23551
+          ],
+          "owner": "$36307",
+          "read_by": [
+            "$36307"
+          ]
+        },
+        {
+          "range": [
+            33088,
+            33088
+          ],
+          "owner": "$37056 $37310",
+          "read_by": [
+            "$37056",
+            "$37310"
+          ]
+        },
+        {
+          "range": [
+            33089,
+            33279
+          ],
+          "owner": "$38528 $38555",
+          "read_by": [
+            "$38528",
+            "$38555"
+          ]
+        },
+        {
+          "range": [
+            33280,
+            33505
+          ],
+          "owner": "$37310 $38504",
+          "read_by": [
+            "$37310",
+            "$38504"
+          ]
+        },
+        {
+          "range": [
+            33506,
+            33535
+          ],
+          "owner": "$38504",
+          "read_by": [
+            "$38504"
+          ]
+        },
+        {
+          "range": [
+            33536,
+            33622
+          ],
+          "owner": "$37310",
+          "read_by": [
+            "$37310"
+          ]
+        },
+        {
+          "range": [
+            33623,
+            33663
+          ],
+          "owner": "$38528 $38555",
+          "read_by": [
+            "$38528",
+            "$38555"
+          ]
+        },
+        {
+          "range": [
+            33664,
+            33750
+          ],
+          "owner": "$37310",
+          "read_by": [
+            "$37310"
+          ]
+        },
+        {
+          "range": [
+            33751,
+            33823
+          ],
+          "owner": "$38528 $38555",
+          "read_by": [
+            "$38528",
+            "$38555"
+          ]
+        },
+        {
+          "range": [
+            33825,
+            33840
+          ],
+          "owner": "$36307",
+          "read_by": [
+            "$36307"
+          ]
+        },
+        {
+          "range": [
+            33841,
+            33872
+          ],
+          "owner": "$38528 $38555",
+          "read_by": [
+            "$38528",
+            "$38555"
+          ]
+        },
+        {
+          "range": [
+            33873,
+            34171
+          ],
+          "owner": "$38528",
+          "read_by": [
+            "$38528"
+          ]
+        },
+        {
+          "range": [
+            34187,
+            34250
+          ],
+          "owner": "$38528",
+          "read_by": [
+            "$38528"
+          ]
+        },
+        {
+          "range": [
+            34279,
+            34279
+          ],
+          "owner": "$34463",
+          "read_by": [
+            "$34463"
+          ]
+        },
+        {
+          "range": [
+            34299,
+            34330
+          ],
+          "owner": "$38562",
+          "read_by": [
+            "$38562"
+          ]
+        },
+        {
+          "range": [
+            34399,
+            34462
+          ],
+          "owner": "$34463",
+          "read_by": [
+            "$34463"
+          ]
+        },
+        {
+          "range": [
+            38912,
+            39679
+          ],
+          "owner": "$34463",
+          "read_by": [
+            "$34463"
+          ]
+        },
+        {
+          "range": [
+            39680,
+            39807
+          ],
+          "owner": "$37974",
+          "read_by": [
+            "$37974"
+          ]
+        },
+        {
+          "range": [
+            39808,
+            39935
+          ],
+          "owner": "$34499",
+          "read_by": [
+            "$34499"
+          ]
+        },
+        {
+          "range": [
+            39936,
+            40191
+          ],
+          "owner": "$37974",
+          "read_by": [
+            "$37974"
+          ]
+        },
+        {
+          "range": [
+            40192,
+            40517
+          ],
+          "owner": "$37974 $38504",
+          "read_by": [
+            "$37974",
+            "$38504"
+          ]
+        },
+        {
+          "range": [
+            40518,
+            40518
+          ],
+          "owner": "$34499",
+          "read_by": [
+            "$34499"
+          ]
+        },
+        {
+          "range": [
+            40519,
+            40959
+          ],
+          "owner": "$37974 $38504",
+          "read_by": [
+            "$37974",
+            "$38504"
+          ]
+        },
+        {
+          "range": [
+            40960,
+            41982
+          ],
+          "owner": "$34463",
+          "read_by": [
+            "$34463"
+          ]
+        },
+        {
+          "range": [
+            41983,
+            41983
+          ],
+          "owner": "$34463 $37841",
+          "read_by": [
+            "$34463",
+            "$37841"
+          ]
+        },
+        {
+          "range": [
+            41984,
+            42158
+          ],
+          "owner": "$37974 $38504",
+          "read_by": [
+            "$37974",
+            "$38504"
+          ]
+        },
+        {
+          "range": [
+            42240,
+            42414
+          ],
+          "owner": "$37974 $38504",
+          "read_by": [
+            "$37974",
+            "$38504"
+          ]
+        },
+        {
+          "range": [
+            42415,
+            42495
+          ],
+          "owner": "$37841",
+          "read_by": [
+            "$37841"
+          ]
+        },
+        {
+          "range": [
+            42496,
+            46847
+          ],
+          "owner": "$37974 $38504",
+          "read_by": [
+            "$37974",
+            "$38504"
+          ]
+        },
+        {
+          "range": [
+            46848,
+            49151
+          ],
+          "owner": "$37974",
+          "read_by": [
+            "$37974"
+          ]
+        },
+        {
+          "range": [
+            49152,
+            64767
+          ],
+          "owner": "$34463",
+          "read_by": [
+            "$34463"
+          ]
+        }
+      ],
+      "data_pipes": [
+        {
+          "from": [
+            24064,
+            24575
+          ],
+          "to": [
+            23552,
+            24063
+          ],
+          "times": 22752,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            23552,
+            24063
+          ],
+          "to": [
+            22528,
+            23039
+          ],
+          "times": 22630,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            24576,
+            28671
+          ],
+          "to": [
+            16384,
+            20479
+          ],
+          "times": 22630,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            40962,
+            41983
+          ],
+          "to": [
+            33026,
+            33087
+          ],
+          "times": 8544,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            40960,
+            41977
+          ],
+          "to": [
+            33024,
+            33081
+          ],
+          "times": 8544,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            49152,
+            64767
+          ],
+          "to": [
+            32768,
+            33023
+          ],
+          "times": 1068,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            34255,
+            34261
+          ],
+          "to": [
+            34263,
+            34269
+          ],
+          "times": 1068,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            38912,
+            39679
+          ],
+          "to": [
+            22528,
+            23295
+          ],
+          "times": 945,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            39424,
+            39679
+          ],
+          "to": [
+            23040,
+            23295
+          ],
+          "times": 944,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            34263,
+            34269
+          ],
+          "to": [
+            34255,
+            34261
+          ],
+          "times": 2,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            39808,
+            39935
+          ],
+          "to": [
+            22784,
+            22911
+          ],
+          "times": 1,
+          "routine": "$34499"
+        }
+      ],
+      "shared_helpers": [
+        {
+          "routine": "$38555",
+          "segments_spanned": 39,
+          "example": [
+            15616,
+            33872
+          ]
+        },
+        {
+          "routine": "$37974",
+          "segments_spanned": 23,
+          "example": [
+            18498,
+            28670
+          ]
+        },
+        {
+          "routine": "$38528",
+          "segments_spanned": 21,
+          "example": [
+            32896,
+            34250
+          ]
+        },
+        {
+          "routine": "$38430",
+          "segments_spanned": 13,
+          "example": [
+            23552,
+            24091
+          ]
+        },
+        {
+          "routine": "$34463",
+          "segments_spanned": 11,
+          "example": [
+            23552,
+            24063
+          ]
+        },
+        {
+          "routine": "$36307",
+          "segments_spanned": 11,
+          "example": [
+            23554,
+            24058
+          ]
+        },
+        {
+          "routine": "$38344",
+          "segments_spanned": 11,
+          "example": [
+            23617,
+            24091
+          ]
+        },
+        {
+          "routine": "$38504",
+          "segments_spanned": 10,
+          "example": [
+            40192,
+            46846
+          ]
+        },
+        {
+          "routine": "$37310",
+          "segments_spanned": 9,
+          "example": [
+            23587,
+            24062
+          ]
+        },
+        {
+          "routine": "$34499",
+          "segments_spanned": 5,
+          "example": [
+            22784,
+            22911
+          ]
+        }
+      ]
+    },
+    {
       "id": "entity-table",
       "title": "Entity table at [33024..33087]: 8 slots of 8 bytes, 5 entity types",
       "slots_with_observed_data": 8,
@@ -409,20 +1141,20 @@
       },
       "loaded_from": [
         {
-          "times": 8544,
           "site": 35137,
           "from": [
             40962,
             41983
-          ]
+          ],
+          "times": 8544
         },
         {
-          "times": 8544,
           "site": 35128,
           "from": [
             40960,
             41977
-          ]
+          ],
+          "times": 8544
         }
       ],
       "updated_by": [
@@ -448,76 +1180,76 @@
       "typical_size_bytes": 32,
       "most_drawn": [
         {
-          "times_drawn": 97638,
           "routines": "$37974 $38504",
           "range": [
             40256,
             40287
           ],
-          "bytes": 32
+          "bytes": 32,
+          "times_drawn": 97638
         },
         {
-          "times_drawn": 15864,
           "routines": "$37974 $38504",
           "range": [
             40192,
             40223
           ],
-          "bytes": 32
+          "bytes": 32,
+          "times_drawn": 15864
         },
         {
-          "times_drawn": 8970,
           "routines": "$37974 $38504",
           "range": [
             40224,
             40255
           ],
-          "bytes": 32
+          "bytes": 32,
+          "times_drawn": 8970
         },
         {
-          "times_drawn": 8926,
           "routines": "$37974 $38504",
           "range": [
             40288,
             40319
           ],
-          "bytes": 32
+          "bytes": 32,
+          "times_drawn": 8926
         },
         {
-          "times_drawn": 4253,
           "routines": "$37974",
           "range": [
             47680,
             47711
           ],
-          "bytes": 32
+          "bytes": 32,
+          "times_drawn": 4253
         },
         {
-          "times_drawn": 3129,
           "routines": "$37974",
           "range": [
             48928,
             48959
           ],
-          "bytes": 32
+          "bytes": 32,
+          "times_drawn": 3129
         },
         {
-          "times_drawn": 3065,
           "routines": "$37974",
           "range": [
             48896,
             48927
           ],
-          "bytes": 32
+          "bytes": 32,
+          "times_drawn": 3065
         },
         {
-          "times_drawn": 2968,
           "routines": "$37974",
           "range": [
             46880,
             46911
           ],
-          "bytes": 32
+          "bytes": 32,
+          "times_drawn": 2968
         }
       ],
       "items": "there are also 64 small graphics (1-2 bytes) at [42415..42495] (objects/decorations)"
@@ -650,80 +1382,80 @@
       "evidence": "routines",
       "list": [
         {
-          "routine": "$34463",
-          "does": "draws a sprite row by row (the protagonist)"
+          "does": "draws a sprite row by row (the protagonist)",
+          "routine": "$34463"
         },
         {
-          "routine": "$34499",
-          "does": "paints colors (attributes)"
+          "does": "paints colors (attributes)",
+          "routine": "$34499"
         },
         {
-          "routine": "$34620",
-          "does": "draws a sprite row by row (the protagonist)"
+          "does": "draws a sprite row by row (the protagonist)",
+          "routine": "$34620"
         },
         {
-          "routine": "$36171",
-          "does": "renders the room background into the buffer"
+          "does": "renders the room background into the buffer",
+          "routine": "$36171"
         },
         {
-          "routine": "$36203",
-          "does": "draws to the screen"
+          "does": "draws to the screen",
+          "routine": "$36203"
         },
         {
-          "routine": "$36288",
-          "does": "paints colors (attributes)"
+          "does": "paints colors (attributes)",
+          "routine": "$36288"
         },
         {
-          "routine": "$37310",
-          "does": "draws entity sprites"
+          "does": "draws entity sprites",
+          "routine": "$37310"
         },
         {
-          "routine": "$37841",
-          "does": "paints colors (attributes)"
+          "does": "paints colors (attributes)",
+          "routine": "$37841"
         },
         {
-          "routine": "$37974",
-          "does": "draws entity sprites"
+          "does": "draws entity sprites",
+          "routine": "$37974"
         },
         {
-          "routine": "$38137",
-          "does": "draws entity sprites"
+          "does": "draws entity sprites",
+          "routine": "$38137"
         },
         {
-          "routine": "$38196",
-          "does": "paints colors (attributes)"
+          "does": "paints colors (attributes)",
+          "routine": "$38196"
         },
         {
-          "routine": "$38430",
-          "does": "paints colors (attributes)"
+          "does": "paints colors (attributes)",
+          "routine": "$38430"
         },
         {
-          "routine": "$38504",
-          "does": "draws a sprite row by row (the protagonist)"
+          "does": "draws a sprite row by row (the protagonist)",
+          "routine": "$38504"
         },
         {
-          "routine": "$38555",
-          "does": "prints text with the ROM font"
+          "does": "prints text with the ROM font",
+          "routine": "$38555"
         },
         {
-          "routine": "$36307",
-          "does": "game logic: updates variables and entities"
+          "does": "game logic: updates variables and entities",
+          "routine": "$36307"
         },
         {
-          "routine": "$36508",
-          "does": "game logic: updates variables and entities"
+          "does": "game logic: updates variables and entities",
+          "routine": "$36508"
         },
         {
-          "routine": "$37056",
-          "does": "game logic: updates variables and entities"
+          "does": "game logic: updates variables and entities",
+          "routine": "$37056"
         },
         {
-          "routine": "$38064",
-          "does": "game logic: updates variables and entities"
+          "does": "game logic: updates variables and entities",
+          "routine": "$38064"
         },
         {
-          "routine": "$38276",
-          "does": "game logic: updates variables and entities"
+          "does": "game logic: updates variables and entities",
+          "routine": "$38276"
         }
       ]
     },
@@ -733,29 +1465,29 @@
       "evidence": "other-structures",
       "list": [
         {
-          "routine": "$34463",
           "summary": "array at [33008..33023], records of 2 bytes, 2 fields",
-          "cursor": "IX"
+          "cursor": "IX",
+          "routine": "$34463"
         },
         {
-          "routine": "$34463",
           "summary": "array at [34175..34179], records of 5 bytes, 4 fields",
-          "cursor": "IX"
+          "cursor": "IX",
+          "routine": "$34463"
         },
         {
-          "routine": "$34620",
           "summary": "array at [22864..22906], records of 1 bytes, 4 fields",
-          "cursor": "IX"
+          "cursor": "IX",
+          "routine": "$34620"
         },
         {
-          "routine": "$37310",
           "summary": "array at [33280..33479], records of 8 bytes, 2 fields",
-          "cursor": "IY"
+          "cursor": "IY",
+          "routine": "$37310"
         },
         {
-          "routine": "$38504",
           "summary": "array at [33280..33535], records of 2 bytes, 2 fields",
-          "cursor": "IX"
+          "cursor": "IX",
+          "routine": "$38504"
         }
       ]
     }
@@ -1221,22 +1953,22 @@
           ],
           "ladders": [
             {
-              "routine": "$37056",
               "tested_values": [
                 0,
                 1,
                 2
               ],
-              "mask": 3
+              "mask": 3,
+              "routine": "$37056"
             },
             {
-              "routine": "$37310",
               "tested_values": [
                 0,
                 3,
                 4
               ],
-              "mask": 7
+              "mask": 7,
+              "routine": "$37310"
             }
           ]
         },
@@ -1442,18 +2174,18 @@
                 "condition": "field +0 & 127 == 96",
                 "arms": [
                   {
-                    "times": 13642,
                     "exclusive_fields": [],
-                    "pc": 37302
+                    "pc": 37302,
+                    "times": 13642
                   },
                   {
-                    "times": 5579,
                     "exclusive_fields": [
                       0,
                       2,
                       6
                     ],
-                    "pc": 37191
+                    "pc": 37191,
+                    "times": 5579
                   }
                 ]
               },
@@ -1462,18 +2194,18 @@
                 "condition": "field +6 & 31",
                 "arms": [
                   {
-                    "times": 386,
                     "exclusive_fields": [
                       0
                     ],
-                    "pc": 37206
+                    "pc": 37206,
+                    "times": 386
                   },
                   {
-                    "times": 5193,
                     "exclusive_fields": [
                       2
                     ],
-                    "pc": 37201
+                    "pc": 37201,
+                    "times": 5193
                   }
                 ]
               },
@@ -1482,18 +2214,18 @@
                 "condition": "field +7 & 31",
                 "arms": [
                   {
-                    "times": 347,
                     "exclusive_fields": [
                       0
                     ],
-                    "pc": 37241
+                    "pc": 37241,
+                    "times": 347
                   },
                   {
-                    "times": 4128,
                     "exclusive_fields": [
                       2
                     ],
-                    "pc": 37236
+                    "pc": 37236,
+                    "times": 4128
                   }
                 ]
               }
@@ -1710,16 +2442,16 @@
                 "condition": "field +0 & 24",
                 "arms": [
                   {
-                    "times": 6446,
                     "exclusive_fields": [],
-                    "pc": 37267
+                    "pc": 37267,
+                    "times": 6446
                   },
                   {
-                    "times": 30659,
                     "exclusive_fields": [
                       0
                     ],
-                    "pc": 37259
+                    "pc": 37259,
+                    "times": 30659
                   }
                 ]
               }
@@ -1949,16 +2681,16 @@
                 "condition": "field +7 & 127",
                 "arms": [
                   {
-                    "times": 24,
                     "exclusive_fields": [
                       0
                     ],
-                    "pc": 37160
+                    "pc": 37160,
+                    "times": 24
                   },
                   {
-                    "times": 1189,
                     "exclusive_fields": [],
-                    "pc": 37302
+                    "pc": 37302,
+                    "times": 1189
                   }
                 ]
               },
@@ -1967,20 +2699,20 @@
                 "condition": "field +9 & 128",
                 "arms": [
                   {
-                    "times": 96,
                     "exclusive_fields": [
                       11
                     ],
-                    "pc": 37733
+                    "pc": 37733,
+                    "times": 96
                   },
                   {
-                    "times": 1110,
                     "exclusive_fields": [
                       0,
                       4,
                       11
                     ],
-                    "pc": 37743
+                    "pc": 37743,
+                    "times": 1110
                   }
                 ]
               }
@@ -2096,19 +2828,19 @@
                 "condition": "field +4 & 224",
                 "arms": [
                   {
-                    "times": 876,
                     "exclusive_fields": [
                       2,
                       4,
                       5,
                       6
                     ],
-                    "pc": 37479
+                    "pc": 37479,
+                    "times": 876
                   },
                   {
-                    "times": 3850,
                     "exclusive_fields": [],
-                    "pc": 37811
+                    "pc": 37811,
+                    "times": 3850
                   }
                 ]
               }
@@ -2125,13 +2857,13 @@
         ],
         "selector": 33824,
         "template": {
-          "base": 49152,
-          "used_records": 61,
           "range": [
             49152,
             64767
           ],
-          "record_bytes": 256
+          "record_bytes": 256,
+          "base": 49152,
+          "used_records": 61
         },
         "fields": [
           {
@@ -3117,39 +3849,39 @@
     ],
     "refactor_suggestions": [
       {
-        "refactor": "class with polymorphic subtypes",
         "detail": "a base class with the common fields and one subclass per value of +0 & 7; the type-ladder ifs become polymorphic methods",
-        "target": "entities"
+        "target": "entities",
+        "refactor": "class with polymorphic subtypes"
       },
       {
-        "refactor": "class with named properties",
         "detail": "each field of the record becomes a property; the catalog is an array of instances and the selector a reference to the current instance",
-        "target": "current_record_1"
+        "target": "current_record_1",
+        "refactor": "class with named properties"
       },
       {
-        "refactor": "named property",
         "detail": "replace mem[33824] with the property record_selector_1",
-        "target": "record_selector_1"
+        "target": "record_selector_1",
+        "refactor": "named property"
       },
       {
-        "refactor": "named property",
         "detail": "replace mem[34259] with the property protagonist_x",
-        "target": "protagonist_x"
+        "target": "protagonist_x",
+        "refactor": "named property"
       },
       {
-        "refactor": "named property",
         "detail": "replace mem[34255] with the property protagonist_y",
-        "target": "protagonist_y"
+        "target": "protagonist_y",
+        "refactor": "named property"
       },
       {
-        "refactor": "restricted visibility",
         "detail": "13 segments are seen by <=4 routines: move each one into its routines' class and take the data out of the global mem[] array",
-        "target": "segments"
+        "target": "segments",
+        "refactor": "restricted visibility"
       },
       {
-        "refactor": "external resources",
         "detail": "the graphics_data zones and static catalogs can be extracted to files and loaded at initialization",
-        "target": "graphics_data"
+        "target": "graphics_data",
+        "refactor": "external resources"
       }
     ]
   },
@@ -3172,12 +3904,12 @@
         "type": "buffer",
         "alimentado_por": [
           {
-            "times": 22752,
             "site": 35257,
             "copia_desde": [
               24064,
               24575
-            ]
+            ],
+            "times": 22752
           }
         ]
       },
@@ -3206,12 +3938,12 @@
         "type": "buffer",
         "alimentado_por": [
           {
-            "times": 22752,
             "site": 35268,
             "copia_desde": [
               28672,
               32767
-            ]
+            ],
+            "times": 22752
           }
         ]
       },
@@ -3289,13 +4021,13 @@
             "times": 1068,
             "formula": "source = 49152 + selector*256",
             "indexed_table": {
-              "base": 49152,
-              "used_records": 61,
               "range": [
                 49152,
                 64767
               ],
-              "record_bytes": 256
+              "record_bytes": 256,
+              "base": 49152,
+              "used_records": 61
             },
             "destination": [
               32768,
@@ -3380,41 +4112,41 @@
         "destination_read_by": {
           "[20481..22527]": [
             {
-              "routine": "$38555",
               "reads": 2903512,
-              "sites": 1
+              "sites": 1,
+              "routine": "$38555"
             }
           ],
           "[32768..33087]": [
             {
-              "routine": "$36171",
               "reads": 4921344,
-              "sites": 2
+              "sites": 2,
+              "routine": "$36171"
             },
             {
-              "routine": "$38555",
               "reads": 2903512,
-              "sites": 1
+              "sites": 1,
+              "routine": "$38555"
             },
             {
-              "routine": "$37310",
               "reads": 1323179,
-              "sites": 48
+              "sites": 48,
+              "routine": "$37310"
             },
             {
-              "routine": "$36203",
               "reads": 557217,
-              "sites": 12
+              "sites": 12,
+              "routine": "$36203"
             },
             {
-              "routine": "$36288",
               "reads": 546816,
-              "sites": 1
+              "sites": 1,
+              "routine": "$36288"
             },
             {
-              "routine": "$37056",
               "reads": 428241,
-              "sites": 23
+              "sites": 23,
+              "routine": "$37056"
             }
           ],
           "[34263..34269]": []
@@ -3429,13 +4161,13 @@
         ],
         "selector": 33824,
         "template": {
-          "base": 49152,
-          "used_records": 61,
           "range": [
             49152,
             64767
           ],
-          "record_bytes": 256
+          "record_bytes": 256,
+          "base": 49152,
+          "used_records": 61
         },
         "fields": [
           {
@@ -3831,11 +4563,11 @@
     "texts": [
       {
         "font": {
-          "read_by": "$38555",
           "range": [
             15616,
             16383
-          ]
+          ],
+          "read_by": "$38555"
         },
         "char_sources": [
           "$38555 [15616..33872]"
@@ -4095,6 +4827,1552 @@
         ]
       }
     ],
+    "memory-segments": {
+      "segments_total": 80,
+      "private": 64,
+      "single_owner": 32,
+      "segments": [
+        {
+          "range": [
+            15616,
+            16383
+          ],
+          "size": 768,
+          "kind": "read-only",
+          "owners": [
+            "$38555"
+          ],
+          "read_by": [
+            "$38555"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            16384,
+            22783
+          ],
+          "size": 6400,
+          "kind": "read-write",
+          "owners": [
+            "$34463"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            22784,
+            22863
+          ],
+          "size": 80,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$34499"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            22864,
+            22874
+          ],
+          "size": 11,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$34499",
+            "$34620"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            22875,
+            22895
+          ],
+          "size": 21,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$34499"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            22896,
+            22906
+          ],
+          "size": 11,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$34499",
+            "$34620"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            22907,
+            22911
+          ],
+          "size": 5,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$34499"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            22912,
+            23295
+          ],
+          "size": 384,
+          "kind": "read-write",
+          "owners": [
+            "$34463"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            23296,
+            23528
+          ],
+          "size": 233,
+          "kind": "read-write",
+          "owners": [
+            "$37974",
+            "$38555"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            23529,
+            23551
+          ],
+          "size": 23,
+          "kind": "read-only",
+          "owners": [
+            "$36307"
+          ],
+          "read_by": [
+            "$36307"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            23552,
+            23554
+          ],
+          "size": 3,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$38430"
+          ],
+          "read_by": [
+            "$36307"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            23555,
+            23573
+          ],
+          "size": 19,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$37310",
+            "$38430"
+          ],
+          "read_by": [
+            "$36307"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            23574,
+            23671
+          ],
+          "size": 98,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$37310",
+            "$37841",
+            "$38430"
+          ],
+          "read_by": [
+            "$36307",
+            "$38344"
+          ]
+        },
+        {
+          "range": [
+            23672,
+            23672
+          ],
+          "size": 1,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$34499",
+            "$37310",
+            "$37841",
+            "$38430"
+          ],
+          "read_by": [
+            "$36307",
+            "$38344"
+          ]
+        },
+        {
+          "range": [
+            23673,
+            23995
+          ],
+          "size": 323,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$37310",
+            "$37841",
+            "$38430"
+          ],
+          "read_by": [
+            "$36307",
+            "$38344"
+          ]
+        },
+        {
+          "range": [
+            23996,
+            23997
+          ],
+          "size": 2,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$37310",
+            "$37841",
+            "$38196",
+            "$38430"
+          ],
+          "read_by": [
+            "$36307",
+            "$38344"
+          ]
+        },
+        {
+          "range": [
+            23998,
+            24013
+          ],
+          "size": 16,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$37310",
+            "$37841",
+            "$38430"
+          ],
+          "read_by": [
+            "$36307",
+            "$38344"
+          ]
+        },
+        {
+          "range": [
+            24014,
+            24027
+          ],
+          "size": 14,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$37310",
+            "$38430"
+          ],
+          "read_by": [
+            "$36307",
+            "$38344"
+          ]
+        },
+        {
+          "range": [
+            24028,
+            24029
+          ],
+          "size": 2,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$37310",
+            "$38196",
+            "$38430"
+          ],
+          "read_by": [
+            "$36307",
+            "$38344"
+          ]
+        },
+        {
+          "range": [
+            24030,
+            24056
+          ],
+          "size": 27,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$37310",
+            "$38430"
+          ],
+          "read_by": [
+            "$36307",
+            "$38344"
+          ]
+        },
+        {
+          "range": [
+            24057,
+            24063
+          ],
+          "size": 7,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$37310"
+          ],
+          "read_by": [
+            "$36307",
+            "$38344"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            24064,
+            24064
+          ],
+          "size": 1,
+          "kind": "read-write",
+          "owners": [
+            "$36288"
+          ],
+          "read_by": [
+            "$34463",
+            "$36171",
+            "$38344"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            24065,
+            24575
+          ],
+          "size": 511,
+          "kind": "read-write",
+          "owners": [
+            "$36203",
+            "$36288"
+          ],
+          "read_by": [
+            "$34463",
+            "$36171",
+            "$38344"
+          ]
+        },
+        {
+          "range": [
+            24576,
+            33023
+          ],
+          "size": 8448,
+          "kind": "read-write",
+          "owners": [
+            "$34463"
+          ],
+          "read_by": [
+            "$36171",
+            "$36203",
+            "$36288",
+            "$36307",
+            "$37310",
+            "$37841",
+            "$38064",
+            "$38137",
+            "$38344",
+            "$38430"
+          ],
+          "single_owner": true
+        },
+        {
+          "range": [
+            33024,
+            33026
+          ],
+          "size": 3,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$37056"
+          ],
+          "read_by": [
+            "$37310"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            33027,
+            33082
+          ],
+          "size": 56,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$37056",
+            "$37310"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            33083,
+            33085
+          ],
+          "size": 3,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$37310"
+          ],
+          "read_by": [
+            "$37056"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            33086,
+            33087
+          ],
+          "size": 2,
+          "kind": "read-write",
+          "owners": [
+            "$34463"
+          ],
+          "read_by": [
+            "$37056",
+            "$37310"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            33088,
+            33088
+          ],
+          "size": 1,
+          "kind": "read-only",
+          "owners": [
+            "$37056",
+            "$37310"
+          ],
+          "read_by": [
+            "$37056",
+            "$37310"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            33089,
+            33279
+          ],
+          "size": 191,
+          "kind": "read-only",
+          "owners": [
+            "$38528",
+            "$38555"
+          ],
+          "read_by": [
+            "$38528",
+            "$38555"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            33280,
+            33505
+          ],
+          "size": 226,
+          "kind": "read-only",
+          "owners": [
+            "$37310",
+            "$38504"
+          ],
+          "read_by": [
+            "$37310",
+            "$38504"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            33506,
+            33535
+          ],
+          "size": 30,
+          "kind": "read-only",
+          "owners": [
+            "$38504"
+          ],
+          "read_by": [
+            "$38504"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            33536,
+            33622
+          ],
+          "size": 87,
+          "kind": "read-only",
+          "owners": [
+            "$37310"
+          ],
+          "read_by": [
+            "$37310"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            33623,
+            33663
+          ],
+          "size": 41,
+          "kind": "read-only",
+          "owners": [
+            "$38528",
+            "$38555"
+          ],
+          "read_by": [
+            "$38528",
+            "$38555"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            33664,
+            33750
+          ],
+          "size": 87,
+          "kind": "read-only",
+          "owners": [
+            "$37310"
+          ],
+          "read_by": [
+            "$37310"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            33751,
+            33823
+          ],
+          "size": 73,
+          "kind": "read-only",
+          "owners": [
+            "$38528",
+            "$38555"
+          ],
+          "read_by": [
+            "$38528",
+            "$38555"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            33824,
+            33824
+          ],
+          "size": 1,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$36307",
+            "$38064"
+          ],
+          "read_by": [
+            "$37310",
+            "$37841",
+            "$38196",
+            "$38276",
+            "$38344"
+          ]
+        },
+        {
+          "range": [
+            33825,
+            33840
+          ],
+          "size": 16,
+          "kind": "read-only",
+          "owners": [
+            "$36307"
+          ],
+          "read_by": [
+            "$36307"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            33841,
+            33872
+          ],
+          "size": 32,
+          "kind": "read-only",
+          "owners": [
+            "$38528",
+            "$38555"
+          ],
+          "read_by": [
+            "$38528",
+            "$38555"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            33873,
+            34171
+          ],
+          "size": 299,
+          "kind": "read-only",
+          "owners": [
+            "$38528"
+          ],
+          "read_by": [
+            "$38528"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            34172,
+            34172
+          ],
+          "size": 1,
+          "kind": "read-write",
+          "owners": [
+            "$34463"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            34173,
+            34174
+          ],
+          "size": 2,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$37841"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            34175,
+            34186
+          ],
+          "size": 12,
+          "kind": "read-write",
+          "owners": [
+            "$34463"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            34187,
+            34250
+          ],
+          "size": 64,
+          "kind": "read-only",
+          "owners": [
+            "$38528"
+          ],
+          "read_by": [
+            "$38528"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            34251,
+            34251
+          ],
+          "size": 1,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$38276"
+          ],
+          "read_by": [
+            "$37841",
+            "$38196"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            34252,
+            34254
+          ],
+          "size": 3,
+          "kind": "read-write",
+          "owners": [
+            "$34463"
+          ],
+          "read_by": [
+            "$35211",
+            "$36307",
+            "$38601"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            34255,
+            34255
+          ],
+          "size": 1,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$36307",
+            "$37310",
+            "$38064"
+          ],
+          "read_by": [
+            "$38344"
+          ]
+        },
+        {
+          "range": [
+            34256,
+            34256
+          ],
+          "size": 1,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$36307"
+          ],
+          "read_by": [
+            "$37310",
+            "$38344"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            34257,
+            34257
+          ],
+          "size": 1,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$36307",
+            "$37310",
+            "$38064"
+          ],
+          "read_by": [
+            "$38344"
+          ]
+        },
+        {
+          "range": [
+            34258,
+            34258
+          ],
+          "size": 1,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$36307",
+            "$37310"
+          ],
+          "read_by": [
+            "$38344"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            34259,
+            34259
+          ],
+          "size": 1,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$36307",
+            "$36508",
+            "$37310",
+            "$38064"
+          ],
+          "read_by": [
+            "$38196",
+            "$38276",
+            "$38344"
+          ]
+        },
+        {
+          "range": [
+            34260,
+            34260
+          ],
+          "size": 1,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$36307",
+            "$36508",
+            "$38064"
+          ],
+          "read_by": [
+            "$38344"
+          ]
+        },
+        {
+          "range": [
+            34261,
+            34261
+          ],
+          "size": 1,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$36307"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            34262,
+            34262
+          ],
+          "size": 1,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$36307",
+            "$37310"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            34263,
+            34269
+          ],
+          "size": 7,
+          "kind": "read-write",
+          "owners": [
+            "$34463"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            34270,
+            34270
+          ],
+          "size": 1,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$37841"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            34271,
+            34271
+          ],
+          "size": 1,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$37841",
+            "$38196",
+            "$38276"
+          ],
+          "read_by": [
+            "$36307"
+          ]
+        },
+        {
+          "range": [
+            34272,
+            34272
+          ],
+          "size": 1,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$36307"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            34273,
+            34275
+          ],
+          "size": 3,
+          "kind": "read-write",
+          "owners": [
+            "$34463"
+          ],
+          "read_by": [
+            "$35211"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            34276,
+            34276
+          ],
+          "size": 1,
+          "kind": "read-write",
+          "owners": [
+            "$34499"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            34279,
+            34279
+          ],
+          "size": 1,
+          "kind": "read-only",
+          "owners": [
+            "$34463"
+          ],
+          "read_by": [
+            "$34463"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            34299,
+            34330
+          ],
+          "size": 32,
+          "kind": "read-only",
+          "owners": [
+            "$38562"
+          ],
+          "read_by": [
+            "$38562"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            34399,
+            34462
+          ],
+          "size": 64,
+          "kind": "read-only",
+          "owners": [
+            "$34463"
+          ],
+          "read_by": [
+            "$34463"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            36189,
+            36189
+          ],
+          "size": 1,
+          "kind": "read-write",
+          "owners": [
+            "$36147"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            38912,
+            39679
+          ],
+          "size": 768,
+          "kind": "read-only",
+          "owners": [
+            "$34463"
+          ],
+          "read_by": [
+            "$34463"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            39680,
+            39807
+          ],
+          "size": 128,
+          "kind": "read-only",
+          "owners": [
+            "$37974"
+          ],
+          "read_by": [
+            "$37974"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            39808,
+            39935
+          ],
+          "size": 128,
+          "kind": "read-only",
+          "owners": [
+            "$34499"
+          ],
+          "read_by": [
+            "$34499"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            39936,
+            40191
+          ],
+          "size": 256,
+          "kind": "read-only",
+          "owners": [
+            "$37974"
+          ],
+          "read_by": [
+            "$37974"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            40192,
+            40517
+          ],
+          "size": 326,
+          "kind": "read-only",
+          "owners": [
+            "$37974",
+            "$38504"
+          ],
+          "read_by": [
+            "$37974",
+            "$38504"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            40518,
+            40518
+          ],
+          "size": 1,
+          "kind": "read-only",
+          "owners": [
+            "$34499"
+          ],
+          "read_by": [
+            "$34499"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            40519,
+            40959
+          ],
+          "size": 441,
+          "kind": "read-only",
+          "owners": [
+            "$37974",
+            "$38504"
+          ],
+          "read_by": [
+            "$37974",
+            "$38504"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            40960,
+            41982
+          ],
+          "size": 1023,
+          "kind": "read-only",
+          "owners": [
+            "$34463"
+          ],
+          "read_by": [
+            "$34463"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            41983,
+            41983
+          ],
+          "size": 1,
+          "kind": "read-only",
+          "owners": [
+            "$34463",
+            "$37841"
+          ],
+          "read_by": [
+            "$34463",
+            "$37841"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            41984,
+            42158
+          ],
+          "size": 175,
+          "kind": "read-only",
+          "owners": [
+            "$37974",
+            "$38504"
+          ],
+          "read_by": [
+            "$37974",
+            "$38504"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            42159,
+            42239
+          ],
+          "size": 81,
+          "kind": "read-write",
+          "owners": [
+            "$34463",
+            "$37841"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            42240,
+            42414
+          ],
+          "size": 175,
+          "kind": "read-only",
+          "owners": [
+            "$37974",
+            "$38504"
+          ],
+          "read_by": [
+            "$37974",
+            "$38504"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            42415,
+            42495
+          ],
+          "size": 81,
+          "kind": "read-only",
+          "owners": [
+            "$37841"
+          ],
+          "read_by": [
+            "$37841"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            42496,
+            46847
+          ],
+          "size": 4352,
+          "kind": "read-only",
+          "owners": [
+            "$37974",
+            "$38504"
+          ],
+          "read_by": [
+            "$37974",
+            "$38504"
+          ],
+          "private": true
+        },
+        {
+          "range": [
+            46848,
+            49151
+          ],
+          "size": 2304,
+          "kind": "read-only",
+          "owners": [
+            "$37974"
+          ],
+          "read_by": [
+            "$37974"
+          ],
+          "private": true,
+          "single_owner": true
+        },
+        {
+          "range": [
+            49152,
+            64767
+          ],
+          "size": 15616,
+          "kind": "read-only",
+          "owners": [
+            "$34463"
+          ],
+          "read_by": [
+            "$34463"
+          ],
+          "private": true,
+          "single_owner": true
+        }
+      ],
+      "pipes": [
+        {
+          "from": [
+            24064,
+            24575
+          ],
+          "to": [
+            23552,
+            24063
+          ],
+          "times": 22752,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            23552,
+            24063
+          ],
+          "to": [
+            22528,
+            23039
+          ],
+          "times": 22630,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            24576,
+            28671
+          ],
+          "to": [
+            16384,
+            20479
+          ],
+          "times": 22630,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            40962,
+            41983
+          ],
+          "to": [
+            33026,
+            33087
+          ],
+          "times": 8544,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            40960,
+            41977
+          ],
+          "to": [
+            33024,
+            33081
+          ],
+          "times": 8544,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            49152,
+            64767
+          ],
+          "to": [
+            32768,
+            33023
+          ],
+          "times": 1068,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            34255,
+            34261
+          ],
+          "to": [
+            34263,
+            34269
+          ],
+          "times": 1068,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            38912,
+            39679
+          ],
+          "to": [
+            22528,
+            23295
+          ],
+          "times": 945,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            39424,
+            39679
+          ],
+          "to": [
+            23040,
+            23295
+          ],
+          "times": 944,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            34263,
+            34269
+          ],
+          "to": [
+            34255,
+            34261
+          ],
+          "times": 2,
+          "routine": "$34463"
+        },
+        {
+          "from": [
+            39808,
+            39935
+          ],
+          "to": [
+            22784,
+            22911
+          ],
+          "times": 1,
+          "routine": "$34499"
+        }
+      ],
+      "spanners": [
+        {
+          "routine": "$38555",
+          "segments_spanned": 39,
+          "example": [
+            15616,
+            33872
+          ]
+        },
+        {
+          "routine": "$37974",
+          "segments_spanned": 23,
+          "example": [
+            18498,
+            28670
+          ]
+        },
+        {
+          "routine": "$38528",
+          "segments_spanned": 21,
+          "example": [
+            32896,
+            34250
+          ]
+        },
+        {
+          "routine": "$38430",
+          "segments_spanned": 13,
+          "example": [
+            23552,
+            24091
+          ]
+        },
+        {
+          "routine": "$34463",
+          "segments_spanned": 11,
+          "example": [
+            23552,
+            24063
+          ]
+        },
+        {
+          "routine": "$36307",
+          "segments_spanned": 11,
+          "example": [
+            23554,
+            24058
+          ]
+        },
+        {
+          "routine": "$38344",
+          "segments_spanned": 11,
+          "example": [
+            23617,
+            24091
+          ]
+        },
+        {
+          "routine": "$38504",
+          "segments_spanned": 10,
+          "example": [
+            40192,
+            46846
+          ]
+        },
+        {
+          "routine": "$37310",
+          "segments_spanned": 9,
+          "example": [
+            23587,
+            24062
+          ]
+        },
+        {
+          "routine": "$34499",
+          "segments_spanned": 5,
+          "example": [
+            22784,
+            22911
+          ]
+        },
+        {
+          "routine": "$37056",
+          "segments_spanned": 5,
+          "example": [
+            33024,
+            33088
+          ]
+        },
+        {
+          "routine": "$37841",
+          "segments_spanned": 5,
+          "example": [
+            23574,
+            24013
+          ]
+        },
+        {
+          "routine": "$36171",
+          "segments_spanned": 2,
+          "example": [
+            24064,
+            24575
+          ]
+        },
+        {
+          "routine": "$36288",
+          "segments_spanned": 2,
+          "example": [
+            24064,
+            24575
+          ]
+        },
+        {
+          "routine": "$36508",
+          "segments_spanned": 2,
+          "example": [
+            34259,
+            34260
+          ]
+        }
+      ]
+    },
     "entity-table": {
       "detection": {
         "table": {
@@ -4129,32 +6407,32 @@
           },
           "validated_slots": [
             {
-              "confidence": 0.9244839857651246,
               "y_addr": 33027,
-              "x_addr": 33026
+              "x_addr": 33026,
+              "confidence": 0.9244839857651246
             },
             {
-              "confidence": 0.3343295827473043,
               "y_addr": 33035,
-              "x_addr": 33034
+              "x_addr": 33034,
+              "confidence": 0.3343295827473043
             }
           ],
           "loaded_by": [
             {
-              "times": 8544,
               "site": 35137,
               "from": [
                 40962,
                 41983
-              ]
+              ],
+              "times": 8544
             },
             {
-              "times": 8544,
               "site": 35128,
               "from": [
                 40960,
                 41977
-              ]
+              ],
+              "times": 8544
             }
           ],
           "updated_by": [
@@ -4164,102 +6442,102 @@
         },
         "individual": [
           {
-            "y_addr": 32985,
-            "x_addr": 32983,
             "y_formula": "v+168",
             "x_formula": "(v&15)*8+48",
-            "confidence": 0.16725269573370838
+            "confidence": 0.16725269573370838,
+            "y_addr": 32985,
+            "x_addr": 32983
           },
           {
-            "y_addr": 33014,
-            "x_addr": 33015,
             "y_formula": "v>>1+41",
             "x_formula": "(v&31)*8",
-            "confidence": 0.10182255039849976
+            "confidence": 0.10182255039849976,
+            "y_addr": 33014,
+            "x_addr": 33015
           },
           {
-            "y_addr": 33030,
-            "x_addr": 33038,
             "y_formula": "v>>1+168",
             "x_formula": "(v&31)*8+48",
-            "confidence": 0.11064228785747773
+            "confidence": 0.11064228785747773,
+            "y_addr": 33030,
+            "x_addr": 33038
           },
           {
-            "y_addr": 33042,
-            "x_addr": 33044,
             "y_formula": "v>>1+168",
             "x_formula": "(v&240)>>1+64",
-            "confidence": 0.12599624941397095
+            "confidence": 0.12599624941397095,
+            "y_addr": 33042,
+            "x_addr": 33044
           },
           {
-            "y_addr": 33050,
-            "x_addr": 33052,
             "y_formula": "v>>1+168",
             "x_formula": "(v&15)*8+48",
-            "confidence": 0.23781059540553212
+            "confidence": 0.23781059540553212,
+            "y_addr": 33050,
+            "x_addr": 33052
           },
           {
-            "y_addr": 33058,
-            "x_addr": 33066,
             "y_formula": "v>>1+168",
             "x_formula": "(v&31)*8",
-            "confidence": 0.30719643694327237
+            "confidence": 0.30719643694327237,
+            "y_addr": 33058,
+            "x_addr": 33066
           },
           {
-            "y_addr": 34261,
-            "x_addr": 34257,
             "y_formula": "(v&31)*8+24",
             "x_formula": "(v&31)*8+48",
-            "confidence": 0.14750351617440224
+            "confidence": 0.14750351617440224,
+            "y_addr": 34261,
+            "x_addr": 34257
           },
           {
-            "y_addr": 34255,
-            "x_addr": 34259,
             "y_formula": "v>>1+13",
             "x_formula": "(v&31)*8",
-            "confidence": 0.9532703791140119
+            "confidence": 0.9532703791140119,
+            "y_addr": 34255,
+            "x_addr": 34259
           }
         ],
         "weak_pairs_possible_noise": [
           {
-            "confidence": 0.0646390060947023,
             "y_addr": 33008,
-            "x_addr": 33004
+            "x_addr": 33004,
+            "confidence": 0.0646390060947023
           },
           {
-            "confidence": 0.04704626334519573,
             "y_addr": 33013,
-            "x_addr": 33009
+            "x_addr": 33009,
+            "confidence": 0.04704626334519573
           },
           {
-            "confidence": 0.021536568213783403,
             "y_addr": 33012,
-            "x_addr": 33011
+            "x_addr": 33011,
+            "confidence": 0.021536568213783403
           },
           {
-            "confidence": 0.02812939521800281,
             "y_addr": 33024,
-            "x_addr": 33017
+            "x_addr": 33017,
+            "confidence": 0.02812939521800281
           },
           {
-            "confidence": 0.06384786685419597,
             "y_addr": 33029,
-            "x_addr": 33031
+            "x_addr": 33031,
+            "confidence": 0.06384786685419597
           },
           {
-            "confidence": 0.03938115330520394,
             "y_addr": 33032,
-            "x_addr": 33033
+            "x_addr": 33033,
+            "confidence": 0.03938115330520394
           },
           {
-            "confidence": 0.022884126407555393,
             "y_addr": 33040,
-            "x_addr": 33047
+            "x_addr": 33047,
+            "confidence": 0.022884126407555393
           },
           {
-            "confidence": 0.04390637610976594,
             "y_addr": 33043,
-            "x_addr": 33048
+            "x_addr": 33048,
+            "confidence": 0.04390637610976594
           }
         ]
       },
@@ -4276,8 +6554,8 @@
             33087
           ],
           "cursor_advance": {
-            "step": 8,
-            "site": 37305
+            "site": 37305,
+            "step": 8
           },
           "terminator": {
             "value": 255,
@@ -4479,7 +6757,6 @@
               "condition": "field +0 == 255",
               "arms": [
                 {
-                  "times": 80353,
                   "exclusive_fields": [
                     0,
                     1,
@@ -4489,12 +6766,13 @@
                     6,
                     7
                   ],
-                  "pc": 37066
+                  "pc": 37066,
+                  "times": 80353
                 },
                 {
-                  "times": 22752,
                   "exclusive_fields": [],
-                  "pc": 35273
+                  "pc": 35273,
+                  "times": 22752
                 }
               ]
             },
@@ -4503,7 +6781,6 @@
               "condition": "field +0 & 3",
               "arms": [
                 {
-                  "times": 75571,
                   "exclusive_fields": [
                     0,
                     1,
@@ -4513,12 +6790,13 @@
                     6,
                     7
                   ],
-                  "pc": 37071
+                  "pc": 37071,
+                  "times": 75571
                 },
                 {
-                  "times": 4782,
                   "exclusive_fields": [],
-                  "pc": 37302
+                  "pc": 37302,
+                  "times": 4782
                 }
               ]
             },
@@ -4527,7 +6805,6 @@
               "condition": "field +0 & 3 == 1",
               "arms": [
                 {
-                  "times": 38318,
                   "exclusive_fields": [
                     0,
                     1,
@@ -4536,17 +6813,18 @@
                     6,
                     7
                   ],
-                  "pc": 37076
+                  "pc": 37076,
+                  "times": 38318
                 },
                 {
-                  "times": 37253,
                   "exclusive_fields": [
                     0,
                     2,
                     6,
                     7
                   ],
-                  "pc": 37171
+                  "pc": 37171,
+                  "times": 37253
                 }
               ]
             },
@@ -4555,7 +6833,6 @@
               "condition": "field +0 & 3 == 2",
               "arms": [
                 {
-                  "times": 37105,
                   "exclusive_fields": [
                     0,
                     3,
@@ -4563,16 +6840,17 @@
                     6,
                     7
                   ],
-                  "pc": 37247
+                  "pc": 37247,
+                  "times": 37105
                 },
                 {
-                  "times": 1213,
                   "exclusive_fields": [
                     0,
                     1,
                     7
                   ],
-                  "pc": 37081
+                  "pc": 37081,
+                  "times": 1213
                 }
               ]
             },
@@ -4581,18 +6859,18 @@
               "condition": "field +0",
               "arms": [
                 {
-                  "times": 529,
                   "exclusive_fields": [
                     1
                   ],
-                  "pc": 37087
+                  "pc": 37087,
+                  "times": 529
                 },
                 {
-                  "times": 684,
                   "exclusive_fields": [
                     1
                   ],
-                  "pc": 37119
+                  "pc": 37119,
+                  "times": 684
                 }
               ]
             },
@@ -4601,16 +6879,16 @@
               "condition": "field +7 & 127",
               "arms": [
                 {
-                  "times": 24,
                   "exclusive_fields": [
                     0
                   ],
-                  "pc": 37160
+                  "pc": 37160,
+                  "times": 24
                 },
                 {
-                  "times": 1189,
                   "exclusive_fields": [],
-                  "pc": 37302
+                  "pc": 37302,
+                  "times": 1189
                 }
               ]
             },
@@ -4619,22 +6897,22 @@
               "condition": "field +0",
               "arms": [
                 {
-                  "times": 19221,
                   "exclusive_fields": [
                     0,
                     2,
                     6
                   ],
-                  "pc": 37177
+                  "pc": 37177,
+                  "times": 19221
                 },
                 {
-                  "times": 18032,
                   "exclusive_fields": [
                     0,
                     2,
                     7
                   ],
-                  "pc": 37212
+                  "pc": 37212,
+                  "times": 18032
                 }
               ]
             },
@@ -4643,18 +6921,18 @@
               "condition": "field +0 & 127 == 96",
               "arms": [
                 {
-                  "times": 13642,
                   "exclusive_fields": [],
-                  "pc": 37302
+                  "pc": 37302,
+                  "times": 13642
                 },
                 {
-                  "times": 5579,
                   "exclusive_fields": [
                     0,
                     2,
                     6
                   ],
-                  "pc": 37191
+                  "pc": 37191,
+                  "times": 5579
                 }
               ]
             },
@@ -4663,18 +6941,18 @@
               "condition": "field +6 & 31",
               "arms": [
                 {
-                  "times": 386,
                   "exclusive_fields": [
                     0
                   ],
-                  "pc": 37206
+                  "pc": 37206,
+                  "times": 386
                 },
                 {
-                  "times": 5193,
                   "exclusive_fields": [
                     2
                   ],
-                  "pc": 37201
+                  "pc": 37201,
+                  "times": 5193
                 }
               ]
             },
@@ -4683,18 +6961,18 @@
               "condition": "field +0 == 160",
               "arms": [
                 {
-                  "times": 13557,
                   "exclusive_fields": [],
-                  "pc": 37302
+                  "pc": 37302,
+                  "times": 13557
                 },
                 {
-                  "times": 4475,
                   "exclusive_fields": [
                     0,
                     2,
                     7
                   ],
-                  "pc": 37226
+                  "pc": 37226,
+                  "times": 4475
                 }
               ]
             },
@@ -4703,18 +6981,18 @@
               "condition": "field +7 & 31",
               "arms": [
                 {
-                  "times": 347,
                   "exclusive_fields": [
                     0
                   ],
-                  "pc": 37241
+                  "pc": 37241,
+                  "times": 347
                 },
                 {
-                  "times": 4128,
                   "exclusive_fields": [
                     2
                   ],
-                  "pc": 37236
+                  "pc": 37236,
+                  "times": 4128
                 }
               ]
             },
@@ -4723,16 +7001,16 @@
               "condition": "field +0 & 24",
               "arms": [
                 {
-                  "times": 6446,
                   "exclusive_fields": [],
-                  "pc": 37267
+                  "pc": 37267,
+                  "times": 6446
                 },
                 {
-                  "times": 30659,
                   "exclusive_fields": [
                     0
                   ],
-                  "pc": 37259
+                  "pc": 37259,
+                  "times": 30659
                 }
               ]
             },
@@ -4741,17 +7019,17 @@
               "condition": "field +7",
               "arms": [
                 {
-                  "times": 716,
                   "exclusive_fields": [],
-                  "pc": 37294
+                  "pc": 37294,
+                  "times": 716
                 },
                 {
-                  "times": 36389,
                   "exclusive_fields": [
                     3,
                     6
                   ],
-                  "pc": 37281
+                  "pc": 37281,
+                  "times": 36389
                 }
               ]
             },
@@ -4760,18 +7038,18 @@
               "condition": "field +6",
               "arms": [
                 {
-                  "times": 6,
                   "exclusive_fields": [
                     3,
                     4,
                     6
                   ],
-                  "pc": 37288
+                  "pc": 37288,
+                  "times": 6
                 },
                 {
-                  "times": 35712,
                   "exclusive_fields": [],
-                  "pc": 37302
+                  "pc": 37302,
+                  "times": 35712
                 }
               ]
             }
@@ -4790,8 +7068,8 @@
             33087
           ],
           "cursor_advance": {
-            "step": 8,
-            "site": 37814
+            "site": 37814,
+            "step": 8
           },
           "terminator": {
             "value": 255,
@@ -5050,7 +7328,6 @@
               "condition": "field +0 == 255",
               "arms": [
                 {
-                  "times": 79945,
                   "exclusive_fields": [
                     0,
                     1,
@@ -5062,12 +7339,13 @@
                     9,
                     11
                   ],
-                  "pc": 37320
+                  "pc": 37320,
+                  "times": 79945
                 },
                 {
-                  "times": 22628,
                   "exclusive_fields": [],
-                  "pc": 35311
+                  "pc": 35311,
+                  "times": 22628
                 }
               ]
             },
@@ -5076,7 +7354,6 @@
               "condition": "field +0 & 7 == 3",
               "arms": [
                 {
-                  "times": 1206,
                   "exclusive_fields": [
                     0,
                     1,
@@ -5087,10 +7364,10 @@
                     9,
                     11
                   ],
-                  "pc": 37540
+                  "pc": 37540,
+                  "times": 1206
                 },
                 {
-                  "times": 78739,
                   "exclusive_fields": [
                     0,
                     1,
@@ -5100,7 +7377,8 @@
                     5,
                     6
                   ],
-                  "pc": 37330
+                  "pc": 37330,
+                  "times": 78739
                 }
               ]
             },
@@ -5109,7 +7387,6 @@
               "condition": "field +0 & 7 == 4",
               "arms": [
                 {
-                  "times": 4747,
                   "exclusive_fields": [
                     0,
                     2,
@@ -5117,10 +7394,10 @@
                     5,
                     6
                   ],
-                  "pc": 37431
+                  "pc": 37431,
+                  "times": 4747
                 },
                 {
-                  "times": 73992,
                   "exclusive_fields": [
                     0,
                     1,
@@ -5128,7 +7405,8 @@
                     3,
                     5
                   ],
-                  "pc": 37334
+                  "pc": 37334,
+                  "times": 73992
                 }
               ]
             },
@@ -5137,18 +7415,18 @@
               "condition": "field +0",
               "arms": [
                 {
-                  "times": 1536,
                   "exclusive_fields": [
                     4
                   ],
-                  "pc": 37437
+                  "pc": 37437,
+                  "times": 1536
                 },
                 {
-                  "times": 3211,
                   "exclusive_fields": [
                     4
                   ],
-                  "pc": 37444
+                  "pc": 37444,
+                  "times": 3211
                 }
               ]
             },
@@ -5157,19 +7435,19 @@
               "condition": "field +4",
               "arms": [
                 {
-                  "times": 21,
                   "exclusive_fields": [],
-                  "pc": 37455
+                  "pc": 37455,
+                  "times": 21
                 },
                 {
-                  "times": 4726,
                   "exclusive_fields": [
                     2,
                     4,
                     5,
                     6
                   ],
-                  "pc": 37474
+                  "pc": 37474,
+                  "times": 4726
                 }
               ]
             },
@@ -5178,19 +7456,19 @@
               "condition": "field +4 & 224",
               "arms": [
                 {
-                  "times": 876,
                   "exclusive_fields": [
                     2,
                     4,
                     5,
                     6
                   ],
-                  "pc": 37479
+                  "pc": 37479,
+                  "times": 876
                 },
                 {
-                  "times": 3850,
                   "exclusive_fields": [],
-                  "pc": 37811
+                  "pc": 37811,
+                  "times": 3850
                 }
               ]
             },
@@ -5199,18 +7477,18 @@
               "condition": "field +9",
               "arms": [
                 {
-                  "times": 16291,
                   "exclusive_fields": [],
-                  "pc": 37590
+                  "pc": 37590,
+                  "times": 16291
                 },
                 {
-                  "times": 23507,
                   "exclusive_fields": [
                     5,
                     9,
                     11
                   ],
-                  "pc": 37574
+                  "pc": 37574,
+                  "times": 23507
                 }
               ]
             },
@@ -5219,19 +7497,19 @@
               "condition": "field +3",
               "arms": [
                 {
-                  "times": 23500,
                   "exclusive_fields": [],
-                  "pc": 37646
+                  "pc": 37646,
+                  "times": 23500
                 },
                 {
-                  "times": 7,
                   "exclusive_fields": [
                     3,
                     5,
                     9,
                     11
                   ],
-                  "pc": 37580
+                  "pc": 37580,
+                  "times": 7
                 }
               ]
             },
@@ -5240,7 +7518,6 @@
               "condition": "field +9",
               "arms": [
                 {
-                  "times": 15894,
                   "exclusive_fields": [
                     0,
                     1,
@@ -5250,16 +7527,17 @@
                     9,
                     11
                   ],
-                  "pc": 37646
+                  "pc": 37646,
+                  "times": 15894
                 },
                 {
-                  "times": 404,
                   "exclusive_fields": [
                     3,
                     5,
                     11
                   ],
-                  "pc": 37595
+                  "pc": 37595,
+                  "times": 404
                 }
               ]
             },
@@ -5268,20 +7546,20 @@
               "condition": "field +1",
               "arms": [
                 {
-                  "times": 14751,
                   "exclusive_fields": [
                     3,
                     5
                   ],
-                  "pc": 37697
+                  "pc": 37697,
+                  "times": 14751
                 },
                 {
-                  "times": 16105,
                   "exclusive_fields": [
                     3,
                     5
                   ],
-                  "pc": 37680
+                  "pc": 37680,
+                  "times": 16105
                 }
               ]
             },
@@ -5290,20 +7568,20 @@
               "condition": "field +4",
               "arms": [
                 {
-                  "times": 1206,
                   "exclusive_fields": [
                     0,
                     4,
                     11
                   ],
-                  "pc": 37726
+                  "pc": 37726,
+                  "times": 1206
                 },
                 {
-                  "times": 38592,
                   "exclusive_fields": [
                     9
                   ],
-                  "pc": 37720
+                  "pc": 37720,
+                  "times": 38592
                 }
               ]
             },
@@ -5312,20 +7590,20 @@
               "condition": "field +9 & 128",
               "arms": [
                 {
-                  "times": 96,
                   "exclusive_fields": [
                     11
                   ],
-                  "pc": 37733
+                  "pc": 37733,
+                  "times": 96
                 },
                 {
-                  "times": 1110,
                   "exclusive_fields": [
                     0,
                     4,
                     11
                   ],
-                  "pc": 37743
+                  "pc": 37743,
+                  "times": 1110
                 }
               ]
             },
@@ -5334,17 +7612,17 @@
               "condition": "field +11",
               "arms": [
                 {
-                  "times": 404,
                   "exclusive_fields": [
                     0,
                     4
                   ],
-                  "pc": 37749
+                  "pc": 37749,
+                  "times": 404
                 },
                 {
-                  "times": 706,
                   "exclusive_fields": [],
-                  "pc": 37811
+                  "pc": 37811,
+                  "times": 706
                 }
               ]
             }
@@ -5551,22 +7829,22 @@
           ],
           "ladders": [
             {
-              "routine": "$37056",
               "tested_values": [
                 0,
                 1,
                 2
               ],
-              "mask": 3
+              "mask": 3,
+              "routine": "$37056"
             },
             {
-              "routine": "$37310",
               "tested_values": [
                 0,
                 3,
                 4
               ],
-              "mask": 7
+              "mask": 7,
+              "routine": "$37310"
             }
           ]
         },
@@ -5772,18 +8050,18 @@
                 "condition": "field +0 & 127 == 96",
                 "arms": [
                   {
-                    "times": 13642,
                     "exclusive_fields": [],
-                    "pc": 37302
+                    "pc": 37302,
+                    "times": 13642
                   },
                   {
-                    "times": 5579,
                     "exclusive_fields": [
                       0,
                       2,
                       6
                     ],
-                    "pc": 37191
+                    "pc": 37191,
+                    "times": 5579
                   }
                 ]
               },
@@ -5792,18 +8070,18 @@
                 "condition": "field +6 & 31",
                 "arms": [
                   {
-                    "times": 386,
                     "exclusive_fields": [
                       0
                     ],
-                    "pc": 37206
+                    "pc": 37206,
+                    "times": 386
                   },
                   {
-                    "times": 5193,
                     "exclusive_fields": [
                       2
                     ],
-                    "pc": 37201
+                    "pc": 37201,
+                    "times": 5193
                   }
                 ]
               },
@@ -5812,18 +8090,18 @@
                 "condition": "field +7 & 31",
                 "arms": [
                   {
-                    "times": 347,
                     "exclusive_fields": [
                       0
                     ],
-                    "pc": 37241
+                    "pc": 37241,
+                    "times": 347
                   },
                   {
-                    "times": 4128,
                     "exclusive_fields": [
                       2
                     ],
-                    "pc": 37236
+                    "pc": 37236,
+                    "times": 4128
                   }
                 ]
               }
@@ -6040,16 +8318,16 @@
                 "condition": "field +0 & 24",
                 "arms": [
                   {
-                    "times": 6446,
                     "exclusive_fields": [],
-                    "pc": 37267
+                    "pc": 37267,
+                    "times": 6446
                   },
                   {
-                    "times": 30659,
                     "exclusive_fields": [
                       0
                     ],
-                    "pc": 37259
+                    "pc": 37259,
+                    "times": 30659
                   }
                 ]
               }
@@ -6279,16 +8557,16 @@
                 "condition": "field +7 & 127",
                 "arms": [
                   {
-                    "times": 24,
                     "exclusive_fields": [
                       0
                     ],
-                    "pc": 37160
+                    "pc": 37160,
+                    "times": 24
                   },
                   {
-                    "times": 1189,
                     "exclusive_fields": [],
-                    "pc": 37302
+                    "pc": 37302,
+                    "times": 1189
                   }
                 ]
               },
@@ -6297,20 +8575,20 @@
                 "condition": "field +9 & 128",
                 "arms": [
                   {
-                    "times": 96,
                     "exclusive_fields": [
                       11
                     ],
-                    "pc": 37733
+                    "pc": 37733,
+                    "times": 96
                   },
                   {
-                    "times": 1110,
                     "exclusive_fields": [
                       0,
                       4,
                       11
                     ],
-                    "pc": 37743
+                    "pc": 37743,
+                    "times": 1110
                   }
                 ]
               }
@@ -6426,19 +8704,19 @@
                 "condition": "field +4 & 224",
                 "arms": [
                   {
-                    "times": 876,
                     "exclusive_fields": [
                       2,
                       4,
                       5,
                       6
                     ],
-                    "pc": 37479
+                    "pc": 37479,
+                    "times": 876
                   },
                   {
-                    "times": 3850,
                     "exclusive_fields": [],
-                    "pc": 37811
+                    "pc": 37811,
+                    "times": 3850
                   }
                 ]
               }
@@ -6449,60 +8727,60 @@
     },
     "protagonist": [
       {
-        "y_addr": 32985,
-        "x_addr": 32983,
         "y_formula": "v+168",
         "x_formula": "(v&15)*8+48",
-        "confidence": 0.16725269573370838
+        "confidence": 0.16725269573370838,
+        "y_addr": 32985,
+        "x_addr": 32983
       },
       {
-        "y_addr": 33014,
-        "x_addr": 33015,
         "y_formula": "v>>1+41",
         "x_formula": "(v&31)*8",
-        "confidence": 0.10182255039849976
+        "confidence": 0.10182255039849976,
+        "y_addr": 33014,
+        "x_addr": 33015
       },
       {
-        "y_addr": 33030,
-        "x_addr": 33038,
         "y_formula": "v>>1+168",
         "x_formula": "(v&31)*8+48",
-        "confidence": 0.11064228785747773
+        "confidence": 0.11064228785747773,
+        "y_addr": 33030,
+        "x_addr": 33038
       },
       {
-        "y_addr": 33042,
-        "x_addr": 33044,
         "y_formula": "v>>1+168",
         "x_formula": "(v&240)>>1+64",
-        "confidence": 0.12599624941397095
+        "confidence": 0.12599624941397095,
+        "y_addr": 33042,
+        "x_addr": 33044
       },
       {
-        "y_addr": 33050,
-        "x_addr": 33052,
         "y_formula": "v>>1+168",
         "x_formula": "(v&15)*8+48",
-        "confidence": 0.23781059540553212
+        "confidence": 0.23781059540553212,
+        "y_addr": 33050,
+        "x_addr": 33052
       },
       {
-        "y_addr": 33058,
-        "x_addr": 33066,
         "y_formula": "v>>1+168",
         "x_formula": "(v&31)*8",
-        "confidence": 0.30719643694327237
+        "confidence": 0.30719643694327237,
+        "y_addr": 33058,
+        "x_addr": 33066
       },
       {
-        "y_addr": 34261,
-        "x_addr": 34257,
         "y_formula": "(v&31)*8+24",
         "x_formula": "(v&31)*8+48",
-        "confidence": 0.14750351617440224
+        "confidence": 0.14750351617440224,
+        "y_addr": 34261,
+        "x_addr": 34257
       },
       {
-        "y_addr": 34255,
-        "x_addr": 34259,
         "y_formula": "v>>1+13",
         "x_formula": "(v&31)*8",
-        "confidence": 0.9532703791140119
+        "confidence": 0.9532703791140119,
+        "y_addr": 34255,
+        "x_addr": 34259
       }
     ],
     "sprites": [
@@ -11185,39 +13463,39 @@
         }
       },
       {
-        "type": "state_logic",
         "name": "$36307",
         "evidence": {
           "writes_to_variables": 75969
-        }
+        },
+        "type": "state_logic"
       },
       {
-        "type": "state_logic",
         "name": "$36508",
         "evidence": {
           "writes_to_variables": 17048
-        }
+        },
+        "type": "state_logic"
       },
       {
-        "type": "state_logic",
         "name": "$37056",
         "evidence": {
           "writes_to_variables": 155483
-        }
+        },
+        "type": "state_logic"
       },
       {
-        "type": "state_logic",
         "name": "$38064",
         "evidence": {
           "writes_to_variables": 95
-        }
+        },
+        "type": "state_logic"
       },
       {
-        "type": "state_logic",
         "name": "$38276",
         "evidence": {
           "writes_to_variables": 1
-        }
+        },
+        "type": "state_logic"
       }
     ],
     "other-structures": [
@@ -11344,19 +13622,19 @@
             "condition": "field +4 == 58",
             "arms": [
               {
-                "times": 8,
                 "exclusive_fields": [
                   0,
                   1,
                   3,
                   4
                 ],
-                "pc": 35424
+                "pc": 35424,
+                "times": 8
               },
               {
-                "times": 76,
                 "exclusive_fields": [],
-                "pc": 35499
+                "pc": 35499,
+                "times": 76
               }
             ]
           },
@@ -11365,18 +13643,18 @@
             "condition": "field +3 == 54",
             "arms": [
               {
-                "times": 7,
                 "exclusive_fields": [],
-                "pc": 35499
+                "pc": 35499,
+                "times": 7
               },
               {
-                "times": 1,
                 "exclusive_fields": [
                   0,
                   1,
                   3
                 ],
-                "pc": 35438
+                "pc": 35438,
+                "times": 1
               }
             ]
           }
@@ -11448,19 +13726,19 @@
             "condition": "field +0 & 127 == 7",
             "arms": [
               {
-                "times": 2,
                 "exclusive_fields": [],
-                "pc": 34648
+                "pc": 34648,
+                "times": 2
               },
               {
-                "times": 1366,
                 "exclusive_fields": [
                   0,
                   1,
                   32,
                   33
                 ],
-                "pc": 34693
+                "pc": 34693,
+                "times": 1366
               }
             ]
           }
@@ -11478,8 +13756,8 @@
           33479
         ],
         "cursor_advance": {
-          "step": 8,
-          "site": 37665
+          "site": 37665,
+          "step": 8
         },
         "fields": [
           {
