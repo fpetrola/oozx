@@ -432,6 +432,39 @@ global de `track`, dominada por el tipo mayoritario — en el tipo soga el +3 re
 del segmento, pero conserva la etiqueta Y global. Separar la correlación por tipo es
 refinamiento futuro.
 
+## 9sexies. "rebuilds": selectores de contenido y su cluster de reconstruccion (2026-07-15)
+
+**Pregunta del usuario que lo motivó**: ¿se puede encontrar automáticamente dónde se
+guarda el número de la pantalla actual, y a partir de lo que dispara su modificación
+descubrir la rutina que construye la pantalla trayendo y combinando datos de varios
+orígenes? Este es el paso 1-2 de ese plan (los pasos siguientes: estructura de cada
+origen —registro singleton—, mapeo layout→tiles, semántica de tiles por ramas de
+colisión).
+
+`RebuildFinder` (CLI `rebuilds`, hallazgo `reconstruccion-por-selector`):
+1. **Selector**: celda dinámica única cuyo valor alimenta (edges ADDR, BFS hacia atrás)
+   la dirección ORIGEN de una copia en bloque, tal que `origen = base + valor*stride`
+   ajusta con los rangos observados (stride entero ≥2, cadencia lectura≈copia). La celda
+   elige QUÉ registro de una tabla se construye.
+2. **Cluster**: las demás copias en bloque con la MISMA cadencia (múltiplo entero ≤16 de
+   las ejecuciones de la copia principal, ±10%) = todo lo que se reconstruye junto.
+   Detecta además el idiom de relleno LDIR (origen = destino−1 = propaga un byte).
+3. **Matiz del disparo**: ejecuciones del cluster vs cambios de VALOR del selector
+   (`frame_cells`) — si corre más veces de las que cambia, también se re-inicializa con
+   el mismo valor (muerte/reinicio).
+4. **Hand-off**: qué rutinas LEEN después cada región reconstruida — ahí sigue la
+   recuperación de estructura de cada origen.
+
+**Resultado en JSW2 (= la rutina 35090 "Initialise the current room" del disassembly de
+skoolkid, deducida sin conocimiento del juego)**: selector mem[33824] (59 valores), tabla
+de 61 registros de 256 bytes en 49152 → [32768..33023]; disparado por el init (valor 33)
+y las rutinas de cambio de habitación; corrió x1068 con 125 cambios de valor (re-entra
+al morir); reconstruye además el buffer de entidades (2 copias ×8 desde las definiciones
+[40960..41983]), un backup de las variables de Willy [34255..34261]→[34263..34269] y un
+relleno de pantalla; el bloque reconstruido lo consumen $36171 (render del fondo), $38555
+(texto: el nombre de la pantalla vive ahí), $37310/$37056 (entidades) y $36203/$36288
+(atributos).
+
 ## 10. Roadmap / ideas pendientes
 
 - **F5 completo — trace exacto por ventana de frames**: log por instancia de TODOS los

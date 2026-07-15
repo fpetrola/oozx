@@ -36,6 +36,8 @@ package com.fpetrola.z80.analysis;
  *   AnalysisCLI export [salida.json]                        modelo del juego consolidado en JSON
  *   AnalysisCLI structs [metodo]                            estructuras de datos por rutina: campos,
  *                                                           geometria del arreglo, semantica y variantes
+ *   AnalysisCLI rebuilds                                    variables selectoras (pantalla/nivel actual) y
+ *                                                           el cluster de reconstruccion que disparan
  * </pre>
  */
 public class AnalysisCLI {
@@ -90,6 +92,7 @@ public class AnalysisCLI {
         new Explainer(db, dbPath).explain(lo, hi, depth, fanout);
       }
       case "structs" -> new StructFinder(db, dbPath).report(args.length > 1 ? args[1] : null);
+      case "rebuilds" -> new RebuildFinder(db, dbPath).report();
       case "sprites" -> new SpriteFinder(db).report();
       case "regions" -> new RegionClassifier(db, args.length > 1 ? Integer.parseInt(args[1]) : 20583).report();
       case "copychains" -> new CopyChainFinder(db).report();

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generado": "2026-07-15T02:05:36.688063822",
+    "generado": "2026-07-15T10:19:41.957144600",
     "descripcion": "Modelo del juego deducido automaticamente del replay RZX instrumentado. Dos capas: 'hallazgos' son las conclusiones finales, agrupadas e interpretadas (lo mas importante de cada cosa encontrada); 'evidencia' tiene los datos crudos que las respaldan, asociados por el id del hallazgo (ver doc/MANUAL-ANALISIS.md)",
     "dibujados": 4244108,
     "frames_con_dibujos": 41457,
@@ -147,6 +147,46 @@
       ]
     },
     {
+      "id": "reconstruccion-por-selector",
+      "titulo": "Variables selectoras: eligen que contenido se construye (pantalla/nivel actual) y disparan el cluster que lo reconstruye",
+      "evidencia": "reconstruccion-por-selector",
+      "selectores": [
+        {
+          "selector": "mem[33824] (59 valores distintos)",
+          "que_hace": "elige 1 de 61 registros de 256 bytes en [49152, 64767] y lo copia a [32768..33023]",
+          "formula": "origen = 49152 + selector*256",
+          "disparado_por": [
+            "$34463 x945",
+            "$36307 x47",
+            "$36307 x42",
+            "$38064 x19",
+            "$36307 x14"
+          ],
+          "nota": "la reconstruccion corrio x1068 pero el selector cambio de valor 125 veces: tambien se re-ejecuta sin cambiar el valor (muerte/reinicio)",
+          "reconstruye_ademas": [
+            "[40962..41983] -> [33026..33087] (8x por reconstruccion)",
+            "[20480..22526] -> [20481..22527] (1x por reconstruccion; relleno con un valor (origen = destino-1: propaga un byte))",
+            "[34255..34261] -> [34263..34269] (1x por reconstruccion)",
+            "[40960..41977] -> [33024..33081] (8x por reconstruccion)"
+          ],
+          "contenido_consumido_despues_por": {
+            "[20481..22527]": [
+              "$38555"
+            ],
+            "[32768..33087]": [
+              "$36171",
+              "$38555",
+              "$37310",
+              "$36203",
+              "$36288",
+              "$37056"
+            ],
+            "[34263..34269]": []
+          }
+        }
+      ]
+    },
+    {
       "id": "tabla-entidades",
       "titulo": "Tabla de entidades en [33024..33087]: 8 slots de 8 bytes, 5 tipos de entidad",
       "slots_con_datos_observados": 8,
@@ -254,16 +294,16 @@
             40962,
             41983
           ],
-          "veces": 8544,
-          "site": 35137
+          "site": 35137,
+          "veces": 8544
         },
         {
           "desde": [
             40960,
             41977
           ],
-          "veces": 8544,
-          "site": 35128
+          "site": 35128,
+          "veces": 8544
         }
       ],
       "actualizada_por": [
@@ -289,76 +329,76 @@
       "tamanio_tipico_bytes": 32,
       "mas_dibujados": [
         {
-          "bytes": 32,
           "rutinas": "$37974 $38504",
-          "veces_dibujado": 97638,
+          "bytes": 32,
           "rango": [
             40256,
             40287
-          ]
+          ],
+          "veces_dibujado": 97638
         },
         {
-          "bytes": 32,
           "rutinas": "$37974 $38504",
-          "veces_dibujado": 15864,
+          "bytes": 32,
           "rango": [
             40192,
             40223
-          ]
+          ],
+          "veces_dibujado": 15864
         },
         {
-          "bytes": 32,
           "rutinas": "$37974 $38504",
-          "veces_dibujado": 8970,
+          "bytes": 32,
           "rango": [
             40224,
             40255
-          ]
+          ],
+          "veces_dibujado": 8970
         },
         {
-          "bytes": 32,
           "rutinas": "$37974 $38504",
-          "veces_dibujado": 8926,
+          "bytes": 32,
           "rango": [
             40288,
             40319
-          ]
+          ],
+          "veces_dibujado": 8926
         },
         {
-          "bytes": 32,
           "rutinas": "$37974",
-          "veces_dibujado": 4253,
+          "bytes": 32,
           "rango": [
             47680,
             47711
-          ]
+          ],
+          "veces_dibujado": 4253
         },
         {
-          "bytes": 32,
           "rutinas": "$37974",
-          "veces_dibujado": 3129,
+          "bytes": 32,
           "rango": [
             48928,
             48959
-          ]
+          ],
+          "veces_dibujado": 3129
         },
         {
-          "bytes": 32,
           "rutinas": "$37974",
-          "veces_dibujado": 3065,
+          "bytes": 32,
           "rango": [
             48896,
             48927
-          ]
+          ],
+          "veces_dibujado": 3065
         },
         {
-          "bytes": 32,
           "rutinas": "$37974",
-          "veces_dibujado": 2968,
+          "bytes": 32,
           "rango": [
             46880,
             46911
-          ]
+          ],
+          "veces_dibujado": 2968
         }
       ],
       "items": "ademas hay 64 graficos chicos (1-2 bytes) en [42415..42495] (objetos/decoraciones)"
@@ -379,40 +419,40 @@
       "evidencia": "tablas-consulta",
       "tablas": [
         {
-          "usada_por": [
-            "$37310",
-            "$38504"
-          ],
           "rango": [
             33280,
             33535
+          ],
+          "usada_por": [
+            "$37310",
+            "$38504"
           ]
         },
         {
-          "usada_por": [
-            "$37310"
-          ],
           "rango": [
             33664,
             33750
+          ],
+          "usada_por": [
+            "$37310"
           ]
         },
         {
-          "usada_por": [
-            "$37841"
-          ],
           "rango": [
             41983,
             41983
+          ],
+          "usada_por": [
+            "$37841"
           ]
         },
         {
-          "usada_por": [
-            "$37841"
-          ],
           "rango": [
             42415,
             42495
+          ],
+          "usada_por": [
+            "$37841"
           ]
         }
       ]
@@ -491,80 +531,80 @@
       "evidencia": "rutinas",
       "lista": [
         {
-          "hace": "dibuja un sprite fila por fila (el protagonista)",
-          "rutina": "$34463"
+          "rutina": "$34463",
+          "hace": "dibuja un sprite fila por fila (el protagonista)"
         },
         {
-          "hace": "pinta colores (atributos)",
-          "rutina": "$34499"
+          "rutina": "$34499",
+          "hace": "pinta colores (atributos)"
         },
         {
-          "hace": "dibuja un sprite fila por fila (el protagonista)",
-          "rutina": "$34620"
+          "rutina": "$34620",
+          "hace": "dibuja un sprite fila por fila (el protagonista)"
         },
         {
-          "hace": "renderiza el fondo de la habitacion al buffer",
-          "rutina": "$36171"
+          "rutina": "$36171",
+          "hace": "renderiza el fondo de la habitacion al buffer"
         },
         {
-          "hace": "dibuja en pantalla",
-          "rutina": "$36203"
+          "rutina": "$36203",
+          "hace": "dibuja en pantalla"
         },
         {
-          "hace": "pinta colores (atributos)",
-          "rutina": "$36288"
+          "rutina": "$36288",
+          "hace": "pinta colores (atributos)"
         },
         {
-          "hace": "dibuja sprites de entidades",
-          "rutina": "$37310"
+          "rutina": "$37310",
+          "hace": "dibuja sprites de entidades"
         },
         {
-          "hace": "pinta colores (atributos)",
-          "rutina": "$37841"
+          "rutina": "$37841",
+          "hace": "pinta colores (atributos)"
         },
         {
-          "hace": "dibuja sprites de entidades",
-          "rutina": "$37974"
+          "rutina": "$37974",
+          "hace": "dibuja sprites de entidades"
         },
         {
-          "hace": "dibuja sprites de entidades",
-          "rutina": "$38137"
+          "rutina": "$38137",
+          "hace": "dibuja sprites de entidades"
         },
         {
-          "hace": "pinta colores (atributos)",
-          "rutina": "$38196"
+          "rutina": "$38196",
+          "hace": "pinta colores (atributos)"
         },
         {
-          "hace": "pinta colores (atributos)",
-          "rutina": "$38430"
+          "rutina": "$38430",
+          "hace": "pinta colores (atributos)"
         },
         {
-          "hace": "dibuja un sprite fila por fila (el protagonista)",
-          "rutina": "$38504"
+          "rutina": "$38504",
+          "hace": "dibuja un sprite fila por fila (el protagonista)"
         },
         {
-          "hace": "imprime texto con la fuente ROM",
-          "rutina": "$38555"
+          "rutina": "$38555",
+          "hace": "imprime texto con la fuente ROM"
         },
         {
-          "hace": "logica de juego: actualiza variables y entidades",
-          "rutina": "$36307"
+          "rutina": "$36307",
+          "hace": "logica de juego: actualiza variables y entidades"
         },
         {
-          "hace": "logica de juego: actualiza variables y entidades",
-          "rutina": "$36508"
+          "rutina": "$36508",
+          "hace": "logica de juego: actualiza variables y entidades"
         },
         {
-          "hace": "logica de juego: actualiza variables y entidades",
-          "rutina": "$37056"
+          "rutina": "$37056",
+          "hace": "logica de juego: actualiza variables y entidades"
         },
         {
-          "hace": "logica de juego: actualiza variables y entidades",
-          "rutina": "$38064"
+          "rutina": "$38064",
+          "hace": "logica de juego: actualiza variables y entidades"
         },
         {
-          "hace": "logica de juego: actualiza variables y entidades",
-          "rutina": "$38276"
+          "rutina": "$38276",
+          "hace": "logica de juego: actualiza variables y entidades"
         }
       ]
     },
@@ -575,28 +615,28 @@
       "lista": [
         {
           "rutina": "$34463",
-          "cursor": "IX",
-          "resumen": "arreglo en [33008..33023], registros de 2 bytes, 2 campos"
+          "resumen": "arreglo en [33008..33023], registros de 2 bytes, 2 campos",
+          "cursor": "IX"
         },
         {
           "rutina": "$34463",
-          "cursor": "IX",
-          "resumen": "arreglo en [34175..34179], registros de 5 bytes, 4 campos"
+          "resumen": "arreglo en [34175..34179], registros de 5 bytes, 4 campos",
+          "cursor": "IX"
         },
         {
           "rutina": "$34620",
-          "cursor": "IX",
-          "resumen": "arreglo en [22864..22906], registros de 1 bytes, 4 campos"
+          "resumen": "arreglo en [22864..22906], registros de 1 bytes, 4 campos",
+          "cursor": "IX"
         },
         {
           "rutina": "$37310",
-          "cursor": "IY",
-          "resumen": "arreglo en [33280..33479], registros de 8 bytes, 2 campos"
+          "resumen": "arreglo en [33280..33479], registros de 8 bytes, 2 campos",
+          "cursor": "IY"
         },
         {
           "rutina": "$38504",
-          "cursor": "IX",
-          "resumen": "arreglo en [33280..33535], registros de 2 bytes, 2 campos"
+          "resumen": "arreglo en [33280..33535], registros de 2 bytes, 2 campos",
+          "cursor": "IX"
         }
       ]
     }
@@ -620,12 +660,12 @@
         "tipo": "buffer",
         "alimentado_por": [
           {
-            "veces": 22752,
-            "site": 35257,
             "copia_desde": [
               24064,
               24575
-            ]
+            ],
+            "site": 35257,
+            "veces": 22752
           }
         ]
       },
@@ -654,12 +694,12 @@
         "tipo": "buffer",
         "alimentado_por": [
           {
-            "veces": 22752,
-            "site": 35268,
             "copia_desde": [
               28672,
               32767
-            ]
+            ],
+            "site": 35268,
+            "veces": 22752
           }
         ]
       },
@@ -670,6 +710,203 @@
         ],
         "delta_a_pantalla": -12288,
         "tipo": "buffer"
+      }
+    ],
+    "reconstruccion-por-selector": [
+      {
+        "selector": {
+          "celda": 33824,
+          "valores": [
+            0,
+            60
+          ],
+          "cambios_de_valor": 125,
+          "valores_distintos": 59,
+          "escrito_por": [
+            {
+              "veces": 945,
+              "rutina": "$34463",
+              "valores": [
+                33,
+                33
+              ],
+              "site": 34796
+            },
+            {
+              "veces": 47,
+              "rutina": "$36307",
+              "valores": [
+                1,
+                60
+              ],
+              "site": 38029
+            },
+            {
+              "veces": 42,
+              "rutina": "$36307",
+              "valores": [
+                0,
+                59
+              ],
+              "site": 38049
+            },
+            {
+              "veces": 19,
+              "rutina": "$38064",
+              "valores": [
+                4,
+                57
+              ],
+              "site": 38067
+            },
+            {
+              "veces": 14,
+              "rutina": "$36307",
+              "valores": [
+                3,
+                54
+              ],
+              "site": 38101
+            }
+          ]
+        },
+        "copias_indexadas_por_el_selector": [
+          {
+            "site": 35104,
+            "rutina": "$34463",
+            "veces": 1068,
+            "formula": "origen = 49152 + selector*256",
+            "tabla_indexada": {
+              "base": 49152,
+              "registros_usados": 61,
+              "registro_bytes": 256,
+              "rango": [
+                49152,
+                64767
+              ]
+            },
+            "destino": [
+              32768,
+              33023
+            ]
+          }
+        ],
+        "nota_disparo": "la reconstruccion corrio x1068 pero el selector cambio de valor 125 veces: tambien se re-ejecuta sin cambiar el valor (muerte/reinicio)",
+        "corren_con_la_misma_cadencia": [
+          {
+            "site": 35137,
+            "rutina": "$34463",
+            "veces": 8544,
+            "por_reconstruccion": 8,
+            "origen": [
+              40962,
+              41983
+            ],
+            "destino": [
+              33026,
+              33087
+            ]
+          },
+          {
+            "site": 35171,
+            "rutina": "$34463",
+            "veces": 1068,
+            "por_reconstruccion": 1,
+            "origen": [
+              20480,
+              22526
+            ],
+            "destino": [
+              20481,
+              22527
+            ],
+            "nota": "relleno con un valor (origen = destino-1: propaga un byte)"
+          },
+          {
+            "site": 35155,
+            "rutina": "$34463",
+            "veces": 1068,
+            "por_reconstruccion": 1,
+            "origen": [
+              34255,
+              34261
+            ],
+            "destino": [
+              34263,
+              34269
+            ]
+          },
+          {
+            "site": 35128,
+            "rutina": "$34463",
+            "veces": 8544,
+            "por_reconstruccion": 8,
+            "origen": [
+              40960,
+              41977
+            ],
+            "destino": [
+              33024,
+              33081
+            ]
+          }
+        ],
+        "regiones_reconstruidas": [
+          [
+            20481,
+            22527
+          ],
+          [
+            32768,
+            33087
+          ],
+          [
+            34263,
+            34269
+          ]
+        ],
+        "destino_leido_por": {
+          "[20481..22527]": [
+            {
+              "rutina": "$38555",
+              "lecturas": 2903512,
+              "sites": 1
+            }
+          ],
+          "[32768..33087]": [
+            {
+              "rutina": "$36171",
+              "lecturas": 4921344,
+              "sites": 2
+            },
+            {
+              "rutina": "$38555",
+              "lecturas": 2903512,
+              "sites": 1
+            },
+            {
+              "rutina": "$37310",
+              "lecturas": 1323179,
+              "sites": 48
+            },
+            {
+              "rutina": "$36203",
+              "lecturas": 557217,
+              "sites": 12
+            },
+            {
+              "rutina": "$36288",
+              "lecturas": 546816,
+              "sites": 1
+            },
+            {
+              "rutina": "$37056",
+              "lecturas": 428241,
+              "sites": 23
+            }
+          ],
+          "[34263..34269]": []
+        }
       }
     ],
     "tabla-entidades": {
@@ -706,14 +943,14 @@
           },
           "slots_validados": [
             {
-              "confianza": 0.9244839857651246,
+              "x_addr": 33026,
               "y_addr": 33027,
-              "x_addr": 33026
+              "confianza": 0.9244839857651246
             },
             {
-              "confianza": 0.3343295827473043,
+              "x_addr": 33034,
               "y_addr": 33035,
-              "x_addr": 33034
+              "confianza": 0.3343295827473043
             }
           ],
           "cargada_por": [
@@ -722,16 +959,16 @@
                 40962,
                 41983
               ],
-              "veces": 8544,
-              "site": 35137
+              "site": 35137,
+              "veces": 8544
             },
             {
               "desde": [
                 40960,
                 41977
               ],
-              "veces": 8544,
-              "site": 35128
+              "site": 35128,
+              "veces": 8544
             }
           ],
           "actualizada_por": [
@@ -741,102 +978,102 @@
         },
         "individuales": [
           {
-            "y_formula": "v+168",
-            "x_formula": "(v&15)*8+48",
             "y_addr": 32985,
-            "x_addr": 32983,
-            "confianza": 0.16725269573370838
-          },
-          {
-            "y_formula": "v>>1+41",
-            "x_formula": "(v&31)*8",
-            "y_addr": 33014,
-            "x_addr": 33015,
-            "confianza": 0.10182255039849976
-          },
-          {
-            "y_formula": "v>>1+168",
-            "x_formula": "(v&31)*8+48",
-            "y_addr": 33030,
-            "x_addr": 33038,
-            "confianza": 0.11064228785747773
-          },
-          {
-            "y_formula": "v>>1+168",
-            "x_formula": "(v&240)>>1+64",
-            "y_addr": 33042,
-            "x_addr": 33044,
-            "confianza": 0.12599624941397095
-          },
-          {
-            "y_formula": "v>>1+168",
             "x_formula": "(v&15)*8+48",
-            "y_addr": 33050,
-            "x_addr": 33052,
-            "confianza": 0.23781059540553212
+            "y_formula": "v+168",
+            "confianza": 0.16725269573370838,
+            "x_addr": 32983
           },
           {
-            "y_formula": "v>>1+168",
+            "y_addr": 33014,
             "x_formula": "(v&31)*8",
-            "y_addr": 33058,
-            "x_addr": 33066,
-            "confianza": 0.30719643694327237
+            "y_formula": "v>>1+41",
+            "confianza": 0.10182255039849976,
+            "x_addr": 33015
           },
           {
-            "y_formula": "(v&31)*8+24",
+            "y_addr": 33030,
             "x_formula": "(v&31)*8+48",
-            "y_addr": 34261,
-            "x_addr": 34257,
-            "confianza": 0.14750351617440224
+            "y_formula": "v>>1+168",
+            "confianza": 0.11064228785747773,
+            "x_addr": 33038
           },
           {
-            "y_formula": "v>>1+13",
+            "y_addr": 33042,
+            "x_formula": "(v&240)>>1+64",
+            "y_formula": "v>>1+168",
+            "confianza": 0.12599624941397095,
+            "x_addr": 33044
+          },
+          {
+            "y_addr": 33050,
+            "x_formula": "(v&15)*8+48",
+            "y_formula": "v>>1+168",
+            "confianza": 0.23781059540553212,
+            "x_addr": 33052
+          },
+          {
+            "y_addr": 33058,
             "x_formula": "(v&31)*8",
+            "y_formula": "v>>1+168",
+            "confianza": 0.30719643694327237,
+            "x_addr": 33066
+          },
+          {
+            "y_addr": 34261,
+            "x_formula": "(v&31)*8+48",
+            "y_formula": "(v&31)*8+24",
+            "confianza": 0.14750351617440224,
+            "x_addr": 34257
+          },
+          {
             "y_addr": 34255,
-            "x_addr": 34259,
-            "confianza": 0.9532703791140119
+            "x_formula": "(v&31)*8",
+            "y_formula": "v>>1+13",
+            "confianza": 0.9532703791140119,
+            "x_addr": 34259
           }
         ],
         "pares_debiles_posible_ruido": [
           {
-            "confianza": 0.0646390060947023,
+            "x_addr": 33004,
             "y_addr": 33008,
-            "x_addr": 33004
+            "confianza": 0.0646390060947023
           },
           {
-            "confianza": 0.04704626334519573,
+            "x_addr": 33009,
             "y_addr": 33013,
-            "x_addr": 33009
+            "confianza": 0.04704626334519573
           },
           {
-            "confianza": 0.021536568213783403,
+            "x_addr": 33011,
             "y_addr": 33012,
-            "x_addr": 33011
+            "confianza": 0.021536568213783403
           },
           {
-            "confianza": 0.02812939521800281,
+            "x_addr": 33017,
             "y_addr": 33024,
-            "x_addr": 33017
+            "confianza": 0.02812939521800281
           },
           {
-            "confianza": 0.06384786685419597,
+            "x_addr": 33031,
             "y_addr": 33029,
-            "x_addr": 33031
+            "confianza": 0.06384786685419597
           },
           {
-            "confianza": 0.03938115330520394,
+            "x_addr": 33033,
             "y_addr": 33032,
-            "x_addr": 33033
+            "confianza": 0.03938115330520394
           },
           {
-            "confianza": 0.022884126407555393,
+            "x_addr": 33047,
             "y_addr": 33040,
-            "x_addr": 33047
+            "confianza": 0.022884126407555393
           },
           {
-            "confianza": 0.04390637610976594,
+            "x_addr": 33048,
             "y_addr": 33043,
-            "x_addr": 33048
+            "confianza": 0.04390637610976594
           }
         ]
       },
@@ -1056,6 +1293,7 @@
               "condicion": "campo +0 == 255",
               "ramas": [
                 {
+                  "pc": 37066,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1065,12 +1303,11 @@
                     6,
                     7
                   ],
-                  "pc": 37066,
                   "veces": 80353
                 },
                 {
-                  "campos_exclusivos": [],
                   "pc": 35273,
+                  "campos_exclusivos": [],
                   "veces": 22752
                 }
               ]
@@ -1080,6 +1317,7 @@
               "condicion": "campo +0 & 3",
               "ramas": [
                 {
+                  "pc": 37071,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1089,12 +1327,11 @@
                     6,
                     7
                   ],
-                  "pc": 37071,
                   "veces": 75571
                 },
                 {
-                  "campos_exclusivos": [],
                   "pc": 37302,
+                  "campos_exclusivos": [],
                   "veces": 4782
                 }
               ]
@@ -1104,6 +1341,7 @@
               "condicion": "campo +0 & 3 == 1",
               "ramas": [
                 {
+                  "pc": 37076,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1112,17 +1350,16 @@
                     6,
                     7
                   ],
-                  "pc": 37076,
                   "veces": 38318
                 },
                 {
+                  "pc": 37171,
                   "campos_exclusivos": [
                     0,
                     2,
                     6,
                     7
                   ],
-                  "pc": 37171,
                   "veces": 37253
                 }
               ]
@@ -1132,6 +1369,7 @@
               "condicion": "campo +0 & 3 == 2",
               "ramas": [
                 {
+                  "pc": 37247,
                   "campos_exclusivos": [
                     0,
                     3,
@@ -1139,16 +1377,15 @@
                     6,
                     7
                   ],
-                  "pc": 37247,
                   "veces": 37105
                 },
                 {
+                  "pc": 37081,
                   "campos_exclusivos": [
                     0,
                     1,
                     7
                   ],
-                  "pc": 37081,
                   "veces": 1213
                 }
               ]
@@ -1158,17 +1395,17 @@
               "condicion": "campo +0",
               "ramas": [
                 {
+                  "pc": 37087,
                   "campos_exclusivos": [
                     1
                   ],
-                  "pc": 37087,
                   "veces": 529
                 },
                 {
+                  "pc": 37119,
                   "campos_exclusivos": [
                     1
                   ],
-                  "pc": 37119,
                   "veces": 684
                 }
               ]
@@ -1178,15 +1415,15 @@
               "condicion": "campo +7 & 127",
               "ramas": [
                 {
+                  "pc": 37160,
                   "campos_exclusivos": [
                     0
                   ],
-                  "pc": 37160,
                   "veces": 24
                 },
                 {
-                  "campos_exclusivos": [],
                   "pc": 37302,
+                  "campos_exclusivos": [],
                   "veces": 1189
                 }
               ]
@@ -1196,21 +1433,21 @@
               "condicion": "campo +0",
               "ramas": [
                 {
+                  "pc": 37177,
                   "campos_exclusivos": [
                     0,
                     2,
                     6
                   ],
-                  "pc": 37177,
                   "veces": 19221
                 },
                 {
+                  "pc": 37212,
                   "campos_exclusivos": [
                     0,
                     2,
                     7
                   ],
-                  "pc": 37212,
                   "veces": 18032
                 }
               ]
@@ -1220,17 +1457,17 @@
               "condicion": "campo +0 & 127 == 96",
               "ramas": [
                 {
-                  "campos_exclusivos": [],
                   "pc": 37302,
+                  "campos_exclusivos": [],
                   "veces": 13642
                 },
                 {
+                  "pc": 37191,
                   "campos_exclusivos": [
                     0,
                     2,
                     6
                   ],
-                  "pc": 37191,
                   "veces": 5579
                 }
               ]
@@ -1240,17 +1477,17 @@
               "condicion": "campo +6 & 31",
               "ramas": [
                 {
+                  "pc": 37206,
                   "campos_exclusivos": [
                     0
                   ],
-                  "pc": 37206,
                   "veces": 386
                 },
                 {
+                  "pc": 37201,
                   "campos_exclusivos": [
                     2
                   ],
-                  "pc": 37201,
                   "veces": 5193
                 }
               ]
@@ -1260,17 +1497,17 @@
               "condicion": "campo +0 == 160",
               "ramas": [
                 {
-                  "campos_exclusivos": [],
                   "pc": 37302,
+                  "campos_exclusivos": [],
                   "veces": 13557
                 },
                 {
+                  "pc": 37226,
                   "campos_exclusivos": [
                     0,
                     2,
                     7
                   ],
-                  "pc": 37226,
                   "veces": 4475
                 }
               ]
@@ -1280,17 +1517,17 @@
               "condicion": "campo +7 & 31",
               "ramas": [
                 {
+                  "pc": 37241,
                   "campos_exclusivos": [
                     0
                   ],
-                  "pc": 37241,
                   "veces": 347
                 },
                 {
+                  "pc": 37236,
                   "campos_exclusivos": [
                     2
                   ],
-                  "pc": 37236,
                   "veces": 4128
                 }
               ]
@@ -1300,15 +1537,15 @@
               "condicion": "campo +0 & 24",
               "ramas": [
                 {
-                  "campos_exclusivos": [],
                   "pc": 37267,
+                  "campos_exclusivos": [],
                   "veces": 6446
                 },
                 {
+                  "pc": 37259,
                   "campos_exclusivos": [
                     0
                   ],
-                  "pc": 37259,
                   "veces": 30659
                 }
               ]
@@ -1318,16 +1555,16 @@
               "condicion": "campo +7",
               "ramas": [
                 {
-                  "campos_exclusivos": [],
                   "pc": 37294,
+                  "campos_exclusivos": [],
                   "veces": 716
                 },
                 {
+                  "pc": 37281,
                   "campos_exclusivos": [
                     3,
                     6
                   ],
-                  "pc": 37281,
                   "veces": 36389
                 }
               ]
@@ -1337,17 +1574,17 @@
               "condicion": "campo +6",
               "ramas": [
                 {
+                  "pc": 37288,
                   "campos_exclusivos": [
                     3,
                     4,
                     6
                   ],
-                  "pc": 37288,
                   "veces": 6
                 },
                 {
-                  "campos_exclusivos": [],
                   "pc": 37302,
+                  "campos_exclusivos": [],
                   "veces": 35712
                 }
               ]
@@ -1627,6 +1864,7 @@
               "condicion": "campo +0 == 255",
               "ramas": [
                 {
+                  "pc": 37320,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1638,12 +1876,11 @@
                     9,
                     11
                   ],
-                  "pc": 37320,
                   "veces": 79945
                 },
                 {
-                  "campos_exclusivos": [],
                   "pc": 35311,
+                  "campos_exclusivos": [],
                   "veces": 22628
                 }
               ]
@@ -1653,6 +1890,7 @@
               "condicion": "campo +0 & 7 == 3",
               "ramas": [
                 {
+                  "pc": 37540,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1663,10 +1901,10 @@
                     9,
                     11
                   ],
-                  "pc": 37540,
                   "veces": 1206
                 },
                 {
+                  "pc": 37330,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1676,7 +1914,6 @@
                     5,
                     6
                   ],
-                  "pc": 37330,
                   "veces": 78739
                 }
               ]
@@ -1686,6 +1923,7 @@
               "condicion": "campo +0 & 7 == 4",
               "ramas": [
                 {
+                  "pc": 37431,
                   "campos_exclusivos": [
                     0,
                     2,
@@ -1693,10 +1931,10 @@
                     5,
                     6
                   ],
-                  "pc": 37431,
                   "veces": 4747
                 },
                 {
+                  "pc": 37334,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1704,7 +1942,6 @@
                     3,
                     5
                   ],
-                  "pc": 37334,
                   "veces": 73992
                 }
               ]
@@ -1714,17 +1951,17 @@
               "condicion": "campo +0",
               "ramas": [
                 {
+                  "pc": 37437,
                   "campos_exclusivos": [
                     4
                   ],
-                  "pc": 37437,
                   "veces": 1536
                 },
                 {
+                  "pc": 37444,
                   "campos_exclusivos": [
                     4
                   ],
-                  "pc": 37444,
                   "veces": 3211
                 }
               ]
@@ -1734,18 +1971,18 @@
               "condicion": "campo +4",
               "ramas": [
                 {
-                  "campos_exclusivos": [],
                   "pc": 37455,
+                  "campos_exclusivos": [],
                   "veces": 21
                 },
                 {
+                  "pc": 37474,
                   "campos_exclusivos": [
                     2,
                     4,
                     5,
                     6
                   ],
-                  "pc": 37474,
                   "veces": 4726
                 }
               ]
@@ -1755,18 +1992,18 @@
               "condicion": "campo +4 & 224",
               "ramas": [
                 {
+                  "pc": 37479,
                   "campos_exclusivos": [
                     2,
                     4,
                     5,
                     6
                   ],
-                  "pc": 37479,
                   "veces": 876
                 },
                 {
-                  "campos_exclusivos": [],
                   "pc": 37811,
+                  "campos_exclusivos": [],
                   "veces": 3850
                 }
               ]
@@ -1776,17 +2013,17 @@
               "condicion": "campo +9",
               "ramas": [
                 {
-                  "campos_exclusivos": [],
                   "pc": 37590,
+                  "campos_exclusivos": [],
                   "veces": 16291
                 },
                 {
+                  "pc": 37574,
                   "campos_exclusivos": [
                     5,
                     9,
                     11
                   ],
-                  "pc": 37574,
                   "veces": 23507
                 }
               ]
@@ -1796,18 +2033,18 @@
               "condicion": "campo +3",
               "ramas": [
                 {
-                  "campos_exclusivos": [],
                   "pc": 37646,
+                  "campos_exclusivos": [],
                   "veces": 23500
                 },
                 {
+                  "pc": 37580,
                   "campos_exclusivos": [
                     3,
                     5,
                     9,
                     11
                   ],
-                  "pc": 37580,
                   "veces": 7
                 }
               ]
@@ -1817,6 +2054,7 @@
               "condicion": "campo +9",
               "ramas": [
                 {
+                  "pc": 37646,
                   "campos_exclusivos": [
                     0,
                     1,
@@ -1826,16 +2064,15 @@
                     9,
                     11
                   ],
-                  "pc": 37646,
                   "veces": 15894
                 },
                 {
+                  "pc": 37595,
                   "campos_exclusivos": [
                     3,
                     5,
                     11
                   ],
-                  "pc": 37595,
                   "veces": 404
                 }
               ]
@@ -1845,19 +2082,19 @@
               "condicion": "campo +1",
               "ramas": [
                 {
+                  "pc": 37697,
                   "campos_exclusivos": [
                     3,
                     5
                   ],
-                  "pc": 37697,
                   "veces": 14751
                 },
                 {
+                  "pc": 37680,
                   "campos_exclusivos": [
                     3,
                     5
                   ],
-                  "pc": 37680,
                   "veces": 16105
                 }
               ]
@@ -1867,19 +2104,19 @@
               "condicion": "campo +4",
               "ramas": [
                 {
+                  "pc": 37726,
                   "campos_exclusivos": [
                     0,
                     4,
                     11
                   ],
-                  "pc": 37726,
                   "veces": 1206
                 },
                 {
+                  "pc": 37720,
                   "campos_exclusivos": [
                     9
                   ],
-                  "pc": 37720,
                   "veces": 38592
                 }
               ]
@@ -1889,19 +2126,19 @@
               "condicion": "campo +9 & 128",
               "ramas": [
                 {
+                  "pc": 37733,
                   "campos_exclusivos": [
                     11
                   ],
-                  "pc": 37733,
                   "veces": 96
                 },
                 {
+                  "pc": 37743,
                   "campos_exclusivos": [
                     0,
                     4,
                     11
                   ],
-                  "pc": 37743,
                   "veces": 1110
                 }
               ]
@@ -1911,16 +2148,16 @@
               "condicion": "campo +11",
               "ramas": [
                 {
+                  "pc": 37749,
                   "campos_exclusivos": [
                     0,
                     4
                   ],
-                  "pc": 37749,
                   "veces": 404
                 },
                 {
-                  "campos_exclusivos": [],
                   "pc": 37811,
+                  "campos_exclusivos": [],
                   "veces": 706
                 }
               ]
@@ -2129,21 +2366,21 @@
           "escaleras": [
             {
               "rutina": "$37056",
-              "mascara": 3,
               "valores_testeados": [
                 0,
                 1,
                 2
-              ]
+              ],
+              "mascara": 3
             },
             {
               "rutina": "$37310",
-              "mascara": 7,
               "valores_testeados": [
                 0,
                 3,
                 4
-              ]
+              ],
+              "mascara": 7
             }
           ]
         },
@@ -2349,17 +2586,17 @@
                 "condicion": "campo +0 & 127 == 96",
                 "ramas": [
                   {
-                    "campos_exclusivos": [],
                     "pc": 37302,
+                    "campos_exclusivos": [],
                     "veces": 13642
                   },
                   {
+                    "pc": 37191,
                     "campos_exclusivos": [
                       0,
                       2,
                       6
                     ],
-                    "pc": 37191,
                     "veces": 5579
                   }
                 ]
@@ -2369,17 +2606,17 @@
                 "condicion": "campo +6 & 31",
                 "ramas": [
                   {
+                    "pc": 37206,
                     "campos_exclusivos": [
                       0
                     ],
-                    "pc": 37206,
                     "veces": 386
                   },
                   {
+                    "pc": 37201,
                     "campos_exclusivos": [
                       2
                     ],
-                    "pc": 37201,
                     "veces": 5193
                   }
                 ]
@@ -2389,17 +2626,17 @@
                 "condicion": "campo +7 & 31",
                 "ramas": [
                   {
+                    "pc": 37241,
                     "campos_exclusivos": [
                       0
                     ],
-                    "pc": 37241,
                     "veces": 347
                   },
                   {
+                    "pc": 37236,
                     "campos_exclusivos": [
                       2
                     ],
-                    "pc": 37236,
                     "veces": 4128
                   }
                 ]
@@ -2617,15 +2854,15 @@
                 "condicion": "campo +0 & 24",
                 "ramas": [
                   {
-                    "campos_exclusivos": [],
                     "pc": 37267,
+                    "campos_exclusivos": [],
                     "veces": 6446
                   },
                   {
+                    "pc": 37259,
                     "campos_exclusivos": [
                       0
                     ],
-                    "pc": 37259,
                     "veces": 30659
                   }
                 ]
@@ -2856,15 +3093,15 @@
                 "condicion": "campo +7 & 127",
                 "ramas": [
                   {
+                    "pc": 37160,
                     "campos_exclusivos": [
                       0
                     ],
-                    "pc": 37160,
                     "veces": 24
                   },
                   {
-                    "campos_exclusivos": [],
                     "pc": 37302,
+                    "campos_exclusivos": [],
                     "veces": 1189
                   }
                 ]
@@ -2874,19 +3111,19 @@
                 "condicion": "campo +9 & 128",
                 "ramas": [
                   {
+                    "pc": 37733,
                     "campos_exclusivos": [
                       11
                     ],
-                    "pc": 37733,
                     "veces": 96
                   },
                   {
+                    "pc": 37743,
                     "campos_exclusivos": [
                       0,
                       4,
                       11
                     ],
-                    "pc": 37743,
                     "veces": 1110
                   }
                 ]
@@ -3003,18 +3240,18 @@
                 "condicion": "campo +4 & 224",
                 "ramas": [
                   {
+                    "pc": 37479,
                     "campos_exclusivos": [
                       2,
                       4,
                       5,
                       6
                     ],
-                    "pc": 37479,
                     "veces": 876
                   },
                   {
-                    "campos_exclusivos": [],
                     "pc": 37811,
+                    "campos_exclusivos": [],
                     "veces": 3850
                   }
                 ]
@@ -3026,60 +3263,60 @@
     },
     "protagonista": [
       {
-        "y_formula": "v+168",
-        "x_formula": "(v&15)*8+48",
         "y_addr": 32985,
-        "x_addr": 32983,
-        "confianza": 0.16725269573370838
-      },
-      {
-        "y_formula": "v>>1+41",
-        "x_formula": "(v&31)*8",
-        "y_addr": 33014,
-        "x_addr": 33015,
-        "confianza": 0.10182255039849976
-      },
-      {
-        "y_formula": "v>>1+168",
-        "x_formula": "(v&31)*8+48",
-        "y_addr": 33030,
-        "x_addr": 33038,
-        "confianza": 0.11064228785747773
-      },
-      {
-        "y_formula": "v>>1+168",
-        "x_formula": "(v&240)>>1+64",
-        "y_addr": 33042,
-        "x_addr": 33044,
-        "confianza": 0.12599624941397095
-      },
-      {
-        "y_formula": "v>>1+168",
         "x_formula": "(v&15)*8+48",
-        "y_addr": 33050,
-        "x_addr": 33052,
-        "confianza": 0.23781059540553212
+        "y_formula": "v+168",
+        "confianza": 0.16725269573370838,
+        "x_addr": 32983
       },
       {
-        "y_formula": "v>>1+168",
+        "y_addr": 33014,
         "x_formula": "(v&31)*8",
-        "y_addr": 33058,
-        "x_addr": 33066,
-        "confianza": 0.30719643694327237
+        "y_formula": "v>>1+41",
+        "confianza": 0.10182255039849976,
+        "x_addr": 33015
       },
       {
-        "y_formula": "(v&31)*8+24",
+        "y_addr": 33030,
         "x_formula": "(v&31)*8+48",
-        "y_addr": 34261,
-        "x_addr": 34257,
-        "confianza": 0.14750351617440224
+        "y_formula": "v>>1+168",
+        "confianza": 0.11064228785747773,
+        "x_addr": 33038
       },
       {
-        "y_formula": "v>>1+13",
+        "y_addr": 33042,
+        "x_formula": "(v&240)>>1+64",
+        "y_formula": "v>>1+168",
+        "confianza": 0.12599624941397095,
+        "x_addr": 33044
+      },
+      {
+        "y_addr": 33050,
+        "x_formula": "(v&15)*8+48",
+        "y_formula": "v>>1+168",
+        "confianza": 0.23781059540553212,
+        "x_addr": 33052
+      },
+      {
+        "y_addr": 33058,
         "x_formula": "(v&31)*8",
+        "y_formula": "v>>1+168",
+        "confianza": 0.30719643694327237,
+        "x_addr": 33066
+      },
+      {
+        "y_addr": 34261,
+        "x_formula": "(v&31)*8+48",
+        "y_formula": "(v&31)*8+24",
+        "confianza": 0.14750351617440224,
+        "x_addr": 34257
+      },
+      {
         "y_addr": 34255,
-        "x_addr": 34259,
-        "confianza": 0.9532703791140119
+        "x_formula": "(v&31)*8",
+        "y_formula": "v>>1+13",
+        "confianza": 0.9532703791140119,
+        "x_addr": 34259
       }
     ],
     "sprites": [
@@ -6427,40 +6664,40 @@
     },
     "tablas-consulta": [
       {
-        "usada_por": [
-          "$37310",
-          "$38504"
-        ],
         "rango": [
           33280,
           33535
+        ],
+        "usada_por": [
+          "$37310",
+          "$38504"
         ]
       },
       {
-        "usada_por": [
-          "$37310"
-        ],
         "rango": [
           33664,
           33750
+        ],
+        "usada_por": [
+          "$37310"
         ]
       },
       {
-        "usada_por": [
-          "$37841"
-        ],
         "rango": [
           41983,
           41983
+        ],
+        "usada_por": [
+          "$37841"
         ]
       },
       {
-        "usada_por": [
-          "$37841"
-        ],
         "rango": [
           42415,
           42495
+        ],
+        "usada_por": [
+          "$37841"
         ]
       }
     ],
@@ -7762,38 +7999,38 @@
         }
       },
       {
-        "nombre": "$36307",
         "evidencia": {
           "escrituras_a_variables": 75969
         },
+        "nombre": "$36307",
         "tipo": "logica_estado"
       },
       {
-        "nombre": "$36508",
         "evidencia": {
           "escrituras_a_variables": 17048
         },
+        "nombre": "$36508",
         "tipo": "logica_estado"
       },
       {
-        "nombre": "$37056",
         "evidencia": {
           "escrituras_a_variables": 155483
         },
+        "nombre": "$37056",
         "tipo": "logica_estado"
       },
       {
-        "nombre": "$38064",
         "evidencia": {
           "escrituras_a_variables": 95
         },
+        "nombre": "$38064",
         "tipo": "logica_estado"
       },
       {
-        "nombre": "$38276",
         "evidencia": {
           "escrituras_a_variables": 1
         },
+        "nombre": "$38276",
         "tipo": "logica_estado"
       }
     ],
@@ -7921,18 +8158,18 @@
             "condicion": "campo +4 == 58",
             "ramas": [
               {
+                "pc": 35424,
                 "campos_exclusivos": [
                   0,
                   1,
                   3,
                   4
                 ],
-                "pc": 35424,
                 "veces": 8
               },
               {
-                "campos_exclusivos": [],
                 "pc": 35499,
+                "campos_exclusivos": [],
                 "veces": 76
               }
             ]
@@ -7942,17 +8179,17 @@
             "condicion": "campo +3 == 54",
             "ramas": [
               {
-                "campos_exclusivos": [],
                 "pc": 35499,
+                "campos_exclusivos": [],
                 "veces": 7
               },
               {
+                "pc": 35438,
                 "campos_exclusivos": [
                   0,
                   1,
                   3
                 ],
-                "pc": 35438,
                 "veces": 1
               }
             ]
@@ -8025,18 +8262,18 @@
             "condicion": "campo +0 & 127 == 7",
             "ramas": [
               {
-                "campos_exclusivos": [],
                 "pc": 34648,
+                "campos_exclusivos": [],
                 "veces": 2
               },
               {
+                "pc": 34693,
                 "campos_exclusivos": [
                   0,
                   1,
                   32,
                   33
                 ],
-                "pc": 34693,
                 "veces": 1366
               }
             ]

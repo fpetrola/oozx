@@ -86,6 +86,7 @@ public class GameModelExporter {
     Map<String, Object> mapa = hallazgo(hallazgos, evidencia, "mapa-memoria",
         "Mapa de memoria: que hay en cada rango", null);
     mapa.put("zonas", zonas(evEnt));
+    hallazgoReconstruccion(hallazgos, evidencia);
     hallazgoEntidades(hallazgos, evidencia, evEnt, structs, canonicos);
     hallazgoProtagonista(hallazgos, evidencia, evEnt);
     hallazgoSprites(hallazgos, evidencia);
@@ -147,6 +148,57 @@ public class GameModelExporter {
       curHi = srcHi;
     }
     return sb.toString();
+  }
+
+  // ---------- hallazgo: variables selectoras y su cluster de reconstruccion ----------
+  @SuppressWarnings("unchecked")
+  private void hallazgoReconstruccion(List<Object> hallazgos, Map<String, Object> evidencia) {
+    List<Map<String, Object>> all = new RebuildFinder(db, dbPath).analyze();
+    if (all.isEmpty())
+      return;
+    Map<String, Object> h = hallazgo(hallazgos, evidencia, "reconstruccion-por-selector",
+        "Variables selectoras: eligen que contenido se construye (pantalla/nivel actual) "
+            + "y disparan el cluster que lo reconstruye", all);
+    List<Object> lista = new ArrayList<>();
+    for (Map<String, Object> f : all) {
+      Map<String, Object> sel = (Map<String, Object>) f.get("selector");
+      Map<String, Object> main = (Map<String, Object>)
+          ((List<Object>) f.get("copias_indexadas_por_el_selector")).get(0);
+      Map<String, Object> tabla = (Map<String, Object>) main.get("tabla_indexada");
+      List<Integer> dst = (List<Integer>) main.get("destino");
+      Map<String, Object> item = new LinkedHashMap<>();
+      item.put("selector", "mem[" + sel.get("celda") + "]"
+          + (sel.containsKey("valores_distintos")
+              ? " (" + sel.get("valores_distintos") + " valores distintos)" : ""));
+      item.put("que_hace", "elige 1 de " + tabla.get("registros_usados") + " registros de "
+          + tabla.get("registro_bytes") + " bytes en " + tabla.get("rango")
+          + " y lo copia a [" + dst.get(0) + ".." + dst.get(1) + "]");
+      item.put("formula", main.get("formula"));
+      item.put("disparado_por", ((List<Object>) sel.get("escrito_por")).stream()
+          .map(wo -> {
+            Map<String, Object> w = (Map<String, Object>) wo;
+            return w.get("rutina") + " x" + w.get("veces");
+          }).toList());
+      if (f.containsKey("nota_disparo"))
+        item.put("nota", f.get("nota_disparo"));
+      if (f.containsKey("corren_con_la_misma_cadencia"))
+        item.put("reconstruye_ademas", ((List<Object>) f.get("corren_con_la_misma_cadencia")).stream()
+            .map(co -> {
+              Map<String, Object> c = (Map<String, Object>) co;
+              return "[" + ((List<Integer>) c.get("origen")).get(0) + ".."
+                  + ((List<Integer>) c.get("origen")).get(1) + "] -> ["
+                  + ((List<Integer>) c.get("destino")).get(0) + ".."
+                  + ((List<Integer>) c.get("destino")).get(1) + "] (" + c.get("por_reconstruccion")
+                  + "x por reconstruccion" + (c.containsKey("nota") ? "; " + c.get("nota") : "") + ")";
+            }).toList());
+      Map<String, Object> lectores = new LinkedHashMap<>();
+      ((Map<String, Object>) f.get("destino_leido_por")).forEach((rango, rs) ->
+          lectores.put(rango, ((List<Object>) rs).stream()
+              .map(ro -> (String) ((Map<String, Object>) ro).get("rutina").toString()).toList()));
+      item.put("contenido_consumido_despues_por", lectores);
+      lista.add(item);
+    }
+    h.put("selectores", lista);
   }
 
   // ---------- hallazgo: tabla de entidades ----------
