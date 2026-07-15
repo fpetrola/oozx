@@ -18,6 +18,11 @@
 
 package com.fpetrola.z80.analysis;
 
+import com.fpetrola.z80.analysis.query.Closure;
+import com.fpetrola.z80.analysis.query.Db;
+import com.fpetrola.z80.analysis.query.Eq;
+import com.fpetrola.z80.analysis.query.Ranges;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -61,14 +66,11 @@ public class StructFinder {
     this.dbPath = dbPath;
     Explainer explainer = new Explainer(db, dbPath);
     // coordinates only from the STRONG validated pairs: single-axis matches carry noise
-    try (java.sql.Connection c = java.sql.DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-         java.sql.ResultSet rs = c.createStatement().executeQuery(
-             "SELECT x_addr, y_addr FROM coord_pairs WHERE rate >= 0.3")) {
-      while (rs.next()) {
-        coordAxis.putIfAbsent(rs.getInt(1), 'X');
-        coordAxis.putIfAbsent(rs.getInt(2), 'Y');
+    try (Db q = new Db(dbPath)) {
+      for (long[] r : q.rows("SELECT x_addr, y_addr FROM coord_pairs WHERE rate >= 0.3")) {
+        coordAxis.putIfAbsent((int) r[0], 'X');
+        coordAxis.putIfAbsent((int) r[1], 'Y');
       }
-    } catch (java.sql.SQLException ignored) {
     }
     CoordinateFinder.Plan plan = new CoordinateFinder(db).find();
     this.screenRegions = plan.regions();
@@ -393,13 +395,10 @@ public class StructFinder {
           vMax = Math.max(vMax, s.valMax());
       }
     for (int pc : sites) {
-      String eq = db.equation.get(pc);
-      if (eq == null || !eq.contains("cp("))
+      OptionalInt cc = Eq.cmpConst(db, pc);
+      if (cc.isEmpty())
         continue;
-      Matcher m = CMP.matcher(eq);
-      if (!m.find())
-        continue;
-      int c = Integer.parseInt(m.group(1));
+      int c = cc.getAsInt();
       if (c != 0 && c != 255 && c != vMax) // a sentinel sits at the value extreme
         continue;
       if (tracesToFieldRead(pc, reg, minOff, 3, new HashSet<>())) {
@@ -478,7 +477,7 @@ public class StructFinder {
         if (r == null)
           continue;
         for (int[] g : gfxRegions)
-          if (r.addrMax() >= g[0] && r.addrMin() <= g[1])
+          if (Ranges.intersects(r.addrMin(), r.addrMax(), g[0], g[1]))
             return List.of(g[0], g[1]);
       }
     }
@@ -807,7 +806,7 @@ public class StructFinder {
       AnalysisDB.Stat w = db.writes.get(dst);
       if (w != null)
         for (CoordinateFinder.Region r : screenRegions)
-          if (w.addrMax() >= r.lo() && w.addrMin() <= r.hi()) {
+          if (Ranges.intersects(w.addrMin(), w.addrMax(), r.lo(), r.hi())) {
             int sLo = w.addrMin() + r.delta();
             boolean attr = sLo >= 22528 && sLo <= 23295;
             String role = e.role() == null ? "" : e.role();
@@ -817,7 +816,7 @@ public class StructFinder {
           }
       AnalysisDB.Stat rd = db.reads.get(dst);
       if (rd != null && e.role() != null && e.role().contains("ADDR")
-          && gfxRegions.stream().anyMatch(g -> rd.addrMax() >= g[0] && rd.addrMin() <= g[1]))
+          && gfxRegions.stream().anyMatch(g -> Ranges.intersects(rd.addrMin(), rd.addrMax(), g[0], g[1])))
         impacta.add("graphic choice");
       walkForward(dst, depth + 1, seen, selfOff, writeSiteOffset, path, selfOps, escribeA, impacta);
     }
@@ -917,7 +916,7 @@ public class StructFinder {
           cond = true;
         if (role.contains("ADDR")) {
           AnalysisDB.Stat r = db.reads.get(e.dst());
-          if (r != null && gfxRegions.stream().anyMatch(g -> r.addrMax() >= g[0] && r.addrMin() <= g[1]))
+          if (r != null && gfxRegions.stream().anyMatch(g -> Ranges.intersects(r.addrMin(), r.addrMax(), g[0], g[1])))
             addrGfx = true;
           else
             addrOther = true;
@@ -956,8 +955,8 @@ public class StructFinder {
       Integer srcOffset = condSourceOffset(branchPc, siteToOffset, 3, new HashSet<>());
       if (srcOffset == null)
         continue;
-      Set<Integer> armA = cfgClosure(succs.get(0).dst(), methodSites, 300);
-      Set<Integer> armB = cfgClosure(succs.get(1).dst(), methodSites, 300);
+      Set<Integer> armA = Closure.cfg(db, succs.get(0).dst(), methodSites, Set.of(), 300);
+      Set<Integer> armB = Closure.cfg(db, succs.get(1).dst(), methodSites, Set.of(), 300);
       Set<Integer> onlyA = new TreeSet<>(), onlyB = new TreeSet<>();
       for (int s : armA)
         if (!armB.contains(s) && siteToOffset.containsKey(s))
@@ -1020,20 +1019,6 @@ public class StructFinder {
       }
     }
     return "field +" + offset + mask + cmp;
-  }
-
-  /** bounded forward closure over the dynamic CFG, restricted to the method's sites. */
-  private Set<Integer> cfgClosure(int start, Set<Integer> methodSites, int limit) {
-    Set<Integer> out = new HashSet<>();
-    ArrayDeque<Integer> queue = new ArrayDeque<>(List.of(start));
-    while (!queue.isEmpty() && out.size() < limit) {
-      int pc = queue.poll();
-      if (!methodSites.contains(pc) || !out.add(pc))
-        continue;
-      for (AnalysisDB.Edge e : db.cfgOut.getOrDefault(pc, List.of()))
-        queue.add(e.dst());
-    }
-    return out;
   }
 
   @SuppressWarnings("unchecked")
