@@ -191,25 +191,25 @@ public class Explainer {
 
     StringBuilder sb = new StringBuilder();
     if (writtenSpan == 0)
-      sb.append("ESTATICA: nunca escrita, cargada del cassette");
+      sb.append("STATIC: never written, loaded from the cassette");
     else if (span >= 64 && writtenSpan <= Math.max(4, span / 20))
-      sb.append("mayormente ESTATICA (cassette), salvo celdas escritas en ").append(subRanges);
+      sb.append("mostly STATIC (cassette), except cells written at ").append(subRanges);
     else if (span >= 64 && writtenSpan < span / 2)
-      sb.append("MIXTA: ").append(100 - writtenSpan * 100 / span)
-          .append("% nunca escrita (cassette), dinamica en ").append(subRanges);
+      sb.append("MIXED: ").append(100 - writtenSpan * 100 / span)
+          .append("% never written (cassette), dynamic at ").append(subRanges);
     else if (ws.isEmpty())
-      sb.append("DINAMICA: escrita por copias en bloque");
+      sb.append("DYNAMIC: written by bulk copies");
     else
-      sb.append("DINAMICA: ").append(ws.size()).append(" ecuaciones la escriben")
-          .append(bulkDst ? " (+copias en bloque)" : "");
+      sb.append("DYNAMIC: ").append(ws.size()).append(" equations write it")
+          .append(bulkDst ? " (+bulk copies)" : "");
     List<String> coords = new ArrayList<>();
     for (int a = Math.max(lo, hi - 512); a <= hi; a++)
       if (coordAxis.containsKey(a))
         coords.add(coordAxis.get(a) + "=mem[" + a + "]");
     if (!coords.isEmpty())
-      sb.append(" | coordenadas de sprite: ").append(String.join(" ", coords));
+      sb.append(" | sprite coordinates: ").append(String.join(" ", coords));
     else if (trackedCells.stream().anyMatch(a -> a >= lo && a <= hi))
-      sb.append(" | serie por frame disponible en frame_cells");
+      sb.append(" | per-frame series available in frame_cells");
     return sb.toString();
   }
 

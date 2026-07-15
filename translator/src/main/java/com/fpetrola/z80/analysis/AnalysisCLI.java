@@ -28,7 +28,7 @@ package com.fpetrola.z80.analysis;
  *   AnalysisCLI site <pc>                                   detalle de un site
  *   AnalysisCLI equations [metodo | pcLo pcHi]              listado de ecuaciones normalizadas
  *   AnalysisCLI track [rzxPath]                             pipeline automatico completo de posiciones
- *   AnalysisCLI positions <frameLo> [frameHi]               sprites dibujados + celdas-coordenada por frame
+ *   AnalysisCLI positions <frameLo> [frameHi]               sprites dibujados + celdas-coordinate por frame
  *   AnalysisCLI explain <lo> <hi> [depth] [fanout]          narrativa recursiva: quien escribe el rango,
  *                                                           direccion/valor/condicion, hasta INIT/IO
  *   AnalysisCLI map [rzxPath]                               mapa completo: buffers, rutinas, graficos,

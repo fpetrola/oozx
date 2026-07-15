@@ -142,7 +142,7 @@ public class SpriteTracker {
         .map(db.reads::get)
         .filter(r -> {
           String c = explainer.classifyRange(r.addrMin(), r.addrMax());
-          return c.startsWith("ESTATICA") || c.startsWith("mayormente") || c.startsWith("MIXTA");
+          return c.startsWith("STATIC") || c.startsWith("mostly") || c.startsWith("MIXED");
         })
         .map(r -> new int[]{r.addrMin(), r.addrMax()}).toList(), 64)
         .stream().filter(g -> g[1] - g[0] + 1 >= 1024).toList();

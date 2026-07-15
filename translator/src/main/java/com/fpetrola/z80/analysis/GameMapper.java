@@ -85,7 +85,7 @@ public class GameMapper {
         continue; // deltas no alineados = rellenos/scrolls, no buffers
       String tag = r.delta() == 0 ? " PANTALLA (pixels 16384..22527, atributos 22528..23295)"
           : "  -> pantalla con delta " + r.delta();
-      if (r.delta() != 0 && explainer.classifyRange(r.lo(), r.hi()).startsWith("ESTATICA"))
+      if (r.delta() != 0 && explainer.classifyRange(r.lo(), r.hi()).startsWith("STATIC"))
         tag += "  (fuente ESTATICA del cassette, no un buffer)";
       StringBuilder sb = new StringBuilder(String.format("  [%d..%d]%s", r.lo(), r.hi(), tag));
       for (AnalysisDB.Bulk b : db.bulks.values()) {
@@ -170,7 +170,7 @@ public class GameMapper {
 
   private boolean isStaticish(int lo, int hi) {
     String c = explainer.classifyRange(lo, hi);
-    return c.startsWith("ESTATICA") || c.startsWith("mayormente") || c.startsWith("MIXTA");
+    return c.startsWith("STATIC") || c.startsWith("mostly") || c.startsWith("MIXED");
   }
 
   // ---------- 3. graphics ----------

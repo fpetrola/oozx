@@ -75,7 +75,7 @@ final class TypeSplitter {
   }
 
   /**
-   * @return {@code {discriminante, slots_con_datos_observados, tipos}} for the canonical
+   * @return {@code {discriminante, slots_with_observed_data, tipos}} for the canonical
    * record, or null when no ladder (no discriminated union) is found.
    */
   @SuppressWarnings("unchecked")
@@ -152,13 +152,13 @@ final class TypeSplitter {
         long veces;
         if (match != null) {
           handler = exclusive(match.eqArm(), match.neArm(), methodSites, l.readSites());
-          cond = condText(match.t()) + (match.polaridadEstimada() ? " (polaridad estimada)" : "")
-              + (match.eqCount() == 0 ? " (rama nunca ejecutada en este replay)" : "");
+          cond = condText(match.t()) + (match.polaridadEstimada() ? " (estimated polarity)" : "")
+              + (match.eqCount() == 0 ? " (branch never executed in this replay)" : "");
           veces = match.eqCount();
         } else { // residual class: falls off the end of the ladder
           Resolved last = l.tests().get(l.tests().size() - 1);
           handler = exclusive(last.neArm(), last.eqArm(), methodSites, l.readSites());
-          cond = "resto (ningun test de " + l.rutina() + " lo captura)";
+          cond = "rest (no test in " + l.rutina() + " captures it)";
           veces = last.neCount();
         }
         typeSites.get(v).addAll(handler);
@@ -176,7 +176,7 @@ final class TypeSplitter {
     List<Object> tipos = new ArrayList<>();
     for (int v : typeValues) {
       Map<String, Object> tipo = new LinkedHashMap<>();
-      tipo.put("valor", v);
+      tipo.put("value", v);
       Set<Integer> sites = typeSites.get(v);
       Map<Integer, List<StructFinder.FieldAccess>> byOffset = new TreeMap<>();
       for (int s : sites)
@@ -190,53 +190,53 @@ final class TypeSplitter {
 
       int maxOff = byOffset.keySet().stream().mapToInt(Integer::intValue).max().orElse(0);
       int ocupa = maxOff / stride + 1;
-      tipo.put("nombre_propuesto", nombreDeTipo(campos, ocupa, sites.size()));
+      tipo.put("proposed_name", nombreDeTipo(campos, ocupa, sites.size()));
       if (framesPorValor.containsKey(v))
-        tipo.put("frames_observados", framesPorValor.get(v));
+        tipo.put("observed_frames", framesPorValor.get(v));
       if (bitsExtra.getOrDefault(v, 0) != 0)
-        tipo.put("bits_que_varian_fuera_de_la_mascara",
+        tipo.put("bits_varying_outside_mask",
             "& " + bitsExtra.get(v) + " (" + sf.maskBits(bitsExtra.get(v)) + ")");
       if (ocupa > 1)
-        tipo.put("ocupa_registros", ocupa);
+        tipo.put("spans_records", ocupa);
       Map<String, Object> donde = new LinkedHashMap<>();
       typeCond.get(v).forEach((rutina, cond) -> donde.put(rutina,
           cond + " x" + typeVeces.get(v).get(rutina)));
-      tipo.put("seleccionado_en", donde);
-      tipo.put("campos", campos);
+      tipo.put("selected_in", donde);
+      tipo.put("fields", campos);
       // sub-variants inside the type (e.g. a direction bit) — only the field-conditioned ones
       List<Object> internas = new ArrayList<>();
       for (Object vo : variantes) {
         Map<String, Object> var = (Map<String, Object>) vo;
-        if (((String) var.get("condicion")).contains("&"))
+        if (((String) var.get("condition")).contains("&"))
           internas.add(var);
       }
       if (!internas.isEmpty())
-        tipo.put("variantes_internas", internas);
+        tipo.put("inner_variants", internas);
       tipos.add(tipo);
     }
 
     Map<String, Object> disc = new LinkedHashMap<>();
-    disc.put("campo", "+" + discOff);
-    disc.put("mascara", mask);
+    disc.put("field", "+" + discOff);
+    disc.put("mask", mask);
     disc.put("bits", sf.maskBits(mask));
-    disc.put("valores_observados", typeValues);
+    disc.put("observed_values", typeValues);
     List<Object> tests = new ArrayList<>();
     for (Ladder l : ladders)
-      tests.add(Map.of("rutina", l.rutina(),
-          "mascara", l.mask() < 0 ? 255 : l.mask(),
-          "valores_testeados", l.tests().stream().map(r -> r.t().value()).toList()));
-    disc.put("escaleras", tests);
+      tests.add(Map.of("routine", l.rutina(),
+          "mask", l.mask() < 0 ? 255 : l.mask(),
+          "tested_values", l.tests().stream().map(r -> r.t().value()).toList()));
+    disc.put("ladders", tests);
 
     Map<String, Object> out = new LinkedHashMap<>();
-    out.put("discriminante", disc);
+    out.put("discriminant", disc);
     if (slotsConDatos > 0)
-      out.put("slots_con_datos_observados", slotsConDatos);
-    out.put("tipos", tipos);
+      out.put("slots_with_observed_data", slotsConDatos);
+    out.put("types", tipos);
     return out;
   }
 
   private String condText(Test t) {
-    return "campo +" + t.offset() + (t.mask() >= 0 ? " & " + t.mask() : "") + " == " + t.value();
+    return "field +" + t.offset() + (t.mask() >= 0 ? " & " + t.mask() : "") + " == " + t.value();
   }
 
   /** field summaries (same shape as StructFinder's campos) restricted to one type's accesses. */
@@ -260,20 +260,20 @@ final class TypeSplitter {
       }
       Map<String, Object> f = new LinkedHashMap<>();
       f.put("offset", off);
-      f.put("lecturas", reads);
-      f.put("escrituras", writes);
-      f.put("valores", List.of(vMin <= vMax ? vMin : 0, vMax >= 0 ? vMax : 0));
+      f.put("reads", reads);
+      f.put("writes", writes);
+      f.put("values", List.of(vMin <= vMax ? vMin : 0, vMax >= 0 ? vMax : 0));
       if (off >= stride)
-        f.put("campo_del_registro_siguiente", off % stride);
+        f.put("field_of_next_record", off % stride);
       List<String> tags = sf.semantics(base, off % stride, stride, tableEnd, oe.getValue());
       if (!tags.isEmpty())
-        f.put("semantica", tags);
+        f.put("semantics", tags);
       List<String> bits = sf.fieldBits(oe.getValue());
       if (!bits.isEmpty())
-        f.put("descomposicion_bits", bits);
+        f.put("bit_decomposition", bits);
       List<Integer> gfx = sf.fieldGfxTarget(oe.getValue());
       if (gfx != null)
-        f.put("apunta_a_grafico", gfx);
+        f.put("points_to_graphics", gfx);
       campos.add(f);
     }
     return campos;
@@ -290,29 +290,29 @@ final class TypeSplitter {
     long writes = 0;
     for (Object fo : campos) {
       Map<String, Object> f = (Map<String, Object>) fo;
-      writes += (long) f.get("escrituras");
-      if ((long) f.get("escrituras") == 0)
+      writes += (long) f.get("writes");
+      if ((long) f.get("writes") == 0)
         continue;
-      List<String> sem = f.containsKey("semantica") ? (List<String>) f.get("semantica") : List.of();
-      if (sem.contains("coordenada X"))
+      List<String> sem = f.containsKey("semantics") ? (List<String>) f.get("semantics") : List.of();
+      if (sem.contains("X coordinate"))
         wX = true;
-      if (sem.contains("coordenada Y"))
+      if (sem.contains("Y coordinate"))
         wY = true;
     }
     String nombre;
     if (wX && wY)
-      nombre = "movil_xy";
+      nombre = "xy_mover";
     else if (wX)
-      nombre = "movil_horizontal";
+      nombre = "horizontal_mover";
     else if (wY)
-      nombre = "movil_vertical";
+      nombre = "vertical_mover";
     else if (writes > 0)
-      nombre = "con_estado_propio";
+      nombre = "own_state";
     else if (nSites < 5)
-      nombre = "sin_comportamiento (slot vacio o tipo sin codigo propio)";
+      nombre = "no_behavior (empty slot or type without own code)";
     else
-      nombre = "solo_lectura";
-    return ocupa > 1 ? nombre + "_extendido" : nombre;
+      nombre = "read_only";
+    return ocupa > 1 ? nombre + "_extended" : nombre;
   }
 
   // ==================== ladder discovery ====================

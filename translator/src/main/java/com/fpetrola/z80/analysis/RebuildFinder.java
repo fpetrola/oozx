@@ -125,36 +125,36 @@ public class RebuildFinder {
     Map<String, Object> f = new LinkedHashMap<>();
     AnalysisDB.Stat sel = db.reads.get(main.readSite());
     Map<String, Object> selector = new LinkedHashMap<>();
-    selector.put("celda", cell);
-    selector.put("valores", List.of(sel.valMin(), sel.valMax()));
+    selector.put("cell", cell);
+    selector.put("values", List.of(sel.valMin(), sel.valMax()));
     long[] cambios = cellChanges(cell);
     if (cambios[0] > 0) {
-      selector.put("cambios_de_valor", cambios[0]);
-      selector.put("valores_distintos", cambios[1]);
+      selector.put("value_changes", cambios[0]);
+      selector.put("distinct_values", cambios[1]);
     }
-    selector.put("escrito_por", writersOf(cell));
+    selector.put("written_by", writersOf(cell));
     f.put("selector", selector);
 
     List<Object> principales = new ArrayList<>();
     for (Pinned p : copies) {
       AnalysisDB.Bulk b = p.bulk();
-      int registros = (b.srcMax() - b.srcMin()) / p.stride() + 1;
+      int records = (b.srcMax() - b.srcMin()) / p.stride() + 1;
       Map<String, Object> c = new LinkedHashMap<>();
       c.put("site", b.pc());
-      c.put("rutina", db.method.getOrDefault(b.pc(), "?"));
-      c.put("veces", b.count());
-      c.put("formula", "origen = " + p.base() + " + selector*" + p.stride());
-      c.put("tabla_indexada", Map.of(
-          "base", p.base(), "registro_bytes", p.stride(), "registros_usados", registros,
-          "rango", List.of(b.srcMin(), b.srcMax() + Math.max(0, b.lenMax() - 1))));
-      c.put("destino", List.of(b.dstMin(), b.dstMax() + Math.max(0, b.lenMax() - 1)));
+      c.put("routine", db.method.getOrDefault(b.pc(), "?"));
+      c.put("times", b.count());
+      c.put("formula", "source = " + p.base() + " + selector*" + p.stride());
+      c.put("indexed_table", Map.of(
+          "base", p.base(), "record_bytes", p.stride(), "used_records", records,
+          "range", List.of(b.srcMin(), b.srcMax() + Math.max(0, b.lenMax() - 1))));
+      c.put("destination", List.of(b.dstMin(), b.dstMax() + Math.max(0, b.lenMax() - 1)));
       principales.add(c);
     }
-    f.put("copias_indexadas_por_el_selector", principales);
+    f.put("copies_indexed_by_selector", principales);
 
     if (cambios[0] > 0 && mainCount > cambios[0] * 3 / 2)
-      f.put("nota_disparo", "la reconstruccion corrio x" + mainCount + " pero el selector cambio de valor "
-          + cambios[0] + " veces: tambien se re-ejecuta sin cambiar el valor (muerte/reinicio)");
+      f.put("trigger_note", "the rebuild ran x" + mainCount + " but the selector changed value "
+          + cambios[0] + " times: it also re-runs without a value change (death/restart)");
 
     // the rest of the cluster: bulk copies running an integer multiple of the main cadence
     Set<Integer> pinnedPcs = new HashSet<>();
@@ -172,29 +172,29 @@ public class RebuildFinder {
         continue;
       Map<String, Object> c = new LinkedHashMap<>();
       c.put("site", b.pc());
-      c.put("rutina", db.method.getOrDefault(b.pc(), "?"));
-      c.put("veces", b.count());
-      c.put("por_reconstruccion", k);
-      c.put("origen", List.of(b.srcMin(), b.srcMax() + Math.max(0, b.lenMax() - 1)));
-      c.put("destino", List.of(b.dstMin(), b.dstMax() + Math.max(0, b.lenMax() - 1)));
+      c.put("routine", db.method.getOrDefault(b.pc(), "?"));
+      c.put("times", b.count());
+      c.put("per_rebuild", k);
+      c.put("source", List.of(b.srcMin(), b.srcMax() + Math.max(0, b.lenMax() - 1)));
+      c.put("destination", List.of(b.dstMin(), b.dstMax() + Math.max(0, b.lenMax() - 1)));
       // the LDIR fill idiom: source = destination - 1 propagates one byte over the block
       if (b.srcMin() + 1 == b.dstMin() && b.srcMax() < b.dstMax() + b.lenMax())
-        c.put("nota", "relleno con un valor (origen = destino-1: propaga un byte)");
+        c.put("note", "fill with one value (source = destination-1: propagates one byte)");
       cluster.add(c);
       regiones.add(new int[]{b.dstMin(), b.dstMax() + Math.max(0, b.lenMax() - 1)});
     }
     if (!cluster.isEmpty())
-      f.put("corren_con_la_misma_cadencia", cluster);
+      f.put("same_cadence_copies", cluster);
 
     List<int[]> merged = GameMapper.mergeRanges(regiones, 16);
-    f.put("regiones_reconstruidas", merged.stream()
+    f.put("rebuilt_regions", merged.stream()
         .map(r -> List.of(r[0], r[1])).toList());
 
     // hand-off: who consumes each rebuilt region afterwards (where structure recovery goes next)
     Map<String, Object> lectores = new LinkedHashMap<>();
     for (int[] r : merged)
       lectores.put("[" + r[0] + ".." + r[1] + "]", readersOf(r[0], r[1], pinnedPcs));
-    f.put("destino_leido_por", lectores);
+    f.put("destination_read_by", lectores);
     return f;
   }
 
@@ -206,8 +206,8 @@ public class RebuildFinder {
         .sorted(Comparator.comparingLong(w -> -w.count()))
         .limit(8)
         .forEach(w -> out.add(Map.of(
-            "site", w.pc(), "rutina", db.method.getOrDefault(w.pc(), "?"),
-            "veces", w.count(), "valores", List.of(w.valMin(), w.valMax()))));
+            "site", w.pc(), "routine", db.method.getOrDefault(w.pc(), "?"),
+            "times", w.count(), "values", List.of(w.valMin(), w.valMax()))));
     return out;
   }
 
@@ -224,8 +224,8 @@ public class RebuildFinder {
     return porRutina.entrySet().stream()
         .sorted((a, b2) -> Long.compare(b2.getValue()[0], a.getValue()[0]))
         .limit(6)
-        .map(e -> (Object) Map.of("rutina", e.getKey(),
-            "lecturas", e.getValue()[0], "sites", e.getValue()[1]))
+        .map(e -> (Object) Map.of("routine", e.getKey(),
+            "reads", e.getValue()[0], "sites", e.getValue()[1]))
         .toList();
   }
 
@@ -249,51 +249,51 @@ public class RebuildFinder {
   public void report() {
     List<Map<String, Object>> all = analyze();
     if (all.isEmpty()) {
-      System.out.println("sin selectores detectados (ninguna copia en bloque depende de una celda dinamica)");
+      System.out.println("no selectors detected (no bulk copy depends on a dynamic cell)");
       return;
     }
     for (Map<String, Object> f : all) {
       Map<String, Object> sel = (Map<String, Object>) f.get("selector");
-      List<Integer> vals = (List<Integer>) sel.get("valores");
+      List<Integer> vals = (List<Integer>) sel.get("values");
       System.out.printf("%n===== SELECTOR mem[%d]  val[%d..%d]%s =====%n",
-          (int) sel.get("celda"), vals.get(0), vals.get(1),
-          sel.containsKey("cambios_de_valor")
-              ? "  (" + sel.get("cambios_de_valor") + " cambios, "
-              + sel.get("valores_distintos") + " valores distintos)" : "");
-      for (Object wo : (List<Object>) sel.get("escrito_por")) {
+          (int) sel.get("cell"), vals.get(0), vals.get(1),
+          sel.containsKey("value_changes")
+              ? "  (" + sel.get("value_changes") + " changes, "
+              + sel.get("distinct_values") + " distinct values)" : "");
+      for (Object wo : (List<Object>) sel.get("written_by")) {
         Map<String, Object> w = (Map<String, Object>) wo;
-        List<Integer> wv = (List<Integer>) w.get("valores");
-        System.out.printf("  escrito por %s @%s x%s val[%d..%d]%n",
-            w.get("rutina"), w.get("site"), w.get("veces"), wv.get(0), wv.get(1));
+        List<Integer> wv = (List<Integer>) w.get("values");
+        System.out.printf("  written by %s @%s x%s val[%d..%d]%n",
+            w.get("routine"), w.get("site"), w.get("times"), wv.get(0), wv.get(1));
       }
-      for (Object co : (List<Object>) f.get("copias_indexadas_por_el_selector")) {
+      for (Object co : (List<Object>) f.get("copies_indexed_by_selector")) {
         Map<String, Object> c = (Map<String, Object>) co;
-        Map<String, Object> t = (Map<String, Object>) c.get("tabla_indexada");
-        List<Integer> dst = (List<Integer>) c.get("destino");
-        System.out.printf("  COPIA @%s (%s) x%s: %s  — tabla de %s registros de %s bytes -> destino [%d..%d]%n",
-            c.get("site"), c.get("rutina"), c.get("veces"), c.get("formula"),
-            t.get("registros_usados"), t.get("registro_bytes"), dst.get(0), dst.get(1));
+        Map<String, Object> t = (Map<String, Object>) c.get("indexed_table");
+        List<Integer> dst = (List<Integer>) c.get("destination");
+        System.out.printf("  COPY @%s (%s) x%s: %s  — table of %s records of %s bytes -> destination [%d..%d]%n",
+            c.get("site"), c.get("routine"), c.get("times"), c.get("formula"),
+            t.get("used_records"), t.get("record_bytes"), dst.get(0), dst.get(1));
       }
-      if (f.containsKey("nota_disparo"))
-        System.out.println("  NOTA: " + f.get("nota_disparo"));
-      if (f.containsKey("corren_con_la_misma_cadencia")) {
-        System.out.println("  corren con la misma cadencia (parte de la reconstruccion):");
-        for (Object co : (List<Object>) f.get("corren_con_la_misma_cadencia")) {
+      if (f.containsKey("trigger_note"))
+        System.out.println("  NOTE: " + f.get("trigger_note"));
+      if (f.containsKey("same_cadence_copies")) {
+        System.out.println("  same cadence (part of the rebuild):");
+        for (Object co : (List<Object>) f.get("same_cadence_copies")) {
           Map<String, Object> c = (Map<String, Object>) co;
-          List<Integer> src = (List<Integer>) c.get("origen"), dst = (List<Integer>) c.get("destino");
-          System.out.printf("    @%s (%s) x%s (%sx por reconstruccion): [%d..%d] -> [%d..%d]%s%n",
-              c.get("site"), c.get("rutina"), c.get("veces"), c.get("por_reconstruccion"),
+          List<Integer> src = (List<Integer>) c.get("source"), dst = (List<Integer>) c.get("destination");
+          System.out.printf("    @%s (%s) x%s (%sx per rebuild): [%d..%d] -> [%d..%d]%s%n",
+              c.get("site"), c.get("routine"), c.get("times"), c.get("per_rebuild"),
               src.get(0), src.get(1), dst.get(0), dst.get(1),
-              c.containsKey("nota") ? "  <- " + c.get("nota") : "");
+              c.containsKey("note") ? "  <- " + c.get("note") : "");
         }
       }
-      System.out.println("  regiones reconstruidas: " + f.get("regiones_reconstruidas"));
-      for (Map.Entry<String, Object> le : ((Map<String, Object>) f.get("destino_leido_por")).entrySet()) {
-        System.out.println("  " + le.getKey() + " leido despues por:");
+      System.out.println("  rebuilt regions: " + f.get("rebuilt_regions"));
+      for (Map.Entry<String, Object> le : ((Map<String, Object>) f.get("destination_read_by")).entrySet()) {
+        System.out.println("  " + le.getKey() + " read afterwards by:");
         for (Object ro : (List<Object>) le.getValue()) {
           Map<String, Object> r = (Map<String, Object>) ro;
-          System.out.printf("    %s (x%s lecturas, %s sites)%n",
-              r.get("rutina"), r.get("lecturas"), r.get("sites"));
+          System.out.printf("    %s (x%s reads, %s sites)%n",
+              r.get("routine"), r.get("reads"), r.get("sites"));
         }
       }
     }

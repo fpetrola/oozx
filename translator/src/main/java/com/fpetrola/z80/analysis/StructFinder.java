@@ -77,7 +77,7 @@ public class StructFinder {
         .map(db.reads::get)
         .filter(r -> {
           String c = explainer.classifyRange(r.addrMin(), r.addrMax());
-          return c.startsWith("ESTATICA") || c.startsWith("mayormente") || c.startsWith("MIXTA");
+          return c.startsWith("STATIC") || c.startsWith("mostly") || c.startsWith("MIXED");
         })
         .map(r -> new int[]{r.addrMin(), r.addrMax()}).toList(), 64)
         .stream().filter(g -> g[1] - g[0] + 1 >= 1024).toList();
@@ -140,15 +140,15 @@ public class StructFinder {
     return res;
   }
 
-  /** annotate the source struct with {@code expande_a} and the destination with {@code se_llena_desde}. */
+  /** annotate the source struct with {@code expands_to} and the destination with {@code filled_from}. */
   private void linkExpansions(List<Map<String, Object>> structs, List<int[]> expansions) {
     for (int[] ex : expansions) {
       for (Map<String, Object> st : structs) {
         int base = (int) st.get("base");
         if (base == ex[0])
-          st.putIfAbsent("expande_a", ex[1]);
+          st.putIfAbsent("expands_to", ex[1]);
         if (base == ex[1])
-          st.putIfAbsent("se_llena_desde", ex[0]);
+          st.putIfAbsent("filled_from", ex[0]);
       }
     }
   }
@@ -173,11 +173,11 @@ public class StructFinder {
   public List<Map<String, Object>> canonical(List<Map<String, Object>> structs) {
     Map<String, List<Map<String, Object>>> groups = new LinkedHashMap<>();
     for (Map<String, Object> st : structs)
-      groups.computeIfAbsent(st.get("base") + "|" + st.get("registro_bytes"), k -> new ArrayList<>())
+      groups.computeIfAbsent(st.get("base") + "|" + st.get("record_bytes"), k -> new ArrayList<>())
           .add(st);
     List<Map<String, Object>> out = new ArrayList<>();
     for (List<Map<String, Object>> g : groups.values()) {
-      long rutinas = g.stream().map(s -> s.get("rutina")).distinct().count();
+      long rutinas = g.stream().map(s -> s.get("routine")).distinct().count();
       if (rutinas < 2)
         continue;
       out.add(mergeGroup(g));
@@ -188,46 +188,46 @@ public class StructFinder {
   @SuppressWarnings("unchecked")
   private Map<String, Object> mergeGroup(List<Map<String, Object>> g) {
     Map<String, Object> first = g.get(0);
-    int stride = (int) first.get("registro_bytes");
+    int stride = (int) first.get("record_bytes");
     int base = (int) first.get("base");
     int tableEnd = base;
     for (Map<String, Object> st : g)
-      tableEnd = Math.max(tableEnd, ((List<Integer>) st.get("rango")).get(1));
+      tableEnd = Math.max(tableEnd, ((List<Integer>) st.get("range")).get(1));
 
     // fold every routine's field at offset (off % stride) into one canonical field
     Map<Integer, Map<String, Object>> byOff = new TreeMap<>();
     Map<Integer, List<String>> aportes = new TreeMap<>();
     for (Map<String, Object> st : g) {
-      String rutina = (String) st.get("rutina");
-      for (Object fo : (List<Object>) st.get("campos")) {
+      String rutina = (String) st.get("routine");
+      for (Object fo : (List<Object>) st.get("fields")) {
         Map<String, Object> f = (Map<String, Object>) fo;
         int off = ((int) f.get("offset")) % stride;
         Map<String, Object> c = byOff.computeIfAbsent(off, k -> {
           Map<String, Object> m = new LinkedHashMap<>();
           m.put("offset", k);
-          m.put("lecturas", 0L);
-          m.put("escrituras", 0L);
-          m.put("valores", new int[]{256, -1});
-          m.put("semantica", new LinkedHashSet<String>());
+          m.put("reads", 0L);
+          m.put("writes", 0L);
+          m.put("values", new int[]{256, -1});
+          m.put("semantics", new LinkedHashSet<String>());
           m.put("bits", new LinkedHashSet<String>());
-          m.put("nombre_propuesto", (String) null);
+          m.put("proposed_name", (String) null);
           return m;
         });
-        c.put("lecturas", (long) c.get("lecturas") + (long) f.get("lecturas"));
-        c.put("escrituras", (long) c.get("escrituras") + (long) f.get("escrituras"));
-        int[] vr = (int[]) c.get("valores");
-        List<Integer> fv = (List<Integer>) f.get("valores");
+        c.put("reads", (long) c.get("reads") + (long) f.get("reads"));
+        c.put("writes", (long) c.get("writes") + (long) f.get("writes"));
+        int[] vr = (int[]) c.get("values");
+        List<Integer> fv = (List<Integer>) f.get("values");
         vr[0] = Math.min(vr[0], fv.get(0));
         vr[1] = Math.max(vr[1], fv.get(1));
-        if (f.containsKey("semantica"))
-          ((Set<String>) c.get("semantica")).addAll((List<String>) f.get("semantica"));
-        if (f.containsKey("descomposicion_bits"))
-          ((Set<String>) c.get("bits")).addAll((List<String>) f.get("descomposicion_bits"));
-        if (f.containsKey("apunta_a_grafico"))
-          c.putIfAbsent("apunta_a_grafico", f.get("apunta_a_grafico"));
-        String cand = (String) f.get("nombre_propuesto");
-        if (nameScore(cand) > nameScore((String) c.get("nombre_propuesto")))
-          c.put("nombre_propuesto", cand);
+        if (f.containsKey("semantics"))
+          ((Set<String>) c.get("semantics")).addAll((List<String>) f.get("semantics"));
+        if (f.containsKey("bit_decomposition"))
+          ((Set<String>) c.get("bits")).addAll((List<String>) f.get("bit_decomposition"));
+        if (f.containsKey("points_to_graphics"))
+          c.putIfAbsent("points_to_graphics", f.get("points_to_graphics"));
+        String cand = (String) f.get("proposed_name");
+        if (nameScore(cand) > nameScore((String) c.get("proposed_name")))
+          c.put("proposed_name", cand);
         if (cand != null)
           aportes.computeIfAbsent(off, k -> new ArrayList<>()).add(rutina + ": " + cand);
       }
@@ -235,47 +235,47 @@ public class StructFinder {
 
     List<Object> campos = new ArrayList<>();
     for (Map<String, Object> c : byOff.values()) {
-      int[] vr = (int[]) c.get("valores");
+      int[] vr = (int[]) c.get("values");
       Map<String, Object> out = new LinkedHashMap<>();
       out.put("offset", c.get("offset"));
-      out.put("lecturas", c.get("lecturas"));
-      out.put("escrituras", c.get("escrituras"));
-      out.put("valores", List.of(vr[0] <= vr[1] ? vr[0] : 0, vr[1] >= 0 ? vr[1] : 0));
-      Set<String> sem = (Set<String>) c.get("semantica");
+      out.put("reads", c.get("reads"));
+      out.put("writes", c.get("writes"));
+      out.put("values", List.of(vr[0] <= vr[1] ? vr[0] : 0, vr[1] >= 0 ? vr[1] : 0));
+      Set<String> sem = (Set<String>) c.get("semantics");
       if (!sem.isEmpty())
-        out.put("semantica", new ArrayList<>(sem));
+        out.put("semantics", new ArrayList<>(sem));
       Set<String> bits = (Set<String>) c.get("bits");
       if (!bits.isEmpty())
-        out.put("descomposicion_bits", new ArrayList<>(bits));
-      if (c.containsKey("apunta_a_grafico"))
-        out.put("apunta_a_grafico", c.get("apunta_a_grafico"));
-      if (c.get("nombre_propuesto") != null)
-        out.put("nombre_propuesto", c.get("nombre_propuesto"));
+        out.put("bit_decomposition", new ArrayList<>(bits));
+      if (c.containsKey("points_to_graphics"))
+        out.put("points_to_graphics", c.get("points_to_graphics"));
+      if (c.get("proposed_name") != null)
+        out.put("proposed_name", c.get("proposed_name"));
       List<String> ap = aportes.get((int) c.get("offset"));
       if (ap != null)
-        out.put("aportado_por", ap);
+        out.put("contributed_by", ap);
       campos.add(out);
     }
 
     Map<String, Object> rec = new LinkedHashMap<>();
     rec.put("base", base);
-    rec.put("registro_bytes", stride);
-    rec.put("rango", List.of(base, tableEnd));
-    rec.put("rutinas", g.stream().map(s -> (String) s.get("rutina")).distinct().sorted().toList());
+    rec.put("record_bytes", stride);
+    rec.put("range", List.of(base, tableEnd));
+    rec.put("routines", g.stream().map(s -> (String) s.get("routine")).distinct().sorted().toList());
     for (Map<String, Object> st : g) {
-      if (st.containsKey("terminador"))
-        rec.putIfAbsent("terminador", st.get("terminador"));
-      if (st.containsKey("expande_a"))
-        rec.putIfAbsent("expande_a", st.get("expande_a"));
-      if (st.containsKey("se_llena_desde"))
-        rec.putIfAbsent("se_llena_desde", st.get("se_llena_desde"));
+      if (st.containsKey("terminator"))
+        rec.putIfAbsent("terminator", st.get("terminator"));
+      if (st.containsKey("expands_to"))
+        rec.putIfAbsent("expands_to", st.get("expands_to"));
+      if (st.containsKey("filled_from"))
+        rec.putIfAbsent("filled_from", st.get("filled_from"));
     }
-    rec.put("campos", campos);
+    rec.put("fields", campos);
 
     // discriminated union: when the routines test one field against several constants,
     // split the record into its REAL types and re-analyse the fields inside each one
-    Integer termValor = rec.containsKey("terminador")
-        ? ((Number) ((Map<String, Object>) rec.get("terminador")).get("valor")).intValue() : null;
+    Integer termValor = rec.containsKey("terminator")
+        ? ((Number) ((Map<String, Object>) rec.get("terminator")).get("value")).intValue() : null;
     List<Raw> groupRaws = g.stream().map(raws::get).filter(Objects::nonNull).toList();
     Map<String, Object> tipos = new TypeSplitter(this, db, dbPath)
         .discriminate(base, stride, tableEnd, termValor, groupRaws);
@@ -288,16 +288,16 @@ public class StructFinder {
   private int nameScore(String n) {
     if (n == null)
       return 0;
-    if (n.startsWith("posicion_") || n.startsWith("limite_") || n.startsWith("incremento_"))
+    if (n.startsWith("position_") || n.startsWith("limit_") || n.startsWith("increment_"))
       return 5;
-    if (n.startsWith("frame_animacion") || n.startsWith("direccion_sentido")
-        || n.startsWith("tipo_y_direccion"))
+    if (n.startsWith("animation_frame") || n.startsWith("direction_flag")
+        || n.startsWith("type_and_direction"))
       return 4;
-    if (n.startsWith("grafico_frame") || n.equals("color"))
+    if (n.startsWith("graphic_frame") || n.equals("color"))
       return 3;
-    if (n.startsWith("limite") || n.startsWith("contador"))
+    if (n.startsWith("limite") || n.startsWith("counter"))
       return 2;
-    return 1; // tipo_flags, controla_condiciones — generic fallbacks
+    return 1; // type_flags, controls_conditions — generic fallbacks
   }
 
   record FieldAccess(int site, char op, int offset) {
@@ -404,9 +404,9 @@ public class StructFinder {
         continue;
       if (tracesToFieldRead(pc, reg, minOff, 3, new HashSet<>())) {
         Map<String, Object> t = new LinkedHashMap<>();
-        t.put("valor", c);
+        t.put("value", c);
         t.put("site", pc);
-        t.put("nota", "el ultimo slot es un marcador de fin, no un registro");
+        t.put("note", "the last slot is an end marker, not a record");
         return t;
       }
     }
@@ -457,13 +457,13 @@ public class StructFinder {
 
   String maskBits(int mask) {
     if (mask <= 0)
-      return "ninguno";
+      return "none";
     int lo = Integer.numberOfTrailingZeros(mask);
     int hi = 31 - Integer.numberOfLeadingZeros(mask);
     boolean contiguous = mask == (((1 << (hi - lo + 1)) - 1) << lo);
     if (lo == hi)
       return "bit " + lo;
-    return (contiguous ? "bits " : "bits no contiguos ") + lo + "-" + hi;
+    return (contiguous ? "bits " : "non-contiguous bits ") + lo + "-" + hi;
   }
 
   /** graphics zone a field indexes into: an ADDR out-edge landing in a discovered gfx region. */
@@ -544,14 +544,14 @@ public class StructFinder {
     if (parsedStep != null && parsedStep >= 2 && parsedStep <= 64) {
       stride = parsedStep;
       // sanity: the varying bits of a stride-N cursor must be consistent with N
-      strideFuente = "avance del cursor" + (bitStride != 0 && stride % bitStride != 0
-          ? " (INCONSISTENTE con los bits de direccion observados)" : "");
+      strideFuente = "cursor advance" + (bitStride != 0 && stride % bitStride != 0
+          ? " (INCONSISTENT with the observed address bits)" : "");
     } else if (bitStride != 0) {
       stride = bitStride;
-      strideFuente = "bit de direccion mas bajo que varia (solo detecta potencias de 2)";
+      strideFuente = "lowest varying address bit (only detects powers of 2)";
     } else {
       stride = accesses.stream().mapToInt(FieldAccess::offset).max().orElse(0) + 1;
-      strideFuente = "maximo offset visto (sin evidencia de avance)";
+      strideFuente = "max offset seen (no advance evidence)";
     }
     int base = Integer.MAX_VALUE, end = Integer.MIN_VALUE;
     for (FieldAccess fa : accesses) {
@@ -568,20 +568,20 @@ public class StructFinder {
     int tableEnd = base + stride * elems - 1;
 
     Map<String, Object> st = new LinkedHashMap<>();
-    st.put("rutina", method);
+    st.put("routine", method);
     st.put("cursor", reg);
     st.put("base", base);
-    st.put("registro_bytes", stride);
-    st.put("stride_fuente", strideFuente);
-    st.put("elementos", elems);
-    st.put("rango", List.of(base, tableEnd));
+    st.put("record_bytes", stride);
+    st.put("stride_source", strideFuente);
+    st.put("elements", elems);
+    st.put("range", List.of(base, tableEnd));
     // record the cursor-advance site only when its parsed step is the stride we adopted,
-    // so the reported step never contradicts registro_bytes
+    // so the reported step never contradicts record_bytes
     if (parsedStep != null && parsedStep == stride) {
       for (int pc : sites) {
         String eq = db.equation.get(pc);
         if (eq != null && eq.matches(".*" + reg + " = add16\\(" + reg + ", .+\\).*")) {
-          st.put("avance_cursor", Map.of("paso", parsedStep, "site", pc));
+          st.put("cursor_advance", Map.of("step", parsedStep, "site", pc));
           break;
         }
       }
@@ -597,12 +597,12 @@ public class StructFinder {
     int minOff = byOffset.isEmpty() ? 0 : Collections.min(byOffset.keySet());
     Map<String, Object> term = detectTerminator(sites, reg, minOff, byOffset.get(minOff));
     if (term != null) {
-      st.put("terminador", term);
+      st.put("terminator", term);
       if (elems > 1) {
         elems--;
         tableEnd = base + stride * elems - 1;
-        st.put("elementos", elems);
-        st.put("rango", List.of(base, tableEnd));
+        st.put("elements", elems);
+        st.put("range", List.of(base, tableEnd));
       }
     }
 
@@ -624,25 +624,25 @@ public class StructFinder {
       }
       Map<String, Object> f = new LinkedHashMap<>();
       f.put("offset", off);
-      f.put("lecturas", reads);
-      f.put("escrituras", writes);
-      f.put("valores", List.of(vMin, vMax));
+      f.put("reads", reads);
+      f.put("writes", writes);
+      f.put("values", List.of(vMin, vMax));
       if (off >= stride)
-        f.put("campo_del_elemento_siguiente", off % stride);
+        f.put("field_of_next_element", off % stride);
       List<String> tags = semantics(base, off % stride, stride, tableEnd, oe.getValue());
       if (!tags.isEmpty())
-        f.put("semantica", tags);
+        f.put("semantics", tags);
       List<String> bits = fieldBits(oe.getValue());
       if (!bits.isEmpty())
-        f.put("descomposicion_bits", bits);
+        f.put("bit_decomposition", bits);
       List<Integer> gfx = fieldGfxTarget(oe.getValue());
       if (gfx != null)
-        f.put("apunta_a_grafico", gfx);
+        f.put("points_to_graphics", gfx);
       campos.add(f);
     }
-    st.put("campos", campos);
+    st.put("fields", campos);
     List<Object> vars = variants(sites, byOffset);
-    st.put("variantes", vars);
+    st.put("variants", vars);
     enrichRelations(campos, vars, byOffset, sites);
     raws.put(st, new Raw(method, sites, accesses));
     return st;
@@ -653,16 +653,16 @@ public class StructFinder {
   /**
    * How the fields of the structure relate to each other and where each one lands:
    * <ul>
-   *   <li><b>se_actualiza_con</b>: read→...→write of the SAME field, with the operations
+   *   <li><b>updated_with</b>: read→...→write of the SAME field, with the operations
    *       seen on the path (inc/dec/suma/resta/invierte) — counters, positions;</li>
-   *   <li><b>escribe_a</b>: read of A reaches the write of B — derived fields;</li>
-   *   <li><b>comparado_con</b>: both fields feed the same {@code cp(...)} — limits;</li>
-   *   <li><b>decide_sobre</b>: A drives a branch whose arms touch other fields
+   *   <li><b>writes_to</b>: read of A reaches the write of B — derived fields;</li>
+   *   <li><b>compared_with</b>: both fields feed the same {@code cp(...)} — limits;</li>
+   *   <li><b>decides_over</b>: A drives a branch whose arms touch other fields
    *       exclusively (from the variants) — type/direction selectors;</li>
-   *   <li><b>impacta_en</b>: forward influence classified — posicion en pantalla (ADDR de
+   *   <li><b>impacts</b>: forward influence classified — screen position (ADDR de
    *       un write a region tipo-pantalla), pixeles (VAL), color (region de atributos),
-   *       eleccion del grafico (ADDR de una lectura de la zona de sprites);</li>
-   *   <li><b>nombre_propuesto</b>: síntesis de todo lo anterior.</li>
+   *       graphic choice (ADDR de una lectura de la zona de sprites);</li>
+   *   <li><b>proposed_name</b>: síntesis de todo lo anterior.</li>
    * </ul>
    */
   @SuppressWarnings("unchecked")
@@ -676,7 +676,7 @@ public class StructFinder {
         readSiteOffset.put(fa.site(), off);
     }));
 
-    // comparado_con: cp-sites whose inputs trace back to two different fields
+    // compared_with: cp-sites whose inputs trace back to two different fields
     Map<Integer, Set<Integer>> comparado = new HashMap<>();
     for (int pc : sites) {
       String eq = db.equation.get(pc);
@@ -701,22 +701,22 @@ public class StructFinder {
               comparado.computeIfAbsent(a, k -> new TreeSet<>()).add(b);
     }
 
-    // decide_sobre: from the variants whose condition field is this one; a field whose
+    // decides_over: from the variants whose condition field is this one; a field whose
     // condition carries mask/comparison is a variant SELECTOR (type field)
     Map<Integer, Set<Integer>> decide = new HashMap<>();
     Set<Integer> selectorOffs = new HashSet<>();
     for (Object vo : variantes) {
       Map<String, Object> v = (Map<String, Object>) vo;
-      String cond = (String) v.get("condicion");
-      java.util.regex.Matcher m = java.util.regex.Pattern.compile("campo \\+(\\d+)").matcher(cond);
+      String cond = (String) v.get("condition");
+      java.util.regex.Matcher m = java.util.regex.Pattern.compile("field \\+(\\d+)").matcher(cond);
       if (!m.find())
         continue;
       int condOff = Integer.parseInt(m.group(1));
       if (cond.contains("&") || cond.contains("=="))
         selectorOffs.add(condOff);
-      for (Object ro : (List<Object>) v.get("ramas"))
+      for (Object ro : (List<Object>) v.get("arms"))
         decide.computeIfAbsent(condOff, k -> new TreeSet<>())
-            .addAll((List<Integer>) ((Map<String, Object>) ro).get("campos_exclusivos"));
+            .addAll((List<Integer>) ((Map<String, Object>) ro).get("exclusive_fields"));
       if (decide.containsKey(condOff))
         decide.get(condOff).remove(condOff);
     }
@@ -727,11 +727,11 @@ public class StructFinder {
     Map<Integer, Character> coordOffAxis = new HashMap<>();
     for (Object fo : campos) {
       Map<String, Object> f = (Map<String, Object>) fo;
-      if (f.containsKey("semantica"))
-        for (String s : (List<String>) f.get("semantica")) {
-          if (s.equals("coordenada X"))
+      if (f.containsKey("semantics"))
+        for (String s : (List<String>) f.get("semantics")) {
+          if (s.equals("X coordinate"))
             coordOffAxis.put((int) f.get("offset"), 'X');
-          if (s.equals("coordenada Y"))
+          if (s.equals("Y coordinate"))
             coordOffAxis.put((int) f.get("offset"), 'Y');
         }
     }
@@ -751,17 +751,17 @@ public class StructFinder {
       }
       Map<String, Object> rel = new LinkedHashMap<>();
       if (!selfOps.isEmpty())
-        rel.put("se_actualiza_con", new ArrayList<>(selfOps));
+        rel.put("updated_with", new ArrayList<>(selfOps));
       if (!escribeA.isEmpty())
-        rel.put("escribe_a", new ArrayList<>(escribeA));
+        rel.put("writes_to", new ArrayList<>(escribeA));
       if (comparado.containsKey(off))
-        rel.put("comparado_con", comparado.get(off).stream().map(o -> "+" + o).toList());
+        rel.put("compared_with", comparado.get(off).stream().map(o -> "+" + o).toList());
       if (decide.containsKey(off) && !decide.get(off).isEmpty())
-        rel.put("decide_sobre", decide.get(off).stream().map(o -> "+" + o).toList());
+        rel.put("decides_over", decide.get(off).stream().map(o -> "+" + o).toList());
       if (!impacta.isEmpty())
-        rel.put("impacta_en", new ArrayList<>(impacta));
+        rel.put("impacts", new ArrayList<>(impacta));
       if (!rel.isEmpty())
-        f.put("relaciones", rel);
+        f.put("relations", rel);
 
       // axis of a coordinate this field WRITES into (increment) vs one it is COMPARED
       // against without writing (bound)
@@ -779,7 +779,7 @@ public class StructFinder {
       String nombre = proposeName(f, selfOps, comparado.get(off), decide.get(off), impacta,
           selectorOffs.contains(off), comparedCoordAxis, writesCoordAxis);
       if (nombre != null)
-        f.put("nombre_propuesto", nombre);
+        f.put("proposed_name", nombre);
     }
   }
 
@@ -811,14 +811,14 @@ public class StructFinder {
             int sLo = w.addrMin() + r.delta();
             boolean attr = sLo >= 22528 && sLo <= 23295;
             String role = e.role() == null ? "" : e.role();
-            impacta.add(attr ? "color (atributos)"
-                : role.contains("ADDR") ? "posicion en pantalla" : "pixeles en pantalla");
+            impacta.add(attr ? "color (attributes)"
+                : role.contains("ADDR") ? "screen position" : "screen pixels");
             break;
           }
       AnalysisDB.Stat rd = db.reads.get(dst);
       if (rd != null && e.role() != null && e.role().contains("ADDR")
           && gfxRegions.stream().anyMatch(g -> rd.addrMax() >= g[0] && rd.addrMin() <= g[1]))
-        impacta.add("eleccion del grafico");
+        impacta.add("graphic choice");
       walkForward(dst, depth + 1, seen, selfOff, writeSiteOffset, path, selfOps, escribeA, impacta);
     }
   }
@@ -835,15 +835,15 @@ public class StructFinder {
     if (eq == null)
       return "";
     if (eq.contains("inc("))
-      return "incrementa";
+      return "increments";
     if (eq.contains("dec("))
-      return "decrementa";
+      return "decrements";
     if (eq.contains("add("))
-      return "suma";
+      return "adds";
     if (eq.matches(".*= 0 - .*") || eq.contains("sub("))
-      return "resta/niega";
+      return "subtracts/negates";
     if (eq.contains(" ^ "))
-      return "invierte bits (xor)";
+      return "flips bits (xor)";
     return "";
   }
 
@@ -852,48 +852,48 @@ public class StructFinder {
                              Set<Integer> comparadoCon, Set<Integer> decideSobre,
                              Set<String> impacta, boolean isSelector,
                              Character comparedCoordAxis, Character writesCoordAxis) {
-    List<String> sem = f.containsKey("semantica") ? (List<String>) f.get("semantica") : List.of();
+    List<String> sem = f.containsKey("semantics") ? (List<String>) f.get("semantics") : List.of();
     for (String s : sem) {
-      if (s.equals("coordenada X"))
-        return "posicion_x";
-      if (s.equals("coordenada Y"))
-        return "posicion_y";
+      if (s.equals("X coordinate"))
+        return "position_x";
+      if (s.equals("Y coordinate"))
+        return "position_y";
     }
-    long escrituras = (long) f.get("escrituras");
-    boolean mueve = selfOps.contains("incrementa") || selfOps.contains("decrementa")
-        || selfOps.contains("suma") || selfOps.contains("resta/niega");
-    boolean invierte = selfOps.contains("invierte bits (xor)") || selfOps.contains("resta/niega");
+    long escrituras = (long) f.get("writes");
+    boolean mueve = selfOps.contains("increments") || selfOps.contains("decrements")
+        || selfOps.contains("adds") || selfOps.contains("subtracts/negates");
+    boolean invierte = selfOps.contains("flips bits (xor)") || selfOps.contains("subtracts/negates");
     // a field compared against a coordinate and never written itself is a static
     // edge/bound — even when its value gets copied into the coordinate (the clamp on
     // the bounce); a field that is REWRITTEN and feeds the coordinate is the step
     if (comparedCoordAxis != null && escrituras == 0)
-      return "limite_" + Character.toLowerCase(comparedCoordAxis)
-          + " (borde en " + comparedCoordAxis + "; al alcanzarlo invierte el movimiento)";
+      return "limit_" + Character.toLowerCase(comparedCoordAxis)
+          + " (edge on " + comparedCoordAxis + "; reaching it reverses the movement)";
     if (writesCoordAxis != null && (comparedCoordAxis == null || comparedCoordAxis == writesCoordAxis))
-      return "incremento_" + Character.toLowerCase(writesCoordAxis)
-          + " (paso que se suma a la posicion " + writesCoordAxis + ")";
-    if (impacta.contains("eleccion del grafico") && mueve)
-      return "frame_animacion (cambia y elige el grafico)";
+      return "increment_" + Character.toLowerCase(writesCoordAxis)
+          + " (step added to position " + writesCoordAxis + ")";
+    if (impacta.contains("graphic choice") && mueve)
+      return "animation_frame (changes and picks the graphic)";
     if (invierte && isSelector)
-      return "tipo_y_direccion (bits de tipo + sentido que se invierte al rebotar)";
+      return "type_and_direction (type bits + direction that flips on bounce)";
     if (invierte && decideSobre != null && !decideSobre.isEmpty())
-      return "direccion_sentido (se invierte y decide el movimiento)";
+      return "direction_flag (flips and decides the movement)";
     if (comparedCoordAxis != null)
-      return "limite_" + Character.toLowerCase(comparedCoordAxis)
-          + " (borde en " + comparedCoordAxis + ")";
+      return "limit_" + Character.toLowerCase(comparedCoordAxis)
+          + " (edge on " + comparedCoordAxis + ")";
     if (isSelector)
-      return "tipo_flags (sus bits seleccionan la variante)";
+      return "type_flags (its bits select the variant)";
     if (comparadoCon != null && !comparadoCon.isEmpty() && !mueve)
-      return "limite (se compara con " + comparadoCon.stream().map(o -> "+" + o)
+      return "limit (compared with " + comparadoCon.stream().map(o -> "+" + o)
           .reduce((a, b) -> a + " " + b).orElse("") + ")";
-    if (impacta.contains("color (atributos)") && !impacta.contains("posicion en pantalla"))
+    if (impacta.contains("color (attributes)") && !impacta.contains("screen position"))
       return "color";
-    if (impacta.contains("eleccion del grafico"))
-      return "grafico_frame";
+    if (impacta.contains("graphic choice"))
+      return "graphic_frame";
     if (decideSobre != null && decideSobre.size() >= 2)
-      return "controla_condiciones (posible limite o flag)";
-    if (mueve && !impacta.contains("posicion en pantalla"))
-      return "contador";
+      return "controls_conditions (possible limit or flag)";
+    if (mueve && !impacta.contains("screen position"))
+      return "counter";
     return null;
   }
 
@@ -902,7 +902,7 @@ public class StructFinder {
     List<String> tags = new ArrayList<>();
     for (Map.Entry<Integer, Character> ce : coordAxis.entrySet())
       if (ce.getKey() >= base && ce.getKey() <= tableEnd && (ce.getKey() - base) % stride == off) {
-        tags.add("coordenada " + ce.getValue());
+        tags.add(ce.getValue() + " coordinate");
         break;
       }
     boolean cond = false, addrGfx = false, addrOther = false;
@@ -929,11 +929,11 @@ public class StructFinder {
             cond = true;
     }
     if (cond)
-      tags.add("controla branches (tipo/flag)");
+      tags.add("drives branches (type/flag)");
     if (addrGfx)
-      tags.add("selector de grafico");
+      tags.add("graphic selector");
     if (addrOther)
-      tags.add("indice/puntero");
+      tags.add("index/pointer");
     return tags;
   }
 
@@ -969,13 +969,13 @@ public class StructFinder {
         continue;
       Map<String, Object> v = new LinkedHashMap<>();
       v.put("branch", branchPc);
-      v.put("condicion", describeCondition(branchPc, srcOffset));
+      v.put("condition", describeCondition(branchPc, srcOffset));
       List<Object> ramas = new ArrayList<>();
-      ramas.add(Map.of("pc", succs.get(0).dst(), "veces", succs.get(0).count(),
-          "campos_exclusivos", new ArrayList<>(onlyA)));
-      ramas.add(Map.of("pc", succs.get(1).dst(), "veces", succs.get(1).count(),
-          "campos_exclusivos", new ArrayList<>(onlyB)));
-      v.put("ramas", ramas);
+      ramas.add(Map.of("pc", succs.get(0).dst(), "times", succs.get(0).count(),
+          "exclusive_fields", new ArrayList<>(onlyA)));
+      ramas.add(Map.of("pc", succs.get(1).dst(), "times", succs.get(1).count(),
+          "exclusive_fields", new ArrayList<>(onlyB)));
+      v.put("arms", ramas);
       out.add(v);
     }
     return out;
@@ -996,7 +996,7 @@ public class StructFinder {
     return null;
   }
 
-  /** "campo +0 & 7 == 3" cuando la máscara y la comparación se pueden leer de las ecuaciones. */
+  /** "field +0 & 7 == 3" cuando la máscara y la comparación se pueden leer de las ecuaciones. */
   private String describeCondition(int branchPc, int offset) {
     String mask = "", cmp = "";
     Set<Integer> seen = new HashSet<>();
@@ -1019,7 +1019,7 @@ public class StructFinder {
             queue.add(e.src());
       }
     }
-    return "campo +" + offset + mask + cmp;
+    return "field +" + offset + mask + cmp;
   }
 
   /** bounded forward closure over the dynamic CFG, restricted to the method's sites. */
@@ -1038,39 +1038,39 @@ public class StructFinder {
 
   @SuppressWarnings("unchecked")
   private int minOffOf(Map<String, Object> st) {
-    return ((List<Object>) st.get("campos")).stream()
+    return ((List<Object>) st.get("fields")).stream()
         .mapToInt(o -> (int) ((Map<String, Object>) o).get("offset")).min().orElse(0);
   }
 
   @SuppressWarnings("unchecked")
   private void printCanonical(Map<String, Object> rec) {
-    List<Integer> rango = (List<Integer>) rec.get("rango");
-    System.out.printf("%n########## REGISTRO CANONICO base=%d, %d bytes [%d..%d] ##########%n",
-        (int) rec.get("base"), (int) rec.get("registro_bytes"), rango.get(0), rango.get(1));
-    System.out.println("  (union de: " + String.join(", ", (List<String>) rec.get("rutinas")) + ")");
-    if (rec.containsKey("terminador")) {
-      Map<String, Object> t = (Map<String, Object>) rec.get("terminador");
-      System.out.printf("  (valor %s marca FIN de la tabla; el ultimo slot no es un registro)%n",
-          t.get("valor"));
+    List<Integer> rango = (List<Integer>) rec.get("range");
+    System.out.printf("%n########## CANONICAL RECORD base=%d, %d bytes [%d..%d] ##########%n",
+        (int) rec.get("base"), (int) rec.get("record_bytes"), rango.get(0), rango.get(1));
+    System.out.println("  (union of: " + String.join(", ", (List<String>) rec.get("routines")) + ")");
+    if (rec.containsKey("terminator")) {
+      Map<String, Object> t = (Map<String, Object>) rec.get("terminator");
+      System.out.printf("  (value %s marks the END of the table; the last slot is not a record)%n",
+          t.get("value"));
     }
-    if (rec.containsKey("se_llena_desde"))
-      System.out.printf("  (se llena expandiendo la tabla compacta de %d)%n", rec.get("se_llena_desde"));
-    if (rec.containsKey("expande_a"))
-      System.out.printf("  (plantilla: se expande en el buffer de %d)%n", rec.get("expande_a"));
-    for (Object fo : (List<Object>) rec.get("campos")) {
+    if (rec.containsKey("filled_from"))
+      System.out.printf("  (filled by expanding the compact table at %d)%n", rec.get("filled_from"));
+    if (rec.containsKey("expands_to"))
+      System.out.printf("  (template: expands into the buffer at %d)%n", rec.get("expands_to"));
+    for (Object fo : (List<Object>) rec.get("fields")) {
       Map<String, Object> f = (Map<String, Object>) fo;
-      List<Integer> val = (List<Integer>) f.get("valores");
+      List<Integer> val = (List<Integer>) f.get("values");
       System.out.printf("  +%d: R x%d, W x%d, val[%d..%d]  %s%n",
-          (int) f.get("offset"), (long) f.get("lecturas"), (long) f.get("escrituras"),
-          val.get(0), val.get(1), f.getOrDefault("nombre_propuesto", "(sin nombre)"));
-      if (f.containsKey("descomposicion_bits"))
-        System.out.println("        bits: " + String.join(", ", (List<String>) f.get("descomposicion_bits")));
-      if (f.containsKey("apunta_a_grafico")) {
-        List<Integer> gg = (List<Integer>) f.get("apunta_a_grafico");
-        System.out.printf("        apunta a graficos [%d..%d]%n", gg.get(0), gg.get(1));
+          (int) f.get("offset"), (long) f.get("reads"), (long) f.get("writes"),
+          val.get(0), val.get(1), f.getOrDefault("proposed_name", "(unnamed)"));
+      if (f.containsKey("bit_decomposition"))
+        System.out.println("        bits: " + String.join(", ", (List<String>) f.get("bit_decomposition")));
+      if (f.containsKey("points_to_graphics")) {
+        List<Integer> gg = (List<Integer>) f.get("points_to_graphics");
+        System.out.printf("        points to graphics [%d..%d]%n", gg.get(0), gg.get(1));
       }
-      if (f.containsKey("aportado_por"))
-        for (String a : (List<String>) f.get("aportado_por"))
+      if (f.containsKey("contributed_by"))
+        for (String a : (List<String>) f.get("contributed_by"))
           System.out.println("        " + a);
     }
     printTipos(rec);
@@ -1078,35 +1078,35 @@ public class StructFinder {
 
   @SuppressWarnings("unchecked")
   private void printTipos(Map<String, Object> rec) {
-    if (!rec.containsKey("tipos"))
+    if (!rec.containsKey("types"))
       return;
-    Map<String, Object> disc = (Map<String, Object>) rec.get("discriminante");
-    System.out.printf("  DISCRIMINANTE: campo %s & %s (%s) — valores observados: %s%s%n",
-        disc.get("campo"), disc.get("mascara"), disc.get("bits"),
-        ((List<Integer>) disc.get("valores_observados")).stream()
+    Map<String, Object> disc = (Map<String, Object>) rec.get("discriminant");
+    System.out.printf("  DISCRIMINANT: field %s & %s (%s) — observed values: %s%s%n",
+        disc.get("field"), disc.get("mask"), disc.get("bits"),
+        ((List<Integer>) disc.get("observed_values")).stream()
             .map(String::valueOf).reduce((a, b) -> a + " " + b).orElse(""),
-        rec.containsKey("slots_con_datos_observados")
-            ? "  (" + rec.get("slots_con_datos_observados") + " slots con datos)" : "");
-    for (Object to : (List<Object>) rec.get("tipos")) {
+        rec.containsKey("slots_with_observed_data")
+            ? "  (" + rec.get("slots_with_observed_data") + " slots with data)" : "");
+    for (Object to : (List<Object>) rec.get("types")) {
       Map<String, Object> t = (Map<String, Object>) to;
-      System.out.printf("  TIPO %s \"%s\"%s%s%n", t.get("valor"), t.get("nombre_propuesto"),
-          t.containsKey("ocupa_registros") ? "  (ocupa " + t.get("ocupa_registros") + " registros)" : "",
-          t.containsKey("frames_observados") ? "  [frames x" + t.get("frames_observados") + "]" : "");
-      ((Map<String, Object>) t.get("seleccionado_en"))
-          .forEach((rutina, cond) -> System.out.printf("      en %s: %s%n", rutina, cond));
-      if (t.containsKey("bits_que_varian_fuera_de_la_mascara"))
-        System.out.println("      bits que varian fuera de la mascara: "
-            + t.get("bits_que_varian_fuera_de_la_mascara"));
-      for (Object fo : (List<Object>) t.get("campos")) {
+      System.out.printf("  TYPE %s \"%s\"%s%s%n", t.get("value"), t.get("proposed_name"),
+          t.containsKey("spans_records") ? "  (spans " + t.get("spans_records") + " records)" : "",
+          t.containsKey("observed_frames") ? "  [frames x" + t.get("observed_frames") + "]" : "");
+      ((Map<String, Object>) t.get("selected_in"))
+          .forEach((rutina, cond) -> System.out.printf("      in %s: %s%n", rutina, cond));
+      if (t.containsKey("bits_varying_outside_mask"))
+        System.out.println("      bits varying outside the mask: "
+            + t.get("bits_varying_outside_mask"));
+      for (Object fo : (List<Object>) t.get("fields")) {
         Map<String, Object> f = (Map<String, Object>) fo;
-        List<Integer> val = (List<Integer>) f.get("valores");
+        List<Integer> val = (List<Integer>) f.get("values");
         System.out.printf("      +%d: R x%d, W x%d, val[%d..%d]  %s%s%n",
-            (int) f.get("offset"), (long) f.get("lecturas"), (long) f.get("escrituras"),
-            val.get(0), val.get(1), f.getOrDefault("nombre_propuesto", "(sin nombre)"),
-            f.containsKey("campo_del_registro_siguiente")
-                ? "  (= +" + f.get("campo_del_registro_siguiente") + " del registro SIGUIENTE)" : "");
-        if (f.containsKey("descomposicion_bits"))
-          System.out.println("          bits: " + String.join(", ", (List<String>) f.get("descomposicion_bits")));
+            (int) f.get("offset"), (long) f.get("reads"), (long) f.get("writes"),
+            val.get(0), val.get(1), f.getOrDefault("proposed_name", "(unnamed)"),
+            f.containsKey("field_of_next_record")
+                ? "  (= +" + f.get("field_of_next_record") + " of the NEXT record)" : "");
+        if (f.containsKey("bit_decomposition"))
+          System.out.println("          bits: " + String.join(", ", (List<String>) f.get("bit_decomposition")));
       }
     }
   }
@@ -1114,60 +1114,60 @@ public class StructFinder {
   // ---------- text rendering of the data model ----------
   @SuppressWarnings("unchecked")
   private void print(Map<String, Object> st) {
-    System.out.printf("%n=== %s via %s: ARREGLO base=%d, registro de %d bytes, %d elementos [%d..%d]%s ===%n",
-        st.get("rutina"), st.get("cursor"), (int) st.get("base"), (int) st.get("registro_bytes"),
-        (int) st.get("elementos"), ((List<Integer>) st.get("rango")).get(0), ((List<Integer>) st.get("rango")).get(1),
-        st.containsKey("avance_cursor")
-            ? "  (avance del cursor: +" + ((Map<String, Object>) st.get("avance_cursor")).get("paso") + ")" : "");
-    String sf = (String) st.get("stride_fuente");
-    if (sf != null && !sf.startsWith("avance del cursor"))
-      System.out.printf("    (stride estimado por %s)%n", sf);
-    if (st.containsKey("terminador")) {
-      Map<String, Object> t = (Map<String, Object>) st.get("terminador");
-      System.out.printf("    (+%d = valor %s marca FIN de la tabla @%d, no se cuenta como registro)%n",
-          minOffOf(st), t.get("valor"), t.get("site"));
+    System.out.printf("%n=== %s via %s: ARRAY base=%d, %d-byte record, %d elements [%d..%d]%s ===%n",
+        st.get("routine"), st.get("cursor"), (int) st.get("base"), (int) st.get("record_bytes"),
+        (int) st.get("elements"), ((List<Integer>) st.get("range")).get(0), ((List<Integer>) st.get("range")).get(1),
+        st.containsKey("cursor_advance")
+            ? "  (cursor advance: +" + ((Map<String, Object>) st.get("cursor_advance")).get("step") + ")" : "");
+    String sf = (String) st.get("stride_source");
+    if (sf != null && !sf.startsWith("cursor advance"))
+      System.out.printf("    (stride estimated by %s)%n", sf);
+    if (st.containsKey("terminator")) {
+      Map<String, Object> t = (Map<String, Object>) st.get("terminator");
+      System.out.printf("    (+%d = value %s marks the END of the table @%d, not counted as a record)%n",
+          minOffOf(st), t.get("value"), t.get("site"));
     }
-    if (st.containsKey("expande_a"))
-      System.out.printf("    (PLANTILLA: se expande en el buffer de %d, un registro por elemento)%n",
-          st.get("expande_a"));
-    if (st.containsKey("se_llena_desde"))
-      System.out.printf("    (INSTANCIA: se llena expandiendo la tabla compacta de %d)%n",
-          st.get("se_llena_desde"));
-    for (Object fo : (List<Object>) st.get("campos")) {
+    if (st.containsKey("expands_to"))
+      System.out.printf("    (TEMPLATE: expands into the buffer at %d, one record per element)%n",
+          st.get("expands_to"));
+    if (st.containsKey("filled_from"))
+      System.out.printf("    (INSTANCE: filled by expanding the compact table at %d)%n",
+          st.get("filled_from"));
+    for (Object fo : (List<Object>) st.get("fields")) {
       Map<String, Object> f = (Map<String, Object>) fo;
-      List<Integer> val = (List<Integer>) f.get("valores");
+      List<Integer> val = (List<Integer>) f.get("values");
       StringBuilder sb = new StringBuilder(String.format("  +%d: R x%d, W x%d, val[%d..%d]",
-          (int) f.get("offset"), (long) f.get("lecturas"), (long) f.get("escrituras"), val.get(0), val.get(1)));
-      if (f.containsKey("campo_del_elemento_siguiente"))
-        sb.append(String.format("  (= +%d del elemento siguiente)", (int) f.get("campo_del_elemento_siguiente")));
-      if (f.containsKey("semantica"))
-        sb.append("  <- ").append(String.join(", ", (List<String>) f.get("semantica")));
-      if (f.containsKey("nombre_propuesto"))
-        sb.append("\n      NOMBRE: ").append(f.get("nombre_propuesto"));
-      if (f.containsKey("descomposicion_bits"))
-        sb.append("\n      bits: ").append(String.join(", ", (List<String>) f.get("descomposicion_bits")));
-      if (f.containsKey("apunta_a_grafico")) {
-        List<Integer> g = (List<Integer>) f.get("apunta_a_grafico");
-        sb.append(String.format("%n      apunta a graficos [%d..%d]", g.get(0), g.get(1)));
+          (int) f.get("offset"), (long) f.get("reads"), (long) f.get("writes"), val.get(0), val.get(1)));
+      if (f.containsKey("field_of_next_element"))
+        sb.append(String.format("  (= +%d of the next element)", (int) f.get("field_of_next_element")));
+      if (f.containsKey("semantics"))
+        sb.append("  <- ").append(String.join(", ", (List<String>) f.get("semantics")));
+      if (f.containsKey("proposed_name"))
+        sb.append("\n      NAME: ").append(f.get("proposed_name"));
+      if (f.containsKey("bit_decomposition"))
+        sb.append("\n      bits: ").append(String.join(", ", (List<String>) f.get("bit_decomposition")));
+      if (f.containsKey("points_to_graphics")) {
+        List<Integer> g = (List<Integer>) f.get("points_to_graphics");
+        sb.append(String.format("%n      points to graphics [%d..%d]", g.get(0), g.get(1)));
       }
-      if (f.containsKey("relaciones")) {
-        Map<String, Object> rel = (Map<String, Object>) f.get("relaciones");
+      if (f.containsKey("relations")) {
+        Map<String, Object> rel = (Map<String, Object>) f.get("relations");
         for (Map.Entry<String, Object> re : rel.entrySet())
           sb.append("\n      ").append(re.getKey()).append(": ")
               .append(String.join(", ", ((List<String>) re.getValue())));
       }
       System.out.println(sb);
     }
-    for (Object vo : (List<Object>) st.get("variantes")) {
+    for (Object vo : (List<Object>) st.get("variants")) {
       Map<String, Object> v = (Map<String, Object>) vo;
-      List<Object> ramas = (List<Object>) v.get("ramas");
+      List<Object> ramas = (List<Object>) v.get("arms");
       Map<String, Object> a = (Map<String, Object>) ramas.get(0), b = (Map<String, Object>) ramas.get(1);
-      System.out.printf("  VARIANTE en @%d (%s): x%d / x%d%n", (int) v.get("branch"), v.get("condicion"),
-          (long) a.get("veces"), (long) b.get("veces"));
+      System.out.printf("  VARIANT at @%d (%s): x%d / x%d%n", (int) v.get("branch"), v.get("condition"),
+          (long) a.get("times"), (long) b.get("times"));
       for (Map<String, Object> rama : List.of(a, b)) {
-        List<Integer> campos = (List<Integer>) rama.get("campos_exclusivos");
+        List<Integer> campos = (List<Integer>) rama.get("exclusive_fields");
         if (!campos.isEmpty())
-          System.out.println("    rama @" + rama.get("pc") + " usa exclusivamente: +"
+          System.out.println("    arm @" + rama.get("pc") + " uses only: +"
               + campos.stream().map(String::valueOf).reduce((x, y) -> x + " +" + y).orElse(""));
       }
     }
