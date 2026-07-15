@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated": "2026-07-15T11:06:22.915016831",
+    "generated": "2026-07-15T12:26:55.640345442",
     "description": "Game model deduced automatically from the instrumented RZX replay. Layers: 'findings' are the final, interpreted conclusions (the most important part of each discovery); 'model' is the formal machine-readable layer meant to drive source transformations; 'evidence' holds the raw data backing them, keyed by finding id (see doc/MANUAL-ANALISIS.md)",
     "draws": 4244108,
     "frames_with_draws": 41457,
@@ -222,6 +222,86 @@
             "[32896..32927]": "GAP without typed access; read by generic routines: [$38528, $38555]",
             "[32991..33000]": "GAP without typed access; read by generic routines: [$38528, $38555]"
           }
+        }
+      ]
+    },
+    {
+      "id": "texts",
+      "title": "The game's text: the glyph table (font), where the strings live and what they say",
+      "evidence": "texts",
+      "texts": [
+        {
+          "font": "glyphs at [15616, 16383] read by $38555",
+          "char_sources": [
+            "$38555 [15616..33872]"
+          ],
+          "record_texts": [
+            {
+              "what": "field [0, 255] of the 256-byte records at 49152 is text (printed by $38555)",
+              "per_record": [
+                "record 0: \"The Off Licence\"",
+                "record 1: \"UU         The Bridge\"",
+                "record 2: \"Under the MegaTree\"",
+                "record 3: \"At the Foot of the MegaTree\"",
+                "record 4: \"UUZUU            The Drive\"",
+                "record 5: \"The Security Guard\"",
+                "record 6: \"Entrance to Hades       4\"",
+                "record 7: \"Cuckoo's Nest\"",
+                "record 8: \"Inside the MegaTrunk\"",
+                "record 9: \"On a Branch Over the Drive\"",
+                "record 10: \"The Front Door         (\"",
+                "record 11: \"The Hall\"",
+                "record 12: \"Tree Top\"",
+                "record 13: \"Out on a limb\"",
+                "record 14: \"Rescue Esmerelda\"",
+                "record 15: \"I'm sure I've seen this before..\"",
+                "record 16: \"We must perform a Quirkafleeg\"",
+                "record 17: \"Up on the Battlements\"",
+                "record 18: \"On the Roof           D\"",
+                "record 19: \"The Forgotten Abbey\"",
+                "record 20: \"Ballroom East\"",
+                "record 21: \"Ballroom West\"",
+                "record 22: \"To the Kitchens    Main Stairway\"",
+                "record 23: \"The Kitchen\"",
+                "record 24: \"West of Kitchen\"",
+                "record 25: \"Cold Store\"",
+                "record 26: \"East Wall Base\"",
+                "record 27: \"The Chapel\"",
+                "record 28: \"First Landing\"",
+                "record 29: \"The Nightmare Room\"",
+                "record 30: \"The Banyan Tree\"",
+                "record 31: \"Swimming Pool\"",
+                "record 32: \"Halfway up the East Wall\"",
+                "record 33: \"Z          The Bathroom\"",
+                "record 34: \"UU          Top Landing\"",
+                "record 35: \"UUU         Master Bedroom\"",
+                "record 36: \"A bit of tree\"",
+                "record 37: \"Orangery\"",
+                "record 38: \"Priests' Hole\"",
+                "record 39: \"Emergency Generator\"",
+                "record 40: \"Dr Jones will never believe this\"",
+                "record 41: \"VY          The Attic\"",
+                "record 42: \"Under the Roof\"",
+                "record 43: \"Conservatory Roof\"",
+                "record 44: \"On top of the house\"",
+                "record 45: \"Under the Drive\"",
+                "record 46: \"Tree Root\"",
+                "record 48: \"Nomen Luni\"",
+                "record 49: \"The Wine Cellar\"",
+                "record 50: \"Watch Tower\"",
+                "record 51: \"Tool  Shed\"",
+                "record 52: \"Back Stairway\"",
+                "record 53: \"Back Door\"",
+                "record 54: \"West  Wing\"",
+                "record 55: \"West Bedroom\"",
+                "record 56: \"West Wing Roof\"",
+                "record 57: \"Above the West Bedroom\"",
+                "record 58: \"The Beach\"",
+                "record 59: \"The Yacht\"",
+                "record 60: \"The Bow\""
+              ]
+            }
+          ]
         }
       ]
     },
@@ -653,29 +733,29 @@
       "evidence": "other-structures",
       "list": [
         {
-          "cursor": "IX",
           "routine": "$34463",
-          "summary": "array at [33008..33023], records of 2 bytes, 2 fields"
+          "summary": "array at [33008..33023], records of 2 bytes, 2 fields",
+          "cursor": "IX"
         },
         {
-          "cursor": "IX",
           "routine": "$34463",
-          "summary": "array at [34175..34179], records of 5 bytes, 4 fields"
+          "summary": "array at [34175..34179], records of 5 bytes, 4 fields",
+          "cursor": "IX"
         },
         {
-          "cursor": "IX",
           "routine": "$34620",
-          "summary": "array at [22864..22906], records of 1 bytes, 4 fields"
+          "summary": "array at [22864..22906], records of 1 bytes, 4 fields",
+          "cursor": "IX"
         },
         {
-          "cursor": "IY",
           "routine": "$37310",
-          "summary": "array at [33280..33479], records of 8 bytes, 2 fields"
+          "summary": "array at [33280..33479], records of 8 bytes, 2 fields",
+          "cursor": "IY"
         },
         {
-          "cursor": "IX",
           "routine": "$38504",
-          "summary": "array at [33280..33535], records of 2 bytes, 2 fields"
+          "summary": "array at [33280..33535], records of 2 bytes, 2 fields",
+          "cursor": "IX"
         }
       ]
     }
@@ -1362,18 +1442,18 @@
                 "condition": "field +0 & 127 == 96",
                 "arms": [
                   {
-                    "pc": 37302,
                     "times": 13642,
-                    "exclusive_fields": []
+                    "exclusive_fields": [],
+                    "pc": 37302
                   },
                   {
-                    "pc": 37191,
                     "times": 5579,
                     "exclusive_fields": [
                       0,
                       2,
                       6
-                    ]
+                    ],
+                    "pc": 37191
                   }
                 ]
               },
@@ -1382,18 +1462,18 @@
                 "condition": "field +6 & 31",
                 "arms": [
                   {
-                    "pc": 37206,
                     "times": 386,
                     "exclusive_fields": [
                       0
-                    ]
+                    ],
+                    "pc": 37206
                   },
                   {
-                    "pc": 37201,
                     "times": 5193,
                     "exclusive_fields": [
                       2
-                    ]
+                    ],
+                    "pc": 37201
                   }
                 ]
               },
@@ -1402,18 +1482,18 @@
                 "condition": "field +7 & 31",
                 "arms": [
                   {
-                    "pc": 37241,
                     "times": 347,
                     "exclusive_fields": [
                       0
-                    ]
+                    ],
+                    "pc": 37241
                   },
                   {
-                    "pc": 37236,
                     "times": 4128,
                     "exclusive_fields": [
                       2
-                    ]
+                    ],
+                    "pc": 37236
                   }
                 ]
               }
@@ -1630,16 +1710,16 @@
                 "condition": "field +0 & 24",
                 "arms": [
                   {
-                    "pc": 37267,
                     "times": 6446,
-                    "exclusive_fields": []
+                    "exclusive_fields": [],
+                    "pc": 37267
                   },
                   {
-                    "pc": 37259,
                     "times": 30659,
                     "exclusive_fields": [
                       0
-                    ]
+                    ],
+                    "pc": 37259
                   }
                 ]
               }
@@ -1869,16 +1949,16 @@
                 "condition": "field +7 & 127",
                 "arms": [
                   {
-                    "pc": 37160,
                     "times": 24,
                     "exclusive_fields": [
                       0
-                    ]
+                    ],
+                    "pc": 37160
                   },
                   {
-                    "pc": 37302,
                     "times": 1189,
-                    "exclusive_fields": []
+                    "exclusive_fields": [],
+                    "pc": 37302
                   }
                 ]
               },
@@ -1887,20 +1967,20 @@
                 "condition": "field +9 & 128",
                 "arms": [
                   {
-                    "pc": 37733,
                     "times": 96,
                     "exclusive_fields": [
                       11
-                    ]
+                    ],
+                    "pc": 37733
                   },
                   {
-                    "pc": 37743,
                     "times": 1110,
                     "exclusive_fields": [
                       0,
                       4,
                       11
-                    ]
+                    ],
+                    "pc": 37743
                   }
                 ]
               }
@@ -2016,19 +2096,19 @@
                 "condition": "field +4 & 224",
                 "arms": [
                   {
-                    "pc": 37479,
                     "times": 876,
                     "exclusive_fields": [
                       2,
                       4,
                       5,
                       6
-                    ]
+                    ],
+                    "pc": 37479
                   },
                   {
-                    "pc": 37811,
                     "times": 3850,
-                    "exclusive_fields": []
+                    "exclusive_fields": [],
+                    "pc": 37811
                   }
                 ]
               }
@@ -2442,6 +2522,28 @@
           }
         ],
         "name": "current_record_1"
+      }
+    ],
+    "texts": [
+      {
+        "kind": "per_record_name",
+        "template_base": 49152,
+        "record_bytes": 256,
+        "field_offset": [
+          0,
+          255
+        ],
+        "role": "label/name field of every catalogue record; printed by $38555",
+        "samples": [
+          "The Off Licence",
+          "UU         The Bridge",
+          "Under the MegaTree",
+          "At the Foot of the MegaTree",
+          "UUZUU            The Drive",
+          "The Security Guard",
+          "Entrance to Hades       4",
+          "Cuckoo's Nest"
+        ]
       }
     ],
     "routines": [
@@ -3015,39 +3117,39 @@
     ],
     "refactor_suggestions": [
       {
-        "target": "entities",
         "refactor": "class with polymorphic subtypes",
-        "detail": "a base class with the common fields and one subclass per value of +0 & 7; the type-ladder ifs become polymorphic methods"
+        "detail": "a base class with the common fields and one subclass per value of +0 & 7; the type-ladder ifs become polymorphic methods",
+        "target": "entities"
       },
       {
-        "target": "current_record_1",
         "refactor": "class with named properties",
-        "detail": "each field of the record becomes a property; the catalog is an array of instances and the selector a reference to the current instance"
+        "detail": "each field of the record becomes a property; the catalog is an array of instances and the selector a reference to the current instance",
+        "target": "current_record_1"
       },
       {
-        "target": "record_selector_1",
         "refactor": "named property",
-        "detail": "replace mem[33824] with the property record_selector_1"
+        "detail": "replace mem[33824] with the property record_selector_1",
+        "target": "record_selector_1"
       },
       {
-        "target": "protagonist_x",
         "refactor": "named property",
-        "detail": "replace mem[34259] with the property protagonist_x"
+        "detail": "replace mem[34259] with the property protagonist_x",
+        "target": "protagonist_x"
       },
       {
-        "target": "protagonist_y",
         "refactor": "named property",
-        "detail": "replace mem[34255] with the property protagonist_y"
+        "detail": "replace mem[34255] with the property protagonist_y",
+        "target": "protagonist_y"
       },
       {
-        "target": "segments",
         "refactor": "restricted visibility",
-        "detail": "13 segments are seen by <=4 routines: move each one into its routines' class and take the data out of the global mem[] array"
+        "detail": "13 segments are seen by <=4 routines: move each one into its routines' class and take the data out of the global mem[] array",
+        "target": "segments"
       },
       {
-        "target": "graphics_data",
         "refactor": "external resources",
-        "detail": "the graphics_data zones and static catalogs can be extracted to files and loaded at initialization"
+        "detail": "the graphics_data zones and static catalogs can be extracted to files and loaded at initialization",
+        "target": "graphics_data"
       }
     ]
   },
@@ -3134,49 +3236,49 @@
           "distinct_values": 59,
           "written_by": [
             {
+              "site": 34796,
+              "times": 945,
+              "routine": "$34463",
               "values": [
                 33,
                 33
-              ],
-              "site": 34796,
-              "times": 945,
-              "routine": "$34463"
+              ]
             },
             {
+              "site": 38029,
+              "times": 47,
+              "routine": "$36307",
               "values": [
                 1,
                 60
-              ],
-              "site": 38029,
-              "times": 47,
-              "routine": "$36307"
+              ]
             },
             {
+              "site": 38049,
+              "times": 42,
+              "routine": "$36307",
               "values": [
                 0,
                 59
-              ],
-              "site": 38049,
-              "times": 42,
-              "routine": "$36307"
+              ]
             },
             {
+              "site": 38067,
+              "times": 19,
+              "routine": "$38064",
               "values": [
                 4,
                 57
-              ],
-              "site": 38067,
-              "times": 19,
-              "routine": "$38064"
+              ]
             },
             {
+              "site": 38101,
+              "times": 14,
+              "routine": "$36307",
               "values": [
                 3,
                 54
-              ],
-              "site": 38101,
-              "times": 14,
-              "routine": "$36307"
+              ]
             }
           ]
         },
@@ -3278,41 +3380,41 @@
         "destination_read_by": {
           "[20481..22527]": [
             {
-              "sites": 1,
               "routine": "$38555",
-              "reads": 2903512
+              "reads": 2903512,
+              "sites": 1
             }
           ],
           "[32768..33087]": [
             {
-              "sites": 2,
               "routine": "$36171",
-              "reads": 4921344
+              "reads": 4921344,
+              "sites": 2
             },
             {
-              "sites": 1,
               "routine": "$38555",
-              "reads": 2903512
+              "reads": 2903512,
+              "sites": 1
             },
             {
-              "sites": 48,
               "routine": "$37310",
-              "reads": 1323179
+              "reads": 1323179,
+              "sites": 48
             },
             {
-              "sites": 12,
               "routine": "$36203",
-              "reads": 557217
+              "reads": 557217,
+              "sites": 12
             },
             {
-              "sites": 1,
               "routine": "$36288",
-              "reads": 546816
+              "reads": 546816,
+              "sites": 1
             },
             {
-              "sites": 23,
               "routine": "$37056",
-              "reads": 428241
+              "reads": 428241,
+              "sites": 23
             }
           ],
           "[34263..34269]": []
@@ -3726,6 +3828,273 @@
         "name": "current_record_1"
       }
     ],
+    "texts": [
+      {
+        "font": {
+          "read_by": "$38555",
+          "range": [
+            15616,
+            16383
+          ]
+        },
+        "char_sources": [
+          "$38555 [15616..33872]"
+        ],
+        "record_texts": [
+          {
+            "template_base": 49152,
+            "record_bytes": 256,
+            "field_offset": [
+              0,
+              255
+            ],
+            "printed_by": "$38555",
+            "texts": [
+              {
+                "text": "The Off Licence",
+                "record": 0
+              },
+              {
+                "text": "UU         The Bridge",
+                "record": 1
+              },
+              {
+                "text": "Under the MegaTree",
+                "record": 2
+              },
+              {
+                "text": "At the Foot of the MegaTree",
+                "record": 3
+              },
+              {
+                "text": "UUZUU            The Drive",
+                "record": 4
+              },
+              {
+                "text": "The Security Guard",
+                "record": 5
+              },
+              {
+                "text": "Entrance to Hades       4",
+                "record": 6
+              },
+              {
+                "text": "Cuckoo's Nest",
+                "record": 7
+              },
+              {
+                "text": "Inside the MegaTrunk",
+                "record": 8
+              },
+              {
+                "text": "On a Branch Over the Drive",
+                "record": 9
+              },
+              {
+                "text": "The Front Door         (",
+                "record": 10
+              },
+              {
+                "text": "The Hall",
+                "record": 11
+              },
+              {
+                "text": "Tree Top",
+                "record": 12
+              },
+              {
+                "text": "Out on a limb",
+                "record": 13
+              },
+              {
+                "text": "Rescue Esmerelda",
+                "record": 14
+              },
+              {
+                "text": "I'm sure I've seen this before..",
+                "record": 15
+              },
+              {
+                "text": "We must perform a Quirkafleeg",
+                "record": 16
+              },
+              {
+                "text": "Up on the Battlements",
+                "record": 17
+              },
+              {
+                "text": "On the Roof           D",
+                "record": 18
+              },
+              {
+                "text": "The Forgotten Abbey",
+                "record": 19
+              },
+              {
+                "text": "Ballroom East",
+                "record": 20
+              },
+              {
+                "text": "Ballroom West",
+                "record": 21
+              },
+              {
+                "text": "To the Kitchens    Main Stairway",
+                "record": 22
+              },
+              {
+                "text": "The Kitchen",
+                "record": 23
+              },
+              {
+                "text": "West of Kitchen",
+                "record": 24
+              },
+              {
+                "text": "Cold Store",
+                "record": 25
+              },
+              {
+                "text": "East Wall Base",
+                "record": 26
+              },
+              {
+                "text": "The Chapel",
+                "record": 27
+              },
+              {
+                "text": "First Landing",
+                "record": 28
+              },
+              {
+                "text": "The Nightmare Room",
+                "record": 29
+              },
+              {
+                "text": "The Banyan Tree",
+                "record": 30
+              },
+              {
+                "text": "Swimming Pool",
+                "record": 31
+              },
+              {
+                "text": "Halfway up the East Wall",
+                "record": 32
+              },
+              {
+                "text": "Z          The Bathroom",
+                "record": 33
+              },
+              {
+                "text": "UU          Top Landing",
+                "record": 34
+              },
+              {
+                "text": "UUU         Master Bedroom",
+                "record": 35
+              },
+              {
+                "text": "A bit of tree",
+                "record": 36
+              },
+              {
+                "text": "Orangery",
+                "record": 37
+              },
+              {
+                "text": "Priests' Hole",
+                "record": 38
+              },
+              {
+                "text": "Emergency Generator",
+                "record": 39
+              },
+              {
+                "text": "Dr Jones will never believe this",
+                "record": 40
+              },
+              {
+                "text": "VY          The Attic",
+                "record": 41
+              },
+              {
+                "text": "Under the Roof",
+                "record": 42
+              },
+              {
+                "text": "Conservatory Roof",
+                "record": 43
+              },
+              {
+                "text": "On top of the house",
+                "record": 44
+              },
+              {
+                "text": "Under the Drive",
+                "record": 45
+              },
+              {
+                "text": "Tree Root",
+                "record": 46
+              },
+              {
+                "text": "Nomen Luni",
+                "record": 48
+              },
+              {
+                "text": "The Wine Cellar",
+                "record": 49
+              },
+              {
+                "text": "Watch Tower",
+                "record": 50
+              },
+              {
+                "text": "Tool  Shed",
+                "record": 51
+              },
+              {
+                "text": "Back Stairway",
+                "record": 52
+              },
+              {
+                "text": "Back Door",
+                "record": 53
+              },
+              {
+                "text": "West  Wing",
+                "record": 54
+              },
+              {
+                "text": "West Bedroom",
+                "record": 55
+              },
+              {
+                "text": "West Wing Roof",
+                "record": 56
+              },
+              {
+                "text": "Above the West Bedroom",
+                "record": 57
+              },
+              {
+                "text": "The Beach",
+                "record": 58
+              },
+              {
+                "text": "The Yacht",
+                "record": 59
+              },
+              {
+                "text": "The Bow",
+                "record": 60
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "entity-table": {
       "detection": {
         "table": {
@@ -3795,60 +4164,60 @@
         },
         "individual": [
           {
-            "x_formula": "(v&15)*8+48",
-            "confidence": 0.16725269573370838,
             "y_addr": 32985,
             "x_addr": 32983,
-            "y_formula": "v+168"
+            "y_formula": "v+168",
+            "x_formula": "(v&15)*8+48",
+            "confidence": 0.16725269573370838
           },
           {
-            "x_formula": "(v&31)*8",
-            "confidence": 0.10182255039849976,
             "y_addr": 33014,
             "x_addr": 33015,
-            "y_formula": "v>>1+41"
+            "y_formula": "v>>1+41",
+            "x_formula": "(v&31)*8",
+            "confidence": 0.10182255039849976
           },
           {
-            "x_formula": "(v&31)*8+48",
-            "confidence": 0.11064228785747773,
             "y_addr": 33030,
             "x_addr": 33038,
-            "y_formula": "v>>1+168"
+            "y_formula": "v>>1+168",
+            "x_formula": "(v&31)*8+48",
+            "confidence": 0.11064228785747773
           },
           {
-            "x_formula": "(v&240)>>1+64",
-            "confidence": 0.12599624941397095,
             "y_addr": 33042,
             "x_addr": 33044,
-            "y_formula": "v>>1+168"
+            "y_formula": "v>>1+168",
+            "x_formula": "(v&240)>>1+64",
+            "confidence": 0.12599624941397095
           },
           {
-            "x_formula": "(v&15)*8+48",
-            "confidence": 0.23781059540553212,
             "y_addr": 33050,
             "x_addr": 33052,
-            "y_formula": "v>>1+168"
+            "y_formula": "v>>1+168",
+            "x_formula": "(v&15)*8+48",
+            "confidence": 0.23781059540553212
           },
           {
-            "x_formula": "(v&31)*8",
-            "confidence": 0.30719643694327237,
             "y_addr": 33058,
             "x_addr": 33066,
-            "y_formula": "v>>1+168"
+            "y_formula": "v>>1+168",
+            "x_formula": "(v&31)*8",
+            "confidence": 0.30719643694327237
           },
           {
-            "x_formula": "(v&31)*8+48",
-            "confidence": 0.14750351617440224,
             "y_addr": 34261,
             "x_addr": 34257,
-            "y_formula": "(v&31)*8+24"
+            "y_formula": "(v&31)*8+24",
+            "x_formula": "(v&31)*8+48",
+            "confidence": 0.14750351617440224
           },
           {
-            "x_formula": "(v&31)*8",
-            "confidence": 0.9532703791140119,
             "y_addr": 34255,
             "x_addr": 34259,
-            "y_formula": "v>>1+13"
+            "y_formula": "v>>1+13",
+            "x_formula": "(v&31)*8",
+            "confidence": 0.9532703791140119
           }
         ],
         "weak_pairs_possible_noise": [
@@ -4110,7 +4479,6 @@
               "condition": "field +0 == 255",
               "arms": [
                 {
-                  "pc": 37066,
                   "times": 80353,
                   "exclusive_fields": [
                     0,
@@ -4120,12 +4488,13 @@
                     4,
                     6,
                     7
-                  ]
+                  ],
+                  "pc": 37066
                 },
                 {
-                  "pc": 35273,
                   "times": 22752,
-                  "exclusive_fields": []
+                  "exclusive_fields": [],
+                  "pc": 35273
                 }
               ]
             },
@@ -4134,7 +4503,6 @@
               "condition": "field +0 & 3",
               "arms": [
                 {
-                  "pc": 37071,
                   "times": 75571,
                   "exclusive_fields": [
                     0,
@@ -4144,12 +4512,13 @@
                     4,
                     6,
                     7
-                  ]
+                  ],
+                  "pc": 37071
                 },
                 {
-                  "pc": 37302,
                   "times": 4782,
-                  "exclusive_fields": []
+                  "exclusive_fields": [],
+                  "pc": 37302
                 }
               ]
             },
@@ -4158,7 +4527,6 @@
               "condition": "field +0 & 3 == 1",
               "arms": [
                 {
-                  "pc": 37076,
                   "times": 38318,
                   "exclusive_fields": [
                     0,
@@ -4167,17 +4535,18 @@
                     4,
                     6,
                     7
-                  ]
+                  ],
+                  "pc": 37076
                 },
                 {
-                  "pc": 37171,
                   "times": 37253,
                   "exclusive_fields": [
                     0,
                     2,
                     6,
                     7
-                  ]
+                  ],
+                  "pc": 37171
                 }
               ]
             },
@@ -4186,7 +4555,6 @@
               "condition": "field +0 & 3 == 2",
               "arms": [
                 {
-                  "pc": 37247,
                   "times": 37105,
                   "exclusive_fields": [
                     0,
@@ -4194,16 +4562,17 @@
                     4,
                     6,
                     7
-                  ]
+                  ],
+                  "pc": 37247
                 },
                 {
-                  "pc": 37081,
                   "times": 1213,
                   "exclusive_fields": [
                     0,
                     1,
                     7
-                  ]
+                  ],
+                  "pc": 37081
                 }
               ]
             },
@@ -4212,18 +4581,18 @@
               "condition": "field +0",
               "arms": [
                 {
-                  "pc": 37087,
                   "times": 529,
                   "exclusive_fields": [
                     1
-                  ]
+                  ],
+                  "pc": 37087
                 },
                 {
-                  "pc": 37119,
                   "times": 684,
                   "exclusive_fields": [
                     1
-                  ]
+                  ],
+                  "pc": 37119
                 }
               ]
             },
@@ -4232,16 +4601,16 @@
               "condition": "field +7 & 127",
               "arms": [
                 {
-                  "pc": 37160,
                   "times": 24,
                   "exclusive_fields": [
                     0
-                  ]
+                  ],
+                  "pc": 37160
                 },
                 {
-                  "pc": 37302,
                   "times": 1189,
-                  "exclusive_fields": []
+                  "exclusive_fields": [],
+                  "pc": 37302
                 }
               ]
             },
@@ -4250,22 +4619,22 @@
               "condition": "field +0",
               "arms": [
                 {
-                  "pc": 37177,
                   "times": 19221,
                   "exclusive_fields": [
                     0,
                     2,
                     6
-                  ]
+                  ],
+                  "pc": 37177
                 },
                 {
-                  "pc": 37212,
                   "times": 18032,
                   "exclusive_fields": [
                     0,
                     2,
                     7
-                  ]
+                  ],
+                  "pc": 37212
                 }
               ]
             },
@@ -4274,18 +4643,18 @@
               "condition": "field +0 & 127 == 96",
               "arms": [
                 {
-                  "pc": 37302,
                   "times": 13642,
-                  "exclusive_fields": []
+                  "exclusive_fields": [],
+                  "pc": 37302
                 },
                 {
-                  "pc": 37191,
                   "times": 5579,
                   "exclusive_fields": [
                     0,
                     2,
                     6
-                  ]
+                  ],
+                  "pc": 37191
                 }
               ]
             },
@@ -4294,18 +4663,18 @@
               "condition": "field +6 & 31",
               "arms": [
                 {
-                  "pc": 37206,
                   "times": 386,
                   "exclusive_fields": [
                     0
-                  ]
+                  ],
+                  "pc": 37206
                 },
                 {
-                  "pc": 37201,
                   "times": 5193,
                   "exclusive_fields": [
                     2
-                  ]
+                  ],
+                  "pc": 37201
                 }
               ]
             },
@@ -4314,18 +4683,18 @@
               "condition": "field +0 == 160",
               "arms": [
                 {
-                  "pc": 37302,
                   "times": 13557,
-                  "exclusive_fields": []
+                  "exclusive_fields": [],
+                  "pc": 37302
                 },
                 {
-                  "pc": 37226,
                   "times": 4475,
                   "exclusive_fields": [
                     0,
                     2,
                     7
-                  ]
+                  ],
+                  "pc": 37226
                 }
               ]
             },
@@ -4334,18 +4703,18 @@
               "condition": "field +7 & 31",
               "arms": [
                 {
-                  "pc": 37241,
                   "times": 347,
                   "exclusive_fields": [
                     0
-                  ]
+                  ],
+                  "pc": 37241
                 },
                 {
-                  "pc": 37236,
                   "times": 4128,
                   "exclusive_fields": [
                     2
-                  ]
+                  ],
+                  "pc": 37236
                 }
               ]
             },
@@ -4354,16 +4723,16 @@
               "condition": "field +0 & 24",
               "arms": [
                 {
-                  "pc": 37267,
                   "times": 6446,
-                  "exclusive_fields": []
+                  "exclusive_fields": [],
+                  "pc": 37267
                 },
                 {
-                  "pc": 37259,
                   "times": 30659,
                   "exclusive_fields": [
                     0
-                  ]
+                  ],
+                  "pc": 37259
                 }
               ]
             },
@@ -4372,17 +4741,17 @@
               "condition": "field +7",
               "arms": [
                 {
-                  "pc": 37294,
                   "times": 716,
-                  "exclusive_fields": []
+                  "exclusive_fields": [],
+                  "pc": 37294
                 },
                 {
-                  "pc": 37281,
                   "times": 36389,
                   "exclusive_fields": [
                     3,
                     6
-                  ]
+                  ],
+                  "pc": 37281
                 }
               ]
             },
@@ -4391,18 +4760,18 @@
               "condition": "field +6",
               "arms": [
                 {
-                  "pc": 37288,
                   "times": 6,
                   "exclusive_fields": [
                     3,
                     4,
                     6
-                  ]
+                  ],
+                  "pc": 37288
                 },
                 {
-                  "pc": 37302,
                   "times": 35712,
-                  "exclusive_fields": []
+                  "exclusive_fields": [],
+                  "pc": 37302
                 }
               ]
             }
@@ -4681,7 +5050,6 @@
               "condition": "field +0 == 255",
               "arms": [
                 {
-                  "pc": 37320,
                   "times": 79945,
                   "exclusive_fields": [
                     0,
@@ -4693,12 +5061,13 @@
                     6,
                     9,
                     11
-                  ]
+                  ],
+                  "pc": 37320
                 },
                 {
-                  "pc": 35311,
                   "times": 22628,
-                  "exclusive_fields": []
+                  "exclusive_fields": [],
+                  "pc": 35311
                 }
               ]
             },
@@ -4707,7 +5076,6 @@
               "condition": "field +0 & 7 == 3",
               "arms": [
                 {
-                  "pc": 37540,
                   "times": 1206,
                   "exclusive_fields": [
                     0,
@@ -4718,10 +5086,10 @@
                     5,
                     9,
                     11
-                  ]
+                  ],
+                  "pc": 37540
                 },
                 {
-                  "pc": 37330,
                   "times": 78739,
                   "exclusive_fields": [
                     0,
@@ -4731,7 +5099,8 @@
                     4,
                     5,
                     6
-                  ]
+                  ],
+                  "pc": 37330
                 }
               ]
             },
@@ -4740,7 +5109,6 @@
               "condition": "field +0 & 7 == 4",
               "arms": [
                 {
-                  "pc": 37431,
                   "times": 4747,
                   "exclusive_fields": [
                     0,
@@ -4748,10 +5116,10 @@
                     4,
                     5,
                     6
-                  ]
+                  ],
+                  "pc": 37431
                 },
                 {
-                  "pc": 37334,
                   "times": 73992,
                   "exclusive_fields": [
                     0,
@@ -4759,7 +5127,8 @@
                     2,
                     3,
                     5
-                  ]
+                  ],
+                  "pc": 37334
                 }
               ]
             },
@@ -4768,18 +5137,18 @@
               "condition": "field +0",
               "arms": [
                 {
-                  "pc": 37437,
                   "times": 1536,
                   "exclusive_fields": [
                     4
-                  ]
+                  ],
+                  "pc": 37437
                 },
                 {
-                  "pc": 37444,
                   "times": 3211,
                   "exclusive_fields": [
                     4
-                  ]
+                  ],
+                  "pc": 37444
                 }
               ]
             },
@@ -4788,19 +5157,19 @@
               "condition": "field +4",
               "arms": [
                 {
-                  "pc": 37455,
                   "times": 21,
-                  "exclusive_fields": []
+                  "exclusive_fields": [],
+                  "pc": 37455
                 },
                 {
-                  "pc": 37474,
                   "times": 4726,
                   "exclusive_fields": [
                     2,
                     4,
                     5,
                     6
-                  ]
+                  ],
+                  "pc": 37474
                 }
               ]
             },
@@ -4809,19 +5178,19 @@
               "condition": "field +4 & 224",
               "arms": [
                 {
-                  "pc": 37479,
                   "times": 876,
                   "exclusive_fields": [
                     2,
                     4,
                     5,
                     6
-                  ]
+                  ],
+                  "pc": 37479
                 },
                 {
-                  "pc": 37811,
                   "times": 3850,
-                  "exclusive_fields": []
+                  "exclusive_fields": [],
+                  "pc": 37811
                 }
               ]
             },
@@ -4830,18 +5199,18 @@
               "condition": "field +9",
               "arms": [
                 {
-                  "pc": 37590,
                   "times": 16291,
-                  "exclusive_fields": []
+                  "exclusive_fields": [],
+                  "pc": 37590
                 },
                 {
-                  "pc": 37574,
                   "times": 23507,
                   "exclusive_fields": [
                     5,
                     9,
                     11
-                  ]
+                  ],
+                  "pc": 37574
                 }
               ]
             },
@@ -4850,19 +5219,19 @@
               "condition": "field +3",
               "arms": [
                 {
-                  "pc": 37646,
                   "times": 23500,
-                  "exclusive_fields": []
+                  "exclusive_fields": [],
+                  "pc": 37646
                 },
                 {
-                  "pc": 37580,
                   "times": 7,
                   "exclusive_fields": [
                     3,
                     5,
                     9,
                     11
-                  ]
+                  ],
+                  "pc": 37580
                 }
               ]
             },
@@ -4871,7 +5240,6 @@
               "condition": "field +9",
               "arms": [
                 {
-                  "pc": 37646,
                   "times": 15894,
                   "exclusive_fields": [
                     0,
@@ -4881,16 +5249,17 @@
                     5,
                     9,
                     11
-                  ]
+                  ],
+                  "pc": 37646
                 },
                 {
-                  "pc": 37595,
                   "times": 404,
                   "exclusive_fields": [
                     3,
                     5,
                     11
-                  ]
+                  ],
+                  "pc": 37595
                 }
               ]
             },
@@ -4899,20 +5268,20 @@
               "condition": "field +1",
               "arms": [
                 {
-                  "pc": 37697,
                   "times": 14751,
                   "exclusive_fields": [
                     3,
                     5
-                  ]
+                  ],
+                  "pc": 37697
                 },
                 {
-                  "pc": 37680,
                   "times": 16105,
                   "exclusive_fields": [
                     3,
                     5
-                  ]
+                  ],
+                  "pc": 37680
                 }
               ]
             },
@@ -4921,20 +5290,20 @@
               "condition": "field +4",
               "arms": [
                 {
-                  "pc": 37726,
                   "times": 1206,
                   "exclusive_fields": [
                     0,
                     4,
                     11
-                  ]
+                  ],
+                  "pc": 37726
                 },
                 {
-                  "pc": 37720,
                   "times": 38592,
                   "exclusive_fields": [
                     9
-                  ]
+                  ],
+                  "pc": 37720
                 }
               ]
             },
@@ -4943,20 +5312,20 @@
               "condition": "field +9 & 128",
               "arms": [
                 {
-                  "pc": 37733,
                   "times": 96,
                   "exclusive_fields": [
                     11
-                  ]
+                  ],
+                  "pc": 37733
                 },
                 {
-                  "pc": 37743,
                   "times": 1110,
                   "exclusive_fields": [
                     0,
                     4,
                     11
-                  ]
+                  ],
+                  "pc": 37743
                 }
               ]
             },
@@ -4965,17 +5334,17 @@
               "condition": "field +11",
               "arms": [
                 {
-                  "pc": 37749,
                   "times": 404,
                   "exclusive_fields": [
                     0,
                     4
-                  ]
+                  ],
+                  "pc": 37749
                 },
                 {
-                  "pc": 37811,
                   "times": 706,
-                  "exclusive_fields": []
+                  "exclusive_fields": [],
+                  "pc": 37811
                 }
               ]
             }
@@ -5403,18 +5772,18 @@
                 "condition": "field +0 & 127 == 96",
                 "arms": [
                   {
-                    "pc": 37302,
                     "times": 13642,
-                    "exclusive_fields": []
+                    "exclusive_fields": [],
+                    "pc": 37302
                   },
                   {
-                    "pc": 37191,
                     "times": 5579,
                     "exclusive_fields": [
                       0,
                       2,
                       6
-                    ]
+                    ],
+                    "pc": 37191
                   }
                 ]
               },
@@ -5423,18 +5792,18 @@
                 "condition": "field +6 & 31",
                 "arms": [
                   {
-                    "pc": 37206,
                     "times": 386,
                     "exclusive_fields": [
                       0
-                    ]
+                    ],
+                    "pc": 37206
                   },
                   {
-                    "pc": 37201,
                     "times": 5193,
                     "exclusive_fields": [
                       2
-                    ]
+                    ],
+                    "pc": 37201
                   }
                 ]
               },
@@ -5443,18 +5812,18 @@
                 "condition": "field +7 & 31",
                 "arms": [
                   {
-                    "pc": 37241,
                     "times": 347,
                     "exclusive_fields": [
                       0
-                    ]
+                    ],
+                    "pc": 37241
                   },
                   {
-                    "pc": 37236,
                     "times": 4128,
                     "exclusive_fields": [
                       2
-                    ]
+                    ],
+                    "pc": 37236
                   }
                 ]
               }
@@ -5671,16 +6040,16 @@
                 "condition": "field +0 & 24",
                 "arms": [
                   {
-                    "pc": 37267,
                     "times": 6446,
-                    "exclusive_fields": []
+                    "exclusive_fields": [],
+                    "pc": 37267
                   },
                   {
-                    "pc": 37259,
                     "times": 30659,
                     "exclusive_fields": [
                       0
-                    ]
+                    ],
+                    "pc": 37259
                   }
                 ]
               }
@@ -5910,16 +6279,16 @@
                 "condition": "field +7 & 127",
                 "arms": [
                   {
-                    "pc": 37160,
                     "times": 24,
                     "exclusive_fields": [
                       0
-                    ]
+                    ],
+                    "pc": 37160
                   },
                   {
-                    "pc": 37302,
                     "times": 1189,
-                    "exclusive_fields": []
+                    "exclusive_fields": [],
+                    "pc": 37302
                   }
                 ]
               },
@@ -5928,20 +6297,20 @@
                 "condition": "field +9 & 128",
                 "arms": [
                   {
-                    "pc": 37733,
                     "times": 96,
                     "exclusive_fields": [
                       11
-                    ]
+                    ],
+                    "pc": 37733
                   },
                   {
-                    "pc": 37743,
                     "times": 1110,
                     "exclusive_fields": [
                       0,
                       4,
                       11
-                    ]
+                    ],
+                    "pc": 37743
                   }
                 ]
               }
@@ -6057,19 +6426,19 @@
                 "condition": "field +4 & 224",
                 "arms": [
                   {
-                    "pc": 37479,
                     "times": 876,
                     "exclusive_fields": [
                       2,
                       4,
                       5,
                       6
-                    ]
+                    ],
+                    "pc": 37479
                   },
                   {
-                    "pc": 37811,
                     "times": 3850,
-                    "exclusive_fields": []
+                    "exclusive_fields": [],
+                    "pc": 37811
                   }
                 ]
               }
@@ -6080,60 +6449,60 @@
     },
     "protagonist": [
       {
-        "x_formula": "(v&15)*8+48",
-        "confidence": 0.16725269573370838,
         "y_addr": 32985,
         "x_addr": 32983,
-        "y_formula": "v+168"
+        "y_formula": "v+168",
+        "x_formula": "(v&15)*8+48",
+        "confidence": 0.16725269573370838
       },
       {
-        "x_formula": "(v&31)*8",
-        "confidence": 0.10182255039849976,
         "y_addr": 33014,
         "x_addr": 33015,
-        "y_formula": "v>>1+41"
+        "y_formula": "v>>1+41",
+        "x_formula": "(v&31)*8",
+        "confidence": 0.10182255039849976
       },
       {
-        "x_formula": "(v&31)*8+48",
-        "confidence": 0.11064228785747773,
         "y_addr": 33030,
         "x_addr": 33038,
-        "y_formula": "v>>1+168"
+        "y_formula": "v>>1+168",
+        "x_formula": "(v&31)*8+48",
+        "confidence": 0.11064228785747773
       },
       {
-        "x_formula": "(v&240)>>1+64",
-        "confidence": 0.12599624941397095,
         "y_addr": 33042,
         "x_addr": 33044,
-        "y_formula": "v>>1+168"
+        "y_formula": "v>>1+168",
+        "x_formula": "(v&240)>>1+64",
+        "confidence": 0.12599624941397095
       },
       {
-        "x_formula": "(v&15)*8+48",
-        "confidence": 0.23781059540553212,
         "y_addr": 33050,
         "x_addr": 33052,
-        "y_formula": "v>>1+168"
+        "y_formula": "v>>1+168",
+        "x_formula": "(v&15)*8+48",
+        "confidence": 0.23781059540553212
       },
       {
-        "x_formula": "(v&31)*8",
-        "confidence": 0.30719643694327237,
         "y_addr": 33058,
         "x_addr": 33066,
-        "y_formula": "v>>1+168"
+        "y_formula": "v>>1+168",
+        "x_formula": "(v&31)*8",
+        "confidence": 0.30719643694327237
       },
       {
-        "x_formula": "(v&31)*8+48",
-        "confidence": 0.14750351617440224,
         "y_addr": 34261,
         "x_addr": 34257,
-        "y_formula": "(v&31)*8+24"
+        "y_formula": "(v&31)*8+24",
+        "x_formula": "(v&31)*8+48",
+        "confidence": 0.14750351617440224
       },
       {
-        "x_formula": "(v&31)*8",
-        "confidence": 0.9532703791140119,
         "y_addr": 34255,
         "x_addr": 34259,
-        "y_formula": "v>>1+13"
+        "y_formula": "v>>1+13",
+        "x_formula": "(v&31)*8",
+        "confidence": 0.9532703791140119
       }
     ],
     "sprites": [
@@ -10816,39 +11185,39 @@
         }
       },
       {
+        "type": "state_logic",
+        "name": "$36307",
         "evidence": {
           "writes_to_variables": 75969
-        },
-        "type": "state_logic",
-        "name": "$36307"
+        }
       },
       {
+        "type": "state_logic",
+        "name": "$36508",
         "evidence": {
           "writes_to_variables": 17048
-        },
-        "type": "state_logic",
-        "name": "$36508"
+        }
       },
       {
+        "type": "state_logic",
+        "name": "$37056",
         "evidence": {
           "writes_to_variables": 155483
-        },
-        "type": "state_logic",
-        "name": "$37056"
+        }
       },
       {
+        "type": "state_logic",
+        "name": "$38064",
         "evidence": {
           "writes_to_variables": 95
-        },
-        "type": "state_logic",
-        "name": "$38064"
+        }
       },
       {
+        "type": "state_logic",
+        "name": "$38276",
         "evidence": {
           "writes_to_variables": 1
-        },
-        "type": "state_logic",
-        "name": "$38276"
+        }
       }
     ],
     "other-structures": [
@@ -10975,19 +11344,19 @@
             "condition": "field +4 == 58",
             "arms": [
               {
-                "pc": 35424,
                 "times": 8,
                 "exclusive_fields": [
                   0,
                   1,
                   3,
                   4
-                ]
+                ],
+                "pc": 35424
               },
               {
-                "pc": 35499,
                 "times": 76,
-                "exclusive_fields": []
+                "exclusive_fields": [],
+                "pc": 35499
               }
             ]
           },
@@ -10996,18 +11365,18 @@
             "condition": "field +3 == 54",
             "arms": [
               {
-                "pc": 35499,
                 "times": 7,
-                "exclusive_fields": []
+                "exclusive_fields": [],
+                "pc": 35499
               },
               {
-                "pc": 35438,
                 "times": 1,
                 "exclusive_fields": [
                   0,
                   1,
                   3
-                ]
+                ],
+                "pc": 35438
               }
             ]
           }
@@ -11079,19 +11448,19 @@
             "condition": "field +0 & 127 == 7",
             "arms": [
               {
-                "pc": 34648,
                 "times": 2,
-                "exclusive_fields": []
+                "exclusive_fields": [],
+                "pc": 34648
               },
               {
-                "pc": 34693,
                 "times": 1366,
                 "exclusive_fields": [
                   0,
                   1,
                   32,
                   33
-                ]
+                ],
+                "pc": 34693
               }
             ]
           }

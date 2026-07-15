@@ -122,6 +122,38 @@ public final class Flow {
     return false;
   }
 
+  /**
+   * does the walk reach a site matching {@code p} through an edge whose role contains
+   * {@code role}? Distinguishes "the byte lands here as data (VAL)" from "the byte becomes
+   * this site's address (ADDR)" — the difference between a glyph font and an address table
+   * that both feed the same screen write.
+   */
+  public boolean reachesVia(String role, IntPredicate p) {
+    Set<Integer> seen = new HashSet<>(roots);
+    ArrayDeque<int[]> queue = new ArrayDeque<>();
+    for (int root : roots)
+      queue.add(new int[]{root, 0});
+    while (!queue.isEmpty()) {
+      int[] cur = queue.poll();
+      if (cur[1] >= depth || prune.test(cur[0]))
+        continue;
+      for (AnalysisDB.Edge e : edgesOf(cur[0])) {
+        int next = backward ? e.src() : e.dst();
+        if (next == 0)
+          continue;
+        boolean firstHopBlocked = cur[1] == 0 && firstHopRole != null
+            && (e.role() == null || !e.role().contains(firstHopRole));
+        if (firstHopBlocked)
+          continue;
+        if (e.role() != null && e.role().contains(role) && p.test(next))
+          return true;
+        if (seen.add(next))
+          queue.add(new int[]{next, cur[1] + 1});
+      }
+    }
+    return false;
+  }
+
   private List<AnalysisDB.Edge> edgesOf(int pc) {
     return (backward ? db.edgesIn : db.edgesOut).getOrDefault(pc, List.of());
   }

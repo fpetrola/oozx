@@ -49,6 +49,21 @@ public class RzxBootstrap {
     this.afterSnapshotLoad = afterSnapshotLoad;
   }
 
+  /**
+   * snapshot of the freshly loaded memory (the "cassette" bytes): offline analyzers use
+   * it to decode static content — text strings, graphics extraction — without rerunning.
+   */
+  private void dumpInitialMemory() {
+    byte[] bytes = new byte[app.mem.length];
+    for (int i = 0; i < bytes.length; i++)
+      bytes[i] = (byte) app.mem[i];
+    try {
+      java.nio.file.Files.write(java.nio.file.Path.of("analysis/init-mem.bin"), bytes);
+    } catch (java.io.IOException e) {
+      System.out.println("init-mem dump failed: " + e);
+    }
+  }
+
   public void onPc(int address) {
     if (initializing) {
       switch (address) {
@@ -59,6 +74,7 @@ public class RzxBootstrap {
           // even without an RZX file present.
           System.out.println("pre-snapshot mem hash: " + Long.toHexString(FrameHasher.hash(app.mem)));
           EmulatedMiniZX.setupRzx(new MyRegistersSetter(app), io, rzxPath, new MyMemorySetter(app));
+          dumpInitialMemory();
           initializing = false;
           app.fetchCounter = -2;
           if (afterSnapshotLoad != null)

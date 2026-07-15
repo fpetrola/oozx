@@ -80,6 +80,7 @@ public class GameModelExporter {
     List<Map<String, Object>> canonicos = structFinder.canonical(structs);
     List<Map<String, Object>> rebuilds = new RebuildFinder(db, dbPath).analyze();
     List<Map<String, Object>> records = new RecordFinder(db, dbPath).analyze();
+    List<Map<String, Object>> texts = new TextFinder(db, dbPath).analyze();
     List<Object> rutinasFull = routines();
 
     List<Object> findings = new ArrayList<>();
@@ -91,6 +92,7 @@ public class GameModelExporter {
     mapa.put("zones", zones(evEnt));
     findingRebuild(findings, evidence, rebuilds);
     findingRecords(findings, evidence, records);
+    findingTexts(findings, evidence, texts);
     findingEntities(findings, evidence, evEnt, structs, canonicos);
     findingProtagonist(findings, evidence, evEnt);
     findingSprites(findings, evidence);
@@ -104,7 +106,7 @@ public class GameModelExporter {
     root.put("meta", meta());
     root.put("findings", findings);
     root.put("model", new ModelAssembler(db, plan, gfxRegions, lookupTables)
-        .assemble(canonicos, records, rebuilds, rutinasFull, font(), bestProtagonist(evEnt)));
+        .assemble(canonicos, records, rebuilds, rutinasFull, font(), bestProtagonist(evEnt), texts));
     root.put("evidence", evidence);
     String json = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create().toJson(root);
     Files.writeString(Path.of(outPath), json);
@@ -245,6 +247,44 @@ public class GameModelExporter {
       lista.add(item);
     }
     h.put("records", lista);
+  }
+
+  // ---------- hallazgo: el texto del juego (fuente + cadenas + nombres por registro) ----------
+  @SuppressWarnings("unchecked")
+  private void findingTexts(List<Object> findings, Map<String, Object> evidence,
+                            List<Map<String, Object>> texts) {
+    if (texts.isEmpty())
+      return;
+    Map<String, Object> h = finding(findings, evidence, "texts",
+        "The game's text: the glyph table (font), where the strings live and what they say",
+        texts);
+    List<Object> lista = new ArrayList<>();
+    for (Map<String, Object> t : texts) {
+      Map<String, Object> font = (Map<String, Object>) t.get("font");
+      Map<String, Object> item = new LinkedHashMap<>();
+      item.put("font", "glyphs at " + font.get("range") + " read by " + font.get("read_by"));
+      item.put("char_sources", t.get("char_sources"));
+      if (t.containsKey("strings"))
+        item.put("strings", ((List<Map<String, Object>>) t.get("strings")).stream()
+            .map(s -> "@" + s.get("address") + " \"" + s.get("text") + "\"").toList());
+      if (t.containsKey("record_texts")) {
+        List<Object> rts = new ArrayList<>();
+        for (Map<String, Object> rt : (List<Map<String, Object>>) t.get("record_texts")) {
+          Map<String, Object> r = new LinkedHashMap<>();
+          r.put("what", "field " + rt.get("field_offset") + " of the " + rt.get("record_bytes")
+              + "-byte records at " + rt.get("template_base") + " is text (printed by "
+              + rt.get("printed_by") + ")");
+          r.put("per_record", ((List<Map<String, Object>>) rt.get("texts")).stream()
+              .map(x -> "record " + x.get("record") + ": \"" + x.get("text") + "\"").toList());
+          rts.add(r);
+        }
+        item.put("record_texts", rts);
+      }
+      if (t.containsKey("note"))
+        item.put("note", t.get("note"));
+      lista.add(item);
+    }
+    h.put("texts", lista);
   }
 
   // ---------- hallazgo: tabla de entidades ----------

@@ -25,6 +25,7 @@ import com.fpetrola.z80.analysis.query.Sites;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * The "texts" command: finds the game's TEXT — where the strings live and what they say
@@ -50,6 +51,7 @@ import java.util.*;
  */
 public class TextFinder {
   private static final String INIT_MEM = "analysis/init-mem.bin";
+  private static final Pattern WORD = Pattern.compile("[A-Za-z]{3}");
 
   private final AnalysisDB db;
   private final String dbPath;
@@ -84,30 +86,36 @@ public class TextFinder {
     List<Map<String, Object>> rebuilds = new RebuildFinder(db, dbPath).analyze();
     List<Map<String, Object>> out = new ArrayList<>();
 
-    // 1. glyph tables: static swept reads that feed the screen and are indexed by data
+    // 1. glyph tables: a swept read whose BYTE is painted onto the screen as pixel data
+    // (arrives at a screen write via VAL — an address table feeding the same write arrives
+    // via ADDR and is rejected) and that holds a never-written static run (ROM/cassette
+    // data). A sprite sheet also paints via VAL, so the candidate is kept below only when
+    // it actually decodes into text.
     List<AnalysisDB.Stat> fonts = Sites.reads(db)
-        .sweeping().spanningAtLeast(64).spanningAtMost(8192)
-        .where(f -> mostlyUnwritten(f.addrMin(), f.addrMax()))
-        .where(f -> Flow.forward(db).from(f.pc()).firstHop("VAL").depth(3)
-            .reaches(pc -> writesToScreen(pc)))
-        .where(f -> !Flow.back(db).from(f.pc()).firstHop("ADDR").depth(5)
-            .reads().sweeping().isEmpty())
+        .sweeping().spanningAtLeast(64)
+        .where(f -> largestUnwrittenRun(f.addrMin(), f.addrMax()) != null)
+        .where(f -> Flow.forward(db).from(f.pc()).depth(4)
+            .reachesVia("VAL", this::writesToScreen))
         .list();
 
-    Set<String> seenFonts = new HashSet<>();
+    List<int[]> acceptedRuns = new ArrayList<>();
     for (AnalysisDB.Stat font : fonts) {
-      if (!seenFonts.add(font.addrMin() + ".." + font.addrMax()))
+      int[] glyphs = largestUnwrittenRun(font.addrMin(), font.addrMax());
+      if (glyphs == null || overlapsAccepted(acceptedRuns, glyphs))
         continue;
-      // 2. character sources: the reads that build the glyph address
-      List<AnalysisDB.Stat> sources = Flow.back(db).from(font.pc()).firstHop("ADDR").depth(5)
-          .reads().sweeping()
-          .where(s -> s.addrMin() != font.addrMin() || s.addrMax() != font.addrMax())
-          .list();
-      if (sources.isEmpty())
-        continue;
+      acceptedRuns.add(glyphs);
+      // 2. character sources: the reads that build the glyph address, PLUS the font-reading
+      // instruction itself — inlining can fold the message read and the glyph read onto one
+      // shared site, so its RAM sub-ranges carry the strings while its ROM run holds glyphs.
+      List<AnalysisDB.Stat> sources = new ArrayList<>(
+          Flow.back(db).from(font.pc()).firstHop("ADDR").depth(5)
+              .reads().sweeping()
+              .where(s -> s.addrMin() != font.addrMin() || s.addrMax() != font.addrMax())
+              .list());
+      sources.add(font);
       Map<String, Object> result = new LinkedHashMap<>();
       result.put("font", Map.of(
-          "range", List.of(font.addrMin(), font.addrMax()),
+          "range", List.of(glyphs[0], glyphs[1]),
           "read_by", db.method.getOrDefault(font.pc(), "?")));
       List<String> srcDesc = new ArrayList<>();
       List<Map<String, Object>> strings = new ArrayList<>();
@@ -128,10 +136,14 @@ public class TextFinder {
           if (rt != null)
             recordTexts.add(rt);
         }
-        // 3. direct decoding of the never-written part of the span
-        for (Map<String, Object> str : decodeRuns(decodedLo, decodedHi, true))
-          if (decodedFrom.add((Integer) str.get("address")))
-            strings.add(str);
+        // 3. direct decoding of the never-written part of the span, OUTSIDE the glyph run
+        // itself: the glyphs are the font (bitmaps that coincidentally read as ASCII), not
+        // text. An address/sprite table whose whole span IS its glyph run thus yields no
+        // strings here and drops out — only genuine message bytes survive.
+        for (int[] seg : outside(decodedLo, decodedHi, glyphs[0], glyphs[1]))
+          for (Map<String, Object> str : decodeRuns(seg[0], seg[1], true))
+            if (decodedFrom.add((Integer) str.get("address")))
+              strings.add(str);
       }
       result.put("char_sources", srcDesc);
       if (memory == null)
@@ -141,7 +153,11 @@ public class TextFinder {
         result.put("strings", strings);
       if (!recordTexts.isEmpty())
         result.put("record_texts", recordTexts);
-      out.add(result);
+      // a real text font decodes into real text; a sprite sheet also painted via VAL yields
+      // at most a few incidental fragments. Keep the candidate only with structured per-record
+      // text or a meaningful density of strings (or when we could not decode at all).
+      if (!recordTexts.isEmpty() || strings.size() >= 6 || memory == null)
+        out.add(result);
     }
     return out;
   }
@@ -164,6 +180,25 @@ public class TextFinder {
     return out;
   }
 
+  /** drop leading/trailing graphics fill (a single character repeated >=4 times, e.g. the
+   * {@code UUUU} attribute bytes next to a room name) and surrounding whitespace. */
+  private String trimGraphicsFill(String s) {
+    int lo = 0, hi = s.length();
+    while (lo < hi - 3 && s.charAt(lo) == s.charAt(lo + 1)
+        && s.charAt(lo) == s.charAt(lo + 2) && s.charAt(lo) == s.charAt(lo + 3)) {
+      char c = s.charAt(lo);
+      while (lo < hi && s.charAt(lo) == c)
+        lo++;
+    }
+    while (hi > lo + 3 && s.charAt(hi - 1) == s.charAt(hi - 2)
+        && s.charAt(hi - 1) == s.charAt(hi - 3) && s.charAt(hi - 1) == s.charAt(hi - 4)) {
+      char c = s.charAt(hi - 1);
+      while (hi > lo && s.charAt(hi - 1) == c)
+        hi--;
+    }
+    return s.substring(lo, hi).strip();
+  }
+
   /** decode the same field of every catalogue record; kept when enough records read as text. */
   private Map<String, Object> decodePerRecord(Map<String, Object> block, int offLo, int offHi,
                                               String printedBy) {
@@ -176,8 +211,11 @@ public class TextFinder {
       int lo = base + k * stride + offLo, hi = base + k * stride + offHi;
       String best = null;
       for (Map<String, Object> run : decodeRuns(lo, hi, false)) {
-        String t = (String) run.get("text");
-        if (best == null || t.length() > best.length())
+        String t = trimGraphicsFill((String) run.get("text"));
+        // the richest-in-distinct-letters run is the name; a graphics fill bridged in by
+        // spaces has few distinct letters even when long
+        if (t.length() >= 3 && (best == null
+            || t.chars().distinct().count() > best.chars().distinct().count()))
           best = t;
       }
       if (best != null)
@@ -224,10 +262,43 @@ public class TextFinder {
     return out;
   }
 
+  /** true when {@code run} overlaps an already-accepted run by more than half of the smaller
+   * — the same font read from sibling sites yields near-identical runs (off by a byte). */
+  private boolean overlapsAccepted(List<int[]> accepted, int[] run) {
+    for (int[] a : accepted) {
+      int[] i = Ranges.intersection(a[0], a[1], run[0], run[1]);
+      if (i == null)
+        continue;
+      int overlap = i[1] - i[0] + 1;
+      int smaller = Math.min(a[1] - a[0] + 1, run[1] - run[0] + 1);
+      if (overlap * 2 > smaller)
+        return true;
+    }
+    return false;
+  }
+
+  /** the (up to two) sub-segments of [lo..hi] that lie outside [exLo..exHi]. */
+  private List<int[]> outside(int lo, int hi, int exLo, int exHi) {
+    List<int[]> out = new ArrayList<>();
+    if (exLo > lo)
+      out.add(new int[]{lo, Math.min(hi, exLo - 1)});
+    if (exHi < hi)
+      out.add(new int[]{Math.max(lo, exHi + 1), hi});
+    if (exLo <= lo && exHi >= hi)
+      return List.of(); // fully inside the glyph run: nothing to decode
+    return out;
+  }
+
   private void flushRun(List<Map<String, Object>> out, StringBuilder run, int start) {
     String text = run.toString().strip();
-    if (text.length() < 3 || text.chars().distinct().count() < 3
-        || text.chars().noneMatch(Character::isLetterOrDigit))
+    // needs a real word: >=3 consecutive letters, >=3 distinct characters (drops repeated
+    // fills like "EEEEGGGG"), and letters/spaces the majority — so glyph bitmaps and address
+    // bytes that happen to fall in printable ASCII do not read as text.
+    if (text.length() < 4 || !WORD.matcher(text).find()
+        || text.chars().distinct().count() < 3)
+      return;
+    long letterSpace = text.chars().filter(c -> Character.isLetter(c) || c == ' ').count();
+    if (letterSpace * 2 < text.length())
       return;
     Map<String, Object> s = new LinkedHashMap<>();
     s.put("address", start);
@@ -235,12 +306,30 @@ public class TextFinder {
     out.add(s);
   }
 
-  private boolean mostlyUnwritten(int lo, int hi) {
-    int w = 0;
-    for (int a = lo; a <= hi; a++)
-      if (written[a])
-        w++;
-    return w * 5 <= (hi - lo + 1); // at most 20% touched
+  /**
+   * The longest fully never-written sub-run inside [lo..hi], or null when none reaches 64
+   * bytes. A glyph font is static reference data, but the reading instruction's aggregated
+   * range often spans both the ROM/cassette font and the RAM it also touches — so the font
+   * is the never-written island inside that range, not the whole span.
+   */
+  private int[] largestUnwrittenRun(int lo, int hi) {
+    lo = Math.max(0, lo);
+    hi = Math.min(0xffff, hi);
+    int bestLo = -1, bestHi = -1, curLo = -1;
+    for (int a = lo; a <= hi + 1; a++) {
+      boolean blocked = a > hi || written[a];
+      if (!blocked) {
+        if (curLo < 0)
+          curLo = a;
+      } else {
+        if (curLo >= 0 && a - 1 - curLo > bestHi - bestLo) {
+          bestLo = curLo;
+          bestHi = a - 1;
+        }
+        curLo = -1;
+      }
+    }
+    return bestLo >= 0 && bestHi - bestLo + 1 >= 64 ? new int[]{bestLo, bestHi} : null;
   }
 
   private boolean writesToScreen(int pc) {

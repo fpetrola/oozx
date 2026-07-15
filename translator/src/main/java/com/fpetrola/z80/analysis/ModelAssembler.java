@@ -67,7 +67,8 @@ class ModelAssembler {
                                List<Map<String, Object>> rebuilds,
                                List<Object> rutinasClasificadas,
                                Map<String, Object> fuente,
-                               Map<String, Object> protagonista) {
+                               Map<String, Object> protagonista,
+                               List<Map<String, Object>> texts) {
     List<Map<String, Object>> espacio = new ArrayList<>();
 
     // screen and buffers, named by where their content lands
@@ -154,6 +155,42 @@ class ModelAssembler {
       }
     }
 
+    // text: string storage in the cassette image + per-record name fields (font already
+    // named above from `fuente`, which is the same glyph table)
+    List<Map<String, Object>> textos = new ArrayList<>();
+    int nStr = 0;
+    for (Map<String, Object> t : texts) {
+      List<Map<String, Object>> strings = (List<Map<String, Object>>) t.get("strings");
+      if (strings != null && !strings.isEmpty()) {
+        int lo = Integer.MAX_VALUE, hi = Integer.MIN_VALUE;
+        for (Map<String, Object> s : strings) {
+          int a = ((Number) s.get("address")).intValue();
+          lo = Math.min(lo, a);
+          hi = Math.max(hi, a + ((String) s.get("text")).length() - 1);
+        }
+        entrada(espacio, "text_strings_" + ++nStr, lo, hi, "text_data", "texts");
+        Map<String, Object> section = new LinkedHashMap<>();
+        section.put("name", "text_strings_" + nStr);
+        section.put("range", List.of(lo, hi));
+        section.put("kind", "cassette_strings");
+        section.put("samples", strings.stream().limit(8).map(s -> s.get("text")).toList());
+        textos.add(section);
+      }
+      for (Map<String, Object> rt : (List<Map<String, Object>>)
+          t.getOrDefault("record_texts", List.of())) {
+        Map<String, Object> section = new LinkedHashMap<>();
+        section.put("kind", "per_record_name");
+        section.put("template_base", rt.get("template_base"));
+        section.put("record_bytes", rt.get("record_bytes"));
+        section.put("field_offset", rt.get("field_offset"));
+        section.put("role", "label/name field of every catalogue record; printed by "
+            + rt.get("printed_by"));
+        section.put("samples", ((List<Map<String, Object>>) rt.get("texts")).stream()
+            .limit(8).map(x -> x.get("text")).toList());
+        textos.add(section);
+      }
+    }
+
     espacio.sort(Comparator.comparingInt(e -> (int) ((List<Integer>) e.get("range")).get(0)));
 
     // routines: role + which named regions each one reads/writes
@@ -218,6 +255,8 @@ class ModelAssembler {
     modelo.put("variables", vars);
     modelo.put("structures", estructuras);
     modelo.put("records", records);
+    if (!textos.isEmpty())
+      modelo.put("texts", textos);
     modelo.put("routines", rutinas);
     modelo.put("segments", segmentos);
     modelo.put("refactor_suggestions", sugerencias(estructuras, records, vars, segmentos));
