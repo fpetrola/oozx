@@ -69,23 +69,16 @@ public abstract class SpectrumApplication<T> {
 
   public void executeMutantCode(int address) {
     if (mem[address] == 0x77) {
-      wMem(HL(), A, address);
+      int address1 = HL();
+      mem[address1] = A;
     } else if (mem[address] == 0x7E) {
-      A = mem(HL(), address);
+      int address1 = HL();
+      A = mem[address1];
     } else if (mem[address] == 0x12) {
-      wMem(DE(), A, address);
+      int address1 = DE();
+      mem[address1] = A;
     } else if (mem[address] == 0x16) {
-      D = mem[address + 1];
-    } else if (mem[address] == 0x06) {
-      B = mem[address + 1];
-    } else if (mem[address] == 0x11) {
-      DE(mem16(address + 1, address));
-    } else if (mem[address] == 0x3E) {
-      A = mem[address + 1];
-    } else if (mem[address] == 0x01) {
-      BC(mem16(address + 1, address));
-    } else if (mem[address] == 0xCD) {
-      invokeMethod(mem16(address + 1, address));
+      D(mem[address + 1]);
     }
 
 //    System.out.println("mutant at: " + address);
