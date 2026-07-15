@@ -18,6 +18,10 @@
 
 package com.fpetrola.z80.analysis;
 
+import com.fpetrola.z80.analysis.query.Closure;
+import com.fpetrola.z80.analysis.query.Db;
+import com.fpetrola.z80.analysis.query.Flow;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -378,38 +382,30 @@ final class TypeSplitter {
       return null;
     Integer value = null, maskC = null, offset = null, readSite = null;
     boolean flagZ = false;
-    Set<Integer> seen = new HashSet<>();
-    ArrayDeque<Integer> queue = new ArrayDeque<>();
-    queue.add(branchPc);
-    for (int depth = 0; depth <= 4 && !queue.isEmpty(); depth++) {
-      int n = queue.size();
-      for (int i = 0; i < n; i++) {
-        int pc = queue.poll();
-        String eq = db.equation.get(pc);
-        if (eq != null && pc != branchPc) {
-          if (value == null) {
-            Matcher cm = CMP.matcher(eq);
-            if (cm.find())
-              value = Integer.parseInt(cm.group(1));
-          }
-          if (eq.contains("flagZ("))
-            flagZ = true;
-          if (maskC == null) {
-            Matcher mm = MASK.matcher(eq);
-            if (mm.find()) {
-              int mk = Integer.parseInt(mm.group(1));
-              if (mk != 255) // & 255 is byte truncation, not a sub-field
-                maskC = mk;
-            }
-          }
-          if (offset == null && readSiteOffset.containsKey(pc)) {
-            offset = readSiteOffset.get(pc);
-            readSite = pc;
-          }
+    // walk up to four hops back of the branch (its own equation excluded), taking the first
+    // compared constant, mask and record-field read the chain reaches
+    for (int pc : Flow.back(db).from(branchPc).depth(4).sites()) {
+      String eq = db.equation.get(pc);
+      if (eq == null)
+        continue;
+      if (value == null) {
+        Matcher cm = CMP.matcher(eq);
+        if (cm.find())
+          value = Integer.parseInt(cm.group(1));
+      }
+      if (eq.contains("flagZ("))
+        flagZ = true;
+      if (maskC == null) {
+        Matcher mm = MASK.matcher(eq);
+        if (mm.find()) {
+          int mk = Integer.parseInt(mm.group(1));
+          if (mk != 255) // & 255 is byte truncation, not a sub-field
+            maskC = mk;
         }
-        for (AnalysisDB.Edge e : db.edgesIn.getOrDefault(pc, List.of()))
-          if (e.src() != 0 && seen.add(e.src()))
-            queue.add(e.src());
+      }
+      if (offset == null && readSiteOffset.containsKey(pc)) {
+        offset = readSiteOffset.get(pc);
+        readSite = pc;
       }
     }
     if (offset == null)
@@ -523,19 +519,7 @@ final class TypeSplitter {
    * closure around the whole loop and dissolve the arm exclusivity.
    */
   private Set<Integer> closure(int start, Set<Integer> methodSites, Set<Integer> stopAt) {
-    Set<Integer> out = new HashSet<>();
-    ArrayDeque<Integer> queue = new ArrayDeque<>();
-    queue.add(start);
-    while (!queue.isEmpty() && out.size() < 400) {
-      int pc = queue.poll();
-      if (!methodSites.contains(pc) || !out.add(pc))
-        continue;
-      if (stopAt.contains(pc))
-        continue;
-      for (AnalysisDB.Edge e : db.cfgOut.getOrDefault(pc, List.of()))
-        queue.add(e.dst());
-    }
-    return out;
+    return Closure.cfg(db, start, methodSites, stopAt, 400);
   }
 
   // ==================== observed discriminant values ====================
@@ -552,29 +536,23 @@ final class TypeSplitter {
                                   Map<Integer, Integer> bitsExtra) {
     int slots = Math.min(64, (tableEnd - base) / stride + 4);
     int conDatos = 0;
-    try (java.sql.Connection c = java.sql.DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
+    try (Db q = new Db(dbPath)) {
       for (int k = 0; k < slots; k++) {
         int addr = base + k * stride + discOff;
         boolean dato = false;
-        try (java.sql.PreparedStatement ps = c.prepareStatement(
-            "SELECT val, COUNT(*) FROM frame_cells WHERE addr = ? GROUP BY val")) {
-          ps.setInt(1, addr);
-          try (java.sql.ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-              int val = rs.getInt(1);
-              long frames = rs.getLong(2);
-              if (termValor != null && val == termValor)
-                continue;
-              dato = true;
-              framesPorValor.merge(val & mask, frames, Long::sum);
-              bitsExtra.merge(val & mask, val & ~mask & 255, (x, y) -> x | y);
-            }
-          }
+        for (long[] r : q.rows(
+            "SELECT val, COUNT(*) FROM frame_cells WHERE addr = ? GROUP BY val", addr)) {
+          int val = (int) r[0];
+          long frames = r[1];
+          if (termValor != null && val == termValor)
+            continue;
+          dato = true;
+          framesPorValor.merge(val & mask, frames, Long::sum);
+          bitsExtra.merge(val & mask, val & ~mask & 255, (x, y) -> x | y);
         }
         if (dato)
           conDatos++;
       }
-    } catch (java.sql.SQLException ignored) {
     }
     return conDatos;
   }
