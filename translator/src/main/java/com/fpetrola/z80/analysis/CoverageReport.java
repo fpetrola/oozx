@@ -203,7 +203,7 @@ public class CoverageReport {
       if (i < code.length && code[i] <= w.addrMax()) {
         hits++;
         if (examples++ < 3)
-          eg.append(" ").append(db.method.getOrDefault(w.pc(), "?")).append("@").append(w.pc())
+          eg.append(" ").append(db.nameOf(w.pc())).append("@").append(w.pc())
               .append("->").append(code[i]);
       }
     }

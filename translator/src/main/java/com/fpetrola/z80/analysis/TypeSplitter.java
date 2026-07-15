@@ -363,7 +363,7 @@ final class TypeSplitter {
         readSites.add(t.readSite());
       List<Resolved> resolved = resolveArms(tests, methodSites, readSites);
       if (resolved.size() >= 2)
-        out.add(new Ladder(db.method.getOrDefault(tests.get(0).branchPc(), "?"),
+        out.add(new Ladder(db.nameOf(tests.get(0).branchPc()),
             raw.sites(), tests.get(0).offset(), tests.get(0).mask(), resolved, readSites));
     }
     return out;

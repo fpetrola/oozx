@@ -764,7 +764,7 @@ public class GameModelExporter {
     for (int s : readSites) {
       AnalysisDB.Stat r = db.reads.get(s);
       if (r.addrMax() >= lo && r.addrMin() <= hi)
-        ms.add(db.method.getOrDefault(s, "?"));
+        ms.add(db.nameOf(s));
     }
     return new ArrayList<>(ms);
   }
@@ -832,7 +832,7 @@ public class GameModelExporter {
       if (r.addrMin() < 16384) {
         Map<String, Object> f = new LinkedHashMap<>();
         f.put("range", List.of(r.addrMin(), Math.min(16383, r.addrMax())));
-        f.put("routine", db.method.getOrDefault(s, "?"));
+        f.put("routine", db.nameOf(s));
         f.put("note", "the site's aggregated range may mix zones; the <16384 part is ROM");
         return f;
       }
@@ -901,7 +901,7 @@ public class GameModelExporter {
         tabla.put("loaded_by", loaders);
       List<String> updaters = new ArrayList<>(new TreeSet<>(
           db.writersIntersecting(base, base + slots * stride - 1).stream()
-              .map(w -> db.method.getOrDefault(w.pc(), "?")).toList()));
+              .map(w -> db.nameOf(w.pc())).toList()));
       tabla.put("updated_by", updaters);
       out.put("table", tabla);
     }
@@ -1021,7 +1021,7 @@ public class GameModelExporter {
     Set<String> romReaders = new HashSet<>();
     for (int s : valReads)
       if (db.reads.get(s).addrMin() < 16384)
-        romReaders.add(db.method.getOrDefault(s, "?"));
+        romReaders.add(db.nameOf(s));
 
     List<Object> out = new ArrayList<>();
     for (Map.Entry<Integer, String> me : plan.drawMethods().entrySet()) {
@@ -1064,7 +1064,7 @@ public class GameModelExporter {
     Map<String, Long> logic = new TreeMap<>();
     for (int[] rg : plan.watchRanges())
       for (AnalysisDB.Stat w : db.writersIntersecting(rg[0], rg[1])) {
-        String m = db.method.getOrDefault(w.pc(), "?");
+        String m = db.nameOf(w.pc());
         if (!drawNames.contains(m))
           logic.merge(m, w.count(), Long::sum);
       }

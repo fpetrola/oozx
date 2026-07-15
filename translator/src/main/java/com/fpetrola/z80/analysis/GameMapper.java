@@ -193,7 +193,7 @@ public class GameMapper {
         AnalysisDB.Stat r = db.reads.get(s);
         if (r.addrMax() >= g[0] && r.addrMin() <= g[1]) {
           regionReaders.add(s);
-          byMethod.merge(db.method.getOrDefault(s, "?"), r.count(), Long::sum);
+          byMethod.merge(db.nameOf(s), r.count(), Long::sum);
         }
       }
       byMethod.forEach((m, n) -> System.out.println("      leida por " + m + " x" + n));
@@ -246,7 +246,7 @@ public class GameMapper {
     for (int[] t : tables) {
       Set<String> methods = addrReads.stream()
           .filter(s -> db.reads.get(s).addrMax() >= t[0] && db.reads.get(s).addrMin() <= t[1])
-          .map(s -> db.method.getOrDefault(s, "?")).collect(Collectors.toCollection(TreeSet::new));
+          .map(s -> db.nameOf(s)).collect(Collectors.toCollection(TreeSet::new));
       System.out.println("  [" + t[0] + ".." + t[1] + "] usada por " + String.join(" ", methods));
     }
     System.out.println();
@@ -291,7 +291,7 @@ public class GameMapper {
       // updaters
       Map<String, Long> upd = new TreeMap<>();
       for (AnalysisDB.Stat w : db.writersIntersecting(base, base + slots * stride - 1))
-        upd.merge(db.method.getOrDefault(w.pc(), "?"), w.count(), Long::sum);
+        upd.merge(db.nameOf(w.pc()), w.count(), Long::sum);
       upd.forEach((m, n) -> System.out.println("    actualizada por " + m + " x" + n));
       loaders.forEach(l -> System.out.println("    cargada por " + l));
     }

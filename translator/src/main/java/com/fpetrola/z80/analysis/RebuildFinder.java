@@ -141,7 +141,7 @@ public class RebuildFinder {
       int records = (b.srcMax() - b.srcMin()) / p.stride() + 1;
       Map<String, Object> c = new LinkedHashMap<>();
       c.put("site", b.pc());
-      c.put("routine", db.method.getOrDefault(b.pc(), "?"));
+      c.put("routine", db.nameOf(b.pc()));
       c.put("times", b.count());
       c.put("formula", "source = " + p.base() + " + selector*" + p.stride());
       c.put("indexed_table", Map.of(
@@ -172,7 +172,7 @@ public class RebuildFinder {
         continue;
       Map<String, Object> c = new LinkedHashMap<>();
       c.put("site", b.pc());
-      c.put("routine", db.method.getOrDefault(b.pc(), "?"));
+      c.put("routine", db.nameOf(b.pc()));
       c.put("times", b.count());
       c.put("per_rebuild", k);
       c.put("source", List.of(b.srcMin(), b.srcMax() + Math.max(0, b.lenMax() - 1)));
@@ -206,7 +206,7 @@ public class RebuildFinder {
         .sorted(Comparator.comparingLong(w -> -w.count()))
         .limit(8)
         .forEach(w -> out.add(Map.of(
-            "site", w.pc(), "routine", db.method.getOrDefault(w.pc(), "?"),
+            "site", w.pc(), "routine", db.nameOf(w.pc()),
             "times", w.count(), "values", List.of(w.valMin(), w.valMax()))));
     return out;
   }
@@ -217,7 +217,7 @@ public class RebuildFinder {
     for (AnalysisDB.Stat r : db.reads.values()) {
       if (r.addrMax() < lo || r.addrMin() > hi || exclude.contains(r.pc()))
         continue;
-      long[] acc = porRutina.computeIfAbsent(db.method.getOrDefault(r.pc(), "?"), k -> new long[2]);
+      long[] acc = porRutina.computeIfAbsent(db.nameOf(r.pc()), k -> new long[2]);
       acc[0] += r.count();
       acc[1]++;
     }

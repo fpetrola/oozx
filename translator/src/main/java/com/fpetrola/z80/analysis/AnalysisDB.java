@@ -109,6 +109,11 @@ public class AnalysisDB {
     edgesOut.values().forEach(l -> l.sort(Comparator.comparingLong((Edge e) -> -e.count)));
   }
 
+  /** the routine label owning {@code pc}, or "?" when the site has none. */
+  public String nameOf(int pc) {
+    return method.getOrDefault(pc, "?");
+  }
+
   public String describe(int pc) {
     if (pc == 0)
       return "INIT (dato original del snapshot)";

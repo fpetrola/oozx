@@ -116,7 +116,7 @@ public class ScreenMapper {
     Set<String> out = new TreeSet<>();
     for (AnalysisDB.Stat r : db.reads.values())
       if (Ranges.intersects(r.addrMin(), r.addrMax(), lo, hi))
-        out.add(db.method.getOrDefault(r.pc(), "?"));
+        out.add(db.nameOf(r.pc()));
     return new ArrayList<>(out);
   }
 

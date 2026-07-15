@@ -99,13 +99,13 @@ public class TextFinder {
       Map<String, Object> result = new LinkedHashMap<>();
       result.put("font", Map.of(
           "range", List.of(glyphs[0], glyphs[1]),
-          "read_by", db.method.getOrDefault(font.pc(), "?")));
+          "read_by", db.nameOf(font.pc())));
       List<String> srcDesc = new ArrayList<>();
       List<Map<String, Object>> strings = new ArrayList<>();
       List<Map<String, Object>> recordTexts = new ArrayList<>();
       Set<Integer> decodedFrom = new HashSet<>();
       for (AnalysisDB.Stat s : sources) {
-        srcDesc.add(db.method.getOrDefault(s.pc(), "?")
+        srcDesc.add(db.nameOf(s.pc())
             + " [" + s.addrMin() + ".." + s.addrMax() + "]");
         // 4. the span portion inside a rebuilt block lives permanently in the catalogue
         int decodedLo = s.addrMin(), decodedHi = s.addrMax();
@@ -115,7 +115,7 @@ public class TextFinder {
           if (part == null)
             continue;
           Map<String, Object> rt = decodePerRecord(block, part[0] - dst.get(0),
-              part[1] - dst.get(0), db.method.getOrDefault(s.pc(), "?"));
+              part[1] - dst.get(0), db.nameOf(s.pc()));
           if (rt != null)
             recordTexts.add(rt);
         }

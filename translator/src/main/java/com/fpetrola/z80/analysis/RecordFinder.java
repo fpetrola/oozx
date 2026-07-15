@@ -117,7 +117,7 @@ public class RecordFinder {
       }
       f.put("reads", (long) f.get("reads") + reads);
       f.put("writes", (long) f.get("writes") + writes);
-      String who = stats.stream().map(s -> db.method.getOrDefault(s.pc(), "?"))
+      String who = stats.stream().map(s -> db.nameOf(s.pc()))
           .distinct().sorted().reduce((a, b) -> a + " " + b).orElse("");
       String kk = stats.get(0).op().equals("W") ? "written_by" : "read_by";
       f.merge(kk, who, (a, b) -> a + " " + b);
@@ -293,7 +293,7 @@ public class RecordFinder {
           for (AnalysisDB.Stat s : db.reads.values())
             if (s.addrMin() < gLo && s.addrMax() >= gLo || s.addrMin() <= gHi && s.addrMax() > gHi)
               if (s.addrMax() >= gLo && s.addrMin() <= gHi)
-                genericos.add(db.method.getOrDefault(s.pc(), "?"));
+                genericos.add(db.nameOf(s.pc()));
           Map<String, Object> hueco = new LinkedHashMap<>();
           hueco.put("range", List.of(gLo, gHi));
           hueco.put("note", "no direct typed access");

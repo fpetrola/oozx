@@ -303,7 +303,7 @@ class ModelAssembler {
         String region = regionDe(espacio, s.addrMin(), s.addrMax());
         if (region == null)
           continue;
-        String rutina = db.method.getOrDefault(s.pc(), "?");
+        String rutina = db.nameOf(s.pc());
         long[] acc = out.computeIfAbsent(rutina, k -> new TreeMap<>())
             .computeIfAbsent(region, k -> new long[2]);
         acc[isWrite ? 1 : 0] += s.count();

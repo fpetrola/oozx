@@ -53,7 +53,7 @@ public class SegmentFinder {
   }
 
   private String routine(int pc) {
-    return db.method.getOrDefault(pc, "?");
+    return db.nameOf(pc);
   }
 
   private record Access(String routine, boolean write, int lo, int hi, boolean wide) {
