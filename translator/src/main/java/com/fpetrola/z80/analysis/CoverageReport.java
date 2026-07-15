@@ -133,7 +133,7 @@ public class CoverageReport {
       }));
 
       checks.add(guard("coordinates", () -> {
-        if (!tableExists(q, "coord_pairs"))
+        if (!q.hasTable("coord_pairs"))
           return na("coordinates", "run `track` to correlate positions");
         long strong = q.scalar("SELECT COUNT(*) FROM coord_pairs WHERE rate >= 0.1", 0);
         long weak = q.scalar("SELECT COUNT(*) FROM coord_pairs WHERE rate < 0.1", 0);
@@ -144,7 +144,7 @@ public class CoverageReport {
       }));
 
       checks.add(guard("sprite-tracking", () -> {
-        if (!tableExists(q, "sprite_draws"))
+        if (!q.hasTable("sprite_draws"))
           return na("sprite-tracking", "run `track`");
         long draws = q.scalar("SELECT COUNT(*) FROM sprite_draws", 0);
         return draws > 0 ? ok("sprite-tracking", draws + " drawn sprites recorded")
@@ -152,7 +152,7 @@ public class CoverageReport {
       }));
 
       checks.add(guard("variables", () -> {
-        if (!tableExists(q, "frame_cells"))
+        if (!q.hasTable("frame_cells"))
           return na("variables", "run `track`");
         long cells = q.scalar("SELECT COUNT(DISTINCT addr) FROM frame_cells", 0);
         return cells > 0 ? ok("variables", cells + " dynamic cells observed")
@@ -224,10 +224,6 @@ public class CoverageReport {
     System.out.printf("  memory paging (128K)  %-9s replay is 64K-flat (max address %d, %d IO sites); "
             + "OUT to the paging port is not instrumented — a 128K game needs bank-aware capture%n",
         "BLIND", maxAddr, db.ioSites.size());
-  }
-
-  private boolean tableExists(Db q, String name) {
-    return !q.rows("SELECT name FROM sqlite_master WHERE type='table' AND name=?", name).isEmpty();
   }
 
   /** first index into the sorted array whose value is >= key. */

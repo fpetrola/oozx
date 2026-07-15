@@ -22,7 +22,9 @@ import com.google.gson.GsonBuilder;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.*;
+import com.fpetrola.z80.analysis.query.Db;
+
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -527,34 +529,32 @@ public class GameModelExporter {
     h.put("y", "mem[" + best.get("y_addr") + "], pixel = " + best.get("y_formula"));
     h.put("confidence", best.get("confidence"));
     // its main animation: the biggest contiguous sprite group drawn by the row renderer
-    try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-         ResultSet rs = c.createStatement().executeQuery(
-             "SELECT base, last, veces FROM sprites_found ORDER BY base")) {
-      int gLo = -1, gHi = -1;
-      long gVeces = 0, bLo = -1, bHi = -1, bVeces = -1;
-      while (rs.next()) {
-        if (rs.getInt(1) == gHi + 1) {
-          gHi = rs.getInt(2);
-          gVeces += rs.getLong(3);
+    try (Db q = new Db(dbPath)) {
+      long[] g = {-1, -1, 0};   // current contiguous group: lo, hi, veces
+      long[] bg = {-1, -1, -1}; // best group so far: lo, hi, veces
+      q.forEach("SELECT base, last, veces FROM sprites_found ORDER BY base", rs -> {
+        if (rs.getInt(1) == g[1] + 1) {
+          g[1] = rs.getInt(2);
+          g[2] += rs.getLong(3);
         } else {
-          if (gVeces > bVeces) {
-            bLo = gLo;
-            bHi = gHi;
-            bVeces = gVeces;
+          if (g[2] > bg[2]) {
+            bg[0] = g[0];
+            bg[1] = g[1];
+            bg[2] = g[2];
           }
-          gLo = rs.getInt(1);
-          gHi = rs.getInt(2);
-          gVeces = rs.getLong(3);
+          g[0] = rs.getInt(1);
+          g[1] = rs.getInt(2);
+          g[2] = rs.getLong(3);
         }
+      });
+      if (g[2] > bg[2]) {
+        bg[0] = g[0];
+        bg[1] = g[1];
+        bg[2] = g[2];
       }
-      if (gVeces > bVeces) {
-        bLo = gLo;
-        bHi = gHi;
-        bVeces = gVeces;
-      }
-      if (bLo >= 0)
-        h.put("main_animation", "contiguous sprites [" + bLo + ".." + bHi + "] ("
-            + ((bHi - bLo + 1) / 32) + " frames of 32 bytes, drawn x" + bVeces + ")");
+      if (bg[0] >= 0)
+        h.put("main_animation", "contiguous sprites [" + bg[0] + ".." + bg[1] + "] ("
+            + ((bg[1] - bg[0] + 1) / 32) + " frames of 32 bytes, drawn x" + bg[2] + ")");
     }
   }
 
@@ -563,31 +563,23 @@ public class GameModelExporter {
     List<Object> full = sprites();
     Map<String, Object> h = finding(findings, evidence, "sprites",
         "Sprite catalog (cassette graphics data actually drawn)", full);
-    try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
-      h.put("total", scalar(c, "SELECT COUNT(*) FROM sprites_found"));
-      h.put("typical_size_bytes", scalar(c,
-          "SELECT size FROM sprites_found GROUP BY size ORDER BY COUNT(*) DESC LIMIT 1"));
-      List<Object> top = new ArrayList<>();
-      try (ResultSet rs = c.createStatement().executeQuery(
-          "SELECT base, last, size, veces, methods FROM sprites_found WHERE size >= 8 ORDER BY veces DESC LIMIT 8")) {
-        while (rs.next())
-          top.add(Map.of("range", List.of(rs.getInt(1), rs.getInt(2)), "bytes", rs.getInt(3),
-              "times_drawn", rs.getInt(4), "routines", rs.getString(5)));
-      }
-      h.put("most_drawn", top);
-      List<Object> items = new ArrayList<>();
+    try (Db q = new Db(dbPath)) {
+      h.put("total", q.scalar("SELECT COUNT(*) FROM sprites_found", -1));
+      h.put("typical_size_bytes", q.scalar(
+          "SELECT size FROM sprites_found GROUP BY size ORDER BY COUNT(*) DESC LIMIT 1", -1));
+      h.put("most_drawn", q.query(
+          "SELECT base, last, size, veces, methods FROM sprites_found WHERE size >= 8 ORDER BY veces DESC LIMIT 8",
+          rs -> (Object) Map.of("range", List.of(rs.getInt(1), rs.getInt(2)), "bytes", rs.getInt(3),
+              "times_drawn", rs.getInt(4), "routines", rs.getString(5))));
       int[] itemZone = {Integer.MAX_VALUE, -1};
-      long nItems = 0;
-      try (ResultSet rs = c.createStatement().executeQuery(
-          "SELECT base, last FROM sprites_found WHERE size <= 2")) {
-        while (rs.next()) {
-          itemZone[0] = Math.min(itemZone[0], rs.getInt(1));
-          itemZone[1] = Math.max(itemZone[1], rs.getInt(2));
-          nItems++;
-        }
-      }
-      if (nItems > 0)
-        h.put("items", "there are also " + nItems + " small graphics (1-2 bytes) at ["
+      long[] nItems = {0};
+      q.forEach("SELECT base, last FROM sprites_found WHERE size <= 2", rs -> {
+        itemZone[0] = Math.min(itemZone[0], rs.getInt(1));
+        itemZone[1] = Math.max(itemZone[1], rs.getInt(2));
+        nItems[0]++;
+      });
+      if (nItems[0] > 0)
+        h.put("items", "there are also " + nItems[0] + " small graphics (1-2 bytes) at ["
             + itemZone[0] + ".." + itemZone[1] + "] (objects/decorations)");
     }
   }
@@ -682,10 +674,10 @@ public class GameModelExporter {
         + " part of each discovery); 'model' is the formal machine-readable layer meant to"
         + " drive source transformations; 'evidence' holds the raw data backing them,"
         + " keyed by finding id (see doc/MANUAL-ANALISIS.md)");
-    try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
-      m.put("draws", scalar(c, "SELECT COUNT(*) FROM sprite_draws"));
-      m.put("frames_with_draws", scalar(c, "SELECT COUNT(DISTINCT frame) FROM sprite_draws"));
-      m.put("sprites_found", scalar(c, "SELECT COUNT(*) FROM sprites_found"));
+    try (Db q = new Db(dbPath)) {
+      m.put("draws", q.scalar("SELECT COUNT(*) FROM sprite_draws", -1));
+      m.put("frames_with_draws", q.scalar("SELECT COUNT(DISTINCT frame) FROM sprite_draws", -1));
+      m.put("sprites_found", q.scalar("SELECT COUNT(*) FROM sprites_found", -1));
     }
     return m;
   }
@@ -774,38 +766,28 @@ public class GameModelExporter {
     List<int[]> bases = new ArrayList<>();
     List<Object> out = new ArrayList<>();
     Map<Integer, Map<String, Integer>> sizeVotes = new HashMap<>();
-    try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
-      try (ResultSet rs = c.createStatement().executeQuery(
-          "SELECT base, last FROM sprites_found ORDER BY base")) {
-        while (rs.next())
-          bases.add(new int[]{rs.getInt(1), rs.getInt(2)});
-      }
-      try (ResultSet rs = c.createStatement().executeQuery(
-          "SELECT gfx, w, h, COUNT(*) FROM sprite_draws WHERE kind='P' AND gfx>=0 GROUP BY gfx, w, h")) {
-        while (rs.next()) {
-          int gfx = rs.getInt(1);
-          int[] sp = spriteContaining(bases, gfx);
-          if (sp != null)
-            sizeVotes.computeIfAbsent(sp[0], k -> new HashMap<>())
-                .merge(rs.getInt(2) + "x" + rs.getInt(3), rs.getInt(4), Integer::sum);
-        }
-      }
-      try (ResultSet rs = c.createStatement().executeQuery(
-          "SELECT base, last, size, veces, frame_first, frame_last, methods FROM sprites_found ORDER BY base")) {
-        while (rs.next()) {
-          Map<String, Object> s = new LinkedHashMap<>();
-          s.put("base", rs.getInt(1));
-          s.put("end", rs.getInt(2));
-          s.put("bytes", rs.getInt(3));
-          s.put("times_drawn", rs.getInt(4));
-          s.put("frames", List.of(rs.getInt(5), rs.getInt(6)));
-          s.put("routines", Arrays.asList(rs.getString(7).split(" ")));
-          Map<String, Integer> votes = sizeVotes.get(rs.getInt(1));
-          if (votes != null)
-            s.put("typical_draw", Collections.max(votes.entrySet(), Map.Entry.comparingByValue()).getKey());
-          out.add(s);
-        }
-      }
+    try (Db q = new Db(dbPath)) {
+      q.forEach("SELECT base, last FROM sprites_found ORDER BY base",
+          rs -> bases.add(new int[]{rs.getInt(1), rs.getInt(2)}));
+      q.forEach("SELECT gfx, w, h, COUNT(*) FROM sprite_draws WHERE kind='P' AND gfx>=0 GROUP BY gfx, w, h", rs -> {
+        int[] sp = spriteContaining(bases, rs.getInt(1));
+        if (sp != null)
+          sizeVotes.computeIfAbsent(sp[0], k -> new HashMap<>())
+              .merge(rs.getInt(2) + "x" + rs.getInt(3), rs.getInt(4), Integer::sum);
+      });
+      q.forEach("SELECT base, last, size, veces, frame_first, frame_last, methods FROM sprites_found ORDER BY base", rs -> {
+        Map<String, Object> s = new LinkedHashMap<>();
+        s.put("base", rs.getInt(1));
+        s.put("end", rs.getInt(2));
+        s.put("bytes", rs.getInt(3));
+        s.put("times_drawn", rs.getInt(4));
+        s.put("frames", List.of(rs.getInt(5), rs.getInt(6)));
+        s.put("routines", Arrays.asList(rs.getString(7).split(" ")));
+        Map<String, Integer> votes = sizeVotes.get(rs.getInt(1));
+        if (votes != null)
+          s.put("typical_draw", Collections.max(votes.entrySet(), Map.Entry.comparingByValue()).getKey());
+        out.add(s);
+      });
     }
     return out;
   }
@@ -845,14 +827,12 @@ public class GameModelExporter {
     record Pair(int xAddr, String xT, int xOff, int yAddr, String yT, int yOff, double rate) {
     }
     List<Pair> strong = new ArrayList<>(), weak = new ArrayList<>();
-    try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-         ResultSet rs = c.createStatement().executeQuery(
-             "SELECT x_addr,x_transform,x_off,y_addr,y_transform,y_off,rate FROM coord_pairs ORDER BY x_addr")) {
-      while (rs.next()) {
+    try (Db q = new Db(dbPath)) {
+      q.forEach("SELECT x_addr,x_transform,x_off,y_addr,y_transform,y_off,rate FROM coord_pairs ORDER BY x_addr", rs -> {
         Pair p = new Pair(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getInt(4),
             rs.getString(5), rs.getInt(6), rs.getDouble(7));
         (p.rate() >= 0.10 ? strong : weak).add(p);
-      }
+      });
     }
     // best confidence-weighted stride run over the strong pair X addresses
     List<Integer> xs = strong.stream().map(Pair::xAddr).sorted().distinct().toList();
@@ -957,16 +937,11 @@ public class GameModelExporter {
   private List<Object> variables() throws SQLException {
     Map<Integer, String> coordAxis = new HashMap<>();
     Map<Integer, int[]> stats = new HashMap<>(); // addr -> {min, max, distintos}
-    try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
-      try (ResultSet rs = c.createStatement().executeQuery("SELECT addr, axis FROM coord_cells")) {
-        while (rs.next())
-          coordAxis.putIfAbsent(rs.getInt(1), rs.getString(2));
-      }
-      try (ResultSet rs = c.createStatement().executeQuery(
-          "SELECT addr, MIN(val), MAX(val), COUNT(DISTINCT val) FROM frame_cells GROUP BY addr")) {
-        while (rs.next())
-          stats.put(rs.getInt(1), new int[]{rs.getInt(2), rs.getInt(3), rs.getInt(4)});
-      }
+    try (Db q = new Db(dbPath)) {
+      q.forEach("SELECT addr, axis FROM coord_cells",
+          rs -> coordAxis.putIfAbsent(rs.getInt(1), rs.getString(2)));
+      q.forEach("SELECT addr, MIN(val), MAX(val), COUNT(DISTINCT val) FROM frame_cells GROUP BY addr",
+          rs -> stats.put(rs.getInt(1), new int[]{rs.getInt(2), rs.getInt(3), rs.getInt(4)}));
     }
     List<Object> out = new ArrayList<>();
     for (int[] rg : plan.watchRanges()) {
@@ -996,26 +971,20 @@ public class GameModelExporter {
     // typical pixel/attr cluster per method + path counts, from sprite_draws
     Map<Integer, Map<String, long[]>> byMethodKind = new HashMap<>(); // m -> kind -> {bestCount, w, h, total}
     Map<Integer, Integer> pathsOf = new HashMap<>();
-    try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
-      try (ResultSet rs = c.createStatement().executeQuery(
-          "SELECT method, kind, w, h, COUNT(*) FROM sprite_draws GROUP BY 1,2,3,4")) {
-        while (rs.next()) {
-          long n = rs.getLong(5);
-          long[] cur = byMethodKind.computeIfAbsent(rs.getInt(1), k -> new HashMap<>())
-              .computeIfAbsent(rs.getString(2), k -> new long[]{0, 0, 0, 0});
-          cur[3] += n;
-          if (n > cur[0]) {
-            cur[0] = n;
-            cur[1] = rs.getInt(3);
-            cur[2] = rs.getInt(4);
-          }
+    try (Db q = new Db(dbPath)) {
+      q.forEach("SELECT method, kind, w, h, COUNT(*) FROM sprite_draws GROUP BY 1,2,3,4", rs -> {
+        long n = rs.getLong(5);
+        long[] cur = byMethodKind.computeIfAbsent(rs.getInt(1), k -> new HashMap<>())
+            .computeIfAbsent(rs.getString(2), k -> new long[]{0, 0, 0, 0});
+        cur[3] += n;
+        if (n > cur[0]) {
+          cur[0] = n;
+          cur[1] = rs.getInt(3);
+          cur[2] = rs.getInt(4);
         }
-      }
-      try (ResultSet rs = c.createStatement().executeQuery(
-          "SELECT method, COUNT(DISTINCT path) FROM sprite_draws GROUP BY 1")) {
-        while (rs.next())
-          pathsOf.put(rs.getInt(1), rs.getInt(2));
-      }
+      });
+      q.forEach("SELECT method, COUNT(DISTINCT path) FROM sprite_draws GROUP BY 1",
+          rs -> pathsOf.put(rs.getInt(1), rs.getInt(2)));
     }
     // which methods read the ROM font (text renderers)
     Set<String> romReaders = new HashSet<>();
@@ -1074,11 +1043,8 @@ public class GameModelExporter {
   }
 
   private List<Object> episodes() throws SQLException {
-    List<Object> out = new ArrayList<>();
-    try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-         ResultSet rs = c.createStatement().executeQuery(
-             "SELECT method, path, count, gfx_lo, gfx_hi, cond FROM episodes ORDER BY count DESC")) {
-      while (rs.next()) {
+    try (Db q = new Db(dbPath)) {
+      return q.query("SELECT method, path, count, gfx_lo, gfx_hi, cond FROM episodes ORDER BY count DESC", rs -> {
         Map<String, Object> e = new LinkedHashMap<>();
         e.put("routine", "$" + rs.getInt(1));
         e.put("path", String.format("%08x", rs.getInt(2)));
@@ -1088,15 +1054,9 @@ public class GameModelExporter {
         String cond = rs.getString(6);
         if (cond != null && !cond.isEmpty())
           e.put("condition", cond);
-        out.add(e);
-      }
+        return (Object) e;
+      });
     }
-    return out;
   }
 
-  private static long scalar(Connection c, String sql) throws SQLException {
-    try (ResultSet rs = c.createStatement().executeQuery(sql)) {
-      return rs.next() ? rs.getLong(1) : -1;
-    }
-  }
 }
