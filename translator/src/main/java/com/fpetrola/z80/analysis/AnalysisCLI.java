@@ -36,6 +36,8 @@ package com.fpetrola.z80.analysis;
  *   AnalysisCLI export [salida.json]                        modelo del juego consolidado en JSON
  *   AnalysisCLI segments                                    particion de la memoria por conjunto-de-acceso:
  *                                                           segmentos privados (encapsulables) + fugas
+ *   AnalysisCLI screen                                      geometria de pantalla: tabla de filas ->
+ *                                                           rectangulo (x,y), transformada T y su inversa
  *   AnalysisCLI coverage                                    corre todos los detectores y clasifica cada uno
  *                                                           (disparo/baja-confianza/vacio) + alarmas SMC/128K
  *   AnalysisCLI structs [metodo]                            estructuras de datos por rutina: campos,
@@ -98,6 +100,7 @@ public class AnalysisCLI {
         new Explainer(db, dbPath).explain(lo, hi, depth, fanout);
       }
       case "segments" -> new SegmentFinder(db).report();
+      case "screen" -> new ScreenMapper(db).report();
       case "coverage" -> new CoverageReport(db, dbPath).report();
       case "structs" -> new StructFinder(db, dbPath).report(args.length > 1 ? args[1] : null);
       case "rebuilds" -> new RebuildFinder(db, dbPath).report();
