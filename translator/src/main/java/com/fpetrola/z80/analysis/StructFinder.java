@@ -129,12 +129,50 @@ public class StructFinder {
     return out;
   }
 
+  /**
+   * Exact step by which the array cursor advances to the next record, parsed from the
+   * equations. Handles two shapes:
+   *   reg = add16(reg, 8)     -> literal step, works for any size (6, 12, ...)
+   *   reg = add16(reg, DE)    -> step held in a register; we resolve DE back to the last
+   *                              constant assigned to it (DE = 8) among the routine's sites.
+   * Returns null when no cursor advance is found (single-record access, or step is a
+   * runtime-varying value rather than a fixed record size).
+   */
+  private Integer parsedCursorStep(List<Integer> sites, String reg) {
+    for (int pc : sites) {
+      String eq = db.equation.get(pc);
+      if (eq == null)
+        continue;
+      Matcher m = Pattern.compile(reg + " = add16\\(" + reg + ", (\\w+)\\)").matcher(eq);
+      if (!m.find())
+        continue;
+      String operand = m.group(1);
+      if (operand.matches("\\d+"))
+        return Integer.parseInt(operand);
+      // operand is a register: find the last constant assigned to it in this routine
+      Integer resolved = null;
+      for (int pc2 : sites) {
+        String eq2 = db.equation.get(pc2);
+        if (eq2 == null)
+          continue;
+        Matcher m2 = Pattern.compile("\\b" + operand + " = (\\d+)\\b").matcher(eq2);
+        if (m2.find())
+          resolved = Integer.parseInt(m2.group(1));
+      }
+      if (resolved != null)
+        return resolved;
+    }
+    return null;
+  }
+
   private Map<String, Object> buildStruct(String method, List<Integer> sites, String reg,
                                           List<FieldAccess> accesses) {
-    // geometry from observed addresses: stride first (lowest varying address bit),
-    // then base/end folding offsets >= stride (those reach the NEXT element: +9 in an
-    // 8-byte record is really field +1 of element+1)
-    int stride = 0;
+    // stride: PREFER the exact cursor increment parsed from the equations — it works
+    // for ANY record size (6, 12, ... included). The lowest-varying-address-bit trick
+    // only sees powers of two (a stride-6 cursor flips bit 1 first and would report 2),
+    // so it stays as fallback and cross-check.
+    Integer parsedStep = parsedCursorStep(sites, reg);
+    int bitStride = 0;
     for (FieldAccess fa : accesses) {
       AnalysisDB.Stat s = (fa.op() == 'W' ? db.writes : db.reads).get(fa.site());
       if (s == null)
@@ -142,11 +180,23 @@ public class StructFinder {
       int varying = s.addrAnd() ^ s.addrOr();
       if (varying != 0) {
         int lowest = Integer.lowestOneBit(varying);
-        stride = stride == 0 ? lowest : Math.min(stride, lowest);
+        bitStride = bitStride == 0 ? lowest : Math.min(bitStride, lowest);
       }
     }
-    if (stride == 0)
+    int stride;
+    String strideFuente;
+    if (parsedStep != null && parsedStep >= 2 && parsedStep <= 64) {
+      stride = parsedStep;
+      // sanity: the varying bits of a stride-N cursor must be consistent with N
+      strideFuente = "avance del cursor" + (bitStride != 0 && stride % bitStride != 0
+          ? " (INCONSISTENTE con los bits de direccion observados)" : "");
+    } else if (bitStride != 0) {
+      stride = bitStride;
+      strideFuente = "bit de direccion mas bajo que varia (solo detecta potencias de 2)";
+    } else {
       stride = accesses.stream().mapToInt(FieldAccess::offset).max().orElse(0) + 1;
+      strideFuente = "maximo offset visto (sin evidencia de avance)";
+    }
     int base = Integer.MAX_VALUE, end = Integer.MIN_VALUE;
     for (FieldAccess fa : accesses) {
       AnalysisDB.Stat s = (fa.op() == 'W' ? db.writes : db.reads).get(fa.site());
@@ -166,14 +216,18 @@ public class StructFinder {
     st.put("cursor", reg);
     st.put("base", base);
     st.put("registro_bytes", stride);
+    st.put("stride_fuente", strideFuente);
     st.put("elementos", elems);
     st.put("rango", List.of(base, tableEnd));
-    for (int pc : sites) {
-      String eq = db.equation.get(pc);
-      if (eq != null && eq.matches(".*" + reg + " = add16\\(" + reg + ", \\d+\\).*")) {
-        Matcher m = Pattern.compile("add16\\(" + reg + ", (\\d+)\\)").matcher(eq);
-        if (m.find())
-          st.put("avance_cursor", Map.of("paso", Integer.parseInt(m.group(1)), "site", pc));
+    // record the cursor-advance site only when its parsed step is the stride we adopted,
+    // so the reported step never contradicts registro_bytes
+    if (parsedStep != null && parsedStep == stride) {
+      for (int pc : sites) {
+        String eq = db.equation.get(pc);
+        if (eq != null && eq.matches(".*" + reg + " = add16\\(" + reg + ", .+\\).*")) {
+          st.put("avance_cursor", Map.of("paso", parsedStep, "site", pc));
+          break;
+        }
       }
     }
 
@@ -565,6 +619,9 @@ public class StructFinder {
         (int) st.get("elementos"), ((List<Integer>) st.get("rango")).get(0), ((List<Integer>) st.get("rango")).get(1),
         st.containsKey("avance_cursor")
             ? "  (avance del cursor: +" + ((Map<String, Object>) st.get("avance_cursor")).get("paso") + ")" : "");
+    String sf = (String) st.get("stride_fuente");
+    if (sf != null && !sf.startsWith("avance del cursor"))
+      System.out.printf("    (stride estimado por %s)%n", sf);
     for (Object fo : (List<Object>) st.get("campos")) {
       Map<String, Object> f = (Map<String, Object>) fo;
       List<Integer> val = (List<Integer>) f.get("valores");
