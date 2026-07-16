@@ -384,7 +384,7 @@ class Z80OpcodeInfo {
   private void jumpOperand(ImmutableOpcodeReference<?> position) {
     if (position instanceof Register<?> r)
       for (int s : slots(r))
-        addRead(s, r.getName(), 'A');
+        addRead(s, Tracer.CH_NAME[s], 'A');
   }
 
   private void rmw(OpcodeReference<?> target) {
@@ -426,7 +426,7 @@ class Z80OpcodeInfo {
   private void readRef(Object ref, char valueRole) {
     if (ref instanceof Register<?> r) {
       for (int s : slots(r))
-        addRead(s, r.getName(), valueRole);
+        addRead(s, Tracer.CH_NAME[s], valueRole);
     } else if (ref instanceof IndirectMemory8BitReference<?> m) {
       addrReads(m);
       addRole("MEM", 'V');
@@ -447,15 +447,15 @@ class Z80OpcodeInfo {
     if (ref instanceof IndirectMemory8BitReference<?> m) {
       if (m.target instanceof Register<?> r)
         for (int s : slots(r))
-          addRead(s, r.getName(), 'A');
+          addRead(s, Tracer.CH_NAME[s], 'A');
     } else if (ref instanceof IndirectMemory16BitReference<?> m) {
       if (m.target instanceof Register<?> r)
         for (int s : slots(r))
-          addRead(s, r.getName(), 'A');
+          addRead(s, Tracer.CH_NAME[s], 'A');
     } else if (ref instanceof MemoryPlusRegister8BitReference<?> m) {
       if (m.getTarget() instanceof Register<?> r)
         for (int s : slots(r))
-          addRead(s, r.getName(), 'A');
+          addRead(s, Tracer.CH_NAME[s], 'A');
     }
   }
 
