@@ -46,10 +46,10 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * The Z80-SIDE producer of the analysis capture: runs an RZX replay of the ORIGINAL game on
- * the OOZ80 emulator and feeds the same {@link Tracer} the instrumented-Java runner feeds —
- * so the whole detector framework (segments, screen, texts, structs, coverage, ...) works on
- * ANY game, with no Java conversion step. The Java pipeline derives each site's roles and
+ * The Z80-SIDE producer of the analysis capture ({@link CaptureSource}): runs an RZX replay of
+ * the ORIGINAL game on the OOZ80 emulator and feeds the same {@link Tracer} the instrumented-Java
+ * runner feeds — so the whole detector framework (segments, screen, texts, structs, coverage, ...)
+ * works on ANY game, with no Java conversion step. The Java pipeline derives each site's roles and
  * equation by parsing the decompiled source with Spoon; here they come straight from the
  * decoded opcode ({@link Z80OpcodeInfo}), which is the primary source anyway.
  *
@@ -71,24 +71,33 @@ import java.util.*;
 public class Z80AnalysisRunner {
 
   public static void main(String[] args) throws Exception {
-    String rzx = args.length > 0 ? args[0] : RzxBootstrap.DEFAULT_RZX;
-    run(rzx, "analysis/analysis.db", "analysis/sites-z80.json");
+    source().capture(args.length > 0 ? args[0] : RzxBootstrap.DEFAULT_RZX, "analysis/analysis.db");
     System.exit(0);
   }
 
-  public static void run(String rzxPath, String dbPath, String sitesJsonPath) throws Exception {
-    TraceListener listener = replay(rzxPath, false);
-    listener.writeSites(sitesJsonPath);
-    AnalysisDump.dump(dbPath, sitesJsonPath);
-    System.out.println(Tracer.summary());
+  /** this runner as a {@link CaptureSource}: the original game on the emulator, any RZX. */
+  public static CaptureSource source() {
+    return new Z80Source();
   }
 
-  /**
-   * The targeted re-run of the "track" pipeline, emulator-side: same replay, but with the
-   * {@link TrackLog} bridge active (TrackLog must be configured by the caller first).
-   */
-  public static void trackReplay(String rzxPath) throws Exception {
-    replay(rzxPath, true);
+  static class Z80Source implements CaptureSource {
+    @Override
+    public String name() {
+      return "z80";
+    }
+
+    /** roles and equations are derived from the decoded opcodes by the replay itself. */
+    @Override
+    public String sitesJson() {
+      return "analysis/sites-z80.json";
+    }
+
+    @Override
+    public void replay(String rzxPath, boolean track) throws Exception {
+      TraceListener listener = Z80AnalysisRunner.replay(rzxPath, track);
+      if (!track)
+        listener.writeSites(sitesJson());
+    }
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -128,8 +137,7 @@ public class Z80AnalysisRunner {
         return;
       if (a >= 0 && a <= 0xffff) {
         Tracer.rd(Tracer.currentPc, a, value == null ? 0 : value.intValue());
-        if (track && TrackLog.readSites[Tracer.currentPc & 0xffff])
-          TrackLog.read(Tracer.currentPc, a);
+        TrackLog.onRead(Tracer.currentPc, a);
       }
     });
     memory.addMemoryWriteListener((address, value) -> {
@@ -139,8 +147,7 @@ public class Z80AnalysisRunner {
           listener.shadowMem[a] = value == null ? 0 : value.intValue(); // block copies included
         if (listener.inExecution && !listener.suppress) {
           Tracer.wr(Tracer.currentPc, a, value == null ? 0 : value.intValue());
-          if (track && TrackLog.writeSites[Tracer.currentPc & 0xffff])
-            TrackLog.write(Tracer.currentPc, a);
+          TrackLog.onWrite(Tracer.currentPc, a);
         }
       }
       return value;
@@ -229,9 +236,7 @@ public class Z80AnalysisRunner {
           lastFrame = Tracer.currentFrame;
           TrackLog.onFrame(Tracer.currentFrame, shadowMem);
         }
-        if (TrackLog.entrySites[pc])
-          TrackLog.entry(pc, shadowMem);
-        TrackLog.pcHash(pc);
+        TrackLog.onPc(pc, shadowMem);
       }
       Tracer.boundary(pc);
       Tracer.currentPc = pc;

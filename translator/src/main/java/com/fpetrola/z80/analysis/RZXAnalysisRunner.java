@@ -23,12 +23,18 @@ import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.RZXPlayerIO;
 import com.fpetrola.z80.opcodes.references.WordNumber;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.function.Predicate;
 
 /**
- * Runs the full RZX with the instrumented game, feeding the Tracer through the
- * wMem/mem/ldir/pc overrides, and dumps per-site aggregates plus per-frame memory
- * hashes for the semantic-identity verification against {@link BaselineRunner}.
+ * The JAVA-SIDE producer of the analysis capture: runs the full RZX with the converted and
+ * instrumented game, feeding the same {@link Tracer} the emulator-side {@link Z80AnalysisRunner}
+ * feeds, through the wMem/mem/ldir/pc overrides. The {@link TrackLog} bridge rides along on the
+ * same overrides and stays inert until a tracked run configures it.
+ * <p>
+ * Per-frame memory hashes are dumped for the semantic-identity verification against
+ * {@link BaselineRunner}: they prove the Spoon transformation preserved semantics.
  */
 public class RZXAnalysisRunner extends JetSetWilly2Instrumented {
   final RzxBootstrap bootstrap;
@@ -42,18 +48,22 @@ public class RZXAnalysisRunner extends JetSetWilly2Instrumented {
   public int mem(int address, int pc) {
     int v = super.mem(address, pc);
     Tracer.rd(pc, address, v);
+    TrackLog.onRead(pc, address);
     return v;
   }
 
   @Override
   public void wMem(int address, int value, int pc) {
     Tracer.wr(pc, address, value);
+    TrackLog.onWrite(pc, address);
     super.wMem(address, value, pc);
   }
 
   @Override
   public void ldir() {
-    Tracer.bulk(Tracer.currentPc, HL(), DE(), BC());
+    int hl = HL(), de = DE(), bc = BC();
+    TrackLog.bulkCopy(hl, de, bc); // graphics-buffer reload: sprite identity source
+    Tracer.bulk(Tracer.currentPc, hl, de, bc);
     super.ldir();
   }
 
@@ -65,6 +75,8 @@ public class RZXAnalysisRunner extends JetSetWilly2Instrumented {
       bootstrap.onPc(address);
     }
     super.pc(address, rdelta);
+    if (address >= 0)
+      TrackLog.onPc(address, mem); // after bootstrap.onPc: the FRAME marker and its cell deltas come first
   }
 
   // ================= F2: register provenance =================
@@ -149,30 +161,56 @@ public class RZXAnalysisRunner extends JetSetWilly2Instrumented {
   }
   // ================= end F2 =================
 
-  /** full aggregate pass: runs the RZX and dumps hashes + JSON + SQLite. Reusable from SpriteTracker. */
-  public static void runAggregate(String rzxPath) {
-    System.setProperty("minizx.headless", "true");
-    RZXPlayerIO<WordNumber> io = new RZXPlayerIO<>();
-    RZXAnalysisRunner game = new RZXAnalysisRunner(io, io.getInterruptionCondition(), rzxPath);
-    long start = System.currentTimeMillis();
-    try {
-      game.$34463();
-    } catch (RuntimeException e) {
-      System.out.println("Run ended: " + e.getMessage());
-    }
-    System.out.println("Elapsed: " + (System.currentTimeMillis() - start) / 1000 + "s");
-    game.bootstrap.hasher.dump("analysis/instrumented-hashes.txt");
-    Tracer.dump("analysis/analysis-f1.json");
-    try {
-      AnalysisDump.dump("analysis/analysis.db", "translator/src/main/resources/analysis/sites.json");
-    } catch (Exception e) {
-      System.out.println("SQLite dump failed: " + e);
-    }
-    System.out.println(Tracer.summary());
+  /** this runner as a {@link CaptureSource}: the converted+instrumented game. */
+  public static CaptureSource source() {
+    return new JavaSource();
   }
 
-  public static void main(String[] args) {
-    runAggregate(args.length > 0 ? args[0] : RzxBootstrap.DEFAULT_RZX);
+  static class JavaSource implements CaptureSource {
+    static final String AGGREGATE_HASHES = "analysis/instrumented-hashes.txt";
+    static final String TRACK_HASHES = "analysis/track-hashes.txt";
+    private RZXAnalysisRunner game;
+
+    @Override
+    public String name() {
+      return "java";
+    }
+
+    /** roles and equations come from the offline Spoon extraction ({@link EquationExtractor}). */
+    @Override
+    public String sitesJson() {
+      return "translator/src/main/resources/analysis/sites.json";
+    }
+
+    @Override
+    public void replay(String rzxPath, boolean track) {
+      System.setProperty("minizx.headless", "true");
+      RZXPlayerIO<WordNumber> io = new RZXPlayerIO<>();
+      game = new RZXAnalysisRunner(io, io.getInterruptionCondition(), rzxPath);
+      long start = System.currentTimeMillis();
+      try {
+        game.$34463();
+      } catch (RuntimeException e) {
+        System.out.println("Run ended: " + e.getMessage());
+      }
+      System.out.println("Elapsed: " + (System.currentTimeMillis() - start) / 1000 + "s");
+    }
+
+    /** capture must be passive: a tracked run's per-frame hashes must match the aggregate's. */
+    @Override
+    public void verify(boolean track) throws Exception {
+      game.bootstrap.hasher.dump(track ? TRACK_HASHES : AGGREGATE_HASHES);
+      if (track) {
+        if (Files.exists(Path.of(AGGREGATE_HASHES)))
+          FrameHasher.compare(AGGREGATE_HASHES, TRACK_HASHES);
+      } else {
+        Tracer.dump("analysis/analysis-f1.json");
+      }
+    }
+  }
+
+  public static void main(String[] args) throws Exception {
+    source().capture(args.length > 0 ? args[0] : RzxBootstrap.DEFAULT_RZX, "analysis/analysis.db");
     System.exit(0);
   }
 }

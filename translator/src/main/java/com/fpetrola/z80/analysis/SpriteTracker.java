@@ -18,14 +18,10 @@
 
 package com.fpetrola.z80.analysis;
 
-import com.fpetrola.z80.minizx.RZXPlayerIO;
-import com.fpetrola.z80.opcodes.references.WordNumber;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.*;
 import java.util.*;
-import java.util.function.Predicate;
 
 /**
  * F5 (targeted) — the "track" command: end-to-end automatic sprite position extraction.
@@ -46,44 +42,6 @@ import java.util.function.Predicate;
  * run's.
  */
 public class SpriteTracker {
-
-  /** aggregate capture (inherited) + targeted per-instance logging. */
-  static class TrackRunner extends RZXAnalysisRunner {
-    TrackRunner(RZXPlayerIO<WordNumber> io, Predicate<Integer> cond, String rzxPath) {
-      super(io, cond, rzxPath);
-    }
-
-    @Override
-    public void wMem(int address, int value, int pc) {
-      super.wMem(address, value, pc);
-      if (TrackLog.writeSites[pc & 0xFFFF])
-        TrackLog.write(pc, address);
-    }
-
-    @Override
-    public int mem(int address, int pc) {
-      int v = super.mem(address, pc);
-      if (TrackLog.readSites[pc & 0xFFFF])
-        TrackLog.read(pc, address);
-      return v;
-    }
-
-    @Override
-    public void pc(int address, int rdelta) {
-      super.pc(address, rdelta);
-      if (address >= 0) {
-        if (TrackLog.entrySites[address])
-          TrackLog.entry(address, mem);
-        TrackLog.pcHash(address);
-      }
-    }
-
-    @Override
-    public void ldir() {
-      TrackLog.bulkCopy(HL(), DE(), BC()); // graphics-buffer reload: sprite identity source
-      super.ldir();
-    }
-  }
 
   /**
    * one routine invocation that touched the screen: its top-left position and size, the
@@ -124,57 +82,26 @@ public class SpriteTracker {
     };
   }
 
-  public static void run(String dbPath, String rzxPath) throws Exception {
-    System.setProperty("minizx.headless", "true");
-    if (!Files.exists(Path.of(dbPath))) {
-      System.out.println("No existe " + dbPath + ": corriendo primero la pasada de agregados...\n");
-      RZXAnalysisRunner.runAggregate(rzxPath);
-    }
-    AnalysisDB db = new AnalysisDB(dbPath);
-    CoordinateFinder.Plan plan = new CoordinateFinder(db).find();
-    printPlan(plan);
-    configureTrackLog(db, dbPath, plan);
-
-    System.out.println("\n=== Re-corrida con tracking dirigido ===");
-    RZXPlayerIO<WordNumber> io = new RZXPlayerIO<>();
-    TrackRunner game = new TrackRunner(io, io.getInterruptionCondition(), rzxPath);
-    long start = System.currentTimeMillis();
-    try {
-      game.$34463();
-    } catch (RuntimeException e) {
-      System.out.println("Run ended: " + e.getMessage());
-    }
-    System.out.println("Track run: " + (System.currentTimeMillis() - start) / 1000 + "s, "
-        + TrackLog.size() + " eventos");
-    TrackLog.enabled = false;
-
-    game.bootstrap.hasher.dump("analysis/track-hashes.txt");
-    if (Files.exists(Path.of("analysis/instrumented-hashes.txt")))
-      FrameHasher.compare("analysis/instrumented-hashes.txt", "analysis/track-hashes.txt");
-
-    postProcess(db, dbPath, plan);
-  }
-
   /**
-   * The same track pipeline with the re-run on the Z80 EMULATOR ({@link Z80AnalysisRunner}):
-   * works for any game whose aggregate DB came from an RZX replay, no Java conversion needed.
+   * The whole track pipeline, producer-agnostic: the {@link CaptureSource} is the ONLY thing
+   * that differs between running the game converted to Java and running the original on the
+   * emulator — plan, tracking configuration and post-processing are the same code either way.
    */
-  public static void runZ80(String dbPath, String rzxPath) throws Exception {
+  public static void track(CaptureSource source, String dbPath, String rzxPath) throws Exception {
     if (!Files.exists(Path.of(dbPath))) {
       System.out.println("No existe " + dbPath + ": corriendo primero la pasada de agregados...\n");
-      Z80AnalysisRunner.run(rzxPath, dbPath, "analysis/sites-z80.json");
+      source.capture(rzxPath, dbPath);
     }
     AnalysisDB db = new AnalysisDB(dbPath);
     CoordinateFinder.Plan plan = new CoordinateFinder(db).find();
     printPlan(plan);
     configureTrackLog(db, dbPath, plan);
 
-    System.out.println("\n=== Re-corrida con tracking dirigido (emulador) ===");
-    long start = System.currentTimeMillis();
-    Z80AnalysisRunner.trackReplay(rzxPath);
-    System.out.println("Track run: " + (System.currentTimeMillis() - start) / 1000 + "s, "
-        + TrackLog.size() + " eventos");
+    System.out.println("\n=== Re-corrida con tracking dirigido (" + source.name() + ") ===");
+    source.replay(rzxPath, true);
+    System.out.println("Track run: " + TrackLog.size() + " eventos");
     TrackLog.enabled = false;
+    source.verify(true);
 
     postProcess(db, dbPath, plan);
   }
@@ -1174,7 +1101,7 @@ public class SpriteTracker {
   }
 
   public static void main(String[] args) throws Exception {
-    run(System.getProperty("analysis.db", "analysis/analysis.db"),
+    track(RZXAnalysisRunner.source(), System.getProperty("analysis.db", "analysis/analysis.db"),
         args.length > 0 ? args[0] : RzxBootstrap.DEFAULT_RZX);
     System.exit(0);
   }

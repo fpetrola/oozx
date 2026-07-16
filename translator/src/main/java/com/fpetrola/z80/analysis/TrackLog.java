@@ -109,22 +109,32 @@ public final class TrackLog {
     enabled = true;
   }
 
-  public static void write(int site, int addr) {
-    append(EV_WRITE, site, addr);
+  /**
+   * a store just executed. The "is this site interesting" gate lives here, next to the site
+   * arrays it consults, so a {@link CaptureSource} only has to report what its execution did.
+   */
+  public static void onWrite(int site, int addr) {
+    if (enabled && writeSites[site & 0xFFFF])
+      append(EV_WRITE, site, addr);
   }
 
-  public static void read(int site, int addr) {
-    append(EV_READ, site, addr);
+  /** a data read just executed: logged only when the site reads graphics (sprite identity). */
+  public static void onRead(int site, int addr) {
+    if (enabled && readSites[site & 0xFFFF])
+      append(EV_READ, site, addr);
   }
 
-  public static void pcHash(int pc) {
+  /** an instruction is executing at pc: opens an invocation on a draw entry, and feeds the path hash. */
+  public static void onPc(int pc, int[] mem) {
+    if (!enabled)
+      return;
+    if (entrySites[pc & 0xFFFF])
+      entry(pc, mem);
     if (collecting)
       pathHash = pathHash * 31 + pc;
   }
 
-  public static void entry(int pc, int[] mem) {
-    if (!enabled)
-      return;
+  private static void entry(int pc, int[] mem) {
     if (collecting)
       append(EV_PATH, pathHash >>> 16, pathHash & 0xFFFF);
     cellDeltas(mem);

@@ -50,23 +50,36 @@ package com.fpetrola.z80.analysis;
  *   AnalysisCLI records                                     campos del registro singleton reconstruido
  *                                                           (layout, tiles, punteros, enlaces, huecos)
  * </pre>
+ * Los comandos que pueden necesitar una captura (track, map, export) eligen el productor
+ * ({@link CaptureSource}) con {@code -Danalysis.source=java|z80}; z80run/z80track fuerzan el
+ * emulador. La DB sale con {@code -Danalysis.db=<path>}.
  */
 public class AnalysisCLI {
+  /**
+   * which producer a command that may need a capture should use: {@code -Danalysis.source=z80}
+   * runs the ORIGINAL game on the emulator (any game), the default runs the converted Java one.
+   * The z80* commands pick their source explicitly and ignore the property.
+   */
+  private static CaptureSource source() {
+    return "z80".equals(System.getProperty("analysis.source", "java"))
+        ? Z80AnalysisRunner.source() : RZXAnalysisRunner.source();
+  }
+
   public static void main(String[] args) throws Exception {
     String dbPath = System.getProperty("analysis.db", "analysis/analysis.db");
     String cmd = args.length > 0 ? args[0] : "sprites";
+    String rzx = args.length > 1 ? args[1] : RzxBootstrap.DEFAULT_RZX;
     switch (cmd) {
       case "track" -> {
-        SpriteTracker.run(dbPath, args.length > 1 ? args[1] : RzxBootstrap.DEFAULT_RZX);
+        SpriteTracker.track(RZXAnalysisRunner.source(), dbPath, rzx);
         System.exit(0);
       }
       case "z80run" -> {
-        Z80AnalysisRunner.run(args.length > 1 ? args[1] : RzxBootstrap.DEFAULT_RZX,
-            dbPath, "analysis/sites-z80.json");
+        Z80AnalysisRunner.source().capture(rzx, dbPath);
         System.exit(0);
       }
       case "z80track" -> {
-        SpriteTracker.runZ80(dbPath, args.length > 1 ? args[1] : RzxBootstrap.DEFAULT_RZX);
+        SpriteTracker.track(Z80AnalysisRunner.source(), dbPath, rzx);
         System.exit(0);
       }
       case "positions" -> {
@@ -75,11 +88,11 @@ public class AnalysisCLI {
         return;
       }
       case "map" -> {
-        GameMapper.run(dbPath, args.length > 1 ? args[1] : RzxBootstrap.DEFAULT_RZX);
+        GameMapper.run(source(), dbPath, rzx);
         System.exit(0);
       }
       case "export" -> {
-        GameMapper.ensureTracked(dbPath, RzxBootstrap.DEFAULT_RZX);
+        GameMapper.ensureTracked(source(), dbPath, RzxBootstrap.DEFAULT_RZX);
         new GameModelExporter(new AnalysisDB(dbPath), dbPath)
             .export(args.length > 1 ? args[1] : "analysis/game-model.json");
         System.exit(0);

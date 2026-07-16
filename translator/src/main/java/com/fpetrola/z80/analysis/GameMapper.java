@@ -375,21 +375,21 @@ public class GameMapper {
     return "@" + pc + (m != null ? " [" + m + "]" : "");
   }
 
-  /** ensures the track tables exist, running the track pipeline if they are missing. */
-  public static void ensureTracked(String dbPath, String rzxPath) throws Exception {
+  /** ensures the track tables exist, running the track pipeline on the given source if missing. */
+  public static void ensureTracked(CaptureSource source, String dbPath, String rzxPath) throws Exception {
     boolean hasTrack;
     try (Db q = new Db(dbPath)) {
       hasTrack = q.hasTable("coord_pairs");
     }
     if (!hasTrack) {
       System.out.println("Faltan las tablas de track: corriendo el pipeline completo primero...\n");
-      SpriteTracker.run(dbPath, rzxPath);
+      SpriteTracker.track(source, dbPath, rzxPath);
       System.out.println();
     }
   }
 
-  public static void run(String dbPath, String rzxPath) throws Exception {
-    ensureTracked(dbPath, rzxPath);
+  public static void run(CaptureSource source, String dbPath, String rzxPath) throws Exception {
+    ensureTracked(source, dbPath, rzxPath);
     new GameMapper(new AnalysisDB(dbPath), dbPath).report(dbPath);
   }
 }

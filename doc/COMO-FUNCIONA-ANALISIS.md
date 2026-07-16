@@ -92,6 +92,14 @@ consulta que más información da sobre el juego.
   `regProv[23]` (qué site escribió cada registro), `curSrc` (fuentes de la instrucción en
   curso), `edges`/`cfg` (`EdgeMap`: hash open-addressing long→count, sin boxing),
   `readsF[]`, `ioSites[]`, `stackProv`.
+- **`CaptureSource`**: el contrato de un productor — `replay(rzx, track)`, `sitesJson()`,
+  `verify(track)` y el default `capture(rzx, db)` (= replay + catálogo de sites +
+  `analysis.db`). Hay DOS implementaciones y son intercambiables en todo el pipeline:
+  `RZXAnalysisRunner.source()` (juego convertido a Java) y `Z80AnalysisRunner.source()`
+  (juego original emulado, cualquier RZX sin conversión). De `capture()` para abajo nada
+  sabe cuál corrió. Lo único que difiere de verdad es de dónde salen los roles/ecuaciones
+  de cada site: Spoon sobre el fuente decompilado vs. el opcode decodificado
+  (`Z80OpcodeInfo`).
 - **`RZXAnalysisRunner extends JetSetWilly2Instrumented`**: overrides de `mem`/`wMem`
   (→ `Tracer.rd`/`wr`), `ldir` (→ `Tracer.bulk`: agrega rangos, muestrea el
   `lastWriterMem` del origen para unir cadenas de copias, y marca el destino),
@@ -99,8 +107,10 @@ consulta que más información da sobre el juego.
   **todos** los accessors de registros de 8/16 bits y shadow (getter → `regRead`, setter
   → `regWrite`), los helpers que escriben F por adentro (`rlc/rrc/rl/rr/sl/sr` →
   `flagWrite`), `push`/`pop` (provenance por stack), `in` (root de IO), `cpir` (lee mem
-  directo, se registra grueso). El `main` corre el RZX completo y al final vuelca
-  `analysis/analysis-f1.json`, `analysis/instrumented-hashes.txt` y `analysis/analysis.db`.
+  directo, se registra grueso). Los mismos overrides llevan el puente a `TrackLog`, que
+  queda inerte hasta que una corrida con tracking lo configura. El `main` corre el RZX
+  completo y al final vuelca `analysis/analysis-f1.json`,
+  `analysis/instrumented-hashes.txt` y `analysis/analysis.db`.
 - **`RzxBootstrap`** + **`FrameHasher`**: arranque del RZX y hash de `mem[]` por frame.
 - **`BaselineRunner`** (corre el original y hashea) + **`VerifyF1`** (compara los dos
   archivos de hashes: debe dar IDENTICAL).
@@ -247,11 +257,15 @@ manual**: ningún paso requiere leer un slice a ojo y decidir qué observar.
    chicos y mutables cuyas lecturas alimentan la DIRECCIÓN de esos writes — BFS hacia
    atrás con primer salto por edges ADDR) y tablas de consulta estáticas.
    (Si `analysis/analysis.db` no existe, corre primero la pasada de agregados.)
-2. **Re-corrida con `TrackLog`** (`SpriteTracker.TrackRunner extends RZXAnalysisRunner`):
-   log por instancia SOLO de lo descubierto — cada write de los draw-sites, cada entrada
-   a un método de dibujado y cada cambio de celda observada, en un único stream ordenado
-   de longs empaquetados (~3M eventos, +0 s de overhead perceptible). Se auto-verifica:
-   hashes por frame IDENTICAL contra la corrida de agregados.
+2. **Re-corrida con `TrackLog`** (`source.replay(rzx, track=true)`, con el mismo
+   `CaptureSource` de la pasada de agregados): log por instancia SOLO de lo descubierto —
+   cada write de los draw-sites, cada entrada a un método de dibujado y cada cambio de
+   celda observada, en un único stream ordenado de longs empaquetados (~3M eventos, +0 s
+   de overhead perceptible). Qué site se loguea lo decide `TrackLog` (`onWrite`/`onRead`/
+   `onPc` consultan sus propios arrays), no el productor: por eso el puente se escribe una
+   sola vez por productor y el pipeline es el mismo para Java y para el emulador. Se
+   auto-verifica: hashes por frame IDENTICAL contra la corrida de agregados (el productor
+   Java; el emulador no tiene hasher).
 3. **Clustering offline**: un cluster = una invocación de rutina de dibujado (marcada por
    su entry); sus writes se decodifican con el layout ZX (backbuffers incluidos vía los
    deltas de región) → tabla **`sprite_draws(frame, method, kind P/A, x, y, w, h, ...)`**
