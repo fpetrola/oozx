@@ -44,6 +44,7 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
   private List<OutListener> outListeners = new ArrayList<>();
   private int fetchCounter;
   public static boolean stop;
+  private static final boolean DEBUG_SYNC = Boolean.getBoolean("rzx.debug");
 
   public RZXPlayerIO() {
     miniZXKeyboard = new MiniZXKeyboard();
@@ -80,6 +81,9 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
     if ( stop)
       throw new RuntimeException("stop");
     if (inputs.isEmpty()) {
+      if (DEBUG_SYNC)
+        System.out.println("rzx-sync: frame " + currentFrameIndex
+            + " ran out of inputs BEFORE its interrupt (emulator consumed too many INs)");
       ++currentFrameIndex;
       changeFrame();
     }
@@ -136,6 +140,9 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
       fetchCounter = i;
       if (currentFrame != null)
         if (i - lastCount + 1 > currentFrame.fetchCounter) {
+          if (DEBUG_SYNC && !inputs.isEmpty())
+            System.out.println("rzx-sync: frame " + currentFrameIndex
+                + " reached its interrupt with unconsumed inputs (emulator consumed too few INs)");
           ++currentFrameIndex;
           changeFrame();
           lastCount = i;
