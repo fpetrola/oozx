@@ -113,7 +113,7 @@ public class EmulatedMiniZX<T extends WordNumber> {
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/wally.z80";
     url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80";
     url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/jsw/Jet Set Willy - Mildly Patched.rzx";
-
+url= "/home/fernando/detodo/spectrum/dynamitedan/dynamitedan.rzx";
 
     if (url.endsWith("rzx"))
       setRzxFile(url);
@@ -189,23 +189,26 @@ public class EmulatedMiniZX<T extends WordNumber> {
 
     GameData gameData = new GameData(url);
 
-    Z80Rewinder z80Rewinder = new Z80Rewinder(ooz80);
-    z80Rewinder.init();
-    StructureFinder structureFinder = new StructureFinder(ooz80, z80Rewinder);
-//    structureFinder.init();
-    MemoryRangesFinder<T> memoryRangesFinder = new MemoryRangesFinder<>(ooz80, structureFinder, gameData);
-//    memoryRangesFinder.init();
-    SpriteFinder<T> spriteFinder = new SpriteFinder<>(ooz80, gameData);
-//    spriteFinder.init();
-
-    SpriteAddressFinder<T> spriteAddressFinder = new SpriteAddressFinder<>(ooz80, gameData, z80Rewinder);
-    spriteAddressFinder.init();
+//    Z80Rewinder z80Rewinder = new Z80Rewinder(ooz80);
+////    z80Rewinder.init();
+//    StructureFinder structureFinder = new StructureFinder(ooz80, z80Rewinder);
+////    structureFinder.init();
+//    MemoryRangesFinder<T> memoryRangesFinder = new MemoryRangesFinder<>(ooz80, structureFinder, gameData);
+////    memoryRangesFinder.init();
+//    SpriteFinder<T> spriteFinder = new SpriteFinder<>(ooz80, gameData);
+////    spriteFinder.init();
+//
+//    SpriteAddressFinder<T> spriteAddressFinder = new SpriteAddressFinder<>(ooz80, gameData, z80Rewinder);
+//    spriteAddressFinder.init();
 
 //    VariableRangeFinder<T> variableRangeFinder = new VariableRangeFinder<>(ooz80, gameData);
 //    variableRangeFinder.init();
 
-    VerticalToolbarExample verticalToolbarExample = new VerticalToolbarExample(gameData, z80Rewinder, memoryRangesFinder, () -> new Thread(() -> emulator.emulate()).start());
-    Supplier<Boolean> pauseState = () -> verticalToolbarExample.pause;
+//    VerticalToolbarExample verticalToolbarExample = new VerticalToolbarExample(gameData, z80Rewinder, memoryRangesFinder, () -> new Thread(() -> emulator.emulate()).start());
+//    Supplier<Boolean> pauseState = () -> verticalToolbarExample.pause;
+
+    Supplier<Boolean> pauseState = () -> false;
+
 
     if (showScreen) {
       //      MiniZXScreen miniZXScreen1 = new MiniZXScreen(this.getMemFunction());

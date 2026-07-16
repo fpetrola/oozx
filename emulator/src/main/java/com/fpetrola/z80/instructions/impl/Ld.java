@@ -34,17 +34,7 @@ public class Ld<T extends WordNumber> extends TargetSourceInstruction<T, Immutab
   public int execute() {
     T value = source.read();
     T aLU8Assign = value;
-    if (source instanceof IndirectMemory8BitReference<T> indirectMemory8BitReference) {
-      T read = indirectMemory8BitReference.getTarget().read();
-      aLU8Assign = aLU8Assign.processOrigin(read);
-    } else if (source instanceof Memory8BitReference<T> || source instanceof Memory16BitReference<T>) {
-      aLU8Assign = (T) new DirectAccessWordNumber(value.intValue(), -2, Collections.emptySet());
-    }
 
-    if (target instanceof IndirectMemory8BitReference<T> indirectMemory8BitReference) {
-      T read = indirectMemory8BitReference.getTarget().read();
-      aLU8Assign = aLU8Assign.processOrigin(read);
-    }
     target.write(aLU8Assign);
 
     return cyclesCost;

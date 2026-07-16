@@ -106,7 +106,7 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
   private void printPC(Instruction<T> instruction, T pcValue, T nextPC) {
     String toString = new ToStringInstructionVisitor<T>().createToString(instruction);
     String x = String.format("%04d", pcValue.intValue()) + ": " + toString + " -> " + nextPC;
-    System.out.println(x);
+//    System.out.println(x);
   }
 
   @Override

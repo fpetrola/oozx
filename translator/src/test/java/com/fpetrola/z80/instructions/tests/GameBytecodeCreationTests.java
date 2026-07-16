@@ -205,7 +205,7 @@ public class GameBytecodeCreationTests<T extends WordNumber> {
   @Test
   public void testTranslateDynamite() {
     int emulateUntil = 0xC804;
-//    EmulatedMiniZX.rzxFile= "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/dynamitedan/dynamitedan.rzx";
+    EmulatedMiniZX.setRzxFile("/home/fernando/detodo/spectrum/dynamitedan/dynamitedan.rzx");
 //    StackAnalyzer.collecting= true;
 //    emulateUntil= 52879;
     String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, emulateUntil, "http://torinak.com/qaop/bin/dynamitedan");
