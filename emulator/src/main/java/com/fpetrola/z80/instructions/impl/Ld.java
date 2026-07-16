@@ -22,9 +22,6 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.se.DirectAccessWordNumber;
-
-import java.util.Collections;
 
 public class Ld<T extends WordNumber> extends TargetSourceInstruction<T, ImmutableOpcodeReference<T>> {
   public Ld(OpcodeReference<T> target, ImmutableOpcodeReference<T> source, Register<T> flag) {
