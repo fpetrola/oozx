@@ -76,7 +76,7 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
       beforeExecution(instruction);
       instruction.execute();
       afterExecution(instruction);
-      instructions.put(pc.read().intValue(), instruction);
+//      instructions.put(pc.read().intValue(), instruction);
 //      executingInstructions.remove(instruction);
       memory.read(createValue(-2), 1);
 
@@ -86,7 +86,7 @@ public class DefaultInstructionExecutor<T extends WordNumber> implements Instruc
 
       T nextPC = abstractInstruction.getNextPC();
 
-      printPC(instruction, pcValue, nextPC);
+//      printPC(instruction, pcValue, nextPC);
 
       if (nextPC == null)
         nextPC = pcValue.plus(instruction.getLength());

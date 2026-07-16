@@ -130,15 +130,15 @@ url= "/home/fernando/detodo/spectrum/dynamitedan/dynamitedan.rzx";
     OOZ80<T> ooz80 = cachingInstructions ? Z80Factory.createOOZ80(state, new CachedInstructionFetcher<>(state)) : Z80Factory.createOOZ80(state);
 
     InstructionFetcher instructionFetcher = ooz80.getInstructionFetcher();
-    instructionFetcher.setClone(true);
+    instructionFetcher.setClone(false);
     instructionFetcher.setPrefetch(false);
     if (stackAnalyzer != null) {
       InstructionExecutor<T> instructionExecutor = ooz80.getInstructionExecutor();
       stackAnalyzer.reset(state);
       stackAnalyzer.addExecutionListener(instructionExecutor);
     }
-    spy.reset(state);
-    spy.addExecutionListeners(ooz80.getInstructionExecutor());
+//    spy.reset(state);
+//    spy.addExecutionListeners(ooz80.getInstructionExecutor());
 
 //    addTStatesUpdater(ooz80);
     return ooz80;

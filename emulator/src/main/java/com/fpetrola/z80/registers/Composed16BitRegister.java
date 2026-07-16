@@ -19,7 +19,6 @@
 package com.fpetrola.z80.registers;
 
 import com.fpetrola.z80.opcodes.references.WordNumber;
-import com.fpetrola.z80.se.DirectAccessWordNumber;
 import com.fpetrola.z80.spy.ObservableRegister;
 import com.fpetrola.z80.spy.RegisterWriteListener;
 
@@ -49,10 +48,6 @@ public class Composed16BitRegister<T extends WordNumber, R extends Register<T>> 
 
   public T read() {
     T or = combine(high.read(), low.read());
-
-    or= (T) new DirectAccessWordNumber(or.intValue(), -1, -1);
-    or= or.process(high.read());
-    or= or.process(low.read());
     reading(or);
     return or;
   }
