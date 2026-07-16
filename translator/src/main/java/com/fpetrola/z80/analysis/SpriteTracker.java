@@ -361,10 +361,11 @@ public class SpriteTracker {
     }
 
     void close(List<Draw> out) {
-      // a blit that sweeps a whole buffer bank draws SEVERAL staged sprites at once: the
-      // identity of the invocation is its DOMINANT load segment, not the min/max envelope
+      // identity: reads over STATIC graphics win (the proven direct-drawing shape); when
+      // the invocation only read staged buffers, its identity is the DOMINANT load segment
+      // (a bank-sweeping blit draws several staged sprites at once — each load is one)
       int gLo = gfxMin == Integer.MAX_VALUE ? -1 : gfxMin, gHi = gfxMax;
-      if (loadHits != null) {
+      if (gLo < 0 && loadHits != null) {
         long best = -1;
         int bestHits = -1;
         for (Map.Entry<Long, Integer> e : loadHits.entrySet())
