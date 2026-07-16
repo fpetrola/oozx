@@ -127,7 +127,54 @@ public class SpriteTracker {
     AnalysisDB db = new AnalysisDB(dbPath);
     CoordinateFinder.Plan plan = new CoordinateFinder(db).find();
     printPlan(plan);
+    configureTrackLog(db, dbPath, plan);
 
+    System.out.println("\n=== Re-corrida con tracking dirigido ===");
+    RZXPlayerIO<WordNumber> io = new RZXPlayerIO<>();
+    TrackRunner game = new TrackRunner(io, io.getInterruptionCondition(), rzxPath);
+    long start = System.currentTimeMillis();
+    try {
+      game.$34463();
+    } catch (RuntimeException e) {
+      System.out.println("Run ended: " + e.getMessage());
+    }
+    System.out.println("Track run: " + (System.currentTimeMillis() - start) / 1000 + "s, "
+        + TrackLog.size() + " eventos");
+    TrackLog.enabled = false;
+
+    game.bootstrap.hasher.dump("analysis/track-hashes.txt");
+    if (Files.exists(Path.of("analysis/instrumented-hashes.txt")))
+      FrameHasher.compare("analysis/instrumented-hashes.txt", "analysis/track-hashes.txt");
+
+    postProcess(db, dbPath, plan);
+  }
+
+  /**
+   * The same track pipeline with the re-run on the Z80 EMULATOR ({@link Z80AnalysisRunner}):
+   * works for any game whose aggregate DB came from an RZX replay, no Java conversion needed.
+   */
+  public static void runZ80(String dbPath, String rzxPath) throws Exception {
+    if (!Files.exists(Path.of(dbPath))) {
+      System.out.println("No existe " + dbPath + ": corriendo primero la pasada de agregados...\n");
+      Z80AnalysisRunner.run(rzxPath, dbPath, "analysis/sites-z80.json");
+    }
+    AnalysisDB db = new AnalysisDB(dbPath);
+    CoordinateFinder.Plan plan = new CoordinateFinder(db).find();
+    printPlan(plan);
+    configureTrackLog(db, dbPath, plan);
+
+    System.out.println("\n=== Re-corrida con tracking dirigido (emulador) ===");
+    long start = System.currentTimeMillis();
+    Z80AnalysisRunner.trackReplay(rzxPath);
+    System.out.println("Track run: " + (System.currentTimeMillis() - start) / 1000 + "s, "
+        + TrackLog.size() + " eventos");
+    TrackLog.enabled = false;
+
+    postProcess(db, dbPath, plan);
+  }
+
+  /** watch cells + draw write-sites + method entries + graphics-zone read-sites into TrackLog. */
+  private static void configureTrackLog(AnalysisDB db, String dbPath, CoordinateFinder.Plan plan) {
     TrackLog.reset();
     TrackLog.configure(plan.watchCells());
     for (int s : plan.drawWriteSites())
@@ -160,24 +207,10 @@ public class SpriteTracker {
     System.out.print("Zonas de graficos a identificar por dibujo (" + gfxSites + " read-sites): ");
     gfxRegions.forEach(g -> System.out.print("[" + g[0] + ".." + g[1] + "] "));
     System.out.println();
+  }
 
-    System.out.println("\n=== Re-corrida con tracking dirigido ===");
-    RZXPlayerIO<WordNumber> io = new RZXPlayerIO<>();
-    TrackRunner game = new TrackRunner(io, io.getInterruptionCondition(), rzxPath);
-    long start = System.currentTimeMillis();
-    try {
-      game.$34463();
-    } catch (RuntimeException e) {
-      System.out.println("Run ended: " + e.getMessage());
-    }
-    System.out.println("Track run: " + (System.currentTimeMillis() - start) / 1000 + "s, "
-        + TrackLog.size() + " eventos");
-    TrackLog.enabled = false;
-
-    game.bootstrap.hasher.dump("analysis/track-hashes.txt");
-    if (Files.exists(Path.of("analysis/instrumented-hashes.txt")))
-      FrameHasher.compare("analysis/instrumented-hashes.txt", "analysis/track-hashes.txt");
-
+  /** clustering + correlation + table dump + sprites + episodes: pure post-processing. */
+  private static void postProcess(AnalysisDB db, String dbPath, CoordinateFinder.Plan plan) throws Exception {
     List<Draw> draws = cluster(plan);
     long distinctGfx = draws.stream().mapToInt(Draw::gfx).filter(g -> g >= 0).distinct().count();
     System.out.println(draws.size() + " dibujados (clusters) reconstruidos, "

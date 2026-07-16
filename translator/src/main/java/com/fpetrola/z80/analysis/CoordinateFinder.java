@@ -147,6 +147,10 @@ public class CoordinateFinder {
         int srcLo = b.srcMin(), srcHi = b.srcMax() + Math.max(0, b.lenMax() - 1);
         if (srcLo < 0 || srcHi > 0xFFFF)
           continue;
+        // a composition buffer is at most screen-sized; a wider aggregated source is a
+        // loader/decompressor sweep and would swallow every dynamic variable as "buffer"
+        if (srcHi - srcLo + 1 > 3 * (ATTR_HI - SCREEN_LO + 1))
+          continue;
         for (Region r : List.copyOf(regions)) {
           if (dstHi < r.lo() || dstLo > r.hi())
             continue;

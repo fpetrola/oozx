@@ -28,6 +28,9 @@ package com.fpetrola.z80.analysis;
  *   AnalysisCLI site <pc>                                   detalle de un site
  *   AnalysisCLI equations [metodo | pcLo pcHi]              listado de ecuaciones normalizadas
  *   AnalysisCLI track [rzxPath]                             pipeline automatico completo de posiciones
+ *   AnalysisCLI z80run [rzxPath]                            pasada de agregados desde el EMULADOR Z80
+ *                                                           (cualquier juego, sin conversion a Java)
+ *   AnalysisCLI z80track [rzxPath]                          pipeline de posiciones desde el emulador
  *   AnalysisCLI positions <frameLo> [frameHi]               sprites dibujados + celdas-coordinate por frame
  *   AnalysisCLI explain <lo> <hi> [depth] [fanout]          narrativa recursiva: quien escribe el rango,
  *                                                           direccion/valor/condicion, hasta INIT/IO
@@ -55,6 +58,15 @@ public class AnalysisCLI {
     switch (cmd) {
       case "track" -> {
         SpriteTracker.run(dbPath, args.length > 1 ? args[1] : RzxBootstrap.DEFAULT_RZX);
+        System.exit(0);
+      }
+      case "z80run" -> {
+        Z80AnalysisRunner.run(args.length > 1 ? args[1] : RzxBootstrap.DEFAULT_RZX,
+            dbPath, "analysis/sites-z80.json");
+        System.exit(0);
+      }
+      case "z80track" -> {
+        SpriteTracker.runZ80(dbPath, args.length > 1 ? args[1] : RzxBootstrap.DEFAULT_RZX);
         System.exit(0);
       }
       case "positions" -> {

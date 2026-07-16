@@ -76,8 +76,23 @@ public class Z80AnalysisRunner {
     System.exit(0);
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
   public static void run(String rzxPath, String dbPath, String sitesJsonPath) throws Exception {
+    TraceListener listener = replay(rzxPath, false);
+    listener.writeSites(sitesJsonPath);
+    AnalysisDump.dump(dbPath, sitesJsonPath);
+    System.out.println(Tracer.summary());
+  }
+
+  /**
+   * The targeted re-run of the "track" pipeline, emulator-side: same replay, but with the
+   * {@link TrackLog} bridge active (TrackLog must be configured by the caller first).
+   */
+  public static void trackReplay(String rzxPath) throws Exception {
+    replay(rzxPath, true);
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private static TraceListener replay(String rzxPath, boolean track) throws Exception {
     RZXPlayerIO<WordNumber> io = new RZXPlayerIO<>();
     State state = new State(io, new DefaultMemory(true));
     io.setPc(state.getPc());
@@ -97,7 +112,7 @@ public class Z80AnalysisRunner {
     Tracer.reset();
     Tracer.initDone();
 
-    TraceListener listener = new TraceListener(state, io);
+    TraceListener listener = new TraceListener(state, io, track);
     boolean hook = !"false".equals(System.getProperty("z80.hook"));
     if (hook)
       ooz80.getInstructionExecutor().addExecutionListener(listener);
@@ -106,17 +121,27 @@ public class Z80AnalysisRunner {
       if (!listener.inExecution || listener.suppress || delta != 0 || fetching != 0)
         return;
       int a = address.intValue();
-      if (a >= 0 && a <= 0xffff)
+      if (a >= 0 && a <= 0xffff) {
         Tracer.rd(Tracer.currentPc, a, value == null ? 0 : value.intValue());
+        if (track && TrackLog.readSites[Tracer.currentPc & 0xffff])
+          TrackLog.read(Tracer.currentPc, a);
+      }
     });
     memory.addMemoryWriteListener((address, value) -> {
-      if (listener.inExecution && !listener.suppress) {
-        int a = address.intValue();
-        if (a >= 0 && a <= 0xffff)
+      int a = address.intValue();
+      if (a >= 0 && a <= 0xffff) {
+        if (track)
+          listener.shadowMem[a] = value == null ? 0 : value.intValue(); // block copies included
+        if (listener.inExecution && !listener.suppress) {
           Tracer.wr(Tracer.currentPc, a, value == null ? 0 : value.intValue());
+          if (track && TrackLog.writeSites[Tracer.currentPc & 0xffff])
+            TrackLog.write(Tracer.currentPc, a);
+        }
       }
       return value;
     });
+    if (track)
+      listener.initShadow(state.getMemory());
 
     long start = System.currentTimeMillis();
     DefaultEmulator emulator = new DefaultEmulator();
@@ -131,10 +156,7 @@ public class Z80AnalysisRunner {
     }
     System.out.println("Elapsed: " + (System.currentTimeMillis() - start) / 1000 + "s, frames: "
         + io.getCurrentFrameIndex() + "/" + totalFrames + ", sites: " + listener.catalog.size());
-
-    listener.writeSites(sitesJsonPath);
-    AnalysisDump.dump(dbPath, sitesJsonPath);
-    System.out.println(Tracer.summary());
+    return listener;
   }
 
   /** the memory image right after the snapshot load = the cassette content. */
@@ -156,14 +178,24 @@ public class Z80AnalysisRunner {
     private final Deque<Integer> callStack = new ArrayDeque<>();
     private final State<WordNumber> state;
     private final RZXPlayerIO<WordNumber> io;
+    private final boolean track;
+    final int[] shadowMem = new int[0x10000]; // game memory mirror for TrackLog cell snapshots
     volatile boolean inExecution;
     volatile boolean suppress;
     private int prevPc = -1;
+    private int lastFrame = -1;
 
-    TraceListener(State<WordNumber> state, RZXPlayerIO<WordNumber> io) {
+    TraceListener(State<WordNumber> state, RZXPlayerIO<WordNumber> io, boolean track) {
       this.state = state;
       this.io = io;
+      this.track = track;
       callStack.push(-1); // replaced by the first executed pc
+    }
+
+    void initShadow(Memory<WordNumber> memory) {
+      WordNumber[] data = memory.getData();
+      for (int i = 0; i < shadowMem.length; i++)
+        shadowMem[i] = data[i] == null ? 0 : data[i].intValue();
     }
 
     @Override
@@ -181,6 +213,17 @@ public class Z80AnalysisRunner {
       if (continuation)
         return;
       Tracer.currentFrame = io.getCurrentFrameIndex();
+      if (track) {
+        // same ordering contract as the Java runner: FRAME marker (then cell deltas)
+        // before the ENTRY that opens the new invocation, path hash per executed pc
+        if (Tracer.currentFrame != lastFrame) {
+          lastFrame = Tracer.currentFrame;
+          TrackLog.onFrame(Tracer.currentFrame, shadowMem);
+        }
+        if (TrackLog.entrySites[pc])
+          TrackLog.entry(pc, shadowMem);
+        TrackLog.pcHash(pc);
+      }
       Tracer.boundary(pc);
       Tracer.currentPc = pc;
       methodOf.computeIfAbsent(pc, k -> "$" + callStack.peek());
