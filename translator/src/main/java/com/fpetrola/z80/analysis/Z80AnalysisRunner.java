@@ -121,6 +121,11 @@ public class Z80AnalysisRunner {
       if (!listener.inExecution || listener.suppress || delta != 0 || fetching != 0)
         return;
       int a = address.intValue();
+      // immediate operands re-read their bytes inside [pc, pc+len) with delta=0 because
+      // DefaultMemory's disableReadListener is a no-op (canDisable=false): they are part
+      // of the instruction encoding, not data — the Java translation folds them into code
+      if (a >= listener.curPc && a < listener.curPc + listener.curLen)
+        return;
       if (a >= 0 && a <= 0xffff) {
         Tracer.rd(Tracer.currentPc, a, value == null ? 0 : value.intValue());
         if (track && TrackLog.readSites[Tracer.currentPc & 0xffff])
@@ -182,6 +187,8 @@ public class Z80AnalysisRunner {
     final int[] shadowMem = new int[0x10000]; // game memory mirror for TrackLog cell snapshots
     volatile boolean inExecution;
     volatile boolean suppress;
+    volatile int curPc = -1;
+    volatile int curLen;
     private int prevPc = -1;
     private int lastFrame = -1;
 
@@ -209,6 +216,8 @@ public class Z80AnalysisRunner {
       prevPc = pc;
       Z80OpcodeInfo info = catalog.computeIfAbsent(pc, k -> Z80OpcodeInfo.of(instruction));
       suppress = info.suppressMem;
+      curPc = pc;
+      curLen = Math.max(1, instruction.getLength());
       inExecution = true;
       if (continuation)
         return;

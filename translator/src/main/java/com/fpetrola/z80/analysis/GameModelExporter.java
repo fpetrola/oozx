@@ -510,7 +510,8 @@ public class GameModelExporter {
     Map<String, Object> best = null;
     for (Object io : indiv) {
       Map<String, Object> i = (Map<String, Object>) io;
-      if (((Number) i.get("confidence")).doubleValue() >= 0.6
+      // the pair must place the drawn cluster in the MAJORITY of its routine's frames
+      if (((Number) i.get("confidence")).doubleValue() >= 0.5
           && (best == null || ((Number) i.get("confidence")).doubleValue() > ((Number) best.get("confidence")).doubleValue()))
         best = i;
     }
@@ -843,7 +844,10 @@ public class GameModelExporter {
     int stride = run != null ? run[1] : 0, runStart = run != null ? run[0] : -1,
         runLen = run != null ? run[2] : 0;
     Set<Integer> inRun = new HashSet<>();
-    if (stride > 0) {
+    // two points always form a degenerate "run" with some stride: a credible table needs
+    // at least 3 validated slots — otherwise the pairs are individuals (e.g. the protagonist
+    // record's own fields would masquerade as a table and swallow the protagonist finding)
+    if (stride > 0 && runLen >= 3) {
       int base = runStart, slots = runLen;
       List<Object> loaders = new ArrayList<>();
       for (AnalysisDB.Bulk b : db.bulks.values()) {
