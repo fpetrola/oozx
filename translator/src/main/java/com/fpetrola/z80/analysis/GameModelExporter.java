@@ -80,7 +80,9 @@ public class GameModelExporter {
     StructFinder structFinder = new StructFinder(db, dbPath);
     List<Map<String, Object>> structs = structFinder.analyze(null);
     List<Map<String, Object>> canonicos = structFinder.canonical(structs);
-    List<Map<String, Object>> rebuilds = new RebuildFinder(db, dbPath).analyze();
+    RebuildFinder rebuildFinder = new RebuildFinder(db, dbPath);
+    List<Map<String, Object>> rebuilds = rebuildFinder.analyze();
+    List<Map<String, Object>> drawingRebuilds = rebuildFinder.analyzeDrawing();
     List<Map<String, Object>> records = new RecordFinder(db, dbPath).analyze();
     List<Map<String, Object>> texts = new TextFinder(db, dbPath).analyze();
     Map<String, Object> segments = new SegmentFinder(db).data();
@@ -93,7 +95,7 @@ public class GameModelExporter {
     Map<String, Object> mapa = finding(findings, evidence, "memory-map",
         "Memory map: what lives in each range", null);
     mapa.put("zones", zones(evEnt));
-    findingRebuild(findings, evidence, rebuilds);
+    findingRebuild(findings, evidence, rebuilds, drawingRebuilds);
     findingRecords(findings, evidence, records);
     findingTexts(findings, evidence, texts);
     findingSegments(findings, evidence, segments);
@@ -165,13 +167,34 @@ public class GameModelExporter {
   // ---------- hallazgo: variables selectoras y su cluster de reconstruccion ----------
   @SuppressWarnings("unchecked")
   private void findingRebuild(List<Object> findings, Map<String, Object> evidence,
-                                      List<Map<String, Object>> all) {
-    if (all.isEmpty())
+                                      List<Map<String, Object>> all,
+                                      List<Map<String, Object>> drawing) {
+    if (all.isEmpty() && drawing.isEmpty())
       return;
+    List<Map<String, Object>> both = new ArrayList<>(all);
+    both.addAll(drawing);
     Map<String, Object> h = finding(findings, evidence, "selector-rebuild",
         "Selector variables: they pick which content gets built (current screen/level) "
-            + "and trigger the cluster that rebuilds it", all);
+            + "and trigger the cluster that rebuilds it", both);
     List<Object> lista = new ArrayList<>();
+    for (Map<String, Object> f : drawing) {
+      Map<String, Object> sel = (Map<String, Object>) f.get("selector");
+      Map<String, Object> item = new LinkedHashMap<>();
+      item.put("selector", "mem[" + sel.get("cell") + "]"
+          + (sel.containsKey("distinct_values")
+              ? " (" + sel.get("distinct_values") + " valores distintos)" : ""));
+      item.put("what_it_does", "rebuilds by DRAWING: indexes the static tables "
+          + ((List<Object>) f.get("indexed_tables")).stream()
+              .map(to -> String.valueOf(((Map<String, Object>) to).get("table_range"))).toList()
+          + " and the consumers redraw walking them"
+          + (f.containsKey("walked_data") ? " over " + f.get("walked_data") : ""));
+      item.put("triggered_by", ((List<Object>) sel.get("written_by")).stream()
+          .map(wo -> {
+            Map<String, Object> w = (Map<String, Object>) wo;
+            return w.get("routine") + " x" + w.get("times");
+          }).toList());
+      lista.add(item);
+    }
     for (Map<String, Object> f : all) {
       Map<String, Object> sel = (Map<String, Object>) f.get("selector");
       Map<String, Object> main = (Map<String, Object>)

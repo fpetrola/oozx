@@ -41,6 +41,10 @@ import java.util.*;
  *       consume the freshly built content (renderers, entity movers, text printers),
  *       i.e. where to look next to recover each region's structure.</li>
  * </ol>
+ * A second shape ({@link #analyzeDrawing()}) covers games that rebuild WITHOUT bulk
+ * copies: the selector's value builds — through ADDR edges — the address of reads over
+ * COLD, STATIC pointer/layout tables, and the consumers redraw the zone walking them
+ * (Dynamite Dan builds each room this way; Jet Set Willy copies templates instead).
  * Nothing here is game-specific: no address, stride or count is assumed.
  */
 public class RebuildFinder {
@@ -117,6 +121,136 @@ public class RebuildFinder {
       if (w.addrMin() <= addr && addr <= w.addrMax() && w.addrMax() - w.addrMin() <= 4)
         return true;
     return false;
+  }
+
+  // ---------- rebuild by DRAWING: selector -> cold static tables, no copies ----------
+
+  /**
+   * Selectors that rebuild by DRAWING: the cell's value builds the ADDRESS of reads over
+   * cold static tables (pointers/layouts consulted only when the content changes — a
+   * per-frame lookup table would be hot), and the consumers walk them to redraw. Cells
+   * already pinned to a bulk copy are excluded: this is the fallback shape.
+   */
+  public List<Map<String, Object>> analyzeDrawing() {
+    Set<Integer> pinnedCells = new HashSet<>();
+    for (AnalysisDB.Bulk b : db.bulks.values())
+      for (Pinned p : pinSelector(b))
+        pinnedCells.add(p.cell());
+
+    // cell -> (table read-site pc -> its stat)
+    Map<Integer, Map<Integer, AnalysisDB.Stat>> tablesByCell = new TreeMap<>();
+    for (AnalysisDB.Stat t : db.reads.values()) {
+      int size = t.addrMax() - t.addrMin() + 1;
+      if (size < 8 || size > 4096)
+        continue;
+      if (t.count() > 16L * size)
+        continue; // hot per-frame lookup (screen row tables), not rebuild data
+      if (isMutableRange(t.addrMin(), t.addrMax()))
+        continue; // rebuilt/state zones do not count as source tables
+      Integer cell = selectorFeedingAddress(t.pc());
+      if (cell == null || pinnedCells.contains(cell))
+        continue;
+      tablesByCell.computeIfAbsent(cell, k -> new TreeMap<>()).put(t.pc(), t);
+    }
+
+    List<Map<String, Object>> out = new ArrayList<>();
+    for (Map.Entry<Integer, Map<Integer, AnalysisDB.Stat>> e : tablesByCell.entrySet()) {
+      Map<Integer, AnalysisDB.Stat> tables = e.getValue();
+      if (tables.size() < 2)
+        continue; // one casual lookup is not a rebuild cluster
+      int cell = e.getKey();
+      Map<String, Object> f = new LinkedHashMap<>();
+      f.put("kind", "rebuild_by_drawing");
+      Map<String, Object> selector = new LinkedHashMap<>();
+      selector.put("cell", cell);
+      long[] cambios = cellChanges(cell);
+      if (cambios[0] > 0) {
+        selector.put("value_changes", cambios[0]);
+        selector.put("distinct_values", cambios[1]);
+      }
+      selector.put("written_by", writersOf(cell));
+      f.put("selector", selector);
+      List<Object> tablas = new ArrayList<>();
+      List<int[]> walkRanges = new ArrayList<>();
+      for (AnalysisDB.Stat t : tables.values()) {
+        Map<String, Object> tm = new LinkedHashMap<>();
+        tm.put("read_site", t.pc());
+        tm.put("routine", db.nameOf(t.pc()));
+        tm.put("times", t.count());
+        tm.put("table_range", List.of(t.addrMin(), t.addrMax()));
+        tablas.add(tm);
+        walkRanges.addAll(walkZonesFrom(t.pc()));
+      }
+      f.put("indexed_tables", tablas);
+      List<int[]> walks = GameMapper.mergeRanges(walkRanges, 64);
+      if (!walks.isEmpty())
+        f.put("walked_data", walks.stream().map(r -> List.of(r[0], r[1])).toList());
+      f.put("note", "rebuild by drawing: no bulk copies — the selector indexes static tables"
+          + " and the consumers redraw walking them");
+      out.add(f);
+    }
+    return out;
+  }
+
+  /** wide loader sweeps and one-shot decompression do not make a table mutable. */
+  private boolean isMutableRange(int lo, int hi) {
+    for (AnalysisDB.Stat w : db.writes.values())
+      if (w.addrMax() >= lo && w.addrMin() <= hi && w.addrMax() - w.addrMin() <= 64)
+        return true;
+    for (AnalysisDB.Bulk b : db.bulks.values())
+      if (b.count() > 2 && b.dstMax() + Math.max(0, b.lenMax() - 1) >= lo && b.dstMin() <= hi)
+        return true;
+    return false;
+  }
+
+  /**
+   * The single-cell mutable read whose value builds this site's ADDRESS (first hop
+   * restricted to ADDR edges, then any), or null: the selector candidate for the table.
+   * The chain is deeper than the copy case (register shuffles across calls: A=mem[cell],
+   * B=A, ..., HL=add16), so it walks up to 8 hops.
+   */
+  private Integer selectorFeedingAddress(int tableSite) {
+    Set<Integer> seen = new HashSet<>();
+    ArrayDeque<Integer> queue = new ArrayDeque<>();
+    for (AnalysisDB.Edge e : db.edgesIn.getOrDefault(tableSite, List.of()))
+      if (e.src() != 0 && e.role() != null && e.role().contains("ADDR") && seen.add(e.src()))
+        queue.add(e.src());
+    for (int depth = 0; depth < 8 && !queue.isEmpty(); depth++) {
+      int n = queue.size();
+      for (int i = 0; i < n; i++) {
+        int pc = queue.poll();
+        AnalysisDB.Stat r = db.reads.get(pc);
+        if (r != null && r.addrMin() == r.addrMax() && isMutableCell(r.addrMin())
+            && r.valMax() > r.valMin())
+          return r.addrMin();
+        for (AnalysisDB.Edge e : db.edgesIn.getOrDefault(pc, List.of()))
+          if (e.src() != 0 && seen.add(e.src()))
+            queue.add(e.src());
+      }
+    }
+    return null;
+  }
+
+  /** larger read ranges fed (within 2 hops) by the table read: the layout data it points at. */
+  private List<int[]> walkZonesFrom(int tableSite) {
+    List<int[]> out = new ArrayList<>();
+    Set<Integer> seen = new HashSet<>();
+    ArrayDeque<Integer> queue = new ArrayDeque<>();
+    queue.add(tableSite);
+    for (int depth = 0; depth < 2 && !queue.isEmpty(); depth++) {
+      int n = queue.size();
+      for (int i = 0; i < n; i++) {
+        int pc = queue.poll();
+        for (AnalysisDB.Edge e : db.edgesOut.getOrDefault(pc, List.of()))
+          if (seen.add(e.dst())) {
+            AnalysisDB.Stat r = db.reads.get(e.dst());
+            if (r != null && r.addrMax() - r.addrMin() + 1 >= 256)
+              out.add(new int[]{r.addrMin(), r.addrMax()});
+            queue.add(e.dst());
+          }
+      }
+    }
+    return out;
   }
 
   private Map<String, Object> describe(int cell, List<Pinned> copies) {
@@ -245,9 +379,33 @@ public class RebuildFinder {
   @SuppressWarnings("unchecked")
   public void report() {
     List<Map<String, Object>> all = analyze();
-    if (all.isEmpty()) {
-      System.out.println("no selectors detected (no bulk copy depends on a dynamic cell)");
+    List<Map<String, Object>> drawing = analyzeDrawing();
+    if (all.isEmpty() && drawing.isEmpty()) {
+      System.out.println("no selectors detected (no bulk copy or indexed-table read depends on a dynamic cell)");
       return;
+    }
+    for (Map<String, Object> f : drawing) {
+      Map<String, Object> sel = (Map<String, Object>) f.get("selector");
+      System.out.printf("%n===== SELECTOR mem[%d]  (rebuild by DRAWING)%s =====%n",
+          (int) sel.get("cell"),
+          sel.containsKey("value_changes")
+              ? "  (" + sel.get("value_changes") + " changes, "
+              + sel.get("distinct_values") + " distinct values)" : "");
+      for (Object wo : (List<Object>) sel.get("written_by")) {
+        Map<String, Object> w = (Map<String, Object>) wo;
+        List<Integer> wv = (List<Integer>) w.get("values");
+        System.out.printf("  written by %s @%s x%s val[%d..%d]%n",
+            w.get("routine"), w.get("site"), w.get("times"), wv.get(0), wv.get(1));
+      }
+      for (Object to : (List<Object>) f.get("indexed_tables")) {
+        Map<String, Object> t = (Map<String, Object>) to;
+        List<Integer> tr = (List<Integer>) t.get("table_range");
+        System.out.printf("  INDEXED TABLE [%d..%d] read @%s (%s) x%s%n",
+            tr.get(0), tr.get(1), t.get("read_site"), t.get("routine"), t.get("times"));
+      }
+      if (f.containsKey("walked_data"))
+        System.out.println("  walked data zones: " + f.get("walked_data"));
+      System.out.println("  " + f.get("note"));
     }
     for (Map<String, Object> f : all) {
       Map<String, Object> sel = (Map<String, Object>) f.get("selector");

@@ -111,9 +111,14 @@ public class CoverageReport {
       }));
 
       checks.add(guard("reconstruction", () -> {
-        int n = new RebuildFinder(db, dbPath).analyze().size();
-        return n > 0 ? ok("reconstruction", n + " selector-driven rebuild(s)")
-            : empty("reconstruction", "no selector + bulk-copy cluster (a decompressor is not detected as one)");
+        RebuildFinder rf = new RebuildFinder(db, dbPath);
+        int copies = rf.analyze().size();
+        int drawing = rf.analyzeDrawing().size();
+        if (copies + drawing == 0)
+          return empty("reconstruction", "no selector + bulk-copy cluster nor selector-indexed"
+              + " table walks (a decompressor is not detected as one)");
+        String d = copies + " copy-based, " + drawing + " drawing-based selector rebuild(s)";
+        return ok("reconstruction", d);
       }));
 
       checks.add(guard("singleton-records", () -> {
