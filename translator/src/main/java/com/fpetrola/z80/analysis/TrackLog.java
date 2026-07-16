@@ -41,7 +41,7 @@ import java.util.Arrays;
  */
 public final class TrackLog {
   public static final int EV_WRITE = 0, EV_ENTRY = 1, EV_CELL = 2, EV_FRAME = 3,
-      EV_READ = 4, EV_PATH = 5;
+      EV_READ = 4, EV_PATH = 5, EV_LOAD = 6, EV_LOADEND = 7;
 
   public static boolean enabled;
   /** draw write-sites whose stores get logged per instance. */
@@ -50,6 +50,12 @@ public final class TrackLog {
   public static final boolean[] readSites = new boolean[0x10000];
   /** entry pcs of the draw methods: mark one cluster per invocation. */
   public static final boolean[] entrySites = new boolean[0x10000];
+  /**
+   * RAM buffers that hold COPIED graphics (games that stage sprites in buffers and draw
+   * from there): bulk copies landing here get logged as EV_LOAD(dst, src), so a read over
+   * the buffer can be remapped to the static source that owned the content at that moment.
+   */
+  private static final boolean[] loadZones = new boolean[0x10000];
 
   private static int[] watchCells = new int[0];
   private static int[] prevVals = new int[0];
@@ -66,12 +72,34 @@ public final class TrackLog {
     Arrays.fill(writeSites, false);
     Arrays.fill(readSites, false);
     Arrays.fill(entrySites, false);
+    Arrays.fill(loadZones, false);
     watchCells = new int[0];
     prevVals = new int[0];
     log = new long[1 << 20];
     logN = 0;
     pathHash = 0;
     collecting = false;
+  }
+
+  public static void addLoadZone(int lo, int hi) {
+    for (int a = Math.max(0, lo); a <= Math.min(0xffff, hi); a++)
+      loadZones[a] = true;
+  }
+
+  public static boolean inLoadZone(int addr) {
+    return addr >= 0 && addr <= 0xffff && loadZones[addr];
+  }
+
+  /**
+   * a bulk copy just ran: if it loads a graphics buffer, log where its content came from
+   * (EV_LOAD carries dst/src; the paired EV_LOADEND carries the end, so the replay only
+   * remaps reads the copy actually covered).
+   */
+  public static void bulkCopy(int src, int dst, int len) {
+    if (enabled && len > 0 && inLoadZone(dst)) {
+      append(EV_LOAD, dst, src);
+      append(EV_LOADEND, dst + len - 1, 0);
+    }
   }
 
   public static void configure(int[] cells) {

@@ -251,6 +251,8 @@ public class Z80AnalysisRunner {
           int src = info.bulkBackward ? r[0] - (len - 1) : r[0];
           int dst = info.bulkBackward ? r[1] - (len - 1) : r[1];
           Tracer.bulk(pc, src, dst, len);
+          if (track)
+            TrackLog.bulkCopy(src, dst, len); // graphics-buffer reload: sprite identity source
         }
       }
       if (info.cpBlock) {

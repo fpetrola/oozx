@@ -77,6 +77,12 @@ public class SpriteTracker {
         TrackLog.pcHash(address);
       }
     }
+
+    @Override
+    public void ldir() {
+      TrackLog.bulkCopy(HL(), DE(), BC()); // graphics-buffer reload: sprite identity source
+      super.ldir();
+    }
   }
 
   /**
@@ -207,6 +213,65 @@ public class SpriteTracker {
     System.out.print("Zonas de graficos a identificar por dibujo (" + gfxSites + " read-sites): ");
     gfxRegions.forEach(g -> System.out.print("[" + g[0] + ".." + g[1] + "] "));
     System.out.println();
+
+    // graphics staged in RAM buffers (drawn from mutable memory): a small zone repeatedly
+    // reloaded by bulk copies from elsewhere and consumed by VAL-side draw reads. Reads over
+    // the buffer get logged too, and each reload logs EV_LOAD so the offline replay can
+    // remap buffer reads to the static source that owned the content AT THAT MOMENT.
+    // a GRAPHICS staging load sweeps a catalog: its source range spans many sprites across
+    // reloads. Fixed-source state copies (room exits, variable staging) never qualify —
+    // their reads are state, not sprite identity, and would poison the cluster's gfx span.
+    List<int[]> loadZones = new ArrayList<>();
+    List<int[]> shiftZones = new ArrayList<>();
+    for (AnalysisDB.Bulk b : db.bulks.values()) {
+      int dstLo = b.dstMin(), dstHi = b.dstMax() + Math.max(0, b.lenMax() - 1);
+      int srcHi = b.srcMax() + Math.max(0, b.lenMax() - 1);
+      if (b.count() < 4 || dstHi - dstLo + 1 > 4096)
+        continue;
+      final int lo = dstLo, hi = dstHi;
+      if (plan.regions().stream().anyMatch(r -> hi >= r.lo() && lo <= r.hi()))
+        continue; // screen composition, already handled by the draw decoding
+      boolean srcOverlapsDst = srcHi >= lo && b.srcMin() <= hi;
+      if (!srcOverlapsDst && srcHi - b.srcMin() + 1 >= 256)
+        loadZones.add(new int[]{lo, hi});
+      else if (srcOverlapsDst)
+        shiftZones.add(new int[]{lo, hi}); // pre-shifted copies chained off a real load
+    }
+    // shift buffers only count when adjacent to a real catalog load (the copy chain)
+    List<int[]> bufferZones = new ArrayList<>(loadZones);
+    for (int[] s : shiftZones)
+      if (loadZones.stream().anyMatch(z -> s[0] <= z[1] + 64 && s[1] >= z[0] - 64))
+        bufferZones.add(s);
+    // only sites whose sweep is CONTAINED in a buffer (a blit reads just the buffer) — a
+    // broad walker that merely crosses it would flood the clusters with far-away addresses
+    // buffers sit close together (headers between them): merge across small gaps so the
+    // blit that sweeps the whole buffer bank still counts as contained
+    List<int[]> mergedZones = GameMapper.mergeRanges(bufferZones, 64);
+    List<int[]> consumedZones = new ArrayList<>();
+    int bufferSites = 0;
+    for (int[] z : mergedZones) {
+      boolean consumed = false;
+      for (int s : valReads) {
+        AnalysisDB.Stat r = db.reads.get(s);
+        if (r.addrMax() > r.addrMin() && r.addrMin() >= z[0] - 64 && r.addrMax() <= z[1] + 64) {
+          TrackLog.readSites[s] = true;
+          consumed = true;
+          bufferSites++;
+        }
+      }
+      if (consumed) {
+        consumedZones.add(z);
+        // headers/edges around the buffers are buffer territory too: their reads either
+        // remap or get skipped, never entering identities as raw addresses
+        TrackLog.addLoadZone(z[0] - 64, z[1] + 64);
+      }
+    }
+    if (!consumedZones.isEmpty()) {
+      System.out.print("Buffers de graficos recargados (identidad via EV_LOAD, "
+          + bufferSites + " read-sites): ");
+      consumedZones.forEach(g -> System.out.print("[" + g[0] + ".." + g[1] + "] "));
+      System.out.println();
+    }
   }
 
   /** clustering + correlation + table dump + sprites + episodes: pure post-processing. */
@@ -270,6 +335,7 @@ public class SpriteTracker {
     final int[] maxX = {Integer.MIN_VALUE, Integer.MIN_VALUE}, maxY = {Integer.MIN_VALUE, Integer.MIN_VALUE};
     final int[] n = {0, 0}, buffer = {-1, -1};
     int gfxMin = Integer.MAX_VALUE, gfxMax = -1;
+    Map<Long, Integer> loadHits; // staged-buffer reads: (src segment) -> bytes read
     int path;
 
     Cluster(int frame, int methodEntry, byte[] cells) {
@@ -287,12 +353,33 @@ public class SpriteTracker {
       buffer[kindIdx] = regionLo;
     }
 
+    /** a read remapped through a buffer load: one vote for that load's source segment. */
+    void hitLoad(int segStart, int segEnd) {
+      if (loadHits == null)
+        loadHits = new HashMap<>(4);
+      loadHits.merge(((long) segStart << 16) | (segEnd - segStart), 1, Integer::sum);
+    }
+
     void close(List<Draw> out) {
+      // a blit that sweeps a whole buffer bank draws SEVERAL staged sprites at once: the
+      // identity of the invocation is its DOMINANT load segment, not the min/max envelope
+      int gLo = gfxMin == Integer.MAX_VALUE ? -1 : gfxMin, gHi = gfxMax;
+      if (loadHits != null) {
+        long best = -1;
+        int bestHits = -1;
+        for (Map.Entry<Long, Integer> e : loadHits.entrySet())
+          if (e.getValue() > bestHits) {
+            bestHits = e.getValue();
+            best = e.getKey();
+          }
+        gLo = (int) (best >>> 16);
+        gHi = gLo + (int) (best & 0xFFFF);
+      }
       for (int k = 0; k < 2; k++)
         if (n[k] > 0)
           out.add(new Draw(frame, methodEntry, k == 0 ? 'P' : 'A', minX[k], minY[k],
               maxX[k] - minX[k] + 8, maxY[k] - minY[k] + (k == 0 ? 1 : 8), n[k], buffer[k],
-              gfxMin == Integer.MAX_VALUE ? -1 : gfxMin, gfxMax, path, cells));
+              gLo, gHi, path, cells));
     }
   }
 
@@ -308,6 +395,10 @@ public class SpriteTracker {
     int[] vals = new int[cells.length];
     List<Draw> out = new ArrayList<>();
     Cluster cur = null;
+    // graphics buffers: last reload per destination — {src, dstEnd} — so a buffer read maps
+    // back to the static source that owned the content at that instant
+    TreeMap<Integer, int[]> loads = new TreeMap<>();
+    int pendingLoadDst = -1, pendingLoadSrc = -1;
     // snapshots are SHARED between clusters until a cell changes: with millions of
     // clusters per run, copying 170 bytes per cluster would not fit in memory
     byte[] curSnap = snapshot(vals);
@@ -322,6 +413,15 @@ public class SpriteTracker {
             vals[ci] = b;
             dirty = true;
           }
+        }
+        case TrackLog.EV_LOAD -> {
+          pendingLoadDst = a;
+          pendingLoadSrc = b;
+        }
+        case TrackLog.EV_LOADEND -> {
+          if (pendingLoadDst >= 0)
+            loads.put(pendingLoadDst, new int[]{pendingLoadSrc, a});
+          pendingLoadDst = -1;
         }
         case TrackLog.EV_FRAME -> {
           if (cur != null)
@@ -339,10 +439,30 @@ public class SpriteTracker {
         }
         case TrackLog.EV_READ -> {
           if (cur != null) {
-            if (b < cur.gfxMin)
-              cur.gfxMin = b;
-            if (b > cur.gfxMax)
-              cur.gfxMax = b;
+            int addr = b;
+            // buffer read: identity = the copied-in source. Chained buffers (pre-shifted
+            // copies of copies) resolve iteratively; content no load covered has no
+            // provenance and is honestly skipped rather than polluting the range.
+            if (TrackLog.inLoadZone(addr)) {
+              int[] seg = null;
+              boolean unknown = false;
+              for (int hop = 0; TrackLog.inLoadZone(addr) && !unknown; hop++) {
+                Map.Entry<Integer, int[]> load = loads.floorEntry(addr);
+                if (hop < 4 && load != null && addr <= load.getValue()[1]) {
+                  int src = load.getValue()[0];
+                  seg = new int[]{src, src + (load.getValue()[1] - load.getKey())};
+                  addr = src + (addr - load.getKey());
+                } else
+                  unknown = true;
+              }
+              if (!unknown && seg != null)
+                cur.hitLoad(seg[0], seg[1]);
+              continue; // staged reads vote per load; they never enter the raw envelope
+            }
+            if (addr < cur.gfxMin)
+              cur.gfxMin = addr;
+            if (addr > cur.gfxMax)
+              cur.gfxMax = addr;
           }
         }
         case TrackLog.EV_PATH -> {
