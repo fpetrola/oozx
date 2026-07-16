@@ -50,6 +50,7 @@
         <module>simpleide</module>
         <module>specdrum</module>
         <module>zxatasp</module>
+        <module>zxcf</module>
     </modules>
 
     <properties>
