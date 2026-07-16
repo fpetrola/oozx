@@ -47,7 +47,7 @@ public class AnalysisDump {
             " addr_and INT, addr_or INT, val_min INT, val_max INT, val_and INT, val_or INT," +
             " first_frame INT, last_frame INT)");
         st.execute("CREATE TABLE bulk_stats(pc INT, count INT, src_min INT, src_max INT," +
-            " dst_min INT, dst_max INT, len_min INT, len_max INT)");
+            " dst_min INT, dst_max INT, len_min INT, len_max INT, first_frame INT, last_frame INT)");
         st.execute("CREATE TABLE edges(src INT, dst INT, ch TEXT, role TEXT, count INT)");
         st.execute("CREATE TABLE cfg(src INT, dst INT, count INT)");
         st.execute("CREATE TABLE flags(pc INT, reads_f INT, io INT)");
@@ -86,7 +86,7 @@ public class AnalysisDump {
       }
       ps.executeBatch();
     }
-    try (PreparedStatement ps = c.prepareStatement("INSERT INTO bulk_stats VALUES(?,?,?,?,?,?,?,?)")) {
+    try (PreparedStatement ps = c.prepareStatement("INSERT INTO bulk_stats VALUES(?,?,?,?,?,?,?,?,?,?)")) {
       for (int s = 0; s < 0x10000; s++)
         if (Tracer.bCount[s] > 0) {
           ps.setInt(1, s);
@@ -97,6 +97,8 @@ public class AnalysisDump {
           ps.setInt(6, Tracer.bDstMax[s]);
           ps.setInt(7, Tracer.bLenMin[s]);
           ps.setInt(8, Tracer.bLenMax[s]);
+          ps.setInt(9, Tracer.bFirstFrame[s]);
+          ps.setInt(10, Tracer.bLastFrame[s]);
           ps.addBatch();
         }
       ps.executeBatch();

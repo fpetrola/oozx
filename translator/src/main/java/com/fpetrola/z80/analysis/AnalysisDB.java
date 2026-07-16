@@ -31,7 +31,12 @@ public class AnalysisDB {
                      int valMin, int valMax, int valAnd, int valOr, int firstFrame, int lastFrame) {
   }
 
-  public record Bulk(int pc, long count, int srcMin, int srcMax, int dstMin, int dstMax, int lenMin, int lenMax) {
+  public record Bulk(int pc, long count, int srcMin, int srcMax, int dstMin, int dstMax, int lenMin, int lenMax,
+                     int firstFrame, int lastFrame) {
+    /** the last address this copy can have touched. */
+    public int dstEnd() {
+      return dstMax + Math.max(0, lenMax - 1);
+    }
   }
 
   public record Edge(int src, int dst, String ch, String role, long count) {
@@ -80,9 +85,12 @@ public class AnalysisDB {
         }
       }
       try (ResultSet rs = c.createStatement().executeQuery("SELECT * FROM bulk_stats")) {
+        // frames were added later: a DB from an older capture has none, and -1 reads as unknown
+        boolean framed = rs.getMetaData().getColumnCount() >= 10;
         while (rs.next())
           bulks.put(rs.getInt(1), new Bulk(rs.getInt(1), rs.getLong(2), rs.getInt(3), rs.getInt(4),
-              rs.getInt(5), rs.getInt(6), rs.getInt(7), rs.getInt(8)));
+              rs.getInt(5), rs.getInt(6), rs.getInt(7), rs.getInt(8),
+              framed ? rs.getInt(9) : -1, framed ? rs.getInt(10) : -1));
       }
       try (ResultSet rs = c.createStatement().executeQuery("SELECT src, dst, ch, role, count FROM edges")) {
         while (rs.next()) {

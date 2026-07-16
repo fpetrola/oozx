@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.analysis;
 
+import com.fpetrola.z80.analysis.query.MemoryImage;
 import com.fpetrola.z80.cpu.DefaultMemorySetter;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.State;
@@ -81,6 +82,8 @@ public class Z80AnalysisRunner {
   }
 
   static class Z80Source implements CaptureSource {
+    private TraceListener listener;
+
     @Override
     public String name() {
       return "z80";
@@ -94,9 +97,14 @@ public class Z80AnalysisRunner {
 
     @Override
     public void replay(String rzxPath, boolean track) throws Exception {
-      TraceListener listener = Z80AnalysisRunner.replay(rzxPath, track);
+      listener = Z80AnalysisRunner.replay(rzxPath, track);
       if (!track)
         listener.writeSites(sitesJson());
+    }
+
+    @Override
+    public byte[] finalMemory() {
+      return memoryBytes(listener.state.getMemory());
     }
   }
 
@@ -173,13 +181,18 @@ public class Z80AnalysisRunner {
 
   /** the memory image right after the snapshot load = the cassette content. */
   private static void dumpInitialMemory(Memory<WordNumber> memory) throws Exception {
+    Files.createDirectories(Path.of("analysis"));
+    Files.write(Path.of(MemoryImage.INIT_MEM), memoryBytes(memory));
+    System.out.println("init-mem.bin dumped (64K)");
+  }
+
+  @SuppressWarnings("unchecked")
+  private static byte[] memoryBytes(Memory<WordNumber> memory) {
     byte[] img = new byte[0x10000];
     WordNumber[] data = (WordNumber[]) memory.getData();
     for (int i = 0; i < img.length; i++)
       img[i] = data[i] == null ? 0 : (byte) data[i].intValue();
-    Files.createDirectories(Path.of("analysis"));
-    Files.write(Path.of("analysis/init-mem.bin"), img);
-    System.out.println("init-mem.bin dumped (64K)");
+    return img;
   }
 
   /** per-instruction bridge into the Tracer + per-pc static site catalog. */
@@ -188,7 +201,7 @@ public class Z80AnalysisRunner {
     final Map<Integer, String> equations = new HashMap<>();
     final Map<Integer, String> methodOf = new HashMap<>();
     private final Deque<Integer> callStack = new ArrayDeque<>();
-    private final State<WordNumber> state;
+    final State<WordNumber> state;
     private final RZXPlayerIO<WordNumber> io;
     private final boolean track;
     final int[] shadowMem = new int[0x10000]; // game memory mirror for TrackLog cell snapshots

@@ -18,6 +18,8 @@
 
 package com.fpetrola.z80.analysis;
 
+import com.fpetrola.z80.analysis.query.MemoryImage;
+
 /**
  * Where a capture comes from: the game converted to Java ({@link RZXAnalysisRunner}) or the
  * ORIGINAL game replayed on the OOZ80 emulator ({@link Z80AnalysisRunner}). Both feed the same
@@ -52,10 +54,18 @@ public interface CaptureSource {
   default void verify(boolean track) throws Exception {
   }
 
+  /** the game's 64K memory as it stands at the end of the replay that just ran. */
+  byte[] finalMemory();
+
   /** the aggregate pass: replay + site catalog + analysis.db, ready for the detectors. */
   default void capture(String rzxPath, String dbPath) throws Exception {
     replay(rzxPath, false);
     verify(false);
+    // the settled image + who wrote each address: a game that decompresses or decrypts itself
+    // into RAM has its real static data (fonts, tables, sprites) only AFTER that runs, so the
+    // cassette snapshot alone cannot decode it. See MemoryImage.
+    Tracer.write(MemoryImage.FINAL_MEM, finalMemory());
+    Tracer.dumpWriterMap(MemoryImage.WRITER_MAP);
     AnalysisDump.dump(dbPath, sitesJson());
     System.out.println(Tracer.summary());
   }

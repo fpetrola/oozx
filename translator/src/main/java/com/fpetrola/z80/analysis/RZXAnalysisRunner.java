@@ -196,6 +196,14 @@ public class RZXAnalysisRunner extends JetSetWilly2Instrumented {
       System.out.println("Elapsed: " + (System.currentTimeMillis() - start) / 1000 + "s");
     }
 
+    @Override
+    public byte[] finalMemory() {
+      byte[] out = new byte[game.mem.length];
+      for (int i = 0; i < out.length; i++)
+        out[i] = (byte) game.mem[i];
+      return out;
+    }
+
     /** capture must be passive: a tracked run's per-frame hashes must match the aggregate's. */
     @Override
     public void verify(boolean track) throws Exception {

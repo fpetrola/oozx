@@ -50,6 +50,13 @@ import java.util.regex.Pattern;
  */
 public class TextFinder {
   private static final Pattern WORD = Pattern.compile("[A-Za-z]{3}");
+  private static final String VOWELS = "aeiou";
+  /** the characters prose is written with; the rest are a bitmap that happens to be printable. */
+  private static final String PUNCTUATION = " .,'-!?:";
+
+  private static boolean spellable(int c) {
+    return Character.isLetterOrDigit(c) || PUNCTUATION.indexOf(c) >= 0;
+  }
 
   private final AnalysisDB db;
   private final String dbPath;
@@ -274,11 +281,15 @@ public class TextFinder {
 
   private void flushRun(List<Map<String, Object>> out, StringBuilder run, int start) {
     String text = run.toString().strip();
-    // needs a real word: >=3 consecutive letters, >=3 distinct characters (drops repeated
-    // fills like "EEEEGGGG"), and letters/spaces the majority — so glyph bitmaps and address
-    // bytes that happen to fall in printable ASCII do not read as text.
-    if (text.length() < 4 || !WORD.matcher(text).find()
-        || text.chars().distinct().count() < 3)
+    // Needs a real word: >=3 consecutive letters, >=3 distinct characters (drops repeated fills
+    // like "EEEEGGGG") and letters/spaces the majority. Sprite bitmaps and pointer tables are
+    // dense enough that some of their bytes always land in printable ASCII, so that alone lets
+    // through noise like "~#foM" or "qqrthhpp": prose also spells with a text alphabet only, and
+    // spells with vowels. Room names ("The Off Licence") pass; bitmap runs do not.
+    if (text.length() < 5 || !WORD.matcher(text).find()
+        || text.chars().distinct().count() < 3
+        || !text.chars().allMatch(TextFinder::spellable)
+        || text.chars().noneMatch(c -> VOWELS.indexOf(Character.toLowerCase(c)) >= 0))
       return;
     long letterSpace = text.chars().filter(c -> Character.isLetter(c) || c == ' ').count();
     if (letterSpace * 2 < text.length())

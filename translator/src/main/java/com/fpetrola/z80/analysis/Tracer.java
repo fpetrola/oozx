@@ -58,6 +58,7 @@ public final class Tracer {
   public static final int[] bSrcMin = new int[SIZE], bSrcMax = new int[SIZE];
   public static final int[] bDstMin = new int[SIZE], bDstMax = new int[SIZE];
   public static final int[] bLenMin = new int[SIZE], bLenMax = new int[SIZE];
+  public static final int[] bFirstFrame = new int[SIZE], bLastFrame = new int[SIZE];
 
   public static int currentPc = -1;
   public static int currentFrame = -1;
@@ -193,7 +194,7 @@ public final class Tracer {
       Arrays.fill(a, 0);
     for (int[] a : new int[][]{wAddrAnd, wValAnd, rAddrAnd, rValAnd})
       Arrays.fill(a, -1);
-    for (int[] a : new int[][]{wFirstFrame, rFirstFrame, wLastFrame, rLastFrame})
+    for (int[] a : new int[][]{wFirstFrame, rFirstFrame, wLastFrame, rLastFrame, bFirstFrame, bLastFrame})
       Arrays.fill(a, -1);
   }
 
@@ -242,6 +243,8 @@ public final class Tracer {
     if (dst > bDstMax[site]) bDstMax[site] = dst;
     if (len < bLenMin[site]) bLenMin[site] = len;
     if (len > bLenMax[site]) bLenMax[site] = len;
+    if (bFirstFrame[site] < 0) bFirstFrame[site] = currentFrame;
+    bLastFrame[site] = currentFrame;
     // provenance of the copied block: sample the writers of the source range BEFORE
     // tagging the destination, so copy chains stay connected.
     if (src >= 0 && src < SIZE) {
@@ -253,6 +256,31 @@ public final class Tracer {
     int end = Math.min(dst + len, SIZE);
     for (int a = Math.max(dst, 0); a < end; a++)
       lastWriterMem[a] = site;
+  }
+
+  /**
+   * dump {@link #lastWriterMem} as 64K little-endian site ids. Per-site address ranges are only
+   * an envelope — a routine that writes both the screen and a buffer claims everything in
+   * between, static data included — while this says EXACTLY who wrote each address, at no extra
+   * cost since the hot path maintains it anyway. {@code MemoryImage} masks with it.
+   */
+  public static void dumpWriterMap(String path) {
+    byte[] out = new byte[SIZE * 2];
+    for (int a = 0; a < SIZE; a++) {
+      out[a * 2] = (byte) lastWriterMem[a];
+      out[a * 2 + 1] = (byte) (lastWriterMem[a] >>> 8);
+    }
+    write(path, out);
+  }
+
+  public static void write(String path, byte[] bytes) {
+    try {
+      if (Path.of(path).getParent() != null)
+        Files.createDirectories(Path.of(path).getParent());
+      Files.write(Path.of(path), bytes);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /** dump all active sites as JSON for inspection (SQLite arrives in F3). */
