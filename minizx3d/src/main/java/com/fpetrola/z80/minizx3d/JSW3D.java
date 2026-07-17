@@ -116,6 +116,13 @@ public class JSW3D extends ApplicationAdapter {
   private final float itemLightIntensity = Float.parseFloat(System.getProperty("dark.item", "500"));
   /** leaf -> its bitmap is all zeros (air): no slab, no item tracking, no light — background. */
   private final Map<Integer, Boolean> emptyLeaves = new HashMap<>();
+  /**
+   * per cell, the last tile (leaf + 1) and attr the screen showed there while sprite-free:
+   * when a sprite walks THROUGH the cell and steals its bytes, the cached tile is drawn as
+   * a half-transparent ghost instead of letting the platform vanish around the character.
+   */
+  private final int[] cellLeaf = new int[24 * 32];
+  private final int[] cellAttr = new int[24 * 32];
   /** the lights the CURRENT frame's sprites and items shine; env is rebuilt from them. */
   private final List<com.badlogic.gdx.graphics.g3d.environment.PointLight> frameLights = new ArrayList<>();
   /**
@@ -794,6 +801,43 @@ public class JSW3D extends ApplicationAdapter {
   }
 
   /**
+   * the cached tile of a sprite-crossed cell, rendered see-through: same models as the
+   * real tiles, but every material gets a blending attribute at ghost opacity. ModelBatch
+   * sorts blended renderables after the opaque world, so the character inside shows.
+   */
+  private void ghostTile(int col, int y0, int leaf, int attr) {
+    boolean item = itemLeaves.contains(leaf);
+    Model model = modelCache.computeIfAbsent(item ? -leaf - 0x10000 : -leaf, k -> item
+        ? (smooth
+           ? SmoothSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depthScale)
+           : VoxelSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depthScale))
+        : TileSlabBuilder.build(leaf, replay::memByte, slabDepth()));
+    if (model == null)
+      return;
+    ModelInstance inst = new ModelInstance(model);
+    inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
+    Color ink = PALETTE[(attr & 7) | ((attr >> 3) & 8)];
+    float ghostAlpha = .38f;
+    if (item) {
+      inst.materials.first().set(ColorAttribute.createDiffuse(ink));
+      inst.materials.first().set(new com.badlogic.gdx.graphics.g3d.attributes
+          .BlendingAttribute(true, ghostAlpha));
+    } else {
+      Material mi = inst.getMaterial(TileSlabBuilder.INK);
+      mi.set(ColorAttribute.createDiffuse(ink));
+      mi.set(new com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute(true, ghostAlpha));
+      Material paper = inst.getMaterial(TileSlabBuilder.PAPER);
+      if (paper != null) {
+        paper.set(ColorAttribute.createDiffuse(
+            PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
+        paper.set(new com.badlogic.gdx.graphics.g3d.attributes
+            .BlendingAttribute(true, ghostAlpha));
+      }
+    }
+    tileInstances.add(inst);
+  }
+
+  /**
    * 8x8 tile cells: a screen byte whose origin lands in a tile-template zone belongs to a
    * platform / wall / conveyor / item. The row-0 leaf address IS the tile bitmap's start
    * (rows are consecutive in the template), so the model reads its 8 bytes straight from
@@ -815,8 +859,22 @@ public class JSW3D extends ApplicationAdapter {
         int y0 = cellY * 8;
         int i0 = ((y0 & 0xC0) << 5) | ((y0 & 7) << 8) | ((y0 & 0x38) << 2) | col;
         int t = snap.tile()[i0];
-        if (t == 0 || snap.owner()[i0] != 0)
+        int cell = cellY * 32 + col;
+        boolean spriteHere = false;
+        for (int r = 0; r < 8 && !spriteHere; r++)
+          spriteHere = snap.owner()[i0 | (r << 8)] != 0;
+        if (t == 0 || spriteHere) {
+          // a sprite crossing the cell claims its bytes, so the SCREEN can't say "tile"
+          // this frame — but the platform is still there. Rebuild it from the per-cell
+          // cache as a HALF-TRANSPARENT ghost: the character shows through the stairs
+          // instead of punching a hole in them, and it stays solid for the weather/junk.
+          if (spriteHere && cellLeaf[cell] != 0) {
+            ghostTile(col, y0, cellLeaf[cell] - 1, cellAttr[cell]);
+            solidCells[cell] = true;
+          } else if (!spriteHere)
+            cellLeaf[cell] = 0; // truly gone: collected item, room redraw
           continue;
+        }
         int leaf = t - 1;
         // AIR (all-zero bitmap) is background, full stop: no slab, and crucially no item
         // tracking — guardians crossing air cells eventually latch the air leaf as "item",
@@ -827,17 +885,16 @@ public class JSW3D extends ApplicationAdapter {
             if (replay.memByte(k + r) != 0)
               return false;
           return true;
-        }))
+        })) {
+          cellLeaf[cell] = 0;
           continue;
-        int attr = snap.attrs()[cellY * 32 + col] & 0xff;
-        int cell = cellY * 32 + col;
-        // ink-change tracking only when NO row of the cell is sprite-owned: a guardian
-        // overlapping rows 1-7 (row 0 free) leaves the cell classified as tile but colors
-        // it with its own attr, which would latch every platform leaf as "item"
-        boolean clean = true;
-        for (int r = 1; r < 8 && clean; r++)
-          clean = snap.owner()[i0 | (r << 8)] == 0;
-        if (clean) {
+        }
+        int attr = snap.attrs()[cell] & 0xff;
+        cellLeaf[cell] = leaf + 1;
+        cellAttr[cell] = attr;
+        // the cell is fully sprite-free here (ghosts returned above), so the attr and
+        // ink-change tracking below always see the tile's own colors
+        {
           int prev = prevLeafAttr[cell];
           if (prev != 0 && (prev >> 8) == t) {
             if (((prev ^ attr) & 7) != 0) {
