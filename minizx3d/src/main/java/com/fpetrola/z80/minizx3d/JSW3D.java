@@ -626,25 +626,33 @@ public class JSW3D extends ApplicationAdapter {
       Model model = modelCache.computeIfAbsent(base, k -> smooth
           ? SmoothSpriteBuilder.build(k, bytes, 2, replay::memByte, smoothLevel, depthScale)
           : VoxelSpriteBuilder.build(k, bytes, 2, replay::memByte, smoothLevel, depthScale));
-      ModelInstance inst = new ModelInstance(model);
       float cx = (b[0] + b[2] + 1) * 8 / 2f;          // byte cols -> pixels
       float cy = H - (b[1] + b[3] + 1) / 2f;          // screen y down -> world y up
-      inst.transform.setToTranslation(cx, cy, midZ());
       // playfield blobs only: the lives-row Willys must not kick junk around
       if (cy > 66)
         spriteBoxes.add(new float[]{cx, cy, (b[2] - b[0] + 1) * 4f, (b[3] - b[1] + 1) / 2f});
       Color c = PALETTE[blob[5]];
-      inst.materials.first().set(ColorAttribute.createDiffuse(c));
-      if (darkMode) {
-        // the sprite IS a light source: it glows a little itself and casts a small pool
-        // of its own color around it — enough to make out its surroundings, no more
-        inst.materials.first().set(ColorAttribute.createEmissive(
-            c.r * .4f, c.g * .4f, c.b * .4f, 1));
+      // a blob much wider than the sprite itself, at the sprite's own height, is a ROW of
+      // copies drawn shoulder to shoulder — JSW's lives row — that connectivity merged
+      // into one: an instance per 16px slot puts a Willy on EVERY life instead of a
+      // single one floating in the middle of the row
+      int colspan = b[2] - b[0] + 1;
+      int copies = colspan >= 4 && (b[3] - b[1] + 1) <= bytes / 2 + 2 ? (colspan + 1) / 2 : 1;
+      for (int k = 0; k < copies; k++) {
+        ModelInstance inst = new ModelInstance(model);
+        inst.transform.setToTranslation(copies == 1 ? cx : (b[0] + k * 2 + 1) * 8, cy, midZ());
+        inst.materials.first().set(ColorAttribute.createDiffuse(c));
+        if (darkMode)
+          // the sprite IS a light source: it glows a little itself and casts a small pool
+          // of its own color around it — enough to make out its surroundings, no more
+          inst.materials.first().set(ColorAttribute.createEmissive(
+              c.r * .4f, c.g * .4f, c.b * .4f, 1));
+        spriteInstances.add(inst);
+      }
+      if (darkMode)
         frameLights.add(new com.badlogic.gdx.graphics.g3d.environment.PointLight().set(
             .5f + c.r * .5f, .5f + c.g * .5f, .5f + c.b * .5f,
             cx, cy, midZ() + 14, spriteLightIntensity));
-      }
-      spriteInstances.add(inst);
     }
   }
 
