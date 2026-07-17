@@ -45,20 +45,15 @@ import java.util.function.IntUnaryOperator;
  * </ol>
  */
 public final class SmoothSpriteBuilder {
-  private static final int S = VoxelSpriteBuilder.SIZE, K = 4, N = S * K;
+  private static final int W = VoxelSpriteBuilder.WIDTH, K = 4, NX = W * K;
   private static final float MAX_DEPTH = 4.5f;      // half-depth at the fattest point, pixels
   private static final float INSIDE = 0.45f;        // <.5 keeps single-pixel diagonals connected
 
-  public static Model build(int base, IntUnaryOperator memByte) {
-    boolean[][] mask = new boolean[S][S];
-    for (int row = 0; row < S; row++)
-      for (int half = 0; half < 2; half++) {
-        int b = memByte.applyAsInt(base + row * 2 + half);
-        for (int bit = 0; bit < 8; bit++)
-          mask[row][half * 8 + bit] = (b & (0x80 >> bit)) != 0;
-      }
+  public static Model build(int base, int bytes, IntUnaryOperator memByte) {
+    boolean[][] mask = VoxelSpriteBuilder.mask(base, bytes, memByte);
+    int ny = mask.length * K;
 
-    // corner lattice (N+1)^2 over the sprite: bilinear sample of the mask = smoothed field
+    // corner lattice over the sprite: bilinear sample of the mask = smoothed field
     float[][] h = heights(mask);
 
     ModelBuilder mb = new ModelBuilder();
@@ -68,8 +63,8 @@ public final class SmoothSpriteBuilder {
 
     short[][] front = vertices(part, h, +1);
     short[][] back = vertices(part, h, -1);
-    for (int gy = 0; gy < N; gy++)
-      for (int gx = 0; gx < N; gx++) {
+    for (int gy = 0; gy < ny; gy++)
+      for (int gx = 0; gx < NX; gx++) {
         if (h[gy][gx] == 0 && h[gy][gx + 1] == 0 && h[gy + 1][gx] == 0 && h[gy + 1][gx + 1] == 0)
           continue;
         // front faces +z (ccw seen from the camera), back mirrored
@@ -83,31 +78,32 @@ public final class SmoothSpriteBuilder {
 
   /** smoothed-silhouette distance field turned into the inflation height, on the corner lattice. */
   private static float[][] heights(boolean[][] mask) {
-    float[][] field = new float[N + 1][N + 1];
-    for (int gy = 0; gy <= N; gy++)
-      for (int gx = 0; gx <= N; gx++)
+    int ny = mask.length * K;
+    float[][] field = new float[ny + 1][NX + 1];
+    for (int gy = 0; gy <= ny; gy++)
+      for (int gx = 0; gx <= NX; gx++)
         field[gy][gx] = bilinear(mask, gx / (float) K, gy / (float) K);
 
     // chamfer distance (lattice steps) to the nearest outside corner
-    float inf = N * 2f, sq2 = 1.4142f;
-    float[][] d = new float[N + 1][N + 1];
-    for (int gy = 0; gy <= N; gy++)
-      for (int gx = 0; gx <= N; gx++)
+    float inf = (ny + NX) * 2f, sq2 = 1.4142f;
+    float[][] d = new float[ny + 1][NX + 1];
+    for (int gy = 0; gy <= ny; gy++)
+      for (int gx = 0; gx <= NX; gx++)
         d[gy][gx] = field[gy][gx] >= INSIDE ? inf : 0;
-    for (int gy = 0; gy <= N; gy++)
-      for (int gx = 0; gx <= N; gx++)
+    for (int gy = 0; gy <= ny; gy++)
+      for (int gx = 0; gx <= NX; gx++)
         pass(d, gx, gy, sq2);
-    for (int gy = N; gy >= 0; gy--)
-      for (int gx = N; gx >= 0; gx--)
+    for (int gy = ny; gy >= 0; gy--)
+      for (int gx = NX; gx >= 0; gx--)
         pass(d, gx, gy, sq2);
 
     float dMax = 0.01f;
     for (float[] row : d)
       for (float v : row)
         dMax = Math.max(dMax, v);
-    float[][] h = new float[N + 1][N + 1];
-    for (int gy = 0; gy <= N; gy++)
-      for (int gx = 0; gx <= N; gx++)
+    float[][] h = new float[ny + 1][NX + 1];
+    for (int gy = 0; gy <= ny; gy++)
+      for (int gx = 0; gx <= NX; gx++)
         h[gy][gx] = MAX_DEPTH * (float) Math.sqrt(d[gy][gx] / dMax);
     return blur(h);
   }
@@ -115,10 +111,11 @@ public final class SmoothSpriteBuilder {
   private static void pass(float[][] d, int gx, int gy, float sq2) {
     if (d[gy][gx] == 0)
       return;
+    int ny = d.length - 1;
     for (int dy = -1; dy <= 1; dy++)
       for (int dx = -1; dx <= 1; dx++) {
         int x = gx + dx, y = gy + dy;
-        if ((dx | dy) != 0 && x >= 0 && x <= N && y >= 0 && y <= N)
+        if ((dx | dy) != 0 && x >= 0 && x <= NX && y >= 0 && y <= ny)
           d[gy][gx] = Math.min(d[gy][gx], d[y][x] + (dx * dy != 0 ? sq2 : 1));
       }
   }
@@ -134,13 +131,14 @@ public final class SmoothSpriteBuilder {
   }
 
   private static float at(boolean[][] mask, int r, int c) {
-    return r >= 0 && r < S && c >= 0 && c < S && mask[r][c] ? 1 : 0;
+    return r >= 0 && r < mask.length && c >= 0 && c < W && mask[r][c] ? 1 : 0;
   }
 
   private static float[][] blur(float[][] h) {
-    float[][] out = new float[N + 1][N + 1];
-    for (int gy = 0; gy <= N; gy++)
-      for (int gx = 0; gx <= N; gx++) {
+    int ny = h.length - 1;
+    float[][] out = new float[ny + 1][NX + 1];
+    for (int gy = 0; gy <= ny; gy++)
+      for (int gx = 0; gx <= NX; gx++) {
         if (h[gy][gx] == 0)
           continue; // the rim stays pinned at zero so front and back keep meeting there
         float sum = 0;
@@ -148,7 +146,7 @@ public final class SmoothSpriteBuilder {
         for (int dy = -1; dy <= 1; dy++)
           for (int dx = -1; dx <= 1; dx++) {
             int x = gx + dx, y = gy + dy;
-            if (x >= 0 && x <= N && y >= 0 && y <= N) {
+            if (x >= 0 && x <= NX && y >= 0 && y <= ny) {
               sum += h[y][x];
               n++;
             }
@@ -160,17 +158,19 @@ public final class SmoothSpriteBuilder {
 
   /** one surface of the balloon: the heightfield at z = side*h, normals from the gradient. */
   private static short[][] vertices(MeshPartBuilder part, float[][] h, int side) {
-    short[][] idx = new short[N + 1][N + 1];
-    for (int gy = 0; gy <= N; gy++)
-      for (int gx = 0; gx <= N; gx++) {
-        float x = gx / (float) K - S / 2f;
-        float y = S / 2f - gy / (float) K;          // screen rows grow down, model y grows up
-        float hl = h[gy][Math.max(0, gx - 1)], hr = h[gy][Math.min(N, gx + 1)];
-        float hu = h[Math.max(0, gy - 1)][gx], hd = h[Math.min(N, gy + 1)][gx];
+    int ny = h.length - 1;
+    float rows = ny / (float) K;
+    short[][] idx = new short[ny + 1][NX + 1];
+    for (int gy = 0; gy <= ny; gy++)
+      for (int gx = 0; gx <= NX; gx++) {
+        float x = gx / (float) K - W / 2f;
+        float y = rows / 2f - gy / (float) K;       // screen rows grow down, model y grows up
+        float hl = h[gy][Math.max(0, gx - 1)], hr = h[gy][Math.min(NX, gx + 1)];
+        float hu = h[Math.max(0, gy - 1)][gx], hd = h[Math.min(ny, gy + 1)][gx];
         float gradX = (hr - hl) * K / 2f, gradY = -(hd - hu) * K / 2f;
-        float nx = -gradX * side, ny = -gradY * side, nz = side;
-        float len = (float) Math.sqrt(nx * nx + ny * ny + nz * nz);
-        idx[gy][gx] = part.vertex(x, y, side * h[gy][gx], nx / len, ny / len, nz / len);
+        float nx = -gradX * side, nyv = -gradY * side, nz = side;
+        float len = (float) Math.sqrt(nx * nx + nyv * nyv + nz * nz);
+        idx[gy][gx] = part.vertex(x, y, side * h[gy][gx], nx / len, nyv / len, nz / len);
       }
     return idx;
   }

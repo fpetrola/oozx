@@ -35,6 +35,8 @@ import java.sql.Statement;
 public final class SpriteCatalog {
   /** addr -> sprite base + 1, 0 when the address is not part of any catalogued sprite. */
   public final int[] baseOf = new int[0x10000];
+  /** base -> catalogued byte size (16x16 = 32 bytes; DD also has 16/24/48/72). */
+  public final java.util.Map<Integer, Integer> sizeOf = new java.util.HashMap<>();
   public int sprites;
 
   public SpriteCatalog(String dbPath, int maxSpriteBytes) throws Exception {
@@ -46,6 +48,7 @@ public final class SpriteCatalog {
         int base = rs.getInt(1), last = rs.getInt(2);
         for (int a = base; a <= last && a < 0x10000; a++)
           baseOf[a] = base + 1;
+        sizeOf.put(base, rs.getInt(3));
         sprites++;
       }
     }

@@ -64,6 +64,7 @@ public class JSW3D extends ApplicationAdapter {
   private volatile TaintReplay.FrameSnapshot latest;
   private int shownFrame = -1;
 
+  private SpriteCatalog catalog;
   private TaintReplay replay;
   private Thread replayThread;
   private ModelBatch batch;
@@ -124,7 +125,7 @@ public class JSW3D extends ApplicationAdapter {
     backdrop = new ModelInstance(backdropModel);
 
     try {
-      SpriteCatalog catalog = new SpriteCatalog(dbPath, 128);
+      catalog = new SpriteCatalog(dbPath, 128);
       replay = new TaintReplay(rzxPath, catalog, snap -> latest = snap);
       replayThread = new Thread(replay, "taint-replay");
       replayThread.setDaemon(true);
@@ -248,9 +249,10 @@ public class JSW3D extends ApplicationAdapter {
     for (int[] blob : blobs) {
       int base = blob[0] - 1;
       int[] b = {blob[1], blob[2], blob[3], blob[4]};
+      int bytes = catalog.sizeOf.getOrDefault(base, 32);
       Model model = modelCache.computeIfAbsent(base, k -> smooth
-          ? SmoothSpriteBuilder.build(k, replay::memByte)
-          : VoxelSpriteBuilder.build(k, replay::memByte));
+          ? SmoothSpriteBuilder.build(k, bytes, replay::memByte)
+          : VoxelSpriteBuilder.build(k, bytes, replay::memByte));
       ModelInstance inst = new ModelInstance(model);
       float cx = (b[0] + b[2] + 1) * 8 / 2f;          // byte cols -> pixels
       float cy = H - (b[1] + b[3] + 1) / 2f;          // screen y down -> world y up
