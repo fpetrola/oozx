@@ -241,6 +241,16 @@ public class JSW3D extends ApplicationAdapter {
   private final List<Param> params = new ArrayList<>();
   private final List<String> paramGroups = new ArrayList<>();
   private int tuneGroup = Integer.getInteger("tune", 0) - 1, tuneParam;
+  /**
+   * F1 (-Dplay=true from frame one) CUTS the RZX replay and hands the input to the
+   * player: every letter/digit/space/enter/shift goes to the Spectrum keyboard matrix
+   * (Alt = symbol shift), so the game is played live from that exact moment. One way —
+   * once the input diverges, the recording can't resume. While playing, the effect
+   * hotkeys stay reachable as Ctrl+key, the guide moves to F2, and TAB/arrows/ESC keep
+   * driving the tuning menu.
+   */
+  private boolean playMode = Boolean.getBoolean("play");
+  private java.awt.Component keyEventSource;
   private long tuneShownAt, lastAdjustAt;
   /** counts the tuning menu edits live; lamps/balloons/junk regenerate on change. */
   private int lampCount = 3, balloonCount = 6, bubbleCount = 6;
@@ -298,10 +308,32 @@ public class JSW3D extends ApplicationAdapter {
         new com.badlogic.gdx.InputAdapter() {
           @Override
           public boolean keyDown(int keycode) {
+            // playing live: game keys go straight to the Spectrum matrix; Ctrl+key keeps
+            // the effect toggles reachable, and TAB/arrows/ESC still drive the tuning menu
+            boolean ctrl = Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.CONTROL_LEFT)
+                || Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.CONTROL_RIGHT);
+            if (playMode && !ctrl && (tuneGroup < 0 || !isTuningKey(keycode))) {
+              int vk = vkFor(keycode);
+              if (vk >= 0) {
+                spectrumKey(vk, true);
+                return true;
+              }
+            }
             // only the keys that change the VOXELS force a rebuild; lights, weather and
             // replay speed leave every cached model exactly as it is
             boolean rebuild = true;
             switch (keycode) {
+              case com.badlogic.gdx.Input.Keys.F1 -> {
+                if (!playMode) {
+                  playMode = true;
+                  replay.goLive();
+                }
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.F2 -> {
+                helpOn = !helpOn;
+                rebuild = false;
+              }
               case com.badlogic.gdx.Input.Keys.M -> smooth = !smooth;
               case com.badlogic.gdx.Input.Keys.S -> smoothLevel = Math.min(10, smoothLevel + 1);
               case com.badlogic.gdx.Input.Keys.X -> smoothLevel = Math.max(0, smoothLevel - 1);
@@ -427,6 +459,22 @@ public class JSW3D extends ApplicationAdapter {
             }
             configDirty = true;
             configDirtyAt = System.currentTimeMillis();
+            return afterKey(rebuild);
+          }
+
+          @Override
+          public boolean keyUp(int keycode) {
+            if (playMode) {
+              int vk = vkFor(keycode);
+              if (vk >= 0) {
+                spectrumKey(vk, false); // releases always reach the game, Ctrl or not
+                return true;
+              }
+            }
+            return false;
+          }
+
+          private boolean afterKey(boolean rebuild) {
             if (rebuild) {
               try {
                   Thread.sleep(100);
@@ -651,6 +699,53 @@ public class JSW3D extends ApplicationAdapter {
     }
     reportPerf();
     screenshotIfAsked();
+  }
+
+  /** keys the tuning menu owns while it is open — they must not reach the game. */
+  private static boolean isTuningKey(int keycode) {
+    return keycode == com.badlogic.gdx.Input.Keys.UP
+        || keycode == com.badlogic.gdx.Input.Keys.DOWN
+        || keycode == com.badlogic.gdx.Input.Keys.LEFT
+        || keycode == com.badlogic.gdx.Input.Keys.RIGHT;
+  }
+
+  /** Gdx keycode -> AWT VK code for the Spectrum keyboard; -1 = not a game key. */
+  private static int vkFor(int keycode) {
+    if (keycode >= com.badlogic.gdx.Input.Keys.A && keycode <= com.badlogic.gdx.Input.Keys.Z)
+      return java.awt.event.KeyEvent.VK_A + (keycode - com.badlogic.gdx.Input.Keys.A);
+    if (keycode >= com.badlogic.gdx.Input.Keys.NUM_0
+        && keycode <= com.badlogic.gdx.Input.Keys.NUM_9)
+      return java.awt.event.KeyEvent.VK_0 + (keycode - com.badlogic.gdx.Input.Keys.NUM_0);
+    return switch (keycode) {
+      case com.badlogic.gdx.Input.Keys.SPACE -> java.awt.event.KeyEvent.VK_SPACE;
+      case com.badlogic.gdx.Input.Keys.ENTER -> java.awt.event.KeyEvent.VK_ENTER;
+      case com.badlogic.gdx.Input.Keys.SHIFT_LEFT, com.badlogic.gdx.Input.Keys.SHIFT_RIGHT ->
+          java.awt.event.KeyEvent.VK_SHIFT;
+      // the Spectrum's symbol shift: Alt, because Ctrl is the effects modifier
+      case com.badlogic.gdx.Input.Keys.ALT_LEFT, com.badlogic.gdx.Input.Keys.ALT_RIGHT ->
+          java.awt.event.KeyEvent.VK_CONTROL;
+      case com.badlogic.gdx.Input.Keys.LEFT -> java.awt.event.KeyEvent.VK_LEFT;
+      case com.badlogic.gdx.Input.Keys.RIGHT -> java.awt.event.KeyEvent.VK_RIGHT;
+      case com.badlogic.gdx.Input.Keys.UP -> java.awt.event.KeyEvent.VK_UP;
+      case com.badlogic.gdx.Input.Keys.DOWN -> java.awt.event.KeyEvent.VK_DOWN;
+      default -> -1;
+    };
+  }
+
+  /** feed a synthesized AWT key event into the live Spectrum keyboard matrix. */
+  private void spectrumKey(int vk, boolean down) {
+    com.fpetrola.z80.minizx.MiniZXKeyboard kb = replay == null ? null : replay.keyboard();
+    if (kb == null)
+      return;
+    if (keyEventSource == null)
+      keyEventSource = new java.awt.Container();
+    java.awt.event.KeyEvent e = new java.awt.event.KeyEvent(keyEventSource,
+        down ? java.awt.event.KeyEvent.KEY_PRESSED : java.awt.event.KeyEvent.KEY_RELEASED,
+        System.currentTimeMillis(), 0, vk, java.awt.event.KeyEvent.CHAR_UNDEFINED);
+    if (down)
+      kb.keyPressed(e);
+    else
+      kb.keyReleased(e);
   }
 
   private void addParam(String id, String group, String name, float min, float max, float step,
@@ -914,6 +1009,9 @@ public class JSW3D extends ApplicationAdapter {
       , / .    velocidad mitad / doble
       Enter    velocidad normal
       TAB      menu de parametros (flechas ajustan, ESC cierra)
+      F1       cortar el replay y JUGAR (una sola via)
+      F2       esta guia (jugando, las teclas van al juego y
+               los efectos se togglean con Ctrl+tecla)
       Mouse    arrastrar rota - rueda zoom
       La config se guarda sola en ~/.jsw3d-config.json""";
 
@@ -947,6 +1045,8 @@ public class JSW3D extends ApplicationAdapter {
         windOn ? "si" : "no", balloonsOn ? "si" : "no", leavesOn ? "si" : "no",
         dustOn ? "si" : "no", ghostAlpha,
         replay == null ? "?" : String.valueOf(replay.getSpeed()));
+    if (playMode && TaintReplay.LOG)
+      System.out.println("JUGANDO en vivo (F1): teclas al juego, efectos con Ctrl+tecla");
   }
 
   /** -Dperf=true: once a second, where the frame time actually goes. */

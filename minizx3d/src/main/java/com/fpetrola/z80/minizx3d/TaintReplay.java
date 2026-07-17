@@ -157,6 +157,27 @@ public final class TaintReplay implements Runnable {
     stop = true;
   }
 
+  /** the RZX player, published once the replay thread builds it. */
+  private volatile RZXPlayerIO<WordNumber> io;
+
+  /** cut the recording NOW and hand the input over to the live keyboard. One way. */
+  public void goLive() {
+    RZXPlayerIO<WordNumber> i = io;
+    if (i != null)
+      i.goLive();
+  }
+
+  public boolean isLive() {
+    RZXPlayerIO<WordNumber> i = io;
+    return i != null && i.isLive();
+  }
+
+  /** the Spectrum keyboard matrix live mode reads; feed it AWT key events. */
+  public com.fpetrola.z80.minizx.MiniZXKeyboard keyboard() {
+    RZXPlayerIO<WordNumber> i = io;
+    return i == null ? null : i.getMiniZXKeyboard();
+  }
+
   /** a static graphics byte, readable once the snapshot is loaded (for the voxel builder). */
   public int memByte(int addr) {
     WordNumber[] d = data;
@@ -168,6 +189,7 @@ public final class TaintReplay implements Runnable {
   public void run() {
     try {
       RZXPlayerIO<WordNumber> io = new RZXPlayerIO<>();
+      this.io = io;
       State state = new State(io, new DefaultMemory(true));
       io.setPc(state.getPc());
       OOZ80 ooz80 = Z80Factory.createOOZ80(state);
@@ -179,6 +201,8 @@ public final class TaintReplay implements Runnable {
       SnapshotLoader.setupStateFromSpectrumState(snapshot, new RegistersBase(state),
           new DefaultMemorySetter(state.getMemory(), MiniZXWithEmulationBase.createROM()));
       io.setup(rzxFile);
+      if (Boolean.getBoolean("play"))
+        io.goLive(); // -Dplay=true: skip the recording entirely, play from frame one
       int totalFrames = rzxFile.getInputRecordingBlock().frames.size();
       if (LOG)
         System.out.println("TaintReplay: " + rzxPath + " (" + totalFrames + " frames)");
@@ -223,7 +247,8 @@ public final class TaintReplay implements Runnable {
 
       DefaultEmulator emulator = new DefaultEmulator();
       emulator.setup(ooz80, -1, 1,
-          i -> !stop && io.getCurrentFrameIndex() < Math.min(totalFrames, maxFrames)
+          i -> !stop
+              && (io.isLive() || io.getCurrentFrameIndex() < Math.min(totalFrames, maxFrames))
               && state.getRunState() != State.RunState.STATE_STOPPED_BREAK,
           io.getInterruptionCondition());
       emulator.emulate();

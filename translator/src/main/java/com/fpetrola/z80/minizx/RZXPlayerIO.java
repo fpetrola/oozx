@@ -34,6 +34,14 @@ import static com.fpetrola.z80.opcodes.references.WordNumber.createValue;
 public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
   public MiniZXKeyboard miniZXKeyboard;
   private Register<T> pc;
+  /**
+   * LIVE mode: the recording is abandoned and the player takes over — INs read the real
+   * keyboard matrix instead of the recorded values, and frame interrupts fire every
+   * {@link #liveFetches} fetches (the recording's own average frame length, so the game
+   * keeps its familiar pace). One way: once the input diverges there is no going back.
+   */
+  private volatile boolean live;
+  private long liveFetches = 17000;
   private int currentFrameIndex;
   private InputRecordingBlock.Frame currentFrame;
   private SimpleQueue<Byte> inputs = new SimpleQueue<>(1000000);
@@ -62,7 +70,33 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
 //    outListeners.forEach(l -> l.outAt(port, value));
   }
 
+  public boolean isLive() {
+    return live;
+  }
+
+  public void goLive() {
+    if (live || frames == null)
+      return;
+    long sum = 0;
+    int n = 0;
+    for (InputRecordingBlock.Frame f : frames) {
+      sum += f.fetchCounter;
+      if (++n >= 2000)
+        break;
+    }
+    if (n > 0)
+      liveFetches = Math.max(1000, sum / n);
+    miniZXKeyboard.reset();
+    live = true;
+  }
+
   public synchronized T in(T port) {
+    if (live) {
+      // ULA port: the real keyboard matrix (ear bit high); anything else reads idle
+      if ((port.intValue() & 1) == 0)
+        return createValue(miniZXKeyboard.readKeyboardPort(port.intValue(), true) & 191);
+      return createValue(0);
+    }
     if (currentFrame == null)
       return createValue(0);
     else {
@@ -138,6 +172,14 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
   public Predicate<Integer> getInterruptionCondition() {
     return (i) -> {
       fetchCounter = i;
+      if (live) {
+        if (i - lastCount + 1 > liveFetches) {
+          ++currentFrameIndex;
+          lastCount = i;
+          return true;
+        }
+        return false;
+      }
       if (currentFrame != null)
         if (i - lastCount + 1 > currentFrame.fetchCounter) {
           if (DEBUG_SYNC && !inputs.isEmpty())
