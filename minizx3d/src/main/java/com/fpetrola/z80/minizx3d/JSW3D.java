@@ -114,10 +114,19 @@ public class JSW3D extends ApplicationAdapter {
   private final Map<Integer, Boolean> emptyLeaves = new HashMap<>();
   /** the lights the CURRENT frame's sprites and items shine; env is rebuilt from them. */
   private final List<com.badlogic.gdx.graphics.g3d.environment.PointLight> frameLights = new ArrayList<>();
-  /** N toggles drifting mist, F turns items into little braziers (-Dfx.fog / -Dfx.fire). */
+  /**
+   * N mist, F item braziers, R rain, B snow (-Dfx.fog / -Dfx.fire / -Dfx.rain / -Dfx.snow).
+   * Rain and snow collide with the world: {@link #solidCells} marks the slab cells and
+   * {@link #spritePix} the moving sprites' lit pixels, both rebuilt every frame.
+   */
   private AmbientEffects effects;
   private boolean mistOn = Boolean.getBoolean("fx.fog");
   private boolean fireOn = Boolean.getBoolean("fx.fire");
+  private boolean rainOn = Boolean.getBoolean("fx.rain");
+  private boolean snowOn = Boolean.getBoolean("fx.snow");
+  private final boolean[] solidCells = new boolean[24 * 32];
+  private final boolean[] prevSolidCells = new boolean[24 * 32];
+  private final byte[] spritePix = new byte[TaintReplay.PIXEL_BYTES];
 
   public JSW3D(String rzxPath, String dbPath) {
     this.rzxPath = rzxPath;
@@ -145,6 +154,22 @@ public class JSW3D extends ApplicationAdapter {
     cam.update();
     camController = new CameraInputController(cam);
     effects = new AmbientEffects(cam);
+    effects.setWorld(new AmbientEffects.World() {
+      @Override
+      public boolean solid(float wx, float wy) {
+        int x = (int) wx, sy = H - 1 - (int) Math.floor(wy);
+        return x >= 0 && x < W && sy >= 0 && sy < H && solidCells[(sy >> 3) * 32 + (x >> 3)];
+      }
+
+      @Override
+      public boolean sprite(float wx, float wy) {
+        int x = (int) wx, sy = H - 1 - (int) Math.floor(wy);
+        if (x < 0 || x >= W || sy < 0 || sy >= H)
+          return false;
+        int i = ((sy & 0xC0) << 5) | ((sy & 7) << 8) | ((sy & 0x38) << 2) | (x >> 3);
+        return (spritePix[i] & (0x80 >> (x & 7))) != 0;
+      }
+    });
     com.badlogic.gdx.InputMultiplexer input = new com.badlogic.gdx.InputMultiplexer(
         new com.badlogic.gdx.InputAdapter() {
           @Override
@@ -160,6 +185,8 @@ public class JSW3D extends ApplicationAdapter {
               case com.badlogic.gdx.Input.Keys.L -> darkMode = !darkMode;
               case com.badlogic.gdx.Input.Keys.N -> mistOn = !mistOn;
               case com.badlogic.gdx.Input.Keys.F -> fireOn = !fireOn;
+              case com.badlogic.gdx.Input.Keys.R -> rainOn = !rainOn;
+              case com.badlogic.gdx.Input.Keys.B -> snowOn = !snowOn;
               default -> {
                 return false;
               }
@@ -172,9 +199,10 @@ public class JSW3D extends ApplicationAdapter {
               }
               modelCache.values().forEach(Model::dispose);
             modelCache.clear();
-            System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) luz=%s (L) niebla=%s (N) fuego=%s (F)%n",
+            System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) luz=%s (L) niebla=%s (N) fuego=%s (F) lluvia=%s (R) nieve=%s (B)%n",
                 smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth,
-                darkMode ? "linterna" : "normal", mistOn ? "si" : "no", fireOn ? "si" : "no");
+                darkMode ? "linterna" : "normal", mistOn ? "si" : "no", fireOn ? "si" : "no",
+                rainOn ? "si" : "no", snowOn ? "si" : "no");
             return true;
           }
         });
@@ -183,9 +211,10 @@ public class JSW3D extends ApplicationAdapter {
     if (System.getProperty("shot") == null)
       input.addProcessor(camController);
     Gdx.input.setInputProcessor(input);
-    System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) luz=%s (L) niebla=%s (N) fuego=%s (F), M alterna modo%n",
+    System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) luz=%s (L) niebla=%s (N) fuego=%s (F) lluvia=%s (R) nieve=%s (B), M alterna modo%n",
         smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth,
-        darkMode ? "linterna" : "normal", mistOn ? "si" : "no", fireOn ? "si" : "no");
+        darkMode ? "linterna" : "normal", mistOn ? "si" : "no", fireOn ? "si" : "no",
+        rainOn ? "si" : "no", snowOn ? "si" : "no");
 
     rebuildEnv();
 
@@ -254,9 +283,10 @@ public class JSW3D extends ApplicationAdapter {
     for (ModelInstance s : spriteInstances)
       batch.render(s, env);
     batch.end();
-    // blended decals go after the opaque world so mist and flames layer over it
-    effects.update(Gdx.graphics.getDeltaTime(), mistOn, fireOn);
-    effects.render(cam, mistOn, fireOn);
+    // blended decals go after the opaque world so mist, flames and weather layer over it
+    effects.setDepthRange(midZ(), slabDepth() / 2f + 3);
+    effects.update(Gdx.graphics.getDeltaTime(), mistOn, fireOn, rainOn, snowOn);
+    effects.render(cam, mistOn, fireOn, rainOn, snowOn);
     screenshotIfAsked();
   }
 
@@ -292,6 +322,8 @@ public class JSW3D extends ApplicationAdapter {
         Color ink = PALETTE[(attr & 7) | ((attr >> 3) & 8)];
         Color paper = PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)];
         int i = rowAddr | col;
+        // the moving sprites' actual pixels, for pixel-accurate weather collision
+        spritePix[i] = (byte) (snap.owner()[i] != 0 ? snap.pixels()[i] : 0);
         int bits = snap.owner()[i] != 0 || snap.tile()[i] != 0 ? 0 : snap.pixels()[i] & 0xff;
         for (int bit = 0; bit < 8; bit++)
           pixmap.drawPixel(col * 8 + bit, y, Color.rgba8888(
@@ -414,6 +446,8 @@ public class JSW3D extends ApplicationAdapter {
    */
   private void updateTiles(TaintReplay.FrameSnapshot snap) {
     tileInstances.clear();
+    System.arraycopy(solidCells, 0, prevSolidCells, 0, solidCells.length);
+    java.util.Arrays.fill(solidCells, false);
     for (int cellY = 0; cellY < 24; cellY++)
       for (int col = 0; col < 32; col++) {
         int y0 = cellY * 8;
@@ -476,6 +510,7 @@ public class JSW3D extends ApplicationAdapter {
             : TileSlabBuilder.build(leaf, replay::memByte, slabDepth()));
         if (model == null)
           continue;
+        solidCells[cell] = true;
         ModelInstance inst = new ModelInstance(model);
         inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
         Color inkColor = PALETTE[(attr & 7) | ((attr >> 3) & 8)];
@@ -507,6 +542,14 @@ public class JSW3D extends ApplicationAdapter {
         }
         tileInstances.add(inst);
       }
+    // a room switch redraws most of the screen at once — the accumulated snow drifts
+    // belong to platforms that no longer exist
+    int changed = 0;
+    for (int i = 0; i < solidCells.length; i++)
+      if (solidCells[i] != prevSolidCells[i])
+        changed++;
+    if (changed > 60)
+      effects.clearSnow();
   }
 
   @Override
