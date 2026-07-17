@@ -106,7 +106,7 @@ public class JSW3D extends ApplicationAdapter {
           public boolean keyDown(int keycode) {
             switch (keycode) {
               case com.badlogic.gdx.Input.Keys.M -> smooth = !smooth;
-              case com.badlogic.gdx.Input.Keys.S -> smoothLevel = Math.min(6, smoothLevel + 1);
+              case com.badlogic.gdx.Input.Keys.S -> smoothLevel = Math.min(10, smoothLevel + 1);
               case com.badlogic.gdx.Input.Keys.X -> smoothLevel = Math.max(0, smoothLevel - 1);
               case com.badlogic.gdx.Input.Keys.D -> depthScale = Math.min(3f, depthScale * 1.25f);
               case com.badlogic.gdx.Input.Keys.C -> depthScale = Math.max(.3f, depthScale / 1.25f);
@@ -114,7 +114,13 @@ public class JSW3D extends ApplicationAdapter {
                 return false;
               }
             }
-            modelCache.values().forEach(Model::dispose);
+
+              try {
+                  Thread.sleep(100);
+              } catch (InterruptedException e) {
+                  throw new RuntimeException(e);
+              }
+              modelCache.values().forEach(Model::dispose);
             modelCache.clear();
             System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C)%n",
                 smooth ? "suave" : "voxel", smoothLevel, depthScale);
