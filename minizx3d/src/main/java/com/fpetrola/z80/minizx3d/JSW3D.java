@@ -26,10 +26,14 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Vector3;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -161,6 +165,21 @@ public class JSW3D extends ApplicationAdapter {
    * environment. Pairs well with rain (R) and is at its best in lantern mode.
    */
   private boolean stormOn = Boolean.getBoolean("fx.storm");
+  /**
+   * O cast shadows (-Dfx.shadows=false disables): the sun becomes a
+   * {@link DirectionalShadowLight} and a depth pre-pass renders the CASTERS — sprites,
+   * junk, lamps, rope — so they throw real shadows onto the slabs and the backdrop.
+   * Normal mode only: lantern mode has no sun to cast them.
+   */
+  private boolean shadowsOn = !"false".equals(System.getProperty("fx.shadows"));
+  private DirectionalShadowLight shadowLight;
+  private ModelBatch shadowBatch;
+  /**
+   * while it rains (R) the world soaks: specular sheen fades in over ~6s on slabs,
+   * sprites and junk — light sources glint off them as if wet — and drains away once
+   * the rain stops.
+   */
+  private float wetness;
 
   public JSW3D(String rzxPath, String dbPath) {
     this.rzxPath = rzxPath;
@@ -189,6 +208,11 @@ public class JSW3D extends ApplicationAdapter {
     camController = new CameraInputController(cam);
     effects = new AmbientEffects(cam);
     junk = new JunkPhysics();
+    shadowLight = new DirectionalShadowLight(2048, 2048, 320, 260, 1, 400);
+    // tilted well off the z axis so shadows STRETCH across the slab tops beside their
+    // casters, instead of falling straight back onto the backdrop where they vanish
+    shadowLight.set(1f, 1f, 1f, -0.55f, -0.75f, -0.5f);
+    shadowBatch = new ModelBatch(new DepthShaderProvider());
     effects.setWorld(new AmbientEffects.World() {
       @Override
       public boolean solid(float wx, float wy) {
@@ -252,6 +276,10 @@ public class JSW3D extends ApplicationAdapter {
               }
               case com.badlogic.gdx.Input.Keys.E -> {
                 stormOn = !stormOn;
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.O -> {
+                shadowsOn = !shadowsOn;
                 rebuild = false;
               }
               case com.badlogic.gdx.Input.Keys.K -> {
@@ -344,7 +372,12 @@ public class JSW3D extends ApplicationAdapter {
     } else {
       float a = .5f + flash * .4f;
       env.set(new ColorAttribute(ColorAttribute.AmbientLight, a, a, a * 1.05f, 1));
-      env.add(new DirectionalLight().set(1f, 1f, 1f, -0.4f, -0.6f, -1f));
+      if (shadowsOn) {
+        // the sun and the shadow caster are the SAME light, so lit and shadowed sides agree
+        env.add(shadowLight);
+        env.shadowMap = shadowLight;
+      } else
+        env.add(new DirectionalLight().set(1f, 1f, 1f, -0.55f, -0.75f, -0.5f));
     }
     if (flash > .01f)
       env.add(new DirectionalLight().set(flash, flash, flash * 1.08f, .25f, -.9f, -.35f));
@@ -400,7 +433,29 @@ public class JSW3D extends ApplicationAdapter {
       if (lampsOn)
         updateLampInstances();
     }
+    // rain soaks the world in and dries it out; the sheen is applied where the
+    // instances get their materials, so it follows every rebuilt slab and sprite
+    wetness = Math.max(0, Math.min(1,
+        wetness + (rainOn ? Gdx.graphics.getDeltaTime() / 6 : -Gdx.graphics.getDeltaTime() / 15)));
     camController.update();
+    // depth pre-pass from the sun's viewpoint: only the movable things cast (sprites,
+    // junk, lamps, rope) — slabs and backdrop receive without shadowing themselves
+    if (shadowsOn && !darkMode) {
+      shadowLight.begin(new Vector3(W / 2f, H / 2f, 10), shadowLight.direction);
+      shadowBatch.begin(shadowLight.getCamera());
+      for (ModelInstance s : spriteInstances)
+        shadowBatch.render(s);
+      for (int i = 0; i < ropeCount; i++)
+        shadowBatch.render(ropePool.get(i));
+      if (junkOn)
+        for (ModelInstance j : junkInstances)
+          shadowBatch.render(j);
+      if (lampsOn)
+        for (ModelInstance l : lampInstances)
+          shadowBatch.render(l);
+      shadowBatch.end();
+      shadowLight.end();
+    }
     Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     Gdx.gl.glClearColor(.05f, .05f, .1f, 1);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -432,11 +487,12 @@ public class JSW3D extends ApplicationAdapter {
       return;
     System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) "
             + "luz=%s (L) niebla=%s (N) fuego=%s (F) lluvia=%s (R) nieve=%s (B) "
-            + "basura=%s x%d (J, K/H) lamparas=%s (P) tormenta=%s (E) velocidad=%sx (,/./0)%n",
+            + "basura=%s x%d (J, K/H) lamparas=%s (P) tormenta=%s (E) sombras=%s (O) "
+            + "velocidad=%sx (,/./0)%n",
         smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth,
         darkMode ? "linterna" : "normal", mistOn ? "si" : "no", fireOn ? "si" : "no",
         rainOn ? "si" : "no", snowOn ? "si" : "no", junkOn ? "si" : "no", junkCount,
-        lampsOn ? "si" : "no", stormOn ? "si" : "no",
+        lampsOn ? "si" : "no", stormOn ? "si" : "no", shadowsOn ? "si" : "no",
         replay == null ? "?" : String.valueOf(replay.getSpeed()));
   }
 
@@ -662,6 +718,7 @@ public class JSW3D extends ApplicationAdapter {
         ModelInstance inst = new ModelInstance(model);
         inst.transform.setToTranslation(copies == 1 ? cx : (b[0] + k * 2 + 1) * 8, cy, midZ());
         inst.materials.first().set(ColorAttribute.createDiffuse(cc));
+        wetten(inst.materials.first());
         if (darkMode)
           // the sprite IS a light source: it glows a little itself and casts a small pool
           // of its own color around it — enough to make out its surroundings, no more
@@ -673,6 +730,15 @@ public class JSW3D extends ApplicationAdapter {
         frameLights.add(new com.badlogic.gdx.graphics.g3d.environment.PointLight().set(
             .5f + c.r * .5f, .5f + c.g * .5f, .5f + c.b * .5f,
             cx, cy, midZ() + 14, spriteLightIntensity));
+    }
+  }
+
+  /** rain-wet sheen: bright broad specular so lights glint off the surface. */
+  private void wetten(Material m) {
+    if (wetness > .01f) {
+      float w = wetness;
+      m.set(ColorAttribute.createSpecular(.8f * w, .8f * w, .9f * w, 1));
+      m.set(FloatAttribute.createShininess(10));
     }
   }
 
@@ -795,10 +861,13 @@ public class JSW3D extends ApplicationAdapter {
           }
         } else {
           inst.getMaterial(TileSlabBuilder.INK).set(ColorAttribute.createDiffuse(inkColor));
+          wetten(inst.getMaterial(TileSlabBuilder.INK));
           Material paper = inst.getMaterial(TileSlabBuilder.PAPER);
-          if (paper != null) // an all-ink bitmap has no paper part
+          if (paper != null) { // an all-ink bitmap has no paper part
             paper.set(ColorAttribute.createDiffuse(
                 PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
+            wetten(paper);
+          }
         }
         tileInstances.add(inst);
       }
@@ -908,8 +977,10 @@ public class JSW3D extends ApplicationAdapter {
     }
     for (int i = 0; i < props.size(); i++) {
       JunkPhysics.Prop p = props.get(i);
-      junkInstances.get(i).transform.setToTranslation(p.x(), p.y(), junkZ(p))
+      ModelInstance inst = junkInstances.get(i);
+      inst.transform.setToTranslation(p.x(), p.y(), junkZ(p))
           .rotate(0, 0, 1, p.angleDeg());
+      wetten(inst.materials.first());
     }
   }
 
@@ -927,6 +998,8 @@ public class JSW3D extends ApplicationAdapter {
       lampModel.dispose();
     if (ropePixelModel != null)
       ropePixelModel.dispose();
+    shadowLight.dispose();
+    shadowBatch.dispose();
     junk.dispose();
     effects.dispose();
   }
