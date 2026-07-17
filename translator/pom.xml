@@ -142,6 +142,10 @@
                     <mainClass>com.fpetrola.z80.bytecode.examples.RemoteZ80Translator</mainClass>
                     <executable>true</executable>
                     <layout>ZIP</layout>
+                    <!-- keep the PLAIN jar as the main artifact so other modules (minizx3d)
+                         can depend on translator; the executable boot jar installs as
+                         translator-...-exec.jar -->
+                    <classifier>exec</classifier>
                 </configuration>
             </plugin>
         </plugins>

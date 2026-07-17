@@ -18,6 +18,7 @@
         <module>routines</module>
         <module>se</module>
         <module>sync</module>
+        <module>minizx3d</module>
     </modules>
 
     <properties>

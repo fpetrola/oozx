@@ -46,17 +46,18 @@ import java.util.*;
  * traffic can be suppressed, mirroring the Java translation where they become native
  * constructs with no observable memory ops.
  */
-class Z80OpcodeInfo {
-  final List<Integer> reads = new ArrayList<>();   // Tracer slots read (in order)
-  final List<Integer> writes = new ArrayList<>();  // Tracer slots written
-  final Map<String, String> roles = new LinkedHashMap<>(); // channel -> role letters (e.g. "A", "AV")
-  String kind = "INSTR";
+public class Z80OpcodeInfo {
+  public final List<Integer> reads = new ArrayList<>();   // Tracer slots read (in order)
+  public final List<Integer> writes = new ArrayList<>();  // Tracer slots written
+  public final Map<String, String> roles = new LinkedHashMap<>(); // channel -> role letters (e.g. "A", "AV")
+  public String kind = "INSTR";
   String equation;          // filled after first execution (needs immediates)
-  boolean bulk;             // LDIR family: emit Tracer.bulk, suppress per-byte traffic
-  boolean bulkBackward;     // LDDR/LDD: HL/DE point at the range END
+  public boolean bulk;      // LDIR family: emit Tracer.bulk, suppress per-byte traffic
+  public boolean bulkBackward; // LDDR/LDD: HL/DE point at the range END
   boolean cpBlock;          // CPIR family: coarse read at HL
-  boolean suppressMem;      // stack machinery: memory traffic not attributable to the game
-  boolean push, pop, ioIn;
+  public boolean suppressMem; // stack machinery: memory traffic not attributable to the game
+  public boolean push, pop;
+  boolean ioIn;
 
   private static final Map<String, int[]> SLOTS = new HashMap<>();
 
@@ -94,7 +95,7 @@ class Z80OpcodeInfo {
 
   // ---------- structural analysis (phase 1: no memory access needed) ----------
 
-  static Z80OpcodeInfo of(Instruction<?> instr) {
+  public static Z80OpcodeInfo of(Instruction<?> instr) {
     Z80OpcodeInfo o = new Z80OpcodeInfo();
     o.analyze(instr);
     return o;

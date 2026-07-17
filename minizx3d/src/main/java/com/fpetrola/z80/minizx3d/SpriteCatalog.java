@@ -1,0 +1,55 @@
+/*
+ *
+ *  * Copyright (c) 2023-2026 Fernando Damian Petrola
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *      http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *
+ */
+
+package com.fpetrola.z80.minizx3d;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+/**
+ * The discrete sprites the offline analysis already catalogued ({@code sprites_found}, from
+ * the track pipeline): base address and extent of each graphic the game ever drew. The taint
+ * classifies a screen byte by checking whether an origin lands inside one of these.
+ *
+ * <p>Only small entries are 3D candidates: a 16x16 game sprite is 32 bytes. The 256-byte
+ * room-template records (background identity) stay 2D — they are the part of the screen the
+ * voxel sprites float in front of.
+ */
+public final class SpriteCatalog {
+  /** addr -> sprite base + 1, 0 when the address is not part of any catalogued sprite. */
+  public final int[] baseOf = new int[0x10000];
+  public int sprites;
+
+  public SpriteCatalog(String dbPath, int maxSpriteBytes) throws Exception {
+    try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
+         Statement st = c.createStatement();
+         ResultSet rs = st.executeQuery(
+             "SELECT base, last, size FROM sprites_found WHERE size <= " + maxSpriteBytes)) {
+      while (rs.next()) {
+        int base = rs.getInt(1), last = rs.getInt(2);
+        for (int a = base; a <= last && a < 0x10000; a++)
+          baseOf[a] = base + 1;
+        sprites++;
+      }
+    }
+    System.out.println("SpriteCatalog: " + sprites + " sprites <= " + maxSpriteBytes
+        + " bytes from " + dbPath);
+  }
+}
