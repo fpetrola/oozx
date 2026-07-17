@@ -114,6 +114,10 @@ public class JSW3D extends ApplicationAdapter {
   private final Map<Integer, Boolean> emptyLeaves = new HashMap<>();
   /** the lights the CURRENT frame's sprites and items shine; env is rebuilt from them. */
   private final List<com.badlogic.gdx.graphics.g3d.environment.PointLight> frameLights = new ArrayList<>();
+  /** N toggles drifting mist, F turns items into little braziers (-Dfx.fog / -Dfx.fire). */
+  private AmbientEffects effects;
+  private boolean mistOn = Boolean.getBoolean("fx.fog");
+  private boolean fireOn = Boolean.getBoolean("fx.fire");
 
   public JSW3D(String rzxPath, String dbPath) {
     this.rzxPath = rzxPath;
@@ -140,6 +144,7 @@ public class JSW3D extends ApplicationAdapter {
     cam.far = 1000;
     cam.update();
     camController = new CameraInputController(cam);
+    effects = new AmbientEffects(cam);
     com.badlogic.gdx.InputMultiplexer input = new com.badlogic.gdx.InputMultiplexer(
         new com.badlogic.gdx.InputAdapter() {
           @Override
@@ -153,6 +158,8 @@ public class JSW3D extends ApplicationAdapter {
               case com.badlogic.gdx.Input.Keys.T -> tileDepth = Math.min(20f, tileDepth * 1.25f);
               case com.badlogic.gdx.Input.Keys.G -> tileDepth = Math.max(1f, tileDepth / 1.25f);
               case com.badlogic.gdx.Input.Keys.L -> darkMode = !darkMode;
+              case com.badlogic.gdx.Input.Keys.N -> mistOn = !mistOn;
+              case com.badlogic.gdx.Input.Keys.F -> fireOn = !fireOn;
               default -> {
                 return false;
               }
@@ -165,9 +172,9 @@ public class JSW3D extends ApplicationAdapter {
               }
               modelCache.values().forEach(Model::dispose);
             modelCache.clear();
-            System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) luz=%s (L)%n",
+            System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) luz=%s (L) niebla=%s (N) fuego=%s (F)%n",
                 smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth,
-                darkMode ? "linterna" : "normal");
+                darkMode ? "linterna" : "normal", mistOn ? "si" : "no", fireOn ? "si" : "no");
             return true;
           }
         });
@@ -176,8 +183,9 @@ public class JSW3D extends ApplicationAdapter {
     if (System.getProperty("shot") == null)
       input.addProcessor(camController);
     Gdx.input.setInputProcessor(input);
-    System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) luz=%s (L), M alterna modo%n",
-        smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth, darkMode ? "linterna" : "normal");
+    System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) luz=%s (L) niebla=%s (N) fuego=%s (F), M alterna modo%n",
+        smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth,
+        darkMode ? "linterna" : "normal", mistOn ? "si" : "no", fireOn ? "si" : "no");
 
     rebuildEnv();
 
@@ -229,6 +237,7 @@ public class JSW3D extends ApplicationAdapter {
     if (snap != null && snap.frame() != shownFrame) {
       shownFrame = snap.frame();
       frameLights.clear();
+      effects.clearFireSpots();
       updateBackdrop(snap);
       updateSprites(snap);
       updateTiles(snap);
@@ -245,6 +254,9 @@ public class JSW3D extends ApplicationAdapter {
     for (ModelInstance s : spriteInstances)
       batch.render(s, env);
     batch.end();
+    // blended decals go after the opaque world so mist and flames layer over it
+    effects.update(Gdx.graphics.getDeltaTime(), mistOn, fireOn);
+    effects.render(cam, mistOn, fireOn);
     screenshotIfAsked();
   }
 
@@ -468,16 +480,23 @@ public class JSW3D extends ApplicationAdapter {
         inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
         Color inkColor = PALETTE[(attr & 7) | ((attr >> 3) & 8)];
         if (item) {
+          if (Boolean.getBoolean("fx.debug") && shownFrame % 250 == 0)
+            System.out.println("celda item f=" + shownFrame + " (" + col + "," + cellY
+                + ") fireOn=" + fireOn);
           inst.materials.first().set(ColorAttribute.createDiffuse(inkColor));
+          if (fireOn)
+            effects.addFireSpot(col * 8 + 4, H - (y0 + 4), midZ() + 6);
           if (darkMode) {
             // a treasure glinting in its corner: clear self-glow plus a small pool of
             // light in the item's OWN color, cycling as the ink flashes — noticeable
-            // from afar without turning its corner into daylight
+            // from afar without turning its corner into daylight. With fire on, the
+            // light turns ember-warm and dances with the flames.
             inst.materials.first().set(ColorAttribute.createEmissive(
                 inkColor.r * .75f, inkColor.g * .75f, inkColor.b * .75f, 1));
+            float flick = fireOn ? effects.flicker(cell) : 1;
             frameLights.add(new com.badlogic.gdx.graphics.g3d.environment.PointLight().set(
-                inkColor.r, inkColor.g, inkColor.b,
-                col * 8 + 4, H - (y0 + 4), midZ() + 8, itemLightIntensity));
+                fireOn ? 1 : inkColor.r, fireOn ? .55f : inkColor.g, fireOn ? .2f : inkColor.b,
+                col * 8 + 4, H - (y0 + 4), midZ() + 8, itemLightIntensity * flick));
           }
         } else {
           inst.getMaterial(TileSlabBuilder.INK).set(ColorAttribute.createDiffuse(inkColor));
@@ -499,6 +518,7 @@ public class JSW3D extends ApplicationAdapter {
     screenTex.dispose();
     backdropModel.dispose();
     modelCache.values().forEach(Model::dispose);
+    effects.dispose();
   }
 
   public static void main(String[] args) {
