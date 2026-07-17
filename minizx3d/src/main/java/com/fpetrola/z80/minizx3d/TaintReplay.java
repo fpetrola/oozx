@@ -59,7 +59,7 @@ public final class TaintReplay implements Runnable {
   static final boolean DEBUG = Boolean.getBoolean("taint.debug");
 
   /** what the render thread sees: one complete frame, immutable. */
-  public record FrameSnapshot(int frame, byte[] pixels, byte[] attrs, int[] owner) {
+  public record FrameSnapshot(int frame, byte[] pixels, byte[] attrs, int[] owner, int[] tile) {
   }
 
   private final String rzxPath;
@@ -73,7 +73,7 @@ public final class TaintReplay implements Runnable {
 
   public TaintReplay(String rzxPath, SpriteCatalog catalog, Consumer<FrameSnapshot> onFrame) {
     this.rzxPath = rzxPath;
-    this.taint = new OriginTaint(catalog.baseOf);
+    this.taint = new OriginTaint(catalog.baseOf, catalog.tileZone);
     this.onFrame = onFrame;
   }
 
@@ -291,16 +291,19 @@ public final class TaintReplay implements Runnable {
       byte[] pixels = new byte[PIXEL_BYTES];
       byte[] attrs = new byte[ATTR_BYTES];
       int[] owner = new int[PIXEL_BYTES];
+      int[] tile = new int[PIXEL_BYTES];
       for (int i = 0; i < PIXEL_BYTES; i++) {
         WordNumber w = data[SCREEN + i];
         pixels[i] = (byte) (w == null ? 0 : w.intValue());
-        owner[i] = taint.spriteOf(taint.mem[SCREEN + i]);
+        int node = taint.mem[SCREEN + i];
+        owner[i] = taint.spriteOf(node);
+        tile[i] = taint.tileOf(node);
       }
       for (int i = 0; i < ATTR_BYTES; i++) {
         WordNumber w = data[ATTRS + i];
         attrs[i] = (byte) (w == null ? 0 : w.intValue());
       }
-      onFrame.accept(new FrameSnapshot(frame, pixels, attrs, owner));
+      onFrame.accept(new FrameSnapshot(frame, pixels, attrs, owner, tile));
     }
 
     /** the emulator outruns the Spectrum; sleep so frame N shows at t0 + N*20ms. */

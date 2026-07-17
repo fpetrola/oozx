@@ -39,20 +39,33 @@ public final class SpriteCatalog {
   public final java.util.Map<Integer, Integer> sizeOf = new java.util.HashMap<>();
   public int sprites;
 
+  /**
+   * catalogued graphics too big to be one sprite (JSW's 256-byte room-template records):
+   * their bytes are TILE bitmaps — 8x8 platforms, walls, conveyors, items — and a screen
+   * byte whose origin lands here is a tile cell, identified by the leaf address itself.
+   */
+  public final boolean[] tileZone = new boolean[0x10000];
+  public int tileTemplates;
+
   public SpriteCatalog(String dbPath, int maxSpriteBytes) throws Exception {
     try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
          Statement st = c.createStatement();
-         ResultSet rs = st.executeQuery(
-             "SELECT base, last, size FROM sprites_found WHERE size <= " + maxSpriteBytes)) {
+         ResultSet rs = st.executeQuery("SELECT base, last, size FROM sprites_found")) {
       while (rs.next()) {
-        int base = rs.getInt(1), last = rs.getInt(2);
-        for (int a = base; a <= last && a < 0x10000; a++)
-          baseOf[a] = base + 1;
-        sizeOf.put(base, rs.getInt(3));
-        sprites++;
+        int base = rs.getInt(1), last = rs.getInt(2), size = rs.getInt(3);
+        if (size <= maxSpriteBytes) {
+          for (int a = base; a <= last && a < 0x10000; a++)
+            baseOf[a] = base + 1;
+          sizeOf.put(base, size);
+          sprites++;
+        } else {
+          for (int a = base; a <= last && a < 0x10000; a++)
+            tileZone[a] = true;
+          tileTemplates++;
+        }
       }
     }
     System.out.println("SpriteCatalog: " + sprites + " sprites <= " + maxSpriteBytes
-        + " bytes from " + dbPath);
+        + " bytes, " + tileTemplates + " tile templates from " + dbPath);
   }
 }

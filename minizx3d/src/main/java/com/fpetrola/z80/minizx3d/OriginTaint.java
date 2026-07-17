@@ -51,14 +51,18 @@ public final class OriginTaint {
   private int[] ua = new int[1 << 14], ub = new int[1 << 14];
   private int[] uDepth = new int[1 << 14];
   private int[] uSprite = new int[1 << 14];
+  private int[] uTile = new int[1 << 14];
   private int unions;
   private final Map<Long, Integer> memo = new HashMap<>();
 
   /** addr -> sprite base + 1 when addr belongs to a catalog sprite, else 0. */
   private final int[] catalogBase;
+  /** addr in a tile-template zone: the leaf address itself identifies the tile bitmap. */
+  private final boolean[] tileZone;
 
-  public OriginTaint(int[] catalogBase) {
+  public OriginTaint(int[] catalogBase, boolean[] tileZone) {
     this.catalogBase = catalogBase;
+    this.tileZone = tileZone;
   }
 
   public static int origin(int addr) {
@@ -98,6 +102,8 @@ public final class OriginTaint {
     uDepth[unions] = Math.max(da, db) + 1;
     int sa = spriteOf(a);
     uSprite[unions] = sa != 0 ? sa : spriteOf(b);
+    int ta = tileOf(a);
+    uTile[unions] = ta != 0 ? ta : tileOf(b);
     unions++;
     memo.put(key, id);
     return id;
@@ -112,6 +118,15 @@ public final class OriginTaint {
     return uSprite[node - FIRST_UNION];
   }
 
+  /** tile-bitmap leaf address + 1 when a leaf falls in a tile-template zone, else 0. O(1). */
+  public int tileOf(int node) {
+    if (node == NONE)
+      return 0;
+    if (node < FIRST_UNION)
+      return tileZone[node - 1] ? node : 0;
+    return uTile[node - FIRST_UNION];
+  }
+
   private int depthOf(int node) {
     return node < FIRST_UNION ? 1 : uDepth[node - FIRST_UNION];
   }
@@ -122,6 +137,7 @@ public final class OriginTaint {
     ub = java.util.Arrays.copyOf(ub, cap);
     uDepth = java.util.Arrays.copyOf(uDepth, cap);
     uSprite = java.util.Arrays.copyOf(uSprite, cap);
+    uTile = java.util.Arrays.copyOf(uTile, cap);
   }
 
   public int nodeCount() {

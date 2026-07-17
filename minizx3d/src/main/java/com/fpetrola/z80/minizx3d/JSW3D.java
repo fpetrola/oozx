@@ -77,6 +77,7 @@ public class JSW3D extends ApplicationAdapter {
   private Model backdropModel;
   private final Map<Integer, Model> modelCache = new HashMap<>();
   private final List<ModelInstance> spriteInstances = new ArrayList<>();
+  private final List<ModelInstance> tileInstances = new ArrayList<>();
   /** smooth inflated mesh vs voxel boxes; M toggles at runtime. */
   private boolean smooth = !"voxel".equals(System.getProperty("sprites3d", "smooth"));
 
@@ -142,6 +143,7 @@ public class JSW3D extends ApplicationAdapter {
       shownFrame = snap.frame();
       updateBackdrop(snap);
       updateSprites(snap);
+      updateTiles(snap);
     }
     camController.update();
     Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -149,6 +151,8 @@ public class JSW3D extends ApplicationAdapter {
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
     batch.begin(cam);
     batch.render(backdrop, env);
+    for (ModelInstance t : tileInstances)
+      batch.render(t, env);
     for (ModelInstance s : spriteInstances)
       batch.render(s, env);
     batch.end();
@@ -180,7 +184,7 @@ public class JSW3D extends ApplicationAdapter {
         Color ink = PALETTE[(attr & 7) | ((attr >> 3) & 8)];
         Color paper = PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)];
         int i = rowAddr | col;
-        int bits = snap.owner()[i] != 0 ? 0 : snap.pixels()[i] & 0xff;
+        int bits = snap.owner()[i] != 0 || snap.tile()[i] != 0 ? 0 : snap.pixels()[i] & 0xff;
         for (int bit = 0; bit < 8; bit++)
           pixmap.drawPixel(col * 8 + bit, y, Color.rgba8888(
               (bits & (0x80 >> bit)) != 0 ? ink : paper));
@@ -251,8 +255,8 @@ public class JSW3D extends ApplicationAdapter {
       int[] b = {blob[1], blob[2], blob[3], blob[4]};
       int bytes = catalog.sizeOf.getOrDefault(base, 32);
       Model model = modelCache.computeIfAbsent(base, k -> smooth
-          ? SmoothSpriteBuilder.build(k, bytes, replay::memByte)
-          : VoxelSpriteBuilder.build(k, bytes, replay::memByte));
+          ? SmoothSpriteBuilder.build(k, bytes, 2, replay::memByte)
+          : VoxelSpriteBuilder.build(k, bytes, 2, replay::memByte));
       ModelInstance inst = new ModelInstance(model);
       float cx = (b[0] + b[2] + 1) * 8 / 2f;          // byte cols -> pixels
       float cy = H - (b[1] + b[3] + 1) / 2f;          // screen y down -> world y up
@@ -260,6 +264,35 @@ public class JSW3D extends ApplicationAdapter {
       inst.materials.first().set(ColorAttribute.createDiffuse(PALETTE[blob[5]]));
       spriteInstances.add(inst);
     }
+  }
+
+  /**
+   * 8x8 tile cells: a screen byte whose origin lands in a tile-template zone belongs to a
+   * platform / wall / conveyor / item. The row-0 leaf address IS the tile bitmap's start
+   * (rows are consecutive in the template), so the model reads its 8 bytes straight from
+   * static memory — no knowledge of the record layout needed. One instance per cell; the
+   * cell's own attribute colors it (items flash exactly like in the game).
+   */
+  private void updateTiles(TaintReplay.FrameSnapshot snap) {
+    tileInstances.clear();
+    for (int cellY = 0; cellY < 24; cellY++)
+      for (int col = 0; col < 32; col++) {
+        int y0 = cellY * 8;
+        int i0 = ((y0 & 0xC0) << 5) | ((y0 & 7) << 8) | ((y0 & 0x38) << 2) | col;
+        int t = snap.tile()[i0];
+        if (t == 0 || snap.owner()[i0] != 0)
+          continue;
+        int leaf = t - 1;
+        Model model = modelCache.computeIfAbsent(-leaf, k -> smooth
+            ? SmoothSpriteBuilder.build(leaf, 8, 1, replay::memByte)
+            : VoxelSpriteBuilder.build(leaf, 8, 1, replay::memByte));
+        ModelInstance inst = new ModelInstance(model);
+        inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), 4);
+        int attr = snap.attrs()[cellY * 32 + col] & 0xff;
+        inst.materials.first().set(ColorAttribute.createDiffuse(
+            PALETTE[(attr & 7) | ((attr >> 3) & 8)]));
+        tileInstances.add(inst);
+      }
   }
 
   @Override
