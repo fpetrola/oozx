@@ -74,8 +74,10 @@ public class JSW3D extends ApplicationAdapter {
   private Texture screenTex;
   private ModelInstance backdrop;
   private Model backdropModel;
-  private final Map<Integer, Model> voxelCache = new HashMap<>();
+  private final Map<Integer, Model> modelCache = new HashMap<>();
   private final List<ModelInstance> spriteInstances = new ArrayList<>();
+  /** smooth inflated mesh vs voxel boxes; M toggles at runtime. */
+  private boolean smooth = !"voxel".equals(System.getProperty("sprites3d", "smooth"));
 
   public JSW3D(String rzxPath, String dbPath) {
     this.rzxPath = rzxPath;
@@ -92,7 +94,21 @@ public class JSW3D extends ApplicationAdapter {
     cam.far = 1000;
     cam.update();
     camController = new CameraInputController(cam);
-    Gdx.input.setInputProcessor(camController);
+    Gdx.input.setInputProcessor(new com.badlogic.gdx.InputMultiplexer(
+        new com.badlogic.gdx.InputAdapter() {
+          @Override
+          public boolean keyDown(int keycode) {
+            if (keycode == com.badlogic.gdx.Input.Keys.M) {
+              smooth = !smooth;
+              modelCache.values().forEach(Model::dispose);
+              modelCache.clear();
+              System.out.println("modo sprites: " + (smooth ? "suave" : "voxel"));
+              return true;
+            }
+            return false;
+          }
+        }, camController));
+    System.out.println("modo sprites: " + (smooth ? "suave" : "voxel") + " (tecla M alterna)");
 
     env = new Environment();
     env.set(new ColorAttribute(ColorAttribute.AmbientLight, .5f, .5f, .5f, 1));
@@ -184,15 +200,17 @@ public class JSW3D extends ApplicationAdapter {
       int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7);
       grid[y][i & 31] = snap.owner()[i];
     }
-    List<int[]> blobs = new ArrayList<>(); // base, minCol, minRow, maxCol, maxRow
+    List<int[]> blobs = new ArrayList<>(); // base, minCol, minRow, maxCol, maxRow, paletteIdx
     java.util.ArrayDeque<int[]> queue = new java.util.ArrayDeque<>();
+    int[] inkVotes = new int[16];
     for (int y0 = 0; y0 < H; y0++)
       for (int c0 = 0; c0 < 32; c0++) {
         int base = grid[y0][c0];
         if (base == 0)
           continue;
-        int[] b = {base, c0, y0, c0, y0};
+        int[] b = {base, c0, y0, c0, y0, 7};
         int bytes = 0;
+        java.util.Arrays.fill(inkVotes, 0);
         queue.add(new int[]{c0, y0});
         grid[y0][c0] = 0;
         while (!queue.isEmpty()) {
@@ -202,6 +220,12 @@ public class JSW3D extends ApplicationAdapter {
           b[2] = Math.min(b[2], p[1]);
           b[3] = Math.max(b[3], p[0]);
           b[4] = Math.max(b[4], p[1]);
+          // the sprite's color: every owned byte votes for the INK of its attribute cell —
+          // the ink IS what the game paints the sprite's pixels with at that spot
+          int attr = snap.attrs()[(p[1] >> 3) * 32 + p[0]] & 0xff;
+          int ink = (attr & 7) | ((attr >> 3) & 8);
+          if ((ink & 7) != ((attr >> 3) & 7)) // ink == paper would be invisible: no vote
+            inkVotes[ink]++;
           for (int dy = -1; dy <= 1; dy++)
             for (int dc = -1; dc <= 1; dc++) {
               int c = p[0] + dc, y = p[1] + dy;
@@ -211,35 +235,29 @@ public class JSW3D extends ApplicationAdapter {
               }
             }
         }
-        if (bytes >= 4)
+        if (bytes >= 4) {
+          int bestInk = 7;
+          for (int i = 0; i < 16; i++)
+            if (inkVotes[i] > inkVotes[bestInk] || (inkVotes[bestInk] == 0 && inkVotes[i] > 0))
+              bestInk = i;
+          b[5] = bestInk;
           blobs.add(b);
+        }
       }
     spriteInstances.clear();
     for (int[] blob : blobs) {
       int base = blob[0] - 1;
       int[] b = {blob[1], blob[2], blob[3], blob[4]};
-      Model model = voxelCache.computeIfAbsent(base,
-          k -> VoxelSpriteBuilder.build(k, replay::memByte));
+      Model model = modelCache.computeIfAbsent(base, k -> smooth
+          ? SmoothSpriteBuilder.build(k, replay::memByte)
+          : VoxelSpriteBuilder.build(k, replay::memByte));
       ModelInstance inst = new ModelInstance(model);
       float cx = (b[0] + b[2] + 1) * 8 / 2f;          // byte cols -> pixels
       float cy = H - (b[1] + b[3] + 1) / 2f;          // screen y down -> world y up
       inst.transform.setToTranslation(cx, cy, 6);
-      inst.materials.first().set(ColorAttribute.createDiffuse(tint(snap, b)));
+      inst.materials.first().set(ColorAttribute.createDiffuse(PALETTE[blob[5]]));
       spriteInstances.add(inst);
     }
-  }
-
-  /** the sprite's color: the brightest non-paper ink among the attribute cells it covers. */
-  private Color tint(TaintReplay.FrameSnapshot snap, int[] b) {
-    int best = 7;
-    for (int cy = b[1] >> 3; cy <= b[3] >> 3 && cy < 24; cy++)
-      for (int cx = b[0]; cx <= b[2]; cx++) {
-        int attr = snap.attrs()[cy * 32 + cx] & 0xff;
-        int ink = (attr & 7) | ((attr >> 3) & 8);
-        if ((ink & 7) != 0 && (ink & 7) != ((attr >> 3) & 7))
-          best = Math.max(best, ink);
-      }
-    return PALETTE[best];
   }
 
   @Override
@@ -250,7 +268,7 @@ public class JSW3D extends ApplicationAdapter {
     pixmap.dispose();
     screenTex.dispose();
     backdropModel.dispose();
-    voxelCache.values().forEach(Model::dispose);
+    modelCache.values().forEach(Model::dispose);
   }
 
   public static void main(String[] args) {
