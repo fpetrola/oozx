@@ -57,6 +57,9 @@ import java.util.function.Consumer;
 public final class TaintReplay implements Runnable {
   public static final int SCREEN = 16384, ATTRS = 22528, PIXEL_BYTES = 6144, ATTR_BYTES = 768;
   static final boolean DEBUG = Boolean.getBoolean("taint.debug");
+  /** -Dlog=true turns the console chatter on; silent by default so a user-launched run
+   *  doesn't interleave with whatever else shares the terminal. */
+  static final boolean LOG = Boolean.getBoolean("log");
 
   /** what the render thread sees: one complete frame, immutable. */
   public record FrameSnapshot(int frame, byte[] pixels, byte[] attrs, int[] owner, int[] tile) {
@@ -177,7 +180,8 @@ public final class TaintReplay implements Runnable {
           new DefaultMemorySetter(state.getMemory(), MiniZXWithEmulationBase.createROM()));
       io.setup(rzxFile);
       int totalFrames = rzxFile.getInputRecordingBlock().frames.size();
-      System.out.println("TaintReplay: " + rzxPath + " (" + totalFrames + " frames)");
+      if (LOG)
+        System.out.println("TaintReplay: " + rzxPath + " (" + totalFrames + " frames)");
 
       Memory<WordNumber> memory = state.getMemory();
       data = (WordNumber[]) memory.getData();
@@ -223,8 +227,9 @@ public final class TaintReplay implements Runnable {
               && state.getRunState() != State.RunState.STATE_STOPPED_BREAK,
           io.getInterruptionCondition());
       emulator.emulate();
-      System.out.println("TaintReplay done: " + io.getCurrentFrameIndex() + "/" + totalFrames
-          + " frames, " + taint.nodeCount() + " union nodes");
+      if (LOG)
+        System.out.println("TaintReplay done: " + io.getCurrentFrameIndex() + "/" + totalFrames
+            + " frames, " + taint.nodeCount() + " union nodes");
     } catch (Exception e) {
       e.printStackTrace();
     }

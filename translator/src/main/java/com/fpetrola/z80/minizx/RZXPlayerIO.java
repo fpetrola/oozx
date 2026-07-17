@@ -131,7 +131,7 @@ public class RZXPlayerIO<T extends WordNumber> implements MiniZXIO<T> {
   }
 
   private void printFrameCount() {
-    if (currentFrameIndex % 1000 == 0)
+    if (DEBUG_SYNC && currentFrameIndex % 1000 == 0)
       System.out.println(currentFrameIndex);
   }
 

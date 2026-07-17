@@ -65,7 +65,8 @@ public final class SpriteCatalog {
         }
       }
     }
-    System.out.println("SpriteCatalog: " + sprites + " sprites <= " + maxSpriteBytes
-        + " bytes, " + tileTemplates + " tile templates from " + dbPath);
+    if (Boolean.getBoolean("log"))
+      System.out.println("SpriteCatalog: " + sprites + " sprites <= " + maxSpriteBytes
+          + " bytes, " + tileTemplates + " tile templates from " + dbPath);
   }
 }

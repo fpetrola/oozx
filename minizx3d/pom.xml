@@ -67,5 +67,12 @@
             <version>${gdx.version}</version>
             <classifier>natives-desktop</classifier>
         </dependency>
+        <!-- swallows the "Failed to load StaticLoggerBinder" warning some dependency
+             triggers: with -Dlog unset the console stays completely clean -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>1.7.36</version>
+        </dependency>
     </dependencies>
 </project>

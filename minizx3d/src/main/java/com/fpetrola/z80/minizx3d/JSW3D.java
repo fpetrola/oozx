@@ -426,6 +426,8 @@ public class JSW3D extends ApplicationAdapter {
   }
 
   private void printStatus() {
+    if (!TaintReplay.LOG)
+      return;
     System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) "
             + "luz=%s (L) niebla=%s (N) fuego=%s (F) lluvia=%s (R) nieve=%s (B) "
             + "basura=%s x%d (J, K/H) lamparas=%s (P) tormenta=%s (E) velocidad=%sx (,/./0)%n",
@@ -482,7 +484,8 @@ public class JSW3D extends ApplicationAdapter {
         0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
     com.badlogic.gdx.graphics.PixmapIO.writePNG(Gdx.files.absolute(path), shot, 0, true);
     shot.dispose();
-    System.out.println("screenshot -> " + path + " (frame " + shownFrame + ")");
+    if (TaintReplay.LOG)
+      System.out.println("screenshot -> " + path + " (frame " + shownFrame + ")");
   }
 
   private boolean shotTaken;
@@ -505,7 +508,17 @@ public class JSW3D extends ApplicationAdapter {
         int i = rowAddr | col;
         // the moving sprites' actual pixels, for pixel-accurate weather collision
         spritePix[i] = (byte) (snap.owner()[i] != 0 ? snap.pixels()[i] : 0);
-        int bits = snap.owner()[i] != 0 || snap.tile()[i] != 0 ? 0 : snap.pixels()[i] & 0xff;
+        // tile-tainted bytes are the slabs' business — EXCEPT the pixels the game drew on
+        // top that aren't in the tile's own bitmap. JSW's ropes (and arrows) are OR-ed
+        // pixel by pixel onto air cells, which carry the empty leaf's taint from the room
+        // reveal: masking the template byte out leaves exactly the foreign pixels visible.
+        int bits;
+        if (snap.owner()[i] != 0)
+          bits = 0;
+        else if (snap.tile()[i] != 0)
+          bits = snap.pixels()[i] & ~replay.memByte(snap.tile()[i] - 1) & 0xff;
+        else
+          bits = snap.pixels()[i] & 0xff;
         for (int bit = 0; bit < 8; bit++)
           pixmap.drawPixel(col * 8 + bit, y, Color.rgba8888(
               (bits & (0x80 >> bit)) != 0 ? ink : paper));
@@ -678,7 +691,7 @@ public class JSW3D extends ApplicationAdapter {
               }
               cellLastChange[cell] = shownFrame;
               if (cellInkChanges[cell] >= 4 && Integer.bitCount(cellInkMask[cell]) >= 3
-                  && itemLeaves.add(leaf))
+                  && itemLeaves.add(leaf) && TaintReplay.LOG)
                 System.out.println("item detectado: leaf $" + Integer.toHexString(leaf));
             }
           } else
