@@ -84,6 +84,23 @@ public class JSW3D extends ApplicationAdapter {
   private int smoothLevel = Integer.getInteger("smooth.level", 2);
   /** D/C raise/lower the global depth multiplier; depth itself is shape-adaptive. */
   private float depthScale = Float.parseFloat(System.getProperty("depth.scale", "1"));
+  /**
+   * T/G raise/lower how much deeper tiles are than sprites: platforms/walls become slabs
+   * the characters walk ON — sprites and items sit centered at the tiles' mid-depth.
+   */
+  private float tileDepth = Float.parseFloat(System.getProperty("tile.depth", "3"));
+  /**
+   * item detection, game-agnostic: an item is a tile whose CELL keeps changing INK over the
+   * same bitmap, several times in quick succession (JSW items flash every frame). Counting
+   * per cell inside a time window rejects room transitions, where every cell of the room
+   * changes ink once as the reveal fills the attributes in. Latched per leaf; item leaves
+   * keep 1x depth instead of tileDepth.
+   */
+  private final int[] prevLeafAttr = new int[24 * 32];
+  private final int[] cellInkChanges = new int[24 * 32];
+  private final int[] cellInkMask = new int[24 * 32];
+  private final int[] cellLastChange = new int[24 * 32];
+  private final java.util.Set<Integer> itemLeaves = new java.util.HashSet<>();
 
   public JSW3D(String rzxPath, String dbPath) {
     this.rzxPath = rzxPath;
@@ -95,12 +112,18 @@ public class JSW3D extends ApplicationAdapter {
     batch = new ModelBatch();
     cam = new PerspectiveCamera(50, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     cam.position.set(W / 2f, H / 2f + 30, 290);
+    // -Dcam.pos=x,y,z overrides the viewpoint (angled screenshots for visual checks)
+    String camPos = System.getProperty("cam.pos");
+    if (camPos != null) {
+      String[] p = camPos.split(",");
+      cam.position.set(Float.parseFloat(p[0]), Float.parseFloat(p[1]), Float.parseFloat(p[2]));
+    }
     cam.lookAt(W / 2f, H / 2f, 0);
     cam.near = 1;
     cam.far = 1000;
     cam.update();
     camController = new CameraInputController(cam);
-    Gdx.input.setInputProcessor(new com.badlogic.gdx.InputMultiplexer(
+    com.badlogic.gdx.InputMultiplexer input = new com.badlogic.gdx.InputMultiplexer(
         new com.badlogic.gdx.InputAdapter() {
           @Override
           public boolean keyDown(int keycode) {
@@ -110,6 +133,8 @@ public class JSW3D extends ApplicationAdapter {
               case com.badlogic.gdx.Input.Keys.X -> smoothLevel = Math.max(0, smoothLevel - 1);
               case com.badlogic.gdx.Input.Keys.D -> depthScale = Math.min(3f, depthScale * 1.25f);
               case com.badlogic.gdx.Input.Keys.C -> depthScale = Math.max(.3f, depthScale / 1.25f);
+              case com.badlogic.gdx.Input.Keys.T -> tileDepth = Math.min(8f, tileDepth * 1.25f);
+              case com.badlogic.gdx.Input.Keys.G -> tileDepth = Math.max(1f, tileDepth / 1.25f);
               default -> {
                 return false;
               }
@@ -122,12 +147,18 @@ public class JSW3D extends ApplicationAdapter {
               }
               modelCache.values().forEach(Model::dispose);
             modelCache.clear();
-            System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C)%n",
-                smooth ? "suave" : "voxel", smoothLevel, depthScale);
+            System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G)%n",
+                smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth);
             return true;
           }
-        }, camController));
-    System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C), M alterna modo%n", smooth ? "suave" : "voxel", smoothLevel, depthScale);
+        });
+    // screenshot runs must render from the fixed default camera: a stray mouse drag over
+    // the window would rotate the view and invalidate the visual check
+    if (System.getProperty("shot") == null)
+      input.addProcessor(camController);
+    Gdx.input.setInputProcessor(input);
+    System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G), M alterna modo%n",
+        smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth);
 
     env = new Environment();
     env.set(new ColorAttribute(ColorAttribute.AmbientLight, .5f, .5f, .5f, 1));
@@ -277,10 +308,19 @@ public class JSW3D extends ApplicationAdapter {
       ModelInstance inst = new ModelInstance(model);
       float cx = (b[0] + b[2] + 1) * 8 / 2f;          // byte cols -> pixels
       float cy = H - (b[1] + b[3] + 1) / 2f;          // screen y down -> world y up
-      inst.transform.setToTranslation(cx, cy, 6);
+      inst.transform.setToTranslation(cx, cy, midZ());
       inst.materials.first().set(ColorAttribute.createDiffuse(PALETTE[blob[5]]));
       spriteInstances.add(inst);
     }
+  }
+
+  /**
+   * The world's mid-depth plane: tiles, sprites and items all center here, so the deepest
+   * tile's back face rests on the backdrop and the characters walk INSIDE the platform
+   * slabs instead of floating in front of them.
+   */
+  private float midZ() {
+    return 4f * depthScale * tileDepth;
   }
 
   /**
@@ -289,6 +329,10 @@ public class JSW3D extends ApplicationAdapter {
    * (rows are consecutive in the template), so the model reads its 8 bytes straight from
    * static memory — no knowledge of the record layout needed. One instance per cell; the
    * cell's own attribute colors it (items flash exactly like in the game).
+   *
+   * <p>Platform/wall tiles extrude {@code tileDepth}x deeper than sprites; item leaves —
+   * recognized because their cells keep changing ink over the same bitmap — stay at 1x,
+   * floating at mid-depth like the characters do.
    */
   private void updateTiles(TaintReplay.FrameSnapshot snap) {
     tileInstances.clear();
@@ -300,12 +344,46 @@ public class JSW3D extends ApplicationAdapter {
         if (t == 0 || snap.owner()[i0] != 0)
           continue;
         int leaf = t - 1;
-        Model model = modelCache.computeIfAbsent(-leaf, k -> smooth
-            ? SmoothSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depthScale)
-            : VoxelSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depthScale));
-        ModelInstance inst = new ModelInstance(model);
-        inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), 4);
         int attr = snap.attrs()[cellY * 32 + col] & 0xff;
+        int cell = cellY * 32 + col;
+        // ink-change tracking only when NO row of the cell is sprite-owned: a guardian
+        // overlapping rows 1-7 (row 0 free) leaves the cell classified as tile but colors
+        // it with its own attr, which would latch every platform leaf as "item"
+        boolean clean = true;
+        for (int r = 1; r < 8 && clean; r++)
+          clean = snap.owner()[i0 | (r << 8)] == 0;
+        if (clean) {
+          int prev = prevLeafAttr[cell];
+          if (prev != 0 && (prev >> 8) == t) {
+            if (((prev ^ attr) & 7) != 0) {
+              // an item's cell CYCLES through 3+ inks in a steady burst; everything else
+              // is quieter AND poorer: the room reveal changes each cell once, and the
+              // one-frame attr lag a passing guardian leaves behind only ever toggles
+              // between two inks (the room's and the guardian's)
+              int bits = (1 << (attr & 7)) | (1 << (prev & 7));
+              if (shownFrame - cellLastChange[cell] <= 25) {
+                cellInkChanges[cell]++;
+                cellInkMask[cell] |= bits;
+              } else {
+                cellInkChanges[cell] = 1;
+                cellInkMask[cell] = bits;
+              }
+              cellLastChange[cell] = shownFrame;
+              if (cellInkChanges[cell] >= 4 && Integer.bitCount(cellInkMask[cell]) >= 3
+                  && itemLeaves.add(leaf))
+                System.out.println("item detectado: leaf $" + Integer.toHexString(leaf));
+            }
+          } else
+            cellInkChanges[cell] = 0;
+          prevLeafAttr[cell] = (t << 8) | attr;
+        }
+        boolean item = itemLeaves.contains(leaf);
+        float depth = item ? depthScale : depthScale * tileDepth;
+        Model model = modelCache.computeIfAbsent(item ? -leaf - 0x10000 : -leaf, k -> smooth
+            ? SmoothSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depth)
+            : VoxelSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depth));
+        ModelInstance inst = new ModelInstance(model);
+        inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
         inst.materials.first().set(ColorAttribute.createDiffuse(
             PALETTE[(attr & 7) | ((attr >> 3) & 8)]));
         tileInstances.add(inst);
@@ -324,6 +402,7 @@ public class JSW3D extends ApplicationAdapter {
   }
 
   public static void main(String[] args) {
+    System.setProperty("sprites3d", "voxel");
     String rzx = args.length > 0 ? args[0]
         : "/home/fernando/detodo/spectrum/oozx/Jet Set Willy - Mildly Patched.rzx";
     // the catalog must be THIS game's: analysis/analysis.db rotates between games (it held
