@@ -230,7 +230,7 @@ public class JSW3D extends ApplicationAdapter {
                 rebuild = false;
               }
               case com.badlogic.gdx.Input.Keys.K -> {
-                junkCount = Math.min(80, junkCount + 6);
+                junkCount = Math.min(150, junkCount + 6);
                 junkSpawnPending = junkOn;
                 rebuild = false;
               }
@@ -337,6 +337,17 @@ public class JSW3D extends ApplicationAdapter {
       long t2 = perf ? System.nanoTime() : 0;
       updateTiles(snap);
       long t3 = perf ? System.nanoTime() : 0;
+      // glowing junk casts its own small pool of light in the dark, like the items do;
+      // capped so a big junk count can't starve the shader's point-light slots
+      if (junkOn && darkMode) {
+        int lit = 0;
+        for (JunkPhysics.Prop p : junk.props())
+          if (p.glow && lit++ < 6) {
+            Color c = PALETTE[p.color];
+            frameLights.add(new com.badlogic.gdx.graphics.g3d.environment.PointLight().set(
+                c.r, c.g, c.b, p.x(), p.y(), junkZ(p) + 6, itemLightIntensity * .5f));
+          }
+      }
       rebuildEnv();
       if (perf) {
         nsBackdrop += t1 - t0;
@@ -705,6 +716,11 @@ public class JSW3D extends ApplicationAdapter {
     });
   }
 
+  /** how far a prop's zFrac displaces it off the sprites' plane, inside the slab depth. */
+  private float junkZ(JunkPhysics.Prop p) {
+    return midZ() + p.zFrac * Math.max(0, slabDepth() / 2 - 3);
+  }
+
   /** mirror the physics props into render instances; position + spin come from Box2D. */
   private void updateJunkInstances() {
     List<JunkPhysics.Prop> props = junk.props();
@@ -713,13 +729,19 @@ public class JSW3D extends ApplicationAdapter {
       junkInstances.clear();
       for (JunkPhysics.Prop p : props) {
         ModelInstance inst = new ModelInstance(junkModel(p.kind));
-        inst.materials.first().set(ColorAttribute.createDiffuse(PALETTE[p.color]));
+        Color c = PALETTE[p.color];
+        inst.materials.first().set(ColorAttribute.createDiffuse(c));
+        // a glowing prop shines from within, item-style: visibly brighter than anything
+        // merely lit, in normal mode and in the dark alike
+        if (p.glow)
+          inst.materials.first().set(ColorAttribute.createEmissive(
+              c.r * .6f, c.g * .6f, c.b * .6f, 1));
         junkInstances.add(inst);
       }
     }
     for (int i = 0; i < props.size(); i++) {
       JunkPhysics.Prop p = props.get(i);
-      junkInstances.get(i).transform.setToTranslation(p.x(), p.y(), midZ())
+      junkInstances.get(i).transform.setToTranslation(p.x(), p.y(), junkZ(p))
           .rotate(0, 0, 1, p.angleDeg());
     }
   }

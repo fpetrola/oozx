@@ -76,14 +76,29 @@ public final class JunkPhysics implements Disposable {
     }
   }
 
+  /** |zFrac| below this is the sprites' plane: only these get stepped on / kicked directly. */
+  private static final float MIDDLE = .3f;
+  private static final short CAT_WORLD = 1, CAT_PROP = 2, CAT_SPRITE = 4;
+
   public static final class Prop {
     public final Kind kind;
     public final int color; // ZX palette index
+    /**
+     * where the prop lives across the platform's depth, as a fraction of it (-1 back,
+     * 0 the sprites' plane, +1 front). Physics stays 2D: props on ALL layers collide
+     * with each other, so a middle prop kicked into a deep one knocks it around by
+     * ricochet — which is exactly what sells the depth.
+     */
+    public final float zFrac;
+    /** a few props shine with their own light, item-style. */
+    public final boolean glow;
     final Body body;
 
-    Prop(Kind kind, int color, Body body) {
+    Prop(Kind kind, int color, float zFrac, boolean glow, Body body) {
       this.kind = kind;
       this.color = color;
+      this.zFrac = zFrac;
+      this.glow = glow;
       this.body = body;
     }
 
@@ -192,6 +207,7 @@ public final class JunkPhysics implements Disposable {
   }
 
   private void spawn(Kind k, float x, float y) {
+    float zFrac = rnd.nextFloat() * 2 - 1;
     BodyDef bd = new BodyDef();
     bd.type = BodyDef.BodyType.DynamicBody;
     bd.position.set(x / PPM, y / PPM);
@@ -202,6 +218,11 @@ public final class JunkPhysics implements Disposable {
     fd.density = k.density;
     fd.friction = k.friction;
     fd.restitution = k.restitution;
+    fd.filter.categoryBits = CAT_PROP;
+    // deep/front props are out of the sprites' reach — the solver must not let a passing
+    // guardian shove them; only other props (any layer) and the world touch them
+    fd.filter.maskBits = (short) (Math.abs(zFrac) < MIDDLE
+        ? CAT_WORLD | CAT_PROP | CAT_SPRITE : CAT_WORLD | CAT_PROP);
     if (k == Kind.BALL || k == Kind.APPLE) {
       CircleShape c = new CircleShape();
       c.setRadius(k.w / 2 / PPM);
@@ -215,7 +236,8 @@ public final class JunkPhysics implements Disposable {
       b.createFixture(fd);
       p.dispose();
     }
-    props.add(new Prop(k, k.colors[rnd.nextInt(k.colors.length)], b));
+    props.add(new Prop(k, k.colors[rnd.nextInt(k.colors.length)], zFrac,
+        rnd.nextFloat() < .25f, b));
   }
 
   /**
@@ -262,6 +284,8 @@ public final class JunkPhysics implements Disposable {
         FixtureDef fd = new FixtureDef();
         fd.shape = s;
         fd.friction = .3f;
+        fd.filter.categoryBits = CAT_SPRITE;
+        fd.filter.maskBits = CAT_PROP; // middle-layer props only; deep ones mask sprites out
         body.createFixture(fd);
         s.dispose();
         size[0] = b[2];
@@ -294,6 +318,8 @@ public final class JunkPhysics implements Disposable {
     float cx = b[0] / PPM, cy = b[1] / PPM, hw = b[2] / PPM, hh = b[3] / PPM;
     float speed = (float) Math.sqrt(svx * svx + svy * svy);
     for (Prop p : props) {
+      if (Math.abs(p.zFrac) >= MIDDLE) // off the sprites' plane: only ricochets move it
+        continue;
       float r = Math.max(p.kind.w, p.kind.h) / 2 / PPM;
       Vector2 pos = p.body.getPosition();
       if (Math.abs(pos.x - cx) > hw + r || Math.abs(pos.y - cy) > hh + r)
