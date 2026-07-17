@@ -209,6 +209,24 @@ public class JSW3D extends ApplicationAdapter {
    * dirt mounds on the floor below their path — the room soils as time passes.
    */
   private boolean dustOn = Boolean.getBoolean("fx.dust");
+  /** 0 toggles the on-screen key guide (-Dhelp=true starts with it open). */
+  private boolean helpOn = Boolean.getBoolean("help");
+  private com.badlogic.gdx.graphics.g2d.SpriteBatch uiBatch;
+  private com.badlogic.gdx.graphics.g2d.BitmapFont uiFont;
+  private Texture whitePix;
+  /**
+   * Everything the user calibrates — every effect toggle, counts, ghost opacity, camera
+   * angle/pan/zoom, replay speed — persists to a JSON (~/.jsw3d-config.json, or
+   * -Dconfig.file=...) loaded at startup and saved ~1s after the last change. Values in
+   * the file win over -D defaults; -Dconfig=false or a -Dshot run disables the whole
+   * thing so scripted runs stay deterministic.
+   */
+  private final boolean configEnabled = System.getProperty("shot") == null
+      && !"false".equals(System.getProperty("config"));
+  private boolean configDirty;
+  private long configDirtyAt;
+  private final Vector3 savedCamPos = new Vector3(), savedCamDir = new Vector3();
+  private float cfgSpeed = Float.parseFloat(System.getProperty("speed", "1"));
 
   public JSW3D(String rzxPath, String dbPath) {
     this.rzxPath = rzxPath;
@@ -352,14 +370,20 @@ public class JSW3D extends ApplicationAdapter {
                 replay.setSpeed(replay.getSpeed() / 2);
                 rebuild = false;
               }
-              case com.badlogic.gdx.Input.Keys.NUM_0 -> {
+              case com.badlogic.gdx.Input.Keys.ENTER -> {
                 replay.setSpeed(1);
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.NUM_0, com.badlogic.gdx.Input.Keys.NUMPAD_0 -> {
+                helpOn = !helpOn;
                 rebuild = false;
               }
               default -> {
                 return false;
               }
             }
+            configDirty = true;
+            configDirtyAt = System.currentTimeMillis();
             if (rebuild) {
               try {
                   Thread.sleep(100);
@@ -379,6 +403,15 @@ public class JSW3D extends ApplicationAdapter {
       input.addProcessor(camController);
     Gdx.input.setInputProcessor(input);
 
+    uiBatch = new com.badlogic.gdx.graphics.g2d.SpriteBatch();
+    uiFont = new com.badlogic.gdx.graphics.g2d.BitmapFont();
+    Pixmap px = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+    px.drawPixel(0, 0, 0xffffffff);
+    whitePix = new Texture(px);
+    px.dispose();
+    loadConfig();
+    savedCamPos.set(cam.position);
+    savedCamDir.set(cam.direction);
     rebuildEnv();
 
     pixmap = new Pixmap(W, H, Pixmap.Format.RGBA8888);
@@ -398,6 +431,7 @@ public class JSW3D extends ApplicationAdapter {
     try {
       catalog = new SpriteCatalog(dbPath, 128);
       replay = new TaintReplay(rzxPath, catalog, snap -> latest = snap);
+      replay.setSpeed(cfgSpeed);
       replayThread = new Thread(replay, "taint-replay");
       replayThread.setDaemon(true);
       replayThread.start();
@@ -542,8 +576,156 @@ public class JSW3D extends ApplicationAdapter {
     effects.update(Gdx.graphics.getDeltaTime(), mistOn, fireOn, rainOn, snowOn, stormOn,
         windOn, leavesOn);
     effects.render(cam, mistOn, fireOn, rainOn, snowOn, leavesOn);
+    renderHelp();
+    // camera drags/zooms mark the config dirty; a quiet second later it hits disk
+    if (configEnabled) {
+      if (!cam.position.epsilonEquals(savedCamPos, .4f)
+          || !cam.direction.epsilonEquals(savedCamDir, .005f)) {
+        savedCamPos.set(cam.position);
+        savedCamDir.set(cam.direction);
+        configDirty = true;
+        configDirtyAt = System.currentTimeMillis();
+      }
+      if (configDirty && System.currentTimeMillis() - configDirtyAt > 1000) {
+        configDirty = false;
+        saveConfig();
+      }
+    }
     reportPerf();
     screenshotIfAsked();
+  }
+
+  private java.nio.file.Path configPath() {
+    return java.nio.file.Path.of(System.getProperty("config.file",
+        System.getProperty("user.home") + "/.jsw3d-config.json"));
+  }
+
+  /** only the keys PRESENT in the file override; -D flags keep working as the defaults. */
+  private void loadConfig() {
+    if (!configEnabled)
+      return;
+    try {
+      java.nio.file.Path p = configPath();
+      if (!java.nio.file.Files.exists(p))
+        return;
+      com.badlogic.gdx.utils.JsonValue v =
+          new com.badlogic.gdx.utils.JsonReader().parse(java.nio.file.Files.readString(p));
+      smooth = v.getBoolean("smooth", smooth);
+      smoothLevel = v.getInt("smoothLevel", smoothLevel);
+      depthScale = v.getFloat("depthScale", depthScale);
+      tileDepth = v.getFloat("tileDepth", tileDepth);
+      darkMode = v.getBoolean("dark", darkMode);
+      mistOn = v.getBoolean("mist", mistOn);
+      fireOn = v.getBoolean("fire", fireOn);
+      rainOn = v.getBoolean("rain", rainOn);
+      snowOn = v.getBoolean("snow", snowOn);
+      junkOn = v.getBoolean("junk", junkOn);
+      junkCount = v.getInt("junkCount", junkCount);
+      lampsOn = v.getBoolean("lamps", lampsOn);
+      stormOn = v.getBoolean("storm", stormOn);
+      shadowsOn = v.getBoolean("shadows", shadowsOn);
+      windOn = v.getBoolean("wind", windOn);
+      balloonsOn = v.getBoolean("balloons", balloonsOn);
+      leavesOn = v.getBoolean("leaves", leavesOn);
+      dustOn = v.getBoolean("dust", dustOn);
+      ghostAlpha = v.getFloat("ghostAlpha", ghostAlpha);
+      cfgSpeed = v.getFloat("speed", cfgSpeed);
+      junkSpawnPending = junkOn || lampsOn || balloonsOn;
+      if (v.has("camPos") && System.getProperty("cam.pos") == null) {
+        float[] cp = v.get("camPos").asFloatArray();
+        float[] cd = v.get("camDir").asFloatArray();
+        float[] cu = v.get("camUp").asFloatArray();
+        cam.position.set(cp[0], cp[1], cp[2]);
+        cam.direction.set(cd[0], cd[1], cd[2]);
+        cam.up.set(cu[0], cu[1], cu[2]);
+        cam.update();
+      }
+    } catch (Exception e) {
+      if (TaintReplay.LOG)
+        System.out.println("config no cargada: " + e);
+    }
+  }
+
+  private void saveConfig() {
+    if (!configEnabled)
+      return;
+    try {
+      StringBuilder sb = new StringBuilder("{\n");
+      sb.append("  \"smooth\": ").append(smooth).append(",\n");
+      sb.append("  \"smoothLevel\": ").append(smoothLevel).append(",\n");
+      sb.append("  \"depthScale\": ").append(depthScale).append(",\n");
+      sb.append("  \"tileDepth\": ").append(tileDepth).append(",\n");
+      sb.append("  \"dark\": ").append(darkMode).append(",\n");
+      sb.append("  \"mist\": ").append(mistOn).append(",\n");
+      sb.append("  \"fire\": ").append(fireOn).append(",\n");
+      sb.append("  \"rain\": ").append(rainOn).append(",\n");
+      sb.append("  \"snow\": ").append(snowOn).append(",\n");
+      sb.append("  \"junk\": ").append(junkOn).append(",\n");
+      sb.append("  \"junkCount\": ").append(junkCount).append(",\n");
+      sb.append("  \"lamps\": ").append(lampsOn).append(",\n");
+      sb.append("  \"storm\": ").append(stormOn).append(",\n");
+      sb.append("  \"shadows\": ").append(shadowsOn).append(",\n");
+      sb.append("  \"wind\": ").append(windOn).append(",\n");
+      sb.append("  \"balloons\": ").append(balloonsOn).append(",\n");
+      sb.append("  \"leaves\": ").append(leavesOn).append(",\n");
+      sb.append("  \"dust\": ").append(dustOn).append(",\n");
+      sb.append("  \"ghostAlpha\": ").append(ghostAlpha).append(",\n");
+      sb.append("  \"speed\": ").append(replay == null ? cfgSpeed : replay.getSpeed())
+          .append(",\n");
+      sb.append(String.format(java.util.Locale.US,
+          "  \"camPos\": [%.2f, %.2f, %.2f],%n", cam.position.x, cam.position.y, cam.position.z));
+      sb.append(String.format(java.util.Locale.US,
+          "  \"camDir\": [%.4f, %.4f, %.4f],%n",
+          cam.direction.x, cam.direction.y, cam.direction.z));
+      sb.append(String.format(java.util.Locale.US,
+          "  \"camUp\": [%.4f, %.4f, %.4f]%n}%n", cam.up.x, cam.up.y, cam.up.z));
+      java.nio.file.Files.writeString(configPath(), sb.toString());
+    } catch (Exception e) {
+      if (TaintReplay.LOG)
+        System.out.println("config no guardada: " + e);
+    }
+  }
+
+  private static final String HELP_TEXT = """
+      TECLAS
+      0        mostrar / ocultar esta guia
+      M        sprites suaves / voxel
+      S / X    suavizado + / -
+      D / C    profundidad + / -
+      T / G    grosor de plataformas + / -
+      L        modo linterna
+      N        niebla
+      F        fuego en los items
+      R        lluvia (charcos y todo mojado)
+      B        nieve
+      E        tormenta electrica
+      V        viento, rafagas y remolinos
+      J        basura con fisica
+      K / H    cantidad de basura + / -
+      U        globos y burbujas
+      P        lamparas colgantes
+      Y        hojas y papeles
+      Z        polvo y suciedad de los sprites
+      O        sombras proyectadas
+      Q        opacidad de los tiles fantasma
+      , / .    velocidad mitad / doble
+      Enter    velocidad normal
+      Mouse    arrastrar rota - rueda zoom
+      La config se guarda sola en ~/.jsw3d-config.json""";
+
+  private void renderHelp() {
+    if (!helpOn)
+      return;
+    com.badlogic.gdx.graphics.g2d.GlyphLayout layout =
+        new com.badlogic.gdx.graphics.g2d.GlyphLayout(uiFont, HELP_TEXT);
+    float pad = 16, x = 20, h = layout.height + pad * 2;
+    float y = Gdx.graphics.getHeight() - 20 - h;
+    uiBatch.begin();
+    uiBatch.setColor(0, 0, 0, .78f);
+    uiBatch.draw(whitePix, x, y, layout.width + pad * 2, h);
+    uiBatch.setColor(1, 1, 1, 1);
+    uiFont.draw(uiBatch, HELP_TEXT, x + pad, y + h - pad);
+    uiBatch.end();
   }
 
   private void printStatus() {
@@ -553,7 +735,7 @@ public class JSW3D extends ApplicationAdapter {
             + "luz=%s (L) niebla=%s (N) fuego=%s (F) lluvia=%s (R) nieve=%s (B) "
             + "basura=%s x%d (J, K/H) lamparas=%s (P) tormenta=%s (E) sombras=%s (O) "
             + "viento=%s (V) globos=%s (U) hojas=%s (Y) polvo=%s (Z) fantasma=%.2f (Q) "
-            + "velocidad=%sx (,/./0)%n",
+            + "velocidad=%sx (,/., Enter) ayuda=0%n",
         smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth,
         darkMode ? "linterna" : "normal", mistOn ? "si" : "no", fireOn ? "si" : "no",
         rainOn ? "si" : "no", snowOn ? "si" : "no", junkOn ? "si" : "no", junkCount,
@@ -1118,6 +1300,9 @@ public class JSW3D extends ApplicationAdapter {
       ropePixelModel.dispose();
     shadowLight.dispose();
     shadowBatch.dispose();
+    uiBatch.dispose();
+    uiFont.dispose();
+    whitePix.dispose();
     junk.dispose();
     effects.dispose();
   }
