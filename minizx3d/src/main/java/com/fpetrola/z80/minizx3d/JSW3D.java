@@ -174,6 +174,9 @@ public class JSW3D extends ApplicationAdapter {
         new com.badlogic.gdx.InputAdapter() {
           @Override
           public boolean keyDown(int keycode) {
+            // only the keys that change the VOXELS force a rebuild; lights, weather and
+            // replay speed leave every cached model exactly as it is
+            boolean rebuild = true;
             switch (keycode) {
               case com.badlogic.gdx.Input.Keys.M -> smooth = !smooth;
               case com.badlogic.gdx.Input.Keys.S -> smoothLevel = Math.min(10, smoothLevel + 1);
@@ -182,27 +185,52 @@ public class JSW3D extends ApplicationAdapter {
               case com.badlogic.gdx.Input.Keys.C -> depthScale = Math.max(.3f, depthScale / 1.25f);
               case com.badlogic.gdx.Input.Keys.T -> tileDepth = Math.min(20f, tileDepth * 1.25f);
               case com.badlogic.gdx.Input.Keys.G -> tileDepth = Math.max(1f, tileDepth / 1.25f);
-              case com.badlogic.gdx.Input.Keys.L -> darkMode = !darkMode;
-              case com.badlogic.gdx.Input.Keys.N -> mistOn = !mistOn;
-              case com.badlogic.gdx.Input.Keys.F -> fireOn = !fireOn;
-              case com.badlogic.gdx.Input.Keys.R -> rainOn = !rainOn;
-              case com.badlogic.gdx.Input.Keys.B -> snowOn = !snowOn;
+              case com.badlogic.gdx.Input.Keys.L -> {
+                darkMode = !darkMode;
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.N -> {
+                mistOn = !mistOn;
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.F -> {
+                fireOn = !fireOn;
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.R -> {
+                rainOn = !rainOn;
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.B -> {
+                snowOn = !snowOn;
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.PERIOD -> {
+                replay.setSpeed(replay.getSpeed() * 2);
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.COMMA -> {
+                replay.setSpeed(replay.getSpeed() / 2);
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.NUM_0 -> {
+                replay.setSpeed(1);
+                rebuild = false;
+              }
               default -> {
                 return false;
               }
             }
-
+            if (rebuild) {
               try {
                   Thread.sleep(100);
               } catch (InterruptedException e) {
                   throw new RuntimeException(e);
               }
               modelCache.values().forEach(Model::dispose);
-            modelCache.clear();
-            System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) luz=%s (L) niebla=%s (N) fuego=%s (F) lluvia=%s (R) nieve=%s (B)%n",
-                smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth,
-                darkMode ? "linterna" : "normal", mistOn ? "si" : "no", fireOn ? "si" : "no",
-                rainOn ? "si" : "no", snowOn ? "si" : "no");
+              modelCache.clear();
+            }
+            printStatus();
             return true;
           }
         });
@@ -211,10 +239,6 @@ public class JSW3D extends ApplicationAdapter {
     if (System.getProperty("shot") == null)
       input.addProcessor(camController);
     Gdx.input.setInputProcessor(input);
-    System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) luz=%s (L) niebla=%s (N) fuego=%s (F) lluvia=%s (R) nieve=%s (B), M alterna modo%n",
-        smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth,
-        darkMode ? "linterna" : "normal", mistOn ? "si" : "no", fireOn ? "si" : "no",
-        rainOn ? "si" : "no", snowOn ? "si" : "no");
 
     rebuildEnv();
 
@@ -238,6 +262,7 @@ public class JSW3D extends ApplicationAdapter {
       replayThread = new Thread(replay, "taint-replay");
       replayThread.setDaemon(true);
       replayThread.start();
+      printStatus();
     } catch (Exception e) {
       throw new RuntimeException("No pude cargar el catalogo de sprites de " + dbPath, e);
     }
@@ -267,10 +292,20 @@ public class JSW3D extends ApplicationAdapter {
       shownFrame = snap.frame();
       frameLights.clear();
       effects.clearFireSpots();
+      long t0 = perf ? System.nanoTime() : 0;
       updateBackdrop(snap);
+      long t1 = perf ? System.nanoTime() : 0;
       updateSprites(snap);
+      long t2 = perf ? System.nanoTime() : 0;
       updateTiles(snap);
+      long t3 = perf ? System.nanoTime() : 0;
       rebuildEnv();
+      if (perf) {
+        nsBackdrop += t1 - t0;
+        nsSprites += t2 - t1;
+        nsTiles += t3 - t2;
+        perfFrames++;
+      }
     }
     camController.update();
     Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -287,7 +322,52 @@ public class JSW3D extends ApplicationAdapter {
     effects.setDepthRange(midZ(), slabDepth() / 2f + 3);
     effects.update(Gdx.graphics.getDeltaTime(), mistOn, fireOn, rainOn, snowOn);
     effects.render(cam, mistOn, fireOn, rainOn, snowOn);
+    reportPerf();
     screenshotIfAsked();
+  }
+
+  private void printStatus() {
+    System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) "
+            + "luz=%s (L) niebla=%s (N) fuego=%s (F) lluvia=%s (R) nieve=%s (B) velocidad=%sx (,/./0)%n",
+        smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth,
+        darkMode ? "linterna" : "normal", mistOn ? "si" : "no", fireOn ? "si" : "no",
+        rainOn ? "si" : "no", snowOn ? "si" : "no",
+        replay == null ? "?" : String.valueOf(replay.getSpeed()));
+  }
+
+  /** -Dperf=true: once a second, where the frame time actually goes. */
+  private final boolean perf = Boolean.getBoolean("perf");
+  private long nsBackdrop, nsSprites, nsTiles, perfLast;
+  private int perfFrames;
+
+  private void reportPerf() {
+    if (!perf)
+      return;
+    long now = System.nanoTime();
+    if (perfLast == 0)
+      perfLast = now;
+    if (now - perfLast < 1_000_000_000L)
+      return;
+    int tris = 0;
+    for (ModelInstance i : tileInstances)
+      tris += triangles(i);
+    for (ModelInstance i : spriteInstances)
+      tris += triangles(i);
+    int n = Math.max(1, perfFrames);
+    System.out.printf(
+        "perf: %d fps | draws=%d tris=%dk | cpu/frame backdrop=%.2fms sprites=%.2fms tiles=%.2fms%n",
+        Gdx.graphics.getFramesPerSecond(), tileInstances.size() + spriteInstances.size() + 1,
+        tris / 1000, nsBackdrop / 1e6 / n, nsSprites / 1e6 / n, nsTiles / 1e6 / n);
+    nsBackdrop = nsSprites = nsTiles = 0;
+    perfFrames = 0;
+    perfLast = now;
+  }
+
+  private static int triangles(ModelInstance inst) {
+    int t = 0;
+    for (com.badlogic.gdx.graphics.g3d.model.NodePart np : inst.nodes.first().parts)
+      t += np.meshPart.size / 3;
+    return t;
   }
 
   /** -Dshot=/path.png captures the framebuffer once sprites are on screen (visual check). */
@@ -575,7 +655,9 @@ public class JSW3D extends ApplicationAdapter {
     cfg.setTitle("JSW 3D — sprites por taint de origenes");
     cfg.setWindowedMode(1024, 768);
     // 4x MSAA: 1px-wide voxel columns 28 units deep shimmer badly at oblique angles without it
-    cfg.setBackBufferConfig(8, 8, 8, 8, 16, 0, 4);
+    cfg.setBackBufferConfig(8, 8, 8, 8, 16, 0, Integer.getInteger("msaa", 4));
+    if (!Boolean.parseBoolean(System.getProperty("vsync", "true")))
+      cfg.useVsync(false); // -Dvsync=false uncaps the framerate (perf measurements)
     new Lwjgl3Application(new JSW3D(rzx, db), cfg);
   }
 }

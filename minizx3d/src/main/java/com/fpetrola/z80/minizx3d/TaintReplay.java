@@ -70,6 +70,22 @@ public final class TaintReplay implements Runnable {
   /** validation mode: no pacing, stop after maxFrames. */
   boolean paced = true;
   int maxFrames = Integer.MAX_VALUE;
+  /**
+   * Replay speed: 1 = the original Spectrum's 50 fps, which is the ONLY thing capping this
+   * (the emulator runs ~30x faster than that, and rendering has 10x of headroom). The
+   * render thread writes it live; {@code -Dspeed=N} sets the initial value.
+   */
+  private volatile float speed = Float.parseFloat(System.getProperty("speed", "1"));
+  /** -Dseek=N: replay up to frame N unpaced, so a later room is reached in seconds. */
+  private final int seekTo = Integer.getInteger("seek", 0);
+
+  public float getSpeed() {
+    return speed;
+  }
+
+  public void setSpeed(float s) {
+    speed = Math.min(32f, Math.max(.125f, s));
+  }
 
   public TaintReplay(String rzxPath, SpriteCatalog catalog, Consumer<FrameSnapshot> onFrame) {
     this.rzxPath = rzxPath;
@@ -223,8 +239,9 @@ public final class TaintReplay implements Runnable {
     int srcTaint, pendingRead, lastRead;
     long dbgScreenWrites, dbgOutside, dbgSuppressed, dbgUntainted;
     final Map<Integer, Long> dbgSuppressedPcs = new HashMap<>();
-    private int prevPc = -1, lastFrame = -1;
+    private int prevPc = -1, lastFrame = -1, pacedFrom;
     private long t0 = -1;
+    private float pacedSpeed = -1;
     private Z80OpcodeInfo info;
 
     Listener(State<WordNumber> state, RZXPlayerIO<WordNumber> io) {
@@ -306,11 +323,22 @@ public final class TaintReplay implements Runnable {
       onFrame.accept(new FrameSnapshot(frame, pixels, attrs, owner, tile));
     }
 
-    /** the emulator outruns the Spectrum; sleep so frame N shows at t0 + N*20ms. */
+    /**
+     * The emulator outruns the Spectrum by ~30x, so the game's speed is ENTIRELY this
+     * sleep: frame N shows 20ms/{@link #speed} after the last rebase. Rebasing (instead of
+     * targeting t0 + N*20ms absolutely) is what lets the speed change mid-replay without
+     * the clock demanding a catch-up burst for time it "owes".
+     */
     private void pace(int frame) {
-      if (t0 < 0)
+      if (frame < seekTo)
+        return; // seeking: run flat out until the frame the viewer asked for
+      float s = speed;
+      if (t0 < 0 || s != pacedSpeed) {
         t0 = System.nanoTime();
-      long target = t0 + frame * 20_000_000L;
+        pacedFrom = frame;
+        pacedSpeed = s;
+      }
+      long target = t0 + (long) ((frame - pacedFrom) * (20_000_000L / s));
       long wait = target - System.nanoTime();
       if (wait > 1_000_000)
         try {
