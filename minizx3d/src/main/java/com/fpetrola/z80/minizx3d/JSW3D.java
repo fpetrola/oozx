@@ -639,14 +639,34 @@ public class JSW3D extends ApplicationAdapter {
       int colspan = b[2] - b[0] + 1;
       int copies = colspan >= 4 && (b[3] - b[1] + 1) <= bytes / 2 + 2 ? (colspan + 1) / 2 : 1;
       for (int k = 0; k < copies; k++) {
+        Color cc = c;
+        if (copies > 1) {
+          // each copy votes ITS OWN slot's cells: JSW tints every life differently
+          // (a color wave runs along the row), and the blob-wide vote flattened that
+          java.util.Arrays.fill(inkVotes, 0);
+          int col0 = b[0] + k * 2;
+          for (int y = b[1]; y <= b[3]; y += 8)
+            for (int dc = 0; dc < 2; dc++) {
+              int attr = snap.attrs()[(y >> 3) * 32 + Math.min(31, col0 + dc)] & 0xff;
+              int ink = (attr & 7) | ((attr >> 3) & 8);
+              if ((ink & 7) != ((attr >> 3) & 7))
+                inkVotes[ink]++;
+            }
+          int best = 0;
+          for (int v = 1; v < 16; v++)
+            if (inkVotes[v] > inkVotes[best])
+              best = v;
+          if (inkVotes[best] > 0)
+            cc = PALETTE[best];
+        }
         ModelInstance inst = new ModelInstance(model);
         inst.transform.setToTranslation(copies == 1 ? cx : (b[0] + k * 2 + 1) * 8, cy, midZ());
-        inst.materials.first().set(ColorAttribute.createDiffuse(c));
+        inst.materials.first().set(ColorAttribute.createDiffuse(cc));
         if (darkMode)
           // the sprite IS a light source: it glows a little itself and casts a small pool
           // of its own color around it — enough to make out its surroundings, no more
           inst.materials.first().set(ColorAttribute.createEmissive(
-              c.r * .4f, c.g * .4f, c.b * .4f, 1));
+              cc.r * .4f, cc.g * .4f, cc.b * .4f, 1));
         spriteInstances.add(inst);
       }
       if (darkMode)
