@@ -127,6 +127,24 @@ public class JSW3D extends ApplicationAdapter {
   private final boolean[] solidCells = new boolean[24 * 32];
   private final boolean[] prevSolidCells = new boolean[24 * 32];
   private final byte[] spritePix = new byte[TaintReplay.PIXEL_BYTES];
+  /**
+   * J junk (-Dfx.junk=true): household debris — balls, bottles, cans, food, boxes —
+   * scattered over the floors, living in a {@link JunkPhysics} Box2D world whose statics
+   * are the room's solid cells and whose kinematic bodies are the moving sprites: whoever
+   * walks into a prop kicks it with their real on-screen velocity.
+   */
+  private JunkPhysics junk;
+  private boolean junkOn = Boolean.getBoolean("fx.junk");
+  private boolean junkSpawnPending = junkOn;
+  /** K/H raise/lower how many pieces spawn per room (-Dfx.junk.count overrides). */
+  private int junkCount = Math.max(2, Integer.getInteger("fx.junk.count", 18));
+  private int junkGeneration = -1;
+  private final Map<JunkPhysics.Kind, Model> junkModels = new HashMap<>();
+  private final List<ModelInstance> junkInstances = new ArrayList<>();
+  /** this frame's sprite blob boxes {cx, cy, halfW, halfH}, playfield only. */
+  private final List<float[]> spriteBoxes = new ArrayList<>();
+  /** render time elapsed between emulator frames: the sprites' kick velocity timebase. */
+  private float snapDt;
 
   public JSW3D(String rzxPath, String dbPath) {
     this.rzxPath = rzxPath;
@@ -154,6 +172,7 @@ public class JSW3D extends ApplicationAdapter {
     cam.update();
     camController = new CameraInputController(cam);
     effects = new AmbientEffects(cam);
+    junk = new JunkPhysics();
     effects.setWorld(new AmbientEffects.World() {
       @Override
       public boolean solid(float wx, float wy) {
@@ -203,6 +222,21 @@ public class JSW3D extends ApplicationAdapter {
               }
               case com.badlogic.gdx.Input.Keys.B -> {
                 snowOn = !snowOn;
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.J -> {
+                junkOn = !junkOn;
+                junkSpawnPending = junkOn;
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.K -> {
+                junkCount = Math.min(80, junkCount + 6);
+                junkSpawnPending = junkOn;
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.H -> {
+                junkCount = Math.max(2, junkCount - 6);
+                junkSpawnPending = junkOn;
                 rebuild = false;
               }
               case com.badlogic.gdx.Input.Keys.PERIOD -> {
@@ -287,6 +321,7 @@ public class JSW3D extends ApplicationAdapter {
 
   @Override
   public void render() {
+    snapDt += Gdx.graphics.getDeltaTime();
     TaintReplay.FrameSnapshot snap = latest;
     if (snap != null && snap.frame() != shownFrame) {
       shownFrame = snap.frame();
@@ -296,6 +331,9 @@ public class JSW3D extends ApplicationAdapter {
       updateBackdrop(snap);
       long t1 = perf ? System.nanoTime() : 0;
       updateSprites(snap);
+      if (junkOn)
+        junk.syncSprites(spriteBoxes, snapDt);
+      snapDt = 0;
       long t2 = perf ? System.nanoTime() : 0;
       updateTiles(snap);
       long t3 = perf ? System.nanoTime() : 0;
@@ -307,6 +345,10 @@ public class JSW3D extends ApplicationAdapter {
         perfFrames++;
       }
     }
+    if (junkOn) {
+      junk.update(Gdx.graphics.getDeltaTime());
+      updateJunkInstances();
+    }
     camController.update();
     Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     Gdx.gl.glClearColor(.05f, .05f, .1f, 1);
@@ -317,6 +359,9 @@ public class JSW3D extends ApplicationAdapter {
       batch.render(t, env);
     for (ModelInstance s : spriteInstances)
       batch.render(s, env);
+    if (junkOn)
+      for (ModelInstance j : junkInstances)
+        batch.render(j, env);
     batch.end();
     // blended decals go after the opaque world so mist, flames and weather layer over it
     effects.setDepthRange(midZ(), slabDepth() / 2f + 3);
@@ -328,10 +373,11 @@ public class JSW3D extends ApplicationAdapter {
 
   private void printStatus() {
     System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) "
-            + "luz=%s (L) niebla=%s (N) fuego=%s (F) lluvia=%s (R) nieve=%s (B) velocidad=%sx (,/./0)%n",
+            + "luz=%s (L) niebla=%s (N) fuego=%s (F) lluvia=%s (R) nieve=%s (B) "
+            + "basura=%s x%d (J, K/H) velocidad=%sx (,/./0)%n",
         smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth,
         darkMode ? "linterna" : "normal", mistOn ? "si" : "no", fireOn ? "si" : "no",
-        rainOn ? "si" : "no", snowOn ? "si" : "no",
+        rainOn ? "si" : "no", snowOn ? "si" : "no", junkOn ? "si" : "no", junkCount,
         replay == null ? "?" : String.valueOf(replay.getSpeed()));
   }
 
@@ -470,6 +516,7 @@ public class JSW3D extends ApplicationAdapter {
         }
       }
     spriteInstances.clear();
+    spriteBoxes.clear();
     for (int[] blob : blobs) {
       int base = blob[0] - 1;
       int[] b = {blob[1], blob[2], blob[3], blob[4]};
@@ -481,6 +528,9 @@ public class JSW3D extends ApplicationAdapter {
       float cx = (b[0] + b[2] + 1) * 8 / 2f;          // byte cols -> pixels
       float cy = H - (b[1] + b[3] + 1) / 2f;          // screen y down -> world y up
       inst.transform.setToTranslation(cx, cy, midZ());
+      // playfield blobs only: the lives-row Willys must not kick junk around
+      if (cy > 66)
+        spriteBoxes.add(new float[]{cx, cy, (b[2] - b[0] + 1) * 4f, (b[3] - b[1] + 1) / 2f});
       Color c = PALETTE[blob[5]];
       inst.materials.first().set(ColorAttribute.createDiffuse(c));
       if (darkMode) {
@@ -628,8 +678,50 @@ public class JSW3D extends ApplicationAdapter {
     for (int i = 0; i < solidCells.length; i++)
       if (solidCells[i] != prevSolidCells[i])
         changed++;
-    if (changed > 60)
+    if (changed > 60) {
       effects.clearSnow();
+      junkSpawnPending = true;
+    }
+    // the junk's static world rebuilds ONLY here — the transient holes a passing sprite
+    // punches into solidCells (its cell rows read as "not tile") never reach the physics
+    if (junkOn && junkSpawnPending) {
+      junk.roomChanged(solidCells, java.util.Arrays.hashCode(solidCells), junkCount);
+      junkSpawnPending = false;
+    }
+  }
+
+  /** one shared model per junk kind; each prop instance is tinted its own ZX color. */
+  private Model junkModel(JunkPhysics.Kind k) {
+    return junkModels.computeIfAbsent(k, kind -> {
+      ModelBuilder mb = new ModelBuilder();
+      Material m = new Material(ColorAttribute.createDiffuse(Color.WHITE));
+      long attrs = Usage.Position | Usage.Normal;
+      return switch (kind) {
+        case BALL -> mb.createSphere(kind.w, kind.h, kind.w, 12, 8, m, attrs);
+        case APPLE -> mb.createSphere(kind.w, kind.h, kind.w, 10, 8, m, attrs);
+        case BOTTLE, CAN -> mb.createCylinder(kind.w, kind.h, kind.w, 10, m, attrs);
+        case BOX -> mb.createBox(kind.w, kind.h, kind.w * .8f, m, attrs);
+      };
+    });
+  }
+
+  /** mirror the physics props into render instances; position + spin come from Box2D. */
+  private void updateJunkInstances() {
+    List<JunkPhysics.Prop> props = junk.props();
+    if (junk.generation() != junkGeneration || props.size() != junkInstances.size()) {
+      junkGeneration = junk.generation();
+      junkInstances.clear();
+      for (JunkPhysics.Prop p : props) {
+        ModelInstance inst = new ModelInstance(junkModel(p.kind));
+        inst.materials.first().set(ColorAttribute.createDiffuse(PALETTE[p.color]));
+        junkInstances.add(inst);
+      }
+    }
+    for (int i = 0; i < props.size(); i++) {
+      JunkPhysics.Prop p = props.get(i);
+      junkInstances.get(i).transform.setToTranslation(p.x(), p.y(), midZ())
+          .rotate(0, 0, 1, p.angleDeg());
+    }
   }
 
   @Override
@@ -641,6 +733,8 @@ public class JSW3D extends ApplicationAdapter {
     screenTex.dispose();
     backdropModel.dispose();
     modelCache.values().forEach(Model::dispose);
+    junkModels.values().forEach(Model::dispose);
+    junk.dispose();
     effects.dispose();
   }
 
