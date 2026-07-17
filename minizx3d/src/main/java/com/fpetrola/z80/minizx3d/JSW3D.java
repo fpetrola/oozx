@@ -233,12 +233,18 @@ public class JSW3D extends ApplicationAdapter {
    * lives in {@link #params} as a get/set pair over the real live field, so changes apply
    * instantly and persist in the config JSON under their {@code id}.
    */
-  private record Param(String id, String group, String name, float min, float max, float step,
-                       boolean integer, java.util.function.Supplier<Float> get,
+  private record Param(String id, String legacy, String group, String name, float min, float max,
+                       float step, boolean integer, java.util.function.Supplier<Float> get,
                        java.util.function.Consumer<Float> set) {
   }
 
+  /** an effect's on/off switch, addressed by its nested JSON path (+ legacy flat key). */
+  private record Toggle(String path, String legacy, java.util.function.Supplier<Boolean> get,
+                        java.util.function.Consumer<Boolean> set) {
+  }
+
   private final List<Param> params = new ArrayList<>();
+  private final List<Toggle> toggles = new ArrayList<>();
   private final List<String> paramGroups = new ArrayList<>();
   private int tuneGroup = Integer.getInteger("tune", 0) - 1, tuneParam;
   /**
@@ -748,95 +754,121 @@ public class JSW3D extends ApplicationAdapter {
       kb.keyReleased(e);
   }
 
-  private void addParam(String id, String group, String name, float min, float max, float step,
-                        boolean integer, java.util.function.Supplier<Float> get,
+  private void addParam(String id, String legacy, String group, String name, float min,
+                        float max, float step, boolean integer,
+                        java.util.function.Supplier<Float> get,
                         java.util.function.Consumer<Float> set) {
-    params.add(new Param(id, group, name, min, max, step, integer, get, set));
+    params.add(new Param(id, legacy, group, name, min, max, step, integer, get, set));
     if (!paramGroups.contains(group))
       paramGroups.add(group);
   }
 
+  private void addToggle(String path, String legacy, java.util.function.Supplier<Boolean> get,
+                         java.util.function.Consumer<Boolean> set) {
+    toggles.add(new Toggle(path, legacy, get, set));
+  }
+
+  /**
+   * The config schema: every effect is an object under {@code effects} holding its own
+   * {@code on} switch and properties (nested where it makes sense, like the wind's
+   * vortex); scene-wide values live under {@code general}, the viewpoint under
+   * {@code camera}. Params carry their pre-nesting flat id so old files still load.
+   */
   private void registerParams() {
-    addParam("rain.drops", "Lluvia", "gotas", 40, 600, 20, true,
+    addToggle("effects.mist.on", "mist", () -> mistOn, v -> mistOn = v);
+    addToggle("effects.fire.on", "fire", () -> fireOn, v -> fireOn = v);
+    addToggle("effects.rain.on", "rain", () -> rainOn, v -> rainOn = v);
+    addToggle("effects.snow.on", "snow", () -> snowOn, v -> snowOn = v);
+    addToggle("effects.storm.on", "storm", () -> stormOn, v -> stormOn = v);
+    addToggle("effects.wind.on", "wind", () -> windOn, v -> windOn = v);
+    addToggle("effects.leaves.on", "leaves", () -> leavesOn, v -> leavesOn = v);
+    addToggle("effects.junk.on", "junk", () -> junkOn, v -> junkOn = v);
+    addToggle("effects.balloons.on", "balloons", () -> balloonsOn, v -> balloonsOn = v);
+    addToggle("effects.lamps.on", "lamps", () -> lampsOn, v -> lampsOn = v);
+    addToggle("effects.dust.on", "dust", () -> dustOn, v -> dustOn = v);
+    addToggle("effects.lantern.on", "dark", () -> darkMode, v -> darkMode = v);
+
+    addParam("effects.rain.drops", "rain.drops", "Lluvia", "gotas", 40, 600, 20, true,
         () -> (float) effects.dropCount, v -> effects.dropCount = Math.round(v));
-    addParam("rain.speed", "Lluvia", "velocidad caida", .4f, 2.5f, .1f, false,
-        () -> effects.rainSpeed, v -> effects.rainSpeed = v);
-    addParam("rain.puddle", "Lluvia", "charco maximo", 3, 20, 1, true,
+    addParam("effects.rain.fallSpeed", "rain.speed", "Lluvia", "velocidad caida",
+        .4f, 2.5f, .1f, false, () -> effects.rainSpeed, v -> effects.rainSpeed = v);
+    addParam("effects.rain.puddleMax", "rain.puddle", "Lluvia", "charco maximo", 3, 20, 1, true,
         () -> effects.puddleMax, v -> effects.puddleMax = v);
-    addParam("snow.flakes", "Nieve", "copos", 40, 700, 20, true,
+    addParam("effects.snow.flakes", "snow.flakes", "Nieve", "copos", 40, 700, 20, true,
         () -> (float) effects.flakeCount, v -> effects.flakeCount = Math.round(v));
-    addParam("snow.speed", "Nieve", "velocidad caida", .4f, 2.5f, .1f, false,
-        () -> effects.snowSpeed, v -> effects.snowSpeed = v);
-    addParam("snow.settled", "Nieve", "acumulacion max", 200, 6000, 200, true,
+    addParam("effects.snow.fallSpeed", "snow.speed", "Nieve", "velocidad caida",
+        .4f, 2.5f, .1f, false, () -> effects.snowSpeed, v -> effects.snowSpeed = v);
+    addParam("effects.snow.settledMax", "snow.settled", "Nieve", "acumulacion max",
+        200, 6000, 200, true,
         () -> (float) effects.settledMax, v -> effects.settledMax = Math.round(v));
-    addParam("wind.base", "Viento", "fuerza base", 0, 3, .1f, false,
+    addParam("effects.wind.base", "wind.base", "Viento", "fuerza base", 0, 3, .1f, false,
         () -> effects.windBase, v -> effects.windBase = v);
-    addParam("wind.gust", "Viento", "fuerza rafagas", 0, 3, .1f, false,
+    addParam("effects.wind.gust", "wind.gust", "Viento", "fuerza rafagas", 0, 3, .1f, false,
         () -> effects.windGust, v -> effects.windGust = v);
-    addParam("wind.vortex", "Viento", "fuerza remolino", 0, 3, .1f, false,
-        () -> effects.vortexPower, v -> effects.vortexPower = v);
-    addParam("wind.vortexRadius", "Viento", "radio remolino", 400, 4000, 200, true,
-        () -> effects.vortexRadius, v -> effects.vortexRadius = v);
-    addParam("leaves.count", "Hojas", "cantidad", 10, 300, 10, true,
+    addParam("effects.wind.vortex.power", "wind.vortex", "Viento", "fuerza remolino",
+        0, 3, .1f, false, () -> effects.vortexPower, v -> effects.vortexPower = v);
+    addParam("effects.wind.vortex.radius", "wind.vortexRadius", "Viento", "radio remolino",
+        400, 4000, 200, true, () -> effects.vortexRadius, v -> effects.vortexRadius = v);
+    addParam("effects.leaves.count", "leaves.count", "Hojas", "cantidad", 10, 300, 10, true,
         () -> (float) effects.leafCount, v -> effects.leafCount = Math.round(v));
-    addParam("leaves.paper", "Hojas", "fraccion papeles", 0, 1, .05f, false,
-        () -> effects.paperFrac, v -> effects.paperFrac = v);
-    addParam("junk.count", "Basura", "cantidad", 2, 80, 2, true,
+    addParam("effects.leaves.paperFraction", "leaves.paper", "Hojas", "fraccion papeles",
+        0, 1, .05f, false, () -> effects.paperFrac, v -> effects.paperFrac = v);
+    addParam("effects.junk.count", "junk.count", "Basura", "cantidad", 2, 80, 2, true,
         () -> (float) junkCount, v -> {
           junkCount = Math.round(v);
           junkSpawnPending = true;
         });
-    addParam("junk.kick", "Basura", "fuerza patada", .2f, 3, .1f, false,
-        () -> junk.kickScale, v -> junk.kickScale = v);
-    addParam("junk.gravity", "Basura", "gravedad", .2f, 3, .1f, false,
+    addParam("effects.junk.kickStrength", "junk.kick", "Basura", "fuerza patada",
+        .2f, 3, .1f, false, () -> junk.kickScale, v -> junk.kickScale = v);
+    addParam("effects.junk.gravity", "junk.gravity", "Basura", "gravedad", .2f, 3, .1f, false,
         () -> junkGravity, v -> {
           junkGravity = v;
           junk.setGravityFactor(v);
         });
-    addParam("balloons.count", "Globos", "globos", 0, 30, 1, true,
+    addParam("effects.balloons.balloons", "balloons.count", "Globos", "globos", 0, 30, 1, true,
         () -> (float) balloonCount, v -> {
           balloonCount = Math.round(v);
           junkSpawnPending = true;
         });
-    addParam("balloons.bubbles", "Globos", "burbujas", 0, 30, 1, true,
-        () -> (float) bubbleCount, v -> {
+    addParam("effects.balloons.bubbles", "balloons.bubbles", "Globos", "burbujas",
+        0, 30, 1, true, () -> (float) bubbleCount, v -> {
           bubbleCount = Math.round(v);
           junkSpawnPending = true;
         });
-    addParam("balloons.buoyancy", "Globos", "flotacion", .2f, 3, .1f, false,
-        () -> junk.buoyancy, v -> {
+    addParam("effects.balloons.buoyancy", "balloons.buoyancy", "Globos", "flotacion",
+        .2f, 3, .1f, false, () -> junk.buoyancy, v -> {
           junk.buoyancy = v;
           junkSpawnPending = true;
         });
-    addParam("lamps.count", "Lamparas", "cantidad", 0, 8, 1, true,
+    addParam("effects.lamps.count", "lamps.count", "Lamparas", "cantidad", 0, 8, 1, true,
         () -> (float) lampCount, v -> {
           lampCount = Math.round(v);
           junkSpawnPending = true;
         });
-    addParam("lamps.light", "Lamparas", "intensidad luz", .2f, 3, .1f, false,
-        () -> lampLightScale, v -> lampLightScale = v);
-    addParam("fire.rate", "Fuego", "emision", .1f, 3, .1f, false,
+    addParam("effects.lamps.lightIntensity", "lamps.light", "Lamparas", "intensidad luz",
+        .2f, 3, .1f, false, () -> lampLightScale, v -> lampLightScale = v);
+    addParam("effects.fire.rate", "fire.rate", "Fuego", "emision", .1f, 3, .1f, false,
         () -> effects.fireRate, v -> effects.fireRate = v);
-    addParam("fire.size", "Fuego", "tamano llamas", .4f, 2.5f, .1f, false,
-        () -> effects.fireSize, v -> effects.fireSize = v);
-    addParam("mist.count", "Niebla", "parches", 2, 40, 2, true,
+    addParam("effects.fire.flameSize", "fire.size", "Fuego", "tamano llamas",
+        .4f, 2.5f, .1f, false, () -> effects.fireSize, v -> effects.fireSize = v);
+    addParam("effects.mist.patches", "mist.count", "Niebla", "parches", 2, 40, 2, true,
         () -> (float) effects.mistCount, v -> effects.mistCount = Math.round(v));
-    addParam("mist.density", "Niebla", "densidad", .2f, 3, .1f, false,
+    addParam("effects.mist.density", "mist.density", "Niebla", "densidad", .2f, 3, .1f, false,
         () -> effects.mistDensity, v -> effects.mistDensity = v);
-    addParam("storm.period", "Tormenta", "periodo (seg)", 1, 20, 1, false,
-        () -> effects.stormPeriod, v -> effects.stormPeriod = v);
-    addParam("storm.intensity", "Tormenta", "intensidad", .2f, 1.5f, .1f, false,
-        () -> effects.stormIntensity, v -> effects.stormIntensity = v);
-    addParam("dust.rate", "Polvo", "emision", .2f, 3, .1f, false,
+    addParam("effects.storm.period", "storm.period", "Tormenta", "periodo (seg)",
+        1, 20, 1, false, () -> effects.stormPeriod, v -> effects.stormPeriod = v);
+    addParam("effects.storm.intensity", "storm.intensity", "Tormenta", "intensidad",
+        .2f, 1.5f, .1f, false, () -> effects.stormIntensity, v -> effects.stormIntensity = v);
+    addParam("effects.dust.rate", "dust.rate", "Polvo", "emision", .2f, 3, .1f, false,
         () -> effects.dustRate, v -> effects.dustRate = v);
-    addParam("dust.mound", "Polvo", "montana maxima", 1, 10, .5f, false,
-        () -> effects.moundMax, v -> effects.moundMax = v);
-    addParam("dark.ambient", "Linterna", "luz ambiente", 0, .2f, .01f, false,
-        () -> darkAmbient, v -> darkAmbient = v);
-    addParam("dark.sprite", "Linterna", "luz sprites", 50, 1000, 50, true,
-        () -> spriteLightIntensity, v -> spriteLightIntensity = v);
-    addParam("dark.item", "Linterna", "luz items", 50, 1500, 50, true,
-        () -> itemLightIntensity, v -> itemLightIntensity = v);
+    addParam("effects.dust.moundMax", "dust.mound", "Polvo", "montana maxima",
+        1, 10, .5f, false, () -> effects.moundMax, v -> effects.moundMax = v);
+    addParam("effects.lantern.ambient", "dark.ambient", "Linterna", "luz ambiente",
+        0, .2f, .01f, false, () -> darkAmbient, v -> darkAmbient = v);
+    addParam("effects.lantern.spriteLight", "dark.sprite", "Linterna", "luz sprites",
+        50, 1000, 50, true, () -> spriteLightIntensity, v -> spriteLightIntensity = v);
+    addParam("effects.lantern.itemLight", "dark.item", "Linterna", "luz items",
+        50, 1500, 50, true, () -> itemLightIntensity, v -> itemLightIntensity = v);
   }
 
   private List<Param> groupParams() {
@@ -883,7 +915,32 @@ public class JSW3D extends ApplicationAdapter {
         System.getProperty("user.home") + "/.jsw3d-config.json"));
   }
 
-  /** only the keys PRESENT in the file override; -D flags keep working as the defaults. */
+  /** walk a dotted path down a parsed JSON tree; null when any hop is missing. */
+  private static com.badlogic.gdx.utils.JsonValue at(com.badlogic.gdx.utils.JsonValue v,
+                                                     String path) {
+    for (String part : path.split("\\."))
+      if ((v = v == null ? null : v.get(part)) == null)
+        return null;
+    return v;
+  }
+
+  private static float num(com.badlogic.gdx.utils.JsonValue root, String path,
+                           String legacyKey, float def) {
+    com.badlogic.gdx.utils.JsonValue x = at(root, path);
+    return x != null ? x.asFloat() : root.getFloat(legacyKey, def);
+  }
+
+  private static boolean bool(com.badlogic.gdx.utils.JsonValue root, String path,
+                              String legacyKey, boolean def) {
+    com.badlogic.gdx.utils.JsonValue x = at(root, path);
+    return x != null ? x.asBoolean() : root.getBoolean(legacyKey, def);
+  }
+
+  /**
+   * Only the keys PRESENT in the file override; -D flags keep working as the defaults.
+   * Reads the nested schema first and falls back to the old flat keys / {@code params}
+   * object, so a pre-nesting file loads once and is rewritten in the new shape.
+   */
   private void loadConfig() {
     if (!configEnabled)
       return;
@@ -893,36 +950,34 @@ public class JSW3D extends ApplicationAdapter {
         return;
       com.badlogic.gdx.utils.JsonValue v =
           new com.badlogic.gdx.utils.JsonReader().parse(java.nio.file.Files.readString(p));
-      smooth = v.getBoolean("smooth", smooth);
-      smoothLevel = v.getInt("smoothLevel", smoothLevel);
-      depthScale = v.getFloat("depthScale", depthScale);
-      tileDepth = v.getFloat("tileDepth", tileDepth);
-      darkMode = v.getBoolean("dark", darkMode);
-      mistOn = v.getBoolean("mist", mistOn);
-      fireOn = v.getBoolean("fire", fireOn);
-      rainOn = v.getBoolean("rain", rainOn);
-      snowOn = v.getBoolean("snow", snowOn);
-      junkOn = v.getBoolean("junk", junkOn);
-      junkCount = v.getInt("junkCount", junkCount);
-      lampsOn = v.getBoolean("lamps", lampsOn);
-      stormOn = v.getBoolean("storm", stormOn);
-      shadowsOn = v.getBoolean("shadows", shadowsOn);
-      windOn = v.getBoolean("wind", windOn);
-      balloonsOn = v.getBoolean("balloons", balloonsOn);
-      leavesOn = v.getBoolean("leaves", leavesOn);
-      dustOn = v.getBoolean("dust", dustOn);
-      ghostAlpha = v.getFloat("ghostAlpha", ghostAlpha);
-      cfgSpeed = v.getFloat("speed", cfgSpeed);
-      com.badlogic.gdx.utils.JsonValue ps = v.get("params");
-      if (ps != null)
-        for (Param par : params)
-          if (ps.has(par.id()))
-            par.set().accept(Math.max(par.min(), Math.min(par.max(), ps.getFloat(par.id()))));
+      smooth = bool(v, "general.smooth", "smooth", smooth);
+      smoothLevel = (int) num(v, "general.smoothLevel", "smoothLevel", smoothLevel);
+      depthScale = num(v, "general.depthScale", "depthScale", depthScale);
+      tileDepth = num(v, "general.tileDepth", "tileDepth", tileDepth);
+      shadowsOn = bool(v, "general.shadows", "shadows", shadowsOn);
+      ghostAlpha = num(v, "general.ghostAlpha", "ghostAlpha", ghostAlpha);
+      cfgSpeed = num(v, "general.speed", "speed", cfgSpeed);
+      junkCount = (int) num(v, "effects.junk.count", "junkCount", junkCount);
+      for (Toggle t : toggles)
+        t.set().accept(bool(v, t.path(), t.legacy(), t.get().get()));
+      com.badlogic.gdx.utils.JsonValue legacyParams = v.get("params");
+      for (Param par : params) {
+        com.badlogic.gdx.utils.JsonValue x = at(v, par.id());
+        if (x == null && legacyParams != null)
+          x = legacyParams.get(par.legacy());
+        if (x != null)
+          par.set().accept(Math.max(par.min(), Math.min(par.max(), x.asFloat())));
+      }
       junkSpawnPending = junkOn || lampsOn || balloonsOn;
-      if (v.has("camPos") && System.getProperty("cam.pos") == null) {
-        float[] cp = v.get("camPos").asFloatArray();
-        float[] cd = v.get("camDir").asFloatArray();
-        float[] cu = v.get("camUp").asFloatArray();
+      com.badlogic.gdx.utils.JsonValue pos = at(v, "camera.pos");
+      if (pos == null)
+        pos = v.get("camPos");
+      if (pos != null && System.getProperty("cam.pos") == null) {
+        float[] cp = pos.asFloatArray();
+        com.badlogic.gdx.utils.JsonValue dir = at(v, "camera.dir");
+        com.badlogic.gdx.utils.JsonValue up = at(v, "camera.up");
+        float[] cd = (dir != null ? dir : v.get("camDir")).asFloatArray();
+        float[] cu = (up != null ? up : v.get("camUp")).asFloatArray();
         cam.position.set(cp[0], cp[1], cp[2]);
         cam.direction.set(cd[0], cd[1], cd[2]);
         cam.up.set(cu[0], cu[1], cu[2]);
@@ -934,49 +989,61 @@ public class JSW3D extends ApplicationAdapter {
     }
   }
 
+  /** drop {@code value} into the nested tree at its dotted path, creating objects on the way. */
+  @SuppressWarnings("unchecked")
+  private static void put(Map<String, Object> root, String path, Object value) {
+    String[] parts = path.split("\\.");
+    Map<String, Object> m = root;
+    for (int i = 0; i < parts.length - 1; i++)
+      m = (Map<String, Object>) m.computeIfAbsent(parts[i],
+          k -> new java.util.LinkedHashMap<String, Object>());
+    m.put(parts[parts.length - 1], value);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static void writeJson(StringBuilder sb, Map<String, Object> m, String indent) {
+    sb.append("{\n");
+    int i = 0;
+    for (Map.Entry<String, Object> e : m.entrySet()) {
+      sb.append(indent).append("  \"").append(e.getKey()).append("\": ");
+      Object v = e.getValue();
+      if (v instanceof Map<?, ?> mm)
+        writeJson(sb, (Map<String, Object>) mm, indent + "  ");
+      else if (v instanceof float[] a)
+        sb.append(String.format(java.util.Locale.US, "[%.4f, %.4f, %.4f]", a[0], a[1], a[2]));
+      else if (v instanceof Float f)
+        sb.append(String.format(java.util.Locale.US, "%.3f", f));
+      else
+        sb.append(v);
+      sb.append(++i < m.size() ? ",\n" : "\n");
+    }
+    sb.append(indent).append("}");
+  }
+
   private void saveConfig() {
     if (!configEnabled)
       return;
     try {
-      StringBuilder sb = new StringBuilder("{\n");
-      sb.append("  \"smooth\": ").append(smooth).append(",\n");
-      sb.append("  \"smoothLevel\": ").append(smoothLevel).append(",\n");
-      sb.append("  \"depthScale\": ").append(depthScale).append(",\n");
-      sb.append("  \"tileDepth\": ").append(tileDepth).append(",\n");
-      sb.append("  \"dark\": ").append(darkMode).append(",\n");
-      sb.append("  \"mist\": ").append(mistOn).append(",\n");
-      sb.append("  \"fire\": ").append(fireOn).append(",\n");
-      sb.append("  \"rain\": ").append(rainOn).append(",\n");
-      sb.append("  \"snow\": ").append(snowOn).append(",\n");
-      sb.append("  \"junk\": ").append(junkOn).append(",\n");
-      sb.append("  \"junkCount\": ").append(junkCount).append(",\n");
-      sb.append("  \"lamps\": ").append(lampsOn).append(",\n");
-      sb.append("  \"storm\": ").append(stormOn).append(",\n");
-      sb.append("  \"shadows\": ").append(shadowsOn).append(",\n");
-      sb.append("  \"wind\": ").append(windOn).append(",\n");
-      sb.append("  \"balloons\": ").append(balloonsOn).append(",\n");
-      sb.append("  \"leaves\": ").append(leavesOn).append(",\n");
-      sb.append("  \"dust\": ").append(dustOn).append(",\n");
-      sb.append("  \"ghostAlpha\": ").append(ghostAlpha).append(",\n");
-      sb.append("  \"speed\": ").append(replay == null ? cfgSpeed : replay.getSpeed())
-          .append(",\n");
-      sb.append("  \"params\": {\n");
-      for (int i = 0; i < params.size(); i++) {
-        Param p = params.get(i);
+      Map<String, Object> root = new java.util.LinkedHashMap<>();
+      put(root, "general.smooth", smooth);
+      put(root, "general.smoothLevel", smoothLevel);
+      put(root, "general.depthScale", depthScale);
+      put(root, "general.tileDepth", tileDepth);
+      put(root, "general.shadows", shadowsOn);
+      put(root, "general.ghostAlpha", ghostAlpha);
+      put(root, "general.speed", replay == null ? cfgSpeed : replay.getSpeed());
+      put(root, "camera.pos", new float[]{cam.position.x, cam.position.y, cam.position.z});
+      put(root, "camera.dir", new float[]{cam.direction.x, cam.direction.y, cam.direction.z});
+      put(root, "camera.up", new float[]{cam.up.x, cam.up.y, cam.up.z});
+      for (Toggle t : toggles)
+        put(root, t.path(), t.get().get());
+      for (Param p : params) {
         float pv = p.get().get();
-        sb.append("    \"").append(p.id()).append("\": ")
-            .append(p.integer() ? String.valueOf(Math.round(pv))
-                : String.format(java.util.Locale.US, "%.3f", pv))
-            .append(i < params.size() - 1 ? ",\n" : "\n");
+        put(root, p.id(), p.integer() ? (Object) Math.round(pv) : (Object) pv);
       }
-      sb.append("  },\n");
-      sb.append(String.format(java.util.Locale.US,
-          "  \"camPos\": [%.2f, %.2f, %.2f],%n", cam.position.x, cam.position.y, cam.position.z));
-      sb.append(String.format(java.util.Locale.US,
-          "  \"camDir\": [%.4f, %.4f, %.4f],%n",
-          cam.direction.x, cam.direction.y, cam.direction.z));
-      sb.append(String.format(java.util.Locale.US,
-          "  \"camUp\": [%.4f, %.4f, %.4f]%n}%n", cam.up.x, cam.up.y, cam.up.z));
+      StringBuilder sb = new StringBuilder();
+      writeJson(sb, root, "");
+      sb.append('\n');
       java.nio.file.Files.writeString(configPath(), sb.toString());
     } catch (Exception e) {
       if (TaintReplay.LOG)
