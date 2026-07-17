@@ -54,28 +54,37 @@ public final class JunkPhysics implements Disposable {
   private static final float KILL_Y = 58;
 
   public enum Kind {
-    //     w      h    rest  fric  dens  angDamp  palette color choices
-    BALL(5.6f, 5.6f, .75f, .25f, .40f, .10f, new int[]{10, 13, 14, 11}),
-    BOTTLE(3.0f, 8.0f, .12f, .40f, .90f, .60f, new int[]{4, 12, 6}),
-    CAN(3.6f, 4.6f, .30f, .35f, .40f, .50f, new int[]{10, 9, 15}),
-    APPLE(4.2f, 4.2f, .30f, .50f, .60f, .30f, new int[]{10, 12}),
-    BOX(5.5f, 4.2f, .05f, .70f, .25f, .80f, new int[]{6, 7});
+    //     w      h    rest  fric  dens  angDamp drag  palette color choices
+    BALL(5.6f, 5.6f, .75f, .25f, .40f, .10f, 1.0f, new int[]{10, 13, 14, 11}),
+    BOTTLE(3.0f, 8.0f, .12f, .40f, .90f, .60f, .35f, new int[]{4, 12, 6}),
+    CAN(3.6f, 4.6f, .30f, .35f, .40f, .50f, .90f, new int[]{10, 9, 15}),
+    APPLE(4.2f, 4.2f, .30f, .50f, .60f, .30f, .30f, new int[]{10, 12}),
+    BOX(5.5f, 4.2f, .05f, .70f, .25f, .80f, 2.5f, new int[]{6, 7}),
+    /** buoyant: negative gravity scale makes them drift UP and pool under platforms. */
+    BALLOON(4.6f, 5.4f, .55f, .20f, .06f, .35f, 6f, new int[]{10, 11, 13, 14, 9}),
+    BUBBLE(2.4f, 2.4f, .70f, .05f, .03f, .10f, 8f, new int[]{15, 13});
 
     public final float w, h;
     final float restitution, friction, density, angularDamping;
+    /** how much the wind grips it, as a per-second approach rate toward wind speed. */
+    final float drag;
     final int[] colors;
 
     Kind(float w, float h, float restitution, float friction, float density,
-         float angularDamping, int[] colors) {
+         float angularDamping, float drag, int[] colors) {
       this.w = w;
       this.h = h;
       this.restitution = restitution;
       this.friction = friction;
       this.density = density;
       this.angularDamping = angularDamping;
+      this.drag = drag;
       this.colors = colors;
     }
   }
+
+  /** the kinds ordinary floor junk is drawn from — floaters spawn separately. */
+  private static final Kind[] JUNK_KINDS = {Kind.BALL, Kind.BOTTLE, Kind.CAN, Kind.APPLE, Kind.BOX};
 
   /** |zFrac| below this is the sprites' plane: only these get stepped on / kicked directly. */
   private static final float MIDDLE = .3f;
@@ -93,6 +102,8 @@ public final class JunkPhysics implements Disposable {
     public final float zFrac;
     /** a few props shine with their own light, item-style. */
     public final boolean glow;
+    /** floaters age toward their pop; the rest just count time. */
+    float age, life = Float.MAX_VALUE;
     final Body body;
 
     Prop(Kind kind, int color, float zFrac, boolean glow, Body body) {
@@ -160,9 +171,11 @@ public final class JunkPhysics implements Disposable {
   public JunkPhysics() {
     Box2D.init();
     world = new World(new Vector2(0, -38f), true);
-    // side walls: junk kicked hard bounces back into the room instead of leaving it
+    // side walls: junk kicked hard bounces back into the room instead of leaving it;
+    // the sky ceiling is what rising balloons pool against when no platform stops them
     ground = wall(-2, H / 2f, 2, H);
     wall(258, H / 2f, 2, H);
+    wall(128, H + 4, 132, 3);
   }
 
   private Body wall(float cx, float cy, float halfW, float halfH) {
@@ -196,7 +209,8 @@ public final class JunkPhysics implements Disposable {
    * Box2D settles the pile. The seed comes from the room's solid layout, so each room
    * always gets its own arrangement.
    */
-  public void roomChanged(boolean[] solidCells, long seed, int count, int lampCount) {
+  public void roomChanged(boolean[] solidCells, long seed, int count, int lampCount,
+                          int floaters) {
     for (Body b : roomBodies)
       world.destroyBody(b);
     roomBodies.clear();
@@ -240,10 +254,17 @@ public final class JunkPhysics implements Disposable {
       Collections.shuffle(floorTops, rnd);
       for (int i = 0; i < count; i++) {
         int[] cell = floorTops.get(i % floorTops.size());
-        Kind k = Kind.values()[rnd.nextInt(Kind.values().length)];
+        Kind k = JUNK_KINDS[rnd.nextInt(JUNK_KINDS.length)];
         spawn(k, cell[0] * 8 + 4 + (rnd.nextFloat() - .5f) * 3,
             H - cell[1] * 8 + k.h / 2 + .5f + (i / floorTops.size()) * 9);
       }
+    }
+
+    // floaters spawn mid-air and rise on their own until a ceiling stops them
+    for (int i = 0; i < floaters; i++) {
+      spawn(Kind.BALLOON, 12 + rnd.nextFloat() * 232, 85 + rnd.nextFloat() * 70);
+      Prop bubble = spawn(Kind.BUBBLE, 12 + rnd.nextFloat() * 232, 85 + rnd.nextFloat() * 70);
+      bubble.life = 16 + rnd.nextFloat() * 22; // bubbles never last
     }
 
     // lamps hang from ceiling cells — a solid cell with 4+ cells of clear air straight
@@ -309,7 +330,7 @@ public final class JunkPhysics implements Disposable {
     lamps.add(new Lamp(px, py, len, b));
   }
 
-  private void spawn(Kind k, float x, float y) {
+  private Prop spawn(Kind k, float x, float y) {
     float zFrac = rnd.nextFloat() * 2 - 1;
     BodyDef bd = new BodyDef();
     bd.type = BodyDef.BodyType.DynamicBody;
@@ -339,8 +360,17 @@ public final class JunkPhysics implements Disposable {
       b.createFixture(fd);
       p.dispose();
     }
-    props.add(new Prop(k, k.colors[rnd.nextInt(k.colors.length)], zFrac,
-        rnd.nextFloat() < .25f, b));
+    if (k == Kind.BALLOON) {
+      b.setGravityScale(-.35f);
+      b.setLinearDamping(.9f);
+    } else if (k == Kind.BUBBLE) {
+      b.setGravityScale(-.15f);
+      b.setLinearDamping(1.4f);
+    }
+    Prop prop = new Prop(k, k.colors[rnd.nextInt(k.colors.length)], zFrac,
+        rnd.nextFloat() < .25f, b);
+    props.add(prop);
+    return prop;
   }
 
   /**
@@ -443,8 +473,31 @@ public final class JunkPhysics implements Disposable {
     }
   }
 
+  /** the wind (px/s) the next update leans on the props; 0 turns it off. */
+  private float windPx;
+
+  public void setWind(float pxPerSec) {
+    windPx = pxPerSec;
+  }
+
+  /** balloon/bubble pops since the last drain: {x, y, zFrac, palette color}. */
+  private final List<float[]> pops = new ArrayList<>();
+
+  public List<float[]> pops() {
+    return pops;
+  }
+
   /** fixed-step integration, decoupled from the render rate. */
   public void update(float dt) {
+    if (windPx != 0) {
+      // wind as drag toward its own speed: each kind approaches the wind's velocity at
+      // its drag rate — a cardboard box sails away, a bottle barely notices
+      float wm = windPx / PPM;
+      for (Prop p : props) {
+        Vector2 v = p.body.getLinearVelocity();
+        p.body.applyForceToCenter(p.kind.drag * (wm - v.x) * p.body.getMass(), 0, true);
+      }
+    }
     accum += Math.min(dt, .12f);
     while (accum >= STEP) {
       world.step(STEP, 6, 2);
@@ -452,7 +505,15 @@ public final class JunkPhysics implements Disposable {
     }
     for (Iterator<Prop> it = props.iterator(); it.hasNext(); ) {
       Prop p = it.next();
-      if (p.y() < KILL_Y) {
+      p.age += dt;
+      float speed = p.body.getLinearVelocity().len();
+      // floaters are fragile: a hard knock bursts them, and bubbles die of old age too
+      boolean pop = p.kind == Kind.BUBBLE
+          ? p.age > p.life || (speed > 10 && rnd.nextFloat() < 4 * dt)
+          : p.kind == Kind.BALLOON && speed > 13 && rnd.nextFloat() < 2.5f * dt;
+      if (pop || p.y() < KILL_Y) {
+        if (pop)
+          pops.add(new float[]{p.x(), p.y(), p.zFrac, p.color});
         world.destroyBody(p.body);
         it.remove();
       }

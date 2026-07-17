@@ -155,10 +155,14 @@ public final class AmbientEffects implements Disposable {
     zSpread = spread;
   }
 
-  /** the room changed: yesterday's drifts belong to a screen that no longer exists. */
+  /** the room changed: drifts, puddles and resting leaves belong to a screen that's gone. */
   public void clearSnow() {
     settled.clear();
     drifts.clear();
+    puddles.clear();
+    for (Leaf f : leaves)
+      if (f.rest)
+        respawnLeaf(f);
   }
 
   /** the item cells alive THIS frame; rebuilt by the caller on every emulator frame. */
@@ -177,16 +181,224 @@ public final class AmbientEffects implements Disposable {
   }
 
   public void update(float dt, boolean mistOn, boolean fireOn, boolean rainOn, boolean snowOn,
-                     boolean stormOn) {
+                     boolean stormOn, boolean windOn, boolean leavesOn) {
     time += dt;
     if (Boolean.getBoolean("fx.debug") && ++dbgTicks % 300 == 0)
       System.out.println("fx: spots=" + fireSpots.size() + " llamas=" + flames.size()
           + " gotas=" + drops.size() + " copos=" + flakes.size() + " nieve=" + settled.size());
+    updateWind(dt, windOn);
     updateMist(dt, mistOn);
     updateFire(dt, fireOn);
     updateRain(dt, rainOn);
     updateSnow(dt, snowOn);
     updateStorm(dt, stormOn);
+    updateLeaves(dt, leavesOn);
+    updatePuddles(dt, rainOn);
+    updateBursts(dt);
+  }
+
+  /**
+   * ONE wind signal (px/s, + rightward) that every system reads: a slow breathing base
+   * with GUSTS riding on it — every few seconds the wind swells smoothly to 45-90 px/s
+   * for ~2s and dies back down. Rain leans with it, snow and leaves ride it, flames and
+   * mist drift, and the junk physics turns it into drag forces on the light props.
+   */
+  private float windCur, gustTimer = 4, gustT = -1, gustDir = 1, gustPeak;
+
+  public float wind() {
+    return windCur;
+  }
+
+  private void updateWind(float dt, boolean windOn) {
+    if (!windOn) {
+      windCur *= Math.max(0, 1 - 2 * dt); // dies down instead of snapping off
+      return;
+    }
+    float base = 14f * (float) Math.sin(time * .33f) + 8f * (float) Math.sin(time * .9f);
+    if (gustT < 0) {
+      gustTimer -= dt;
+      if (gustTimer <= 0) {
+        gustT = 0;
+        gustDir = rnd.nextBoolean() ? 1 : -1;
+        gustPeak = 45 + rnd.nextFloat() * 45;
+      }
+    }
+    float g = 0;
+    if (gustT >= 0) {
+      gustT += dt;
+      float span = 2.2f;
+      if (gustT >= span) {
+        gustT = -1;
+        gustTimer = 3 + rnd.nextFloat() * 7;
+      } else
+        g = gustPeak * (float) Math.sin(Math.PI * gustT / span);
+    }
+    windCur = base + g * gustDir;
+  }
+
+  /**
+   * Autumn leaves: falling slow under heavy drag, fluttering, spinning — but the wind
+   * OWNS them. They come to rest on the platforms, and lie there until a character walks
+   * through (its wake flings them up spinning) or a strong gust peels them off again.
+   */
+  private static final int LEAVES = 42;
+  private static final float[][] LEAF_COLORS =
+      {{.85f, .6f, .12f}, {.75f, .28f, .06f}, {.55f, .6f, .12f}, {.9f, .78f, .25f}};
+
+  private static final class Leaf {
+    float x, y, z, vx, vy, rot, vr, phase, size;
+    int color;
+    boolean rest;
+  }
+
+  private final List<Leaf> leaves = new ArrayList<>();
+  private final List<Decal> leafDecals = new ArrayList<>();
+
+  private void respawnLeaf(Leaf f) {
+    f.x = rnd.nextFloat() * 256;
+    f.y = 150 + rnd.nextFloat() * 80;
+    f.z = spawnZ();
+    f.vx = 0;
+    f.vy = 0;
+    f.rot = rnd.nextFloat() * 360;
+    f.vr = (rnd.nextFloat() - .5f) * 260;
+    f.phase = rnd.nextFloat() * 6.3f;
+    f.size = 2.6f + rnd.nextFloat() * 1.6f;
+    f.color = rnd.nextInt(LEAF_COLORS.length);
+    f.rest = false;
+  }
+
+  private void updateLeaves(float dt, boolean leavesOn) {
+    if (!leavesOn || world == null) {
+      leaves.clear();
+      return;
+    }
+    while (leaves.size() < LEAVES) {
+      Leaf f = new Leaf();
+      respawnLeaf(f);
+      f.y = 70 + rnd.nextFloat() * 120; // initial fill spread over the room
+      leaves.add(f);
+    }
+    for (Leaf f : leaves) {
+      if (f.rest) {
+        boolean near = world.sprite(f.x, f.y + 2) || world.sprite(f.x - 4, f.y + 1)
+            || world.sprite(f.x + 4, f.y + 1);
+        if (near || (Math.abs(windCur) > 34 && rnd.nextFloat() < 1.2f * dt)) {
+          f.rest = false;
+          f.vy = 26 + rnd.nextFloat() * 26;
+          f.vx = near ? (rnd.nextFloat() - .5f) * 70 : windCur * .8f;
+          f.vr = (rnd.nextFloat() - .5f) * 420;
+        }
+        continue;
+      }
+      f.vy -= 55 * dt;            // gravity...
+      f.vy *= 1 - 2.2f * dt;      // ...against heavy drag: they fall like leaves, not rocks
+      f.vx += (windCur - f.vx) * 1.6f * dt;
+      f.vx += (float) Math.sin(time * 2.6f + f.phase) * 30 * dt;
+      f.x += f.vx * dt;
+      f.y += f.vy * dt;
+      f.rot += f.vr * dt;
+      if (world.sprite(f.x, f.y)) { // batted away by whoever it brushed
+        f.vy = 30;
+        f.vr = (rnd.nextFloat() - .5f) * 400;
+      } else if (world.solid(f.x, f.y)) {
+        int guard = 0;
+        while (world.solid(f.x, f.y) && guard++ < 8)
+          f.y += 1;
+        f.rest = true;
+        f.vx = f.vy = 0;
+        f.vr = 0;
+        f.rot = (rnd.nextFloat() - .5f) * 40;
+      }
+      if (f.x < -6 || f.x > 262 || f.y < 4)
+        respawnLeaf(f);
+    }
+  }
+
+  /**
+   * Puddles: each drop that strikes a platform top feeds the puddle of its 4px column
+   * bucket, which widens with the rain and drains away once it stops. A character
+   * stepping in one kicks up droplets and flattens it a little.
+   */
+  private final Map<Integer, float[]> puddles = new HashMap<>(); // key -> {x, y, z, w}
+  private final List<Decal> puddleDecals = new ArrayList<>();
+
+  private void feedPuddle(float x, float y, float z) {
+    float sy = y;
+    int guard = 0;
+    while (world.solid(x, sy) && guard++ < 10)
+      sy += 1;
+    int key = (((int) sy) << 7) | (((int) x) >> 2);
+    float[] p = puddles.get(key);
+    if (p == null && puddles.size() < 480)
+      puddles.put(key, p = new float[]{((((int) x) >> 2) << 2) + 2, sy + .4f, z, 1.4f});
+    if (p != null)
+      p[3] = Math.min(9, p[3] + .4f);
+  }
+
+  private void updatePuddles(float dt, boolean rainOn) {
+    if (puddles.isEmpty() || world == null)
+      return;
+    for (Iterator<Map.Entry<Integer, float[]>> it = puddles.entrySet().iterator(); it.hasNext(); ) {
+      float[] p = it.next().getValue();
+      if (!rainOn)
+        p[3] -= dt * .35f;
+      if (p[3] <= 1.2f) {
+        it.remove();
+        continue;
+      }
+      if (world.sprite(p[0], p[1] + 2) || world.sprite(p[0], p[1] + 5)) {
+        p[3] = Math.max(1.2f, p[3] - 8 * dt);
+        if (rnd.nextFloat() < 14 * dt) { // stomped: water flies
+          Splash s = new Splash();
+          s.x = p[0] + (rnd.nextFloat() - .5f) * p[3];
+          s.y = p[1] + 2;
+          s.z = p[2];
+          s.vx = (rnd.nextFloat() - .5f) * 60;
+          s.vy = 30 + rnd.nextFloat() * 40;
+          s.life = .3f;
+          splashes.add(s);
+        }
+      }
+    }
+  }
+
+  /** a balloon or bubble popping: a colored burst of droplets flying apart. */
+  private static final class Burst {
+    float x, y, z, vx, vy, age, life, r, g, b;
+  }
+
+  private final List<Burst> bursts = new ArrayList<>();
+  private final List<Decal> burstDecals = new ArrayList<>();
+
+  public void addBurst(float x, float y, float z, float r, float g, float b) {
+    for (int i = 0; i < 10; i++) {
+      Burst s = new Burst();
+      s.x = x;
+      s.y = y;
+      s.z = z;
+      double a = rnd.nextFloat() * Math.PI * 2;
+      float sp = 25 + rnd.nextFloat() * 45;
+      s.vx = (float) Math.cos(a) * sp;
+      s.vy = (float) Math.sin(a) * sp + 10;
+      s.life = .35f + rnd.nextFloat() * .25f;
+      s.r = r;
+      s.g = g;
+      s.b = b;
+      bursts.add(s);
+    }
+  }
+
+  private void updateBursts(float dt) {
+    for (Iterator<Burst> it = bursts.iterator(); it.hasNext(); ) {
+      Burst s = it.next();
+      s.age += dt;
+      s.vy -= 160 * dt;
+      s.x += s.vx * dt;
+      s.y += s.vy * dt;
+      if (s.age >= s.life)
+        it.remove();
+    }
   }
 
   /**
@@ -234,7 +446,7 @@ public final class AmbientEffects implements Disposable {
       return;
     for (int i = 0; i < mist.size(); i++) {
       Decal d = mist.get(i);
-      float x = d.getX() + mistDrift[i] * dt;
+      float x = d.getX() + (mistDrift[i] + windCur * .35f) * dt;
       if (x > 300) x = -40;
       if (x < -40) x = 300;
       d.setPosition(x, d.getY() + (float) Math.sin(time * .3f + i) * dt * 1.5f, d.getZ());
@@ -264,7 +476,7 @@ public final class AmbientEffects implements Disposable {
         it.remove();
         continue;
       }
-      f.x += (f.vx + (float) Math.sin(time * 9 + f.y * .5f) * 3) * dt;
+      f.x += (f.vx + (float) Math.sin(time * 9 + f.y * .5f) * 3 + windCur * .3f) * dt;
       f.y += f.vy * dt;
     }
   }
@@ -294,7 +506,7 @@ public final class AmbientEffects implements Disposable {
         drops.add(d);
       }
       for (Drop d : drops) {
-        float nx = d.x + d.vx * dt, ny = d.y - d.vy * dt;
+        float nx = d.x + (d.vx + windCur) * dt, ny = d.y - d.vy * dt;
         // two samples per step so fast drops can't tunnel through a thin sprite line
         if (hitAnything((d.x + nx) / 2, (d.y + ny) / 2) || hitAnything(nx, ny)) {
           for (int i = 0; i < 3; i++) {
@@ -307,6 +519,8 @@ public final class AmbientEffects implements Disposable {
             s.life = .28f + rnd.nextFloat() * .2f;
             splashes.add(s);
           }
+          if (world.solid(nx, ny)) // a platform top: this drop feeds its puddle
+            feedPuddle(nx, ny, d.z);
           resetDrop(d);
         } else {
           d.x = nx;
@@ -385,7 +599,7 @@ public final class AmbientEffects implements Disposable {
       switch (f.mode) {
         case FALL -> {
           f.y -= f.vy * dt;
-          f.x += (float) Math.sin(time * 1.1f + f.phase) * 9 * dt;
+          f.x += ((float) Math.sin(time * 1.1f + f.phase) * 9 + windCur * .55f) * dt;
           if (world.sprite(f.x, f.y))
             f.mode = ONSPRITE;
           else if (world.solid(f.x, f.y))
@@ -422,7 +636,8 @@ public final class AmbientEffects implements Disposable {
       }
   }
 
-  public void render(Camera cam, boolean mistOn, boolean fireOn, boolean rainOn, boolean snowOn) {
+  public void render(Camera cam, boolean mistOn, boolean fireOn, boolean rainOn, boolean snowOn,
+                     boolean leavesOn) {
     if (mistOn)
       for (Decal d : mist) {
         d.lookAt(cam.position, cam.up);
@@ -445,7 +660,10 @@ public final class AmbientEffects implements Disposable {
         Decal d = pooled(dropDecals, i, GL20.GL_ONE_MINUS_SRC_ALPHA);
         d.setDimensions(.8f, 5f);              // stretched: a streak, not a dot
         d.setColor(.55f, .65f, .95f, .55f);
-        place(d, dr.x, dr.y, dr.z, cam);
+        // the streak leans with its actual velocity, so wind visibly tilts the rain
+        d.setPosition(dr.x, dr.y, dr.z);
+        d.setRotationZ((float) -Math.toDegrees(Math.atan2(dr.vx + windCur, dr.vy)));
+        batch.add(d);
       }
       for (int i = 0; i < splashes.size(); i++) {
         Splash sp = splashes.get(i);
@@ -471,6 +689,34 @@ public final class AmbientEffects implements Disposable {
         d.setColor(1, 1, 1, .95f);
         place(d, s.x, s.y, s.z, cam);
       }
+    }
+    if (leavesOn)
+      for (int i = 0; i < leaves.size(); i++) {
+        Leaf f = leaves.get(i);
+        Decal d = pooled(leafDecals, i, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        d.setDimensions(f.size, f.size * .62f);
+        float[] c = LEAF_COLORS[f.color];
+        d.setColor(c[0], c[1], c[2], .95f);
+        d.setPosition(f.x, f.y, f.z);
+        d.setRotationZ(f.rot);
+        batch.add(d);
+      }
+    if (!puddles.isEmpty()) {
+      int i = 0;
+      for (float[] p : puddles.values()) {
+        Decal d = pooled(puddleDecals, i++, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        d.setDimensions(p[3], 1.1f);           // a widening sliver of standing water
+        d.setColor(.5f, .65f, .95f, .34f + .08f * (float) Math.sin(time * 2.5f + p[0]));
+        place(d, p[0], p[1], p[2], cam);
+      }
+    }
+    for (int i = 0; i < bursts.size(); i++) {
+      Burst s = bursts.get(i);
+      Decal d = pooled(burstDecals, i, GL20.GL_ONE_MINUS_SRC_ALPHA);
+      float t = s.age / s.life;
+      d.setDimensions(1.7f, 1.7f);
+      d.setColor(s.r, s.g, s.b, .9f * (1 - t));
+      place(d, s.x, s.y, s.z, cam);
     }
     batch.flush();
   }

@@ -177,9 +177,21 @@ public class JSW3D extends ApplicationAdapter {
   /**
    * while it rains (R) the world soaks: specular sheen fades in over ~6s on slabs,
    * sprites and junk — light sources glint off them as if wet — and drains away once
-   * the rain stops.
+   * the rain stops. The rain also feeds standing PUDDLES on the platform tops, which
+   * characters splash through and which drain when the rain ends.
    */
   private float wetness;
+  /**
+   * V wind (-Dfx.wind=true): one gusting wind signal ({@link AmbientEffects#wind()})
+   * that tilts the rain, rides the snow and leaves, bends flames and mist, and leans on
+   * the junk through Box2D drag. U balloons+bubbles (-Dfx.balloons): buoyant props that
+   * pool under the platforms, get batted around, and POP into colored bursts when hit
+   * hard. Y autumn leaves (-Dfx.leaves): flutter down, rest on floors, and fly up again
+   * when a character runs through or a gust peels them off.
+   */
+  private boolean windOn = Boolean.getBoolean("fx.wind");
+  private boolean balloonsOn = Boolean.getBoolean("fx.balloons");
+  private boolean leavesOn = Boolean.getBoolean("fx.leaves");
 
   public JSW3D(String rzxPath, String dbPath) {
     this.rzxPath = rzxPath;
@@ -280,6 +292,19 @@ public class JSW3D extends ApplicationAdapter {
               }
               case com.badlogic.gdx.Input.Keys.O -> {
                 shadowsOn = !shadowsOn;
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.V -> {
+                windOn = !windOn;
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.U -> {
+                balloonsOn = !balloonsOn;
+                junkSpawnPending = true;
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.Y -> {
+                leavesOn = !leavesOn;
                 rebuild = false;
               }
               case com.badlogic.gdx.Input.Keys.K -> {
@@ -395,7 +420,7 @@ public class JSW3D extends ApplicationAdapter {
       updateBackdrop(snap);
       long t1 = perf ? System.nanoTime() : 0;
       updateSprites(snap);
-      if (junkOn || lampsOn)
+      if (junkOn || lampsOn || balloonsOn)
         junk.syncSprites(spriteBoxes, snapDt);
       snapDt = 0;
       long t2 = perf ? System.nanoTime() : 0;
@@ -403,7 +428,7 @@ public class JSW3D extends ApplicationAdapter {
       long t3 = perf ? System.nanoTime() : 0;
       // glowing junk casts its own small pool of light in the dark, like the items do;
       // capped so a big junk count can't starve the shader's point-light slots
-      if (junkOn && darkMode) {
+      if ((junkOn || balloonsOn) && darkMode) {
         int lit = 0;
         for (JunkPhysics.Prop p : junk.props())
           if (p.glow && lit++ < 6) {
@@ -426,12 +451,21 @@ public class JSW3D extends ApplicationAdapter {
         perfFrames++;
       }
     }
-    if (junkOn || lampsOn) {
+    if (junkOn || lampsOn || balloonsOn) {
+      junk.setWind(windOn ? effects.wind() : 0);
       junk.update(Gdx.graphics.getDeltaTime());
-      if (junkOn)
+      if (junkOn || balloonsOn)
         updateJunkInstances();
       if (lampsOn)
         updateLampInstances();
+      if (!junk.pops().isEmpty()) {
+        for (float[] p : junk.pops()) {
+          Color c = PALETTE[(int) p[3]];
+          effects.addBurst(p[0], p[1],
+              midZ() + p[2] * Math.max(0, slabDepth() / 2 - 3), c.r, c.g, c.b);
+        }
+        junk.pops().clear();
+      }
     }
     // rain soaks the world in and dries it out; the sheen is applied where the
     // instances get their materials, so it follows every rebuilt slab and sprite
@@ -467,7 +501,7 @@ public class JSW3D extends ApplicationAdapter {
       batch.render(s, env);
     for (int i = 0; i < ropeCount; i++)
       batch.render(ropePool.get(i), env);
-    if (junkOn)
+    if (junkOn || balloonsOn)
       for (ModelInstance j : junkInstances)
         batch.render(j, env);
     if (lampsOn)
@@ -476,8 +510,9 @@ public class JSW3D extends ApplicationAdapter {
     batch.end();
     // blended decals go after the opaque world so mist, flames and weather layer over it
     effects.setDepthRange(midZ(), slabDepth() / 2f + 3);
-    effects.update(Gdx.graphics.getDeltaTime(), mistOn, fireOn, rainOn, snowOn, stormOn);
-    effects.render(cam, mistOn, fireOn, rainOn, snowOn);
+    effects.update(Gdx.graphics.getDeltaTime(), mistOn, fireOn, rainOn, snowOn, stormOn,
+        windOn, leavesOn);
+    effects.render(cam, mistOn, fireOn, rainOn, snowOn, leavesOn);
     reportPerf();
     screenshotIfAsked();
   }
@@ -488,11 +523,12 @@ public class JSW3D extends ApplicationAdapter {
     System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) "
             + "luz=%s (L) niebla=%s (N) fuego=%s (F) lluvia=%s (R) nieve=%s (B) "
             + "basura=%s x%d (J, K/H) lamparas=%s (P) tormenta=%s (E) sombras=%s (O) "
-            + "velocidad=%sx (,/./0)%n",
+            + "viento=%s (V) globos=%s (U) hojas=%s (Y) velocidad=%sx (,/./0)%n",
         smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth,
         darkMode ? "linterna" : "normal", mistOn ? "si" : "no", fireOn ? "si" : "no",
         rainOn ? "si" : "no", snowOn ? "si" : "no", junkOn ? "si" : "no", junkCount,
         lampsOn ? "si" : "no", stormOn ? "si" : "no", shadowsOn ? "si" : "no",
+        windOn ? "si" : "no", balloonsOn ? "si" : "no", leavesOn ? "si" : "no",
         replay == null ? "?" : String.valueOf(replay.getSpeed()));
   }
 
@@ -883,9 +919,9 @@ public class JSW3D extends ApplicationAdapter {
     }
     // the junk's static world rebuilds ONLY here — the transient holes a passing sprite
     // punches into solidCells (its cell rows read as "not tile") never reach the physics
-    if ((junkOn || lampsOn) && junkSpawnPending) {
+    if ((junkOn || lampsOn || balloonsOn) && junkSpawnPending) {
       junk.roomChanged(solidCells, java.util.Arrays.hashCode(solidCells),
-          junkOn ? junkCount : 0, lampsOn ? 3 : 0);
+          junkOn ? junkCount : 0, lampsOn ? 3 : 0, balloonsOn ? 6 : 0);
       junkSpawnPending = false;
     }
   }
@@ -897,10 +933,12 @@ public class JSW3D extends ApplicationAdapter {
       Material m = new Material(ColorAttribute.createDiffuse(Color.WHITE));
       long attrs = Usage.Position | Usage.Normal;
       return switch (kind) {
-        case BALL -> mb.createSphere(kind.w, kind.h, kind.w, 12, 8, m, attrs);
+        case BALL, BUBBLE -> mb.createSphere(kind.w, kind.h, kind.w, 12, 8, m, attrs);
         case APPLE -> mb.createSphere(kind.w, kind.h, kind.w, 10, 8, m, attrs);
         case BOTTLE, CAN -> mb.createCylinder(kind.w, kind.h, kind.w, 10, m, attrs);
         case BOX -> mb.createBox(kind.w, kind.h, kind.w * .8f, m, attrs);
+        // taller than wide: the classic pear shape read at voxel scale
+        case BALLOON -> mb.createSphere(kind.w, kind.h, kind.w, 12, 10, m, attrs);
       };
     });
   }
