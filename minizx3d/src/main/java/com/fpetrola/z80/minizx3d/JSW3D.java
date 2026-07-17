@@ -204,6 +204,11 @@ public class JSW3D extends ApplicationAdapter {
   private boolean windOn = Boolean.getBoolean("fx.wind");
   private boolean balloonsOn = Boolean.getBoolean("fx.balloons");
   private boolean leavesOn = Boolean.getBoolean("fx.leaves");
+  /**
+   * Z dust (-Dfx.dust): moving sprites shed motes that drift down and pile into little
+   * dirt mounds on the floor below their path — the room soils as time passes.
+   */
+  private boolean dustOn = Boolean.getBoolean("fx.dust");
 
   public JSW3D(String rzxPath, String dbPath) {
     this.rzxPath = rzxPath;
@@ -325,6 +330,10 @@ public class JSW3D extends ApplicationAdapter {
                   ghostAlpha = .95f;
                 rebuild = false;
               }
+              case com.badlogic.gdx.Input.Keys.Z -> {
+                dustOn = !dustOn;
+                rebuild = false;
+              }
               case com.badlogic.gdx.Input.Keys.K -> {
                 junkCount = Math.min(150, junkCount + 6);
                 junkSpawnPending = junkOn;
@@ -440,6 +449,8 @@ public class JSW3D extends ApplicationAdapter {
       updateSprites(snap);
       if (junkOn || lampsOn || balloonsOn)
         junk.syncSprites(spriteBoxes, snapDt);
+      if (dustOn)
+        effects.spriteDust(spriteBoxes, snapDt);
       snapDt = 0;
       long t2 = perf ? System.nanoTime() : 0;
       updateTiles(snap);
@@ -541,13 +552,14 @@ public class JSW3D extends ApplicationAdapter {
     System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) "
             + "luz=%s (L) niebla=%s (N) fuego=%s (F) lluvia=%s (R) nieve=%s (B) "
             + "basura=%s x%d (J, K/H) lamparas=%s (P) tormenta=%s (E) sombras=%s (O) "
-            + "viento=%s (V) globos=%s (U) hojas=%s (Y) fantasma=%.2f (Q) "
+            + "viento=%s (V) globos=%s (U) hojas=%s (Y) polvo=%s (Z) fantasma=%.2f (Q) "
             + "velocidad=%sx (,/./0)%n",
         smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth,
         darkMode ? "linterna" : "normal", mistOn ? "si" : "no", fireOn ? "si" : "no",
         rainOn ? "si" : "no", snowOn ? "si" : "no", junkOn ? "si" : "no", junkCount,
         lampsOn ? "si" : "no", stormOn ? "si" : "no", shadowsOn ? "si" : "no",
-        windOn ? "si" : "no", balloonsOn ? "si" : "no", leavesOn ? "si" : "no", ghostAlpha,
+        windOn ? "si" : "no", balloonsOn ? "si" : "no", leavesOn ? "si" : "no",
+        dustOn ? "si" : "no", ghostAlpha,
         replay == null ? "?" : String.valueOf(replay.getSpeed()));
   }
 

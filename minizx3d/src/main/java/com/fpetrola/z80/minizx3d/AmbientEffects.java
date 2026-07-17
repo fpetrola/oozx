@@ -155,11 +155,12 @@ public final class AmbientEffects implements Disposable {
     zSpread = spread;
   }
 
-  /** the room changed: drifts, puddles and resting leaves belong to a screen that's gone. */
+  /** the room changed: drifts, puddles, dirt and resting leaves belong to a screen that's gone. */
   public void clearSnow() {
     settled.clear();
     drifts.clear();
     puddles.clear();
+    dustPiles.clear();
     for (Leaf f : leaves)
       if (f.rest)
         respawnLeaf(f);
@@ -194,6 +195,7 @@ public final class AmbientEffects implements Disposable {
     updateStorm(dt, stormOn);
     updateLeaves(dt, leavesOn);
     updatePuddles(dt, rainOn);
+    updateDust(dt);
     updateBursts(dt);
   }
 
@@ -234,6 +236,44 @@ public final class AmbientEffects implements Disposable {
         g = gustPeak * (float) Math.sin(Math.PI * gustT / span);
     }
     windCur = base + g * gustDir;
+    // the whirlwind: a wandering vortex that lives a few seconds, drifts with the wind,
+    // and dies to respawn somewhere else — light particles caught in it circle visibly
+    vortAge += dt;
+    if (vortAge > vortLife) {
+      vortAge = 0;
+      vortLife = 6 + rnd.nextFloat() * 8;
+      vortX = 20 + rnd.nextFloat() * 216;
+      vortY = 85 + rnd.nextFloat() * 90;
+      vortStr = (.6f + rnd.nextFloat() * .4f) * (rnd.nextBoolean() ? 1 : -1);
+    }
+    vortX += windCur * .3f * dt;
+    if (vortX < -20)
+      vortX += 296;
+    if (vortX > 276)
+      vortX -= 296;
+  }
+
+  private float vortX = 128, vortY = 120, vortAge, vortLife = 8, vortStr = 1;
+
+  /** the vortex's tangential pull at (x, y): dies off with distance, breathes with age. */
+  private float swirl(float x, float y, boolean xAxis) {
+    float dx = x - vortX, dy = y - vortY;
+    float d2 = dx * dx + dy * dy;
+    if (d2 > 4200)
+      return 0;
+    float env = (float) Math.sin(Math.PI * vortAge / vortLife);
+    float f = vortStr * env * (float) Math.exp(-d2 / 1400) * 95
+        / (float) Math.sqrt(d2 + 30);
+    return xAxis ? -dy * f : dx * f;
+  }
+
+  /** the wind a light particle at (x, y) feels: global signal + the local whirlwind. */
+  public float windFX(float x, float y) {
+    return windCur * (.6f + .4f * (float) Math.sin(x * .045f + time * .9f)) + swirl(x, y, true);
+  }
+
+  public float windFY(float x, float y) {
+    return swirl(x, y, false);
   }
 
   /**
@@ -241,30 +281,35 @@ public final class AmbientEffects implements Disposable {
    * OWNS them. They come to rest on the platforms, and lie there until a character walks
    * through (its wake flings them up spinning) or a strong gust peels them off again.
    */
-  private static final int LEAVES = 42;
+  private static final int LEAVES = 96;
   private static final float[][] LEAF_COLORS =
       {{.85f, .6f, .12f}, {.75f, .28f, .06f}, {.55f, .6f, .12f}, {.9f, .78f, .25f}};
+  private static final float[][] PAPER_COLORS =
+      {{.92f, .92f, .86f}, {.8f, .8f, .75f}, {.68f, .7f, .68f}};
 
   private static final class Leaf {
     float x, y, z, vx, vy, rot, vr, phase, size;
     int color;
     boolean rest;
+    /** scraps of paper: bigger, paler, tumbling harder, and the wind grips them more. */
+    boolean paper;
   }
 
   private final List<Leaf> leaves = new ArrayList<>();
   private final List<Decal> leafDecals = new ArrayList<>();
 
   private void respawnLeaf(Leaf f) {
+    f.paper = rnd.nextFloat() < .35f;
     f.x = rnd.nextFloat() * 256;
     f.y = 150 + rnd.nextFloat() * 80;
     f.z = spawnZ();
     f.vx = 0;
     f.vy = 0;
     f.rot = rnd.nextFloat() * 360;
-    f.vr = (rnd.nextFloat() - .5f) * 260;
+    f.vr = (rnd.nextFloat() - .5f) * (f.paper ? 420 : 260);
     f.phase = rnd.nextFloat() * 6.3f;
-    f.size = 2.6f + rnd.nextFloat() * 1.6f;
-    f.color = rnd.nextInt(LEAF_COLORS.length);
+    f.size = f.paper ? 3.4f + rnd.nextFloat() * 2f : 2.6f + rnd.nextFloat() * 1.6f;
+    f.color = rnd.nextInt(f.paper ? PAPER_COLORS.length : LEAF_COLORS.length);
     f.rest = false;
   }
 
@@ -293,7 +338,8 @@ public final class AmbientEffects implements Disposable {
       }
       f.vy -= 55 * dt;            // gravity...
       f.vy *= 1 - 2.2f * dt;      // ...against heavy drag: they fall like leaves, not rocks
-      f.vx += (windCur - f.vx) * 1.6f * dt;
+      f.vx += (windFX(f.x, f.y) - f.vx) * (f.paper ? 2.6f : 1.6f) * dt;
+      f.vy += windFY(f.x, f.y) * (f.paper ? 2f : 1.4f) * dt;
       f.vx += (float) Math.sin(time * 2.6f + f.phase) * 30 * dt;
       f.x += f.vx * dt;
       f.y += f.vy * dt;
@@ -361,6 +407,85 @@ public final class AmbientEffects implements Disposable {
         }
       }
     }
+  }
+
+  /**
+   * Dust: moving sprites shed grey motes from their feet and body that drift down (bent
+   * by the wind), and every mote that lands on a platform feeds a little dirt MOUND at
+   * that spot — the room visibly soils along the paths the characters walk, one small
+   * hill at a time, right below wherever they pass.
+   */
+  private static final class Mote {
+    float x, y, z, vx, vy, age, life, size;
+  }
+
+  private final List<Mote> motes = new ArrayList<>();
+  private final List<float[]> prevDustBoxes = new ArrayList<>();
+  private final Map<Integer, float[]> dustPiles = new HashMap<>(); // key -> {x, y, z, h}
+  private final List<Decal> moteDecals = new ArrayList<>(), pileDecals = new ArrayList<>();
+
+  /** per emulator frame: the sprite blob boxes {cx, cy, halfW, halfH}; motion sheds dust. */
+  public void spriteDust(List<float[]> boxes, float dt) {
+    if (dt > 1e-4f)
+      for (float[] b : boxes) {
+        float vx = 0, vy = 0, best = 25;
+        for (float[] p : prevDustBoxes) {
+          float d = Math.abs(p[0] - b[0]) + Math.abs(p[1] - b[1]);
+          if (d < best) {
+            best = d;
+            vx = (b[0] - p[0]) / dt;
+            vy = (b[1] - p[1]) / dt;
+          }
+        }
+        float speed = (float) Math.sqrt(vx * vx + vy * vy);
+        if (speed > 8 && speed < 400 && motes.size() < 900) {
+          int n = 1 + (int) (speed / 55);
+          for (int i = 0; i < n; i++) {
+            Mote m = new Mote();
+            m.x = b[0] + (rnd.nextFloat() - .5f) * 2 * b[2];
+            m.y = b[1] - b[3] + rnd.nextFloat() * 4; // mostly off the feet
+            m.z = spawnZ();
+            m.vx = vx * .12f + (rnd.nextFloat() - .5f) * 10;
+            m.vy = 3 + rnd.nextFloat() * 9;
+            m.life = 1.6f + rnd.nextFloat() * 1.4f;
+            m.size = .7f + rnd.nextFloat() * .8f;
+            motes.add(m);
+          }
+        }
+      }
+    prevDustBoxes.clear();
+    for (float[] b : boxes)
+      prevDustBoxes.add(b.clone());
+  }
+
+  private void updateDust(float dt) {
+    for (Iterator<Mote> it = motes.iterator(); it.hasNext(); ) {
+      Mote m = it.next();
+      m.age += dt;
+      m.vy -= 26 * dt;
+      m.vy *= 1 - 2.5f * dt; // fine dust falls slowly
+      m.vx += (windFX(m.x, m.y) * .5f - m.vx) * 1.4f * dt;
+      m.x += m.vx * dt;
+      m.y += m.vy * dt;
+      if (world != null && m.vy < 0 && world.solid(m.x, m.y)) {
+        settleDust(m);
+        it.remove();
+      } else if (m.age >= m.life || m.y < 4)
+        it.remove();
+    }
+  }
+
+  private void settleDust(Mote m) {
+    float sy = m.y;
+    int guard = 0;
+    while (world.solid(m.x, sy) && guard++ < 10)
+      sy += 1;
+    int key = (((int) sy) << 7) | (((int) m.x) >> 2);
+    float[] p = dustPiles.get(key);
+    if (p == null && dustPiles.size() < 600)
+      dustPiles.put(key, p = new float[]{((((int) m.x) >> 2) << 2) + 2, sy, zMid, 0});
+    if (p != null)
+      p[3] = Math.min(4.5f, p[3] + .12f); // the mound grows a hair per landed mote
   }
 
   /** a balloon or bubble popping: a colored burst of droplets flying apart. */
@@ -599,7 +724,8 @@ public final class AmbientEffects implements Disposable {
       switch (f.mode) {
         case FALL -> {
           f.y -= f.vy * dt;
-          f.x += ((float) Math.sin(time * 1.1f + f.phase) * 9 + windCur * .55f) * dt;
+          f.y += windFY(f.x, f.y) * .5f * dt;
+          f.x += ((float) Math.sin(time * 1.1f + f.phase) * 9 + windFX(f.x, f.y) * .55f) * dt;
           if (world.sprite(f.x, f.y))
             f.mode = ONSPRITE;
           else if (world.solid(f.x, f.y))
@@ -694,8 +820,8 @@ public final class AmbientEffects implements Disposable {
       for (int i = 0; i < leaves.size(); i++) {
         Leaf f = leaves.get(i);
         Decal d = pooled(leafDecals, i, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        d.setDimensions(f.size, f.size * .62f);
-        float[] c = LEAF_COLORS[f.color];
+        d.setDimensions(f.size, f.size * (f.paper ? .78f : .62f));
+        float[] c = (f.paper ? PAPER_COLORS : LEAF_COLORS)[f.color];
         d.setColor(c[0], c[1], c[2], .95f);
         d.setPosition(f.x, f.y, f.z);
         d.setRotationZ(f.rot);
@@ -705,9 +831,13 @@ public final class AmbientEffects implements Disposable {
       int i = 0;
       for (float[] p : puddles.values()) {
         Decal d = pooled(puddleDecals, i++, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        d.setDimensions(p[3], 1.1f);           // a widening sliver of standing water
-        d.setColor(.5f, .65f, .95f, .34f + .08f * (float) Math.sin(time * 2.5f + p[0]));
-        place(d, p[0], p[1], p[2], cam);
+        // LYING water: rotated flat onto the slab top, widening as the rain feeds it —
+        // an upright billboard here would hide inside the slab's own depth
+        d.setDimensions(p[3] * 1.5f, 6f);
+        d.setColor(.55f, .75f, 1f, .5f + .12f * (float) Math.sin(time * 2.5f + p[0]));
+        d.setPosition(p[0], p[1] + .5f, zMid);
+        d.setRotationX(-90);
+        batch.add(d);
       }
     }
     for (int i = 0; i < bursts.size(); i++) {
@@ -717,6 +847,23 @@ public final class AmbientEffects implements Disposable {
       d.setDimensions(1.7f, 1.7f);
       d.setColor(s.r, s.g, s.b, .9f * (1 - t));
       place(d, s.x, s.y, s.z, cam);
+    }
+    for (int i = 0; i < motes.size(); i++) {
+      Mote m = motes.get(i);
+      Decal d = pooled(moteDecals, i, GL20.GL_ONE_MINUS_SRC_ALPHA);
+      d.setDimensions(m.size, m.size);
+      d.setColor(.62f, .56f, .46f, .5f * (1 - m.age / m.life));
+      place(d, m.x, m.y, m.z, cam);
+    }
+    if (!dustPiles.isEmpty()) {
+      int i = 0;
+      for (float[] p : dustPiles.values()) {
+        Decal d = pooled(pileDecals, i++, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        // the mound: wider than tall, growing with every mote that lands on it
+        d.setDimensions(3.5f + p[3] * 1.6f, .8f + p[3]);
+        d.setColor(.5f, .44f, .36f, .85f);
+        place(d, p[0], p[1] + (.8f + p[3]) / 2 - .2f, p[2], cam);
+      }
     }
     batch.flush();
   }
