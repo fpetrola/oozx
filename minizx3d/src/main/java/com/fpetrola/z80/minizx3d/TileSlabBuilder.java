@@ -42,18 +42,33 @@ import java.util.function.IntUnaryOperator;
 public final class TileSlabBuilder {
   public static final String INK = "ink", PAPER = "paper";
 
-  /** {@code depth} is the slab's full extent in z, centered on 0. */
+  /**
+   * {@code depth} is the slab's full extent in z, centered on 0. Returns null for an EMPTY
+   * bitmap: an all-paper cell is AIR — the room's background, not a block. Extruding it
+   * would entomb the whole room in solid paper-colored slabs (with black paper, a black
+   * screen where only the cells moving sprites clear open up as tunnels).
+   */
   public static Model build(int leaf, IntUnaryOperator memByte, float depth) {
     boolean[][] mask = VoxelSpriteBuilder.mask(leaf, 8, 1, memByte);
+    int inkPixels = 0;
+    for (int y = 0; y < 8; y++)
+      for (int x = 0; x < 8; x++)
+        if (mask[y][x])
+          inkPixels++;
+    if (inkPixels == 0)
+      return null;
     ModelBuilder mb = new ModelBuilder();
     mb.begin();
-    // one part at a time: ModelBuilder closes the previous part when the next one starts
+    // one part at a time: ModelBuilder closes the previous part when the next one starts;
+    // a part is only created when it has boxes (an empty part breaks the material lookup)
     MeshPartBuilder ink = mb.part(INK, GL20.GL_TRIANGLES,
         Usage.Position | Usage.Normal, new Material(INK, ColorAttribute.createDiffuse(Color.WHITE)));
     boxes(ink, mask, true, depth + 2);
-    MeshPartBuilder paper = mb.part(PAPER, GL20.GL_TRIANGLES,
-        Usage.Position | Usage.Normal, new Material(PAPER, ColorAttribute.createDiffuse(Color.WHITE)));
-    boxes(paper, mask, false, depth);
+    if (inkPixels < 64) {
+      MeshPartBuilder paper = mb.part(PAPER, GL20.GL_TRIANGLES,
+          Usage.Position | Usage.Normal, new Material(PAPER, ColorAttribute.createDiffuse(Color.WHITE)));
+      boxes(paper, mask, false, depth);
+    }
     return mb.end();
   }
 

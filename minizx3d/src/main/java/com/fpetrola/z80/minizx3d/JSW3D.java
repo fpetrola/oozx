@@ -385,11 +385,15 @@ public class JSW3D extends ApplicationAdapter {
           prevLeafAttr[cell] = (t << 8) | attr;
         }
         boolean item = itemLeaves.contains(leaf);
+        // an air cell (empty bitmap) builds no model; computeIfAbsent leaves null uncached,
+        // so the cheap 8-byte mask check re-runs — fine
         Model model = modelCache.computeIfAbsent(item ? -leaf - 0x10000 : -leaf, k -> item
             ? (smooth
                ? SmoothSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depthScale)
                : VoxelSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depthScale))
             : TileSlabBuilder.build(leaf, replay::memByte, slabDepth()));
+        if (model == null)
+          continue;
         ModelInstance inst = new ModelInstance(model);
         inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
         Color inkColor = PALETTE[(attr & 7) | ((attr >> 3) & 8)];
@@ -397,8 +401,10 @@ public class JSW3D extends ApplicationAdapter {
           inst.materials.first().set(ColorAttribute.createDiffuse(inkColor));
         else {
           inst.getMaterial(TileSlabBuilder.INK).set(ColorAttribute.createDiffuse(inkColor));
-          inst.getMaterial(TileSlabBuilder.PAPER).set(ColorAttribute.createDiffuse(
-              PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
+          Material paper = inst.getMaterial(TileSlabBuilder.PAPER);
+          if (paper != null) // an all-ink bitmap has no paper part
+            paper.set(ColorAttribute.createDiffuse(
+                PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
         }
         tileInstances.add(inst);
       }
