@@ -109,7 +109,9 @@ public class JSW3D extends ApplicationAdapter {
   private boolean darkMode = Boolean.getBoolean("dark");
   private final float darkAmbient = Float.parseFloat(System.getProperty("dark.ambient", "0.10"));
   private final float spriteLightIntensity = Float.parseFloat(System.getProperty("dark.sprite", "1200"));
-  private final float itemLightIntensity = Float.parseFloat(System.getProperty("dark.item", "4000"));
+  private final float itemLightIntensity = Float.parseFloat(System.getProperty("dark.item", "1200"));
+  /** leaf -> its bitmap is all zeros (air): no slab, no item tracking, no light — background. */
+  private final Map<Integer, Boolean> emptyLeaves = new HashMap<>();
   /** the lights the CURRENT frame's sprites and items shine; env is rebuilt from them. */
   private final List<com.badlogic.gdx.graphics.g3d.environment.PointLight> frameLights = new ArrayList<>();
 
@@ -377,11 +379,12 @@ public class JSW3D extends ApplicationAdapter {
 
   /**
    * The world's mid-depth plane: tiles, sprites and items all center here, so the slabs'
-   * back faces rest on the backdrop and the characters walk INSIDE the platforms instead
-   * of floating in front of them.
+   * back faces rest just off the backdrop and the characters walk INSIDE the platforms
+   * instead of floating in front of them. The 1.5 gap keeps the slab backs (and the 1px
+   * ink lip behind them) clear of the backdrop plane — coplanar faces shimmer.
    */
   private float midZ() {
-    return slabDepth() / 2f;
+    return slabDepth() / 2f + 1.5f;
   }
 
   /**
@@ -407,6 +410,17 @@ public class JSW3D extends ApplicationAdapter {
         if (t == 0 || snap.owner()[i0] != 0)
           continue;
         int leaf = t - 1;
+        // AIR (all-zero bitmap) is background, full stop: no slab, and crucially no item
+        // tracking — guardians crossing air cells eventually latch the air leaf as "item",
+        // and in lantern mode hundreds of invisible air-items would flood the room with
+        // light until the darkness is gone
+        if (emptyLeaves.computeIfAbsent(leaf, k -> {
+          for (int r = 0; r < 8; r++)
+            if (replay.memByte(k + r) != 0)
+              return false;
+          return true;
+        }))
+          continue;
         int attr = snap.attrs()[cellY * 32 + col] & 0xff;
         int cell = cellY * 32 + col;
         // ink-change tracking only when NO row of the cell is sprite-owned: a guardian
@@ -456,12 +470,14 @@ public class JSW3D extends ApplicationAdapter {
         if (item) {
           inst.materials.first().set(ColorAttribute.createDiffuse(inkColor));
           if (darkMode) {
-            // items BLAZE: strong self-glow plus a big pool of light — the beacons the
-            // player navigates the gloom by (the ink cycles, so the glow flashes too)
-            inst.materials.first().set(ColorAttribute.createEmissive(inkColor));
+            // a treasure glinting in its corner: clear self-glow plus a small pool of
+            // light in the item's OWN color, cycling as the ink flashes — noticeable
+            // from afar without turning its corner into daylight
+            inst.materials.first().set(ColorAttribute.createEmissive(
+                inkColor.r * .75f, inkColor.g * .75f, inkColor.b * .75f, 1));
             frameLights.add(new com.badlogic.gdx.graphics.g3d.environment.PointLight().set(
-                .4f + inkColor.r * .6f, .4f + inkColor.g * .6f, .4f + inkColor.b * .6f,
-                col * 8 + 4, H - (y0 + 4), midZ() + 10, itemLightIntensity));
+                inkColor.r, inkColor.g, inkColor.b,
+                col * 8 + 4, H - (y0 + 4), midZ() + 8, itemLightIntensity));
           }
         } else {
           inst.getMaterial(TileSlabBuilder.INK).set(ColorAttribute.createDiffuse(inkColor));
@@ -495,6 +511,8 @@ public class JSW3D extends ApplicationAdapter {
     Lwjgl3ApplicationConfiguration cfg = new Lwjgl3ApplicationConfiguration();
     cfg.setTitle("JSW 3D — sprites por taint de origenes");
     cfg.setWindowedMode(1024, 768);
+    // 4x MSAA: 1px-wide voxel columns 28 units deep shimmer badly at oblique angles without it
+    cfg.setBackBufferConfig(8, 8, 8, 8, 16, 0, 4);
     new Lwjgl3Application(new JSW3D(rzx, db), cfg);
   }
 }
