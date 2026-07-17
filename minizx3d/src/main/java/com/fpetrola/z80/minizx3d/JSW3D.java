@@ -123,6 +123,11 @@ public class JSW3D extends ApplicationAdapter {
    */
   private final int[] cellLeaf = new int[24 * 32];
   private final int[] cellAttr = new int[24 * 32];
+  /**
+   * Q steps the ghosts' opacity down (.95 → .80 → … → .20, then wraps back up);
+   * -Dghost.alpha sets where it starts — nearly opaque by default.
+   */
+  private float ghostAlpha = Float.parseFloat(System.getProperty("ghost.alpha", "0.85"));
   /** the lights the CURRENT frame's sprites and items shine; env is rebuilt from them. */
   private final List<com.badlogic.gdx.graphics.g3d.environment.PointLight> frameLights = new ArrayList<>();
   /**
@@ -312,6 +317,12 @@ public class JSW3D extends ApplicationAdapter {
               }
               case com.badlogic.gdx.Input.Keys.Y -> {
                 leavesOn = !leavesOn;
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.Q -> {
+                ghostAlpha -= .15f;
+                if (ghostAlpha < .18f)
+                  ghostAlpha = .95f;
                 rebuild = false;
               }
               case com.badlogic.gdx.Input.Keys.K -> {
@@ -530,12 +541,13 @@ public class JSW3D extends ApplicationAdapter {
     System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) "
             + "luz=%s (L) niebla=%s (N) fuego=%s (F) lluvia=%s (R) nieve=%s (B) "
             + "basura=%s x%d (J, K/H) lamparas=%s (P) tormenta=%s (E) sombras=%s (O) "
-            + "viento=%s (V) globos=%s (U) hojas=%s (Y) velocidad=%sx (,/./0)%n",
+            + "viento=%s (V) globos=%s (U) hojas=%s (Y) fantasma=%.2f (Q) "
+            + "velocidad=%sx (,/./0)%n",
         smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth,
         darkMode ? "linterna" : "normal", mistOn ? "si" : "no", fireOn ? "si" : "no",
         rainOn ? "si" : "no", snowOn ? "si" : "no", junkOn ? "si" : "no", junkCount,
         lampsOn ? "si" : "no", stormOn ? "si" : "no", shadowsOn ? "si" : "no",
-        windOn ? "si" : "no", balloonsOn ? "si" : "no", leavesOn ? "si" : "no",
+        windOn ? "si" : "no", balloonsOn ? "si" : "no", leavesOn ? "si" : "no", ghostAlpha,
         replay == null ? "?" : String.valueOf(replay.getSpeed()));
   }
 
@@ -817,7 +829,6 @@ public class JSW3D extends ApplicationAdapter {
     ModelInstance inst = new ModelInstance(model);
     inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
     Color ink = PALETTE[(attr & 7) | ((attr >> 3) & 8)];
-    float ghostAlpha = .38f;
     if (item) {
       inst.materials.first().set(ColorAttribute.createDiffuse(ink));
       inst.materials.first().set(new com.badlogic.gdx.graphics.g3d.attributes
