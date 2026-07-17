@@ -410,6 +410,8 @@ public class JSW3D extends ApplicationAdapter {
       batch.render(t, env);
     for (ModelInstance s : spriteInstances)
       batch.render(s, env);
+    for (int i = 0; i < ropeCount; i++)
+      batch.render(ropePool.get(i), env);
     if (junkOn)
       for (ModelInstance j : junkInstances)
         batch.render(j, env);
@@ -490,8 +492,30 @@ public class JSW3D extends ApplicationAdapter {
 
   private boolean shotTaken;
 
+  /**
+   * pooled voxels for the foreign pixels over air (rope, arrows): one shared tiny box,
+   * repositioned and re-tinted per pixel per frame; only the first {@link #ropeCount}
+   * of the pool render.
+   */
+  private Model ropePixelModel;
+  private final List<ModelInstance> ropePool = new ArrayList<>();
+  private int ropeCount;
+
+  private void ropePixel(int x, int y, Color ink) {
+    if (ropePixelModel == null)
+      ropePixelModel = new ModelBuilder().createBox(1.4f, 1.4f, 4f,
+          new Material(ColorAttribute.createDiffuse(Color.WHITE)),
+          Usage.Position | Usage.Normal);
+    while (ropePool.size() <= ropeCount)
+      ropePool.add(new ModelInstance(ropePixelModel));
+    ModelInstance inst = ropePool.get(ropeCount++);
+    inst.materials.first().set(ColorAttribute.createDiffuse(ink));
+    inst.transform.setToTranslation(x + .5f, H - 1 - y + .5f, midZ());
+  }
+
   /** the 2D room: every screen byte decoded normally, sprite-owned bytes erased to paper. */
   private void updateBackdrop(TaintReplay.FrameSnapshot snap) {
+    ropeCount = 0;
     // emissive makes the backdrop glow on its own — exactly what lantern mode must NOT do:
     // there it only reflects the ambient gloom and whatever sprite light reaches it
     Material mat = backdrop.materials.first();
@@ -511,13 +535,23 @@ public class JSW3D extends ApplicationAdapter {
         // tile-tainted bytes are the slabs' business — EXCEPT the pixels the game drew on
         // top that aren't in the tile's own bitmap. JSW's ropes (and arrows) are OR-ed
         // pixel by pixel onto air cells, which carry the empty leaf's taint from the room
-        // reveal: masking the template byte out leaves exactly the foreign pixels visible.
+        // reveal: masking the template byte out leaves exactly the foreign pixels. On an
+        // AIR byte those become voxels at the characters' mid-depth — the rope swings on
+        // the same plane Willy hangs from, not painted on the far backdrop.
         int bits;
         if (snap.owner()[i] != 0)
           bits = 0;
-        else if (snap.tile()[i] != 0)
-          bits = snap.pixels()[i] & ~replay.memByte(snap.tile()[i] - 1) & 0xff;
-        else
+        else if (snap.tile()[i] != 0) {
+          int tpl = replay.memByte(snap.tile()[i] - 1);
+          int foreign = snap.pixels()[i] & ~tpl & 0xff;
+          bits = 0;
+          if (tpl == 0) {
+            for (int bit = 0; foreign != 0 && bit < 8; bit++)
+              if ((foreign & (0x80 >> bit)) != 0)
+                ropePixel(col * 8 + bit, y, ink);
+          } else
+            bits = foreign; // over real tile content it stays 2D, hidden behind the slab
+        } else
           bits = snap.pixels()[i] & 0xff;
         for (int bit = 0; bit < 8; bit++)
           pixmap.drawPixel(col * 8 + bit, y, Color.rgba8888(
@@ -863,6 +897,8 @@ public class JSW3D extends ApplicationAdapter {
     junkModels.values().forEach(Model::dispose);
     if (lampModel != null)
       lampModel.dispose();
+    if (ropePixelModel != null)
+      ropePixelModel.dispose();
     junk.dispose();
     effects.dispose();
   }
