@@ -397,7 +397,7 @@ public final class AmbientEffects implements Disposable {
       sy += 1;
     int key = (((int) sy) << 7) | (((int) x) >> 2);
     float[] p = puddles.get(key);
-    if (p == null && puddles.size() < 480)
+    if (p == null && puddles.size() < 2000)
       puddles.put(key, p = new float[]{((((int) x) >> 2) << 2) + 2, sy + .4f, z, 1.4f});
     if (p != null)
       p[3] = Math.min(puddleMax, p[3] + .4f);
@@ -459,7 +459,7 @@ public final class AmbientEffects implements Disposable {
           }
         }
         float speed = (float) Math.sqrt(vx * vx + vy * vy);
-        if (speed > 8 && speed < 400 && motes.size() < 900) {
+        if (speed > 8 && speed < 400 && motes.size() < 5000) {
           int n = Math.max(1, Math.round((1 + speed / 55) * dustRate));
           for (int i = 0; i < n; i++) {
             Mote m = new Mote();
@@ -503,7 +503,7 @@ public final class AmbientEffects implements Disposable {
       sy += 1;
     int key = (((int) sy) << 7) | (((int) m.x) >> 2);
     float[] p = dustPiles.get(key);
-    if (p == null && dustPiles.size() < 600)
+    if (p == null && dustPiles.size() < 3000)
       dustPiles.put(key, p = new float[]{((((int) m.x) >> 2) << 2) + 2, sy, zMid, 0});
     if (p != null)
       p[3] = Math.min(moundMax, p[3] + .12f); // the mound grows a hair per landed mote
@@ -574,8 +574,7 @@ public final class AmbientEffects implements Disposable {
     }
     strikeT += dt;
     float l = pulse(strikeT, 0f, .10f) + .7f * pulse(strikeT, .18f, .3f);
-    flashLevel = Math.min(1.2f,
-        Math.min(1, l) * (.82f + .18f * (float) Math.sin(time * 87)) * stormIntensity);
+    flashLevel = Math.min(1, l) * (.82f + .18f * (float) Math.sin(time * 87)) * stormIntensity;
     if (strikeT > .6f) {
       strikeT = -1;
       flashLevel = 0;
@@ -599,15 +598,18 @@ public final class AmbientEffects implements Disposable {
       if (x > 300) x = -40;
       if (x < -40) x = 300;
       d.setPosition(x, d.getY() + (float) Math.sin(time * .3f + i) * dt * 1.5f, d.getZ());
-      d.setColor(.72f, .78f, .88f, Math.min(.5f, mistAlpha[i] * mistDensity
+      d.setColor(.72f, .78f, .88f, Math.min(.9f, mistAlpha[i] * mistDensity
           * (.8f + .2f * (float) Math.sin(time * .5f + i * 2.1f))));
     }
   }
 
   private void updateFire(float dt, boolean fireOn) {
     if (fireOn)
-      for (float[] s : fireSpots)
-        if (rnd.nextFloat() < Math.min(1f, .8f * fireRate)) {
+      for (float[] s : fireSpots) {
+        // rate > 1.25 spawns SEVERAL flames per spot per frame — a proper blaze
+        float want = .8f * fireRate;
+        int n = (int) want + (rnd.nextFloat() < want - (int) want ? 1 : 0);
+        for (int i = 0; i < n; i++) {
           Flame f = new Flame();
           f.x = s[0] + (rnd.nextFloat() - .5f) * 6;
           f.y = s[1] - 2;
@@ -618,6 +620,7 @@ public final class AmbientEffects implements Disposable {
           f.size = (5 + rnd.nextFloat() * 4) * fireSize;
           flames.add(f);
         }
+      }
     for (Iterator<Flame> it = flames.iterator(); it.hasNext(); ) {
       Flame f = it.next();
       f.age += dt;

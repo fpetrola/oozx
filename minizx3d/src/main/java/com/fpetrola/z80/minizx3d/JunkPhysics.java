@@ -283,13 +283,15 @@ public final class JunkPhysics implements Disposable {
             ceilings.add(new int[]{col, cy});
         }
       Collections.shuffle(ceilings, rnd);
+      // asking for MANY lamps tightens the spacing so they actually fit on the ceilings
+      float minDist = Math.max(9, 220f / Math.max(1, lampCount));
       for (int[] c : ceilings) {
         if (lamps.size() >= lampCount)
           break;
         float px = c[0] * 8 + 4, py = H - (c[1] + 1) * 8;
         boolean crowded = false;
         for (Lamp l : lamps)
-          crowded |= Math.abs(l.px - px) < 48 && Math.abs(l.py - py) < 24;
+          crowded |= Math.abs(l.px - px) < minDist && Math.abs(l.py - py) < 24;
         if (!crowded)
           createLamp(px, py, 13);
       }

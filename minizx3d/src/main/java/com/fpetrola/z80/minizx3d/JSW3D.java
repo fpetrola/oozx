@@ -350,10 +350,10 @@ public class JSW3D extends ApplicationAdapter {
               case com.badlogic.gdx.Input.Keys.M -> smooth = !smooth;
               case com.badlogic.gdx.Input.Keys.S -> smoothLevel = Math.min(10, smoothLevel + 1);
               case com.badlogic.gdx.Input.Keys.X -> smoothLevel = Math.max(0, smoothLevel - 1);
-              case com.badlogic.gdx.Input.Keys.D -> depthScale = Math.min(3f, depthScale * 1.25f);
-              case com.badlogic.gdx.Input.Keys.C -> depthScale = Math.max(.3f, depthScale / 1.25f);
-              case com.badlogic.gdx.Input.Keys.T -> tileDepth = Math.min(20f, tileDepth * 1.25f);
-              case com.badlogic.gdx.Input.Keys.G -> tileDepth = Math.max(1f, tileDepth / 1.25f);
+              case com.badlogic.gdx.Input.Keys.D -> depthScale = Math.min(10f, depthScale * 1.25f);
+              case com.badlogic.gdx.Input.Keys.C -> depthScale = Math.max(.05f, depthScale / 1.25f);
+              case com.badlogic.gdx.Input.Keys.T -> tileDepth = Math.min(60f, tileDepth * 1.25f);
+              case com.badlogic.gdx.Input.Keys.G -> tileDepth = Math.max(.2f, tileDepth / 1.25f);
               case com.badlogic.gdx.Input.Keys.L -> {
                 darkMode = !darkMode;
                 rebuild = false;
@@ -416,12 +416,12 @@ public class JSW3D extends ApplicationAdapter {
                 rebuild = false;
               }
               case com.badlogic.gdx.Input.Keys.K -> {
-                junkCount = Math.min(150, junkCount + 6);
+                junkCount = Math.min(500, junkCount + 6);
                 junkSpawnPending = junkOn;
                 rebuild = false;
               }
               case com.badlogic.gdx.Input.Keys.H -> {
-                junkCount = Math.max(2, junkCount - 6);
+                junkCount = Math.max(0, junkCount - 6);
                 junkSpawnPending = junkOn;
                 rebuild = false;
               }
@@ -795,87 +795,87 @@ public class JSW3D extends ApplicationAdapter {
     addToggle("effects.dust.on", "dust", () -> dustOn, v -> dustOn = v);
     addToggle("effects.lantern.on", "dark", () -> darkMode, v -> darkMode = v);
 
-    addParam("effects.rain.drops", "rain.drops", "Lluvia", "gotas", 40, 600, 20, true,
+    addParam("effects.rain.drops", "rain.drops", "Lluvia", "gotas", 0, 5000, 50, true,
         () -> (float) effects.dropCount, v -> effects.dropCount = Math.round(v));
     addParam("effects.rain.fallSpeed", "rain.speed", "Lluvia", "velocidad caida",
-        .4f, 2.5f, .1f, false, () -> effects.rainSpeed, v -> effects.rainSpeed = v);
-    addParam("effects.rain.puddleMax", "rain.puddle", "Lluvia", "charco maximo", 3, 20, 1, true,
+        .05f, 10, .15f, false, () -> effects.rainSpeed, v -> effects.rainSpeed = v);
+    addParam("effects.rain.puddleMax", "rain.puddle", "Lluvia", "charco maximo", 1, 60, 2, true,
         () -> effects.puddleMax, v -> effects.puddleMax = v);
-    addParam("effects.snow.flakes", "snow.flakes", "Nieve", "copos", 40, 700, 20, true,
+    addParam("effects.snow.flakes", "snow.flakes", "Nieve", "copos", 0, 5000, 50, true,
         () -> (float) effects.flakeCount, v -> effects.flakeCount = Math.round(v));
     addParam("effects.snow.fallSpeed", "snow.speed", "Nieve", "velocidad caida",
-        .4f, 2.5f, .1f, false, () -> effects.snowSpeed, v -> effects.snowSpeed = v);
+        .05f, 10, .15f, false, () -> effects.snowSpeed, v -> effects.snowSpeed = v);
     addParam("effects.snow.settledMax", "snow.settled", "Nieve", "acumulacion max",
-        200, 6000, 200, true,
+        0, 50000, 500, true,
         () -> (float) effects.settledMax, v -> effects.settledMax = Math.round(v));
-    addParam("effects.wind.base", "wind.base", "Viento", "fuerza base", 0, 3, .1f, false,
+    addParam("effects.wind.base", "wind.base", "Viento", "fuerza base", 0, 20, .25f, false,
         () -> effects.windBase, v -> effects.windBase = v);
-    addParam("effects.wind.gust", "wind.gust", "Viento", "fuerza rafagas", 0, 3, .1f, false,
+    addParam("effects.wind.gust", "wind.gust", "Viento", "fuerza rafagas", 0, 20, .25f, false,
         () -> effects.windGust, v -> effects.windGust = v);
     addParam("effects.wind.vortex.power", "wind.vortex", "Viento", "fuerza remolino",
-        0, 3, .1f, false, () -> effects.vortexPower, v -> effects.vortexPower = v);
+        0, 20, .25f, false, () -> effects.vortexPower, v -> effects.vortexPower = v);
     addParam("effects.wind.vortex.radius", "wind.vortexRadius", "Viento", "radio remolino",
-        400, 4000, 200, true, () -> effects.vortexRadius, v -> effects.vortexRadius = v);
-    addParam("effects.leaves.count", "leaves.count", "Hojas", "cantidad", 10, 300, 10, true,
+        100, 30000, 300, true, () -> effects.vortexRadius, v -> effects.vortexRadius = v);
+    addParam("effects.leaves.count", "leaves.count", "Hojas", "cantidad", 0, 2000, 20, true,
         () -> (float) effects.leafCount, v -> effects.leafCount = Math.round(v));
     addParam("effects.leaves.paperFraction", "leaves.paper", "Hojas", "fraccion papeles",
         0, 1, .05f, false, () -> effects.paperFrac, v -> effects.paperFrac = v);
-    addParam("effects.junk.count", "junk.count", "Basura", "cantidad", 2, 80, 2, true,
+    addParam("effects.junk.count", "junk.count", "Basura", "cantidad", 0, 500, 5, true,
         () -> (float) junkCount, v -> {
           junkCount = Math.round(v);
           junkSpawnPending = true;
         });
     addParam("effects.junk.kickStrength", "junk.kick", "Basura", "fuerza patada",
-        .2f, 3, .1f, false, () -> junk.kickScale, v -> junk.kickScale = v);
-    addParam("effects.junk.gravity", "junk.gravity", "Basura", "gravedad", .2f, 3, .1f, false,
+        0, 20, .25f, false, () -> junk.kickScale, v -> junk.kickScale = v);
+    addParam("effects.junk.gravity", "junk.gravity", "Basura", "gravedad", -5, 10, .25f, false,
         () -> junkGravity, v -> {
           junkGravity = v;
           junk.setGravityFactor(v);
         });
-    addParam("effects.balloons.balloons", "balloons.count", "Globos", "globos", 0, 30, 1, true,
+    addParam("effects.balloons.balloons", "balloons.count", "Globos", "globos", 0, 200, 2, true,
         () -> (float) balloonCount, v -> {
           balloonCount = Math.round(v);
           junkSpawnPending = true;
         });
     addParam("effects.balloons.bubbles", "balloons.bubbles", "Globos", "burbujas",
-        0, 30, 1, true, () -> (float) bubbleCount, v -> {
+        0, 200, 2, true, () -> (float) bubbleCount, v -> {
           bubbleCount = Math.round(v);
           junkSpawnPending = true;
         });
     addParam("effects.balloons.buoyancy", "balloons.buoyancy", "Globos", "flotacion",
-        .2f, 3, .1f, false, () -> junk.buoyancy, v -> {
+        -5, 10, .25f, false, () -> junk.buoyancy, v -> {
           junk.buoyancy = v;
           junkSpawnPending = true;
         });
-    addParam("effects.lamps.count", "lamps.count", "Lamparas", "cantidad", 0, 8, 1, true,
+    addParam("effects.lamps.count", "lamps.count", "Lamparas", "cantidad", 0, 40, 1, true,
         () -> (float) lampCount, v -> {
           lampCount = Math.round(v);
           junkSpawnPending = true;
         });
     addParam("effects.lamps.lightIntensity", "lamps.light", "Lamparas", "intensidad luz",
-        .2f, 3, .1f, false, () -> lampLightScale, v -> lampLightScale = v);
-    addParam("effects.fire.rate", "fire.rate", "Fuego", "emision", .1f, 3, .1f, false,
+        0, 20, .25f, false, () -> lampLightScale, v -> lampLightScale = v);
+    addParam("effects.fire.rate", "fire.rate", "Fuego", "emision", 0, 20, .25f, false,
         () -> effects.fireRate, v -> effects.fireRate = v);
     addParam("effects.fire.flameSize", "fire.size", "Fuego", "tamano llamas",
-        .4f, 2.5f, .1f, false, () -> effects.fireSize, v -> effects.fireSize = v);
-    addParam("effects.mist.patches", "mist.count", "Niebla", "parches", 2, 40, 2, true,
+        .1f, 10, .2f, false, () -> effects.fireSize, v -> effects.fireSize = v);
+    addParam("effects.mist.patches", "mist.count", "Niebla", "parches", 0, 300, 5, true,
         () -> (float) effects.mistCount, v -> effects.mistCount = Math.round(v));
-    addParam("effects.mist.density", "mist.density", "Niebla", "densidad", .2f, 3, .1f, false,
+    addParam("effects.mist.density", "mist.density", "Niebla", "densidad", 0, 10, .2f, false,
         () -> effects.mistDensity, v -> effects.mistDensity = v);
     addParam("effects.storm.period", "storm.period", "Tormenta", "periodo (seg)",
-        1, 20, 1, false, () -> effects.stormPeriod, v -> effects.stormPeriod = v);
+        .2f, 120, .5f, false, () -> effects.stormPeriod, v -> effects.stormPeriod = v);
     addParam("effects.storm.intensity", "storm.intensity", "Tormenta", "intensidad",
-        .2f, 1.5f, .1f, false, () -> effects.stormIntensity, v -> effects.stormIntensity = v);
-    addParam("effects.dust.rate", "dust.rate", "Polvo", "emision", .2f, 3, .1f, false,
+        0, 5, .1f, false, () -> effects.stormIntensity, v -> effects.stormIntensity = v);
+    addParam("effects.dust.rate", "dust.rate", "Polvo", "emision", 0, 20, .25f, false,
         () -> effects.dustRate, v -> effects.dustRate = v);
     addParam("effects.dust.moundMax", "dust.mound", "Polvo", "montana maxima",
-        1, 10, .5f, false, () -> effects.moundMax, v -> effects.moundMax = v);
+        0, 40, 1, false, () -> effects.moundMax, v -> effects.moundMax = v);
     addParam("effects.lantern.ambient", "dark.ambient", "Linterna", "luz ambiente",
-        0, .2f, .01f, false, () -> darkAmbient, v -> darkAmbient = v);
+        0, 1, .02f, false, () -> darkAmbient, v -> darkAmbient = v);
     addParam("effects.lantern.spriteLight", "dark.sprite", "Linterna", "luz sprites",
-        50, 1000, 50, true, () -> spriteLightIntensity, v -> spriteLightIntensity = v);
+        0, 10000, 100, true, () -> spriteLightIntensity, v -> spriteLightIntensity = v);
     addParam("effects.lantern.itemLight", "dark.item", "Linterna", "luz items",
-        50, 1500, 50, true, () -> itemLightIntensity, v -> itemLightIntensity = v);
+        0, 10000, 100, true, () -> itemLightIntensity, v -> itemLightIntensity = v);
   }
 
   private List<Param> groupParams() {
