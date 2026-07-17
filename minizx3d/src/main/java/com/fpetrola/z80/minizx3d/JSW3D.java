@@ -101,6 +101,17 @@ public class JSW3D extends ApplicationAdapter {
   private final int[] cellInkMask = new int[24 * 32];
   private final int[] cellLastChange = new int[24 * 32];
   private final java.util.Set<Integer> itemLeaves = new java.util.HashSet<>();
+  /**
+   * L toggles lantern mode (-Ddark=true starts in it): a faint ambient lets the whole room
+   * be barely made out, each MOVING sprite carries its own small light that brightens its
+   * surroundings, and items blaze with light of their own so they stand out in the gloom.
+   */
+  private boolean darkMode = Boolean.getBoolean("dark");
+  private final float darkAmbient = Float.parseFloat(System.getProperty("dark.ambient", "0.10"));
+  private final float spriteLightIntensity = Float.parseFloat(System.getProperty("dark.sprite", "1200"));
+  private final float itemLightIntensity = Float.parseFloat(System.getProperty("dark.item", "4000"));
+  /** the lights the CURRENT frame's sprites and items shine; env is rebuilt from them. */
+  private final List<com.badlogic.gdx.graphics.g3d.environment.PointLight> frameLights = new ArrayList<>();
 
   public JSW3D(String rzxPath, String dbPath) {
     this.rzxPath = rzxPath;
@@ -109,7 +120,11 @@ public class JSW3D extends ApplicationAdapter {
 
   @Override
   public void create() {
-    batch = new ModelBatch();
+    // enough point-light slots for willy + guardians + every item in the room
+    com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config shaderCfg =
+        new com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config();
+    shaderCfg.numPointLights = 24;
+    batch = new ModelBatch(new com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider(shaderCfg));
     cam = new PerspectiveCamera(50, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     cam.position.set(W / 2f, H / 2f + 30, 290);
     // -Dcam.pos=x,y,z overrides the viewpoint (angled screenshots for visual checks)
@@ -135,6 +150,7 @@ public class JSW3D extends ApplicationAdapter {
               case com.badlogic.gdx.Input.Keys.C -> depthScale = Math.max(.3f, depthScale / 1.25f);
               case com.badlogic.gdx.Input.Keys.T -> tileDepth = Math.min(20f, tileDepth * 1.25f);
               case com.badlogic.gdx.Input.Keys.G -> tileDepth = Math.max(1f, tileDepth / 1.25f);
+              case com.badlogic.gdx.Input.Keys.L -> darkMode = !darkMode;
               default -> {
                 return false;
               }
@@ -147,8 +163,9 @@ public class JSW3D extends ApplicationAdapter {
               }
               modelCache.values().forEach(Model::dispose);
             modelCache.clear();
-            System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G)%n",
-                smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth);
+            System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) luz=%s (L)%n",
+                smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth,
+                darkMode ? "linterna" : "normal");
             return true;
           }
         });
@@ -157,20 +174,23 @@ public class JSW3D extends ApplicationAdapter {
     if (System.getProperty("shot") == null)
       input.addProcessor(camController);
     Gdx.input.setInputProcessor(input);
-    System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G), M alterna modo%n",
-        smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth);
+    System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) luz=%s (L), M alterna modo%n",
+        smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth, darkMode ? "linterna" : "normal");
 
-    env = new Environment();
-    env.set(new ColorAttribute(ColorAttribute.AmbientLight, .5f, .5f, .5f, 1));
-    env.add(new DirectionalLight().set(1f, 1f, 1f, -0.4f, -0.6f, -1f));
+    rebuildEnv();
 
     pixmap = new Pixmap(W, H, Pixmap.Format.RGBA8888);
     screenTex = new Texture(W, H, Pixmap.Format.RGBA8888);
     Material mat = new Material(TextureAttribute.createDiffuse(screenTex),
         TextureAttribute.createEmissive(screenTex));
-    backdropModel = new ModelBuilder().createRect(
-        0, 0, 0, W, 0, 0, W, H, 0, 0, H, 0, 0, 0, 1,
-        mat, Usage.Position | Usage.Normal | Usage.TextureCoordinates);
+    // the backdrop is subdivided because lighting is per-vertex: on a single 4-corner
+    // quad a sprite's point light in the middle of the room would light NOTHING
+    ModelBuilder mb = new ModelBuilder();
+    mb.begin();
+    mb.part("backdrop", GL20.GL_TRIANGLES,
+            Usage.Position | Usage.Normal | Usage.TextureCoordinates, mat)
+        .patch(0, 0, 0, W, 0, 0, W, H, 0, 0, H, 0, 0, 0, 1, 64, 48);
+    backdropModel = mb.end();
     backdrop = new ModelInstance(backdropModel);
 
     try {
@@ -184,14 +204,33 @@ public class JSW3D extends ApplicationAdapter {
     }
   }
 
+  /**
+   * normal: bright ambient + a sun-like directional. Lantern mode: near-darkness where the
+   * only real light comes from {@link #frameLights} — what this frame's sprites and items
+   * shine on their surroundings.
+   */
+  private void rebuildEnv() {
+    env = new Environment();
+    if (darkMode) {
+      env.set(new ColorAttribute(ColorAttribute.AmbientLight,
+          darkAmbient, darkAmbient, darkAmbient * 1.2f, 1));
+      frameLights.forEach(env::add);
+    } else {
+      env.set(new ColorAttribute(ColorAttribute.AmbientLight, .5f, .5f, .5f, 1));
+      env.add(new DirectionalLight().set(1f, 1f, 1f, -0.4f, -0.6f, -1f));
+    }
+  }
+
   @Override
   public void render() {
     TaintReplay.FrameSnapshot snap = latest;
     if (snap != null && snap.frame() != shownFrame) {
       shownFrame = snap.frame();
+      frameLights.clear();
       updateBackdrop(snap);
       updateSprites(snap);
       updateTiles(snap);
+      rebuildEnv();
     }
     camController.update();
     Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -225,6 +264,13 @@ public class JSW3D extends ApplicationAdapter {
 
   /** the 2D room: every screen byte decoded normally, sprite-owned bytes erased to paper. */
   private void updateBackdrop(TaintReplay.FrameSnapshot snap) {
+    // emissive makes the backdrop glow on its own — exactly what lantern mode must NOT do:
+    // there it only reflects the ambient gloom and whatever sprite light reaches it
+    Material mat = backdrop.materials.first();
+    if (darkMode)
+      mat.remove(TextureAttribute.Emissive);
+    else if (!mat.has(TextureAttribute.Emissive))
+      mat.set(TextureAttribute.createEmissive(screenTex));
     for (int y = 0; y < H; y++) {
       int rowAddr = ((y & 0xC0) << 5) | ((y & 7) << 8) | ((y & 0x38) << 2);
       for (int col = 0; col < 32; col++) {
@@ -309,7 +355,17 @@ public class JSW3D extends ApplicationAdapter {
       float cx = (b[0] + b[2] + 1) * 8 / 2f;          // byte cols -> pixels
       float cy = H - (b[1] + b[3] + 1) / 2f;          // screen y down -> world y up
       inst.transform.setToTranslation(cx, cy, midZ());
-      inst.materials.first().set(ColorAttribute.createDiffuse(PALETTE[blob[5]]));
+      Color c = PALETTE[blob[5]];
+      inst.materials.first().set(ColorAttribute.createDiffuse(c));
+      if (darkMode) {
+        // the sprite IS a light source: it glows a little itself and casts a small pool
+        // of its own color around it — enough to make out its surroundings, no more
+        inst.materials.first().set(ColorAttribute.createEmissive(
+            c.r * .4f, c.g * .4f, c.b * .4f, 1));
+        frameLights.add(new com.badlogic.gdx.graphics.g3d.environment.PointLight().set(
+            .5f + c.r * .5f, .5f + c.g * .5f, .5f + c.b * .5f,
+            cx, cy, midZ() + 14, spriteLightIntensity));
+      }
       spriteInstances.add(inst);
     }
   }
@@ -397,9 +453,17 @@ public class JSW3D extends ApplicationAdapter {
         ModelInstance inst = new ModelInstance(model);
         inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
         Color inkColor = PALETTE[(attr & 7) | ((attr >> 3) & 8)];
-        if (item)
+        if (item) {
           inst.materials.first().set(ColorAttribute.createDiffuse(inkColor));
-        else {
+          if (darkMode) {
+            // items BLAZE: strong self-glow plus a big pool of light — the beacons the
+            // player navigates the gloom by (the ink cycles, so the glow flashes too)
+            inst.materials.first().set(ColorAttribute.createEmissive(inkColor));
+            frameLights.add(new com.badlogic.gdx.graphics.g3d.environment.PointLight().set(
+                .4f + inkColor.r * .6f, .4f + inkColor.g * .6f, .4f + inkColor.b * .6f,
+                col * 8 + 4, H - (y0 + 4), midZ() + 10, itemLightIntensity));
+          }
+        } else {
           inst.getMaterial(TileSlabBuilder.INK).set(ColorAttribute.createDiffuse(inkColor));
           Material paper = inst.getMaterial(TileSlabBuilder.PAPER);
           if (paper != null) // an all-ink bitmap has no paper part
