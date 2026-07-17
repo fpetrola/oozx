@@ -75,4 +75,79 @@
             <version>1.7.36</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <resources>
+            <!-- the demo's data rides INSIDE the jar: the RZX recording and the sprite
+                 catalog, pulled straight from the repo root without copying them around -->
+            <resource>
+                <directory>..</directory>
+                <includes>
+                    <include>Jet Set Willy - Mildly Patched.rzx</include>
+                    <!-- slim copy holding just sprites_found: all the demo reads -->
+                    <include>analysis/jsw-catalog.db</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <plugins>
+            <!-- mvn -pl minizx3d package  ->  target/jsw3d-demo.jar (self-contained:
+                 all deps + natives + data; runs anywhere with java -jar) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>jsw3d-demo</finalName>
+                            <!-- translator drags in its static-analysis toolchain; none of
+                                 it runs in the demo, and dropping it halves the jar -->
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.soot-oss:*</exclude>
+                                    <exclude>fr.inria.gforge.spoon:*</exclude>
+                                    <exclude>org.eclipse.jdt:*</exclude>
+                                    <exclude>org.easymock:*</exclude>
+                                    <exclude>org.mockito:*</exclude>
+                                    <exclude>net.bytebuddy:*</exclude>
+                                    <exclude>org.openjdk.nashorn:*</exclude>
+                                    <exclude>com.github.weisj:*</exclude>
+                                    <exclude>com.fifesoft:*</exclude>
+                                    <exclude>org.jgrapht:*</exclude>
+                                    <exclude>org.smali:*</exclude>
+                                    <exclude>com.github.javaparser:*</exclude>
+                                    <exclude>com.google.protobuf:*</exclude>
+                                    <exclude>com.fasterxml.jackson.core:*</exclude>
+                                    <exclude>com.fasterxml.woodstox:*</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.fpetrola.z80.minizx3d.JSW3D</mainClass>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

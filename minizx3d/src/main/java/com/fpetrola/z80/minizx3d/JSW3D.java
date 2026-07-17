@@ -1698,13 +1698,39 @@ public class JSW3D extends ApplicationAdapter {
     effects.dispose();
   }
 
+  /**
+   * The demo runs from a checkout OR from the distributable jar: an explicit argument
+   * wins, then a file found on disk, and failing both the copy BUNDLED inside the jar is
+   * unpacked to a temp dir (sqlite and the RZX parser need real files, not streams).
+   */
+  private static String findData(String resource, String... candidates) {
+    for (String c : candidates)
+      if (new java.io.File(c).exists())
+        return c;
+    try (java.io.InputStream in = JSW3D.class.getResourceAsStream("/" + resource)) {
+      if (in == null)
+        return candidates[0]; // no bundle either: fail later with the plain-file error
+      java.nio.file.Path dir =
+          java.nio.file.Path.of(System.getProperty("java.io.tmpdir"), "jsw3d-demo");
+      java.nio.file.Files.createDirectories(dir);
+      java.nio.file.Path out = dir.resolve(resource.substring(resource.lastIndexOf('/') + 1));
+      java.nio.file.Files.copy(in, out, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+      return out.toString();
+    } catch (Exception e) {
+      throw new RuntimeException("No pude extraer " + resource + " del jar", e);
+    }
+  }
+
   public static void main(String[] args) {
 //    System.setProperty("sprites3d", "voxel");
     String rzx = args.length > 0 ? args[0]
-        : "/home/fernando/detodo/spectrum/oozx/Jet Set Willy - Mildly Patched.rzx";
+        : findData("Jet Set Willy - Mildly Patched.rzx",
+            "Jet Set Willy - Mildly Patched.rzx",
+            "/home/fernando/detodo/spectrum/oozx/Jet Set Willy - Mildly Patched.rzx");
     // the catalog must be THIS game's: analysis/analysis.db rotates between games (it held
     // Dynamite Dan's once, and JSW replayed with DD's catalog shows almost no sprites)
-    String db = args.length > 1 ? args[1] : "analysis/jsw.db";
+    String db = args.length > 1 ? args[1]
+        : findData("analysis/jsw-catalog.db", "analysis/jsw.db");
     Lwjgl3ApplicationConfiguration cfg = new Lwjgl3ApplicationConfiguration();
     cfg.setTitle("JSW 3D — sprites por taint de origenes");
     cfg.setWindowedMode(1024, 768);
