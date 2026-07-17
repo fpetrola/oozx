@@ -88,7 +88,7 @@ public class JSW3D extends ApplicationAdapter {
    * T/G raise/lower how much deeper tiles are than sprites: platforms/walls become slabs
    * the characters walk ON — sprites and items sit centered at the tiles' mid-depth.
    */
-  private float tileDepth = Float.parseFloat(System.getProperty("tile.depth", "3"));
+  private float tileDepth = Float.parseFloat(System.getProperty("tile.depth", "7"));
   /**
    * item detection, game-agnostic: an item is a tile whose CELL keeps changing INK over the
    * same bitmap, several times in quick succession (JSW items flash every frame). Counting
@@ -133,7 +133,7 @@ public class JSW3D extends ApplicationAdapter {
               case com.badlogic.gdx.Input.Keys.X -> smoothLevel = Math.max(0, smoothLevel - 1);
               case com.badlogic.gdx.Input.Keys.D -> depthScale = Math.min(3f, depthScale * 1.25f);
               case com.badlogic.gdx.Input.Keys.C -> depthScale = Math.max(.3f, depthScale / 1.25f);
-              case com.badlogic.gdx.Input.Keys.T -> tileDepth = Math.min(8f, tileDepth * 1.25f);
+              case com.badlogic.gdx.Input.Keys.T -> tileDepth = Math.min(20f, tileDepth * 1.25f);
               case com.badlogic.gdx.Input.Keys.G -> tileDepth = Math.max(1f, tileDepth / 1.25f);
               default -> {
                 return false;
@@ -314,13 +314,18 @@ public class JSW3D extends ApplicationAdapter {
     }
   }
 
+  /** the tile slabs' full extent in z: tileDepth is a multiplier over half a cell (4px). */
+  private float slabDepth() {
+    return 4f * depthScale * tileDepth;
+  }
+
   /**
-   * The world's mid-depth plane: tiles, sprites and items all center here, so the deepest
-   * tile's back face rests on the backdrop and the characters walk INSIDE the platform
-   * slabs instead of floating in front of them.
+   * The world's mid-depth plane: tiles, sprites and items all center here, so the slabs'
+   * back faces rest on the backdrop and the characters walk INSIDE the platforms instead
+   * of floating in front of them.
    */
   private float midZ() {
-    return 4f * depthScale * tileDepth;
+    return slabDepth() / 2f;
   }
 
   /**
@@ -330,9 +335,11 @@ public class JSW3D extends ApplicationAdapter {
    * static memory — no knowledge of the record layout needed. One instance per cell; the
    * cell's own attribute colors it (items flash exactly like in the game).
    *
-   * <p>Platform/wall tiles extrude {@code tileDepth}x deeper than sprites; item leaves —
-   * recognized because their cells keep changing ink over the same bitmap — stay at 1x,
-   * floating at mid-depth like the characters do.
+   * <p>Platform/wall tiles become SOLID slabs ({@link TileSlabBuilder}): ink and paper
+   * both extrude the full {@code tileDepth}, so the platform is a massive two-color block,
+   * not ink bumps over a flat paper. Item leaves — recognized because their cells keep
+   * changing ink over the same bitmap — stay inflated at 1x, floating at mid-depth like
+   * the characters do.
    */
   private void updateTiles(TaintReplay.FrameSnapshot snap) {
     tileInstances.clear();
@@ -378,14 +385,21 @@ public class JSW3D extends ApplicationAdapter {
           prevLeafAttr[cell] = (t << 8) | attr;
         }
         boolean item = itemLeaves.contains(leaf);
-        float depth = item ? depthScale : depthScale * tileDepth;
-        Model model = modelCache.computeIfAbsent(item ? -leaf - 0x10000 : -leaf, k -> smooth
-            ? SmoothSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depth)
-            : VoxelSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depth));
+        Model model = modelCache.computeIfAbsent(item ? -leaf - 0x10000 : -leaf, k -> item
+            ? (smooth
+               ? SmoothSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depthScale)
+               : VoxelSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depthScale))
+            : TileSlabBuilder.build(leaf, replay::memByte, slabDepth()));
         ModelInstance inst = new ModelInstance(model);
         inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
-        inst.materials.first().set(ColorAttribute.createDiffuse(
-            PALETTE[(attr & 7) | ((attr >> 3) & 8)]));
+        Color inkColor = PALETTE[(attr & 7) | ((attr >> 3) & 8)];
+        if (item)
+          inst.materials.first().set(ColorAttribute.createDiffuse(inkColor));
+        else {
+          inst.getMaterial(TileSlabBuilder.INK).set(ColorAttribute.createDiffuse(inkColor));
+          inst.getMaterial(TileSlabBuilder.PAPER).set(ColorAttribute.createDiffuse(
+              PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
+        }
         tileInstances.add(inst);
       }
   }
