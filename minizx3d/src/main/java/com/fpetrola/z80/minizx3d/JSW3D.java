@@ -145,6 +145,22 @@ public class JSW3D extends ApplicationAdapter {
   private final List<float[]> spriteBoxes = new ArrayList<>();
   /** render time elapsed between emulator frames: the sprites' kick velocity timebase. */
   private float snapDt;
+  /**
+   * P hanging lamps (-Dfx.lamps=true): pendulum bodies in the junk world, hung from the
+   * ceiling cells. Sprites and kicked junk set them swinging; the bulb always glows, and
+   * in lantern mode it carries a warm light that sways with the pendulum, moving the
+   * room's shadows around.
+   */
+  private boolean lampsOn = Boolean.getBoolean("fx.lamps");
+  private Model lampModel;
+  private final List<ModelInstance> lampInstances = new ArrayList<>();
+  private int lampGeneration = -1;
+  /**
+   * E thunderstorm (-Dfx.storm=true): random lightning strikes relight the entire room
+   * for a few frames — {@link AmbientEffects#lightningLevel()} folds into the lighting
+   * environment. Pairs well with rain (R) and is at its best in lantern mode.
+   */
+  private boolean stormOn = Boolean.getBoolean("fx.storm");
 
   public JSW3D(String rzxPath, String dbPath) {
     this.rzxPath = rzxPath;
@@ -156,7 +172,7 @@ public class JSW3D extends ApplicationAdapter {
     // enough point-light slots for willy + guardians + every item in the room
     com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config shaderCfg =
         new com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config();
-    shaderCfg.numPointLights = 24;
+    shaderCfg.numPointLights = 32;
     batch = new ModelBatch(new com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider(shaderCfg));
     cam = new PerspectiveCamera(50, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     cam.position.set(W / 2f, H / 2f + 30, 290);
@@ -226,7 +242,16 @@ public class JSW3D extends ApplicationAdapter {
               }
               case com.badlogic.gdx.Input.Keys.J -> {
                 junkOn = !junkOn;
-                junkSpawnPending = junkOn;
+                junkSpawnPending = true;
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.P -> {
+                lampsOn = !lampsOn;
+                junkSpawnPending = true;
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.E -> {
+                stormOn = !stormOn;
                 rebuild = false;
               }
               case com.badlogic.gdx.Input.Keys.K -> {
@@ -309,14 +334,20 @@ public class JSW3D extends ApplicationAdapter {
    */
   private void rebuildEnv() {
     env = new Environment();
+    // a lightning strike floods the room: ambient jumps toward daylight-white and a hard
+    // top-down directional slams in, then both decay with the flash envelope
+    float flash = effects == null ? 0 : effects.lightningLevel();
     if (darkMode) {
-      env.set(new ColorAttribute(ColorAttribute.AmbientLight,
-          darkAmbient, darkAmbient, darkAmbient * 1.2f, 1));
+      float a = darkAmbient + flash * .85f;
+      env.set(new ColorAttribute(ColorAttribute.AmbientLight, a, a, a * 1.15f, 1));
       frameLights.forEach(env::add);
     } else {
-      env.set(new ColorAttribute(ColorAttribute.AmbientLight, .5f, .5f, .5f, 1));
+      float a = .5f + flash * .4f;
+      env.set(new ColorAttribute(ColorAttribute.AmbientLight, a, a, a * 1.05f, 1));
       env.add(new DirectionalLight().set(1f, 1f, 1f, -0.4f, -0.6f, -1f));
     }
+    if (flash > .01f)
+      env.add(new DirectionalLight().set(flash, flash, flash * 1.08f, .25f, -.9f, -.35f));
   }
 
   @Override
@@ -331,7 +362,7 @@ public class JSW3D extends ApplicationAdapter {
       updateBackdrop(snap);
       long t1 = perf ? System.nanoTime() : 0;
       updateSprites(snap);
-      if (junkOn)
+      if (junkOn || lampsOn)
         junk.syncSprites(spriteBoxes, snapDt);
       snapDt = 0;
       long t2 = perf ? System.nanoTime() : 0;
@@ -348,6 +379,12 @@ public class JSW3D extends ApplicationAdapter {
                 c.r, c.g, c.b, p.x(), p.y(), junkZ(p) + 6, itemLightIntensity * .5f));
           }
       }
+      // each lamp's bulb carries a warm swinging light: as the pendulum moves, so do
+      // the shadows it throws around the room
+      if (lampsOn && darkMode)
+        for (JunkPhysics.Lamp l : junk.lamps())
+          frameLights.add(new com.badlogic.gdx.graphics.g3d.environment.PointLight().set(
+              1f, .9f, .68f, l.bulbX(), l.bulbY(), midZ() + 8, itemLightIntensity * 1.2f));
       rebuildEnv();
       if (perf) {
         nsBackdrop += t1 - t0;
@@ -356,9 +393,12 @@ public class JSW3D extends ApplicationAdapter {
         perfFrames++;
       }
     }
-    if (junkOn) {
+    if (junkOn || lampsOn) {
       junk.update(Gdx.graphics.getDeltaTime());
-      updateJunkInstances();
+      if (junkOn)
+        updateJunkInstances();
+      if (lampsOn)
+        updateLampInstances();
     }
     camController.update();
     Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -373,10 +413,13 @@ public class JSW3D extends ApplicationAdapter {
     if (junkOn)
       for (ModelInstance j : junkInstances)
         batch.render(j, env);
+    if (lampsOn)
+      for (ModelInstance l : lampInstances)
+        batch.render(l, env);
     batch.end();
     // blended decals go after the opaque world so mist, flames and weather layer over it
     effects.setDepthRange(midZ(), slabDepth() / 2f + 3);
-    effects.update(Gdx.graphics.getDeltaTime(), mistOn, fireOn, rainOn, snowOn);
+    effects.update(Gdx.graphics.getDeltaTime(), mistOn, fireOn, rainOn, snowOn, stormOn);
     effects.render(cam, mistOn, fireOn, rainOn, snowOn);
     reportPerf();
     screenshotIfAsked();
@@ -385,10 +428,11 @@ public class JSW3D extends ApplicationAdapter {
   private void printStatus() {
     System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C) tiles=%.2fx (T/G) "
             + "luz=%s (L) niebla=%s (N) fuego=%s (F) lluvia=%s (R) nieve=%s (B) "
-            + "basura=%s x%d (J, K/H) velocidad=%sx (,/./0)%n",
+            + "basura=%s x%d (J, K/H) lamparas=%s (P) tormenta=%s (E) velocidad=%sx (,/./0)%n",
         smooth ? "suave" : "voxel", smoothLevel, depthScale, tileDepth,
         darkMode ? "linterna" : "normal", mistOn ? "si" : "no", fireOn ? "si" : "no",
         rainOn ? "si" : "no", snowOn ? "si" : "no", junkOn ? "si" : "no", junkCount,
+        lampsOn ? "si" : "no", stormOn ? "si" : "no",
         replay == null ? "?" : String.valueOf(replay.getSpeed()));
   }
 
@@ -695,8 +739,9 @@ public class JSW3D extends ApplicationAdapter {
     }
     // the junk's static world rebuilds ONLY here — the transient holes a passing sprite
     // punches into solidCells (its cell rows read as "not tile") never reach the physics
-    if (junkOn && junkSpawnPending) {
-      junk.roomChanged(solidCells, java.util.Arrays.hashCode(solidCells), junkCount);
+    if ((junkOn || lampsOn) && junkSpawnPending) {
+      junk.roomChanged(solidCells, java.util.Arrays.hashCode(solidCells),
+          junkOn ? junkCount : 0, lampsOn ? 3 : 0);
       junkSpawnPending = false;
     }
   }
@@ -721,6 +766,53 @@ public class JSW3D extends ApplicationAdapter {
     return midZ() + p.zFrac * Math.max(0, slabDepth() / 2 - 3);
   }
 
+  /**
+   * the lamp, origin at its pivot so the Box2D angle rotates the whole thing around the
+   * hanging point: a thin metal rod, a cone shade, and a glowing bulb at the tip.
+   */
+  private Model lampModel() {
+    if (lampModel != null)
+      return lampModel;
+    float len = 13;
+    ModelBuilder mb = new ModelBuilder();
+    mb.begin();
+    long attrs = Usage.Position | Usage.Normal;
+    Material rodMat = new Material(ColorAttribute.createDiffuse(.45f, .45f, .5f, 1));
+    com.badlogic.gdx.graphics.g3d.model.Node rod = mb.node();
+    rod.translation.set(0, -len / 2f, 0);
+    com.badlogic.gdx.graphics.g3d.utils.shapebuilders.BoxShapeBuilder.build(
+        mb.part("rod", GL20.GL_TRIANGLES, attrs, rodMat), 1.4f, len, 1.4f);
+    Material shadeMat = new Material(ColorAttribute.createDiffuse(.16f, .32f, .16f, 1));
+    com.badlogic.gdx.graphics.g3d.model.Node shade = mb.node();
+    shade.translation.set(0, -len + 1f, 0);
+    com.badlogic.gdx.graphics.g3d.utils.shapebuilders.ConeShapeBuilder.build(
+        mb.part("shade", GL20.GL_TRIANGLES, attrs, shadeMat), 8, 5, 8, 12);
+    Material bulbMat = new Material(ColorAttribute.createDiffuse(1, .95f, .8f, 1),
+        ColorAttribute.createEmissive(.9f, .8f, .55f, 1));
+    com.badlogic.gdx.graphics.g3d.model.Node bulb = mb.node();
+    bulb.translation.set(0, -len - 2f, 0);
+    com.badlogic.gdx.graphics.g3d.utils.shapebuilders.SphereShapeBuilder.build(
+        mb.part("bulb", GL20.GL_TRIANGLES, attrs, bulbMat), 3.4f, 3.4f, 3.4f, 10, 8);
+    lampModel = mb.end();
+    return lampModel;
+  }
+
+  /** mirror the swinging lamps; the pivot is fixed, the Box2D angle does the swaying. */
+  private void updateLampInstances() {
+    List<JunkPhysics.Lamp> lamps = junk.lamps();
+    if (junk.generation() != lampGeneration || lamps.size() != lampInstances.size()) {
+      lampGeneration = junk.generation();
+      lampInstances.clear();
+      for (int i = 0; i < lamps.size(); i++)
+        lampInstances.add(new ModelInstance(lampModel()));
+    }
+    for (int i = 0; i < lamps.size(); i++) {
+      JunkPhysics.Lamp l = lamps.get(i);
+      lampInstances.get(i).transform.setToTranslation(l.px, l.py, midZ())
+          .rotate(0, 0, 1, l.angleDeg());
+    }
+  }
+
   /** mirror the physics props into render instances; position + spin come from Box2D. */
   private void updateJunkInstances() {
     List<JunkPhysics.Prop> props = junk.props();
@@ -733,9 +825,9 @@ public class JSW3D extends ApplicationAdapter {
         inst.materials.first().set(ColorAttribute.createDiffuse(c));
         // a glowing prop shines from within, item-style: visibly brighter than anything
         // merely lit, in normal mode and in the dark alike
-        if (p.glow)
-          inst.materials.first().set(ColorAttribute.createEmissive(
-              c.r * .6f, c.g * .6f, c.b * .6f, 1));
+//        if (p.glow)
+//          inst.materials.first().set(ColorAttribute.createEmissive(
+//              c.r * .6f, c.g * .6f, c.b * .6f, 1));
         junkInstances.add(inst);
       }
     }
@@ -756,6 +848,8 @@ public class JSW3D extends ApplicationAdapter {
     backdropModel.dispose();
     modelCache.values().forEach(Model::dispose);
     junkModels.values().forEach(Model::dispose);
+    if (lampModel != null)
+      lampModel.dispose();
     junk.dispose();
     effects.dispose();
   }

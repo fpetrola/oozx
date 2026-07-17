@@ -21,6 +21,7 @@ package com.fpetrola.z80.minizx3d;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.utils.Disposable;
 
 import java.util.ArrayList;
@@ -115,9 +116,41 @@ public final class JunkPhysics implements Disposable {
     }
   }
 
+  /**
+   * A ceiling lamp: rod + shade + bulb as one rigid body swinging on a revolute joint
+   * anchored at (px, py), the underside of a ceiling cell. Sprites brushing it and props
+   * kicked into it set it swinging; the joint's limits keep it from looping the ceiling.
+   */
+  public static final class Lamp {
+    public final float px, py, len;
+    final Body body;
+
+    Lamp(float px, float py, float len, Body body) {
+      this.px = px;
+      this.py = py;
+      this.len = len;
+      this.body = body;
+    }
+
+    public float angleDeg() {
+      return body.getAngle() * MathUtils.radiansToDegrees;
+    }
+
+    /** the bulb's world position — where the swinging light shines from. */
+    public float bulbX() {
+      return px + (len + 2) * (float) Math.sin(body.getAngle());
+    }
+
+    public float bulbY() {
+      return py - (len + 2) * (float) Math.cos(body.getAngle());
+    }
+  }
+
   private final World world;
+  private final Body ground;
   private final List<Body> roomBodies = new ArrayList<>();
   private final List<Prop> props = new ArrayList<>();
+  private final List<Lamp> lamps = new ArrayList<>();
   private final List<Body> spriteBodies = new ArrayList<>();
   private final List<float[]> prevBoxes = new ArrayList<>();
   private final Random rnd = new Random();
@@ -128,11 +161,11 @@ public final class JunkPhysics implements Disposable {
     Box2D.init();
     world = new World(new Vector2(0, -38f), true);
     // side walls: junk kicked hard bounces back into the room instead of leaving it
-    wall(-2, H / 2f, 2, H);
+    ground = wall(-2, H / 2f, 2, H);
     wall(258, H / 2f, 2, H);
   }
 
-  private void wall(float cx, float cy, float halfW, float halfH) {
+  private Body wall(float cx, float cy, float halfW, float halfH) {
     BodyDef bd = new BodyDef();
     bd.position.set(cx / PPM, cy / PPM);
     Body b = world.createBody(bd);
@@ -140,10 +173,15 @@ public final class JunkPhysics implements Disposable {
     s.setAsBox(halfW / PPM, halfH / PPM);
     b.createFixture(s, 0);
     s.dispose();
+    return b;
   }
 
   public List<Prop> props() {
     return props;
+  }
+
+  public List<Lamp> lamps() {
+    return lamps;
   }
 
   /** bumped on every respawn: the renderer rebuilds its instances when it changes. */
@@ -158,13 +196,16 @@ public final class JunkPhysics implements Disposable {
    * Box2D settles the pile. The seed comes from the room's solid layout, so each room
    * always gets its own arrangement.
    */
-  public void roomChanged(boolean[] solidCells, long seed, int count) {
+  public void roomChanged(boolean[] solidCells, long seed, int count, int lampCount) {
     for (Body b : roomBodies)
       world.destroyBody(b);
     roomBodies.clear();
     for (Prop p : props)
       world.destroyBody(p.body);
     props.clear();
+    for (Lamp l : lamps)
+      world.destroyBody(l.body); // takes its joint with it
+    lamps.clear();
     prevBoxes.clear();
     generation++;
     rnd.setSeed(seed);
@@ -195,15 +236,77 @@ public final class JunkPhysics implements Disposable {
         roomBodies.add(b);
       }
 
-    if (floorTops.isEmpty())
-      return;
-    Collections.shuffle(floorTops, rnd);
-    for (int i = 0; i < count; i++) {
-      int[] cell = floorTops.get(i % floorTops.size());
-      Kind k = Kind.values()[rnd.nextInt(Kind.values().length)];
-      spawn(k, cell[0] * 8 + 4 + (rnd.nextFloat() - .5f) * 3,
-          H - cell[1] * 8 + k.h / 2 + .5f + (i / floorTops.size()) * 9);
+    if (!floorTops.isEmpty()) {
+      Collections.shuffle(floorTops, rnd);
+      for (int i = 0; i < count; i++) {
+        int[] cell = floorTops.get(i % floorTops.size());
+        Kind k = Kind.values()[rnd.nextInt(Kind.values().length)];
+        spawn(k, cell[0] * 8 + 4 + (rnd.nextFloat() - .5f) * 3,
+            H - cell[1] * 8 + k.h / 2 + .5f + (i / floorTops.size()) * 9);
+      }
     }
+
+    // lamps hang from ceiling cells — a solid cell with 4+ cells of clear air straight
+    // below — spread out so no two crowd the same stretch of ceiling
+    if (lampCount > 0) {
+      List<int[]> ceilings = new ArrayList<>();
+      for (int cy = 0; cy <= 11; cy++)
+        for (int col = 0; col < 32; col++) {
+          if (!solidCells[cy * 32 + col])
+            continue;
+          boolean clear = true;
+          for (int k = 1; k <= 4 && clear; k++)
+            clear = !solidCells[(cy + k) * 32 + col];
+          if (clear)
+            ceilings.add(new int[]{col, cy});
+        }
+      Collections.shuffle(ceilings, rnd);
+      for (int[] c : ceilings) {
+        if (lamps.size() >= lampCount)
+          break;
+        float px = c[0] * 8 + 4, py = H - (c[1] + 1) * 8;
+        boolean crowded = false;
+        for (Lamp l : lamps)
+          crowded |= Math.abs(l.px - px) < 48 && Math.abs(l.py - py) < 24;
+        if (!crowded)
+          createLamp(px, py, 13);
+      }
+    }
+  }
+
+  private void createLamp(float px, float py, float len) {
+    BodyDef bd = new BodyDef();
+    bd.type = BodyDef.BodyType.DynamicBody;
+    bd.position.set(px / PPM, py / PPM);
+    bd.angularDamping = .5f;
+    Body b = world.createBody(bd);
+    FixtureDef fd = new FixtureDef();
+    fd.filter.categoryBits = CAT_PROP;
+    fd.filter.maskBits = CAT_WORLD | CAT_PROP | CAT_SPRITE;
+    PolygonShape rod = new PolygonShape();
+    rod.setAsBox(.7f / PPM, len / 2 / PPM, new Vector2(0, -len / 2 / PPM), 0);
+    fd.shape = rod;
+    fd.density = .2f;
+    fd.friction = .3f;
+    b.createFixture(fd);
+    rod.dispose();
+    // most of the mass sits in the bulb at the tip: a proper pendulum, slow and heavy
+    CircleShape bulb = new CircleShape();
+    bulb.setRadius(2.8f / PPM);
+    bulb.setPosition(new Vector2(0, -len / PPM));
+    fd.shape = bulb;
+    fd.density = 2f;
+    fd.restitution = .3f;
+    b.createFixture(fd);
+    bulb.dispose();
+    RevoluteJointDef jd = new RevoluteJointDef();
+    jd.initialize(ground, b, new Vector2(px / PPM, py / PPM));
+    jd.enableLimit = true;
+    jd.lowerAngle = -1.35f;
+    jd.upperAngle = 1.35f;
+    world.createJoint(jd);
+    b.setAngularVelocity((rnd.nextFloat() - .5f) * 3); // born mid-sway, not frozen
+    lamps.add(new Lamp(px, py, len, b));
   }
 
   private void spawn(Kind k, float x, float y) {

@@ -176,7 +176,8 @@ public final class AmbientEffects implements Disposable {
         + .1f * (float) Math.sin(time * 23 + seed * 1.7f);
   }
 
-  public void update(float dt, boolean mistOn, boolean fireOn, boolean rainOn, boolean snowOn) {
+  public void update(float dt, boolean mistOn, boolean fireOn, boolean rainOn, boolean snowOn,
+                     boolean stormOn) {
     time += dt;
     if (Boolean.getBoolean("fx.debug") && ++dbgTicks % 300 == 0)
       System.out.println("fx: spots=" + fireSpots.size() + " llamas=" + flames.size()
@@ -185,6 +186,47 @@ public final class AmbientEffects implements Disposable {
     updateFire(dt, fireOn);
     updateRain(dt, rainOn);
     updateSnow(dt, snowOn);
+    updateStorm(dt, stormOn);
+  }
+
+  /**
+   * Lightning: at random intervals (mean {@code -Dstorm.period}, default 7s) a strike
+   * lights the whole room through {@link #lightningLevel()} — a hard first flash and a
+   * softer echo right behind it, the way a real discharge re-strikes, with a fast shimmer
+   * riding on top. The caller folds the level into its lighting environment.
+   */
+  private final float stormPeriod = Float.parseFloat(System.getProperty("storm.period", "7"));
+  private float nextStrike = 2, strikeT = -1, flashLevel;
+
+  public float lightningLevel() {
+    return flashLevel;
+  }
+
+  private void updateStorm(float dt, boolean stormOn) {
+    if (!stormOn) {
+      flashLevel = 0;
+      strikeT = -1;
+      return;
+    }
+    if (strikeT < 0) {
+      nextStrike -= dt;
+      if (nextStrike > 0)
+        return;
+      strikeT = 0;
+    }
+    strikeT += dt;
+    float l = pulse(strikeT, 0f, .10f) + .7f * pulse(strikeT, .18f, .3f);
+    flashLevel = Math.min(1, l) * (.82f + .18f * (float) Math.sin(time * 87));
+    if (strikeT > .6f) {
+      strikeT = -1;
+      flashLevel = 0;
+      nextStrike = stormPeriod * (.4f + rnd.nextFloat() * 1.2f);
+    }
+  }
+
+  /** instant attack at {@code start}, exponential decay with time constant ~{@code dur}. */
+  private static float pulse(float t, float start, float dur) {
+    return t < start ? 0 : (float) Math.exp(-(t - start) / (dur * .45f));
   }
 
   private void updateMist(float dt, boolean mistOn) {
