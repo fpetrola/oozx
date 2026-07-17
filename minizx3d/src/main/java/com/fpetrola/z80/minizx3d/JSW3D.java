@@ -172,26 +172,52 @@ public class JSW3D extends ApplicationAdapter {
     screenTex.draw(pixmap, 0, 0);
   }
 
-  /** taint-owned screen bytes grouped by sprite base -> one voxel instance per sprite. */
+  /**
+   * taint-owned screen bytes -> one voxel instance per CONNECTED blob of the same sprite.
+   * Same-base blobs apart in space are different entities: Willy's animation frame 40256 is
+   * also what the lives row draws, and two guardians share one sheet — merging them by base
+   * put Willy's box halfway to the lives row.
+   */
   private void updateSprites(TaintReplay.FrameSnapshot snap) {
-    Map<Integer, int[]> boxes = new HashMap<>(); // base -> minCol,minRow,maxCol,maxRow (byte grid)
+    int[][] grid = new int[H][32];
     for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
-      int base = snap.owner()[i];
-      if (base == 0)
-        continue;
-      int col = i & 31;
-      int third = (i >> 11) & 3, charRow = (i >> 5) & 7, pixRow = (i >> 8) & 7;
-      int y = third * 64 + charRow * 8 + pixRow;
-      int[] b = boxes.computeIfAbsent(base, k -> new int[]{col, y, col, y});
-      b[0] = Math.min(b[0], col);
-      b[1] = Math.min(b[1], y);
-      b[2] = Math.max(b[2], col);
-      b[3] = Math.max(b[3], y);
+      int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7);
+      grid[y][i & 31] = snap.owner()[i];
     }
+    List<int[]> blobs = new ArrayList<>(); // base, minCol, minRow, maxCol, maxRow
+    java.util.ArrayDeque<int[]> queue = new java.util.ArrayDeque<>();
+    for (int y0 = 0; y0 < H; y0++)
+      for (int c0 = 0; c0 < 32; c0++) {
+        int base = grid[y0][c0];
+        if (base == 0)
+          continue;
+        int[] b = {base, c0, y0, c0, y0};
+        int bytes = 0;
+        queue.add(new int[]{c0, y0});
+        grid[y0][c0] = 0;
+        while (!queue.isEmpty()) {
+          int[] p = queue.poll();
+          bytes++;
+          b[1] = Math.min(b[1], p[0]);
+          b[2] = Math.min(b[2], p[1]);
+          b[3] = Math.max(b[3], p[0]);
+          b[4] = Math.max(b[4], p[1]);
+          for (int dy = -1; dy <= 1; dy++)
+            for (int dc = -1; dc <= 1; dc++) {
+              int c = p[0] + dc, y = p[1] + dy;
+              if (c >= 0 && c < 32 && y >= 0 && y < H && grid[y][c] == base) {
+                grid[y][c] = 0;
+                queue.add(new int[]{c, y});
+              }
+            }
+        }
+        if (bytes >= 4)
+          blobs.add(b);
+      }
     spriteInstances.clear();
-    for (Map.Entry<Integer, int[]> e : boxes.entrySet()) {
-      int base = e.getKey() - 1;
-      int[] b = e.getValue();
+    for (int[] blob : blobs) {
+      int base = blob[0] - 1;
+      int[] b = {blob[1], blob[2], blob[3], blob[4]};
       Model model = voxelCache.computeIfAbsent(base,
           k -> VoxelSpriteBuilder.build(k, replay::memByte));
       ModelInstance inst = new ModelInstance(model);
@@ -230,7 +256,9 @@ public class JSW3D extends ApplicationAdapter {
   public static void main(String[] args) {
     String rzx = args.length > 0 ? args[0]
         : "/home/fernando/detodo/spectrum/oozx/Jet Set Willy - Mildly Patched.rzx";
-    String db = args.length > 1 ? args[1] : "analysis/analysis.db";
+    // the catalog must be THIS game's: analysis/analysis.db rotates between games (it held
+    // Dynamite Dan's once, and JSW replayed with DD's catalog shows almost no sprites)
+    String db = args.length > 1 ? args[1] : "analysis/jsw.db";
     Lwjgl3ApplicationConfiguration cfg = new Lwjgl3ApplicationConfiguration();
     cfg.setTitle("JSW 3D — sprites por taint de origenes");
     cfg.setWindowedMode(1024, 768);
