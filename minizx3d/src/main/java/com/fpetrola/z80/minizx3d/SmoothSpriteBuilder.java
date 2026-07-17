@@ -46,15 +46,21 @@ import java.util.function.IntUnaryOperator;
  */
 public final class SmoothSpriteBuilder {
   private static final int K = 4;
-  private static final float MAX_DEPTH = 4.5f;      // half-depth at the fattest point, pixels
   private static final float INSIDE = 0.45f;        // <.5 keeps single-pixel diagonals connected
 
-  public static Model build(int base, int bytes, int wBytes, IntUnaryOperator memByte) {
+  /**
+   * {@code smoothLevel} drives how far from pixel art the surface departs: the silhouette
+   * mixes nearest (blocky) toward bilinear (rounded) sampling, and the height field gets
+   * that many blur passes. Depth is shape-adaptive like the voxel mode — sqrt of the local
+   * distance to the silhouette, in pixels — times the user's {@code depthScale}.
+   */
+  public static Model build(int base, int bytes, int wBytes, IntUnaryOperator memByte,
+                            int smoothLevel, float depthScale) {
     boolean[][] mask = VoxelSpriteBuilder.mask(base, bytes, wBytes, memByte);
     int ny = mask.length * K, nx = mask[0].length * K;
 
-    // corner lattice over the sprite: bilinear sample of the mask = smoothed field
-    float[][] h = heights(mask);
+    // corner lattice over the sprite: sampled mask = the (possibly smoothed) silhouette
+    float[][] h = heights(mask, smoothLevel, depthScale);
 
     ModelBuilder mb = new ModelBuilder();
     mb.begin();
@@ -77,12 +83,16 @@ public final class SmoothSpriteBuilder {
   }
 
   /** smoothed-silhouette distance field turned into the inflation height, on the corner lattice. */
-  private static float[][] heights(boolean[][] mask) {
+  private static float[][] heights(boolean[][] mask, int smoothLevel, float depthScale) {
     int ny = mask.length * K, NX = mask[0].length * K;
+    float t = Math.min(1f, smoothLevel / 3f); // 0 = pixelated silhouette, 1 = fully rounded
     float[][] field = new float[ny + 1][NX + 1];
     for (int gy = 0; gy <= ny; gy++)
-      for (int gx = 0; gx <= NX; gx++)
-        field[gy][gx] = bilinear(mask, gx / (float) K, gy / (float) K);
+      for (int gx = 0; gx <= NX; gx++) {
+        float bi = bilinear(mask, gx / (float) K, gy / (float) K);
+        float nn = at(mask, (int) ((gy - .01f) / K), (int) ((gx - .01f) / K));
+        field[gy][gx] = nn * (1 - t) + bi * t;
+      }
 
     // chamfer distance (lattice steps) to the nearest outside corner
     float inf = (ny + NX) * 2f, sq2 = 1.4142f;
@@ -97,15 +107,13 @@ public final class SmoothSpriteBuilder {
       for (int gx = NX; gx >= 0; gx--)
         pass(d, gx, gy, sq2);
 
-    float dMax = 0.01f;
-    for (float[] row : d)
-      for (float v : row)
-        dMax = Math.max(dMax, v);
     float[][] h = new float[ny + 1][NX + 1];
     for (int gy = 0; gy <= ny; gy++)
       for (int gx = 0; gx <= NX; gx++)
-        h[gy][gx] = MAX_DEPTH * (float) Math.sqrt(d[gy][gx] / dMax);
-    return blur(h);
+        h[gy][gx] = depthScale * 2f * (float) Math.sqrt(d[gy][gx] / K); // lattice -> pixels
+    for (int i = 0; i < Math.max(1, smoothLevel); i++)
+      h = blur(h);
+    return h;
   }
 
   private static void pass(float[][] d, int gx, int gy, float sq2) {

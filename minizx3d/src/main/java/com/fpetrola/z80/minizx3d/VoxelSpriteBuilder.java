@@ -42,7 +42,6 @@ import java.util.function.IntUnaryOperator;
  */
 public final class VoxelSpriteBuilder {
   public static final int WIDTH = 16;
-  private static final float MAX_DEPTH = 8f;
 
   /** the graphic's 1-bit mask: wBytes*8 px wide (sprites are 2 bytes/row, 8x8 tiles are 1). */
   static boolean[][] mask(int base, int bytes, int wBytes, IntUnaryOperator memByte) {
@@ -57,14 +56,24 @@ public final class VoxelSpriteBuilder {
     return mask;
   }
 
-  public static Model build(int base, int bytes, int wBytes, IntUnaryOperator memByte) {
+  /**
+   * Depth is SHAPE-ADAPTIVE: each pixel bulges by the sqrt of its own distance to the
+   * silhouette (in pixels), so a thin arm inflates barely and a fat body inflates more —
+   * no normalization by the sprite's max, which made every sprite equally deep.
+   * {@code smoothLevel} blurs the depth field across neighbouring voxels (the boxes stay:
+   * smoothing OVER the voxel look), {@code depthScale} is the user's global multiplier.
+   */
+  public static Model build(int base, int bytes, int wBytes, IntUnaryOperator memByte,
+                            int smoothLevel, float depthScale) {
     boolean[][] mask = mask(base, bytes, wBytes, memByte);
     int rows = mask.length, w = mask[0].length;
     int[][] dist = distanceToEdge(mask);
-    int dMax = 1;
-    for (int[] r : dist)
-      for (int d : r)
-        dMax = Math.max(dMax, d);
+    float[][] d = new float[rows][w];
+    for (int y = 0; y < rows; y++)
+      for (int x = 0; x < w; x++)
+        d[y][x] = dist[y][x];
+    for (int i = 0; i < smoothLevel; i++)
+      d = blurInside(d);
 
     ModelBuilder mb = new ModelBuilder();
     mb.begin();
@@ -74,12 +83,35 @@ public final class VoxelSpriteBuilder {
       for (int x = 0; x < w; x++)
         if (mask[y][x]) {
           float depth = Math.max(1f,
-              Math.round(MAX_DEPTH * (float) Math.sqrt(dist[y][x] / (float) dMax)));
+              Math.round(depthScale * 2f * (float) Math.sqrt(d[y][x])));
           // model space: centered, +y up (screen rows grow down), z bulges both ways
           BoxShapeBuilder.build(part,
               x - w / 2f + .5f, rows / 2f - y - .5f, 0, 1, 1, depth);
         }
     return mb.end();
+  }
+
+  /** 3x3 blur over the solid pixels only — the silhouette (zeros outside) stays put. */
+  private static float[][] blurInside(float[][] d) {
+    int rows = d.length, w = d[0].length;
+    float[][] out = new float[rows][w];
+    for (int y = 0; y < rows; y++)
+      for (int x = 0; x < w; x++) {
+        if (d[y][x] == 0)
+          continue;
+        float sum = 0;
+        int n = 0;
+        for (int dy = -1; dy <= 1; dy++)
+          for (int dx = -1; dx <= 1; dx++) {
+            int yy = y + dy, xx = x + dx;
+            if (yy >= 0 && yy < rows && xx >= 0 && xx < w && d[yy][xx] > 0) {
+              sum += d[yy][xx];
+              n++;
+            }
+          }
+        out[y][x] = sum / n;
+      }
+    return out;
   }
 
   /** chebyshev distance to the nearest empty/outside cell, two-pass over the grid. */

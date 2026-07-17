@@ -80,6 +80,10 @@ public class JSW3D extends ApplicationAdapter {
   private final List<ModelInstance> tileInstances = new ArrayList<>();
   /** smooth inflated mesh vs voxel boxes; M toggles at runtime. */
   private boolean smooth = !"voxel".equals(System.getProperty("sprites3d", "smooth"));
+  /** S/X raise/lower how far the surface departs from pixel art (0 = raw voxel steps). */
+  private int smoothLevel = Integer.getInteger("smooth.level", 2);
+  /** D/C raise/lower the global depth multiplier; depth itself is shape-adaptive. */
+  private float depthScale = Float.parseFloat(System.getProperty("depth.scale", "1"));
 
   public JSW3D(String rzxPath, String dbPath) {
     this.rzxPath = rzxPath;
@@ -100,17 +104,24 @@ public class JSW3D extends ApplicationAdapter {
         new com.badlogic.gdx.InputAdapter() {
           @Override
           public boolean keyDown(int keycode) {
-            if (keycode == com.badlogic.gdx.Input.Keys.M) {
-              smooth = !smooth;
-              modelCache.values().forEach(Model::dispose);
-              modelCache.clear();
-              System.out.println("modo sprites: " + (smooth ? "suave" : "voxel"));
-              return true;
+            switch (keycode) {
+              case com.badlogic.gdx.Input.Keys.M -> smooth = !smooth;
+              case com.badlogic.gdx.Input.Keys.S -> smoothLevel = Math.min(6, smoothLevel + 1);
+              case com.badlogic.gdx.Input.Keys.X -> smoothLevel = Math.max(0, smoothLevel - 1);
+              case com.badlogic.gdx.Input.Keys.D -> depthScale = Math.min(3f, depthScale * 1.25f);
+              case com.badlogic.gdx.Input.Keys.C -> depthScale = Math.max(.3f, depthScale / 1.25f);
+              default -> {
+                return false;
+              }
             }
-            return false;
+            modelCache.values().forEach(Model::dispose);
+            modelCache.clear();
+            System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C)%n",
+                smooth ? "suave" : "voxel", smoothLevel, depthScale);
+            return true;
           }
         }, camController));
-    System.out.println("modo sprites: " + (smooth ? "suave" : "voxel") + " (tecla M alterna)");
+    System.out.printf("modo=%s smooth=%d (S/X) profundidad=%.2f (D/C), M alterna modo%n", smooth ? "suave" : "voxel", smoothLevel, depthScale);
 
     env = new Environment();
     env.set(new ColorAttribute(ColorAttribute.AmbientLight, .5f, .5f, .5f, 1));
@@ -255,8 +266,8 @@ public class JSW3D extends ApplicationAdapter {
       int[] b = {blob[1], blob[2], blob[3], blob[4]};
       int bytes = catalog.sizeOf.getOrDefault(base, 32);
       Model model = modelCache.computeIfAbsent(base, k -> smooth
-          ? SmoothSpriteBuilder.build(k, bytes, 2, replay::memByte)
-          : VoxelSpriteBuilder.build(k, bytes, 2, replay::memByte));
+          ? SmoothSpriteBuilder.build(k, bytes, 2, replay::memByte, smoothLevel, depthScale)
+          : VoxelSpriteBuilder.build(k, bytes, 2, replay::memByte, smoothLevel, depthScale));
       ModelInstance inst = new ModelInstance(model);
       float cx = (b[0] + b[2] + 1) * 8 / 2f;          // byte cols -> pixels
       float cy = H - (b[1] + b[3] + 1) / 2f;          // screen y down -> world y up
@@ -284,8 +295,8 @@ public class JSW3D extends ApplicationAdapter {
           continue;
         int leaf = t - 1;
         Model model = modelCache.computeIfAbsent(-leaf, k -> smooth
-            ? SmoothSpriteBuilder.build(leaf, 8, 1, replay::memByte)
-            : VoxelSpriteBuilder.build(leaf, 8, 1, replay::memByte));
+            ? SmoothSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depthScale)
+            : VoxelSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depthScale));
         ModelInstance inst = new ModelInstance(model);
         inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), 4);
         int attr = snap.attrs()[cellY * 32 + col] & 0xff;
