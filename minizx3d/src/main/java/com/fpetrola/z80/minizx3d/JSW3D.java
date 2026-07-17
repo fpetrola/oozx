@@ -107,9 +107,9 @@ public class JSW3D extends ApplicationAdapter {
    * surroundings, and items blaze with light of their own so they stand out in the gloom.
    */
   private boolean darkMode = Boolean.getBoolean("dark");
-  private final float darkAmbient = Float.parseFloat(System.getProperty("dark.ambient", "0.10"));
-  private final float spriteLightIntensity = Float.parseFloat(System.getProperty("dark.sprite", "1200"));
-  private final float itemLightIntensity = Float.parseFloat(System.getProperty("dark.item", "1200"));
+  private final float darkAmbient = Float.parseFloat(System.getProperty("dark.ambient", "0.04"));
+  private final float spriteLightIntensity = Float.parseFloat(System.getProperty("dark.sprite", "300"));
+  private final float itemLightIntensity = Float.parseFloat(System.getProperty("dark.item", "500"));
   /** leaf -> its bitmap is all zeros (air): no slab, no item tracking, no light — background. */
   private final Map<Integer, Boolean> emptyLeaves = new HashMap<>();
   /** the lights the CURRENT frame's sprites and items shine; env is rebuilt from them. */
@@ -502,7 +502,7 @@ public class JSW3D extends ApplicationAdapter {
   }
 
   public static void main(String[] args) {
-    System.setProperty("sprites3d", "voxel");
+//    System.setProperty("sprites3d", "voxel");
     String rzx = args.length > 0 ? args[0]
         : "/home/fernando/detodo/spectrum/oozx/Jet Set Willy - Mildly Patched.rzx";
     // the catalog must be THIS game's: analysis/analysis.db rotates between games (it held
