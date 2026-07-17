@@ -111,9 +111,9 @@ public class JSW3D extends ApplicationAdapter {
    * surroundings, and items blaze with light of their own so they stand out in the gloom.
    */
   private boolean darkMode = Boolean.getBoolean("dark");
-  private final float darkAmbient = Float.parseFloat(System.getProperty("dark.ambient", "0.04"));
-  private final float spriteLightIntensity = Float.parseFloat(System.getProperty("dark.sprite", "300"));
-  private final float itemLightIntensity = Float.parseFloat(System.getProperty("dark.item", "500"));
+  private float darkAmbient = Float.parseFloat(System.getProperty("dark.ambient", "0.04"));
+  private float spriteLightIntensity = Float.parseFloat(System.getProperty("dark.sprite", "300"));
+  private float itemLightIntensity = Float.parseFloat(System.getProperty("dark.item", "500"));
   /** leaf -> its bitmap is all zeros (air): no slab, no item tracking, no light — background. */
   private final Map<Integer, Boolean> emptyLeaves = new HashMap<>();
   /**
@@ -227,6 +227,24 @@ public class JSW3D extends ApplicationAdapter {
   private long configDirtyAt;
   private final Vector3 savedCamPos = new Vector3(), savedCamDir = new Vector3();
   private float cfgSpeed = Float.parseFloat(System.getProperty("speed", "1"));
+  /**
+   * The tuning menu: TAB cycles the effect groups, up/down picks a parameter, left/right
+   * adjusts it (held keys repeat), ESC closes, and 6 quiet seconds hide it. Every value
+   * lives in {@link #params} as a get/set pair over the real live field, so changes apply
+   * instantly and persist in the config JSON under their {@code id}.
+   */
+  private record Param(String id, String group, String name, float min, float max, float step,
+                       boolean integer, java.util.function.Supplier<Float> get,
+                       java.util.function.Consumer<Float> set) {
+  }
+
+  private final List<Param> params = new ArrayList<>();
+  private final List<String> paramGroups = new ArrayList<>();
+  private int tuneGroup = Integer.getInteger("tune", 0) - 1, tuneParam;
+  private long tuneShownAt, lastAdjustAt;
+  /** counts the tuning menu edits live; lamps/balloons/junk regenerate on change. */
+  private int lampCount = 3, balloonCount = 6, bubbleCount = 6;
+  private float lampLightScale = 1, junkGravity = 1;
 
   public JSW3D(String rzxPath, String dbPath) {
     this.rzxPath = rzxPath;
@@ -378,6 +396,31 @@ public class JSW3D extends ApplicationAdapter {
                 helpOn = !helpOn;
                 rebuild = false;
               }
+              case com.badlogic.gdx.Input.Keys.TAB -> {
+                tuneGroup = (tuneGroup + 1) % paramGroups.size();
+                tuneParam = 0;
+                tuneShownAt = System.currentTimeMillis();
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.ESCAPE -> {
+                tuneGroup = -1;
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.UP, com.badlogic.gdx.Input.Keys.DOWN -> {
+                if (tuneGroup < 0)
+                  return false;
+                int n = groupParams().size();
+                tuneParam = (tuneParam
+                    + (keycode == com.badlogic.gdx.Input.Keys.UP ? n - 1 : 1)) % n;
+                tuneShownAt = System.currentTimeMillis();
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.LEFT, com.badlogic.gdx.Input.Keys.RIGHT -> {
+                if (tuneGroup < 0)
+                  return false;
+                adjustParam(keycode == com.badlogic.gdx.Input.Keys.RIGHT ? 1 : -1);
+                rebuild = false;
+              }
               default -> {
                 return false;
               }
@@ -409,6 +452,7 @@ public class JSW3D extends ApplicationAdapter {
     px.drawPixel(0, 0, 0xffffffff);
     whitePix = new Texture(px);
     px.dispose();
+    registerParams();
     loadConfig();
     savedCamPos.set(cam.position);
     savedCamDir.set(cam.direction);
@@ -505,7 +549,8 @@ public class JSW3D extends ApplicationAdapter {
       if (lampsOn && darkMode)
         for (JunkPhysics.Lamp l : junk.lamps())
           frameLights.add(new com.badlogic.gdx.graphics.g3d.environment.PointLight().set(
-              1f, .9f, .68f, l.bulbX(), l.bulbY(), midZ() + 8, itemLightIntensity * 1.2f));
+              1f, .9f, .68f, l.bulbX(), l.bulbY(), midZ() + 8,
+              itemLightIntensity * 1.2f * lampLightScale));
       rebuildEnv();
       if (perf) {
         nsBackdrop += t1 - t0;
@@ -577,6 +622,19 @@ public class JSW3D extends ApplicationAdapter {
         windOn, leavesOn);
     effects.render(cam, mistOn, fireOn, rainOn, snowOn, leavesOn);
     renderHelp();
+    // held arrows keep adjusting; 6 quiet seconds close the tuning panel on their own
+    if (tuneGroup >= 0) {
+      long now = System.currentTimeMillis();
+      boolean l = Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.LEFT);
+      boolean r = Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.RIGHT);
+      if ((l || r) && now - lastAdjustAt > 70)
+        adjustParam(r ? 1 : -1);
+      if (System.getProperty("tune") != null)
+        tuneShownAt = now; // pinned open for screenshot verification
+      if (now - tuneShownAt > 6000)
+        tuneGroup = -1;
+    }
+    renderTuning();
     // camera drags/zooms mark the config dirty; a quiet second later it hits disk
     if (configEnabled) {
       if (!cam.position.epsilonEquals(savedCamPos, .4f)
@@ -593,6 +651,136 @@ public class JSW3D extends ApplicationAdapter {
     }
     reportPerf();
     screenshotIfAsked();
+  }
+
+  private void addParam(String id, String group, String name, float min, float max, float step,
+                        boolean integer, java.util.function.Supplier<Float> get,
+                        java.util.function.Consumer<Float> set) {
+    params.add(new Param(id, group, name, min, max, step, integer, get, set));
+    if (!paramGroups.contains(group))
+      paramGroups.add(group);
+  }
+
+  private void registerParams() {
+    addParam("rain.drops", "Lluvia", "gotas", 40, 600, 20, true,
+        () -> (float) effects.dropCount, v -> effects.dropCount = Math.round(v));
+    addParam("rain.speed", "Lluvia", "velocidad caida", .4f, 2.5f, .1f, false,
+        () -> effects.rainSpeed, v -> effects.rainSpeed = v);
+    addParam("rain.puddle", "Lluvia", "charco maximo", 3, 20, 1, true,
+        () -> effects.puddleMax, v -> effects.puddleMax = v);
+    addParam("snow.flakes", "Nieve", "copos", 40, 700, 20, true,
+        () -> (float) effects.flakeCount, v -> effects.flakeCount = Math.round(v));
+    addParam("snow.speed", "Nieve", "velocidad caida", .4f, 2.5f, .1f, false,
+        () -> effects.snowSpeed, v -> effects.snowSpeed = v);
+    addParam("snow.settled", "Nieve", "acumulacion max", 200, 6000, 200, true,
+        () -> (float) effects.settledMax, v -> effects.settledMax = Math.round(v));
+    addParam("wind.base", "Viento", "fuerza base", 0, 3, .1f, false,
+        () -> effects.windBase, v -> effects.windBase = v);
+    addParam("wind.gust", "Viento", "fuerza rafagas", 0, 3, .1f, false,
+        () -> effects.windGust, v -> effects.windGust = v);
+    addParam("wind.vortex", "Viento", "fuerza remolino", 0, 3, .1f, false,
+        () -> effects.vortexPower, v -> effects.vortexPower = v);
+    addParam("wind.vortexRadius", "Viento", "radio remolino", 400, 4000, 200, true,
+        () -> effects.vortexRadius, v -> effects.vortexRadius = v);
+    addParam("leaves.count", "Hojas", "cantidad", 10, 300, 10, true,
+        () -> (float) effects.leafCount, v -> effects.leafCount = Math.round(v));
+    addParam("leaves.paper", "Hojas", "fraccion papeles", 0, 1, .05f, false,
+        () -> effects.paperFrac, v -> effects.paperFrac = v);
+    addParam("junk.count", "Basura", "cantidad", 2, 80, 2, true,
+        () -> (float) junkCount, v -> {
+          junkCount = Math.round(v);
+          junkSpawnPending = true;
+        });
+    addParam("junk.kick", "Basura", "fuerza patada", .2f, 3, .1f, false,
+        () -> junk.kickScale, v -> junk.kickScale = v);
+    addParam("junk.gravity", "Basura", "gravedad", .2f, 3, .1f, false,
+        () -> junkGravity, v -> {
+          junkGravity = v;
+          junk.setGravityFactor(v);
+        });
+    addParam("balloons.count", "Globos", "globos", 0, 30, 1, true,
+        () -> (float) balloonCount, v -> {
+          balloonCount = Math.round(v);
+          junkSpawnPending = true;
+        });
+    addParam("balloons.bubbles", "Globos", "burbujas", 0, 30, 1, true,
+        () -> (float) bubbleCount, v -> {
+          bubbleCount = Math.round(v);
+          junkSpawnPending = true;
+        });
+    addParam("balloons.buoyancy", "Globos", "flotacion", .2f, 3, .1f, false,
+        () -> junk.buoyancy, v -> {
+          junk.buoyancy = v;
+          junkSpawnPending = true;
+        });
+    addParam("lamps.count", "Lamparas", "cantidad", 0, 8, 1, true,
+        () -> (float) lampCount, v -> {
+          lampCount = Math.round(v);
+          junkSpawnPending = true;
+        });
+    addParam("lamps.light", "Lamparas", "intensidad luz", .2f, 3, .1f, false,
+        () -> lampLightScale, v -> lampLightScale = v);
+    addParam("fire.rate", "Fuego", "emision", .1f, 3, .1f, false,
+        () -> effects.fireRate, v -> effects.fireRate = v);
+    addParam("fire.size", "Fuego", "tamano llamas", .4f, 2.5f, .1f, false,
+        () -> effects.fireSize, v -> effects.fireSize = v);
+    addParam("mist.count", "Niebla", "parches", 2, 40, 2, true,
+        () -> (float) effects.mistCount, v -> effects.mistCount = Math.round(v));
+    addParam("mist.density", "Niebla", "densidad", .2f, 3, .1f, false,
+        () -> effects.mistDensity, v -> effects.mistDensity = v);
+    addParam("storm.period", "Tormenta", "periodo (seg)", 1, 20, 1, false,
+        () -> effects.stormPeriod, v -> effects.stormPeriod = v);
+    addParam("storm.intensity", "Tormenta", "intensidad", .2f, 1.5f, .1f, false,
+        () -> effects.stormIntensity, v -> effects.stormIntensity = v);
+    addParam("dust.rate", "Polvo", "emision", .2f, 3, .1f, false,
+        () -> effects.dustRate, v -> effects.dustRate = v);
+    addParam("dust.mound", "Polvo", "montana maxima", 1, 10, .5f, false,
+        () -> effects.moundMax, v -> effects.moundMax = v);
+    addParam("dark.ambient", "Linterna", "luz ambiente", 0, .2f, .01f, false,
+        () -> darkAmbient, v -> darkAmbient = v);
+    addParam("dark.sprite", "Linterna", "luz sprites", 50, 1000, 50, true,
+        () -> spriteLightIntensity, v -> spriteLightIntensity = v);
+    addParam("dark.item", "Linterna", "luz items", 50, 1500, 50, true,
+        () -> itemLightIntensity, v -> itemLightIntensity = v);
+  }
+
+  private List<Param> groupParams() {
+    return params.stream()
+        .filter(p -> p.group().equals(paramGroups.get(tuneGroup))).toList();
+  }
+
+  private void adjustParam(int dir) {
+    Param p = groupParams().get(tuneParam);
+    float v = Math.max(p.min(), Math.min(p.max(), p.get().get() + dir * p.step()));
+    p.set().accept(v);
+    tuneShownAt = lastAdjustAt = System.currentTimeMillis();
+    configDirty = true;
+    configDirtyAt = tuneShownAt;
+  }
+
+  private void renderTuning() {
+    if (tuneGroup < 0)
+      return;
+    StringBuilder sb = new StringBuilder("CONFIG  ").append(paramGroups.get(tuneGroup))
+        .append("\nTAB efecto / arriba-abajo parametro / izq-der ajustar / ESC cerrar\n\n");
+    List<Param> g = groupParams();
+    for (int i = 0; i < g.size(); i++) {
+      Param p = g.get(i);
+      float v = p.get().get();
+      sb.append(i == tuneParam ? "> " : "   ").append(p.name()).append(" = ")
+          .append(p.integer() ? String.valueOf(Math.round(v))
+              : String.format(java.util.Locale.US, "%.2f", v)).append('\n');
+    }
+    com.badlogic.gdx.graphics.g2d.GlyphLayout layout =
+        new com.badlogic.gdx.graphics.g2d.GlyphLayout(uiFont, sb.toString());
+    float pad = 14, w = layout.width + pad * 2, h = layout.height + pad * 2;
+    float x = Gdx.graphics.getWidth() - w - 20, y = Gdx.graphics.getHeight() - 20 - h;
+    uiBatch.begin();
+    uiBatch.setColor(0, 0, .12f, .82f);
+    uiBatch.draw(whitePix, x, y, w, h);
+    uiBatch.setColor(1, 1, 1, 1);
+    uiFont.draw(uiBatch, sb.toString(), x + pad, y + h - pad);
+    uiBatch.end();
   }
 
   private java.nio.file.Path configPath() {
@@ -630,6 +818,11 @@ public class JSW3D extends ApplicationAdapter {
       dustOn = v.getBoolean("dust", dustOn);
       ghostAlpha = v.getFloat("ghostAlpha", ghostAlpha);
       cfgSpeed = v.getFloat("speed", cfgSpeed);
+      com.badlogic.gdx.utils.JsonValue ps = v.get("params");
+      if (ps != null)
+        for (Param par : params)
+          if (ps.has(par.id()))
+            par.set().accept(Math.max(par.min(), Math.min(par.max(), ps.getFloat(par.id()))));
       junkSpawnPending = junkOn || lampsOn || balloonsOn;
       if (v.has("camPos") && System.getProperty("cam.pos") == null) {
         float[] cp = v.get("camPos").asFloatArray();
@@ -672,6 +865,16 @@ public class JSW3D extends ApplicationAdapter {
       sb.append("  \"ghostAlpha\": ").append(ghostAlpha).append(",\n");
       sb.append("  \"speed\": ").append(replay == null ? cfgSpeed : replay.getSpeed())
           .append(",\n");
+      sb.append("  \"params\": {\n");
+      for (int i = 0; i < params.size(); i++) {
+        Param p = params.get(i);
+        float pv = p.get().get();
+        sb.append("    \"").append(p.id()).append("\": ")
+            .append(p.integer() ? String.valueOf(Math.round(pv))
+                : String.format(java.util.Locale.US, "%.3f", pv))
+            .append(i < params.size() - 1 ? ",\n" : "\n");
+      }
+      sb.append("  },\n");
       sb.append(String.format(java.util.Locale.US,
           "  \"camPos\": [%.2f, %.2f, %.2f],%n", cam.position.x, cam.position.y, cam.position.z));
       sb.append(String.format(java.util.Locale.US,
@@ -710,6 +913,7 @@ public class JSW3D extends ApplicationAdapter {
       Q        opacidad de los tiles fantasma
       , / .    velocidad mitad / doble
       Enter    velocidad normal
+      TAB      menu de parametros (flechas ajustan, ESC cierra)
       Mouse    arrastrar rota - rueda zoom
       La config se guarda sola en ~/.jsw3d-config.json""";
 
@@ -1183,7 +1387,8 @@ public class JSW3D extends ApplicationAdapter {
     // punches into solidCells (its cell rows read as "not tile") never reach the physics
     if ((junkOn || lampsOn || balloonsOn) && junkSpawnPending) {
       junk.roomChanged(solidCells, java.util.Arrays.hashCode(solidCells),
-          junkOn ? junkCount : 0, lampsOn ? 3 : 0, balloonsOn ? 6 : 0);
+          junkOn ? junkCount : 0, lampsOn ? lampCount : 0,
+          balloonsOn ? balloonCount : 0, balloonsOn ? bubbleCount : 0);
       junkSpawnPending = false;
     }
   }

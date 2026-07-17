@@ -210,7 +210,7 @@ public final class JunkPhysics implements Disposable {
    * always gets its own arrangement.
    */
   public void roomChanged(boolean[] solidCells, long seed, int count, int lampCount,
-                          int floaters) {
+                          int balloons, int bubbles) {
     for (Body b : roomBodies)
       world.destroyBody(b);
     roomBodies.clear();
@@ -261,8 +261,9 @@ public final class JunkPhysics implements Disposable {
     }
 
     // floaters spawn mid-air and rise on their own until a ceiling stops them
-    for (int i = 0; i < floaters; i++) {
+    for (int i = 0; i < balloons; i++)
       spawn(Kind.BALLOON, 12 + rnd.nextFloat() * 232, 85 + rnd.nextFloat() * 70);
+    for (int i = 0; i < bubbles; i++) {
       Prop bubble = spawn(Kind.BUBBLE, 12 + rnd.nextFloat() * 232, 85 + rnd.nextFloat() * 70);
       bubble.life = 16 + rnd.nextFloat() * 22; // bubbles never last
     }
@@ -361,10 +362,10 @@ public final class JunkPhysics implements Disposable {
       p.dispose();
     }
     if (k == Kind.BALLOON) {
-      b.setGravityScale(-.35f);
+      b.setGravityScale(-.35f * buoyancy);
       b.setLinearDamping(.9f);
     } else if (k == Kind.BUBBLE) {
-      b.setGravityScale(-.15f);
+      b.setGravityScale(-.15f * buoyancy);
       b.setLinearDamping(1.4f);
     }
     Prop prop = new Prop(k, k.colors[rnd.nextInt(k.colors.length)], zFrac,
@@ -460,17 +461,27 @@ public final class JunkPhysics implements Disposable {
       float dir = Math.signum(pos.x - cx);
       if (dir == 0)
         dir = rnd.nextBoolean() ? 1 : -1;
-      float want = dir * (5 + Math.abs(svx) * 1.4f + speed * .4f);
+      float want = dir * (5 + Math.abs(svx) * 1.4f + speed * .4f) * kickScale;
       Vector2 v = p.body.getLinearVelocity();
       float nvx = dir > 0 ? Math.max(v.x, want) : Math.min(v.x, want);
       float nvy = v.y;
       if (pos.y < cy && nvy < 2.5f) // underfoot: hop out, never grind under the feet
-        nvy = 2.5f + speed * .35f;
+        nvy = (2.5f + speed * .35f) * kickScale;
       p.body.setLinearVelocity(nvx, nvy);
       p.body.setAngularVelocity(MathUtils.clamp(
           p.body.getAngularVelocity() + dir * (2 + speed * .3f), -25, 25));
       p.body.setAwake(true);
     }
+  }
+
+  /** live-tunable: kick strength multiplier and floaters' buoyancy multiplier. */
+  public float kickScale = 1, buoyancy = 1;
+
+  /** live-tunable gravity, as a factor over the classic -38 m/s². */
+  public void setGravityFactor(float f) {
+    world.setGravity(new Vector2(0, -38f * f));
+    for (Prop p : props)
+      p.body.setAwake(true); // sleepers must feel the new weight
   }
 
   /** the wind (px/s) the next update leans on the props; 0 turns it off. */

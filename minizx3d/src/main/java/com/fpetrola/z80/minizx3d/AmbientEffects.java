@@ -67,6 +67,17 @@ public final class AmbientEffects implements Disposable {
   private static final int DROPS = 170, FLAKES = 230, MAX_SETTLED = 2600;
   private static final int FALL = 0, ONSPRITE = 1, SLIDE = 2;
 
+  /**
+   * Live-tunable parameters: the caller's config menu writes these and the pools adapt
+   * on the fly (grown lazily, trimmed when lowered). Factors default to 1 = the classic
+   * look; counts default to the old constants.
+   */
+  public int dropCount = DROPS, flakeCount = FLAKES, settledMax = MAX_SETTLED,
+      leafCount = 96, mistCount = MIST_PATCHES;
+  public float rainSpeed = 1, snowSpeed = 1, puddleMax = 9, windBase = 1, windGust = 1,
+      vortexPower = 1, vortexRadius = 1400, paperFrac = .35f, fireRate = 1, fireSize = 1,
+      mistDensity = 1, stormIntensity = 1, dustRate = 1, moundMax = 4.5f;
+
   private final DecalBatch batch;
   private final Texture blobTex;
   private final TextureRegion blob;
@@ -77,8 +88,8 @@ public final class AmbientEffects implements Disposable {
   private float zMid = 15, zSpread = 10;
 
   private final List<Decal> mist = new ArrayList<>();
-  private final float[] mistDrift = new float[MIST_PATCHES];
-  private final float[] mistAlpha = new float[MIST_PATCHES];
+  private float[] mistDrift = new float[MIST_PATCHES];
+  private float[] mistAlpha = new float[MIST_PATCHES];
 
   private static final class Flame {
     float x, y, z, vx, vy, age, life, size;
@@ -132,7 +143,14 @@ public final class AmbientEffects implements Disposable {
     pm.dispose();
     blob = new TextureRegion(blobTex);
 
-    for (int i = 0; i < MIST_PATCHES; i++) {
+    buildMist();
+  }
+
+  private void buildMist() {
+    mist.clear();
+    mistDrift = new float[mistCount];
+    mistAlpha = new float[mistCount];
+    for (int i = 0; i < mistCount; i++) {
       Decal d = Decal.newDecal(60 + rnd.nextFloat() * 60, 40 + rnd.nextFloat() * 40, blob,
           GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
       mistAlpha[i] = .05f + rnd.nextFloat() * .06f;
@@ -216,13 +234,14 @@ public final class AmbientEffects implements Disposable {
       windCur *= Math.max(0, 1 - 2 * dt); // dies down instead of snapping off
       return;
     }
-    float base = 14f * (float) Math.sin(time * .33f) + 8f * (float) Math.sin(time * .9f);
+    float base = (14f * (float) Math.sin(time * .33f) + 8f * (float) Math.sin(time * .9f))
+        * windBase;
     if (gustT < 0) {
       gustTimer -= dt;
       if (gustTimer <= 0) {
         gustT = 0;
         gustDir = rnd.nextBoolean() ? 1 : -1;
-        gustPeak = 45 + rnd.nextFloat() * 45;
+        gustPeak = (45 + rnd.nextFloat() * 45) * windGust;
       }
     }
     float g = 0;
@@ -259,10 +278,10 @@ public final class AmbientEffects implements Disposable {
   private float swirl(float x, float y, boolean xAxis) {
     float dx = x - vortX, dy = y - vortY;
     float d2 = dx * dx + dy * dy;
-    if (d2 > 4200)
+    if (d2 > vortexRadius * 3)
       return 0;
     float env = (float) Math.sin(Math.PI * vortAge / vortLife);
-    float f = vortStr * env * (float) Math.exp(-d2 / 1400) * 95
+    float f = vortStr * env * (float) Math.exp(-d2 / vortexRadius) * 95 * vortexPower
         / (float) Math.sqrt(d2 + 30);
     return xAxis ? -dy * f : dx * f;
   }
@@ -299,7 +318,7 @@ public final class AmbientEffects implements Disposable {
   private final List<Decal> leafDecals = new ArrayList<>();
 
   private void respawnLeaf(Leaf f) {
-    f.paper = rnd.nextFloat() < .35f;
+    f.paper = rnd.nextFloat() < paperFrac;
     f.x = rnd.nextFloat() * 256;
     f.y = 150 + rnd.nextFloat() * 80;
     f.z = spawnZ();
@@ -318,12 +337,14 @@ public final class AmbientEffects implements Disposable {
       leaves.clear();
       return;
     }
-    while (leaves.size() < LEAVES) {
+    while (leaves.size() < leafCount) {
       Leaf f = new Leaf();
       respawnLeaf(f);
       f.y = 70 + rnd.nextFloat() * 120; // initial fill spread over the room
       leaves.add(f);
     }
+    if (leaves.size() > leafCount)
+      leaves.subList(leafCount, leaves.size()).clear();
     for (Leaf f : leaves) {
       if (f.rest) {
         boolean near = world.sprite(f.x, f.y + 2) || world.sprite(f.x - 4, f.y + 1)
@@ -379,7 +400,7 @@ public final class AmbientEffects implements Disposable {
     if (p == null && puddles.size() < 480)
       puddles.put(key, p = new float[]{((((int) x) >> 2) << 2) + 2, sy + .4f, z, 1.4f});
     if (p != null)
-      p[3] = Math.min(9, p[3] + .4f);
+      p[3] = Math.min(puddleMax, p[3] + .4f);
   }
 
   private void updatePuddles(float dt, boolean rainOn) {
@@ -439,7 +460,7 @@ public final class AmbientEffects implements Disposable {
         }
         float speed = (float) Math.sqrt(vx * vx + vy * vy);
         if (speed > 8 && speed < 400 && motes.size() < 900) {
-          int n = 1 + (int) (speed / 55);
+          int n = Math.max(1, Math.round((1 + speed / 55) * dustRate));
           for (int i = 0; i < n; i++) {
             Mote m = new Mote();
             m.x = b[0] + (rnd.nextFloat() - .5f) * 2 * b[2];
@@ -485,7 +506,7 @@ public final class AmbientEffects implements Disposable {
     if (p == null && dustPiles.size() < 600)
       dustPiles.put(key, p = new float[]{((((int) m.x) >> 2) << 2) + 2, sy, zMid, 0});
     if (p != null)
-      p[3] = Math.min(4.5f, p[3] + .12f); // the mound grows a hair per landed mote
+      p[3] = Math.min(moundMax, p[3] + .12f); // the mound grows a hair per landed mote
   }
 
   /** a balloon or bubble popping: a colored burst of droplets flying apart. */
@@ -532,7 +553,7 @@ public final class AmbientEffects implements Disposable {
    * softer echo right behind it, the way a real discharge re-strikes, with a fast shimmer
    * riding on top. The caller folds the level into its lighting environment.
    */
-  private final float stormPeriod = Float.parseFloat(System.getProperty("storm.period", "7"));
+  public float stormPeriod = Float.parseFloat(System.getProperty("storm.period", "7"));
   private float nextStrike = 2, strikeT = -1, flashLevel;
 
   public float lightningLevel() {
@@ -553,7 +574,8 @@ public final class AmbientEffects implements Disposable {
     }
     strikeT += dt;
     float l = pulse(strikeT, 0f, .10f) + .7f * pulse(strikeT, .18f, .3f);
-    flashLevel = Math.min(1, l) * (.82f + .18f * (float) Math.sin(time * 87));
+    flashLevel = Math.min(1.2f,
+        Math.min(1, l) * (.82f + .18f * (float) Math.sin(time * 87)) * stormIntensity);
     if (strikeT > .6f) {
       strikeT = -1;
       flashLevel = 0;
@@ -569,21 +591,23 @@ public final class AmbientEffects implements Disposable {
   private void updateMist(float dt, boolean mistOn) {
     if (!mistOn)
       return;
+    if (mist.size() != mistCount)
+      buildMist();
     for (int i = 0; i < mist.size(); i++) {
       Decal d = mist.get(i);
       float x = d.getX() + (mistDrift[i] + windCur * .35f) * dt;
       if (x > 300) x = -40;
       if (x < -40) x = 300;
       d.setPosition(x, d.getY() + (float) Math.sin(time * .3f + i) * dt * 1.5f, d.getZ());
-      d.setColor(.72f, .78f, .88f,
-          mistAlpha[i] * (.8f + .2f * (float) Math.sin(time * .5f + i * 2.1f)));
+      d.setColor(.72f, .78f, .88f, Math.min(.5f, mistAlpha[i] * mistDensity
+          * (.8f + .2f * (float) Math.sin(time * .5f + i * 2.1f))));
     }
   }
 
   private void updateFire(float dt, boolean fireOn) {
     if (fireOn)
       for (float[] s : fireSpots)
-        if (rnd.nextFloat() < .8f) {
+        if (rnd.nextFloat() < Math.min(1f, .8f * fireRate)) {
           Flame f = new Flame();
           f.x = s[0] + (rnd.nextFloat() - .5f) * 6;
           f.y = s[1] - 2;
@@ -591,7 +615,7 @@ public final class AmbientEffects implements Disposable {
           f.vx = (rnd.nextFloat() - .5f) * 4;
           f.vy = 10 + rnd.nextFloat() * 12;
           f.life = .45f + rnd.nextFloat() * .4f;
-          f.size = 5 + rnd.nextFloat() * 4;
+          f.size = (5 + rnd.nextFloat() * 4) * fireSize;
           flames.add(f);
         }
     for (Iterator<Flame> it = flames.iterator(); it.hasNext(); ) {
@@ -619,17 +643,19 @@ public final class AmbientEffects implements Disposable {
     d.y = 195 + rnd.nextFloat() * 40;
     d.z = spawnZ();
     d.vx = (rnd.nextFloat() - .5f) * 12;
-    d.vy = 150 + rnd.nextFloat() * 90;
+    d.vy = (150 + rnd.nextFloat() * 90) * rainSpeed;
   }
 
   private void updateRain(float dt, boolean rainOn) {
     if (rainOn && world != null) {
-      while (drops.size() < DROPS) {
+      while (drops.size() < dropCount) {
         Drop d = new Drop();
         resetDrop(d);
         d.y = 60 + rnd.nextFloat() * 175; // initial fill spread over the sky
         drops.add(d);
       }
+      if (drops.size() > dropCount)
+        drops.subList(dropCount, drops.size()).clear();
       for (Drop d : drops) {
         float nx = d.x + (d.vx + windCur) * dt, ny = d.y - d.vy * dt;
         // two samples per step so fast drops can't tunnel through a thin sprite line
@@ -671,7 +697,7 @@ public final class AmbientEffects implements Disposable {
     f.x = rnd.nextFloat() * 256;
     f.y = 195 + rnd.nextFloat() * 50;
     f.z = spawnZ();
-    f.vy = 13 + rnd.nextFloat() * 11;
+    f.vy = (13 + rnd.nextFloat() * 11) * snowSpeed;
     f.phase = rnd.nextFloat() * 6.3f;
     f.size = 1.7f + rnd.nextFloat() * 1.1f;
     f.mode = FALL;
@@ -703,7 +729,7 @@ public final class AmbientEffects implements Disposable {
       s.y = f.y + h;
       s.z = f.z;
       settled.addLast(s);
-      if (settled.size() > MAX_SETTLED)
+      while (settled.size() > settledMax)
         settled.removeFirst();
       respawnFlake(f);
     }
@@ -714,12 +740,14 @@ public final class AmbientEffects implements Disposable {
       flakes.clear(); // settled snow stays until the room changes
       return;
     }
-    while (flakes.size() < FLAKES) {
+    while (flakes.size() < flakeCount) {
       Flake f = new Flake();
       respawnFlake(f);
       f.y = 70 + rnd.nextFloat() * 160; // initial fill spread over the sky
       flakes.add(f);
     }
+    if (flakes.size() > flakeCount)
+      flakes.subList(flakeCount, flakes.size()).clear();
     for (Flake f : flakes)
       switch (f.mode) {
         case FALL -> {
