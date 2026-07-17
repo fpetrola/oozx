@@ -106,6 +106,13 @@ public class JSW3D extends ApplicationAdapter {
   private final int[] cellLastChange = new int[24 * 32];
   private final java.util.Set<Integer> itemLeaves = new java.util.HashSet<>();
   /**
+   * leaf -> last frame its ink cycled. A REAL item flashes relentlessly, every frame it
+   * is on screen; a platform leaf that got mis-latched (sprite traffic can fake the ink
+   * burst over time) goes quiet as soon as the sprites leave — one silent second and the
+   * latch is dropped, so the slab comes back instead of staying an ink ghost forever.
+   */
+  private final Map<Integer, Integer> leafLastFlash = new HashMap<>();
+  /**
    * L toggles lantern mode (-Ddark=true starts in it): a faint ambient lets the whole room
    * be barely made out, each MOVING sprite carries its own small light that brightens its
    * surroundings, and items blaze with light of their own so they stand out in the gloom.
@@ -1479,7 +1486,8 @@ public class JSW3D extends ApplicationAdapter {
               // one-frame attr lag a passing guardian leaves behind only ever toggles
               // between two inks (the room's and the guardian's)
               int bits = (1 << (attr & 7)) | (1 << (prev & 7));
-              if (shownFrame - cellLastChange[cell] <= 25) {
+              leafLastFlash.put(leaf, shownFrame);
+              if (shownFrame - cellLastChange[cell] <= 20) {
                 cellInkChanges[cell]++;
                 cellInkMask[cell] |= bits;
               } else {
@@ -1487,13 +1495,24 @@ public class JSW3D extends ApplicationAdapter {
                 cellInkMask[cell] = bits;
               }
               cellLastChange[cell] = shownFrame;
-              if (cellInkChanges[cell] >= 4 && Integer.bitCount(cellInkMask[cell]) >= 3
+              // a real item cycles EVERY frame, so a dense burst is easy for it and
+              // hard to fake with the attr lag passing sprites leave behind
+              if (cellInkChanges[cell] >= 6 && Integer.bitCount(cellInkMask[cell]) >= 3
                   && itemLeaves.add(leaf) && TaintReplay.LOG)
                 System.out.println("item detectado: leaf $" + Integer.toHexString(leaf));
             }
           } else
             cellInkChanges[cell] = 0;
           prevLeafAttr[cell] = (t << 8) | attr;
+        }
+        if (itemLeaves.contains(leaf)
+            && shownFrame - leafLastFlash.getOrDefault(leaf, 0) > 50) {
+          // on screen, sprite-free, and not flashing: that is a PLATFORM, not an item —
+          // drop the latch and let it be a solid slab again
+          itemLeaves.remove(leaf);
+          if (TaintReplay.LOG)
+            System.out.println("item des-latcheado (no flashea): leaf $"
+                + Integer.toHexString(leaf));
         }
         boolean item = itemLeaves.contains(leaf);
         // an air cell (empty bitmap) builds no model; computeIfAbsent leaves null uncached,
