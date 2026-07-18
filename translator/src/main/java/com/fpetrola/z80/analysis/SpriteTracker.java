@@ -1008,6 +1008,11 @@ public class SpriteTracker {
 
     // per base: the sprite's extent is the MODE of the observed ends, not the max —
     // a rare fusion of two neighbours must not poison the whole sprite
+    if (Boolean.getBoolean("sprites.debug"))
+      hiHist.forEach((b, h) -> {
+        if (h.size() > 1)
+          System.out.println("hiHist base=" + b + " ($" + Integer.toHexString(b) + ") -> " + h);
+      });
     byBase.forEach((base, agg) -> agg[1] = hiHist.get(base).entrySet().stream()
         .max(Map.Entry.comparingByValue()).get().getKey());
     // absorb only what looks like a CLIPPED read of the covering sprite: it starts inside
@@ -1015,6 +1020,11 @@ public class SpriteTracker {
     Integer prev = null;
     for (int base : new ArrayList<>(byBase.keySet())) {
       if (prev != null && base <= byBase.get(prev)[1] && byBase.get(base)[1] <= byBase.get(prev)[1]) {
+        if (Boolean.getBoolean("sprites.debug"))
+          System.out.println("absorbido: $" + Integer.toHexString(base) + ".."
+              + "$" + Integer.toHexString((int) byBase.get(base)[1]) + " x" + byBase.get(base)[0]
+              + " dentro de $" + Integer.toHexString(prev) + "..$"
+              + Integer.toHexString((int) byBase.get(prev)[1]));
         long[] into = byBase.get(prev), from = byBase.remove(base);
         into[0] += from[0];
         into[2] = Math.min(into[2], from[2]);
