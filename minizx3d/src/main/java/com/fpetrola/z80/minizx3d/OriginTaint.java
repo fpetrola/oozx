@@ -143,4 +143,23 @@ public final class OriginTaint {
   public int nodeCount() {
     return unions;
   }
+
+  /** debug: collect up to {@code budget} distinct leaf addresses of {@code node}. */
+  public java.util.Set<Integer> leaves(int node, int budget) {
+    java.util.Set<Integer> out = new java.util.TreeSet<>();
+    java.util.ArrayDeque<Integer> stack = new java.util.ArrayDeque<>();
+    stack.push(node);
+    while (!stack.isEmpty() && out.size() < budget) {
+      int n = stack.pop();
+      if (n == NONE)
+        continue;
+      if (n < FIRST_UNION)
+        out.add(n - 1);
+      else {
+        stack.push(ua[n - FIRST_UNION]);
+        stack.push(ub[n - FIRST_UNION]);
+      }
+    }
+    return out;
+  }
 }

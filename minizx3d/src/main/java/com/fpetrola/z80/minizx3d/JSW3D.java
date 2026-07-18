@@ -1731,10 +1731,12 @@ public class JSW3D extends ApplicationAdapter {
 
   public static void main(String[] args) {
 //    System.setProperty("sprites3d", "voxel");
+    String resource = "/home/fernando/detodo/spectrum/manic/manicnoliveslost.rzx";
+//    resource= "/home/fernando/detodo/spectrum/dynamitedan/dynamitedan.rzx";
     String rzx = args.length > 0 ? args[0]
-        : findData("/home/fernando/detodo/spectrum/manic/manicnoliveslost.rzx",
-            "/home/fernando/detodo/spectrum/manic/manicnoliveslost.rzx",
-            "/home/fernando/detodo/spectrum/manic/manicnoliveslost.rzx");
+        : findData(resource,
+            resource,
+            resource);
     // the catalog must be THIS game's: analysis/analysis.db rotates between games (it held
     // Dynamite Dan's once, and JSW replayed with DD's catalog shows almost no sprites)
     String db = args.length > 1 ? args[1]

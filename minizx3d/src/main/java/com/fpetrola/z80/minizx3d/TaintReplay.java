@@ -108,6 +108,10 @@ public final class TaintReplay implements Runnable {
     int from = args.length > 2 ? Integer.parseInt(args[2]) : 1000;
     int to = args.length > 3 ? Integer.parseInt(args[3]) : 1010;
     SpriteCatalog catalog = new SpriteCatalog(db, 128);
+    TaintReplay[] holder = new TaintReplay[1];
+    // -Ddebug.scan=true: histogram of single-leaf origins of LIT, UNCLASSIFIED playfield
+    // bytes across the sampled frames — finds sprite zones the catalog is missing
+    java.util.Map<Integer, Integer> orphanLeaves = new java.util.TreeMap<>();
     TaintReplay replay = new TaintReplay(rzx, catalog, snap -> {
       if (snap.frame() < from || snap.frame() > to)
         return;
@@ -128,6 +132,22 @@ public final class TaintReplay implements Runnable {
       boxes.forEach((base, b) -> sb.append(String.format(" [gfx=%d x=%d y=%d w=%d h=%d bytes=%d]",
           base - 1, b[0] * 8, b[1], (b[2] - b[0] + 1) * 8, b[3] - b[1] + 1, b[4])));
       System.out.println(sb);
+      // -Ddebug.xy=x,y: the taint LEAVES of that screen byte, to see where a pixel that
+      // should be a sprite actually traces to
+      String xy = System.getProperty("debug.rect");
+      if (xy != null) {
+        String[] p = xy.split(",");
+        for (int y = Integer.parseInt(p[1]); y <= Integer.parseInt(p[3]); y += 4)
+          for (int x = Integer.parseInt(p[0]); x <= Integer.parseInt(p[2]); x += 8) {
+            int i = ((y & 0xC0) << 5) | ((y & 7) << 8) | ((y & 0x38) << 2) | (x >> 3);
+            if (snap.pixels()[i] == 0 || snap.owner()[i] != 0)
+              continue; // only lit bytes the taint did NOT classify
+            java.util.Set<Integer> lv = holder[0].taint.leaves(holder[0].taint.mem[SCREEN + i], 12);
+            StringBuilder ls = new StringBuilder("  sin-clasificar(" + x + "," + y + "):");
+            lv.forEach(a -> ls.append(" $").append(Integer.toHexString(a)));
+            System.out.println(ls);
+          }
+      }
       if (snap.frame() == to && Boolean.getBoolean("dump")) {
         // the screen as ascii (one char per cell, # = any pixel set, * = taint-owned):
         // tells desync (menu vs gameplay) apart from stale taint at a glance
@@ -146,6 +166,45 @@ public final class TaintReplay implements Runnable {
         }
       }
     });
+    holder[0] = replay;
+    if (Boolean.getBoolean("debug.scan")) {
+      TaintReplay scanner = holder[0] = new TaintReplay(rzx, catalog, snap -> {
+        if (snap.frame() % 25 != 0 || snap.frame() < from)
+          return;
+        for (int i = 0; i < PIXEL_BYTES; i++) {
+          if (snap.pixels()[i] == 0 || snap.owner()[i] != 0 || snap.tile()[i] != 0)
+            continue;
+          java.util.Set<Integer> lv = holder[0].taint.leaves(holder[0].taint.mem[SCREEN + i], 3);
+          if (lv.size() <= 2)
+            for (int a : lv)
+              if (a >= 0x8000) // static game RAM only: ROM and screen/attr noise out
+                orphanLeaves.merge(a, 1, Integer::sum);
+        }
+      });
+      scanner.paced = false;
+      scanner.maxFrames = to + 1;
+      scanner.run();
+      // merge contiguous-ish leaves into ranges, report the strong ones
+      int lo = -1, hi = -1, hits = 0;
+      System.out.println("=== zonas huerfanas (origen de pixeles sin clasificar) ===");
+      java.util.List<int[]> ranges = new java.util.ArrayList<>();
+      for (Map.Entry<Integer, Integer> e : orphanLeaves.entrySet()) {
+        if (lo < 0 || e.getKey() > hi + 8) {
+          if (lo >= 0)
+            ranges.add(new int[]{lo, hi, hits});
+          lo = e.getKey();
+          hits = 0;
+        }
+        hi = e.getKey();
+        hits += e.getValue();
+      }
+      if (lo >= 0)
+        ranges.add(new int[]{lo, hi, hits});
+      ranges.stream().filter(r -> r[2] >= 40)
+          .forEach(r -> System.out.printf("  $%x..$%x (%d bytes) hits=%d%n",
+              r[0], r[1], r[1] - r[0] + 1, r[2]));
+      return;
+    }
     replay.paced = false;
     replay.maxFrames = to + 1;
     long start = System.currentTimeMillis();
@@ -264,7 +323,7 @@ public final class TaintReplay implements Runnable {
     final Map<Integer, Z80OpcodeInfo> catalog = new HashMap<>();
     private final State<WordNumber> state;
     private final RZXPlayerIO<WordNumber> io;
-    volatile boolean inExecution, suppress, bulk;
+    volatile boolean inExecution, suppress, bulk, regSwap;
     volatile int curPc = -1, curLen;
     int srcTaint, pendingRead, lastRead;
     long dbgScreenWrites, dbgOutside, dbgSuppressed, dbgUntainted;
@@ -314,6 +373,31 @@ public final class TaintReplay implements Runnable {
             pace(frame);
         }
       }
+      // EXX / EX DE,HL / EX AF,AF' are register SWAPS: the generic src-union flow would
+      // smear every involved register with the union of all of them, and in an EXX copy
+      // loop (Dynamite Dan's engine) the compounded unions hit the depth cap and drop
+      // the sprite terms — the screen came out patchily classified. Swap the taints
+      // exactly like the silicon swaps the values, and skip the generic write pass.
+      regSwap = false;
+      if (instruction instanceof com.fpetrola.z80.instructions.impl.Exx
+          && info.writes.size() == 12) {
+        for (int k = 0; k < 6; k++) {
+          int a = info.writes.get(k), b = info.writes.get(k + 6);
+          int t1 = taint.reg[a];
+          taint.reg[a] = taint.reg[b];
+          taint.reg[b] = t1;
+        }
+        regSwap = true;
+      } else if (instruction instanceof com.fpetrola.z80.instructions.impl.Ex
+          && !info.suppressMem && info.writes.size() == 4) {
+        for (int k = 0; k < 2; k++) {
+          int a = info.writes.get(k), b = info.writes.get(k + 2);
+          int t1 = taint.reg[a];
+          taint.reg[a] = taint.reg[b];
+          taint.reg[b] = t1;
+        }
+        regSwap = true;
+      }
       // suppressMem exists so the TRACER can collapse per-byte traffic; taint needs the
       // opposite: PUSH/POP move game data (the classic stack blit) and the LDIR family is
       // handled per byte right here — only call/ret return-address machinery is suppressed
@@ -329,7 +413,7 @@ public final class TaintReplay implements Runnable {
     @Override
     public void afterExecution(Instruction<WordNumber> instruction) {
       inExecution = false;
-      if (!bulk)
+      if (!bulk && !regSwap)
         for (int slot : info.writes)
           taint.reg[slot] = taint.union(srcTaint, pendingRead);
     }
