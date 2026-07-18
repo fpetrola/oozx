@@ -53,6 +53,11 @@ public final class SpriteCatalog {
          ResultSet rs = st.executeQuery("SELECT base, last, size FROM sprites_found")) {
       while (rs.next()) {
         int base = rs.getInt(1), last = rs.getInt(2), size = rs.getInt(3);
+        // ROM entries are the SYSTEM's data — the character font, mostly. Game sprites
+        // never live there, and treating the font as sprites shreds every printed text
+        // (Manic Miner's score/name/AIR bar) into unreadable voxel blobs.
+        if (base < 16384)
+          continue;
         if (size <= maxSpriteBytes) {
           for (int a = base; a <= last && a < 0x10000; a++)
             baseOf[a] = base + 1;

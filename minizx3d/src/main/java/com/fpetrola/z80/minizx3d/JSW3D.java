@@ -131,6 +131,14 @@ public class JSW3D extends ApplicationAdapter {
   private final int[] cellLeaf = new int[24 * 32];
   private final int[] cellAttr = new int[24 * 32];
   /**
+   * tiles (slabs, ghosts, item detection) exist only in the PLAYFIELD — the top 16 cell
+   * rows in JSW and Manic Miner alike (-Dplayfield.rows overrides). Below lives the
+   * status area: its text and bars are drawn from data that happens to be inside the
+   * catalogued zones (MM keeps the cavern NAME in the same record as the tiles), and
+   * slab-ifying those bytes shreds them — the status belongs to the 2D backdrop.
+   */
+  private final int playfieldRows = Integer.getInteger("playfield.rows", 16);
+  /**
    * Q steps the ghosts' opacity down (.95 → .80 → … → .20, then wraps back up);
    * -Dghost.alpha sets where it starts — nearly opaque by default.
    */
@@ -1224,7 +1232,7 @@ public class JSW3D extends ApplicationAdapter {
         int bits;
         if (snap.owner()[i] != 0)
           bits = 0;
-        else if (snap.tile()[i] != 0) {
+        else if (snap.tile()[i] != 0 && y < playfieldRows * 8) {
           int tpl = replay.memByte(snap.tile()[i] - 1);
           int foreign = snap.pixels()[i] & ~tpl & 0xff;
           bits = 0;
@@ -1235,7 +1243,7 @@ public class JSW3D extends ApplicationAdapter {
           } else
             bits = foreign; // over real tile content it stays 2D, hidden behind the slab
         } else
-          bits = snap.pixels()[i] & 0xff;
+          bits = snap.pixels()[i] & 0xff; // status-area bytes render as-is, tainted or not
         for (int bit = 0; bit < 8; bit++)
           pixmap.drawPixel(col * 8 + bit, y, Color.rgba8888(
               (bits & (0x80 >> bit)) != 0 ? ink : paper));
@@ -1437,7 +1445,7 @@ public class JSW3D extends ApplicationAdapter {
     tileInstances.clear();
     System.arraycopy(solidCells, 0, prevSolidCells, 0, solidCells.length);
     java.util.Arrays.fill(solidCells, false);
-    for (int cellY = 0; cellY < 24; cellY++)
+    for (int cellY = 0; cellY < playfieldRows; cellY++)
       for (int col = 0; col < 32; col++) {
         int y0 = cellY * 8;
         int i0 = ((y0 & 0xC0) << 5) | ((y0 & 7) << 8) | ((y0 & 0x38) << 2) | col;
@@ -1724,13 +1732,13 @@ public class JSW3D extends ApplicationAdapter {
   public static void main(String[] args) {
 //    System.setProperty("sprites3d", "voxel");
     String rzx = args.length > 0 ? args[0]
-        : findData("Jet Set Willy - Mildly Patched.rzx",
-            "Jet Set Willy - Mildly Patched.rzx",
-            "/home/fernando/detodo/spectrum/oozx/Jet Set Willy - Mildly Patched.rzx");
+        : findData("/home/fernando/detodo/spectrum/manic/manicnoliveslost.rzx",
+            "/home/fernando/detodo/spectrum/manic/manicnoliveslost.rzx",
+            "/home/fernando/detodo/spectrum/manic/manicnoliveslost.rzx");
     // the catalog must be THIS game's: analysis/analysis.db rotates between games (it held
     // Dynamite Dan's once, and JSW replayed with DD's catalog shows almost no sprites)
     String db = args.length > 1 ? args[1]
-        : findData("analysis/jsw-catalog.db", "analysis/jsw.db");
+        : findData("analysis/jsw-catalog.db", "analysis/mm.db");
     Lwjgl3ApplicationConfiguration cfg = new Lwjgl3ApplicationConfiguration();
     cfg.setTitle("JSW 3D — sprites por taint de origenes");
     cfg.setWindowedMode(1024, 768);
