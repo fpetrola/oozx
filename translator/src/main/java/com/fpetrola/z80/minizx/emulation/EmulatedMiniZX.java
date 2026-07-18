@@ -114,7 +114,8 @@ public class EmulatedMiniZX<T extends WordNumber> {
         url = "file:///home/fernando/detodo/desarrollo/m/zx/roms/jsw.z80";
         url = "/home/fernando/detodo/desarrollo/m/zx/roms/recordings/jsw/Jet Set Willy - Mildly Patched.rzx";
         url = "/home/fernando/detodo/spectrum/dynamitedan/dynamitedan.rzx";
-
+url= "/home/fernando/detodo/spectrum/oozx/Jet Set Willy - Mildly Patched.rzx";
+url= "/home/fernando/detodo/spectrum/manic/manic.rzx";
         if (url.endsWith("rzx"))
             setRzxFile(url);
 
