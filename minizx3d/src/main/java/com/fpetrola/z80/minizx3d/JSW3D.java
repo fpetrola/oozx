@@ -1967,6 +1967,9 @@ public class JSW3D extends ApplicationAdapter {
     // the profile picks RZX + catalog + the game's tweaks (-Dgame=jsw|mm|dd|...). The
     // catalog must be THIS game's: replaying a game against another's catalog shows
     // almost no sprites (JSW with DD's catalog once did exactly that).
+//    args= new String[]{
+//            "-Dgame=exolon"
+//    };
     GameProfile profile = GameProfile.resolve(args);
     activeGame = profile.id;
     if (TaintReplay.LOG)

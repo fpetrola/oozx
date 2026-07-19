@@ -24,6 +24,14 @@
         "items": "false",
         "fresh.frames": "10"
       }
+    },
+    "exolon": {
+      "title": "Exolon",
+      "rzx": ["/home/fernando/detodo/spectrum/exolon.rzx", "exolon.rzx"],
+      "db": ["analysis/exolon.db"],
+      "properties": {
+        "items": "false"
+      }
     }
   }
 }
