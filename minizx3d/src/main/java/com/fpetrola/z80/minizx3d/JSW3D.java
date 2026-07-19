@@ -1043,8 +1043,17 @@ public class JSW3D extends ApplicationAdapter {
     try {
       if (!java.nio.file.Files.exists(p))
         return;
-      com.badlogic.gdx.utils.JsonValue v =
-          new com.badlogic.gdx.utils.JsonReader().parse(java.nio.file.Files.readString(p));
+      applyConfig(new com.badlogic.gdx.utils.JsonReader().parse(java.nio.file.Files.readString(p)));
+    } catch (Exception e) {
+      if (TaintReplay.LOG)
+        System.out.println("config no cargada: " + e);
+    }
+  }
+
+  /** apply a parsed config tree (nested schema, legacy flat keys as fallback) live. */
+  private void applyConfig(com.badlogic.gdx.utils.JsonValue v) {
+    if (v == null)
+      return;
       smooth = bool(v, "general.smooth", "smooth", smooth);
       smoothLevel = (int) num(v, "general.smoothLevel", "smoothLevel", smoothLevel);
       depthScale = num(v, "general.depthScale", "depthScale", depthScale);
@@ -1078,10 +1087,6 @@ public class JSW3D extends ApplicationAdapter {
         cam.up.set(cu[0], cu[1], cu[2]);
         cam.update();
       }
-    } catch (Exception e) {
-      if (TaintReplay.LOG)
-        System.out.println("config no cargada: " + e);
-    }
   }
 
   /** drop {@code value} into the nested tree at its dotted path, creating objects on the way. */
@@ -1121,27 +1126,32 @@ public class JSW3D extends ApplicationAdapter {
     saveConfigTo(configPath());
   }
 
+  /** the whole live state as a nested tree — written to the config file and to presets. */
+  private Map<String, Object> buildConfigTree() {
+    Map<String, Object> root = new java.util.LinkedHashMap<>();
+    put(root, "general.smooth", smooth);
+    put(root, "general.smoothLevel", smoothLevel);
+    put(root, "general.depthScale", depthScale);
+    put(root, "general.tileDepth", tileDepth);
+    put(root, "general.shadows", shadowsOn);
+    put(root, "general.ghostAlpha", ghostAlpha);
+    put(root, "general.speed", replay == null ? cfgSpeed : replay.getSpeed());
+    put(root, "camera.pos", new float[]{cam.position.x, cam.position.y, cam.position.z});
+    put(root, "camera.dir", new float[]{cam.direction.x, cam.direction.y, cam.direction.z});
+    put(root, "camera.up", new float[]{cam.up.x, cam.up.y, cam.up.z});
+    for (Toggle t : toggles)
+      put(root, t.path(), t.get().get());
+    for (Param p : params) {
+      float pv = p.get().get();
+      put(root, p.id(), p.integer() ? (Object) Math.round(pv) : (Object) pv);
+    }
+    return root;
+  }
+
   private void saveConfigTo(java.nio.file.Path dest) {
     try {
-      Map<String, Object> root = new java.util.LinkedHashMap<>();
-      put(root, "general.smooth", smooth);
-      put(root, "general.smoothLevel", smoothLevel);
-      put(root, "general.depthScale", depthScale);
-      put(root, "general.tileDepth", tileDepth);
-      put(root, "general.shadows", shadowsOn);
-      put(root, "general.ghostAlpha", ghostAlpha);
-      put(root, "general.speed", replay == null ? cfgSpeed : replay.getSpeed());
-      put(root, "camera.pos", new float[]{cam.position.x, cam.position.y, cam.position.z});
-      put(root, "camera.dir", new float[]{cam.direction.x, cam.direction.y, cam.direction.z});
-      put(root, "camera.up", new float[]{cam.up.x, cam.up.y, cam.up.z});
-      for (Toggle t : toggles)
-        put(root, t.path(), t.get().get());
-      for (Param p : params) {
-        float pv = p.get().get();
-        put(root, p.id(), p.integer() ? (Object) Math.round(pv) : (Object) pv);
-      }
       StringBuilder sb = new StringBuilder();
-      writeJson(sb, root, "");
+      writeJson(sb, buildConfigTree(), "");
       sb.append('\n');
       java.nio.file.Files.writeString(dest, sb.toString());
     } catch (Exception e) {
@@ -1150,7 +1160,7 @@ public class JSW3D extends ApplicationAdapter {
     }
   }
 
-  // ---- named ambience presets (~/.jsw3d-presets/<game>/<name>.json) ----
+  // ---- named ambience presets: ALL in ONE global file, shared across every game ----
 
   private final java.util.List<String> presets = new ArrayList<>();
   private int presetIdx = -1;
@@ -1160,25 +1170,32 @@ public class JSW3D extends ApplicationAdapter {
   private String presetFlash = "";
   private long presetFlashAt;
 
-  private java.nio.file.Path presetDir() {
-    return java.nio.file.Path.of(System.getProperty("user.home"), ".jsw3d-presets", activeGame);
+  /** one global file holding {@code {"presets": {name: <config tree>}}}, any game reads it. */
+  private java.nio.file.Path presetsFile() {
+    return java.nio.file.Path.of(System.getProperty("presets.file",
+        System.getProperty("user.home") + "/.jsw3d-config.json"));
+  }
+
+  private com.badlogic.gdx.utils.JsonValue readPresetsRoot() {
+    try {
+      java.nio.file.Path p = presetsFile();
+      if (java.nio.file.Files.exists(p))
+        return new com.badlogic.gdx.utils.JsonReader().parse(java.nio.file.Files.readString(p));
+    } catch (Exception e) {
+      if (TaintReplay.LOG)
+        System.out.println("presets no leidos: " + e);
+    }
+    return null;
   }
 
   private void loadPresetList() {
     presets.clear();
-    try {
-      java.nio.file.Path d = presetDir();
-      if (java.nio.file.Files.isDirectory(d))
-        try (java.util.stream.Stream<java.nio.file.Path> s = java.nio.file.Files.list(d)) {
-          s.map(p -> p.getFileName().toString())
-              .filter(n -> n.endsWith(".json"))
-              .map(n -> n.substring(0, n.length() - 5))
-              .sorted().forEach(presets::add);
-        }
-    } catch (Exception e) {
-      if (TaintReplay.LOG)
-        System.out.println("presets no listados: " + e);
-    }
+    com.badlogic.gdx.utils.JsonValue root = readPresetsRoot();
+    com.badlogic.gdx.utils.JsonValue ps = root == null ? null : root.get("presets");
+    if (ps != null)
+      for (com.badlogic.gdx.utils.JsonValue c = ps.child; c != null; c = c.next)
+        presets.add(c.name);
+    presets.sort(String.CASE_INSENSITIVE_ORDER);
   }
 
   private void flashPreset(String msg) {
@@ -1186,13 +1203,48 @@ public class JSW3D extends ApplicationAdapter {
     presetFlashAt = System.currentTimeMillis();
   }
 
+  /** convert a parsed JSON node back into the Map/float[]/Number/Boolean tree writeJson wants. */
+  private static Object jsonToObj(com.badlogic.gdx.utils.JsonValue v) {
+    if (v.isObject()) {
+      Map<String, Object> m = new java.util.LinkedHashMap<>();
+      for (com.badlogic.gdx.utils.JsonValue c = v.child; c != null; c = c.next)
+        m.put(c.name, jsonToObj(c));
+      return m;
+    }
+    if (v.isArray())
+      return v.asFloatArray();
+    if (v.isBoolean())
+      return v.asBoolean();
+    if (v.isNumber()) {
+      double d = v.asDouble();
+      return d == Math.floor(d) && !Double.isInfinite(d) ? (Object) (int) d : (Object) (float) d;
+    }
+    return v.asString();
+  }
+
+  /**
+   * Save the current state as a named preset INSIDE the shared file, preserving every other
+   * preset already there. Presets are game-agnostic — the same "dark-storm" loads in JSW,
+   * Manic Miner or Dynamite Dan alike.
+   */
+  @SuppressWarnings("unchecked")
   private void savePreset(String name) {
     name = name.trim().replaceAll("[^A-Za-z0-9 _-]", "").replace(' ', '-');
     if (name.isEmpty())
       return;
     try {
-      java.nio.file.Files.createDirectories(presetDir());
-      saveConfigTo(presetDir().resolve(name + ".json"));
+      // start from whatever is on disk so other presets survive the rewrite
+      Map<String, Object> root;
+      com.badlogic.gdx.utils.JsonValue existing = readPresetsRoot();
+      root = existing != null ? (Map<String, Object>) jsonToObj(existing)
+          : new java.util.LinkedHashMap<>();
+      Map<String, Object> ps = (Map<String, Object>)
+          root.computeIfAbsent("presets", k -> new java.util.LinkedHashMap<String, Object>());
+      ps.put(name, buildConfigTree());
+      StringBuilder sb = new StringBuilder();
+      writeJson(sb, root, "");
+      sb.append('\n');
+      java.nio.file.Files.writeString(presetsFile(), sb.toString());
       loadPresetList();
       presetIdx = presets.indexOf(name);
       flashPreset("preset guardado: " + name);
@@ -1205,10 +1257,15 @@ public class JSW3D extends ApplicationAdapter {
   private void loadPreset(int idx) {
     if (idx < 0 || idx >= presets.size())
       return;
+    com.badlogic.gdx.utils.JsonValue root = readPresetsRoot();
+    com.badlogic.gdx.utils.JsonValue ps = root == null ? null : root.get("presets");
+    if (ps == null)
+      return;
     presetIdx = idx;
-    loadConfigFrom(presetDir().resolve(presets.get(idx) + ".json"), false);
+    applyConfig(ps.get(presets.get(idx)));
     modelCache.values().forEach(Model::dispose); // smooth/depth may have changed
     modelCache.clear();
+    junkSpawnPending = junkOn || lampsOn || balloonsOn;
     if (replay != null)
       replay.setSpeed(cfgSpeed);
     flashPreset("preset: " + presets.get(idx) + "  (" + (idx + 1) + "/" + presets.size() + ")");
@@ -1222,12 +1279,23 @@ public class JSW3D extends ApplicationAdapter {
     loadPreset((presetIdx + dir + presets.size()) % presets.size());
   }
 
+  @SuppressWarnings("unchecked")
   private void deleteCurrentPreset() {
     if (presetIdx < 0 || presetIdx >= presets.size())
       return;
     String name = presets.get(presetIdx);
     try {
-      java.nio.file.Files.deleteIfExists(presetDir().resolve(name + ".json"));
+      com.badlogic.gdx.utils.JsonValue existing = readPresetsRoot();
+      if (existing == null)
+        return;
+      Map<String, Object> root = (Map<String, Object>) jsonToObj(existing);
+      Map<String, Object> ps = (Map<String, Object>) root.get("presets");
+      if (ps != null)
+        ps.remove(name);
+      StringBuilder sb = new StringBuilder();
+      writeJson(sb, root, "");
+      sb.append('\n');
+      java.nio.file.Files.writeString(presetsFile(), sb.toString());
       loadPresetList();
       presetIdx = Math.min(presetIdx, presets.size() - 1);
       flashPreset("preset borrado: " + name);
@@ -1265,11 +1333,11 @@ public class JSW3D extends ApplicationAdapter {
       F2       esta guia (jugando, las teclas van al juego y
                los efectos se togglean con Ctrl+tecla)
       F3       guardar ambiente actual como preset (con nombre)
-      F4 / F5  siguiente / anterior preset de ambiente
+      F4 / F5  siguiente / anterior preset (sirven en todo juego)
       F6       borrar el preset actual
       Mouse    arrastrar rota - rueda zoom
       Config viva en ~/.jsw3d-config-<juego>.json;
-      presets en ~/.jsw3d-presets/<juego>/*.json""";
+      presets (compartidos) en ~/.jsw3d-config.json""";
 
   private void renderHelp() {
     if (!helpOn)
