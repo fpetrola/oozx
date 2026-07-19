@@ -57,8 +57,14 @@ import java.util.function.Consumer;
 public final class TaintReplay implements Runnable {
   public static final int SCREEN = 16384, ATTRS = 22528, PIXEL_BYTES = 6144, ATTR_BYTES = 768;
   static final boolean DEBUG = Boolean.getBoolean("taint.debug");
-  /** how many frames a screen byte's sprite taint stays valid; 0 = never expire. */
-  static final int FRESH_FRAMES = Integer.getInteger("fresh.frames", 3);
+  /**
+   * How many frames a screen byte's sprite taint stays valid; 0 (default) = never expire.
+   * ONLY dirty-region engines (Dynamite Dan) leave stale sprite trails that need pruning;
+   * JSW and Manic Miner redraw at their own cadence — sprites that animate every few
+   * frames would flicker in and out under a tight window, so the gate stays off for them
+   * and DD's profile turns it on.
+   */
+  static final int FRESH_FRAMES = Integer.getInteger("fresh.frames", 0);
   /** -Dlog=true turns the console chatter on; silent by default so a user-launched run
    *  doesn't interleave with whatever else shares the terminal. */
   static final boolean LOG = Boolean.getBoolean("log");

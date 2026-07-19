@@ -21,7 +21,8 @@
               "dynamitedan.rzx"],
       "db": ["analysis/dd.db"],
       "properties": {
-        "items": "false"
+        "items": "false",
+        "fresh.frames": "10"
       }
     }
   }
