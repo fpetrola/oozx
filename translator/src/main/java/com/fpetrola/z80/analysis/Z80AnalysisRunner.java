@@ -123,7 +123,11 @@ public class Z80AnalysisRunner {
         new DefaultMemorySetter(state.getMemory(), MiniZXWithEmulationBase.createROM()));
     io.setup(rzxFile);
     int totalFrames = rzxFile.getInputRecordingBlock().frames.size();
-    System.out.println("RZX: " + rzxPath + " (" + totalFrames + " frames)");
+    // -Dmax.frames=N: analyze only the first N frames (the opening screens), so a long
+    // recording of a heavy game can be catalogued in a fraction of the time for testing
+    int cap = Math.min(totalFrames, Integer.getInteger("max.frames", totalFrames));
+    System.out.println("RZX: " + rzxPath + " (" + totalFrames + " frames"
+        + (cap < totalFrames ? ", analizando primeros " + cap : "") + ")");
 
     dumpInitialMemory(state.getMemory());
     Tracer.reset();
@@ -166,7 +170,7 @@ public class Z80AnalysisRunner {
     long start = System.currentTimeMillis();
     DefaultEmulator emulator = new DefaultEmulator();
     emulator.setup(ooz80, -1, 1,
-        i -> io.getCurrentFrameIndex() < totalFrames
+        i -> io.getCurrentFrameIndex() < cap
             && state.getRunState() != State.RunState.STATE_STOPPED_BREAK,
         io.getInterruptionCondition());
     try {
