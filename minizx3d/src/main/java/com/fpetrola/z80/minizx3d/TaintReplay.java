@@ -74,7 +74,18 @@ public final class TaintReplay implements Runnable {
   }
 
   private final String rzxPath;
-  private final OriginTaint taint;
+  final OriginTaint taint;
+  /**
+   * How many times each memory address was WRITTEN during the replay. Discovery's buffer
+   * discriminator: a static graphic is read a lot and written at most a couple of times
+   * (loader/decompressor), a work buffer is rewritten every frame — so a taint leaf whose
+   * address keeps getting written is a buffer that leaked through, not a graphic.
+   */
+  final int[] memWrites = new int[0x10000];
+  /** frame each screen byte was last WRITTEN: the freshness gate prunes stale sprite
+   * trails a dirty-region engine (Dynamite Dan) never re-erased, and discovery uses the
+   * same signal to tell redrawn-every-frame sprites from painted-once backgrounds. */
+  final int[] lastWrite = new int[PIXEL_BYTES];
   private final Consumer<FrameSnapshot> onFrame;
   private volatile boolean stop;
   private WordNumber[] data;
@@ -99,8 +110,13 @@ public final class TaintReplay implements Runnable {
   }
 
   public TaintReplay(String rzxPath, SpriteCatalog catalog, Consumer<FrameSnapshot> onFrame) {
+    this(rzxPath, new OriginTaint(catalog.baseOf, catalog.tileZone), onFrame);
+  }
+
+  /** discovery entry: no catalog yet — an empty taint just records origins. */
+  TaintReplay(String rzxPath, OriginTaint taint, Consumer<FrameSnapshot> onFrame) {
     this.rzxPath = rzxPath;
-    this.taint = new OriginTaint(catalog.baseOf, catalog.tileZone);
+    this.taint = taint;
     this.onFrame = onFrame;
   }
 
@@ -304,8 +320,9 @@ public final class TaintReplay implements Runnable {
       memory.addMemoryWriteListener((address, value) -> {
         int a = address.intValue();
         if (a >= 0 && a <= 0xffff) {
+          memWrites[a]++;
           if (a >= SCREEN && a < SCREEN + PIXEL_BYTES)
-            listener.lastWrite[a - SCREEN] = listener.curFrame;
+            lastWrite[a - SCREEN] = listener.curFrame;
           if (listener.inExecution && !listener.suppress)
             // a block copy pairs each write with the read just before it; anything else
             // combines what the instruction read from registers and memory
@@ -346,9 +363,6 @@ public final class TaintReplay implements Runnable {
     private final RZXPlayerIO<WordNumber> io;
     volatile boolean inExecution, suppress, bulk, regSwap;
     volatile int curPc = -1, curLen, curFrame;
-    /** frame each screen byte was last WRITTEN: sprite taint older than a couple of
-     * frames is a stale trail a dirty-region engine (Dynamite Dan) never re-erased. */
-    final int[] lastWrite = new int[PIXEL_BYTES];
     int srcTaint, pendingRead, lastRead;
     long dbgScreenWrites, dbgOutside, dbgSuppressed, dbgUntainted;
     final Map<Integer, Long> dbgSuppressedPcs = new HashMap<>();

@@ -82,6 +82,16 @@ public class JSW3D extends ApplicationAdapter {
   private ModelInstance backdrop;
   private Model backdropModel;
   private final Map<Integer, Model> modelCache = new HashMap<>();
+  /**
+   * -Dblobs=adjacent (composite engines: Exolon): sprite blobs group ANY adjacent owned
+   * byte regardless of base, and the model is inflated from the pixels already composited
+   * on screen (doc DETECCION-SPRITES-3D §5, atajo de render) instead of from the memory
+   * bitmap — a multi-piece object has no single memory layout to read. Default "base"
+   * keeps the JSW/MM/DD behavior untouched.
+   */
+  private final boolean blobsAdjacent = "adjacent".equals(System.getProperty("blobs", "base"));
+  /** screen-pixel sprite models, keyed by content hash (animation frames each get one). */
+  private final Map<Long, Model> pixModelCache = new HashMap<>();
   private final List<ModelInstance> spriteInstances = new ArrayList<>();
   private final List<ModelInstance> tileInstances = new ArrayList<>();
   /** smooth inflated mesh vs voxel boxes; M toggles at runtime. */
@@ -552,6 +562,8 @@ public class JSW3D extends ApplicationAdapter {
               }
               modelCache.values().forEach(Model::dispose);
               modelCache.clear();
+              pixModelCache.values().forEach(Model::dispose);
+              pixModelCache.clear();
             }
             printStatus();
             return true;
@@ -1265,6 +1277,8 @@ public class JSW3D extends ApplicationAdapter {
     applyConfig(ps.get(presets.get(idx)));
     modelCache.values().forEach(Model::dispose); // smooth/depth may have changed
     modelCache.clear();
+    pixModelCache.values().forEach(Model::dispose);
+    pixModelCache.clear();
     junkSpawnPending = junkOn || lampsOn || balloonsOn;
     if (replay != null)
       replay.setSpeed(cfgSpeed);
@@ -1507,7 +1521,9 @@ public class JSW3D extends ApplicationAdapter {
       grid[y][i & 31] = snap.owner()[i];
     }
     List<int[]> blobs = new ArrayList<>(); // base, minCol, minRow, maxCol, maxRow, paletteIdx
+    List<byte[]> bitmaps = new ArrayList<>(); // adjacent mode: the blob's on-screen pixels
     java.util.ArrayDeque<int[]> queue = new java.util.ArrayDeque<>();
+    List<int[]> cells = new ArrayList<>();
     int[] inkVotes = new int[16];
     for (int y0 = 0; y0 < H; y0++)
       for (int c0 = 0; c0 < 32; c0++) {
@@ -1517,11 +1533,13 @@ public class JSW3D extends ApplicationAdapter {
         int[] b = {base, c0, y0, c0, y0, 7};
         int bytes = 0;
         java.util.Arrays.fill(inkVotes, 0);
+        cells.clear();
         queue.add(new int[]{c0, y0});
         grid[y0][c0] = 0;
         while (!queue.isEmpty()) {
           int[] p = queue.poll();
           bytes++;
+          cells.add(p);
           b[1] = Math.min(b[1], p[0]);
           b[2] = Math.min(b[2], p[1]);
           b[3] = Math.max(b[3], p[0]);
@@ -1535,7 +1553,10 @@ public class JSW3D extends ApplicationAdapter {
           for (int dy = -1; dy <= 1; dy++)
             for (int dc = -1; dc <= 1; dc++) {
               int c = p[0] + dc, y = p[1] + dy;
-              if (c >= 0 && c < 32 && y >= 0 && y < H && grid[y][c] == base) {
+              // adjacent mode groups ANY owned neighbour: a composite object's pieces
+              // have different bases but the game already put them side by side
+              if (c >= 0 && c < 32 && y >= 0 && y < H
+                  && (blobsAdjacent ? grid[y][c] != 0 : grid[y][c] == base)) {
                 grid[y][c] = 0;
                 queue.add(new int[]{c, y});
               }
@@ -1548,17 +1569,38 @@ public class JSW3D extends ApplicationAdapter {
               bestInk = i;
           b[5] = bestInk;
           blobs.add(b);
+          byte[] bmp = null;
+          if (blobsAdjacent) {
+            // the model inflates the pixels ALREADY composited on screen — a multi-piece
+            // object has no single memory bitmap to read (doc §5, atajo de render)
+            int w = b[3] - b[1] + 1;
+            bmp = new byte[w * (b[4] - b[2] + 1)];
+            for (int[] q : cells) {
+              int i = ((q[1] & 0xC0) << 5) | ((q[1] & 7) << 8) | ((q[1] & 0x38) << 2) | q[0];
+              bmp[(q[1] - b[2]) * w + (q[0] - b[1])] = snap.pixels()[i];
+            }
+          }
+          bitmaps.add(bmp);
         }
       }
     spriteInstances.clear();
     spriteBoxes.clear();
-    for (int[] blob : blobs) {
+    // pixel-model cache eviction happens BEFORE any instance references this frame's
+    // models: disposing mid-loop would pull a model out from under its own instance
+    if (pixModelCache.size() > 512) {
+      pixModelCache.values().forEach(Model::dispose);
+      pixModelCache.clear();
+    }
+    for (int bi = 0; bi < blobs.size(); bi++) {
+      int[] blob = blobs.get(bi);
       int base = blob[0] - 1;
       int[] b = {blob[1], blob[2], blob[3], blob[4]};
       int bytes = catalog.sizeOf.getOrDefault(base, 32);
       // bytes per row: 2 (16px) unless the catalog knows better (DD sprites are 1..3 wide)
       int stride = catalog.strideOf.getOrDefault(base, 2);
-      Model model = modelCache.computeIfAbsent(base, k -> smooth
+      Model model = blobsAdjacent
+          ? pixModel(bitmaps.get(bi), b[2] - b[0] + 1)
+          : modelCache.computeIfAbsent(base, k -> smooth
           ? SmoothSpriteBuilder.build(k, bytes, stride, replay::memByte, smoothLevel, depthScale)
           : VoxelSpriteBuilder.build(k, bytes, stride, replay::memByte, smoothLevel, depthScale));
       float cx = (b[0] + b[2] + 1) * 8 / 2f;          // byte cols -> pixels
@@ -1575,7 +1617,8 @@ public class JSW3D extends ApplicationAdapter {
       // area. Inside the playfield a wide blob is guardians overlapping or a decorated
       // wall, and splitting it stamps rows of phantom copies (it wrecked Dynamite Dan)
       int colspan = b[2] - b[0] + 1;
-      int copies = cy < 64 && colspan >= stride * 2 && (b[3] - b[1] + 1) <= bytes / stride + 2
+      int copies = !blobsAdjacent && cy < 64 && colspan >= stride * 2
+          && (b[3] - b[1] + 1) <= bytes / stride + 2
           ? (colspan + stride - 1) / stride : 1;
       for (int k = 0; k < copies; k++) {
         Color cc = c;
@@ -1615,6 +1658,20 @@ public class JSW3D extends ApplicationAdapter {
             .5f + c.r * .5f, .5f + c.g * .5f, .5f + c.b * .5f,
             cx, cy, midZ() + 14, spriteLightIntensity));
     }
+  }
+
+  /**
+   * Model built from a blob's on-screen pixels (adjacent mode): the game already composed
+   * the object — pieces, masks and all — so the screen bitmap IS the sprite's shape.
+   * Content-hashed cache: an animation cycle settles into a handful of entries.
+   */
+  private Model pixModel(byte[] bmp, int wBytes) {
+    long key = wBytes * 1099511628211L;
+    for (byte x : bmp)
+      key = (key ^ (x & 0xff)) * 1099511628211L; // FNV-1a
+    return pixModelCache.computeIfAbsent(key, k -> smooth
+        ? SmoothSpriteBuilder.build(0, bmp.length, wBytes, a -> bmp[a] & 0xff, smoothLevel, depthScale)
+        : VoxelSpriteBuilder.build(0, bmp.length, wBytes, a -> bmp[a] & 0xff, smoothLevel, depthScale));
   }
 
   /** rain-wet sheen: bright broad specular so lights glint off the surface. */
@@ -1948,6 +2005,7 @@ public class JSW3D extends ApplicationAdapter {
     screenTex.dispose();
     backdropModel.dispose();
     modelCache.values().forEach(Model::dispose);
+    pixModelCache.values().forEach(Model::dispose);
     junkModels.values().forEach(Model::dispose);
     if (lampModel != null)
       lampModel.dispose();

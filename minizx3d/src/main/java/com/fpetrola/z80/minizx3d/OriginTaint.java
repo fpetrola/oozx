@@ -42,7 +42,13 @@ import java.util.Map;
 public final class OriginTaint {
   public static final int NONE = 0;
   private static final int FIRST_UNION = 0x10001;
-  private static final int MAX_DEPTH = 64;
+  /**
+   * Runtime keeps the cap tight (64): in a compositing chain the deep side is stale
+   * history and dropping it preserves the fresh sprite. DISCOVERY wants the opposite —
+   * old leaves are exactly what it is looking for — so {@code -Dtaint.depth} raises it
+   * (TaintDiscover defaults to 512).
+   */
+  private final int maxDepth = Integer.getInteger("taint.depth", 64);
 
   /** taint of every game memory byte / every Tracer register slot. */
   public final int[] mem = new int[0x10000];
@@ -92,7 +98,7 @@ public final class OriginTaint {
     int da = depthOf(a), db = depthOf(b);
     // accumulated history (the deep side) is stale compositing; the fresh operand is the
     // content that matters. Keeping the shallow side preserves the sprite through a blit.
-    if (Math.max(da, db) + 1 > MAX_DEPTH)
+    if (Math.max(da, db) + 1 > maxDepth)
       return da <= db ? a : b;
     int id = FIRST_UNION + unions;
     if (unions == ua.length)
@@ -142,6 +148,55 @@ public final class OriginTaint {
 
   public int nodeCount() {
     return unions;
+  }
+
+  /**
+   * Discovery-grade leaves: the FULL sorted leaf-address set of {@code node}, memoized
+   * bottom-up in {@code memo} (union nodes are immutable, so entries stay valid across
+   * frames — each node is computed once ever, which is what makes scanning every screen
+   * byte per sampled frame affordable). A set that would exceed {@code cap} is stored as
+   * SATURATED ({@code null}): a byte mixing that many origins identifies nothing anyway,
+   * and the caller skips it.
+   */
+  public int[] leavesSorted(int node, int cap, Map<Integer, int[]> memo) {
+    if (node == NONE)
+      return EMPTY;
+    if (node < FIRST_UNION)
+      return new int[]{node - 1}; // single origin: not worth a memo entry
+    if (memo.containsKey(node))
+      return memo.get(node);
+    int[] la = leavesSorted(ua[node - FIRST_UNION], cap, memo);
+    int[] lb = leavesSorted(la == null ? NONE : ub[node - FIRST_UNION], cap, memo);
+    int[] merged = la == null || lb == null ? null : mergeSorted(la, lb, cap);
+    memo.put(node, merged);
+    return merged;
+  }
+
+  private static final int[] EMPTY = new int[0];
+
+  /** sorted-unique merge, or {@code null} (saturated) past {@code cap} elements. */
+  private static int[] mergeSorted(int[] a, int[] b, int cap) {
+    int[] out = new int[Math.min(a.length + b.length, cap)];
+    int i = 0, j = 0, n = 0;
+    while (i < a.length || j < b.length) {
+      int v;
+      if (i == a.length)
+        v = b[j++];
+      else if (j == b.length)
+        v = a[i++];
+      else if (a[i] < b[j])
+        v = a[i++];
+      else if (a[i] > b[j])
+        v = b[j++];
+      else {
+        v = a[i++];
+        j++;
+      }
+      if (n == cap)
+        return null;
+      out[n++] = v;
+    }
+    return n == out.length ? out : java.util.Arrays.copyOf(out, n);
   }
 
   /** debug: collect up to {@code budget} distinct leaf addresses of {@code node}. */

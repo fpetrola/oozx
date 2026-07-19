@@ -108,7 +108,13 @@ https://ritchie333.github.io/dan/ — headers de sprites, tabla de UDGs, buffers
 Estado: Dan, guardianes y plataformas en 3D reconocible. Pendiente: sprites con máscara
 (punteados), pilares/cúpulas flojos. Detalle completo en la memoria del proyecto.
 
-### 4.2. Exolon — NO anda bien (diagnóstico)
+### 4.2. Exolon — catálogo RESUELTO, clasificación a medias (ver §5.1 para el estado nuevo)
+
+> Lo que sigue es el diagnóstico original con el catálogo del *tracker*. El taint-discovery
+> (§5 paso 1, ya implementado) lo resolvió: medido sobre los mismos frames, la cobertura de
+> bytes clasificados pasó de **3% a 51%** y de **1,0 a 12,5 gráficos distintos por frame**.
+> Lo que queda abierto es separar sprite de fondo, no separar los gráficos entre sí.
+
 
 Exolon ES flip-screen (no scroll), pero aun así el catálogo salió mal: 1 sprite chico + 12
 tiles, y los gráficos reales agrupados en **bloques gigantes de ~25.000 bytes**. Resultado en
@@ -150,6 +156,68 @@ de que el tracker lo infiera del código de dibujo. Esto es genérico: no depend
 dibuja.
 
 Orden recomendado (de mayor a menor retorno, menor a mayor riesgo):
+
+### 5.1. Paso 1 y 2 — HECHOS. Estado y lo que falta
+
+`TaintDiscover` (`minizx3d/.../TaintDiscover.java`) implementa el paso 1: corre el RZX con un
+taint vacío, y por cada **blob conexo** de bytes encendidos parte el conjunto de hojas en
+**piezas contiguas** (corte por hueco de direcciones), una observación por pieza por frame.
+Emite `sprites_found` con la misma forma que el tracker, así que `SpriteCatalog` lo carga sin
+cambios. Se corre solo: `TaintDiscover <rzx> <db> [maxFrames]`.
+
+**Resultado en Exolon** (30.000 frames, `-Ddiscover.rows=20 -Ddiscover.gate=8
+-Ddiscover.drift=0.25` → `analysis/exolon-taint.db`): 240 entradas de 4..255 bytes donde el
+tracker daba bloques de ~25.000. El banco de sprites cae en fronteras alineadas a 16
+(`$edc0, $edd0, $edf0, $ee00, $ee10, $ee40`), que es la señal de que está encontrando
+límites reales y no spans arbitrarios. Medido con el mismo RZX y rango de frames:
+
+| catálogo | cobertura de bytes encendidos | gráficos distintos por frame |
+|---|---|---|
+| `exolon.db` (tracker) | 3% | 1,0 |
+| `exolon-taint.db` (taint) | 51% | 12,5 |
+
+**La granularidad quedó resuelta; lo que falla ahora es sprite vs fondo.** En el visor 3D se
+ve geometría real (antes era casi todo plano), pero se **infla de más**: la banda de terreno
+y el texto del marcador salen como sprites.
+
+**Por qué** — y esto es lo importante para retomar. Exolon reescribe solo el **2-10% de los
+bytes encendidos por frame** (medido): es un motor de dirty-regions duro. Los rastros que
+deja encendidos conservan el taint viejo del sprite que ya se fue, y eso **invierte todos los
+discriminadores a la vez**: el gráfico se ve viejo (`fresh`), se ve como que nunca se mueve
+(`drift`) y se ve desparramado (`mob`). Por eso `-Ddiscover.gate=N` descarta los bytes no
+reescritos: cada métrica vuelve a medir lo que el juego pinta AHORA.
+
+Pero el gate tiene un costo que es la causa del over-inflate: **fragmenta** la banda de
+terreno (que es un solo blob grande) en astillas de lo poco que se repintó ese frame. Y
+`reuse` y `stamps` — los dos discriminadores diseñados justamente para cazar tiles estampados
+— se miden DENTRO del blob. Fragmentado el blob, quedan ciegos. Caso concreto: `$edc0` (16
+bytes, la textura punteada de roca) es la entrada más observada del juego y sale `sprite` con
+`reuse=0,9 stamps=3`; sin gate, esa misma banda sería un blob con `reuse≈50`. Se verificó que
+NO es un buffer: tiene 10 escrituras en 30.000 frames (carga de nivel), es gráfico estático de
+verdad.
+
+**Siguiente paso concreto**: medir cada señal en la vista donde es válida — `reuse`/`stamps`
+sobre la pantalla SIN gatear (ahí "cuánta área cubre este gráfico simultáneamente" se mide
+bien) y `drift`/`fresh` sobre la gateada (ahí "se está repintando / se mueve" se mide bien).
+Es un cambio chico y ataca la causa, en vez de mover umbrales.
+
+Otras dos cosas aprendidas, que conviene no volver a descubrir:
+- **`drift` aliasea**. Mide cuánto cambia el conjunto de celdas de un frame muestreado al
+  siguiente. Una entidad con recorrido cíclico corto puede volver a las mismas celdas en
+  exactamente `discover.sample` frames y leerse como estática: en JSW los bitmaps de 32 bytes
+  de los guardianes dan `drift=0,00`. Por eso `drift` y `gate` vienen **apagados por default**
+  (JSW/MM/DD no cambian en nada) y son el par para motores de dirty-regions.
+- **`drift` y `gate` se necesitan mutuamente.** Sin gate, los rastros clavan el conjunto de
+  celdas de un sprite que sí se mueve y `drift` colapsa a 0. Con gate, `mob` pierde filo en un
+  juego flip-screen (el decorado solo se observa justo después de cambiar de pantalla, en un
+  lugar distinto por pantalla, así que acumula mucha movilidad), y `drift` queda como la única
+  señal local en el tiempo.
+
+**Límite práctico**: el `leafMemo` crece con los nodos union (10,4M nodos a 30.000 frames,
+3,7 GB de RSS). En una máquina de 7 GB, 30.000 frames es el techo; Exolon tiene 112.474.
+
+El paso 2 (blobs por adyacencia + modelo desde píxeles de pantalla) está en `JSW3D`
+detrás de `-Dblobs=adjacent`, activado en el perfil de Exolon.
 
 ### Paso 1 — Taint-discovery (formalizar `debug.scan`)
 
@@ -207,7 +275,7 @@ tapado; el bitmap de memoria es la forma "limpia". Trade-off a evaluar.
 | Jet Set Willy | `jsw` | `analysis/jsw-catalog.db` | ✅ completo |
 | Manic Miner | `mm` | `analysis/mm.db` | ✅ completo |
 | Dynamite Dan | `dd` | `analysis/dd.db` | 🟡 sprites+tiles ok; máscaras pendientes |
-| Exolon | `exolon` | `analysis/exolon.db` | 🔴 catálogo malo (solo primeros 4000 frames); sirve para experimentar |
+| Exolon | `exolon` | `analysis/exolon-taint.db` | 🟡 catálogo por taint-discovery (30k frames): granularidad ok (§5.1), se infla de más el terreno y el marcador |
 
 Perfiles en `minizx3d/src/main/resources/games.json`. Cada uno trae rzx + db + tweaks del juego.
 
@@ -232,13 +300,23 @@ Todas en el `main` de `TaintReplay` (modo validación headless) salvo la última
   visual.
 - **`-Dlog=true`** — habilita todos los prints (por default la consola está muda).
 
-Flujo para un juego nuevo:
+Flujo para un juego nuevo (el catálogo por taint NO necesita las pasadas del tracker: se
+basta solo, y en Exolon dio 17x más cobertura — ver §5.1):
 ```
-AnalysisCLI z80run  <rzx>  -Danalysis.db=analysis/<g>.db [-Dmax.frames=N]
-AnalysisCLI z80track <rzx> -Danalysis.db=analysis/<g>.db [-Dmax.frames=N]
-# curación del db si hace falta (mirar sprites_found con el juego corriendo)
+TaintDiscover <rzx> analysis/<g>-taint.db [maxFrames]
+# motor de dirty-regions (Exolon, DD): agregar -Ddiscover.gate=8 -Ddiscover.drift=0.25
+# re-blitter de pantalla entera (JSW, MM): dejar los dos apagados (default)
 JSW3D -Dgame=<g>   (agregar el perfil a games.json)
 ```
+El camino viejo por tracker sigue disponible (`AnalysisCLI z80run` + `z80track`), y es el que
+usan JSW/MM/DD hoy.
+
+Perillas de `TaintDiscover` (todas `-Ddiscover.*`): `rows` (filas de playfield muestreadas),
+`gate`/`drift` (el par para dirty-regions, §5.1), `sample`/`from` (muestreo), `gap` (corte
+entre piezas), `bg`/`reuse`/`mobility`/`stamps`/`freshfrac` (umbrales del clasificador),
+`maxwrites` (filtro de buffers), `cap` (tope de hojas por byte), `minsize`/`min`. Todas las
+métricas van a la columna `methods` de cada fila, así que se puede re-clasificar offline
+leyendo el db sin volver a correr la pasada.
 
 ---
 
@@ -254,16 +332,22 @@ JSW3D -Dgame=<g>   (agregar el perfil a games.json)
   de ROM.
 - `minizx3d/.../SmoothSpriteBuilder.java` / `VoxelSpriteBuilder.java` / `TileSlabBuilder.java` —
   construcción de los modelos 3D (leen el bitmap de memoria con stride).
-- `translator/.../analysis/SpriteTracker.java` — el tracker por-invocación (§2.1); a
-  complementar/reemplazar con taint-discovery.
+- `minizx3d/.../TaintDiscover.java` — el taint-discovery (§5.1): blob → piezas → observación,
+  discriminadores y emisión de `sprites_found`. Es el reemplazo del tracker.
+- `translator/.../analysis/SpriteTracker.java` — el tracker por-invocación (§2.1); ya
+  reemplazado por taint-discovery en Exolon, todavía en uso en JSW/MM/DD.
 - `translator/.../analysis/Z80AnalysisRunner.java` — productor de la captura; `-Dmax.frames`.
 
 ---
 
 ## 9. Resumen en una frase
 
-El tracker actual fusiona los gráficos porque razona por invocación de dibujo; el taint los
-separa porque razona por píxel. El plan es usar el taint para descubrir el catálogo
-(genérico, independiente del método de dibujo), agrupar por adyacencia en pantalla, y recién
-después atacar máscaras (taint por bit) y composición (config, solo si hace falta). El primer
-paso concreto y de bajo riesgo es formalizar `-Ddebug.scan` en un productor de catálogo.
+El tracker fusiona los gráficos porque razona por invocación de dibujo; el taint los separa
+porque razona por píxel. Usar el taint para descubrir el catálogo (pasos 1 y 2) ya está hecho
+y **resolvió la granularidad**: en Exolon, 3% → 51% de cobertura y 1,0 → 12,5 gráficos por
+frame. Lo que queda no es separar gráficos entre sí sino decidir **cuál es sprite y cuál es
+fondo**, y ahí el obstáculo está identificado: en un motor de dirty-regions hay que gatear los
+rastros para que las métricas midan el presente, pero el gate fragmenta los blobs y deja
+ciegos a `reuse`/`stamps`, que son los que cazan tiles estampados. El próximo paso es medir
+cada señal en la vista donde es válida (§5.1), y recién después atacar máscaras (taint por
+bit, paso 3).

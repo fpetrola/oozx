@@ -28,9 +28,12 @@
     "exolon": {
       "title": "Exolon",
       "rzx": ["/home/fernando/detodo/spectrum/exolon.rzx", "exolon.rzx"],
-      "db": ["analysis/exolon.db"],
+      "db": ["analysis/exolon-taint.db", "analysis/exolon.db"],
       "properties": {
-        "items": "false"
+        "items": "false",
+        "blobs": "adjacent",
+        "playfield.rows": "20",
+        "fresh.frames": "8"
       }
     }
   }
