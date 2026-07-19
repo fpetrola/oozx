@@ -332,6 +332,21 @@ public class JSW3D extends ApplicationAdapter {
           @Override
           public boolean keyDown(int keycode) {
             // playing live: game keys go straight to the Spectrum matrix; Ctrl+key keeps
+            // naming a preset: keys build the name, Enter confirms, Esc cancels — nothing
+            // else fires while the little prompt is up
+            if (namingPreset) {
+              if (keycode == com.badlogic.gdx.Input.Keys.ENTER) {
+                savePreset(presetTyping.toString());
+                namingPreset = false;
+              } else if (keycode == com.badlogic.gdx.Input.Keys.ESCAPE) {
+                namingPreset = false;
+                flashPreset("cancelado");
+              } else if (keycode == com.badlogic.gdx.Input.Keys.BACKSPACE
+                  && presetTyping.length() > 0) {
+                presetTyping.setLength(presetTyping.length() - 1);
+              }
+              return true;
+            }
             // the effect toggles reachable, and TAB/arrows/ESC still drive the tuning menu
             boolean ctrl = Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.CONTROL_LEFT)
                 || Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.CONTROL_RIGHT);
@@ -355,6 +370,26 @@ public class JSW3D extends ApplicationAdapter {
               }
               case com.badlogic.gdx.Input.Keys.F2 -> {
                 helpOn = !helpOn;
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.F3 -> {
+                // save current state as a NAMED ambience preset
+                namingPreset = true;
+                presetTyping.setLength(0);
+                if (presetIdx >= 0)
+                  presetTyping.append(presets.get(presetIdx)); // seed with current for re-save
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.F4 -> {
+                cyclePreset(1); // next ambience preset (Shift = previous)
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.F5 -> {
+                cyclePreset(-1);
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.F6 -> {
+                deleteCurrentPreset();
                 rebuild = false;
               }
               case com.badlogic.gdx.Input.Keys.M -> smooth = !smooth;
@@ -486,8 +521,19 @@ public class JSW3D extends ApplicationAdapter {
           }
 
           @Override
+          public boolean keyTyped(char c) {
+            // build the preset name; letters/digits/space/dash/underscore, cap the length
+            if (namingPreset && presetTyping.length() < 40
+                && (Character.isLetterOrDigit(c) || c == ' ' || c == '-' || c == '_')) {
+              presetTyping.append(c);
+              return true;
+            }
+            return false;
+          }
+
+          @Override
           public boolean keyUp(int keycode) {
-            if (playMode) {
+            if (playMode && !namingPreset) {
               int vk = vkFor(keycode);
               if (vk >= 0) {
                 spectrumKey(vk, false); // releases always reach the game, Ctrl or not
@@ -525,6 +571,11 @@ public class JSW3D extends ApplicationAdapter {
     px.dispose();
     registerParams();
     loadConfig();
+    loadPresetList();
+    // -Dpreset=<name> starts in a named ambience instead of the auto-saved config
+    String startPreset = System.getProperty("preset");
+    if (startPreset != null && presets.contains(startPreset))
+      loadPreset(presets.indexOf(startPreset));
     savedCamPos.set(cam.position);
     savedCamDir.set(cam.direction);
     rebuildEnv();
@@ -706,6 +757,7 @@ public class JSW3D extends ApplicationAdapter {
         tuneGroup = -1;
     }
     renderTuning();
+    renderPresets();
     // camera drags/zooms mark the config dirty; a quiet second later it hits disk
     if (configEnabled) {
       if (!cam.position.epsilonEquals(savedCamPos, .4f)
@@ -888,6 +940,27 @@ public class JSW3D extends ApplicationAdapter {
         0, 10000, 100, true, () -> itemLightIntensity, v -> itemLightIntensity = v);
   }
 
+  /** the preset name prompt while naming, and a 3s flash after save/load/cycle. */
+  private void renderPresets() {
+    String line;
+    if (namingPreset)
+      line = "guardar ambiente como: " + presetTyping + "_   (Enter ok, Esc cancela)";
+    else if (System.currentTimeMillis() - presetFlashAt < 3000 && !presetFlash.isEmpty())
+      line = presetFlash;
+    else
+      return;
+    com.badlogic.gdx.graphics.g2d.GlyphLayout layout =
+        new com.badlogic.gdx.graphics.g2d.GlyphLayout(uiFont, line);
+    float pad = 12, w = layout.width + pad * 2, h = layout.height + pad * 2;
+    float x = (Gdx.graphics.getWidth() - w) / 2, y = 24;
+    uiBatch.begin();
+    uiBatch.setColor(0, 0, .18f, .85f);
+    uiBatch.draw(whitePix, x, y, w, h);
+    uiBatch.setColor(1, 1, .7f, 1);
+    uiFont.draw(uiBatch, line, x + pad, y + h - pad);
+    uiBatch.end();
+  }
+
   private List<Param> groupParams() {
     return params.stream()
         .filter(p -> p.group().equals(paramGroups.get(tuneGroup))).toList();
@@ -961,10 +1034,13 @@ public class JSW3D extends ApplicationAdapter {
    * object, so a pre-nesting file loads once and is rewritten in the new shape.
    */
   private void loadConfig() {
-    if (!configEnabled)
+    loadConfigFrom(configPath(), configEnabled);
+  }
+
+  private void loadConfigFrom(java.nio.file.Path p, boolean gated) {
+    if (gated && !configEnabled)
       return;
     try {
-      java.nio.file.Path p = configPath();
       if (!java.nio.file.Files.exists(p))
         return;
       com.badlogic.gdx.utils.JsonValue v =
@@ -1042,6 +1118,10 @@ public class JSW3D extends ApplicationAdapter {
   private void saveConfig() {
     if (!configEnabled)
       return;
+    saveConfigTo(configPath());
+  }
+
+  private void saveConfigTo(java.nio.file.Path dest) {
     try {
       Map<String, Object> root = new java.util.LinkedHashMap<>();
       put(root, "general.smooth", smooth);
@@ -1063,10 +1143,96 @@ public class JSW3D extends ApplicationAdapter {
       StringBuilder sb = new StringBuilder();
       writeJson(sb, root, "");
       sb.append('\n');
-      java.nio.file.Files.writeString(configPath(), sb.toString());
+      java.nio.file.Files.writeString(dest, sb.toString());
     } catch (Exception e) {
       if (TaintReplay.LOG)
         System.out.println("config no guardada: " + e);
+    }
+  }
+
+  // ---- named ambience presets (~/.jsw3d-presets/<game>/<name>.json) ----
+
+  private final java.util.List<String> presets = new ArrayList<>();
+  private int presetIdx = -1;
+  /** while naming a new preset, keystrokes build this name instead of driving the game. */
+  private boolean namingPreset;
+  private final StringBuilder presetTyping = new StringBuilder();
+  private String presetFlash = "";
+  private long presetFlashAt;
+
+  private java.nio.file.Path presetDir() {
+    return java.nio.file.Path.of(System.getProperty("user.home"), ".jsw3d-presets", activeGame);
+  }
+
+  private void loadPresetList() {
+    presets.clear();
+    try {
+      java.nio.file.Path d = presetDir();
+      if (java.nio.file.Files.isDirectory(d))
+        try (java.util.stream.Stream<java.nio.file.Path> s = java.nio.file.Files.list(d)) {
+          s.map(p -> p.getFileName().toString())
+              .filter(n -> n.endsWith(".json"))
+              .map(n -> n.substring(0, n.length() - 5))
+              .sorted().forEach(presets::add);
+        }
+    } catch (Exception e) {
+      if (TaintReplay.LOG)
+        System.out.println("presets no listados: " + e);
+    }
+  }
+
+  private void flashPreset(String msg) {
+    presetFlash = msg;
+    presetFlashAt = System.currentTimeMillis();
+  }
+
+  private void savePreset(String name) {
+    name = name.trim().replaceAll("[^A-Za-z0-9 _-]", "").replace(' ', '-');
+    if (name.isEmpty())
+      return;
+    try {
+      java.nio.file.Files.createDirectories(presetDir());
+      saveConfigTo(presetDir().resolve(name + ".json"));
+      loadPresetList();
+      presetIdx = presets.indexOf(name);
+      flashPreset("preset guardado: " + name);
+    } catch (Exception e) {
+      flashPreset("no pude guardar: " + e);
+    }
+  }
+
+  /** load a preset by list index, applying every setting live (models rebuilt). */
+  private void loadPreset(int idx) {
+    if (idx < 0 || idx >= presets.size())
+      return;
+    presetIdx = idx;
+    loadConfigFrom(presetDir().resolve(presets.get(idx) + ".json"), false);
+    modelCache.values().forEach(Model::dispose); // smooth/depth may have changed
+    modelCache.clear();
+    if (replay != null)
+      replay.setSpeed(cfgSpeed);
+    flashPreset("preset: " + presets.get(idx) + "  (" + (idx + 1) + "/" + presets.size() + ")");
+  }
+
+  private void cyclePreset(int dir) {
+    if (presets.isEmpty()) {
+      flashPreset("no hay presets — F3 para guardar el actual");
+      return;
+    }
+    loadPreset((presetIdx + dir + presets.size()) % presets.size());
+  }
+
+  private void deleteCurrentPreset() {
+    if (presetIdx < 0 || presetIdx >= presets.size())
+      return;
+    String name = presets.get(presetIdx);
+    try {
+      java.nio.file.Files.deleteIfExists(presetDir().resolve(name + ".json"));
+      loadPresetList();
+      presetIdx = Math.min(presetIdx, presets.size() - 1);
+      flashPreset("preset borrado: " + name);
+    } catch (Exception e) {
+      flashPreset("no pude borrar: " + e);
     }
   }
 
@@ -1098,8 +1264,12 @@ public class JSW3D extends ApplicationAdapter {
       F1       cortar el replay y JUGAR (una sola via)
       F2       esta guia (jugando, las teclas van al juego y
                los efectos se togglean con Ctrl+tecla)
+      F3       guardar ambiente actual como preset (con nombre)
+      F4 / F5  siguiente / anterior preset de ambiente
+      F6       borrar el preset actual
       Mouse    arrastrar rota - rueda zoom
-      La config se guarda sola en ~/.jsw3d-config.json""";
+      Config viva en ~/.jsw3d-config-<juego>.json;
+      presets en ~/.jsw3d-presets/<juego>/*.json""";
 
   private void renderHelp() {
     if (!helpOn)
