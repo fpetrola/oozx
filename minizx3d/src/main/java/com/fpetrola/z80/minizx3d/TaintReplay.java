@@ -57,6 +57,8 @@ import java.util.function.Consumer;
 public final class TaintReplay implements Runnable {
   public static final int SCREEN = 16384, ATTRS = 22528, PIXEL_BYTES = 6144, ATTR_BYTES = 768;
   static final boolean DEBUG = Boolean.getBoolean("taint.debug");
+  /** how many frames a screen byte's sprite taint stays valid; 0 = never expire. */
+  static final int FRESH_FRAMES = Integer.getInteger("fresh.frames", 3);
   /** -Dlog=true turns the console chatter on; silent by default so a user-launched run
    *  doesn't interleave with whatever else shares the terminal. */
   static final boolean LOG = Boolean.getBoolean("log");
@@ -134,6 +136,17 @@ public final class TaintReplay implements Runnable {
       System.out.println(sb);
       // -Ddebug.xy=x,y: the taint LEAVES of that screen byte, to see where a pixel that
       // should be a sprite actually traces to
+      // -Ddebug.mem=hexAddr[,hexAddr...]: taint leaves of MEMORY bytes (staging probes)
+      String dm = System.getProperty("debug.mem");
+      if (dm != null)
+        for (String one : dm.split(",")) {
+          int a = Integer.parseInt(one, 16);
+          java.util.Set<Integer> lv = holder[0].taint.leaves(holder[0].taint.mem[a], 20);
+          StringBuilder ls = new StringBuilder("  mem[$" + one + "]="
+              + holder[0].memByte(a) + " hojas:");
+          lv.forEach(x -> ls.append(" $").append(Integer.toHexString(x)));
+          System.out.println(ls);
+        }
       String xy = System.getProperty("debug.rect");
       if (xy != null) {
         String[] p = xy.split(",");
@@ -285,6 +298,8 @@ public final class TaintReplay implements Runnable {
       memory.addMemoryWriteListener((address, value) -> {
         int a = address.intValue();
         if (a >= 0 && a <= 0xffff) {
+          if (a >= SCREEN && a < SCREEN + PIXEL_BYTES)
+            listener.lastWrite[a - SCREEN] = listener.curFrame;
           if (listener.inExecution && !listener.suppress)
             // a block copy pairs each write with the read just before it; anything else
             // combines what the instruction read from registers and memory
@@ -324,7 +339,10 @@ public final class TaintReplay implements Runnable {
     private final State<WordNumber> state;
     private final RZXPlayerIO<WordNumber> io;
     volatile boolean inExecution, suppress, bulk, regSwap;
-    volatile int curPc = -1, curLen;
+    volatile int curPc = -1, curLen, curFrame;
+    /** frame each screen byte was last WRITTEN: sprite taint older than a couple of
+     * frames is a stale trail a dirty-region engine (Dynamite Dan) never re-erased. */
+    final int[] lastWrite = new int[PIXEL_BYTES];
     int srcTaint, pendingRead, lastRead;
     long dbgScreenWrites, dbgOutside, dbgSuppressed, dbgUntainted;
     final Map<Integer, Long> dbgSuppressedPcs = new HashMap<>();
@@ -353,6 +371,7 @@ public final class TaintReplay implements Runnable {
             t = taint.union(t, taint.reg[slot]);
         srcTaint = t;
         int frame = io.getCurrentFrameIndex();
+        curFrame = frame;
         if (frame != lastFrame) {
           lastFrame = frame;
           if (DEBUG && frame % 1000 == 0) {
@@ -427,7 +446,11 @@ public final class TaintReplay implements Runnable {
         WordNumber w = data[SCREEN + i];
         pixels[i] = (byte) (w == null ? 0 : w.intValue());
         int node = taint.mem[SCREEN + i];
-        owner[i] = taint.spriteOf(node);
+        // sprite ownership must be FRESH: moving sprites get redrawn every frame, so
+        // taint on a byte nothing wrote for a while is a stale trail, not a sprite.
+        // -Dfresh.frames=0 disables the gate (JSW/MM never leave stale sprite trails).
+        owner[i] = FRESH_FRAMES <= 0 || frame - lastWrite[i] <= FRESH_FRAMES
+            ? taint.spriteOf(node) : 0;
         tile[i] = taint.tileOf(node);
       }
       for (int i = 0; i < ATTR_BYTES; i++) {

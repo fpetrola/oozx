@@ -1314,9 +1314,11 @@ public class JSW3D extends ApplicationAdapter {
       int base = blob[0] - 1;
       int[] b = {blob[1], blob[2], blob[3], blob[4]};
       int bytes = catalog.sizeOf.getOrDefault(base, 32);
+      // bytes per row: 2 (16px) unless the catalog knows better (DD sprites are 1..3 wide)
+      int stride = catalog.strideOf.getOrDefault(base, 2);
       Model model = modelCache.computeIfAbsent(base, k -> smooth
-          ? SmoothSpriteBuilder.build(k, bytes, 2, replay::memByte, smoothLevel, depthScale)
-          : VoxelSpriteBuilder.build(k, bytes, 2, replay::memByte, smoothLevel, depthScale));
+          ? SmoothSpriteBuilder.build(k, bytes, stride, replay::memByte, smoothLevel, depthScale)
+          : VoxelSpriteBuilder.build(k, bytes, stride, replay::memByte, smoothLevel, depthScale));
       float cx = (b[0] + b[2] + 1) * 8 / 2f;          // byte cols -> pixels
       float cy = H - (b[1] + b[3] + 1) / 2f;          // screen y down -> world y up
       // playfield blobs only: the lives-row Willys must not kick junk around
@@ -1327,17 +1329,21 @@ public class JSW3D extends ApplicationAdapter {
       // copies drawn shoulder to shoulder — JSW's lives row — that connectivity merged
       // into one: an instance per 16px slot puts a Willy on EVERY life instead of a
       // single one floating in the middle of the row
+      // the shoulder-to-shoulder split exists for ONE thing: the lives row in the status
+      // area. Inside the playfield a wide blob is guardians overlapping or a decorated
+      // wall, and splitting it stamps rows of phantom copies (it wrecked Dynamite Dan)
       int colspan = b[2] - b[0] + 1;
-      int copies = colspan >= 4 && (b[3] - b[1] + 1) <= bytes / 2 + 2 ? (colspan + 1) / 2 : 1;
+      int copies = cy < 64 && colspan >= stride * 2 && (b[3] - b[1] + 1) <= bytes / stride + 2
+          ? (colspan + stride - 1) / stride : 1;
       for (int k = 0; k < copies; k++) {
         Color cc = c;
         if (copies > 1) {
           // each copy votes ITS OWN slot's cells: JSW tints every life differently
           // (a color wave runs along the row), and the blob-wide vote flattened that
           java.util.Arrays.fill(inkVotes, 0);
-          int col0 = b[0] + k * 2;
+          int col0 = b[0] + k * stride;
           for (int y = b[1]; y <= b[3]; y += 8)
-            for (int dc = 0; dc < 2; dc++) {
+            for (int dc = 0; dc < stride; dc++) {
               int attr = snap.attrs()[(y >> 3) * 32 + Math.min(31, col0 + dc)] & 0xff;
               int ink = (attr & 7) | ((attr >> 3) & 8);
               if ((ink & 7) != ((attr >> 3) & 7))
@@ -1351,7 +1357,8 @@ public class JSW3D extends ApplicationAdapter {
             cc = PALETTE[best];
         }
         ModelInstance inst = new ModelInstance(model);
-        inst.transform.setToTranslation(copies == 1 ? cx : (b[0] + k * 2 + 1) * 8, cy, midZ());
+        inst.transform.setToTranslation(
+            copies == 1 ? cx : (b[0] + k * stride) * 8 + stride * 4f, cy, midZ());
         inst.materials.first().set(ColorAttribute.createDiffuse(cc));
         wetten(inst.materials.first());
         if (darkMode)
@@ -1398,12 +1405,13 @@ public class JSW3D extends ApplicationAdapter {
    * sorts blended renderables after the opaque world, so the character inside shows.
    */
   private void ghostTile(int col, int y0, int leaf, int attr) {
-    boolean item = itemLeaves.contains(leaf);
+    int tStride = catalog.tileStride(leaf);
+    boolean item = itemLeaves.contains(leaf) && tStride == 1;
     Model model = modelCache.computeIfAbsent(item ? -leaf - 0x10000 : -leaf, k -> item
         ? (smooth
            ? SmoothSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depthScale)
            : VoxelSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depthScale))
-        : TileSlabBuilder.build(leaf, replay::memByte, slabDepth()));
+        : TileSlabBuilder.build(leaf, replay::memByte, slabDepth(), tStride));
     if (model == null)
       return;
     ModelInstance inst = new ModelInstance(model);
@@ -1467,13 +1475,16 @@ public class JSW3D extends ApplicationAdapter {
           continue;
         }
         int leaf = t - 1;
+        // a cell's 8 rows sit tStride bytes apart (1 = plain cells; >1 inside DD's
+        // multi-column UDG stamps)
+        int tStride = catalog.tileStride(leaf);
         // AIR (all-zero bitmap) is background, full stop: no slab, and crucially no item
         // tracking — guardians crossing air cells eventually latch the air leaf as "item",
         // and in lantern mode hundreds of invisible air-items would flood the room with
         // light until the darkness is gone
         if (emptyLeaves.computeIfAbsent(leaf, k -> {
           for (int r = 0; r < 8; r++)
-            if (replay.memByte(k + r) != 0)
+            if (replay.memByte(k + r * tStride) != 0)
               return false;
           return true;
         })) {
@@ -1505,7 +1516,10 @@ public class JSW3D extends ApplicationAdapter {
               cellLastChange[cell] = shownFrame;
               // a real item cycles EVERY frame, so a dense burst is easy for it and
               // hard to fake with the attr lag passing sprites leave behind
+              // -Ditems=false: games whose scenery flashes on its own (DD's lamps) fake
+              // the burst — turn the detector off entirely there
               if (cellInkChanges[cell] >= 6 && Integer.bitCount(cellInkMask[cell]) >= 3
+                  && !"false".equals(System.getProperty("items"))
                   && itemLeaves.add(leaf) && TaintReplay.LOG)
                 System.out.println("item detectado: leaf $" + Integer.toHexString(leaf));
             }
@@ -1522,14 +1536,14 @@ public class JSW3D extends ApplicationAdapter {
             System.out.println("item des-latcheado (no flashea): leaf $"
                 + Integer.toHexString(leaf));
         }
-        boolean item = itemLeaves.contains(leaf);
+        boolean item = itemLeaves.contains(leaf) && tStride == 1;
         // an air cell (empty bitmap) builds no model; computeIfAbsent leaves null uncached,
         // so the cheap 8-byte mask check re-runs — fine
         Model model = modelCache.computeIfAbsent(item ? -leaf - 0x10000 : -leaf, k -> item
             ? (smooth
                ? SmoothSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depthScale)
                : VoxelSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depthScale))
-            : TileSlabBuilder.build(leaf, replay::memByte, slabDepth()));
+            : TileSlabBuilder.build(leaf, replay::memByte, slabDepth(), tStride));
         if (model == null)
           continue;
         solidCells[cell] = true;

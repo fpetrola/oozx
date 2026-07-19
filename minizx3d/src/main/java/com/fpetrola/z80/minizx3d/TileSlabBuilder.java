@@ -49,7 +49,18 @@ public final class TileSlabBuilder {
    * screen where only the cells moving sprites clear open up as tunnels).
    */
   public static Model build(int leaf, IntUnaryOperator memByte, float depth) {
-    boolean[][] mask = VoxelSpriteBuilder.mask(leaf, 8, 1, memByte);
+    return build(leaf, memByte, depth, 1);
+  }
+
+  /** {@code stride}: bytes between consecutive rows of this cell (1 = plain 8-byte cell,
+   *  >1 = a column inside a wider UDG stamp, as in Dynamite Dan's backgrounds). */
+  public static Model build(int leaf, IntUnaryOperator memByte, float depth, int stride) {
+    boolean[][] mask = new boolean[8][8];
+    for (int y = 0; y < 8; y++) {
+      int row = memByte.applyAsInt(leaf + y * stride);
+      for (int x = 0; x < 8; x++)
+        mask[y][x] = (row & (0x80 >> x)) != 0;
+    }
     int inkPixels = 0;
     for (int y = 0; y < 8; y++)
       for (int x = 0; x < 8; x++)
