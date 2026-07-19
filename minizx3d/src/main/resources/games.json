@@ -1,0 +1,28 @@
+{
+  "default": "jsw",
+  "games": {
+    "jsw": {
+      "title": "Jet Set Willy",
+      "rzx": ["Jet Set Willy - Mildly Patched.rzx",
+              "/home/fernando/detodo/spectrum/oozx/Jet Set Willy - Mildly Patched.rzx"],
+      "db": ["analysis/jsw-catalog.db", "analysis/jsw.db"],
+      "properties": {}
+    },
+    "mm": {
+      "title": "Manic Miner",
+      "rzx": ["/home/fernando/detodo/spectrum/manic/manicnoliveslost.rzx",
+              "manicnoliveslost.rzx"],
+      "db": ["analysis/mm.db"],
+      "properties": {}
+    },
+    "dd": {
+      "title": "Dynamite Dan",
+      "rzx": ["/home/fernando/detodo/spectrum/dynamitedan/dynamitedan.rzx",
+              "dynamitedan.rzx"],
+      "db": ["analysis/dd.db"],
+      "properties": {
+        "items": "false"
+      }
+    }
+  }
+}
