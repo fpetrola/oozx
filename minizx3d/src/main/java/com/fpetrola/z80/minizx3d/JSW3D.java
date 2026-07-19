@@ -517,7 +517,7 @@ public class JSW3D extends ApplicationAdapter {
             }
             configDirty = true;
             configDirtyAt = System.currentTimeMillis();
-            return afterKey(rebuild);
+            return afterKey(true);
           }
 
           @Override
