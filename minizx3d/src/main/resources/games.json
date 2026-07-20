@@ -23,7 +23,7 @@
           "primitive": "OVOID",
           "roundness": 0.85,
           "smoothing": 0.25,
-          "voxelLook": true
+          "voxelLook": false
         },
         "$b940": {
           "_que_es": "barril: un barril ES un cilindro, asi que va CYL_V en vez de la forma generica",
@@ -32,7 +32,7 @@
           "primitive": "CYL_V",
           "roundness": 1.0,
           "smoothing": 0.3,
-          "voxelLook": true
+          "voxelLook": false
         }
       }
     },
