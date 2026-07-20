@@ -165,6 +165,10 @@ public interface MeshBakingStrategy {
     public Model bake(SpriteBitmap b, Sprite3DConfig c) {
       SpriteBitmap s = SpriteFx.preprocess(b, c);
       if (c.voxelLook || c.voxelFill < 1f) {
+        // smoothLevel turns the SAME voxel volume from hard cubes into a rounded skin:
+        // 0 = the boxes themselves, 1 = corners just cut, higher = they melt together
+        if (c.voxelLook && c.smoothLevel > 0)
+          return SurfaceNetsBuilder.build(s, c);
         boolean[][] mask = s.mask();
         return VoxelSpriteBuilder.buildWithDepth(mask, SpriteFx.depthField(s, c, mask),
             c.voxelFill, c.doubleSided);
