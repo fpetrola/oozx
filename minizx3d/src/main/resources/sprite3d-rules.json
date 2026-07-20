@@ -5,8 +5,9 @@
     "Features: aspect fill solidity symmetryV components holes thinness width height litPixels.",
     "ACTIVO POR DEFAULT. Se apaga con -Dsprite3d.auto=false; se reemplaza con -Dsprite3d.rules=<path>.",
     "El mecanismo por default es PRIMITIVE: una figura geometrica da el volumen y el smooth",
-    "se aplica despues. Cada tipo de sprite recibe la figura que mejor le sienta.",
-    "Si ninguna matchea, el sprite cae en INFLATE (distance transform, no falla nunca)."
+    "se aplica despues. La tecnica se decide por PERSONAJE (mayoria entre sus cuadros), no por",
+    "cuadro suelto. roundness mezcla la primitiva con el relieve propio del sprite: bajo = mas",
+    "fiel a la forma original, alto = mas geometrico."
   ],
   "rules": [
     {
@@ -37,9 +38,10 @@
     },
     {
       "name": "bicho-compacto",
-      "_why": "blob convexo sin dominancia de eje -> ALMOHADON (cubo redondeado)",
+      "_why": "blob convexo sin eje dominante -> ESFERA. Antes era ALMOHADON y salia CUADRADO:",
+      "_why2": "la super-elipse se mantenia en ~1 sobre toda la caja y daba una losa de tapa plana",
       "when": { "aspect": [0.6, 1.6], "solidity": [0.6, 1], "fill": [0.45, 1] },
-      "then": { "technique": "PRIMITIVE", "primitive": "PILLOW", "roundness": 0.6 }
+      "then": { "technique": "PRIMITIVE", "primitive": "SPHERE", "roundness": 0.65 }
     },
     {
       "name": "columna-vertical",
@@ -55,15 +57,25 @@
     },
     {
       "name": "organico-con-huecos",
-      "_why": "irregular y con huecos reales: ninguna primitiva lo describe, va piel unica",
+      "_why": "irregular y con huecos reales: roundness bajo para seguir su propia forma.",
+      "_why2": "SURFACE_NETS quedo FUERA de la seleccion automatica (salian cascaras huecas)",
       "when": { "holes": [2, 99], "solidity": [0, 0.55], "litPixels": [80, 99999] },
-      "then": { "technique": "PRIMITIVE", "primitive": "PILLOW", "roundness": 0.5 }
+      "then": { "technique": "PRIMITIVE", "primitive": "OVOID", "roundness": 0.5 }
     },
     {
       "name": "angular-asimetrico",
-      "_why": "poco convexo y poco simetrico: puntas y alas, una primitiva lo redondearia mal",
-      "when": { "solidity": [0, 0.55], "symmetryV": [0, 0.6] },
+      "_why": "poco convexo y poco simetrico: puntas y alas, una primitiva lo redondearia mal.",
+      "_why2": "Estos son los pocos que conviene que queden mas planos.",
+      "when": { "solidity": [0, 0.5], "symmetryV": [0, 0.55] },
       "then": { "technique": "SLAB", "depth": 0.6 }
+    },
+    {
+      "name": "catch-all-volumetrico",
+      "_why": "ULTIMA: todo lo que no matcheo igual tiene que tener cuerpo. Sin esto caia en",
+      "_why2": "INFLATE con el slider crudo y daba profundidad ~0.15 de su ancho, o sea chato.",
+      "_why3": "roundness bajo para que siga la forma propia y no lo convierta en un huevo.",
+      "when": { "litPixels": [12, 99999] },
+      "then": { "technique": "PRIMITIVE", "primitive": "OVOID", "roundness": 0.5 }
     }
   ]
 }

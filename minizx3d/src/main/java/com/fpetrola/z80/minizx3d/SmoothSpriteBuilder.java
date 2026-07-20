@@ -112,6 +112,21 @@ public final class SmoothSpriteBuilder {
    * corner lattice, front and mirrored back. Unlike the voxel mode this does not depend on
    * how many pixels are lit — the lattice is allocated over the bounding box either way.
    */
+  /**
+   * Peak half-thickness this configuration would give, in pixels, without touching GL.
+   * Total depth is twice this. Exists so "is this sprite as deep as it is wide?" can be
+   * answered with a number instead of by squinting at a screenshot.
+   */
+  public static float peakHeight(boolean[][] mask, int smoothLevel, float depthScale,
+                                 Sprite3DConfig.Primitive primitive, float roundness) {
+    float[][] h = heights(mask, smoothLevel, depthScale, primitive, roundness);
+    float max = 0;
+    for (float[] row : h)
+      for (float v : row)
+        max = Math.max(max, v);
+    return max;
+  }
+
   public static int vertexCount(int wBytes, int rows) {
     return 2 * (rows * K + 1) * (wBytes * 8 * K + 1);
   }
@@ -167,6 +182,10 @@ public final class SmoothSpriteBuilder {
       // extent is the one used, so an elongated sprite gets a cylinder as thick as it is
       // narrow instead of one absurdly deeper than its own height.
       float radiusPx = Math.min(rx, ry) / K;
+      float dmax = 0;
+      for (int gy = 0; gy <= ny; gy++)
+        for (int gx = 0; gx <= NX; gx++)
+          dmax = Math.max(dmax, d[gy][gx]);
       for (int gy = 0; gy <= ny; gy++)
         for (int gx = 0; gx <= NX; gx++) {
           if (d[gy][gx] <= 0)
@@ -175,11 +194,12 @@ public final class SmoothSpriteBuilder {
           // taper to zero within a pixel of the rim: the front and back halves have to
           // meet at h=0 or the silhouette shows a cliff instead of an edge
           float taper = Math.min(1f, (float) Math.sqrt(d[gy][gx] / K));
-          // roundness blends the PRIMITIVE against the sprite's OWN inflation instead of
-          // against a constant. At roundness 1 you get a clean geometric solid, but every
-          // sprite ends up the same generic egg; keeping part of the distance transform is
-          // what preserves the character's own relief so it still looks like itself.
-          float own = 2f * (float) Math.sqrt(d[gy][gx] / K);
+          // roundness blends the PRIMITIVE against the sprite's OWN relief instead of
+          // against a constant, so the character still looks like itself. Both sides are
+          // NORMALIZED to the same peak (radiusPx) first: mixing raw magnitudes let the
+          // distance term — which is much smaller — drag the whole body flat, which is why
+          // a "rounder" setting was coming out shallower instead of just less generic.
+          float own = radiusPx * (dmax <= 0 ? 0 : (float) Math.sqrt(d[gy][gx] / dmax));
           float geo = radiusPx * p;
           h[gy][gx] = depthScale * GAIN * ((1 - roundness) * own + roundness * geo) * taper;
         }

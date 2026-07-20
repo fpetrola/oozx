@@ -126,8 +126,11 @@ public final class SpriteFx {
         return (float) Math.sqrt(Math.max(0, 1 - v * v));
       case CONE:
         return (float) Math.max(0, 1 - Math.sqrt(u * u + v * v));
-      case PILLOW: // super-ellipse, a rounded cube
-        return (float) Math.sqrt(Math.max(0, 1 - Math.pow(Math.max(Math.abs(u), Math.abs(v)), 8)));
+      case PILLOW:
+        // super-ellipse. The exponent decides how boxy it is, and 8 was far too boxy: the
+        // profile stayed at ~1 across the whole bounding box, so the sprite came out as a
+        // flat-topped slab filling its box — a deformed square. 3 is a rounded cushion.
+        return (float) Math.sqrt(Math.max(0, 1 - Math.pow(Math.max(Math.abs(u), Math.abs(v)), 3)));
       default:
         return 1;
     }
