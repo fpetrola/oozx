@@ -46,6 +46,15 @@ import java.util.function.IntUnaryOperator;
  */
 public final class SmoothSpriteBuilder {
   private static final int K = 4;
+  /**
+   * Rebase of the depth slider for the PRIMITIVE path only. The old inflation peaked around
+   * {@code 2*sqrt(radius)}; the primitive solid peaks at {@code radius}, so a slider that a
+   * user had calibrated for the old curve (0.41 was a real saved value) made every sprite a
+   * flat medallion — depth 3 px on a 16 px body. This puts that setting back at "as deep as
+   * it is wide", and D/C keeps working from there. Only the primitives are rebased: the
+   * plain INFLATE path still means exactly what it always meant.
+   */
+  private static final float GAIN = 2.4f;
   private static final float INSIDE = 0.45f;        // <.5 keeps single-pixel diagonals connected
 
   /**
@@ -166,7 +175,13 @@ public final class SmoothSpriteBuilder {
           // taper to zero within a pixel of the rim: the front and back halves have to
           // meet at h=0 or the silhouette shows a cliff instead of an edge
           float taper = Math.min(1f, (float) Math.sqrt(d[gy][gx] / K));
-          h[gy][gx] = depthScale * radiusPx * (1 - roundness + roundness * p) * taper;
+          // roundness blends the PRIMITIVE against the sprite's OWN inflation instead of
+          // against a constant. At roundness 1 you get a clean geometric solid, but every
+          // sprite ends up the same generic egg; keeping part of the distance transform is
+          // what preserves the character's own relief so it still looks like itself.
+          float own = 2f * (float) Math.sqrt(d[gy][gx] / K);
+          float geo = radiusPx * p;
+          h[gy][gx] = depthScale * GAIN * ((1 - roundness) * own + roundness * geo) * taper;
         }
     }
     for (int i = 0; i < Math.max(1, smoothLevel); i++)

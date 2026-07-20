@@ -25,10 +25,23 @@ maquinaria de silueta y el chamfer, y solo reemplaza de dónde sale la altura. E
 sigue haciendo falta para el **taper del borde**: el frente y el dorso tienen que encontrarse
 en h=0 o la silueta muestra un acantilado en vez de un canto.
 
+**El slider de profundidad se rebasea en el camino de primitivas** (`SmoothSpriteBuilder.GAIN`).
+La inflación vieja picaba en `2*sqrt(radio)`, el sólido geométrico pica en `radio`: un valor
+de slider calibrado para la curva vieja (0.41 era un valor guardado real) dejaba cada sprite
+como un medallón de 3px de profundidad sobre un cuerpo de 16. El rebase pone ese mismo ajuste
+en "tan profundo como ancho", y D/C sigue funcionando desde ahí. **Solo se rebasea el camino
+de primitivas**: `INFLATE` a secas sigue significando lo que siempre significó.
+
 **La profundidad se escala con el radio del propio sprite** (`radiusPx = min(rx,ry)`), no con
 un factor fijo: una esfera es realmente una esfera —tan profunda como ancha— en vez de un
 medallón chato. Se usa el semieje MENOR para que un sprite alargado reciba un cilindro tan
 grueso como angosto es, y no uno absurdamente más profundo que su propia altura.
+
+**`roundness` mezcla la primitiva contra la inflación PROPIA del sprite**, no contra una
+constante. Con `roundness=1` sale un sólido geométrico limpio pero todos los sprites terminan
+siendo el mismo huevo genérico; conservar parte de la distance transform es lo que mantiene el
+relieve propio del personaje para que siga pareciéndose a sí mismo. Los defaults de las reglas
+están en 0.6-0.75 por eso.
 
 ### Una técnica por PERSONAJE, no por cuadro
 
@@ -166,6 +179,13 @@ se hornea sola en el frame siguiente); F10 es lo que persiste.
   ya se vio el visor arrastrarse por churn de caché. El worker debe trabajar sobre el
   `SpriteBitmap` ya copiado — no puede leer memoria del Z80, que la maneja el hilo
   `taint-replay`. La subida a GPU va con `Gdx.app.postRunnable`.
+- **`SURFACE_NETS` está fuera de la selección automática.** Producía enemigos que se veían
+  como cáscara hueca en vez de cuerpo (sospecha: winding/normales invertidas, se ve el
+  interior). Sigue disponible a mano con F8. Hay que revisarlo antes de volver a activarlo.
+- **Siluetas con el centro hueco** (JSW tiene un guardián que es literalmente un marco vacío)
+  salen como anillo, y es fiel al original: ninguna primitiva puede inventarle cuerpo a una
+  silueta agujereada. Si se quisiera, haría falta una opción de rellenar huecos antes de
+  inflar.
 - **`ColorMode.TEXTURE`.** Hoy el color sigue siendo un tint por blob (voto de ink). Subir el
   bitmap como textura `Nearest` con UVs por vértice daría color exacto por píxel y
   conservaría el attribute clash, que es parte de la estética. Es de lo más rendidor que
