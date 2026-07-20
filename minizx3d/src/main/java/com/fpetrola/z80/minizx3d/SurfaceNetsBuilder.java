@@ -24,7 +24,6 @@ import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 
@@ -171,20 +170,23 @@ public final class SurfaceNetsBuilder {
       pos[i * 3 + 1] = rows / 2f - ey - .5f;
       pos[i * 3 + 2] = ez;
     }
-    float[] nrm = vertexNormals(pos, quads);
+    float[] nrm = gradientNormals(field, fx, fy, fz, verts, res);
 
     ModelBuilder mb = new ModelBuilder();
     mb.begin();
     Material m = new Material(ColorAttribute.createDiffuse(Color.WHITE));
-    m.set(new IntAttribute(IntAttribute.CullFace, GL20.GL_NONE));
     MeshPartBuilder part = mb.part("skin", GL20.GL_TRIANGLES, Usage.Position | Usage.Normal, m);
     short[] ids = new short[verts.size()];
     for (int i = 0; i < verts.size(); i++)
       ids[i] = part.vertex(pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2],
           nrm[i * 3], nrm[i * 3 + 1], nrm[i * 3 + 2]);
+    // reversed: the y mirror flips orientation, so the field-space order would leave every
+    // face pointing inward. Getting this right is what allows normal back-face culling,
+    // and culling is what keeps the shadow depth pass from writing BOTH faces of the
+    // sprite — which is what covered it in shadow acne.
     for (int[] q : quads) {
-      part.triangle(ids[q[0]], ids[q[1]], ids[q[2]]);
-      part.triangle(ids[q[0]], ids[q[2]], ids[q[3]]);
+      part.triangle(ids[q[0]], ids[q[2]], ids[q[1]]);
+      part.triangle(ids[q[0]], ids[q[3]], ids[q[2]]);
     }
     return mb.end();
   }
@@ -257,7 +259,65 @@ public final class SurfaceNetsBuilder {
   }
 
   /**
-   * Smooth shading: average the faces meeting at each vertex, then NEGATE.
+   * Normals from the FIELD GRADIENT, sampled with trilinear interpolation.
+   *
+   * <p>Averaging face normals — the obvious choice, and what the reference prototype does
+   * via three.js computeVertexNormals — is noisy here: the mesh follows a staircase of
+   * cells, so the normal jumps from one cell to the next. The viewer then adds a broad
+   * specular highlight ({@code wetten}), which amplifies exactly that jitter, and the
+   * surface reads as a dirty dithered texture. The blurred field is smooth by construction,
+   * so its gradient gives continuous normals and the speckle disappears.
+   *
+   * <p>The field is {@code 0.5 - occupancy}: it INCREASES outward, so the outward normal is
+   * +gradient. Only y is negated, for the mirror into model space.
+   */
+  private static float[] gradientNormals(float[] f, int nx, int ny, int nz,
+                                         List<float[]> verts, int res) {
+    float[] out = new float[verts.size() * 3];
+    // Sample the gradient a whole SPRITE PIXEL apart, not a fraction of a cell. Sampling
+    // finer than a pixel picks up the cell staircase itself, and with the viewer's broad
+    // specular on top that reads as a dithered grime all over the surface. Widening the
+    // stencil low-passes the normals without touching the geometry.
+    float h = Math.max(1f, res);
+    for (int i = 0; i < verts.size(); i++) {
+      float[] v = verts.get(i);
+      float gx = sample(f, nx, ny, nz, v[0] + h, v[1], v[2]) - sample(f, nx, ny, nz, v[0] - h, v[1], v[2]);
+      float gy = sample(f, nx, ny, nz, v[0], v[1] + h, v[2]) - sample(f, nx, ny, nz, v[0], v[1] - h, v[2]);
+      float gz = sample(f, nx, ny, nz, v[0], v[1], v[2] + h) - sample(f, nx, ny, nz, v[0], v[1], v[2] - h);
+      gy = -gy; // model y is mirrored
+      float len = (float) Math.sqrt(gx * gx + gy * gy + gz * gz);
+      if (len < 1e-6f) {
+        out[i * 3 + 2] = 1;
+      } else {
+        out[i * 3] = gx / len;
+        out[i * 3 + 1] = gy / len;
+        out[i * 3 + 2] = gz / len;
+      }
+    }
+    return out;
+  }
+
+  /** trilinear sample of the field; outside the box it reads as solidly outside. */
+  private static float sample(float[] f, int nx, int ny, int nz, float x, float y, float z) {
+    if (x < 0 || y < 0 || z < 0 || x > nx - 1 || y > ny - 1 || z > nz - 1)
+      return .5f;
+    int x0 = (int) x, y0 = (int) y, z0 = (int) z;
+    int x1 = Math.min(nx - 1, x0 + 1), y1 = Math.min(ny - 1, y0 + 1), z1 = Math.min(nz - 1, z0 + 1);
+    float tx = x - x0, ty = y - y0, tz = z - z0;
+    float c00 = lerp(f[x0 + nx * (y0 + ny * z0)], f[x1 + nx * (y0 + ny * z0)], tx);
+    float c10 = lerp(f[x0 + nx * (y1 + ny * z0)], f[x1 + nx * (y1 + ny * z0)], tx);
+    float c01 = lerp(f[x0 + nx * (y0 + ny * z1)], f[x1 + nx * (y0 + ny * z1)], tx);
+    float c11 = lerp(f[x0 + nx * (y1 + ny * z1)], f[x1 + nx * (y1 + ny * z1)], tx);
+    return lerp(lerp(c00, c10, ty), lerp(c01, c11, ty), tz);
+  }
+
+  private static float lerp(float a, float b, float t) {
+    return a + (b - a) * t;
+  }
+
+  /**
+   * Smooth shading: average the faces meeting at each vertex, then NEGATE. Kept for
+   * reference; {@link #gradientNormals} is used instead because face averaging speckles.
    *
    * <p>The negation is the whole point. Mirroring y into model space reverses orientation,
    * so a normal derived from the mirrored positions points INTO the solid. three.js hides
