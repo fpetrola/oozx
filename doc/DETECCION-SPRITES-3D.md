@@ -213,6 +213,27 @@ Otras dos cosas aprendidas, que conviene no volver a descubrir:
   lugar distinto por pantalla, así que acumula mucha movilidad), y `drift` queda como la única
   señal local en el tiempo.
 
+**La estela del personaje en Exolon: por qué NO se arregla con el gate** (medido). El gate de
+frescura funciona (con `fresh.frames=8` solo sobreviven bytes escritos hace ≤8 frames), y aun
+así el personaje deja estela. La causa está medida: en un frame de juego, el **97-100% de los
+bytes con dueño tienen origen MEZCLADO** — todos tienen más de una hoja, y todos combinan el
+gráfico que los reclama con algo de afuera. Exolon dibuja con máscara (`fondo AND máscara OR
+sprite`), así que la taint de cada byte pintado es la UNIÓN de fondo y sprite, y `spriteOf`
+se queda con el sprite. Consecuencia: cuando el personaje se va y el juego pinta fondo encima
+con la misma rutina enmascarada, el byte nuevo **sigue conteniendo las direcciones del
+sprite** → se le sigue atribuyendo al personaje. Es un byte recién escrito, así que ninguna
+ventana de frescura lo distingue del personaje real: por eso no es cuestión de bajar el
+umbral. Y hay una tensión de fondo que impide bajarlo igual: en un motor de dirty-regions un
+sprite quieto NO se repinta, así que una ventana corta lo haría parpadear (es exactamente la
+regresión que rompió JSW cuando el default fue 3). Encima, agrupar por adyacencia **suelda**
+la estela al personaje en un solo blob.
+
+Esto es el **paso 3 (taint por bit)**, no una perilla: el taint es por byte y Exolon compone
+por bit. La variante liviana que alcanza — y que conviene sobre el taint por bit completo —
+es llevar por cada byte de pantalla una **máscara de qué bits vinieron de un sprite**: en un
+`AND máscara / OR sprite` esos bits se calculan exactos, y un byte cuya máscara quedó en 0 ya
+no le pertenece al sprite aunque su unión de orígenes lo siga nombrando.
+
 **Tope de malla (`Too many vertices`)**: una malla de libGDX indexa con shorts → 32767
 vértices por modelo. Agrupar SOLO por adyacencia (que es lo que hace que un objeto compuesto
 salga entero) implica que un byte de fondo mal reclamado encadena una banda entera de pantalla
