@@ -95,13 +95,24 @@ public final class SpriteFx {
         return d;
       float cx = (minX + maxX) / 2f, cy = (minY + maxY) / 2f;
       float rx = Math.max(.5f, (maxX - minX) / 2f), ry = Math.max(.5f, (maxY - minY) / 2f);
+      // SAME scale as the smooth path (SmoothSpriteBuilder): radius-sized volume, gain, and
+      // the roundness blend against the sprite's own relief, both sides normalized. If the
+      // two paths disagreed, toggling the voxel look would also change the depth.
+      float radiusPx = Math.min(rx, ry);
+      int[][] dist0 = chamfer(mask);
+      float dmax = 0;
+      for (int[] row : dist0)
+        for (int v0 : row)
+          dmax = Math.max(dmax, v0);
       for (int y = 0; y < rows; y++)
         for (int x = 0; x < w; x++)
           if (mask[y][x]) {
             float u = (x - cx) / rx, v = (y - cy) / ry;
             float p = profile(c.primitive, u, v);
-            // roundness blends the flat silhouette (1) toward the primitive's profile
-            d[y][x] = Math.max(.5f, c.depth * 4f * (1 - c.roundness + c.roundness * p));
+            float own = radiusPx * (dmax <= 0 ? 0 : dist0[y][x] / dmax);
+            float geo = radiusPx * p;
+            d[y][x] = Math.max(.5f, c.depth * SmoothSpriteBuilder.GAIN
+                * ((1 - c.roundness) * own + c.roundness * geo));
           }
       return d;
     }

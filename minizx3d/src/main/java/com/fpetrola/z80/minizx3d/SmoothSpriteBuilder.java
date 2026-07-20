@@ -54,7 +54,7 @@ public final class SmoothSpriteBuilder {
    * it is wide", and D/C keeps working from there. Only the primitives are rebased: the
    * plain INFLATE path still means exactly what it always meant.
    */
-  private static final float GAIN = 2.4f;
+  static final float GAIN = 2.4f;
   private static final float INSIDE = 0.45f;        // <.5 keeps single-pixel diagonals connected
 
   /**
@@ -199,7 +199,11 @@ public final class SmoothSpriteBuilder {
           // NORMALIZED to the same peak (radiusPx) first: mixing raw magnitudes let the
           // distance term — which is much smaller — drag the whole body flat, which is why
           // a "rounder" setting was coming out shallower instead of just less generic.
-          float own = radiusPx * (dmax <= 0 ? 0 : (float) Math.sqrt(d[gy][gx] / dmax));
+          // LINEAR in the distance, not sqrt: the square root compressed everything inward
+          // toward the full radius, so a thin arm ended up as thick as the torso and the
+          // character read as an undifferentiated blob. Linear keeps the sprite's own
+          // proportions while the thickest point still reaches "as deep as it is wide".
+          float own = radiusPx * (dmax <= 0 ? 0 : d[gy][gx] / dmax);
           float geo = radiusPx * p;
           h[gy][gx] = depthScale * GAIN * ((1 - roundness) * own + roundness * geo) * taper;
         }

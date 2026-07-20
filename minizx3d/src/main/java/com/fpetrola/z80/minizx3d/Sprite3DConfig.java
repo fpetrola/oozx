@@ -44,6 +44,13 @@ public final class Sprite3DConfig {
   public float voxelFill = 1f;
   /** layers stacked in z, {@link Technique#STACK} only. */
   public int stackLayers = 4;
+  /**
+   * Chunky look: render the technique's depth field as voxel boxes instead of a smooth
+   * skin. It is the viewer's M toggle, and it lives OUTSIDE the technique on purpose —
+   * the rules pick the technique, so once they started forcing PRIMITIVE the M key had
+   * nothing left to switch and appeared dead. Rules never set this; the viewer does.
+   */
+  public boolean voxelLook;
   public ColorMode colorMode = ColorMode.SINGLE;
   /** optional hand-painted depth per pixel (w*h), overrides the technique's own profile. */
   public float[] customDepthMap;
@@ -61,6 +68,7 @@ public final class Sprite3DConfig {
     c.voxelFill = voxelFill;
     c.stackLayers = stackLayers;
     c.colorMode = colorMode;
+    c.voxelLook = voxelLook;
     c.customDepthMap = customDepthMap == null ? null : customDepthMap.clone();
     return c;
   }
@@ -83,6 +91,7 @@ public final class Sprite3DConfig {
     h = (h ^ Float.floatToIntBits(voxelFill)) * 1099511628211L;
     h = (h ^ stackLayers) * 1099511628211L;
     h = (h ^ colorMode.ordinal()) * 1099511628211L;
+    h = (h ^ (voxelLook ? 1 : 0)) * 1099511628211L;
     if (customDepthMap != null)
       for (float f : customDepthMap)
         h = (h ^ Float.floatToIntBits(f)) * 1099511628211L;

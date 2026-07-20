@@ -1927,6 +1927,9 @@ public class JSW3D extends ApplicationAdapter {
     c.technique = smooth ? Sprite3DConfig.Technique.INFLATE : Sprite3DConfig.Technique.VOXELS;
     c.depth = depthScale;
     c.smoothLevel = smoothLevel;
+    // M stays meaningful even when a rule forces a technique: it switches the FINISH, so
+    // voxel mode shows the primitive's volume as boxes instead of a smooth skin
+    c.voxelLook = !smooth;
     return c;
   }
 

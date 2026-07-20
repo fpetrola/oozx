@@ -164,7 +164,7 @@ public interface MeshBakingStrategy {
   final class PrimitiveProfile implements MeshBakingStrategy {
     public Model bake(SpriteBitmap b, Sprite3DConfig c) {
       SpriteBitmap s = SpriteFx.preprocess(b, c);
-      if (c.voxelFill < 1f) {
+      if (c.voxelLook || c.voxelFill < 1f) {
         boolean[][] mask = s.mask();
         return VoxelSpriteBuilder.buildWithDepth(mask, SpriteFx.depthField(s, c, mask),
             c.voxelFill, c.doubleSided);
@@ -175,7 +175,7 @@ public interface MeshBakingStrategy {
 
     public int vertexEstimate(SpriteBitmap b, Sprite3DConfig c) {
       int k = c.epx > 1 ? c.epx : 1;
-      if (c.voxelFill < 1f)
+      if (c.voxelLook || c.voxelFill < 1f)
         return VoxelSpriteBuilder.vertexCount(b.litPixels() * k * k);
       return SmoothSpriteBuilder.vertexCount(b.wBytes * k, b.rows * k);
     }

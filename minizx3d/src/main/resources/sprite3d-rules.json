@@ -27,40 +27,40 @@
       "name": "item-redondo",
       "_why": "compacto, convexo y casi cuadrado -> ESFERA",
       "when": { "aspect": [0.75, 1.35], "solidity": [0.78, 1], "fill": [0.5, 1], "litPixels": [0, 400] },
-      "then": { "technique": "PRIMITIVE", "primitive": "SPHERE", "roundness": 0.75 }
+      "then": { "technique": "PRIMITIVE", "primitive": "SPHERE", "roundness": 0.35 }
     },
     {
       "name": "humanoide",
       "_why": "mas alto que ancho y simetrico -> OVOIDE, mas lleno que la esfera,",
       "_why2": "que es lo que le sienta a cabeza y torso sin afinar las extremidades",
       "when": { "aspect": [1.15, 3.5], "symmetryV": [0.6, 1], "solidity": [0.35, 0.9] },
-      "then": { "technique": "PRIMITIVE", "primitive": "OVOID", "roundness": 0.6 }
+      "then": { "technique": "PRIMITIVE", "primitive": "OVOID", "roundness": 0.3 }
     },
     {
       "name": "bicho-compacto",
       "_why": "blob convexo sin eje dominante -> ESFERA. Antes era ALMOHADON y salia CUADRADO:",
       "_why2": "la super-elipse se mantenia en ~1 sobre toda la caja y daba una losa de tapa plana",
       "when": { "aspect": [0.6, 1.6], "solidity": [0.6, 1], "fill": [0.45, 1] },
-      "then": { "technique": "PRIMITIVE", "primitive": "SPHERE", "roundness": 0.65 }
+      "then": { "technique": "PRIMITIVE", "primitive": "SPHERE", "roundness": 0.3 }
     },
     {
       "name": "columna-vertical",
       "_why": "alto y angosto y macizo -> CILINDRO VERTICAL",
       "when": { "aspect": [1.8, 99], "fill": [0.6, 1] },
-      "then": { "technique": "PRIMITIVE", "primitive": "CYL_V", "roundness": 0.7 }
+      "then": { "technique": "PRIMITIVE", "primitive": "CYL_V", "roundness": 0.3 }
     },
     {
       "name": "ancho-tumbado",
       "_why": "mucho mas ancho que alto -> CILINDRO HORIZONTAL (vehiculos, troncos, barras)",
       "when": { "aspect": [0, 0.55], "solidity": [0.6, 1] },
-      "then": { "technique": "PRIMITIVE", "primitive": "CYL_H", "roundness": 0.7 }
+      "then": { "technique": "PRIMITIVE", "primitive": "CYL_H", "roundness": 0.3 }
     },
     {
       "name": "organico-con-huecos",
       "_why": "irregular y con huecos reales: roundness bajo para seguir su propia forma.",
       "_why2": "SURFACE_NETS quedo FUERA de la seleccion automatica (salian cascaras huecas)",
       "when": { "holes": [2, 99], "solidity": [0, 0.55], "litPixels": [80, 99999] },
-      "then": { "technique": "PRIMITIVE", "primitive": "OVOID", "roundness": 0.5 }
+      "then": { "technique": "PRIMITIVE", "primitive": "OVOID", "roundness": 0.25 }
     },
     {
       "name": "angular-asimetrico",
@@ -75,7 +75,7 @@
       "_why2": "INFLATE con el slider crudo y daba profundidad ~0.15 de su ancho, o sea chato.",
       "_why3": "roundness bajo para que siga la forma propia y no lo convierta en un huevo.",
       "when": { "litPixels": [12, 99999] },
-      "then": { "technique": "PRIMITIVE", "primitive": "OVOID", "roundness": 0.5 }
+      "then": { "technique": "PRIMITIVE", "primitive": "OVOID", "roundness": 0.25 }
     }
   ]
 }
