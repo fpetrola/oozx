@@ -229,10 +229,33 @@ regresión que rompió JSW cuando el default fue 3). Encima, agrupar por adyacen
 la estela al personaje en un solo blob.
 
 Esto es el **paso 3 (taint por bit)**, no una perilla: el taint es por byte y Exolon compone
-por bit. La variante liviana que alcanza — y que conviene sobre el taint por bit completo —
-es llevar por cada byte de pantalla una **máscara de qué bits vinieron de un sprite**: en un
-`AND máscara / OR sprite` esos bits se calculan exactos, y un byte cuya máscara quedó en 0 ya
-no le pertenece al sprite aunque su unión de orígenes lo siga nombrando.
+por bit.
+
+**IMPLEMENTADO** (variante liviana, `-Dsprite.bits=true`, apagado por default; el perfil de
+Exolon lo activa): `OriginTaint.bits[0x10000]` + `regBits[32]` llevan, por byte y por
+registro, **qué bits vinieron de un bitmap de sprite**. Se propaga en paralelo al flujo de
+`srcTaint`/`pendingRead` que ya existía, y la regla no necesita decodificar el opcode:
+
+```
+bitsResultado = valorEscrito & (bits de todos los operandos leídos)
+```
+
+Enmascarar por el valor es lo que la hace servir para cualquier op: una copia conserva la
+máscara, un OR agrega los bits que puso el sprite, un AND/XOR tira los que la máscara apagó,
+y **fondo pintado encima de una posición abandonada deja la máscara en 0** — que es justo la
+estela que la unión sola no podía soltar. La máscara se siembra en `readBits`: leer un bitmap
+del catálogo marca todos sus bits encendidos. En `publish`, un byte con máscara 0 pierde el
+dueño; `updateBackdrop` borra **solo los bits del sprite** (antes borraba el byte entero) y el
+modelo 3D se infla solo con esos bits. Con la pasada apagada la máscara vale el byte entero,
+así que el comportamiento previo queda idéntico — verificado: JSW sale **byte-idéntico**.
+
+**Lo que arregló y lo que no** (medido sobre frames 6000-6400 de Exolon): sprites que se
+estiraban colapsan a su ancho real — `$ef40` pasó de 240px de bbox a **16px**. Pero el
+artefacto dominante de Exolon NO es la estela sino el catálogo: la máscara se siembra desde
+lo que el catálogo llama sprite, así que mientras `$edc0` (terreno) y `$fbe8` (fuente) estén
+catalogados como sprites, el terreno se sigue inflando y sus bbox siguen ocupando la pantalla
+entera. **La taint por bit no puede ser mejor que el catálogo**: conviene arreglar primero el
+clasificador (§5.1, medir `reuse`/`stamps` sin gatear) y ahí esta pasada rinde del todo.
 
 **Tope de malla (`Too many vertices`)**: una malla de libGDX indexa con shorts → 32767
 vértices por modelo. Agrupar SOLO por adyacencia (que es lo que hace que un objeto compuesto

@@ -65,12 +65,26 @@ public final class TaintReplay implements Runnable {
    * and DD's profile turns it on.
    */
   static final int FRESH_FRAMES = Integer.getInteger("fresh.frames", 0);
+  /**
+   * -Dsprite.bits: track WHICH BITS of a byte came from a sprite ({@link OriginTaint#bits}).
+   * Off by default — it only pays on engines that composite with a mask (Exolon's trail,
+   * Dynamite Dan's dotted guardians); where every sprite byte is a plain blit the mask is
+   * just the whole byte and nothing changes.
+   */
+  static final boolean BITS = Boolean.getBoolean("sprite.bits");
   /** -Dlog=true turns the console chatter on; silent by default so a user-launched run
    *  doesn't interleave with whatever else shares the terminal. */
   static final boolean LOG = Boolean.getBoolean("log");
 
   /** what the render thread sees: one complete frame, immutable. */
-  public record FrameSnapshot(int frame, byte[] pixels, byte[] attrs, int[] owner, int[] tile) {
+  /**
+   * @param spriteBits which bits of each screen byte are a sprite's own ink. Equals the
+   *                   whole byte wherever {@code owner} is set unless {@code -Dsprite.bits}
+   *                   is on, where a masked composite splits sprite and background inside
+   *                   one byte.
+   */
+  public record FrameSnapshot(int frame, byte[] pixels, byte[] attrs, int[] owner, int[] tile,
+                              byte[] spriteBits) {
   }
 
   private final String rzxPath;
@@ -315,6 +329,10 @@ public final class TaintReplay implements Runnable {
         if (a >= 0 && a <= 0xffff) {
           listener.lastRead = taint.read(a);
           listener.pendingRead = taint.union(listener.pendingRead, listener.lastRead);
+          if (BITS) {
+            listener.lastBits = taint.readBits(a, value.intValue());
+            listener.pendingBits |= listener.lastBits;
+          }
         }
       });
       memory.addMemoryWriteListener((address, value) -> {
@@ -323,11 +341,21 @@ public final class TaintReplay implements Runnable {
           memWrites[a]++;
           if (a >= SCREEN && a < SCREEN + PIXEL_BYTES)
             lastWrite[a - SCREEN] = listener.curFrame;
-          if (listener.inExecution && !listener.suppress)
+          if (listener.inExecution && !listener.suppress) {
             // a block copy pairs each write with the read just before it; anything else
             // combines what the instruction read from registers and memory
             taint.mem[a] = listener.bulk ? listener.lastRead
                 : taint.union(listener.srcTaint, listener.pendingRead);
+            // a bit is sprite ink if it SURVIVES into the stored value and some operand
+            // contributed it as sprite. Masking by the value is what makes this work for
+            // every compositing op without decoding it: a copy keeps the mask, OR adds the
+            // bits the sprite set, AND/XOR drop the ones the mask cleared — and plain
+            // background painted over an abandoned position clears the byte outright,
+            // which is exactly the trail the union alone could never let go of.
+            if (BITS)
+              taint.bits[a] = (byte) (value.intValue()
+                  & (listener.bulk ? listener.lastBits : listener.srcBits | listener.pendingBits));
+          }
           if (DEBUG && a >= SCREEN && a < SCREEN + PIXEL_BYTES) {
             listener.dbgScreenWrites++;
             if (!listener.inExecution)
@@ -364,6 +392,8 @@ public final class TaintReplay implements Runnable {
     volatile boolean inExecution, suppress, bulk, regSwap;
     volatile int curPc = -1, curLen, curFrame;
     int srcTaint, pendingRead, lastRead;
+    /** the same three, as sprite-bit masks (see {@link OriginTaint#bits}). */
+    int srcBits, pendingBits, lastBits;
     long dbgScreenWrites, dbgOutside, dbgSuppressed, dbgUntainted;
     final Map<Integer, Long> dbgSuppressedPcs = new HashMap<>();
     private int prevPc = -1, lastFrame = -1, pacedFrom;
@@ -385,11 +415,14 @@ public final class TaintReplay implements Runnable {
         info = catalog.computeIfAbsent(pc, k -> Z80OpcodeInfo.of(instruction));
         // taint sources: VAL-role register reads only. ADDR tells where a value lives,
         // COND steers control flow — neither is what the value is made of.
-        int t = OriginTaint.NONE;
+        int t = OriginTaint.NONE, tb = 0;
         for (int slot : info.reads)
-          if (info.roles.getOrDefault(Tracer.CH_NAME[slot], "").indexOf('V') >= 0)
+          if (info.roles.getOrDefault(Tracer.CH_NAME[slot], "").indexOf('V') >= 0) {
             t = taint.union(t, taint.reg[slot]);
+            tb |= taint.regBits[slot];
+          }
         srcTaint = t;
+        srcBits = tb;
         int frame = io.getCurrentFrameIndex();
         curFrame = frame;
         if (frame != lastFrame) {
@@ -425,6 +458,9 @@ public final class TaintReplay implements Runnable {
           int t1 = taint.reg[a];
           taint.reg[a] = taint.reg[b];
           taint.reg[b] = t1;
+          int b1 = taint.regBits[a];
+          taint.regBits[a] = taint.regBits[b];
+          taint.regBits[b] = b1;
         }
         regSwap = true;
       } else if (instruction instanceof com.fpetrola.z80.instructions.impl.Ex
@@ -434,6 +470,9 @@ public final class TaintReplay implements Runnable {
           int t1 = taint.reg[a];
           taint.reg[a] = taint.reg[b];
           taint.reg[b] = t1;
+          int b1 = taint.regBits[a];
+          taint.regBits[a] = taint.regBits[b];
+          taint.regBits[b] = b1;
         }
         regSwap = true;
       }
@@ -446,6 +485,7 @@ public final class TaintReplay implements Runnable {
       curLen = Math.max(1, instruction.getLength());
       pendingRead = OriginTaint.NONE;
       lastRead = OriginTaint.NONE;
+      pendingBits = lastBits = 0;
       inExecution = true;
     }
 
@@ -453,8 +493,12 @@ public final class TaintReplay implements Runnable {
     public void afterExecution(Instruction<WordNumber> instruction) {
       inExecution = false;
       if (!bulk && !regSwap)
-        for (int slot : info.writes)
+        for (int slot : info.writes) {
           taint.reg[slot] = taint.union(srcTaint, pendingRead);
+          // not masked by the register's new value (we do not have it here) — the mask is
+          // clamped by the value at the memory write, which is the only place it is read
+          taint.regBits[slot] = srcBits | pendingBits;
+        }
     }
 
     private void publish(int frame) {
@@ -462,6 +506,7 @@ public final class TaintReplay implements Runnable {
       byte[] attrs = new byte[ATTR_BYTES];
       int[] owner = new int[PIXEL_BYTES];
       int[] tile = new int[PIXEL_BYTES];
+      byte[] spriteBits = new byte[PIXEL_BYTES];
       for (int i = 0; i < PIXEL_BYTES; i++) {
         WordNumber w = data[SCREEN + i];
         pixels[i] = (byte) (w == null ? 0 : w.intValue());
@@ -471,13 +516,22 @@ public final class TaintReplay implements Runnable {
         // -Dfresh.frames=0 disables the gate (JSW/MM never leave stale sprite trails).
         owner[i] = FRESH_FRAMES <= 0 || frame - lastWrite[i] <= FRESH_FRAMES
             ? taint.spriteOf(node) : 0;
+        // a byte whose sprite bits were all masked away belongs to no sprite, whatever its
+        // origins still say — that is what lets an abandoned trail go
+        if (BITS && taint.bits[SCREEN + i] == 0)
+          owner[i] = 0;
+        // downstream reads spriteBits as "the sprite's own ink inside this byte". With the
+        // per-bit pass off, an owned byte is sprite ink end to end, which is exactly the
+        // behaviour every game had before this existed.
+        spriteBits[i] = owner[i] == 0 ? 0
+            : BITS ? taint.bits[SCREEN + i] : (byte) 0xff;
         tile[i] = taint.tileOf(node);
       }
       for (int i = 0; i < ATTR_BYTES; i++) {
         WordNumber w = data[ATTRS + i];
         attrs[i] = (byte) (w == null ? 0 : w.intValue());
       }
-      onFrame.accept(new FrameSnapshot(frame, pixels, attrs, owner, tile));
+      onFrame.accept(new FrameSnapshot(frame, pixels, attrs, owner, tile, spriteBits));
     }
 
     /**

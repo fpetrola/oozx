@@ -1489,7 +1489,11 @@ public class JSW3D extends ApplicationAdapter {
         // the same plane Willy hangs from, not painted on the far backdrop.
         int bits;
         if (snap.owner()[i] != 0)
-          bits = 0;
+          // only the sprite's OWN ink leaves the backdrop. Under a masked compositing
+          // engine the rest of the byte is background that must stay painted; with the
+          // per-bit pass off the mask covers the whole byte, so this erases it entirely
+          // exactly as it always did
+          bits = snap.pixels()[i] & ~snap.spriteBits()[i] & 0xff;
         else if (snap.tile()[i] != 0 && y < playfieldRows * 8) {
           int tpl = replay.memByte(snap.tile()[i] - 1);
           int foreign = snap.pixels()[i] & ~tpl & 0xff;
@@ -1547,7 +1551,7 @@ public class JSW3D extends ApplicationAdapter {
           maxC = Math.max(maxC, c);
           minR = Math.min(minR, y);
           maxR = Math.max(maxR, y);
-          lit += Integer.bitCount(snap.pixels()[idx(y, c)] & 0xff);
+          lit += Integer.bitCount(snap.pixels()[idx(y, c)] & snap.spriteBits()[idx(y, c)] & 0xff);
           for (int dy = -1; dy <= 1; dy++)
             for (int dc = -1; dc <= 1; dc++) {
               int ny = y + dy, nc = c + dc;
@@ -1643,7 +1647,10 @@ public class JSW3D extends ApplicationAdapter {
             bmp = new byte[w * (b[4] - b[2] + 1)];
             for (int[] q : cells) {
               int i = ((q[1] & 0xC0) << 5) | ((q[1] & 7) << 8) | ((q[1] & 0x38) << 2) | q[0];
-              bmp[(q[1] - b[2]) * w + (q[0] - b[1])] = snap.pixels()[i];
+              // the sprite's own ink only: inflating the background bits of a masked byte
+              // would grow the model out into the scenery it was composited over
+              bmp[(q[1] - b[2]) * w + (q[0] - b[1])] =
+                  (byte) (snap.pixels()[i] & snap.spriteBits()[i]);
             }
           }
           bitmaps.add(bmp);

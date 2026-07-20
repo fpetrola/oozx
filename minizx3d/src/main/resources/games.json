@@ -33,7 +33,8 @@
         "items": "false",
         "blobs": "adjacent",
         "playfield.rows": "20",
-        "fresh.frames": "8"
+        "fresh.frames": "8",
+        "sprite.bits": "true"
       }
     }
   }

@@ -54,6 +54,31 @@ public final class OriginTaint {
   public final int[] mem = new int[0x10000];
   public final int[] reg = new int[32];
 
+  /**
+   * Per-BIT refinement of the same ownership question, for engines that composite with a
+   * mask ({@code fondo AND mascara OR sprite}). The node graph answers "which addresses is
+   * this byte made of", and under masking that union names the sprite forever: once the
+   * player has passed over a byte, background painted on top through the same masked
+   * routine still carries the sprite's addresses, so {@link #spriteOf} keeps calling it the
+   * player and the sprite smears a trail behind it. Freshness cannot tell those apart —
+   * the trail byte was just written too.
+   *
+   * <p>These masks say WHICH BITS of a byte actually came from a sprite bitmap, which the
+   * union cannot express. A byte whose mask is 0 belongs to no sprite however its origins
+   * read. See doc/DETECCION-SPRITES-3D.md §5.1.
+   */
+  public final byte[] bits = new byte[0x10000];
+  public final int[] regBits = new int[32];
+
+  /**
+   * Sprite bits of a value read from {@code addr}: reading a sprite bitmap SEEDS the mask
+   * (every set bit of it is sprite ink), anywhere else the byte carries whatever mask it
+   * was last written with.
+   */
+  public int readBits(int addr, int value) {
+    return catalogBase[addr & 0xffff] != 0 ? value & 0xff : bits[addr & 0xffff] & 0xff;
+  }
+
   private int[] ua = new int[1 << 14], ub = new int[1 << 14];
   private int[] uDepth = new int[1 << 14];
   private int[] uSprite = new int[1 << 14];
