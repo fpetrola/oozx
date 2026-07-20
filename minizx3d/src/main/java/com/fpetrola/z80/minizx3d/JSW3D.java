@@ -2036,11 +2036,10 @@ public class JSW3D extends ApplicationAdapter {
   private void ghostTile(int col, int y0, int leaf, int attr) {
     int tStride = catalog.tileStride(leaf);
     boolean item = itemLeaves.contains(leaf) && tStride == 1;
-    Model model = modelCache.computeIfAbsent(item ? -leaf - 0x10000 : -leaf, k -> item
-        ? (smooth
-           ? SmoothSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depthScale)
-           : VoxelSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depthScale))
-        : TileSlabBuilder.build(leaf, replay::memByte, slabDepth(), tStride));
+    Model model = item
+        ? sprite3d.model(SpriteBitmap.ofMemory(leaf, 8, 1, replay::memByte), viewerDefaults())
+        : modelCache.computeIfAbsent(-leaf,
+            k -> TileSlabBuilder.build(leaf, replay::memByte, slabDepth(), tStride));
     if (model == null)
       return;
     ModelInstance inst = new ModelInstance(model);
@@ -2168,11 +2167,13 @@ public class JSW3D extends ApplicationAdapter {
         boolean item = itemLeaves.contains(leaf) && tStride == 1;
         // an air cell (empty bitmap) builds no model; computeIfAbsent leaves null uncached,
         // so the cheap 8-byte mask check re-runs — fine
-        Model model = modelCache.computeIfAbsent(item ? -leaf - 0x10000 : -leaf, k -> item
-            ? (smooth
-               ? SmoothSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depthScale)
-               : VoxelSpriteBuilder.build(leaf, 8, 1, replay::memByte, smoothLevel, depthScale))
-            : TileSlabBuilder.build(leaf, replay::memByte, slabDepth(), tStride));
+        // an ITEM is a graphic, not architecture, so it goes through Sprite3D like any
+        // sprite. It used to call the builders straight from here, which is why one object
+        // in a room could stay flat while every real sprite around it got the oval.
+        Model model = item
+            ? sprite3d.model(SpriteBitmap.ofMemory(leaf, 8, 1, replay::memByte), viewerDefaults())
+            : modelCache.computeIfAbsent(-leaf,
+                k -> TileSlabBuilder.build(leaf, replay::memByte, slabDepth(), tStride));
         if (model == null)
           continue;
         solidCells[cell] = true;

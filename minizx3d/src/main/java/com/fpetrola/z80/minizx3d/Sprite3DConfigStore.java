@@ -95,8 +95,10 @@ public final class Sprite3DConfigStore {
         TechniqueSelector.apply(v, c); // same field mapping the rules use
         overrides.put(Integer.parseInt(v.name.replace("$", ""), 16), c);
       }
-      if (TaintReplay.LOG)
-        System.out.println("Sprite3D: " + overrides.size() + " overrides desde " + f);
+      if (!overrides.isEmpty())
+        System.out.println("Sprite3D: " + overrides.size() + " OVERRIDES a mano desde " + f
+            + " — le ganan a las reglas automaticas: " + overrides.keySet().stream()
+            .map(k -> "$" + Integer.toHexString(k)).toList());
     } catch (Exception e) {
       System.out.println("Sprite3D: no se pudo leer overrides: " + e);
     }
@@ -110,7 +112,7 @@ public final class Sprite3DConfigStore {
       sb.append(String.format("  \"$%04x\": { \"technique\": \"%s\", \"primitive\": \"%s\","
               + " \"colorMode\": \"%s\", \"depth\": %s, \"roundness\": %s,"
               + " \"doubleSided\": %s, \"epx\": %d, \"smoothLevel\": %d, \"smoothing\": %s,"
-              + " \"voxelFill\": %s, \"stackLayers\": %d }%s%n",
+              + " \"voxelFill\": %s, \"stackLayers\": %d, \"voxelLook\": %s }%s%n",
           e.getKey(), c.technique, c.primitive, c.colorMode, c.depth, c.roundness,
           c.doubleSided, c.epx, c.smoothLevel, c.smoothing, c.voxelFill, c.stackLayers,
           ++i < overrides.size() ? "," : ""));
