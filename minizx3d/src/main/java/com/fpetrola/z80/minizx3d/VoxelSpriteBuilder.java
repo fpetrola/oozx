@@ -91,6 +91,11 @@ public final class VoxelSpriteBuilder {
     return mb.end();
   }
 
+  /** vertices this builder would emit: one box (6 quads) per solid pixel. */
+  public static int vertexCount(int litPixels) {
+    return 24 * litPixels;
+  }
+
   /** 3x3 blur over the solid pixels only — the silhouette (zeros outside) stays put. */
   private static float[][] blurInside(float[][] d) {
     int rows = d.length, w = d[0].length;

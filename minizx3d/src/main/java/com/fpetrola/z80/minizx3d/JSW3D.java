@@ -656,6 +656,8 @@ public class JSW3D extends ApplicationAdapter {
       frameLights.clear();
       effects.clearFireSpots();
       long t0 = perf ? System.nanoTime() : 0;
+      if (blobsAdjacent)
+        demoteOversizedBlobs(snap); // must precede updateBackdrop: it reads owner()
       updateBackdrop(snap);
       long t1 = perf ? System.nanoTime() : 0;
       updateSprites(snap);
@@ -1506,6 +1508,70 @@ public class JSW3D extends ApplicationAdapter {
       }
     }
     screenTex.draw(pixmap, 0, 0);
+  }
+
+  /** a libGDX mesh indexes its vertices with shorts, so one model tops out here. */
+  private static final int MAX_VERTICES = Short.MAX_VALUE;
+
+  /**
+   * Adjacent mode only: revoke ownership of any blob whose model would blow past
+   * {@link #MAX_VERTICES}, BEFORE {@link #updateBackdrop} reads the flags — that ordering is
+   * the point. Those bytes then stay in the flat 2D backdrop; skipping them later instead
+   * would punch a black hole, because updateBackdrop erases every sprite-owned byte.
+   *
+   * <p>Grouping by adjacency alone (which is what lets a composite object come out whole)
+   * means one over-claimed background byte can chain a whole screen band into a single blob:
+   * Exolon's terrain is one connected run of hundreds of cells, and inflating it threw
+   * "Too many vertices". A blob that big is scenery the catalog over-claimed, not an entity,
+   * so dropping it to 2D is also the better picture — until the classifier stops handing
+   * out terrain as sprites (doc DETECCION-SPRITES-3D §5.1).
+   */
+  private void demoteOversizedBlobs(TaintReplay.FrameSnapshot snap) {
+    int[] owner = snap.owner();
+    boolean[] seen = new boolean[TaintReplay.PIXEL_BYTES];
+    java.util.ArrayDeque<Integer> queue = new java.util.ArrayDeque<>();
+    List<Integer> cells = new ArrayList<>();
+    for (int y0 = 0; y0 < H; y0++)
+      for (int c0 = 0; c0 < 32; c0++) {
+        int i0 = idx(y0, c0);
+        if (owner[i0] == 0 || seen[i0])
+          continue;
+        cells.clear();
+        seen[i0] = true;
+        queue.add((y0 << 5) | c0);
+        int minC = c0, maxC = c0, minR = y0, maxR = y0, lit = 0;
+        while (!queue.isEmpty()) {
+          int p = queue.poll(), y = p >> 5, c = p & 31;
+          cells.add(p);
+          minC = Math.min(minC, c);
+          maxC = Math.max(maxC, c);
+          minR = Math.min(minR, y);
+          maxR = Math.max(maxR, y);
+          lit += Integer.bitCount(snap.pixels()[idx(y, c)] & 0xff);
+          for (int dy = -1; dy <= 1; dy++)
+            for (int dc = -1; dc <= 1; dc++) {
+              int ny = y + dy, nc = c + dc;
+              if (ny < 0 || ny >= H || nc < 0 || nc >= 32)
+                continue;
+              int i = idx(ny, nc);
+              if (owner[i] != 0 && !seen[i]) {
+                seen[i] = true;
+                queue.add((ny << 5) | nc);
+              }
+            }
+        }
+        int verts = smooth
+            ? SmoothSpriteBuilder.vertexCount(maxC - minC + 1, maxR - minR + 1)
+            : VoxelSpriteBuilder.vertexCount(lit);
+        if (verts > MAX_VERTICES)
+          for (int p : cells)
+            owner[idx(p >> 5, p & 31)] = 0;
+      }
+  }
+
+  /** screen-byte index of a (row, column) cell: the interleaved Spectrum layout. */
+  private static int idx(int y, int col) {
+    return ((y & 0xC0) << 5) | ((y & 7) << 8) | ((y & 0x38) << 2) | col;
   }
 
   /**

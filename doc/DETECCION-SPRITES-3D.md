@@ -213,6 +213,19 @@ Otras dos cosas aprendidas, que conviene no volver a descubrir:
   lugar distinto por pantalla, así que acumula mucha movilidad), y `drift` queda como la única
   señal local en el tiempo.
 
+**Tope de malla (`Too many vertices`)**: una malla de libGDX indexa con shorts → 32767
+vértices por modelo. Agrupar SOLO por adyacencia (que es lo que hace que un objeto compuesto
+salga entero) implica que un byte de fondo mal reclamado encadena una banda entera de pantalla
+en un solo blob: el terreno de Exolon es una tirada conexa de cientos de celdas y al inflarla
+reventaba. `JSW3D.demoteOversizedBlobs` (solo en modo `adjacent`) le revoca la propiedad a todo
+blob cuyo modelo no entre en el presupuesto, **antes** de `updateBackdrop` — ese orden es el
+punto: `updateBackdrop` borra todo byte con dueño, así que saltear el blob después dejaría un
+agujero negro en vez de dejarlo plano. El presupuesto lo calcula cada builder
+(`VoxelSpriteBuilder.vertexCount` = 24 por píxel encendido; `SmoothSpriteBuilder.vertexCount` =
+la retícula entera, frente y dorso, independiente de cuántos píxeles estén encendidos), así que
+el umbral vive donde se arman las mallas. Es red de seguridad Y mejor imagen: un blob así de
+grande es decorado que el catálogo reclamó de más. Verificado en los dos modos.
+
 **Límite práctico**: el `leafMemo` crece con los nodos union (10,4M nodos a 30.000 frames,
 3,7 GB de RSS). En una máquina de 7 GB, 30.000 frames es el techo; Exolon tiene 112.474.
 

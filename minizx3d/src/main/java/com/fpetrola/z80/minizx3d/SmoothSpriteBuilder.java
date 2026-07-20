@@ -82,6 +82,15 @@ public final class SmoothSpriteBuilder {
     return mb.end();
   }
 
+  /**
+   * Vertices this builder would emit for a {@code wBytes} x {@code rows} bitmap: the whole
+   * corner lattice, front and mirrored back. Unlike the voxel mode this does not depend on
+   * how many pixels are lit — the lattice is allocated over the bounding box either way.
+   */
+  public static int vertexCount(int wBytes, int rows) {
+    return 2 * (rows * K + 1) * (wBytes * 8 * K + 1);
+  }
+
   /** smoothed-silhouette distance field turned into the inflation height, on the corner lattice. */
   private static float[][] heights(boolean[][] mask, int smoothLevel, float depthScale) {
     int ny = mask.length * K, NX = mask[0].length * K;
