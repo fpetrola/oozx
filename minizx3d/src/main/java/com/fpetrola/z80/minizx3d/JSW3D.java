@@ -637,6 +637,10 @@ public class JSW3D extends ApplicationAdapter {
               modelCache.clear();
               retire(pixModelCache.values());
               pixModelCache.clear();
+              // sin esto el pipeline devuelve la config ya resuelta por personaje y M/D/C
+              // no cambian nada en pantalla
+              sprite3d.clear();
+              pendingDispose.addAll(sprite3d.drainRetired());
             }
             printStatus();
             return true;

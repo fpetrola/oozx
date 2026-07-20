@@ -137,6 +137,9 @@ public final class TechniqueSelector {
         case "doubleSided":
           c.doubleSided = v.asBoolean();
           break;
+        case "voxelLook":
+          c.voxelLook = v.asBoolean();
+          break;
         case "epx":
           c.epx = v.asInt();
           break;

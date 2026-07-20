@@ -26,6 +26,19 @@ public final class SpriteFx {
   private SpriteFx() {
   }
 
+  /**
+   * Hard cap on total depth, in voxels (-Dsprite3d.maxdepth). The volume is otherwise scaled
+   * by each sprite's own radius, so a 16px-wide enemy got 16 deep and read as a barrel. With
+   * the cap at 8 an 8px-wide Willy is 8 wide and 8 deep at the thickest point of the oval,
+   * and anything wider stays at 8 instead of growing with it.
+   */
+  public static final float MAX_DEPTH = Float.parseFloat(System.getProperty("sprite3d.maxdepth", "8"));
+
+  /** half of {@link #MAX_DEPTH}: the surface is built as +h and -h around the sprite plane. */
+  public static float maxHalfDepth() {
+    return MAX_DEPTH / 2f;
+  }
+
   /** the EPX/Scale2x passes a config asks for; {@code epx <= 1} returns the sprite as is. */
   public static SpriteBitmap preprocess(SpriteBitmap b, Sprite3DConfig c) {
     if (c.epx <= 1)
@@ -111,9 +124,23 @@ public final class SpriteFx {
             float p = profile(c.primitive, u, v);
             float own = radiusPx * (dmax <= 0 ? 0 : dist0[y][x] / dmax);
             float geo = radiusPx * p;
-            d[y][x] = Math.max(.5f, c.depth * SmoothSpriteBuilder.GAIN
-                * ((1 - c.roundness) * own + c.roundness * geo));
+            d[y][x] = 2f * c.depth * SmoothSpriteBuilder.GAIN
+                * ((1 - c.roundness) * own + c.roundness * geo);
           }
+      // scale to the cap instead of clipping: clipping flattens the top of the volume and
+      // the oval reads as a box with a flat lid
+      float peak = 0;
+      for (float[] row : d)
+        for (float v : row)
+          peak = Math.max(peak, v);
+      if (peak > MAX_DEPTH && peak > 0)
+        for (float[] row : d)
+          for (int i = 0; i < row.length; i++)
+            row[i] *= MAX_DEPTH / peak;
+      for (int y = 0; y < rows; y++)
+        for (int x = 0; x < w; x++)
+          if (mask[y][x])
+            d[y][x] = Math.max(.5f, d[y][x]);
       return d;
     }
     int[][] dist = chamfer(mask);

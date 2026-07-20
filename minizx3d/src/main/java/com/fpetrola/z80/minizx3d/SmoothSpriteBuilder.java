@@ -208,6 +208,22 @@ public final class SmoothSpriteBuilder {
           h[gy][gx] = depthScale * GAIN * ((1 - roundness) * own + roundness * geo) * taper;
         }
     }
+    if (primitive != null) {
+      // Respect the depth cap by SCALING, not by clipping. min() flattened the top of the
+      // volume — everything inside saturated at the limit and the oval came out as a box
+      // with a flat lid. Scaling keeps the profile's shape and just makes its peak the cap.
+      float peak = 0;
+      for (float[] row : h)
+        for (float v : row)
+          peak = Math.max(peak, v);
+      float cap = SpriteFx.maxHalfDepth();
+      if (peak > cap && peak > 0) {
+        float k = cap / peak;
+        for (float[] row : h)
+          for (int i = 0; i < row.length; i++)
+            row[i] *= k;
+      }
+    }
     for (int i = 0; i < Math.max(1, smoothLevel); i++)
       h = blur(h);
     return h;
