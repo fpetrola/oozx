@@ -99,8 +99,8 @@ public class JSW3D extends ApplicationAdapter {
    */
   private final String tilesMode = System.getProperty("tiles", "slab");
   private final boolean tilesOn = !"false".equals(tilesMode);
-  /** relief depth as a fraction of the sprite depth, so entities still stand out. */
-  private final float reliefDepth = Float.parseFloat(System.getProperty("relief.depth", "0.45"));
+  /** screen-relief slab depth as a fraction of {@link #slabDepth()} — 1 matches the tiles. */
+  private final float reliefDepth = Float.parseFloat(System.getProperty("relief.depth", "1"));
   /** screen-pixel sprite models, keyed by content hash (animation frames each get one). */
   private final Map<Long, Model> pixModelCache = new HashMap<>();
   private final List<ModelInstance> spriteInstances = new ArrayList<>();
@@ -667,6 +667,16 @@ public class JSW3D extends ApplicationAdapter {
       frameLights.clear();
       effects.clearFireSpots();
       long t0 = perf ? System.nanoTime() : 0;
+      // Screen-pixel models are content-hashed and shared by the sprite blobs and the
+      // background relief, so the cache is emptied HERE — once a frame, before anything
+      // rebuilds this frame's instances. Doing it inside updateSprites meant the relief's
+      // ~640 cells/frame kept pushing it over the limit and the whole set was disposed and
+      // rebuilt every single frame; the viewer slowed to a crawl. The bound is generous
+      // because a dithered texture only has so many distinct 8x8 patterns.
+      if (pixModelCache.size() > 4096) {
+        pixModelCache.values().forEach(Model::dispose);
+        pixModelCache.clear();
+      }
       if (blobsAdjacent)
         demoteOversizedBlobs(snap); // must precede updateBackdrop: it reads owner()
       updateBackdrop(snap);
@@ -1676,12 +1686,6 @@ public class JSW3D extends ApplicationAdapter {
       }
     spriteInstances.clear();
     spriteBoxes.clear();
-    // pixel-model cache eviction happens BEFORE any instance references this frame's
-    // models: disposing mid-loop would pull a model out from under its own instance
-    if (pixModelCache.size() > 512) {
-      pixModelCache.values().forEach(Model::dispose);
-      pixModelCache.clear();
-    }
     for (int bi = 0; bi < blobs.size(); bi++) {
       int[] blob = blobs.get(bi);
       int base = blob[0] - 1;
@@ -1766,6 +1770,21 @@ public class JSW3D extends ApplicationAdapter {
   }
 
   /**
+   * A tile SLAB built from a screen bitmap instead of a memory template, content-hashed.
+   * Slab and not {@link #pixModel}: the sprite builders inflate a balloon around the
+   * silhouette, which reads as a thin puffy sheet — a platform has to be a solid block
+   * extruded back toward the backdrop, and it is that block's thickness that gives the
+   * characters at {@link #midZ()} something to stand in the middle of.
+   */
+  private Model pixSlab(byte[] bmp, float depth) {
+    long key = (Float.floatToIntBits(depth) * 31L + 0x5AB) * 1099511628211L;
+    for (byte x : bmp)
+      key = (key ^ (x & 0xff)) * 1099511628211L; // FNV-1a
+    return pixModelCache.computeIfAbsent(key,
+        k -> TileSlabBuilder.build(0, a -> bmp[a] & 0xff, depth, 1));
+  }
+
+  /**
    * Background relief built from the SCREEN, one model per 8x8 cell (-Dtiles=screen).
    *
    * <p>{@link #updateTiles} extrudes each cell from its tile TEMPLATE in memory, which needs
@@ -1798,16 +1817,21 @@ public class JSW3D extends ApplicationAdapter {
         }
         if (bits == 0) // air: nothing to extrude
           continue;
-        Model model = pixModel(bmp, 1, depthScale * reliefDepth);
+        Model model = pixSlab(bmp, slabDepth() * reliefDepth);
         if (model == null)
           continue;
         solidCells[cell] = !spriteHere;
         ModelInstance inst = new ModelInstance(model);
         inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
         int attr = snap.attrs()[cell] & 0xff;
-        Material mat = inst.materials.first();
-        mat.set(ColorAttribute.createDiffuse(PALETTE[(attr & 7) | ((attr >> 3) & 8)]));
-        wetten(mat);
+        Material ink = inst.getMaterial(TileSlabBuilder.INK);
+        ink.set(ColorAttribute.createDiffuse(PALETTE[(attr & 7) | ((attr >> 3) & 8)]));
+        wetten(ink);
+        Material paper = inst.getMaterial(TileSlabBuilder.PAPER);
+        if (paper != null) { // an all-ink cell has no paper part
+          paper.set(ColorAttribute.createDiffuse(PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
+          wetten(paper);
+        }
         tileInstances.add(inst);
       }
   }

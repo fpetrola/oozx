@@ -220,17 +220,31 @@ como imagen**: el juego quedaba casi todo plano, que es de donde habíamos parti
 3D no es arreglarlo.
 
 La solución es **`-Dtiles=screen`** (`JSW3D.updateScreenRelief`, activado en el perfil de
-Exolon): el relieve del fondo se construye **desde los píxeles de la pantalla**, un modelo
-por celda 8×8, en vez del template de memoria. Es el mismo atajo que ya usan los sprites
-compuestos (§5, atajo de render) y no necesita que el template sea válido, porque la pantalla
-ya tiene la imagen compuesta. Cacheado por hash de contenido, así que una banda de roca
-punteada colapsa a un puñado de modelos. Va más chato que los sprites (`-Drelief.depth`,
-0.45) para que las entidades sigan leyéndose como lo que está adelante. Los bytes del
-playfield se sacan del backdrop 2D, si no el relieve se ve doble.
+Exolon): el fondo se construye **desde los píxeles de la pantalla**, una celda 8×8 por vez,
+en vez del template de memoria. Es el mismo atajo que ya usan los sprites compuestos (§5,
+atajo de render) y no necesita que el template sea válido, porque la pantalla ya tiene la
+imagen compuesta. Cacheado por hash de contenido, así que una banda de roca punteada colapsa
+a un puñado de modelos. Los bytes del playfield se sacan del backdrop 2D, si no se ve doble.
 
-Resultado verificado: pilares, plataformas y terreno con relieve real, entidades en 3D
-adelante, y **el personaje como una sola figura sin estela**. JSW/MM siguen en `tiles=slab`
-(default), que es lo que sus fondos —tiles 8×8 de verdad— piden.
+**Y tiene que ser una LOSA, no un modelo de sprite** (`pixSlab` → `TileSlabBuilder`, no
+`pixModel`). Se probó primero con los builders de sprite y el fondo salía como una lámina
+inflada tipo globo, finita: no se estiraba hacia el fondo como una plataforma, y —el mismo
+síntoma visto de otra forma— los sprites móviles no se leían "en el medio" de ninguna
+profundidad, porque no había espesor donde estarlo. Los personajes se colocan en `midZ()`,
+que es **la mitad de `slabDepth()`**: es el espesor de la losa el que les da un adentro donde
+pararse. Con `relief.depth=1` el fondo usa la misma profundidad que los tiles de JSW y las
+entidades quedan embebidas en la escena igual que Willy entre sus plataformas.
+
+**Cuidado con el cache** (costó una corrida muerta): los modelos por píxeles de pantalla los
+comparten los blobs de sprite y el relieve, y la expulsión estaba adentro de `updateSprites`
+con tope 512. Las ~640 celdas por frame del relieve lo pasaban siempre, así que se destruía y
+reconstruía el juego de modelos entero **cada frame** y el visor se arrastraba (ni llegaba al
+frame pedido). Ahora se expulsa una vez por frame, antes de que nada reconstruya instancias,
+con tope 4096.
+
+Resultado verificado: estructuras y terreno extruidos hacia el fondo con caras laterales
+visibles, entidades en 3D en el medio de ese espesor, y **el personaje como una sola figura
+sin estela**. JSW/MM siguen en `tiles=slab` (default) y quedaron sin cambios.
 
 **Sigue abierto**: quedan bases catalogadas como sprite con bbox de pantalla completa
 (`$6400`, `$643e`, `$fbe6` — parecen gráficos de marcador/fuente), que son las que todavía
