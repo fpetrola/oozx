@@ -189,6 +189,9 @@ public class JSW3D extends ApplicationAdapter {
    */
   private final int[] cellLeaf = new int[24 * 32];
   private final int[] cellAttr = new int[24 * 32];
+  /** screen mode: each cell's last CLEAN pixels, so a ghost can rebuild the slab a
+   *  passing sprite just overwrote — without this, characters punched holes in walls. */
+  private final byte[][] cellBmp = new byte[24 * 32][];
   /**
    * tiles (slabs, ghosts, item detection) exist only in the PLAYFIELD — the top 16 cell
    * rows in JSW and Manic Miner alike (-Dplayfield.rows overrides). Below lives the
@@ -1747,9 +1750,10 @@ public class JSW3D extends ApplicationAdapter {
         // the same plane Willy hangs from, not painted on the far backdrop.
         int bits;
         if ("screen".equals(tilesMode) && y < playfieldRows * 8)
-          // every lit playfield byte is extruded by updateScreenRelief, sprite ink included:
-          // leaving it painted here too would show through as a flat ghost of the relief
-          bits = 0;
+          // slabs cover the tile-classified bytes and sprite models cover the owned ones;
+          // what the relief did NOT claim stays painted, flat. Blanking everything (as
+          // before) made unclassified pixels vanish instead of falling back to 2D.
+          bits = snap.owner()[i] != 0 || snap.tile()[i] != 0 ? 0 : snap.pixels()[i] & 0xff;
         else if (snap.owner()[i] != 0)
           // only the sprite's OWN ink leaves the backdrop. Under a masked compositing
           // engine the rest of the byte is background that must stay painted; with the
@@ -2139,35 +2143,121 @@ public class JSW3D extends ApplicationAdapter {
     for (int cellY = 0; cellY < playfieldRows; cellY++)
       for (int col = 0; col < 32; col++) {
         int y0 = cellY * 8, cell = cellY * 32 + col;
-        int bits = 0;
+        int bits = 0, t = 0;
         boolean spriteHere = false;
         for (int r = 0; r < 8; r++) {
           int i = idx(y0 + r, col);
           // a sprite's own ink belongs to its model, not to the scenery behind it
           int v = snap.pixels()[i] & ~snap.spriteBits()[i] & 0xff;
           spriteHere |= snap.owner()[i] != 0;
+          if (t == 0)
+            t = snap.tile()[i];
           bmp[r] = (byte) v;
           bits |= v;
         }
-        if (bits == 0) // air: nothing to extrude
+        if (spriteHere) {
+          // the sprite overwrote the screen but the scenery is still THERE: rebuild the
+          // slab from the cell's last clean pixels as a see-through ghost, so characters
+          // walk inside the architecture instead of punching holes in it
+          if (cellBmp[cell] != null) {
+            ghostScreenCell(col, y0, cell);
+            solidCells[cell] = true;
+          }
           continue;
-        Model model = pixSlab(bmp, slabDepth() * reliefDepth);
+        }
+        if (bits == 0) { // air: nothing to extrude, and the cell's cache is stale
+          cellBmp[cell] = null;
+          continue;
+        }
+        if (t == 0)
+          continue; // lit but UNCLASSIFIED: stays flat in the 2D backdrop
+        int attr = snap.attrs()[cell] & 0xff;
+        int leaf = t - 1;
+        // same item detector as updateTiles — leaf identity exists in screen mode too,
+        // snap.tile() carries the graphic's address even when its memory template is junk
+        {
+          int prev = prevLeafAttr[cell];
+          if (prev != 0 && (prev >> 8) == t) {
+            if (((prev ^ attr) & 7) != 0) {
+              int fl = (1 << (attr & 7)) | (1 << (prev & 7));
+              leafLastFlash.put(leaf, shownFrame);
+              if (shownFrame - cellLastChange[cell] <= 20) {
+                cellInkChanges[cell]++;
+                cellInkMask[cell] |= fl;
+              } else {
+                cellInkChanges[cell] = 1;
+                cellInkMask[cell] = fl;
+              }
+              cellLastChange[cell] = shownFrame;
+              if (cellInkChanges[cell] >= 6 && Integer.bitCount(cellInkMask[cell]) >= 3
+                  && !"false".equals(System.getProperty("items"))
+                  && itemLeaves.add(leaf) && TaintReplay.LOG)
+                System.out.println("item detectado (screen): leaf $" + Integer.toHexString(leaf));
+            }
+          } else
+            cellInkChanges[cell] = 0;
+          prevLeafAttr[cell] = (t << 8) | attr;
+        }
+        if (itemLeaves.contains(leaf)
+            && shownFrame - leafLastFlash.getOrDefault(leaf, 0) > 50)
+          itemLeaves.remove(leaf); // not flashing anymore: platform, not item
+        boolean item = itemLeaves.contains(leaf);
+        // an item is a graphic: inflated through the sprite pipeline from its screen
+        // pixels, floating at mid-depth like the characters; scenery stays a solid slab
+        Model model = item
+            ? sprite3d.model(SpriteBitmap.ofScreen(bmp.clone(), 1, leaf), viewerDefaults())
+            : pixSlab(bmp, slabDepth() * reliefDepth);
         if (model == null)
           continue;
-        solidCells[cell] = !spriteHere;
+        cellBmp[cell] = bmp.clone();
+        cellAttr[cell] = attr;
+        solidCells[cell] = !item;
         ModelInstance inst = new ModelInstance(model);
         inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
-        int attr = snap.attrs()[cell] & 0xff;
-        Material ink = inst.getMaterial(TileSlabBuilder.INK);
-        ink.set(ColorAttribute.createDiffuse(PALETTE[(attr & 7) | ((attr >> 3) & 8)]));
-        wetten(ink);
-        Material paper = inst.getMaterial(TileSlabBuilder.PAPER);
-        if (paper != null) { // an all-ink cell has no paper part
-          paper.set(ColorAttribute.createDiffuse(PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
-          wetten(paper);
+        Color inkColor = PALETTE[(attr & 7) | ((attr >> 3) & 8)];
+        if (item) {
+          inst.materials.first().set(ColorAttribute.createDiffuse(inkColor));
+          if (fireOn)
+            effects.addFireSpot(col * 8 + 4, H - (y0 + 4), midZ() + 6);
+          if (darkMode) {
+            inst.materials.first().set(ColorAttribute.createEmissive(
+                inkColor.r * .75f, inkColor.g * .75f, inkColor.b * .75f, 1));
+            float flick = fireOn ? effects.flicker(cell) : 1;
+            frameLights.add(new com.badlogic.gdx.graphics.g3d.environment.PointLight().set(
+                fireOn ? 1 : inkColor.r, fireOn ? .55f : inkColor.g, fireOn ? .2f : inkColor.b,
+                col * 8 + 4, H - (y0 + 4), midZ() + 8, itemLightIntensity * flick));
+          }
+        } else {
+          Material ink = inst.getMaterial(TileSlabBuilder.INK);
+          ink.set(ColorAttribute.createDiffuse(inkColor));
+          wetten(ink);
+          Material paper = inst.getMaterial(TileSlabBuilder.PAPER);
+          if (paper != null) { // an all-ink cell has no paper part
+            paper.set(ColorAttribute.createDiffuse(PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
+            wetten(paper);
+          }
         }
         tileInstances.add(inst);
       }
+  }
+
+  /** the screen-mode ghost: the cell's cached clean pixels, rebuilt see-through. */
+  private void ghostScreenCell(int col, int y0, int cell) {
+    Model model = pixSlab(cellBmp[cell], slabDepth() * reliefDepth);
+    if (model == null)
+      return;
+    ModelInstance inst = new ModelInstance(model);
+    inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
+    int attr = cellAttr[cell];
+    Material mi = inst.getMaterial(TileSlabBuilder.INK);
+    mi.set(ColorAttribute.createDiffuse(PALETTE[(attr & 7) | ((attr >> 3) & 8)]));
+    mi.set(new com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute(true, ghostAlpha));
+    Material paper = inst.getMaterial(TileSlabBuilder.PAPER);
+    if (paper != null) {
+      paper.set(ColorAttribute.createDiffuse(PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
+      paper.set(new com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute(true, ghostAlpha));
+    }
+    tileInstances.add(inst);
   }
 
   /** rain-wet sheen: bright broad specular so lights glint off the surface. */
