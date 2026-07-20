@@ -47,6 +47,34 @@ public final class Sprite3DConfigStore {
     load();
   }
 
+  /**
+   * Seeds per-sprite config declared in games.json. These are the project's curated
+   * settings; anything the user saved locally with F10 was loaded first and WINS, so live
+   * tuning is never silently undone by the bundled file.
+   */
+  public void seedDefaults(com.badlogic.gdx.utils.JsonValue sprites) {
+    if (sprites == null)
+      return;
+    int added = 0;
+    for (com.badlogic.gdx.utils.JsonValue v = sprites.child; v != null; v = v.next) {
+      int base;
+      try {
+        base = Integer.parseInt(v.name.replace("$", "").trim(), 16);
+      } catch (NumberFormatException e) {
+        System.out.println("Sprite3D: clave de sprite invalida en games.json: " + v.name);
+        continue;
+      }
+      if (overrides.containsKey(base))
+        continue; // a local F10 override beats the bundled one
+      Sprite3DConfig c = new Sprite3DConfig();
+      TechniqueSelector.apply(v, c);
+      overrides.put(base, c);
+      added++;
+    }
+    if (added > 0)
+      System.out.println("Sprite3D: " + added + " sprites configurados desde games.json");
+  }
+
   public Sprite3DConfig get(int base) {
     return overrides.get(base);
   }

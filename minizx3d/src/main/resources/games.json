@@ -14,6 +14,26 @@
       "properties": {
         "sprite3d.smoothing": "0.0",
         "sprite3d.maxdepth": "8"
+      },
+      "_sprites_note": "config por sprite, por direccion base del catalogo. Una entrada cubre TODO el strip de animacion de ese personaje (pagina de 256). Para averiguar la direccion: F7 cicla los sprites en pantalla y la imprime por consola.",
+      "sprites": {
+        "$9d00": {
+          "_que_es": "Willy: el protagonista, ovoide vertical con algo mas de cuerpo y apenas redondeado",
+          "technique": "PRIMITIVE",
+          "primitive": "OVOID",
+          "roundness": 0.85,
+          "smoothing": 0.25,
+          "voxelLook": true
+        },
+        "$b940": {
+          "_que_es": "barril: un barril ES un cilindro, asi que va CYL_V en vez de la forma generica",
+          "_ojo": "direccion sin verificar: si configura otro sprite, corregila mirando lo que imprime F7",
+          "technique": "PRIMITIVE",
+          "primitive": "CYL_V",
+          "roundness": 1.0,
+          "smoothing": 0.3,
+          "voxelLook": true
+        }
       }
     },
     "mm": {

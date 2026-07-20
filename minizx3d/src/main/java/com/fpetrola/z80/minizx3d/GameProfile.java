@@ -41,12 +41,20 @@ import java.nio.file.StandardCopyOption;
  */
 public final class GameProfile {
   public final String id, title, rzx, db;
+  /**
+   * Per-SPRITE 3D config for this game, keyed by catalog base ({@code "$9d00"}). The
+   * {@code properties} block sets the game-wide defaults; this is for the handful of
+   * sprites that want their own shape, curated with the game instead of living only in the
+   * user's local tuning file.
+   */
+  public final JsonValue sprites;
 
-  private GameProfile(String id, String title, String rzx, String db) {
+  private GameProfile(String id, String title, String rzx, String db, JsonValue sprites) {
     this.id = id;
     this.title = title;
     this.rzx = rzx;
     this.db = db;
+    this.sprites = sprites;
   }
 
   /** Resolve the active profile: explicit args override, then {@code -Dgame}, then default. */
@@ -72,7 +80,8 @@ public final class GameProfile {
             "/home/fernando/detodo/spectrum/oozx/Jet Set Willy - Mildly Patched.rzx");
     String db = args.length > 1 ? args[1]
         : resolveFile("db", candidates(g, "db"), "analysis/jsw-catalog.db", "analysis/jsw.db");
-    return new GameProfile(g != null ? wanted : "custom", title, rzx, db);
+    return new GameProfile(g != null ? wanted : "custom", title, rzx, db,
+        g == null ? null : g.get("sprites"));
   }
 
   private static String[] candidates(JsonValue g, String key) {

@@ -173,6 +173,30 @@ se hornea sola en el frame siguiente); F10 es lo que persiste.
 
 ---
 
+## 6.a Config por SPRITE en games.json
+
+Ademas de las `properties` (que valen para todo el juego), cada juego puede traer una seccion
+`sprites` con config para sprites puntuales, por **direccion base del catalogo**:
+
+```json
+"sprites": {
+  "$9d00": { "technique": "PRIMITIVE", "primitive": "OVOID", "roundness": 0.85,
+             "smoothing": 0.25, "voxelLook": true },
+  "$b940": { "technique": "PRIMITIVE", "primitive": "CYL_V", "roundness": 1.0 }
+}
+```
+
+Acepta las mismas claves que las reglas y que el archivo de overrides. Una entrada cubre
+**todo el strip de animacion** de ese personaje (la pagina de 256), porque la busqueda cae del
+base exacto al grupo.
+
+**Precedencia**: lo que guardaste a mano con F10 (`~/.jsw3d-sprite3d-<juego>.json`) le gana a
+games.json, para que el ajuste en vivo no quede pisado en silencio por el archivo del
+proyecto. Al arrancar se imprime cuantos sprites configuro cada fuente.
+
+**Como averiguar la direccion de un sprite**: F7 cicla los sprites que hay en pantalla e
+imprime su base, sus features y si ya tiene override. Esa es la direccion que va como clave.
+
 ## 6.b Presets, override por juego y menu
 
 Los parametros de sprites estan registrados como `Param`/`Toggle` igual que cualquier otro

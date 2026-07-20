@@ -66,6 +66,8 @@ public class JSW3D extends ApplicationAdapter {
 
   /** the profile id ("jsw"/"mm"/"dd"/...); scopes the persisted config file per game. */
   private static String activeGame = "jsw";
+  /** the resolved profile, kept so its per-sprite section can seed the override store. */
+  private static GameProfile activeProfile;
   private final String rzxPath, dbPath;
   private volatile TaintReplay.FrameSnapshot latest;
   private int shownFrame = -1;
@@ -388,6 +390,8 @@ public class JSW3D extends ApplicationAdapter {
   @Override
   public void create() {
     sprite3d = new Sprite3DPipeline(activeGame, 1024);
+    if (activeProfile != null)
+      sprite3d.store().seedDefaults(activeProfile.sprites);
     // every frame of an animation strip, so the technique is voted per CHARACTER and the
     // shape cannot change as it walks
     sprite3d.setGroupFrames(group -> {
@@ -2524,6 +2528,7 @@ public class JSW3D extends ApplicationAdapter {
 //    };
     GameProfile profile = GameProfile.resolve(args);
     activeGame = profile.id;
+    activeProfile = profile;
     if (TaintReplay.LOG)
       System.out.println("juego: " + profile.title + " [" + profile.id + "]  rzx="
           + profile.rzx + "  db=" + profile.db);
