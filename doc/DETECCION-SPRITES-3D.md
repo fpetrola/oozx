@@ -383,7 +383,7 @@ tapado; el bitmap de memoria es la forma "limpia". Trade-off a evaluar.
 | Manic Miner | `mm` | `analysis/mm.db` | ✅ completo |
 | Dynamite Dan | `dd` | `analysis/dd.db` | 🟡 sprites+tiles ok; máscaras pendientes |
 | Exolon | `exolon` | `analysis/exolon-taint.db` | 🟢 catálogo por taint-discovery (30k frames), fondo por relieve de pantalla, sin estela (§5.1). Pendiente: bases de marcador/fuente aún como sprite |
-| Monty on the Run | `monty` | `analysis/monty-taint.db` | 🟢 catálogo por taint-discovery (4.889 frames, 5s), fondo por relieve de pantalla. Es el primer juego con el marcador ARRIBA: `playfield.top=2` + `rows=20` |
+| Monty on the Run | `monty` | `analysis/monty-taint.db` | 🟢 catálogo por taint-discovery (4.889 frames, 5s), fondo por relieve de pantalla. Es el primer juego con el marcador ARRIBA: `playfield.top=2` + `rows=20`. Las piezas del catálogo son tiras de animación enteras: el tamaño se capa por el blob (§ arriba). Pendiente: la planta donde se para Monty queda clasificada como sprite y no se dibuja |
 
 Perfiles en `minizx3d/src/main/resources/games.json`. Cada uno trae rzx + db + tweaks del juego.
 
@@ -428,6 +428,32 @@ ensucian y las dos se arreglan desde el perfil:
   JSW/MM lo tienen ABAJO (`top=0, rows=16`, el default); Monty lo tiene ARRIBA y además el
   nombre de sala abajo, así que va `top=2, rows=20`. Sin el offset el texto del SCORE se
   extruye en relieve junto con la sala.
+
+### El personaje sale al doble de alto, con otro cuadro mezclado adentro
+
+Síntoma: algunos cuadros del protagonista salen bien y otros son el doble de altos con una
+forma cualquiera pegada abajo; al caminar parece dejar una estela de esos bultos (no es
+estela: son los bultos de más, uno por posición).
+
+Causa: **taint-discovery corta las piezas por HUECO de direcciones**, así que una tira de
+animación guardada con los cuadros pegados no tiene dónde cortarse y sale como UNA pieza.
+`SpriteCatalog.sizeOf` toma ese tamaño y `ofMemory` lee la tira entera: varios cuadros
+apilados en un modelo. En Monty las piezas eran de 85..113 bytes para un personaje de 16
+filas (2-3 cuadros por modelo).
+
+`updateSprites` lo corrige solo, sin tocar el catálogo: **el blob en pantalla sabe la altura
+real**, así que el tamaño se capa por él. Solo cuando el exceso es un cuadro entero
+(`bytes >= blobBytes * 2`), para que un blob apenas recortado por el borde o tapado por otro
+sprite siga leyendo su bitmap completo, y para que un catálogo ya bien dimensionado (los 32
+bytes de JSW sobre un blob de 16 filas) quede igual que siempre. Verificado sin cambios en
+JSW, MM y DD.
+
+**Lo que NO hay que probar acá: `fresh.frames`.** Es tentador porque el síntoma se ve como
+estela, pero en Monty borra decorado REAL: las formaciones de roca están quietas muchos
+frames, el gate las da por rastro viejo y desaparecen de la pantalla. `fresh.frames` es para
+motores de dirty-regions que dejan taint viejo encendido (DD, Exolon), no para esto. La forma
+de darse cuenta es comparar contra el 2D plano (`-Dtiles=false`) antes de decidir qué sobra:
+sin esa referencia se corrige contra otra render 3D y se termina borrando lo que sí estaba.
 El camino viejo por tracker sigue disponible (`AnalysisCLI z80run` + `z80track`), y es el que
 usan JSW/MM/DD hoy.
 

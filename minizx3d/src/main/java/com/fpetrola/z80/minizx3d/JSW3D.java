@@ -1949,6 +1949,20 @@ public class JSW3D extends ApplicationAdapter {
       int bytes = catalog.sizeOf.getOrDefault(base, 32);
       // bytes per row: 2 (16px) unless the catalog knows better (DD sprites are 1..3 wide)
       int stride = catalog.strideOf.getOrDefault(base, 2);
+      // A catalog piece can cover a WHOLE ANIMATION STRIP: taint-discovery cuts pieces at
+      // address GAPS, so frames stored back to back have nothing to cut on (Monty on the
+      // Run: 85..113-byte pieces for a 16-row character). Reading all of it stacks several
+      // frames into one model — the character comes out double height with the next frame
+      // mixed into its shape, and every frame of the walk cycle a different mess. The blob
+      // on screen knows how tall the graphic really is, so cap by it.
+      //
+      // Only when the excess is a WHOLE extra frame: a blob that is merely clipped by the
+      // screen edge or overlapped by another sprite still reads its full bitmap, and a
+      // catalog that already sizes its sprites right (JSW's 32 bytes over a 16-row blob)
+      // is left exactly as it was.
+      int blobBytes = (blob[4] - blob[2] + 1) * stride;
+      if (blobBytes > 0 && bytes >= blobBytes * 2)
+        bytes = blobBytes;
       // Sprite3D: the bitmap is the same one the old code fed the builders (memory bitmap,
       // or the on-screen pixels in adjacent mode), so with no override and auto off this
       // resolves to the very same builder call it always made
