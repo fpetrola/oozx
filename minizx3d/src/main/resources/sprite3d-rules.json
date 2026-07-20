@@ -31,7 +31,7 @@
         "primitive": "SPHERE",
         "roundness": 1.0,
         "voxelLook": true,
-        "smoothing": 0.1
+        "smoothing": 0.15
       }
     }
   ]
