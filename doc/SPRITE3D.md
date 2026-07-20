@@ -25,6 +25,24 @@ maquinaria de silueta y el chamfer, y solo reemplaza de dónde sale la altura. E
 sigue haciendo falta para el **taper del borde**: el frente y el dorso tienen que encontrarse
 en h=0 o la silueta muestra un acantilado en vez de un canto.
 
+**La profundidad se escala con el radio del propio sprite** (`radiusPx = min(rx,ry)`), no con
+un factor fijo: una esfera es realmente una esfera —tan profunda como ancha— en vez de un
+medallón chato. Se usa el semieje MENOR para que un sprite alargado reciba un cilindro tan
+grueso como angosto es, y no uno absurdamente más profundo que su propia altura.
+
+### Una técnica por PERSONAJE, no por cuadro
+
+Cada cuadro de animación es un base de catálogo propio (JSW guarda 8 cuadros de 32 bytes en
+una página de 256). Seleccionando por base, **25 de 28 personajes de JSW se partían en 2-4
+técnicas distintas** y la figura saltaba al caminar. Ahora la elección es del grupo
+(`base & ~(sprite3d.group-1)`, default 256) y se decide por **mayoría entre todos los cuadros
+del strip** (`Sprite3DPipeline.vote`): un cuadro suelto puede medir como texto fino o como
+forma angular, así que quedarse con el primero que aparecía era arbitrario y además elegía
+técnicas chatas para cosas claramente volumétricas. Votar también hace el resultado
+independiente del orden en que aparecen los cuadros.
+
+Un override sobre cualquier cuadro configura al personaje entero.
+
 ---
 
 ## 2. Piezas
@@ -132,6 +150,10 @@ se hornea sola en el frame siguiente); F10 es lo que persiste.
 - **Nunca emitir una malla vacía.** Un `Mesh` sin index buffer no falla al construirse: falla
   al **renderizar**, con `No buffer allocated!` y un stack que apunta a `ModelBatch.end()`,
   lejos de la causa. Los builders devuelven `null` y el llamador deja el sprite en 2D.
+- **Y si una técnica devuelve `null`, hay que caer a otra, no descartar el sprite.** Surface
+  nets no encuentra isosuperficie cuando el blur se come un cuadro flaco: descartarlo hacía
+  que cuadros sueltos de un guardián **parpadearan y desaparecieran** mientras los demás se
+  veían. `Sprite3DPipeline` cae a `INFLATE` y después a `VOXELS`, que siempre dan geometría.
 - **`vertexEstimate` antes de hornear.** Una malla libGDX indexa con shorts: 32767 vértices
   por modelo. El pipeline pregunta primero y degrada a `VOXELS` si no entra.
 - **`dispose()` al desalojar del LRU.** Son recursos GPU; soltar la referencia los filtra.

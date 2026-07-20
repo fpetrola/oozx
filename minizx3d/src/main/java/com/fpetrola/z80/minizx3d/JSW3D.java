@@ -327,6 +327,19 @@ public class JSW3D extends ApplicationAdapter {
   @Override
   public void create() {
     sprite3d = new Sprite3DPipeline(activeGame, 1024);
+    // every frame of an animation strip, so the technique is voted per CHARACTER and the
+    // shape cannot change as it walks
+    sprite3d.setGroupFrames(group -> {
+      List<SpriteBitmap> out = new ArrayList<>();
+      if (catalog == null)
+        return out;
+      int mask = ~(Integer.getInteger("sprite3d.group", 256) - 1);
+      for (Map.Entry<Integer, Integer> e : catalog.sizeOf.entrySet())
+        if ((e.getKey() & mask) == group)
+          out.add(SpriteBitmap.ofMemory(e.getKey(), e.getValue(),
+              catalog.strideOf.getOrDefault(e.getKey(), 2), replay::memByte));
+      return out;
+    });
     // enough point-light slots for willy + guardians + every item in the room
     com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config shaderCfg =
         new com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config();

@@ -152,6 +152,12 @@ public final class SmoothSpriteBuilder {
           }
       float cx = (minX + maxX) / 2f, cy = (minY + maxY) / 2f;
       float rx = Math.max(1f, (maxX - minX) / 2f), ry = Math.max(1f, (maxY - minY) / 2f);
+      // The volume is scaled by the sprite's OWN radius in pixels, so a sphere really is a
+      // sphere: half-thickness = half-width, i.e. the object is as deep as it is wide. A
+      // fixed factor made everything a flat medallion no matter its size. The smaller half
+      // extent is the one used, so an elongated sprite gets a cylinder as thick as it is
+      // narrow instead of one absurdly deeper than its own height.
+      float radiusPx = Math.min(rx, ry) / K;
       for (int gy = 0; gy <= ny; gy++)
         for (int gx = 0; gx <= NX; gx++) {
           if (d[gy][gx] <= 0)
@@ -160,7 +166,7 @@ public final class SmoothSpriteBuilder {
           // taper to zero within a pixel of the rim: the front and back halves have to
           // meet at h=0 or the silhouette shows a cliff instead of an edge
           float taper = Math.min(1f, (float) Math.sqrt(d[gy][gx] / K));
-          h[gy][gx] = depthScale * 4f * (1 - roundness + roundness * p) * taper;
+          h[gy][gx] = depthScale * radiusPx * (1 - roundness + roundness * p) * taper;
         }
     }
     for (int i = 0; i < Math.max(1, smoothLevel); i++)

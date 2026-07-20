@@ -48,7 +48,11 @@ public final class Sprite3DPipeline {
   private final Map<Integer, SpriteFeatures> featureCache = new LinkedHashMap<>();
   /** evicted meshes waiting for a moment when nothing references them. */
   private final java.util.List<Model> retired = new java.util.ArrayList<>();
-  private long hits, misses, degraded;
+  /** technique chosen per animation strip, so every frame of a character agrees. */
+  private final Map<Integer, Sprite3DConfig> groupConfig = new LinkedHashMap<>();
+  private final int groupSize = Integer.getInteger("sprite3d.group", 256);
+  private java.util.function.IntFunction<java.util.List<SpriteBitmap>> groupFrames;
+  private long hits, misses, degraded, fellBack;
 
   public Sprite3DPipeline(String game, int capacity) {
     this.store = new Sprite3DConfigStore(game);
@@ -85,25 +89,87 @@ public final class Sprite3DPipeline {
     return auto;
   }
 
+  /**
+   * The animation strip a base belongs to. Every frame of a character is its OWN catalog
+   * entry (JSW keeps 8 frames of 32 bytes in one 256-byte page), so selecting per base let
+   * two frames of the same guardian land on different techniques and the thing jumped
+   * shape as it walked. Grouping by page makes the choice a property of the CHARACTER.
+   * {@code -Dsprite3d.group} resizes the page; 1 goes back to per-frame.
+   */
+  private int groupOf(int base) {
+    return base < 0 ? -1 : base & ~(Math.max(1, groupSize) - 1);
+  }
+
   /** the config that WILL be used for this sprite, without baking anything. */
   public Sprite3DConfig configFor(SpriteBitmap b, Sprite3DConfig viewerDefault) {
-    Sprite3DConfig ov = b.base >= 0 ? store.get(b.base) : null;
-    if (ov != null) {
-      // the override says technique and shape; depth/smoothing still follow the live
-      // sliders unless the override changed them away from the defaults
-      return ov;
+    int g = groupOf(b.base);
+    if (g >= 0) {
+      // an override on any frame configures the whole character, which is what "configure
+      // this sprite" has to mean; an exact-base entry still wins for hand-curated cases
+      Sprite3DConfig ov = store.get(b.base);
+      if (ov == null)
+        ov = store.get(g);
+      if (ov != null)
+        return ov;
     }
-    if (auto && !selector.isEmpty())
-      return selector.select(features(b), viewerDefault);
-    return viewerDefault;
+    if (!auto || selector.isEmpty())
+      return viewerDefault;
+    // resolved ONCE per character and reused by every frame: same transformation always
+    Sprite3DConfig cached = g >= 0 ? groupConfig.get(g) : null;
+    if (cached != null)
+      return cached;
+    Sprite3DConfig chosen = vote(g, b, viewerDefault);
+    if (g >= 0)
+      groupConfig.put(g, chosen);
+    return chosen;
+  }
+
+  /**
+   * The technique for a character, decided by MAJORITY over all the frames of its strip.
+   *
+   * <p>Frames of one character measure very differently — a walking guardian can read as a
+   * humanoid in one pose, as thin lettering in another and as an angular shape in a third —
+   * so taking whichever frame happened to be drawn first both looked arbitrary and often
+   * picked a flat technique for something that is plainly volumetric. Voting also makes the
+   * result independent of the order frames appear in, which per-frame selection was not.
+   */
+  private Sprite3DConfig vote(int group, SpriteBitmap seen, Sprite3DConfig viewerDefault) {
+    java.util.List<SpriteBitmap> frames = group >= 0 && groupFrames != null
+        ? groupFrames.apply(group) : null;
+    if (frames == null || frames.isEmpty())
+      return selector.select(features(seen), viewerDefault);
+    Map<String, Integer> tally = new LinkedHashMap<>();
+    Map<String, Sprite3DConfig> byKey = new LinkedHashMap<>();
+    for (SpriteBitmap f : frames) {
+      if (f.litPixels() == 0)
+        continue;
+      Sprite3DConfig c = selector.select(SpriteAnalyzer.analyze(f), viewerDefault);
+      String k = c.technique + "/" + c.primitive;
+      tally.merge(k, 1, Integer::sum);
+      byKey.putIfAbsent(k, c);
+    }
+    String best = null;
+    int bestN = -1;
+    for (Map.Entry<String, Integer> e : tally.entrySet()) // ties -> first in address order
+      if (e.getValue() > bestN) {
+        bestN = e.getValue();
+        best = e.getKey();
+      }
+    return best == null ? selector.select(features(seen), viewerDefault) : byKey.get(best);
+  }
+
+  /** supplies every frame of an animation strip, so {@link #vote} can see them all. */
+  public void setGroupFrames(java.util.function.IntFunction<java.util.List<SpriteBitmap>> f) {
+    this.groupFrames = f;
   }
 
   public SpriteFeatures features(SpriteBitmap b) {
-    if (b.base < 0)
+    int g = groupOf(b.base);
+    if (g < 0)
       return SpriteAnalyzer.analyze(b);
-    // features describe the GRAPHIC, so they are cached per catalog base: measuring every
-    // animation frame of every sprite, every frame, would not pay for itself
-    return featureCache.computeIfAbsent(b.base, k -> SpriteAnalyzer.analyze(b));
+    // features describe the CHARACTER, so they are measured once per strip: re-measuring
+    // every animation frame is both wasted work and the source of the per-frame jumping
+    return featureCache.computeIfAbsent(g, k -> SpriteAnalyzer.analyze(b));
   }
 
   /** the mesh for this sprite under the resolved config, baking on first sight. */
@@ -134,6 +200,27 @@ public final class Sprite3DPipeline {
         return null; // caller keeps it 2D; nothing here can mesh it
     }
     m = s.bake(b, cfg);
+    // A technique can legitimately produce nothing — surface nets finds no isosurface when
+    // the blur swallows a thin frame — and dropping the sprite there made single frames of
+    // a walking guardian BLINK OUT while its other frames rendered. Never leave a lit
+    // sprite unrendered: fall back to techniques that always yield geometry.
+    if (m == null)
+      for (Sprite3DConfig.Technique alt : new Sprite3DConfig.Technique[]{
+          Sprite3DConfig.Technique.INFLATE, Sprite3DConfig.Technique.VOXELS}) {
+        if (alt == cfg.technique)
+          continue;
+        Sprite3DConfig fb = cfg.copy();
+        fb.technique = alt;
+        MeshBakingStrategy fs = MeshBakingStrategy.of(alt);
+        if (fs.vertexEstimate(b, fb) > MAX_VERTICES)
+          continue;
+        m = fs.bake(b, fb);
+        if (m != null) {
+          fellBack++;
+          key = b.hash * 31L + fb.hash();
+          break;
+        }
+      }
     if (m != null)
       cache.put(key, m);
     return m;
@@ -141,7 +228,7 @@ public final class Sprite3DPipeline {
 
   public String stats() {
     return "sprite3d: " + cache.size() + " mallas, " + hits + " hits, " + misses
-        + " bakes, " + degraded + " degradadas, " + store.size() + " overrides"
+        + " bakes, " + degraded + " degradadas, " + fellBack + " fallback, " + store.size() + " overrides"
         + (auto ? ", auto ON" : "");
   }
 
@@ -157,6 +244,7 @@ public final class Sprite3DPipeline {
   public void clear() {
     retired.addAll(cache.values());
     cache.clear();
+    groupConfig.clear(); // sliders changed: let the rules resolve again
   }
 
   public void dispose() {
