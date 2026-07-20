@@ -192,6 +192,9 @@ public class JSW3D extends ApplicationAdapter {
   /** screen mode: each cell's last CLEAN pixels, so a ghost can rebuild the slab a
    *  passing sprite just overwrote — without this, characters punched holes in walls. */
   private final byte[][] cellBmp = new byte[24 * 32][];
+  /** cells the screen relief claimed LAST frame, so the 2D backdrop leaves them out —
+   *  without this a floating star renders twice: flat behind its own inflated model. */
+  private final boolean[] cellClaimed = new boolean[24 * 32];
   /**
    * tiles (slabs, ghosts, item detection) exist only in the PLAYFIELD — the top 16 cell
    * rows in JSW and Manic Miner alike (-Dplayfield.rows overrides). Below lives the
@@ -1750,10 +1753,11 @@ public class JSW3D extends ApplicationAdapter {
         // the same plane Willy hangs from, not painted on the far backdrop.
         int bits;
         if ("screen".equals(tilesMode) && y < playfieldRows * 8)
-          // slabs cover the tile-classified bytes and sprite models cover the owned ones;
-          // what the relief did NOT claim stays painted, flat. Blanking everything (as
-          // before) made unclassified pixels vanish instead of falling back to 2D.
-          bits = snap.owner()[i] != 0 || snap.tile()[i] != 0 ? 0 : snap.pixels()[i] & 0xff;
+          // whatever the relief claimed last frame (slab, ghost, floating decor or a
+          // moving blob) must not ALSO stay painted flat behind its own model; only what
+          // the relief left unclaimed falls back to 2D
+          bits = snap.owner()[i] != 0 || snap.tile()[i] != 0
+              || cellClaimed[(y >> 3) * 32 + col] ? 0 : snap.pixels()[i] & 0xff;
         else if (snap.owner()[i] != 0)
           // only the sprite's OWN ink leaves the backdrop. Under a masked compositing
           // engine the rest of the byte is background that must stay painted; with the
@@ -2135,47 +2139,118 @@ public class JSW3D extends ApplicationAdapter {
    * <p>Shallower than the sprites ({@code relief.depth}) so entities still read as the
    * things standing in front of the scenery.
    */
+  /** window for "this cell is being animated right now": missiles, explosions, walkers. */
+  /**
+   * How many frames back still counts as "moving" (-Drelief.dyn). Too long and a fast
+   * character's TRAIL keeps qualifying, so the cells it left behind float as leftover
+   * models beside it; too short and a sprite that pauses sinks back into the scenery.
+   */
+  private static final int DYN_FRAMES = Integer.getInteger("relief.dyn", 4);
+
   private void updateScreenRelief(TaintReplay.FrameSnapshot snap) {
     tileInstances.clear();
     System.arraycopy(solidCells, 0, prevSolidCells, 0, solidCells.length);
     java.util.Arrays.fill(solidCells, false);
-    byte[] bmp = new byte[8];
-    for (int cellY = 0; cellY < playfieldRows; cellY++)
+    int rows = playfieldRows, n = rows * 32;
+    byte[][] bmps = new byte[n][];
+    int[] tOf = new int[n];
+    boolean[] spr = new boolean[n], dyn = new boolean[n];
+    for (int cellY = 0; cellY < rows; cellY++)
       for (int col = 0; col < 32; col++) {
         int y0 = cellY * 8, cell = cellY * 32 + col;
+        byte[] bmp = new byte[8];
         int bits = 0, t = 0;
-        boolean spriteHere = false;
         for (int r = 0; r < 8; r++) {
           int i = idx(y0 + r, col);
-          // a sprite's own ink belongs to its model, not to the scenery behind it
           int v = snap.pixels()[i] & ~snap.spriteBits()[i] & 0xff;
-          spriteHere |= snap.owner()[i] != 0;
+          spr[cell] |= snap.owner()[i] != 0;
+          dyn[cell] |= snap.frame() - replay.lastWrite[i] <= DYN_FRAMES;
           if (t == 0)
             t = snap.tile()[i];
           bmp[r] = (byte) v;
           bits |= v;
         }
-        if (spriteHere) {
-          // the sprite overwrote the screen but the scenery is still THERE: rebuild the
-          // slab from the cell's last clean pixels as a see-through ghost, so characters
-          // walk inside the architecture instead of punching holes in it
+        bmps[cell] = bits == 0 ? null : bmp;
+        tOf[cell] = t;
+      }
+    // "Walkable vs decorative vs moving" is NOT the same cut as tile/sprite/none, and the
+    // classification alone was rendering Exolon's floor flat and its stars as slabs. Two
+    // extra signals decide: WRITE FRESHNESS (a cell being animated right now is a moving
+    // thing, whatever the catalog says) and HORIZONTAL RUN LENGTH of the static
+    // unclassified cells (a floor band spans many columns, a star or planet only a few).
+    int[] run = new int[n];
+    for (int cellY = 0; cellY < rows; cellY++) {
+      int start = -1;
+      for (int col = 0; col <= 32; col++) {
+        boolean in = col < 32 && bmps[cellY * 32 + col] != null && !spr[cellY * 32 + col]
+            && !dyn[cellY * 32 + col] && tOf[cellY * 32 + col] == 0;
+        if (in && start < 0)
+          start = col;
+        else if (!in && start >= 0) {
+          for (int c = start; c < col; c++)
+            run[cellY * 32 + c] = col - start;
+          start = -1;
+        }
+      }
+    }
+    for (int cellY = 0; cellY < rows; cellY++)
+      for (int col = 0; col < 32; col++) {
+        int y0 = cellY * 8, cell = cellY * 32 + col;
+        byte[] bmp = bmps[cell];
+        cellClaimed[cell] = false;
+        int attr = snap.attrs()[cell] & 0xff;
+        if (spr[cell]) {
+          // scenery the sprite is standing in, rebuilt see-through from the cell's cache
           if (cellBmp[cell] != null) {
             ghostScreenCell(col, y0, cell);
             solidCells[cell] = true;
+            cellClaimed[cell] = true;
+          }
+          // ink that is neither the sprite's own nor cached scenery is the REST of a
+          // fragmented character: inflate it too, instead of dropping it into holes
+          if (bmp != null) {
+            byte[] extra = bmp.clone();
+            int any = 0;
+            for (int r = 0; r < 8; r++) {
+              if (cellBmp[cell] != null)
+                extra[r] &= ~cellBmp[cell][r];
+              any |= extra[r] & 0xff;
+            }
+            if (any != 0) {
+              floatCell(col, y0, extra, attr);
+              cellClaimed[cell] = true;
+            }
           }
           continue;
         }
-        if (bits == 0) { // air: nothing to extrude, and the cell's cache is stale
+        if (bmp == null) { // air: nothing to build, and the scenery cache is stale
           cellBmp[cell] = null;
           continue;
         }
-        if (t == 0)
-          continue; // lit but UNCLASSIFIED: stays flat in the 2D backdrop
-        int attr = snap.attrs()[cell] & 0xff;
-        int leaf = t - 1;
-        // same item detector as updateTiles — leaf identity exists in screen mode too,
-        // snap.tile() carries the graphic's address even when its memory template is junk
-        {
+        if (dyn[cell]) {
+          // BEING REWRITTEN RIGHT NOW: a moving thing — the player, a missile, an
+          // explosion, an enemy — floating at mid depth like any sprite.
+          //
+          // This wins over the tile classification on purpose. Measured on Exolon, 17.4%
+          // of lit cells are dynamic AND tile-classified: the catalog knows WHICH graphic
+          // is on the cell but not that it is currently in motion, so the player was being
+          // extruded backwards as architecture. Only 18% of cells are dynamic at all, so
+          // the scenery is not at risk of floating away with them.
+          floatCell(col, y0, bmp, attr);
+          cellClaimed[cell] = true;
+          continue;
+        }
+        if (tOf[cell] == 0 && run[cell] < 5) {
+          // static, unclassified and narrow: stars and planets — decor, not walkable
+          floatCell(col, y0, bmp, attr);
+          cellClaimed[cell] = true;
+          continue;
+        }
+        // scenery: tile-classified, or a wide unclassified band (Exolon's floor)
+        int t = tOf[cell], leaf = t - 1;
+        if (t != 0) {
+          // same item detector as updateTiles: snap.tile() carries the graphic identity
+          // even when its memory template is junk
           int prev = prevLeafAttr[cell];
           if (prev != 0 && (prev >> 8) == t) {
             if (((prev ^ attr) & 7) != 0) {
@@ -2197,13 +2272,11 @@ public class JSW3D extends ApplicationAdapter {
           } else
             cellInkChanges[cell] = 0;
           prevLeafAttr[cell] = (t << 8) | attr;
+          if (itemLeaves.contains(leaf)
+              && shownFrame - leafLastFlash.getOrDefault(leaf, 0) > 50)
+            itemLeaves.remove(leaf); // not flashing anymore: platform, not item
         }
-        if (itemLeaves.contains(leaf)
-            && shownFrame - leafLastFlash.getOrDefault(leaf, 0) > 50)
-          itemLeaves.remove(leaf); // not flashing anymore: platform, not item
-        boolean item = itemLeaves.contains(leaf);
-        // an item is a graphic: inflated through the sprite pipeline from its screen
-        // pixels, floating at mid-depth like the characters; scenery stays a solid slab
+        boolean item = t != 0 && itemLeaves.contains(leaf);
         Model model = item
             ? sprite3d.model(SpriteBitmap.ofScreen(bmp.clone(), 1, leaf), viewerDefaults())
             : pixSlab(bmp, slabDepth() * reliefDepth);
@@ -2212,6 +2285,7 @@ public class JSW3D extends ApplicationAdapter {
         cellBmp[cell] = bmp.clone();
         cellAttr[cell] = attr;
         solidCells[cell] = !item;
+        cellClaimed[cell] = true;
         ModelInstance inst = new ModelInstance(model);
         inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
         Color inkColor = PALETTE[(attr & 7) | ((attr >> 3) & 8)];
@@ -2239,6 +2313,18 @@ public class JSW3D extends ApplicationAdapter {
         }
         tileInstances.add(inst);
       }
+  }
+
+  /** a cell rendered like a small mobile sprite: inflated from its pixels, mid-depth. */
+  private void floatCell(int col, int y0, byte[] bmp, int attr) {
+    Model m = sprite3d.model(SpriteBitmap.ofScreen(bmp.clone(), 1, -1), viewerDefaults());
+    if (m == null)
+      return;
+    ModelInstance inst = new ModelInstance(m);
+    inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
+    inst.materials.first().set(ColorAttribute.createDiffuse(PALETTE[(attr & 7) | ((attr >> 3) & 8)]));
+    wetten(inst.materials.first());
+    tileInstances.add(inst);
   }
 
   /** the screen-mode ghost: the cell's cached clean pixels, rebuilt see-through. */
