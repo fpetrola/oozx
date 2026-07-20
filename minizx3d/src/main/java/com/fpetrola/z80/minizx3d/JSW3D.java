@@ -204,6 +204,19 @@ public class JSW3D extends ApplicationAdapter {
    */
   private final int playfieldRows = Integer.getInteger("playfield.rows", 16);
   /**
+   * first cell row of the playfield (-Dplayfield.top). JSW and Manic Miner keep their
+   * status at the BOTTOM, so the playfield starts at row 0 and this stays 0; Monty on the
+   * Run puts SCORE/HISCORE at the TOP, and without an offset that text gets extruded into
+   * relief along with the room. The playfield is the rows {@code [top, top+rows)}.
+   */
+  private final int playfieldTop = Integer.getInteger("playfield.top", 0);
+
+  /** is this PIXEL row inside the playfield? (everything else belongs to the 2D backdrop) */
+  private boolean inPlayfield(int y) {
+    int cellY = y >> 3;
+    return cellY >= playfieldTop && cellY < playfieldTop + playfieldRows;
+  }
+  /**
    * Q steps the ghosts' opacity down (.95 → .80 → … → .20, then wraps back up);
    * -Dghost.alpha sets where it starts — nearly opaque by default.
    */
@@ -1752,7 +1765,7 @@ public class JSW3D extends ApplicationAdapter {
         // AIR byte those become voxels at the characters' mid-depth — the rope swings on
         // the same plane Willy hangs from, not painted on the far backdrop.
         int bits;
-        if ("screen".equals(tilesMode) && y < playfieldRows * 8)
+        if ("screen".equals(tilesMode) && inPlayfield(y))
           // whatever the relief claimed last frame (slab, ghost, floating decor or a
           // moving blob) must not ALSO stay painted flat behind its own model; only what
           // the relief left unclaimed falls back to 2D
@@ -1764,7 +1777,7 @@ public class JSW3D extends ApplicationAdapter {
           // per-bit pass off the mask covers the whole byte, so this erases it entirely
           // exactly as it always did
           bits = snap.pixels()[i] & ~snap.spriteBits()[i] & 0xff;
-        else if (tilesOn && snap.tile()[i] != 0 && y < playfieldRows * 8) {
+        else if (tilesOn && snap.tile()[i] != 0 && inPlayfield(y)) {
           int tpl = replay.memByte(snap.tile()[i] - 1);
           int foreign = snap.pixels()[i] & ~tpl & 0xff;
           bits = 0;
@@ -2153,11 +2166,13 @@ public class JSW3D extends ApplicationAdapter {
     tileInstances.clear();
     System.arraycopy(solidCells, 0, prevSolidCells, 0, solidCells.length);
     java.util.Arrays.fill(solidCells, false);
-    int rows = playfieldRows, n = rows * 32;
+    // indexed by ABSOLUTE cell (row 0..23), like every other per-cell array here, so a
+    // playfield that does not start at row 0 needs no index juggling
+    int top = playfieldTop, end = playfieldTop + playfieldRows, n = 24 * 32;
     byte[][] bmps = new byte[n][];
     int[] tOf = new int[n];
     boolean[] spr = new boolean[n], dyn = new boolean[n];
-    for (int cellY = 0; cellY < rows; cellY++)
+    for (int cellY = top; cellY < end; cellY++)
       for (int col = 0; col < 32; col++) {
         int y0 = cellY * 8, cell = cellY * 32 + col;
         byte[] bmp = new byte[8];
@@ -2203,7 +2218,7 @@ public class JSW3D extends ApplicationAdapter {
         for (int dy = -1; dy <= 1; dy++)
           for (int dx = -1; dx <= 1; dx++) {
             int ny = py + dy, nx = px + dx;
-            if (ny < 0 || ny >= rows || nx < 0 || nx > 31)
+            if (ny < top || ny >= end || nx < 0 || nx > 31)
               continue;
             int q = ny * 32 + nx;
             if (comp[q] < 0 && bmps[q] != null && !spr[q] && !dyn[q]) {
@@ -2214,7 +2229,7 @@ public class JSW3D extends ApplicationAdapter {
       }
       compSize.add(size);
     }
-    for (int cellY = 0; cellY < rows; cellY++)
+    for (int cellY = top; cellY < end; cellY++)
       for (int col = 0; col < 32; col++) {
         int y0 = cellY * 8, cell = cellY * 32 + col;
         byte[] bmp = bmps[cell];
@@ -2449,7 +2464,7 @@ public class JSW3D extends ApplicationAdapter {
     tileInstances.clear();
     System.arraycopy(solidCells, 0, prevSolidCells, 0, solidCells.length);
     java.util.Arrays.fill(solidCells, false);
-    for (int cellY = 0; cellY < playfieldRows; cellY++)
+    for (int cellY = playfieldTop; cellY < playfieldTop + playfieldRows; cellY++)
       for (int col = 0; col < 32; col++) {
         int y0 = cellY * 8;
         int i0 = ((y0 & 0xC0) << 5) | ((y0 & 7) << 8) | ((y0 & 0x38) << 2) | col;

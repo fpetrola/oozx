@@ -61,6 +61,36 @@
         "fresh.frames": "10"
       }
     },
+    "rygar": {
+      "title": "Rygar",
+      "rzx": [
+        "/home/fernando/rygar.rzx",
+        "rygar.rzx"
+      ],
+      "db": [
+        "analysis/rygar.db"
+      ],
+      "properties": {
+        "items": "false",
+        "fresh.frames": "10"
+      }
+    },
+    "monty": {
+      "title": "Monty on the Run",
+      "rzx": [
+        "/home/fernando/Downloads/montyr.rzx",
+        "montyr.rzx"
+      ],
+      "db": [
+        "analysis/monty-taint.db"
+      ],
+      "_playfield_note": "el marcador va ARRIBA (2 filas) y el nombre de sala ABAJO: playfield = filas 2..21",
+      "properties": {
+        "playfield.top": "2",
+        "playfield.rows": "20",
+        "tiles": "screen"
+      }
+    },
     "exolon": {
       "title": "Exolon",
       "rzx": [

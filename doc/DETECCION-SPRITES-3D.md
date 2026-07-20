@@ -383,6 +383,7 @@ tapado; el bitmap de memoria es la forma "limpia". Trade-off a evaluar.
 | Manic Miner | `mm` | `analysis/mm.db` | ✅ completo |
 | Dynamite Dan | `dd` | `analysis/dd.db` | 🟡 sprites+tiles ok; máscaras pendientes |
 | Exolon | `exolon` | `analysis/exolon-taint.db` | 🟢 catálogo por taint-discovery (30k frames), fondo por relieve de pantalla, sin estela (§5.1). Pendiente: bases de marcador/fuente aún como sprite |
+| Monty on the Run | `monty` | `analysis/monty-taint.db` | 🟢 catálogo por taint-discovery (4.889 frames, 5s), fondo por relieve de pantalla. Es el primer juego con el marcador ARRIBA: `playfield.top=2` + `rows=20` |
 
 Perfiles en `minizx3d/src/main/resources/games.json`. Cada uno trae rzx + db + tweaks del juego.
 
@@ -415,6 +416,18 @@ TaintDiscover <rzx> analysis/<g>-taint.db [maxFrames]
 # re-blitter de pantalla entera (JSW, MM): dejar los dos apagados (default)
 JSW3D -Dgame=<g>   (agregar el perfil a games.json)
 ```
+
+Dos cosas que conviene mirar en la PRIMERA corrida de un juego nuevo, porque son las que más
+ensucian y las dos se arreglan desde el perfil:
+
+- **¿El decorado sale como ruido blanco?** Es el síntoma de §5.1: `updateTiles` extruye cada
+  celda desde su template de memoria, y si el catálogo dio spans grandes (bancos de sprites
+  enteros, no tiles de 8 filas) el bitmap no se parece a lo que hay en pantalla. `tiles=screen`
+  lo resuelve sin tocar el catálogo. Le pasó a Exolon y a Monty.
+- **¿Dónde está el marcador?** El playfield son las filas `[playfield.top, +playfield.rows)`.
+  JSW/MM lo tienen ABAJO (`top=0, rows=16`, el default); Monty lo tiene ARRIBA y además el
+  nombre de sala abajo, así que va `top=2, rows=20`. Sin el offset el texto del SCORE se
+  extruye en relieve junto con la sala.
 El camino viejo por tracker sigue disponible (`AnalysisCLI z80run` + `z80track`), y es el que
 usan JSW/MM/DD hoy.
 
