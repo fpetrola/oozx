@@ -2146,6 +2146,8 @@ public class JSW3D extends ApplicationAdapter {
    * models beside it; too short and a sprite that pauses sinks back into the scenery.
    */
   private static final int DYN_FRAMES = Integer.getInteger("relief.dyn", 4);
+  /** static islands of at most this many cells are decor (float), not architecture. */
+  private static final int decorCells = Integer.getInteger("relief.decor", 12);
 
   private void updateScreenRelief(TaintReplay.FrameSnapshot snap) {
     tileInstances.clear();
@@ -2178,20 +2180,39 @@ public class JSW3D extends ApplicationAdapter {
     // extra signals decide: WRITE FRESHNESS (a cell being animated right now is a moving
     // thing, whatever the catalog says) and HORIZONTAL RUN LENGTH of the static
     // unclassified cells (a floor band spans many columns, a star or planet only a few).
-    int[] run = new int[n];
-    for (int cellY = 0; cellY < rows; cellY++) {
-      int start = -1;
-      for (int col = 0; col <= 32; col++) {
-        boolean in = col < 32 && bmps[cellY * 32 + col] != null && !spr[cellY * 32 + col]
-            && !dyn[cellY * 32 + col] && tOf[cellY * 32 + col] == 0;
-        if (in && start < 0)
-          start = col;
-        else if (!in && start >= 0) {
-          for (int c = start; c < col; c++)
-            run[cellY * 32 + c] = col - start;
-          start = -1;
-        }
+    // Decor vs architecture by CONNECTED-COMPONENT SIZE over the static cells. A floor or a
+    // wall is one big connected mass; a planet or a star is a small island floating in the
+    // sky. Horizontal run length was tried first and could not tell a planet from a narrow
+    // pillar — the pillar is narrow too, but it is connected all the way down to the floor.
+    // Crucially this ignores the tile classification: Exolon's planets ARE tile-classified,
+    // so gating on "unclassified" left them extruded as scenery.
+    int[] comp = new int[n];
+    java.util.Arrays.fill(comp, -1);
+    java.util.List<Integer> compSize = new ArrayList<>();
+    java.util.ArrayDeque<Integer> queue = new java.util.ArrayDeque<>();
+    for (int c0 = 0; c0 < n; c0++) {
+      if (comp[c0] >= 0 || bmps[c0] == null || spr[c0] || dyn[c0])
+        continue;
+      int id = compSize.size(), size = 0;
+      comp[c0] = id;
+      queue.add(c0);
+      while (!queue.isEmpty()) {
+        int p = queue.poll();
+        size++;
+        int py = p >> 5, px = p & 31;
+        for (int dy = -1; dy <= 1; dy++)
+          for (int dx = -1; dx <= 1; dx++) {
+            int ny = py + dy, nx = px + dx;
+            if (ny < 0 || ny >= rows || nx < 0 || nx > 31)
+              continue;
+            int q = ny * 32 + nx;
+            if (comp[q] < 0 && bmps[q] != null && !spr[q] && !dyn[q]) {
+              comp[q] = id;
+              queue.add(q);
+            }
+          }
       }
+      compSize.add(size);
     }
     for (int cellY = 0; cellY < rows; cellY++)
       for (int col = 0; col < 32; col++) {
@@ -2240,8 +2261,9 @@ public class JSW3D extends ApplicationAdapter {
           cellClaimed[cell] = true;
           continue;
         }
-        if (tOf[cell] == 0 && run[cell] < 5) {
-          // static, unclassified and narrow: stars and planets — decor, not walkable
+        if (comp[cell] >= 0 && compSize.get(comp[cell]) <= decorCells) {
+          // a small isolated island: stars, planets, floating decor — rendered like a
+          // mobile sprite (inflated, mid depth), never as a walkable slab
           floatCell(col, y0, bmp, attr);
           cellClaimed[cell] = true;
           continue;
@@ -2307,6 +2329,10 @@ public class JSW3D extends ApplicationAdapter {
           wetten(ink);
           Material paper = inst.getMaterial(TileSlabBuilder.PAPER);
           if (paper != null) { // an all-ink cell has no paper part
+            // NOTE: painting this with the INK colour to hide the black extruded edge was
+            // tried and reverted — in Exolon most cells are mostly paper with dithered ink
+            // on top, so the whole room turned into solid single-colour bricks and every
+            // bit of texture was lost. The black edge needs a narrower fix than this.
             paper.set(ColorAttribute.createDiffuse(PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
             wetten(paper);
           }
