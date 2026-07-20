@@ -75,20 +75,45 @@ public final class VoxelSpriteBuilder {
     for (int i = 0; i < smoothLevel; i++)
       d = blurInside(d);
 
+    float[][] depth = new float[rows][w];
+    for (int y = 0; y < rows; y++)
+      for (int x = 0; x < w; x++)
+        depth[y][x] = Math.max(1f, Math.round(depthScale * 2f * (float) Math.sqrt(d[y][x])));
+    return buildWithDepth(mask, depth, 1f, true);
+  }
+
+  /**
+   * The box emission on its own, driven by a depth given PER PIXEL from outside. This is
+   * what lets the primitive profiles and hand-painted depth maps reuse the voxel look
+   * instead of re-deriving it: {@link #build} is just this with the distance transform as
+   * the depth source.
+   *
+   * @param fill        0..1 box size, below 1 leaves the gaps of the "Lego" look
+   * @param doubleSided centered in z (solid volume) vs bulging toward the camera only
+   */
+  public static Model buildWithDepth(boolean[][] mask, float[][] depth, float fill,
+                                     boolean doubleSided) {
+    int rows = mask.length, w = mask[0].length;
     ModelBuilder mb = new ModelBuilder();
     mb.begin();
     MeshPartBuilder part = mb.part("voxels", GL20.GL_TRIANGLES,
         Usage.Position | Usage.Normal, new Material(ColorAttribute.createDiffuse(Color.WHITE)));
+    float s = Math.max(.05f, Math.min(1f, fill));
+    boolean any = false;
     for (int y = 0; y < rows; y++)
       for (int x = 0; x < w; x++)
         if (mask[y][x]) {
-          float depth = Math.max(1f,
-              Math.round(depthScale * 2f * (float) Math.sqrt(d[y][x])));
-          // model space: centered, +y up (screen rows grow down), z bulges both ways
-          BoxShapeBuilder.build(part,
-              x - w / 2f + .5f, rows / 2f - y - .5f, 0, 1, 1, depth);
+          float dz = Math.max(.5f, depth[y][x]);
+          // model space: centered, +y up (screen rows grow down). A one-sided sprite keeps
+          // its back at z=0 so it sits ON the backdrop instead of sinking through it.
+          BoxShapeBuilder.build(part, x - w / 2f + .5f, rows / 2f - y - .5f,
+              doubleSided ? 0 : dz / 2f, s, s, dz);
+          any = true;
         }
-    return mb.end();
+    // An empty bitmap must yield NO model, not an empty one: a mesh with no index buffer
+    // blows up at RENDER time ("No buffer allocated"), far from the cause. Callers already
+    // treat null as "leave it 2D".
+    return any ? mb.end() : null;
   }
 
   /** vertices this builder would emit: one box (6 quads) per solid pixel. */

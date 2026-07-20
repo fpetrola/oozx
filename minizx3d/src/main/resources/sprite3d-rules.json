@@ -1,0 +1,53 @@
+{
+  "_comment": [
+    "Reglas de seleccion automatica de tecnica 3D. ORDENADAS: gana la primera que matchea.",
+    "'when' = feature -> [min, max] inclusivo, TODAS deben cumplirse. 'then' = campos a pisar.",
+    "Features: aspect fill solidity symmetryV components holes thinness width height litPixels.",
+    "Se activa con -Dsprite3d.auto=true; se reemplaza con -Dsprite3d.rules=<path>.",
+    "Si ninguna matchea, el sprite se queda con el default del visor (INFLATE/VOXELS)."
+  ],
+  "rules": [
+    {
+      "name": "texto-hud",
+      "_why": "muchas piezas sueltas, poco relleno y casi todo trazo fino = letras o marcador",
+      "when": { "components": [3, 999], "fill": [0, 0.4], "thinness": [0.5, 1] },
+      "then": { "technique": "SLAB", "depth": 0.35 }
+    },
+    {
+      "name": "tile-plataforma",
+      "_why": "cuadrado y macizo: se lee como arquitectura, no como bicho",
+      "when": { "fill": [0.85, 1], "solidity": [0.9, 1] },
+      "then": { "technique": "SLAB", "depth": 1.0 }
+    },
+    {
+      "name": "item-redondo",
+      "_why": "compacto, convexo y casi cuadrado -> esfera",
+      "when": { "aspect": [0.75, 1.35], "solidity": [0.8, 1], "fill": [0.5, 1], "litPixels": [0, 400] },
+      "then": { "technique": "PRIMITIVE", "primitive": "SPHERE", "roundness": 1.0 }
+    },
+    {
+      "name": "humanoide",
+      "_why": "mas alto que ancho, simetrico y con extremidades (solidity media)",
+      "when": { "aspect": [1.15, 3.5], "symmetryV": [0.6, 1], "solidity": [0.35, 0.9] },
+      "then": { "technique": "INFLATE", "depth": 1.0, "doubleSided": true }
+    },
+    {
+      "name": "organico-con-huecos",
+      "_why": "irregular y con huecos internos: la piel unica de surface nets le sienta mejor",
+      "when": { "holes": [1, 99], "solidity": [0, 0.75] },
+      "then": { "technique": "SURFACE_NETS", "smoothing": 1.0 }
+    },
+    {
+      "name": "nave-angular",
+      "_why": "poco convexo y poco simetrico verticalmente: puntas y alas, mejor extruido",
+      "when": { "solidity": [0, 0.6], "symmetryV": [0, 0.65] },
+      "then": { "technique": "SLAB", "depth": 0.6 }
+    },
+    {
+      "name": "ancho-tumbado",
+      "_why": "mucho mas ancho que alto: cilindro horizontal (vehiculos, troncos, barras)",
+      "when": { "aspect": [0, 0.55], "solidity": [0.6, 1] },
+      "then": { "technique": "PRIMITIVE", "primitive": "CYL_H", "roundness": 0.85 }
+    }
+  ]
+}

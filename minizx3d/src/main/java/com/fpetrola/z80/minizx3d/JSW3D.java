@@ -103,6 +103,16 @@ public class JSW3D extends ApplicationAdapter {
   private final float reliefDepth = Float.parseFloat(System.getProperty("relief.depth", "1"));
   /** screen-pixel sprite models, keyed by content hash (animation frames each get one). */
   private final Map<Long, Model> pixModelCache = new HashMap<>();
+  /**
+   * Sprite -> mesh: technique selection (override > auto > viewer default), baking and the
+   * LRU mesh cache. Created in {@link #create()} because it keys its overrides by game.
+   */
+  private Sprite3DPipeline sprite3d;
+  /** which of {@link #frameBases} the F7..F10 tuning keys are pointing at. */
+  private int tunedSprite;
+  /** catalog bases drawn in the last frame, in a stable order, for the tuning keys. */
+  private final List<Integer> frameBases = new ArrayList<>();
+  private final Map<Integer, SpriteBitmap> lastBitmap = new HashMap<>();
   private final List<ModelInstance> spriteInstances = new ArrayList<>();
   private final List<ModelInstance> tileInstances = new ArrayList<>();
   /** smooth inflated mesh vs voxel boxes; M toggles at runtime. */
@@ -307,6 +317,7 @@ public class JSW3D extends ApplicationAdapter {
 
   @Override
   public void create() {
+    sprite3d = new Sprite3DPipeline(activeGame, 1024);
     // enough point-light slots for willy + guardians + every item in the room
     com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config shaderCfg =
         new com.badlogic.gdx.graphics.g3d.shaders.DefaultShader.Config();
@@ -411,6 +422,40 @@ public class JSW3D extends ApplicationAdapter {
               }
               case com.badlogic.gdx.Input.Keys.F6 -> {
                 deleteCurrentPreset();
+                rebuild = false;
+              }
+              // Sprite3D live tuning: F7 picks which sprite you are editing, F8/F9 change
+              // its technique and primitive, F10 saves it as an override for this game.
+              // No rebuild flag needed — the mesh cache keys on (bitmap, config), so the
+              // next frame bakes the new variant on its own.
+              case com.badlogic.gdx.Input.Keys.F7 -> {
+                tunedSprite = tunedSprite + 1;
+                rebuild = false;
+                printSpriteTuning();
+              }
+              case com.badlogic.gdx.Input.Keys.F8 -> {
+                cycleTuned(1, false);
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.F9 -> {
+                cycleTuned(0, true);
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.F10 -> { // commit the live edit to disk
+                int base = tunedBase();
+                if (base >= 0) {
+                  sprite3d.store().put(base, tunedConfig());
+                  System.out.println("sprite3d: override guardado para $"
+                      + Integer.toHexString(base));
+                }
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.F11 -> { // back to auto/default
+                int base = tunedBase();
+                if (base >= 0) {
+                  sprite3d.store().remove(base);
+                  printSpriteTuning();
+                }
                 rebuild = false;
               }
               case com.badlogic.gdx.Input.Keys.M -> smooth = !smooth;
@@ -1686,6 +1731,7 @@ public class JSW3D extends ApplicationAdapter {
       }
     spriteInstances.clear();
     spriteBoxes.clear();
+    frameBases.clear();
     for (int bi = 0; bi < blobs.size(); bi++) {
       int[] blob = blobs.get(bi);
       int base = blob[0] - 1;
@@ -1693,11 +1739,19 @@ public class JSW3D extends ApplicationAdapter {
       int bytes = catalog.sizeOf.getOrDefault(base, 32);
       // bytes per row: 2 (16px) unless the catalog knows better (DD sprites are 1..3 wide)
       int stride = catalog.strideOf.getOrDefault(base, 2);
-      Model model = blobsAdjacent
-          ? pixModel(bitmaps.get(bi), b[2] - b[0] + 1, depthScale)
-          : modelCache.computeIfAbsent(base, k -> smooth
-          ? SmoothSpriteBuilder.build(k, bytes, stride, replay::memByte, smoothLevel, depthScale)
-          : VoxelSpriteBuilder.build(k, bytes, stride, replay::memByte, smoothLevel, depthScale));
+      // Sprite3D: the bitmap is the same one the old code fed the builders (memory bitmap,
+      // or the on-screen pixels in adjacent mode), so with no override and auto off this
+      // resolves to the very same builder call it always made
+      SpriteBitmap sb = blobsAdjacent
+          ? SpriteBitmap.ofScreen(bitmaps.get(bi), b[2] - b[0] + 1, base)
+          : SpriteBitmap.ofMemory(base, bytes, stride, replay::memByte);
+      if (base >= 0 && !frameBases.contains(base)) {
+        frameBases.add(base);
+        lastBitmap.put(base, sb); // the tuning keys need a bitmap to analyze
+      }
+      Model model = sprite3d.model(sb, viewerDefaults());
+      if (model == null)
+        continue; // too big to mesh under any technique: stays in the 2D backdrop
       float cx = (b[0] + b[2] + 1) * 8 / 2f;          // byte cols -> pixels
       float cy = H - (b[1] + b[3] + 1) / 2f;          // screen y down -> world y up
       // playfield blobs only: the lives-row Willys must not kick junk around
@@ -1767,6 +1821,72 @@ public class JSW3D extends ApplicationAdapter {
     return pixModelCache.computeIfAbsent(key, k -> smooth
         ? SmoothSpriteBuilder.build(0, bmp.length, wBytes, a -> bmp[a] & 0xff, smoothLevel, depth)
         : VoxelSpriteBuilder.build(0, bmp.length, wBytes, a -> bmp[a] & 0xff, smoothLevel, depth));
+  }
+
+  /**
+   * The config a sprite gets when nothing overrides it and the automatic layer is off: the
+   * viewer's own live sliders, i.e. exactly what the builders were called with before the
+   * Sprite3D subsystem existed. Everything else is layered ON TOP of this.
+   */
+  /** the sprite the tuning keys act on: one of the bases drawn last frame, or -1. */
+  private int tunedBase() {
+    if (frameBases.isEmpty())
+      return -1;
+    return frameBases.get(Math.floorMod(tunedSprite, frameBases.size()));
+  }
+
+  /** its config today — the stored override if any, otherwise what it would resolve to. */
+  private Sprite3DConfig tunedConfig() {
+    int base = tunedBase();
+    SpriteBitmap b = base < 0 ? null : lastBitmap.get(base);
+    if (b == null)
+      return viewerDefaults();
+    return sprite3d.configFor(b, viewerDefaults()).copy();
+  }
+
+  /**
+   * Steps the tuned sprite's technique or primitive and stores it WITHOUT writing to disk,
+   * so the change is on screen next frame and F10 is what commits it.
+   */
+  private void cycleTuned(int techStep, boolean primitiveStep) {
+    int base = tunedBase();
+    if (base < 0)
+      return;
+    Sprite3DConfig c = tunedConfig();
+    if (primitiveStep) {
+      Sprite3DConfig.Primitive[] ps = Sprite3DConfig.Primitive.values();
+      c.primitive = ps[(c.primitive.ordinal() + 1) % ps.length];
+      c.technique = Sprite3DConfig.Technique.PRIMITIVE; // the primitive only shows there
+    } else if (techStep != 0) {
+      Sprite3DConfig.Technique[] ts = Sprite3DConfig.Technique.values();
+      c.technique = ts[Math.floorMod(c.technique.ordinal() + techStep, ts.length)];
+    }
+    sprite3d.store().putTransient(base, c);
+    printSpriteTuning();
+  }
+
+  private void printSpriteTuning() {
+    int base = tunedBase();
+    if (base < 0) {
+      System.out.println("sprite3d: no hay sprites en pantalla para ajustar");
+      return;
+    }
+    Sprite3DConfig c = tunedConfig();
+    SpriteBitmap b = lastBitmap.get(base);
+    SpriteFeatures f = b == null ? null : sprite3d.features(b);
+    System.out.printf("sprite3d [%d/%d] $%04x  %s%s  %s  regla=%s  %s%n",
+        Math.floorMod(tunedSprite, frameBases.size()) + 1, frameBases.size(), base,
+        c.technique, c.technique == Sprite3DConfig.Technique.PRIMITIVE ? "/" + c.primitive : "",
+        sprite3d.store().has(base) ? "[OVERRIDE]" : "(auto/default)",
+        f == null ? "?" : sprite3d.selector().explain(f), f == null ? "" : f);
+  }
+
+  private Sprite3DConfig viewerDefaults() {
+    Sprite3DConfig c = new Sprite3DConfig();
+    c.technique = smooth ? Sprite3DConfig.Technique.INFLATE : Sprite3DConfig.Technique.VOXELS;
+    c.depth = depthScale;
+    c.smoothLevel = smoothLevel;
+    return c;
   }
 
   /**
@@ -2168,6 +2288,7 @@ public class JSW3D extends ApplicationAdapter {
     backdropModel.dispose();
     modelCache.values().forEach(Model::dispose);
     pixModelCache.values().forEach(Model::dispose);
+    sprite3d.dispose();
     junkModels.values().forEach(Model::dispose);
     if (lampModel != null)
       lampModel.dispose();
