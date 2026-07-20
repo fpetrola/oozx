@@ -7,15 +7,23 @@
 
 ---
 
-## 1. La regla de oro
+## 1. El mecanismo por default
 
-**Sin flags, todo se ve exactamente como antes.** El default reproduce la llamada que el
-visor ya hacía (`INFLATE` o `VOXELS` según el toggle M, con los sliders de profundidad y
-suavizado). Verificado contra JSW: mismo render, plataformas, Willy, guardianes y fila de
-vidas. Todo lo nuevo se apila **encima** de ese default.
+**Figura geométrica + smooth después**, eligiendo la figura según el tipo de sprite. Una
+primitiva (ovoide, esfera, cilindro, almohadón...) da el VOLUMEN y las pasadas de blur que ya
+existían dan el ACABADO. La selección automática está **activa por default**: las reglas de
+`sprite3d-rules.json` asignan a cada tipo su figura.
 
-Precedencia: **override a mano > selección automática (solo con `-Dsprite3d.auto=true`) >
-default del visor**.
+Precedencia: **override a mano > selección automática > `INFLATE`** (distance transform, el
+que no falla nunca, para lo que ninguna regla matchea).
+
+Para volver al comportamiento previo —inflado por distancia, sin primitivas—:
+`-Dsprite3d.auto=false`.
+
+Implementación: `SmoothSpriteBuilder.build(..., primitive, roundness)`. Conserva intacta la
+maquinaria de silueta y el chamfer, y solo reemplaza de dónde sale la altura. El chamfer
+sigue haciendo falta para el **taper del borde**: el frente y el dorso tienen que encontrarse
+en h=0 o la silueta muestra un acantilado en vez de un canto.
 
 ---
 
@@ -46,9 +54,14 @@ emisión de cajas en vez de duplicarla.
 `BILLBOARD` · `SLAB` · `VOXELS` · `PRIMITIVE` (esfera, ovoide, cilindro V/H, cono, almohadón)
 · `INFLATE` (distance transform, el default) · `SURFACE_NETS` · `STACK`.
 
-El **default universal es `INFLATE`** y no por gusto teórico: es lo que
-`SmoothSpriteBuilder` ya hacía y quedó validado en JSW, Manic Miner, Dynamite Dan y Exolon —
-humanoides, bichos, ítems y terreno. Se adapta a cualquier silueta sin clasificar nada.
+`PRIMITIVE` es el **mecanismo por default** (§1): figura geométrica por tipo de sprite, con
+el smooth aplicado después. Con `voxelFill < 1` la misma técnica emite cajas en vez de malla
+suave, que es el único motivo para querer la versión chunky.
+
+`INFLATE` quedó como **red de seguridad**: es lo que `SmoothSpriteBuilder` hacía y quedó
+validado en JSW, Manic Miner, Dynamite Dan y Exolon. Se adapta a cualquier silueta sin
+clasificar nada, así que es donde cae lo que ninguna regla matchea — y a donde se vuelve
+entero con `-Dsprite3d.auto=false`.
 
 **EPX quedó opt-in, no default** (a diferencia de lo que pedía el prompt original):
 `SmoothSpriteBuilder` ya suaviza el contorno con upsample 4× + threshold 0.45, elegido
@@ -78,7 +91,8 @@ deben cumplirse; `then` pisa campos de la config. Gana la primera; si ninguna ma
 sprite se queda con el default (nunca se lo fuerza).
 
 Validado sobre el catálogo real de JSW: los glifos de texto de 6 bytes salen `texto-hud →
-SLAB`, los humanoides `humanoide → INFLATE`, los angulares `nave-angular → SLAB`.
+SLAB` (una primitiva sobre una letra la deformaría), los humanoides `humanoide →
+PRIMITIVE/OVOID`, los irregulares con huecos reales `SURFACE_NETS`.
 
 **Trampa que costó**: `holes` contaba cada hueco de 1 píxel del dithering, así que los
 guardianes detallados de JSW reportaban 7-16 "huecos" y casi todo caía en la rama cara de
@@ -105,6 +119,16 @@ se hornea sola en el frame siguiente); F10 es lo que persiste.
 
 ## 6. Cosas que rompen si no se respetan
 
+- **Nunca liberar un modelo que una instancia todavía referencia.** Las teclas que
+  reconstruyen (M, S/X, D/C, T/G, presets) disparan ENTRE snapshots, y `updateSprites` /
+  `updateTiles` solo corren cuando llega un frame nuevo. Si se hace `dispose()` ahí mismo,
+  `render()` sigue dibujando las instancias viejas contra mallas ya liberadas — y explota como
+  `No buffer allocated!` en `ModelBatch.end()`, lejísimos de la causa. Por eso todo lo que se
+  saca de un caché en runtime va a `pendingDispose` (`retire()`) y se libera en
+  `releaseRetired()`, en el único punto donde las listas de instancias están vacías: arriba
+  del update por frame. Vale igual para la expulsión del LRU de `Sprite3DPipeline`, que por eso
+  retira en vez de destruir (`drainRetired()`). Había un `Thread.sleep(100)` como parche en
+  `afterKey()`: no garantizaba nada y encima bloqueaba el hilo GL.
 - **Nunca emitir una malla vacía.** Un `Mesh` sin index buffer no falla al construirse: falla
   al **renderizar**, con `No buffer allocated!` y un stack que apunta a `ModelBatch.end()`,
   lejos de la causa. Los builders devuelven `null` y el llamador deja el sprite en 2D.
@@ -124,5 +148,7 @@ se hornea sola en el frame siguiente); F10 es lo que persiste.
   bitmap como textura `Nearest` con UVs por vértice daría color exacto por píxel y
   conservaría el attribute clash, que es parte de la estética. Es de lo más rendidor que
   queda.
-- Un `Exception` intermitente apareció una vez en una corrida con overrides y **no se
-  reprodujo** en dos corridas siguientes; queda sin explicar.
+- El `No buffer allocated!` intermitente que aparecía al apretar teclas de render rápido
+  quedó atacado en su mecanismo (liberación diferida, §6). No se pudo reproducir headless
+  —necesita input real a mayor ritmo que los snapshots—, así que la verificación es por
+  lectura del código, no empírica.

@@ -46,12 +46,16 @@ public final class Sprite3DPipeline {
   private final int capacity;
   private final Map<Long, Model> cache;
   private final Map<Integer, SpriteFeatures> featureCache = new LinkedHashMap<>();
+  /** evicted meshes waiting for a moment when nothing references them. */
+  private final java.util.List<Model> retired = new java.util.ArrayList<>();
   private long hits, misses, degraded;
 
   public Sprite3DPipeline(String game, int capacity) {
     this.store = new Sprite3DConfigStore(game);
     this.capacity = capacity;
-    this.auto = Boolean.getBoolean("sprite3d.auto");
+    // ON by default: the geometric-primitive rules ARE the default mechanism now.
+    // -Dsprite3d.auto=false falls everything back to the viewer's plain inflation.
+    this.auto = !"false".equals(System.getProperty("sprite3d.auto"));
     String rules = System.getProperty("sprite3d.rules");
     this.selector = new TechniqueSelector(rules != null ? Gdx.files.absolute(rules)
         : Gdx.files.internal("sprite3d-rules.json"));
@@ -60,7 +64,10 @@ public final class Sprite3DPipeline {
       protected boolean removeEldestEntry(Map.Entry<Long, Model> eldest) {
         if (size() <= Sprite3DPipeline.this.capacity)
           return false;
-        eldest.getValue().dispose(); // GPU resource: must be released, not just dropped
+        // NOT disposed here: an instance built last frame may still point at it, and
+        // rendering a disposed mesh dies as "No buffer allocated!" far from the cause.
+        // The caller drains this once the instance lists are empty.
+        retired.add(eldest.getValue());
         return true;
       }
     };
@@ -138,12 +145,24 @@ public final class Sprite3DPipeline {
         + (auto ? ", auto ON" : "");
   }
 
+  /** meshes evicted since the last call — the caller frees them when it is safe. */
+  public java.util.List<Model> drainRetired() {
+    if (retired.isEmpty())
+      return java.util.Collections.emptyList();
+    java.util.List<Model> out = new java.util.ArrayList<>(retired);
+    retired.clear();
+    return out;
+  }
+
   public void clear() {
-    cache.values().forEach(Model::dispose);
+    retired.addAll(cache.values());
     cache.clear();
   }
 
   public void dispose() {
-    clear();
+    cache.values().forEach(Model::dispose);
+    cache.clear();
+    retired.forEach(Model::dispose);
+    retired.clear();
   }
 }

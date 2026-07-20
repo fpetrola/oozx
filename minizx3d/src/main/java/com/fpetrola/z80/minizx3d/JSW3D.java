@@ -113,6 +113,15 @@ public class JSW3D extends ApplicationAdapter {
   /** catalog bases drawn in the last frame, in a stable order, for the tuning keys. */
   private final List<Integer> frameBases = new ArrayList<>();
   private final Map<Integer, SpriteBitmap> lastBitmap = new HashMap<>();
+  /**
+   * Models dropped from a cache but possibly still referenced by an instance built last
+   * frame. They are released in {@link #releaseRetired()}, once the instance lists have been
+   * cleared — disposing them where they are dropped is a use-after-free: the keys that
+   * rebuild the models fire between snapshots, and until the next snapshot arrives
+   * {@code render()} keeps drawing the OLD instances. That surfaces far from the cause, as
+   * "No buffer allocated!" inside ModelBatch.end().
+   */
+  private final List<Model> pendingDispose = new ArrayList<>();
   private final List<ModelInstance> spriteInstances = new ArrayList<>();
   private final List<ModelInstance> tileInstances = new ArrayList<>();
   /** smooth inflated mesh vs voxel boxes; M toggles at runtime. */
@@ -611,14 +620,9 @@ public class JSW3D extends ApplicationAdapter {
 
           private boolean afterKey(boolean rebuild) {
             if (rebuild) {
-              try {
-                  Thread.sleep(100);
-              } catch (InterruptedException e) {
-                  throw new RuntimeException(e);
-              }
-              modelCache.values().forEach(Model::dispose);
+              retire(modelCache.values());
               modelCache.clear();
-              pixModelCache.values().forEach(Model::dispose);
+              retire(pixModelCache.values());
               pixModelCache.clear();
             }
             printStatus();
@@ -711,6 +715,11 @@ public class JSW3D extends ApplicationAdapter {
       shownFrame = snap.frame();
       frameLights.clear();
       effects.clearFireSpots();
+      // the one point where no instance references a model: drop last frame's instances,
+      // THEN free whatever a rebuild key or a cache eviction retired since
+      spriteInstances.clear();
+      tileInstances.clear();
+      releaseRetired();
       long t0 = perf ? System.nanoTime() : 0;
       // Screen-pixel models are content-hashed and shared by the sprite blobs and the
       // background relief, so the cache is emptied HERE — once a frame, before anything
@@ -719,7 +728,7 @@ public class JSW3D extends ApplicationAdapter {
       // rebuilt every single frame; the viewer slowed to a crawl. The bound is generous
       // because a dithered texture only has so many distinct 8x8 patterns.
       if (pixModelCache.size() > 4096) {
-        pixModelCache.values().forEach(Model::dispose);
+        retire(pixModelCache.values());
         pixModelCache.clear();
       }
       if (blobsAdjacent)
@@ -1346,9 +1355,9 @@ public class JSW3D extends ApplicationAdapter {
       return;
     presetIdx = idx;
     applyConfig(ps.get(presets.get(idx)));
-    modelCache.values().forEach(Model::dispose); // smooth/depth may have changed
+    retire(modelCache.values()); // smooth/depth may have changed
     modelCache.clear();
-    pixModelCache.values().forEach(Model::dispose);
+    retire(pixModelCache.values());
     pixModelCache.clear();
     junkSpawnPending = junkOn || lampsOn || balloonsOn;
     if (replay != null)
@@ -1828,6 +1837,25 @@ public class JSW3D extends ApplicationAdapter {
    * viewer's own live sliders, i.e. exactly what the builders were called with before the
    * Sprite3D subsystem existed. Everything else is layered ON TOP of this.
    */
+  /** hand a batch of models over to {@link #releaseRetired()} instead of disposing now. */
+  private void retire(java.util.Collection<Model> models) {
+    pendingDispose.addAll(models);
+  }
+
+  /**
+   * Frees everything retired since the last frame. Only safe once the instance lists are
+   * empty, which is why it is called at the top of the per-frame update, right after they
+   * are cleared and before the passes rebuild them.
+   */
+  private void releaseRetired() {
+    if (sprite3d != null)
+      pendingDispose.addAll(sprite3d.drainRetired());
+    if (pendingDispose.isEmpty())
+      return;
+    pendingDispose.forEach(Model::dispose);
+    pendingDispose.clear();
+  }
+
   /** the sprite the tuning keys act on: one of the bases drawn last frame, or -1. */
   private int tunedBase() {
     if (frameBases.isEmpty())

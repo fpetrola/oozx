@@ -156,18 +156,28 @@ public interface MeshBakingStrategy {
     }
   }
 
-  /** §3.4 — thickness from a primitive surface evaluated over the bounding box. */
+  /**
+   * §3.4 — thickness from a primitive surface, then SMOOTHED: the geometric shape gives the
+   * volume and the usual blur passes give the finish. Voxel boxes are still reachable with
+   * {@code voxelFill < 1}, which is the only reason to want the chunky version here.
+   */
   final class PrimitiveProfile implements MeshBakingStrategy {
     public Model bake(SpriteBitmap b, Sprite3DConfig c) {
       SpriteBitmap s = SpriteFx.preprocess(b, c);
-      boolean[][] mask = s.mask();
-      return VoxelSpriteBuilder.buildWithDepth(mask, SpriteFx.depthField(s, c, mask),
-          c.voxelFill, c.doubleSided);
+      if (c.voxelFill < 1f) {
+        boolean[][] mask = s.mask();
+        return VoxelSpriteBuilder.buildWithDepth(mask, SpriteFx.depthField(s, c, mask),
+            c.voxelFill, c.doubleSided);
+      }
+      return SmoothSpriteBuilder.build(0, s.data.length, s.wBytes, s.memView(),
+          c.smoothLevel, c.depth, c.primitive, c.roundness);
     }
 
     public int vertexEstimate(SpriteBitmap b, Sprite3DConfig c) {
-      int k = c.epx > 1 ? c.epx * c.epx : 1;
-      return VoxelSpriteBuilder.vertexCount(b.litPixels() * k);
+      int k = c.epx > 1 ? c.epx : 1;
+      if (c.voxelFill < 1f)
+        return VoxelSpriteBuilder.vertexCount(b.litPixels() * k * k);
+      return SmoothSpriteBuilder.vertexCount(b.wBytes * k, b.rows * k);
     }
   }
 

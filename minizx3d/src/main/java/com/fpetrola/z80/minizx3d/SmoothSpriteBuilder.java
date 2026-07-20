@@ -56,11 +56,27 @@ public final class SmoothSpriteBuilder {
    */
   public static Model build(int base, int bytes, int wBytes, IntUnaryOperator memByte,
                             int smoothLevel, float depthScale) {
+    return build(base, bytes, wBytes, memByte, smoothLevel, depthScale, null, 1f);
+  }
+
+  /**
+   * Same mesh, but the volume can come from a PRIMITIVE instead of the distance transform:
+   * the thickness at each point is the primitive's surface over the silhouette's bounding
+   * box, and the usual blur passes then smooth it — "geometric shape first, smoothing
+   * after". The silhouette machinery is untouched, so the outline is as clean as ever and
+   * the rim still closes at zero, which is what lets the front and back halves join.
+   *
+   * @param primitive null keeps the distance-transform inflation (the original behaviour)
+   * @param roundness 0 = flat slab of the silhouette, 1 = the primitive's full curvature
+   */
+  public static Model build(int base, int bytes, int wBytes, IntUnaryOperator memByte,
+                            int smoothLevel, float depthScale,
+                            Sprite3DConfig.Primitive primitive, float roundness) {
     boolean[][] mask = VoxelSpriteBuilder.mask(base, bytes, wBytes, memByte);
     int ny = mask.length * K, nx = mask[0].length * K;
 
     // corner lattice over the sprite: sampled mask = the (possibly smoothed) silhouette
-    float[][] h = heights(mask, smoothLevel, depthScale);
+    float[][] h = heights(mask, smoothLevel, depthScale, primitive, roundness);
 
     ModelBuilder mb = new ModelBuilder();
     mb.begin();
@@ -92,7 +108,8 @@ public final class SmoothSpriteBuilder {
   }
 
   /** smoothed-silhouette distance field turned into the inflation height, on the corner lattice. */
-  private static float[][] heights(boolean[][] mask, int smoothLevel, float depthScale) {
+  private static float[][] heights(boolean[][] mask, int smoothLevel, float depthScale,
+                                   Sprite3DConfig.Primitive primitive, float roundness) {
     int ny = mask.length * K, NX = mask[0].length * K;
     float t = Math.min(1f, smoothLevel / 3f); // 0 = pixelated silhouette, 1 = fully rounded
     float[][] field = new float[ny + 1][NX + 1];
@@ -117,9 +134,35 @@ public final class SmoothSpriteBuilder {
         pass(d, gx, gy, sq2);
 
     float[][] h = new float[ny + 1][NX + 1];
-    for (int gy = 0; gy <= ny; gy++)
-      for (int gx = 0; gx <= NX; gx++)
-        h[gy][gx] = depthScale * 2f * (float) Math.sqrt(d[gy][gx] / K); // lattice -> pixels
+    if (primitive == null) {
+      for (int gy = 0; gy <= ny; gy++)
+        for (int gx = 0; gx <= NX; gx++)
+          h[gy][gx] = depthScale * 2f * (float) Math.sqrt(d[gy][gx] / K); // lattice -> pixels
+    } else {
+      // (u,v) in [-1,1] over the SILHOUETTE's bounding box, so the shape sits on the sprite
+      // and not on the padding of its byte-aligned bitmap
+      int minX = NX, maxX = 0, minY = ny, maxY = 0;
+      for (int gy = 0; gy <= ny; gy++)
+        for (int gx = 0; gx <= NX; gx++)
+          if (d[gy][gx] > 0) {
+            minX = Math.min(minX, gx);
+            maxX = Math.max(maxX, gx);
+            minY = Math.min(minY, gy);
+            maxY = Math.max(maxY, gy);
+          }
+      float cx = (minX + maxX) / 2f, cy = (minY + maxY) / 2f;
+      float rx = Math.max(1f, (maxX - minX) / 2f), ry = Math.max(1f, (maxY - minY) / 2f);
+      for (int gy = 0; gy <= ny; gy++)
+        for (int gx = 0; gx <= NX; gx++) {
+          if (d[gy][gx] <= 0)
+            continue;
+          float p = SpriteFx.profile(primitive, (gx - cx) / rx, (gy - cy) / ry);
+          // taper to zero within a pixel of the rim: the front and back halves have to
+          // meet at h=0 or the silhouette shows a cliff instead of an edge
+          float taper = Math.min(1f, (float) Math.sqrt(d[gy][gx] / K));
+          h[gy][gx] = depthScale * 4f * (1 - roundness + roundness * p) * taper;
+        }
+    }
     for (int i = 0; i < Math.max(1, smoothLevel); i++)
       h = blur(h);
     return h;
