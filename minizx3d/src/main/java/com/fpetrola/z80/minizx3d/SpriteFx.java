@@ -32,7 +32,7 @@ public final class SpriteFx {
    * the cap at 8 an 8px-wide Willy is 8 wide and 8 deep at the thickest point of the oval,
    * and anything wider stays at 8 instead of growing with it.
    */
-  public static final float MAX_DEPTH = Float.parseFloat(System.getProperty("sprite3d.maxdepth", "8"));
+  public static float MAX_DEPTH = Float.parseFloat(System.getProperty("sprite3d.maxdepth", "8"));
 
   /** half of {@link #MAX_DEPTH}: the surface is built as +h and -h around the sprite plane. */
   public static float maxHalfDepth() {

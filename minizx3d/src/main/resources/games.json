@@ -3,23 +3,39 @@
   "games": {
     "jsw": {
       "title": "Jet Set Willy",
-      "rzx": ["Jet Set Willy - Mildly Patched.rzx",
-              "/home/fernando/detodo/spectrum/oozx/Jet Set Willy - Mildly Patched.rzx"],
-      "db": ["analysis/jsw-catalog.db", "analysis/jsw.db"],
-      "properties": {}
+      "rzx": [
+        "Jet Set Willy - Mildly Patched.rzx",
+        "/home/fernando/detodo/spectrum/oozx/Jet Set Willy - Mildly Patched.rzx"
+      ],
+      "db": [
+        "analysis/jsw-catalog.db",
+        "analysis/jsw.db"
+      ],
+      "properties": {
+        "sprite3d.smoothing": "0.0",
+        "sprite3d.maxdepth": "8"
+      }
     },
     "mm": {
       "title": "Manic Miner",
-      "rzx": ["/home/fernando/detodo/spectrum/manic/manicnoliveslost.rzx",
-              "manicnoliveslost.rzx"],
-      "db": ["analysis/mm.db"],
+      "rzx": [
+        "/home/fernando/detodo/spectrum/manic/manicnoliveslost.rzx",
+        "manicnoliveslost.rzx"
+      ],
+      "db": [
+        "analysis/mm.db"
+      ],
       "properties": {}
     },
     "dd": {
       "title": "Dynamite Dan",
-      "rzx": ["/home/fernando/detodo/spectrum/dynamitedan/dynamitedan.rzx",
-              "dynamitedan.rzx"],
-      "db": ["analysis/dd.db"],
+      "rzx": [
+        "/home/fernando/detodo/spectrum/dynamitedan/dynamitedan.rzx",
+        "dynamitedan.rzx"
+      ],
+      "db": [
+        "analysis/dd.db"
+      ],
       "properties": {
         "items": "false",
         "fresh.frames": "10"
@@ -27,15 +43,23 @@
     },
     "exolon": {
       "title": "Exolon",
-      "rzx": ["/home/fernando/detodo/spectrum/exolon.rzx", "exolon.rzx"],
-      "db": ["analysis/exolon-taint.db", "analysis/exolon.db"],
+      "rzx": [
+        "/home/fernando/detodo/spectrum/exolon.rzx",
+        "exolon.rzx"
+      ],
+      "db": [
+        "analysis/exolon-taint.db",
+        "analysis/exolon.db"
+      ],
       "properties": {
         "items": "false",
         "blobs": "adjacent",
         "playfield.rows": "20",
         "fresh.frames": "8",
         "sprite.bits": "true",
-        "tiles": "screen"
+        "tiles": "screen",
+        "sprite3d.smoothing": "0.35",
+        "sprite3d.maxdepth": "8"
       }
     }
   }

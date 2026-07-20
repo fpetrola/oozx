@@ -114,14 +114,16 @@ public final class Sprite3DPipeline {
     }
     if (!auto || selector.isEmpty())
       return viewerDefault;
-    // resolved ONCE per character and reused by every frame: same transformation always
+    // The SHAPE is resolved once per character and reused by every frame (same
+    // transformation always), but the finish is re-applied on every call: caching it baked
+    // in would mean a knob moved live never reached the sprite.
     Sprite3DConfig cached = g >= 0 ? groupConfig.get(g) : null;
     if (cached != null)
-      return cached;
+      return finish(cached, viewerDefault);
     Sprite3DConfig chosen = vote(g, b, viewerDefault);
     if (g >= 0)
       groupConfig.put(g, chosen);
-    return chosen;
+    return finish(chosen, viewerDefault);
   }
 
   /**
@@ -156,6 +158,22 @@ public final class Sprite3DPipeline {
         best = e.getKey();
       }
     return best == null ? selector.select(features(seen), viewerDefault) : byKey.get(best);
+  }
+
+  /**
+   * A rule decides the SHAPE (technique + primitive); the live knobs decide the FINISH.
+   * Without this split a rule that also pinned smoothing or depth made those sliders inert,
+   * which is precisely how the smoothing dial came to look broken.
+   */
+  private Sprite3DConfig finish(Sprite3DConfig chosen, Sprite3DConfig live) {
+    Sprite3DConfig c = chosen.copy();
+    c.depth = live.depth;
+    c.smoothing = live.smoothing;
+    c.voxelFill = live.voxelFill;
+    c.epx = live.epx;
+    c.voxelLook = live.voxelLook;
+    c.smoothLevel = live.smoothLevel;
+    return c;
   }
 
   /** supplies every frame of an animation strip, so {@link #vote} can see them all. */

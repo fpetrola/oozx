@@ -108,6 +108,21 @@ public class JSW3D extends ApplicationAdapter {
    * LRU mesh cache. Created in {@link #create()} because it keys its overrides by game.
    */
   private Sprite3DPipeline sprite3d;
+  /**
+   * Live sprite-shaping knobs. They are registered as {@link Param}/{@link Toggle} like every
+   * other effect, which is what puts them in the tuning menu, in the presets and in the
+   * per-game {@code properties} of games.json (through each one's legacy key) all at once.
+   *
+   * <p>Division of labour with the rules: a RULE picks the shape (technique + primitive),
+   * these knobs control the FINISH. If the rules also set the finish, turning a knob here
+   * would do nothing — which is exactly how the smoothing dial appeared dead before.
+   */
+  private float spriteMaxDepth = Float.parseFloat(System.getProperty("sprite3d.maxdepth", "8"));
+  private float spriteSmoothing = Float.parseFloat(System.getProperty("sprite3d.smoothing", "0"));
+  private float spriteRoundness = Float.parseFloat(System.getProperty("sprite3d.roundness", "1"));
+  private float spriteVoxelFill = Float.parseFloat(System.getProperty("sprite3d.voxelfill", "1"));
+  private float spriteEpx = Integer.getInteger("sprite3d.epx", 1);
+  private boolean spriteVoxelLook = !"false".equals(System.getProperty("sprite3d.voxels"));
   /** which of {@link #frameBases} the F7..F10 tuning keys are pointing at. */
   private int tunedSprite;
   /** catalog bases drawn in the last frame, in a stable order, for the tuning keys. */
@@ -304,6 +319,47 @@ public class JSW3D extends ApplicationAdapter {
   private final List<Toggle> toggles = new ArrayList<>();
   private final List<String> paramGroups = new ArrayList<>();
   private int tuneGroup = Integer.getInteger("tune", 0) - 1, tuneParam;
+  /**
+   * Menu depth: 0 = list of sections, 1 = groups inside the section, 2 = the parameters.
+   * The breadcrumb in {@link #renderTuning} shows where you are and what is beside you, so
+   * navigating does not mean remembering an invisible flat list.
+   */
+  private int tuneLevel;
+  private int tuneSection, tuneGroupInSection;
+
+  /** the section a group belongs to; everything unlisted falls under "Efectos". */
+  private String sectionOf(String group) {
+    return switch (group) {
+      case "Sprites 3D" -> "Sprites 3D";
+      case "Linterna", "Niebla", "Tormenta" -> "Escena";
+      default -> "Efectos";
+    };
+  }
+
+  private List<String> sections() {
+    List<String> out = new ArrayList<>();
+    for (String g : paramGroups)
+      if (!out.contains(sectionOf(g)))
+        out.add(sectionOf(g));
+    return out;
+  }
+
+  private List<String> groupsInSection() {
+    List<String> secs = sections();
+    if (secs.isEmpty())
+      return List.of();
+    String sec = secs.get(Math.floorMod(tuneSection, secs.size()));
+    return paramGroups.stream().filter(g -> sectionOf(g).equals(sec)).toList();
+  }
+
+  /** keeps the flat {@link #tuneGroup} in step with the hierarchical position. */
+  private void syncTuneGroup() {
+    List<String> gs = groupsInSection();
+    if (gs.isEmpty())
+      return;
+    tuneGroup = paramGroups.indexOf(gs.get(Math.floorMod(tuneGroupInSection, gs.size())));
+    tuneParam = 0;
+  }
   /**
    * F1 (-Dplay=true from frame one) CUTS the RZX replay and hands the input to the
    * player: every letter/digit/space/enter/shift goes to the Spectrum keyboard matrix
@@ -575,8 +631,14 @@ public class JSW3D extends ApplicationAdapter {
                 rebuild = false;
               }
               case com.badlogic.gdx.Input.Keys.TAB -> {
-                tuneGroup = (tuneGroup + 1) % paramGroups.size();
-                tuneParam = 0;
+                int d = Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.SHIFT_LEFT)
+                    || Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.SHIFT_RIGHT) ? -1 : 1;
+                if (tuneLevel == 0)
+                  tuneSection = Math.floorMod(tuneSection + d, Math.max(1, sections().size()));
+                else
+                  tuneGroupInSection = Math.floorMod(tuneGroupInSection + d,
+                      Math.max(1, groupsInSection().size()));
+                syncTuneGroup();
                 tuneShownAt = System.currentTimeMillis();
                 rebuild = false;
               }
@@ -587,16 +649,59 @@ public class JSW3D extends ApplicationAdapter {
               case com.badlogic.gdx.Input.Keys.UP, com.badlogic.gdx.Input.Keys.DOWN -> {
                 if (tuneGroup < 0)
                   return false;
-                int n = groupParams().size();
-                tuneParam = (tuneParam
-                    + (keycode == com.badlogic.gdx.Input.Keys.UP ? n - 1 : 1)) % n;
+                int d = keycode == com.badlogic.gdx.Input.Keys.UP ? -1 : 1;
+                if (tuneLevel == 0)
+                  tuneSection = Math.floorMod(tuneSection + d, Math.max(1, sections().size()));
+                else if (tuneLevel == 1)
+                  tuneGroupInSection = Math.floorMod(tuneGroupInSection + d,
+                      Math.max(1, groupsInSection().size()));
+                else {
+                  int n = Math.max(1, groupParams().size());
+                  tuneParam = Math.floorMod(tuneParam + d, n);
+                }
+                if (tuneLevel <= 1)
+                  syncTuneGroup();
                 tuneShownAt = System.currentTimeMillis();
                 rebuild = false;
               }
-              case com.badlogic.gdx.Input.Keys.LEFT, com.badlogic.gdx.Input.Keys.RIGHT -> {
+              case com.badlogic.gdx.Input.Keys.RIGHT -> {
                 if (tuneGroup < 0)
                   return false;
-                adjustParam(keycode == com.badlogic.gdx.Input.Keys.RIGHT ? 1 : -1);
+                // deepest level adjusts; above it, right means "enter"
+                if (tuneLevel >= 2)
+                  adjustParam(1);
+                else {
+                  tuneLevel++;
+                  syncTuneGroup();
+                }
+                tuneShownAt = System.currentTimeMillis();
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.LEFT -> {
+                if (tuneGroup < 0)
+                  return false;
+                if (tuneLevel >= 2)
+                  adjustParam(-1);
+                else
+                  tuneLevel = Math.max(0, tuneLevel - 1);
+                tuneShownAt = System.currentTimeMillis();
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.BACKSPACE -> {
+                if (tuneGroup < 0)
+                  return false;
+                tuneLevel = Math.max(0, tuneLevel - 1); // back out of the submenu
+                tuneShownAt = System.currentTimeMillis();
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.F12 -> {
+                // save over the preset already selected, no prompt: the whole point is
+                // tweak-and-store without retyping its name every time
+                if (presetIdx >= 0) {
+                  savePreset(presets.get(presetIdx));
+                  flashPreset("preset guardado: " + presets.get(presetIdx));
+                } else
+                  flashPreset("no hay preset activo (F3 para crear uno)");
                 rebuild = false;
               }
               default -> {
@@ -966,6 +1071,25 @@ public class JSW3D extends ApplicationAdapter {
     addToggle("effects.dust.on", "dust", () -> dustOn, v -> dustOn = v);
     addToggle("effects.lantern.on", "dark", () -> darkMode, v -> darkMode = v);
 
+    // Sprites 3D: mismo registro que cualquier efecto, asi entran solos al menu, a los
+    // presets y a las properties por-juego de games.json (por su clave legacy).
+    addParam("effects.sprite3d.maxDepth", "sprite3d.maxdepth", "Sprites 3D",
+        "profundidad max (voxels)", 1, 32, 1, true,
+        () -> spriteMaxDepth, v -> spriteMaxDepth = v);
+    addParam("effects.sprite3d.smoothing", "sprite3d.smoothing", "Sprites 3D",
+        "redondeo (0=cubos)", 0, 1.5f, .05f, false,
+        () -> spriteSmoothing, v -> spriteSmoothing = v);
+    addParam("effects.sprite3d.roundness", "sprite3d.roundness", "Sprites 3D",
+        "forma geometrica vs sprite", 0, 1, .05f, false,
+        () -> spriteRoundness, v -> spriteRoundness = v);
+    addParam("effects.sprite3d.voxelFill", "sprite3d.voxelfill", "Sprites 3D",
+        "tamano del voxel", .4f, 1, .02f, false,
+        () -> spriteVoxelFill, v -> spriteVoxelFill = v);
+    addParam("effects.sprite3d.epx", "sprite3d.epx", "Sprites 3D",
+        "contorno EPX (1/2/4)", 1, 4, 1, true,
+        () -> spriteEpx, v -> spriteEpx = v);
+    addToggle("effects.sprite3d.voxels", "sprite3d.voxels",
+        () -> spriteVoxelLook, v -> spriteVoxelLook = v);
     addParam("effects.rain.drops", "rain.drops", "Lluvia", "gotas", 0, 5000, 50, true,
         () -> (float) effects.dropCount, v -> effects.dropCount = Math.round(v));
     addParam("effects.rain.fallSpeed", "rain.speed", "Lluvia", "velocidad caida",
@@ -1087,15 +1211,34 @@ public class JSW3D extends ApplicationAdapter {
   private void renderTuning() {
     if (tuneGroup < 0)
       return;
-    StringBuilder sb = new StringBuilder("CONFIG  ").append(paramGroups.get(tuneGroup))
-        .append("\nTAB efecto / arriba-abajo parametro / izq-der ajustar / ESC cerrar\n\n");
-    List<Param> g = groupParams();
-    for (int i = 0; i < g.size(); i++) {
-      Param p = g.get(i);
-      float v = p.get().get();
-      sb.append(i == tuneParam ? "> " : "   ").append(p.name()).append(" = ")
-          .append(p.integer() ? String.valueOf(Math.round(v))
-              : String.format(java.util.Locale.US, "%.2f", v)).append('\n');
+    // TV-style menu: a breadcrumb of where you are, then the list at THIS level with the
+    // siblings visible, so what is available is on screen instead of being remembered.
+    List<String> secs = sections();
+    String sec = secs.isEmpty() ? "?" : secs.get(Math.floorMod(tuneSection, secs.size()));
+    List<String> gs = groupsInSection();
+    String grp = gs.isEmpty() ? "?" : gs.get(Math.floorMod(tuneGroupInSection, gs.size()));
+    StringBuilder sb = new StringBuilder("CONFIG");
+    sb.append(tuneLevel >= 1 ? "  >  " + sec : "").append(tuneLevel >= 2 ? "  >  " + grp : "");
+    sb.append(presetIdx >= 0 ? "        [preset: " + presets.get(presetIdx) + "]" : "");
+    sb.append("\narriba-abajo mover / derecha entrar / izquierda volver o ajustar\n")
+        .append("TAB y SHIFT+TAB hermanos / F12 guardar preset / ESC cerrar\n\n");
+    if (tuneLevel == 0) {
+      for (int i = 0; i < secs.size(); i++)
+        sb.append(i == Math.floorMod(tuneSection, secs.size()) ? "> " : "   ")
+            .append(secs.get(i)).append('\n');
+    } else if (tuneLevel == 1) {
+      for (int i = 0; i < gs.size(); i++)
+        sb.append(i == Math.floorMod(tuneGroupInSection, gs.size()) ? "> " : "   ")
+            .append(gs.get(i)).append('\n');
+    } else {
+      List<Param> g = groupParams();
+      for (int i = 0; i < g.size(); i++) {
+        Param p = g.get(i);
+        float v = p.get().get();
+        sb.append(i == tuneParam ? "> " : "   ").append(p.name()).append(" = ")
+            .append(p.integer() ? String.valueOf(Math.round(v))
+                : String.format(java.util.Locale.US, "%.2f", v)).append('\n');
+      }
     }
     com.badlogic.gdx.graphics.g2d.GlyphLayout layout =
         new com.badlogic.gdx.graphics.g2d.GlyphLayout(uiFont, sb.toString());
@@ -1931,9 +2074,12 @@ public class JSW3D extends ApplicationAdapter {
     c.technique = smooth ? Sprite3DConfig.Technique.INFLATE : Sprite3DConfig.Technique.VOXELS;
     c.depth = depthScale;
     c.smoothLevel = smoothLevel;
-    // M stays meaningful even when a rule forces a technique: it switches the FINISH, so
-    // voxel mode shows the primitive's volume as boxes instead of a smooth skin
-    c.voxelLook = !smooth;
+    c.voxelLook = spriteVoxelLook;
+    c.smoothing = spriteSmoothing;
+    c.roundness = spriteRoundness;
+    c.voxelFill = spriteVoxelFill;
+    c.epx = Math.max(1, Math.round(spriteEpx));
+    SpriteFx.MAX_DEPTH = spriteMaxDepth; // the builders read it as a global
     return c;
   }
 

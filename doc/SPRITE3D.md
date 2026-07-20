@@ -173,6 +173,39 @@ se hornea sola en el frame siguiente); F10 es lo que persiste.
 
 ---
 
+## 6.b Presets, override por juego y menu
+
+Los parametros de sprites estan registrados como `Param`/`Toggle` igual que cualquier otro
+efecto, y eso resuelve tres cosas de una sola vez porque el registro ya alimentaba todo:
+
+- **Presets**: `buildConfigTree` recorre todos los `Param`/`Toggle`, asi que entran solos.
+  Un preset guarda ahora tambien la forma de los sprites — se puede tener uno "parecido al
+  original" y otro tipo dark-storm y alternar con F4/F5.
+- **Override por juego**: cada uno declara su clave *legacy*, que es la misma que se pone en
+  `properties` de `games.json` por juego (`sprite3d.smoothing`, `sprite3d.maxdepth`, ...).
+- **Ajuste en vivo**: aparecen en el menu de config bajo la seccion `Sprites 3D`.
+
+**Reglas vs perillas.** Una REGLA elige la FORMA (tecnica + primitiva); las perillas vivas
+mandan el ACABADO (redondeo, profundidad, tamano de voxel, EPX). Sin esa division, una regla
+que fijara el acabado dejaba la perilla inerte — que es exactamente como el dial de suavizado
+llego a parecer roto. Se aplica en `Sprite3DPipeline.finish`, y **fuera** del cache por
+personaje: cachear el acabado ya aplicado hace que mover una perilla nunca llegue al sprite.
+
+### Menu tipo TV
+
+Tres niveles con breadcrumb: `CONFIG > seccion > grupo`, y en cada nivel se ven los hermanos
+disponibles en vez de tener que recordarlos.
+
+| tecla | accion |
+|---|---|
+| arriba / abajo | moverse en el nivel actual |
+| derecha | entrar al submenu (en el ultimo nivel, ajusta) |
+| izquierda | volver (en el ultimo nivel, ajusta) |
+| BACKSPACE | volver un nivel |
+| TAB / SHIFT+TAB | hermano siguiente / anterior |
+| F12 | **guardar sobre el preset activo**, sin preguntar el nombre |
+| ESC | cerrar |
+
 ## 7. Pendiente
 
 - **Horneado en worker thread.** Hoy es síncrono en el hilo GL. El riesgo es real y medido:
