@@ -14,8 +14,8 @@
     "plano del sprite). Sin tope cada sprite se escalaba con su propio radio y un enemigo de",
     "16px de ancho salia 16 de profundo, que es lo que se veia como barril.",
     "",
-    "smoothLevel = el dial de redondeo: 0 = los cubos tal cual, 1 = esquinas apenas",
-    "cortadas, y subiendo los voxels se van fundiendo entre si. Tambien lo mueven S/X en vivo.",
+    "smoothing = el dial de redondeo (FLOAT, continuo): 0 = los cubos tal cual, 0.2 =",
+    "esquinas apenas cortadas, 1 = los voxels se funden entre si. Probar: 0.2 / 0.45 / 0.8.",
     "roundness=1 -> la forma la manda el ovalo, sin mezcla con el relieve del sprite. Es lo",
     "que hay que mirar primero para juzgar SOLO el ovalo. Bajarlo mezcla la forma propia.",
     "",
@@ -31,7 +31,7 @@
         "primitive": "SPHERE",
         "roundness": 1.0,
         "voxelLook": true,
-        "smoothLevel": 0
+        "smoothing": 0.1
       }
     }
   ]

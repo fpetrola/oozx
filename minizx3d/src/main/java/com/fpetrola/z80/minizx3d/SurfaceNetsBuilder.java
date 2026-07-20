@@ -24,226 +24,303 @@ import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Quality mode (doc §3.6): a single smooth skin instead of pixels or a heightfield.
+ * A skin stretched over the voxels: the same occupancy the voxel path builds, sampled on a
+ * finer grid, blurred, and turned into one surface. The dial goes from "the cubes with their
+ * corners just cut" to "fully melted" without the volume underneath changing.
+ *
+ * <p>This is a port of Mikola Lysenko's NAIVE SURFACE NETS (MIT) — its edge table and rolling
+ * neighbour buffer — and not a hand-rolled isosurface. The hand-rolled one carried two bugs
+ * that writing it from scratch invites: a cell index that never bounds-checked z, and a face
+ * winding that ignored the y mirror. Four details matter, and all four were wrong before:
  *
  * <ol>
- *   <li>Build a 3D occupancy field from the silhouette and its per-pixel thickness
- *       ({@link SpriteFx#depthField}), so the volume is the inflated sprite, not a slab.</li>
- *   <li>Blur it with a separable box kernel — this is what fuses neighbouring pixels and
- *       rounds the staircase away; the radius is the config's {@code smoothing}.</li>
- *   <li>Extract the isosurface with NAIVE SURFACE NETS: one vertex per cell that has a sign
- *       change, placed at the average of its crossing edges. Chosen over marching cubes
- *       because it needs no 256-case table and gives a smoother, more even mesh.</li>
+ *   <li><b>{@link #resolutionFor Supersampling}</b>: the field is sampled at ~3 cells per
+ *       sprite pixel. At one cell per pixel there is nowhere for a rounded surface to live
+ *       and the blur radius collapses to a useless integer.</li>
+ *   <li><b>The dial is a FLOAT</b> ({@code smoothing}). It used to be an int, so anything
+ *       under 1 truncated to zero: the knob did nothing at all and then did too much.
+ *       Radius is {@code smoothing * res * 1.6}, in cells.</li>
+ *   <li><b>Inside is NEGATIVE</b> ({@code field = 0.5 - occupancy}, iso at 0) — what the
+ *       algorithm's mask test expects.</li>
+ *   <li><b>The material does not cull.</b> Sprite y is mirrored into model space, which
+ *       reverses winding; rather than depend on getting that right, both faces are drawn.
+ *       A wrong winding here reads as a hollow shell, which is exactly what it did.</li>
  * </ol>
- *
- * <p>Normals come from the field's gradient (central differences), which is both cheaper
- * and smoother than averaging face normals.
  */
 public final class SurfaceNetsBuilder {
   private SurfaceNetsBuilder() {
   }
 
-  /** the field is sampled at this many cells per sprite pixel. */
-  private static final int RES = 1;
-  private static final float ISO = 0.5f;
+  private static final int PAD = 2;
+  /** a libGDX mesh indexes its vertices with shorts. */
+  private static final int MAX_VERTICES = 32000;
 
-  /**
-   * Isolevel that keeps the blurred volume the same size as the unblurred one. A box blur
-   * bleeds mass outward and drops the border below a FIXED 0.5, so raising the smoothing
-   * did not just round the voxels, it shrank the whole sprite — at high levels Willy melted
-   * to a pebble. Picking the level as the Nth largest value, where N is the solid cell count
-   * before blurring, keeps the surface where it was and lets the blur do only what it is
-   * wanted for: rounding.
-   */
-  private static float volumePreservingIso(float[] f, int solidCells) {
-    if (solidCells <= 0 || solidCells >= f.length)
-      return ISO;
-    float[] sorted = f.clone();
-    java.util.Arrays.sort(sorted);
-    float iso = sorted[sorted.length - solidCells];
-    return Math.max(1e-3f, Math.min(ISO, iso));
+  private static final int[] CUBE_EDGES = new int[24];
+  private static final int[] EDGE_TABLE = new int[256];
+
+  static {
+    int k = 0;
+    for (int i = 0; i < 8; ++i)
+      for (int j = 1; j <= 4; j <<= 1) {
+        int p = i ^ j;
+        if (i <= p) {
+          CUBE_EDGES[k++] = i;
+          CUBE_EDGES[k++] = p;
+        }
+      }
+    for (int i = 0; i < 256; ++i) {
+      int em = 0;
+      for (int j = 0; j < 24; j += 2) {
+        boolean a = (i & (1 << CUBE_EDGES[j])) != 0;
+        boolean b = (i & (1 << CUBE_EDGES[j + 1])) != 0;
+        em |= a != b ? (1 << (j >> 1)) : 0;
+      }
+      EDGE_TABLE[i] = em;
+    }
+  }
+
+  /** cells per sprite pixel: finer for small sprites, coarser as they grow. */
+  private static int resolutionFor(int w, int h) {
+    int d = Math.max(w, h);
+    return d <= 40 ? 3 : d <= 72 ? 2 : 1;
   }
 
   public static Model build(SpriteBitmap b, Sprite3DConfig cfg) {
     boolean[][] mask = b.mask();
     int rows = mask.length, w = mask[0].length;
-    float[][] depth = SpriteFx.depthField(b, cfg, mask);
-    int maxD = 1;
-    for (float[] row : depth)
-      for (float v : row)
-        maxD = Math.max(maxD, (int) Math.ceil(v));
-    // one cell of padding all round so the surface closes instead of being cut by the box
-    int nx = w * RES + 2, ny = rows * RES + 2, nz = maxD * RES + 2;
-    float[] f = new float[nx * ny * nz];
+    float[][] thickness = SpriteFx.depthField(b, cfg, mask);
+    float maxT = .05f;
     for (int y = 0; y < rows; y++)
-      for (int x = 0; x < w; x++) {
-        if (!mask[y][x])
-          continue;
-        int half = Math.max(1, (int) Math.ceil(depth[y][x] * RES / 2f));
-        int cz = nz / 2;
-        for (int z = cz - half; z <= cz + half; z++)
-          if (z >= 0 && z < nz)
-            f[idx(x * RES + 1, y * RES + 1, z, nx, ny)] = 1;
+      for (int x = 0; x < w; x++)
+        if (mask[y][x])
+          maxT = Math.max(maxT, thickness[y][x]);
+
+    int res = resolutionFor(w, rows);
+    int fx, fy, fz;
+    for (; ; ) {
+      fx = (w - 1) * res + 1 + 2 * PAD;
+      fy = (rows - 1) * res + 1 + 2 * PAD;
+      fz = (int) Math.ceil(maxT * res) + 1 + 2 * PAD;
+      if ((long) fx * fy * fz <= 1_100_000L || res <= 1)
+        break;
+      res--;
+    }
+
+    float half = maxT / 2f;
+    float[] occ = new float[fx * fy * fz];
+    for (int c = 0; c < fz; c++) {
+      float gz = (c - PAD) / (float) res - half;
+      for (int bb = 0; bb < fy; bb++) {
+        int py = Math.round((bb - PAD) / (float) res);
+        for (int a = 0; a < fx; a++) {
+          int px = Math.round((a - PAD) / (float) res);
+          if (px < 0 || px >= w || py < 0 || py >= rows || !mask[py][px])
+            continue;
+          float t = thickness[py][px];
+          boolean in = cfg.doubleSided ? Math.abs(gz) <= t / 2 : gz >= 0 && gz <= t;
+          if (in)
+            occ[a + fx * (bb + fy * c)] = 1;
+        }
       }
-    int solid = 0;
-    for (float v : f)
-      if (v >= ISO)
-        solid++;
-    // smoothLevel is the single dial the viewer's S/X keys drive: 1 rounds the voxel
-    // corners barely, and each step melts them further into one another. The field is the
-    // SAME occupancy the voxel path uses, so level 1 is recognisably the same object.
-    blur(f, nx, ny, nz, Math.max(0, cfg.smoothLevel - 1));
-    final float iso = volumePreservingIso(f, solid);
+    }
+
+    // A box blur only takes an INTEGER radius, so the dial jumped: 0 did nothing and the
+    // first step already rounded a lot. Blurring at the radius above and then LERPING back
+    // toward the sharp field by the fractional part makes every value of the dial count.
+    float rf = cfg.smoothing * res * 1.6f;
+    int ri = (int) Math.ceil(rf);
+    if (ri > 0) {
+      float[] sharp = occ.clone();
+      float[] tmp = new float[occ.length];
+      for (int axis = 0; axis < 3; axis++) {
+        blurAxis(occ, tmp, fx, fy, fz, axis, ri);
+        float[] swap = occ;
+        occ = tmp;
+        tmp = swap;
+      }
+      float t = Math.min(1f, rf / ri);
+      for (int i = 0; i < occ.length; i++)
+        occ[i] = sharp[i] + (occ[i] - sharp[i]) * t;
+    }
+    // iso at ZERO with inside negative: what the mask test in surfaceNets expects
+    float[] field = new float[occ.length];
+    for (int i = 0; i < occ.length; i++)
+      field[i] = .5f - occ[i];
+
+    List<float[]> verts = new ArrayList<>();
+    List<int[]> quads = new ArrayList<>();
+    surfaceNets(field, fx, fy, fz, verts, quads);
+    if (verts.isEmpty() || quads.isEmpty() || verts.size() > MAX_VERTICES)
+      return null;
+
+    // positions in the SAME model space the voxel builder uses, so moving the dial does not
+    // make the sprite jump: pixel (x,y) sits at (x - w/2 + .5, rows/2 - y - .5)
+    float[] pos = new float[verts.size() * 3];
+    for (int i = 0; i < verts.size(); i++) {
+      float[] v = verts.get(i);
+      float ex = (v[0] - PAD) / res, ey = (v[1] - PAD) / res, ez = (v[2] - PAD) / res - half;
+      pos[i * 3] = ex - w / 2f + .5f;
+      pos[i * 3 + 1] = rows / 2f - ey - .5f;
+      pos[i * 3 + 2] = ez;
+    }
+    float[] nrm = vertexNormals(pos, quads);
 
     ModelBuilder mb = new ModelBuilder();
     mb.begin();
-    MeshPartBuilder part = mb.part("skin", GL20.GL_TRIANGLES,
-        Usage.Position | Usage.Normal, new Material(ColorAttribute.createDiffuse(Color.WHITE)));
+    Material m = new Material(ColorAttribute.createDiffuse(Color.WHITE));
+    m.set(new IntAttribute(IntAttribute.CullFace, GL20.GL_NONE));
+    MeshPartBuilder part = mb.part("skin", GL20.GL_TRIANGLES, Usage.Position | Usage.Normal, m);
+    short[] ids = new short[verts.size()];
+    for (int i = 0; i < verts.size(); i++)
+      ids[i] = part.vertex(pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2],
+          nrm[i * 3], nrm[i * 3 + 1], nrm[i * 3 + 2]);
+    for (int[] q : quads) {
+      part.triangle(ids[q[0]], ids[q[1]], ids[q[2]]);
+      part.triangle(ids[q[0]], ids[q[2]], ids[q[3]]);
+    }
+    return mb.end();
+  }
 
-    // cell -> emitted vertex index, or -1
-    int[] cellVertex = new int[(nx - 1) * (ny - 1) * (nz - 1)];
-    java.util.Arrays.fill(cellVertex, -1);
-    short[] ids = new short[cellVertex.length];
-    for (int z = 0; z < nz - 1; z++)
-      for (int y = 0; y < ny - 1; y++)
-        for (int x = 0; x < nx - 1; x++) {
-          // average the crossings on the 12 edges of the cell: the surface-nets vertex
-          float sx = 0, sy = 0, sz = 0;
-          int n = 0;
-          for (int c = 0; c < 8; c++) {
-            int cx = x + (c & 1), cy = y + ((c >> 1) & 1), cz = z + ((c >> 2) & 1);
-            boolean in = f[idx(cx, cy, cz, nx, ny)] >= iso;
-            for (int e = 0; e < 3; e++) {
-              int ox = e == 0 ? 1 : 0, oy = e == 1 ? 1 : 0, oz = e == 2 ? 1 : 0;
-              int ax = cx + ox, ay = cy + oy, az = cz + oz;
-              if (ax >= nx || ay >= ny || az >= nz || (c & (1 << e)) != 0)
-                continue;
-              boolean in2 = f[idx(ax, ay, az, nx, ny)] >= iso;
-              if (in == in2)
-                continue;
-              float va = f[idx(cx, cy, cz, nx, ny)], vb = f[idx(ax, ay, az, nx, ny)];
-              float t = Math.abs(vb - va) < 1e-5f ? .5f : (iso - va) / (vb - va);
-              sx += cx + ox * t;
-              sy += cy + oy * t;
-              sz += cz + oz * t;
-              n++;
-            }
-          }
-          if (n == 0)
+  /** Naive Surface Nets (Mikola Lysenko, MIT): one vertex per sign-changing cell. */
+  private static void surfaceNets(float[] data, int dx, int dy, int dz,
+                                  List<float[]> vertices, List<int[]> faces) {
+    int n = 0;
+    int[] x = new int[3];
+    int[] R = {1, dx + 1, (dx + 1) * (dy + 1)};
+    float[] grid = new float[8];
+    int bufNo = 1;
+    int[] buffer = new int[R[2] * 2];
+
+    for (x[2] = 0; x[2] < dz - 1; ++x[2], n += dx, bufNo ^= 1, R[2] = -R[2]) {
+      int m = 1 + (dx + 1) * (1 + bufNo * (dy + 1));
+      for (x[1] = 0; x[1] < dy - 1; ++x[1], ++n, m += 2)
+        for (x[0] = 0; x[0] < dx - 1; ++x[0], ++n, ++m) {
+          int mask = 0, g = 0, idx = n;
+          for (int k = 0; k < 2; ++k, idx += dx * (dy - 2))
+            for (int j = 0; j < 2; ++j, idx += dx - 2)
+              for (int i = 0; i < 2; ++i, ++g, ++idx) {
+                float p = data[idx];
+                grid[g] = p;
+                mask |= p < 0 ? 1 << g : 0;
+              }
+          if (mask == 0 || mask == 0xff)
             continue;
-          float vx = sx / n, vy = sy / n, vz = sz / n;
-          float[] nrm = gradient(f, nx, ny, nz, Math.round(vx), Math.round(vy), Math.round(vz));
-          // sprite space: centered, +y up (screen rows grow down)
-          short id = part.vertex(
-              vx / RES - w / 2f, rows / 2f - vy / RES, vz / RES - nz / (2f * RES),
-              nrm[0], nrm[1], nrm[2]);
-          int ci = cellIdx(x, y, z, nx, ny, nz);
-          cellVertex[ci] = 1;
-          ids[ci] = id;
-        }
-
-    // quad per edge with a sign change, joining the four cells around it
-    int quads = 0;
-    for (int z = 1; z < nz - 1; z++)
-      for (int y = 1; y < ny - 1; y++)
-        for (int x = 1; x < nx - 1; x++) {
-          boolean in = f[idx(x, y, z, nx, ny)] >= iso;
-          for (int e = 0; e < 3; e++) {
-            int ox = e == 0 ? 1 : 0, oy = e == 1 ? 1 : 0, oz = e == 2 ? 1 : 0;
-            if (x + ox >= nx || y + oy >= ny || z + oz >= nz)
+          int edgeMask = EDGE_TABLE[mask];
+          float[] v = new float[3];
+          int eCount = 0;
+          for (int i = 0; i < 12; ++i) {
+            if ((edgeMask & (1 << i)) == 0)
               continue;
-            if (in == (f[idx(x + ox, y + oy, z + oz, nx, ny)] >= iso))
+            ++eCount;
+            int e0 = CUBE_EDGES[i << 1], e1 = CUBE_EDGES[(i << 1) + 1];
+            float g0 = grid[e0], g1 = grid[e1];
+            float t = g0 - g1;
+            if (Math.abs(t) > 1e-6f)
+              t = g0 / t;
+            else
               continue;
-            // the four cells sharing this edge are the ones offset in the other two axes
-            int[] du = e == 0 ? new int[]{0, 1, 0} : new int[]{1, 0, 0};
-            int[] dv = e == 2 ? new int[]{0, 1, 0} : new int[]{0, 0, 1};
-            int c0 = cellIdx(x - du[0] - dv[0], y - du[1] - dv[1], z - du[2] - dv[2], nx, ny, nz);
-            int c1 = cellIdx(x - dv[0], y - dv[1], z - dv[2], nx, ny, nz);
-            int c2 = cellIdx(x, y, z, nx, ny, nz);
-            int c3 = cellIdx(x - du[0], y - du[1], z - du[2], nx, ny, nz);
-            if (c0 < 0 || c1 < 0 || c2 < 0 || c3 < 0
-                || cellVertex[c0] < 0 || cellVertex[c1] < 0
-                || cellVertex[c2] < 0 || cellVertex[c3] < 0)
-              continue;
-            // The vertex position MIRRORS y (model y grows up, sprite rows grow down), and
-            // mirroring one axis reverses orientation: emitting the field-space winding here
-            // left every face pointing inward, so the front was culled and the sprite showed
-            // up as a hollow shell. These are the field-space orders with two swapped.
-            if (in) {
-              part.triangle(ids[c0], ids[c2], ids[c1]);
-              part.triangle(ids[c0], ids[c3], ids[c2]);
-            } else {
-              part.triangle(ids[c0], ids[c1], ids[c2]);
-              part.triangle(ids[c0], ids[c2], ids[c3]);
+            for (int j = 0, kb = 1; j < 3; ++j, kb <<= 1) {
+              int a = e0 & kb, bb = e1 & kb;
+              if (a != bb)
+                v[j] += a != 0 ? 1 - t : t;
+              else
+                v[j] += a != 0 ? 1 : 0;
             }
-            quads++;
+          }
+          float s = 1f / eCount;
+          for (int i = 0; i < 3; ++i)
+            v[i] = x[i] + s * v[i];
+          buffer[m] = vertices.size();
+          vertices.add(v);
+          for (int i = 0; i < 3; ++i) {
+            if ((edgeMask & (1 << i)) == 0)
+              continue;
+            int iu = (i + 1) % 3, iv = (i + 2) % 3;
+            if (x[iu] == 0 || x[iv] == 0)
+              continue;
+            int du = R[iu], dv = R[iv];
+            if ((mask & 1) != 0)
+              faces.add(new int[]{buffer[m], buffer[m - du], buffer[m - du - dv], buffer[m - dv]});
+            else
+              faces.add(new int[]{buffer[m], buffer[m - dv], buffer[m - du - dv], buffer[m - du]});
           }
         }
-    // no isosurface (silhouette too thin for the blur radius): no model, never an empty
-    // mesh — that only surfaces as a crash at render time
-    return quads == 0 ? null : mb.end();
-  }
-
-  /**
-   * Rough vertex count: surface nets emits about one vertex per surface cell, so the shell
-   * of the volume. Deliberately generous — this feeds the mesh-limit check, where guessing
-   * low is what throws "Too many vertices" at bake time.
-   */
-  public static int vertexEstimate(SpriteBitmap b, Sprite3DConfig cfg) {
-    int lit = b.litPixels() * (cfg.epx > 1 ? cfg.epx * cfg.epx : 1);
-    return 8 * lit + 64;
-  }
-
-  private static int idx(int x, int y, int z, int nx, int ny) {
-    return (z * ny + y) * nx + x;
-  }
-
-  private static int cellIdx(int x, int y, int z, int nx, int ny, int nz) {
-    if (x < 0 || y < 0 || z < 0 || x >= nx - 1 || y >= ny - 1 || z >= nz - 1)
-      return -1; // z was unchecked and ran off the end of the cell array
-    return (z * (ny - 1) + y) * (nx - 1) + x;
-  }
-
-  /** separable box blur: the knob that decides how much the pixels melt together. */
-  private static void blur(float[] f, int nx, int ny, int nz, int radius) {
-    if (radius <= 0)
-      return;
-    float[] tmp = new float[f.length];
-    for (int pass = 0; pass < 3; pass++) {
-      for (int z = 0; z < nz; z++)
-        for (int y = 0; y < ny; y++)
-          for (int x = 0; x < nx; x++) {
-            float s = 0;
-            int n = 0;
-            for (int k = -radius; k <= radius; k++) {
-              int cx = pass == 0 ? x + k : x, cy = pass == 1 ? y + k : y, cz = pass == 2 ? z + k : z;
-              if (cx < 0 || cy < 0 || cz < 0 || cx >= nx || cy >= ny || cz >= nz)
-                continue;
-              s += f[idx(cx, cy, cz, nx, ny)];
-              n++;
-            }
-            tmp[idx(x, y, z, nx, ny)] = n == 0 ? 0 : s / n;
-          }
-      System.arraycopy(tmp, 0, f, 0, f.length);
     }
   }
 
-  private static float[] gradient(float[] f, int nx, int ny, int nz, int x, int y, int z) {
-    x = Math.max(1, Math.min(nx - 2, x));
-    y = Math.max(1, Math.min(ny - 2, y));
-    z = Math.max(1, Math.min(nz - 2, z));
-    float gx = f[idx(x + 1, y, z, nx, ny)] - f[idx(x - 1, y, z, nx, ny)];
-    float gy = f[idx(x, y + 1, z, nx, ny)] - f[idx(x, y - 1, z, nx, ny)];
-    float gz = f[idx(x, y, z + 1, nx, ny)] - f[idx(x, y, z - 1, nx, ny)];
-    // the field grows INTO the solid, so the outward normal is the negated gradient;
-    // y is flipped again because sprite rows grow down and model y grows up
-    float len = (float) Math.sqrt(gx * gx + gy * gy + gz * gz);
-    if (len < 1e-5f)
-      return new float[]{0, 0, 1};
-    return new float[]{-gx / len, gy / len, -gz / len};
+  /**
+   * Smooth shading: average the faces meeting at each vertex, then NEGATE.
+   *
+   * <p>The negation is the whole point. Mirroring y into model space reverses orientation,
+   * so a normal derived from the mirrored positions points INTO the solid. three.js hides
+   * that — with {@code side: DoubleSide} its shader flips the normal on back-facing
+   * fragments — but libGDX's DefaultShader does not, so the surface came out lit from
+   * behind: uniformly matte, with no highlight, exactly as if it ignored the light.
+   */
+  private static float[] vertexNormals(float[] pos, List<int[]> quads) {
+    float[] nrm = new float[pos.length];
+    for (int[] q : quads)
+      for (int t = 0; t < 2; t++) {
+        int i0 = q[0], i1 = t == 0 ? q[1] : q[2], i2 = t == 0 ? q[2] : q[3];
+        float ax = pos[i1 * 3] - pos[i0 * 3], ay = pos[i1 * 3 + 1] - pos[i0 * 3 + 1],
+            az = pos[i1 * 3 + 2] - pos[i0 * 3 + 2];
+        float bx = pos[i2 * 3] - pos[i0 * 3], by = pos[i2 * 3 + 1] - pos[i0 * 3 + 1],
+            bz = pos[i2 * 3 + 2] - pos[i0 * 3 + 2];
+        float cx = ay * bz - az * by, cy = az * bx - ax * bz, cz = ax * by - ay * bx;
+        for (int i : new int[]{i0, i1, i2}) {
+          nrm[i * 3] += cx;
+          nrm[i * 3 + 1] += cy;
+          nrm[i * 3 + 2] += cz;
+        }
+      }
+    for (int i = 0; i < nrm.length; i += 3) {
+      float len = (float) Math.sqrt(
+          nrm[i] * nrm[i] + nrm[i + 1] * nrm[i + 1] + nrm[i + 2] * nrm[i + 2]);
+      if (len < 1e-6f)
+        nrm[i + 2] = 1;
+      else { // negated: see the note above on the y mirror
+        nrm[i] /= -len;
+        nrm[i + 1] /= -len;
+        nrm[i + 2] /= -len;
+      }
+    }
+    return nrm;
+  }
+
+  private static void blurAxis(float[] src, float[] dst, int dx, int dy, int dz, int axis, int r) {
+    for (int z = 0; z < dz; z++)
+      for (int y = 0; y < dy; y++)
+        for (int x = 0; x < dx; x++) {
+          float acc = 0;
+          int cnt = 0;
+          for (int k = -r; k <= r; k++) {
+            int cx = x, cy = y, cz = z;
+            if (axis == 0)
+              cx += k;
+            else if (axis == 1)
+              cy += k;
+            else
+              cz += k;
+            if (cx < 0 || cy < 0 || cz < 0 || cx >= dx || cy >= dy || cz >= dz)
+              continue;
+            acc += src[cx + dx * (cy + dy * cz)];
+            cnt++;
+          }
+          dst[x + dx * (y + dy * z)] = cnt == 0 ? 0 : acc / cnt;
+        }
+  }
+
+  /** rough upper bound for the mesh-limit check before baking. */
+  public static int vertexEstimate(SpriteBitmap b, Sprite3DConfig cfg) {
+    int res = resolutionFor(b.w(), b.rows);
+    return Math.min(MAX_VERTICES, 12 * res * res * b.litPixels() + 64);
   }
 }
