@@ -35,7 +35,7 @@
         "playfield.rows": "20",
         "fresh.frames": "8",
         "sprite.bits": "true",
-        "tiles": "false"
+        "tiles": "screen"
       }
     }
   }

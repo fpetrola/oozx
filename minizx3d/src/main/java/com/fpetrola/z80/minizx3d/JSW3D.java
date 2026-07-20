@@ -97,7 +97,10 @@ public class JSW3D extends ApplicationAdapter {
    * whole screen: slabbing them turns the picture into noise, and terrain is scenery the
    * player never interacts with in 3D anyway.
    */
-  private final boolean tilesOn = !"false".equals(System.getProperty("tiles"));
+  private final String tilesMode = System.getProperty("tiles", "slab");
+  private final boolean tilesOn = !"false".equals(tilesMode);
+  /** relief depth as a fraction of the sprite depth, so entities still stand out. */
+  private final float reliefDepth = Float.parseFloat(System.getProperty("relief.depth", "0.45"));
   /** screen-pixel sprite models, keyed by content hash (animation frames each get one). */
   private final Map<Long, Model> pixModelCache = new HashMap<>();
   private final List<ModelInstance> spriteInstances = new ArrayList<>();
@@ -675,7 +678,9 @@ public class JSW3D extends ApplicationAdapter {
         effects.spriteDust(spriteBoxes, snapDt);
       snapDt = 0;
       long t2 = perf ? System.nanoTime() : 0;
-      if (tilesOn)
+      if ("screen".equals(tilesMode))
+        updateScreenRelief(snap);
+      else if (tilesOn)
         updateTiles(snap);
       long t3 = perf ? System.nanoTime() : 0;
       // glowing junk casts its own small pool of light in the dark, like the items do;
@@ -1497,7 +1502,11 @@ public class JSW3D extends ApplicationAdapter {
         // AIR byte those become voxels at the characters' mid-depth — the rope swings on
         // the same plane Willy hangs from, not painted on the far backdrop.
         int bits;
-        if (snap.owner()[i] != 0)
+        if ("screen".equals(tilesMode) && y < playfieldRows * 8)
+          // every lit playfield byte is extruded by updateScreenRelief, sprite ink included:
+          // leaving it painted here too would show through as a flat ghost of the relief
+          bits = 0;
+        else if (snap.owner()[i] != 0)
           // only the sprite's OWN ink leaves the backdrop. Under a masked compositing
           // engine the rest of the byte is background that must stay painted; with the
           // per-bit pass off the mask covers the whole byte, so this erases it entirely
@@ -1681,7 +1690,7 @@ public class JSW3D extends ApplicationAdapter {
       // bytes per row: 2 (16px) unless the catalog knows better (DD sprites are 1..3 wide)
       int stride = catalog.strideOf.getOrDefault(base, 2);
       Model model = blobsAdjacent
-          ? pixModel(bitmaps.get(bi), b[2] - b[0] + 1)
+          ? pixModel(bitmaps.get(bi), b[2] - b[0] + 1, depthScale)
           : modelCache.computeIfAbsent(base, k -> smooth
           ? SmoothSpriteBuilder.build(k, bytes, stride, replay::memByte, smoothLevel, depthScale)
           : VoxelSpriteBuilder.build(k, bytes, stride, replay::memByte, smoothLevel, depthScale));
@@ -1747,13 +1756,60 @@ public class JSW3D extends ApplicationAdapter {
    * the object — pieces, masks and all — so the screen bitmap IS the sprite's shape.
    * Content-hashed cache: an animation cycle settles into a handful of entries.
    */
-  private Model pixModel(byte[] bmp, int wBytes) {
-    long key = wBytes * 1099511628211L;
+  private Model pixModel(byte[] bmp, int wBytes, float depth) {
+    long key = (wBytes * 31L + Float.floatToIntBits(depth)) * 1099511628211L;
     for (byte x : bmp)
       key = (key ^ (x & 0xff)) * 1099511628211L; // FNV-1a
     return pixModelCache.computeIfAbsent(key, k -> smooth
-        ? SmoothSpriteBuilder.build(0, bmp.length, wBytes, a -> bmp[a] & 0xff, smoothLevel, depthScale)
-        : VoxelSpriteBuilder.build(0, bmp.length, wBytes, a -> bmp[a] & 0xff, smoothLevel, depthScale));
+        ? SmoothSpriteBuilder.build(0, bmp.length, wBytes, a -> bmp[a] & 0xff, smoothLevel, depth)
+        : VoxelSpriteBuilder.build(0, bmp.length, wBytes, a -> bmp[a] & 0xff, smoothLevel, depth));
+  }
+
+  /**
+   * Background relief built from the SCREEN, one model per 8x8 cell (-Dtiles=screen).
+   *
+   * <p>{@link #updateTiles} extrudes each cell from its tile TEMPLATE in memory, which needs
+   * the catalog to have found real 8-row tile bitmaps. Exolon has none: its scenery is a
+   * dithered texture, so reading 8 bytes at the discovered leaf yields an arbitrary bitmap
+   * and the room comes out as noise. The screen, though, already holds the composed picture
+   * — the same shortcut the composite sprites use (doc §5, atajo de render). Content-hashed,
+   * so a dithered rock band collapses to a handful of distinct 8x8 models.
+   *
+   * <p>Shallower than the sprites ({@code relief.depth}) so entities still read as the
+   * things standing in front of the scenery.
+   */
+  private void updateScreenRelief(TaintReplay.FrameSnapshot snap) {
+    tileInstances.clear();
+    System.arraycopy(solidCells, 0, prevSolidCells, 0, solidCells.length);
+    java.util.Arrays.fill(solidCells, false);
+    byte[] bmp = new byte[8];
+    for (int cellY = 0; cellY < playfieldRows; cellY++)
+      for (int col = 0; col < 32; col++) {
+        int y0 = cellY * 8, cell = cellY * 32 + col;
+        int bits = 0;
+        boolean spriteHere = false;
+        for (int r = 0; r < 8; r++) {
+          int i = idx(y0 + r, col);
+          // a sprite's own ink belongs to its model, not to the scenery behind it
+          int v = snap.pixels()[i] & ~snap.spriteBits()[i] & 0xff;
+          spriteHere |= snap.owner()[i] != 0;
+          bmp[r] = (byte) v;
+          bits |= v;
+        }
+        if (bits == 0) // air: nothing to extrude
+          continue;
+        Model model = pixModel(bmp, 1, depthScale * reliefDepth);
+        if (model == null)
+          continue;
+        solidCells[cell] = !spriteHere;
+        ModelInstance inst = new ModelInstance(model);
+        inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
+        int attr = snap.attrs()[cell] & 0xff;
+        Material mat = inst.materials.first();
+        mat.set(ColorAttribute.createDiffuse(PALETTE[(attr & 7) | ((attr >> 3) & 8)]));
+        wetten(mat);
+        tileInstances.add(inst);
+      }
   }
 
   /** rain-wet sheen: bright broad specular so lights glint off the surface. */

@@ -208,14 +208,29 @@ Funcionó sobre el caso que lo motivó: **`$edc0` (la textura de roca) pasó de 
 sobre la vista sin gatear volvió a ser válida. El catálogo pasó de 98 sprites + 142 fondo a
 **56 sprites + 150 fondo**.
 
-**Pero el resultado en pantalla obligó a una decisión de render.** Al dejar de ser sprites,
+**Pero el resultado en pantalla obligó a resolver el fondo aparte.** Al dejar de ser sprites,
 esas zonas pasaron a ser zonas-tile y `updateTiles` las convirtió en losas: quedó un ruido
-peor que antes. El terreno de Exolon no son tiles prolijos 8×8 como los de JSW, es una
-textura punteada desparramada. Por eso se agregó **`-Dtiles=false`** (activado en el perfil
-de Exolon): las zonas de fondo se quedan en el backdrop 2D plano. Con eso el cuadro queda
-correcto — fondo plano, entidades en 3D — pero **escaso**: la cobertura de sprites bajó de
-51% a 5%, que es lo que realmente hay de entidades en Exolon. JSW/MM siguen con losas
-(`tiles` default true), que es lo que sus fondos piden.
+peor que antes. La causa es concreta: `updateTiles` extruye cada celda desde su **template
+de tile en memoria**, y eso exige que el catálogo haya encontrado bitmaps de tile reales de 8
+filas. Exolon no tiene: su decorado es una textura punteada, así que leer 8 bytes en la hoja
+descubierta da un bitmap arbitrario que no se parece a lo que hay en pantalla.
+
+Primero se probó **`-Dtiles=false`** (fondo plano en el backdrop 2D). Correcto pero **inútil
+como imagen**: el juego quedaba casi todo plano, que es de donde habíamos partido — apagar el
+3D no es arreglarlo.
+
+La solución es **`-Dtiles=screen`** (`JSW3D.updateScreenRelief`, activado en el perfil de
+Exolon): el relieve del fondo se construye **desde los píxeles de la pantalla**, un modelo
+por celda 8×8, en vez del template de memoria. Es el mismo atajo que ya usan los sprites
+compuestos (§5, atajo de render) y no necesita que el template sea válido, porque la pantalla
+ya tiene la imagen compuesta. Cacheado por hash de contenido, así que una banda de roca
+punteada colapsa a un puñado de modelos. Va más chato que los sprites (`-Drelief.depth`,
+0.45) para que las entidades sigan leyéndose como lo que está adelante. Los bytes del
+playfield se sacan del backdrop 2D, si no el relieve se ve doble.
+
+Resultado verificado: pilares, plataformas y terreno con relieve real, entidades en 3D
+adelante, y **el personaje como una sola figura sin estela**. JSW/MM siguen en `tiles=slab`
+(default), que es lo que sus fondos —tiles 8×8 de verdad— piden.
 
 **Sigue abierto**: quedan bases catalogadas como sprite con bbox de pantalla completa
 (`$6400`, `$643e`, `$fbe6` — parecen gráficos de marcador/fuente), que son las que todavía
@@ -353,7 +368,7 @@ tapado; el bitmap de memoria es la forma "limpia". Trade-off a evaluar.
 | Jet Set Willy | `jsw` | `analysis/jsw-catalog.db` | ✅ completo |
 | Manic Miner | `mm` | `analysis/mm.db` | ✅ completo |
 | Dynamite Dan | `dd` | `analysis/dd.db` | 🟡 sprites+tiles ok; máscaras pendientes |
-| Exolon | `exolon` | `analysis/exolon-taint.db` | 🟡 catálogo por taint-discovery (30k frames): granularidad ok (§5.1), se infla de más el terreno y el marcador |
+| Exolon | `exolon` | `analysis/exolon-taint.db` | 🟢 catálogo por taint-discovery (30k frames), fondo por relieve de pantalla, sin estela (§5.1). Pendiente: bases de marcador/fuente aún como sprite |
 
 Perfiles en `minizx3d/src/main/resources/games.json`. Cada uno trae rzx + db + tweaks del juego.
 
