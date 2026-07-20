@@ -320,7 +320,12 @@ public class JSW3D extends ApplicationAdapter {
   private final List<String> paramGroups = new ArrayList<>();
   private int tuneGroup = Integer.getInteger("tune", 0) - 1, tuneParam;
   /**
-   * Menu depth: 0 = list of sections, 1 = groups inside the section, 2 = the parameters.
+   * Menu depth: 0 = sections, 1 = groups, 2 = the parameter LIST, 3 = editing one value.
+   *
+   * <p>Levels 2 and 3 are separate on purpose. With adjusting bound to left/right at the
+   * list level there was no way back UP: reaching a value trapped you there, because left
+   * only ever decremented. Now left is "back" while you are picking a parameter, and only
+   * turns into "decrease" once you have entered the value with right.
    * The breadcrumb in {@link #renderTuning} shows where you are and what is beside you, so
    * navigating does not mean remembering an invisible flat list.
    */
@@ -655,7 +660,7 @@ public class JSW3D extends ApplicationAdapter {
                 else if (tuneLevel == 1)
                   tuneGroupInSection = Math.floorMod(tuneGroupInSection + d,
                       Math.max(1, groupsInSection().size()));
-                else {
+                else { // works while editing too: hop to the next value without backing out
                   int n = Math.max(1, groupParams().size());
                   tuneParam = Math.floorMod(tuneParam + d, n);
                 }
@@ -667,12 +672,12 @@ public class JSW3D extends ApplicationAdapter {
               case com.badlogic.gdx.Input.Keys.RIGHT -> {
                 if (tuneGroup < 0)
                   return false;
-                // deepest level adjusts; above it, right means "enter"
-                if (tuneLevel >= 2)
-                  adjustParam(1);
+                if (tuneLevel >= 3)
+                  adjustParam(1); // editing: right raises the value
                 else {
-                  tuneLevel++;
-                  syncTuneGroup();
+                  tuneLevel++;    // otherwise right goes deeper, into the value at level 3
+                  if (tuneLevel <= 1)
+                    syncTuneGroup();
                 }
                 tuneShownAt = System.currentTimeMillis();
                 rebuild = false;
@@ -680,17 +685,18 @@ public class JSW3D extends ApplicationAdapter {
               case com.badlogic.gdx.Input.Keys.LEFT -> {
                 if (tuneGroup < 0)
                   return false;
-                if (tuneLevel >= 2)
-                  adjustParam(-1);
+                if (tuneLevel >= 3)
+                  adjustParam(-1); // editing: left lowers the value
                 else
-                  tuneLevel = Math.max(0, tuneLevel - 1);
+                  tuneLevel = Math.max(0, tuneLevel - 1); // picking: left goes back up
                 tuneShownAt = System.currentTimeMillis();
                 rebuild = false;
               }
               case com.badlogic.gdx.Input.Keys.BACKSPACE -> {
                 if (tuneGroup < 0)
                   return false;
-                tuneLevel = Math.max(0, tuneLevel - 1); // back out of the submenu
+                // always a way out, including out of a value you are editing
+                tuneLevel = Math.max(0, tuneLevel - 1);
                 tuneShownAt = System.currentTimeMillis();
                 rebuild = false;
               }
@@ -958,12 +964,14 @@ public class JSW3D extends ApplicationAdapter {
         windOn, leavesOn);
     effects.render(cam, mistOn, fireOn, rainOn, snowOn, leavesOn);
     renderHelp();
-    // held arrows keep adjusting; 6 quiet seconds close the tuning panel on their own
+    // held arrows keep adjusting; 6 quiet seconds close the tuning panel on their own.
+    // ONLY while editing a value (level 3): at the list levels left/right navigate, and
+    // repeating them there would both fight the navigation and change values unseen.
     if (tuneGroup >= 0) {
       long now = System.currentTimeMillis();
       boolean l = Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.LEFT);
       boolean r = Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.RIGHT);
-      if ((l || r) && now - lastAdjustAt > 70)
+      if (tuneLevel >= 3 && (l || r) && now - lastAdjustAt > 70)
         adjustParam(r ? 1 : -1);
       if (System.getProperty("tune") != null)
         tuneShownAt = now; // pinned open for screenshot verification
@@ -1218,10 +1226,17 @@ public class JSW3D extends ApplicationAdapter {
     List<String> gs = groupsInSection();
     String grp = gs.isEmpty() ? "?" : gs.get(Math.floorMod(tuneGroupInSection, gs.size()));
     StringBuilder sb = new StringBuilder("CONFIG");
+    List<Param> gp = groupParams();
     sb.append(tuneLevel >= 1 ? "  >  " + sec : "").append(tuneLevel >= 2 ? "  >  " + grp : "");
+    if (tuneLevel >= 3 && !gp.isEmpty())
+      sb.append("  >  ").append(gp.get(Math.min(tuneParam, gp.size() - 1)).name());
     sb.append(presetIdx >= 0 ? "        [preset: " + presets.get(presetIdx) + "]" : "");
-    sb.append("\narriba-abajo mover / derecha entrar / izquierda volver o ajustar\n")
-        .append("TAB y SHIFT+TAB hermanos / F12 guardar preset / ESC cerrar\n\n");
+    sb.append(tuneLevel >= 3
+        ? "\nEDITANDO: izq-der cambian el valor / arriba-abajo otro valor\n"
+          + "BACKSPACE vuelve a la lista"
+        : "\narriba-abajo mover / derecha entrar / izquierda volver\n"
+          + "TAB y SHIFT+TAB hermanos");
+    sb.append(" / F12 guardar preset / ESC cerrar\n\n");
     if (tuneLevel == 0) {
       for (int i = 0; i < secs.size(); i++)
         sb.append(i == Math.floorMod(tuneSection, secs.size()) ? "> " : "   ")
@@ -1231,11 +1246,12 @@ public class JSW3D extends ApplicationAdapter {
         sb.append(i == Math.floorMod(tuneGroupInSection, gs.size()) ? "> " : "   ")
             .append(gs.get(i)).append('\n');
     } else {
-      List<Param> g = groupParams();
+      List<Param> g = gp;
       for (int i = 0; i < g.size(); i++) {
         Param p = g.get(i);
         float v = p.get().get();
-        sb.append(i == tuneParam ? "> " : "   ").append(p.name()).append(" = ")
+        sb.append(i == tuneParam ? (tuneLevel >= 3 ? ">>" : "> ") : "   ")
+            .append(p.name()).append(" = ")
             .append(p.integer() ? String.valueOf(Math.round(v))
                 : String.format(java.util.Locale.US, "%.2f", v)).append('\n');
       }

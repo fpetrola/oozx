@@ -193,15 +193,22 @@ personaje: cachear el acabado ya aplicado hace que mover una perilla nunca llegu
 
 ### Menu tipo TV
 
-Tres niveles con breadcrumb: `CONFIG > seccion > grupo`, y en cada nivel se ven los hermanos
-disponibles en vez de tener que recordarlos.
+Cuatro niveles con breadcrumb: `CONFIG > seccion > grupo > parametro`, y en cada nivel se ven
+los hermanos disponibles en vez de tener que recordarlos.
+
+Los niveles "lista de parametros" y "editando un valor" estan separados a proposito. Con el
+ajuste atado a izquierda/derecha en la lista **no habia forma de volver arriba**: llegar a un
+valor te dejaba atrapado, porque izquierda solo decrementaba. Ahora izquierda es "volver"
+mientras elegis, y recien se convierte en "bajar el valor" cuando entraste con derecha. El
+breadcrumb muestra el parametro y el cartel cambia a EDITANDO para que se note en que modo
+estas.
 
 | tecla | accion |
 |---|---|
-| arriba / abajo | moverse en el nivel actual |
-| derecha | entrar al submenu (en el ultimo nivel, ajusta) |
-| izquierda | volver (en el ultimo nivel, ajusta) |
-| BACKSPACE | volver un nivel |
+| arriba / abajo | moverse en el nivel actual (tambien mientras editas: salta a otro valor) |
+| derecha | entrar; sobre un parametro, entra a EDITARLO |
+| izquierda | volver; **solo ajusta cuando ya entraste al valor** |
+| BACKSPACE | volver un nivel, incluso saliendo de un valor |
 | TAB / SHIFT+TAB | hermano siguiente / anterior |
 | F12 | **guardar sobre el preset activo**, sin preguntar el nombre |
 | ESC | cerrar |
