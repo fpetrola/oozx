@@ -90,6 +90,14 @@ public class JSW3D extends ApplicationAdapter {
    * keeps the JSW/MM/DD behavior untouched.
    */
   private final boolean blobsAdjacent = "adjacent".equals(System.getProperty("blobs", "base"));
+  /**
+   * -Dtiles=false: leave background zones in the flat 2D backdrop instead of building slabs
+   * for them. JSW/MM want the slabs — their backgrounds ARE tidy 8x8 tiles and the room
+   * reads as architecture. Exolon's "tiles" are a dithered rock texture spread over the
+   * whole screen: slabbing them turns the picture into noise, and terrain is scenery the
+   * player never interacts with in 3D anyway.
+   */
+  private final boolean tilesOn = !"false".equals(System.getProperty("tiles"));
   /** screen-pixel sprite models, keyed by content hash (animation frames each get one). */
   private final Map<Long, Model> pixModelCache = new HashMap<>();
   private final List<ModelInstance> spriteInstances = new ArrayList<>();
@@ -667,7 +675,8 @@ public class JSW3D extends ApplicationAdapter {
         effects.spriteDust(spriteBoxes, snapDt);
       snapDt = 0;
       long t2 = perf ? System.nanoTime() : 0;
-      updateTiles(snap);
+      if (tilesOn)
+        updateTiles(snap);
       long t3 = perf ? System.nanoTime() : 0;
       // glowing junk casts its own small pool of light in the dark, like the items do;
       // capped so a big junk count can't starve the shader's point-light slots
@@ -1494,7 +1503,7 @@ public class JSW3D extends ApplicationAdapter {
           // per-bit pass off the mask covers the whole byte, so this erases it entirely
           // exactly as it always did
           bits = snap.pixels()[i] & ~snap.spriteBits()[i] & 0xff;
-        else if (snap.tile()[i] != 0 && y < playfieldRows * 8) {
+        else if (tilesOn && snap.tile()[i] != 0 && y < playfieldRows * 8) {
           int tpl = replay.memByte(snap.tile()[i] - 1);
           int foreign = snap.pixels()[i] & ~tpl & 0xff;
           bits = 0;

@@ -196,10 +196,31 @@ bytes, la textura punteada de roca) es la entrada más observada del juego y sal
 NO es un buffer: tiene 10 escrituras en 30.000 frames (carga de nivel), es gráfico estático de
 verdad.
 
-**Siguiente paso concreto**: medir cada señal en la vista donde es válida — `reuse`/`stamps`
-sobre la pantalla SIN gatear (ahí "cuánta área cubre este gráfico simultáneamente" se mide
-bien) y `drift`/`fresh` sobre la gateada (ahí "se está repintando / se mueve" se mide bien).
-Es un cambio chico y ataca la causa, en vez de mover umbrales.
+**HECHO — vista partida**: `TaintDiscover.onFrame` hace ahora DOS barridos por frame
+muestreado (`scan(..., gated)`). El **sin gatear** alimenta las métricas de cobertura
+(`reuse`, `stamps`, `bpo`, `mob`, `fresh`), porque un blob entero es la única forma de ver
+"cuánta área cubre este gráfico a la vez"; el **gateado** alimenta solo `drift`, porque los
+rastros encendidos son lo único que le impide ver el movimiento. `-Ddiscover.gate` aplica
+únicamente al segundo, y el segundo ni corre si `drift` está apagado.
+
+Funcionó sobre el caso que lo motivó: **`$edc0` (la textura de roca) pasó de `sprite` a
+`FONDO`**, y lo cazó `fresh` (26% < 35%) — justo la métrica que los rastros invertían, que
+sobre la vista sin gatear volvió a ser válida. El catálogo pasó de 98 sprites + 142 fondo a
+**56 sprites + 150 fondo**.
+
+**Pero el resultado en pantalla obligó a una decisión de render.** Al dejar de ser sprites,
+esas zonas pasaron a ser zonas-tile y `updateTiles` las convirtió en losas: quedó un ruido
+peor que antes. El terreno de Exolon no son tiles prolijos 8×8 como los de JSW, es una
+textura punteada desparramada. Por eso se agregó **`-Dtiles=false`** (activado en el perfil
+de Exolon): las zonas de fondo se quedan en el backdrop 2D plano. Con eso el cuadro queda
+correcto — fondo plano, entidades en 3D — pero **escaso**: la cobertura de sprites bajó de
+51% a 5%, que es lo que realmente hay de entidades en Exolon. JSW/MM siguen con losas
+(`tiles` default true), que es lo que sus fondos piden.
+
+**Sigue abierto**: quedan bases catalogadas como sprite con bbox de pantalla completa
+(`$6400`, `$643e`, `$fbe6` — parecen gráficos de marcador/fuente), que son las que todavía
+ensucian; y evaluar un camino intermedio para el fondo de Exolon (losas donde el fondo es
+estructura, plano donde es textura).
 
 Otras dos cosas aprendidas, que conviene no volver a descubrir:
 - **`drift` aliasea**. Mide cuánto cambia el conjunto de celdas de un frame muestreado al

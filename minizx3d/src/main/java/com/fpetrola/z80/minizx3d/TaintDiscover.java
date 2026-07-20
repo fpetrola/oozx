@@ -103,19 +103,18 @@ public final class TaintDiscover {
   /** a screen byte written within this many frames counts as freshly redrawn. */
   final int freshWin = Integer.getInteger("discover.freshwin", 12);
   /**
-   * GATE (-Ddiscover.gate=N, 0=off): ignore lit bytes not rewritten within N frames.
-   * A dirty-region engine (Exolon rewrites 2-10% of the lit screen per frame, Dynamite Dan
-   * likewise) leaves a sprite's abandoned pixels lit and carrying its taint for tens of
-   * frames. Counted as observations those ghosts swamp the real ones: the graphic looks
-   * stale ({@link #freshFrac}), looks like it never leaves ({@link #minDrift}) and looks
-   * spread all over ({@link #minMobility}) — every discriminator inverts at once. Gating
-   * makes each metric measure what the game is painting NOW.
+   * GATE (-Ddiscover.gate=N, 0=off): in the GATED sweep, ignore lit bytes not rewritten
+   * within N frames. A dirty-region engine (Exolon rewrites 2-10% of the lit screen per
+   * frame, Dynamite Dan likewise) leaves a sprite's abandoned pixels lit and carrying its
+   * taint for tens of frames, and those ghosts make a moving sprite look like it never
+   * leaves. Gating is what lets {@link #minDrift} see the motion.
    *
-   * <p>Off by default: on a whole-screen re-blitter (JSW) it is a no-op anyway, while on an
-   * engine that paints its scenery once per room it would shrink the sample to the frames
-   * right after a room flip — correct, but only worth it where trails actually exist.
+   * <p>It applies to that sweep ONLY. Gating the coverage metrics was tried and is wrong:
+   * it shatters a stamped region into the slivers repainted this frame, and {@code reuse}
+   * and {@code stamps} — measured WITHIN a blob — go blind exactly where they were meant to
+   * bite, which is how Exolon's rock texture came out a sprite with {@code reuse=0.9}.
    */
-  final int gateWin = Integer.getInteger("discover.gate", 0);
+  final int gateWin = Integer.getInteger("discover.gate", 8);
   /** minimum fraction of a piece's painted bytes that must be fresh to call it a sprite. */
   final float freshFrac = Float.parseFloat(System.getProperty("discover.freshfrac", "0.35"));
   /** more stamps per frame than this is a repeating pattern (fill/border), not entities. */
@@ -234,42 +233,25 @@ public final class TaintDiscover {
     // buffers get hotter as the run advances: keep a floor early, scale with time later
     int writeCap = Math.max(maxWrites, frame >> 6);
     byte[] px = snap.pixels();
-    boolean[] seen = new boolean[PIXEL_BYTES];
     Set<Integer> basesThisFrame = new HashSet<>();
-    int maxY = playfieldRows * 8;
-    List<int[]> blob = new ArrayList<>(); // {y, col} cells of the current flood fill
-    java.util.ArrayDeque<int[]> queue = new java.util.ArrayDeque<>();
     Map<Integer, Set<Integer>> frameCells = new HashMap<>(); // base -> cells painted now
-    for (int y0 = 0; y0 < maxY; y0++)
-      for (int c0 = 0; c0 < 32; c0++) {
-        int i0 = IDX[y0 * 32 + c0];
-        if (!lit(px, i0, frame) || seen[i0])
-          continue;
-        blob.clear();
-        seen[i0] = true;
-        queue.add(new int[]{y0, c0});
-        while (!queue.isEmpty()) {
-          int[] p = queue.poll();
-          blob.add(p);
-          for (int dy = -1; dy <= 1; dy++)
-            for (int dc = -1; dc <= 1; dc++) {
-              int y = p[0] + dy, c = p[1] + dc;
-              if (y < 0 || y >= maxY || c < 0 || c >= 32)
-                continue;
-              int i = IDX[y * 32 + c];
-              if (lit(px, i, frame) && !seen[i]) {
-                seen[i] = true;
-                queue.add(new int[]{y, c});
-              }
-            }
-        }
-        processBlob(blob, px, frame, writeCap, basesThisFrame, frameCells);
-      }
+    // Each signal is measured in the view where it is VALID (doc §5.1). Ungated, a blob is
+    // the whole painted region, which is the only way "how much area does this graphic cover
+    // at once" (reuse, stamps, bpo) can be seen — gating shatters a stamped terrain band
+    // into the slivers repainted this frame and those two go blind, which is how Exolon's
+    // rock texture passed as a sprite. Gated, only what the game is painting NOW survives,
+    // which is the only way "did it move" (drift) can be seen — ungated, the trails a
+    // dirty-region engine leaves lit nail a moving sprite's cell-set in place.
+    scan(px, frame, writeCap, basesThisFrame, frameCells, false);
+    if (minDrift > 0)
+      scan(px, frame, writeCap, basesThisFrame, frameCells, true);
     // drift: compare each graphic's footprint with the one it had in the PREVIOUS sampled
     // frame. Only consecutive samples are comparable — a graphic that was absent in between
     // restarts the measurement rather than reporting a jump it did not make.
     frameCells.forEach((base, now) -> {
       Agg agg = byBase.get(base);
+      if (agg == null)
+        return; // seen only in the gated view: no aggregate to attach the drift to
       if (agg.prevFrame == frame - sample) {
         int common = 0;
         for (int si : now)
@@ -283,14 +265,52 @@ public final class TaintDiscover {
     });
   }
 
+  /**
+   * One flood-fill sweep of the screen. {@code gated} selects the view: ungated feeds the
+   * coverage metrics, gated feeds drift only (see {@link #onFrame}).
+   */
+  private void scan(byte[] px, int frame, int writeCap, Set<Integer> basesThisFrame,
+                    Map<Integer, Set<Integer>> frameCells, boolean gated) {
+    boolean[] seen = new boolean[PIXEL_BYTES];
+    int maxY = playfieldRows * 8;
+    List<int[]> blob = new ArrayList<>(); // {y, col} cells of the current flood fill
+    java.util.ArrayDeque<int[]> queue = new java.util.ArrayDeque<>();
+    for (int y0 = 0; y0 < maxY; y0++)
+      for (int c0 = 0; c0 < 32; c0++) {
+        int i0 = IDX[y0 * 32 + c0];
+        if (!lit(px, i0, frame, gated) || seen[i0])
+          continue;
+        blob.clear();
+        seen[i0] = true;
+        queue.add(new int[]{y0, c0});
+        while (!queue.isEmpty()) {
+          int[] p = queue.poll();
+          blob.add(p);
+          for (int dy = -1; dy <= 1; dy++)
+            for (int dc = -1; dc <= 1; dc++) {
+              int y = p[0] + dy, c = p[1] + dc;
+              if (y < 0 || y >= maxY || c < 0 || c >= 32)
+                continue;
+              int i = IDX[y * 32 + c];
+              if (lit(px, i, frame, gated) && !seen[i]) {
+                seen[i] = true;
+                queue.add(new int[]{y, c});
+              }
+            }
+        }
+        processBlob(blob, px, frame, writeCap, basesThisFrame, frameCells, gated);
+      }
+  }
+
   /** a byte counts as painted content: it has pixels and, under the gate, is not a ghost. */
-  private boolean lit(byte[] px, int i, int frame) {
-    return px[i] != 0 && (gateWin == 0 || frame - replay.lastWrite[i] <= gateWin);
+  private boolean lit(byte[] px, int i, int frame, boolean gated) {
+    return px[i] != 0 && (!gated || gateWin == 0 || frame - replay.lastWrite[i] <= gateWin);
   }
 
   /** one connected group of lit bytes: leaf union -> pieces -> one observation per piece. */
   private void processBlob(List<int[]> blob, byte[] px, int frame, int writeCap,
-                           Set<Integer> basesThisFrame, Map<Integer, Set<Integer>> frameCells) {
+                           Set<Integer> basesThisFrame, Map<Integer, Set<Integer>> frameCells,
+                           boolean gated) {
     List<int[]> byteLeaves = new ArrayList<>(blob.size());
     int total = 0;
     for (int[] p : blob) {
@@ -353,22 +373,27 @@ public final class TaintDiscover {
         if (p < 0)
           p = -p - 2; // insertion point - 1: the piece whose lo <= a
         if (p != last) {
-          pieces.get(p)[2]++;
-          if (fresh)
-            pieces.get(p)[3]++;
-          byBase.computeIfAbsent(los[p], k -> new Agg()).cells.set(si);
-          frameCells.computeIfAbsent(los[p], k -> new HashSet<>()).add(si);
+          if (gated) {
+            frameCells.computeIfAbsent(los[p], k -> new HashSet<>()).add(si);
+          } else {
+            pieces.get(p)[2]++;
+            if (fresh)
+              pieces.get(p)[3]++;
+            byBase.computeIfAbsent(los[p], k -> new Agg()).cells.set(si);
+          }
           last = p;
           touched++;
         }
       }
-      if (touched == 1) { // exclusive byte: its pixels describe THIS piece's content
+      if (!gated && touched == 1) { // exclusive byte: its pixels describe THIS piece's content
         Agg agg = byBase.get(los[last]);
         Integer prev = agg.cellVal.put(si, px[si] & 0xff);
         if (prev != null && prev != (px[si] & 0xff))
           agg.changes++;
       }
     }
+    if (gated)
+      return; // the gated view exists only to say WHERE each graphic is painting right now
     for (int[] piece : pieces) {
       Agg agg = byBase.computeIfAbsent(piece[0], k -> new Agg());
       agg.veces++;

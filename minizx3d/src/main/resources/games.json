@@ -34,7 +34,8 @@
         "blobs": "adjacent",
         "playfield.rows": "20",
         "fresh.frames": "8",
-        "sprite.bits": "true"
+        "sprite.bits": "true",
+        "tiles": "false"
       }
     }
   }
