@@ -585,13 +585,15 @@ public class JSW3D extends ApplicationAdapter {
             // editor needs and not what they mean in the viewer
             if (ctrl && keycode == com.badlogic.gdx.Input.Keys.E) {
               editorOn = !editorOn;
-              edBuiltFrame = -1; // rebuild the list for the frame we are frozen on
+              if (editorOn && edRects.isEmpty())
+                edRects.add(new int[]{112, 88, 16, 16}); // something to move from the start
               if (replay != null)
                 replay.paused = editorOn;
               if (editorOn && lastSnap == null)
                 lastSnap = latest;
               flashPreset(editorOn
-                  ? "editor: flechas mueven (Ctrl=8px), ESPACIO agrega/saca, N nuevo, G graba"
+                  ? "editor: flechas mueven, SHIFT+flechas redimensionan (Ctrl=x8), TAB cambia "
+                    + "de rectángulo, A agrega, D borra, N vacía, G graba"
                   : "editor: cerrado");
               return true;
             }
@@ -1969,11 +1971,12 @@ public class JSW3D extends ApplicationAdapter {
       I / W    elegir grafico del relieve (se pinta blanco) /
                pasarlo a FONDO plano (se guarda por juego)
       Ctrl+E   EDITOR DE SPRITES: congela el juego y muestra la
-               pantalla plana. Arriba/abajo eligen el objeto
-               compuesto (cyan), izq/der la pieza dentro de el
-               (blanca), ESPACIO la agrega/saca del objeto
-               (verde), A agrega todo el compuesto, N vacia,
-               G graba en ~/.jsw3d-objetos-<juego>.json
+               pantalla plana. El objeto se arma con RECTANGULOS:
+               flechas mueven el actual, SHIFT+flechas lo
+               redimensionan (Ctrl = de a 8px), TAB cicla entre
+               ellos, A agrega uno, D lo borra, N vacia, G graba
+               en ~/.jsw3d-objetos-<juego>.json (los graficos que
+               quedan adentro, mas los rectangulos)
       Mouse    arrastrar rota - rueda zoom
       Config viva en ~/.jsw3d-config-<juego>.json;
       presets (compartidos) en ~/.jsw3d-config.json""";
@@ -2155,13 +2158,8 @@ public class JSW3D extends ApplicationAdapter {
               (bits & (0x80 >> bit)) != 0 ? pi : pp));
       }
     }
-    if (editorOn) {
-      if (edBuiltFrame != snap.frame()) {
-        edBuiltFrame = snap.frame();
-        buildComposites(snap);
-      }
+    if (editorOn)
       paintEditor(snap, pixmap);
-    }
     screenTex.draw(pixmap, 0, 0);
   }
 
@@ -2631,14 +2629,18 @@ public class JSW3D extends ApplicationAdapter {
    * moving, animating and being drawn somewhere else entirely.
    */
   private boolean editorOn = Boolean.getBoolean("editor");
-  /** the composed things on screen this frame; each is the list of screen bytes it covers. */
-  private final List<List<Integer>> edComposites = new ArrayList<>();
-  /** the graphics inside the selected composite, most bytes first: what the arrows walk. */
-  private final List<Integer> edPieces = new ArrayList<>();
-  private int edComposite, edPiece, edBuiltFrame = -1;
+  /**
+   * The object being defined, as RECTANGLES over the screen. Automatic grouping got some
+   * objects right and many wrong, and no amount of tuning fixed the ones it merged (a
+   * capsule and the player in front of it) or split (a ship in two colours): on the screen
+   * there is no signal that says where one object ends. Drawing the boxes by hand is exact,
+   * takes seconds, and handles what nothing automatic can — an object made of disconnected
+   * parts, or one that must NOT include the hole between two of its parts.
+   */
+  private final List<int[]> edRects = new ArrayList<>(); // {x, y, w, h} in screen pixels
+  private int edRect;
   private String objName = "objeto";
-  private final java.util.Set<Integer> objPieces = new java.util.LinkedHashSet<>();
-  private final List<String[]> savedObjects = new ArrayList<>(); // {nombre, "$a,$b,..."}
+  private final List<String[]> savedObjects = new ArrayList<>(); // {nombre, piezas, rects}
   /** the last snapshot, so the editor can ask what is under the cursor while frozen. */
   private TaintReplay.FrameSnapshot lastSnap;
   /**
@@ -3446,8 +3448,7 @@ public class JSW3D extends ApplicationAdapter {
   /**
    * The GRAPHIC a screen byte came from, rolled up to the catalogue entry that contains it.
    * The taint answers with the exact ADDRESS, so two rows of one sprite report different
-   * origins: without the roll-up the editor offered slivers of 8x1 pixels as if each were a
-   * separate piece, when what a person sees — and wants to add or remove — is the graphic.
+   * origins: rolled up, a piece is the graphic, which is what a person sees and names.
    */
   private int originOf(int i) {
     int addr = lastSnap.owner()[i] != 0 ? lastSnap.owner()[i] - 1
@@ -3458,152 +3459,155 @@ public class JSW3D extends ApplicationAdapter {
     return entry != 0 ? entry - 1 : addr;
   }
 
-
   /** the editor's own keys while it is open; false lets the viewer have the key. */
   private boolean editorKey(int keycode, boolean ctrl) {
+    boolean shift = Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.SHIFT_LEFT)
+        || Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.SHIFT_RIGHT);
+    int step = ctrl ? 8 : 1;
+    int[] r = edRects.isEmpty() ? null : edRects.get(edRect);
     switch (keycode) {
-      // up/down walk the COMPOSED things on screen, left/right the graphics inside the one
-      // selected: the two questions are different, and mixing them on one axis made the
-      // editor unusable — you are always either choosing an object or picking it apart
-      case com.badlogic.gdx.Input.Keys.DOWN -> cycleComposite(1);
-      case com.badlogic.gdx.Input.Keys.UP -> cycleComposite(-1);
-      case com.badlogic.gdx.Input.Keys.RIGHT -> cyclePiece(1);
-      case com.badlogic.gdx.Input.Keys.LEFT -> cyclePiece(-1);
-      case com.badlogic.gdx.Input.Keys.SPACE -> togglePiece();
-      case com.badlogic.gdx.Input.Keys.A -> {
-        objPieces.addAll(edPieces); // the whole composite at once, then take out what is not
-        flashPreset("objeto: " + objPieces.size() + " piezas (todo el compuesto)");
+      // arrows MOVE the rectangle, with shift they RESIZE it: the two things you do to a
+      // selection, on the same keys, without leaving the hand
+      case com.badlogic.gdx.Input.Keys.LEFT -> {
+        if (r != null) {
+          if (shift)
+            r[2] = Math.max(1, r[2] - step);
+          else
+            r[0] = Math.max(0, r[0] - step);
+        }
+      }
+      case com.badlogic.gdx.Input.Keys.RIGHT -> {
+        if (r != null) {
+          if (shift)
+            r[2] = Math.min(256 - r[0], r[2] + step);
+          else
+            r[0] = Math.min(256 - r[2], r[0] + step);
+        }
+      }
+      case com.badlogic.gdx.Input.Keys.UP -> {
+        if (r != null) {
+          if (shift)
+            r[3] = Math.max(1, r[3] - step);
+          else
+            r[1] = Math.max(0, r[1] - step);
+        }
+      }
+      case com.badlogic.gdx.Input.Keys.DOWN -> {
+        if (r != null) {
+          if (shift)
+            r[3] = Math.min(H - r[1], r[3] + step);
+          else
+            r[1] = Math.min(H - r[3], r[1] + step);
+        }
+      }
+      case com.badlogic.gdx.Input.Keys.TAB -> {
+        if (!edRects.isEmpty())
+          edRect = (edRect + (shift ? edRects.size() - 1 : 1)) % edRects.size();
+      }
+      case com.badlogic.gdx.Input.Keys.A -> { // one more piece of the object
+        int[] base = r == null ? new int[]{112, 88, 16, 16} : r;
+        edRects.add(new int[]{Math.min(240, base[0] + 8), Math.min(H - 8, base[1] + 8),
+            base[2], base[3]});
+        edRect = edRects.size() - 1;
+      }
+      case com.badlogic.gdx.Input.Keys.D -> {
+        if (!edRects.isEmpty()) {
+          edRects.remove(edRect);
+          edRect = Math.max(0, Math.min(edRect, edRects.size() - 1));
+        }
       }
       case com.badlogic.gdx.Input.Keys.N -> {
-        objPieces.clear();
-        flashPreset("objeto nuevo (vacío)");
+        edRects.clear();
+        edRects.add(new int[]{112, 88, 16, 16});
+        edRect = 0;
+        flashPreset("objeto nuevo");
       }
       case com.badlogic.gdx.Input.Keys.G -> saveObject();
       default -> {
         return false;
       }
     }
+    flashEditor();
     return true;
   }
 
-  private void cycleComposite(int d) {
-    if (edComposites.isEmpty())
-      return;
-    edComposite = ((edComposite + d) % edComposites.size() + edComposites.size())
-        % edComposites.size();
-    buildPieces();
-    flashEditor();
-  }
-
-  private void cyclePiece(int d) {
-    if (edPieces.isEmpty())
-      return;
-    edPiece = ((edPiece + d) % edPieces.size() + edPieces.size()) % edPieces.size();
-    flashEditor();
-  }
-
-  private void togglePiece() {
-    if (edPieces.isEmpty())
-      return;
-    int piece = edPieces.get(edPiece);
-    if (!objPieces.remove(piece))
-      objPieces.add(piece);
-    flashEditor();
-  }
-
   private void flashEditor() {
-    int piece = edPieces.isEmpty() ? -1 : edPieces.get(edPiece);
-    flashPreset("compuesto " + (edComposite + 1) + "/" + edComposites.size()
-        + " · pieza " + (edPieces.isEmpty() ? 0 : edPiece + 1) + "/" + edPieces.size()
-        + (piece < 0 ? "" : " $" + Integer.toHexString(piece)
-            + (objPieces.contains(piece) ? " [EN EL OBJETO]" : ""))
-        + " · objeto: " + objPieces.size() + " piezas");
-  }
-
-  /**
-   * The composed things on screen right now: lit bytes flooded by adjacency, biggest first.
-   * This is deliberately the CRUDE grouping — the one that merges a capsule with the player
-   * standing in front of it — because that is the thing the editor exists to take apart.
-   */
-  private void buildComposites(TaintReplay.FrameSnapshot snap) {
-    edComposites.clear();
-    boolean[] seen = new boolean[TaintReplay.PIXEL_BYTES];
-    int[][] grid = new int[H][32];
-    for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
-      int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7);
-      grid[y][i & 31] = (snap.pixels()[i] & 0xff) != 0 ? i + 1 : 0;
-    }
-    java.util.ArrayDeque<int[]> queue = new java.util.ArrayDeque<>();
-    for (int y0 = 0; y0 < H; y0++)
-      for (int c0 = 0; c0 < 32; c0++) {
-        if (grid[y0][c0] == 0 || seen[grid[y0][c0] - 1])
-          continue;
-        List<Integer> group = new ArrayList<>();
-        seen[grid[y0][c0] - 1] = true;
-        queue.add(new int[]{c0, y0});
-        while (!queue.isEmpty()) {
-          int[] p = queue.poll();
-          group.add(grid[p[1]][p[0]] - 1);
-          for (int dy = -1; dy <= 1; dy++)
-            for (int dc = -1; dc <= 1; dc++) {
-              int c = p[0] + dc, y = p[1] + dy;
-              if (c >= 0 && c < 32 && y >= 0 && y < H && grid[y][c] != 0
-                  && !seen[grid[y][c] - 1]) {
-                seen[grid[y][c] - 1] = true;
-                queue.add(new int[]{c, y});
-              }
-            }
-        }
-        if (group.size() >= 3)
-          edComposites.add(group);
-      }
-    edComposites.sort((a, b) -> b.size() - a.size());
-    edComposite = Math.min(edComposite, Math.max(0, edComposites.size() - 1));
-    buildPieces();
-  }
-
-  /** the distinct graphics inside the selected composite, the ones the arrows walk. */
-  private void buildPieces() {
-    edPieces.clear();
-    if (edComposites.isEmpty() || lastSnap == null)
+    if (edRects.isEmpty()) {
+      flashPreset("editor: A agrega un rectángulo");
       return;
-    Map<Integer, Integer> count = new HashMap<>();
-    for (int i : edComposites.get(edComposite)) {
-      int origin = originOf(i);
-      if (origin >= 0)
-        count.merge(origin, 1, Integer::sum);
     }
-    count.entrySet().stream().sorted((a, b) -> b.getValue() - a.getValue())
-        .forEach(e -> edPieces.add(e.getKey()));
-    edPiece = Math.min(edPiece, Math.max(0, edPieces.size() - 1));
+    int[] r = edRects.get(edRect);
+    java.util.Set<Integer> gfx = graphicsInRects();
+    StringBuilder sb = new StringBuilder();
+    int k = 0;
+    for (int g : gfx) {
+      if (k++ == 6) {
+        sb.append(" …");
+        break;
+      }
+      sb.append(" $").append(Integer.toHexString(g));
+    }
+    flashPreset("rect " + (edRect + 1) + "/" + edRects.size() + "  x=" + r[0] + " y=" + r[1]
+        + " " + r[2] + "x" + r[3] + "  ·  " + gfx.size() + " gráficos:" + sb);
   }
 
   /**
-   * The hand-made definitions, per game, in {@code ~/.jsw3d-objetos-<juego>.json}: an object
-   * is a NAME and the set of graphics that make it. Its own file, not the generated
+   * The catalogue entries whose pixels fall inside the rectangles. THIS is what gets saved:
+   * the rectangles are how you point at the object, but a box on the screen is worth nothing
+   * later — the object moves, animates, shows up in another room. What survives is which
+   * graphics it is made of.
+   */
+  private java.util.Set<Integer> graphicsInRects() {
+    java.util.Set<Integer> out = new java.util.LinkedHashSet<>();
+    if (lastSnap == null)
+      return out;
+    for (int[] r : edRects)
+      for (int y = r[1]; y < Math.min(H, r[1] + r[3]); y++)
+        for (int x = r[0]; x < Math.min(256, r[0] + r[2]); x++) {
+          int i = idx(y, x >> 3);
+          if ((lastSnap.pixels()[i] & (0x80 >> (x & 7))) == 0)
+            continue; // only what is LIT inside the box: the paper around it is not the object
+          int g = originOf(i);
+          if (g >= 0)
+            out.add(g);
+        }
+    return out;
+  }
+
+  /**
+   * The hand-made definitions, per game, in {@code ~/.jsw3d-objetos-<juego>.json}: a name,
+   * the rectangles you drew, and the graphics they cover. Its own file, not the generated
    * catalogue, which a re-run overwrites.
    */
   private void saveObject() {
-    if (objPieces.isEmpty()) {
-      flashPreset("el objeto está vacío: marcá piezas con ESPACIO (o A para todo el compuesto)");
+    java.util.Set<Integer> gfx = graphicsInRects();
+    if (gfx.isEmpty()) {
+      flashPreset("no hay ningún gráfico dentro de los rectángulos");
       return;
     }
-    StringBuilder p = new StringBuilder();
-    for (int piece : objPieces)
-      p.append(p.length() > 0 ? "," : "").append('$').append(Integer.toHexString(piece));
-    savedObjects.removeIf(o -> o[1].equals(p.toString()));
-    savedObjects.add(new String[]{objName + savedObjects.size(), p.toString()});
+    StringBuilder piezas = new StringBuilder();
+    for (int g : gfx)
+      piezas.append(piezas.length() > 0 ? "," : "").append('$').append(Integer.toHexString(g));
+    StringBuilder rects = new StringBuilder();
+    for (int[] r : edRects)
+      rects.append(rects.length() > 0 ? "," : "")
+          .append(r[0]).append(' ').append(r[1]).append(' ').append(r[2]).append(' ').append(r[3]);
+    savedObjects.removeIf(o -> o[1].equals(piezas.toString()));
+    savedObjects.add(new String[]{objName + savedObjects.size(), piezas.toString(),
+        rects.toString()});
     StringBuilder sb = new StringBuilder("{\n  \"objetos\": [\n");
     for (int i = 0; i < savedObjects.size(); i++)
       sb.append("    {\"nombre\": \"").append(savedObjects.get(i)[0])
-          .append("\", \"piezas\": \"").append(savedObjects.get(i)[1]).append("\"}")
+          .append("\", \"piezas\": \"").append(savedObjects.get(i)[1])
+          .append("\", \"rects\": \"").append(savedObjects.get(i)[2]).append("\"}")
           .append(i < savedObjects.size() - 1 ? "," : "").append('\n');
     sb.append("  ]\n}\n");
     java.nio.file.Path f = java.nio.file.Path.of(System.getProperty("user.home"),
         ".jsw3d-objetos-" + activeGame + ".json");
     try {
       java.nio.file.Files.writeString(f, sb.toString());
-      flashPreset("grabado: " + savedObjects.size() + " objetos en " + f);
+      flashPreset("grabado: " + gfx.size() + " gráficos, " + savedObjects.size()
+          + " objetos en " + f);
     } catch (Exception e) {
       flashPreset("no pude grabar: " + e);
     }
@@ -3611,69 +3615,43 @@ public class JSW3D extends ApplicationAdapter {
 
   /**
    * The editor's overlay, painted INTO the 2D screen image so it lands exactly on the game's
-   * own pixels: a box around the selected composite, the graphic the arrows are on in gold,
-   * the rest of that composite in amber, and whatever is already in the object in metallic
-   * green — colours the Spectrum CANNOT produce, and pulsing.
+   * own pixels: every rectangle of the object, the selected one pulsing gold and the rest in
+   * amber, with the lit pixels inside them tinted so you can see exactly what you enclosed.
    *
-   * <p>White and cyan were unusable: they are the game's own ink and the highlight vanished
-   * into it. The pulse costs nothing now that the editor repaints every render frame, and it
-   * is what makes a highlight unmistakable over art that does not move. The PAPER is tinted
-   * too, not only the lit pixels: that is what makes an 8x8 block read as a block instead of
-   * as a handful of dots.
+   * <p>Colours the Spectrum CANNOT produce, and pulsing: white and cyan are the game's own
+   * ink and the highlight vanished into it.
    */
   private void paintEditor(TaintReplay.FrameSnapshot snap, Pixmap pixmap) {
-    if (edComposites.isEmpty())
-      return;
-    java.util.Set<Integer> inComposite = new java.util.HashSet<>(edComposites.get(edComposite));
-    int piece = edPieces.isEmpty() ? -1 : edPieces.get(edPiece);
     float t = (System.currentTimeMillis() % 700) / 700f;
     float beat = .55f + .45f * (float) Math.sin(t * (float) Math.PI * 2);
     int gold = Color.rgba8888(1, .2f + .78f * beat, 0, 1);
-    int goldPaper = Color.rgba8888(.35f * beat, .2f * beat, 0, 1);
+    int goldEdge = Color.rgba8888(1, .75f, .1f, 1);
     int amber = Color.rgba8888(.95f, .45f, .05f, 1);
-    int amberPaper = Color.rgba8888(.22f, .1f, 0, 1);
-    int green = Color.rgba8888(.25f, 1, .3f + .45f * beat, 1);
-    int greenPaper = Color.rgba8888(0, .28f, .12f, 1);
-    for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
-      int origin = originOf(i);
-      boolean here = inComposite.contains(i);
-      boolean isPiece = origin >= 0 && origin == piece && here;
-      boolean inObject = origin >= 0 && objPieces.contains(origin);
-      if (!isPiece && !inObject && !here)
-        continue;
-      int on = isPiece ? gold : inObject ? green : amber;
-      int off = isPiece ? goldPaper : inObject ? greenPaper : amberPaper;
-      int bits = snap.pixels()[i] & 0xff;
-      int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), col = i & 31;
-      for (int bit = 0; bit < 8; bit++) {
-        boolean lit = (bits & (0x80 >> bit)) != 0;
-        if (lit)
-          pixmap.drawPixel(col * 8 + bit, y, on);
-        else if (isPiece || inObject)
-          pixmap.drawPixel(col * 8 + bit, y, off);
+    int amberEdge = Color.rgba8888(.6f, .3f, 0, 1);
+    for (int n = 0; n < edRects.size(); n++) {
+      int[] r = edRects.get(n);
+      boolean sel = n == edRect;
+      int fill = sel ? gold : amber, edge = sel ? goldEdge : amberEdge;
+      int x1 = Math.min(255, r[0] + r[2] - 1), y1 = Math.min(H - 1, r[1] + r[3] - 1);
+      for (int y = r[1]; y <= y1; y++)
+        for (int x = r[0]; x <= x1; x++) {
+          int i = idx(y, x >> 3);
+          if ((snap.pixels()[i] & (0x80 >> (x & 7))) != 0)
+            pixmap.drawPixel(x, y, fill);
+        }
+      // the frame itself, drawn just outside so it never eats a pixel of the object
+      for (int x = Math.max(0, r[0] - 1); x <= Math.min(255, x1 + 1); x++) {
+        if (r[1] > 0)
+          pixmap.drawPixel(x, r[1] - 1, edge);
+        if (y1 < H - 1)
+          pixmap.drawPixel(x, y1 + 1, edge);
       }
-    }
-    // a box around the selected composite, so it is findable even when it is mostly dark
-    int minC = 31, maxC = 0, minR = H - 1, maxR = 0;
-    for (int i : edComposites.get(edComposite)) {
-      int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), col = i & 31;
-      minC = Math.min(minC, col);
-      maxC = Math.max(maxC, col);
-      minR = Math.min(minR, y);
-      maxR = Math.max(maxR, y);
-    }
-    int box = Color.rgba8888(1, .6f, 0, 1);
-    for (int x = minC * 8; x <= maxC * 8 + 7 && x < 256; x++) {
-      if (minR > 0)
-        pixmap.drawPixel(x, minR - 1, box);
-      if (maxR < H - 1)
-        pixmap.drawPixel(x, maxR + 1, box);
-    }
-    for (int y = Math.max(0, minR - 1); y <= Math.min(H - 1, maxR + 1); y++) {
-      if (minC > 0)
-        pixmap.drawPixel(minC * 8 - 1, y, box);
-      if (maxC < 31)
-        pixmap.drawPixel(maxC * 8 + 8, y, box);
+      for (int y = Math.max(0, r[1] - 1); y <= Math.min(H - 1, y1 + 1); y++) {
+        if (r[0] > 0)
+          pixmap.drawPixel(r[0] - 1, y, edge);
+        if (x1 < 255)
+          pixmap.drawPixel(x1 + 1, y, edge);
+      }
     }
   }
 
