@@ -209,6 +209,51 @@ efecto, y eso resuelve tres cosas de una sola vez porque el registro ya alimenta
   `properties` de `games.json` por juego (`sprite3d.smoothing`, `sprite3d.maxdepth`, ...).
 - **Ajuste en vivo**: aparecen en el menu de config bajo la seccion `Sprites 3D`.
 
+### Todos los `-D` de render y catalogo, tambien en el menu
+
+Lo mismo se extendio a TODO lo que antes solo entraba por linea de comando (`JSW3D.java`):
+
+- **Seccion `Render`** — perillas que cambian lo que se ve, aplicadas por frame asi que el
+  cambio es inmediato: `tiles` (slab/screen/off, un `Choice`), `blobs` (base/adjacent),
+  `playfield` fila inicial + alto, `relieve` (profundidad/frames-movil/celdas-decor),
+  deteccion de items, opacidad de fantasmas, y los dos del **hilo de taint** —
+  `sprite bits` y `fresh frames`— tageados `[re-seek]` porque su efecto es hacia adelante
+  (`TaintReplay.spriteBitsOn`/`freshFrames`, `volatile`, seteados desde el hilo de render).
+- **Seccion `Catalogo (offline)`** — las perillas `discover.*` de `TaintDiscover`, tageadas
+  `[recatalogar]`. NO cambian la vista (el catalogo ya esta horneado): se editan, se guardan
+  al config del juego, y la **proxima** corrida de `TaintDiscover -Dgame=<este>` las lee
+  (`loadDiscoverSettings` lee el mismo archivo). Cierra el lazo calibrar → recatalogar.
+
+Dos tipos nuevos de item de menu lo hacen posible sin romper el resto: `Choice` (opciones con
+nombre, se guarda la palabra en el JSON, no un indice) y `addFlag` (si/no). Ambos viajan por el
+mismo `Param` de floats — el float es el indice — asi que menu, guardado y carga no se enteran;
+solo el DISPLAY y la serializacion ramifican en `labels != null`.
+
+**Ojo con los limites acoplados** (costo un crash intermitente): `playfield.top` y `.rows` se
+tunean por separado, asi que su SUMA puede pasarse de las 24 filas y cualquier loop que indexa
+`idx(y0+r,col)` se sale del array de 6144 bytes de pantalla. Se clampa una vez en `playEnd()`
+(`min(24, top+rows)`) y todos los loops del playfield lo usan.
+
+### games.json: bloque global + override por juego, estructurado
+
+`properties` ahora acepta **objetos anidados** (`GameProfile.applyProps` los aplana a claves
+punteadas), asi se escribe estructurado en vez de un muro de claves planas:
+
+```json
+"properties": {
+  "render":   { "tiles": "screen", "playfield": { "top": 2, "rows": 20 } },
+  "sprite3d": { "smoothing": 0.35, "maxdepth": 8 },
+  "discover": { "gate": 8 }
+}
+```
+
+Hay un **bloque `properties` GLOBAL** al tope de games.json (hermano de `games`) que vale para
+todos los juegos, y cada juego lo pisa con el suyo. Precedencia, de mayor a menor:
+**`-D` explicito > `properties` del juego > `properties` global > default del campo**, y arriba
+de todo el archivo de config por juego (lo que tuneaste en vivo). Las claves planas viejas
+siguen funcionando (cada campo lee por su clave *legacy* ademas de la anidada). `TaintDiscover`
+usa el mismo `GameProfile.applyGamesJson` para leer global+juego en la pasada offline.
+
 **Reglas vs perillas.** Una REGLA elige la FORMA (tecnica + primitiva); las perillas vivas
 mandan el ACABADO (redondeo, profundidad, tamano de voxel, EPX). Sin esa division, una regla
 que fijara el acabado dejaba la perilla inerte — que es exactamente como el dial de suavizado

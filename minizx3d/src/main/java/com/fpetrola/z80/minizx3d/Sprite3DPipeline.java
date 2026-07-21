@@ -42,7 +42,7 @@ public final class Sprite3DPipeline {
 
   private final Sprite3DConfigStore store;
   private final TechniqueSelector selector;
-  private final boolean auto;
+  private boolean auto;
   private final int capacity;
   private final Map<Long, Model> cache;
   private final Map<Integer, SpriteFeatures> featureCache = new LinkedHashMap<>();
@@ -50,7 +50,7 @@ public final class Sprite3DPipeline {
   private final java.util.List<Model> retired = new java.util.ArrayList<>();
   /** technique chosen per animation strip, so every frame of a character agrees. */
   private final Map<Integer, Sprite3DConfig> groupConfig = new LinkedHashMap<>();
-  private final int groupSize = Integer.getInteger("sprite3d.group", 256);
+  private int groupSize = Integer.getInteger("sprite3d.group", 256);
   private java.util.function.IntFunction<java.util.List<SpriteBitmap>> groupFrames;
   private long hits, misses, degraded, fellBack;
 
@@ -87,6 +87,26 @@ public final class Sprite3DPipeline {
 
   public boolean autoEnabled() {
     return auto;
+  }
+
+  /**
+   * Live toggle of the automatic technique selection (the TAB menu). Clearing the per-strip
+   * decisions makes the change visible on the next baked frame: with auto off everything
+   * falls back to plain inflation, with it on the rules re-vote per character.
+   */
+  public void setAuto(boolean on) {
+    if (on != auto) {
+      auto = on;
+      groupConfig.clear();
+    }
+  }
+
+  /** live change of the animation-strip window; re-votes each character on the next frame. */
+  public void setGroupSize(int size) {
+    if (size != groupSize) {
+      groupSize = Math.max(1, size);
+      groupConfig.clear();
+    }
   }
 
   /**

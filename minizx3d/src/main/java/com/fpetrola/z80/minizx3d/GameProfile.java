@@ -67,11 +67,11 @@ public final class GameProfile {
       System.out.println("perfil '" + wanted + "' no existe en games.json; usando args/defaults");
 
     String title = g != null ? g.getString("title", wanted) : wanted;
-    // apply the profile's tweaks, without ever clobbering a -D the user set themselves
-    if (g != null && g.has("properties"))
-      for (JsonValue p = g.get("properties").child; p != null; p = p.next)
-        if (System.getProperty(p.name) == null)
-          System.setProperty(p.name, p.asString());
+    // Properties in PRECEDENCE order (highest first), each only filling keys still unset:
+    // explicit -D (already on the JVM) > this game's block > the top-level global block.
+    // So a game overrides the global default, and a command-line flag overrides both.
+    applyProps(null, g == null ? null : g.get("properties"));
+    applyProps(null, root == null ? null : root.get("properties"));
 
     // paths: positional arg > profile candidates (first that exists / bundled) > legacy fallback
     String rzx = args.length > 0 ? args[0]
@@ -82,6 +82,45 @@ public final class GameProfile {
         : resolveFile("db", candidates(g, "db"), "analysis/jsw-catalog.db", "analysis/jsw.db");
     return new GameProfile(g != null ? wanted : "custom", title, rzx, db,
         g == null ? null : g.get("sprites"));
+  }
+
+  /**
+   * Apply games.json's {@code properties} into system properties for a game, WITHOUT building
+   * a full profile — for the offline runners (e.g. {@link TaintDiscover}) that need the same
+   * per-game + global settings the viewer gets, keyed by {@code -Dgame}. Per-game wins over
+   * global; both defer to anything already set (an explicit {@code -D}, or a higher layer the
+   * caller applied first). A null/unknown game still applies the global block.
+   */
+  public static void applyGamesJson(String game) {
+    JsonValue root = load();
+    if (root == null)
+      return;
+    JsonValue games = root.get("games");
+    JsonValue g = game == null || games == null ? null : games.get(game);
+    applyProps(null, g == null ? null : g.get("properties"));
+    applyProps(null, root.get("properties"));
+  }
+
+  /**
+   * Flattens a (possibly nested) {@code properties} object into dotted system properties —
+   * so games.json can be written as structured objects ({@code "render": {"tiles": "screen",
+   * "playfield": {"rows": 20}}}) instead of a flat wall of dotted-string keys, and both a
+   * nested {@code render.tiles} and a legacy flat {@code tiles} entry resolve to the setting.
+   * Never clobbers a value already present, which is what makes the precedence layering work:
+   * an explicit {@code -D} and an earlier (higher-priority) layer both survive.
+   */
+  static void applyProps(String prefix, JsonValue node) {
+    if (node == null)
+      return;
+    for (JsonValue p = node.child; p != null; p = p.next) {
+      if (p.name == null)
+        continue;
+      String key = prefix == null ? p.name : prefix + "." + p.name;
+      if (p.isObject())
+        applyProps(key, p);
+      else if (p.isValue() && System.getProperty(key) == null)
+        System.setProperty(key, p.asString());
+    }
   }
 
   private static String[] candidates(JsonValue g, String key) {

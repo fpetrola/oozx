@@ -91,18 +91,57 @@ public class JSW3D extends ApplicationAdapter {
    * bitmap — a multi-piece object has no single memory layout to read. Default "base"
    * keeps the JSW/MM/DD behavior untouched.
    */
-  private final boolean blobsAdjacent = "adjacent".equals(System.getProperty("blobs", "base"));
+  private boolean blobsAdjacent = "adjacent".equals(sprop("render.blobs", "blobs", "base"));
   /**
    * -Dtiles=false: leave background zones in the flat 2D backdrop instead of building slabs
    * for them. JSW/MM want the slabs — their backgrounds ARE tidy 8x8 tiles and the room
    * reads as architecture. Exolon's "tiles" are a dithered rock texture spread over the
    * whole screen: slabbing them turns the picture into noise, and terrain is scenery the
    * player never interacts with in 3D anyway.
+   *
+   * <p>Mutable so it is tunable live from the TAB menu; {@link #tilesOn()} derives the
+   * on/off from it. Values: {@code slab} (default), {@code screen}, {@code false}.
    */
-  private final String tilesMode = System.getProperty("tiles", "slab");
-  private final boolean tilesOn = !"false".equals(tilesMode);
+  private String tilesMode = sprop("render.tiles", "tiles", "slab");
+  private boolean tilesOn() {
+    return !"false".equals(tilesMode);
+  }
   /** screen-relief slab depth as a fraction of {@link #slabDepth()} — 1 matches the tiles. */
-  private final float reliefDepth = Float.parseFloat(System.getProperty("relief.depth", "1"));
+  private float reliefDepth = fprop("render.relief.depth", "relief.depth", 1);
+
+  /**
+   * Reads a setting from its canonical nested path (set by {@link GameProfile} from
+   * games.json's structured {@code properties}) OR its historical flat {@code -D} name, the
+   * flat one winning so an explicit command-line flag still overrides the file. The default
+   * applies when neither is present. Live edits and the per-game config file override both
+   * later, through the param get/set closures.
+   */
+  static String sprop(String path, String legacy, String def) {
+    String v = System.getProperty(legacy);
+    if (v == null)
+      v = System.getProperty(path);
+    return v == null ? def : v;
+  }
+
+  static float fprop(String path, String legacy, float def) {
+    try {
+      return Float.parseFloat(sprop(path, legacy, Float.toString(def)));
+    } catch (NumberFormatException e) {
+      return def;
+    }
+  }
+
+  static int iprop(String path, String legacy, int def) {
+    try {
+      return Integer.parseInt(sprop(path, legacy, Integer.toString(def)).trim());
+    } catch (NumberFormatException e) {
+      return def;
+    }
+  }
+
+  static boolean bprop(String path, String legacy, boolean def) {
+    return !"false".equals(sprop(path, legacy, Boolean.toString(def)));
+  }
   /** screen-pixel sprite models, keyed by content hash (animation frames each get one). */
   private final Map<Long, Model> pixModelCache = new HashMap<>();
   /**
@@ -202,19 +241,39 @@ public class JSW3D extends ApplicationAdapter {
    * catalogued zones (MM keeps the cavern NAME in the same record as the tiles), and
    * slab-ifying those bytes shreds them — the status belongs to the 2D backdrop.
    */
-  private final int playfieldRows = Integer.getInteger("playfield.rows", 16);
+  private int playfieldRows = iprop("render.playfield.rows", "playfield.rows", 16);
   /**
    * first cell row of the playfield (-Dplayfield.top). JSW and Manic Miner keep their
    * status at the BOTTOM, so the playfield starts at row 0 and this stays 0; Monty on the
    * Run puts SCORE/HISCORE at the TOP, and without an offset that text gets extruded into
    * relief along with the room. The playfield is the rows {@code [top, top+rows)}.
    */
-  private final int playfieldTop = Integer.getInteger("playfield.top", 0);
+  private int playfieldTop = iprop("render.playfield.top", "playfield.top", 0);
+  /**
+   * item detection (flashing-ink treasures). Off for games whose scenery flashes on its
+   * own (Dynamite Dan's lamps), where the detector fires false positives.
+   */
+  private boolean itemsOn = bprop("render.items", "items", true);
+  /**
+   * catalog bases within one aligned window of this many bytes are the same CHARACTER, so
+   * the 3D technique is voted over the whole animation strip instead of per frame.
+   */
+  private int spriteGroup = iprop("sprite3d.group", "sprite3d.group", 256);
+
+  /**
+   * The playfield spans cell rows {@code [playfieldTop, playEnd())}, clamped to the 24-row
+   * screen: top and rows are tuned independently in the menu, so their sum can run off the
+   * bottom, and every loop over the playfield indexes {@code idx(y0+r, col)} which overflows
+   * the 6144-byte screen once {@code y0 >= 192}. Clamp here, once, and all callers are safe.
+   */
+  private int playEnd() {
+    return Math.min(24, playfieldTop + playfieldRows);
+  }
 
   /** is this PIXEL row inside the playfield? (everything else belongs to the 2D backdrop) */
   private boolean inPlayfield(int y) {
     int cellY = y >> 3;
-    return cellY >= playfieldTop && cellY < playfieldTop + playfieldRows;
+    return cellY >= playfieldTop && cellY < playEnd();
   }
   /**
    * Q steps the ghosts' opacity down (.95 → .80 → … → .20, then wraps back up);
@@ -328,7 +387,23 @@ public class JSW3D extends ApplicationAdapter {
    */
   private record Param(String id, String legacy, String group, String name, float min, float max,
                        float step, boolean integer, java.util.function.Supplier<Float> get,
-                       java.util.function.Consumer<Float> set) {
+                       java.util.function.Consumer<Float> set, String[] labels, String tag) {
+    /**
+     * A value backed by a fixed set of named options (an enum flag like {@code tiles} =
+     * slab/screen/off, or a yes/no). It rides the same float get/set as a numeric param —
+     * the float IS the index into {@link #labels} — so the whole menu / save / load path
+     * treats it like any other, and only the DISPLAY and the JSON serialization branch on
+     * {@code labels != null} to show and store the word instead of the index.
+     */
+    boolean choice() {
+      return labels != null;
+    }
+
+    /** the option word for the current value (choice/flag only). */
+    String label() {
+      int i = Math.max(0, Math.min(labels.length - 1, Math.round(get.get())));
+      return labels[i];
+    }
   }
 
   /** an effect's on/off switch, addressed by its nested JSON path (+ legacy flat key). */
@@ -339,6 +414,14 @@ public class JSW3D extends ApplicationAdapter {
   private final List<Param> params = new ArrayList<>();
   private final List<Toggle> toggles = new ArrayList<>();
   private final List<String> paramGroups = new ArrayList<>();
+  /**
+   * The offline taint-discovery knobs ({@code discover.*}). They do NOT change the current
+   * view — the catalog is already baked — so they are not bound to any live field; they ride
+   * this map only to be shown, edited and SAVED (to the per-game config file), from where the
+   * next {@link TaintDiscover} run reads them. That is the whole point of surfacing them here:
+   * calibrate in the menu, then re-catalog with {@code -Dgame=<this>} and the values apply.
+   */
+  private final java.util.Map<String, Float> discoverVals = new java.util.LinkedHashMap<>();
   private int tuneGroup = Integer.getInteger("tune", 0) - 1, tuneParam;
   /**
    * Menu depth: 0 = sections, 1 = groups, 2 = the parameter LIST, 3 = editing one value.
@@ -357,6 +440,7 @@ public class JSW3D extends ApplicationAdapter {
   private String sectionOf(String group) {
     return switch (group) {
       case "Sprites 3D" -> "Sprites 3D";
+      case "Render", "Catalogo (offline)" -> "Render";
       case "Linterna", "Niebla", "Tormenta" -> "Escena";
       default -> "Efectos";
     };
@@ -417,7 +501,7 @@ public class JSW3D extends ApplicationAdapter {
       List<SpriteBitmap> out = new ArrayList<>();
       if (catalog == null)
         return out;
-      int mask = ~(Integer.getInteger("sprite3d.group", 256) - 1);
+      int mask = ~(spriteGroup - 1);
       for (Map.Entry<Integer, Integer> e : catalog.sizeOf.entrySet())
         if ((e.getKey() & mask) == group)
           out.add(SpriteBitmap.ofMemory(e.getKey(), e.getValue(),
@@ -793,6 +877,16 @@ public class JSW3D extends ApplicationAdapter {
     whitePix = new Texture(px);
     px.dispose();
     registerParams();
+    // -Dtune=N opens the menu straight at group N's PARAMETER LIST (level 2) with its
+    // section/sibling position synced, instead of the top sections list — so a screenshot
+    // run lands on the values to check, and a launch pre-positions the menu where you left off.
+    if (System.getProperty("tune") != null && tuneGroup >= 0 && tuneGroup < paramGroups.size()) {
+      String grp = paramGroups.get(tuneGroup);
+      List<String> secs = sections();
+      tuneSection = Math.max(0, secs.indexOf(sectionOf(grp)));
+      tuneGroupInSection = Math.max(0, groupsInSection().indexOf(grp));
+      tuneLevel = 2;
+    }
     loadConfig();
     loadPresetList();
     // -Dpreset=<name> starts in a named ambience instead of the auto-saved config
@@ -895,7 +989,7 @@ public class JSW3D extends ApplicationAdapter {
       long t2 = perf ? System.nanoTime() : 0;
       if ("screen".equals(tilesMode))
         updateScreenRelief(snap);
-      else if (tilesOn)
+      else if (tilesOn())
         updateTiles(snap);
       long t3 = perf ? System.nanoTime() : 0;
       // glowing junk casts its own small pool of light in the dark, like the items do;
@@ -1072,9 +1166,50 @@ public class JSW3D extends ApplicationAdapter {
                         float max, float step, boolean integer,
                         java.util.function.Supplier<Float> get,
                         java.util.function.Consumer<Float> set) {
-    params.add(new Param(id, legacy, group, name, min, max, step, integer, get, set));
+    addParam(id, legacy, group, name, min, max, step, integer, get, set, null, "");
+  }
+
+  private void addParam(String id, String legacy, String group, String name, float min,
+                        float max, float step, boolean integer,
+                        java.util.function.Supplier<Float> get,
+                        java.util.function.Consumer<Float> set, String[] labels, String tag) {
+    params.add(new Param(id, legacy, group, name, min, max, step, integer, get, set, labels, tag));
     if (!paramGroups.contains(group))
       paramGroups.add(group);
+  }
+
+  /**
+   * A menu item that cycles a fixed set of option words ({@code tiles}=slab/screen/off). The
+   * word — not an index — is what the field holds and what the JSON stores; {@code sGet}/
+   * {@code sSet} read and write it, and the menu maps it to/from the index into {@code opts}.
+   */
+  private void addChoice(String id, String legacy, String group, String name, String[] opts,
+                         java.util.function.Supplier<String> sGet,
+                         java.util.function.Consumer<String> sSet, String tag) {
+    addParam(id, legacy, group, name, 0, opts.length - 1, 1, true,
+        () -> (float) Math.max(0, java.util.Arrays.asList(opts).indexOf(sGet.get())),
+        v -> sSet.accept(opts[Math.max(0, Math.min(opts.length - 1, Math.round(v)))]), opts, tag);
+  }
+
+  /** a yes/no menu item over a boolean field, stored in JSON as its word (default "no"/"si"). */
+  private void addFlag(String id, String legacy, String group, String name,
+                       java.util.function.Supplier<Boolean> get,
+                       java.util.function.Consumer<Boolean> set, String tag) {
+    addParam(id, legacy, group, name, 0, 1, 1, true,
+        () -> get.get() ? 1f : 0f, v -> set.accept(v >= .5f),
+        new String[]{"no", "si"}, tag);
+  }
+
+  /**
+   * An offline {@code discover.*} knob: seeded from games.json/-D, edited into
+   * {@link #discoverVals}, saved to the config file, read back by {@link TaintDiscover}.
+   * Tagged {@code recatalogar} because it has no effect until the catalog is rebuilt.
+   */
+  private void addDiscover(String id, String name, float min, float max, float step,
+                           boolean integer, float def) {
+    discoverVals.put(id, integer ? (float) iprop(id, id, Math.round(def)) : fprop(id, id, def));
+    addParam(id, id, "Catalogo (offline)", name, min, max, step, integer,
+        () -> discoverVals.getOrDefault(id, def), v -> discoverVals.put(id, v), null, "recatalogar");
   }
 
   private void addToggle(String path, String legacy, java.util.function.Supplier<Boolean> get,
@@ -1121,6 +1256,47 @@ public class JSW3D extends ApplicationAdapter {
         () -> spriteEpx, v -> spriteEpx = v);
     addToggle("effects.sprite3d.voxels", "sprite3d.voxels",
         () -> spriteVoxelLook, v -> spriteVoxelLook = v);
+    addFlag("sprite3d.auto", "sprite3d.auto", "Sprites 3D", "seleccion automatica",
+        () -> sprite3d != null && sprite3d.autoEnabled(),
+        v -> { if (sprite3d != null) sprite3d.setAuto(v); }, "");
+    addParam("sprite3d.group", "sprite3d.group", "Sprites 3D", "grupo animacion (bytes)",
+        1, 1024, 1, true, () -> (float) spriteGroup, v -> {
+          spriteGroup = Math.round(v);
+          if (sprite3d != null)
+            sprite3d.setGroupSize(spriteGroup);
+        });
+
+    // Render: los flags que antes solo entraban por -D, ahora tunables en vivo (§DETECCION).
+    // Todos se leen por frame desde el snapshot, asi que el cambio se ve al toque; los dos
+    // del hilo de taint van marcados [re-seek] porque su efecto es hacia adelante.
+    addChoice("render.tiles", "tiles", "Render", "tiles (fondo)",
+        new String[]{"slab", "screen", "off"},
+        () -> "false".equals(tilesMode) ? "off" : tilesMode,
+        s -> tilesMode = "off".equals(s) ? "false" : s, "");
+    addChoice("render.blobs", "blobs", "Render", "blobs (agrupado)",
+        new String[]{"base", "adjacent"},
+        () -> blobsAdjacent ? "adjacent" : "base",
+        s -> blobsAdjacent = "adjacent".equals(s), "");
+    addParam("render.playfield.top", "playfield.top", "Render", "playfield fila inicial",
+        0, 23, 1, true, () -> (float) playfieldTop, v -> playfieldTop = Math.round(v));
+    addParam("render.playfield.rows", "playfield.rows", "Render", "playfield alto (filas)",
+        1, 24, 1, true, () -> (float) playfieldRows, v -> playfieldRows = Math.round(v));
+    addParam("render.relief.depth", "relief.depth", "Render", "relieve profundidad",
+        .1f, 8, .1f, false, () -> reliefDepth, v -> reliefDepth = v);
+    addParam("render.relief.dyn", "relief.dyn", "Render", "relieve frames movil",
+        0, 30, 1, true, () -> (float) DYN_FRAMES, v -> DYN_FRAMES = Math.round(v));
+    addParam("render.relief.decor", "relief.decor", "Render", "relieve celdas decor",
+        0, 60, 1, true, () -> (float) decorCells, v -> decorCells = Math.round(v));
+    addFlag("render.items", "items", "Render", "deteccion de items",
+        () -> itemsOn, v -> itemsOn = v, "");
+    addParam("general.ghostAlpha", "ghost.alpha", "Render", "fantasmas opacidad",
+        .1f, 1, .05f, false, () -> ghostAlpha, v -> ghostAlpha = v);
+    addFlag("render.spriteBits", "sprite.bits", "Render", "sprite bits (mascara)",
+        () -> replay != null && replay.spriteBitsOn,
+        v -> { if (replay != null) replay.spriteBitsOn = v; }, "re-seek");
+    addParam("render.freshFrames", "fresh.frames", "Render", "fresh frames (0=off)",
+        0, 30, 1, true, () -> replay != null ? (float) replay.freshFrames : 0,
+        v -> { if (replay != null) replay.freshFrames = Math.round(v); }, null, "re-seek");
     addParam("effects.rain.drops", "rain.drops", "Lluvia", "gotas", 0, 5000, 50, true,
         () -> (float) effects.dropCount, v -> effects.dropCount = Math.round(v));
     addParam("effects.rain.fallSpeed", "rain.speed", "Lluvia", "velocidad caida",
@@ -1202,6 +1378,26 @@ public class JSW3D extends ApplicationAdapter {
         0, 10000, 100, true, () -> spriteLightIntensity, v -> spriteLightIntensity = v);
     addParam("effects.lantern.itemLight", "dark.item", "Linterna", "luz items",
         0, 10000, 100, true, () -> itemLightIntensity, v -> itemLightIntensity = v);
+
+    // Catalogo (offline): las perillas de TaintDiscover. No cambian la vista actual (el
+    // catalogo ya esta horneado): se editan, se guardan al config del juego, y la PROXIMA
+    // corrida de TaintDiscover -Dgame=<este> las lee. Van tageadas [recatalogar].
+    addDiscover("discover.gate", "gate (dirty-region)", 0, 64, 1, true, 8);
+    addDiscover("discover.drift", "drift minimo", 0, 1, .05f, false, 0);
+    addDiscover("discover.gap", "corte entre piezas", 1, 64, 1, true, 16);
+    addDiscover("discover.rows", "filas de playfield", 1, 24, 1, true, 16);
+    addDiscover("discover.sample", "muestreo (cada N)", 1, 60, 1, true, 5);
+    addDiscover("discover.from", "desde frame", 0, 20000, 100, true, 500);
+    addDiscover("discover.mobility", "mobility minima", 0, 20, .25f, false, 2);
+    addDiscover("discover.reuse", "reuse maximo", 0, 100, .5f, false, 2);
+    addDiscover("discover.freshfrac", "fresh fraccion", 0, 1, .05f, false, .35f);
+    addDiscover("discover.freshwin", "fresh ventana", 1, 60, 1, true, 12);
+    addDiscover("discover.stamps", "stamps maximo", 1, 64, 1, true, 16);
+    addDiscover("discover.bg", "bytes por stamp (fondo)", 1, 256, 1, true, 64);
+    addDiscover("discover.maxwrites", "escrituras max (buffer)", 1, 256, 1, true, 16);
+    addDiscover("discover.min", "veces minimo", 1, 64, 1, true, 3);
+    addDiscover("discover.minsize", "tamano minimo (bytes)", 1, 64, 1, true, 4);
+    addDiscover("discover.cap", "hojas por byte (tope)", 1, 256, 1, true, 32);
   }
 
   /** the preset name prompt while naming, and a 3s flash after save/load/cycle. */
@@ -1232,7 +1428,11 @@ public class JSW3D extends ApplicationAdapter {
 
   private void adjustParam(int dir) {
     Param p = groupParams().get(tuneParam);
-    float v = Math.max(p.min(), Math.min(p.max(), p.get().get() + dir * p.step()));
+    float v;
+    if (p.choice()) // options cycle: past the last wraps to the first, so no dead end
+      v = Math.floorMod(Math.round(p.get().get()) + dir, p.labels().length);
+    else
+      v = Math.max(p.min(), Math.min(p.max(), p.get().get() + dir * p.step()));
     p.set().accept(v);
     tuneShownAt = lastAdjustAt = System.currentTimeMillis();
     configDirty = true;
@@ -1273,10 +1473,12 @@ public class JSW3D extends ApplicationAdapter {
       for (int i = 0; i < g.size(); i++) {
         Param p = g.get(i);
         float v = p.get().get();
+        String shown = p.choice() ? p.label()
+            : p.integer() ? String.valueOf(Math.round(v))
+                : String.format(java.util.Locale.US, "%.2f", v);
         sb.append(i == tuneParam ? (tuneLevel >= 3 ? ">>" : "> ") : "   ")
-            .append(p.name()).append(" = ")
-            .append(p.integer() ? String.valueOf(Math.round(v))
-                : String.format(java.util.Locale.US, "%.2f", v)).append('\n');
+            .append(p.name()).append(" = ").append(shown)
+            .append(p.tag().isEmpty() ? "" : "  [" + p.tag() + "]").append('\n');
       }
     }
     com.badlogic.gdx.graphics.g2d.GlyphLayout layout =
@@ -1350,7 +1552,6 @@ public class JSW3D extends ApplicationAdapter {
       depthScale = num(v, "general.depthScale", "depthScale", depthScale);
       tileDepth = num(v, "general.tileDepth", "tileDepth", tileDepth);
       shadowsOn = bool(v, "general.shadows", "shadows", shadowsOn);
-      ghostAlpha = num(v, "general.ghostAlpha", "ghostAlpha", ghostAlpha);
       cfgSpeed = num(v, "general.speed", "speed", cfgSpeed);
       junkCount = (int) num(v, "effects.junk.count", "junkCount", junkCount);
       for (Toggle t : toggles)
@@ -1360,7 +1561,15 @@ public class JSW3D extends ApplicationAdapter {
         com.badlogic.gdx.utils.JsonValue x = at(v, par.id());
         if (x == null && legacyParams != null)
           x = legacyParams.get(par.legacy());
-        if (x != null)
+        if (x == null)
+          continue;
+        if (par.choice()) {
+          // stored as its option word; an index survives too for older files
+          int idx = x.isString() ? java.util.Arrays.asList(par.labels()).indexOf(x.asString())
+              : Math.round(x.asFloat());
+          if (idx >= 0)
+            par.set().accept((float) idx);
+        } else
           par.set().accept(Math.max(par.min(), Math.min(par.max(), x.asFloat())));
       }
       junkSpawnPending = junkOn || lampsOn || balloonsOn;
@@ -1404,6 +1613,8 @@ public class JSW3D extends ApplicationAdapter {
         sb.append(String.format(java.util.Locale.US, "[%.4f, %.4f, %.4f]", a[0], a[1], a[2]));
       else if (v instanceof Float f)
         sb.append(String.format(java.util.Locale.US, "%.3f", f));
+      else if (v instanceof String s)
+        sb.append('"').append(s).append('"');
       else
         sb.append(v);
       sb.append(++i < m.size() ? ",\n" : "\n");
@@ -1425,7 +1636,6 @@ public class JSW3D extends ApplicationAdapter {
     put(root, "general.depthScale", depthScale);
     put(root, "general.tileDepth", tileDepth);
     put(root, "general.shadows", shadowsOn);
-    put(root, "general.ghostAlpha", ghostAlpha);
     put(root, "general.speed", replay == null ? cfgSpeed : replay.getSpeed());
     put(root, "camera.pos", new float[]{cam.position.x, cam.position.y, cam.position.z});
     put(root, "camera.dir", new float[]{cam.direction.x, cam.direction.y, cam.direction.z});
@@ -1434,7 +1644,8 @@ public class JSW3D extends ApplicationAdapter {
       put(root, t.path(), t.get().get());
     for (Param p : params) {
       float pv = p.get().get();
-      put(root, p.id(), p.integer() ? (Object) Math.round(pv) : (Object) pv);
+      put(root, p.id(), p.choice() ? (Object) p.label()
+          : p.integer() ? (Object) Math.round(pv) : (Object) pv);
     }
     return root;
   }
@@ -1777,7 +1988,7 @@ public class JSW3D extends ApplicationAdapter {
           // per-bit pass off the mask covers the whole byte, so this erases it entirely
           // exactly as it always did
           bits = snap.pixels()[i] & ~snap.spriteBits()[i] & 0xff;
-        else if (tilesOn && snap.tile()[i] != 0 && inPlayfield(y)) {
+        else if (tilesOn() && snap.tile()[i] != 0 && inPlayfield(y)) {
           int tpl = replay.memByte(snap.tile()[i] - 1);
           int foreign = snap.pixels()[i] & ~tpl & 0xff;
           bits = 0;
@@ -2172,9 +2383,9 @@ public class JSW3D extends ApplicationAdapter {
    * character's TRAIL keeps qualifying, so the cells it left behind float as leftover
    * models beside it; too short and a sprite that pauses sinks back into the scenery.
    */
-  private static final int DYN_FRAMES = Integer.getInteger("relief.dyn", 4);
+  private int DYN_FRAMES = iprop("render.relief.dyn", "relief.dyn", 4);
   /** static islands of at most this many cells are decor (float), not architecture. */
-  private static final int decorCells = Integer.getInteger("relief.decor", 12);
+  private int decorCells = iprop("render.relief.decor", "relief.decor", 12);
 
   private void updateScreenRelief(TaintReplay.FrameSnapshot snap) {
     tileInstances.clear();
@@ -2182,7 +2393,7 @@ public class JSW3D extends ApplicationAdapter {
     java.util.Arrays.fill(solidCells, false);
     // indexed by ABSOLUTE cell (row 0..23), like every other per-cell array here, so a
     // playfield that does not start at row 0 needs no index juggling
-    int top = playfieldTop, end = playfieldTop + playfieldRows, n = 24 * 32;
+    int top = Math.min(24, playfieldTop), end = playEnd(), n = 24 * 32;
     byte[][] bmps = new byte[n][];
     int[] tOf = new int[n];
     boolean[] spr = new boolean[n], dyn = new boolean[n];
@@ -2316,7 +2527,7 @@ public class JSW3D extends ApplicationAdapter {
               }
               cellLastChange[cell] = shownFrame;
               if (cellInkChanges[cell] >= 6 && Integer.bitCount(cellInkMask[cell]) >= 3
-                  && !"false".equals(System.getProperty("items"))
+                  && itemsOn
                   && itemLeaves.add(leaf) && TaintReplay.LOG)
                 System.out.println("item detectado (screen): leaf $" + Integer.toHexString(leaf));
             }
@@ -2478,7 +2689,7 @@ public class JSW3D extends ApplicationAdapter {
     tileInstances.clear();
     System.arraycopy(solidCells, 0, prevSolidCells, 0, solidCells.length);
     java.util.Arrays.fill(solidCells, false);
-    for (int cellY = playfieldTop; cellY < playfieldTop + playfieldRows; cellY++)
+    for (int cellY = Math.min(24, playfieldTop); cellY < playEnd(); cellY++)
       for (int col = 0; col < 32; col++) {
         int y0 = cellY * 8;
         int i0 = ((y0 & 0xC0) << 5) | ((y0 & 7) << 8) | ((y0 & 0x38) << 2) | col;
@@ -2544,7 +2755,7 @@ public class JSW3D extends ApplicationAdapter {
               // -Ditems=false: games whose scenery flashes on its own (DD's lamps) fake
               // the burst — turn the detector off entirely there
               if (cellInkChanges[cell] >= 6 && Integer.bitCount(cellInkMask[cell]) >= 3
-                  && !"false".equals(System.getProperty("items"))
+                  && itemsOn
                   && itemLeaves.add(leaf) && TaintReplay.LOG)
                 System.out.println("item detectado: leaf $" + Integer.toHexString(leaf));
             }

@@ -1,5 +1,15 @@
 {
   "default": "jsw",
+  "_properties_note": "bloque GLOBAL: se aplica a TODOS los juegos. Cada juego lo pisa con su propio 'properties'. Un -D en linea de comando le gana a ambos. Todo va como objeto anidado (render.*, sprite3d.*, discover.*), no como claves planas.",
+  "properties": {
+    "render": {
+      "tiles": "slab",
+      "blobs": "base"
+    },
+    "sprite3d": {
+      "auto": true
+    }
+  },
   "games": {
     "jsw": {
       "title": "Jet Set Willy",
@@ -12,8 +22,10 @@
         "analysis/jsw.db"
       ],
       "properties": {
-        "sprite3d.smoothing": "0.0",
-        "sprite3d.maxdepth": "8"
+        "sprite3d": {
+          "smoothing": 0.0,
+          "maxdepth": 8
+        }
       },
       "_sprites_note": "config por sprite, por direccion base del catalogo. Una entrada cubre TODO el strip de animacion de ese personaje (pagina de 256). Para averiguar la direccion: F7 cicla los sprites en pantalla y la imprime por consola.",
       "sprites": {
@@ -57,8 +69,10 @@
         "analysis/dd.db"
       ],
       "properties": {
-        "items": "false",
-        "fresh.frames": "10"
+        "render": {
+          "items": false,
+          "freshFrames": 10
+        }
       }
     },
     "rygar": {
@@ -71,8 +85,10 @@
         "analysis/rygar.db"
       ],
       "properties": {
-        "items": "false",
-        "fresh.frames": "10"
+        "render": {
+          "items": false,
+          "freshFrames": 10
+        }
       }
     },
     "monty": {
@@ -84,11 +100,26 @@
       "db": [
         "analysis/monty-taint.db"
       ],
-      "_playfield_note": "el marcador va ARRIBA (2 filas) y el nombre de sala ABAJO: playfield = filas 2..21",
+      "_playfield_note": "el marcador va ARRIBA (2 filas) y el nombre de sala ABAJO: playfield = filas 2..21. Ejemplo de properties ANIDADO (estructurado).",
+
       "properties": {
-        "playfield.top": "2",
-        "playfield.rows": "20",
-        "tiles": "screen"
+        "render": {
+          "tiles": "screen",
+          "playfield": {
+            "top": 2,
+            "rows": 20
+          },
+          "blobs": "adjacent",
+          "freshFrames": 0,
+          "spriteBits": true
+        },
+        "sprite3d": {
+          "bits": true,
+          "maxdepth": 5
+        },
+        "fx": {
+          "shadows": false
+        }
       }
     },
     "exolon": {
@@ -102,14 +133,20 @@
         "analysis/exolon.db"
       ],
       "properties": {
-        "items": "false",
-        "blobs": "adjacent",
-        "playfield.rows": "20",
-        "fresh.frames": "8",
-        "sprite.bits": "true",
-        "tiles": "screen",
-        "sprite3d.smoothing": "0.35",
-        "sprite3d.maxdepth": "8"
+        "render": {
+          "tiles": "screen",
+          "blobs": "adjacent",
+          "items": false,
+          "spriteBits": true,
+          "freshFrames": 8,
+          "playfield": {
+            "rows": 20
+          }
+        },
+        "sprite3d": {
+          "smoothing": 0.35,
+          "maxdepth": 8
+        }
       }
     }
   }

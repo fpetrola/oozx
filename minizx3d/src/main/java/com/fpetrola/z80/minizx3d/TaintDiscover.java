@@ -205,7 +205,28 @@ public final class TaintDiscover {
     String db = args.length > 1 ? args[1] : "analysis/analysis.db";
     int maxFrames = args.length > 2 ? Integer.parseInt(args[2])
         : Integer.getInteger("max.frames", Integer.MAX_VALUE);
+    // discover.* now come from the same places the viewer's other settings do, so a knob
+    // calibrated in the TAB menu (saved to the per-game config file) applies on re-catalog.
+    // Precedence, highest first: explicit -D > per-game config file (live edits) > games.json
+    // per-game > games.json global. Needs -Dgame to know which game's files to read.
+    loadDiscoverSettings(System.getProperty("game"));
     new TaintDiscover().run(rzx, db, maxFrames);
+  }
+
+  /** seed discover.* system properties from the config file then games.json (only-if-absent). */
+  private static void loadDiscoverSettings(String game) {
+    if (game != null) {
+      java.nio.file.Path f = java.nio.file.Path.of(System.getProperty("config.file",
+          System.getProperty("user.home") + "/.jsw3d-config-" + game + ".json"));
+      try {
+        if (java.nio.file.Files.exists(f))
+          GameProfile.applyProps("discover", new com.badlogic.gdx.utils.JsonReader()
+              .parse(java.nio.file.Files.readString(f)).get("discover"));
+      } catch (Exception e) {
+        System.out.println("config de discover no leido: " + e);
+      }
+    }
+    GameProfile.applyGamesJson(game);
   }
 
   void run(String rzx, String db, int maxFrames) throws Exception {

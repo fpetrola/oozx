@@ -64,14 +64,25 @@ public final class TaintReplay implements Runnable {
    * frames would flicker in and out under a tight window, so the gate stays off for them
    * and DD's profile turns it on.
    */
-  static final int FRESH_FRAMES = Integer.getInteger("fresh.frames", 0);
+  static final int FRESH_FRAMES_DEFAULT = JSW3D.iprop("render.freshFrames", "fresh.frames", 0);
+  /**
+   * How many frames a screen byte's sprite taint stays valid; 0 = never expire. Mutable so
+   * the TAB menu can tune it live: it is read fresh when each snapshot is built, and only
+   * against {@code lastWrite} (always maintained), so a change takes effect immediately with
+   * no re-seek.
+   */
+  volatile int freshFrames = FRESH_FRAMES_DEFAULT;
   /**
    * -Dsprite.bits: track WHICH BITS of a byte came from a sprite ({@link OriginTaint#bits}).
    * Off by default — it only pays on engines that composite with a mask (Exolon's trail,
    * Dynamite Dan's dotted guardians); where every sprite byte is a plain blit the mask is
    * just the whole byte and nothing changes.
+   *
+   * <p>Mutable for the TAB menu. Toggling it ON mid-replay has FORWARD effect: bits start
+   * accumulating from that frame, so a byte the game has not repainted yet reads as
+   * unmasked until it is — re-seek to recompute the whole history cleanly.
    */
-  static final boolean BITS = Boolean.getBoolean("sprite.bits");
+  volatile boolean spriteBitsOn = JSW3D.bprop("render.spriteBits", "sprite.bits", false);
   /** -Dlog=true turns the console chatter on; silent by default so a user-launched run
    *  doesn't interleave with whatever else shares the terminal. */
   static final boolean LOG = Boolean.getBoolean("log");
@@ -329,7 +340,7 @@ public final class TaintReplay implements Runnable {
         if (a >= 0 && a <= 0xffff) {
           listener.lastRead = taint.read(a);
           listener.pendingRead = taint.union(listener.pendingRead, listener.lastRead);
-          if (BITS) {
+          if (spriteBitsOn) {
             listener.lastBits = taint.readBits(a, value.intValue());
             listener.pendingBits |= listener.lastBits;
           }
@@ -352,7 +363,7 @@ public final class TaintReplay implements Runnable {
             // bits the sprite set, AND/XOR drop the ones the mask cleared — and plain
             // background painted over an abandoned position clears the byte outright,
             // which is exactly the trail the union alone could never let go of.
-            if (BITS)
+            if (spriteBitsOn)
               taint.bits[a] = (byte) (value.intValue()
                   & (listener.bulk ? listener.lastBits : listener.srcBits | listener.pendingBits));
           }
@@ -514,17 +525,17 @@ public final class TaintReplay implements Runnable {
         // sprite ownership must be FRESH: moving sprites get redrawn every frame, so
         // taint on a byte nothing wrote for a while is a stale trail, not a sprite.
         // -Dfresh.frames=0 disables the gate (JSW/MM never leave stale sprite trails).
-        owner[i] = FRESH_FRAMES <= 0 || frame - lastWrite[i] <= FRESH_FRAMES
+        owner[i] = freshFrames <= 0 || frame - lastWrite[i] <= freshFrames
             ? taint.spriteOf(node) : 0;
         // a byte whose sprite bits were all masked away belongs to no sprite, whatever its
         // origins still say — that is what lets an abandoned trail go
-        if (BITS && taint.bits[SCREEN + i] == 0)
+        if (spriteBitsOn && taint.bits[SCREEN + i] == 0)
           owner[i] = 0;
         // downstream reads spriteBits as "the sprite's own ink inside this byte". With the
         // per-bit pass off, an owned byte is sprite ink end to end, which is exactly the
         // behaviour every game had before this existed.
         spriteBits[i] = owner[i] == 0 ? 0
-            : BITS ? taint.bits[SCREEN + i] : (byte) 0xff;
+            : spriteBitsOn ? taint.bits[SCREEN + i] : (byte) 0xff;
         tile[i] = taint.tileOf(node);
       }
       for (int i = 0; i < ATTR_BYTES; i++) {
