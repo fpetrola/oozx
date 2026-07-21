@@ -493,6 +493,7 @@ public class JSW3D extends ApplicationAdapter {
   @Override
   public void create() {
     loadFlatLeaves();
+    loadGroups(); // the editor's objects, so the list is there whether or not you open it
     sprite3d = new Sprite3DPipeline(activeGame, 1024);
     if (activeProfile != null)
       sprite3d.store().seedDefaults(activeProfile.sprites);
@@ -585,15 +586,16 @@ public class JSW3D extends ApplicationAdapter {
             // editor needs and not what they mean in the viewer
             if (ctrl && keycode == com.badlogic.gdx.Input.Keys.E) {
               editorOn = !editorOn;
-              if (editorOn && edRects.isEmpty())
-                edRects.add(new int[]{112, 88, 16, 16}); // something to move from the start
+              if (editorOn && edGroups.isEmpty())
+                loadGroups();
               if (replay != null)
                 replay.paused = editorOn;
               if (editorOn && lastSnap == null)
                 lastSnap = latest;
               flashPreset(editorOn
                   ? "editor: flechas mueven, SHIFT+flechas redimensionan (Ctrl=x8), TAB cambia "
-                    + "de rectángulo, A agrega, D borra, N vacía, G graba"
+                    + "de rectángulo, RePág/AvPág de objeto, A/D agrega o borra rectángulo, "
+                    + "C/X objeto, ENTER lo busca en pantalla, G graba"
                   : "editor: cerrado");
               return true;
             }
@@ -1120,6 +1122,7 @@ public class JSW3D extends ApplicationAdapter {
         windOn, leavesOn);
     effects.render(cam, mistOn, fireOn, rainOn, snowOn, leavesOn);
     renderHelp();
+    renderEditorList();
     // held arrows keep adjusting; 6 quiet seconds close the tuning panel on their own.
     // ONLY while editing a value (level 3): at the list levels left/right navigate, and
     // repeating them there would both fight the navigation and change values unseen.
@@ -1971,12 +1974,14 @@ public class JSW3D extends ApplicationAdapter {
       I / W    elegir grafico del relieve (se pinta blanco) /
                pasarlo a FONDO plano (se guarda por juego)
       Ctrl+E   EDITOR DE SPRITES: congela el juego y muestra la
-               pantalla plana. El objeto se arma con RECTANGULOS:
-               flechas mueven el actual, SHIFT+flechas lo
-               redimensionan (Ctrl = de a 8px), TAB cicla entre
-               ellos, A agrega uno, D lo borra, N vacia, G graba
-               en ~/.jsw3d-objetos-<juego>.json (los graficos que
-               quedan adentro, mas los rectangulos)
+               pantalla plana. Los objetos se arman a mano con
+               RECTANGULOS: flechas mueven la caja, SHIFT+flechas
+               la redimensionan (Ctrl = de a 8px), TAB cicla las
+               cajas del objeto, RePag/AvPag cicla los OBJETOS,
+               A/D agrega o borra caja, C/X objeto, ENTER busca
+               el objeto en la pantalla actual, G graba en
+               ~/.jsw3d-objetos-<juego>.json. La lista de objetos
+               con su imagen va en la franja de la derecha.
       Mouse    arrastrar rota - rueda zoom
       Config viva en ~/.jsw3d-config-<juego>.json;
       presets (compartidos) en ~/.jsw3d-config.json""";
@@ -2630,17 +2635,17 @@ public class JSW3D extends ApplicationAdapter {
    */
   private boolean editorOn = Boolean.getBoolean("editor");
   /**
-   * The object being defined, as RECTANGLES over the screen. Automatic grouping got some
-   * objects right and many wrong, and no amount of tuning fixed the ones it merged (a
-   * capsule and the player in front of it) or split (a ship in two colours): on the screen
-   * there is no signal that says where one object ends. Drawing the boxes by hand is exact,
-   * takes seconds, and handles what nothing automatic can — an object made of disconnected
-   * parts, or one that must NOT include the hole between two of its parts.
+   * Objects marked BY HAND, each a set of rectangles over the screen. Automatic grouping got
+   * some right and many wrong, and no amount of tuning fixes the ones it merges (a capsule
+   * with the player in front of it) or splits (a ship in two colours): on the screen there is
+   * no signal that says where one object ends. Drawing the boxes takes seconds and handles
+   * what nothing automatic can — parts that are disconnected, or a hole between two parts
+   * that must NOT belong to the object.
+   *
+   * <p>Two levels, because there are two questions: which object, and which box of it.
    */
-  private final List<int[]> edRects = new ArrayList<>(); // {x, y, w, h} in screen pixels
-  private int edRect;
-  private String objName = "objeto";
-  private final List<String[]> savedObjects = new ArrayList<>(); // {nombre, piezas, rects}
+  private final List<EdGroup> edGroups = new ArrayList<>();
+  private int edGroup, edRect;
   /** the last snapshot, so the editor can ask what is under the cursor while frozen. */
   private TaintReplay.FrameSnapshot lastSnap;
   /**
@@ -3459,15 +3464,39 @@ public class JSW3D extends ApplicationAdapter {
     return entry != 0 ? entry - 1 : addr;
   }
 
+  /** one composed object marked by hand: its boxes, what is under them, and its picture. */
+  private static final class EdGroup {
+    String name;
+    final List<int[]> rects = new ArrayList<>(); // {x, y, w, h} in screen pixels
+    final java.util.Set<Integer> graphics = new java.util.LinkedHashSet<>();
+    com.badlogic.gdx.graphics.Texture thumb;
+    int tw, th;
+  }
+
+  private EdGroup group() {
+    if (edGroups.isEmpty()) {
+      EdGroup g = new EdGroup();
+      g.name = "objeto" + (edGroups.size() + 1);
+      g.rects.add(new int[]{112, 88, 16, 16});
+      edGroups.add(g);
+      edGroup = 0;
+      edRect = 0;
+    }
+    edGroup = Math.min(edGroup, edGroups.size() - 1);
+    return edGroups.get(edGroup);
+  }
+
   /** the editor's own keys while it is open; false lets the viewer have the key. */
   private boolean editorKey(int keycode, boolean ctrl) {
     boolean shift = Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.SHIFT_LEFT)
         || Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.SHIFT_RIGHT);
     int step = ctrl ? 8 : 1;
-    int[] r = edRects.isEmpty() ? null : edRects.get(edRect);
+    EdGroup g = group();
+    edRect = Math.min(edRect, g.rects.size() - 1);
+    int[] r = g.rects.isEmpty() ? null : g.rects.get(edRect);
     switch (keycode) {
-      // arrows MOVE the rectangle, with shift they RESIZE it: the two things you do to a
-      // selection, on the same keys, without leaving the hand
+      // arrows MOVE the box, with shift they RESIZE it: the two things you do to a
+      // selection, on the same keys, without moving your hand
       case com.badlogic.gdx.Input.Keys.LEFT -> {
         if (r != null) {
           if (shift)
@@ -3500,29 +3529,43 @@ public class JSW3D extends ApplicationAdapter {
             r[1] = Math.min(H - r[3], r[1] + step);
         }
       }
+      // TAB walks the boxes of THIS object, PgUp/PgDn walk the objects: two levels, two
+      // keys, the same shape as the report's "objects, and the graphics inside each"
       case com.badlogic.gdx.Input.Keys.TAB -> {
-        if (!edRects.isEmpty())
-          edRect = (edRect + (shift ? edRects.size() - 1 : 1)) % edRects.size();
+        if (!g.rects.isEmpty())
+          edRect = (edRect + (shift ? g.rects.size() - 1 : 1)) % g.rects.size();
       }
-      case com.badlogic.gdx.Input.Keys.A -> { // one more piece of the object
+      case com.badlogic.gdx.Input.Keys.PAGE_DOWN -> cycleGroup(1);
+      case com.badlogic.gdx.Input.Keys.PAGE_UP -> cycleGroup(-1);
+      case com.badlogic.gdx.Input.Keys.A -> { // one more box for this object
         int[] base = r == null ? new int[]{112, 88, 16, 16} : r;
-        edRects.add(new int[]{Math.min(240, base[0] + 8), Math.min(H - 8, base[1] + 8),
+        g.rects.add(new int[]{Math.min(240, base[0] + 8), Math.min(H - 8, base[1] + 8),
             base[2], base[3]});
-        edRect = edRects.size() - 1;
+        edRect = g.rects.size() - 1;
       }
       case com.badlogic.gdx.Input.Keys.D -> {
-        if (!edRects.isEmpty()) {
-          edRects.remove(edRect);
-          edRect = Math.max(0, Math.min(edRect, edRects.size() - 1));
+        if (!g.rects.isEmpty()) {
+          g.rects.remove(edRect);
+          edRect = Math.max(0, Math.min(edRect, g.rects.size() - 1));
         }
       }
-      case com.badlogic.gdx.Input.Keys.N -> {
-        edRects.clear();
-        edRects.add(new int[]{112, 88, 16, 16});
+      case com.badlogic.gdx.Input.Keys.C -> { // a new object, empty
+        EdGroup n = new EdGroup();
+        n.name = "objeto" + (edGroups.size() + 1);
+        n.rects.add(new int[]{112, 88, 16, 16});
+        edGroups.add(n);
+        edGroup = edGroups.size() - 1;
         edRect = 0;
-        flashPreset("objeto nuevo");
       }
-      case com.badlogic.gdx.Input.Keys.G -> saveObject();
+      case com.badlogic.gdx.Input.Keys.X -> { // drop the whole object
+        if (!edGroups.isEmpty()) {
+          disposeThumb(edGroups.remove(edGroup));
+          edGroup = Math.max(0, edGroup - 1);
+          edRect = 0;
+        }
+      }
+      case com.badlogic.gdx.Input.Keys.ENTER -> findGroupOnScreen();
+      case com.badlogic.gdx.Input.Keys.G -> saveGroups();
       default -> {
         return false;
       }
@@ -3531,105 +3574,217 @@ public class JSW3D extends ApplicationAdapter {
     return true;
   }
 
-  private void flashEditor() {
-    if (edRects.isEmpty()) {
-      flashPreset("editor: A agrega un rectángulo");
+  private void cycleGroup(int d) {
+    if (edGroups.isEmpty())
       return;
-    }
-    int[] r = edRects.get(edRect);
-    java.util.Set<Integer> gfx = graphicsInRects();
-    StringBuilder sb = new StringBuilder();
-    int k = 0;
-    for (int g : gfx) {
-      if (k++ == 6) {
-        sb.append(" …");
-        break;
-      }
-      sb.append(" $").append(Integer.toHexString(g));
-    }
-    flashPreset("rect " + (edRect + 1) + "/" + edRects.size() + "  x=" + r[0] + " y=" + r[1]
-        + " " + r[2] + "x" + r[3] + "  ·  " + gfx.size() + " gráficos:" + sb);
+    edGroup = ((edGroup + d) % edGroups.size() + edGroups.size()) % edGroups.size();
+    edRect = 0;
+    // stepping onto an object also LOOKS for it: its boxes were drawn on another screen and
+    // mean nothing here until they are put back where the thing actually is now
+    findGroupOnScreen();
+  }
+
+  private void flashEditor() {
+    EdGroup g = group();
+    int[] r = g.rects.isEmpty() ? new int[]{0, 0, 0, 0} : g.rects.get(edRect);
+    flashPreset(g.name + " (" + (edGroup + 1) + "/" + edGroups.size() + ")  ·  rect "
+        + (edRect + 1) + "/" + g.rects.size() + " x=" + r[0] + " y=" + r[1] + " " + r[2] + "x"
+        + r[3] + "  ·  " + graphicsInRects(g).size() + " gráficos");
   }
 
   /**
-   * The catalogue entries whose pixels fall inside the rectangles. THIS is what gets saved:
-   * the rectangles are how you point at the object, but a box on the screen is worth nothing
-   * later — the object moves, animates, shows up in another room. What survives is which
-   * graphics it is made of.
+   * The catalogue entries whose LIT pixels fall inside the object's boxes. This is what a
+   * definition is made of: the boxes are how you point at the thing, but a rectangle on the
+   * screen is worth nothing later — the object moves, animates, and the next room draws
+   * something else there. What survives is which graphics it is made of.
    */
-  private java.util.Set<Integer> graphicsInRects() {
+  private java.util.Set<Integer> graphicsInRects(EdGroup g) {
     java.util.Set<Integer> out = new java.util.LinkedHashSet<>();
     if (lastSnap == null)
       return out;
-    for (int[] r : edRects)
+    for (int[] r : g.rects)
       for (int y = r[1]; y < Math.min(H, r[1] + r[3]); y++)
         for (int x = r[0]; x < Math.min(256, r[0] + r[2]); x++) {
           int i = idx(y, x >> 3);
           if ((lastSnap.pixels()[i] & (0x80 >> (x & 7))) == 0)
             continue; // only what is LIT inside the box: the paper around it is not the object
-          int g = originOf(i);
-          if (g >= 0)
-            out.add(g);
+          int gfx = originOf(i);
+          if (gfx >= 0)
+            out.add(gfx);
         }
     return out;
   }
 
   /**
-   * The hand-made definitions, per game, in {@code ~/.jsw3d-objetos-<juego>.json}: a name,
-   * the rectangles you drew, and the graphics they cover. Its own file, not the generated
-   * catalogue, which a re-run overwrites.
+   * Put the object's boxes back on top of the object, wherever it is NOW. A definition is a
+   * set of graphics, so finding it is looking for those graphics on the screen: the boxes
+   * are then translated by the difference between where they were drawn and where the thing
+   * turned out to be. Partial matches count — an object is routinely half-covered by another
+   * — so it reports the fraction found instead of demanding all of it.
    */
-  private void saveObject() {
-    java.util.Set<Integer> gfx = graphicsInRects();
-    if (gfx.isEmpty()) {
-      flashPreset("no hay ningún gráfico dentro de los rectángulos");
+  private void findGroupOnScreen() {
+    EdGroup g = group();
+    if (lastSnap == null || g.graphics.isEmpty())
+      return;
+    int minX = 256, minY = H, maxX = -1, maxY = -1;
+    java.util.Set<Integer> seen = new java.util.LinkedHashSet<>();
+    for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
+      int gfx = originOf(i);
+      if (gfx < 0 || !g.graphics.contains(gfx))
+        continue;
+      seen.add(gfx);
+      int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), col = i & 31;
+      minX = Math.min(minX, col * 8);
+      maxX = Math.max(maxX, col * 8 + 7);
+      minY = Math.min(minY, y);
+      maxY = Math.max(maxY, y);
+    }
+    if (maxX < 0 || seen.size() * 2 < g.graphics.size()) {
+      flashPreset(g.name + ": no está en esta pantalla (" + seen.size() + "/"
+          + g.graphics.size() + " gráficos)");
       return;
     }
-    StringBuilder piezas = new StringBuilder();
-    for (int g : gfx)
-      piezas.append(piezas.length() > 0 ? "," : "").append('$').append(Integer.toHexString(g));
-    StringBuilder rects = new StringBuilder();
-    for (int[] r : edRects)
-      rects.append(rects.length() > 0 ? "," : "")
-          .append(r[0]).append(' ').append(r[1]).append(' ').append(r[2]).append(' ').append(r[3]);
-    savedObjects.removeIf(o -> o[1].equals(piezas.toString()));
-    savedObjects.add(new String[]{objName + savedObjects.size(), piezas.toString(),
-        rects.toString()});
+    int oldX = 256, oldY = H;
+    for (int[] r : g.rects) {
+      oldX = Math.min(oldX, r[0]);
+      oldY = Math.min(oldY, r[1]);
+    }
+    int dx = minX - oldX, dy = minY - oldY;
+    for (int[] r : g.rects) {
+      r[0] = Math.max(0, Math.min(256 - r[2], r[0] + dx));
+      r[1] = Math.max(0, Math.min(H - r[3], r[1] + dy));
+    }
+    flashPreset(g.name + ": encontrado (" + seen.size() + "/" + g.graphics.size()
+        + " gráficos), cajas reubicadas");
+  }
+
+  /**
+   * Captures what is under the boxes: the graphics (the definition) and a picture of the
+   * selection (for the list on the right). Both are taken NOW, from this screen, because
+   * that is the moment the person is looking at the object and says "this is it".
+   */
+  private void captureGroup(EdGroup g) {
+    g.graphics.clear();
+    g.graphics.addAll(graphicsInRects(g));
+    int minX = 256, minY = H, maxX = 0, maxY = 0;
+    for (int[] r : g.rects) {
+      minX = Math.min(minX, r[0]);
+      minY = Math.min(minY, r[1]);
+      maxX = Math.max(maxX, Math.min(256, r[0] + r[2]));
+      maxY = Math.max(maxY, Math.min(H, r[1] + r[3]));
+    }
+    if (maxX <= minX || maxY <= minY || lastSnap == null)
+      return;
+    Pixmap pm = new Pixmap(maxX - minX, maxY - minY, Pixmap.Format.RGBA8888);
+    pm.setColor(0, 0, 0, 0);
+    pm.fill();
+    for (int[] r : g.rects)
+      for (int y = r[1]; y < Math.min(H, r[1] + r[3]); y++)
+        for (int x = r[0]; x < Math.min(256, r[0] + r[2]); x++) {
+          int i = idx(y, x >> 3);
+          if ((lastSnap.pixels()[i] & (0x80 >> (x & 7))) == 0)
+            continue;
+          int attr = lastSnap.attrs()[(y >> 3) * 32 + (x >> 3)] & 0xff;
+          Color c = PALETTE[ink(attr)];
+          pm.drawPixel(x - minX, y - minY, Color.rgba8888(c.r, c.g, c.b, 1));
+        }
+    disposeThumb(g);
+    g.thumb = new com.badlogic.gdx.graphics.Texture(pm);
+    g.tw = pm.getWidth();
+    g.th = pm.getHeight();
+    pm.dispose();
+  }
+
+  private void disposeThumb(EdGroup g) {
+    if (g.thumb != null) {
+      g.thumb.dispose();
+      g.thumb = null;
+    }
+  }
+
+  /** every object marked by hand, per game, in {@code ~/.jsw3d-objetos-<juego>.json}. */
+  private void saveGroups() {
+    captureGroup(group());
     StringBuilder sb = new StringBuilder("{\n  \"objetos\": [\n");
-    for (int i = 0; i < savedObjects.size(); i++)
-      sb.append("    {\"nombre\": \"").append(savedObjects.get(i)[0])
-          .append("\", \"piezas\": \"").append(savedObjects.get(i)[1])
-          .append("\", \"rects\": \"").append(savedObjects.get(i)[2]).append("\"}")
-          .append(i < savedObjects.size() - 1 ? "," : "").append('\n');
+    for (int n = 0; n < edGroups.size(); n++) {
+      EdGroup g = edGroups.get(n);
+      StringBuilder piezas = new StringBuilder(), rects = new StringBuilder();
+      for (int gfx : g.graphics)
+        piezas.append(piezas.length() > 0 ? "," : "").append('$')
+            .append(Integer.toHexString(gfx));
+      for (int[] r : g.rects)
+        rects.append(rects.length() > 0 ? "," : "").append(r[0]).append(' ').append(r[1])
+            .append(' ').append(r[2]).append(' ').append(r[3]);
+      sb.append("    {\"nombre\": \"").append(g.name).append("\", \"piezas\": \"")
+          .append(piezas).append("\", \"rects\": \"").append(rects).append("\"}")
+          .append(n < edGroups.size() - 1 ? "," : "").append('\n');
+    }
     sb.append("  ]\n}\n");
-    java.nio.file.Path f = java.nio.file.Path.of(System.getProperty("user.home"),
-        ".jsw3d-objetos-" + activeGame + ".json");
     try {
-      java.nio.file.Files.writeString(f, sb.toString());
-      flashPreset("grabado: " + gfx.size() + " gráficos, " + savedObjects.size()
-          + " objetos en " + f);
+      java.nio.file.Files.writeString(objectsPath(), sb.toString());
+      flashPreset("grabado: " + edGroups.size() + " objetos en " + objectsPath());
     } catch (Exception e) {
       flashPreset("no pude grabar: " + e);
     }
   }
 
+  private java.nio.file.Path objectsPath() {
+    return java.nio.file.Path.of(System.getProperty("user.home"),
+        ".jsw3d-objetos-" + activeGame + ".json");
+  }
+
+  /** what was marked in earlier sessions, so the list starts where you left it. */
+  private void loadGroups() {
+    try {
+      if (!java.nio.file.Files.exists(objectsPath()))
+        return;
+      com.badlogic.gdx.utils.JsonValue v = new com.badlogic.gdx.utils.JsonReader()
+          .parse(java.nio.file.Files.readString(objectsPath()));
+      for (com.badlogic.gdx.utils.JsonValue o = v.get("objetos") == null ? null
+          : v.get("objetos").child; o != null; o = o.next) {
+        EdGroup g = new EdGroup();
+        g.name = o.getString("nombre", "objeto" + (edGroups.size() + 1));
+        for (String p : o.getString("piezas", "").split(","))
+          if (!p.isBlank())
+            g.graphics.add(Integer.parseInt(p.trim().replace("$", ""), 16));
+        for (String rc : o.getString("rects", "").split(","))
+          if (!rc.isBlank()) {
+            String[] f = rc.trim().split("\\s+");
+            if (f.length == 4)
+              g.rects.add(new int[]{Integer.parseInt(f[0]), Integer.parseInt(f[1]),
+                  Integer.parseInt(f[2]), Integer.parseInt(f[3])});
+          }
+        if (g.rects.isEmpty())
+          g.rects.add(new int[]{112, 88, 16, 16});
+        edGroups.add(g);
+      }
+      if (!edGroups.isEmpty())
+        System.out.println("editor: " + edGroups.size() + " objetos cargados de "
+            + objectsPath());
+    } catch (Exception e) {
+      System.out.println("editor: no pude leer " + objectsPath() + ": " + e);
+    }
+  }
+
   /**
    * The editor's overlay, painted INTO the 2D screen image so it lands exactly on the game's
-   * own pixels: every rectangle of the object, the selected one pulsing gold and the rest in
-   * amber, with the lit pixels inside them tinted so you can see exactly what you enclosed.
-   *
-   * <p>Colours the Spectrum CANNOT produce, and pulsing: white and cyan are the game's own
-   * ink and the highlight vanished into it.
+   * own pixels: every box of the object being edited, the selected one pulsing gold and the
+   * rest in amber, with the lit pixels inside them tinted so you see exactly what you
+   * enclosed. Colours the Spectrum CANNOT produce — white and cyan are the game's own ink
+   * and the highlight vanished into it.
    */
   private void paintEditor(TaintReplay.FrameSnapshot snap, Pixmap pixmap) {
+    if (edGroups.isEmpty())
+      return;
     float t = (System.currentTimeMillis() % 700) / 700f;
     float beat = .55f + .45f * (float) Math.sin(t * (float) Math.PI * 2);
     int gold = Color.rgba8888(1, .2f + .78f * beat, 0, 1);
     int goldEdge = Color.rgba8888(1, .75f, .1f, 1);
     int amber = Color.rgba8888(.95f, .45f, .05f, 1);
     int amberEdge = Color.rgba8888(.6f, .3f, 0, 1);
-    for (int n = 0; n < edRects.size(); n++) {
-      int[] r = edRects.get(n);
+    List<int[]> rects = edGroups.get(edGroup).rects;
+    for (int n = 0; n < rects.size(); n++) {
+      int[] r = rects.get(n);
       boolean sel = n == edRect;
       int fill = sel ? gold : amber, edge = sel ? goldEdge : amberEdge;
       int x1 = Math.min(255, r[0] + r[2] - 1), y1 = Math.min(H - 1, r[1] + r[3] - 1);
@@ -3639,7 +3794,7 @@ public class JSW3D extends ApplicationAdapter {
           if ((snap.pixels()[i] & (0x80 >> (x & 7))) != 0)
             pixmap.drawPixel(x, y, fill);
         }
-      // the frame itself, drawn just outside so it never eats a pixel of the object
+      // the frame goes just outside the box, so it never eats a pixel of the object
       for (int x = Math.max(0, r[0] - 1); x <= Math.min(255, x1 + 1); x++) {
         if (r[1] > 0)
           pixmap.drawPixel(x, r[1] - 1, edge);
@@ -3653,6 +3808,40 @@ public class JSW3D extends ApplicationAdapter {
           pixmap.drawPixel(x1 + 1, y, edge);
       }
     }
+  }
+
+  /**
+   * The objects marked so far, drawn down the right edge as the pictures the person
+   * selected. A list of names would be useless: what you need to know at a glance is whether
+   * object 3 is the capsule or the capsule plus half a rocket, and that is a picture.
+   *
+   * <p>A panel and not a second OS window on purpose: libGDX would need a second window with
+   * its own GL context and its own texture uploads, and the thing being asked for is "see
+   * them while I work", which a strip on the side does with none of that.
+   */
+  private void renderEditorList() {
+    if (!editorOn || edGroups.isEmpty())
+      return;
+    float pad = 8, w = 150, x = Gdx.graphics.getWidth() - w - pad, y = Gdx.graphics.getHeight() - pad;
+    uiBatch.begin();
+    uiBatch.setColor(0, 0, 0, .72f);
+    uiBatch.draw(whitePix, x - pad, 0, w + pad * 2, Gdx.graphics.getHeight());
+    for (int n = 0; n < edGroups.size(); n++) {
+      EdGroup g = edGroups.get(n);
+      float hh = g.thumb == null ? 14 : Math.min(64, g.th * Math.min(3f, w / Math.max(1, g.tw)));
+      float ww = g.thumb == null ? 0 : g.tw * (hh / Math.max(1, g.th));
+      y -= hh + 16;
+      if (y < 0)
+        break;
+      boolean sel = n == edGroup;
+      uiBatch.setColor(sel ? 1 : .35f, sel ? .7f : .25f, 0, sel ? .9f : .5f);
+      uiBatch.draw(whitePix, x - 2, y - 2, w + 4, hh + 16);
+      uiBatch.setColor(1, 1, 1, 1);
+      if (g.thumb != null)
+        uiBatch.draw(g.thumb, x, y + 12, ww, hh);
+      uiFont.draw(uiBatch, (n + 1) + ". " + g.name + " (" + g.graphics.size() + ")", x, y + 12);
+    }
+    uiBatch.end();
   }
 
   /** the attribute's ink index into {@link #PALETTE} (bright included). */

@@ -642,47 +642,44 @@ personaje— y como texto se diffea en git, se grepea y se corrige a mano.
 
 ### El editor de sprites (Ctrl+E)
 
-Congela el juego (`TaintReplay.paused`) y muestra la **pantalla plana** —con el relieve puesto,
-las losas tapan el backdrop y los resaltados se pintan donde nadie los ve—, y sobre esa imagen:
+Congela el juego (`TaintReplay.paused`) y muestra la **pantalla plana** —con el relieve
+puesto, las losas tapan el backdrop y los resaltados se pintan donde nadie los ve—, y sobre
+esa imagen se marcan los objetos **a mano, con rectángulos**. No es una comodidad: ninguno de
+los cuatro criterios automáticos probados (adyacencia, adyacencia+color, ráfaga de escritura,
+ráfaga+ventana) separa "la cápsula" de "la cápsula con el personaje adelante", porque en la
+pantalla no hay señal que lo diga. Dibujar las cajas lleva segundos y además resuelve lo que
+nada automático puede: partes desconectadas, y huecos entre partes que NO son del objeto.
 
-- **arriba/abajo** eligen el OBJETO COMPUESTO (lo conexo y encendido, de mayor a menor), que se
-  resalta en **cyan**. Es a propósito la agrupación cruda, la que pega la cápsula con el
-  personaje: es justo lo que el editor viene a separar;
-- **izquierda/derecha** recorren los GRÁFICOS que hay adentro de ese compuesto (por bytes
-  aportados), resaltando en **blanco** el actual;
-- **ESPACIO** lo agrega o lo saca del objeto que estás definiendo (los que están adentro se
-  ven en **verde**), **A** agrega el compuesto entero para después sacarle lo que sobra, **N**
-  vacía, **G** graba.
+**Dos niveles, porque son dos preguntas**: qué objeto, y qué caja de ese objeto.
 
-Los ejes están separados porque las dos preguntas son distintas: o estás eligiendo un objeto o
-lo estás desarmando. Se guarda en `~/.jsw3d-objetos-<juego>.json` como nombre + las direcciones
-de los gráficos que lo componen — direcciones de catálogo, no píxeles ni posiciones, para que
-la definición sobreviva a que el objeto se mueva, se anime o aparezca en otra sala.
-- **Dos hojas de contacto**: `catalogo-<juego>.png` son los **objetos, en color**, como se ven
-  en el juego —es la página que uno mira— y `catalogo-<juego>-piezas.png` son las piezas del
-  catálogo en blanco y negro, que contesta la otra pregunta ("¿qué catalogó?").
-- **Una línea de datos por gráfico**, entre acentos graves, que es lo único que se parsea:
-  `` `base=$edc0 last=$eddf size=32 stride=2 tipo=sprite veces=12480` ``. Corregir ahí un
-  `stride` o pasar un `tipo=sprite` a `fondo` cambia lo que se renderiza, sin tocar código ni
-  la db. El parser es deliberadamente tolerante con el orden y los espacios, y acepta `$edc0`,
-  `0xedc0` o decimal: si un archivo editado a mano no carga, la herramienta no sirve.
-- **El dibujo en ASCII**, dos caracteres por píxel (`██`/`··`) porque la celda monoespaciada es
-  el doble de alta que de ancha y un carácter por píxel deja los sprites irreconocibles. Los
-  cuadros de una tira de animación van **uno al lado del otro**, que es como se lee un ciclo de
-  caminata; apilados verticalmente parecen un bicho imposiblemente alto.
-- Las direcciones van abajo de cada gráfico en una tipografía de 3x5 píxeles. Es para la
-  primera pregunta de un juego nuevo —¿el catálogo agarró personajes o agarró basura?—, que se
-  contesta mirando, no leyendo una tabla.
-- **`-Ddiscover.report.only=true`** rehace el reporte desde la `sprites_found` que YA está en
-  la db, sin recatalogar: re-renderizar el archivo o recapturar los objetos con otros límites
-  es cosa de minutos sobre una tabla que ya existe, y volver a derivarla sería media hora de
-  replay al pedo. Los objetos se capturan con `discover.objects.frames` (6000),
-  `discover.objects.sample` (4) y `discover.objects.max` (64).
+| tecla | qué hace |
+|---|---|
+| flechas / SHIFT+flechas | mueven / redimensionan la caja actual (Ctrl = de a 8 px) |
+| TAB | cicla las cajas del objeto (Shift+TAB al revés) |
+| RePág / AvPág | cicla los OBJETOS (y al entrar en uno lo busca en pantalla) |
+| A / D | agrega o borra una caja |
+| C / X | crea o borra un objeto |
+| ENTER | busca el objeto en la pantalla actual y reubica sus cajas |
+| G | graba |
 
-Precedencia: si existe el `.md` (o el que liste `"md"` en el perfil), **gana sobre la `.db`**;
-si no, se sigue cargando la db como siempre. Ojo con esto: **el .md sale de la corrida que lo
-generó**, así que generarlo con `-Dmax.frames` chico deja un catálogo peor que la db que había.
-Generar siempre con la corrida completa que uno quiera usar.
+**Lo que se graba no son las cajas sino los GRÁFICOS que quedan adentro** (direcciones de
+catálogo, plegadas a la entrada que las contiene, y solo de los píxeles ENCENDIDOS: el papel
+alrededor no es el objeto). Una caja en la pantalla no vale nada después — el objeto se mueve,
+se anima, y la sala siguiente dibuja otra cosa ahí. Las cajas se guardan igual como referencia
+de cómo se marcó. Archivo: `~/.jsw3d-objetos-<juego>.json`.
+
+**Buscar un objeto en pantalla** (ENTER, y automático al cambiar de objeto): se buscan sus
+gráficos en la pantalla actual y las cajas se trasladan por la diferencia entre donde se
+dibujaron y donde el objeto resultó estar. Alcanza con encontrar **la mitad** de sus gráficos,
+porque un objeto está rutinariamente medio tapado por otro; informa la fracción hallada en vez
+de exigirlos todos.
+
+**La lista visual** va en una franja a la derecha, con la imagen que el usuario seleccionó de
+cada objeto (no una lista de nombres: lo que hace falta saber de un vistazo es si el objeto 3
+es la cápsula o la cápsula más medio cohete, y eso es una imagen). Es un panel adentro de la
+misma ventana y no una segunda ventana del sistema a propósito: libGDX necesitaría otro
+contexto GL y sus propias subidas de textura, y lo que se pide —verlos mientras se trabaja— lo
+resuelve una franja al costado sin nada de eso.
 
 Flujo para un juego nuevo (el catálogo por taint NO necesita las pasadas del tracker: se
 basta solo, y en Exolon dio 17x más cobertura — ver §5.1):
