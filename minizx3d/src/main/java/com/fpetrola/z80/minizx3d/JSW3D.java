@@ -4357,6 +4357,7 @@ public class JSW3D extends ApplicationAdapter {
     // almost no sprites (JSW with DD's catalog once did exactly that).
 //    args= new String[]{
 //            "-Dgame=exolon"
+
 //    };
     GameProfile profile = GameProfile.resolve(args);
     activeGame = profile.id;
