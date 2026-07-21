@@ -239,6 +239,28 @@ tunean por separado, asi que su SUMA puede pasarse de las 24 filas y cualquier l
 `idx(y0+r,col)` se sale del array de 6144 bytes de pantalla. Se clampa una vez en `playEnd()`
 (`min(24, top+rows)`) y todos los loops del playfield lo usan.
 
+### UN solo archivo: games.json
+
+Toda la configuración de la aplicación vive en `games.json` y en ningún otro lado: el bloque
+`properties` global, cada juego con sus rutas y sus tweaks, **los valores tuneados en vivo**
+(`games.<juego>.config`), **los presets** de ambiente (al tope, compartidos), **los overrides
+por sprite** (`games.<juego>.sprites`), **los gráficos forzados a plano**
+(`games.<juego>.relief.flat`) y **los objetos marcados a mano** (`games.<juego>.objetos`).
+
+Antes eran seis archivos —`~/.jsw3d-config.json`, `~/.jsw3d-config-<juego>.json`,
+`~/.jsw3d-sprite3d-<juego>.json`, `~/.jsw3d-relief-<juego>.json`, `doc/objetos-<juego>.json` y
+este— cada uno con su loader, su precedencia y su forma propia de fallar en silencio. Un
+archivo con un árbol adentro es la misma información y un solo lugar donde mirar. Cada uno de
+los viejos se **importa la primera vez** que se lo encuentra y después deja de consultarse, así
+que nada de lo calibrado se pierde.
+
+Todo anidado, sin claves punteadas: `render: { relief: { depth: 2.2 } }`, no
+`"render.relief.depth"`. Las claves punteadas siguen existiendo pero solo adentro del código,
+como identificador de cada `Param`.
+
+Se busca en este orden: `-Dgames.file` · `./games.json` · el `games.json` del código fuente ·
+el classpath. El primero que exista gana, y ahí mismo se escribe.
+
 ### games.json: bloque global + override por juego, estructurado
 
 `properties` ahora acepta **objetos anidados** (`GameProfile.applyProps` los aplana a claves

@@ -114,17 +114,21 @@ public final class Sprite3DConfigStore {
 
   private void load() {
     try {
-      Path f = file();
-      if (!Files.exists(f))
+      // the one config file: games.<juego>.sprites. The old per-game file is read once so
+      // nothing tuned with F10 before this change is lost
+      JsonValue g = GameProfile.gameNode(game, false);
+      JsonValue root = g == null ? null : g.get("sprites");
+      if (root == null && Files.exists(file()))
+        root = new JsonReader().parse(Files.readString(file()));
+      if (root == null)
         return;
-      JsonValue root = new JsonReader().parse(Files.readString(f));
       for (JsonValue v = root.child; v != null; v = v.next) {
         Sprite3DConfig c = new Sprite3DConfig();
         TechniqueSelector.apply(v, c); // same field mapping the rules use
         overrides.put(Integer.parseInt(v.name.replace("$", ""), 16), c);
       }
       if (!overrides.isEmpty())
-        System.out.println("Sprite3D: " + overrides.size() + " OVERRIDES a mano desde " + f
+        System.out.println("Sprite3D: " + overrides.size() + " OVERRIDES a mano en games.json"
             + " — le ganan a las reglas automaticas: " + overrides.keySet().stream()
             .map(k -> "$" + Integer.toHexString(k)).toList());
     } catch (Exception e) {
@@ -145,9 +149,10 @@ public final class Sprite3DConfigStore {
           c.doubleSided, c.epx, c.smoothLevel, c.smoothing, c.voxelFill, c.stackLayers,
           ++i < overrides.size() ? "," : ""));
     }
-    sb.append("}\n");
+    sb.append("}");
     try {
-      Files.writeString(file(), sb.toString());
+      GameProfile.put(GameProfile.gameNode(game, true), "sprites", sb.toString());
+      GameProfile.save();
     } catch (Exception e) {
       System.out.println("Sprite3D: no se pudo guardar overrides: " + e);
     }

@@ -59,7 +59,7 @@ public final class GameProfile {
 
   /** Resolve the active profile: explicit args override, then {@code -Dgame}, then default. */
   public static GameProfile resolve(String[] args) {
-    JsonValue root = load();
+    JsonValue root = root();
     String wanted = System.getProperty("game",
         root != null && root.has("default") ? root.getString("default") : "jsw");
     JsonValue g = root == null ? null : root.get("games") == null ? null : root.get("games").get(wanted);
@@ -99,7 +99,7 @@ public final class GameProfile {
    * caller applied first). A null/unknown game still applies the global block.
    */
   public static void applyGamesJson(String game) {
-    JsonValue root = load();
+    JsonValue root = root();
     if (root == null)
       return;
     JsonValue games = root.get("games");
@@ -139,22 +139,113 @@ public final class GameProfile {
     return new String[]{v.asString()};
   }
 
+  /**
+   * THE configuration file. Everything the app and its games are configured with lives here
+   * and nowhere else: the global defaults, each game's paths and tweaks, the values tuned
+   * live, the ambience presets, the per-sprite render overrides, the graphics forced flat,
+   * and the objects identified by hand.
+   *
+   * <p>It used to be six files — {@code ~/.jsw3d-config.json}, {@code
+   * ~/.jsw3d-config-<juego>.json}, {@code ~/.jsw3d-sprite3d-<juego>.json}, {@code
+   * ~/.jsw3d-relief-<juego>.json}, {@code doc/objetos-<juego>.json} and this one — each with
+   * its own loader, its own precedence and its own silent failure mode. One file with a tree
+   * inside it is the same information and one place to look at it.
+   */
+  private static JsonValue root;
+  private static Path rootPath;
+
+  static JsonValue root() {
+    if (root == null)
+      root = load();
+    return root;
+  }
+
+  /** where the file lives when it can be written back; null when it came from the jar. */
+  static Path path() {
+    root();
+    return rootPath;
+  }
+
   private static JsonValue load() {
-    try {
-      String override = System.getProperty("games.file");
-      if (override != null && new File(override).exists())
-        return new JsonReader().parse(Files.readString(Path.of(override)));
-      File local = new File("games.json");
-      if (local.exists())
-        return new JsonReader().parse(Files.readString(local.toPath()));
-      try (InputStream in = GameProfile.class.getResourceAsStream("/games.json")) {
-        if (in != null)
-          return new JsonReader().parse(new String(in.readAllBytes()));
+    for (String candidate : new String[]{System.getProperty("games.file"), "games.json",
+        "minizx3d/src/main/resources/games.json", "src/main/resources/games.json"})
+      try {
+        if (candidate == null || !new File(candidate).exists())
+          continue;
+        rootPath = Path.of(candidate);
+        return new JsonReader().parse(Files.readString(rootPath));
+      } catch (Exception e) {
+        System.out.println("games.json no cargado de " + candidate + ": " + e);
+      }
+    try (InputStream in = GameProfile.class.getResourceAsStream("/games.json")) {
+      if (in != null) {
+        // from the classpath: readable, not writable. Live tuning then has nowhere to go,
+        // so it falls back to a copy beside the working directory rather than being lost
+        rootPath = Path.of("games.json");
+        return new JsonReader().parse(new String(in.readAllBytes()));
       }
     } catch (Exception e) {
-      System.out.println("games.json no cargado: " + e);
+      System.out.println("games.json no cargado del classpath: " + e);
     }
     return null;
+  }
+
+  /** the game's own block, created on demand: everything about a game hangs off it. */
+  static JsonValue gameNode(String game, boolean create) {
+    JsonValue r = root();
+    if (r == null)
+      return null;
+    JsonValue games = r.get("games");
+    if (games == null && create) {
+      games = new JsonValue(JsonValue.ValueType.object);
+      r.addChild("games", games);
+    }
+    if (games == null)
+      return null;
+    JsonValue g = games.get(game);
+    if (g == null && create) {
+      g = new JsonValue(JsonValue.ValueType.object);
+      games.addChild(game, g);
+    }
+    return g;
+  }
+
+  /**
+   * Replaces {@code name} under {@code parent} with the given JSON text. Writing the tree by
+   * hand and re-parsing the branch is deliberate: every saver here already produces the JSON
+   * it wants, and this keeps the rest of the file — comments included as {@code _note} keys —
+   * exactly as it was.
+   */
+  static void put(JsonValue parent, String name, String json) {
+    if (parent == null)
+      return;
+    JsonValue v = new JsonReader().parse(json);
+    v.setName(name);
+    parent.remove(name);
+    JsonValue last = parent.child;
+    if (last == null) {
+      parent.addChild(name, v);
+      return;
+    }
+    while (last.next != null)
+      last = last.next;
+    last.next = v;
+    v.prev = last;
+    v.parent = parent;
+    parent.size++;
+  }
+
+  /** writes the whole tree back, formatted: one file in, one file out. */
+  static void save() {
+    JsonValue r = root();
+    if (r == null || path() == null)
+      return;
+    try {
+      Files.writeString(path(), r.prettyPrint(com.badlogic.gdx.utils.JsonWriter.OutputType.json,
+          120) + "\n");
+    } catch (Exception e) {
+      System.out.println("no pude guardar " + path() + ": " + e);
+    }
   }
 
   /**

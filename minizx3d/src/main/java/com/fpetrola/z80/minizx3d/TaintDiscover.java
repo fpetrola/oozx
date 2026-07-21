@@ -218,16 +218,12 @@ public final class TaintDiscover {
 
   /** seed discover.* system properties from the config file then games.json (only-if-absent). */
   private static void loadDiscoverSettings(String game) {
+    // one config file for everything: the discover knobs calibrated live sit in
+    // games.<juego>.config.discover, and the games.json properties are the defaults under it
     if (game != null) {
-      java.nio.file.Path f = java.nio.file.Path.of(System.getProperty("config.file",
-          System.getProperty("user.home") + "/.jsw3d-config-" + game + ".json"));
-      try {
-        if (java.nio.file.Files.exists(f))
-          GameProfile.applyProps("discover", new com.badlogic.gdx.utils.JsonReader()
-              .parse(java.nio.file.Files.readString(f)).get("discover"));
-      } catch (Exception e) {
-        System.out.println("config de discover no leido: " + e);
-      }
+      com.badlogic.gdx.utils.JsonValue g = GameProfile.gameNode(game, false);
+      com.badlogic.gdx.utils.JsonValue cfg = g == null ? null : g.get("config");
+      GameProfile.applyProps("discover", cfg == null ? null : cfg.get("discover"));
     }
     GameProfile.applyGamesJson(game);
   }

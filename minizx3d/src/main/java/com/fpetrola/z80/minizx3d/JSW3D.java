@@ -1554,26 +1554,26 @@ public class JSW3D extends ApplicationAdapter {
     uiBatch.end();
   }
 
-  /** where the I/W picks live: one file per game, like every other per-game store here. */
-  private java.nio.file.Path flatPath() {
-    return java.nio.file.Path.of(System.getProperty("user.home"),
-        ".jsw3d-relief-" + activeGame + ".json");
-  }
-
+  /** the graphics forced flat, in the one config file: {@code games.<juego>.relief.flat}. */
   private void loadFlatLeaves() {
     for (String tok : sprop("render.relief.flat", "relief.flat", "").split(","))
       addFlatLeaf(tok);
     try {
-      java.nio.file.Path p = flatPath();
-      if (!java.nio.file.Files.exists(p))
-        return;
-      com.badlogic.gdx.utils.JsonValue v =
-          new com.badlogic.gdx.utils.JsonReader().parse(java.nio.file.Files.readString(p));
-      for (com.badlogic.gdx.utils.JsonValue e = v.get("flat") == null ? null : v.get("flat").child;
+      com.badlogic.gdx.utils.JsonValue g = GameProfile.gameNode(activeGame, false);
+      com.badlogic.gdx.utils.JsonValue flat = g == null || g.get("relief") == null ? null
+          : g.get("relief").get("flat");
+      if (flat == null) { // the file this used to live in, imported once
+        java.nio.file.Path old = java.nio.file.Path.of(System.getProperty("user.home"),
+            ".jsw3d-relief-" + activeGame + ".json");
+        if (java.nio.file.Files.exists(old))
+          flat = new com.badlogic.gdx.utils.JsonReader()
+              .parse(java.nio.file.Files.readString(old)).get("flat");
+      }
+      for (com.badlogic.gdx.utils.JsonValue e = flat == null ? null : flat.child;
            e != null; e = e.next)
         addFlatLeaf(e.asString());
     } catch (Exception e) {
-      System.out.println("relieve: no se pudo leer " + flatPath() + ": " + e);
+      System.out.println("relieve: no se pudieron leer los graficos planos: " + e);
     }
   }
 
@@ -1588,18 +1588,16 @@ public class JSW3D extends ApplicationAdapter {
   }
 
   private void saveFlatLeaves() {
-    StringBuilder sb = new StringBuilder("{\n  \"flat\": [");
+    StringBuilder sb = new StringBuilder("{\"flat\": [");
     int i = 0;
     for (int leaf : flatLeaves)
       sb.append(i++ > 0 ? ", " : "").append('"').append('$')
           .append(Integer.toHexString(leaf)).append('"');
-    sb.append("]\n}\n");
-    try {
-      java.nio.file.Files.writeString(flatPath(), sb.toString());
-      System.out.println("relieve: " + flatLeaves.size() + " graficos planos -> " + flatPath());
-    } catch (Exception e) {
-      System.out.println("relieve: no se pudo guardar " + flatPath() + ": " + e);
-    }
+    sb.append("]}");
+    com.badlogic.gdx.utils.JsonValue g = GameProfile.gameNode(activeGame, true);
+    GameProfile.put(g, "relief", sb.toString());
+    GameProfile.save();
+    System.out.println("relieve: " + flatLeaves.size() + " graficos planos -> games.json");
   }
 
   /** I: point at the next graphic the relief is modelling (Shift = previous). */
@@ -1630,9 +1628,14 @@ public class JSW3D extends ApplicationAdapter {
     saveFlatLeaves();
   }
 
-  private java.nio.file.Path configPath() {
-    // per-game by default (~/.jsw3d-config-dd.json), so calibrating one game never
-    // disturbs another; -Dconfig.file pins an explicit path across all games
+  /** the game's live-tuned values inside the one config file: {@code games.<juego>.config}. */
+  private com.badlogic.gdx.utils.JsonValue configNode() {
+    com.badlogic.gdx.utils.JsonValue g = GameProfile.gameNode(activeGame, false);
+    return g == null ? null : g.get("config");
+  }
+
+  /** the file this game used to keep its live values in, imported once and then ignored. */
+  private java.nio.file.Path legacyConfigPath() {
     return java.nio.file.Path.of(System.getProperty("config.file",
         System.getProperty("user.home") + "/.jsw3d-config-" + activeGame + ".json"));
   }
@@ -1659,21 +1662,26 @@ public class JSW3D extends ApplicationAdapter {
   }
 
   /**
-   * Only the keys PRESENT in the file override; -D flags keep working as the defaults.
-   * Reads the nested schema first and falls back to the old flat keys / {@code params}
-   * object, so a pre-nesting file loads once and is rewritten in the new shape.
+   * The values tuned live, from {@code games.<juego>.config} in the one config file. The old
+   * per-game file is imported the first time and then left alone, so nothing calibrated
+   * before this change is lost.
    */
   private void loadConfig() {
-    loadConfigFrom(configPath(), configEnabled);
-  }
-
-  private void loadConfigFrom(java.nio.file.Path p, boolean gated) {
-    if (gated && !configEnabled)
-      return;
     try {
-      if (!java.nio.file.Files.exists(p))
+      com.badlogic.gdx.utils.JsonValue cfg = configNode();
+      if (cfg == null && !configEnabled)
         return;
-      applyConfig(new com.badlogic.gdx.utils.JsonReader().parse(java.nio.file.Files.readString(p)));
+      if (cfg == null && java.nio.file.Files.exists(legacyConfigPath())) {
+        cfg = new com.badlogic.gdx.utils.JsonReader()
+            .parse(java.nio.file.Files.readString(legacyConfigPath()));
+        com.badlogic.gdx.utils.JsonValue g = GameProfile.gameNode(activeGame, true);
+        GameProfile.put(g, "config", cfg.toJson(com.badlogic.gdx.utils.JsonWriter.OutputType.json));
+        GameProfile.save();
+        System.out.println("config de " + activeGame + " importada de " + legacyConfigPath()
+            + " a games.json");
+      }
+      if (cfg != null)
+        applyConfig(cfg);
     } catch (Exception e) {
       if (TaintReplay.LOG)
         System.out.println("config no cargada: " + e);
@@ -1762,7 +1770,7 @@ public class JSW3D extends ApplicationAdapter {
   private void saveConfig() {
     if (!configEnabled)
       return;
-    saveConfigTo(configPath());
+    saveConfigNow();
   }
 
   /** the whole live state as a nested tree — written to the config file and to presets. */
@@ -1787,12 +1795,12 @@ public class JSW3D extends ApplicationAdapter {
     return root;
   }
 
-  private void saveConfigTo(java.nio.file.Path dest) {
+  private void saveConfigNow() {
     try {
       StringBuilder sb = new StringBuilder();
       writeJson(sb, buildConfigTree(), "");
-      sb.append('\n');
-      java.nio.file.Files.writeString(dest, sb.toString());
+      GameProfile.put(GameProfile.gameNode(activeGame, true), "config", sb.toString());
+      GameProfile.save();
     } catch (Exception e) {
       if (TaintReplay.LOG)
         System.out.println("config no guardada: " + e);
@@ -1809,22 +1817,41 @@ public class JSW3D extends ApplicationAdapter {
   private String presetFlash = "";
   private long presetFlashAt;
 
-  /** one global file holding {@code {"presets": {name: <config tree>}}}, any game reads it. */
-  private java.nio.file.Path presetsFile() {
-    return java.nio.file.Path.of(System.getProperty("presets.file",
-        System.getProperty("user.home") + "/.jsw3d-config.json"));
-  }
-
+  /**
+   * The ambience presets, shared by every game, at the top of the one config file
+   * ({@code presets: {nombre: <arbol de config>}}). The old global file is imported the
+   * first time it is seen and then ignored.
+   */
   private com.badlogic.gdx.utils.JsonValue readPresetsRoot() {
+    com.badlogic.gdx.utils.JsonValue r = GameProfile.root();
+    if (r != null && r.get("presets") != null)
+      return r;
     try {
-      java.nio.file.Path p = presetsFile();
-      if (java.nio.file.Files.exists(p))
-        return new com.badlogic.gdx.utils.JsonReader().parse(java.nio.file.Files.readString(p));
+      java.nio.file.Path old = java.nio.file.Path.of(System.getProperty("presets.file",
+          System.getProperty("user.home") + "/.jsw3d-config.json"));
+      if (r != null && java.nio.file.Files.exists(old)) {
+        com.badlogic.gdx.utils.JsonValue imported = new com.badlogic.gdx.utils.JsonReader()
+            .parse(java.nio.file.Files.readString(old));
+        if (imported.get("presets") != null) {
+          GameProfile.put(r, "presets",
+              imported.get("presets").toJson(com.badlogic.gdx.utils.JsonWriter.OutputType.json));
+          GameProfile.save();
+          System.out.println("presets importados de " + old + " a games.json");
+        }
+      }
     } catch (Exception e) {
       if (TaintReplay.LOG)
         System.out.println("presets no leidos: " + e);
     }
-    return null;
+    return r;
+  }
+
+  /** the presets branch of the one config file, rewritten whole. */
+  private void writePresets(Map<String, Object> presetsTree) {
+    StringBuilder sb = new StringBuilder();
+    writeJson(sb, presetsTree, "");
+    GameProfile.put(GameProfile.root(), "presets", sb.toString());
+    GameProfile.save();
   }
 
   private void loadPresetList() {
@@ -1880,10 +1907,7 @@ public class JSW3D extends ApplicationAdapter {
       Map<String, Object> ps = (Map<String, Object>)
           root.computeIfAbsent("presets", k -> new java.util.LinkedHashMap<String, Object>());
       ps.put(name, buildConfigTree());
-      StringBuilder sb = new StringBuilder();
-      writeJson(sb, root, "");
-      sb.append('\n');
-      java.nio.file.Files.writeString(presetsFile(), sb.toString());
+      writePresets(ps);
       loadPresetList();
       presetIdx = presets.indexOf(name);
       flashPreset("preset guardado: " + name);
@@ -1931,12 +1955,10 @@ public class JSW3D extends ApplicationAdapter {
         return;
       Map<String, Object> root = (Map<String, Object>) jsonToObj(existing);
       Map<String, Object> ps = (Map<String, Object>) root.get("presets");
-      if (ps != null)
+      if (ps != null) {
         ps.remove(name);
-      StringBuilder sb = new StringBuilder();
-      writeJson(sb, root, "");
-      sb.append('\n');
-      java.nio.file.Files.writeString(presetsFile(), sb.toString());
+        writePresets(ps);
+      }
       loadPresetList();
       presetIdx = Math.min(presetIdx, presets.size() - 1);
       flashPreset("preset borrado: " + name);
@@ -1978,10 +2000,11 @@ public class JSW3D extends ApplicationAdapter {
         C / X         crear / borrar un objeto
         ENTER         buscar el objeto en la pantalla actual
         R / P / O     tecnica / primitiva / redondez de ESTE objeto
-        G             grabar (doc/objetos-<juego>.json y .png)
+        G             grabar (games.json y doc/objetos-<juego>.png)
 
-      Mouse arrastrar rota, rueda zoom. Config viva en
-      ~/.jsw3d-config-<juego>.json; presets en ~/.jsw3d-config.json""";
+      Mouse arrastrar rota, rueda zoom.
+      TODA la configuracion vive en games.json: properties globales y
+      por juego, config viva, presets, sprites, relieve y objetos.""";
 
   private void renderHelp() {
     if (!helpOn)
@@ -3906,7 +3929,7 @@ public class JSW3D extends ApplicationAdapter {
     } catch (Exception e) {
       flashPreset("no pude escribir la hoja: " + e);
     }
-    StringBuilder sb = new StringBuilder("{\n  \"objetos\": [\n");
+    StringBuilder sb = new StringBuilder("{\"objetos\": [");
     for (int n = 0; n < edGroups.size(); n++) {
       EdGroup g = edGroups.get(n);
       StringBuilder piezas = new StringBuilder(), rects = new StringBuilder();
@@ -3926,11 +3949,14 @@ public class JSW3D extends ApplicationAdapter {
           .append("\", \"render\": \"").append(render).append("\"}")
           .append(n < edGroups.size() - 1 ? "," : "").append('\n');
     }
-    sb.append("  ]\n}\n");
+    sb.append("  ]}");
     try {
-      java.nio.file.Files.writeString(objectsPath(), sb.toString());
-      flashPreset("grabado: " + edGroups.size() + " objetos en " + objectsPath()
-          + " y en " + sheetPath());
+      com.badlogic.gdx.utils.JsonValue node = new com.badlogic.gdx.utils.JsonReader()
+          .parse(sb.toString()).get("objetos");
+      GameProfile.put(GameProfile.gameNode(activeGame, true), "objetos",
+          node.toJson(com.badlogic.gdx.utils.JsonWriter.OutputType.json));
+      GameProfile.save();
+      flashPreset("grabado: " + edGroups.size() + " objetos en games.json y en " + sheetPath());
     } catch (Exception e) {
       flashPreset("no pude grabar: " + e);
     }
@@ -3975,32 +4001,38 @@ public class JSW3D extends ApplicationAdapter {
    * project's knowledge, the kind of thing that belongs in the repo and in a diff, not live
    * state of one machine. The old location still loads, so nothing marked before is lost.
    */
-  private java.nio.file.Path objectsPath() {
-    return java.nio.file.Path.of("doc", "objetos-" + activeGame + ".json");
+  /** the objects marked by hand live with everything else: {@code games.<juego>.objects}. */
+  private com.badlogic.gdx.utils.JsonValue objectsNode() {
+    com.badlogic.gdx.utils.JsonValue g = GameProfile.gameNode(activeGame, false);
+    return g == null ? null : g.get("objetos");
   }
 
-  /**
-   * Where to READ from: the project first, the old home file as a fallback. Writing always
-   * goes to the project — having the json land in the home directory while the sheet went to
-   * doc/ split the pair in two, which is exactly the kind of thing nobody notices until the
-   * two halves disagree.
-   */
-  private java.nio.file.Path objectsLoadPath() {
-    java.nio.file.Path home = java.nio.file.Path.of(System.getProperty("user.home"),
-        ".jsw3d-objetos-" + activeGame + ".json");
-    return java.nio.file.Files.exists(objectsPath()) || !java.nio.file.Files.exists(home)
-        ? objectsPath() : home;
+  /** the files this used to live in, read once so nothing marked before is lost. */
+  private com.badlogic.gdx.utils.JsonValue legacyObjects() {
+    for (java.nio.file.Path p : new java.nio.file.Path[]{
+        java.nio.file.Path.of("doc", "objetos-" + activeGame + ".json"),
+        java.nio.file.Path.of(System.getProperty("user.home"),
+            ".jsw3d-objetos-" + activeGame + ".json")})
+      try {
+        if (java.nio.file.Files.exists(p))
+          return new com.badlogic.gdx.utils.JsonReader()
+              .parse(java.nio.file.Files.readString(p)).get("objetos");
+      } catch (Exception ignored) {
+      }
+    return null;
   }
 
   /** what was marked in earlier sessions, so the list starts where you left it. */
   private void loadGroups() {
     try {
-      if (!java.nio.file.Files.exists(objectsLoadPath()))
-        return;
-      com.badlogic.gdx.utils.JsonValue v = new com.badlogic.gdx.utils.JsonReader()
-          .parse(java.nio.file.Files.readString(objectsLoadPath()));
-      for (com.badlogic.gdx.utils.JsonValue o = v.get("objetos") == null ? null
-          : v.get("objetos").child; o != null; o = o.next) {
+      com.badlogic.gdx.utils.JsonValue list = objectsNode();
+      boolean imported = false;
+      if (list == null) {
+        list = legacyObjects();
+        imported = list != null;
+      }
+      for (com.badlogic.gdx.utils.JsonValue o = list == null ? null : list.child;
+           o != null; o = o.next) {
         EdGroup g = new EdGroup();
         g.name = o.getString("nombre", "objeto" + (edGroups.size() + 1));
         for (String p : o.getString("piezas", "").split(","))
@@ -4032,11 +4064,16 @@ public class JSW3D extends ApplicationAdapter {
         edGroups.add(g);
       }
       loadSheet();
+      if (imported) { // move them in now, so the old file stops being consulted
+        GameProfile.put(GameProfile.gameNode(activeGame, true), "objetos",
+            list.toJson(com.badlogic.gdx.utils.JsonWriter.OutputType.json));
+        GameProfile.save();
+        System.out.println("editor: objetos importados a games.json");
+      }
       if (!edGroups.isEmpty())
-        System.out.println("editor: " + edGroups.size() + " objetos cargados de "
-            + objectsLoadPath());
+        System.out.println("editor: " + edGroups.size() + " objetos cargados de games.json");
     } catch (Exception e) {
-      System.out.println("editor: no pude leer " + objectsPath() + ": " + e);
+      System.out.println("editor: no pude leer los objetos de games.json: " + e);
     }
   }
 
