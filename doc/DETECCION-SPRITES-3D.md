@@ -268,8 +268,23 @@ Tres reglas que costaron una corrida cada una:
   máscara no reclamó (casi todo, píxeles suyos que la taint no marcó); fusionarla y rellenarla
   le construía una burbuja lisa alrededor que tapaba el modelo real del sprite.
 
-**Nada puede irse de la pantalla sin que algo lo dibuje** (fue la causa de "cuando un sprite se
-acerca, los tiles de la plataforma desaparecen"). `updateBackdrop` borraba del plano 2D **todo**
+**Una celda reescrita CON LO MISMO QUE YA TENÍA es decorado, no algo que se mueve** (la causa
+principal de "cuando un sprite se acerca, los tiles de la plataforma desaparecen", medida con
+`-Drelief.audit`). El motor borra y repinta la plataforma que el personaje acaba de tapar, así
+que sus celdas quedan *frescas* mientras él pasa y la regla de `relief.dyn` las mandaba a
+flotar: la losa profunda se cambiaba por un bulto fino a media profundidad, o sea un mordisco
+que corría junto al personaje. Con `relief.dyn=17` y `tile.depth=17` (config real de un
+usuario) es imposible no verlo. Ahora se compara el bitmap de la celda contra `cellBmp` (los
+últimos píxeles limpios): si son **exactamente** los mismos, no se movió nada y sigue siendo
+losa. Medido en Monty: hasta 17 celdas por frame salvadas, en 411 de ~950 frames.
+
+**Blobs de sprite demasiado chicos**: `updateSprites` ignora los blobs de menos de 4 bytes (una
+mota no es un personaje) pero `updateBackdrop` ya les había borrado los píxeles → hueco negro.
+Es el mismo caso que los blobs gigantes, del otro extremo, así que se arregla en el mismo lugar:
+`demoteOversizedBlobs` (modo `adjacent`) ahora también les revoca la propiedad **antes** del
+backdrop y quedan planos en 2D. Medido en Monty: 746 eventos en una corrida, ahora 0.
+
+**Nada puede irse de la pantalla sin que algo lo dibuje** (la otra mitad del mismo síntoma). `updateBackdrop` borraba del plano 2D **todo**
 byte con dueño o con tile, aunque el relieve no lo hubiera podido dibujar — y hay tres formas de
 no poder: el caché de decorado de la celda vacío, la máscara del sprite encima, o un modelo que
 salió null. Esas celdas quedaban negras justo donde estaba el personaje. Ahora el backdrop mira
@@ -444,6 +459,10 @@ Todas en el `main` de `TaintReplay` (modo validación headless) salvo la última
   no dibujó nada, `D` flotando por reescritura, `d` isla chica (decorado), `T` losa, `I` ítem,
   `?` el modelo salió null. Además lista las celdas con sprite con su edad de escritura y el
   histograma hoja → celdas. Es determinista, al revés que la captura.
+- **`-Drelief.holes=true`** (visor) — avisa, frame a frame, de **píxeles encendidos que no
+  dibuja nadie**: blobs de sprite descartados (chicos o sin modelo) cuyos bytes el backdrop ya
+  borró. Debe dar 0; cualquier línea es un agujero negro en la sala. Informa también cuántas
+  celdas salvó por frame la regla de "repintada con lo mismo".
 - **`-Dlog=true`** — habilita todos los prints (por default la consola está muda).
 
 Flujo para un juego nuevo (el catálogo por taint NO necesita las pasadas del tracker: se

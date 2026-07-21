@@ -2020,10 +2020,16 @@ public class JSW3D extends ApplicationAdapter {
   private static final int MAX_VERTICES = Short.MAX_VALUE;
 
   /**
-   * Adjacent mode only: revoke ownership of any blob whose model would blow past
-   * {@link #MAX_VERTICES}, BEFORE {@link #updateBackdrop} reads the flags — that ordering is
-   * the point. Those bytes then stay in the flat 2D backdrop; skipping them later instead
-   * would punch a black hole, because updateBackdrop erases every sprite-owned byte.
+   * Adjacent mode only: revoke ownership of any blob {@link #updateSprites} will NOT draw —
+   * too big to mesh ({@link #MAX_VERTICES}) or too small to be a sprite at all — BEFORE
+   * {@link #updateBackdrop} reads the flags; that ordering is the point. Those bytes then
+   * stay in the flat 2D backdrop; skipping them later instead would punch a black hole,
+   * because updateBackdrop erases every sprite-owned byte.
+   *
+   * <p>The small end is the same hole seen from the other side: updateSprites ignores blobs
+   * under 4 bytes (a speck is noise, not a character), and measured on Monty that quietly
+   * ate 1-3 byte scraps hundreds of times per run — each one a handful of lit pixels erased
+   * from the room with nothing drawn in their place.
    *
    * <p>Grouping by adjacency alone (which is what lets a composite object come out whole)
    * means one over-claimed background byte can chain a whole screen band into a single blob:
@@ -2069,7 +2075,7 @@ public class JSW3D extends ApplicationAdapter {
         int verts = smooth
             ? SmoothSpriteBuilder.vertexCount(maxC - minC + 1, maxR - minR + 1)
             : VoxelSpriteBuilder.vertexCount(lit);
-        if (verts > MAX_VERTICES)
+        if (verts > MAX_VERTICES || cells.size() < 4)
           for (int p : cells)
             owner[idx(p >> 5, p & 31)] = 0;
       }
@@ -2134,6 +2140,17 @@ public class JSW3D extends ApplicationAdapter {
               }
             }
         }
+        if (bytes < 4 && holeWatch) {
+          int lit = 0;
+          for (int[] q : cells) {
+            int i = ((q[1] & 0xC0) << 5) | ((q[1] & 7) << 8) | ((q[1] & 0x38) << 2) | q[0];
+            lit += Integer.bitCount(snap.pixels()[i] & 0xff);
+          }
+          if (lit > 0)
+            System.out.println("hueco (blob chico) frame " + snap.frame() + ": base $"
+                + Integer.toHexString(base - 1) + " " + bytes + " bytes, " + lit
+                + " px encendidos, en r" + b[2] + "c" + b[1]);
+        }
         if (bytes >= 4) {
           int bestInk = 7;
           for (int i = 0; i < 16; i++)
@@ -2193,8 +2210,13 @@ public class JSW3D extends ApplicationAdapter {
         lastBitmap.put(base, sb); // the tuning keys need a bitmap to analyze
       }
       Model model = sprite3d.model(sb, viewerDefaults());
-      if (model == null)
+      if (model == null) {
+        if (holeWatch)
+          System.out.println("hueco (modelo null) frame " + snap.frame() + ": base $"
+              + Integer.toHexString(base) + " en r" + b[1] + "c" + b[0]
+              + " " + (b[2] - b[0] + 1) + "x" + (b[3] - b[1] + 1) + " celdas");
         continue; // too big to mesh under any technique: stays in the 2D backdrop
+      }
       float cx = (b[0] + b[2] + 1) * 8 / 2f;          // byte cols -> pixels
       float cy = H - (b[1] + b[3] + 1) / 2f;          // screen y down -> world y up
       // playfield blobs only: the lives-row Willys must not kick junk around
@@ -2411,8 +2433,21 @@ public class JSW3D extends ApplicationAdapter {
   private final int auditFrame = Integer.getInteger("relief.audit", -1);
   private char[] auditMap;
   private boolean auditDone;
+  /**
+   * -Drelief.holes=true reports, EVERY frame, the playfield cells that are lit on the real
+   * screen and end up drawn by nobody: the relief claimed them (so {@link #updateBackdrop}
+   * left them out of the 2D fallback) but no model came out. That is precisely a black hole
+   * in the room, the shape the "the platform vanishes when a character comes near" bug takes,
+   * and it is deterministic — unlike judging it from a screenshot.
+   */
+  private final boolean holeWatch = Boolean.getBoolean("relief.holes");
+
+  /** -Drelief.holes: cells the repaint rule kept as scenery this frame (they would have
+   *  turned into floating lumps while a character walked past). */
+  private int repainted;
 
   private void updateScreenRelief(TaintReplay.FrameSnapshot snap) {
+    repainted = 0;
     auditMap = auditFrame >= 0 && !auditDone && shownFrame >= auditFrame
         ? new char[24 * 32] : null;
     if (auditMap != null)
@@ -2497,9 +2532,10 @@ public class JSW3D extends ApplicationAdapter {
         if (spr[cell]) {
           if (auditMap != null)
             auditMap[cell] = cellBmp[cell] != null ? 'G' : bmp != null ? 'f' : 'X';
-          // scenery the sprite is standing in, rebuilt see-through from the cell's cache
-          if (cellBmp[cell] != null) {
-            ghostScreenCell(col, y0, cell);
+          // scenery the sprite is standing in, rebuilt see-through from the cell's cache.
+          // Claim it only if the ghost really got drawn: a claim with no model is a hole,
+          // because the backdrop then skips the cell too
+          if (cellBmp[cell] != null && ghostScreenCell(col, y0, cell)) {
             solidCells[cell] = true;
             cellClaimed[cell] = true;
           }
@@ -2531,10 +2567,19 @@ public class JSW3D extends ApplicationAdapter {
             auditMap[cell] = '.';
           continue;
         }
+        // REESCRITA CON LO MISMO QUE YA HABÍA = decorado, no cosa que se mueve. Un motor de
+        // sprites borra y vuelve a pintar la plataforma que el personaje acaba de tapar, así
+        // que sus celdas quedan "frescas" mientras él pasa: con la ventana de movimiento
+        // larga la plataforma iba perdiendo celdas a su paso — la losa profunda se cambiaba
+        // por un bulto fino a media profundidad y se leía como un mordisco en la plataforma.
+        // Si los píxeles son EXACTAMENTE los que la celda ya tenía limpia, no se movió nada.
+        boolean rewritten = dyn[cell] && !sameAsCache(cell, bmp);
+        if (holeWatch && dyn[cell] && !rewritten)
+          repainted++;
         if (auditMap != null)
-          auditMap[cell] = dyn[cell] ? 'D'
+          auditMap[cell] = rewritten ? 'D'
               : comp[cell] >= 0 && compSize.get(comp[cell]) <= decorCells ? 'd' : 'T';
-        if (dyn[cell]) {
+        if (rewritten) {
           // BEING REWRITTEN RIGHT NOW: a moving thing — the player, a missile, an
           // explosion, an enemy — floating at mid depth like any sprite.
           //
@@ -2639,6 +2684,9 @@ public class JSW3D extends ApplicationAdapter {
         }
         tileInstances.add(inst);
       }
+    if (holeWatch && repainted > 0)
+      System.out.println("repintadas frame " + snap.frame() + ": " + repainted
+          + " celdas de decorado se salvaron de flotar");
     floatBlobs(floatBmp, floatAttr, floatGlow, tOf, top, end);
     if (auditMap != null) {
       auditDone = true;
@@ -2778,6 +2826,11 @@ public class JSW3D extends ApplicationAdapter {
     System.out.println(sb);
   }
 
+  /** are these the very pixels the cell already had while nothing was standing on it? */
+  private boolean sameAsCache(int cell, byte[] bmp) {
+    return cellBmp[cell] != null && java.util.Arrays.equals(cellBmp[cell], bmp);
+  }
+
   /** the attribute's ink index into {@link #PALETTE} (bright included). */
   private static int ink(int attr) {
     return (attr & 7) | ((attr >> 3) & 8);
@@ -2797,10 +2850,10 @@ public class JSW3D extends ApplicationAdapter {
   }
 
   /** the screen-mode ghost: the cell's cached clean pixels, rebuilt see-through. */
-  private void ghostScreenCell(int col, int y0, int cell) {
+  private boolean ghostScreenCell(int col, int y0, int cell) {
     Model model = pixSlab(cellBmp[cell], slabDepth() * reliefDepth);
     if (model == null)
-      return;
+      return false;
     ModelInstance inst = new ModelInstance(model);
     inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
     int attr = cellAttr[cell];
@@ -2813,6 +2866,7 @@ public class JSW3D extends ApplicationAdapter {
       paper.set(new com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute(true, ghostAlpha));
     }
     tileInstances.add(inst);
+    return true;
   }
 
   /** rain-wet sheen: bright broad specular so lights glint off the surface. */
