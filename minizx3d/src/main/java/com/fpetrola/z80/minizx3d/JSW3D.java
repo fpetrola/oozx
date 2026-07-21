@@ -2291,37 +2291,35 @@ public class JSW3D extends ApplicationAdapter {
     java.util.Arrays.fill(objClaimed, false);
     if (edGroups.isEmpty() || !objectsOn)
       return;
-    // graphic -> the object that claims it; first definition wins a shared piece
-    if (gfxToObj.isEmpty())
+    // which definitions each graphic belongs to. A graphic can be in SEVERAL: three crops of
+    // the same missile share almost every address, and the first-one-wins map that was here
+    // meant the other two never matched anything at all
+    if (gfxToObjs.isEmpty())
       for (int n = 0; n < edGroups.size(); n++)
         for (int gfx : edGroups.get(n).graphics)
-          gfxToObj.putIfAbsent(gfx, n);
-    int[] owner = new int[TaintReplay.PIXEL_BYTES];
-    java.util.Arrays.fill(owner, -1);
+          gfxToObjs.computeIfAbsent(gfx, k -> new ArrayList<>()).add(n);
+    boolean[] mine = new boolean[TaintReplay.PIXEL_BYTES];
     boolean any = false;
     for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
       if ((snap.pixels()[i] & 0xff) == 0)
         continue;
       int gfx = rawOriginOf(i);
-      if (gfx < 0)
+      if (gfx < 0 || !gfxToObjs.containsKey(gfx))
         continue;
-      Integer obj = gfxToObj.get(gfx);
-      if (obj == null)
-        continue;
-      owner[i] = obj;
+      mine[i] = true;
       any = true;
     }
     if (!any)
       return;
-    // instances: bytes of the same object, flooded by adjacency. Two capsules on screen are
-    // two instances of one definition, and each gets its own model where it stands
+    // regions first, definitions after: what is on screen is a connected patch of pixels
+    // that some definition might explain, and WHICH definition explains it best is a
+    // question about the patch — not something to decide one byte at a time
     boolean[] seen = new boolean[TaintReplay.PIXEL_BYTES];
     java.util.ArrayDeque<int[]> queue = new java.util.ArrayDeque<>();
     List<Integer> cells = new ArrayList<>();
     for (int i0 = 0; i0 < TaintReplay.PIXEL_BYTES; i0++) {
-      if (owner[i0] < 0 || seen[i0])
+      if (!mine[i0] || seen[i0])
         continue;
-      int obj = owner[i0];
       cells.clear();
       seen[i0] = true;
       queue.add(new int[]{i0 & 31, (((i0 >> 11) & 3) << 6) | (((i0 >> 5) & 7) << 3)
@@ -2343,28 +2341,130 @@ public class JSW3D extends ApplicationAdapter {
             if (c < 0 || c > 31 || y < 0 || y >= H)
               continue;
             int q = idx(y, c);
-            if (owner[q] == obj && !seen[q]) {
+            if (mine[q] && !seen[q]) {
               seen[q] = true;
               queue.add(new int[]{c, y});
             }
           }
       }
-      EdGroup g = edGroups.get(obj);
-      if (found.size() < Math.max(1, Math.round(g.graphics.size() * objectsMatch)))
-        continue; // too little of it here to call it the object
-      // AND IT HAS TO BE THE RIGHT SIZE. Graphics are shared: Exolon's rock texture belongs
-      // to a planet AND to the whole terrain band, so a definition that names it matches a
-      // chain of hundreds of cells and swallows the room. The boxes drawn by hand say how
-      // big the thing is; twice that is already generous.
-      int[] want = definedSize(g);
-      if (want != null && (maxC - minC + 1 > want[0] * 2 + 1 || maxR - minR + 1 > want[1] * 2))
+      // the definition that explains this patch best: most of ITS graphics present, and on
+      // a tie the more specific one (the one made of more graphics)
+      EdGroup best = null;
+      float bestScore = 0;
+      for (int n = 0; n < edGroups.size(); n++) {
+        EdGroup g = edGroups.get(n);
+        if (g.graphics.isEmpty())
+          continue;
+        int hit = 0;
+        for (int gfx : g.graphics)
+          if (found.contains(gfx))
+            hit++;
+        float score = hit / (float) g.graphics.size();
+        if (score < objectsMatch)
+          continue;
+        if (score > bestScore + .001f
+            || (Math.abs(score - bestScore) <= .001f && best != null
+                && g.graphics.size() > best.graphics.size())) {
+          bestScore = score;
+          best = g;
+        }
+      }
+      if (best == null) {
+        if (TaintReplay.LOG && Boolean.getBoolean("objects.log")) {
+          // why a patch was NOT taken: the score, the best definition for it and its size.
+          // "it does not transform" has three different causes and they need telling apart
+          EdGroup top = null;
+          float topScore = 0;
+          for (EdGroup g : edGroups) {
+            int hit = 0;
+            for (int gfx : g.graphics)
+              if (found.contains(gfx))
+                hit++;
+            float sc = g.graphics.isEmpty() ? 0 : hit / (float) g.graphics.size();
+            if (sc > topScore) {
+              topScore = sc;
+              top = g;
+            }
+          }
+          int[] want = top == null ? null : definedSize(top);
+          System.out.println("descartado frame " + snap.frame() + " r" + minR + "c" + minC
+              + " " + (maxC - minC + 1) + "x" + (maxR - minR + 1) + " mejor="
+              + (top == null ? "-" : top.name) + " score="
+              + String.format("%.2f", topScore) + " (min " + objectsMatch + ")"
+              + (want == null ? "" : " tamaño esperado " + want[0] + "x" + want[1]));
+        }
         continue;
+      }
       if (TaintReplay.LOG && Boolean.getBoolean("objects.log"))
-        System.out.println("objeto " + g.name + " en r" + minR + "c" + minC + " "
-            + (maxC - minC + 1) + "x" + (maxR - minR + 1) + " con " + found.size() + "/"
-            + g.graphics.size() + " gráficos, render="
-            + (g.render == null ? "default" : g.render.technique + "/" + g.render.primitive));
-      drawObject(snap, g, cells, minC, minR, maxC, maxR);
+        System.out.println("objeto frame " + snap.frame() + " " + best.name + " en r" + minR
+            + "c" + minC + " " + (maxC - minC + 1) + "x" + (maxR - minR + 1) + " con "
+            + Math.round(bestScore * best.graphics.size()) + "/" + best.graphics.size()
+            + " gráficos, render="
+            + (best.render == null ? "default" : best.render.technique + "/"
+                + best.render.primitive));
+      drawInstances(snap, best, cells);
+    }
+  }
+
+  /**
+   * A connected patch can hold SEVERAL instances of the object — Exolon lines up three
+   * missiles that touch — so it is cut into windows the size the object was marked at, each
+   * one taking the densest spot left. Rejecting the patch for being too big (which is what
+   * this did before) threw away 88 patches per run that had EVERY graphic of the definition
+   * in them: the object was there three times over and none of the three was drawn.
+   */
+  private void drawInstances(TaintReplay.FrameSnapshot snap, EdGroup g, List<Integer> cells) {
+    int[] want = definedSize(g);
+    List<Integer> left = new ArrayList<>(cells);
+    for (int round = 0; round < 8 && !left.isEmpty(); round++) {
+      int minC = 31, maxC = 0, minR = H - 1, maxR = 0;
+      for (int i : left) {
+        int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), c = i & 31;
+        minC = Math.min(minC, c);
+        maxC = Math.max(maxC, c);
+        minR = Math.min(minR, y);
+        maxR = Math.max(maxR, y);
+      }
+      if (want == null || (maxC - minC + 1 <= want[0] + 1 && maxR - minR + 1 <= want[1] + 8)) {
+        drawObject(snap, g, left, minC, minR, maxC, maxR);
+        return;
+      }
+      // the window of the object's own size holding the most of what is left
+      int bestC = minC, bestR = minR, bestCount = 0;
+      for (int i : left) {
+        int y0 = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), c0 = i & 31;
+        int count = 0;
+        for (int j : left) {
+          int y = (((j >> 11) & 3) << 6) | (((j >> 5) & 7) << 3) | ((j >> 8) & 7), c = j & 31;
+          if (c >= c0 && c < c0 + want[0] && y >= y0 && y < y0 + want[1])
+            count++;
+        }
+        if (count > bestCount) {
+          bestCount = count;
+          bestC = c0;
+          bestR = y0;
+        }
+      }
+      if (bestCount < 4)
+        return;
+      List<Integer> inside = new ArrayList<>();
+      int fc = bestC, fr = bestR;
+      left.removeIf(j -> {
+        int y = (((j >> 11) & 3) << 6) | (((j >> 5) & 7) << 3) | ((j >> 8) & 7), c = j & 31;
+        boolean in = c >= fc && c < fc + want[0] && y >= fr && y < fr + want[1];
+        if (in)
+          inside.add(j);
+        return in;
+      });
+      int iMinC = 31, iMaxC = 0, iMinR = H - 1, iMaxR = 0;
+      for (int i : inside) {
+        int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), c = i & 31;
+        iMinC = Math.min(iMinC, c);
+        iMaxC = Math.max(iMaxC, c);
+        iMinR = Math.min(iMinR, y);
+        iMaxR = Math.max(iMaxR, y);
+      }
+      drawObject(snap, g, inside, iMinC, iMinR, iMaxC, iMaxR);
     }
   }
 
@@ -2823,8 +2923,8 @@ public class JSW3D extends ApplicationAdapter {
    */
   private final List<EdGroup> edGroups = new ArrayList<>();
   private int edGroup, edRect;
-  /** graphic -> the defined object that claims it, built once from {@link #edGroups}. */
-  private final Map<Integer, Integer> gfxToObj = new HashMap<>();
+  /** graphic -> every defined object it belongs to; a graphic is routinely in several. */
+  private final Map<Integer, List<Integer>> gfxToObjs = new HashMap<>();
   /** screen bytes an object instance is modelling this frame: nobody else may draw them. */
   private final boolean[] objClaimed = new boolean[TaintReplay.PIXEL_BYTES];
   /** what fraction of an object's graphics has to be on screen to call it that object. */
@@ -3789,7 +3889,7 @@ public class JSW3D extends ApplicationAdapter {
       case com.badlogic.gdx.Input.Keys.ENTER -> findGroupOnScreen();
       case com.badlogic.gdx.Input.Keys.G -> {
         saveGroups();
-        gfxToObj.clear(); // the definitions changed: the runtime map is rebuilt from them
+        gfxToObjs.clear(); // the definitions changed: the runtime map is rebuilt from them
       }
       default -> {
         return false;
