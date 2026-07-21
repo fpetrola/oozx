@@ -141,7 +141,8 @@
           "spriteBits": true,
           "freshFrames": 8,
           "relief": {
-            "bar": "flat"
+            "bar": "flat",
+            "dot": 2
           },
           "playfield": {
             "rows": 20

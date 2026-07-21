@@ -1287,6 +1287,8 @@ public class JSW3D extends ApplicationAdapter {
         0, 30, 1, true, () -> (float) DYN_FRAMES, v -> DYN_FRAMES = Math.round(v));
     addParam("render.relief.decor", "relief.decor", "Render", "relieve celdas decor",
         0, 60, 1, true, () -> (float) decorCells, v -> decorCells = Math.round(v));
+    addParam("render.relief.dot", "relief.dot", "Render", "relieve motas del cielo (celdas)",
+        0, 12, 1, true, () -> (float) dotCells, v -> dotCells = Math.round(v));
     addChoice("render.relief.bar", "relief.bar", "Render", "relieve barras del cielo",
         new String[]{"slab", "flat", "float"}, () -> barMode, v -> barMode = v, "");
     addParam("render.relief.island", "relief.island", "Render", "relieve isla (celdas bbox)",
@@ -2266,7 +2268,7 @@ public class JSW3D extends ApplicationAdapter {
         ModelInstance inst = new ModelInstance(model);
         inst.transform.setToTranslation(
             copies == 1 ? cx : (b[0] + k * stride) * 8 + stride * 4f, cy, midZ());
-        inst.materials.first().set(ColorAttribute.createDiffuse(cc));
+        inst.materials.first().set(ColorAttribute.createDiffuse(paintRoles ? Color.WHITE : cc));
         wetten(inst.materials.first());
         if (darkMode)
           // the sprite IS a light source: it glows a little itself and casts a small pool
@@ -2442,6 +2444,14 @@ public class JSW3D extends ApplicationAdapter {
    */
   private String barMode = sprop("render.relief.bar", "relief.bar", "slab");
   /**
+   * A static island of at most this many cells hanging in the sky is a SPECK — a star, a
+   * spark — and stays flat in the 2D backdrop instead of being modelled (-Drelief.dot,
+   * 0 = off). Every other rule here decides slab vs prop; this one decides "not 3D at all",
+   * which is the right answer for a single lit pixel: modelled as a prop it becomes a little
+   * ball floating in front of the backdrop, and a skyful of them reads as dirt on the glass.
+   */
+  private int dotCells = iprop("render.relief.dot", "relief.dot", 0);
+  /**
    * Biggest island (in cells) that may be held as "a character standing still" after the
    * sprite taint lets go of it (-Drelief.hold). A 16x16 character is 4 cells; anything much
    * larger is scenery the catalog over-claimed, and it settles into slabs as usual.
@@ -2461,7 +2471,8 @@ public class JSW3D extends ApplicationAdapter {
    * playfield cell, as a 32-column map: '.' air, 'G' sprite cell rebuilt from the scenery
    * cache, 'f' sprite cell whose leftover ink floats, 'X' sprite cell that drew NOTHING (the
    * hole), 'D' cell floating because it is being rewritten, 'd' small island floating as
-   * decor, 'T' slab, 'F' left flat to the 2D backdrop, 'I' item, '?' the model came out null.
+   * decor, 'T' slab, 'F' left flat to the 2D backdrop, 'g' prop ghost (floating, not a slab),
+   * 'I' item, '?' the model came out null.
    * Deterministic, unlike the render.
    */
   private final int auditFrame = Integer.getInteger("relief.audit", -1);
@@ -2476,6 +2487,15 @@ public class JSW3D extends ApplicationAdapter {
    */
   private final boolean holeWatch = Boolean.getBoolean("relief.holes");
   /**
+   * -Drelief.paint=true paints every model by WHO DREW IT, ignoring the game's colours, so a
+   * thing you cannot place in the pipeline can be identified by looking at it: red = slab
+   * (architecture), green = floating prop (decor/moving), yellow = the ink left around a
+   * character, blue = ghost slab under a sprite, cyan = prop ghost, magenta = detected item,
+   * white = sprite model. Anything that keeps its own colour is NOT the relief: it is the
+   * flat 2D backdrop or an ambient effect (junk, snow, balloons).
+   */
+  private final boolean paintRoles = Boolean.getBoolean("relief.paint");
+  /**
    * -Drelief.flips=true reports every cell that CHANGES ROLE from one frame to the next while
    * its pixels stay the same. A cell whose content did not change but that swaps slab for
    * floating lump (or back) is a flicker the viewer sees as "it disappears and comes back",
@@ -2487,6 +2507,8 @@ public class JSW3D extends ApplicationAdapter {
   private final byte[][] lastBmp = new byte[24 * 32][];
   /** what the relief decided for each cell THIS frame, in the audit's own letters. */
   private final char[] role = new char[24 * 32];
+  /** the last role the cell had while NO sprite was on it: what its ghost should look like. */
+  private final char[] sceneryRole = new char[24 * 32];
   /** per cell, the last frame the sprite taint owned it. */
   private final int[] entityFrame = new int[24 * 32];
   /**
@@ -2501,9 +2523,12 @@ public class JSW3D extends ApplicationAdapter {
   private int repainted;
   /** -Drelief.holes: cells above the floor rendered as slabs / left flat, this frame. */
   private int skySlabs, skyFlats;
+  /** -Drelief.holes: ghosts drawn this frame, by the role the cell had before: slab/decor/flat */
+  private final int[] ghostRoles = new int[3];
 
   private void updateScreenRelief(TaintReplay.FrameSnapshot snap) {
     repainted = skySlabs = skyFlats = 0;
+    java.util.Arrays.fill(ghostRoles, 0);
     auditing = auditFrame >= 0 && !auditDone && shownFrame >= auditFrame;
     java.util.Arrays.fill(role, ' ');
     tileInstances.clear();
@@ -2669,6 +2694,27 @@ public class JSW3D extends ApplicationAdapter {
         int attr = snap.attrs()[cell] & 0xff;
         if (spr[cell]) {
           role[cell] = cellBmp[cell] != null ? 'G' : bmp != null ? 'f' : 'X';
+          if (holeWatch && role[cell] == 'G')
+            ghostRoles[sceneryRole[cell] == 'd' ? 1 : sceneryRole[cell] == 'F' ? 2 : 0]++;
+          // A GHOST IS ONLY A SLAB IF THE CELL WAS ONE. The ghost rebuilds the scenery a
+          // sprite is standing in from the cell's cache, and it always rebuilt it as a slab
+          // — so every time anything crossed a star or a cloud, an 8x8 block appeared out of
+          // nowhere and ran the slab's full depth into the backdrop ("dots that show up
+          // suddenly and go from the front to the back"). It has to come back as whatever it
+          // was: a prop floats, and a cell left flat stays flat.
+          if (cellBmp[cell] != null && sceneryRole[cell] != 'T') {
+            if (sceneryRole[cell] == 'd') {
+              byte[] both = cellBmp[cell].clone();
+              if (bmp != null)
+                for (int r = 0; r < 8; r++)
+                  both[r] |= bmp[r];
+              floatBmp[cell] = both;
+              floatAttr[cell] = cellAttr[cell];
+              cellClaimed[cell] = true;
+              role[cell] = 'g';
+            }
+            continue; // 'F': nothing to model, the 2D backdrop still paints those pixels
+          }
           // scenery the sprite is standing in, rebuilt see-through from the cell's cache.
           // Claim it only if the ghost really got drawn: a claim with no model is a hole,
           // because the backdrop then skips the cell too
@@ -2729,14 +2775,18 @@ public class JSW3D extends ApplicationAdapter {
         // component to grow to TWICE the limit before it is promoted to architecture. A
         // single threshold makes every component sitting near the limit — a star, a small
         // rock — swap roles with any one-cell change, and the eye reads that as blinking.
-        boolean bar = !"slab".equals(barMode) && comp[cell] >= 0
+        boolean speck = comp[cell] >= 0 && compSize.get(comp[cell]) <= dotCells
+            && compBox.get(comp[cell])[3] < end - 1;
+        boolean bar = !speck && !"slab".equals(barMode) && comp[cell] >= 0
             && skyBar(comp[cell], compBox, end);
-        boolean decor = comp[cell] >= 0
+        boolean decor = !speck && comp[cell] >= 0
             && (compSize.get(comp[cell]) <= (lastRole[cell] == 'd' ? 2 * decorCells : decorCells)
                 || island(comp[cell], compBox, end)
                 || (bar && "float".equals(barMode)));
-        boolean flat = bar && !decor; // "flat": leave it to the 2D backdrop, no model at all
+        boolean flat = speck || (bar && !decor); // leave it to the 2D backdrop, no model
         role[cell] = rewritten || holding ? 'D' : decor ? 'd' : flat ? 'F' : 'T';
+        if (!rewritten && !holding)
+          sceneryRole[cell] = role[cell];
         if (holeWatch && comp[cell] >= 0 && compBox.get(comp[cell])[3] < end - 1) {
           if (role[cell] == 'T')
             skySlabs++;
@@ -2845,11 +2895,11 @@ public class JSW3D extends ApplicationAdapter {
         ModelInstance inst = new ModelInstance(model);
         inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
         Material ink = inst.getMaterial(TileSlabBuilder.INK);
-        ink.set(ColorAttribute.createDiffuse(inkColor));
+        ink.set(ColorAttribute.createDiffuse(paintRoles ? Color.RED : inkColor));
         wetten(ink);
         Material side = inst.getMaterial(TileSlabBuilder.PAPER_SIDE);
         if (side != null) {
-          side.set(ColorAttribute.createDiffuse(slabPaper(attr)));
+          side.set(ColorAttribute.createDiffuse(paintRoles ? Color.MAROON : slabPaper(attr)));
           wetten(side);
         }
         Material paper = inst.getMaterial(TileSlabBuilder.PAPER);
@@ -2864,6 +2914,9 @@ public class JSW3D extends ApplicationAdapter {
         }
         tileInstances.add(inst);
       }
+    if (holeWatch && (ghostRoles[1] > 0 || ghostRoles[2] > 0))
+      System.out.println("fantasmas frame " + snap.frame() + ": losa=" + ghostRoles[0]
+          + " sobre-decor=" + ghostRoles[1] + " sobre-plano=" + ghostRoles[2]);
     if (holeWatch && (skySlabs > 0 || skyFlats > 0))
       System.out.println("cielo frame " + snap.frame() + ": losa=" + skySlabs
           + " plano=" + skyFlats);
@@ -2957,7 +3010,8 @@ public class JSW3D extends ApplicationAdapter {
       ModelInstance inst = new ModelInstance(m);
       inst.transform.setToTranslation(minC * 8 + wB * 4f,
           H - (minR * 8 + (maxR - minR + 1) * 4f), midZ());
-      Color c = PALETTE[ink0]; // one ink per blob: that is what bounded it in the first place
+      Color c = paintRoles ? (glow ? Color.MAGENTA : Color.GREEN)
+          : PALETTE[ink0]; // one ink per blob: that is what bounded it in the first place
       inst.materials.first().set(ColorAttribute.createDiffuse(c));
       if (glow && darkMode) // an item blazes with light of its own in the gloom
         inst.materials.first().set(
@@ -3168,7 +3222,8 @@ public class JSW3D extends ApplicationAdapter {
       return false;
     ModelInstance inst = new ModelInstance(m);
     inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
-    inst.materials.first().set(ColorAttribute.createDiffuse(PALETTE[(attr & 7) | ((attr >> 3) & 8)]));
+    inst.materials.first().set(ColorAttribute.createDiffuse(
+        paintRoles ? Color.YELLOW : PALETTE[(attr & 7) | ((attr >> 3) & 8)]));
     wetten(inst.materials.first());
     tileInstances.add(inst);
     return true;
@@ -3183,7 +3238,8 @@ public class JSW3D extends ApplicationAdapter {
     inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
     int attr = cellAttr[cell];
     Material mi = inst.getMaterial(TileSlabBuilder.INK);
-    mi.set(ColorAttribute.createDiffuse(PALETTE[(attr & 7) | ((attr >> 3) & 8)]));
+    mi.set(ColorAttribute.createDiffuse(paintRoles ? Color.BLUE
+        : PALETTE[(attr & 7) | ((attr >> 3) & 8)]));
     mi.set(new com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute(true, ghostAlpha));
     Material paper = inst.getMaterial(TileSlabBuilder.PAPER);
     if (paper != null) {
