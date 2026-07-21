@@ -1289,8 +1289,10 @@ public class JSW3D extends ApplicationAdapter {
         0, 60, 1, true, () -> (float) decorCells, v -> decorCells = Math.round(v));
     addParam("render.relief.island", "relief.island", "Render", "relieve isla (celdas bbox)",
         0, 24, 1, true, () -> (float) islandCells, v -> islandCells = Math.round(v));
-    addParam("render.relief.hold", "relief.hold", "Render", "relieve frames quieto",
-        0, 200, 5, true, () -> (float) holdFrames, v -> holdFrames = Math.round(v));
+    addParam("render.relief.hold", "relief.hold", "Render", "relieve celdas quieto",
+        0, 60, 1, true, () -> (float) holdCells, v -> holdCells = Math.round(v));
+    addParam("render.relief.paper", "relief.paper", "Render", "relieve tinte del relleno",
+        0, 1, .05f, false, () -> paperTint, v -> paperTint = v);
     addFlag("render.relief.fill", "relief.fill", "Render", "relleno de siluetas huecas",
         () -> reliefFill, v -> reliefFill = v, "");
     addFlag("render.items", "items", "Render", "deteccion de items",
@@ -2426,17 +2428,19 @@ public class JSW3D extends ApplicationAdapter {
    */
   private int islandCells = iprop("render.relief.island", "relief.island", 8);
   /**
-   * How long a cell that WAS an entity keeps floating after everything went quiet, as long
-   * as its pixels do not change (-Drelief.hold). Covers a character standing still under a
-   * dirty-region engine; bounded so scenery drawn during motion still settles into slabs.
+   * Biggest island (in cells) that may be held as "a character standing still" after the
+   * sprite taint lets go of it (-Drelief.hold). A 16x16 character is 4 cells; anything much
+   * larger is scenery the catalog over-claimed, and it settles into slabs as usual.
    */
-  private int holdFrames = iprop("render.relief.hold", "relief.hold", 40);
+  private int holdCells = iprop("render.relief.hold", "relief.hold", 12);
   /**
    * Fill the enclosed background of a floating blob before inflating it
    * (-Drelief.fill=false to keep the literal silhouette). The games draw items as hollow
    * outlines; without this they inflate into rings instead of bodies.
    */
   private boolean reliefFill = bprop("render.relief.fill", "relief.fill", true);
+  /** how far a slab's paper volume is pulled towards its ink colour. See slabPaper(). */
+  private float paperTint = fprop("render.relief.paper", "relief.paper", 0.35f);
 
   /**
    * -Drelief.audit=N dumps, at frame N, what {@link #updateScreenRelief} decided for every
@@ -2468,8 +2472,14 @@ public class JSW3D extends ApplicationAdapter {
   private final byte[][] lastBmp = new byte[24 * 32][];
   /** what the relief decided for each cell THIS frame, in the audit's own letters. */
   private final char[] role = new char[24 * 32];
-  /** per cell, the last frame it was an entity: sprite-owned, or being rewritten. */
+  /** per cell, the last frame the sprite taint owned it. */
   private final int[] entityFrame = new int[24 * 32];
+  /**
+   * The pixels a character left in the cell when the taint stopped owning him: while the
+   * cell still shows EXACTLY that, he is standing there and the cell is not scenery.
+   */
+  private final byte[][] holdBmp = new byte[24 * 32][];
+  private final boolean[] pendingHold = new boolean[24 * 32];
 
   /** -Drelief.holes: cells the repaint rule kept as scenery this frame (they would have
    *  turned into floating lumps while a character walked past). */
@@ -2512,8 +2522,14 @@ public class JSW3D extends ApplicationAdapter {
         }
         bmps[cell] = bits == 0 ? null : bmp;
         tOf[cell] = t;
-        if (spr[cell] || dyn[cell])
+        if (spr[cell]) {
           entityFrame[cell] = snap.frame();
+          holdBmp[cell] = null;
+          pendingHold[cell] = true;
+        } else if (pendingHold[cell]) {
+          holdBmp[cell] = bmps[cell]; // the pose he was left in, the frame ownership lapsed
+          pendingHold[cell] = false;
+        }
         // air with nobody standing on it: the scenery cache is stale, drop it here so the
         // component graph below never bridges through a cell that is empty now
         if (bmps[cell] == null && !spr[cell])
@@ -2531,6 +2547,24 @@ public class JSW3D extends ApplicationAdapter {
     // pillar — the pillar is narrow too, but it is connected all the way down to the floor.
     // Crucially this ignores the tile classification: Exolon's planets ARE tile-classified,
     // so gating on "unclassified" left them extruded as scenery.
+    // A ROOM CHANGE IS NOT MOTION. Write freshness only means "this moves" when it is LOCAL:
+    // when the game repaints the whole screen at once, every cell is fresh and the room spent
+    // the whole dyn window as floating lumps before settling into slabs — the depth visibly
+    // arrived a moment late. If most of what is lit was just rewritten, nothing here is a
+    // moving thing and the frame is classified as if it were all static.
+    int fresh = 0, litCells = 0;
+    for (int c0 = top * 32; c0 < end * 32; c0++) {
+      if (bmps[c0] == null)
+        continue;
+      litCells++;
+      if (rew[c0])
+        fresh++;
+    }
+    if (fresh > .4f * litCells) {
+      java.util.Arrays.fill(rew, false);
+      java.util.Arrays.fill(pendingHold, false);
+      java.util.Arrays.fill(holdBmp, null);
+    }
     // The component graph is "WHERE THERE IS SCENERY", not "what is standing still": a cell
     // counts if it has ink now or has clean pixels cached from before a sprite covered it.
     // Leaving the moving cells out made membership depend on whatever walked past — a sprite
@@ -2572,6 +2606,43 @@ public class JSW3D extends ApplicationAdapter {
       }
       compSize.add(size);
       compBox.add(bx);
+    }
+    // A CHARACTER WHO STOPPED. Cells still showing the exact pose the taint last owned, and
+    // showing something other than the room's own scenery, are him standing still — the
+    // freshness gate dropped him but he never left. A time window was not enough (measured:
+    // he flattens 40-110 frames after ownership lapses, and a window long enough to cover
+    // that also freezes anything the catalog over-claims), so what bounds it is SIZE: a held
+    // island bigger than a character is scenery the catalog claimed, and it settles.
+    boolean[] held = new boolean[n];
+    for (int c0 = top * 32; c0 < end * 32; c0++)
+      held[c0] = holdBmp[c0] != null && java.util.Arrays.equals(holdBmp[c0], bmps[c0])
+          && !sameAsCache(c0, bmps[c0]);
+    boolean[] seenHold = new boolean[n];
+    for (int c0 = top * 32; c0 < end * 32; c0++) {
+      if (!held[c0] || seenHold[c0])
+        continue;
+      List<Integer> group = new ArrayList<>();
+      queue.add(c0);
+      seenHold[c0] = true;
+      while (!queue.isEmpty()) {
+        int p = queue.poll();
+        group.add(p);
+        int py = p >> 5, px = p & 31;
+        for (int dy = -1; dy <= 1; dy++)
+          for (int dx = -1; dx <= 1; dx++) {
+            int ny = py + dy, nx = px + dx;
+            if (ny < top || ny >= end || nx < 0 || nx > 31)
+              continue;
+            int q = ny * 32 + nx;
+            if (held[q] && !seenHold[q]) {
+              seenHold[q] = true;
+              queue.add(q);
+            }
+          }
+      }
+      if (group.size() > holdCells)
+        for (int p : group)
+          held[p] = false;
     }
     for (int cellY = top; cellY < end; cellY++)
       for (int col = 0; col < 32; col++) {
@@ -2625,24 +2696,32 @@ public class JSW3D extends ApplicationAdapter {
         if (holeWatch && dyn[cell] && !rewritten)
           repainted++;
         // AN ENTITY THAT STOPPED IS STILL AN ENTITY. A dirty-region engine does not repaint
-        // what is not moving, so the player standing still loses both his sprite taint and
-        // his write freshness, joins the terrain he stands on as one static component, and
-        // gets extruded back into the wall for a few frames — "some frames he stops being
-        // volumetric". While his pixels do not change he keeps floating, for a bounded
-        // window (-Drelief.hold) so that scenery revealed during motion still settles.
-        boolean unchanged = java.util.Arrays.equals(lastBmp[cell], bmp);
-        char was = lastRole[cell];
-        boolean held = unchanged && (was == 'D' || was == 'f')
-            && snap.frame() - entityFrame[cell] <= holdFrames;
+        // what is not moving, so the player standing still loses his sprite taint to the
+        // freshness gate, joins the terrain he stands on as one static component, and gets
+        // extruded back into the wall — "some frames he stops being volumetric". A cell the
+        // character OWNED moments ago (-Drelief.hold) keeps floating...
+        //
+        // Keyed on sprite ownership, NOT on write freshness: stamping every freshly written
+        // cell meant a whole screen change held the entire room floating for the whole
+        // window, and the room visibly took a moment to take its depth.
+        // ...and what it shows is NOT the room's own scenery: when he walks AWAY the engine
+        // repaints the background, that matches the clean cache, and the cell goes back to
+        // being a slab at once instead of trailing lumps behind him.
+        boolean holding = held[cell];
         // Schmitt trigger on the decor threshold: a cell that already floats needs the
         // component to grow to TWICE the limit before it is promoted to architecture. A
         // single threshold makes every component sitting near the limit — a star, a small
         // rock — swap roles with any one-cell change, and the eye reads that as blinking.
         boolean decor = comp[cell] >= 0
-            && (compSize.get(comp[cell]) <= (was == 'd' ? 2 * decorCells : decorCells)
-                || island(comp[cell], compSize, compBox, top, end));
-        role[cell] = rewritten || held ? 'D' : decor ? 'd' : 'T';
-        if (rewritten || held) {
+            && (compSize.get(comp[cell]) <= (lastRole[cell] == 'd' ? 2 * decorCells : decorCells)
+                || island(comp[cell], compBox, end));
+        role[cell] = rewritten || holding ? 'D' : decor ? 'd' : 'T';
+        if (flipWatch && role[cell] == 'T' && lastRole[cell] == 'D'
+            && snap.frame() - entityFrame[cell] <= 80)
+          System.out.println("aplanado r" + cellY + "c" + col + ": edad="
+              + (snap.frame() - entityFrame[cell]) + " sameCache=" + sameAsCache(cell, bmp)
+              + " comp=" + (comp[cell] < 0 ? -1 : compSize.get(comp[cell])));
+        if (rewritten || holding) {
           // BEING REWRITTEN RIGHT NOW: a moving thing — the player, a missile, an
           // explosion, an enemy — floating at mid depth like any sprite.
           //
@@ -2661,8 +2740,7 @@ public class JSW3D extends ApplicationAdapter {
           // mobile sprite (inflated, mid depth), never as a walkable slab.
           // Cached like the slabs: it is scenery too, so a character walking over the
           // ledge gets its ghost instead of punching the ledge out of the room.
-          cellBmp[cell] = bmp.clone();
-          cellAttr[cell] = attr;
+          cacheScenery(cell, bmp, attr, snap);
           floatBmp[cell] = bmp;
           floatAttr[cell] = attr;
           cellClaimed[cell] = true;
@@ -2704,8 +2782,7 @@ public class JSW3D extends ApplicationAdapter {
           // with volume — one model for the whole object, built by floatBlobs from all its
           // cells at once. Modelling it cell by cell here made a 16x16 treasure four
           // separate 8x8 lumps, which is exactly what reads as "still a tile".
-          cellBmp[cell] = bmp.clone();
-          cellAttr[cell] = attr;
+          cacheScenery(cell, bmp, attr, snap);
           floatBmp[cell] = bmp;
           floatAttr[cell] = attr;
           floatGlow[cell] = true;
@@ -2725,8 +2802,7 @@ public class JSW3D extends ApplicationAdapter {
         role[cell] = model == null ? '?' : 'T';
         if (model == null)
           continue;
-        cellBmp[cell] = bmp.clone();
-        cellAttr[cell] = attr;
+        cacheScenery(cell, bmp, attr, snap);
         solidCells[cell] = true;
         cellClaimed[cell] = true;
         ModelInstance inst = new ModelInstance(model);
@@ -2734,13 +2810,19 @@ public class JSW3D extends ApplicationAdapter {
         Material ink = inst.getMaterial(TileSlabBuilder.INK);
         ink.set(ColorAttribute.createDiffuse(inkColor));
         wetten(ink);
+        Material side = inst.getMaterial(TileSlabBuilder.PAPER_SIDE);
+        if (side != null) {
+          side.set(ColorAttribute.createDiffuse(slabPaper(attr)));
+          wetten(side);
+        }
         Material paper = inst.getMaterial(TileSlabBuilder.PAPER);
         if (paper != null) { // an all-ink cell has no paper part
           // NOTE: painting this with the INK colour to hide the black extruded edge was
           // tried and reverted — in Exolon most cells are mostly paper with dithered ink
           // on top, so the whole room turned into solid single-colour bricks and every
           // bit of texture was lost. The black edge needs a narrower fix than this.
-          paper.set(ColorAttribute.createDiffuse(PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
+          paper.set(ColorAttribute.createDiffuse(
+              PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
           wetten(paper);
         }
         tileInstances.add(inst);
@@ -2852,19 +2934,24 @@ public class JSW3D extends ApplicationAdapter {
   private void reportFlips(TaintReplay.FrameSnapshot snap, byte[][] bmps, int top, int end) {
     if (flipWatch) {
       StringBuilder sb = new StringBuilder();
-      int n = 0;
+      int n = 0, entityFlips = 0;
       for (int cell = top * 32; cell < end * 32; cell++) {
         char was = lastRole[cell], now = role[cell];
         if (was == 0 || was == now || !java.util.Arrays.equals(lastBmp[cell], bmps[cell])
             || (!draws(was) && !draws(now)))
           continue; // air <-> sprite-only cell draws nothing either way: not a flicker
         n++;
+        // '*' marks a cell the sprite taint owned recently: that one is the character
+        boolean mine = snap.frame() - entityFrame[cell] <= 80;
+        if (mine)
+          entityFlips++;
         if (n <= 8)
-          sb.append(' ').append(was).append("->").append(now)
+          sb.append(' ').append(was).append("->").append(now).append(mine ? "*" : "")
               .append("@r").append(cell >> 5).append('c').append(cell & 31);
       }
       if (n > 0)
-        System.out.println("flip frame " + snap.frame() + ": " + n + " celdas" + sb);
+        System.out.println("flip frame " + snap.frame() + ": " + n + " celdas ("
+            + entityFlips + " de personaje)" + sb);
     }
     for (int cell = top * 32; cell < end * 32; cell++) {
       lastRole[cell] = role[cell];
@@ -2954,15 +3041,15 @@ public class JSW3D extends ApplicationAdapter {
    * planets are routinely clipped by the left edge, and testing for it left half a planet as
    * a sphere and the clipped half extruded into a beam.
    */
-  private boolean island(int id, java.util.List<Integer> compSize, java.util.List<int[]> box,
-      int top, int end) {
+  private boolean island(int id, java.util.List<int[]> box, int end) {
     int[] b = box.get(id);
     int w = b[2] - b[0] + 1, h = b[3] - b[1] + 1;
     if (b[3] == end - 1)
       return false; // standing on the floor of the room: architecture
-    if (Math.max(w, h) > islandCells || Math.max(w, h) > 2.5f * Math.min(w, h))
-      return false; // too big to be a prop, or a bar rather than a body
-    return compSize.get(id) >= .5f * w * h; // a solid mass, not a sparse scattering
+    // small and not a bar: a planet, a moon, a cloud, a scattering of stars. NOT gated on
+    // how FULL the box is — that was measured throwing sparse sky away (a 5-cell cloud in a
+    // 4x4 box fills 0.31), and those came out extruded to the backdrop like little combs.
+    return Math.max(w, h) <= islandCells && Math.max(w, h) <= 2.5f * Math.min(w, h);
   }
 
   /**
@@ -2981,9 +3068,41 @@ public class JSW3D extends ApplicationAdapter {
     return cellBmp[cell] != null || (bmps[cell] != null && !spr[cell] && !rew[cell]);
   }
 
+  /**
+   * Remember the cell's clean pixels — but NOT while a character is (or just was) standing
+   * there. Caching him as scenery closed a loop that no amount of holding could open: the
+   * one frame he got extruded into the wall, his own pixels became the cell's "clean"
+   * bitmap, and from then on {@link #sameAsCache} answered yes and the cell kept treating
+   * him as part of the room.
+   */
+  private void cacheScenery(int cell, byte[] bmp, int attr, TaintReplay.FrameSnapshot snap) {
+    if (holdBmp[cell] != null && java.util.Arrays.equals(holdBmp[cell], bmp))
+      return; // that is a character parked here, not the room
+    cellBmp[cell] = bmp.clone();
+    cellAttr[cell] = attr;
+  }
+
   /** are these the very pixels the cell already had while nothing was standing on it? */
   private boolean sameAsCache(int cell, byte[] bmp) {
     return cellBmp[cell] != null && java.util.Arrays.equals(cellBmp[cell], bmp);
+  }
+
+  /**
+   * The colour for a slab's PAPER volume: the attribute's paper pulled towards its ink by
+   * {@code relief.paper} (0 = the paper colour itself, 1 = the ink colour).
+   *
+   * <p>Only the DEPTH of the paper columns gets this ({@link TileSlabBuilder#PAPER_SIDE});
+   * their front skin keeps the true paper colour. Exolon's scenery is a dither of ink over
+   * black paper, so the extruded block is mostly paper and a platform read as a black mass
+   * from any angle. Tinting the whole paper part instead (tried, reverted twice now) turns
+   * the room into solid single-colour bricks: with white ink, a 35% tint made a pillar one
+   * flat grey block. The front face is where the dither lives; the mass behind it is where
+   * the platform's colour belongs.
+   */
+  private Color slabPaper(int attr) {
+    Color paper = PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)];
+    Color inkc = PALETTE[ink(attr)];
+    return new Color(paper).lerp(inkc, paperTint);
   }
 
   /** the attribute's ink index into {@link #PALETTE} (bright included). */
@@ -3019,6 +3138,11 @@ public class JSW3D extends ApplicationAdapter {
     if (paper != null) {
       paper.set(ColorAttribute.createDiffuse(PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
       paper.set(new com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute(true, ghostAlpha));
+    }
+    Material side = inst.getMaterial(TileSlabBuilder.PAPER_SIDE);
+    if (side != null) {
+      side.set(ColorAttribute.createDiffuse(slabPaper(attr)));
+      side.set(new com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute(true, ghostAlpha));
     }
     tileInstances.add(inst);
     return true;

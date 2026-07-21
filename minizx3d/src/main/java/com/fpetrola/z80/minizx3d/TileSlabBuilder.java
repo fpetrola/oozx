@@ -41,6 +41,18 @@ import java.util.function.IntUnaryOperator;
  */
 public final class TileSlabBuilder {
   public static final String INK = "ink", PAPER = "paper";
+  /**
+   * The paper columns' DEPTH, as its own material. On a dithered scenery (Exolon: ink dots
+   * over black paper) the extruded block is mostly paper, so seen from any angle a platform
+   * read as a black mass instead of its own colour. Painting the whole paper part with the
+   * ink colour was tried and reverted — the room turned into solid single-colour bricks and
+   * the dither was lost — but the FRONT FACE is the only part that carries that texture.
+   * Splitting the front skin from the depth lets the caller keep the face honest and give
+   * the mass behind it the platform's own hue.
+   */
+  public static final String PAPER_SIDE = "paperSide";
+  /** how much of the paper column's depth is the front skin that keeps the paper colour. */
+  private static final float SKIN = 0.6f;
 
   /**
    * {@code depth} is the slab's full extent in z, centered on 0. Returns null for an EMPTY
@@ -78,7 +90,17 @@ public final class TileSlabBuilder {
     if (inkPixels < 64) {
       MeshPartBuilder paper = mb.part(PAPER, GL20.GL_TRIANGLES,
           Usage.Position | Usage.Normal, new Material(PAPER, ColorAttribute.createDiffuse(Color.WHITE)));
-      boxes(paper, mask, false, depth);
+      // the thin front skin, at the very front of the column, keeps the paper colour
+      for (int y = 0; y < 8; y++)
+        for (int x = 0; x < 8; x++)
+          if (!mask[y][x])
+            BoxShapeBuilder.build(paper, x - 3.5f, 3.5f - y, (depth - SKIN) / 2, 1, 1, SKIN);
+      MeshPartBuilder side = mb.part(PAPER_SIDE, GL20.GL_TRIANGLES, Usage.Position | Usage.Normal,
+          new Material(PAPER_SIDE, ColorAttribute.createDiffuse(Color.WHITE)));
+      for (int y = 0; y < 8; y++)
+        for (int x = 0; x < 8; x++)
+          if (!mask[y][x])
+            BoxShapeBuilder.build(side, x - 3.5f, 3.5f - y, -SKIN / 2, 1, 1, depth - SKIN);
     }
     return mb.end();
   }

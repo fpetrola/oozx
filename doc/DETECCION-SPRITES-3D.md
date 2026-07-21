@@ -284,17 +284,35 @@ del lado de la arquitectura con cualquier umbral que no se trague también un mu
 extruidos hasta el fondo en vez de volumétricos. Lo que los separa de verdad es que la
 arquitectura está anclada —la banda de terreno, un pilar, un muro llegan a la fila de abajo—
 mientras el planeta cuelga en el cielo, y además es compacto donde una repisa es una barra fina.
-`JSW3D.island`: no toca el piso + bbox ≤ `relief.island` (8 celdas) + relación de lados ≤ 2,5 +
-llenado ≥ 0,5. **Tocar el borde de PANTALLA no es anclaje**: los planetas de Exolon aparecen
+`JSW3D.island`: no toca el piso + bbox ≤ `relief.island` (8 celdas) + relación de lados ≤ 2,5.
+**Sin test de llenado**: se probó exigir una masa sólida (≥ 0,5 del bbox) y tiraba a losa el
+cielo disperso —una nube de 5 celdas en un bbox de 4x4 llena 0,31— que salía extruido hasta el
+fondo como peinetas ("puntitos que van del frente hasta el fondo y parecen plataforma").
+**Tocar el borde de PANTALLA no es anclaje**: los planetas de Exolon aparecen
 recortados por el borde izquierdo, y probar contra cualquier borde dejaba media esfera
 volumétrica y la mitad recortada extruida como un rayo.
 
 **Una entidad que se detuvo sigue siendo una entidad.** Un motor de dirty-regions no repinta lo
 que no se mueve, así que el personaje quieto pierde la taint de sprite (`fresh.frames`) *y* la
 frescura de escritura, se une como componente estática al terreno que pisa y lo extruyen contra
-la pared: "hay frames en que deja de ser volumétrico". Mientras sus píxeles no cambien mantiene
-el rol de flotante, por una ventana acotada (`relief.hold`, 40 frames) para que el decorado
-dibujado durante el movimiento igual termine asentándose en losas.
+la pared: "hay frames en que deja de ser volumétrico". Lo que lo retiene NO es una ventana de
+tiempo —medido, se aplana entre 40 y 110 frames después de que se suelta la propiedad, y una
+ventana tan larga congela también lo que el catálogo reclama de más— sino la POSE: se guarda el
+bitmap de la celda en el frame en que la taint la soltó, y mientras siga mostrando exactamente
+eso (y no coincida con el decorado limpio cacheado) sigue flotando, sin límite de tiempo. Si el
+personaje se va, el motor repinta el fondo, la pose deja de coincidir y la celda vuelve a ser
+losa al instante: no deja estela. Lo que acota el riesgo es el TAMAÑO: una isla retenida de más
+de `relief.hold` celdas (12) es decorado mal catalogado y se asienta igual (un personaje de
+16x16 son 4 celdas). Y hubo que cortar un lazo: mientras una celda está retenida **no se cachea
+como decorado** — el frame en que el personaje se aplanaba, sus propios píxeles pasaban a ser el
+"limpio" de la celda y desde ahí todo lo daba por parte de la sala.
+
+**Un cambio de pantalla no es movimiento.** La frescura de escritura solo significa "esto se
+mueve" cuando es LOCAL: cuando el juego repinta la pantalla entera, todas las celdas quedan
+frescas, la sala pasaba la ventana de movimiento entera como bultos flotantes y la profundidad
+llegaba visiblemente tarde ("tarda unos milisegundos en activarse"). Si más del 40% de lo
+encendido acaba de reescribirse, el frame se clasifica como si todo fuera estático y las losas
+aparecen de una.
 
 **El grafo de componentes es "dónde hay decorado", no "qué está quieto"** — y esa es la causa del
 parpadeo de las puntas de las plataformas. Dejar afuera las celdas móviles hacía que la
@@ -312,6 +330,16 @@ mota no es un personaje) pero `updateBackdrop` ya les había borrado los píxele
 Es el mismo caso que los blobs gigantes, del otro extremo, así que se arregla en el mismo lugar:
 `demoteOversizedBlobs` (modo `adjacent`) ahora también les revoca la propiedad **antes** del
 backdrop y quedan planos en 2D. Medido en Monty: 746 eventos en una corrida, ahora 0.
+
+**El volumen de la losa lleva el color del tile, la cara no.** El decorado de Exolon es tinta
+punteada sobre papel negro, así que el bloque extruido es casi todo papel y desde cualquier
+ángulo la plataforma se leía como una masa negra. Pintar TODO el papel con el color de la tinta
+se probó dos veces y se revirtió las dos: la sala se vuelve ladrillos de un solo color y se
+pierde el punteado (con tinta blanca y un tinte de 0,35, un pilar quedaba un bloque gris liso).
+La cara frontal es donde vive esa textura, y la masa de atrás es donde corresponde el color de
+la plataforma: `TileSlabBuilder` ahora emite las columnas de papel en dos partes —una piel fina
+al frente (material `paper`, color de papel real) y el resto de la profundidad (`paperSide`)—
+y el visor tiñe solo la segunda hacia la tinta, `relief.paper` (0,35 por default, en el menú).
 
 **Nada puede irse de la pantalla sin que algo lo dibuje** (la otra mitad del mismo síntoma). `updateBackdrop` borraba del plano 2D **todo**
 byte con dueño o con tile, aunque el relieve no lo hubiera podido dibujar — y hay tres formas de
@@ -493,7 +521,7 @@ Todas en el `main` de `TaintReplay` (modo validación headless) salvo la última
   borró. Debe dar 0; cualquier línea es un agujero negro en la sala. Informa también cuántas
   celdas salvó por frame la regla de "repintada con lo mismo".
 - **`-Drelief.flips=true`** (visor) — lista las celdas que **cambian de rol con los píxeles
-  idénticos**: el mundo no se movió, el render sí. Es la medida del parpadeo (`T<->d` = losa
+  idénticos**, marcando con `*` las que la taint de sprite tuvo hace poco (o sea: el personaje): el mundo no se movió, el render sí. Es la medida del parpadeo (`T<->d` = losa
   contra bulto flotante) y la que sirve para comparar reglas: en Exolon bajó de 853 a 286.
   Ignora `.<->X`, que no dibujan nada en ninguno de los dos estados.
 - **`-Dlog=true`** — habilita todos los prints (por default la consola está muda).

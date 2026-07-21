@@ -216,8 +216,8 @@ Lo mismo se extendio a TODO lo que antes solo entraba por linea de comando (`JSW
 - **Seccion `Render`** — perillas que cambian lo que se ve, aplicadas por frame asi que el
   cambio es inmediato: `tiles` (slab/screen/off, un `Choice`), `blobs` (base/adjacent),
   `playfield` fila inicial + alto, `relieve` (profundidad / frames-movil / celdas-decor /
-  isla-bbox / frames-quieto / relleno de siluetas huecas), deteccion de items, opacidad de
-  fantasmas, y los dos del **hilo de taint** —
+  isla-bbox / celdas-quieto / tinte del relleno / relleno de siluetas huecas), deteccion de
+  items, opacidad de fantasmas, y los dos del **hilo de taint** —
   `sprite bits` y `fresh frames`— tageados `[re-seek]` porque su efecto es hacia adelante
   (`TaintReplay.spriteBitsOn`/`freshFrames`, `volatile`, seteados desde el hilo de render).
 - **Seccion `Catalogo (offline)`** — las perillas `discover.*` de `TaintDiscover`, tageadas
