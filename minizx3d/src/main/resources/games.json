@@ -316,6 +316,13 @@
 			}
 		},
 		"objetos": [
+			{
+				"nombre": "objeto1",
+				"piezas": "$e1e0",
+				"rects": "174 100 25 43",
+				"hoja": "0 1 25 43",
+				"render": "PRIMITIVE OVOID 0.3"
+			}
 		]
 	}
 },
