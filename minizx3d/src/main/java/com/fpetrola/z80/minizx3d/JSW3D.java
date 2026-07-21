@@ -1287,6 +1287,8 @@ public class JSW3D extends ApplicationAdapter {
         0, 30, 1, true, () -> (float) DYN_FRAMES, v -> DYN_FRAMES = Math.round(v));
     addParam("render.relief.decor", "relief.decor", "Render", "relieve celdas decor",
         0, 60, 1, true, () -> (float) decorCells, v -> decorCells = Math.round(v));
+    addFlag("render.relief.fill", "relief.fill", "Render", "relleno de siluetas huecas",
+        () -> reliefFill, v -> reliefFill = v, "");
     addFlag("render.items", "items", "Render", "deteccion de items",
         () -> itemsOn, v -> itemsOn = v, "");
     addParam("general.ghostAlpha", "ghost.alpha", "Render", "fantasmas opacidad",
@@ -1977,11 +1979,17 @@ public class JSW3D extends ApplicationAdapter {
         // the same plane Willy hangs from, not painted on the far backdrop.
         int bits;
         if ("screen".equals(tilesMode) && inPlayfield(y))
-          // whatever the relief claimed last frame (slab, ghost, floating decor or a
-          // moving blob) must not ALSO stay painted flat behind its own model; only what
-          // the relief left unclaimed falls back to 2D
-          bits = snap.owner()[i] != 0 || snap.tile()[i] != 0
-              || cellClaimed[(y >> 3) * 32 + col] ? 0 : snap.pixels()[i] & 0xff;
+          // whatever the relief claimed (slab, ghost, floating decor or a moving blob) must
+          // not ALSO stay painted flat behind its own model; everything else falls back to
+          // 2D, minus the moving sprites' own ink, which updateSprites already models.
+          //
+          // Erasing every owner/tile-tainted byte outright was the bug behind "the platform
+          // tiles vanish when a character comes near": a byte the relief could not claim
+          // (its scenery cache empty, the sprite's mask over it, a model that came out null)
+          // lost its 2D fallback as well and the room went black exactly where the player
+          // was standing. Nothing may leave the screen without something drawing it.
+          bits = cellClaimed[(y >> 3) * 32 + col] ? 0
+              : snap.pixels()[i] & ~snap.spriteBits()[i] & 0xff;
         else if (snap.owner()[i] != 0)
           // only the sprite's OWN ink leaves the backdrop. Under a masked compositing
           // engine the rest of the byte is background that must stay painted; with the
@@ -2386,8 +2394,29 @@ public class JSW3D extends ApplicationAdapter {
   private int DYN_FRAMES = iprop("render.relief.dyn", "relief.dyn", 4);
   /** static islands of at most this many cells are decor (float), not architecture. */
   private int decorCells = iprop("render.relief.decor", "relief.decor", 12);
+  /**
+   * Fill the enclosed background of a floating blob before inflating it
+   * (-Drelief.fill=false to keep the literal silhouette). The games draw items as hollow
+   * outlines; without this they inflate into rings instead of bodies.
+   */
+  private boolean reliefFill = bprop("render.relief.fill", "relief.fill", true);
+
+  /**
+   * -Drelief.audit=N dumps, at frame N, what {@link #updateScreenRelief} decided for every
+   * playfield cell, as a 32-column map: '.' air, 'G' sprite cell rebuilt from the scenery
+   * cache, 'f' sprite cell whose leftover ink floats, 'X' sprite cell that drew NOTHING (the
+   * hole), 'D' cell floating because it is being rewritten, 'd' small island floating as
+   * decor, 'T' slab, 'I' item, '?' the model came out null. Deterministic, unlike the render.
+   */
+  private final int auditFrame = Integer.getInteger("relief.audit", -1);
+  private char[] auditMap;
+  private boolean auditDone;
 
   private void updateScreenRelief(TaintReplay.FrameSnapshot snap) {
+    auditMap = auditFrame >= 0 && !auditDone && shownFrame >= auditFrame
+        ? new char[24 * 32] : null;
+    if (auditMap != null)
+      java.util.Arrays.fill(auditMap, ' ');
     tileInstances.clear();
     System.arraycopy(solidCells, 0, prevSolidCells, 0, solidCells.length);
     java.util.Arrays.fill(solidCells, false);
@@ -2397,6 +2426,11 @@ public class JSW3D extends ApplicationAdapter {
     byte[][] bmps = new byte[n][];
     int[] tOf = new int[n];
     boolean[] spr = new boolean[n], dyn = new boolean[n];
+    // what each floating cell contributes to its object, resolved into blobs at the end
+    byte[][] floatBmp = new byte[n][];
+    int[] floatAttr = new int[n];
+    /** a detected item: in lantern mode it glows on its own, as it always did */
+    boolean[] floatGlow = new boolean[n];
     for (int cellY = top; cellY < end; cellY++)
       for (int col = 0; col < 32; col++) {
         int y0 = cellY * 8, cell = cellY * 32 + col;
@@ -2461,6 +2495,8 @@ public class JSW3D extends ApplicationAdapter {
         cellClaimed[cell] = false;
         int attr = snap.attrs()[cell] & 0xff;
         if (spr[cell]) {
+          if (auditMap != null)
+            auditMap[cell] = cellBmp[cell] != null ? 'G' : bmp != null ? 'f' : 'X';
           // scenery the sprite is standing in, rebuilt see-through from the cell's cache
           if (cellBmp[cell] != null) {
             ghostScreenCell(col, y0, cell);
@@ -2478,16 +2514,26 @@ public class JSW3D extends ApplicationAdapter {
               any |= extra[r] & 0xff;
             }
             if (any != 0) {
-              floatCell(col, y0, extra, attr);
-              cellClaimed[cell] = true;
+              // per cell, NOT merged into a blob: this ink is whatever the character's mask
+              // did not claim inside his own cells — mostly his own pixels the taint missed.
+              // Merging them built a smooth body around him that hid the real sprite model.
+              boolean drawn = floatCell(col, y0, extra, attr);
+              cellClaimed[cell] |= drawn;
+              if (auditMap != null && auditMap[cell] != 'G')
+                auditMap[cell] = drawn ? 'f' : '?';
             }
           }
           continue;
         }
         if (bmp == null) { // air: nothing to build, and the scenery cache is stale
           cellBmp[cell] = null;
+          if (auditMap != null)
+            auditMap[cell] = '.';
           continue;
         }
+        if (auditMap != null)
+          auditMap[cell] = dyn[cell] ? 'D'
+              : comp[cell] >= 0 && compSize.get(comp[cell]) <= decorCells ? 'd' : 'T';
         if (dyn[cell]) {
           // BEING REWRITTEN RIGHT NOW: a moving thing — the player, a missile, an
           // explosion, an enemy — floating at mid depth like any sprite.
@@ -2497,14 +2543,20 @@ public class JSW3D extends ApplicationAdapter {
           // is on the cell but not that it is currently in motion, so the player was being
           // extruded backwards as architecture. Only 18% of cells are dynamic at all, so
           // the scenery is not at risk of floating away with them.
-          floatCell(col, y0, bmp, attr);
+          floatBmp[cell] = bmp;
+          floatAttr[cell] = attr;
           cellClaimed[cell] = true;
           continue;
         }
         if (comp[cell] >= 0 && compSize.get(comp[cell]) <= decorCells) {
           // a small isolated island: stars, planets, floating decor — rendered like a
-          // mobile sprite (inflated, mid depth), never as a walkable slab
-          floatCell(col, y0, bmp, attr);
+          // mobile sprite (inflated, mid depth), never as a walkable slab.
+          // Cached like the slabs: it is scenery too, so a character walking over the
+          // ledge gets its ghost instead of punching the ledge out of the room.
+          cellBmp[cell] = bmp.clone();
+          cellAttr[cell] = attr;
+          floatBmp[cell] = bmp;
+          floatAttr[cell] = attr;
           cellClaimed[cell] = true;
           continue;
         }
@@ -2538,59 +2590,210 @@ public class JSW3D extends ApplicationAdapter {
               && shownFrame - leafLastFlash.getOrDefault(leaf, 0) > 50)
             itemLeaves.remove(leaf); // not flashing anymore: platform, not item
         }
-        boolean item = t != 0 && itemLeaves.contains(leaf);
-        Model model = item
-            ? sprite3d.model(SpriteBitmap.ofScreen(bmp.clone(), 1, leaf), viewerDefaults())
-            : pixSlab(bmp, slabDepth() * reliefDepth);
-        if (model == null)
-          continue;
-        cellBmp[cell] = bmp.clone();
-        cellAttr[cell] = attr;
-        solidCells[cell] = !item;
-        cellClaimed[cell] = true;
-        ModelInstance inst = new ModelInstance(model);
-        inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
-        Color inkColor = PALETTE[(attr & 7) | ((attr >> 3) & 8)];
-        if (item) {
-          inst.materials.first().set(ColorAttribute.createDiffuse(inkColor));
+        Color inkColor = PALETTE[ink(attr)];
+        if (t != 0 && itemLeaves.contains(leaf)) {
+          // A DETECTED ITEM IS NOT A TILE: it goes down the same road as everything else
+          // with volume — one model for the whole object, built by floatBlobs from all its
+          // cells at once. Modelling it cell by cell here made a 16x16 treasure four
+          // separate 8x8 lumps, which is exactly what reads as "still a tile".
+          cellBmp[cell] = bmp.clone();
+          cellAttr[cell] = attr;
+          floatBmp[cell] = bmp;
+          floatAttr[cell] = attr;
+          floatGlow[cell] = true;
+          cellClaimed[cell] = true;
+          if (auditMap != null)
+            auditMap[cell] = 'I';
           if (fireOn)
             effects.addFireSpot(col * 8 + 4, H - (y0 + 4), midZ() + 6);
           if (darkMode) {
-            inst.materials.first().set(ColorAttribute.createEmissive(
-                inkColor.r * .75f, inkColor.g * .75f, inkColor.b * .75f, 1));
             float flick = fireOn ? effects.flicker(cell) : 1;
             frameLights.add(new com.badlogic.gdx.graphics.g3d.environment.PointLight().set(
                 fireOn ? 1 : inkColor.r, fireOn ? .55f : inkColor.g, fireOn ? .2f : inkColor.b,
                 col * 8 + 4, H - (y0 + 4), midZ() + 8, itemLightIntensity * flick));
           }
-        } else {
-          Material ink = inst.getMaterial(TileSlabBuilder.INK);
-          ink.set(ColorAttribute.createDiffuse(inkColor));
-          wetten(ink);
-          Material paper = inst.getMaterial(TileSlabBuilder.PAPER);
-          if (paper != null) { // an all-ink cell has no paper part
-            // NOTE: painting this with the INK colour to hide the black extruded edge was
-            // tried and reverted — in Exolon most cells are mostly paper with dithered ink
-            // on top, so the whole room turned into solid single-colour bricks and every
-            // bit of texture was lost. The black edge needs a narrower fix than this.
-            paper.set(ColorAttribute.createDiffuse(PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
-            wetten(paper);
-          }
+          continue;
+        }
+        Model model = pixSlab(bmp, slabDepth() * reliefDepth);
+        if (auditMap != null)
+          auditMap[cell] = model == null ? '?' : 'T';
+        if (model == null)
+          continue;
+        cellBmp[cell] = bmp.clone();
+        cellAttr[cell] = attr;
+        solidCells[cell] = true;
+        cellClaimed[cell] = true;
+        ModelInstance inst = new ModelInstance(model);
+        inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
+        Material ink = inst.getMaterial(TileSlabBuilder.INK);
+        ink.set(ColorAttribute.createDiffuse(inkColor));
+        wetten(ink);
+        Material paper = inst.getMaterial(TileSlabBuilder.PAPER);
+        if (paper != null) { // an all-ink cell has no paper part
+          // NOTE: painting this with the INK colour to hide the black extruded edge was
+          // tried and reverted — in Exolon most cells are mostly paper with dithered ink
+          // on top, so the whole room turned into solid single-colour bricks and every
+          // bit of texture was lost. The black edge needs a narrower fix than this.
+          paper.set(ColorAttribute.createDiffuse(PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
+          wetten(paper);
         }
         tileInstances.add(inst);
       }
+    floatBlobs(floatBmp, floatAttr, floatGlow, tOf, top, end);
+    if (auditMap != null) {
+      auditDone = true;
+      dumpAudit(snap, top, end, tOf, spr, dyn, comp, compSize);
+    }
+  }
+
+  /**
+   * Everything that FLOATS — an item, a moving thing, a piece of decor — is inflated as the
+   * OBJECT it belongs to: adjacent floating cells are one connected blob and get ONE model,
+   * exactly how {@link #updateSprites} handles a composite sprite in adjacent mode.
+   *
+   * <p>Inflating cell by cell was the bug behind "the items must have volume, they are being
+   * treated as tiles": each 8x8 chunk got its own rounded lump, so a 16x16 item came out as
+   * four beads in a ring instead of one body, and a ledge came out as a row of separate
+   * pillows. The silhouette a shape needs to read as a volume simply is not there inside one
+   * cell — the distance transform can only see 8 pixels in any direction.
+   *
+   * <p>Blobs stop at a COLOR change, because on this hardware color is the only thing that
+   * says where one object ends: a magenta guardian standing on a cyan ledge is 8-connected
+   * to it, and merging the two gave one model tinted by the majority vote — the ledge turned
+   * magenta and grew a bulge. Same ink, same object.
+   *
+   * <p>Falls back to the per-cell inflate when the blob is too big to mesh in one piece
+   * (the builders return null past the index limit): better lumpy than missing.
+   */
+  private void floatBlobs(byte[][] floatBmp, int[] floatAttr, boolean[] floatGlow,
+      int[] tOf, int top, int end) {
+    boolean[] seen = new boolean[24 * 32];
+    java.util.ArrayDeque<Integer> queue = new java.util.ArrayDeque<>();
+    List<Integer> cells = new ArrayList<>();
+    for (int c0 = top * 32; c0 < end * 32; c0++) {
+      if (seen[c0] || floatBmp[c0] == null)
+        continue;
+      cells.clear();
+      seen[c0] = true;
+      queue.add(c0);
+      int ink0 = ink(floatAttr[c0]);
+      int minC = 31, maxC = 0, minR = 23, maxR = 0;
+      boolean glow = false;
+      while (!queue.isEmpty()) {
+        int p = queue.poll();
+        cells.add(p);
+        glow |= floatGlow[p];
+        int py = p >> 5, px = p & 31;
+        minC = Math.min(minC, px);
+        maxC = Math.max(maxC, px);
+        minR = Math.min(minR, py);
+        maxR = Math.max(maxR, py);
+        for (int dy = -1; dy <= 1; dy++)
+          for (int dx = -1; dx <= 1; dx++) {
+            int ny = py + dy, nx = px + dx;
+            if (ny < top || ny >= end || nx < 0 || nx > 31)
+              continue;
+            int q = ny * 32 + nx;
+            if (!seen[q] && floatBmp[q] != null && ink(floatAttr[q]) == ink0) {
+              seen[q] = true;
+              queue.add(q);
+            }
+          }
+      }
+      int wB = maxC - minC + 1, rows = (maxR - minR + 1) * 8;
+      byte[] bmp = new byte[wB * rows];
+      for (int p : cells) {
+        int py = p >> 5, px = p & 31;
+        for (int r = 0; r < 8; r++)
+          bmp[((py - minR) * 8 + r) * wB + (px - minC)] = floatBmp[p][r];
+      }
+      // the leaf of the blob's first cell keys per-graphic overrides (F7..F10): the same
+      // item lands on the same catalog address every time it is drawn
+      int base = tOf[cells.get(0)] - 1;
+      Model m = sprite3d.model(
+          SpriteBitmap.ofScreen(reliefFill ? SpriteFx.fillHoles(bmp, wB) : bmp, wB, base),
+          viewerDefaults());
+      if (m == null) {
+        for (int p : cells) {
+          boolean drawn = floatCell(p & 31, (p >> 5) * 8, floatBmp[p], floatAttr[p]);
+          cellClaimed[p] = drawn;
+          if (auditMap != null && !drawn)
+            auditMap[p] = '?';
+        }
+        continue;
+      }
+      ModelInstance inst = new ModelInstance(m);
+      inst.transform.setToTranslation(minC * 8 + wB * 4f,
+          H - (minR * 8 + (maxR - minR + 1) * 4f), midZ());
+      Color c = PALETTE[ink0]; // one ink per blob: that is what bounded it in the first place
+      inst.materials.first().set(ColorAttribute.createDiffuse(c));
+      if (glow && darkMode) // an item blazes with light of its own in the gloom
+        inst.materials.first().set(
+            ColorAttribute.createEmissive(c.r * .75f, c.g * .75f, c.b * .75f, 1));
+      wetten(inst.materials.first());
+      tileInstances.add(inst);
+    }
+  }
+
+  /** the -Drelief.audit dump: the decision map plus what the two open questions need. */
+  private void dumpAudit(TaintReplay.FrameSnapshot snap, int top, int end, int[] tOf,
+      boolean[] spr, boolean[] dyn, int[] comp, java.util.List<Integer> compSize) {
+    StringBuilder sb = new StringBuilder("relief.audit frame " + shownFrame + "\n");
+    Map<Integer, Integer> leafCells = new HashMap<>();
+    for (int cellY = top; cellY < end; cellY++) {
+      for (int col = 0; col < 32; col++) {
+        int cell = cellY * 32 + col;
+        sb.append(auditMap[cell]);
+        if (auditMap[cell] != '.' && auditMap[cell] != ' ' && tOf[cell] != 0)
+          leafCells.merge(tOf[cell] - 1, 1, Integer::sum);
+      }
+      sb.append("  row ").append(cellY).append('\n');
+    }
+    // sprite-owned cells: how STALE their pixels are. A real character is rewritten every
+    // frame; scenery the taint mislabelled as sprite has not been touched in ages.
+    for (int cellY = top; cellY < end; cellY++)
+      for (int col = 0; col < 32; col++) {
+        int cell = cellY * 32 + col;
+        if (!spr[cell] || auditMap[cell] == '.' || auditMap[cell] == ' ')
+          continue;
+        int age = Integer.MAX_VALUE, y0 = cellY * 8;
+        for (int r = 0; r < 8; r++) {
+          int i = idx(y0 + r, col);
+          if ((snap.pixels()[i] & 0xff) != 0)
+            age = Math.min(age, snap.frame() - replay.lastWrite[i]);
+        }
+        sb.append("  spr cell r").append(cellY).append("c").append(col)
+            .append(" role=").append(auditMap[cell])
+            .append(" leaf=$").append(Integer.toHexString(Math.max(0, tOf[cell] - 1)))
+            .append(" age=").append(age == Integer.MAX_VALUE ? -1 : age)
+            .append(" comp=").append(comp[cell] < 0 ? -1 : compSize.get(comp[cell]))
+            .append('\n');
+      }
+    // leaf -> how many cells show it. A platform tile repeats; an item's graphic does not.
+    sb.append("  leaf histogram (cells per leaf):\n");
+    leafCells.entrySet().stream()
+        .sorted((a, b) -> b.getValue() - a.getValue())
+        .forEach(e -> sb.append("    $").append(Integer.toHexString(e.getKey()))
+            .append(" -> ").append(e.getValue()).append('\n'));
+    System.out.println(sb);
+  }
+
+  /** the attribute's ink index into {@link #PALETTE} (bright included). */
+  private static int ink(int attr) {
+    return (attr & 7) | ((attr >> 3) & 8);
   }
 
   /** a cell rendered like a small mobile sprite: inflated from its pixels, mid-depth. */
-  private void floatCell(int col, int y0, byte[] bmp, int attr) {
+  private boolean floatCell(int col, int y0, byte[] bmp, int attr) {
     Model m = sprite3d.model(SpriteBitmap.ofScreen(bmp.clone(), 1, -1), viewerDefaults());
     if (m == null)
-      return;
+      return false;
     ModelInstance inst = new ModelInstance(m);
     inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
     inst.materials.first().set(ColorAttribute.createDiffuse(PALETTE[(attr & 7) | ((attr >> 3) & 8)]));
     wetten(inst.materials.first());
     tileInstances.add(inst);
+    return true;
   }
 
   /** the screen-mode ghost: the cell's cached clean pixels, rebuilt see-through. */

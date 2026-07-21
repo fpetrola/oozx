@@ -246,6 +246,38 @@ Resultado verificado: estructuras y terreno extruidos hacia el fondo con caras l
 visibles, entidades en 3D en el medio de ese espesor, y **el personaje como una sola figura
 sin estela**. JSW/MM siguen en `tiles=slab` (default) y quedaron sin cambios.
 
+**Lo que flota se infla por OBJETO, no por celda** (`JSW3D.floatBlobs`, salió de Monty: "los
+ítems tienen que tener volumen y no tratarlos como tile"). En modo `screen` hay dos destinos:
+losa (arquitectura) o flotar a media profundidad (ítem, cosa que se mueve, decorado). Lo que
+flota se inflaba **una celda 8×8 por vez**, así que un ítem de 16×16 salía como cuatro bolitas
+en anillo y una repisa como una fila de almohadones: adentro de una celda la transformada de
+distancia no ve más de 8 píxeles en ninguna dirección, o sea la silueta que hace falta para
+leer un volumen no está ahí. Ahora las celdas flotantes contiguas se juntan en un blob y
+reciben **un solo modelo**, igual que un sprite compuesto en modo `adjacent`.
+
+Tres reglas que costaron una corrida cada una:
+
+- **El blob corta donde cambia el COLOR.** Un guardián magenta parado sobre una repisa cian
+  está 8-conexo con ella; fusionarlos daba un modelo con el voto de tinta mayoritario y la
+  repisa salía magenta con un bulto encima. Mismo ink, mismo objeto.
+- **Se rellena la silueta hueca** (`SpriteFx.fillHoles`, `-Drelief.fill=false` para apagarlo):
+  estos juegos dibujan un objeto sólido como su CONTORNO, y inflar el contorno literal da una
+  rosquilla — el ítem de Monty salía como un aro. Lo que un flood desde el borde no alcanza es
+  el adentro del objeto.
+- **La tinta sobrante en las celdas del personaje sigue yendo celda por celda.** Es lo que su
+  máscara no reclamó (casi todo, píxeles suyos que la taint no marcó); fusionarla y rellenarla
+  le construía una burbuja lisa alrededor que tapaba el modelo real del sprite.
+
+**Nada puede irse de la pantalla sin que algo lo dibuje** (fue la causa de "cuando un sprite se
+acerca, los tiles de la plataforma desaparecen"). `updateBackdrop` borraba del plano 2D **todo**
+byte con dueño o con tile, aunque el relieve no lo hubiera podido dibujar — y hay tres formas de
+no poder: el caché de decorado de la celda vacío, la máscara del sprite encima, o un modelo que
+salió null. Esas celdas quedaban negras justo donde estaba el personaje. Ahora el backdrop mira
+**solo `cellClaimed`**, y lo no reclamado vuelve a 2D menos la tinta propia del sprite (que
+`updateSprites` ya modela), que es la misma regla que el modo no-`screen` ya usaba. Además el
+decorado chico (`decor`) ahora también cachea sus píxeles limpios en `cellBmp`, así que una
+repisa pisada tiene fantasma como cualquier losa.
+
 **Sigue abierto**: quedan bases catalogadas como sprite con bbox de pantalla completa
 (`$6400`, `$643e`, `$fbe6` — parecen gráficos de marcador/fuente), que son las que todavía
 ensucian; y evaluar un camino intermedio para el fondo de Exolon (losas donde el fondo es
@@ -383,7 +415,7 @@ tapado; el bitmap de memoria es la forma "limpia". Trade-off a evaluar.
 | Manic Miner | `mm` | `analysis/mm.db` | ✅ completo |
 | Dynamite Dan | `dd` | `analysis/dd.db` | 🟡 sprites+tiles ok; máscaras pendientes |
 | Exolon | `exolon` | `analysis/exolon-taint.db` | 🟢 catálogo por taint-discovery (30k frames), fondo por relieve de pantalla, sin estela (§5.1). Pendiente: bases de marcador/fuente aún como sprite |
-| Monty on the Run | `monty` | `analysis/monty-taint.db` | 🟢 catálogo por taint-discovery (4.889 frames, 5s), fondo por relieve de pantalla. Es el primer juego con el marcador ARRIBA: `playfield.top=2` + `rows=20`. Las piezas del catálogo son tiras de animación enteras: el tamaño se capa por el blob (§ arriba). Pendiente: la planta donde se para Monty queda clasificada como sprite y no se dibuja |
+| Monty on the Run | `monty` | `analysis/monty-taint.db` | 🟢 catálogo por taint-discovery (4.889 frames, 5s), fondo por relieve de pantalla. Es el primer juego con el marcador ARRIBA: `playfield.top=2` + `rows=20`. Las piezas del catálogo son tiras de animación enteras: el tamaño se capa por el blob (§ arriba). Ítems y decorado con volumen por blob + relleno de silueta, y sin agujeros negros donde pisa Monty (§5.1). Pendiente: la planta donde se para queda clasificada como sprite, así que se ve por fantasma/sobrante y no como losa |
 
 Perfiles en `minizx3d/src/main/resources/games.json`. Cada uno trae rzx + db + tweaks del juego.
 
@@ -406,6 +438,12 @@ Todas en el `main` de `TaintReplay` (modo validación headless) salvo la última
   pantalla.
 - **`-Dshot=/path.png -Dshot.frame=N -Dcam.pos=x,y,z`** — captura del framebuffer para chequeo
   visual.
+- **`-Drelief.audit=N`** (visor, modo `tiles=screen`) — en el primer frame ≥ N imprime **qué
+  decidió el relieve en cada celda** del playfield, como un mapa de 32 columnas: `.` aire, `G`
+  celda con sprite reconstruida del caché, `f` sobrante del personaje, `X` celda con sprite que
+  no dibujó nada, `D` flotando por reescritura, `d` isla chica (decorado), `T` losa, `I` ítem,
+  `?` el modelo salió null. Además lista las celdas con sprite con su edad de escritura y el
+  histograma hoja → celdas. Es determinista, al revés que la captura.
 - **`-Dlog=true`** — habilita todos los prints (por default la consola está muda).
 
 Flujo para un juego nuevo (el catálogo por taint NO necesita las pasadas del tracker: se

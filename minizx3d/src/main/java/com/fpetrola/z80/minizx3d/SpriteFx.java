@@ -175,6 +175,53 @@ public final class SpriteFx {
   }
 
   /**
+   * Fills the silhouette's ENCLOSED background, in place on the packed rows.
+   *
+   * <p>An 8-bit graphic draws a solid object as its outline: Monty's items are rings of ink
+   * with the paper showing through the middle. Inflating that silhouette literally gives a
+   * donut — the object reads as a flat pierced tile, not as a body with volume. Whatever
+   * background a flood from the border never reaches is INSIDE the object, so it becomes
+   * part of the shape and the inflate has something to give depth to.
+   *
+   * <p>4-connectivity for the flood, so a diagonal chain of ink still encloses what it
+   * surrounds, which is how these outlines are drawn.
+   */
+  public static byte[] fillHoles(byte[] packed, int wBytes) {
+    int rows = packed.length / Math.max(1, wBytes), w = wBytes * 8;
+    if (rows <= 2 || w <= 2)
+      return packed;
+    boolean[][] outside = new boolean[rows][w];
+    java.util.ArrayDeque<int[]> q = new java.util.ArrayDeque<>();
+    for (int y = 0; y < rows; y++)
+      for (int x = 0; x < w; x++)
+        if ((y == 0 || y == rows - 1 || x == 0 || x == w - 1)
+            && !lit(packed, wBytes, x, y) && !outside[y][x]) {
+          outside[y][x] = true;
+          q.add(new int[]{y, x});
+        }
+    while (!q.isEmpty()) {
+      int[] p = q.poll();
+      int[][] n4 = {{p[0] - 1, p[1]}, {p[0] + 1, p[1]}, {p[0], p[1] - 1}, {p[0], p[1] + 1}};
+      for (int[] nb : n4)
+        if (nb[0] >= 0 && nb[0] < rows && nb[1] >= 0 && nb[1] < w
+            && !outside[nb[0]][nb[1]] && !lit(packed, wBytes, nb[1], nb[0])) {
+          outside[nb[0]][nb[1]] = true;
+          q.add(nb);
+        }
+    }
+    byte[] out = packed.clone();
+    for (int y = 0; y < rows; y++)
+      for (int x = 0; x < w; x++)
+        if (!outside[y][x])
+          out[y * wBytes + (x >> 3)] |= (byte) (0x80 >> (x & 7));
+    return out;
+  }
+
+  private static boolean lit(byte[] packed, int wBytes, int x, int y) {
+    return (packed[y * wBytes + (x >> 3)] & (0x80 >> (x & 7))) != 0;
+  }
+
+  /**
    * Two-pass chamfer distance to the nearest background pixel, in whole steps. Same notion
    * the voxel and smooth builders already use; kept here so every technique shares one.
    */
