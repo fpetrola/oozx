@@ -278,6 +278,35 @@ usuario) es imposible no verlo. Ahora se compara el bitmap de la celda contra `c
 últimos píxeles limpios): si son **exactamente** los mismos, no se movió nada y sigue siendo
 losa. Medido en Monty: hasta 17 celdas por frame salvadas, en 411 de ~950 frames.
 
+**Un planeta no es una pared: la arquitectura LLEGA AL PISO.** El corte decorado/arquitectura
+era solo el TAMAÑO de la componente conexa, y los planetas grandes de Exolon (16-18 celdas) caen
+del lado de la arquitectura con cualquier umbral que no se trague también un muro: salían
+extruidos hasta el fondo en vez de volumétricos. Lo que los separa de verdad es que la
+arquitectura está anclada —la banda de terreno, un pilar, un muro llegan a la fila de abajo—
+mientras el planeta cuelga en el cielo, y además es compacto donde una repisa es una barra fina.
+`JSW3D.island`: no toca el piso + bbox ≤ `relief.island` (8 celdas) + relación de lados ≤ 2,5 +
+llenado ≥ 0,5. **Tocar el borde de PANTALLA no es anclaje**: los planetas de Exolon aparecen
+recortados por el borde izquierdo, y probar contra cualquier borde dejaba media esfera
+volumétrica y la mitad recortada extruida como un rayo.
+
+**Una entidad que se detuvo sigue siendo una entidad.** Un motor de dirty-regions no repinta lo
+que no se mueve, así que el personaje quieto pierde la taint de sprite (`fresh.frames`) *y* la
+frescura de escritura, se une como componente estática al terreno que pisa y lo extruyen contra
+la pared: "hay frames en que deja de ser volumétrico". Mientras sus píxeles no cambien mantiene
+el rol de flotante, por una ventana acotada (`relief.hold`, 40 frames) para que el decorado
+dibujado durante el movimiento igual termine asentándose en losas.
+
+**El grafo de componentes es "dónde hay decorado", no "qué está quieto"** — y esa es la causa del
+parpadeo de las puntas de las plataformas. Dejar afuera las celdas móviles hacía que la
+pertenencia dependiera de lo que pasara caminando: un sprite cruzando una plataforma la parte en
+dos, el pedazo sobrante cae bajo el umbral de decorado, y sus celdas se cambiaban de losa a
+bulto flotante y de vuelta **con los píxeles intactos** (medido: 853 flips `T<->d`). Ahora una
+celda entra al grafo si tiene píxeles limpios cacheados o tinta que no es algo que se mueve: el
+caché puentea por debajo del personaje y el misil que pasa cerca de un planeta no se le pega.
+Encima, **disparador de Schmitt** en el umbral: una celda que ya flota necesita que su componente
+llegue al DOBLE del límite para pasar a arquitectura. Medido en Exolon: 853 → 286 flips, y los
+que quedan son nubes de humo pasajeras.
+
 **Blobs de sprite demasiado chicos**: `updateSprites` ignora los blobs de menos de 4 bytes (una
 mota no es un personaje) pero `updateBackdrop` ya les había borrado los píxeles → hueco negro.
 Es el mismo caso que los blobs gigantes, del otro extremo, así que se arregla en el mismo lugar:
@@ -463,6 +492,10 @@ Todas en el `main` de `TaintReplay` (modo validación headless) salvo la última
   dibuja nadie**: blobs de sprite descartados (chicos o sin modelo) cuyos bytes el backdrop ya
   borró. Debe dar 0; cualquier línea es un agujero negro en la sala. Informa también cuántas
   celdas salvó por frame la regla de "repintada con lo mismo".
+- **`-Drelief.flips=true`** (visor) — lista las celdas que **cambian de rol con los píxeles
+  idénticos**: el mundo no se movió, el render sí. Es la medida del parpadeo (`T<->d` = losa
+  contra bulto flotante) y la que sirve para comparar reglas: en Exolon bajó de 853 a 286.
+  Ignora `.<->X`, que no dibujan nada en ninguno de los dos estados.
 - **`-Dlog=true`** — habilita todos los prints (por default la consola está muda).
 
 Flujo para un juego nuevo (el catálogo por taint NO necesita las pasadas del tracker: se
