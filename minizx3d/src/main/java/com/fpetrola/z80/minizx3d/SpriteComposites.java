@@ -52,6 +52,8 @@ public final class SpriteComposites {
     public byte[] ink;
     /** paper colour per cell, so the object is drawn exactly as the screen showed it. */
     public byte[] paper;
+    /** lit pixels of the drawing kept: the fullest sighting wins the picture. */
+    public int litPixels;
     public int cellCols, cellRows;
     /** catalogue base -> how many bytes of this object came from it. */
     public final Map<Integer, Integer> pieces = new LinkedHashMap<>();
@@ -69,6 +71,10 @@ public final class SpriteComposites {
    * starts its own burst.
    */
   private final int gap = Integer.getInteger("discover.objects.gap", 48);
+  /** how many frames back a drawing at the same place still counts as the same object. */
+  private final int window = Integer.getInteger("discover.objects.window", 24);
+  /** boxes drawn recently, to grow a sliced repaint back into the whole thing. */
+  private final List<int[]> recent = new ArrayList<>();
   /** the replay this pass ran, kept so a caller with no emulator of its own can read memory */
   private TaintReplay replay;
 
@@ -129,33 +135,108 @@ public final class SpriteComposites {
     writes.sort((a, b) -> Integer.compare(a[0], b[0]));
     int top = JSW3D.iprop("render.playfield.top", "playfield.top", 0) * 8;
     int end = Math.min(h, top + JSW3D.iprop("render.playfield.rows", "playfield.rows", 24) * 8);
+    List<List<Integer>> bursts = new ArrayList<>();
     List<Integer> burst = new ArrayList<>();
     int prev = -1;
     for (int[] w : writes) {
       if (prev >= 0 && w[0] - prev > gap) {
-        flush(snap, burst, top, end);
-        burst.clear();
+        if (!burst.isEmpty())
+          bursts.add(burst);
+        burst = new ArrayList<>();
       }
       burst.add(w[1]);
       prev = w[0];
     }
-    flush(snap, burst, top, end);
+    if (!burst.isEmpty())
+      bursts.add(burst);
+    for (List<Integer> b : merge(bursts, top, end))
+      flush(snap, b, grow(bbox(b), frame), top, end);
+    recent.removeIf(r -> frame - r[4] > window);
   }
 
-  /** one drawing: its bounding box on screen, captured as the screen shows it. */
-  private void flush(TaintReplay.FrameSnapshot snap, List<Integer> burst, int top, int end) {
-    if (burst.size() < minBytes)
-      return;
+  /**
+   * Grow a drawing's box with the ones that landed on the SAME PLACE in the last frames.
+   *
+   * <p>A dirty-region engine repaints a big static thing in slices — half a planet this
+   * frame, the other half the next — so within one frame there is never a burst that covers
+   * it and it kept coming out as a half-dome. The box is what gets captured, and what gets
+   * captured is read from the SCREEN, which holds the whole planet the whole time: widening
+   * the box with what was drawn there recently is enough to see the object complete.
+   */
+  private int[] grow(int[] box, int frame) {
+    for (int[] r : recent) {
+      // real OVERLAP, not proximity, and only while the result still looks like an object:
+      // with slack and no cap the boxes chained along the terrain band until the whole
+      // screen was one "object" and the run ended with seven of them
+      if (box[0] > r[2] || r[0] > box[2] || box[1] > r[3] || r[1] > box[3])
+        continue;
+      int c0 = Math.min(box[0], r[0]), r0 = Math.min(box[1], r[1]);
+      int c1 = Math.max(box[2], r[2]), r1 = Math.max(box[3], r[3]);
+      if (c1 - c0 + 1 > maxCols || r1 - r0 + 1 > maxRows)
+        continue;
+      box[0] = c0;
+      box[1] = r0;
+      box[2] = c1;
+      box[3] = r1;
+    }
+    recent.removeIf(r -> box[0] <= r[0] && box[1] <= r[1] && box[2] >= r[2] && box[3] >= r[3]);
+    recent.add(new int[]{box[0], box[1], box[2], box[3], frame});
+    return box;
+  }
+
+  /**
+   * Bursts that land on the SAME PLACE in the same frame are one object. A routine draws a
+   * character in several passes — the mask, then the ink, then a detail — and a dirty-region
+   * engine repaints a big thing in slices; each of those is its own burst in the write order
+   * but they are all the same drawing, and separately they show up as half a planet.
+   *
+   * <p>Merged when the bounding boxes touch (with a byte of slack), repeatedly, because
+   * merging two can bring a third into contact.
+   */
+  private List<List<Integer>> merge(List<List<Integer>> bursts, int top, int end) {
+    List<int[]> box = new ArrayList<>(); // minC, minR, maxC, maxR
+    for (List<Integer> b : bursts)
+      box.add(bbox(b));
+    boolean again = true;
+    while (again) {
+      again = false;
+      for (int i = 0; i < bursts.size() && !again; i++)
+        for (int j = i + 1; j < bursts.size() && !again; j++) {
+          int[] a = box.get(i), c = box.get(j);
+          if (a[0] > c[2] + 1 || c[0] > a[2] + 1 || a[1] > c[3] + 8 || c[1] > a[3] + 8)
+            continue;
+          bursts.get(i).addAll(bursts.get(j));
+          box.set(i, bbox(bursts.get(i)));
+          bursts.remove(j);
+          box.remove(j);
+          again = true;
+        }
+    }
+    return bursts;
+  }
+
+  private static int[] bbox(List<Integer> burst) {
     int minC = 31, maxC = 0, minR = 191, maxR = 0;
     for (int i : burst) {
       int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), c = i & 31;
-      if (y < top || y >= end)
-        return; // a drawing that touches the status area is not an object of the room
       minC = Math.min(minC, c);
       maxC = Math.max(maxC, c);
       minR = Math.min(minR, y);
       maxR = Math.max(maxR, y);
     }
+    return new int[]{minC, minR, maxC, maxR};
+  }
+
+  /** one drawing: its bounding box on screen, captured as the screen shows it. */
+  private void flush(TaintReplay.FrameSnapshot snap, List<Integer> burst, int[] box,
+      int top, int end) {
+    if (burst.size() < minBytes)
+      return;
+    // clipped to the playfield, not dropped: a drawing that spills a byte into the status
+    // area is still an object of the room, and dropping those lost real ones
+    int minC = box[0], maxC = box[2], minR = Math.max(top, box[1]), maxR = Math.min(end - 1, box[3]);
+    if (maxR < minR)
+      return;
     int w = maxC - minC + 1, rows = maxR - minR + 1;
     if (w > maxCols || rows > maxRows)
       return; // a screen-wide burst is the room being repainted, not a thing in it
@@ -185,13 +266,21 @@ public final class SpriteComposites {
       if (origin >= 0)
         pieces.merge(origin, 1, Integer::sum);
     }
+    // IDENTITY = which graphics compose it, at what size. Hashing the pixels made every
+    // sub-byte X offset of the same object a different entry, so the top of the ranking
+    // filled with twenty copies of one teapot while the ship, drawn a handful of times,
+    // fell off the end. Same pieces at the same size is the same object.
     long hash = (w * 31L + rows) * 1099511628211L;
-    for (byte b : bits)
-      hash = (hash ^ (b & 0xff)) * 1099511628211L;
-    for (byte b : ink)
-      hash = (hash ^ (b & 0xff)) * 1099511628211L;
+    for (int base : new java.util.TreeSet<>(pieces.keySet()))
+      hash = (hash ^ base) * 1099511628211L;
     Composite c = byHash.computeIfAbsent(hash, k -> new Composite());
-    if (c.bits == null) {
+    int litPx = 0;
+    for (byte b : bits)
+      litPx += Integer.bitCount(b & 0xff);
+    // keep the FULLEST drawing seen as the picture: a frame that repainted the object whole
+    // shows it whole, one that repainted a slice does not
+    if (c.bits == null || litPx > c.litPixels) {
+      c.litPixels = litPx;
       c.bits = bits;
       c.ink = ink;
       c.paper = paper;
@@ -199,7 +288,8 @@ public final class SpriteComposites {
       c.rows = rows;
       c.cellCols = cc;
       c.cellRows = cr;
-      c.firstFrame = snap.frame();
+      if (c.firstFrame == 0)
+        c.firstFrame = snap.frame();
     }
     c.count++;
     c.lastFrame = snap.frame();

@@ -617,9 +617,26 @@ personaje— y como texto se diffea en git, se grepea y se corrige a mano.
   lo que está en pantalla se pintó durante el frame anterior al que lo rotula (`frame -
   lastWrite <= 1`, no `==`).
 
-  **Límite conocido**: en un motor de dirty-regions, un objeto que en ese frame se repintó a
-  medias aparece a medias (medio planeta). Es fiel a lo que pasó, pero no siempre es el objeto
-  entero.
+  **Las ráfagas del mismo lugar son un objeto.** Una rutina dibuja un personaje en varias
+  pasadas (la máscara, la tinta, un detalle) y un motor de dirty-regions repinta una cosa
+  grande por tajadas: cada una es su propia ráfaga en el orden de escritura, pero todas son el
+  mismo dibujo. Se fusionan las que se tocan **dentro del frame**, y además la caja se agranda
+  con las de los últimos `discover.objects.window` frames que se **superponen** con ella — con
+  eso los planetas de Exolon dejaron de salir como medias lunas, porque lo que se captura se
+  lee de la PANTALLA, que tiene el planeta entero todo el tiempo, y solo faltaba que la caja lo
+  abarcara. Dos recaudos: superposición real (no cercanía) y no crecer más allá del tope de
+  tamaño — con holgura y sin tope las cajas se encadenan por la banda de terreno hasta que toda
+  la pantalla es "un objeto" (medido: la corrida terminaba con SIETE).
+
+  **La identidad es qué gráficos lo componen, a qué tamaño** — no los píxeles. Hasheando el
+  dibujo, cada desplazamiento sub-byte en X del mismo objeto era una entrada distinta: el tope
+  de la lista se llenaba con veinte copias de una tetera mientras la nave, dibujada un puñado
+  de veces, quedaba afuera del corte. De cada objeto se guarda **el avistamiento más lleno**,
+  que es el frame donde se repintó entero.
+
+  **Límite conocido**: con la ventana, un personaje que camina por delante del decorado puede
+  quedar fusionado con él, así que algunas entradas son "el tipo y el pedazo de suelo que
+  pisa". Es lo que estaba en pantalla, pero no es un objeto solo.
 - **Dos hojas de contacto**: `catalogo-<juego>.png` son los **objetos, en color**, como se ven
   en el juego —es la página que uno mira— y `catalogo-<juego>-piezas.png` son las piezas del
   catálogo en blanco y negro, que contesta la otra pregunta ("¿qué catalogó?").
