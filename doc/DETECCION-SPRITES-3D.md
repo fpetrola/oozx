@@ -297,7 +297,10 @@ Toda regla acá decide losa contra prop, y para una estrella de una celda las do
 malas: modelada como prop queda una bolita flotando adelante del backdrop, y un cielo lleno de
 esas se lee como mugre en el vidrio ("puntitos de 8x8, de distintos colores, que aparecen de
 golpe y van del frente al fondo"). Una isla estática de hasta `relief.dot` celdas que no llega
-al piso se deja **sin modelar**: la pinta el backdrop 2D, que es donde va una estrella.
+al piso se deja **sin modelar**: la pinta el backdrop 2D, que es donde va una estrella. Y la
+misma idea por tinta en vez de por isla, `relief.dotpx` (0 = apagado): una celda arriba del piso
+con hasta N píxeles encendidos es una mota, para la estrella que la conectividad de 8 vecinos
+pegó a una dispersión grande — la isla mide grande y la celda sigue siendo tres píxeles de luz.
 
 **Un fantasma solo es una losa si la celda lo era.** El fantasma reconstruye desde el caché el
 decorado que un sprite está tapando, y lo hacía SIEMPRE como losa: cada vez que algo cruzaba
@@ -545,9 +548,11 @@ Todas en el `main` de `TaintReplay` (modo validación headless) salvo la última
 - **`-Drelief.paint=true`** (visor) — pinta cada modelo según **quién lo dibujó**, ignorando los
   colores del juego: rojo = losa (arquitectura), verde = prop flotante (decorado/móvil), amarillo
   = tinta sobrante alrededor de un personaje, azul = fantasma losa, cyan = fantasma de prop,
-  magenta = ítem detectado, blanco = modelo de sprite. **Lo que conserva su color no es el
-  relieve**: es el backdrop 2D plano o un efecto ambiental (basura, nieve, globos). Es la forma
-  rápida de contestar "¿qué está dibujando esto?" sin adivinar mirando la escena.
+  magenta = ítem detectado, blanco = modelo de sprite, **gris = el backdrop 2D plano** (donde va
+  una estrella). Cualquier otra cosa que conserve su color es un efecto ambiental (basura,
+  nieve, globos). El backdrop se pinta gris a propósito: con los colores del juego, un píxel rojo
+  del arte era indistinguible de una losa pintada de rojo — me confundió a mí primero. Es la
+  forma rápida de contestar "¿qué está dibujando esto?" sin adivinar mirando la escena.
 - **`-Drelief.flips=true`** (visor) — lista las celdas que **cambian de rol con los píxeles
   idénticos**, marcando con `*` las que la taint de sprite tuvo hace poco (o sea: el personaje): el mundo no se movió, el render sí. Es la medida del parpadeo (`T<->d` = losa
   contra bulto flotante) y la que sirve para comparar reglas: en Exolon bajó de 853 a 286.

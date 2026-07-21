@@ -1289,6 +1289,8 @@ public class JSW3D extends ApplicationAdapter {
         0, 60, 1, true, () -> (float) decorCells, v -> decorCells = Math.round(v));
     addParam("render.relief.dot", "relief.dot", "Render", "relieve motas del cielo (celdas)",
         0, 12, 1, true, () -> (float) dotCells, v -> dotCells = Math.round(v));
+    addParam("render.relief.dotpx", "relief.dotpx", "Render", "relieve motas (px encendidos)",
+        0, 32, 1, true, () -> (float) dotPixels, v -> dotPixels = Math.round(v));
     addChoice("render.relief.bar", "relief.bar", "Render", "relieve barras del cielo",
         new String[]{"slab", "flat", "float"}, () -> barMode, v -> barMode = v, "");
     addParam("render.relief.island", "relief.island", "Render", "relieve isla (celdas bbox)",
@@ -2018,9 +2020,13 @@ public class JSW3D extends ApplicationAdapter {
             bits = foreign; // over real tile content it stays 2D, hidden behind the slab
         } else
           bits = snap.pixels()[i] & 0xff; // status-area bytes render as-is, tainted or not
+        // in role-paint mode the flat 2D backdrop goes grey, so that ANY colour on screen is
+        // a model and the ambiguity disappears: a red pixel of the game's own art used to be
+        // indistinguishable from a red-painted slab
+        Color pi = paintRoles ? Color.GRAY : ink, pp = paintRoles ? Color.BLACK : paper;
         for (int bit = 0; bit < 8; bit++)
           pixmap.drawPixel(col * 8 + bit, y, Color.rgba8888(
-              (bits & (0x80 >> bit)) != 0 ? ink : paper));
+              (bits & (0x80 >> bit)) != 0 ? pi : pp));
       }
     }
     screenTex.draw(pixmap, 0, 0);
@@ -2452,6 +2458,13 @@ public class JSW3D extends ApplicationAdapter {
    */
   private int dotCells = iprop("render.relief.dot", "relief.dot", 0);
   /**
+   * Same idea by ink instead of by island: a cell above the floor with at most this many lit
+   * pixels is a speck and stays flat (-Drelief.dotpx, 0 = off). Covers the star that
+   * 8-connectivity glued to a big loose scattering, where the island test sees a large
+   * component and the cell is still three pixels of light.
+   */
+  private int dotPixels = iprop("render.relief.dotpx", "relief.dotpx", 0);
+  /**
    * Biggest island (in cells) that may be held as "a character standing still" after the
    * sprite taint lets go of it (-Drelief.hold). A 16x16 character is 4 cells; anything much
    * larger is scenery the catalog over-claimed, and it settles into slabs as usual.
@@ -2775,8 +2788,14 @@ public class JSW3D extends ApplicationAdapter {
         // component to grow to TWICE the limit before it is promoted to architecture. A
         // single threshold makes every component sitting near the limit — a star, a small
         // rock — swap roles with any one-cell change, and the eye reads that as blinking.
-        boolean speck = comp[cell] >= 0 && compSize.get(comp[cell]) <= dotCells
-            && compBox.get(comp[cell])[3] < end - 1;
+        int litPx = 0;
+        for (int r = 0; r < 8; r++)
+          litPx += Integer.bitCount(bmp[r] & 0xff);
+        // a speck by ISLAND SIZE (a lone star) or by HOW LITTLE IS LIT (a spark inside a
+        // loose scattering that connectivity glued into one big component: the island is
+        // large, every cell of it is three pixels)
+        boolean speck = comp[cell] >= 0 && compBox.get(comp[cell])[3] < end - 1
+            && (compSize.get(comp[cell]) <= dotCells || (dotPixels > 0 && litPx <= dotPixels));
         boolean bar = !speck && !"slab".equals(barMode) && comp[cell] >= 0
             && skyBar(comp[cell], compBox, end);
         boolean decor = !speck && comp[cell] >= 0
@@ -2787,6 +2806,16 @@ public class JSW3D extends ApplicationAdapter {
         role[cell] = rewritten || holding ? 'D' : decor ? 'd' : flat ? 'F' : 'T';
         if (!rewritten && !holding)
           sceneryRole[cell] = role[cell];
+        if (holeWatch && role[cell] == 'T' && comp[cell] >= 0
+            && compBox.get(comp[cell])[3] < end - 1) {
+          int lit = 0;
+          for (int r = 0; r < 8; r++)
+            lit += Integer.bitCount(bmp[r] & 0xff);
+          int[] bx = compBox.get(comp[cell]);
+          System.out.println("cielo-losa px=" + lit + " comp=" + compSize.get(comp[cell])
+              + " bbox=" + (bx[2] - bx[0] + 1) + "x" + (bx[3] - bx[1] + 1)
+              + " r" + cellY + "c" + col);
+        }
         if (holeWatch && comp[cell] >= 0 && compBox.get(comp[cell])[3] < end - 1) {
           if (role[cell] == 'T')
             skySlabs++;
@@ -2795,14 +2824,6 @@ public class JSW3D extends ApplicationAdapter {
         }
         if (flat)
           continue; // unclaimed: updateBackdrop paints these pixels in 2D, as they were
-        if (holeWatch && role[cell] == 'T' && comp[cell] >= 0
-            && compBox.get(comp[cell])[3] < end - 1) {
-          int[] bx = compBox.get(comp[cell]);
-          System.out.println("cielo-losa frame " + snap.frame() + " r" + cellY + "c" + col
-              + ": comp=" + compSize.get(comp[cell]) + " bbox="
-              + (bx[2] - bx[0] + 1) + "x" + (bx[3] - bx[1] + 1) + " en r" + bx[1] + "c" + bx[0]
-              + " leaf=$" + Integer.toHexString(Math.max(0, tOf[cell] - 1)));
-        }
         if (flipWatch && role[cell] == 'T' && lastRole[cell] == 'D'
             && snap.frame() - entityFrame[cell] <= 80)
           System.out.println("aplanado r" + cellY + "c" + col + ": edad="
