@@ -594,6 +594,21 @@ el mismo texto que estás mirando. Un catálogo que vive solo como filas de SQLi
 —nadie se entera cuando una recatalogación cambia el tamaño de un sprite o se come un
 personaje— y como texto se diffea en git, se grepea y se corrige a mano.
 
+- **Arriba de todo, los OBJETOS COMPUESTOS: lo que se ve en pantalla.** Una entrada del
+  catálogo es un rango de memoria que se leyó junto, que en un motor que compone —Exolon arma
+  un personaje con varias piezas compartidas— es un fragmento: medio torso, una franja de una
+  pierna. Listar eso contesta "qué bytes son gráficos", no "qué muestra este juego".
+  `SpriteComposites` reproduce el RZX **con el catálogo ya construido** y agrupa lo que cae en
+  pantalla exactamente como `updateSprites` en modo `blobs=adjacent`: bytes con dueño,
+  inundados por adyacencia, son un objeto; su bitmap es lo que el juego COMPUSO ahí
+  (`pixels & spriteBits`) y su color son los atributos con que lo pintó. Los objetos iguales
+  colapsan por hash de contenido, así que un ciclo de animación queda en un puñado de entradas
+  ordenadas por cuántas veces el juego las dibujó. **Y se dice de qué está hecho cada uno**:
+  `compuesto por: $fbee 1307 B · $fbec 24 B · $6400 21 B · ...` con enlace a la sección de cada
+  pieza. Medido en Exolon: 41 de 64 objetos salen de más de una pieza, uno de ellos de 16.
+- **Dos hojas de contacto**: `catalogo-<juego>.png` son los **objetos, en color**, como se ven
+  en el juego —es la página que uno mira— y `catalogo-<juego>-piezas.png` son las piezas del
+  catálogo en blanco y negro, que contesta la otra pregunta ("¿qué catalogó?").
 - **Una línea de datos por gráfico**, entre acentos graves, que es lo único que se parsea:
   `` `base=$edc0 last=$eddf size=32 stride=2 tipo=sprite veces=12480` ``. Corregir ahí un
   `stride` o pasar un `tipo=sprite` a `fondo` cambia lo que se renderiza, sin tocar código ni
@@ -603,9 +618,14 @@ personaje— y como texto se diffea en git, se grepea y se corrige a mano.
   el doble de alta que de ancha y un carácter por píxel deja los sprites irreconocibles. Los
   cuadros de una tira de animación van **uno al lado del otro**, que es como se lee un ciclo de
   caminata; apilados verticalmente parecen un bicho imposiblemente alto.
-- **La hoja de contacto PNG**, con todos los gráficos en grilla y su dirección abajo en una
-  tipografía de 3x5 píxeles. Es para la primera pregunta de un juego nuevo —¿el catálogo agarró
-  personajes o agarró basura?—, que se contesta mirando, no leyendo una tabla.
+- Las direcciones van abajo de cada gráfico en una tipografía de 3x5 píxeles. Es para la
+  primera pregunta de un juego nuevo —¿el catálogo agarró personajes o agarró basura?—, que se
+  contesta mirando, no leyendo una tabla.
+- **`-Ddiscover.report.only=true`** rehace el reporte desde la `sprites_found` que YA está en
+  la db, sin recatalogar: re-renderizar el archivo o recapturar los objetos con otros límites
+  es cosa de minutos sobre una tabla que ya existe, y volver a derivarla sería media hora de
+  replay al pedo. Los objetos se capturan con `discover.objects.frames` (6000),
+  `discover.objects.sample` (4) y `discover.objects.max` (64).
 
 Precedencia: si existe el `.md` (o el que liste `"md"` en el perfil), **gana sobre la `.db`**;
 si no, se sigue cargando la db como siempre. Ojo con esto: **el .md sale de la corrida que lo

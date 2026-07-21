@@ -210,7 +210,10 @@ public final class TaintDiscover {
     // Precedence, highest first: explicit -D > per-game config file (live edits) > games.json
     // per-game > games.json global. Needs -Dgame to know which game's files to read.
     loadDiscoverSettings(System.getProperty("game"));
-    new TaintDiscover().run(rzx, db, maxFrames);
+    if (Boolean.getBoolean("discover.report.only"))
+      new TaintDiscover().reportOnly(rzx, db);
+    else
+      new TaintDiscover().run(rzx, db, maxFrames);
   }
 
   /** seed discover.* system properties from the config file then games.json (only-if-absent). */
@@ -240,7 +243,7 @@ public final class TaintDiscover {
     System.out.println("TaintDiscover: " + sampledFrames + " frames sampled (every " + sample
         + " from " + from + "), " + r.taint.nodeCount() + " union nodes, "
         + saturatedBytes + " saturated bytes, " + (System.currentTimeMillis() - t0) / 1000 + "s");
-    emit(db);
+    emit(rzx, db);
   }
 
   private void onFrame(TaintReplay.FrameSnapshot snap) {
@@ -430,12 +433,34 @@ public final class TaintDiscover {
   }
 
   /**
+   * {@code -Ddiscover.report.only=true}: rebuild the readable catalogue from the catalogue
+   * that is ALREADY in the db, without re-running discovery. Re-rendering the report (or
+   * re-capturing the composed objects with different bounds) is a minutes-long job over a
+   * table that is already there; re-deriving it would be half an hour of replay for nothing.
+   */
+  private void reportOnly(String rzx, String db) throws Exception {
+    Map<Integer, long[]> rows = new TreeMap<>();
+    try (java.sql.Connection c = java.sql.DriverManager.getConnection("jdbc:sqlite:" + db);
+         java.sql.Statement st = c.createStatement();
+         java.sql.ResultSet rs = st.executeQuery(
+             "SELECT base, last, veces, frame_first, frame_last, methods FROM sprites_found")) {
+      while (rs.next()) {
+        String methods = rs.getString(6);
+        rows.put(rs.getInt(1), new long[]{rs.getInt(2), rs.getInt(3), rs.getInt(4),
+            rs.getInt(5), methods != null && methods.startsWith("udg") ? 1 : 0});
+      }
+    }
+    System.out.println("reporte desde " + db + ": " + rows.size() + " entradas");
+    writeReport(rows, rzx, db);
+  }
+
+  /**
    * The same catalogue as something readable, and as what the viewer actually loads: one
    * Markdown per game with every graphic drawn in ASCII plus a contact sheet
    * ({@link SpriteReport}). Off unless {@code -Dgame} says which game this is, since the
    * file is named after it; {@code -Ddiscover.report} sets an explicit path.
    */
-  private void writeReport(Map<Integer, long[]> rows) {
+  private void writeReport(Map<Integer, long[]> rows, String rzxPath, String dbPath) {
     String game = System.getProperty("game");
     String path = System.getProperty("discover.report",
         game == null ? null : "doc/catalogo-" + game + ".md");
@@ -443,27 +468,52 @@ public final class TaintDiscover {
       return;
     try {
       List<SpriteReport.Entry> entries = new ArrayList<>();
+      boolean fromDb = rows.values().stream().anyMatch(a -> a.length == 5);
       for (Map.Entry<Integer, long[]> e : rows.entrySet()) {
         long[] a = e.getValue();
         int base = e.getKey(), last = (int) a[0], size = last - base + 1;
-        boolean bg = isBackground(a);
+        // rebuilt from the db the classification is already made (its methods column says
+        // udg/taint); measured live it comes from the metrics
+        boolean bg = fromDb ? a[4] != 0 : isBackground(a);
         // 2 bytes per row is the 16px sprite every one of these games draws; the curated
         // widths (DD's 1..3) live in the db's methods column and are kept when re-read
-        entries.add(new SpriteReport.Entry(base, last, size, (int) a[1], (int) a[2], (int) a[3],
+        entries.add(new SpriteReport.Entry(base, last, size, (int) a[1],
+            (int) a[2], (int) a[3],
             bg ? "fondo" : "sprite", bg ? 1 : 2,
-            "bpo=" + bpo(a) + " fresh=" + (int) (freshOf(a) * 100) + "% stamps="
+            fromDb ? "" : "bpo=" + bpo(a) + " fresh=" + (int) (freshOf(a) * 100) + "% stamps="
                 + (int) stampsOf(a) + " mob=" + String.format("%.1f", mobilityOf(a))
                 + " reuse=" + String.format("%.1f", reuseOf(a))
                 + " drift=" + String.format("%.2f", driftOf(a))));
       }
-      SpriteReport.write(path, game == null ? "juego" : game, entries, replay::memByte);
+      // A SECOND, SHORT PASS with the catalogue just written: the objects the game composes
+      // can only be seen once there IS a catalogue to attribute pixels to, and grouping them
+      // is the viewer's own adjacency flood. Bounded — a few thousand frames show every
+      // object many times, and a full-length second replay would cost as much as discovery.
+      List<SpriteComposites.Composite> objects = List.of();
+      java.util.function.IntUnaryOperator mem = replay != null ? replay::memByte : a -> 0;
+      if (Boolean.parseBoolean(System.getProperty("discover.objects", "true"))) {
+        try {
+          SpriteComposites comp = new SpriteComposites(4);
+          comp.collect(rzxPath, new SpriteCatalog(dbPath, 128),
+              Integer.getInteger("discover.objects.from", from),
+              Integer.getInteger("discover.objects.frames", 6000),
+              Integer.getInteger("discover.objects.sample", 4));
+          objects = comp.top(Integer.getInteger("discover.objects.max", 64));
+          if (replay == null)
+            mem = comp.memByte(); // rebuilt from the db: this pass is the only emulator around
+          System.out.println("compuestos: " + objects.size() + " objetos distintos");
+        } catch (Exception ex) {
+          System.out.println("no se pudieron capturar los objetos compuestos: " + ex);
+        }
+      }
+      SpriteReport.write(path, game == null ? "juego" : game, entries, mem, objects);
     } catch (Exception ex) {
       System.out.println("no se pudo escribir el catalogo legible: " + ex);
     }
   }
 
   /** aggregate, absorb clipped fragments, classify, and REPLACE sprites_found. */
-  private void emit(String dbPath) throws Exception {
+  private void emit(String rzxPath, String dbPath) throws Exception {
     // extent = MODE of observed ends (ties -> the larger end), like the tracker: a rare
     // fusion with a neighbour must not poison the sprite
     Map<Integer, long[]> rows = new TreeMap<>(); // base -> {last, veces, f0, f1, screenBytes, freshBytes, frames}
@@ -532,7 +582,7 @@ public final class TaintDiscover {
       }
       c.commit();
     }
-    writeReport(rows);
+    writeReport(rows, rzxPath, dbPath);
     System.out.println("=== TAINT-DISCOVER: " + sprites + " sprites + " + tiles
         + " zonas de fondo (sprites_found REEMPLAZADA en " + dbPath + ") ===");
     rows.entrySet().stream()

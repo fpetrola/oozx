@@ -20,6 +20,7 @@ package com.fpetrola.z80.minizx3d;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.IntUnaryOperator;
 
 /**
@@ -52,6 +53,16 @@ public final class SpriteReport {
    */
   public static void write(String mdPath, String game, List<Entry> entries,
       IntUnaryOperator memByte) throws Exception {
+    write(mdPath, game, entries, memByte, java.util.List.of());
+  }
+
+  /**
+   * Same, plus the OBJECTS the game composed on screen ({@link SpriteComposites}). Those go
+   * first in the file and get the colour contact sheet, because they are what the game
+   * shows; the catalogue entries below them are the pieces, and what the runtime loads.
+   */
+  public static void write(String mdPath, String game, List<Entry> entries,
+      IntUnaryOperator memByte, List<SpriteComposites.Composite> composites) throws Exception {
     List<Entry> sorted = new ArrayList<>(entries);
     sorted.sort((a, b) -> b.veces - a.veces);
     StringBuilder sb = new StringBuilder();
@@ -62,6 +73,28 @@ public final class SpriteReport {
         .append(" se parsea. El dibujo es para vos.\n> Corregir un `stride` o un `tipo` a mano")
         .append(" acá cambia lo que se renderiza, y el `git diff` de este archivo te dice qué")
         .append(" cambió entre dos catalogaciones.\n\n");
+    if (!composites.isEmpty()) {
+      sb.append("## Objetos compuestos (lo que se ve en pantalla)\n\n")
+          .append("Agrupados por adyacencia sobre los bytes con dueño, igual que el visor en")
+          .append(" modo `blobs=adjacent`: un objeto es lo que el juego COMPUSO ahí, aunque")
+          .append(" salga de varias piezas compartidas. En color en `")
+          .append(name(mdPath)).append(".png`.\n\n");
+      int n = 0;
+      for (SpriteComposites.Composite c : composites) {
+        sb.append("### objeto ").append(++n).append(" — ").append(c.wBytes * 8).append('x')
+            .append(c.rows).append(" px · visto ").append(c.count).append(" veces · frames ")
+            .append(c.firstFrame).append("-").append(c.lastFrame).append("\n\n");
+        sb.append("compuesto por: ");
+        int k = 0;
+        for (Map.Entry<Integer, Integer> pe : sortedPieces(c)) {
+          sb.append(k++ > 0 ? " · " : "").append("[`$").append(hex(pe.getKey()))
+              .append("`](#").append(hex(pe.getKey())).append(") ").append(pe.getValue())
+              .append(" B");
+        }
+        sb.append("\n\n```\n").append(compositeArt(c)).append("```\n\n");
+      }
+      sb.append("---\n\n## Piezas del catálogo (lo que carga el visor)\n\n");
+    }
     sb.append("| gráfico | tipo | bytes | ancho | apariciones | frames |\n");
     sb.append("|---|---|---|---|---|---|\n");
     for (Entry e : sorted)
@@ -85,9 +118,86 @@ public final class SpriteReport {
     if (md.getParent() != null)
       java.nio.file.Files.createDirectories(md.getParent());
     java.nio.file.Files.writeString(md, sb.toString());
-    String png = mdPath.replaceAll("\\.md$", "") + ".png";
-    contactSheet(png, sorted, memByte);
-    System.out.println("catálogo legible: " + md + "  +  " + png);
+    String stem = mdPath.replaceAll("\\.md$", "");
+    if (composites.isEmpty()) {
+      contactSheet(stem + ".png", sorted, memByte);
+      System.out.println("catálogo legible: " + md + "  +  " + stem + ".png");
+    } else {
+      // the sheet a person looks at is the OBJECTS, in colour, as the game drew them; the
+      // pieces get their own sheet, which is a different question ("what did it catalogue")
+      compositeSheet(stem + ".png", composites);
+      contactSheet(stem + "-piezas.png", sorted, memByte);
+      System.out.println("catálogo legible: " + md + "  +  " + stem + ".png (objetos) + "
+          + stem + "-piezas.png");
+    }
+  }
+
+  private static List<Map.Entry<Integer, Integer>> sortedPieces(SpriteComposites.Composite c) {
+    List<Map.Entry<Integer, Integer>> l = new ArrayList<>(c.pieces.entrySet());
+    l.sort((a, b) -> b.getValue() - a.getValue());
+    return l;
+  }
+
+  private static String name(String mdPath) {
+    String f = mdPath.replaceAll("\\.md$", "");
+    return f.contains("/") ? f.substring(f.lastIndexOf('/') + 1) : f;
+  }
+
+  /** the composed object as text, same two-characters-per-pixel as the pieces. */
+  private static String compositeArt(SpriteComposites.Composite c) {
+    StringBuilder out = new StringBuilder();
+    for (int y = 0; y < c.rows; y++) {
+      for (int b = 0; b < c.wBytes; b++) {
+        int v = c.bits[y * c.wBytes + b] & 0xff;
+        for (int bit = 0; bit < 8; bit++)
+          out.append((v & (0x80 >> bit)) != 0 ? "██" : "··");
+      }
+      out.append('\n');
+    }
+    return out.toString();
+  }
+
+  /** the Spectrum palette, so the sheet shows the objects in the colours the game used. */
+  private static final int[] PALETTE = {
+      0x000000, 0x0000d7, 0xd70000, 0xd700d7, 0x00d700, 0x00d7d7, 0xd7d700, 0xd7d7d7,
+      0x000000, 0x0000ff, 0xff0000, 0xff00ff, 0x00ff00, 0x00ffff, 0xffff00, 0xffffff};
+
+  /** the objects, in colour, laid out like a sprite sheet: this is the page you look at. */
+  private static void compositeSheet(String path, List<SpriteComposites.Composite> cs)
+      throws Exception {
+    int scale = 2, pad = 6, label = 7, cols = 8, cellW = 0, cellH = 0;
+    for (SpriteComposites.Composite c : cs) {
+      cellW = Math.max(cellW, c.wBytes * 8 * scale);
+      cellH = Math.max(cellH, c.rows * scale);
+    }
+    cellW += pad;
+    cellH += pad + label;
+    int rows = (cs.size() + cols - 1) / cols;
+    int w = cols * cellW + pad, h = Math.max(1, rows) * cellH + pad;
+    int[] px = new int[w * h];
+    java.util.Arrays.fill(px, PX_BG);
+    for (int i = 0; i < cs.size(); i++) {
+      SpriteComposites.Composite c = cs.get(i);
+      int ox = pad + (i % cols) * cellW, oy = pad + (i / cols) * cellH;
+      for (int y = 0; y < c.rows; y++)
+        for (int b = 0; b < c.wBytes; b++) {
+          int v = c.bits[y * c.wBytes + b] & 0xff;
+          int inkIdx = c.ink[Math.min(c.ink.length - 1, (y >> 3) * c.cellCols + b)] & 0xf;
+          int rgb = PALETTE[inkIdx] << 8 | 0xff;
+          for (int bit = 0; bit < 8; bit++) {
+            if ((v & (0x80 >> bit)) == 0)
+              continue;
+            for (int sy = 0; sy < scale; sy++)
+              for (int sx = 0; sx < scale; sx++) {
+                int x = ox + (b * 8 + bit) * scale + sx, yy = oy + y * scale + sy;
+                if (x < w && yy < h)
+                  px[yy * w + x] = rgb;
+              }
+          }
+        }
+      drawLabel(px, w, h, ox, oy + c.rows * scale + 1, Integer.toString(i + 1));
+    }
+    writePng(path, px, w, h);
   }
 
   /**
@@ -152,8 +262,14 @@ public final class SpriteReport {
         }
       drawLabel(px, w, h, ox, oy + 16 * scale + 1, hex(e.base));
     }
-    // javax.imageio and not libGDX's Pixmap: this runs in the OFFLINE pass, which has no
-    // GL context and no natives loaded, and a contact sheet is not worth booting either
+    writePng(path, px, w, h);
+  }
+
+  /**
+   * javax.imageio and not libGDX's Pixmap: this runs in the OFFLINE pass, which has no GL
+   * context and no natives loaded, and a contact sheet is not worth booting either.
+   */
+  private static void writePng(String path, int[] px, int w, int h) throws Exception {
     java.awt.image.BufferedImage img =
         new java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_RGB);
     for (int y = 0; y < h; y++)
