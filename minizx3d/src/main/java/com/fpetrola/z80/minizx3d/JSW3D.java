@@ -1001,6 +1001,8 @@ public class JSW3D extends ApplicationAdapter {
       // THEN free whatever a rebuild key or a cache eviction retired since
       spriteInstances.clear();
       tileInstances.clear();
+      spriteBoxes.clear();
+      frameBases.clear();
       releaseRetired();
       long t0 = perf ? System.nanoTime() : 0;
       // Screen-pixel models are content-hashed and shared by the sprite blobs and the
@@ -2501,9 +2503,10 @@ public class JSW3D extends ApplicationAdapter {
           bitmaps.add(bmp);
         }
       }
-    spriteInstances.clear();
-    spriteBoxes.clear();
-    frameBases.clear();
+    // NOT cleared here: the frame's lists are emptied once, up in render(), and the objects
+    // defined by hand are modelled BEFORE this runs. Clearing here threw their instances
+    // away every frame — the match was working, the model was being built, and it was
+    // deleted a few lines later.
     for (int bi = 0; bi < blobs.size(); bi++) {
       int[] blob = blobs.get(bi);
       int base = blob[0] - 1;

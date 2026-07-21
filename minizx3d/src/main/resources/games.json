@@ -318,10 +318,10 @@
 		"objetos": [
 			{
 				"nombre": "objeto1",
-				"piezas": "$e1e0",
-				"rects": "174 100 25 43",
-				"hoja": "0 1 25 43",
-				"render": "PRIMITIVE OVOID 0.3"
+				"piezas": "$e1e6,$e1e7,$e1ef,$e1f0,$e1f8,$e1f1,$e1f9,$e1f2,$e1fa,$e1f3,$e1fb,$e1f4,$e1fc,$e1f5,$e1fd,$e1f6,$e1fe,$e1f7,$e1ff,$e201,$e209,$e202,$e20a,$e203,$e20b,$e204,$e20c,$e205,$e20d,$e206,$e20e,$e207,$e20f,$e218,$e220,$e211,$e219,$e221,$e212,$e21a,$e222,$e22a,$e213,$e21b,$e223,$e214,$e21c,$e224,$e22c,$e21d,$e225,$e21e,$e226,$e21f,$e227,$e238,$e231,$e239,$e232,$e23a,$e233,$e23b,$e243,$e23c,$e244,$e235,$e23d,$e245,$e236,$e23e,$e246,$e237,$e23f,$e247,$e248,$e250,$e258,$e249,$e251,$e259,$e24a,$e252,$e25a,$e25b,$e24c,$e254,$e25c,$e24d,$e255,$e25d,$e24e,$e256,$e25e",
+				"rects": "175 102 24 41",
+				"hoja": "0 1 24 41",
+				"render": "PRIMITIVE OVOID 0.45000002"
 			}
 		]
 	}
