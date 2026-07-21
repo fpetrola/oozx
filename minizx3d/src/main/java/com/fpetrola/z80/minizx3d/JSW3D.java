@@ -3470,6 +3470,8 @@ public class JSW3D extends ApplicationAdapter {
     int tw, th;
     /** the captured selection: ARGB per pixel, and the graphic behind each one (-1 none). */
     int[] px, owner;
+    /** where this object sits in the sheet PNG: {x, y, w, h}, so it can be read back. */
+    int[] sheetBox;
   }
 
   private EdGroup group() {
@@ -3712,6 +3714,11 @@ public class JSW3D extends ApplicationAdapter {
   /** every object marked by hand, per game, in {@code ~/.jsw3d-objetos-<juego>.json}. */
   private void saveGroups() {
     captureGroup(group());
+    try {
+      writeSheet(); // first: it assigns each object its box in the sheet, which the json cites
+    } catch (Exception e) {
+      flashPreset("no pude escribir la hoja: " + e);
+    }
     StringBuilder sb = new StringBuilder("{\n  \"objetos\": [\n");
     for (int n = 0; n < edGroups.size(); n++) {
       EdGroup g = edGroups.get(n);
@@ -3722,14 +3729,16 @@ public class JSW3D extends ApplicationAdapter {
       for (int[] r : g.rects)
         rects.append(rects.length() > 0 ? "," : "").append(r[0]).append(' ').append(r[1])
             .append(' ').append(r[2]).append(' ').append(r[3]);
+      String hoja = g.sheetBox == null ? "" : g.sheetBox[0] + " " + g.sheetBox[1] + " "
+          + g.sheetBox[2] + " " + g.sheetBox[3];
       sb.append("    {\"nombre\": \"").append(g.name).append("\", \"piezas\": \"")
-          .append(piezas).append("\", \"rects\": \"").append(rects).append("\"}")
+          .append(piezas).append("\", \"rects\": \"").append(rects)
+          .append("\", \"hoja\": \"").append(hoja).append("\"}")
           .append(n < edGroups.size() - 1 ? "," : "").append('\n');
     }
     sb.append("  ]\n}\n");
     try {
       java.nio.file.Files.writeString(objectsPath(), sb.toString());
-      writeSheet();
       flashPreset("grabado: " + edGroups.size() + " objetos en " + objectsPath()
           + " y en " + sheetPath());
     } catch (Exception e) {
@@ -3756,6 +3765,7 @@ public class JSW3D extends ApplicationAdapter {
         shelf = 0;
       }
       names.add(g.name);
+      g.sheetBox = new int[]{x, y, gw, gh};
       cells.add(new int[]{x, y, gw, gh});
       pixels.add(g.px);
       owners.add(g.owner);
@@ -3805,13 +3815,64 @@ public class JSW3D extends ApplicationAdapter {
           }
         if (g.rects.isEmpty())
           g.rects.add(new int[]{112, 88, 16, 16});
+        String[] hoja = o.getString("hoja", "").trim().split("\\s+");
+        if (hoja.length == 4)
+          g.sheetBox = new int[]{Integer.parseInt(hoja[0]), Integer.parseInt(hoja[1]),
+              Integer.parseInt(hoja[2]), Integer.parseInt(hoja[3])};
         edGroups.add(g);
       }
+      loadSheet();
       if (!edGroups.isEmpty())
         System.out.println("editor: " + edGroups.size() + " objetos cargados de "
             + objectsPath());
     } catch (Exception e) {
       System.out.println("editor: no pude leer " + objectsPath() + ": " + e);
+    }
+  }
+
+  /**
+   * Reads the sheet back into the objects: their picture (so the list shows what you marked,
+   * not just names) and their per-pixel graphic. Continuing where you left off is the whole
+   * point of writing the file — a session that starts blank makes you re-mark everything.
+   *
+   * <p>The pixels come from the PNG itself, addresses included ({@link ObjectSheet#read}),
+   * so a re-save keeps every object intact even if you only touched one of them.
+   */
+  private void loadSheet() {
+    try {
+      if (!java.nio.file.Files.exists(sheetPath()))
+        return;
+      java.awt.image.BufferedImage img =
+          javax.imageio.ImageIO.read(sheetPath().toFile());
+      int[][] addr = ObjectSheet.read(sheetPath().toString());
+      for (EdGroup g : edGroups) {
+        int[] b = g.sheetBox;
+        if (b == null || b[0] + b[2] > img.getWidth() || b[1] + b[3] > img.getHeight())
+          continue;
+        g.px = new int[b[2] * b[3]];
+        g.owner = new int[b[2] * b[3]];
+        Pixmap pm = new Pixmap(b[2], b[3], Pixmap.Format.RGBA8888);
+        pm.setColor(0, 0, 0, 0);
+        pm.fill();
+        for (int y = 0; y < b[3]; y++)
+          for (int x = 0; x < b[2]; x++) {
+            int rgb = img.getRGB(b[0] + x, b[1] + y) & 0xffffff;
+            int a = addr[b[1] + y][b[0] + x];
+            g.owner[y * b[2] + x] = a;
+            // black with no graphic behind it is the gap between objects, not the object
+            boolean solid = a >= 0 || rgb > 0x0c0c0c;
+            g.px[y * b[2] + x] = solid ? 0xff000000 | rgb : 0;
+            if (solid)
+              pm.drawPixel(x, y, (rgb << 8) | 0xff);
+          }
+        disposeThumb(g);
+        g.thumb = new com.badlogic.gdx.graphics.Texture(pm);
+        g.tw = b[2];
+        g.th = b[3];
+        pm.dispose();
+      }
+    } catch (Exception e) {
+      System.out.println("editor: no pude leer " + sheetPath() + ": " + e);
     }
   }
 

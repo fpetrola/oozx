@@ -691,6 +691,14 @@ en todo lo demás. Así el archivo es autocontenido —sin sidecar, sin un chunk
 un conversor pueda tirar— y `ObjectSheet.read` devuelve, por cada píxel, el gráfico detrás.
 Round-trip verificado: 80 de 80 píxeles recuperan su dirección.
 
+**Y se vuelve a cargar**: al abrir el editor se leen el JSON y la hoja, y cada objeto recupera
+su imagen (la lista muestra lo que marcaste, no solo nombres) y su dirección por píxel, leída
+del PNG. Continuar donde uno dejó es el motivo de escribir el archivo — una sesión que arranca
+en blanco te obliga a volver a marcar todo. El JSON lleva, por objeto, su caja dentro de la
+hoja (`"hoja": "x y w h"`), que es lo que empalma las dos mitades; los píxeles y las
+direcciones salen del PNG, así que volver a grabar conserva intactos los objetos que no
+tocaste.
+
 **La lista visual** va en una franja a la derecha, con la imagen que el usuario seleccionó de
 cada objeto (no una lista de nombres: lo que hace falta saber de un vistazo es si el objeto 3
 es la cápsula o la cápsula más medio cohete, y eso es una imagen). Es un panel adentro de la
