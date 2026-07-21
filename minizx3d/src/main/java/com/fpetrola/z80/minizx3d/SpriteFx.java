@@ -128,15 +128,18 @@ public final class SpriteFx {
                 * ((1 - c.roundness) * own + c.roundness * geo);
           }
       // scale to the cap instead of clipping: clipping flattens the top of the volume and
-      // the oval reads as a box with a flat lid
+      // the oval reads as a box with a flat lid. With an explicit per-object depth the peak
+      // is scaled to it in BOTH directions — asking for five voxels has to give five, not
+      // "at most five"
       float peak = 0;
       for (float[] row : d)
         for (float v : row)
           peak = Math.max(peak, v);
-      if (peak > MAX_DEPTH && peak > 0)
+      float cap = c.maxDepth > 0 ? c.maxDepth : MAX_DEPTH;
+      if (peak > 0 && (c.maxDepth > 0 || peak > cap))
         for (float[] row : d)
           for (int i = 0; i < row.length; i++)
-            row[i] *= MAX_DEPTH / peak;
+            row[i] *= cap / peak;
       for (int y = 0; y < rows; y++)
         for (int x = 0; x < w; x++)
           if (mask[y][x])

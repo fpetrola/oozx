@@ -228,6 +228,21 @@ public final class Sprite3DPipeline {
   }
 
   private Model bake(SpriteBitmap b, Sprite3DConfig cfg) {
+    // An explicit depth belongs to THIS sprite, but the builders read the cap as a global
+    // (SpriteFx.MAX_DEPTH) and threading a config through every one of them would touch
+    // paths validated in four games. Swapped around the bake and restored after: baking is
+    // synchronous and on one thread, so the scope is exactly this call.
+    float saved = SpriteFx.MAX_DEPTH;
+    if (cfg.maxDepth > 0)
+      SpriteFx.MAX_DEPTH = cfg.maxDepth;
+    try {
+      return bakeInner(b, cfg);
+    } finally {
+      SpriteFx.MAX_DEPTH = saved;
+    }
+  }
+
+  private Model bakeInner(SpriteBitmap b, Sprite3DConfig cfg) {
     long key = b.hash * 31L + cfg.hash();
     Model m = cache.get(key);
     if (m != null) {

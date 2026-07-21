@@ -239,6 +239,20 @@ tunean por separado, asi que su SUMA puede pasarse de las 24 filas y cualquier l
 `idx(y0+r,col)` se sale del array de 6144 bytes de pantalla. Se clampa una vez en `playEnd()`
 (`min(24, top+rows)`) y todos los loops del playfield lo usan.
 
+### Profundidad EXACTA por objeto
+
+`Sprite3DConfig.depth` es un multiplicador sobre un radio que decide el propio sprite, así que
+el mismo valor da un grosor distinto a cada uno y no había forma de pedir un número. Los
+objetos marcados a mano llevan ahora `profundidad` en VOXELS (`Sprite3DConfig.maxDepth`,
+0 = automática): el campo de alturas se escala para que su pico sea exactamente ese valor —en
+las dos direcciones, porque pedir cinco voxels tiene que dar cinco y no "hasta cinco"—. En el
+editor son las teclas `+` y `-`, y `V` cambia entre voxels y suave.
+
+Los builders leen el tope como un global (`SpriteFx.MAX_DEPTH`), así que `Sprite3DPipeline`
+lo intercambia **alrededor del horneado** y lo restaura después: pasarlo por parámetro tocaría
+caminos validados en cuatro juegos, y el horneado es sincrónico y en un solo hilo, así que el
+alcance es exactamente esa llamada.
+
 ### UN solo archivo: games.json
 
 Toda la configuración de la aplicación vive en `games.json` y en ningún otro lado: el bloque

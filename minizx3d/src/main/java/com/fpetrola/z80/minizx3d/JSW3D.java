@@ -2002,6 +2002,8 @@ public class JSW3D extends ApplicationAdapter {
         C / X         crear / borrar un objeto
         ENTER         buscar el objeto en la pantalla actual
         R / P / O     tecnica / primitiva / redondez de ESTE objeto
+        + / -         profundidad en voxels (0 = automatica)
+        V             voxels o suave
         G             grabar (games.json y doc/objetos-<juego>.png)
 
       Mouse arrastrar rota, rueda zoom.
@@ -3886,6 +3888,21 @@ public class JSW3D extends ApplicationAdapter {
         if (g.render != null)
           g.render.roundness = g.render.roundness >= .95f ? .2f : g.render.roundness + .15f;
       }
+      // depth in VOXELS, exact: "an ovoid five voxels deep" is a number, not a multiplier
+      case com.badlogic.gdx.Input.Keys.PLUS, com.badlogic.gdx.Input.Keys.EQUALS -> {
+        if (g.render == null)
+          g.render = viewerDefaults().copy();
+        g.render.maxDepth = Math.min(64, (g.render.maxDepth <= 0 ? 0 : g.render.maxDepth) + 1);
+      }
+      case com.badlogic.gdx.Input.Keys.MINUS -> {
+        if (g.render != null)
+          g.render.maxDepth = Math.max(0, g.render.maxDepth - 1);
+      }
+      case com.badlogic.gdx.Input.Keys.V -> {
+        if (g.render == null)
+          g.render = viewerDefaults().copy();
+        g.render.voxelLook = !g.render.voxelLook;
+      }
       case com.badlogic.gdx.Input.Keys.ENTER -> findGroupOnScreen();
       case com.badlogic.gdx.Input.Keys.G -> {
         saveGroups();
@@ -3915,8 +3932,10 @@ public class JSW3D extends ApplicationAdapter {
     flashPreset(g.name + " (" + (edGroup + 1) + "/" + edGroups.size() + ")  ·  rect "
         + (edRect + 1) + "/" + g.rects.size() + " x=" + r[0] + " y=" + r[1] + " " + r[2] + "x"
         + r[3] + "  ·  " + graphicsInRects(g).size() + " gráficos  ·  render: "
-        + (g.render == null ? "default" : g.render.technique + "/" + g.render.primitive + " "
-            + String.format("%.2f", g.render.roundness)));
+        + (g.render == null ? "default" : g.render.technique + "/" + g.render.primitive
+            + " redondez " + String.format("%.2f", g.render.roundness) + " · profundidad "
+            + (g.render.maxDepth > 0 ? (int) g.render.maxDepth + " voxels" : "auto")
+            + (g.render.voxelLook ? " · voxels" : " · suave")));
   }
 
   /**
@@ -4057,13 +4076,20 @@ public class JSW3D extends ApplicationAdapter {
             .append(' ').append(r[2]).append(' ').append(r[3]);
       String hoja = g.sheetBox == null ? "" : g.sheetBox[0] + " " + g.sheetBox[1] + " "
           + g.sheetBox[2] + " " + g.sheetBox[3];
-      String render = g.render == null ? ""
-          : g.render.technique + " " + g.render.primitive + " " + g.render.roundness;
-      sb.append("    {\"nombre\": \"").append(g.name).append("\", \"piezas\": \"")
-          .append(piezas).append("\", \"rects\": \"").append(rects)
-          .append("\", \"hoja\": \"").append(hoja)
-          .append("\", \"render\": \"").append(render).append("\"}")
-          .append(n < edGroups.size() - 1 ? "," : "").append('\n');
+      sb.append(n > 0 ? "," : "").append("{\"nombre\": \"").append(g.name)
+          .append("\", \"piezas\": \"").append(piezas)
+          .append("\", \"rects\": \"").append(rects)
+          .append("\", \"hoja\": \"").append(hoja).append('"');
+      // the render config as an OBJECT with named fields, like everything else in the file:
+      // "PRIMITIVE OVOID 0.45" said nothing about which number was which, and had nowhere to
+      // put the depth
+      if (g.render != null)
+        sb.append(String.format(java.util.Locale.ROOT,
+            ", \"render\": {\"tecnica\": \"%s\", \"primitiva\": \"%s\","
+                + " \"redondez\": %.2f, \"profundidad\": %.1f, \"voxels\": %s}",
+            g.render.technique, g.render.primitive, g.render.roundness,
+            g.render.maxDepth, g.render.voxelLook));
+      sb.append('}');
     }
     sb.append("  ]}");
     try {
@@ -4163,16 +4189,29 @@ public class JSW3D extends ApplicationAdapter {
           }
         if (g.rects.isEmpty())
           g.rects.add(new int[]{112, 88, 16, 16});
-        String[] rend = o.getString("render", "").trim().split("\\s+");
-        if (rend.length == 3)
-          try {
+        try {
+          com.badlogic.gdx.utils.JsonValue r = o.get("render");
+          if (r != null && r.isObject()) {
             g.render = viewerDefaults().copy();
-            g.render.technique = Sprite3DConfig.Technique.valueOf(rend[0]);
-            g.render.primitive = Sprite3DConfig.Primitive.valueOf(rend[1]);
-            g.render.roundness = Float.parseFloat(rend[2]);
-          } catch (Exception ignored) {
-            g.render = null; // an unknown technique must not take the object down with it
+            g.render.technique = Sprite3DConfig.Technique.valueOf(
+                r.getString("tecnica", g.render.technique.name()));
+            g.render.primitive = Sprite3DConfig.Primitive.valueOf(
+                r.getString("primitiva", g.render.primitive.name()));
+            g.render.roundness = r.getFloat("redondez", g.render.roundness);
+            g.render.maxDepth = r.getFloat("profundidad", 0);
+            g.render.voxelLook = r.getBoolean("voxels", g.render.voxelLook);
+          } else if (r != null) { // the old "TECNICA PRIMITIVA redondez" string
+            String[] rend = r.asString().trim().split("\\s+");
+            if (rend.length >= 3) {
+              g.render = viewerDefaults().copy();
+              g.render.technique = Sprite3DConfig.Technique.valueOf(rend[0]);
+              g.render.primitive = Sprite3DConfig.Primitive.valueOf(rend[1]);
+              g.render.roundness = Float.parseFloat(rend[2]);
+            }
           }
+        } catch (Exception ignored) {
+          g.render = null; // an unknown technique must not take the object down with it
+        }
         String[] hoja = o.getString("hoja", "").trim().split("\\s+");
         if (hoja.length == 4)
           g.sheetBox = new int[]{Integer.parseInt(hoja[0]), Integer.parseInt(hoja[1]),

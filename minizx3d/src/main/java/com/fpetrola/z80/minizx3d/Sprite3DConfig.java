@@ -30,6 +30,13 @@ public final class Sprite3DConfig {
   public Primitive primitive = Primitive.OVOID;
   /** z scale, the per-sprite counterpart of the global depth slider (D/C). */
   public float depth = 1f;
+  /**
+   * Exact depth of the volume in voxels, or 0 to follow the viewer's global cap
+   * ({@code sprite3d.maxdepth}). This is how "an ovoid FIVE voxels deep" is said: {@link
+   * #depth} is a multiplier over a radius the sprite decides, so the same slider gives a
+   * different thickness to every sprite, and there was no way to ask for a number.
+   */
+  public float maxDepth;
   /** 0 = flat silhouette profile, 1 = fully rounded (primitive techniques). */
   public float roundness = 0.7f;
   /** solid volume (front + mirrored back) vs relief bulging only toward the camera. */
