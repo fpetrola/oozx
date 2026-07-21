@@ -662,9 +662,12 @@ nada automático puede: partes desconectadas, y huecos entre partes que NO son d
 | ENTER | busca el objeto en la pantalla actual y reubica sus cajas |
 | G | graba |
 
-**Lo que se graba no son las cajas sino los GRÁFICOS que quedan adentro** (direcciones de
-catálogo, plegadas a la entrada que las contiene, y solo de los píxeles ENCENDIDOS: el papel
-alrededor no es el objeto). Una caja en la pantalla no vale nada después — el objeto se mueve,
+**Lo que se graba no son las cajas sino los GRÁFICOS que quedan adentro** (las direcciones
+EXACTAS de las que vino cada píxel encendido; el papel alrededor no es el objeto). Sin plegar a
+la entrada del catálogo: ese plegado está bien cuando una persona lee una lista —si no, cada
+fila de un sprite parece un gráfico distinto— y está mal para una definición, porque una
+entrada puede abarcar una tira entera y un cohete hecho de una docena de graficos chicos
+colapsaba en una sola pieza `$e1e0`, perdiendo todo lo que lo hacía ese cohete. Una caja en la pantalla no vale nada después — el objeto se mueve,
 se anima, y la sala siguiente dibuja otra cosa ahí. Las cajas se guardan igual como referencia
 de cómo se marcó. Archivos: `doc/objetos-<juego>.json` y `.png` — al lado del catálogo y no
 en el home, porque lo identificado a mano es conocimiento del proyecto, de lo que va al repo y
@@ -681,13 +684,14 @@ de exigirlos todos.
 `G` junto al JSON, en `doc/objetos-<juego>.png`). Una imagen con una tabla de direcciones al
 lado se despegan la primera vez que alguien edita una de las dos; acá no pueden: la hoja
 muestra las formas como el juego las dibujó, y la dirección del gráfico al que pertenece cada
-píxel viaja **en ese mismo píxel**, en los dos bits bajos de R, G y B — un cambio de a lo sumo
-3/255 por canal, invisible en esta paleta (medido: `$d7d700` → `$d5d400`).
+píxel viaja **en ese mismo píxel**, en los tres bits bajos de R, G y B — un cambio de a lo sumo
+7/255 por canal, invisible en esta paleta (medido: `$d7d700` → `$d1d000`).
 
-Esos seis bits llevan un ÍNDICE, no la dirección: 16 bits por píxel se comerían cinco bits de
+Esos nueve bits llevan un ÍNDICE, no la dirección: 16 bits por píxel se comerían cinco bits de
 un canal y ahí sí se notaría. El índice se resuelve con una leyenda escrita del mismo modo en
-la **fila 0** de la imagen, tres píxeles por entrada (6+6+4 bits), sobre una fila que es fondo
-en todo lo demás. Así el archivo es autocontenido —sin sidecar, sin un chunk de metadatos que
+la **fila 0** de la imagen, dos píxeles por entrada (9+7 bits), sobre una fila que es fondo en
+todo lo demás. Nueve bits y no seis porque un objeto se define por las direcciones EXACTAS de
+sus píxeles, y uno detallado pasa largamente las sesenta. Así el archivo es autocontenido —sin sidecar, sin un chunk de metadatos que
 un conversor pueda tirar— y `ObjectSheet.read` devuelve, por cada píxel, el gráfico detrás.
 Round-trip verificado: 80 de 80 píxeles recuperan su dirección.
 

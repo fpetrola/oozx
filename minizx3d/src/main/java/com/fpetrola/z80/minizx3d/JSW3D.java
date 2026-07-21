@@ -2300,7 +2300,7 @@ public class JSW3D extends ApplicationAdapter {
     for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
       if ((snap.pixels()[i] & 0xff) == 0)
         continue;
-      int gfx = originOf(i);
+      int gfx = rawOriginOf(i);
       if (gfx < 0)
         continue;
       Integer obj = gfxToObj.get(gfx);
@@ -2330,7 +2330,7 @@ public class JSW3D extends ApplicationAdapter {
         int[] p = queue.poll();
         int i = idx(p[1], p[0]);
         cells.add(i);
-        found.add(originOf(i));
+        found.add(rawOriginOf(i));
         minC = Math.min(minC, p[0]);
         maxC = Math.max(maxC, p[0]);
         minR = Math.min(minR, p[1]);
@@ -3637,12 +3637,25 @@ public class JSW3D extends ApplicationAdapter {
    * origins: rolled up, a piece is the graphic, which is what a person sees and names.
    */
   private int originOf(int i) {
-    int addr = lastSnap.owner()[i] != 0 ? lastSnap.owner()[i] - 1
-        : lastSnap.tile()[i] != 0 ? lastSnap.tile()[i] - 1 : -1;
+    int addr = rawOriginOf(i);
     if (addr < 0)
       return -1;
     int entry = catalog.entryOf[addr & 0xffff];
     return entry != 0 ? entry - 1 : addr;
+  }
+
+  /**
+   * The EXACT address a screen byte came from, without folding it into its catalogue entry.
+   *
+   * <p>That folding is right when a person is reading a list — otherwise every row of one
+   * sprite looks like a different graphic — and wrong for a definition: a catalogue entry can
+   * span a whole strip, so a rocket made of a dozen little graphics collapsed into the single
+   * piece {@code $e1e0} and the definition lost everything that made it that rocket. What
+   * identifies an object is the exact set of addresses its pixels come from.
+   */
+  private int rawOriginOf(int i) {
+    return lastSnap.owner()[i] != 0 ? lastSnap.owner()[i] - 1
+        : lastSnap.tile()[i] != 0 ? lastSnap.tile()[i] - 1 : -1;
   }
 
   /** one composed object marked by hand: its boxes, what is under them, and its picture. */
@@ -3819,7 +3832,7 @@ public class JSW3D extends ApplicationAdapter {
           int i = idx(y, x >> 3);
           if ((lastSnap.pixels()[i] & (0x80 >> (x & 7))) == 0)
             continue; // only what is LIT inside the box: the paper around it is not the object
-          int gfx = originOf(i);
+          int gfx = rawOriginOf(i);
           if (gfx >= 0)
             out.add(gfx);
         }
@@ -3840,7 +3853,7 @@ public class JSW3D extends ApplicationAdapter {
     int minX = 256, minY = H, maxX = -1, maxY = -1;
     java.util.Set<Integer> seen = new java.util.LinkedHashSet<>();
     for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
-      int gfx = originOf(i);
+      int gfx = rawOriginOf(i);
       if (gfx < 0 || !g.graphics.contains(gfx))
         continue;
       seen.add(gfx);
@@ -3905,7 +3918,7 @@ public class JSW3D extends ApplicationAdapter {
           int at = (y - minY) * gw + (x - minX);
           g.px[at] = 0xff000000 | ((int) (c.r * 255) << 16) | ((int) (c.g * 255) << 8)
               | (int) (c.b * 255);
-          g.owner[at] = originOf(i);
+          g.owner[at] = rawOriginOf(i);
         }
     disposeThumb(g);
     g.thumb = new com.badlogic.gdx.graphics.Texture(pm);

@@ -29,13 +29,15 @@ import java.util.Map;
  *
  * <p>A picture and a table of addresses beside it drift apart the first time somebody edits
  * one of them. Here they cannot: the sheet shows the shapes as the game drew them, and the
- * address of the piece each pixel belongs to travels in that same pixel, in the low two bits
- * of R, G and B — a change of at most 3/255 per channel, which on this palette is invisible.
+ * address of the piece each pixel belongs to travels in that same pixel, in the low three
+ * bits of R, G and B — a change of at most 7/255 per channel, which on this palette is
+ * invisible.
  *
- * <p>Those six bits hold an INDEX, not the address: 16 bits per pixel would take five bits
- * of a channel and start to show. The index is resolved through a legend written the same
- * way along the TOP ROW of the image, three pixels per entry (6+6+4 bits), on a row that is
- * background everywhere else. So the file is self-contained — no sidecar, no metadata chunk
+ * <p>Those nine bits hold an INDEX, not the address: 16 bits per pixel would take five bits
+ * of a channel and start to show. The index is resolved through a legend written the same way
+ * along the TOP ROW of the image, two pixels per entry (9+7 bits), on a row that is background
+ * everywhere else. Nine bits and not six because an object is defined by the EXACT addresses
+ * its pixels come from, and a detailed one runs well past sixty of them. So the file is self-contained — no sidecar, no metadata chunk
  * a converter can drop — and {@link #read} gives back, for every pixel, the graphic behind
  * it.
  */
@@ -44,7 +46,7 @@ public final class ObjectSheet {
   public record Obj(String name, int x, int y, int w, int h, java.util.Set<Integer> parts) {
   }
 
-  private static final int MAX_PARTS = 63; // six bits, minus 0 = "no piece here"
+  private static final int MAX_PARTS = 511; // nine bits, minus 0 = "no piece here"
 
   /**
    * @param cells  per object: {x, y, w, h} of where it was laid out
@@ -78,14 +80,13 @@ public final class ObjectSheet {
           out[(c[1] + y) * w + c[0] + x] = 0xff000000 | embed(argb & 0xffffff, code);
         }
     }
-    // the legend, along row 0: three pixels per entry, entry i at 3*(i-1)
+    // the legend, along row 0: two pixels per entry, entry i at 2*(i-1)
     for (Map.Entry<Integer, Integer> e : index.entrySet()) {
-      int at = (e.getValue() - 1) * 3, addr = e.getKey();
-      if (at + 2 >= w)
+      int at = (e.getValue() - 1) * 2, addr = e.getKey();
+      if (at + 1 >= w)
         break;
-      out[at] = 0xff000000 | embed(0, addr & 0x3f);
-      out[at + 1] = 0xff000000 | embed(0, (addr >> 6) & 0x3f);
-      out[at + 2] = 0xff000000 | embed(0, (addr >> 12) & 0xf);
+      out[at] = 0xff000000 | embed(0, addr & 0x1ff);
+      out[at + 1] = 0xff000000 | embed(0, (addr >> 9) & 0x7f);
     }
     java.awt.image.BufferedImage img =
         new java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_RGB);
@@ -98,16 +99,16 @@ public final class ObjectSheet {
     javax.imageio.ImageIO.write(img, "png", p.toFile());
   }
 
-  /** six bits of payload into the low two bits of R, G and B. */
+  /** nine bits of payload into the low three bits of R, G and B. */
   private static int embed(int rgb, int code) {
-    int r = ((rgb >> 16) & 0xff & ~3) | (code & 3);
-    int g = ((rgb >> 8) & 0xff & ~3) | ((code >> 2) & 3);
-    int b = (rgb & 0xff & ~3) | ((code >> 4) & 3);
+    int r = ((rgb >> 16) & 0xff & ~7) | (code & 7);
+    int g = ((rgb >> 8) & 0xff & ~7) | ((code >> 3) & 7);
+    int b = (rgb & 0xff & ~7) | ((code >> 6) & 7);
     return (r << 16) | (g << 8) | b;
   }
 
   private static int extract(int rgb) {
-    return ((rgb >> 16) & 3) | (((rgb >> 8) & 3) << 2) | ((rgb & 3) << 4);
+    return ((rgb >> 16) & 7) | (((rgb >> 8) & 7) << 3) | ((rgb & 7) << 6);
   }
 
   /**
@@ -118,10 +119,9 @@ public final class ObjectSheet {
     java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(new java.io.File(path));
     int w = img.getWidth(), h = img.getHeight();
     List<Integer> legend = new ArrayList<>();
-    for (int at = 0; at + 2 < w; at += 3) {
-      int lo = extract(img.getRGB(at, 0)), mid = extract(img.getRGB(at + 1, 0));
-      int hi = extract(img.getRGB(at + 2, 0)) & 0xf;
-      int addr = lo | (mid << 6) | (hi << 12);
+    for (int at = 0; at + 1 < w; at += 2) {
+      int lo = extract(img.getRGB(at, 0)), hi = extract(img.getRGB(at + 1, 0)) & 0x7f;
+      int addr = lo | (hi << 9);
       if (addr == 0)
         break;
       legend.add(addr);
