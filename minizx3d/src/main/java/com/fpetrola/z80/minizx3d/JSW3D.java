@@ -585,8 +585,11 @@ public class JSW3D extends ApplicationAdapter {
             // editor needs and not what they mean in the viewer
             if (ctrl && keycode == com.badlogic.gdx.Input.Keys.E) {
               editorOn = !editorOn;
+              edBuiltFrame = -1; // rebuild the list for the frame we are frozen on
               if (replay != null)
                 replay.paused = editorOn;
+              if (editorOn && lastSnap == null)
+                lastSnap = latest;
               flashPreset(editorOn
                   ? "editor: flechas mueven (Ctrl=8px), ESPACIO agrega/saca, N nuevo, G graba"
                   : "editor: cerrado");
@@ -980,6 +983,12 @@ public class JSW3D extends ApplicationAdapter {
   public void render() {
     snapDt += Gdx.graphics.getDeltaTime();
     TaintReplay.FrameSnapshot snap = latest;
+    // THE EDITOR REPAINTS ON ITS OWN. Everything below only runs when a NEW frame arrives,
+    // and the editor's whole point is that the game is frozen — so nothing was ever
+    // repainted while editing and no highlight ever appeared: the cyan composite, the white
+    // graphic, the green selection were all being drawn into a texture nobody refreshed.
+    if (editorOn && lastSnap != null)
+      updateBackdrop(lastSnap);
     if (snap != null && snap.frame() != shownFrame) {
       shownFrame = snap.frame();
       frameLights.clear();
