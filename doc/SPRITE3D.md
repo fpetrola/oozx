@@ -141,6 +141,10 @@ bitmap sigue siendo lo que debe ser: la clave del **caché de mallas**.
 Persiste en `~/.jsw3d-sprite3d-<juego>.json` (`-Dsprite3d.file=` lo redirige), misma
 convención que la config viva del visor.
 
+Teclas de ajuste en vivo del RELIEVE: **I** elegir gráfico de fondo (cicla los modelados en
+pantalla, se pinta blanco el elegido) · **W** pasarlo a plano / volverlo a modelar, se guarda en
+`~/.jsw3d-relief-<juego>.json`.
+
 Teclas de ajuste en vivo: **F7** elegir sprite (cicla los de la pantalla) · **F8** técnica ·
 **F9** primitiva · **F10** guardar override · **F11** volver a auto/default. F8/F9 aplican al
 instante sin escribir a disco (el caché keyea por `(bitmap, config)`, así que la malla nueva

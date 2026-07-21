@@ -292,6 +292,19 @@ fondo como peinetas ("puntitos que van del frente hasta el fondo y parecen plata
 recortados por el borde izquierdo, y probar contra cualquier borde dejaba media esfera
 volumétrica y la mitad recortada extruida como un rayo.
 
+**Un gráfico se puede declarar FONDO a mano, por su hoja** (`relief.flat`, y las teclas **I/W**
+en el visor). Es la salida para lo que ninguna regla de forma acierta: las motas de estrella de
+Exolon son 8x8, están quietas y están encendidas, o sea que para cualquier test geométrico son
+un pedazo de decorado, y extruidas se leen como plaquitas colgadas en el cielo. Nombrar el
+gráfico es más simple y más honesto que una regla que finge inferirlo.
+
+Cómo se usa, sin saber direcciones de antemano: **I** cicla por los gráficos que el relieve está
+modelando en pantalla (Shift+I para atrás), pinta de BLANCO las celdas del elegido —así se ve
+cuál es— e imprime su hoja y cuántas celdas cubre; **W** lo pasa a plano (o lo devuelve a
+modelado) y lo guarda en `~/.jsw3d-relief-<juego>.json`. También se puede sembrar desde
+games.json o por `-D` con una lista separada por comas: `render.relief.flat: "$ede0,$ede8"`.
+Una celda de un gráfico marcado no recibe modelo NI fantasma: la pinta el backdrop 2D.
+
 **Una mota del cielo no se modela: se deja plana** (`relief.dot`, 0 = apagado; Exolon usa 2).
 Toda regla acá decide losa contra prop, y para una estrella de una celda las dos respuestas son
 malas: modelada como prop queda una bolita flotando adelante del backdrop, y un cielo lleno de

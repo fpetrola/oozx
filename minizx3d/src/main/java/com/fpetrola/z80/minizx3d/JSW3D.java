@@ -492,6 +492,7 @@ public class JSW3D extends ApplicationAdapter {
 
   @Override
   public void create() {
+    loadFlatLeaves();
     sprite3d = new Sprite3DPipeline(activeGame, 1024);
     if (activeProfile != null)
       sprite3d.store().seedDefaults(activeProfile.sprites);
@@ -646,6 +647,15 @@ public class JSW3D extends ApplicationAdapter {
                   sprite3d.store().remove(base);
                   printSpriteTuning();
                 }
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.I -> {
+                pickReliefLeaf(Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.SHIFT_LEFT)
+                    || Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.SHIFT_RIGHT) ? -1 : 1);
+                rebuild = false;
+              }
+              case com.badlogic.gdx.Input.Keys.W -> {
+                toggleFlatLeaf();
                 rebuild = false;
               }
               case com.badlogic.gdx.Input.Keys.M -> smooth = !smooth;
@@ -1507,6 +1517,82 @@ public class JSW3D extends ApplicationAdapter {
     uiBatch.end();
   }
 
+  /** where the I/W picks live: one file per game, like every other per-game store here. */
+  private java.nio.file.Path flatPath() {
+    return java.nio.file.Path.of(System.getProperty("user.home"),
+        ".jsw3d-relief-" + activeGame + ".json");
+  }
+
+  private void loadFlatLeaves() {
+    for (String tok : sprop("render.relief.flat", "relief.flat", "").split(","))
+      addFlatLeaf(tok);
+    try {
+      java.nio.file.Path p = flatPath();
+      if (!java.nio.file.Files.exists(p))
+        return;
+      com.badlogic.gdx.utils.JsonValue v =
+          new com.badlogic.gdx.utils.JsonReader().parse(java.nio.file.Files.readString(p));
+      for (com.badlogic.gdx.utils.JsonValue e = v.get("flat") == null ? null : v.get("flat").child;
+           e != null; e = e.next)
+        addFlatLeaf(e.asString());
+    } catch (Exception e) {
+      System.out.println("relieve: no se pudo leer " + flatPath() + ": " + e);
+    }
+  }
+
+  private void addFlatLeaf(String tok) {
+    String t = tok.trim().replace("$", "").replace("0x", "");
+    if (!t.isEmpty())
+      try {
+        flatLeaves.add(Integer.parseInt(t, 16));
+      } catch (NumberFormatException ignored) {
+        System.out.println("relieve: direccion invalida en relief.flat: " + tok);
+      }
+  }
+
+  private void saveFlatLeaves() {
+    StringBuilder sb = new StringBuilder("{\n  \"flat\": [");
+    int i = 0;
+    for (int leaf : flatLeaves)
+      sb.append(i++ > 0 ? ", " : "").append('"').append('$')
+          .append(Integer.toHexString(leaf)).append('"');
+    sb.append("]\n}\n");
+    try {
+      java.nio.file.Files.writeString(flatPath(), sb.toString());
+      System.out.println("relieve: " + flatLeaves.size() + " graficos planos -> " + flatPath());
+    } catch (Exception e) {
+      System.out.println("relieve: no se pudo guardar " + flatPath() + ": " + e);
+    }
+  }
+
+  /** I: point at the next graphic the relief is modelling (Shift = previous). */
+  private void pickReliefLeaf(int dir) {
+    List<Integer> leaves = new ArrayList<>(frameLeaves.keySet());
+    leaves.sort((a, b) -> frameLeaves.get(b) - frameLeaves.get(a));
+    if (leaves.isEmpty()) {
+      System.out.println("relieve: no hay graficos modelados en pantalla");
+      return;
+    }
+    int at = leaves.indexOf(pickedLeaf);
+    pickedLeaf = leaves.get(((at + dir) % leaves.size() + leaves.size()) % leaves.size());
+    System.out.println("relieve: grafico $" + Integer.toHexString(pickedLeaf) + " — "
+        + frameLeaves.get(pickedLeaf) + " celdas (se pintan BLANCAS) — "
+        + (flatLeaves.contains(pickedLeaf) ? "plano" : "modelado") + " (W lo cambia)");
+  }
+
+  /** W: this graphic goes flat (or back to modelled), and it persists for the game. */
+  private void toggleFlatLeaf() {
+    if (pickedLeaf < 0) {
+      System.out.println("relieve: elegi un grafico primero con I");
+      return;
+    }
+    if (!flatLeaves.remove(pickedLeaf))
+      flatLeaves.add(pickedLeaf);
+    System.out.println("relieve: $" + Integer.toHexString(pickedLeaf) + " ahora es "
+        + (flatLeaves.contains(pickedLeaf) ? "PLANO (fondo 2D)" : "MODELADO"));
+    saveFlatLeaves();
+  }
+
   private java.nio.file.Path configPath() {
     // per-game by default (~/.jsw3d-config-dd.json), so calibrating one game never
     // disturbs another; -Dconfig.file pins an explicit path across all games
@@ -1853,6 +1939,8 @@ public class JSW3D extends ApplicationAdapter {
       F3       guardar ambiente actual como preset (con nombre)
       F4 / F5  siguiente / anterior preset (sirven en todo juego)
       F6       borrar el preset actual
+      I / W    elegir grafico del relieve (se pinta blanco) /
+               pasarlo a FONDO plano (se guarda por juego)
       Mouse    arrastrar rota - rueda zoom
       Config viva en ~/.jsw3d-config-<juego>.json;
       presets (compartidos) en ~/.jsw3d-config.json""";
@@ -2465,6 +2553,25 @@ public class JSW3D extends ApplicationAdapter {
    */
   private int dotPixels = iprop("render.relief.dotpx", "relief.dotpx", 0);
   /**
+   * Graphics that must NEVER be modelled: their cells stay in the flat 2D backdrop, where
+   * they belong. Keyed by the catalog leaf — the address the taint says those pixels came
+   * from — which is what "this particular graphic" means here, the same idea as the
+   * per-sprite overrides being keyed by catalog base.
+   *
+   * <p>This is the escape hatch for what no shape rule gets right: Exolon's star specks look
+   * exactly like a piece of scenery to any geometric test (they are 8x8, they sit still,
+   * they are lit), and extruded they read as little platforms hanging in the sky. Naming the
+   * graphic is both simpler and more honest than a rule that pretends to infer it.
+   *
+   * <p>Seeded from {@code render.relief.flat} (a comma-separated list in games.json or -D)
+   * and from what the I/W keys saved in {@code ~/.jsw3d-relief-<game>.json}.
+   */
+  private final java.util.Set<Integer> flatLeaves = new java.util.LinkedHashSet<>();
+  /** leaf -> cells it covered this frame, for the I key to cycle through. */
+  private final Map<Integer, Integer> frameLeaves = new java.util.LinkedHashMap<>();
+  /** the graphic the I/W keys point at: its cells render white so you can see which it is. */
+  private int pickedLeaf = -1;
+  /**
    * Biggest island (in cells) that may be held as "a character standing still" after the
    * sprite taint lets go of it (-Drelief.hold). A 16x16 character is 4 cells; anything much
    * larger is scenery the catalog over-claimed, and it settles into slabs as usual.
@@ -2541,6 +2648,7 @@ public class JSW3D extends ApplicationAdapter {
 
   private void updateScreenRelief(TaintReplay.FrameSnapshot snap) {
     repainted = skySlabs = skyFlats = 0;
+    frameLeaves.clear();
     java.util.Arrays.fill(ghostRoles, 0);
     auditing = auditFrame >= 0 && !auditDone && shownFrame >= auditFrame;
     java.util.Arrays.fill(role, ' ');
@@ -2705,6 +2813,16 @@ public class JSW3D extends ApplicationAdapter {
         byte[] bmp = bmps[cell];
         cellClaimed[cell] = false;
         int attr = snap.attrs()[cell] & 0xff;
+        int cellLeaf = tOf[cell] - 1;
+        if (tOf[cell] != 0 && flatLeaves.contains(cellLeaf)) {
+          // named by hand as background art (W key / games.json): never a model, not even a
+          // ghost — the 2D backdrop paints it, which is exactly where a star belongs
+          role[cell] = 'F';
+          sceneryRole[cell] = 'F';
+          continue;
+        }
+        if (bmp != null && tOf[cell] != 0)
+          frameLeaves.merge(cellLeaf, 1, Integer::sum);
         if (spr[cell]) {
           role[cell] = cellBmp[cell] != null ? 'G' : bmp != null ? 'f' : 'X';
           if (holeWatch && role[cell] == 'G')
@@ -2916,7 +3034,8 @@ public class JSW3D extends ApplicationAdapter {
         ModelInstance inst = new ModelInstance(model);
         inst.transform.setToTranslation(col * 8 + 4, H - (y0 + 4), midZ());
         Material ink = inst.getMaterial(TileSlabBuilder.INK);
-        ink.set(ColorAttribute.createDiffuse(paintRoles ? Color.RED : inkColor));
+        ink.set(ColorAttribute.createDiffuse(cellLeaf == pickedLeaf ? Color.WHITE
+            : paintRoles ? Color.RED : inkColor));
         wetten(ink);
         Material side = inst.getMaterial(TileSlabBuilder.PAPER_SIDE);
         if (side != null) {
@@ -3031,7 +3150,8 @@ public class JSW3D extends ApplicationAdapter {
       ModelInstance inst = new ModelInstance(m);
       inst.transform.setToTranslation(minC * 8 + wB * 4f,
           H - (minR * 8 + (maxR - minR + 1) * 4f), midZ());
-      Color c = paintRoles ? (glow ? Color.MAGENTA : Color.GREEN)
+      Color c = base >= 0 && base == pickedLeaf ? Color.WHITE
+          : paintRoles ? (glow ? Color.MAGENTA : Color.GREEN)
           : PALETTE[ink0]; // one ink per blob: that is what bounded it in the first place
       inst.materials.first().set(ColorAttribute.createDiffuse(c));
       if (glow && darkMode) // an item blazes with light of its own in the gloom
