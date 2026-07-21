@@ -35,6 +35,13 @@ import java.sql.Statement;
 public final class SpriteCatalog {
   /** addr -> sprite base + 1, 0 when the address is not part of any catalogued sprite. */
   public final int[] baseOf = new int[0x10000];
+  /**
+   * addr -> the base of the catalogue entry that CONTAINS it, + 1 (sprites and tiles alike).
+   * The taint answers with the exact byte a pixel came from, and a graphic is a range of
+   * those: without this every row of a sprite looks like a different graphic — which is how
+   * the editor ended up offering "pieces" of 8x1 pixels instead of the blocks a person sees.
+   */
+  public final int[] entryOf = new int[0x10000];
   /** base -> catalogued byte size (16x16 = 32 bytes; DD also has 16/24/48/72). */
   public final java.util.Map<Integer, Integer> sizeOf = new java.util.HashMap<>();
   /**
@@ -128,6 +135,8 @@ public final class SpriteCatalog {
   private void add(int base, int last, int size, int stride, String kind, int maxSpriteBytes) {
     if (base < 16384)
       return; // ROM: the system font, never game graphics (it shreds printed text)
+    for (int a = base; a <= last && a < 0x10000; a++)
+      entryOf[a] = base + 1;
     boolean udg = kind.startsWith("udg");
     if (stride > 0)
       strideOf.put(base, stride);

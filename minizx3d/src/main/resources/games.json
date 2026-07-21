@@ -136,6 +136,7 @@
       "properties": {
         "render": {
           "tiles": "screen",
+
           "blobs": "adjacent",
           "items": false,
           "spriteBits": true,

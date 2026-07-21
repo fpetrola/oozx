@@ -3443,6 +3443,22 @@ public class JSW3D extends ApplicationAdapter {
     return new Color(paper).lerp(inkc, paperTint);
   }
 
+  /**
+   * The GRAPHIC a screen byte came from, rolled up to the catalogue entry that contains it.
+   * The taint answers with the exact ADDRESS, so two rows of one sprite report different
+   * origins: without the roll-up the editor offered slivers of 8x1 pixels as if each were a
+   * separate piece, when what a person sees — and wants to add or remove — is the graphic.
+   */
+  private int originOf(int i) {
+    int addr = lastSnap.owner()[i] != 0 ? lastSnap.owner()[i] - 1
+        : lastSnap.tile()[i] != 0 ? lastSnap.tile()[i] - 1 : -1;
+    if (addr < 0)
+      return -1;
+    int entry = catalog.entryOf[addr & 0xffff];
+    return entry != 0 ? entry - 1 : addr;
+  }
+
+
   /** the editor's own keys while it is open; false lets the viewer have the key. */
   private boolean editorKey(int keycode, boolean ctrl) {
     switch (keycode) {
@@ -3553,8 +3569,7 @@ public class JSW3D extends ApplicationAdapter {
       return;
     Map<Integer, Integer> count = new HashMap<>();
     for (int i : edComposites.get(edComposite)) {
-      int origin = lastSnap.owner()[i] != 0 ? lastSnap.owner()[i] - 1
-          : lastSnap.tile()[i] != 0 ? lastSnap.tile()[i] - 1 : -1;
+      int origin = originOf(i);
       if (origin >= 0)
         count.merge(origin, 1, Integer::sum);
     }
@@ -3596,30 +3611,69 @@ public class JSW3D extends ApplicationAdapter {
 
   /**
    * The editor's overlay, painted INTO the 2D screen image so it lands exactly on the game's
-   * own pixels: the selected composite outlined in cyan, the graphic the arrows are on in
-   * white, and whatever is already in the object in green.
+   * own pixels: a box around the selected composite, the graphic the arrows are on in gold,
+   * the rest of that composite in amber, and whatever is already in the object in metallic
+   * green — colours the Spectrum CANNOT produce, and pulsing.
+   *
+   * <p>White and cyan were unusable: they are the game's own ink and the highlight vanished
+   * into it. The pulse costs nothing now that the editor repaints every render frame, and it
+   * is what makes a highlight unmistakable over art that does not move. The PAPER is tinted
+   * too, not only the lit pixels: that is what makes an 8x8 block read as a block instead of
+   * as a handful of dots.
    */
   private void paintEditor(TaintReplay.FrameSnapshot snap, Pixmap pixmap) {
     if (edComposites.isEmpty())
       return;
     java.util.Set<Integer> inComposite = new java.util.HashSet<>(edComposites.get(edComposite));
     int piece = edPieces.isEmpty() ? -1 : edPieces.get(edPiece);
+    float t = (System.currentTimeMillis() % 700) / 700f;
+    float beat = .55f + .45f * (float) Math.sin(t * (float) Math.PI * 2);
+    int gold = Color.rgba8888(1, .2f + .78f * beat, 0, 1);
+    int goldPaper = Color.rgba8888(.35f * beat, .2f * beat, 0, 1);
+    int amber = Color.rgba8888(.95f, .45f, .05f, 1);
+    int amberPaper = Color.rgba8888(.22f, .1f, 0, 1);
+    int green = Color.rgba8888(.25f, 1, .3f + .45f * beat, 1);
+    int greenPaper = Color.rgba8888(0, .28f, .12f, 1);
     for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
-      int bits = snap.pixels()[i] & 0xff;
-      if (bits == 0)
-        continue;
-      int origin = snap.owner()[i] != 0 ? snap.owner()[i] - 1
-          : snap.tile()[i] != 0 ? snap.tile()[i] - 1 : -1;
+      int origin = originOf(i);
       boolean here = inComposite.contains(i);
-      Color c = origin >= 0 && origin == piece && here ? Color.WHITE
-          : origin >= 0 && objPieces.contains(origin) ? Color.LIME
-          : here ? Color.CYAN : null;
-      if (c == null)
+      boolean isPiece = origin >= 0 && origin == piece && here;
+      boolean inObject = origin >= 0 && objPieces.contains(origin);
+      if (!isPiece && !inObject && !here)
         continue;
+      int on = isPiece ? gold : inObject ? green : amber;
+      int off = isPiece ? goldPaper : inObject ? greenPaper : amberPaper;
+      int bits = snap.pixels()[i] & 0xff;
       int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), col = i & 31;
-      for (int bit = 0; bit < 8; bit++)
-        if ((bits & (0x80 >> bit)) != 0)
-          pixmap.drawPixel(col * 8 + bit, y, Color.rgba8888(c));
+      for (int bit = 0; bit < 8; bit++) {
+        boolean lit = (bits & (0x80 >> bit)) != 0;
+        if (lit)
+          pixmap.drawPixel(col * 8 + bit, y, on);
+        else if (isPiece || inObject)
+          pixmap.drawPixel(col * 8 + bit, y, off);
+      }
+    }
+    // a box around the selected composite, so it is findable even when it is mostly dark
+    int minC = 31, maxC = 0, minR = H - 1, maxR = 0;
+    for (int i : edComposites.get(edComposite)) {
+      int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), col = i & 31;
+      minC = Math.min(minC, col);
+      maxC = Math.max(maxC, col);
+      minR = Math.min(minR, y);
+      maxR = Math.max(maxR, y);
+    }
+    int box = Color.rgba8888(1, .6f, 0, 1);
+    for (int x = minC * 8; x <= maxC * 8 + 7 && x < 256; x++) {
+      if (minR > 0)
+        pixmap.drawPixel(x, minR - 1, box);
+      if (maxR < H - 1)
+        pixmap.drawPixel(x, maxR + 1, box);
+    }
+    for (int y = Math.max(0, minR - 1); y <= Math.min(H - 1, maxR + 1); y++) {
+      if (minC > 0)
+        pixmap.drawPixel(minC * 8 - 1, y, box);
+      if (maxC < 31)
+        pixmap.drawPixel(maxC * 8 + 8, y, box);
     }
   }
 
