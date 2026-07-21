@@ -1287,6 +1287,8 @@ public class JSW3D extends ApplicationAdapter {
         0, 30, 1, true, () -> (float) DYN_FRAMES, v -> DYN_FRAMES = Math.round(v));
     addParam("render.relief.decor", "relief.decor", "Render", "relieve celdas decor",
         0, 60, 1, true, () -> (float) decorCells, v -> decorCells = Math.round(v));
+    addChoice("render.relief.bar", "relief.bar", "Render", "relieve barras del cielo",
+        new String[]{"slab", "flat", "float"}, () -> barMode, v -> barMode = v, "");
     addParam("render.relief.island", "relief.island", "Render", "relieve isla (celdas bbox)",
         0, 24, 1, true, () -> (float) islandCells, v -> islandCells = Math.round(v));
     addParam("render.relief.hold", "relief.hold", "Render", "relieve celdas quieto",
@@ -2428,6 +2430,18 @@ public class JSW3D extends ApplicationAdapter {
    */
   private int islandCells = iprop("render.relief.island", "relief.island", 8);
   /**
+   * What to do with a SMALL THIN BAR hanging in the sky — a streak of stars, a trail, a
+   * laser: the shape that is small enough to be a prop but too elongated to be a body, so
+   * {@link #island} will not take it (-Drelief.bar).
+   *
+   * <p>Not decidable from the shape alone, which is why it is a knob: in Exolon those
+   * streaks are background sparkle and extruding them puts a row of little combs across the
+   * sky ("dots that go from the front to the back and look like a platform"); in Monty on
+   * the Run the very same shape is the ledge Monty walks on. Default {@code slab} keeps
+   * every game as it was; Exolon's profile sets {@code flat}.
+   */
+  private String barMode = sprop("render.relief.bar", "relief.bar", "slab");
+  /**
    * Biggest island (in cells) that may be held as "a character standing still" after the
    * sprite taint lets go of it (-Drelief.hold). A 16x16 character is 4 cells; anything much
    * larger is scenery the catalog over-claimed, and it settles into slabs as usual.
@@ -2447,7 +2461,8 @@ public class JSW3D extends ApplicationAdapter {
    * playfield cell, as a 32-column map: '.' air, 'G' sprite cell rebuilt from the scenery
    * cache, 'f' sprite cell whose leftover ink floats, 'X' sprite cell that drew NOTHING (the
    * hole), 'D' cell floating because it is being rewritten, 'd' small island floating as
-   * decor, 'T' slab, 'I' item, '?' the model came out null. Deterministic, unlike the render.
+   * decor, 'T' slab, 'F' left flat to the 2D backdrop, 'I' item, '?' the model came out null.
+   * Deterministic, unlike the render.
    */
   private final int auditFrame = Integer.getInteger("relief.audit", -1);
   private boolean auditing;
@@ -2484,9 +2499,11 @@ public class JSW3D extends ApplicationAdapter {
   /** -Drelief.holes: cells the repaint rule kept as scenery this frame (they would have
    *  turned into floating lumps while a character walked past). */
   private int repainted;
+  /** -Drelief.holes: cells above the floor rendered as slabs / left flat, this frame. */
+  private int skySlabs, skyFlats;
 
   private void updateScreenRelief(TaintReplay.FrameSnapshot snap) {
-    repainted = 0;
+    repainted = skySlabs = skyFlats = 0;
     auditing = auditFrame >= 0 && !auditDone && shownFrame >= auditFrame;
     java.util.Arrays.fill(role, ' ');
     tileInstances.clear();
@@ -2712,10 +2729,30 @@ public class JSW3D extends ApplicationAdapter {
         // component to grow to TWICE the limit before it is promoted to architecture. A
         // single threshold makes every component sitting near the limit — a star, a small
         // rock — swap roles with any one-cell change, and the eye reads that as blinking.
+        boolean bar = !"slab".equals(barMode) && comp[cell] >= 0
+            && skyBar(comp[cell], compBox, end);
         boolean decor = comp[cell] >= 0
             && (compSize.get(comp[cell]) <= (lastRole[cell] == 'd' ? 2 * decorCells : decorCells)
-                || island(comp[cell], compBox, end));
-        role[cell] = rewritten || holding ? 'D' : decor ? 'd' : 'T';
+                || island(comp[cell], compBox, end)
+                || (bar && "float".equals(barMode)));
+        boolean flat = bar && !decor; // "flat": leave it to the 2D backdrop, no model at all
+        role[cell] = rewritten || holding ? 'D' : decor ? 'd' : flat ? 'F' : 'T';
+        if (holeWatch && comp[cell] >= 0 && compBox.get(comp[cell])[3] < end - 1) {
+          if (role[cell] == 'T')
+            skySlabs++;
+          else if (role[cell] == 'F')
+            skyFlats++;
+        }
+        if (flat)
+          continue; // unclaimed: updateBackdrop paints these pixels in 2D, as they were
+        if (holeWatch && role[cell] == 'T' && comp[cell] >= 0
+            && compBox.get(comp[cell])[3] < end - 1) {
+          int[] bx = compBox.get(comp[cell]);
+          System.out.println("cielo-losa frame " + snap.frame() + " r" + cellY + "c" + col
+              + ": comp=" + compSize.get(comp[cell]) + " bbox="
+              + (bx[2] - bx[0] + 1) + "x" + (bx[3] - bx[1] + 1) + " en r" + bx[1] + "c" + bx[0]
+              + " leaf=$" + Integer.toHexString(Math.max(0, tOf[cell] - 1)));
+        }
         if (flipWatch && role[cell] == 'T' && lastRole[cell] == 'D'
             && snap.frame() - entityFrame[cell] <= 80)
           System.out.println("aplanado r" + cellY + "c" + col + ": edad="
@@ -2827,6 +2864,9 @@ public class JSW3D extends ApplicationAdapter {
         }
         tileInstances.add(inst);
       }
+    if (holeWatch && (skySlabs > 0 || skyFlats > 0))
+      System.out.println("cielo frame " + snap.frame() + ": losa=" + skySlabs
+          + " plano=" + skyFlats);
     if (holeWatch && repainted > 0)
       System.out.println("repintadas frame " + snap.frame() + ": " + repainted
           + " celdas de decorado se salvaron de flotar");
@@ -3080,6 +3120,17 @@ public class JSW3D extends ApplicationAdapter {
       return; // that is a character parked here, not the room
     cellBmp[cell] = bmp.clone();
     cellAttr[cell] = attr;
+  }
+
+  /**
+   * A small thin strip hanging in the sky: prop-sized but bar-shaped, so {@link #island}
+   * rejects it as "a ledge, not a body". Which of the two it really is depends on the game,
+   * so what happens to it is {@link #barMode}.
+   */
+  private boolean skyBar(int id, java.util.List<int[]> box, int end) {
+    int[] b = box.get(id);
+    int w = b[2] - b[0] + 1, h = b[3] - b[1] + 1;
+    return b[3] < end - 1 && Math.max(w, h) <= islandCells;
   }
 
   /** are these the very pixels the cell already had while nothing was standing on it? */

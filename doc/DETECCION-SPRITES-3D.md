@@ -292,6 +292,15 @@ fondo como peinetas ("puntitos que van del frente hasta el fondo y parecen plata
 recortados por el borde izquierdo, y probar contra cualquier borde dejaba media esfera
 volumétrica y la mitad recortada extruida como un rayo.
 
+**Las tiras finas del cielo son una perilla, no un algoritmo** (`relief.bar`, medido: barras de
+8x1, 9x1, 6x1 celdas que caían a losa). Son chicas como un adorno pero alargadas como una
+repisa, así que `island` las rechaza y terminaban extruidas: una fila de peinetas cruzando el
+cielo, "puntitos que van del frente hasta el fondo y parecen plataforma". No se puede decidir
+por la forma, porque **es la misma forma en los dos casos**: en Exolon son destello de estrellas
+y estelas (fondo), en Monty on the Run es la repisa donde se para. Por eso es una opción por
+juego: `slab` (como siempre, default), `flat` (no se modela: la pinta el backdrop 2D, que es lo
+que hace el perfil de Exolon) o `float` (volumétrica como un adorno).
+
 **Una entidad que se detuvo sigue siendo una entidad.** Un motor de dirty-regions no repinta lo
 que no se mueve, así que el personaje quieto pierde la taint de sprite (`fresh.frames`) *y* la
 frescura de escritura, se une como componente estática al terreno que pisa y lo extruyen contra

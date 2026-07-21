@@ -132,6 +132,7 @@
         "analysis/exolon-taint.db",
         "analysis/exolon.db"
       ],
+      "_bar_note": "las tiras finas del cielo (destellos de estrellas, estelas) son fondo: extruidas salen como peinetas que van del frente al fondo. En Monty la misma forma es una repisa, por eso es por juego.",
       "properties": {
         "render": {
           "tiles": "screen",
@@ -139,6 +140,9 @@
           "items": false,
           "spriteBits": true,
           "freshFrames": 8,
+          "relief": {
+            "bar": "flat"
+          },
           "playfield": {
             "rows": 20
           }
