@@ -321,6 +321,14 @@ salían losa sin hoja, **8.365 de ellas con exactamente 1 píxel encendido**, mi
 celdas de TERRENO sin clasificar traen 30-46. Un píxel y sin origen es una mota de cielo; con
 el umbral en 2 quedaron 0.
 
+**Un fantasma de casi nada no es una pared.** El fantasma existe para que un personaje no
+abra un agujero en una plataforma, pero un caché de uno o dos píxeles es una chispa o una
+estrella, y reconstruirlo como losa dejaba un bloque de 8x8 corriendo toda la profundidad hasta
+el fondo. Aparecen **al lado de otros sprites** justamente porque ahí es cuando la taint reclama
+la celda y el camino del fantasma se hace cargo — el usuario lo diagnosticó así y la medición lo
+confirmó: 94 de 300 fantasmas losa de Exolon eran celdas de 1-2 píxeles. Con `relief.dotpx` en 2
+quedaron 0, y los 97 fantasmas que sobreviven son paredes de verdad.
+
 **Un fantasma solo es una losa si la celda lo era.** El fantasma reconstruye desde el caché el
 decorado que un sprite está tapando, y lo hacía SIEMPRE como losa: cada vez que algo cruzaba
 una estrella o una nube aparecía de la nada un bloque de 8x8 corriendo toda la profundidad de la
@@ -578,10 +586,36 @@ Todas en el `main` de `TaintReplay` (modo validación headless) salvo la última
   Ignora `.<->X`, que no dibujan nada en ninguno de los dos estados.
 - **`-Dlog=true`** — habilita todos los prints (por default la consola está muda).
 
+### El catálogo legible (y por qué el visor lo carga a él)
+
+`TaintDiscover` escribe además **`doc/catalogo-<juego>.md` y `.png`** (`SpriteReport`), y eso
+no es un reporte al costado: **`SpriteCatalog` lee ese .md**, así que lo que corre el visor es
+el mismo texto que estás mirando. Un catálogo que vive solo como filas de SQLite es invisible
+—nadie se entera cuando una recatalogación cambia el tamaño de un sprite o se come un
+personaje— y como texto se diffea en git, se grepea y se corrige a mano.
+
+- **Una línea de datos por gráfico**, entre acentos graves, que es lo único que se parsea:
+  `` `base=$edc0 last=$eddf size=32 stride=2 tipo=sprite veces=12480` ``. Corregir ahí un
+  `stride` o pasar un `tipo=sprite` a `fondo` cambia lo que se renderiza, sin tocar código ni
+  la db. El parser es deliberadamente tolerante con el orden y los espacios, y acepta `$edc0`,
+  `0xedc0` o decimal: si un archivo editado a mano no carga, la herramienta no sirve.
+- **El dibujo en ASCII**, dos caracteres por píxel (`██`/`··`) porque la celda monoespaciada es
+  el doble de alta que de ancha y un carácter por píxel deja los sprites irreconocibles. Los
+  cuadros de una tira de animación van **uno al lado del otro**, que es como se lee un ciclo de
+  caminata; apilados verticalmente parecen un bicho imposiblemente alto.
+- **La hoja de contacto PNG**, con todos los gráficos en grilla y su dirección abajo en una
+  tipografía de 3x5 píxeles. Es para la primera pregunta de un juego nuevo —¿el catálogo agarró
+  personajes o agarró basura?—, que se contesta mirando, no leyendo una tabla.
+
+Precedencia: si existe el `.md` (o el que liste `"md"` en el perfil), **gana sobre la `.db`**;
+si no, se sigue cargando la db como siempre. Ojo con esto: **el .md sale de la corrida que lo
+generó**, así que generarlo con `-Dmax.frames` chico deja un catálogo peor que la db que había.
+Generar siempre con la corrida completa que uno quiera usar.
+
 Flujo para un juego nuevo (el catálogo por taint NO necesita las pasadas del tracker: se
 basta solo, y en Exolon dio 17x más cobertura — ver §5.1):
 ```
-TaintDiscover <rzx> analysis/<g>-taint.db [maxFrames]
+TaintDiscover <rzx> analysis/<g>-taint.db [maxFrames]     # -Dgame=<g> tambien escribe doc/catalogo-<g>.md
 # motor de dirty-regions (Exolon, DD): agregar -Ddiscover.gate=8 -Ddiscover.drift=0.25
 # re-blitter de pantalla entera (JSW, MM): dejar los dos apagados (default)
 JSW3D -Dgame=<g>   (agregar el perfil a games.json)

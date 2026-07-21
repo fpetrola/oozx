@@ -429,6 +429,39 @@ public final class TaintDiscover {
     }
   }
 
+  /**
+   * The same catalogue as something readable, and as what the viewer actually loads: one
+   * Markdown per game with every graphic drawn in ASCII plus a contact sheet
+   * ({@link SpriteReport}). Off unless {@code -Dgame} says which game this is, since the
+   * file is named after it; {@code -Ddiscover.report} sets an explicit path.
+   */
+  private void writeReport(Map<Integer, long[]> rows) {
+    String game = System.getProperty("game");
+    String path = System.getProperty("discover.report",
+        game == null ? null : "doc/catalogo-" + game + ".md");
+    if (path == null)
+      return;
+    try {
+      List<SpriteReport.Entry> entries = new ArrayList<>();
+      for (Map.Entry<Integer, long[]> e : rows.entrySet()) {
+        long[] a = e.getValue();
+        int base = e.getKey(), last = (int) a[0], size = last - base + 1;
+        boolean bg = isBackground(a);
+        // 2 bytes per row is the 16px sprite every one of these games draws; the curated
+        // widths (DD's 1..3) live in the db's methods column and are kept when re-read
+        entries.add(new SpriteReport.Entry(base, last, size, (int) a[1], (int) a[2], (int) a[3],
+            bg ? "fondo" : "sprite", bg ? 1 : 2,
+            "bpo=" + bpo(a) + " fresh=" + (int) (freshOf(a) * 100) + "% stamps="
+                + (int) stampsOf(a) + " mob=" + String.format("%.1f", mobilityOf(a))
+                + " reuse=" + String.format("%.1f", reuseOf(a))
+                + " drift=" + String.format("%.2f", driftOf(a))));
+      }
+      SpriteReport.write(path, game == null ? "juego" : game, entries, replay::memByte);
+    } catch (Exception ex) {
+      System.out.println("no se pudo escribir el catalogo legible: " + ex);
+    }
+  }
+
   /** aggregate, absorb clipped fragments, classify, and REPLACE sprites_found. */
   private void emit(String dbPath) throws Exception {
     // extent = MODE of observed ends (ties -> the larger end), like the tracker: a rare
@@ -499,6 +532,7 @@ public final class TaintDiscover {
       }
       c.commit();
     }
+    writeReport(rows);
     System.out.println("=== TAINT-DISCOVER: " + sprites + " sprites + " + tiles
         + " zonas de fondo (sprites_found REEMPLAZADA en " + dbPath + ") ===");
     rows.entrySet().stream()

@@ -2834,7 +2834,22 @@ public class JSW3D extends ApplicationAdapter {
           // nowhere and ran the slab's full depth into the backdrop ("dots that show up
           // suddenly and go from the front to the back"). It has to come back as whatever it
           // was: a prop floats, and a cell left flat stays flat.
-          if (cellBmp[cell] != null && sceneryRole[cell] != 'T') {
+          // A GHOST OF ALMOST NOTHING IS NOT A WALL. Ghosts exist so a character does not
+          // punch a hole in a platform, but a cache with one or two lit pixels is a spark or
+          // a star, and rebuilding it as a slab dropped an 8x8 block running the full depth
+          // into the backdrop — the "dots that look like platforms", which show up NEXT TO
+          // OTHER SPRITES precisely because that is when the taint claims the cell and the
+          // ghost path takes over. Measured on Exolon: 54 of 317 ghosts were 1-2 pixel cells.
+          int cachePx = 0;
+          if (cellBmp[cell] != null)
+            for (int r = 0; r < 8; r++)
+              cachePx += Integer.bitCount(cellBmp[cell][r] & 0xff);
+          boolean cacheSpeck = dotPixels > 0 && cachePx <= dotPixels;
+          if (cellBmp[cell] != null && (sceneryRole[cell] != 'T' || cacheSpeck)) {
+            if (cacheSpeck) {
+              role[cell] = 'F'; // leave those pixels to the 2D backdrop, where they were
+              continue;
+            }
             if (sceneryRole[cell] == 'd') {
               byte[] both = cellBmp[cell].clone();
               if (bmp != null)
@@ -2853,6 +2868,9 @@ public class JSW3D extends ApplicationAdapter {
           if (cellBmp[cell] != null && ghostScreenCell(col, y0, cell)) {
             solidCells[cell] = true;
             cellClaimed[cell] = true;
+            if (holeWatch)
+              System.out.println("fantasma-losa px=" + cachePx + " hoja="
+                  + (tOf[cell] == 0 ? "NINGUNA" : "$" + Integer.toHexString(tOf[cell] - 1)));
           }
           // ink that is neither the sprite's own nor cached scenery is the REST of a
           // fragmented character: inflate it too, instead of dropping it into holes
@@ -3053,8 +3071,8 @@ public class JSW3D extends ApplicationAdapter {
           // tried and reverted — in Exolon most cells are mostly paper with dithered ink
           // on top, so the whole room turned into solid single-colour bricks and every
           // bit of texture was lost. The black edge needs a narrower fix than this.
-          paper.set(ColorAttribute.createDiffuse(
-              PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
+          paper.set(ColorAttribute.createDiffuse(paintRoles ? Color.MAROON
+              : PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
           wetten(paper);
         }
         tileInstances.add(inst);
@@ -3389,12 +3407,13 @@ public class JSW3D extends ApplicationAdapter {
     mi.set(new com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute(true, ghostAlpha));
     Material paper = inst.getMaterial(TileSlabBuilder.PAPER);
     if (paper != null) {
-      paper.set(ColorAttribute.createDiffuse(PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
+      paper.set(ColorAttribute.createDiffuse(paintRoles ? Color.NAVY
+          : PALETTE[((attr >> 3) & 7) | ((attr >> 3) & 8)]));
       paper.set(new com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute(true, ghostAlpha));
     }
     Material side = inst.getMaterial(TileSlabBuilder.PAPER_SIDE);
     if (side != null) {
-      side.set(ColorAttribute.createDiffuse(slabPaper(attr)));
+      side.set(ColorAttribute.createDiffuse(paintRoles ? Color.NAVY : slabPaper(attr)));
       side.set(new com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute(true, ghostAlpha));
     }
     tileInstances.add(inst);

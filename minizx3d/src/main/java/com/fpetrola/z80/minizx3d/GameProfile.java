@@ -80,6 +80,13 @@ public final class GameProfile {
             "/home/fernando/detodo/spectrum/oozx/Jet Set Willy - Mildly Patched.rzx");
     String db = args.length > 1 ? args[1]
         : resolveFile("db", candidates(g, "db"), "analysis/jsw-catalog.db", "analysis/jsw.db");
+    // The READABLE catalogue wins when it exists (doc/catalogo-<juego>.md, or whatever the
+    // profile's "md" lists): it is the one a person can read and correct, and having the
+    // viewer load the very file you are looking at is the whole point of generating it.
+    String md = args.length > 1 ? null
+        : firstExisting(candidates(g, "md"), "doc/catalogo-" + wanted + ".md");
+    if (md != null)
+      db = md;
     return new GameProfile(g != null ? wanted : "custom", title, rzx, db,
         g == null ? null : g.get("sprites"));
   }
@@ -172,6 +179,15 @@ public final class GameProfile {
       }
     return candidates.length > 0 ? candidates[0]
         : fallbacks.length > 0 ? fallbacks[0] : kind;
+  }
+
+  /** the first of these paths that is really on disk, or null: no bundled-resource fallback. */
+  private static String firstExisting(String[] candidates, String... more) {
+    for (String[] group : new String[][]{candidates, more})
+      for (String c : group)
+        if (c != null && new File(c).exists())
+          return c;
+    return null;
   }
 
   private static String unpack(String resource) {
