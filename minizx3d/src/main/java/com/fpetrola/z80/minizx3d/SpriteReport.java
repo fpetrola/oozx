@@ -19,6 +19,7 @@
 package com.fpetrola.z80.minizx3d;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.IntUnaryOperator;
@@ -84,13 +85,27 @@ public final class SpriteReport {
         sb.append("### objeto ").append(++n).append(" — ").append(c.wBytes * 8).append('x')
             .append(c.rows).append(" px · visto ").append(c.count).append(" veces · frames ")
             .append(c.firstFrame).append("-").append(c.lastFrame).append("\n\n");
-        sb.append("compuesto por: ");
-        int k = 0;
-        for (Map.Entry<Integer, Integer> pe : sortedPieces(c)) {
-          sb.append(k++ > 0 ? " · " : "").append("[`$").append(hex(pe.getKey()))
-              .append("`](#").append(hex(pe.getKey())).append(") ").append(pe.getValue())
+        // rolled up to CATALOGUE ENTRIES and to bytes PER APPEARANCE. Raw, a dithered
+        // planet lists 140 leaves (the taint cuts per byte) with five-figure totals summed
+        // over every sighting, which says nothing; what a person wants is "this object is
+        // made of these graphics, this much of each, each time it is drawn".
+        Map<Integer, Integer> roll = rollUp(c.pieces, sorted);
+        List<Map.Entry<Integer, Integer>> top = new ArrayList<>(roll.entrySet());
+        // a graphic that contributes less than a twentieth of a byte per drawing is a stray
+        // pixel in one sighting out of hundreds, not part of the object
+        top.removeIf(pe -> pe.getValue() < .05f * Math.max(1, c.count));
+        top.sort((a, b) -> b.getValue() - a.getValue());
+        sb.append("compuesto por ").append(top.size())
+            .append(top.size() == 1 ? " gráfico: " : " gráficos: ");
+        for (int k = 0; k < Math.min(top.size(), 8); k++) {
+          Map.Entry<Integer, Integer> pe = top.get(k);
+          sb.append(k > 0 ? " · " : "").append("[`$").append(hex(pe.getKey()))
+              .append("`](#").append(hex(pe.getKey())).append(") ")
+              .append(String.format("%.1f", pe.getValue() / (float) Math.max(1, c.count)))
               .append(" B");
         }
+        if (top.size() > 8)
+          sb.append(" · y ").append(top.size() - 8).append(" más");
         sb.append("\n\n```\n").append(compositeArt(c)).append("```\n\n");
       }
       sb.append("---\n\n## Piezas del catálogo (lo que carga el visor)\n\n");
@@ -132,10 +147,23 @@ public final class SpriteReport {
     }
   }
 
-  private static List<Map.Entry<Integer, Integer>> sortedPieces(SpriteComposites.Composite c) {
-    List<Map.Entry<Integer, Integer>> l = new ArrayList<>(c.pieces.entrySet());
-    l.sort((a, b) -> b.getValue() - a.getValue());
-    return l;
+  /**
+   * Every origin address folded into the catalogue entry that contains it. The taint reports
+   * the exact byte a pixel came from, and a graphic is a RANGE of those: without this, one
+   * object cites $dd40, $dd41, $dd42 … as if they were different graphics.
+   */
+  private static Map<Integer, Integer> rollUp(Map<Integer, Integer> pieces, List<Entry> es) {
+    Map<Integer, Integer> out = new LinkedHashMap<>();
+    pieces.forEach((addr, n) -> {
+      int base = addr;
+      for (Entry e : es)
+        if (addr >= e.base && addr <= e.last) {
+          base = e.base;
+          break;
+        }
+      out.merge(base, n, Integer::sum);
+    });
+    return out;
   }
 
   private static String name(String mdPath) {

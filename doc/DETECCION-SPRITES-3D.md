@@ -599,13 +599,22 @@ personaje— y como texto se diffea en git, se grepea y se corrige a mano.
   un personaje con varias piezas compartidas— es un fragmento: medio torso, una franja de una
   pierna. Listar eso contesta "qué bytes son gráficos", no "qué muestra este juego".
   `SpriteComposites` reproduce el RZX **con el catálogo ya construido** y agrupa lo que cae en
-  pantalla exactamente como `updateSprites` en modo `blobs=adjacent`: bytes con dueño,
-  inundados por adyacencia, son un objeto; su bitmap es lo que el juego COMPUSO ahí
-  (`pixels & spriteBits`) y su color son los atributos con que lo pintó. Los objetos iguales
+  pantalla. **No sobre los bytes con dueño de sprite**: en Exolon los planetas, las cápsulas,
+  los cañones y las columnas están clasificados como FONDO, así que agrupar solo lo que la
+  taint llama sprite mostraba los bichitos y se perdía todo lo grande. Agrupa lo que está
+  ENCENDIDO y **corta donde cambia la tinta** —el color es lo único que dice dónde termina un
+  objeto en este hardware, y es lo que separa un cañón verde del piso amarillo donde se
+  apoya—, ignorando el bit BRIGHT para el corte (un planeta mitad brillante y mitad no es un
+  planeta, y cortando ahí salían dos medias lunas). La banda de terreno cruza la pantalla y la
+  descarta el tope de tamaño (`discover.objects.cols`/`.rows`); un planeta, una columna o una
+  cápsula entran y salen enteros. El marcador queda afuera por el playfield del perfil. Los objetos iguales
   colapsan por hash de contenido, así que un ciclo de animación queda en un puñado de entradas
   ordenadas por cuántas veces el juego las dibujó. **Y se dice de qué está hecho cada uno**:
   `compuesto por: $fbee 1307 B · $fbec 24 B · $6400 21 B · ...` con enlace a la sección de cada
-  pieza. Medido en Exolon: 41 de 64 objetos salen de más de una pieza, uno de ellos de 16.
+  pieza, con los bytes **por aparición** y agrupado por ENTRADA del catálogo: la taint corta
+  por byte, así que sin eso un planeta punteado cita 140 hojas (`$dd40`, `$dd41`, `$dd42`…)
+  con totales de cinco cifras sumados sobre cada vez que se dibujó, que no dice nada. Así
+  queda `compuesto por 4 gráficos: $dd38 95.8 B · $edc0 12.5 B · ...`.
 - **Dos hojas de contacto**: `catalogo-<juego>.png` son los **objetos, en color**, como se ven
   en el juego —es la página que uno mira— y `catalogo-<juego>-piezas.png` son las piezas del
   catálogo en blanco y negro, que contesta la otra pregunta ("¿qué catalogó?").

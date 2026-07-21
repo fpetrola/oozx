@@ -57,6 +57,9 @@ public final class SpriteComposites {
 
   private final Map<Long, Composite> byHash = new HashMap<>();
   private final int minBytes;
+  /** an object bigger than this is the room, not a thing in it (bytes wide, pixel rows). */
+  private final int maxCols = Integer.getInteger("discover.objects.cols", 16);
+  private final int maxRows = Integer.getInteger("discover.objects.rows", 96);
   /** the replay this pass ran, kept so a caller with no emulator of its own can read memory */
   private TaintReplay replay;
 
@@ -88,24 +91,50 @@ public final class SpriteComposites {
     }
   }
 
-  /** the adjacency flood of {@link JSW3D#updateSprites}, on the offline side. */
+  /**
+   * The flood that finds objects. Not over sprite-owned bytes: in a game like Exolon the
+   * planets, the capsules, the cannons and the columns are CLASSIFIED AS SCENERY, so a pass
+   * that only groups what the taint calls a sprite shows the little characters and misses
+   * every big thing on screen — which is exactly what it did.
+   *
+   * <p>So it groups whatever is LIT, and cuts where the INK changes: on this hardware colour
+   * is the only thing that says where one object ends, and it is what separates a green
+   * cannon from the yellow floor it stands on (the same rule the relief's blobs use). The
+   * terrain band spans the screen and is thrown out by the size cap; a planet, a column or a
+   * capsule fits and comes out whole.
+   */
   private void scan(TaintReplay.FrameSnapshot snap) {
     int h = 192;
-    int[][] grid = new int[h][32];
+    boolean[][] lit = new boolean[h][32];
+    byte[][] px = new byte[h][32];
+    int[][] ink = new int[h][32];
     for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
-      int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7);
-      grid[y][i & 31] = snap.owner()[i];
+      int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), c = i & 31;
+      // a sprite-owned byte contributes only the sprite's OWN ink: the rest of the byte is
+      // the background it was composed over, and it would grow the object into the scenery
+      int v = snap.owner()[i] != 0
+          ? snap.pixels()[i] & snap.spriteBits()[i] & 0xff : snap.pixels()[i] & 0xff;
+      px[y][c] = (byte) v;
+      lit[y][c] = v != 0;
+      int attr = snap.attrs()[(y >> 3) * 32 + c] & 0xff;
+      // the cut ignores BRIGHT: a planet drawn half bright and half not is one planet, and
+      // splitting on it gave two half-discs. The colour drawn in the sheet keeps it.
+      ink[y][c] = attr & 7;
     }
+    boolean[][] seen = new boolean[h][32];
     java.util.ArrayDeque<int[]> queue = new java.util.ArrayDeque<>();
     List<int[]> cells = new ArrayList<>();
-    for (int y0 = 0; y0 < h; y0++)
+    // the status area is not an object: its text is frequent and would crowd out the game
+    int top = JSW3D.iprop("render.playfield.top", "playfield.top", 0) * 8;
+    int end = Math.min(h, top + JSW3D.iprop("render.playfield.rows", "playfield.rows", 24) * 8);
+    for (int y0 = top; y0 < end; y0++)
       for (int c0 = 0; c0 < 32; c0++) {
-        if (grid[y0][c0] == 0)
+        if (!lit[y0][c0] || seen[y0][c0])
           continue;
         cells.clear();
+        seen[y0][c0] = true;
         queue.add(new int[]{c0, y0});
-        grid[y0][c0] = 0;
-        int minC = c0, maxC = c0, minR = y0, maxR = y0;
+        int ink0 = ink[y0][c0], minC = c0, maxC = c0, minR = y0, maxR = y0;
         while (!queue.isEmpty()) {
           int[] p = queue.poll();
           cells.add(p);
@@ -116,46 +145,45 @@ public final class SpriteComposites {
           for (int dy = -1; dy <= 1; dy++)
             for (int dc = -1; dc <= 1; dc++) {
               int c = p[0] + dc, y = p[1] + dy;
-              if (c >= 0 && c < 32 && y >= 0 && y < h && grid[y][c] != 0) {
-                grid[y][c] = 0;
+              if (c >= 0 && c < 32 && y >= top && y < end && lit[y][c] && !seen[y][c]
+                  && ink[y][c] == ink0) {
+                seen[y][c] = true;
                 queue.add(new int[]{c, y});
               }
             }
         }
         if (cells.size() < minBytes)
           continue;
-        add(snap, cells, minC, minR, maxC, maxR);
+        // the size cap is what tells an OBJECT from the room: a floor band or a wall runs
+        // the width of the screen, a planet does not
+        if (maxC - minC + 1 > maxCols || maxR - minR + 1 > maxRows)
+          continue;
+        add(snap, px, cells, minC, minR, maxC, maxR);
       }
   }
 
-  private void add(TaintReplay.FrameSnapshot snap, List<int[]> cells,
+  private void add(TaintReplay.FrameSnapshot snap, byte[][] px, List<int[]> cells,
       int minC, int minR, int maxC, int maxR) {
     int w = maxC - minC + 1, rows = maxR - minR + 1;
-    if (w * rows > 4096)
-      return; // a screen-wide blob is the catalogue over-claiming, not an object
     byte[] bits = new byte[w * rows];
     Map<Integer, Integer> pieces = new LinkedHashMap<>();
-    int cellCols = (maxC >> 0) - minC + 1, cc = w, cr = (rows + 7) / 8;
+    int cc = w, cr = (rows + 7) / 8 + 1;
     byte[] ink = new byte[cc * cr];
     for (int[] q : cells) {
       int i = ((q[1] & 0xC0) << 5) | ((q[1] & 7) << 8) | ((q[1] & 0x38) << 2) | q[0];
-      // the object's OWN ink: under a masked engine the rest of the byte is the background
-      // it was composed over, and including it grows the object into the scenery
-      bits[(q[1] - minR) * w + (q[0] - minC)] = (byte) (snap.pixels()[i] & snap.spriteBits()[i]);
-      int base = snap.owner()[i] - 1;
-      if (base >= 0)
-        pieces.merge(base, 1, Integer::sum);
+      bits[(q[1] - minR) * w + (q[0] - minC)] = px[q[1]][q[0]];
+      // where the pixels CAME FROM, whichever way the taint classified them: a sprite base
+      // and a tile leaf are both "a graphic in memory that fed this object"
+      int origin = snap.owner()[i] != 0 ? snap.owner()[i] - 1
+          : snap.tile()[i] != 0 ? snap.tile()[i] - 1 : -1;
+      if (origin >= 0)
+        pieces.merge(origin, 1, Integer::sum);
       int attr = snap.attrs()[(q[1] >> 3) * 32 + q[0]] & 0xff;
       ink[((q[1] - minR) >> 3) * cc + (q[0] - minC)] = (byte) ((attr & 7) | ((attr >> 3) & 8));
     }
     long hash = (w * 31L + rows) * 1099511628211L;
     for (byte b : bits)
       hash = (hash ^ (b & 0xff)) * 1099511628211L;
-    boolean lit = false;
-    for (byte b : bits)
-      lit |= b != 0;
-    if (!lit)
-      return;
     Composite c = byHash.computeIfAbsent(hash, k -> new Composite());
     if (c.bits == null) {
       c.bits = bits;
