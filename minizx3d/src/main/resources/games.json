@@ -142,7 +142,8 @@
           "freshFrames": 8,
           "relief": {
             "bar": "flat",
-            "dot": 2
+            "dot": 2,
+            "dotpx": 2
           },
           "playfield": {
             "rows": 20

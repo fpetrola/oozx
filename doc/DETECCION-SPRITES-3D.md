@@ -311,9 +311,15 @@ malas: modelada como prop queda una bolita flotando adelante del backdrop, y un 
 esas se lee como mugre en el vidrio ("puntitos de 8x8, de distintos colores, que aparecen de
 golpe y van del frente al fondo"). Una isla estática de hasta `relief.dot` celdas que no llega
 al piso se deja **sin modelar**: la pinta el backdrop 2D, que es donde va una estrella. Y la
-misma idea por tinta en vez de por isla, `relief.dotpx` (0 = apagado): una celda arriba del piso
-con hasta N píxeles encendidos es una mota, para la estrella que la conectividad de 8 vecinos
-pegó a una dispersión grande — la isla mide grande y la celda sigue siendo tres píxeles de luz.
+misma idea para el arte que **no es un gráfico**, `relief.dotpx` (0 = apagado; Exolon usa 2):
+una celda que **ninguna hoja reclama** (`tile`=0) y que tiene hasta N píxeles encendidos es
+fondo. Las estrellas de Exolon no son un sprite ni un tile: una rutina prende píxeles sueltos,
+así que la taint no tiene dirección para señalar, no hay nada que nombrar en `relief.flat`, y
+tampoco sirve medir islas —la conectividad de 8 vecinos pega la dispersión en componentes de
+47 a 112 celdas, que por tamaño y bbox parecen arquitectura. Medido: 10.446 celdas de cielo
+salían losa sin hoja, **8.365 de ellas con exactamente 1 píxel encendido**, mientras que las
+celdas de TERRENO sin clasificar traen 30-46. Un píxel y sin origen es una mota de cielo; con
+el umbral en 2 quedaron 0.
 
 **Un fantasma solo es una losa si la celda lo era.** El fantasma reconstruye desde el caché el
 decorado que un sprite está tapando, y lo hacía SIEMPRE como losa: cada vez que algo cruzaba

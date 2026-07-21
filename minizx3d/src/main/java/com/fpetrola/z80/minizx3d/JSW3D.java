@@ -2546,10 +2546,11 @@ public class JSW3D extends ApplicationAdapter {
    */
   private int dotCells = iprop("render.relief.dot", "relief.dot", 0);
   /**
-   * Same idea by ink instead of by island: a cell above the floor with at most this many lit
-   * pixels is a speck and stays flat (-Drelief.dotpx, 0 = off). Covers the star that
-   * 8-connectivity glued to a big loose scattering, where the island test sees a large
-   * component and the cell is still three pixels of light.
+   * A cell that NO graphic claims (no catalog leaf) and that has at most this many lit
+   * pixels is background and stays flat (-Drelief.dotpx, 0 = off). This is the rule for art
+   * that is not a graphic at all — Exolon's stars are single pixels lit by a routine, so
+   * there is no address to catalogue, none to name in {@link #flatLeaves}, and no island to
+   * measure once connectivity has glued the scattering together.
    */
   private int dotPixels = iprop("render.relief.dotpx", "relief.dotpx", 0);
   /**
@@ -2909,11 +2910,18 @@ public class JSW3D extends ApplicationAdapter {
         int litPx = 0;
         for (int r = 0; r < 8; r++)
           litPx += Integer.bitCount(bmp[r] & 0xff);
-        // a speck by ISLAND SIZE (a lone star) or by HOW LITTLE IS LIT (a spark inside a
-        // loose scattering that connectivity glued into one big component: the island is
-        // large, every cell of it is three pixels)
-        boolean speck = comp[cell] >= 0 && compBox.get(comp[cell])[3] < end - 1
-            && (compSize.get(comp[cell]) <= dotCells || (dotPixels > 0 && litPx <= dotPixels));
+        // A CELL NOBODY CLAIMS, WITH ALMOST NOTHING LIT, IS BACKGROUND. Exolon's stars are
+        // not a graphic at all: a routine lights single pixels, so the taint has no address
+        // to point at (`tile` = 0) and there is nothing to name with relief.flat either.
+        // Measured: 10.446 sky cells came out as slabs with no leaf, and 8.365 of them had
+        // exactly ONE lit pixel — while the unclassified TERRAIN cells carry 30-46. One
+        // pixel and no origin is a speck of sky; that is the whole rule.
+        //
+        // It cannot be an island test: 8-connectivity glues a scattering of stars into
+        // components of 47-112 cells, so by size and bbox they look like architecture.
+        boolean speck = dotPixels > 0 && litPx <= dotPixels && tOf[cell] == 0
+            || comp[cell] >= 0 && compBox.get(comp[cell])[3] < end - 1
+                && compSize.get(comp[cell]) <= dotCells;
         boolean bar = !speck && !"slab".equals(barMode) && comp[cell] >= 0
             && skyBar(comp[cell], compBox, end);
         boolean decor = !speck && comp[cell] >= 0
@@ -2924,15 +2932,12 @@ public class JSW3D extends ApplicationAdapter {
         role[cell] = rewritten || holding ? 'D' : decor ? 'd' : flat ? 'F' : 'T';
         if (!rewritten && !holding)
           sceneryRole[cell] = role[cell];
-        if (holeWatch && role[cell] == 'T' && comp[cell] >= 0
-            && compBox.get(comp[cell])[3] < end - 1) {
-          int lit = 0;
-          for (int r = 0; r < 8; r++)
-            lit += Integer.bitCount(bmp[r] & 0xff);
+        if (holeWatch && comp[cell] >= 0 && compBox.get(comp[cell])[3] < end - 1) {
           int[] bx = compBox.get(comp[cell]);
-          System.out.println("cielo-losa px=" + lit + " comp=" + compSize.get(comp[cell])
-              + " bbox=" + (bx[2] - bx[0] + 1) + "x" + (bx[3] - bx[1] + 1)
-              + " r" + cellY + "c" + col);
+          System.out.println("cielo rol=" + role[cell] + " px=" + litPx
+              + " hoja=" + (tOf[cell] == 0 ? "NINGUNA" : "$" + Integer.toHexString(cellLeaf))
+              + " comp=" + compSize.get(comp[cell])
+              + " bbox=" + (bx[2] - bx[0] + 1) + "x" + (bx[3] - bx[1] + 1));
         }
         if (holeWatch && comp[cell] >= 0 && compBox.get(comp[cell])[3] < end - 1) {
           if (role[cell] == 'T')
