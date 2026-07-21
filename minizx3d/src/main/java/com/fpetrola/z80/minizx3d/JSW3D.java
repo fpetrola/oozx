@@ -2334,6 +2334,11 @@ public class JSW3D extends ApplicationAdapter {
       int[] want = definedSize(g);
       if (want != null && (maxC - minC + 1 > want[0] * 2 + 1 || maxR - minR + 1 > want[1] * 2))
         continue;
+      if (TaintReplay.LOG && Boolean.getBoolean("objects.log"))
+        System.out.println("objeto " + g.name + " en r" + minR + "c" + minC + " "
+            + (maxC - minC + 1) + "x" + (maxR - minR + 1) + " con " + found.size() + "/"
+            + g.graphics.size() + " gráficos, render="
+            + (g.render == null ? "default" : g.render.technique + "/" + g.render.primitive));
       drawObject(snap, g, cells, minC, minR, maxC, maxR);
     }
   }
@@ -2366,8 +2371,12 @@ public class JSW3D extends ApplicationAdapter {
       if ((attr & 7) != ((attr >> 3) & 7))
         inkVotes[ink(attr)]++;
     }
-    Model m = sprite3d.model(SpriteBitmap.ofScreen(bits, w, g.graphics.isEmpty() ? -1
-        : g.graphics.iterator().next()), g.render == null ? viewerDefaults() : g.render);
+    SpriteBitmap sb = SpriteBitmap.ofScreen(bits, w,
+        g.graphics.isEmpty() ? -1 : g.graphics.iterator().next());
+    // forced, not defaulted: the object says how it renders and the automatic selector does
+    // not get a vote — that is the whole point of having named it by hand
+    Model m = g.render != null ? sprite3d.modelForced(sb, g.render)
+        : sprite3d.model(sb, viewerDefaults());
     if (m == null) {
       for (int i : cells)
         objClaimed[i] = false; // could not mesh it: leave it to whoever drew it before
@@ -3967,19 +3976,29 @@ public class JSW3D extends ApplicationAdapter {
    * state of one machine. The old location still loads, so nothing marked before is lost.
    */
   private java.nio.file.Path objectsPath() {
-    java.nio.file.Path doc = java.nio.file.Path.of("doc", "objetos-" + activeGame + ".json");
+    return java.nio.file.Path.of("doc", "objetos-" + activeGame + ".json");
+  }
+
+  /**
+   * Where to READ from: the project first, the old home file as a fallback. Writing always
+   * goes to the project — having the json land in the home directory while the sheet went to
+   * doc/ split the pair in two, which is exactly the kind of thing nobody notices until the
+   * two halves disagree.
+   */
+  private java.nio.file.Path objectsLoadPath() {
     java.nio.file.Path home = java.nio.file.Path.of(System.getProperty("user.home"),
         ".jsw3d-objetos-" + activeGame + ".json");
-    return java.nio.file.Files.exists(doc) || !java.nio.file.Files.exists(home) ? doc : home;
+    return java.nio.file.Files.exists(objectsPath()) || !java.nio.file.Files.exists(home)
+        ? objectsPath() : home;
   }
 
   /** what was marked in earlier sessions, so the list starts where you left it. */
   private void loadGroups() {
     try {
-      if (!java.nio.file.Files.exists(objectsPath()))
+      if (!java.nio.file.Files.exists(objectsLoadPath()))
         return;
       com.badlogic.gdx.utils.JsonValue v = new com.badlogic.gdx.utils.JsonReader()
-          .parse(java.nio.file.Files.readString(objectsPath()));
+          .parse(java.nio.file.Files.readString(objectsLoadPath()));
       for (com.badlogic.gdx.utils.JsonValue o = v.get("objetos") == null ? null
           : v.get("objetos").child; o != null; o = o.next) {
         EdGroup g = new EdGroup();
@@ -4015,7 +4034,7 @@ public class JSW3D extends ApplicationAdapter {
       loadSheet();
       if (!edGroups.isEmpty())
         System.out.println("editor: " + edGroups.size() + " objetos cargados de "
-            + objectsPath());
+            + objectsLoadPath());
     } catch (Exception e) {
       System.out.println("editor: no pude leer " + objectsPath() + ": " + e);
     }

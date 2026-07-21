@@ -212,7 +212,22 @@ public final class Sprite3DPipeline {
 
   /** the mesh for this sprite under the resolved config, baking on first sight. */
   public Model model(SpriteBitmap b, Sprite3DConfig viewerDefault) {
-    Sprite3DConfig cfg = configFor(b, viewerDefault);
+    return bake(b, configFor(b, viewerDefault));
+  }
+
+  /**
+   * The mesh under EXACTLY this config: no rules, no overrides, no auto.
+   *
+   * <p>{@link #model} takes its argument as a DEFAULT — the store and the automatic selector
+   * outrank it — which is right for a sprite the viewer is guessing at and wrong for one a
+   * person named by hand and told how to render. Saying "this object is an ovoid" has to
+   * mean it even when auto is on, which is exactly when it was being ignored.
+   */
+  public Model modelForced(SpriteBitmap b, Sprite3DConfig cfg) {
+    return bake(b, cfg);
+  }
+
+  private Model bake(SpriteBitmap b, Sprite3DConfig cfg) {
     long key = b.hash * 31L + cfg.hash();
     Model m = cache.get(key);
     if (m != null) {

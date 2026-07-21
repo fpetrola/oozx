@@ -723,6 +723,13 @@ en el editor con `R`/`P`/`O` y se guardan con el objeto (`"render": "PRIMITIVE S
 Es el sentido de identificarlo a mano: poder decir "este es una esfera" en vez de esperar que
 una regla lo adivine.
 
+**Y va FORZADA** (`Sprite3DPipeline.modelForced`), que es lo que costó una vuelta: `model()`
+toma su config como *default* y tanto el store como el selector automático la pisan. Está bien
+para un sprite que el visor está adivinando y está mal para uno que una persona nombró y
+configuró: con `sprite3d.auto` activo —el default global— la config del objeto se ignoraba
+prolijamente. `-Dobjects.log=true` lista lo que se va encontrando por frame, con la fracción de
+gráficos hallada y la técnica aplicada.
+
 **La lista visual** va en una franja a la derecha, con la imagen que el usuario seleccionó de
 cada objeto (no una lista de nombres: lo que hace falta saber de un vistazo es si el objeto 3
 es la cápsula o la cápsula más medio cohete, y eso es una imagen). Es un panel adentro de la
