@@ -50,6 +50,8 @@ public final class SpriteComposites {
     public byte[] bits;
     /** ink colour per CELL of the bounding box (Spectrum palette index), row-major. */
     public byte[] ink;
+    /** paper colour per cell, so the object is drawn exactly as the screen showed it. */
+    public byte[] paper;
     public int cellCols, cellRows;
     /** catalogue base -> how many bytes of this object came from it. */
     public final Map<Integer, Integer> pieces = new LinkedHashMap<>();
@@ -60,6 +62,13 @@ public final class SpriteComposites {
   /** an object bigger than this is the room, not a thing in it (bytes wide, pixel rows). */
   private final int maxCols = Integer.getInteger("discover.objects.cols", 16);
   private final int maxRows = Integer.getInteger("discover.objects.rows", 96);
+  /**
+   * How many screen writes may pass between two bytes of the same drawing. Not 1: a routine
+   * skips the bytes a mask leaves untouched, and interleaves the odd write of its own
+   * bookkeeping. Wide enough to hold a sprite together, narrow enough that the next object
+   * starts its own burst.
+   */
+  private final int gap = Integer.getInteger("discover.objects.gap", 48);
   /** the replay this pass ran, kept so a caller with no emulator of its own can read memory */
   private TaintReplay replay;
 
@@ -78,7 +87,7 @@ public final class SpriteComposites {
     TaintReplay r = new TaintReplay(rzx, catalog, snap -> {
       if (snap.frame() < fromFrame || (snap.frame() - fromFrame) % sample != 0)
         return;
-      scan(snap);
+      scan(snap, replay);
     });
     replay = r;
     r.paced = false;
@@ -92,102 +101,100 @@ public final class SpriteComposites {
   }
 
   /**
-   * The flood that finds objects. Not over sprite-owned bytes: in a game like Exolon the
-   * planets, the capsules, the cannons and the columns are CLASSIFIED AS SCENERY, so a pass
-   * that only groups what the taint calls a sprite shows the little characters and misses
-   * every big thing on screen — which is exactly what it did.
+   * The objects, taken from WHEN THE GAME DREW THEM. Every write to the display file gets a
+   * sequence number ({@link TaintReplay#writeOrder}), so the bytes the game painted one after
+   * another are consecutive there: a composed object is a BURST in that order — all of its
+   * pieces, whatever their colours or how the taint classified them — and the gaps between
+   * bursts are where one drawing ends and the next begins.
    *
-   * <p>So it groups whatever is LIT, and cuts where the INK changes: on this hardware colour
-   * is the only thing that says where one object ends, and it is what separates a green
-   * cannon from the yellow floor it stands on (the same rule the relief's blobs use). The
-   * terrain band spans the screen and is thrown out by the size cap; a planet, a column or a
-   * capsule fits and comes out whole.
+   * <p>Everything tried before this cut the picture with a rule of our own (adjacency, then
+   * adjacency plus colour) and so kept splitting objects the game considers one: a ship with
+   * cyan windows on a white hull came out as two, and anything standing on the floor merged
+   * with it. Grouping by the drawing itself needs no rule about shape at all.
+   *
+   * <p>What is captured is the RECTANGLE as it stands on screen, ink and paper included: the
+   * point is to check against the game, and for that it has to be what the game shows.
    */
-  private void scan(TaintReplay.FrameSnapshot snap) {
-    int h = 192;
-    boolean[][] lit = new boolean[h][32];
-    byte[][] px = new byte[h][32];
-    int[][] ink = new int[h][32];
-    for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
-      int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), c = i & 31;
-      // a sprite-owned byte contributes only the sprite's OWN ink: the rest of the byte is
-      // the background it was composed over, and it would grow the object into the scenery
-      int v = snap.owner()[i] != 0
-          ? snap.pixels()[i] & snap.spriteBits()[i] & 0xff : snap.pixels()[i] & 0xff;
-      px[y][c] = (byte) v;
-      lit[y][c] = v != 0;
-      int attr = snap.attrs()[(y >> 3) * 32 + c] & 0xff;
-      // the cut ignores BRIGHT: a planet drawn half bright and half not is one planet, and
-      // splitting on it gave two half-discs. The colour drawn in the sheet keeps it.
-      ink[y][c] = attr & 7;
-    }
-    boolean[][] seen = new boolean[h][32];
-    java.util.ArrayDeque<int[]> queue = new java.util.ArrayDeque<>();
-    List<int[]> cells = new ArrayList<>();
-    // the status area is not an object: its text is frequent and would crowd out the game
+  private void scan(TaintReplay.FrameSnapshot snap, TaintReplay replay) {
+    int h = 192, frame = snap.frame();
+    // the bytes painted THIS frame, in the order they were painted
+    List<int[]> writes = new ArrayList<>(); // {order, index}
+    // the snapshot is published when the frame index CHANGES, so what the screen holds was
+    // painted during the frame before the one it is labelled with: accept both
+    for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++)
+      if (frame - replay.lastWrite[i] <= 1)
+        writes.add(new int[]{replay.writeOrder[i], i});
+    if (writes.isEmpty())
+      return;
+    writes.sort((a, b) -> Integer.compare(a[0], b[0]));
     int top = JSW3D.iprop("render.playfield.top", "playfield.top", 0) * 8;
     int end = Math.min(h, top + JSW3D.iprop("render.playfield.rows", "playfield.rows", 24) * 8);
-    for (int y0 = top; y0 < end; y0++)
-      for (int c0 = 0; c0 < 32; c0++) {
-        if (!lit[y0][c0] || seen[y0][c0])
-          continue;
-        cells.clear();
-        seen[y0][c0] = true;
-        queue.add(new int[]{c0, y0});
-        int ink0 = ink[y0][c0], minC = c0, maxC = c0, minR = y0, maxR = y0;
-        while (!queue.isEmpty()) {
-          int[] p = queue.poll();
-          cells.add(p);
-          minC = Math.min(minC, p[0]);
-          maxC = Math.max(maxC, p[0]);
-          minR = Math.min(minR, p[1]);
-          maxR = Math.max(maxR, p[1]);
-          for (int dy = -1; dy <= 1; dy++)
-            for (int dc = -1; dc <= 1; dc++) {
-              int c = p[0] + dc, y = p[1] + dy;
-              if (c >= 0 && c < 32 && y >= top && y < end && lit[y][c] && !seen[y][c]
-                  && ink[y][c] == ink0) {
-                seen[y][c] = true;
-                queue.add(new int[]{c, y});
-              }
-            }
-        }
-        if (cells.size() < minBytes)
-          continue;
-        // the size cap is what tells an OBJECT from the room: a floor band or a wall runs
-        // the width of the screen, a planet does not
-        if (maxC - minC + 1 > maxCols || maxR - minR + 1 > maxRows)
-          continue;
-        add(snap, px, cells, minC, minR, maxC, maxR);
+    List<Integer> burst = new ArrayList<>();
+    int prev = -1;
+    for (int[] w : writes) {
+      if (prev >= 0 && w[0] - prev > gap) {
+        flush(snap, burst, top, end);
+        burst.clear();
       }
+      burst.add(w[1]);
+      prev = w[0];
+    }
+    flush(snap, burst, top, end);
   }
 
-  private void add(TaintReplay.FrameSnapshot snap, byte[][] px, List<int[]> cells,
-      int minC, int minR, int maxC, int maxR) {
+  /** one drawing: its bounding box on screen, captured as the screen shows it. */
+  private void flush(TaintReplay.FrameSnapshot snap, List<Integer> burst, int top, int end) {
+    if (burst.size() < minBytes)
+      return;
+    int minC = 31, maxC = 0, minR = 191, maxR = 0;
+    for (int i : burst) {
+      int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), c = i & 31;
+      if (y < top || y >= end)
+        return; // a drawing that touches the status area is not an object of the room
+      minC = Math.min(minC, c);
+      maxC = Math.max(maxC, c);
+      minR = Math.min(minR, y);
+      maxR = Math.max(maxR, y);
+    }
     int w = maxC - minC + 1, rows = maxR - minR + 1;
+    if (w > maxCols || rows > maxRows)
+      return; // a screen-wide burst is the room being repainted, not a thing in it
     byte[] bits = new byte[w * rows];
-    Map<Integer, Integer> pieces = new LinkedHashMap<>();
     int cc = w, cr = (rows + 7) / 8 + 1;
-    byte[] ink = new byte[cc * cr];
-    for (int[] q : cells) {
-      int i = ((q[1] & 0xC0) << 5) | ((q[1] & 7) << 8) | ((q[1] & 0x38) << 2) | q[0];
-      bits[(q[1] - minR) * w + (q[0] - minC)] = px[q[1]][q[0]];
+    byte[] ink = new byte[cc * cr], paper = new byte[cc * cr];
+    boolean lit = false;
+    for (int y = minR; y <= maxR; y++)
+      for (int c = minC; c <= maxC; c++) {
+        int i = ((y & 0xC0) << 5) | ((y & 7) << 8) | ((y & 0x38) << 2) | c;
+        byte v = snap.pixels()[i];
+        bits[(y - minR) * w + (c - minC)] = v;
+        lit |= v != 0;
+        int attr = snap.attrs()[(y >> 3) * 32 + c] & 0xff;
+        int at = ((y - minR) >> 3) * cc + (c - minC);
+        ink[at] = (byte) ((attr & 7) | ((attr >> 3) & 8));
+        paper[at] = (byte) (((attr >> 3) & 7) | ((attr >> 3) & 8));
+      }
+    if (!lit)
+      return;
+    Map<Integer, Integer> pieces = new LinkedHashMap<>();
+    for (int i : burst) {
       // where the pixels CAME FROM, whichever way the taint classified them: a sprite base
-      // and a tile leaf are both "a graphic in memory that fed this object"
+      // and a tile leaf are both "a graphic in memory that fed this drawing"
       int origin = snap.owner()[i] != 0 ? snap.owner()[i] - 1
           : snap.tile()[i] != 0 ? snap.tile()[i] - 1 : -1;
       if (origin >= 0)
         pieces.merge(origin, 1, Integer::sum);
-      int attr = snap.attrs()[(q[1] >> 3) * 32 + q[0]] & 0xff;
-      ink[((q[1] - minR) >> 3) * cc + (q[0] - minC)] = (byte) ((attr & 7) | ((attr >> 3) & 8));
     }
     long hash = (w * 31L + rows) * 1099511628211L;
     for (byte b : bits)
+      hash = (hash ^ (b & 0xff)) * 1099511628211L;
+    for (byte b : ink)
       hash = (hash ^ (b & 0xff)) * 1099511628211L;
     Composite c = byHash.computeIfAbsent(hash, k -> new Composite());
     if (c.bits == null) {
       c.bits = bits;
       c.ink = ink;
+      c.paper = paper;
       c.wBytes = w;
       c.rows = rows;
       c.cellCols = cc;

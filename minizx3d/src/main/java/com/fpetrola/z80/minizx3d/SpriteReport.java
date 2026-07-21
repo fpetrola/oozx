@@ -193,37 +193,47 @@ public final class SpriteReport {
   /** the objects, in colour, laid out like a sprite sheet: this is the page you look at. */
   private static void compositeSheet(String path, List<SpriteComposites.Composite> cs)
       throws Exception {
-    int scale = 2, pad = 6, label = 7, cols = 8, cellW = 0, cellH = 0;
-    for (SpriteComposites.Composite c : cs) {
-      cellW = Math.max(cellW, c.wBytes * 8 * scale);
-      cellH = Math.max(cellH, c.rows * scale);
+    // shelf packing, not a uniform grid: objects range from a 8x2 bullet to a 128x96
+    // structure, and a grid sized for the biggest leaves a page of black around the rest
+    int scale = 2, pad = 8, label = 7, sheetW = 1400;
+    int[] ox = new int[cs.size()], oy = new int[cs.size()];
+    int x = pad, y = pad, shelf = 0, w = pad, h;
+    for (int i = 0; i < cs.size(); i++) {
+      int cw = cs.get(i).wBytes * 8 * scale, chh = cs.get(i).rows * scale + label;
+      if (x + cw + pad > sheetW && x > pad) {
+        x = pad;
+        y += shelf + pad;
+        shelf = 0;
+      }
+      ox[i] = x;
+      oy[i] = y;
+      x += cw + pad;
+      shelf = Math.max(shelf, chh);
+      w = Math.max(w, x);
     }
-    cellW += pad;
-    cellH += pad + label;
-    int rows = (cs.size() + cols - 1) / cols;
-    int w = cols * cellW + pad, h = Math.max(1, rows) * cellH + pad;
+    h = y + shelf + pad;
     int[] px = new int[w * h];
     java.util.Arrays.fill(px, PX_BG);
     for (int i = 0; i < cs.size(); i++) {
       SpriteComposites.Composite c = cs.get(i);
-      int ox = pad + (i % cols) * cellW, oy = pad + (i / cols) * cellH;
-      for (int y = 0; y < c.rows; y++)
+      for (int yy = 0; yy < c.rows; yy++)
         for (int b = 0; b < c.wBytes; b++) {
-          int v = c.bits[y * c.wBytes + b] & 0xff;
-          int inkIdx = c.ink[Math.min(c.ink.length - 1, (y >> 3) * c.cellCols + b)] & 0xf;
-          int rgb = PALETTE[inkIdx] << 8 | 0xff;
+          int v = c.bits[yy * c.wBytes + b] & 0xff;
+          int at = Math.min(c.ink.length - 1, (yy >> 3) * c.cellCols + b);
+          // ink AND paper, like the screen: the object has to be checkable against the game
+          int on = PALETTE[c.ink[at] & 0xf] << 8 | 0xff;
+          int off = PALETTE[(c.paper == null ? 0 : c.paper[at]) & 0xf] << 8 | 0xff;
           for (int bit = 0; bit < 8; bit++) {
-            if ((v & (0x80 >> bit)) == 0)
-              continue;
+            int rgb = (v & (0x80 >> bit)) != 0 ? on : off;
             for (int sy = 0; sy < scale; sy++)
               for (int sx = 0; sx < scale; sx++) {
-                int x = ox + (b * 8 + bit) * scale + sx, yy = oy + y * scale + sy;
-                if (x < w && yy < h)
-                  px[yy * w + x] = rgb;
+                int xx = ox[i] + (b * 8 + bit) * scale + sx, yv = oy[i] + yy * scale + sy;
+                if (xx < w && yv < h)
+                  px[yv * w + xx] = rgb;
               }
           }
         }
-      drawLabel(px, w, h, ox, oy + c.rows * scale + 1, Integer.toString(i + 1));
+      drawLabel(px, w, h, ox[i], oy[i] + c.rows * scale + 1, Integer.toString(i + 1));
     }
     writePng(path, px, w, h);
   }

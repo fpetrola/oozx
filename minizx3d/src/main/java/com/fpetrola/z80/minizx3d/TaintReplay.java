@@ -111,6 +111,16 @@ public final class TaintReplay implements Runnable {
    * trails a dirty-region engine (Dynamite Dan) never re-erased, and discovery uses the
    * same signal to tell redrawn-every-frame sprites from painted-once backgrounds. */
   final int[] lastWrite = new int[PIXEL_BYTES];
+  /**
+   * Per screen byte, WHEN in the sequence of MEMORY writes it was last written — a counter
+   * that ticks on every write the game makes, screen or not. Consecutive numbers mean the game painted
+   * those bytes one after another, which is the only signal that says "these belong to the
+   * same drawing": a composed object is a BURST in this order, whatever its pieces, colours
+   * or classification. Frame granularity ({@link #lastWrite}) cannot see that; two objects
+   * drawn in the same frame are indistinguishable there.
+   */
+  public final int[] writeOrder = new int[PIXEL_BYTES];
+  private int writeSeq;
   private final Consumer<FrameSnapshot> onFrame;
   private volatile boolean stop;
   private WordNumber[] data;
@@ -350,8 +360,15 @@ public final class TaintReplay implements Runnable {
         int a = address.intValue();
         if (a >= 0 && a <= 0xffff) {
           memWrites[a]++;
-          if (a >= SCREEN && a < SCREEN + PIXEL_BYTES)
+          // the clock ticks on EVERY write, not only the screen ones: counting screen writes
+          // alone makes them all consecutive by construction and the gap says nothing. What
+          // separates one drawing from the next is the work in between — the loop counters,
+          // the sprite table, the next address computed — and that is what this measures.
+          writeSeq++;
+          if (a >= SCREEN && a < SCREEN + PIXEL_BYTES) {
             lastWrite[a - SCREEN] = listener.curFrame;
+            writeOrder[a - SCREEN] = writeSeq;
+          }
           if (listener.inExecution && !listener.suppress) {
             // a block copy pairs each write with the read just before it; anything else
             // combines what the instruction read from registers and memory
