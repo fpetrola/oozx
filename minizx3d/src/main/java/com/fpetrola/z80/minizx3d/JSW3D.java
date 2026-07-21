@@ -1018,6 +1018,7 @@ public class JSW3D extends ApplicationAdapter {
       lastSnap = snap;
       updateBackdrop(snap);
       long t1 = perf ? System.nanoTime() : 0;
+      updateObjects(snap);
       updateSprites(snap);
       if (junkOn || lampsOn || balloonsOn)
         junk.syncSprites(spriteBoxes, snapDt);
@@ -1341,6 +1342,10 @@ public class JSW3D extends ApplicationAdapter {
         0, 60, 1, true, () -> (float) holdCells, v -> holdCells = Math.round(v));
     addParam("render.relief.paper", "relief.paper", "Render", "relieve tinte del relleno",
         0, 1, .05f, false, () -> paperTint, v -> paperTint = v);
+    addFlag("render.objects", "objects", "Render", "objetos definidos a mano",
+        () -> objectsOn, v -> objectsOn = v, "");
+    addParam("render.objects.match", "objects.match", "Render", "objetos: fraccion minima",
+        .1f, 1, .05f, false, () -> objectsMatch, v -> objectsMatch = v);
     addFlag("render.relief.fill", "relief.fill", "Render", "relleno de siluetas huecas",
         () -> reliefFill, v -> reliefFill = v, "");
     addFlag("render.items", "items", "Render", "deteccion de items",
@@ -1972,6 +1977,7 @@ public class JSW3D extends ApplicationAdapter {
         A / D         agregar / borrar una caja
         C / X         crear / borrar un objeto
         ENTER         buscar el objeto en la pantalla actual
+        R / P / O     tecnica / primitiva / redondez de ESTE objeto
         G             grabar (doc/objetos-<juego>.json y .png)
 
       Mouse arrastrar rota, rueda zoom. Config viva en
@@ -2116,7 +2122,9 @@ public class JSW3D extends ApplicationAdapter {
         // AIR byte those become voxels at the characters' mid-depth — the rope swings on
         // the same plane Willy hangs from, not painted on the far backdrop.
         int bits;
-        if (editorOn)
+        if (objClaimed[i] && !editorOn)
+          bits = 0; // an object instance is modelling this byte
+        else if (editorOn)
           // the editor works on the 2D identification, so it shows the 2D screen: with the
           // relief on, its slabs cover the backdrop and the highlights are painted where
           // nobody can see them
@@ -2241,11 +2249,148 @@ public class JSW3D extends ApplicationAdapter {
    * also what the lives row draws, and two guardians share one sheet — merging them by base
    * put Willy's box halfway to the lives row.
    */
+  /**
+   * The objects identified by hand, matched on screen and rendered their own way.
+   *
+   * <p>The definition is a set of GRAPHICS, so finding the object is looking for those
+   * graphics: no shape, no position, no template matching on pixels — the taint already
+   * knows, for every byte, which graphic it came from, and that survives the object moving,
+   * animating, or being drawn in another room.
+   *
+   * <p>Fuzzy on purpose: an object is routinely half-covered by another, or the game draws
+   * only part of it this frame, so an instance is accepted with a FRACTION of its graphics
+   * present ({@code objects.match}, half by default). Demanding all of them means the
+   * definition works right up to the moment something walks in front of it.
+   */
+  private void updateObjects(TaintReplay.FrameSnapshot snap) {
+    java.util.Arrays.fill(objClaimed, false);
+    if (edGroups.isEmpty() || !objectsOn)
+      return;
+    // graphic -> the object that claims it; first definition wins a shared piece
+    if (gfxToObj.isEmpty())
+      for (int n = 0; n < edGroups.size(); n++)
+        for (int gfx : edGroups.get(n).graphics)
+          gfxToObj.putIfAbsent(gfx, n);
+    int[] owner = new int[TaintReplay.PIXEL_BYTES];
+    java.util.Arrays.fill(owner, -1);
+    boolean any = false;
+    for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
+      if ((snap.pixels()[i] & 0xff) == 0)
+        continue;
+      int gfx = originOf(i);
+      if (gfx < 0)
+        continue;
+      Integer obj = gfxToObj.get(gfx);
+      if (obj == null)
+        continue;
+      owner[i] = obj;
+      any = true;
+    }
+    if (!any)
+      return;
+    // instances: bytes of the same object, flooded by adjacency. Two capsules on screen are
+    // two instances of one definition, and each gets its own model where it stands
+    boolean[] seen = new boolean[TaintReplay.PIXEL_BYTES];
+    java.util.ArrayDeque<int[]> queue = new java.util.ArrayDeque<>();
+    List<Integer> cells = new ArrayList<>();
+    for (int i0 = 0; i0 < TaintReplay.PIXEL_BYTES; i0++) {
+      if (owner[i0] < 0 || seen[i0])
+        continue;
+      int obj = owner[i0];
+      cells.clear();
+      seen[i0] = true;
+      queue.add(new int[]{i0 & 31, (((i0 >> 11) & 3) << 6) | (((i0 >> 5) & 7) << 3)
+          | ((i0 >> 8) & 7)});
+      int minC = 31, maxC = 0, minR = H - 1, maxR = 0;
+      java.util.Set<Integer> found = new java.util.HashSet<>();
+      while (!queue.isEmpty()) {
+        int[] p = queue.poll();
+        int i = idx(p[1], p[0]);
+        cells.add(i);
+        found.add(originOf(i));
+        minC = Math.min(minC, p[0]);
+        maxC = Math.max(maxC, p[0]);
+        minR = Math.min(minR, p[1]);
+        maxR = Math.max(maxR, p[1]);
+        for (int dy = -2; dy <= 2; dy++) // a couple of rows of slack: a masked draw leaves gaps
+          for (int dc = -1; dc <= 1; dc++) {
+            int c = p[0] + dc, y = p[1] + dy;
+            if (c < 0 || c > 31 || y < 0 || y >= H)
+              continue;
+            int q = idx(y, c);
+            if (owner[q] == obj && !seen[q]) {
+              seen[q] = true;
+              queue.add(new int[]{c, y});
+            }
+          }
+      }
+      EdGroup g = edGroups.get(obj);
+      if (found.size() < Math.max(1, Math.round(g.graphics.size() * objectsMatch)))
+        continue; // too little of it here to call it the object
+      // AND IT HAS TO BE THE RIGHT SIZE. Graphics are shared: Exolon's rock texture belongs
+      // to a planet AND to the whole terrain band, so a definition that names it matches a
+      // chain of hundreds of cells and swallows the room. The boxes drawn by hand say how
+      // big the thing is; twice that is already generous.
+      int[] want = definedSize(g);
+      if (want != null && (maxC - minC + 1 > want[0] * 2 + 1 || maxR - minR + 1 > want[1] * 2))
+        continue;
+      drawObject(snap, g, cells, minC, minR, maxC, maxR);
+    }
+  }
+
+  /** how big the object was when it was marked: {bytes wide, pixel rows}, or null. */
+  private int[] definedSize(EdGroup g) {
+    if (g.rects.isEmpty())
+      return null;
+    int minX = 256, minY = H, maxX = 0, maxY = 0;
+    for (int[] r : g.rects) {
+      minX = Math.min(minX, r[0]);
+      minY = Math.min(minY, r[1]);
+      maxX = Math.max(maxX, r[0] + r[2]);
+      maxY = Math.max(maxY, r[1] + r[3]);
+    }
+    return new int[]{Math.max(1, (maxX - minX + 7) / 8), Math.max(1, maxY - minY)};
+  }
+
+  /** one instance: its composed pixels, inflated the way the object asks to be rendered. */
+  private void drawObject(TaintReplay.FrameSnapshot snap, EdGroup g, List<Integer> cells,
+      int minC, int minR, int maxC, int maxR) {
+    int w = maxC - minC + 1, rows = maxR - minR + 1;
+    byte[] bits = new byte[w * rows];
+    int[] inkVotes = new int[16];
+    for (int i : cells) {
+      int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), c = i & 31;
+      bits[(y - minR) * w + (c - minC)] = snap.pixels()[i];
+      objClaimed[i] = true;
+      int attr = snap.attrs()[(y >> 3) * 32 + c] & 0xff;
+      if ((attr & 7) != ((attr >> 3) & 7))
+        inkVotes[ink(attr)]++;
+    }
+    Model m = sprite3d.model(SpriteBitmap.ofScreen(bits, w, g.graphics.isEmpty() ? -1
+        : g.graphics.iterator().next()), g.render == null ? viewerDefaults() : g.render);
+    if (m == null) {
+      for (int i : cells)
+        objClaimed[i] = false; // could not mesh it: leave it to whoever drew it before
+      return;
+    }
+    int best = 7;
+    for (int i = 0; i < 16; i++)
+      if (inkVotes[i] > inkVotes[best] || (inkVotes[best] == 0 && inkVotes[i] > 0))
+        best = i;
+    ModelInstance inst = new ModelInstance(m);
+    inst.transform.setToTranslation((minC + maxC + 1) * 4f, H - (minR + maxR + 1) / 2f, midZ());
+    inst.materials.first().set(ColorAttribute.createDiffuse(PALETTE[best]));
+    wetten(inst.materials.first());
+    spriteInstances.add(inst);
+    spriteBoxes.add(new float[]{(minC + maxC + 1) * 4f, H - (minR + maxR + 1) / 2f,
+        w * 4f, rows / 2f});
+  }
+
   private void updateSprites(TaintReplay.FrameSnapshot snap) {
     int[][] grid = new int[H][32];
     for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
       int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7);
-      grid[y][i & 31] = snap.owner()[i];
+      grid[y][i & 31] = objClaimed[i] ? 0 : snap.owner()[i];
     }
     List<int[]> blobs = new ArrayList<>(); // base, minCol, minRow, maxCol, maxRow, paletteIdx
     List<byte[]> bitmaps = new ArrayList<>(); // adjacent mode: the blob's on-screen pixels
@@ -2643,6 +2788,13 @@ public class JSW3D extends ApplicationAdapter {
    */
   private final List<EdGroup> edGroups = new ArrayList<>();
   private int edGroup, edRect;
+  /** graphic -> the defined object that claims it, built once from {@link #edGroups}. */
+  private final Map<Integer, Integer> gfxToObj = new HashMap<>();
+  /** screen bytes an object instance is modelling this frame: nobody else may draw them. */
+  private final boolean[] objClaimed = new boolean[TaintReplay.PIXEL_BYTES];
+  /** what fraction of an object's graphics has to be on screen to call it that object. */
+  private float objectsMatch = fprop("render.objects.match", "objects.match", .5f);
+  private boolean objectsOn = bprop("render.objects", "objects", true);
   /** the last snapshot, so the editor can ask what is under the cursor while frozen. */
   private TaintReplay.FrameSnapshot lastSnap;
   /**
@@ -2749,8 +2901,8 @@ public class JSW3D extends ApplicationAdapter {
         int bits = 0, t = 0;
         for (int r = 0; r < 8; r++) {
           int i = idx(y0 + r, col);
-          int v = snap.pixels()[i] & ~snap.spriteBits()[i] & 0xff;
-          spr[cell] |= snap.owner()[i] != 0;
+          int v = objClaimed[i] ? 0 : snap.pixels()[i] & ~snap.spriteBits()[i] & 0xff;
+          spr[cell] |= snap.owner()[i] != 0 || objClaimed[i];
           dyn[cell] |= snap.frame() - replay.lastWrite[i] <= DYN_FRAMES;
           if (t == 0)
             t = snap.tile()[i];
@@ -3472,6 +3624,8 @@ public class JSW3D extends ApplicationAdapter {
     int[] px, owner;
     /** where this object sits in the sheet PNG: {x, y, w, h}, so it can be read back. */
     int[] sheetBox;
+    /** how THIS object wants to be rendered, or null for the viewer's defaults. */
+    Sprite3DConfig render;
   }
 
   private EdGroup group() {
@@ -3565,8 +3719,30 @@ public class JSW3D extends ApplicationAdapter {
           edRect = 0;
         }
       }
+      // how THIS object renders: the whole point of naming it by hand is being able to say
+      // "this one is a sphere" instead of hoping a rule guesses it
+      case com.badlogic.gdx.Input.Keys.R -> {
+        if (g.render == null)
+          g.render = viewerDefaults().copy();
+        Sprite3DConfig.Technique[] ts = Sprite3DConfig.Technique.values();
+        g.render.technique = ts[(g.render.technique.ordinal() + 1) % ts.length];
+      }
+      case com.badlogic.gdx.Input.Keys.P -> {
+        if (g.render == null)
+          g.render = viewerDefaults().copy();
+        Sprite3DConfig.Primitive[] ps = Sprite3DConfig.Primitive.values();
+        g.render.primitive = ps[(g.render.primitive.ordinal() + 1) % ps.length];
+        g.render.technique = Sprite3DConfig.Technique.PRIMITIVE;
+      }
+      case com.badlogic.gdx.Input.Keys.O -> {
+        if (g.render != null)
+          g.render.roundness = g.render.roundness >= .95f ? .2f : g.render.roundness + .15f;
+      }
       case com.badlogic.gdx.Input.Keys.ENTER -> findGroupOnScreen();
-      case com.badlogic.gdx.Input.Keys.G -> saveGroups();
+      case com.badlogic.gdx.Input.Keys.G -> {
+        saveGroups();
+        gfxToObj.clear(); // the definitions changed: the runtime map is rebuilt from them
+      }
       default -> {
         return false;
       }
@@ -3590,7 +3766,9 @@ public class JSW3D extends ApplicationAdapter {
     int[] r = g.rects.isEmpty() ? new int[]{0, 0, 0, 0} : g.rects.get(edRect);
     flashPreset(g.name + " (" + (edGroup + 1) + "/" + edGroups.size() + ")  ·  rect "
         + (edRect + 1) + "/" + g.rects.size() + " x=" + r[0] + " y=" + r[1] + " " + r[2] + "x"
-        + r[3] + "  ·  " + graphicsInRects(g).size() + " gráficos");
+        + r[3] + "  ·  " + graphicsInRects(g).size() + " gráficos  ·  render: "
+        + (g.render == null ? "default" : g.render.technique + "/" + g.render.primitive + " "
+            + String.format("%.2f", g.render.roundness)));
   }
 
   /**
@@ -3731,9 +3909,12 @@ public class JSW3D extends ApplicationAdapter {
             .append(' ').append(r[2]).append(' ').append(r[3]);
       String hoja = g.sheetBox == null ? "" : g.sheetBox[0] + " " + g.sheetBox[1] + " "
           + g.sheetBox[2] + " " + g.sheetBox[3];
+      String render = g.render == null ? ""
+          : g.render.technique + " " + g.render.primitive + " " + g.render.roundness;
       sb.append("    {\"nombre\": \"").append(g.name).append("\", \"piezas\": \"")
           .append(piezas).append("\", \"rects\": \"").append(rects)
-          .append("\", \"hoja\": \"").append(hoja).append("\"}")
+          .append("\", \"hoja\": \"").append(hoja)
+          .append("\", \"render\": \"").append(render).append("\"}")
           .append(n < edGroups.size() - 1 ? "," : "").append('\n');
     }
     sb.append("  ]\n}\n");
@@ -3815,6 +3996,16 @@ public class JSW3D extends ApplicationAdapter {
           }
         if (g.rects.isEmpty())
           g.rects.add(new int[]{112, 88, 16, 16});
+        String[] rend = o.getString("render", "").trim().split("\\s+");
+        if (rend.length == 3)
+          try {
+            g.render = viewerDefaults().copy();
+            g.render.technique = Sprite3DConfig.Technique.valueOf(rend[0]);
+            g.render.primitive = Sprite3DConfig.Primitive.valueOf(rend[1]);
+            g.render.roundness = Float.parseFloat(rend[2]);
+          } catch (Exception ignored) {
+            g.render = null; // an unknown technique must not take the object down with it
+          }
         String[] hoja = o.getString("hoja", "").trim().split("\\s+");
         if (hoja.length == 4)
           g.sheetBox = new int[]{Integer.parseInt(hoja[0]), Integer.parseInt(hoja[1]),

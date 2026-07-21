@@ -699,6 +699,30 @@ hoja (`"hoja": "x y w h"`), que es lo que empalma las dos mitades; los píxeles 
 direcciones salen del PNG, así que volver a grabar conserva intactos los objetos que no
 tocaste.
 
+### Los objetos definidos, en el juego
+
+Al arrancar el visor se cargan (`doc/objetos-<juego>.json` + la hoja) y cada frame se los
+**busca en pantalla y se los renderiza como uno solo** (`JSW3D.updateObjects`, perilla
+`render.objects`). La definición es un conjunto de GRÁFICOS, así que buscar el objeto es
+buscar esos gráficos: no hay forma, ni posición, ni template matching sobre píxeles — la taint
+ya sabe, por cada byte, de qué gráfico vino, y eso sobrevive a que el objeto se mueva, se anime
+o aparezca en otra sala. Cada aparición es una instancia propia: dos cápsulas en pantalla son
+dos modelos.
+
+**Difuso a propósito** (`render.objects.match`, la mitad por default): un objeto está
+rutinariamente medio tapado por otro, o el juego dibuja solo una parte en ese frame. Exigir
+todos sus gráficos es tener una definición que funciona hasta que algo se le cruza adelante.
+
+**Y acotado por tamaño**, que es lo que costó una corrida: los gráficos se COMPARTEN — la
+textura de roca de Exolon es del planeta y también de toda la banda de terreno—, así que una
+definición que la nombra encadena cientos de celdas y se come la sala. Las cajas dibujadas a
+mano dicen de qué tamaño es la cosa; se acepta hasta el doble de eso.
+
+**Cada objeto se renderiza a su manera**: técnica, primitiva y redondez propias, que se eligen
+en el editor con `R`/`P`/`O` y se guardan con el objeto (`"render": "PRIMITIVE SPHERE 1.0"`).
+Es el sentido de identificarlo a mano: poder decir "este es una esfera" en vez de esperar que
+una regla lo adivine.
+
 **La lista visual** va en una franja a la derecha, con la imagen que el usuario seleccionó de
 cada objeto (no una lista de nombres: lo que hace falta saber de un vistazo es si el objeto 3
 es la cápsula o la cápsula más medio cohete, y eso es una imagen). Es un panel adentro de la
