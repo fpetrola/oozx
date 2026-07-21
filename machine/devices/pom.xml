@@ -51,6 +51,7 @@
         <module>specdrum</module>
         <module>zxatasp</module>
         <module>zxcf</module>
+        <module>zxmmc</module>
     </modules>
 
     <properties>
