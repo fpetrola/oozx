@@ -126,6 +126,8 @@ public final class TaintReplay implements Runnable {
   private WordNumber[] data;
   /** validation mode: no pacing, stop after maxFrames. */
   boolean paced = true;
+  /** the editor's freeze: the replay thread waits here, the viewer keeps drawing. */
+  public volatile boolean paused;
   int maxFrames = Integer.MAX_VALUE;
   /**
    * Replay speed: 1 = the original Spectrum's 50 fps, which is the ONLY thing capping this
@@ -569,6 +571,14 @@ public final class TaintReplay implements Runnable {
      * the clock demanding a catch-up burst for time it "owes".
      */
     private void pace(int frame) {
+      // the sprite editor freezes the game so the picture stays still while you point at
+      // it: the replay thread parks here instead of the viewer having to buffer a frame
+      while (paused && !Thread.currentThread().isInterrupted())
+        try {
+          Thread.sleep(30);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
       if (frame < seekTo)
         return; // seeking: run flat out until the frame the viewer asked for
       float s = speed;

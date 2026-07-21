@@ -634,9 +634,30 @@ personaje— y como texto se diffea en git, se grepea y se corrige a mano.
   de veces, quedaba afuera del corte. De cada objeto se guarda **el avistamiento más lleno**,
   que es el frame donde se repintó entero.
 
-  **Límite conocido**: con la ventana, un personaje que camina por delante del decorado puede
-  quedar fusionado con él, así que algunas entradas son "el tipo y el pedazo de suelo que
-  pisa". Es lo que estaba en pantalla, pero no es un objeto solo.
+  **Límite conocido, y por qué existe el editor**: con la ventana, un personaje que camina por
+  delante del decorado queda fusionado con él, así que algunas entradas son "el tipo y el
+  pedazo de suelo que pisa". Y eso no tiene arreglo automático: la cápsula con el personaje
+  adelante es, en pantalla, una sola cosa conexa dibujada en el mismo frame — no hay señal en
+  el framebuffer que diga que son dos. Una persona lo ve de un vistazo.
+
+### El editor de sprites (Ctrl+E)
+
+Congela el juego (`TaintReplay.paused`) y muestra la **pantalla plana** —con el relieve puesto,
+las losas tapan el backdrop y los resaltados se pintan donde nadie los ve—, y sobre esa imagen:
+
+- **arriba/abajo** eligen el OBJETO COMPUESTO (lo conexo y encendido, de mayor a menor), que se
+  resalta en **cyan**. Es a propósito la agrupación cruda, la que pega la cápsula con el
+  personaje: es justo lo que el editor viene a separar;
+- **izquierda/derecha** recorren los GRÁFICOS que hay adentro de ese compuesto (por bytes
+  aportados), resaltando en **blanco** el actual;
+- **ESPACIO** lo agrega o lo saca del objeto que estás definiendo (los que están adentro se
+  ven en **verde**), **A** agrega el compuesto entero para después sacarle lo que sobra, **N**
+  vacía, **G** graba.
+
+Los ejes están separados porque las dos preguntas son distintas: o estás eligiendo un objeto o
+lo estás desarmando. Se guarda en `~/.jsw3d-objetos-<juego>.json` como nombre + las direcciones
+de los gráficos que lo componen — direcciones de catálogo, no píxeles ni posiciones, para que
+la definición sobreviva a que el objeto se mueva, se anime o aparezca en otra sala.
 - **Dos hojas de contacto**: `catalogo-<juego>.png` son los **objetos, en color**, como se ven
   en el juego —es la página que uno mira— y `catalogo-<juego>-piezas.png` son las piezas del
   catálogo en blanco y negro, que contesta la otra pregunta ("¿qué catalogó?").

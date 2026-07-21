@@ -580,6 +580,20 @@ public class JSW3D extends ApplicationAdapter {
                 return true;
               }
             }
+            // Ctrl+E opens and closes the sprite editor, and while it is open IT owns the
+            // arrows, space and its own letters — before the switch, so they mean what the
+            // editor needs and not what they mean in the viewer
+            if (ctrl && keycode == com.badlogic.gdx.Input.Keys.E) {
+              editorOn = !editorOn;
+              if (replay != null)
+                replay.paused = editorOn;
+              flashPreset(editorOn
+                  ? "editor: flechas mueven (Ctrl=8px), ESPACIO agrega/saca, N nuevo, G graba"
+                  : "editor: cerrado");
+              return true;
+            }
+            if (editorOn && editorKey(keycode, ctrl))
+              return true;
             // only the keys that change the VOXELS force a rebuild; lights, weather and
             // replay speed leave every cached model exactly as it is
             boolean rebuild = true;
@@ -988,6 +1002,7 @@ public class JSW3D extends ApplicationAdapter {
       }
       if (blobsAdjacent)
         demoteOversizedBlobs(snap); // must precede updateBackdrop: it reads owner()
+      lastSnap = snap;
       updateBackdrop(snap);
       long t1 = perf ? System.nanoTime() : 0;
       updateSprites(snap);
@@ -997,7 +1012,10 @@ public class JSW3D extends ApplicationAdapter {
         effects.spriteDust(spriteBoxes, snapDt);
       snapDt = 0;
       long t2 = perf ? System.nanoTime() : 0;
-      if ("screen".equals(tilesMode))
+      if (editorOn) {
+        tileInstances.clear();
+        spriteInstances.clear();
+      } else if ("screen".equals(tilesMode))
         updateScreenRelief(snap);
       else if (tilesOn())
         updateTiles(snap);
@@ -1941,6 +1959,12 @@ public class JSW3D extends ApplicationAdapter {
       F6       borrar el preset actual
       I / W    elegir grafico del relieve (se pinta blanco) /
                pasarlo a FONDO plano (se guarda por juego)
+      Ctrl+E   EDITOR DE SPRITES: congela el juego y muestra la
+               pantalla plana. Arriba/abajo eligen el objeto
+               compuesto (cyan), izq/der la pieza dentro de el
+               (blanca), ESPACIO la agrega/saca del objeto
+               (verde), A agrega todo el compuesto, N vacia,
+               G graba en ~/.jsw3d-objetos-<juego>.json
       Mouse    arrastrar rota - rueda zoom
       Config viva en ~/.jsw3d-config-<juego>.json;
       presets (compartidos) en ~/.jsw3d-config.json""";
@@ -2017,7 +2041,7 @@ public class JSW3D extends ApplicationAdapter {
   /** -Dshot=/path.png captures the framebuffer once sprites are on screen (visual check). */
   private void screenshotIfAsked() {
     String path = System.getProperty("shot");
-    if (path == null || shotTaken || spriteInstances.isEmpty()
+    if (path == null || shotTaken || (spriteInstances.isEmpty() && !editorOn)
         || shownFrame < Integer.getInteger("shot.frame", 400))
       return;
     shotTaken = true;
@@ -2078,7 +2102,12 @@ public class JSW3D extends ApplicationAdapter {
         // AIR byte those become voxels at the characters' mid-depth — the rope swings on
         // the same plane Willy hangs from, not painted on the far backdrop.
         int bits;
-        if ("screen".equals(tilesMode) && inPlayfield(y))
+        if (editorOn)
+          // the editor works on the 2D identification, so it shows the 2D screen: with the
+          // relief on, its slabs cover the backdrop and the highlights are painted where
+          // nobody can see them
+          bits = snap.pixels()[i] & 0xff;
+        else if ("screen".equals(tilesMode) && inPlayfield(y))
           // whatever the relief claimed (slab, ghost, floating decor or a moving blob) must
           // not ALSO stay painted flat behind its own model; everything else falls back to
           // 2D, minus the moving sprites' own ink, which updateSprites already models.
@@ -2116,6 +2145,13 @@ public class JSW3D extends ApplicationAdapter {
           pixmap.drawPixel(col * 8 + bit, y, Color.rgba8888(
               (bits & (0x80 >> bit)) != 0 ? pi : pp));
       }
+    }
+    if (editorOn) {
+      if (edBuiltFrame != snap.frame()) {
+        edBuiltFrame = snap.frame();
+        buildComposites(snap);
+      }
+      paintEditor(snap, pixmap);
     }
     screenTex.draw(pixmap, 0, 0);
   }
@@ -2572,6 +2608,30 @@ public class JSW3D extends ApplicationAdapter {
   private final Map<Integer, Integer> frameLeaves = new java.util.LinkedHashMap<>();
   /** the graphic the I/W keys point at: its cells render white so you can see which it is. */
   private int pickedLeaf = -1;
+
+  /**
+   * THE SPRITE EDITOR (Ctrl+E). Automatic grouping cannot tell "the capsule" from "the
+   * capsule with the player standing in front of it": on screen they are one connected,
+   * one-drawing, same-frame thing, and every rule tried here split or merged the wrong pair.
+   * A person looking at it knows instantly. So: the game freezes, a cursor walks the screen,
+   * whatever GRAPHIC is under the cursor lights up, and space adds it to (or takes it out of)
+   * the object being defined. What comes out is the identification by hand, saved per game.
+   *
+   * <p>The pieces are catalogue addresses — a sprite base or a tile leaf — because that is
+   * what the taint can point at in a later run: the definition has to survive the object
+   * moving, animating and being drawn somewhere else entirely.
+   */
+  private boolean editorOn = Boolean.getBoolean("editor");
+  /** the composed things on screen this frame; each is the list of screen bytes it covers. */
+  private final List<List<Integer>> edComposites = new ArrayList<>();
+  /** the graphics inside the selected composite, most bytes first: what the arrows walk. */
+  private final List<Integer> edPieces = new ArrayList<>();
+  private int edComposite, edPiece, edBuiltFrame = -1;
+  private String objName = "objeto";
+  private final java.util.Set<Integer> objPieces = new java.util.LinkedHashSet<>();
+  private final List<String[]> savedObjects = new ArrayList<>(); // {nombre, "$a,$b,..."}
+  /** the last snapshot, so the editor can ask what is under the cursor while frozen. */
+  private TaintReplay.FrameSnapshot lastSnap;
   /**
    * Biggest island (in cells) that may be held as "a character standing still" after the
    * sprite taint lets go of it (-Drelief.hold). A 16x16 character is 4 cells; anything much
@@ -3374,6 +3434,186 @@ public class JSW3D extends ApplicationAdapter {
     return new Color(paper).lerp(inkc, paperTint);
   }
 
+  /** the editor's own keys while it is open; false lets the viewer have the key. */
+  private boolean editorKey(int keycode, boolean ctrl) {
+    switch (keycode) {
+      // up/down walk the COMPOSED things on screen, left/right the graphics inside the one
+      // selected: the two questions are different, and mixing them on one axis made the
+      // editor unusable — you are always either choosing an object or picking it apart
+      case com.badlogic.gdx.Input.Keys.DOWN -> cycleComposite(1);
+      case com.badlogic.gdx.Input.Keys.UP -> cycleComposite(-1);
+      case com.badlogic.gdx.Input.Keys.RIGHT -> cyclePiece(1);
+      case com.badlogic.gdx.Input.Keys.LEFT -> cyclePiece(-1);
+      case com.badlogic.gdx.Input.Keys.SPACE -> togglePiece();
+      case com.badlogic.gdx.Input.Keys.A -> {
+        objPieces.addAll(edPieces); // the whole composite at once, then take out what is not
+        flashPreset("objeto: " + objPieces.size() + " piezas (todo el compuesto)");
+      }
+      case com.badlogic.gdx.Input.Keys.N -> {
+        objPieces.clear();
+        flashPreset("objeto nuevo (vacío)");
+      }
+      case com.badlogic.gdx.Input.Keys.G -> saveObject();
+      default -> {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private void cycleComposite(int d) {
+    if (edComposites.isEmpty())
+      return;
+    edComposite = ((edComposite + d) % edComposites.size() + edComposites.size())
+        % edComposites.size();
+    buildPieces();
+    flashEditor();
+  }
+
+  private void cyclePiece(int d) {
+    if (edPieces.isEmpty())
+      return;
+    edPiece = ((edPiece + d) % edPieces.size() + edPieces.size()) % edPieces.size();
+    flashEditor();
+  }
+
+  private void togglePiece() {
+    if (edPieces.isEmpty())
+      return;
+    int piece = edPieces.get(edPiece);
+    if (!objPieces.remove(piece))
+      objPieces.add(piece);
+    flashEditor();
+  }
+
+  private void flashEditor() {
+    int piece = edPieces.isEmpty() ? -1 : edPieces.get(edPiece);
+    flashPreset("compuesto " + (edComposite + 1) + "/" + edComposites.size()
+        + " · pieza " + (edPieces.isEmpty() ? 0 : edPiece + 1) + "/" + edPieces.size()
+        + (piece < 0 ? "" : " $" + Integer.toHexString(piece)
+            + (objPieces.contains(piece) ? " [EN EL OBJETO]" : ""))
+        + " · objeto: " + objPieces.size() + " piezas");
+  }
+
+  /**
+   * The composed things on screen right now: lit bytes flooded by adjacency, biggest first.
+   * This is deliberately the CRUDE grouping — the one that merges a capsule with the player
+   * standing in front of it — because that is the thing the editor exists to take apart.
+   */
+  private void buildComposites(TaintReplay.FrameSnapshot snap) {
+    edComposites.clear();
+    boolean[] seen = new boolean[TaintReplay.PIXEL_BYTES];
+    int[][] grid = new int[H][32];
+    for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
+      int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7);
+      grid[y][i & 31] = (snap.pixels()[i] & 0xff) != 0 ? i + 1 : 0;
+    }
+    java.util.ArrayDeque<int[]> queue = new java.util.ArrayDeque<>();
+    for (int y0 = 0; y0 < H; y0++)
+      for (int c0 = 0; c0 < 32; c0++) {
+        if (grid[y0][c0] == 0 || seen[grid[y0][c0] - 1])
+          continue;
+        List<Integer> group = new ArrayList<>();
+        seen[grid[y0][c0] - 1] = true;
+        queue.add(new int[]{c0, y0});
+        while (!queue.isEmpty()) {
+          int[] p = queue.poll();
+          group.add(grid[p[1]][p[0]] - 1);
+          for (int dy = -1; dy <= 1; dy++)
+            for (int dc = -1; dc <= 1; dc++) {
+              int c = p[0] + dc, y = p[1] + dy;
+              if (c >= 0 && c < 32 && y >= 0 && y < H && grid[y][c] != 0
+                  && !seen[grid[y][c] - 1]) {
+                seen[grid[y][c] - 1] = true;
+                queue.add(new int[]{c, y});
+              }
+            }
+        }
+        if (group.size() >= 3)
+          edComposites.add(group);
+      }
+    edComposites.sort((a, b) -> b.size() - a.size());
+    edComposite = Math.min(edComposite, Math.max(0, edComposites.size() - 1));
+    buildPieces();
+  }
+
+  /** the distinct graphics inside the selected composite, the ones the arrows walk. */
+  private void buildPieces() {
+    edPieces.clear();
+    if (edComposites.isEmpty() || lastSnap == null)
+      return;
+    Map<Integer, Integer> count = new HashMap<>();
+    for (int i : edComposites.get(edComposite)) {
+      int origin = lastSnap.owner()[i] != 0 ? lastSnap.owner()[i] - 1
+          : lastSnap.tile()[i] != 0 ? lastSnap.tile()[i] - 1 : -1;
+      if (origin >= 0)
+        count.merge(origin, 1, Integer::sum);
+    }
+    count.entrySet().stream().sorted((a, b) -> b.getValue() - a.getValue())
+        .forEach(e -> edPieces.add(e.getKey()));
+    edPiece = Math.min(edPiece, Math.max(0, edPieces.size() - 1));
+  }
+
+  /**
+   * The hand-made definitions, per game, in {@code ~/.jsw3d-objetos-<juego>.json}: an object
+   * is a NAME and the set of graphics that make it. Its own file, not the generated
+   * catalogue, which a re-run overwrites.
+   */
+  private void saveObject() {
+    if (objPieces.isEmpty()) {
+      flashPreset("el objeto está vacío: marcá piezas con ESPACIO (o A para todo el compuesto)");
+      return;
+    }
+    StringBuilder p = new StringBuilder();
+    for (int piece : objPieces)
+      p.append(p.length() > 0 ? "," : "").append('$').append(Integer.toHexString(piece));
+    savedObjects.removeIf(o -> o[1].equals(p.toString()));
+    savedObjects.add(new String[]{objName + savedObjects.size(), p.toString()});
+    StringBuilder sb = new StringBuilder("{\n  \"objetos\": [\n");
+    for (int i = 0; i < savedObjects.size(); i++)
+      sb.append("    {\"nombre\": \"").append(savedObjects.get(i)[0])
+          .append("\", \"piezas\": \"").append(savedObjects.get(i)[1]).append("\"}")
+          .append(i < savedObjects.size() - 1 ? "," : "").append('\n');
+    sb.append("  ]\n}\n");
+    java.nio.file.Path f = java.nio.file.Path.of(System.getProperty("user.home"),
+        ".jsw3d-objetos-" + activeGame + ".json");
+    try {
+      java.nio.file.Files.writeString(f, sb.toString());
+      flashPreset("grabado: " + savedObjects.size() + " objetos en " + f);
+    } catch (Exception e) {
+      flashPreset("no pude grabar: " + e);
+    }
+  }
+
+  /**
+   * The editor's overlay, painted INTO the 2D screen image so it lands exactly on the game's
+   * own pixels: the selected composite outlined in cyan, the graphic the arrows are on in
+   * white, and whatever is already in the object in green.
+   */
+  private void paintEditor(TaintReplay.FrameSnapshot snap, Pixmap pixmap) {
+    if (edComposites.isEmpty())
+      return;
+    java.util.Set<Integer> inComposite = new java.util.HashSet<>(edComposites.get(edComposite));
+    int piece = edPieces.isEmpty() ? -1 : edPieces.get(edPiece);
+    for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
+      int bits = snap.pixels()[i] & 0xff;
+      if (bits == 0)
+        continue;
+      int origin = snap.owner()[i] != 0 ? snap.owner()[i] - 1
+          : snap.tile()[i] != 0 ? snap.tile()[i] - 1 : -1;
+      boolean here = inComposite.contains(i);
+      Color c = origin >= 0 && origin == piece && here ? Color.WHITE
+          : origin >= 0 && objPieces.contains(origin) ? Color.LIME
+          : here ? Color.CYAN : null;
+      if (c == null)
+        continue;
+      int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), col = i & 31;
+      for (int bit = 0; bit < 8; bit++)
+        if ((bits & (0x80 >> bit)) != 0)
+          pixmap.drawPixel(col * 8 + bit, y, Color.rgba8888(c));
+    }
+  }
+
   /** the attribute's ink index into {@link #PALETTE} (bright included). */
   private static int ink(int attr) {
     return (attr & 7) | ((attr >> 3) & 8);
@@ -3760,6 +4000,8 @@ public class JSW3D extends ApplicationAdapter {
     if (ropePixelModel != null)
       ropePixelModel.dispose();
     shadowLight.dispose();
+    if (replay != null)
+      replay.paused = false; // never leave the replay thread parked on the way out
     shadowBatch.dispose();
     uiBatch.dispose();
     uiFont.dispose();
