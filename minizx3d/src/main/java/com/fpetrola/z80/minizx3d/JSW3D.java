@@ -1940,62 +1940,59 @@ public class JSW3D extends ApplicationAdapter {
     }
   }
 
+  /**
+   * The on-screen guide (key 0). Grouped by what you are trying to DO, not by key order:
+   * flat, it ran forty lines deep and the editor — the part with the most keys and the least
+   * guessable — was buried at the bottom where nobody read it.
+   */
   private static final String HELP_TEXT = """
-      TECLAS
-      0        mostrar / ocultar esta guia
-      M        sprites suaves / voxel
-      S / X    suavizado + / -
-      D / C    profundidad + / -
-      T / G    grosor de plataformas + / -
-      L        modo linterna
-      N        niebla
-      F        fuego en los items
-      R        lluvia (charcos y todo mojado)
-      B        nieve
-      E        tormenta electrica
-      V        viento, rafagas y remolinos
-      J        basura con fisica
-      K / H    cantidad de basura + / -
-      U        globos y burbujas
-      P        lamparas colgantes
-      Y        hojas y papeles
-      Z        polvo y suciedad de los sprites
-      O        sombras proyectadas
-      Q        opacidad de los tiles fantasma
-      , / .    velocidad mitad / doble
-      Enter    velocidad normal
-      TAB      menu de parametros (flechas ajustan, ESC cierra)
-      F1       cortar el replay y JUGAR (una sola via)
-      F2       esta guia (jugando, las teclas van al juego y
-               los efectos se togglean con Ctrl+tecla)
-      F3       guardar ambiente actual como preset (con nombre)
-      F4 / F5  siguiente / anterior preset (sirven en todo juego)
-      F6       borrar el preset actual
-      I / W    elegir grafico del relieve (se pinta blanco) /
-               pasarlo a FONDO plano (se guarda por juego)
-      Ctrl+E   EDITOR DE SPRITES: congela el juego y muestra la
-               pantalla plana. Los objetos se arman a mano con
-               RECTANGULOS: flechas mueven la caja, SHIFT+flechas
-               la redimensionan (Ctrl = de a 8px), TAB cicla las
-               cajas del objeto, RePag/AvPag cicla los OBJETOS,
-               A/D agrega o borra caja, C/X objeto, ENTER busca
-               el objeto en la pantalla actual, G graba en
-               ~/.jsw3d-objetos-<juego>.json. La lista de objetos
-               con su imagen va en la franja de la derecha.
-      Mouse    arrastrar rota - rueda zoom
-      Config viva en ~/.jsw3d-config-<juego>.json;
-      presets (compartidos) en ~/.jsw3d-config.json""";
+      RENDER          M suave/voxel · S/X suavizado · D/C profundidad
+                      T/G grosor de plataformas · Q opacidad fantasmas
+                      I elegir grafico del relieve · W pasarlo a fondo plano
+
+      AMBIENTE        L linterna · N niebla · F fuego · R lluvia · B nieve
+                      E tormenta · V viento · U globos · P lamparas
+                      Y hojas · Z polvo · O sombras
+                      J basura · K/H cantidad de basura
+
+      REPLAY          , / . mitad / doble velocidad · Enter normal
+                      F1 cortar el replay y JUGAR (una sola via)
+
+      AJUSTES         TAB menu de parametros (flechas ajustan, ESC cierra)
+                      F3 guardar ambiente como preset · F4/F5 cambiar
+                      F6 borrar el preset actual · 0 esta guia
+
+      EDITOR DE SPRITES   Ctrl+E abre y cierra (congela el juego y
+                      muestra la pantalla plana; la lista de objetos, con
+                      la imagen de cada uno, va en la franja derecha)
+        flechas       mover la caja seleccionada
+        SHIFT+flechas redimensionarla     (Ctrl = de a 8 px)
+        TAB           siguiente caja del objeto (SHIFT+TAB anterior)
+        RePag/AvPag   objeto anterior / siguiente (lo busca en pantalla)
+        A / D         agregar / borrar una caja
+        C / X         crear / borrar un objeto
+        ENTER         buscar el objeto en la pantalla actual
+        G             grabar (doc/objetos-<juego>.json y .png)
+
+      Mouse arrastrar rota, rueda zoom. Config viva en
+      ~/.jsw3d-config-<juego>.json; presets en ~/.jsw3d-config.json""";
 
   private void renderHelp() {
     if (!helpOn)
       return;
     com.badlogic.gdx.graphics.g2d.GlyphLayout layout =
         new com.badlogic.gdx.graphics.g2d.GlyphLayout(uiFont, HELP_TEXT);
+    // the widest LINE, not what the multi-line layout reports: with the guide grouped in
+    // sections it under-measured and half the text sat outside its own panel, unreadable
+    // over the game
+    float wide = 0;
+    for (String line : HELP_TEXT.split("\n"))
+      wide = Math.max(wide, new com.badlogic.gdx.graphics.g2d.GlyphLayout(uiFont, line).width);
     float pad = 16, x = 20, h = layout.height + pad * 2;
     float y = Gdx.graphics.getHeight() - 20 - h;
     uiBatch.begin();
-    uiBatch.setColor(0, 0, 0, .78f);
-    uiBatch.draw(whitePix, x, y, layout.width + pad * 2, h);
+    uiBatch.setColor(0, 0, 0, .92f);
+    uiBatch.draw(whitePix, x, y, wide + pad * 2, h);
     uiBatch.setColor(1, 1, 1, 1);
     uiFont.draw(uiBatch, HELP_TEXT, x + pad, y + h - pad);
     uiBatch.end();
@@ -3471,6 +3468,8 @@ public class JSW3D extends ApplicationAdapter {
     final java.util.Set<Integer> graphics = new java.util.LinkedHashSet<>();
     com.badlogic.gdx.graphics.Texture thumb;
     int tw, th;
+    /** the captured selection: ARGB per pixel, and the graphic behind each one (-1 none). */
+    int[] px, owner;
   }
 
   private EdGroup group() {
@@ -3675,9 +3674,13 @@ public class JSW3D extends ApplicationAdapter {
     }
     if (maxX <= minX || maxY <= minY || lastSnap == null)
       return;
-    Pixmap pm = new Pixmap(maxX - minX, maxY - minY, Pixmap.Format.RGBA8888);
+    int gw = maxX - minX, gh = maxY - minY;
+    Pixmap pm = new Pixmap(gw, gh, Pixmap.Format.RGBA8888);
     pm.setColor(0, 0, 0, 0);
     pm.fill();
+    g.px = new int[gw * gh];
+    g.owner = new int[gw * gh];
+    java.util.Arrays.fill(g.owner, -1);
     for (int[] r : g.rects)
       for (int y = r[1]; y < Math.min(H, r[1] + r[3]); y++)
         for (int x = r[0]; x < Math.min(256, r[0] + r[2]); x++) {
@@ -3687,11 +3690,15 @@ public class JSW3D extends ApplicationAdapter {
           int attr = lastSnap.attrs()[(y >> 3) * 32 + (x >> 3)] & 0xff;
           Color c = PALETTE[ink(attr)];
           pm.drawPixel(x - minX, y - minY, Color.rgba8888(c.r, c.g, c.b, 1));
+          int at = (y - minY) * gw + (x - minX);
+          g.px[at] = 0xff000000 | ((int) (c.r * 255) << 16) | ((int) (c.g * 255) << 8)
+              | (int) (c.b * 255);
+          g.owner[at] = originOf(i);
         }
     disposeThumb(g);
     g.thumb = new com.badlogic.gdx.graphics.Texture(pm);
-    g.tw = pm.getWidth();
-    g.th = pm.getHeight();
+    g.tw = gw;
+    g.th = gh;
     pm.dispose();
   }
 
@@ -3722,15 +3729,57 @@ public class JSW3D extends ApplicationAdapter {
     sb.append("  ]\n}\n");
     try {
       java.nio.file.Files.writeString(objectsPath(), sb.toString());
-      flashPreset("grabado: " + edGroups.size() + " objetos en " + objectsPath());
+      writeSheet();
+      flashPreset("grabado: " + edGroups.size() + " objetos en " + objectsPath()
+          + " y en " + sheetPath());
     } catch (Exception e) {
       flashPreset("no pude grabar: " + e);
     }
   }
 
+  /**
+   * The objects as a PNG that is also their definition: every pixel carries, invisibly, the
+   * address of the graphic it came from ({@link ObjectSheet}). A picture plus a table beside
+   * it drift apart the first time somebody edits one; here they cannot.
+   */
+  private void writeSheet() throws Exception {
+    List<String> names = new ArrayList<>();
+    List<int[]> cells = new ArrayList<>(), pixels = new ArrayList<>(), owners = new ArrayList<>();
+    int x = 0, y = 1, shelf = 0; // row 0 belongs to the legend
+    for (EdGroup g : edGroups) {
+      if (g.px == null)
+        continue;
+      int gw = g.tw, gh = g.th;
+      if (x + gw > 512 && x > 0) {
+        x = 0;
+        y += shelf + 2;
+        shelf = 0;
+      }
+      names.add(g.name);
+      cells.add(new int[]{x, y, gw, gh});
+      pixels.add(g.px);
+      owners.add(g.owner);
+      x += gw + 2;
+      shelf = Math.max(shelf, gh);
+    }
+    if (!cells.isEmpty())
+      ObjectSheet.write(sheetPath().toString(), names, cells, pixels, owners);
+  }
+
+  private java.nio.file.Path sheetPath() {
+    return java.nio.file.Path.of("doc", "objetos-" + activeGame + ".png");
+  }
+
+  /**
+   * Beside the catalogue and not in the home directory: what was identified by hand is the
+   * project's knowledge, the kind of thing that belongs in the repo and in a diff, not live
+   * state of one machine. The old location still loads, so nothing marked before is lost.
+   */
   private java.nio.file.Path objectsPath() {
-    return java.nio.file.Path.of(System.getProperty("user.home"),
+    java.nio.file.Path doc = java.nio.file.Path.of("doc", "objetos-" + activeGame + ".json");
+    java.nio.file.Path home = java.nio.file.Path.of(System.getProperty("user.home"),
         ".jsw3d-objetos-" + activeGame + ".json");
+    return java.nio.file.Files.exists(doc) || !java.nio.file.Files.exists(home) ? doc : home;
   }
 
   /** what was marked in earlier sessions, so the list starts where you left it. */

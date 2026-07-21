@@ -666,13 +666,30 @@ nada automático puede: partes desconectadas, y huecos entre partes que NO son d
 catálogo, plegadas a la entrada que las contiene, y solo de los píxeles ENCENDIDOS: el papel
 alrededor no es el objeto). Una caja en la pantalla no vale nada después — el objeto se mueve,
 se anima, y la sala siguiente dibuja otra cosa ahí. Las cajas se guardan igual como referencia
-de cómo se marcó. Archivo: `~/.jsw3d-objetos-<juego>.json`.
+de cómo se marcó. Archivos: `doc/objetos-<juego>.json` y `.png` — al lado del catálogo y no
+en el home, porque lo identificado a mano es conocimiento del proyecto, de lo que va al repo y
+a un diff, no estado vivo de una máquina. La ubicación vieja (`~/.jsw3d-objetos-<juego>.json`)
+se sigue leyendo, así que nada de lo ya marcado se pierde.
 
 **Buscar un objeto en pantalla** (ENTER, y automático al cambiar de objeto): se buscan sus
 gráficos en la pantalla actual y las cajas se trasladan por la diferencia entre donde se
 dibujaron y donde el objeto resultó estar. Alcanza con encontrar **la mitad** de sus gráficos,
 porque un objeto está rutinariamente medio tapado por otro; informa la fracción hallada en vez
 de exigirlos todos.
+
+**La hoja de objetos es un PNG que ADEMÁS es su definición** (`ObjectSheet`, se escribe con
+`G` junto al JSON, en `doc/objetos-<juego>.png`). Una imagen con una tabla de direcciones al
+lado se despegan la primera vez que alguien edita una de las dos; acá no pueden: la hoja
+muestra las formas como el juego las dibujó, y la dirección del gráfico al que pertenece cada
+píxel viaja **en ese mismo píxel**, en los dos bits bajos de R, G y B — un cambio de a lo sumo
+3/255 por canal, invisible en esta paleta (medido: `$d7d700` → `$d5d400`).
+
+Esos seis bits llevan un ÍNDICE, no la dirección: 16 bits por píxel se comerían cinco bits de
+un canal y ahí sí se notaría. El índice se resuelve con una leyenda escrita del mismo modo en
+la **fila 0** de la imagen, tres píxeles por entrada (6+6+4 bits), sobre una fila que es fondo
+en todo lo demás. Así el archivo es autocontenido —sin sidecar, sin un chunk de metadatos que
+un conversor pueda tirar— y `ObjectSheet.read` devuelve, por cada píxel, el gráfico detrás.
+Round-trip verificado: 80 de 80 píxeles recuperan su dirección.
 
 **La lista visual** va en una franja a la derecha, con la imagen que el usuario seleccionó de
 cada objeto (no una lista de nombres: lo que hace falta saber de un vistazo es si el objeto 3
