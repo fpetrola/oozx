@@ -1344,6 +1344,8 @@ public class JSW3D extends ApplicationAdapter {
         0, 60, 1, true, () -> (float) holdCells, v -> holdCells = Math.round(v));
     addParam("render.relief.paper", "relief.paper", "Render", "relieve tinte del relleno",
         0, 1, .05f, false, () -> paperTint, v -> paperTint = v);
+    addFlag("render.sprites", "sprites", "Render", "modelar sprites moviles",
+        () -> spritesOn, v -> spritesOn = v, "");
     addFlag("render.objects", "objects", "Render", "objetos definidos a mano",
         () -> objectsOn, v -> objectsOn = v, "");
     addParam("render.objects.match", "objects.match", "Render", "objetos: fraccion minima",
@@ -2168,7 +2170,7 @@ public class JSW3D extends ApplicationAdapter {
           // was standing. Nothing may leave the screen without something drawing it.
           bits = cellClaimed[(y >> 3) * 32 + col] ? 0
               : snap.pixels()[i] & ~snap.spriteBits()[i] & 0xff;
-        else if (snap.owner()[i] != 0)
+        else if (snap.owner()[i] != 0 && spritesOn)
           // only the sprite's OWN ink leaves the backdrop. Under a masked compositing
           // engine the rest of the byte is background that must stay painted; with the
           // per-bit pass off the mask covers the whole byte, so this erases it entirely
@@ -2523,6 +2525,8 @@ public class JSW3D extends ApplicationAdapter {
   }
 
   private void updateSprites(TaintReplay.FrameSnapshot snap) {
+    if (!spritesOn)
+      return; // everything flat: only the hand-marked objects are modelled
     int[][] grid = new int[H][32];
     for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
       int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7);
@@ -2932,6 +2936,13 @@ public class JSW3D extends ApplicationAdapter {
   /** what fraction of an object's graphics has to be on screen to call it that object. */
   private float objectsMatch = fprop("render.objects.match", "objects.match", .5f);
   private boolean objectsOn = bprop("render.objects", "objects", true);
+  /**
+   * Model the moving sprites at all (-Drender.sprites=false). Off, plus {@code tiles=off},
+   * leaves the whole game FLAT and only the objects identified by hand come out in 3D — the
+   * way to build a game up one object at a time instead of fighting what the automatic
+   * classification decided to lift.
+   */
+  private boolean spritesOn = bprop("render.sprites", "sprites", true);
   /** the last snapshot, so the editor can ask what is under the cursor while frozen. */
   private TaintReplay.FrameSnapshot lastSnap;
   /**

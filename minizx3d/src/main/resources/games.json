@@ -568,7 +568,7 @@
           "group": 256
         },
         "render": {
-          "tiles": "screen",
+          "tiles": "off",
           "blobs": "adjacent",
           "playfield": {
             "top": 0,
@@ -588,7 +588,8 @@
           },
           "items": "no",
           "spriteBits": "si",
-          "freshFrames": 8
+          "freshFrames": 8,
+          "sprites": "no"
         },
         "discover": {
           "gate": 7,
@@ -612,23 +613,16 @@
       "objetos": [
         {
           "nombre": "objeto1",
-          "piezas": "$dde4,$ddec,$dded,$dde6,$ddee,$ddf6,$dde7,$ddef,$ddf7,$de58,$ddd8,$ddf8,$de00,$de08,$ddd9,$ddf9,$de01,$de09,$de5a,$ddda,$ddfa,$de02,$de0a,$de5b,$de63,$dddb,$ddfb,$de03,$de0b,$de5c,$de64,$dddc,$ddfc,$de04,$de0c,$de5d,$dddd,$ddfd,$de05,$de0d,$ddde,$ddfe,$de06,$de0e,$dddf,$ddff,$de07,$de0f,$de10,$de18,$de20,$de11,$de19,$de21,$eec2,$de1b,$eec4,$de1c,$eec8,$de1e,$eeca,$de1f,$eece,$de39,$de2a,$de32,$de3a,$de2b,$de33,$de3b,$de2d,$de35,$de3d,$de2e,$de36,$de3e,$de40,$de48,$de50,$de41,$de49,$de51,$de42,$de4a,$de52,$de43,$de4b,$de53,$de44,$de4c,$de54,$de45,$de4d,$de55,$de46,$de4e,$de56",
-          "rects": "113 108 45 14,134 123 17 20",
-          "hoja": "0 1 45 35",
+          "piezas": "$e11a,$e122,$e12a,$e11b,$e123,$e12b,$e11c,$e124,$e12c,$e115,$e11d,$e125,$e12d,$e135,$e116,$e11e,$e126,$e12e,$e136,$e117,$e11f,$e127,$e12f,$e137,$e138,$e140,$e148,$e150,$e158,$e139,$e141,$e149,$e151,$e159,$e13a,$e142,$e14a,$e152,$e15a,$e13b,$e143,$e14b,$e153,$e15b,$e13c,$e144,$e14c,$e154,$e15c,$e13d,$e145,$e14d,$e155,$e15d,$e13e,$e146,$e14e,$e156,$e15e,$e13f,$e147,$e14f,$e157,$e15f,$e160,$e168,$e170,$e178,$e180,$e161,$e169,$e171,$e179,$e181,$e162,$e16a,$e172,$e17a,$e182,$e163,$e16b,$e173,$e17b,$e183,$e164,$e16c,$e174,$e17c,$e184,$e16d,$e175,$e17d,$e16e,$e176,$e17e,$e16f,$e177,$e17f,$e188,$e190,$e198,$e191,$e193,$e194,$e195,$e196,$e197,$e1a0,$e1a1,$e1a2,$e1a3,$e1a4,$e1a5,$e1a6,$e1a7,$e1b1,$e1aa,$e1b2,$e1ba,$e1ab,$e1b3,$e1bb,$e1ad,$e1b5,$e1bd,$e1ae,$e1b6,$e1be,$e1af,$e1b7,$e1bf,$e1c0,$e1c8,$e1d0,$e1c1,$e1c9,$e1d1,$e1c2,$e1ca,$e1d2,$e1c3,$e1cb,$e1d3,$e1c4,$e1cc,$e1d4,$e1c5,$e1cd,$e1d5,$e1c6,$e1ce,$e1d6,$e1c7,$e1cf,$e1d7,$e1d8,$e1d9,$e1da,$e1db,$e1dc,$e1dd",
+          "rects": "61 82 30 60",
+          "hoja": "0 1 30 60",
           "render": {
             "tecnica": "PRIMITIVE",
             "primitiva": "OVOID",
             "redondez": 0.15,
-            "profundidad": 5,
+            "profundidad": 5.0,
             "voxels": true
           }
-        },
-        {
-          "nombre": "objeto2",
-          "piezas": "$e1e6,$e1e7,$e1ef,$e1f0,$e1f8,$e1f1,$e1f9,$e1f2,$e1fa,$e1f3,$e1fb,$e1f4,$e1fc,$e1f5,$e1fd,$e1f6,$e1fe,$e1f7,$e1ff,$e201,$e209,$e202,$e20a,$e203,$e20b,$e204,$e20c,$e205,$e20d,$e206,$e20e,$e207,$e20f,$e218,$e220,$e211,$e219,$e221,$e212,$e21a,$e222,$e213,$e21b,$e223,$e21d,$e225,$e21e,$e226,$e21f,$e227,$e238,$e231,$e239,$e232,$e23a,$e233,$e23b,$e243,$e23c,$e244,$e235,$e23d,$e245,$e236,$e23e,$e246,$e237,$e23f,$e247,$e248,$e250,$e258,$e249,$e251,$e259,$e24a,$e252,$e25a,$e25b,$e24c,$e254,$e25c,$e24d,$e255,$e25d,$e24e,$e256,$e25e",
-          "rects": "111 102 17 22,113 125 22 18",
-          "hoja": "47 1 24 41",
-          "render": "PRIMITIVE CYL_V 0.45000002"
         }
       ]
     }

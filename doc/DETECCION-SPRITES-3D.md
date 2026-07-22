@@ -703,6 +703,19 @@ hoja (`"hoja": "x y w h"`), que es lo que empalma las dos mitades; los píxeles 
 direcciones salen del PNG, así que volver a grabar conserva intactos los objetos que no
 tocaste.
 
+### Todo plano, y en 3D solo lo que uno diga
+
+`render.tiles = off` + `render.sprites = no` dejan el juego **entero en el backdrop 2D** —ni
+losas de relieve ni blobs de sprite— y solo salen en 3D los objetos identificados a mano. Es
+la forma de construir un juego objeto por objeto en vez de pelearse con lo que la
+clasificación automática decidió levantar: se arranca de cero y cada cosa aparece cuando uno
+la marcó y le dijo cómo se renderiza.
+
+Las dos perillas están en el menú TAB (`tiles (fondo)` y `modelar sprites moviles`), así que
+se prueba en vivo y queda guardado en `games.<juego>.config`. Ojo con la precedencia: lo
+guardado ahí **le gana a los `-D`**, así que si `config.render.tiles` dice `screen`, un
+`-Dtiles=off` no hace nada — hay que cambiarlo desde el menú o en el archivo.
+
 ### Los objetos definidos, en el juego
 
 Al arrancar el visor se cargan (`doc/objetos-<juego>.json` + la hoja) y cada frame se los
