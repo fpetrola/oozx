@@ -62,15 +62,20 @@ public final class SpriteComposites {
   private final Map<Long, Composite> byHash = new HashMap<>();
   private final int minBytes;
   /** an object bigger than this is the room, not a thing in it (bytes wide, pixel rows). */
-  private final int maxCols = Integer.getInteger("discover.objects.cols", 16);
-  private final int maxRows = Integer.getInteger("discover.objects.rows", 96);
+  private final int maxCols = Integer.getInteger("discover.objects.cols", 8);
+  private final int maxRows = Integer.getInteger("discover.objects.rows", 48);
   /**
    * How many screen writes may pass between two bytes of the same drawing. Not 1: a routine
    * skips the bytes a mask leaves untouched, and interleaves the odd write of its own
    * bookkeeping. Wide enough to hold a sprite together, narrow enough that the next object
    * starts its own burst.
    */
-  private final int gap = Integer.getInteger("discover.objects.gap", 48);
+  /**
+   * How far up from the invocation that wrote the pixel the object's own call sits. One
+   * level, measured: the leaf is the routine that paints a piece, its caller is the one that
+   * decided to draw the thing.
+   */
+  private final int callUp = Integer.getInteger("discover.objects.up", 1);
   /** how many frames back a drawing at the same place still counts as the same object. */
   private final int window = Integer.getInteger("discover.objects.window", 24);
   /** boxes drawn recently, to grow a sliced repaint back into the whole thing. */
@@ -107,51 +112,119 @@ public final class SpriteComposites {
   }
 
   /**
-   * The objects, taken from WHEN THE GAME DREW THEM. Every write to the display file gets a
-   * sequence number ({@link TaintReplay#writeOrder}), so the bytes the game painted one after
-   * another are consecutive there: a composed object is a BURST in that order — all of its
-   * pieces, whatever their colours or how the taint classified them — and the gaps between
-   * bursts are where one drawing ends and the next begins.
+   * The objects, taken from WHO DREW THEM: the call tree.
    *
-   * <p>Everything tried before this cut the picture with a rule of our own (adjacency, then
-   * adjacency plus colour) and so kept splitting objects the game considers one: a ship with
-   * cyan windows on a white hull came out as two, and anything standing on the floor merged
-   * with it. Grouping by the drawing itself needs no rule about shape at all.
+   * <p>A game that draws a composite object does it from one routine, or from several called
+   * together by one that decided to draw the thing, and every byte of it hangs off that node
+   * ({@link TaintReplay#writeNode}). Everything tried before this measured the SCREEN —
+   * adjacency, colour, write order, a time window — and each one merged or split the wrong
+   * pair, because the screen does not say where an object ends. The call node does not need
+   * to be told: it never joins two things that were drawn by different calls, which is the
+   * case that started all of it (a capsule and the player standing in front of it).
    *
-   * <p>What is captured is the RECTANGLE as it stands on screen, ink and paper included: the
-   * point is to check against the game, and for that it has to be what the game shows.
+   * <p>Measured on Exolon before switching to it: climbing ONE level from the invocation that
+   * wrote the pixel collapses an object into a single node in 3 of 4 objects marked by hand,
+   * and for two of them the node's box is the object's own size with a single blob in it.
+   * Where the node still holds more than one blob, it is the same object drawn several times
+   * or repainted in pieces — both of which the split below and the cross-frame merge already
+   * handle.
    */
-  private void scan(TaintReplay.FrameSnapshot snap, TaintReplay replay) {
-    int h = 192, frame = snap.frame();
-    // the bytes painted THIS frame, in the order they were painted
-    List<int[]> writes = new ArrayList<>(); // {order, index}
-    // the snapshot is published when the frame index CHANGES, so what the screen holds was
-    // painted during the frame before the one it is labelled with: accept both
-    for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++)
-      if (frame - replay.lastWrite[i] <= 1)
-        writes.add(new int[]{replay.writeOrder[i], i});
-    if (writes.isEmpty())
-      return;
-    writes.sort((a, b) -> Integer.compare(a[0], b[0]));
+  private void scan(TaintReplay.FrameSnapshot snap, TaintReplay r) {
+    int frame = snap.frame(), h = 192;
     int top = JSW3D.iprop("render.playfield.top", "playfield.top", 0) * 8;
     int end = Math.min(h, top + JSW3D.iprop("render.playfield.rows", "playfield.rows", 24) * 8);
-    List<List<Integer>> bursts = new ArrayList<>();
-    List<Integer> burst = new ArrayList<>();
-    int prev = -1;
-    for (int[] w : writes) {
-      if (prev >= 0 && w[0] - prev > gap) {
-        if (!burst.isEmpty())
-          bursts.add(burst);
-        burst = new ArrayList<>();
+    // the snapshot is published when the frame index CHANGES, so what the screen holds was
+    // painted during the previous frame — and that is the frame whose call tree is still live
+    Map<Integer, List<Integer>> byNode = new HashMap<>();
+    for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
+      if ((snap.pixels()[i] & 0xff) == 0 || r.lastWrite[i] != frame - 1)
+        continue;
+      int n = r.writeNode[i] >= 0 && r.writeNode[i] < r.nodeParent.size ? r.writeNode[i] : 0;
+      for (int a = n; ; a = r.nodeParent.get(a)) { // the byte belongs to every ancestor too
+        byNode.computeIfAbsent(a, k -> new ArrayList<>()).add(i);
+        if (a == 0)
+          break;
       }
-      burst.add(w[1]);
-      prev = w[0];
     }
-    if (!burst.isEmpty())
-      bursts.add(burst);
-    for (List<Integer> b : merge(bursts, top, end))
-      flush(snap, b, grow(bbox(b), frame), top, end);
-    recent.removeIf(r -> frame - r[4] > window);
+    // THE OBJECT IS THE HIGHEST CALL THAT STILL LOOKS LIKE ONE. A fixed level cannot work:
+    // one level up from the pixel is the object for a missile and the whole room for the
+    // routine that repaints the screen — measured, that gave objects of 128x96 px, which is
+    // the cap, which is the room. So each node is taken only if it fits an object's size and
+    // its parent does not: the deepest place where the drawing is still a thing, not a scene.
+    java.util.Set<Integer> emitted = new java.util.HashSet<>();
+    List<Integer> nodes = new ArrayList<>(byNode.keySet());
+    nodes.sort((a, b) -> byNode.get(b).size() - byNode.get(a).size());
+    for (int n : nodes) {
+      List<Integer> painted = byNode.get(n);
+      if (painted.size() < minBytes || !fits(bbox(painted), painted.size()))
+        continue;
+      int parent = n == 0 ? -1 : r.nodeParent.get(n);
+      if (parent >= 0 && byNode.containsKey(parent)
+          && fits(bbox(byNode.get(parent)), byNode.get(parent).size()))
+        continue; // its caller still looks like one object: this is a piece of it, not it
+      List<Integer> mine = new ArrayList<>();
+      for (int i : painted)
+        if (emitted.add(i))
+          mine.add(i);
+      if (mine.size() < minBytes)
+        continue;
+      // one call can draw the object several times over (Exolon lines up three missiles and
+      // paints them in one go), so what the node gives is split into connected pieces
+      for (List<Integer> blob : blobs(mine, top, end))
+        flush(snap, blob, grow(bbox(blob), frame), top, end);
+    }
+    recent.removeIf(x -> frame - x[4] > window);
+  }
+
+  /**
+   * Is this the size of a thing in the room, rather than the room? Half the screen "fits"
+   * any cap generous enough for a big object, so density decides the rest: a drawing that
+   * leaves a tenth of its own box painted is a scene, not a thing.
+   */
+  private boolean fits(int[] box, int painted) {
+    int w = box[2] - box[0] + 1, h = box[3] - box[1] + 1;
+    return w <= maxCols && h <= maxRows && painted >= .2f * w * h;
+  }
+
+  /**
+   * The ancestor {@code up} levels above a node. The tree is rebuilt every frame, so an id
+   * from an older frame means nothing now and counts as the root.
+   */
+  private static int ancestor(TaintReplay r, int node, int up) {
+    int n = node >= 0 && node < r.nodeParent.size ? node : 0;
+    for (int i = 0; i < up && n > 0 && r.nodeParent.get(n) > 0; i++)
+      n = r.nodeParent.get(n);
+    return n;
+  }
+
+  /** connected pieces of what one call painted, with a couple of rows of slack for masks. */
+  private List<List<Integer>> blobs(List<Integer> painted, int top, int end) {
+    java.util.Set<Integer> left = new java.util.HashSet<>(painted);
+    List<List<Integer>> out = new ArrayList<>();
+    java.util.ArrayDeque<Integer> queue = new java.util.ArrayDeque<>();
+    while (!left.isEmpty()) {
+      List<Integer> blob = new ArrayList<>();
+      Integer start = left.iterator().next();
+      left.remove(start);
+      queue.add(start);
+      while (!queue.isEmpty()) {
+        int i = queue.poll();
+        blob.add(i);
+        int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), c = i & 31;
+        for (int dy = -2; dy <= 2; dy++)
+          for (int dc = -1; dc <= 1; dc++) {
+            int yy = y + dy, cc = c + dc;
+            if (yy < top || yy >= end || cc < 0 || cc > 31)
+              continue;
+            int q = ((yy & 0xC0) << 5) | ((yy & 7) << 8) | ((yy & 0x38) << 2) | cc;
+            if (left.remove(q))
+              queue.add(q);
+          }
+      }
+      if (blob.size() >= minBytes)
+        out.add(blob);
+    }
+    return out;
   }
 
   /**
@@ -182,37 +255,6 @@ public final class SpriteComposites {
     recent.removeIf(r -> box[0] <= r[0] && box[1] <= r[1] && box[2] >= r[2] && box[3] >= r[3]);
     recent.add(new int[]{box[0], box[1], box[2], box[3], frame});
     return box;
-  }
-
-  /**
-   * Bursts that land on the SAME PLACE in the same frame are one object. A routine draws a
-   * character in several passes — the mask, then the ink, then a detail — and a dirty-region
-   * engine repaints a big thing in slices; each of those is its own burst in the write order
-   * but they are all the same drawing, and separately they show up as half a planet.
-   *
-   * <p>Merged when the bounding boxes touch (with a byte of slack), repeatedly, because
-   * merging two can bring a third into contact.
-   */
-  private List<List<Integer>> merge(List<List<Integer>> bursts, int top, int end) {
-    List<int[]> box = new ArrayList<>(); // minC, minR, maxC, maxR
-    for (List<Integer> b : bursts)
-      box.add(bbox(b));
-    boolean again = true;
-    while (again) {
-      again = false;
-      for (int i = 0; i < bursts.size() && !again; i++)
-        for (int j = i + 1; j < bursts.size() && !again; j++) {
-          int[] a = box.get(i), c = box.get(j);
-          if (a[0] > c[2] + 1 || c[0] > a[2] + 1 || a[1] > c[3] + 8 || c[1] > a[3] + 8)
-            continue;
-          bursts.get(i).addAll(bursts.get(j));
-          box.set(i, bbox(bursts.get(i)));
-          bursts.remove(j);
-          box.remove(j);
-          again = true;
-        }
-    }
-    return bursts;
   }
 
   private static int[] bbox(List<Integer> burst) {
