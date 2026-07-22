@@ -429,6 +429,84 @@ public final class TaintDiscover {
   }
 
   /**
+   * The objects found automatically, written in the SAME shape the editor produces by hand:
+   * an encoded sheet ({@link ObjectSheet}, every pixel carrying the address of the graphic
+   * behind it) plus their entries in the one config file. So the detection and the hand work
+   * meet in one format — the viewer already knows how to match and render these, and the
+   * editor can open them, fix the ones that came out wrong and drop the rest.
+   *
+   * <p>Kept apart from what was marked by hand ({@code objetosAuto} vs {@code objetos}):
+   * a re-catalogue overwrites these, and nobody's afternoon of marking should ride on that.
+   */
+  private void writeAutoObjects(String game, List<SpriteComposites.Composite> objects) {
+    if (game == null || objects.isEmpty())
+      return;
+    // TWO graphics is still a tile and its neighbour — measured on Exolon: at 2 the list
+    // filled with pairs of scenery bytes that then matched half the screen at score 1.00
+    int minPieces = Integer.getInteger("discover.objects.minPiezas", 3);
+    int minSeen = Integer.getInteger("discover.objects.minVeces", 5);
+    try {
+      List<String> names = new ArrayList<>();
+      List<int[]> cells = new ArrayList<>(), pixels = new ArrayList<>(), owners = new ArrayList<>();
+      StringBuilder json = new StringBuilder("{\"objetos\": [");
+      java.util.Set<java.util.Set<Integer>> already = new java.util.HashSet<>();
+      int x = 0, y = 1, shelf = 0, n = 0; // row 0 belongs to the sheet's legend
+      for (SpriteComposites.Composite c : objects) {
+        if (c.px == null)
+          continue;
+        int w = c.wBytes * 8, h = c.rows;
+        if (x + w > 512 && x > 0) {
+          x = 0;
+          y += shelf + 2;
+          shelf = 0;
+        }
+        java.util.Set<Integer> gfx = new java.util.LinkedHashSet<>();
+        for (int a : c.owner)
+          if (a >= 0)
+            gfx.add(a);
+        // one graphic is a TILE, and the tile path already draws those; a definition with a
+        // single address matches any patch that happens to contain it with a perfect score,
+        // so writing them would only make the matcher pick noise over the real objects.
+        // Rare sightings go the same way: seen twice is as likely a torn frame as a thing
+        if (gfx.size() < minPieces || c.count < minSeen || !already.add(gfx))
+          continue; // the same object at another size: the fullest sighting came first
+        String name = "auto" + (++n);
+        names.add(name);
+        cells.add(new int[]{x, y, w, h});
+        pixels.add(c.px);
+        owners.add(c.owner);
+        StringBuilder piezas = new StringBuilder();
+        for (int a : gfx)
+          piezas.append(piezas.length() > 0 ? "," : "").append('$').append(Integer.toHexString(a));
+        json.append(n > 1 ? "," : "").append("{\"nombre\": \"").append(name)
+            .append("\", \"piezas\": \"").append(piezas)
+            // the size it was drawn at, which is what the matcher uses to tell this thing
+            // from a chain of cells that happens to share a graphic
+            .append("\", \"rects\": \"0 0 ").append(w).append(' ').append(h)
+            .append("\", \"hoja\": \"").append(x).append(' ').append(y).append(' ')
+            .append(w).append(' ').append(h).append("\", \"veces\": ").append(c.count)
+            .append('}');
+        x += w + 2;
+        shelf = Math.max(shelf, h);
+      }
+      json.append("]}");
+      if (names.isEmpty())
+        return;
+      String png = "doc/objetos-auto-" + game + ".png";
+      ObjectSheet.write(png, names, cells, pixels, owners);
+      com.badlogic.gdx.utils.JsonValue list = new com.badlogic.gdx.utils.JsonReader()
+          .parse(json.toString()).get("objetos");
+      GameProfile.put(GameProfile.gameNode(game, true), "objetosAuto",
+          list.toJson(com.badlogic.gdx.utils.JsonWriter.OutputType.json));
+      GameProfile.save();
+      System.out.println("objetos automaticos: " + names.size() + " en " + png
+          + " y en games.json (objetosAuto)");
+    } catch (Exception e) {
+      System.out.println("no se pudieron escribir los objetos automaticos: " + e);
+    }
+  }
+
+  /**
    * {@code -Ddiscover.report.only=true}: rebuild the readable catalogue from the catalogue
    * that is ALREADY in the db, without re-running discovery. Re-rendering the report (or
    * re-capturing the composed objects with different bounds) is a minutes-long job over a
@@ -503,6 +581,7 @@ public final class TaintDiscover {
         }
       }
       SpriteReport.write(path, game == null ? "juego" : game, entries, mem, objects);
+      writeAutoObjects(game, objects);
     } catch (Exception ex) {
       System.out.println("no se pudo escribir el catalogo legible: " + ex);
     }

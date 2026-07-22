@@ -2315,8 +2315,26 @@ public class JSW3D extends ApplicationAdapter {
       mine[i] = true;
       any = true;
     }
-    if (!any)
+    if (!any) {
+      // NO byte on screen came from a graphic any definition names: a different failure from
+      // "the patch scored too low", and the one you hit when the definitions were written
+      // against another taint than the one running now
+      if (TaintReplay.LOG && Boolean.getBoolean("objects.log")) {
+        java.util.Set<Integer> onScreen = new java.util.TreeSet<>();
+        for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++)
+          if ((snap.pixels()[i] & 0xff) != 0 && rawOriginOf(i) >= 0)
+            onScreen.add(rawOriginOf(i));
+        StringBuilder sb = new StringBuilder();
+        int n = 0;
+        for (int a : onScreen)
+          if (n++ < 12)
+            sb.append('$').append(Integer.toHexString(a)).append(' ');
+        System.out.println("sin objetos frame " + snap.frame() + ": " + onScreen.size()
+            + " graficos en pantalla (" + sb + "...) y ninguno esta en los "
+            + gfxToObjs.size() + " de las definiciones");
+      }
       return;
+    }
     // regions first, definitions after: what is on screen is a connected patch of pixels
     // that some definition might explain, and WHICH definition explains it best is a
     // question about the patch — not something to decide one byte at a time
@@ -4223,52 +4241,13 @@ public class JSW3D extends ApplicationAdapter {
         list = legacyObjects();
         imported = list != null;
       }
-      for (com.badlogic.gdx.utils.JsonValue o = list == null ? null : list.child;
-           o != null; o = o.next) {
-        EdGroup g = new EdGroup();
-        g.name = o.getString("nombre", "objeto" + (edGroups.size() + 1));
-        for (String p : o.getString("piezas", "").split(","))
-          if (!p.isBlank())
-            g.graphics.add(Integer.parseInt(p.trim().replace("$", ""), 16));
-        for (String rc : o.getString("rects", "").split(","))
-          if (!rc.isBlank()) {
-            String[] f = rc.trim().split("\\s+");
-            if (f.length == 4)
-              g.rects.add(new int[]{Integer.parseInt(f[0]), Integer.parseInt(f[1]),
-                  Integer.parseInt(f[2]), Integer.parseInt(f[3])});
-          }
-        if (g.rects.isEmpty())
-          g.rects.add(new int[]{112, 88, 16, 16});
-        try {
-          com.badlogic.gdx.utils.JsonValue r = o.get("render");
-          if (r != null && r.isObject()) {
-            g.render = viewerDefaults().copy();
-            g.render.technique = Sprite3DConfig.Technique.valueOf(
-                r.getString("tecnica", g.render.technique.name()));
-            g.render.primitive = Sprite3DConfig.Primitive.valueOf(
-                r.getString("primitiva", g.render.primitive.name()));
-            g.render.roundness = r.getFloat("redondez", g.render.roundness);
-            g.render.maxDepth = r.getFloat("profundidad", 0);
-            g.render.voxelLook = r.getBoolean("voxels", g.render.voxelLook);
-          } else if (r != null) { // the old "TECNICA PRIMITIVA redondez" string
-            String[] rend = r.asString().trim().split("\\s+");
-            if (rend.length >= 3) {
-              g.render = viewerDefaults().copy();
-              g.render.technique = Sprite3DConfig.Technique.valueOf(rend[0]);
-              g.render.primitive = Sprite3DConfig.Primitive.valueOf(rend[1]);
-              g.render.roundness = Float.parseFloat(rend[2]);
-            }
-          }
-        } catch (Exception ignored) {
-          g.render = null; // an unknown technique must not take the object down with it
-        }
-        String[] hoja = o.getString("hoja", "").trim().split("\\s+");
-        if (hoja.length == 4)
-          g.sheetBox = new int[]{Integer.parseInt(hoja[0]), Integer.parseInt(hoja[1]),
-              Integer.parseInt(hoja[2]), Integer.parseInt(hoja[3])};
-        edGroups.add(g);
-      }
-      loadSheet();
+      loadObjectList(list, sheetPath());
+      // and then what the offline pass found on its own: the same artefact the editor writes,
+      // only produced by the call-tree grouping. It goes in AFTER the hand-marked ones and
+      // skips anything already there, so a re-catalogue never buries an afternoon of marking
+      com.badlogic.gdx.utils.JsonValue g = GameProfile.gameNode(activeGame, false);
+      loadObjectList(g == null ? null : g.get("objetosAuto"),
+          java.nio.file.Path.of("doc", "objetos-auto-" + activeGame + ".png"));
       if (imported) { // move them in now, so the old file stops being consulted
         GameProfile.put(GameProfile.gameNode(activeGame, true), "objetos",
             list.toJson(com.badlogic.gdx.utils.JsonWriter.OutputType.json));
@@ -4282,6 +4261,70 @@ public class JSW3D extends ApplicationAdapter {
     }
   }
 
+  /** one list of definitions and the sheet its pictures live in. */
+  private void loadObjectList(com.badlogic.gdx.utils.JsonValue list, java.nio.file.Path sheet) {
+    int from = edGroups.size();
+    for (com.badlogic.gdx.utils.JsonValue o = list == null ? null : list.child;
+         o != null; o = o.next) {
+      EdGroup g = new EdGroup();
+      g.name = o.getString("nombre", "objeto" + (edGroups.size() + 1));
+      for (String p : o.getString("piezas", "").split(","))
+        if (!p.isBlank())
+          g.graphics.add(Integer.parseInt(p.trim().replace("$", ""), 16));
+      if (alreadyLoaded(g.graphics))
+        continue; // the same definition under another name: one of them is enough
+      for (String rc : o.getString("rects", "").split(","))
+        if (!rc.isBlank()) {
+          String[] f = rc.trim().split("\\s+");
+          if (f.length == 4)
+            g.rects.add(new int[]{Integer.parseInt(f[0]), Integer.parseInt(f[1]),
+                Integer.parseInt(f[2]), Integer.parseInt(f[3])});
+        }
+      if (g.rects.isEmpty())
+        g.rects.add(new int[]{112, 88, 16, 16});
+      try {
+        com.badlogic.gdx.utils.JsonValue r = o.get("render");
+        if (r != null && r.isObject()) {
+          g.render = viewerDefaults().copy();
+          g.render.technique = Sprite3DConfig.Technique.valueOf(
+              r.getString("tecnica", g.render.technique.name()));
+          g.render.primitive = Sprite3DConfig.Primitive.valueOf(
+              r.getString("primitiva", g.render.primitive.name()));
+          g.render.roundness = r.getFloat("redondez", g.render.roundness);
+          g.render.maxDepth = r.getFloat("profundidad", 0);
+          g.render.voxelLook = r.getBoolean("voxels", g.render.voxelLook);
+        } else if (r != null) { // the old "TECNICA PRIMITIVA redondez" string
+          String[] rend = r.asString().trim().split("\\s+");
+          if (rend.length >= 3) {
+            g.render = viewerDefaults().copy();
+            g.render.technique = Sprite3DConfig.Technique.valueOf(rend[0]);
+            g.render.primitive = Sprite3DConfig.Primitive.valueOf(rend[1]);
+            g.render.roundness = Float.parseFloat(rend[2]);
+          }
+        }
+      } catch (Exception ignored) {
+        g.render = null; // an unknown technique must not take the object down with it
+      }
+      String[] hoja = o.getString("hoja", "").trim().split("\\s+");
+      if (hoja.length == 4)
+        g.sheetBox = new int[]{Integer.parseInt(hoja[0]), Integer.parseInt(hoja[1]),
+            Integer.parseInt(hoja[2]), Integer.parseInt(hoja[3])};
+      edGroups.add(g);
+    }
+    if (edGroups.size() > from)
+      loadSheet(sheet, edGroups.subList(from, edGroups.size()));
+  }
+
+  /** whether some object already loaded is made of exactly these graphics. */
+  private boolean alreadyLoaded(java.util.Set<Integer> graphics) {
+    if (graphics.isEmpty())
+      return false;
+    for (EdGroup g : edGroups)
+      if (g.graphics.equals(graphics))
+        return true;
+    return false;
+  }
+
   /**
    * Reads the sheet back into the objects: their picture (so the list shows what you marked,
    * not just names) and their per-pixel graphic. Continuing where you left off is the whole
@@ -4290,14 +4333,13 @@ public class JSW3D extends ApplicationAdapter {
    * <p>The pixels come from the PNG itself, addresses included ({@link ObjectSheet#read}),
    * so a re-save keeps every object intact even if you only touched one of them.
    */
-  private void loadSheet() {
+  private void loadSheet(java.nio.file.Path sheet, java.util.List<EdGroup> groups) {
     try {
-      if (!java.nio.file.Files.exists(sheetPath()))
+      if (!java.nio.file.Files.exists(sheet))
         return;
-      java.awt.image.BufferedImage img =
-          javax.imageio.ImageIO.read(sheetPath().toFile());
-      int[][] addr = ObjectSheet.read(sheetPath().toString());
-      for (EdGroup g : edGroups) {
+      java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(sheet.toFile());
+      int[][] addr = ObjectSheet.read(sheet.toString());
+      for (EdGroup g : groups) {
         int[] b = g.sheetBox;
         if (b == null || b[0] + b[2] > img.getWidth() || b[1] + b[3] > img.getHeight())
           continue;
@@ -4324,7 +4366,7 @@ public class JSW3D extends ApplicationAdapter {
         pm.dispose();
       }
     } catch (Exception e) {
-      System.out.println("editor: no pude leer " + sheetPath() + ": " + e);
+      System.out.println("editor: no pude leer " + sheet + ": " + e);
     }
   }
 

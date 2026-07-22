@@ -54,10 +54,17 @@ public final class SpriteComposites {
     public byte[] paper;
     /** lit pixels of the drawing kept: the fullest sighting wins the picture. */
     public int litPixels;
+    /** ARGB per PIXEL and the graphic address behind each one, for the encoded sheet. */
+    public int[] px, owner;
     public int cellCols, cellRows;
     /** catalogue base -> how many bytes of this object came from it. */
     public final Map<Integer, Integer> pieces = new LinkedHashMap<>();
   }
+
+  /** the Spectrum palette as RGB, for the pixels the encoded sheet stores. */
+  private static final int[] PALETTE_RGB = {
+      0x000000, 0x0000d7, 0xd70000, 0xd700d7, 0x00d700, 0x00d7d7, 0xd7d700, 0xd7d7d7,
+      0x000000, 0x0000ff, 0xff0000, 0xff00ff, 0x00ff00, 0x00ffff, 0xffff00, 0xffffff};
 
   private final Map<Long, Composite> byHash = new HashMap<>();
   private final int minBytes;
@@ -285,6 +292,11 @@ public final class SpriteComposites {
     byte[] bits = new byte[w * rows];
     int cc = w, cr = (rows + 7) / 8 + 1;
     byte[] ink = new byte[cc * cr], paper = new byte[cc * cr];
+    // and the same drawing PIXEL by pixel, with the address behind each one: that is what
+    // the encoded sheet carries, and it is the only way the automatic objects come out in
+    // the very format the editor produces by hand
+    int[] px = new int[w * 8 * rows], owner = new int[w * 8 * rows];
+    java.util.Arrays.fill(owner, -1);
     boolean lit = false;
     for (int y = minR; y <= maxR; y++)
       for (int c = minC; c <= maxC; c++) {
@@ -294,8 +306,18 @@ public final class SpriteComposites {
         lit |= v != 0;
         int attr = snap.attrs()[(y >> 3) * 32 + c] & 0xff;
         int at = ((y - minR) >> 3) * cc + (c - minC);
-        ink[at] = (byte) ((attr & 7) | ((attr >> 3) & 8));
+        int inkIdx = (attr & 7) | ((attr >> 3) & 8);
+        ink[at] = (byte) inkIdx;
         paper[at] = (byte) (((attr >> 3) & 7) | ((attr >> 3) & 8));
+        int origin = snap.owner()[i] != 0 ? snap.owner()[i] - 1
+            : snap.tile()[i] != 0 ? snap.tile()[i] - 1 : -1;
+        for (int bit = 0; bit < 8; bit++) {
+          if ((v & (0x80 >> bit)) == 0)
+            continue;
+          int at2 = (y - minR) * w * 8 + (c - minC) * 8 + bit;
+          px[at2] = 0xff000000 | PALETTE_RGB[inkIdx & 0xf];
+          owner[at2] = origin;
+        }
       }
     if (!lit)
       return;
@@ -323,6 +345,8 @@ public final class SpriteComposites {
     // shows it whole, one that repainted a slice does not
     if (c.bits == null || litPx > c.litPixels) {
       c.litPixels = litPx;
+      c.px = px;
+      c.owner = owner;
       c.bits = bits;
       c.ink = ink;
       c.paper = paper;

@@ -277,7 +277,7 @@
 			},
 			"sprite3d": { "auto": "si", "group": 256 },
 			"render": {
-				"tiles": "off",
+				"tiles": "screen",
 				"blobs": "adjacent",
 				"playfield": { "top": 0, "rows": 24 },
 				"relief": {
@@ -295,7 +295,7 @@
 				"items": "no",
 				"spriteBits": "si",
 				"freshFrames": 8,
-				"sprites": "no"
+				"sprites": "si"
 			},
 			"discover": {
 				"gate": 7,
@@ -316,42 +316,261 @@
 				"cap": 32
 			}
 		},
-		"objetos": [
+		"objetos": [],
+		"objetosAuto": [
+			{ "nombre": "auto1", "piezas": "$edc0,$edca", "rects": "0 0 16 8", "hoja": "0 1 16 8", "veces": 245 },
+			{ "nombre": "auto2", "piezas": "$edc0,$edca,$b120", "rects": "0 0 64 48", "hoja": "18 1 64 48", "veces": 78 },
+			{ "nombre": "auto3", "piezas": "$edca,$edc0", "rects": "0 0 24 8", "hoja": "84 1 24 8", "veces": 58 },
 			{
-				"nombre": "objeto1",
-				"piezas": "$e11a,$e122,$e12a,$e11b,$e123,$e12b,$e11c,$e124,$e12c,$e115,$e11d,$e125,$e12d,$e135,$e116,$e11e,$e126,$e12e,$e136,$e117,$e11f,$e127,$e12f,$e137,$e138,$e140,$e148,$e150,$e158,$e139,$e141,$e149,$e151,$e159,$e13a,$e142,$e14a,$e152,$e15a,$e13b,$e143,$e14b,$e153,$e15b,$e13c,$e144,$e14c,$e154,$e15c,$e13d,$e145,$e14d,$e155,$e15d,$e13e,$e146,$e14e,$e156,$e15e,$e13f,$e147,$e14f,$e157,$e15f,$e160,$e168,$e170,$e178,$e180,$e161,$e169,$e171,$e179,$e181,$e162,$e16a,$e172,$e17a,$e182,$e163,$e16b,$e173,$e17b,$e183,$e164,$e16c,$e174,$e17c,$e184,$e16d,$e175,$e17d,$e16e,$e176,$e17e,$e16f,$e177,$e17f,$e188,$e190,$e198,$e191,$e193,$e194,$e195,$e196,$e197,$e1a0,$e1a1,$e1a2,$e1a3,$e1a4,$e1a5,$e1a6,$e1a7,$e1b1,$e1aa,$e1b2,$e1ba,$e1ab,$e1b3,$e1bb,$e1ad,$e1b5,$e1bd,$e1ae,$e1b6,$e1be,$e1af,$e1b7,$e1bf,$e1c0,$e1c8,$e1d0,$e1c1,$e1c9,$e1d1,$e1c2,$e1ca,$e1d2,$e1c3,$e1cb,$e1d3,$e1c4,$e1cc,$e1d4,$e1c5,$e1cd,$e1d5,$e1c6,$e1ce,$e1d6,$e1c7,$e1cf,$e1d7,$e1d8,$e1d9,$e1da,$e1db,$e1dc,$e1dd",
-				"rects": "61 82 30 60",
-				"hoja": "0 1 30 60",
-				"render": { "tecnica": "PRIMITIVE", "primitiva": "OVOID", "redondez": 0.15, "profundidad": 40.0, "voxels": false }
+				"nombre": "auto4",
+				"piezas": "$e261,$e262,$e263,$e265,$e266,$e280,$e281,$e282,$e283,$e284,$e285,$6403,$e286,$e287,$e299,$e29a,$e29b,$e29c,$e29d,$e29e",
+				"rects": "0 0 64 42",
+				"hoja": "110 1 64 42",
+				"veces": 42
 			},
 			{
-				"nombre": "objeto2",
-				"piezas": "$e449,$e451,$e459,$e44a,$e452,$e45a,$e44b,$e453,$e45b,$e44c,$e454,$e45c,$e44d,$e455,$e45d,$e44e,$e456,$e45e,$e44f,$e457,$e45f,$e460,$e468,$e470,$e461,$e469,$e471,$e462,$e46a,$e472,$e463,$e46b,$e473,$e464,$e46c,$e474,$e465,$e46d,$e475,$e466,$e46e,$e476,$e467,$e46f,$e477,$e478,$e480,$e488,$e479,$e481,$e489,$e47a,$e482,$e48a,$e47b,$e483,$e48b,$e47c,$e484,$e47d,$e485,$e48d,$e47e,$e486,$e48e",
-				"rects": "129 33 22 22",
-				"hoja": "32 1 22 22",
-				"render": { "tecnica": "PRIMITIVE", "primitiva": "OVOID", "redondez": 0.15, "profundidad": 40.0, "voxels": false }
+				"nombre": "auto5",
+				"piezas": "$6403,$eec0,$eec2,$eec4,$eec6,$eec8,$eecc,$eece",
+				"rects": "0 0 64 48",
+				"hoja": "176 1 64 48",
+				"veces": 33
+			},
+			{ "nombre": "auto6", "piezas": "$edc0,$edca", "rects": "0 0 16 12", "hoja": "242 1 16 12", "veces": 28 },
+			{ "nombre": "auto7", "piezas": "$edc0,$edca", "rects": "0 0 24 16", "hoja": "260 1 24 16", "veces": 28 },
+			{ "nombre": "auto8", "piezas": "$edca,$edc0", "rects": "0 0 64 48", "hoja": "286 1 64 48", "veces": 26 },
+			{ "nombre": "auto9", "piezas": "$edc0,$edca", "rects": "0 0 24 12", "hoja": "352 1 24 12", "veces": 25 },
+			{ "nombre": "auto10", "piezas": "$edc0,$e858,$edca", "rects": "0 0 16 8", "hoja": "378 1 16 8", "veces": 21 },
+			{ "nombre": "auto11", "piezas": "$edc0,$edca", "rects": "0 0 16 16", "hoja": "396 1 16 16", "veces": 20 },
+			{ "nombre": "auto12", "piezas": "$edca,$edc0", "rects": "0 0 32 8", "hoja": "414 1 32 8", "veces": 19 },
+			{
+				"nombre": "auto13",
+				"piezas": "$ef86,$ef89,$ef8c,$ef82,$ef9e,$efa6,$efa9,$f00d,$edca,$edc0,$efb2,$efb5,$efb8,$efbb,$efc4,$efc7,$efc8,$efca,$efcb,$efcd,$efce,$efd0,$efd1,$efd3,$efd4,$efd7,$efda,$efdc,$efdd,$efdf",
+				"rects": "0 0 56 48",
+				"hoja": "448 1 56 48",
+				"veces": 17
 			},
 			{
-				"nombre": "objeto3",
-				"piezas": "$dd41,$dd49,$dd3a,$dd42,$dd4a,$dd52,$dd3b,$dd43,$dd4b,$dd53,$dd3c,$dd44,$dd4c,$dd3d,$dd45,$dd4d,$dd55,$dd3e,$dd46,$dd4e,$dd3f,$dd47,$dd4f,$dd57,$dd58,$dd60,$dd68,$dd70,$dd59,$dd61,$dd69,$dd71,$dd5a,$dd62,$dd6a,$dd72,$dd5b,$dd63,$dd6b,$dd73,$dd5c,$dd64,$dd6c,$dd74,$dd5d,$dd65,$dd6d,$dd75,$dd5e,$dd66,$dd6e,$dd76,$dd5f,$dd67,$dd6f,$dd78,$dd80,$dd88,$dd90,$dd79,$dd81,$dd89,$dd91,$dd7a,$dd82,$dd8a,$dd7b,$dd83,$dd8b,$dd93,$dd7c,$dd84,$dd8c,$dd94,$dd7d,$dd85,$dd8d,$dd95,$dd7e,$dd86,$dd8e,$dd96,$dd7f,$dd87,$dd8f,$dd97,$dd98,$dda0,$dda8,$ddb0,$dd99,$dda1,$dda9,$dd9a,$dda2,$ddaa,$ddb2,$dd9b,$dda3,$ddab,$ddb3,$dd9c,$dda4,$ddac,$dd9d,$dda5,$ddad,$dda6,$ddae",
-				"rects": "193 9 30 30",
-				"hoja": "56 1 30 30",
-				"render": { "tecnica": "PRIMITIVE", "primitiva": "OVOID", "redondez": 0.15, "profundidad": 40.0, "voxels": false }
+				"nombre": "auto14",
+				"piezas": "$edca,$e261,$e262,$e263,$edc0,$e265,$e266",
+				"rects": "0 0 64 8",
+				"hoja": "0 51 64 8",
+				"veces": 16
+			},
+			{ "nombre": "auto15", "piezas": "$edc0,$edca", "rects": "0 0 64 24", "hoja": "66 51 64 24", "veces": 15 },
+			{ "nombre": "auto16", "piezas": "$edca,$edc0", "rects": "0 0 32 16", "hoja": "132 51 32 16", "veces": 15 },
+			{ "nombre": "auto17", "piezas": "$edc0,$edca", "rects": "0 0 24 14", "hoja": "166 51 24 14", "veces": 15 },
+			{ "nombre": "auto18", "piezas": "$edc0,$edca", "rects": "0 0 8 8", "hoja": "192 51 8 8", "veces": 15 },
+			{
+				"nombre": "auto19",
+				"piezas": "$edca,$f25f,$f21a,$f21d,$edc0",
+				"rects": "0 0 56 24",
+				"hoja": "202 51 56 24",
+				"veces": 15
+			},
+			{ "nombre": "auto20", "piezas": "$edca,$edc0", "rects": "0 0 16 14", "hoja": "260 51 16 14", "veces": 14 },
+			{ "nombre": "auto21", "piezas": "$edc0,$edca", "rects": "0 0 64 40", "hoja": "278 51 64 40", "veces": 14 },
+			{ "nombre": "auto22", "piezas": "$edc0,$edca", "rects": "0 0 40 32", "hoja": "344 51 40 32", "veces": 13 },
+			{ "nombre": "auto23", "piezas": "$edca,$edc0", "rects": "0 0 40 8", "hoja": "386 51 40 8", "veces": 12 },
+			{
+				"nombre": "auto24",
+				"piezas": "$e261,$e262,$e263,$e265,$e266,$e280,$e281,$e282,$e283,$e284,$e285,$e286,$e287",
+				"rects": "0 0 64 16",
+				"hoja": "428 51 64 16",
+				"veces": 12
+			},
+			{ "nombre": "auto25", "piezas": "$edc0,$b101,$edca", "rects": "0 0 32 36", "hoja": "0 93 32 36", "veces": 12 },
+			{
+				"nombre": "auto26",
+				"piezas": "$eef6,$eef8,$eefa,$eefc,$eefe,$eeee,$eede,$eece,$eeec,$6403,$eecc,$edc0,$edca",
+				"rects": "0 0 40 39",
+				"hoja": "34 93 40 39",
+				"veces": 11
+			},
+			{ "nombre": "auto27", "piezas": "$edc0,$edca", "rects": "0 0 24 44", "hoja": "76 93 24 44", "veces": 11 },
+			{
+				"nombre": "auto28",
+				"piezas": "$ee40,$edc0,$edca,$ee42,$ee44,$ee46,$ed40,$ee48,$ee4a,$ee4c,$eeba,$ee28,$ee2a,$ee2c,$f0a9,$f16c,$f0ac,$f0af,$f0b2,$f0b4,$f0b5,$f0b7,$f0b8,$f0bb,$f0bd,$f0be,$f0c1,$f0c7,$f0cc,$f0cd,$f0d0,$f0d6,$f19c,$f0df,$f0e2,$f0e5,$f0e8,$f0ea,$f0eb,$f0ed,$f0ee,$f0f0,$f0f1,$f0f3,$f0f4,$f0f7,$f0f9,$f0fa,$f0fc,$f0fd",
+				"rects": "0 0 64 47",
+				"hoja": "102 93 64 47",
+				"veces": 10
 			},
 			{
-				"nombre": "objeto4",
-				"piezas": "$f106,$f109,$f10b,$f10c,$f10e,$f10f,$f111,$f112,$f114,$f115,$f117,$f118,$f11a,$f11b,$f11d,$f11e,$f120,$f121,$f123,$f124,$f126,$f127,$f129,$f12a,$f12c,$f12d,$f12f,$f130,$f132,$f133,$f135,$f136,$f138,$f139,$f13c,$f13f,$f142,$f144,$f145,$f147,$f148,$f14a,$f14b,$f14d,$f14e,$f150,$f151,$f153,$f154,$f156,$f157,$f159,$f15a,$f15c",
-				"rects": "107 114 21 29",
-				"hoja": "88 1 21 29",
-				"render": { "tecnica": "PRIMITIVE", "primitiva": "OVOID", "redondez": 0.15, "profundidad": 40.0, "voxels": false }
+				"nombre": "auto29",
+				"piezas": "$edc0,$edca,$ee60,$ee14,$eec0",
+				"rects": "0 0 56 40",
+				"hoja": "168 93 56 40",
+				"veces": 10
 			},
 			{
-				"nombre": "objeto5",
-				"piezas": "$dfc9,$dfd1,$dfd9,$dfca,$dfd2,$dfda,$dfcb,$dfd3,$dfdb,$dfcc,$dfd4,$dfdc,$dfcd,$dfd5,$dfdd,$dfd6,$dfb8,$dfc0,$dfe8,$dff0,$dff8,$e000,$e008,$dfb9,$dfc1,$dfe9,$dff1,$dff9,$e001,$e009,$dfba,$dfc2,$dfea,$dff2,$dffa,$e002,$e00a,$dfeb,$dff3,$dffb,$e003,$e00b,$dfbc,$dfc4,$dfec,$dff4,$dffc,$e004,$e00c,$dfbd,$dfc5,$dfed,$dff5,$dffd,$e005,$e00d,$dfbe,$dfc6,$dfee,$dff6,$dffe,$e006,$e00e,$dff7,$dfff,$e007,$df78,$df80,$df79,$df81,$df7a,$df82,$df7b,$df83,$df7c,$df84,$df7d,$df85,$df7e,$df86,$df7f,$df87,$eef0,$eef2,$eef4,$eef6,$eef8,$eeba,$eebc,$eebe,$eeec,$eeee,$eedc,$eede,$eecc,$eece,$f22c,$efec,$f22f,$efef,$f232,$eff2,$f235,$eff5,$f238,$eff8,$f23b,$effb,$f23e,$effe,$f241,$f001,$f004,$f244,$f247,$f007,$f24a,$f00a,$f24d,$f00d,$df88,$df90,$f250,$f010,$df89,$df91,$f253,$f013,$df8a,$df92,$f256,$f016,$df8b,$df93,$f259,$f019,$df8c,$df94,$f25c,$f01c,$df8d,$df95,$f25f,$f01f,$df8e,$df96,$f262,$f022,$df8f,$df97,$f265,$f025,$df99,$dfa1,$dfa9,$dfb1,$f0eb,$f26b,$f02b,$f1ab,$df9a,$dfa2,$dfaa,$dfb2,$f0ee,$f26e,$f02e,$f1ae,$df9b,$dfa3,$dfab,$dfb3,$f0f1,$f271,$f031,$f1b1,$dfa4,$dfac,$f034,$f274,$df9d,$dfa5,$dfad,$dfb5,$f0f7,$f277,$f037,$f1b7,$df9e,$dfa6,$dfae,$dfb6,$f0fa,$f27a,$f03a,$f1ba",
-				"rects": "1 71 86 72",
-				"hoja": "111 1 86 72",
-				"render": { "tecnica": "PRIMITIVE", "primitiva": "OVOID", "redondez": 0.15, "profundidad": 40.0, "voxels": false }
-			}
+				"nombre": "auto30",
+				"piezas": "$f8e8,$f8ea,$f8ec,$f8ee,$edca,$f8f0,$f8f2,$edc0,$f8f8,$e858,$ed40,$ee30,$ee36,$ee3a,$ee3c,$ee3e,$6403",
+				"rects": "0 0 64 48",
+				"hoja": "226 93 64 48",
+				"veces": 10
+			},
+			{
+				"nombre": "auto31",
+				"piezas": "$ee60,$ee62,$ee64,$ee66,$ee68,$ee6a,$ee6c,$ee6e",
+				"rects": "0 0 32 32",
+				"hoja": "292 93 32 32",
+				"veces": 9
+			},
+			{
+				"nombre": "auto32",
+				"piezas": "$edc0,$edca,$fb40,$f8e8,$f8ea,$f8ec,$f8f0",
+				"rects": "0 0 64 40",
+				"hoja": "326 93 64 40",
+				"veces": 9
+			},
+			{ "nombre": "auto33", "piezas": "$edc0,$edca", "rects": "0 0 32 20", "hoja": "392 93 32 20", "veces": 9 },
+			{
+				"nombre": "auto34",
+				"piezas": "$ef83,$ef86,$ef89,$ef8b,$f2e2,$edc0,$f2f8,$ef9a,$edca,$efb2,$efb3,$efb5,$efb8,$efb9,$efbe,$efc2,$efc4,$efcb,$efce,$efd1,$efd3,$f214,$efd6,$efd9,$efdf",
+				"rects": "0 0 56 32",
+				"hoja": "426 93 56 32",
+				"veces": 9
+			},
+			{
+				"nombre": "auto35",
+				"piezas": "$edc0,$e1f4,$e1fc,$e1f5,$e1fd,$e1f6,$e1fe,$e1f7,$e1ff,$edca,$e20c,$e228,$e229,$e22b,$e224,$e22c,$e22d,$e226,$e22e,$e22f",
+				"rects": "0 0 56 28",
+				"hoja": "0 143 56 28",
+				"veces": 9
+			},
+			{ "nombre": "auto36", "piezas": "$edc0,$edca", "rects": "0 0 64 31", "hoja": "58 143 64 31", "veces": 9 },
+			{
+				"nombre": "auto37",
+				"piezas": "$edc0,$edca,$e1e5,$e1e6,$e1e7",
+				"rects": "0 0 48 24",
+				"hoja": "124 143 48 24",
+				"veces": 8
+			},
+			{ "nombre": "auto38", "piezas": "$edc0,$edca,$e206,$e207", "rects": "0 0 48 32", "hoja": "174 143 48 32", "veces": 8 },
+			{ "nombre": "auto39", "piezas": "$edc0,$edca", "rects": "0 0 64 8", "hoja": "224 143 64 8", "veces": 8 },
+			{
+				"nombre": "auto40",
+				"piezas": "$fb04,$edc0,$edca,$78ce,$f163,$f166,$f169,$6403,$f16c,$f16f,$f172,$f175,$f178,$f17b,$f17e,$f181,$f184,$f007,$f190,$f196,$f199,$f19c,$f19f,$f1a2,$f1a5,$f1a8,$f1ab,$f1b1,$f1b4,$f1b7,$f1ba,$f1bd",
+				"rects": "0 0 64 42",
+				"hoja": "290 143 64 42",
+				"veces": 8
+			},
+			{ "nombre": "auto41", "piezas": "$edca,$edc0", "rects": "0 0 48 15", "hoja": "356 143 48 15", "veces": 8 },
+			{ "nombre": "auto42", "piezas": "$edca,$edc0,$eec0", "rects": "0 0 40 24", "hoja": "406 143 40 24", "veces": 8 },
+			{ "nombre": "auto43", "piezas": "$edca,$edc0", "rects": "0 0 56 48", "hoja": "448 143 56 48", "veces": 8 },
+			{ "nombre": "auto44", "piezas": "$edc0,$edca", "rects": "0 0 16 7", "hoja": "0 193 16 7", "veces": 8 },
+			{ "nombre": "auto45", "piezas": "$edc0,$edca", "rects": "0 0 32 24", "hoja": "18 193 32 24", "veces": 8 },
+			{ "nombre": "auto46", "piezas": "$edc0,$edca", "rects": "0 0 24 34", "hoja": "52 193 24 34", "veces": 8 },
+			{
+				"nombre": "auto47",
+				"piezas": "$dd3a,$dd3b,$b107,$dd3c,$dd3d,$dd3e,$dd3f,$dd58,$dd59,$dd5a,$dd5b,$dd5c,$dd5d,$dd5e,$dd5f,$dd78,$dd79,$dd7a,$dd7b,$dd7c,$dd7d",
+				"rects": "0 0 16 20",
+				"hoja": "78 193 16 20",
+				"veces": 8
+			},
+			{ "nombre": "auto48", "piezas": "$edc0,$edca", "rects": "0 0 8 7", "hoja": "96 193 8 7", "veces": 7 },
+			{ "nombre": "auto49", "piezas": "$edca,$e858", "rects": "0 0 16 8", "hoja": "106 193 16 8", "veces": 7 },
+			{
+				"nombre": "auto50",
+				"piezas": "$f1ae,$e2d2,$e2da,$f1b1,$e2d3,$e2db,$f1b4,$e858,$e2d4,$e2dc,$f1b7,$e2d5,$e2dd,$f1ba,$e2d6,$e2de,$f1bd,$f1bf,$e2d7,$e2df,$edc0,$edca",
+				"rects": "0 0 48 22",
+				"hoja": "124 193 48 22",
+				"veces": 7
+			},
+			{ "nombre": "auto51", "piezas": "$edca,$edc0", "rects": "0 0 56 24", "hoja": "174 193 56 24", "veces": 7 },
+			{ "nombre": "auto52", "piezas": "$edca,$edc0", "rects": "0 0 16 20", "hoja": "232 193 16 20", "veces": 7 },
+			{ "nombre": "auto53", "piezas": "$edca,$edc0", "rects": "0 0 48 48", "hoja": "250 193 48 48", "veces": 7 },
+			{
+				"nombre": "auto54",
+				"piezas": "$ee60,$ee62,$ee64,$ee6e,$edca",
+				"rects": "0 0 24 16",
+				"hoja": "300 193 24 16",
+				"veces": 7
+			},
+			{ "nombre": "auto55", "piezas": "$edc0,$edca", "rects": "0 0 32 15", "hoja": "326 193 32 15", "veces": 7 },
+			{
+				"nombre": "auto56",
+				"piezas": "$dd3a,$dd3b,$b107,$dd3c,$dd3d,$dd3e,$dd3f,$dd58,$dd59,$dd5a,$dd5b,$dd5c,$dd5d,$dd5e,$dd5f,$dd78,$dd79,$dd7a,$dd7b,$dd7c,$dd7d",
+				"rects": "0 0 16 20",
+				"hoja": "360 193 16 20",
+				"veces": 7
+			},
+			{
+				"nombre": "auto57",
+				"piezas": "$edc0,$fb04,$edca,$e1e5,$e206,$e207",
+				"rects": "0 0 56 40",
+				"hoja": "378 193 56 40",
+				"veces": 6
+			},
+			{
+				"nombre": "auto58",
+				"piezas": "$ee60,$ee62,$ee64,$ee66,$ee68,$ee6a,$ee6c,$ee6e",
+				"rects": "0 0 24 16",
+				"hoja": "436 193 24 16",
+				"veces": 6
+			},
+			{ "nombre": "auto59", "piezas": "$ee60,$ee62,$ee64,$ee6e", "rects": "0 0 24 17", "hoja": "462 193 24 17", "veces": 6 },
+			{ "nombre": "auto60", "piezas": "$edc0,$edca", "rects": "0 0 40 24", "hoja": "0 243 40 24", "veces": 6 },
+			{
+				"nombre": "auto61",
+				"piezas": "$edca,$edc0,$ee30,$ee50,$ee32,$ee52,$ee34,$ee36,$ee56,$ee38,$ee58,$ee3a,$ee5a,$ee3c,$ee5c,$ee3e,$ee5e",
+				"rects": "0 0 48 39",
+				"hoja": "42 243 48 39",
+				"veces": 5
+			},
+			{ "nombre": "auto62", "piezas": "$edca,$edc0", "rects": "0 0 32 20", "hoja": "92 243 32 20", "veces": 5 },
+			{ "nombre": "auto63", "piezas": "$edc0,$edca", "rects": "0 0 24 6", "hoja": "126 243 24 6", "veces": 5 },
+			{
+				"nombre": "auto64",
+				"piezas": "$6403,$eef8,$eefa,$eefc,$eefe,$eeee,$eede,$eece,$eeec,$eedc,$eecc,$edca",
+				"rects": "0 0 40 39",
+				"hoja": "152 243 40 39",
+				"veces": 5
+			},
+			{ "nombre": "auto65", "piezas": "$edc0,$edca", "rects": "0 0 40 16", "hoja": "194 243 40 16", "veces": 5 },
+			{ "nombre": "auto66", "piezas": "$edc0,$edca,$b120", "rects": "0 0 64 48", "hoja": "236 243 64 48", "veces": 5 },
+			{ "nombre": "auto67", "piezas": "$edc0,$edca", "rects": "0 0 24 24", "hoja": "302 243 24 24", "veces": 5 },
+			{ "nombre": "auto68", "piezas": "$fb02,$fb04", "rects": "0 0 24 14", "hoja": "328 243 24 14", "veces": 5 },
+			{ "nombre": "auto69", "piezas": "$edc0,$edca", "rects": "0 0 24 18", "hoja": "354 243 24 18", "veces": 5 },
+			{ "nombre": "auto70", "piezas": "$fb24,$fb34", "rects": "0 0 16 12", "hoja": "380 243 16 12", "veces": 5 },
+			{
+				"nombre": "auto71",
+				"piezas": "$78ce,$e299,$e29a,$6403,$e29b,$e29c,$e29d,$edc0,$e29e,$e280,$edca,$e281,$e282,$e283,$e284,$e285,$e286,$e287,$e2a0,$e2a8,$e2a1,$e2a9,$e2a2,$e2a3,$e2ab,$e2a4,$e2ac,$e2a5,$e2ad,$e2a6,$e2ae,$e2a7,$e2af",
+				"rects": "0 0 64 32",
+				"hoja": "398 243 64 32",
+				"veces": 5
+			},
+			{
+				"nombre": "auto72",
+				"piezas": "$edca,$e2a8,$e2a2,$e2ae,$e2af,$edc0",
+				"rects": "0 0 16 24",
+				"hoja": "464 243 16 24",
+				"veces": 5
+			},
+			{ "nombre": "auto73", "piezas": "$edc0,$edca,$6403", "rects": "0 0 64 28", "hoja": "0 293 64 28", "veces": 5 },
+			{
+				"nombre": "auto74",
+				"piezas": "$dd9a,$edca,$ddb2,$dd9b,$ddb3,$dd9c,$dda4,$ddac,$dd9d,$dda5,$ddad,$dda6,$ddae,$dda7,$ddaf,$edc0",
+				"rects": "0 0 56 26",
+				"hoja": "66 293 56 26",
+				"veces": 5
+			},
+			{ "nombre": "auto75", "piezas": "$78ce,$6403", "rects": "0 0 56 48", "hoja": "124 293 56 48", "veces": 5 },
+			{
+				"nombre": "auto76",
+				"piezas": "$edc0,$edca,$e1f0,$e1f8,$e1f1,$e1f9,$e1f2,$e1fa,$e1f3,$e1fb,$e1f4,$e1fc,$e1f5,$e1fd,$e1f6,$e1fe,$e1f7,$e1ff,$f880,$e201,$e209,$e202,$e20a,$e203,$e20b,$e204,$e20c,$e205,$e20d,$e206,$e20e,$e207,$e20f,$e218,$e220,$e211,$e219,$e221,$e21a,$e222,$e22a,$e21b,$e223,$e21c,$e224,$e22c,$e21d,$e225,$e21e,$e226,$e21f,$e227",
+				"rects": "0 0 56 44",
+				"hoja": "182 293 56 44",
+				"veces": 5
+			},
+			{
+				"nombre": "auto77",
+				"piezas": "$edc0,$edca,$6403,$e391,$e3b1,$e381,$e389,$e393,$e38b,$e394,$e38c,$e395,$e38d,$e396,$e38e,$e397,$e387,$e38f",
+				"rects": "0 0 48 48",
+				"hoja": "240 293 48 48",
+				"veces": 5
+			},
+			{ "nombre": "auto78", "piezas": "$edc0,$edca", "rects": "0 0 40 26", "hoja": "290 293 40 26", "veces": 5 },
+			{ "nombre": "auto79", "piezas": "$ee82,$ee86,$ee88,$ee8a", "rects": "0 0 8 8", "hoja": "332 293 8 8", "veces": 5 }
 		]
 	}
 },

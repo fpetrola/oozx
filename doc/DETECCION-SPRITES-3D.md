@@ -844,6 +844,36 @@ misma ventana y no una segunda ventana del sistema a propósito: libGDX necesita
 contexto GL y sus propias subidas de textura, y lo que se pide —verlos mientras se trabaja— lo
 resuelve una franja al costado sin nada de eso.
 
+### La hoja de objetos, generada sola
+
+Marcar a mano funciona pero no escala: cada objeto son varios rectángulos, y un juego tiene
+decenas. Ahora **la pasada offline escribe el MISMO artefacto que el editor**
+(`TaintDiscover.writeAutoObjects`): `doc/objetos-auto-<juego>.png` —la hoja codificada, con la
+dirección del gráfico en los bits bajos de cada píxel, formato `ObjectSheet` idéntico— y las
+entradas en `games.<juego>.objetosAuto`. El editor las abre, el visor las busca en pantalla y
+las renderiza: no hay un segundo camino ni un segundo formato.
+
+Los objetos salen del agrupamiento por árbol de llamadas (`SpriteComposites`, §arriba): lo que
+una llamada dibujó, partido en blobs y crecido entre frames. Tres filtros antes de escribir,
+los tres medidos en Exolon:
+
+- **`discover.objects.minPiezas` (3)**: una definición de UN gráfico es un tile, y el camino de
+  tiles ya lo dibuja; con 2 la lista se llenó de pares de bytes de decorado que después
+  matcheaban media pantalla con score 1.00 (225 entradas, de las cuales el "objeto" más
+  frecuente era una pareja de tiles apareciendo 2847 veces).
+- **`discover.objects.minVeces` (5)**: visto dos veces es tan probable que sea un frame roto
+  como una cosa.
+- **Un juego de gráficos, una entrada**: el mismo objeto sale a varios tamaños según cuánto se
+  alcanzó a ver; se queda el avistaje más frecuente, que es el primero (`top()` viene ordenado).
+
+79 → 35 definiciones en Exolon, y en el visor matchean 12886 veces en 700 frames: el
+astronauta, la torre de lanzamiento, el cohete, las plataformas, el aro de teleporte, las
+explosiones.
+
+**Van SEPARADAS de lo marcado a mano** (`objetosAuto` vs `objetos`) y se cargan después,
+salteando cualquier definición cuyo conjunto de gráficos ya esté (`JSW3D.alreadyLoaded`): un
+re-catalogado no puede enterrar una tarde de marcar objetos, y lo corregido a mano gana.
+
 Flujo para un juego nuevo (el catálogo por taint NO necesita las pasadas del tracker: se
 basta solo, y en Exolon dio 17x más cobertura — ver §5.1):
 ```
