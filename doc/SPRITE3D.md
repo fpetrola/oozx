@@ -239,6 +239,18 @@ tunean por separado, asi que su SUMA puede pasarse de las 24 filas y cualquier l
 `idx(y0+r,col)` se sale del array de 6144 bytes de pantalla. Se clampa una vez en `playEnd()`
 (`min(24, top+rows)`) y todos los loops del playfield lo usan.
 
+### Un objeto estirado hasta el fondo: técnica SLAB
+
+Para que un objeto marcado a mano se lea como arquitectura —extruido hasta el backdrop, como
+las losas del relieve— su técnica es `SLAB` y su `profundidad` el largo del bloque (40 voxels
+se ve como una plataforma). En el editor: `R` cicla hasta SLAB y `+`/`-` fijan la profundidad.
+
+`SLAB` estaba pero solo servía para un tile: `TileSlabBuilder.build` lee OCHO BYTES de memoria
+y arma una celda de 8x8, así que un objeto de 40x24 salía como su esquina superior izquierda.
+`buildMask` extruye la silueta entera, y el instanciador tiñe sus partes con nombre (tinta,
+piel del papel y profundidad del papel) igual que hace el relieve, en vez de tratar el modelo
+como una sola material.
+
 ### Profundidad EXACTA por objeto
 
 `Sprite3DConfig.depth` es un multiplicador sobre un radio que decide el propio sprite, así que

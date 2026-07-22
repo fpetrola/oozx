@@ -2517,8 +2517,24 @@ public class JSW3D extends ApplicationAdapter {
         best = i;
     ModelInstance inst = new ModelInstance(m);
     inst.transform.setToTranslation((minC + maxC + 1) * 4f, H - (minR + maxR + 1) / 2f, midZ());
-    inst.materials.first().set(ColorAttribute.createDiffuse(PALETTE[best]));
-    wetten(inst.materials.first());
+    // a slab has named parts (ink, paper, the paper's depth); anything else is one material
+    Material ink = inst.getMaterial(TileSlabBuilder.INK);
+    if (ink != null) {
+      ink.set(ColorAttribute.createDiffuse(PALETTE[best]));
+      wetten(ink);
+      Material paper = inst.getMaterial(TileSlabBuilder.PAPER);
+      if (paper != null)
+        paper.set(ColorAttribute.createDiffuse(Color.BLACK));
+      Material side = inst.getMaterial(TileSlabBuilder.PAPER_SIDE);
+      if (side != null) {
+        side.set(ColorAttribute.createDiffuse(
+            new Color(Color.BLACK).lerp(PALETTE[best], paperTint)));
+        wetten(side);
+      }
+    } else {
+      inst.materials.first().set(ColorAttribute.createDiffuse(PALETTE[best]));
+      wetten(inst.materials.first());
+    }
     spriteInstances.add(inst);
     spriteBoxes.add(new float[]{(minC + maxC + 1) * 4f, H - (minR + maxR + 1) / 2f,
         w * 4f, rows / 2f});

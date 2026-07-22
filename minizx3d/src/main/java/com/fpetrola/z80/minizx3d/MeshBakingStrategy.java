@@ -105,7 +105,12 @@ public interface MeshBakingStrategy {
   /** §3.2 — solid extrusion; the existing tile builder works on any 8x8 bitmap. */
   final class Slab implements MeshBakingStrategy {
     public Model bake(SpriteBitmap b, Sprite3DConfig c) {
-      return TileSlabBuilder.build(0, b.memView(), c.depth, 1);
+      // over the WHOLE silhouette and with the depth the config asks for: the cell version
+      // reads eight bytes and makes one 8x8 tile, so a 40x24 object was coming out as its
+      // top-left corner
+      SpriteBitmap s = SpriteFx.preprocess(b, c);
+      return TileSlabBuilder.buildMask(s.mask(),
+          c.maxDepth > 0 ? c.maxDepth : Math.max(1, c.depth * SpriteFx.MAX_DEPTH));
     }
 
     public int vertexEstimate(SpriteBitmap b, Sprite3DConfig c) {

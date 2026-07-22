@@ -617,11 +617,11 @@
           "rects": "61 82 30 60",
           "hoja": "0 1 30 60",
           "render": {
-            "tecnica": "PRIMITIVE",
+            "tecnica": "SLAB",
             "primitiva": "OVOID",
             "redondez": 0.15,
-            "profundidad": 5.0,
-            "voxels": true
+            "profundidad": 40,
+            "voxels": false
           }
         }
       ]

@@ -241,10 +241,22 @@ public final class GameProfile {
     if (r == null || path() == null)
       return;
     try {
-      Files.writeString(path(), r.prettyPrint(com.badlogic.gdx.utils.JsonWriter.OutputType.json,
-          120) + "\n");
+      String out = r.prettyPrint(com.badlogic.gdx.utils.JsonWriter.OutputType.json, 120) + "\n";
+      // NEVER write something that will not load. This is now the only configuration file
+      // there is — everything the app and its games are set up with — and a half-formed
+      // write takes the presets, the tuning, the overrides and the marked objects with it.
+      // Cheap insurance: parse what is about to be written, keep the previous file as .bak,
+      // and put it in place with an atomic move so a crash mid-write cannot truncate it.
+      new JsonReader().parse(out);
+      if (Files.exists(path()))
+        Files.copy(path(), Path.of(path() + ".bak"),
+            java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+      Path tmp = Path.of(path() + ".tmp");
+      Files.writeString(tmp, out);
+      Files.move(tmp, path(), java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+          java.nio.file.StandardCopyOption.ATOMIC_MOVE);
     } catch (Exception e) {
-      System.out.println("no pude guardar " + path() + ": " + e);
+      System.out.println("NO se guardó " + path() + " (quedó como estaba): " + e);
     }
   }
 

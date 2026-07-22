@@ -105,6 +105,55 @@ public final class TileSlabBuilder {
     return mb.end();
   }
 
+  /**
+   * The same solid block over an ARBITRARY silhouette, not the 8x8 cell read from memory:
+   * this is what an object identified by hand needs when it should read as a piece of
+   * architecture — stretched back to the backdrop — instead of as an inflated body. The
+   * cell version cannot do it: it always reads eight bytes and makes one 8x8 tile, so a
+   * 40x24 object came out as its top-left corner.
+   */
+  public static Model buildMask(boolean[][] mask, float depth) {
+    int rows = mask.length, w = mask[0].length;
+    int inkPixels = 0;
+    for (boolean[] row : mask)
+      for (boolean v : row)
+        if (v)
+          inkPixels++;
+    if (inkPixels == 0)
+      return null;
+    ModelBuilder mb = new ModelBuilder();
+    mb.begin();
+    MeshPartBuilder ink = mb.part(INK, GL20.GL_TRIANGLES, Usage.Position | Usage.Normal,
+        new Material(INK, ColorAttribute.createDiffuse(Color.WHITE)));
+    boxesAt(ink, mask, true, depth + 2, w, rows);
+    if (inkPixels < rows * w) {
+      MeshPartBuilder paper = mb.part(PAPER, GL20.GL_TRIANGLES, Usage.Position | Usage.Normal,
+          new Material(PAPER, ColorAttribute.createDiffuse(Color.WHITE)));
+      for (int y = 0; y < rows; y++)
+        for (int x = 0; x < w; x++)
+          if (!mask[y][x])
+            BoxShapeBuilder.build(paper, x - w / 2f, rows / 2f - y, (depth - SKIN) / 2,
+                1, 1, SKIN);
+      MeshPartBuilder side = mb.part(PAPER_SIDE, GL20.GL_TRIANGLES,
+          Usage.Position | Usage.Normal,
+          new Material(PAPER_SIDE, ColorAttribute.createDiffuse(Color.WHITE)));
+      for (int y = 0; y < rows; y++)
+        for (int x = 0; x < w; x++)
+          if (!mask[y][x])
+            BoxShapeBuilder.build(side, x - w / 2f, rows / 2f - y, -SKIN / 2,
+                1, 1, depth - SKIN);
+    }
+    return mb.end();
+  }
+
+  private static void boxesAt(MeshPartBuilder part, boolean[][] mask, boolean set, float depth,
+      int w, int rows) {
+    for (int y = 0; y < rows; y++)
+      for (int x = 0; x < w; x++)
+        if (mask[y][x] == set)
+          BoxShapeBuilder.build(part, x - w / 2f, rows / 2f - y, 0, 1, 1, depth);
+  }
+
   private static void boxes(MeshPartBuilder part, boolean[][] mask, boolean set, float depth) {
     for (int y = 0; y < 8; y++)
       for (int x = 0; x < 8; x++)
