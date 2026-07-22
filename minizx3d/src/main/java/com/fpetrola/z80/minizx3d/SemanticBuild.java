@@ -368,6 +368,253 @@ public final class SemanticBuild {
           (e.getKey() - SALAS) / SALA_BYTES, (e.getKey() % SALA_BYTES - SPECS_OFF) / 2,
           e.getValue().size());
 
+    // =========== param_routines / structs / fields (§4, derivados de mem_accesses) ===========
+    // Dos sabores medidos (§4.2): TRASLADO (misma rutina+patrón, bases distintas — drawSprite
+    // sobre la biblioteca de gráficos) y LOOP-INTERNO (el loop vive dentro de la invocación:
+    // una sola base y el conjunto de offsets es periódico — moveGuardians sobre el buffer de
+    // entidades). El stride no se conoce: se deriva de la moda de deltas o por autocorrelación.
+    Map<Integer, int[]> pats = new HashMap<>();
+    try (var st = conn.createStatement(); ResultSet rs = st.executeQuery(
+        "SELECT id, n, offsets FROM access_patterns")) {
+      while (rs.next()) {
+        byte[] blob = rs.getBytes(3);
+        int n = rs.getInt(2);
+        int[] offs = new int[n];
+        for (int i = 0; i < n; i++)
+          offs[i] = (blob[i * 2] & 0xff) | ((blob[i * 2 + 1] & 0xff) << 8);
+        pats.put(rs.getInt(1), offs);
+      }
+    }
+    Map<Integer, Integer> profile = new HashMap<>();
+    try (var st = conn.createStatement(); ResultSet rs = st.executeQuery(
+        "SELECT addr, writes FROM mem_profile")) {
+      while (rs.next())
+        profile.put(rs.getInt(1), rs.getInt(2));
+    }
+    // (rutina, patrón) -> bases vistas (sabor traslado); filas crudas para el sabor loop
+    Map<Long, TreeSet<Integer>> basesByRP = new HashMap<>();
+    List<long[]> rawRows = new ArrayList<>(); // {routine, base, pattern, count}
+    try (var st = conn.createStatement(); ResultSet rs = st.executeQuery(
+        "SELECT routine, base, pattern, count FROM mem_accesses WHERE pattern IS NOT NULL")) {
+      while (rs.next()) {
+        int rout = rs.getInt(1), base = rs.getInt(2), pat = rs.getInt(3);
+        basesByRP.computeIfAbsent(((long) rout << 32) | pat, k -> new TreeSet<>()).add(base);
+        rawRows.add(new long[]{rout, base, pat, rs.getInt(4)});
+      }
+    }
+    try (var st = conn.createStatement()) {
+      st.execute("DROP TABLE IF EXISTS param_routines");
+      st.execute("DROP TABLE IF EXISTS structs");
+      st.execute("DROP TABLE IF EXISTS fields");
+      st.execute("CREATE TABLE param_routines(addr INT, kind TEXT, base INT, stride INT,"
+          + " bases INT, span INT, invocations INT, evidence TEXT)");
+      st.execute("CREATE TABLE structs(id INTEGER PRIMARY KEY, derived_from INT, base INT,"
+          + " end INT, stride INT, slots INT, evidence TEXT)");
+      st.execute("CREATE TABLE fields(struct_id INT, offset INT, mutable INT,"
+          + " writes_median INT, evidence TEXT)");
+    }
+    PreparedStatement insP = conn.prepareStatement(
+        "INSERT INTO param_routines VALUES (?,?,?,?,?,?,?,?)");
+    PreparedStatement insS = conn.prepareStatement(
+        "INSERT INTO structs(derived_from, base, end, stride, slots, evidence)"
+            + " VALUES (?,?,?,?,?,?)");
+    PreparedStatement insF = conn.prepareStatement("INSERT INTO fields VALUES (?,?,?,?,?)");
+    int paramRows = 0, structRows = 0;
+    // candidatos a struct: {base, end, stride (0 = sin), votos, rutina, offsets plegados}
+    List<Object[]> cands = new ArrayList<>();
+    // sabor TRASLADO: misma rutina + mismo patrón, bases distintas
+    for (Map.Entry<Long, TreeSet<Integer>> e : basesByRP.entrySet()) {
+      TreeSet<Integer> bases = e.getValue();
+      if (bases.size() < 3)
+        continue;
+      int rout = (int) (e.getKey() >>> 32), pat = e.getKey().intValue();
+      int span = 0;
+      for (int o : pats.get(pat))
+        span = Math.max(span, o + 1);
+      // deltas entre bases consecutivas: la moda; si divide casi todos, es progresión
+      Map<Integer, Integer> deltas = new HashMap<>();
+      Integer prev = null;
+      for (int b : bases) {
+        if (prev != null)
+          deltas.merge(b - prev, 1, Integer::sum);
+        prev = b;
+      }
+      int mode = deltas.entrySet().stream().max(Map.Entry.comparingByValue())
+          .map(Map.Entry::getKey).orElse(0);
+      long regular = deltas.entrySet().stream()
+          .filter(d -> mode > 0 && d.getKey() % mode == 0).mapToLong(Map.Entry::getValue).sum();
+      long total = deltas.values().stream().mapToLong(Integer::intValue).sum();
+      // mode 1 = bases empaquetadas byte a byte (leer una tabla desde offsets distintos),
+      // no un arreglo de structs: progresión recién desde delta 2
+      boolean progression = mode > 1 && regular * 10 >= total * 9;
+      insP.setInt(1, rout);
+      insP.setString(2, "traslado");
+      insP.setInt(3, bases.first());
+      if (progression)
+        insP.setInt(4, mode);
+      else
+        insP.setNull(4, java.sql.Types.INTEGER);
+      insP.setInt(5, bases.size());
+      insP.setInt(6, span);
+      insP.setInt(7, bases.size());
+      insP.setString(8, "pat=" + pat + " bases=$" + Integer.toHexString(bases.first())
+          + "..$" + Integer.toHexString(bases.last()));
+      insP.addBatch();
+      paramRows++;
+      cands.add(new Object[]{bases.first(), bases.last() + span - 1,
+          progression ? mode : 0, bases.size(), rout, null});
+    }
+    // sabor LOOP-INTERNO: autocorrelación POR PATRÓN (la unión histórica mezcla fases y
+    // regiones y alucina strides), con ≥3 períodos; después voto por (rutina, base)
+    Map<Long, Map<Integer, long[]>> votes = new HashMap<>(); // (rout,base) -> stride -> {votos, span, offsetsFold}
+    Map<Long, Map<Integer, TreeSet<Integer>>> foldByRBS = new HashMap<>();
+    for (long[] row : rawRows) {
+      int[] offs = pats.get((int) row[2]);
+      if (offs.length < 9)
+        continue;
+      int span = offs[offs.length - 1] + 1;
+      Set<Integer> set = new HashSet<>();
+      for (int o : offs)
+        set.add(o);
+      int bestS = 0;
+      double bestScore = 0;
+      for (int s = 2; s <= Math.min(64, span / 3); s++) {
+        int match = 0, tot = 0;
+        for (int o : offs)
+          if (o + s < span) {
+            tot++;
+            if (set.contains(o + s))
+              match++;
+          }
+        double score = tot < 6 ? 0 : match / (double) tot;
+        if (score > bestScore + 0.01) {
+          bestScore = score;
+          bestS = s;
+        }
+      }
+      if (bestScore < 0.7 || bestS == 0 || span / bestS < 3)
+        continue;
+      long rb = (row[0] << 32) | row[1];
+      votes.computeIfAbsent(rb, k -> new HashMap<>())
+          .merge(bestS, new long[]{row[3], span}, (a, b) -> {
+            a[0] += b[0];
+            a[1] = Math.max(a[1], b[1]);
+            return a;
+          });
+      TreeSet<Integer> fold = foldByRBS.computeIfAbsent(rb, k -> new HashMap<>())
+          .computeIfAbsent(bestS, k -> new TreeSet<>());
+      for (int o : offs)
+        fold.add(o % bestS);
+    }
+    for (Map.Entry<Long, Map<Integer, long[]>> e : votes.entrySet()) {
+      int rout = (int) (e.getKey() >>> 32), base = e.getKey().intValue();
+      Map.Entry<Integer, long[]> best = e.getValue().entrySet().stream()
+          .max(java.util.Comparator.comparingLong(x -> x.getValue()[0])).orElseThrow();
+      int stride = best.getKey();
+      long[] v = best.getValue();
+      insP.setInt(1, rout);
+      insP.setString(2, "loop-interno");
+      insP.setInt(3, base);
+      insP.setInt(4, stride);
+      insP.setInt(5, (int) (v[1] / stride));
+      insP.setInt(6, (int) v[1]);
+      insP.setInt(7, (int) v[0]);
+      insP.setString(8, "votos=" + v[0]);
+      insP.addBatch();
+      paramRows++;
+      cands.add(new Object[]{base, base + (int) v[1] - 1, stride, (int) v[0], rout,
+          foldByRBS.get(e.getKey()).get(stride)});
+    }
+    // consolidación POR RUTINA (§4.3: un struct es lo que fluye por la misma rutina
+    // paramétrica; fusionar a través de rutinas encadenaba media RAM en un rango)
+    cands.sort((a, b) -> {
+      int c = Integer.compare((int) a[2], (int) b[2]);
+      if (c == 0)
+        c = Integer.compare((int) a[4], (int) b[4]);
+      return c != 0 ? c : Integer.compare((int) a[0], (int) b[0]);
+    });
+    List<Object[]> merged = new ArrayList<>();
+    for (Object[] c : cands) {
+      Object[] last = merged.isEmpty() ? null : merged.get(merged.size() - 1);
+      int stride = (int) c[2];
+      if (last != null && (int) last[2] == stride && stride > 0
+          && (int) last[4] == (int) c[4]
+          && (int) c[0] <= (int) last[1] + stride
+          && ((int) c[0] - (int) last[0]) % stride == 0) {
+        last[1] = Math.max((int) last[1], (int) c[1]);
+        last[3] = (int) last[3] + (int) c[3];
+        if (last[5] == null)
+          last[5] = c[5];
+        else if (c[5] != null)
+          ((TreeSet<Integer>) last[5]).addAll((TreeSet<Integer>) c[5]);
+        continue;
+      }
+      merged.add(new Object[]{c[0], c[1], c[2], c[3], c[4], c[5]});
+    }
+    // subsunción: un candidato contenido en otro con mismo stride y misma fase es el mismo
+    // struct visto desde un slot posterior (patrones parciales); se absorbe sumando votos
+    for (Object[] a : merged) {
+      if (a[0] == null)
+        continue;
+      for (Object[] b : merged) {
+        if (a == b || b[0] == null || (int) a[2] == 0 || !a[2].equals(b[2]))
+          continue;
+        if ((int) b[0] >= (int) a[0] && (int) b[1] <= (int) a[1]
+            && ((int) b[0] - (int) a[0]) % (int) a[2] == 0) {
+          a[3] = (int) a[3] + (int) b[3];
+          if (a[5] == null)
+            a[5] = b[5];
+          else if (b[5] != null)
+            ((TreeSet<Integer>) a[5]).addAll((TreeSet<Integer>) b[5]);
+          b[0] = null;
+        }
+      }
+    }
+    merged.removeIf(c -> c[0] == null);
+    for (Object[] c : merged) {
+      int base = (int) c[0], end = (int) c[1], stride = (int) c[2], vts = (int) c[3];
+      int slots = stride > 0 ? (end - base + 1) / stride : vts;
+      if (stride > 0 && (slots < 3 || slots > 512) || vts < 5)
+        continue;
+      insS.setInt(1, (int) c[4]);
+      insS.setInt(2, base);
+      insS.setInt(3, end);
+      if (stride > 0)
+        insS.setInt(4, stride);
+      else
+        insS.setNull(4, java.sql.Types.INTEGER);
+      insS.setInt(5, slots);
+      insS.setString(6, (stride > 0 ? "loop/progresion" : "traslado") + " votos=" + vts);
+      insS.addBatch();
+      structRows++;
+      if (stride >= 2 && stride <= 64 && c[5] != null) {
+        for (int off : (TreeSet<Integer>) c[5]) {
+          List<Integer> ws = new ArrayList<>();
+          for (int b = base + off; b <= end; b += stride)
+            ws.add(profile.getOrDefault(b, 0));
+          ws.sort(null);
+          int median = ws.isEmpty() ? 0 : ws.get(ws.size() / 2);
+          insF.setInt(1, structRows);
+          insF.setInt(2, off);
+          insF.setInt(3, median > 100 ? 1 : 0);
+          insF.setInt(4, median);
+          insF.setString(5, "mediana de escrituras sobre " + ws.size() + " slots");
+          insF.addBatch();
+        }
+      }
+    }
+    insP.executeBatch();
+    insS.executeBatch();
+    insF.executeBatch();
+    System.out.printf("%nparam_routines: %d · structs: %d%n", paramRows, structRows);
+    System.out.println("structs derivados (top por slots):");
+    try (var st = conn.createStatement(); ResultSet rs = st.executeQuery(
+        "SELECT base, end, stride, slots, evidence FROM structs ORDER BY slots DESC LIMIT 8")) {
+      while (rs.next())
+        System.out.printf("  $%04x..$%04x stride=%s slots=%d (%s)%n", rs.getInt(1),
+            rs.getInt(2), rs.getObject(3), rs.getInt(4), rs.getString(5));
+    }
+
     // 3. cero aristas guardian-guardian sostenidas (co-ocurrencias multi-par)
     System.out.printf("  co-ocurrencias par-par (candidatas a falso positivo): %d pares"
         + " distintos, top:%n", pairPair.size());

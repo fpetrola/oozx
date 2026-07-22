@@ -146,6 +146,20 @@ public final class TaintReplay implements Runnable {
   }
 
   volatile CanvasWriteObserver observer;
+
+  /**
+   * Hook de accesos a memoria por INVOCACIÓN, para la parametricidad (BASE-SEMANTICA §4):
+   * el conjunto de direcciones que una invocación toca es su patrón de acceso, y dos
+   * invocaciones de la misma rutina cuyos conjuntos son traslados constantes son la firma
+   * de una rutina paramétrica. Se excluye la maquinaria de stack (PUSH/POP/CALL/RET/RST):
+   * sus direcciones son el SP, no la estructura del juego — la exclusión es del sustrato,
+   * no de un juego. La ROM y los operandos inmediatos ya no llegan acá.
+   */
+  interface MemAccessObserver {
+    void onAccess(int addr, int frame, int node, int routine, boolean write);
+  }
+
+  volatile MemAccessObserver memObserver;
   private static final int[] NO_CATALOG = new int[0x10000];
   private static final boolean[] NO_TILES = new boolean[0x10000];
   /**
@@ -494,6 +508,10 @@ public final class TaintReplay implements Runnable {
             listener.lastBits = taint.readBits(a, value.intValue());
             listener.pendingBits |= listener.lastBits;
           }
+          MemAccessObserver mo = memObserver;
+          if (mo != null && !listener.stackOp && a >= 16384)
+            mo.onAccess(a, listener.curFrame, curNode,
+                curNode < nodeAddr.size ? nodeAddr.get(curNode) : 0, false);
         }
       });
       memory.addMemoryWriteListener((address, value) -> {
@@ -539,6 +557,10 @@ public final class TaintReplay implements Runnable {
               obs.onWrite(a, listener.curFrame, curNode,
                   curNode < nodeAddr.size ? nodeAddr.get(curNode) : 0, writeSeq,
                   taint.mem[a], dir == null ? 0 : dir.mem[a]);
+            MemAccessObserver mo = memObserver;
+            if (mo != null && !listener.stackOp && a >= 16384)
+              mo.onAccess(a, listener.curFrame, curNode,
+                  curNode < nodeAddr.size ? nodeAddr.get(curNode) : 0, true);
           }
           if (DEBUG && a >= SCREEN && a < SCREEN + PIXEL_BYTES) {
             listener.dbgScreenWrites++;
@@ -574,7 +596,7 @@ public final class TaintReplay implements Runnable {
     final Map<Integer, Z80OpcodeInfo> catalog = new HashMap<>();
     private final State<WordNumber> state;
     private final RZXPlayerIO<WordNumber> io;
-    volatile boolean inExecution, suppress, bulk, regSwap;
+    volatile boolean inExecution, suppress, bulk, regSwap, stackOp;
     volatile int curPc = -1, curLen, curFrame;
     private int lastSp = -1, lastPc = -1, lastLen = 1;
     int srcTaint, pendingRead, lastRead;
@@ -705,6 +727,7 @@ public final class TaintReplay implements Runnable {
       // opposite: PUSH/POP move game data (the classic stack blit) and the LDIR family is
       // handled per byte right here — only call/ret return-address machinery is suppressed
       suppress = info.suppressMem && !info.push && !info.pop && !info.bulk;
+      stackOp = info.suppressMem || info.push || info.pop;
       bulk = info.bulk;
       curPc = pc;
       curLen = Math.max(1, instruction.getLength());

@@ -21,7 +21,9 @@ package com.fpetrola.z80.minizx3d;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -76,6 +78,25 @@ public final class SemanticCapture {
     Integer dirSet, coreSet;
   }
 
+  /** los accesos de una invocación en curso (parametricidad §4): direcciones tocadas. */
+  private static final class MAcc {
+    final int routine, frame;
+    final TreeMap<Integer, Boolean> addrs = new TreeMap<>(); // addr -> hubo write
+    boolean big;
+    int bigN;
+
+    MAcc(int routine, int frame) {
+      this.routine = routine;
+      this.frame = frame;
+    }
+  }
+
+  /** una fila de mem_accesses abierta a la agregación. */
+  private static final class MAgg {
+    int frameFirst, frameLast, count, routine, base, n, writes;
+    Integer pattern;
+  }
+
   public static void main(String[] args) throws Exception {
     System.setProperty("dir.plane", "true");
     GameProfile profile = GameProfile.resolve(new String[0]);
@@ -117,8 +138,15 @@ public final class SemanticCapture {
           + " dir_core_set INT, routine INT, parent_routine INT, write_order INT)");
       st.execute("CREATE TABLE mem_profile(addr INTEGER PRIMARY KEY, writes INT)");
       st.execute("CREATE TABLE oracle_truth(frame INT, slot INT, tipo INT, x INT, y INT)");
+      st.execute("DROP TABLE IF EXISTS access_patterns");
+      st.execute("DROP TABLE IF EXISTS mem_accesses");
+      st.execute("CREATE TABLE access_patterns(id INTEGER PRIMARY KEY, n INT, hash INT,"
+          + " offsets BLOB)");
+      st.execute("CREATE TABLE mem_accesses(frame_first INT, frame_last INT, count INT,"
+          + " routine INT, base INT, pattern INT, n INT, writes INT)");
       st.execute("CREATE INDEX de_frame ON draw_events(frame_first)");
       st.execute("CREATE INDEX ot_frame ON oracle_truth(frame)");
+      st.execute("CREATE INDEX ma_routine ON mem_accesses(routine)");
     }
     PreparedStatement insSet = conn.prepareStatement(
         "INSERT INTO read_sets(id, n, hash, addrs) VALUES (?,?,?,?)");
@@ -126,6 +154,10 @@ public final class SemanticCapture {
         "INSERT INTO draw_events VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
     PreparedStatement insTruth = conn.prepareStatement(
         "INSERT INTO oracle_truth VALUES (?,?,?,?,?)");
+    PreparedStatement insPat = conn.prepareStatement(
+        "INSERT INTO access_patterns(id, n, hash, offsets) VALUES (?,?,?,?)");
+    PreparedStatement insMem = conn.prepareStatement(
+        "INSERT INTO mem_accesses VALUES (?,?,?,?,?,?,?,?)");
 
     Map<Long, Integer> setIds = new HashMap<>();
     int[] nextSetId = {1};
@@ -133,6 +165,14 @@ public final class SemanticCapture {
     Map<Integer, Ev> open = new HashMap<>();
     Map<Long, Agg> aggOpen = new HashMap<>();
     long[] evRows = {0}, evFlushed = {0}, evBig = {0}, evSat = {0};
+    // parametricidad: accesos por invocación → patrón internado → fila agregada
+    boolean memOn = !"false".equals(System.getProperty("semantic.mem"));
+    int patCap = Integer.getInteger("semantic.patcap", 128);
+    Map<Integer, MAcc> memOpen = new HashMap<>();
+    Map<Long, Integer> patIds = new HashMap<>();
+    int[] nextPatId = {1};
+    Map<Long, MAgg> memAggOpen = new HashMap<>();
+    long[] memRows = {0}, memFlushed = {0};
     TaintReplay[] holder = new TaintReplay[1];
 
     TaintReplay replay = new TaintReplay(rzx, catalog, snap -> {
@@ -148,6 +188,11 @@ public final class SemanticCapture {
               evSat, leafMemo);
         }
         open.clear();
+        for (MAcc m : memOpen.values()) {
+          memFlushed[0]++;
+          flushMem(m, patCap, patIds, nextPatId, insPat, insMem, memAggOpen, memRows);
+        }
+        memOpen.clear();
         if (frame % truthEvery == 0) {
           // Willy como fila slot=-1: tipo lleva su estado de soga ($85D6, 3..32 = colgado)
           // — el ground truth contra el que se verifica la arista follower(willy->soga)
@@ -177,6 +222,7 @@ public final class SemanticCapture {
         if (frame % 2000 == 0) {
           insTruth.executeBatch();
           insEv.executeBatch();
+          insMem.executeBatch();
           conn.commit();
           if (frame % 10000 == 0)
             System.out.println("  frame " + frame + ": " + evFlushed[0] + " eventos, "
@@ -188,6 +234,25 @@ public final class SemanticCapture {
       }
     });
     holder[0] = replay;
+    if (memOn)
+      replay.memObserver = (addr, frame, node, routine, write) -> {
+        // el canvas es asunto de draw_events; el resto de la RAM es la estructura
+        if (addr < 23296 || (addr >= bufBase && addr < bufBase + CANVAS_BYTES))
+          return;
+        MAcc m = memOpen.get(node);
+        if (m == null)
+          memOpen.put(node, m = new MAcc(routine, frame));
+        if (m.big) {
+          m.bigN++;
+          return;
+        }
+        m.addrs.merge(addr, write, (a, b) -> a || b);
+        if (m.addrs.size() > patCap * 4) {
+          m.big = true;
+          m.bigN = m.addrs.size();
+          m.addrs.clear();
+        }
+      };
     replay.observer = (addr, frame, node, routine, order, valNode, dirNode) -> {
       int idx;
       if (addr >= DISPLAY && addr < DISPLAY + CANVAS_BYTES)
@@ -229,6 +294,9 @@ public final class SemanticCapture {
     }
     for (Agg a : aggOpen.values())
       insertAgg(a, insEv, evRows);
+    for (MAgg a : memAggOpen.values())
+      insertMAgg(a, insMem, memRows);
+    insMem.executeBatch();
     PreparedStatement insProf = conn.prepareStatement(
         "INSERT INTO mem_profile VALUES (?,?)");
     for (int a = 0; a < 0x10000; a++)
@@ -243,9 +311,124 @@ public final class SemanticCapture {
     conn.commit();
     conn.close();
     System.out.printf("listo en %ds: %d eventos -> %d filas (%.1fx agregacion), %d grandes,"
-        + " %d con bytes saturados, %d read_sets%n",
+        + " %d con bytes saturados, %d read_sets · mem: %d invocaciones -> %d filas"
+        + " (%.1fx), %d patrones%n",
         (System.currentTimeMillis() - t0) / 1000, evFlushed[0], evRows[0],
-        evFlushed[0] / (double) Math.max(1, evRows[0]), evBig[0], evSat[0], setIds.size());
+        evFlushed[0] / (double) Math.max(1, evRows[0]), evBig[0], evSat[0], setIds.size(),
+        memFlushed[0], memRows[0], memFlushed[0] / (double) Math.max(1, memRows[0]),
+        patIds.size());
+  }
+
+  private static final int REGION_GAP = Integer.getInteger("semantic.rgap", 32);
+
+  /**
+   * Cierra los accesos de una invocación. El conjunto se parte en REGIONES por hueco de
+   * direcciones (> {@code semantic.rgap}), una fila por región: una invocación real toca
+   * varias zonas a la vez (atributos + tabla de lookup + gráfico + estado) y un patrón que
+   * las mezcla no autocorrelaciona nada — el mismo corte por gap que usa TaintDiscover
+   * para las piezas.
+   */
+  private static void flushMem(MAcc m, int patCap, Map<Long, Integer> patIds, int[] nextPatId,
+                               PreparedStatement insPat, PreparedStatement insMem,
+                               Map<Long, MAgg> memAggOpen, long[] memRows) throws Exception {
+    if (m.big) {
+      emitRegion(m, -1, java.util.List.of(), 0, m.bigN, patCap, patIds, nextPatId, insPat,
+          insMem, memAggOpen, memRows);
+      return;
+    }
+    if (m.addrs.isEmpty())
+      return;
+    List<Integer> region = new ArrayList<>();
+    int writes = 0, prev = Integer.MIN_VALUE, base = -1;
+    for (Map.Entry<Integer, Boolean> e : m.addrs.entrySet()) {
+      if (prev != Integer.MIN_VALUE && e.getKey() - prev > REGION_GAP) {
+        emitRegion(m, base, region, writes, region.size(), patCap, patIds, nextPatId, insPat,
+            insMem, memAggOpen, memRows);
+        region = new ArrayList<>();
+        writes = 0;
+        base = -1;
+      }
+      if (base < 0)
+        base = e.getKey();
+      region.add(e.getKey() - base);
+      if (e.getValue())
+        writes++;
+      prev = e.getKey();
+    }
+    emitRegion(m, base, region, writes, region.size(), patCap, patIds, nextPatId, insPat,
+        insMem, memAggOpen, memRows);
+  }
+
+  private static void emitRegion(MAcc m, int base, List<Integer> offs, int writes, int n,
+                                 int patCap, Map<Long, Integer> patIds, int[] nextPatId,
+                                 PreparedStatement insPat, PreparedStatement insMem,
+                                 Map<Long, MAgg> memAggOpen, long[] memRows) throws Exception {
+    if (n == 0)
+      return;
+    Integer pattern = null;
+    if (base >= 0 && n <= patCap) {
+      long h = 1469598103934665603L;
+      for (int o : offs) {
+        h ^= o;
+        h *= 1099511628211L;
+      }
+      Integer id = patIds.get(h);
+      if (id == null) {
+        id = nextPatId[0]++;
+        patIds.put(h, id);
+        byte[] blob = new byte[offs.size() * 2];
+        for (int k = 0; k < offs.size(); k++) {
+          blob[k * 2] = (byte) (int) offs.get(k);
+          blob[k * 2 + 1] = (byte) (offs.get(k) >> 8);
+        }
+        insPat.setInt(1, id);
+        insPat.setInt(2, offs.size());
+        insPat.setLong(3, h);
+        insPat.setBytes(4, blob);
+        insPat.addBatch();
+        insPat.executeBatch();
+      }
+      pattern = id;
+    }
+    long key = 1469598103934665603L;
+    for (long v : new long[]{m.routine, base, pattern == null ? -1 : pattern, n}) {
+      key ^= v;
+      key *= 1099511628211L;
+    }
+    MAgg agg = memAggOpen.get(key);
+    if (agg != null && agg.frameLast >= m.frame - AGG_GAP) {
+      agg.frameLast = m.frame;
+      agg.count++;
+      return;
+    }
+    if (agg != null)
+      insertMAgg(agg, insMem, memRows);
+    agg = new MAgg();
+    agg.frameFirst = agg.frameLast = m.frame;
+    agg.count = 1;
+    agg.routine = m.routine;
+    agg.base = base;
+    agg.pattern = pattern;
+    agg.n = n;
+    agg.writes = writes;
+    memAggOpen.put(key, agg);
+  }
+
+  private static void insertMAgg(MAgg a, PreparedStatement insMem, long[] memRows)
+      throws Exception {
+    insMem.setInt(1, a.frameFirst);
+    insMem.setInt(2, a.frameLast);
+    insMem.setInt(3, a.count);
+    insMem.setInt(4, a.routine);
+    insMem.setInt(5, a.base);
+    if (a.pattern == null)
+      insMem.setNull(6, java.sql.Types.INTEGER);
+    else
+      insMem.setInt(6, a.pattern);
+    insMem.setInt(7, a.n);
+    insMem.setInt(8, a.writes);
+    insMem.addBatch();
+    memRows[0]++;
   }
 
   private static void flush(TaintReplay r, Ev ev, int leafMin, Map<Long, Integer> setIds,
