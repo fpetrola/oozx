@@ -598,47 +598,40 @@ personaje— y como texto se diffea en git, se grepea y se corrige a mano.
   catálogo es un rango de memoria que se leyó junto, que en un motor que compone —Exolon arma
   un personaje con varias piezas compartidas— es un fragmento: medio torso, una franja de una
   pierna. Listar eso contesta "qué bytes son gráficos", no "qué muestra este juego".
-  `SpriteComposites` reproduce el RZX **con el catálogo ya construido** y agrupa por **ráfaga
-  de escritura**: `TaintReplay.writeOrder` numera cada escritura a memoria, así que los bytes
-  de pantalla que el juego pintó uno tras otro son consecutivos ahí. Un objeto compuesto es una
-  ráfaga —todas sus piezas, con sus colores, en su posición— y los huecos en esa numeración son
-  donde termina un dibujo y empieza el siguiente. Lo que se guarda es el **rectángulo tal cual
-  está en pantalla, tinta y papel incluidos**: el objetivo es poder verificar contra el juego, y
-  para eso tiene que ser lo que el juego muestra.
+  `SpriteComposites` reproduce el RZX **con el catálogo ya construido** y agrupa por **quién lo
+  dibujó**: el nodo del árbol de llamadas que escribió cada byte (`TaintReplay.writeNode`). Un
+  juego que dibuja un objeto compuesto lo hace desde una rutina, o desde varias que llama una
+  que decidió dibujar la cosa, y todo el objeto cuelga de ese nodo. Lo que se guarda es el
+  **rectángulo tal cual está en pantalla, tinta y papel incluidos**: el objetivo es poder
+  verificar contra el juego, y para eso tiene que ser lo que el juego muestra.
 
-  **Por qué la ráfaga y no la forma** (dos intentos anteriores, los dos mal): agrupar por
-  adyacencia de bytes con dueño mostraba los bichitos y se perdía todo lo grande —en Exolon los
-  planetas, cañones, columnas y cápsulas están clasificados como fondo—; agrupar lo encendido
-  cortando por color partía cualquier objeto de dos colores y pegaba lo que se apoyaba en el
-  piso del mismo color. Toda regla de forma es nuestra, no del juego. La ráfaga es del juego.
-  Ojo con el contador: si tickea solo en las escrituras de PANTALLA, todas quedan consecutivas
-  por construcción y el hueco no dice nada — tiene que medir el trabajo intermedio, o sea
-  tickear en toda escritura. Y el snapshot se publica cuando CAMBIA el índice de frame, así que
-  lo que está en pantalla se pintó durante el frame anterior al que lo rotula (`frame -
-  lastWrite <= 1`, no `==`).
+  **Por qué el árbol de llamadas y no la pantalla** (cuatro intentos anteriores, los cuatro
+  mal): agrupar por adyacencia de bytes con dueño mostraba los bichitos y perdía todo lo grande
+  —en Exolon los planetas, cañones, columnas y cápsulas están clasificados como fondo—; agrupar
+  lo encendido cortando por color partía cualquier objeto de dos colores y pegaba lo que se
+  apoyaba en un piso del mismo color; la ráfaga de escrituras y su ventana entre frames se
+  acercaban, pero seguían siendo una medición de la PANTALLA, y la pantalla no dice dónde
+  termina un objeto. El nodo de llamada no fusiona nunca dos cosas que dibujaron llamadas
+  distintas, que es el caso que arrancó todo esto (la cápsula con el personaje adelante).
 
-  **Las ráfagas del mismo lugar son un objeto.** Una rutina dibuja un personaje en varias
-  pasadas (la máscara, la tinta, un detalle) y un motor de dirty-regions repinta una cosa
-  grande por tajadas: cada una es su propia ráfaga en el orden de escritura, pero todas son el
-  mismo dibujo. Se fusionan las que se tocan **dentro del frame**, y además la caja se agranda
-  con las de los últimos `discover.objects.window` frames que se **superponen** con ella — con
-  eso los planetas de Exolon dejaron de salir como medias lunas, porque lo que se captura se
-  lee de la PANTALLA, que tiene el planeta entero todo el tiempo, y solo faltaba que la caja lo
-  abarcara. Dos recaudos: superposición real (no cercanía) y no crecer más allá del tope de
-  tamaño — con holgura y sin tope las cajas se encadenan por la banda de terreno hasta que toda
-  la pantalla es "un objeto" (medido: la corrida terminaba con SIETE).
+  **El objeto es la llamada MÁS ALTA que todavía parece una.** Un nivel fijo no sirve: un nivel
+  arriba del píxel es el objeto para un misil y la sala entera para la rutina que repinta la
+  pantalla —medido: con nivel fijo salían "objetos" de 128x96 px, que es el tope, que es media
+  pantalla—. Se toma cada nodo solo si su caja tiene tamaño de objeto **y la de su padre ya
+  no**: el lugar más profundo donde el dibujo sigue siendo una cosa y no una escena. El tamaño
+  se decide por caja (`discover.objects.cols`/`.rows`, 8x48 celdas) **y por densidad** (al menos
+  un quinto de su propia caja pintado), porque media pantalla entra en cualquier tope generoso
+  para un objeto grande y la densidad es lo único que la descarta.
 
-  **La identidad es qué gráficos lo componen, a qué tamaño** — no los píxeles. Hasheando el
-  dibujo, cada desplazamiento sub-byte en X del mismo objeto era una entrada distinta: el tope
-  de la lista se llenaba con veinte copias de una tetera mientras la nave, dibujada un puñado
-  de veces, quedaba afuera del corte. De cada objeto se guarda **el avistamiento más lleno**,
-  que es el frame donde se repintó entero.
+  Adentro del nodo se sigue cortando por piezas conexas —una llamada dibuja el mismo misil tres
+  veces seguidas— y creciendo la caja con lo que se dibujó en el mismo lugar en los últimos
+  frames —un objeto repintado por tajadas—. Los dos casos están medidos sobre los objetos
+  marcados a mano: cuando el nodo agrupa de más, es eso y no cosas distintas.
 
-  **Límite conocido, y por qué existe el editor**: con la ventana, un personaje que camina por
-  delante del decorado queda fusionado con él, así que algunas entradas son "el tipo y el
-  pedazo de suelo que pisa". Y eso no tiene arreglo automático: la cápsula con el personaje
-  adelante es, en pantalla, una sola cosa conexa dibujada en el mismo frame — no hay señal en
-  el framebuffer que diga que son dos. Una persona lo ve de un vistazo.
+  Una trampa que costó y vale para cualquiera que toque esto: el snapshot se publica cuando
+  CAMBIA el índice de frame, así que lo que está en pantalla se pintó durante el frame anterior
+  al que lo rotula, y el árbol se reinicia por frame — los ids de `writeNode` solo valen para
+  `lastWrite == frame - 1`.
 
 ### El árbol de llamadas: medido, no adoptado todavía
 
