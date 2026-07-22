@@ -2595,9 +2595,11 @@ public class JSW3D extends ApplicationAdapter {
               // pixels can separate them, while the call that drew each never merges them.
               // Bytes the tree says nothing about (not repainted this frame) keep the old
               // behaviour, so a sprite that stopped moving does not fall apart.
+              if (c < 0 || c > 31 || y < 0 || y >= H)
+                continue; // bounds FIRST: the drawing lookup below indexes the same arrays
               boolean sameDrawing = !blobsByCall || group0 == 0 || drawing[y][c] == 0
                   || drawing[y][c] == group0;
-              if (c >= 0 && c < 32 && y >= 0 && y < H && sameDrawing
+              if (sameDrawing
                   && (blobsAdjacent ? grid[y][c] != 0 : grid[y][c] == base)) {
                 grid[y][c] = 0;
                 queue.add(new int[]{c, y});
