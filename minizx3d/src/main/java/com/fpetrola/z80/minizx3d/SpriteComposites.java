@@ -85,6 +85,19 @@ public final class SpriteComposites {
    * decided to draw the thing.
    */
   private final int callUp = Integer.getInteger("discover.objects.up", 1);
+  /**
+   * Whether a drawing may take in what was drawn AT THE SAME PLACE in the last frames
+   * ({@code -Ddiscover.objects.grow=false} to turn it off).
+   *
+   * <p>It is the only step that looks at the SCREEN rather than at the call tree, and it is
+   * there for one reason: a dirty-region engine repaints a big static thing in slices, so
+   * within one frame no call ever paints the whole planet and it came out as a half-dome.
+   * Turned off, every object is exactly what one call painted — nothing near it can stick to
+   * it — and big scenery arrives in pieces. That is a real trade, not a bug on either side.
+   */
+  private final boolean growOn = Boolean.parseBoolean(
+      System.getProperty("discover.objects.grow", "true"));
+
   /** how much two boxes may overlap and still be slices of one drawing, not one thing moving */
   private final float slice = Float.parseFloat(System.getProperty("discover.objects.slice",
       "0.35"));
@@ -358,6 +371,8 @@ public final class SpriteComposites {
    */
   private int[] grow(TaintReplay.FrameSnapshot snap, int[] box, java.util.Set<Integer> mask,
       boolean sprite, int frame, int top, int end) {
+    if (!growOn)
+      return box; // -Ddiscover.objects.grow=false: el objeto es EXACTAMENTE lo que pinto la llamada
     for (Recent rec : recent) {
       if (rec.sprite != sprite)
         continue; // a sprite's box overlaps the scenery's all the time: that is not the object

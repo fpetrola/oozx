@@ -869,7 +869,9 @@ hoja:
 - **El fondo nunca se une al sprite que está encima**. En un motor de dirty-regions la rutina
   que dibuja un sprite primero repinta el pedazo de decorado que ensució, así que un nodo
   legítimamente tiene los dos; la taint ya los distingue (un gráfico de sprite no es un tile).
-- **Crecer entre frames solo para REBANADAS** (`discover.objects.slice`, 0.35). Cajas que se
+- **Crecer entre frames solo para REBANADAS** (`discover.objects.slice`, 0.35; apagable
+  entero con `discover.objects.grow=false`, y ahí cada objeto es EXACTAMENTE lo que pintó una
+  llamada — es el único paso que mira la pantalla en vez del árbol). Cajas que se
   solapan no alcanza: el astronauta pasa por encima de la caja de la cápsula todo el tiempo y
   con eso se llevaba puesto cada plataforma y cada explosión que tocaba —una entrada por
   acompañante—. Un repintado por mitades cubre lo que la mitad anterior no: las cajas se tocan
