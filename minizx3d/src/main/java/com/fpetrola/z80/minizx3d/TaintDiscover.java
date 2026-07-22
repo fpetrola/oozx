@@ -485,6 +485,7 @@ public final class TaintDiscover {
             .append("\", \"rects\": \"0 0 ").append(w).append(' ').append(h)
             .append("\", \"hoja\": \"").append(x).append(' ').append(y).append(' ')
             .append(w).append(' ').append(h).append("\", \"veces\": ").append(c.count)
+            .append(", \"frame\": ").append(c.pickFrame)
             .append('}');
         x += w + 2;
         shelf = Math.max(shelf, h);

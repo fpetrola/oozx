@@ -46,6 +46,8 @@ public final class SpriteComposites {
   /** one distinct composed object: what it looks like, what it is made of, how often. */
   public static final class Composite {
     public int wBytes, rows, count, firstFrame, lastFrame;
+    /** the frame whose sighting gave the picture, so the dump can be pointed at it. */
+    public int pickFrame;
     /** the composed pixels, {@code rows * wBytes}, MSB leftmost — the screen's own layout. */
     public byte[] bits;
     /** ink colour per CELL of the bounding box (Spectrum palette index), row-major. */
@@ -83,10 +85,24 @@ public final class SpriteComposites {
    * decided to draw the thing.
    */
   private final int callUp = Integer.getInteger("discover.objects.up", 1);
+  /** how much two boxes may overlap and still be slices of one drawing, not one thing moving */
+  private final float slice = Float.parseFloat(System.getProperty("discover.objects.slice",
+      "0.35"));
   /** how many frames back a drawing at the same place still counts as the same object. */
   private final int window = Integer.getInteger("discover.objects.window", 24);
-  /** boxes drawn recently, to grow a sliced repaint back into the whole thing. */
-  private final List<int[]> recent = new ArrayList<>();
+  /** drawings of the last frames, to grow a sliced repaint back into the whole thing. */
+  private final List<Recent> recent = new ArrayList<>();
+
+  /** one drawing that already happened: its box, ITS OWN bytes, and when. */
+  private static final class Recent {
+    int[] box;
+    java.util.Set<Integer> mask;
+    boolean sprite;
+    int frame;
+  }
+  /** -Dobjects.dump=<frame>: the call tree of that frame, node by node, as it was grouped. */
+  private final int dumpFrame = Integer.getInteger("objects.dump", -1);
+
   /** the replay this pass ran, kept so a caller with no emulator of its own can read memory */
   private TaintReplay replay;
 
@@ -159,6 +175,7 @@ public final class SpriteComposites {
     // the cap, which is the room. So each node is taken only if it fits an object's size and
     // its parent does not: the deepest place where the drawing is still a thing, not a scene.
     java.util.Set<Integer> emitted = new java.util.HashSet<>();
+    java.util.Set<Integer> loops = loopParents(r, byNode);
     List<Integer> nodes = new ArrayList<>(byNode.keySet());
     nodes.sort((a, b) -> byNode.get(b).size() - byNode.get(a).size());
     for (int n : nodes) {
@@ -166,7 +183,7 @@ public final class SpriteComposites {
       if (painted.size() < minBytes || !fits(bbox(painted), painted.size()))
         continue;
       int parent = n == 0 ? -1 : r.nodeParent.get(n);
-      if (parent >= 0 && byNode.containsKey(parent)
+      if (parent >= 0 && byNode.containsKey(parent) && !loops.contains(parent)
           && fits(bbox(byNode.get(parent)), byNode.get(parent).size()))
         continue; // its caller still looks like one object: this is a piece of it, not it
       List<Integer> mine = new ArrayList<>();
@@ -177,10 +194,72 @@ public final class SpriteComposites {
         continue;
       // one call can draw the object several times over (Exolon lines up three missiles and
       // paints them in one go), so what the node gives is split into connected pieces
-      for (List<Integer> blob : blobs(mine, top, end))
-        flush(snap, blob, grow(bbox(blob), frame), top, end);
+      List<List<Integer>> parts = blobs(snap, mine, top, end);
+      if (snap.frame() == dumpFrame) {
+        int[] bb = bbox(mine);
+        System.out.println(String.format(
+            "  nodo %d addr=$%x prof=%d padre=%d%s bytes=%d caja c%d r%d %dx%d -> %d dibujos",
+            n, r.nodeAddr.get(n), depth(r, n), parent,
+            loops.contains(parent) ? " (padre repite llamada)" : "", mine.size(), bb[0], bb[1],
+            bb[2] - bb[0] + 1, bb[3] - bb[1] + 1, parts.size()));
+        for (List<Integer> b : parts) {
+          int[] pb = bbox(b);
+          java.util.Set<Integer> org = new java.util.TreeSet<>();
+          for (int i : b)
+            org.add(snap.owner()[i] != 0 ? snap.owner()[i] - 1
+                : snap.tile()[i] != 0 ? snap.tile()[i] - 1 : -1);
+          StringBuilder sb = new StringBuilder();
+          int k = 0;
+          for (int a : org)
+            if (k++ < 6)
+              sb.append('$').append(Integer.toHexString(a)).append(' ');
+          System.out.println(String.format("    dibujo c%d r%d %dx%d bytes=%d origenes=%d %s",
+              pb[0], pb[1], pb[2] - pb[0] + 1, pb[3] - pb[1] + 1, b.size(), org.size(), sb));
+        }
+      }
+      for (List<Integer> blob : parts) {
+        java.util.Set<Integer> mask = new java.util.HashSet<>(blob);
+        boolean sprite = isSprite(snap, blob.get(0));
+        flush(snap, blob, grow(snap, bbox(blob), mask, sprite, frame, top, end), mask, top,
+            end);
+      }
     }
-    recent.removeIf(x -> frame - x[4] > window);
+    recent.removeIf(x -> frame - x.frame > window);
+  }
+
+  /** how deep this node sits under the root, for the dump. */
+  private static int depth(TaintReplay r, int n) {
+    int d = 0;
+    for (int a = n; a > 0; a = r.nodeParent.get(a))
+      d++;
+    return d;
+  }
+
+  /**
+   * The calls that draw SEVERAL THINGS, one per call, rather than one thing out of pieces.
+   *
+   * <p>It is the difference between {@code for each sprite: drawSprite} and
+   * {@code drawPlayer: drawHead; drawTorso; drawLegs}, and it is written in the tree: the loop
+   * calls the SAME routine again and again, the composite calls different ones. So a node that
+   * repeats a call is not an object — each of its invocations is — and one that does not is
+   * the object its pieces belong to.
+   *
+   * <p>Without this the climb kept going up to the routine that draws the whole sprite list,
+   * and the astronaut came out glued to whatever he was standing next to, which is what the
+   * sheet showed: ten entries of the same character with a different companion each time.
+   */
+  private static java.util.Set<Integer> loopParents(TaintReplay r,
+      Map<Integer, List<Integer>> byNode) {
+    Map<Integer, java.util.Set<Integer>> callsOf = new HashMap<>();
+    java.util.Set<Integer> out = new java.util.HashSet<>();
+    for (int n : byNode.keySet()) {
+      if (n <= 0)
+        continue;
+      int p = r.nodeParent.get(n);
+      if (!callsOf.computeIfAbsent(p, k -> new java.util.HashSet<>()).add(r.nodeAddr.get(n)))
+        out.add(p); // the same routine, twice, from the same caller: a loop over instances
+    }
+    return out;
   }
 
   /**
@@ -204,32 +283,66 @@ public final class SpriteComposites {
     return n;
   }
 
-  /** connected pieces of what one call painted, with a couple of rows of slack for masks. */
-  private List<List<Integer>> blobs(List<Integer> painted, int top, int end) {
-    java.util.Set<Integer> left = new java.util.HashSet<>(painted);
+  /** whether this byte came from a SPRITE graphic rather than from the background. */
+  private static boolean isSprite(TaintReplay.FrameSnapshot snap, int i) {
+    return snap.owner()[i] != 0;
+  }
+
+  /** how many PIXELS of gap still count as the same drawing (a mask leaves holes). */
+  private final int gap = Integer.getInteger("discover.objects.gap", 2);
+
+  /**
+   * The separate drawings inside what one call painted — flooded PIXEL by pixel.
+   *
+   * <p>By bytes it could not work, and that is what filled the sheet with pairs of objects:
+   * a byte touches its neighbouring column whether or not there are pixels near the seam, so
+   * two things standing EIGHT PIXELS apart —the astronaut beside a capsule, which is most of
+   * Exolon— came out as one drawing. Flooding the lit pixels with a couple of pixels of slack
+   * asks the question that was meant all along: is this one shape, or two next to each other.
+   *
+   * <p>And the background never joins the sprite standing on it: in a dirty-region engine the
+   * call that draws a sprite first repaints the slice of scenery it dirtied, so one node
+   * legitimately holds both. The taint tells them apart —a sprite graphic is not a tile— and
+   * they are never the same drawing.
+   */
+  private List<List<Integer>> blobs(TaintReplay.FrameSnapshot snap, List<Integer> painted,
+      int top, int end) {
+    Map<Integer, Integer> pixByte = new HashMap<>(); // y * 256 + x -> the byte it belongs to
+    for (int i : painted) {
+      int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), c = i & 31;
+      if (y < top || y >= end)
+        continue;
+      int v = snap.pixels()[i] & 0xff;
+      for (int b = 0; b < 8; b++)
+        if ((v & (0x80 >> b)) != 0)
+          pixByte.put(y * 256 + c * 8 + b, i);
+    }
+    java.util.Set<Integer> left = new java.util.HashSet<>(pixByte.keySet());
     List<List<Integer>> out = new ArrayList<>();
     java.util.ArrayDeque<Integer> queue = new java.util.ArrayDeque<>();
     while (!left.isEmpty()) {
-      List<Integer> blob = new ArrayList<>();
-      Integer start = left.iterator().next();
+      int start = left.iterator().next();
       left.remove(start);
       queue.add(start);
+      boolean sprite = isSprite(snap, pixByte.get(start));
+      java.util.Set<Integer> bytes = new java.util.LinkedHashSet<>();
       while (!queue.isEmpty()) {
-        int i = queue.poll();
-        blob.add(i);
-        int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), c = i & 31;
-        for (int dy = -2; dy <= 2; dy++)
-          for (int dc = -1; dc <= 1; dc++) {
-            int yy = y + dy, cc = c + dc;
-            if (yy < top || yy >= end || cc < 0 || cc > 31)
+        int p = queue.poll();
+        bytes.add(pixByte.get(p));
+        int x = p & 255, y = p >> 8;
+        for (int dy = -gap; dy <= gap; dy++)
+          for (int dx = -gap; dx <= gap; dx++) {
+            int xx = x + dx, yy = y + dy;
+            if (xx < 0 || xx > 255 || yy < top || yy >= end)
               continue;
-            int q = ((yy & 0xC0) << 5) | ((yy & 7) << 8) | ((yy & 0x38) << 2) | cc;
-            if (left.remove(q))
+            int q = yy * 256 + xx;
+            Integer owner = pixByte.get(q);
+            if (owner != null && isSprite(snap, owner) == sprite && left.remove(q))
               queue.add(q);
           }
       }
-      if (blob.size() >= minBytes)
-        out.add(blob);
+      if (bytes.size() >= minBytes)
+        out.add(new ArrayList<>(bytes));
     }
     return out;
   }
@@ -243,8 +356,12 @@ public final class SpriteComposites {
    * captured is read from the SCREEN, which holds the whole planet the whole time: widening
    * the box with what was drawn there recently is enough to see the object complete.
    */
-  private int[] grow(int[] box, int frame) {
-    for (int[] r : recent) {
+  private int[] grow(TaintReplay.FrameSnapshot snap, int[] box, java.util.Set<Integer> mask,
+      boolean sprite, int frame, int top, int end) {
+    for (Recent rec : recent) {
+      if (rec.sprite != sprite)
+        continue; // a sprite's box overlaps the scenery's all the time: that is not the object
+      int[] r = rec.box;
       // real OVERLAP, not proximity, and only while the result still looks like an object:
       // with slack and no cap the boxes chained along the terrain band until the whole
       // screen was one "object" and the run ended with seven of them
@@ -254,13 +371,38 @@ public final class SpriteComposites {
       int c1 = Math.max(box[2], r[2]), r1 = Math.max(box[3], r[3]);
       if (c1 - c0 + 1 > maxCols || r1 - r0 + 1 > maxRows)
         continue;
+      // SLICES, not the same thing moved. A repaint by halves covers a region the previous
+      // half did not: the boxes touch and barely overlap. A sprite that walks a pixel a frame
+      // gives nearly the SAME box every time, and merging those is how the astronaut ended up
+      // dragging along every platform and explosion he passed — one entry per companion
+      int ov = Math.max(0, Math.min(box[2], r[2]) - Math.max(box[0], r[0]) + 1)
+          * Math.max(0, Math.min(box[3], r[3]) - Math.max(box[1], r[1]) + 1);
+      int mine = (box[2] - box[0] + 1) * (box[3] - box[1] + 1);
+      int otro = (r[2] - r[0] + 1) * (r[3] - r[1] + 1);
+      if (ov > slice * Math.min(mine, otro))
+        continue;
+      // and only if the two halves are ONE shape. Overlapping boxes is not enough: the
+      // astronaut walks over the capsule's box every time he passes it, and merging on that
+      // put the two of them in one entry. Slices of the same planet are contiguous; two
+      // things that happen to share a rectangle are two blobs, and stay apart
+      List<Integer> both = new ArrayList<>(mask);
+      both.addAll(rec.mask);
+      if (blobs(snap, both, top, end).size() > 1)
+        continue;
       box[0] = c0;
       box[1] = r0;
       box[2] = c1;
       box[3] = r1;
+      mask.addAll(rec.mask); // its bytes are this drawing's too: the other half of the planet
     }
-    recent.removeIf(r -> box[0] <= r[0] && box[1] <= r[1] && box[2] >= r[2] && box[3] >= r[3]);
-    recent.add(new int[]{box[0], box[1], box[2], box[3], frame});
+    recent.removeIf(r -> box[0] <= r.box[0] && box[1] <= r.box[1]
+        && box[2] >= r.box[2] && box[3] >= r.box[3]);
+    Recent me = new Recent();
+    me.box = new int[]{box[0], box[1], box[2], box[3]};
+    me.mask = new java.util.HashSet<>(mask);
+    me.sprite = sprite;
+    me.frame = frame;
+    recent.add(me);
     return box;
   }
 
@@ -278,7 +420,7 @@ public final class SpriteComposites {
 
   /** one drawing: its bounding box on screen, captured as the screen shows it. */
   private void flush(TaintReplay.FrameSnapshot snap, List<Integer> burst, int[] box,
-      int top, int end) {
+      java.util.Set<Integer> mask, int top, int end) {
     if (burst.size() < minBytes)
       return;
     // clipped to the playfield, not dropped: a drawing that spills a byte into the status
@@ -301,6 +443,13 @@ public final class SpriteComposites {
     for (int y = minR; y <= maxR; y++)
       for (int c = minC; c <= maxC; c++) {
         int i = ((y & 0xC0) << 5) | ((y & 7) << 8) | ((y & 0x38) << 2) | c;
+        // ONLY what this drawing painted. Copying the whole box off the screen was the reason
+        // every object came out with the neighbours inside it: the box is a rectangle and the
+        // screen is full, so a capsule arrived with an explosion, a slice of platform and a
+        // handful of stars glued on. What belongs to the object is the set of bytes its own
+        // call wrote — everything else in the rectangle belongs to whoever drew it
+        if (!mask.contains(i))
+          continue;
         byte v = snap.pixels()[i];
         bits[(y - minR) * w + (c - minC)] = v;
         lit |= v != 0;
@@ -345,6 +494,7 @@ public final class SpriteComposites {
     // shows it whole, one that repainted a slice does not
     if (c.bits == null || litPx > c.litPixels) {
       c.litPixels = litPx;
+      c.pickFrame = snap.frame();
       c.px = px;
       c.owner = owner;
       c.bits = bits;
@@ -367,10 +517,81 @@ public final class SpriteComposites {
     return replay == null ? a -> 0 : replay::memByte;
   }
 
-  /** the distinct objects, most drawn first, capped so the report stays readable. */
+  /**
+   * The distinct objects, most drawn first, capped so the report stays readable — and each
+   * one ONCE.
+   *
+   * <p>The key (which graphics, at what size) says the same object twice whenever the game
+   * showed it differently: half repainted, walking behind a rock, one frame of its animation
+   * that skips a piece. Every one of those is a different set of pieces at a different size,
+   * so the list came out with the same capsule five times over.
+   *
+   * <p>So two entries are the same object when one's pieces are MOSTLY the other's
+   * ({@code discover.objects.merge}, 70% of the smaller set): a partial sighting is a subset
+   * of the full one, and two different objects rarely share that much even in an engine that
+   * reuses graphics. The fullest drawing keeps the picture, the sightings add up.
+   */
   public List<Composite> top(int max) {
+    float merge = Float.parseFloat(System.getProperty("discover.objects.merge", "0.7"));
     List<Composite> all = new ArrayList<>(byHash.values());
-    all.sort((a, b) -> b.count - a.count);
-    return all.size() > max ? all.subList(0, max) : all;
+    // the FULLEST sighting keeps the picture, so the entry shows the object whole and not the
+    // two bytes of it a dirty-region engine repaints on most frames — which is what wins if
+    // the sightings are ranked by how often they happened (measured: a sheet full of crumbs)
+    all.sort((a, b) -> b.litPixels - a.litPixels);
+    List<Composite> kept = new ArrayList<>();
+    outer:
+    for (Composite c : all) {
+      for (Composite k : kept)
+        if (sameObject(k, c, merge) || sameBank(k, c)) {
+          k.count += c.count;
+          k.firstFrame = Math.min(k.firstFrame, c.firstFrame);
+          k.lastFrame = Math.max(k.lastFrame, c.lastFrame);
+          c.pieces.forEach((base, n) -> k.pieces.merge(base, n, Integer::sum));
+          continue outer;
+        }
+      kept.add(c);
+    }
+    kept.sort((a, b) -> b.count - a.count);
+    return kept.size() > max ? kept.subList(0, max) : kept;
+  }
+
+  /**
+   * The same sprite in its PRE-SHIFTED copies. A game that cannot shift pixels fast enough
+   * keeps one copy of the sprite per X offset, one after another in memory, and each copy is
+   * a different set of addresses — so the overlap test above sees eight different objects
+   * where there is one. Measured in Exolon: the astronaut's frames sit at $efe3, $f043,
+   * $f0a3..., blocks of $60 bytes in a row, and he took twelve entries of the sheet.
+   *
+   * <p>Two tight ranges that touch, at about the same size, are that. Anything whose
+   * addresses are scattered across memory is not a bank and is left alone.
+   */
+  private boolean sameBank(Composite a, Composite b) {
+    int a0 = Integer.MAX_VALUE, a1 = 0, b0 = Integer.MAX_VALUE, b1 = 0;
+    for (int x : a.pieces.keySet()) {
+      a0 = Math.min(a0, x);
+      a1 = Math.max(a1, x);
+    }
+    for (int x : b.pieces.keySet()) {
+      b0 = Math.min(b0, x);
+      b1 = Math.max(b1, x);
+    }
+    if (a1 - a0 > bankSpan || b1 - b0 > bankSpan || b0 > a1 + bankGap || a0 > b1 + bankGap)
+      return false;
+    return Math.min(a.wBytes, b.wBytes) >= .6f * Math.max(a.wBytes, b.wBytes)
+        && Math.min(a.rows, b.rows) >= .6f * Math.max(a.rows, b.rows);
+  }
+
+  /** how far apart two banks of the same sprite may sit, and how wide a bank can be. */
+  private final int bankGap = Integer.getInteger("discover.objects.bankGap", 16);
+  private final int bankSpan = Integer.getInteger("discover.objects.bankSpan", 512);
+
+  /** whether {@code b} is the same object as {@code a}: most of the smaller set of pieces. */
+  private static boolean sameObject(Composite a, Composite b, float merge) {
+    int hit = 0;
+    for (int base : b.pieces.keySet())
+      if (a.pieces.containsKey(base))
+        hit++;
+    int smaller = Math.min(a.pieces.size(), b.pieces.size());
+    return smaller > 0 && hit >= merge * smaller;
   }
 }

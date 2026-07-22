@@ -854,21 +854,51 @@ entradas en `games.<juego>.objetosAuto`. El editor las abre, el visor las busca 
 las renderiza: no hay un segundo camino ni un segundo formato.
 
 Los objetos salen del agrupamiento por árbol de llamadas (`SpriteComposites`, §arriba): lo que
-una llamada dibujó, partido en blobs y crecido entre frames. Tres filtros antes de escribir,
-los tres medidos en Exolon:
+una llamada dibujó, partido en dibujos y crecido entre frames. La primera versión escribió 225
+entradas y **casi ninguna era un objeto solo**: cada imagen traía dos o tres cosas superpuestas
+y el mismo personaje aparecía doce veces. Cinco reglas, cada una contra un síntoma visto en la
+hoja:
+
+- **La imagen es lo que ESA llamada pintó, no el rectángulo**. Se copiaba la caja entera de la
+  pantalla, y la pantalla está llena: la cápsula llegaba con una explosión, una rebanada de
+  plataforma y unas estrellas pegadas. Ahora se captura el conjunto de bytes del dibujo y el
+  resto del rectángulo queda en negro.
+- **La conectividad va por PÍXEL, no por byte** (`discover.objects.gap`, 2 px). Un byte toca su
+  columna vecina haya o no píxeles cerca del borde, así que dos cosas separadas por OCHO
+  PÍXELES —el astronauta al lado de una cápsula, que es medio Exolon— salían como un dibujo.
+- **El fondo nunca se une al sprite que está encima**. En un motor de dirty-regions la rutina
+  que dibuja un sprite primero repinta el pedazo de decorado que ensució, así que un nodo
+  legítimamente tiene los dos; la taint ya los distingue (un gráfico de sprite no es un tile).
+- **Crecer entre frames solo para REBANADAS** (`discover.objects.slice`, 0.35). Cajas que se
+  solapan no alcanza: el astronauta pasa por encima de la caja de la cápsula todo el tiempo y
+  con eso se llevaba puesto cada plataforma y cada explosión que tocaba —una entrada por
+  acompañante—. Un repintado por mitades cubre lo que la mitad anterior no: las cajas se tocan
+  y casi no se solapan. Y la unión tiene que seguir siendo UN dibujo conectado.
+- **Cada objeto una sola vez**, en dos pasos: entradas cuyos gráficos son mayormente los mismos
+  (`discover.objects.merge`, 70% del conjunto más chico) y **copias pre-shifteadas**
+  (`discover.objects.bankGap/bankSpan`) — un juego que no puede rotar píxeles guarda una copia
+  del sprite por offset de X, una atrás de la otra, y cada copia es un conjunto de direcciones
+  distinto: el astronauta de Exolon vive en $efe3, $f043, $f0a3… y se llevaba doce entradas.
+  La cara del objeto es el avistaje MÁS LLENO, no el más frecuente: en un motor de
+  dirty-regions lo más frecuente es la rebanada de dos bytes, y la hoja sale llena de migas.
+
+Y dos filtros antes de escribir:
 
 - **`discover.objects.minPiezas` (3)**: una definición de UN gráfico es un tile, y el camino de
   tiles ya lo dibuja; con 2 la lista se llenó de pares de bytes de decorado que después
-  matcheaban media pantalla con score 1.00 (225 entradas, de las cuales el "objeto" más
-  frecuente era una pareja de tiles apareciendo 2847 veces).
+  matcheaban media pantalla con score 1.00.
 - **`discover.objects.minVeces` (5)**: visto dos veces es tan probable que sea un frame roto
   como una cosa.
-- **Un juego de gráficos, una entrada**: el mismo objeto sale a varios tamaños según cuánto se
-  alcanzó a ver; se queda el avistaje más frecuente, que es el primero (`top()` viene ordenado).
 
-79 → 35 definiciones en Exolon, y en el visor matchean 12886 veces en 700 frames: el
-astronauta, la torre de lanzamiento, el cohete, las plataformas, el aro de teleporte, las
-explosiones.
+225 → 28 definiciones en Exolon —el astronauta, la torre, el cohete, el cañón, los planetas, el
+aro de teleporte, las cápsulas, las explosiones, la caja verde—, y en el visor matchean 7364
+veces en 700 frames. Lo que queda sucio son un par de entradas donde el personaje estaba
+tocando una cápsula mientras UNA MISMA llamada dibujaba las dos: ahí no hay nada en el frame
+que las separe, y se arreglan borrándolas en el editor.
+
+`-Dobjects.dump=<frame>` imprime el árbol de ese frame nodo por nodo —dirección, profundidad,
+caja, en cuántos dibujos se partió y de qué gráficos vino cada uno—, que es como se
+diagnosticaron todas estas: mirando la hoja se ve QUE está mal, y el dump dice POR QUÉ.
 
 **Van SEPARADAS de lo marcado a mano** (`objetosAuto` vs `objetos`) y se cargan después,
 salteando cualquier definición cuyo conjunto de gráficos ya esté (`JSW3D.alreadyLoaded`): un
