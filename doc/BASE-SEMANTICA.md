@@ -1,7 +1,12 @@
 # Base semántica: de detección de sprites a recuperación de estructura
 
-Estado: DISEÑO. Nada de este documento está implementado todavía, salvo lo que se
-marca explícitamente como YA EXISTE.
+Estado: PARCIALMENTE IMPLEMENTADO (jul 2026). La cadena mínima al esqueleto §3.5 está
+hecha y medida contra el oráculo en JSW: arnés (`jsw-oracle.json` + `OracleVerify`),
+plano dir (§2, en `TaintReplay`/`OriginTaint` tras `-Ddir.plane=true`), capa 1
+(`SemanticCapture` → `read_sets`/`draw_events`/`mem_profile`/`oracle_truth`),
+`instances`+`deps` (`SemanticBuild`) y la visualización (`JSW3D`, perilla
+`render.skeleton`). Quedan fuera de este corte: `mem_accesses`, §4-§6 (parametricidad,
+variantes, COND), capa 3. Ver §2.5 por los hallazgos que CORRIGEN partes del diseño.
 
 Este documento extiende `doc/DETECCION-SPRITES-3D.md`. Aquel describe cómo se
 recuperan los sprites; éste describe de qué mecanismo general los sprites son un
@@ -106,10 +111,41 @@ Mismo array, signo cambiado.
 
 ### 2.4 Decisión de diseño abierta
 
-¿Una sola clase `OriginTaint` con política inyectada, o dos especializaciones?
-El plano dir duplica el trabajo por instrucción (dos uniones, dos `regBits`). Con
-memoización debería absorberse; el riesgo es el crecimiento de nodos del plano dir
-con profundidad alta.
+RESUELTA: una sola clase `OriginTaint` con política por instancia (`maxDepth`,
+`keepDeep`). El costo medido en JSW: ~9x los nodos del plano valor, absorbido por un
+memo primitivo (ver javadoc de `OriginTaint.memo`) — RZX de 60K frames en <3GB de heap.
+
+### 2.5 Hallazgos de la implementación que corrigen el diseño (medidos en JSW)
+
+1. **La poda invertida (§2.2.2) tal cual se FOSILIZA.** Una variable de estado
+   actualizada por RMW gana +1 de profundidad POR FRAME aunque su conjunto de hojas
+   converja; a ~500 frames toca el cap y desde ahí `keepDeep` descarta el operando
+   fresco de cada unión: gfx, slots y tablas desaparecen de las hojas. La corrección
+   es `OriginTaint.flatten`: cada STORE re-interna el nodo por su CONJUNTO de hojas
+   (el historial de construcción no converge; el conjunto sí).
+2. **La hoja discriminante NO es el buffer runtime** ($8100, memWrites alto, §2.3)
+   sino el PAR DE SPEC de la data de sala ($C000+sala·256+240+2·slot): el buffer se
+   escribe (initRoom copia spec→slot) antes de leerse jamás, así que su origin nunca
+   entra a las cadenas. La identidad de instancia es (sala, par de spec), y la tabla
+   de definiciones ($A000) da la identidad de tipo. El discriminador por memWrites
+   quedó sin uso en JSW.
+3. **La historia de transiciones de sala contamina TODO**: la procedencia del número
+   de sala recursa por cada sala atravesada (~6 hojas por sala) y aparece en cada
+   byte. Es procedencia verdadera pero no identidad; obliga a `dir.leafcap` alto
+   (512 cubre el mapa entero, saturó 0 bytes) y a filtrar por zonas offline.
+4. **`deps` vivo vs derivado**: tras soltarse de la soga, la posición de Willy sigue
+   DERIVANDO de ella hasta el próximo reinit (arista "histórica", precisión 4%). El
+   vínculo VIVO se detecta comparando la ventana deslizante de la tabla de animación
+   ($83xx) que el follower arrastra contra la ACTUAL del líder: coinciden colgado,
+   divergen al soltarse (la de Willy queda congelada). Precisión 74-96% / recall
+   34-68% según sostén (knobs `build.*`); 6/7 episodios de colgada con arista y CERO
+   aristas entre guardianes independientes.
+
+   Verificado además: la fila de vidas sale con `dir_core_set = {$85CC}` — el
+   contador de vidas documentado — sin buscarlo: la procedencia de dirección
+   encuentra la variable sola. Pendientes medidos: las flechas casi no se cubren
+   (207/225 fuera; transitorias, su identidad no pasa por el par de spec) y la
+   cadena de la soga parpadea en el visor entre ticks de juego.
 
 ---
 

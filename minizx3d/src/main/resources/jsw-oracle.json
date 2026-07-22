@@ -1,0 +1,71 @@
+{
+  "fuente": "https://skoolkid.github.io/jetsetwilly/ (SkoolKit 10.0, Richard Dymond)",
+  "juego": "jsw",
+  "nota": "Hechos del desensamblado comunitario, NO inferidos del replay. Los campos con 'verificado': false se transcribieron de paginas aun no cotejadas a mano; OracleVerify los contrasta contra la memoria viva.",
+
+  "rutinas": {
+    "mainLoop1": 35245,
+    "mainLoop2": 35591,
+    "initRoom": 35090,
+    "drawLives": 35211,
+    "loseLife": 35841,
+    "moveWilly": 36307,
+    "moveGuardians": 37056,
+    "drawGuardians": 37310,
+    "drawItems": 37841,
+    "drawSprite": 37974
+  },
+  "rutinasQueDibujanPantalla": ["drawLives", "drawGuardians", "drawItems", "drawSprite"],
+  "rutinasQueEntranPorJP": ["mainLoop1", "mainLoop2", "initRoom", "loseLife"],
+
+  "entidades": {
+    "bufferBase": 33024,
+    "stride": 8,
+    "slots": 8,
+    "terminador": 255,
+    "tipo": { "offset": 0, "mask": 7,
+      "valores": { "0": "vacio", "1": "horizontal", "2": "vertical", "3": "soga", "4": "flecha" } },
+    "horizontal": { "x": { "offset": 2, "mask": 31 }, "y": { "offset": 3 },
+      "spriteIdx": { "offset": 2, "shift": 5 }, "spritePage": { "offset": 5 } },
+    "vertical": { "x": { "offset": 2, "mask": 31 }, "y": { "offset": 3 }, "dy": { "offset": 4 },
+      "spriteIdx": { "offset": 2, "shift": 5 }, "spritePage": { "offset": 5 } },
+    "soga": { "anim": { "offset": 1 }, "x": { "offset": 3 } }
+  },
+
+  "willy": {
+    "y": 34255,
+    "direccion": 34256,
+    "airborne": 34257,
+    "anim": 34258,
+    "posAttr": { "addr": 34259, "bytes": 2, "verificado": false },
+    "soga": 34262,
+    "sogaNota": "0 = no colgado; 3..32 = colgado (indice de segmento); 240..255 = recien salto"
+  },
+
+  "vidas": 34252,
+  "salaActual": 33824,
+  "items": { "addr": 34172, "bytes": 3, "verificado": false },
+
+  "salas": {
+    "base": 49152,
+    "bytesPorSala": 256,
+    "layout": { "offset": 0, "bytes": 128 },
+    "nombre": { "offset": 128, "bytes": 32 },
+    "specs": { "offset": 240, "bytesPorSpec": 2, "max": 8, "terminador": 255,
+      "nota": "pares (id de definicion, parametro); $FF,$00 termina; $00,$00 = vacio" }
+  },
+
+  "tablas": {
+    "sbl": { "base": 33280, "hasta": 33791,
+      "nota": "lookup y -> direccion de buffer, $8200-$83FF; MEDIDO: hojas $83xx aparecen en el dir-taint de sprites en salas sin soga, o sea $8300 tambien es lookup de direcciones (el doc comunitario ubica ahi la tabla de animacion de la soga; a reconciliar al medir salas con soga)" }
+  },
+
+  "pantalla": {
+    "attrBuffer": 23552,
+    "displayFile": 16384,
+    "bufferCandidatos": [24576, 28672],
+    "buffer": 24576,
+    "fondoLimpio": 28672,
+    "nota": "VERIFICADO por espejo (OracleVerify sobre el RZX entero): $6000 compone la escena y espeja el display file al 89%; $7000 es la sala sin sprites (72%). La raiz del arbol copia $6000->$4000 (writeRoutine=0 para el 100% del playfield): por eso el plano dir viaja con el byte via dir.mem"
+  }
+}

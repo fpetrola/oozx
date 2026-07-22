@@ -1,0 +1,174 @@
+arnes contra jsw-oracle.json: Jet Set Willy · frames 500..500500 (muestra cada 25)
+java.lang.RuntimeException: rzx finished
+	at com.fpetrola.z80.minizx.RZXPlayerIO.changeFrame(RZXPlayerIO.java:161)
+	at com.fpetrola.z80.minizx.RZXPlayerIO.lambda$getInterruptionCondition$0(RZXPlayerIO.java:189)
+	at com.fpetrola.z80.minizx.emulation.DefaultEmulator.emulate(DefaultEmulator.java:38)
+	at com.fpetrola.z80.minizx3d.TaintReplay.run(TaintReplay.java:498)
+	at com.fpetrola.z80.minizx3d.OracleVerify.main(OracleVerify.java:280)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.codehaus.mojo.exec.AbstractExecJavaBase.executeMainMethod(AbstractExecJavaBase.java:402)
+	at org.codehaus.mojo.exec.ExecJavaMojo.executeMainMethod(ExecJavaMojo.java:142)
+	at org.codehaus.mojo.exec.AbstractExecJavaBase.doExecClassLoader(AbstractExecJavaBase.java:377)
+	at org.codehaus.mojo.exec.AbstractExecJavaBase.lambda$execute$0(AbstractExecJavaBase.java:287)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+corrida: 63s, 2915 frames muestreados
+
+=== rutinas del oraculo ===
+  rutina          addr   ejecutada(CALL)  escribe-display
+  mainLoop1       35245 no vista (JP)            -
+  mainLoop2       35591 no vista (JP)            -
+  initRoom        35090 no vista (JP)            -
+  drawLives       35211         SI            -
+  loseLife        35841         NO            -
+  moveWilly       36307         SI            -
+  moveGuardians   37056         SI            -
+  drawGuardians   37310         SI            -
+  drawItems       37841         SI            -
+  drawSprite      37974         SI            -
+  quien escribe el display file (top 5, bytes; $0000 = la raiz, o sea la copia buffer->pantalla del main loop):
+    $0000 (0) x603527
+  espejo del display file (candidatos a buffer de composicion):
+    $6000 (24576): 89.4% de bytes identicos
+    $7000 (28672): 71.5% de bytes identicos
+
+=== cobertura del RZX: salas visitadas ===
+  sala nombre                            frames        specs  activos  tipos                soga  par-identico  mov avg/max
+     0 The Off Licence                      500..72555      3      2.8  vaciox0 horizontalx0 verticalx1     -        -       27.6/136
+     1 The Bridge                         69934..73106      3      3.0  horizontalx2 verticalx1     -       SI       21.5/84
+     2 Under the MegaTree                 58319..73587      3      3.0  horizontalx2 verticalx1     -        -       10.9/54
+     3 At the Foot of the MegaTree        57563..74180      4      4.0  horizontalx1 verticalx3     -       SI       36.8/110
+     4 The Drive                          54352..74725      5      5.0  horizontalx5            -       SI        1.6/3
+     5 The Security Guard                 53870..75414      4      4.0  verticalx4              -       SI       29.6/88
+     7 Cuckoo's Nest                      60515..61398      3      3.0  horizontalx2 flechax1     -        -        1.7/5
+     8 Inside the MegaTrunk               60238..68841      7      7.0  horizontalx3 verticalx4     -       SI       15.7/76
+     9 On a Branch Over the Drive         67467..68406      5      5.0  horizontalx1 verticalx3 flechax1     -        -       15.2/72
+    10 The Front Door                     29211..75459      0      0.0                          -        -        0.0/0
+    11 The Hall                           27555..75936      5      5.0  horizontalx2 verticalx1 flechax2     -        -        1.2/6
+    12 Tree Top                           62155..66896      4      4.0  horizontalx3 flechax1     -        -        1.8/6
+    13 Out on a limb                      63588..66512      3      3.0  horizontalx2 verticalx1     -        -       19.2/168
+    14 Rescue Esmerelda                   25919..27477      4      4.0  horizontalx1 verticalx3     -       SI       18.8/80
+    15 I'm sure I've seen this before..   25255..25918      7      7.0  horizontalx1 verticalx4 flechax2     -       SI       28.1/120
+    16 We must perform a Quirkafleeg      22396..25254      3      3.0  horizontalx1 sogax1 flechax1    SI        -        1.7/3
+    17 Up on the Battlements              21770..22395      5      5.0  verticalx4 flechax1     -       SI       38.1/108
+    18 On the Roof                        20974..21769      2      2.0  horizontalx1 sogax1    SI        -        1.7/4
+    19 The Forgotten Abbey                51552..53869      8      8.0  horizontalx8            -       SI        1.7/5
+    20 Ballroom East                      27478..76587      5      5.0  horizontalx1 verticalx4     -       SI       16.9/66
+    21 Ballroom West                      76588..77532      3      3.0  horizontalx1 verticalx2     -       SI       19.6/56
+    22 To the Kitchens    Main Stairway   77533..78758      6      6.0  horizontalx6            -        -        1.6/4
+    23 The Kitchen                        78759..81430      4      4.0  verticalx4              -       SI       41.1/112
+    24 West of Kitchen                    79390..81968      4      4.0  verticalx4              -       SI       37.5/112
+    25 Cold Store                         42974..44190      5      5.0  horizontalx4 sogax1    SI       SI        1.7/5
+    26 East Wall Base                     30533..31329      2      2.0  verticalx2              -        -       46.4/168
+    27 The Chapel                          3728..6017       6      6.0  horizontalx1 verticalx5     -        -       10.1/24
+    28 First Landing                       2831..84509      1      1.0  horizontalx1            -        -        1.4/3
+    29 The Nightmare Room                  6598..82980      7      7.0  verticalx7              -       SI       25.4/152
+    30 The Banyan Tree                     9834..82457      4      4.0  horizontalx1 verticalx3     -        -       11.2/28
+    31 Swimming Pool                      17102..17225      2      2.0  horizontalx1 sogax1    SI        -        1.5/2
+    32 Halfway up the East Wall           31330..32032      1      1.0  horizontalx1            -        -        1.6/5
+    33 The Bathroom                         594..85368      1      0.8  vaciox1 horizontalx0     -        -        1.6/3
+    34 Top Landing                         1860..84597      3      3.0  horizontalx1 verticalx2     -        -       12.5/48
+    35 Master Bedroom                     83663..84321      0      0.0                          -        -        0.0/0
+    36 A bit of tree                      11051..11675      3      3.0  horizontalx1 verticalx1 flechax1     -        -       11.0/48
+    37 Orangery                           13996..37030      3      3.0  verticalx2 flechax1     -        -       32.5/144
+    38 Priests' Hole                      32033..34119      4      4.0  horizontalx1 verticalx3     -        -       11.7/28
+    39 Emergency Generator                34120..34620      1      1.0  horizontalx1            -        -        1.8/4
+    40 Dr Jones will never believe this   34621..35593      2      2.0  verticalx2              -        -       28.2/70
+    41 The Attic                          35594..36127      8      8.0  verticalx6 flechax2     -       SI       22.2/52
+    42 Under the Roof                     11676..36580      3      3.0  horizontalx2 flechax1     -        -        1.4/3
+    43 Conservatory Roof                  12491..36869      2      2.0  horizontalx2            -        -        1.7/7
+    44 On top of the house                26686..27339      1      1.0  verticalx1              -        -       29.2/80
+    45 Under the Drive                    54407..57366      3      3.0  horizontalx2 verticalx1     -        -        9.2/56
+    46 Tree Root                          54954..56701      4      4.0  horizontalx1 verticalx3     -        -       19.6/80
+    48 Nomen Luni                         20111..20973      4      4.0  horizontalx2 verticalx2     -        -       16.7/70
+    49 The Wine Cellar                    44660..51551      4      4.0  horizontalx4            -       SI        1.9/5
+    50 Watch Tower                        22661..24477      2      2.0  horizontalx2            -        -        1.9/9
+    51 Tool  Shed                         37854..47448      3      3.0  horizontalx3            -        -        1.8/8
+    52 Back Stairway                      37281..47906      3      3.0  horizontalx2 verticalx1     -        -       10.4/68
+    53 Back Door                          37504..47816      0      0.0                          -        -        0.0/0
+    54 West  Wing                         16696..37280      3      3.0  horizontalx1 verticalx2     -        -       14.5/56
+    55 West Bedroom                       17833..18326      2      2.0  verticalx2              -        -       17.8/52
+    56 West Wing Roof                     15856..37084      3      3.0  horizontalx2 flechax1     -        -        1.6/4
+    57 Above the West Bedroom             18327..18958      2      2.0  verticalx2              -        -       36.0/96
+    58 The Beach                          37974..42061      2      2.0  sogax1 flechax1        SI        -        0.0/0
+    59 The Yacht                          39041..41584      2      2.0  horizontalx1 verticalx1     -        -       12.6/56
+    60 The Bow                            39630..41027      2      2.0  horizontalx2            -        -        1.7/4
+
+=== la soga ===
+  salas con soga: [16, 18, 25, 31, 58]
+  Willy colgado (rangos de frames): [21559..21613, 22527..22653, 24552..25118, 38242..38333, 38587..38762, 41698..41868, 43486..43799]
+
+=== vidas ===
+  frame 594: 0 -> 7 (no es decremento)
+  frame 12835: 7 -> 6 (decremento; loseLife no vista como CALL cerca — probablemente entra por JP)
+  frame 13749: 6 -> 5 (decremento; loseLife no vista como CALL cerca — probablemente entra por JP)
+
+=== baseline de atribucion (sin plano dir) ===
+  por sala: entradas owner promedio vs entidades activas + Willy.
+  El numero a batir: en salas con par identico, owner da UNA entrada por grafico
+  compartido; el plano dir tiene que dar una por ENTIDAD.
+  sala    0 The Off Licence                owner 0.9 vs activos+1 3.8 
+  sala    1 The Bridge                     owner 0.8 vs activos+1 4.0  <- PAR IDENTICO
+  sala    2 Under the MegaTree             owner 0.9 vs activos+1 4.0 
+  sala    3 At the Foot of the MegaTree    owner 0.8 vs activos+1 5.0  <- PAR IDENTICO
+  sala    4 The Drive                      owner 0.9 vs activos+1 6.0  <- PAR IDENTICO
+  sala    5 The Security Guard             owner 0.8 vs activos+1 5.0  <- PAR IDENTICO
+  sala    7 Cuckoo's Nest                  owner 0.8 vs activos+1 4.0 
+  sala    8 Inside the MegaTrunk           owner 0.8 vs activos+1 8.0  <- PAR IDENTICO
+  sala    9 On a Branch Over the Drive     owner 1.9 vs activos+1 6.0 
+  sala   10 The Front Door                 owner 0.9 vs activos+1 1.0 
+  sala   11 The Hall                       owner 0.9 vs activos+1 6.0 
+  sala   12 Tree Top                       owner 0.8 vs activos+1 5.0 
+  sala   13 Out on a limb                  owner 0.9 vs activos+1 4.0 
+  sala   14 Rescue Esmerelda               owner 0.6 vs activos+1 5.0  <- PAR IDENTICO
+  sala   15 I'm sure I've seen this before.. owner 0.7 vs activos+1 8.0  <- PAR IDENTICO
+  sala   16 We must perform a Quirkafleeg  owner 0.8 vs activos+1 4.0 
+  sala   17 Up on the Battlements          owner 0.7 vs activos+1 6.0  <- PAR IDENTICO
+  sala   18 On the Roof                    owner 0.9 vs activos+1 3.0 
+  sala   19 The Forgotten Abbey            owner 0.8 vs activos+1 9.0  <- PAR IDENTICO
+  sala   20 Ballroom East                  owner 0.9 vs activos+1 6.0  <- PAR IDENTICO
+  sala   21 Ballroom West                  owner 0.9 vs activos+1 4.0  <- PAR IDENTICO
+  sala   22 To the Kitchens    Main Stairway owner 2.0 vs activos+1 7.0 
+  sala   23 The Kitchen                    owner 0.9 vs activos+1 5.0  <- PAR IDENTICO
+  sala   24 West of Kitchen                owner 1.0 vs activos+1 5.0  <- PAR IDENTICO
+  sala   25 Cold Store                     owner 0.8 vs activos+1 6.0  <- PAR IDENTICO
+  sala   26 East Wall Base                 owner 0.8 vs activos+1 3.0 
+  sala   27 The Chapel                     owner 1.0 vs activos+1 7.0 
+  sala   28 First Landing                  owner 0.8 vs activos+1 2.0 
+  sala   29 The Nightmare Room             owner 0.0 vs activos+1 8.0  <- PAR IDENTICO
+  sala   30 The Banyan Tree                owner 0.8 vs activos+1 5.0 
+  sala   31 Swimming Pool                  owner 1.0 vs activos+1 3.0 
+  sala   32 Halfway up the East Wall       owner 1.0 vs activos+1 2.0 
+  sala   33 The Bathroom                   owner 1.9 vs activos+1 1.8 
+  sala   34 Top Landing                    owner 0.9 vs activos+1 4.0 
+  sala   35 Master Bedroom                 owner 0.9 vs activos+1 1.0 
+  sala   36 A bit of tree                  owner 1.0 vs activos+1 4.0 
+  sala   37 Orangery                       owner 0.8 vs activos+1 4.0 
+  sala   38 Priests' Hole                  owner 1.0 vs activos+1 5.0 
+  sala   39 Emergency Generator            owner 1.0 vs activos+1 2.0 
+  sala   40 Dr Jones will never believe this owner 0.9 vs activos+1 3.0 
+  sala   41 The Attic                      owner 1.0 vs activos+1 9.0  <- PAR IDENTICO
+  sala   42 Under the Roof                 owner 1.0 vs activos+1 4.0 
+  sala   43 Conservatory Roof              owner 0.7 vs activos+1 3.0 
+  sala   44 On top of the house            owner 1.0 vs activos+1 2.0 
+  sala   45 Under the Drive                owner 0.8 vs activos+1 4.0 
+  sala   46 Tree Root                      owner 0.9 vs activos+1 5.0 
+  sala   48 Nomen Luni                     owner 0.8 vs activos+1 5.0 
+  sala   49 The Wine Cellar                owner 0.8 vs activos+1 5.0  <- PAR IDENTICO
+  sala   50 Watch Tower                    owner 0.9 vs activos+1 3.0 
+  sala   51 Tool  Shed                     owner 0.9 vs activos+1 4.0 
+  sala   52 Back Stairway                  owner 0.9 vs activos+1 4.0 
+  sala   53 Back Door                      owner 0.8 vs activos+1 1.0 
+  sala   54 West  Wing                     owner 0.9 vs activos+1 4.0 
+  sala   55 West Bedroom                   owner 1.0 vs activos+1 3.0 
+  sala   56 West Wing Roof                 owner 0.7 vs activos+1 4.0 
+  sala   57 Above the West Bedroom         owner 0.9 vs activos+1 3.0 
+  sala   58 The Beach                      owner 0.9 vs activos+1 3.0 
+  sala   59 The Yacht                      owner 0.9 vs activos+1 3.0 
+  sala   60 The Bow                        owner 0.9 vs activos+1 3.0 
+
+leer asi: si 'ejecutada' da NO en alguna rutina del oraculo, el RZX
+no corre el juego documentado (o la direccion esta mal transcripta) y NADA de lo
+demas vale. 'specs' vs 'activos' valida la tabla de entidades; 'mov avg' chico y
+acotado valida los offsets de posicion. Las salas con soga y par identico son
+donde el smoke test del plano dir (§3.1) se juega.

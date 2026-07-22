@@ -949,6 +949,7 @@ public class JSW3D extends ApplicationAdapter {
       replayThread = new Thread(replay, "taint-replay");
       replayThread.setDaemon(true);
       replayThread.start();
+      loadSemanticBase(activeGame);
       printStatus();
     } catch (Exception e) {
       throw new RuntimeException("No pude cargar el catalogo de sprites de " + dbPath, e);
@@ -1022,6 +1023,7 @@ public class JSW3D extends ApplicationAdapter {
       long t1 = perf ? System.nanoTime() : 0;
       updateObjects(snap);
       updateSprites(snap);
+      updateSkeleton(snap);
       if (junkOn || lampsOn || balloonsOn)
         junk.syncSprites(spriteBoxes, snapDt);
       if (dustOn)
@@ -1112,6 +1114,8 @@ public class JSW3D extends ApplicationAdapter {
       batch.render(s, env);
     for (int i = 0; i < ropeCount; i++)
       batch.render(ropePool.get(i), env);
+    for (int i = 0; i < skeletonCount; i++)
+      batch.render(skeletonPool.get(i), env);
     if (junkOn || balloonsOn)
       for (ModelInstance j : junkInstances)
         batch.render(j, env);
@@ -1356,6 +1360,8 @@ public class JSW3D extends ApplicationAdapter {
         () -> reliefFill, v -> reliefFill = v, "");
     addFlag("render.items", "items", "Render", "deteccion de items",
         () -> itemsOn, v -> itemsOn = v, "");
+    addFlag("render.skeleton", "skeleton", "Render", "esqueleto de dependencias",
+        () -> skeletonOn, v -> skeletonOn = v, "");
     addParam("general.ghostAlpha", "ghost.alpha", "Render", "fantasmas opacidad",
         .1f, 1, .05f, false, () -> ghostAlpha, v -> ghostAlpha = v);
     addFlag("render.spriteBits", "sprite.bits", "Render", "sprite bits (mascara)",
@@ -2125,6 +2131,200 @@ public class JSW3D extends ApplicationAdapter {
     ModelInstance inst = ropePool.get(ropeCount++);
     inst.materials.first().set(ColorAttribute.createDiffuse(ink));
     inst.transform.setToTranslation(x + .5f, H - 1 - y + .5f, midZ());
+  }
+
+  // ===================== jerarquía como esqueleto (BASE-SEMANTICA §3.5) =====================
+
+  /**
+   * La visualización §3.5: las aristas de dependencia de la base semántica como LÍNEAS 3D.
+   * Requiere el plano dir vivo ({@code -Ddir.plane=true}, que puebla
+   * {@code snap.dirNode()}) y la base construida por SemanticCapture+SemanticBuild
+   * ({@code analysis/<juego>-semantic.db}); sin cualquiera de las dos la perilla queda
+   * inerte. Dos trazos: la CADENA interna de una instancia alargada (la soga: sus bytes
+   * ordenados por {@code writeOrder}, colgando del ancla = el de menor orden — el orden de
+   * dibujo del juego ES el orden del esqueleto), y las aristas de {@code deps} activas en
+   * el frame, entre los centroides de las dos instancias (Willy colgado → su soga).
+   */
+  private boolean skeletonOn = bprop("render.skeleton", "skeleton", false);
+  private Model skeletonSegModel;
+  private final List<ModelInstance> skeletonPool = new ArrayList<>();
+  private int skeletonCount;
+  /** pares de spec conocidos por la base (instances.block_base) y filas de deps. */
+  private final java.util.Set<Integer> semPairs = new java.util.HashSet<>();
+  private final List<int[]> semDeps = new ArrayList<>(); // {frame0, frame1, a, b}
+  private final Map<Integer, int[]> skelLeafMemo = new HashMap<>();
+  /** la cadena/centroide de cada instancia sobrevive unos frames: entre ticks de juego el
+   *  motor borra y repinta, y el snapshot intermedio ve la sala limpia — sin esto la soga
+   *  parpadea a la mitad de los frames. */
+  private final Map<Integer, Object[]> skelCache = new HashMap<>(); // par -> {frame, pts}
+
+  /** carga instances/deps si existen; tabla o archivo ausente = feature apagada, sin ruido. */
+  private void loadSemanticBase(String game) {
+    String path = System.getProperty("semantic.db", "analysis/" + game + "-semantic.db");
+    if (!new java.io.File(path).exists())
+      return;
+    try (java.sql.Connection conn =
+             java.sql.DriverManager.getConnection("jdbc:sqlite:" + path);
+         var st = conn.createStatement()) {
+      try (var rs = st.executeQuery("SELECT DISTINCT block_base FROM instances WHERE slot >= 0")) {
+        while (rs.next())
+          semPairs.add(rs.getInt(1));
+      }
+      try (var rs = st.executeQuery(
+          "SELECT frame_first, frame_last, instance_a, instance_b FROM deps")) {
+        while (rs.next())
+          semDeps.add(new int[]{rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4)});
+      }
+      if (TaintReplay.LOG)
+        System.out.println("base semantica: " + semPairs.size() + " instancias, "
+            + semDeps.size() + " deps (" + path + ")");
+    } catch (Exception e) {
+      if (TaintReplay.LOG)
+        System.out.println("base semantica no cargada: " + e.getMessage());
+    }
+  }
+
+  /** un segmento de esqueleto entre dos puntos del plano de juego, en {@code z}. */
+  private void skeletonSegment(float x1, float y1, float x2, float y2, float z, Color c) {
+    if (skeletonSegModel == null)
+      skeletonSegModel = new ModelBuilder().createBox(1f, 1f, 1f,
+          new Material(ColorAttribute.createDiffuse(Color.WHITE),
+              ColorAttribute.createEmissive(.35f, .35f, .35f, 1f)),
+          Usage.Position | Usage.Normal);
+    float dx = x2 - x1, dy = y2 - y1;
+    float len = (float) Math.sqrt(dx * dx + dy * dy);
+    if (len < .01f)
+      return;
+    while (skeletonPool.size() <= skeletonCount)
+      skeletonPool.add(new ModelInstance(skeletonSegModel));
+    ModelInstance inst = skeletonPool.get(skeletonCount++);
+    inst.materials.first().set(ColorAttribute.createDiffuse(c));
+    inst.transform.setToTranslation((x1 + x2) / 2f, (y1 + y2) / 2f, z)
+        .rotateRad(com.badlogic.gdx.math.Vector3.Z, (float) Math.atan2(dy, dx))
+        .scale(len, 1.6f, 1.6f);
+  }
+
+  /**
+   * Resuelve cada byte con dueño a su instancia por las hojas dir (par de spec de la base),
+   * arma la cadena interna de las instancias ALARGADAS (alto ≥ 2× ancho: la soga sí, un
+   * guardián 16x16 no) y tiende las aristas de deps activas entre centroides. Corre en el
+   * hilo de render sobre los arrays append-only del taint — el mismo trato que el modo
+   * headless ya le da a {@code leavesSorted}.
+   */
+  private void updateSkeleton(TaintReplay.FrameSnapshot snap) {
+    skeletonCount = 0;
+    if (!skeletonOn || snap.dirNode() == null || replay.dir == null || semPairs.isEmpty())
+      return;
+    if (skelLeafMemo.size() > 400_000)
+      skelLeafMemo.clear();
+    Map<Integer, List<int[]>> byInst = new HashMap<>(); // par -> [{x, y, writeOrder}]
+    List<int[]> willyBytes = new ArrayList<>();
+    for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
+      int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7);
+      // cualquier byte ENCENDIDO: el plano dir decide solo si pertenece a una instancia —
+      // condicionar al owner del plano valor ata el esqueleto al catalogo curado, que
+      // clasifica poco a proposito
+      if (y >= 128 || (snap.pixels()[i] & 0xff) == 0 || snap.dirNode()[i] == 0)
+        continue;
+      int[] lv = replay.dir.leavesSorted(snap.dirNode()[i], TaintReplay.DIR_LEAFCAP,
+          skelLeafMemo);
+      if (lv == null)
+        continue;
+      int px = (i & 31) * 8 + 4, py = H - y;
+      int order = replay.writeOrder[i];
+      // un byte con hojas de willy ES de willy aunque arrastre el par de la soga —
+      // meterlo en la cadena de la soga le ponía un bulto de 16x16 en el medio
+      boolean willy = false;
+      java.util.Set<Integer> pairsHere = null;
+      for (int leaf : lv) {
+        if (leaf >= 49152) {
+          int off = leaf % 256;
+          if (off >= 240) {
+            int pair = leaf - (off - 240) % 2;
+            if (semPairs.contains(pair)) {
+              if (pairsHere == null)
+                pairsHere = new java.util.HashSet<>();
+              pairsHere.add(pair);
+            }
+          }
+        } else if (leaf >= 34240 && leaf <= 34303)
+          willy = true;
+      }
+      if (willy)
+        willyBytes.add(new int[]{px, py, order});
+      else if (pairsHere != null)
+        for (int pair : pairsHere)
+          byInst.computeIfAbsent(pair, k -> new ArrayList<>()).add(new int[]{px, py, order});
+    }
+    // persistencia entre ticks: el motor borra y repinta por tick, y el snapshot
+    // intermedio ve la sala limpia. Lo FRESCO renueva la caché sólo si es sustancial (o
+    // si lo cacheado ya venció); después, una vista actual rala se reemplaza por la
+    // cacheada reciente para render. La caché nunca se renueva con lo reusado.
+    for (Map.Entry<Integer, List<int[]>> e : byInst.entrySet()) {
+      Object[] c = skelCache.get(e.getKey());
+      @SuppressWarnings("unchecked")
+      List<int[]> cached = c == null ? null : (List<int[]>) c[1];
+      if (cached == null || e.getValue().size() * 2 >= cached.size()
+          || snap.frame() - (Integer) c[0] > 10)
+        skelCache.put(e.getKey(), new Object[]{snap.frame(), e.getValue()});
+    }
+    for (Map.Entry<Integer, Object[]> e : skelCache.entrySet()) {
+      List<int[]> cur = byInst.get(e.getKey());
+      @SuppressWarnings("unchecked")
+      List<int[]> cached = (List<int[]>) e.getValue()[1];
+      if ((cur == null || cur.size() * 2 < cached.size())
+          && snap.frame() - (Integer) e.getValue()[0] <= 10)
+        byInst.put(e.getKey(), cached);
+    }
+    // centroides por instancia (willy = instancia -1)
+    Map<Integer, float[]> centers = new HashMap<>();
+    for (Map.Entry<Integer, List<int[]>> e : byInst.entrySet())
+      centers.put(e.getKey(), centroid(e.getValue()));
+    if (!willyBytes.isEmpty())
+      centers.put(-1, centroid(willyBytes));
+    // cadena interna: una instancia alargada es una soga, no un guardián
+    int chains = 0;
+    for (Map.Entry<Integer, List<int[]>> e : byInst.entrySet()) {
+      List<int[]> pts = e.getValue();
+      int minX = Integer.MAX_VALUE, maxX = 0, minY = Integer.MAX_VALUE, maxY = 0;
+      for (int[] p : pts) {
+        minX = Math.min(minX, p[0]);
+        maxX = Math.max(maxX, p[0]);
+        minY = Math.min(minY, p[1]);
+        maxY = Math.max(maxY, p[1]);
+      }
+      if (maxY - minY < 2 * (maxX - minX + 1) || pts.size() < 4)
+        continue;
+      pts.sort((a, b) -> Integer.compare(a[2], b[2])); // el orden de dibujo: ancla primero
+      chains++;
+      for (int k = 1; k < pts.size(); k++)
+        skeletonSegment(pts.get(k - 1)[0], pts.get(k - 1)[1], pts.get(k)[0], pts.get(k)[1],
+            midZ() + 2, Color.GOLD);
+    }
+    // aristas de deps activas en este frame, entre centroides presentes
+    int edges = 0;
+    for (int[] d : semDeps) {
+      if (snap.frame() < d[0] - 4 || snap.frame() > d[1] + 4)
+        continue;
+      float[] a = centers.get(d[2]), b = centers.get(d[3]);
+      if (a == null || b == null)
+        continue;
+      edges++;
+      skeletonSegment(a[0], a[1], b[0], b[1], midZ() + 3, Color.CYAN);
+    }
+    if (Boolean.getBoolean("skeleton.probe") && snap.frame() % 50 == 0)
+      System.out.println("skeleton f=" + snap.frame() + ": instancias en pantalla="
+          + byInst.size() + (willyBytes.isEmpty() ? "" : "+willy") + " cadenas=" + chains
+          + " aristas=" + edges + " segmentos=" + skeletonCount);
+  }
+
+  private static float[] centroid(List<int[]> pts) {
+    float sx = 0, sy = 0;
+    for (int[] p : pts) {
+      sx += p[0];
+      sy += p[1];
+    }
+    return new float[]{sx / pts.size(), sy / pts.size()};
   }
 
   /** the 2D room: every screen byte decoded normally, sprite-owned bytes erased to paper. */

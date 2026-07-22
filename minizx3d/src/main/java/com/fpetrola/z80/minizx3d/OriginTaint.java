@@ -48,7 +48,16 @@ public final class OriginTaint {
    * old leaves are exactly what it is looking for — so {@code -Dtaint.depth} raises it
    * (TaintDiscover defaults to 512).
    */
-  private final int maxDepth = Integer.getInteger("taint.depth", 64);
+  private final int maxDepth;
+  /**
+   * Which side survives the depth cap. The VALUE plane keeps the SHALLOW side (the fresh
+   * sprite of the blit; accumulated history is stale compositing). The DIRECTION plane
+   * (doc/BASE-SEMANTICA.md §2.2) inverts it: the deep side is the chain that reaches the
+   * entity's state variable, which is the identity being tracked — and keeping it also
+   * FREEZES the chain at the cap (the returned node is an existing one, so further unions
+   * are memo hits instead of new nodes).
+   */
+  private final boolean keepDeep;
 
   /** taint of every game memory byte / every Tracer register slot. */
   public final int[] mem = new int[0x10000];
@@ -84,7 +93,72 @@ public final class OriginTaint {
   private int[] uSprite = new int[1 << 14];
   private int[] uTile = new int[1 << 14];
   private int unions;
-  private final Map<Long, Integer> memo = new HashMap<>();
+  /**
+   * Memo de uniones por par (a,b). Mapa primitivo y no HashMap por PESO: el plano dir junta
+   * >10M de nodos en una corrida entera y el boxing de HashMap son ~50 bytes por entrada
+   * (~1GB él solo) contra ~12 acá — en una máquina de 7GB es la diferencia entre correr el
+   * RZX completo y colgar la sesión en swap.
+   */
+  private final LongIntMap memo = new LongIntMap(1 << 15);
+
+  /** open addressing lineal, claves long ≠ 0 (los pares de union: a ≥ 1), 0 = vacío. */
+  private static final class LongIntMap {
+    private long[] keys;
+    private int[] vals;
+    private int size, mask;
+
+    LongIntMap(int capacity) {
+      int c = 16;
+      while (c < capacity)
+        c <<= 1;
+      keys = new long[c];
+      vals = new int[c];
+      mask = c - 1;
+    }
+
+    private static int mix(long k) {
+      k *= 0x9E3779B97F4A7C15L;
+      return (int) (k ^ (k >>> 32));
+    }
+
+    int get(long k) {
+      int i = mix(k) & mask;
+      while (keys[i] != 0) {
+        if (keys[i] == k)
+          return vals[i];
+        i = (i + 1) & mask;
+      }
+      return 0;
+    }
+
+    void put(long k, int v) {
+      if (size * 5 >= keys.length * 3)
+        grow();
+      int i = mix(k) & mask;
+      while (keys[i] != 0) {
+        if (keys[i] == k) {
+          vals[i] = v;
+          return;
+        }
+        i = (i + 1) & mask;
+      }
+      keys[i] = k;
+      vals[i] = v;
+      size++;
+    }
+
+    private void grow() {
+      long[] ok = keys;
+      int[] ov = vals;
+      keys = new long[ok.length * 2];
+      vals = new int[ok.length * 2];
+      mask = keys.length - 1;
+      size = 0;
+      for (int j = 0; j < ok.length; j++)
+        if (ok[j] != 0)
+          put(ok[j], ov[j]);
+    }
+  }
 
   /** addr -> sprite base + 1 when addr belongs to a catalog sprite, else 0. */
   private final int[] catalogBase;
@@ -92,8 +166,15 @@ public final class OriginTaint {
   private final boolean[] tileZone;
 
   public OriginTaint(int[] catalogBase, boolean[] tileZone) {
+    this(catalogBase, tileZone, Integer.getInteger("taint.depth", 64), false);
+  }
+
+  /** a plane with its own policy: the dir plane passes a high cap and {@code keepDeep}. */
+  public OriginTaint(int[] catalogBase, boolean[] tileZone, int maxDepth, boolean keepDeep) {
     this.catalogBase = catalogBase;
     this.tileZone = tileZone;
+    this.maxDepth = maxDepth;
+    this.keepDeep = keepDeep;
   }
 
   public static int origin(int addr) {
@@ -117,14 +198,15 @@ public final class OriginTaint {
       b = t;
     }
     long key = ((long) a << 32) | (b & 0xffffffffL);
-    Integer hit = memo.get(key);
-    if (hit != null)
+    int hit = memo.get(key);
+    if (hit != 0)
       return hit;
     int da = depthOf(a), db = depthOf(b);
     // accumulated history (the deep side) is stale compositing; the fresh operand is the
     // content that matters. Keeping the shallow side preserves the sprite through a blit.
+    // The dir plane keeps the DEEP side instead: see keepDeep.
     if (Math.max(da, db) + 1 > maxDepth)
-      return da <= db ? a : b;
+      return keepDeep ? (da >= db ? a : b) : (da <= db ? a : b);
     int id = FIRST_UNION + unions;
     if (unions == ua.length)
       grow();
@@ -198,6 +280,61 @@ public final class OriginTaint {
   }
 
   private static final int[] EMPTY = new int[0];
+
+  /**
+   * Re-ancla la profundidad de un nodo re-internándolo por su CONJUNTO de hojas.
+   *
+   * <p>Por qué existe (medido en JSW, plano dir): una variable de estado actualizada por
+   * RMW ({@code y += dy}) gana +1 de profundidad POR FRAME aunque su conjunto de hojas
+   * converja en dos entradas; a ~500 frames toca el cap y desde ahí {@code keepDeep}
+   * devuelve siempre el nodo viejo, descartando el operando fresco de cada unión — el
+   * plano se fosiliza: los orígenes de gráficos, slots y tablas desaparecen de las hojas.
+   * Aplanar en el STORE (donde viven las variables de estado) corta ese crecimiento:
+   * el historial de construcción no converge, el conjunto sí.
+   *
+   * <p>Un nodo saturado (más hojas que {@code leafCap}) queda como está: no identifica
+   * nada y, al tocar el cap de profundidad, sus uniones se congelan en memo hits sin
+   * crear nodos. El intern por hash FNV-1a de 64 bits del set asume no-colisión.
+   */
+  public int flatten(int node, int leafCap) {
+    if (node < FIRST_UNION || depthOf(node) <= FLATTEN_DEPTH)
+      return node;
+    Integer hit = flatMemo.get(node);
+    if (hit != null)
+      return hit;
+    // los memos de arrays de hojas son lo que más pesa (hasta leafCap ints por nodo);
+    // podarlos cuesta recomputar un rato y salva a una máquina de 7GB del swap
+    if (flatLeaves.size() > 400_000)
+      flatLeaves.clear();
+    if (flatMemo.size() > 2_000_000)
+      flatMemo.clear();
+    int[] lv = leavesSorted(node, leafCap, flatLeaves);
+    int out = node;
+    if (lv != null) {
+      long h = 1469598103934665603L;
+      for (int a : lv) {
+        h ^= a;
+        h *= 1099511628211L;
+      }
+      Integer canon = setMemo.get(h);
+      if (canon == null) {
+        int n = NONE;
+        for (int a : lv)
+          n = union(n, origin(a));
+        setMemo.put(h, canon = n);
+      }
+      out = canon;
+    }
+    flatMemo.put(node, out);
+    return out;
+  }
+
+  /** por encima de esto, un store re-interna por conjunto; el canónico (≤ leafCap hojas en
+   *  fold izquierdo) queda siempre por debajo, así que aplanar es idempotente. */
+  private static final int FLATTEN_DEPTH = 128;
+  private final Map<Integer, Integer> flatMemo = new HashMap<>();
+  private final Map<Integer, int[]> flatLeaves = new HashMap<>();
+  private final Map<Long, Integer> setMemo = new HashMap<>();
 
   /** sorted-unique merge, or {@code null} (saturated) past {@code cap} elements. */
   private static int[] mergeSorted(int[] a, int[] b, int cap) {

@@ -99,12 +99,55 @@ public final class TaintReplay implements Runnable {
    *              here and not in the viewer because the call tree is rebuilt every frame and
    *              the viewer renders whenever it can: by then the ids mean something else.
    */
+  /**
+   * @param dirNode per byte, the DIR-plane node ({@code dir.mem}) — the provenance of WHERE
+   *                this byte was drawn, which is what resolves it to an instance of the
+   *                semantic base. {@code null} unless {@code -Ddir.plane=true}.
+   */
   public record FrameSnapshot(int frame, byte[] pixels, byte[] attrs, int[] owner, int[] tile,
-                              byte[] spriteBits, int[] group) {
+                              byte[] spriteBits, int[] group, int[] dirNode) {
   }
 
   private final String rzxPath;
   final OriginTaint taint;
+  /**
+   * El plano de DIRECCIÓN (doc/BASE-SEMANTICA.md §2): responde "desde qué estado se calculó
+   * DÓNDE escribir", donde el plano de valor responde de qué se hizo el valor. Es un plano
+   * superset: propaga igual que el de valor (roles 'V') MÁS la inyección de la procedencia
+   * de los registros con rol 'A' en cada acceso a memoria — así el índice de un load de
+   * tabla ({@code LD A,(DE)} con E=y sobre la SBL de JSW) viaja con el valor cargado, que
+   * es exactamente lo que el plano de valor descarta a propósito.
+   *
+   * <p>Necesita {@code reg}+{@code mem} PROPIOS (no alcanza capturar en el write): en JSW la
+   * procedencia útil se captura al escribir el buffer de composición ($6000) y tiene que
+   * viajar CON el byte hasta el display file, que lo escribe la copia de la raíz (medido:
+   * writeRoutine=0 para el 100% del playfield).
+   *
+   * <p>Política invertida ({@code keepDeep}): sobrevive al cap la cadena profunda, que es la
+   * que llega a la variable de estado de la entidad. {@code -Ddir.depth} (512) regula el cap.
+   *
+   * <p>{@code null} salvo {@code -Ddir.plane=true}: con el plano apagado no hay ni un branch
+   * extra tomado y el replay queda byte-idéntico al de antes.
+   */
+  final OriginTaint dir;
+  /** tope de hojas por conjunto en el plano dir: pasa esto y el byte no identifica nada.
+   *  Medido en JSW: la historia de transiciones de sala mete ~6 hojas por sala visitada en
+   *  TODA cadena de direcciones; 512 alcanza para el mapa entero y saturó 0 bytes. */
+  static final int DIR_LEAFCAP = Integer.getInteger("dir.leafcap", 512);
+
+  /**
+   * Hook de captura de capa 1 ({@code SemanticCapture}): cada write DURANTE ejecución no
+   * suprimida, con los nodos de ambos planos ya actualizados. El observador filtra qué
+   * direcciones le importan (display file, buffer de composición); acá no se decide eso.
+   */
+  interface CanvasWriteObserver {
+    void onWrite(int addr, int frame, int node, int routine, int writeOrder,
+                 int valNode, int dirNode);
+  }
+
+  volatile CanvasWriteObserver observer;
+  private static final int[] NO_CATALOG = new int[0x10000];
+  private static final boolean[] NO_TILES = new boolean[0x10000];
   /**
    * How many times each memory address was WRITTEN during the replay. Discovery's buffer
    * discriminator: a static graphic is read a lot and written at most a couple of times
@@ -241,6 +284,9 @@ public final class TaintReplay implements Runnable {
     this.rzxPath = rzxPath;
     this.taint = taint;
     this.onFrame = onFrame;
+    this.dir = Boolean.getBoolean("dir.plane")
+        ? new OriginTaint(NO_CATALOG, NO_TILES, Integer.getInteger("dir.depth", 512), true)
+        : null;
   }
 
   /**
@@ -438,6 +484,12 @@ public final class TaintReplay implements Runnable {
         if (a >= 0 && a <= 0xffff) {
           listener.lastRead = taint.read(a);
           listener.pendingRead = taint.union(listener.pendingRead, listener.lastRead);
+          if (dir != null) {
+            // acá vive la ampliación del plano dir: el valor cargado arrastra la
+            // procedencia del índice que formó la dirección (addrDir)
+            listener.lastReadDir = dir.union(dir.read(a), listener.addrDir);
+            listener.pendingReadDir = dir.union(listener.pendingReadDir, listener.lastReadDir);
+          }
           if (spriteBitsOn) {
             listener.lastBits = taint.readBits(a, value.intValue());
             listener.pendingBits |= listener.lastBits;
@@ -465,6 +517,14 @@ public final class TaintReplay implements Runnable {
             // combines what the instruction read from registers and memory
             taint.mem[a] = listener.bulk ? listener.lastRead
                 : taint.union(listener.srcTaint, listener.pendingRead);
+            // el plano dir suma addrDir: en LD (HL),A no hubo read de memoria, así que la
+            // procedencia de H/L sólo entra por acá. El store APLANA (ver flatten): sin
+            // eso las cadenas RMW de estado se fosilizan al tocar el cap de profundidad
+            if (dir != null)
+              dir.mem[a] = dir.flatten(listener.bulk
+                  ? dir.union(listener.lastReadDir, listener.addrDir)
+                  : dir.union(dir.union(listener.srcDir, listener.pendingReadDir),
+                      listener.addrDir), DIR_LEAFCAP);
             // a bit is sprite ink if it SURVIVES into the stored value and some operand
             // contributed it as sprite. Masking by the value is what makes this work for
             // every compositing op without decoding it: a copy keeps the mask, OR adds the
@@ -474,6 +534,11 @@ public final class TaintReplay implements Runnable {
             if (spriteBitsOn)
               taint.bits[a] = (byte) (value.intValue()
                   & (listener.bulk ? listener.lastBits : listener.srcBits | listener.pendingBits));
+            CanvasWriteObserver obs = observer;
+            if (obs != null)
+              obs.onWrite(a, listener.curFrame, curNode,
+                  curNode < nodeAddr.size ? nodeAddr.get(curNode) : 0, writeSeq,
+                  taint.mem[a], dir == null ? 0 : dir.mem[a]);
           }
           if (DEBUG && a >= SCREEN && a < SCREEN + PIXEL_BYTES) {
             listener.dbgScreenWrites++;
@@ -498,7 +563,8 @@ public final class TaintReplay implements Runnable {
       emulator.emulate();
       if (LOG)
         System.out.println("TaintReplay done: " + io.getCurrentFrameIndex() + "/" + totalFrames
-            + " frames, " + taint.nodeCount() + " union nodes");
+            + " frames, " + taint.nodeCount() + " union nodes"
+            + (dir != null ? ", " + dir.nodeCount() + " dir nodes" : ""));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -514,6 +580,14 @@ public final class TaintReplay implements Runnable {
     int srcTaint, pendingRead, lastRead;
     /** the same three, as sprite-bit masks (see {@link OriginTaint#bits}). */
     int srcBits, pendingBits, lastBits;
+    /**
+     * El plano dir de la instrucción en curso: {@code srcDir}/{@code pendingReadDir}/
+     * {@code lastReadDir} espejan a los tres de arriba, y {@code addrDir} es la unión de la
+     * procedencia de los registros con rol 'A' — la inyección que define al plano (§2.2.1).
+     * {@code addrDir} NO se recalcula en continuación (iteraciones de LDIR): los taints de
+     * HL/DE no cambian durante el bulk, el valor calculado una vez es el correcto.
+     */
+    int srcDir, addrDir, pendingReadDir, lastReadDir;
     long dbgScreenWrites, dbgOutside, dbgSuppressed, dbgUntainted;
     final Map<Integer, Long> dbgSuppressedPcs = new HashMap<>();
     private int prevPc = -1, lastFrame = -1, pacedFrom;
@@ -536,14 +610,23 @@ public final class TaintReplay implements Runnable {
         info = catalog.computeIfAbsent(pc, k -> Z80OpcodeInfo.of(instruction));
         // taint sources: VAL-role register reads only. ADDR tells where a value lives,
         // COND steers control flow — neither is what the value is made of.
-        int t = OriginTaint.NONE, tb = 0;
-        for (int slot : info.reads)
-          if (info.roles.getOrDefault(Tracer.CH_NAME[slot], "").indexOf('V') >= 0) {
+        // The dir plane widens the rule: 'A' slots feed addrDir (a channel can be "AV").
+        int t = OriginTaint.NONE, tb = 0, d = OriginTaint.NONE, ad = OriginTaint.NONE;
+        for (int slot : info.reads) {
+          String roles = info.roles.getOrDefault(Tracer.CH_NAME[slot], "");
+          if (roles.indexOf('V') >= 0) {
             t = taint.union(t, taint.reg[slot]);
             tb |= taint.regBits[slot];
+            if (dir != null)
+              d = dir.union(d, dir.reg[slot]);
           }
+          if (dir != null && roles.indexOf('A') >= 0)
+            ad = dir.union(ad, dir.reg[slot]);
+        }
         srcTaint = t;
         srcBits = tb;
+        srcDir = d;
+        addrDir = ad;
         int frame = io.getCurrentFrameIndex();
         curFrame = frame;
         if (frame != lastFrame) {
@@ -551,7 +634,12 @@ public final class TaintReplay implements Runnable {
           if (DEBUG && frame % 1000 == 0) {
             System.out.println("frame " + frame + ": screenWrites=" + dbgScreenWrites
                 + " outside=" + dbgOutside + " suppressed=" + dbgSuppressed
-                + " untainted=" + dbgUntainted + " suppressedPcs=" + dbgSuppressedPcs.entrySet()
+                + " untainted=" + dbgUntainted
+                + " valNodes=" + taint.nodeCount()
+                + (dir != null ? " dirNodes=" + dir.nodeCount() : "")
+                + " heapMB=" + (Runtime.getRuntime().totalMemory()
+                    - Runtime.getRuntime().freeMemory()) / (1 << 20)
+                + " suppressedPcs=" + dbgSuppressedPcs.entrySet()
                 .stream().sorted((a, b) -> Long.compare(b.getValue(), a.getValue())).limit(4)
                 .map(e -> {
                   Z80OpcodeInfo i = catalog.get(e.getKey());
@@ -588,6 +676,11 @@ public final class TaintReplay implements Runnable {
           int b1 = taint.regBits[a];
           taint.regBits[a] = taint.regBits[b];
           taint.regBits[b] = b1;
+          if (dir != null) {
+            int d1 = dir.reg[a];
+            dir.reg[a] = dir.reg[b];
+            dir.reg[b] = d1;
+          }
         }
         regSwap = true;
       } else if (instruction instanceof com.fpetrola.z80.instructions.impl.Ex
@@ -600,6 +693,11 @@ public final class TaintReplay implements Runnable {
           int b1 = taint.regBits[a];
           taint.regBits[a] = taint.regBits[b];
           taint.regBits[b] = b1;
+          if (dir != null) {
+            int d1 = dir.reg[a];
+            dir.reg[a] = dir.reg[b];
+            dir.reg[b] = d1;
+          }
         }
         regSwap = true;
       }
@@ -612,6 +710,7 @@ public final class TaintReplay implements Runnable {
       curLen = Math.max(1, instruction.getLength());
       pendingRead = OriginTaint.NONE;
       lastRead = OriginTaint.NONE;
+      pendingReadDir = lastReadDir = OriginTaint.NONE;
       pendingBits = lastBits = 0;
       inExecution = true;
     }
@@ -625,6 +724,9 @@ public final class TaintReplay implements Runnable {
           // not masked by the register's new value (we do not have it here) — the mask is
           // clamped by the value at the memory write, which is the only place it is read
           taint.regBits[slot] = srcBits | pendingBits;
+          // dir: pendingReadDir ya trae addrDir vía lastReadDir; la unión extra es memo hit
+          if (dir != null)
+            dir.reg[slot] = dir.union(dir.union(srcDir, pendingReadDir), addrDir);
         }
     }
 
@@ -662,7 +764,14 @@ public final class TaintReplay implements Runnable {
       int[] group = CallGroups.compute(pixels, lastWrite, frame - 1, writeNode, nodeParent,
           Integer.getInteger("objects.cols", 8), Integer.getInteger("objects.rows", 48),
           Float.parseFloat(System.getProperty("objects.fill", "0.2")));
-      onFrame.accept(new FrameSnapshot(frame, pixels, attrs, owner, tile, spriteBits, group));
+      int[] dirNode = null;
+      if (dir != null) {
+        dirNode = new int[PIXEL_BYTES];
+        for (int i = 0; i < PIXEL_BYTES; i++)
+          dirNode[i] = dir.mem[SCREEN + i];
+      }
+      onFrame.accept(new FrameSnapshot(frame, pixels, attrs, owner, tile, spriteBits, group,
+          dirNode));
     }
 
     /**
