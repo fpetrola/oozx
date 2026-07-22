@@ -640,6 +640,38 @@ personaje— y como texto se diffea en git, se grepea y se corrige a mano.
   adelante es, en pantalla, una sola cosa conexa dibujada en el mismo frame — no hay señal en
   el framebuffer que diga que son dos. Una persona lo ve de un vistazo.
 
+### El árbol de llamadas: medido, no adoptado todavía
+
+La idea (del usuario): un juego que dibuja un objeto compuesto lo hace desde una rutina, o
+desde varias que llama una que decidió dibujar la cosa. Esa decisión es **un nodo del árbol de
+llamadas**, y todo lo que forma el objeto cuelga de ahí. Es mejor que todo lo que probamos
+antes porque no es una medición de la PANTALLA —la pantalla no dice dónde termina un objeto—
+sino lo que el programa hizo. La ráfaga de escrituras que usamos hoy es la sombra de esto: el
+hueco mide "pasó trabajo en el medio", que es una forma indirecta de "se volvió de una rutina".
+
+`TaintReplay` lleva ahora una pila de llamadas en la sombra y anota, por cada byte de pantalla,
+el NODO que lo escribió (`writeNode`). `CallTreeProbe` lo mide contra un oráculo real: **los
+objetos marcados a mano en el editor**.
+
+Dos cosas costaron y conviene no volver a descubrirlas:
+
+- **Un nodo por INVOCACIÓN, no por camino de llamadas.** Internar por (padre, dirección) hacía
+  que el mismo blitter llamado doce veces fuera un solo nodo: medido, un frame entero colapsaba
+  en 4,1 grupos y todos los sprites dibujados por la misma rutina salían como una cosa.
+- **La pila se sigue por el SP, no contando CALL y RET.** El Z80 vuelve de maneras que un
+  contador no sobrevive —`PUSH addr` + `RET` como salto calculado, una rutina que se saca su
+  propio frame, una interrupción en cualquier lado— y con cada una la pila en la sombra se
+  vaciaba hasta que **todas** las escrituras parecían pasar en la raíz. Con el SP: si bajó, se
+  entró; si subió, se sacan los frames cuyo SP de entrada quedó por debajo.
+
+**Lo medido en Exolon** (3.000 frames muestreados, 5,4 nodos escriben por frame): subir **UN
+nivel** desde la hoja colapsa el objeto a un solo nodo en 3 de los 4 que aparecen —100%, 100% y
+80% de los frames—. O sea que la llamada dominante existe y se encuentra. Lo que falta resolver
+es la **contaminación** (44-64%): ese nodo también pinta cosas que no son el objeto. Ojo con
+cómo se lee ese número: las definiciones del oráculo son RECORTES hechos a mano, así que parte
+de lo "ajeno" es el resto del mismo objeto que quedó afuera del recorte. Hace falta medirlo
+contra una definición completa antes de decidir si el árbol reemplaza al criterio actual.
+
 ### El editor de sprites (Ctrl+E)
 
 Congela el juego (`TaintReplay.paused`) y muestra la **pantalla plana** —con el relieve

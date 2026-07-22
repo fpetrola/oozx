@@ -121,6 +121,64 @@ public final class TaintReplay implements Runnable {
    */
   public final int[] writeOrder = new int[PIXEL_BYTES];
   private int writeSeq;
+  /**
+   * Per screen byte, the CALL-TREE NODE that was executing when it was written.
+   *
+   * <p>A game that draws a composite object does it from one routine, or from a handful of
+   * routines called together by one that decided to draw the thing. That decision is a node
+   * in the call tree, and everything the object is made of hangs off it — which is a far
+   * better answer to "what belongs together" than any measurement taken on the screen. Write
+   * order (which is what this replaced) only measures how much work happened in between: a
+   * shadow of the same thing.
+   *
+   * <p>One node per INVOCATION, not per call path: interning by (parent, address) made the
+   * same blitter called twelve times a single node, and measured on Exolon it collapsed a
+   * whole frame into 4.1 groups — every sprite drawn by the same routine came out as one
+   * thing. What the user of this is after is the call that decided to draw ONE object, and
+   * that is an invocation. The tree is reset every frame, right after the snapshot is
+   * published, so it stays small and its ids mean something for exactly one frame.
+   */
+  public final int[] writeNode = new int[PIXEL_BYTES];
+  /** node -> parent node, and node -> the routine address it entered. Node 0 is the root. */
+  public final com.badlogic.gdx.utils.IntArray nodeParent = new com.badlogic.gdx.utils.IntArray();
+  public final com.badlogic.gdx.utils.IntArray nodeAddr = new com.badlogic.gdx.utils.IntArray();
+  private final com.badlogic.gdx.utils.IntArray callStack = new com.badlogic.gdx.utils.IntArray();
+  /** the SP each frame was entered with: what says a return really left it. */
+  private final com.badlogic.gdx.utils.IntArray callDepth = new com.badlogic.gdx.utils.IntArray();
+  private int curNode;
+
+  /**
+   * Starts the frame's tree over, keeping the stack we are standing in: the ids only have to
+   * be meaningful within one frame, and a tree that grows all run long is both huge and
+   * pointless — a call that happened four seconds ago groups nothing.
+   */
+  private void resetTree() {
+    java.util.List<Integer> chain = nodeChain(curNode);
+    com.badlogic.gdx.utils.IntArray sps = new com.badlogic.gdx.utils.IntArray(callDepth);
+    nodeParent.clear();
+    nodeAddr.clear();
+    callStack.clear();
+    callDepth.clear();
+    curNode = 0;
+    nodeParent.add(0);
+    nodeAddr.add(0);
+    for (int i = 0; i < chain.size(); i++) {
+      int n = nodeParent.size;
+      nodeParent.add(curNode);
+      nodeAddr.add(chain.get(i));
+      callStack.add(curNode);
+      callDepth.add(i < sps.size ? sps.get(i) : 0);
+      curNode = n;
+    }
+  }
+
+  /** the chain of routines that led to this node, outermost first. */
+  public java.util.List<Integer> nodeChain(int node) {
+    java.util.LinkedList<Integer> out = new java.util.LinkedList<>();
+    for (int n = node; n > 0; n = nodeParent.get(n))
+      out.addFirst(nodeAddr.get(n));
+    return out;
+  }
   private final Consumer<FrameSnapshot> onFrame;
   private volatile boolean stop;
   private WordNumber[] data;
@@ -370,6 +428,7 @@ public final class TaintReplay implements Runnable {
           if (a >= SCREEN && a < SCREEN + PIXEL_BYTES) {
             lastWrite[a - SCREEN] = listener.curFrame;
             writeOrder[a - SCREEN] = writeSeq;
+            writeNode[a - SCREEN] = curNode;
           }
           if (listener.inExecution && !listener.suppress) {
             // a block copy pairs each write with the read just before it; anything else
@@ -421,6 +480,7 @@ public final class TaintReplay implements Runnable {
     private final RZXPlayerIO<WordNumber> io;
     volatile boolean inExecution, suppress, bulk, regSwap;
     volatile int curPc = -1, curLen, curFrame;
+    private int lastSp = -1, lastPc = -1, lastLen = 1;
     int srcTaint, pendingRead, lastRead;
     /** the same three, as sprite-bit masks (see {@link OriginTaint#bits}). */
     int srcBits, pendingBits, lastBits;
@@ -439,6 +499,7 @@ public final class TaintReplay implements Runnable {
     @Override
     public void beforeExecution(Instruction<WordNumber> instruction) {
       int pc = state.getPc().read().intValue();
+      trackCalls(pc);
       boolean continuation = pc == prevPc; // LDIR iteration / HALT re-execution
       prevPc = pc;
       if (!continuation) {
@@ -470,7 +531,13 @@ public final class TaintReplay implements Runnable {
             dbgScreenWrites = dbgOutside = dbgSuppressed = dbgUntainted = 0;
             dbgSuppressedPcs.clear();
           }
+          if (Boolean.getBoolean("calls.debug") && frame % 50 == 0)
+            System.out.println("  frame " + frame + ": " + callsThisFrame + " calls, prof max "
+                + maxDepth + ", nodos " + nodeAddr.size);
+          callsThisFrame = 0;
+          maxDepth = 0;
           publish(frame);
+          resetTree(); // the consumer has just read this frame's tree; the next one is fresh
           if (paced)
             pace(frame);
         }
@@ -570,6 +637,56 @@ public final class TaintReplay implements Runnable {
      * targeting t0 + N*20ms absolutely) is what lets the speed change mid-replay without
      * the clock demanding a catch-up burst for time it "owes".
      */
+    /**
+     * The shadow call stack, from the EFFECT of the instruction that just ran instead of its
+     * opcode: SP down two with the PC somewhere else is a call (conditional ones and RSTs
+     * included, which an opcode table gets wrong); SP up two with the PC somewhere else is a
+     * return. PUSH and POP move SP without moving the PC, so they never look like either.
+     */
+    private void trackCalls(int pc) {
+      int sp = state.getRegisterSP().read().intValue();
+      if (lastSp >= 0 && pc != lastPc + lastLen) {
+        // The stack is followed by the SP ITSELF, not by counting calls and returns. Z80 code
+        // returns in ways a counter cannot survive — PUSH addr / RET as a computed jump, a
+        // routine popping its own frame, an interrupt landing mid-anything — and every one of
+        // those drained the shadow stack until EVERY screen write looked like it happened at
+        // the root, which is exactly what the first measurement showed.
+        if (sp < lastSp)
+          enter(pc, sp); // went deeper: whatever it was, it is a call as far as this cares
+        else if (sp > lastSp)
+          while (callDepth.size > 0 && callDepth.peek() < sp)
+            leave();
+      }
+      lastSp = sp;
+      lastPc = pc;
+      lastLen = Math.max(1, curLen);
+    }
+
+    /** how many calls this frame and how deep they went: is the tree real, or is it me? */
+    int callsThisFrame, maxDepth;
+
+    private void enter(int routine, int sp) {
+      callsThisFrame++;
+      maxDepth = Math.max(maxDepth, callStack.size + 1);
+      if (nodeParent.size == 0) { // node 0 is the root of this frame
+        nodeParent.add(0);
+        nodeAddr.add(0);
+      }
+      int n = nodeParent.size;
+      nodeParent.add(curNode);
+      nodeAddr.add(routine);
+      callStack.add(curNode);
+      callDepth.add(sp);
+      curNode = n;
+    }
+
+    private void leave() {
+      if (callStack.size > 0) {
+        curNode = callStack.pop();
+        callDepth.pop();
+      }
+    }
+
     private void pace(int frame) {
       // the sprite editor freezes the game so the picture stays still while you point at
       // it: the replay thread parks here instead of the viewer having to buffer a frame
