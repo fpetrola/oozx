@@ -167,6 +167,8 @@ public final class SpriteComposites {
    */
   private void scan(TaintReplay.FrameSnapshot snap, TaintReplay r) {
     int frame = snap.frame(), h = 192;
+    if (stats)
+      measureSteps(snap, r, frame);
     int top = JSW3D.iprop("render.playfield.top", "playfield.top", 0) * 8;
     int end = Math.min(h, top + JSW3D.iprop("render.playfield.rows", "playfield.rows", 24) * 8);
     // the snapshot is published when the frame index CHANGES, so what the screen holds was
@@ -525,6 +527,131 @@ public final class SpriteComposites {
     c.count++;
     c.lastFrame = snap.frame();
     pieces.forEach((base, n) -> c.pieces.merge(base, n, Integer::sum));
+  }
+
+  /**
+   * -Dobjects.stats: ¿el juego dibuja cada objeto DE UNA, o repinta solo lo que cambió?
+   *
+   * <p>Es la pregunta de la que depende todo el agrupamiento por llamada. Si un objeto se
+   * escribe entero en un frame, la llamada que lo dibujó lo tiene entero. Si se escribe en dos
+   * o tres tandas —solo la franja que cambió respecto del frame anterior—, cada llamada tiene
+   * un pedazo y ninguna tiene el objeto.
+   *
+   * <p>Se mide sobre el parche conexo de bytes de sprite encendidos, sin mirar cuándo se
+   * escribieron: de esos bytes, cuántos escribió ESTE frame (frescura), de cuántos frames
+   * distintos vienen, y —la que decide si hay arreglo posible— qué fracción del parche fue
+   * escrita por el MISMO CAMINO DE LLAMADA que la parte fresca ({@link TaintReplay#writeSig}).
+   * Si esa última es alta, juntar las tandas por camino recupera el objeto entero sin volver a
+   * mirar la pantalla; si es baja, el objeto lo dibujan rutinas distintas y no hay tal cosa
+   * como "la llamada que lo construye".
+   */
+  private final boolean stats = Boolean.getBoolean("objects.stats");
+  private int statPatches, statSteps2, statSteps3;
+  private double statFresh, statSameSig, statSameRt, statFrames, statOldSameRt, statOldSameSig;
+  private int statMulti;
+
+  private void measureSteps(TaintReplay.FrameSnapshot snap, TaintReplay r, int frame) {
+    java.util.Set<Integer> left = new java.util.HashSet<>();
+    for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++)
+      if ((snap.pixels()[i] & 0xff) != 0 && snap.owner()[i] != 0)
+        left.add(i);
+    java.util.ArrayDeque<Integer> queue = new java.util.ArrayDeque<>();
+    while (!left.isEmpty()) {
+      List<Integer> patch = new ArrayList<>();
+      int start = left.iterator().next();
+      left.remove(start);
+      queue.add(start);
+      while (!queue.isEmpty()) {
+        int i = queue.poll();
+        patch.add(i);
+        int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), c = i & 31;
+        for (int dy = -1; dy <= 1; dy++)
+          for (int dc = -1; dc <= 1; dc++) {
+            int yy = y + dy, cc = c + dc;
+            if (yy < 0 || yy >= 192 || cc < 0 || cc > 31)
+              continue;
+            int q = ((yy & 0xC0) << 5) | ((yy & 7) << 8) | ((yy & 0x38) << 2) | cc;
+            if (left.remove(q))
+              queue.add(q);
+          }
+      }
+      if (patch.size() < minBytes)
+        continue;
+      int fresh = 0;
+      Map<Integer, Integer> bySig = new HashMap<>();
+      java.util.Set<Integer> frames = new java.util.HashSet<>();
+      for (int i : patch) {
+        frames.add(r.lastWrite[i]);
+        if (r.lastWrite[i] == frame - 1)
+          fresh++;
+      }
+      int freshSig = 0, best = 0, freshRt = 0, bestRt = 0;
+      Map<Integer, Integer> byRt = new HashMap<>();
+      for (int i : patch)
+        if (r.lastWrite[i] == frame - 1) {
+          int n = bySig.merge(r.writeSig[i], 1, Integer::sum);
+          if (n > best) {
+            best = n;
+            freshSig = r.writeSig[i];
+          }
+          int m = byRt.merge(r.writeRoutine[i], 1, Integer::sum);
+          if (m > bestRt) {
+            bestRt = m;
+            freshRt = r.writeRoutine[i];
+          }
+        }
+      int same = 0, sameRt = 0;
+      for (int i : patch) {
+        if (r.writeSig[i] == freshSig)
+          same++;
+        if (r.writeRoutine[i] == freshRt)
+          sameRt++;
+      }
+      statSameRt += sameRt / (double) patch.size();
+      // LA pregunta: en un parche que vino de varios frames, ¿la parte vieja la escribió la
+      // misma rutina que la fresca? Si sí, es UN dibujo hecho en tandas y juntarlas por rutina
+      // lo recompone; si no, son dos cosas distintas que se tocan y no hay nada que juntar
+      if (frames.size() >= 2 && best > 0) {
+        int old = 0, oldSame = 0, oldSig = 0;
+        for (int i : patch)
+          if (r.lastWrite[i] != frame - 1) {
+            old++;
+            if (r.writeRoutine[i] == freshRt)
+              oldSame++;
+            if (r.writeSig[i] == freshSig)
+              oldSig++;
+          }
+        if (old > 0) {
+          statMulti++;
+          statOldSameRt += oldSame / (double) old;
+          statOldSameSig += oldSig / (double) old;
+        }
+      }
+      statPatches++;
+      statFresh += fresh / (double) patch.size();
+      statSameSig += same / (double) patch.size();
+      statFrames += frames.size();
+      if (frames.size() >= 2)
+        statSteps2++;
+      if (frames.size() >= 3)
+        statSteps3++;
+    }
+  }
+
+  /** el resumen de {@link #measureSteps}, al final de la pasada. */
+  public void printStats() {
+    if (!stats || statPatches == 0)
+      return;
+    System.out.printf("pasos por objeto: %d parches | fresco %.0f%% del parche | "
+        + "mismo camino %.0f%% | misma rutina %.0f%% | frames por parche %.1f | "
+        + "en 2+ tandas %.0f%% | 3+ %.0f%%%n",
+        statPatches, 100 * statFresh / statPatches, 100 * statSameSig / statPatches,
+        100 * statSameRt / statPatches, statFrames / statPatches,
+        100.0 * statSteps2 / statPatches, 100.0 * statSteps3 / statPatches);
+    if (statMulti > 0)
+      System.out.printf("  de los %d parches de varios frames: lo VIEJO lo escribio la misma "
+          + "rutina que lo fresco en %.0f%% (mismo camino entero: %.0f%%)%n", statMulti,
+          100 * statOldSameRt / statMulti, 100 * statOldSameSig / statMulti);
   }
 
   /** the game's memory as this pass left it, for whoever needs to draw the pieces. */

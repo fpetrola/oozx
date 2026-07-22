@@ -573,6 +573,7 @@ public final class TaintDiscover {
               Integer.getInteger("discover.objects.from", from),
               Integer.getInteger("discover.objects.frames", 6000),
               Integer.getInteger("discover.objects.sample", 4));
+          comp.printStats();
           objects = comp.top(Integer.getInteger("discover.objects.max", 240));
           if (replay == null)
             mem = comp.memByte(); // rebuilt from the db: this pass is the only emulator around

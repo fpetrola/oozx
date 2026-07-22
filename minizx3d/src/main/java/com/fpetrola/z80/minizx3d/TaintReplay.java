@@ -144,13 +144,32 @@ public final class TaintReplay implements Runnable {
    * published, so it stays small and its ids mean something for exactly one frame.
    */
   public final int[] writeNode = new int[PIXEL_BYTES];
+  /**
+   * The CALL PATH the byte was written from, as a hash of the chain of routine addresses —
+   * and unlike {@link #writeNode} it survives the frame.
+   *
+   * <p>Node ids are reset every frame, so for a byte written five frames ago there is no way
+   * to ask which call put it there, and that is exactly what a game that redraws only the
+   * part that changed forces you to ask. The path does not depend on the tree: the same
+   * routine reached the same way gives the same number this frame and the next.
+   */
+  public final int[] writeSig = new int[PIXEL_BYTES];
+  /**
+   * La RUTINA que escribió el byte (su dirección de entrada), sin la cadena que la llevó
+   * hasta ahí. El camino entero cambia si a la misma rutina se llega desde otro lado —una
+   * interrupción, otra rama del bucle principal— y entonces dos tandas del mismo dibujo
+   * parecen venir de lugares distintos; esta es la identidad que sobrevive a eso.
+   */
+  public final int[] writeRoutine = new int[PIXEL_BYTES];
   /** node -> parent node, and node -> the routine address it entered. Node 0 is the root. */
   public final com.badlogic.gdx.utils.IntArray nodeParent = new com.badlogic.gdx.utils.IntArray();
   public final com.badlogic.gdx.utils.IntArray nodeAddr = new com.badlogic.gdx.utils.IntArray();
   private final com.badlogic.gdx.utils.IntArray callStack = new com.badlogic.gdx.utils.IntArray();
   /** the SP each frame was entered with: what says a return really left it. */
   private final com.badlogic.gdx.utils.IntArray callDepth = new com.badlogic.gdx.utils.IntArray();
-  private int curNode;
+  /** the same chain as a running hash, kept incrementally: see {@link #writeSig}. */
+  private final com.badlogic.gdx.utils.IntArray sigStack = new com.badlogic.gdx.utils.IntArray();
+  private int curNode, curSig;
 
   /**
    * Starts the frame's tree over, keeping the stack we are standing in: the ids only have to
@@ -164,7 +183,9 @@ public final class TaintReplay implements Runnable {
     nodeAddr.clear();
     callStack.clear();
     callDepth.clear();
+    sigStack.clear();
     curNode = 0;
+    curSig = 0;
     nodeParent.add(0);
     nodeAddr.add(0);
     for (int i = 0; i < chain.size(); i++) {
@@ -173,6 +194,8 @@ public final class TaintReplay implements Runnable {
       nodeAddr.add(chain.get(i));
       callStack.add(curNode);
       callDepth.add(i < sps.size ? sps.get(i) : 0);
+      sigStack.add(curSig);
+      curSig = curSig * 31 + chain.get(i);
       curNode = n;
     }
   }
@@ -434,6 +457,8 @@ public final class TaintReplay implements Runnable {
             lastWrite[a - SCREEN] = listener.curFrame;
             writeOrder[a - SCREEN] = writeSeq;
             writeNode[a - SCREEN] = curNode;
+            writeSig[a - SCREEN] = curSig;
+            writeRoutine[a - SCREEN] = curNode < nodeAddr.size ? nodeAddr.get(curNode) : 0;
           }
           if (listener.inExecution && !listener.suppress) {
             // a block copy pairs each write with the read just before it; anything else
@@ -686,6 +711,8 @@ public final class TaintReplay implements Runnable {
       nodeAddr.add(routine);
       callStack.add(curNode);
       callDepth.add(sp);
+      sigStack.add(curSig);
+      curSig = curSig * 31 + routine;
       curNode = n;
     }
 
@@ -693,6 +720,8 @@ public final class TaintReplay implements Runnable {
       if (callStack.size > 0) {
         curNode = callStack.pop();
         callDepth.pop();
+        if (sigStack.size > 0)
+          curSig = sigStack.pop();
       }
     }
 
