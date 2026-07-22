@@ -1,998 +1,514 @@
 {
-  "default": "jsw",
-  "_properties_note": "bloque GLOBAL: se aplica a TODOS los juegos. Cada juego lo pisa con su propio 'properties'. Un -D en linea de comando le gana a ambos. Todo va como objeto anidado (render.*, sprite3d.*, discover.*), no como claves planas.",
-  "properties": {
-    "render": {
-      "tiles": "slab",
-      "blobs": "base"
-    },
-    "sprite3d": {
-      "auto": true
-    }
-  },
-  "games": {
-    "jsw": {
-      "title": "Jet Set Willy",
-      "rzx": [
-        "Jet Set Willy - Mildly Patched.rzx",
-        "/home/fernando/detodo/spectrum/oozx/Jet Set Willy - Mildly Patched.rzx"
-      ],
-      "db": [
-        "analysis/jsw-catalog.db",
-        "analysis/jsw.db"
-      ],
-      "properties": {
-        "sprite3d": {
-          "smoothing": 0.0,
-          "maxdepth": 8
-        }
-      },
-      "_sprites_note": "config por sprite, por direccion base del catalogo. Una entrada cubre TODO el strip de animacion de ese personaje (pagina de 256). Para averiguar la direccion: F7 cicla los sprites en pantalla y la imprime por consola.",
-      "sprites": {
-        "$9d00": {
-          "_que_es": "Willy: el protagonista, ovoide vertical con algo mas de cuerpo y apenas redondeado",
-          "technique": "PRIMITIVE",
-          "primitive": "OVOID",
-          "roundness": 0.85,
-          "smoothing": 0.25,
-          "voxelLook": false
-        },
-        "$b940": {
-          "_que_es": "barril: un barril ES un cilindro, asi que va CYL_V en vez de la forma generica",
-          "_ojo": "direccion sin verificar: si configura otro sprite, corregila mirando lo que imprime F7",
-          "technique": "PRIMITIVE",
-          "primitive": "CYL_V",
-          "roundness": 1.0,
-          "smoothing": 0.3,
-          "voxelLook": false
-        }
-      },
-      "config": {
-        "general": {
-          "smooth": false,
-          "smoothLevel": 2,
-          "depthScale": 0.41,
-          "tileDepth": 17.09,
-          "shadows": true,
-          "speed": 0.25,
-          "ghostAlpha": 0.85
-        },
-        "camera": {
-          "pos": [
-            178.8812,
-            136.5862,
-            281.8715
-          ],
-          "dir": [
-            -0.1697,
-            -0.1294,
-            -0.9769
-          ],
-          "up": [
-            -0.0222,
-            0.9916,
-            -0.1275
-          ]
-        },
-        "effects": {
-          "mist": {
-            "on": false,
-            "patches": 12,
-            "density": 1.0
-          },
-          "fire": {
-            "on": false,
-            "rate": 1.0,
-            "flameSize": 1.0
-          },
-          "rain": {
-            "on": false,
-            "drops": 5000,
-            "fallSpeed": 0.4,
-            "puddleMax": 1
-          },
-          "snow": {
-            "on": false,
-            "flakes": 230,
-            "fallSpeed": 1.0,
-            "settledMax": 2600
-          },
-          "storm": {
-            "on": true,
-            "period": 7.0,
-            "intensity": 1.0
-          },
-          "wind": {
-            "on": true,
-            "base": 5.0,
-            "gust": 8.0,
-            "vortex": {
-              "power": 5.25,
-              "radius": 100
-            }
-          },
-          "leaves": {
-            "on": false,
-            "count": 96,
-            "paperFraction": 0.35
-          },
-          "junk": {
-            "on": false,
-            "count": 60,
-            "kickStrength": 1.0,
-            "gravity": 1.0
-          },
-          "balloons": {
-            "on": false,
-            "balloons": 6,
-            "bubbles": 6,
-            "buoyancy": 1.0
-          },
-          "lamps": {
-            "on": false,
-            "count": 3,
-            "lightIntensity": 1.0
-          },
-          "dust": {
-            "on": false,
-            "rate": 1.0,
-            "moundMax": 4.5
-          },
-          "lantern": {
-            "on": false,
-            "ambient": 0.0,
-            "spriteLight": 300,
-            "itemLight": 0
-          },
-          "sprite3d": {
-            "voxels": true,
-            "maxDepth": 1,
-            "smoothing": 0.0,
-            "roundness": 0.0,
-            "voxelFill": 1.0,
-            "epx": 1
-          }
-        },
-        "sprite3d": {
-          "auto": "si",
-          "group": 256
-        },
-        "render": {
-          "tiles": "screen",
-          "blobs": "adjacent",
-          "playfield": {
-            "top": 0,
-            "rows": 24
-          },
-          "relief": {
-            "depth": 2.2,
-            "dyn": 4,
-            "decor": 4,
-            "dot": 12,
-            "dotpx": 2,
-            "bar": "float",
-            "island": 4,
-            "hold": 9,
-            "paper": 0.35,
-            "fill": "si"
-          },
-          "items": "no",
-          "spriteBits": "no",
-          "freshFrames": 0
-        },
-        "discover": {
-          "gate": 7,
-          "drift": 0.0,
-          "gap": 16,
-          "rows": 16,
-          "sample": 5,
-          "from": 500,
-          "mobility": 2.0,
-          "reuse": 2.0,
-          "freshfrac": 0.35,
-          "freshwin": 12,
-          "stamps": 16,
-          "bg": 64,
-          "maxwrites": 16,
-          "min": 3,
-          "minsize": 4,
-          "cap": 32
-        }
-      }
-    },
-    "mm": {
-      "title": "Manic Miner",
-      "rzx": [
-        "/home/fernando/detodo/spectrum/manic/manicnoliveslost.rzx",
-        "manicnoliveslost.rzx"
-      ],
-      "db": [
-        "analysis/mm.db"
-      ],
-      "properties": {}
-    },
-    "dd": {
-      "title": "Dynamite Dan",
-      "rzx": [
-        "/home/fernando/detodo/spectrum/dynamitedan/dynamitedan.rzx",
-        "dynamitedan.rzx"
-      ],
-      "db": [
-        "analysis/dd.db"
-      ],
-      "properties": {
-        "render": {
-          "items": false,
-          "freshFrames": 10
-        }
-      }
-    },
-    "rygar": {
-      "title": "Rygar",
-      "rzx": [
-        "/home/fernando/rygar.rzx",
-        "rygar.rzx"
-      ],
-      "db": [
-        "analysis/rygar.db"
-      ],
-      "properties": {
-        "render": {
-          "items": false,
-          "freshFrames": 10
-        }
-      }
-    },
-    "monty": {
-      "title": "Monty on the Run",
-      "rzx": [
-        "/home/fernando/Downloads/montyr.rzx",
-        "montyr.rzx"
-      ],
-      "db": [
-        "analysis/monty-taint.db"
-      ],
-      "_playfield_note": "el marcador va ARRIBA (2 filas) y el nombre de sala ABAJO: playfield = filas 2..21. Ejemplo de properties ANIDADO (estructurado).",
-      "properties": {
-        "render": {
-          "tiles": "screen",
-          "playfield": {
-            "top": 2,
-            "rows": 20
-          },
-          "blobs": "adjacent",
-          "freshFrames": 0,
-          "spriteBits": true
-        },
-        "sprite3d": {
-          "bits": true,
-          "maxdepth": 5
-        },
-        "fx": {
-          "shadows": false
-        }
-      },
-      "config": {
-        "general": {
-          "smooth": false,
-          "smoothLevel": 2,
-          "depthScale": 0.41,
-          "tileDepth": 17.09,
-          "shadows": true,
-          "speed": 32.0,
-          "ghostAlpha": 0.85
-        },
-        "camera": {
-          "pos": [
-            135.9866,
-            82.2865,
-            321.7969
-          ],
-          "dir": [
-            -0.0247,
-            0.041,
-            -0.9988
-          ],
-          "up": [
-            0.001,
-            0.9991,
-            0.0409
-          ]
-        },
-        "effects": {
-          "mist": {
-            "on": false,
-            "patches": 12,
-            "density": 1.0
-          },
-          "fire": {
-            "on": false,
-            "rate": 1.0,
-            "flameSize": 1.0
-          },
-          "rain": {
-            "on": false,
-            "drops": 5000,
-            "fallSpeed": 0.4,
-            "puddleMax": 1
-          },
-          "snow": {
-            "on": false,
-            "flakes": 230,
-            "fallSpeed": 1.0,
-            "settledMax": 2600
-          },
-          "storm": {
-            "on": true,
-            "period": 7.0,
-            "intensity": 1.0
-          },
-          "wind": {
-            "on": true,
-            "base": 5.0,
-            "gust": 8.0,
-            "vortex": {
-              "power": 5.25,
-              "radius": 100
-            }
-          },
-          "leaves": {
-            "on": false,
-            "count": 96,
-            "paperFraction": 0.35
-          },
-          "junk": {
-            "on": false,
-            "count": 60,
-            "kickStrength": 1.0,
-            "gravity": 1.0
-          },
-          "balloons": {
-            "on": false,
-            "balloons": 6,
-            "bubbles": 6,
-            "buoyancy": 1.0
-          },
-          "lamps": {
-            "on": false,
-            "count": 3,
-            "lightIntensity": 1.0
-          },
-          "dust": {
-            "on": false,
-            "rate": 1.0,
-            "moundMax": 4.5
-          },
-          "lantern": {
-            "on": false,
-            "ambient": 0.0,
-            "spriteLight": 300,
-            "itemLight": 0
-          },
-          "sprite3d": {
-            "voxels": true,
-            "maxDepth": 1,
-            "smoothing": 0.0,
-            "roundness": 0.0,
-            "voxelFill": 1.0,
-            "epx": 1
-          }
-        },
-        "sprite3d": {
-          "auto": "si",
-          "group": 256
-        },
-        "render": {
-          "tiles": "screen",
-          "blobs": "adjacent",
-          "playfield": {
-            "top": 0,
-            "rows": 24
-          },
-          "relief": {
-            "depth": 2.2,
-            "dyn": 4,
-            "decor": 4,
-            "dot": 12,
-            "dotpx": 2,
-            "bar": "float",
-            "island": 4,
-            "hold": 9,
-            "paper": 0.35,
-            "fill": "si"
-          },
-          "items": "no",
-          "spriteBits": "si",
-          "freshFrames": 8
-        },
-        "discover": {
-          "gate": 7,
-          "drift": 0.0,
-          "gap": 16,
-          "rows": 16,
-          "sample": 5,
-          "from": 500,
-          "mobility": 2.0,
-          "reuse": 2.0,
-          "freshfrac": 0.35,
-          "freshwin": 12,
-          "stamps": 16,
-          "bg": 64,
-          "maxwrites": 16,
-          "min": 3,
-          "minsize": 4,
-          "cap": 32
-        }
-      }
-    },
-    "exolon": {
-      "title": "Exolon",
-      "rzx": [
-        "/home/fernando/detodo/spectrum/exolon.rzx",
-        "exolon.rzx"
-      ],
-      "db": [
-        "analysis/exolon-taint.db",
-        "analysis/exolon.db"
-      ],
-      "_bar_note": "las tiras finas del cielo (destellos de estrellas, estelas) son fondo: extruidas salen como peinetas que van del frente al fondo. En Monty la misma forma es una repisa, por eso es por juego.",
-      "properties": {
-        "render": {
-          "tiles": "screen",
-          "blobs": "adjacent",
-          "items": false,
-          "spriteBits": true,
-          "freshFrames": 8,
-          "relief": {
-            "bar": "flat",
-            "dot": 2,
-            "dotpx": 2
-          },
-          "playfield": {
-            "rows": 20
-          }
-        },
-        "sprite3d": {
-          "smoothing": 0.35,
-          "maxdepth": 8
-        }
-      },
-      "config": {
-        "general": {
-          "smooth": false,
-          "smoothLevel": 2,
-          "depthScale": 0.41,
-          "tileDepth": 17.09,
-          "shadows": true,
-          "speed": 32.0,
-          "ghostAlpha": 0.85
-        },
-        "camera": {
-          "pos": [
-            117.1255,
-            151.9158,
-            299.1071
-          ],
-          "dir": [
-            0.036,
-            -0.1827,
-            -0.9824
-          ],
-          "up": [
-            0.0066,
-            0.9831,
-            -0.1827
-          ]
-        },
-        "effects": {
-          "mist": {
-            "on": false,
-            "patches": 12,
-            "density": 1.0
-          },
-          "fire": {
-            "on": false,
-            "rate": 1.0,
-            "flameSize": 1.0
-          },
-          "rain": {
-            "on": false,
-            "drops": 5000,
-            "fallSpeed": 0.4,
-            "puddleMax": 1
-          },
-          "snow": {
-            "on": false,
-            "flakes": 230,
-            "fallSpeed": 1.0,
-            "settledMax": 2600
-          },
-          "storm": {
-            "on": false,
-            "period": 7.0,
-            "intensity": 1.0
-          },
-          "wind": {
-            "on": false,
-            "base": 5.0,
-            "gust": 8.0,
-            "vortex": {
-              "power": 5.25,
-              "radius": 100
-            }
-          },
-          "leaves": {
-            "on": false,
-            "count": 96,
-            "paperFraction": 0.35
-          },
-          "junk": {
-            "on": false,
-            "count": 60,
-            "kickStrength": 1.0,
-            "gravity": 1.0
-          },
-          "balloons": {
-            "on": false,
-            "balloons": 6,
-            "bubbles": 6,
-            "buoyancy": 1.0
-          },
-          "lamps": {
-            "on": false,
-            "count": 3,
-            "lightIntensity": 1.0
-          },
-          "dust": {
-            "on": false,
-            "rate": 1.0,
-            "moundMax": 4.5
-          },
-          "lantern": {
-            "on": false,
-            "ambient": 0.0,
-            "spriteLight": 300,
-            "itemLight": 0
-          },
-          "sprite3d": {
-            "voxels": true,
-            "maxDepth": 1,
-            "smoothing": 0.0,
-            "roundness": 0.0,
-            "voxelFill": 1.0,
-            "epx": 1
-          }
-        },
-        "sprite3d": {
-          "auto": "si",
-          "group": 256
-        },
-        "render": {
-          "tiles": "off",
-          "blobs": "adjacent",
-          "playfield": {
-            "top": 0,
-            "rows": 24
-          },
-          "relief": {
-            "depth": 2.2,
-            "dyn": 4,
-            "decor": 4,
-            "dot": 12,
-            "dotpx": 2,
-            "bar": "float",
-            "island": 4,
-            "hold": 9,
-            "paper": 0.35,
-            "fill": "si"
-          },
-          "items": "no",
-          "spriteBits": "si",
-          "freshFrames": 8,
-          "sprites": "no"
-        },
-        "discover": {
-          "gate": 7,
-          "drift": 0.0,
-          "gap": 16,
-          "rows": 16,
-          "sample": 5,
-          "from": 500,
-          "mobility": 2.0,
-          "reuse": 2.0,
-          "freshfrac": 0.35,
-          "freshwin": 12,
-          "stamps": 16,
-          "bg": 64,
-          "maxwrites": 16,
-          "min": 3,
-          "minsize": 4,
-          "cap": 32
-        }
-      },
-      "objetos": [
-        {
-          "nombre": "objeto1",
-          "piezas": "$e11a,$e122,$e12a,$e11b,$e123,$e12b,$e11c,$e124,$e12c,$e115,$e11d,$e125,$e12d,$e135,$e116,$e11e,$e126,$e12e,$e136,$e117,$e11f,$e127,$e12f,$e137,$e138,$e140,$e148,$e150,$e158,$e139,$e141,$e149,$e151,$e159,$e13a,$e142,$e14a,$e152,$e15a,$e13b,$e143,$e14b,$e153,$e15b,$e13c,$e144,$e14c,$e154,$e15c,$e13d,$e145,$e14d,$e155,$e15d,$e13e,$e146,$e14e,$e156,$e15e,$e13f,$e147,$e14f,$e157,$e15f,$e160,$e168,$e170,$e178,$e180,$e161,$e169,$e171,$e179,$e181,$e162,$e16a,$e172,$e17a,$e182,$e163,$e16b,$e173,$e17b,$e183,$e164,$e16c,$e174,$e17c,$e184,$e16d,$e175,$e17d,$e16e,$e176,$e17e,$e16f,$e177,$e17f,$e188,$e190,$e198,$e191,$e193,$e194,$e195,$e196,$e197,$e1a0,$e1a1,$e1a2,$e1a3,$e1a4,$e1a5,$e1a6,$e1a7,$e1b1,$e1aa,$e1b2,$e1ba,$e1ab,$e1b3,$e1bb,$e1ad,$e1b5,$e1bd,$e1ae,$e1b6,$e1be,$e1af,$e1b7,$e1bf,$e1c0,$e1c8,$e1d0,$e1c1,$e1c9,$e1d1,$e1c2,$e1ca,$e1d2,$e1c3,$e1cb,$e1d3,$e1c4,$e1cc,$e1d4,$e1c5,$e1cd,$e1d5,$e1c6,$e1ce,$e1d6,$e1c7,$e1cf,$e1d7,$e1d8,$e1d9,$e1da,$e1db,$e1dc,$e1dd",
-          "rects": "61 82 30 60",
-          "hoja": "0 1 30 60",
-          "render": {
-            "tecnica": "SLAB",
-            "primitiva": "OVOID",
-            "redondez": 0.15,
-            "profundidad": 40,
-            "voxels": false
-          }
-        }
-      ]
-    }
-  },
-  "presets": {
-    "dark-storm": {
-      "general": {
-        "smooth": true,
-        "smoothLevel": 2,
-        "depthScale": 0.641,
-        "tileDepth": 17.09,
-        "shadows": true,
-        "ghostAlpha": 0.85,
-        "speed": 2
-      },
-      "camera": {
-        "pos": [
-          202.4794,
-          185.5066,
-          224.3677
-        ],
-        "dir": [
-          -0.2844,
-          -0.3036,
-          -0.9095
-        ],
-        "up": [
-          -0.0905,
-          0.9526,
-          -0.2896
-        ]
-      },
-      "effects": {
-        "mist": {
-          "on": false,
-          "patches": 300,
-          "density": 1.2
-        },
-        "fire": {
-          "on": true,
-          "rate": 1,
-          "flameSize": 1
-        },
-        "rain": {
-          "on": true,
-          "drops": 4700,
-          "fallSpeed": 0.4,
-          "puddleMax": 1
-        },
-        "snow": {
-          "on": true,
-          "flakes": 230,
-          "fallSpeed": 1,
-          "settledMax": 3600
-        },
-        "storm": {
-          "on": true,
-          "period": 11.5,
-          "intensity": 0.8
-        },
-        "wind": {
-          "on": true,
-          "base": 5.25,
-          "gust": 8,
-          "vortex": {
-            "power": 5.25,
-            "radius": 100
-          }
-        },
-        "leaves": {
-          "on": false,
-          "count": 96,
-          "paperFraction": 0.35
-        },
-        "junk": {
-          "on": true,
-          "count": 60,
-          "kickStrength": 1,
-          "gravity": 1
-        },
-        "balloons": {
-          "on": true,
-          "balloons": 128,
-          "bubbles": 84,
-          "buoyancy": -0.5
-        },
-        "lamps": {
-          "on": false,
-          "count": 3,
-          "lightIntensity": 1
-        },
-        "dust": {
-          "on": false,
-          "rate": 18.25,
-          "moundMax": 20.5
-        },
-        "lantern": {
-          "on": true,
-          "ambient": 0,
-          "spriteLight": 400,
-          "itemLight": 300
-        },
-        "sprite3d": {
-          "voxels": true,
-          "maxDepth": 5,
-          "smoothing": 0.05,
-          "roundness": 0,
-          "voxelFill": 1,
-          "epx": 1
-        }
-      }
-    },
-    "original": {
-      "general": {
-        "smooth": false,
-        "smoothLevel": 2,
-        "depthScale": 0.41,
-        "tileDepth": 17.09,
-        "shadows": true,
-        "ghostAlpha": 0.85,
-        "speed": 1
-      },
-      "camera": {
-        "pos": [
-          135.9866,
-          82.2865,
-          321.7969
-        ],
-        "dir": [
-          -0.0247,
-          0.041,
-          -0.9988
-        ],
-        "up": [
-          0.001,
-          0.9991,
-          0.0409
-        ]
-      },
-      "effects": {
-        "mist": {
-          "on": false,
-          "patches": 12,
-          "density": 1
-        },
-        "fire": {
-          "on": false,
-          "rate": 1,
-          "flameSize": 1
-        },
-        "rain": {
-          "on": false,
-          "drops": 5000,
-          "fallSpeed": 0.4,
-          "puddleMax": 1
-        },
-        "snow": {
-          "on": false,
-          "flakes": 230,
-          "fallSpeed": 1,
-          "settledMax": 2600
-        },
-        "storm": {
-          "on": true,
-          "period": 7,
-          "intensity": 1
-        },
-        "wind": {
-          "on": true,
-          "base": 5,
-          "gust": 8,
-          "vortex": {
-            "power": 5.25,
-            "radius": 100
-          }
-        },
-        "leaves": {
-          "on": false,
-          "count": 96,
-          "paperFraction": 0.35
-        },
-        "junk": {
-          "on": false,
-          "count": 60,
-          "kickStrength": 1,
-          "gravity": 1
-        },
-        "balloons": {
-          "on": false,
-          "balloons": 6,
-          "bubbles": 6,
-          "buoyancy": 1
-        },
-        "lamps": {
-          "on": false,
-          "count": 3,
-          "lightIntensity": 1
-        },
-        "dust": {
-          "on": false,
-          "rate": 1,
-          "moundMax": 4.5
-        },
-        "lantern": {
-          "on": false,
-          "ambient": 0,
-          "spriteLight": 300,
-          "itemLight": 0
-        },
-        "sprite3d": {
-          "voxels": true,
-          "maxDepth": 1,
-          "smoothing": 0,
-          "roundness": 0,
-          "voxelFill": 1,
-          "epx": 1
-        }
-      }
-    },
-    "dark-storm2": {
-      "general": {
-        "smooth": true,
-        "smoothLevel": 2,
-        "depthScale": 0.328,
-        "tileDepth": 17.09,
-        "shadows": true,
-        "speed": 2.0,
-        "ghostAlpha": 0.85
-      },
-      "camera": {
-        "pos": [
-          193.6634,
-          195.2541,
-          223.8787
-        ],
-        "dir": [
-          -0.2533,
-          -0.3376,
-          -0.9067
-        ],
-        "up": [
-          -0.0907,
-          0.9411,
-          -0.325
-        ]
-      },
-      "effects": {
-        "mist": {
-          "on": false,
-          "patches": 300,
-          "density": 1.2
-        },
-        "fire": {
-          "on": true,
-          "rate": 1.0,
-          "flameSize": 1.0
-        },
-        "rain": {
-          "on": true,
-          "drops": 4700,
-          "fallSpeed": 0.4,
-          "puddleMax": 1
-        },
-        "snow": {
-          "on": true,
-          "flakes": 230,
-          "fallSpeed": 1.0,
-          "settledMax": 3600
-        },
-        "storm": {
-          "on": true,
-          "period": 11.5,
-          "intensity": 0.8
-        },
-        "wind": {
-          "on": true,
-          "base": 5.25,
-          "gust": 8.0,
-          "vortex": {
-            "power": 5.25,
-            "radius": 100
-          }
-        },
-        "leaves": {
-          "on": false,
-          "count": 96,
-          "paperFraction": 0.35
-        },
-        "junk": {
-          "on": true,
-          "count": 60,
-          "kickStrength": 1.0,
-          "gravity": 1.0
-        },
-        "balloons": {
-          "on": true,
-          "balloons": 128,
-          "bubbles": 84,
-          "buoyancy": -0.5
-        },
-        "lamps": {
-          "on": false,
-          "count": 3,
-          "lightIntensity": 1.0
-        },
-        "dust": {
-          "on": false,
-          "rate": 18.25,
-          "moundMax": 20.5
-        },
-        "lantern": {
-          "on": true,
-          "ambient": 0.2,
-          "spriteLight": 2100,
-          "itemLight": 300
-        },
-        "sprite3d": {
-          "voxels": true,
-          "maxDepth": 5,
-          "smoothing": 0.05,
-          "roundness": 0.0,
-          "voxelFill": 1.0,
-          "epx": 1
-        }
-      },
-      "sprite3d": {
-        "auto": "si",
-        "group": 256
-      },
-      "render": {
-        "tiles": "screen",
-        "blobs": "adjacent",
-        "playfield": {
-          "top": 0,
-          "rows": 24
-        },
-        "relief": {
-          "depth": 2.2,
-          "dyn": 4,
-          "decor": 4,
-          "dot": 12,
-          "dotpx": 2,
-          "bar": "float",
-          "island": 4,
-          "hold": 9,
-          "paper": 0.35,
-          "fill": "si"
-        },
-        "items": "no",
-        "spriteBits": "si",
-        "freshFrames": 8
-      },
-      "discover": {
-        "gate": 7,
-        "drift": 0.0,
-        "gap": 16,
-        "rows": 16,
-        "sample": 5,
-        "from": 500,
-        "mobility": 2.0,
-        "reuse": 2.0,
-        "freshfrac": 0.35,
-        "freshwin": 12,
-        "stamps": 16,
-        "bg": 64,
-        "maxwrites": 16,
-        "min": 3,
-        "minsize": 4,
-        "cap": 32
-      }
-    }
-  }
+"default": "jsw",
+"_properties_note": "bloque GLOBAL: se aplica a TODOS los juegos. Cada juego lo pisa con su propio 'properties'. Un -D en linea de comando le gana a ambos. Todo va como objeto anidado (render.*, sprite3d.*, discover.*), no como claves planas.",
+"properties": {
+	"render": { "tiles": "slab", "blobs": "base" },
+	"sprite3d": { "auto": true }
+},
+"games": {
+	"jsw": {
+		"title": "Jet Set Willy",
+		"rzx": [ "Jet Set Willy - Mildly Patched.rzx", "/home/fernando/detodo/spectrum/oozx/Jet Set Willy - Mildly Patched.rzx" ],
+		"db": [ "analysis/jsw-catalog.db", "analysis/jsw.db" ],
+		"properties": {
+			"sprite3d": { "smoothing": 0.0, "maxdepth": 8 }
+		},
+		"_sprites_note": "config por sprite, por direccion base del catalogo. Una entrada cubre TODO el strip de animacion de ese personaje (pagina de 256). Para averiguar la direccion: F7 cicla los sprites en pantalla y la imprime por consola.",
+		"sprites": {
+			"$9d00": {
+				"_que_es": "Willy: el protagonista, ovoide vertical con algo mas de cuerpo y apenas redondeado",
+				"technique": "PRIMITIVE",
+				"primitive": "OVOID",
+				"roundness": 0.85,
+				"smoothing": 0.25,
+				"voxelLook": false
+			},
+			"$b940": {
+				"_que_es": "barril: un barril ES un cilindro, asi que va CYL_V en vez de la forma generica",
+				"_ojo": "direccion sin verificar: si configura otro sprite, corregila mirando lo que imprime F7",
+				"technique": "PRIMITIVE",
+				"primitive": "CYL_V",
+				"roundness": 1.0,
+				"smoothing": 0.3,
+				"voxelLook": false
+			}
+		},
+		"config": {
+			"general": {
+				"smooth": false,
+				"smoothLevel": 2,
+				"depthScale": 0.41,
+				"tileDepth": 17.09,
+				"shadows": true,
+				"speed": 0.25,
+				"ghostAlpha": 0.85
+			},
+			"camera": {
+				"pos": [ 178.8812, 136.5862, 281.8715 ],
+				"dir": [ -0.1697, -0.1294, -0.9769 ],
+				"up": [ -0.0222, 0.9916, -0.1275 ]
+			},
+			"effects": {
+				"mist": { "on": false, "patches": 12, "density": 1.0 },
+				"fire": { "on": false, "rate": 1.0, "flameSize": 1.0 },
+				"rain": { "on": false, "drops": 5000, "fallSpeed": 0.4, "puddleMax": 1 },
+				"snow": { "on": false, "flakes": 230, "fallSpeed": 1.0, "settledMax": 2600 },
+				"storm": { "on": true, "period": 7.0, "intensity": 1.0 },
+				"wind": {
+					"on": true,
+					"base": 5.0,
+					"gust": 8.0,
+					"vortex": { "power": 5.25, "radius": 100 }
+				},
+				"leaves": { "on": false, "count": 96, "paperFraction": 0.35 },
+				"junk": { "on": false, "count": 60, "kickStrength": 1.0, "gravity": 1.0 },
+				"balloons": { "on": false, "balloons": 6, "bubbles": 6, "buoyancy": 1.0 },
+				"lamps": { "on": false, "count": 3, "lightIntensity": 1.0 },
+				"dust": { "on": false, "rate": 1.0, "moundMax": 4.5 },
+				"lantern": { "on": false, "ambient": 0.0, "spriteLight": 300, "itemLight": 0 },
+				"sprite3d": { "voxels": true, "maxDepth": 1, "smoothing": 0.0, "roundness": 0.0, "voxelFill": 1.0, "epx": 1 }
+			},
+			"sprite3d": { "auto": "si", "group": 256 },
+			"render": {
+				"tiles": "screen",
+				"blobs": "adjacent",
+				"playfield": { "top": 0, "rows": 24 },
+				"relief": {
+					"depth": 2.2,
+					"dyn": 4,
+					"decor": 4,
+					"dot": 12,
+					"dotpx": 2,
+					"bar": "float",
+					"island": 4,
+					"hold": 9,
+					"paper": 0.35,
+					"fill": "si"
+				},
+				"items": "no",
+				"spriteBits": "no",
+				"freshFrames": 0
+			},
+			"discover": {
+				"gate": 7,
+				"drift": 0.0,
+				"gap": 16,
+				"rows": 16,
+				"sample": 5,
+				"from": 500,
+				"mobility": 2.0,
+				"reuse": 2.0,
+				"freshfrac": 0.35,
+				"freshwin": 12,
+				"stamps": 16,
+				"bg": 64,
+				"maxwrites": 16,
+				"min": 3,
+				"minsize": 4,
+				"cap": 32
+			}
+		}
+	},
+	"mm": {
+		"title": "Manic Miner",
+		"rzx": [ "/home/fernando/detodo/spectrum/manic/manicnoliveslost.rzx", "manicnoliveslost.rzx" ],
+		"db": [ "analysis/mm.db" ],
+		"properties": {}
+	},
+	"dd": {
+		"title": "Dynamite Dan",
+		"rzx": [ "/home/fernando/detodo/spectrum/dynamitedan/dynamitedan.rzx", "dynamitedan.rzx" ],
+		"db": [ "analysis/dd.db" ],
+		"properties": {
+			"render": { "items": false, "freshFrames": 10 }
+		}
+	},
+	"rygar": {
+		"title": "Rygar",
+		"rzx": [ "/home/fernando/rygar.rzx", "rygar.rzx" ],
+		"db": [ "analysis/rygar.db" ],
+		"properties": {
+			"render": { "items": false, "freshFrames": 10 }
+		}
+	},
+	"monty": {
+		"title": "Monty on the Run",
+		"rzx": [ "/home/fernando/Downloads/montyr.rzx", "montyr.rzx" ],
+		"db": [ "analysis/monty-taint.db" ],
+		"_playfield_note": "el marcador va ARRIBA (2 filas) y el nombre de sala ABAJO: playfield = filas 2..21. Ejemplo de properties ANIDADO (estructurado).",
+		"properties": {
+			"render": {
+				"tiles": "screen",
+				"playfield": { "top": 2, "rows": 20 },
+				"blobs": "adjacent",
+				"freshFrames": 0,
+				"spriteBits": true
+			},
+			"sprite3d": { "bits": true, "maxdepth": 5 },
+			"fx": { "shadows": false }
+		},
+		"config": {
+			"general": {
+				"smooth": false,
+				"smoothLevel": 2,
+				"depthScale": 0.41,
+				"tileDepth": 17.09,
+				"shadows": true,
+				"speed": 32.0,
+				"ghostAlpha": 0.85
+			},
+			"camera": {
+				"pos": [ 135.9866, 82.2865, 321.7969 ],
+				"dir": [ -0.0247, 0.041, -0.9988 ],
+				"up": [ 0.001, 0.9991, 0.0409 ]
+			},
+			"effects": {
+				"mist": { "on": false, "patches": 12, "density": 1.0 },
+				"fire": { "on": false, "rate": 1.0, "flameSize": 1.0 },
+				"rain": { "on": false, "drops": 5000, "fallSpeed": 0.4, "puddleMax": 1 },
+				"snow": { "on": false, "flakes": 230, "fallSpeed": 1.0, "settledMax": 2600 },
+				"storm": { "on": true, "period": 7.0, "intensity": 1.0 },
+				"wind": {
+					"on": true,
+					"base": 5.0,
+					"gust": 8.0,
+					"vortex": { "power": 5.25, "radius": 100 }
+				},
+				"leaves": { "on": false, "count": 96, "paperFraction": 0.35 },
+				"junk": { "on": false, "count": 60, "kickStrength": 1.0, "gravity": 1.0 },
+				"balloons": { "on": false, "balloons": 6, "bubbles": 6, "buoyancy": 1.0 },
+				"lamps": { "on": false, "count": 3, "lightIntensity": 1.0 },
+				"dust": { "on": false, "rate": 1.0, "moundMax": 4.5 },
+				"lantern": { "on": false, "ambient": 0.0, "spriteLight": 300, "itemLight": 0 },
+				"sprite3d": { "voxels": true, "maxDepth": 1, "smoothing": 0.0, "roundness": 0.0, "voxelFill": 1.0, "epx": 1 }
+			},
+			"sprite3d": { "auto": "si", "group": 256 },
+			"render": {
+				"tiles": "screen",
+				"blobs": "adjacent",
+				"playfield": { "top": 0, "rows": 24 },
+				"relief": {
+					"depth": 2.2,
+					"dyn": 4,
+					"decor": 4,
+					"dot": 12,
+					"dotpx": 2,
+					"bar": "float",
+					"island": 4,
+					"hold": 9,
+					"paper": 0.35,
+					"fill": "si"
+				},
+				"items": "no",
+				"spriteBits": "si",
+				"freshFrames": 8
+			},
+			"discover": {
+				"gate": 7,
+				"drift": 0.0,
+				"gap": 16,
+				"rows": 16,
+				"sample": 5,
+				"from": 500,
+				"mobility": 2.0,
+				"reuse": 2.0,
+				"freshfrac": 0.35,
+				"freshwin": 12,
+				"stamps": 16,
+				"bg": 64,
+				"maxwrites": 16,
+				"min": 3,
+				"minsize": 4,
+				"cap": 32
+			}
+		}
+	},
+	"exolon": {
+		"title": "Exolon",
+		"rzx": [ "/home/fernando/detodo/spectrum/exolon.rzx", "exolon.rzx" ],
+		"db": [ "analysis/exolon-taint.db", "analysis/exolon.db" ],
+		"_bar_note": "las tiras finas del cielo (destellos de estrellas, estelas) son fondo: extruidas salen como peinetas que van del frente al fondo. En Monty la misma forma es una repisa, por eso es por juego.",
+		"properties": {
+			"render": {
+				"tiles": "screen",
+				"blobs": "adjacent",
+				"items": false,
+				"spriteBits": true,
+				"freshFrames": 8,
+				"relief": { "bar": "flat", "dot": 2, "dotpx": 2 },
+				"playfield": { "rows": 20 }
+			},
+			"sprite3d": { "smoothing": 0.35, "maxdepth": 8 }
+		},
+		"config": {
+			"general": {
+				"smooth": false,
+				"smoothLevel": 2,
+				"depthScale": 0.41,
+				"tileDepth": 17.09,
+				"shadows": true,
+				"speed": 32.0,
+				"ghostAlpha": 0.85
+			},
+			"camera": {
+				"pos": [ 117.1255, 151.9158, 299.1071 ],
+				"dir": [ 0.036, -0.1827, -0.9824 ],
+				"up": [ 0.0066, 0.9831, -0.1827 ]
+			},
+			"effects": {
+				"mist": { "on": false, "patches": 12, "density": 1.0 },
+				"fire": { "on": false, "rate": 1.0, "flameSize": 1.0 },
+				"rain": { "on": false, "drops": 5000, "fallSpeed": 0.4, "puddleMax": 1 },
+				"snow": { "on": false, "flakes": 230, "fallSpeed": 1.0, "settledMax": 2600 },
+				"storm": { "on": false, "period": 7.0, "intensity": 1.0 },
+				"wind": {
+					"on": false,
+					"base": 5.0,
+					"gust": 8.0,
+					"vortex": { "power": 5.25, "radius": 100 }
+				},
+				"leaves": { "on": false, "count": 96, "paperFraction": 0.35 },
+				"junk": { "on": false, "count": 60, "kickStrength": 1.0, "gravity": 1.0 },
+				"balloons": { "on": false, "balloons": 6, "bubbles": 6, "buoyancy": 1.0 },
+				"lamps": { "on": false, "count": 3, "lightIntensity": 1.0 },
+				"dust": { "on": false, "rate": 1.0, "moundMax": 4.5 },
+				"lantern": { "on": false, "ambient": 0.0, "spriteLight": 300, "itemLight": 0 },
+				"sprite3d": { "voxels": true, "maxDepth": 1, "smoothing": 0.0, "roundness": 0.0, "voxelFill": 1.0, "epx": 1 }
+			},
+			"sprite3d": { "auto": "si", "group": 256 },
+			"render": {
+				"tiles": "off",
+				"blobs": "adjacent",
+				"playfield": { "top": 0, "rows": 24 },
+				"relief": {
+					"depth": 2.2,
+					"dyn": 4,
+					"decor": 4,
+					"dot": 12,
+					"dotpx": 2,
+					"bar": "float",
+					"island": 4,
+					"hold": 9,
+					"paper": 0.35,
+					"fill": "si"
+				},
+				"items": "no",
+				"spriteBits": "si",
+				"freshFrames": 8,
+				"sprites": "no"
+			},
+			"discover": {
+				"gate": 7,
+				"drift": 0.0,
+				"gap": 16,
+				"rows": 16,
+				"sample": 5,
+				"from": 500,
+				"mobility": 2.0,
+				"reuse": 2.0,
+				"freshfrac": 0.35,
+				"freshwin": 12,
+				"stamps": 16,
+				"bg": 64,
+				"maxwrites": 16,
+				"min": 3,
+				"minsize": 4,
+				"cap": 32
+			}
+		},
+		"objetos": [
+			{
+				"nombre": "objeto1",
+				"piezas": "$e11a,$e122,$e12a,$e11b,$e123,$e12b,$e11c,$e124,$e12c,$e115,$e11d,$e125,$e12d,$e135,$e116,$e11e,$e126,$e12e,$e136,$e117,$e11f,$e127,$e12f,$e137,$e138,$e140,$e148,$e150,$e158,$e139,$e141,$e149,$e151,$e159,$e13a,$e142,$e14a,$e152,$e15a,$e13b,$e143,$e14b,$e153,$e15b,$e13c,$e144,$e14c,$e154,$e15c,$e13d,$e145,$e14d,$e155,$e15d,$e13e,$e146,$e14e,$e156,$e15e,$e13f,$e147,$e14f,$e157,$e15f,$e160,$e168,$e170,$e178,$e180,$e161,$e169,$e171,$e179,$e181,$e162,$e16a,$e172,$e17a,$e182,$e163,$e16b,$e173,$e17b,$e183,$e164,$e16c,$e174,$e17c,$e184,$e16d,$e175,$e17d,$e16e,$e176,$e17e,$e16f,$e177,$e17f,$e188,$e190,$e198,$e191,$e193,$e194,$e195,$e196,$e197,$e1a0,$e1a1,$e1a2,$e1a3,$e1a4,$e1a5,$e1a6,$e1a7,$e1b1,$e1aa,$e1b2,$e1ba,$e1ab,$e1b3,$e1bb,$e1ad,$e1b5,$e1bd,$e1ae,$e1b6,$e1be,$e1af,$e1b7,$e1bf,$e1c0,$e1c8,$e1d0,$e1c1,$e1c9,$e1d1,$e1c2,$e1ca,$e1d2,$e1c3,$e1cb,$e1d3,$e1c4,$e1cc,$e1d4,$e1c5,$e1cd,$e1d5,$e1c6,$e1ce,$e1d6,$e1c7,$e1cf,$e1d7,$e1d8,$e1d9,$e1da,$e1db,$e1dc,$e1dd",
+				"rects": "61 82 30 60",
+				"hoja": "0 1 30 60",
+				"render": { "tecnica": "PRIMITIVE", "primitiva": "OVOID", "redondez": 0.15, "profundidad": 40.0, "voxels": true }
+			},
+			{
+				"nombre": "objeto2",
+				"piezas": "$e449,$e451,$e459,$e44a,$e452,$e45a,$e44b,$e453,$e45b,$e44c,$e454,$e45c,$e44d,$e455,$e45d,$e44e,$e456,$e45e,$e44f,$e457,$e45f,$e460,$e468,$e470,$e461,$e469,$e471,$e462,$e46a,$e472,$e463,$e46b,$e473,$e464,$e46c,$e474,$e465,$e46d,$e475,$e466,$e46e,$e476,$e467,$e46f,$e477,$e478,$e480,$e488,$e479,$e481,$e489,$e47a,$e482,$e48a,$e47b,$e483,$e48b,$e47c,$e484,$e47d,$e485,$e48d,$e47e,$e486,$e48e",
+				"rects": "129 33 22 22",
+				"hoja": "32 1 22 22",
+				"render": { "tecnica": "PRIMITIVE", "primitiva": "OVOID", "redondez": 0.15, "profundidad": 40.0, "voxels": true }
+			},
+			{
+				"nombre": "objeto3",
+				"piezas": "$dd41,$dd49,$dd3a,$dd42,$dd4a,$dd52,$dd3b,$dd43,$dd4b,$dd53,$dd3c,$dd44,$dd4c,$dd3d,$dd45,$dd4d,$dd55,$dd3e,$dd46,$dd4e,$dd3f,$dd47,$dd4f,$dd57,$dd58,$dd60,$dd68,$dd70,$dd59,$dd61,$dd69,$dd71,$dd5a,$dd62,$dd6a,$dd72,$dd5b,$dd63,$dd6b,$dd73,$dd5c,$dd64,$dd6c,$dd74,$dd5d,$dd65,$dd6d,$dd75,$dd5e,$dd66,$dd6e,$dd76,$dd5f,$dd67,$dd6f,$dd78,$dd80,$dd88,$dd90,$dd79,$dd81,$dd89,$dd91,$dd7a,$dd82,$dd8a,$dd7b,$dd83,$dd8b,$dd93,$dd7c,$dd84,$dd8c,$dd94,$dd7d,$dd85,$dd8d,$dd95,$dd7e,$dd86,$dd8e,$dd96,$dd7f,$dd87,$dd8f,$dd97,$dd98,$dda0,$dda8,$ddb0,$dd99,$dda1,$dda9,$dd9a,$dda2,$ddaa,$ddb2,$dd9b,$dda3,$ddab,$ddb3,$dd9c,$dda4,$ddac,$dd9d,$dda5,$ddad,$dda6,$ddae",
+				"rects": "193 9 30 30",
+				"hoja": "56 1 30 30",
+				"render": { "tecnica": "PRIMITIVE", "primitiva": "OVOID", "redondez": 0.15, "profundidad": 40.0, "voxels": true }
+			},
+			{
+				"nombre": "objeto4",
+				"piezas": "$f106,$f109,$f10b,$f10c,$f10e,$f10f,$f111,$f112,$f114,$f115,$f117,$f118,$f11a,$f11b,$f11d,$f11e,$f120,$f121,$f123,$f124,$f126,$f127,$f129,$f12a,$f12c,$f12d,$f12f,$f130,$f132,$f133,$f135,$f136,$f138,$f139,$f13c,$f13f,$f142,$f144,$f145,$f147,$f148,$f14a,$f14b,$f14d,$f14e,$f150,$f151,$f153,$f154,$f156,$f157,$f159,$f15a,$f15c",
+				"rects": "107 114 21 29",
+				"hoja": "88 1 21 29",
+				"render": { "tecnica": "PRIMITIVE", "primitiva": "OVOID", "redondez": 0.15, "profundidad": 40.0, "voxels": true }
+			},
+			{
+				"nombre": "objeto5",
+				"piezas": "$dfc9,$dfd1,$dfd9,$dfca,$dfd2,$dfda,$dfcb,$dfd3,$dfdb,$dfcc,$dfd4,$dfdc,$dfcd,$dfd5,$dfdd,$dfd6,$dfb8,$dfc0,$dfe8,$dff0,$dff8,$e000,$e008,$dfb9,$dfc1,$dfe9,$dff1,$dff9,$e001,$e009,$dfba,$dfc2,$dfea,$dff2,$dffa,$e002,$e00a,$dfeb,$dff3,$dffb,$e003,$e00b,$dfbc,$dfc4,$dfec,$dff4,$dffc,$e004,$e00c,$dfbd,$dfc5,$dfed,$dff5,$dffd,$e005,$e00d,$dfbe,$dfc6,$dfee,$dff6,$dffe,$e006,$e00e,$dff7,$dfff,$e007,$df78,$df80,$df79,$df81,$df7a,$df82,$df7b,$df83,$df7c,$df84,$df7d,$df85,$df7e,$df86,$df7f,$df87,$eef0,$eef2,$eef4,$eef6,$eef8,$eeba,$eebc,$eebe,$eeec,$eeee,$eedc,$eede,$eecc,$eece,$f22c,$efec,$f22f,$efef,$f232,$eff2,$f235,$eff5,$f238,$eff8,$f23b,$effb,$f23e,$effe,$f241,$f001,$f004,$f244,$f247,$f007,$f24a,$f00a,$f24d,$f00d,$df88,$df90,$f250,$f010,$df89,$df91,$f253,$f013,$df8a,$df92,$f256,$f016,$df8b,$df93,$f259,$f019,$df8c,$df94,$f25c,$f01c,$df8d,$df95,$f25f,$f01f,$df8e,$df96,$f262,$f022,$df8f,$df97,$f265,$f025,$df99,$dfa1,$dfa9,$dfb1,$f0eb,$f26b,$f02b,$f1ab,$df9a,$dfa2,$dfaa,$dfb2,$f0ee,$f26e,$f02e,$f1ae,$df9b,$dfa3,$dfab,$dfb3,$f0f1,$f271,$f031,$f1b1,$dfa4,$dfac,$f034,$f274,$df9d,$dfa5,$dfad,$dfb5,$f0f7,$f277,$f037,$f1b7,$df9e,$dfa6,$dfae,$dfb6,$f0fa,$f27a,$f03a,$f1ba",
+				"rects": "1 71 86 72",
+				"hoja": "111 1 86 72",
+				"render": { "tecnica": "PRIMITIVE", "primitiva": "OVOID", "redondez": 0.15, "profundidad": 40.0, "voxels": true }
+			},
+			{
+				"nombre": "objeto6",
+				"piezas": "$e262,$e26a,$e272,$e27a,$e263,$e26b,$e273,$e27b,$e26c,$e274,$e265,$e26d,$e275,$e27d,$e266,$e26e,$e276,$e27e,$e26f,$e277,$e280,$e288,$e290,$e281,$e289,$e291,$e282,$e28a,$e292,$e283,$e28b,$e293,$e284,$e28c,$e294,$e285,$e286,$e28e,$e296,$6480,$6460,$6440,$64f0,$6450,$6478,$6472,$643e,$6438,$64e0,$6430,$64c0,$6470,$64b8,$64b0,$6468",
+				"rects": "42 50 28 13,42 89 28 6,42 73 4 6,66 73 4 6",
+				"hoja": "199 1 28 45",
+				"render": { "tecnica": "PRIMITIVE", "primitiva": "OVOID", "redondez": 0.15, "profundidad": 40.0, "voxels": true }
+			}
+		]
+	}
+},
+"presets": {
+	"dark-storm": {
+		"general": {
+			"smooth": true,
+			"smoothLevel": 2,
+			"depthScale": 0.641,
+			"tileDepth": 17.09,
+			"shadows": true,
+			"ghostAlpha": 0.85,
+			"speed": 2
+		},
+		"camera": {
+			"pos": [ 202.4794, 185.5066, 224.3677 ],
+			"dir": [ -0.2844, -0.3036, -0.9095 ],
+			"up": [ -0.0905, 0.9526, -0.2896 ]
+		},
+		"effects": {
+			"mist": { "on": false, "patches": 300, "density": 1.2 },
+			"fire": { "on": true, "rate": 1, "flameSize": 1 },
+			"rain": { "on": true, "drops": 4700, "fallSpeed": 0.4, "puddleMax": 1 },
+			"snow": { "on": true, "flakes": 230, "fallSpeed": 1, "settledMax": 3600 },
+			"storm": { "on": true, "period": 11.5, "intensity": 0.8 },
+			"wind": {
+				"on": true,
+				"base": 5.25,
+				"gust": 8,
+				"vortex": { "power": 5.25, "radius": 100 }
+			},
+			"leaves": { "on": false, "count": 96, "paperFraction": 0.35 },
+			"junk": { "on": true, "count": 60, "kickStrength": 1, "gravity": 1 },
+			"balloons": { "on": true, "balloons": 128, "bubbles": 84, "buoyancy": -0.5 },
+			"lamps": { "on": false, "count": 3, "lightIntensity": 1 },
+			"dust": { "on": false, "rate": 18.25, "moundMax": 20.5 },
+			"lantern": { "on": true, "ambient": 0, "spriteLight": 400, "itemLight": 300 },
+			"sprite3d": { "voxels": true, "maxDepth": 5, "smoothing": 0.05, "roundness": 0, "voxelFill": 1, "epx": 1 }
+		}
+	},
+	"original": {
+		"general": {
+			"smooth": false,
+			"smoothLevel": 2,
+			"depthScale": 0.41,
+			"tileDepth": 17.09,
+			"shadows": true,
+			"ghostAlpha": 0.85,
+			"speed": 1
+		},
+		"camera": {
+			"pos": [ 135.9866, 82.2865, 321.7969 ],
+			"dir": [ -0.0247, 0.041, -0.9988 ],
+			"up": [ 0.001, 0.9991, 0.0409 ]
+		},
+		"effects": {
+			"mist": { "on": false, "patches": 12, "density": 1 },
+			"fire": { "on": false, "rate": 1, "flameSize": 1 },
+			"rain": { "on": false, "drops": 5000, "fallSpeed": 0.4, "puddleMax": 1 },
+			"snow": { "on": false, "flakes": 230, "fallSpeed": 1, "settledMax": 2600 },
+			"storm": { "on": true, "period": 7, "intensity": 1 },
+			"wind": {
+				"on": true,
+				"base": 5,
+				"gust": 8,
+				"vortex": { "power": 5.25, "radius": 100 }
+			},
+			"leaves": { "on": false, "count": 96, "paperFraction": 0.35 },
+			"junk": { "on": false, "count": 60, "kickStrength": 1, "gravity": 1 },
+			"balloons": { "on": false, "balloons": 6, "bubbles": 6, "buoyancy": 1 },
+			"lamps": { "on": false, "count": 3, "lightIntensity": 1 },
+			"dust": { "on": false, "rate": 1, "moundMax": 4.5 },
+			"lantern": { "on": false, "ambient": 0, "spriteLight": 300, "itemLight": 0 },
+			"sprite3d": { "voxels": true, "maxDepth": 1, "smoothing": 0, "roundness": 0, "voxelFill": 1, "epx": 1 }
+		}
+	},
+	"dark-storm2": {
+		"general": {
+			"smooth": true,
+			"smoothLevel": 2,
+			"depthScale": 0.328,
+			"tileDepth": 17.09,
+			"shadows": true,
+			"speed": 2.0,
+			"ghostAlpha": 0.85
+		},
+		"camera": {
+			"pos": [ 193.6634, 195.2541, 223.8787 ],
+			"dir": [ -0.2533, -0.3376, -0.9067 ],
+			"up": [ -0.0907, 0.9411, -0.325 ]
+		},
+		"effects": {
+			"mist": { "on": false, "patches": 300, "density": 1.2 },
+			"fire": { "on": true, "rate": 1.0, "flameSize": 1.0 },
+			"rain": { "on": true, "drops": 4700, "fallSpeed": 0.4, "puddleMax": 1 },
+			"snow": { "on": true, "flakes": 230, "fallSpeed": 1.0, "settledMax": 3600 },
+			"storm": { "on": true, "period": 11.5, "intensity": 0.8 },
+			"wind": {
+				"on": true,
+				"base": 5.25,
+				"gust": 8.0,
+				"vortex": { "power": 5.25, "radius": 100 }
+			},
+			"leaves": { "on": false, "count": 96, "paperFraction": 0.35 },
+			"junk": { "on": true, "count": 60, "kickStrength": 1.0, "gravity": 1.0 },
+			"balloons": { "on": true, "balloons": 128, "bubbles": 84, "buoyancy": -0.5 },
+			"lamps": { "on": false, "count": 3, "lightIntensity": 1.0 },
+			"dust": { "on": false, "rate": 18.25, "moundMax": 20.5 },
+			"lantern": { "on": true, "ambient": 0.2, "spriteLight": 2100, "itemLight": 300 },
+			"sprite3d": { "voxels": true, "maxDepth": 5, "smoothing": 0.05, "roundness": 0.0, "voxelFill": 1.0, "epx": 1 }
+		},
+		"sprite3d": { "auto": "si", "group": 256 },
+		"render": {
+			"tiles": "screen",
+			"blobs": "adjacent",
+			"playfield": { "top": 0, "rows": 24 },
+			"relief": {
+				"depth": 2.2,
+				"dyn": 4,
+				"decor": 4,
+				"dot": 12,
+				"dotpx": 2,
+				"bar": "float",
+				"island": 4,
+				"hold": 9,
+				"paper": 0.35,
+				"fill": "si"
+			},
+			"items": "no",
+			"spriteBits": "si",
+			"freshFrames": 8
+		},
+		"discover": {
+			"gate": 7,
+			"drift": 0.0,
+			"gap": 16,
+			"rows": 16,
+			"sample": 5,
+			"from": 500,
+			"mobility": 2.0,
+			"reuse": 2.0,
+			"freshfrac": 0.35,
+			"freshwin": 12,
+			"stamps": 16,
+			"bg": 64,
+			"maxwrites": 16,
+			"min": 3,
+			"minsize": 4,
+			"cap": 32
+		}
+	}
+}
 }
