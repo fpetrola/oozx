@@ -665,12 +665,33 @@ Dos cosas costaron y conviene no volver a descubrirlas:
   entró; si subió, se sacan los frames cuyo SP de entrada quedó por debajo.
 
 **Lo medido en Exolon** (3.000 frames muestreados, 5,4 nodos escriben por frame): subir **UN
-nivel** desde la hoja colapsa el objeto a un solo nodo en 3 de los 4 que aparecen —100%, 100% y
-80% de los frames—. O sea que la llamada dominante existe y se encuentra. Lo que falta resolver
-es la **contaminación** (44-64%): ese nodo también pinta cosas que no son el objeto. Ojo con
-cómo se lee ese número: las definiciones del oráculo son RECORTES hechos a mano, así que parte
-de lo "ajeno" es el resto del mismo objeto que quedó afuera del recorte. Hace falta medirlo
-contra una definición completa antes de decidir si el árbol reemplaza al criterio actual.
+nivel** desde la hoja colapsa el objeto a un solo nodo en 3 de los 4 que aparecían —100%, 100%
+y 80% de los frames—. La llamada dominante existe y se encuentra.
+
+La contaminación medida contra los recortes daba 44-64%, pero **ese número no servía**: las
+definiciones del oráculo son recortes parciales, así que casi todo lo "ajeno" es el resto del
+mismo objeto. Medido por **coherencia espacial** —que no depende de que el recorte esté
+completo, porque pregunta si la llamada pintó UNA cosa y del tamaño de la que buscamos— el
+resultado es mucho mejor:
+
+| objeto | tamaño real | bbox de la llamada | blobs | bytes vs recorte |
+|---|---|---|---|---|
+| objeto3 | 2x9 bytes | **2x10** | **1,00** | 2,3x |
+| objeto2 | 2x8 | **3x11** | **1,00** | 3,0x |
+| objeto6 (886 frames) | 5x30 | **6x35** | 1,42 | 2,7x |
+| objeto1 | 2x12 | 3x21 | 1,86 | 4,9x |
+| objeto5 (351 frames) | 4x15 | 4x18 | 1,59 | 2,3x |
+
+O sea: en los mejores casos la llamada dominante pinta **un solo blob del tamaño del objeto**,
+y el "2-3x de bytes" es justamente el objeto completo contra un recorte parcial. Donde da 1,5-1,9
+blobs (objeto1, objeto5, objeto6) la llamada dibuja el objeto **y algo más**, o el objeto en dos
+partes: eso es lo que hay que separar antes de reemplazar el criterio actual, y ahora hay una
+métrica que lo dice sin depender de cuán completo esté lo marcado a mano.
+
+Nota sobre los promedios globales de coherencia (84% de las llamadas dejan un solo blob, bbox
+medio 2x7 bytes): **no sirven para decidir**, porque están dominados por las miles de llamadas
+chicas del fondo y de los efectos. La medición que vale es la de los nodos que dibujan los
+objetos que nos importan.
 
 ### El editor de sprites (Ctrl+E)
 
