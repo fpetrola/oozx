@@ -94,8 +94,13 @@ public final class TaintReplay implements Runnable {
    *                   is on, where a masked composite splits sprite and background inside
    *                   one byte.
    */
+  /**
+   * @param group per byte, the DRAWING it belongs to ({@link CallGroups}), 0 for none. Taken
+   *              here and not in the viewer because the call tree is rebuilt every frame and
+   *              the viewer renders whenever it can: by then the ids mean something else.
+   */
   public record FrameSnapshot(int frame, byte[] pixels, byte[] attrs, int[] owner, int[] tile,
-                              byte[] spriteBits) {
+                              byte[] spriteBits, int[] group) {
   }
 
   private final String rzxPath;
@@ -628,7 +633,11 @@ public final class TaintReplay implements Runnable {
         WordNumber w = data[ATTRS + i];
         attrs[i] = (byte) (w == null ? 0 : w.intValue());
       }
-      onFrame.accept(new FrameSnapshot(frame, pixels, attrs, owner, tile, spriteBits));
+      // the tree of the frame that just ended: what is on screen was painted during it
+      int[] group = CallGroups.compute(pixels, lastWrite, frame - 1, writeNode, nodeParent,
+          Integer.getInteger("objects.cols", 8), Integer.getInteger("objects.rows", 48),
+          Float.parseFloat(System.getProperty("objects.fill", "0.2")));
+      onFrame.accept(new FrameSnapshot(frame, pixels, attrs, owner, tile, spriteBits, group));
     }
 
     /**

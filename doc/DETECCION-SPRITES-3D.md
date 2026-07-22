@@ -789,6 +789,23 @@ se prueba en vivo y queda guardado en `games.<juego>.config`. Ojo con la precede
 guardado ahí **le gana a los `-D`**, así que si `config.render.tiles` dice `screen`, un
 `-Dtiles=off` no hace nada — hay que cambiarlo desde el menú o en el archivo.
 
+### En el visor: los blobs de sprite se agrupan por quién los dibujó
+
+El mismo criterio, en vivo (`render.blobs.calls`, prendido). `updateSprites` sigue tomando los
+bytes que la taint da por sprite, pero la inundación por adyacencia ahora exige además que sean
+**el mismo dibujo**: `CallGroups` decide, en el hilo del replay y con el árbol todavía vigente,
+a qué llamada pertenece cada byte, y eso viaja en el snapshot (`FrameSnapshot.group`). Tiene
+que calcularse ahí: el árbol se reinicia cada frame y el visor dibuja cuando puede, así que
+para cuando mira, los ids ya significan otra cosa.
+
+Los bytes de los que el árbol no dice nada —no se repintaron en ese frame— conservan el
+comportamiento viejo, para que un sprite que se quedó quieto no se desarme.
+
+Comparación en el mismo frame de Exolon, con y sin el criterio: **por adyacencia el astronauta
+se funde con la torre y el cohete en un solo bloque gris**; por árbol de llamadas sale separado,
+caminando adelante, y la torre queda como su propio objeto. Es exactamente el caso que arrancó
+todo esto.
+
 ### Los objetos definidos, en el juego
 
 Al arrancar el visor se cargan (`doc/objetos-<juego>.json` + la hoja) y cada frame se los

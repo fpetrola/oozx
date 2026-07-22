@@ -1344,6 +1344,8 @@ public class JSW3D extends ApplicationAdapter {
         0, 60, 1, true, () -> (float) holdCells, v -> holdCells = Math.round(v));
     addParam("render.relief.paper", "relief.paper", "Render", "relieve tinte del relleno",
         0, 1, .05f, false, () -> paperTint, v -> paperTint = v);
+    addFlag("render.blobs.calls", "blobs.calls", "Render", "agrupar por arbol de llamadas",
+        () -> blobsByCall, v -> blobsByCall = v, "");
     addFlag("render.sprites", "sprites", "Render", "modelar sprites moviles",
         () -> spritesOn, v -> spritesOn = v, "");
     addFlag("render.objects", "objects", "Render", "objetos definidos a mano",
@@ -2544,9 +2546,11 @@ public class JSW3D extends ApplicationAdapter {
     if (!spritesOn)
       return; // everything flat: only the hand-marked objects are modelled
     int[][] grid = new int[H][32];
+    int[][] drawing = new int[H][32]; // which CALL painted it (0 = not painted this frame)
     for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
       int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7);
       grid[y][i & 31] = objClaimed[i] ? 0 : snap.owner()[i];
+      drawing[y][i & 31] = snap.group()[i];
     }
     List<int[]> blobs = new ArrayList<>(); // base, minCol, minRow, maxCol, maxRow, paletteIdx
     List<byte[]> bitmaps = new ArrayList<>(); // adjacent mode: the blob's on-screen pixels
@@ -2559,6 +2563,7 @@ public class JSW3D extends ApplicationAdapter {
         if (base == 0)
           continue;
         int[] b = {base, c0, y0, c0, y0, 7};
+        int group0 = drawing[y0][c0];
         int bytes = 0;
         java.util.Arrays.fill(inkVotes, 0);
         cells.clear();
@@ -2582,8 +2587,17 @@ public class JSW3D extends ApplicationAdapter {
             for (int dc = -1; dc <= 1; dc++) {
               int c = p[0] + dc, y = p[1] + dy;
               // adjacent mode groups ANY owned neighbour: a composite object's pieces
-              // have different bases but the game already put them side by side
-              if (c >= 0 && c < 32 && y >= 0 && y < H
+              // have different bases but the game already put them side by side.
+              //
+              // AND, when the call tree knows who painted them, only if it was the SAME
+              // DRAWING: touching on screen is not being one thing — a capsule and the
+              // player standing in front of it are one connected patch and no rule about
+              // pixels can separate them, while the call that drew each never merges them.
+              // Bytes the tree says nothing about (not repainted this frame) keep the old
+              // behaviour, so a sprite that stopped moving does not fall apart.
+              boolean sameDrawing = !blobsByCall || group0 == 0 || drawing[y][c] == 0
+                  || drawing[y][c] == group0;
+              if (c >= 0 && c < 32 && y >= 0 && y < H && sameDrawing
                   && (blobsAdjacent ? grid[y][c] != 0 : grid[y][c] == base)) {
                 grid[y][c] = 0;
                 queue.add(new int[]{c, y});
@@ -2959,6 +2973,13 @@ public class JSW3D extends ApplicationAdapter {
    * classification decided to lift.
    */
   private boolean spritesOn = bprop("render.sprites", "sprites", true);
+  /**
+   * Group the sprite blobs by WHO DREW THEM (the call tree) and not only by touching on
+   * screen (-Drender.blobs.calls=false to go back). Measured before switching: the drawing
+   * that a call leaves is one object's size and one connected piece for the objects marked
+   * by hand, while adjacency merges whatever happens to touch.
+   */
+  private boolean blobsByCall = bprop("render.blobs.calls", "blobs.calls", true);
   /** the last snapshot, so the editor can ask what is under the cursor while frozen. */
   private TaintReplay.FrameSnapshot lastSnap;
   /**
