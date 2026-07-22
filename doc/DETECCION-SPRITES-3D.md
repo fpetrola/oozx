@@ -688,6 +688,33 @@ blobs (objeto1, objeto5, objeto6) la llamada dibuja el objeto **y algo más**, o
 partes: eso es lo que hay que separar antes de reemplazar el criterio actual, y ahora hay una
 métrica que lo dice sin depender de cuán completo esté lo marcado a mano.
 
+**Por qué se parte cuando se parte** (medido sobre los frames con más de un blob):
+
+| objeto | frames con >1 blob | instancias | repintado | mezclado |
+|---|---|---|---|---|
+| objeto2, objeto3 | **0%** | — | — | — |
+| objeto6 (886 frames) | 24% | 3% | 2% | 95% |
+| objeto5 (351) | 34% | 14% | 28% | 58% |
+| objeto1 (7) | 57% | 25% | 0% | 75% |
+
+- **instancias**: la misma llamada dibujó el objeto varias veces en lugares distintos (Exolon
+  alinea tres misiles y los dibuja de una). El agrupador actual ya lo resuelve recortando en
+  ventanas del tamaño del objeto.
+- **repintado**: un solo objeto que quedó en pedazos porque ese frame repintó una parte. Ya lo
+  resuelve la fusión por posición entre frames.
+- **mezclado**: la llamada también dibujó otra cosa. Es el único caso que sería un problema
+  del criterio... **y el número está inflado**: "otra cosa" se decide contra el recorte hecho a
+  mano, así que el resto del mismo objeto que quedó afuera del recorte cuenta como ajeno. Es
+  una cota superior, no una medición limpia. En los volcados hay casos claramente ajenos (un
+  blob en `r145c0` mientras el objeto está en `c29`) y casos que son obviamente el mismo objeto
+  partido en dos por un hueco de cuatro filas.
+
+**Conclusión de diseño**: el nodo de llamada sirve como agrupador PRIMARIO y el corte espacial
+queda adentro de él, no al revés. Es estrictamente mejor que hoy: el criterio espacial actual
+fusiona cosas que dibujaron llamadas distintas —la cápsula y el personaje adelante— y eso el
+nodo no lo fusiona nunca. Los dos casos que el nodo sí junta (instancias y repintado) son
+exactamente los que el agrupador ya sabe separar.
+
 Nota sobre los promedios globales de coherencia (84% de las llamadas dejan un solo blob, bbox
 medio 2x7 bytes): **no sirven para decidir**, porque están dominados por las miles de llamadas
 chicas del fondo y de los efectos. La medición que vale es la de los nodos que dibujan los

@@ -50,6 +50,8 @@ public final class CallTreeProbe {
     final double[] blobs = new double[LEVELS], ratio = new double[LEVELS];
     final long[] w = new long[LEVELS], h = new long[LEVELS];
     long objW, objH;
+    /** why the call left more than one blob, at the cut level that matters */
+    int multi, instances, repaint, mixed;
   }
 
   /** how far up the tree the probe looks for the call that decided to draw the object. */
@@ -88,6 +90,7 @@ public final class CallTreeProbe {
 
     Map<String, Score> scores = new LinkedHashMap<>();
     objects.keySet().forEach(k -> scores.put(k, new Score()));
+    int[] blobDumps = new int[1];
     Coherence[] coh = new Coherence[LEVELS];
     for (int i = 0; i < LEVELS; i++)
       coh[i] = new Coherence();
@@ -208,6 +211,54 @@ public final class CallTreeProbe {
           for (Map.Entry<Integer, List<Integer>> ne : byNode.entrySet())
             if (nodes.contains(ancestor(r, ne.getKey(), up)))
               paintedAll.addAll(ne.getValue());
+          // why does this call leave more than one blob? Two objects in one call look like
+          // blobs far apart; one object drawn in two passes looks like blobs that touch or
+          // sit inside the same box
+          String want = System.getProperty("calls.blobs", "");
+          if (up == 1 && want.equals(e.getKey()) && !paintedAll.isEmpty()
+              && blobDumps[0] < 8 && components(paintedAll) > 1) {
+            blobDumps[0]++;
+            List<java.util.Set<Integer>> bl = blobsOf(paintedAll);
+            System.out.println("  " + e.getKey() + " frame " + f + ": objeto en " + box(minSet)
+                + ", la llamada dejo " + bl.size() + " blobs");
+            for (java.util.Set<Integer> b : bl) {
+              int mineHere = 0;
+              for (int i : b)
+                if (minSet.contains(i))
+                  mineHere++;
+              System.out.println("      blob " + box(b) + " " + b.size() + " bytes, "
+                  + mineHere + " del objeto");
+            }
+          }
+          if (up == 1 && !paintedAll.isEmpty()) {
+            List<java.util.Set<Integer>> bl = blobsOf(paintedAll);
+            if (bl.size() > 1) {
+              s.multi++;
+              // a blob is "the object" if it is mostly the object's own bytes; the rest is
+              // something else the same call drew
+              boolean foreignBlob = false;
+              int far = 0;
+              int[] prev = null;
+              for (java.util.Set<Integer> b : bl) {
+                int mineHere = 0;
+                for (int i : b)
+                  if (minSet.contains(i))
+                    mineHere++;
+                if (mineHere < .5 * b.size())
+                  foreignBlob = true;
+                int[] bx = bbox(b);
+                if (prev != null && (Math.abs(bx[0] - prev[0]) > 4 || Math.abs(bx[1] - prev[1]) > 24))
+                  far++;
+                prev = bx;
+              }
+              if (foreignBlob)
+                s.mixed++;
+              else if (far > 0)
+                s.instances++;
+              else
+                s.repaint++;
+            }
+          }
           if (!paintedAll.isEmpty()) {
             int nc = 31, xc = 0, nr = 191, xr = 0;
             for (int i : paintedAll) {
@@ -266,10 +317,77 @@ public final class CallTreeProbe {
             Math.round(s.h[up] / (double) s.frames), s.blobs[up] / s.frames,
             s.ratio[up] / s.frames);
     });
+    System.out.println("\n=== por que la llamada dominante deja mas de un blob ===");
+    System.out.println("objeto                 frames  con >1 blob   instancias   repintado   mezclado");
+    scores.forEach((name, s) -> {
+      if (s.frames == 0)
+        return;
+      System.out.printf("%-22s %6d %11.0f%% %11.0f%% %11.0f%% %10.0f%%%n", name, s.frames,
+          100.0 * s.multi / s.frames, 100.0 * s.instances / Math.max(1, s.multi),
+          100.0 * s.repaint / Math.max(1, s.multi), 100.0 * s.mixed / Math.max(1, s.multi));
+    });
+    System.out.println("'instancias' = la misma llamada dibujo el objeto VARIAS VECES en"
+        + " lugares distintos;\n'repintado' = un solo objeto que quedo en pedazos porque el"
+        + " frame repinto una parte;\n'mezclado' = la llamada tambien dibujo otra cosa. Los"
+        + " dos primeros ya los resuelve el\nagrupador actual; el tercero es el unico que"
+        + " seria un problema del criterio.");
     System.out.println("\nleer asi: el nivel bueno es el primero con 'nodos/frame' en 1, un"
         + " bbox parecido al del\nobjeto, 'blobs' en 1 y 'bytes vs objeto' cerca de 1. Esa"
         + " medicion no depende de que el\nrecorte hecho a mano este completo: dice si la"
         + " llamada pinto UNA cosa y del tamaño de\nla que buscamos.");
+  }
+
+  /** the blobs themselves, for looking at WHY a call left more than one. */
+  private static List<java.util.Set<Integer>> blobsOf(java.util.Set<Integer> bytes) {
+    List<java.util.Set<Integer>> out = new ArrayList<>();
+    java.util.Set<Integer> left = new java.util.HashSet<>(bytes);
+    java.util.ArrayDeque<Integer> queue = new java.util.ArrayDeque<>();
+    while (!left.isEmpty()) {
+      java.util.Set<Integer> blob = new java.util.HashSet<>();
+      Integer start = left.iterator().next();
+      left.remove(start);
+      queue.add(start);
+      while (!queue.isEmpty()) {
+        int i = queue.poll();
+        blob.add(i);
+        int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), c = i & 31;
+        for (int dy = -1; dy <= 1; dy++)
+          for (int dc = -1; dc <= 1; dc++) {
+            int yy = y + dy, cc = c + dc;
+            if (yy < 0 || yy >= 192 || cc < 0 || cc > 31)
+              continue;
+            int q = ((yy & 0xC0) << 5) | ((yy & 7) << 8) | ((yy & 0x38) << 2) | cc;
+            if (left.remove(q))
+              queue.add(q);
+          }
+      }
+      out.add(blob);
+    }
+    return out;
+  }
+
+  private static int[] bbox(java.util.Set<Integer> b) {
+    int nc = 31, xc = 0, nr = 191, xr = 0;
+    for (int i : b) {
+      int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), c = i & 31;
+      nc = Math.min(nc, c);
+      xc = Math.max(xc, c);
+      nr = Math.min(nr, y);
+      xr = Math.max(xr, y);
+    }
+    return new int[]{nc, nr, xc, xr};
+  }
+
+  private static String box(java.util.Set<Integer> b) {
+    int nc = 31, xc = 0, nr = 191, xr = 0;
+    for (int i : b) {
+      int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), c = i & 31;
+      nc = Math.min(nc, c);
+      xc = Math.max(xc, c);
+      nr = Math.min(nr, y);
+      xr = Math.max(xr, y);
+    }
+    return "r" + nr + "c" + nc + " " + (xc - nc + 1) + "x" + (xr - nr + 1);
   }
 
   /** 8-connected blobs of a set of screen bytes: one object is one blob. */
