@@ -132,7 +132,9 @@ public final class OriginTaint {
     }
 
     void put(long k, int v) {
-      if (size * 5 >= keys.length * 3)
+      // factor de carga 0.75: con >10M de nodos dir, cada duplicación son cientos de MB;
+      // el probing lineal a 0.75 promedia ~2.5 sondeos, que el hot path absorbe
+      if (size * 4 >= keys.length * 3)
         grow();
       int i = mix(k) & mask;
       while (keys[i] != 0) {
@@ -302,11 +304,13 @@ public final class OriginTaint {
     Integer hit = flatMemo.get(node);
     if (hit != null)
       return hit;
-    // los memos de arrays de hojas son lo que más pesa (hasta leafCap ints por nodo);
-    // podarlos cuesta recomputar un rato y salva a una máquina de 7GB del swap
-    if (flatLeaves.size() > 400_000)
+    // los memos de arrays de hojas son lo que más pesa: con leafCap 512 una entrada llega
+    // a ~2KB, así que el tope va por TAMAÑO, no por cantidad — 400K entradas eran ~850MB
+    // y reventaban el heap default (~1.9GB) de una máquina de 7GB. Podar cuesta recomputar
+    // un rato; los nodos calientes se re-memoizan enseguida.
+    if (flatLeaves.size() > 100_000)
       flatLeaves.clear();
-    if (flatMemo.size() > 2_000_000)
+    if (flatMemo.size() > 500_000)
       flatMemo.clear();
     int[] lv = leavesSorted(node, leafCap, flatLeaves);
     int out = node;

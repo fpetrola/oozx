@@ -83,6 +83,17 @@ public final class SemanticCapture {
     String rzx = args.length > 0 ? args[0] : profile.rzx;
     String dbPath = args.length > 1 ? args[1] : "analysis/jsw-semantic.db";
     int maxFrames = args.length > 2 ? Integer.parseInt(args[2]) : Integer.MAX_VALUE;
+    // el RZX entero de JSW necesita ~2.5GB de heap (los arrays del plano dir duplican
+    // capacidad pasando los ~11M de nodos, frame ~60K). Con el heap default de exec:java
+    // (~25% de la RAM) eso era un OOM que se llevaba la corrida entera y la DB quedaba a
+    // medias — mejor capar CON AVISO que morir sin escribir mem_profile.
+    long maxHeap = Runtime.getRuntime().maxMemory();
+    if (args.length <= 2 && maxHeap < 2_600_000_000L) {
+      maxFrames = 60000;
+      System.out.println("AVISO: heap maximo " + (maxHeap >> 20) + "MB < 2.6GB -> capturo"
+          + " hasta el frame 60000 (cubre todas las sogas y pares identicos del RZX de"
+          + " JSW). Para el RZX entero: MAVEN_OPTS=-Xmx3g y maxFrames explicito.");
+    }
     String catalogPath = System.getProperty("semantic.catalog", profile.db);
     int leafMin = Integer.getInteger("semantic.leafmin", 32768);
     int maxEventBytes = Integer.getInteger("semantic.maxEventBytes", 2048);
@@ -128,7 +139,8 @@ public final class SemanticCapture {
       TaintReplay r = holder[0];
       int frame = snap.frame() - 1; // lo que está en pantalla se pintó en el frame anterior
       try {
-        if (leafMemo.size() > 400_000)
+        // tope por TAMAÑO: con leafcap 512 una entrada llega a ~2KB (ver OriginTaint.flatten)
+        if (leafMemo.size() > 100_000)
           leafMemo.clear();
         for (Ev ev : open.values()) {
           evFlushed[0]++;

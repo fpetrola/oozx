@@ -2215,7 +2215,7 @@ public class JSW3D extends ApplicationAdapter {
     skeletonCount = 0;
     if (!skeletonOn || snap.dirNode() == null || replay.dir == null || semPairs.isEmpty())
       return;
-    if (skelLeafMemo.size() > 400_000)
+    if (skelLeafMemo.size() > 100_000)
       skelLeafMemo.clear();
     Map<Integer, List<int[]>> byInst = new HashMap<>(); // par -> [{x, y, writeOrder}]
     List<int[]> willyBytes = new ArrayList<>();

@@ -277,7 +277,7 @@ public final class OracleVerify {
       // --- plano dir: ¿las hojas dir de cada byte con dueño caen DENTRO del slot de su
       // entidad? (la métrica §3.2 de BASE-SEMANTICA; sólo corre con -Ddir.plane=true) ---
       if (r.dir != null) {
-        if (dirMemo.size() > 400_000)
+        if (dirMemo.size() > 100_000)
           dirMemo.clear();
         room.dirSamples++;
         Set<Integer> groups = new HashSet<>(); // slots vistos; -1 = willy
