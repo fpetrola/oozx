@@ -527,8 +527,19 @@ public final class TaintReplay implements Runnable {
         if (!listener.inExecution || delta != 0 || fetching != 0)
           return;
         int a = address.intValue();
-        if (a >= listener.curPc && a < listener.curPc + listener.curLen)
-          return; // immediate operand bytes: instruction encoding, not data
+        if (a >= listener.curPc && a < listener.curPc + listener.curLen) {
+          // operando inmediato: no es dato para el plano VALOR — pero si el byte tiene
+          // cadena dir almacenada, el juego lo PARCHEO (codigo automodificado: Exolon
+          // escribe los operandos de cada entidad dentro del cuerpo del blitter) y esa
+          // cadena ES la semilla de la entidad (BASE-SEMANTICA §2.2.3): saltearla era
+          // exactamente donde se cortaba la identidad
+          if (dir != null && dir.mem[a] != OriginTaint.NONE) {
+            listener.lastReadDir = dir.union(dir.mem[a], listener.addrDir);
+            listener.pendingReadDir =
+                dir.union(listener.pendingReadDir, listener.lastReadDir);
+          }
+          return;
+        }
         if (a >= 0 && a <= 0xffff) {
           lastReadAddr = a;
           listener.lastRead = taint.read(a);
