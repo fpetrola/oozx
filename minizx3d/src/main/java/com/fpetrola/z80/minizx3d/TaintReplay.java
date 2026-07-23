@@ -511,6 +511,13 @@ public final class TaintReplay implements Runnable {
           if (spriteBitsOn) {
             listener.lastBits = taint.readBits(a, value.intValue());
             listener.pendingBits |= listener.lastBits;
+            if (dir != null && listener.lastBits != 0) {
+              // leer un bitmap del catálogo SIEMBRA el dir de tinta con la cadena entera
+              // de esta lectura; cualquier otro byte aporta la tinta con la que se escribió
+              listener.lastInkDir = taint.inCatalog(a)
+                  ? listener.lastReadDir : dir.inkDir[a];
+              listener.pendingInkDir = dir.union(listener.pendingInkDir, listener.lastInkDir);
+            }
           }
           MemAccessObserver mo = memObserver;
           if (mo != null && !listener.stackOp && a >= 16384)
@@ -553,14 +560,21 @@ public final class TaintReplay implements Runnable {
             // bits the sprite set, AND/XOR drop the ones the mask cleared — and plain
             // background painted over an abandoned position clears the byte outright,
             // which is exactly the trail the union alone could never let go of.
-            if (spriteBitsOn)
+            if (spriteBitsOn) {
               taint.bits[a] = (byte) (value.intValue()
                   & (listener.bulk ? listener.lastBits : listener.srcBits | listener.pendingBits));
+              // el dir de tinta vive y muere con los bits: máscara en 0 = sin tinta
+              if (dir != null)
+                dir.inkDir[a] = taint.bits[a] == 0 ? OriginTaint.NONE
+                    : dir.flatten(dir.union(listener.bulk ? listener.lastInkDir
+                        : dir.union(listener.srcInkDir, listener.pendingInkDir),
+                        listener.addrDir), DIR_LEAFCAP);
+            }
             CanvasWriteObserver obs = observer;
             if (obs != null)
               obs.onWrite(a, listener.curFrame, curNode,
                   curNode < nodeAddr.size ? nodeAddr.get(curNode) : 0, writeSeq,
-                  taint.mem[a], dir == null ? 0 : dir.mem[a]);
+                  taint.mem[a], dir == null ? 0 : dir.inkDirOrMem(a));
             MemAccessObserver mo = memObserver;
             if (mo != null && !listener.stackOp && a >= 16384)
               mo.onAccess(a, listener.curFrame, curNode,
@@ -614,6 +628,9 @@ public final class TaintReplay implements Runnable {
      * HL/DE no cambian durante el bulk, el valor calculado una vez es el correcto.
      */
     int srcDir, addrDir, pendingReadDir, lastReadDir;
+    /** el dir de la TINTA (ver {@link OriginTaint#inkDir}): viaja en paralelo a los
+     *  sprite-bits, con su misma semántica de siembra y muerte por máscara. */
+    int srcInkDir, pendingInkDir, lastInkDir;
     long dbgScreenWrites, dbgOutside, dbgSuppressed, dbgUntainted;
     final Map<Integer, Long> dbgSuppressedPcs = new HashMap<>();
     private int prevPc = -1, lastFrame = -1, pacedFrom;
@@ -653,6 +670,14 @@ public final class TaintReplay implements Runnable {
         srcBits = tb;
         srcDir = d;
         addrDir = ad;
+        if (dir != null && spriteBitsOn) {
+          int ink = OriginTaint.NONE;
+          for (int slot : info.reads)
+            if (taint.regBits[slot] != 0
+                && info.roles.getOrDefault(Tracer.CH_NAME[slot], "").indexOf('V') >= 0)
+              ink = dir.union(ink, dir.regInkDir[slot]);
+          srcInkDir = ink;
+        }
         int frame = io.getCurrentFrameIndex();
         curFrame = frame;
         if (frame != lastFrame) {
@@ -706,6 +731,9 @@ public final class TaintReplay implements Runnable {
             int d1 = dir.reg[a];
             dir.reg[a] = dir.reg[b];
             dir.reg[b] = d1;
+            int k1 = dir.regInkDir[a];
+            dir.regInkDir[a] = dir.regInkDir[b];
+            dir.regInkDir[b] = k1;
           }
         }
         regSwap = true;
@@ -723,6 +751,9 @@ public final class TaintReplay implements Runnable {
             int d1 = dir.reg[a];
             dir.reg[a] = dir.reg[b];
             dir.reg[b] = d1;
+            int k1 = dir.regInkDir[a];
+            dir.regInkDir[a] = dir.regInkDir[b];
+            dir.regInkDir[b] = k1;
           }
         }
         regSwap = true;
@@ -738,6 +769,7 @@ public final class TaintReplay implements Runnable {
       pendingRead = OriginTaint.NONE;
       lastRead = OriginTaint.NONE;
       pendingReadDir = lastReadDir = OriginTaint.NONE;
+      pendingInkDir = lastInkDir = OriginTaint.NONE;
       pendingBits = lastBits = 0;
       inExecution = true;
     }
@@ -752,8 +784,11 @@ public final class TaintReplay implements Runnable {
           // clamped by the value at the memory write, which is the only place it is read
           taint.regBits[slot] = srcBits | pendingBits;
           // dir: pendingReadDir ya trae addrDir vía lastReadDir; la unión extra es memo hit
-          if (dir != null)
+          if (dir != null) {
             dir.reg[slot] = dir.union(dir.union(srcDir, pendingReadDir), addrDir);
+            if (spriteBitsOn)
+              dir.regInkDir[slot] = dir.union(srcInkDir, pendingInkDir);
+          }
         }
     }
 
@@ -795,7 +830,7 @@ public final class TaintReplay implements Runnable {
       if (dir != null) {
         dirNode = new int[PIXEL_BYTES];
         for (int i = 0; i < PIXEL_BYTES; i++)
-          dirNode[i] = dir.mem[SCREEN + i];
+          dirNode[i] = dir.inkDirOrMem(SCREEN + i);
       }
       onFrame.accept(new FrameSnapshot(frame, pixels, attrs, owner, tile, spriteBits, group,
           dirNode));

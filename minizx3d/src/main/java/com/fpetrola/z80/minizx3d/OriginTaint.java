@@ -80,6 +80,30 @@ public final class OriginTaint {
   public final int[] regBits = new int[32];
 
   /**
+   * El "dir por bit" para motores que componen con máscara (Exolon): el dir POR BYTE de un
+   * byte compuesto une la cadena del sprite con la del fondo que pisa, y el core converge a
+   * un blob global (medido: 98% de los eventos de Exolon en UN core saturado). Este es el
+   * dir de LA TINTA: se siembra en la lectura de catálogo con la cadena dir completa de esa
+   * lectura (que ya nombra a la entidad vía el índice), viaja sólo con los bits que
+   * sobreviven (la misma regla enmascarada de {@link #bits}), y muere cuando la máscara
+   * apaga el byte. El fondo nunca siembra tinta: sus cadenas no entran jamás.
+   * Sólo lo puebla el plano dir con {@code -Dsprite.bits=true}.
+   */
+  public final int[] inkDir = new int[0x10000];
+  public final int[] regInkDir = new int[32];
+
+  /** el dir del byte para consumo: la tinta cuando la hay, el plano por byte si no. */
+  public int inkDirOrMem(int addr) {
+    int t = inkDir[addr & 0xffff];
+    return t != NONE ? t : mem[addr & 0xffff];
+  }
+
+  /** ¿la dirección cae en un gráfico del catálogo? (la condición de siembra de la tinta) */
+  public boolean inCatalog(int addr) {
+    return catalogBase[addr & 0xffff] != 0;
+  }
+
+  /**
    * Sprite bits of a value read from {@code addr}: reading a sprite bitmap SEEDS the mask
    * (every set bit of it is sprite ink), anywhere else the byte carries whatever mask it
    * was last written with.
