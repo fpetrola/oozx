@@ -2218,8 +2218,12 @@ public class JSW3D extends ApplicationAdapter {
    */
   private void updateSkeleton(TaintReplay.FrameSnapshot snap) {
     skeletonCount = 0;
+    skelFrame = snap.frame();
+    // el conteo persiste ~3 ticks: los matches van al ritmo del juego y el conteo por
+    // frame de render parpadeaba (objetos visibles marcados x0)
     for (SkelEntry en : skelGallery.values())
-      en.countNow = 0;
+      if (skelFrame - en.lastFrame > 12)
+        en.countNow = 0;
     if (!skeletonOn || snap.dirNode() == null || replay.dir == null || semRanges.isEmpty())
       return;
     if (skelLeafMemo.size() > 100_000)
@@ -2340,7 +2344,9 @@ public class JSW3D extends ApplicationAdapter {
     for (Map.Entry<Integer, List<List<int[]>>> f : familias.entrySet()) {
       List<List<int[]>> apps = f.getValue();
       Color ic = instanceColor(f.getKey());
-      if (apps.size() >= 2 && f.getKey() != 0) {
+      if (f.getKey() != 0) {
+        // a la galeria van TODAS las familias, tambien las de UNA aparicion — la mayoria
+        // de los compuestos aparece una sola vez y quedaban invisibles en la lista
         List<int[]> first = apps.get(0);
         int mc = 31, xc = 0, mr = 191, xr = 0;
         for (int[] pt : first) {
@@ -2352,6 +2358,8 @@ public class JSW3D extends ApplicationAdapter {
         }
         galleryNote(snap, "$" + Integer.toHexString(f.getKey() - 1), apps.size(),
             mc, Math.max(0, mr), xc, Math.min(191, xr));
+      }
+      if (apps.size() >= 2 && f.getKey() != 0) {
         float sx = 0, topY = 0;
         for (List<int[]> obj : apps) {
           float[] c = centroid(obj);
@@ -2458,7 +2466,10 @@ public class JSW3D extends ApplicationAdapter {
     if (Boolean.getBoolean("skeleton.probe") && snap.frame() % 50 == 0)
       System.out.println("skeleton f=" + snap.frame() + ": instancias en pantalla="
           + byInst.size() + " cadenas=" + chains + " compuestos=" + stars
-          + " aristas=" + edges + " segmentos=" + skeletonCount);
+          + " aristas=" + edges + " segmentos=" + skeletonCount
+          + " galeria=" + skelGallery.size() + " tipos ("
+          + skelGallery.values().stream().filter(g -> g.countNow > 0).count()
+          + " presentes)");
   }
 
   /**
@@ -3402,8 +3413,10 @@ public class JSW3D extends ApplicationAdapter {
    */
   private static final class SkelEntry {
     com.badlogic.gdx.graphics.Texture tex;
-    int w, h, countNow;
+    int w, h, countNow, lastFrame = -999;
   }
+
+  private int skelFrame;
 
   private final java.util.LinkedHashMap<String, SkelEntry> skelGallery =
       new java.util.LinkedHashMap<>();
@@ -3440,36 +3453,50 @@ public class JSW3D extends ApplicationAdapter {
       en.h = h;
       skelGallery.put(key, en);
     }
-    en.countNow = Math.max(en.countNow, count);
+    en.countNow = snap.frame() - en.lastFrame > 12 ? count : Math.max(en.countNow, count);
+    en.lastFrame = snap.frame();
   }
 
-  /** la franja derecha de la galería, con scroll por teclas [ y ]. */
+  /** la GRILLA de la galería: izquierda→derecha, arriba→abajo; RePág/AvPág scrollean
+   *  por filas cuando desborda (y el editor no está abierto, que usa esas teclas). */
   private void renderSkelGallery() {
     if (!skeletonOn || skelGallery.isEmpty())
       return;
-    if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.LEFT_BRACKET))
-      skelScroll = Math.max(0, skelScroll - 3);
-    if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.RIGHT_BRACKET))
-      skelScroll = Math.min(Math.max(0, skelGallery.size() - 3), skelScroll + 3);
-    float x = Gdx.graphics.getWidth() - 150, y = Gdx.graphics.getHeight() - 16;
+    int cols = 4, cellW = 78, cellH = 74;
+    int panelW = cols * cellW + 12;
+    int rows = Math.max(1, (Gdx.graphics.getHeight() - 8) / cellH);
+    int totalRows = (skelGallery.size() + cols - 1) / cols;
+    if (!editorOn) {
+      if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.PAGE_UP))
+        skelScroll = Math.max(0, skelScroll - rows);
+      if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.PAGE_DOWN))
+        skelScroll = Math.min(Math.max(0, totalRows - rows), skelScroll + rows);
+    }
+    float x0 = Gdx.graphics.getWidth() - panelW;
     uiBatch.begin();
-    uiBatch.setColor(0, 0, 0, .78f);
-    uiBatch.draw(whitePix, x - 8, 0, 158, Gdx.graphics.getHeight());
+    uiBatch.setColor(0, 0, 0, .8f);
+    uiBatch.draw(whitePix, x0 - 4, 0, panelW + 4, Gdx.graphics.getHeight());
     int n = 0;
     for (Map.Entry<String, SkelEntry> e : skelGallery.entrySet()) {
-      if (n++ < skelScroll)
+      int cell = n++;
+      int row = cell / cols - skelScroll, col = cell % cols;
+      if (row < 0 || row >= rows)
         continue;
       SkelEntry en = e.getValue();
-      float sc = Math.min(2f, 120f / en.w);
-      float th = en.h * sc;
-      if (y - th - 18 < 0)
-        break;
-      uiBatch.setColor(1, 1, 1, en.countNow > 0 ? 1f : .35f);
-      uiBatch.draw(en.tex, x, y - th, en.w * sc, th);
+      float cx = x0 + col * cellW + 4;
+      float cy = Gdx.graphics.getHeight() - 4 - (row + 1) * cellH;
+      float sc = Math.min(64f / en.w, 48f / en.h);
+      uiBatch.setColor(1, 1, 1, en.countNow > 0 ? 1f : .3f);
+      uiBatch.draw(en.tex, cx, cy + 20, en.w * sc, en.h * sc);
       uiFont.setColor(1, 1, .5f, en.countNow > 0 ? 1f : .4f);
-      uiFont.draw(uiBatch, e.getKey() + "  x" + en.countNow, x, y - th - 4);
+      uiFont.draw(uiBatch, e.getKey() + " x" + en.countNow, cx, cy + 16);
       uiFont.setColor(1, 1, 1, 1);
-      y -= th + 22;
+    }
+    if (totalRows > rows) {
+      uiFont.setColor(.7f, .9f, 1, 1);
+      uiFont.draw(uiBatch, "RePag/AvPag " + (skelScroll + 1) + "-"
+          + Math.min(totalRows, skelScroll + rows) + "/" + totalRows, x0 + 4, 14);
+      uiFont.setColor(1, 1, 1, 1);
     }
     uiBatch.end();
   }
