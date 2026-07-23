@@ -2223,6 +2223,13 @@ public class JSW3D extends ApplicationAdapter {
       skelLeafMemo.clear();
     Map<Integer, List<int[]>> byInst = new HashMap<>(); // instancia -> [{x, y, writeOrder}]
     Map<Integer, List<int[]>> byGroup = new HashMap<>(); // respaldo: grupo de invocacion
+    // las bases de cobertura GIGANTE (murallas, pisos) son conectivo del escenario, no
+    // objeto: sueldan las capsulas con las cajitas en un solo componente. Fuera del
+    // respaldo por frecuencia en pantalla.
+    Map<Integer, Integer> baseCount = new HashMap<>();
+    for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++)
+      if (snap.owner()[i] != 0)
+        baseCount.merge(snap.owner()[i], 1, Integer::sum);
     for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
       int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7);
       // cualquier byte ENCENDIDO: el plano dir decide solo si pertenece a una instancia —
@@ -2254,8 +2261,13 @@ public class JSW3D extends ApplicationAdapter {
         // cores es discriminante): la identidad de INVOCACION del arbol de llamadas.
         // Claves negativas para no chocar con las instancias de la base.
         int g = snap.group()[i];
-        if (g != 0 && snap.owner()[i] != 0)
-          byGroup.computeIfAbsent(-g, k -> new ArrayList<>()).add(new int[]{px, py, order});
+        if (snap.owner()[i] != 0 && baseCount.getOrDefault(snap.owner()[i], 0) <= 300) {
+          // fresco: grupo de invocacion (vive un frame). Estatico (dirty-regions no
+          // repinta lo quieto): writeSig, el camino de llamada por byte, que SI persiste
+          int key = g != 0 ? -g : 0x40000000 | (replay.writeSig[i] & 0x3ffffff);
+          byGroup.computeIfAbsent(key, k -> new ArrayList<>())
+              .add(new int[]{px, py, order, snap.owner()[i]});
+        }
         continue;
       }
       int inst = -1, best = 0;
@@ -2264,7 +2276,7 @@ public class JSW3D extends ApplicationAdapter {
           best = h.getValue();
           inst = h.getKey();
         }
-      byInst.computeIfAbsent(inst, k -> new ArrayList<>()).add(new int[]{px, py, order});
+      byInst.computeIfAbsent(inst, k -> new ArrayList<>()).add(new int[]{px, py, order, snap.owner()[i]});
     }
     // los grupos de invocacion con varias piezas entran al mismo pipeline de anclas
     for (Map.Entry<Integer, List<int[]>> e : byGroup.entrySet())
@@ -2299,15 +2311,38 @@ public class JSW3D extends ApplicationAdapter {
     // que se cruzan cuelgan de dos anclas distintas
     int stars = 0;
     for (Map.Entry<Integer, List<int[]>> e : byInst.entrySet()) {
-      List<List<int[]>> clusters = clustersOf(e.getValue());
-      if (clusters.size() < 2)
-        continue;
-      stars++;
-      float[] anchor = centers.get(e.getKey());
-      Color ic = instanceColor(e.getKey());
-      for (List<int[]> cl : clusters) {
-        float[] c = centroid(cl);
-        skeletonSegment(c[0], c[1], anchor[0], anchor[1], midZ() + 2.5f, ic);
+      // una identidad de RESPALDO (invocacion/writeSig) agrupa todo lo que pinto ese
+      // camino — la sala entera si es el pintor de sala. El nivel objeto es cada
+      // componente CONEXO: una capsula, una cajita — cada uno con su ancla y color
+      // propios (por celda del ancla: estable mientras el objeto no se mueve).
+      // TODA identidad se parte en objetos conexos: una instancia de bloque global
+      // (el $64A0 de Exolon) reclama media pantalla y sin este corte era una estrella
+      // gigante. Si la identidad tiene un solo objeto, conserva su color de identidad;
+      // si tiene varios, cada objeto recibe el suyo (por celda del ancla) para que dos
+      // compuestos no se mezclen.
+      List<List<int[]>> objects = clustersOf(e.getValue());
+      for (List<int[]> obj : objects) {
+        if (obj.size() < 12)
+          continue;
+        List<List<int[]>> pieces = piecesOf(obj);
+        stars++;
+        float[] anchor = centroid(obj);
+        Color ic = objects.size() > 1
+            ? instanceColor((((int) anchor[0] / 8) << 8) | ((int) anchor[1] / 8))
+            : instanceColor(e.getKey());
+        if (pieces.size() >= 2) {
+          for (List<int[]> cl : pieces) {
+            float[] c = centroid(cl);
+            skeletonSegment(c[0], c[1], anchor[0], anchor[1], midZ() + 2.5f, ic);
+          }
+        } else {
+          // objeto sustancial de UNA pieza (el catalogo fusiono el compuesto): el ancla
+          // en cruz lo marca como UN objeto igual — la marca visible que pide §3.5
+          skeletonSegment(anchor[0] - 5, anchor[1], anchor[0] + 5, anchor[1],
+              midZ() + 2.5f, ic);
+          skeletonSegment(anchor[0], anchor[1] - 5, anchor[0], anchor[1] + 5,
+              midZ() + 2.5f, ic);
+        }
       }
     }
     // cadena interna: una instancia alargada es una soga, no un guardián
@@ -2347,7 +2382,22 @@ public class JSW3D extends ApplicationAdapter {
           + " aristas=" + edges + " segmentos=" + skeletonCount);
   }
 
-  /** grupos 8-conexos (a nivel celda) de los puntos de una instancia: sus PIEZAS. */
+  /**
+   * Las PIEZAS de una identidad: primero por gráfico de catálogo (un compuesto CONEXO
+   * de varias piezas — la cápsula de Exolon — se parte donde cambia la pieza), después
+   * por conectividad espacial dentro de cada gráfico.
+   */
+  private static List<List<int[]>> piecesOf(List<int[]> pts) {
+    Map<Integer, List<int[]>> byBase = new HashMap<>();
+    for (int[] p : pts)
+      byBase.computeIfAbsent(p.length > 3 ? p[3] : 0, k -> new ArrayList<>()).add(p);
+    List<List<int[]>> out = new ArrayList<>();
+    for (List<int[]> basePts : byBase.values())
+      out.addAll(clustersOf(basePts));
+    return out;
+  }
+
+  /** grupos 8-conexos (a nivel celda) de los puntos de una instancia. */
   private static List<List<int[]>> clustersOf(List<int[]> pts) {
     Map<Integer, List<int[]>> byCell = new HashMap<>();
     for (int[] p : pts)
