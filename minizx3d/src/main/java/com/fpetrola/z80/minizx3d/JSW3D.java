@@ -2847,7 +2847,7 @@ public class JSW3D extends ApplicationAdapter {
       // pieza (el grafico del que vino cada byte)
       if (skeletonOn)
         objPts.add(new int[]{(i & 31) * 8 + 4, H - y, replay.writeOrder[i],
-            snap.owner()[i]});
+            rawOriginOf(i)}); // la pieza EXACTA (con caida a tile), no la entrada plegada
       int attr = snap.attrs()[(y >> 3) * 32 + c] & 0xff;
       if ((attr & 7) != ((attr >> 3) & 7))
         inkVotes[ink(attr)]++;
