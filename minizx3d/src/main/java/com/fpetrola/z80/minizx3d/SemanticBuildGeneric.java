@@ -385,6 +385,28 @@ public final class SemanticBuildGeneric {
           bestStable.put(gfx, block);
       }
     }
+    // el bloque-identidad por familia de gfx: el bloque particionante que concentra la
+    // masa de co-ocurrencia de los eventos de ese gráfico (≥40% de sus eventos)
+    Map<Integer, Integer> idBlockByGfx = new HashMap<>();
+    {
+      Map<Long, Integer> gfxBlockMass = new HashMap<>(); // (gfx, bloque) -> masa
+      for (Map.Entry<Long, Integer> e : gfxRun.entrySet()) {
+        int g = (int) (e.getKey() >>> 32), rn = e.getKey().intValue();
+        Integer b = instBlock.get(rn);
+        if (b != null && partitionBlocks.contains(b))
+          gfxBlockMass.merge(((long) g << 32) | b, e.getValue(), Integer::sum);
+      }
+      Map<Integer, Integer> bestMass = new HashMap<>();
+      for (Map.Entry<Long, Integer> e : gfxBlockMass.entrySet()) {
+        int g = (int) (e.getKey() >>> 32), b = e.getKey().intValue();
+        int total = gfxCount.getOrDefault(g, 0);
+        if (total >= 20 && e.getValue() * 10 >= total * 4
+            && e.getValue() > bestMass.getOrDefault(g, 0)) {
+          bestMass.put(g, e.getValue());
+          idBlockByGfx.put(g, b);
+        }
+      }
+    }
     Map<Integer, Inst> insts = new TreeMap<>();
     // hojas variables por instancia (para el vinculo VIVO): frecuencia por hoja
     Map<Integer, Map<Integer, Integer>> leafFreq = new HashMap<>();
@@ -401,19 +423,26 @@ public final class SemanticBuildGeneric {
         if (instBlock.containsKey(evRuns[i][k])
             && partitionBlocks.contains(evBlocks[i][k]))
           runs.add(evRuns[i][k]);
-      // dueño: el run particionante con mejor asociación al gráfico, SALVO que la
-      // asociación sea de nivel contaminación (<5%: willy cuelga de la soga el 3% de su
-      // vida — eso es arrastre, no identidad). Un tipo que recorre salas reparte su gfx
-      // entre slots (~25%) y le sigue ganando al bloque de definiciones compartido.
+      // dueño: EL BLOQUE-IDENTIDAD de la familia del gráfico decide (la regla que Monty
+      // exigió: cada evento trae un run de VARIOS bloques particionantes a la vez, y hay
+      // que elegir el bloque cuyo run identifica, no cualquier run). El bloque-identidad
+      // de un gfx es el que concentra la masa de co-ocurrencia de sus eventos; el run de
+      // ESE bloque es el dueño, salvo asociación de nivel contaminación (<5%: willy
+      // cuelga de la soga el 3% de su vida — arrastre, no identidad).
       int owner = -1;
-      double best = 0.05;
-      for (int rn : runs) {
-        int total = gfx == 0 ? 0 : gfxCount.getOrDefault(gfx, 0);
-        double share = total == 0 ? 0
-            : gfxRun.getOrDefault(((long) gfx << 32) | rn, 0) / (double) total;
-        if (share > best) {
-          best = share;
-          owner = rn;
+      Integer idBlock = gfx == 0 ? null : idBlockByGfx.get(gfx);
+      if (idBlock != null) {
+        double best = 0.05;
+        for (int rn : runs) {
+          if (!idBlock.equals(instBlock.get(rn)))
+            continue;
+          int total = gfxCount.getOrDefault(gfx, 0);
+          double share = total == 0 ? 0
+              : gfxRun.getOrDefault(((long) gfx << 32) | rn, 0) / (double) total;
+          if (share > best) {
+            best = share;
+            owner = rn;
+          }
         }
       }
       if (owner < 0 && gfx != 0 && bestStable.containsKey(gfx))
