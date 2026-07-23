@@ -134,6 +134,20 @@ public final class TaintReplay implements Runnable {
    *  Medido en JSW: la historia de transiciones de sala mete ~6 hojas por sala visitada en
    *  TODA cadena de direcciones; 512 alcanza para el mapa entero y saturó 0 bytes. */
   static final int DIR_LEAFCAP = Integer.getInteger("dir.leafcap", 512);
+  /** -Ddir.noaddr=true: SONDA de aislamiento — apaga la inyección de addrDir (el plano
+   *  queda propagando sólo por valor+reads). No es un modo de operación: sirve para
+   *  confirmar por eliminación qué canal carga el blob uniforme de Exolon. */
+  static final boolean DIR_NOADDR = Boolean.getBoolean("dir.noaddr");
+  /**
+   * -Ddir.addrmax=N (0 = sin límite): addrDir SELECTIVO — la regla fina que salió de la
+   * sonda de aislamiento de Exolon. Una cadena de dirección con pocas hojas es IDENTIDAD
+   * (el índice que nombra al slot); una con cientos es la caminata acumulada de la
+   * maquinaria de tablas, que inyectada en cada write uniformaba el 97% de los cores
+   * (apagarla entera: 545→45802 sets, pero la identidad se iba con ella). El corte por
+   * tamaño de conjunto se queda con una y suelta la otra.
+   */
+  static final int DIR_ADDRMAX = Integer.getInteger("dir.addrmax", 0);
+  private final java.util.Map<Integer, int[]> addrSmallMemo = new java.util.HashMap<>();
 
   /**
    * Hook de captura de capa 1 ({@code SemanticCapture}): cada write DURANTE ejecución no
@@ -698,8 +712,16 @@ public final class TaintReplay implements Runnable {
                 dNS = dir.union(dNS, dir.regNS[slot]);
             }
           }
-          if (dir != null && roles.indexOf('A') >= 0)
-            ad = dir.union(ad, dir.reg[slot]);
+          if (dir != null && !DIR_NOADDR && roles.indexOf('A') >= 0) {
+            int ch = dir.reg[slot];
+            if (DIR_ADDRMAX > 0 && ch != OriginTaint.NONE) {
+              if (addrSmallMemo.size() > 100_000)
+                addrSmallMemo.clear();
+              if (dir.leavesSorted(ch, DIR_ADDRMAX + 1, addrSmallMemo) == null)
+                ch = OriginTaint.NONE; // caminata de maquinaria, no identidad
+            }
+            ad = dir.union(ad, ch);
+          }
         }
         srcTaint = t;
         srcBits = tb;
