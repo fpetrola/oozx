@@ -351,8 +351,22 @@ public final class TaintReplay implements Runnable {
           int a = Integer.parseInt(one, 16);
           java.util.Set<Integer> lv = holder[0].taint.leaves(holder[0].taint.mem[a], 20);
           StringBuilder ls = new StringBuilder("  mem[$" + one + "]="
-              + holder[0].memByte(a) + " hojas:");
+              + holder[0].memByte(a) + " bits=" + (holder[0].taint.bits[a] & 0xff) + " hojas:");
           lv.forEach(x -> ls.append(" $").append(Integer.toHexString(x)));
+          // el plano dir y la tinta, si estan vivos: la sonda forense de por donde se
+          // corta la cadena de identidad en un motor de staging (Exolon)
+          if (holder[0].dir != null) {
+            int[] full = holder[0].dir.leavesSorted(holder[0].dir.mem[a], 4096,
+                new java.util.HashMap<>());
+            ls.append(" | dir(").append(full == null ? "SAT" : full.length).append("):");
+            holder[0].dir.leaves(holder[0].dir.mem[a], 12)
+                .forEach(x -> ls.append(" $").append(Integer.toHexString(x)));
+            if (holder[0].dir.inkDir[a] != OriginTaint.NONE) {
+              ls.append(" | tinta:");
+              holder[0].dir.leaves(holder[0].dir.inkDir[a], 12)
+                  .forEach(x -> ls.append(" $").append(Integer.toHexString(x)));
+            }
+          }
           System.out.println(ls);
         }
       String xy = System.getProperty("debug.rect");
@@ -783,11 +797,19 @@ public final class TaintReplay implements Runnable {
           // not masked by the register's new value (we do not have it here) — the mask is
           // clamped by the value at the memory write, which is the only place it is read
           taint.regBits[slot] = srcBits | pendingBits;
-          // dir: pendingReadDir ya trae addrDir vía lastReadDir; la unión extra es memo hit
+          // dir: pendingReadDir ya trae addrDir vía lastReadDir; la unión extra es memo hit.
+          // El flatten TAMBIÉN en registros: el loop de composición de Exolon acumula
+          // uniones en HL/DE durante miles de iteraciones sin pasar por memoria, toca el
+          // cap ADENTRO del loop y keepDeep fosiliza la cadena (medido: los 4 bytes
+          // sondeados con debug.mem compartían el mismo set de 12 hojas congelado).
+          // Aplanar en el store solo llegaba tarde; el fast-path (profundidad ≤128) hace
+          // que en JSW esto sea gratis.
           if (dir != null) {
-            dir.reg[slot] = dir.union(dir.union(srcDir, pendingReadDir), addrDir);
+            dir.reg[slot] = dir.flatten(
+                dir.union(dir.union(srcDir, pendingReadDir), addrDir), DIR_LEAFCAP);
             if (spriteBitsOn)
-              dir.regInkDir[slot] = dir.union(srcInkDir, pendingInkDir);
+              dir.regInkDir[slot] = dir.flatten(dir.union(srcInkDir, pendingInkDir),
+                  DIR_LEAFCAP);
           }
         }
     }
