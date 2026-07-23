@@ -2235,8 +2235,9 @@ public class JSW3D extends ApplicationAdapter {
       // cualquier byte ENCENDIDO: el plano dir decide solo si pertenece a una instancia —
       // condicionar al owner del plano valor ata el esqueleto al catalogo curado, que
       // clasifica poco a proposito
-      if (y >= 128 || (snap.pixels()[i] & 0xff) == 0 || snap.dirNode()[i] == 0)
-        continue;
+      if (y >= 128 || (snap.pixels()[i] & 0xff) == 0 || snap.dirNode()[i] == 0
+          || objClaimed[i])
+        continue; // lo reclamado por objetosAuto tiene su propia estrella
       int[] lv = replay.dir.leavesSorted(snap.dirNode()[i], TaintReplay.DIR_LEAFCAP,
           skelLeafMemo);
       if (lv == null)
@@ -2335,14 +2336,20 @@ public class JSW3D extends ApplicationAdapter {
             float[] c = centroid(cl);
             skeletonSegment(c[0], c[1], anchor[0], anchor[1], midZ() + 2.5f, ic);
           }
-        } else {
-          // objeto sustancial de UNA pieza (el catalogo fusiono el compuesto): el ancla
-          // en cruz lo marca como UN objeto igual — la marca visible que pide §3.5
-          skeletonSegment(anchor[0] - 5, anchor[1], anchor[0] + 5, anchor[1],
-              midZ() + 2.5f, ic);
-          skeletonSegment(anchor[0], anchor[1] - 5, anchor[0], anchor[1] + 5,
-              midZ() + 2.5f, ic);
         }
+      }
+    }
+    // los compuestos de objetosAuto: cada aparicion con sus piezas colgando de su ancla
+    for (List<int[]> obj : objSkeleton) {
+      List<List<int[]>> pieces = piecesOf(obj);
+      float[] anchor = centroid(obj);
+      Color ic = instanceColor((((int) anchor[0] / 8) << 8) | ((int) anchor[1] / 8));
+      if (pieces.size() < 2)
+        continue;
+      stars++;
+      for (List<int[]> cl : pieces) {
+        float[] c = centroid(cl);
+        skeletonSegment(c[0], c[1], anchor[0], anchor[1], midZ() + 2.5f, ic);
       }
     }
     // cadena interna: una instancia alargada es una soga, no un guardián
@@ -2612,6 +2619,7 @@ public class JSW3D extends ApplicationAdapter {
    */
   private void updateObjects(TaintReplay.FrameSnapshot snap) {
     java.util.Arrays.fill(objClaimed, false);
+    objSkeleton.clear();
     if (edGroups.isEmpty() || !objectsOn)
       return;
     // which definitions each graphic belongs to. A graphic can be in SEVERAL: three crops of
@@ -2827,16 +2835,25 @@ public class JSW3D extends ApplicationAdapter {
   private void drawObject(TaintReplay.FrameSnapshot snap, EdGroup g, List<Integer> cells,
       int minC, int minR, int maxC, int maxR) {
     int w = maxC - minC + 1, rows = maxR - minR + 1;
+    List<int[]> objPts = new ArrayList<>();
     byte[] bits = new byte[w * rows];
     int[] inkVotes = new int[16];
     for (int i : cells) {
       int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), c = i & 31;
       bits[(y - minR) * w + (c - minC)] = snap.pixels()[i];
       objClaimed[i] = true;
+      // el matcher de objetosAuto es LA fuente de compuestos del esqueleto: cada
+      // aparicion matcheada (dos capsulas = dos instancias) aporta sus bytes con su
+      // pieza (el grafico del que vino cada byte)
+      if (skeletonOn)
+        objPts.add(new int[]{(i & 31) * 8 + 4, H - y, replay.writeOrder[i],
+            snap.owner()[i]});
       int attr = snap.attrs()[(y >> 3) * 32 + c] & 0xff;
       if ((attr & 7) != ((attr >> 3) & 7))
         inkVotes[ink(attr)]++;
     }
+    if (skeletonOn && !objPts.isEmpty())
+      objSkeleton.add(objPts);
     SpriteBitmap sb = SpriteBitmap.ofScreen(bits, w,
         g.graphics.isEmpty() ? -1 : g.graphics.iterator().next());
     // forced, not defaulted: the object says how it renders and the automatic selector does
@@ -3300,6 +3317,8 @@ public class JSW3D extends ApplicationAdapter {
   private final Map<Integer, List<Integer>> gfxToObjs = new HashMap<>();
   /** screen bytes an object instance is modelling this frame: nobody else may draw them. */
   private final boolean[] objClaimed = new boolean[TaintReplay.PIXEL_BYTES];
+  /** las apariciones matcheadas de objetosAuto de este frame, para el esqueleto. */
+  private final List<List<int[]>> objSkeleton = new ArrayList<>();
   /** what fraction of an object's graphics has to be on screen to call it that object. */
   private float objectsMatch = fprop("render.objects.match", "objects.match", .5f);
   private boolean objectsOn = bprop("render.objects", "objects", true);
