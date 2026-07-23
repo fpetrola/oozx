@@ -2339,18 +2339,24 @@ public class JSW3D extends ApplicationAdapter {
         }
       }
     }
-    // los compuestos de objetosAuto: cada aparicion con sus piezas colgando de su ancla
-    for (List<int[]> obj : objSkeleton) {
-      List<List<int[]>> pieces = piecesOf(obj);
-      float[] anchor = centroid(obj);
-      Color ic = instanceColor((((int) anchor[0] / 8) << 8) | ((int) anchor[1] / 8));
-      if (pieces.size() < 2)
-        continue;
-      stars++;
-      for (List<int[]> cl : pieces) {
-        float[] c = centroid(cl);
-        skeletonSegment(c[0], c[1], anchor[0], anchor[1], midZ() + 2.5f, ic);
+    // los compuestos de objetosAuto: las apariciones del mismo TIPO cuelgan de un punto
+    // comun (la definicion), un rayo por aparicion, color por tipo
+    Map<String, List<float[]>> byDef = new HashMap<>();
+    for (Object[] a : objAnchors)
+      byDef.computeIfAbsent((String) a[0], k -> new ArrayList<>())
+          .add(new float[]{(Float) a[1], (Float) a[2]});
+    for (Map.Entry<String, List<float[]>> e : byDef.entrySet()) {
+      List<float[]> apps = e.getValue();
+      float sx = 0, topY = 0;
+      for (float[] a : apps) {
+        sx += a[0];
+        topY = Math.max(topY, a[1]);
       }
+      float[] common = {sx / apps.size(), topY + 18};
+      Color ic = instanceColor(e.getKey().hashCode());
+      stars++;
+      for (float[] a : apps)
+        skeletonSegment(a[0], a[1], common[0], common[1], midZ() + 2.5f, ic);
     }
     // cadena interna: una instancia alargada es una soga, no un guardián
     int chains = 0;
@@ -2619,7 +2625,7 @@ public class JSW3D extends ApplicationAdapter {
    */
   private void updateObjects(TaintReplay.FrameSnapshot snap) {
     java.util.Arrays.fill(objClaimed, false);
-    objSkeleton.clear();
+    objAnchors.clear();
     if (edGroups.isEmpty() || !objectsOn)
       return;
     // which definitions each graphic belongs to. A graphic can be in SEVERAL: three crops of
@@ -2835,25 +2841,23 @@ public class JSW3D extends ApplicationAdapter {
   private void drawObject(TaintReplay.FrameSnapshot snap, EdGroup g, List<Integer> cells,
       int minC, int minR, int maxC, int maxR) {
     int w = maxC - minC + 1, rows = maxR - minR + 1;
-    List<int[]> objPts = new ArrayList<>();
+    // jerarquia del esqueleto: cada APARICION matcheada es UN compuesto (un nodo), y las
+    // repeticiones del mismo TIPO cuelgan de un punto comun que representa a la
+    // definicion — un rayo por aparicion, color por tipo
+    if (skeletonOn)
+      objAnchors.add(new Object[]{g.name == null ? "?" : g.name,
+          (minC + maxC + 1) * 4f, H - (minR + maxR + 1) / 2f});
     byte[] bits = new byte[w * rows];
     int[] inkVotes = new int[16];
     for (int i : cells) {
       int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7), c = i & 31;
       bits[(y - minR) * w + (c - minC)] = snap.pixels()[i];
       objClaimed[i] = true;
-      // el matcher de objetosAuto es LA fuente de compuestos del esqueleto: cada
-      // aparicion matcheada (dos capsulas = dos instancias) aporta sus bytes con su
-      // pieza (el grafico del que vino cada byte)
-      if (skeletonOn)
-        objPts.add(new int[]{(i & 31) * 8 + 4, H - y, replay.writeOrder[i],
-            rawOriginOf(i)}); // la pieza EXACTA (con caida a tile), no la entrada plegada
+
       int attr = snap.attrs()[(y >> 3) * 32 + c] & 0xff;
       if ((attr & 7) != ((attr >> 3) & 7))
         inkVotes[ink(attr)]++;
     }
-    if (skeletonOn && !objPts.isEmpty())
-      objSkeleton.add(objPts);
     SpriteBitmap sb = SpriteBitmap.ofScreen(bits, w,
         g.graphics.isEmpty() ? -1 : g.graphics.iterator().next());
     // forced, not defaulted: the object says how it renders and the automatic selector does
@@ -3317,8 +3321,8 @@ public class JSW3D extends ApplicationAdapter {
   private final Map<Integer, List<Integer>> gfxToObjs = new HashMap<>();
   /** screen bytes an object instance is modelling this frame: nobody else may draw them. */
   private final boolean[] objClaimed = new boolean[TaintReplay.PIXEL_BYTES];
-  /** las apariciones matcheadas de objetosAuto de este frame, para el esqueleto. */
-  private final List<List<int[]>> objSkeleton = new ArrayList<>();
+  /** las apariciones matcheadas de objetosAuto de este frame: {nombre, cx, cy}. */
+  private final List<Object[]> objAnchors = new ArrayList<>();
   /** what fraction of an object's graphics has to be on screen to call it that object. */
   private float objectsMatch = fprop("render.objects.match", "objects.match", .5f);
   private boolean objectsOn = bprop("render.objects", "objects", true);
