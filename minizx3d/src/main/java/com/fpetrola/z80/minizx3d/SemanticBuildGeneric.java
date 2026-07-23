@@ -116,6 +116,24 @@ public final class SemanticBuildGeneric {
 
   public static void main(String[] args) throws Exception {
     String dbPath = args.length > 0 ? args[0] : "analysis/jsw-semantic.db";
+    // -Dbuild.catalog=path: las zonas de GRAFICOS del catalogo se excluyen del universo
+    // de bloques de identidad — la identidad de una instancia viene de su ESTADO, no de
+    // la zona donde viven sus bitmaps (que es territorio del plano valor). Medido en
+    // Exolon: sin esto, los misiles caian dentro del bloque de la zona $EDxx que ya
+    // poseia la instancia del terreno, y su estrella los absorbia.
+    boolean[] gfxZone = new boolean[0x10000];
+    String catPath = System.getProperty("build.catalog", "");
+    if (!catPath.isEmpty()) {
+      SpriteCatalog cat = new SpriteCatalog(catPath, 128);
+      int n = 0;
+      for (int a = 0; a < 0x10000; a++)
+        if (cat.baseOf[a] != 0 || cat.tileZone[a]) {
+          gfxZone[a] = true;
+          n++;
+        }
+      System.out.println("zonas de graficos excluidas de la identidad: " + n
+          + " bytes (" + catPath + ")");
+    }
     Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
     Map<Integer, int[]> sets = new HashMap<>();
     try (var st = conn.createStatement(); ResultSet rs = st.executeQuery(
@@ -148,7 +166,8 @@ public final class SemanticBuildGeneric {
           continue;
         evs.add(new int[]{rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4)});
         for (int leaf : lv)
-          universe.add(leaf);
+          if (!gfxZone[leaf])
+            universe.add(leaf);
       }
     }
     long events = evs.size();
@@ -212,7 +231,12 @@ public final class SemanticBuildGeneric {
       List<Integer> runs = new ArrayList<>(), blocks = new ArrayList<>();
       int runMin = -1, prevLeaf = Integer.MIN_VALUE, prevBlock = -1;
       for (int leaf : lv) {
-        int block = blockStart.floorKey(leaf);
+        if (gfxZone[leaf])
+          continue;
+        Integer blockKey = blockStart.floorKey(leaf);
+        if (blockKey == null)
+          continue;
+        int block = blockKey;
         if (runMin < 0 || block != prevBlock || leaf - prevLeaf > SUB_GAP) {
           if (runMin >= 0 && prevLeaf - runMin <= 8) {
             runs.add(canon(structGrid, runMin));
