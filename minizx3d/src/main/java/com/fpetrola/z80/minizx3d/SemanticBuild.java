@@ -608,6 +608,148 @@ public final class SemanticBuild {
     insP.executeBatch();
     insS.executeBatch();
     insF.executeBatch();
+    // ============ consolidación: de candidatos con evidencia a struct_defs ============
+    // structs es la tabla de CANDIDATOS (cada fila con su evidencia, §7); struct_defs es
+    // la definición FINAL: una por región. El ganador por votos absorbe sus ecos de fase
+    // (el mismo struct visto desde +2/+3 CONFIRMA esos campos); las sub-vistas con stride
+    // menor aportan TAMAÑO (dos offsets siempre accedidos juntos = un campo de 2 bytes);
+    // los traslados sin stride son evidencia de rutina genérica, no structs de datos: no
+    // entran. Cada campo lista qué rutinas lo acceden — diferenciado por el acceso, sin
+    // inventar nombres.
+    try (var st = conn.createStatement()) {
+      st.execute("DROP TABLE IF EXISTS struct_defs");
+      st.execute("DROP TABLE IF EXISTS struct_fields");
+      st.execute("CREATE TABLE struct_defs(id INTEGER PRIMARY KEY, base INT, end INT,"
+          + " stride INT, slots INT, votes INT, views INT, evidence TEXT)");
+      st.execute("CREATE TABLE struct_fields(def_id INT, offset INT, size INT, mutable INT,"
+          + " writes_median INT, routines TEXT)");
+    }
+    PreparedStatement insDef = conn.prepareStatement(
+        "INSERT INTO struct_defs(base, end, stride, slots, votes, views, evidence)"
+            + " VALUES (?,?,?,?,?,?,?)");
+    PreparedStatement insFld = conn.prepareStatement(
+        "INSERT INTO struct_fields VALUES (?,?,?,?,?,?)");
+    // ganadores: candidatos con stride, de mayor voto, absorbiendo a todo candidato con
+    // stride que se solape con su región (eco de fase o sub-vista)
+    List<Object[]> strided = new ArrayList<>();
+    for (Object[] c : merged)
+      if (c[0] != null && (int) c[2] > 0 && (int) c[3] >= 5)
+        strided.add(c);
+    strided.sort((a, b) -> Integer.compare((int) b[3], (int) a[3]));
+    boolean[] absorbed = new boolean[strided.size()];
+    int defRows = 0;
+    for (int wi = 0; wi < strided.size(); wi++) {
+      if (absorbed[wi])
+        continue;
+      Object[] w = strided.get(wi);
+      int base = (int) w[0], end = (int) w[1], stride = (int) w[2], wVotes = (int) w[3];
+      int slots = (end - base + 1) / stride;
+      if (slots < 3 || slots > 512)
+        continue;
+      TreeSet<Integer> offs = new TreeSet<>();
+      if (w[5] != null)
+        offs.addAll((TreeSet<Integer>) w[5]);
+      int views = 0;
+      for (int vi = wi + 1; vi < strided.size(); vi++) {
+        if (absorbed[vi])
+          continue;
+        Object[] v = strided.get(vi);
+        if ((int) v[0] > end || (int) v[1] < base)
+          continue;
+        absorbed[vi] = true;
+        views++;
+        // eco de fase (mismo stride): sus offsets, corridos a la fase del ganador,
+        // confirman campos; sub-vista (stride distinto) sólo cuenta como vista
+        if ((int) v[2] == stride && v[5] != null) {
+          int shift = (((int) v[0] - base) % stride + stride) % stride;
+          for (int o : (TreeSet<Integer>) v[5])
+            offs.add((o + shift) % stride);
+        }
+      }
+      // rutinas por campo, desde los patrones de acceso sobre la región
+      Map<Integer, TreeSet<Integer>> fieldRoutines = new TreeMap<>();
+      Map<Integer, int[]> coNext = new TreeMap<>(); // offset -> {juntos con o+1, total}
+      for (long[] row : rawRows) {
+        int rbase = (int) row[1];
+        if (rbase < base || rbase > end)
+          continue;
+        int[] po = pats.get((int) row[2]);
+        Set<Integer> folded = new TreeSet<>();
+        for (int o : po)
+          if (rbase + o <= end)
+            folded.add(((rbase - base) + o) % stride);
+        for (int o : folded) {
+          fieldRoutines.computeIfAbsent(o, k -> new TreeSet<>()).add((int) row[0]);
+          int[] cn = coNext.computeIfAbsent(o, k -> new int[2]);
+          cn[1]++;
+          if (folded.contains((o + 1) % stride))
+            cn[0]++;
+        }
+        offs.addAll(folded);
+      }
+      insDef.setInt(1, base);
+      insDef.setInt(2, end);
+      insDef.setInt(3, stride);
+      insDef.setInt(4, slots);
+      insDef.setInt(5, wVotes);
+      insDef.setInt(6, views);
+      insDef.setString(7, "ganador por votos; " + views + " vistas absorbidas");
+      insDef.addBatch();
+      defRows++;
+      Set<Integer> wordTail = new HashSet<>(); // segundo byte de un campo de 2
+      for (int o : offs) {
+        if (wordTail.contains(o))
+          continue;
+        // dos offsets consecutivos SIEMPRE accedidos juntos = un campo de 2 bytes
+        int[] cn = coNext.getOrDefault(o, new int[2]);
+        boolean word = offs.contains(o + 1) && cn[1] >= 10 && cn[0] * 10 >= cn[1] * 9
+            && coNext.containsKey(o + 1)
+            && coNext.get(o + 1)[0] * 10 >= coNext.get(o + 1)[1] * 9;
+        if (word)
+          wordTail.add(o + 1);
+        List<Integer> ws = new ArrayList<>();
+        for (int b = base + o; b <= end; b += stride)
+          ws.add(profile.getOrDefault(b, 0));
+        ws.sort(null);
+        int median = ws.isEmpty() ? 0 : ws.get(ws.size() / 2);
+        StringBuilder rts = new StringBuilder();
+        TreeSet<Integer> fr = fieldRoutines.getOrDefault(o, new TreeSet<>());
+        int shown = 0;
+        for (int rt : fr) {
+          if (shown++ >= 4)
+            break;
+          rts.append(rts.length() > 0 ? "," : "").append('$').append(Integer.toHexString(rt));
+        }
+        insFld.setInt(1, defRows);
+        insFld.setInt(2, o);
+        insFld.setInt(3, word ? 2 : 1);
+        insFld.setInt(4, median > 100 ? 1 : 0);
+        insFld.setInt(5, median);
+        insFld.setString(6, rts.toString());
+        insFld.addBatch();
+      }
+    }
+    insDef.executeBatch();
+    insFld.executeBatch();
+    System.out.printf("%nstruct_defs: %d definiciones consolidadas%n", defRows);
+    try (var st = conn.createStatement(); ResultSet rs = st.executeQuery(
+        "SELECT d.id, d.base, d.end, d.stride, d.slots, d.votes, d.views FROM struct_defs d"
+            + " ORDER BY d.votes DESC LIMIT 5")) {
+      while (rs.next()) {
+        System.out.printf("  $%04x..$%04x stride=%d slots=%d votos=%d vistas=%d%n",
+            rs.getInt(2), rs.getInt(3), rs.getInt(4), rs.getInt(5), rs.getInt(6),
+            rs.getInt(7));
+        try (var st2 = conn.createStatement(); ResultSet fs = st2.executeQuery(
+            "SELECT offset, size, mutable, writes_median, routines FROM struct_fields"
+                + " WHERE def_id=" + rs.getInt(1) + " ORDER BY offset")) {
+          while (fs.next())
+            System.out.printf("    +%d (%d byte%s) %s escrituras~%d rutinas[%s]%n",
+                fs.getInt(1), fs.getInt(2), fs.getInt(2) > 1 ? "s" : "",
+                fs.getInt(3) == 1 ? "MUTABLE" : "estable", fs.getInt(4), fs.getString(5));
+        }
+      }
+    }
+
     System.out.printf("%nparam_routines: %d · structs: %d%n", paramRows, structRows);
     System.out.println("structs derivados (top por slots):");
     try (var st = conn.createStatement(); ResultSet rs = st.executeQuery(
