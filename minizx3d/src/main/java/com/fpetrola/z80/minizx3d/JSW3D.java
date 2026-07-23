@@ -2710,8 +2710,12 @@ public class JSW3D extends ApplicationAdapter {
     // meant the other two never matched anything at all
     if (gfxToObjs.isEmpty())
       for (int n = 0; n < edGroups.size(); n++)
-        for (int gfx : edGroups.get(n).graphics)
+        for (int gfx : edGroups.get(n).graphics) {
           gfxToObjs.computeIfAbsent(gfx, k -> new ArrayList<>()).add(n);
+          int entry = catalog.baseOf[gfx & 0xffff];
+          if (entry != 0)
+            gfxToObjs.computeIfAbsent(entry - 1, k -> new ArrayList<>()).add(n);
+        }
     boolean[] mine = new boolean[TaintReplay.PIXEL_BYTES];
     boolean any = false;
     for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
@@ -2789,7 +2793,7 @@ public class JSW3D extends ApplicationAdapter {
           continue;
         int hit = 0;
         for (int gfx : g.graphics)
-          if (found.contains(gfx))
+          if (gfxPresent(found, gfx))
             hit++;
         float score = hit / (float) g.graphics.size();
         if (score < objectsMatch)
@@ -2810,7 +2814,7 @@ public class JSW3D extends ApplicationAdapter {
           for (EdGroup g : edGroups) {
             int hit = 0;
             for (int gfx : g.graphics)
-              if (found.contains(gfx))
+              if (gfxPresent(found, gfx))
                 hit++;
             float sc = g.graphics.isEmpty() ? 0 : hit / (float) g.graphics.size();
             if (sc > topScore) {
@@ -3428,7 +3432,9 @@ public class JSW3D extends ApplicationAdapter {
     SkelEntry en = skelGallery.get(key);
     if (en == null) {
       en = new SkelEntry();
-      int w = Math.min(8, maxC - minC + 1), h = Math.min(64, maxR - minR + 1);
+      // el sprite COMPLETO: recortarlo o uniformarlo impide ver si lo encontrado es
+      // correcto (las formas no siempre son regulares)
+      int w = Math.min(32, maxC - minC + 1), h = Math.min(192, maxR - minR + 1);
       if (w < 1 || h < 1)
         return;
       com.badlogic.gdx.graphics.Pixmap pm =
@@ -3457,46 +3463,81 @@ public class JSW3D extends ApplicationAdapter {
     en.lastFrame = snap.frame();
   }
 
-  /** la GRILLA de la galería: izquierda→derecha, arriba→abajo; RePág/AvPág scrollean
-   *  por filas cuando desborda (y el editor no está abierto, que usa esas teclas). */
+  /**
+   * La galería: sprites COMPLETOS a tamaño natural (×2), en layout fluido
+   * izquierda→derecha / arriba→abajo con filas de altura variable. Scroll con
+   * RePág/AvPág, y BARRA visible al borde derecho, arrastrable con el mouse.
+   */
   private void renderSkelGallery() {
     if (!skeletonOn || skelGallery.isEmpty())
       return;
-    int cols = 4, cellW = 78, cellH = 74;
-    int panelW = cols * cellW + 12;
-    int rows = Math.max(1, (Gdx.graphics.getHeight() - 8) / cellH);
-    int totalRows = (skelGallery.size() + cols - 1) / cols;
+    int panelW = 330, barW = 10;
+    float x0 = Gdx.graphics.getWidth() - panelW;
+    int screenH = Gdx.graphics.getHeight();
+    // pase 1: layout fluido (posiciones relativas al tope del contenido)
+    List<float[]> pos = new ArrayList<>(); // {x, yTop, w, h} por entrada
+    float cx = 0, cy = 0, rowH = 0;
+    float maxW = panelW - barW - 16;
+    for (Map.Entry<String, SkelEntry> e : skelGallery.entrySet()) {
+      SkelEntry en = e.getValue();
+      // completo y proporcional: natural x2, y si no entra a lo ancho se ESCALA (nunca
+      // se recorta) — la forma entera es lo que permite juzgar si es correcto
+      float sc = Math.min(2f, maxW / en.w);
+      float iw = en.w * sc, ih = en.h * sc;
+      // la celda mide lo que ocupe lo MAS ancho: imagen o etiqueta (si no, la
+      // etiqueta de un sprite angosto pisa al vecino)
+      float labelW = (e.getKey().length() + 4) * 7f;
+      float w = Math.max(iw, labelW) + 10, h = ih + 22;
+      if (cx + w > maxW && cx > 0) {
+        cx = 0;
+        cy += rowH;
+        rowH = 0;
+      }
+      pos.add(new float[]{cx, cy, iw, ih});
+      cx += w;
+      rowH = Math.max(rowH, h);
+    }
+    float totalH = cy + rowH;
+    float maxScroll = Math.max(0, totalH - screenH + 20);
     if (!editorOn) {
       if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.PAGE_UP))
-        skelScroll = Math.max(0, skelScroll - rows);
+        skelScroll = (int) Math.max(0, skelScroll - screenH * .8f);
       if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.PAGE_DOWN))
-        skelScroll = Math.min(Math.max(0, totalRows - rows), skelScroll + rows);
+        skelScroll = (int) Math.min(maxScroll, skelScroll + screenH * .8f);
     }
-    float x0 = Gdx.graphics.getWidth() - panelW;
+    // barra de scroll: feedback de posición + arrastre con el mouse sobre la barra
+    if (maxScroll > 0 && Gdx.input.isTouched()
+        && Gdx.input.getX() >= Gdx.graphics.getWidth() - barW - 4) {
+      float fy = Gdx.input.getY() / (float) screenH; // getY crece hacia abajo, como el pane
+      skelScroll = (int) (fy * maxScroll);
+    }
+    skelScroll = (int) Math.max(0, Math.min(maxScroll, skelScroll));
     uiBatch.begin();
-    uiBatch.setColor(0, 0, 0, .8f);
-    uiBatch.draw(whitePix, x0 - 4, 0, panelW + 4, Gdx.graphics.getHeight());
+    // opaco: es una galeria de VERIFICACION, el decorado 3D transparentandose
+    // se confunde con las miniaturas
+    uiBatch.setColor(.04f, .04f, .07f, 1f);
+    uiBatch.draw(whitePix, x0 - 4, 0, panelW + 4, screenH);
     int n = 0;
     for (Map.Entry<String, SkelEntry> e : skelGallery.entrySet()) {
-      int cell = n++;
-      int row = cell / cols - skelScroll, col = cell % cols;
-      if (row < 0 || row >= rows)
+      float[] pcs = pos.get(n++);
+      float py = screenH - 8 - (pcs[1] - skelScroll) - pcs[3];
+      if (py > screenH || py + pcs[3] + 20 < 0)
         continue;
       SkelEntry en = e.getValue();
-      float cx = x0 + col * cellW + 4;
-      float cy = Gdx.graphics.getHeight() - 4 - (row + 1) * cellH;
-      float sc = Math.min(64f / en.w, 48f / en.h);
       uiBatch.setColor(1, 1, 1, en.countNow > 0 ? 1f : .3f);
-      uiBatch.draw(en.tex, cx, cy + 20, en.w * sc, en.h * sc);
+      uiBatch.draw(en.tex, x0 + pcs[0] + 4, py, pcs[2], pcs[3]);
       uiFont.setColor(1, 1, .5f, en.countNow > 0 ? 1f : .4f);
-      uiFont.draw(uiBatch, e.getKey() + " x" + en.countNow, cx, cy + 16);
+      uiFont.draw(uiBatch, e.getKey() + " x" + en.countNow, x0 + pcs[0] + 4, py - 2);
       uiFont.setColor(1, 1, 1, 1);
     }
-    if (totalRows > rows) {
-      uiFont.setColor(.7f, .9f, 1, 1);
-      uiFont.draw(uiBatch, "RePag/AvPag " + (skelScroll + 1) + "-"
-          + Math.min(totalRows, skelScroll + rows) + "/" + totalRows, x0 + 4, 14);
-      uiFont.setColor(1, 1, 1, 1);
+    if (maxScroll > 0) {
+      float frac = screenH / totalH;
+      float barH = Math.max(24, screenH * frac);
+      float barY = screenH - barH - (skelScroll / maxScroll) * (screenH - barH);
+      uiBatch.setColor(.25f, .3f, .4f, .9f);
+      uiBatch.draw(whitePix, Gdx.graphics.getWidth() - barW - 2, 0, barW, screenH);
+      uiBatch.setColor(.7f, .85f, 1f, 1f);
+      uiBatch.draw(whitePix, Gdx.graphics.getWidth() - barW - 2, barY, barW, barH);
     }
     uiBatch.end();
   }
@@ -4346,6 +4387,20 @@ public class JSW3D extends ApplicationAdapter {
   private int rawOriginOf(int i) {
     return lastSnap.owner()[i] != 0 ? lastSnap.owner()[i] - 1
         : lastSnap.tile()[i] != 0 ? lastSnap.tile()[i] - 1 : -1;
+  }
+
+  /**
+   * ¿El gráfico {@code gfx} de una definición está presente en {@code found}? Directo, o
+   * vía la ENTRADA del catálogo que lo contiene: cuando la recatalogación pasa un byte de
+   * fondo a sprite, {@code rawOriginOf} deja de dar la dirección exacta (da la base
+   * plegada de la entrada) y las definiciones —que nombran direcciones exactas— dejaban
+   * de matchear (medido: las cabinas celestes perdieron el match tras recatalogar).
+   */
+  private boolean gfxPresent(java.util.Set<Integer> found, int gfx) {
+    if (found.contains(gfx))
+      return true;
+    int entry = catalog.baseOf[gfx & 0xffff];
+    return entry != 0 && found.contains(entry - 1);
   }
 
   /** one composed object marked by hand: its boxes, what is under them, and its picture. */
