@@ -2252,7 +2252,10 @@ public class JSW3D extends ApplicationAdapter {
     for (SkelEntry en : skelGallery.values())
       if (skelFrame - en.lastFrame > 12)
         en.countNow = 0;
-    if (!skeletonOn || snap.dirNode() == null || replay.dir == null || semRanges.isEmpty())
+    // semRanges vacio NO apaga el esqueleto: un juego sin instancias en su base
+    // semantica (DD: procedencia lavada por staging) igual tiene el respaldo por
+    // invocacion/writeSig y la galeria de objetosAuto
+    if (!skeletonOn || snap.dirNode() == null || replay.dir == null)
       return;
     if (skelLeafMemo.size() > 100_000)
       skelLeafMemo.clear();
@@ -2302,7 +2305,7 @@ public class JSW3D extends ApplicationAdapter {
           // repinta lo quieto): writeSig, el camino de llamada por byte, que SI persiste
           int key = g != 0 ? -g : 0x40000000 | (replay.writeSig[i] & 0x3ffffff);
           byGroup.computeIfAbsent(key, k -> new ArrayList<>())
-              .add(new int[]{px, py, order, snap.owner()[i]});
+              .add(new int[]{px, py, order, snap.owner()[i], g});
         }
         continue;
       }
@@ -2312,7 +2315,8 @@ public class JSW3D extends ApplicationAdapter {
           best = h.getValue();
           inst = h.getKey();
         }
-      byInst.computeIfAbsent(inst, k -> new ArrayList<>()).add(new int[]{px, py, order, snap.owner()[i]});
+      byInst.computeIfAbsent(inst, k -> new ArrayList<>())
+          .add(new int[]{px, py, order, snap.owner()[i], snap.group()[i]});
     }
     // los grupos de invocacion con varias piezas entran al mismo pipeline de anclas
     for (Map.Entry<Integer, List<int[]>> e : byGroup.entrySet())
@@ -2359,7 +2363,7 @@ public class JSW3D extends ApplicationAdapter {
       // TODA identidad se parte en objetos conexos; los objetos van al colector de
       // FAMILIAS: duplicados = mismo grafico de catalogo, vengan de la invocacion o
       // identidad que vengan (los cosos verdes rapidos salen por aca)
-      for (List<int[]> obj : clustersOf(e.getValue())) {
+      for (List<int[]> obj : objectsOf(e.getValue())) {
         if (obj.size() < 8)
           continue;
         Map<Integer, Integer> baseVotes = new HashMap<>();
@@ -4445,6 +4449,33 @@ public class JSW3D extends ApplicationAdapter {
    * piece {@code $e1e0} and the definition lost everything that made it that rocket. What
    * identifies an object is the exact set of addresses its pixels come from.
    */
+  /**
+   * El nivel objeto de una identidad: los bytes que pinto UNA invocacion de dibujo son
+   * UN objeto — asi se dibujo, aunque sus piezas no se toquen y aunque otro sprite este
+   * pegado al lado (pegado NO es junto: la vecindad espacial soldaba al personaje con
+   * lo que tuviera al lado). Lo estatico (sin grupo vivo, dirty-regions no repinta) y
+   * las invocaciones-escena (el pintor de sala, cientos de bytes) se parten por
+   * conectividad espacial como siempre.
+   */
+  private List<List<int[]>> objectsOf(List<int[]> pts) {
+    Map<Integer, List<int[]>> byCall = new HashMap<>();
+    List<int[]> rest = new ArrayList<>();
+    for (int[] pt : pts) {
+      if (pt.length > 4 && pt[4] != 0)
+        byCall.computeIfAbsent(pt[4], k -> new ArrayList<>()).add(pt);
+      else
+        rest.add(pt);
+    }
+    List<List<int[]>> objs = new ArrayList<>();
+    for (List<int[]> call : byCall.values())
+      if (call.size() <= 200)
+        objs.add(call);
+      else
+        rest.addAll(call); // pinto media pantalla: es escena, no sprite
+    objs.addAll(clustersOf(rest));
+    return objs;
+  }
+
   private int rawOriginOf(int i) {
     return lastSnap.owner()[i] != 0 ? lastSnap.owner()[i] - 1
         : lastSnap.tile()[i] != 0 ? lastSnap.tile()[i] - 1 : -1;
