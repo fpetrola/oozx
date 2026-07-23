@@ -2341,22 +2341,46 @@ public class JSW3D extends ApplicationAdapter {
     }
     // los compuestos de objetosAuto: las apariciones del mismo TIPO cuelgan de un punto
     // comun (la definicion), un rayo por aparicion, color por tipo
-    Map<String, List<float[]>> byDef = new HashMap<>();
+    Map<String, List<Object[]>> byDef = new HashMap<>();
     for (Object[] a : objAnchors)
-      byDef.computeIfAbsent((String) a[0], k -> new ArrayList<>())
-          .add(new float[]{(Float) a[1], (Float) a[2]});
-    for (Map.Entry<String, List<float[]>> e : byDef.entrySet()) {
-      List<float[]> apps = e.getValue();
-      float sx = 0, topY = 0;
-      for (float[] a : apps) {
-        sx += a[0];
-        topY = Math.max(topY, a[1]);
+      byDef.computeIfAbsent((String) a[0], k -> new ArrayList<>()).add(a);
+    for (Map.Entry<String, List<Object[]>> e : byDef.entrySet()) {
+      // hermanos de verdad: mismas piezas ENCONTRADAS (Jaccard >= 0.6), no solo la misma
+      // definicion — el matcher difuso + piezas compartidas juntaba sprites distintos
+      List<List<Object[]>> sibs = new ArrayList<>();
+      for (Object[] a : e.getValue()) {
+        java.util.Set<?> fa = (java.util.Set<?>) a[3];
+        List<Object[]> home = null;
+        for (List<Object[]> sc : sibs) {
+          java.util.Set<?> fb = (java.util.Set<?>) sc.get(0)[3];
+          int inter = 0;
+          for (Object x : fa)
+            if (fb.contains(x))
+              inter++;
+          int union = fa.size() + fb.size() - inter;
+          if (union > 0 && inter * 10 >= union * 6) {
+            home = sc;
+            break;
+          }
+        }
+        if (home == null)
+          sibs.add(home = new ArrayList<>());
+        home.add(a);
       }
-      float[] common = {sx / apps.size(), topY + 18};
-      Color ic = instanceColor(e.getKey().hashCode());
-      stars++;
-      for (float[] a : apps)
-        skeletonSegment(a[0], a[1], common[0], common[1], midZ() + 2.5f, ic);
+      int sub = 0;
+      for (List<Object[]> sc : sibs) {
+        float sx = 0, topY = 0;
+        for (Object[] a : sc) {
+          sx += (Float) a[1];
+          topY = Math.max(topY, (Float) a[2]);
+        }
+        float[] common = {sx / sc.size(), topY + 18};
+        Color ic = instanceColor(e.getKey().hashCode() + 31 * sub++);
+        stars++;
+        for (Object[] a : sc)
+          skeletonSegment((Float) a[1], (Float) a[2], common[0], common[1],
+              midZ() + 2.5f, ic);
+      }
     }
     // cadena interna: una instancia alargada es una soga, no un guardián
     int chains = 0;
@@ -2757,7 +2781,7 @@ public class JSW3D extends ApplicationAdapter {
             + " gráficos, render="
             + (best.render == null ? "default" : best.render.technique + "/"
                 + best.render.primitive));
-      drawInstances(snap, best, cells);
+      drawInstances(snap, best, cells, found);
     }
   }
 
@@ -2768,7 +2792,8 @@ public class JSW3D extends ApplicationAdapter {
    * this did before) threw away 88 patches per run that had EVERY graphic of the definition
    * in them: the object was there three times over and none of the three was drawn.
    */
-  private void drawInstances(TaintReplay.FrameSnapshot snap, EdGroup g, List<Integer> cells) {
+  private void drawInstances(TaintReplay.FrameSnapshot snap, EdGroup g,
+      List<Integer> cells, java.util.Set<Integer> found) {
     int[] want = definedSize(g);
     List<Integer> left = new ArrayList<>(cells);
     for (int round = 0; round < 8 && !left.isEmpty(); round++) {
@@ -2781,7 +2806,7 @@ public class JSW3D extends ApplicationAdapter {
         maxR = Math.max(maxR, y);
       }
       if (want == null || (maxC - minC + 1 <= want[0] + 1 && maxR - minR + 1 <= want[1] + 8)) {
-        drawObject(snap, g, left, minC, minR, maxC, maxR);
+        drawObject(snap, g, left, minC, minR, maxC, maxR, found);
         return;
       }
       // the window of the object's own size holding the most of what is left
@@ -2819,7 +2844,7 @@ public class JSW3D extends ApplicationAdapter {
         iMinR = Math.min(iMinR, y);
         iMaxR = Math.max(iMaxR, y);
       }
-      drawObject(snap, g, inside, iMinC, iMinR, iMaxC, iMaxR);
+      drawObject(snap, g, inside, iMinC, iMinR, iMaxC, iMaxR, found);
     }
   }
 
@@ -2839,14 +2864,15 @@ public class JSW3D extends ApplicationAdapter {
 
   /** one instance: its composed pixels, inflated the way the object asks to be rendered. */
   private void drawObject(TaintReplay.FrameSnapshot snap, EdGroup g, List<Integer> cells,
-      int minC, int minR, int maxC, int maxR) {
+      int minC, int minR, int maxC, int maxR, java.util.Set<Integer> found) {
     int w = maxC - minC + 1, rows = maxR - minR + 1;
     // jerarquia del esqueleto: cada APARICION matcheada es UN compuesto (un nodo), y las
     // repeticiones del mismo TIPO cuelgan de un punto comun que representa a la
     // definicion — un rayo por aparicion, color por tipo
     if (skeletonOn)
       objAnchors.add(new Object[]{g.name == null ? "?" : g.name,
-          (minC + maxC + 1) * 4f, H - (minR + maxR + 1) / 2f});
+          (minC + maxC + 1) * 4f, H - (minR + maxR + 1) / 2f,
+          found == null ? java.util.Set.of() : new java.util.HashSet<>(found)});
     byte[] bits = new byte[w * rows];
     int[] inkVotes = new int[16];
     for (int i : cells) {
