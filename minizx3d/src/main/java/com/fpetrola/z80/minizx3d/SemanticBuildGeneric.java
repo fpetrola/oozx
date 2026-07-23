@@ -91,6 +91,9 @@ public final class SemanticBuildGeneric {
    *  ventana en el core no dicen nada y hay que puentearlos; re-agarrar la soga en medio
    *  segundo es visualmente el mismo vínculo). */
   private static final int DEP_GAP = Integer.getInteger("build.depgap", 25);
+  /** estabilidad mínima (x10) de un bloque por familia de gfx: 8 = 80%. Los misiles de
+   *  Exolon rondan 68-80% (vuelan poco y rápido): su perfil usa 6. */
+  private static final int STABLE_MIN = Integer.getInteger("build.stablemin", 8);
 
   /** la clave de una corrida, alineada a la grilla del struct derivado que la contiene:
    *  base + floor((min-base)/stride)*stride. Fuera de todo struct, el mínimo tal cual. */

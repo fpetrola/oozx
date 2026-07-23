@@ -2291,9 +2291,10 @@ public class JSW3D extends ApplicationAdapter {
         continue;
       stars++;
       float[] anchor = centers.get(e.getKey());
+      Color ic = instanceColor(e.getKey());
       for (List<int[]> cl : clusters) {
         float[] c = centroid(cl);
-        skeletonSegment(c[0], c[1], anchor[0], anchor[1], midZ() + 2.5f, Color.ORANGE);
+        skeletonSegment(c[0], c[1], anchor[0], anchor[1], midZ() + 2.5f, ic);
       }
     }
     // cadena interna: una instancia alargada es una soga, no un guardián
@@ -2311,9 +2312,10 @@ public class JSW3D extends ApplicationAdapter {
         continue;
       pts.sort((a, b) -> Integer.compare(a[2], b[2])); // el orden de dibujo: ancla primero
       chains++;
+      Color cc = instanceColor(e.getKey());
       for (int k = 1; k < pts.size(); k++)
         skeletonSegment(pts.get(k - 1)[0], pts.get(k - 1)[1], pts.get(k)[0], pts.get(k)[1],
-            midZ() + 2, Color.GOLD);
+            midZ() + 2, cc);
     }
     // aristas de deps activas en este frame, entre centroides presentes
     int edges = 0;
@@ -2358,6 +2360,16 @@ public class JSW3D extends ApplicationAdapter {
       out.add(cluster);
     }
     return out;
+  }
+
+  /** un color propio y estable por instancia, para que dos compuestos no se mezclen. */
+  private static final Color[] SKELETON_PALETTE = {
+      Color.GOLD, Color.CYAN, Color.MAGENTA, Color.LIME, Color.ORANGE, Color.SKY,
+      Color.SCARLET, Color.VIOLET, Color.YELLOW, Color.TEAL, Color.CORAL, Color.CHARTREUSE};
+
+  private static Color instanceColor(int key) {
+    int h = key * 0x9E3779B9;
+    return SKELETON_PALETTE[Math.abs(h % SKELETON_PALETTE.length)];
   }
 
   private static float[] centroid(List<int[]> pts) {
