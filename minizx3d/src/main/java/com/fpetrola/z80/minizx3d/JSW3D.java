@@ -1129,6 +1129,7 @@ public class JSW3D extends ApplicationAdapter {
         windOn, leavesOn);
     effects.render(cam, mistOn, fireOn, rainOn, snowOn, leavesOn);
     renderHelp();
+    renderSkelGallery();
     renderEditorList();
     // held arrows keep adjusting; 6 quiet seconds close the tuning panel on their own.
     // ONLY while editing a value (level 3): at the list levels left/right navigate, and
@@ -2217,6 +2218,8 @@ public class JSW3D extends ApplicationAdapter {
    */
   private void updateSkeleton(TaintReplay.FrameSnapshot snap) {
     skeletonCount = 0;
+    for (SkelEntry en : skelGallery.values())
+      en.countNow = 0;
     if (!skeletonOn || snap.dirNode() == null || replay.dir == null || semRanges.isEmpty())
       return;
     if (skelLeafMemo.size() > 100_000)
@@ -2338,6 +2341,17 @@ public class JSW3D extends ApplicationAdapter {
       List<List<int[]>> apps = f.getValue();
       Color ic = instanceColor(f.getKey());
       if (apps.size() >= 2 && f.getKey() != 0) {
+        List<int[]> first = apps.get(0);
+        int mc = 31, xc = 0, mr = 191, xr = 0;
+        for (int[] pt : first) {
+          int c = pt[0] / 8, yy = H - pt[1];
+          mc = Math.min(mc, c);
+          xc = Math.max(xc, c);
+          mr = Math.min(mr, yy);
+          xr = Math.max(xr, yy);
+        }
+        galleryNote(snap, "$" + Integer.toHexString(f.getKey() - 1), apps.size(),
+            mc, Math.max(0, mr), xc, Math.min(191, xr));
         float sx = 0, topY = 0;
         for (List<int[]> obj : apps) {
           float[] c = centroid(obj);
@@ -2394,6 +2408,9 @@ public class JSW3D extends ApplicationAdapter {
       }
       int sub = 0;
       for (List<Object[]> sc : sibs) {
+        SkelEntry ge = skelGallery.get(e.getKey());
+        if (ge != null)
+          ge.countNow = Math.max(ge.countNow, sc.size());
         float sx = 0, topY = 0;
         for (Object[] a : sc) {
           sx += (Float) a[1];
@@ -2894,10 +2911,12 @@ public class JSW3D extends ApplicationAdapter {
     // jerarquia del esqueleto: cada APARICION matcheada es UN compuesto (un nodo), y las
     // repeticiones del mismo TIPO cuelgan de un punto comun que representa a la
     // definicion — un rayo por aparicion, color por tipo
-    if (skeletonOn)
+    if (skeletonOn) {
       objAnchors.add(new Object[]{g.name == null ? "?" : g.name,
           (minC + maxC + 1) * 4f, H - (minR + maxR + 1) / 2f,
           found == null ? java.util.Set.of() : new java.util.HashSet<>(found)});
+      galleryNote(snap, g.name == null ? "?" : g.name, 1, minC, minR, maxC, maxR);
+    }
     byte[] bits = new byte[w * rows];
     int[] inkVotes = new int[16];
     for (int i : cells) {
@@ -3374,6 +3393,86 @@ public class JSW3D extends ApplicationAdapter {
   private final boolean[] objClaimed = new boolean[TaintReplay.PIXEL_BYTES];
   /** las apariciones matcheadas de objetosAuto de este frame: {nombre, cx, cy}. */
   private final List<Object[]> objAnchors = new ArrayList<>();
+
+  /**
+   * La GALERÍA de verificación del esqueleto (idea del usuario): una franja con scroll
+   * donde se acumulan los tipos detectados, cada uno con su imagen real recortada de
+   * pantalla y el xN de apariciones del frame actual — la forma de corroborar de un
+   * vistazo que todos los presentes fueron detectados en forma y cantidad.
+   */
+  private static final class SkelEntry {
+    com.badlogic.gdx.graphics.Texture tex;
+    int w, h, countNow;
+  }
+
+  private final java.util.LinkedHashMap<String, SkelEntry> skelGallery =
+      new java.util.LinkedHashMap<>();
+  private int skelScroll;
+
+  /** anota un tipo detectado: N apariciones ahora; la imagen se captura una sola vez. */
+  private void galleryNote(TaintReplay.FrameSnapshot snap, String key, int count,
+                           int minC, int minR, int maxC, int maxR) {
+    SkelEntry en = skelGallery.get(key);
+    if (en == null) {
+      en = new SkelEntry();
+      int w = Math.min(8, maxC - minC + 1), h = Math.min(64, maxR - minR + 1);
+      if (w < 1 || h < 1)
+        return;
+      com.badlogic.gdx.graphics.Pixmap pm =
+          new com.badlogic.gdx.graphics.Pixmap(w * 8, h,
+              com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
+      for (int r = 0; r < h; r++)
+        for (int c = 0; c < w; c++) {
+          int i = idx(minR + r, minC + c);
+          int bits = snap.pixels()[i] & 0xff;
+          int attr = snap.attrs()[((minR + r) >> 3) * 32 + minC + c] & 0xff;
+          Color inkC = PALETTE[ink(attr)], papC = PALETTE[attr >> 3 & 7];
+          for (int b = 0; b < 8; b++) {
+            Color cc = (bits & (0x80 >> b)) != 0 ? inkC : papC;
+            pm.drawPixel(c * 8 + b, r,
+                ((int) (cc.r * 255) << 24) | ((int) (cc.g * 255) << 16)
+                    | ((int) (cc.b * 255) << 8) | 0xff);
+          }
+        }
+      en.tex = new com.badlogic.gdx.graphics.Texture(pm);
+      pm.dispose();
+      en.w = w * 8;
+      en.h = h;
+      skelGallery.put(key, en);
+    }
+    en.countNow = Math.max(en.countNow, count);
+  }
+
+  /** la franja derecha de la galería, con scroll por teclas [ y ]. */
+  private void renderSkelGallery() {
+    if (!skeletonOn || skelGallery.isEmpty())
+      return;
+    if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.LEFT_BRACKET))
+      skelScroll = Math.max(0, skelScroll - 3);
+    if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.RIGHT_BRACKET))
+      skelScroll = Math.min(Math.max(0, skelGallery.size() - 3), skelScroll + 3);
+    float x = Gdx.graphics.getWidth() - 150, y = Gdx.graphics.getHeight() - 16;
+    uiBatch.begin();
+    uiBatch.setColor(0, 0, 0, .78f);
+    uiBatch.draw(whitePix, x - 8, 0, 158, Gdx.graphics.getHeight());
+    int n = 0;
+    for (Map.Entry<String, SkelEntry> e : skelGallery.entrySet()) {
+      if (n++ < skelScroll)
+        continue;
+      SkelEntry en = e.getValue();
+      float sc = Math.min(2f, 120f / en.w);
+      float th = en.h * sc;
+      if (y - th - 18 < 0)
+        break;
+      uiBatch.setColor(1, 1, 1, en.countNow > 0 ? 1f : .35f);
+      uiBatch.draw(en.tex, x, y - th, en.w * sc, th);
+      uiFont.setColor(1, 1, .5f, en.countNow > 0 ? 1f : .4f);
+      uiFont.draw(uiBatch, e.getKey() + "  x" + en.countNow, x, y - th - 4);
+      uiFont.setColor(1, 1, 1, 1);
+      y -= th + 22;
+    }
+    uiBatch.end();
+  }
   /** what fraction of an object's graphics has to be on screen to call it that object. */
   private float objectsMatch = fprop("render.objects.match", "objects.match", .5f);
   private boolean objectsOn = bprop("render.objects", "objects", true);
