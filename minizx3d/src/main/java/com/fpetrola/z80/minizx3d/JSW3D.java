@@ -553,6 +553,34 @@ public class JSW3D extends ApplicationAdapter {
     });
     com.badlogic.gdx.InputMultiplexer input = new com.badlogic.gdx.InputMultiplexer(
         new com.badlogic.gdx.InputAdapter() {
+          // la barra de la galeria consume SU arrastre: si baja a la camara, el drag
+          // ademas rota la vista
+          @Override
+          public boolean touchDown(int x, int y, int pointer, int button) {
+            if (skeletonOn && skelMaxScroll > 0 && x >= Gdx.graphics.getWidth() - 16) {
+              skelBarDrag = true;
+              skelScroll = (int) (y / (float) Gdx.graphics.getHeight() * skelMaxScroll);
+              return true;
+            }
+            return false;
+          }
+
+          @Override
+          public boolean touchDragged(int x, int y, int pointer) {
+            if (!skelBarDrag)
+              return false;
+            skelScroll = (int) (y / (float) Gdx.graphics.getHeight() * skelMaxScroll);
+            return true;
+          }
+
+          @Override
+          public boolean touchUp(int x, int y, int pointer, int button) {
+            boolean was = skelBarDrag;
+            skelBarDrag = false;
+            return was;
+          }
+        },
+        new com.badlogic.gdx.InputAdapter() {
           @Override
           public boolean keyDown(int keycode) {
             // playing live: game keys go straight to the Spectrum matrix; Ctrl+key keeps
@@ -2302,13 +2330,16 @@ public class JSW3D extends ApplicationAdapter {
           || snap.frame() - (Integer) c[0] > 10)
         skelCache.put(e.getKey(), new Object[]{snap.frame(), e.getValue()});
     }
+    java.util.Set<Integer> reusedIds = new java.util.HashSet<>();
     for (Map.Entry<Integer, Object[]> e : skelCache.entrySet()) {
       List<int[]> cur = byInst.get(e.getKey());
       @SuppressWarnings("unchecked")
       List<int[]> cached = (List<int[]>) e.getValue()[1];
       if ((cur == null || cur.size() * 2 < cached.size())
-          && snap.frame() - (Integer) e.getValue()[0] <= 10)
+          && snap.frame() - (Integer) e.getValue()[0] <= 10) {
         byInst.put(e.getKey(), cached);
+        reusedIds.add(e.getKey());
+      }
     }
     // centroides por instancia
     Map<Integer, float[]> centers = new HashMap<>();
@@ -2319,6 +2350,7 @@ public class JSW3D extends ApplicationAdapter {
     // que se cruzan cuelgan de dos anclas distintas
     int stars = 0;
     Map<Integer, List<List<int[]>>> familias = new HashMap<>(); // grafico -> apariciones
+    Map<Integer, Integer> familiasFresh = new HashMap<>(); // apariciones NO cacheadas
     for (Map.Entry<Integer, List<int[]>> e : byInst.entrySet()) {
       // una identidad de RESPALDO (invocacion/writeSig) agrupa todo lo que pinto ese
       // camino — la sala entera si es el pintor de sala. El nivel objeto es cada
@@ -2337,6 +2369,8 @@ public class JSW3D extends ApplicationAdapter {
         int base = baseVotes.entrySet().stream().max(Map.Entry.comparingByValue())
             .map(Map.Entry::getKey).orElse(0);
         familias.computeIfAbsent(base, k -> new ArrayList<>()).add(obj);
+        if (!reusedIds.contains(e.getKey()))
+          familiasFresh.merge(base, 1, Integer::sum);
       }
     }
     // familias con >=2 duplicados: un rayo por aparicion al punto comun del grafico;
@@ -2344,20 +2378,25 @@ public class JSW3D extends ApplicationAdapter {
     for (Map.Entry<Integer, List<List<int[]>>> f : familias.entrySet()) {
       List<List<int[]>> apps = f.getValue();
       Color ic = instanceColor(f.getKey());
-      if (f.getKey() != 0) {
-        // a la galeria van TODAS las familias, tambien las de UNA aparicion — la mayoria
-        // de los compuestos aparece una sola vez y quedaban invisibles en la lista
+      // a la galeria van todas las familias PERO: solo con apariciones frescas (lo
+      // cacheado renovaba conteos de pantallas viejas), y solo si el grafico NO es de
+      // una definicion de objetosAuto — si lo es, la definicion es la dueña del tipo
+      // (el misil salia como auto7 Y como $db77)
+      int freshApps = familiasFresh.getOrDefault(f.getKey(), 0);
+      if (f.getKey() != 0 && freshApps > 0 && !gfxToObjs.containsKey(f.getKey() - 1)) {
         List<int[]> first = apps.get(0);
         int mc = 31, xc = 0, mr = 191, xr = 0;
+        List<Integer> mcells = new ArrayList<>();
         for (int[] pt : first) {
           int c = pt[0] / 8, yy = H - pt[1];
           mc = Math.min(mc, c);
           xc = Math.max(xc, c);
           mr = Math.min(mr, yy);
           xr = Math.max(xr, yy);
+          mcells.add(idx(yy, c));
         }
-        galleryNote(snap, "$" + Integer.toHexString(f.getKey() - 1), apps.size(),
-            mc, Math.max(0, mr), xc, Math.min(191, xr));
+        galleryNote(snap, "$" + Integer.toHexString(f.getKey() - 1), freshApps,
+            mc, Math.max(0, mr), xc, Math.min(191, xr), mcells);
       }
       if (apps.size() >= 2 && f.getKey() != 0) {
         float sx = 0, topY = 0;
@@ -2414,11 +2453,11 @@ public class JSW3D extends ApplicationAdapter {
           sibs.add(home = new ArrayList<>());
         home.add(a);
       }
+      SkelEntry ge = skelGallery.get(e.getKey());
+      if (ge != null)
+        ge.countNow = Math.max(ge.countNow, e.getValue().size());
       int sub = 0;
       for (List<Object[]> sc : sibs) {
-        SkelEntry ge = skelGallery.get(e.getKey());
-        if (ge != null)
-          ge.countNow = Math.max(ge.countNow, sc.size());
         float sx = 0, topY = 0;
         for (Object[] a : sc) {
           sx += (Float) a[1];
@@ -2930,7 +2969,7 @@ public class JSW3D extends ApplicationAdapter {
       objAnchors.add(new Object[]{g.name == null ? "?" : g.name,
           (minC + maxC + 1) * 4f, H - (minR + maxR + 1) / 2f,
           found == null ? java.util.Set.of() : new java.util.HashSet<>(found)});
-      galleryNote(snap, g.name == null ? "?" : g.name, 1, minC, minR, maxC, maxR);
+      galleryNote(snap, g.name == null ? "?" : g.name, 1, minC, minR, maxC, maxR, cells);
     }
     byte[] bits = new byte[w * rows];
     int[] inkVotes = new int[16];
@@ -3417,7 +3456,7 @@ public class JSW3D extends ApplicationAdapter {
    */
   private static final class SkelEntry {
     com.badlogic.gdx.graphics.Texture tex;
-    int w, h, countNow, lastFrame = -999;
+    int w, h, countNow, lastFrame = -999, pixCount;
   }
 
   private int skelFrame;
@@ -3425,24 +3464,41 @@ public class JSW3D extends ApplicationAdapter {
   private final java.util.LinkedHashMap<String, SkelEntry> skelGallery =
       new java.util.LinkedHashMap<>();
   private int skelScroll;
+  private float skelMaxScroll;
+  private boolean skelBarDrag;
 
-  /** anota un tipo detectado: N apariciones ahora; la imagen se captura una sola vez. */
+  /**
+   * Anota un tipo detectado: N apariciones ahora. La imagen dibuja SOLO los bytes
+   * miembro del tipo (el fondo dentro del bbox queda transparente: el personaje salia
+   * pegado a un cacho de escenario) y se RE-captura cuando una aparicion posterior trae
+   * mas piezas — la primera vista podia ser parcial (solo la parte de arriba) y quedaba
+   * congelada para siempre.
+   */
   private void galleryNote(TaintReplay.FrameSnapshot snap, String key, int count,
-                           int minC, int minR, int maxC, int maxR) {
+                           int minC, int minR, int maxC, int maxR,
+                           java.util.Collection<Integer> memberCells) {
     SkelEntry en = skelGallery.get(key);
-    if (en == null) {
+    boolean fresh = en == null;
+    if (fresh)
       en = new SkelEntry();
+    if (fresh || (memberCells != null && memberCells.size() > en.pixCount)) {
       // el sprite COMPLETO: recortarlo o uniformarlo impide ver si lo encontrado es
       // correcto (las formas no siempre son regulares)
       int w = Math.min(32, maxC - minC + 1), h = Math.min(192, maxR - minR + 1);
       if (w < 1 || h < 1)
         return;
+      java.util.Set<Integer> member =
+          memberCells == null ? null : new java.util.HashSet<>(memberCells);
       com.badlogic.gdx.graphics.Pixmap pm =
           new com.badlogic.gdx.graphics.Pixmap(w * 8, h,
               com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
+      pm.setColor(0, 0, 0, 0);
+      pm.fill();
       for (int r = 0; r < h; r++)
         for (int c = 0; c < w; c++) {
           int i = idx(minR + r, minC + c);
+          if (member != null && !member.contains(i))
+            continue; // no es del tipo: transparente
           int bits = snap.pixels()[i] & 0xff;
           int attr = snap.attrs()[((minR + r) >> 3) * 32 + minC + c] & 0xff;
           Color inkC = PALETTE[ink(attr)], papC = PALETTE[attr >> 3 & 7];
@@ -3453,10 +3509,13 @@ public class JSW3D extends ApplicationAdapter {
                     | ((int) (cc.b * 255) << 8) | 0xff);
           }
         }
+      if (en.tex != null)
+        en.tex.dispose();
       en.tex = new com.badlogic.gdx.graphics.Texture(pm);
       pm.dispose();
       en.w = w * 8;
       en.h = h;
+      en.pixCount = member == null ? w * h : member.size();
       skelGallery.put(key, en);
     }
     en.countNow = snap.frame() - en.lastFrame > 12 ? count : Math.max(en.countNow, count);
@@ -3474,11 +3533,16 @@ public class JSW3D extends ApplicationAdapter {
     int panelW = 330, barW = 10;
     float x0 = Gdx.graphics.getWidth() - panelW;
     int screenH = Gdx.graphics.getHeight();
+    // lo PRESENTE en pantalla primero (orden de llegada entre si), lo apagado despues:
+    // la galeria es para corroborar la pantalla ACTUAL sin ir a buscarla con scroll
+    List<Map.Entry<String, SkelEntry>> ordered = new ArrayList<>(skelGallery.entrySet());
+    ordered.sort((a, b) -> Boolean.compare(b.getValue().countNow > 0,
+        a.getValue().countNow > 0));
     // pase 1: layout fluido (posiciones relativas al tope del contenido)
     List<float[]> pos = new ArrayList<>(); // {x, yTop, w, h} por entrada
     float cx = 0, cy = 0, rowH = 0;
     float maxW = panelW - barW - 16;
-    for (Map.Entry<String, SkelEntry> e : skelGallery.entrySet()) {
+    for (Map.Entry<String, SkelEntry> e : ordered) {
       SkelEntry en = e.getValue();
       // completo y proporcional: natural x2, y si no entra a lo ancho se ESCALA (nunca
       // se recorta) — la forma entera es lo que permite juzgar si es correcto
@@ -3505,12 +3569,9 @@ public class JSW3D extends ApplicationAdapter {
       if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.PAGE_DOWN))
         skelScroll = (int) Math.min(maxScroll, skelScroll + screenH * .8f);
     }
-    // barra de scroll: feedback de posición + arrastre con el mouse sobre la barra
-    if (maxScroll > 0 && Gdx.input.isTouched()
-        && Gdx.input.getX() >= Gdx.graphics.getWidth() - barW - 4) {
-      float fy = Gdx.input.getY() / (float) screenH; // getY crece hacia abajo, como el pane
-      skelScroll = (int) (fy * maxScroll);
-    }
+    // el arrastre de la barra vive en el InputMultiplexer (consume el evento para que
+    // no rote la camara); aca solo se publica el rango
+    skelMaxScroll = maxScroll;
     skelScroll = (int) Math.max(0, Math.min(maxScroll, skelScroll));
     uiBatch.begin();
     // opaco: es una galeria de VERIFICACION, el decorado 3D transparentandose
@@ -3518,7 +3579,7 @@ public class JSW3D extends ApplicationAdapter {
     uiBatch.setColor(.04f, .04f, .07f, 1f);
     uiBatch.draw(whitePix, x0 - 4, 0, panelW + 4, screenH);
     int n = 0;
-    for (Map.Entry<String, SkelEntry> e : skelGallery.entrySet()) {
+    for (Map.Entry<String, SkelEntry> e : ordered) {
       float[] pcs = pos.get(n++);
       float py = screenH - 8 - (pcs[1] - skelScroll) - pcs[3];
       if (py > screenH || py + pcs[3] + 20 < 0)
