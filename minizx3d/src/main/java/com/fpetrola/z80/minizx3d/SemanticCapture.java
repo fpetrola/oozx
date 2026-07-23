@@ -131,6 +131,8 @@ public final class SemanticCapture {
     else if (oracle != null && canvasProp.isEmpty())
       bufBase[0] = oracle.root.get("pantalla").getInt("buffer");
     Map<Integer, Integer> deltaHisto = new HashMap<>();
+    // -Dsemantic.scratch=lo:hi (hex): la region de scratch de compose (la cura de Exolon)
+    String scratchProp = System.getProperty("semantic.scratch", "");
 
     SpriteCatalog catalog = new SpriteCatalog(catalogPath, 128);
     System.out.println("SemanticCapture: " + rzx + " -> " + dbPath + " (catalogo "
@@ -246,6 +248,13 @@ public final class SemanticCapture {
       }
     });
     holder[0] = replay;
+    if (!scratchProp.isEmpty()) {
+      String[] pp = scratchProp.split(":");
+      replay.scratchLo = Integer.parseInt(pp[0].replace("$", ""), 16);
+      replay.scratchHi = Integer.parseInt(pp[1].replace("$", ""), 16);
+      System.out.printf("scratch de compose: $%04x..$%04x (lecturas no aportan cadena a la"
+          + " variante sin-scratch)%n", replay.scratchLo, replay.scratchHi);
+    }
     if (memOn)
       replay.memObserver = (addr, frame, node, routine, write) -> {
         // el canvas es asunto de draw_events; el resto de la RAM es la estructura

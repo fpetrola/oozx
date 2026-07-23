@@ -163,6 +163,9 @@ public final class TaintReplay implements Runnable {
   /** la última dirección LEÍDA: en una copia al display, el write la ve recién puesta —
    *  el delta fuente-destino descubre el buffer de composición sin conocer el juego. */
   volatile int lastReadAddr = -1;
+  /** región de scratch de composición ([lo..hi]; -1 = sin scratch): ver OriginTaint#regNS.
+   *  La fija la captura (-Dsemantic.scratch=lo:hi); descubrimiento automático pendiente. */
+  volatile int scratchLo = -1, scratchHi = -1;
   private static final int[] NO_CATALOG = new int[0x10000];
   private static final boolean[] NO_TILES = new boolean[0x10000];
   /**
@@ -521,6 +524,13 @@ public final class TaintReplay implements Runnable {
             // procedencia del índice que formó la dirección (addrDir)
             listener.lastReadDir = dir.union(dir.read(a), listener.addrDir);
             listener.pendingReadDir = dir.union(listener.pendingReadDir, listener.lastReadDir);
+            if (scratchLo >= 0) {
+              // leer el scratch NO aporta la cadena almacenada a la variante sin-scratch
+              listener.lastReadDirNS = a >= scratchLo && a <= scratchHi
+                  ? listener.addrDir : listener.lastReadDir;
+              listener.pendingReadDirNS =
+                  dir.union(listener.pendingReadDirNS, listener.lastReadDirNS);
+            }
           }
           if (spriteBitsOn) {
             listener.lastBits = taint.readBits(a, value.intValue());
@@ -563,11 +573,16 @@ public final class TaintReplay implements Runnable {
             // el plano dir suma addrDir: en LD (HL),A no hubo read de memoria, así que la
             // procedencia de H/L sólo entra por acá. El store APLANA (ver flatten): sin
             // eso las cadenas RMW de estado se fosilizan al tocar el cap de profundidad
-            if (dir != null)
+            if (dir != null) {
+              boolean toScratch = scratchLo >= 0 && a >= scratchLo && a <= scratchHi;
               dir.mem[a] = dir.flatten(listener.bulk
-                  ? dir.union(listener.lastReadDir, listener.addrDir)
-                  : dir.union(dir.union(listener.srcDir, listener.pendingReadDir),
+                  ? dir.union(toScratch ? listener.lastReadDirNS : listener.lastReadDir,
+                      listener.addrDir)
+                  : dir.union(dir.union(
+                      toScratch ? listener.srcDirNS : listener.srcDir,
+                      toScratch ? listener.pendingReadDirNS : listener.pendingReadDir),
                       listener.addrDir), DIR_LEAFCAP);
+            }
             // a bit is sprite ink if it SURVIVES into the stored value and some operand
             // contributed it as sprite. Masking by the value is what makes this work for
             // every compositing op without decoding it: a copy keeps the mask, OR adds the
@@ -645,6 +660,8 @@ public final class TaintReplay implements Runnable {
     /** el dir de la TINTA (ver {@link OriginTaint#inkDir}): viaja en paralelo a los
      *  sprite-bits, con su misma semántica de siembra y muerte por máscara. */
     int srcInkDir, pendingInkDir, lastInkDir;
+    /** la variante sin-scratch (ver {@link OriginTaint#regNS}). */
+    int srcDirNS, pendingReadDirNS, lastReadDirNS;
     long dbgScreenWrites, dbgOutside, dbgSuppressed, dbgUntainted;
     final Map<Integer, Long> dbgSuppressedPcs = new HashMap<>();
     private int prevPc = -1, lastFrame = -1, pacedFrom;
@@ -669,13 +686,17 @@ public final class TaintReplay implements Runnable {
         // COND steers control flow — neither is what the value is made of.
         // The dir plane widens the rule: 'A' slots feed addrDir (a channel can be "AV").
         int t = OriginTaint.NONE, tb = 0, d = OriginTaint.NONE, ad = OriginTaint.NONE;
+        int dNS = OriginTaint.NONE;
         for (int slot : info.reads) {
           String roles = info.roles.getOrDefault(Tracer.CH_NAME[slot], "");
           if (roles.indexOf('V') >= 0) {
             t = taint.union(t, taint.reg[slot]);
             tb |= taint.regBits[slot];
-            if (dir != null)
+            if (dir != null) {
               d = dir.union(d, dir.reg[slot]);
+              if (scratchLo >= 0)
+                dNS = dir.union(dNS, dir.regNS[slot]);
+            }
           }
           if (dir != null && roles.indexOf('A') >= 0)
             ad = dir.union(ad, dir.reg[slot]);
@@ -683,6 +704,7 @@ public final class TaintReplay implements Runnable {
         srcTaint = t;
         srcBits = tb;
         srcDir = d;
+        srcDirNS = dNS;
         addrDir = ad;
         if (dir != null && spriteBitsOn) {
           int ink = OriginTaint.NONE;
@@ -748,6 +770,9 @@ public final class TaintReplay implements Runnable {
             int k1 = dir.regInkDir[a];
             dir.regInkDir[a] = dir.regInkDir[b];
             dir.regInkDir[b] = k1;
+            int n1 = dir.regNS[a];
+            dir.regNS[a] = dir.regNS[b];
+            dir.regNS[b] = n1;
           }
         }
         regSwap = true;
@@ -768,6 +793,9 @@ public final class TaintReplay implements Runnable {
             int k1 = dir.regInkDir[a];
             dir.regInkDir[a] = dir.regInkDir[b];
             dir.regInkDir[b] = k1;
+            int n1 = dir.regNS[a];
+            dir.regNS[a] = dir.regNS[b];
+            dir.regNS[b] = n1;
           }
         }
         regSwap = true;
@@ -783,6 +811,7 @@ public final class TaintReplay implements Runnable {
       pendingRead = OriginTaint.NONE;
       lastRead = OriginTaint.NONE;
       pendingReadDir = lastReadDir = OriginTaint.NONE;
+      pendingReadDirNS = lastReadDirNS = OriginTaint.NONE;
       pendingInkDir = lastInkDir = OriginTaint.NONE;
       pendingBits = lastBits = 0;
       inExecution = true;
@@ -807,6 +836,9 @@ public final class TaintReplay implements Runnable {
           if (dir != null) {
             dir.reg[slot] = dir.flatten(
                 dir.union(dir.union(srcDir, pendingReadDir), addrDir), DIR_LEAFCAP);
+            if (scratchLo >= 0)
+              dir.regNS[slot] = dir.flatten(
+                  dir.union(dir.union(srcDirNS, pendingReadDirNS), addrDir), DIR_LEAFCAP);
             if (spriteBitsOn)
               dir.regInkDir[slot] = dir.flatten(dir.union(srcInkDir, pendingInkDir),
                   DIR_LEAFCAP);

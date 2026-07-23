@@ -92,6 +92,23 @@ public final class OriginTaint {
   public final int[] inkDir = new int[0x10000];
   public final int[] regInkDir = new int[32];
 
+  /**
+   * La variante SIN-SCRATCH de la cadena dir de cada registro: idéntica propagación salvo
+   * que las lecturas del scratch de composición no aportan la cadena almacenada (el resto
+   * de la entidad anterior — medido en Exolon: el compose RMW sobre un scratch compartido
+   * une las cadenas de todas las entidades transitivamente). El write elige variante por
+   * destino: AL scratch va ésta (el veneno no entra); afuera va la completa (el blit
+   * transporta la cadena viva). Sólo la puebla el plano dir con región de scratch fijada.
+   *
+   * <p>RESULTADO EN EXOLON (medido, honesto): sin efecto — la captura con
+   * -Dsemantic.scratch=78b2:7a5f dio números IDÉNTICOS al control (545 sets, 97%), o sea
+   * que la variante nunca difirió: el veneno NO entra por lectura-de-scratch→registro→
+   * escritura. Hipótesis falsificada. El sospechoso restante es addrDir (la historia de la
+   * caminata de tablas inyectada en cada write); la próxima sonda es capturar con esa
+   * inyección aislada. El mecanismo queda porque la regla final va a necesitar el canal.
+   */
+  public final int[] regNS = new int[32];
+
   /** el dir del byte para consumo: la tinta cuando la hay, el plano por byte si no. */
   public int inkDirOrMem(int addr) {
     int t = inkDir[addr & 0xffff];
