@@ -2311,34 +2311,59 @@ public class JSW3D extends ApplicationAdapter {
     // grupos conexos (piezas), cada pieza se ata al ancla de la instancia — dos compuestos
     // que se cruzan cuelgan de dos anclas distintas
     int stars = 0;
+    Map<Integer, List<List<int[]>>> familias = new HashMap<>(); // grafico -> apariciones
     for (Map.Entry<Integer, List<int[]>> e : byInst.entrySet()) {
       // una identidad de RESPALDO (invocacion/writeSig) agrupa todo lo que pinto ese
       // camino — la sala entera si es el pintor de sala. El nivel objeto es cada
       // componente CONEXO: una capsula, una cajita — cada uno con su ancla y color
       // propios (por celda del ancla: estable mientras el objeto no se mueve).
-      // TODA identidad se parte en objetos conexos: una instancia de bloque global
-      // (el $64A0 de Exolon) reclama media pantalla y sin este corte era una estrella
-      // gigante. Si la identidad tiene un solo objeto, conserva su color de identidad;
-      // si tiene varios, cada objeto recibe el suyo (por celda del ancla) para que dos
-      // compuestos no se mezclen.
-      List<List<int[]>> objects = clustersOf(e.getValue());
-      for (List<int[]> obj : objects) {
-        if (obj.size() < 12)
+      // TODA identidad se parte en objetos conexos; los objetos van al colector de
+      // FAMILIAS: duplicados = mismo grafico de catalogo, vengan de la invocacion o
+      // identidad que vengan (los cosos verdes rapidos salen por aca)
+      for (List<int[]> obj : clustersOf(e.getValue())) {
+        if (obj.size() < 8)
           continue;
-        List<List<int[]>> pieces = piecesOf(obj);
+        Map<Integer, Integer> baseVotes = new HashMap<>();
+        for (int[] pt : obj)
+          if (pt.length > 3 && pt[3] != 0)
+            baseVotes.merge(pt[3], 1, Integer::sum);
+        int base = baseVotes.entrySet().stream().max(Map.Entry.comparingByValue())
+            .map(Map.Entry::getKey).orElse(0);
+        familias.computeIfAbsent(base, k -> new ArrayList<>()).add(obj);
+      }
+    }
+    // familias con >=2 duplicados: un rayo por aparicion al punto comun del grafico;
+    // solitarias multipieza: la estrella de piezas de siempre
+    for (Map.Entry<Integer, List<List<int[]>>> f : familias.entrySet()) {
+      List<List<int[]>> apps = f.getValue();
+      Color ic = instanceColor(f.getKey());
+      if (apps.size() >= 2 && f.getKey() != 0) {
+        float sx = 0, topY = 0;
+        for (List<int[]> obj : apps) {
+          float[] c = centroid(obj);
+          sx += c[0];
+          topY = Math.max(topY, c[1]);
+        }
+        float[] common = {sx / apps.size(), topY + 18};
         stars++;
-        float[] anchor = centroid(obj);
-        Color ic = objects.size() > 1
-            ? instanceColor((((int) anchor[0] / 8) << 8) | ((int) anchor[1] / 8))
-            : instanceColor(e.getKey());
-        if (pieces.size() >= 2) {
+        for (List<int[]> obj : apps) {
+          float[] c = centroid(obj);
+          skeletonSegment(c[0], c[1], common[0], common[1], midZ() + 2.5f, ic);
+        }
+      } else
+        for (List<int[]> obj : apps) {
+          List<List<int[]>> pieces = piecesOf(obj);
+          if (pieces.size() < 2 || obj.size() < 12)
+            continue;
+          stars++;
+          float[] anchor = centroid(obj);
           for (List<int[]> cl : pieces) {
             float[] c = centroid(cl);
             skeletonSegment(c[0], c[1], anchor[0], anchor[1], midZ() + 2.5f, ic);
           }
         }
-      }
     }
+    // (declarado antes del loop de identidades)
     // los compuestos de objetosAuto: las apariciones del mismo TIPO cuelgan de un punto
     // comun (la definicion), un rayo por aparicion, color por tipo
     Map<String, List<Object[]>> byDef = new HashMap<>();
