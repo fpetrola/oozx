@@ -580,11 +580,13 @@ public final class SemanticBuildGeneric {
       int block = instBlock.getOrDefault(pairAddr, pairAddr);
       int stride = blockStride.getOrDefault(block, 0);
       boolean stable = stableBlocks.contains(pairAddr);
+      // un bloque dedicado guarda su SPAN como stride: el visor resuelve [base, base+stride)
+      int stableSpan = stable ? blockStart.get(pairAddr) - pairAddr + 1 : 0;
       for (int[] ep : epochs) {
         insI.setInt(1, pairAddr);
         insI.setInt(2, epoch++);
         insI.setInt(3, pairAddr);
-        insI.setInt(4, stable ? 0 : stride);
+        insI.setInt(4, stable ? stableSpan : stride);
         insI.setInt(5, block);
         insI.setInt(6, stable || stride == 0 ? 0 : (pairAddr - block) / stride);
         insI.setInt(7, ep[0]);
