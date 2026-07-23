@@ -129,7 +129,7 @@ public final class SemanticBuild {
           ropeWin.computeIfAbsent(pairs.iterator().next(), k -> new TreeMap<>())
               .put(f0, win);
         if (willy && pairs.isEmpty() || !willy && pairs.size() == 1) {
-          int key = willy ? -1 : pairs.iterator().next();
+          int key = willy ? WILLY_LO : pairs.iterator().next();
           Inst in = insts.computeIfAbsent(key, k -> new Inst());
           in.events++;
           for (int f = f0; f <= f1; f += Math.max(1, (f1 - f0) / Math.max(1, rs.getInt(5))))
@@ -151,7 +151,7 @@ public final class SemanticBuild {
               });
           }
           // el evento de willy también alimenta su instancia
-          Inst in = insts.computeIfAbsent(-1, k -> new Inst());
+          Inst in = insts.computeIfAbsent(WILLY_LO, k -> new Inst());
           in.events++;
           in.frames.add(f0);
           in.frames.add(f1);
@@ -198,14 +198,16 @@ public final class SemanticBuild {
         insI.setInt(1, pairAddr);
         insI.setInt(2, epoch++);
         insI.setInt(3, pairAddr);
-        insI.setInt(4, 2);
-        insI.setInt(5, pairAddr < 0 ? -1 : (pairAddr - SALAS) / SALA_BYTES);
-        insI.setInt(6, pairAddr < 0 ? -1 : (pairAddr % SALA_BYTES - SPECS_OFF) / 2);
+        // el jugador lleva su rango real (span de sus variables) para que el visor
+        // resuelva TODO por la DB, sin zonas hardcodeadas
+        insI.setInt(4, pairAddr == WILLY_LO ? WILLY_HI - WILLY_LO + 1 : 2);
+        insI.setInt(5, pairAddr == WILLY_LO ? -1 : (pairAddr - SALAS) / SALA_BYTES);
+        insI.setInt(6, pairAddr == WILLY_LO ? -1 : (pairAddr % SALA_BYTES - SPECS_OFF) / 2);
         insI.setInt(7, ep[0]);
         insI.setInt(8, ep[1]);
         insI.setInt(9, in.events);
         insI.setString(10, in.gfx.toString());
-        insI.setString(11, pairAddr < 0 ? "willy-vars" : "spec-par; defs=" + in.defLeaves);
+        insI.setString(11, pairAddr == WILLY_LO ? "willy-vars" : "spec-par; defs=" + in.defLeaves);
         insI.addBatch();
         instRows++;
       }
@@ -255,7 +257,7 @@ public final class SemanticBuild {
       for (int[] r : e.getValue()) {
         insD.setInt(1, r[0]);
         insD.setInt(2, r[1]);
-        insD.setInt(3, -1);
+        insD.setInt(3, WILLY_LO);
         insD.setInt(4, e.getKey());
         insD.setString(5, "follower");
         insD.setDouble(6, r[2] / Math.max(1.0, (r[1] - r[0]) / 4.0));
@@ -287,7 +289,7 @@ public final class SemanticBuild {
     // instancias indexadas por frame (rangos de época)
     List<int[]> instRanges = new ArrayList<>(); // {first, last, pairIdx, room}
     try (var st = conn.createStatement(); ResultSet rs = st.executeQuery(
-        "SELECT frame_first, frame_last, pair_idx, room FROM instances WHERE slot >= 0")) {
+        "SELECT frame_first, frame_last, pair_idx, room FROM instances WHERE slot >= " + SALAS)) {
       while (rs.next())
         instRanges.add(new int[]{rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4)});
     }

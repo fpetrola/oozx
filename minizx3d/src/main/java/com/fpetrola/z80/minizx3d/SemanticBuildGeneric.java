@@ -38,9 +38,12 @@ import java.util.TreeSet;
  * tipo SBL), pero la atribución dueño-por-gfx todavía filtra arrastres espurios
  * (precisión 0.9%) y el assert quedó mapeado a los pares de spec. NO usar en el pipeline
  * hasta cerrar eso; el SemanticBuild verificado sigue siendo el de producción.
- * Pendientes: asociar gfx→run con umbral por familia de strip, realinear el assert al
- * buffer runtime (slot=(clave-33024)/8), y el gate de ventana viva sobre los varying
- * por bloque.
+ * Pendientes (medidos): el filtro de exclusividad de varying (≥70% propias) se come la
+ * señal del follower — las hojas de la soga que Willy arrastra cuentan como suyas porque
+ * sus eventos de arrastre son de Willy; el share debe computarse descontando los eventos
+ * de arrastre (o por dueños del MISMO tipo de bloque). Y el assert de conteo por frame
+ * necesita actividad por eventos cercanos (±2 ticks), no rangos de época: el slot runtime
+ * se reusa entre salas y su época cubre casi todo el juego.
  *
  * <p>Etapa 3 de la base semántica: deriva {@code instances} y {@code deps} de la capa 1
  * ({@code draw_events} + {@code read_sets}) SIN re-replay, y se verifica contra
@@ -352,8 +355,15 @@ public final class SemanticBuildGeneric {
               .add(new int[]{owner, carried, i});
       }
     }
-    // hojas variables por instancia + ventana de la instancia sola por frame (el estado
-    // ACTUAL del líder) y la ventana que el dueño arrastra en el evento de arrastre
+    // hojas variables por instancia, EXCLUSIVAS: una hoja que aparece en eventos de
+    // muchas instancias es maquinaria compartida de POSICIÓN (la tabla de lookup: dos
+    // entidades a la misma y llevan las mismas hojas y el test de vínculo vivo pasaría
+    // por coincidencia). El estado que identifica un vínculo es variable EN el líder y
+    // raro FUERA de él (≥70% de sus apariciones son suyas).
+    Map<Integer, Integer> leafTotal = new HashMap<>();
+    for (Map<Integer, Integer> lf : leafFreq.values())
+      for (Map.Entry<Integer, Integer> l : lf.entrySet())
+        leafTotal.merge(l.getKey(), l.getValue(), Integer::sum);
     for (Map.Entry<Integer, Inst> e : insts.entrySet()) {
       Map<Integer, Integer> lf = leafFreq.get(e.getKey());
       if (lf == null)
@@ -361,7 +371,8 @@ public final class SemanticBuildGeneric {
       int own = ownEvents.getOrDefault(e.getKey(), 0);
       Set<Integer> varying = new HashSet<>();
       for (Map.Entry<Integer, Integer> l : lf.entrySet())
-        if (l.getValue() * 10 < own * 9 && l.getValue() >= 3)
+        if (l.getValue() * 10 < own * 9 && l.getValue() >= 3
+            && l.getValue() * 10 >= leafTotal.get(l.getKey()) * 7)
           varying.add(l.getKey());
       e.getValue().varying = varying;
     }
@@ -523,14 +534,19 @@ public final class SemanticBuildGeneric {
       }
     }
     // instancias indexadas por frame; el índice de slot lo calcula EL ASSERT con el layout
-    // del oráculo (spec par = salasBase + sala*256 + 240 + 2*slot), no la derivación
+    // del oráculo — dos identidades posibles: el buffer runtime (33024 + 8*slot, la que
+    // la derivación genérica encuentra) o el par de spec (salasBase + sala*256 + 240 +
+    // 2*slot, la de la versión calibrada). El assert entiende las dos.
     List<int[]> instRanges = new ArrayList<>(); // {first, last, slotOracle}
     try (var st = conn.createStatement(); ResultSet rs = st.executeQuery(
-        "SELECT frame_first, frame_last, slot FROM instances WHERE slot >= " + SALAS)) {
+        "SELECT frame_first, frame_last, slot FROM instances")) {
       while (rs.next()) {
-        int off = rs.getInt(3) % SALA_BYTES;
-        if (off >= SPECS_OFF)
-          instRanges.add(new int[]{rs.getInt(1), rs.getInt(2), (off - SPECS_OFF) / 2});
+        int key = rs.getInt(3);
+        if (key >= 33024 && key < 33024 + 8 * 8)
+          instRanges.add(new int[]{rs.getInt(1), rs.getInt(2), (key - 33024) / 8});
+        else if (key >= SALAS && key % SALA_BYTES >= SPECS_OFF)
+          instRanges.add(new int[]{rs.getInt(1), rs.getInt(2),
+              (key % SALA_BYTES - SPECS_OFF) / 2});
       }
     }
     Map<Integer, Set<Integer>> truthSlotsByFrame = new TreeMap<>();

@@ -2149,8 +2149,9 @@ public class JSW3D extends ApplicationAdapter {
   private Model skeletonSegModel;
   private final List<ModelInstance> skeletonPool = new ArrayList<>();
   private int skeletonCount;
-  /** pares de spec conocidos por la base (instances.block_base) y filas de deps. */
-  private final java.util.Set<Integer> semPairs = new java.util.HashSet<>();
+  /** rangos de instancia de la base semántica: arranque -> {fin, clave}. TODO viene de la
+   *  DB (block_base + stride); el visor no sabe qué es un spec, un slot ni el jugador. */
+  private final java.util.TreeMap<Integer, int[]> semRanges = new java.util.TreeMap<>();
   private final List<int[]> semDeps = new ArrayList<>(); // {frame0, frame1, a, b}
   private final Map<Integer, int[]> skelLeafMemo = new HashMap<>();
   /** la cadena/centroide de cada instancia sobrevive unos frames: entre ticks de juego el
@@ -2166,9 +2167,12 @@ public class JSW3D extends ApplicationAdapter {
     try (java.sql.Connection conn =
              java.sql.DriverManager.getConnection("jdbc:sqlite:" + path);
          var st = conn.createStatement()) {
-      try (var rs = st.executeQuery("SELECT DISTINCT block_base FROM instances WHERE slot >= 0")) {
-        while (rs.next())
-          semPairs.add(rs.getInt(1));
+      try (var rs = st.executeQuery("SELECT DISTINCT block_base, stride FROM instances")) {
+        while (rs.next()) {
+          int base = rs.getInt(1), stride = Math.max(2, rs.getInt(2));
+          if (base >= 0)
+            semRanges.put(base, new int[]{base + stride - 1, base});
+        }
       }
       try (var rs = st.executeQuery(
           "SELECT frame_first, frame_last, instance_a, instance_b FROM deps")) {
@@ -2176,7 +2180,7 @@ public class JSW3D extends ApplicationAdapter {
           semDeps.add(new int[]{rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4)});
       }
       if (TaintReplay.LOG)
-        System.out.println("base semantica: " + semPairs.size() + " instancias, "
+        System.out.println("base semantica: " + semRanges.size() + " instancias, "
             + semDeps.size() + " deps (" + path + ")");
     } catch (Exception e) {
       if (TaintReplay.LOG)
@@ -2213,12 +2217,11 @@ public class JSW3D extends ApplicationAdapter {
    */
   private void updateSkeleton(TaintReplay.FrameSnapshot snap) {
     skeletonCount = 0;
-    if (!skeletonOn || snap.dirNode() == null || replay.dir == null || semPairs.isEmpty())
+    if (!skeletonOn || snap.dirNode() == null || replay.dir == null || semRanges.isEmpty())
       return;
     if (skelLeafMemo.size() > 100_000)
       skelLeafMemo.clear();
-    Map<Integer, List<int[]>> byInst = new HashMap<>(); // par -> [{x, y, writeOrder}]
-    List<int[]> willyBytes = new ArrayList<>();
+    Map<Integer, List<int[]>> byInst = new HashMap<>(); // instancia -> [{x, y, writeOrder}]
     for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
       int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7);
       // cualquier byte ENCENDIDO: el plano dir decide solo si pertenece a una instancia —
@@ -2232,29 +2235,27 @@ public class JSW3D extends ApplicationAdapter {
         continue;
       int px = (i & 31) * 8 + 4, py = H - y;
       int order = replay.writeOrder[i];
-      // un byte con hojas de willy ES de willy aunque arrastre el par de la soga —
-      // meterlo en la cadena de la soga le ponía un bulto de 16x16 en el medio
-      boolean willy = false;
-      java.util.Set<Integer> pairsHere = null;
+      // el byte es de la instancia con MAS hojas suyas: un byte del que arrastra estado
+      // ajeno (willy colgado lleva el par de la soga) tiene varias hojas propias y un
+      // par ajeno — el conteo lo asigna bien sin nombrar a nadie
+      Map<Integer, Integer> hits = null;
       for (int leaf : lv) {
-        if (leaf >= 49152) {
-          int off = leaf % 256;
-          if (off >= 240) {
-            int pair = leaf - (off - 240) % 2;
-            if (semPairs.contains(pair)) {
-              if (pairsHere == null)
-                pairsHere = new java.util.HashSet<>();
-              pairsHere.add(pair);
-            }
-          }
-        } else if (leaf >= 34240 && leaf <= 34303)
-          willy = true;
+        Map.Entry<Integer, int[]> range = semRanges.floorEntry(leaf);
+        if (range != null && leaf <= range.getValue()[0]) {
+          if (hits == null)
+            hits = new HashMap<>();
+          hits.merge(range.getValue()[1], 1, Integer::sum);
+        }
       }
-      if (willy)
-        willyBytes.add(new int[]{px, py, order});
-      else if (pairsHere != null)
-        for (int pair : pairsHere)
-          byInst.computeIfAbsent(pair, k -> new ArrayList<>()).add(new int[]{px, py, order});
+      if (hits == null)
+        continue;
+      int inst = -1, best = 0;
+      for (Map.Entry<Integer, Integer> h : hits.entrySet())
+        if (h.getValue() > best) {
+          best = h.getValue();
+          inst = h.getKey();
+        }
+      byInst.computeIfAbsent(inst, k -> new ArrayList<>()).add(new int[]{px, py, order});
     }
     // persistencia entre ticks: el motor borra y repinta por tick, y el snapshot
     // intermedio ve la sala limpia. Lo FRESCO renueva la caché sólo si es sustancial (o
@@ -2276,12 +2277,25 @@ public class JSW3D extends ApplicationAdapter {
           && snap.frame() - (Integer) e.getValue()[0] <= 10)
         byInst.put(e.getKey(), cached);
     }
-    // centroides por instancia (willy = instancia -1)
+    // centroides por instancia
     Map<Integer, float[]> centers = new HashMap<>();
     for (Map.Entry<Integer, List<int[]>> e : byInst.entrySet())
       centers.put(e.getKey(), centroid(e.getValue()));
-    if (!willyBytes.isEmpty())
-      centers.put(-1, centroid(willyBytes));
+    // el COMPUESTO cuelga de un unico punto: si los bytes de una instancia forman varios
+    // grupos conexos (piezas), cada pieza se ata al ancla de la instancia — dos compuestos
+    // que se cruzan cuelgan de dos anclas distintas
+    int stars = 0;
+    for (Map.Entry<Integer, List<int[]>> e : byInst.entrySet()) {
+      List<List<int[]>> clusters = clustersOf(e.getValue());
+      if (clusters.size() < 2)
+        continue;
+      stars++;
+      float[] anchor = centers.get(e.getKey());
+      for (List<int[]> cl : clusters) {
+        float[] c = centroid(cl);
+        skeletonSegment(c[0], c[1], anchor[0], anchor[1], midZ() + 2.5f, Color.ORANGE);
+      }
+    }
     // cadena interna: una instancia alargada es una soga, no un guardián
     int chains = 0;
     for (Map.Entry<Integer, List<int[]>> e : byInst.entrySet()) {
@@ -2314,8 +2328,36 @@ public class JSW3D extends ApplicationAdapter {
     }
     if (Boolean.getBoolean("skeleton.probe") && snap.frame() % 50 == 0)
       System.out.println("skeleton f=" + snap.frame() + ": instancias en pantalla="
-          + byInst.size() + (willyBytes.isEmpty() ? "" : "+willy") + " cadenas=" + chains
+          + byInst.size() + " cadenas=" + chains + " compuestos=" + stars
           + " aristas=" + edges + " segmentos=" + skeletonCount);
+  }
+
+  /** grupos 8-conexos (a nivel celda) de los puntos de una instancia: sus PIEZAS. */
+  private static List<List<int[]>> clustersOf(List<int[]> pts) {
+    Map<Integer, List<int[]>> byCell = new HashMap<>();
+    for (int[] p : pts)
+      byCell.computeIfAbsent((p[1] / 8) * 40 + p[0] / 8, k -> new ArrayList<>()).add(p);
+    List<List<int[]>> out = new ArrayList<>();
+    java.util.Set<Integer> left = new java.util.HashSet<>(byCell.keySet());
+    java.util.ArrayDeque<Integer> queue = new java.util.ArrayDeque<>();
+    while (!left.isEmpty()) {
+      List<int[]> cluster = new ArrayList<>();
+      Integer start = left.iterator().next();
+      left.remove(start);
+      queue.add(start);
+      while (!queue.isEmpty()) {
+        int cell = queue.poll();
+        cluster.addAll(byCell.get(cell));
+        for (int dy = -1; dy <= 1; dy++)
+          for (int dx = -1; dx <= 1; dx++) {
+            int q = cell + dy * 40 + dx;
+            if (left.remove(q))
+              queue.add(q);
+          }
+      }
+      out.add(cluster);
+    }
+    return out;
   }
 
   private static float[] centroid(List<int[]> pts) {
