@@ -977,7 +977,8 @@ public class JSW3D extends ApplicationAdapter {
       replayThread = new Thread(replay, "taint-replay");
       replayThread.setDaemon(true);
       replayThread.start();
-      loadSemanticBase(activeGame);
+      loadGfxOracle(activeGame);
+    loadSemanticBase(activeGame);
       printStatus();
     } catch (Exception e) {
       throw new RuntimeException("No pude cargar el catalogo de sprites de " + dbPath, e);
@@ -2188,6 +2189,54 @@ public class JSW3D extends ApplicationAdapter {
    *  parpadea a la mitad de los frames. */
   private final Map<Integer, Object[]> skelCache = new HashMap<>(); // par -> {frame, pts}
 
+  /** direccion de grafico -> etiqueta del disassembly (S:dan, U:c2, buf, DATA:...). */
+  private final java.util.TreeMap<Integer, String> gfxOracle = new java.util.TreeMap<>();
+
+  /**
+   * Carga el oraculo de graficos del juego si existe ({@code <game>-oracle.json} en
+   * resources, generado del disassembly comunitario). Da nombre verificable a cada
+   * clave de la galeria: una familia que no mapea a NINGUN conjunto documentado es un
+   * error del detector (o data catalogada como grafico) y se marca con ?.
+   */
+  private void loadGfxOracle(String game) {
+    try (java.io.InputStream in =
+             JSW3D.class.getResourceAsStream("/" + game + "-oracle.json")) {
+      if (in == null)
+        return;
+      com.badlogic.gdx.utils.JsonValue root = new com.badlogic.gdx.utils.JsonReader()
+          .parse(new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8));
+      com.badlogic.gdx.utils.JsonValue gfx = root.get("gfx");
+      if (gfx == null)
+        return; // otro esquema de oraculo (jsw-oracle.json es de rutinas)
+      for (com.badlogic.gdx.utils.JsonValue e = gfx.child; e != null; e = e.next) {
+        String set = e.getString("set", "?"), name = e.getString("name", "?");
+        String tag = switch (set) {
+          case "sprite" -> "S:" + name.replace("sprite_", "");
+          case "udg" -> "U:" + name.replace("udg_", "");
+          case "item" -> "I:" + name;
+          case "buffer" -> "buf";
+          case "data" -> "DATA";
+          default -> set + ":" + name;
+        };
+        for (com.badlogic.gdx.utils.JsonValue a = e.get("addrs").child; a != null;
+             a = a.next)
+          gfxOracle.put(a.asInt(), tag);
+      }
+      if (TaintReplay.LOG)
+        System.out.println("oraculo gfx: " + gfxOracle.size() + " direcciones ("
+            + game + "-oracle.json)");
+    } catch (Exception e) {
+      if (TaintReplay.LOG)
+        System.out.println("oraculo gfx no cargado: " + e.getMessage());
+    }
+  }
+
+  /** la etiqueta documentada del grafico en {@code base}, o null si nada cerca. */
+  private String oracleTag(int base) {
+    Map.Entry<Integer, String> e = gfxOracle.floorEntry(base);
+    return e != null && base - e.getKey() < 600 ? e.getValue() : null;
+  }
+
   /** carga instances/deps si existen; tabla o archivo ausente = feature apagada, sin ruido. */
   private void loadSemanticBase(String game) {
     String path = System.getProperty("semantic.db", "analysis/" + game + "-semantic.db");
@@ -2250,7 +2299,7 @@ public class JSW3D extends ApplicationAdapter {
     // el conteo persiste ~3 ticks: los matches van al ritmo del juego y el conteo por
     // frame de render parpadeaba (objetos visibles marcados x0)
     for (SkelEntry en : skelGallery.values())
-      if (skelFrame - en.lastFrame > 12)
+      if (skelFrame - en.lastFrame > 25)
         en.countNow = 0;
     // semRanges vacio NO apaga el esqueleto: un juego sin instancias en su base
     // semantica (DD: procedencia lavada por staging) igual tiene el respaldo por
@@ -2259,53 +2308,75 @@ public class JSW3D extends ApplicationAdapter {
       return;
     if (skelLeafMemo.size() > 100_000)
       skelLeafMemo.clear();
+    int probeLit = 0, probeOwner = 0, probeTile = 0, probeGroup = 0, probeDir = 0;
     Map<Integer, List<int[]>> byInst = new HashMap<>(); // instancia -> [{x, y, writeOrder}]
     Map<Integer, List<int[]>> byGroup = new HashMap<>(); // respaldo: grupo de invocacion
     // las bases de cobertura GIGANTE (murallas, pisos) son conectivo del escenario, no
     // objeto: sueldan las capsulas con las cajitas en un solo componente. Fuera del
     // respaldo por frecuencia en pantalla.
     Map<Integer, Integer> baseCount = new HashMap<>();
-    for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++)
-      if (snap.owner()[i] != 0)
-        baseCount.merge(snap.owner()[i], 1, Integer::sum);
+    for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
+      int b = snap.owner()[i] != 0 ? snap.owner()[i] : snap.tile()[i];
+      if (b != 0)
+        baseCount.merge(b, 1, Integer::sum);
+    }
     for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
       int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7);
       // cualquier byte ENCENDIDO: el plano dir decide solo si pertenece a una instancia —
       // condicionar al owner del plano valor ata el esqueleto al catalogo curado, que
       // clasifica poco a proposito
-      if (y >= 128 || (snap.pixels()[i] & 0xff) == 0 || snap.dirNode()[i] == 0
-          || objClaimed[i])
-        continue; // lo reclamado por objetosAuto tiene su propia estrella
-      int[] lv = replay.dir.leavesSorted(snap.dirNode()[i], TaintReplay.DIR_LEAFCAP,
-          skelLeafMemo);
-      if (lv == null)
+      if (y >= 128 || (snap.pixels()[i] & 0xff) == 0)
         continue;
+      probeLit++;
+      if (snap.owner()[i] != 0)
+        probeOwner++;
+      if (snap.tile()[i] != 0)
+        probeTile++;
+      if (snap.group()[i] != 0)
+        probeGroup++;
+      if (snap.dirNode()[i] != 0)
+        probeDir++;
+      if (objClaimed[i])
+        continue; // lo reclamado por objetosAuto tiene su propia estrella
+      // dirNode=0 NO descarta el byte: un juego con la procedencia de direccion lavada
+      // (DD compone en buffers y blitea) igual tiene owner/grupo para el respaldo —
+      // exigir dir dejaba a casi todo DD fuera y la galeria contaba solo lo inicial
+      int[] lv = snap.dirNode()[i] == 0 ? null
+          : replay.dir.leavesSorted(snap.dirNode()[i], TaintReplay.DIR_LEAFCAP,
+              skelLeafMemo);
       int px = (i & 31) * 8 + 4, py = H - y;
       int order = replay.writeOrder[i];
       // el byte es de la instancia con MAS hojas suyas: un byte del que arrastra estado
       // ajeno (willy colgado lleva el par de la soga) tiene varias hojas propias y un
       // par ajeno — el conteo lo asigna bien sin nombrar a nadie
       Map<Integer, Integer> hits = null;
-      for (int leaf : lv) {
-        Map.Entry<Integer, int[]> range = semRanges.floorEntry(leaf);
-        if (range != null && leaf <= range.getValue()[0]) {
-          if (hits == null)
-            hits = new HashMap<>();
-          hits.merge(range.getValue()[1], 1, Integer::sum);
+      if (lv != null)
+        for (int leaf : lv) {
+          Map.Entry<Integer, int[]> range = semRanges.floorEntry(leaf);
+          if (range != null && leaf <= range.getValue()[0]) {
+            if (hits == null)
+              hits = new HashMap<>();
+            hits.merge(range.getValue()[1], 1, Integer::sum);
+          }
         }
-      }
       if (hits == null) {
         // respaldo para entidades SIN identidad de memoria (los misiles de Exolon: su
         // estado vive en parches compartidos y registros — medido: ninguna hoja de sus
         // cores es discriminante): la identidad de INVOCACION del arbol de llamadas.
         // Claves negativas para no chocar con las instancias de la base.
         int g = snap.group()[i];
-        if (snap.owner()[i] != 0 && baseCount.getOrDefault(snap.owner()[i], 0) <= 300) {
+        // la base viene del owner O del tile: en DD el catalogo clasifica fondo a los
+        // sprites del juego Y a los UDG compuestos — ambos son TIPOS documentados del
+        // disassembly y ambos van a la galeria. El tope de decorado conectivo es mas
+        // generoso para tiles (las plataformas repetidas suman mas bytes que un sprite)
+        int base = snap.owner()[i] != 0 ? snap.owner()[i] : snap.tile()[i];
+        int cap = snap.owner()[i] != 0 ? 300 : 1500;
+        if (base != 0 && baseCount.getOrDefault(base, 0) <= cap) {
           // fresco: grupo de invocacion (vive un frame). Estatico (dirty-regions no
           // repinta lo quieto): writeSig, el camino de llamada por byte, que SI persiste
           int key = g != 0 ? -g : 0x40000000 | (replay.writeSig[i] & 0x3ffffff);
           byGroup.computeIfAbsent(key, k -> new ArrayList<>())
-              .add(new int[]{px, py, order, snap.owner()[i], g});
+              .add(new int[]{px, py, order, base, g});
         }
         continue;
       }
@@ -2366,15 +2437,29 @@ public class JSW3D extends ApplicationAdapter {
       for (List<int[]> obj : objectsOf(e.getValue())) {
         if (obj.size() < 8)
           continue;
-        Map<Integer, Integer> baseVotes = new HashMap<>();
+        // el tipo es PURO por base de grafico: el pintor de sala pinta bailarin y
+        // plataforma con el mismo writeSig y la vecindad los suelda — el voto por base
+        // dominante contaminaba la captura del tipo con lo que tuviera pegado. Un
+        // componente que toca N graficos distintos son N apariciones, una por base.
+        Map<Integer, List<int[]>> porBase = new HashMap<>();
         for (int[] pt : obj)
-          if (pt.length > 3 && pt[3] != 0)
-            baseVotes.merge(pt[3], 1, Integer::sum);
-        int base = baseVotes.entrySet().stream().max(Map.Entry.comparingByValue())
-            .map(Map.Entry::getKey).orElse(0);
-        familias.computeIfAbsent(base, k -> new ArrayList<>()).add(obj);
-        if (!reusedIds.contains(e.getKey()))
-          familiasFresh.merge(base, 1, Integer::sum);
+          if (pt.length > 3 && pt[3] != 0) {
+            // plegado a la ENTRADA del catalogo: los bytes de fondo trazan a bytes
+            // CONSECUTIVOS del mapa de sala (un tipo por direccion = tiras de a byte);
+            // la entrada que los contiene es el tipo
+            // entryOf cubre sprites Y tiles (+1, como owner/tile); baseOf es solo sprites
+            int entry = catalog.entryOf[(pt[3] - 1) & 0xffff];
+            porBase.computeIfAbsent(entry != 0 ? entry : pt[3],
+                k -> new ArrayList<>()).add(pt);
+          }
+        for (Map.Entry<Integer, List<int[]>> pb : porBase.entrySet()) {
+          if (pb.getValue().size() < 8)
+            continue;
+          familias.computeIfAbsent(pb.getKey(), k -> new ArrayList<>())
+              .add(pb.getValue());
+          if (!reusedIds.contains(e.getKey()))
+            familiasFresh.merge(pb.getKey(), 1, Integer::sum);
+        }
       }
     }
     // familias con >=2 duplicados: un rayo por aparicion al punto comun del grafico;
@@ -2510,7 +2595,13 @@ public class JSW3D extends ApplicationAdapter {
       System.out.println("skeleton f=" + snap.frame() + ": instancias en pantalla="
           + byInst.size() + " cadenas=" + chains + " compuestos=" + stars
           + " aristas=" + edges + " segmentos=" + skeletonCount
-          + " galeria=" + skelGallery.size() + " tipos ("
+          + " bytes[lit=" + probeLit + " owner=" + probeOwner + " tile=" + probeTile
+          + " grupo=" + probeGroup + " dir=" + probeDir + "]"
+          + " galeria=" + skelGallery.size() + " tipos (oraculo="
+          + skelGallery.values().stream().filter(g -> g.tag != null).count() + " mapeadas, "
+          + skelGallery.entrySet().stream()
+              .filter(g -> g.getKey().startsWith("$") && g.getValue().tag == null).count()
+          + " sin) ("
           + skelGallery.values().stream().filter(g -> g.countNow > 0).count()
           + " presentes)");
   }
@@ -3460,6 +3551,7 @@ public class JSW3D extends ApplicationAdapter {
    */
   private static final class SkelEntry {
     com.badlogic.gdx.graphics.Texture tex;
+    String tag; // etiqueta del oraculo del disassembly, o null
     int w, h, countNow, lastFrame = -999, pixCount;
   }
 
@@ -3483,8 +3575,14 @@ public class JSW3D extends ApplicationAdapter {
                            java.util.Collection<Integer> memberCells) {
     SkelEntry en = skelGallery.get(key);
     boolean fresh = en == null;
-    if (fresh)
+    if (fresh) {
       en = new SkelEntry();
+      if (key.startsWith("$"))
+        try {
+          en.tag = oracleTag(Integer.parseInt(key.substring(1), 16));
+        } catch (NumberFormatException ignored) {
+        }
+    }
     if (fresh || (memberCells != null && memberCells.size() > en.pixCount)) {
       // el sprite COMPLETO: recortarlo o uniformarlo impide ver si lo encontrado es
       // correcto (las formas no siempre son regulares)
@@ -3522,7 +3620,7 @@ public class JSW3D extends ApplicationAdapter {
       en.pixCount = member == null ? w * h : member.size();
       skelGallery.put(key, en);
     }
-    en.countNow = snap.frame() - en.lastFrame > 12 ? count : Math.max(en.countNow, count);
+    en.countNow = snap.frame() - en.lastFrame > 25 ? count : Math.max(en.countNow, count);
     en.lastFrame = snap.frame();
   }
 
@@ -3591,8 +3689,14 @@ public class JSW3D extends ApplicationAdapter {
       SkelEntry en = e.getValue();
       uiBatch.setColor(1, 1, 1, en.countNow > 0 ? 1f : .3f);
       uiBatch.draw(en.tex, x0 + pcs[0] + 4, py, pcs[2], pcs[3]);
-      uiFont.setColor(1, 1, .5f, en.countNow > 0 ? 1f : .4f);
-      uiFont.draw(uiBatch, e.getKey() + " x" + en.countNow, x0 + pcs[0] + 4, py - 2);
+      String tag = en.tag != null ? "=" + en.tag
+          : e.getKey().startsWith("$") && !gfxOracle.isEmpty() ? "?" : "";
+      if ("?".equals(tag))
+        uiFont.setColor(1, .35f, .3f, en.countNow > 0 ? 1f : .5f);
+      else
+        uiFont.setColor(1, 1, .5f, en.countNow > 0 ? 1f : .4f);
+      uiFont.draw(uiBatch, e.getKey() + tag + " x" + en.countNow, x0 + pcs[0] + 4,
+          py - 2);
       uiFont.setColor(1, 1, 1, 1);
     }
     if (maxScroll > 0) {
