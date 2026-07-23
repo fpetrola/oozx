@@ -2222,6 +2222,7 @@ public class JSW3D extends ApplicationAdapter {
     if (skelLeafMemo.size() > 100_000)
       skelLeafMemo.clear();
     Map<Integer, List<int[]>> byInst = new HashMap<>(); // instancia -> [{x, y, writeOrder}]
+    Map<Integer, List<int[]>> byGroup = new HashMap<>(); // respaldo: grupo de invocacion
     for (int i = 0; i < TaintReplay.PIXEL_BYTES; i++) {
       int y = (((i >> 11) & 3) << 6) | (((i >> 5) & 7) << 3) | ((i >> 8) & 7);
       // cualquier byte ENCENDIDO: el plano dir decide solo si pertenece a una instancia —
@@ -2247,8 +2248,16 @@ public class JSW3D extends ApplicationAdapter {
           hits.merge(range.getValue()[1], 1, Integer::sum);
         }
       }
-      if (hits == null)
+      if (hits == null) {
+        // respaldo para entidades SIN identidad de memoria (los misiles de Exolon: su
+        // estado vive en parches compartidos y registros — medido: ninguna hoja de sus
+        // cores es discriminante): la identidad de INVOCACION del arbol de llamadas.
+        // Claves negativas para no chocar con las instancias de la base.
+        int g = snap.group()[i];
+        if (g != 0 && snap.owner()[i] != 0)
+          byGroup.computeIfAbsent(-g, k -> new ArrayList<>()).add(new int[]{px, py, order});
         continue;
+      }
       int inst = -1, best = 0;
       for (Map.Entry<Integer, Integer> h : hits.entrySet())
         if (h.getValue() > best) {
@@ -2257,6 +2266,10 @@ public class JSW3D extends ApplicationAdapter {
         }
       byInst.computeIfAbsent(inst, k -> new ArrayList<>()).add(new int[]{px, py, order});
     }
+    // los grupos de invocacion con varias piezas entran al mismo pipeline de anclas
+    for (Map.Entry<Integer, List<int[]>> e : byGroup.entrySet())
+      if (e.getValue().size() >= 4)
+        byInst.put(e.getKey(), e.getValue());
     // persistencia entre ticks: el motor borra y repinta por tick, y el snapshot
     // intermedio ve la sala limpia. Lo FRESCO renueva la caché sólo si es sustancial (o
     // si lo cacheado ya venció); después, una vista actual rala se reemplaza por la
