@@ -160,6 +160,9 @@ public final class TaintReplay implements Runnable {
   }
 
   volatile MemAccessObserver memObserver;
+  /** la última dirección LEÍDA: en una copia al display, el write la ve recién puesta —
+   *  el delta fuente-destino descubre el buffer de composición sin conocer el juego. */
+  volatile int lastReadAddr = -1;
   private static final int[] NO_CATALOG = new int[0x10000];
   private static final boolean[] NO_TILES = new boolean[0x10000];
   /**
@@ -496,6 +499,7 @@ public final class TaintReplay implements Runnable {
         if (a >= listener.curPc && a < listener.curPc + listener.curLen)
           return; // immediate operand bytes: instruction encoding, not data
         if (a >= 0 && a <= 0xffff) {
+          lastReadAddr = a;
           listener.lastRead = taint.read(a);
           listener.pendingRead = taint.union(listener.pendingRead, listener.lastRead);
           if (dir != null) {

@@ -45,6 +45,17 @@ import java.util.TreeSet;
  * necesita actividad por eventos cercanos (±2 ticks), no rangos de época: el slot runtime
  * se reusa entre salas y su época cubre casi todo el juego.
  *
+ * <p>ESTADO tras la segunda ronda (canon por structs + share por gfx): la canonicalización
+ * por la grilla de structs derivados funciona (claves limpias $8108/$8110/$8120 por slot,
+ * el test de disjunción se volvió honesto y el ratio real del bloque bueno ronda 0.8);
+ * los arrastres correctos aparecen ($85ab→$8109/$8111 = el jugador arrastrando la soga).
+ * En MONTY (sin oráculo): los structs de estado se derivan solos ($6300 y $6E00 stride 2,
+ * ~390 votos) y los bloques particionan al 100%, pero cada evento trae un run de VARIOS
+ * bloques a la vez (JSW tenía uno dominante) y la regla de dueño no elige entre bloques →
+ * 0 instancias. LO QUE FALTA: elegir EL bloque-identidad por familia de eventos (p.ej. el
+ * bloque cuyas particiones mejor se alinean con los gfx), y recién después dueño/arrastre
+ * dentro de ese bloque. El assert de conteo en JSW sigue en 0% por esto mismo.
+ *
  * <p>Etapa 3 de la base semántica: deriva {@code instances} y {@code deps} de la capa 1
  * ({@code draw_events} + {@code read_sets}) SIN re-replay, y se verifica contra
  * {@code oracle_truth} imprimiendo números (estilo CallTreeProbe).
@@ -80,6 +91,16 @@ public final class SemanticBuildGeneric {
    *  ventana en el core no dicen nada y hay que puentearlos; re-agarrar la soga en medio
    *  segundo es visualmente el mismo vínculo). */
   private static final int DEP_GAP = Integer.getInteger("build.depgap", 25);
+
+  /** la clave de una corrida, alineada a la grilla del struct derivado que la contiene:
+   *  base + floor((min-base)/stride)*stride. Fuera de todo struct, el mínimo tal cual. */
+  private static int canon(TreeMap<Integer, int[]> structGrid, int m) {
+    Map.Entry<Integer, int[]> s = structGrid.floorEntry(m);
+    if (s == null || m > s.getValue()[0])
+      return m;
+    int stride = s.getValue()[1];
+    return s.getKey() + (m - s.getKey()) / stride * stride;
+  }
 
   /** una instancia acumulando sus eventos; la clave es su subcluster discriminante. */
   private static final class Inst {
@@ -128,6 +149,39 @@ public final class SemanticBuildGeneric {
       }
     }
     long events = evs.size();
+    // la grilla de los STRUCTS derivados (etapa §4, ya verificada) canonicaliza las
+    // corridas: sin esto la clave de un run es el mínimo casual de las hojas presentes
+    // ($8100/$8101/$8108...) y la identidad de un slot se parte en claves inestables —
+    // capas alimentando capas, como pide el doc (§4.3)
+    TreeMap<Integer, int[]> structGrid = new TreeMap<>(); // base -> {end, stride}
+    {
+      // solo structs de ALTA confianza (votos), greedy sin solaparse: la tabla trae
+      // tambien cientos de candidatos debiles y una grilla envenenada canonicaliza mal
+      List<int[]> cand = new ArrayList<>(); // {votos, base, end, stride}
+      // primera corrida sobre una DB fresca: structs no existe todavia (esta misma pasada
+      // lo crea al final); sin grilla la canonicalizacion es identidad y una SEGUNDA
+      // corrida ya la aprovecha — capas alimentando capas, iterando barato sin re-replay
+      try (var st = conn.createStatement(); ResultSet rs = st.executeQuery(
+          "SELECT base, end, stride, slots, evidence FROM structs WHERE stride BETWEEN 2"
+              + " AND 64 AND slots BETWEEN 3 AND 64")) {
+        while (rs.next()) {
+          java.util.regex.Matcher m = java.util.regex.Pattern.compile("votos=(\\d+)")
+              .matcher(rs.getString(5) == null ? "" : rs.getString(5));
+          int votes = m.find() ? Integer.parseInt(m.group(1)) : 0;
+          if (votes >= 500)
+            cand.add(new int[]{votes, rs.getInt(1), rs.getInt(2), rs.getInt(3)});
+        }
+      } catch (java.sql.SQLException noStructsYet) {
+        // primera pasada: grilla vacia, canon = identidad
+      }
+      cand.sort((a, b) -> Integer.compare(b[0], a[0]));
+      for (int[] c : cand) {
+        Map.Entry<Integer, int[]> below = structGrid.floorEntry(c[2]);
+        boolean overlaps = below != null && below.getValue()[0] >= c[1];
+        if (!overlaps)
+          structGrid.put(c[1], new int[]{c[2], c[3]});
+      }
+    }
     // bloques: clusters del universo por BLOCK_GAP; blockOf(hoja) = arranque del cluster
     TreeMap<Integer, Integer> blockStart = new TreeMap<>(); // start -> end
     {
@@ -158,7 +212,7 @@ public final class SemanticBuildGeneric {
         int block = blockStart.floorKey(leaf);
         if (runMin < 0 || block != prevBlock || leaf - prevLeaf > SUB_GAP) {
           if (runMin >= 0 && prevLeaf - runMin <= 8) {
-            runs.add(runMin);
+            runs.add(canon(structGrid, runMin));
             blocks.add(prevBlock);
           }
           runMin = leaf;
@@ -167,7 +221,7 @@ public final class SemanticBuildGeneric {
         prevBlock = block;
       }
       if (runMin >= 0 && prevLeaf - runMin <= 8) {
-        runs.add(runMin);
+        runs.add(canon(structGrid, runMin));
         blocks.add(prevBlock);
       }
       evRuns[i] = runs.stream().mapToInt(Integer::intValue).toArray();
@@ -205,10 +259,13 @@ public final class SemanticBuildGeneric {
       }
     }
     // ratio ≥ 0.9: un discriminante de identidad particiona SIEMPRE; un bloque de
-    // definiciones COMPARTIDAS falla exactamente cuando hay dos guardianes idénticos
+    // definiciones COMPARTIDAS falla exactamente cuando hay dos guardianes idénticos.
+    // 0.75 y no 0.9: con claves canónicas el test detecta las colisiones REALES de
+    // contaminación (un evento arrastrando el slot de otro) que antes pasaban como
+    // claves distintas — el bloque bueno ronda 0.8-0.94, el de defs queda muy abajo
     Set<Integer> partitionBlocks = new TreeSet<>();
     for (Map.Entry<Integer, int[]> e : blockScore.entrySet())
-      if (e.getValue()[0] >= 50 && e.getValue()[0] * 10 >= e.getValue()[1] * 9)
+      if (e.getValue()[0] >= 50 && e.getValue()[0] * 4 >= e.getValue()[1] * 3)
         partitionBlocks.add(e.getKey());
     // bloques estables por gfx: presentes en ≥80% de los eventos de un mismo gráfico
     Map<Integer, Integer> gfxCount = new HashMap<>();
@@ -244,6 +301,29 @@ public final class SemanticBuildGeneric {
       return with * 10 >= events * 6;
     });
     if (Boolean.getBoolean("build.debug")) {
+      System.out.println("grilla de structs usada para canon:");
+      structGrid.forEach((b, v) -> System.out.printf("  $%04x..$%04x stride=%d%n",
+          b, v[0], v[1]));
+      int shown = 0;
+      for (Map.Entry<Integer, List<Integer>> fe : byFrame.entrySet()) {
+        if (fe.getValue().size() < 2 || shown >= 3)
+          continue;
+        StringBuilder sb = new StringBuilder("frame " + fe.getKey() + ":");
+        boolean any = false;
+        for (int i : fe.getValue()) {
+          sb.append(" [");
+          for (int k = 0; k < evRuns[i].length; k++)
+            if (evRuns[i][k] >= 33024 && evRuns[i][k] < 33152) {
+              sb.append(String.format("$%04x ", evRuns[i][k]));
+              any = true;
+            }
+          sb.append("]");
+        }
+        if (any) {
+          System.out.println(sb);
+          shown++;
+        }
+      }
       System.out.println("bloques particionantes (base: particiones/multi):");
       for (int b : partitionBlocks)
         System.out.printf("  $%04x..$%04x: %d/%d%n", b, blockStart.get(b),
@@ -321,13 +401,21 @@ public final class SemanticBuildGeneric {
         if (instBlock.containsKey(evRuns[i][k])
             && partitionBlocks.contains(evBlocks[i][k]))
           runs.add(evRuns[i][k]);
-      // ¿algún run ES la identidad de este gráfico? (co-ocurre en ≥50% de sus eventos)
+      // dueño: el run particionante con mejor asociación al gráfico, SALVO que la
+      // asociación sea de nivel contaminación (<5%: willy cuelga de la soga el 3% de su
+      // vida — eso es arrastre, no identidad). Un tipo que recorre salas reparte su gfx
+      // entre slots (~25%) y le sigue ganando al bloque de definiciones compartido.
       int owner = -1;
-      for (int rn : runs)
-        if (gfx != 0 && gfxCount.getOrDefault(gfx, 0) > 0
-            && gfxRun.getOrDefault(((long) gfx << 32) | rn, 0) * 2
-                >= gfxCount.get(gfx))
+      double best = 0.05;
+      for (int rn : runs) {
+        int total = gfx == 0 ? 0 : gfxCount.getOrDefault(gfx, 0);
+        double share = total == 0 ? 0
+            : gfxRun.getOrDefault(((long) gfx << 32) | rn, 0) / (double) total;
+        if (share > best) {
+          best = share;
           owner = rn;
+        }
+      }
       if (owner < 0 && gfx != 0 && bestStable.containsKey(gfx))
         owner = bestStable.get(gfx);
       if (owner < 0 && runs.size() == 1)
@@ -341,19 +429,42 @@ public final class SemanticBuildGeneric {
       in.frames.add(ev[1]);
       if (gfx != 0)
         in.gfx.add(gfx);
-      ownEvents.merge(owner, 1, Integer::sum);
-      Map<Integer, Integer> lf = leafFreq.computeIfAbsent(owner, k -> new HashMap<>());
-      for (int leaf : sets.get(ev[2]))
-        lf.merge(leaf, 1, Integer::sum);
       // todo run presente que no es la identidad del dueño es ARRASTRE
+      boolean pure = true;
       for (int carried : runs) {
         if (carried == owner)
           continue;
+        pure = false;
         multiPair++;
         for (int f = ev[0]; f <= ev[1]; f++)
           carryByFrame.computeIfAbsent(f, k -> new ArrayList<>())
               .add(new int[]{owner, carried, i});
       }
+      // la frecuencia de hojas se computa SOLO sobre eventos puros: un evento de arrastre
+      // mete el estado del arrastrado en la cuenta del dueño y el share de exclusividad
+      // mataba justo la señal del follower (el bug medido del primer intento)
+      if (pure) {
+        ownEvents.merge(owner, 1, Integer::sum);
+        Map<Integer, Integer> lf = leafFreq.computeIfAbsent(owner, k -> new HashMap<>());
+        for (int leaf : sets.get(ev[2]))
+          lf.merge(leaf, 1, Integer::sum);
+      }
+    }
+    if (Boolean.getBoolean("build.debug")) {
+      System.out.println("instancias por eventos (top 15):");
+      insts.entrySet().stream()
+          .sorted((a, b) -> Integer.compare(b.getValue().events, a.getValue().events))
+          .limit(15).forEach(e -> System.out.printf("  $%04x ev=%d gfx=%s%n", e.getKey(),
+              e.getValue().events, e.getValue().gfx.stream().limit(4).toList()));
+      Map<Long, Integer> carryPairs = new HashMap<>();
+      for (List<int[]> l : carryByFrame.values())
+        for (int[] oc : l)
+          carryPairs.merge(((long) oc[0] << 32) | oc[1], 1, Integer::sum);
+      System.out.println("arrastres (dueño->arrastrada, top 10 por frames):");
+      carryPairs.entrySet().stream()
+          .sorted((a, b) -> Integer.compare(b.getValue(), a.getValue())).limit(10)
+          .forEach(e -> System.out.printf("  $%04x -> $%04x x%d%n", e.getKey() >>> 32,
+              e.getKey() & 0xffffL, e.getValue()));
     }
     // hojas variables por instancia, EXCLUSIVAS: una hoja que aparece en eventos de
     // muchas instancias es maquinaria compartida de POSICIÓN (la tabla de lookup: dos
@@ -533,21 +644,21 @@ public final class SemanticBuildGeneric {
           truth.add(new int[]{rs.getInt(1), rs.getInt(2), rs.getInt(3)});
       }
     }
-    // instancias indexadas por frame; el índice de slot lo calcula EL ASSERT con el layout
-    // del oráculo — dos identidades posibles: el buffer runtime (33024 + 8*slot, la que
-    // la derivación genérica encuentra) o el par de spec (salasBase + sala*256 + 240 +
-    // 2*slot, la de la versión calibrada). El assert entiende las dos.
-    List<int[]> instRanges = new ArrayList<>(); // {first, last, slotOracle}
-    try (var st = conn.createStatement(); ResultSet rs = st.executeQuery(
-        "SELECT frame_first, frame_last, slot FROM instances")) {
-      while (rs.next()) {
-        int key = rs.getInt(3);
-        if (key >= 33024 && key < 33024 + 8 * 8)
-          instRanges.add(new int[]{rs.getInt(1), rs.getInt(2), (key - 33024) / 8});
-        else if (key >= SALAS && key % SALA_BYTES >= SPECS_OFF)
-          instRanges.add(new int[]{rs.getInt(1), rs.getInt(2),
-              (key % SALA_BYTES - SPECS_OFF) / 2});
-      }
+    // el índice de slot lo calcula EL ASSERT con el layout del oráculo — dos identidades
+    // posibles: el buffer runtime (33024 + 8*slot, la que la derivación genérica
+    // encuentra) o el par de spec. Y la actividad es POR EVENTOS CERCANOS (±2 ticks), no
+    // por rangos de época: el slot runtime se reusa entre salas y su época cubre casi
+    // todo el juego (el otro bug medido del primer intento).
+    Map<Integer, TreeSet<Integer>> activity = new TreeMap<>(); // slotOracle -> frames
+    for (Map.Entry<Integer, Inst> e : insts.entrySet()) {
+      int key = e.getKey(), slotOracle = -1;
+      if (key >= 33024 && key < 33024 + 8 * 8)
+        slotOracle = (key - 33024) / 8;
+      else if (key >= SALAS && key % SALA_BYTES >= SPECS_OFF)
+        slotOracle = (key % SALA_BYTES - SPECS_OFF) / 2;
+      if (slotOracle >= 0)
+        activity.computeIfAbsent(slotOracle, k -> new TreeSet<>())
+            .addAll(e.getValue().frames);
     }
     Map<Integer, Set<Integer>> truthSlotsByFrame = new TreeMap<>();
     for (int[] t : truth)
@@ -559,9 +670,11 @@ public final class SemanticBuildGeneric {
         continue;
       samples++;
       Set<Integer> found = new TreeSet<>();
-      for (int[] r : instRanges)
-        if (f >= r[0] && f <= r[1])
-          found.add(r[2]);
+      for (Map.Entry<Integer, TreeSet<Integer>> a : activity.entrySet()) {
+        Integer near = a.getValue().floor(f + 25);
+        if (near != null && near >= f - 25)
+          found.add(a.getKey());
+      }
       if (found.size() == e.getValue().size())
         okCount++;
       if (found.equals(e.getValue()))

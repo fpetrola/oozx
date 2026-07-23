@@ -100,7 +100,10 @@ public final class SemanticCapture {
   public static void main(String[] args) throws Exception {
     System.setProperty("dir.plane", "true");
     GameProfile profile = GameProfile.resolve(new String[0]);
-    OracleVerify.Oracle oracle = OracleVerify.Oracle.load();
+    // el oráculo es el ASSERT de JSW; para cualquier otro juego -Dsemantic.notruth=true
+    // corre sin él (modo consistencia §8.1) y el canvas se descubre solo
+    boolean noTruth = Boolean.getBoolean("semantic.notruth");
+    OracleVerify.Oracle oracle = noTruth ? null : OracleVerify.Oracle.load();
     String rzx = args.length > 0 ? args[0] : profile.rzx;
     String dbPath = args.length > 1 ? args[1] : "analysis/jsw-semantic.db";
     int maxFrames = args.length > 2 ? Integer.parseInt(args[2]) : Integer.MAX_VALUE;
@@ -119,11 +122,20 @@ public final class SemanticCapture {
     int leafMin = Integer.getInteger("semantic.leafmin", 32768);
     int maxEventBytes = Integer.getInteger("semantic.maxEventBytes", 2048);
     int truthEvery = Integer.getInteger("semantic.truth", 1);
-    int bufBase = oracle.root.get("pantalla").getInt("buffer");
+    // canvas: -Dsemantic.canvas=HEX lo fija; "auto" (default sin oráculo) lo descubre por
+    // el delta fuente→destino de la copia al display; con oráculo, el del oráculo
+    String canvasProp = System.getProperty("semantic.canvas", "");
+    int[] bufBase = {-1};
+    if (!canvasProp.isEmpty() && !canvasProp.equals("auto"))
+      bufBase[0] = Integer.parseInt(canvasProp.replace("$", ""), 16);
+    else if (oracle != null && canvasProp.isEmpty())
+      bufBase[0] = oracle.root.get("pantalla").getInt("buffer");
+    Map<Integer, Integer> deltaHisto = new HashMap<>();
 
     SpriteCatalog catalog = new SpriteCatalog(catalogPath, 128);
-    System.out.println("SemanticCapture: " + rzx + " -> " + dbPath
-        + " (catalogo " + catalogPath + ", canvas $4000 + $" + Integer.toHexString(bufBase) + ")");
+    System.out.println("SemanticCapture: " + rzx + " -> " + dbPath + " (catalogo "
+        + catalogPath + ", canvas $4000 + " + (bufBase[0] < 0 ? "auto"
+        : "$" + Integer.toHexString(bufBase[0])) + ")");
 
     Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
     conn.setAutoCommit(false);
@@ -193,7 +205,7 @@ public final class SemanticCapture {
           flushMem(m, patCap, patIds, nextPatId, insPat, insMem, memAggOpen, memRows);
         }
         memOpen.clear();
-        if (frame % truthEvery == 0) {
+        if (oracle != null && frame % truthEvery == 0) {
           // Willy como fila slot=-1: tipo lleva su estado de soga ($85D6, 3..32 = colgado)
           // — el ground truth contra el que se verifica la arista follower(willy->soga)
           insTruth.setInt(1, frame);
@@ -237,7 +249,7 @@ public final class SemanticCapture {
     if (memOn)
       replay.memObserver = (addr, frame, node, routine, write) -> {
         // el canvas es asunto de draw_events; el resto de la RAM es la estructura
-        if (addr < 23296 || (addr >= bufBase && addr < bufBase + CANVAS_BYTES))
+        if (addr < 23296 || (bufBase[0] >= 0 && addr >= bufBase[0] && addr < bufBase[0] + CANVAS_BYTES))
           return;
         MAcc m = memOpen.get(node);
         if (m == null)
@@ -255,13 +267,27 @@ public final class SemanticCapture {
       };
     replay.observer = (addr, frame, node, routine, order, valNode, dirNode) -> {
       int idx;
-      if (addr >= DISPLAY && addr < DISPLAY + CANVAS_BYTES)
+      TaintReplay r = holder[0];
+      if (addr >= DISPLAY && addr < DISPLAY + CANVAS_BYTES) {
         idx = addr - DISPLAY;
-      else if (addr >= bufBase && addr < bufBase + CANVAS_BYTES)
-        idx = addr - bufBase;
+        // canvas auto: el write al display acaba de leer su fuente — el delta dominante
+        // fuente-destino ES el buffer de composicion, sea cual sea el juego
+        if (bufBase[0] < 0 && frame < 3000 && r.lastReadAddr > 23296) {
+          int delta = r.lastReadAddr - addr;
+          if (delta != 0 && deltaHisto.merge(delta, 1, Integer::sum) == 20000) {
+            long total = deltaHisto.values().stream().mapToLong(Integer::intValue).sum();
+            if (20000L * 10 >= total * 4) {
+              bufBase[0] = DISPLAY + delta;
+              System.out.printf("canvas descubierto: buffer de composicion en $%04x"
+                  + " (delta $%04x, %d%% de las copias)%n", bufBase[0], delta,
+                  20000L * 100 / total);
+            }
+          }
+        }
+      } else if (bufBase[0] >= 0 && addr >= bufBase[0] && addr < bufBase[0] + CANVAS_BYTES)
+        idx = addr - bufBase[0];
       else
         return;
-      TaintReplay r = holder[0];
       Ev ev = open.get(node);
       if (ev == null) {
         int parent = node > 0 && node < r.nodeParent.size ? r.nodeParent.get(node) : 0;
