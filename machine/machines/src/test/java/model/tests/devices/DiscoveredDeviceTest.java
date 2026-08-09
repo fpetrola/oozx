@@ -1,0 +1,85 @@
+/*
+ *
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *      http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *
+ */
+
+package model.tests.devices;
+
+import com.fpetrola.oozx.Speccy;
+import com.fpetrola.oozx.speccy.machine.Spec48;
+import com.fpetrola.oozx.speccy.machine.Spec128;
+import com.fpetrola.oozx.speccy.modules.z80.SpectrumZ80Clock;
+import com.fpetrola.oozx.speccy.modules.sound.SoundCard;
+import com.fpetrola.oozx.speccy.modules.sound.SilentSoundDevice;
+import model.tests.devices.outside.PretendInterface;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/**
+ * Confirms peripherals are discovered purely via ServiceLoader on the classpath: PretendInterface
+ * lives only in test sources, referenced by no main code or module list, yet must still be found
+ * and behave as a full device - proving a new peripheral needs only a jar, not code changes.
+ */
+class DiscoveredDeviceTest {
+
+  private Speccy speccy() {
+    Speccy speccy = Speccy.create(new SpectrumZ80Clock(),
+        binder -> binder.bind(SoundCard.class).to(SilentSoundDevice.class));
+    speccy.init();
+    speccy.picture.active = false;
+    return speccy;
+  }
+
+  @Test
+  void aDeviceNobodyCompiledInIsFoundAndRegistered() {
+    Speccy speccy = speccy();
+    assertNotNull(speccy.peripheralRegistry.find(PretendInterface.class),
+        "the device on the classpath was never registered");
+  }
+
+  /** It said it is a 48K box, and that alone decides where it is switched on. */
+  @Test
+  void itIsSwitchedOnForTheMachineItSaidItFits() {
+    Speccy speccy = speccy();
+
+    speccy.machine.select(speccy.machine.model(Spec48.class));
+    assertTrue(speccy.peripheralRegistry.isActive(PretendInterface.class), "not switched on for a 48K");
+    assertSame(speccy.machine.model(Spec48.class), ((PretendInterface) speccy.peripheralRegistry.find(PretendInterface.class)).switchedOnFor(),
+        "switched on without being told which machine for");
+
+    speccy.machine.select(speccy.machine.model(Spec128.class));
+    assertFalse(speccy.peripheralRegistry.isActive(PretendInterface.class), "still on where it does not fit");
+  }
+
+  /** And the whole point: its port answers. */
+  @Test
+  void itAnswersItsPort() {
+    Speccy speccy = speccy();
+    speccy.machine.select(speccy.machine.model(Spec48.class));
+
+    assertEquals(PretendInterface.ANSWER, speccy.ports.read(PretendInterface.PORT),
+        "the port of a discovered device did not answer");
+
+    speccy.machine.select(speccy.machine.model(Spec128.class));
+    assertEquals((byte) 0xff, speccy.ports.read(PretendInterface.PORT),
+        "it went on answering on a machine it does not fit");
+  }
+}
