@@ -29,7 +29,8 @@ public interface LibretroCore extends Library {
   int retro_get_beam_x();
   int retro_get_beam_y();
 
-  LibretroCore INSTANCE = Native.load("/home/fernando/detodo/desarrollo/m/zx/emus/fuse-libretro/fuse_libretro.so", LibretroCore.class);
+//  LibretroCore INSTANCE = Native.load("/home/fernando/detodo/desarrollo/m/zx/emus/fuse-libretro/fuse_libretro.so", LibretroCore.class);
+  LibretroCore INSTANCE = null;
 
   void retro_init();
 
