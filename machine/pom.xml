@@ -23,6 +23,7 @@
         <module>machines/disk</module>
         <module>machines</module>
         <module>devices</module>
+        <module>generated</module>
     </modules>
 
 </project>
