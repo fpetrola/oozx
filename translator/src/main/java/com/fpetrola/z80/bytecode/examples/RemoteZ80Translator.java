@@ -21,7 +21,7 @@ package com.fpetrola.z80.bytecode.examples;
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
 import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.jspeccy.SnapshotLoader;
+import com.fpetrola.emulation.helpers.snapshots.SnapshotLoader;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;

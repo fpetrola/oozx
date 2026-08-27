@@ -2,9 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package machine;
+package com.fpetrola.emulation.helpers.machine;
 
-import joystickinput.JoystickRaw;
+import com.fpetrola.emulation.helpers.configuration.KeyboardJoystickType;
+import com.fpetrola.emulation.helpers.joystickinput.JoystickRaw;
 
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -73,7 +74,7 @@ public class Keyboard implements KeyListener {
     private static final int KEY_RELEASED_BIT6 = 0x40; // for Kempston fire button 3
     private static final int KEY_RELEASED_BIT7 = 0x80; // for Fuller fire button
 
-    public Keyboard(configuration.KeyboardJoystickType config, JoystickRaw joy1, JoystickRaw joy2) {
+    public Keyboard(KeyboardJoystickType config, JoystickRaw joy1, JoystickRaw joy2) {
         reset();
         setJoystickModel(config.getJoystickModel());
         mapPCKeys = config.isMapPCKeys();

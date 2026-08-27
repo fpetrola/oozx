@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package snapshots;
+package com.fpetrola.emulation.helpers.snapshots;
 
 import java.io.File;
 

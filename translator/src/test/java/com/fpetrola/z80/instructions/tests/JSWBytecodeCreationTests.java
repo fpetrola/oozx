@@ -24,7 +24,7 @@ import com.fpetrola.z80.bytecode.examples.SnapshotHelper;
 import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.helpers.Helper;
-import com.fpetrola.z80.jspeccy.SnapshotLoader;
+import com.fpetrola.emulation.helpers.snapshots.SnapshotLoader;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
 import io.exemplary.guice.Modules;

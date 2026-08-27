@@ -16,13 +16,11 @@
  *
  */
 
-package com.fpetrola.z80.jspeccy;
+package com.fpetrola.z80.bytecode;
 
-import com.fpetrola.z80.bytecode.DefaultRegistersSetter;
-import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.cpu.RegistersGetter;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.registers.RegisterName;
-
 import z80core.IntMode;
 
 public class RegistersBase extends DefaultRegistersSetter implements RegistersGetter {

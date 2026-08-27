@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package snapshots;
+package com.fpetrola.emulation.helpers.snapshots;
 
-import machine.Keyboard.JoystickModel;
-import machine.MachineTypes;
+import com.fpetrola.emulation.helpers.machine.Keyboard.JoystickModel;
+import com.fpetrola.emulation.helpers.machine.MachineTypes;
 import z80core.IntMode;
 
 import java.io.*;

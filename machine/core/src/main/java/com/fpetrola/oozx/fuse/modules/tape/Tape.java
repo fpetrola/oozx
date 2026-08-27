@@ -40,8 +40,9 @@
  */
 package com.fpetrola.oozx.fuse.modules.tape;
 
+import com.fpetrola.emulation.helpers.machine.ClockTimeoutListener;
 import com.fpetrola.oozx.SpectrumZ80Clock;
-import machine.MachineTypes;
+import com.fpetrola.emulation.helpers.machine.MachineTypes;
 
 import javax.swing.table.AbstractTableModel;
 import java.io.BufferedInputStream;
@@ -59,7 +60,7 @@ import java.util.Objects;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
-public class Tape implements machine.ClockTimeoutListener {
+public class Tape implements ClockTimeoutListener {
 
     public boolean microphone;
     //    private Z80 cpu;

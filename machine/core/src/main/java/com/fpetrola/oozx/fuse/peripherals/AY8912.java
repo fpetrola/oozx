@@ -22,7 +22,7 @@
  */
 package com.fpetrola.oozx.fuse.peripherals;
 
-import snapshots.AY8912State;
+import com.fpetrola.emulation.helpers.snapshots.AY8912State;
 
 import java.util.Arrays;
 

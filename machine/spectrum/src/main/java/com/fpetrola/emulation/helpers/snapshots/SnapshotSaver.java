@@ -16,16 +16,15 @@
  *
  */
 
-package com.fpetrola.z80.jspeccy;
+package com.fpetrola.emulation.helpers.snapshots;
 
 import com.fpetrola.z80.cpu.RegistersGetter;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.transformations.Base64Utils;
 import com.fpetrola.emulation.SnapshotUnicodePacker;
-import machine.Keyboard;
-import snapshots.*;
-import machine.MachineTypes;
+import com.fpetrola.emulation.helpers.machine.Keyboard;
+import com.fpetrola.emulation.helpers.machine.MachineTypes;
 import z80core.IntMode;
 
 import java.io.ByteArrayInputStream;

@@ -27,7 +27,7 @@ import com.fpetrola.oozx.fuse.peripherals.t.ZXSpectrumDesktopApp;
 import com.fpetrola.z80.memory.Memory;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.SolarizedLightTheme;
-import snapshots.SpectrumState;
+import com.fpetrola.emulation.helpers.snapshots.SpectrumState;
 
 import java.awt.*;
 import java.io.File;

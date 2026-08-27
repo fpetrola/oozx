@@ -18,9 +18,7 @@
 
 package com.fpetrola.oozx.fuse.peripherals.t;
 
-import com.fpetrola.oozx.api.GameEntry;
 import com.fpetrola.oozx.api.Hit;
-import com.fpetrola.oozx.api.Screen;
 import com.fpetrola.oozx.api.ZxInfoApiHandler;
 import com.fpetrola.oozx.fuse.config.OOZxConfiguration;
 import com.fpetrola.oozx.fuse.peripherals.EmulatorCore;
@@ -28,15 +26,12 @@ import com.fpetrola.oozx.fuse.peripherals.EmulatorListener;
 import com.fpetrola.oozx.fuse.peripherals.SettingsDialog;
 import com.fpetrola.oozx.fuse.pokes.PokesManager;
 import com.fpetrola.oozx.fuse.pokes.PokesDialog;
-import com.fpetrola.z80.jspeccy.SnapshotSaver;
+import com.fpetrola.emulation.helpers.snapshots.SnapshotSaver;
 import com.fpetrola.z80.cpu.RegistersGetter;
 import com.fpetrola.z80.cpu.State;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.*;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
-import snapshots.SpectrumState;
+import com.fpetrola.emulation.helpers.snapshots.SpectrumState;
 
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
@@ -44,9 +39,6 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;

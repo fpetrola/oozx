@@ -18,13 +18,13 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
-import com.fpetrola.z80.jspeccy.RegistersBase;
-import com.fpetrola.z80.jspeccy.SnapshotLoader;
+import com.fpetrola.emulation.helpers.snapshots.*;
+import com.fpetrola.z80.bytecode.RegistersBase;
+import com.fpetrola.emulation.helpers.snapshots.SnapshotLoader;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.transformations.Base64Utils;
 import org.apache.commons.lang3.StringUtils;
-import snapshots.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

@@ -22,10 +22,9 @@ import com.fpetrola.oozx.Fuse;
 import com.fpetrola.oozx.fuse.OOSpectrumConnector;
 import com.fpetrola.oozx.fuse.bridge.FuseBaseForTests;
 import com.fpetrola.oozx.fuse.sound.JavaSoundDevice;
-import com.fpetrola.z80.jspeccy.RegistersBase;
-import com.fpetrola.z80.jspeccy.SnapshotSaver;
+import com.fpetrola.emulation.helpers.snapshots.SnapshotSaver;
 import org.junit.jupiter.api.*;
-import snapshots.SpectrumState;
+import com.fpetrola.emulation.helpers.snapshots.SpectrumState;
 
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static org.junit.jupiter.api.Assertions.assertEquals;

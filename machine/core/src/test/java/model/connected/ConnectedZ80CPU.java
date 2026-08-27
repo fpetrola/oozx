@@ -18,7 +18,6 @@
 
 package model.connected;
 
-import machine.MachineTypes;
 import model.interfaces.IZ80CPU;
 import model.tests.TestDriver;
 

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package joystickinput;
+package com.fpetrola.emulation.helpers.joystickinput;
 
 /**
  *
