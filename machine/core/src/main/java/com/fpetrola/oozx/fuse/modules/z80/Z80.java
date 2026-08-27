@@ -29,6 +29,7 @@ import com.fpetrola.oozx.fuse.peripherals.*;
 import com.fpetrola.oozx.fuse.pokes.PokFile;
 import com.fpetrola.oozx.fuse.pokes.PokInstruction;
 import com.fpetrola.z80.cpu.*;
+import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.jspeccy.RegistersBase;
 import com.fpetrola.z80.jspeccy.SnapshotLoader;
