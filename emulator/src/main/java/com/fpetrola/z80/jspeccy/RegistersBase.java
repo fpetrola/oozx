@@ -22,7 +22,6 @@ import com.fpetrola.z80.bytecode.DefaultRegistersSetter;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.cpu.RegistersGetter;
 import com.fpetrola.z80.registers.RegisterName;
-import snapshots.Z80State;
 
 import z80core.IntMode;
 
@@ -172,48 +171,6 @@ public class RegistersBase extends DefaultRegistersSetter implements RegistersGe
     return getRegister(RegisterName.DE).read();
   }
 
-  public final void setZ80State(Z80State state) {
-    try {
-      Thread.sleep(100);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-    setRegA(state.getRegA());
-    setFlags(state.getRegF());
-    setRegB(state.getRegB());
-    setRegC(state.getRegC());
-    setRegD(state.getRegD());
-    setRegE(state.getRegE());
-    setRegH(state.getRegH());
-    setRegL(state.getRegL());
-    setRegAx(state.getRegAx());
-    setRegFx(state.getRegFx());
-    setRegBx(state.getRegBx());
-    setRegCx(state.getRegCx());
-    setRegDx(state.getRegDx());
-    setRegEx(state.getRegEx());
-    setRegHx(state.getRegHx());
-    setRegLx(state.getRegLx());
-    setRegIX(state.getRegIX());
-    setRegIY(state.getRegIY());
-    setRegSP(state.getRegSP());
-    setRegPC(state.getRegPC());
-    setRegI(state.getRegI());
-    setRegR(state.getRegR());
-    setMemptr(state.getMemPtr());
-    setHalted(state.isHalted());
-    setFfIFF1(state.isIFF1());
-    setFfIFF2(state.isIFF2());
-    setModeINT(state.getIM().ordinal());
-    setActiveINT(state.isINTLine());
-    setPendingEI(state.isPendingEI());
-    setActiveNMI(state.isNMI());
-    setFlagQ(false);
-    setLastFlagQ(state.isFlagQ());
-
-//    getState().updateFromEmulator();
-  }
-
   public final boolean isIFF1() {
     return isFfIFF1();
   }
@@ -251,42 +208,6 @@ public class RegistersBase extends DefaultRegistersSetter implements RegistersGe
 
   public final boolean isPendingEI() {
     return state.isPendingEI();
-  }
-
-  public final Z80State getZ80State() {
-    Z80State state = new Z80State();
-    state.setRegA(getRegA());
-    state.setRegF(getFlags());
-    state.setRegB(getRegB());
-    state.setRegC(getRegC());
-    state.setRegD(getRegD());
-    state.setRegE(getRegE());
-    state.setRegH(getRegH());
-    state.setRegL(getRegL());
-    state.setRegAx(getRegAx());
-    state.setRegFx(getRegFx());
-    state.setRegBx(getRegBx());
-    state.setRegCx(getRegCx());
-    state.setRegDx(getRegDx());
-    state.setRegEx(getRegEx());
-    state.setRegHx(getRegHx());
-    state.setRegLx(getRegLx());
-    state.setRegIX(getRegIX());
-    state.setRegIY(getRegIY());
-    state.setRegSP(getRegSP());
-    state.setRegPC(getRegPC());
-    state.setRegI(getRegI());
-    state.setRegR(getRegR());
-    state.setMemPtr(getMemptr());
-    state.setHalted(isHalted());
-    state.setIFF1(isFfIFF1());
-    state.setIFF2(isFfIFF2());
-    state.setIM(IntMode.values()[getModeINT()]);
-    state.setINTLine(isActiveINT());
-    state.setPendingEI(isPendingEI());
-    state.setNMI(isActiveNMI());
-    state.setFlagQ(isLastFlagQ());
-    return state;
   }
 
   public boolean isFlagQ() {

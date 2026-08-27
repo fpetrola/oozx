@@ -24,33 +24,22 @@
 
     <parent>
         <groupId>com.fpetrola</groupId>
-        <artifactId>oozx</artifactId>
+        <artifactId>machine</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>integration</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>spectrum</artifactId>
+    <packaging>jar</packaging>
+
+    <name>spectrum</name>
+    <description>ZX Spectrum machine model: snapshot formats, keyboard, joystick and machine timings</description>
 
     <dependencies>
-        <dependency>
-            <groupId>com.fpetrola</groupId>
-            <artifactId>bytecode</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>emulator</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>com.fpetrola</groupId>
-            <artifactId>routines</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fpetrola</groupId>
-            <artifactId>virtual</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
     </dependencies>
+
 </project>

@@ -19,6 +19,7 @@
 package com.fpetrola.z80.minizx.emulation;
 
 import com.fpetrola.z80.jspeccy.RegistersBase;
+import com.fpetrola.z80.jspeccy.SnapshotLoader;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.transformations.Base64Utils;
@@ -77,7 +78,12 @@ public class MiniZXWithEmulationBase {
   private static void loadIntoMemory(State state, SpectrumState snapState) {
     RegistersBase registersBase = new RegistersBase(state);
 
-    registersBase.setZ80State(snapState.getZ80State());
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    SnapshotLoader.setZ80State(registersBase, snapState.getZ80State());
 
     MemoryState memoryState = snapState.getMemoryState();
     Memory memory = state.getMemory();

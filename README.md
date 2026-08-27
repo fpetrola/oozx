@@ -238,10 +238,10 @@ The project is organized into focused modules:
 
 - **`emulator`**: Core Z80 CPU emulation engine with memory management
 - **`virtual`**: Virtual register abstractions and dataflow analysis
-- **`machine`**: Desktop application UI and integration layer
+- **`machine/spectrum`**: ZX Spectrum machine model: snapshot formats, keyboard, joystick and machine timings
+- **`machine/core`**: Desktop application UI and integration layer
 - **`translator`**: Game-to-Java bytecode translation system
 - **`bytecode`**: Dynamic bytecode generation and execution
-- **`integration`**: Snapshot save/load and system integration
 - **`blocks`**: Instruction block analysis for translation
 - **`routines`**: Game-specific routine detection and analysis
 - **`se`**: Symbolic execution engine for path analysis

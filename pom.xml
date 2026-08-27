@@ -29,7 +29,6 @@
     <modules>
         <module>bytecode</module>
         <module>virtual</module>
-        <module>integration</module>
         <module>translator</module>
         <module>emulator</module>
         <module>blocks</module>
