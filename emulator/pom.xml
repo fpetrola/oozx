@@ -25,11 +25,10 @@
     <parent>
         <groupId>com.fpetrola</groupId>
         <artifactId>oozx</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.2-alu-SNAPSHOT</version>
     </parent>
 
     <artifactId>emulator</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
 
     <dependencies>
         <!-- compile -->

@@ -25,28 +25,27 @@
     <parent>
         <groupId>com.fpetrola</groupId>
         <artifactId>oozx</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.2-alu-SNAPSHOT</version>
     </parent>
 
     <groupId>com.fpetrola</groupId>
     <artifactId>se</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>emulator</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>blocks</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>routines</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

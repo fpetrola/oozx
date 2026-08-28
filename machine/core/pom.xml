@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.fpetrola</groupId>
         <artifactId>machine</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.2-alu-SNAPSHOT</version>
     </parent>
 
     <artifactId>core</artifactId>
@@ -21,17 +21,17 @@
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>bytecode</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>emulator</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>spectrum</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- compile -->
