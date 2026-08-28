@@ -38,7 +38,7 @@ public class Fuse {
   public final Sound sound;
   public SpectrumZ80Clock zxClock;
   public Settings settings;
-  public boolean alive;
+  public final EmulationSession session = new EmulationSession();
   private final Module module;
   public Memory memory;
   public Display display;
@@ -72,7 +72,6 @@ public class Fuse {
     zxClock = spectrumZ80Clock;
     settings = new Settings();
     startupManager = new StartupManager();
-    alive = true;
     module = new Module();
     memory = new Memory(zxClock, module, settings);
     uiDisplay = new UiDisplay();
@@ -90,7 +89,7 @@ public class Fuse {
     input = new Input(joystick, keyboard, settings);
     timer = new Timer(eventManager, sound, settings, tape);
     machine = new Machine(eventManager, memory, display, ula, zxClock, uiDisplay, timer, module, settings, sound);
-    z80 = new Z80(eventManager, memory, display, ula, machine, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer, module, this, settings, tape);
+    z80 = new Z80(eventManager, memory, display, ula, machine, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer, module, session, sound, settings, tape);
     spec48 = new Spec48(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, sound);
     Fdd fdd = new Fdd(settings);
     UPDFdc uPDFdc = new UPDFdc(settings);
@@ -103,6 +102,10 @@ public class Fuse {
     specPlus2a = new SpecPlus2A(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, fdd, uPDFdc, sound);
     specPlus3e = new SpecPlus3E(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, fdd, uPDFdc, sound);
     spec48Ntsc = new Spec48Ntsc(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, sound);
+  }
+
+  public boolean isAlive() {
+    return session.isAlive();
   }
 
   public void init() {

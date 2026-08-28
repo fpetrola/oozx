@@ -41,6 +41,7 @@ public class Machine implements ZxModule {
   private final Timer timer;
 
   public List<Spectrum> machineTypes = new ArrayList<>();
+  private Spectrum defaultMachine;
   private final List<MachineChangeListener> machineChangeListeners = new ArrayList<>();
   private Sound sound;
 
@@ -62,8 +63,15 @@ public class Machine implements ZxModule {
   }
 
   public void addMachine(Spectrum spectrumMachine) {
+    // The first model registered is the default one, the 48K.
+    if (defaultMachine == null) defaultMachine = spectrumMachine;
     machineTypes.add(spectrumMachine);
     setConstTimings(spectrumMachine);
+  }
+
+  /** Switching models goes through the default one first, so the new machine starts from a known state. */
+  public int selectDefault() {
+    return select(defaultMachine);
   }
 
   public int select(SpectrumMachine type) {

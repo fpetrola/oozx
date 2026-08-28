@@ -150,7 +150,7 @@ public class OOSpectrumLauncher {
     autoLoader = null;
 
     scheduledExecutorService.schedule(() -> {
-      while (fuse.alive) {
+      while (fuse.isAlive()) {
         // Stepped from this thread so the keystrokes cannot race the loop that reads them.
         if (tapeAutoLoader != null && !tapeAutoLoader.isDone()) {
           tapeAutoLoader.step();

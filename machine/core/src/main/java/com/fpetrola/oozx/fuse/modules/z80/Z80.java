@@ -81,13 +81,14 @@ public class Z80 implements ZxModule, Cpu {
   public EmulatorCore mockCore;
   private Runnable changeMachine;
   private final Module module;
-  private final Fuse fuse;
+  private final EmulationSession session;
+  private final Sound sound;
   private final Settings settings;
   private final Tape tape;
   private final byte[][] screenBytes = new byte[1000][1000];
   private Memory memory1;
 
-  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Machine machine, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer, Module module, Fuse fuse, Settings settings, Tape tape) {
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Machine machine, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer, Module module, EmulationSession session, Sound sound, Settings settings, Tape tape) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
@@ -100,7 +101,8 @@ public class Z80 implements ZxModule, Cpu {
     this.uiDisplay = uiDisplay;
     this.timer = timer;
     this.module = module;
-    this.fuse = fuse;
+    this.session = session;
+    this.sound = sound;
     this.settings = settings;
     this.tape = tape;
   }
@@ -446,11 +448,11 @@ public class Z80 implements ZxModule, Cpu {
       }
 
       public KeyListener getKeyListener() {
-        return new SwingKeyboard(fuse.keyboard, fuse.input);
+        return new SwingKeyboard(keyboard, input);
       }
 
       public void finishEmulation() {
-        fuse.alive = false;
+        session.finish();
       }
 
       public boolean isPaused() {
@@ -475,7 +477,7 @@ public class Z80 implements ZxModule, Cpu {
           changeSpeed1(emulationSpeed);
 //          timer.estimateReset();
         } else if (option.equals("mute")) {
-          fuse.sound.soundEnabled = !(boolean) value;
+          sound.soundEnabled = !(boolean) value;
 //          timer.estimateReset();
         } else if (option.equals("pause")) {
           emulatorPaused = (boolean) value;
@@ -500,7 +502,7 @@ public class Z80 implements ZxModule, Cpu {
       }
 
       public boolean isMuted() {
-        return !fuse.sound.soundEnabled;
+        return !sound.soundEnabled;
       }
 
       public State getState() {
@@ -536,7 +538,7 @@ public class Z80 implements ZxModule, Cpu {
       public void onModelChanged(String model) {
         changeMachine = () -> {
           machine.getMachineTypes().stream().filter(m -> m.getName().equals(model)).forEach(type -> {
-            machine.select(fuse.spec48);
+            machine.selectDefault();
             machine.select(type);
           });
         };
@@ -580,8 +582,8 @@ public class Z80 implements ZxModule, Cpu {
     settings.current.emulationSpeed = emulationSpeed;
     zxClock.addTStates(-zxClock.getTStates() + 60000);
     timer.changeSpeed(emulationSpeed);
-    fuse.sound.end();
-    fuse.sound.init(false);
+    sound.end();
+    sound.init(false);
   }
 
 }
