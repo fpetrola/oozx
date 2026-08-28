@@ -1274,6 +1274,29 @@ public class Tape implements ClockTimeoutListener {
         return true;
     }
 
+
+    /**
+     * Turns a block's pause field, in milliseconds, into the T-state pause to play after it.
+     * <p>
+     * Two rules apply once this is the last block on the tape. A very long pause is cut short,
+     * since there is nothing left to wait for. And a zero pause, which normally means "run
+     * straight into the next block", has to become a short one: with no next block LAST_PULSE
+     * falls through to TZX_HEADER and stops the tape in the same tick, cutting the final edge
+     * off before the ROM has finished the byte it is reading. The ROM reports that as a tape
+     * loading error even though every data byte arrived.
+     * <p>
+     * Call after idxHeader has been advanced past the block being decoded.
+     */
+    private int endBlockPauseFor(int pauseInMillis) {
+        int pause = pauseInMillis;
+        if (idxHeader >= nOffsetBlocks) {
+            if (pause > 1000 || pause == 0) {
+                pause = 1;
+            }
+        }
+        return pause * (END_BLOCK_PAUSE / 1000);
+    }
+
     private void decodeTzxHeader() {
         boolean repeat = true;
 
@@ -1301,10 +1324,7 @@ public class Tape implements ClockTimeoutListener {
                             (tapeBuffer[tapePos] & 0xff) < 0x80 ? HEADER_PULSES : DATA_PULSES;
                     statePlay = State.LEADER_NOCHG;
                     idxHeader++;
-                    if (idxHeader >= nOffsetBlocks && endBlockPause > 1000) {
-                        endBlockPause = 1;
-                    }
-                    endBlockPause *= (END_BLOCK_PAUSE / 1000);
+                    endBlockPause = endBlockPauseFor(endBlockPause);
                     repeat = false;
                     break;
                 case 0x11: // Turbo speed data block
@@ -1323,10 +1343,7 @@ public class Tape implements ClockTimeoutListener {
                     // Cambio deshecho el 23/09/2011
                     statePlay = State.LEADER_NOCHG;
                     idxHeader++;
-                    if (idxHeader >= nOffsetBlocks && endBlockPause > 1000) {
-                        endBlockPause = 1;
-                    }
-                    endBlockPause *= (END_BLOCK_PAUSE / 1000);
+                    endBlockPause = endBlockPauseFor(endBlockPause);
                     repeat = false;
                     break;
                 case 0x12: // Pure Tone Block
@@ -1348,28 +1365,27 @@ public class Tape implements ClockTimeoutListener {
                     zeroLenght = readInt(tapeBuffer, tapePos + 1, 2);
                     oneLenght = readInt(tapeBuffer, tapePos + 3, 2);
                     bitsLastByte = tapeBuffer[tapePos + 5] & 0xff;
-                    endBlockPause = readInt(tapeBuffer, tapePos + 6, 2)
-                            * (END_BLOCK_PAUSE / 1000);
+                    endBlockPause = readInt(tapeBuffer, tapePos + 6, 2);
                     blockLen = readInt(tapeBuffer, tapePos + 8, 3);
                     tapePos += 11;
                     statePlay = State.NEWBYTE_NOCHG;
                     idxHeader++;
+                    endBlockPause = endBlockPauseFor(endBlockPause);
                     repeat = false;
                     break;
                 case 0x15: // Direct Data Block
                     zeroLenght = readInt(tapeBuffer, tapePos + 1, 2);
-                    endBlockPause = readInt(tapeBuffer, tapePos + 3, 2)
-                            * (END_BLOCK_PAUSE / 1000);
+                    endBlockPause = readInt(tapeBuffer, tapePos + 3, 2);
                     bitsLastByte = tapeBuffer[tapePos + 5] & 0xff;
                     blockLen = readInt(tapeBuffer, tapePos + 6, 3);
                     tapePos += 9;
                     statePlay = State.NEWDR_BYTE;
                     idxHeader++;
+                    endBlockPause = endBlockPauseFor(endBlockPause);
                     repeat = false;
                     break;
                 case 0x18: // CSW Recording Block
-                    endBlockPause = readInt(tapeBuffer, tapePos + 5, 2)
-                            * (END_BLOCK_PAUSE / 1000);
+                    endBlockPause = readInt(tapeBuffer, tapePos + 5, 2);
                     cswStatesSample = 3500000.0f / readInt(tapeBuffer, tapePos + 7, 3);
                     blockLen = readInt(tapeBuffer, tapePos + 1, 4) - 10;
                     if (tapeBuffer[tapePos + 10] == 0x02) {
@@ -1381,6 +1397,7 @@ public class Tape implements ClockTimeoutListener {
                     }
                     tapePos += 15;
                     idxHeader++;
+                    endBlockPause = endBlockPauseFor(endBlockPause);
                     // al entrar la primera vez deshará el cambio
                     earBit ^= EAR_MASK;
                     repeat = false;

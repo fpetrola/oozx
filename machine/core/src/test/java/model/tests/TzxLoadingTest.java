@@ -65,17 +65,16 @@ public class TzxLoadingTest extends FuseBaseForTests {
       "dark fusion",
       "cybernoid",
       "target renegade",
+      "trantor",
+      "manic miner",
+      "the great escape",
   };
 
   /**
    * Games that do not load yet. They are reported, not asserted, so the suite stays green while
    * the loader is being worked on; move one up to EXPECTED_TO_LOAD as soon as it passes.
    */
-  private static final String[] KNOWN_BROKEN = {
-      "trantor",
-      "manic miner",
-      "the great escape",
-  };
+  private static final String[] KNOWN_BROKEN = {};
 
   private static final String[] GAMES = concat(EXPECTED_TO_LOAD, KNOWN_BROKEN);
 
