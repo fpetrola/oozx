@@ -950,9 +950,9 @@ public class ZXSpectrumDesktopApp extends JFrame {
         KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
     emulatorMenu.add(newEmulatorAction);
 
-    JMenuItem insertTapeItem = new JMenuItem("Insert Tape into Emulator...");
-    insertTapeItem.addActionListener(e -> insertTapeIntoActiveEmulator());
-    emulatorMenu.add(insertTapeItem);
+    JMenuItem openTapeItem = new JMenuItem("Open Tape...");
+    openTapeItem.addActionListener(e -> chooseTapeForBrowser());
+    emulatorMenu.add(openTapeItem);
 
     JMenuItem tapeBrowserItem = new JMenuItem("Cassette Browser");
     tapeBrowserItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK));
@@ -1555,49 +1555,33 @@ public class ZXSpectrumDesktopApp extends JFrame {
     return active == null ? null : tapesByCore.get(active.emulatorCore);
   }
 
-  /** Opens the cassette browser, or brings the open one to the front. It follows the front machine. */
-  public void showTapeBrowser() {
-    SwingUtilities.invokeLater(() -> {
-      for (JInternalFrame frame : desktop.getAllFrames()) {
-        if (frame instanceof TapeBrowserInternalFrame) {
-          frame.setVisible(true);
-          frame.toFront();
-          return;
-        }
-      }
-      TapeBrowserInternalFrame browser =
-          new TapeBrowserInternalFrame(this::getActiveTape, this::insertTapeIntoActiveEmulator);
-      desktop.add(browser);
-      browser.setVisible(true);
-      browser.toFront();
-    });
+  private TapeBrowserInternalFrame tapeBrowser;
+
+  /** Opens the cassette browser, or brings the open one to the front. */
+  public TapeBrowserInternalFrame showTapeBrowser() {
+    if (tapeBrowser == null || tapeBrowser.isClosed()) {
+      tapeBrowser = new TapeBrowserInternalFrame(this::getActiveTape, this::chooseTapeForBrowser);
+      desktop.add(tapeBrowser);
+    }
+    tapeBrowser.setVisible(true);
+    tapeBrowser.toFront();
+    return tapeBrowser;
   }
 
-  /** Puts a tape into the machine in front, without starting a new one. */
-  public void insertTapeIntoActiveEmulator() {
-    com.fpetrola.oozx.fuse.modules.tape.Tape tape = getActiveTape();
-    if (tape == null) {
-      JOptionPane.showMessageDialog(this,
-          "Open an emulator first: a tape is inserted into the machine in front.",
-          "No emulator", JOptionPane.WARNING_MESSAGE);
-      return;
-    }
+  /** Opens the browser on a cassette already loaded and running, as a game from the browser is. */
+  public void showTapeBrowser(java.io.File tapeFile, com.fpetrola.oozx.fuse.modules.tape.Tape deck) {
+    SwingUtilities.invokeLater(() -> showTapeBrowser().adopt(tapeFile, deck));
+  }
 
+  /** Asks for a tape file and loads it into the cassette browser. No emulator is needed. */
+  public void chooseTapeForBrowser() {
     fileChooser.setCurrentDirectory(new java.io.File(config.getLastOpenDirectory()));
     if (fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
       return;
     }
     java.io.File file = fileChooser.getSelectedFile();
     config.setLastOpenDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
-
-    tape.stop();
-    tape.eject();
-    if (!tape.insert(file)) {
-      JOptionPane.showMessageDialog(this,
-          "The deck could not read " + file.getName() + ".", "Insert tape", JOptionPane.ERROR_MESSAGE);
-      return;
-    }
-    showTapeBrowser();
+    showTapeBrowser().openTape(file);
   }
 
   public EmulatorInternalFrame createNewEmulator(EmulatorCore core1) {

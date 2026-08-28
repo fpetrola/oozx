@@ -116,8 +116,12 @@ public class Ula implements ZxModule, MachineChangeListener {
 
     display.setLoresBorder(b & 0x07);
 
+      // While a tape plays, its level goes to the speaker as well, which is the loading sound.
+      // Sampling it here rather than on every edge is enough because a loader writes the border
+      // once per edge to draw the stripes, so this runs at the rate of the signal itself.
+      boolean earIn = tape.isTapePlaying() && tape.isEarHigh();
       sound.beeper(z80Clock.getTStates(),
-          ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || tape.microphone ? 1 : 0), b & 0xff);
+          ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || tape.microphone || earIn ? 1 : 0), b & 0xff);
 
 //    sound.beeper(z80Clock.getTStates(), (int) (Math.random() * 4));
 

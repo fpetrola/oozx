@@ -77,7 +77,7 @@ public class OOSpectrumLauncher {
       // browser can drive whichever emulator is in front.
       appHolder[0].registerTape(mockCore, fuse.tape);
       if (string != null && isTape(string)) {
-        appHolder[0].showTapeBrowser();
+        appHolder[0].showTapeBrowser(new File(string), fuse.tape);
       }
       return mockCore;
     }, mockCoreState);

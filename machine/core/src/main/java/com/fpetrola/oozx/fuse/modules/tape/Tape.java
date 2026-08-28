@@ -706,6 +706,11 @@ public class Tape implements ClockTimeoutListener {
         return earBit;
     }
 
+    /** True while the tape is feeding a high level, which is what makes a load audible. */
+    public boolean isEarHigh() {
+        return (earBit & EAR_MASK) != 0;
+    }
+
     public void setEarBit(boolean earValue) {
         earBit = earValue ? EAR_ON : EAR_OFF;
     }
