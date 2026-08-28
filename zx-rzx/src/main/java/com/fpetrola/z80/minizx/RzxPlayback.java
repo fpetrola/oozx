@@ -39,6 +39,12 @@ import com.fpetrola.z80.registers.Register;
  * <p>
  * It knows nothing about any particular machine: give it a processor, the port that plays the
  * recorded input back, and the recording.
+ * <p>
+ * One thing it does have to do for the machine, because it is running the processor in the
+ * machine's place: keep the clock inside a frame. A machine subtracts a frame's worth of T-states
+ * at every frame boundary, and with its own loop bypassed nobody does, so the count grows without
+ * bound until it runs off the end of the tables the ULA and the memory index by it - which is a
+ * crash a few thousand frames in, nowhere near where the cause is.
  */
 public class RzxPlayback {
 
@@ -48,13 +54,23 @@ public class RzxPlayback {
   private final RZXPlayerIO player;
   private final java.util.function.Predicate<Integer> endOfFrame;
   private final int frames;
+  private final com.fpetrola.z80.cpu.Z80Clock clock;
+  private final int frameTStates;
 
   private int fetchCounter;
   private int previousR;
   private int frameIndex;
   private long instructions;
 
+  /** T-states in a frame of the machine being driven; 69888 on a 48K Spectrum. */
+  public static final int SPECTRUM_48K_FRAME = 69888;
+
   public RzxPlayback(OOZ80 cpu, RZXPlayerIO player, RzxFile recording) {
+    this(cpu, player, recording, SPECTRUM_48K_FRAME);
+  }
+
+  public RzxPlayback(OOZ80 cpu, RZXPlayerIO player, RzxFile recording, int frameTStates) {
+    this.frameTStates = frameTStates;
     this.cpu = cpu;
     this.player = player;
     this.state = cpu.getState();
@@ -65,6 +81,7 @@ public class RzxPlayback {
     player.setPc(state.getPc());
     this.endOfFrame = player.getInterruptionCondition();
     this.previousR = registerR.read() & 0x7F;
+    this.clock = state.clock;
   }
 
   /**
@@ -87,6 +104,11 @@ public class RzxPlayback {
     step();
     state.setINTLine(false);
     frameIndex++;
+
+    // Stand in for the frame boundary the machine's own loop would have done.
+    while (clock.getTStates() >= frameTStates) {
+      clock.addTStates(-frameTStates);
+    }
     return true;
   }
 

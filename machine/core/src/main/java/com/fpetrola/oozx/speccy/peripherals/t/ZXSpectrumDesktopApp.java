@@ -956,6 +956,10 @@ public class ZXSpectrumDesktopApp extends JFrame {
     openTapeItem.addActionListener(e -> chooseTapeForBrowser());
     emulatorMenu.add(openTapeItem);
 
+    JMenuItem rzxPlayerItem = new JMenuItem("RZX Player...");
+    rzxPlayerItem.addActionListener(e -> showRzxPlayer());
+    emulatorMenu.add(rzxPlayerItem);
+
     JMenuItem tapeBrowserItem = new JMenuItem("Cassette Browser");
     tapeBrowserItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK));
     tapeBrowserItem.addActionListener(e -> showTapeBrowser());
@@ -1558,6 +1562,29 @@ public class ZXSpectrumDesktopApp extends JFrame {
   }
 
   private TapeBrowserInternalFrame tapeBrowser;
+  private RzxPlayerInternalFrame rzxPlayer;
+
+  /** Opens the RZX player, or brings the open one to the front. */
+  public void showRzxPlayer() {
+    SwingUtilities.invokeLater(() -> {
+      if (rzxPlayer == null || rzxPlayer.isClosed()) {
+        rzxPlayer = new RzxPlayerInternalFrame(this::chooseRecording);
+        desktop.add(rzxPlayer);
+      }
+      rzxPlayer.setVisible(true);
+      rzxPlayer.toFront();
+    });
+  }
+
+  /** Asks for a recording. A recording brings its own machine, so no emulator is needed. */
+  private java.io.File chooseRecording() {
+    fileChooser.setCurrentDirectory(new java.io.File(config.getLastOpenDirectory()));
+    if (fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+      return null;
+    }
+    config.setLastOpenDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
+    return fileChooser.getSelectedFile();
+  }
 
   /**
    * Opens a machine on a file and lets it load itself, which for a tape means the auto loader
