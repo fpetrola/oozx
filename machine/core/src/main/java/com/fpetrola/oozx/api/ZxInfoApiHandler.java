@@ -166,6 +166,73 @@ public class ZxInfoApiHandler {
     return detail;
   }
 
+  /**
+   * Suggestions for a search box, covering titles, publishers and authors.
+   */
+  public List<Suggestion> suggest(String term) {
+    return withClient(zxClient -> zxClient.getSuggestions(term));
+  }
+
+  public List<Suggestion> suggestAuthor(String term) {
+    return withClient(zxClient -> zxClient.getSuggestionsAuthor(term));
+  }
+
+  public List<Suggestion> suggestPublisher(String term) {
+    return withClient(zxClient -> zxClient.getSuggestionsPublisher(term));
+  }
+
+  /**
+   * Identifies a tape/disk image by its MD5 (32 chars) or SHA512 (128 chars) hash.
+   * Returns null when ZXInfo knows no entry for it.
+   */
+  public FileCheckResult identifyFile(String hash) {
+    try {
+      return withClient(zxClient -> zxClient.getFileByHash(hash));
+    } catch (jakarta.ws.rs.NotFoundException e) {
+      return null;
+    }
+  }
+
+  /**
+   * Identifies a local image file by hashing it. Note ZXInfo hashes the image itself
+   * (the .tap/.tzx/.z80), not the .zip it is distributed in, so unzip before calling.
+   */
+  public FileCheckResult identifyFile(java.io.File file) {
+    try {
+      return identifyFile(md5Of(file));
+    } catch (Exception e) {
+      System.err.println("Error hashing " + file + ": " + e.getMessage());
+      return null;
+    }
+  }
+
+  private static String md5Of(java.io.File file) throws Exception {
+    java.security.MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+    try (java.io.InputStream in = new java.io.BufferedInputStream(new java.io.FileInputStream(file))) {
+      byte[] buffer = new byte[8192];
+      int read;
+      while ((read = in.read(buffer)) != -1) {
+        digest.update(buffer, 0, read);
+      }
+    }
+    StringBuilder hash = new StringBuilder();
+    for (byte b : digest.digest()) {
+      hash.append(String.format("%02x", b));
+    }
+    return hash.toString();
+  }
+
+  /** Runs a call against a freshly built proxy and always closes the client. */
+  private <T> T withClient(java.util.function.Function<ZxInfoClient, T> call) {
+    Client client = ClientBuilder.newClient();
+    try {
+      ResteasyWebTarget target = (ResteasyWebTarget) client.target(BASE_URL);
+      return call.apply(target.proxy(ZxInfoClient.class));
+    } finally {
+      client.close();
+    }
+  }
+
   /** ZXInfo's own label for map downloads inside additionalDownloads. */
   public static final String GAME_MAP_TYPE = "Game map";
 

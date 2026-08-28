@@ -22,6 +22,8 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.jboss.resteasy.annotations.jaxrs.PathParam;
 
+import java.util.List;
+
 @Path("/v3")
 @Produces(MediaType.APPLICATION_JSON)
 public interface ZxInfoClient {
@@ -63,4 +65,25 @@ public interface ZxInfoClient {
     @GET
     @Path("/games/{id}")
     GameResponse getGameDetails(@PathParam("id") String id, @QueryParam("mode") String mode);
+
+    /** Suggestions across titles, publishers and authors, for type-as-you-go fields. */
+    @GET
+    @Path("/suggest/{term}")
+    List<Suggestion> getSuggestions(@PathParam("term") String term);
+
+    @GET
+    @Path("/suggest/author/{term}")
+    List<Suggestion> getSuggestionsAuthor(@PathParam("term") String term);
+
+    @GET
+    @Path("/suggest/publisher/{term}")
+    List<Suggestion> getSuggestionsPublisher(@PathParam("term") String term);
+
+    /**
+     * Looks up the entry a file belongs to, by MD5 (32 chars) or SHA512 (128 chars)
+     * of the tape/disk image itself. Answers 404 when nothing matches.
+     */
+    @GET
+    @Path("/filecheck/{hash}")
+    FileCheckResult getFileByHash(@PathParam("hash") String hash);
 }
