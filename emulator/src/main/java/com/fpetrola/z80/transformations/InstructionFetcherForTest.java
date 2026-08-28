@@ -44,21 +44,18 @@ public class InstructionFetcherForTest implements InstructionFetcher {
   }
 
   public Instruction fetchNextInstruction() {
-    Instruction instruction = instructions.get(pc.read());
-    Instruction execute = instructionExecutor.execute(instruction);
-//    System.out.println(execute);
-    updatePC(instruction);
-    return instruction;
+    // Solo busca, igual que DefaultInstructionFetcher: ejecutar y avanzar el PC
+    // es responsabilidad del InstructionExecutor que OOZ80 invoca despues.
+    return instructions.get(pc.read());
   }
 
   protected void updatePC(Instruction instruction) {
-    Integer nextPC = null;
+    int nextPC = -1;
     if (instruction instanceof AbstractInstruction jumpInstruction)
       nextPC = jumpInstruction.getNextPC();
 
-    if (nextPC == null) {
-      Integer wordNumber = pc.read();
-      nextPC = (wordNumber + 1) & 0xFFFF;
+    if (nextPC == -1) {
+      nextPC = (pc.read() + 1) & 0xFFFF;
     }
 
     pc.write(nextPC);

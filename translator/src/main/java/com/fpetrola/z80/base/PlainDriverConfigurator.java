@@ -33,7 +33,8 @@ public class PlainDriverConfigurator extends DriverConfigurator {
   }
 
   public CPUExecutionContext getSecondContext() {
-    OOZ80 z80 = new OOZ80(state1, new InstructionFetcherForTest(this.state1, new SpyInstructionExecutor(spy, state1)), new DefaultInstructionExecutor(state1, false));
+    SpyInstructionExecutor instructionExecutor = new SpyInstructionExecutor(spy, state1);
+    OOZ80 z80 = new OOZ80(state1, new InstructionFetcherForTest(this.state1, instructionExecutor), instructionExecutor);
     return new CPUExecutionContext(spy, z80, opcodeConditions);
   }
 }
