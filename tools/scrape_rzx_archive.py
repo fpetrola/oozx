@@ -22,7 +22,9 @@ DELAY = 1.0
 
 ROW = re.compile(r'<a NAME="([^"]+)"></a>(.*?)(?=<a NAME="|</table>)', re.S | re.I)
 CELL = re.compile(r"<td[^>]*>(.*?)(?=<td|</tr>)", re.S | re.I)
-DOWNLOAD = re.compile(r'<A HREF="([^"]+)">Download</A>\s*<font size=1>\((\d+)KB\)', re.I)
+# The size is optional: one entry out of 4291 says "(KB)" with no number, and dropping its
+# download over a typo in the source would be worse than recording an unknown size.
+DOWNLOAD = re.compile(r'<A HREF="([^"]+)">Download</A>\s*<font size=1>\((\d*)KB\)', re.I)
 SPECCOMP = re.compile(r'spectrumcomputing\.co\.uk/index\.php\?cat=\d+&id=(\d+)', re.I)
 WOS = re.compile(r'href="(https://worldofspectrum\.org/[^"]+)"', re.I)
 VIDEO = re.compile(r'href="(videos/[^"]+)"', re.I)
@@ -66,7 +68,7 @@ def parse(page, body):
         links_cell = cells[1] if len(cells) > 1 else ""
 
         downloads = [{"url": BASE + url if url.startswith("/") else BASE + "/" + url,
-                      "sizeKb": int(kb)}
+                      "sizeKb": int(kb) if kb else 0}
                      for url, kb in DOWNLOAD.findall(links_cell)]
 
         spec_comp = SPECCOMP.search(links_cell)
