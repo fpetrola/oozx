@@ -87,9 +87,9 @@ public class EventManager implements ZxModule, MachineChangeListener {
 
   private int eventAddCmp(Event a, Event b) {
     if (a.tstates != b.tstates) {
-      return (int) (a.tstates - b.tstates);
+      return Long.compare(a.tstates, b.tstates);
     } else {
-      return a.type - b.type;
+      return Integer.compare(a.type, b.type);
     }
   }
 
@@ -102,13 +102,22 @@ public class EventManager implements ZxModule, MachineChangeListener {
   }
 
   public void changeEventTime(long eventTime, int type) {
-    ArrayList<Event> events1 = new ArrayList<>(events);
-    for (Event event : events1) {
+    Event found = null;
+    for (Event event : events) {
       if (event.type == type) {
-        event.tstates = eventTime;
+        found = event;
         break;
       }
     }
+    if (found == null) return;
+
+    // tstates is the sort key, so the event has to leave the tree before it
+    // changes and go back in afterwards.
+    events.remove(found);
+    found.tstates = eventTime;
+    events.add(found);
+
+    eventNextEvent = events.isEmpty() ? EVENT_NO_EVENTS : events.first().tstates;
   }
 
   public void eventAdd(long eventTime, int type) {
