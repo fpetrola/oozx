@@ -48,6 +48,20 @@
             <artifactId>bytecode</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+
+        <!-- compile -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.cojen</groupId>
+            <artifactId>cojen-maker</artifactId>
+        </dependency>
     </dependencies>
 
 
