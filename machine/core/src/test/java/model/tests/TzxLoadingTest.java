@@ -68,6 +68,7 @@ public class TzxLoadingTest extends FuseBaseForTests {
       "trantor",
       "manic miner",
       "the great escape",
+      "renegade",
   };
 
   /**

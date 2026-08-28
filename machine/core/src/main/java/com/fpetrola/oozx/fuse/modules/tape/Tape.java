@@ -1184,7 +1184,15 @@ public class Tape implements ClockTimeoutListener {
                     break;
                 case PAUSE_STOP:
                     if (endBlockPause == 0) {
-                        statePlay = State.STOP;
+                        // A zero pause on block 0x20 is the "stop the tape" command, which
+                        // expects a person to press play again when the game asks for more.
+                        // An automatic load has nobody to do that, and waiting is not an option:
+                        // a loader that is mid-load resets the machine within the same tick the
+                        // signal stops, long before anything outside the deck could restart it.
+                        // So keep running while blocks remain, and only honour the stop when a
+                        // person started the tape, or when there is nothing left to play.
+                        boolean honourStop = manualMode || idxHeader >= nOffsetBlocks;
+                        statePlay = honourStop ? State.STOP : State.TZX_HEADER;
                         repeat = true;
                     } else {
                         earBit = settings.isInvertedEar() ? EAR_ON : EAR_OFF;
