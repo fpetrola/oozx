@@ -124,6 +124,52 @@ public class SEInstructionFactory extends DefaultInstructionFactory {
     return new SeJP(target, condition);
   }
 
+  private com.fpetrola.z80.registers.RegisterPair bcPair() {
+    return (com.fpetrola.z80.registers.RegisterPair) state.getRegister(com.fpetrola.z80.registers.RegisterName.BC);
+  }
+
+  /*
+   * En ejecucion simbolica las instrucciones de bloque no se iteran: el generador
+   * las traduce a una sola llamada (ldir(), lddr(), ...) y la exploracion visita
+   * cada direccion una sola vez, asi que repetir vuelve al mismo PC y se
+   * interpreta como "ya explorado, seguir por la proxima rama pendiente".
+   */
+  @Override
+  public Ldir Ldir() {
+    return new Ldir(pc, bcPair(), Ldi()) {
+      protected boolean checkLoopCondition() {
+        return false;
+      }
+    };
+  }
+
+  @Override
+  public Lddr Lddr() {
+    return new Lddr(pc, bcPair(), Ldd()) {
+      protected boolean checkLoopCondition() {
+        return false;
+      }
+    };
+  }
+
+  @Override
+  public Cpir Cpir() {
+    return new Cpir(state.getFlag(), bcPair(), pc, Cpi()) {
+      protected boolean checkLoopCondition() {
+        return false;
+      }
+    };
+  }
+
+  @Override
+  public Cpdr Cpdr() {
+    return new Cpdr(pc, bcPair(), state.getFlag(), Cpd()) {
+      protected boolean checkLoopCondition() {
+        return false;
+      }
+    };
+  }
+
   public Call Call(Condition condition, ImmutableOpcodeReference positionOpcodeReference) {
     return new Call(positionOpcodeReference, condition, pc, sp, this.state.getMemory()) {
       public int beforeJump(int jumpAddress) {

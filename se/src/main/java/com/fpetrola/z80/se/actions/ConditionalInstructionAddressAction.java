@@ -31,8 +31,8 @@ public class ConditionalInstructionAddressAction extends AddressAction {
   public boolean processBranch(Instruction instruction) {
     ConditionalInstruction instruction1 = (ConditionalInstruction) instruction;
     instruction1.calculateJumpAddress();
-    Integer jumpAddress = instruction1.getJumpAddress();
-    if (jumpAddress != null && routineExecutionHandler.getPc().read() > 16384) {
+    int jumpAddress = instruction1.getJumpAddress();
+    if (jumpAddress != -1 && routineExecutionHandler.getPc().read() > 16384) {
       if (jumpAddress < 16384) {
         return branch = false;
       }
