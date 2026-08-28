@@ -230,7 +230,7 @@ public class TzxLoadingTest extends FuseBaseForTests {
     OOSpectrumConnector.noTest = true;
     // Plain Fuse, exactly like OOSpectrumLauncher.createFuse. FuseBaseForTests.createFuse
     // installs an instrumented clock that records every tState update.
-    Fuse fuse = new Fuse();
+    Fuse fuse = Fuse.create();
     fuse.sound.setJavaSoundDevice(new JavaSoundDevice() {
       public void sound_lowlevel_frame(int[] data, int len) {
       }

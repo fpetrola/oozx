@@ -140,17 +140,17 @@ public class EmulationRegressionTest {
   /**
    * Nothing Fuse hands out was built outside the graph.
    * <p>
-   * The sibling test above compares instances the injector returns, so it cannot see a field
-   * Fuse assigned with its own {@code new} — and that is a whole family of bugs with one shape:
-   * two objects where there must be one, the emulator starting perfectly, and the failure
-   * arriving later and quietly. It happened to EmulationSession, where Fuse kept its own and the
-   * Z80 was given the injector's, so closing the window finished a session nobody was reading
-   * and the emulator ran on with the sound still playing.
+   * Since Fuse takes everything through its constructor it can no longer build a part of its
+   * own, so this mostly guards against the next field someone adds with an initializer. It is
+   * kept because that is exactly how it went wrong once: Fuse held its own EmulationSession
+   * while the Z80 was given the injector's, so closing the window finished a session nobody was
+   * reading and the emulator ran on with the sound still playing. The shape is a family — two
+   * objects where there must be one, starting perfectly and failing later.
    */
   @Test
   public void everyPartFuseExposesCameFromTheGraph() throws Exception {
-    Fuse fuse = bootedSpectrum();
-    Injector injector = fuse.getInjector();
+    Injector injector = Guice.createInjector(new EmulatorModule(new SpectrumZ80Clock()));
+    Fuse fuse = injector.getInstance(Fuse.class);
 
     for (Field field : Fuse.class.getFields()) {
       if (field.getType().isPrimitive()) continue;
@@ -184,13 +184,13 @@ public class EmulationRegressionTest {
   }
 
   /**
-   * A plain {@code new Fuse()}, the way OOSpectrumLauncher builds one — FuseBaseForTests
+   * A plain {@code Fuse.create()}, the way OOSpectrumLauncher builds one — FuseBaseForTests
    * installs an instrumented clock that records every tState update. Sound and display are
    * silenced so the run is headless and does not wait on anything.
    */
   private Fuse bootedSpectrum() {
     OOSpectrumConnector.noTest = true;
-    Fuse fuse = new Fuse();
+    Fuse fuse = Fuse.create();
     fuse.sound.setJavaSoundDevice(new JavaSoundDevice() {
       public void sound_lowlevel_frame(int[] data, int len) {
       }

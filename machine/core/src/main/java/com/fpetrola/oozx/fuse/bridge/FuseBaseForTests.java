@@ -27,7 +27,7 @@ import java.util.function.Supplier;
 
 public class FuseBaseForTests {
   public static Fuse createFuse() {
-    Fuse fuse = new Fuse(new SpectrumZ80Clock() {
+    Fuse fuse = Fuse.create(new SpectrumZ80Clock() {
       public void log(Supplier<String> description, byte data) {
 //        Register pc = fuse.z80.ooz80.getState().getPc();
         Register pc = new Plain8BitRegister("PC");

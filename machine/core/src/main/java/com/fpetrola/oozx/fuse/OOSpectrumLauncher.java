@@ -108,7 +108,7 @@ public class OOSpectrumLauncher {
 
   /** A machine with nothing loaded, sitting at the BASIC prompt, running at real speed. */
   public Fuse createBareFuse() {
-    Fuse fuse = new Fuse();
+    Fuse fuse = Fuse.create();
     fuse.settings.current.emulationSpeed = 100;
     fuse.init();
     extracted(fuse);
@@ -116,7 +116,7 @@ public class OOSpectrumLauncher {
   }
 
   public Fuse createFuse(String filename) {
-    Fuse fuse = new Fuse();
+    Fuse fuse = Fuse.create();
 
     if (isTape(filename)) {
       fuse.init();
@@ -134,7 +134,7 @@ public class OOSpectrumLauncher {
   }
 
   private Fuse createFuse2(SpectrumState spectrumState) {
-    Fuse fuse = new Fuse();
+    Fuse fuse = Fuse.create();
     fuse.settings.current.emulationSpeed = 100;
     fuse.init();
     fuse.z80.loadSnap(spectrumState);

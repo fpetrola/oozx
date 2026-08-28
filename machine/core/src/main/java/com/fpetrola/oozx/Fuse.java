@@ -32,84 +32,98 @@ import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 import com.fpetrola.oozx.fuse.startup.*;
 import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import java.util.List;
 
+@Singleton
 public class Fuse {
-  public final Sound sound;
-  public SpectrumZ80Clock zxClock;
-  public Settings settings;
+  public final SpectrumZ80Clock zxClock;
   public final EmulationSession session;
-  private final Module module;
-  public Memory memory;
-  public Display display;
-  public Keyboard keyboard;
-  public IPeriph periph;
-  public Tape tape;
-  public Ula ula;
-  public EventManager eventManager;
-  public PeriphDelegate ulaPeriph;
-  public Joystick joystick;
-  public Input input;
-  private final Timer timer;
-  public Z80 z80;
-  private final StartupManager startupManager;
-  private final Injector injector;
-  public Machine machine;
-  public MachinesPeriph machinesPeriph;
-  public Spec48 spec48;
-  public Spec128 spec128;
-  public SpecPlus3 specPlus3;
-  public SpecPlus2 specPlus2;
-  public SpecPlus2A specPlus2a;
-  public SpecPlus3E specPlus3e;
-  public Spec48Ntsc spec48Ntsc;
-  public UiDisplay uiDisplay;
+  public final Settings settings;
+  public final Memory memory;
+  public final Display display;
+  public final Keyboard keyboard;
+  public final IPeriph periph;
+  public final Tape tape;
+  public final Sound sound;
+  public final Ula ula;
+  public final EventManager eventManager;
+  public final PeriphDelegate ulaPeriph;
+  public final MachinesPeriph machinesPeriph;
+  public final Joystick joystick;
+  public final Input input;
+  public final Machine machine;
+  public final Z80 z80;
+  public final UiDisplay uiDisplay;
+  public final Spec48 spec48;
+  public final Spec128 spec128;
+  public final SpecPlus3 specPlus3;
+  public final SpecPlus2 specPlus2;
+  public final SpecPlus2A specPlus2a;
+  public final SpecPlus3E specPlus3e;
+  public final Spec48Ntsc spec48Ntsc;
 
-  public Fuse() {
-    this(new SpectrumZ80Clock());
+  private final Module module;
+  private final Timer timer;
+  private final StartupManager startupManager;
+  private final MachineStartupModule machineStartupModule;
+
+  /**
+   * Builds the object graph and hands back the assembled emulator.
+   * <p>
+   * This is the only place in the program that touches the container. Everything below it,
+   * including this class, receives what it needs through its constructor.
+   */
+  public static Fuse create() {
+    return create(new SpectrumZ80Clock());
   }
 
-  public Fuse(SpectrumZ80Clock spectrumZ80Clock) {
-    injector = Guice.createInjector(new EmulatorModule(spectrumZ80Clock));
+  public static Fuse create(SpectrumZ80Clock clock) {
+    return Guice.createInjector(new EmulatorModule(clock)).getInstance(Fuse.class);
+  }
 
-    zxClock = spectrumZ80Clock;
-    session = injector.getInstance(EmulationSession.class);
-    settings = injector.getInstance(Settings.class);
-    startupManager = injector.getInstance(StartupManager.class);
-    module = injector.getInstance(Module.class);
-    memory = injector.getInstance(Memory.class);
-    uiDisplay = injector.getInstance(UiDisplay.class);
-    display = injector.getInstance(Display.class);
-    keyboard = injector.getInstance(Keyboard.class);
-    periph = injector.getInstance(IPeriph.class);
-    tape = injector.getInstance(Tape.class);
-    sound = injector.getInstance(Sound.class);
-    ula = injector.getInstance(Ula.class);
-    eventManager = injector.getInstance(EventManager.class);
-    ulaPeriph = injector.getInstance(PeriphDelegate.class);
-    machinesPeriph = injector.getInstance(MachinesPeriph.class);
-    joystick = injector.getInstance(Joystick.class);
-    input = injector.getInstance(Input.class);
-    timer = injector.getInstance(Timer.class);
-    machine = injector.getInstance(Machine.class);
-    z80 = injector.getInstance(Z80.class);
-    spec48 = injector.getInstance(Spec48.class);
+  @Inject
+  public Fuse(SpectrumZ80Clock zxClock, EmulationSession session, Settings settings, Memory memory,
+              Display display, Keyboard keyboard, IPeriph periph, Tape tape, Sound sound, Ula ula,
+              EventManager eventManager, PeriphDelegate ulaPeriph, MachinesPeriph machinesPeriph,
+              Joystick joystick, Input input, Machine machine, Z80 z80, UiDisplay uiDisplay,
+              Spec48 spec48, Spec128 spec128, SpecPlus3 specPlus3, SpecPlus2 specPlus2,
+              SpecPlus2A specPlus2a, SpecPlus3E specPlus3e, Spec48Ntsc spec48Ntsc,
+              Module module, Timer timer, StartupManager startupManager,
+              MachineStartupModule machineStartupModule) {
+    this.zxClock = zxClock;
+    this.session = session;
+    this.settings = settings;
+    this.memory = memory;
+    this.display = display;
+    this.keyboard = keyboard;
+    this.periph = periph;
+    this.tape = tape;
+    this.sound = sound;
+    this.ula = ula;
+    this.eventManager = eventManager;
+    this.ulaPeriph = ulaPeriph;
+    this.machinesPeriph = machinesPeriph;
+    this.joystick = joystick;
+    this.input = input;
+    this.machine = machine;
+    this.z80 = z80;
+    this.uiDisplay = uiDisplay;
+    this.spec48 = spec48;
+    this.spec128 = spec128;
+    this.specPlus3 = specPlus3;
+    this.specPlus2 = specPlus2;
+    this.specPlus2a = specPlus2a;
+    this.specPlus3e = specPlus3e;
+    this.spec48Ntsc = spec48Ntsc;
+    this.module = module;
+    this.timer = timer;
+    this.startupManager = startupManager;
+    this.machineStartupModule = machineStartupModule;
 
     machine.addMachineChangeListeners(sound, display, timer, periph, ula, eventManager);
-
-    spec128 = injector.getInstance(Spec128.class);
-    specPlus3 = injector.getInstance(SpecPlus3.class);
-    specPlus2 = injector.getInstance(SpecPlus2.class);
-    specPlus2a = injector.getInstance(SpecPlus2A.class);
-    specPlus3e = injector.getInstance(SpecPlus3E.class);
-    spec48Ntsc = injector.getInstance(Spec48Ntsc.class);
-  }
-
-  /** The graph this emulator was built from. Exposed so tests can check nothing bypassed it. */
-  public Injector getInjector() {
-    return injector;
   }
 
   public boolean isAlive() {
@@ -125,7 +139,7 @@ public class Fuse {
         new JoystickStartupModule(joystick),
         new KeyboardStartupModule(keyboard),
         new LibspectrumStartupModule(),
-        injector.getInstance(MachineStartupModule.class),
+        machineStartupModule,
         new MachinesPeriphStartupModule(machine, spec128, specPlus3, periph),
         new MemoryStartupModule(memory, machine, spec128, specPlus3, module),
         new SpectrumStartupModule(spec48),
