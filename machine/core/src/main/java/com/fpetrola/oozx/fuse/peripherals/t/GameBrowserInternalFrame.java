@@ -36,8 +36,11 @@ import java.util.List;
 // --- NEW: Game Browser Internal Frame ---
 public class GameBrowserInternalFrame extends JInternalFrame {
   private JTextField searchField;
+  private JButton searchButton;
+  private JProgressBar searchProgress;
   private JPanel resultsPanel;
   private GameBrowserListener listener;
+  private SwingWorker<List<GameSearchResult>, Void> runningSearch;
   public static Gson gson = new Gson();
 
   public GameBrowserInternalFrame(GameBrowserListener listener) {
@@ -52,11 +55,19 @@ public class GameBrowserInternalFrame extends JInternalFrame {
 
     searchField = new JTextField();
     searchField.setFont(new Font("Arial", Font.PLAIN, 16));
-    JButton searchButton = new JButton("Search");
-    searchButton.setPreferredSize(new Dimension(100, 30));
+    searchButton = new JButton("Search");
+    // Wide enough for the "Searching..." label it shows while a search is in flight.
+    searchButton.setPreferredSize(new Dimension(130, 30));
 
     topPanel.add(searchField, BorderLayout.CENTER);
     topPanel.add(searchButton, BorderLayout.EAST);
+
+    // Indeterminate: the API gives no progress, this only says the search is running.
+    searchProgress = new JProgressBar();
+    searchProgress.setIndeterminate(true);
+    searchProgress.setPreferredSize(new Dimension(0, 4));
+    searchProgress.setVisible(false);
+    topPanel.add(searchProgress, BorderLayout.SOUTH);
 
     add(topPanel, BorderLayout.NORTH);
 
@@ -77,24 +88,86 @@ public class GameBrowserInternalFrame extends JInternalFrame {
 
   private void performSearch() {
     String query = searchField.getText().trim();
-    if (query.isEmpty()) return;
+    if (query.isEmpty()) {
+      return;
+    }
 
-    // Clear previous results
-    resultsPanel.removeAll();
+    // A search in flight is abandoned rather than left to overwrite the newer one's results.
+    if (runningSearch != null && !runningSearch.isDone()) {
+      runningSearch.cancel(true);
+    }
 
-    SwingUtilities.invokeLater(() -> {
-      // Mock search results (in real app, this would be async from web)
-      List<GameSearchResult> mockResults = createMockResults(query);
+    setSearching(true);
+    showMessage("Searching for \"" + query + "\"...");
 
-      for (GameSearchResult result : mockResults) {
-        JPanel gameRow = createGameRow(result);
-        resultsPanel.add(gameRow);
-        resultsPanel.add(Box.createVerticalStrut(10));
+    SwingWorker<List<GameSearchResult>, Void> search = new SwingWorker<>() {
+      @Override
+      protected List<GameSearchResult> doInBackground() {
+        // Off the EDT: this is a network round trip to ZXInfo, and running it on the event
+        // thread froze the window until the results were ready, so nothing indicated that
+        // the search had even started.
+        return createMockResults(query);
       }
 
-      resultsPanel.revalidate();
-      resultsPanel.repaint();
-    });
+      @Override
+      protected void done() {
+        if (isCancelled() || runningSearch != this) {
+          return;
+        }
+        runningSearch = null;
+        setSearching(false);
+
+        List<GameSearchResult> results;
+        try {
+          results = get();
+        } catch (Exception e) {
+          showMessage("Search failed: " + rootCauseOf(e));
+          return;
+        }
+
+        if (results.isEmpty()) {
+          showMessage("No games found for \"" + query + "\"");
+          return;
+        }
+
+        resultsPanel.removeAll();
+        for (GameSearchResult result : results) {
+          resultsPanel.add(createGameRow(result));
+          resultsPanel.add(Box.createVerticalStrut(10));
+        }
+        resultsPanel.revalidate();
+        resultsPanel.repaint();
+      }
+    };
+
+    runningSearch = search;
+    search.execute();
+  }
+
+  private void setSearching(boolean searching) {
+    searchProgress.setVisible(searching);
+    searchButton.setEnabled(!searching);
+    searchButton.setText(searching ? "Searching..." : "Search");
+    setCursor(Cursor.getPredefinedCursor(searching ? Cursor.WAIT_CURSOR : Cursor.DEFAULT_CURSOR));
+  }
+
+  /** Replaces the result list with a single centred line of text. */
+  private void showMessage(String message) {
+    resultsPanel.removeAll();
+    JLabel label = new JLabel(message);
+    label.setAlignmentX(Component.CENTER_ALIGNMENT);
+    label.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
+    resultsPanel.add(label);
+    resultsPanel.revalidate();
+    resultsPanel.repaint();
+  }
+
+  private static String rootCauseOf(Throwable e) {
+    Throwable cause = e;
+    while (cause.getCause() != null) {
+      cause = cause.getCause();
+    }
+    return cause.getMessage() != null ? cause.getMessage() : cause.toString();
   }
 
   private List<GameSearchResult> createMockResults(String query) {
