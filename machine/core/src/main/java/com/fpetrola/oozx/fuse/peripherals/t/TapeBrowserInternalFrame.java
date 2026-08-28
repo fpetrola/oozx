@@ -27,6 +27,7 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.io.File;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -49,6 +50,7 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
 
   private final Supplier<Tape> activeTape;
   private final Runnable openTapeChooser;
+  private final Consumer<File> loadInNewEmulator;
   private final BlockTableModel model;
   private final JTable table;
   private final JLabel status;
@@ -70,12 +72,15 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
 
   /**
    * @param activeTape      supplies the deck of whatever machine is in front, or null if there is none
-   * @param openTapeChooser asks the user for a tape file and calls back {@link #openTape}
+   * @param openTapeChooser   asks the user for a tape file and calls back {@link #openTape}
+   * @param loadInNewEmulator opens a machine on a tape and lets it load itself from the start
    */
-  public TapeBrowserInternalFrame(Supplier<Tape> activeTape, Runnable openTapeChooser) {
+  public TapeBrowserInternalFrame(Supplier<Tape> activeTape, Runnable openTapeChooser,
+                                  Consumer<File> loadInNewEmulator) {
     super("Cassette", true, true, true, true);
     this.activeTape = activeTape;
     this.openTapeChooser = openTapeChooser;
+    this.loadInNewEmulator = loadInNewEmulator;
 
     setSize(720, 420);
     setLocation(80, 80);
@@ -135,8 +140,11 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
     }
     Tape active = activeTape.get();
     if (active == null) {
-      JOptionPane.showMessageDialog(this,
-          "Open an emulator to play this cassette into.", "No emulator", JOptionPane.WARNING_MESSAGE);
+      // Nothing to play into: open a machine on this cassette and let it load itself from the
+      // start, which is what clicking a game in the game browser does. The window is handed the
+      // deck of that machine as it comes up, so it goes on showing the load.
+      status.setText("Opening an emulator for " + tapeFile.getName() + "...");
+      loadInNewEmulator.accept(tapeFile);
       return;
     }
 

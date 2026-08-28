@@ -784,8 +784,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
       updateRecentFilesMenu();
 //      EmulatorInternalFrame target = getActiveEmulatorOrCreateNew();
 //      if (target != null) {
-      EmulatorCore emulatorCore = mockCore.apply(path);
-      createNewEmulator(emulatorCore, path);
+      loadInNewEmulator(path);
 //        target.emulatorCore.loadFile(path);
 //      }
     }
@@ -1557,10 +1556,36 @@ public class ZXSpectrumDesktopApp extends JFrame {
 
   private TapeBrowserInternalFrame tapeBrowser;
 
+  /**
+   * Opens a machine on a file and lets it load itself, which for a tape means the auto loader
+   * types LOAD "" and plays from the start. Off the event thread: building a machine downloads,
+   * unzips and boots, and doing that on the event thread freezes the window.
+   */
+  public void loadInNewEmulator(String path) {
+    new SwingWorker<EmulatorCore, Void>() {
+      @Override
+      protected EmulatorCore doInBackground() {
+        return mockCore.apply(path);
+      }
+
+      @Override
+      protected void done() {
+        try {
+          createNewEmulator(get(), path);
+        } catch (Exception e) {
+          Throwable cause = e.getCause() != null ? e.getCause() : e;
+          JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+              "Could not load " + path + ": " + cause, "Load failed", JOptionPane.ERROR_MESSAGE);
+        }
+      }
+    }.execute();
+  }
+
   /** Opens the cassette browser, or brings the open one to the front. */
   public TapeBrowserInternalFrame showTapeBrowser() {
     if (tapeBrowser == null || tapeBrowser.isClosed()) {
-      tapeBrowser = new TapeBrowserInternalFrame(this::getActiveTape, this::chooseTapeForBrowser);
+      tapeBrowser = new TapeBrowserInternalFrame(this::getActiveTape, this::chooseTapeForBrowser,
+          file -> loadInNewEmulator(file.getAbsolutePath()));
       desktop.add(tapeBrowser);
     }
     tapeBrowser.setVisible(true);
