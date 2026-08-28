@@ -22,7 +22,7 @@ import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.Sound;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.tape.Tape;
-import com.fpetrola.oozx.fuse.modules.z80.Z80;
+import com.fpetrola.oozx.fuse.modules.z80.Cpu;
 
 import java.util.Arrays;
 
@@ -72,7 +72,7 @@ public class Timer implements ZxModule, MachineChangeListener {
   }
 
   // Estimate emulation speed
-  public void estimateSpeed(Z80 z80) {
+  public void estimateSpeed(Cpu cpu) {
     if (framesUntilUpdate-- > 0) {
       return;
     }
@@ -88,7 +88,7 @@ public class Timer implements ZxModule, MachineChangeListener {
       currentSpeed = (float) (10 * 100.0 / (currentTime - storedTimes[nextStoredTime]));
     }
 
-    Ui.statusbarUpdateSpeed(currentSpeed, z80);
+    Ui.statusbarUpdateSpeed(currentSpeed, cpu.getEmulatorCore());
 
     storedTimes[nextStoredTime] = currentTime;
     nextStoredTime = (nextStoredTime + 1) % 10;

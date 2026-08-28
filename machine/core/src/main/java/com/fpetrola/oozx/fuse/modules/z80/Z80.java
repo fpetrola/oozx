@@ -52,7 +52,7 @@ import java.io.File;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
-public class Z80 implements ZxModule {
+public class Z80 implements ZxModule, Cpu {
   public static double emulationSpeed;
   private final EventManager eventManager;
   public final com.fpetrola.oozx.Memory memory;
@@ -136,6 +136,23 @@ public class Z80 implements ZxModule {
 
   public void fromSnapshot(Libspectrum.Snap snap) {
 
+  }
+
+  @Override
+  public SpectrumZ80Clock getClock() {
+    return zxClock;
+  }
+
+  @Override
+  public EmulatorCore getEmulatorCore() {
+    return mockCore;
+  }
+
+  @Override
+  public void rebaseInterruptWindow(int frameLength) {
+    if (interruptsEnabledAt >= 0) {
+      interruptsEnabledAt -= frameLength;
+    }
   }
 
   public void interrupt() {

@@ -24,7 +24,7 @@ import com.fpetrola.oozx.fuse.machine.MachineTimings;
 import com.fpetrola.oozx.fuse.machine.RamInfo;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.*;
-import com.fpetrola.oozx.fuse.modules.z80.Z80;
+import com.fpetrola.oozx.fuse.modules.z80.Cpu;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.z80.cpu.Z80Clock;
 
@@ -36,7 +36,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
   protected final MachinesPeriph machinesPeriph;
   protected final IPeriph periph;
   private final EventManager eventManager;
-  private final Z80 z80;
+  private final Cpu cpu;
   private final Z80Clock z80Clock;
 
   private final int[] contentionPattern65432100 = {5, 4, 3, 2, 1, 0, 0, 6};
@@ -56,13 +56,13 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
   private final int[][] ram;
   private Sound sound;
 
-  public Spectrum(Memory memory, Display display, EventManager eventManager, Z80 z80, Timer timer, Module module, Settings settings1, RamInfo ramInfo1, MachinesPeriph machinesPeriph, IPeriph periph, Sound sound) {
+  public Spectrum(Memory memory, Display display, EventManager eventManager, Cpu cpu, Timer timer, Module module, Settings settings1, RamInfo ramInfo1, MachinesPeriph machinesPeriph, IPeriph periph, Sound sound) {
     super(display, settings1, ramInfo1);
     this.memory = memory;
     this.display = display;
     this.eventManager = eventManager;
-    this.z80 = z80;
-    this.z80Clock = z80.zxClock;
+    this.cpu = cpu;
+    this.z80Clock = cpu.getClock();
     this.timer = timer;
     this.module = module;
     this.ram = memory.getRAM();
@@ -136,8 +136,8 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
 
   private void spectrumFrameEventFn(long lastTstates, int type, Object userData) {
     spectrumFrame();
-    z80.interrupt();
-    timer.estimateSpeed(z80);
+    cpu.interrupt();
+    timer.estimateSpeed(cpu);
   }
 
   private long getFrameCount() {
@@ -163,9 +163,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
     eventManager.eventFrame(frameLength);
     z80Clock.addTStates(-frameLength);
 
-    if (z80.interruptsEnabledAt >= 0) {
-      z80.interruptsEnabledAt -= frameLength;
-    }
+    cpu.rebaseInterruptWindow(frameLength);
 
     if (sound.soundEnabled)
       sound.frame();

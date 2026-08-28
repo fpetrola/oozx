@@ -36,9 +36,8 @@ public class Ui {
 
   }
 
-  public static void statusbarUpdateSpeed(float currentSpeed, Z80 z80) {
+  public static void statusbarUpdateSpeed(float currentSpeed, EmulatorCore mockCore) {
     SwingUtilities.invokeLater(() -> {
-      EmulatorCore mockCore = z80.mockCore;
       if (mockCore != null)
         ((MockEmulatorCore) mockCore).notifyEmulationSpeedChange(currentSpeed);
     });

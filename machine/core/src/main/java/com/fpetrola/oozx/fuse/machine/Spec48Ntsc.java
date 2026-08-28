@@ -24,12 +24,12 @@ import com.fpetrola.oozx.fuse.Sound;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.modules.Timer;
-import com.fpetrola.oozx.fuse.modules.z80.Z80;
+import com.fpetrola.oozx.fuse.modules.z80.Cpu;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
 public class Spec48Ntsc extends Spec48 {
-  public Spec48Ntsc(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module, Sound sound) {
-    super(memory, display, machinesPeriph, periph, settings, eventManager, z80, timer, module, sound);
+  public Spec48Ntsc(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound) {
+    super(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, sound);
     init();
   }
 

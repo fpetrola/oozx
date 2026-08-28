@@ -24,13 +24,13 @@ import com.fpetrola.oozx.fuse.Sound;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.EventManager;
 import com.fpetrola.oozx.fuse.modules.Timer;
-import com.fpetrola.oozx.fuse.modules.z80.Z80;
+import com.fpetrola.oozx.fuse.modules.z80.Cpu;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 
 public class Spec48 extends Spectrum {
 
-  public Spec48(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Z80 z80, Timer timer, Module module, Sound sound) {
-    super(memory, display, eventManager, z80, timer, module, settings, new Spec48RamInfo(3), machinesPeriph, periph, sound);
+  public Spec48(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound) {
+    super(memory, display, eventManager, cpu, timer, module, settings, new Spec48RamInfo(3), machinesPeriph, periph, sound);
   }
 
   // Initialize the Spectrum 48K fuseMachineInfo
