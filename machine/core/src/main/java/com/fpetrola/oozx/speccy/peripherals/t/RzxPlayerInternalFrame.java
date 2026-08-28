@@ -48,6 +48,9 @@ import java.util.function.Supplier;
  * The machine runs on this window's thread either way, because while a recording plays it is the
  * recording that drives the processor, not the machine's clock. After taking over, the same
  * thread runs the ordinary loop instead.
+ * <p>
+ * How fast it plays comes from the machine's own speed setting, so the emulator window's speed
+ * control works on a replay as it does on anything else.
  */
 public class RzxPlayerInternalFrame extends JInternalFrame {
 
@@ -71,7 +74,6 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   private final JButton pauseButton = new JButton("Pause");
   private final JButton stopButton = new JButton("Stop");
   private final JButton takeOverButton = new JButton("Take Over");
-  private final JCheckBox fullSpeed = new JCheckBox("Full speed");
   private final JLabel status = new JLabel();
   private final PartsTableModel model = new PartsTableModel();
   private final JTable table = new JTable(model);
@@ -97,7 +99,6 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
     controls.add(pauseButton);
     controls.add(stopButton);
     controls.add(takeOverButton);
-    controls.add(fullSpeed);
 
     table.setRowHeight(22);
     table.getColumnModel().getColumn(0).setPreferredWidth(130);
@@ -225,8 +226,8 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
         case PLAYING -> {
           if (!current.playFrame()) {
             mode = Mode.FINISHED;
-          } else if (!fullSpeed.isSelected()) {
-            sleep(FRAME_MILLIS);
+          } else {
+            pace(current);
           }
         }
         // Taken over: the machine is an ordinary one again, so its own loop runs it.
@@ -236,6 +237,19 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
         }
         default -> sleep(REFRESH_MILLIS);
       }
+    }
+  }
+
+  /**
+   * Holds the replay to the machine's own speed setting, so the emulator window's speed control
+   * governs it like it governs everything else. This window used to have a Full speed box of its
+   * own, which meant two controls for one thing and neither of them right.
+   */
+  private void pace(RzxSession current) {
+    int speed = Math.max(1, current.getSpeccy().settings.current.emulationSpeed);
+    long millis = FRAME_MILLIS * 100L / speed;
+    if (millis > 0) {
+      sleep((int) millis);
     }
   }
 

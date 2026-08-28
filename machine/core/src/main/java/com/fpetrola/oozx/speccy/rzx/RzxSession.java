@@ -98,6 +98,16 @@ public class RzxSession {
 
   public static RzxSession open(File file) {
     RzxFile recording = new RzxParser().parseFile(file.getAbsolutePath());
+    // The parser answers null for anything it does not recognise rather than saying so, and a
+    // recording without a snapshot starts from a machine state it does not carry, which this
+    // cannot supply. Both were reaching the caller as a NullPointerException from somewhere else.
+    if (recording == null) {
+      throw new IllegalArgumentException(file.getName() + " is not a recording this can read");
+    }
+    if (recording.getSnapshotBlock() == null || recording.getSnapshotBlock().getSnapshotData() == null) {
+      throw new IllegalArgumentException(
+          file.getName() + " carries no snapshot, so there is no state to start it from");
+    }
 
     RZXPlayerIO.stop = false;
     RZXPlayerIO player = new RZXPlayerIO();
@@ -135,6 +145,11 @@ public class RzxSession {
    * Driving the processor means the machine's own loop never runs, and that loop is what asks the
    * sound and the display for a frame, so both are asked here. Without the sound one a replay is
    * silent, which is not the emulator being quiet - it is nobody telling it a frame went by.
+   * <p>
+   * They are asked once per frame OF THE CLOCK, not once per recorded frame. A recorded frame is
+   * a count of fetches and runs a little over or under a frame's worth of T-states; the sound
+   * closes its frame at a fixed 69888 regardless, so asking it on the recording's rhythm hands it
+   * beeper changes belonging either side of where it cuts. That comes out as an echo.
    *
    * @return false at the end of the recording
    */
@@ -142,10 +157,12 @@ public class RzxSession {
     if (!playback.playFrame()) {
       return false;
     }
-    if (speccy.sound.soundEnabled) {
-      speccy.sound.frame();
+    for (int frames = playback.takeElapsedMachineFrames(); frames > 0; frames--) {
+      if (speccy.sound.soundEnabled) {
+        speccy.sound.frame();
+      }
+      speccy.display.frame();
     }
-    speccy.display.frame();
     return true;
   }
 

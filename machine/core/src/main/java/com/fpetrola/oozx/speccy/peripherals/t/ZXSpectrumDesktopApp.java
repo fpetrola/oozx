@@ -1639,7 +1639,15 @@ public class ZXSpectrumDesktopApp extends JFrame {
   /** Asks for a recording. A recording brings its own machine, so no emulator is needed. */
   private java.io.File chooseRecording() {
     fileChooser.setCurrentDirectory(new java.io.File(config.getLastOpenDirectory()));
-    if (fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+    javax.swing.filechooser.FileFilter previous = fileChooser.getFileFilter();
+    javax.swing.filechooser.FileNameExtensionFilter rzx =
+        new javax.swing.filechooser.FileNameExtensionFilter("RZX recordings (*.rzx)", "rzx");
+    fileChooser.addChoosableFileFilter(rzx);
+    fileChooser.setFileFilter(rzx);
+    int answer = fileChooser.showOpenDialog(this);
+    fileChooser.removeChoosableFileFilter(rzx);
+    fileChooser.setFileFilter(previous);
+    if (answer != JFileChooser.APPROVE_OPTION) {
       return null;
     }
     config.setLastOpenDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());

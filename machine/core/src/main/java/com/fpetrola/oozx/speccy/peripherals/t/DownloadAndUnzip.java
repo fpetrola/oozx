@@ -154,7 +154,9 @@ public class DownloadAndUnzip {
       name = name.substring(0, name.length() - 4);
     }
     int score;
-    if (name.endsWith(".z80") || name.endsWith(".sna") || name.endsWith(".szx")) {
+    if (name.endsWith(".rzx")) {
+      score = 40; // a recording: a zip holding one holds nothing else worth loading
+    } else if (name.endsWith(".z80") || name.endsWith(".sna") || name.endsWith(".szx")) {
       score = 30; // a snapshot loads instantly and cannot fail on tape timing
     } else if (name.endsWith(".tzx") || name.endsWith(".tap")) {
       score = 20;

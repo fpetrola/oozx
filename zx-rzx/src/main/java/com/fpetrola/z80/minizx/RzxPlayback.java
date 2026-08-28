@@ -58,6 +58,7 @@ public class RzxPlayback {
   private final int frameTStates;
 
   private int fetchCounter;
+  private int machineFramesElapsed;
   private int previousR;
   private int frameIndex;
   private long instructions;
@@ -105,9 +106,15 @@ public class RzxPlayback {
     state.setINTLine(false);
     frameIndex++;
 
-    // Stand in for the frame boundary the machine's own loop would have done.
+    // Stand in for the frame boundary the machine's own loop would have done. A recorded frame
+    // is a count of fetches and does not last exactly one frame of the clock, so this does not
+    // happen once per recorded frame: sometimes not at all, sometimes twice. Whoever drives this
+    // needs to know how many went by, because a machine frame is what the sound and the display
+    // are measured in - the sound closes its frame at a fixed number of T-states, so telling it
+    // a frame passed when the clock says otherwise is what makes a replay sound wrong.
     while (clock.getTStates() >= frameTStates) {
       clock.addTStates(-frameTStates);
+      machineFramesElapsed++;
     }
     return true;
   }
@@ -127,6 +134,13 @@ public class RzxPlayback {
     int now = registerR.read() & 0x7F;
     fetchCounter += (now - previousR) & 0x7F;
     previousR = now;
+  }
+
+  /** How many machine frames have gone by since this was last asked, and forgets them. */
+  public int takeElapsedMachineFrames() {
+    int elapsed = machineFramesElapsed;
+    machineFramesElapsed = 0;
+    return elapsed;
   }
 
   public boolean isFinished() {
