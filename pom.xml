@@ -35,6 +35,7 @@
         <module>routines</module>
         <module>se</module>
         <module>machine</module>
+        <module>zx-rzx</module>
     </modules>
 
     <properties>
