@@ -41,6 +41,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
   private JPanel resultsPanel;
   private GameBrowserListener listener;
   private SwingWorker<List<GameSearchResult>, Void> runningSearch;
+  private boolean loading;
   public static Gson gson = new Gson();
 
   public GameBrowserInternalFrame(GameBrowserListener listener) {
@@ -144,6 +145,37 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     search.execute();
   }
 
+  /**
+   * Loading a game downloads and unzips it before an emulator window can appear, which takes
+   * long enough that a click used to look like nothing had happened. Say what is going on, and
+   * say plainly when there is nothing to load rather than ignoring the click.
+   */
+  private void startLoading(GameSearchResult result) {
+    if (result.filename == null) {
+      JOptionPane.showMessageDialog(this,
+          "No tape or snapshot is available to download for \"" + result.title + "\".",
+          "Nothing to load", JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+    if (loading) {
+      return;
+    }
+
+    setLoading(true, result.title);
+    listener.onGameSelected(result, () -> setLoading(false, null));
+  }
+
+  private void setLoading(boolean busy, String title) {
+    loading = busy;
+    searchProgress.setVisible(busy);
+    setCursor(Cursor.getPredefinedCursor(busy ? Cursor.WAIT_CURSOR : Cursor.DEFAULT_CURSOR));
+    if (busy) {
+      setTitle("Game Browser - loading " + title + "...");
+    } else {
+      setTitle("Game Browser");
+    }
+  }
+
   private void setSearching(boolean searching) {
     searchProgress.setVisible(searching);
     searchButton.setEnabled(!searching);
@@ -207,10 +239,12 @@ public class GameBrowserInternalFrame extends JInternalFrame {
 
         String screenshot1 = getFileURL(screenshots, 0);
         String screenshot2 = getFileURL(screenshots, 1);
-        if (!files.isEmpty()) {
-          String s = !files.isEmpty() ? files.get(0) : null;
-          results.add(new GameSearchResult(hit._id, game.title, "http://example.com/game/" + query, screenshot1, screenshot2, s));
-        }
+        // Entries with nothing downloadable used to be dropped, so a game simply was not in the
+        // results and there was no way to tell that from it not existing. Keep them, with a null
+        // filename, and say so when one is clicked.
+        String file = files.isEmpty() ? null : files.get(0);
+        results.add(new GameSearchResult(hit._id, game.title, "http://example.com/game/" + query,
+            screenshot1, screenshot2, file));
       }
     }
     return results;
@@ -340,7 +374,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
       @Override
       public void mouseClicked(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1) {
-          listener.onGameSelected(result);
+          startLoading(result);
         }
       }
     };
@@ -348,17 +382,54 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     imgLabel1.addMouseListener(mouseAdapter);
     imgLabel2.addMouseListener(mouseAdapter);
 
-    loadItem.addActionListener(e -> listener.onGameSelected(result));
+    loadItem.addActionListener(e -> startLoading(result));
     detailsItem.addActionListener(e -> listener.onViewDetails(result));
     favoriteItem.addActionListener(e -> listener.onAddToFavorites(result.url));
     downloadItem.addActionListener(e -> listener.onDownloadGame(result.url));
 
-    row.add(imgLabel1);
-    row.add(Box.createHorizontalStrut(10));
-    row.add(imgLabel2);
-    row.add(Box.createHorizontalGlue());
+    // The two screenshots already fill the width, so the caption goes above them rather than
+    // beside, where it fell outside the viewport and the horizontal scrollbar is disabled.
+    JPanel shots = new JPanel();
+    shots.setLayout(new BoxLayout(shots, BoxLayout.X_AXIS));
+    shots.setOpaque(false);
+    shots.setAlignmentX(Component.LEFT_ALIGNMENT);
+    shots.add(imgLabel1);
+    shots.add(Box.createHorizontalStrut(10));
+    shots.add(imgLabel2);
+    shots.add(Box.createHorizontalGlue());
+
+    row.setLayout(new BoxLayout(row, BoxLayout.Y_AXIS));
+    row.add(createRowCaption(result));
+    row.add(Box.createVerticalStrut(4));
+    row.add(shots);
 
     return row;
+  }
+
+  /**
+   * The rows used to be two screenshots and nothing else, so there was no way to tell which game
+   * a row was, let alone that one of them had nothing to download. Entries without a file are
+   * kept in the results now, so they have to say so here rather than only when clicked.
+   */
+  private JPanel createRowCaption(GameSearchResult result) {
+    JPanel caption = new JPanel();
+    caption.setOpaque(false);
+    caption.setLayout(new BoxLayout(caption, BoxLayout.X_AXIS));
+    caption.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    JLabel title = new JLabel(result.title);
+    title.setFont(title.getFont().deriveFont(Font.BOLD));
+    caption.add(title);
+
+    if (result.filename == null) {
+      title.setForeground(Color.GRAY);
+      JLabel unavailable = new JLabel("  -  No tape available");
+      unavailable.setForeground(Color.GRAY);
+      caption.add(unavailable);
+    }
+
+    caption.add(Box.createHorizontalGlue());
+    return caption;
   }
 
   private void loadLazyImage(JLabel imgLabel1, String screenshot1, MouseAdapter mouseAdapter) {

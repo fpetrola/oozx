@@ -743,7 +743,8 @@ class GameSearchResult {
 
 // --- NEW: Game Browser Listener Interface ---
 interface GameBrowserListener {
-  void onGameSelected(GameSearchResult gameUrl);
+  /** @param whenDone run on the event thread once the game is up, or the attempt failed. */
+  void onGameSelected(GameSearchResult gameUrl, Runnable whenDone);
 
   void onViewDetails(GameSearchResult gameSearchResult);
 
@@ -1491,7 +1492,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
         newName -> showGameDetailsFromHistory(newName));
   }
 
-  private EmulatorInternalFrame getActiveEmulatorOrCreateNew(GameSearchResult gameSearchResult) {
+  private void getActiveEmulatorOrCreateNew(GameSearchResult gameSearchResult, Runnable whenDone) {
   //    JInternalFrame[] frames = desktop.getAllFrames();
   //    for (JInternalFrame frame : frames) {
   //      if (frame instanceof EmulatorInternalFrame && frame.isVisible()) {
@@ -1502,13 +1503,28 @@ public class ZXSpectrumDesktopApp extends JFrame {
   //        }
   //      }
   //    }
-    // Create new if none active
-    EmulatorCore core = mockCore.apply(gameSearchResult.filename);
-    EmulatorInternalFrame newFrame = createNewEmulator(core, gameSearchResult);
-  //    EmulatorInternalFrame newFrame = new EmulatorInternalFrame(core, 100, 100);
-  //    desktop.add(newFrame);
-  //    newFrame.setVisible(true);
-    return newFrame;
+    // mockCore.apply downloads and unzips the game and builds the machine, so it cannot run on
+    // the event thread: doing that froze the whole window until the emulator was ready.
+    new SwingWorker<EmulatorCore, Void>() {
+      @Override
+      protected EmulatorCore doInBackground() {
+        return mockCore.apply(gameSearchResult.filename);
+      }
+
+      @Override
+      protected void done() {
+        try {
+          createNewEmulator(get(), gameSearchResult);
+        } catch (Exception e) {
+          Throwable cause = e.getCause() != null ? e.getCause() : e;
+          JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+              "Could not load \"" + gameSearchResult.title + "\": " + cause,
+              "Load failed", JOptionPane.ERROR_MESSAGE);
+        } finally {
+          whenDone.run();
+        }
+      }
+    }.execute();
   }
 
   // ... (rest of the methods: createNewEmulator, cascadeWindows, tileWindows remain unchanged)
@@ -1706,8 +1722,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private GameBrowserListener createGameBrowserListener() {
     return new GameBrowserListener() {
       @Override
-      public void onGameSelected(GameSearchResult gameSearchResult) {
-        EmulatorInternalFrame target = getActiveEmulatorOrCreateNew(gameSearchResult);
+      public void onGameSelected(GameSearchResult gameSearchResult, Runnable whenDone) {
+        getActiveEmulatorOrCreateNew(gameSearchResult, whenDone);
       }
 
       @Override
