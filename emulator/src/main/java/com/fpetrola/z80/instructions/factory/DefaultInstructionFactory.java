@@ -27,7 +27,7 @@ import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterPair;
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 

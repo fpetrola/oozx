@@ -24,7 +24,7 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.spy.ExecutionListener;
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 
 import java.util.HashMap;
 import java.util.HashSet;

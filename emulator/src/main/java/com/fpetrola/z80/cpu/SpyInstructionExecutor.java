@@ -21,7 +21,7 @@ package com.fpetrola.z80.cpu;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.spy.InstructionSpy;
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 
 import java.util.HashMap;
 import java.util.HashSet;
