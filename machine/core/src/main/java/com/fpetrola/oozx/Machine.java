@@ -220,8 +220,8 @@ public class Machine implements ZxModule {
   }
 
   @Override
-  public int init(Object initContext) {
-    return 0;
+  public void start() {
+    return;
   }
 
   public void end() {

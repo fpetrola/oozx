@@ -36,16 +36,12 @@ public class MachinesPeriphStartupModule extends AbstractStartupModule {
     this.periph = periph;
   }
 
-  public Object getInitContext() {
-    return null;
-  }
 
-  public int initFn(Object initContext) {
+  public void init() {
     periph.register(new Spec128MemoryPeripheral(spec128));
     periph.register(new SpecPlus3MemoryPeripheral(specPlus3));
     periph.register(new Upd765Peripheral(specPlus3));
     periph.register(new SeMemoryPeripheral(spec128));
-    return 0;
   }
 
   public void endFn() {

@@ -27,12 +27,9 @@ public class EventManagerStartupModule extends AbstractStartupModule {
     this.eventManager = eventManager;
   }
 
-  public Object getInitContext() {
-    return null;
-  }
 
-  public int initFn(Object initContext) {
-    return eventManager.init(initContext);
+  public void init() {
+    eventManager.start();
   }
 
   public void endFn() {

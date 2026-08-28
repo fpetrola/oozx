@@ -23,9 +23,8 @@ import java.util.List;
 public interface StartupModule {
   List<?> getDependencies();
 
-  Object getInitContext();
-
-  int initFn(Object initContext);
+  /** Brings its module up. It used to take a context object that was always null. */
+  void init();
 
   void endFn();
 

@@ -343,7 +343,7 @@ public class Z80 implements ZxModule, Cpu {
     display.refreshAll();
   }
 
-  public int init(Object o) {
+  public void start() {
     z80_interrupt_event = eventManager.eventRegister(this::z80_interrupt_event_fn, "Retriggered interrupt");
     int z80_nmi_event = eventManager.eventRegister(this::z80_nmi, "Non-maskable interrupt");
     int z80_nmos_iff2_event = eventManager.eventRegister(null, "IFF2 update dummy event");
@@ -355,7 +355,7 @@ public class Z80 implements ZxModule, Cpu {
     else
       initTest();
 
-    return 0;
+    return;
   }
 
   public void end() {

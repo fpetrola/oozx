@@ -23,11 +23,8 @@ public class LibspectrumStartupModule extends AbstractStartupModule {
     super(DisplayStartupModule.class);
   }
 
-  public Object getInitContext() {
-    return null;
-  }
 
-  public int initFn(Object initContext) {
+  public void init() {
     //        if (Libspectrum.checkVersion(LIBSPECTRUM_MIN_VERSION)) {
 //            if (Libspectrum.init() != 0) return 1;
 //        } else {
@@ -35,7 +32,6 @@ public class LibspectrumStartupModule extends AbstractStartupModule {
 //                    Libspectrum.version(), LIBSPECTRUM_MIN_VERSION);
 //            return 1;
 //        }
-    return 0;
   }
 
   public void endFn() {

@@ -162,12 +162,19 @@ public class Sound implements ZxModule, MachineChangeListener {
 
   private final int[] speakerBass = {200, 1000, 0};
 
-  public int init(Object initContext) {
-    String soundDevice = settings.current.soundDevice;
-    int frameTstates = spectrumMachine.getTimings().tstatesPerFrame;
+  @Override
+  public void start() {
+    init(null);
+  }
 
-    initSound(3500000, frameTstates, initContext);
-    return 0;
+  /**
+   * Starts the sound with a say in whether it comes out enabled. Never a lifecycle hook: Sound
+   * is not registered as a startup module, and every caller passes a real argument — Boolean
+   * false to come up muted, anything else to come up audible.
+   */
+  public void init(Object enabled) {
+    int frameTstates = spectrumMachine.getTimings().tstatesPerFrame;
+    initSound(3500000, frameTstates, enabled);
   }
 
   public void end() {

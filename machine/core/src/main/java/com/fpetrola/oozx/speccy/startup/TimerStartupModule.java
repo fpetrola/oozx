@@ -28,12 +28,9 @@ public class TimerStartupModule extends AbstractStartupModule {
     this.timer = timer;
   }
 
-  public Object getInitContext() {
-    return null;
-  }
 
-  public int initFn(Object initContext) {
-    return timer.init(initContext);
+  public void init() {
+    timer.start();
   }
 
   public void endFn() {

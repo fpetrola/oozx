@@ -19,7 +19,8 @@
 package com.fpetrola.oozx.speccy.modules;
 
 public interface ZxModule {
-  int init(Object initContext);
+  /** Brings the module up. The context parameter it used to take was never read by anyone. */
+  void start();
 
   void end();
 }

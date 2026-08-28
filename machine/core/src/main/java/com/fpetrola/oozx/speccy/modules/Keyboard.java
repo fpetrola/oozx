@@ -284,7 +284,7 @@ public class Keyboard implements ZxModule {
   // Placeholder for keysyms_map (to be populated based on UI-specific keysyms)
   static KeysymsMap[] KEYSYMS_MAP = {};
 
-  public int init(Object initContext) {
+  public void start() {
     releaseAll();
 
     // Populate keyboard_data
@@ -313,6 +313,6 @@ public class Keyboard implements ZxModule {
       keyText.put(entry.key.getValue(), entry.text);
     }
 
-    return 0;
+    return;
   }
 }

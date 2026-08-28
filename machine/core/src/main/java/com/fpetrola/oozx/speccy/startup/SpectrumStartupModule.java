@@ -28,12 +28,9 @@ public class SpectrumStartupModule extends AbstractStartupModule {
     this.spectrum = spectrum;
   }
 
-  public Object getInitContext() {
-    return null;
-  }
 
-  public int initFn(Object initContext) {
-    return spectrum.init(initContext);
+  public void init() {
+    spectrum.start();
   }
 
   public void endFn() {

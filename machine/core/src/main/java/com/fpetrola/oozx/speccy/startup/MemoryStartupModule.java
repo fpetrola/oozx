@@ -40,14 +40,10 @@ public class MemoryStartupModule extends AbstractStartupModule {
     this.module = module;
   }
 
-  public Object getInitContext() {
-    return null;
-  }
 
-  public int initFn(Object initContext) {
-    int init = memory.init(this);
+  public void init() {
+    memory.start();
     module.register(new MemoryModuleInfo(memory, machine, spec128, specPlus3));
-    return init;
   }
 
   public void endFn() {

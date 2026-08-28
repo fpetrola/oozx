@@ -28,12 +28,9 @@ public class KeyboardStartupModule extends AbstractStartupModule {
     this.keyboard = keyboard;
   }
 
-  public Object getInitContext() {
-    return null;
-  }
 
-  public int initFn(Object initContext) {
-    return keyboard.init(initContext);
+  public void init() {
+    keyboard.start();
   }
 
   public void endFn() {

@@ -55,11 +55,11 @@ public class EventManager implements ZxModule, MachineChangeListener {
   }
 
   @Override
-  public int init(Object initContext) {
+  public void start() {
     registeredEvents = new ObjectArrayList();
     eventTypeNull = eventRegister(null, "[Deleted event]");
     eventNextEvent = EVENT_NO_EVENTS;
-    return 0;
+    return;
   }
 
   @Override

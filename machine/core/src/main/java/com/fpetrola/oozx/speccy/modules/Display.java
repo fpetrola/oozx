@@ -117,7 +117,7 @@ public class Display implements ZxModule, MachineChangeListener {
     beam = new BeanPosition();
   }
 
-  public int init(Object initContext) {
+  public void start() {
     int i, j, k, x, y;
 
     // Set up the 'all pixels must be refreshed' marker
@@ -158,11 +158,12 @@ public class Display implements ZxModule, MachineChangeListener {
     refreshAll();
 
     borderChanges.clear();
-    int error = addBorderSentinel();
-    if (error != 0) return error;
+    if (addBorderSentinel() != 0) {
+      throw new IllegalStateException("the display could not record where the border starts");
+    }
     lastBorder = loresBorder;
 
-    return 0;
+    return;
   }
 
   @Override

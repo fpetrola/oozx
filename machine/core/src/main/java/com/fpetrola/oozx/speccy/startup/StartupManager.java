@@ -63,9 +63,8 @@ public class StartupManager {
   }
 
   // Run all the registered init functions in the right order
-  public int run() {
+  public void run() {
     boolean progressMade;
-    int error;
 
     // Loop until we can't make any more progress
     do {
@@ -76,10 +75,7 @@ public class StartupManager {
         StartupModule registeredModule = iterator.next();
 
         if (registeredModule.getDependencies().isEmpty()) {
-          error = registeredModule.initFn(registeredModule.getInitContext());
-          if (error != 0)
-            return error;
-
+          registeredModule.init();
           endFunctions.add(registeredModule::endFn);
 
           removeDependency(registeredModule);
@@ -91,12 +87,12 @@ public class StartupManager {
     } while (progressMade && !registeredModules.isEmpty());
 
     // If there are still any modules left to be called, that's an error
+    // Anything left has a dependency that was never satisfied, so the loop stopped making
+    // progress with modules still waiting. That is a wiring mistake, not a runtime condition.
     if (!registeredModules.isEmpty()) {
-      userInterface.error(UiError.ERROR, "%d startup modules could not be called", registeredModules.size());
-      return 1;
+      throw new IllegalStateException(registeredModules.size()
+          + " startup modules were never called; their dependencies are unsatisfiable");
     }
-
-    return 0;
   }
 
   // Run all the end functions in inverse order of the init functions

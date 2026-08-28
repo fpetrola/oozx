@@ -56,7 +56,7 @@ public class Joystick implements ZxModule {
     this.settings = settings;
   }
 
-  public int init(Object initContext) {
+  public void start() {
     joysticksSupported = UiJoystick.init();
     kempstonValue = timex1Value = timex2Value = 0x00;
     fullerValue = (byte) 0xff;
@@ -65,7 +65,7 @@ public class Joystick implements ZxModule {
     periph.register(new KempstonStrictPeripheral(this));
     periph.register(new KempstonLoosePeriphPeripheral(this));
 
-    return 0;
+    return;
   }
 
   // Joystick types

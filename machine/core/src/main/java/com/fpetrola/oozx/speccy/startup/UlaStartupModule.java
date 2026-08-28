@@ -27,12 +27,9 @@ public class UlaStartupModule extends AbstractStartupModule {
     this.ula = ula;
   }
 
-  public Object getInitContext() {
-    return null;
-  }
 
-  public int initFn(Object initContext) {
-    return ula.init(initContext);
+  public void init() {
+    ula.start();
   }
 
   public void endFn() {

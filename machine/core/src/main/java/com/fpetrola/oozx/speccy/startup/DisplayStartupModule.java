@@ -28,12 +28,9 @@ public class DisplayStartupModule extends AbstractStartupModule {
     this.display = display;
   }
 
-  public Object getInitContext() {
-    return null;
-  }
 
-  public int initFn(Object initContext) {
-    return display.init(initContext);
+  public void init() {
+    display.start();
   }
 
   public void endFn() {

@@ -28,12 +28,9 @@ public class Z80StartupModule extends AbstractStartupModule {
     this.z80 = z80;
   }
 
-  public Object getInitContext() {
-    return null;
-  }
 
-  public int initFn(Object initContext) {
-    return z80.init(initContext);
+  public void init() {
+    z80.start();
   }
 
   public void endFn() {

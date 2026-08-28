@@ -78,14 +78,14 @@ public class Ula implements ZxModule, MachineChangeListener {
   }
 
   // Initialize ULA module
-  public int init(Object context) {
+  public void start() {
     module.register(new UlaZxModuleInfo(this, z80Clock, settings));
     periph.register(new UlaPeripheral(this));
     periph.register(new UlaFullDecodePeripheral(this));
 
     defaultValue = (byte) 0xff;
 
-    return 0;
+    return;
   }
 
   @Override

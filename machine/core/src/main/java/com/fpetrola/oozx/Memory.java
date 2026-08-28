@@ -77,7 +77,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
     Helper.fillArrayWith(mapWrite, MemoryPage::new);
   }
 
-  public int init(Object initContext) {
+  public void start() {
     memorySources = new ArrayList<>();
 
     sourceRom = sourceRegister("ROM");
@@ -109,7 +109,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
       }
     }
 
-    return 0;
+    return;
   }
 
   public void end() {

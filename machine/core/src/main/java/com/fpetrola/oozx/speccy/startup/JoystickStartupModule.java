@@ -28,12 +28,9 @@ public class JoystickStartupModule extends AbstractStartupModule {
     this.joystick = joystick;
   }
 
-  public Object getInitContext() {
-    return null;
-  }
 
-  public int initFn(Object initContext) {
-    return joystick.init(initContext);
+  public void init() {
+    joystick.start();
   }
 
   public void endFn() {

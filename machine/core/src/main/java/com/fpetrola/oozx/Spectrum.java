@@ -147,12 +147,12 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
     return framesSinceReset;
   }
 
-  public int init(Object context) {
+  public void start() {
     spectrumFrameEvent = eventManager.eventRegister(this::spectrumFrameEventFn, "End of frame");
 
     module.register(new SpectrumModuleInfo(this));
 
-    return 0;
+    return;
   }
 
   @Override

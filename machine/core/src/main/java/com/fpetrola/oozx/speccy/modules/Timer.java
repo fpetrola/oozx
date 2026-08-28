@@ -60,15 +60,15 @@ public class Timer implements ZxModule, MachineChangeListener {
   }
 
   @Override
-  public int init(Object context) {
+  public void start() {
     startTime = getTime();
     if (startTime < 0) {
-      return 1;
+      throw new IllegalStateException("the clock went backwards before the timer started");
     }
 
     timerEvent = eventManager.eventRegister(this::frame, "Timer");
     addEvent();
-    return estimateReset();
+    estimateReset();
   }
 
   public void addEvent() {
@@ -109,7 +109,7 @@ public class Timer implements ZxModule, MachineChangeListener {
   public int estimateReset() {
     startTime = getTime();
     if (startTime < 0) {
-      return 1;
+      throw new IllegalStateException("the clock went backwards before the timer started");
     }
     samples = 0;
     nextStoredTime = 0;

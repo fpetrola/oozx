@@ -38,14 +38,10 @@ public class MachineStartupModule extends AbstractStartupModule {
     this.defaultMachine = defaultMachine;
   }
 
-  public Object getInitContext() {
-    return null;
-  }
 
-  public int initFn(Object initContext) {
+  public void init() {
     spectrumMachines.forEach(machine::addMachine);
     machine.setDefaultMachine(defaultMachine);
-    return 0;
   }
 
   public void endFn() {
