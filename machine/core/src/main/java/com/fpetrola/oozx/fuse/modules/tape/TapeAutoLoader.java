@@ -36,8 +36,19 @@ import java.util.List;
  * Keys go through {@link com.fpetrola.oozx.fuse.modules.Keyboard}. Writing the key code into
  * LAST_K and raising bit 5 of FLAGS does not register as a keypress here, so a LOAD typed that
  * way never reaches the interpreter and the machine stays in the editor.
+ * <p>
+ * The tape runs at {@code loadingSpeed} so a multi-minute load takes seconds, and the emulator
+ * drops to {@code speedAfterLoading} once the deck stops, so the game itself plays at its real
+ * pace. Both switches happen with the tape idle: raising the speed before it starts and lowering
+ * it after it has stopped, never mid-block, since changing speed resets the clock the tape times
+ * its pulses against.
  */
 public class TapeAutoLoader {
+
+  /** Emulation speed, in percent, while the tape is loading. */
+  public static final int LOADING_SPEED = 20000;
+  /** Emulation speed, in percent, once it has loaded. 100 is real Spectrum speed. */
+  public static final int NORMAL_SPEED = 100;
 
   /** Frames to let the ROM reach the BASIC prompt before typing. */
   private static final int BOOT_FRAMES = 120;
@@ -47,17 +58,33 @@ public class TapeAutoLoader {
 
   private final Fuse fuse;
   private final File tapeFile;
+  private final int speedAfterLoading;
   private final List<Runnable> steps = new ArrayList<>();
 
   private long previousTStates;
   private int framesToWait = BOOT_FRAMES;
   private int nextStep;
+  private boolean waitingForTapeToStop;
+  private boolean finished;
   private String error;
 
   public TapeAutoLoader(Fuse fuse, File tapeFile) {
+    this(fuse, tapeFile, LOADING_SPEED, NORMAL_SPEED);
+  }
+
+  /**
+   * @param loadingSpeed      emulation speed, in percent, while the tape runs
+   * @param speedAfterLoading emulation speed, in percent, once the deck stops
+   */
+  public TapeAutoLoader(Fuse fuse, File tapeFile, int loadingSpeed, int speedAfterLoading) {
     this.fuse = fuse;
     this.tapeFile = tapeFile;
+    this.speedAfterLoading = speedAfterLoading;
     this.previousTStates = fuse.zxClock.getTStates();
+
+    // Set directly rather than through Z80.changeSpeed: nothing is running yet, and
+    // changeSpeed resets the clock and restarts sound.
+    fuse.settings.current.emulationSpeed = loadingSpeed;
 
     // LOAD "" ENTER, in 48K BASIC keyword entry.
     press(KeyboardKeyName.KEYBOARD_j);
@@ -99,7 +126,7 @@ public class TapeAutoLoader {
    * subtracts a frame's worth of tStates at every frame boundary.
    */
   public void step() {
-    if (isDone()) {
+    if (finished) {
       return;
     }
 
@@ -110,16 +137,37 @@ public class TapeAutoLoader {
       return;
     }
 
+    if (waitingForTapeToStop) {
+      if (!fuse.tape.isTapePlaying()) {
+        fuse.z80.changeSpeed(speedAfterLoading);
+        previousTStates = fuse.zxClock.getTStates();
+        finished = true;
+      }
+      return;
+    }
+
     if (framesToWait > 0) {
       framesToWait--;
       return;
     }
 
     steps.get(nextStep++).run();
+
+    if (nextStep >= steps.size()) {
+      // Nothing left to type; from here on just wait for the load to finish.
+      waitingForTapeToStop = error == null;
+      finished = error != null;
+    }
   }
 
+  /** True once the tape has loaded and the emulator is back at normal speed. */
   public boolean isDone() {
-    return nextStep >= steps.size();
+    return finished;
+  }
+
+  /** True while the tape is still running, so a caller can show a loading indicator. */
+  public boolean isLoading() {
+    return waitingForTapeToStop && !finished;
   }
 
   /** Null unless the tape could not be inserted or played. */
