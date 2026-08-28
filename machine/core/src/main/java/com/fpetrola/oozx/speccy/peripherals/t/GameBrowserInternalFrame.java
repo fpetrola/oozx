@@ -242,7 +242,10 @@ public class GameBrowserInternalFrame extends JInternalFrame {
         // Entries with nothing downloadable used to be dropped, so a game simply was not in the
         // results and there was no way to tell that from it not existing. Keep them, with a null
         // filename, and say so when one is clicked.
-        String file = files.isEmpty() ? null : files.get(0);
+        // Not files.get(0): ZXDB lists several downloads per game and the first is whatever the
+        // database happens to return, which for Three Weeks in Paradise is its 128K tape.
+        String file = files.isEmpty() ? null
+            : DownloadAndUnzip.preferred(files, url -> url.substring(url.lastIndexOf('/') + 1));
         results.add(new GameSearchResult(hit._id, game.title, "http://example.com/game/" + query,
             screenshot1, screenshot2, file));
       }

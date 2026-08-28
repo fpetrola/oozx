@@ -26,6 +26,7 @@ import com.fpetrola.oozx.speccy.OOSpectrumConnector;
 import com.fpetrola.oozx.speccy.bridge.SpeccyBaseForTests;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.peripherals.t.DownloadAndUnzip;
+import com.fpetrola.oozx.speccy.peripherals.t.DownloadAndUnzip;
 import com.fpetrola.oozx.speccy.peripherals.t.GameBrowserInternalFrame;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 import com.fpetrola.oozx.speccy.modules.tape.TapeAutoLoader;
@@ -71,6 +72,7 @@ public class TzxLoadingTest extends SpeccyBaseForTests {
       "the great escape",
       "renegade",
       "human killing machine",
+      "three weeks in paradise",
   };
 
   /**
@@ -194,6 +196,7 @@ public class TzxLoadingTest extends SpeccyBaseForTests {
     if (game.releases == null) {
       return null;
     }
+    List<String> candidates = new ArrayList<>();
     for (var release : game.releases) {
       if (release.files == null) {
         continue;
@@ -202,11 +205,11 @@ public class TzxLoadingTest extends SpeccyBaseForTests {
         // /denied/ holds entries withdrawn on copyright grounds; no mirror serves them,
         // so a click on one in the browser can only ever 404.
         if ("Perfect tape (TZX)".equals(file.format) && !file.path.startsWith("/denied/")) {
-          return GameBrowserInternalFrame.getFileURL(file.path);
+          candidates.add(GameBrowserInternalFrame.getFileURL(file.path));
         }
       }
     }
-    return null;
+    return DownloadAndUnzip.preferred(candidates, url -> url.substring(url.lastIndexOf('/') + 1));
   }
 
   /** Downloads through the same code the app uses, but into a per-game cache dir. */

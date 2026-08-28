@@ -23,6 +23,7 @@ import java.net.URL;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.zip.*;
 
 public class DownloadAndUnzip {
@@ -98,23 +99,44 @@ public class DownloadAndUnzip {
    * of the same tape the 48K one wins, since that is the machine being emulated.
    */
   public static Path chooseLoadable(List<Path> entries) {
-    Path best = null;
-    int bestScore = Integer.MIN_VALUE;
+    List<Path> files = new ArrayList<>();
     for (Path entry : entries) {
-      if (Files.isDirectory(entry)) {
-        continue;
-      }
-      int score = scoreOf(entry);
-      if (score > bestScore) {
-        bestScore = score;
-        best = entry;
+      if (!Files.isDirectory(entry)) {
+        files.add(entry);
       }
     }
+    Path best = preferred(files, entry -> entry.getFileName().toString());
     return best != null ? best : entries.get(0);
   }
 
-  private static int scoreOf(Path entry) {
-    String name = entry.getFileName().toString().toLowerCase();
+  /**
+   * Picks the best of several candidates by name, or null when none is loadable.
+   * <p>
+   * The same choice has to be made twice over: once among the files ZXDB lists for a game, which
+   * are separate downloads, and again among the entries of the zip that comes back. Three Weeks
+   * in Paradise is listed as seven files including both a 48K and a 128K tape, and taking the
+   * first handed a 128K tape to a 48K machine even though the chooser inside the zip was right.
+   */
+  public static <T> T preferred(List<T> candidates, Function<T, String> nameOf) {
+    T best = null;
+    int bestScore = Integer.MIN_VALUE;
+    for (T candidate : candidates) {
+      int score = scoreOf(nameOf.apply(candidate));
+      if (score > bestScore) {
+        bestScore = score;
+        best = candidate;
+      }
+    }
+    return bestScore == Integer.MIN_VALUE + 1 ? null : best;
+  }
+
+  private static int scoreOf(String fileName) {
+    String name = fileName.toLowerCase();
+    // ZXDB lists downloads as .tzx.zip while the entries inside them are plain .tzx, and the
+    // same scoring serves both.
+    if (name.endsWith(".zip")) {
+      name = name.substring(0, name.length() - 4);
+    }
     int score;
     if (name.endsWith(".z80") || name.endsWith(".sna") || name.endsWith(".szx")) {
       score = 30; // a snapshot loads instantly and cannot fail on tape timing
@@ -126,11 +148,16 @@ public class DownloadAndUnzip {
       return Integer.MIN_VALUE + 1; // not something the emulator can load at all
     }
 
+    // The emulator boots a 48K machine, so a 48K variant beats a 128K one.
     if (name.contains("128")) {
       score -= 5;
     }
     if (name.contains("48")) {
       score += 5;
+    }
+    // A plain release beats one marked as an alternate or a different dump.
+    if (name.contains("different") || name.contains("alternate")) {
+      score -= 2;
     }
     return score;
   }

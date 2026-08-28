@@ -78,6 +78,8 @@ public class Tape implements ClockTimeoutListener {
     private int nOffsetBlocks;
     private int idxHeader;
     private int tapePos;
+    /** How many "stop the tape" blocks an automatic load has already run past. */
+    private int stopsPassed;
     private int blockLen;
     private int mask;
     private int bitTime;
@@ -618,6 +620,7 @@ public class Tape implements ClockTimeoutListener {
         }
 
         tapePos = idxHeader = 0;
+        stopsPassed = 0;
         statePlay = State.STOP;
         tapePlaying = tapeRecording = false;
         String name = filename.getName().toLowerCase();
@@ -665,6 +668,7 @@ public class Tape implements ClockTimeoutListener {
 
         filename = new File(fileName);
         tapePos = idxHeader = 0;
+        stopsPassed = 0;
         statePlay = State.STOP;
         tapePlaying = tapeRecording = false;
         switch (extension) {
@@ -1202,14 +1206,22 @@ public class Tape implements ClockTimeoutListener {
                     break;
                 case PAUSE_STOP:
                     if (endBlockPause == 0) {
-                        // A zero pause on block 0x20 is the "stop the tape" command, which
-                        // expects a person to press play again when the game asks for more.
-                        // An automatic load has nobody to do that, and waiting is not an option:
-                        // a loader that is mid-load resets the machine within the same tick the
-                        // signal stops, long before anything outside the deck could restart it.
-                        // So keep running while blocks remain, and only honour the stop when a
-                        // person started the tape, or when there is nothing left to play.
-                        boolean honourStop = manualMode || idxHeader >= nOffsetBlocks;
+                        // A zero pause on block 0x20 is the "stop the tape" command, which expects
+                        // a person to press play again when the game asks for more.
+                        //
+                        // Whether to obey it depends on who is listening. A loader mid-load resets
+                        // the machine within the same tick the signal stops, long before anything
+                        // outside the deck could restart it, so stopping there loses the load -
+                        // Renegade ends its Speedlock that way, with one block still to come. But
+                        // once the game is running, nothing reads the tape any more, and carrying
+                        // on plays every level of a multiload past a game that is not asking for
+                        // them.
+                        //
+                        // The ULA sampling the tape is what a loader doing its work looks like, so
+                        // that is the question asked: if nothing read the block just played, the
+                        // stop is honoured. A person driving the deck by hand always decides.
+                        boolean honourStop =
+                            manualMode || idxHeader >= nOffsetBlocks || stopsPassed++ > 0;
                         statePlay = honourStop ? State.STOP : State.TZX_HEADER;
                         repeat = true;
                     } else {
@@ -1546,6 +1558,7 @@ public class Tape implements ClockTimeoutListener {
                     idxHeader++;
             }
         }
+
 //        System.out.println(String.format("tapeBufferLength: %d, tapePos: %d, blockLen: %d",
 //                    tapeBuffer.length, tapePos, blockLen));
     }
