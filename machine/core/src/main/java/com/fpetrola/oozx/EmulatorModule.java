@@ -20,9 +20,11 @@ package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.speccy.machine.*;
 import com.fpetrola.oozx.speccy.modules.z80.Cpu;
+import com.fpetrola.oozx.speccy.modules.z80.PeripheralIO;
 import com.fpetrola.oozx.speccy.modules.z80.Z80;
 import com.fpetrola.oozx.speccy.peripherals.IPeriph;
 import com.fpetrola.oozx.speccy.peripherals.Periph;
+import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.Z80Clock;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
@@ -58,6 +60,10 @@ public class EmulatorModule extends AbstractModule {
     bind(PeriphDelegate.class).to(UlaPeriph.class);
 
     bind(Cpu.class).to(Z80.class);
+
+    // The processor's ports. Bound to a type rather than built inside the Z80, so an RZX
+    // recording can replace it to play back, or wrap it to record.
+    bind(IO.class).to(PeripheralIO.class);
 
     // Every model the emulator can be, and separately which one it falls back to. The set says
     // nothing about order, so nothing depends on the order these are listed in.

@@ -67,7 +67,7 @@ public class Z80 implements ZxModule, Cpu {
   public LibretroCore.bridge_command bridgeCommand;
   private PhaseProcessor phaseProcessor;
 
-  private IO io;
+  private final IO io;
   private int z80_interrupt_event;
   //   ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent();
 //   MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
@@ -94,7 +94,7 @@ public class Z80 implements ZxModule, Cpu {
   private Memory memory1;
 
   @Inject
-  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Machine machine, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, PeriphDelegate periph, UiDisplay uiDisplay, Timer timer, Module module, EmulationSession session, Sound sound, Settings settings, Tape tape) {
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Machine machine, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, PeriphDelegate periph, UiDisplay uiDisplay, Timer timer, Module module, EmulationSession session, Sound sound, Settings settings, Tape tape, IO io) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
@@ -111,6 +111,7 @@ public class Z80 implements ZxModule, Cpu {
     this.sound = sound;
     this.settings = settings;
     this.tape = tape;
+    this.io = io;
   }
 
   public void reset(int hardReset) {
@@ -172,7 +173,6 @@ public class Z80 implements ZxModule, Cpu {
   }
 
   private void initNoTest() {
-    createIO();
 
     memory1 = new Memory() {
       private boolean disabled;
@@ -234,7 +234,6 @@ public class Z80 implements ZxModule, Cpu {
   }
 
   private void initTest() {
-    createIO();
     createMemoryTEst();
     var state = createState(memory1);
     createOOZ80(state);
@@ -296,18 +295,6 @@ public class Z80 implements ZxModule, Cpu {
 
       public void reset() {
         memory.reset();
-      }
-    };
-  }
-
-  private void createIO() {
-    io = new IO() {
-      public int in(int port) {
-        return periph.readPort(port);
-      }
-
-      public void out(int port, int value) {
-        periph.writePort(port, (byte) value);
       }
     };
   }
