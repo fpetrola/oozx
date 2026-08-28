@@ -39,34 +39,36 @@ public class SePop extends Pop implements IPopReturnAddress {
   public void execute() {
     setNextPC(-1);
     returnAddress = null;
-    var read = memory.read16Bits(sp.read());
+    int stackAddress = sp.read();
+    var read = memory.read16Bits(stackAddress);
+    ReturnAddressWordNumber returnAddressWordNumber = symbolicExecutionAdapter.takeReturnAddress(stackAddress, read);
 
-//    if (read instanceof ReturnAddressWordNumber returnAddressWordNumber) {
-//      RoutineExecutorHandler routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
-//      var pc = routineExecutorHandler.getPc();
-//      var pcValue = pc.read();
-//
-//      previousPc = symbolicExecutionAdapter.lastPc;
-//      popAddress = pcValue;
-//      returnAddress = returnAddressWordNumber;
-//
-//      var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
-//      var routineExecution = routineExecutorHandler.getCallerRoutineExecution();
-//
-//      routineExecution.replaceAddressAction(new AddressActionDelegate<>(pcValue + 1, routineExecutorHandler));
-//      routineExecution.replaceAddressAction(new AddressActionDelegate<>(returnAddressWordNumber, routineExecutorHandler));
-//      lastRoutineExecution.replaceAddressAction(new BasicAddressAction(popAddress, routineExecutorHandler, false));
-//      routineExecution.replaceAddressAction(new PopReturnCallAddressAction<>(routineExecutorHandler, lastRoutineExecution, returnAddressWordNumber.pc));
-//
-//      target.write(doPop(memory, sp));
-//
-//      routineExecutorHandler.popRoutineExecution();
-//      if (!lastRoutineExecution.hasRetInstruction())
-//        lastRoutineExecution.setRetInstruction(pcValue);
-//    } else {
-//      symbolicExecutionAdapter.checkNextSP();
-//      target.write(doPop(memory, sp));
-//    }
+    if (returnAddressWordNumber != null) {
+      RoutineExecutorHandler routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
+      var pc = routineExecutorHandler.getPc();
+      var pcValue = pc.read();
+
+      previousPc = symbolicExecutionAdapter.lastPc;
+      popAddress = pcValue;
+      returnAddress = returnAddressWordNumber;
+
+      var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
+      var routineExecution = routineExecutorHandler.getCallerRoutineExecution();
+
+      routineExecution.replaceAddressAction(new AddressActionDelegate(pcValue + 1, routineExecutorHandler));
+      routineExecution.replaceAddressAction(new AddressActionDelegate(returnAddressWordNumber.value, routineExecutorHandler));
+      lastRoutineExecution.replaceAddressAction(new BasicAddressAction(popAddress, routineExecutorHandler, false));
+      routineExecution.replaceAddressAction(new PopReturnCallAddressAction(routineExecutorHandler, lastRoutineExecution, returnAddressWordNumber.pc));
+
+      target.write(doPop(memory, sp));
+
+      routineExecutorHandler.popRoutineExecution();
+      if (!lastRoutineExecution.hasRetInstruction())
+        lastRoutineExecution.setRetInstruction(pcValue);
+    } else {
+      symbolicExecutionAdapter.checkNextSP();
+      target.write(doPop(memory, sp));
+    }
   }
 
   protected String getName() {

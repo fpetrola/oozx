@@ -25,6 +25,7 @@ import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
+import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.se.actions.JPRegisterAddressAction;
@@ -126,10 +127,10 @@ public class SEInstructionFactory extends DefaultInstructionFactory {
   public Call Call(Condition condition, ImmutableOpcodeReference positionOpcodeReference) {
     return new Call(positionOpcodeReference, condition, pc, sp, this.state.getMemory()) {
       public int beforeJump(int jumpAddress) {
-        Integer wordNumber = pc.read();
-        int value = (wordNumber + length) & 0xFFFF;
-//        value = (T) new ReturnAddressWordNumber(value, pc.read());
+        int callPc = pc.read();
+        int value = (callPc + length) & 0xFFFF;
         Push.doPush(value, sp, memory);
+        symbolicExecutionAdapter.markReturnAddress(sp.read(), new ReturnAddressWordNumber(value, callPc));
         return jumpAddress;
       }
 

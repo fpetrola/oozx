@@ -20,9 +20,13 @@ package com.fpetrola.z80.se;
 
 
 public class ReturnAddressWordNumber  {
+  /** Direccion de retorno propiamente dicha. */
+  public final int value;
+  /** PC de la instruccion que la apilo: la identidad que antes daba WordNumber. */
   public final int pc;
 
-  public ReturnAddressWordNumber(int i, int pc) {
+  public ReturnAddressWordNumber(int value, int pc) {
+    this.value = value & 0xFFFF;
     this.pc = pc;
   }
 

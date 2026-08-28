@@ -110,16 +110,16 @@ public class RoutineFinder {
   }
 
   private void processCallInstruction(Instruction instruction) {
-    Integer nextPC = (Integer) ((ConditionalInstruction) lastInstruction).getNextPC();
-    if (nextPC != null) {
+    int nextPC = ((ConditionalInstruction) lastInstruction).getNextPC();
+    if (nextPC != -1) {
 //      System.out.printf("CALL: %H%n", nextPC.intValue());
       createOrUpdateCurrentRoutine(nextPC, instruction.getLength());
     }
   }
 
   private void processRetInstruction(Ret ret) {
-    Integer nextPC = (Integer) ret.getNextPC();
-    if (nextPC != null) {
+    int nextPC = ret.getNextPC();
+    if (nextPC != -1) {
       this.currentRoutine = routineManager.findRoutineAt(nextPC - 1);
     }
   }

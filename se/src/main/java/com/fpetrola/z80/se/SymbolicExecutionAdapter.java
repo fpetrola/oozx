@@ -62,6 +62,31 @@ public class SymbolicExecutionAdapter {
   private Register pc;
   private DataflowService dataflowService;
   private SEInstructionFactory sEInstructionFactory;
+  /**
+   * Direccion de stack -> quien apilo ahi una direccion de retorno.
+   * <p>
+   * Cuando los valores eran WordNumber, un return address era un objeto y se
+   * reconocia con instanceof. Ahora son int, asi que la identidad viaja aparte.
+   */
+  private final Map<java.lang.Integer, ReturnAddressWordNumber> returnAddressesInStack = new HashMap<>();
+
+  /** Marca que en stackAddress quedo apilada una direccion de retorno. */
+  public void markReturnAddress(int stackAddress, ReturnAddressWordNumber returnAddress) {
+    returnAddressesInStack.put(stackAddress, returnAddress);
+  }
+
+  /**
+   * Devuelve y consume la marca de stackAddress, pero solo si el valor que hay
+   * ahi sigue siendo el que se apilo: si el programa piso ese slot, ya no es una
+   * direccion de retorno. Equivale al instanceof que se hacia sobre el objeto.
+   */
+  public ReturnAddressWordNumber takeReturnAddress(int stackAddress, int currentValue) {
+    ReturnAddressWordNumber returnAddress = returnAddressesInStack.get(stackAddress);
+    if (returnAddress == null || returnAddress.value != (currentValue & 0xFFFF))
+      return null;
+    returnAddressesInStack.remove(stackAddress);
+    return returnAddress;
+  }
 
   public int getPcValue() {
     return pc.read();
@@ -74,6 +99,7 @@ public class SymbolicExecutionAdapter {
     spy.reset(state);
     nextSP = 0;
     lastPc = 0;
+    returnAddressesInStack.clear();
     sEInstructionFactory.reset();
   }
 
