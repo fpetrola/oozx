@@ -89,7 +89,7 @@ public class Fuse {
     joystick = new Joystick(keyboard, ulaPeriph, module, settings);
     input = new Input(joystick, keyboard, settings);
     timer = new Timer(eventManager, sound, settings, tape);
-    machine = new Machine(eventManager, memory, display, ula, zxClock, spec48, uiDisplay, timer, module, settings, sound);
+    machine = new Machine(eventManager, memory, display, ula, zxClock, uiDisplay, timer, module, settings, sound);
     z80 = new Z80(eventManager, memory, display, ula, machine, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer, module, this, settings, tape);
     spec48 = new Spec48(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, sound);
     Fdd fdd = new Fdd(settings);

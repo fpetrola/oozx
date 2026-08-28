@@ -37,7 +37,6 @@ public class Machine implements ZxModule {
   private final Settings settings;
   public Spectrum current;
   private final Z80Clock z80Clock;
-  private final Spectrum spectrum;
   private final UiDisplay uiDisplay;
   private final Timer timer;
 
@@ -45,14 +44,13 @@ public class Machine implements ZxModule {
   private final List<MachineChangeListener> machineChangeListeners = new ArrayList<>();
   private Sound sound;
 
-  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, Z80Clock z80Clock, Spectrum spectrum, UiDisplay uiDisplay, Timer timer, Module module, Settings settings, Sound sound) {
+  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, Z80Clock z80Clock, UiDisplay uiDisplay, Timer timer, Module module, Settings settings, Sound sound) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
     this.ula = ula;
     this.module = module;
     this.z80Clock = z80Clock;
-    this.spectrum = spectrum;
     this.uiDisplay = uiDisplay;
     this.timer = timer;
     this.settings = settings;
@@ -100,8 +98,6 @@ public class Machine implements ZxModule {
     int spectrumFrameEvent;
     if (current != null && current.spectrumFrameEvent != -1)
       spectrumFrameEvent = current.spectrumFrameEvent;
-    else if (spectrum != null)
-      spectrumFrameEvent = spectrum.spectrumFrameEvent;
     else
       spectrumFrameEvent = machine.spectrumFrameEvent;
 
