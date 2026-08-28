@@ -30,7 +30,6 @@ import com.fpetrola.emulation.helpers.snapshots.SpectrumState;
 import java.awt.*;
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Random;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
 
@@ -57,20 +56,28 @@ public class OOSpectrumLauncher {
     };
     ZXSpectrumDesktopApp[] appHolder = new ZXSpectrumDesktopApp[1];
     ZXSpectrumDesktopApp zxSpectrumDesktopApp = new ZXSpectrumDesktopApp((filename) -> {
+      Fuse fuse;
       String string = null;
 
-      if (filename.isBlank()) {
-        string = extracted();
-      } else if (!filename.isBlank() && filename.contains("http")) {
-        Path unzip = new DownloadAndUnzip().unzip(filename);
-//      String snapshotFile = Helper.getSnapshotFile(filename);
-        string = unzip.toAbsolutePath().toString();
-      } else string = filename;
-      Fuse fuse = createFuse(string);
+      if (filename == null || filename.isBlank()) {
+        // Nothing asked for: a machine at the BASIC prompt, which is what "New Emulator" means.
+        fuse = createBareFuse();
+      } else {
+        string = filename.contains("http")
+            ? new DownloadAndUnzip().unzip(filename).toAbsolutePath().toString()
+            : filename;
+        fuse = createFuse(string);
+      }
+
       EmulatorCore mockCore = fuse.z80.mockCore;
-      mockCore.setFilename(string);
-      if (isTape(string)) {
-        appHolder[0].showTapeBrowser(fuse.tape, new File(string));
+      if (string != null) {
+        mockCore.setFilename(string);
+      }
+      // Every machine has a deck, whether or not it was started with a tape, so the cassette
+      // browser can drive whichever emulator is in front.
+      appHolder[0].registerTape(mockCore, fuse.tape);
+      if (string != null && isTape(string)) {
+        appHolder[0].showTapeBrowser();
       }
       return mockCore;
     }, mockCoreState);
@@ -99,15 +106,13 @@ public class OOSpectrumLauncher {
     frame.setVisible(true);
   }
 
-  private String extracted() {
-    String[] games = {"emlyn.z80", "dynamitedan.z80", "equinox.z80", "tge.z80", "wally.z80", "jsw.z80", "agentx2.z80", "rickdangerous.z80", "darkfusion.z80", "trantor.z80"};
-//    String[] games = {"rickdangerous.z80"};
-//    String[] games = {"jsw.z80"};
-
-    games = new String[]{"darkfusion.z80", "trantor.z80", "rtype.z80"};
-
-    String randomGame = games[new Random().nextInt(games.length)];
-    return "/home/fernando/detodo/desarrollo/m/zx/roms/" + randomGame;
+  /** A machine with nothing loaded, sitting at the BASIC prompt, running at real speed. */
+  public Fuse createBareFuse() {
+    Fuse fuse = new Fuse();
+    fuse.settings.current.emulationSpeed = 100;
+    fuse.init();
+    extracted(fuse);
+    return fuse;
   }
 
   public Fuse createFuse(String filename) {

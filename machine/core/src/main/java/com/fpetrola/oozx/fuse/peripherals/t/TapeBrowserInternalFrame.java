@@ -27,10 +27,16 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.io.File;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Shows what is on a tape and lets it be driven by hand: the blocks and their details, which one
  * is being read, how far into it the player has got, and play, pause and stop.
+ * <p>
+ * It is not bound to one machine. On every refresh it asks the app which emulator is in front and
+ * drives that one's deck, so a tape can be opened into a running emulator, played block by block
+ * while that machine sits at LOAD "", and the window keeps working when the emulator is closed and
+ * another opened. With no emulator, or none with a tape in it, it says so and the controls go dead.
  * <p>
  * The deck is driven with {@code play(true)}, the manual mode, so a "stop the tape" block is
  * honoured here as it should be: the person watching is the one who decides when it starts again.
@@ -41,23 +47,33 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
   /** How often the progress column is refreshed. The tape moves on the emulation thread. */
   private static final int REFRESH_MILLIS = 100;
 
-  private final Tape tape;
-  private final List<TapeBlock> blocks;
+  private final Supplier<Tape> activeTape;
+  private final Runnable insertTape;
   private final BlockTableModel model;
   private final JTable table;
   private final JLabel status;
   private final JButton playButton;
   private final JButton pauseButton;
   private final JButton stopButton;
+  private final JButton insertButton;
+
+  /** The deck being driven, and the tape in it, as of the last refresh. */
+  private Tape tape;
+  private File tapeFile;
+  private List<TapeBlock> blocks = List.of();
 
   /** The block the player last reported starting, which is the one being read. */
   private volatile int currentBlock = -1;
   private boolean paused;
 
-  public TapeBrowserInternalFrame(Tape tape, File tapeFile) {
-    super("Cassette - " + tapeFile.getName(), true, true, true, true);
-    this.tape = tape;
-    this.blocks = TapeBlock.read(tapeFile);
+  /**
+   * @param activeTape supplies the deck of whatever machine is in front, or null when there is none
+   * @param insertTape asks for a tape to be put into that machine
+   */
+  public TapeBrowserInternalFrame(Supplier<Tape> activeTape, Runnable insertTape) {
+    super("Cassette", true, true, true, true);
+    this.activeTape = activeTape;
+    this.insertTape = insertTape;
 
     setSize(720, 420);
     setLocation(80, 80);
@@ -77,15 +93,19 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
     playButton = new JButton("Play");
     pauseButton = new JButton("Pause");
     stopButton = new JButton("Stop");
+    insertButton = new JButton("Insert Tape...");
     playButton.addActionListener(e -> play());
     pauseButton.addActionListener(e -> pause());
     stopButton.addActionListener(e -> stop());
+    insertButton.addActionListener(e -> insertTape.run());
     pauseButton.setToolTipText("Stops the tape where it is; playing again restarts the current block");
 
     JPanel controls = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
     controls.add(playButton);
     controls.add(pauseButton);
     controls.add(stopButton);
+    controls.add(Box.createHorizontalStrut(10));
+    controls.add(insertButton);
     status = new JLabel();
     controls.add(Box.createHorizontalStrut(15));
     controls.add(status);
@@ -93,9 +113,6 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
     setLayout(new BorderLayout());
     add(controls, BorderLayout.NORTH);
     add(new JScrollPane(table), BorderLayout.CENTER);
-
-    // The player reports the block it is starting; that is what "being read" means here.
-    tape.addTapeBlockListener(block -> currentBlock = block);
 
     Timer refresh = new Timer(REFRESH_MILLIS, e -> refresh());
     refresh.start();
@@ -111,6 +128,9 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
 
   /** Plays from the selected block, or from wherever the tape already is if nothing is selected. */
   private void play() {
+    if (tape == null) {
+      return;
+    }
     int selected = table.getSelectedRow();
     if (!paused && selected >= 0) {
       tape.setSelectedBlock(selected); // ignored while playing, which is what we want
@@ -120,11 +140,17 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
   }
 
   private void pause() {
+    if (tape == null) {
+      return;
+    }
     paused = tape.isTapePlaying();
     tape.stop();
   }
 
   private void stop() {
+    if (tape == null) {
+      return;
+    }
     paused = false;
     tape.stop();
     tape.setSelectedBlock(0);
@@ -132,10 +158,21 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
   }
 
   private void refresh() {
-    boolean playing = tape.isTapePlaying();
-    playButton.setEnabled(!playing);
+    followActiveEmulator();
+
+    boolean hasTape = tape != null && !blocks.isEmpty();
+    boolean playing = hasTape && tape.isTapePlaying();
+    playButton.setEnabled(hasTape && !playing);
     pauseButton.setEnabled(playing);
-    stopButton.setEnabled(playing || paused);
+    stopButton.setEnabled(hasTape && (playing || paused));
+
+    if (!hasTape) {
+      status.setText(activeTape.get() == null
+          ? "No emulator in front - open one to drive its tape"
+          : "No tape in the machine in front - use Insert Tape");
+      model.fireProgressChanged();
+      return;
+    }
 
     String where = currentBlock >= 0 && currentBlock < blocks.size()
         ? "block " + (currentBlock + 1) + " of " + blocks.size() + ", " + blocks.get(currentBlock).type()
@@ -146,6 +183,34 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
     if (playing && currentBlock >= 0 && currentBlock < table.getRowCount()) {
       table.scrollRectToVisible(table.getCellRect(currentBlock, 0, true));
     }
+  }
+
+  /**
+   * Points at whatever emulator is in front. Rereads the block list when the deck or the tape in
+   * it changes, which is what makes the window survive switching or reopening emulators.
+   */
+  private void followActiveEmulator() {
+    Tape active = activeTape.get();
+    File file = active != null && active.isTapeInserted() ? active.getTapeFilename() : null;
+
+    boolean sameDeck = active == tape;
+    boolean sameTape = file == null ? tapeFile == null : file.equals(tapeFile);
+    if (sameDeck && sameTape) {
+      return;
+    }
+
+    if (active != tape && active != null) {
+      // The player reports the block it is starting; that is what "being read" means here.
+      active.addTapeBlockListener(block -> currentBlock = block);
+    }
+
+    tape = active;
+    tapeFile = file;
+    blocks = file != null ? TapeBlock.read(file) : List.of();
+    currentBlock = -1;
+    paused = false;
+    setTitle(file != null ? "Cassette - " + file.getName() : "Cassette");
+    model.fireTableDataChanged();
   }
 
   /**
