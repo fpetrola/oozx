@@ -18,8 +18,19 @@
 
 package model.tests;
 
+import com.fpetrola.oozx.EmulatorModule;
 import com.fpetrola.oozx.Fuse;
+import com.fpetrola.oozx.MachinesPeriph;
+import com.fpetrola.oozx.Memory;
+import com.fpetrola.oozx.PeriphDelegate;
+import com.fpetrola.oozx.SpectrumZ80Clock;
 import com.fpetrola.oozx.fuse.OOSpectrumConnector;
+import com.fpetrola.oozx.fuse.Sound;
+import com.fpetrola.oozx.fuse.modules.Ula;
+import com.fpetrola.oozx.fuse.modules.tape.Tape;
+import com.fpetrola.oozx.fuse.peripherals.IPeriph;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.fpetrola.oozx.fuse.sound.JavaSoundDevice;
 import com.fpetrola.z80.registers.RegisterName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +43,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * Pins the emulator's observable state after a fixed run, so a refactor that was meant to be
@@ -95,6 +108,30 @@ public class EmulationRegressionTest {
 
     EXPECTED.forEach((name, expected) -> assertEquals(expected, actual.get(name),
         name + " changed; look at target/regression-screens and decide whether that was intended"));
+  }
+
+  /**
+   * The parts a Spectrum has exactly one of, and the one pair it has two of.
+   * <p>
+   * A missing @Singleton does not fail loudly: with two Tapes the emulator starts perfectly,
+   * the browser shows the cassette, and nothing ever loads, because Sound, the ULA and the
+   * public fuse.tape are each driving a different deck. The two peripheral buses are the
+   * mirror image — the raw Periph and the UlaPeriph that decorates it have to stay distinct,
+   * or the ULA ends up wrapped around itself.
+   */
+  @Test
+  public void theGraphHandsOutOneOfEachSharedPart() {
+    Injector injector = Guice.createInjector(new EmulatorModule(new SpectrumZ80Clock()));
+
+    for (Class<?> shared : new Class<?>[]{
+        Tape.class, Sound.class, Memory.class, Ula.class, MachinesPeriph.class,
+        IPeriph.class, PeriphDelegate.class}) {
+      assertSame(injector.getInstance(shared), injector.getInstance(shared),
+          shared.getSimpleName() + " is handed out more than once; it needs @Singleton");
+    }
+
+    assertNotSame(injector.getInstance(IPeriph.class), injector.getInstance(PeriphDelegate.class),
+        "the raw and the ULA-decorated peripheral bus collapsed into one object");
   }
 
   /**

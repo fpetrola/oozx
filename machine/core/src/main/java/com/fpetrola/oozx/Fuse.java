@@ -31,6 +31,8 @@ import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 import com.fpetrola.oozx.fuse.startup.*;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 import java.util.List;
 
@@ -53,6 +55,7 @@ public class Fuse {
   private final Timer timer;
   public Z80 z80;
   private final StartupManager startupManager;
+  private final Injector injector;
   public Machine machine;
   public MachinesPeriph machinesPeriph;
   public Spec48 spec48;
@@ -69,39 +72,38 @@ public class Fuse {
   }
 
   public Fuse(SpectrumZ80Clock spectrumZ80Clock) {
+    injector = Guice.createInjector(new EmulatorModule(spectrumZ80Clock));
+
     zxClock = spectrumZ80Clock;
-    settings = new Settings();
-    startupManager = new StartupManager();
-    module = new Module();
-    memory = new Memory(zxClock, module, settings);
-    uiDisplay = new UiDisplay();
-    display = new Display(memory, zxClock, memory, uiDisplay);
-    keyboard = new Keyboard();
-    periph = new Periph(zxClock, settings);
-    tape = new Tape(new TapeSettingsType(), zxClock);
-    Movie movie = new Movie();
-    sound = new Sound(settings, movie, periph, tape, zxClock);
-    ula = new Ula(memory, display, keyboard, zxClock, periph, module, settings, tape, sound);
-    eventManager = new EventManager(zxClock);
-    ulaPeriph = new UlaPeriph(ula, zxClock, periph);
-    machinesPeriph = new MachinesPeriph(ulaPeriph);
-    joystick = new Joystick(keyboard, ulaPeriph, module, settings);
-    input = new Input(joystick, keyboard, settings);
-    timer = new Timer(eventManager, sound, settings, tape);
-    machine = new Machine(eventManager, memory, display, ula, zxClock, uiDisplay, timer, module, settings, sound);
-    z80 = new Z80(eventManager, memory, display, ula, machine, keyboard, zxClock, input, ulaPeriph, uiDisplay, timer, module, session, sound, settings, tape);
-    spec48 = new Spec48(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, sound);
-    Fdd fdd = new Fdd(settings);
-    UPDFdc uPDFdc = new UPDFdc(settings);
+    settings = injector.getInstance(Settings.class);
+    startupManager = injector.getInstance(StartupManager.class);
+    module = injector.getInstance(Module.class);
+    memory = injector.getInstance(Memory.class);
+    uiDisplay = injector.getInstance(UiDisplay.class);
+    display = injector.getInstance(Display.class);
+    keyboard = injector.getInstance(Keyboard.class);
+    periph = injector.getInstance(IPeriph.class);
+    tape = injector.getInstance(Tape.class);
+    sound = injector.getInstance(Sound.class);
+    ula = injector.getInstance(Ula.class);
+    eventManager = injector.getInstance(EventManager.class);
+    ulaPeriph = injector.getInstance(PeriphDelegate.class);
+    machinesPeriph = injector.getInstance(MachinesPeriph.class);
+    joystick = injector.getInstance(Joystick.class);
+    input = injector.getInstance(Input.class);
+    timer = injector.getInstance(Timer.class);
+    machine = injector.getInstance(Machine.class);
+    z80 = injector.getInstance(Z80.class);
+    spec48 = injector.getInstance(Spec48.class);
 
     machine.addMachineChangeListeners(sound, display, timer, periph, ula, eventManager);
 
-    spec128 = new Spec128(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, sound);
-    specPlus3 = new SpecPlus3(memory, display, machinesPeriph, ulaPeriph, settings, fdd, uPDFdc, eventManager, z80, timer, module, sound);
-    specPlus2 = new SpecPlus2(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, sound);
-    specPlus2a = new SpecPlus2A(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, fdd, uPDFdc, sound);
-    specPlus3e = new SpecPlus3E(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, fdd, uPDFdc, sound);
-    spec48Ntsc = new Spec48Ntsc(memory, display, machinesPeriph, ulaPeriph, settings, eventManager, z80, timer, module, sound);
+    spec128 = injector.getInstance(Spec128.class);
+    specPlus3 = injector.getInstance(SpecPlus3.class);
+    specPlus2 = injector.getInstance(SpecPlus2.class);
+    specPlus2a = injector.getInstance(SpecPlus2A.class);
+    specPlus3e = injector.getInstance(SpecPlus3E.class);
+    spec48Ntsc = injector.getInstance(Spec48Ntsc.class);
   }
 
   public boolean isAlive() {
