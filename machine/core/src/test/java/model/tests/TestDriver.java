@@ -19,8 +19,8 @@
 package model.tests;
 
 import com.fpetrola.oozx.MemoryPage;
-import com.fpetrola.oozx.fuse.*;
-import com.fpetrola.oozx.fuse.bridge.*;
+import com.fpetrola.oozx.speccy.*;
+import com.fpetrola.oozx.speccy.bridge.*;
 
 import java.util.EventObject;
 import java.util.List;

@@ -18,8 +18,8 @@
 
 package model.tests;
 
-import com.fpetrola.oozx.fuse.LibretroCore;
-import com.fpetrola.oozx.fuse.bridge.EmulatorCommand;
+import com.fpetrola.oozx.speccy.LibretroCore;
+import com.fpetrola.oozx.speccy.bridge.EmulatorCommand;
 
 public class GetUlaContention implements EmulatorCommand {
   private final int i;

@@ -20,7 +20,7 @@ package com.fpetrola.oozx;
 
 import com.google.inject.Singleton;
 
-import com.fpetrola.oozx.fuse.modules.Joystick;
+import com.fpetrola.oozx.speccy.modules.Joystick;
 
 @Singleton
 public class Settings {

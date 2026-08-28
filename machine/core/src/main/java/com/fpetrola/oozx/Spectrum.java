@@ -18,14 +18,14 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.fuse.Sound;
-import com.fpetrola.oozx.fuse.machine.AbstractSpectrumMachine;
-import com.fpetrola.oozx.fuse.machine.MachineTimings;
-import com.fpetrola.oozx.fuse.machine.RamInfo;
-import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
-import com.fpetrola.oozx.fuse.modules.*;
-import com.fpetrola.oozx.fuse.modules.z80.Cpu;
-import com.fpetrola.oozx.fuse.peripherals.IPeriph;
+import com.fpetrola.oozx.speccy.Sound;
+import com.fpetrola.oozx.speccy.machine.AbstractSpectrumMachine;
+import com.fpetrola.oozx.speccy.machine.MachineTimings;
+import com.fpetrola.oozx.speccy.machine.RamInfo;
+import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
+import com.fpetrola.oozx.speccy.modules.*;
+import com.fpetrola.oozx.speccy.modules.z80.Cpu;
+import com.fpetrola.oozx.speccy.peripherals.IPeriph;
 import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.Arrays;

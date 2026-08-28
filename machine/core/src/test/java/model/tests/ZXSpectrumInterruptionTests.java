@@ -18,8 +18,8 @@
 
 package model.tests;
 
-import com.fpetrola.oozx.fuse.bridge.DefaultCommandHandler;
-import com.fpetrola.oozx.fuse.bridge.FuseBaseForTests;
+import com.fpetrola.oozx.speccy.bridge.DefaultCommandHandler;
+import com.fpetrola.oozx.speccy.bridge.SpeccyBaseForTests;
 import model.connected.*;
 import model.interfaces.IMicrodrive;
 import model.interfaces.ISpectrumBus;
@@ -39,7 +39,7 @@ public class ZXSpectrumInterruptionTests {
 
   @BeforeAll
   public static void beforeall() {
-    testDriver = new TestDriver(DefaultCommandHandler.createCommandHandler(FuseBaseForTests.createFuse()));
+    testDriver = new TestDriver(DefaultCommandHandler.createCommandHandler(SpeccyBaseForTests.createSpeccy()));
     bus = new ConnectedSpectrumBus(new ConnectedMemory(testDriver), new ConnectedULA(testDriver), testDriver);
     interface1 = new ConnectedInterface1(testDriver);
     microdrive = new ConnectedMicrodrive(testDriver);

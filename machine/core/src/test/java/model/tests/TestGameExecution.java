@@ -18,10 +18,10 @@
 
 package model.tests;
 
-import com.fpetrola.oozx.Fuse;
-import com.fpetrola.oozx.fuse.OOSpectrumConnector;
-import com.fpetrola.oozx.fuse.bridge.FuseBaseForTests;
-import com.fpetrola.oozx.fuse.sound.JavaSoundDevice;
+import com.fpetrola.oozx.Speccy;
+import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.bridge.SpeccyBaseForTests;
+import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 import com.fpetrola.emulation.helpers.snapshots.SnapshotSaver;
 import org.junit.jupiter.api.*;
 import com.fpetrola.emulation.helpers.snapshots.SpectrumState;
@@ -29,9 +29,9 @@ import com.fpetrola.emulation.helpers.snapshots.SpectrumState;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestGameExecution extends FuseBaseForTests {
+public class TestGameExecution extends SpeccyBaseForTests {
   public TestGameExecution() {
-    fuse= createFuse();
+    speccy= createSpeccy();
   }
 
   @BeforeAll
@@ -51,29 +51,29 @@ public class TestGameExecution extends FuseBaseForTests {
   @Test
   void test48KExecuteEmlyn() {
     OOSpectrumConnector.noTest = true;
-    createFuse();
-    fuse.sound.setJavaSoundDevice(new JavaSoundDevice() {
+    createSpeccy();
+    speccy.sound.setJavaSoundDevice(new JavaSoundDevice() {
       public void sound_lowlevel_frame(int[] data, int len) {
       }
     });
-    fuse.init();
-    fuse.uiDisplay.active = false;
+    speccy.init();
+    speccy.uiDisplay.active = false;
 
-    fuse.settings.current.emulationSpeed = 1000000;
+    speccy.settings.current.emulationSpeed = 1000000;
 
     SnapshotSaver snapshotSaver = new SnapshotSaver();
-//    String snapshotAsUnicodePacked = snapshotSaver.getSnapshotAsUnicodePacked(new RegistersBase(fuse.z80.ooz80.getState()), fuse.z80.ooz80.getState());
+//    String snapshotAsUnicodePacked = snapshotSaver.getSnapshotAsUnicodePacked(new RegistersBase(speccy.z80.ooz80.getState()), speccy.z80.ooz80.getState());
 
 //    JFrame jFrame = new JFrame();
-//    JComponent panel = fuse.z80.mockCore.getPanel();
+//    JComponent panel = speccy.z80.mockCore.getPanel();
 //    jFrame.setContentPane(panel);
 //    jFrame.pack();
 //    jFrame.setVisible(true);
 
     String emlyn = loadFromResourceAsString("g.compressed");
     SpectrumState spectrumState = snapshotSaver.loadSnapshotFromUnicodePacked(emlyn);
-    fuse.z80.loadSnap(spectrumState);
-    extracted(fuse);
+    speccy.z80.loadSnap(spectrumState);
+    extracted(speccy);
   }
 
   private String loadFromResourceAsString(String s) {
@@ -95,19 +95,19 @@ public class TestGameExecution extends FuseBaseForTests {
     return s;
   }
 
-  private void extracted(Fuse fuse) {
+  private void extracted(Speccy speccy) {
     long states = 0;
-    fuse.z80.bridgeCommand = (a, b) -> null;
+    speccy.z80.bridgeCommand = (a, b) -> null;
     String lastX = "";
     String expected = "Score: 4 - 2";
     String x = "";
 
     while (states < 61936) {
       states++;
-      fuse.z80.doOpcodes();
-      fuse.eventManager.eventDoEvents();
-      int localGoals = fuse.memory.readByteInternal(0x9253);
-      int visitGoals = fuse.memory.readByteInternal(0x9254);
+      speccy.z80.doOpcodes();
+      speccy.eventManager.eventDoEvents();
+      int localGoals = speccy.memory.readByteInternal(0x9253);
+      int visitGoals = speccy.memory.readByteInternal(0x9254);
 
       x = "Score: " + localGoals + " - " + visitGoals;
       if (!x.equals(lastX)) {

@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
+import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 
 public interface MachineChangeListener {
   void machineChanged(SpectrumMachine newMachine);

@@ -27,7 +27,7 @@ import java.lang.annotation.RetentionPolicy;
  * The model a machine falls back to: the 48K.
  * <p>
  * Switching models passes through it first, so the new machine starts from a known state. It
- * used to be whichever model happened to be registered first, which was true only because Fuse
+ * used to be whichever model happened to be registered first, which was true only because Speccy
  * listed the 48K at the head of a varargs call — reordering that list would have changed the
  * default with nothing failing to say so. Naming it makes the order mean nothing.
  */

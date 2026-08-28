@@ -19,21 +19,21 @@
 package model.tests;
 
 import com.fpetrola.oozx.EmulatorModule;
-import com.fpetrola.oozx.Fuse;
+import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.MachinesPeriph;
 import com.fpetrola.oozx.Memory;
 import com.fpetrola.oozx.PeriphDelegate;
 import com.fpetrola.oozx.SpectrumZ80Clock;
-import com.fpetrola.oozx.fuse.OOSpectrumConnector;
-import com.fpetrola.oozx.fuse.Sound;
-import com.fpetrola.oozx.fuse.modules.Ula;
-import com.fpetrola.oozx.fuse.modules.tape.Tape;
-import com.fpetrola.oozx.fuse.peripherals.IPeriph;
+import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Sound;
+import com.fpetrola.oozx.speccy.modules.Ula;
+import com.fpetrola.oozx.speccy.modules.tape.Tape;
+import com.fpetrola.oozx.speccy.peripherals.IPeriph;
 import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.fpetrola.oozx.fuse.sound.JavaSoundDevice;
+import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 import com.fpetrola.z80.registers.RegisterName;
 import org.junit.jupiter.api.Test;
 
@@ -89,24 +89,24 @@ public class EmulationRegressionTest {
 
   @Test
   public void bootingTheRomLandsOnAKnownState() throws Exception {
-    Fuse fuse = bootedSpectrum();
-    runFrames(fuse, BOOT_FRAMES);
+    Speccy speccy = bootedSpectrum();
+    runFrames(speccy, BOOT_FRAMES);
 
     // Three disjoint ranges rather than one hash over all of RAM: when this fails, the region
     // that moved is already the first half of the diagnosis.
     Map<String, String> actual = new LinkedHashMap<>();
-    actual.put("screen", digest(readRange(fuse, SCREEN_BASE, SCREEN_END)));
-    actual.put("sysvars", digest(readRange(fuse, SCREEN_END, SYSVARS_END)));
-    actual.put("userram", digest(readRange(fuse, SYSVARS_END, RAM_END)));
-    actual.put("registers", digest(registerDump(fuse).getBytes("UTF-8")));
+    actual.put("screen", digest(readRange(speccy, SCREEN_BASE, SCREEN_END)));
+    actual.put("sysvars", digest(readRange(speccy, SCREEN_END, SYSVARS_END)));
+    actual.put("userram", digest(readRange(speccy, SYSVARS_END, RAM_END)));
+    actual.put("registers", digest(registerDump(speccy).getBytes("UTF-8")));
 
     // Always, not only on failure: a screen from the failing run is of little use without the
     // one from the run that passed.
-    File png = dumpScreen(fuse, "boot");
+    File png = dumpScreen(speccy, "boot");
 
     System.out.println("--- state after " + BOOT_FRAMES + " frames ---");
     actual.forEach((name, hash) -> System.out.printf("%-10s %s%n", name, hash));
-    System.out.println("registers  " + registerDump(fuse));
+    System.out.println("registers  " + registerDump(speccy));
     System.out.println("screen -> " + png.getAbsolutePath());
 
     EXPECTED.forEach((name, expected) -> assertEquals(expected, actual.get(name),
@@ -118,7 +118,7 @@ public class EmulationRegressionTest {
    * <p>
    * A missing @Singleton does not fail loudly: with two Tapes the emulator starts perfectly,
    * the browser shows the cassette, and nothing ever loads, because Sound, the ULA and the
-   * public fuse.tape are each driving a different deck. The two peripheral buses are the
+   * public speccy.tape are each driving a different deck. The two peripheral buses are the
    * mirror image — the raw Periph and the UlaPeriph that decorates it have to stay distinct,
    * or the ULA ends up wrapped around itself.
    */
@@ -138,31 +138,31 @@ public class EmulationRegressionTest {
   }
 
   /**
-   * Nothing Fuse hands out was built outside the graph.
+   * Nothing Speccy hands out was built outside the graph.
    * <p>
-   * Since Fuse takes everything through its constructor it can no longer build a part of its
+   * Since Speccy takes everything through its constructor it can no longer build a part of its
    * own, so this mostly guards against the next field someone adds with an initializer. It is
-   * kept because that is exactly how it went wrong once: Fuse held its own EmulationSession
+   * kept because that is exactly how it went wrong once: Speccy held its own EmulationSession
    * while the Z80 was given the injector's, so closing the window finished a session nobody was
    * reading and the emulator ran on with the sound still playing. The shape is a family — two
    * objects where there must be one, starting perfectly and failing later.
    */
   @Test
-  public void everyPartFuseExposesCameFromTheGraph() throws Exception {
+  public void everyPartSpeccyExposesCameFromTheGraph() throws Exception {
     Injector injector = Guice.createInjector(new EmulatorModule(new SpectrumZ80Clock()));
-    Fuse fuse = injector.getInstance(Fuse.class);
+    Speccy speccy = injector.getInstance(Speccy.class);
 
-    for (Field field : Fuse.class.getFields()) {
+    for (Field field : Speccy.class.getFields()) {
       if (field.getType().isPrimitive()) continue;
 
-      Object exposed = field.get(fuse);
+      Object exposed = field.get(speccy);
       if (exposed == null) continue;
 
       Binding<?> binding = injector.getExistingBinding(Key.get(field.getType()));
       if (binding == null) continue;
 
       assertSame(binding.getProvider().get(), exposed,
-          "fuse." + field.getName() + " was built outside the graph; ask the injector for it");
+          "speccy." + field.getName() + " was built outside the graph; ask the injector for it");
     }
   }
 
@@ -176,29 +176,29 @@ public class EmulationRegressionTest {
    */
   @Test
   public void switchingModelsFallsBackToThe48K() {
-    Fuse fuse = bootedSpectrum();
+    Speccy speccy = bootedSpectrum();
 
-    assertEquals(7, fuse.machine.getMachineTypes().size(), "not every model was registered");
-    assertSame(fuse.spec48, fuse.machine.current,
+    assertEquals(7, speccy.machine.getMachineTypes().size(), "not every model was registered");
+    assertSame(speccy.spec48, speccy.machine.current,
         "the machine did not come up as the 48K; check the @DefaultMachine binding");
   }
 
   /**
-   * A plain {@code Fuse.create()}, the way OOSpectrumLauncher builds one — FuseBaseForTests
+   * A plain {@code Speccy.create()}, the way OOSpectrumLauncher builds one — SpeccyBaseForTests
    * installs an instrumented clock that records every tState update. Sound and display are
    * silenced so the run is headless and does not wait on anything.
    */
-  private Fuse bootedSpectrum() {
+  private Speccy bootedSpectrum() {
     OOSpectrumConnector.noTest = true;
-    Fuse fuse = Fuse.create();
-    fuse.sound.setJavaSoundDevice(new JavaSoundDevice() {
+    Speccy speccy = Speccy.create();
+    speccy.sound.setJavaSoundDevice(new JavaSoundDevice() {
       public void sound_lowlevel_frame(int[] data, int len) {
       }
     });
-    fuse.init();
-    fuse.uiDisplay.active = false;
-    fuse.z80.bridgeCommand = (a, b) -> null;
-    return fuse;
+    speccy.init();
+    speccy.uiDisplay.active = false;
+    speccy.z80.bridgeCommand = (a, b) -> null;
+    return speccy;
   }
 
   /**
@@ -206,29 +206,29 @@ public class EmulationRegressionTest {
    * Spectrum.spectrumFrame subtracts a whole frame from the clock at every border, so the
    * clock is not monotonic and an absolute target is never reached.
    */
-  private void runFrames(Fuse fuse, int frames) {
-    long previous = fuse.zxClock.getTStates();
+  private void runFrames(Speccy speccy, int frames) {
+    long previous = speccy.zxClock.getTStates();
     int seen = 0;
     while (seen < frames) {
-      fuse.z80.doOpcodes();
-      fuse.eventManager.eventDoEvents();
+      speccy.z80.doOpcodes();
+      speccy.eventManager.eventDoEvents();
 
-      long now = fuse.zxClock.getTStates();
+      long now = speccy.zxClock.getTStates();
       if (now < previous) seen++;
       previous = now;
     }
   }
 
-  private byte[] readRange(Fuse fuse, int from, int to) {
+  private byte[] readRange(Speccy speccy, int from, int to) {
     byte[] bytes = new byte[to - from];
     for (int address = from; address < to; address++) {
-      bytes[address - from] = (byte) fuse.memory.readByteInternal(address);
+      bytes[address - from] = (byte) speccy.memory.readByteInternal(address);
     }
     return bytes;
   }
 
-  private String registerDump(Fuse fuse) {
-    var state = fuse.z80.ooz80.getState();
+  private String registerDump(Speccy speccy) {
+    var state = speccy.z80.ooz80.getState();
     StringBuilder dump = new StringBuilder();
     dump.append("PC=").append(state.getPc().read())
         .append(" SP=").append(state.getRegisterSP().read());
@@ -251,7 +251,7 @@ public class EmulationRegressionTest {
    * The display file is not linear: within a third, the pixel row inside the character varies
    * first and the character row second. Attributes are linear and live separately at 0x5800.
    */
-  private File dumpScreen(Fuse fuse, String name) throws Exception {
+  private File dumpScreen(Speccy speccy, String name) throws Exception {
     int[] palette = {
         0x000000, 0x0000D7, 0xD70000, 0xD700D7, 0x00D700, 0x00D7D7, 0xD7D700, 0xD7D7D7,
         0x000000, 0x0000FF, 0xFF0000, 0xFF00FF, 0x00FF00, 0x00FFFF, 0xFFFF00, 0xFFFFFF};
@@ -260,8 +260,8 @@ public class EmulationRegressionTest {
     for (int y = 0; y < 192; y++) {
       int rowBase = SCREEN_BASE + ((y >> 6) << 11) + ((y & 7) << 8) + (((y >> 3) & 7) << 5);
       for (int column = 0; column < 32; column++) {
-        int bits = fuse.memory.readByteInternal(rowBase + column) & 0xFF;
-        int attribute = fuse.memory.readByteInternal(0x5800 + (y >> 3) * 32 + column) & 0xFF;
+        int bits = speccy.memory.readByteInternal(rowBase + column) & 0xFF;
+        int attribute = speccy.memory.readByteInternal(0x5800 + (y >> 3) * 32 + column) & 0xFF;
         int bright = (attribute & 0x40) != 0 ? 8 : 0;
         int ink = palette[(attribute & 0x07) + bright];
         int paper = palette[((attribute >> 3) & 0x07) + bright];

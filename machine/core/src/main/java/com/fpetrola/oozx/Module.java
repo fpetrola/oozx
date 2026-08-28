@@ -20,7 +20,7 @@ package com.fpetrola.oozx;
 
 import com.google.inject.Singleton;
 
-import com.fpetrola.oozx.fuse.modules.ZXModuleInfo;
+import com.fpetrola.oozx.speccy.modules.ZXModuleInfo;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

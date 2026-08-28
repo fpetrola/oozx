@@ -18,11 +18,11 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.fuse.machine.*;
-import com.fpetrola.oozx.fuse.modules.z80.Cpu;
-import com.fpetrola.oozx.fuse.modules.z80.Z80;
-import com.fpetrola.oozx.fuse.peripherals.IPeriph;
-import com.fpetrola.oozx.fuse.peripherals.Periph;
+import com.fpetrola.oozx.speccy.machine.*;
+import com.fpetrola.oozx.speccy.modules.z80.Cpu;
+import com.fpetrola.oozx.speccy.modules.z80.Z80;
+import com.fpetrola.oozx.speccy.peripherals.IPeriph;
+import com.fpetrola.oozx.speccy.peripherals.Periph;
 import com.fpetrola.z80.cpu.Z80Clock;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;

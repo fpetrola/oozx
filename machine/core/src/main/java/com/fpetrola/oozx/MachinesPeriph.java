@@ -21,7 +21,7 @@ package com.fpetrola.oozx;
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
 
-import com.fpetrola.oozx.fuse.peripherals.*;
+import com.fpetrola.oozx.speccy.peripherals.*;
 
 @Singleton
 public class MachinesPeriph {

@@ -21,10 +21,10 @@ package com.fpetrola.oozx;
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
 
-import com.fpetrola.oozx.fuse.Sound;
-import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
-import com.fpetrola.oozx.fuse.machine.TimingsHandler;
-import com.fpetrola.oozx.fuse.modules.*;
+import com.fpetrola.oozx.speccy.Sound;
+import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
+import com.fpetrola.oozx.speccy.machine.TimingsHandler;
+import com.fpetrola.oozx.speccy.modules.*;
 import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.ArrayList;
@@ -170,7 +170,7 @@ public class Machine implements ZxModule {
 //        Tape.stop();
 
     memory.poolFree();
-//    current = new FuseMachineInfo();
+//    current = new SpeccyMachineInfo();
 //    current.reset = () -> {
 //    };
 //    current.ram = new tStatesHolder.RamInfo();

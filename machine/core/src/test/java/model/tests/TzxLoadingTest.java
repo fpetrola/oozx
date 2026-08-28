@@ -18,17 +18,17 @@
 
 package model.tests;
 
-import com.fpetrola.oozx.Fuse;
+import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.api.GameEntry;
 import com.fpetrola.oozx.api.Hit;
 import com.fpetrola.oozx.api.ZxInfoApiHandler;
-import com.fpetrola.oozx.fuse.OOSpectrumConnector;
-import com.fpetrola.oozx.fuse.bridge.FuseBaseForTests;
-import com.fpetrola.oozx.fuse.modules.tape.Tape;
-import com.fpetrola.oozx.fuse.peripherals.t.DownloadAndUnzip;
-import com.fpetrola.oozx.fuse.peripherals.t.GameBrowserInternalFrame;
-import com.fpetrola.oozx.fuse.sound.JavaSoundDevice;
-import com.fpetrola.oozx.fuse.modules.tape.TapeAutoLoader;
+import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.bridge.SpeccyBaseForTests;
+import com.fpetrola.oozx.speccy.modules.tape.Tape;
+import com.fpetrola.oozx.speccy.peripherals.t.DownloadAndUnzip;
+import com.fpetrola.oozx.speccy.peripherals.t.GameBrowserInternalFrame;
+import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
+import com.fpetrola.oozx.speccy.modules.tape.TapeAutoLoader;
 import org.junit.jupiter.api.Test;
 
 import java.awt.image.BufferedImage;
@@ -54,7 +54,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * instead waits for the ROM to actually consume the previous one, so a failure reported by this
  * test is a tape/TZX problem rather than an autoload timing problem.
  */
-public class TzxLoadingTest extends FuseBaseForTests {
+public class TzxLoadingTest extends SpeccyBaseForTests {
 
   private static final int ROM_TOP = 0x4000;
 
@@ -228,18 +228,18 @@ public class TzxLoadingTest extends FuseBaseForTests {
 
   private Report runTape(String query, String title, File tapeFile) {
     OOSpectrumConnector.noTest = true;
-    // Plain Fuse, exactly like OOSpectrumLauncher.createFuse. FuseBaseForTests.createFuse
+    // Plain Speccy, exactly like OOSpectrumLauncher.createSpeccy. SpeccyBaseForTests.createSpeccy
     // installs an instrumented clock that records every tState update.
-    Fuse fuse = Fuse.create();
-    fuse.sound.setJavaSoundDevice(new JavaSoundDevice() {
+    Speccy speccy = Speccy.create();
+    speccy.sound.setJavaSoundDevice(new JavaSoundDevice() {
       public void sound_lowlevel_frame(int[] data, int len) {
       }
     });
-    fuse.init();
-    fuse.uiDisplay.active = false;
-    fuse.z80.bridgeCommand = (a, b) -> null;
+    speccy.init();
+    speccy.uiDisplay.active = false;
+    speccy.z80.bridgeCommand = (a, b) -> null;
 
-    Tape tape = fuse.tape;
+    Tape tape = speccy.tape;
 
     int[] blocks = {0};
     tape.addTapeBlockListener(block -> blocks[0] = Math.max(blocks[0], block));
@@ -247,12 +247,12 @@ public class TzxLoadingTest extends FuseBaseForTests {
     // The launcher's own auto loader: type LOAD "" on the keyboard, insert, play, and wait for
     // the load to finish. It normally drops to real Spectrum speed at that point; here it stays
     // fast, since the Timer sleeps to hold 1x and the run after the load would take minutes.
-    TapeAutoLoader autoLoader = new TapeAutoLoader(fuse, tapeFile,
+    TapeAutoLoader autoLoader = new TapeAutoLoader(speccy, tapeFile,
         TapeAutoLoader.LOADING_SPEED, TapeAutoLoader.LOADING_SPEED);
     for (long step = 0; step < 200_000_000L && !autoLoader.isDone(); step++) {
       autoLoader.step();
-      fuse.z80.doOpcodes();
-      fuse.eventManager.eventDoEvents();
+      speccy.z80.doOpcodes();
+      speccy.eventManager.eventDoEvents();
     }
     if (autoLoader.getError() != null) {
       return new Report(query, title, Outcome.TAPE_REJECTED, autoLoader.getError(), 0, 0);
@@ -262,8 +262,8 @@ public class TzxLoadingTest extends FuseBaseForTests {
     // Judge by where execution goes once there is no more signal. A game that loaded keeps
     // running its own code in RAM; a loader that gave up (or reset the machine, which is what
     // a turbo loader does on a checksum error) is back in the ROM.
-    int ramPercent = ramPercentOver(fuse, 400);
-    writeScreenshot(fuse, query);
+    int ramPercent = ramPercentOver(speccy, 400);
+    writeScreenshot(speccy, query);
 
     String detail = tapeFile.getName();
     Outcome outcome;
@@ -287,9 +287,9 @@ public class TzxLoadingTest extends FuseBaseForTests {
    * Percentage of PC samples in RAM over the given number of frames. Sampling happens on every
    * doOpcodes slice rather than once per frame, because a frame boundary always lands in the ISR.
    */
-  private int ramPercentOver(Fuse fuse, int frames) {
+  private int ramPercentOver(Speccy speccy, int frames) {
     int[] samples = new int[2];
-    runSampling(fuse, frames, samples);
+    runSampling(speccy, frames, samples);
     return samples[1] == 0 ? 0 : samples[0] * 100 / samples[1];
   }
 
@@ -298,17 +298,17 @@ public class TzxLoadingTest extends FuseBaseForTests {
    * subtracts a frame's worth of tStates at every frame boundary - so frames are counted by
    * watching for that wrap rather than by waiting for an absolute tState count.
    */
-  private void run(Fuse fuse, int frames) {
-    runSampling(fuse, frames, null);
+  private void run(Speccy speccy, int frames) {
+    runSampling(speccy, frames, null);
   }
 
-  private void runSampling(Fuse fuse, int frames, int[] pcSamples) {
-    var pc = fuse.z80.ooz80.getState().getPc();
-    long previous = fuse.zxClock.getTStates();
+  private void runSampling(Speccy speccy, int frames, int[] pcSamples) {
+    var pc = speccy.z80.ooz80.getState().getPc();
+    long previous = speccy.zxClock.getTStates();
     int seen = 0;
     while (seen < frames) {
-      fuse.z80.doOpcodes();
-      fuse.eventManager.eventDoEvents();
+      speccy.z80.doOpcodes();
+      speccy.eventManager.eventDoEvents();
 
       if (pcSamples != null) {
         pcSamples[1]++;
@@ -317,7 +317,7 @@ public class TzxLoadingTest extends FuseBaseForTests {
         }
       }
 
-      long now = fuse.zxClock.getTStates();
+      long now = speccy.zxClock.getTStates();
       if (now < previous) {
         seen++;
       }
@@ -338,7 +338,7 @@ public class TzxLoadingTest extends FuseBaseForTests {
    * Dumps the Spectrum display file as a PNG so a load can be judged by looking at it,
    * rather than only by where the PC happens to be.
    */
-  private void writeScreenshot(Fuse fuse, String query) {
+  private void writeScreenshot(Speccy speccy, String query) {
     try {
       BufferedImage image = new BufferedImage(256, 192, BufferedImage.TYPE_INT_RGB);
       for (int y = 0; y < 192; y++) {
@@ -349,8 +349,8 @@ public class TzxLoadingTest extends FuseBaseForTests {
         int rowBase = SCREEN_BASE + (third << 11) + (pixelRow << 8) + (line << 5);
 
         for (int charColumn = 0; charColumn < 32; charColumn++) {
-          int bits = fuse.memory.readByteInternal(rowBase + charColumn) & 0xFF;
-          int attribute = fuse.memory.readByteInternal(ATTR_BASE + (y >> 3) * 32 + charColumn) & 0xFF;
+          int bits = speccy.memory.readByteInternal(rowBase + charColumn) & 0xFF;
+          int attribute = speccy.memory.readByteInternal(ATTR_BASE + (y >> 3) * 32 + charColumn) & 0xFF;
           int bright = (attribute & 0x40) != 0 ? 8 : 0;
           int ink = PALETTE[(attribute & 0x07) + bright];
           int paper = PALETTE[((attribute >> 3) & 0x07) + bright];

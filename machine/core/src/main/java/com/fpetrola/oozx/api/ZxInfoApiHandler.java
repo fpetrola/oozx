@@ -19,7 +19,7 @@
 // src/main/java/com/example/Main.java
 package com.fpetrola.oozx.api;
 
-import com.fpetrola.oozx.fuse.peripherals.t.GameBrowserInternalFrame;
+import com.fpetrola.oozx.speccy.peripherals.t.GameBrowserInternalFrame;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;

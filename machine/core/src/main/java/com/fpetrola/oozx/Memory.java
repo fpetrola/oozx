@@ -21,10 +21,10 @@ package com.fpetrola.oozx;
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
 
-import com.fpetrola.oozx.fuse.machine.RamInfo;
-import com.fpetrola.oozx.fuse.modules.Display;
-import com.fpetrola.oozx.fuse.modules.Ula;
-import com.fpetrola.oozx.fuse.modules.ZxModule;
+import com.fpetrola.oozx.speccy.machine.RamInfo;
+import com.fpetrola.oozx.speccy.modules.Display;
+import com.fpetrola.oozx.speccy.modules.Ula;
+import com.fpetrola.oozx.speccy.modules.ZxModule;
 import com.fpetrola.z80.helpers.Helper;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 

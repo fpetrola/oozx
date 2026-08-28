@@ -18,8 +18,8 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.fuse.modules.tape.Log1;
-import com.fpetrola.oozx.fuse.modules.tape.Tape;
+import com.fpetrola.oozx.speccy.modules.tape.Log1;
+import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.z80.cpu.DefaultZ80Clock;
 import com.fpetrola.z80.helpers.CollectionHandler;
 import com.fpetrola.emulation.helpers.machine.ClockTimeoutListener;

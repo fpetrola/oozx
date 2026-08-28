@@ -18,11 +18,11 @@
 
 package model.tests;
 
-import com.fpetrola.oozx.Fuse;
-import com.fpetrola.oozx.fuse.*;
-import com.fpetrola.oozx.fuse.bridge.CommandHandler;
-import com.fpetrola.oozx.fuse.bridge.DefaultCommandHandler;
-import com.fpetrola.oozx.fuse.bridge.GetTStatesHistory;
+import com.fpetrola.oozx.Speccy;
+import com.fpetrola.oozx.speccy.*;
+import com.fpetrola.oozx.speccy.bridge.CommandHandler;
+import com.fpetrola.oozx.speccy.bridge.DefaultCommandHandler;
+import com.fpetrola.oozx.speccy.bridge.GetTStatesHistory;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
@@ -42,8 +42,8 @@ public class ZXSpectrumContendedMemoryTests2 {
 
   @BeforeAll
   public static void beforeall() {
-    Fuse fuse = Fuse.create();
-    localLibretroCore = new LocalLibretroCore(fuse.eventManager, fuse.display, fuse.machine, fuse.z80, fuse.zxClock, fuse.periph, fuse);
+    Speccy speccy = Speccy.create();
+    localLibretroCore = new LocalLibretroCore(speccy.eventManager, speccy.display, speccy.machine, speccy.z80, speccy.zxClock, speccy.periph, speccy);
     remoteCore = OOSpectrumConnector.core;
     CommandHandler commandHandler1 = DefaultCommandHandler.createCommandHandler(localLibretroCore);
     CommandHandler commandHandler2 = DefaultCommandHandler.createCommandHandler(remoteCore);

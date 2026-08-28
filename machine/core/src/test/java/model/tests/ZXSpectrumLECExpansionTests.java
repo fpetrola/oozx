@@ -18,8 +18,8 @@
 
 package model.tests;
 
-import com.fpetrola.oozx.fuse.bridge.DefaultCommandHandler;
-import com.fpetrola.oozx.fuse.bridge.FuseBaseForTests;
+import com.fpetrola.oozx.speccy.bridge.DefaultCommandHandler;
+import com.fpetrola.oozx.speccy.bridge.SpeccyBaseForTests;
 import model.connected.ConnectedMemory;
 import org.junit.jupiter.api.*;
 
@@ -33,7 +33,7 @@ class ZXSpectrumLECExpansionTests {
 
     @BeforeAll
     public static void beforeall() {
-        testDriver = new TestDriver(DefaultCommandHandler.createCommandHandler(FuseBaseForTests.createFuse()));
+        testDriver = new TestDriver(DefaultCommandHandler.createCommandHandler(SpeccyBaseForTests.createSpeccy()));
         memory = new ConnectedMemory(testDriver);
     }
 

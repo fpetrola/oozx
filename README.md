@@ -295,7 +295,7 @@ The architecture supports easy extension:
 
 Launch the integrated emulator and game browser:
 ```bash
-mvn exec:java -pl machine -Dexec.mainClass="com.fpetrola.oozx.fuse.OOSpectrumLauncher"
+mvn exec:java -pl machine -Dexec.mainClass="com.fpetrola.oozx.speccy.OOSpectrumLauncher"
 ```
 
 Or build and run the JAR:

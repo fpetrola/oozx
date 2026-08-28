@@ -18,9 +18,9 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.fuse.peripherals.IPeriph;
-import com.fpetrola.oozx.fuse.peripherals.Periph;
-import com.fpetrola.oozx.fuse.peripherals.ZxPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.IPeriph;
+import com.fpetrola.oozx.speccy.peripherals.Periph;
+import com.fpetrola.oozx.speccy.peripherals.ZxPeripheral;
 
 public interface PeriphDelegate extends IPeriph {
   IPeriph getPeriph();

@@ -18,10 +18,10 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.fuse.modules.Joystick;
-import com.fpetrola.oozx.fuse.modules.z80.Z80;
-import com.fpetrola.oozx.fuse.peripherals.EmulatorCore;
-import com.fpetrola.oozx.fuse.peripherals.MockEmulatorCore;
+import com.fpetrola.oozx.speccy.modules.Joystick;
+import com.fpetrola.oozx.speccy.modules.z80.Z80;
+import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
+import com.fpetrola.oozx.speccy.peripherals.MockEmulatorCore;
 
 import javax.swing.*;
 
