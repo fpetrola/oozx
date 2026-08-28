@@ -19,6 +19,9 @@
 // src/main/java/com/example/GameFile.java
 package com.fpetrola.oozx.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GameFile {
     public String path;
     public Integer size;

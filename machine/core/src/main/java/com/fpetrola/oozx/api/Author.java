@@ -19,8 +19,11 @@
 // src/main/java/com/example/Author.java
 package com.fpetrola.oozx.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Author {
     public String type;
     public int authorSeq;

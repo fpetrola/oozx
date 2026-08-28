@@ -19,8 +19,11 @@
 // src/main/java/com/example/Hits.java
 package com.fpetrola.oozx.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Hits {
     public Total total;
     public double max_score;

@@ -25,6 +25,13 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Release {
+    public Integer releaseSeq;
     public List<Publisher> publishers;
+    public List<String> releaseTitles;
+    public Integer yearOfRelease;
+    public GameEntry.Price releasePrice;
+    public String code;
+    public String barcode;
+    public String dl;
     public List<GameFile> files;
 }

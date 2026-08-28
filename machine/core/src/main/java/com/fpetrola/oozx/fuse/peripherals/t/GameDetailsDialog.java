@@ -345,6 +345,7 @@ public class GameDetailsDialog extends JDialog {
     tabbedPane.addTab("Authors", createAuthorsPanel());
     tabbedPane.addTab("Description", createDescriptionPanel());
     tabbedPane.addTab("Screenshots", createScreenshotsPanel());
+    tabbedPane.addTab("Game map", createGameMapsPanel());
     tabbedPane.addTab("Releases", createReleasesPanel());
     tabbedPane.addTab("Downloads", createDownloadsPanel());
 
@@ -602,6 +603,125 @@ public class GameDetailsDialog extends JDialog {
     }
 
     return panel;
+  }
+
+  /**
+   * Game maps come from additionalDownloads with type "Game map": scanned or fan-drawn
+   * images (JPG/PNG), often several MB. Thumbnails are shown here; double-clicking one
+   * opens it full size in the download viewer.
+   */
+  private JPanel createGameMapsPanel() {
+    JPanel panel = new JPanel(new BorderLayout());
+    panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+    if (gameDetail.gameMaps == null || gameDetail.gameMaps.isEmpty()) {
+      JLabel noMapsLabel = new JLabel("No game map available for this entry");
+      noMapsLabel.setHorizontalAlignment(JLabel.CENTER);
+      panel.add(noMapsLabel, BorderLayout.CENTER);
+      return panel;
+    }
+
+    JPanel mapsGridPanel = new JPanel();
+    int cols = Math.max(1, (int) Math.ceil(Math.sqrt(gameDetail.gameMaps.size())));
+    mapsGridPanel.setLayout(new GridLayout(0, cols, 10, 10));
+
+    for (com.fpetrola.oozx.api.AdditionalDownload map : gameDetail.gameMaps) {
+      final String mapPath = map.path;
+
+      JPanel mapPanel = new JPanel(new BorderLayout());
+      mapPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+
+      JLabel mapLabel = new JLabel();
+      mapLabel.setBackground(Color.BLACK);
+      mapLabel.setOpaque(true);
+      mapLabel.setHorizontalAlignment(JLabel.CENTER);
+      mapLabel.setVerticalAlignment(JLabel.CENTER);
+      mapLabel.setFont(new Font("Arial", Font.PLAIN, 10));
+      mapLabel.setPreferredSize(new Dimension(320, 240));
+
+      if (mapPath != null && !mapPath.isEmpty()) {
+        loadScaledImageAsync(buildCompleteImageUrl(mapPath), mapLabel, 320, 240, "Map unavailable");
+      } else {
+        mapLabel.setText("No URL");
+        mapLabel.setForeground(Color.WHITE);
+      }
+
+      StringBuilder caption = new StringBuilder();
+      caption.append(map.format != null ? map.format : "Picture");
+      if (map.size != null) {
+        caption.append(" - ").append(map.size / 1024).append(" KB");
+      }
+      caption.append(" (double-click to open)");
+      JLabel captionLabel = new JLabel(caption.toString(), JLabel.CENTER);
+      captionLabel.setFont(new Font("Arial", Font.PLAIN, 10));
+      captionLabel.setToolTipText(mapPath);
+
+      mapPanel.add(mapLabel, BorderLayout.CENTER);
+      mapPanel.add(captionLabel, BorderLayout.SOUTH);
+
+      mapPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+      mapLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+        @Override
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+          if (evt.getClickCount() == 2) {
+            openDownloadUrl(mapPath);
+          }
+        }
+      });
+
+      mapsGridPanel.add(mapPanel);
+    }
+
+    panel.add(new JScrollPane(mapsGridPanel), BorderLayout.CENTER);
+    return panel;
+  }
+
+  /**
+   * Same as loadImageAsync but fits the image inside the given box instead of stretching it.
+   * Game maps are wide, so a fixed-size scale would distort them badly.
+   */
+  private void loadScaledImageAsync(String imageUrl, JLabel label, int maxWidth, int maxHeight, String fallbackText) {
+    label.setText("Loading...");
+    label.setForeground(Color.WHITE);
+
+    SwingWorker<ImageIcon, Void> worker = new SwingWorker<ImageIcon, Void>() {
+      @Override
+      protected ImageIcon doInBackground() throws Exception {
+        try {
+          ImageIcon icon = new ImageIcon(new URL(imageUrl));
+          int w = icon.getIconWidth();
+          int h = icon.getIconHeight();
+          if (w <= 0 || h <= 0) {
+            return null;
+          }
+          double scale = Math.min(maxWidth / (double) w, maxHeight / (double) h);
+          if (scale > 1.0) {
+            scale = 1.0;
+          }
+          int targetWidth = Math.max(1, (int) Math.round(w * scale));
+          int targetHeight = Math.max(1, (int) Math.round(h * scale));
+          return new ImageIcon(icon.getImage().getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH));
+        } catch (Exception e) {
+          return null;
+        }
+      }
+
+      @Override
+      protected void done() {
+        try {
+          ImageIcon icon = get();
+          if (icon != null) {
+            label.setIcon(icon);
+            label.setText(null);
+          } else {
+            label.setText(fallbackText);
+          }
+        } catch (Exception e) {
+          label.setText(fallbackText);
+        }
+      }
+    };
+    worker.execute();
   }
 
   private JPanel createReleasesPanel() {

@@ -18,9 +18,12 @@
 
 package com.fpetrola.oozx.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 import java.util.Map;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GameDetail {
     public String id;
     public String title;
@@ -42,6 +45,8 @@ public class GameDetail {
     public Integer xrated;
     public List<String> authors;
     public List<AdditionalDownload> additionalDownloads;
+    /** Subset of additionalDownloads whose type is "Game map" (scanned/drawn maps, JPG or PNG). */
+    public List<AdditionalDownload> gameMaps;
     public List<Map<String, String>> releases;
     public String coverImageUrl;
     public String rating;

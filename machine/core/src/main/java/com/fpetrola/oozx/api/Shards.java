@@ -19,6 +19,9 @@
 // src/main/java/com/example/Shards.java
 package com.fpetrola.oozx.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Shards {
     public int total;
     public int successful;

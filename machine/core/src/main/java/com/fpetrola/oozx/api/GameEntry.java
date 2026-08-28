@@ -57,6 +57,13 @@ public class GameEntry {
     public String language;
     public String originalPublication;
     public String availability;
+    // Added in ZXInfo API v3 (all are arrays of {name}, only present with mode=full)
+    public List<NamedItem> programmingLanguage;
+    public List<NamedItem> screenMovement;
+    public List<NamedItem> graphicalView;
+    public List<NamedItem> sport;
+    public List<NamedItem> demoParty;
+    public List<NamedItem> crossPlatform;
     
     // Pricing
     public Price originalPrice;
@@ -124,12 +131,24 @@ public class GameEntry {
     }
     
     // Helper classes
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class NamedItem {
+        public String name;
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Price {
         public String amount;
         public String currency;
         public Integer prefix;
     }
     
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ReviewAward {
         public String awardName;
         public String magazineName;
@@ -141,15 +160,18 @@ public class GameEntry {
         public Integer number;
     }
     
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class UnsortedGroup {
         public String name;
     }
     
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class OtherSystem {
         public String name;
         public String url;
     }
     
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class CompilationContent {
         public Integer entry_id;
         public String title;
@@ -160,15 +182,18 @@ public class GameEntry {
         public String variation;
     }
     
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class TosecEntry {
         public String path;
     }
     
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class RelatedLink {
         public String siteName;
         public String url;
     }
     
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class MagazineReference {
         public String type;
         public String featureName;
@@ -182,6 +207,7 @@ public class GameEntry {
         public String score;
     }
     
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class MD5Hash {
         public String archive;
         public String filename;

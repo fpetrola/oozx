@@ -38,7 +38,8 @@ public class ZxInfoApiHandler {
     client = ClientBuilder.newClient();
     ResteasyWebTarget target = (ResteasyWebTarget) client.target(BASE_URL);
     ZxInfoClient zxClient = target.proxy(ZxInfoClient.class);
-    SearchResponse response = zxClient.searchGames(everyoneWally, 150, 0);
+    SearchResponse response = zxClient.searchGames(everyoneWally, 150, "0", ZxInfoClient.MODE_COMPACT,
+        null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
     client.close();
 
@@ -56,7 +57,7 @@ public class ZxInfoApiHandler {
       client = ClientBuilder.newClient();
       ResteasyWebTarget target = (ResteasyWebTarget) client.target(BASE_URL);
       ZxInfoClient zxClient = target.proxy(ZxInfoClient.class);
-      GameResponse response = zxClient.getGameDetails(gameId);
+      GameResponse response = zxClient.getGameDetails(gameId, ZxInfoClient.MODE_FULL);
       GameEntry gameEntry = response.getGameEntry();
 
       return convertGameEntryToDetail(gameEntry, gameId);
@@ -142,22 +143,71 @@ public class ZxInfoApiHandler {
     // Handle additional downloads
     if (entry.additionalDownloads != null && !entry.additionalDownloads.isEmpty()) {
       detail.additionalDownloads = new java.util.ArrayList<>(entry.additionalDownloads);
+      detail.gameMaps = extractGameMaps(entry.additionalDownloads);
     }
 
-    // Handle releases
+    // Handle releases. LinkedHashMap keeps the column order stable across rows,
+    // which is what the details table relies on when it derives its columns from row 0.
     if (entry.releases != null && !entry.releases.isEmpty()) {
       detail.releases = new java.util.ArrayList<>();
       for (Release release : entry.releases) {
-        if (release.publishers != null && !release.publishers.isEmpty()) {
-          for (Publisher publisher : release.publishers) {
-            java.util.Map<String, String> releaseMap = new java.util.HashMap<>();
-            releaseMap.put("Publisher", publisher.name != null ? publisher.name : "N/A");
-            detail.releases.add(releaseMap);
-          }
-        }
+        java.util.Map<String, String> releaseMap = new java.util.LinkedHashMap<>();
+        releaseMap.put("Title", joinTitles(release.releaseTitles, entry.title));
+        releaseMap.put("Year", release.yearOfRelease != null ? release.yearOfRelease.toString() : "N/A");
+        releaseMap.put("Publisher", firstPublisherName(release.publishers));
+        releaseMap.put("Price", formatPrice(release.releasePrice));
+        releaseMap.put("Code", release.code != null ? release.code : "");
+        releaseMap.put("Barcode", release.barcode != null ? release.barcode : "");
+        releaseMap.put("Files", String.valueOf(release.files != null ? release.files.size() : 0));
+        detail.releases.add(releaseMap);
       }
     }
 
     return detail;
+  }
+
+  /** ZXInfo's own label for map downloads inside additionalDownloads. */
+  public static final String GAME_MAP_TYPE = "Game map";
+
+  /**
+   * Picks the "Game map" entries out of additionalDownloads. These are scanned or fan-drawn
+   * map images (JPG/PNG), not structured map data - ZXInfo exposes nothing else for maps.
+   */
+  public static List<AdditionalDownload> extractGameMaps(List<AdditionalDownload> downloads) {
+    List<AdditionalDownload> maps = new java.util.ArrayList<>();
+    if (downloads != null) {
+      for (AdditionalDownload download : downloads) {
+        if (download != null && GAME_MAP_TYPE.equalsIgnoreCase(download.type)) {
+          maps.add(download);
+        }
+      }
+    }
+    return maps;
+  }
+
+  private static String firstPublisherName(List<Publisher> publishers) {
+    if (publishers != null) {
+      for (Publisher publisher : publishers) {
+        if (publisher != null && publisher.name != null) {
+          return publisher.name;
+        }
+      }
+    }
+    return "N/A";
+  }
+
+  private static String joinTitles(List<String> titles, String fallback) {
+    if (titles == null || titles.isEmpty()) {
+      return fallback != null ? fallback : "N/A";
+    }
+    return String.join(" / ", titles);
+  }
+
+  private static String formatPrice(GameEntry.Price price) {
+    if (price == null || price.amount == null) {
+      return "";
+    }
+    String currency = price.currency != null ? price.currency : "";
+    return (price.prefix != null && price.prefix == 1) ? currency + price.amount : price.amount + currency;
   }
 }

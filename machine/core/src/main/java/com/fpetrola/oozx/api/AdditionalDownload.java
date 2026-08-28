@@ -19,6 +19,9 @@
 // src/main/java/com/example/AdditionalDownload.java
 package com.fpetrola.oozx.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AdditionalDownload {
     public String path;
     public Integer size;

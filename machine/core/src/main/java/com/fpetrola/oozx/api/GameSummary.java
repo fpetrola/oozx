@@ -18,6 +18,9 @@
 
 package com.fpetrola.oozx.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GameSummary {
     public String id;
     public String title;

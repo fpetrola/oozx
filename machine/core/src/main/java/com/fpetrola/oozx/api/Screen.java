@@ -19,6 +19,9 @@
 // src/main/java/com/example/Screen.java
 package com.fpetrola.oozx.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Screen {
     public int entry_id;
     public String release_seq;

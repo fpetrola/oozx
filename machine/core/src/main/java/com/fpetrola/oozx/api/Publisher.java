@@ -19,8 +19,11 @@
 // src/main/java/com/example/Publisher.java
 package com.fpetrola.oozx.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Publisher {
     public int publisherSeq;
     public String name;

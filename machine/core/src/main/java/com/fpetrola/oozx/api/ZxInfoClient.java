@@ -26,15 +26,41 @@ import org.jboss.resteasy.annotations.jaxrs.PathParam;
 @Produces(MediaType.APPLICATION_JSON)
 public interface ZxInfoClient {
 
+    /** JSON detail level accepted by /search and /games/{id}. The API defaults to "compact". */
+    String MODE_TINY = "tiny";
+    String MODE_COMPACT = "compact";
+    String MODE_FULL = "full";
+
+    /**
+     * General search. Only "query" is required; every other parameter narrows the result down.
+     * Pass null to leave a filter out - RESTEasy omits null query params.
+     */
     @GET
     @Path("/search")
     SearchResponse searchGames(
         @QueryParam("query") String query,
         @QueryParam("size") @DefaultValue("10") int size,
-        @QueryParam("offset") @DefaultValue("0") int offset
+        @QueryParam("offset") @DefaultValue("0") String offset,
+        @QueryParam("mode") @DefaultValue(MODE_COMPACT) String mode,
+        @QueryParam("titlesonly") Boolean titlesOnly,
+        @QueryParam("sort") String sort,
+        @QueryParam("contenttype") String contentType,
+        @QueryParam("year") Integer year,
+        @QueryParam("language") String language,
+        @QueryParam("genretype") String genreType,
+        @QueryParam("genresubtype") String genreSubType,
+        @QueryParam("machinetype") String machineType,
+        @QueryParam("controls") String controls,
+        @QueryParam("multiplayermode") String multiplayerMode,
+        @QueryParam("multiplayertype") String multiplayerType,
+        @QueryParam("originalpublication") String originalPublication,
+        @QueryParam("availability") String availability,
+        @QueryParam("tosectype") String tosecType,
+        @QueryParam("group") String group,
+        @QueryParam("groupname") String groupName
     );
 
     @GET
     @Path("/games/{id}")
-    GameResponse getGameDetails(@PathParam("id") String id);
+    GameResponse getGameDetails(@PathParam("id") String id, @QueryParam("mode") String mode);
 }

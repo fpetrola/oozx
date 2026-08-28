@@ -19,6 +19,9 @@
 // src/main/java/com/example/Total.java
 package com.fpetrola.oozx.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Total {
     public int value;
     public String relation; // "eq" o "gte"
