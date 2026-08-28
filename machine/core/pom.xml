@@ -116,6 +116,12 @@
             <version>0.21.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>zx-rzx</artifactId>
+            <version>0.0.2-alu-SNAPSHOT</version>
+        </dependency>
+
         <!-- test -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
