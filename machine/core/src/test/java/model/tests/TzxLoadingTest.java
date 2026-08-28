@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
  * Reproduces, headless, what a left click on a game in the launcher's search browser does:
@@ -108,12 +109,27 @@ public class TzxLoadingTest extends FuseBaseForTests {
   @Test
   void tzxGamesLoadFromTheSearchBrowser() {
     List<Report> failures = new ArrayList<>();
+    List<Report> unavailable = new ArrayList<>();
+
     for (String game : EXPECTED_TO_LOAD) {
       Report report = loadFromZxInfo(game);
       System.out.println(report);
-      if (report.outcome() != Outcome.LOADED) {
+      if (report.outcome() == Outcome.LOADED) {
+        continue;
+      }
+      // A tape that could not be reached says nothing about the loader. Without this the test
+      // turns red on a machine with no network, or after a clean has emptied the download
+      // cache, and reads as a regression in whatever was last changed.
+      if (isEnvironment(report.outcome())) {
+        unavailable.add(report);
+      } else {
         failures.add(report);
       }
+    }
+
+    if (!unavailable.isEmpty()) {
+      System.out.println("\n--- could not be fetched, not counted ---");
+      unavailable.forEach(report -> System.out.println("  " + report));
     }
 
     System.out.println("\n--- known broken, reported only ---");
@@ -122,6 +138,15 @@ public class TzxLoadingTest extends FuseBaseForTests {
     }
 
     assertTrue(failures.isEmpty(), "tapes that used to load and no longer do: " + failures);
+
+    // Nothing was reachable, so nothing was actually verified: skip rather than pass green.
+    assumeTrue(unavailable.size() < EXPECTED_TO_LOAD.length,
+        "ZXInfo could not be reached, no tape was exercised");
+  }
+
+  /** True when the outcome is about reaching the tape, not about loading it. */
+  private static boolean isEnvironment(Outcome outcome) {
+    return outcome == Outcome.DOWNLOAD_FAILED || outcome == Outcome.NO_TZX_LISTED;
   }
 
   Report loadFromZxInfo(String query) {
