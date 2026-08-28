@@ -18,6 +18,9 @@
 
 package com.fpetrola.oozx.fuse;
 
+import com.google.inject.Singleton;
+
+@Singleton
 public class Movie {
   public boolean recording;
 

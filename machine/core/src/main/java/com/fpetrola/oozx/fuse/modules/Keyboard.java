@@ -18,11 +18,14 @@
 
 package com.fpetrola.oozx.fuse.modules;
 
+import com.google.inject.Singleton;
+
 import com.fpetrola.oozx.fuse.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Singleton
 public class Keyboard implements ZxModule {
 
   // Static fields

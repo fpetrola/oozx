@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx;
 
+import com.google.inject.Singleton;
+
 /**
  * Whether the emulator should keep running.
  * <p>
@@ -26,6 +28,7 @@ package com.fpetrola.oozx;
  * volatile for that reason — without it the loop is free to hoist the read and never observe
  * the change, and the emulator keeps running after its window is gone.
  */
+@Singleton
 public class EmulationSession {
 
   private volatile boolean alive = true;

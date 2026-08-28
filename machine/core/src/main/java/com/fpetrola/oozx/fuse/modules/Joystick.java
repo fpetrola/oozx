@@ -18,6 +18,10 @@
 
 package com.fpetrola.oozx.fuse.modules;
 
+import com.fpetrola.oozx.PeriphDelegate;
+import com.google.inject.Singleton;
+import com.google.inject.Inject;
+
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.fuse.KeyboardKeyName;
@@ -25,6 +29,7 @@ import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.KempstonLoosePeriphPeripheral;
 import com.fpetrola.oozx.fuse.peripherals.KempstonStrictPeripheral;
 
+@Singleton
 public class Joystick implements ZxModule {
 
   // Constants
@@ -39,7 +44,8 @@ public class Joystick implements ZxModule {
   private Module module;
   private Settings settings;
 
-  public Joystick(Keyboard keyboard, IPeriph periph, Module module, Settings settings) {
+@Inject
+  public Joystick(Keyboard keyboard, PeriphDelegate periph, Module module, Settings settings) {
     this.keyboard = keyboard;
     this.periph = periph;
     this.module = module;

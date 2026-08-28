@@ -18,6 +18,9 @@
 
 package com.fpetrola.oozx.fuse.modules;
 
+import com.google.inject.Singleton;
+import com.google.inject.Inject;
+
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.fuse.Sound;
@@ -32,6 +35,7 @@ import java.util.function.Supplier;
 import static com.fpetrola.oozx.MachineCapability.PLUS3_MEMORY;
 import static com.fpetrola.oozx.MachineCapability._128_MEMORY;
 
+@Singleton
 public class Ula implements ZxModule, MachineChangeListener {
   private final Memory memory;
 
@@ -60,6 +64,7 @@ public class Ula implements ZxModule, MachineChangeListener {
   private SpectrumMachine spectrumMachine;
   private Sound sound;
 
+@Inject
   public Ula(Memory memory, Display display, Keyboard keyboard, SpectrumZ80Clock z80Clock, IPeriph periph, Module module, Settings settings, Tape tape, Sound sound) {
     this.memory = memory;
     this.display = display;

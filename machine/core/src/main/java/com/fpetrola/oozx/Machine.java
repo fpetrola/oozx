@@ -18,6 +18,9 @@
 
 package com.fpetrola.oozx;
 
+import com.google.inject.Singleton;
+import com.google.inject.Inject;
+
 import com.fpetrola.oozx.fuse.Sound;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.machine.TimingsHandler;
@@ -28,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Singleton
 public class Machine implements ZxModule {
   private final EventManager eventManager;
   private final Memory memory;
@@ -45,6 +49,7 @@ public class Machine implements ZxModule {
   private final List<MachineChangeListener> machineChangeListeners = new ArrayList<>();
   private Sound sound;
 
+@Inject
   public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, Z80Clock z80Clock, UiDisplay uiDisplay, Timer timer, Module module, Settings settings, Sound sound) {
     this.eventManager = eventManager;
     this.memory = memory;

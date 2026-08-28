@@ -18,6 +18,9 @@
 
 package com.fpetrola.oozx;
 
+import com.google.inject.Singleton;
+
+@Singleton
 public class UiDisplay {
   public byte[][] screenMatrix;
   private byte[] cache;

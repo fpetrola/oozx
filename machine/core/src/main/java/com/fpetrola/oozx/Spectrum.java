@@ -56,7 +56,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
   private final int[][] ram;
   private Sound sound;
 
-  public Spectrum(Memory memory, Display display, EventManager eventManager, Cpu cpu, Timer timer, Module module, Settings settings1, RamInfo ramInfo1, MachinesPeriph machinesPeriph, IPeriph periph, Sound sound) {
+  public Spectrum(Memory memory, Display display, EventManager eventManager, Cpu cpu, Timer timer, Module module, Settings settings1, RamInfo ramInfo1, MachinesPeriph machinesPeriph, PeriphDelegate periph, Sound sound) {
     super(display, settings1, ramInfo1);
     this.memory = memory;
     this.display = display;

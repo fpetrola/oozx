@@ -18,6 +18,9 @@
 
 package com.fpetrola.oozx.fuse;
 
+import com.google.inject.Singleton;
+import com.google.inject.Inject;
+
 import com.fpetrola.oozx.Settings;
 import com.fpetrola.oozx.UIErrorLevel;
 import com.fpetrola.oozx.Ui;
@@ -28,11 +31,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+@Singleton
 public class Input {
   private Joystick joystick;
   private Keyboard keyboard;
   private Settings settings;
 
+@Inject
   public Input(Joystick joystick, Keyboard keyboard, Settings settings) {
     this.joystick = joystick;
     this.keyboard = keyboard;

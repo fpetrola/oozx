@@ -18,6 +18,10 @@
 
 package com.fpetrola.oozx.fuse.machine;
 
+import com.fpetrola.oozx.PeriphDelegate;
+import com.google.inject.Singleton;
+import com.google.inject.Inject;
+
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.fuse.Sound;
@@ -28,12 +32,14 @@ import com.fpetrola.oozx.fuse.modules.z80.Cpu;
 import com.fpetrola.oozx.fuse.peripherals.*;
 import com.fpetrola.z80.helpers.Helper;
 
+@Singleton
 public class SpecPlus3 extends Spec128 {
   private UPDFdc specplus3Fdc;
   public Fdd fdd;
   public UPDFdc uPDFdc;
 
-  public SpecPlus3(Memory memory, Display display, MachinesPeriph machinesPeriph, IPeriph periph, Settings settings, Fdd fdd, UPDFdc uPDFdc, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound) {
+  @Inject
+  public SpecPlus3(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, Fdd fdd, UPDFdc uPDFdc, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound) {
     super(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, new SpecPlus3RamInfo(8), sound);
     this.fdd = fdd;
     this.uPDFdc = uPDFdc;

@@ -18,6 +18,9 @@
 
 package com.fpetrola.oozx.fuse.peripherals;
 
+import com.google.inject.Singleton;
+import com.google.inject.Inject;
+
 import cern.colt.list.ObjectArrayList;
 import com.fpetrola.oozx.MachineChangeListener;
 import com.fpetrola.oozx.Settings;
@@ -30,11 +33,13 @@ import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.*;
 
+@Singleton
 public class Periph implements IPeriph {
   private Z80Clock z80Clock;
   private Settings settings;
   private SpectrumMachine spectrumMachine;
 
+@Inject
   public Periph(Z80Clock z80Clock, Settings settings) {
     this.z80Clock = z80Clock;
     this.settings = settings;

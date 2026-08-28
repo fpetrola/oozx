@@ -18,8 +18,11 @@
 
 package com.fpetrola.oozx;
 
+import com.google.inject.Singleton;
+
 import com.fpetrola.oozx.fuse.modules.Joystick;
 
+@Singleton
 public class Settings {
 
   public void setString(String startMachine, String id) {

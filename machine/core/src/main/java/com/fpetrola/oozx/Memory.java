@@ -18,6 +18,9 @@
 
 package com.fpetrola.oozx;
 
+import com.google.inject.Singleton;
+import com.google.inject.Inject;
+
 import com.fpetrola.oozx.fuse.machine.RamInfo;
 import com.fpetrola.oozx.fuse.modules.Display;
 import com.fpetrola.oozx.fuse.modules.Ula;
@@ -28,6 +31,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.ArrayList;
 import java.util.List;
 
+@Singleton
 public class Memory extends DefaultRAMHolder implements ZxModule {
 
   // Constants for memory page sizes
@@ -64,6 +68,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   private final Module module;
   private final Settings settings;
 
+@Inject
   public Memory(SpectrumZ80Clock zxClock, Module module, Settings settings) {
     this.zxClock = zxClock;
     this.module = module;

@@ -18,12 +18,15 @@
 
 package com.fpetrola.oozx;
 
+import com.google.inject.Singleton;
+
 import com.fpetrola.oozx.fuse.modules.ZXModuleInfo;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+@Singleton
 public class Module {
   private List<ZXModuleInfo> registeredModules = new ArrayList<>();
 

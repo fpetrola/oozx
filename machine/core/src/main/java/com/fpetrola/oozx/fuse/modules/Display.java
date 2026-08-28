@@ -18,6 +18,9 @@
 
 package com.fpetrola.oozx.fuse.modules;
 
+import com.google.inject.Singleton;
+import com.google.inject.Inject;
+
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.z80.cpu.Z80Clock;
@@ -26,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Singleton
 public class Display implements ZxModule, MachineChangeListener {
   private final Memory memory;
 
@@ -104,6 +108,7 @@ public class Display implements ZxModule, MachineChangeListener {
   private final BeanPosition beam;
   private SpectrumMachine spectrumMachine;
 
+@Inject
   public Display(Memory memory, Z80Clock z80Clock, RAMHolder ramHolder, UiDisplay uiDisplay) {
     this.memory = memory;
     this.z80Clock = z80Clock;

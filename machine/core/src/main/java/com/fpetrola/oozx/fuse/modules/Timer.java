@@ -18,6 +18,9 @@
 
 package com.fpetrola.oozx.fuse.modules;
 
+import com.google.inject.Singleton;
+import com.google.inject.Inject;
+
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.Sound;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
@@ -26,6 +29,7 @@ import com.fpetrola.oozx.fuse.modules.z80.Cpu;
 
 import java.util.Arrays;
 
+@Singleton
 public class Timer implements ZxModule, MachineChangeListener {
   private final EventManager eventManager;
   private final Sound sound;
@@ -43,6 +47,7 @@ public class Timer implements ZxModule, MachineChangeListener {
   private boolean changeRequested = false;
   private SpectrumMachine spectrumMachine;
 
+@Inject
   public Timer(EventManager eventManager, Sound sound, Settings settings, Tape tape) {
     this.eventManager = eventManager;
     this.sound = sound;

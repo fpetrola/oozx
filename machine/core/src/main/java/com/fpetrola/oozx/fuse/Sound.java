@@ -18,6 +18,9 @@
 
 package com.fpetrola.oozx.fuse;
 
+import com.google.inject.Singleton;
+import com.google.inject.Inject;
+
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.ZxModule;
@@ -29,6 +32,7 @@ import com.fpetrola.oozx.fuse.sound.blip.BlipSynth;
 
 import java.util.Arrays;
 
+@Singleton
 public class Sound implements ZxModule, MachineChangeListener {
 
   public void pause() {
@@ -65,6 +69,7 @@ public class Sound implements ZxModule, MachineChangeListener {
   private SpectrumMachine spectrumMachine;
   private int lastVal;
 
+@Inject
   public Sound(Settings settings, Movie movie, IPeriph periph, Tape tape, SpectrumZ80Clock clock) {
     this.settings = settings;
 //    this.timer = timer;

@@ -18,6 +18,9 @@
 
 package com.fpetrola.oozx.fuse.modules.z80;
 
+import com.google.inject.Singleton;
+import com.google.inject.Inject;
+
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.fuse.*;
@@ -52,6 +55,7 @@ import java.io.File;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
+@Singleton
 public class Z80 implements ZxModule, Cpu {
   public static double emulationSpeed;
   private final EventManager eventManager;
@@ -88,7 +92,8 @@ public class Z80 implements ZxModule, Cpu {
   private final byte[][] screenBytes = new byte[1000][1000];
   private Memory memory1;
 
-  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Machine machine, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, IPeriph periph, UiDisplay uiDisplay, Timer timer, Module module, EmulationSession session, Sound sound, Settings settings, Tape tape) {
+  @Inject
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Machine machine, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, PeriphDelegate periph, UiDisplay uiDisplay, Timer timer, Module module, EmulationSession session, Sound sound, Settings settings, Tape tape) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;

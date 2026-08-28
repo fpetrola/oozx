@@ -47,7 +47,7 @@ public class Fuse {
   public Tape tape;
   public Ula ula;
   public EventManager eventManager;
-  public IPeriph ulaPeriph;
+  public PeriphDelegate ulaPeriph;
   public Joystick joystick;
   public Input input;
   private final Timer timer;

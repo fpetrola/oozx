@@ -18,6 +18,9 @@
 
 package com.fpetrola.oozx.fuse.modules;
 
+import com.google.inject.Singleton;
+import com.google.inject.Inject;
+
 import cern.colt.list.ObjectArrayList;
 import com.fpetrola.oozx.MachineChangeListener;
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
@@ -27,6 +30,7 @@ import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
 import java.util.*;
 
 // When will the next event happen?
+@Singleton
 public class EventManager implements ZxModule, MachineChangeListener {
 
   final int EVENT_NO_EVENTS = 0xffffffff;
@@ -43,6 +47,7 @@ public class EventManager implements ZxModule, MachineChangeListener {
   private final SortedSet<Event> events;
   private SpectrumMachine spectrumMachine;
 
+@Inject
   public EventManager(Z80Clock z80Clock) {
     this.z80Clock = z80Clock;
     Comparator<Event> customComparator = this::eventAddCmp; // Placeholder, not used

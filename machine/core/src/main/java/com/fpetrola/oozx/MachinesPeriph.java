@@ -18,13 +18,18 @@
 
 package com.fpetrola.oozx;
 
+import com.google.inject.Singleton;
+import com.google.inject.Inject;
+
 import com.fpetrola.oozx.fuse.peripherals.*;
 
+@Singleton
 public class MachinesPeriph {
 
-  private IPeriph periph;
+  private PeriphDelegate periph;
 
-  public MachinesPeriph(IPeriph periph) {
+@Inject
+  public MachinesPeriph(PeriphDelegate periph) {
     this.periph = periph;
   }
 

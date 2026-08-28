@@ -40,6 +40,9 @@
  */
 package com.fpetrola.oozx.fuse.modules.tape;
 
+import com.google.inject.Singleton;
+import com.google.inject.Inject;
+
 import com.fpetrola.emulation.helpers.machine.ClockTimeoutListener;
 import com.fpetrola.oozx.SpectrumZ80Clock;
 import com.fpetrola.emulation.helpers.machine.MachineTypes;
@@ -60,6 +63,7 @@ import java.util.Objects;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
+@Singleton
 public class Tape implements ClockTimeoutListener {
 
     public boolean microphone;
@@ -149,6 +153,7 @@ public class Tape implements ClockTimeoutListener {
     private static final String tzxCreator = "TZX created with JSpeccy v0.95";
     private boolean manualMode = false;
 
+    @Inject
     public Tape(TapeSettingsType tapeSettings, SpectrumZ80Clock aClock) {
         blockListeners = new ArrayList<>();
         stateListeners = new ArrayList<>();

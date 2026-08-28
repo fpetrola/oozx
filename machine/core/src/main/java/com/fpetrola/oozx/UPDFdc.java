@@ -18,10 +18,15 @@
 
 package com.fpetrola.oozx;
 
+import com.google.inject.Singleton;
+import com.google.inject.Inject;
+
 import com.fpetrola.z80.helpers.Helper;
 
+@Singleton
 public class UPDFdc {
 
+@Inject
   public UPDFdc(Settings settings) {
     this.settings = settings;
   }

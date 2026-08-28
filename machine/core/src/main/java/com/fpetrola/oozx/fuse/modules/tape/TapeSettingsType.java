@@ -26,6 +26,8 @@
 
 package com.fpetrola.oozx.fuse.modules.tape;
 
+import com.google.inject.Singleton;
+
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -67,6 +69,7 @@ import jakarta.xml.bind.annotation.XmlType;
     "autoLoadTape",
     "invertedEar"
 })
+@Singleton
 public class TapeSettingsType {
 
     @XmlElement(defaultValue = "true")

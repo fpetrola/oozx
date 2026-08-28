@@ -18,13 +18,18 @@
 
 package com.fpetrola.oozx;
 
+import com.google.inject.Singleton;
+import com.google.inject.Inject;
+
 import java.util.Random;
 
+@Singleton
 public class Fdd {
 
     public  final int FDD_SHUGART = 1;
     private  Settings settings;
 
+@Inject
   public Fdd(Settings settings) {
     this.settings = settings;
   }

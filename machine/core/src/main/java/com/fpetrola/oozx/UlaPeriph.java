@@ -18,16 +18,21 @@
 
 package com.fpetrola.oozx;
 
+import com.google.inject.Singleton;
+import com.google.inject.Inject;
+
 import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
 import com.fpetrola.oozx.fuse.modules.Ula;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.z80.cpu.Z80Clock;
 
+@Singleton
 public class UlaPeriph implements PeriphDelegate {
   private final Ula ula;
   private final Z80Clock z80Clock;
   private final IPeriph periph;
 
+@Inject
   public UlaPeriph(Ula ula, Z80Clock z80Clock, IPeriph periph) {
     this.ula = ula;
     this.z80Clock = z80Clock;
