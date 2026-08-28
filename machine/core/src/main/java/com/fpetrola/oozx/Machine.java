@@ -68,10 +68,12 @@ public class Machine implements ZxModule {
   }
 
   public void addMachine(Spectrum spectrumMachine) {
-    // The first model registered is the default one, the 48K.
-    if (defaultMachine == null) defaultMachine = spectrumMachine;
     machineTypes.add(spectrumMachine);
     setConstTimings(spectrumMachine);
+  }
+
+  public void setDefaultMachine(Spectrum spectrumMachine) {
+    defaultMachine = spectrumMachine;
   }
 
   /** Switching models goes through the default one first, so the new machine starts from a known state. */

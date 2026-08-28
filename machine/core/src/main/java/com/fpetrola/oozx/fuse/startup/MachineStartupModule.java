@@ -18,20 +18,24 @@
 
 package com.fpetrola.oozx.fuse.startup;
 
+import com.fpetrola.oozx.DefaultMachine;
 import com.fpetrola.oozx.Machine;
 import com.fpetrola.oozx.Spectrum;
-import com.fpetrola.oozx.fuse.machine.SpectrumMachine;
+import com.google.inject.Inject;
 
-import java.util.Arrays;
+import java.util.Set;
 
 public class MachineStartupModule extends AbstractStartupModule {
-  private Machine machine;
-  private Spectrum[] spectrumMachines;
+  private final Machine machine;
+  private final Set<Spectrum> spectrumMachines;
+  private final Spectrum defaultMachine;
 
-  public MachineStartupModule(Machine machine, Spectrum... spectrumMachines) {
+  @Inject
+  public MachineStartupModule(Machine machine, Set<Spectrum> spectrumMachines, @DefaultMachine Spectrum defaultMachine) {
     super(MemoryStartupModule.class);
     this.machine = machine;
     this.spectrumMachines = spectrumMachines;
+    this.defaultMachine = defaultMachine;
   }
 
   public Object getInitContext() {
@@ -39,7 +43,8 @@ public class MachineStartupModule extends AbstractStartupModule {
   }
 
   public int initFn(Object initContext) {
-    Arrays.stream(spectrumMachines).forEach(machine::addMachine);
+    spectrumMachines.forEach(machine::addMachine);
+    machine.setDefaultMachine(defaultMachine);
     return 0;
   }
 

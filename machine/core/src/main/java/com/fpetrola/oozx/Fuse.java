@@ -40,7 +40,7 @@ public class Fuse {
   public final Sound sound;
   public SpectrumZ80Clock zxClock;
   public Settings settings;
-  public final EmulationSession session = new EmulationSession();
+  public final EmulationSession session;
   private final Module module;
   public Memory memory;
   public Display display;
@@ -75,6 +75,7 @@ public class Fuse {
     injector = Guice.createInjector(new EmulatorModule(spectrumZ80Clock));
 
     zxClock = spectrumZ80Clock;
+    session = injector.getInstance(EmulationSession.class);
     settings = injector.getInstance(Settings.class);
     startupManager = injector.getInstance(StartupManager.class);
     module = injector.getInstance(Module.class);
@@ -106,6 +107,11 @@ public class Fuse {
     spec48Ntsc = injector.getInstance(Spec48Ntsc.class);
   }
 
+  /** The graph this emulator was built from. Exposed so tests can check nothing bypassed it. */
+  public Injector getInjector() {
+    return injector;
+  }
+
   public boolean isAlive() {
     return session.isAlive();
   }
@@ -119,7 +125,7 @@ public class Fuse {
         new JoystickStartupModule(joystick),
         new KeyboardStartupModule(keyboard),
         new LibspectrumStartupModule(),
-        new MachineStartupModule(machine, spec48, spec128, specPlus3, specPlus2, specPlus2a, specPlus3e, spec48Ntsc),
+        injector.getInstance(MachineStartupModule.class),
         new MachinesPeriphStartupModule(machine, spec128, specPlus3, periph),
         new MemoryStartupModule(memory, machine, spec128, specPlus3, module),
         new SpectrumStartupModule(spec48),
@@ -129,7 +135,7 @@ public class Fuse {
     ).forEach(startupManager::register);
 
     startupManager.run();
-    machine.select(spec48);
+    machine.selectDefault();
   }
 
   public void end() {

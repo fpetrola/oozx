@@ -18,12 +18,14 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.fuse.machine.*;
 import com.fpetrola.oozx.fuse.modules.z80.Cpu;
 import com.fpetrola.oozx.fuse.modules.z80.Z80;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
 import com.fpetrola.oozx.fuse.peripherals.Periph;
 import com.fpetrola.z80.cpu.Z80Clock;
 import com.google.inject.AbstractModule;
+import com.google.inject.multibindings.Multibinder;
 
 /**
  * The bindings a Spectrum needs beyond what the constructors already say.
@@ -56,5 +58,18 @@ public class EmulatorModule extends AbstractModule {
     bind(PeriphDelegate.class).to(UlaPeriph.class);
 
     bind(Cpu.class).to(Z80.class);
+
+    // Every model the emulator can be, and separately which one it falls back to. The set says
+    // nothing about order, so nothing depends on the order these are listed in.
+    Multibinder<Spectrum> models = Multibinder.newSetBinder(binder(), Spectrum.class);
+    models.addBinding().to(Spec48.class);
+    models.addBinding().to(Spec128.class);
+    models.addBinding().to(SpecPlus3.class);
+    models.addBinding().to(SpecPlus2.class);
+    models.addBinding().to(SpecPlus2A.class);
+    models.addBinding().to(SpecPlus3E.class);
+    models.addBinding().to(Spec48Ntsc.class);
+
+    bind(Spectrum.class).annotatedWith(DefaultMachine.class).to(Spec48.class);
   }
 }

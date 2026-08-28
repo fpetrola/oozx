@@ -29,8 +29,10 @@ import com.fpetrola.oozx.fuse.Sound;
 import com.fpetrola.oozx.fuse.modules.Ula;
 import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.peripherals.IPeriph;
+import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.fpetrola.oozx.fuse.sound.JavaSoundDevice;
 import com.fpetrola.z80.registers.RegisterName;
 import org.junit.jupiter.api.Test;
@@ -38,6 +40,7 @@ import org.junit.jupiter.api.Test;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.lang.reflect.Field;
 import java.security.MessageDigest;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -132,6 +135,52 @@ public class EmulationRegressionTest {
 
     assertNotSame(injector.getInstance(IPeriph.class), injector.getInstance(PeriphDelegate.class),
         "the raw and the ULA-decorated peripheral bus collapsed into one object");
+  }
+
+  /**
+   * Nothing Fuse hands out was built outside the graph.
+   * <p>
+   * The sibling test above compares instances the injector returns, so it cannot see a field
+   * Fuse assigned with its own {@code new} — and that is a whole family of bugs with one shape:
+   * two objects where there must be one, the emulator starting perfectly, and the failure
+   * arriving later and quietly. It happened to EmulationSession, where Fuse kept its own and the
+   * Z80 was given the injector's, so closing the window finished a session nobody was reading
+   * and the emulator ran on with the sound still playing.
+   */
+  @Test
+  public void everyPartFuseExposesCameFromTheGraph() throws Exception {
+    Fuse fuse = bootedSpectrum();
+    Injector injector = fuse.getInjector();
+
+    for (Field field : Fuse.class.getFields()) {
+      if (field.getType().isPrimitive()) continue;
+
+      Object exposed = field.get(fuse);
+      if (exposed == null) continue;
+
+      Binding<?> binding = injector.getExistingBinding(Key.get(field.getType()));
+      if (binding == null) continue;
+
+      assertSame(binding.getProvider().get(), exposed,
+          "fuse." + field.getName() + " was built outside the graph; ask the injector for it");
+    }
+  }
+
+  /**
+   * Which model the machine falls back to, and how many it knows about.
+   * <p>
+   * Switching models passes through the default first, so a wrong one is not cosmetic: the
+   * emulator would come up as a +3 or a 128K and every 48K tape would stop loading. The default
+   * used to be whichever model was registered first, which the Multibinder would have turned
+   * into a dependency on set iteration order; it is named now, so this pins the name.
+   */
+  @Test
+  public void switchingModelsFallsBackToThe48K() {
+    Fuse fuse = bootedSpectrum();
+
+    assertEquals(7, fuse.machine.getMachineTypes().size(), "not every model was registered");
+    assertSame(fuse.spec48, fuse.machine.current,
+        "the machine did not come up as the 48K; check the @DefaultMachine binding");
   }
 
   /**
