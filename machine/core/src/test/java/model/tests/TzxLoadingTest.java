@@ -28,7 +28,7 @@ import com.fpetrola.oozx.fuse.modules.tape.Tape;
 import com.fpetrola.oozx.fuse.peripherals.t.DownloadAndUnzip;
 import com.fpetrola.oozx.fuse.peripherals.t.GameBrowserInternalFrame;
 import com.fpetrola.oozx.fuse.sound.JavaSoundDevice;
-import com.fpetrola.oozx.fuse.KeyboardKeyName;
+import com.fpetrola.oozx.fuse.modules.tape.TapeAutoLoader;
 import org.junit.jupiter.api.Test;
 
 import java.awt.image.BufferedImage;
@@ -212,26 +212,22 @@ public class TzxLoadingTest extends FuseBaseForTests {
     fuse.z80.bridgeCommand = (a, b) -> null;
 
     Tape tape = fuse.tape;
-    tape.stop();
-    tape.eject();
 
     int[] blocks = {0};
     tape.addTapeBlockListener(block -> blocks[0] = Math.max(blocks[0], block));
 
-    // Let the ROM reach the BASIC prompt, then type LOAD "" ENTER on the real keyboard.
-    // Poking LAST_K/FLAGS the way OOSpectrumLauncher.doAutoLoadTape does never registers as a
-    // keypress here, so the LOAD command is never entered and the ROM stays in the editor.
-    run(fuse, 120);
-    tap(fuse, KeyboardKeyName.KEYBOARD_j);                                  // LOAD
-    tap(fuse, KeyboardKeyName.KEYBOARD_Symbol, KeyboardKeyName.KEYBOARD_p); // "
-    tap(fuse, KeyboardKeyName.KEYBOARD_Symbol, KeyboardKeyName.KEYBOARD_p); // "
-    tap(fuse, KeyboardKeyName.KEYBOARD_Enter);
-
-    if (!tape.insert(tapeFile)) {
-      return new Report(query, title, Outcome.TAPE_REJECTED, tapeFile.getName(), 0, 0);
+    // The launcher's own auto loader: type LOAD "" on the keyboard, then insert and play.
+    TapeAutoLoader autoLoader = new TapeAutoLoader(fuse, tapeFile);
+    for (int step = 0; step < 5_000_000 && !autoLoader.isDone(); step++) {
+      autoLoader.step();
+      fuse.z80.doOpcodes();
+      fuse.eventManager.eventDoEvents();
     }
-    if (!tape.play(false)) {
-      return new Report(query, title, Outcome.TAPE_REJECTED, "play() refused " + tapeFile.getName(), 0, 0);
+    if (!autoLoader.isDone()) {
+      return new Report(query, title, Outcome.NEVER_STARTED, "auto load never finished", 0, 0);
+    }
+    if (autoLoader.getError() != null) {
+      return new Report(query, title, Outcome.TAPE_REJECTED, autoLoader.getError(), 0, 0);
     }
 
     // Play the tape out, then judge by where execution goes once there is no more signal.
@@ -259,18 +255,6 @@ public class TzxLoadingTest extends FuseBaseForTests {
    * then wait for the ROM to clear that bit, which is its acknowledgement that it read the key.
    * The launcher sleeps a fixed 30ms instead, which is what makes the autoload racy.
    */
-  /** Presses keys together, holds them a few frames so the ROM scans them, then releases. */
-  private void tap(Fuse fuse, KeyboardKeyName... keys) {
-    for (KeyboardKeyName key : keys) {
-      fuse.keyboard.press(key);
-    }
-    run(fuse, 4);
-    for (KeyboardKeyName key : keys) {
-      fuse.keyboard.release(key);
-    }
-    run(fuse, 6);
-  }
-
   /** Runs until the tape deck stops, or gives up after maxFrames. */
   private boolean runUntilTapeStops(Fuse fuse, int maxFrames) {
     for (int frame = 0; frame < maxFrames; frame += 50) {

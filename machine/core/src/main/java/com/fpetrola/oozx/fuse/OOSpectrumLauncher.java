@@ -19,12 +19,10 @@
 package com.fpetrola.oozx.fuse;
 
 import com.fpetrola.oozx.Fuse;
-import com.fpetrola.oozx.fuse.modules.tape.Log1;
-import com.fpetrola.oozx.fuse.modules.tape.Tape;
+import com.fpetrola.oozx.fuse.modules.tape.TapeAutoLoader;
 import com.fpetrola.oozx.fuse.peripherals.EmulatorCore;
 import com.fpetrola.oozx.fuse.peripherals.t.DownloadAndUnzip;
 import com.fpetrola.oozx.fuse.peripherals.t.ZXSpectrumDesktopApp;
-import com.fpetrola.z80.memory.Memory;
 import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.theme.SolarizedLightTheme;
 import com.fpetrola.emulation.helpers.snapshots.SpectrumState;
@@ -42,6 +40,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class OOSpectrumLauncher {
   private ScheduledExecutorService scheduledExecutorService = newScheduledThreadPool(10);
+  private TapeAutoLoader autoLoader;
 
   public static void main(String[] args) {
     OOSpectrumLauncher ooSpectrumLauncher = new OOSpectrumLauncher();
@@ -106,65 +105,12 @@ public class OOSpectrumLauncher {
     return "/home/fernando/detodo/desarrollo/m/zx/roms/" + randomGame;
   }
 
-  // Spectrum system variables
-  private static final int LAST_K = 23560;
-  private static final int FLAGS = 23611;
-
-  private void doAutoLoadTape(Memory memory, float coe, Runnable runnable) {
-    boolean autoLoadTape = false;
-    Runnable task = () -> {
-      try {
-        wait1(1100, coe);
-        long endFrame = 100;
-//        while (clock.getFrames() < endFrame) {
-//          TimeUnit.MILLISECONDS.sleep(20);
-//        }
-
-        if (endFrame == 100) {
-          memory.write(LAST_K, 0xEF); // LOAD keyword
-          Integer wordNumber2 = memory.read(FLAGS, 0);
-          memory.write(FLAGS, ((Integer) (wordNumber2 | 0x20) & 0xFFFF)); // LOAD keyword
-          wait1(30, coe);
-          memory.write(LAST_K, 0x22); // LOAD keyword
-          Integer wordNumber1 = memory.read(FLAGS, 0);
-          memory.write(FLAGS, ((Integer) (wordNumber1 | 0x20) & 0xFFFF)); // LOAD keyword
-          wait1(30, coe);
-          memory.write(LAST_K, 0x22); // LOAD keyword
-          Integer wordNumber = memory.read(FLAGS, 0);
-          memory.write(FLAGS, ((Integer) (wordNumber | 0x20) & 0xFFFF)); // LOAD keyword
-          wait1(30, coe);
-        }
-        memory.write(LAST_K, 0x0D); // LOAD keyword
-        Integer wordNumber = memory.read(FLAGS, 0);
-        memory.write(FLAGS, ((Integer) (wordNumber | 0x20) & 0xFFFF)); // LOAD keyword
-        wait1(3000, coe);
-
-        runnable.run();
-      } catch (final InterruptedException ex) {
-        new Log1().error("", ex);
-      }
-    };
-
-    new Thread(task).start();
-  }
-
-  private void wait1(int i, float coe) throws InterruptedException {
-    Thread.sleep((long) (i * coe));
-  }
-
   public Fuse createFuse(String filename) {
     Fuse fuse = new Fuse();
 
-    boolean isTape = filename != null && filename.toLowerCase().contains("tzx") || filename.toLowerCase().contains("tap");
-    if (isTape) {
+    if (isTape(filename)) {
       fuse.init();
-      Tape tape = fuse.tape;
-      tape.stop();
-      tape.eject();
-      doAutoLoadTape(fuse.z80.ooz80.getState().getMemory(), 1f, () -> {
-        tape.insert(new File(filename));
-        tape.play(false);
-      });
+      autoLoader = new TapeAutoLoader(fuse, new File(filename));
     } else {
       fuse.settings.current.emulationSpeed = 10000;
       fuse.init();
@@ -189,11 +135,29 @@ public class OOSpectrumLauncher {
     return fuse;
   }
 
+  private static boolean isTape(String filename) {
+    if (filename == null) {
+      return false;
+    }
+    String name = filename.toLowerCase();
+    return name.endsWith(".tzx") || name.endsWith(".tap") || name.endsWith(".csw");
+  }
+
   private void extracted(Fuse fuse) {
     fuse.z80.bridgeCommand = (a, b) -> null;
 
+    TapeAutoLoader tapeAutoLoader = autoLoader;
+    autoLoader = null;
+
     scheduledExecutorService.schedule(() -> {
       while (fuse.alive) {
+        // Stepped from this thread so the keystrokes cannot race the loop that reads them.
+        if (tapeAutoLoader != null && !tapeAutoLoader.isDone()) {
+          tapeAutoLoader.step();
+          if (tapeAutoLoader.isDone() && tapeAutoLoader.getError() != null) {
+            System.err.println("Auto load failed: " + tapeAutoLoader.getError());
+          }
+        }
         fuse.z80.doOpcodes();
         fuse.eventManager.eventDoEvents();
       }
