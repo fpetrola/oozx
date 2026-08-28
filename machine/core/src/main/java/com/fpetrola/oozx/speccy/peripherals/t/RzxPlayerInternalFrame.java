@@ -20,23 +20,34 @@ package com.fpetrola.oozx.speccy.peripherals.t;
 
 import com.fpetrola.oozx.speccy.rzx.RzxSession;
 import com.fpetrola.z80.ide.rzx.CreatorInfo;
+import com.fpetrola.z80.ide.rzx.InputRecordingBlock;
+import com.fpetrola.z80.ide.rzx.RzxFile;
+import com.fpetrola.z80.ide.rzx.RzxHeader;
+import com.fpetrola.z80.ide.rzx.SnapshotBlock;
 import com.fpetrola.z80.minizx.RzxPlayback;
 
 import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * Plays a recording and shows it running.
+ * Drives a recording: what is in the file, how far along it is, and play, pause and take over.
  * <p>
- * A recording brings its own machine: it starts from the state it was made at and its ports read
- * the recorded input, so it does not go into an emulator that is already running something. The
- * picture is that machine's own screen, put in this window.
+ * The picture is not here. A recording brings its own machine, and that machine goes into an
+ * ordinary emulator window like any other, which is what makes {@link RzxSession#release() taking
+ * over} mean something: stop the recording at an interesting moment and the same machine carries
+ * on reading the keyboard, with the game exactly where the recording left it. This window is the
+ * controls and the contents, the way the cassette browser is for a tape.
  * <p>
- * Playing runs on its own thread, since the recording drives the processor rather than the
- * machine's clock, and it is paced to fifty frames a second so it can be watched. Unpaced it runs
- * about ten times that.
+ * The machine runs on this window's thread either way, because while a recording plays it is the
+ * recording that drives the processor, not the machine's clock. After taking over, the same
+ * thread runs the ordinary loop instead.
  */
 public class RzxPlayerInternalFrame extends JInternalFrame {
 
@@ -44,50 +55,62 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   private static final int FRAME_MILLIS = 20;
   private static final int REFRESH_MILLIS = 100;
 
+  private enum Mode { EMPTY, STOPPED, PLAYING, TAKEN_OVER, FINISHED }
+
   private final Supplier<File> chooseRecording;
+  private final Consumer<RzxSession> showMachine;
 
   private File file;
   private RzxSession session;
-  private Thread playing;
-  private volatile boolean running;
+  private volatile Mode mode = Mode.EMPTY;
+  private Thread thread;
+  private volatile boolean alive;
 
   private final JButton openButton = new JButton("Open Recording...");
   private final JButton playButton = new JButton("Play");
   private final JButton pauseButton = new JButton("Pause");
   private final JButton stopButton = new JButton("Stop");
+  private final JButton takeOverButton = new JButton("Take Over");
   private final JCheckBox fullSpeed = new JCheckBox("Full speed");
   private final JLabel status = new JLabel();
-  private final JProgressBar progress = new JProgressBar(0, 1);
-  private final JPanel screenHolder = new JPanel(new BorderLayout());
+  private final PartsTableModel model = new PartsTableModel();
+  private final JTable table = new JTable(model);
 
-  public RzxPlayerInternalFrame(Supplier<File> chooseRecording) {
+  public RzxPlayerInternalFrame(Supplier<File> chooseRecording, Consumer<RzxSession> showMachine) {
     super("RZX Player", true, true, true, true);
     this.chooseRecording = chooseRecording;
-    setSize(700, 620);
+    this.showMachine = showMachine;
+    setSize(720, 300);
     setLocation(120, 60);
 
     openButton.addActionListener(e -> open());
     playButton.addActionListener(e -> play());
-    pauseButton.addActionListener(e -> pause());
+    pauseButton.addActionListener(e -> mode = Mode.STOPPED);
     stopButton.addActionListener(e -> stop());
+    takeOverButton.addActionListener(e -> takeOver());
+    takeOverButton.setToolTipText(
+        "Stops the recording and leaves the machine playable, exactly where the recording is");
 
     JPanel controls = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
     controls.add(openButton);
     controls.add(playButton);
     controls.add(pauseButton);
     controls.add(stopButton);
+    controls.add(takeOverButton);
     controls.add(fullSpeed);
 
-    progress.setStringPainted(true);
+    table.setRowHeight(22);
+    table.getColumnModel().getColumn(0).setPreferredWidth(130);
+    table.getColumnModel().getColumn(1).setPreferredWidth(400);
+    table.getColumnModel().getColumn(2).setPreferredWidth(140);
+    table.getColumnModel().getColumn(2).setCellRenderer(new ProgressRenderer());
+
     JPanel top = new JPanel(new BorderLayout());
     top.add(controls, BorderLayout.NORTH);
-    top.add(progress, BorderLayout.CENTER);
     top.add(status, BorderLayout.SOUTH);
-
-    screenHolder.setBackground(Color.BLACK);
     setLayout(new BorderLayout());
     add(top, BorderLayout.NORTH);
-    add(screenHolder, BorderLayout.CENTER);
+    add(new JScrollPane(table), BorderLayout.CENTER);
 
     Timer refresh = new Timer(REFRESH_MILLIS, e -> refresh());
     refresh.start();
@@ -95,13 +118,13 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
       @Override
       public void internalFrameClosed(javax.swing.event.InternalFrameEvent e) {
         refresh.stop();
-        stopThread();
+        alive = false;
       }
     });
     refresh();
   }
 
-  /** Loads a recording and builds the machine that will play it. */
+  /** Loads a recording, builds its machine and hands that machine over to be shown. */
   public void openRecording(File recording) {
     stopThread();
     file = recording;
@@ -109,18 +132,17 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
       session = RzxSession.open(recording);
     } catch (RuntimeException e) {
       session = null;
+      mode = Mode.EMPTY;
       JOptionPane.showMessageDialog(this, "Could not read " + recording.getName() + ": " + e,
           "Open recording", JOptionPane.ERROR_MESSAGE);
       return;
     }
 
-    screenHolder.removeAll();
-    screenHolder.add(session.getSpeccy().z80.mockCore.getPanel(), BorderLayout.CENTER);
-    screenHolder.revalidate();
-    screenHolder.repaint();
-
-    progress.setMaximum(session.getPlayback().getFrameCount());
+    mode = Mode.STOPPED;
     setTitle("RZX Player - " + recording.getName());
+    model.fireTableDataChanged();
+    showMachine.accept(session);
+    startThread();
     refresh();
   }
 
@@ -132,86 +154,190 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   }
 
   private void play() {
-    if (session == null || running) {
-      return;
+    if (session != null && mode != Mode.TAKEN_OVER && mode != Mode.FINISHED) {
+      mode = Mode.PLAYING;
     }
-    running = true;
-    playing = new Thread(this::replay, "rzx-playback");
-    playing.setDaemon(true);
-    playing.start();
-  }
-
-  private void replay() {
-    RzxPlayback playback = session.getPlayback();
-    while (running && playback.playFrame()) {
-      // The recording drives the processor, so nothing else advances the picture: render the
-      // frame here, where the machine's own frame event would have.
-      session.getSpeccy().display.frame();
-      if (!fullSpeed.isSelected()) {
-        try {
-          Thread.sleep(FRAME_MILLIS);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-          return;
-        }
-      }
-    }
-    running = false;
-  }
-
-  private void pause() {
-    stopThread();
   }
 
   /** Back to the beginning, which for a recording means building its machine again. */
   private void stop() {
-    stopThread();
     if (file != null) {
       openRecording(file);
     }
   }
 
+  private void takeOver() {
+    if (session == null || mode == Mode.TAKEN_OVER) {
+      return;
+    }
+    session.release();
+    mode = Mode.TAKEN_OVER;
+  }
+
+  private void startThread() {
+    alive = true;
+    thread = new Thread(this::run, "rzx-machine");
+    thread.setDaemon(true);
+    thread.start();
+  }
+
   private void stopThread() {
-    running = false;
-    Thread thread = playing;
-    playing = null;
-    if (thread != null && thread != Thread.currentThread()) {
+    alive = false;
+    Thread running = thread;
+    thread = null;
+    if (running != null && running != Thread.currentThread()) {
       try {
-        thread.join(500);
+        running.join(500);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       }
     }
   }
 
+  private void run() {
+    while (alive) {
+      RzxSession current = session;
+      if (current == null) {
+        sleep(REFRESH_MILLIS);
+        continue;
+      }
+      switch (mode) {
+        case PLAYING -> {
+          if (!current.playFrame()) {
+            mode = Mode.FINISHED;
+          } else if (!fullSpeed.isSelected()) {
+            sleep(FRAME_MILLIS);
+          }
+        }
+        // Taken over: the machine is an ordinary one again, so its own loop runs it.
+        case TAKEN_OVER -> {
+          current.getSpeccy().z80.doOpcodes();
+          current.getSpeccy().eventManager.eventDoEvents();
+        }
+        default -> sleep(REFRESH_MILLIS);
+      }
+    }
+  }
+
+  private static void sleep(int millis) {
+    try {
+      Thread.sleep(millis);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+  }
+
   private void refresh() {
     boolean loaded = session != null;
-    openButton.setEnabled(true);
-    playButton.setEnabled(loaded && !running);
-    pauseButton.setEnabled(loaded && running);
+    playButton.setEnabled(loaded && mode == Mode.STOPPED);
+    pauseButton.setEnabled(mode == Mode.PLAYING);
     stopButton.setEnabled(loaded);
+    takeOverButton.setEnabled(loaded && mode != Mode.TAKEN_OVER);
 
     if (!loaded) {
       status.setText(" No recording - use Open Recording");
-      progress.setValue(0);
-      progress.setString("");
       return;
     }
-
     RzxPlayback playback = session.getPlayback();
-    progress.setValue(playback.getFrameIndex());
-    progress.setString(playback.getFrameIndex() + " / " + playback.getFrameCount() + " frames");
-
-    String state = playback.isFinished() ? "Finished" : running ? "Playing" : "Stopped";
-    status.setText(" " + state + " - " + describe());
+    String where = playback.getFrameIndex() + " of " + playback.getFrameCount() + " frames";
+    String state = switch (mode) {
+      case PLAYING -> "Playing";
+      case TAKEN_OVER -> "Taken over - the machine is yours, playing on from here";
+      case FINISHED -> "Recording finished";
+      default -> "Stopped";
+    };
+    status.setText(" " + state + " - " + where);
+    model.fireTableRowsUpdated(0, Math.max(0, model.getRowCount() - 1));
   }
 
-  private String describe() {
-    CreatorInfo creator = session.getRecording().getCreatorInfo();
-    String by = creator == null || creator.creatorId == null ? "unknown" : creator.creatorId.trim();
-    int seconds = session.getPlayback().getFrameCount() / 50;
-    return String.format("recorded by %s, %d:%02d long, snapshot %s",
-        by, seconds / 60, seconds % 60,
-        session.getRecording().getSnapshotBlock().getSnapshotExtension());
+  /** One row per part of the file, the way the cassette browser lists a tape's blocks. */
+  private class PartsTableModel extends AbstractTableModel {
+    private final String[] columns = {"Part", "Details", "Progress"};
+
+    public int getRowCount() {
+      return session == null ? 0 : 4;
+    }
+
+    public int getColumnCount() {
+      return columns.length;
+    }
+
+    public String getColumnName(int column) {
+      return columns[column];
+    }
+
+    @Override
+    public boolean isCellEditable(int row, int column) {
+      return false; // a listing, not a form
+    }
+
+    public Object getValueAt(int row, int column) {
+      RzxFile recording = session.getRecording();
+      if (column == 2) {
+        return row == 3 ? progressOfRecording() : 100;
+      }
+      return switch (row) {
+        case 0 -> column == 0 ? "Header" : headerOf(recording.getHeader());
+        case 1 -> column == 0 ? "Creator" : creatorOf(recording.getCreatorInfo());
+        case 2 -> column == 0 ? "Snapshot" : snapshotOf(recording.getSnapshotBlock());
+        default -> column == 0 ? "Input recording" : inputOf(recording.getInputRecordingBlock());
+      };
+    }
+
+    private int progressOfRecording() {
+      RzxPlayback playback = session.getPlayback();
+      return playback.getFrameCount() == 0 ? 0
+          : playback.getFrameIndex() * 100 / playback.getFrameCount();
+    }
+
+    private String headerOf(RzxHeader header) {
+      return header == null ? "" : String.format("%s, version %d.%d",
+          header.signature == null ? "RZX" : header.signature.trim(),
+          header.majorRevision, header.minorRevision);
+    }
+
+    private String creatorOf(CreatorInfo creator) {
+      return creator == null ? "unknown" : String.format("%s %d.%d",
+          creator.creatorId == null ? "unknown" : creator.creatorId.trim(),
+          creator.majorVersion, creator.minorVersion);
+    }
+
+    private String snapshotOf(SnapshotBlock snapshot) {
+      if (snapshot == null) {
+        return "none - the recording starts from whatever is in the machine";
+      }
+      return String.format("%s, %d bytes%s", snapshot.getSnapshotExtension(),
+          snapshot.getSnapshotData() == null ? 0 : snapshot.getSnapshotData().length,
+          snapshot.isCompressed() ? ", stored compressed" : "");
+    }
+
+    private String inputOf(InputRecordingBlock block) {
+      if (block == null) {
+        return "none";
+      }
+      long reads = 0;
+      for (InputRecordingBlock.Frame frame : block.frames) {
+        reads += frame.inCounter;
+      }
+      int seconds = block.frames.size() / 50;
+      return String.format("%d frames, %d:%02d long, %d port reads%s",
+          block.frames.size(), seconds / 60, seconds % 60, reads,
+          block.isCompressed ? ", stored compressed" : "");
+    }
+  }
+
+  private static class ProgressRenderer extends JProgressBar implements TableCellRenderer {
+    ProgressRenderer() {
+      super(0, 100);
+      setStringPainted(true);
+    }
+
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean selected,
+                                                   boolean focused, int row, int column) {
+      int progress = value instanceof Integer ? (Integer) value : 0;
+      setValue(progress);
+      setString(progress + "%");
+      return this;
+    }
   }
 }

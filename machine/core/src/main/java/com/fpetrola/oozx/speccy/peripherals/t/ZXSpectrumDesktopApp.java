@@ -1568,12 +1568,20 @@ public class ZXSpectrumDesktopApp extends JFrame {
   public void showRzxPlayer() {
     SwingUtilities.invokeLater(() -> {
       if (rzxPlayer == null || rzxPlayer.isClosed()) {
-        rzxPlayer = new RzxPlayerInternalFrame(this::chooseRecording);
+        rzxPlayer = new RzxPlayerInternalFrame(this::chooseRecording, this::showRzxMachine);
         desktop.add(rzxPlayer);
       }
       rzxPlayer.setVisible(true);
       rzxPlayer.toFront();
     });
+  }
+
+  /**
+   * Puts a recording's machine in an ordinary emulator window. It is an emulator like any other
+   * from here on - which is what lets the recording be stopped and the game carried on by hand.
+   */
+  private void showRzxMachine(com.fpetrola.oozx.speccy.rzx.RzxSession session) {
+    SwingUtilities.invokeLater(() -> createNewEmulator(session.getSpeccy().z80.mockCore));
   }
 
   /** Asks for a recording. A recording brings its own machine, so no emulator is needed. */

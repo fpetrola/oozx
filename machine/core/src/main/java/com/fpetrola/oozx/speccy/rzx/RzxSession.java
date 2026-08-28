@@ -21,6 +21,7 @@ package com.fpetrola.oozx.speccy.rzx;
 import com.fpetrola.oozx.EmulatorModule;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.SpectrumZ80Clock;
+import com.fpetrola.oozx.speccy.modules.z80.PeripheralIO;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.ide.rzx.RzxFile;
 import com.fpetrola.z80.ide.rzx.RzxParser;
@@ -44,17 +45,44 @@ import java.nio.file.Path;
  * needs no say in it. The recording carries the machine's state at the moment recording began, as
  * a snapshot the parser hands over already expanded, so it is written out and loaded the same way
  * any snapshot is.
+ * <p>
+ * The replacement is a switch rather than a substitution: {@link #release()} puts the real ports
+ * back, and from then on the machine is an ordinary one that reads its keyboard, carrying whatever
+ * state the recording left it in. That is the point of playing a recording in a window like any
+ * other emulator's - stop watching at an interesting moment and take over.
  */
 public class RzxSession {
 
   private final RzxFile recording;
   private final Speccy speccy;
   private final RzxPlayback playback;
+  private final SwitchableIO ports;
 
-  private RzxSession(RzxFile recording, Speccy speccy, RzxPlayback playback) {
+  private RzxSession(RzxFile recording, Speccy speccy, RzxPlayback playback, SwitchableIO ports) {
     this.recording = recording;
     this.speccy = speccy;
     this.playback = playback;
+    this.ports = ports;
+  }
+
+  /**
+   * The machine's ports, which start out reading the recording and can be handed back to the
+   * hardware. Nothing else is switched: the machine goes on from wherever the recording left it.
+   */
+  private static class SwitchableIO implements IO {
+    private volatile IO delegate;
+
+    SwitchableIO(IO delegate) {
+      this.delegate = delegate;
+    }
+
+    public int in(int port) {
+      return delegate.in(port);
+    }
+
+    public void out(int port, int value) {
+      delegate.out(port, value);
+    }
   }
 
   public static RzxSession open(File file) {
@@ -63,19 +91,55 @@ public class RzxSession {
     RZXPlayerIO.stop = false;
     RZXPlayerIO player = new RZXPlayerIO();
 
-    Speccy speccy = Guice.createInjector(
+    SwitchableIO ports = new SwitchableIO(player);
+    com.google.inject.Injector injector = Guice.createInjector(
         Modules.override(new EmulatorModule(new SpectrumZ80Clock()))
             .with(new AbstractModule() {
               @Override
               protected void configure() {
-                bind(IO.class).toInstance(player);
+                bind(IO.class).toInstance(ports);
               }
-            })).getInstance(Speccy.class);
+            }));
+    Speccy speccy = injector.getInstance(Speccy.class);
     speccy.init();
     speccy.z80.bridgeCommand = (command, data) -> null;
     speccy.z80.loadSnap(snapshotFileOf(recording).toAbsolutePath().toString());
 
-    return new RzxSession(recording, speccy, new RzxPlayback(speccy.z80.ooz80, player, recording));
+    RzxSession session =
+        new RzxSession(recording, speccy, new RzxPlayback(speccy.z80.ooz80, player, recording), ports);
+    session.realPorts = injector.getInstance(PeripheralIO.class);
+    return session;
+  }
+
+  private PeripheralIO realPorts;
+
+  /**
+   * Plays one frame of the recording and shows it.
+   * <p>
+   * Driving the processor means the machine's own loop never runs, and that loop is what asks the
+   * sound and the display for a frame, so both are asked here. Without the sound one a replay is
+   * silent, which is not the emulator being quiet - it is nobody telling it a frame went by.
+   *
+   * @return false at the end of the recording
+   */
+  public boolean playFrame() {
+    if (!playback.playFrame()) {
+      return false;
+    }
+    if (speccy.sound.soundEnabled) {
+      speccy.sound.frame();
+    }
+    speccy.display.frame();
+    return true;
+  }
+
+  /** Hands the ports back to the hardware: the machine carries on as an ordinary emulator. */
+  public void release() {
+    ports.delegate = realPorts;
+  }
+
+  public boolean isReleased() {
+    return ports.delegate == realPorts;
   }
 
   /**
