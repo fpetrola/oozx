@@ -730,6 +730,9 @@ class GameSearchResult {
   String screenshot1;
   String screenshot2;
   String filename;
+  /** Extras the entry carries, for filters the server cannot apply itself. */
+  boolean hasRzx;
+  boolean hasMap;
 
   public GameSearchResult(String _id, String title, String url, String screenshot1, String screenshot2, String filename) {
     id = _id;

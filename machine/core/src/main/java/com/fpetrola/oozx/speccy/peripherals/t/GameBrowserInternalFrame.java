@@ -25,6 +25,7 @@ import com.google.gson.JsonSyntaxException;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -42,6 +43,18 @@ public class GameBrowserInternalFrame extends JInternalFrame {
   private GameBrowserListener listener;
   private SwingWorker<List<GameSearchResult>, Void> runningSearch;
   private boolean loading;
+  private JComboBox<String> machineFilter;
+  private JComboBox<String> genreFilter;
+  private JCheckBox rzxFilter;
+  private JCheckBox mapFilter;
+  private JCheckBox loadableFilter;
+
+  /**
+   * First entry of each filter combo, meaning "do not narrow by this". They name what they
+   * filter so the bar needs no labels beside them, which is what makes it fit the window.
+   */
+  private static final String ANY_MACHINE = "Any machine";
+  private static final String ANY_GENRE = "Any genre";
   public static Gson gson = new Gson();
 
   public GameBrowserInternalFrame(GameBrowserListener listener) {
@@ -62,6 +75,8 @@ public class GameBrowserInternalFrame extends JInternalFrame {
 
     topPanel.add(searchField, BorderLayout.CENTER);
     topPanel.add(searchButton, BorderLayout.EAST);
+
+    topPanel.add(createFilterBar(), BorderLayout.NORTH);
 
     // Indeterminate: the API gives no progress, this only says the search is running.
     searchProgress = new JProgressBar();
@@ -87,6 +102,85 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     searchField.addActionListener(e -> performSearch());
   }
 
+  /**
+   * Machine and genre are narrowed by the server, which takes them as search parameters and
+   * publishes the values it accepts. Whether an entry has an RZX recording, a map, or anything
+   * to load at all is not something it can filter on - those live in additionalDownloads - so
+   * they are applied to the results here.
+   */
+  private JPanel createFilterBar() {
+    JPanel bar = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
+
+    machineFilter = new JComboBox<>(new String[]{ANY_MACHINE});
+    genreFilter = new JComboBox<>(new String[]{ANY_GENRE});
+    machineFilter.setPreferredSize(new Dimension(155, 24));
+    genreFilter.setPreferredSize(new Dimension(135, 24));
+    machineFilter.setToolTipText("Narrow to one machine, applied by the server");
+    genreFilter.setToolTipText("Narrow to one genre, applied by the server");
+
+    rzxFilter = new JCheckBox("RZX");
+    rzxFilter.setToolTipText("Only games with a recorded playthrough to replay");
+    mapFilter = new JCheckBox("Map");
+    mapFilter.setToolTipText("Only games with a game map");
+    loadableFilter = new JCheckBox("Loadable", true);
+    loadableFilter.setToolTipText("Hide entries with nothing to download");
+
+    bar.add(machineFilter);
+    bar.add(genreFilter);
+    bar.add(rzxFilter);
+    bar.add(mapFilter);
+    bar.add(loadableFilter);
+
+    // Machine and genre change the query, so they need the server asked again. The rest only
+    // narrow what came back, but the results are not kept, so a search is the simplest honest
+    // way to reapply them.
+    ActionListener research = e -> performSearch();
+    machineFilter.addActionListener(research);
+    genreFilter.addActionListener(research);
+    rzxFilter.addActionListener(research);
+    mapFilter.addActionListener(research);
+    loadableFilter.addActionListener(research);
+
+    loadFilterValues();
+    return bar;
+  }
+
+  /** Fills the combos from /metadata/, off the event thread, leaving them usable if it fails. */
+  private void loadFilterValues() {
+    new SwingWorker<Metadata, Void>() {
+      @Override
+      protected Metadata doInBackground() {
+        return new ZxInfoApiHandler().getMetadata();
+      }
+
+      @Override
+      protected void done() {
+        try {
+          Metadata metadata = get();
+          // 200 entries is enough to be worth a line in a combo; below that the list is noise.
+          fill(machineFilter, Metadata.namesOf(metadata.machinetypes, 200));
+          fill(genreFilter, Metadata.namesOf(metadata.genretypes, 200));
+        } catch (Exception e) {
+          System.err.println("Could not read the filter values: " + rootCauseOf(e));
+        }
+      }
+
+      private void fill(JComboBox<String> combo, List<String> values) {
+        for (String value : values) {
+          combo.addItem(value);
+        }
+      }
+    }.execute();
+  }
+
+  private String selected(JComboBox<String> combo) {
+    Object value = combo.getSelectedItem();
+    if (value == null || ANY_MACHINE.equals(value) || ANY_GENRE.equals(value)) {
+      return null;
+    }
+    return value.toString();
+  }
+
   private void performSearch() {
     String query = searchField.getText().trim();
     if (query.isEmpty()) {
@@ -98,6 +192,12 @@ public class GameBrowserInternalFrame extends JInternalFrame {
       runningSearch.cancel(true);
     }
 
+    String machine = selected(machineFilter);
+    String genre = selected(genreFilter);
+    boolean onlyRzx = rzxFilter.isSelected();
+    boolean onlyMap = mapFilter.isSelected();
+    boolean onlyLoadable = loadableFilter.isSelected();
+
     setSearching(true);
     showMessage("Searching for \"" + query + "\"...");
 
@@ -107,7 +207,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
         // Off the EDT: this is a network round trip to ZXInfo, and running it on the event
         // thread froze the window until the results were ready, so nothing indicated that
         // the search had even started.
-        return createMockResults(query);
+        return createMockResults(query, machine, genre);
       }
 
       @Override
@@ -126,8 +226,16 @@ public class GameBrowserInternalFrame extends JInternalFrame {
           return;
         }
 
+        int found = results.size();
+        results.removeIf(result ->
+            (onlyRzx && !result.hasRzx)
+                || (onlyMap && !result.hasMap)
+                || (onlyLoadable && result.filename == null));
+
         if (results.isEmpty()) {
-          showMessage("No games found for \"" + query + "\"");
+          showMessage(found == 0
+              ? "No games found for \"" + query + "\""
+              : "None of the " + found + " games found for \"" + query + "\" match the filters");
           return;
         }
 
@@ -202,8 +310,8 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     return cause.getMessage() != null ? cause.getMessage() : cause.toString();
   }
 
-  private List<GameSearchResult> createMockResults(String query) {
-    List<Hit> search = new ZxInfoApiHandler().search(query);
+  private List<GameSearchResult> createMockResults(String query, String machineType, String genreType) {
+    List<Hit> search = new ZxInfoApiHandler().search(query, machineType, genreType);
 
     List<GameSearchResult> results = new ArrayList<>();
 
@@ -244,10 +352,21 @@ public class GameBrowserInternalFrame extends JInternalFrame {
         // filename, and say so when one is clicked.
         // Not files.get(0): ZXDB lists several downloads per game and the first is whatever the
         // database happens to return, which for Three Weeks in Paradise is its 128K tape.
+        boolean hasRzx = false;
+        boolean hasMap = false;
+        for (AdditionalDownload download : game.additionalDownloads == null
+            ? List.<AdditionalDownload>of() : game.additionalDownloads) {
+          hasRzx |= "RZX playback file".equals(download.type);
+          hasMap |= ZxInfoApiHandler.GAME_MAP_TYPE.equalsIgnoreCase(download.type);
+        }
+
         String file = files.isEmpty() ? null
             : DownloadAndUnzip.preferred(files, url -> url.substring(url.lastIndexOf('/') + 1));
-        results.add(new GameSearchResult(hit._id, game.title, "http://example.com/game/" + query,
-            screenshot1, screenshot2, file));
+        GameSearchResult result = new GameSearchResult(hit._id, game.title,
+            "http://example.com/game/" + query, screenshot1, screenshot2, file);
+        result.hasRzx = hasRzx;
+        result.hasMap = hasMap;
+        results.add(result);
       }
     }
     return results;

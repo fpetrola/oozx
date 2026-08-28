@@ -66,6 +66,11 @@ public interface ZxInfoClient {
     @Path("/games/{id}")
     GameResponse getGameDetails(@PathParam("id") String id, @QueryParam("mode") String mode);
 
+    /** The values the search filters accept, with how many entries each one has. */
+    @GET
+    @Path("/metadata/")
+    Metadata getMetadata();
+
     /** Suggestions across titles, publishers and authors, for type-as-you-go fields. */
     @GET
     @Path("/suggest/{term}")

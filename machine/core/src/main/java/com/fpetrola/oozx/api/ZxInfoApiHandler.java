@@ -33,6 +33,23 @@ public class ZxInfoApiHandler {
     new ZxInfoApiHandler().search("everyone wally");
   }
 
+  /** The filter values the search endpoint accepts, for building a filter bar. */
+  public Metadata getMetadata() {
+    return withClient(ZxInfoClient::getMetadata);
+  }
+
+  /**
+   * Search narrowed by the filters the server can apply itself. Pass null for a filter to
+   * leave it out; the ones the server cannot do, like whether an entry has an RZX recording,
+   * have to be applied to the results.
+   */
+  public List<Hit> search(String query, String machineType, String genreType) {
+    SearchResponse response = withClient(zxClient -> zxClient.searchGames(query, 150, "0",
+        ZxInfoClient.MODE_COMPACT, null, null, null, null, null, genreType, null, machineType,
+        null, null, null, null, null, null, null, null));
+    return response.hits.hits;
+  }
+
   public List<Hit> search(String everyoneWally) {
     Client client = null;
     client = ClientBuilder.newClient();
