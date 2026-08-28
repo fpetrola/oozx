@@ -66,6 +66,19 @@ public class SpectrumZ80Clock extends DefaultZ80Clock {
     }
   }
 
+  /**
+   * Moves the clock to a new position without counting the move as time that has passed.
+   * <p>
+   * A speed change repositions the clock, which is bookkeeping rather than elapsed time. Doing it
+   * with addTStates fed the difference to the timeout countdown, and since the difference is
+   * positive whenever the clock sits below the target - most of a frame - it ate up to 60000
+   * T-states of whatever was waiting. The tape waits that way, a pulse at a time, so changing
+   * speed while a tape was loading skipped it past dozens of pulses and the loader lost sync.
+   */
+  public void rebaseTStates(int newTStates) {
+    this.tStates = newTStates;
+  }
+
   public void setTimeout(int ntstates) {
     if (this.timeout <= 0) {
       this.timeout = Math.max(ntstates, 10);

@@ -580,7 +580,7 @@ public class Z80 implements ZxModule, Cpu {
 
   public void changeSpeed(int emulationSpeed) {
     settings.current.emulationSpeed = emulationSpeed;
-    zxClock.addTStates(-zxClock.getTStates() + 60000);
+    zxClock.rebaseTStates(60000);
     timer.changeSpeed(emulationSpeed);
     sound.end();
     sound.init(false);

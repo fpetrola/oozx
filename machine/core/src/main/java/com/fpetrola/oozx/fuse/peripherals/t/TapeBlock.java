@@ -83,6 +83,12 @@ public record TapeBlock(int index, int id, String type, String details, int star
     }
 
     List<TapeBlock> blocks = new ArrayList<>();
+    // The player counts the ZXTape! glue header as block 0, so it is listed too: the numbering
+    // has to match or the block it reports as playing points at the wrong row, and progress gets
+    // measured against a different block's offsets.
+    blocks.add(new TapeBlock(0, 'Z', "TZX header",
+        "version " + (image[8] & 0xFF) + "." + (image[9] & 0xFF), 0, 10));
+
     int offset = 10;
     while (offset < image.length) {
       int id = image[offset] & 0xFF;
