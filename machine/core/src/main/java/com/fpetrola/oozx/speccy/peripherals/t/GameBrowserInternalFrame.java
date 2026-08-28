@@ -19,6 +19,8 @@
 package com.fpetrola.oozx.speccy.peripherals.t;
 
 import com.fpetrola.oozx.api.*;
+import com.fpetrola.oozx.rzx.RzxArchive;
+import com.fpetrola.oozx.rzx.RzxRecording;
 import com.fpetrola.oozx.speccy.config.OOZxConfiguration;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -56,6 +58,19 @@ public class GameBrowserInternalFrame extends JInternalFrame {
   private static final String ANY_MACHINE = "Any machine";
   private static final String ANY_GENRE = "Any genre";
   public static Gson gson = new Gson();
+  private final RzxArchive archive = new RzxArchive();
+
+  private static int idOf(String id) {
+    try {
+      return Integer.parseInt(id);
+    } catch (RuntimeException e) {
+      return -1;
+    }
+  }
+
+  private static String nameOf(String path) {
+    return path.substring(path.lastIndexOf('/') + 1);
+  }
 
   public GameBrowserInternalFrame(GameBrowserListener listener) {
     super("Game Browser", true, true, true, true);
@@ -352,13 +367,25 @@ public class GameBrowserInternalFrame extends JInternalFrame {
         // filename, and say so when one is clicked.
         // Not files.get(0): ZXDB lists several downloads per game and the first is whatever the
         // database happens to return, which for Three Weeks in Paradise is its 128K tape.
-        boolean hasRzx = false;
         boolean hasMap = false;
+        List<RzxOption> recordings = new ArrayList<>();
         for (AdditionalDownload download : game.additionalDownloads == null
             ? List.<AdditionalDownload>of() : game.additionalDownloads) {
-          hasRzx |= "RZX playback file".equals(download.type);
+          if ("RZX playback file".equals(download.type)) {
+            recordings.add(new RzxOption(nameOf(download.path) + "  (ZXDB)", getFileURL(download.path)));
+          }
           hasMap |= ZxInfoApiHandler.GAME_MAP_TYPE.equalsIgnoreCase(download.type);
         }
+        // The RZX Archive lists recordings ZXDB does not, and knows who made them.
+        for (RzxRecording recording : archive.recordingsFor(idOf(hit._id))) {
+          if (recording.isPlayable()) {
+            String by = recording.submitter() == null || recording.submitter().isBlank()
+                ? "RZX Archive" : "by " + recording.submitter();
+            recordings.add(new RzxOption(recording.title() + "  (" + by + ")",
+                recording.download().url()));
+          }
+        }
+        boolean hasRzx = !recordings.isEmpty();
 
         String file = files.isEmpty() ? null
             : DownloadAndUnzip.preferred(files, url -> url.substring(url.lastIndexOf('/') + 1));
@@ -366,6 +393,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
             "http://example.com/game/" + query, screenshot1, screenshot2, file);
         result.hasRzx = hasRzx;
         result.hasMap = hasMap;
+        result.recordings = recordings;
         results.add(result);
       }
     }
@@ -469,6 +497,16 @@ public class GameBrowserInternalFrame extends JInternalFrame {
 
     // Context menu
     JPopupMenu contextMenu = new JPopupMenu();
+    if (!result.recordings.isEmpty()) {
+      JMenu playRecording = new JMenu("Play Recording");
+      for (RzxOption option : result.recordings) {
+        JMenuItem item = new JMenuItem(option.label());
+        item.addActionListener(e -> listener.onPlayRecording(option));
+        playRecording.add(item);
+      }
+      contextMenu.add(playRecording);
+      contextMenu.addSeparator();
+    }
     JMenuItem loadItem = new JMenuItem("Load Game");
     JMenuItem detailsItem = new JMenuItem("View Details");
     JMenuItem favoriteItem = new JMenuItem("Add to Favorites");
@@ -548,6 +586,14 @@ public class GameBrowserInternalFrame extends JInternalFrame {
       JLabel unavailable = new JLabel("  -  No tape available");
       unavailable.setForeground(Color.GRAY);
       caption.add(unavailable);
+    }
+
+    if (!result.recordings.isEmpty()) {
+      JLabel recordings = new JLabel("  -  " + result.recordings.size()
+          + (result.recordings.size() == 1 ? " recording" : " recordings"));
+      recordings.setForeground(new Color(0, 110, 0));
+      recordings.setToolTipText("Right-click to play one");
+      caption.add(recordings);
     }
 
     caption.add(Box.createHorizontalGlue());

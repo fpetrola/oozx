@@ -52,6 +52,22 @@ public class DownloadAndUnzip {
     }
   }
 
+  /**
+   * Fetches whatever is at a URL into a directory and returns what to load: a zip is unpacked
+   * and the entry worth loading chosen, anything else is written as it comes. The RZX Archive
+   * offers both - 3188 recordings as plain files and 859 inside zips.
+   */
+  public static Path fetch(String url, Path directory) throws IOException {
+    Files.createDirectories(directory);
+    if (url.toLowerCase().endsWith(".zip")) {
+      return downloadAndUnzip(url, directory);
+    }
+    String name = url.substring(url.lastIndexOf('/') + 1);
+    Path file = directory.resolve(name.isEmpty() ? "download" : name);
+    Files.write(file, downloadFile(new URL(url)));
+    return file;
+  }
+
   public static Path downloadAndUnzip(String zipUrl, Path extractTo) throws IOException {
     List<Path> result= new ArrayList<>();
 // 1. Descargar el ZIP en memoria (o a disco si es muy grande)

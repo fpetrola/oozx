@@ -124,6 +124,14 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
     refresh();
   }
 
+  private String busy;
+
+  /** Says something is being fetched, so a click that takes a while does not look ignored. */
+  public void setBusy(String message) {
+    busy = message;
+    refresh();
+  }
+
   /** The emulator window showing this recording's machine was closed: stop driving it. */
   public void machineClosed() {
     stopThread();
@@ -142,12 +150,14 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
       session = RzxSession.open(recording);
     } catch (RuntimeException e) {
       session = null;
+      busy = null;
       mode = Mode.EMPTY;
       JOptionPane.showMessageDialog(this, "Could not read " + recording.getName() + ": " + e,
           "Open recording", JOptionPane.ERROR_MESSAGE);
       return;
     }
 
+    busy = null;
     mode = Mode.STOPPED;
     setTitle("RZX Player - " + recording.getName());
     model.fireTableDataChanged();
@@ -244,6 +254,10 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
     stopButton.setEnabled(loaded);
     takeOverButton.setEnabled(loaded && mode != Mode.TAKEN_OVER);
 
+    if (busy != null) {
+      status.setText(" " + busy);
+      return;
+    }
     if (!loaded) {
       status.setText(" No recording - use Open Recording");
       return;

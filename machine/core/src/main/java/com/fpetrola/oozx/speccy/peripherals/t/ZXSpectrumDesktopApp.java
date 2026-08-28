@@ -733,6 +733,8 @@ class GameSearchResult {
   /** Extras the entry carries, for filters the server cannot apply itself. */
   boolean hasRzx;
   boolean hasMap;
+  /** Recordings of this game offered for playing, from both catalogues. */
+  java.util.List<RzxOption> recordings = java.util.List.of();
 
   public GameSearchResult(String _id, String title, String url, String screenshot1, String screenshot2, String filename) {
     id = _id;
@@ -754,6 +756,9 @@ interface GameBrowserListener {
   void onAddToFavorites(String gameUrl);
 
   void onDownloadGame(String gameUrl);
+
+  /** Fetches a recording of the game and plays it. */
+  void onPlayRecording(RzxOption recording);
 }
 
 // --- UPDATED: ZXSpectrumDesktopApp with Game Browser ---
@@ -1565,15 +1570,43 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private RzxPlayerInternalFrame rzxPlayer;
 
   /** Opens the RZX player, or brings the open one to the front. */
-  public void showRzxPlayer() {
-    SwingUtilities.invokeLater(() -> {
-      if (rzxPlayer == null || rzxPlayer.isClosed()) {
-        rzxPlayer = new RzxPlayerInternalFrame(this::chooseRecording, this::showRzxMachine);
-        desktop.add(rzxPlayer);
+  public RzxPlayerInternalFrame showRzxPlayer() {
+    if (rzxPlayer == null || rzxPlayer.isClosed()) {
+      rzxPlayer = new RzxPlayerInternalFrame(this::chooseRecording, this::showRzxMachine);
+      desktop.add(rzxPlayer);
+    }
+    rzxPlayer.setVisible(true);
+    rzxPlayer.toFront();
+    return rzxPlayer;
+  }
+
+  /**
+   * Fetches a recording and plays it. The fetching is off the event thread, and a recording may
+   * arrive on its own or inside a zip, which is the same choice a game download already makes.
+   */
+  public void playRecording(RzxOption option) {
+    RzxPlayerInternalFrame player = showRzxPlayer();
+    player.setBusy("Fetching " + option.label() + "...");
+    new SwingWorker<java.io.File, Void>() {
+      @Override
+      protected java.io.File doInBackground() throws Exception {
+        return DownloadAndUnzip.fetch(option.url(),
+            java.nio.file.Path.of(System.getProperty("java.io.tmpdir"), "rzx-downloads")).toFile();
       }
-      rzxPlayer.setVisible(true);
-      rzxPlayer.toFront();
-    });
+
+      @Override
+      protected void done() {
+        try {
+          player.openRecording(get());
+        } catch (Exception e) {
+          Throwable cause = e.getCause() != null ? e.getCause() : e;
+          player.setBusy(null);
+          JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+              "Could not fetch " + option.label() + ": " + cause,
+              "Play recording", JOptionPane.ERROR_MESSAGE);
+        }
+      }
+    }.execute();
   }
 
   /**
@@ -1861,6 +1894,11 @@ public class ZXSpectrumDesktopApp extends JFrame {
       @Override
       public void onGameSelected(GameSearchResult gameSearchResult, Runnable whenDone) {
         getActiveEmulatorOrCreateNew(gameSearchResult, whenDone);
+      }
+
+      @Override
+      public void onPlayRecording(RzxOption recording) {
+        playRecording(recording);
       }
 
       @Override
