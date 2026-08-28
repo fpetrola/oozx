@@ -1529,6 +1529,25 @@ public class ZXSpectrumDesktopApp extends JFrame {
 
   // ... (rest of the methods: createNewEmulator, cascadeWindows, tileWindows remain unchanged)
 
+  /**
+   * Opens the cassette browser on a tape, or brings the open one to the front. Called from
+   * wherever the tape is inserted, which is the only place that has both the deck and the file.
+   */
+  public void showTapeBrowser(com.fpetrola.oozx.fuse.modules.tape.Tape tape, java.io.File tapeFile) {
+    SwingUtilities.invokeLater(() -> {
+      for (JInternalFrame frame : desktop.getAllFrames()) {
+        if (frame instanceof TapeBrowserInternalFrame) {
+          frame.toFront();
+          return;
+        }
+      }
+      TapeBrowserInternalFrame browser = new TapeBrowserInternalFrame(tape, tapeFile);
+      desktop.add(browser);
+      browser.setVisible(true);
+      browser.toFront();
+    });
+  }
+
   public EmulatorInternalFrame createNewEmulator(EmulatorCore core1) {
     return createNewEmulator(core1, (String) null);
   }

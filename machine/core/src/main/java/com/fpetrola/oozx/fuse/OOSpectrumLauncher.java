@@ -55,6 +55,7 @@ public class OOSpectrumLauncher {
       Fuse fuse = createFuse2(spectrumState);
       return fuse.z80.mockCore;
     };
+    ZXSpectrumDesktopApp[] appHolder = new ZXSpectrumDesktopApp[1];
     ZXSpectrumDesktopApp zxSpectrumDesktopApp = new ZXSpectrumDesktopApp((filename) -> {
       String string = null;
 
@@ -68,9 +69,13 @@ public class OOSpectrumLauncher {
       Fuse fuse = createFuse(string);
       EmulatorCore mockCore = fuse.z80.mockCore;
       mockCore.setFilename(string);
+      if (isTape(string)) {
+        appHolder[0].showTapeBrowser(fuse.tape, new File(string));
+      }
       return mockCore;
     }, mockCoreState);
 
+    appHolder[0] = zxSpectrumDesktopApp;
     showOnScreen(0, zxSpectrumDesktopApp);
 //    zxSpectrumDesktopApp.setVisible(true);
   }

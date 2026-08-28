@@ -259,6 +259,14 @@ public class Tape implements ClockTimeoutListener {
         return tapeExtension == TapeExtensionType.NO_TAPE ? 1 : nOffsetBlocks + 1;
     }
 
+    /**
+     * Byte the player has reached in the tape image. A read-only view for a progress display;
+     * the caller knows where each block starts and ends and works the rest out from that.
+     */
+    public int getTapePosition() {
+        return tapePos;
+    }
+
     public int getSelectedBlock() {
         return idxHeader;
     }
