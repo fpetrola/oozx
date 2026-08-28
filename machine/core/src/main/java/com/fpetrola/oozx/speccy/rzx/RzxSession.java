@@ -70,18 +70,29 @@ public class RzxSession {
    * hardware. Nothing else is switched: the machine goes on from wherever the recording left it.
    */
   private static class SwitchableIO implements IO {
-    private volatile IO delegate;
+    private final RZXPlayerIO player;
+    private volatile IO hardware;
+    private volatile boolean replaying = true;
 
-    SwitchableIO(IO delegate) {
-      this.delegate = delegate;
+    SwitchableIO(RZXPlayerIO player) {
+      this.player = player;
     }
 
+    /**
+     * Only the reads come from the recording. What the machine WRITES still has to reach the
+     * hardware: the border, the speaker and anything else a port drives are the machine doing
+     * its job, not input being replayed. Sending writes to the player instead left the replay
+     * silent and the border dead, since the ULA never saw an out at all.
+     */
     public int in(int port) {
-      return delegate.in(port);
+      return replaying ? player.in(port) : hardware.in(port);
     }
 
     public void out(int port, int value) {
-      delegate.out(port, value);
+      player.out(port, value); // it tracks the last value written to 0xFE
+      if (hardware != null) {
+        hardware.out(port, value);
+      }
     }
   }
 
@@ -101,17 +112,22 @@ public class RzxSession {
               }
             }));
     Speccy speccy = injector.getInstance(Speccy.class);
+    // Before init, because that is when the sound works out how big a frame of audio is: at the
+    // default 200x it comes to four samples a frame instead of the eight hundred odd a real one
+    // has, and a replay is heard through that. Pacing is this session's own job either way.
+    speccy.settings.current.emulationSpeed = 100;
     speccy.init();
     speccy.z80.bridgeCommand = (command, data) -> null;
     speccy.z80.loadSnap(snapshotFileOf(recording).toAbsolutePath().toString());
 
     RzxSession session =
         new RzxSession(recording, speccy, new RzxPlayback(speccy.z80.ooz80, player, recording), ports);
-    session.realPorts = injector.getInstance(PeripheralIO.class);
+    ports.hardware = injector.getInstance(PeripheralIO.class);
+    session.timer = injector.getInstance(com.fpetrola.oozx.speccy.modules.Timer.class);
     return session;
   }
 
-  private PeripheralIO realPorts;
+  private com.fpetrola.oozx.speccy.modules.Timer timer;
 
   /**
    * Plays one frame of the recording and shows it.
@@ -133,13 +149,35 @@ public class RzxSession {
     return true;
   }
 
-  /** Hands the ports back to the hardware: the machine carries on as an ordinary emulator. */
+  /**
+   * Hands the ports back to the hardware: the machine carries on as an ordinary emulator.
+   * <p>
+   * The event queue has to be restarted along with them. While a recording plays, the machine's
+   * loop never runs and so nothing services its events, which pile up overdue - the frame event
+   * among them, and that one raises the interrupt. Handing the machine back without clearing them
+   * runs every overdue event at once: the game races through whatever it had left and stops.
+   */
   public void release() {
-    ports.delegate = realPorts;
+    if (isReleased()) {
+      return;
+    }
+    speccy.eventManager.reset();
+    speccy.zxClock.setTStates(0);
+    // The timer's event as well as the frame's, in that order, the way selecting a machine does
+    // it. Not for the pacing alone: with only one event the queue empties every frame, and an
+    // empty queue puts eventNextEvent back to -1 with the same result as below.
+    timer.addEvent();
+    speccy.eventManager.eventAdd(RzxPlayback.SPECTRUM_48K_FRAME, speccy.spec48.spectrumFrameEvent);
+    // reset leaves eventNextEvent at EVENT_NO_EVENTS, which is 0xffffffff held in a long: -1.
+    // Adding an event does not lower it, since nothing is less than -1, so the queue reads as
+    // due forever and eventDoEvents takes events that have not come round yet. eventFrame(0)
+    // moves nothing and recomputes the value from the queue, which is what puts it right.
+    speccy.eventManager.eventFrame(0);
+    ports.replaying = false;
   }
 
   public boolean isReleased() {
-    return ports.delegate == realPorts;
+    return !ports.replaying;
   }
 
   /**

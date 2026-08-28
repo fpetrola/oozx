@@ -124,6 +124,16 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
     refresh();
   }
 
+  /** The emulator window showing this recording's machine was closed: stop driving it. */
+  public void machineClosed() {
+    stopThread();
+    session = null;
+    mode = Mode.EMPTY;
+    setTitle("RZX Player");
+    model.fireTableDataChanged();
+    refresh();
+  }
+
   /** Loads a recording, builds its machine and hands that machine over to be shown. */
   public void openRecording(File recording) {
     stopThread();
