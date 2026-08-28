@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.speccy.modules;
 
+import com.fpetrola.oozx.UserInterface;
+
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
 
@@ -46,9 +48,11 @@ public class Timer implements ZxModule, MachineChangeListener {
   private final Tape tape;
   private boolean changeRequested = false;
   private SpectrumMachine spectrumMachine;
+  private final UserInterface userInterface;
 
-@Inject
-  public Timer(EventManager eventManager, Sound sound, Settings settings, Tape tape) {
+  @Inject
+  public Timer(EventManager eventManager, Sound sound, Settings settings, Tape tape, UserInterface userInterface) {
+    this.userInterface = userInterface;
     this.eventManager = eventManager;
     this.sound = sound;
     this.settings = settings;
@@ -93,7 +97,7 @@ public class Timer implements ZxModule, MachineChangeListener {
       currentSpeed = (float) (10 * 100.0 / (currentTime - storedTimes[nextStoredTime]));
     }
 
-    Ui.statusbarUpdateSpeed(currentSpeed, cpu.getEmulatorCore());
+    userInterface.statusbarUpdateSpeed(currentSpeed, cpu.getEmulatorCore());
 
     storedTimes[nextStoredTime] = currentTime;
     nextStoredTime = (nextStoredTime + 1) % 10;

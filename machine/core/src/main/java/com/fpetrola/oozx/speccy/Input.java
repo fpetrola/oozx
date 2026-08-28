@@ -18,12 +18,13 @@
 
 package com.fpetrola.oozx.speccy;
 
+import com.fpetrola.oozx.UserInterface;
+
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
 
 import com.fpetrola.oozx.Settings;
 import com.fpetrola.oozx.UIErrorLevel;
-import com.fpetrola.oozx.Ui;
 import com.fpetrola.oozx.speccy.modules.Joystick;
 import com.fpetrola.oozx.speccy.modules.Keyboard;
 
@@ -36,9 +37,11 @@ public class Input {
   private Joystick joystick;
   private Keyboard keyboard;
   private Settings settings;
+  private final UserInterface userInterface;
 
-@Inject
-  public Input(Joystick joystick, Keyboard keyboard, Settings settings) {
+  @Inject
+  public Input(Joystick joystick, Keyboard keyboard, Settings settings, UserInterface userInterface) {
+    this.userInterface = userInterface;
     this.joystick = joystick;
     this.keyboard = keyboard;
     this.settings = settings;
@@ -355,7 +358,7 @@ public class Input {
       case INPUT_EVENT_JOYSTICK_RELEASE:
         return doJoystick((InputEventJoystick) event.types, false);
       default:
-        Ui.error(UIErrorLevel.UI_ERROR_ERROR, "Unknown input event type %d", event.type.ordinal());
+        userInterface.error(UIErrorLevel.UI_ERROR_ERROR, "Unknown input event type %d", event.type.ordinal());
         return 1;
     }
   }
@@ -412,15 +415,15 @@ public class Input {
   }
 
   private int keypress(InputEventKey event) {
-//    if (Ui.widgetLevel >= 0) {
-//      Ui.widgetKeyhandler(event.nativeKey.getValue());
+//    if (userInterface.widgetLevel() >= 0) {
+//      userInterface.widgetKeyhandler(event.nativeKey.getValue());
 //      return 0;
 //    }
 
     // Handle Escape to release mouse grab
-    if (event.nativeKey == InputKey.INPUT_KEY_Escape && Ui.mouseGrabbed) {
-      Ui.mouseGrabbed = Ui.mouseRelease(false);
-      if (Ui.mouseGrabbed) return 0;
+    if (event.nativeKey == InputKey.INPUT_KEY_Escape && userInterface.isMouseGrabbed()) {
+      userInterface.releaseMouse();
+      if (userInterface.isMouseGrabbed()) return 0;
     }
 
 //    // Joystick emulation via keyboard
@@ -447,7 +450,7 @@ public class Input {
       sendKeyboardPress(event.spectrumKey);
     }
 
-    Ui.popupMenu(event.nativeKey.getValue());
+    userInterface.popupMenu(event.nativeKey.getValue());
     return 0;
   }
 
@@ -580,7 +583,7 @@ public class Input {
         }
         break;
       default:
-        Ui.error(UIErrorLevel.UI_ERROR_ERROR, "getFireButtonKey: which = %d, button = %d", which, button.getValue() + "");
+        userInterface.error(UIErrorLevel.UI_ERROR_ERROR, "getFireButtonKey: which = %d, button = %d", which, button.getValue() + "");
         throw new RuntimeException("Invalid joystick button");
     }
     int finalKey = key;
@@ -588,14 +591,14 @@ public class Input {
   }
 
   private int doJoystick(InputEventJoystick joystickEvent, boolean press) {
-    if (Ui.widgetLevel >= 0) {
-      if (press) Ui.widgetKeyhandler(joystickEvent.button.getValue());
+    if (userInterface.widgetLevel() >= 0) {
+      if (press) userInterface.widgetKeyhandler(joystickEvent.button.getValue());
       return 0;
     }
 
     // Handle joystick fire button as F1 for popup menu (excluding Wii-specific GEKKO)
     if (joystickEvent.button == InputKey.INPUT_JOYSTICK_FIRE_2 && press) {
-      Ui.popupMenu(InputKey.INPUT_KEY_F1.getValue());
+      userInterface.popupMenu(InputKey.INPUT_KEY_F1.getValue());
     }
 
     int which = joystickEvent.which;
@@ -616,7 +619,7 @@ public class Input {
           button = Joystick.JoystickButton.JOYSTICK_BUTTON_RIGHT;
           break;
         default:
-          Ui.error(UIErrorLevel.UI_ERROR_ERROR, "doJoystick: unknown button %d", joystickEvent.button.getValue());
+          userInterface.error(UIErrorLevel.UI_ERROR_ERROR, "doJoystick: unknown button %d", joystickEvent.button.getValue());
           throw new RuntimeException("Invalid joystick button");
       }
       joystick.press(which, button, press);

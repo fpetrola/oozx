@@ -48,9 +48,11 @@ public class Machine implements ZxModule {
   private Spectrum defaultMachine;
   private final List<MachineChangeListener> machineChangeListeners = new ArrayList<>();
   private Sound sound;
+  private final UserInterface userInterface;
 
-@Inject
-  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, Z80Clock z80Clock, UiDisplay uiDisplay, Timer timer, Module module, Settings settings, Sound sound) {
+  @Inject
+  public Machine(EventManager eventManager, Memory memory, Display display, Ula ula, Z80Clock z80Clock, UiDisplay uiDisplay, Timer timer, Module module, Settings settings, Sound sound, UserInterface userInterface) {
+    this.userInterface = userInterface;
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
@@ -92,9 +94,9 @@ public class Machine implements ZxModule {
         if (error == 0) return 0;
 
         if (error != 0) {
-          Ui.error(UiError.ERROR, "can't select 48K machine. Giving up.");
+          userInterface.error(UiError.ERROR, "can't select 48K machine. Giving up.");
         } else {
-          Ui.error(UiError.INFO, "selecting 48K machine");
+          userInterface.error(UiError.INFO, "selecting 48K machine");
           return 0;
         }
 
@@ -102,7 +104,7 @@ public class Machine implements ZxModule {
       }
     }
 
-    Ui.error(UiError.ERROR, "machine type %d unknown", type.getClass().getName());
+    userInterface.error(UiError.ERROR, "machine type %d unknown", type.getClass().getName());
     return 1;
   }
 
@@ -155,7 +157,7 @@ public class Machine implements ZxModule {
     reset(false);
 //        if (error != 0) return error;
 
-//        Ui.menuActivate(UiMenuItem.MEDIA_CARTRIDGE_DOCK_EJECT, 0);
+//        userInterface.menuActivate(UiMenuItem.MEDIA_CARTRIDGE_DOCK_EJECT, 0);
 //
 //        Ui.widgetsReset();
 

@@ -31,7 +31,7 @@ public class LibspectrumStartupModule extends AbstractStartupModule {
     //        if (Libspectrum.checkVersion(LIBSPECTRUM_MIN_VERSION)) {
 //            if (Libspectrum.init() != 0) return 1;
 //        } else {
-//            Ui.error(UiError.ERROR, "libspectrum version %s found, but %s required",
+//            userInterface.error(UiError.ERROR, "libspectrum version %s found, but %s required",
 //                    Libspectrum.version(), LIBSPECTRUM_MIN_VERSION);
 //            return 1;
 //        }

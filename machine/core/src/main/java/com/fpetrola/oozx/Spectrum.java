@@ -56,8 +56,11 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
   private final int[][] ram;
   private Sound sound;
 
-  public Spectrum(Memory memory, Display display, EventManager eventManager, Cpu cpu, Timer timer, Module module, Settings settings1, RamInfo ramInfo1, MachinesPeriph machinesPeriph, PeriphDelegate periph, Sound sound) {
+  private final UserInterface userInterface;
+
+  public Spectrum(Memory memory, Display display, EventManager eventManager, Cpu cpu, Timer timer, Module module, Settings settings1, RamInfo ramInfo1, MachinesPeriph machinesPeriph, PeriphDelegate periph, Sound sound, UserInterface userInterface) {
     super(display, settings1, ramInfo1);
+    this.userInterface = userInterface;
     this.memory = memory;
     this.display = display;
     this.eventManager = eventManager;
@@ -97,7 +100,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
     Utils.File rom = new Utils.File();
     int error = Utils.readAuxiliaryFile("roms/" + filename, rom, Utils.AuxiliaryType.ROM);
     if (error == -1) {
-      Ui.error(UiError.ERROR, "couldn't find ROM '%s'", filename);
+      userInterface.error(UiError.ERROR, "couldn't find ROM '%s'", filename);
       return 1;
     }
     if (error != 0) return error;
@@ -105,7 +108,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
 //    rom.length = rom.buffer.length;
 
     if (rom.length != expectedLength) {
-      Ui.error(UiError.ERROR, "ROM '%s' is %d bytes long; expected %d bytes", filename, rom.length, expectedLength);
+      userInterface.error(UiError.ERROR, "ROM '%s' is %d bytes long; expected %d bytes", filename, rom.length, expectedLength);
       Utils.closeFile(rom);
       return 1;
     }

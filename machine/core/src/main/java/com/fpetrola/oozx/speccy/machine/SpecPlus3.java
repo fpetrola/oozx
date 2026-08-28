@@ -39,8 +39,8 @@ public class SpecPlus3 extends Spec128 {
   public UPDFdc uPDFdc;
 
   @Inject
-  public SpecPlus3(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, Fdd fdd, UPDFdc uPDFdc, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound) {
-    super(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, new SpecPlus3RamInfo(8), sound);
+  public SpecPlus3(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, Fdd fdd, UPDFdc uPDFdc, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
+    super(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, new SpecPlus3RamInfo(8), sound, userInterface);
     this.fdd = fdd;
     this.uPDFdc = uPDFdc;
     specplus3765Init();

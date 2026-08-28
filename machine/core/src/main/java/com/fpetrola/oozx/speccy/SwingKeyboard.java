@@ -18,7 +18,8 @@
 
 package com.fpetrola.oozx.speccy;
 
-import com.fpetrola.oozx.Ui;
+import com.fpetrola.oozx.UserInterface;
+
 import com.fpetrola.oozx.speccy.modules.Keyboard;
 
 import java.awt.event.KeyEvent;
@@ -229,7 +230,10 @@ public class SwingKeyboard implements KeyListener {
     private Keyboard keyboard;
     private Input input;
 
-    public SwingKeyboard(Keyboard keyboard, Input input) {
+    private final UserInterface userInterface;
+
+    public SwingKeyboard(Keyboard keyboard, Input input, UserInterface userInterface) {
+      this.userInterface = userInterface;
       this.keyboard = keyboard;
       this.input = input;
       // Initialize unicode_keysyms_hash
@@ -273,7 +277,7 @@ public class SwingKeyboard implements KeyListener {
     public void keyPressed(KeyEvent e) {
         // Special handling for F1 to suspend mouse (optional, as per gtkkeyboard.c)
         if (e.getKeyCode() == KeyEvent.VK_F1 && e.getModifiersEx() == 0) {
-            Ui.mouseSuspend();
+            userInterface.suspendMouse();
         }
 
         Input.InputEvent speccyEvent = new Input.InputEvent(Input.InputEventType.INPUT_EVENT_KEYPRESS, null);

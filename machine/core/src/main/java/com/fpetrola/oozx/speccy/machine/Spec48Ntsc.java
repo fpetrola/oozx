@@ -34,8 +34,8 @@ import com.fpetrola.oozx.speccy.peripherals.IPeriph;
 @Singleton
 public class Spec48Ntsc extends Spec48 {
   @Inject
-  public Spec48Ntsc(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound) {
-    super(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, sound);
+  public Spec48Ntsc(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
+    super(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, sound, userInterface);
     init();
   }
 

@@ -18,7 +18,10 @@
 
 package com.fpetrola.oozx.speccy.startup;
 
-import com.fpetrola.oozx.Ui;
+import com.google.inject.Inject;
+
+import com.fpetrola.oozx.UserInterface;
+
 import com.fpetrola.oozx.UiError;
 
 import java.util.ArrayList;
@@ -26,6 +29,13 @@ import java.util.Iterator;
 import java.util.List;
 
 public class StartupManager {
+  private final UserInterface userInterface;
+
+  @Inject
+  public StartupManager(UserInterface userInterface) {
+    this.userInterface = userInterface;
+  }
+
   private List<StartupModule> registeredModules;
   private List<Runnable> endFunctions;
 
@@ -82,7 +92,7 @@ public class StartupManager {
 
     // If there are still any modules left to be called, that's an error
     if (!registeredModules.isEmpty()) {
-      Ui.error(UiError.ERROR, "%d startup modules could not be called", registeredModules.size());
+      userInterface.error(UiError.ERROR, "%d startup modules could not be called", registeredModules.size());
       return 1;
     }
 

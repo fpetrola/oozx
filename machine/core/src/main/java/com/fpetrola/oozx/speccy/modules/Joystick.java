@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.speccy.modules;
 
+import com.fpetrola.oozx.UserInterface;
+
 import com.fpetrola.oozx.PeriphDelegate;
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
@@ -43,9 +45,11 @@ public class Joystick implements ZxModule {
   private IPeriph periph;
   private Module module;
   private Settings settings;
+  private final UserInterface userInterface;
 
-@Inject
-  public Joystick(Keyboard keyboard, PeriphDelegate periph, Module module, Settings settings) {
+  @Inject
+  public Joystick(Keyboard keyboard, PeriphDelegate periph, Module module, Settings settings, UserInterface userInterface) {
+    this.userInterface = userInterface;
     this.keyboard = keyboard;
     this.periph = periph;
     this.module = module;
@@ -224,7 +228,7 @@ public class Joystick implements ZxModule {
         return false;
 
       default:
-        Ui.error(UIErrorLevel.UI_ERROR_ERROR, "joystick_press: unknown joystick type %d", type.ordinal());
+        userInterface.error(UIErrorLevel.UI_ERROR_ERROR, "joystick_press: unknown joystick type %d", type.ordinal());
         throw new RuntimeException("Unknown joystick type");
     }
   }
@@ -272,25 +276,25 @@ public class Joystick implements ZxModule {
           joystickType = JoystickType.JOYSTICK_TYPE_FULLER;
           break;
         default:
-          Ui.error(UIErrorLevel.UI_ERROR_INFO, "Ignoring unsupported joystick in snapshot %s");
+          userInterface.error(UIErrorLevel.UI_ERROR_INFO, "Ignoring unsupported joystick in snapshot %s");
           continue;
       }
 
       if (settings.current.joystickKeyboardOutput != joystickType &&
           settings.current.joystick1Output != joystickType &&
           settings.current.joystick2Output != joystickType) {
-        Ui.UIConfirmJoystick result = Ui.confirmJoystick(snap.joystickList(i), snap.joystickInputs(i));
+        UserInterface.ConfirmJoystick result = userInterface.confirmJoystick(snap.joystickList(i), snap.joystickInputs(i));
         switch (result) {
-          case UI_CONFIRM_JOYSTICK_KEYBOARD:
+          case KEYBOARD:
             settings.current.joystickKeyboardOutput = joystickType;
             break;
-          case UI_CONFIRM_JOYSTICK_JOYSTICK_1:
+          case JOYSTICK_1:
             settings.current.joystick1Output = joystickType;
             break;
-          case UI_CONFIRM_JOYSTICK_JOYSTICK_2:
+          case JOYSTICK_2:
             settings.current.joystick2Output = joystickType;
             break;
-          case UI_CONFIRM_JOYSTICK_NONE:
+          case NONE:
             break;
         }
       }

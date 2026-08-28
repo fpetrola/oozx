@@ -36,8 +36,8 @@ import com.fpetrola.oozx.speccy.peripherals.Spec128MemoryPeripheral;
 @Singleton
 public class SpecPlus2 extends Spec128 {
   @Inject
-  public SpecPlus2(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound) {
-    super(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, sound);
+  public SpecPlus2(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
+    super(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, sound, userInterface);
     init();
   }
 

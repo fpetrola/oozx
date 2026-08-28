@@ -34,12 +34,12 @@ import com.fpetrola.oozx.speccy.peripherals.IPeriph;
 @Singleton
 public class Spec128 extends Spectrum {
   @Inject
-  public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound) {
-    this(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, new Spec48RamInfo(8), sound);
+  public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
+    this(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, new Spec48RamInfo(8), sound, userInterface);
   }
 
-  public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, RamInfo ramInfo, Sound sound) {
-    super(memory, display, eventManager, cpu, timer, module, settings, ramInfo, machinesPeriph, periph, sound);
+  public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, RamInfo ramInfo, Sound sound, UserInterface userInterface) {
+    super(memory, display, eventManager, cpu, timer, module, settings, ramInfo, machinesPeriph, periph, sound, userInterface);
   }
 
   @Override

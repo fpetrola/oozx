@@ -68,6 +68,7 @@ public class Z80 implements ZxModule, Cpu {
   private PhaseProcessor phaseProcessor;
 
   private final IO io;
+  private final UserInterface userInterface;
   private int z80_interrupt_event;
   //   ZXScreenComponent<WordNumber> zxScreenComponent = new ZXScreenComponent();
 //   MemoryWriteListener<WordNumber> writeListener = zxScreenComponent.getWriteListener();
@@ -94,7 +95,7 @@ public class Z80 implements ZxModule, Cpu {
   private Memory memory1;
 
   @Inject
-  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Machine machine, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, PeriphDelegate periph, UiDisplay uiDisplay, Timer timer, Module module, EmulationSession session, Sound sound, Settings settings, Tape tape, IO io) {
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Machine machine, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, PeriphDelegate periph, UiDisplay uiDisplay, Timer timer, Module module, EmulationSession session, Sound sound, Settings settings, Tape tape, IO io, UserInterface userInterface) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
@@ -112,6 +113,7 @@ public class Z80 implements ZxModule, Cpu {
     this.settings = settings;
     this.tape = tape;
     this.io = io;
+    this.userInterface = userInterface;
   }
 
   public void reset(int hardReset) {
@@ -441,7 +443,7 @@ public class Z80 implements ZxModule, Cpu {
       }
 
       public KeyListener getKeyListener() {
-        return new SwingKeyboard(keyboard, input);
+        return new SwingKeyboard(keyboard, input, userInterface);
       }
 
       public void finishEmulation() {

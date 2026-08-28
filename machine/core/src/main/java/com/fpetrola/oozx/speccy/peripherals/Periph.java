@@ -18,13 +18,14 @@
 
 package com.fpetrola.oozx.speccy.peripherals;
 
+import com.fpetrola.oozx.UserInterface;
+
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
 
 import cern.colt.list.ObjectArrayList;
 import com.fpetrola.oozx.MachineChangeListener;
 import com.fpetrola.oozx.Settings;
-import com.fpetrola.oozx.Ui;
 import com.fpetrola.oozx.speccy.machine.Spec128;
 import com.fpetrola.oozx.speccy.machine.SpecPlus2;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
@@ -38,9 +39,11 @@ public class Periph implements IPeriph {
   private Z80Clock z80Clock;
   private Settings settings;
   private SpectrumMachine spectrumMachine;
+  private final UserInterface userInterface;
 
-@Inject
-  public Periph(Z80Clock z80Clock, Settings settings) {
+  @Inject
+  public Periph(Z80Clock z80Clock, Settings settings, UserInterface userInterface) {
+    this.userInterface = userInterface;
     this.z80Clock = z80Clock;
     this.settings = settings;
   }
@@ -338,9 +341,9 @@ public class Periph implements IPeriph {
 //        boolean if2 = isActive(Type.INTERFACE2);
 //        boolean cartridge = dock || if2;
 //
-//        Ui.menuActivate(Ui.MenuItem.MEDIA_CARTRIDGE, cartridge);
-//        Ui.menuActivate(Ui.MenuItem.MEDIA_CARTRIDGE_DOCK, dock);
-//        Ui.menuActivate(Ui.MenuItem.MEDIA_CARTRIDGE_IF2, if2);
+//        userInterface.menuActivate(UserInterface.MenuItem.MEDIA_CARTRIDGE, cartridge);
+//        userInterface.menuActivate(UserInterface.MenuItem.MEDIA_CARTRIDGE_DOCK, dock);
+//        userInterface.menuActivate(UserInterface.MenuItem.MEDIA_CARTRIDGE_IF2, if2);
 //    }
 //
 //    // Update IDE menu
@@ -353,19 +356,19 @@ public class Periph implements IPeriph {
 //        boolean zxmmc = Settings.current.zxmmcEnabled;
 //        boolean ide = simpleide || zxatasp || zxcf || divide || divmmc || zxmmc;
 //
-//        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE, ide);
-//        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE_SIMPLE8BIT, simpleide);
-//        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE_ZXATASP, zxatasp);
-//        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE_ZXCF, zxcf);
-//        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE_DIVIDE, divide);
-//        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE_DIVMMC, divmmc);
-//        Ui.menuActivate(Ui.MenuItem.MEDIA_IDE_ZXMMC, zxmmc);
+//        userInterface.menuActivate(UserInterface.MenuItem.MEDIA_IDE, ide);
+//        userInterface.menuActivate(UserInterface.MenuItem.MEDIA_IDE_SIMPLE8BIT, simpleide);
+//        userInterface.menuActivate(UserInterface.MenuItem.MEDIA_IDE_ZXATASP, zxatasp);
+//        userInterface.menuActivate(UserInterface.MenuItem.MEDIA_IDE_ZXCF, zxcf);
+//        userInterface.menuActivate(UserInterface.MenuItem.MEDIA_IDE_DIVIDE, divide);
+//        userInterface.menuActivate(UserInterface.MenuItem.MEDIA_IDE_DIVMMC, divmmc);
+//        userInterface.menuActivate(UserInterface.MenuItem.MEDIA_IDE_ZXMMC, zxmmc);
 //    }
 
 //    // Update peripherals status
 //    private  void updatePeripheralsStatus() {
-//        Ui.menuActivate(Ui.MenuItem.MEDIA_IF1, isActive(Type.INTERFACE1));
-//        Ui.menuActivate(Ui.MenuItem.MEDIA_CARTRIDGE_IF2, isActive(Type.INTERFACE2));
+//        userInterface.menuActivate(UserInterface.MenuItem.MEDIA_IF1, isActive(Type.INTERFACE1));
+//        userInterface.menuActivate(UserInterface.MenuItem.MEDIA_CARTRIDGE_IF2, isActive(Type.INTERFACE2));
 //        updateCartridgeMenu();
 //        updateIdeMenu();
 
@@ -373,8 +376,8 @@ public class Periph implements IPeriph {
 
 //    // Disable optional peripherals
 //    public  void disableOptional() {
-//        if (Ui.mousePresent && Ui.mouseGrabbed) {
-//            Ui.mouseGrabbed = Ui.mouseRelease(true);
+//        if (userInterface.isMousePresent() && userInterface.isMouseGrabbed()) {
+//            userInterface.releaseMouse();
 //        }
 //
 //        peripherals.forEach((type, privatePeriph) -> {
@@ -392,14 +395,14 @@ public class Periph implements IPeriph {
   public boolean update() {
     boolean[] needsHardReset = {false};
 
-    if (Ui.mousePresent) {
+    if (userInterface.isMousePresent()) {
       if (settings.current.kempstonMouse) {
-        if (!Ui.mouseGrabbed) {
-          Ui.mouseGrabbed = Ui.mouseGrab(true);
+        if (!userInterface.isMouseGrabbed()) {
+          userInterface.grabMouse();
         }
       } else {
-        if (Ui.mouseGrabbed) {
-          Ui.mouseGrabbed = Ui.mouseRelease(true);
+        if (userInterface.isMouseGrabbed()) {
+          userInterface.releaseMouse();
         }
       }
     }
