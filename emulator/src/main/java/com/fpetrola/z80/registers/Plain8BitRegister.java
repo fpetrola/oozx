@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2025 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2024 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,43 +18,42 @@
 
 package com.fpetrola.z80.registers;
 
-public class Plain8BitRegister implements Register {
-  protected int data;
-  private final String name;
+import com.fpetrola.z80.spy.ObservableRegister;
 
-  public Plain8BitRegister(String name) {
-    this.name = name;
-  }
+public class Plain8BitRegister extends ObservableRegister implements Register {
+    protected int data;
 
-  public int read() {
-    return data;
-  }
+    public Plain8BitRegister(String name) {
+        super(name);
+    }
 
-  public void write(int value) {
-    this.data = value;
-  }
+    public Plain8BitRegister(RegisterName name) {
+        this(name.name());
+    }
 
-  public String toString() {
-    return name;
-  }
+    public int read() {
+        reading(data);
+        return data;
+    }
 
-  public void increment() {
-    this.data++;
-  }
+    public void write(int value) {
+        int and = value & 0xff;
+        writing(and);
+        this.data = and;
+    }
 
-  public void decrement() {
-    this.data = (data - 1) & 0xFF;
-  }
 
-  public int getLength() {
-    return 0;
-  }
+    public void increment() {
+        incrementing(data);
+        this.data = data + 1;
+    }
 
-  public Plain8BitRegister clone() throws CloneNotSupportedException {
-    return this;
-  }
+    public void decrement() {
+        decrementing(data);
+        this.data = (data - 1) & 0xFF;
+    }
 
-  public String getName() {
-    return name;
-  }
+    public int getLength() {
+        return 0;
+    }
 }

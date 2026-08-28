@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2025 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2024 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,40 +18,41 @@
 
 package com.fpetrola.z80.registers;
 
-public class Plain16BitRegister implements Register {
-  protected int data;
-  private final String name;
+import com.fpetrola.z80.spy.ObservableRegister;
 
-  public Plain16BitRegister(String name) {
-    this.name = name;
-  }
+public class Plain16BitRegister extends ObservableRegister {
+    protected int data;
 
-  public int read() {
-    return data;
-  }
+    public Plain16BitRegister(String name) {
+        super(name);
+    }
 
-  public void write(int value) {
-    this.data = value;
-  }
+    public Plain16BitRegister(RegisterName name) {
+        this(name.name());
+    }
 
-  public String toString() {
-    return name;
-  }
+    public int read() {
+        reading(data);
+        return data;
+    }
 
-  public void increment() {
-    data++;
-  }
+    public void write(int value) {
+        int data1 = value & 0xFFFF;
+        writing(data1);
+        this.data = data1;
+    }
 
-  public void decrement() {
-    data--;
-    data &= 0xffff;
-  }
+    public void increment() {
+        incrementing(data);
+        data = (data + 1) & 0xFFFF;
+    }
 
-  public int getLength() {
-    return 0;
-  }
+    public void decrement() {
+        decrementing(data);
+        data = (data - 1) & 0xFFFF;
+    }
 
-  public String getName() {
-    return name;
-  }
+    public int getLength() {
+        return 0;
+    }
 }

@@ -70,13 +70,13 @@ public class OOSpectrumConnector {
 //    core.retro_tstates_history_init();
 
 //    SpectrumPanel panel = getSpectrumPanel(noTest);
-    aCore.retro_set_video_refresh((data1, width, height, pitch) -> {
-//      if (noTest)
-//        panel.updateFrame(data1, width, height, pitch);
-    });
-    aCore.retro_set_environment((cmd, data) -> {
-      return true;
-    });
+//    aCore.retro_set_video_refresh((data1, width, height, pitch) -> {
+////      if (noTest)
+////        panel.updateFrame(data1, width, height, pitch);
+//    });
+//    aCore.retro_set_environment((cmd, data) -> {
+//      return true;
+//    });
 
     LibretroCore.bridge_command bridgeCommand;
 
