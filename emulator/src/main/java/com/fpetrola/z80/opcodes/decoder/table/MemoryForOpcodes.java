@@ -26,7 +26,7 @@ import com.fpetrola.z80.memory.MemoryWriteListener;
 import java.util.Arrays;
 
 public class MemoryForOpcodes implements Memory {
-  private byte counter;
+  private int counter;
 
   public static int read16Bits(Memory memory, int address) {
     return memory.read16Bits(address);
@@ -99,7 +99,13 @@ public class MemoryForOpcodes implements Memory {
 
   private final Memory memory;
   protected final int[] cachedData = new int[0x10000];
-  protected final int[] cachedAddresses = new int[4];
+  /**
+   * Journal de las direcciones cacheadas desde el ultimo reset(), para poder
+   * invalidar solo esas. Arrancaba en 4 (el largo maximo de una instruccion Z80)
+   * asumiendo un reset por instruccion, pero la generacion de bytecode recorre
+   * muchas instrucciones sin resetear, asi que crece segun haga falta.
+   */
+  protected int[] cachedAddresses = new int[8];
 
   public MemoryForOpcodes(Memory memory, State state) {
     this.memory = memory;
@@ -113,6 +119,8 @@ public class MemoryForOpcodes implements Memory {
     } else {
       int value = memory.read(address, fetching);
       cachedData[address] = value;
+      if (counter == cachedAddresses.length)
+        cachedAddresses = Arrays.copyOf(cachedAddresses, cachedAddresses.length * 2);
       cachedAddresses[counter++] = address;
       return value;
     }
