@@ -22,7 +22,6 @@ import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.registers.Composed16BitRegister;
-import com.fpetrola.z80.registers.Plain8BitRegister;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -34,8 +33,6 @@ public class VirtualComposed16BitRegister extends Composed16BitRegister<IVirtual
   private final Scope scope = new Scope();
   private final VirtualRegisterVersionHandler versionHandler;
   private final BlocksManager blocksManager;
-  private IVirtual8BitsRegister low;
-  private IVirtual8BitsRegister high;
 
   public VirtualComposed16BitRegister(int currentAddress, String virtualRegisterName, IVirtual8BitsRegister virtualH, IVirtual8BitsRegister virtualL, VirtualRegisterVersionHandler versionHandler, boolean composed, BlocksManager blocksManager) {
     super(virtualRegisterName, virtualH, virtualL);
@@ -53,7 +50,6 @@ public class VirtualComposed16BitRegister extends Composed16BitRegister<IVirtual
 
   @Override
   public List<VirtualRegister> getPreviousVersions() {
-    low = low;
     return getVirtualRegisters(low.getPreviousVersions(), high.getPreviousVersions());
   }
 

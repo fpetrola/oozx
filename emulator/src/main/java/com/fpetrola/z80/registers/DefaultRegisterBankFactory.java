@@ -64,7 +64,7 @@ public class DefaultRegisterBankFactory {
   }
 
   protected RegisterPair createComposed16BitRegister(RegisterName registerName, Register h, Register l) {
-    return new Composed16BitRegister<>(registerName.name(), h, l);
+    return compose(registerName.name(), h, l);
   }
 
   protected Register createPlain16BitRegister(RegisterName registerName) {
@@ -72,11 +72,22 @@ public class DefaultRegisterBankFactory {
   }
 
   protected RegisterPair createComposed16BitRegister(RegisterName registerName, RegisterName h, RegisterName l) {
-    return new Composed16BitRegister(registerName.name(), create8BitRegister(h), create8BitRegister(l));
+    return compose(registerName.name(), create8BitRegister(h), create8BitRegister(l));
   }
 
   protected RegisterPair createInvertedComposed16BitRegister(RegisterName registerName, RegisterName h, RegisterName l) {
     return new InvertedComposed16BitRegister(registerName.name(), h, l);
   }
 
+
+  /**
+   * El camino rapido escribe el campo data directamente, asi que solo sirve si
+   * ninguna mitad redefine el contrato de Register: subclases como RRegister, los
+   * envoltorios de spy y los registros virtuales necesitan la version polimorfica.
+   */
+  private static RegisterPair compose(String name, Register h, Register l) {
+    if (h.getClass() == Plain8BitRegister.class && l.getClass() == Plain8BitRegister.class)
+      return new PlainComposed16BitRegister(name, (Plain8BitRegister) h, (Plain8BitRegister) l);
+    return new Composed16BitRegister<>(name, h, l);
+  }
 }
