@@ -85,7 +85,54 @@ public class DownloadAndUnzip {
       }
     }
 
-    return result.get(0);
+    return chooseLoadable(result);
+  }
+
+  /**
+   * Picks the file to load out of a zip's entries. The first entry is not it: a zip often holds
+   * several variants, and which one comes first is whatever order the archive happens to have.
+   * Human Killing Machine lists its 128K tape first, so taking entry zero handed a 128K tape to
+   * an emulator that boots a 48K machine, and the load died with the machine back in the ROM.
+   * <p>
+   * Directories are skipped, anything that is not loadable is skipped, and between two variants
+   * of the same tape the 48K one wins, since that is the machine being emulated.
+   */
+  public static Path chooseLoadable(List<Path> entries) {
+    Path best = null;
+    int bestScore = Integer.MIN_VALUE;
+    for (Path entry : entries) {
+      if (Files.isDirectory(entry)) {
+        continue;
+      }
+      int score = scoreOf(entry);
+      if (score > bestScore) {
+        bestScore = score;
+        best = entry;
+      }
+    }
+    return best != null ? best : entries.get(0);
+  }
+
+  private static int scoreOf(Path entry) {
+    String name = entry.getFileName().toString().toLowerCase();
+    int score;
+    if (name.endsWith(".z80") || name.endsWith(".sna") || name.endsWith(".szx")) {
+      score = 30; // a snapshot loads instantly and cannot fail on tape timing
+    } else if (name.endsWith(".tzx") || name.endsWith(".tap")) {
+      score = 20;
+    } else if (name.endsWith(".csw")) {
+      score = 10;
+    } else {
+      return Integer.MIN_VALUE + 1; // not something the emulator can load at all
+    }
+
+    if (name.contains("128")) {
+      score -= 5;
+    }
+    if (name.contains("48")) {
+      score += 5;
+    }
+    return score;
   }
 
   private static byte[] downloadFile(URL url) throws IOException {

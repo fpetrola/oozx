@@ -69,6 +69,7 @@ public class TzxLoadingTest extends FuseBaseForTests {
       "manic miner",
       "the great escape",
       "renegade",
+      "human killing machine",
   };
 
   /**
@@ -188,9 +189,11 @@ public class TzxLoadingTest extends FuseBaseForTests {
     Path dir = Paths.get("target", "tzx-cache", query.replaceAll("[^a-z0-9]+", "_"));
     if (Files.isDirectory(dir)) {
       try (var entries = Files.list(dir)) {
-        var cached = entries.sorted().findFirst();
-        if (cached.isPresent()) {
-          return cached.get();
+        List<Path> cached = entries.sorted().toList();
+        if (!cached.isEmpty()) {
+          // Pick from the cache the same way the app picks from the zip, or the test would
+          // exercise a different file than a click in the browser does.
+          return DownloadAndUnzip.chooseLoadable(cached);
         }
       }
     }
