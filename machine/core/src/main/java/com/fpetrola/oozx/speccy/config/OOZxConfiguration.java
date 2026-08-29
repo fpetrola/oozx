@@ -44,6 +44,8 @@ public class OOZxConfiguration {
   private String lastSaveStateDirectory = System.getProperty("user.home");
   private List<String> recentFiles = new ArrayList<>();
   private List<Favorite> favorites = new ArrayList<>();
+  /** The theme chosen from the Look&Feel menu, by its name, or null for whatever starts up. */
+  private String lookAndFeel;
   private List<WindowState> openWindows = new ArrayList<>();
   private WindowState mainWindowState; // Estado de la ventana principal
   private Map<String, String> snapshots = new HashMap<>(); // Mapa centralizado de snapshots: id -> data
@@ -125,6 +127,14 @@ public class OOZxConfiguration {
 
   public void setLastSaveStateDirectory(String lastSaveStateDirectory) {
     this.lastSaveStateDirectory = lastSaveStateDirectory;
+  }
+
+  public String getLookAndFeel() {
+    return lookAndFeel;
+  }
+
+  public void setLookAndFeel(String lookAndFeel) {
+    this.lookAndFeel = lookAndFeel;
   }
 
   public List<Favorite> getFavorites() {
@@ -421,15 +431,26 @@ public class OOZxConfiguration {
     private String kind = "GAME";
     /** The ZXInfo id when it came from a search, so the entry can be looked up again. */
     private String gameId;
+    /**
+     * Which file inside the archive was the one played, when the source is a zip. Recordings
+     * often come several to a file, and without this a favourite would come back asking again
+     * which part was meant — or silently opening a different one.
+     */
+    private String entry;
 
     public Favorite() {
     }
 
     public Favorite(String source, String title, String kind, String gameId) {
+      this(source, title, kind, gameId, null);
+    }
+
+    public Favorite(String source, String title, String kind, String gameId, String entry) {
       this.source = source;
       this.title = title;
       this.kind = kind;
       this.gameId = gameId;
+      this.entry = entry;
     }
 
     /**
@@ -463,6 +484,14 @@ public class OOZxConfiguration {
 
     public void setKind(String kind) {
       this.kind = kind;
+    }
+
+    public String getEntry() {
+      return entry;
+    }
+
+    public void setEntry(String entry) {
+      this.entry = entry;
     }
 
     public String getGameId() {

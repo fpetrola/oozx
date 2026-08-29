@@ -477,7 +477,7 @@ class EmulatorInternalFrame extends JInternalFrame {
   }
 
   /** Every toolbar in the application draws its icons at this size. */
-  public static final int TOOLBAR_ICON_SIZE = 17;
+  public static final int TOOLBAR_ICON_SIZE = 19;
 
   public static ImageIcon loadIcon(String iconFile) {
     int size = TOOLBAR_ICON_SIZE;
@@ -921,6 +921,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     this.mockCore = mockCore;
     this.mockCoreState = mockCoreState1;
     this.config = OOZxConfiguration.load();
+    applySavedLookAndFeel();
     this.pokesManager = new PokesManager();
 
     setTitle("ZX Spectrum Multi-Emulator");
@@ -1274,9 +1275,44 @@ public class ZXSpectrumDesktopApp extends JFrame {
     AbstractAction themeAction = new AbstractAction(theme.getName()) {
       public void actionPerformed(ActionEvent e) {
         LafManager.install(theme);
+        rememberLookAndFeel(theme.getName());
       }
     };
     menu.add(themeAction);
+  }
+
+  /** The themes the menu offers, so a saved name can be turned back into one on the next run. */
+  private static final List<Theme> THEMES = List.of(new DarculaTheme(), new OneDarkTheme(),
+      new SolarizedLightTheme(), new SolarizedDarkTheme(), new IntelliJTheme());
+
+  private static final String METAL = "Metal";
+
+  private void rememberLookAndFeel(String name) {
+    config.setLookAndFeel(name);
+    config.save();
+  }
+
+  /**
+   * Puts back the theme chosen last time. The launcher installs one before there is any
+   * configuration to read, so this runs afterwards and replaces it; picking a theme is a
+   * decision worth surviving the window closing.
+   */
+  private void applySavedLookAndFeel() {
+    String saved = config.getLookAndFeel();
+    if (saved == null) return;
+
+    try {
+      if (METAL.equals(saved)) {
+        UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+        LafManager.updateLaf();
+        return;
+      }
+      THEMES.stream().filter(t -> t.getName().equals(saved)).findFirst()
+          .ifPresent(LafManager::install);
+    } catch (Exception e) {
+      // A theme that no longer exists is not a reason to refuse to start.
+      System.err.println("could not restore the look and feel '" + saved + "': " + e);
+    }
   }
 
   private void addWindowMenu(JMenuBar menuBar) {
@@ -1344,6 +1380,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
         try {
           UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
           LafManager.updateLaf();
+          rememberLookAndFeel(METAL);
         } catch (Exception ex) {
           throw new RuntimeException(ex);
         }
@@ -1456,11 +1493,26 @@ public class ZXSpectrumDesktopApp extends JFrame {
         : title + " was already a favourite.", "Favorites", JOptionPane.INFORMATION_MESSAGE);
   }
 
-  /** Keeps one recording, which comes back through the player rather than a new emulator. */
-  void keepRecordingAsFavorite(RzxOption recording) {
-    config.addFavorite(new OOZxConfiguration.Favorite(recording.url(), recording.label(),
-        "RECORDING", null));
+  /**
+   * Keeps the recording a player has open. What is stored is where it came from plus which file
+   * inside the archive it turned out to be, because a URL alone comes back to a zip and not to
+   * the recording that was actually being watched.
+   */
+  void keepRecordingAsFavorite(RzxPlayerInternalFrame player) {
+    String source = player.getSourceUrl();
+    if (source == null) {
+      JOptionPane.showMessageDialog(this, "There is no recording open to keep.",
+          "Favorites", JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+
+    String title = player.getRecordingName() == null ? source : player.getRecordingName();
+    boolean added = config.addFavorite(new OOZxConfiguration.Favorite(source, title, "RECORDING",
+        null, player.getSourceEntry()));
     if (favorites != null && !favorites.isClosed()) favorites.refresh();
+
+    JOptionPane.showMessageDialog(this, added ? title + " is now a favourite."
+        : title + " was already a favourite.", "Favorites", JOptionPane.INFORMATION_MESSAGE);
   }
 
   public void openFavorites() {
@@ -1469,7 +1521,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
         // Straight back through the paths the application already uses, so a favourite opens
         // exactly the way it opened the first time.
         if (favorite.isRecording()) {
-          playRecording(new RzxOption(favorite.getTitle(), favorite.getSource()));
+          playRecording(new RzxOption(favorite.getTitle(), favorite.getSource()),
+              favorite.getEntry());
         } else {
           loadInNewEmulator(favorite.getSource());
         }
@@ -1694,6 +1747,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
   public RzxPlayerInternalFrame showRzxPlayer() {
     if (rzxPlayer == null || rzxPlayer.isClosed()) {
       rzxPlayer = new RzxPlayerInternalFrame(this::chooseRecording, this::showRzxMachine);
+      rzxPlayer.setOnFavorite(() -> keepRecordingAsFavorite(rzxPlayer));
       desktop.add(rzxPlayer);
     }
     rzxPlayer.setVisible(true);
@@ -1706,6 +1760,15 @@ public class ZXSpectrumDesktopApp extends JFrame {
    * arrive on its own or inside a zip, which is the same choice a game download already makes.
    */
   public void playRecording(RzxOption option) {
+    playRecording(option, null);
+  }
+
+  /**
+   * @param preferredEntry the file inside the archive to open, when one was chosen before and
+   *                       kept. With it a favourite comes back to the same recording instead of
+   *                       asking again which part was meant.
+   */
+  public void playRecording(RzxOption option, String preferredEntry) {
     RzxPlayerInternalFrame player = showRzxPlayer();
     player.setBusy("Fetching " + option.label() + "...");
     new SwingWorker<java.io.File, Void>() {
@@ -1716,13 +1779,15 @@ public class ZXSpectrumDesktopApp extends JFrame {
         if (parts.isEmpty()) {
           throw new java.io.IOException("nothing playable came out of it");
         }
-        return choosePart(option, parts).toFile();
+        return choosePart(option, parts, preferredEntry).toFile();
       }
 
       @Override
       protected void done() {
         try {
-          player.openRecording(get());
+          java.io.File part = get();
+          player.setSource(option.url(), part.getName());
+          player.openRecording(part);
         } catch (Exception e) {
           player.setBusy(null);
           JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
@@ -1765,9 +1830,15 @@ public class ZXSpectrumDesktopApp extends JFrame {
    * Rick Dangerous 2 comes as five - and playing whichever one happened to be picked shows a
    * fifth of the game and looks like a fault, so the choice is the person's.
    */
-  private java.nio.file.Path choosePart(RzxOption option, java.util.List<java.nio.file.Path> parts) {
+  private java.nio.file.Path choosePart(RzxOption option, java.util.List<java.nio.file.Path> parts,
+                                        String preferredEntry) {
     if (parts.size() == 1) {
       return parts.get(0);
+    }
+    if (preferredEntry != null) {
+      java.util.Optional<java.nio.file.Path> remembered = parts.stream()
+          .filter(part -> part.getFileName().toString().equals(preferredEntry)).findFirst();
+      if (remembered.isPresent()) return remembered.get();
     }
     Object[] names = parts.stream().map(part -> part.getFileName().toString()).toArray();
     Object chosen = JOptionPane.showInputDialog(this,
@@ -1817,6 +1888,11 @@ public class ZXSpectrumDesktopApp extends JFrame {
   }
 
   public void loadInNewEmulator(String path) {
+    // Downloading, unzipping and booting can take several seconds, and until now they took them
+    // in silence: nothing appeared until the machine did, which reads as the click not working.
+    JDialog loading = showLoading(path.startsWith("http") ? "Fetching " + nameOf(path) + "..."
+        : "Loading " + nameOf(path) + "...");
+
     new SwingWorker<EmulatorCore, Void>() {
       @Override
       protected EmulatorCore doInBackground() {
@@ -1825,6 +1901,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
 
       @Override
       protected void done() {
+        loading.dispose();
         try {
           createNewEmulator(get(), path);
         } catch (Exception e) {
@@ -1833,6 +1910,32 @@ public class ZXSpectrumDesktopApp extends JFrame {
         }
       }
     }.execute();
+  }
+
+  private static String nameOf(String path) {
+    int slash = Math.max(path.lastIndexOf('/'), path.lastIndexOf(java.io.File.separatorChar));
+    return slash < 0 ? path : path.substring(slash + 1);
+  }
+
+  /**
+   * A small window saying something is happening, for work that runs off the event thread.
+   * Deliberately not modal: it says wait, it does not take the application away.
+   */
+  JDialog showLoading(String message) {
+    JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Loading");
+    JPanel panel = new JPanel(new BorderLayout(8, 8));
+    panel.setBorder(BorderFactory.createEmptyBorder(12, 16, 12, 16));
+    panel.add(new JLabel(message), BorderLayout.NORTH);
+
+    JProgressBar progress = new JProgressBar();
+    progress.setIndeterminate(true);
+    panel.add(progress, BorderLayout.CENTER);
+
+    dialog.setContentPane(panel);
+    dialog.pack();
+    dialog.setLocationRelativeTo(this);
+    dialog.setVisible(true);
+    return dialog;
   }
 
   /** Opens the cassette browser, or brings the open one to the front. */

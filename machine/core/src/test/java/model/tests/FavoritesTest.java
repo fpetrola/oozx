@@ -68,6 +68,35 @@ public class FavoritesTest {
     assertFalse(back.getFavorites().get(0).isRecording());
   }
 
+  /**
+   * A recording inside a zip has to remember which file it was.
+   * <p>
+   * Recordings often come several to an archive, and a favourite that kept only the URL would
+   * come back asking again which part was meant, or quietly open a different one.
+   */
+  @Test
+  public void aRecordingRemembersWhichFileInTheArchiveItWas() throws Exception {
+    OOZxConfiguration.Favorite kept = new OOZxConfiguration.Favorite(
+        "https://www.rzxarchive.co.uk/j/jabato.zip", "Jabato", "RECORDING", null, "jabato-2.rzx");
+
+    OOZxConfiguration.Favorite back = MAPPER.readValue(MAPPER.writeValueAsString(kept),
+        OOZxConfiguration.Favorite.class);
+
+    assertEquals("jabato-2.rzx", back.getEntry(), "without this it reopens the wrong part");
+    assertTrue(back.isRecording());
+  }
+
+  @Test
+  public void theChosenLookAndFeelIsKept() throws Exception {
+    OOZxConfiguration configuration = new OOZxConfiguration();
+    configuration.setLookAndFeel("Darcula");
+
+    OOZxConfiguration back = MAPPER.readValue(MAPPER.writeValueAsString(configuration),
+        OOZxConfiguration.class);
+
+    assertEquals("Darcula", back.getLookAndFeel());
+  }
+
   /** Favouriting the same thing twice should not list it twice. */
   @Test
   public void theSameSourceIsKeptOnlyOnce() {

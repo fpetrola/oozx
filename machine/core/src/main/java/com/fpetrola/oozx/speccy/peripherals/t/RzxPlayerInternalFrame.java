@@ -64,6 +64,11 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   private final Consumer<RzxSession> showMachine;
 
   private File file;
+  /** Where the open recording came from: a URL when fetched, the path when opened locally. */
+  private String sourceUrl;
+  /** Which file inside the archive it was, when the source was a zip. */
+  private String sourceEntry;
+  private Runnable onFavorite;
   private RzxSession session;
   private volatile Mode mode = Mode.EMPTY;
   private Thread thread;
@@ -99,11 +104,21 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
         "Stops the recording and leaves the machine playable, exactly where the recording is");
 
     JPanel controls = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+    // Same trimmed buttons as every other toolbar; without this they keep the default padding
+    // and this window's buttons look bigger than the rest of the application's.
     controls.add(openButton);
     controls.add(playButton);
     controls.add(pauseButton);
     controls.add(stopButton);
     controls.add(takeOverButton);
+
+    JButton favoriteButton =
+        EmulatorInternalFrame.iconButton("2B50.svg", "Favorite", "Keep this recording");
+    favoriteButton.addActionListener(e -> {
+      if (onFavorite != null) onFavorite.run();
+    });
+    controls.add(favoriteButton);
+    EmulatorInternalFrame.tighten(controls);
 
     table.setRowHeight(22);
     table.getColumnModel().getColumn(0).setPreferredWidth(130);
@@ -149,9 +164,34 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   }
 
   /** Loads a recording, builds its machine and hands that machine over to be shown. */
+  public void setOnFavorite(Runnable onFavorite) {
+    this.onFavorite = onFavorite;
+  }
+
+  /** Remembers what was fetched, so the same file can be found again inside the same archive. */
+  public void setSource(String url, String entry) {
+    this.sourceUrl = url;
+    this.sourceEntry = entry;
+  }
+
+  public String getSourceUrl() {
+    return sourceUrl != null ? sourceUrl : (file == null ? null : file.getAbsolutePath());
+  }
+
+  public String getSourceEntry() {
+    return sourceEntry;
+  }
+
+  public String getRecordingName() {
+    return file == null ? null : file.getName();
+  }
+
   public void openRecording(File recording) {
     stopThread();
     file = recording;
+    // Reading a recording happens on the event thread, and a long one can take a noticeable
+    // while, during which the window would otherwise look like it had ignored the file.
+    setBusy("Opening " + recording.getName() + "...");
     try {
       session = RzxSession.open(recording);
     } catch (RuntimeException e) {
