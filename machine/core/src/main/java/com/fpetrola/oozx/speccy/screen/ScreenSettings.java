@@ -221,6 +221,73 @@ public class ScreenSettings {
     settings().forEach(ScreenSetting::reset);
   }
 
+  /**
+   * The looks worth having under one name: the ones that come with the program, and whatever
+   * anyone has kept beside them.
+   * <p>
+   * Static because a profile is not a property of one window - the point of keeping one is to
+   * put it on another - and the saved ones are handed in at startup by whoever holds the
+   * settings file, the same way the defaults are.
+   */
+  private static volatile List<ScreenProfile> kept = List.of();
+
+  public static List<ScreenProfile> profiles() {
+    List<ScreenProfile> all = new ArrayList<>(ScreenProfile.presets());
+    all.addAll(kept);
+    return all;
+  }
+
+  /** The ones somebody saved, for whoever writes them down to hand back at startup. */
+  public static List<ScreenProfile> getKeptProfiles() {
+    return List.copyOf(kept);
+  }
+
+  public static void setKeptProfiles(List<ScreenProfile> profiles) {
+    kept = profiles == null ? List.of() : List.copyOf(profiles);
+  }
+
+  /**
+   * Keeps what this window looks like under a name, replacing one of the same name.
+   * <p>
+   * A name that belongs to one of the built-in profiles is taken as a new one beside it rather
+   * than as a change to it: the ones that come with the program are what someone gets back to
+   * when their own experiment goes wrong, so they do not move.
+   */
+  public ScreenProfile keepAs(String name) {
+    ScreenProfile made = ScreenProfile.of(name, this);
+    List<ScreenProfile> next = new ArrayList<>();
+    for (ScreenProfile existing : kept) {
+      if (!existing.name().equalsIgnoreCase(name)) {
+        next.add(existing);
+      }
+    }
+    next.add(made);
+    kept = List.copyOf(next);
+    return made;
+  }
+
+  public static void forget(String name) {
+    List<ScreenProfile> next = new ArrayList<>();
+    for (ScreenProfile existing : kept) {
+      if (!existing.name().equalsIgnoreCase(name)) {
+        next.add(existing);
+      }
+    }
+    kept = List.copyOf(next);
+  }
+
+  /** Takes on a whole look at once. */
+  public void apply(ScreenProfile profile) {
+    if (profile != null) {
+      apply(profile.values());
+    }
+  }
+
+  /** Which profile this window is showing, or null if it has been changed away from all of them. */
+  public ScreenProfile currentProfile() {
+    return ScreenProfile.matching(this, profiles());
+  }
+
   /** What a window opened from now on starts with. */
   public static Map<String, String> getDefaults() {
     return new LinkedHashMap<>(defaults);

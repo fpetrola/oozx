@@ -99,37 +99,24 @@ public class FavoritesTest {
   }
 
   /**
-   * The television settings survive too, including a file written before they existed.
+   * A configuration written by another version still opens, keeping everything else in it.
    * <p>
-   * Smoothing is a Boolean on purpose: unticked is null, which hands the decision back to the
-   * scale rather than forcing it off, so the three states have to come back as three.
+   * This is the one that matters most, and it is not obvious why: load() catches the read
+   * failure and answers a fresh configuration, so a field the code no longer knows would not
+   * crash — it would quietly return an empty file, and the favourites, the recent files and the
+   * window positions would all be gone at the next start. Refusing to read is worse here than
+   * ignoring what is not understood.
    */
   @Test
-  public void theTelevisionSettingsAreKept() throws Exception {
-    OOZxConfiguration configuration = new OOZxConfiguration();
-    configuration.setTvScreen("AERIAL");
-    configuration.setScanLines(true);
-    configuration.setSmoothPixels(null);
-    configuration.setShowBorder(true);
+  public void aConfigurationFromAnotherVersionStillOpens() throws Exception {
+    String written = "{\"recentFiles\":[\"/games/manic.tzx\"],"
+        + "\"tvScreen\":\"AERIAL\",\"scanLines\":true,\"showBorder\":true,"
+        + "\"somethingNobodyHasWrittenYet\":42}";
 
-    OOZxConfiguration back = MAPPER.readValue(MAPPER.writeValueAsString(configuration),
-        OOZxConfiguration.class);
+    OOZxConfiguration back = OOZxConfiguration.read(written);
 
-    assertEquals("AERIAL", back.getTvScreen());
-    assertTrue(back.isScanLines());
-    assertNull(back.getSmoothPixels(), "unticked has to stay 'let the scale decide'");
-    assertTrue(back.isShowBorder(), "the border is kept because the effects are drawn across it");
-  }
-
-  /** A configuration written before any of this existed still opens. */
-  @Test
-  public void anOlderConfigurationFileStillReads() throws Exception {
-    OOZxConfiguration back = MAPPER.readValue(
-        "{\"recentFiles\":[],\"lastOpenDirectory\":\"/tmp\"}", OOZxConfiguration.class);
-
-    assertNull(back.getTvScreen(), "no television setting means the default one");
-    assertFalse(back.isScanLines());
-    assertFalse(back.isShowBorder());
+    assertEquals(1, back.getRecentFiles().size(), "the rest of the file has to survive");
+    assertEquals("/games/manic.tzx", back.getRecentFiles().get(0));
   }
 
   /**

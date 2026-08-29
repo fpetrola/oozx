@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx.speccy.peripherals.t;
 
+import java.util.Map;
 import java.util.LinkedHashMap;
 import com.fpetrola.oozx.speccy.screen.ScreenSettings;
 import com.fpetrola.oozx.speccy.SpeccyScreen;
@@ -396,17 +397,15 @@ class EmulatorInternalFrame extends JInternalFrame {
     // A toggle rather than a button: it stays down while the border is showing, the way the
     // border either is there or is not. Up to start with - see SpeccyScreen.
     JToggleButton borderButton = iconToggle("border-stripes.svg", "Border", "Show the Border");
-    if (parentApp != null && parentApp.config.isShowBorder()) {
-      borderButton.setSelected(true);
-      emulatorCore.setGeneralOption("border", true);
+    // The border is a screen knob like the rest, so the button shows what this emulator has and
+    // writing it goes to the same place the window writes.
+    if (emulatorCore.getPanel() instanceof SpeccyScreen screen) {
+      borderButton.setSelected(screen.getScreenSettings().isBorder());
     }
     borderButton.addActionListener(e -> {
       emulatorCore.setGeneralOption("border", borderButton.isSelected());
-      // Remembered because the television modes are drawn across the border: coming back to a
-      // cropped picture with Aerial still selected reads as the effect having broken.
       if (parentApp != null) {
-        parentApp.config.setShowBorder(borderButton.isSelected());
-        parentApp.config.save();
+        parentApp.setScreenDefault("border", String.valueOf(borderButton.isSelected()));
       }
     });
     toolBar.add(borderButton);
@@ -1377,38 +1376,24 @@ public class ZXSpectrumDesktopApp extends JFrame {
     JMenu tvMenu = new JMenu("TV");
     ButtonGroup leads = new ButtonGroup();
 
-    String current = config.getTvScreen() == null ? TvScreen.RGB_MONITOR.name() : config.getTvScreen();
+    String current = screenDefault("tv", TvScreen.RGB_MONITOR.label());
     for (TvScreen lead : TvScreen.values()) {
-      JRadioButtonMenuItem item = new JRadioButtonMenuItem(lead.label(), lead.name().equals(current));
-      item.addActionListener(e -> {
-        config.setTvScreen(lead.name());
-        config.save();
-        applyScreenSettingsToAll();
-      });
+      boolean chosen = lead.label().equals(current) || lead.name().equals(current);
+      JRadioButtonMenuItem item = new JRadioButtonMenuItem(lead.label(), chosen);
+      item.addActionListener(e -> setScreenDefault("tv", lead.label()));
       leads.add(item);
       tvMenu.add(item);
     }
 
     tvMenu.addSeparator();
 
-    JCheckBoxMenuItem scanLines = new JCheckBoxMenuItem("Scan lines", config.isScanLines());
-    scanLines.addActionListener(e -> {
-      config.setScanLines(scanLines.isSelected());
-      config.save();
-      applyScreenSettingsToAll();
-    });
+    // Scan lines are a depth in the window, not a switch, so the shortcut ticks to a visible
+    // amount and unticks to none rather than pretending there are only two states.
+    JCheckBoxMenuItem scanLines = new JCheckBoxMenuItem("Scan lines",
+        Double.parseDouble(screenDefault("scanlines", "0")) > 0);
+    scanLines.addActionListener(e ->
+        setScreenDefault("scanlines", scanLines.isSelected() ? "0.35" : "0"));
     tvMenu.add(scanLines);
-
-    JCheckBoxMenuItem smooth = new JCheckBoxMenuItem("Smooth pixels",
-        Boolean.TRUE.equals(config.getSmoothPixels()));
-    smooth.addActionListener(e -> {
-      // null rather than false when unticked: that hands the decision back to the scale, which
-      // is what the screen did before there was a menu at all.
-      config.setSmoothPixels(smooth.isSelected() ? Boolean.TRUE : null);
-      config.save();
-      applyScreenSettingsToAll();
-    });
-    tvMenu.add(smooth);
 
     return tvMenu;
   }
@@ -1418,16 +1403,34 @@ public class ZXSpectrumDesktopApp extends JFrame {
    * into the panel to find the screen: the screen is somewhere under a component tree that is
    * not ours to depend on, and a search that stops finding it would fail silently.
    */
-  void applyScreenSettings(EmulatorCore core) {
-    core.setGeneralOption("tv", config.getTvScreen());
-    core.setGeneralOption("scanlines", config.isScanLines());
-    core.setGeneralOption("smoothing", config.getSmoothPixels());
+  /**
+   * Changes one screen knob everywhere: in what new emulators start with, in the file, and in
+   * the windows already open.
+   * <p>
+   * There used to be two ways to remember the same thing — this menu had its own fields in the
+   * configuration, older than the knobs — and the one that ran last won. A new emulator applied
+   * the saved defaults in its constructor and then had them overwritten by whatever the menu
+   * happened to hold, which for scan lines nobody had touched was off. One place now.
+   */
+  void setScreenDefault(String key, String value) {
+    Map<String, String> defaults = new LinkedHashMap<>(config.getScreenDefaults());
+    defaults.put(key, value);
+    config.setScreenDefaults(defaults);
+    config.save();
+    ScreenSettings.setDefaults(defaults);
+    applyScreenSettingsToAll();
+  }
+
+  private String screenDefault(String key, String fallback) {
+    return config.getScreenDefaults().getOrDefault(key, fallback);
   }
 
   private void applyScreenSettingsToAll() {
     for (JInternalFrame frame : desktop.getAllFrames()) {
-      if (frame instanceof EmulatorInternalFrame emulator && emulator.emulatorCore != null) {
-        applyScreenSettings(emulator.emulatorCore);
+      if (frame instanceof EmulatorInternalFrame emulator
+          && emulator.emulatorCore != null
+          && emulator.emulatorCore.getPanel() instanceof SpeccyScreen screen) {
+        screen.getScreenSettings().apply(config.getScreenDefaults());
       }
     }
   }
@@ -2161,7 +2164,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
     }
 
     JComponent panel = core.getPanel();
-    applyScreenSettings(core);
     int x = (emulatorCount * 30) % 400;
     int y = (emulatorCount * 30) % 300;
     EmulatorInternalFrame frame = new EmulatorInternalFrame(core, x, y, this, gameSearchResult);

@@ -46,16 +46,6 @@ public class OOZxConfiguration {
   private List<Favorite> favorites = new ArrayList<>();
   /** The theme chosen from the Look&Feel menu, by its name, or null for whatever starts up. */
   private String lookAndFeel;
-  /** Which lead the picture is imagined to arrive through: RGB_MONITOR, SCART, COMPOSITE, AERIAL. */
-  private String tvScreen;
-  private boolean scanLines;
-  /** null leaves the decision to the scale, which is what the screen did before there was a menu. */
-  private Boolean smoothPixels;
-  /**
-   * Whether the border is shown. Kept because the television modes are drawn across it: someone
-   * who left Aerial selected and came back to a cropped picture would think the effect broke.
-   */
-  private boolean showBorder;
   /**
    * What a newly opened emulator starts its picture with, by knob key. Kept as plain text so a
    * file written by another version still opens: an unknown key is ignored and a missing one
@@ -71,13 +61,30 @@ public class OOZxConfiguration {
   private static final String CONFIG_DIR = System.getProperty("user.home") + File.separator + ".oozx";
   private static final String CONFIG_FILE = CONFIG_DIR + File.separator + "config.json";
 
-  private static final ObjectMapper mapper = new ObjectMapper();
+  /**
+   * Unknown fields are ignored rather than refused. A configuration file outlives the versions
+   * that write it: a setting dropped from the code would otherwise make the whole file
+   * unreadable, and because load() treats that as an ordinary read failure the emulator would
+   * start with an empty configuration — losing the favourites, the recent files and the window
+   * positions to say nothing of the setting that was removed.
+   */
+  private static final ObjectMapper mapper = new ObjectMapper()
+      .configure(com.fasterxml.jackson.databind.DeserializationFeature
+          .FAIL_ON_UNKNOWN_PROPERTIES, false);
   
   // Callback para notificar cambios en el historial
   private Runnable onHistoryChanged;
 
   public OOZxConfiguration() {
     // Constructor vacío para Jackson
+  }
+
+  /**
+   * Reads one from text with the same mapper the file goes through, so what a test proves about
+   * an older file is true of the real thing rather than of a mapper the test made itself.
+   */
+  public static OOZxConfiguration read(String json) throws IOException {
+    return mapper.readValue(json, OOZxConfiguration.class);
   }
 
   public static OOZxConfiguration load() {
@@ -151,38 +158,6 @@ public class OOZxConfiguration {
 
   public void setScreenDefaults(Map<String, String> screenDefaults) {
     this.screenDefaults = screenDefaults;
-  }
-
-  public String getTvScreen() {
-    return tvScreen;
-  }
-
-  public void setTvScreen(String tvScreen) {
-    this.tvScreen = tvScreen;
-  }
-
-  public boolean isScanLines() {
-    return scanLines;
-  }
-
-  public void setScanLines(boolean scanLines) {
-    this.scanLines = scanLines;
-  }
-
-  public Boolean getSmoothPixels() {
-    return smoothPixels;
-  }
-
-  public void setSmoothPixels(Boolean smoothPixels) {
-    this.smoothPixels = smoothPixels;
-  }
-
-  public boolean isShowBorder() {
-    return showBorder;
-  }
-
-  public void setShowBorder(boolean showBorder) {
-    this.showBorder = showBorder;
   }
 
   public String getLookAndFeel() {
