@@ -134,6 +134,14 @@ public class RzxSession {
     speccy.settings.current.emulationSpeed = 100;
     speccy.init();
     speccy.z80.bridgeCommand = (command, data) -> null;
+    // BEFORE the snapshot, because loading one WRITES: it puts back the paging the snapshot was
+    // saved under by sending it through the machine's own port, and these are the ports it goes
+    // through. Set afterwards, as it was, that write went to a null and was dropped without a
+    // word - the machine kept whatever selecting it had left, which is bank 0 and the 128K ROM.
+    // Games that never call the ROM did not notice; Bad Demo takes its interrupt into it, and
+    // ran the 128K editor's handler - reading the AY and scanning the keyboard, twenty-two port
+    // reads in a frame the recording says had one.
+    ports.hardware = injector.getInstance(PeripheralIO.class);
     speccy.z80.loadSnap(snapshotFileOf(recording).toAbsolutePath().toString());
 
     // After loadSnap, because that is what decides which machine this is: a 128K frame is 70908
@@ -142,7 +150,6 @@ public class RzxSession {
     // drifting by a thousand T-states a frame, which the sound and the display both read.
     RzxSession session = new RzxSession(recording, speccy,
         new RzxPlayback(speccy.z80.ooz80, player, recording, framesTStatesOf(speccy)), ports);
-    ports.hardware = injector.getInstance(PeripheralIO.class);
     session.timer = injector.getInstance(com.fpetrola.oozx.speccy.modules.Timer.class);
     return session;
   }
