@@ -90,7 +90,12 @@ public class RzxPlayback {
     // port read across the boundary, and then the frame that lost it is one read short and the
     // next one read over, from where it drifts. Jet Set Willy is the one recording that never
     // showed it, because it runs with IFF1 at zero from beginning to end.
-    player.setAcceptsInterrupt(state::isIff1);
+    // The processor's own rule, mirrored: it accepts when the line is asserted, IFF1 is set and
+    // an EI is not still pending - an EI defers the interrupt by one instruction, so a frame
+    // whose last instruction is EI takes no interrupt and has no acknowledge fetch, however set
+    // IFF1 looks. The line is not asserted yet where this is asked, which is why it is not part
+    // of it.
+    player.setAcceptsInterrupt(() -> state.isIff1() && !state.isPendingEI());
     this.endOfFrame = player.getInterruptionCondition();
     this.previousR = registerR.read() & 0x7F;
     this.clock = state.clock;
