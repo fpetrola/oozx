@@ -107,11 +107,7 @@ public class FavoritesInternalFrame extends JInternalFrame {
   }
 
   private JButton button(JToolBar bar, String icon, String fallbackText, String tip) {
-    JButton button = new JButton();
-    ImageIcon loaded = EmulatorInternalFrame.loadIcon(icon);
-    if (loaded == null) button.setText(fallbackText);
-    else button.setIcon(loaded);
-    button.setToolTipText(tip);
+    JButton button = EmulatorInternalFrame.iconButton(icon, fallbackText, tip);
     bar.add(button);
     return button;
   }

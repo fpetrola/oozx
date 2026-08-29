@@ -69,11 +69,16 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   private Thread thread;
   private volatile boolean alive;
 
-  private final JButton openButton = new JButton("Open Recording...");
-  private final JButton playButton = new JButton("Play");
-  private final JButton pauseButton = new JButton("Pause");
-  private final JButton stopButton = new JButton("Stop");
-  private final JButton takeOverButton = new JButton("Take Over");
+  private final JButton openButton =
+      EmulatorInternalFrame.iconButton("1F39E.svg", "Open Recording...", "Open a recording");
+  private final JButton playButton =
+      EmulatorInternalFrame.iconButton("25B6.svg", "Play", "Play the recording");
+  private final JButton pauseButton =
+      EmulatorInternalFrame.iconButton("23F8.svg", "Pause", "Pause the recording");
+  private final JButton stopButton =
+      EmulatorInternalFrame.iconButton("23F9.svg", "Stop", "Stop and go back to the start");
+  private final JButton takeOverButton =
+      EmulatorInternalFrame.iconButton("1F579.svg", "Take Over", null);
   private final JLabel status = new JLabel();
   private final PartsTableModel model = new PartsTableModel();
   private final JTable table = new JTable(model);

@@ -287,7 +287,23 @@ class EmulatorInternalFrame extends JInternalFrame {
    * Trims the padding a button keeps around its icon. Shrinking the icon alone leaves the
    * button the size it was, since most of a toolbar button is margin.
    */
-  static void tighten(JToolBar toolBar) {
+  /**
+   * A button showing a drawing, falling back to its word if the drawing will not load — the
+   * loader throws on a missing file, so without this a mistyped name takes the whole window
+   * down instead of one picture.
+   */
+  static JButton iconButton(String iconFile, String text, String tooltip) {
+    JButton button = new JButton();
+    try {
+      button.setIcon(loadIcon(iconFile));
+    } catch (RuntimeException missing) {
+      button.setText(text);
+    }
+    if (tooltip != null) button.setToolTipText(tooltip);
+    return button;
+  }
+
+  static void tighten(Container toolBar) {
     for (Component component : toolBar.getComponents()) {
       if (component instanceof AbstractButton button) {
         button.setMargin(new Insets(2, 3, 2, 3));

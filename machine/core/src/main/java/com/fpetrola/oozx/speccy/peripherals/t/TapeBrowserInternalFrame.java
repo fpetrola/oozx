@@ -97,10 +97,10 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
     table.getColumnModel().getColumn(4).setCellRenderer(new ProgressRenderer());
     table.setDefaultRenderer(Object.class, new CurrentBlockRenderer());
 
-    playButton = new JButton("Play");
-    pauseButton = new JButton("Pause");
-    stopButton = new JButton("Stop");
-    insertButton = new JButton("Open Tape...");
+    playButton = EmulatorInternalFrame.iconButton("25B6.svg", "Play", "Play the tape");
+    pauseButton = EmulatorInternalFrame.iconButton("23F8.svg", "Pause", null);
+    stopButton = EmulatorInternalFrame.iconButton("23F9.svg", "Stop", "Stop the tape and rewind it");
+    insertButton = EmulatorInternalFrame.iconButton("1F4FC.svg", "Open Tape...", "Open a tape");
     playButton.addActionListener(e -> play());
     pauseButton.addActionListener(e -> pause());
     stopButton.addActionListener(e -> stop());
@@ -116,6 +116,7 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
     status = new JLabel();
     controls.add(Box.createHorizontalStrut(15));
     controls.add(status);
+    EmulatorInternalFrame.tighten(controls);
 
     setLayout(new BorderLayout());
     add(controls, BorderLayout.NORTH);
