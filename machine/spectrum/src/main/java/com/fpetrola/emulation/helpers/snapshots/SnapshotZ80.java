@@ -25,6 +25,42 @@ public class SnapshotZ80 implements SnapshotFile {
   private MemoryState memory;
   private AY8912State ay8912;
 
+  /**
+   * Unpacks one page's worth of the .z80 run-length encoding, from a block of exactly the
+   * compressed bytes the page declared rather than from the stream, so that whatever the page
+   * decodes to the next one still starts where it should.
+   *
+   * @return how many bytes came out, which for a whole page is 16384
+   */
+  private int uncompressPage(byte[] compressed, byte[] buffer) {
+    int address = 0;
+    int at = 0;
+    while (at < compressed.length && address < buffer.length) {
+      int mem = compressed[at++] & 0xff;
+      if (mem != 0xED || at >= compressed.length) {
+        buffer[address++] = (byte) mem;
+        continue;
+      }
+      int mem2 = compressed[at++] & 0xff;
+      if (mem2 != 0xED) {
+        buffer[address++] = (byte) 0xED;
+        if (address < buffer.length) {
+          buffer[address++] = (byte) mem2;
+        }
+      } else {
+        if (at + 1 >= compressed.length) {
+          break;
+        }
+        int nreps = compressed[at++] & 0xff;
+        int value = compressed[at++] & 0xff;
+        while (nreps-- > 0 && address < buffer.length) {
+          buffer[address++] = (byte) value;
+        }
+      }
+    }
+    return address;
+  }
+
   private int uncompressZ80(byte[] buffer, int length) {
 //        System.out.println(String.format("Addr: %04X, len = %d", address, length));
     int address = 0;
@@ -37,11 +73,21 @@ public class SnapshotZ80 implements SnapshotFile {
           int mem2 = fIn.read() & 0xff;
           if (mem2 != 0xED) {
             buffer[address++] = (byte) 0xED;
-            buffer[address++] = (byte) mem2;
+            // The loop only checks there is room for one byte and this pair writes two, so the
+            // second went past the page whenever the first landed on its last byte.
+            if (address < length) {
+              buffer[address++] = (byte) mem2;
+            }
           } else {
             int nreps = fIn.read() & 0xff;
             int value = fIn.read() & 0xff;
-            while (nreps-- > 0) {
+            // A run that would carry on past the end of the page: the page is full, and the
+            // rest of the run belongs to nothing. Both counters were read before this, so the
+            // stream stays where the next page expects to find it - which is why stopping here
+            // is safe and throwing was not. Lazy Jones is one such file, and it did throw:
+            // "Index 16384 out of bounds for length 16384", from a recording that would then
+            // not open at all.
+            while (nreps-- > 0 && address < length) {
               buffer[address++] = (byte) value;
             }
           }
@@ -532,7 +578,11 @@ public class SnapshotZ80 implements SnapshotFile {
 
           memory.setPageRam(ramPage, buffer);
         } else {
-          int len = uncompressZ80(buffer, 0x4000);
+          // The page says how many compressed bytes it holds, so take exactly those and unpack
+          // from them. Unpacking straight out of the stream stopped when the page was full and
+          // left the rest of its compressed bytes behind, and every page after it was then read
+          // from the wrong place: Lazy Jones came out of that asking for RAM page 82.
+          int len = uncompressPage(fIn.readNBytes(blockLen), buffer);
           if (len != 0x4000) {
             throw new SnapshotException("FILE_READ_ERROR");
           }
