@@ -118,6 +118,10 @@ public class InflateViewer extends ApplicationAdapter {
 
   private Model model;
   private ModelInstance instance;
+  /** Where the model's own middle is, found once while it is unrotated. */
+  private final Vector3 centre = new Vector3();
+  /** Whether the camera has been put somewhere sensible; after that it is the person's. */
+  private boolean framed;
   private String caption = "";
   private boolean turning = true;
   private float angle;
@@ -383,6 +387,18 @@ public class InflateViewer extends ApplicationAdapter {
     });
     controls.add(mirrored).padTop(8).padBottom(10).row();
 
+    TextButton view = new TextButton("put the view back", buttonStyle);
+    view.addListener(new ChangeListener() {
+      public void changed(ChangeEvent event, Actor actor) {
+        BoundingBox box = new BoundingBox();
+        new ModelInstance(model).calculateBoundingBox(box);
+        angle = 0;
+        pose();
+        frame(box);
+      }
+    });
+    controls.add(view).height(30).padTop(6).row();
+
     TextButton save = new TextButton("write the OBJ", buttonStyle);
     save.addListener(new ChangeListener() {
       public void changed(ChangeEvent event, Actor actor) {
@@ -510,7 +526,15 @@ public class InflateViewer extends ApplicationAdapter {
 
   // -------------------------------------------------------------------------------------------
 
-  /** Puts a model in front of the camera at a size that does not change as models change. */
+  /**
+   * Swaps in a new model without disturbing how it is being looked at.
+   * <p>
+   * The camera is placed once and then left alone, and the new model takes the pose the old one
+   * had. Turning a knob rebuilds the mesh, and if that also reset the camera and the rotation the
+   * figure would jump to a standard three-quarter view every time - which is exactly the thing
+   * that makes it impossible to judge what the knob did. What is being compared is two shapes
+   * from ONE viewpoint; moving the viewpoint at the same moment compares nothing.
+   */
   private void put(Model built) {
     if (model != null) {
       model.dispose();
@@ -518,15 +542,30 @@ public class InflateViewer extends ApplicationAdapter {
     model = built;
     instance = new ModelInstance(model);
     BoundingBox box = new BoundingBox();
+    // While the transform is still the identity, so this is the model's own middle. Asking an
+    // instance for its box AFTER rotating it gives the box of the rotated thing, whose middle
+    // moves as it turns - which had the figure drifting a little on its own.
     instance.calculateBoundingBox(box);
-    Vector3 centre = new Vector3();
     box.getCenter(centre);
-    instance.transform.idt().translate(-centre.x, -centre.y, -centre.z);
+    pose();
+    if (!framed) {
+      frame(box);
+    }
+  }
+
+  /** Puts the camera where the whole figure can be seen. Once, and on request after that. */
+  private void frame(BoundingBox box) {
     float span = Math.max(box.getWidth(), Math.max(box.getHeight(), box.getDepth()));
     camera.position.set(0, 0, span * 2.2f);
+    camera.up.set(0, 1, 0);
     camera.lookAt(0, 0, 0);
     camera.update();
     controller.target.set(0, 0, 0);
+    framed = true;
+  }
+
+  private void pose() {
+    instance.transform.idt().rotate(Vector3.Y, angle).translate(-centre.x, -centre.y, -centre.z);
   }
 
   @Override
@@ -535,11 +574,7 @@ public class InflateViewer extends ApplicationAdapter {
 
     if (turning) {
       angle += Gdx.graphics.getDeltaTime() * 45f;
-      BoundingBox box = new BoundingBox();
-      instance.calculateBoundingBox(box);
-      Vector3 centre = new Vector3();
-      box.getCenter(centre);
-      instance.transform.idt().rotate(Vector3.Y, angle).translate(-centre.x, -centre.y, -centre.z);
+      pose();
     }
 
     ScreenUtils.clear(0.06f, 0.06f, 0.08f, 1f, true);
@@ -571,7 +606,7 @@ public class InflateViewer extends ApplicationAdapter {
     font.draw(overlay, caption, left + 12, height - 12);
     font.draw(overlay, sprites != null
         ? "click a sprite or a colour   arrows = sprite   wheel = scroll   space = turn   "
-        + "drag = orbit"
+        + "drag = orbit   the view stays put while you turn the knobs"
         : "1-" + files.size() + " = profile   space = turn   drag = orbit   esc = quit",
         left + 12, 22);
     overlay.end();
