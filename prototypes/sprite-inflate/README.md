@@ -187,6 +187,19 @@ vértices del contorno tomaban la profundidad interpolando entre una celda inter
 píxel del borde ya vale ~2) y una exterior (cero), con lo que la figura quedaba abierta a lo largo
 de toda su silueta.
 
+## Materiales
+
+El visor puede envolver el modelo terminado con una textura, elegida en el mosaico del panel
+derecho. Vienen ocho de [ambientCG](https://ambientcg.com/) en `textures/`, bajo **CC0** — copiar,
+modificar y distribuir sin pedir permiso, que es lo que hace razonable tenerlas en el repositorio.
+Cualquier `.jpg` o `.png` que se agregue a esa carpeta aparece solo.
+
+Se aplican por **proyección triplanar**: el modelo no tiene coordenadas de textura, y generarlas
+para una figura inflada obliga a una costura en algún lado y estira los costados. En vez de eso se
+muestrea la textura por los tres ejes y se mezclan las tres según hacia dónde mira la superficie.
+Sin UVs y sin costuras — y una figura inflada desde un sprite no tiene ningún borde natural donde
+esconder una.
+
 ## Si esto se lleva a otro proyecto
 
 `xbrz-core` es **GPL-3 con excepción de linkeo** (ver el `NOTICE` en la raíz). Es un motivo más

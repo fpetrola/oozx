@@ -13,6 +13,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -116,12 +118,18 @@ public class InflateViewer extends ApplicationAdapter {
 
   private Stage stage;
   private Table controls;
+  /** The textures on offer, and which one is on the model; null is the plain colour. */
+  private final List<Texture> textures = new ArrayList<>();
+  private final List<String> textureNames = new ArrayList<>();
+  private Texture texture;
+  private float textureScale = 0.06f;
   private Label.LabelStyle labelStyle;
   private Slider.SliderStyle sliderStyle;
   private SelectBox.SelectBoxStyle selectStyle;
   private CheckBox.CheckBoxStyle checkStyle;
   private TextButton.TextButtonStyle buttonStyle;
 
+  private PerPixel shader;
   private Model model;
   private ModelInstance instance;
   /** Where the model's own middle is, found once while it is unrotated. */
@@ -158,7 +166,8 @@ public class InflateViewer extends ApplicationAdapter {
     // interpolates the NORMAL and lights each pixel, has no stripes at all.
     batch = new ModelBatch(new BaseShaderProvider() {
       protected Shader createShader(Renderable renderable) {
-        return new PerPixel();
+        shader = new PerPixel();
+        return shader;
       }
     });
     overlay = new SpriteBatch();
@@ -222,9 +231,11 @@ public class InflateViewer extends ApplicationAdapter {
         "uniform mat4 u_worldTrans;",
         "varying vec3 v_normal;",
         "varying vec4 v_color;",
+        "varying vec3 v_where;",
         "void main() {",
         "  v_normal = (u_worldTrans * vec4(a_normal, 0.0)).xyz;",
         "  v_color = a_color;",
+        "  v_where = a_position;",
         "  gl_Position = u_projViewTrans * u_worldTrans * vec4(a_position, 1.0);",
         "}");
 
@@ -234,6 +245,10 @@ public class InflateViewer extends ApplicationAdapter {
         "#endif",
         "varying vec3 v_normal;",
         "varying vec4 v_color;",
+        "varying vec3 v_where;",
+        "uniform sampler2D u_texture;",
+        "uniform float u_textured;",
+        "uniform float u_scale;",
         "void main() {",
         "  vec3 n = normalize(v_normal);",
         "  vec3 key = normalize(vec3(0.6, 0.7, 0.5));",
@@ -241,12 +256,27 @@ public class InflateViewer extends ApplicationAdapter {
         "  vec3 light = vec3(0.35, 0.35, 0.40)",
         "      + vec3(0.90, 0.88, 0.82) * max(dot(n, key), 0.0)",
         "      + vec3(0.25, 0.28, 0.35) * max(dot(n, fill), 0.0);",
-        "  gl_FragColor = vec4(v_color.rgb * light, 1.0);",
+        "  vec3 tint = v_color.rgb;",
+        "  if (u_textured > 0.5) {",
+        // Three planar samples blended by which way the surface faces. The model has no texture
+        // coordinates and giving it some would mean a seam somewhere and stretching down the
+        // sides; this needs none, and a figure inflated from a sprite has no natural seam to
+        // hide one along anyway.
+        "    vec3 how = abs(n);",
+        "    how = how / (how.x + how.y + how.z);",
+        "    vec3 fromX = texture2D(u_texture, v_where.yz * u_scale).rgb;",
+        "    vec3 fromY = texture2D(u_texture, v_where.xz * u_scale).rgb;",
+        "    vec3 fromZ = texture2D(u_texture, v_where.xy * u_scale).rgb;",
+        "    tint = tint * (fromX * how.x + fromY * how.y + fromZ * how.z) * 1.8;",
+        "  }",
+        "  gl_FragColor = vec4(tint * light, 1.0);",
         "}");
 
     private ShaderProgram program;
     private RenderContext context;
     private final Matrix4 projView = new Matrix4();
+    Texture material;
+    float scale = 0.06f;
 
     public void init() {
       program = new ShaderProgram(VERTEX, FRAGMENT);
@@ -274,6 +304,11 @@ public class InflateViewer extends ApplicationAdapter {
 
     public void render(Renderable renderable) {
       program.setUniformMatrix("u_worldTrans", renderable.worldTransform);
+      program.setUniformf("u_textured", material == null ? 0f : 1f);
+      program.setUniformf("u_scale", scale);
+      if (material != null) {
+        program.setUniformi("u_texture", context.textureBinder.bind(material));
+      }
       renderable.meshPart.render(program);
     }
 
@@ -495,6 +530,8 @@ public class InflateViewer extends ApplicationAdapter {
     });
     controls.add(mirrored).padTop(8).padBottom(10).row();
 
+    textures();
+
     TextButton view = new TextButton("put the view back", buttonStyle);
     view.addListener(new ChangeListener() {
       public void changed(ChangeEvent event, Actor actor) {
@@ -544,6 +581,63 @@ public class InflateViewer extends ApplicationAdapter {
       }
     });
     controls.add(bar).height(22).padBottom(10).row();
+  }
+
+  /**
+   * The materials, as a mosaic to pick from.
+   * <p>
+   * Loaded from beside the code rather than compiled in, so more can be dropped in the folder
+   * without touching this. They are ambientCG's, under CC0, which is what makes it reasonable to
+   * keep them in the repository at all.
+   */
+  private void textures() {
+    File root = moduleRoot();
+    File folder = new File(root == null ? new File(".") : root, "textures");
+    File[] found = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".jpg")
+        || name.toLowerCase().endsWith(".png"));
+    controls.add(new Label("material", labelStyle)).padTop(10).padBottom(2).row();
+
+    Table mosaic = new Table();
+    mosaic.left();
+    // "None" first, and it is the plain colour rather than a texture, so it gets the chequer the
+    // colour swatches use for the same idea.
+    mosaic.add(tile(null, "plain")).size(58).pad(3);
+    if (found != null) {
+      java.util.Arrays.sort(found);
+      for (File one : found) {
+        Texture loaded = new Texture(new FileHandle(one), true);
+        loaded.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
+        // Repeat, or a texture laid over a whole figure shows its own edge across the middle.
+        loaded.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+        textures.add(loaded);
+        textureNames.add(one.getName().replaceAll("\\.[^.]+$", ""));
+        mosaic.add(tile(loaded, textureNames.get(textureNames.size() - 1))).size(58).pad(3);
+        if (mosaic.getCells().size % 4 == 0) {
+          mosaic.row();
+        }
+      }
+    }
+    controls.add(mosaic).padBottom(6).row();
+
+    slider("how big the material is", 0.01f, 0.6f, 0.01f, textureScale, "%.2f", value -> {
+      textureScale = (float) value;
+    });
+  }
+
+  private Button tile(Texture which, String name) {
+    Button button = new Button(new Button.ButtonStyle(
+        tinted(new TextureRegionDrawable(new TextureRegion(block)), 0.16f, 0.16f, 0.20f, 4, 4),
+        tinted(new TextureRegionDrawable(new TextureRegion(block)), 0.30f, 0.45f, 0.75f, 4, 4),
+        null));
+    button.add(new Image(which == null ? new TextureRegionDrawable(new TextureRegion(block))
+        : new TextureRegionDrawable(new TextureRegion(which)))).size(50);
+    button.addListener(new ChangeListener() {
+      public void changed(ChangeEvent event, Actor actor) {
+        texture = which;
+        caption = which == null ? "no material" : "material: " + name;
+      }
+    });
+    return button;
   }
 
   private void place() {
@@ -701,6 +795,10 @@ public class InflateViewer extends ApplicationAdapter {
     camera.viewportHeight = height;
     camera.update();
     controller.update();
+    if (shader != null) {
+      shader.material = texture;
+      shader.scale = textureScale;
+    }
     batch.begin(camera);
     batch.render(instance, environment);
     batch.end();
@@ -865,6 +963,9 @@ public class InflateViewer extends ApplicationAdapter {
     }
     if (atlas != null) {
       atlas.dispose();
+    }
+    for (Texture one : textures) {
+      one.dispose();
     }
     if (model != null) {
       model.dispose();
