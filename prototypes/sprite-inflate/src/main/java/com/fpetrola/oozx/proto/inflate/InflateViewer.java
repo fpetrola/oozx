@@ -348,7 +348,7 @@ public class InflateViewer extends ApplicationAdapter {
     scale.addListener(new ChangeListener() {
       public void changed(ChangeEvent event, Actor actor) {
         set(with(SCALE_PASSES[scale.getSelectedIndex()], options.depth(), options.smoothing(),
-            options.dentDepth(), options.dentReach(), options.holeAcross(), options.mirrored(), options.rimRoll(), options.relaxing()),
+            options.dentDepth(), options.dentReach(), options.holeAcross(), options.mirrored(), options.rimSamples(), options.relaxing()),
             true);
       }
     });
@@ -357,31 +357,34 @@ public class InflateViewer extends ApplicationAdapter {
     // Shaping: these reuse what was measured, so dragging one only rebuilds the mesh.
     slider("depth", 0.05f, 8f, 0.05f, (float) options.depth(), "%.2f x", value ->
         set(with(options.passes(), value, options.smoothing(), options.dentDepth(),
-            options.dentReach(), options.holeAcross(), options.mirrored(), options.rimRoll(), options.relaxing()), false));
+            options.dentReach(), options.holeAcross(), options.mirrored(), options.rimSamples(), options.relaxing()), false));
     slider("dent at the detail", 0f, 1.5f, 0.05f, (float) options.dentDepth(), "%.2f", value ->
         set(with(options.passes(), options.depth(), options.smoothing(), value,
-            options.dentReach(), options.holeAcross(), options.mirrored(), options.rimRoll(), options.relaxing()), false));
+            options.dentReach(), options.holeAcross(), options.mirrored(), options.rimSamples(), options.relaxing()), false));
     slider("how wide that dent is", 0.1f, 10f, 0.1f, (float) options.dentReach(), "%.1f px",
         value -> set(with(options.passes(), options.depth(), options.smoothing(),
-            options.dentDepth(), value, options.holeAcross(), options.mirrored(), options.rimRoll(), options.relaxing()), false));
+            options.dentDepth(), value, options.holeAcross(), options.mirrored(), options.rimSamples(), options.relaxing()), false));
 
     // Measuring: these change what is known about the sprite, so the pipeline runs again.
     slider("smoothing", 0f, 40f, 1f, options.smoothing(), "%.0f passes", value ->
         set(with(options.passes(), options.depth(), (int) value, options.dentDepth(),
-            options.dentReach(), options.holeAcross(), options.mirrored(), options.rimRoll(), options.relaxing()), true));
+            options.dentReach(), options.holeAcross(), options.mirrored(), options.rimSamples(), options.relaxing()), true));
     slider("a hole is detail up to", 0f, 16f, 0.5f, (float) options.holeAcross(), "%.1f px",
         value -> set(with(options.passes(), options.depth(), options.smoothing(),
-            options.dentDepth(), options.dentReach(), value, options.mirrored(), options.rimRoll(), options.relaxing()), true));
+            options.dentDepth(), options.dentReach(), value, options.mirrored(), options.rimSamples(), options.relaxing()), true));
 
-    slider("rounding at the seam", 0f, 12f, 0.1f, (float) options.rimRoll(), "%.1f px", value ->
+    // Cutting the rim finer, not flattening it: the surface there is already round, it was only
+    // ever drawn with a single chord.
+    slider("samples across the rim", 1f, 8f, 1f, options.rimSamples(), "%.0f", value ->
         set(with(options.passes(), options.depth(), options.smoothing(), options.dentDepth(),
-            options.dentReach(), options.holeAcross(), options.mirrored(), value, options.relaxing()), false));
+            options.dentReach(), options.holeAcross(), options.mirrored(), (int) value,
+            options.relaxing()), false));
 
     // Last of all, and the only one that can touch the outline: everything above works on the
     // grid the sawtooth comes from.
     slider("smoothing the mesh", 0f, 200f, 1f, options.relaxing(), "%.0f passes", value ->
         set(with(options.passes(), options.depth(), options.smoothing(), options.dentDepth(),
-            options.dentReach(), options.holeAcross(), options.mirrored(), options.rimRoll(),
+            options.dentReach(), options.holeAcross(), options.mirrored(), options.rimSamples(),
             (int) value), false));
 
     CheckBox mirrored = new CheckBox(" bulge on both sides", checkStyle);
@@ -389,7 +392,7 @@ public class InflateViewer extends ApplicationAdapter {
     mirrored.addListener(new ChangeListener() {
       public void changed(ChangeEvent event, Actor actor) {
         set(with(options.passes(), options.depth(), options.smoothing(), options.dentDepth(),
-            options.dentReach(), options.holeAcross(), mirrored.isChecked(), options.rimRoll(), options.relaxing()), false);
+            options.dentReach(), options.holeAcross(), mirrored.isChecked(), options.rimSamples(), options.relaxing()), false);
       }
     });
     controls.add(mirrored).padTop(8).padBottom(10).row();
@@ -419,9 +422,9 @@ public class InflateViewer extends ApplicationAdapter {
 
   private static SpriteInflate.Options with(int[] passes, double depth, int smoothing,
                                             double dentDepth, double dentReach, double holeAcross,
-                                            boolean mirrored, double rimRoll, int relaxing) {
+                                            boolean mirrored, int rimSamples, int relaxing) {
     return new SpriteInflate.Options(passes, depth, smoothing, dentDepth, dentReach, holeAcross,
-        mirrored, rimRoll, relaxing);
+        mirrored, rimSamples, relaxing);
   }
 
   private void set(SpriteInflate.Options changed, boolean measureAgain) {
@@ -497,10 +500,10 @@ public class InflateViewer extends ApplicationAdapter {
         double[] normal = normals.get(at);
         // Even with a colour chosen, the detail keeps its own darker shade - a guardian in
         // solid yellow with no eye is a worse picture than a yellow one with an eye.
+        // Even with a colour chosen the detail keeps its darker shade, and by the same soft
+        // amount, so choosing a colour does not put the blocky version of the eye back.
         int rgb = chosenColour < 0 ? SpriteInflate.colourFor(fields, x, y)
-            : fields.detail()[Math.min(fields.height() - 1, Math.max(0, (int) Math.round(y)))
-            * fields.width() + Math.min(fields.width() - 1, Math.max(0, (int) Math.round(x)))]
-            ? shade(PALETTE[chosenColour]) : PALETTE[chosenColour];
+            : SpriteInflate.mix(PALETTE[chosenColour], detailAt(x, y));
         // Y flipped, because an image counts rows downwards and the world counts them up.
         vertex.setPos((float) x, (float) -y, (float) z)
             .setNor((float) normal[0], (float) -normal[1], (float) normal[2])
@@ -514,9 +517,11 @@ public class InflateViewer extends ApplicationAdapter {
     return builder.end();
   }
 
-  private static int shade(int rgb) {
-    return ((int) (((rgb >> 16) & 0xFF) * 0.18) << 16)
-        | ((int) (((rgb >> 8) & 0xFF) * 0.18) << 8) | (int) ((rgb & 0xFF) * 0.18);
+  /** How much drawn detail sits over a point, as a fraction: the eye fades rather than stops. */
+  private double detailAt(double x, double y) {
+    int cx = Math.min(fields.width() - 1, Math.max(0, (int) Math.round(x)));
+    int cy = Math.min(fields.height() - 1, Math.max(0, (int) Math.round(y)));
+    return fields.detailAmount()[cy * fields.width() + cx];
   }
 
   // --------------------------------------------------------------------------- directory mode

@@ -146,9 +146,9 @@ public class SpriteInflate {
     int[] passes = passes(args.length > 2 ? args[2] : "4");
     // The fourth argument is the seam rounding, because comparing it against itself is the only
     // way to see what it does.
-    double rimRoll = args.length > 3 ? Double.parseDouble(args[3]) : 0.6;
-    int relaxing = args.length > 4 ? Integer.parseInt(args[4]) : 4;
-    Options options = new Options(passes, 1.0, 3, 0.45, 0.4, 2.0, true, rimRoll, relaxing);
+    int rimSamples = args.length > 3 ? Integer.parseInt(args[3]) : 1;
+    int relaxing = args.length > 4 ? Integer.parseInt(args[4]) : 6;
+    Options options = new Options(passes, 1.0, 3, 0.45, 0.4, 2.0, true, rimSamples, relaxing);
     // The same call the viewer makes. It used to be a second copy of it here, and the two drifted
     // apart at once: the viewer learned to paint the filled-in detail and the pictures did not.
     Fields fields = measure(sprite, options, true);
@@ -171,7 +171,7 @@ public class SpriteInflate {
       for (int i = 0; i < depth.length; i++) {
         deepest = Math.max(deepest, depth[i]);
       }
-      List<double[]> rough = build(coverage, depth, width, height, options.mirrored());
+      List<double[]> rough = build(fields, options, profile);
       List<double[]> mesh = relaxed(rough, options.relaxing());
       System.out.printf("  %-14s neighbouring faces disagree by %.2f degrees, %.2f after "
               + "%d passes of smoothing%n",
@@ -211,9 +211,9 @@ public class SpriteInflate {
       thresholded[i] = coverage[i] >= 0.5 ? 1 : 0;
     }
     List<BufferedImage> outlines = new ArrayList<>();
-    outlines.add(inflated("no scaling, hard pixels", hard, fields));
-    outlines.add(inflated("xBRZ then thresholded", thresholded, fields));
-    outlines.add(inflated("xBRZ kept as coverage", coverage, fields));
+    outlines.add(inflated("no scaling, hard pixels", hard, fields, options));
+    outlines.add(inflated("xBRZ then thresholded", thresholded, fields, options));
+    outlines.add(inflated("xBRZ kept as coverage", coverage, fields, options));
     ImageIO.write(stack(outlines), "png", out.resolve("7-outline.png").toFile());
 
     System.out.println();
@@ -265,16 +265,16 @@ public class SpriteInflate {
    * @param holeAcross how big a hole may be, in pixels of the original sprite, and still count as
    *                   detail to be filled rather than shape to be kept
    * @param mirrored   the same bulge front and back, rather than a flat front
-   * @param rimRoll    over how many pixels the surface is allowed to turn over at the outline;
-   *                   zero leaves the profile exactly as it is
+   * @param rimSamples how many times over each cell that the outline crosses is subdivided. It
+   *                   DID NOT WORK - see {@link #build} - and one is the setting to leave it at
    * @param relaxing   how many passes of smoothing are run over the finished mesh, which is the
    *                   only step that can touch the outline itself
    */
   record Options(int[] passes, double depth, int smoothing, double dentDepth, double dentReach,
-                 double holeAcross, boolean mirrored, double rimRoll, int relaxing) {
+                 double holeAcross, boolean mirrored, int rimSamples, int relaxing) {
 
     static Options standard() {
-      return new Options(new int[]{4}, 1.0, 3, 0.45, 0.4, 2.0, true, 0.6, 4);
+      return new Options(new int[]{4}, 1.0, 3, 0.45, 0.4, 2.0, true, 1, 6);
     }
 
     int factor() {
@@ -289,7 +289,7 @@ public class SpriteInflate {
   /** Everything the shape of a sprite decides, before any one profile is chosen. */
   record Fields(BufferedImage scaled, double[] coverage, double[] distance, double[] thickness,
                 double largest, int width, int height, int factor,
-                boolean[] detail, double[] fromDetail) {
+                boolean[] detail, double[] fromDetail, double[] detailAmount) {
   }
 
   /**
@@ -316,9 +316,12 @@ public class SpriteInflate {
     }
     int width = big.getWidth(), height = big.getHeight();
     double[] coverage = coverageOf(big);
+    // Kept before the holes are filled, because that is where the scaler's work on them is.
+    double[] before = coverage.clone();
     boolean[] detail =
         fillSmallHoles(coverage, width, height, options.holeAcross() * factor, talk);
     double[] fromDetail = distanceFrom(detail, width, height);
+    double[] detailAmount = shading(before, fromDetail, factor);
     double[] distance = distanceInside(coverage, width, height);
     double[] thickness = localThickness(distance, width, height);
     soften(thickness, coverage, width, height, options.smoothing());
@@ -331,13 +334,12 @@ public class SpriteInflate {
       System.out.printf("largest inscribed radius: %.2f px (at %dx)%n", largest, factor);
     }
     return new Fields(big, coverage, distance, thickness, largest, width, height, factor,
-        detail, fromDetail);
+        detail, fromDetail, detailAmount);
   }
 
   /** A sprite as a closed solid, ready to be handed to a renderer. */
   static List<double[]> inflate(Fields fields, Profile profile, Options options) {
-    return relaxed(build(fields.coverage(), depths(fields, profile, options), fields.width(),
-        fields.height(), options.mirrored()), options.relaxing());
+    return relaxed(build(fields, options, profile), options.relaxing());
   }
 
   /**
@@ -496,38 +498,32 @@ public class SpriteInflate {
         // range goes past one on purpose - it flattens a wider ring around the detail - but not
         // past the point where the solid turns inside out.
         depth[i] *= Math.max(0, 1 - options.dentDepth() * Math.exp(-away * away));
-        depth[i] = rolled(depth[i], fields.distance()[i], fields.thickness()[i], options, factor);
       }
     }
     return depth;
   }
 
   /**
-   * Spreads the turn at the outline over something the grid can actually draw.
+   * How much of the drawn detail is over each point, as a fraction rather than a yes or no.
    * <p>
-   * The seam where the front of the solid meets the back is not a crease - with the sphere
-   * profile the section there is a parabola, which is to say the equator of an ellipsoid, and
-   * perfectly smooth. It LOOKS like a crease because the whole hundred and eighty degrees of it
-   * happens inside one pixel: half a pixel in from the edge of a figure ten across, the surface
-   * has already risen three units. Two samples across a half-turn shade as an edge no matter how
-   * smooth the thing being sampled.
+   * The eye was coming out with hard blocky edges, and it should not have: the scaler had already
+   * rounded it, because a hole in a sprite is an alpha edge like any other and gets the same
+   * treatment as the outline. What threw that away was filling the hole, which decides at a half
+   * and keeps nothing either side of it. The coverage BEFORE the filling still has it, so the
+   * mark is painted with one minus that - solid in the middle of the eye, fading over the ring
+   * the scaler rounded, nothing at all a pixel out.
    * <p>
-   * So the surface is not allowed to rise faster than a given slope near the rim, and the slope
-   * is chosen per point so that the straight part gives out after {@code rimRoll} pixels: a cone
-   * of slope s leaves the sphere of radius R at a distance of 2R/s squared, so s is the root of
-   * 2R over the width wanted. Combined with the profile as a b over the root of a squared plus b
-   * squared, which is the smooth version of taking the smaller of the two - a plain minimum would
-   * put a crease exactly where this is trying to take one out.
+   * Only near a hole that was actually filled. Every outline in the picture has a soft edge of
+   * the same kind, and without that condition the whole figure would be painted with a dark rim.
    */
-  private static double rolled(double depth, double distance, double radius, Options options,
-                               int factor) {
-    double width = options.rimRoll() * factor;
-    if (width <= 0 || depth <= 0 || radius <= 0) {
-      return depth;
+  private static double[] shading(double[] before, double[] fromDetail, int factor) {
+    double[] amount = new double[before.length];
+    for (int i = 0; i < amount.length; i++) {
+      if (fromDetail[i] <= 1.5 * factor) {
+        amount[i] = Math.max(0, Math.min(1, 1 - before[i]));
+      }
     }
-    double slope = Math.sqrt(2 * radius / width);
-    double cone = slope * distance;
-    return depth * cone / Math.sqrt(depth * depth + cone * cone);
+    return amount;
   }
 
   /**
@@ -542,42 +538,49 @@ public class SpriteInflate {
   static int colourFor(Fields fields, double x, double y) {
     int cx = Math.min(fields.width() - 1, Math.max(0, (int) Math.round(x)));
     int cy = Math.min(fields.height() - 1, Math.max(0, (int) Math.round(y)));
-    boolean detail = fields.detail()[cy * fields.width() + cx];
-    for (int radius = 0; radius <= 4; radius++) {
-      for (int dy = -radius; dy <= radius; dy++) {
-        for (int dx = -radius; dx <= radius; dx++) {
+    double mark = between(fields.detailAmount(), fields.width(), fields.height(), x, y);
+    int around = 0xD0D0D0;
+    boolean found = false;
+    for (int radius = 0; radius <= 4 && !found; radius++) {
+      for (int dy = -radius; dy <= radius && !found; dy++) {
+        for (int dx = -radius; dx <= radius && !found; dx++) {
           int sx = cx + dx, sy = cy + dy;
           if (sx < 0 || sy < 0 || sx >= fields.width() || sy >= fields.height()) continue;
-          if (detail && fields.detail()[sy * fields.width() + sx]) continue;
+          if (mark > 0.05 && fields.detail()[sy * fields.width() + sx]) continue;
           int argb = fields.scaled().getRGB(sx, sy);
           if ((argb >>> 24) >= 128) {
-            return detail ? darken(argb & 0xFFFFFF) : argb & 0xFFFFFF;
+            around = argb & 0xFFFFFF;
+            found = true;
           }
         }
       }
     }
-    return detail ? 0x201810 : 0xD0D0D0;
+    return mix(around, mark);
   }
 
-  private static int darken(int rgb) {
-    return ((int) (((rgb >> 16) & 0xFF) * 0.18) << 16)
-        | ((int) (((rgb >> 8) & 0xFF) * 0.18) << 8) | (int) ((rgb & 0xFF) * 0.18);
+  /** The surrounding colour taken down towards nothing, by however much detail is over it. */
+  static int mix(int rgb, double mark) {
+    double keep = 1 - 0.82 * Math.max(0, Math.min(1, mark));
+    return ((int) (((rgb >> 16) & 0xFF) * keep) << 16)
+        | ((int) (((rgb >> 8) & 0xFF) * keep) << 8) | (int) ((rgb & 0xFF) * keep);
   }
 
-  /** One silhouette, inflated the good way, for comparing outlines against each other. */
-  private static BufferedImage inflated(String label, double[] coverage, Fields fields) {
+  /**
+   * One silhouette, inflated the good way, for comparing outlines against each other.
+   * <p>
+   * Measured afresh for the silhouette handed in - these are three different outlines of the same
+   * figure - but shown with the colours and the detail of the real one.
+   */
+  private static BufferedImage inflated(String label, double[] coverage, Fields fields,
+                                        Options options) {
     int width = fields.width(), height = fields.height();
     double[] distance = distanceInside(coverage, width, height);
     double[] thickness = localThickness(distance, width, height);
     double largest = 0;
     for (double one : distance) largest = Math.max(largest, one);
-    double[] depth = new double[width * height];
-    for (int i = 0; i < depth.length; i++) {
-      if (coverage[i] >= 0.5) {
-        depth[i] = Profile.SPHERE_LOCAL.depth(distance[i], thickness[i], largest);
-      }
-    }
-    return turntable(build(coverage, depth, width, height, true), fields, label);
+    Fields its = new Fields(fields.scaled(), coverage, distance, thickness, largest, width, height,
+        fields.factor(), fields.detail(), fields.fromDetail(), fields.detailAmount());
+    return turntable(build(its, options, Profile.SPHERE_LOCAL), fields, label);
   }
 
   /**
@@ -1028,18 +1031,126 @@ public class SpriteInflate {
    * no case table - so the silhouette follows the same half-coverage line the outline does,
    * rather than the edges of whole pixels. That is the step that keeps the smoothing.
    */
-  private static List<double[]> build(double[] coverage, double[] depth, int width, int height,
-                                      boolean mirrored) {
+  /**
+   * The solid, with the cells the outline runs through cut finer than the rest.
+   * <p>
+   * This is what rounds the seam, and the reason the first attempt at rounding it did not. The
+   * surface really is blunt at the outline - with the sphere profile the section there has a
+   * vertical tangent, a hundred and eighty degrees of turn - but the mesh joined the rim straight
+   * to the first sample half a pixel in, by which point the surface has already risen three
+   * units. That chord cuts the corner off: the two sides meet at eighteen degrees, a knife, and
+   * no amount of shading hides it.
+   * <p>
+   * The first attempt limited how fast the surface could rise instead. That widens the band and
+   * makes it FLATTER - it replaces a badly drawn round edge with a well drawn sharp one, which is
+   * exactly what it looked like: a wider rim with the mid-plane still showing along it.
+   * <p>
+   * What was missing was samples. Each cell the outline crosses is divided {@code rimSamples}
+   * times each way, and - this is the part that matters - the DISTANCE is what gets interpolated
+   * across the cell, with the profile applied afterwards. Interpolating the depth instead would
+   * hand back the same straight chords at four times the cost; interpolating the distance and
+   * then taking its square root reconstructs the curve between the samples.
+   */
+  private static List<double[]> build(Fields fields, Options options, Profile profile) {
+    int width = fields.width(), height = fields.height();
+    double[] coverage = fields.coverage();
     List<double[]> triangles = new ArrayList<>();
+    int fine = Math.max(1, options.rimSamples());
     for (int y = 0; y + 1 < height; y++) {
       for (int x = 0; x + 1 < width; x++) {
-        double[][] square = {
-            {x, y, coverage[y * width + x], depth[y * width + x]},
-            {x + 1, y, coverage[y * width + x + 1], depth[y * width + x + 1]},
-            {x + 1, y + 1, coverage[(y + 1) * width + x + 1], depth[(y + 1) * width + x + 1]},
-            {x, y + 1, coverage[(y + 1) * width + x], depth[(y + 1) * width + x]}};
-        List<double[]> inside = clip(square);
-        if (inside.size() < 3) continue;
+        if (crossed(coverage, width, height, x, y)) {
+          double span = 1.0 / fine;
+          for (int sy = 0; sy < fine; sy++) {
+            for (int sx = 0; sx < fine; sx++) {
+              double left = x + sx * span, top = y + sy * span;
+              emit(triangles, clip(new double[][]{
+                  corner(fields, options, profile, left, top),
+                  corner(fields, options, profile, left + span, top),
+                  corner(fields, options, profile, left + span, top + span),
+                  corner(fields, options, profile, left, top + span)}), options.mirrored());
+            }
+          }
+        } else {
+          emit(triangles, clip(coarse(fields, options, profile, x, y, fine)),
+              options.mirrored());
+        }
+      }
+    }
+    return triangles;
+  }
+
+  /** Whether the outline runs through this cell, which is the only reason to cut one finer. */
+  private static boolean crossed(double[] coverage, int width, int height, int x, int y) {
+    boolean in = coverage[y * width + x] >= 0.5;
+    return in != (coverage[y * width + x + 1] >= 0.5)
+        || in != (coverage[(y + 1) * width + x] >= 0.5)
+        || in != (coverage[(y + 1) * width + x + 1] >= 0.5);
+  }
+
+  /**
+   * A whole cell, with any side it shares with a finer neighbour cut to match.
+   * <p>
+   * Without this the mesh comes apart along the boundary between the two sizes. The fine side of
+   * such a side has vertices part way along it, sitting on the curve; the coarse side has a
+   * single straight edge from corner to corner, and the curve does not lie on that chord. The
+   * result is a seam of cracks all the way round the figure - three thousand three hundred edges
+   * with nothing on the other side of them, where a closed solid has none. Walking the cell's
+   * four sides and putting the same intermediate points on the ones that need them costs almost
+   * nothing and closes it again.
+   */
+  private static double[][] coarse(Fields fields, Options options, Profile profile, int x, int y,
+                                   int fine) {
+    double[] coverage = fields.coverage();
+    int width = fields.width(), height = fields.height();
+    int[][] sides = {{0, 0, 1, 0, 0, -1}, {1, 0, 1, 1, 1, 0}, {1, 1, 0, 1, 0, 1}, {0, 1, 0, 0, -1, 0}};
+    List<double[]> walk = new ArrayList<>();
+    for (int[] side : sides) {
+      double fromX = x + side[0], fromY = y + side[1], toX = x + side[2], toY = y + side[3];
+      walk.add(corner(fields, options, profile, fromX, fromY));
+      int nx = x + side[4], ny = y + side[5];
+      boolean finer = nx >= 0 && ny >= 0 && nx + 1 < width && ny + 1 < height
+          && crossed(coverage, width, height, nx, ny);
+      if (finer) {
+        for (int i = 1; i < fine; i++) {
+          double t = (double) i / fine;
+          walk.add(corner(fields, options, profile, fromX + t * (toX - fromX),
+              fromY + t * (toY - fromY)));
+        }
+      }
+    }
+    return walk.toArray(new double[0][]);
+  }
+
+  /** One corner of a sub-cell: where it is, how covered, and how deep the profile makes it. */
+  private static double[] corner(Fields fields, Options options, Profile profile, double x,
+                                 double y) {
+    double distance = between(fields.distance(), fields.width(), fields.height(), x, y);
+    double thickness = between(fields.thickness(), fields.width(), fields.height(), x, y);
+    double depth = profile.depth(distance, Math.max(thickness, distance), fields.largest())
+        * options.depth();
+    double reach = Math.max(1e-6, options.dentReach() * fields.factor());
+    double away = between(fields.fromDetail(), fields.width(), fields.height(), x, y) / reach;
+    depth *= Math.max(0, 1 - options.dentDepth() * Math.exp(-away * away));
+    return new double[]{x, y, between(fields.coverage(), fields.width(), fields.height(), x, y),
+        depth};
+  }
+
+  /** A field read between its samples, which is what lets the rim be cut finer than the grid. */
+  private static double between(double[] field, int width, int height, double x, double y) {
+    double clampedX = Math.max(0, Math.min(width - 1.0001, x));
+    double clampedY = Math.max(0, Math.min(height - 1.0001, y));
+    int x0 = (int) clampedX, y0 = (int) clampedY;
+    double fx = clampedX - x0, fy = clampedY - y0;
+    double top = field[y0 * width + x0] * (1 - fx) + field[y0 * width + x0 + 1] * fx;
+    double bottom = field[(y0 + 1) * width + x0] * (1 - fx)
+        + field[(y0 + 1) * width + x0 + 1] * fx;
+    return top * (1 - fy) + bottom * fy;
+  }
+
+  private static void emit(List<double[]> triangles, List<double[]> inside, boolean mirrored) {
+    {
+      {
+        if (inside.size() < 3) return;
         for (int i = 1; i + 1 < inside.size(); i++) {
           double[] a = inside.get(0), b = inside.get(i), c = inside.get(i + 1);
           // Mirrored: the same bulge forwards as backwards, so the section is a whole ellipse and
@@ -1052,7 +1163,6 @@ public class SpriteInflate {
         }
       }
     }
-    return triangles;
   }
 
   /** The part of a cell that is covered, cut where the coverage crosses a half. */

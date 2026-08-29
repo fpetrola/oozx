@@ -158,6 +158,27 @@ Cuidado con la otra métrica que imprime `main`, el desacuerdo entre caras vecin
 piso es el zig-zag de la triangulación en grilla, que no se va con ningún suavizado, y estaba
 tapando la mejora real.
 
+## La unión de adelante con atrás, en serio
+
+Primero lo intenté **limitando la pendiente** cerca del borde. Está mal y se nota: eso no
+redondea, cambia un canto romo mal muestreado por una **cuña recta**, que es más ancha y más
+plana. Se ve exactamente como "se ensancha pero sigue viéndose el plano Z=0".
+
+La causa real es que la superficie ahí ya es roma —tangente vertical, media vuelta— pero la malla
+la cortaba con **una sola cuerda** desde el borde hasta la primera muestra, que está a medio píxel
+y ya subió a 3.05. Esa cuerda deja un ángulo de 18°: un filo.
+
+Lo segundo que intenté fue **subdividir las celdas del contorno** e interpolar la distancia
+aplicando el perfil después. Eso obligó a coser las junturas en T (una celda fina contra una
+gruesa deja 3300 aristas abiertas si no se hace), y una vez cosido cierra bien — pero **queda
+peor**: aparece un peine de estrías. La subdivisión no inventa información; expone la escalera del
+campo de distancia, que está cuantizado a ±0.5 px porque sale de un umbral binario, y como xBRZ
+deja los bordes duros ahí no hay dato subpíxel que recuperar. La perilla quedó en 1 y el código lo
+explica.
+
+Lo que **sí** funciona es el suavizado de malla, que redistribuye vértices en vez de muestrear más
+fino. Contorno del render: 12.14 sin suavizar, 11.17 a 20 pasadas, 11.05 a 60, y sin peine.
+
 ## Verificación
 
 `writeObj` cuenta las aristas usadas por una sola cara. Un sólido cerrado tiene **cero**, y eso es
