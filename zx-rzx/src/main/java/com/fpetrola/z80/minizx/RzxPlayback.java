@@ -35,7 +35,9 @@ import com.fpetrola.z80.registers.Register;
  * either side of every step. R is observable, but its increment writes the field directly and
  * never tells a listener, so listening to it counts nothing; taking the difference is exact
  * either way, and needs nothing installed into the machine. Two is as much as one step can add,
- * for a prefixed opcode, so the seven-bit wrap is never ambiguous.
+ * for a prefixed opcode, so the seven-bit wrap is never ambiguous - and a difference above two
+ * is not a count at all but LD R,A having written the register, which {@link #step()} says more
+ * about.
  * <p>
  * It knows nothing about any particular machine: give it a processor, the port that plays the
  * recorded input back, and the recording.
@@ -148,7 +150,18 @@ public class RzxPlayback {
     cpu.execute();
     instructions++;
     int now = registerR.read() & 0x7F;
-    fetchCounter += (now - previousR) & 0x7F;
+    int stepped = (now - previousR) & 0x7F;
+    // ONE INSTRUCTION WRITES R RATHER THAN BUMPING IT: LD R,A, and after it R is whatever A
+    // held, so the difference across that step is not a count of anything. Left alone it went
+    // into the frame's budget as fetches that never happened - measured at 25 for a single step
+    // - and the frame was then cut early by that much. A tight polling loop shows it plainly:
+    // Ping Pong waits on IN A,($FE) at five fetches a turn and came up 21 turns short of the
+    // 1011 the recording holds, which is those fetches to within one turn.
+    //
+    // Nothing else can add more than two, so more than two means R was written, and LD R,A is
+    // two fetches. It can still land within two of where R was - three values out of 128 - and
+    // then this counts one or two instead; that is the whole of what is left of it.
+    fetchCounter += stepped > 2 ? 2 : stepped;
     previousR = now;
   }
 
