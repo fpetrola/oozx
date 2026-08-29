@@ -131,8 +131,15 @@ public class MockEmulatorCore implements EmulatorCore {
     }
     // Here rather than in the toolbar, because the panel is this core's to hand out: whoever
     // presses the button knows it wants a border, not which component draws one.
-    if (option.equals("border") && contentPane instanceof com.fpetrola.oozx.speccy.SpeccyScreen screen) {
-      screen.setBorderVisible((Boolean) value);
+    if (contentPane instanceof com.fpetrola.oozx.speccy.SpeccyScreen screen) {
+      switch (option) {
+        case "border" -> screen.setBorderVisible((Boolean) value);
+        case "tv" -> screen.setTvScreen(com.fpetrola.oozx.speccy.TvScreen.byName(String.valueOf(value)));
+        case "scanlines" -> screen.setScanLines((Boolean) value);
+        // null is a real answer here and means what it has always meant: decide by the scale.
+        case "smoothing" -> screen.setSmoothing((Boolean) value);
+        default -> { }
+      }
     }
   }
 
