@@ -1521,8 +1521,13 @@ public class ZXSpectrumDesktopApp extends JFrame {
         // Straight back through the paths the application already uses, so a favourite opens
         // exactly the way it opened the first time.
         if (favorite.isRecording()) {
-          playRecording(new RzxOption(favorite.getTitle(), favorite.getSource()),
-              favorite.getEntry());
+          // Fetching wants something it can open as a URL, and a favourite made from a file on
+          // the disk kept a plain path because that is what is worth reading in the list.
+          String from = favorite.getSource();
+          if (!from.startsWith("http") && !from.startsWith("file:")) {
+            from = new java.io.File(from).toURI().toString();
+          }
+          playRecording(new RzxOption(favorite.getTitle(), from), favorite.getEntry());
         } else {
           loadInNewEmulator(favorite.getSource());
         }
@@ -1786,7 +1791,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
       protected void done() {
         try {
           java.io.File part = get();
-          player.setSource(option.url(), part.getName());
+          player.setPendingSource(option.url(), part.getName());
           player.openRecording(part);
         } catch (Exception e) {
           player.setBusy(null);
@@ -1893,7 +1898,15 @@ public class ZXSpectrumDesktopApp extends JFrame {
             "Open recording", JOptionPane.ERROR_MESSAGE);
         return null;
       }
-      return choosePart(new RzxOption(chosen.getName(), chosen.toURI().toString()), parts, null).toFile();
+      java.io.File part =
+          choosePart(new RzxOption(chosen.getName(), chosen.toURI().toString()), parts, null).toFile();
+      // The unpacked entry lives in a temporary directory that will not be there tomorrow. What
+      // lasts is the zip the person picked plus which recording inside it this was, so a
+      // favourite made from here can unpack the same one again.
+      if (rzxPlayer != null) {
+        rzxPlayer.setPendingSource(chosen.getAbsolutePath(), part.getName());
+      }
+      return part;
     } catch (Exception e) {
       JOptionPane.showMessageDialog(this,
           "Could not open " + chosen.getName() + ".\n\n" + reason(e),

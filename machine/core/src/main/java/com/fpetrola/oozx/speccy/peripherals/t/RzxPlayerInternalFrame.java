@@ -68,6 +68,8 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   private String sourceUrl;
   /** Which file inside the archive it was, when the source was a zip. */
   private String sourceEntry;
+  private String pendingUrl;
+  private String pendingEntry;
   private Runnable onFavorite;
   private RzxSession session;
   private volatile Mode mode = Mode.EMPTY;
@@ -168,14 +170,19 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
     this.onFavorite = onFavorite;
   }
 
-  /** Remembers what was fetched, so the same file can be found again inside the same archive. */
-  public void setSource(String url, String entry) {
-    this.sourceUrl = url;
-    this.sourceEntry = entry;
+  /**
+   * Where the recording about to be opened really came from, for whoever knows more than the
+   * file does. A recording out of an archive — fetched or picked off the disk — is unpacked
+   * into a temporary directory, so the file being played is not somewhere worth remembering:
+   * what lasts is the archive it came out of and which entry it was.
+   */
+  public void setPendingSource(String url, String entry) {
+    this.pendingUrl = url;
+    this.pendingEntry = entry;
   }
 
   public String getSourceUrl() {
-    return sourceUrl != null ? sourceUrl : (file == null ? null : file.getAbsolutePath());
+    return sourceUrl;
   }
 
   public String getSourceEntry() {
@@ -189,6 +196,12 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   public void openRecording(File recording) {
     stopThread();
     file = recording;
+    // Taken once and cleared, so a recording opened after another does not inherit where the
+    // previous one came from. With nothing pending, a plain file is its own lasting source.
+    sourceUrl = pendingUrl != null ? pendingUrl : recording.getAbsolutePath();
+    sourceEntry = pendingEntry;
+    pendingUrl = null;
+    pendingEntry = null;
     // Reading a recording happens on the event thread, and a long one can take a noticeable
     // while, during which the window would otherwise look like it had ignored the file.
     setBusy("Opening " + recording.getName() + "...");
