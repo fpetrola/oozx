@@ -328,9 +328,31 @@ public class Z80 implements ZxModule, Cpu {
       return;
     }
     loadSnap(snapshot);
-    // The file says how far into a frame the machine was; the state the loaders build does not
-    // carry it, so it is read separately, as it always was.
-    ooz80.getState().clock.setTStates(Z80Loader.getTstates(LibSpectrum.INSTANCE, url));
+    ooz80.getState().clock.setTStates(tStatesOf(url, snapshot));
+  }
+
+  /**
+   * How far into a frame the machine was when the snapshot was taken.
+   * <p>
+   * Only a .z80 needs asking twice: its loader here ends by zeroing the count, so the number is
+   * recovered by handing the file to libspectrum. Every other format keeps what it read, and
+   * handing one of those to the same call was asking libspectrum to read an SZX as a .z80 - the
+   * format is named in the call and it was named Z80 whatever the file was. It answered with
+   * error 4 and the whole load failed on it, which is how Beach Head II came to be a recording
+   * that would not open at all.
+   * <p>
+   * A probe that fails is not worth failing a load over either: being a frame's worth of
+   * T-states out is a cosmetic matter next to not running.
+   */
+  private int tStatesOf(String url, SpectrumState snapshot) {
+    if (!url.toLowerCase().endsWith(".z80")) {
+      return snapshot.getTstates();
+    }
+    try {
+      return Z80Loader.getTstates(LibSpectrum.INSTANCE, url);
+    } catch (RuntimeException e) {
+      return snapshot.getTstates();
+    }
   }
 
   /**

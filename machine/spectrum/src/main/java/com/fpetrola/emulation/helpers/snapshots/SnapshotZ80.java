@@ -389,6 +389,12 @@ public class SnapshotZ80 implements SnapshotFile {
               spectrum.setSpectrumModel(MachineTypes.SPECTRUMPLUS3);
             }
             break;
+          // A Pentagon is a 128K clone: same banks, same paging port, same ROMs. What differs is
+          // the timing - a longer frame and no contention - and a snapshot of one carries state
+          // this can hold. Read as a 128K it runs; refused, as it was, it does not run at all.
+          case 9: // Pentagon
+            spectrum.setSpectrumModel(MachineTypes.SPECTRUM128K);
+            break;
           case 12: // +2
             spectrum.setSpectrumModel(MachineTypes.SPECTRUMPLUS2);
             break;
@@ -448,6 +454,12 @@ public class SnapshotZ80 implements SnapshotFile {
             } else {
               spectrum.setSpectrumModel(MachineTypes.SPECTRUMPLUS3);
             }
+            break;
+          // A Pentagon is a 128K clone: same banks, same paging port, same ROMs. What differs is
+          // the timing - a longer frame and no contention - and a snapshot of one carries state
+          // this can hold. Read as a 128K it runs; refused, as it was, it does not run at all.
+          case 9: // Pentagon
+            spectrum.setSpectrumModel(MachineTypes.SPECTRUM128K);
             break;
           case 12: // +2
             spectrum.setSpectrumModel(MachineTypes.SPECTRUMPLUS2);
