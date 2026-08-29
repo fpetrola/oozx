@@ -283,6 +283,19 @@ class EmulatorInternalFrame extends JInternalFrame {
     }
   }
 
+  /**
+   * Trims the padding a button keeps around its icon. Shrinking the icon alone leaves the
+   * button the size it was, since most of a toolbar button is margin.
+   */
+  static void tighten(JToolBar toolBar) {
+    for (Component component : toolBar.getComponents()) {
+      if (component instanceof AbstractButton button) {
+        button.setMargin(new Insets(2, 3, 2, 3));
+        button.setFocusPainted(false);
+      }
+    }
+  }
+
   private JToolBar createToolBar() {
     JToolBar toolBar = new JToolBar();
     toolBar.setFloatable(false);
@@ -422,11 +435,15 @@ class EmulatorInternalFrame extends JInternalFrame {
     });
     toolBar.add(changeSize);
 
+    tighten(toolBar);
     return toolBar;
   }
 
+  /** Every toolbar in the application draws its icons at this size. */
+  public static final int TOOLBAR_ICON_SIZE = 17;
+
   public static ImageIcon loadIcon(String iconFile) {
-    int size = 24;
+    int size = TOOLBAR_ICON_SIZE;
     ImageIcon turboIcon = SvgIconLoader.loadSvgAsImageIcon("/icons/" + iconFile, size, size);
     return turboIcon;
   }
@@ -1350,6 +1367,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     settingsBtn.addActionListener(e -> openSettings());
     toolBar.add(settingsBtn);
 
+    EmulatorInternalFrame.tighten(toolBar);
     return toolBar;
   }
 
