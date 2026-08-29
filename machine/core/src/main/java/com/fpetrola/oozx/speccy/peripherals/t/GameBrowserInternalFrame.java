@@ -102,7 +102,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
 
     add(topPanel, BorderLayout.NORTH);
 
-    resultsPanel = new JPanel();
+    resultsPanel = new ResultsPanel();
     resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
     Color color = UIManager.getColor("Panel.background");
     resultsPanel.setBackground(color);
@@ -469,7 +469,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
   private JPanel createGameRow(GameSearchResult result) {
     JPanel row = new JPanel();
     Color color = UIManager.getColor("List.background");
-    row.setLayout(new BoxLayout(row, BoxLayout.X_AXIS));
+    row.setLayout(new BoxLayout(row, BoxLayout.Y_AXIS));
     row.setBorder(BorderFactory.createCompoundBorder(
         BorderFactory.createLineBorder(Color.LIGHT_GRAY),
         BorderFactory.createEmptyBorder(5, 5, 5, 5)
@@ -488,12 +488,8 @@ public class GameBrowserInternalFrame extends JInternalFrame {
 
     row.setBackground(color);
 
-    JLabel imgLabel1 = new JLabel();
-    loadLazyImage(imgLabel1, result.screenshot1, l);
-    imgLabel1.setAlignmentY(Component.TOP_ALIGNMENT);
-    JLabel imgLabel2 = new JLabel();
-    loadLazyImage(imgLabel2, result.screenshot2, l);
-    imgLabel2.setAlignmentY(Component.TOP_ALIGNMENT);
+    ScreenshotPair shots = new ScreenshotPair(result.screenshot1, result.screenshot2, l);
+    shots.setAlignmentX(Component.LEFT_ALIGNMENT);
 
     // Context menu
     JPopupMenu contextMenu = new JPopupMenu();
@@ -539,8 +535,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
       }
     };
 
-    imgLabel1.addMouseListener(mouseAdapter);
-    imgLabel2.addMouseListener(mouseAdapter);
+    shots.addMouseListener(mouseAdapter);
 
     loadItem.addActionListener(e -> startLoading(result));
     detailsItem.addActionListener(e -> listener.onViewDetails(result));
@@ -549,16 +544,6 @@ public class GameBrowserInternalFrame extends JInternalFrame {
 
     // The two screenshots already fill the width, so the caption goes above them rather than
     // beside, where it fell outside the viewport and the horizontal scrollbar is disabled.
-    JPanel shots = new JPanel();
-    shots.setLayout(new BoxLayout(shots, BoxLayout.X_AXIS));
-    shots.setOpaque(false);
-    shots.setAlignmentX(Component.LEFT_ALIGNMENT);
-    shots.add(imgLabel1);
-    shots.add(Box.createHorizontalStrut(10));
-    shots.add(imgLabel2);
-    shots.add(Box.createHorizontalGlue());
-
-    row.setLayout(new BoxLayout(row, BoxLayout.Y_AXIS));
     row.add(createRowCaption(result));
     row.add(Box.createVerticalStrut(4));
     row.add(shots);
@@ -598,6 +583,37 @@ public class GameBrowserInternalFrame extends JInternalFrame {
 
     caption.add(Box.createHorizontalGlue());
     return caption;
+  }
+
+  /**
+   * The list of results, sized to the viewport rather than to itself.
+   * <p>
+   * A plain panel in a scroll pane keeps its own preferred width, and with the horizontal
+   * scrollbar disabled the extra room simply went unused: the window grew and the rows did not.
+   * Tracking the viewport is what passes the new width down to the rows, and from them to the
+   * screenshots.
+   */
+  private static class ResultsPanel extends JPanel implements Scrollable {
+
+    public Dimension getPreferredScrollableViewportSize() {
+      return getPreferredSize();
+    }
+
+    public int getScrollableUnitIncrement(Rectangle visible, int orientation, int direction) {
+      return 16;
+    }
+
+    public int getScrollableBlockIncrement(Rectangle visible, int orientation, int direction) {
+      return visible.height;
+    }
+
+    public boolean getScrollableTracksViewportWidth() {
+      return true;
+    }
+
+    public boolean getScrollableTracksViewportHeight() {
+      return false;
+    }
   }
 
   private void loadLazyImage(JLabel imgLabel1, String screenshot1, MouseAdapter mouseAdapter) {
