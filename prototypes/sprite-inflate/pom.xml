@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Deliberately NOT a module of the project above. It is a prototype: it is built and run on its
+  own, it is meant to be lifted out into the 3D viewer, and nothing in the emulator depends on
+  it. Adding it to the reactor would tie the emulator's build to libGDX for no reason.
+
+  It does depend on the emulator, for one thing only: Grab pulls a real sprite out of a running
+  game rather than someone drawing one by hand. Build the project above first (mvn install) or
+  that dependency will not resolve.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.fpetrola.proto</groupId>
+  <artifactId>sprite-inflate</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <properties>
+    <maven.compiler.release>17</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <gdx.version>1.12.1</gdx.version>
+    <!-- A default that -Dexec.mainClass can still override; naming the class directly in the
+         plugin's configuration instead makes the POM win and the command line be ignored. -->
+    <exec.mainClass>com.fpetrola.oozx.proto.inflate.SpriteInflate</exec.mainClass>
+  </properties>
+
+  <dependencies>
+    <!--
+      The scaler. GPL-3 with a linking exception - see the NOTICE at the root of the project.
+      Worth knowing before any of this is carried into something with another licence.
+    -->
+    <dependency>
+      <groupId>io.github.stanio</groupId>
+      <artifactId>xbrz-core</artifactId>
+      <version>1.8.2</version>
+    </dependency>
+
+    <!-- Only Grab needs this: it plays a recording and reads the screen out of the machine. -->
+    <dependency>
+      <groupId>com.fpetrola</groupId>
+      <artifactId>core</artifactId>
+      <version>0.0.2-alu-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.badlogicgames.gdx</groupId>
+      <artifactId>gdx</artifactId>
+      <version>${gdx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.badlogicgames.gdx</groupId>
+      <artifactId>gdx-backend-lwjgl3</artifactId>
+      <version>${gdx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.badlogicgames.gdx</groupId>
+      <artifactId>gdx-platform</artifactId>
+      <version>${gdx.version}</version>
+      <classifier>natives-desktop</classifier>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Pinned: the version the project above happens to carry defaults to Java 5. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.6.3</version>
+        <configuration>
+          <mainClass>${exec.mainClass}</mainClass>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
