@@ -141,7 +141,7 @@ public class SpriteInflate {
 
     BufferedImage sprite = args.length > 0 ? ImageIO.read(new File(args[0])) : sample();
     System.out.printf("sprite: %dx%d%n", sprite.getWidth(), sprite.getHeight());
-    sprite = padded(sprite, 2);
+    sprite = padded(sprite, 2, true);
 
     // "4", or "4x2" for eight times in two passes: xBRZ itself refuses anything but two to six.
     int[] passes = passes(args.length > 2 ? args[2] : "4");
@@ -158,7 +158,7 @@ public class SpriteInflate {
 
     int width = big.getWidth(), height = big.getHeight();
     double[] coverage = coverageOf(big);
-    fillSmallHoles(coverage, width, height, 2.0 * factor);
+    fillSmallHoles(coverage, width, height, 2.0 * factor, true);
 
     // Where the outline really is. Taken from the blend rather than from a threshold, which is
     // the whole reason for scaling first.
@@ -261,6 +261,50 @@ public class SpriteInflate {
     System.out.printf("  a true circle would be   %.3f%n", 2 * Math.sqrt(Math.PI));
 
     System.out.println("written to " + out.toAbsolutePath());
+  }
+
+  /** Everything the shape of a sprite decides, before any one profile is chosen. */
+  record Fields(BufferedImage scaled, double[] coverage, double[] distance, double[] thickness,
+                double largest, int width, int height) {
+  }
+
+  /**
+   * The whole of the measuring, for a caller that wants a solid and not a directory of files.
+   * <p>
+   * It is the same code the pictures come from, called quietly. Fast enough to run while someone
+   * is holding a key down: everything here is linear in the pixels except the local thickness,
+   * which is quadratic and still nothing at a sprite's size.
+   */
+  static Fields measure(BufferedImage sprite, int[] passes) {
+    BufferedImage big = padded(sprite, 2, false);
+    int factor = 1;
+    for (int pass : passes) {
+      big = xbrz(big, pass);
+      factor *= pass;
+    }
+    int width = big.getWidth(), height = big.getHeight();
+    double[] coverage = coverageOf(big);
+    fillSmallHoles(coverage, width, height, 2.0 * factor, false);
+    double[] distance = distanceInside(coverage, width, height);
+    double[] thickness = localThickness(distance, width, height);
+    soften(thickness, coverage, width, height, 3);
+    double largest = 0;
+    for (int i = 0; i < thickness.length; i++) {
+      thickness[i] = Math.max(thickness[i], distance[i]);
+      largest = Math.max(largest, distance[i]);
+    }
+    return new Fields(big, coverage, distance, thickness, largest, width, height);
+  }
+
+  /** A sprite as a closed solid, ready to be handed to a renderer. */
+  static List<double[]> inflate(Fields fields, Profile profile) {
+    double[] depth = new double[fields.width() * fields.height()];
+    for (int i = 0; i < depth.length; i++) {
+      if (fields.coverage()[i] >= 0.5) {
+        depth[i] = profile.depth(fields.distance()[i], fields.thickness()[i], fields.largest());
+      }
+    }
+    return build(fields.coverage(), depth, fields.width(), fields.height());
   }
 
   /** One silhouette, inflated the good way, for comparing outlines against each other. */
@@ -369,7 +413,7 @@ public class SpriteInflate {
     return passes;
   }
 
-  private static BufferedImage padded(BufferedImage source, int margin) {
+  private static BufferedImage padded(BufferedImage source, int margin, boolean talk) {
     boolean touches = false;
     for (int x = 0; x < source.getWidth(); x++) {
       touches |= (source.getRGB(x, 0) >>> 24) >= 128
@@ -379,9 +423,11 @@ public class SpriteInflate {
       touches |= (source.getRGB(0, y) >>> 24) >= 128
           || (source.getRGB(source.getWidth() - 1, y) >>> 24) >= 128;
     }
-    System.out.println(touches
-        ? "the sprite runs off the edge of its cell, so a margin is added to close the solid"
-        : "the sprite stands clear of its cell, but a margin is added anyway");
+    if (talk) {
+      System.out.println(touches
+          ? "the sprite runs off the edge of its cell, so a margin is added to close the solid"
+          : "the sprite stands clear of its cell, but a margin is added anyway");
+    }
     BufferedImage out = new BufferedImage(source.getWidth() + margin * 2,
         source.getHeight() + margin * 2, BufferedImage.TYPE_INT_ARGB);
     java.awt.Graphics2D pen = out.createGraphics();
@@ -438,7 +484,8 @@ public class SpriteInflate {
    *
    * @param across how wide a hole may be, in scaled pixels, and still be called detail
    */
-  private static void fillSmallHoles(double[] coverage, int width, int height, double across) {
+  private static void fillSmallHoles(double[] coverage, int width, int height, double across,
+                                     boolean talk) {
     double limit = across * across;
     boolean[] seen = new boolean[width * height];
     java.util.ArrayDeque<Integer> queue = new java.util.ArrayDeque<>();
@@ -476,11 +523,11 @@ public class SpriteInflate {
           for (int one : hole) {
             coverage[one] = 1;
           }
-          System.out.printf("filled a hole of %d px (limit %.0f), which is detail, not shape%n",
-              hole.size(), limit);
-        } else {
-          System.out.printf("kept a hole of %d px (limit %.0f), which is shape%n",
-              hole.size(), limit);
+        }
+        if (talk) {
+          System.out.printf("%s a hole of %d px (limit %.0f), which is %s%n",
+              hole.size() <= limit ? "filled" : "kept", hole.size(), limit,
+              hole.size() <= limit ? "detail, not shape" : "shape");
         }
       }
     }
@@ -750,7 +797,7 @@ public class SpriteInflate {
    * print differently, so the rim of the figure went unwelded and the solid was open along its
    * entire outline: six hundred and seventy-six edges with nothing on the other side.
    */
-  private static String key(double x, double y, double z) {
+  static String key(double x, double y, double z) {
     return String.format("%.4f/%.4f/%.4f", x == 0 ? 0 : x, y == 0 ? 0 : y, z == 0 ? 0 : z);
   }
 
@@ -767,7 +814,7 @@ public class SpriteInflate {
    * The faces are added unnormalised on purpose: the cross product's length is twice the
    * triangle's area, so a big face has its due weight against a sliver.
    */
-  private static java.util.Map<String, double[]> smoothNormals(List<double[]> triangles) {
+  static java.util.Map<String, double[]> smoothNormals(List<double[]> triangles) {
     java.util.Map<String, double[]> normals = new java.util.HashMap<>();
     for (double[] triangle : triangles) {
       double[] a = {triangle[0], triangle[1], triangle[2]};

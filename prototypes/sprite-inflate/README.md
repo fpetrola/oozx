@@ -21,7 +21,23 @@ mvn -q exec:java -Dexec.args="sprites/willy.png target/out 4"
 # 3. mirarlo, girarlo, comparar perfiles (1-4 cambia, espacio gira, arrastrar orbita)
 mvn -q exec:java -Dexec.mainClass=com.fpetrola.oozx.proto.inflate.InflateViewer \
     -Dexec.args="target/out"
+
+# ...o pasarle una HOJA de sprites y recorrerlos con las flechas, inflando en vivo.
+# Sin argumentos usa sprites/img.png si existe, así que anda con el botón verde del IDE.
+mvn -q exec:java -Dexec.mainClass=com.fpetrola.oozx.proto.inflate.InflateViewer \
+    -Dexec.args="sprites/img.png"
+
+# y para revisar el corte a ojo: escribe cada sprite y una lámina con todos
+mvn -q exec:java -Dexec.mainClass=com.fpetrola.oozx.proto.inflate.SpriteSheet \
+    -Dexec.args="sprites/img.png target/sprites"
 ```
+
+`sprites/img.png` son los 152 guardianes de Jet Set Willy. La grilla no está hardcodeada: se mide
+el color de fondo, se buscan las islas del mismo tamaño (eso descarta el título, cuyas letras
+también son islas pero cada una de un tamaño distinto) y se detecta a cuántas veces está dibujada
+la hoja probando a qué tamaño de bloque todo bloque es de un solo color. Deshacer ese aumento es
+obligatorio: darle a xBRZ píxeles que ya vienen de a pares le hace redondear los pares, o sea
+suavizar el agrandado en lugar del dibujo, y sale peor que no escalar.
 
 ## Qué hace, paso por paso
 
