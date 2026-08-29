@@ -49,6 +49,11 @@ import fuse.tstates.PhaseProcessor;
 import fuse.tstates.phases.AfterMR;
 import fuse.tstates.phases.BeforeWrite;
 import com.fpetrola.emulation.helpers.snapshots.SpectrumState;
+import com.fpetrola.oozx.speccy.machine.Spec128;
+import com.fpetrola.oozx.speccy.machine.Spec48;
+import com.fpetrola.oozx.speccy.machine.SpecPlus2;
+import com.fpetrola.oozx.speccy.machine.SpecPlus2A;
+import com.fpetrola.oozx.speccy.machine.SpecPlus3;
 
 import javax.swing.*;
 import java.awt.event.*;
@@ -318,29 +323,96 @@ public class Z80 implements ZxModule, Cpu {
   }
 
   public void loadSnap(String url) {
-    State state = ooz80.getState();
-
-    RegistersBase registersBase = new RegistersBase(ooz80.getState());
-
-    String first = url; //com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
-    byte[] bytes = SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
-    if (bytes != null) {
-      int tstates = Z80Loader.getTstates(LibSpectrum.INSTANCE, url);
-      state.clock.setTStates(tstates);
-      interruptsEnabledAt = -1;
-
-      updateMemory();
-      display.refreshAll();
+    SpectrumState snapshot = SnapshotLoader.readSnapshot(url);
+    if (snapshot == null) {
+      return;
     }
+    loadSnap(snapshot);
+    // The file says how far into a frame the machine was; the state the loaders build does not
+    // carry it, so it is read separately, as it always was.
+    ooz80.getState().clock.setTStates(Z80Loader.getTstates(LibSpectrum.INSTANCE, url));
   }
 
+  /**
+   * Puts a snapshot into the machine, on the machine it was taken on.
+   * <p>
+   * A snapshot is not just registers and bytes: it names a model, and a 128K one cannot be
+   * poured into a 48K map. It has eight banks where a 48K machine has three, and the game goes
+   * on paging them - writing a bank number to 0x7FFD and carrying on at 0xC000 expecting to find
+   * it there. Flattening banks 5, 2 and 0 into a 48K machine and dropping the rest gets you a
+   * screen that looks right and a game that runs off into whatever the one bank it kept happens
+   * to hold, a few frames later. So the machine is chosen first and the snapshot loaded into it,
+   * bank for bank, with the paging it was saved under put back.
+   */
   public void loadSnap(SpectrumState spectrumState) {
+    selectMachineFor(spectrumState);
+
     State state = ooz80.getState();
-    RegistersBase registersBase = new RegistersBase(ooz80.getState());
-    SnapshotLoader.setupFromSpectrumState(registersBase, state, spectrumState);
+    RegistersBase registersBase = new RegistersBase(state);
+    if (spectrumState.getSpectrumModel().codeModel == com.fpetrola.emulation.helpers.machine.MachineTypes.CodeModel.SPECTRUM48K) {
+      SnapshotLoader.setupFromSpectrumState(registersBase, state, spectrumState);
+    } else {
+      loadPagedRam(spectrumState);
+      SnapshotLoader.setZ80State(registersBase, spectrumState.getZ80State());
+      state.clock.setTStates(spectrumState.getTstates());
+    }
     interruptsEnabledAt = -1;
     updateMemory();
     display.refreshAll();
+  }
+
+  /**
+   * Becomes the machine the snapshot was taken on, if it is not already it.
+   * <p>
+   * Only when it differs: selecting a model resets it, and a 48K snapshot arriving at a machine
+   * that is already a 48K one has nothing to gain from that. Going through the default first is
+   * how a model change is done everywhere else here, so that the new machine starts from a state
+   * that is known rather than from the leftovers of the last one.
+   */
+  private void selectMachineFor(SpectrumState snapshot) {
+    Class<?> wanted = switch (snapshot.getSpectrumModel()) {
+      case SPECTRUM128K -> Spec128.class;
+      case SPECTRUMPLUS2 -> SpecPlus2.class;
+      case SPECTRUMPLUS2A -> SpecPlus2A.class;
+      case SPECTRUMPLUS3 -> SpecPlus3.class;
+      default -> Spec48.class;
+    };
+    if (machine.current != null && machine.current.getClass() == wanted) {
+      return;
+    }
+    machine.getMachineTypes().stream().filter(m -> m.getClass() == wanted).findFirst()
+        .ifPresentOrElse(type -> {
+          machine.selectDefault();
+          machine.select(type);
+        }, () -> userInterface.error(UiError.ERROR,
+            "this build has no %s, so the snapshot is loaded into the machine already running",
+            wanted.getSimpleName()));
+  }
+
+  /**
+   * Copies the snapshot's eight banks into the machine's, then puts back the paging it was saved
+   * under - which is the half that matters, because it decides what the game finds at 0xC000 when
+   * it resumes, and which of the two screens is the one being shown.
+   * <p>
+   * The paging goes back through the machine's own port rather than by mapping pages here, so
+   * that whatever else a model hangs off that port - the ROM it selects, the shadow screen, the
+   * lock bit that a game sets once and relies on - happens the way it does when a game writes it.
+   */
+  private void loadPagedRam(SpectrumState spectrumState) {
+    int[][] ram = memory.getRAM();
+    for (int bank = 0; bank < 8 && bank < ram.length; bank++) {
+      byte[] page = spectrumState.getMemoryState().getPageRam(bank);
+      if (page == null) {
+        continue;
+      }
+      for (int i = 0; i < page.length; i++) {
+        ram[bank][i] = page[i] & 0xff;
+      }
+    }
+    io.out(0x7ffd, spectrumState.getPort7ffd() & 0xff);
+    if (spectrumState.getSpectrumModel().codeModel == com.fpetrola.emulation.helpers.machine.MachineTypes.CodeModel.SPECTRUMPLUS3) {
+      io.out(0x1ffd, spectrumState.getPort1ffd() & 0xff);
+    }
   }
 
   public void start() {

@@ -90,55 +90,16 @@ public class RzxSession {
 
     public void out(int port, int value) {
       player.out(port, value); // it tracks the last value written to 0xFE
-      watchForPaging(port, value);
       if (hardware != null) {
         hardware.out(port, value);
       }
     }
 
-    /**
-     * Notices a recording asking for memory this machine has not got.
-     * <p>
-     * The snapshot inside a recording can be a 128K one and still replay perfectly, because most
-     * games never move a bank: the snapshot's own layout is the 48K one and stays that way. What
-     * cannot replay is a game that PAGES - it writes a bank number to 0x7FFD and carries on
-     * executing at 0xC000 expecting the new bank there. This machine has one 48K map and the
-     * snapshot loader nails banks 5, 2 and 0 into it, so the write changes nothing and the game
-     * runs off into whatever the old bank happens to hold: a few frames later it is data being
-     * executed as code, and a few after that the ROM's reset screen.
-     * <p>
-     * Measured on Rick Dangerous 2, which pages bank 6 in at 0xC000 sixty-two instructions after
-     * the snapshot: without this the window shows a machine sitting on the 1982 copyright line
-     * with nothing to say why. It is a warning and not a refusal because how far a replay gets
-     * varies: Rick Dangerous 1 pages bank 1 and still reaches its menu, though its input is
-     * already out of step with the recording by then (64 frames of 400 consuming exactly what was
-     * recorded). What this cannot do is tell those apart in advance, so it says what it saw.
-     * <p>
-     * It watches what the recording DOES rather than what its snapshot says: plenty of recordings
-     * carry a 128K snapshot whose layout is the 48K one and never move a bank, and those replay
-     * exactly.
-     */
-    private void watchForPaging(int port, int value) {
-      if ((port & 0x8002) != 0) { // 0x7FFD is decoded on A15 low and A1 low
-        return;
-      }
-      if ((value & 0x07) != 0 && unsupported == null) {
-        unsupported = "this recording pages 128K memory (it asked for bank " + (value & 0x07)
-            + " at 0xC000) and this machine maps only banks 5, 2 and 0, so the replay can drift"
-            + " from here on";
-      }
-    }
-
-    /** Set once the recording asks for a bank this machine cannot map; null while it can be replayed. */
-    private volatile String unsupported;
   }
 
-  /**
-   * Why the replay cannot be trusted, or null while it can. Worth showing rather than swallowing:
-   * the machine does not stop, it drifts into the ROM, and that looks like a bug in the player.
-   */
-  public String getUnsupportedReason() {
-    return ports.unsupported;
+  /** The model the recording was made on, which is the one the machine became to replay it. */
+  public String getMachineName() {
+    return speccy.machine.current.getName();
   }
 
   public static RzxSession open(File file) {
@@ -175,11 +136,20 @@ public class RzxSession {
     speccy.z80.bridgeCommand = (command, data) -> null;
     speccy.z80.loadSnap(snapshotFileOf(recording).toAbsolutePath().toString());
 
-    RzxSession session =
-        new RzxSession(recording, speccy, new RzxPlayback(speccy.z80.ooz80, player, recording), ports);
+    // After loadSnap, because that is what decides which machine this is: a 128K frame is 70908
+    // T-states against a 48K one's 69888, and the driver subtracts a frame's worth at every
+    // boundary to keep the clock inside a frame. Handing it the wrong length leaves the clock
+    // drifting by a thousand T-states a frame, which the sound and the display both read.
+    RzxSession session = new RzxSession(recording, speccy,
+        new RzxPlayback(speccy.z80.ooz80, player, recording, framesTStatesOf(speccy)), ports);
     ports.hardware = injector.getInstance(PeripheralIO.class);
     session.timer = injector.getInstance(com.fpetrola.oozx.speccy.modules.Timer.class);
     return session;
+  }
+
+  /** How long a frame is on the machine currently selected. */
+  private static int framesTStatesOf(Speccy speccy) {
+    return speccy.machine.current.getTimings().tstatesPerFrame;
   }
 
   private com.fpetrola.oozx.speccy.modules.Timer timer;
@@ -229,7 +199,7 @@ public class RzxSession {
     // it. Not for the pacing alone: with only one event the queue empties every frame, and an
     // empty queue puts eventNextEvent back to -1 with the same result as below.
     timer.addEvent();
-    speccy.eventManager.eventAdd(RzxPlayback.SPECTRUM_48K_FRAME, speccy.spec48.spectrumFrameEvent);
+    speccy.eventManager.eventAdd(framesTStatesOf(speccy), speccy.machine.current.spectrumFrameEvent);
     // reset leaves eventNextEvent at EVENT_NO_EVENTS, which is 0xffffffff held in a long: -1.
     // Adding an event does not lower it, since nothing is less than -1, so the queue reads as
     // due forever and eventDoEvents takes events that have not come round yet. eventFrame(0)

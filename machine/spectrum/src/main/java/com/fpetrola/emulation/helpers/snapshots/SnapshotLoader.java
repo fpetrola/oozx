@@ -27,6 +27,24 @@ import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulationBase;
 import java.io.File;
 
 public class SnapshotLoader {
+  /**
+   * Reads a snapshot file without applying it, so that a caller can look at what it says about
+   * the machine BEFORE loading it - which model it was taken on above all. The loading path that
+   * flattens everything into a 48K map cannot ask that question, because by the time it has a
+   * state it has already decided the answer.
+   *
+   * @return null for a file no loader recognises
+   */
+  public static SpectrumState readSnapshot(String fileName) {
+    try {
+      File file = new File(fileName);
+      SnapshotFile snapshot = SnapshotFactory.getSnapshot(file);
+      return snapshot == null ? null : snapshot.load(file);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   public static  byte[] setupStateWithSnapshot(RegistersSetter registersSetter, String fileName, State state) {
 
     try {
