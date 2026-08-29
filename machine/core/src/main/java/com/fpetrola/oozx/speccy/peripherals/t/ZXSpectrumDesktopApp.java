@@ -18,6 +18,9 @@
 
 package com.fpetrola.oozx.speccy.peripherals.t;
 
+import java.util.LinkedHashMap;
+import com.fpetrola.oozx.speccy.screen.ScreenSettings;
+import com.fpetrola.oozx.speccy.SpeccyScreen;
 import com.fpetrola.oozx.speccy.TvScreen;
 import com.fpetrola.oozx.api.Hit;
 import com.fpetrola.oozx.api.ZxInfoApiHandler;
@@ -478,6 +481,13 @@ class EmulatorInternalFrame extends JInternalFrame {
     });
     toolBar.add(changeSize);
 
+    JButton screenButton = new JButton(loadIcon("1F39B.svg"));
+    screenButton.setToolTipText("Screen - scaling, television and colour");
+    screenButton.addActionListener(e -> {
+      if (parentApp != null) parentApp.openScreenSettings(emulatorCore, getTitle());
+    });
+    toolBar.add(screenButton);
+
     JButton favoriteButton = new JButton(loadIcon("2B50.svg"));
     favoriteButton.setToolTipText("Keep this game in Favorites");
     favoriteButton.addActionListener(e -> {
@@ -935,6 +945,11 @@ public class ZXSpectrumDesktopApp extends JFrame {
     this.mockCoreState = mockCoreState1;
     this.config = OOZxConfiguration.load();
     applySavedLookAndFeel();
+    // Emulators apply the defaults themselves as they are built, so putting the saved ones in
+    // place here is all it takes for the next window to open configured.
+    if (config.getScreenDefaults() != null && !config.getScreenDefaults().isEmpty()) {
+      ScreenSettings.setDefaults(config.getScreenDefaults());
+    }
     this.pokesManager = new PokesManager();
 
     setTitle("ZX Spectrum Multi-Emulator");
@@ -1336,6 +1351,28 @@ public class ZXSpectrumDesktopApp extends JFrame {
    * The modes come from the enum rather than being listed here, so adding one to the engine puts
    * it in the menu without anybody remembering to.
    */
+  /** The screen knobs of one emulator, in a window of their own. */
+  void openScreenSettings(EmulatorCore core, String machineName) {
+    if (!(core.getPanel() instanceof SpeccyScreen screen)) {
+      JOptionPane.showMessageDialog(this, "This emulator has no adjustable screen.",
+          "Screen", JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+
+    ScreenSettingsInternalFrame window = new ScreenSettingsInternalFrame(machineName,
+        screen.getScreenSettings(), kept -> {
+      config.setScreenDefaults(new LinkedHashMap<>(kept));
+      config.save();
+    });
+    desktop.add(window);
+    window.setVisible(true);
+    window.toFront();
+    try {
+      window.setSelected(true);
+    } catch (java.beans.PropertyVetoException ignored) {
+    }
+  }
+
   private JMenu createTvMenu() {
     JMenu tvMenu = new JMenu("TV");
     ButtonGroup leads = new ButtonGroup();

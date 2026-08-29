@@ -56,6 +56,12 @@ public class OOZxConfiguration {
    * who left Aerial selected and came back to a cropped picture would think the effect broke.
    */
   private boolean showBorder;
+  /**
+   * What a newly opened emulator starts its picture with, by knob key. Kept as plain text so a
+   * file written by another version still opens: an unknown key is ignored and a missing one
+   * leaves that knob alone.
+   */
+  private Map<String, String> screenDefaults = new LinkedHashMap<>();
   private List<WindowState> openWindows = new ArrayList<>();
   private WindowState mainWindowState; // Estado de la ventana principal
   private Map<String, String> snapshots = new HashMap<>(); // Mapa centralizado de snapshots: id -> data
@@ -137,6 +143,14 @@ public class OOZxConfiguration {
 
   public void setLastSaveStateDirectory(String lastSaveStateDirectory) {
     this.lastSaveStateDirectory = lastSaveStateDirectory;
+  }
+
+  public Map<String, String> getScreenDefaults() {
+    return screenDefaults;
+  }
+
+  public void setScreenDefaults(Map<String, String> screenDefaults) {
+    this.screenDefaults = screenDefaults;
   }
 
   public String getTvScreen() {

@@ -132,6 +132,28 @@ public class FavoritesTest {
     assertFalse(back.isShowBorder());
   }
 
+  /**
+   * What a new emulator starts its picture with survives a restart.
+   * <p>
+   * Kept as plain text on purpose: a file written by another version of the screen engine still
+   * opens, an unknown knob is ignored, and a missing one leaves that knob alone. The alternative
+   * — refusing to load a configuration because one effect was renamed — costs everything else in
+   * the file for nothing.
+   */
+  @Test
+  public void whatNewEmulatorsStartWithIsKept() throws Exception {
+    OOZxConfiguration configuration = new OOZxConfiguration();
+    configuration.setScreenDefaults(new java.util.LinkedHashMap<>(java.util.Map.of(
+        "scaler", "Scale2x", "lead", "COMPOSITE", "scanlines", "0.35")));
+
+    OOZxConfiguration back = MAPPER.readValue(MAPPER.writeValueAsString(configuration),
+        OOZxConfiguration.class);
+
+    assertEquals("Scale2x", back.getScreenDefaults().get("scaler"));
+    assertEquals("0.35", back.getScreenDefaults().get("scanlines"));
+    assertEquals(3, back.getScreenDefaults().size());
+  }
+
   /** Favouriting the same thing twice should not list it twice. */
   @Test
   public void theSameSourceIsKeptOnlyOnce() {
