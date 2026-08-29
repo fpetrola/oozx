@@ -20,6 +20,7 @@ package model.tests;
 
 import com.fpetrola.oozx.speccy.screen.Scaler;
 import com.fpetrola.oozx.speccy.screen.ScreenContext;
+import com.fpetrola.oozx.speccy.screen.ScreenProfile;
 import com.fpetrola.oozx.speccy.screen.ScreenSetting;
 import com.fpetrola.oozx.speccy.screen.ScreenSettings;
 import com.fpetrola.oozx.speccy.screen.Scalers;
@@ -35,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** What each scaler promises, and what a window built out of the settings can rely on. */
@@ -185,6 +187,59 @@ class ScreenPipelineTest {
         "an unreadable value for one knob disturbed another");
     assertEquals(String.valueOf(0.0), settings.values().get("scanlines"),
         "an unreadable value should leave its knob at the default");
+  }
+
+  @Test
+  void everyProfileGetsAllTheWayToItsLook() {
+    // A profile that set eight of ten knobs would leave the other two at whatever the window
+    // happened to have, so the same profile would look different depending on what came before.
+    for (ScreenProfile profile : ScreenSettings.profiles()) {
+      ScreenSettings settings = new ScreenSettings();
+      // Somewhere else entirely first, so anything the profile forgets shows up as a leftover.
+      settings.settings().forEach(knob -> {
+        switch (knob.kind()) {
+          case NUMBER -> knob.set(knob.maximum());
+          case SWITCH -> knob.set(true);
+          case CHOICE -> knob.set(knob.options().get(knob.options().size() - 1));
+        }
+      });
+      settings.apply(profile);
+      assertEquals(profile.name(), String.valueOf(settings.currentProfile()),
+          profile.name() + " did not arrive at its own look from somewhere else");
+    }
+  }
+
+  @Test
+  void aWindowChangedAwayFromAProfileStopsClaimingToBeIt() {
+    // Otherwise the combo says "Television" over a picture that is not one, which is worse than
+    // saying nothing: it is the one thing on screen telling you what you are looking at.
+    ScreenSettings settings = new ScreenSettings();
+    ScreenProfile television = ScreenSettings.profiles().stream()
+        .filter(one -> one.name().equals("Television")).findFirst().orElseThrow();
+    settings.apply(television);
+    assertEquals(television, settings.currentProfile());
+
+    settings.settings().stream().filter(knob -> knob.key().equals("scanlines")).findFirst()
+        .orElseThrow().set(0.0);
+    assertNull(settings.currentProfile(), "it still called itself a television with the lines off");
+  }
+
+  @Test
+  void oneWindowsLookCanBeKeptAndPutOnAnother() {
+    ScreenSettings one = new ScreenSettings();
+    one.settings().stream().filter(knob -> knob.key().equals("phosphor")).findFirst()
+        .orElseThrow().set(0.6);
+    ScreenProfile kept = one.keepAs("Mine");
+    try {
+      ScreenSettings other = new ScreenSettings();
+      other.apply(kept);
+      assertEquals("Mine", String.valueOf(other.currentProfile()));
+      assertEquals(one.values(), other.values(), "the look did not travel whole");
+    } finally {
+      ScreenSettings.forget("Mine");
+    }
+    assertTrue(ScreenSettings.profiles().stream().noneMatch(one1 -> one1.name().equals("Mine")),
+        "a forgotten profile is still in the list");
   }
 
   @Test
