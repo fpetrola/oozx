@@ -491,7 +491,11 @@ public class SpriteInflate {
         depth[i] = profile.depth(fields.distance()[i], fields.thickness()[i], fields.largest())
             * options.depth();
         double away = fields.fromDetail()[i] / reach;
-        depth[i] *= 1 - options.dentDepth() * Math.exp(-away * away);
+        // Clamped at nothing: past a dent of one the factor would go negative and the surface
+        // would cross to the other side of itself, which is a hole again by another route. The
+        // range goes past one on purpose - it flattens a wider ring around the detail - but not
+        // past the point where the solid turns inside out.
+        depth[i] *= Math.max(0, 1 - options.dentDepth() * Math.exp(-away * away));
         depth[i] = rolled(depth[i], fields.distance()[i], fields.thickness()[i], options, factor);
       }
     }

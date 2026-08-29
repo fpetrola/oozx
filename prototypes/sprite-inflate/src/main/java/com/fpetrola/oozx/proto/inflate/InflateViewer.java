@@ -355,31 +355,31 @@ public class InflateViewer extends ApplicationAdapter {
     controls.add(scale).height(28).padBottom(10).row();
 
     // Shaping: these reuse what was measured, so dragging one only rebuilds the mesh.
-    slider("depth", 0.1f, 2.5f, 0.05f, (float) options.depth(), "%.2f x", value ->
+    slider("depth", 0.05f, 8f, 0.05f, (float) options.depth(), "%.2f x", value ->
         set(with(options.passes(), value, options.smoothing(), options.dentDepth(),
             options.dentReach(), options.holeAcross(), options.mirrored(), options.rimRoll(), options.relaxing()), false));
-    slider("dent at the detail", 0f, 0.95f, 0.05f, (float) options.dentDepth(), "%.2f", value ->
+    slider("dent at the detail", 0f, 1.5f, 0.05f, (float) options.dentDepth(), "%.2f", value ->
         set(with(options.passes(), options.depth(), options.smoothing(), value,
             options.dentReach(), options.holeAcross(), options.mirrored(), options.rimRoll(), options.relaxing()), false));
-    slider("how wide that dent is", 0.1f, 3f, 0.1f, (float) options.dentReach(), "%.1f px",
+    slider("how wide that dent is", 0.1f, 10f, 0.1f, (float) options.dentReach(), "%.1f px",
         value -> set(with(options.passes(), options.depth(), options.smoothing(),
             options.dentDepth(), value, options.holeAcross(), options.mirrored(), options.rimRoll(), options.relaxing()), false));
 
     // Measuring: these change what is known about the sprite, so the pipeline runs again.
-    slider("smoothing", 0f, 10f, 1f, options.smoothing(), "%.0f passes", value ->
+    slider("smoothing", 0f, 40f, 1f, options.smoothing(), "%.0f passes", value ->
         set(with(options.passes(), options.depth(), (int) value, options.dentDepth(),
             options.dentReach(), options.holeAcross(), options.mirrored(), options.rimRoll(), options.relaxing()), true));
-    slider("a hole is detail up to", 0f, 6f, 0.5f, (float) options.holeAcross(), "%.1f px",
+    slider("a hole is detail up to", 0f, 16f, 0.5f, (float) options.holeAcross(), "%.1f px",
         value -> set(with(options.passes(), options.depth(), options.smoothing(),
             options.dentDepth(), options.dentReach(), value, options.mirrored(), options.rimRoll(), options.relaxing()), true));
 
-    slider("rounding at the seam", 0f, 3f, 0.1f, (float) options.rimRoll(), "%.1f px", value ->
+    slider("rounding at the seam", 0f, 12f, 0.1f, (float) options.rimRoll(), "%.1f px", value ->
         set(with(options.passes(), options.depth(), options.smoothing(), options.dentDepth(),
             options.dentReach(), options.holeAcross(), options.mirrored(), value, options.relaxing()), false));
 
     // Last of all, and the only one that can touch the outline: everything above works on the
     // grid the sawtooth comes from.
-    slider("smoothing the mesh", 0f, 30f, 1f, options.relaxing(), "%.0f passes", value ->
+    slider("smoothing the mesh", 0f, 200f, 1f, options.relaxing(), "%.0f passes", value ->
         set(with(options.passes(), options.depth(), options.smoothing(), options.dentDepth(),
             options.dentReach(), options.holeAcross(), options.mirrored(), options.rimRoll(),
             (int) value), false));
