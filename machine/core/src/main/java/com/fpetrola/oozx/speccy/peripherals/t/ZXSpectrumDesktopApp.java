@@ -1853,18 +1853,53 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private java.io.File chooseRecording() {
     fileChooser.setCurrentDirectory(new java.io.File(config.getLastOpenDirectory()));
     javax.swing.filechooser.FileFilter previous = fileChooser.getFileFilter();
-    javax.swing.filechooser.FileNameExtensionFilter rzx =
-        new javax.swing.filechooser.FileNameExtensionFilter("RZX recordings (*.rzx)", "rzx");
-    fileChooser.addChoosableFileFilter(rzx);
-    fileChooser.setFileFilter(rzx);
+    // Zips as well as recordings: the archive serves a good part of its catalogue that way, and
+    // someone who saved one has a zip on their disk, not a .rzx. Offering only .rzx hid those
+    // files from the dialog, and picking one through All Files handed the zip straight to the
+    // parser, which rightly says it is not a recording it can read.
+    javax.swing.filechooser.FileNameExtensionFilter recordings =
+        new javax.swing.filechooser.FileNameExtensionFilter("Recordings (*.rzx, *.zip)", "rzx", "zip");
+    fileChooser.addChoosableFileFilter(recordings);
+    fileChooser.setFileFilter(recordings);
     int answer = fileChooser.showOpenDialog(this);
-    fileChooser.removeChoosableFileFilter(rzx);
+    fileChooser.removeChoosableFileFilter(recordings);
     fileChooser.setFileFilter(previous);
     if (answer != JFileChooser.APPROVE_OPTION) {
       return null;
     }
     config.setLastOpenDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
-    return fileChooser.getSelectedFile();
+    return openableRecording(fileChooser.getSelectedFile());
+  }
+
+  /**
+   * What to hand the player for a file off the disk: the file itself, or, if it is an archive,
+   * whichever recording inside it the person picked.
+   * <p>
+   * Fetching one from the archive already unpacks and asks; opening the same file from disk did
+   * not, so the two ways of arriving at the same recording did not agree. A zip holding one
+   * recording opens without a question; one holding several asks the same way a download does.
+   */
+  private java.io.File openableRecording(java.io.File chosen) {
+    if (chosen == null || !chosen.getName().toLowerCase().endsWith(".zip")) {
+      return chosen;
+    }
+    try {
+      java.util.List<java.nio.file.Path> parts = DownloadAndUnzip.fetchAll(
+          chosen.toURI().toString(),
+          java.nio.file.Path.of(System.getProperty("java.io.tmpdir"), "rzx-downloads"));
+      if (parts.isEmpty()) {
+        JOptionPane.showMessageDialog(this,
+            "There is nothing playable inside " + chosen.getName() + ".",
+            "Open recording", JOptionPane.ERROR_MESSAGE);
+        return null;
+      }
+      return choosePart(new RzxOption(chosen.getName(), chosen.toURI().toString()), parts, null).toFile();
+    } catch (Exception e) {
+      JOptionPane.showMessageDialog(this,
+          "Could not open " + chosen.getName() + ".\n\n" + reason(e),
+          "Open recording", JOptionPane.ERROR_MESSAGE);
+      return null;
+    }
   }
 
   /**
@@ -1878,7 +1913,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
    * RuntimeException around an IOException, and printing that put three Java class names and a
    * full URL in front of the one sentence that says anything.
    */
-  private static String reason(Throwable failure) {
+  static String reason(Throwable failure) {
     Throwable deepest = failure;
     while (deepest.getCause() != null && deepest.getCause() != deepest) {
       deepest = deepest.getCause();

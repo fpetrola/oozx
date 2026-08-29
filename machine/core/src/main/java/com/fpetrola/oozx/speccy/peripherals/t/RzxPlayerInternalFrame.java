@@ -198,7 +198,8 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
       session = null;
       busy = null;
       mode = Mode.EMPTY;
-      JOptionPane.showMessageDialog(this, "Could not read " + recording.getName() + ": " + e,
+      JOptionPane.showMessageDialog(this,
+          "Could not read " + recording.getName() + ".\n\n" + ZXSpectrumDesktopApp.reason(e),
           "Open recording", JOptionPane.ERROR_MESSAGE);
       return;
     }
@@ -210,6 +211,11 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
     showMachine.accept(session);
     startThread();
     refresh();
+  }
+
+  /** The recording being played: for one out of an archive, the entry that was unpacked. */
+  public File getRecordingFile() {
+    return file;
   }
 
   private void open() {
