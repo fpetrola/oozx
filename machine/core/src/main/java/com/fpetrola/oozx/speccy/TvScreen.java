@@ -72,6 +72,15 @@ public enum TvScreen {
   private final double ringing;
   /** Snow, as the amplitude of the noise added to brightness. */
   private final int snow;
+  /**
+   * The gentle spreads, worked out once here rather than once a scan line.
+   * <p>
+   * Null where a box carries the spread instead. Building the weights per line meant an
+   * allocation and a handful of exponentials for every one of the 236 of them, and cost more
+   * than the filtering: 5.6 ms a frame for the aerial instead of 2.8.
+   */
+  private final double[] lumaWeights;
+  private final double[] chromaWeights;
 
   TvScreen(String label, double lumaSpread, double chromaSpread, double ringing, int snow) {
     this.label = label;
@@ -79,6 +88,26 @@ public enum TvScreen {
     this.chromaSpread = chromaSpread;
     this.ringing = ringing;
     this.snow = snow;
+    this.lumaWeights = weightsFor(lumaSpread);
+    this.chromaWeights = weightsFor(chromaSpread);
+  }
+
+  /** The gaussian for a spread too gentle for a box, or null when a box will carry it. */
+  private static double[] weightsFor(double sigma) {
+    if (sigma <= 0 || sigma >= 1) {
+      return null;
+    }
+    int reach = Math.max(1, (int) Math.ceil(sigma * 3));
+    double[] weights = new double[reach + 1];
+    double total = 0;
+    for (int d = 0; d <= reach; d++) {
+      weights[d] = Math.exp(-(d * d) / (2 * sigma * sigma));
+      total += d == 0 ? weights[d] : weights[d] * 2;
+    }
+    for (int d = 0; d <= reach; d++) {
+      weights[d] /= total;
+    }
+    return weights;
   }
 
   public String label() {
@@ -136,9 +165,9 @@ public enum TvScreen {
         v[x] = 0.877 * (r - luma);
       }
 
-      spread(y, work.pass, width, lumaSpread);
-      spread(u, work.pass, width, chromaSpread);
-      spread(v, work.pass, width, chromaSpread);
+      spread(y, work.pass, width, lumaSpread, lumaWeights);
+      spread(u, work.pass, width, chromaSpread, chromaWeights);
+      spread(v, work.pass, width, chromaSpread, chromaWeights);
       if (ringing > 0) {
         // A tuner overshoots what it could not pass: an edge comes back with a bright lip on one
         // side of it and a dark one on the other.
@@ -148,7 +177,7 @@ public enum TvScreen {
         // the aerial then came out sharper than the composite lead - which is backwards, and is
         // what the first version of this did.
         System.arraycopy(y, 0, sharp, 0, width);
-        spread(sharp, work.pass, width, lumaSpread * 2 + 1);
+        spread(sharp, work.pass, width, lumaSpread * 2 + 1, null);
         for (int x = 0; x < width; x++) {
           y[x] += ringing * (y[x] - sharp[x]) * 2;
         }
@@ -190,26 +219,40 @@ public enum TvScreen {
    * radius - and the radius here is the whole point of the difference between a scart lead and an
    * aerial.
    */
-  private static void spread(double[] values, double[] pass, int width, double radius) {
+  private static void spread(double[] values, double[] pass, int width, double radius,
+                             double[] weights) {
     if (radius <= 0) {
       return;
     }
-    if (radius < 1) {
+    if (weights != null) {
       // A box is a whole pixel wide at least, and the gentle cases - a scart lead, the
-      // brightness down a composite one - want less than that. Three taps carry a fraction.
-      double side = radius / 2, middle = 1 - radius;
-      for (int x = 0; x < width; x++) {
-        pass[x] = side * values[Math.max(0, x - 1)]
-            + middle * values[x]
-            + side * values[Math.min(width - 1, x + 1)];
-      }
-      System.arraycopy(pass, 0, values, 0, width);
+      // brightness down a composite one - want less than that.
+      //
+      // A gaussian and not three taps weighted by the radius, which is what this was: three taps
+      // stop blurring and start INVERTING once the sides pass a quarter each, so asking for more
+      // blur gave less of it and then more again with the sign turned over. On a picture with a
+      // pixel of dither in it - which is most of them - a composite lead came out sharper than a
+      // scart one, and the ordering these are for was gone.
+      gaussian(values, pass, width, weights);
       return;
     }
     int box = (int) Math.round(radius);
     for (int i = 0; i < 3; i++) {
       blur(values, pass, width, box);
     }
+  }
+
+  /** A small explicit gaussian, for the spreads too gentle for a box to carry. */
+  private static void gaussian(double[] values, double[] pass, int width, double[] weights) {
+    int reach = weights.length - 1;
+    for (int x = 0; x < width; x++) {
+      double sum = weights[0] * values[x];
+      for (int d = 1; d <= reach; d++) {
+        sum += weights[d] * (values[Math.max(0, x - d)] + values[Math.min(width - 1, x + d)]);
+      }
+      pass[x] = sum;
+    }
+    System.arraycopy(pass, 0, values, 0, width);
   }
 
   private static void blur(double[] values, double[] pass, int width, int radius) {
