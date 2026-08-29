@@ -130,11 +130,11 @@
   }, {
     "name" : "LdAI",
     "description" : "Load A from I",
-    "md5" : "c9053a95763dbd3bf126927938578ba0"
+    "md5" : "5d95b55d292d3e60ae4f6b31776062d2"
   }, {
     "name" : "LdAR",
     "description" : "Load A from R",
-    "md5" : "0afb82d33493c6663b62b21e2080d550"
+    "md5" : "5d95b55d292d3e60ae4f6b31776062d2"
   }, {
     "name" : "Add16",
     "description" : "Add 16-bit",

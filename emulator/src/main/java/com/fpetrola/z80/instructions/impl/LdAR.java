@@ -26,12 +26,23 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.flag.AluOperation;
 
 public class LdAR extends Ld {
+  /**
+   * The flags LD A,R leaves: sign and zero from the value loaded, carry kept, half-carry and
+   * subtract cleared, and parity/overflow from IFF2.
+   * <p>
+   * This had the two the wrong way round - it took sign and zero from the FLAGS register and
+   * the carry from R - so the flags came out the same whatever R held. Sign in particular was
+   * never set, and a game that reads R and branches on its top bit never branches: Ping Pong
+   * plays a tone in a loop it leaves with LD A,R / RET M, and the tone never ended.
+   * <p>
+   * F arrives holding the real flags, put there by the caller, so it is not assigned here - the
+   * assignment that was here is what threw them away. LD A,I next door has always done it this
+   * way.
+   */
   public static class LdarTableAluOperation extends AluOperation {
     @Override
-    protected int calculate2Values1Boolean(int value1, int value2, int IFF2) {
-      F = value1;
-      int A1 = value2 & 0xff;
-      F = (F & FLAG_C) | sz53Table(A1) | (IFF2 != 0 ? FLAG_V : 0);
+    protected int calculate2Values1Boolean(int loaded, int unusedFlags, int IFF2) {
+      F = (F & FLAG_C) | sz53Table(loaded & 0xff) | (IFF2 != 0 ? FLAG_V : 0);
       Q = F;
       return F;
     }
