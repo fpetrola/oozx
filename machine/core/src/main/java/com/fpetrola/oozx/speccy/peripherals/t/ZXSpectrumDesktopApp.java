@@ -303,6 +303,21 @@ class EmulatorInternalFrame extends JInternalFrame {
     return button;
   }
 
+  /**
+   * The same, for a button that stays down: a toggle is not a JButton, so {@link #iconButton}
+   * cannot make one and the border button was the last unguarded drawing in this toolbar.
+   */
+  static JToggleButton iconToggle(String iconFile, String text, String tooltip) {
+    JToggleButton button = new JToggleButton();
+    try {
+      button.setIcon(loadIcon(iconFile));
+    } catch (RuntimeException missing) {
+      button.setText(text);
+    }
+    if (tooltip != null) button.setToolTipText(tooltip);
+    return button;
+  }
+
   static void tighten(Container toolBar) {
     for (Component component : toolBar.getComponents()) {
       if (component instanceof AbstractButton button) {
@@ -376,8 +391,7 @@ class EmulatorInternalFrame extends JInternalFrame {
 
     // A toggle rather than a button: it stays down while the border is showing, the way the
     // border either is there or is not. Up to start with - see SpeccyScreen.
-    JToggleButton borderButton = new JToggleButton(loadIcon("border-stripes.svg"));
-    borderButton.setToolTipText("Show the Border");
+    JToggleButton borderButton = iconToggle("border-stripes.svg", "Border", "Show the Border");
     borderButton.addActionListener(e -> emulatorCore.setGeneralOption("border", borderButton.isSelected()));
     toolBar.add(borderButton);
 
