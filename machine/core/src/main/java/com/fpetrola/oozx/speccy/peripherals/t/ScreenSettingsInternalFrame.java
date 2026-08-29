@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx.speccy.peripherals.t;
 
+import com.fpetrola.oozx.speccy.screen.ScreenProfile;
 import com.fpetrola.oozx.speccy.screen.ScreenSetting;
 import com.fpetrola.oozx.speccy.screen.ScreenSettings;
 
@@ -27,6 +28,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -61,18 +63,105 @@ public class ScreenSettingsInternalFrame extends JInternalFrame {
 
   private final ScreenSettings settings;
   private final Consumer<Map<String, String>> keepAsDefault;
+  private final Runnable profilesChanged;
   private final Map<ScreenSetting, Runnable> refreshers = new LinkedHashMap<>();
+  private final JComboBox<ScreenProfile> profiles = new JComboBox<>();
+  private final JButton forget = new JButton("Forget");
+  /** Set while the window is writing to its own controls, so echoes are not read as choices. */
+  private boolean settingUp;
 
   public ScreenSettingsInternalFrame(String machineName, ScreenSettings settings,
-                                     Consumer<Map<String, String>> keepAsDefault) {
+                                     Consumer<Map<String, String>> keepAsDefault,
+                                     Runnable profilesChanged) {
     super("Screen - " + machineName, true, true, true, true);
     this.settings = settings;
     this.keepAsDefault = keepAsDefault;
+    this.profilesChanged = profilesChanged;
 
     setLayout(new BorderLayout());
+    add(profiles(), BorderLayout.NORTH);
     add(new JScrollPane(knobs()), BorderLayout.CENTER);
     add(buttons(), BorderLayout.SOUTH);
-    setSize(430, 520);
+    showCurrentProfile();
+    setSize(430, 560);
+  }
+
+  /**
+   * The looks to start from, above the knobs that adjust them.
+   * <p>
+   * The list is asked for the profile that matches what is on screen rather than remembering
+   * which was picked: turning a knob after choosing one means you are no longer looking at it,
+   * and a box still naming it would be describing a picture that is not there. That is what the
+   * blank entry says.
+   */
+  private JPanel profiles() {
+    JPanel bar = new JPanel(new BorderLayout(6, 0));
+    bar.setBorder(BorderFactory.createEmptyBorder(6, 8, 4, 8));
+    bar.add(new JLabel("Look"), BorderLayout.WEST);
+
+    profiles.setRenderer((list, profile, index, selected, focused) ->
+        new JLabel(profile == null ? "(adjusted)" : profile.name()));
+    profiles.addActionListener(e -> {
+      if (settingUp) return;
+      ScreenProfile chosen = (ScreenProfile) profiles.getSelectedItem();
+      if (chosen == null) return;
+      settings.apply(chosen);
+      refreshers.values().forEach(Runnable::run);
+      forget.setEnabled(!chosen.builtIn());
+    });
+    bar.add(profiles, BorderLayout.CENTER);
+
+    JPanel keep = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 4, 0));
+    keep.setOpaque(false);
+
+    JButton save = new JButton("Save as...");
+    save.setToolTipText("Keep what is set here as a look of its own");
+    save.addActionListener(e -> saveAsProfile());
+    keep.add(save);
+
+    forget.setToolTipText("Remove this saved look");
+    forget.addActionListener(e -> forgetProfile());
+    keep.add(forget);
+
+    bar.add(keep, BorderLayout.EAST);
+    return bar;
+  }
+
+  private void saveAsProfile() {
+    String name = JOptionPane.showInputDialog(this, "Name for this look:", "Save look",
+        JOptionPane.QUESTION_MESSAGE);
+    if (name == null || name.isBlank()) return;
+
+    settings.keepAs(name.trim());
+    profilesChanged.run();
+    showCurrentProfile();
+  }
+
+  private void forgetProfile() {
+    ScreenProfile chosen = (ScreenProfile) profiles.getSelectedItem();
+    // The six that come with it are what someone goes back to when their own experiment went
+    // wrong, so they are not theirs to remove.
+    if (chosen == null || chosen.builtIn()) return;
+
+    ScreenSettings.forget(chosen.name());
+    profilesChanged.run();
+    showCurrentProfile();
+  }
+
+  /** Reloads the list and points it at whatever the picture currently matches, or at nothing. */
+  private void showCurrentProfile() {
+    settingUp = true;
+    try {
+      profiles.removeAllItems();
+      for (ScreenProfile profile : ScreenSettings.profiles()) {
+        profiles.addItem(profile);
+      }
+      ScreenProfile showing = settings.currentProfile();
+      profiles.setSelectedItem(showing);
+      forget.setEnabled(showing != null && !showing.builtIn());
+    } finally {
+      settingUp = false;
+    }
   }
 
   private JPanel knobs() {
@@ -137,13 +226,19 @@ public class ScreenSettingsInternalFrame extends JInternalFrame {
       case CHOICE -> {
         JComboBox<String> box = new JComboBox<>(knob.options().toArray(new String[0]));
         box.setSelectedItem(String.valueOf(knob.value()));
-        box.addActionListener(e -> knob.set(box.getSelectedItem()));
+        box.addActionListener(e -> {
+          knob.set(box.getSelectedItem());
+          showCurrentProfile();
+        });
         refreshers.put(knob, () -> box.setSelectedItem(String.valueOf(knob.value())));
         return box;
       }
       case SWITCH -> {
         JCheckBox check = new JCheckBox("", Boolean.parseBoolean(String.valueOf(knob.value())));
-        check.addActionListener(e -> knob.set(check.isSelected()));
+        check.addActionListener(e -> {
+          knob.set(check.isSelected());
+          showCurrentProfile();
+        });
         refreshers.put(knob, () -> check.setSelected(
             Boolean.parseBoolean(String.valueOf(knob.value()))));
         return check;
@@ -174,6 +269,7 @@ public class ScreenSettingsInternalFrame extends JInternalFrame {
     slider.addChangeListener(e -> {
       knob.set(knob.minimum() + slider.getValue() * step);
       show.run();
+      showCurrentProfile();
     });
     refreshers.put(knob, () -> {
       slider.setValue(notchOf(knob, step));

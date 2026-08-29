@@ -141,6 +141,27 @@ public class FavoritesTest {
     assertEquals(3, back.getScreenDefaults().size());
   }
 
+  /**
+   * A look someone saved comes back by name and by values.
+   * <p>
+   * Stored as plain maps rather than as the profile objects: the same reason the defaults are,
+   * and one more — a record whose shape changes would stop the whole list from reading, so a
+   * knob renamed in the engine would cost every saved look instead of that one setting.
+   */
+  @Test
+  public void savedLooksComeBack() throws Exception {
+    OOZxConfiguration configuration = new OOZxConfiguration();
+    configuration.setKeptScreenProfiles(new java.util.LinkedHashMap<>(java.util.Map.of(
+        "My telly", new java.util.LinkedHashMap<>(java.util.Map.of(
+            "lead", "Composite Video", "scanlines", "0.4", "scaler", "xBRZ 2x")))));
+
+    OOZxConfiguration back = OOZxConfiguration.read(MAPPER.writeValueAsString(configuration));
+
+    assertEquals(1, back.getKeptScreenProfiles().size());
+    assertEquals("0.4", back.getKeptScreenProfiles().get("My telly").get("scanlines"));
+    assertEquals("xBRZ 2x", back.getKeptScreenProfiles().get("My telly").get("scaler"));
+  }
+
   /** Favouriting the same thing twice should not list it twice. */
   @Test
   public void theSameSourceIsKeptOnlyOnce() {

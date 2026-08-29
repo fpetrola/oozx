@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx.speccy.peripherals.t;
 
+import com.fpetrola.oozx.speccy.screen.ScreenProfile;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import com.fpetrola.oozx.speccy.screen.ScreenSettings;
@@ -949,6 +950,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     if (config.getScreenDefaults() != null && !config.getScreenDefaults().isEmpty()) {
       ScreenSettings.setDefaults(config.getScreenDefaults());
     }
+    restoreKeptProfiles();
     this.pokesManager = new PokesManager();
 
     setTitle("ZX Spectrum Multi-Emulator");
@@ -1350,6 +1352,24 @@ public class ZXSpectrumDesktopApp extends JFrame {
    * The modes come from the enum rather than being listed here, so adding one to the engine puts
    * it in the menu without anybody remembering to.
    */
+  /** Looks saved in an earlier run, put back where the windows look for them. */
+  private void restoreKeptProfiles() {
+    List<ScreenProfile> kept = new java.util.ArrayList<>();
+    config.getKeptScreenProfiles().forEach((name, values) ->
+        kept.add(new ScreenProfile(name, values, false)));
+    ScreenSettings.setKeptProfiles(kept);
+  }
+
+  /** Writes back whatever the engine now holds, after one was saved or forgotten. */
+  void rememberKeptProfiles() {
+    Map<String, Map<String, String>> kept = new LinkedHashMap<>();
+    for (ScreenProfile profile : ScreenSettings.getKeptProfiles()) {
+      kept.put(profile.name(), new LinkedHashMap<>(profile.values()));
+    }
+    config.setKeptScreenProfiles(kept);
+    config.save();
+  }
+
   /** The screen knobs of one emulator, in a window of their own. */
   void openScreenSettings(EmulatorCore core, String machineName) {
     if (!(core.getPanel() instanceof SpeccyScreen screen)) {
@@ -1362,7 +1382,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
         screen.getScreenSettings(), kept -> {
       config.setScreenDefaults(new LinkedHashMap<>(kept));
       config.save();
-    });
+    }, this::rememberKeptProfiles);
     desktop.add(window);
     window.setVisible(true);
     window.toFront();

@@ -52,6 +52,12 @@ public class OOZxConfiguration {
    * leaves that knob alone.
    */
   private Map<String, String> screenDefaults = new LinkedHashMap<>();
+  /**
+   * Looks someone saved, by name. A map of plain text rather than the profile objects
+   * themselves, for the same reason the defaults are: the file is read by versions that did not
+   * write it, and a knob that has been renamed should cost that knob and not the whole profile.
+   */
+  private Map<String, Map<String, String>> keptScreenProfiles = new LinkedHashMap<>();
   private List<WindowState> openWindows = new ArrayList<>();
   private WindowState mainWindowState; // Estado de la ventana principal
   private Map<String, String> snapshots = new HashMap<>(); // Mapa centralizado de snapshots: id -> data
@@ -158,6 +164,14 @@ public class OOZxConfiguration {
 
   public void setScreenDefaults(Map<String, String> screenDefaults) {
     this.screenDefaults = screenDefaults;
+  }
+
+  public Map<String, Map<String, String>> getKeptScreenProfiles() {
+    return keptScreenProfiles;
+  }
+
+  public void setKeptScreenProfiles(Map<String, Map<String, String>> keptScreenProfiles) {
+    this.keptScreenProfiles = keptScreenProfiles;
   }
 
   public String getLookAndFeel() {
