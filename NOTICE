@@ -1,0 +1,40 @@
+oozx
+Copyright (c) 2023-2025 Fernando Damian Petrola
+
+This product includes software developed as part of the oozx project, licensed
+under the Apache License, Version 2.0. See LICENSE.
+
+------------------------------------------------------------------------------
+THIRD-PARTY COMPONENTS
+------------------------------------------------------------------------------
+
+The following are NOT under the Apache License and keep their own terms. They
+are depended upon as published, unmodified, and are not copied into this
+source tree. Anything distributed from here must carry this notice and the
+components' own licences with it.
+
+xBRZ
+    A pixel-art image scaling filter.
+
+    Algorithm and original implementation:
+        Copyright (C) Zenju (zenju AT gmx DOT de)
+        GNU General Public License, version 3
+        https://sourceforge.net/projects/xbrz/
+
+    Java port:
+        Copyright (C) Stanio (stanio AT yahoo DOT com)
+        https://github.com/stanio/xbrz-java
+        Maven: io.github.stanio:xbrz-core
+
+    Used here through the linking exception the Java port grants, which
+    permits linking the library with independent modules and distributing the
+    result under terms of the linker's choice, provided the terms of each
+    linked module are met. This project links it as an independent module and
+    does not modify it; a modification would be under the GNU General Public
+    License.
+
+    Used by: com.fpetrola.oozx.speccy.screen.XbrzScaler
+
+    The other scalers this project offers are its own work, under the Apache
+    License like the rest, so nothing here depends on this component being
+    present.

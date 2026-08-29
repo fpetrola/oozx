@@ -18,6 +18,23 @@
     </properties>
 
     <dependencies>
+        <!--
+          xBRZ, the pixel-art scaler, as a Java port by Stanio of Zenju's original.
+
+          NOT Apache 2.0 like the rest of this: xbrz-core is under the GNU General Public
+          License v3, and it is here as an UNMODIFIED dependency and not copied into this tree,
+          which is what its linking exception allows - the port grants permission to link it
+          with independent modules and distribute the result under terms of your choice.
+          Modifying it would put the modification under the GPL, so do not; and whatever this
+          project ships has to carry the library's own licence and attribution with it.
+
+          There is a scaler here that needs none of that, and there always will be.
+        -->
+        <dependency>
+            <groupId>io.github.stanio</groupId>
+            <artifactId>xbrz-core</artifactId>
+            <version>1.8.2</version>
+        </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>bytecode</artifactId>

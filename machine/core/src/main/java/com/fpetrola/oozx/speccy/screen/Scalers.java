@@ -27,12 +27,16 @@ import java.util.List;
 /**
  * The scalers, one class each.
  * <p>
- * WHAT IS HERE AND WHAT IS NOT. Everything here is written from the published rules of its
+ * WHAT IS WRITTEN HERE. Everything in this file is written from the published rules of its
  * algorithm - Scale2x and Scale3x say plainly what they do in a dozen lines of conditions, and
- * sharp bilinear is a whole-number step followed by an ordinary resize. What is NOT here is hqx
- * and xBRZ: their reference implementations are GPL and LGPL, this project is Apache 2.0, and
- * copying them in would be a licence decision rather than a technical one. The edge-directed
- * scaler below is this project's own and does not claim to be either of them.
+ * sharp bilinear is a whole-number step followed by an ordinary resize - and carries this
+ * project's own licence and no other. The edge-directed one is this project's own and does not
+ * claim to be anybody else's.
+ * <p>
+ * xBRZ is in the list and is NOT in this file, which is the point: {@link XbrzScaler} wraps a
+ * library under the GPL that this project depends on and does not copy. Keeping the two apart is
+ * what keeps it clear which scalers carry somebody else's terms and which do not - and there is
+ * always one here that carries none.
  */
 public final class Scalers {
 
@@ -42,7 +46,8 @@ public final class Scalers {
   /** Every scaler there is, in the order someone would meet them. */
   public static List<Scaler> all() {
     return List.of(new Nearest(), new Bilinear(), new SharpBilinear(),
-        new Scale2x(), new Scale3x(), new EdgeDirected());
+        new Scale2x(), new Scale3x(), new EdgeDirected(),
+        new XbrzScaler(2), new XbrzScaler(3), new XbrzScaler(4));
   }
 
   public static Scaler byName(String name) {
