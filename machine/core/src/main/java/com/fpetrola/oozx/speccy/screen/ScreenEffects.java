@@ -37,9 +37,20 @@ public final class ScreenEffects {
   /**
    * The unlit gaps a tube left between its lines.
    * <p>
-   * On the scaled picture, because a scan line is a line of the screen: drawn before scaling it
-   * would come out a band as wide as the magnification. Below two screen pixels to a machine
-   * pixel there is no gap to leave, so it leaves none rather than halving the brightness.
+   * On the scaled picture, because a scan line is a line of the SCREEN: drawn before scaling it
+   * would come out a band as wide as the magnification.
+   * <p>
+   * BY WHERE A ROW FALLS INSIDE A MACHINE LINE, not by whether its number is odd. Darkening
+   * every other row only means anything at exactly twice size; at three times it darkens a third
+   * of each line and two thirds of the next, and below twice there is no other row to darken, so
+   * that version did nothing at all below 2x and something different at every size above it. Two
+   * windows of different sizes showing the same setting looked like two different settings, which
+   * is what sent someone looking for a bug in how the setting was saved.
+   * <p>
+   * So: each machine line is lit brightest down its middle and falls away to its edges, which is
+   * what a beam does, and holds at any magnification. There is still nothing to draw at life
+   * size - a row IS a line, and the whole picture would just go dim - so it fades in over the
+   * first doubling rather than appearing all at once.
    */
   public static class Scanlines implements ScreenEffect {
     private final double depth;
@@ -59,13 +70,21 @@ public final class ScreenEffects {
     }
 
     public BufferedImage apply(BufferedImage picture, ScreenContext context) {
-      if (picture.getHeight() < sourceHeight * 2) {
+      int height = picture.getHeight(), width = picture.getWidth();
+      double magnification = height / (double) sourceHeight;
+      double strength = depth * Math.max(0, Math.min(1, magnification - 1));
+      if (strength <= 0) {
         return picture;
       }
-      int keep = (int) ((1 - depth) * 100);
       int[] pixels = ScreenContext.pixelsOf(picture);
-      int width = picture.getWidth();
-      for (int y = 1; y < picture.getHeight(); y += 2) {
+      for (int y = 0; y < height; y++) {
+        double into = (y * (double) sourceHeight / height) % 1;
+        // 0 down the middle of a machine line, 1 at the seam between two of them.
+        double fromMiddle = Math.abs(2 * into - 1);
+        int keep = (int) ((1 - strength * fromMiddle) * 100);
+        if (keep >= 100) {
+          continue;
+        }
         int row = y * width;
         for (int x = 0; x < width; x++) {
           pixels[row + x] = scaleRgb(pixels[row + x], keep);
