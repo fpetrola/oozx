@@ -549,6 +549,11 @@ public class Z80 implements ZxModule, Cpu {
         } else if (option.equals("pause")) {
           emulatorPaused = (boolean) value;
           notifyPauseStateChange(emulatorPaused);
+        } else {
+          // Anything this one has no opinion on goes to the core it overrides, which is where
+          // the options that are about the panel rather than the machine are answered. Without
+          // this the override swallowed them: an option nobody handled and nobody reported.
+          super.setGeneralOption(option, value);
         }
       }
 

@@ -347,7 +347,7 @@ class EmulatorInternalFrame extends JInternalFrame {
 
     // A toggle rather than a button: it stays down while the border is showing, the way the
     // border either is there or is not. Up to start with - see SpeccyScreen.
-    JToggleButton borderButton = new JToggleButton(loadIcon("1F5BC.svg"));
+    JToggleButton borderButton = new JToggleButton(loadIcon("border-stripes.svg"));
     borderButton.setToolTipText("Show the Border");
     borderButton.addActionListener(e -> emulatorCore.setGeneralOption("border", borderButton.isSelected()));
     toolBar.add(borderButton);

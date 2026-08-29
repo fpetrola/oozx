@@ -57,17 +57,60 @@ public class SpeccyScreen extends JPanel {
   public SpeccyScreen(byte[][] screenMatrix) {
     IntStream.range(0, 8).forEach(i -> darkColors[i] = lightColors[i].darker());
     this.screenMatrix = screenMatrix;
-    setPreferredSize(new Dimension((int) (width * zoom), (int) (height * zoom)));
+    setPreferredSize(new Dimension((int) (SCREEN_W * zoom), (int) (SCREEN_H * zoom)));
     this.screenBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
     this.croppedBuffer = new BufferedImage(SCREEN_W, SCREEN_H, BufferedImage.TYPE_INT_RGB);
 
     new Timer(30, e -> SwingUtilities.invokeLater(this::repaint)).start();
   }
 
-  /** Shows or hides the border. Takes effect on the next repaint, which is thirty a second. */
+  /**
+   * Shows or hides the border, and gives the window the room for it or takes the room back.
+   * <p>
+   * Cropping alone is not what turning the border off looks like: the panel keeps its size, the
+   * picture is scaled up to fill it, and what you see is the same picture slightly bigger rather
+   * than a border that went away. So the window changes by exactly what the border was taking on
+   * screen, and the picture stays the size it was - the border appears around it and leaves from
+   * around it.
+   * <p>
+   * The scale is measured from the panel as it stands rather than assumed, because the window is
+   * whatever size it was last dragged to, and the paint below fits the picture into it the same
+   * way: the smaller of the two ratios.
+   */
   public void setBorderVisible(boolean borderVisible) {
+    if (this.borderVisible == borderVisible) {
+      return;
+    }
+    int previousWidth = imageWidth();
+    int previousHeight = imageHeight();
     this.borderVisible = borderVisible;
+    setPreferredSize(new Dimension((int) (imageWidth() * zoom), (int) (imageHeight() * zoom)));
+    resizeWindowBy(previousWidth, previousHeight);
     repaint();
+  }
+
+  private void resizeWindowBy(int previousWidth, int previousHeight) {
+    Container window = SwingUtilities.getAncestorOfClass(JInternalFrame.class, this);
+    if (window == null) {
+      window = SwingUtilities.getWindowAncestor(this);
+    }
+    if (window == null || getWidth() == 0 || getHeight() == 0) {
+      revalidate();
+      return;
+    }
+    double scale = Math.min(getWidth() / (double) previousWidth, getHeight() / (double) previousHeight);
+    int growWidth = (int) Math.round((imageWidth() - previousWidth) * scale);
+    int growHeight = (int) Math.round((imageHeight() - previousHeight) * scale);
+    window.setSize(window.getWidth() + growWidth, window.getHeight() + growHeight);
+    window.validate();
+  }
+
+  private int imageWidth() {
+    return borderVisible ? width : SCREEN_W;
+  }
+
+  private int imageHeight() {
+    return borderVisible ? height : SCREEN_H;
   }
 
   public boolean isBorderVisible() {
