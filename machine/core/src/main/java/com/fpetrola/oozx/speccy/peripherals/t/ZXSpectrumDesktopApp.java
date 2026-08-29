@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx.speccy.peripherals.t;
 
+import com.fpetrola.oozx.speccy.TvScreen;
 import com.fpetrola.oozx.api.Hit;
 import com.fpetrola.oozx.api.ZxInfoApiHandler;
 import com.fpetrola.oozx.speccy.config.OOZxConfiguration;
@@ -392,7 +393,19 @@ class EmulatorInternalFrame extends JInternalFrame {
     // A toggle rather than a button: it stays down while the border is showing, the way the
     // border either is there or is not. Up to start with - see SpeccyScreen.
     JToggleButton borderButton = iconToggle("border-stripes.svg", "Border", "Show the Border");
-    borderButton.addActionListener(e -> emulatorCore.setGeneralOption("border", borderButton.isSelected()));
+    if (parentApp != null && parentApp.config.isShowBorder()) {
+      borderButton.setSelected(true);
+      emulatorCore.setGeneralOption("border", true);
+    }
+    borderButton.addActionListener(e -> {
+      emulatorCore.setGeneralOption("border", borderButton.isSelected());
+      // Remembered because the television modes are drawn across the border: coming back to a
+      // cropped picture with Aerial still selected reads as the effect having broken.
+      if (parentApp != null) {
+        parentApp.config.setShowBorder(borderButton.isSelected());
+        parentApp.config.save();
+      }
+    });
     toolBar.add(borderButton);
 
     toolBar.addSeparator();
@@ -1087,6 +1100,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
       }
     };
     optionsMenu.add(settingsAction);
+    optionsMenu.addSeparator();
+    optionsMenu.add(createTvMenu());
     menuBar.add(optionsMenu);
 
     // Window menu (includes Look&Feel submenu)
@@ -1312,6 +1327,71 @@ public class ZXSpectrumDesktopApp extends JFrame {
     } catch (Exception e) {
       // A theme that no longer exists is not a reason to refuse to start.
       System.err.println("could not restore the look and feel '" + saved + "': " + e);
+    }
+  }
+
+  /**
+   * Which lead the picture is imagined to arrive through, and the two things that go with it.
+   * <p>
+   * The modes come from the enum rather than being listed here, so adding one to the engine puts
+   * it in the menu without anybody remembering to.
+   */
+  private JMenu createTvMenu() {
+    JMenu tvMenu = new JMenu("TV");
+    ButtonGroup leads = new ButtonGroup();
+
+    String current = config.getTvScreen() == null ? TvScreen.RGB_MONITOR.name() : config.getTvScreen();
+    for (TvScreen lead : TvScreen.values()) {
+      JRadioButtonMenuItem item = new JRadioButtonMenuItem(lead.label(), lead.name().equals(current));
+      item.addActionListener(e -> {
+        config.setTvScreen(lead.name());
+        config.save();
+        applyScreenSettingsToAll();
+      });
+      leads.add(item);
+      tvMenu.add(item);
+    }
+
+    tvMenu.addSeparator();
+
+    JCheckBoxMenuItem scanLines = new JCheckBoxMenuItem("Scan lines", config.isScanLines());
+    scanLines.addActionListener(e -> {
+      config.setScanLines(scanLines.isSelected());
+      config.save();
+      applyScreenSettingsToAll();
+    });
+    tvMenu.add(scanLines);
+
+    JCheckBoxMenuItem smooth = new JCheckBoxMenuItem("Smooth pixels",
+        Boolean.TRUE.equals(config.getSmoothPixels()));
+    smooth.addActionListener(e -> {
+      // null rather than false when unticked: that hands the decision back to the scale, which
+      // is what the screen did before there was a menu at all.
+      config.setSmoothPixels(smooth.isSelected() ? Boolean.TRUE : null);
+      config.save();
+      applyScreenSettingsToAll();
+    });
+    tvMenu.add(smooth);
+
+    return tvMenu;
+  }
+
+  /**
+   * Through the core, the same way the border button asks for its option, rather than reaching
+   * into the panel to find the screen: the screen is somewhere under a component tree that is
+   * not ours to depend on, and a search that stops finding it would fail silently.
+   */
+  void applyScreenSettings(EmulatorCore core) {
+    core.setGeneralOption("tv", config.getTvScreen());
+    core.setGeneralOption("scanlines", config.isScanLines());
+    core.setGeneralOption("smoothing", config.getSmoothPixels());
+  }
+
+  private void applyScreenSettingsToAll() {
+    for (JInternalFrame frame : desktop.getAllFrames()) {
+      if (frame instanceof EmulatorInternalFrame emulator && emulator.emulatorCore != null) {
+        applyScreenSettings(emulator.emulatorCore);
+      }
     }
   }
 
@@ -2044,6 +2124,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     }
 
     JComponent panel = core.getPanel();
+    applyScreenSettings(core);
     int x = (emulatorCount * 30) % 400;
     int y = (emulatorCount * 30) % 300;
     EmulatorInternalFrame frame = new EmulatorInternalFrame(core, x, y, this, gameSearchResult);

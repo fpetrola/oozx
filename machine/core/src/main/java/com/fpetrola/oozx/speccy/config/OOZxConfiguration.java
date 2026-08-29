@@ -46,6 +46,16 @@ public class OOZxConfiguration {
   private List<Favorite> favorites = new ArrayList<>();
   /** The theme chosen from the Look&Feel menu, by its name, or null for whatever starts up. */
   private String lookAndFeel;
+  /** Which lead the picture is imagined to arrive through: RGB_MONITOR, SCART, COMPOSITE, AERIAL. */
+  private String tvScreen;
+  private boolean scanLines;
+  /** null leaves the decision to the scale, which is what the screen did before there was a menu. */
+  private Boolean smoothPixels;
+  /**
+   * Whether the border is shown. Kept because the television modes are drawn across it: someone
+   * who left Aerial selected and came back to a cropped picture would think the effect broke.
+   */
+  private boolean showBorder;
   private List<WindowState> openWindows = new ArrayList<>();
   private WindowState mainWindowState; // Estado de la ventana principal
   private Map<String, String> snapshots = new HashMap<>(); // Mapa centralizado de snapshots: id -> data
@@ -127,6 +137,38 @@ public class OOZxConfiguration {
 
   public void setLastSaveStateDirectory(String lastSaveStateDirectory) {
     this.lastSaveStateDirectory = lastSaveStateDirectory;
+  }
+
+  public String getTvScreen() {
+    return tvScreen;
+  }
+
+  public void setTvScreen(String tvScreen) {
+    this.tvScreen = tvScreen;
+  }
+
+  public boolean isScanLines() {
+    return scanLines;
+  }
+
+  public void setScanLines(boolean scanLines) {
+    this.scanLines = scanLines;
+  }
+
+  public Boolean getSmoothPixels() {
+    return smoothPixels;
+  }
+
+  public void setSmoothPixels(Boolean smoothPixels) {
+    this.smoothPixels = smoothPixels;
+  }
+
+  public boolean isShowBorder() {
+    return showBorder;
+  }
+
+  public void setShowBorder(boolean showBorder) {
+    this.showBorder = showBorder;
   }
 
   public String getLookAndFeel() {

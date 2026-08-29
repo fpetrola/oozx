@@ -26,6 +26,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -95,6 +96,40 @@ public class FavoritesTest {
         OOZxConfiguration.class);
 
     assertEquals("Darcula", back.getLookAndFeel());
+  }
+
+  /**
+   * The television settings survive too, including a file written before they existed.
+   * <p>
+   * Smoothing is a Boolean on purpose: unticked is null, which hands the decision back to the
+   * scale rather than forcing it off, so the three states have to come back as three.
+   */
+  @Test
+  public void theTelevisionSettingsAreKept() throws Exception {
+    OOZxConfiguration configuration = new OOZxConfiguration();
+    configuration.setTvScreen("AERIAL");
+    configuration.setScanLines(true);
+    configuration.setSmoothPixels(null);
+    configuration.setShowBorder(true);
+
+    OOZxConfiguration back = MAPPER.readValue(MAPPER.writeValueAsString(configuration),
+        OOZxConfiguration.class);
+
+    assertEquals("AERIAL", back.getTvScreen());
+    assertTrue(back.isScanLines());
+    assertNull(back.getSmoothPixels(), "unticked has to stay 'let the scale decide'");
+    assertTrue(back.isShowBorder(), "the border is kept because the effects are drawn across it");
+  }
+
+  /** A configuration written before any of this existed still opens. */
+  @Test
+  public void anOlderConfigurationFileStillReads() throws Exception {
+    OOZxConfiguration back = MAPPER.readValue(
+        "{\"recentFiles\":[],\"lastOpenDirectory\":\"/tmp\"}", OOZxConfiguration.class);
+
+    assertNull(back.getTvScreen(), "no television setting means the default one");
+    assertFalse(back.isScanLines());
+    assertFalse(back.isShowBorder());
   }
 
   /** Favouriting the same thing twice should not list it twice. */
