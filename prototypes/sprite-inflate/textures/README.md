@@ -8,3 +8,9 @@ bajar los originales (hay hasta 8K, y también normal, rugosidad y desplazamient
 de cada uno: `https://ambientcg.com/a/<nombre>`.
 
 Se puede agregar cualquier `.jpg` o `.png` a esta carpeta y el visor lo toma solo.
+
+Dos que se bajaron y no quedaron, por si alguien repite la descarga: `ChristmasTreeOrnament019`
+resultó ser un **mapa de normales** y no de color (el lila y cian diagonal es inconfundible una vez
+que se lo mira), y `Porcelain001` es un color plano sin ninguna variación — desvío estándar cero,
+o sea que como textura no aporta nada que no dé el selector de color. El resto de las lisas
+(porcelana, plástico, cuero, papel) se quedaron: liso es un material, no un defecto.

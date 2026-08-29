@@ -118,6 +118,7 @@ public class InflateViewer extends ApplicationAdapter {
 
   private Stage stage;
   private Table controls;
+  private ScrollPane panel;
   /** The textures on offer, and which one is on the model; null is the plain colour. */
   private final List<Texture> textures = new ArrayList<>();
   private final List<String> textureNames = new ArrayList<>();
@@ -455,8 +456,13 @@ public class InflateViewer extends ApplicationAdapter {
     stage = new Stage(new ScreenViewport());
     controls = new Table();
     controls.top().left().pad(12);
-    controls.defaults().left().padBottom(4).width(CONTROLS - 34);
-    stage.addActor(controls);
+    controls.defaults().left().padBottom(4).width(CONTROLS - 40);
+    // In a scroller, because fifty materials in a mosaic are taller than any window: without it
+    // the ones past the bottom of the screen exist and cannot be reached.
+    panel = new ScrollPane(controls, new ScrollPane.ScrollPaneStyle());
+    panel.setFadeScrollBars(false);
+    panel.setScrollingDisabled(true, false);
+    stage.addActor(panel);
 
     controls.add(new Label("shape", labelStyle)).padBottom(2).row();
     SelectBox<String> shape = new SelectBox<>(selectStyle);
@@ -601,7 +607,7 @@ public class InflateViewer extends ApplicationAdapter {
     mosaic.left();
     // "None" first, and it is the plain colour rather than a texture, so it gets the chequer the
     // colour swatches use for the same idea.
-    mosaic.add(tile(null, "plain")).size(58).pad(3);
+    mosaic.add(tile(null, "plain")).size(46).pad(2);
     if (found != null) {
       java.util.Arrays.sort(found);
       for (File one : found) {
@@ -611,8 +617,8 @@ public class InflateViewer extends ApplicationAdapter {
         loaded.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
         textures.add(loaded);
         textureNames.add(one.getName().replaceAll("\\.[^.]+$", ""));
-        mosaic.add(tile(loaded, textureNames.get(textureNames.size() - 1))).size(58).pad(3);
-        if (mosaic.getCells().size % 4 == 0) {
+        mosaic.add(tile(loaded, textureNames.get(textureNames.size() - 1))).size(46).pad(2);
+        if (mosaic.getCells().size % 5 == 0) {
           mosaic.row();
         }
       }
@@ -630,7 +636,7 @@ public class InflateViewer extends ApplicationAdapter {
         tinted(new TextureRegionDrawable(new TextureRegion(block)), 0.30f, 0.45f, 0.75f, 4, 4),
         null));
     button.add(new Image(which == null ? new TextureRegionDrawable(new TextureRegion(block))
-        : new TextureRegionDrawable(new TextureRegion(which)))).size(50);
+        : new TextureRegionDrawable(new TextureRegion(which)))).size(40);
     button.addListener(new ChangeListener() {
       public void changed(ChangeEvent event, Actor actor) {
         texture = which;
@@ -641,7 +647,7 @@ public class InflateViewer extends ApplicationAdapter {
   }
 
   private void place() {
-    controls.setBounds(Gdx.graphics.getWidth() - CONTROLS, 0, CONTROLS, Gdx.graphics.getHeight());
+    panel.setBounds(Gdx.graphics.getWidth() - CONTROLS, 0, CONTROLS, Gdx.graphics.getHeight());
   }
 
   @Override
