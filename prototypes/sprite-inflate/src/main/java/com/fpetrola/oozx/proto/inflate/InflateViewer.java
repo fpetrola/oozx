@@ -30,7 +30,20 @@ import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -38,6 +51,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.DoubleConsumer;
 
 /**
  * The sprites, inflated, with all of them down the side to pick from.
@@ -58,7 +72,11 @@ public class InflateViewer extends ApplicationAdapter {
       0x0000D7, 0xD70000, 0xD700D7, 0x00D700, 0x00D7D7, 0xD7D700, 0xD7D7D7,
       0x0000FF, 0xFF0000, 0xFF00FF, 0x00FF00, 0x00FFFF, 0xFFFF00, 0xFFFFFF};
 
+  private static final String[] SCALES = {"2x", "3x", "4x", "5x", "6x", "8x (4 then 2)"};
+  private static final int[][] SCALE_PASSES = {{2}, {3}, {4}, {5}, {6}, {4, 2}};
+
   private static final int PANEL = 250;
+  private static final int CONTROLS = 300;
   private static final int THUMB = 44;
   private static final int GAP = 6;
   private static final int SWATCH = 22;
@@ -71,6 +89,8 @@ public class InflateViewer extends ApplicationAdapter {
   private final List<TextureRegion> thumbnails = new ArrayList<>();
   private int chosenSprite;
   private SpriteInflate.Profile profile = SpriteInflate.Profile.SPHERE_LOCAL;
+  private SpriteInflate.Options options = SpriteInflate.Options.standard();
+  private SpriteInflate.Fields fields;
   /** -1 means the sprite's own colours, anything else an index into {@link #PALETTE}. */
   private int chosenColour = -1;
   private float scroll;
@@ -87,6 +107,14 @@ public class InflateViewer extends ApplicationAdapter {
   private SpriteBatch overlay;
   private BitmapFont font;
   private Texture block;
+
+  private Stage stage;
+  private Table controls;
+  private Label.LabelStyle labelStyle;
+  private Slider.SliderStyle sliderStyle;
+  private SelectBox.SelectBoxStyle selectStyle;
+  private CheckBox.CheckBoxStyle checkStyle;
+  private TextButton.TextButtonStyle buttonStyle;
 
   private Model model;
   private ModelInstance instance;
@@ -125,7 +153,9 @@ public class InflateViewer extends ApplicationAdapter {
         throw new IllegalStateException("could not read the sheet " + given + ": " + e, e);
       }
       buildThumbnails();
-      showSprite();
+      styles();
+      buildControls();
+      rebuild(true);
     } else {
       File[] found = given.listFiles((dir, name) -> name.endsWith(".obj"));
       if (found == null || found.length == 0) {
@@ -144,9 +174,13 @@ public class InflateViewer extends ApplicationAdapter {
       showFile(0);
     }
 
-    // Ours first, so a click on the side panel picks a sprite instead of spinning the camera.
+    // Ours first, so a click on the sprites picks one; then the controls; the camera last, so it
+    // only turns the model when the click landed on neither panel.
     InputMultiplexer input = new InputMultiplexer();
     input.addProcessor(new Picking());
+    if (stage != null) {
+      input.addProcessor(stage);
+    }
     input.addProcessor(controller);
     Gdx.input.setInputProcessor(input);
   }
@@ -227,13 +261,187 @@ public class InflateViewer extends ApplicationAdapter {
 
   // ------------------------------------------------------------------------------- sheet mode
 
-  private void showSprite() {
-    BufferedImage sprite = sprites.get(chosenSprite);
-    SpriteInflate.Fields fields = SpriteInflate.measure(sprite, new int[]{4});
-    List<double[]> triangles = SpriteInflate.inflate(fields, profile);
+  /**
+   * @param measureAgain whether what is KNOWN about the sprite changed, or only the shape built
+   *                     from it. Measuring is the expensive half - the local thickness is
+   *                     quadratic - so a slider that does not affect it does not pay for it.
+   */
+  private void rebuild(boolean measureAgain) {
+    if (measureAgain || fields == null) {
+      fields = SpriteInflate.measure(sprites.get(chosenSprite), options);
+    }
+    List<double[]> triangles = SpriteInflate.inflate(fields, profile, options);
     put(build(triangles, fields));
-    caption = String.format("sprite %d of %d   %s   %d triangles",
-        chosenSprite + 1, sprites.size(), profile.label, triangles.size());
+    caption = String.format("sprite %d of %d   %s   %dx   %d triangles",
+        chosenSprite + 1, sprites.size(), profile.label, options.factor(), triangles.size());
+  }
+
+  // ------------------------------------------------------------------------------ the controls
+
+  /**
+   * A set of widget styles out of one white pixel and the built-in font.
+   * <p>
+   * Rather than a skin file, because a prototype that needs an atlas beside it in order to start
+   * is a prototype nobody runs. Everything here is that pixel, tinted and stretched.
+   */
+  private void styles() {
+    TextureRegionDrawable pixel = new TextureRegionDrawable(new TextureRegion(block));
+    labelStyle = new Label.LabelStyle(font, new Color(0.85f, 0.86f, 0.9f, 1f));
+    sliderStyle = new Slider.SliderStyle(tinted(pixel, 0.22f, 0.22f, 0.28f, 6, 6),
+        tinted(pixel, 0.55f, 0.68f, 0.95f, 10, 18));
+
+    Drawable field = tinted(pixel, 0.17f, 0.17f, 0.22f, 24, 24);
+    Drawable chosen = tinted(pixel, 0.30f, 0.45f, 0.75f, 4, 4);
+    com.badlogic.gdx.scenes.scene2d.ui.List.ListStyle listStyle =
+        new com.badlogic.gdx.scenes.scene2d.ui.List.ListStyle(font, Color.WHITE,
+            new Color(0.8f, 0.8f, 0.85f, 1f), chosen);
+    listStyle.background = tinted(pixel, 0.12f, 0.12f, 0.16f, 4, 4);
+    selectStyle = new SelectBox.SelectBoxStyle(font, new Color(0.9f, 0.9f, 0.95f, 1f), field,
+        new ScrollPane.ScrollPaneStyle(), listStyle);
+
+    checkStyle = new CheckBox.CheckBoxStyle(tinted(pixel, 0.22f, 0.22f, 0.28f, 16, 16),
+        tinted(pixel, 0.55f, 0.68f, 0.95f, 16, 16), font, new Color(0.85f, 0.86f, 0.9f, 1f));
+
+    buttonStyle = new TextButton.TextButtonStyle(field, chosen, field, font);
+    buttonStyle.fontColor = new Color(0.9f, 0.9f, 0.95f, 1f);
+  }
+
+  private static Drawable tinted(TextureRegionDrawable pixel, float r, float g, float b,
+                                 float minWidth, float minHeight) {
+    Drawable drawable = pixel.tint(new Color(r, g, b, 1f));
+    drawable.setMinWidth(minWidth);
+    drawable.setMinHeight(minHeight);
+    return drawable;
+  }
+
+  private void buildControls() {
+    stage = new Stage(new ScreenViewport());
+    controls = new Table();
+    controls.top().left().pad(12);
+    controls.defaults().left().padBottom(4).width(CONTROLS - 34);
+    stage.addActor(controls);
+
+    controls.add(new Label("shape", labelStyle)).padBottom(2).row();
+    SelectBox<String> shape = new SelectBox<>(selectStyle);
+    String[] labels = new String[SpriteInflate.Profile.values().length];
+    for (int i = 0; i < labels.length; i++) {
+      labels[i] = SpriteInflate.Profile.values()[i].label;
+    }
+    shape.setItems(labels);
+    shape.setSelected(profile.label);
+    shape.addListener(new ChangeListener() {
+      public void changed(ChangeEvent event, Actor actor) {
+        profile = SpriteInflate.Profile.values()[shape.getSelectedIndex()];
+        rebuild(false);
+      }
+    });
+    controls.add(shape).height(28).padBottom(10).row();
+
+    controls.add(new Label("scale", labelStyle)).padBottom(2).row();
+    SelectBox<String> scale = new SelectBox<>(selectStyle);
+    scale.setItems(SCALES);
+    scale.setSelectedIndex(2);
+    scale.addListener(new ChangeListener() {
+      public void changed(ChangeEvent event, Actor actor) {
+        set(with(SCALE_PASSES[scale.getSelectedIndex()], options.depth(), options.smoothing(),
+            options.dentDepth(), options.dentReach(), options.holeAcross(), options.mirrored()),
+            true);
+      }
+    });
+    controls.add(scale).height(28).padBottom(10).row();
+
+    // Shaping: these reuse what was measured, so dragging one only rebuilds the mesh.
+    slider("depth", 0.1f, 2.5f, 0.05f, (float) options.depth(), "%.2f x", value ->
+        set(with(options.passes(), value, options.smoothing(), options.dentDepth(),
+            options.dentReach(), options.holeAcross(), options.mirrored()), false));
+    slider("dent at the detail", 0f, 0.95f, 0.05f, (float) options.dentDepth(), "%.2f", value ->
+        set(with(options.passes(), options.depth(), options.smoothing(), value,
+            options.dentReach(), options.holeAcross(), options.mirrored()), false));
+    slider("how wide that dent is", 0.1f, 3f, 0.1f, (float) options.dentReach(), "%.1f px",
+        value -> set(with(options.passes(), options.depth(), options.smoothing(),
+            options.dentDepth(), value, options.holeAcross(), options.mirrored()), false));
+
+    // Measuring: these change what is known about the sprite, so the pipeline runs again.
+    slider("smoothing", 0f, 10f, 1f, options.smoothing(), "%.0f passes", value ->
+        set(with(options.passes(), options.depth(), (int) value, options.dentDepth(),
+            options.dentReach(), options.holeAcross(), options.mirrored()), true));
+    slider("a hole is detail up to", 0f, 6f, 0.5f, (float) options.holeAcross(), "%.1f px",
+        value -> set(with(options.passes(), options.depth(), options.smoothing(),
+            options.dentDepth(), options.dentReach(), value, options.mirrored()), true));
+
+    CheckBox mirrored = new CheckBox(" bulge on both sides", checkStyle);
+    mirrored.setChecked(options.mirrored());
+    mirrored.addListener(new ChangeListener() {
+      public void changed(ChangeEvent event, Actor actor) {
+        set(with(options.passes(), options.depth(), options.smoothing(), options.dentDepth(),
+            options.dentReach(), options.holeAcross(), mirrored.isChecked()), false);
+      }
+    });
+    controls.add(mirrored).padTop(8).padBottom(10).row();
+
+    TextButton save = new TextButton("write the OBJ", buttonStyle);
+    save.addListener(new ChangeListener() {
+      public void changed(ChangeEvent event, Actor actor) {
+        write();
+      }
+    });
+    controls.add(save).height(30).padTop(6).row();
+
+    place();
+  }
+
+  private static SpriteInflate.Options with(int[] passes, double depth, int smoothing,
+                                            double dentDepth, double dentReach, double holeAcross,
+                                            boolean mirrored) {
+    return new SpriteInflate.Options(passes, depth, smoothing, dentDepth, dentReach, holeAcross,
+        mirrored);
+  }
+
+  private void set(SpriteInflate.Options changed, boolean measureAgain) {
+    options = changed;
+    rebuild(measureAgain);
+  }
+
+  /** A named slider that shows what it is set to, since a bare bar says nothing. */
+  private void slider(String name, float low, float high, float step, float now, String format,
+                      DoubleConsumer apply) {
+    Label label = new Label(name + "   " + String.format(format, now), labelStyle);
+    controls.add(label).padBottom(2).row();
+    Slider bar = new Slider(low, high, step, false, sliderStyle);
+    bar.setValue(now);
+    bar.addListener(new ChangeListener() {
+      public void changed(ChangeEvent event, Actor actor) {
+        label.setText(name + "   " + String.format(format, bar.getValue()));
+        apply.accept(bar.getValue());
+      }
+    });
+    controls.add(bar).height(22).padBottom(10).row();
+  }
+
+  private void place() {
+    controls.setBounds(Gdx.graphics.getWidth() - CONTROLS, 0, CONTROLS, Gdx.graphics.getHeight());
+  }
+
+  @Override
+  public void resize(int width, int height) {
+    if (stage != null) {
+      stage.getViewport().update(width, height, true);
+      place();
+    }
+  }
+
+  /** Keeps what is on screen, since the point of turning the knobs is to arrive somewhere. */
+  private void write() {
+    try {
+      File root = moduleRoot();
+      File out = new File(root == null ? new File(".") : root, "target/from-viewer");
+      out.mkdirs();
+      File file = new File(out, String.format("sprite-%03d-%s.obj", chosenSprite, profile.label));
+      SpriteInflate.writeObj(SpriteInflate.inflate(fields, profile, options), file.toPath());
+      caption = "written to " + file.getPath();
+    } catch (Exception e) {
+      caption = "could not write it: " + e;
+    }
   }
 
   /**
@@ -336,7 +544,9 @@ public class InflateViewer extends ApplicationAdapter {
     // The figure lives to the right of the panel, so it is centred in what is left rather than
     // in the window - otherwise it sits half behind the sprites it is being chosen from.
     int left = sprites == null ? 0 : PANEL;
-    int width = Gdx.graphics.getWidth() - left, height = Gdx.graphics.getHeight();
+    int right = sprites == null ? 0 : CONTROLS;
+    int width = Math.max(1, Gdx.graphics.getWidth() - left - right);
+    int height = Gdx.graphics.getHeight();
     Gdx.gl.glViewport(left, 0, width, height);
     camera.viewportWidth = width;
     camera.viewportHeight = height;
@@ -350,15 +560,22 @@ public class InflateViewer extends ApplicationAdapter {
     overlay.begin();
     if (sprites != null) {
       panel();
+      overlay.setColor(0.09f, 0.09f, 0.12f, 1f);
+      overlay.draw(block, Gdx.graphics.getWidth() - CONTROLS, 0, CONTROLS, height);
     }
     font.setColor(Color.WHITE);
     font.draw(overlay, caption, left + 12, height - 12);
     font.draw(overlay, sprites != null
-        ? "click a sprite or a colour   arrows = sprite   wheel = scroll   1-4 = profile   "
-        + "space = turn   drag = orbit"
+        ? "click a sprite or a colour   arrows = sprite   wheel = scroll   space = turn   "
+        + "drag = orbit"
         : "1-" + files.size() + " = profile   space = turn   drag = orbit   esc = quit",
         left + 12, 22);
     overlay.end();
+
+    if (stage != null) {
+      stage.act(Gdx.graphics.getDeltaTime());
+      stage.draw();
+    }
   }
 
   private void panel() {
@@ -425,13 +642,6 @@ public class InflateViewer extends ApplicationAdapter {
       if (step != 0) {
         select(Math.floorMod(chosenSprite + step, sprites.size()));
       }
-      SpriteInflate.Profile[] all = SpriteInflate.Profile.values();
-      for (int i = 0; i < all.length; i++) {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1 + i) && profile != all[i]) {
-          profile = all[i];
-          showSprite();
-        }
-      }
     } else {
       for (int i = 0; i < files.size() && i < 9; i++) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1 + i) && i != chosenFile) {
@@ -451,7 +661,7 @@ public class InflateViewer extends ApplicationAdapter {
       scroll -= top - (Gdx.graphics.getHeight() - GAP);
     }
     scroll = Math.max(0, Math.min(scroll, scrollLimit()));
-    showSprite();
+    rebuild(true);
   }
 
   /** Clicks and the wheel over the panel; everything else falls through to the camera. */
@@ -468,7 +678,7 @@ public class InflateViewer extends ApplicationAdapter {
           if (screenX >= swatchLeft(i) && screenX < swatchLeft(i) + SWATCH
               && y >= swatchBottom(i) && y < swatchBottom(i) + SWATCH) {
             chosenColour = i - 1;
-            showSprite();
+            rebuild(false);
             return true;
           }
         }
@@ -478,7 +688,7 @@ public class InflateViewer extends ApplicationAdapter {
         if (screenX >= thumbLeft(i) && screenX < thumbLeft(i) + THUMB
             && y <= thumbTop(i) && y > thumbTop(i) - THUMB) {
           chosenSprite = i;
-          showSprite();
+          rebuild(true);
           return true;
         }
       }
@@ -501,6 +711,9 @@ public class InflateViewer extends ApplicationAdapter {
     overlay.dispose();
     font.dispose();
     block.dispose();
+    if (stage != null) {
+      stage.dispose();
+    }
     if (atlas != null) {
       atlas.dispose();
     }
@@ -559,7 +772,7 @@ public class InflateViewer extends ApplicationAdapter {
     System.out.println("showing " + new File(path).getAbsolutePath());
     Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
     config.setTitle("sprite inflated - " + path);
-    config.setWindowedMode(1180, 760);
+    config.setWindowedMode(1320, 780);
     config.useVsync(true);
     config.setBackBufferConfig(8, 8, 8, 8, 16, 0, 4);
     new Lwjgl3Application(new InflateViewer(path), config);

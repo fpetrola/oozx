@@ -144,9 +144,10 @@ public class SpriteInflate {
 
     // "4", or "4x2" for eight times in two passes: xBRZ itself refuses anything but two to six.
     int[] passes = passes(args.length > 2 ? args[2] : "4");
+    Options options = new Options(passes, 1.0, 3, 0.45, 0.4, 2.0, true);
     // The same call the viewer makes. It used to be a second copy of it here, and the two drifted
     // apart at once: the viewer learned to paint the filled-in detail and the pictures did not.
-    Fields fields = measure(sprite, passes, true);
+    Fields fields = measure(sprite, options, true);
     int width = fields.width(), height = fields.height();
     double[] coverage = fields.coverage();
     double[] thickness = fields.thickness();
@@ -161,12 +162,12 @@ public class SpriteInflate {
 
     List<BufferedImage> rows = new ArrayList<>();
     for (Profile profile : Profile.values()) {
-      double[] depth = depths(fields, profile);
+      double[] depth = depths(fields, profile, options);
       double deepest = 0;
       for (int i = 0; i < depth.length; i++) {
         deepest = Math.max(deepest, depth[i]);
       }
-      List<double[]> mesh = build(coverage, depth, width, height);
+      List<double[]> mesh = build(coverage, depth, width, height, options.mirrored());
       writeObj(mesh, out.resolve("5-" + profile.label + ".obj"));
       // The maximum is the same point for all three - the middle of the biggest disc - so it
       // says nothing. What separates them is what happens where the figure is thin.
@@ -219,7 +220,7 @@ public class SpriteInflate {
     BufferedImage disc = disc(16);
     BufferedImage discBig = disc;
     // The same passes, not the product: xBRZ takes two to six and eight is reached by chaining.
-    for (int pass : passes) {
+    for (int pass : options.passes()) {
       discBig = xbrz(discBig, pass);
     }
     double[] discCoverage = coverageOf(discBig);
@@ -239,6 +240,40 @@ public class SpriteInflate {
     System.out.println("written to " + out.toAbsolutePath());
   }
 
+  /**
+   * Every number in this that is a judgement rather than a fact.
+   * <p>
+   * They were constants in the code, which is the wrong place for them: not one can be settled by
+   * reasoning - a dent of 0.45 against 0.6 is a question about what an eye looks like - and every
+   * one of them was chosen by rendering it once and squinting. Out here they can be turned while
+   * looking at the thing they change.
+   *
+   * @param passes     how xBRZ is applied: {4} for four times, {4,2} for eight in two goes
+   * @param depth      the bulge, as a multiple of what the profile says
+   * @param smoothing  how hard the local thickness is smoothed; it comes out of a maximum over a
+   *                   discrete set and so arrives in steps, and every step is a terrace
+   * @param dentDepth  how far a filled-in hole is pressed back in, as a fraction of the depth
+   * @param dentReach  how wide that dent is, in pixels OF THE ORIGINAL SPRITE
+   * @param holeAcross how big a hole may be, in pixels of the original sprite, and still count as
+   *                   detail to be filled rather than shape to be kept
+   * @param mirrored   the same bulge front and back, rather than a flat front
+   */
+  record Options(int[] passes, double depth, int smoothing, double dentDepth, double dentReach,
+                 double holeAcross, boolean mirrored) {
+
+    static Options standard() {
+      return new Options(new int[]{4}, 1.0, 3, 0.45, 0.4, 2.0, true);
+    }
+
+    int factor() {
+      int factor = 1;
+      for (int pass : passes) {
+        factor *= pass;
+      }
+      return factor;
+    }
+  }
+
   /** Everything the shape of a sprite decides, before any one profile is chosen. */
   record Fields(BufferedImage scaled, double[] coverage, double[] distance, double[] thickness,
                 double largest, int width, int height, int factor,
@@ -252,28 +287,29 @@ public class SpriteInflate {
    * is holding a key down: everything here is linear in the pixels except the local thickness,
    * which is quadratic and still nothing at a sprite's size.
    */
-  static Fields measure(BufferedImage sprite, int[] passes) {
-    return measure(sprite, passes, false);
+  static Fields measure(BufferedImage sprite, Options options) {
+    return measure(sprite, options, false);
   }
 
-  static Fields measure(BufferedImage sprite, int[] passes, boolean talk) {
+  static Fields measure(BufferedImage sprite, Options options, boolean talk) {
     BufferedImage big = padded(sprite, 2, talk);
     int factor = 1;
-    for (int pass : passes) {
+    for (int pass : options.passes()) {
       big = xbrz(big, pass);
       factor *= pass;
     }
     if (talk) {
-      System.out.printf("scaled %s = %dx%n",
-          java.util.Arrays.toString(passes).replaceAll("[\\[\\] ]", "").replace(',', 'x'), factor);
+      System.out.printf("scaled %s = %dx%n", java.util.Arrays.toString(options.passes())
+          .replaceAll("[\\[\\] ]", "").replace(',', 'x'), factor);
     }
     int width = big.getWidth(), height = big.getHeight();
     double[] coverage = coverageOf(big);
-    boolean[] detail = fillSmallHoles(coverage, width, height, 2.0 * factor, talk);
+    boolean[] detail =
+        fillSmallHoles(coverage, width, height, options.holeAcross() * factor, talk);
     double[] fromDetail = distanceFrom(detail, width, height);
     double[] distance = distanceInside(coverage, width, height);
     double[] thickness = localThickness(distance, width, height);
-    soften(thickness, coverage, width, height, 3);
+    soften(thickness, coverage, width, height, options.smoothing());
     double largest = 0;
     for (int i = 0; i < thickness.length; i++) {
       thickness[i] = Math.max(thickness[i], distance[i]);
@@ -287,12 +323,13 @@ public class SpriteInflate {
   }
 
   /** A sprite as a closed solid, ready to be handed to a renderer. */
-  static List<double[]> inflate(Fields fields, Profile profile) {
-    return build(fields.coverage(), depths(fields, profile), fields.width(), fields.height());
+  static List<double[]> inflate(Fields fields, Profile profile, Options options) {
+    return build(fields.coverage(), depths(fields, profile, options), fields.width(),
+        fields.height(), options.mirrored());
   }
 
   /** How far back the surface stands at every point, which is the whole of a profile's opinion. */
-  static double[] depths(Fields fields, Profile profile) {
+  static double[] depths(Fields fields, Profile profile, Options options) {
     double[] depth = new double[fields.width() * fields.height()];
     // A hole that was filled in was drawn for a reason - it is an eye, a button, a spot - and
     // filling it silently throws that away. It cannot come back as a hole: as a hole it bores a
@@ -300,12 +337,13 @@ public class SpriteInflate {
     // the whole face around it thin. So it comes back as a dent, which is what an eye is anyway,
     // and as a colour. The dent is shallow on purpose: deep enough to catch the light along one
     // side, never deep enough to meet the other surface and re-open the hole it was filling.
-    double reach = 1.6 * fields.factor();
+    double reach = Math.max(1e-6, options.dentReach() * fields.factor());
     for (int i = 0; i < depth.length; i++) {
       if (fields.coverage()[i] >= 0.5) {
-        depth[i] = profile.depth(fields.distance()[i], fields.thickness()[i], fields.largest());
+        depth[i] = profile.depth(fields.distance()[i], fields.thickness()[i], fields.largest())
+            * options.depth();
         double away = fields.fromDetail()[i] / reach;
-        depth[i] *= 1 - 0.45 * Math.exp(-away * away);
+        depth[i] *= 1 - options.dentDepth() * Math.exp(-away * away);
       }
     }
     return depth;
@@ -358,7 +396,7 @@ public class SpriteInflate {
         depth[i] = Profile.SPHERE_LOCAL.depth(distance[i], thickness[i], largest);
       }
     }
-    return turntable(build(coverage, depth, width, height), fields, label);
+    return turntable(build(coverage, depth, width, height, true), fields, label);
   }
 
   /**
@@ -809,7 +847,8 @@ public class SpriteInflate {
    * no case table - so the silhouette follows the same half-coverage line the outline does,
    * rather than the edges of whole pixels. That is the step that keeps the smoothing.
    */
-  private static List<double[]> build(double[] coverage, double[] depth, int width, int height) {
+  private static List<double[]> build(double[] coverage, double[] depth, int width, int height,
+                                      boolean mirrored) {
     List<double[]> triangles = new ArrayList<>();
     for (int y = 0; y + 1 < height; y++) {
       for (int x = 0; x + 1 < width; x++) {
@@ -823,9 +862,11 @@ public class SpriteInflate {
         for (int i = 1; i + 1 < inside.size(); i++) {
           double[] a = inside.get(0), b = inside.get(i), c = inside.get(i + 1);
           // Mirrored: the same bulge forwards as backwards, so the section is a whole ellipse and
-          // not half of one against a flat back. The two halves still meet at the outline, where
-          // both are zero, so the solid closes there exactly as before.
-          triangles.add(new double[]{a[0], a[1], -a[3], b[0], b[1], -b[3], c[0], c[1], -c[3]});
+          // not half of one against a flat back. Either way the two halves meet at the outline,
+          // where both are zero, so the solid closes there.
+          double front = mirrored ? -1 : 0;
+          triangles.add(new double[]{a[0], a[1], front * a[3], b[0], b[1], front * b[3],
+              c[0], c[1], front * c[3]});
           triangles.add(new double[]{a[0], a[1], a[3], c[0], c[1], c[3], b[0], b[1], b[3]});
         }
       }
@@ -918,7 +959,7 @@ public class SpriteInflate {
   }
 
   /** The solid as a mesh, welded, with a normal at every vertex. */
-  private static void writeObj(List<double[]> triangles, Path file) throws Exception {
+  static void writeObj(List<double[]> triangles, Path file) throws Exception {
     java.util.Map<String, double[]> normals = smoothNormals(triangles);
     java.util.Map<String, Integer> numbered = new java.util.LinkedHashMap<>();
     List<double[]> points = new ArrayList<>();

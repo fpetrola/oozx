@@ -40,6 +40,19 @@ la hoja probando a qué tamaño de bloque todo bloque es de un solo color. Desha
 obligatorio: darle a xBRZ píxeles que ya vienen de a pares le hace redondear los pares, o sea
 suavizar el agrandado en lugar del dibujo, y sale peor que no escalar.
 
+## Las perillas
+
+Todo número del pipeline que sea un juicio y no un hecho está en `SpriteInflate.Options`, y el
+visor los pone en un panel a la derecha: forma, escala, profundidad, hundido del detalle y su
+ancho, suavizado, qué tamaño de agujero cuenta como detalle, y panza a uno o a los dos lados.
+Ninguno se puede decidir discutiendo — cuánto hundido lee como ojo es una pregunta sobre cómo se
+ve un ojo — y todos habían sido elegidos renderizando una vez y entrecerrando los ojos.
+
+Hay dos clases de perilla y la diferencia se nota al arrastrar: unas cambian lo que se **mide**
+del sprite (escala, suavizado, qué es un agujero) y obligan a rehacer el pipeline entero; el resto
+sólo cambia la forma construida sobre esas mediciones y las reusa. El grosor local es cuadrático,
+así que la barra que no lo toca no lo paga.
+
 ## Qué hace, paso por paso
 
 1. **Un margen transparente.** Willy llena su celda de 16×16: el sombrero está en la fila 0 y los
