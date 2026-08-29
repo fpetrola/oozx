@@ -133,6 +133,31 @@ Altura contra distancia del borde, midiendo sobre el mesh:
 Efecto colateral, visible en la tabla: adelgaza la figura entera, no sólo el borde. Se compensa
 con la perilla de profundidad.
 
+## El serrucho, y el paso final
+
+No viene de la superficie sino de la **silueta**: xBRZ deja casi todos los bordes duros, así que
+la línea de coverage 0.5 sobre la que se corta corre en escalones de un píxel de salida, y donde
+la superficie da la vuelta rápido cada escalón es una faceta con su propia idea de dónde está la
+luz. Subir la escala no ayuda — ya está medido más arriba.
+
+El único paso que puede tocar eso es **después**, cuando ya es una malla y los escalones son
+simplemente vértices mal puestos. La perilla *smoothing the mesh* corre suavizado de **Taubin**,
+no Laplaciano pelado: promediar encoge el sólido en cada pasada, y a la docena la figura adelgazó
+a ojos vistas. La segunda mitad de cada par empuja hacia afuera un poco más de lo que la primera
+metió hacia adentro (0.5 y −0.53), lo que cancela el encogimiento y deja el suavizado. La
+topología no se toca, así que un sólido cerrado sigue cerrado.
+
+Contorno del render (perímetro sobre raíz del área, más bajo es más liso):
+
+| pasadas | 0 | 4 | 15 |
+|---|---|---|---|
+| contorno | 14.51 | 13.57 | 12.77 |
+
+Cuidado con la otra métrica que imprime `main`, el desacuerdo entre caras vecinas: va de 12.39° a
+11.18° y se estanca en 10.71°, lo que sugiere que el suavizado deja de servir. No es así — ese
+piso es el zig-zag de la triangulación en grilla, que no se va con ningún suavizado, y estaba
+tapando la mejora real.
+
 ## Verificación
 
 `writeObj` cuenta las aristas usadas por una sola cara. Un sólido cerrado tiene **cero**, y eso es

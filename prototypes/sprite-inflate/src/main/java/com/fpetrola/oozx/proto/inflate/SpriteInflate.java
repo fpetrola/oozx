@@ -147,7 +147,8 @@ public class SpriteInflate {
     // The fourth argument is the seam rounding, because comparing it against itself is the only
     // way to see what it does.
     double rimRoll = args.length > 3 ? Double.parseDouble(args[3]) : 0.6;
-    Options options = new Options(passes, 1.0, 3, 0.45, 0.4, 2.0, true, rimRoll);
+    int relaxing = args.length > 4 ? Integer.parseInt(args[4]) : 4;
+    Options options = new Options(passes, 1.0, 3, 0.45, 0.4, 2.0, true, rimRoll, relaxing);
     // The same call the viewer makes. It used to be a second copy of it here, and the two drifted
     // apart at once: the viewer learned to paint the filled-in detail and the pictures did not.
     Fields fields = measure(sprite, options, true);
@@ -170,7 +171,11 @@ public class SpriteInflate {
       for (int i = 0; i < depth.length; i++) {
         deepest = Math.max(deepest, depth[i]);
       }
-      List<double[]> mesh = build(coverage, depth, width, height, options.mirrored());
+      List<double[]> rough = build(coverage, depth, width, height, options.mirrored());
+      List<double[]> mesh = relaxed(rough, options.relaxing());
+      System.out.printf("  %-14s neighbouring faces disagree by %.2f degrees, %.2f after "
+              + "%d passes of smoothing%n",
+          profile.label, roughness(rough), roughness(mesh), options.relaxing());
       writeObj(mesh, out.resolve("5-" + profile.label + ".obj"));
       // The maximum is the same point for all three - the middle of the biggest disc - so it
       // says nothing. What separates them is what happens where the figure is thin.
@@ -262,12 +267,14 @@ public class SpriteInflate {
    * @param mirrored   the same bulge front and back, rather than a flat front
    * @param rimRoll    over how many pixels the surface is allowed to turn over at the outline;
    *                   zero leaves the profile exactly as it is
+   * @param relaxing   how many passes of smoothing are run over the finished mesh, which is the
+   *                   only step that can touch the outline itself
    */
   record Options(int[] passes, double depth, int smoothing, double dentDepth, double dentReach,
-                 double holeAcross, boolean mirrored, double rimRoll) {
+                 double holeAcross, boolean mirrored, double rimRoll, int relaxing) {
 
     static Options standard() {
-      return new Options(new int[]{4}, 1.0, 3, 0.45, 0.4, 2.0, true, 0.6);
+      return new Options(new int[]{4}, 1.0, 3, 0.45, 0.4, 2.0, true, 0.6, 4);
     }
 
     int factor() {
@@ -329,8 +336,143 @@ public class SpriteInflate {
 
   /** A sprite as a closed solid, ready to be handed to a renderer. */
   static List<double[]> inflate(Fields fields, Profile profile, Options options) {
-    return build(fields.coverage(), depths(fields, profile, options), fields.width(),
-        fields.height(), options.mirrored());
+    return relaxed(build(fields.coverage(), depths(fields, profile, options), fields.width(),
+        fields.height(), options.mirrored()), options.relaxing());
+  }
+
+  /**
+   * Smooths the finished mesh, which is the only step that can do anything about the outline.
+   * <p>
+   * Everything before this works on a grid, and the sawtooth left along the edges of the figure
+   * is that grid: xBRZ leaves most edges hard, so the half-coverage line they are cut on runs in
+   * steps of one output pixel, and where the surface turns over quickly each of those steps
+   * becomes a facet with its own idea of where the light is. More resolution does not help - the
+   * scaler decides which corners to round on the ORIGINAL grid and only draws those same
+   * decisions more finely. Once it is a mesh, though, the steps are just vertices in the wrong
+   * place, and moving each towards the middle of its neighbours puts them right.
+   * <p>
+   * Taubin's, not plain Laplacian: averaging alone shrinks a solid a little on every pass, and
+   * after a dozen the figure has visibly lost weight. The second pass of each pair pushes back
+   * out by slightly more than the first pulled in, which cancels the shrinking while leaving the
+   * smoothing - the two coefficients here are the usual 0.5 and -0.53.
+   * <p>
+   * Topology is untouched, so a closed solid stays closed: this only moves vertices.
+   */
+  static List<double[]> relaxed(List<double[]> triangles, int passes) {
+    if (passes <= 0 || triangles.isEmpty()) {
+      return triangles;
+    }
+    java.util.Map<String, Integer> numbered = new java.util.LinkedHashMap<>();
+    List<double[]> points = new ArrayList<>();
+    int[][] faces = new int[triangles.size()][3];
+    for (int t = 0; t < triangles.size(); t++) {
+      double[] triangle = triangles.get(t);
+      for (int i = 0; i < 3; i++) {
+        double x = triangle[i * 3], y = triangle[i * 3 + 1], z = triangle[i * 3 + 2];
+        String at = key(x, y, z);
+        Integer already = numbered.get(at);
+        if (already == null) {
+          already = points.size();
+          numbered.put(at, already);
+          points.add(new double[]{x, y, z});
+        }
+        faces[t][i] = already;
+      }
+    }
+
+    List<java.util.Set<Integer>> neighbours = new ArrayList<>();
+    for (int i = 0; i < points.size(); i++) {
+      neighbours.add(new java.util.HashSet<>());
+    }
+    for (int[] face : faces) {
+      for (int i = 0; i < 3; i++) {
+        neighbours.get(face[i]).add(face[(i + 1) % 3]);
+        neighbours.get(face[(i + 1) % 3]).add(face[i]);
+      }
+    }
+
+    double[][] at = points.toArray(new double[0][]);
+    for (int pass = 0; pass < passes; pass++) {
+      at = towardsNeighbours(at, neighbours, 0.5);
+      at = towardsNeighbours(at, neighbours, -0.53);
+    }
+
+    List<double[]> out = new ArrayList<>(triangles.size());
+    for (int[] face : faces) {
+      out.add(new double[]{
+          at[face[0]][0], at[face[0]][1], at[face[0]][2],
+          at[face[1]][0], at[face[1]][1], at[face[1]][2],
+          at[face[2]][0], at[face[2]][1], at[face[2]][2]});
+    }
+    return out;
+  }
+
+  /** One pass: every vertex a step of {@code weight} towards the average of its neighbours. */
+  private static double[][] towardsNeighbours(double[][] at, List<java.util.Set<Integer>> neighbours,
+                                              double weight) {
+    double[][] moved = new double[at.length][3];
+    for (int i = 0; i < at.length; i++) {
+      java.util.Set<Integer> around = neighbours.get(i);
+      if (around.isEmpty()) {
+        moved[i] = at[i].clone();
+        continue;
+      }
+      double x = 0, y = 0, z = 0;
+      for (int other : around) {
+        x += at[other][0];
+        y += at[other][1];
+        z += at[other][2];
+      }
+      int count = around.size();
+      moved[i][0] = at[i][0] + weight * (x / count - at[i][0]);
+      moved[i][1] = at[i][1] + weight * (y / count - at[i][1]);
+      moved[i][2] = at[i][2] + weight * (z / count - at[i][2]);
+    }
+    return moved;
+  }
+
+  /**
+   * How much the surface disagrees with itself from one triangle to the next, in degrees.
+   * <p>
+   * A sawtooth is exactly this: neighbouring faces pointing in visibly different directions. It
+   * is what the eye is reacting to, so it is the thing to measure rather than the thing to argue
+   * about.
+   */
+  static double roughness(List<double[]> triangles) {
+    java.util.Map<Long, double[]> byEdge = new java.util.HashMap<>();
+    java.util.Map<String, Integer> numbered = new java.util.LinkedHashMap<>();
+    double total = 0;
+    int counted = 0;
+    for (double[] triangle : triangles) {
+      int[] face = new int[3];
+      for (int i = 0; i < 3; i++) {
+        face[i] = numbered.computeIfAbsent(
+            key(triangle[i * 3], triangle[i * 3 + 1], triangle[i * 3 + 2]), unused -> numbered.size());
+      }
+      double[] normal = cross(
+          new double[]{triangle[0], triangle[1], triangle[2]},
+          new double[]{triangle[3], triangle[4], triangle[5]},
+          new double[]{triangle[6], triangle[7], triangle[8]});
+      double length = Math.sqrt(
+          normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
+      if (length < 1e-12) {
+        continue;
+      }
+      for (int i = 0; i < 3; i++) {
+        long edge = (long) Math.min(face[i], face[(i + 1) % 3]) << 32
+            | Math.max(face[i], face[(i + 1) % 3]);
+        double[] other = byEdge.get(edge);
+        if (other == null) {
+          byEdge.put(edge, new double[]{normal[0] / length, normal[1] / length, normal[2] / length});
+        } else {
+          double dot = other[0] * normal[0] / length + other[1] * normal[1] / length
+              + other[2] * normal[2] / length;
+          total += Math.toDegrees(Math.acos(Math.max(-1, Math.min(1, dot))));
+          counted++;
+        }
+      }
+    }
+    return counted == 0 ? 0 : total / counted;
   }
 
   /** How far back the surface stands at every point, which is the whole of a profile's opinion. */
