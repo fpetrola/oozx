@@ -55,8 +55,11 @@ public class RzxSession {
 
   private final RzxFile recording;
   private final Speccy speccy;
-  private final RzxPlayback playback;
   private final SwitchableIO ports;
+  /** Replaced by {@link #rewind()}: a driver counts from where it started and cannot go back. */
+  private RzxPlayback playback;
+  /** The recording's own starting state, written out once and read again to go back to it. */
+  private Path snapshot;
 
   private RzxSession(RzxFile recording, Speccy speccy, RzxPlayback playback, SwitchableIO ports) {
     this.recording = recording;
@@ -70,7 +73,8 @@ public class RzxSession {
    * hardware. Nothing else is switched: the machine goes on from wherever the recording left it.
    */
   private static class SwitchableIO implements IO {
-    private final RZXPlayerIO player;
+    /** Replaced on a rewind: a player holds its place in the recording and does not seek. */
+    private volatile RZXPlayerIO player;
     private volatile IO hardware;
     private volatile boolean replaying = true;
 
@@ -142,7 +146,8 @@ public class RzxSession {
     // ran the 128K editor's handler - reading the AY and scanning the keyboard, twenty-two port
     // reads in a frame the recording says had one.
     ports.hardware = injector.getInstance(PeripheralIO.class);
-    speccy.z80.loadSnap(snapshotFileOf(recording).toAbsolutePath().toString());
+    Path snapshot = snapshotFileOf(recording);
+    speccy.z80.loadSnap(snapshot.toAbsolutePath().toString());
 
     // After loadSnap, because that is what decides which machine this is: a 128K frame is 70908
     // T-states against a 48K one's 69888, and the driver subtracts a frame's worth at every
@@ -151,7 +156,34 @@ public class RzxSession {
     RzxSession session = new RzxSession(recording, speccy,
         new RzxPlayback(speccy.z80.ooz80, player, recording, framesTStatesOf(speccy)), ports);
     session.timer = injector.getInstance(com.fpetrola.oozx.speccy.modules.Timer.class);
+    session.snapshot = snapshot;
     return session;
+  }
+
+  /**
+   * Back to the recording's first frame, on the machine that is already running it.
+   * <p>
+   * Starting a recording over used to mean building the whole thing again - a new machine, and
+   * so a new window for it, because a window is tied to the machine it shows. Pressing Stop
+   * therefore threw away the window you were watching and put another in its place. Nothing
+   * about going back to the beginning needs that: the recording carries the state it began
+   * from, and putting that state back into this machine is what starting over means.
+   * <p>
+   * What has to be new is the pair that keeps a place: a player holds its position in the
+   * recording and a driver counts fetches from where it started, and neither seeks backwards.
+   * They are made again over the same machine.
+   * <p>
+   * The ports go back to reading the recording, so this also undoes a Take Over - which is the
+   * other thing someone means by Stop.
+   */
+  public void rewind() {
+    RZXPlayerIO.stop = false;
+    RZXPlayerIO player = new RZXPlayerIO();
+    ports.player = player;
+    ports.replaying = true;
+    finished = false;
+    speccy.z80.loadSnap(snapshot.toAbsolutePath().toString());
+    playback = new RzxPlayback(speccy.z80.ooz80, player, recording, framesTStatesOf(speccy));
   }
 
   /** How long a frame is on the machine currently selected. */
