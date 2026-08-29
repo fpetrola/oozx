@@ -1545,9 +1545,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
         try {
           createNewEmulator(get(), gameSearchResult);
         } catch (Exception e) {
-          Throwable cause = e.getCause() != null ? e.getCause() : e;
           JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-              "Could not load \"" + gameSearchResult.title + "\": " + cause,
+              "Could not load \"" + gameSearchResult.title + "\".\n\n" + reason(e),
               "Load failed", JOptionPane.ERROR_MESSAGE);
         } finally {
           whenDone.run();
@@ -1612,10 +1611,9 @@ public class ZXSpectrumDesktopApp extends JFrame {
         try {
           player.openRecording(get());
         } catch (Exception e) {
-          Throwable cause = e.getCause() != null ? e.getCause() : e;
           player.setBusy(null);
           JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-              "Could not fetch " + option.label() + ": " + cause,
+              "Could not fetch " + option.label() + ".\n\n" + reason(e),
               "Play recording", JOptionPane.ERROR_MESSAGE);
         }
       }
@@ -1690,6 +1688,21 @@ public class ZXSpectrumDesktopApp extends JFrame {
    * types LOAD "" and plays from the start. Off the event thread: building a machine downloads,
    * unzips and boots, and doing that on the event thread freezes the window.
    */
+  /**
+   * What to tell someone about a failure: what went wrong, not the pile of wrappers that carried
+   * it here. A download refused by an archive arrives as an ExecutionException around a
+   * RuntimeException around an IOException, and printing that put three Java class names and a
+   * full URL in front of the one sentence that says anything.
+   */
+  private static String reason(Throwable failure) {
+    Throwable deepest = failure;
+    while (deepest.getCause() != null && deepest.getCause() != deepest) {
+      deepest = deepest.getCause();
+    }
+    String message = deepest.getMessage();
+    return message == null || message.isBlank() ? deepest.getClass().getSimpleName() : message;
+  }
+
   public void loadInNewEmulator(String path) {
     new SwingWorker<EmulatorCore, Void>() {
       @Override
@@ -1702,9 +1715,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
         try {
           createNewEmulator(get(), path);
         } catch (Exception e) {
-          Throwable cause = e.getCause() != null ? e.getCause() : e;
           JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-              "Could not load " + path + ": " + cause, "Load failed", JOptionPane.ERROR_MESSAGE);
+              "Could not load " + path + ".\n\n" + reason(e), "Load failed", JOptionPane.ERROR_MESSAGE);
         }
       }
     }.execute();

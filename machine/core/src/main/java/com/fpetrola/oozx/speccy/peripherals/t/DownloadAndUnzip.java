@@ -19,7 +19,9 @@
 package com.fpetrola.oozx.speccy.peripherals.t;
 
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -204,8 +206,38 @@ public class DownloadAndUnzip {
     return score;
   }
 
+  /**
+   * A download that did not happen, carrying a sentence worth showing someone.
+   * <p>
+   * The reason a file will not come down is nearly always about the file - the archive is not
+   * allowed to distribute it, or has not got it any more - and that is worth saying plainly.
+   * What was said instead came from {@link URL#openStream()}, which answers a refusal with
+   * "Server returned HTTP response code: 403 for URL: https://..." - the whole URL, the class
+   * name in front of it, and nothing about what to do.
+   */
+  public static class DownloadFailed extends IOException {
+    public DownloadFailed(String message) {
+      super(message);
+    }
+  }
+
   private static byte[] downloadFile(URL url) throws IOException {
-    try (InputStream in = url.openStream();
+    URLConnection connection = url.openConnection();
+    connection.setConnectTimeout(20_000);
+    connection.setReadTimeout(60_000);
+    if (connection instanceof HttpURLConnection http) {
+      http.setInstanceFollowRedirects(true);
+      int status;
+      try {
+        status = http.getResponseCode();
+      } catch (IOException unreachable) {
+        throw new DownloadFailed(cannotReach(url, unreachable));
+      }
+      if (status / 100 != 2) {
+        throw new DownloadFailed(refusal(url, status));
+      }
+    }
+    try (InputStream in = connection.getInputStream();
          ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 
       byte[] buffer = new byte[8192];
@@ -214,6 +246,38 @@ public class DownloadAndUnzip {
         baos.write(buffer, 0, bytesRead);
       }
       return baos.toByteArray();
+    } catch (java.net.SocketTimeoutException timeout) {
+      throw new DownloadFailed(url.getHost() + " stopped sending " + nameOf(url) + " partway through");
     }
+  }
+
+  private static String refusal(URL url, int status) {
+    String file = nameOf(url);
+    String host = url.getHost();
+    return switch (status) {
+      case 401, 403 -> host + " will not hand over " + file
+          + ": it is not allowed to distribute this one (HTTP " + status + ")";
+      case 404, 410 -> host + " has not got " + file + " (HTTP " + status + ")";
+      case 429 -> host + " is asking for fewer requests just now (HTTP 429) - worth another go in a minute";
+      default -> status / 100 == 5
+          ? host + " has a problem of its own and could not send " + file + " (HTTP " + status + ")"
+          : host + " answered HTTP " + status + " for " + file;
+    };
+  }
+
+  private static String cannotReach(URL url, IOException failure) {
+    if (failure instanceof java.net.UnknownHostException) {
+      return "there is no answer for " + url.getHost() + " - the name does not resolve, so this looks like being offline";
+    }
+    if (failure instanceof java.net.SocketTimeoutException) {
+      return url.getHost() + " did not answer in time";
+    }
+    return url.getHost() + " could not be reached: " + failure.getMessage();
+  }
+
+  private static String nameOf(URL url) {
+    String path = url.getPath();
+    String name = path.substring(path.lastIndexOf('/') + 1);
+    return name.isEmpty() ? "the file" : name;
   }
 }
