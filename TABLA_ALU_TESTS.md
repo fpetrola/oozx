@@ -185,3 +185,32 @@ First 5 entries:
   idx=  3: val=0x00000006 (A=0x00, F=0x06)
   idx=  4: val=0x00000008 (A=0x00, F=0x08)
 ```
+
+## Lo que un sello dorado no dice
+
+Un MD5 detecta que una tabla **cambió**; no dice que sea **correcta**. Si una operación nació mal,
+su sello congela el error y el test queda en verde para siempre. Eso fue exactamente lo que pasó
+con cuatro instrucciones acá.
+
+Por eso al lado de esta suite vive `AluReferenceTest`, que no compara contra un baseline propio
+sino contra el comportamiento publicado del Z80, recorriendo **todo** el espacio de entrada de
+cada instrucción (131072 combinaciones: cada acumulador contra cada operando contra los dos
+acarreos), bits no documentados 3 y 5 incluidos, y ejecutando el opcode a través del procesador
+en lugar de llamar a la tabla directamente.
+
+Las dos se necesitan:
+
+| | `AllTableAluOperationsCompatibilityTest` | `AluReferenceTest` |
+|---|---|---|
+| Contra qué compara | el sello de la última vez | el Z80 documentado |
+| Qué detecta | cualquier cambio, incluso uno accidental | que el valor esté mal |
+| Qué no detecta | que el valor esté mal desde el principio | un cambio que siga siendo correcto |
+
+Flujo cuando `AluReferenceTest` encuentra un error: se arregla la instrucción, la suite de sellos
+falla porque la tabla cambió, y recién ahí se repone el MD5 en
+`emulator/src/test/resources/table_alu_operations_config.json`. Reponer un sello sin que la
+suite de referencia esté verde es tapar el problema.
+
+También conviene tener presente que la suite de Fuse, con 1356 casos, tiene **un vector por
+opcode**: alcanza para encontrar una instrucción rota de arriba abajo, no una que acierta en ese
+vector y falla en el resto. Las cuatro fallas encontradas acá pasaban Fuse.

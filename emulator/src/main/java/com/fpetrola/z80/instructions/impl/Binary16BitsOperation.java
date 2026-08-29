@@ -40,12 +40,28 @@ public class Binary16BitsOperation extends ParameterizedBinaryAluInstruction {
     return calculate(targetValue, sourceValue);
   }
 
+  /**
+   * The eight bits the flags of a sixteen-bit add or subtract are made of, packed into a byte so
+   * the operation can be a table: bits 15 and 11 of each operand, and bits 16, 15, 13 and 11 of
+   * the result. Eight things, eight bits, and no room for a mistake.
+   * <p>
+   * There was one. Bit 13 of the result was arriving TWICE - once folded down to a bit of its
+   * own, which is where the operation reads it from for the undocumented bit 5, and once through
+   * the plain mask, which lands it on top of bit 11 of the second operand. So whenever a result
+   * reached 0x2000 the second operand looked as though it had carried out of its eleventh bit
+   * when it had not, and the half carry, which is read from exactly those three bits, came out
+   * set: ADC HL,DE of 0000 and 20FF reported one. Taking bit 13 out of the plain mask and leaving
+   * the fold gives eight distinct things in eight bits, which is what there is room for.
+   */
   protected int compress(int v1, int v2, int result) {
-    return ((v1 & 0x8800 | (v2 & 0x8800) >> 1) | (result & 0x1A800 | (result & 0x2000) >> 1) >> 3) >> 8;
+    return ((v1 & 0x8800 | (v2 & 0x8800) >> 1)
+        | ((result & 0x18800) | ((result & 0x2000) >> 1)) >> 3) >> 8;
   }
 
   protected void executeAction(int v1, int v2, int result) {
-    aluOperation.execute2Values1Boolean(result != 0 ? 1 : 0, v1, flag.read() & 1, flag);
+    // The sixteen bits that land in the register, not the seventeen the addition made: adding
+    // 0000 and FFFF with a carry gives 10000, which is zero in HL and was not being called zero.
+    aluOperation.execute2Values1Boolean((result & 0xFFFF) != 0 ? 1 : 0, v1, flag.read() & 1, flag);
   }
 
   protected int operation(int v1, int v2, int f) {

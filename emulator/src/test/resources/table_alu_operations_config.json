@@ -54,7 +54,7 @@
   }, {
     "name" : "RRD",
     "description" : "Rotate Right Digit",
-    "md5" : "a9e52009e335ecd3a8db929d5cba60f6"
+    "md5" : "4379fe51b238cf59c0a562e25ee68933"
   }, {
     "name" : "Add",
     "description" : "Add to Accumulator",
@@ -126,7 +126,7 @@
   }, {
     "name" : "Cpi",
     "description" : "Compare and increment",
-    "md5" : "456fdaf089cd481c2f1dfa24d8214b34"
+    "md5" : "4360165c6ce9d87ffd37e310504fbc08"
   }, {
     "name" : "LdAI",
     "description" : "Load A from I",

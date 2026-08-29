@@ -30,7 +30,12 @@ public class Cpi extends BlockInstruction {
   public static class CpiTableAluOperation extends AluOperation {
     @Override
     protected int calculate2Values1Boolean(int value, int A, int BC) {
-      F = BC;
+      // NOT the carry: the third argument here says whether BC is still counting, and seeding the
+      // flags from it took the carry out of that - so CPI reported a carry whenever it had more
+      // to compare. The carry is the one flag CPI leaves alone and this table cannot carry it,
+      // being indexed by the compared byte, the accumulator and that counter; it is put back in
+      // flagOperation, where the flags register is at hand.
+      F = 0;
       int bytetemp = A - value;
       int lookup = ((A & 0x08) >> 3) |
                    ((value & 0x08) >> 2) |
@@ -74,7 +79,10 @@ public class Cpi extends BlockInstruction {
   protected void flagOperation(int valueFromHL) {
     int value = memory.read(hl.read(), 0);
     int reg_A = a.read();
+    // Kept across, because CPI does not touch it and the table it goes through cannot know it.
+    int carry = flag.read() & 1;
     aluOperation.execute2Values1Boolean(value, reg_A, bc.read() != 0 ? 1 : 0, flag);
+    flag.write((flag.read() & ~1) | carry);
   }
 
 

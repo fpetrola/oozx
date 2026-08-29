@@ -26,6 +26,11 @@ import com.fpetrola.z80.registers.flag.AluOperation;
 public class RRD extends RLD {
   public static class RrdTableAluOperation extends AluOperation {
     protected int calculate2Values1Boolean(int value1, int value2, int flag) {
+      // The carry comes in as the third argument and is the one flag this leaves alone. Without
+      // seeding F from it, F still held whatever the table put there while it was being built -
+      // the byte at (HL) - so the carry came out of ITS bit zero. RLD next door has always done
+      // this; the two are the same instruction in opposite directions and now agree.
+      F = flag;
       value2 = (value2 & 0xf0) | (value1 & 0x0f);
       F = (F & FLAG_C) | sz53pTable(value2);
       Q = F;
