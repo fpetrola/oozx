@@ -239,9 +239,17 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   }
 
   private void open() {
-    File chosen = chooseRecording.get();
-    if (chosen != null) {
-      openRecording(chosen);
+    // Anything thrown inside a listener is printed to the console by Swing and nowhere else,
+    // which looks exactly like the button doing nothing. Say so in front of the person instead.
+    try {
+      File chosen = chooseRecording.get();
+      if (chosen != null) {
+        openRecording(chosen);
+      }
+    } catch (RuntimeException e) {
+      setBusy(null);
+      JOptionPane.showMessageDialog(this, "Could not open a recording.\n\n"
+          + ZXSpectrumDesktopApp.reason(e), "Open recording", JOptionPane.ERROR_MESSAGE);
     }
   }
 
@@ -252,9 +260,17 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   }
 
   /** Back to the beginning, which for a recording means building its machine again. */
+  /**
+   * Back to the first frame, on the machine already on screen. Stopping used to reopen the file,
+   * which built a whole new machine and so a new window, because a session could not be wound
+   * back; it can now, so the window someone was watching stays where it is and Play runs the
+   * recording again from the start.
+   */
   private void stop() {
-    if (file != null) {
-      openRecording(file);
+    if (session != null) {
+      session.rewind();
+      mode = Mode.STOPPED;
+      refresh();
     }
   }
 
