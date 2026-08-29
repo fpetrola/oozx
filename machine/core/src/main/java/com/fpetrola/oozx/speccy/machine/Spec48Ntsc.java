@@ -43,11 +43,8 @@ public class Spec48Ntsc extends Spec48 {
   }
 
   public int reset() {
-    int error;
-
     // Cargar ROM 0 (0x0000-0x3FFF)
-    error = loadRom(0, settings.current.rom48, settings.defaults.rom48, 0x4000);
-    if (error != 0) return error;
+    loadRom(0, settings.current.rom48, settings.defaults.rom48, 0x4000);
 
     // Limpiar y configurar periféricos 48K
     periph.clear();

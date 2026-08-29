@@ -64,7 +64,7 @@ public class SpeccyUnitTests extends SpeccyBaseForTests {
     //        bus = new ConnectedSpectrumBus(speccy.memory, speccy.ula, testDriver);
     cpu = new ConnectedZ80CPU(testDriver);
 
-    memory.init(null);
+    memory.start();
 //        ula.setScreenActive(true);
   }
 
@@ -78,7 +78,7 @@ public class SpeccyUnitTests extends SpeccyBaseForTests {
     testDriver.reset();
     cpu.reset();
     memory.end();               // limpia el pool y los sources
-    memory.init(null);
+    memory.start();
     testDriver.updatePC(0xA000);
     testDriver.tstatesHistoryInit();
   }

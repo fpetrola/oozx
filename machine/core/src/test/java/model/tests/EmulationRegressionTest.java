@@ -184,6 +184,33 @@ public class EmulationRegressionTest {
   }
 
   /**
+   * A machine whose configured ROM is missing comes up on the one it shipped with.
+   * <p>
+   * The fallback had never run. Reading an auxiliary file answered 0 whether or not the file
+   * was there and let the copy fail on a null stream, so a missing ROM threw before the retry
+   * could be reached — the branch existed and was dead. Booting to the very same screen as the
+   * ordinary run is what says the second ROM was really loaded and not merely not-crashed.
+   */
+  @Test
+  public void aMissingRomFallsBackToTheOneTheMachineShippedWith() throws Exception {
+    OOSpectrumConnector.noTest = true;
+    Speccy speccy = Speccy.create();
+    speccy.sound.setJavaSoundDevice(new JavaSoundDevice() {
+      public void sound_lowlevel_frame(int[] data, int len) {
+      }
+    });
+
+    speccy.settings.current.rom48 = "no-such.rom";     // defaults.rom48 stays 48.rom
+    speccy.init();
+    speccy.uiDisplay.active = false;
+    speccy.z80.bridgeCommand = (a, b) -> null;
+
+    runFrames(speccy, BOOT_FRAMES);
+    assertEquals(EXPECTED.get("screen"), digest(readRange(speccy, SCREEN_BASE, SCREEN_END)),
+        "the fallback ROM did not produce the same boot as the configured one");
+  }
+
+  /**
    * A plain {@code Speccy.create()}, the way OOSpectrumLauncher builds one — SpeccyBaseForTests
    * installs an instrumented clock that records every tState update. Sound and display are
    * silenced so the run is headless and does not wait on anything.

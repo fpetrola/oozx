@@ -33,6 +33,11 @@ public class Utils {
   public static int readAuxiliaryFile(String filename, File rom, AuxiliaryType auxiliaryType) {
     try {
       InputStream resource = Utils.class.getResourceAsStream("/" + filename);
+      // Say so instead of letting the copy below fail on a null stream. Callers are written to
+      // handle this — loading a ROM bank falls back to the machine's own on a non-zero answer —
+      // and could not, because a missing file threw before they got the chance.
+      if (resource == null) return -1;
+
       java.io.File tempFile = java.io.File.createTempFile("aux", "rom");
       FileUtils.copyToFile(resource, tempFile);
       rom.buffer = FileUtils.readFileToByteArray(tempFile);

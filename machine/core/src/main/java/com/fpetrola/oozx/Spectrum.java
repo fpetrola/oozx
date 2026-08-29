@@ -77,7 +77,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
   protected void init() {
   }
 
-  public int loadRomBankFromBuffer(MemoryPage[] bankMap, int pageNum, byte[] buffer, int length, boolean custom) {
+  public void loadRomBankFromBuffer(MemoryPage[] bankMap, int pageNum, byte[] buffer, int length, boolean custom) {
     int offset = 0;
     int[] data = new int[length];
 
@@ -92,45 +92,40 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
       page.setWritable(false);
       offset += memory.PAGE_SIZE;
     }
-
-    return 0;
   }
 
-  int loadRomBankFromFile(MemoryPage[] bankMap, int pageNum, String filename, int expectedLength, boolean custom) {
+  void loadRomBankFromFile(MemoryPage[] bankMap, int pageNum, String filename, int expectedLength, boolean custom) {
     Utils.File rom = new Utils.File();
-    int error = Utils.readAuxiliaryFile("roms/" + filename, rom, Utils.AuxiliaryType.ROM);
-    if (error == -1) {
-      userInterface.error(UiError.ERROR, "couldn't find ROM '%s'", filename);
-      return 1;
+    if (Utils.readAuxiliaryFile("roms/" + filename, rom, Utils.AuxiliaryType.ROM) != 0) {
+      throw new RomNotLoadedException("couldn't find ROM '" + filename + "'");
     }
-    if (error != 0) return error;
 //    rom.buffer = new byte[0x4000];
 //    rom.length = rom.buffer.length;
 
     if (rom.length != expectedLength) {
-      userInterface.error(UiError.ERROR, "ROM '%s' is %d bytes long; expected %d bytes", filename, rom.length, expectedLength);
       Utils.closeFile(rom);
-      return 1;
+      throw new RomNotLoadedException("ROM '" + filename + "' is " + rom.length
+          + " bytes long; expected " + expectedLength);
     }
 
-    error = loadRomBankFromBuffer(bankMap, pageNum, rom.buffer, rom.length, custom);
-
+    loadRomBankFromBuffer(bankMap, pageNum, rom.buffer, rom.length, custom);
     Utils.closeFile(rom);
-
-    return error;
   }
 
-  public int loadRomBank(MemoryPage[] bankMap, int pageNum, String filename, String fallback, int expectedLength) {
+  public void loadRomBank(MemoryPage[] bankMap, int pageNum, String filename, String fallback, int expectedLength) {
     boolean custom = fallback != null && !filename.equals(fallback);
-    int retval = loadRomBankFromFile(bankMap, pageNum, filename, expectedLength, custom);
-    if (retval != 0 && fallback != null && custom) {
-      retval = loadRomBankFromFile(bankMap, pageNum, fallback, expectedLength, false);
+    try {
+      loadRomBankFromFile(bankMap, pageNum, filename, expectedLength, custom);
+    } catch (RomNotLoadedException e) {
+      // The settings named a ROM this machine does not have; fall back to the one it shipped
+      // with. If that is missing too there is nothing left to try, so it goes up.
+      if (fallback == null || !custom) throw e;
+      loadRomBankFromFile(bankMap, pageNum, fallback, expectedLength, false);
     }
-    return retval;
   }
 
-  public int loadRom(int pageNum, String filename, String fallback, int expectedLength) {
-    return loadRomBank(memory.mapRom, pageNum, filename, fallback, expectedLength);
+  public void loadRom(int pageNum, String filename, String fallback, int expectedLength) {
+    loadRomBank(memory.mapRom, pageNum, filename, fallback, expectedLength);
   }
 
   public void spectrumReset(int a) {
