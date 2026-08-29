@@ -129,6 +129,11 @@ public class MockEmulatorCore implements EmulatorCore {
       notifyTurboModeChange(turboMode);
       notifyEmulationSpeedChange(emulationSpeed);
     }
+    // Here rather than in the toolbar, because the panel is this core's to hand out: whoever
+    // presses the button knows it wants a border, not which component draws one.
+    if (option.equals("border") && contentPane instanceof com.fpetrola.oozx.speccy.SpeccyScreen screen) {
+      screen.setBorderVisible((Boolean) value);
+    }
   }
 
   @Override

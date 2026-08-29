@@ -35,28 +35,62 @@ public class SpeccyScreen extends JPanel {
   private final int width = 256 + 48 + 48 - 32;
   private final int height = 192 + 64 + 56 - 56 - 20;
 
+  /**
+   * Where the Speccy's own 256x192 sits inside the matrix, which is drawn border and all.
+   * <p>
+   * The display plots a chunk at {@code x + BORDER_WIDTH_COLS} columns of eight pixels and
+   * {@code y + BORDER_HEIGHT} rows, so the picture starts four columns in and three rows down.
+   */
+  private static final int SCREEN_X = 4 * 8;
+  private static final int SCREEN_Y = 3 * 8;
+  private static final int SCREEN_W = 256;
+  private static final int SCREEN_H = 192;
+
+  /**
+   * Off to begin with: the border is what the machine had around the picture, not part of it,
+   * and most of the time it is a colour going by. It is a button away when a game uses it for
+   * something - the loading stripes, or a game that flashes it.
+   */
+  private volatile boolean borderVisible;
+  private BufferedImage croppedBuffer;
+
   public SpeccyScreen(byte[][] screenMatrix) {
     IntStream.range(0, 8).forEach(i -> darkColors[i] = lightColors[i].darker());
     this.screenMatrix = screenMatrix;
     setPreferredSize(new Dimension((int) (width * zoom), (int) (height * zoom)));
     this.screenBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+    this.croppedBuffer = new BufferedImage(SCREEN_W, SCREEN_H, BufferedImage.TYPE_INT_RGB);
 
     new Timer(30, e -> SwingUtilities.invokeLater(this::repaint)).start();
+  }
+
+  /** Shows or hides the border. Takes effect on the next repaint, which is thirty a second. */
+  public void setBorderVisible(boolean borderVisible) {
+    this.borderVisible = borderVisible;
+    repaint();
+  }
+
+  public boolean isBorderVisible() {
+    return borderVisible;
   }
 
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
 
-    for (int x = 0; x < width; x++) {
-      for (int y = 0; y < height; y++) {
-        int zxColorCode = screenMatrix[x][y];
-        screenBuffer.setRGB(x, y, (zxColorCode >= 8 ? lightColors[zxColorCode - 8] : darkColors[zxColorCode]).getRGB());
+    boolean withBorder = borderVisible;
+    BufferedImage target = withBorder ? screenBuffer : croppedBuffer;
+    int originX = withBorder ? 0 : SCREEN_X;
+    int originY = withBorder ? 0 : SCREEN_Y;
+    for (int x = 0; x < target.getWidth(); x++) {
+      for (int y = 0; y < target.getHeight(); y++) {
+        int zxColorCode = screenMatrix[originX + x][originY + y];
+        target.setRGB(x, y, (zxColorCode >= 8 ? lightColors[zxColorCode - 8] : darkColors[zxColorCode]).getRGB());
       }
     }
 
 //    g.drawImage(screenBuffer, 0, 0, getWidth(), getHeight(), null);
 
-    BufferedImage image = screenBuffer;
+    BufferedImage image = target;
 
     if (image != null) {
 
