@@ -80,6 +80,17 @@ public class RzxPlayback {
 
     player.setup(recording);
     player.setPc(state.getPc());
+    // WHERE THE ACKNOWLEDGE FETCH BELONGS. Taking an interrupt is an M1 cycle like any other -
+    // it bumps R - and a recorder counts it in the frame that ENDS, so the next frame's budget
+    // starts after it. It only exists when the processor actually accepts, and that is what this
+    // answers; a frame that runs with interrupts disabled has no acknowledge to account for.
+    //
+    // The player has always known how to do this and nothing outside the tests ever told it, so
+    // every frame that took an interrupt ran one fetch long. One fetch is enough to carry a
+    // port read across the boundary, and then the frame that lost it is one read short and the
+    // next one read over, from where it drifts. Jet Set Willy is the one recording that never
+    // showed it, because it runs with IFF1 at zero from beginning to end.
+    player.setAcceptsInterrupt(state::isIff1);
     this.endOfFrame = player.getInterruptionCondition();
     this.previousR = registerR.read() & 0x7F;
     this.clock = state.clock;
