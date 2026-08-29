@@ -260,7 +260,12 @@ public class InflateViewer extends ApplicationAdapter {
           continue;
         }
         double[] normal = normals.get(at);
-        int rgb = chosenColour < 0 ? colourAt(fields, x, y) : PALETTE[chosenColour];
+        // Even with a colour chosen, the detail keeps its own darker shade - a guardian in
+        // solid yellow with no eye is a worse picture than a yellow one with an eye.
+        int rgb = chosenColour < 0 ? SpriteInflate.colourFor(fields, x, y)
+            : fields.detail()[Math.min(fields.height() - 1, Math.max(0, (int) Math.round(y)))
+            * fields.width() + Math.min(fields.width() - 1, Math.max(0, (int) Math.round(x)))]
+            ? shade(PALETTE[chosenColour]) : PALETTE[chosenColour];
         // Y flipped, because an image counts rows downwards and the world counts them up.
         vertex.setPos((float) x, (float) -y, (float) z)
             .setNor((float) normal[0], (float) -normal[1], (float) normal[2])
@@ -274,25 +279,9 @@ public class InflateViewer extends ApplicationAdapter {
     return builder.end();
   }
 
-  /**
-   * The colour under a point of the surface. A vertex on the outline sits half in the background,
-   * where there is no colour at all, so the nearest thing that has one is taken instead - without
-   * it the whole rim of every figure comes out black.
-   */
-  private int colourAt(SpriteInflate.Fields fields, double x, double y) {
-    for (int radius = 0; radius <= 3; radius++) {
-      for (int dy = -radius; dy <= radius; dy++) {
-        for (int dx = -radius; dx <= radius; dx++) {
-          int sx = (int) Math.round(x) + dx, sy = (int) Math.round(y) + dy;
-          if (sx < 0 || sy < 0 || sx >= fields.width() || sy >= fields.height()) continue;
-          int argb = fields.scaled().getRGB(sx, sy);
-          if ((argb >>> 24) >= 128) {
-            return argb & 0xFFFFFF;
-          }
-        }
-      }
-    }
-    return 0xD0D0D0;
+  private static int shade(int rgb) {
+    return ((int) (((rgb >> 16) & 0xFF) * 0.18) << 16)
+        | ((int) (((rgb >> 8) & 0xFF) * 0.18) << 8) | (int) ((rgb & 0xFF) * 0.18);
   }
 
   // --------------------------------------------------------------------------- directory mode
@@ -520,10 +509,54 @@ public class InflateViewer extends ApplicationAdapter {
     }
   }
 
+  /**
+   * What to show when nobody said: the sheet that comes with this prototype.
+   * <p>
+   * Looked for beside the code as well as beside the working directory, because "beside the
+   * working directory" is a guess about how it was started. Run from a shell in this module it is
+   * right; run from the green arrow in an IDE the working directory is as likely to be the whole
+   * repository, and then a perfectly good default resolves to nothing and the window opens on an
+   * error about a directory the person never typed.
+   */
+  private static String defaultPath() {
+    List<File> looked = new ArrayList<>();
+    for (File base : new File[]{new File("."), moduleRoot()}) {
+      if (base == null) {
+        continue;
+      }
+      File sheet = new File(base, "sprites/img.png");
+      if (sheet.isFile()) {
+        return sheet.getPath();
+      }
+      looked.add(sheet);
+      File made = new File(base, "target/out");
+      File[] objs = made.listFiles((dir, name) -> name.endsWith(".obj"));
+      if (objs != null && objs.length > 0) {
+        return made.getPath();
+      }
+      looked.add(made);
+    }
+    throw new IllegalStateException("nothing to show and nothing said. Looked for " + looked
+        + ". Pass a sheet of sprites (a .png) or a directory of .obj files.");
+  }
+
+  /** The directory this prototype lives in, found by walking up from the code to its pom. */
+  private static File moduleRoot() {
+    try {
+      File at = new File(InflateViewer.class.getProtectionDomain().getCodeSource()
+          .getLocation().toURI());
+      while (at != null && !new File(at, "pom.xml").isFile()) {
+        at = at.getParentFile();
+      }
+      return at;
+    } catch (Exception cannotTell) {
+      return null;
+    }
+  }
+
   public static void main(String[] args) {
-    // Sensible without arguments, because it is usually started from a green arrow in an IDE.
-    String path = args.length > 0 ? args[0]
-        : new File("sprites/img.png").isFile() ? "sprites/img.png" : "target/out";
+    String path = args.length > 0 ? args[0] : defaultPath();
+    System.out.println("showing " + new File(path).getAbsolutePath());
     Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
     config.setTitle("sprite inflated - " + path);
     config.setWindowedMode(1180, 760);

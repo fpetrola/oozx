@@ -46,9 +46,13 @@ suavizar el agrandado en lugar del dibujo, y sale peor que no escalar.
    pies en la 15. Donde la figura se sale del borde no hay contorno donde cerrar, y el sólido
    queda abierto arriba y abajo.
 2. **xBRZ.** Lo que se ve escalonado cuando el sprite está parado en 3D es su contorno.
-3. **Rellenar los agujeros chicos.** El ojo de Willy es un píxel de fondo adentro de la cabeza.
-   Sin esto queda un túnel atravesándole el cráneo, y además el campo de distancia mide desde ahí
-   y le deja la cara flaca. Un ojo es algo dibujado *sobre* una cara: se conserva en el color.
+3. **Rellenar los agujeros chicos, y devolverlos después.** El ojo de Willy es un píxel de fondo
+   adentro de la cabeza. Como agujero perfora el sólido y, peor, el campo de distancia mide desde
+   ahí y le deja toda la cara flaca. Así que se rellena para medir — y una vez que la geometría
+   está resuelta vuelve como **hoyuelo y color**, que es lo que un ojo es de todos modos. El
+   hoyuelo es deliberadamente poco profundo: alcanza para agarrar la luz de un lado, nunca para
+   tocar la otra superficie y reabrir el agujero que se había tapado. Medido sobre el mesh, la
+   altura máxima va de 4.95 en el centro del ojo a 7.49 en la cara lejos.
 4. **Campo de distancia** exacto (transformada de Felzenszwalb) hacia adentro del contorno.
 5. **Grosor local**: el radio del disco inscrito más grande que *cubre* cada punto. Esto es lo que
    le avisa a una pierna de dos píxeles que es una pierna de dos píxeles y no parte del torso.

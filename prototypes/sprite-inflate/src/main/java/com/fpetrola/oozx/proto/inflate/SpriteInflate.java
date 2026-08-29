@@ -141,54 +141,30 @@ public class SpriteInflate {
 
     BufferedImage sprite = args.length > 0 ? ImageIO.read(new File(args[0])) : sample();
     System.out.printf("sprite: %dx%d%n", sprite.getWidth(), sprite.getHeight());
-    sprite = padded(sprite, 2, true);
 
     // "4", or "4x2" for eight times in two passes: xBRZ itself refuses anything but two to six.
     int[] passes = passes(args.length > 2 ? args[2] : "4");
-    int factor = 1;
-    BufferedImage big = sprite;
-    for (int pass : passes) {
-      big = xbrz(big, pass);
-      factor *= pass;
-    }
-    System.out.printf("scaled %s = %dx%n",
-        java.util.Arrays.toString(passes).replaceAll("[\\[\\] ]", "").replace(',', 'x'), factor);
-    ImageIO.write(big, "png", out.resolve("1-xbrz-4x.png").toFile());
-    ImageIO.write(nearest(sprite, factor), "png", out.resolve("1-nearest-4x.png").toFile());
+    // The same call the viewer makes. It used to be a second copy of it here, and the two drifted
+    // apart at once: the viewer learned to paint the filled-in detail and the pictures did not.
+    Fields fields = measure(sprite, passes, true);
+    int width = fields.width(), height = fields.height();
+    double[] coverage = fields.coverage();
+    double[] thickness = fields.thickness();
+    double largest = fields.largest();
 
-    int width = big.getWidth(), height = big.getHeight();
-    double[] coverage = coverageOf(big);
-    fillSmallHoles(coverage, width, height, 2.0 * factor, true);
-
-    // Where the outline really is. Taken from the blend rather than from a threshold, which is
-    // the whole reason for scaling first.
-    double[] distance = distanceInside(coverage, width, height);
-    double[] thickness = localThickness(distance, width, height);
-    // The distance is left exactly as it is - it is zero at the outline and that is what closes
-    // the solid - but the thickness is a maximum over a discrete set and comes out in steps, and
-    // every step in it is a terrace across the surface. Softening it costs nothing at the rim,
-    // where the depth is zero whatever the radius says.
-    soften(thickness, coverage, width, height, 3);
-    for (int i = 0; i < thickness.length; i++) {
-      thickness[i] = Math.max(thickness[i], distance[i]);
-    }
-    double largest = 0;
-    for (double one : distance) largest = Math.max(largest, one);
-    System.out.printf("largest inscribed radius: %.2f px (at 4x)%n", largest);
-
-    writeGrey(distance, width, height, largest, out.resolve("2-distance.png"));
+    ImageIO.write(fields.scaled(), "png", out.resolve("1-xbrz-4x.png").toFile());
+    ImageIO.write(nearest(padded(sprite, 2, false), fields.factor()), "png",
+        out.resolve("1-nearest-4x.png").toFile());
+    writeGrey(fields.distance(), width, height, largest, out.resolve("2-distance.png"));
     writeGrey(thickness, width, height, largest, out.resolve("3-thickness.png"));
     writeContour(coverage, width, height, out.resolve("4-outline.svg"));
 
     List<BufferedImage> rows = new ArrayList<>();
     for (Profile profile : Profile.values()) {
-      double[] depth = new double[width * height];
+      double[] depth = depths(fields, profile);
       double deepest = 0;
       for (int i = 0; i < depth.length; i++) {
-        if (coverage[i] >= 0.5) {
-          depth[i] = profile.depth(distance[i], thickness[i], largest);
-          deepest = Math.max(deepest, depth[i]);
-        }
+        deepest = Math.max(deepest, depth[i]);
       }
       List<double[]> mesh = build(coverage, depth, width, height);
       writeObj(mesh, out.resolve("5-" + profile.label + ".obj"));
@@ -213,22 +189,22 @@ public class SpriteInflate {
           profile.label, deepest,
           thinDepth / thinCount, thinWidth / thinCount, thinDepth / thinWidth,
           thickDepth / thickCount, thickWidth / thickCount, thickDepth / thickWidth);
-      rows.add(turntable(mesh, big, coverage, width, height, profile.label));
+      rows.add(turntable(mesh, fields, profile.label));
     }
     ImageIO.write(stack(rows), "png", out.resolve("6-profiles.png").toFile());
 
     // The claim this whole ordering rests on: that scaling first is only worth it if the blend
     // it leaves is kept as coverage. Three silhouettes, same bulge, and the outline is the only
     // thing that differs between them.
-    double[] hard = coverageOf(nearest(sprite, factor));
+    double[] hard = coverageOf(nearest(padded(sprite, 2, false), fields.factor()));
     double[] thresholded = new double[coverage.length];
     for (int i = 0; i < coverage.length; i++) {
       thresholded[i] = coverage[i] >= 0.5 ? 1 : 0;
     }
     List<BufferedImage> outlines = new ArrayList<>();
-    outlines.add(inflated("no scaling, hard pixels", hard, big, width, height));
-    outlines.add(inflated("xBRZ then thresholded", thresholded, big, width, height));
-    outlines.add(inflated("xBRZ kept as coverage", coverage, big, width, height));
+    outlines.add(inflated("no scaling, hard pixels", hard, fields));
+    outlines.add(inflated("xBRZ then thresholded", thresholded, fields));
+    outlines.add(inflated("xBRZ kept as coverage", coverage, fields));
     ImageIO.write(stack(outlines), "png", out.resolve("7-outline.png").toFile());
 
     System.out.println();
@@ -247,7 +223,7 @@ public class SpriteInflate {
       discBig = xbrz(discBig, pass);
     }
     double[] discCoverage = coverageOf(discBig);
-    double[] discHard = coverageOf(nearest(disc, factor));
+    double[] discHard = coverageOf(nearest(disc, fields.factor()));
     double[] discThresholded = new double[discCoverage.length];
     for (int i = 0; i < discCoverage.length; i++) {
       discThresholded[i] = discCoverage[i] >= 0.5 ? 1 : 0;
@@ -265,7 +241,8 @@ public class SpriteInflate {
 
   /** Everything the shape of a sprite decides, before any one profile is chosen. */
   record Fields(BufferedImage scaled, double[] coverage, double[] distance, double[] thickness,
-                double largest, int width, int height) {
+                double largest, int width, int height, int factor,
+                boolean[] detail, double[] fromDetail) {
   }
 
   /**
@@ -276,15 +253,24 @@ public class SpriteInflate {
    * which is quadratic and still nothing at a sprite's size.
    */
   static Fields measure(BufferedImage sprite, int[] passes) {
-    BufferedImage big = padded(sprite, 2, false);
+    return measure(sprite, passes, false);
+  }
+
+  static Fields measure(BufferedImage sprite, int[] passes, boolean talk) {
+    BufferedImage big = padded(sprite, 2, talk);
     int factor = 1;
     for (int pass : passes) {
       big = xbrz(big, pass);
       factor *= pass;
     }
+    if (talk) {
+      System.out.printf("scaled %s = %dx%n",
+          java.util.Arrays.toString(passes).replaceAll("[\\[\\] ]", "").replace(',', 'x'), factor);
+    }
     int width = big.getWidth(), height = big.getHeight();
     double[] coverage = coverageOf(big);
-    fillSmallHoles(coverage, width, height, 2.0 * factor, false);
+    boolean[] detail = fillSmallHoles(coverage, width, height, 2.0 * factor, talk);
+    double[] fromDetail = distanceFrom(detail, width, height);
     double[] distance = distanceInside(coverage, width, height);
     double[] thickness = localThickness(distance, width, height);
     soften(thickness, coverage, width, height, 3);
@@ -293,23 +279,75 @@ public class SpriteInflate {
       thickness[i] = Math.max(thickness[i], distance[i]);
       largest = Math.max(largest, distance[i]);
     }
-    return new Fields(big, coverage, distance, thickness, largest, width, height);
+    if (talk) {
+      System.out.printf("largest inscribed radius: %.2f px (at %dx)%n", largest, factor);
+    }
+    return new Fields(big, coverage, distance, thickness, largest, width, height, factor,
+        detail, fromDetail);
   }
 
   /** A sprite as a closed solid, ready to be handed to a renderer. */
   static List<double[]> inflate(Fields fields, Profile profile) {
+    return build(fields.coverage(), depths(fields, profile), fields.width(), fields.height());
+  }
+
+  /** How far back the surface stands at every point, which is the whole of a profile's opinion. */
+  static double[] depths(Fields fields, Profile profile) {
     double[] depth = new double[fields.width() * fields.height()];
+    // A hole that was filled in was drawn for a reason - it is an eye, a button, a spot - and
+    // filling it silently throws that away. It cannot come back as a hole: as a hole it bores a
+    // tunnel through the solid and, worse, the distance field measures away from it and leaves
+    // the whole face around it thin. So it comes back as a dent, which is what an eye is anyway,
+    // and as a colour. The dent is shallow on purpose: deep enough to catch the light along one
+    // side, never deep enough to meet the other surface and re-open the hole it was filling.
+    double reach = 1.6 * fields.factor();
     for (int i = 0; i < depth.length; i++) {
       if (fields.coverage()[i] >= 0.5) {
         depth[i] = profile.depth(fields.distance()[i], fields.thickness()[i], fields.largest());
+        double away = fields.fromDetail()[i] / reach;
+        depth[i] *= 1 - 0.45 * Math.exp(-away * away);
       }
     }
-    return build(fields.coverage(), depth, fields.width(), fields.height());
+    return depth;
+  }
+
+  /**
+   * The colour of the surface over a point of the sprite.
+   * <p>
+   * Three cases, and the middle one is the reason this exists. A point over the drawing takes the
+   * drawing's colour. A point over a piece of filled-in detail takes a darkened version of what
+   * surrounds it, so Willy keeps an eye instead of a blank white face. And a point on the very
+   * outline sits half in the background, where there is no colour at all, so the nearest thing
+   * that has one is taken - without that the rim of every figure comes out black.
+   */
+  static int colourFor(Fields fields, double x, double y) {
+    int cx = Math.min(fields.width() - 1, Math.max(0, (int) Math.round(x)));
+    int cy = Math.min(fields.height() - 1, Math.max(0, (int) Math.round(y)));
+    boolean detail = fields.detail()[cy * fields.width() + cx];
+    for (int radius = 0; radius <= 4; radius++) {
+      for (int dy = -radius; dy <= radius; dy++) {
+        for (int dx = -radius; dx <= radius; dx++) {
+          int sx = cx + dx, sy = cy + dy;
+          if (sx < 0 || sy < 0 || sx >= fields.width() || sy >= fields.height()) continue;
+          if (detail && fields.detail()[sy * fields.width() + sx]) continue;
+          int argb = fields.scaled().getRGB(sx, sy);
+          if ((argb >>> 24) >= 128) {
+            return detail ? darken(argb & 0xFFFFFF) : argb & 0xFFFFFF;
+          }
+        }
+      }
+    }
+    return detail ? 0x201810 : 0xD0D0D0;
+  }
+
+  private static int darken(int rgb) {
+    return ((int) (((rgb >> 16) & 0xFF) * 0.18) << 16)
+        | ((int) (((rgb >> 8) & 0xFF) * 0.18) << 8) | (int) ((rgb & 0xFF) * 0.18);
   }
 
   /** One silhouette, inflated the good way, for comparing outlines against each other. */
-  private static BufferedImage inflated(String label, double[] coverage, BufferedImage skin,
-                                        int width, int height) {
+  private static BufferedImage inflated(String label, double[] coverage, Fields fields) {
+    int width = fields.width(), height = fields.height();
     double[] distance = distanceInside(coverage, width, height);
     double[] thickness = localThickness(distance, width, height);
     double largest = 0;
@@ -320,7 +358,7 @@ public class SpriteInflate {
         depth[i] = Profile.SPHERE_LOCAL.depth(distance[i], thickness[i], largest);
       }
     }
-    return turntable(build(coverage, depth, width, height), skin, coverage, width, height, label);
+    return turntable(build(coverage, depth, width, height), fields, label);
   }
 
   /**
@@ -484,8 +522,9 @@ public class SpriteInflate {
    *
    * @param across how wide a hole may be, in scaled pixels, and still be called detail
    */
-  private static void fillSmallHoles(double[] coverage, int width, int height, double across,
-                                     boolean talk) {
+  private static boolean[] fillSmallHoles(double[] coverage, int width, int height, double across,
+                                          boolean talk) {
+    boolean[] filled = new boolean[coverage.length];
     double limit = across * across;
     boolean[] seen = new boolean[width * height];
     java.util.ArrayDeque<Integer> queue = new java.util.ArrayDeque<>();
@@ -522,6 +561,7 @@ public class SpriteInflate {
         if (hole.size() <= limit) {
           for (int one : hole) {
             coverage[one] = 1;
+            filled[one] = true;
           }
         }
         if (talk) {
@@ -531,6 +571,7 @@ public class SpriteInflate {
         }
       }
     }
+    return filled;
   }
 
   private static void consider(double[] coverage, boolean[] seen,
@@ -585,6 +626,42 @@ public class SpriteInflate {
     double[] distance = new double[width * height];
     for (int i = 0; i < distance.length; i++) {
       distance[i] = Math.max(0, Math.sqrt(squared[i]) - 0.5);
+    }
+    return distance;
+  }
+
+  /**
+   * How far every point is from the nearest piece of filled-in detail, so the detail can be put
+   * back as something other than a hole.
+   */
+  private static double[] distanceFrom(boolean[] seeds, int width, int height) {
+    boolean any = false;
+    for (boolean seed : seeds) {
+      any |= seed;
+    }
+    double[] distance = new double[seeds.length];
+    if (!any) {
+      java.util.Arrays.fill(distance, Double.MAX_VALUE);
+      return distance;
+    }
+    double far = 1e12;
+    double[] squared = new double[seeds.length];
+    for (int i = 0; i < squared.length; i++) {
+      squared[i] = seeds[i] ? 0 : far;
+    }
+    double[] line = new double[Math.max(width, height)];
+    for (int x = 0; x < width; x++) {
+      for (int y = 0; y < height; y++) line[y] = squared[y * width + x];
+      double[] done = transform(line, height);
+      for (int y = 0; y < height; y++) squared[y * width + x] = done[y];
+    }
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) line[x] = squared[y * width + x];
+      double[] done = transform(line, width);
+      for (int x = 0; x < width; x++) squared[y * width + x] = done[x];
+    }
+    for (int i = 0; i < distance.length; i++) {
+      distance[i] = Math.sqrt(squared[i]);
     }
     return distance;
   }
@@ -890,8 +967,9 @@ public class SpriteInflate {
   // ------------------------------------------------------------------------------- the picture
 
   /** The same figure from four angles, so the bulge can be seen rather than taken on trust. */
-  private static BufferedImage turntable(List<double[]> mesh, BufferedImage flat,
-                                         double[] coverage, int width, int height, String label) {
+  private static BufferedImage turntable(List<double[]> mesh, Fields fields, String label) {
+    BufferedImage flat = fields.scaled();
+    int width = fields.width(), height = fields.height();
     int size = 260;
     double[] angles = {0, 25, 50, 90};
     BufferedImage strip =
@@ -909,7 +987,7 @@ public class SpriteInflate {
     pen.drawString(label, 8, size - 10);
     pen.dispose();
     for (int i = 0; i < angles.length; i++) {
-      render(mesh, smoothNormals(mesh), flat, width, height, Math.toRadians(angles[i]), strip,
+      render(mesh, smoothNormals(mesh), fields, Math.toRadians(angles[i]), strip,
           size * (i + 1), size);
     }
     return strip;
@@ -917,8 +995,8 @@ public class SpriteInflate {
 
   /** A z-buffer and a lamp: enough to see a shape, and no more. */
   private static void render(List<double[]> mesh, java.util.Map<String, double[]> normals,
-                             BufferedImage skin, int width, int height,
-                             double yaw, BufferedImage target, int left, int size) {
+                             Fields fields, double yaw, BufferedImage target, int left, int size) {
+    int width = fields.width(), height = fields.height();
     double[] zbuffer = new double[size * size];
     java.util.Arrays.fill(zbuffer, Double.NEGATIVE_INFINITY);
     int[] pixels = new int[size * size];
@@ -947,10 +1025,8 @@ public class SpriteInflate {
             : new double[]{at[0] * cos + at[2] * sin, at[1], -at[0] * sin + at[2] * cos};
       }
       // The sprite's own colours, sampled where the triangle sits on it.
-      int sx = (int) ((triangle[0] + triangle[3] + triangle[6]) / 3);
-      int sy = (int) ((triangle[1] + triangle[4] + triangle[7]) / 3);
-      int rgb = skin.getRGB(Math.min(width - 1, Math.max(0, sx)),
-          Math.min(height - 1, Math.max(0, sy)));
+      int rgb = colourFor(fields, (triangle[0] + triangle[3] + triangle[6]) / 3,
+          (triangle[1] + triangle[4] + triangle[7]) / 3);
       raster(point, corner, rgb, pixels, zbuffer, size);
     }
     for (int y = 0; y < size; y++) {
