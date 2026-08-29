@@ -25,7 +25,13 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.graphics.g3d.Renderable;
+import com.badlogic.gdx.graphics.g3d.Shader;
+import com.badlogic.gdx.graphics.g3d.utils.BaseShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
@@ -144,7 +150,17 @@ public class InflateViewer extends ApplicationAdapter {
     environment.add(new DirectionalLight().set(0.9f, 0.88f, 0.82f, -0.6f, -0.7f, -0.5f));
     environment.add(new DirectionalLight().set(0.25f, 0.28f, 0.35f, 0.7f, 0.2f, 0.4f));
 
-    batch = new ModelBatch();
+    // Lit per pixel rather than per vertex. The stock shader works out the light at each corner
+    // and interpolates the RESULT across the triangle, which on a smooth surface lays a band of
+    // Mach along every edge - invisible on a pale figure, and unmistakable stripes on a saturated
+    // one, which is why they appeared with a colour chosen and the smoothing turned up. The
+    // geometry was never at fault: the same mesh in the preview pictures, whose renderer
+    // interpolates the NORMAL and lights each pixel, has no stripes at all.
+    batch = new ModelBatch(new BaseShaderProvider() {
+      protected Shader createShader(Renderable renderable) {
+        return new PerPixel();
+      }
+    });
     overlay = new SpriteBatch();
     font = new BitmapFont();
     block = white();
@@ -187,6 +203,88 @@ public class InflateViewer extends ApplicationAdapter {
     }
     input.addProcessor(controller);
     Gdx.input.setInputProcessor(input);
+  }
+
+  /**
+   * Two lamps and an ambient, worked out at every pixel from the interpolated normal.
+   * <p>
+   * Deliberately the same arrangement as the preview pictures use, so the two agree: one light
+   * over the viewer's left shoulder, a cooler one from the other side to keep the shaded half
+   * from going flat black, and enough ambient that nothing is lost.
+   */
+  private static class PerPixel implements Shader {
+
+    private static final String VERTEX = String.join("\n",
+        "attribute vec3 a_position;",
+        "attribute vec3 a_normal;",
+        "attribute vec4 a_color;",
+        "uniform mat4 u_projViewTrans;",
+        "uniform mat4 u_worldTrans;",
+        "varying vec3 v_normal;",
+        "varying vec4 v_color;",
+        "void main() {",
+        "  v_normal = (u_worldTrans * vec4(a_normal, 0.0)).xyz;",
+        "  v_color = a_color;",
+        "  gl_Position = u_projViewTrans * u_worldTrans * vec4(a_position, 1.0);",
+        "}");
+
+    private static final String FRAGMENT = String.join("\n",
+        "#ifdef GL_ES",
+        "precision mediump float;",
+        "#endif",
+        "varying vec3 v_normal;",
+        "varying vec4 v_color;",
+        "void main() {",
+        "  vec3 n = normalize(v_normal);",
+        "  vec3 key = normalize(vec3(0.6, 0.7, 0.5));",
+        "  vec3 fill = normalize(vec3(-0.7, -0.2, -0.4));",
+        "  vec3 light = vec3(0.35, 0.35, 0.40)",
+        "      + vec3(0.90, 0.88, 0.82) * max(dot(n, key), 0.0)",
+        "      + vec3(0.25, 0.28, 0.35) * max(dot(n, fill), 0.0);",
+        "  gl_FragColor = vec4(v_color.rgb * light, 1.0);",
+        "}");
+
+    private ShaderProgram program;
+    private RenderContext context;
+    private final Matrix4 projView = new Matrix4();
+
+    public void init() {
+      program = new ShaderProgram(VERTEX, FRAGMENT);
+      if (!program.isCompiled()) {
+        throw new IllegalStateException("the per-pixel shader would not compile: " + program.getLog());
+      }
+    }
+
+    public int compareTo(Shader other) {
+      return 0;
+    }
+
+    public boolean canRender(Renderable renderable) {
+      return true;
+    }
+
+    public void begin(com.badlogic.gdx.graphics.Camera camera, RenderContext context) {
+      this.context = context;
+      projView.set(camera.combined);
+      program.bind();
+      program.setUniformMatrix("u_projViewTrans", projView);
+      context.setDepthTest(GL20.GL_LEQUAL);
+      context.setCullFace(GL20.GL_BACK);
+    }
+
+    public void render(Renderable renderable) {
+      program.setUniformMatrix("u_worldTrans", renderable.worldTransform);
+      renderable.meshPart.render(program);
+    }
+
+    public void end() {
+    }
+
+    public void dispose() {
+      if (program != null) {
+        program.dispose();
+      }
+    }
   }
 
   private static Texture white() {
