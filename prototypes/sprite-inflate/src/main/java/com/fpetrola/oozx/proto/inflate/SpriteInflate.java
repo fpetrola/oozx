@@ -144,7 +144,10 @@ public class SpriteInflate {
 
     // "4", or "4x2" for eight times in two passes: xBRZ itself refuses anything but two to six.
     int[] passes = passes(args.length > 2 ? args[2] : "4");
-    Options options = new Options(passes, 1.0, 3, 0.45, 0.4, 2.0, true);
+    // The fourth argument is the seam rounding, because comparing it against itself is the only
+    // way to see what it does.
+    double rimRoll = args.length > 3 ? Double.parseDouble(args[3]) : 0.6;
+    Options options = new Options(passes, 1.0, 3, 0.45, 0.4, 2.0, true, rimRoll);
     // The same call the viewer makes. It used to be a second copy of it here, and the two drifted
     // apart at once: the viewer learned to paint the filled-in detail and the pictures did not.
     Fields fields = measure(sprite, options, true);
@@ -257,12 +260,14 @@ public class SpriteInflate {
    * @param holeAcross how big a hole may be, in pixels of the original sprite, and still count as
    *                   detail to be filled rather than shape to be kept
    * @param mirrored   the same bulge front and back, rather than a flat front
+   * @param rimRoll    over how many pixels the surface is allowed to turn over at the outline;
+   *                   zero leaves the profile exactly as it is
    */
   record Options(int[] passes, double depth, int smoothing, double dentDepth, double dentReach,
-                 double holeAcross, boolean mirrored) {
+                 double holeAcross, boolean mirrored, double rimRoll) {
 
     static Options standard() {
-      return new Options(new int[]{4}, 1.0, 3, 0.45, 0.4, 2.0, true);
+      return new Options(new int[]{4}, 1.0, 3, 0.45, 0.4, 2.0, true, 0.6);
     }
 
     int factor() {
@@ -331,6 +336,7 @@ public class SpriteInflate {
   /** How far back the surface stands at every point, which is the whole of a profile's opinion. */
   static double[] depths(Fields fields, Profile profile, Options options) {
     double[] depth = new double[fields.width() * fields.height()];
+    int factor = fields.factor();
     // A hole that was filled in was drawn for a reason - it is an eye, a button, a spot - and
     // filling it silently throws that away. It cannot come back as a hole: as a hole it bores a
     // tunnel through the solid and, worse, the distance field measures away from it and leaves
@@ -344,9 +350,38 @@ public class SpriteInflate {
             * options.depth();
         double away = fields.fromDetail()[i] / reach;
         depth[i] *= 1 - options.dentDepth() * Math.exp(-away * away);
+        depth[i] = rolled(depth[i], fields.distance()[i], fields.thickness()[i], options, factor);
       }
     }
     return depth;
+  }
+
+  /**
+   * Spreads the turn at the outline over something the grid can actually draw.
+   * <p>
+   * The seam where the front of the solid meets the back is not a crease - with the sphere
+   * profile the section there is a parabola, which is to say the equator of an ellipsoid, and
+   * perfectly smooth. It LOOKS like a crease because the whole hundred and eighty degrees of it
+   * happens inside one pixel: half a pixel in from the edge of a figure ten across, the surface
+   * has already risen three units. Two samples across a half-turn shade as an edge no matter how
+   * smooth the thing being sampled.
+   * <p>
+   * So the surface is not allowed to rise faster than a given slope near the rim, and the slope
+   * is chosen per point so that the straight part gives out after {@code rimRoll} pixels: a cone
+   * of slope s leaves the sphere of radius R at a distance of 2R/s squared, so s is the root of
+   * 2R over the width wanted. Combined with the profile as a b over the root of a squared plus b
+   * squared, which is the smooth version of taking the smaller of the two - a plain minimum would
+   * put a crease exactly where this is trying to take one out.
+   */
+  private static double rolled(double depth, double distance, double radius, Options options,
+                               int factor) {
+    double width = options.rimRoll() * factor;
+    if (width <= 0 || depth <= 0 || radius <= 0) {
+      return depth;
+    }
+    double slope = Math.sqrt(2 * radius / width);
+    double cone = slope * distance;
+    return depth * cone / Math.sqrt(depth * depth + cone * cone);
   }
 
   /**

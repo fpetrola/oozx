@@ -344,7 +344,7 @@ public class InflateViewer extends ApplicationAdapter {
     scale.addListener(new ChangeListener() {
       public void changed(ChangeEvent event, Actor actor) {
         set(with(SCALE_PASSES[scale.getSelectedIndex()], options.depth(), options.smoothing(),
-            options.dentDepth(), options.dentReach(), options.holeAcross(), options.mirrored()),
+            options.dentDepth(), options.dentReach(), options.holeAcross(), options.mirrored(), options.rimRoll()),
             true);
       }
     });
@@ -353,28 +353,32 @@ public class InflateViewer extends ApplicationAdapter {
     // Shaping: these reuse what was measured, so dragging one only rebuilds the mesh.
     slider("depth", 0.1f, 2.5f, 0.05f, (float) options.depth(), "%.2f x", value ->
         set(with(options.passes(), value, options.smoothing(), options.dentDepth(),
-            options.dentReach(), options.holeAcross(), options.mirrored()), false));
+            options.dentReach(), options.holeAcross(), options.mirrored(), options.rimRoll()), false));
     slider("dent at the detail", 0f, 0.95f, 0.05f, (float) options.dentDepth(), "%.2f", value ->
         set(with(options.passes(), options.depth(), options.smoothing(), value,
-            options.dentReach(), options.holeAcross(), options.mirrored()), false));
+            options.dentReach(), options.holeAcross(), options.mirrored(), options.rimRoll()), false));
     slider("how wide that dent is", 0.1f, 3f, 0.1f, (float) options.dentReach(), "%.1f px",
         value -> set(with(options.passes(), options.depth(), options.smoothing(),
-            options.dentDepth(), value, options.holeAcross(), options.mirrored()), false));
+            options.dentDepth(), value, options.holeAcross(), options.mirrored(), options.rimRoll()), false));
 
     // Measuring: these change what is known about the sprite, so the pipeline runs again.
     slider("smoothing", 0f, 10f, 1f, options.smoothing(), "%.0f passes", value ->
         set(with(options.passes(), options.depth(), (int) value, options.dentDepth(),
-            options.dentReach(), options.holeAcross(), options.mirrored()), true));
+            options.dentReach(), options.holeAcross(), options.mirrored(), options.rimRoll()), true));
     slider("a hole is detail up to", 0f, 6f, 0.5f, (float) options.holeAcross(), "%.1f px",
         value -> set(with(options.passes(), options.depth(), options.smoothing(),
-            options.dentDepth(), options.dentReach(), value, options.mirrored()), true));
+            options.dentDepth(), options.dentReach(), value, options.mirrored(), options.rimRoll()), true));
+
+    slider("rounding at the seam", 0f, 3f, 0.1f, (float) options.rimRoll(), "%.1f px", value ->
+        set(with(options.passes(), options.depth(), options.smoothing(), options.dentDepth(),
+            options.dentReach(), options.holeAcross(), options.mirrored(), value), false));
 
     CheckBox mirrored = new CheckBox(" bulge on both sides", checkStyle);
     mirrored.setChecked(options.mirrored());
     mirrored.addListener(new ChangeListener() {
       public void changed(ChangeEvent event, Actor actor) {
         set(with(options.passes(), options.depth(), options.smoothing(), options.dentDepth(),
-            options.dentReach(), options.holeAcross(), mirrored.isChecked()), false);
+            options.dentReach(), options.holeAcross(), mirrored.isChecked(), options.rimRoll()), false);
       }
     });
     controls.add(mirrored).padTop(8).padBottom(10).row();
@@ -392,9 +396,9 @@ public class InflateViewer extends ApplicationAdapter {
 
   private static SpriteInflate.Options with(int[] passes, double depth, int smoothing,
                                             double dentDepth, double dentReach, double holeAcross,
-                                            boolean mirrored) {
+                                            boolean mirrored, double rimRoll) {
     return new SpriteInflate.Options(passes, depth, smoothing, dentDepth, dentReach, holeAcross,
-        mirrored);
+        mirrored, rimRoll);
   }
 
   private void set(SpriteInflate.Options changed, boolean measureAgain) {

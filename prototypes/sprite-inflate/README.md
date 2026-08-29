@@ -44,7 +44,8 @@ suavizar el agrandado en lugar del dibujo, y sale peor que no escalar.
 
 Todo número del pipeline que sea un juicio y no un hecho está en `SpriteInflate.Options`, y el
 visor los pone en un panel a la derecha: forma, escala, profundidad, hundido del detalle y su
-ancho, suavizado, qué tamaño de agujero cuenta como detalle, y panza a uno o a los dos lados.
+ancho, suavizado, qué tamaño de agujero cuenta como detalle, redondeo de la unión, y panza a uno
+o a los dos lados.
 Ninguno se puede decidir discutiendo — cuánto hundido lee como ojo es una pregunta sobre cómo se
 ve un ojo — y todos habían sido elegidos renderizando una vez y entrecerrando los ojos.
 
@@ -107,6 +108,30 @@ su explicación):
 Y una que sí importó menos de lo esperado: **thresholdear después de escalar** cuesta poco.
 Escalar cierra el 85% de la brecha contra el contorno ideal y conservar el coverage cierra 5
 puntos más. Si thresholdear simplifica el mesh, hacelo — siempre que escales primero.
+
+## La unión de adelante con atrás
+
+No es una arista: con el perfil de esfera la sección ahí es una parábola, o sea el ecuador de un
+elipsoide, perfectamente liso. Se **ve** como arista porque los 180° del giro ocurren adentro de
+un píxel — a un píxel del borde la altura ya está en 3.05 — y dos muestras para media vuelta se
+sombrean como filo por liso que sea lo que se está muestreando.
+
+La perilla *rounding at the seam* reparte ese giro sobre los píxeles que se le pidan, limitando la
+pendiente cerca del borde. La pendiente se elige **por punto**: un cono de pendiente `s` se separa
+de una esfera de radio `R` a distancia `2R/s²`, así que `s = √(2R/w)` para el ancho `w` pedido. Se
+combina con el perfil como `a·b/√(a²+b²)`, que es la versión suave de tomar el menor de los dos —
+un mínimo pelado dejaría un pliegue justo donde esto intenta sacar uno.
+
+Altura contra distancia del borde, midiendo sobre el mesh:
+
+| desde el borde | 1 | 2 | 3 | 4 | 6 | 8 |
+|---|---|---|---|---|---|---|
+| sin redondeo | 3.05 | 4.15 | 5.64 | 6.46 | 7.86 | 8.83 |
+| 0.6 px | 1.28 | 2.22 | 3.75 | 4.67 | 6.37 | 7.60 |
+| 1.6 px | 0.83 | 1.50 | 2.70 | 3.48 | 5.08 | 6.36 |
+
+Efecto colateral, visible en la tabla: adelgaza la figura entera, no sólo el borde. Se compensa
+con la perilla de profundidad.
 
 ## Verificación
 
