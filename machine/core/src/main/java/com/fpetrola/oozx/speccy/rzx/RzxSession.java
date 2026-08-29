@@ -152,6 +152,16 @@ public class RzxSession {
     return speccy.machine.current.getTimings().tstatesPerFrame;
   }
 
+  /** What the player throws when the recording has no more frames to give. */
+  private static final String END_OF_RECORDING = "rzx finished";
+
+  private volatile boolean finished;
+
+  /** True once the recording has been played to its end. */
+  public boolean isFinished() {
+    return finished || playback.isFinished();
+  }
+
   private com.fpetrola.oozx.speccy.modules.Timer timer;
 
   /**
@@ -169,7 +179,21 @@ public class RzxSession {
    * @return false at the end of the recording
    */
   public boolean playFrame() {
-    if (!playback.playFrame()) {
+    try {
+      if (!playback.playFrame()) {
+        return false;
+      }
+    } catch (RuntimeException e) {
+      // THE END OF A RECORDING ARRIVES AS AN EXCEPTION, deliberately: the player throws it from
+      // the one place that can tell the tail apart from a frame that merely ran out of values,
+      // and runners outside this use it as their stop signal. What it is not is a failure, and
+      // letting it out of here was: it left the window's thread and took the thread with it, so
+      // a recording shorter than the session sat frozen with nothing said. Three of fourteen
+      // sampled from the archive end this way - they are 1885, 8259 and 13449 frames long.
+      if (!END_OF_RECORDING.equals(e.getMessage())) {
+        throw e;
+      }
+      finished = true;
       return false;
     }
     for (int frames = playback.takeElapsedMachineFrames(); frames > 0; frames--) {
