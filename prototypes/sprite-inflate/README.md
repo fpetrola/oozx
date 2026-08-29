@@ -22,7 +22,8 @@ mvn -q exec:java -Dexec.args="sprites/willy.png target/out 4"
 mvn -q exec:java -Dexec.mainClass=com.fpetrola.oozx.proto.inflate.InflateViewer \
     -Dexec.args="target/out"
 
-# ...o pasarle una HOJA de sprites y recorrerlos con las flechas, inflando en vivo.
+# ...o pasarle una HOJA de sprites: los muestra todos en un panel al costado, se elige con el
+# mouse (o las flechas) y se infla en vivo, y abajo se elige el color.
 # Sin argumentos usa sprites/img.png si existe, así que anda con el botón verde del IDE.
 mvn -q exec:java -Dexec.mainClass=com.fpetrola.oozx.proto.inflate.InflateViewer \
     -Dexec.args="sprites/img.png"
