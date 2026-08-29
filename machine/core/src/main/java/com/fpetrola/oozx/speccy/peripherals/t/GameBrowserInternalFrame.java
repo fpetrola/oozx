@@ -539,7 +539,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
 
     loadItem.addActionListener(e -> startLoading(result));
     detailsItem.addActionListener(e -> listener.onViewDetails(result));
-    favoriteItem.addActionListener(e -> listener.onAddToFavorites(result.url));
+    favoriteItem.addActionListener(e -> listener.onAddToFavorites(result));
     downloadItem.addActionListener(e -> listener.onDownloadGame(result.url));
 
     // The two screenshots already fill the width, so the caption goes above them rather than

@@ -43,6 +43,7 @@ public class OOZxConfiguration {
   private String lastLoadStateDirectory = System.getProperty("user.home");
   private String lastSaveStateDirectory = System.getProperty("user.home");
   private List<String> recentFiles = new ArrayList<>();
+  private List<Favorite> favorites = new ArrayList<>();
   private List<WindowState> openWindows = new ArrayList<>();
   private WindowState mainWindowState; // Estado de la ventana principal
   private Map<String, String> snapshots = new HashMap<>(); // Mapa centralizado de snapshots: id -> data
@@ -124,6 +125,31 @@ public class OOZxConfiguration {
 
   public void setLastSaveStateDirectory(String lastSaveStateDirectory) {
     this.lastSaveStateDirectory = lastSaveStateDirectory;
+  }
+
+  public List<Favorite> getFavorites() {
+    return favorites;
+  }
+
+  public void setFavorites(List<Favorite> favorites) {
+    this.favorites = favorites;
+  }
+
+  /** Keeps one entry per source, so favouriting the same game twice does not list it twice. */
+  public boolean addFavorite(Favorite favorite) {
+    if (favorites.stream().anyMatch(f -> f.getSource().equals(favorite.getSource()))) return false;
+    favorites.add(favorite);
+    save();
+    return true;
+  }
+
+  public void removeFavorite(String source) {
+    favorites.removeIf(f -> f.getSource().equals(source));
+    save();
+  }
+
+  public boolean isFavorite(String source) {
+    return source != null && favorites.stream().anyMatch(f -> f.getSource().equals(source));
   }
 
   public List<String> getRecentFiles() {
@@ -380,6 +406,74 @@ public class OOZxConfiguration {
       "filePath", "snapshotName", "searchQuery", "turboMode", "muted", "paused",
       "snapshotId", "appliedPokes" // Referencia al snapshot en el mapa centralizado y pokes aplicados
   })
+  /**
+   * A game kept to play again, and enough to play it with.
+   * <p>
+   * The source is whatever the launcher already knows how to open: a URL or a local path, a
+   * tape, a snapshot or a recording. Storing that rather than the game's page is the difference
+   * between an entry that can be launched and one that can only be looked at.
+   */
+  public static class Favorite {
+    /** What the launcher opens: a URL or a local path. */
+    private String source;
+    private String title;
+    /** GAME goes to the emulator, RECORDING to the RZX player. */
+    private String kind = "GAME";
+    /** The ZXInfo id when it came from a search, so the entry can be looked up again. */
+    private String gameId;
+
+    public Favorite() {
+    }
+
+    public Favorite(String source, String title, String kind, String gameId) {
+      this.source = source;
+      this.title = title;
+      this.kind = kind;
+      this.gameId = gameId;
+    }
+
+    /**
+     * Not a property: it reads the kind rather than holding anything, and Jackson would write
+     * it out as one and then refuse to read the file back, having no setter to put it in.
+     */
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    public boolean isRecording() {
+      return "RECORDING".equals(kind);
+    }
+
+    public String getSource() {
+      return source;
+    }
+
+    public void setSource(String source) {
+      this.source = source;
+    }
+
+    public String getTitle() {
+      return title;
+    }
+
+    public void setTitle(String title) {
+      this.title = title;
+    }
+
+    public String getKind() {
+      return kind;
+    }
+
+    public void setKind(String kind) {
+      this.kind = kind;
+    }
+
+    public String getGameId() {
+      return gameId;
+    }
+
+    public void setGameId(String gameId) {
+      this.gameId = gameId;
+    }
+  }
+
   public static class WindowState {
     private String type; // "EMULATOR", "GAME_BROWSER"
     private int x;

@@ -435,6 +435,13 @@ class EmulatorInternalFrame extends JInternalFrame {
     });
     toolBar.add(changeSize);
 
+    JButton favoriteButton = new JButton(loadIcon("2B50.svg"));
+    favoriteButton.setToolTipText("Keep this game in Favorites");
+    favoriteButton.addActionListener(e -> {
+      if (parentApp != null) parentApp.keepAsFavorite(gameSearchResult, emulatorCore.getFilename());
+    });
+    toolBar.add(favoriteButton);
+
     tighten(toolBar);
     return toolBar;
   }
@@ -779,7 +786,7 @@ interface GameBrowserListener {
 
   void onViewDetails(GameSearchResult gameSearchResult);
 
-  void onAddToFavorites(String gameUrl);
+  void onAddToFavorites(GameSearchResult game);
 
   void onDownloadGame(String gameUrl);
 
@@ -795,6 +802,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private int emulatorCount = 0;
   private GameBrowserInternalFrame gameBrowser;
   private SnapshotHistoryInternalFrame snapshotHistory;
+  private FavoritesInternalFrame favorites;
   private final JFileChooser fileChooser = new JFileChooser();
   protected OOZxConfiguration config;
   private JMenu recentFilesMenu;
@@ -1362,6 +1370,11 @@ public class ZXSpectrumDesktopApp extends JFrame {
     historyBtn.addActionListener(e -> openSnapshotHistory());
     toolBar.add(historyBtn);
 
+    JButton favoritesBtn = new JButton(loadIcon("2B50.svg"));
+    favoritesBtn.setToolTipText("Favorites");
+    favoritesBtn.addActionListener(e -> openFavorites());
+    toolBar.add(favoritesBtn);
+
     JButton settingsBtn = new JButton(loadIcon("2699.svg"));
     settingsBtn.setToolTipText("Settings");
     settingsBtn.addActionListener(e -> openSettings());
@@ -1386,6 +1399,58 @@ public class ZXSpectrumDesktopApp extends JFrame {
         gameBrowser.toFront();
       } catch (java.beans.PropertyVetoException ex) {
       }
+    }
+  }
+
+  /**
+   * Keeps a game to come back to. What is stored is the thing the launcher can open — the
+   * downloadable file or the path already loaded — and not the game's page, which would make an
+   * entry that can be read and not played.
+   */
+  void keepAsFavorite(GameSearchResult game, String loadedPath) {
+    String source = game != null && game.filename != null ? game.filename : loadedPath;
+    if (source == null) {
+      JOptionPane.showMessageDialog(this,
+          (game != null ? game.title : "This game") + " has nothing to download, so there is "
+              + "nothing to come back to.", "Favorites", JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+
+    String title = game != null && game.title != null ? game.title
+        : new java.io.File(source).getName();
+    boolean added = config.addFavorite(new OOZxConfiguration.Favorite(source, title, "GAME",
+        game == null ? null : game.id));
+    if (favorites != null && !favorites.isClosed()) favorites.refresh();
+
+    JOptionPane.showMessageDialog(this, added ? title + " is now a favourite."
+        : title + " was already a favourite.", "Favorites", JOptionPane.INFORMATION_MESSAGE);
+  }
+
+  /** Keeps one recording, which comes back through the player rather than a new emulator. */
+  void keepRecordingAsFavorite(RzxOption recording) {
+    config.addFavorite(new OOZxConfiguration.Favorite(recording.url(), recording.label(),
+        "RECORDING", null));
+    if (favorites != null && !favorites.isClosed()) favorites.refresh();
+  }
+
+  public void openFavorites() {
+    if (favorites == null || favorites.isClosed()) {
+      favorites = new FavoritesInternalFrame(config, favorite -> {
+        // Straight back through the paths the application already uses, so a favourite opens
+        // exactly the way it opened the first time.
+        if (favorite.isRecording()) {
+          playRecording(new RzxOption(favorite.getTitle(), favorite.getSource()));
+        } else {
+          loadInNewEmulator(favorite.getSource());
+        }
+      });
+      desktop.add(favorites);
+    }
+    favorites.setVisible(true);
+    favorites.toFront();
+    try {
+      favorites.setSelected(true);
+    } catch (java.beans.PropertyVetoException ignored) {
     }
   }
 
@@ -2033,9 +2098,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
       }
 
       @Override
-      public void onAddToFavorites(String gameUrl) {
-        JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-            "Added to favorites: " + gameUrl, "Favorites", JOptionPane.INFORMATION_MESSAGE);
+      public void onAddToFavorites(GameSearchResult game) {
+        keepAsFavorite(game, null);
       }
 
       @Override
