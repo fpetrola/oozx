@@ -58,11 +58,16 @@ public class SpeccyScreen extends JPanel {
    * Which lead the picture came down. Off to begin with, because a monitor is the honest default
    * and a television is a thing you ask for.
    */
-  private volatile TvScreen tv = TvScreen.RGB_MONITOR;
-  private final TvScreen.Scratch tvScratch = new TvScreen.Scratch();
-
-  /** Dark lines between the bright ones, the way a television left the gaps unlit. */
-  private volatile boolean scanLines;
+  /**
+   * How this window shows its picture: its own, not shared with the other windows open.
+   * <p>
+   * Two emulators at once are two machines, and watching a loading screen on a simulated
+   * television beside a game on a sharp monitor is a reasonable thing to want.
+   */
+  private final com.fpetrola.oozx.speccy.screen.ScreenSettings screen =
+      new com.fpetrola.oozx.speccy.screen.ScreenSettings();
+  private final com.fpetrola.oozx.speccy.screen.ScreenContext screenContext =
+      new com.fpetrola.oozx.speccy.screen.ScreenContext();
 
   /**
    * Whether to smooth when scaling, or null to go on deciding it by the scale as this always
@@ -76,6 +81,9 @@ public class SpeccyScreen extends JPanel {
     setPreferredSize(new Dimension((int) (SCREEN_W * zoom), (int) (SCREEN_H * zoom)));
     this.screenBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
     this.croppedBuffer = new BufferedImage(SCREEN_W, SCREEN_H, BufferedImage.TYPE_INT_RGB);
+
+    screen.apply(com.fpetrola.oozx.speccy.screen.ScreenSettings.getDefaults());
+    screen.onChange(this::repaint);
 
     new Timer(30, e -> SwingUtilities.invokeLater(this::repaint)).start();
   }
@@ -100,6 +108,7 @@ public class SpeccyScreen extends JPanel {
     int previousWidth = imageWidth();
     int previousHeight = imageHeight();
     this.borderVisible = borderVisible;
+    set("border", borderVisible);
     setPreferredSize(new Dimension((int) (imageWidth() * zoom), (int) (imageHeight() * zoom)));
     resizeWindowBy(previousWidth, previousHeight);
     repaint();
@@ -121,23 +130,46 @@ public class SpeccyScreen extends JPanel {
     window.validate();
   }
 
-  /** Which lead the picture comes down; {@link TvScreen#RGB_MONITOR} is none at all. */
+  /**
+   * This window's own settings, which describe themselves: a window over them is a loop over
+   * {@link com.fpetrola.oozx.speccy.screen.ScreenSettings#settings()} rather than a second copy
+   * of the list written in controls.
+   */
+  public com.fpetrola.oozx.speccy.screen.ScreenSettings getScreenSettings() {
+    return screen;
+  }
+
+  /**
+   * The four leads, still reachable by name.
+   * <p>
+   * The menu asks for these directly and should go on being able to: choosing a lead is what
+   * someone does often, and a menu is a click where a window is a window. They are knobs of
+   * {@link #getScreenSettings()} like everything else, so the two agree by being the same thing.
+   */
   public void setTvScreen(TvScreen tv) {
-    this.tv = tv == null ? TvScreen.RGB_MONITOR : tv;
-    repaint();
+    set("tv", (tv == null ? TvScreen.RGB_MONITOR : tv).label());
   }
 
   public TvScreen getTvScreen() {
-    return tv;
+    return TvScreen.byName(String.valueOf(read("tv")));
   }
 
   public void setScanLines(boolean scanLines) {
-    this.scanLines = scanLines;
-    repaint();
+    set("scanlines", scanLines ? 0.45 : 0.0);
   }
 
   public boolean isScanLines() {
-    return scanLines;
+    return ((Number) read("scanlines")).doubleValue() > 0;
+  }
+
+  private void set(String key, Object value) {
+    screen.settings().stream().filter(one -> one.key().equals(key)).findFirst()
+        .ifPresent(one -> one.set(value));
+  }
+
+  private Object read(String key) {
+    return screen.settings().stream().filter(one -> one.key().equals(key)).findFirst()
+        .map(com.fpetrola.oozx.speccy.screen.ScreenSetting::value).orElse(0);
   }
 
   /** True to smooth, false to keep it blocky, null to go on deciding by the scale. */
@@ -203,10 +235,6 @@ public class SpeccyScreen extends JPanel {
         target.setRGB(x, y, (zxColorCode >= 8 ? lightColors[zxColorCode - 8] : darkColors[zxColorCode]).getRGB());
       }
     }
-    // Here and not after scaling: what a lead does to a picture, it does to the machine's own
-    // pixels, and a blur measured in the pixels of a window someone resized measures the window.
-    tv.apply(target, tvScratch);
-
 //    g.drawImage(screenBuffer, 0, 0, getWidth(), getHeight(), null);
 
     BufferedImage image = target;
@@ -235,12 +263,11 @@ public class SpeccyScreen extends JPanel {
         imgWidth = (int) (ceil * image.getWidth(this));
         imgHeight = (int) (ceil * image.getHeight(this));
       }
-      // Sharp or smoothed: by the scale unless someone has said which they want.
-      Boolean asked = smoothing;
-      BufferedImage scaledImage = getScaledImage(image, imgWidth, imgHeight, asked == null ? b : !asked);
-      if (scanLines) {
-        darkenAlternateLines(scaledImage, image.getHeight());
-      }
+      // Everything this window was told to do to the picture, in the order it has to happen in:
+      // the lead and the colours before the scaler, on a quarter of the pixels a window has, and
+      // the mask and the lines after it, because those are features of the screen and not of the
+      // picture. The pipeline is the settings' to decide; this only says how big.
+      BufferedImage scaledImage = screen.render(image, imgWidth, imgHeight, screenContext);
       //to center
       int x = (int) (((double) getWidth() / 2) - ((double) imgWidth / 2));
       int y = (int) (((double) getHeight() / 2) - ((double) imgHeight / 2));

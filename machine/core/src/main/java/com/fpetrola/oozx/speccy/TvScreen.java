@@ -39,7 +39,7 @@ import java.awt.image.BufferedImage;
  * PAL rather than NTSC, because that is what these machines were sold into, so the colour axes
  * are U and V.
  */
-public enum TvScreen {
+public enum TvScreen implements com.fpetrola.oozx.speccy.screen.ScreenEffect {
 
   /** Straight from the machine: what the display file says, and nothing between. */
   RGB_MONITOR("RGB Monitor", 0, 0, 0, 0),
@@ -110,11 +110,26 @@ public enum TvScreen {
     return weights;
   }
 
+  @Override
   public String label() {
     return label;
   }
 
+  /**
+   * The same filtering, reached the way every other effect is reached.
+   * <p>
+   * The scratch comes from the context so that a window filtering fifty frames a second is not
+   * allocating one a frame; the older two-argument call stays because the code that drives a
+   * lead directly has no context to hand.
+   */
+  @Override
+  public BufferedImage apply(BufferedImage picture, com.fpetrola.oozx.speccy.screen.ScreenContext context) {
+    apply(picture, context.tvScratch());
+    return picture;
+  }
+
   /** Nothing to do: the picture is already what the machine drew. */
+  @Override
   public boolean isTransparent() {
     return lumaSpread == 0 && chromaSpread == 0 && ringing == 0 && snow == 0;
   }
