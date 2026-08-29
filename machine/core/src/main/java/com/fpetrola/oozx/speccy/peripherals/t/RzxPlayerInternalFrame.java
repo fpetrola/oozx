@@ -284,7 +284,12 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
       case FINISHED -> "Recording finished";
       default -> "Stopped";
     };
-    status.setText(" " + state + " - " + where);
+    String unsupported = session.getUnsupportedReason();
+    // Ahead of the frame count on purpose: once a recording pages, the count keeps climbing and
+    // the machine on screen is already somewhere the recording never went.
+    status.setText(unsupported != null ? " Cannot replay: " + unsupported + " - " + where
+        : " " + state + " - " + where);
+    status.setForeground(unsupported != null ? java.awt.Color.RED : java.awt.Color.BLACK);
     model.fireTableRowsUpdated(0, Math.max(0, model.getRowCount() - 1));
   }
 

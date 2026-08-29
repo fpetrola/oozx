@@ -22,6 +22,7 @@ import java.io.*;
 import java.net.URL;
 import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.zip.*;
@@ -58,17 +59,40 @@ public class DownloadAndUnzip {
    * offers both - 3188 recordings as plain files and 859 inside zips.
    */
   public static Path fetch(String url, Path directory) throws IOException {
+    List<Path> all = fetchAll(url, directory);
+    return all.isEmpty() ? null : chooseLoadable(all);
+  }
+
+  /**
+   * Everything worth loading that came out of a URL, in the order the archive held it.
+   * <p>
+   * A zip does not always hold one thing: a recording of a game played over several sittings
+   * comes as one file per part, and taking any single one of them plays a fifth of the game and
+   * looks like a failure. The caller decides what to do with more than one.
+   */
+  public static List<Path> fetchAll(String url, Path directory) throws IOException {
     Files.createDirectories(directory);
     if (url.toLowerCase().endsWith(".zip")) {
-      return downloadAndUnzip(url, directory);
+      List<Path> entries = new ArrayList<>();
+      for (Path entry : unzipAll(url, directory)) {
+        if (!Files.isDirectory(entry) && scoreOf(entry.getFileName().toString()) > Integer.MIN_VALUE + 1) {
+          entries.add(entry);
+        }
+      }
+      entries.sort(Comparator.comparing(path -> path.getFileName().toString()));
+      return entries;
     }
     String name = url.substring(url.lastIndexOf('/') + 1);
     Path file = directory.resolve(name.isEmpty() ? "download" : name);
     Files.write(file, downloadFile(new URL(url)));
-    return file;
+    return List.of(file);
   }
 
   public static Path downloadAndUnzip(String zipUrl, Path extractTo) throws IOException {
+    return chooseLoadable(unzipAll(zipUrl, extractTo));
+  }
+
+  private static List<Path> unzipAll(String zipUrl, Path extractTo) throws IOException {
     List<Path> result= new ArrayList<>();
 // 1. Descargar el ZIP en memoria (o a disco si es muy grande)
     byte[] zipData = downloadFile(new URL(zipUrl));
@@ -102,7 +126,7 @@ public class DownloadAndUnzip {
       }
     }
 
-    return chooseLoadable(result);
+    return result;
   }
 
   /**

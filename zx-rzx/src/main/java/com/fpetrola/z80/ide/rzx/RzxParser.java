@@ -28,6 +28,9 @@ import static java.lang.Integer.reverseBytes;
 import static java.lang.Short.reverseBytes;
 
 public class RzxParser {
+
+  /** An IN count of 65535 does not mean 65535 reads: the frame repeats the previous one. */
+  private static final int REPEATS_PREVIOUS_FRAME = 0xFFFF;
   private final int HEADER_SIGNATURE = 0x21585A52; // "RZX!" in little-endian
   private SnapshotBlock snapshotBlock;
   private InputRecordingBlock inputRecordingBlock;
@@ -217,18 +220,30 @@ public class RzxParser {
         : new ByteArrayInputStream(payload));
     InputRecordingBlock.Frame lastFrame = null;
 
-    // Parse frames (simplified for now)
-    while (stream.available() > 0) {
+    // As many frames as the block says it has, and not "until the stream runs out": available()
+    // on an inflater is not a count of what is left, it answers 0 or 1 depending on whether the
+    // end has been noticed yet. On a recording where it had not been, the loop went round once
+    // more than there were frames and the whole file was thrown away over an EOFException on the
+    // last one. Rick Dangerous is such a recording; Jet Set Willy happened not to be.
+    for (int frameIndex = 0; frameIndex < numberOfFrames; frameIndex++) {
       InputRecordingBlock.Frame frame = new InputRecordingBlock.Frame();
       frame.fetchCounter = reverseBytes(stream.readShort()) & 0xFFFF;
       frame.inCounter = reverseBytes(stream.readShort()) & 0xFFFF;
 
-      if (frame.inCounter < 10000) { // Not a repeated frame
-        frame.returnValues = new byte[frame.inCounter];
-        stream.readFully(frame.returnValues);
-      } else {
+      // A frame that repeats the one before it is marked with 65535, and only with that. This
+      // used to treat anything from 10000 up as a repeat, which is a guess rather than the
+      // format: a frame really holding that many reads then had its values left in the stream,
+      // every following frame was read from the wrong offset, and the block ended in an
+      // EOFException that named nothing. Rick Dangerous is one such recording.
+      if (frame.inCounter == REPEATS_PREVIOUS_FRAME) {
+        if (lastFrame == null) {
+          throw new IOException("the first frame of a recording cannot repeat the one before it");
+        }
         frame.inCounter = lastFrame.inCounter;
         frame.returnValues = Arrays.copyOf(lastFrame.returnValues, lastFrame.returnValues.length);
+      } else {
+        frame.returnValues = new byte[frame.inCounter];
+        stream.readFully(frame.returnValues);
       }
 
       lastFrame = frame;

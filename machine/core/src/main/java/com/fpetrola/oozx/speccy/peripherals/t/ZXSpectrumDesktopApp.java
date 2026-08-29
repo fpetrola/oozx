@@ -1590,8 +1590,12 @@ public class ZXSpectrumDesktopApp extends JFrame {
     new SwingWorker<java.io.File, Void>() {
       @Override
       protected java.io.File doInBackground() throws Exception {
-        return DownloadAndUnzip.fetch(option.url(),
-            java.nio.file.Path.of(System.getProperty("java.io.tmpdir"), "rzx-downloads")).toFile();
+        java.util.List<java.nio.file.Path> parts = DownloadAndUnzip.fetchAll(option.url(),
+            java.nio.file.Path.of(System.getProperty("java.io.tmpdir"), "rzx-downloads"));
+        if (parts.isEmpty()) {
+          throw new java.io.IOException("nothing playable came out of it");
+        }
+        return choosePart(option, parts).toFile();
       }
 
       @Override
@@ -1634,6 +1638,24 @@ public class ZXSpectrumDesktopApp extends JFrame {
         }
       });
     });
+  }
+
+  /**
+   * Which part to play. A game recorded over several sittings arrives as one file per part -
+   * Rick Dangerous 2 comes as five - and playing whichever one happened to be picked shows a
+   * fifth of the game and looks like a fault, so the choice is the person's.
+   */
+  private java.nio.file.Path choosePart(RzxOption option, java.util.List<java.nio.file.Path> parts) {
+    if (parts.size() == 1) {
+      return parts.get(0);
+    }
+    Object[] names = parts.stream().map(part -> part.getFileName().toString()).toArray();
+    Object chosen = JOptionPane.showInputDialog(this,
+        option.label() + " was recorded in " + parts.size() + " parts. Which one?",
+        "Play recording", JOptionPane.QUESTION_MESSAGE, null, names, names[0]);
+    return parts.stream()
+        .filter(part -> part.getFileName().toString().equals(chosen))
+        .findFirst().orElse(parts.get(0));
   }
 
   /** Asks for a recording. A recording brings its own machine, so no emulator is needed. */

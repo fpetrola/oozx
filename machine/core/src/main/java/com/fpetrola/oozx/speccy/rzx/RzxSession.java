@@ -90,10 +90,55 @@ public class RzxSession {
 
     public void out(int port, int value) {
       player.out(port, value); // it tracks the last value written to 0xFE
+      watchForPaging(port, value);
       if (hardware != null) {
         hardware.out(port, value);
       }
     }
+
+    /**
+     * Notices a recording asking for memory this machine has not got.
+     * <p>
+     * The snapshot inside a recording can be a 128K one and still replay perfectly, because most
+     * games never move a bank: the snapshot's own layout is the 48K one and stays that way. What
+     * cannot replay is a game that PAGES - it writes a bank number to 0x7FFD and carries on
+     * executing at 0xC000 expecting the new bank there. This machine has one 48K map and the
+     * snapshot loader nails banks 5, 2 and 0 into it, so the write changes nothing and the game
+     * runs off into whatever the old bank happens to hold: a few frames later it is data being
+     * executed as code, and a few after that the ROM's reset screen.
+     * <p>
+     * Measured on Rick Dangerous 2, which pages bank 6 in at 0xC000 sixty-two instructions after
+     * the snapshot: without this the window shows a machine sitting on the 1982 copyright line
+     * with nothing to say why. It is a warning and not a refusal because how far a replay gets
+     * varies: Rick Dangerous 1 pages bank 1 and still reaches its menu, though its input is
+     * already out of step with the recording by then (64 frames of 400 consuming exactly what was
+     * recorded). What this cannot do is tell those apart in advance, so it says what it saw.
+     * <p>
+     * It watches what the recording DOES rather than what its snapshot says: plenty of recordings
+     * carry a 128K snapshot whose layout is the 48K one and never move a bank, and those replay
+     * exactly.
+     */
+    private void watchForPaging(int port, int value) {
+      if ((port & 0x8002) != 0) { // 0x7FFD is decoded on A15 low and A1 low
+        return;
+      }
+      if ((value & 0x07) != 0 && unsupported == null) {
+        unsupported = "this recording pages 128K memory (it asked for bank " + (value & 0x07)
+            + " at 0xC000) and this machine maps only banks 5, 2 and 0, so the replay can drift"
+            + " from here on";
+      }
+    }
+
+    /** Set once the recording asks for a bank this machine cannot map; null while it can be replayed. */
+    private volatile String unsupported;
+  }
+
+  /**
+   * Why the replay cannot be trusted, or null while it can. Worth showing rather than swallowing:
+   * the machine does not stop, it drifts into the ROM, and that looks like a bug in the player.
+   */
+  public String getUnsupportedReason() {
+    return ports.unsupported;
   }
 
   public static RzxSession open(File file) {
