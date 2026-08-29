@@ -106,7 +106,6 @@ public class RZXPlayerIO implements MiniZXIO {
   private byte lastPoll;
   private List<OutListener> outListeners = new ArrayList<>();
   private int fetchCounter;
-  public static boolean stop;
   private static final boolean DEBUG_SYNC = Boolean.getBoolean("rzx.debug");
   /** -Drzx.advance=ins: avance por demanda de INs solamente, sin cursor por fetches. */
   private static final boolean ADVANCE_BY_INS = "ins".equals(System.getProperty("rzx.advance"));
@@ -335,8 +334,6 @@ public class RZXPlayerIO implements MiniZXIO {
   }
 
   private byte getNextInput() {
-    if ( stop)
-      throw new RuntimeException("stop");
     if (inputs.isEmpty()) {
       // El emulador pidió MÁS lecturas de las que este frame grabó. Los valores del frame
       // siguiente son del frame siguiente: servirlos ahora adelanta la entrada y ADEMÁS

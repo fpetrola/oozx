@@ -119,7 +119,6 @@ public class RzxSession {
           file.getName() + " carries no snapshot, so there is no state to start it from");
     }
 
-    RZXPlayerIO.stop = false;
     RZXPlayerIO player = new RZXPlayerIO();
 
     SwitchableIO ports = new SwitchableIO(player);
@@ -177,7 +176,6 @@ public class RzxSession {
    * other thing someone means by Stop.
    */
   public void rewind() {
-    RZXPlayerIO.stop = false;
     RZXPlayerIO player = new RZXPlayerIO();
     ports.player = player;
     ports.replaying = true;

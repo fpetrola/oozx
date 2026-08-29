@@ -28,6 +28,8 @@ import java.io.File;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -71,6 +73,43 @@ class RzxPlaybackTest {
     // all means the recorded player got past the copy protection and into the game.
     assertTrue(screenText(session.getSpeccy()).contains("The "),
         "expected to be inside a room, screen reads: " + screenText(session.getSpeccy()));
+  }
+
+  /**
+   * Two recordings open at once, each on its own machine.
+   * <p>
+   * A recording brings its own machine, and nothing below the window ever required there to be
+   * only one - but nothing checked it either, and the window above kept a single player in a
+   * field, so opening a second recording took the first one's place. Before letting several run
+   * on the desktop it is worth knowing the thing underneath really is separable: two sessions,
+   * advanced by different amounts and interleaved, must each stay exactly where they were put.
+   */
+  @Test
+  void two_recordings_run_at_once_without_touching_each_other() {
+    OOSpectrumConnector.noTest = true;
+    RzxSession one = RzxSession.open(recording());
+    RzxSession other = RzxSession.open(recording());
+
+    assertNotSame(one.getSpeccy(), other.getSpeccy(), "both sessions got the same machine");
+    assertNotSame(one.getSpeccy().memory, other.getSpeccy().memory,
+        "two machines sharing one memory would overwrite each other's game");
+
+    one.getPlayback().playFrames(2000);
+    other.getPlayback().playFrames(500);
+    assertEquals(2000, one.getPlayback().getFrameIndex(), "the first lost its place");
+    assertEquals(500, other.getPlayback().getFrameIndex(), "the second lost its place");
+
+    // Interleaved, which is what a desktop does: advancing one must leave the other alone.
+    other.getPlayback().playFrames(300);
+    assertEquals(2000, one.getPlayback().getFrameIndex(),
+        "advancing the second recording moved the first");
+    assertEquals(800, other.getPlayback().getFrameIndex());
+    assertEquals(2000, one.getPlayback().getPlayerFrameIndex(),
+        "the first recording's port was handed the second recording's frames");
+
+    // And they really are at different moments of the game, not two views of one machine.
+    assertNotEquals(screenText(one.getSpeccy()), screenText(other.getSpeccy()),
+        "two machines two thousand frames apart are showing the same screen");
   }
 
   /** Reads the room name line, which Jet Set Willy prints in the standard ROM character set. */

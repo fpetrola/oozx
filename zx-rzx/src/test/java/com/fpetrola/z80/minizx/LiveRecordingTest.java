@@ -86,7 +86,6 @@ class LiveRecordingTest {
   }
 
   private static RZXPlayerIO enVivo(boolean aceptaInterrupcion) {
-    RZXPlayerIO.stop = false;
     RZXPlayerIO io = new RZXPlayerIO();
     io.setup(grabacion());
     io.setAcceptsInterrupt(() -> aceptaInterrupcion);
@@ -192,7 +191,6 @@ class LiveRecordingTest {
     List<InputRecordingBlock.Frame> grabados = original.getInputRecordingBlock().frames;
     int viejos = grabados.size();
 
-    RZXPlayerIO.stop = false;
     RZXPlayerIO io = new RZXPlayerIO();
     io.setup(original);
     io.setAcceptsInterrupt(() -> false);
@@ -241,7 +239,6 @@ class LiveRecordingTest {
     RzxFile original = grabacion();
     List<InputRecordingBlock.Frame> viejos = original.getInputRecordingBlock().frames;
 
-    RZXPlayerIO.stop = false;
     RZXPlayerIO io = new RZXPlayerIO();
     io.setup(original);
     io.setAcceptsInterrupt(() -> false);
@@ -298,7 +295,6 @@ class LiveRecordingTest {
     InputRecordingBlock.Frame elDelCorte = viejos.get(CORTE);
     assertTrue(elDelCorte.inCounter >= 4, "el frame del corte tiene que tener lecturas que perder");
 
-    RZXPlayerIO.stop = false;
     RZXPlayerIO io = new RZXPlayerIO();
     io.setup(original);
     io.setAcceptsInterrupt(() -> false);
@@ -343,7 +339,6 @@ class LiveRecordingTest {
     List<InputRecordingBlock.Frame> viejos = original.getInputRecordingBlock().frames;
     assertTrue(viejos.size() > 20, "la grabacion de prueba tiene que dar para cortarla");
 
-    RZXPlayerIO.stop = false;
     RZXPlayerIO io = new RZXPlayerIO();
     io.setup(original);
     io.setAcceptsInterrupt(() -> false);
@@ -374,7 +369,6 @@ class LiveRecordingTest {
   @Test
   void el_modo_bloque_nuevo_no_puede_guardar_un_corte_en_el_medio() throws Exception {
     RzxFile original = grabacion();
-    RZXPlayerIO.stop = false;
     RZXPlayerIO io = new RZXPlayerIO();
     io.setup(original);
     io.setAcceptsInterrupt(() -> false);
@@ -437,7 +431,6 @@ class LiveRecordingTest {
     RzxFile original = grabacion();
     List<InputRecordingBlock.Frame> viejos = original.getInputRecordingBlock().frames;
 
-    RZXPlayerIO.stop = false;
     RZXPlayerIO io = new RZXPlayerIO();
     io.setup(original);
     io.setAcceptsInterrupt(() -> false);
@@ -474,7 +467,6 @@ class LiveRecordingTest {
     List<InputRecordingBlock.Frame> viejos = original.getInputRecordingBlock().frames;
     final int DESDE = 591;
 
-    RZXPlayerIO.stop = false;
     RZXPlayerIO io = new RZXPlayerIO();
     io.setup(original);
     io.setAcceptsInterrupt(() -> false);
@@ -513,7 +505,6 @@ class LiveRecordingTest {
     List<InputRecordingBlock.Frame> viejos = original.getInputRecordingBlock().frames;
     final int CORTE = 300, REANUDA = 450;
 
-    RZXPlayerIO.stop = false;
     RZXPlayerIO io = new RZXPlayerIO();
     io.setup(original);
     io.setAcceptsInterrupt(() -> false);
@@ -544,7 +535,6 @@ class LiveRecordingTest {
   @Test
   void anteponer_exige_haber_arrancado_en_el_frame_cero() throws Exception {
     RzxFile original = grabacion();
-    RZXPlayerIO.stop = false;
     RZXPlayerIO io = new RZXPlayerIO();
     io.setup(original);
     io.setAcceptsInterrupt(() -> false);
@@ -566,7 +556,6 @@ class LiveRecordingTest {
    */
   @Test
   void el_final_de_la_grabacion_sigue_tirando_excepcion_por_defecto() {
-    RZXPlayerIO.stop = false;
     RZXPlayerIO io = new RZXPlayerIO();
     io.setup(grabacion());
     assertFalse(io.isContinueLiveAtEnd(), "por defecto NO se continua en vivo");
@@ -574,7 +563,6 @@ class LiveRecordingTest {
 
   @Test
   void con_el_flag_el_final_de_la_grabacion_entra_en_vivo() {
-    RZXPlayerIO.stop = false;
     RZXPlayerIO io = new RZXPlayerIO();
     io.setup(grabacion());
     io.setContinueLiveAtEnd(true);

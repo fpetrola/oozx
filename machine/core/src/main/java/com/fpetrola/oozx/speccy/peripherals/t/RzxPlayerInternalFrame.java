@@ -33,8 +33,8 @@ import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * Drives a recording: what is in the file, how far along it is, and play, pause and take over.
@@ -60,8 +60,22 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
 
   private enum Mode { EMPTY, STOPPED, PLAYING, TAKEN_OVER, FINISHED }
 
-  private final Supplier<File> chooseRecording;
-  private final Consumer<RzxSession> showMachine;
+  /**
+   * Both of these are asked of whoever owns the desktop, and both are given this window, because
+   * there can be several players open at once and the answer differs per player: which file this
+   * one is opening, and which machine window belongs to this one rather than to its neighbour.
+   */
+  private final Function<RzxPlayerInternalFrame, File> chooseRecording;
+  private final BiConsumer<RzxPlayerInternalFrame, RzxSession> showMachine;
+
+  /**
+   * Which player this is. It goes in this window's title and in its machine's, so that with four
+   * of them open it is possible to tell at a glance which controls drive which picture.
+   */
+  private final int number;
+
+  /** The emulator window showing this player's machine, while there is one. */
+  private JInternalFrame machineWindow;
 
   private File file;
   /** Where the open recording came from: a URL when fetched, the path when opened locally. */
@@ -89,8 +103,10 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   private final PartsTableModel model = new PartsTableModel();
   private final JTable table = new JTable(model);
 
-  public RzxPlayerInternalFrame(Supplier<File> chooseRecording, Consumer<RzxSession> showMachine) {
-    super("RZX Player", true, true, true, true);
+  public RzxPlayerInternalFrame(int number, Function<RzxPlayerInternalFrame, File> chooseRecording,
+                                BiConsumer<RzxPlayerInternalFrame, RzxSession> showMachine) {
+    super("RZX #" + number, true, true, true, true);
+    this.number = number;
     this.chooseRecording = chooseRecording;
     this.showMachine = showMachine;
     setSize(720, 300);
@@ -157,8 +173,8 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   public void machineClosed() {
     stopThread();
     session = null;
+    machineWindow = null;
     mode = Mode.EMPTY;
-    setTitle("RZX Player");
     model.fireTableDataChanged();
     refresh();
   }
@@ -170,8 +186,27 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
    * bar had room for anyway.
    */
   private String title(String name, String state) {
-    return "RZX Player" + (name.isEmpty() ? "" : " - " + name)
+    return "RZX #" + number + (name.isEmpty() ? "" : ": " + name)
         + (state == null || state.isEmpty() ? "" : " - " + state);
+  }
+
+  /** Whether this player has a recording open, or is a blank window waiting for one. */
+  public boolean hasRecording() {
+    return session != null || file != null;
+  }
+
+  /** Which player this is, for whoever names the machine's window to match. */
+  public int getNumber() {
+    return number;
+  }
+
+  /** The emulator window driven by this player, or null while there is none. */
+  public JInternalFrame getMachineWindow() {
+    return machineWindow;
+  }
+
+  public void setMachineWindow(JInternalFrame machineWindow) {
+    this.machineWindow = machineWindow;
   }
 
   public void setOnFavorite(Runnable onFavorite) {
@@ -228,7 +263,7 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
     busy = null;
     mode = Mode.STOPPED;
     model.fireTableDataChanged();
-    showMachine.accept(session);
+    showMachine.accept(this, session);
     startThread();
     refresh();
   }
@@ -242,7 +277,7 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
     // Anything thrown inside a listener is printed to the console by Swing and nowhere else,
     // which looks exactly like the button doing nothing. Say so in front of the person instead.
     try {
-      File chosen = chooseRecording.get();
+      File chosen = chooseRecording.apply(this);
       if (chosen != null) {
         openRecording(chosen);
       }

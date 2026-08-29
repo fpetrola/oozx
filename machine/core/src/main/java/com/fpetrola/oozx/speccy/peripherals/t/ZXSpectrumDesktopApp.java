@@ -1618,8 +1618,9 @@ public class ZXSpectrumDesktopApp extends JFrame {
     String source = game != null && game.filename != null ? game.filename : loadedPath;
     // A machine started from a recording has neither: it was not opened from a search and it
     // has no file of its own, so the thing worth keeping is the recording driving it.
-    if (source == null && rzxPlayer != null && rzxPlayer.getSourceUrl() != null) {
-      keepRecordingAsFavorite(rzxPlayer);
+    RzxPlayerInternalFrame driving = playerDriving(getActiveEmulator());
+    if (source == null && driving != null && driving.getSourceUrl() != null) {
+      keepRecordingAsFavorite(driving);
       return;
     }
     if (source == null) {
@@ -1892,18 +1893,109 @@ public class ZXSpectrumDesktopApp extends JFrame {
   }
 
   private TapeBrowserInternalFrame tapeBrowser;
-  private RzxPlayerInternalFrame rzxPlayer;
 
-  /** Opens the RZX player, or brings the open one to the front. */
+  /**
+   * Every player open at once. There used to be one, kept in a field and reused, so a second
+   * recording took the first one's window and its machine: watching two was watching the later
+   * one. A recording already builds its own machine - {@link RzxSession#open} makes its own
+   * injector and its own Speccy - so nothing below the window ever required there to be one.
+   */
+  private final java.util.List<RzxPlayerInternalFrame> rzxPlayers = new java.util.ArrayList<>();
+
+  /**
+   * A player ready to take a recording: the open one if it is still empty, otherwise another.
+   * <p>
+   * Reusing an empty one keeps the menu item from leaving a trail of blank players behind
+   * someone who clicked it twice, and opening a second recording while the first is playing
+   * gets its own window, which is the point.
+   */
   public RzxPlayerInternalFrame showRzxPlayer() {
-    if (rzxPlayer == null || rzxPlayer.isClosed()) {
-      rzxPlayer = new RzxPlayerInternalFrame(this::chooseRecording, this::showRzxMachine);
-      rzxPlayer.setOnFavorite(() -> keepRecordingAsFavorite(rzxPlayer));
-      desktop.add(rzxPlayer);
+    rzxPlayers.removeIf(JInternalFrame::isClosed);
+    for (RzxPlayerInternalFrame open : rzxPlayers) {
+      if (!open.hasRecording()) {
+        open.setVisible(true);
+        open.toFront();
+        return open;
+      }
     }
-    rzxPlayer.setVisible(true);
-    rzxPlayer.toFront();
-    return rzxPlayer;
+    return newRzxPlayer();
+  }
+
+  /** Another player, whatever the open ones are doing. */
+  public RzxPlayerInternalFrame newRzxPlayer() {
+    rzxPlayers.removeIf(JInternalFrame::isClosed);
+    RzxPlayerInternalFrame player =
+        new RzxPlayerInternalFrame(nextPlayerNumber(), this::chooseRecording, this::showRzxMachine);
+    player.setOnFavorite(() -> keepRecordingAsFavorite(player));
+    // Cascaded like the emulators, so the second one does not land exactly on the first.
+    player.setLocation(120 + (rzxPlayers.size() * 30) % 300, 60 + (rzxPlayers.size() * 30) % 200);
+    player.addInternalFrameListener(new InternalFrameAdapter() {
+      @Override
+      public void internalFrameClosed(InternalFrameEvent e) {
+        rzxPlayers.remove(player);
+        // Closing the controls closes the picture they were driving. Leaving the machine behind
+        // would leave a window nobody can stop, still running and still making sound.
+        JInternalFrame machine = player.getMachineWindow();
+        if (machine != null && !machine.isClosed()) {
+          machine.dispose();
+        }
+      }
+
+      @Override
+      public void internalFrameActivated(InternalFrameEvent e) {
+        raisePartner(player.getMachineWindow(), player);
+      }
+    });
+    rzxPlayers.add(player);
+    desktop.add(player);
+    player.setVisible(true);
+    player.toFront();
+    return player;
+  }
+
+  /**
+   * The smallest number not in use, rather than one more than the last: with four open, closing
+   * #2 and opening another should give back #2 and not #5, or the numbers climb forever while
+   * the desktop stays the same size.
+   */
+  private int nextPlayerNumber() {
+    for (int candidate = 1; ; candidate++) {
+      boolean taken = false;
+      for (RzxPlayerInternalFrame open : rzxPlayers) {
+        taken |= open.getNumber() == candidate;
+      }
+      if (!taken) {
+        return candidate;
+      }
+    }
+  }
+
+  /** Which player, if any, is driving that machine's window. */
+  private RzxPlayerInternalFrame playerDriving(JInternalFrame machine) {
+    if (machine == null) {
+      return null;
+    }
+    for (RzxPlayerInternalFrame player : rzxPlayers) {
+      if (player.getMachineWindow() == machine) {
+        return player;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Brings a pair up together, the activated one on top.
+   * <p>
+   * Raising the partner first and the activated window second is what keeps clicking the
+   * controls from burying them under their own picture. The two are not dragged together: with
+   * several recordings open the whole point is to put the pictures side by side and the controls
+   * where there is room, and windows that follow each other about would be fought all day.
+   */
+  private void raisePartner(JInternalFrame partner, JInternalFrame activated) {
+    if (partner != null && !partner.isClosed() && partner.isVisible()) {
+      partner.toFront();
+      activated.toFront();
+    }
   }
 
   /**
@@ -1920,6 +2012,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
    *                       asking again which part was meant.
    */
   public void playRecording(RzxOption option, String preferredEntry) {
+    // A player of its own when the open ones are busy: picking a second recording out of the
+    // archive while the first plays should add to the desktop, not replace what is on it.
     RzxPlayerInternalFrame player = showRzxPlayer();
     // The same window a tape gets. A line inside the player was easy to miss, and fetching a
     // recording takes as long as fetching anything else.
@@ -1956,24 +2050,34 @@ public class ZXSpectrumDesktopApp extends JFrame {
    * Puts a recording's machine in an ordinary emulator window. It is an emulator like any other
    * from here on - which is what lets the recording be stopped and the game carried on by hand.
    */
-  private EmulatorInternalFrame rzxEmulator;
-
-  private void showRzxMachine(com.fpetrola.oozx.speccy.rzx.RzxSession session) {
+  private void showRzxMachine(RzxPlayerInternalFrame player,
+                              com.fpetrola.oozx.speccy.rzx.RzxSession session) {
     SwingUtilities.invokeLater(() -> {
       // One window per player, reused: starting the recording over builds a new machine, and
-      // leaving the old window behind would pile up a dead emulator per press of Stop.
-      if (rzxEmulator != null && !rzxEmulator.isClosed()) {
-        rzxEmulator.dispose();
+      // leaving the old window behind would pile up a dead emulator per press of Stop. Per
+      // PLAYER, though - the previous one belonging to this player, not whichever was made last,
+      // which with two recordings open was the other player's and still being watched.
+      JInternalFrame previous = player.getMachineWindow();
+      if (previous != null && !previous.isClosed()) {
+        previous.dispose();
       }
-      rzxEmulator = createNewEmulator(session.getSpeccy().z80.mockCore);
-      rzxEmulator.addInternalFrameListener(new InternalFrameAdapter() {
+      EmulatorInternalFrame machine = createNewEmulator(session.getSpeccy().z80.mockCore);
+      // The same number the controls carry, so it is possible to tell across a crowded desktop
+      // which picture belongs to which set of buttons.
+      String name = player.getRecordingFile() == null ? "" : ": " + player.getRecordingFile().getName();
+      machine.setTitle("Spectrum #" + player.getNumber() + name);
+      player.setMachineWindow(machine);
+      machine.addInternalFrameListener(new InternalFrameAdapter() {
         @Override
         public void internalFrameClosed(InternalFrameEvent e) {
           // Closing the machine's window stops the recording driving it; otherwise the thread
           // goes on running a machine nobody can see, and it goes on making sound.
-          if (rzxPlayer != null) {
-            rzxPlayer.machineClosed();
-          }
+          player.machineClosed();
+        }
+
+        @Override
+        public void internalFrameActivated(InternalFrameEvent e) {
+          raisePartner(player, machine);
         }
       });
     });
@@ -2004,7 +2108,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
   }
 
   /** Asks for a recording. A recording brings its own machine, so no emulator is needed. */
-  private java.io.File chooseRecording() {
+  private java.io.File chooseRecording(RzxPlayerInternalFrame player) {
     fileChooser.setCurrentDirectory(new java.io.File(config.getLastOpenDirectory()));
     javax.swing.filechooser.FileFilter previous = fileChooser.getFileFilter();
     // Zips as well as recordings: the archive serves a good part of its catalogue that way, and
@@ -2022,7 +2126,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
       return null;
     }
     config.setLastOpenDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
-    return openableRecording(fileChooser.getSelectedFile());
+    return openableRecording(player, fileChooser.getSelectedFile());
   }
 
   /**
@@ -2033,7 +2137,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
    * not, so the two ways of arriving at the same recording did not agree. A zip holding one
    * recording opens without a question; one holding several asks the same way a download does.
    */
-  private java.io.File openableRecording(java.io.File chosen) {
+  private java.io.File openableRecording(RzxPlayerInternalFrame player, java.io.File chosen) {
     if (chosen == null || !chosen.getName().toLowerCase().endsWith(".zip")) {
       return chosen;
     }
@@ -2052,9 +2156,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
       // The unpacked entry lives in a temporary directory that will not be there tomorrow. What
       // lasts is the zip the person picked plus which recording inside it this was, so a
       // favourite made from here can unpack the same one again.
-      if (rzxPlayer != null) {
-        rzxPlayer.setPendingSource(chosen.getAbsolutePath(), part.getName());
-      }
+      player.setPendingSource(chosen.getAbsolutePath(), part.getName());
       return part;
     } catch (Exception e) {
       JOptionPane.showMessageDialog(this,
