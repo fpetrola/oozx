@@ -1476,6 +1476,12 @@ public class ZXSpectrumDesktopApp extends JFrame {
    */
   void keepAsFavorite(GameSearchResult game, String loadedPath) {
     String source = game != null && game.filename != null ? game.filename : loadedPath;
+    // A machine started from a recording has neither: it was not opened from a search and it
+    // has no file of its own, so the thing worth keeping is the recording driving it.
+    if (source == null && rzxPlayer != null && rzxPlayer.getSourceUrl() != null) {
+      keepRecordingAsFavorite(rzxPlayer);
+      return;
+    }
     if (source == null) {
       JOptionPane.showMessageDialog(this,
           (game != null ? game.title : "This game") + " has nothing to download, so there is "
@@ -1775,7 +1781,9 @@ public class ZXSpectrumDesktopApp extends JFrame {
    */
   public void playRecording(RzxOption option, String preferredEntry) {
     RzxPlayerInternalFrame player = showRzxPlayer();
-    player.setBusy("Fetching " + option.label() + "...");
+    // The same window a tape gets. A line inside the player was easy to miss, and fetching a
+    // recording takes as long as fetching anything else.
+    JDialog loading = showLoading("Fetching " + option.label() + "...");
     new SwingWorker<java.io.File, Void>() {
       @Override
       protected java.io.File doInBackground() throws Exception {
@@ -1789,6 +1797,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
 
       @Override
       protected void done() {
+        loading.dispose();
         try {
           java.io.File part = get();
           player.setPendingSource(option.url(), part.getName());

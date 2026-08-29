@@ -86,7 +86,6 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
       EmulatorInternalFrame.iconButton("23F9.svg", "Stop", "Stop and go back to the start");
   private final JButton takeOverButton =
       EmulatorInternalFrame.iconButton("1F579.svg", "Take Over", null);
-  private final JLabel status = new JLabel();
   private final PartsTableModel model = new PartsTableModel();
   private final JTable table = new JTable(model);
 
@@ -130,7 +129,6 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
 
     JPanel top = new JPanel(new BorderLayout());
     top.add(controls, BorderLayout.NORTH);
-    top.add(status, BorderLayout.SOUTH);
     setLayout(new BorderLayout());
     add(top, BorderLayout.NORTH);
     add(new JScrollPane(table), BorderLayout.CENTER);
@@ -166,6 +164,16 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   }
 
   /** Loads a recording, builds its machine and hands that machine over to be shown. */
+  /**
+   * The window's name doubles as its status line. There was a row under the toolbar saying what
+   * the player was doing, which cost a strip of the window on every frame to say what the title
+   * bar had room for anyway.
+   */
+  private String title(String name, String state) {
+    return "RZX Player" + (name.isEmpty() ? "" : " - " + name)
+        + (state == null || state.isEmpty() ? "" : " - " + state);
+  }
+
   public void setOnFavorite(Runnable onFavorite) {
     this.onFavorite = onFavorite;
   }
@@ -219,7 +227,6 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
 
     busy = null;
     mode = Mode.STOPPED;
-    setTitle("RZX Player - " + recording.getName());
     model.fireTableDataChanged();
     showMachine.accept(session);
     startThread();
@@ -333,11 +340,11 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
     takeOverButton.setEnabled(loaded && mode != Mode.TAKEN_OVER);
 
     if (busy != null) {
-      status.setText(" " + busy);
+      setTitle(title("", busy));
       return;
     }
     if (!loaded) {
-      status.setText(" No recording - use Open Recording");
+      setTitle(title("", "no recording - use Open Recording"));
       return;
     }
     RzxPlayback playback = session.getPlayback();
@@ -350,7 +357,8 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
     };
     // The model is worth showing: it is not a setting anyone chose, it is what the recording
     // said it was made on, and the machine became that to replay it.
-    status.setText(" " + state + " - " + where + " - " + session.getMachineName());
+    setTitle(title(file == null ? "" : file.getName(),
+        state + " - " + where + " - " + session.getMachineName()));
     model.fireTableRowsUpdated(0, Math.max(0, model.getRowCount() - 1));
   }
 
