@@ -54,6 +54,22 @@ public class SpeccyScreen extends JPanel {
   private volatile boolean borderVisible;
   private BufferedImage croppedBuffer;
 
+  /**
+   * Which lead the picture came down. Off to begin with, because a monitor is the honest default
+   * and a television is a thing you ask for.
+   */
+  private volatile TvScreen tv = TvScreen.RGB_MONITOR;
+  private final TvScreen.Scratch tvScratch = new TvScreen.Scratch();
+
+  /** Dark lines between the bright ones, the way a television left the gaps unlit. */
+  private volatile boolean scanLines;
+
+  /**
+   * Whether to smooth when scaling, or null to go on deciding it by the scale as this always
+   * has: sharp when the picture lands on whole pixels, smoothed when it does not.
+   */
+  private volatile Boolean smoothing;
+
   public SpeccyScreen(byte[][] screenMatrix) {
     IntStream.range(0, 8).forEach(i -> darkColors[i] = lightColors[i].darker());
     this.screenMatrix = screenMatrix;
@@ -105,6 +121,63 @@ public class SpeccyScreen extends JPanel {
     window.validate();
   }
 
+  /** Which lead the picture comes down; {@link TvScreen#RGB_MONITOR} is none at all. */
+  public void setTvScreen(TvScreen tv) {
+    this.tv = tv == null ? TvScreen.RGB_MONITOR : tv;
+    repaint();
+  }
+
+  public TvScreen getTvScreen() {
+    return tv;
+  }
+
+  public void setScanLines(boolean scanLines) {
+    this.scanLines = scanLines;
+    repaint();
+  }
+
+  public boolean isScanLines() {
+    return scanLines;
+  }
+
+  /** True to smooth, false to keep it blocky, null to go on deciding by the scale. */
+  public void setSmoothing(Boolean smoothing) {
+    this.smoothing = smoothing;
+    repaint();
+  }
+
+  public Boolean getSmoothing() {
+    return smoothing;
+  }
+
+  /**
+   * The unlit gaps a television left between its lines.
+   * <p>
+   * Drawn on the scaled picture rather than the small one, because that is where they belong: a
+   * scan line is a line of the SCREEN, and one drawn before scaling would be stretched into a
+   * dark band as wide as the magnification. Which also says when they are worth drawing at all -
+   * below two screen pixels to a machine pixel there is no gap to leave, and darkening every
+   * other row would only halve the brightness.
+   */
+  private static void darkenAlternateLines(BufferedImage scaled, int sourceHeight) {
+    if (scaled.getHeight() < sourceHeight * 2) {
+      return;
+    }
+    int width = scaled.getWidth();
+    int[] row = new int[width];
+    for (int y = 1; y < scaled.getHeight(); y += 2) {
+      scaled.getRGB(0, y, width, 1, row, 0, width);
+      for (int x = 0; x < width; x++) {
+        int rgb = row[x];
+        row[x] = rgb & 0xFF000000
+            | (((rgb >> 16) & 0xFF) * 55 / 100) << 16
+            | (((rgb >> 8) & 0xFF) * 55 / 100) << 8
+            | ((rgb & 0xFF) * 55 / 100);
+      }
+      scaled.setRGB(0, y, width, 1, row, 0, width);
+    }
+  }
+
   private int imageWidth() {
     return borderVisible ? width : SCREEN_W;
   }
@@ -130,6 +203,9 @@ public class SpeccyScreen extends JPanel {
         target.setRGB(x, y, (zxColorCode >= 8 ? lightColors[zxColorCode - 8] : darkColors[zxColorCode]).getRGB());
       }
     }
+    // Here and not after scaling: what a lead does to a picture, it does to the machine's own
+    // pixels, and a blur measured in the pixels of a window someone resized measures the window.
+    tv.apply(target, tvScratch);
 
 //    g.drawImage(screenBuffer, 0, 0, getWidth(), getHeight(), null);
 
@@ -159,7 +235,12 @@ public class SpeccyScreen extends JPanel {
         imgWidth = (int) (ceil * image.getWidth(this));
         imgHeight = (int) (ceil * image.getHeight(this));
       }
-      BufferedImage scaledImage = getScaledImage(image, imgWidth, imgHeight, b);
+      // Sharp or smoothed: by the scale unless someone has said which they want.
+      Boolean asked = smoothing;
+      BufferedImage scaledImage = getScaledImage(image, imgWidth, imgHeight, asked == null ? b : !asked);
+      if (scanLines) {
+        darkenAlternateLines(scaledImage, image.getHeight());
+      }
       //to center
       int x = (int) (((double) getWidth() / 2) - ((double) imgWidth / 2));
       int y = (int) (((double) getHeight() / 2) - ((double) imgHeight / 2));
