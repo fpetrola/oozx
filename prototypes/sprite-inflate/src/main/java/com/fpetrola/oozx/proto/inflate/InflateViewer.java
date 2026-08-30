@@ -444,7 +444,8 @@ public class InflateViewer extends ApplicationAdapter {
     buttonStyle.fontColor = new Color(0.9f, 0.9f, 0.95f, 1f);
   }
 
-  private static Drawable tinted(TextureRegionDrawable pixel, float r, float g, float b,
+  private static Drawable tinted(TextureRegionDrawable pixel, float r, float g, float b
+          ,
                                  float minWidth, float minHeight) {
     Drawable drawable = pixel.tint(new Color(r, g, b, 1f));
     drawable.setMinWidth(minWidth);

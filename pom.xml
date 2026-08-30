@@ -36,6 +36,7 @@
         <module>se</module>
         <module>machine</module>
         <module>zx-rzx</module>
+        <module>prototypes/sprite-inflate</module>
     </modules>
 
     <properties>
