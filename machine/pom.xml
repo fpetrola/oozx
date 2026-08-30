@@ -25,6 +25,7 @@
         <module>devices</module>
         <module>generated</module>
         <module>zxinfo</module>
+        <module>pokes</module>
     </modules>
 
 </project>

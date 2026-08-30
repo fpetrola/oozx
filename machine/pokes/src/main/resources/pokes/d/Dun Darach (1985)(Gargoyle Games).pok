@@ -1,0 +1,49 @@
+NNo Enemies
+Z 8 34999 255 0
+NUnlock doors
+Z 8 34378 24 0
+NCharacters don't move
+Z 8 41443 201 0
+N1st item is not stolen
+Z 8 45391 10 0
+N2nd item is not stolen
+Z 8 45392 10 0
+N3rd item is not stolen
+Z 8 45393 10 0
+N1st item (0-60,stolen=129-188)
+Z 8 45391 256 0
+N2nd item (0-60,stolen=129-188)
+Z 8 45392 256 0
+N3rd item (0-60,stolen=129-188)
+Z 8 45393 256 0
+NMoney (0-999,999)(hex)
+M 8 45395 256 0
+M 8 45396 256 0
+Z 8 45397 256 0
+NMoney=999999
+M 8 45395 153 0
+M 8 45396 153 0
+Z 8 45397 153 0
+NYour 1st item is a barrel
+Z 8 45391 6 0
+NYour 2nd item is a *stolen* gold bar (it shows the "S" beside the item)
+Z 8 45392 131 0
+NYour 3rd item is a moleskin
+Z 8 45393 2 0
+NYou don't carry 3rd item
+Z 8 45393 0 0
+NYou get 500000 iridi
+M 8 45395 0 0
+M 8 45396 0 0
+Z 8 45397 80 0
+NYou get 10203 iridi
+M 8 45395 3 0
+M 8 45396 2 0
+Z 8 45397 1 0
+NStop items being stolen
+M 8 43397 0 0
+Z 8 43398 0 0
+NStop money being stolen
+M 8 44611 0 0
+Z 8 44612 0 0
+Y

@@ -1,0 +1,55 @@
+NScreen Jumper
+M 8 24584 255 0
+M 8 24585 255 0
+M 8 45322 255 0
+M 8 45323 255 0
+M 8 41456 0 0
+Z 8 41457 0 0
+N[48K]Infinite strength
+Z 8 27813 0 0
+N[48K]Infinite Strength (yours)
+Z 8 27814 58 0
+N[48K]Infinite Strength (theirs)
+Z 8 53615 126 0
+N[48K]Infinite Happiness (theirs)
+M 8 53626 126 0
+Z 8 33582 126 0
+N[48K]Infinite Stamina (theirs)
+Z 8 53637 126 0
+N[48K]Infinite Charisma (theirs)
+Z 8 53648 126 0
+N[48K]Infinite Fuel
+Z 8 32008 58 0
+N[48K]Infinite Time
+Z 8 53565 183 0
+N[128K]Infinite Strength (yours)
+Z 8 28112 58 0
+N[128K]Infinite Strength (theirs)
+Z 8 44955 126 0
+N[128K]Infinite Happiness (theirs)
+M 8 44966 126 0
+Z 8 35099 126 0
+N[128K]Infinite Stamina (theirs)
+Z 8 44977 126 0
+N[128K]Infinite Charisma (theirs)
+Z 8 44988 126 0
+N[128K]Infinite Fuel
+Z 8 33064 58 0
+N[128K]Infinite Time
+Z 8 44905 183 0
+NInfinite Strength YOURS ; THEIRS
+M 8 27814 58 0
+Z 8 53615 126 0
+NInfinite Strength YOURS ;THEIRS
+M 8 28112 58 0
+Z 8 44955 126 0
+NTransporter always works / does not need repairing
+M 8 32341 84 0
+Z 8 32342 126 0
+NInvisibility Cloak not required
+Z 8 28475 201 0
+NBoots not required to be carried and worn
+Z 8 28487 201 0
+NGas Mask not required
+Z 8 28499 201 0
+Y
