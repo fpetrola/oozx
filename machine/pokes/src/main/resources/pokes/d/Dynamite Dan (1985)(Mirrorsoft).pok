@@ -1,0 +1,23 @@
+NInfinite Lives
+M 8 52678 0 0
+Z 8 57035 0 0
+NNo Enemies
+Z 8 58770 201 0
+NManipulate teleports
+M 8 59093 201 0
+Z 8 51558 0 0
+NWater can't kill you on/off
+Z 8 56359 0 25
+NDynamite sticks found (0-8)
+Z 8 51320 256 0
+NPicked up oxygen bottle
+Z 8 51326 64 0
+NEnergy bar never decreases
+Z 8 51519 0 0
+NSpeed up game
+M 8 64585 0 0
+M 8 56359 0 0
+Z 8 56359 25 0
+NDisable "Q Quit" key
+Z 8 51301 164 0
+Y
