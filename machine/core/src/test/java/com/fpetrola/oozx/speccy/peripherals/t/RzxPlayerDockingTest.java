@@ -19,6 +19,7 @@
 package com.fpetrola.oozx.speccy.peripherals.t;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.SwingUtilities;
 import java.awt.Rectangle;
@@ -178,6 +179,35 @@ class RzxPlayerDockingTest {
     assertEquals(250, player.getX(), "snapped into place but then did not follow");
     assertEquals(260 + 300 - seam(machine, player), player.getY(),
         "snapped into place but then did not follow");
+  }
+
+  /**
+   * Attached, it belongs in front of its machine and nowhere else in the order.
+   * <p>
+   * Otherwise anything that brings itself to the front - the game browser does, every time it is
+   * used - comes up over the controls too, and the bar attached to a window ends up buried under
+   * something that has nothing to do with it.
+   */
+  @Test
+  void attached_it_rides_directly_in_front_of_its_machine() {
+    JDesktopPane desktop = new JDesktopPane();
+    RzxPlayerInternalFrame player = player();
+    JInternalFrame machine = machine(60, 40, 520, 380);
+    JInternalFrame browser = machine(0, 0, 300, 300);
+    desktop.add(machine);
+    desktop.add(player);
+    desktop.add(browser);
+    player.setMachineWindow(machine);
+
+    browser.toFront();
+    machine.toFront();                     // as clicking the machine does
+    machine.setBounds(60, 40, 520, 380 + 1);
+    settle();
+
+    assertEquals(desktop.getComponentZOrder(machine) - 1, desktop.getComponentZOrder(player),
+        "the player is not directly in front of its machine");
+    assertTrue(desktop.getComponentZOrder(player) < desktop.getComponentZOrder(browser),
+        "something unrelated is sitting over the controls");
   }
 
   @Test

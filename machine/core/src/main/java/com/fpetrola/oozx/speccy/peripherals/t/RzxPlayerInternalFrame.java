@@ -386,6 +386,30 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
     } finally {
       placing = false;
     }
+    keepWithMachine();
+  }
+
+  /**
+   * Puts the player immediately in front of its machine in the stack of windows.
+   * <p>
+   * While attached it is part of that window, not a window in its own right, so it has no
+   * business having its own place in the order: anything raised over the machine - the game
+   * browser, most often, which brings itself to the front whenever it is used - would otherwise
+   * come up over the controls as well and leave them buried under something unrelated.
+   * <p>
+   * Index nought is the front in AWT, so taking the machine's index puts this one in front of it
+   * and pushes the machine back by one. Detached, none of this applies and it takes its chances
+   * like any other window.
+   */
+  private void keepWithMachine() {
+    Container desktop = getParent();
+    if (desktop == null || machineWindow == null || machineWindow.getParent() != desktop) {
+      return;
+    }
+    int machineAt = desktop.getComponentZOrder(machineWindow);
+    if (machineAt >= 0 && desktop.getComponentZOrder(this) != machineAt) {
+      desktop.setComponentZOrder(this, machineAt);
+    }
   }
 
   /** The two borders that meet where the frames touch, which is what to overlap by. */
