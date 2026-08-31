@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx.speccy.peripherals;
 
-import com.fpetrola.oozx.SpectrumZ80Clock;
+import com.fpetrola.z80.cpu.Z80Clock;
 import com.fpetrola.oozx.speccy.Sound;
 
 /**
@@ -33,7 +33,7 @@ import com.fpetrola.oozx.speccy.Sound;
  */
 public class AyPlus3Peripheral extends AyPeripheral {
 
-  public AyPlus3Peripheral(Sound sound, SpectrumZ80Clock clock) {
+  public AyPlus3Peripheral(Sound sound, Z80Clock clock) {
     super(Periph.Type.AY_PLUS3, sound, clock, true);
   }
 }

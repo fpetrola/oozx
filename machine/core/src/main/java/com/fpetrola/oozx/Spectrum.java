@@ -37,13 +37,12 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
   protected final IPeriph periph;
   private final EventManager eventManager;
   private final Cpu cpu;
-  private final Z80Clock z80Clock;
+  protected final Z80Clock z80Clock;
 
   private final int[] contentionPattern65432100 = {5, 4, 3, 2, 1, 0, 0, 6};
   private final int[] contentionPattern76543210 = {5, 4, 3, 2, 1, 0, 7, 6};
 
   public int spectrumFrameEvent = -1;
-  private Sound sound1;
 
   public boolean isTimex() {
     return timex;
@@ -54,7 +53,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
   private final Timer timer;
   private final Module module;
   private final int[][] ram;
-  private Sound sound;
+  protected Sound sound;
 
   private final UserInterface userInterface;
 

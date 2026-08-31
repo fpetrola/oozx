@@ -32,6 +32,7 @@ import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.speccy.peripherals.Spec128MemoryPeripheral;
 import com.fpetrola.oozx.speccy.peripherals.SeMemoryPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.AyPeripheral;
 import com.fpetrola.oozx.speccy.Sound;
 import com.fpetrola.oozx.speccy.modules.Display;
 import com.fpetrola.oozx.speccy.modules.EventManager;
@@ -63,6 +64,7 @@ public class Spec128 extends Spectrum {
   public void init() {
     periph.register(new Spec128MemoryPeripheral(this));
     periph.register(new SeMemoryPeripheral(this));
+    periph.register(new AyPeripheral(sound, z80Clock));
   }
 
   @Override

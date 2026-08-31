@@ -30,6 +30,7 @@ import com.google.inject.Inject;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
+import com.fpetrola.oozx.speccy.peripherals.AyPlus3Peripheral;
 import com.fpetrola.oozx.speccy.Sound;
 import com.fpetrola.oozx.speccy.modules.Display;
 import com.fpetrola.oozx.speccy.modules.EventManager;
@@ -66,6 +67,8 @@ public class SpecPlus3 extends Spec128 {
     super.init();
     periph.register(new SpecPlus3MemoryPeripheral(this));
     periph.register(new Upd765Peripheral(this));
+    // The same chip wired as this family wires it, its data port answering when read.
+    periph.register(new AyPlus3Peripheral(sound, z80Clock));
   }
 
   public Fdd[] specplus3Drives = new Fdd[SpecPlus3Constants.SPECPLUS3_NUM_DRIVES];

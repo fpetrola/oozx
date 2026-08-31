@@ -19,7 +19,7 @@
 package com.fpetrola.oozx.speccy.ports;
 
 import com.fpetrola.oozx.speccy.Sound;
-import com.fpetrola.oozx.SpectrumZ80Clock;
+import com.fpetrola.z80.cpu.Z80Clock;
 
 /**
  * The two ports of the AY-3-8912, which nothing was listening to.
@@ -40,10 +40,10 @@ public class AyPortHandler extends DefaultPortHandler {
   private final AyRegisters registers;
   private final boolean selects;
   private final Sound sound;
-  private final SpectrumZ80Clock clock;
+  private final Z80Clock clock;
 
   public AyPortHandler(int mask, int value, boolean selects, AyRegisters registers, Sound sound,
-                       SpectrumZ80Clock clock) {
+                       Z80Clock clock) {
     this(mask, value, selects, registers, sound, clock, false);
   }
 
@@ -53,7 +53,7 @@ public class AyPortHandler extends DefaultPortHandler {
    *                    a chip here, and silence is a "no". On a +3 the data port answers too.
    */
   public AyPortHandler(int mask, int value, boolean selects, AyRegisters registers, Sound sound,
-                       SpectrumZ80Clock clock, boolean alsoAnswers) {
+                       Z80Clock clock, boolean alsoAnswers) {
     super(mask, value, selects || alsoAnswers, true);
     this.selects = selects;
     this.registers = registers;
