@@ -14,3 +14,7 @@ JSpeccy.xml
 **/target/**
 dependency-reduced-pom.xml
 .profileconfig.json
+
+# Fuse's C source, kept alongside for reference while porting. GPL, and this repo is Apache:
+# it must never be committed here.
+fuse-emulator-fuse/

@@ -1,0 +1,99 @@
+/*
+ *
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *      http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *
+ */
+
+package model.tests.devices;
+
+import com.fpetrola.oozx.Speccy;
+import com.fpetrola.oozx.SpectrumZ80Clock;
+import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
+import com.fpetrola.oozx.speccy.sound.SilentSoundDevice;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/**
+ * That the sound chip makes a sound.
+ * <p>
+ * Every register write was arriving and being queued, and the synthesis that turns a queue of
+ * writes into samples was commented out at its one call site - so a 128K machine took the music
+ * and produced silence. Behind that were two more: the routine that advances a channel wrote its
+ * answer into its own parameter, which in C is a pointer and in Java is a local, and the square
+ * wave was flipped by negating it, which leaves nought as nought.
+ * <p>
+ * So this asks the only question that matters about all three: set a channel going, and does
+ * anything come out.
+ */
+class AyMakesSoundTest {
+
+  /** Keeps the loudest sample it is handed, and opens nothing. */
+  private static class Loudest extends SilentSoundDevice {
+    int peak;
+
+    public void sound_lowlevel_frame(int[] data, int length) {
+      for (int i = 0; i < length; i++) {
+        peak = Math.max(peak, Math.abs(data[i]));
+      }
+    }
+  }
+
+  private int peakOf(String model, boolean playANote) {
+    OOSpectrumConnector.noTest = true;
+    Loudest listener = new Loudest();
+    Speccy speccy = Speccy.create(new SpectrumZ80Clock(),
+        binder -> binder.bind(JavaSoundDevice.class).toInstance(listener));
+    speccy.init();
+    speccy.uiDisplay.active = false;
+    speccy.z80.bridgeCommand = (a, b) -> null;
+    speccy.machine.getMachineTypes().stream()
+        .filter(type -> type.getClass().getSimpleName().equals(model))
+        .findFirst().ifPresent(type -> {
+          speccy.machine.selectDefault();
+          speccy.machine.select(type);
+        });
+    speccy.settings.current.sound = true;
+
+    if (playANote) {
+      write(speccy, 0, 0x50);   // channel A period, low byte
+      write(speccy, 1, 0x01);   // and high, so it is well inside hearing
+      write(speccy, 8, 0x0F);   // channel A at full volume
+      write(speccy, 7, 0x3E);   // mixer: tone A on, everything else off
+    }
+
+    speccy.sound.frame();
+    return listener.peak;
+  }
+
+  private void write(Speccy speccy, int register, int value) {
+    speccy.periph.writePort(0xFFFD, (byte) register);
+    speccy.periph.writePort(0xBFFD, (byte) value);
+  }
+
+  @Test
+  void aOneTwentyEightPlayingANoteIsHeard() {
+    assertTrue(peakOf("Spec128", true) > 0,
+        "the chip was set going and not one sample came out of it");
+  }
+
+  @Test
+  void andSaysNothingWhenNothingIsPlaying() {
+    assertEquals(0, peakOf("Spec128", false),
+        "silence should be silent, or the previous test proves nothing");
+  }
+}

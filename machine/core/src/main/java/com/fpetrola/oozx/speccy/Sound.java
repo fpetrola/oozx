@@ -113,6 +113,8 @@ public class Sound implements ZxModule, MachineChangeListener {
   private BlipSynth leftBeeperSynth;
 
   private BlipSynth rightBeeperSynth;
+  private BlipSynth ayMixSynth;
+  private int[] aySamples;
   private BlipSynth ayASynth;
 
   private BlipSynth ayBSynth;
@@ -211,6 +213,11 @@ public class Sound implements ZxModule, MachineChangeListener {
     int bass = speakerBass[speakerType];
     double volume = getVolume(volumeBeeper);
     leftBeeperSynth = new BlipSynth(BlipBuffer.BLIP_HIGH_QUALITY, soundFreq, 1000, effectiveSpeed, bass, volume, treble);
+    // One for the chip, alongside the one for the beeper. Fuse gives each AY channel its own
+    // synth because it needs them apart to place two of them left and one right; in mono the
+    // three are summed anyway, and a synth here owns its buffer rather than sharing one.
+    ayMixSynth = new BlipSynth(BlipBuffer.BLIP_HIGH_QUALITY, soundFreq, 1000, effectiveSpeed, bass,
+        getVolume(volumeAY), treble);
 
 //    if (stereoAY != 0) {
 //      rightBeeperSynth = new BlipSynth(BlipBuffer.BLIP_GOOD_QUALITY, 32768);
@@ -251,6 +258,7 @@ public class Sound implements ZxModule, MachineChangeListener {
     double hz = (double) effectiveSpeed / tstatesPerFrame;
     soundFrameSize = (int) (soundFreq / hz) + 1;
     outputSamples = new int[soundFrameSize * 2];
+    aySamples = new int[soundFrameSize * 2];
 
     if (!(initContext instanceof Boolean bool1) || bool1)
       soundEnabled = true;
@@ -318,6 +326,7 @@ public class Sound implements ZxModule, MachineChangeListener {
     Arrays.fill(ayRegisters, (byte) 0);
     Arrays.fill(ayTonePeriod, 1);
     Arrays.fill(ayToneTick, 0);
+    Arrays.fill(ayTonePeriod, 1);
     Arrays.fill(ayToneHigh, 0);
     ayNoisePeriod = ayNoiseTick = 0;
     ayEnvPeriod = ayEnvTick = ayEnvInternalTick = 0;
@@ -334,9 +343,10 @@ public class Sound implements ZxModule, MachineChangeListener {
     int frameTstates = spectrumMachine.getTimings().tstatesPerFrame;
     if (!soundEnabled) return;
 
-//    ayOverlay(frameTstates);
+    ayOverlay(frameTstates);
 
     leftBeeperSynth.endFrame(frameTstates);
+    ayMixSynth.endFrame(frameTstates);
 //    if (rightBuf != null)
 //      rightBuf.endFrame(frameTstates);
 
@@ -347,6 +357,12 @@ public class Sound implements ZxModule, MachineChangeListener {
 //      count *= 2;
     } else {
       count = leftBeeperSynth.readSamples(outputSamples, soundFrameSize, true);
+      // The chip on top of the beeper: a 128K makes both at once, and each synth here keeps its
+      // own buffer, so they meet by being added rather than by writing into a shared one.
+      int ayCount = ayMixSynth.readSamples(aySamples, soundFrameSize, true);
+      for (int i = 0; i < ayCount && i < count; i++) {
+        outputSamples[i * 2] += aySamples[i * 2];
+      }
       for (int i = count - 1; i >= 0; i--) {
         outputSamples[i * 2 + 1] = outputSamples[i * 2];
       }
@@ -392,6 +408,7 @@ public class Sound implements ZxModule, MachineChangeListener {
     int changesLeft = ayChangeCount;
     int changeIdx = 0;
     int envCounter = 15;
+    int lastMixed = 0;
     boolean envFirst = true;
     boolean envRev = false;
     int envShape = 0;
@@ -476,29 +493,19 @@ public class Sound implements ZxModule, MachineChangeListener {
       int chanB = toneLevel[1];
       int chanC = toneLevel[2];
 
-      if ((mixer & 1) == 0) ayDoTone(toneCount, 0, toneLevel[0], chanA);
+      if ((mixer & 1) == 0) chanA = ayDoTone(toneCount, 0, toneLevel[0]);
       if ((mixer & 8) == 0 && noiseToggle) chanA = 0;
 
-      if ((mixer & 2) == 0) ayDoTone(toneCount, 1, toneLevel[1], chanB);
+      if ((mixer & 2) == 0) chanB = ayDoTone(toneCount, 1, toneLevel[1]);
       if ((mixer & 16) == 0 && noiseToggle) chanB = 0;
 
-      if ((mixer & 4) == 0) ayDoTone(toneCount, 2, toneLevel[2], chanC);
+      if ((mixer & 4) == 0) chanC = ayDoTone(toneCount, 2, toneLevel[2]);
       if ((mixer & 32) == 0 && noiseToggle) chanC = 0;
 
-      if (lastA != chanA) {
-        ayASynth.update(f, chanA);
-        if (ayASynthR != null) ayASynthR.update(f, chanA);
-        lastA = chanA;
-      }
-      if (lastB != chanB) {
-        ayBSynth.update(f, chanB);
-        if (ayBSynthR != null) ayBSynthR.update(f, chanB);
-        lastB = chanB;
-      }
-      if (lastC != chanC) {
-        ayCSynth.update(f, chanC);
-        if (ayCSynthR != null) ayCSynthR.update(f, chanC);
-        lastC = chanC;
+      int mixed = chanA + chanB + chanC;
+      if (mixed != lastMixed) {
+        ayMixSynth.update(f, mixed);
+        lastMixed = mixed;
       }
 
       // Ruido
@@ -514,13 +521,21 @@ public class Sound implements ZxModule, MachineChangeListener {
     }
   }
 
-  private void ayDoTone(int count, int chan, int level, int current) {
+  /**
+   * Advances one channel and answers what it is putting out.
+   * <p>
+   * In C this writes the level through a pointer. Translated with the pointer dropped it assigned
+   * to its own parameter, which in Java is a local: the channel was advanced and the level thrown
+   * away, so every channel read as whatever it had been. And the square wave was flipped by
+   * negating it, which leaves nought as nought - it started low and stayed there.
+   */
+  private int ayDoTone(int count, int chan, int level) {
     ayToneTick[chan] += count;
     while (ayToneTick[chan] >= ayTonePeriod[chan]) {
       ayToneTick[chan] -= ayTonePeriod[chan];
-      ayToneHigh[chan] = -ayToneHigh[chan];
+      ayToneHigh[chan] = ayToneHigh[chan] == 0 ? 1 : 0;
     }
-    current = level != 0 && ayToneHigh[chan] != 0 ? level : 0;
+    return level != 0 && ayToneHigh[chan] != 0 ? level : 0;
   }
 
   // ========================================================================
