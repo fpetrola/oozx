@@ -19,7 +19,7 @@
 package model.connected;
 
 import model.interfaces.IZ80CPU;
-import model.tests.TestDriver;
+import model.harness.TestDriver;
 
 // Concrete implementations for testing
 public class ConnectedZ80CPU implements IZ80CPU {

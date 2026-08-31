@@ -19,7 +19,7 @@
 package model.connected;
 
 import model.interfaces.IMemory;
-import model.tests.TestDriver;
+import model.harness.TestDriver;
 
 public class ConnectedMemory implements IMemory {
   private final TestDriver testDriver;

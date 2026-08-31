@@ -145,6 +145,11 @@
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
  <!--   <build>
@@ -188,6 +193,26 @@
                 <configuration>
                     <source>21</source>
                     <target>21</target>
+                </configuration>
+            </plugin>
+
+            <!-- One class decides what runs: model.suites.FastSuite. Everything else is reached
+                 through it or asked for by name, as in -Dtest=SlowSuite or -Dtest=CpuSuite. The fork
+                 timeout is a backstop: the command bridge spins on a queue a stopped machine never
+                 feeds, and a spin cannot be interrupted from inside. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <!-- surefire's defaults stop at *Test/*Tests, so a name ending in a digit
+                             (SpeccyUnitTests1) was never picked up and its tests never ran. -->
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                        <include>**/*Tests?.java</include>
+                    </includes>
+                    <reuseForks>false</reuseForks>
+                    <forkedProcessTimeoutInSeconds>120</forkedProcessTimeoutInSeconds>
                 </configuration>
             </plugin>
 
@@ -242,4 +267,31 @@
             </plugin>
         </plugins>
     </build>
+
+    <!-- The slow, networked and native-only tests never run in a normal build. Ask for them:
+         mvn test -Pslow -pl machine/core -->
+    <profiles>
+        <profile>
+            <id>slow</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <includes>
+                                <include>**/suites/SlowSuite.java</include>
+                            </includes>
+                            <systemPropertyVariables>
+                                <oozx.slow>true</oozx.slow>
+                                <oozx.network>true</oozx.network>
+                                <oozx.native>true</oozx.native>
+                            </systemPropertyVariables>
+                            <forkedProcessTimeoutInSeconds>1800</forkedProcessTimeoutInSeconds>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

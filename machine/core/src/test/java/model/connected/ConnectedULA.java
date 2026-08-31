@@ -19,7 +19,7 @@
 package model.connected;
 
 import model.interfaces.IULA;
-import model.tests.TestDriver;
+import model.harness.TestDriver;
 
 public class ConnectedULA implements IULA {
   private final TestDriver testDriver;

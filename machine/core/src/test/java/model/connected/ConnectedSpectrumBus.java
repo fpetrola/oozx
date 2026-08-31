@@ -19,7 +19,7 @@
 package model.connected;
 
 import model.interfaces.*;
-import model.tests.TestDriver;
+import model.harness.TestDriver;
 
 import java.util.ArrayList;
 import java.util.List;

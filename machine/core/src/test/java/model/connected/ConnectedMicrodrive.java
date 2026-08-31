@@ -21,7 +21,7 @@ package model.connected;
 import model.interfaces.IMicrodrive;
 import model.interfaces.IMicrodriveCartridge;
 import model.interfaces.ISpectrumBus;
-import model.tests.TestDriver;
+import model.harness.TestDriver;
 
 public class ConnectedMicrodrive implements IMicrodrive {
   private final TestDriver testDriver;

@@ -21,7 +21,7 @@ package model.connected;
 import model.interfaces.IMicrodrive;
 import model.interfaces.ISpectrumBus;
 import model.interfaces.IZXInterface1;
-import model.tests.TestDriver;
+import model.harness.TestDriver;
 
 import java.util.ArrayList;
 import java.util.List;
