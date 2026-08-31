@@ -86,11 +86,28 @@ public class TapeAutoLoader {
     // changeSpeed resets the clock and restarts sound.
     speccy.settings.current.emulationSpeed = loadingSpeed;
 
-    // LOAD "" ENTER, in 48K BASIC keyword entry.
-    press(KeyboardKeyName.KEYBOARD_j);
-    press(KeyboardKeyName.KEYBOARD_Symbol, KeyboardKeyName.KEYBOARD_p);
-    press(KeyboardKeyName.KEYBOARD_Symbol, KeyboardKeyName.KEYBOARD_p);
-    press(KeyboardKeyName.KEYBOARD_Enter);
+    // What has to be typed depends on the machine that is listening.
+    //
+    // A 48K one comes up at a BASIC prompt in keyword entry, where J alone is the word LOAD.
+    // A 128K one comes up at a menu, where those keys move a cursor about and nothing loads:
+    // its first entry is the tape loader, so ENTER on its own is the whole instruction. Typing
+    // the 48K sequence at that menu is why a 128K release sat on its loading screen forever
+    // while the tape played to nobody.
+    if (speccy.machine.current != null && speccy.machine.current.getName().contains("128")) {
+      press(KeyboardKeyName.KEYBOARD_Enter);
+      if (Boolean.getBoolean("tape.trace")) {
+        System.out.println("cargador: menu de 128K, ENTER solo");
+      }
+    } else {
+      if (Boolean.getBoolean("tape.trace")) {
+        System.out.println("cargador: BASIC de 48K, LOAD \"\"");
+      }
+      // LOAD "" ENTER, in 48K BASIC keyword entry.
+      press(KeyboardKeyName.KEYBOARD_j);
+      press(KeyboardKeyName.KEYBOARD_Symbol, KeyboardKeyName.KEYBOARD_p);
+      press(KeyboardKeyName.KEYBOARD_Symbol, KeyboardKeyName.KEYBOARD_p);
+      press(KeyboardKeyName.KEYBOARD_Enter);
+    }
     steps.add(this::startTape);
   }
 

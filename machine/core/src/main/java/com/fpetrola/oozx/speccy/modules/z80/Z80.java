@@ -524,6 +524,19 @@ public class Z80 implements ZxModule, Cpu {
       private String filename;
       private boolean turbo = settings.current.emulationSpeed != 100;
 
+      /**
+       * Asked of the machine rather than remembered.
+       * <p>
+       * A copy of the answer has to be kept in step by everything that changes the machine, and
+       * it was not: choosing a machine for a snapshot updated it, choosing one for a 128K tape
+       * did not, and the indicator went on naming whatever the emulator had started as. There is
+       * no keeping a copy honest; there is only not keeping one.
+       */
+      @Override
+      public String getCurrentModel() {
+        return machine.current == null ? super.getCurrentModel() : machine.current.getName();
+      }
+
 
       public void applyMod(PokFile.PokeMod mod) {
         PokInstruction parsedInstruction = mod.getParsedInstruction();
