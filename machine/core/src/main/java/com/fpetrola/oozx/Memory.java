@@ -75,9 +75,12 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
     this.settings = settings;
     Helper.fillArrayWith(mapRead, MemoryPage::new);
     Helper.fillArrayWith(mapWrite, MemoryPage::new);
-  }
+  
+    // Whole when it is built. Its sources and its pages were made at start time, which is
+    // why Machine declared it came afterwards - and why Fuse's Beta, Interface 1, DivIDE,
+    // Opus, PlusD, DISCiPLE and Multiface all declare the same thing. In C that ordering has
+    // to be said out loud; here a constructor says it.
 
-  public void start() {
     memorySources = new ArrayList<>();
 
     sourceRom = sourceRegister("ROM");
@@ -110,6 +113,9 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
     }
 
     return;
+}
+
+  public void start() {
   }
 
   public void end() {

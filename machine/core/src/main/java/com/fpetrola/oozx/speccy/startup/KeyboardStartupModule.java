@@ -24,7 +24,7 @@ public class KeyboardStartupModule extends AbstractStartupModule {
   private Keyboard keyboard;
 
   public KeyboardStartupModule(Keyboard keyboard) {
-    super(LibspectrumStartupModule.class);
+    super();
     this.keyboard = keyboard;
   }
 

@@ -24,7 +24,7 @@ public class TimerStartupModule extends AbstractStartupModule {
   private Timer timer;
 
   public TimerStartupModule(Timer timer) {
-    super(EventManagerStartupModule.class);
+    super();
     this.timer = timer;
   }
 

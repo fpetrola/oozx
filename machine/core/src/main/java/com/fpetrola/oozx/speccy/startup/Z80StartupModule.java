@@ -24,7 +24,7 @@ public class Z80StartupModule extends AbstractStartupModule {
   private Z80 z80;
 
   public Z80StartupModule(Z80 z80) {
-    super(EventManagerStartupModule.class);
+    super();
     this.z80 = z80;
   }
 

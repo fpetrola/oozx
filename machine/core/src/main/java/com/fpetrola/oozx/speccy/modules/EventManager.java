@@ -52,14 +52,16 @@ public class EventManager implements ZxModule, MachineChangeListener {
     this.z80Clock = z80Clock;
     Comparator<Event> customComparator = this::eventAddCmp; // Placeholder, not used
     events = new ObjectAVLTreeSet<>(customComparator);
+    // Whole when it is built, rather than half now and the rest at start. Three modules used to
+    // declare they came after this one, and all three said so for the same reason: they register
+    // an event, and the list to register into was made here at start time.
+    registeredEvents = new ObjectArrayList();
+    eventTypeNull = eventRegister(null, "[Deleted event]");
+    eventNextEvent = EVENT_NO_EVENTS;
   }
 
   @Override
   public void start() {
-    registeredEvents = new ObjectArrayList();
-    eventTypeNull = eventRegister(null, "[Deleted event]");
-    eventNextEvent = EVENT_NO_EVENTS;
-    return;
   }
 
   @Override

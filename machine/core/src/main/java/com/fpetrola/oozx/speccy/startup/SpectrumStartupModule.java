@@ -24,7 +24,7 @@ public class SpectrumStartupModule extends AbstractStartupModule {
   private Spectrum spectrum;
 
   public SpectrumStartupModule(Spectrum spectrum) {
-    super(EventManagerStartupModule.class);
+    super();
     this.spectrum = spectrum;
   }
 

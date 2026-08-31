@@ -24,7 +24,7 @@ public class JoystickStartupModule extends AbstractStartupModule {
   private Joystick joystick;
 
   public JoystickStartupModule(Joystick joystick) {
-    super(LibspectrumStartupModule.class);
+    super();
     this.joystick = joystick;
   }
 

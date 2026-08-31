@@ -32,7 +32,7 @@ public class MachineStartupModule extends AbstractStartupModule {
 
   @Inject
   public MachineStartupModule(Machine machine, Set<Spectrum> spectrumMachines, @DefaultMachine Spectrum defaultMachine) {
-    super(MemoryStartupModule.class);
+    super();
     this.machine = machine;
     this.spectrumMachines = spectrumMachines;
     this.defaultMachine = defaultMachine;
