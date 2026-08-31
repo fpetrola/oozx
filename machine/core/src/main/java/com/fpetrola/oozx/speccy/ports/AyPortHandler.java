@@ -37,17 +37,26 @@ import com.fpetrola.oozx.SpectrumZ80Clock;
  */
 public class AyPortHandler extends DefaultPortHandler {
 
-  /** Which register the next value is for; shared by the two ports, because the chip shares it. */
-  private final int[] selected;
+  private final AyRegisters registers;
   private final boolean selects;
   private final Sound sound;
   private final SpectrumZ80Clock clock;
 
-  public AyPortHandler(int mask, int value, boolean selects, int[] selected, Sound sound,
+  public AyPortHandler(int mask, int value, boolean selects, AyRegisters registers, Sound sound,
                        SpectrumZ80Clock clock) {
-    super(mask, value, false, true);
+    this(mask, value, selects, registers, sound, clock, false);
+  }
+
+  /**
+   * @param alsoAnswers whether this port reads as well as writes. The register port always does -
+   *                    a program that writes a value and reads it back is asking whether there is
+   *                    a chip here, and silence is a "no". On a +3 the data port answers too.
+   */
+  public AyPortHandler(int mask, int value, boolean selects, AyRegisters registers, Sound sound,
+                       SpectrumZ80Clock clock, boolean alsoAnswers) {
+    super(mask, value, selects || alsoAnswers, true);
     this.selects = selects;
-    this.selected = selected;
+    this.registers = registers;
     this.sound = sound;
     this.clock = clock;
   }
@@ -55,11 +64,18 @@ public class AyPortHandler extends DefaultPortHandler {
   @Override
   public void write(int port, byte value) {
     if (selects) {
-      selected[0] = value & 0x0F;
+      registers.select(value);
     } else {
+      registers.write(value);
       // With the time it happened, because a tune is the changes AND when each one was made:
       // handed over without that, every note of a frame would begin at once.
-      sound.ayWrite(selected[0], value & 0xFF, clock.getTStates());
+      sound.ayWrite(registers.current(), value & 0xFF, clock.getTStates());
     }
+  }
+
+  @Override
+  public byte read(int port, byte[] attached) {
+    attached[0] = (byte) 0xff;
+    return (byte) registers.read();
   }
 }

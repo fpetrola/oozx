@@ -68,6 +68,53 @@ class AySoundPortsTest {
         "the chip was written to twice and heard nothing, so there is no music");
   }
 
+  /**
+   * The +2A and the +3 have the same chip, wired one wire differently, and were silent.
+   * <p>
+   * Those machines are given AY_PLUS3 rather than AY, and that entry of the enum carried no class
+   * - so the chip was declared always present and there was nothing there to be present. It is
+   * the same silence the plain AY had before it was given one, one line above it in the same enum.
+   * A 128K game arriving on a +2A had effects and no music.
+   */
+  @Test
+  void a_plus_two_a_hears_its_sound_chip_as_well() {
+    assertEquals(2, writeTwoRegisters(machine("SpecPlus2A")),
+        "a +2A has an AY and heard nothing on it");
+    assertEquals(2, writeTwoRegisters(machine("SpecPlus3")), "and so does a +3");
+  }
+
+  /**
+   * The chip answers as well as listens.
+   * <p>
+   * A program that writes a register and reads it back is asking whether there is a chip here, and
+   * a port that only listens says no - so the program plays beeper music on a machine that has an
+   * AY sitting in it. The register port was write-only.
+   */
+  @Test
+  void the_chip_can_be_read_back_which_is_how_a_game_finds_it() {
+    Speccy speccy = machine("Spec128");
+    speccy.periph.writePort(0xFFFD, (byte) 8);      // channel A volume
+    speccy.periph.writePort(0xBFFD, (byte) 0x0D);
+
+    assertEquals(0x0D, speccy.periph.readPort(0xFFFD) & 0xFF,
+        "written and read back is how a program decides there is a chip to play");
+  }
+
+  /**
+   * Unused bits read back as zero, and the two I/O registers do not read back as what was written
+   * at all: they answer from the pins unless the mixer says they are outputs.
+   */
+  @Test
+  void the_registers_answer_as_the_chip_does() {
+    Speccy speccy = machine("Spec128");
+    speccy.periph.writePort(0xFFFD, (byte) 1);      // channel A period, high byte: four bits wide
+    speccy.periph.writePort(0xBFFD, (byte) 0xFF);
+    assertEquals(0x0F, speccy.periph.readPort(0xFFFD) & 0xFF, "the other four bits are not there");
+
+    speccy.periph.writePort(0xFFFD, (byte) 15);     // the 8912 has no second I/O port
+    assertEquals(0xFF, speccy.periph.readPort(0xFFFD) & 0xFF);
+  }
+
   @Test
   void a_48k_machine_has_no_such_chip_to_hear() {
     // Not a detail: a 48K machine has no AY, and one answering there would be an emulator

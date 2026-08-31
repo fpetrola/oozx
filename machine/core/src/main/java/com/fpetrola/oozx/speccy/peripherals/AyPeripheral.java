@@ -20,6 +20,7 @@ package com.fpetrola.oozx.speccy.peripherals;
 
 import com.fpetrola.oozx.speccy.Sound;
 import com.fpetrola.oozx.speccy.ports.AyPortHandler;
+import com.fpetrola.oozx.speccy.ports.AyRegisters;
 import com.fpetrola.oozx.SpectrumZ80Clock;
 
 import java.util.List;
@@ -34,14 +35,19 @@ import java.util.List;
 public class AyPeripheral extends AbstractZxPeripheral {
 
   public AyPeripheral(Sound sound, SpectrumZ80Clock clock) {
-    this(sound, clock, new int[1]);
+    this(Periph.Type.AY, sound, clock, false);
   }
 
-  private AyPeripheral(Sound sound, SpectrumZ80Clock clock, int[] selected) {
-    super(Periph.Type.AY, List.of(
+  protected AyPeripheral(Periph.Type type, Sound sound, SpectrumZ80Clock clock, boolean dataPortAnswers) {
+    this(type, sound, clock, new AyRegisters(), dataPortAnswers);
+  }
+
+  private AyPeripheral(Periph.Type type, Sound sound, SpectrumZ80Clock clock, AyRegisters registers,
+                       boolean dataPortAnswers) {
+    super(type, List.of(
         // 0xFFFD: bits 15 and 14 high - which register is being spoken to.
-        new AyPortHandler(0xC002, 0xC000, true, selected, sound, clock),
+        new AyPortHandler(0xC002, 0xC000, true, registers, sound, clock),
         // 0xBFFD: bit 14 high, bit 15 low - the value for it.
-        new AyPortHandler(0xC002, 0x8000, false, selected, sound, clock)));
+        new AyPortHandler(0xC002, 0x8000, false, registers, sound, clock, dataPortAnswers)));
   }
 }

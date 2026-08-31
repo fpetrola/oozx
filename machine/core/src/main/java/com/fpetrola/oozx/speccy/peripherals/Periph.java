@@ -61,7 +61,7 @@ public class Periph implements IPeriph {
     // not the AY, and the real one sat registered and never activated.
     AY(AyPeripheral.class),
     AY_FULL_DECODE,
-    AY_PLUS3,
+    AY_PLUS3(AyPlus3Peripheral.class),
     AY_TIMEX,
     AY_TIMEX_WITH_JOYSTICK,
     BETA128,

@@ -51,6 +51,7 @@ public class MachinesPeriphStartupModule extends AbstractStartupModule {
     periph.register(new SeMemoryPeripheral(spec128));
     // Declared present for every machine that has one, and never actually there.
     periph.register(new AyPeripheral(sound, clock));
+    periph.register(new AyPlus3Peripheral(sound, clock));
   }
 
   public void endFn() {

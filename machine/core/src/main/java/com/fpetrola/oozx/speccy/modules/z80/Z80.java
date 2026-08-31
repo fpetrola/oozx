@@ -436,6 +436,34 @@ public class Z80 implements ZxModule, Cpu {
     if (spectrumState.getSpectrumModel().codeModel == com.fpetrola.emulation.helpers.machine.MachineTypes.CodeModel.SPECTRUMPLUS3) {
       io.out(0x1ffd, spectrumState.getPort1ffd() & 0xff);
     }
+    restoreSoundChip(spectrumState);
+  }
+
+  /**
+   * The AY's sixteen registers, put back the way the paging is: through the chip's own ports.
+   * <p>
+   * A snapshot is taken mid-tune and carries the chip's state, and this was dropping it. What was
+   * restored was a machine playing whatever the last chip to be written had been playing, until
+   * the game happened to rewrite each register - which for a held note or an envelope is not soon,
+   * and for a recording is never, because the recording replays the writes that came after.
+   * <p>
+   * Through the ports rather than into the synthesis, so that the register file the machine can
+   * read back and the sound coming out of it cannot disagree about what the chip was set to.
+   */
+  private void restoreSoundChip(SpectrumState snapshot) {
+    if (machine.current == null || !machine.current.has(com.fpetrola.oozx.MachineCapability.AY)) {
+      return;
+    }
+    com.fpetrola.emulation.helpers.snapshots.AY8912State chip = snapshot.getAY8912State();
+    if (chip == null || chip.getRegAY() == null) {
+      return;
+    }
+    int[] registers = chip.getRegAY();
+    for (int register = 0; register < 16 && register < registers.length; register++) {
+      io.out(0xfffd, register);
+      io.out(0xbffd, registers[register] & 0xff);
+    }
+    io.out(0xfffd, chip.getAddressLatch() & 0x0f);
   }
 
   public void start() {
