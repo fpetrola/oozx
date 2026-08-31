@@ -30,7 +30,12 @@ import com.fpetrola.oozx.speccy.modules.tape.TapeSettingsType;
 import com.fpetrola.oozx.speccy.modules.z80.Z80;
 import com.fpetrola.oozx.speccy.peripherals.IPeriph;
 import com.fpetrola.oozx.speccy.peripherals.Periph;
-import com.fpetrola.oozx.speccy.startup.*;
+import com.fpetrola.oozx.speccy.peripherals.Spec128MemoryPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.SpecPlus3MemoryPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.Upd765Peripheral;
+import com.fpetrola.oozx.speccy.peripherals.SeMemoryPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.AyPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.AyPlus3Peripheral;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.google.inject.Inject;
@@ -66,11 +71,11 @@ public class Speccy {
   public final SpecPlus3E specPlus3e;
   public final Spec48Ntsc spec48Ntsc;
   public final Pentagon pentagon;
+  private final java.util.Set<Spectrum> models;
+  private final Spectrum defaultMachine;
 
   private final Module module;
   private final Timer timer;
-  private final StartupManager startupManager;
-  private final MachineStartupModule machineStartupModule;
 
   /**
    * Builds the object graph and hands back the assembled emulator.
@@ -94,8 +99,8 @@ public class Speccy {
               Joystick joystick, Input input, Machine machine, Z80 z80, UiDisplay uiDisplay,
               Spec48 spec48, Spec128 spec128, SpecPlus3 specPlus3, SpecPlus2 specPlus2,
               SpecPlus2A specPlus2a, SpecPlus3E specPlus3e, Spec48Ntsc spec48Ntsc, Pentagon pentagon,
-              Module module, Timer timer, StartupManager startupManager,
-              MachineStartupModule machineStartupModule) {
+              java.util.Set<Spectrum> models, @DefaultMachine Spectrum defaultMachine,
+              Module module, Timer timer) {
     this.zxClock = zxClock;
     this.session = session;
     this.settings = settings;
@@ -122,10 +127,10 @@ public class Speccy {
     this.specPlus3e = specPlus3e;
     this.spec48Ntsc = spec48Ntsc;
     this.pentagon = pentagon;
+    this.models = models;
+    this.defaultMachine = defaultMachine;
     this.module = module;
     this.timer = timer;
-    this.startupManager = startupManager;
-    this.machineStartupModule = machineStartupModule;
 
     machine.addMachineChangeListeners(sound, display, timer, periph, ula, eventManager);
   }
@@ -134,27 +139,48 @@ public class Speccy {
     return session.isAlive();
   }
 
+  /**
+   * Brings the parts up.
+   * <p>
+   * A startup manager used to do this, resolving an order the modules declared between them. The
+   * declarations are gone - every one of them said "this other thing has to have allocated its
+   * collection first", which is what C says instead of building an object whole - so what is left
+   * is a list of things to start, written here in the order it happens to be written in, and no
+   * order is required of it.
+   */
   public void init() {
-    startupManager.init();
+    // The models this build has, told to the Machine here rather than in its constructor: it
+    // cannot take them there, because a model reaches the Z80 and the Z80 reaches back, which is
+    // the construction cycle this refactor started by breaking. The composition root can hold
+    // both ends of a cycle; neither end can hold the other.
+    models.forEach(machine::addMachine);
+    machine.setDefaultMachine(defaultMachine);
 
-    List.of(
-        new DisplayStartupModule(display),
-        new JoystickStartupModule(joystick),
-        new KeyboardStartupModule(keyboard),
-        machineStartupModule,
-        new MachinesPeriphStartupModule(machine, spec128, specPlus3, periph, sound, zxClock),
-        new SpectrumStartupModule(spec48),
-        new TimerStartupModule(timer),
-        new UlaStartupModule(ula),
-        new Z80StartupModule(z80)
-    ).forEach(startupManager::register);
+    display.start();
+    joystick.start();
+    keyboard.start();
 
-    startupManager.run();
+    periph.register(new Spec128MemoryPeripheral(spec128));
+    periph.register(new SpecPlus3MemoryPeripheral(specPlus3));
+    periph.register(new Upd765Peripheral(specPlus3));
+    periph.register(new SeMemoryPeripheral(spec128));
+    periph.register(new AyPeripheral(sound, zxClock));
+    periph.register(new AyPlus3Peripheral(sound, zxClock));
+
+    spec48.start();
+    timer.start();
+    ula.start();
+    z80.start();
+
     machine.selectDefault();
   }
 
+  /** In the reverse of the order they were started, as the manager did it. */
   public void end() {
-    startupManager.runEnd();
+    timer.end();
+    machine.end();
+    keyboard.end();
+    joystick.end();
     periph.end();
   }
 }
