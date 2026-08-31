@@ -89,7 +89,7 @@ public class Ula implements ZxModule, MachineChangeListener {
    * through. Every Spectrum has one of these, so it comes through it every time.
    */
   public void attachSpeaker() {
-    speaker = sound.add(new Beeper(sound.newSynth(sound.volumeBeeper), sound.frameSize(), tape, settings));
+    speaker = sound.add(new Beeper(sound, tape, settings));
   }
 
   public void start() {

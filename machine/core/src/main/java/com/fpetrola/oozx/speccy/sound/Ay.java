@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx.speccy.sound;
 
+import com.fpetrola.oozx.speccy.Sound;
 import com.fpetrola.oozx.speccy.sound.blip.BlipSynth;
 
 import java.util.Arrays;
@@ -63,8 +64,8 @@ public class Ay implements AudioSource {
     int reg, val;
   }
 
-  private final BlipSynth synth;
-  private final int[] scratch;
+  private BlipSynth synth;
+  private int[] scratch;
 
   private final byte[] ayRegisters = new byte[16];
   private final AyChange[] ayChanges = new AyChange[AY_CHANGE_MAX];
@@ -82,10 +83,15 @@ public class Ay implements AudioSource {
   /** How many times the chip has been written to, which is how you tell it is wired up. */
   public long writes;
 
-  public Ay(BlipSynth synth, int frameSize) {
-    this.synth = synth;
-    this.scratch = new int[frameSize * 2];
+  public Ay(Sound sound) {
+    takeOutputFrom(sound);
     reset();
+  }
+
+  @Override
+  public void takeOutputFrom(Sound sound) {
+    synth = sound.newSynth(sound.volumeAY);
+    scratch = new int[sound.frameSize() * 2];
   }
 
   public void write(int register, int value, long tstates) {

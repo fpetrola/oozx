@@ -19,6 +19,7 @@
 package com.fpetrola.oozx.speccy.sound;
 
 import com.fpetrola.oozx.Settings;
+import com.fpetrola.oozx.speccy.Sound;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.sound.blip.BlipSynth;
 
@@ -38,16 +39,21 @@ public class Beeper implements AudioSource {
   /** Indexed by the two bits that reach it: the tape's, and the program's. */
   private static final int[] LEVELS = {0, AMPL_TAPE, AMPL_BEEPER, AMPL_BEEPER + AMPL_TAPE};
 
-  private final BlipSynth synth;
   private final Tape tape;
   private final Settings settings;
-  private final int[] scratch;
+  private BlipSynth synth;
+  private int[] scratch;
 
-  public Beeper(BlipSynth synth, int frameSize, Tape tape, Settings settings) {
-    this.synth = synth;
+  public Beeper(Sound sound, Tape tape, Settings settings) {
     this.tape = tape;
     this.settings = settings;
-    this.scratch = new int[frameSize * 2];
+    takeOutputFrom(sound);
+  }
+
+  @Override
+  public void takeOutputFrom(Sound sound) {
+    synth = sound.newSynth(sound.volumeBeeper);
+    scratch = new int[sound.frameSize() * 2];
   }
 
   /**

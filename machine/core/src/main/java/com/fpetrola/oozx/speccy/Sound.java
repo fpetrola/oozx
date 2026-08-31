@@ -101,13 +101,22 @@ public class Sound implements ZxModule, MachineChangeListener {
    */
   public void init(Object enabled) {
     int frameTstates = spectrumMachine.getTimings().tstatesPerFrame;
-    initSound(3500000, frameTstates, enabled);
+    initSound(3500000, frameTstates, enabled, true);
+  }
+
+  /** The emulator changed speed. The output is rebuilt for it; what is playing goes on playing. */
+  public void speedChanged() {
+    initSound(3500000, spectrumMachine.getTimings().tstatesPerFrame, true, false);
   }
 
   public void end() {
   }
 
   public boolean initSound(long cpuFrequency, int tstatesPerFrame, Object initContext) {
+    return initSound(cpuFrequency, tstatesPerFrame, initContext, true);
+  }
+
+  public boolean initSound(long cpuFrequency, int tstatesPerFrame, Object initContext, boolean forANewMachine) {
 
     this.effectiveSpeed = cpuFrequency * settings.current.emulationSpeed / 100 * 2;
 
@@ -122,7 +131,14 @@ public class Sound implements ZxModule, MachineChangeListener {
     double hz = (double) effectiveSpeed / tstatesPerFrame;
     soundFrameSize = (int) (soundFreq / hz) + 1;
     outputSamples = new int[soundFrameSize * 2];
-    sources.clear();
+    // A new machine brings its own sources, which arrive as its peripherals are switched on.
+    if (forANewMachine) {
+      sources.clear();
+    } else {
+      // Only the speed changed. The sources are the same ones and go on playing; what they
+      // cannot keep is a synth built for the speed that is over.
+      sources.forEach(source -> source.takeOutputFrom(this));
+    }
     // The sound chip is in the list when the machine has one, and that is the whole question.
     // It used to be asked of a method here that answered true for every machine, so a 48K spent
     // two thousand two hundred ticks a frame synthesising a chip it has not got, into silence,

@@ -64,7 +64,7 @@ public class AyPeripheral extends AbstractZxPeripheral {
   @Override
   public void activate() {
     registers.reset();
-    chip = sound.add(new Ay(sound.newSynth(sound.volumeAY), sound.frameSize()));
+    chip = sound.add(new Ay(sound));
   }
 
   /** A value arrived for the register that was last selected. */
