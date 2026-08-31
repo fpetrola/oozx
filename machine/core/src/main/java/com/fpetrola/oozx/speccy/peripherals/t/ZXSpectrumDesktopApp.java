@@ -818,6 +818,8 @@ class GameSearchResult {
   String filename;
   /** What the entry offers that cannot be loaded, for saying so instead of "no tape". */
   String offers;
+  /** Whether the chosen file can be expected to come down; false for what the archive withholds. */
+  boolean available;
   /** Extras the entry carries, for filters the server cannot apply itself. */
   boolean hasRzx;
   boolean hasMap;

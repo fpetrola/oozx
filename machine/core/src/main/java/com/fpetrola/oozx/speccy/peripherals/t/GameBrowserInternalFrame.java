@@ -245,7 +245,10 @@ public class GameBrowserInternalFrame extends JInternalFrame {
         results.removeIf(result ->
             (onlyRzx && !result.hasRzx)
                 || (onlyMap && !result.hasMap)
-                || (onlyLoadable && result.filename == null));
+                // Not merely "has a file": one the archive will not hand over cannot be
+                // loaded either, and a filter for what can be loaded that still shows those is
+                // a filter that lies.
+                || (onlyLoadable && (result.filename == null || !result.available)));
 
         if (results.isEmpty()) {
           showMessage(found == 0
@@ -280,6 +283,14 @@ public class GameBrowserInternalFrame extends JInternalFrame {
               + (result.offers == null || result.offers.isBlank() ? ""
               : "\n\nThe archive has it as: " + result.offers + "."),
           "Nothing to load", JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+    if (!result.available) {
+      // Known beforehand, so there is no reason to spend a download finding out.
+      JOptionPane.showMessageDialog(this,
+          "\"" + result.title + "\" is not available: the archive holds it but is not allowed "
+              + "to hand it out.",
+          "Not available", JOptionPane.INFORMATION_MESSAGE);
       return;
     }
     if (loading) {
@@ -400,6 +411,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
         GameSearchResult result = new GameSearchResult(hit._id, game.title,
             "http://example.com/game/" + query, screenshot1, screenshot2, file);
         result.offers = String.join(", ", offered);
+        result.available = DownloadAndUnzip.available(file);
         result.hasRzx = hasRzx;
         result.hasMap = hasMap;
         result.recordings = recordings;
@@ -575,9 +587,10 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     title.setFont(title.getFont().deriveFont(Font.BOLD));
     caption.add(title);
 
-    if (result.filename == null) {
+    if (result.filename == null || !result.available) {
       title.setForeground(Color.GRAY);
-      JLabel unavailable = new JLabel("  -  No tape available");
+      JLabel unavailable = new JLabel(
+          result.filename == null ? "  -  Nothing this emulator can open" : "  -  Not available");
       unavailable.setForeground(Color.GRAY);
       caption.add(unavailable);
     }

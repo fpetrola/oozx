@@ -84,6 +84,17 @@ class DownloadChoiceTest {
   }
 
   @Test
+  void what_the_archive_withholds_is_known_before_asking_for_it() {
+    // So the filter for "things I can load" can leave it out, and a click on it can say why
+    // without spending a download to find out.
+    assertFalse(DownloadAndUnzip.available(
+        "https://zxinfo.dk/media/denied/entries/0011243/DizzyCollection.tzx.zip"));
+    assertTrue(DownloadAndUnzip.available(
+        "https://zxinfo.dk/media/pub/sinclair/games/d/DizzyCollection.tzx.zip"));
+    assertFalse(DownloadAndUnzip.available(null), "nothing at all is not available either");
+  }
+
+  @Test
   void nothing_loadable_answers_nothing() {
     assertNull(DownloadAndUnzip.preferred(
         List.of("https://zxinfo.dk/media/pub/g/Game.trd.zip",

@@ -264,18 +264,36 @@ public class DownloadAndUnzip {
     }
   }
 
+  /**
+   * Why a file did not come down, in words rather than in numbers.
+   * <p>
+   * The status code is left out of the ordinary answers. Whether the archive said 403 or 404 is
+   * a distinction about the archive, not about anything the person can do: either way the file is
+   * not available and that is the whole of it. It stays on the odd ones, where a number is the
+   * only clue anybody has.
+   */
   private static String refusal(URL url, int status) {
     String file = nameOf(url);
     String host = url.getHost();
     return switch (status) {
-      case 401, 403 -> host + " will not hand over " + file
-          + ": it is not allowed to distribute this one (HTTP " + status + ")";
-      case 404, 410 -> host + " has not got " + file + " (HTTP " + status + ")";
-      case 429 -> host + " is asking for fewer requests just now (HTTP 429) - worth another go in a minute";
+      case 401, 403 -> file + " is not available: " + host + " is not allowed to hand it out";
+      case 404, 410 -> file + " is not available from " + host + " any more";
+      case 429 -> host + " is asking for fewer requests just now - worth another go in a minute";
       default -> status / 100 == 5
-          ? host + " has a problem of its own and could not send " + file + " (HTTP " + status + ")"
+          ? host + " has a problem of its own and could not send " + file
           : host + " answered HTTP " + status + " for " + file;
     };
+  }
+
+  /**
+   * Whether this one can be expected to come down at all.
+   * <p>
+   * ZXDB keeps what it may not distribute under /denied/, so this is known before anything is
+   * tried. An entry whose only file is one of those is not something the emulator can open, however
+   * loadable the format is, and saying so beforehand beats a refusal after a wait.
+   */
+  public static boolean available(String fileName) {
+    return fileName != null && !fileName.toLowerCase().contains("/denied/");
   }
 
   private static String cannotReach(URL url, IOException failure) {
