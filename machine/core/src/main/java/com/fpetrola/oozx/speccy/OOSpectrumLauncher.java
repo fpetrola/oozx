@@ -21,6 +21,7 @@ package com.fpetrola.oozx.speccy;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.modules.tape.TapeAutoLoader;
 import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
+import com.fpetrola.oozx.speccy.peripherals.t.TapeHardware;
 import com.fpetrola.oozx.speccy.peripherals.t.DownloadAndUnzip;
 import com.fpetrola.oozx.speccy.peripherals.t.ZXSpectrumDesktopApp;
 import com.github.weisj.darklaf.LafManager;
@@ -135,28 +136,30 @@ public class OOSpectrumLauncher {
   }
 
   /**
-   * A 128K release needs a 128K machine, and nothing was choosing one.
+   * The machine a tape asks for, asked of the tape first and of its name second.
    * <p>
-   * A tape carries no statement of the machine it was made for - a snapshot does, and that is
-   * why snapshots have always arrived on the right one - so the only thing to go on is what the
-   * archive called the file. Where an entry offers both, they are named for it: one release says
-   * 128K in its name and the other says 48K.
+   * A TZX says so itself: its hardware type block lists the machines it runs on and marks the
+   * ones whose features it uses. That is the statement to go by - a game marked as using the
+   * 128K's has music there and silence on a 48K, and starting it on the smaller machine is how
+   * somebody never hears it. Where several are named, the biggest is taken, except that one it
+   * says it uses beats a bigger one it merely runs on.
    * <p>
-   * Loading the 128K one into a 48K machine gets as far as the end of the tape and then answers
-   * "out of memory", which is a 48K BASIC error and the machine saying exactly what is wrong.
-   * The same tape on a 128K machine goes from eighty-three per cent of its time in RAM to all of
-   * it.
-   * <p>
-   * The same word the scorer reads when it puts a 48K release ahead of a 128K one, so the two
+   * A TAP says nothing - it is blocks and no statement about anything - so for those the only
+   * thing left is what the archive called the file. Where an entry offers both releases they are
+   * named for it, and loading the 128K one into a 48K machine reaches the end of the tape and
+   * answers "out of memory": a 48K BASIC error, and the machine saying exactly what is wrong.
+   * The same word the scorer reads when it puts one release ahead of the other, so the two
    * cannot come to different conclusions about which is which.
    */
   private void becomeTheMachineTheTapeWants(Speccy speccy, String filename) {
-    String name = new File(filename).getName().toLowerCase();
-    if (!name.contains("128")) {
+    File tape = new File(filename);
+    String wanted = TapeHardware.bestMachineFor(tape)
+        .orElseGet(() -> tape.getName().toLowerCase().contains("128") ? "Spec128" : null);
+    if (wanted == null) {
       return;
     }
     speccy.machine.getMachineTypes().stream()
-        .filter(type -> type.getClass().getSimpleName().equals("Spec128"))
+        .filter(type -> type.getClass().getSimpleName().equals(wanted))
         .findFirst().ifPresent(type -> {
           speccy.machine.selectDefault();
           speccy.machine.select(type);
