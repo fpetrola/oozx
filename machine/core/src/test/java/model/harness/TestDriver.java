@@ -144,7 +144,7 @@ public class TestDriver {
   }
 
   public boolean isLateTimings() {
-    return (boolean) commandHandler.executeCommand(new GetLateTimings());
+    return (int) commandHandler.executeCommand(new GetLateTimings()) != 0;
   }
 
   public long getULAContention(int i) {
@@ -196,7 +196,7 @@ public class TestDriver {
   }
 
   public boolean isRamLocked() {
-    return false;
+    return (int) commandHandler.executeCommand(new GetRamLocked()) != 0;
   }
 
   public int getMempoolPools() {
