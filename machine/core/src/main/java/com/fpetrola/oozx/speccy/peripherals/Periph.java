@@ -211,6 +211,7 @@ public class Periph implements IPeriph {
         ports.add(new PrivatePort(type, port));
       }
     } else {
+      privatePeriph.peripheral.deactivate();
       ObjectArrayList toRemove = new ObjectArrayList();
       for (int i = 0, portsSize = ports.size(); i < portsSize; i++) {
         PrivatePort p = (PrivatePort) ports.get(i);

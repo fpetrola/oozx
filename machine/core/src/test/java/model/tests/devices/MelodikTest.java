@@ -81,6 +81,36 @@ class MelodikTest {
     assertTrue(heard.peak > 0, "a 48K with a Melodik in it made no sound");
   }
 
+  /**
+   * And pulled out again, which has to be as complete as putting it in.
+   * <p>
+   * A peripheral was told when it was switched on and never when it was switched off, so its ports
+   * went and its chip stayed - sitting in the mixer making silence out of a queue nothing was
+   * filling any more.
+   */
+  @Test
+  void andPullingItOutTakesTheChipWithIt() {
+    Speccy speccy = aFortyEightWith(true);
+    Loudest heard = (Loudest) speccy.sound.getJavaSoundDevice();
+
+    speccy.periph.writePort(0xFFFD, (byte) 8);
+    speccy.periph.writePort(0xBFFD, (byte) 0x0F);
+    speccy.periph.writePort(0xFFFD, (byte) 7);
+    speccy.periph.writePort(0xBFFD, (byte) 0x3E);
+    speccy.periph.writePort(0xFFFD, (byte) 0);
+    speccy.periph.writePort(0xBFFD, (byte) 0x50);
+    speccy.sound.frame();
+    assertTrue(heard.peak > 0, "it was not playing before being unplugged");
+
+    speccy.settings.current.melodik = false;
+    speccy.periph.update();
+    assertFalse(speccy.periph.isActive(Periph.Type.MELODIK), "it is still plugged in");
+
+    heard.peak = 0;
+    speccy.sound.frame();
+    assertEquals(0, heard.peak, "the box was pulled out and its chip is still playing");
+  }
+
   /** And a 48K without one is still a 48K: no chip, and its ports answer nothing. */
   @Test
   void andWithoutOneItIsStillSilent() {

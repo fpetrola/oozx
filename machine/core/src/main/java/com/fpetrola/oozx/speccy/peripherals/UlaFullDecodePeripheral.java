@@ -40,4 +40,9 @@ public class UlaFullDecodePeripheral extends AbstractZxPeripheral {
   public void activate() {
     ula.attachSpeaker();
   }
+
+  @Override
+  public void deactivate() {
+    ula.detachSpeaker();
+  }
 }

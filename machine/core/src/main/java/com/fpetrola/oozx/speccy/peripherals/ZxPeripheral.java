@@ -27,6 +27,9 @@ public interface ZxPeripheral {
 
   void activate();
 
+  /** Switched off: put back whatever activating took. */
+  void deactivate();
+
   PortHandler[] getPorts();
 
   /**

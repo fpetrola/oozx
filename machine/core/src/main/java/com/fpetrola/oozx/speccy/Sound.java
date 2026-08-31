@@ -157,6 +157,11 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
   }
 
 
+  /** It has stopped making a noise here - unplugged, or the machine it belonged to is gone. */
+  public void remove(AudioSource source) {
+    sources.remove(source);
+  }
+
   /** Something that makes a noise on this machine, from now until the machine changes. */
   public <T extends AudioSource> T add(T source) {
     sources.add(source);

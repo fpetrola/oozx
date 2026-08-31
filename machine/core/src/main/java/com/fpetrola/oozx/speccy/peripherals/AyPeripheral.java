@@ -67,6 +67,16 @@ public class AyPeripheral extends AbstractZxPeripheral {
     chip = sound.add(new Ay(sound));
   }
 
+  @Override
+  public void deactivate() {
+    // Pulled out. Without this the chip stayed in the mixer once its ports were gone, making
+    // silence out of a queue nothing was filling - two thousand ticks a frame of nothing.
+    if (chip != null) {
+      sound.remove(chip);
+      chip = null;
+    }
+  }
+
   /** A value arrived for the register that was last selected. */
   public void heard(int register, int value, long tstates) {
     if (chip != null) {

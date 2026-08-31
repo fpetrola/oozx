@@ -92,6 +92,14 @@ public class Ula implements ZxModule, MachineChangeListener {
     speaker = sound.add(new Beeper(sound, tape, settings));
   }
 
+  /** The machine this belonged to is gone, or its ULA was switched off. */
+  public void detachSpeaker() {
+    if (speaker != null) {
+      sound.remove(speaker);
+      speaker = null;
+    }
+  }
+
   public void start() {
     periph.register(new UlaPeripheral(this));
     periph.register(new UlaFullDecodePeripheral(this));

@@ -42,6 +42,9 @@ public class AbstractZxPeripheral implements ZxPeripheral {
   public void activate() {
   }
 
+  public void deactivate() {
+  }
+
   /**
    * For a peripheral whose ports talk back to it: they cannot be handed to super, because
    * there is no this to give them yet.
