@@ -121,6 +121,11 @@ public class Z80 implements ZxModule, Cpu {
     this.userInterface = userInterface;
   }
 
+  @Override
+  public void machineWasReset(boolean hard) {
+    reset(hard ? 1 : 0);
+  }
+
   public void reset(int hardReset) {
     ooz80.reset();
 
@@ -471,7 +476,7 @@ public class Z80 implements ZxModule, Cpu {
     int z80_nmi_event = eventManager.eventRegister(this::z80_nmi, "Non-maskable interrupt");
     int z80_nmos_iff2_event = eventManager.eventRegister(null, "IFF2 update dummy event");
 
-    module.register(new Z80ModuleInfo(this));
+    module.register(this);
 
     if (OOSpectrumConnector.noTest)
       initNoTest();

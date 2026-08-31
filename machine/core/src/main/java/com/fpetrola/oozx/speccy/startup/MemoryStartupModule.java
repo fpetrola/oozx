@@ -23,7 +23,6 @@ import com.fpetrola.oozx.Memory;
 import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.speccy.machine.Spec128;
 import com.fpetrola.oozx.speccy.machine.SpecPlus3;
-import com.fpetrola.oozx.speccy.modules.MemoryModuleInfo;
 
 public class MemoryStartupModule extends AbstractStartupModule {
   private final Memory memory;
@@ -43,7 +42,6 @@ public class MemoryStartupModule extends AbstractStartupModule {
 
   public void init() {
     memory.start();
-    module.register(new MemoryModuleInfo(memory, machine, spec128, specPlus3));
   }
 
   public void endFn() {

@@ -18,65 +18,53 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.speccy.modules.RomcsDevice;
+import com.fpetrola.oozx.speccy.modules.ZxModule;
 import com.google.inject.Singleton;
 
-import com.fpetrola.oozx.speccy.modules.ZXModuleInfo;
-
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * The modules that want to hear about a machine reset, and those that can page a ROM over it.
+ * <p>
+ * It exists because Machine has to reset the Z80 and cannot hold one: that reference is the
+ * construction cycle this refactor began by breaking. A module registers itself and is called
+ * back, which is an observer and not an accident.
+ * <p>
+ * Modules used to register a five-method adapter of themselves rather than themselves - a
+ * translation of the struct of function pointers Fuse keeps, where three of the five fields were
+ * for a snapshot path this codebase never reaches, since nothing here ever builds a
+ * Libspectrum.Snap. The objects register themselves now, and the two lists say what they can do.
+ */
 @Singleton
 public class Module {
-  private List<ZXModuleInfo> registeredModules = new ArrayList<>();
 
-  public void register(ZXModuleInfo e) {
-    registeredModules.add(e);
-  }
+  private final List<ZxModule> modules = new ArrayList<>();
+  /** Sorted at registration, so paging a ROM costs nothing on a machine with no such device. */
+  private final List<RomcsDevice> romcsDevices = new ArrayList<>();
 
-  public void moduleEnd() {
-    if (registeredModules != null) {
-      registeredModules.clear();
-      registeredModules = null;
+  public void register(ZxModule module) {
+    modules.add(module);
+    if (module instanceof RomcsDevice romcs) {
+      romcsDevices.add(romcs);
     }
   }
 
-  public void reset(int hardReset) {
-    if (registeredModules == null) return;
-    for (ZXModuleInfo module : registeredModules) {
-      module.reset(hardReset);
+  public void moduleEnd() {
+    modules.clear();
+    romcsDevices.clear();
+  }
+
+  public void machineWasReset(boolean hard) {
+    for (ZxModule module : modules) {
+      module.machineWasReset(hard);
     }
   }
 
   public void romcs() {
-    if (registeredModules == null) return;
-    for (ZXModuleInfo module : registeredModules) {
-      module.romcs();
+    for (RomcsDevice device : romcsDevices) {
+      device.mapRom();
     }
-  }
-
-  public void moduleSnapshotEnabled(Libspectrum.Snap snap) {
-    if (registeredModules == null) return;
-    for (ZXModuleInfo module : registeredModules) {
-      module.snapshotEnabled(snap);
-    }
-  }
-
-  public void moduleSnapshotFrom(Libspectrum.Snap snap) {
-    if (registeredModules == null) return;
-    for (ZXModuleInfo module : registeredModules) {
-      module.snapshotFrom(snap);
-    }
-  }
-
-  public void moduleSnapshotTo(Libspectrum.Snap snap) {
-    if (registeredModules == null) return;
-    for (ZXModuleInfo module : registeredModules) {
-      module.snapshotTo(snap);
-    }
-  }
-
-  public void end() {
-
   }
 }

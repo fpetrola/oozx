@@ -183,7 +183,7 @@ public class Machine implements ZxModule {
     current.reset();
 //        if (error != 0) return error;
 
-    module.reset(hardReset ? 1 : 0);
+    module.machineWasReset(hardReset);
 
     current.memoryMap();
 //        if (error != 0) return error;

@@ -79,7 +79,6 @@ public class Ula implements ZxModule, MachineChangeListener {
 
   // Initialize ULA module
   public void start() {
-    module.register(new UlaZxModuleInfo(this, z80Clock, settings));
     periph.register(new UlaPeripheral(this));
     periph.register(new UlaFullDecodePeripheral(this));
 

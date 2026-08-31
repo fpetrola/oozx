@@ -23,4 +23,14 @@ public interface ZxModule {
   void start();
 
   void end();
+
+  /**
+   * The machine was reset; put this module back to where it starts.
+   * <p>
+   * A notification and not an order - it is said to every module after the machine has reset
+   * itself, and most have nothing to do about it, which is why there is a default. Fuse says the
+   * same thing to its modules and twenty-eight of thirty-six listen.
+   */
+  default void machineWasReset(boolean hard) {
+  }
 }

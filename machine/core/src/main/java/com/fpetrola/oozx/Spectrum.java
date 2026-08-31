@@ -128,7 +128,8 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
     loadRomBank(memory.mapRom, pageNum, filename, fallback, expectedLength);
   }
 
-  public void spectrumReset(int a) {
+  @Override
+  public void machineWasReset(boolean hard) {
     framesSinceReset = 0;
   }
 
@@ -145,7 +146,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
   public void start() {
     spectrumFrameEvent = eventManager.eventRegister(this::spectrumFrameEventFn, "End of frame");
 
-    module.register(new SpectrumModuleInfo(this));
+    module.register(this);
 
     return;
   }
