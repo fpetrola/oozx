@@ -877,7 +877,16 @@ public class Tape implements ClockTimeoutListener {
             case PAUSE:
                 earBit ^= EAR_MASK;
                 statePlay = State.PAUSE_STOP;
-                clock.setTimeout(manualMode ? 3500 : 10); // 1 ms pause in manual mode
+                // A second of silence between blocks, which is what the format expects and what
+                // the ROM needs. A .tap carries no pause of its own - unlike a .tzx, where every
+                // block states one - so the standard second is the only sensible answer, and the
+                // constant for it was already here, used by the .tzx side alone.
+                //
+                // It was ten T-states: three millionths of a second. After a header loads, the
+                // ROM returns to BASIC, works out what it was told, and calls the loader again;
+                // that takes many thousands of T-states, by which time the next block's pilot
+                // tone had been playing to nobody and its beginning was gone.
+                clock.setTimeout(END_BLOCK_PAUSE);
 //                System.out.println(String.format("tapeBufferLength: %d, tapePos: %d",
 //                    tapeBuffer.length, tapePos));
                 break;
