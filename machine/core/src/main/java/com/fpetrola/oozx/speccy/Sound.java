@@ -570,18 +570,6 @@ public class Sound implements ZxModule, MachineChangeListener {
     return leftCovoxSynth != null;
   }
 
-  private boolean tapeIsPlaying() {
-    return false;
-  }
-
-  private boolean soundLoadEnabled() {
-    return true;
-  }
-
-  private boolean isTimexMachine() {
-    return false;
-  }
-
   // ========================================================================
   // Limpieza
   // ========================================================================
