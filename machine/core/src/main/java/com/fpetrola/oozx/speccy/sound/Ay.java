@@ -127,7 +127,11 @@ public class Ay implements AudioSource {
   public int mixInto(int[] samples, int frames) {
     int count = synth.readSamples(scratch, frames, true);
     for (int i = 0; i < count; i++) {
+      // The same to each ear, because the three channels are summed into one synth. Placing them
+      // - two left and one right, or the other pairing - is a second synth's worth of work and
+      // belongs here, where what a channel is is still known.
       samples[i * 2] += scratch[i * 2];
+      samples[i * 2 + 1] += scratch[i * 2];
     }
     return count;
   }

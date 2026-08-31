@@ -74,7 +74,9 @@ public class Beeper implements AudioSource {
   public int mixInto(int[] samples, int frames) {
     int count = synth.readSamples(scratch, frames, true);
     for (int i = 0; i < count; i++) {
+      // One speaker, so both ears get it.
       samples[i * 2] += scratch[i * 2];
+      samples[i * 2 + 1] += scratch[i * 2];
     }
     return count;
   }

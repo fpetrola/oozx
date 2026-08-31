@@ -33,8 +33,12 @@ public interface AudioSource {
 
   /**
    * Adds what this source made into the mix, which is already zeroed and may already hold others.
+   * <p>
+   * The mix is interleaved - left at even indices, right at odd - and a source writes both. Most
+   * write the same to each. A sound chip whose channels are placed left and right does not, and
+   * that placement is inside the chip, where nothing else can see the channels it is placing.
    *
-   * @return how many samples it wrote
+   * @return how many stereo frames it wrote
    */
   int mixInto(int[] samples, int frames);
 

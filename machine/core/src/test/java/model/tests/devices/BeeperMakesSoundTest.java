@@ -38,13 +38,22 @@ class BeeperMakesSoundTest {
 
   private static class Loudest extends SilentSoundDevice {
     int peak;
+    int left;
+    int right;
 
     public void sound_lowlevel_frame(int[] data, int length) {
       for (int i = 0; i < length; i++) {
         peak = Math.max(peak, Math.abs(data[i]));
+        if ((i & 1) == 0) {
+          left = Math.max(left, Math.abs(data[i]));
+        } else {
+          right = Math.max(right, Math.abs(data[i]));
+        }
       }
     }
   }
+
+  private Loudest listened;
 
   private int peakOf(String model, boolean flapTheSpeaker) {
     OOSpectrumConnector.noTest = true;
@@ -71,6 +80,7 @@ class BeeperMakesSoundTest {
     }
 
     speccy.sound.frame();
+    listened = listener;
     return listener.peak;
   }
 
@@ -84,6 +94,20 @@ class BeeperMakesSoundTest {
   @Test
   void andOnAOneTwentyEightToo() {
     assertTrue(peakOf("Spec128", true) > 0);
+  }
+
+  /**
+   * Both ears, written by the source rather than copied by the mixer afterwards.
+   * <p>
+   * The mix used to be made in mono and duplicated across at the end, which no source could
+   * escape - and placing an AY's channels left and right is exactly a source needing to. It is
+   * interleaved now, and a source that sounds the same in both says so by writing both.
+   */
+  @Test
+  void reachesBothEars() {
+    peakOf("Spec48", true);
+    assertTrue(listened.left > 0, "nothing in the left channel");
+    assertEquals(listened.left, listened.right, "one speaker should reach both ears equally");
   }
 
   @Test

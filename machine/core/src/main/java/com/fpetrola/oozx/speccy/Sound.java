@@ -43,22 +43,12 @@ public class Sound implements ZxModule, MachineChangeListener {
       end();
     }
   }
-  // Unpause sound
 
   public void unpause() {
-//    if (settings.current.fastload && timer.fastloadingActive()) {
-//      return;
-//    }
     init(settings.current.soundDevice);
   }
 
   public final Settings settings;
-  // Constants
-  public final int AMPL_BEEPER = 50 * 256;
-  public final int AMPL_TAPE = 2 * 256;
-  public final int MIN_SPEED_PERCENTAGE = 2; // Adjusted for non-Win32
-  public final int MAX_SPEED_PERCENTAGE = 500;
-  //  private Timer timer;
   private Movie movie;
   private IPeriph periph;
   private Tape tape;
@@ -73,7 +63,6 @@ public class Sound implements ZxModule, MachineChangeListener {
                JavaSoundDevice javaSoundDevice) {
     this.javaSoundDevice = javaSoundDevice;
     this.settings = settings;
-//    this.timer = timer;
     this.movie = movie;
     this.periph = periph;
     this.tape = tape;
@@ -84,16 +73,7 @@ public class Sound implements ZxModule, MachineChangeListener {
     spectrumMachine = newMachine;
   }
 
-
-
-
-
-  // ========================================================================
-  // Estado del sonido
-  // ========================================================================
-
   public boolean soundEnabled = false;
-  private int soundChannels = 2;
   private int soundFrameSize;
   private int[] outputSamples;
 
@@ -103,31 +83,17 @@ public class Sound implements ZxModule, MachineChangeListener {
   /** Everything making a noise on this machine, asked once a frame. */
   private final java.util.List<AudioSource> sources = new java.util.ArrayList<>();
 
-  private BlipSynth rightBeeperSynth;
-
   private BlipSynth leftSpecdrumSynth;
 
   private BlipSynth rightSpecdrumSynth;
   private BlipSynth leftCovoxSynth;
   private BlipSynth rightCovoxSynth;
-  // ========================================================================
-  // Estado del chip AY
-  // ========================================================================
-
-
-
-
-
-  // ========================================================================
-  // Configuración actual (simulación de settings_current)
-  // ========================================================================
 
   public int soundFreq = 44100;
   public int volumeBeeper = 100;
   public int volumeAY = 100;
   public int volumeSpecdrum = 100;
   public int volumeCovox = 100;
-  public int stereoAY = 0; // 0=none, 1=ABC, 2=ACB
   public int speakerType = 0; // 0=Small, 1=Large TV, 2=None
   private final double[] speakerTreble = {-37.0, -67.0, 0.0};
 
@@ -149,19 +115,9 @@ public class Sound implements ZxModule, MachineChangeListener {
   }
 
   public void end() {
-//    lowlevelEnd();
   }
 
-  // ========================================================================
-  // Inicialización del sonido
-  // ========================================================================
-
   public boolean initSound(long cpuFrequency, int tstatesPerFrame, Object initContext) {
-//    if (soundEnabled) return true;
-
-//    if (settings.current.emulationSpeed < 2 || settings.current.emulationSpeed > 500) return false;
-
-//    rightBuf = new BlipBuffer();
 
     long effectiveSpeed = cpuFrequency * settings.current.emulationSpeed / 100 * 2;
 
@@ -170,11 +126,6 @@ public class Sound implements ZxModule, MachineChangeListener {
 
     String device = "buffer=8192,frames=8";
     boolean b = lowlevelInit(device, soundFreqArray, ints);
-
-//    if (stereoAY != 0) {
-//      rightBuf.setSampleRate(soundFreq, 1000);
-//      rightBuf.clockRate(effectiveSpeed);
-//    }
 
     double treble = speakerTreble[speakerType];
     int bass = speakerBass[speakerType];
@@ -185,43 +136,6 @@ public class Sound implements ZxModule, MachineChangeListener {
     // three are summed anyway, and a synth here owns its buffer rather than sharing one.
     BlipSynth ayMixSynth = new BlipSynth(BlipBuffer.BLIP_HIGH_QUALITY, soundFreq, 1000, effectiveSpeed,
         bass, getVolume(volumeAY), treble);
-
-//    if (stereoAY != 0) {
-//      rightBeeperSynth = new BlipSynth(BlipBuffer.BLIP_GOOD_QUALITY, 32768);
-//      rightBeeperSynth.volume(getVolume(volumeBeeper));
-//      rightBeeperSynth.trebleEq(new BlipEq(treble));
-//      rightBeeperSynth.output(rightBuf);
-//    }
-//
-//    ayASynth = createAySynth(treble, leftBuf);
-//    ayBSynth = createAySynth(treble, leftBuf);
-//    ayCSynth = createAySynth(treble, leftBuf);
-//
-//    if (stereoAY != 0) {
-//      switch (stereoAY) {
-//        case 1: // ABC
-//          ayASynth.output(leftBuf);
-//          ayBSynth.output(leftBuf);
-//          ayCSynth.output(rightBuf);
-//          ayBSynthR = createAySynth(treble, rightBuf);
-//          break;
-//        case 2: // ACB
-//          ayASynth.output(leftBuf);
-//          ayCSynth.output(leftBuf);
-//          ayBSynth.output(rightBuf);
-//          ayCSynthR = createAySynth(treble, rightBuf);
-//          break;
-//      }
-//    }
-//
-//    leftSpecdrumSynth = createAySynth(treble, leftBuf);
-//    leftCovoxSynth = createAySynth(treble, leftBuf);
-//    if (stereoAY != 0) {
-//      rightSpecdrumSynth = createAySynth(treble, rightBuf);
-//      rightCovoxSynth = createAySynth(treble, rightBuf);
-//    }
-
-    // Calcular tamaño de frame de audio
     double hz = (double) effectiveSpeed / tstatesPerFrame;
     soundFrameSize = (int) (soundFreq / hz) + 1;
     outputSamples = new int[soundFrameSize * 2];
@@ -238,14 +152,6 @@ public class Sound implements ZxModule, MachineChangeListener {
     return true;
   }
 
-//  private BlipSynth createAySynth(double treble, BlipBuffer buf) {
-//    BlipSynth synth = new BlipSynth(BlipBuffer.BLIP_SYNTH_QUALITY, soundFreq, 1000, effectiveSpeed);
-//    synth.volume(getVolume(volumeAY));
-//    synth.trebleEq(new BlipEq(treble));
-//    synth.output(buf);
-//    return synth;
-//  }
-
   private double getVolume(int volume) {
     if (volume < 0) volume = 0;
     else if (volume > 100) volume = 100;
@@ -253,17 +159,12 @@ public class Sound implements ZxModule, MachineChangeListener {
     return volume / 100.0;
   }
 
-
   public void beeper(long tstates, int on, int value) {
     if (!soundEnabled) {
       return;
     }
     beeperSource.write(tstates, on, spectrumMachine.isTimex());
   }
-
-  // ========================================================================
-  // AY-3-8912
-  // ========================================================================
 
   public void ayWrite(int reg, int val, long tstates) {
     aySource.write(reg, val, tstates);
@@ -278,13 +179,6 @@ public class Sound implements ZxModule, MachineChangeListener {
     return aySource == null ? 0 : aySource.writes;
   }
 
-
-
-
-  // ========================================================================
-  // Generación de frame de sonido (llamar al final de cada frame)
-  // ========================================================================
-
   public void frame() {
     int frameTstates = spectrumMachine.getTimings().tstatesPerFrame;
     if (!soundEnabled) return;
@@ -292,26 +186,14 @@ public class Sound implements ZxModule, MachineChangeListener {
     for (AudioSource source : sources) {
       source.endFrame(frameTstates);
     }
-//    if (rightBuf != null)
-//      rightBuf.endFrame(frameTstates);
-
-    int count = 0;
-    if (stereoAY != 0) {
-//      count = (int) leftBuf.readSamples(outputSamples, soundFrameSize, true);
-//      rightBuf.readSamples(outputSamples, count, true); // interleave
-//      count *= 2;
-    } else {
-      // Every source adds itself in, so the mix starts at nothing and none of them has to know
-      // whether it went first.
-      Arrays.fill(outputSamples, 0);
-      for (AudioSource source : sources) {
-        count = Math.max(count, source.mixInto(outputSamples, soundFrameSize));
-      }
-      for (int i = count - 1; i >= 0; i--) {
-        outputSamples[i * 2 + 1] = outputSamples[i * 2];
-      }
-      count *= 2;
+    // Every source adds itself in, so the mix starts at nothing and none of them has to know
+    // whether it went first.
+    Arrays.fill(outputSamples, 0);
+    int frames = 0;
+    for (AudioSource source : sources) {
+      frames = Math.max(frames, source.mixInto(outputSamples, soundFrameSize));
     }
+    int count = frames * 2;
 
     if (settings.current.sound) {
       lowlevelFrame(outputSamples, (int) count);
@@ -330,20 +212,9 @@ public class Sound implements ZxModule, MachineChangeListener {
   }
 
   private void lowlevelFrame(int[] data, int len) {
-//    double[] data1 = new double[len];
-//    for (int i = 0; i < len; i++) {
-//      data1[i]= data[i];
-////      OOSpectrumConnector.sendData(data1[i]);
-//    }
-//    OOSpectrumConnector.sendData(data1);
 
     javaSoundDevice.sound_lowlevel_frame(data, len);
   }
-
-  // ========================================================================
-  // AY overlay - el corazón del sonido AY
-  // ========================================================================
-
 
   /**
    * Advances one channel and answers what it is putting out.
@@ -353,10 +224,6 @@ public class Sound implements ZxModule, MachineChangeListener {
    * away, so every channel read as whatever it had been. And the square wave was flipped by
    * negating it, which leaves nought as nought - it started low and stayed there.
    */
-
-  // ========================================================================
-  // Periféricos DAC: SpecDrum, Covox
-  // ========================================================================
 
   public void specdrumWrite(long tstates, int value) {
     if (!hasSpecdrum()) return;
@@ -372,10 +239,6 @@ public class Sound implements ZxModule, MachineChangeListener {
     if (rightCovoxSynth != null) rightCovoxSynth.update(tstates, sample);
   }
 
-  // Métodos de ayuda (simulación de máquina actual)
-
-// simplificado
-
   private boolean hasSpecdrum() {
     return leftSpecdrumSynth != null;
   }
@@ -383,10 +246,6 @@ public class Sound implements ZxModule, MachineChangeListener {
   private boolean hasCovox() {
     return leftCovoxSynth != null;
   }
-
-  // ========================================================================
-  // Limpieza
-  // ========================================================================
 
   public void close() {
     if (soundEnabled) {
