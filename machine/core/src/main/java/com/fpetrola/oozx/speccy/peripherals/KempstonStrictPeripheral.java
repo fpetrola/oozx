@@ -22,9 +22,28 @@ import com.fpetrola.oozx.speccy.modules.Joystick;
 import com.fpetrola.oozx.speccy.ports.JoystickPortHandler;
 
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
+/**
+ * The Kempston as most things decode it: bit 5 low.
+ * <p>
+ * Not built into any machine: a joystick interface is something somebody plugged in, so whether it
+ * is there is theirs to say. It is handed the question rather than the settings - the answer has
+ * to be read when a machine is selected and not frozen when this is built, because somebody can
+ * turn it on while the emulator runs, but that needs a question and not everything the emulator
+ * has ever been configured with.
+ */
 public class KempstonStrictPeripheral extends AbstractZxPeripheral {
-  public KempstonStrictPeripheral(Joystick joystick) {
+
+  private final BooleanSupplier wanted;
+
+  public KempstonStrictPeripheral(Joystick joystick, BooleanSupplier wanted) {
     super(Periph.Type.KEMPSTON, List.of(new JoystickPortHandler(0x00e0, 0x0000, joystick)));
+    this.wanted = wanted;
+  }
+
+  @Override
+  public boolean isWanted() {
+    return wanted.getAsBoolean();
   }
 }

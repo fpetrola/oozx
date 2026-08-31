@@ -29,9 +29,14 @@ public interface ZxPeripheral {
 
   PortHandler[] getPorts();
 
-  boolean hasOption();
-
-  boolean[] getOption();
+  /**
+   * Whether whoever is using this emulator has asked for this one.
+   * <p>
+   * Only asked of a peripheral a machine says it can have but does not come with. Fuse holds a
+   * pointer to the settings flag; this answers from it, which is the same thing said in a language
+   * that has no pointers.
+   */
+  boolean isWanted();
 
   boolean hasHardReset();
 }

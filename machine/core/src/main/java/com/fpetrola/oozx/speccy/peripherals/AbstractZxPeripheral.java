@@ -46,12 +46,9 @@ public class AbstractZxPeripheral implements ZxPeripheral {
     return portHandlers;
   }
 
-  public boolean hasOption() {
+  /** Built in, or not offered: either way nobody is asked. A peripheral that can be plugged in says so. */
+  public boolean isWanted() {
     return false;
-  }
-
-  public boolean[] getOption() {
-    return new boolean[0];
   }
 
   public boolean hasHardReset() {

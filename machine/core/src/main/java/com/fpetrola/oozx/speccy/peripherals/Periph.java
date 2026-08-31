@@ -227,7 +227,10 @@ public class Periph implements IPeriph {
   // Check if a specific peripheral is active
   @Override
   public boolean isActive(Type type) {
-    PrivatePeripheral typeData = peripherals.get(type);
+    // By the class, as everything else here does: the map is keyed by it, and a Type is a name
+    // for one. Looking the Type up directly found nothing and answered no about every peripheral
+    // there has ever been, including the ULA.
+    PrivatePeripheral typeData = peripherals.get(type.getZxPeripheralClass());
     return typeData != null && typeData.active;
   }
 
@@ -413,7 +416,7 @@ public class Periph implements IPeriph {
     peripherals.forEach((type, privatePeriph) -> {
       boolean active = switch (privatePeriph.present) {
         case NEVER -> false;
-        case OPTIONAL -> privatePeriph.peripheral.hasOption() && privatePeriph.peripheral.getOption()[0];
+        case OPTIONAL -> privatePeriph.peripheral.isWanted();
         case ALWAYS -> true;
       };
       boolean changed = activateType(privatePeriph.peripheral.getClass(), active);
@@ -442,7 +445,7 @@ public class Periph implements IPeriph {
     peripherals.forEach((type, privatePeriph) -> {
       boolean active = switch (privatePeriph.present) {
         case NEVER -> false;
-        case OPTIONAL -> privatePeriph.peripheral.hasOption() && privatePeriph.peripheral.getOption()[0];
+        case OPTIONAL -> privatePeriph.peripheral.isWanted();
         case ALWAYS -> true;
       };
       boolean needsReset = privatePeriph != null && privatePeriph.active != active && privatePeriph.peripheral.hasHardReset();
