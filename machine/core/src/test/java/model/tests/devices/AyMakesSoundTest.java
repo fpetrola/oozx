@@ -94,20 +94,19 @@ class AyMakesSoundTest {
   /**
    * A 48K does not run a sound chip it has not got.
    * <p>
-   * Written to here directly, going round the ports a 48K has none of - so this is not asking
-   * whether the writes can arrive, which they cannot. It asks whether there is a chip behind
-   * them at all. There used to be: presence was a method that answered true for every machine,
-   * and a 48K synthesised two thousand two hundred ticks of silence a frame.
+   * The chip lives in the peripheral now, so there is no longer a way to write to one that is not
+   * there - which is the answer rather than an obstacle to asking the question. The same writes
+   * that make a 128K sing reach nothing on a 48K, and a 48K synthesises nothing.
    */
   @Test
-  void aFortyEightHasNoChipEvenWhenWrittenToDirectly() {
-    assertEquals(0, peakWrittenDirectly("Spec48"),
+  void aFortyEightHasNoChipToWriteTo() {
+    assertEquals(0, peakWritingToTheChip("Spec48"),
         "a 48K produced sound chip output, which a 48K cannot make");
-    assertTrue(peakWrittenDirectly("Spec128") > 0,
+    assertTrue(peakWritingToTheChip("Spec128") > 0,
         "and the same writes on a 128K have to be heard, or this proves nothing");
   }
 
-  private int peakWrittenDirectly(String model) {
+  private int peakWritingToTheChip(String model) {
     OOSpectrumConnector.noTest = true;
     Loudest listener = new Loudest();
     Speccy speccy = Speccy.create(new SpectrumZ80Clock(),
@@ -123,10 +122,10 @@ class AyMakesSoundTest {
         });
     speccy.settings.current.sound = true;
 
-    speccy.sound.ayWrite(0, 0x50, 0);
-    speccy.sound.ayWrite(1, 0x01, 0);
-    speccy.sound.ayWrite(8, 0x0F, 0);
-    speccy.sound.ayWrite(7, 0x3E, 0);
+    write(speccy, 0, 0x50);
+    write(speccy, 1, 0x01);
+    write(speccy, 8, 0x0F);
+    write(speccy, 7, 0x3E);
 
     speccy.sound.frame();
     return listener.peak;

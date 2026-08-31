@@ -27,7 +27,6 @@ import com.fpetrola.oozx.speccy.modules.ZxModule;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.peripherals.*;
 import com.fpetrola.oozx.speccy.sound.AudioSource;
-import com.fpetrola.oozx.speccy.sound.Ay;
 import com.fpetrola.oozx.speccy.sound.Beeper;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 import com.fpetrola.oozx.speccy.sound.blip.BlipBuffer;
@@ -75,12 +74,13 @@ public class Sound implements ZxModule, MachineChangeListener {
 
   public boolean soundEnabled = false;
   private int soundFrameSize;
+  private long effectiveSpeed;
+  private int bass;
+  private double treble;
   private int[] outputSamples;
 
   private BlipSynth leftBeeperSynth;
   private Beeper beeperSource;
-  private Ay aySource;
-  private BlipSynth ayMixSynth;
   /** Everything making a noise on this machine, asked once a frame. */
   private final java.util.List<AudioSource> sources = new java.util.ArrayList<>();
 
@@ -112,7 +112,7 @@ public class Sound implements ZxModule, MachineChangeListener {
 
   public boolean initSound(long cpuFrequency, int tstatesPerFrame, Object initContext) {
 
-    long effectiveSpeed = cpuFrequency * settings.current.emulationSpeed / 100 * 2;
+    this.effectiveSpeed = cpuFrequency * settings.current.emulationSpeed / 100 * 2;
 
     int[] ints = {0};
     int[] soundFreqArray = {soundFreq};
@@ -120,36 +120,27 @@ public class Sound implements ZxModule, MachineChangeListener {
     String device = "buffer=8192,frames=8";
     boolean b = lowlevelInit(device, soundFreqArray, ints);
 
-    double treble = speakerTreble[speakerType];
-    int bass = speakerBass[speakerType];
+    this.treble = speakerTreble[speakerType];
+    this.bass = speakerBass[speakerType];
     double volume = getVolume(volumeBeeper);
     leftBeeperSynth = new BlipSynth(BlipBuffer.BLIP_HIGH_QUALITY, soundFreq, 1000, effectiveSpeed, bass, volume, treble);
-    // One for the chip, alongside the one for the beeper. Fuse gives each AY channel its own
-    // synth because it needs them apart to place two of them left and one right; in mono the
-    // three are summed anyway, and a synth here owns its buffer rather than sharing one.
-    BlipSynth ayMixSynth = new BlipSynth(BlipBuffer.BLIP_HIGH_QUALITY, soundFreq, 1000, effectiveSpeed,
-        bass, getVolume(volumeAY), treble);
     double hz = (double) effectiveSpeed / tstatesPerFrame;
     soundFrameSize = (int) (soundFreq / hz) + 1;
     outputSamples = new int[soundFrameSize * 2];
     beeperSource = new Beeper(leftBeeperSynth, soundFrameSize, tape, settings);
     sources.clear();
-    // Every Spectrum has a speaker.
+    // Every Spectrum has a speaker. Anything else that makes a noise adds itself once it turns
+    // out to be there, which is after this: a chip a machine came with and a box somebody
+    // plugged in both arrive by that door.
     sources.add(beeperSource);
     // The sound chip is in the list when the machine has one, and that is the whole question.
     // It used to be asked of a method here that answered true for every machine, so a 48K spent
     // two thousand two hundred ticks a frame synthesising a chip it has not got, into silence,
     // because its ports never reach one. A machine that has no chip now has no chip.
-    this.ayMixSynth = ayMixSynth;
-    aySource = null;
-    if (spectrumMachine != null && spectrumMachine.has(MachineCapability.AY)) {
-      attachSoundChip();
-    }
 
     if (!(initContext instanceof Boolean bool1) || bool1)
       soundEnabled = true;
 
-    ayReset();
     return true;
   }
 
@@ -167,36 +158,20 @@ public class Sound implements ZxModule, MachineChangeListener {
     beeperSource.write(tstates, on, spectrumMachine.isTimex());
   }
 
-  /**
-   * There is a sound chip to be heard now.
-   * <p>
-   * A machine with one of its own says so as the sound is set up. A box with one in it says so
-   * later, when it is worked out what is plugged in - which happens after, so this is how a 48K
-   * with a Melodik in it comes to make music.
-   */
-  public void attachSoundChip() {
-    if (aySource != null || ayMixSynth == null) {
-      return;
-    }
-    aySource = new Ay(ayMixSynth, soundFrameSize);
-    sources.add(aySource);
+  /** Something that makes a noise on this machine, from now until the machine changes. */
+  public <T extends AudioSource> T add(T source) {
+    sources.add(source);
+    return source;
   }
 
-  public void ayWrite(int reg, int val, long tstates) {
-    if (aySource != null) {
-      aySource.write(reg, val, tstates);
-    }
+  /** A synth wired for this output, for whoever is going to make samples with it. */
+  public BlipSynth newSynth(int volume) {
+    return new BlipSynth(BlipBuffer.BLIP_HIGH_QUALITY, soundFreq, 1000, effectiveSpeed, bass,
+        getVolume(volume), treble);
   }
 
-  public void ayReset() {
-    if (aySource != null) {
-      aySource.reset();
-    }
-  }
-
-  /** How many times the sound chip has been written to, which is how you tell it is wired up. */
-  public long ayWrites() {
-    return aySource == null ? 0 : aySource.writes;
+  public int frameSize() {
+    return soundFrameSize;
   }
 
   public void frame() {

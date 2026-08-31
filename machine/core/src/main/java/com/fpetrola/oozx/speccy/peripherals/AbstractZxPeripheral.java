@@ -24,7 +24,7 @@ import java.util.List;
 
 public class AbstractZxPeripheral implements ZxPeripheral {
   protected final Periph.Type type;
-  private final PortHandler[] portHandlers;
+  private PortHandler[] portHandlers;
 
   public AbstractZxPeripheral(Periph.Type type, List<PortHandler> portHandlers) {
     this.type = type;
@@ -40,6 +40,14 @@ public class AbstractZxPeripheral implements ZxPeripheral {
   }
 
   public void activate() {
+  }
+
+  /**
+   * For a peripheral whose ports talk back to it: they cannot be handed to super, because
+   * there is no this to give them yet.
+   */
+  protected void ports(PortHandler... handlers) {
+    this.portHandlers = handlers;
   }
 
   public PortHandler[] getPorts() {

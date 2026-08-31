@@ -18,18 +18,16 @@
 
 package com.fpetrola.oozx.speccy.peripherals;
 
-import com.fpetrola.z80.cpu.Z80Clock;
 import com.fpetrola.oozx.speccy.Sound;
+import com.fpetrola.z80.cpu.Z80Clock;
 
 /**
  * The same sound chip, wired as a +2A and a +3 wire it.
  * <p>
  * Those machines are given {@link Periph.Type#AY_PLUS3} rather than {@link Periph.Type#AY}, and
- * that entry carried no class - so the chip was declared always present on a +3 and nothing was
- * there to be present. A 128K game arriving on a +2A had a beeper and no music, which is the same
- * silence the plain AY had before it was given a class, in the same enum, one line below.
- * <p>
- * It differs in one wire: the data port answers when read, where on a 128K it does not.
+ * that entry of the enum carried no class - so the chip was declared always present on a +3 and
+ * nothing was there to be present. It differs in one wire: the data port answers when read, where
+ * on a 128K it does not.
  */
 public class AyPlus3Peripheral extends AyPeripheral {
 

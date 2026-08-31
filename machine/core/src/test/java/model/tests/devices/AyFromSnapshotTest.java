@@ -18,7 +18,11 @@
 
 package model.tests.devices;
 
+import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.peripherals.AyPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.Periph;
+import com.fpetrola.oozx.speccy.peripherals.ZxPeripheral;
 import com.fpetrola.oozx.speccy.rzx.RzxSession;
 import org.junit.jupiter.api.Test;
 
@@ -43,6 +47,16 @@ class AyFromSnapshotTest {
     return Path.of(AyFromSnapshotTest.class.getResource("/rzx/jsw-full.rzx").toURI()).toFile();
   }
 
+  private static long writesTo(Speccy speccy) {
+    for (Periph.Type type : new Periph.Type[]{Periph.Type.AY, Periph.Type.AY_PLUS3}) {
+      ZxPeripheral peripheral = speccy.periph.find(type);
+      if (peripheral instanceof AyPeripheral ay && ay.chip() != null) {
+        return ay.chip().writes;
+      }
+    }
+    return 0;
+  }
+
   @Test
   void openingARecordingSetsUpItsSoundChip() throws Exception {
     OOSpectrumConnector.noTest = true;
@@ -50,8 +64,8 @@ class AyFromSnapshotTest {
 
     assertTrue(session.getSpeccy().machine.current.has(AY),
         "Jet Set Willy 128K should have arrived on a machine with a sound chip");
-    assertTrue(session.getSpeccy().sound.ayWrites() >= 16,
+    assertTrue(writesTo(session.getSpeccy()) >= 16,
         "all sixteen registers should have been put back, and " 
-            + session.getSpeccy().sound.ayWrites() + " writes reached the chip");
+            + writesTo(session.getSpeccy()) + " writes reached the chip");
   }
 }

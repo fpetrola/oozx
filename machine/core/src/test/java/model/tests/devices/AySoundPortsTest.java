@@ -19,6 +19,9 @@
 package model.tests.devices;
 
 import com.fpetrola.oozx.Speccy;
+import com.fpetrola.oozx.speccy.peripherals.AyPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.Periph;
+import com.fpetrola.oozx.speccy.peripherals.ZxPeripheral;
 import com.fpetrola.oozx.speccy.OOSpectrumConnector;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 import org.junit.jupiter.api.Test;
@@ -52,14 +55,30 @@ class AySoundPortsTest {
     return speccy;
   }
 
+  /**
+   * How much has reached the chip, asked of the peripheral that holds it.
+   * <p>
+   * The mixer used to hold the chip and forward writes to it, so this was asked of the mixer.
+   * It holds sound sources now and knows nothing about what an AY is.
+   */
+  private static long writesTo(Speccy speccy) {
+    for (Periph.Type type : new Periph.Type[]{Periph.Type.AY, Periph.Type.AY_PLUS3}) {
+      ZxPeripheral peripheral = speccy.periph.find(type);
+      if (peripheral instanceof AyPeripheral ay && ay.chip() != null) {
+        return ay.chip().writes;
+      }
+    }
+    return 0;
+  }
+
   /** A register is chosen on one port and its value sent on the other. */
   private static long writeTwoRegisters(Speccy speccy) {
-    long before = speccy.sound.ayWrites();
+    long before = writesTo(speccy);
     speccy.periph.writePort(0xFFFD, (byte) 7);
     speccy.periph.writePort(0xBFFD, (byte) 0x38);
     speccy.periph.writePort(0xFFFD, (byte) 8);
     speccy.periph.writePort(0xBFFD, (byte) 0x0F);
-    return speccy.sound.ayWrites() - before;
+    return writesTo(speccy) - before;
   }
 
   @Test

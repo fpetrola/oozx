@@ -41,6 +41,10 @@ public interface PeriphDelegate extends IPeriph {
     return getPeriph().activateType(type, active);
   }
 
+  default com.fpetrola.oozx.speccy.peripherals.ZxPeripheral find(Periph.Type type) {
+    return getPeriph().find(type);
+  }
+
   default boolean isActive(Periph.Type type) {
     return getPeriph().isActive(type);
   }

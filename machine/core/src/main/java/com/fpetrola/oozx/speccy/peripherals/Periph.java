@@ -224,6 +224,12 @@ public class Periph implements IPeriph {
     return true;
   }
 
+  /** The registered peripheral of a kind, or null if this build has none. */
+  public ZxPeripheral find(Type type) {
+    PrivatePeripheral data = peripherals.get(type.getZxPeripheralClass());
+    return data == null ? null : data.peripheral;
+  }
+
   // Check if a specific peripheral is active
   @Override
   public boolean isActive(Type type) {

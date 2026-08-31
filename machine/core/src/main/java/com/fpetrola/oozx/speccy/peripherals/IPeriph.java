@@ -31,6 +31,9 @@ public interface IPeriph extends MachineChangeListener {
 
   boolean isActive(Periph.Type type);
 
+  /** The registered peripheral of a kind, or null if this build has none. */
+  ZxPeripheral find(Periph.Type type);
+
   void clear();
 
   void end();
