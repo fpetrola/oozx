@@ -883,7 +883,16 @@ public class Tape implements ClockTimeoutListener {
                 break;
             case PAUSE_STOP:
                 idxHeader++;
-                if (tapePos == tapeBuffer.length || !manualMode) {
+                // Carry on to the next block. A .tap holds a header and a data block for every
+                // file on it, so stopping after the first means the loader gets a name and never
+                // gets the game: every tape of this kind loaded nothing at all.
+                //
+                // The condition used to be "|| !manualMode", which stopped the tape whenever it
+                // was NOT being driven block by block - the wrong way round, and the opposite of
+                // what the TZX side does, where manual mode is the one that stops between blocks.
+                // Manual mode still runs on here as it always did; only the automatic case
+                // changes, and it changes from playing one block to playing the tape.
+                if (idxHeader >= nOffsetBlocks || tapePos >= tapeBuffer.length) {
                     stop();
                 } else {
                     statePlay = State.START; // START
