@@ -30,6 +30,8 @@ import com.google.inject.Inject;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
+import com.fpetrola.oozx.speccy.peripherals.Spec128MemoryPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.SeMemoryPeripheral;
 import com.fpetrola.oozx.speccy.Sound;
 import com.fpetrola.oozx.speccy.modules.Display;
 import com.fpetrola.oozx.speccy.modules.EventManager;
@@ -49,6 +51,20 @@ public class Spec128 extends Spectrum {
   }
 
   /** The 128 is the first with a sound chip and with paging through port 0x7ffd. */
+  /**
+   * What this machine is made of, registered again whenever it is selected.
+   * <p>
+   * Its own, and its subclasses' own: the peripheral is built with this, so a +2 selecting itself
+   * gets one bound to a +2. Peripherals are held in a map keyed by their class, so only the last
+   * registration of a kind is kept - which is right exactly because selecting a machine is what
+   * registers it, and the machine in front is therefore the one its ports reach.
+   */
+  @Override
+  public void init() {
+    periph.register(new Spec128MemoryPeripheral(this));
+    periph.register(new SeMemoryPeripheral(this));
+  }
+
   @Override
   public Set<MachineCapability> getCapabilities() {
     return Set.of(AY, MEMORY_128);

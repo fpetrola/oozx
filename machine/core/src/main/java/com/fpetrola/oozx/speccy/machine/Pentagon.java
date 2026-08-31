@@ -55,23 +55,8 @@ public class Pentagon extends Spec128 {
                   Sound sound, UserInterface userInterface) {
     super(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, sound,
         userInterface);
-    init();
   }
 
-  /**
-   * Its own memory peripheral, registered again whenever this machine is selected.
-   * <p>
-   * Not in the constructor, which is where I first put it: peripherals are held in a map keyed by
-   * their class, so the four machines that have a 128's paging port cannot each keep one. The one
-   * that answers is whichever registered last, and selecting a machine calls this - so the machine
-   * running is the one the port reaches. Registered once at construction, this machine's was
-   * replaced before it ever ran, and writes to 0x7ffd went to the 128's paging state instead of
-   * its own.
-   */
-  @Override
-  public void init() {
-    periph.register(new Spec128MemoryPeripheral(this));
-  }
 
   @Override
   public Set<MachineCapability> getCapabilities() {

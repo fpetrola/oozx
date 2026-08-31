@@ -160,10 +160,9 @@ public class Speccy {
     joystick.start();
     keyboard.start();
 
-    periph.register(new Spec128MemoryPeripheral(spec128));
-    periph.register(new SpecPlus3MemoryPeripheral(specPlus3));
-    periph.register(new Upd765Peripheral(specPlus3));
-    periph.register(new SeMemoryPeripheral(spec128));
+    // What is left here is the sound chip, which belongs to a machine as much as the rest and is
+    // still here for a dull reason: building one needs Sound and the clock, and a machine keeps
+    // neither where a subclass can reach it. The memory peripherals went home; this follows.
     periph.register(new AyPeripheral(sound, zxClock));
     periph.register(new AyPlus3Peripheral(sound, zxClock));
 

@@ -38,12 +38,6 @@ public class SpecPlus2 extends Spec128 {
   @Inject
   public SpecPlus2(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
     super(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, sound, userInterface);
-    init();
-  }
-
-  public void init() {
-    periph.register(new Spec128MemoryPeripheral(this));
-    periph.register(new SeMemoryPeripheral(this));
   }
 
   public int reset() {
