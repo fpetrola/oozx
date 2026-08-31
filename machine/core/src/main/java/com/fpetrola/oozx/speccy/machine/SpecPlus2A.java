@@ -18,6 +18,10 @@
 
 package com.fpetrola.oozx.speccy.machine;
 
+import com.fpetrola.oozx.MachineCapability;
+
+import java.util.Set;
+
 import static com.fpetrola.oozx.MachineCapability.*;
 
 import com.fpetrola.oozx.PeriphDelegate;
@@ -43,8 +47,8 @@ public class SpecPlus2A extends SpecPlus3 {
 
   /** A +3 without the floppy: same paging, no drive. */
   @Override
-  public int getCapabilities() {
-    return AY | _128_MEMORY | PLUS3_MEMORY;
+  public Set<MachineCapability> getCapabilities() {
+    return Set.of(AY, MEMORY_128, PLUS3_MEMORY);
   }
 
   public int reset() {

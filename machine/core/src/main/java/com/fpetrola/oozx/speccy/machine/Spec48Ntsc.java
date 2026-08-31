@@ -18,6 +18,10 @@
 
 package com.fpetrola.oozx.speccy.machine;
 
+import com.fpetrola.oozx.MachineCapability;
+
+import java.util.Set;
+
 import static com.fpetrola.oozx.MachineCapability.*;
 
 import com.fpetrola.oozx.PeriphDelegate;
@@ -45,8 +49,8 @@ public class Spec48Ntsc extends Spec48 {
   }
 
   @Override
-  public int getCapabilities() {
-    return NTSC;
+  public Set<MachineCapability> getCapabilities() {
+    return Set.of(NTSC);
   }
 
   public int reset() {

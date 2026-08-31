@@ -68,7 +68,6 @@ public class Libspectrum {
     PLUS2,
     PLUS3
   }
-  public static MachineCapability MachineCapability;
 
   public static byte snapOutUla(Snap snap) {
     return 0;

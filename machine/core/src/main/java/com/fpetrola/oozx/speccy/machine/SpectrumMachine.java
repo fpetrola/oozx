@@ -18,6 +18,10 @@
 
 package com.fpetrola.oozx.speccy.machine;
 
+import com.fpetrola.oozx.MachineCapability;
+
+import java.util.Set;
+
 public interface SpectrumMachine {
   TimingsHandler.Timings getBaseTiming();
 
@@ -32,7 +36,11 @@ public interface SpectrumMachine {
 
   RamInfo getRamInfo();
 
-  int getCapabilities();
+  Set<MachineCapability> getCapabilities();
+
+  default boolean has(MachineCapability capability) {
+    return getCapabilities().contains(capability);
+  }
 
   MachineTimings getTimings();
 

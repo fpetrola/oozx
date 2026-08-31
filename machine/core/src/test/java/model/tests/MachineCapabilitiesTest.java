@@ -19,6 +19,7 @@
 package model.tests;
 
 import com.fpetrola.oozx.EmulatorModule;
+import com.fpetrola.oozx.MachineCapability;
 import com.fpetrola.oozx.SpectrumZ80Clock;
 import com.fpetrola.oozx.speccy.machine.Spec128;
 import com.fpetrola.oozx.speccy.machine.Spec48;
@@ -32,11 +33,14 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.junit.jupiter.api.Test;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 import static com.fpetrola.oozx.MachineCapability.AY;
+import static com.fpetrola.oozx.MachineCapability.MEMORY_128;
 import static com.fpetrola.oozx.MachineCapability.NTSC;
 import static com.fpetrola.oozx.MachineCapability.PLUS3_DISK;
 import static com.fpetrola.oozx.MachineCapability.PLUS3_MEMORY;
-import static com.fpetrola.oozx.MachineCapability._128_MEMORY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -46,27 +50,31 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>
  * This used to come from one function that answered zero for every machine, so nothing that
  * asked could tell a +3 from a 48K and several branches were unreachable. Now each model
- * declares it, which means a wrong answer is a wrong constant rather than a missing mechanism —
- * and that is worth pinning, because nothing else fails when a capability is wrong. The machine
- * simply behaves like a different one.
+ * declares it, which means a wrong answer is a wrong declaration rather than a missing
+ * mechanism — and that is worth pinning, because nothing else fails when a capability is wrong.
+ * The machine simply behaves like a different one.
  */
 public class MachineCapabilitiesTest {
 
   private final Injector injector = Guice.createInjector(new EmulatorModule(new SpectrumZ80Clock()));
 
-  private int capabilitiesOf(Class<? extends SpectrumMachine> model) {
-    return injector.getInstance(model).getCapabilities();
+  private SpectrumMachine model(Class<? extends SpectrumMachine> model) {
+    return injector.getInstance(model);
+  }
+
+  private Set<MachineCapability> capabilitiesOf(Class<? extends SpectrumMachine> model) {
+    return model(model).getCapabilities();
   }
 
   @Test
   public void aFortyEightHasNoneOfThem() {
-    assertEquals(0, capabilitiesOf(Spec48.class));
-    assertEquals(NTSC, capabilitiesOf(Spec48Ntsc.class), "the NTSC one differs only in that");
+    assertEquals(Set.of(), capabilitiesOf(Spec48.class));
+    assertEquals(Set.of(NTSC), capabilitiesOf(Spec48Ntsc.class), "the NTSC one differs only in that");
   }
 
   @Test
   public void aOneTwentyEightHasSoundAndPaging() {
-    assertEquals(AY | _128_MEMORY, capabilitiesOf(Spec128.class));
+    assertEquals(Set.of(AY, MEMORY_128), capabilitiesOf(Spec128.class));
   }
 
   /** The +2 is a 128 in another case, so it inherits and there is nothing to declare. */
@@ -82,9 +90,8 @@ public class MachineCapabilitiesTest {
    */
   @Test
   public void aPlusThreePagesThroughBothPorts() {
-    int plus3 = capabilitiesOf(SpecPlus3.class);
-    assertTrue((plus3 & _128_MEMORY) != 0, "the +3 keeps the 128's paging port");
-    assertTrue((plus3 & PLUS3_MEMORY) != 0, "and adds its own");
+    assertTrue(model(SpecPlus3.class).has(MEMORY_128), "the +3 keeps the 128's paging port");
+    assertTrue(model(SpecPlus3.class).has(PLUS3_MEMORY), "and adds its own");
     assertEquals(capabilitiesOf(SpecPlus3.class), capabilitiesOf(SpecPlus3E.class));
   }
 
@@ -97,11 +104,11 @@ public class MachineCapabilitiesTest {
    */
   @Test
   public void aPlusTwoAIsAPlusThreeWithoutTheDrive() {
-    int plus2a = capabilitiesOf(SpecPlus2A.class);
-    int plus3 = capabilitiesOf(SpecPlus3.class);
+    assertTrue(model(SpecPlus3.class).has(PLUS3_DISK), "the +3 has a drive");
+    assertFalse(model(SpecPlus2A.class).has(PLUS3_DISK), "the +2A does not, which MachineTypes also says");
 
-    assertTrue((plus3 & PLUS3_DISK) != 0, "the +3 has a drive");
-    assertFalse((plus2a & PLUS3_DISK) != 0, "the +2A does not, which MachineTypes also says");
-    assertEquals(plus3 & ~PLUS3_DISK, plus2a, "and is otherwise the same machine");
+    Set<MachineCapability> aPlusThreeWithoutItsDrive = EnumSet.copyOf(capabilitiesOf(SpecPlus3.class));
+    aPlusThreeWithoutItsDrive.remove(PLUS3_DISK);
+    assertEquals(aPlusThreeWithoutItsDrive, capabilitiesOf(SpecPlus2A.class), "and is otherwise the same machine");
   }
 }

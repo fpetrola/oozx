@@ -18,6 +18,10 @@
 
 package com.fpetrola.oozx.speccy.machine;
 
+import com.fpetrola.oozx.MachineCapability;
+
+import java.util.Set;
+
 import com.fpetrola.oozx.Libspectrum;
 import com.fpetrola.oozx.Settings;
 import com.fpetrola.oozx.speccy.modules.Display;
@@ -45,8 +49,8 @@ public abstract class AbstractSpectrumMachine implements SpectrumMachine {
    * question about a machine's hardware was asked of a cut wire. A model is the only thing that
    * knows what it is, so each one says so and the ones that are a variant of another inherit it.
    */
-  public int getCapabilities() {
-    return 0;
+  public Set<MachineCapability> getCapabilities() {
+    return Set.of();
   }
 
   public MachineTimings getTimings() {

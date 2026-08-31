@@ -18,6 +18,10 @@
 
 package com.fpetrola.oozx.speccy.machine;
 
+import com.fpetrola.oozx.MachineCapability;
+
+import java.util.Set;
+
 import static com.fpetrola.oozx.MachineCapability.*;
 
 import com.fpetrola.oozx.PeriphDelegate;
@@ -46,8 +50,8 @@ public class Spec128 extends Spectrum {
 
   /** The 128 is the first with a sound chip and with paging through port 0x7ffd. */
   @Override
-  public int getCapabilities() {
-    return AY | _128_MEMORY;
+  public Set<MachineCapability> getCapabilities() {
+    return Set.of(AY, MEMORY_128);
   }
 
   @Override

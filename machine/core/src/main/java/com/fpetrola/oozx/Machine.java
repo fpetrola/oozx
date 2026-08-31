@@ -110,7 +110,6 @@ public class Machine implements ZxModule {
 
   private int selectMachine(Spectrum machine) {
     int width, height;
-    int capabilities;
 
     int spectrumFrameEvent;
     if (current != null && current.spectrumFrameEvent != -1)
@@ -138,9 +137,7 @@ public class Machine implements ZxModule {
 
     if (uiDisplay.end() != 0) return 1;
 
-    capabilities = machine.getCapabilities();
-
-    if ((capabilities & Libspectrum.MachineCapability.TIMEX_VIDEO) != 0) {
+    if (machine.has(MachineCapability.TIMEX_VIDEO)) {
       width = display.SCREEN_WIDTH;
       height = 2 * display.SCREEN_HEIGHT;
     } else {

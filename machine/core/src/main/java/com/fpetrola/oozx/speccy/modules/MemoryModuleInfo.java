@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.speccy.modules;
 
+import com.fpetrola.oozx.MachineCapability;
+
 import com.fpetrola.oozx.Libspectrum;
 import com.fpetrola.oozx.Machine;
 import com.fpetrola.oozx.Memory;
@@ -39,13 +41,10 @@ public class MemoryModuleInfo implements ZXModuleInfo {
 
   public void snapshotFrom(Libspectrum.Snap snap) {
     // snapshotFrom
-    int capabilities = machine.current.getCapabilities();
-
-    if ((capabilities & Libspectrum.MachineCapability._128_MEMORY) != 0) {
+    if (machine.current.has(MachineCapability.MEMORY_128)) {
       spec128.memoryPortWrite(0x7ffd, Libspectrum.snapOut128Memoryport(snap));
     }
-    if ((capabilities & Libspectrum.MachineCapability.PLUS3_MEMORY) != 0 ||
-        (capabilities & Libspectrum.MachineCapability.SCORP_MEMORY) != 0) {
+    if (machine.current.has(MachineCapability.PLUS3_MEMORY) || machine.current.has(MachineCapability.SCORP_MEMORY)) {
       specPlus3.memoryPort2WriteInternal(0x1ffd, Libspectrum.snapOutPlus3Memoryport(snap));
     }
 

@@ -33,7 +33,7 @@ import com.fpetrola.oozx.speccy.peripherals.UlaPeripheral;
 import java.util.function.Supplier;
 
 import static com.fpetrola.oozx.MachineCapability.PLUS3_MEMORY;
-import static com.fpetrola.oozx.MachineCapability._128_MEMORY;
+import static com.fpetrola.oozx.MachineCapability.MEMORY_128;
 
 @Singleton
 public class Ula implements ZxModule, MachineChangeListener {
@@ -130,9 +130,9 @@ public class Ula implements ZxModule, MachineChangeListener {
 
 //    sound.beeper(z80Clock.getTStates(), (int) (Math.random() * 4));
 
-    if ((getCurrent().getCapabilities() & PLUS3_MEMORY) != 0) {
+    if (getCurrent().has(PLUS3_MEMORY)) {
       defaultValue = (byte) 0xbf;
-    } else if ((getCurrent().getCapabilities() & _128_MEMORY) != 0 || !settings.current.issue2) {
+    } else if (getCurrent().has(MEMORY_128) || !settings.current.issue2) {
       defaultValue = (byte) ((b & 0x10) != 0 ? 0xff : 0xbf);
     } else {
       defaultValue = (byte) ((b & 0x18) != 0 ? 0xff : 0xbf);

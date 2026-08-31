@@ -18,6 +18,10 @@
 
 package com.fpetrola.oozx.speccy.machine;
 
+import com.fpetrola.oozx.MachineCapability;
+
+import java.util.Set;
+
 import static com.fpetrola.oozx.MachineCapability.*;
 
 import com.fpetrola.oozx.PeriphDelegate;
@@ -133,8 +137,8 @@ public class SpecPlus3 extends Spec128 {
    * why its memory peripheral registers a handler for each.
    */
   @Override
-  public int getCapabilities() {
-    return AY | _128_MEMORY | PLUS3_MEMORY | PLUS3_DISK;
+  public Set<MachineCapability> getCapabilities() {
+    return Set.of(AY, MEMORY_128, PLUS3_MEMORY, PLUS3_DISK);
   }
 
   public int reset() {
@@ -223,7 +227,7 @@ public class SpecPlus3 extends Spec128 {
 
   // Write to the +3 memory port 2 (0x1FFD)
   public void memoryPort2WriteInternal(int port, byte b) {
-    if ((getCapabilities() & PLUS3_DISK) != 0) {
+    if (has(PLUS3_DISK)) {
       fdd.motorOn(specplus3Drives[0], (b & 0x08) != 0);
       fdd.motorOn(specplus3Drives[1], (b & 0x08) != 0);
     }
@@ -312,7 +316,7 @@ public class SpecPlus3 extends Spec128 {
 
   // Check if drive is available
   private boolean uiDriveIsAvailable() {
-    return (getCapabilities() & Libspectrum.MachineCapability.PLUS3_DISK) != 0;
+    return has(PLUS3_DISK);
   }
 
 //  // Get parameters for drive A
