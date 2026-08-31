@@ -18,6 +18,7 @@
 
 package model.tests.machine;
 
+import com.fpetrola.oozx.EmulatorModule;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.SpectrumZ80Clock;
 import com.fpetrola.oozx.Spectrum;
@@ -91,6 +92,25 @@ class MachineLabelTest {
           machine.getClass().getSimpleName() + " shares its name with another machine: " + machine.getName());
     }
     assertEquals(machines.size(), names.size(), "one name per machine");
+  }
+
+  /**
+   * The one list that is a copy, and the test that keeps it honest.
+   * <p>
+   * Anything offering machines before one has been built - the browser draws its menus long
+   * before a machine exists - has nothing to ask, and building a whole emulator to read eight
+   * names back off it is not a thing to do. So the module names them beside the bindings that
+   * produce them, and this fails the moment the two disagree, which is what happened to the box
+   * on the toolbar when its list was written out by hand and three machines were missing from it.
+   */
+  @Test
+  void theNamesTheModuleDeclaresAreTheMachinesItBinds() {
+    Set<String> declared = new HashSet<>(EmulatorModule.MODEL_NAMES);
+    Set<String> built = new HashSet<>();
+    speccy().machine.getMachineTypes().forEach(machine -> built.add(machine.getName()));
+
+    assertEquals(built, declared,
+        "the module's list of machine names is not the machines it binds");
   }
 
   /** What picking one from the box does: find it by its name, and become it. */

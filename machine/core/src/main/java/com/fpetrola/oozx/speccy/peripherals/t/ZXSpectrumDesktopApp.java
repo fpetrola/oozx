@@ -872,7 +872,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
   void rememberMachines(EmulatorCore core) {
     if (knownMachines.isEmpty() && core != null) {
       knownMachines = core.getMachineModels();
-      System.err.println("[machines] learnt from a new emulator: " + knownMachines);
     }
   }
   private final Function<SpectrumState, EmulatorCore> mockCoreState;
@@ -2502,17 +2501,10 @@ public class ZXSpectrumDesktopApp extends JFrame {
        */
       @Override
       public java.util.List<String> machines() {
-        if (knownMachines.isEmpty()) {
-          EmulatorInternalFrame open = getActiveEmulator();
-          System.err.println("[machines] remembered=" + knownMachines.size()
-              + " openEmulator=" + (open != null)
-              + " core=" + (open != null ? String.valueOf(open.emulatorCore) : "-"));
-          if (open != null && open.emulatorCore != null) {
-            knownMachines = open.emulatorCore.getMachineModels();
-            System.err.println("[machines] asked the emulator, got " + knownMachines);
-          }
-        }
-        return knownMachines;
+        // A running machine is the truth and is asked first, but the browser is usually opened
+        // before there is one, so what the module declares stands in until then.
+        return knownMachines.isEmpty()
+            ? com.fpetrola.oozx.EmulatorModule.MODEL_NAMES : knownMachines;
       }
 
       @Override

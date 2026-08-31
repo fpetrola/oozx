@@ -38,6 +38,17 @@ import com.google.inject.multibindings.Multibinder;
  */
 public class EmulatorModule extends AbstractModule {
 
+  /**
+   * What the machines below call themselves, for anything that has to offer them before one has
+   * been built - a menu in the browser is drawn long before a machine exists, and building a whole
+   * emulator to read eight names back off it is not a thing to do.
+   * <p>
+   * It is a copy, and copies go stale, so a test asserts it against the machines themselves.
+   */
+  public static final java.util.List<String> MODEL_NAMES = java.util.List.of(
+      "Spectrum 48K", "Pentagon", "Spectrum 128K", "Spectrum Plus 3", "Spectrum Plus 2",
+      "Spectrum Plus 2A", "Amstrad Spectrum +3e", "Sinclair Spectrum 48K (NTSC)");
+
   private final SpectrumZ80Clock clock;
 
   public EmulatorModule(SpectrumZ80Clock clock) {
