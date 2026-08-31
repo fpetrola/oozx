@@ -16,15 +16,14 @@
  *
  */
 
-package com.fpetrola.oozx.speccy;
+package com.fpetrola.oozx.speccy.modules;
 
+import com.fpetrola.oozx.speccy.Movie;
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
-import com.fpetrola.oozx.speccy.modules.ZxModule;
-import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.peripherals.*;
 import com.fpetrola.oozx.speccy.sound.AudioOutput;
 import com.fpetrola.oozx.speccy.sound.AudioSource;

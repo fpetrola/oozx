@@ -21,7 +21,7 @@ package com.fpetrola.oozx;
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
 
-import com.fpetrola.oozx.speccy.Sound;
+import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.machine.TimingsHandler;
 import com.fpetrola.oozx.speccy.modules.*;

@@ -19,30 +19,19 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.speccy.Input;
-import com.fpetrola.oozx.speccy.Movie;
-import com.fpetrola.oozx.speccy.Sound;
+import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.oozx.speccy.machine.*;
 import com.fpetrola.oozx.speccy.modules.Joystick;
 import com.fpetrola.oozx.speccy.modules.*;
 import com.fpetrola.oozx.speccy.modules.Keyboard;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
-import com.fpetrola.oozx.speccy.modules.tape.TapeSettingsType;
 import com.fpetrola.oozx.speccy.modules.z80.Z80;
 import com.fpetrola.oozx.speccy.peripherals.IPeriph;
-import com.fpetrola.oozx.speccy.peripherals.Periph;
-import com.fpetrola.oozx.speccy.peripherals.Spec128MemoryPeripheral;
-import com.fpetrola.oozx.speccy.peripherals.SpecPlus3MemoryPeripheral;
-import com.fpetrola.oozx.speccy.peripherals.Upd765Peripheral;
-import com.fpetrola.oozx.speccy.peripherals.SeMemoryPeripheral;
-import com.fpetrola.oozx.speccy.peripherals.AyPeripheral;
-import com.fpetrola.oozx.speccy.peripherals.AyPlus3Peripheral;
 import com.fpetrola.oozx.speccy.peripherals.MelodikPeripheral;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
-import java.util.List;
 
 @Singleton
 public class Speccy {

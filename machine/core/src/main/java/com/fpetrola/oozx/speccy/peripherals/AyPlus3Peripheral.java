@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx.speccy.peripherals;
 
-import com.fpetrola.oozx.speccy.Sound;
+import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.z80.cpu.Z80Clock;
 
 /**

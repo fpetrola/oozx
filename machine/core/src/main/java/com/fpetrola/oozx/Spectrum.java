@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.speccy.Sound;
+import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.oozx.speccy.machine.AbstractSpectrumMachine;
 import com.fpetrola.oozx.speccy.machine.MachineTimings;
 import com.fpetrola.oozx.speccy.machine.RamInfo;

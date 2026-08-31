@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx.speccy.peripherals;
 
-import com.fpetrola.oozx.speccy.Sound;
+import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.oozx.speccy.ports.AyPortHandler;
 import com.fpetrola.oozx.speccy.ports.AyRegisters;
 import com.fpetrola.oozx.speccy.sound.Ay;

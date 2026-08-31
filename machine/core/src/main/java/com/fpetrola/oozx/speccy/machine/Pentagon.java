@@ -21,12 +21,11 @@ package com.fpetrola.oozx.speccy.machine;
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.PeriphDelegate;
-import com.fpetrola.oozx.speccy.Sound;
+import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.oozx.speccy.modules.Display;
 import com.fpetrola.oozx.speccy.modules.EventManager;
 import com.fpetrola.oozx.speccy.modules.Timer;
 import com.fpetrola.oozx.speccy.modules.z80.Cpu;
-import com.fpetrola.oozx.speccy.peripherals.Spec128MemoryPeripheral;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 

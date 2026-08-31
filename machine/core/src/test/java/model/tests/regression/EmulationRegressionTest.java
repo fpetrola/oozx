@@ -27,7 +27,7 @@ import com.fpetrola.oozx.Memory;
 import com.fpetrola.oozx.PeriphDelegate;
 import com.fpetrola.oozx.SpectrumZ80Clock;
 import com.fpetrola.oozx.speccy.OOSpectrumConnector;
-import com.fpetrola.oozx.speccy.Sound;
+import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.oozx.speccy.modules.Ula;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.peripherals.IPeriph;
