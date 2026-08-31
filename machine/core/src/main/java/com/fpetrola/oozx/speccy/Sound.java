@@ -64,13 +64,15 @@ public class Sound implements ZxModule, MachineChangeListener {
   private Tape tape;
   private final SpectrumZ80Clock clock;
 
-  private JavaSoundDevice javaSoundDevice = new JavaSoundDevice();
+  private JavaSoundDevice javaSoundDevice;
 
   private SpectrumMachine spectrumMachine;
   private int lastVal;
 
 @Inject
-  public Sound(Settings settings, Movie movie, IPeriph periph, Tape tape, SpectrumZ80Clock clock) {
+  public Sound(Settings settings, Movie movie, IPeriph periph, Tape tape, SpectrumZ80Clock clock,
+               JavaSoundDevice javaSoundDevice) {
+    this.javaSoundDevice = javaSoundDevice;
     this.settings = settings;
 //    this.timer = timer;
     this.movie = movie;

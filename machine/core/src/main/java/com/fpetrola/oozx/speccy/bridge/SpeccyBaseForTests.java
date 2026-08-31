@@ -19,6 +19,8 @@
 package com.fpetrola.oozx.speccy.bridge;
 
 import com.fpetrola.oozx.Speccy;
+import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
+import com.fpetrola.oozx.speccy.sound.SilentSoundDevice;
 import com.fpetrola.oozx.SpectrumZ80Clock;
 import com.fpetrola.z80.registers.Plain8BitRegister;
 import com.fpetrola.z80.registers.Register;
@@ -43,7 +45,7 @@ public class SpeccyBaseForTests {
         log(description, (byte) tStatesToAdd);
         addTStates(tStatesToAdd);
       }
-    });
+    }, binder -> binder.bind(JavaSoundDevice.class).to(SilentSoundDevice.class));
 
     return speccy;
   }

@@ -32,6 +32,7 @@ import com.fpetrola.oozx.speccy.peripherals.IPeriph;
 import com.fpetrola.oozx.speccy.peripherals.Periph;
 import com.fpetrola.oozx.speccy.startup.*;
 import com.google.inject.Guice;
+import com.google.inject.util.Modules;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -80,8 +81,9 @@ public class Speccy {
     return create(new SpectrumZ80Clock());
   }
 
-  public static Speccy create(SpectrumZ80Clock clock) {
-    return Guice.createInjector(new EmulatorModule(clock)).getInstance(Speccy.class);
+  public static Speccy create(SpectrumZ80Clock clock, com.google.inject.Module... overrides) {
+    return Guice.createInjector(Modules.override(new EmulatorModule(clock)).with(overrides))
+        .getInstance(Speccy.class);
   }
 
   @Inject
