@@ -120,6 +120,7 @@ public class OOSpectrumLauncher {
 
     if (isTape(filename)) {
       speccy.init();
+      becomeTheMachineTheTapeWants(speccy, filename);
       autoLoader = new TapeAutoLoader(speccy, new File(filename));
     } else {
       speccy.settings.current.emulationSpeed = 10000;
@@ -131,6 +132,35 @@ public class OOSpectrumLauncher {
     extracted(speccy);
 
     return speccy;
+  }
+
+  /**
+   * A 128K release needs a 128K machine, and nothing was choosing one.
+   * <p>
+   * A tape carries no statement of the machine it was made for - a snapshot does, and that is
+   * why snapshots have always arrived on the right one - so the only thing to go on is what the
+   * archive called the file. Where an entry offers both, they are named for it: one release says
+   * 128K in its name and the other says 48K.
+   * <p>
+   * Loading the 128K one into a 48K machine gets as far as the end of the tape and then answers
+   * "out of memory", which is a 48K BASIC error and the machine saying exactly what is wrong.
+   * The same tape on a 128K machine goes from eighty-three per cent of its time in RAM to all of
+   * it.
+   * <p>
+   * The same word the scorer reads when it puts a 48K release ahead of a 128K one, so the two
+   * cannot come to different conclusions about which is which.
+   */
+  private void becomeTheMachineTheTapeWants(Speccy speccy, String filename) {
+    String name = new File(filename).getName().toLowerCase();
+    if (!name.contains("128")) {
+      return;
+    }
+    speccy.machine.getMachineTypes().stream()
+        .filter(type -> type.getClass().getSimpleName().equals("Spec128"))
+        .findFirst().ifPresent(type -> {
+          speccy.machine.selectDefault();
+          speccy.machine.select(type);
+        });
   }
 
   private Speccy createSpeccy2(SpectrumState spectrumState) {
