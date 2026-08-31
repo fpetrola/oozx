@@ -185,8 +185,10 @@ public class Settings {
     public String romPentagon5121;
     public String romPentagon5122;
     public String romPentagon5123;
-    public String romPentagon0;
-    public String romPentagon1;
+    // Standing in until the Pentagon's own ROMs are here: it is a 128 clone and boots on these.
+    // Its third ROM is TR-DOS, which needs the disk side that does not exist yet.
+    public String romPentagon0 = "128-0.rom";
+    public String romPentagon1 = "128-1.rom";
     public String romPentagon2;
     public String romPlus20 = "plus2-0.rom";
     public String romPlus21 = "plus2-1.rom";

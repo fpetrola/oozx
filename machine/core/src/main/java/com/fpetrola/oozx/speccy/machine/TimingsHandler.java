@@ -111,7 +111,8 @@ public class TimingsHandler {
       32, 14336
   );
 
-  private static final FrameTimings PENTAGON = new FrameTimings(
+  /** 224 clocks over 320 lines is 71680 to a frame, which at 3.584MHz is fifty of them a second. */
+  public static final FrameTimings PENTAGON = new FrameTimings(
       36, 128, 28, 32, // Horizontal: 224 clocks per line
       64, 192, 48, 16, // Vertical: 320 lines per frame
       36, 17988

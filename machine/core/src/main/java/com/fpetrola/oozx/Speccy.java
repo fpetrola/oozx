@@ -65,6 +65,7 @@ public class Speccy {
   public final SpecPlus2A specPlus2a;
   public final SpecPlus3E specPlus3e;
   public final Spec48Ntsc spec48Ntsc;
+  public final Pentagon pentagon;
 
   private final Module module;
   private final Timer timer;
@@ -92,7 +93,7 @@ public class Speccy {
               EventManager eventManager, PeriphDelegate ulaPeriph, MachinesPeriph machinesPeriph,
               Joystick joystick, Input input, Machine machine, Z80 z80, UiDisplay uiDisplay,
               Spec48 spec48, Spec128 spec128, SpecPlus3 specPlus3, SpecPlus2 specPlus2,
-              SpecPlus2A specPlus2a, SpecPlus3E specPlus3e, Spec48Ntsc spec48Ntsc,
+              SpecPlus2A specPlus2a, SpecPlus3E specPlus3e, Spec48Ntsc spec48Ntsc, Pentagon pentagon,
               Module module, Timer timer, StartupManager startupManager,
               MachineStartupModule machineStartupModule) {
     this.zxClock = zxClock;
@@ -120,6 +121,7 @@ public class Speccy {
     this.specPlus2a = specPlus2a;
     this.specPlus3e = specPlus3e;
     this.spec48Ntsc = spec48Ntsc;
+    this.pentagon = pentagon;
     this.module = module;
     this.timer = timer;
     this.startupManager = startupManager;

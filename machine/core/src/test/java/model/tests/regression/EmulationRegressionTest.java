@@ -35,6 +35,7 @@ import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.fpetrola.oozx.speccy.sound.SilentSoundDevice;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 import com.fpetrola.z80.registers.RegisterName;
 import org.junit.jupiter.api.Test;
@@ -180,7 +181,9 @@ public class EmulationRegressionTest {
   public void switchingModelsFallsBackToThe48K() {
     Speccy speccy = bootedSpectrum();
 
-    assertEquals(7, speccy.machine.getMachineTypes().size(), "not every model was registered");
+    // Eight since the Pentagon. A number that moves on its own means a model was registered
+    // or lost without anyone saying so, which is why it is written down rather than derived.
+    assertEquals(8, speccy.machine.getMachineTypes().size(), "not every model was registered");
     assertSame(speccy.spec48, speccy.machine.current,
         "the machine did not come up as the 48K; check the @DefaultMachine binding");
   }
@@ -196,11 +199,8 @@ public class EmulationRegressionTest {
   @Test
   public void aMissingRomFallsBackToTheOneTheMachineShippedWith() throws Exception {
     OOSpectrumConnector.noTest = true;
-    Speccy speccy = Speccy.create();
-    speccy.sound.setJavaSoundDevice(new JavaSoundDevice() {
-      public void sound_lowlevel_frame(int[] data, int len) {
-      }
-    });
+    Speccy speccy = Speccy.create(new SpectrumZ80Clock(),
+        binder -> binder.bind(JavaSoundDevice.class).to(SilentSoundDevice.class));
 
     speccy.settings.current.rom48 = "no-such.rom";     // defaults.rom48 stays 48.rom
     speccy.init();
@@ -219,11 +219,10 @@ public class EmulationRegressionTest {
    */
   private Speccy bootedSpectrum() {
     OOSpectrumConnector.noTest = true;
-    Speccy speccy = Speccy.create();
-    speccy.sound.setJavaSoundDevice(new JavaSoundDevice() {
-      public void sound_lowlevel_frame(int[] data, int len) {
-      }
-    });
+    // Overriding the frame callback was not enough: the device still opened a real audio line on
+    // init, and a crash inside the platform's audio server takes the JVM down with it.
+    Speccy speccy = Speccy.create(new SpectrumZ80Clock(),
+        binder -> binder.bind(JavaSoundDevice.class).to(SilentSoundDevice.class));
     speccy.init();
     speccy.uiDisplay.active = false;
     speccy.z80.bridgeCommand = (a, b) -> null;

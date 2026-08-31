@@ -62,10 +62,10 @@ public class Spec128 extends Spectrum {
   protected int doReset(String rom1280, String rom1281, String rom1282, String rom1283) {
     loadRom(0, rom1280, rom1281, 0x4000);
     loadRom(1, rom1282, rom1283, 0x4000);
-    commonReset(true);
+    commonReset(contendsMemory());
 
     periph.clear();
-    machinesPeriph.machinesPeriph128();
+    installPeripherals();
     periph.update();
 
     Beta.builtin = false;
@@ -73,6 +73,15 @@ public class Spec128 extends Spectrum {
 //    spec48.commonDisplaySetup();
 
     return 0;
+  }
+
+  /** Every Sinclair 128 contends its odd RAM pages; the Pentagon contends nothing. */
+  protected boolean contendsMemory() {
+    return true;
+  }
+
+  protected void installPeripherals() {
+    machinesPeriph.machinesPeriph128();
   }
 
   public int commonReset(boolean contention) {

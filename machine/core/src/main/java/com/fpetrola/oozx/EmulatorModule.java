@@ -72,6 +72,7 @@ public class EmulatorModule extends AbstractModule {
     // nothing about order, so nothing depends on the order these are listed in.
     Multibinder<Spectrum> models = Multibinder.newSetBinder(binder(), Spectrum.class);
     models.addBinding().to(Spec48.class);
+    models.addBinding().to(Pentagon.class);
     models.addBinding().to(Spec128.class);
     models.addBinding().to(SpecPlus3.class);
     models.addBinding().to(SpecPlus2.class);
