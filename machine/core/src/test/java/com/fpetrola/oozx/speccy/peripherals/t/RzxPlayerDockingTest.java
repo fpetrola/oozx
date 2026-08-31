@@ -53,6 +53,21 @@ class RzxPlayerDockingTest {
     }
   }
 
+  /**
+   * The two borders that meet where the frames touch.
+   * <p>
+   * Written as the insets rather than as a number, because the number is whatever the look and
+   * feel draws and the CONTRACT is that the two frames overlap by exactly the edges they both
+   * draw - so the picture and the buttons touch instead of sitting a seam apart.
+   */
+  private static int seam(JInternalFrame machine, RzxPlayerInternalFrame player) {
+    return machine.getInsets().bottom + player.getInsets().top;
+  }
+
+  private static int sideSeam(JInternalFrame machine, RzxPlayerInternalFrame player) {
+    return machine.getInsets().left + player.getInsets().right;
+  }
+
   private static JInternalFrame machine(int x, int y, int width, int height) {
     JInternalFrame frame = new JInternalFrame("machine");
     frame.setBounds(x, y, width, height);
@@ -67,7 +82,9 @@ class RzxPlayerDockingTest {
 
     Rectangle at = player.getBounds();
     assertEquals(60, at.x, "not lined up with the machine's left edge");
-    assertEquals(40 + 380, at.y, "not directly under the machine");
+    assertEquals(40 + 380 - seam(machine, player), at.y, "not directly under the machine");
+    assertTrue(seam(machine, player) < 12,
+        "the overlap should be two borders, not a margin: " + seam(machine, player));
     assertEquals(520, at.width, "not the same width as the machine");
     assertTrue(at.height > 0 && at.height < 200,
         "the compact form should be a toolbar, not a window: " + at.height);
@@ -82,7 +99,8 @@ class RzxPlayerDockingTest {
     machine.setBounds(300, 120, 640, 300);
     settle();
     assertEquals(300, player.getX(), "did not follow the machine sideways");
-    assertEquals(120 + 300, player.getY(), "did not follow the machine down");
+    assertEquals(120 + 300 - seam(machine, player), player.getY(),
+        "did not follow the machine down");
     assertEquals(640, player.getWidth(), "did not take the machine's new width");
   }
 
@@ -97,9 +115,14 @@ class RzxPlayerDockingTest {
     player.snapIfNear();
     assertEquals(RzxPlayerInternalFrame.Dock.RIGHT, player.dockedTo(),
         "did not attach to the side it was left against");
-    assertEquals(500, player.getX(), "attached to the right edge but not flush with it");
+    assertEquals(500 - sideSeam(machine, player), player.getX(),
+        "attached to the right edge but not flush with it");
     assertEquals(100, player.getY(), "attached to a side should line up with the machine's top");
-    assertEquals(300, player.getHeight(), "attached to a side should be as tall as the machine");
+    // And its size is left alone. Stretching it to the machine's height turns a toolbar into a
+    // column of empty space, and a window that resizes itself because it drifted near something
+    // else is a window arguing with whoever is holding it.
+    assertEquals(120, player.getHeight(), "attaching to a side resized it");
+    assertEquals(300, player.getWidth(), "attaching to a side resized it");
   }
 
   @Test
@@ -131,6 +154,7 @@ class RzxPlayerDockingTest {
     assertTrue(player.getHeight() > compact, "expanding did not make it taller");
     assertEquals(60, player.getX(), "expanding moved it off the machine");
     assertEquals(520, player.getWidth(), "expanding changed its width");
-    assertEquals(40 + 380, player.getY(), "expanding moved it off the bottom edge");
+    assertEquals(40 + 380 - seam(machine, player), player.getY(),
+        "expanding moved it off the bottom edge");
   }
 }

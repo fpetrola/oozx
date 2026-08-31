@@ -61,6 +61,8 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   private static final int REFRESH_MILLIS = 100;
   /** How near an edge a drag has to finish for the player to attach to it. */
   private static final int STICKY = 24;
+  /** How long the window has to stand still before a drag counts as finished. */
+  private static final int SETTLE_MILLIS = 180;
 
   private enum Mode { EMPTY, STOPPED, PLAYING, TAKEN_OVER, FINISHED }
 
@@ -121,12 +123,33 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   private Dock dock = Dock.BOTTOM;
   private boolean compact = true;
   /**
+   * The height somebody dragged this to, which docking has to respect.
+   * <p>
+   * Before this, every placement recomputed the height, so moving the window - or moving the
+   * machine, which moves the window - handed back a size nobody asked for and threw away the one
+   * they had set.
+   */
+  private int chosenHeight;
+  /**
+   * The last height this code set for itself.
+   * <p>
+   * Resize events are POSTED, not delivered on the spot, so one describing a height this code
+   * chose can arrive long afterwards - after {@link #compact} has been turned off, for instance,
+   * at which point the listener below reads it as "the person wants it this tall" and records the
+   * compact height as their preference. Expanding then does nothing at all, about half the time.
+   * An event carrying the height we just set is not somebody resizing the window.
+   */
+  private int placedHeight = -1;
+  private final Progress progress = new Progress();
+  /**
    * Set while THIS code is moving the window, so that its own placement is not mistaken for
    * somebody dragging it. Without it, docking moves the window, the move looks like a drag, the
    * drag re-docks, and the two feed each other.
    */
   private boolean placing;
   private JToggleButton dockButton;
+  /** Fires once the window has stopped being dragged; see the listener that restarts it. */
+  private Timer settle;
   private JToggleButton expandButton;
   /** Watches the machine's window so the player follows it about while attached. */
   private ComponentAdapter machineWatcher;
@@ -187,6 +210,10 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
 
     JPanel top = new JPanel(new BorderLayout());
     top.add(controls, BorderLayout.NORTH);
+    // Under the buttons and across the whole width: while a recording plays, how far along it is
+    // is the one thing worth seeing at a glance, and the compact form has no room for anything
+    // that takes a row of its own.
+    top.add(progress, BorderLayout.SOUTH);
     setLayout(new BorderLayout());
     add(top, BorderLayout.NORTH);
     add(parts, BorderLayout.CENTER);
@@ -194,11 +221,30 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
 
     // Sticky edges: a drag that finishes near the machine's window attaches to whichever side it
     // finished nearest, and one that finishes away from it lets go.
+    // Decided when the dragging STOPS, not at every position along the way. A drag is a stream
+    // of moves, and most of them are nowhere near anything: judging each one in turn means a
+    // quick drag downwards detaches the moment it clears the machine, and a drag across the
+    // desktop attaches and detaches to whatever it passes. Waiting for the moves to stop asks
+    // the only question that matters - where was it LEFT.
+    settle = new Timer(SETTLE_MILLIS, e -> snapIfNear());
+    settle.setRepeats(false);
     addComponentListener(new ComponentAdapter() {
       @Override
       public void componentMoved(ComponentEvent moved) {
-        if (!placing) {
-          snapIfNear();
+        // Nothing on screen is being dragged, so there is nothing to wait for. Besides being
+        // true, this keeps a timer out of anything that drives these windows without showing
+        // them, where a stray one fires in the middle of somebody else's work.
+        if (!placing && isShowing()) {
+          settle.restart();
+        }
+      }
+
+      @Override
+      public void componentResized(ComponentEvent resized) {
+        // Only a resize that somebody did counts. The ones this code makes are how it gets
+        // placed, and treating those as a preference is how a window slowly grows on its own.
+        if (!placing && !compact && getHeight() != placedHeight) {
+          chosenHeight = getHeight();
         }
       }
     });
@@ -209,6 +255,7 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
       @Override
       public void internalFrameClosed(javax.swing.event.InternalFrameEvent e) {
         refresh.stop();
+        settle.stop();
         alive = false;
       }
     });
@@ -304,19 +351,36 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
       return;
     }
     Rectangle m = machineWindow.getBounds();
-    int tall = compact ? compactHeight() : Math.max(compactHeight(), 260);
+    int tall = compact ? compactHeight() : Math.max(compactHeight(), chosenHeight);
     placing = true;
+    placedHeight = tall;
     try {
       switch (dock) {
-        case BOTTOM -> setBounds(m.x, m.y + m.height, m.width, tall);
-        case TOP -> setBounds(m.x, Math.max(0, m.y - tall), m.width, tall);
-        case LEFT -> setBounds(Math.max(0, m.x - getWidth()), m.y, getWidth(), m.height);
-        case RIGHT -> setBounds(m.x + m.width, m.y, getWidth(), m.height);
+        // Along the top or the bottom it takes the machine's width, which is the whole point of
+        // putting it there: the controls for a picture, the width of the picture.
+        // Overlapped by the two borders that meet, or the frames sit a seam apart: each draws
+        // its own edge and the gap between the picture and the buttons is the sum of the two.
+        case BOTTOM -> setBounds(m.x, m.y + m.height - seam(), m.width, tall);
+        case TOP -> setBounds(m.x, Math.max(0, m.y - tall + seam()), m.width, tall);
+        // Against a side it is only moved, never resized. Stretching it to the machine's height
+        // turns a toolbar into a column of empty space, and a window that changes size because
+        // it drifted near something else is a window fighting the person holding it.
+        case LEFT -> setLocation(Math.max(0, m.x - getWidth() + sideSeam()), m.y);
+        case RIGHT -> setLocation(m.x + m.width - sideSeam(), m.y);
         default -> { }
       }
     } finally {
       placing = false;
     }
+  }
+
+  /** The two borders that meet where the frames touch, which is what to overlap by. */
+  private int seam() {
+    return machineWindow == null ? 0 : machineWindow.getInsets().bottom + getInsets().top;
+  }
+
+  private int sideSeam() {
+    return machineWindow == null ? 0 : machineWindow.getInsets().left + getInsets().right;
   }
 
   /**
@@ -368,15 +432,50 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
 
   /** The compact form is the controls alone; expanded adds what is in the recording. */
   void setCompact(boolean wanted) {
+    if (!wanted && chosenHeight < compactHeight() + 40) {
+      chosenHeight = 300;                       // never expanded before: a sensible first size
+    }
     compact = wanted;
     parts.setVisible(!wanted);
     if (dock == Dock.FREE) {
-      setSize(getWidth(), wanted ? compactHeight() : Math.max(compactHeight(), 260));
+      placedHeight = wanted ? compactHeight() : chosenHeight;
+      setSize(getWidth(), placedHeight);
     } else {
       place();
     }
     revalidate();
     repaint();
+  }
+
+  /**
+   * How far along the recording is, as a line under the buttons.
+   * <p>
+   * Its own component rather than a JProgressBar: a few pixels tall is the point, and a progress
+   * bar with a look and feel behind it has its own opinion about how short it is allowed to be.
+   */
+  private static class Progress extends JComponent {
+
+    private double howFar;
+
+    Progress() {
+      setPreferredSize(new Dimension(10, 5));
+    }
+
+    void setHowFar(double howFar) {
+      double clamped = Math.max(0, Math.min(1, howFar));
+      if (Math.abs(clamped - this.howFar) > 0.0005) {
+        this.howFar = clamped;
+        repaint();
+      }
+    }
+
+    @Override
+    protected void paintComponent(Graphics pen) {
+      pen.setColor(getBackground().darker());
+      pen.fillRect(0, 0, getWidth(), getHeight());
+      pen.setColor(new Color(0x3F7FBF));
+      pen.fillRect(0, 0, (int) Math.round(getWidth() * howFar), getHeight());
+    }
   }
 
   public void setOnFavorite(Runnable onFavorite) {
@@ -569,6 +668,8 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
       return;
     }
     RzxPlayback playback = session.getPlayback();
+    progress.setHowFar(playback.getFrameCount() == 0 ? 0
+        : (double) playback.getFrameIndex() / playback.getFrameCount());
     String where = playback.getFrameIndex() + " of " + playback.getFrameCount() + " frames";
     String state = switch (mode) {
       case PLAYING -> "Playing";
