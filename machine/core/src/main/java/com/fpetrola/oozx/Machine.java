@@ -138,7 +138,7 @@ public class Machine implements ZxModule {
 
     if (uiDisplay.end() != 0) return 1;
 
-    capabilities = Libspectrum.machineCapabilities(machine);
+    capabilities = machine.getCapabilities();
 
     if ((capabilities & Libspectrum.MachineCapability.TIMEX_VIDEO) != 0) {
       width = display.SCREEN_WIDTH;

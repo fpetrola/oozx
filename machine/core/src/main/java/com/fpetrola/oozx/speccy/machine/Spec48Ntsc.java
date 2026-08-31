@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.speccy.machine;
 
+import static com.fpetrola.oozx.MachineCapability.*;
+
 import com.fpetrola.oozx.PeriphDelegate;
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
@@ -40,6 +42,11 @@ public class Spec48Ntsc extends Spec48 {
   }
 
   public void init() {
+  }
+
+  @Override
+  public int getCapabilities() {
+    return NTSC;
   }
 
   public int reset() {

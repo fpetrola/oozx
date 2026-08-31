@@ -38,8 +38,15 @@ public abstract class AbstractSpectrumMachine implements SpectrumMachine {
     return ramInfo;
   }
 
+  /**
+   * What this model can do, declared by the model itself.
+   * <p>
+   * It used to come from one central function that answered zero for everything, so every
+   * question about a machine's hardware was asked of a cut wire. A model is the only thing that
+   * knows what it is, so each one says so and the ones that are a variant of another inherit it.
+   */
   public int getCapabilities() {
-    return Libspectrum.machineCapabilities(this);
+    return 0;
   }
 
   public MachineTimings getTimings() {

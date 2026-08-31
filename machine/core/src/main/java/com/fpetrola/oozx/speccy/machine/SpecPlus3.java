@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.speccy.machine;
 
+import static com.fpetrola.oozx.MachineCapability.*;
+
 import com.fpetrola.oozx.PeriphDelegate;
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
@@ -126,6 +128,15 @@ public class SpecPlus3 extends Spec128 {
   }
 
   // Reset the Spectrum +3 machine
+  /**
+   * A +3 pages through both ports, its own at 0x1ffd on top of the 128's at 0x7ffd, which is
+   * why its memory peripheral registers a handler for each.
+   */
+  @Override
+  public int getCapabilities() {
+    return AY | _128_MEMORY | PLUS3_MEMORY | PLUS3_DISK;
+  }
+
   public int reset() {
     doReset(settings.current.romPlus30, settings.defaults.romPlus30,
         settings.current.romPlus31, settings.defaults.romPlus31,
@@ -212,9 +223,7 @@ public class SpecPlus3 extends Spec128 {
 
   // Write to the +3 memory port 2 (0x1FFD)
   public void memoryPort2WriteInternal(int port, byte b) {
-    boolean b1 = (getCapabilities() & Libspectrum.MachineCapability.PLUS3_DISK) != 0;
-    b1 = true;
-    if (b1) {
+    if ((getCapabilities() & PLUS3_DISK) != 0) {
       fdd.motorOn(specplus3Drives[0], (b & 0x08) != 0);
       fdd.motorOn(specplus3Drives[1], (b & 0x08) != 0);
     }

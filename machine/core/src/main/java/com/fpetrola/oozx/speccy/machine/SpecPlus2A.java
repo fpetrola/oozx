@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.speccy.machine;
 
+import static com.fpetrola.oozx.MachineCapability.*;
+
 import com.fpetrola.oozx.PeriphDelegate;
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
@@ -37,6 +39,12 @@ public class SpecPlus2A extends SpecPlus3 {
   public SpecPlus2A(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Fdd fdd1, UPDFdc uPDFdc1, Sound sound, UserInterface userInterface) {
     super(memory, display, machinesPeriph, periph, settings, fdd1, uPDFdc1, eventManager, cpu, timer, module, sound, userInterface);
     init();
+  }
+
+  /** A +3 without the floppy: same paging, no drive. */
+  @Override
+  public int getCapabilities() {
+    return AY | _128_MEMORY | PLUS3_MEMORY;
   }
 
   public int reset() {

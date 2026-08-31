@@ -138,9 +138,6 @@ public class Libspectrum {
 
   }
 
-  public static int machineCapabilities(SpectrumMachine machine) {
-    return 0;
-  }
 
   public class Snap {
     public int joystickActiveCount() {

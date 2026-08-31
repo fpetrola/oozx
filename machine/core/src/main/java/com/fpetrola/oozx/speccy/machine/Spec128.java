@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.speccy.machine;
 
+import static com.fpetrola.oozx.MachineCapability.*;
+
 import com.fpetrola.oozx.PeriphDelegate;
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
@@ -40,6 +42,12 @@ public class Spec128 extends Spectrum {
 
   public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, RamInfo ramInfo, Sound sound, UserInterface userInterface) {
     super(memory, display, eventManager, cpu, timer, module, settings, ramInfo, machinesPeriph, periph, sound, userInterface);
+  }
+
+  /** The 128 is the first with a sound chip and with paging through port 0x7ffd. */
+  @Override
+  public int getCapabilities() {
+    return AY | _128_MEMORY;
   }
 
   @Override
