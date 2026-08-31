@@ -501,7 +501,7 @@ public class Z80 implements ZxModule, Cpu {
     // Whatever changes the machine - a tape named for a 128K, a snapshot, the box itself -
     // says so once, here, instead of each caller remembering to announce it.
     machine.addMachineChangeListener(newMachine -> {
-      if (mockCore != null) mockCore.setMachineModel(newMachine.getName());
+      if (mockCore instanceof MockEmulatorCore core) core.announceMachine(newMachine.getName());
     });
     mockCore = new MockEmulatorCore(contentPane) {
       private String filename;
@@ -526,22 +526,6 @@ public class Z80 implements ZxModule, Cpu {
         return machine.getMachineTypes().stream().map(com.fpetrola.oozx.speccy.machine.SpectrumMachine::getName).toList();
       }
 
-      /**
-       * Picking one from the list becomes a machine, which it did not: this was inherited and
-       * only printed. Nothing to do when it names the machine already running - and there is
-       * something, because setting the box from a machine change fires this straight back.
-       */
-      @Override
-      public void setMachineModel(String name) {
-        if (machine.current != null && name.equals(machine.current.getName())) {
-          return;
-        }
-        machine.getMachineTypes().stream().filter(type -> type.getName().equals(name))
-            .findFirst().ifPresent(type -> {
-              machine.selectDefault();
-              machine.select(type);
-            });
-      }
 
 
       public void applyMod(PokFile.PokeMod mod) {
@@ -672,6 +656,12 @@ public class Z80 implements ZxModule, Cpu {
 
       @Override
       public void onModelChanged(String model) {
+        // Also reached when the machine announces itself, which is the machine saying it already
+        // is this. Selecting it again from there resets the machine that just started, and the
+        // reset announces itself, and so on.
+        if (machine.current != null && model.equals(machine.current.getName())) {
+          return;
+        }
         changeMachine = () -> {
           machine.getMachineTypes().stream().filter(m -> m.getName().equals(model)).forEach(type -> {
             machine.selectDefault();

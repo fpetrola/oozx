@@ -198,6 +198,17 @@ public class MockEmulatorCore implements EmulatorCore {
     }
   }
 
+  /**
+   * The machine has become this; say so, without asking anybody to become anything.
+   * <p>
+   * setMachineModel is the other half and is a command: it is what a menu calls. Announcing
+   * through it made the announcement mean "become this", which the machine already was.
+   */
+  public void announceMachine(String model) {
+    currentModel = model;
+    notifyModelChange(model);
+  }
+
   private void notifyModelChange(String model) {
       for (EmulatorListener listener : listeners) {
         listener.onModelChanged(model);
