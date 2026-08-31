@@ -816,6 +816,8 @@ class GameSearchResult {
   String screenshot1;
   String screenshot2;
   String filename;
+  /** What the entry offers that cannot be loaded, for saying so instead of "no tape". */
+  String offers;
   /** Extras the entry carries, for filters the server cannot apply itself. */
   boolean hasRzx;
   boolean hasMap;

@@ -276,7 +276,9 @@ public class GameBrowserInternalFrame extends JInternalFrame {
   private void startLoading(GameSearchResult result) {
     if (result.filename == null) {
       JOptionPane.showMessageDialog(this,
-          "No tape or snapshot is available to download for \"" + result.title + "\".",
+          "There is nothing here this emulator can open for \"" + result.title + "\"."
+              + (result.offers == null || result.offers.isBlank() ? ""
+              : "\n\nThe archive has it as: " + result.offers + "."),
           "Nothing to load", JOptionPane.INFORMATION_MESSAGE);
       return;
     }
@@ -345,16 +347,21 @@ public class GameBrowserInternalFrame extends JInternalFrame {
         });
         List<String> files = new ArrayList<>();
 
+        // What the entry offers that cannot be loaded, so a refusal can say what it was rather
+        // than "no tape available", which is true and tells nobody anything.
+        java.util.Set<String> offered = new java.util.LinkedHashSet<>();
         game.releases.forEach(s -> {
           s.files.forEach(f -> {
             if (f.format != null) {
-              System.out.println(f.format);
-//              List<String> anObject = List.of("Snapshot (Z80)", "Snapshot (SNA)", "Tape (TAP)", "Perfect tape (TZX)");
-              List<String> anObject = List.of("Snapshot (Z80)", "Snapshot (SNA)", "Perfect tape (TZX)");
-//              List<String> anObject = List.of("Snapshot (Z80)", "Snapshot (SNA)");
-              if (anObject.contains(f.format)) {
-                String filename = getFileURL(f.path);
+              // Asked of the one thing that knows, instead of a second list kept here. The two
+              // disagreed: this end accepted three formats and the scorer ranks seven, so an
+              // entry offered only as a TAP was dropped before the scorer ever saw it - and
+              // dropped silently, which is how it came to look like a download that refused.
+              String filename = getFileURL(f.path);
+              if (DownloadAndUnzip.loadable(filename)) {
                 files.add(filename);
+              } else {
+                offered.add(f.format);
               }
             }
           });
@@ -387,10 +394,12 @@ public class GameBrowserInternalFrame extends JInternalFrame {
         }
         boolean hasRzx = !recordings.isEmpty();
 
-        String file = files.isEmpty() ? null
-            : DownloadAndUnzip.preferred(files, url -> url.substring(url.lastIndexOf('/') + 1));
+        // The whole URL, not just the last part of it: the scorer needs the path to see that a
+        // file sits under /denied/ and is not going to come down.
+        String file = files.isEmpty() ? null : DownloadAndUnzip.preferred(files, url -> url);
         GameSearchResult result = new GameSearchResult(hit._id, game.title,
             "http://example.com/game/" + query, screenshot1, screenshot2, file);
+        result.offers = String.join(", ", offered);
         result.hasRzx = hasRzx;
         result.hasMap = hasMap;
         result.recordings = recordings;

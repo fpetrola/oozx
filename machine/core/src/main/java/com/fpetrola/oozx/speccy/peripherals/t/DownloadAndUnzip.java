@@ -169,11 +169,23 @@ public class DownloadAndUnzip {
         best = candidate;
       }
     }
-    return bestScore == Integer.MIN_VALUE + 1 ? null : best;
+    return bestScore <= UNLOADABLE ? null : best;
   }
 
+  /** Whether this is something the emulator can open at all, by the one rule that decides it. */
+  public static boolean loadable(String fileName) {
+    return scoreOf(fileName) != UNLOADABLE;
+  }
+
+  private static final int UNLOADABLE = Integer.MIN_VALUE + 1;
+
   private static int scoreOf(String fileName) {
-    String name = fileName.toLowerCase();
+    String path = fileName.toLowerCase();
+    // ZXDB puts what it is not allowed to hand out under /denied/. Such a file is still the kind
+    // of thing that could be loaded, so it is not rejected here - it is simply the last resort,
+    // behind anything that will actually come down.
+    int denied = path.contains("/denied/") ? 50 : 0;
+    String name = path.substring(path.lastIndexOf('/') + 1);
     // ZXDB lists downloads as .tzx.zip while the entries inside them are plain .tzx, and the
     // same scoring serves both.
     if (name.endsWith(".zip")) {
@@ -189,8 +201,9 @@ public class DownloadAndUnzip {
     } else if (name.endsWith(".csw")) {
       score = 10;
     } else {
-      return Integer.MIN_VALUE + 1; // not something the emulator can load at all
+      return UNLOADABLE; // not something the emulator can load at all
     }
+    score -= denied;
 
     // The emulator boots a 48K machine, so a 48K variant beats a 128K one.
     if (name.contains("128")) {
