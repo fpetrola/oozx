@@ -25,6 +25,8 @@ import com.fpetrola.oozx.speccy.config.OOZxConfiguration;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -288,19 +290,40 @@ public class GameBrowserInternalFrame extends JInternalFrame {
    */
   private JMenu machineMenu(String label, GameSearchResult result, String file) {
     JMenu menu = new JMenu(label);
+    // Filled when it is opened, not when the row is drawn. A search is rendered before any
+    // machine has been built, so asking then gets an empty list and a menu that never grows one.
+    menu.addMenuListener(new MenuListener() {
+      @Override
+      public void menuSelected(MenuEvent e) {
+        menu.removeAll();
+        JMenuItem automatic = new JMenuItem("As the file says");
+        automatic.addActionListener(chosen -> load(result, file, null));
+        menu.add(automatic);
+
+        List<String> machines = listener.machines();
+        if (!machines.isEmpty()) {
+          menu.addSeparator();
+          for (String machine : machines) {
+            JMenuItem item = new JMenuItem(machine);
+            item.addActionListener(chosen -> load(result, file, machine));
+            menu.add(item);
+          }
+        }
+      }
+
+      @Override
+      public void menuDeselected(MenuEvent e) {
+      }
+
+      @Override
+      public void menuCanceled(MenuEvent e) {
+      }
+    });
+    // A menu with nothing in it does not open, and Swing measures it before the listener has
+    // run, so it starts with the entry that is always there.
     JMenuItem automatic = new JMenuItem("As the file says");
     automatic.addActionListener(e -> load(result, file, null));
     menu.add(automatic);
-
-    List<String> machines = listener.machines();
-    if (!machines.isEmpty()) {
-      menu.addSeparator();
-      for (String machine : machines) {
-        JMenuItem item = new JMenuItem(machine);
-        item.addActionListener(e -> load(result, file, machine));
-        menu.add(item);
-      }
-    }
     return menu;
   }
 

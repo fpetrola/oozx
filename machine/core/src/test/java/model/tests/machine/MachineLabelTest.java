@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -80,6 +81,9 @@ class MachineLabelTest {
   void everyMachineHasItsOwnName() {
     Speccy speccy = speccy();
     List<Spectrum> machines = speccy.machine.getMachineTypes();
+    // Said out loud because everything below is a loop over this: an empty list passes every
+    // assertion in here without touching a machine, and the box would be empty for the same reason.
+    assertFalse(machines.isEmpty(), "no machines are registered at all");
 
     Set<String> names = new HashSet<>();
     for (SpectrumMachine machine : machines) {
@@ -93,6 +97,7 @@ class MachineLabelTest {
   @Test
   void aMachineCanBeFoundByTheNameTheBoxShows() {
     Speccy speccy = speccy();
+    assertFalse(speccy.machine.getMachineTypes().isEmpty(), "no machines are registered at all");
     for (Spectrum wanted : speccy.machine.getMachineTypes()) {
       String name = wanted.getName();
       Spectrum found = speccy.machine.getMachineTypes().stream()

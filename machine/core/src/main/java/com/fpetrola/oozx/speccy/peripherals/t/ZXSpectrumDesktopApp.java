@@ -2485,8 +2485,19 @@ public class ZXSpectrumDesktopApp extends JFrame {
         playRecording(recording);
       }
 
+      /**
+       * Learnt from a machine that exists, because the list belongs to the build and there is no
+       * copy of it to read. Any emulator can answer; the first one to be made is remembered so
+       * the browser can offer them without one having to be open.
+       */
       @Override
       public java.util.List<String> machines() {
+        if (knownMachines.isEmpty()) {
+          EmulatorInternalFrame open = getActiveEmulator();
+          if (open != null && open.emulatorCore != null) {
+            knownMachines = open.emulatorCore.getMachineModels();
+          }
+        }
         return knownMachines;
       }
 
