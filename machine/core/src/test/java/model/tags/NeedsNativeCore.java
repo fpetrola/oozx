@@ -19,7 +19,10 @@
 package model.tags;
 
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
+
+import java.util.concurrent.TimeUnit;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -35,6 +38,9 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
+// The default timeout is set for the gate, where a minute means something has hung. These are
+// the ones that legitimately take longer, which is why they are not in it.
+@Timeout(value = 30, unit = TimeUnit.MINUTES)
 @Tag("native")
 @EnabledIfSystemProperty(named = "oozx.native", matches = "true", disabledReason = "run it with -Doozx.native=true")
 public @interface NeedsNativeCore {

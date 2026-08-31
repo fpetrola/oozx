@@ -46,16 +46,16 @@ public class TapeHardware {
 
   /** TZX hardware ids for computers, against the machines this emulator has. */
   private static final Map<Integer, String> MACHINES = new LinkedHashMap<>() {{
-    put(0x00, "Spec48");      // 16K, and this has no 16K to offer
-    put(0x01, "Spec48");      // 48K and +
-    put(0x02, "Spec48");      // 48K issue 1
-    put(0x03, "Spec128");     // 128K
-    put(0x04, "SpecPlus2");   // +2
-    put(0x05, "SpecPlus3");   // +2A and +3
+    put(0x00, "Spectrum 48K");     // 16K, and this has no 16K to offer
+    put(0x01, "Spectrum 48K");     // 48K and +
+    put(0x02, "Spectrum 48K");     // 48K issue 1
+    put(0x03, "Spectrum 128K");    // 128K
+    put(0x04, "Spectrum Plus 2");  // +2
+    put(0x05, "Spectrum Plus 3");  // +2A and +3
   }};
 
   /** Least to most, so "the best one it runs on" is a maximum over this. */
-  private static final List<String> BY_CAPABILITY = List.of("Spec48", "Spec128", "SpecPlus2", "SpecPlus3");
+  private static final List<String> BY_CAPABILITY = List.of("Spectrum 48K", "Spectrum 128K", "Spectrum Plus 2", "Spectrum Plus 3");
 
   /**
    * The best machine the tape says it runs on, or nothing when it does not say.

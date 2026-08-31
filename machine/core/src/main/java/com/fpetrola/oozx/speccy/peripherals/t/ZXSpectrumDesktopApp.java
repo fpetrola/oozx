@@ -826,6 +826,8 @@ class GameSearchResult {
   /** Extras the entry carries, for filters the server cannot apply itself. */
   boolean hasRzx;
   boolean hasMap;
+  /** The machine somebody picked for it, or null to let the file and its name decide. */
+  String machine;
   /** Recordings of this game offered for playing, from both catalogues. */
   java.util.List<RzxOption> recordings = java.util.List.of();
 
@@ -852,11 +854,17 @@ interface GameBrowserListener {
 
   /** Fetches a recording of the game and plays it. */
   void onPlayRecording(RzxOption recording);
+
+  /** The machines a game can be started on, for offering them beside the file it lives in. */
+  java.util.List<String> machines();
 }
 
 // --- UPDATED: ZXSpectrumDesktopApp with Game Browser ---
 public class ZXSpectrumDesktopApp extends JFrame {
-  private final Function<String, EmulatorCore> mockCore;
+  /** Builds a machine for a file; the second argument names the machine, or is null for automatic. */
+  private final java.util.function.BiFunction<String, String, EmulatorCore> mockCore;
+  /** The machines this build has, learnt from the last emulator made, for offering them. */
+  private java.util.List<String> knownMachines = java.util.List.of();
   private final Function<SpectrumState, EmulatorCore> mockCoreState;
   private JDesktopPane desktop;
   private int emulatorCount = 0;
@@ -937,7 +945,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private EmulatorInternalFrame getActiveEmulatorOrCreateNew() {
     EmulatorInternalFrame frame = getActiveEmulator();
     if (frame == null) {
-      EmulatorCore core = mockCore.apply("");
+      EmulatorCore core = mockCore.apply("", null);
+      knownMachines = core.getMachineModels();
       frame = createNewEmulator(core);
     }
     try {
@@ -947,7 +956,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     return frame;
   }
 
-  public ZXSpectrumDesktopApp(Function<String, EmulatorCore> mockCore, Function<SpectrumState, EmulatorCore> mockCoreState1) {
+  public ZXSpectrumDesktopApp(java.util.function.BiFunction<String, String, EmulatorCore> mockCore, Function<SpectrumState, EmulatorCore> mockCoreState1) {
     this.mockCore = mockCore;
     this.mockCoreState = mockCoreState1;
     this.config = OOZxConfiguration.load();
@@ -1050,7 +1059,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     AbstractAction newEmulatorAction = new AbstractAction("New Emulator") {
       @Override
       public void actionPerformed(ActionEvent e) {
-        EmulatorCore emulatorCore = mockCore.apply("");
+        EmulatorCore emulatorCore = mockCore.apply("", null);
         createNewEmulator(emulatorCore);
       }
     };
@@ -1569,7 +1578,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     JButton newEmulatorBtn = new JButton(loadIcon("Sinclair_ZX_Spectrum-02b.svg"));
     newEmulatorBtn.setToolTipText("New Emulator");
     newEmulatorBtn.addActionListener(e -> {
-      EmulatorCore core = mockCore.apply("");
+      EmulatorCore core = mockCore.apply("", null);
       createNewEmulator(core);
     });
     toolBar.add(newEmulatorBtn);
@@ -1719,7 +1728,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
         }
 
         // Fallback: cargar desde el archivo
-        EmulatorCore core = mockCore.apply(entry.getFilePath());
+        EmulatorCore core = mockCore.apply(entry.getFilePath(), null);
         createNewEmulator(core, entry.getFilePath());
       });
 
@@ -1862,7 +1871,9 @@ public class ZXSpectrumDesktopApp extends JFrame {
     new SwingWorker<EmulatorCore, Void>() {
       @Override
       protected EmulatorCore doInBackground() {
-        return mockCore.apply(gameSearchResult.filename);
+        EmulatorCore core = mockCore.apply(gameSearchResult.filename, gameSearchResult.machine);
+        knownMachines = core.getMachineModels();
+        return core;
       }
 
       @Override
@@ -2202,7 +2213,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     new SwingWorker<EmulatorCore, Void>() {
       @Override
       protected EmulatorCore doInBackground() {
-        return mockCore.apply(path);
+        return mockCore.apply(path, null);
       }
 
       @Override
@@ -2475,6 +2486,11 @@ public class ZXSpectrumDesktopApp extends JFrame {
       }
 
       @Override
+      public java.util.List<String> machines() {
+        return knownMachines;
+      }
+
+      @Override
       public void onViewDetails(GameSearchResult gameSearchResult) {
         // Show loading dialog while fetching from API
         JDialog loadingDialog = new JDialog(ZXSpectrumDesktopApp.this, "Loading Game Details", true);
@@ -2565,7 +2581,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
       JMenuItem item = new JMenuItem(new java.io.File(filePath).getName());
       item.setToolTipText(filePath);
       item.addActionListener(e -> {
-        EmulatorCore emulatorCore = mockCore.apply(filePath);
+        EmulatorCore emulatorCore = mockCore.apply(filePath, null);
         createNewEmulator(emulatorCore);
       });
       recentFilesMenu.add(item);

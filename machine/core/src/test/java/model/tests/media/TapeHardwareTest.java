@@ -72,20 +72,20 @@ class TapeHardwareTest {
 
   @Test
   void aTapeThatUsesTheOneTwentyEightGetsOne() throws Exception {
-    assertEquals(Optional.of("Spec128"),
+    assertEquals(Optional.of("Spectrum 128K"),
         TapeHardware.bestMachineFor(tzxDeclaring(ID_48K, RUNS_WITHOUT_USING, ID_128K, USES_ITS_FEATURES)),
         "it runs on both and only one of them has the music");
   }
 
   @Test
   void aTapeThatOnlyKnowsAFortyEightStaysOnOne() throws Exception {
-    assertEquals(Optional.of("Spec48"), TapeHardware.bestMachineFor(tzxDeclaring(ID_48K, USES_ITS_FEATURES)));
+    assertEquals(Optional.of("Spectrum 48K"), TapeHardware.bestMachineFor(tzxDeclaring(ID_48K, USES_ITS_FEATURES)));
   }
 
   /** Several named and none singled out: the biggest of them, which is what a person would pick. */
   @Test
   void severalNamedMeansTheBiggest() throws Exception {
-    assertEquals(Optional.of("SpecPlus3"),
+    assertEquals(Optional.of("Spectrum Plus 3"),
         TapeHardware.bestMachineFor(tzxDeclaring(ID_48K, RUNS, ID_128K, RUNS, ID_PLUS3, RUNS)));
   }
 
@@ -96,13 +96,13 @@ class TapeHardwareTest {
    */
   @Test
   void oneItUsesBeatsABiggerOneItMerelyRunsOn() throws Exception {
-    assertEquals(Optional.of("Spec128"),
+    assertEquals(Optional.of("Spectrum 128K"),
         TapeHardware.bestMachineFor(tzxDeclaring(ID_128K, USES_ITS_FEATURES, ID_PLUS3, RUNS_WITHOUT_USING)));
   }
 
   @Test
   void aMachineItRefusesToRunOnIsNotOffered() throws Exception {
-    assertEquals(Optional.of("Spec48"),
+    assertEquals(Optional.of("Spectrum 48K"),
         TapeHardware.bestMachineFor(tzxDeclaring(ID_48K, RUNS, ID_PLUS2, DOES_NOT_RUN)));
   }
 

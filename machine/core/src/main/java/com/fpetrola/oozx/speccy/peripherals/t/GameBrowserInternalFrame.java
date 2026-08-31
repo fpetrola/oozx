@@ -276,6 +276,43 @@ public class GameBrowserInternalFrame extends JInternalFrame {
    * long enough that a click used to look like nothing had happened. Say what is going on, and
    * say plainly when there is nothing to load rather than ignoring the click.
    */
+  /**
+   * A file, and under it the machines it can be started on.
+   * <p>
+   * Most tapes do not say which machine they were made for and cannot: a game that loads once and
+   * then looks for a sound chip only finds out at run time. Where the file does say, the first
+   * entry follows it, and the rest are there for when somebody knows better than the file - which
+   * for a game with AY music and no way to declare it is every time.
+   *
+   * @param file the release to load, or null for whichever the entry already points at
+   */
+  private JMenu machineMenu(String label, GameSearchResult result, String file) {
+    JMenu menu = new JMenu(label);
+    JMenuItem automatic = new JMenuItem("As the file says");
+    automatic.addActionListener(e -> load(result, file, null));
+    menu.add(automatic);
+
+    List<String> machines = listener.machines();
+    if (!machines.isEmpty()) {
+      menu.addSeparator();
+      for (String machine : machines) {
+        JMenuItem item = new JMenuItem(machine);
+        item.addActionListener(e -> load(result, file, machine));
+        menu.add(item);
+      }
+    }
+    return menu;
+  }
+
+  private void load(GameSearchResult result, String file, String machine) {
+    if (file != null) {
+      result.filename = file;
+      result.available = DownloadAndUnzip.available(file);
+    }
+    result.machine = machine;
+    startLoading(result);
+  }
+
   private void startLoading(GameSearchResult result) {
     if (result.filename == null) {
       JOptionPane.showMessageDialog(this,
@@ -527,21 +564,16 @@ public class GameBrowserInternalFrame extends JInternalFrame {
       contextMenu.add(playRecording);
       contextMenu.addSeparator();
     }
-    JMenuItem loadItem = new JMenuItem("Load Game");
+    JMenu loadItem = machineMenu("Load Game", result, null);
     // When there is more than one, the whole list, in the order the scorer would have taken
     // them, so what is picked by default is the one at the top.
     if (result.files.size() > 1) {
       JMenu versions = new JMenu("Load Version");
       for (String each : result.files) {
         String shown = each.substring(each.lastIndexOf('/') + 1);
-        JMenuItem item = new JMenuItem(
-            DownloadAndUnzip.available(each) ? shown : shown + "  (not available)");
+        JMenu item = machineMenu(
+            DownloadAndUnzip.available(each) ? shown : shown + "  (not available)", result, each);
         item.setEnabled(DownloadAndUnzip.available(each));
-        item.addActionListener(e -> {
-          result.filename = each;
-          result.available = DownloadAndUnzip.available(each);
-          startLoading(result);
-        });
         versions.add(item);
       }
       contextMenu.add(versions);
@@ -579,7 +611,6 @@ public class GameBrowserInternalFrame extends JInternalFrame {
 
     shots.addMouseListener(mouseAdapter);
 
-    loadItem.addActionListener(e -> startLoading(result));
     detailsItem.addActionListener(e -> listener.onViewDetails(result));
     favoriteItem.addActionListener(e -> listener.onAddToFavorites(result));
     downloadItem.addActionListener(e -> listener.onDownloadGame(result.url));

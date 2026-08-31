@@ -56,7 +56,7 @@ public class OOSpectrumLauncher {
       return speccy.z80.mockCore;
     };
     ZXSpectrumDesktopApp[] appHolder = new ZXSpectrumDesktopApp[1];
-    ZXSpectrumDesktopApp zxSpectrumDesktopApp = new ZXSpectrumDesktopApp((filename) -> {
+    ZXSpectrumDesktopApp zxSpectrumDesktopApp = new ZXSpectrumDesktopApp((filename, chosenMachine) -> {
       Speccy speccy;
       String string = null;
 
@@ -67,7 +67,7 @@ public class OOSpectrumLauncher {
         string = filename.contains("http")
             ? new DownloadAndUnzip().unzip(filename).toAbsolutePath().toString()
             : filename;
-        speccy = createSpeccy(string);
+        speccy = createSpeccy(string, chosenMachine);
       }
 
       EmulatorCore mockCore = speccy.z80.mockCore;
@@ -117,11 +117,15 @@ public class OOSpectrumLauncher {
   }
 
   public Speccy createSpeccy(String filename) {
+    return createSpeccy(filename, null);
+  }
+
+  public Speccy createSpeccy(String filename, String chosenMachine) {
     Speccy speccy = Speccy.create();
 
     if (isTape(filename)) {
       speccy.init();
-      becomeTheMachineTheTapeWants(speccy, filename);
+      becomeTheMachineTheTapeWants(speccy, filename, chosenMachine);
       autoLoader = new TapeAutoLoader(speccy, new File(filename));
     } else {
       speccy.settings.current.emulationSpeed = 10000;
@@ -151,15 +155,16 @@ public class OOSpectrumLauncher {
    * The same word the scorer reads when it puts one release ahead of the other, so the two
    * cannot come to different conclusions about which is which.
    */
-  private void becomeTheMachineTheTapeWants(Speccy speccy, String filename) {
+  private void becomeTheMachineTheTapeWants(Speccy speccy, String filename, String chosenMachine) {
     File tape = new File(filename);
-    String wanted = TapeHardware.bestMachineFor(tape)
-        .orElseGet(() -> tape.getName().toLowerCase().contains("128") ? "Spec128" : null);
+    String wanted = chosenMachine != null ? chosenMachine
+        : TapeHardware.bestMachineFor(tape)
+            .orElseGet(() -> tape.getName().toLowerCase().contains("128") ? "Spectrum 128K" : null);
     if (wanted == null) {
       return;
     }
     speccy.machine.getMachineTypes().stream()
-        .filter(type -> type.getClass().getSimpleName().equals(wanted))
+        .filter(type -> type.getName().equals(wanted))
         .findFirst().ifPresent(type -> {
           speccy.machine.selectDefault();
           speccy.machine.select(type);

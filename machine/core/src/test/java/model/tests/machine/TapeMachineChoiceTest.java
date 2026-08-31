@@ -58,8 +58,13 @@ class TapeMachineChoiceTest {
   }
 
   private static String machineFor(String name) throws IOException {
+    return machineFor(name, null);
+  }
+
+  private static String machineFor(String name, String chosen) throws IOException {
     OOSpectrumConnector.noTest = true;
-    Speccy speccy = new OOSpectrumLauncher().createSpeccy(tapeCalled(name).getAbsolutePath());
+    Speccy speccy = new OOSpectrumLauncher()
+        .createSpeccy(tapeCalled(name).getAbsolutePath(), chosen);
     return speccy.machine.current.getName();
   }
 
@@ -67,6 +72,21 @@ class TapeMachineChoiceTest {
   void a_release_named_for_128k_is_loaded_into_a_128k_machine() throws Exception {
     assertEquals("Spectrum 128K", machineFor("DarkTransit2(128K).tap"),
         "a 128K release went into a 48K machine, where it runs out of memory");
+  }
+
+  /**
+   * Somebody picked one, so that is the one, whatever the file and its name have to say.
+   * <p>
+   * Most tapes cannot say: a game that loads once and then looks for a sound chip only finds out
+   * at run time, and Marauder is one - a plain 48K load with AY music and nowhere to declare it.
+   * Being able to say so from the browser is the only way to hear it.
+   */
+  @Test
+  void a_machine_somebody_picked_beats_what_the_name_says() throws Exception {
+    assertEquals("Spectrum 128K", machineFor("SomeOrdinaryGame.tap", "Spectrum 128K"),
+        "the choice was made and ignored");
+    assertEquals("Spectrum 48K", machineFor("DarkTransit2(128K).tap", "Spectrum 48K"),
+        "and it wins over the name too, which is the point of offering it");
   }
 
   @Test
