@@ -16,7 +16,11 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.sound;
+package com.fpetrola.oozx.speccy.devices.ay;
+
+import com.fpetrola.oozx.speccy.sound.AudioOutput;
+
+import com.fpetrola.oozx.speccy.sound.AudioSource;
 
 import com.fpetrola.oozx.speccy.sound.blip.BlipSynth;
 
@@ -35,7 +39,7 @@ import java.util.Arrays;
  * one right. In mono the three are summed anyway, and a synth here owns its buffer rather than
  * sharing one, so there is one and the channels meet in it.
  */
-public class Ay implements AudioSource {
+class Ay implements AudioSource {
 
   public static final int AMPL_AY_TONE = 24 * 256;
 

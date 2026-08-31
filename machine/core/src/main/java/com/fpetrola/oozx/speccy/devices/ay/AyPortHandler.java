@@ -16,9 +16,10 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.ports;
+package com.fpetrola.oozx.speccy.devices.ay;
 
-import com.fpetrola.oozx.speccy.peripherals.AyPeripheral;
+import com.fpetrola.oozx.speccy.ports.DefaultPortHandler;
+
 import com.fpetrola.z80.cpu.Z80Clock;
 
 /**
@@ -30,7 +31,7 @@ import com.fpetrola.z80.cpu.Z80Clock;
  * package is written - bit 15 and bit 14 say which of the two, and bit 1 must be low for the chip
  * to answer at all.
  */
-public class AyPortHandler extends DefaultPortHandler {
+class AyPortHandler extends DefaultPortHandler {
 
   private final AyRegisters registers;
   private final AyPeripheral owner;

@@ -19,7 +19,7 @@
 package model.tests.devices;
 
 import com.fpetrola.oozx.Speccy;
-import com.fpetrola.oozx.speccy.peripherals.AyPeripheral;
+import com.fpetrola.oozx.speccy.devices.ay.AyPeripheral;
 import com.fpetrola.oozx.speccy.peripherals.Periph;
 import com.fpetrola.oozx.speccy.peripherals.ZxPeripheral;
 import com.fpetrola.oozx.speccy.OOSpectrumConnector;
@@ -64,8 +64,8 @@ class AySoundPortsTest {
   private static long writesTo(Speccy speccy) {
     for (Periph.Type type : new Periph.Type[]{Periph.Type.AY, Periph.Type.AY_PLUS3}) {
       ZxPeripheral peripheral = speccy.periph.find(type);
-      if (peripheral instanceof AyPeripheral ay && ay.chip() != null) {
-        return ay.chip().writes;
+      if (peripheral instanceof AyPeripheral ay && ay.writes() > 0) {
+        return ay.writes();
       }
     }
     return 0;

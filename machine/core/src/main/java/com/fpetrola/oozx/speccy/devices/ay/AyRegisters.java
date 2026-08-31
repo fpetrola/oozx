@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.ports;
+package com.fpetrola.oozx.speccy.devices.ay;
 
 /**
  * The sixteen registers of an AY-3-8912 and which of them is being spoken to.
@@ -26,7 +26,7 @@ package com.fpetrola.oozx.speccy.ports;
  * these back, and several do it to find out whether there is a chip at all - write a value, read
  * it, and play beeper music if it does not come back.
  */
-public class AyRegisters {
+class AyRegisters {
 
   /** Unused bits read back as zero, so they are dropped on the way in. */
   private static final int[] MASK = {

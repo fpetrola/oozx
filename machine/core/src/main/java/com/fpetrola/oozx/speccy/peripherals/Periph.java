@@ -18,6 +18,12 @@
 
 package com.fpetrola.oozx.speccy.peripherals;
 
+import com.fpetrola.oozx.speccy.devices.ay.MelodikPeripheral;
+
+import com.fpetrola.oozx.speccy.devices.ay.AyPlus3Peripheral;
+
+import com.fpetrola.oozx.speccy.devices.ay.AyPeripheral;
+
 import com.fpetrola.oozx.UserInterface;
 
 import com.google.inject.Singleton;

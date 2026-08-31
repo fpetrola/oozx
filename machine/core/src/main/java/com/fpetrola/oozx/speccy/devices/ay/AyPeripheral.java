@@ -16,12 +16,13 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.peripherals;
+package com.fpetrola.oozx.speccy.devices.ay;
+
+import com.fpetrola.oozx.speccy.peripherals.Periph;
+
+import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
 
 import com.fpetrola.oozx.speccy.modules.Sound;
-import com.fpetrola.oozx.speccy.ports.AyPortHandler;
-import com.fpetrola.oozx.speccy.ports.AyRegisters;
-import com.fpetrola.oozx.speccy.sound.Ay;
 import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.List;
@@ -84,8 +85,13 @@ public class AyPeripheral extends AbstractZxPeripheral {
     }
   }
 
-  /** The chip, once there is one; null on a machine that has not switched this on. */
-  public Ay chip() {
-    return chip;
+  /**
+   * How much has reached the chip, which is how you tell it is wired up at all.
+   * <p>
+   * The count and not the chip: the chip is this package's business, and handing it out is
+   * what kept it public.
+   */
+  public long writes() {
+    return chip == null ? 0 : chip.writes;
   }
 }

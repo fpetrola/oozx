@@ -27,7 +27,7 @@ import com.fpetrola.oozx.speccy.modules.Keyboard;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.modules.z80.Z80;
 import com.fpetrola.oozx.speccy.peripherals.IPeriph;
-import com.fpetrola.oozx.speccy.peripherals.MelodikPeripheral;
+import com.fpetrola.oozx.speccy.devices.ay.MelodikPeripheral;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.google.inject.Inject;

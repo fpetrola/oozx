@@ -30,7 +30,7 @@ import com.google.inject.Inject;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
-import com.fpetrola.oozx.speccy.peripherals.AyPlus3Peripheral;
+import com.fpetrola.oozx.speccy.devices.ay.AyPlus3Peripheral;
 import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.oozx.speccy.modules.Display;
 import com.fpetrola.oozx.speccy.modules.EventManager;
