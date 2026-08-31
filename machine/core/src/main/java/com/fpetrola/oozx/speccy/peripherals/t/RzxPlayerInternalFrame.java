@@ -59,8 +59,13 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   /** A Spectrum frame, so a paced replay runs at the speed it was recorded at. */
   private static final int FRAME_MILLIS = 20;
   private static final int REFRESH_MILLIS = 100;
-  /** How near an edge a drag has to finish for the player to attach to it. */
-  private static final int STICKY = 24;
+  /**
+   * How near its resting place a drag has to finish for the player to attach.
+   * <p>
+   * Measured from where it would sit, which is a seam inside the machine's outline, so the reach
+   * has to cover that seam as well as the slack in somebody's aim.
+   */
+  private static final int STICKY = 40;
   /** How long the window has to stand still before a drag counts as finished. */
   private static final int SETTLE_MILLIS = 180;
   /**
@@ -405,25 +410,30 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
     Rectangle m = machineWindow.getBounds(), me = getBounds();
     Dock nearest = Dock.FREE;
     int closest = STICKY;
+    // Measured against where it would SIT if attached, not against the machine's outline. The
+    // two are a seam apart, and measuring to the outline meant that the moment docking placed
+    // the window - a seam inside the edge - the next look found it exactly a seam away and let
+    // go again. With the seam at 24 and the reach at 24, "closer than" was never true and the
+    // window attached and detached in the same breath: it moved into place and never held.
     if (me.x < m.x + m.width && m.x < me.x + me.width) {
-      int under = Math.abs(me.y - (m.y + m.height));
+      int under = Math.abs(me.y - (m.y + m.height - seam()));
       if (under < closest) {
         closest = under;
         nearest = Dock.BOTTOM;
       }
-      int over = Math.abs(me.y + me.height - m.y);
+      int over = Math.abs(me.y - (m.y - me.height + seam()));
       if (over < closest) {
         closest = over;
         nearest = Dock.TOP;
       }
     }
     if (me.y < m.y + m.height && m.y < me.y + me.height) {
-      int right = Math.abs(me.x - (m.x + m.width));
+      int right = Math.abs(me.x - (m.x + m.width - sideSeam()));
       if (right < closest) {
         closest = right;
         nearest = Dock.RIGHT;
       }
-      int left = Math.abs(me.x + me.width - m.x);
+      int left = Math.abs(me.x - (m.x - me.width + sideSeam()));
       if (left < closest) {
         closest = left;
         nearest = Dock.LEFT;

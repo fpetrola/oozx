@@ -112,6 +112,8 @@ class RzxPlayerDockingTest {
 
     // Left just past the machine's right-hand edge, overlapping it vertically.
     player.setBounds(400 + 100 + 6, 150, 300, 120);
+    assertTrue(sideSeam(machine, player) < 40,
+        "the reach has to cover the seam, or nothing on that side can ever attach");
     player.snapIfNear();
     assertEquals(RzxPlayerInternalFrame.Dock.RIGHT, player.dockedTo(),
         "did not attach to the side it was left against");
@@ -163,6 +165,13 @@ class RzxPlayerDockingTest {
     player.setBounds(104, 100 + 300 + 5, 300, 120);
     player.snapIfNear();
     assertEquals(RzxPlayerInternalFrame.Dock.BOTTOM, player.dockedTo(), "did not take hold again");
+
+    // And having taken hold, looking again must not undo it. This is what went wrong in the
+    // running program: placing the window put it a seam inside the edge, the next look measured
+    // that seam against the reach, and it let go of itself without anybody touching it.
+    player.snapIfNear();
+    assertEquals(RzxPlayerInternalFrame.Dock.BOTTOM, player.dockedTo(),
+        "let go of itself the second time it looked");
 
     machine.setBounds(250, 260, 400, 300);
     settle();
