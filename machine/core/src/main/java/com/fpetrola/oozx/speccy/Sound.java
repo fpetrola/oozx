@@ -26,6 +26,7 @@ import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.modules.ZxModule;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.peripherals.*;
+import com.fpetrola.oozx.speccy.sound.Beeper;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 import com.fpetrola.oozx.speccy.sound.blip.BlipBuffer;
 import com.fpetrola.oozx.speccy.sound.blip.BlipSynth;
@@ -53,7 +54,6 @@ public class Sound implements ZxModule, MachineChangeListener {
   // Constants
   public final int AMPL_BEEPER = 50 * 256;
   public final int AMPL_TAPE = 2 * 256;
-  private int[] beeperAmpl = new int[]{0, AMPL_TAPE, AMPL_BEEPER, AMPL_BEEPER + AMPL_TAPE};
   public static final int AMPL_AY_TONE = 24 * 256;
   public final int AY_CHANGE_MAX = 8000;
   public final int MIN_SPEED_PERCENTAGE = 2; // Adjusted for non-Win32
@@ -67,7 +67,6 @@ public class Sound implements ZxModule, MachineChangeListener {
   private JavaSoundDevice javaSoundDevice;
 
   private SpectrumMachine spectrumMachine;
-  private int lastVal;
 
 @Inject
   public Sound(Settings settings, Movie movie, IPeriph periph, Tape tape, SpectrumZ80Clock clock,
@@ -111,6 +110,7 @@ public class Sound implements ZxModule, MachineChangeListener {
   private int[] outputSamples;
 
   private BlipSynth leftBeeperSynth;
+  private Beeper beeperSource;
 
   private BlipSynth rightBeeperSynth;
   private BlipSynth ayMixSynth;
@@ -259,6 +259,7 @@ public class Sound implements ZxModule, MachineChangeListener {
     soundFrameSize = (int) (soundFreq / hz) + 1;
     outputSamples = new int[soundFrameSize * 2];
     aySamples = new int[soundFrameSize * 2];
+    beeperSource = new Beeper(leftBeeperSynth, soundFrameSize, tape, settings);
 
     if (!(initContext instanceof Boolean bool1) || bool1)
       soundEnabled = true;
@@ -287,20 +288,7 @@ public class Sound implements ZxModule, MachineChangeListener {
     if (!soundEnabled) {
       return;
     }
-    if (tape.isTapePlaying()) {
-      if (!settings.current.soundLoad || spectrumMachine.isTimex()) {
-        on &= 0x02;
-      }
-    } else {
-      if (on == 1)
-        on = 0;
-    }
-    int val = beeperAmpl[on];
-    lastVal = val;
-    leftBeeperSynth.update(tstates, val);
-    if (rightBeeperSynth != null) {
-      rightBeeperSynth.update(tstates, val);
-    }
+    beeperSource.write(tstates, on, spectrumMachine.isTimex());
   }
 
   // ========================================================================
@@ -345,7 +333,7 @@ public class Sound implements ZxModule, MachineChangeListener {
 
     ayOverlay(frameTstates);
 
-    leftBeeperSynth.endFrame(frameTstates);
+    beeperSource.endFrame(frameTstates);
     ayMixSynth.endFrame(frameTstates);
 //    if (rightBuf != null)
 //      rightBuf.endFrame(frameTstates);
@@ -356,7 +344,10 @@ public class Sound implements ZxModule, MachineChangeListener {
 //      rightBuf.readSamples(outputSamples, count, true); // interleave
 //      count *= 2;
     } else {
-      count = leftBeeperSynth.readSamples(outputSamples, soundFrameSize, true);
+      // Every source adds itself in, so the mix has to start at nothing and no source has to
+      // know whether it is the first one.
+      Arrays.fill(outputSamples, 0);
+      count = beeperSource.mixInto(outputSamples, soundFrameSize);
       // The chip on top of the beeper: a 128K makes both at once, and each synth here keeps its
       // own buffer, so they meet by being added rather than by writing into a shared one.
       int ayCount = ayMixSynth.readSamples(aySamples, soundFrameSize, true);
@@ -576,7 +567,7 @@ public class Sound implements ZxModule, MachineChangeListener {
 
   public void close() {
     if (soundEnabled) {
-      leftBeeperSynth.close();
+      beeperSource.close();
       soundEnabled = false;
     }
   }
