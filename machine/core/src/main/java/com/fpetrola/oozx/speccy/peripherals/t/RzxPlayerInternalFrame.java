@@ -30,6 +30,8 @@ import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +59,8 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   /** A Spectrum frame, so a paced replay runs at the speed it was recorded at. */
   private static final int FRAME_MILLIS = 20;
   private static final int REFRESH_MILLIS = 100;
+  /** How near an edge a drag has to finish for the player to attach to it. */
+  private static final int STICKY = 24;
 
   private enum Mode { EMPTY, STOPPED, PLAYING, TAKEN_OVER, FINISHED }
 
@@ -102,6 +106,30 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
       EmulatorInternalFrame.iconButton("1F579.svg", "Take Over", null);
   private final PartsTableModel model = new PartsTableModel();
   private final JTable table = new JTable(model);
+  /** The list of parts, which is everything the compact form hides. */
+  private final JScrollPane parts = new JScrollPane(table);
+  private final JPanel controls = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+
+  /**
+   * Where the player sits against its machine's window, if it sits against it at all.
+   * <p>
+   * Bottom by default because that is where it belongs: the controls for a picture go under the
+   * picture, the same width, the way the transport bar of anything else does.
+   */
+  public enum Dock { FREE, BOTTOM, TOP, LEFT, RIGHT }
+
+  private Dock dock = Dock.BOTTOM;
+  private boolean compact = true;
+  /**
+   * Set while THIS code is moving the window, so that its own placement is not mistaken for
+   * somebody dragging it. Without it, docking moves the window, the move looks like a drag, the
+   * drag re-docks, and the two feed each other.
+   */
+  private boolean placing;
+  private JToggleButton dockButton;
+  private JToggleButton expandButton;
+  /** Watches the machine's window so the player follows it about while attached. */
+  private ComponentAdapter machineWatcher;
 
   public RzxPlayerInternalFrame(int number, Function<RzxPlayerInternalFrame, File> chooseRecording,
                                 BiConsumer<RzxPlayerInternalFrame, RzxSession> showMachine) {
@@ -120,7 +148,7 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
     takeOverButton.setToolTipText(
         "Stops the recording and leaves the machine playable, exactly where the recording is");
 
-    JPanel controls = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+    // The controls panel is a field now: the compact form is measured from it.
     // Same trimmed buttons as every other toolbar; without this they keep the default padding
     // and this window's buttons look bigger than the rest of the application's.
     controls.add(openButton);
@@ -135,6 +163,20 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
       if (onFavorite != null) onFavorite.run();
     });
     controls.add(favoriteButton);
+
+    expandButton = EmulatorInternalFrame.iconToggle("expand-panel.svg", "Expand",
+        "Show what is in the recording, or just the controls");
+    expandButton.addActionListener(e -> setCompact(!expandButton.isSelected()));
+    controls.add(expandButton);
+
+    dockButton = EmulatorInternalFrame.iconToggle("dock-bottom.svg", "Attach",
+        "Keep this under the machine's window, the same width as it");
+    dockButton.setSelected(true);
+    dockButton.addActionListener(e -> {
+      dock = dockButton.isSelected() ? Dock.BOTTOM : Dock.FREE;
+      place();
+    });
+    controls.add(dockButton);
     EmulatorInternalFrame.tighten(controls);
 
     table.setRowHeight(22);
@@ -147,7 +189,19 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
     top.add(controls, BorderLayout.NORTH);
     setLayout(new BorderLayout());
     add(top, BorderLayout.NORTH);
-    add(new JScrollPane(table), BorderLayout.CENTER);
+    add(parts, BorderLayout.CENTER);
+    parts.setVisible(false);                    // compact until asked otherwise
+
+    // Sticky edges: a drag that finishes near the machine's window attaches to whichever side it
+    // finished nearest, and one that finishes away from it lets go.
+    addComponentListener(new ComponentAdapter() {
+      @Override
+      public void componentMoved(ComponentEvent moved) {
+        if (!placing) {
+          snapIfNear();
+        }
+      }
+    });
 
     Timer refresh = new Timer(REFRESH_MILLIS, e -> refresh());
     refresh.start();
@@ -206,7 +260,123 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   }
 
   public void setMachineWindow(JInternalFrame machineWindow) {
+    if (this.machineWindow != null && machineWatcher != null) {
+      this.machineWindow.removeComponentListener(machineWatcher);
+    }
     this.machineWindow = machineWindow;
+    if (machineWindow != null) {
+      machineWatcher = new ComponentAdapter() {
+        @Override
+        public void componentMoved(ComponentEvent moved) {
+          place();
+        }
+
+        @Override
+        public void componentResized(ComponentEvent resized) {
+          place();
+        }
+      };
+      machineWindow.addComponentListener(machineWatcher);
+      place();
+    }
+  }
+
+  /**
+   * How tall this is with the list hidden: the toolbar and the title bar, and nothing else.
+   * <p>
+   * Asked of the frame rather than added up by hand. A JInternalFrame's insets are its border
+   * alone - the title bar is a component inside it, not an inset - so adding the toolbar to the
+   * insets comes out a title bar short, and the compact form loses its bottom row of buttons.
+   * The layout already skips what is not visible, so with the list hidden the preferred height is
+   * exactly the compact height.
+   */
+  private int compactHeight() {
+    boolean showing = parts.isVisible();
+    parts.setVisible(false);
+    int tall = getPreferredSize().height;
+    parts.setVisible(showing);
+    return tall;
+  }
+
+  /** Puts the player against its machine, if it is attached to it. */
+  private void place() {
+    if (machineWindow == null || machineWindow.isClosed() || dock == Dock.FREE) {
+      return;
+    }
+    Rectangle m = machineWindow.getBounds();
+    int tall = compact ? compactHeight() : Math.max(compactHeight(), 260);
+    placing = true;
+    try {
+      switch (dock) {
+        case BOTTOM -> setBounds(m.x, m.y + m.height, m.width, tall);
+        case TOP -> setBounds(m.x, Math.max(0, m.y - tall), m.width, tall);
+        case LEFT -> setBounds(Math.max(0, m.x - getWidth()), m.y, getWidth(), m.height);
+        case RIGHT -> setBounds(m.x + m.width, m.y, getWidth(), m.height);
+        default -> { }
+      }
+    } finally {
+      placing = false;
+    }
+  }
+
+  /**
+   * Attaches to whichever side of the machine's window this one was left nearest, or lets go.
+   * <p>
+   * Only the sides it actually overlaps count: a player dragged well below and to the right of
+   * the machine is near its bottom edge by one measure and near nothing by eye.
+   */
+  void snapIfNear() {
+    if (machineWindow == null || machineWindow.isClosed()) {
+      return;
+    }
+    Rectangle m = machineWindow.getBounds(), me = getBounds();
+    Dock nearest = Dock.FREE;
+    int closest = STICKY;
+    if (me.x < m.x + m.width && m.x < me.x + me.width) {
+      int under = Math.abs(me.y - (m.y + m.height));
+      if (under < closest) {
+        closest = under;
+        nearest = Dock.BOTTOM;
+      }
+      int over = Math.abs(me.y + me.height - m.y);
+      if (over < closest) {
+        closest = over;
+        nearest = Dock.TOP;
+      }
+    }
+    if (me.y < m.y + m.height && m.y < me.y + me.height) {
+      int right = Math.abs(me.x - (m.x + m.width));
+      if (right < closest) {
+        closest = right;
+        nearest = Dock.RIGHT;
+      }
+      int left = Math.abs(me.x + me.width - m.x);
+      if (left < closest) {
+        closest = left;
+        nearest = Dock.LEFT;
+      }
+    }
+    dock = nearest;
+    dockButton.setSelected(nearest != Dock.FREE);
+    place();
+  }
+
+  /** Which side of the machine's window this is attached to, or FREE. */
+  Dock dockedTo() {
+    return dock;
+  }
+
+  /** The compact form is the controls alone; expanded adds what is in the recording. */
+  void setCompact(boolean wanted) {
+    compact = wanted;
+    parts.setVisible(!wanted);
+    if (dock == Dock.FREE) {
+      setSize(getWidth(), wanted ? compactHeight() : Math.max(compactHeight(), 260));
+    } else {
+      place();
+    }
+    revalidate();
+    repaint();
   }
 
   public void setOnFavorite(Runnable onFavorite) {
