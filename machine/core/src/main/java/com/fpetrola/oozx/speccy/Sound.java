@@ -26,6 +26,7 @@ import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.modules.ZxModule;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.peripherals.*;
+import com.fpetrola.oozx.speccy.sound.AudioOutput;
 import com.fpetrola.oozx.speccy.sound.AudioSource;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 import com.fpetrola.oozx.speccy.sound.blip.BlipBuffer;
@@ -34,7 +35,7 @@ import com.fpetrola.oozx.speccy.sound.blip.BlipSynth;
 import java.util.Arrays;
 
 @Singleton
-public class Sound implements ZxModule, MachineChangeListener {
+public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
 
   public void pause() {
     if (soundEnabled) {
@@ -82,8 +83,6 @@ public class Sound implements ZxModule, MachineChangeListener {
   private final java.util.List<AudioSource> sources = new java.util.ArrayList<>();
 
   public int soundFreq = 44100;
-  public int volumeBeeper = 100;
-  public int volumeAY = 100;
   public int speakerType = 0; // 0=Small, 1=Large TV, 2=None
   private final double[] speakerTreble = {-37.0, -67.0, 0.0};
 
@@ -165,11 +164,13 @@ public class Sound implements ZxModule, MachineChangeListener {
   }
 
   /** A synth wired for this output, for whoever is going to make samples with it. */
+  @Override
   public BlipSynth newSynth(int volume) {
     return new BlipSynth(BlipBuffer.BLIP_HIGH_QUALITY, soundFreq, 1000, effectiveSpeed, bass,
         getVolume(volume), treble);
   }
 
+  @Override
   public int frameSize() {
     return soundFrameSize;
   }

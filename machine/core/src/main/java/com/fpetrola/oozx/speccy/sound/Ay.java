@@ -18,7 +18,6 @@
 
 package com.fpetrola.oozx.speccy.sound;
 
-import com.fpetrola.oozx.speccy.Sound;
 import com.fpetrola.oozx.speccy.sound.blip.BlipSynth;
 
 import java.util.Arrays;
@@ -83,15 +82,18 @@ public class Ay implements AudioSource {
   /** How many times the chip has been written to, which is how you tell it is wired up. */
   public long writes;
 
-  public Ay(Sound sound) {
-    takeOutputFrom(sound);
+  /** How loud this chip is, which is the chip's business. */
+  private int volume = 100;
+
+  public Ay(AudioOutput output) {
+    takeOutputFrom(output);
     reset();
   }
 
   @Override
-  public void takeOutputFrom(Sound sound) {
-    synth = sound.newSynth(sound.volumeAY);
-    scratch = new int[sound.frameSize() * 2];
+  public void takeOutputFrom(AudioOutput output) {
+    synth = output.newSynth(volume);
+    scratch = new int[output.frameSize() * 2];
   }
 
   public void write(int register, int value, long tstates) {

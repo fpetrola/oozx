@@ -18,8 +18,6 @@
 
 package com.fpetrola.oozx.speccy.sound;
 
-import com.fpetrola.oozx.speccy.Sound;
-
 /**
  * Something a machine makes a noise with, asked once a frame.
  * <p>
@@ -36,7 +34,7 @@ public interface AudioSource {
    * Called when the output is built and again whenever it is rebuilt, which happens on a change
    * of speed: a synth is made for a speed, and one made for the old one plays at the wrong rate.
    */
-  void takeOutputFrom(Sound sound);
+  void takeOutputFrom(AudioOutput output);
 
   /** Close this source's frame at the machine's frame length. */
   void endFrame(int frameTstates);
