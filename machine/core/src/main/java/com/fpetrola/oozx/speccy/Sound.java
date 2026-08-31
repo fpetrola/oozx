@@ -83,17 +83,9 @@ public class Sound implements ZxModule, MachineChangeListener {
   /** Everything making a noise on this machine, asked once a frame. */
   private final java.util.List<AudioSource> sources = new java.util.ArrayList<>();
 
-  private BlipSynth leftSpecdrumSynth;
-
-  private BlipSynth rightSpecdrumSynth;
-  private BlipSynth leftCovoxSynth;
-  private BlipSynth rightCovoxSynth;
-
   public int soundFreq = 44100;
   public int volumeBeeper = 100;
   public int volumeAY = 100;
-  public int volumeSpecdrum = 100;
-  public int volumeCovox = 100;
   public int speakerType = 0; // 0=Small, 1=Large TV, 2=None
   private final double[] speakerTreble = {-37.0, -67.0, 0.0};
 
@@ -224,28 +216,6 @@ public class Sound implements ZxModule, MachineChangeListener {
    * away, so every channel read as whatever it had been. And the square wave was flipped by
    * negating it, which leaves nought as nought - it started low and stayed there.
    */
-
-  public void specdrumWrite(long tstates, int value) {
-    if (!hasSpecdrum()) return;
-    int sample = (value - 128) * 128;
-    leftSpecdrumSynth.update(tstates, sample);
-    if (rightSpecdrumSynth != null) rightSpecdrumSynth.update(tstates, sample);
-  }
-
-  public void covoxWrite(long tstates, int value) {
-    if (!hasCovox()) return;
-    int sample = value * 128;
-    leftCovoxSynth.update(tstates, sample);
-    if (rightCovoxSynth != null) rightCovoxSynth.update(tstates, sample);
-  }
-
-  private boolean hasSpecdrum() {
-    return leftSpecdrumSynth != null;
-  }
-
-  private boolean hasCovox() {
-    return leftCovoxSynth != null;
-  }
 
   public void close() {
     if (soundEnabled) {
