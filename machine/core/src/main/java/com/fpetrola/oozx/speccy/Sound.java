@@ -80,6 +80,7 @@ public class Sound implements ZxModule, MachineChangeListener {
   private BlipSynth leftBeeperSynth;
   private Beeper beeperSource;
   private Ay aySource;
+  private BlipSynth ayMixSynth;
   /** Everything making a noise on this machine, asked once a frame. */
   private final java.util.List<AudioSource> sources = new java.util.ArrayList<>();
 
@@ -139,10 +140,10 @@ public class Sound implements ZxModule, MachineChangeListener {
     // It used to be asked of a method here that answered true for every machine, so a 48K spent
     // two thousand two hundred ticks a frame synthesising a chip it has not got, into silence,
     // because its ports never reach one. A machine that has no chip now has no chip.
-    aySource = spectrumMachine != null && spectrumMachine.has(MachineCapability.AY)
-        ? new Ay(ayMixSynth, soundFrameSize) : null;
-    if (aySource != null) {
-      sources.add(aySource);
+    this.ayMixSynth = ayMixSynth;
+    aySource = null;
+    if (spectrumMachine != null && spectrumMachine.has(MachineCapability.AY)) {
+      attachSoundChip();
     }
 
     if (!(initContext instanceof Boolean bool1) || bool1)
@@ -164,6 +165,21 @@ public class Sound implements ZxModule, MachineChangeListener {
       return;
     }
     beeperSource.write(tstates, on, spectrumMachine.isTimex());
+  }
+
+  /**
+   * There is a sound chip to be heard now.
+   * <p>
+   * A machine with one of its own says so as the sound is set up. A box with one in it says so
+   * later, when it is worked out what is plugged in - which happens after, so this is how a 48K
+   * with a Melodik in it comes to make music.
+   */
+  public void attachSoundChip() {
+    if (aySource != null || ayMixSynth == null) {
+      return;
+    }
+    aySource = new Ay(ayMixSynth, soundFrameSize);
+    sources.add(aySource);
   }
 
   public void ayWrite(int reg, int val, long tstates) {

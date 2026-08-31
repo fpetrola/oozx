@@ -36,6 +36,7 @@ import com.fpetrola.oozx.speccy.peripherals.Upd765Peripheral;
 import com.fpetrola.oozx.speccy.peripherals.SeMemoryPeripheral;
 import com.fpetrola.oozx.speccy.peripherals.AyPeripheral;
 import com.fpetrola.oozx.speccy.peripherals.AyPlus3Peripheral;
+import com.fpetrola.oozx.speccy.peripherals.MelodikPeripheral;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.google.inject.Inject;
@@ -159,6 +160,10 @@ public class Speccy {
     display.start();
     joystick.start();
     keyboard.start();
+
+    // Expansions, which belong to no machine: a box somebody plugged in, offered to every machine
+    // that will take one. What a machine is made of it registers itself; this is the other kind.
+    periph.register(new MelodikPeripheral(sound, zxClock, () -> settings.current.melodik));
 
     spec48.start();
     timer.start();

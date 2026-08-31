@@ -80,7 +80,7 @@ public class Periph implements IPeriph {
     KEMPSTON(KempstonStrictPeripheral.class),
     KEMPSTON_LOOSE(KempstonLoosePeriphPeripheral.class),
     KEMPSTON_MOUSE,
-    MELODIK,
+    MELODIK(MelodikPeripheral.class),
     MULTIFACE_1,
     MULTIFACE_128,
     MULTIFACE_3,
