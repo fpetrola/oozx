@@ -132,10 +132,18 @@ public class Sound implements ZxModule, MachineChangeListener {
     soundFrameSize = (int) (soundFreq / hz) + 1;
     outputSamples = new int[soundFrameSize * 2];
     beeperSource = new Beeper(leftBeeperSynth, soundFrameSize, tape, settings);
-    aySource = new Ay(ayMixSynth, soundFrameSize);
     sources.clear();
+    // Every Spectrum has a speaker.
     sources.add(beeperSource);
-    sources.add(aySource);
+    // The sound chip is in the list when the machine has one, and that is the whole question.
+    // It used to be asked of a method here that answered true for every machine, so a 48K spent
+    // two thousand two hundred ticks a frame synthesising a chip it has not got, into silence,
+    // because its ports never reach one. A machine that has no chip now has no chip.
+    aySource = spectrumMachine != null && spectrumMachine.has(MachineCapability.AY)
+        ? new Ay(ayMixSynth, soundFrameSize) : null;
+    if (aySource != null) {
+      sources.add(aySource);
+    }
 
     if (!(initContext instanceof Boolean bool1) || bool1)
       soundEnabled = true;
@@ -159,11 +167,15 @@ public class Sound implements ZxModule, MachineChangeListener {
   }
 
   public void ayWrite(int reg, int val, long tstates) {
-    aySource.write(reg, val, tstates);
+    if (aySource != null) {
+      aySource.write(reg, val, tstates);
+    }
   }
 
   public void ayReset() {
-    aySource.reset();
+    if (aySource != null) {
+      aySource.reset();
+    }
   }
 
   /** How many times the sound chip has been written to, which is how you tell it is wired up. */
