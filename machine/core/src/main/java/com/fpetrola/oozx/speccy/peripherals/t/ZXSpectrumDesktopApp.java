@@ -181,8 +181,9 @@ class EmulatorInternalFrame extends JInternalFrame {
     speedBar.setMinimumSize(new Dimension(100, 24));
 
     // Model Combo
-    String[] models = {"Spectrum 16K", "Spectrum 48K", "Spectrum 128K", "Spectrum Plus 2", "Spectrum Plus 3", "Pentagon"};
-    modelCombo = new JComboBox<>(models);
+    // Asked for, not written out again: the hand-written list had no +2A, no +3e and no NTSC,
+    // so selecting one of those found nothing in the box and left it naming the machine before.
+    modelCombo = new JComboBox<>(emulatorCore.getMachineModels().toArray(new String[0]));
     modelCombo.setRenderer(new CustomComboBox());
     modelCombo.setSelectedItem(emulatorCore.getCurrentModel());
     modelCombo.setPreferredSize(new Dimension(80, 10));

@@ -63,6 +63,8 @@ public interface EmulatorCore {
 
   String getCurrentModel(); // New: Get current machine model
 
+  java.util.List<String> getMachineModels();
+
   boolean isPaused(); // New: Check if paused
 
   boolean isTurboMode(); // New: Check if turbo mode is on

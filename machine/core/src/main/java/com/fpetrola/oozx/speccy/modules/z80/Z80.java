@@ -400,39 +400,17 @@ public class Z80 implements ZxModule, Cpu {
       default -> Spec48.class;
     };
     if (machine.current != null && machine.current.getClass() == wanted) {
-      announce(wanted);
       return;
     }
     machine.getMachineTypes().stream().filter(m -> m.getClass() == wanted).findFirst()
         .ifPresentOrElse(type -> {
           machine.selectDefault();
           machine.select(type);
-          announce(wanted);
         }, () -> userInterface.error(UiError.ERROR,
             "this build has no %s, so the snapshot is loaded into the machine already running",
             wanted.getSimpleName()));
   }
 
-  /**
-   * Tells the emulator which machine it has become, so the window agrees with the machine.
-   * <p>
-   * Choosing a machine for a snapshot changed the machine and told nobody, so the indicator went
-   * on naming whatever it had been started as - a 128K game running under a label saying 48K.
-   * Said even when nothing changed, because the label may be left over from the game before.
-   */
-  private void announce(Class<?> machineClass) {
-    if (mockCore == null) {
-      return;
-    }
-    String name = machineClass == Spec128.class ? "Spectrum 128K"
-        : machineClass == SpecPlus2.class ? "Spectrum Plus 2"
-        : machineClass == SpecPlus2A.class ? "Spectrum Plus 2"
-        : machineClass == SpecPlus3.class ? "Spectrum Plus 3"
-        : "Spectrum 48K";
-    if (!name.equals(mockCore.getCurrentModel())) {
-      mockCore.setMachineModel(name);
-    }
-  }
 
   /**
    * Copies the snapshot's eight banks into the machine's, then puts back the paging it was saved
@@ -520,6 +498,11 @@ public class Z80 implements ZxModule, Cpu {
   }
 
   public JFrame createScreen(KeyListener keyListener, JComponent contentPane) {
+    // Whatever changes the machine - a tape named for a 128K, a snapshot, the box itself -
+    // says so once, here, instead of each caller remembering to announce it.
+    machine.addMachineChangeListener(newMachine -> {
+      if (mockCore != null) mockCore.setMachineModel(newMachine.getName());
+    });
     mockCore = new MockEmulatorCore(contentPane) {
       private String filename;
       private boolean turbo = settings.current.emulationSpeed != 100;
@@ -535,6 +518,29 @@ public class Z80 implements ZxModule, Cpu {
       @Override
       public String getCurrentModel() {
         return machine.current == null ? super.getCurrentModel() : machine.current.getName();
+      }
+
+      /** The machines this build has, so the list is not a copy of them that can go stale. */
+      @Override
+      public java.util.List<String> getMachineModels() {
+        return machine.getMachineTypes().stream().map(com.fpetrola.oozx.speccy.machine.SpectrumMachine::getName).toList();
+      }
+
+      /**
+       * Picking one from the list becomes a machine, which it did not: this was inherited and
+       * only printed. Nothing to do when it names the machine already running - and there is
+       * something, because setting the box from a machine change fires this straight back.
+       */
+      @Override
+      public void setMachineModel(String name) {
+        if (machine.current != null && name.equals(machine.current.getName())) {
+          return;
+        }
+        machine.getMachineTypes().stream().filter(type -> type.getName().equals(name))
+            .findFirst().ifPresent(type -> {
+              machine.selectDefault();
+              machine.select(type);
+            });
       }
 
 

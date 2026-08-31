@@ -166,6 +166,11 @@ public class MockEmulatorCore implements EmulatorCore {
   }
 
   @Override
+  public java.util.List<String> getMachineModels() {
+    return java.util.List.of(currentModel);
+  }
+
+  @Override
   public boolean isPaused() {
     return paused;
   }
