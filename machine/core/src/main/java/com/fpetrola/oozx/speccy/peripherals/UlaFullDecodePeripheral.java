@@ -24,7 +24,20 @@ import com.fpetrola.oozx.speccy.ports.UlaFullDecodePortHandler;
 import java.util.List;
 
 public class UlaFullDecodePeripheral extends AbstractZxPeripheral {
+
+  private final Ula ula;
   public UlaFullDecodePeripheral(Ula ula) {
     super(Periph.Type.ULA_FULL_DECODE, List.of(new UlaFullDecodePortHandler(ula)));
+    this.ula = ula;
+  }
+  @Override
+  public boolean canActivate() {
+    return true;
+  }
+
+  /** Every machine has a speaker, and it is part of the ULA. */
+  @Override
+  public void activate() {
+    ula.attachSpeaker();
   }
 }

@@ -24,6 +24,7 @@ import com.google.inject.Inject;
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.speccy.Sound;
+import com.fpetrola.oozx.speccy.sound.Beeper;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.peripherals.IPeriph;
@@ -63,6 +64,8 @@ public class Ula implements ZxModule, MachineChangeListener {
   private final Tape tape;
   private SpectrumMachine spectrumMachine;
   private Sound sound;
+  /** The speaker, which is part of this and not a thing anybody plugged in. */
+  private Beeper speaker;
 
 @Inject
   public Ula(Memory memory, Display display, Keyboard keyboard, SpectrumZ80Clock z80Clock, IPeriph periph, Module module, Settings settings, Tape tape, Sound sound) {
@@ -78,6 +81,17 @@ public class Ula implements ZxModule, MachineChangeListener {
   }
 
   // Initialize ULA module
+  /**
+   * Takes a speaker for the machine now running.
+   * <p>
+   * Made when this is switched on rather than when it is built, because the sound is set up for
+   * a machine after that machine has said what it contains - the same door a sound chip comes
+   * through. Every Spectrum has one of these, so it comes through it every time.
+   */
+  public void attachSpeaker() {
+    speaker = sound.add(new Beeper(sound.newSynth(sound.volumeBeeper), sound.frameSize(), tape, settings));
+  }
+
   public void start() {
     periph.register(new UlaPeripheral(this));
     periph.register(new UlaFullDecodePeripheral(this));
@@ -124,8 +138,11 @@ public class Ula implements ZxModule, MachineChangeListener {
       // Sampling it here rather than on every edge is enough because a loader writes the border
       // once per edge to draw the stripes, so this runs at the rate of the signal itself.
       boolean earIn = tape.isTapePlaying() && tape.isEarHigh();
-      sound.beeper(z80Clock.getTStates(),
-          ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || tape.microphone || earIn ? 1 : 0), b & 0xff);
+      if (speaker != null) {
+        speaker.write(z80Clock.getTStates(),
+            ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || tape.microphone || earIn ? 1 : 0),
+            getCurrent().isTimex());
+      }
 
 //    sound.beeper(z80Clock.getTStates(), (int) (Math.random() * 4));
 

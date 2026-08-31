@@ -27,7 +27,6 @@ import com.fpetrola.oozx.speccy.modules.ZxModule;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.peripherals.*;
 import com.fpetrola.oozx.speccy.sound.AudioSource;
-import com.fpetrola.oozx.speccy.sound.Beeper;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 import com.fpetrola.oozx.speccy.sound.blip.BlipBuffer;
 import com.fpetrola.oozx.speccy.sound.blip.BlipSynth;
@@ -79,8 +78,6 @@ public class Sound implements ZxModule, MachineChangeListener {
   private double treble;
   private int[] outputSamples;
 
-  private BlipSynth leftBeeperSynth;
-  private Beeper beeperSource;
   /** Everything making a noise on this machine, asked once a frame. */
   private final java.util.List<AudioSource> sources = new java.util.ArrayList<>();
 
@@ -122,17 +119,10 @@ public class Sound implements ZxModule, MachineChangeListener {
 
     this.treble = speakerTreble[speakerType];
     this.bass = speakerBass[speakerType];
-    double volume = getVolume(volumeBeeper);
-    leftBeeperSynth = new BlipSynth(BlipBuffer.BLIP_HIGH_QUALITY, soundFreq, 1000, effectiveSpeed, bass, volume, treble);
     double hz = (double) effectiveSpeed / tstatesPerFrame;
     soundFrameSize = (int) (soundFreq / hz) + 1;
     outputSamples = new int[soundFrameSize * 2];
-    beeperSource = new Beeper(leftBeeperSynth, soundFrameSize, tape, settings);
     sources.clear();
-    // Every Spectrum has a speaker. Anything else that makes a noise adds itself once it turns
-    // out to be there, which is after this: a chip a machine came with and a box somebody
-    // plugged in both arrive by that door.
-    sources.add(beeperSource);
     // The sound chip is in the list when the machine has one, and that is the whole question.
     // It used to be asked of a method here that answered true for every machine, so a 48K spent
     // two thousand two hundred ticks a frame synthesising a chip it has not got, into silence,
@@ -151,12 +141,6 @@ public class Sound implements ZxModule, MachineChangeListener {
     return volume / 100.0;
   }
 
-  public void beeper(long tstates, int on, int value) {
-    if (!soundEnabled) {
-      return;
-    }
-    beeperSource.write(tstates, on, spectrumMachine.isTimex());
-  }
 
   /** Something that makes a noise on this machine, from now until the machine changes. */
   public <T extends AudioSource> T add(T source) {

@@ -72,10 +72,12 @@ class BeeperMakesSoundTest {
     speccy.settings.current.sound = true;
 
     if (flapTheSpeaker) {
-      // A square wave by hand: the speaker bit up and down across the frame, which is all a
-      // program does to make a note on a machine that has nothing else.
+      // A square wave by hand, written to the port a program writes to: bit 4 of 0xFE is the
+      // speaker. It reaches the beeper through the ULA, which is what owns one, and there is no
+      // other way in - which is the point of it living there.
       for (int edge = 0; edge < 40; edge++) {
-        speccy.sound.beeper(edge * 800L, (edge & 1) == 0 ? 2 : 0, 0);
+        speccy.zxClock.setTStates(edge * 800);
+        speccy.periph.writePort(0x00FE, (byte) ((edge & 1) == 0 ? 0x10 : 0x00));
       }
     }
 
