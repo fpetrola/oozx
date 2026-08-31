@@ -54,12 +54,12 @@ class AySoundPortsTest {
 
   /** A register is chosen on one port and its value sent on the other. */
   private static long writeTwoRegisters(Speccy speccy) {
-    long before = speccy.sound.ayWrites;
+    long before = speccy.sound.ayWrites();
     speccy.periph.writePort(0xFFFD, (byte) 7);
     speccy.periph.writePort(0xBFFD, (byte) 0x38);
     speccy.periph.writePort(0xFFFD, (byte) 8);
     speccy.periph.writePort(0xBFFD, (byte) 0x0F);
-    return speccy.sound.ayWrites - before;
+    return speccy.sound.ayWrites() - before;
   }
 
   @Test

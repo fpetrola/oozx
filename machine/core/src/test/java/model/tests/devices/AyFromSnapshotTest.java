@@ -50,8 +50,8 @@ class AyFromSnapshotTest {
 
     assertTrue(session.getSpeccy().machine.current.has(AY),
         "Jet Set Willy 128K should have arrived on a machine with a sound chip");
-    assertTrue(session.getSpeccy().sound.ayWrites >= 16,
+    assertTrue(session.getSpeccy().sound.ayWrites() >= 16,
         "all sixteen registers should have been put back, and " 
-            + session.getSpeccy().sound.ayWrites + " writes reached the chip");
+            + session.getSpeccy().sound.ayWrites() + " writes reached the chip");
   }
 }

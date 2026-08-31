@@ -26,6 +26,8 @@ import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.modules.ZxModule;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.peripherals.*;
+import com.fpetrola.oozx.speccy.sound.AudioSource;
+import com.fpetrola.oozx.speccy.sound.Ay;
 import com.fpetrola.oozx.speccy.sound.Beeper;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 import com.fpetrola.oozx.speccy.sound.blip.BlipBuffer;
@@ -54,8 +56,6 @@ public class Sound implements ZxModule, MachineChangeListener {
   // Constants
   public final int AMPL_BEEPER = 50 * 256;
   public final int AMPL_TAPE = 2 * 256;
-  public static final int AMPL_AY_TONE = 24 * 256;
-  public final int AY_CHANGE_MAX = 8000;
   public final int MIN_SPEED_PERCENTAGE = 2; // Adjusted for non-Win32
   public final int MAX_SPEED_PERCENTAGE = 500;
   //  private Timer timer;
@@ -84,21 +84,9 @@ public class Sound implements ZxModule, MachineChangeListener {
     spectrumMachine = newMachine;
   }
 
-  private static final int AY_CLOCK_DIVISOR = 16;
 
-  private static final int AY_CLOCK_RATIO = 2;
-  private static final int[] AY_TONE_LEVELS = {
-      0x0000, 0x0385, 0x053D, 0x0770, 0x0AD7, 0x0FD5, 0x15B0, 0x230C,
-      0x2B4C, 0x43C1, 0x5A4B, 0x732F, 0x9204, 0xAFF1, 0xD921, 0xFFFF
-  };
 
-  private static final int[] ayToneLevelsScaled = new int[16];
 
-  static {
-    for (int i = 0; i < 16; i++) {
-      ayToneLevelsScaled[i] = (AY_TONE_LEVELS[i] * AMPL_AY_TONE + 0x8000) / 0xFFFF;
-    }
-  }
 
   // ========================================================================
   // Estado del sonido
@@ -111,17 +99,12 @@ public class Sound implements ZxModule, MachineChangeListener {
 
   private BlipSynth leftBeeperSynth;
   private Beeper beeperSource;
+  private Ay aySource;
+  /** Everything making a noise on this machine, asked once a frame. */
+  private final java.util.List<AudioSource> sources = new java.util.ArrayList<>();
 
   private BlipSynth rightBeeperSynth;
-  private BlipSynth ayMixSynth;
-  private int[] aySamples;
-  private BlipSynth ayASynth;
 
-  private BlipSynth ayBSynth;
-  private BlipSynth ayCSynth;
-  private BlipSynth ayASynthR;
-  private BlipSynth ayBSynthR;
-  private BlipSynth ayCSynthR;
   private BlipSynth leftSpecdrumSynth;
 
   private BlipSynth rightSpecdrumSynth;
@@ -131,26 +114,10 @@ public class Sound implements ZxModule, MachineChangeListener {
   // Estado del chip AY
   // ========================================================================
 
-  private final byte[] ayRegisters = new byte[16];
-  private int ayToneTick[] = new int[3];
-  private int ayToneHigh[] = new int[3];
-  private int ayTonePeriod[] = new int[3];
-  private int ayNoiseTick, ayNoisePeriod;
-  private int ayEnvTick, ayEnvInternalTick, ayEnvPeriod;
-  private int ayToneCycles, ayEnvCycles;
 
-  private static class AyChange {
 
-    long tstates;
-    int reg, val;
-  }
 
-  private final AyChange[] ayChanges = new AyChange[AY_CHANGE_MAX];
 
-  private int ayChangeCount = 0;
-  private int rng = 1;
-
-  private boolean noiseToggle = false;
   // ========================================================================
   // Configuración actual (simulación de settings_current)
   // ========================================================================
@@ -216,8 +183,8 @@ public class Sound implements ZxModule, MachineChangeListener {
     // One for the chip, alongside the one for the beeper. Fuse gives each AY channel its own
     // synth because it needs them apart to place two of them left and one right; in mono the
     // three are summed anyway, and a synth here owns its buffer rather than sharing one.
-    ayMixSynth = new BlipSynth(BlipBuffer.BLIP_HIGH_QUALITY, soundFreq, 1000, effectiveSpeed, bass,
-        getVolume(volumeAY), treble);
+    BlipSynth ayMixSynth = new BlipSynth(BlipBuffer.BLIP_HIGH_QUALITY, soundFreq, 1000, effectiveSpeed,
+        bass, getVolume(volumeAY), treble);
 
 //    if (stereoAY != 0) {
 //      rightBeeperSynth = new BlipSynth(BlipBuffer.BLIP_GOOD_QUALITY, 32768);
@@ -258,8 +225,11 @@ public class Sound implements ZxModule, MachineChangeListener {
     double hz = (double) effectiveSpeed / tstatesPerFrame;
     soundFrameSize = (int) (soundFreq / hz) + 1;
     outputSamples = new int[soundFrameSize * 2];
-    aySamples = new int[soundFrameSize * 2];
     beeperSource = new Beeper(leftBeeperSynth, soundFrameSize, tape, settings);
+    aySource = new Ay(ayMixSynth, soundFrameSize);
+    sources.clear();
+    sources.add(beeperSource);
+    sources.add(aySource);
 
     if (!(initContext instanceof Boolean bool1) || bool1)
       soundEnabled = true;
@@ -295,33 +265,21 @@ public class Sound implements ZxModule, MachineChangeListener {
   // AY-3-8912
   // ========================================================================
 
-  /** How many times the sound chip has been written to, which is how you tell it is wired up. */
-  public long ayWrites;
-
   public void ayWrite(int reg, int val, long tstates) {
-    ayWrites++;
-    if (ayChangeCount < AY_CHANGE_MAX) {
-      if (ayChanges[ayChangeCount] == null) ayChanges[ayChangeCount] = new AyChange();
-      AyChange ch = ayChanges[ayChangeCount++];
-      ch.tstates = tstates;
-      ch.reg = reg & 15;
-      ch.val = val;
-    }
+    aySource.write(reg, val, tstates);
   }
 
   public void ayReset() {
-    ayChangeCount = 0;
-    Arrays.fill(ayRegisters, (byte) 0);
-    Arrays.fill(ayTonePeriod, 1);
-    Arrays.fill(ayToneTick, 0);
-    Arrays.fill(ayTonePeriod, 1);
-    Arrays.fill(ayToneHigh, 0);
-    ayNoisePeriod = ayNoiseTick = 0;
-    ayEnvPeriod = ayEnvTick = ayEnvInternalTick = 0;
-    ayToneCycles = ayEnvCycles = 0;
-    rng = 1;
-    noiseToggle = false;
+    aySource.reset();
   }
+
+  /** How many times the sound chip has been written to, which is how you tell it is wired up. */
+  public long ayWrites() {
+    return aySource == null ? 0 : aySource.writes;
+  }
+
+
+
 
   // ========================================================================
   // Generación de frame de sonido (llamar al final de cada frame)
@@ -331,10 +289,9 @@ public class Sound implements ZxModule, MachineChangeListener {
     int frameTstates = spectrumMachine.getTimings().tstatesPerFrame;
     if (!soundEnabled) return;
 
-    ayOverlay(frameTstates);
-
-    beeperSource.endFrame(frameTstates);
-    ayMixSynth.endFrame(frameTstates);
+    for (AudioSource source : sources) {
+      source.endFrame(frameTstates);
+    }
 //    if (rightBuf != null)
 //      rightBuf.endFrame(frameTstates);
 
@@ -344,15 +301,11 @@ public class Sound implements ZxModule, MachineChangeListener {
 //      rightBuf.readSamples(outputSamples, count, true); // interleave
 //      count *= 2;
     } else {
-      // Every source adds itself in, so the mix has to start at nothing and no source has to
-      // know whether it is the first one.
+      // Every source adds itself in, so the mix starts at nothing and none of them has to know
+      // whether it went first.
       Arrays.fill(outputSamples, 0);
-      count = beeperSource.mixInto(outputSamples, soundFrameSize);
-      // The chip on top of the beeper: a 128K makes both at once, and each synth here keeps its
-      // own buffer, so they meet by being added rather than by writing into a shared one.
-      int ayCount = ayMixSynth.readSamples(aySamples, soundFrameSize, true);
-      for (int i = 0; i < ayCount && i < count; i++) {
-        outputSamples[i * 2] += aySamples[i * 2];
+      for (AudioSource source : sources) {
+        count = Math.max(count, source.mixInto(outputSamples, soundFrameSize));
       }
       for (int i = count - 1; i >= 0; i--) {
         outputSamples[i * 2 + 1] = outputSamples[i * 2];
@@ -366,8 +319,6 @@ public class Sound implements ZxModule, MachineChangeListener {
     if (movie.recording) {
       movie.addSound(outputSamples, (int) count);
     }
-
-    ayChangeCount = 0;
   }
 
   private boolean lowlevelInit(String device, int[] freqPtr, int[] stereoPtr) {
@@ -393,124 +344,6 @@ public class Sound implements ZxModule, MachineChangeListener {
   // AY overlay - el corazón del sonido AY
   // ========================================================================
 
-  private void ayOverlay(long frameTstates) {
-    if (!hasAY()) return;
-
-    int changesLeft = ayChangeCount;
-    int changeIdx = 0;
-    int envCounter = 15;
-    int lastMixed = 0;
-    boolean envFirst = true;
-    boolean envRev = false;
-    int envShape = 0;
-
-    int lastA = 0, lastB = 0, lastC = 0;
-
-    for (long f = 0; f < frameTstates; f += AY_CLOCK_DIVISOR * AY_CLOCK_RATIO) {
-
-      // Aplicar cambios de registros pendientes
-      while (changesLeft > 0 && ayChanges[changeIdx].tstates <= f) {
-        AyChange ch = ayChanges[changeIdx++];
-        int reg = ch.reg;
-        ayRegisters[reg] = (byte) ch.val;
-        changesLeft--;
-
-        switch (reg) {
-          case 0, 1, 2, 3, 4, 5 -> {
-            int r = reg >> 1;
-            int period = (ayRegisters[reg & ~1] & 0xFF) | ((ayRegisters[reg | 1] & 0x0F) << 8);
-            ayTonePeriod[r] = period == 0 ? 1 : period;
-            if (ayToneTick[r] >= ayTonePeriod[r] * 2) {
-              ayToneTick[r] %= ayTonePeriod[r] * 2;
-            }
-          }
-          case 6 -> ayNoisePeriod = ayRegisters[6] & 31;
-          case 11, 12 -> ayEnvPeriod = (ayRegisters[11] & 0xFF) | ((ayRegisters[12] & 0xFF) << 8);
-          case 13 -> {
-            ayEnvTick = ayEnvInternalTick = ayEnvCycles = 0;
-            envFirst = true;
-            envRev = false;
-            envCounter = (ayRegisters[13] & 4) != 0 ? 0 : 15;
-            envShape = ayRegisters[13] & 0x0F;
-          }
-        }
-      }
-
-      // Envelope
-      ayEnvCycles += AY_CLOCK_DIVISOR;
-      int noiseCount = 0;
-      while (ayEnvCycles >= 16) {
-        ayEnvCycles -= 16;
-        noiseCount++;
-        ayEnvTick++;
-        while (ayEnvTick >= ayEnvPeriod && ayEnvPeriod > 0) {
-          ayEnvTick -= ayEnvPeriod;
-          if (envFirst || ((envShape & 8) != 0 && (envShape & 1) == 0)) {
-            int step = (envShape & 4) != 0 ? 1 : -1;
-            envCounter += envRev ? -step : step;
-            envCounter = Math.clamp(envCounter, 0, 15);
-          }
-          ayEnvInternalTick++;
-          while (ayEnvInternalTick >= 16) {
-            ayEnvInternalTick -= 16;
-            if ((envShape & 8) == 0) envCounter = 0;
-            else if ((envShape & 1) != 0) {
-              if (envFirst && (envShape & 2) != 0) {
-                envCounter = envCounter == 0 ? 15 : 0;
-              }
-            } else {
-              if ((envShape & 2) != 0) envRev = !envRev;
-              else envCounter = (envShape & 4) != 0 ? 0 : 15;
-            }
-            envFirst = false;
-          }
-          if (ayEnvPeriod == 0) break;
-        }
-      }
-
-      // Generar tonos
-      int[] toneLevel = new int[3];
-      for (int i = 0; i < 3; i++) {
-        int vol = ayRegisters[8 + i] & 15;
-        toneLevel[i] = (ayRegisters[8 + i] & 16) != 0 ? ayToneLevelsScaled[envCounter] : ayToneLevelsScaled[vol];
-      }
-
-      int mixer = ayRegisters[7] & 0xFF;
-      ayToneCycles += AY_CLOCK_DIVISOR;
-      int toneCount = ayToneCycles >> 3;
-      ayToneCycles &= 7;
-
-      int chanA = toneLevel[0];
-      int chanB = toneLevel[1];
-      int chanC = toneLevel[2];
-
-      if ((mixer & 1) == 0) chanA = ayDoTone(toneCount, 0, toneLevel[0]);
-      if ((mixer & 8) == 0 && noiseToggle) chanA = 0;
-
-      if ((mixer & 2) == 0) chanB = ayDoTone(toneCount, 1, toneLevel[1]);
-      if ((mixer & 16) == 0 && noiseToggle) chanB = 0;
-
-      if ((mixer & 4) == 0) chanC = ayDoTone(toneCount, 2, toneLevel[2]);
-      if ((mixer & 32) == 0 && noiseToggle) chanC = 0;
-
-      int mixed = chanA + chanB + chanC;
-      if (mixed != lastMixed) {
-        ayMixSynth.update(f, mixed);
-        lastMixed = mixed;
-      }
-
-      // Ruido
-      ayNoiseTick += noiseCount;
-      while (ayNoiseTick >= ayNoisePeriod && ayNoisePeriod > 0) {
-        ayNoiseTick -= ayNoisePeriod;
-        boolean feedback = ((rng & 1) ^ ((rng & 2) != 0 ? 1 : 0)) != 0;
-        if (feedback) noiseToggle = !noiseToggle;
-        if ((rng & 1) != 0) rng ^= 0x24000;
-        rng >>= 1;
-        if (ayNoisePeriod == 0) break;
-      }
-    }
-  }
 
   /**
    * Advances one channel and answers what it is putting out.
@@ -520,14 +353,6 @@ public class Sound implements ZxModule, MachineChangeListener {
    * away, so every channel read as whatever it had been. And the square wave was flipped by
    * negating it, which leaves nought as nought - it started low and stayed there.
    */
-  private int ayDoTone(int count, int chan, int level) {
-    ayToneTick[chan] += count;
-    while (ayToneTick[chan] >= ayTonePeriod[chan]) {
-      ayToneTick[chan] -= ayTonePeriod[chan];
-      ayToneHigh[chan] = ayToneHigh[chan] == 0 ? 1 : 0;
-    }
-    return level != 0 && ayToneHigh[chan] != 0 ? level : 0;
-  }
 
   // ========================================================================
   // Periféricos DAC: SpecDrum, Covox
@@ -549,9 +374,7 @@ public class Sound implements ZxModule, MachineChangeListener {
 
   // Métodos de ayuda (simulación de máquina actual)
 
-  private boolean hasAY() {
-    return true;
-  } // simplificado
+// simplificado
 
   private boolean hasSpecdrum() {
     return leftSpecdrumSynth != null;
@@ -567,7 +390,7 @@ public class Sound implements ZxModule, MachineChangeListener {
 
   public void close() {
     if (soundEnabled) {
-      beeperSource.close();
+      for (AudioSource source : sources) source.close();
       soundEnabled = false;
     }
   }
