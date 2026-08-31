@@ -820,6 +820,8 @@ class GameSearchResult {
   String offers;
   /** Whether the chosen file can be expected to come down; false for what the archive withholds. */
   boolean available;
+  /** Every file the entry offers that could be loaded, best first, for choosing among them. */
+  java.util.List<String> files = java.util.List.of();
   /** Extras the entry carries, for filters the server cannot apply itself. */
   boolean hasRzx;
   boolean hasMap;

@@ -95,6 +95,22 @@ class DownloadChoiceTest {
   }
 
   @Test
+  void the_list_offered_is_in_the_order_it_would_have_chosen() {
+    // The submenu that lets somebody take the 128K release instead of the 48K one is built from
+    // this, so the top of that list has to be what would have been picked for them. Two rules
+    // that disagree would put the default in the middle of the menu.
+    String tape = "https://zxinfo.dk/media/pub/g/Game.tzx.zip";
+    String snapshot = "https://zxinfo.dk/media/pub/g/Game.z80.zip";
+    String for128 = "https://zxinfo.dk/media/pub/g/Game128.tzx.zip";
+    java.util.List<String> ordered =
+        DownloadAndUnzip.byPreference(List.of(for128, tape, snapshot), WHOLE_URL);
+    assertEquals(snapshot, ordered.get(0), "the list does not start with what it would choose");
+    assertEquals(DownloadAndUnzip.preferred(ordered, WHOLE_URL), ordered.get(0),
+        "the order and the choice disagree");
+    assertEquals(3, ordered.size(), "the list lost one on the way");
+  }
+
+  @Test
   void nothing_loadable_answers_nothing() {
     assertNull(DownloadAndUnzip.preferred(
         List.of("https://zxinfo.dk/media/pub/g/Game.trd.zip",

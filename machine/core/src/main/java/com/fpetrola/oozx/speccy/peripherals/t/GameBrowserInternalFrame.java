@@ -412,6 +412,9 @@ public class GameBrowserInternalFrame extends JInternalFrame {
             "http://example.com/game/" + query, screenshot1, screenshot2, file);
         result.offers = String.join(", ", offered);
         result.available = DownloadAndUnzip.available(file);
+        // Kept, not thrown away: an entry often has a 48K release and a 128K one, and the choice
+        // between them is the person's to make rather than the scorer's to impose.
+        result.files = DownloadAndUnzip.byPreference(files, url -> url);
         result.hasRzx = hasRzx;
         result.hasMap = hasMap;
         result.recordings = recordings;
@@ -525,6 +528,24 @@ public class GameBrowserInternalFrame extends JInternalFrame {
       contextMenu.addSeparator();
     }
     JMenuItem loadItem = new JMenuItem("Load Game");
+    // When there is more than one, the whole list, in the order the scorer would have taken
+    // them, so what is picked by default is the one at the top.
+    if (result.files.size() > 1) {
+      JMenu versions = new JMenu("Load Version");
+      for (String each : result.files) {
+        String shown = each.substring(each.lastIndexOf('/') + 1);
+        JMenuItem item = new JMenuItem(
+            DownloadAndUnzip.available(each) ? shown : shown + "  (not available)");
+        item.setEnabled(DownloadAndUnzip.available(each));
+        item.addActionListener(e -> {
+          result.filename = each;
+          result.available = DownloadAndUnzip.available(each);
+          startLoading(result);
+        });
+        versions.add(item);
+      }
+      contextMenu.add(versions);
+    }
     JMenuItem detailsItem = new JMenuItem("View Details");
     JMenuItem favoriteItem = new JMenuItem("Add to Favorites");
     JMenuItem downloadItem = new JMenuItem("Download");

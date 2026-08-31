@@ -172,6 +172,18 @@ public class DownloadAndUnzip {
     return bestScore <= UNLOADABLE ? null : best;
   }
 
+  /**
+   * The same candidates, best first, so somebody can be offered the choice in the order this
+   * would have made it. One rule decides both, which is the point: the list a person sees and
+   * the one picked for them cannot disagree.
+   */
+  public static <T> List<T> byPreference(List<T> candidates, Function<T, String> nameOf) {
+    List<T> ordered = new ArrayList<>(candidates);
+    ordered.sort((one, other) -> Integer.compare(scoreOf(nameOf.apply(other)),
+        scoreOf(nameOf.apply(one))));
+    return ordered;
+  }
+
   /** Whether this is something the emulator can open at all, by the one rule that decides it. */
   public static boolean loadable(String fileName) {
     return scoreOf(fileName) != UNLOADABLE;
