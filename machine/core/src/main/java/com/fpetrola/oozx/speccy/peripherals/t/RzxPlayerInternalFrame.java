@@ -63,6 +63,14 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   private static final int STICKY = 24;
   /** How long the window has to stand still before a drag counts as finished. */
   private static final int SETTLE_MILLIS = 180;
+  /**
+   * -Drzx.dock.trace=true prints what the docking decides and why.
+   * <p>
+   * Here because a report of "it snaps and then does not follow" could not be reproduced from
+   * the outside: the decision is right in a test that walks the same steps, so what is wanted is
+   * what the running program sees rather than another guess about it.
+   */
+  private static final boolean TRACE = Boolean.getBoolean("rzx.dock.trace");
 
   private enum Mode { EMPTY, STOPPED, PLAYING, TAKEN_OVER, FINISHED }
 
@@ -231,10 +239,7 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
     addComponentListener(new ComponentAdapter() {
       @Override
       public void componentMoved(ComponentEvent moved) {
-        // Nothing on screen is being dragged, so there is nothing to wait for. Besides being
-        // true, this keeps a timer out of anything that drives these windows without showing
-        // them, where a stray one fires in the middle of somebody else's work.
-        if (!placing && isShowing()) {
+        if (!placing) {
           settle.restart();
         }
       }
@@ -315,6 +320,10 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
       machineWatcher = new ComponentAdapter() {
         @Override
         public void componentMoved(ComponentEvent moved) {
+          if (TRACE) {
+            System.out.printf("rzx dock: the machine moved to %s, dock is %s%n",
+                RzxPlayerInternalFrame.this.machineWindow.getBounds(), dock);
+          }
           place();
         }
 
@@ -419,6 +428,10 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
         closest = left;
         nearest = Dock.LEFT;
       }
+    }
+    if (TRACE) {
+      System.out.printf("rzx dock: machine=%s player=%s -> %s (nearest %d px)%n",
+          m, me, nearest, closest);
     }
     dock = nearest;
     dockButton.setSelected(nearest != Dock.FREE);

@@ -143,6 +143,34 @@ class RzxPlayerDockingTest {
     assertEquals(700, player.getY(), "a detached player was dragged along by the machine");
   }
 
+  /**
+   * The sequence that was reported: dragged away, dragged back, and then the machine moved.
+   * <p>
+   * It snapped into place and then did not follow, which means it looked attached and was not.
+   * Anything that leaves those two disagreeing is worse than not snapping at all.
+   */
+  @Test
+  void snapping_back_really_re_attaches() {
+    RzxPlayerInternalFrame player = player();
+    JInternalFrame machine = machine(100, 100, 400, 300);
+    player.setMachineWindow(machine);
+
+    player.setBounds(900, 700, 300, 120);
+    player.snapIfNear();
+    assertEquals(RzxPlayerInternalFrame.Dock.FREE, player.dockedTo(), "did not let go");
+
+    // Dropped just under the machine again, a few pixels off, the way a hand leaves it.
+    player.setBounds(104, 100 + 300 + 5, 300, 120);
+    player.snapIfNear();
+    assertEquals(RzxPlayerInternalFrame.Dock.BOTTOM, player.dockedTo(), "did not take hold again");
+
+    machine.setBounds(250, 260, 400, 300);
+    settle();
+    assertEquals(250, player.getX(), "snapped into place but then did not follow");
+    assertEquals(260 + 300 - seam(machine, player), player.getY(),
+        "snapped into place but then did not follow");
+  }
+
   @Test
   void expanding_keeps_it_attached_and_only_makes_it_taller() {
     RzxPlayerInternalFrame player = player();
