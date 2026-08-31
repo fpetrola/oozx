@@ -78,6 +78,9 @@ class EmulatorInternalFrame extends JInternalFrame {
      this.parentApp = parentApp;
      this.gameSearchResult = gameSearchResult;
      this.emulatorCore = core;
+     // Every emulator window is built here, so this is where the machines a build has become
+     // known - the browser needs them before one is open and cannot make one to ask.
+     parentApp.rememberMachines(core);
     setSize(420, 380);
     setLocation(x, y);
 
@@ -865,6 +868,13 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private final java.util.function.BiFunction<String, String, EmulatorCore> mockCore;
   /** The machines this build has, learnt from the last emulator made, for offering them. */
   private java.util.List<String> knownMachines = java.util.List.of();
+
+  void rememberMachines(EmulatorCore core) {
+    if (knownMachines.isEmpty() && core != null) {
+      knownMachines = core.getMachineModels();
+      System.err.println("[machines] learnt from a new emulator: " + knownMachines);
+    }
+  }
   private final Function<SpectrumState, EmulatorCore> mockCoreState;
   private JDesktopPane desktop;
   private int emulatorCount = 0;
@@ -2494,8 +2504,12 @@ public class ZXSpectrumDesktopApp extends JFrame {
       public java.util.List<String> machines() {
         if (knownMachines.isEmpty()) {
           EmulatorInternalFrame open = getActiveEmulator();
+          System.err.println("[machines] remembered=" + knownMachines.size()
+              + " openEmulator=" + (open != null)
+              + " core=" + (open != null ? String.valueOf(open.emulatorCore) : "-"));
           if (open != null && open.emulatorCore != null) {
             knownMachines = open.emulatorCore.getMachineModels();
+            System.err.println("[machines] asked the emulator, got " + knownMachines);
           }
         }
         return knownMachines;

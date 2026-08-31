@@ -25,8 +25,6 @@ import com.fpetrola.oozx.speccy.config.OOZxConfiguration;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -290,41 +288,32 @@ public class GameBrowserInternalFrame extends JInternalFrame {
    */
   private JMenu machineMenu(String label, GameSearchResult result, String file) {
     JMenu menu = new JMenu(label);
-    // Filled when it is opened, not when the row is drawn. A search is rendered before any
-    // machine has been built, so asking then gets an empty list and a menu that never grows one.
-    menu.addMenuListener(new MenuListener() {
-      @Override
-      public void menuSelected(MenuEvent e) {
-        menu.removeAll();
-        JMenuItem automatic = new JMenuItem("As the file says");
-        automatic.addActionListener(chosen -> load(result, file, null));
-        menu.add(automatic);
+    fill(menu, result, file);
+    return menu;
+  }
 
-        List<String> machines = listener.machines();
-        if (!machines.isEmpty()) {
-          menu.addSeparator();
-          for (String machine : machines) {
-            JMenuItem item = new JMenuItem(machine);
-            item.addActionListener(chosen -> load(result, file, machine));
-            menu.add(item);
-          }
-        }
-      }
-
-      @Override
-      public void menuDeselected(MenuEvent e) {
-      }
-
-      @Override
-      public void menuCanceled(MenuEvent e) {
-      }
-    });
-    // A menu with nothing in it does not open, and Swing measures it before the listener has
-    // run, so it starts with the entry that is always there.
+  /**
+   * The entry that is always there, and under it whatever machines exist by now.
+   * <p>
+   * Called again every time the menu is about to show, because a search is rendered before any
+   * machine has been built: asking then answers nothing, and a menu filled once keeps the nothing
+   * for the life of the window.
+   */
+  private void fill(JMenu menu, GameSearchResult result, String file) {
+    menu.removeAll();
     JMenuItem automatic = new JMenuItem("As the file says");
     automatic.addActionListener(e -> load(result, file, null));
     menu.add(automatic);
-    return menu;
+
+    List<String> machines = listener.machines();
+    if (!machines.isEmpty()) {
+      menu.addSeparator();
+      for (String machine : machines) {
+        JMenuItem item = new JMenuItem(machine);
+        item.addActionListener(e -> load(result, file, machine));
+        menu.add(item);
+      }
+    }
   }
 
   private void load(GameSearchResult result, String file, String machine) {
@@ -587,7 +576,9 @@ public class GameBrowserInternalFrame extends JInternalFrame {
       contextMenu.add(playRecording);
       contextMenu.addSeparator();
     }
+    java.util.List<Runnable> refills = new ArrayList<>();
     JMenu loadItem = machineMenu("Load Game", result, null);
+    refills.add(() -> fill(loadItem, result, null));
     // When there is more than one, the whole list, in the order the scorer would have taken
     // them, so what is picked by default is the one at the top.
     if (result.files.size() > 1) {
@@ -597,6 +588,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
         JMenu item = machineMenu(
             DownloadAndUnzip.available(each) ? shown : shown + "  (not available)", result, each);
         item.setEnabled(DownloadAndUnzip.available(each));
+        refills.add(() -> fill(item, result, each));
         versions.add(item);
       }
       contextMenu.add(versions);
@@ -608,6 +600,21 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     contextMenu.add(detailsItem);
     contextMenu.add(favoriteItem);
     contextMenu.add(downloadItem);
+
+    contextMenu.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
+      @Override
+      public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent e) {
+        refills.forEach(Runnable::run);
+      }
+
+      @Override
+      public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent e) {
+      }
+
+      @Override
+      public void popupMenuCanceled(javax.swing.event.PopupMenuEvent e) {
+      }
+    });
 
     MouseAdapter mouseAdapter = new MouseAdapter() {
       @Override
