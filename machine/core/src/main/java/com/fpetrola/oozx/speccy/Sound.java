@@ -297,7 +297,11 @@ public class Sound implements ZxModule, MachineChangeListener {
   // AY-3-8912
   // ========================================================================
 
+  /** How many times the sound chip has been written to, which is how you tell it is wired up. */
+  public long ayWrites;
+
   public void ayWrite(int reg, int val, long tstates) {
+    ayWrites++;
     if (ayChangeCount < AY_CHANGE_MAX) {
       if (ayChanges[ayChangeCount] == null) ayChanges[ayChangeCount] = new AyChange();
       AyChange ch = ayChanges[ayChangeCount++];

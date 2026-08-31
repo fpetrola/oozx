@@ -19,6 +19,8 @@
 package com.fpetrola.oozx.speccy.startup;
 
 import com.fpetrola.oozx.Machine;
+import com.fpetrola.oozx.SpectrumZ80Clock;
+import com.fpetrola.oozx.speccy.Sound;
 import com.fpetrola.oozx.speccy.machine.Spec128;
 import com.fpetrola.oozx.speccy.machine.SpecPlus3;
 import com.fpetrola.oozx.speccy.peripherals.*;
@@ -28,12 +30,17 @@ public class MachinesPeriphStartupModule extends AbstractStartupModule {
   private Spec128 spec128;
   private SpecPlus3 specPlus3;
   private IPeriph periph;
+  private Sound sound;
+  private SpectrumZ80Clock clock;
 
-  public MachinesPeriphStartupModule(Machine machine, Spec128 spec128, SpecPlus3 specPlus3, IPeriph periph) {
+  public MachinesPeriphStartupModule(Machine machine, Spec128 spec128, SpecPlus3 specPlus3,
+                                     IPeriph periph, Sound sound, SpectrumZ80Clock clock) {
     this.machine = machine;
     this.spec128 = spec128;
     this.specPlus3 = specPlus3;
     this.periph = periph;
+    this.sound = sound;
+    this.clock = clock;
   }
 
 
@@ -42,6 +49,8 @@ public class MachinesPeriphStartupModule extends AbstractStartupModule {
     periph.register(new SpecPlus3MemoryPeripheral(specPlus3));
     periph.register(new Upd765Peripheral(specPlus3));
     periph.register(new SeMemoryPeripheral(spec128));
+    // Declared present for every machine that has one, and never actually there.
+    periph.register(new AyPeripheral(sound, clock));
   }
 
   public void endFn() {

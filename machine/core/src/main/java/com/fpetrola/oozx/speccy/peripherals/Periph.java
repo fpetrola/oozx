@@ -56,7 +56,10 @@ public class Periph implements IPeriph {
   public enum Type {
     UNKNOWN,
     _128_MEMORY(Spec128MemoryPeripheral.class),
-    AY,
+    // Naming the class is what makes marking the type present mean anything: without it the type
+    // falls back to the generic peripheral, so "AY is always present" marked something that was
+    // not the AY, and the real one sat registered and never activated.
+    AY(AyPeripheral.class),
     AY_FULL_DECODE,
     AY_PLUS3,
     AY_TIMEX,

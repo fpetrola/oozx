@@ -140,7 +140,7 @@ public class Speccy {
         new KeyboardStartupModule(keyboard),
         new LibspectrumStartupModule(),
         machineStartupModule,
-        new MachinesPeriphStartupModule(machine, spec128, specPlus3, periph),
+        new MachinesPeriphStartupModule(machine, spec128, specPlus3, periph, sound, zxClock),
         new MemoryStartupModule(memory, machine, spec128, specPlus3, module),
         new SpectrumStartupModule(spec48),
         new TimerStartupModule(timer),
