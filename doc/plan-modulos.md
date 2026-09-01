@@ -134,8 +134,20 @@ Cada uno deja el gate verde y se commitea solo.
 de emulación importa Swing ni el escritorio, y ningún tipo que lleve la base arrastra uno. Se
 verifica con un grep, sin escribir un pom.
 
-**2. `machine/ui`.** Mover `AttachedFrame`, los cargadores de iconos, `ScrollPane`, los componentes
-de pantalla. Es el módulo más chico y el que menos riesgo tiene.
+**2. `machine/ui`. HECHO.** 19 archivos: `AttachedFrame`, los cargadores de iconos, y todo lo que
+dibuja la pantalla (`speccy/screen/*`, `TvScreen`, `SpeccyScreen`, `SpectrumPanel`). No depende de
+nada del emulador, que es lo que sostiene el orden de capas.
+
+Dos cosas tuvieron que cambiar para que pudiera decir eso:
+
+- **El frame pedía sus botones a la aplicación** — `EmulatorInternalFrame.iconToggle` y `.tighten`
+  eran estáticos de una ventana de la capa de arriba. Ahora son `Widgets`, en ui, y las versiones
+  de la aplicación reenvían, así que ningún call site cambió.
+- **Buscaba la clase de ventana de la aplicación** para saber cuáles son máquinas. Ahora una
+  ventana de máquina lo dice implementando `MachineWindow` — una pregunta que la capa de abajo sí
+  puede hacer.
+
+`ScrollPane` se volvió a core en el camino: necesita una galería, así que no era infraestructura.
 
 **3. `machine/app`.** Mover `peripherals/t` (menos lo que se fue a ui), `OOSpectrumLauncher`,
 `SwingUserInterface`, la UI de pokes y de config. `machine/base` queda siendo lo que sobra, y hay
