@@ -16,19 +16,16 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.devices.memory;
+package model.tests.devices.outside;
 
+import com.fpetrola.oozx.speccy.devices.DeviceModule;
 import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
-import com.fpetrola.oozx.speccy.devices.DeviceModule;
 
-/** The pagers, and the memory an SE has. */
-public class MemoryDevices extends AbstractModule implements DeviceModule {
+/** What the pretend interface's package brings, said the way any device package says it. */
+public class PretendDevices extends AbstractModule implements DeviceModule {
   protected void configure() {
-    Multibinder<Peripheral> devices = Multibinder.newSetBinder(binder(), Peripheral.class);
-    devices.addBinding().to(Spec128MemoryPeripheral.class);
-    devices.addBinding().to(SpecPlus3MemoryPeripheral.class);
-    devices.addBinding().to(SeMemoryPeripheral.class);
+    Multibinder.newSetBinder(binder(), Peripheral.class).addBinding().to(PretendInterface.class);
   }
 }

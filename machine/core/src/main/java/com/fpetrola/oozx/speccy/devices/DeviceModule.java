@@ -16,18 +16,17 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.devices.ula;
+package com.fpetrola.oozx.speccy.devices;
 
-import com.fpetrola.oozx.speccy.peripherals.Peripheral;
-import com.google.inject.AbstractModule;
-import com.google.inject.multibindings.Multibinder;
-import com.fpetrola.oozx.speccy.devices.DeviceModule;
+import com.google.inject.Module;
 
-/** The ULA as a machine reaches it: loosely decoded, or on every bit of its port. */
-public class UlaDevices extends AbstractModule implements DeviceModule {
-  protected void configure() {
-    Multibinder<Peripheral> devices = Multibinder.newSetBinder(binder(), Peripheral.class);
-    devices.addBinding().to(UlaPeripheral.class);
-    devices.addBinding().to(UlaFullDecodePeripheral.class);
-  }
+/**
+ * A package of devices, found rather than named: the emulator loads every one of these declared on
+ * the classpath and installs it, so a device that arrives in a jar nobody compiled against can
+ * still say what it brings and which machines it fits.
+ * <p>
+ * It is a Guice module because discovery answers who is out there and injection answers what each
+ * one needs, and a device needs the sound, the clock or a machine's module to work.
+ */
+public interface DeviceModule extends Module {
 }

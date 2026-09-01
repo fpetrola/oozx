@@ -21,9 +21,10 @@ package com.fpetrola.oozx.speccy.devices.disk;
 import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
+import com.fpetrola.oozx.speccy.devices.DeviceModule;
 
 /** The floppy controller a +3 has. */
-public class DiskDevices extends AbstractModule {
+public class DiskDevices extends AbstractModule implements DeviceModule {
   protected void configure() {
     Multibinder.newSetBinder(binder(), Peripheral.class).addBinding().to(Upd765Peripheral.class);
   }

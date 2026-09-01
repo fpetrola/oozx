@@ -25,9 +25,10 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
+import com.fpetrola.oozx.speccy.devices.DeviceModule;
 
 /** The Kempston interface, in its two decodings. */
-public class JoystickDevices extends AbstractModule {
+public class JoystickDevices extends AbstractModule implements DeviceModule {
   protected void configure() {
     Multibinder<Peripheral> devices = Multibinder.newSetBinder(binder(), Peripheral.class);
     devices.addBinding().to(KempstonStrictPeripheral.class);

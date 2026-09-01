@@ -26,9 +26,10 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
+import com.fpetrola.oozx.speccy.devices.DeviceModule;
 
 /** The sound chip a machine has, the one a +3 wires differently, and the box for a machine with none. */
-public class AyDevices extends AbstractModule {
+public class AyDevices extends AbstractModule implements DeviceModule {
   protected void configure() {
     Multibinder<Peripheral> devices = Multibinder.newSetBinder(binder(), Peripheral.class);
     devices.addBinding().to(AyPeripheral.class);

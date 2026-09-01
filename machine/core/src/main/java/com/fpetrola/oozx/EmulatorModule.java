@@ -28,6 +28,9 @@ import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.Z80Clock;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
+import com.fpetrola.oozx.speccy.devices.DeviceModule;
+import com.fpetrola.oozx.speccy.peripherals.Peripheral;
+import java.util.ServiceLoader;
 
 /**
  * The bindings a Spectrum needs beyond what the constructors already say.
@@ -81,13 +84,11 @@ public class EmulatorModule extends AbstractModule {
 
     // Every model the emulator can be, and separately which one it falls back to. The set says
     // nothing about order, so nothing depends on the order these are listed in.
-    // Every device package says what it contributes; the composition root registers whatever
-    // turned up. Nothing here names a device.
-    install(new com.fpetrola.oozx.speccy.devices.ay.AyDevices());
-    install(new com.fpetrola.oozx.speccy.devices.memory.MemoryDevices());
-    install(new com.fpetrola.oozx.speccy.devices.disk.DiskDevices());
-    install(new com.fpetrola.oozx.speccy.devices.ula.UlaDevices());
-    install(new com.fpetrola.oozx.speccy.devices.joystick.JoystickDevices());
+    // Devices are found, not named: every DeviceModule on the classpath is installed, and each
+    // says what it brings. The empty set binder is what lets a build have no devices at all
+    // rather than fail to resolve one.
+    Multibinder.newSetBinder(binder(), Peripheral.class);
+    ServiceLoader.load(DeviceModule.class).forEach(this::install);
 
     Multibinder<Spectrum> models = Multibinder.newSetBinder(binder(), Spectrum.class);
     models.addBinding().to(Spec48.class);
