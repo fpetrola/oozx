@@ -50,7 +50,7 @@ class RomPrintsToThePrinterTest {
     speccy.init();
     speccy.uiDisplay.active = false;
     speccy.z80.bridgeCommand = (a, b) -> null;
-    speccy.settings.current.printer = true;
+    ((ZxPrinterPeripheral) speccy.peripherals.find(ZxPrinterPeripheral.class)).plugIn(true);
     return speccy;
   }
 

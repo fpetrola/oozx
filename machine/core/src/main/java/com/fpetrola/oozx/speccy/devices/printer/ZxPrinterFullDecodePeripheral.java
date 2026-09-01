@@ -20,12 +20,13 @@ package com.fpetrola.oozx.speccy.devices.printer;
 
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 
-import java.util.function.BooleanSupplier;
 
 /** The same printer on a machine that reads the whole port: 0xFB and nothing else. */
+@com.google.inject.Singleton
 public class ZxPrinterFullDecodePeripheral extends ZxPrinterPeripheral {
-  public ZxPrinterFullDecodePeripheral(ZxPrinter printer, BooleanSupplier wanted) {
-    super(0x00ff, 0x00fb, printer, wanted);
+  @com.google.inject.Inject
+  public ZxPrinterFullDecodePeripheral(ZxPrinter printer) {
+    super(0x00ff, 0x00fb, printer);
   }
 
   @Override

@@ -96,8 +96,13 @@ public class Z80 implements ZxModule, Cpu {
    * <p>
    * Volatile because the asking is done on the event thread and the running on this one.
    */
-  private volatile Runnable changeMachine;
-  private volatile Runnable speedChange;
+  /**
+   * Work asked for from another thread - the window, a menu - and done here, between instructions.
+   * Selecting a machine rebuilds the port list and changing speed hands every sound source a new
+   * synth; neither can happen while this thread is in the middle of a frame, and doing it from the
+   * event thread is what used to hang the emulator on a fast enough double click.
+   */
+  private final java.util.concurrent.ConcurrentLinkedQueue<Runnable> pending = new java.util.concurrent.ConcurrentLinkedQueue<>();
   private final Module module;
   private final EmulationSession session;
   private final Sound sound;
@@ -507,21 +512,14 @@ public class Z80 implements ZxModule, Cpu {
       }
     }
 
-    Runnable machine = changeMachine;
-    if (machine != null) {
-      changeMachine = null;
-      machine.run();
+    for (Runnable work = pending.poll(); work != null; work = pending.poll()) {
+      work.run();
     }
+  }
 
-    // Changing speed rebuilds the output and hands every source a new synth, which cannot be
-    // done while this thread is in the middle of mixing a frame with the old ones. Asked for
-    // from the event thread, done here. Asking twice before it is done keeps the last answer,
-    // which is what pressing the button twice quickly means.
-    Runnable speed = speedChange;
-    if (speed != null) {
-      speedChange = null;
-      speed.run();
-    }
+  /** Ask for something to be done on the emulator's own thread, as soon as it is between instructions. */
+  public void later(Runnable work) {
+    pending.add(work);
   }
 
   public void updateMemory() {
@@ -649,7 +647,7 @@ public class Z80 implements ZxModule, Cpu {
       }
 
       public void changeSpeed1(int emulationSpeed) {
-        speedChange = () -> changeSpeed(emulationSpeed);
+        later(() -> changeSpeed(emulationSpeed));
         notifyTurboModeChange(turbo);
         notifyEmulationSpeedChange(Z80.emulationSpeed);
       }
@@ -705,12 +703,11 @@ public class Z80 implements ZxModule, Cpu {
         if (machine.current != null && model.equals(machine.current.getName())) {
           return;
         }
-        changeMachine = () -> {
-          machine.getMachineTypes().stream().filter(m -> m.getName().equals(model)).forEach(type -> {
-            machine.selectDefault();
-            machine.select(type);
-          });
-        };
+        later(() -> machine.getMachineTypes().stream().filter(m -> m.getName().equals(model))
+            .forEach(type -> {
+              machine.selectDefault();
+              machine.select(type);
+            }));
       }
 
       @Override

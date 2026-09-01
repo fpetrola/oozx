@@ -48,7 +48,8 @@ class PrinterOnItsMachineTest {
     speccy.init();
     speccy.uiDisplay.active = false;
     speccy.z80.bridgeCommand = (a, b) -> null;
-    speccy.settings.current.printer = wanted;
+    ((ZxPrinterPeripheral) speccy.peripherals.find(ZxPrinterPeripheral.class)).plugIn(wanted);
+    ((ZxPrinterFullDecodePeripheral) speccy.peripherals.find(ZxPrinterFullDecodePeripheral.class)).plugIn(wanted);
     return speccy;
   }
 

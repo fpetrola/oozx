@@ -23,27 +23,36 @@ import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.peripherals.AbstractPeripheral;
 
 import java.util.List;
-import java.util.function.BooleanSupplier;
 
 /**
  * A ZX Printer plugged into a Sinclair machine, which decodes its port on one bit.
+ * <p>
+ * Plugged in is meant literally: the window showing its paper is the printer, and while that
+ * window is attached to a machine the cable is connected. Detach it and the machine has no
+ * printer, which is what happens if you carry the thing to another room.
  * <p>
  * A 128K is offered no such thing: its COPY talks to a serial printer through the AY instead, so a
  * 128 printing nothing on this port is the machine behaving correctly. The +D shares this port,
  * and when one of those arrives the two must not both be switched on.
  */
+@com.google.inject.Singleton
 public class ZxPrinterPeripheral extends AbstractPeripheral {
   private final ZxPrinter printer;
-  private final BooleanSupplier wanted;
+  private boolean pluggedIn;
 
-  public ZxPrinterPeripheral(ZxPrinter printer, BooleanSupplier wanted) {
-    this(0x0004, 0x0000, printer, wanted);
+  @com.google.inject.Inject
+  public ZxPrinterPeripheral(ZxPrinter printer) {
+    this(0x0004, 0x0000, printer);
   }
 
-  ZxPrinterPeripheral(int mask, int value, ZxPrinter printer, BooleanSupplier wanted) {
+  ZxPrinterPeripheral(int mask, int value, ZxPrinter printer) {
     super(List.of(new ZxPrinterPortHandler(mask, value, printer)));
     this.printer = printer;
-    this.wanted = wanted;
+  }
+
+  /** The cable. Takes effect at the next update, which is the emulator's own thread's business. */
+  public void plugIn(boolean connected) {
+    pluggedIn = connected;
   }
 
   public Printout paper() {
@@ -56,6 +65,6 @@ public class ZxPrinterPeripheral extends AbstractPeripheral {
 
   @Override
   public boolean isWanted() {
-    return wanted.getAsBoolean();
+    return pluggedIn;
   }
 }

@@ -19,7 +19,6 @@
 package com.fpetrola.oozx.speccy.devices.printer;
 
 import com.fpetrola.oozx.Machine;
-import com.fpetrola.oozx.Settings;
 import com.fpetrola.oozx.speccy.devices.DeviceModule;
 import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 import com.fpetrola.z80.cpu.Z80Clock;
@@ -58,15 +57,4 @@ public class PrinterDevices extends AbstractModule implements DeviceModule {
     return new Printout();
   }
 
-  @Provides
-  @Singleton
-  ZxPrinterPeripheral zxPrinter(ZxPrinter printer, Settings settings) {
-    return new ZxPrinterPeripheral(printer, () -> settings.current.printer);
-  }
-
-  @Provides
-  @Singleton
-  ZxPrinterFullDecodePeripheral fullyDecoded(ZxPrinter printer, Settings settings) {
-    return new ZxPrinterFullDecodePeripheral(printer, () -> settings.current.printer);
-  }
 }
