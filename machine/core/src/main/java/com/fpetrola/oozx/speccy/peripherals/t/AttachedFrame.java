@@ -24,6 +24,8 @@ import javax.swing.event.InternalFrameEvent;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A window that clips onto a machine's window and behaves as part of it: a piece of equipment
@@ -187,6 +189,18 @@ public abstract class AttachedFrame extends JInternalFrame {
       public void internalFrameClosed(InternalFrameEvent e) {
         settle.stop();
       }
+
+      /**
+       * Clicking a deck raises it, and raising it takes the keyboard off the machine. While it
+       * is clipped on it is part of that machine, so it hands the keys straight back: its own
+       * controls are pressed with the mouse and none of them wants typing.
+       */
+      @Override
+      public void internalFrameActivated(InternalFrameEvent e) {
+        if (dock != Dock.FREE) {
+          leaveKeyboardWithMachine();
+        }
+      }
     });
 
   }
@@ -205,7 +219,9 @@ public abstract class AttachedFrame extends JInternalFrame {
   @Override
   public void addNotify() {
     super.addNotify();
-    if (!sized) {
+    // Only while folded: a window that opens showing its listing - a waveform, say - asked for
+    // the height it has, and taking the compact height there folds it shut before anyone sees it.
+    if (!sized && compact) {
       sized = true;
       placedHeight = compactHeight();
       setSize(getWidth(), placedHeight);
@@ -283,6 +299,7 @@ public abstract class AttachedFrame extends JInternalFrame {
       place();
     }
     attachmentChanged();
+    leaveKeyboardWithMachine();
   }
 
   /**
@@ -375,10 +392,69 @@ public abstract class AttachedFrame extends JInternalFrame {
    * the machine is near its bottom edge by one measure and near nothing by eye.
    */
   void snapIfNear() {
-    if (machineWindow == null || machineWindow.isClosed()) {
+    Rectangle me = getBounds();
+    JInternalFrame nearestMachine = null;
+    Dock nearest = Dock.FREE;
+    int closest = STICKY;
+    for (JInternalFrame candidate : machinesAround()) {
+      Dock side = nearestSideOf(candidate, me);
+      if (side != Dock.FREE) {
+        int away = distanceTo(candidate, me, side);
+        if (away < closest) {
+          closest = away;
+          nearest = side;
+          nearestMachine = candidate;
+        }
+      }
+    }
+    if (TRACE) {
+      System.out.printf("dock: window=%s -> %s of %s (nearest %d px)%n",
+          me, nearest, nearestMachine, closest);
+    }
+    boolean was = dock != Dock.FREE;
+    dock = nearest;
+    dockButton.setSelected(nearest != Dock.FREE);
+    if (nearestMachine != null && nearestMachine != machineWindow) {
+      // Carried from one computer to another: the lead comes out of the first and goes into
+      // the second, which is the whole of how a deck is moved.
+      setMachineWindow(nearestMachine);
       return;
     }
-    Rectangle m = machineWindow.getBounds(), me = getBounds();
+    if (was != (nearest != Dock.FREE)) {
+      attachmentChanged();
+    }
+    place();
+    if (nearest != Dock.FREE) {
+      leaveKeyboardWithMachine();
+    }
+  }
+
+  /**
+   * Every machine on this desktop, so a deck can be carried from one to another.
+   * <p>
+   * Measured against all of them rather than against the one it is already on: a deck that only
+   * ever notices its own machine can be taken off that one and never put onto any other, which
+   * leaves moving it between computers impossible by the one gesture that should do it.
+   */
+  private List<JInternalFrame> machinesAround() {
+    List<JInternalFrame> machines = new ArrayList<>();
+    Container desktop = getParent();
+    if (desktop != null) {
+      for (Component component : desktop.getComponents()) {
+        if (component instanceof EmulatorInternalFrame machine && !machine.isClosed()) {
+          machines.add(machine);
+        }
+      }
+    }
+    if (machines.isEmpty() && machineWindow != null && !machineWindow.isClosed()) {
+      machines.add(machineWindow);
+    }
+    return machines;
+  }
+
+  /** Which side of that machine this window was left against, or FREE for none of them. */
+  private Dock nearestSideOf(JInternalFrame machine, Rectangle me) {
+    Rectangle m = machine.getBounds();
     Dock nearest = Dock.FREE;
     int closest = STICKY;
     // Measured against where it would SIT if attached, not against the machine's outline. The
@@ -386,41 +462,92 @@ public abstract class AttachedFrame extends JInternalFrame {
     // the window - a seam inside the edge - the next look found it exactly a seam away and let
     // go again. With the seam at 24 and the reach at 24, "closer than" was never true and the
     // window attached and detached in the same breath: it moved into place and never held.
-    if (me.x < m.x + m.width && m.x < me.x + me.width) {
-      int under = Math.abs(me.y - (m.y + m.height - seam()));
-      if (under < closest) {
-        closest = under;
-        nearest = Dock.BOTTOM;
-      }
-      int over = Math.abs(me.y - (m.y - me.height + seam()));
-      if (over < closest) {
-        closest = over;
-        nearest = Dock.TOP;
+    for (Dock side : new Dock[] {Dock.BOTTOM, Dock.TOP, Dock.RIGHT, Dock.LEFT}) {
+      if (overlapsFor(side, m, me)) {
+        int away = distanceTo(machine, me, side);
+        if (away < closest) {
+          closest = away;
+          nearest = side;
+        }
       }
     }
-    if (me.y < m.y + m.height && m.y < me.y + me.height) {
-      int right = Math.abs(me.x - (m.x + m.width - sideSeam()));
-      if (right < closest) {
-        closest = right;
-        nearest = Dock.RIGHT;
+    return nearest;
+  }
+
+  /** Only the sides it actually lies alongside count; the others are near by arithmetic alone. */
+  private static boolean overlapsFor(Dock side, Rectangle m, Rectangle me) {
+    return side == Dock.BOTTOM || side == Dock.TOP
+        ? me.x < m.x + m.width && m.x < me.x + me.width
+        : me.y < m.y + m.height && m.y < me.y + me.height;
+  }
+
+  /**
+   * How far this window is from where it would SIT against that side.
+   * <p>
+   * Measured against its resting place rather than against the machine's outline. The two are a
+   * seam apart, and measuring to the outline meant that the moment docking placed the window - a
+   * seam inside the edge - the next look found it exactly a seam away and let go again: it moved
+   * into place and never held.
+   */
+  private int distanceTo(JInternalFrame machine, Rectangle me, Dock side) {
+    Rectangle m = machine.getBounds();
+    int seam = machine.getInsets().bottom + getInsets().top;
+    int sideSeam = machine.getInsets().left + getInsets().right;
+    return switch (side) {
+      case BOTTOM -> Math.abs(me.y - (m.y + m.height - seam));
+      case TOP -> Math.abs(me.y - (m.y - me.height + seam));
+      case RIGHT -> Math.abs(me.x - (m.x + m.width - sideSeam));
+      case LEFT -> Math.abs(me.x - (m.x - me.width + sideSeam));
+      default -> Integer.MAX_VALUE;
+    };
+  }
+
+  /**
+   * Gives the keyboard back to the machine.
+   * <p>
+   * The keys are wired to the machine's own panel gaining focus - see createNewEmulator - so a
+   * window that clips on and takes the focus with it leaves the machine deaf until somebody
+   * clicks the picture again. Being part of a machine means not taking its keyboard away.
+   */
+  private void leaveKeyboardWithMachine() {
+    if (!(machineWindow instanceof EmulatorInternalFrame machine)) {
+      return;
+    }
+    SwingUtilities.invokeLater(() -> {
+      // Except while somebody is using a list on this window: taking the machine back closes
+      // it, and a list that shuts the moment it is opened cannot be chosen from.
+      if (aListIsOpen() || aListHasTheFocus()) {
+        return;
       }
-      int left = Math.abs(me.x - (m.x - me.width + sideSeam()));
-      if (left < closest) {
-        closest = left;
-        nearest = Dock.LEFT;
+      try {
+        machine.setSelected(true);
+      } catch (java.beans.PropertyVetoException refused) {
+        return;
+      }
+      machine.emulatorCore.getPanel().requestFocusInWindow();
+    });
+  }
+
+  private boolean aListIsOpen() {
+    return anyListOpen(getContentPane());
+  }
+
+  /** Whether what holds the keyboard just now is a list of this window's, being chosen from. */
+  private boolean aListHasTheFocus() {
+    Component owner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+    return owner instanceof JComboBox<?> && SwingUtilities.isDescendingFrom(owner, this);
+  }
+
+  private static boolean anyListOpen(Container where) {
+    for (Component child : where.getComponents()) {
+      if (child instanceof JComboBox<?> list && list.isPopupVisible()) {
+        return true;
+      }
+      if (child instanceof Container inner && anyListOpen(inner)) {
+        return true;
       }
     }
-    if (TRACE) {
-      System.out.printf("dock: machine=%s window=%s -> %s (nearest %d px)%n",
-          m, me, nearest, closest);
-    }
-    boolean was = dock != Dock.FREE;
-    dock = nearest;
-    dockButton.setSelected(nearest != Dock.FREE);
-    if (was != (nearest != Dock.FREE)) {
-      attachmentChanged();
-    }
-    place();
+    return false;
   }
 
   /**
