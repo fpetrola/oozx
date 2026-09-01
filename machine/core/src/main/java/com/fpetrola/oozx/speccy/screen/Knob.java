@@ -44,49 +44,34 @@ import java.util.function.Supplier;
  * @param read     what it is now
  * @param write    how to change it, taking effect at once
  */
-public record ScreenSetting(String key, String label, String about, Group group, Kind kind,
+public record Knob(String key, String label, String about, String group, Kind kind,
                             List<String> options, double minimum, double maximum, double step,
                             Object fallback, Supplier<Object> read, Consumer<Object> write) {
-
-  /** Which part of the window a knob belongs in. */
-  public enum Group {
-    SCALING("Scaling"), TELEVISION("Television"), COLOUR("Colour");
-
-    private final String label;
-
-    Group(String label) {
-      this.label = label;
-    }
-
-    public String label() {
-      return label;
-    }
-  }
 
   /** What sort of control shows a knob. */
   public enum Kind { CHOICE, SWITCH, NUMBER }
 
   /** One of a fixed set, shown as a list or as buttons. */
-  public static ScreenSetting choice(String key, String label, String about, Group group,
+  public static Knob choice(String key, String label, String about, String group,
                                      List<String> options, String fallback,
                                      Supplier<Object> read, Consumer<Object> write) {
-    return new ScreenSetting(key, label, about, group, Kind.CHOICE, List.copyOf(options),
+    return new Knob(key, label, about, group, Kind.CHOICE, List.copyOf(options),
         0, 0, 0, fallback, read, write);
   }
 
   /** On or off. */
-  public static ScreenSetting switching(String key, String label, String about, Group group,
+  public static Knob switching(String key, String label, String about, String group,
                                         boolean fallback,
                                         Supplier<Object> read, Consumer<Object> write) {
-    return new ScreenSetting(key, label, about, group, Kind.SWITCH, List.of(),
+    return new Knob(key, label, about, group, Kind.SWITCH, List.of(),
         0, 1, 1, fallback, read, write);
   }
 
   /** A number between two ends. */
-  public static ScreenSetting number(String key, String label, String about, Group group,
+  public static Knob number(String key, String label, String about, String group,
                                      double minimum, double maximum, double step, double fallback,
                                      Supplier<Object> read, Consumer<Object> write) {
-    return new ScreenSetting(key, label, about, group, Kind.NUMBER, List.of(),
+    return new Knob(key, label, about, group, Kind.NUMBER, List.of(),
         minimum, maximum, step, fallback, read, write);
   }
 

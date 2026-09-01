@@ -167,7 +167,7 @@ public class SpeccyScreen extends JPanel {
 
   private Object read(String key) {
     return screen.settings().stream().filter(one -> one.key().equals(key)).findFirst()
-        .map(com.fpetrola.oozx.speccy.screen.ScreenSetting::value).orElse(0);
+        .map(com.fpetrola.oozx.speccy.screen.Knob::value).orElse(0);
   }
 
   /** True to smooth, false to keep it blocky, null to go on deciding by the scale. */

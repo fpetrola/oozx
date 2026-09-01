@@ -19,7 +19,7 @@
 package com.fpetrola.oozx.speccy.peripherals.t;
 
 import com.fpetrola.oozx.speccy.screen.ScreenProfile;
-import com.fpetrola.oozx.speccy.screen.ScreenSetting;
+import com.fpetrola.oozx.speccy.screen.Knob;
 import com.fpetrola.oozx.speccy.screen.ScreenSettings;
 
 import javax.swing.BorderFactory;
@@ -64,7 +64,7 @@ public class ScreenSettingsInternalFrame extends JInternalFrame {
   private final ScreenSettings settings;
   private final Consumer<Map<String, String>> keepAsDefault;
   private final Runnable profilesChanged;
-  private final Map<ScreenSetting, Runnable> refreshers = new LinkedHashMap<>();
+  private final KnobRows rows = new KnobRows(this::showCurrentProfile);
   private final JComboBox<ScreenProfile> profiles = new JComboBox<>();
   private final JButton forget = new JButton("Forget");
   /** Set while the window is writing to its own controls, so echoes are not read as choices. */
@@ -80,7 +80,7 @@ public class ScreenSettingsInternalFrame extends JInternalFrame {
 
     setLayout(new BorderLayout());
     add(profiles(), BorderLayout.NORTH);
-    add(new JScrollPane(knobs()), BorderLayout.CENTER);
+    add(new JScrollPane(rows.of(settings.settings())), BorderLayout.CENTER);
     add(buttons(), BorderLayout.SOUTH);
     showCurrentProfile();
     setSize(430, 560);
@@ -106,7 +106,7 @@ public class ScreenSettingsInternalFrame extends JInternalFrame {
       ScreenProfile chosen = (ScreenProfile) profiles.getSelectedItem();
       if (chosen == null) return;
       settings.apply(chosen);
-      refreshers.values().forEach(Runnable::run);
+      rows.refresh();
       forget.setEnabled(!chosen.builtIn());
     });
     bar.add(profiles, BorderLayout.CENTER);
@@ -164,134 +164,6 @@ public class ScreenSettingsInternalFrame extends JInternalFrame {
     }
   }
 
-  private JPanel knobs() {
-    JPanel all = new JPanel();
-    all.setLayout(new BoxLayout(all, BoxLayout.Y_AXIS));
-
-    ScreenSetting.Group showing = null;
-    JPanel section = null;
-    int row = 0;
-
-    for (ScreenSetting knob : settings.settings()) {
-      if (knob.group() != showing) {
-        showing = knob.group();
-        section = new JPanel(new GridBagLayout());
-        section.setBorder(BorderFactory.createTitledBorder(showing.label()));
-        section.setAlignmentX(Component.LEFT_ALIGNMENT);
-        all.add(section);
-        row = 0;
-      }
-      addRow(section, knob, row++);
-    }
-
-    all.add(Box.createVerticalGlue());
-    return all;
-  }
-
-  private void addRow(JPanel section, ScreenSetting knob, int row) {
-    GridBagConstraints at = new GridBagConstraints();
-    at.insets = new Insets(2, 6, 2, 6);
-    at.gridy = row;
-    at.anchor = GridBagConstraints.WEST;
-
-    JLabel label = new JLabel(knob.label());
-    label.setToolTipText(knob.about());
-    at.gridx = 0;
-    section.add(label, at);
-
-    JComponent control = controlFor(knob);
-    // The one line the engine gives about each knob. Without it a window of names like
-    // "halation" and "persistence" says what can be changed and nothing about what it does.
-    control.setToolTipText(knob.about());
-    at.gridx = 1;
-    at.weightx = 1;
-    at.fill = GridBagConstraints.HORIZONTAL;
-    section.add(control, at);
-
-    JButton reset = new JButton("↺");
-    reset.setToolTipText("Back to " + knob.fallback());
-    reset.setMargin(new Insets(0, 4, 0, 4));
-    reset.addActionListener(e -> {
-      knob.reset();
-      refreshers.get(knob).run();
-    });
-    at.gridx = 2;
-    at.weightx = 0;
-    at.fill = GridBagConstraints.NONE;
-    section.add(reset, at);
-  }
-
-  private JComponent controlFor(ScreenSetting knob) {
-    switch (knob.kind()) {
-      case CHOICE -> {
-        JComboBox<String> box = new JComboBox<>(knob.options().toArray(new String[0]));
-        box.setSelectedItem(String.valueOf(knob.value()));
-        box.addActionListener(e -> {
-          knob.set(box.getSelectedItem());
-          showCurrentProfile();
-        });
-        refreshers.put(knob, () -> box.setSelectedItem(String.valueOf(knob.value())));
-        return box;
-      }
-      case SWITCH -> {
-        JCheckBox check = new JCheckBox("", Boolean.parseBoolean(String.valueOf(knob.value())));
-        check.addActionListener(e -> {
-          knob.set(check.isSelected());
-          showCurrentProfile();
-        });
-        refreshers.put(knob, () -> check.setSelected(
-            Boolean.parseBoolean(String.valueOf(knob.value()))));
-        return check;
-      }
-      default -> {
-        return slider(knob);
-      }
-    }
-  }
-
-  /**
-   * Sliders count in whole numbers, so the knob's own step decides how many notches there are.
-   * Asking the engine rather than picking a granularity here is what keeps a knob that moves
-   * between 0 and 0.8 from getting three useful positions.
-   */
-  private JComponent slider(ScreenSetting knob) {
-    double step = knob.step() > 0 ? knob.step() : 0.05;
-    int notches = (int) Math.round((knob.maximum() - knob.minimum()) / step);
-
-    JSlider slider = new JSlider(0, notches, notchOf(knob, step));
-    slider.setPreferredSize(new Dimension(150, slider.getPreferredSize().height));
-
-    JLabel reading = new JLabel();
-    reading.setFont(reading.getFont().deriveFont(Font.PLAIN, 11f));
-    Runnable show = () -> reading.setText(String.format("%.2f", asDouble(knob.value())));
-    show.run();
-
-    slider.addChangeListener(e -> {
-      knob.set(knob.minimum() + slider.getValue() * step);
-      show.run();
-      showCurrentProfile();
-    });
-    refreshers.put(knob, () -> {
-      slider.setValue(notchOf(knob, step));
-      show.run();
-    });
-
-    JPanel row = new JPanel(new BorderLayout(6, 0));
-    row.setOpaque(false);
-    row.add(slider, BorderLayout.CENTER);
-    row.add(reading, BorderLayout.EAST);
-    return row;
-  }
-
-  private int notchOf(ScreenSetting knob, double step) {
-    return (int) Math.round((asDouble(knob.value()) - knob.minimum()) / step);
-  }
-
-  private double asDouble(Object value) {
-    return value instanceof Number number ? number.doubleValue()
-        : Double.parseDouble(String.valueOf(value));
-  }
-
   private JToolBar buttons() {
     JToolBar bar = new JToolBar();
     bar.setFloatable(false);
@@ -308,7 +180,7 @@ public class ScreenSettingsInternalFrame extends JInternalFrame {
     restore.setToolTipText("Put this emulator back to what new ones start with");
     restore.addActionListener(e -> {
       settings.apply(ScreenSettings.getDefaults());
-      refreshers.values().forEach(Runnable::run);
+      rows.refresh();
     });
     bar.add(restore);
 

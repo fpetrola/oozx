@@ -20,8 +20,10 @@ package com.fpetrola.oozx.speccy.peripherals.t;
 
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.devices.mouse.KempstonMouse;
-import com.fpetrola.oozx.speccy.devices.mouse.KempstonMouse.Watcher;
 import com.fpetrola.oozx.speccy.devices.mouse.KempstonMousePeripheral;
+import com.fpetrola.oozx.speccy.screen.Knob;
+
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
@@ -64,7 +66,9 @@ public class MouseInternalFrame extends AttachedFrame {
    * a reading can only carry 127. Seventy per cent of 175 is 122, which fits. Record, in this
    * window, is how to find the number for another hand or another program.
    */
-  private final JSlider sensitivity = new JSlider(25, 400, 70);
+  private double acrossTheDesk = 0.70;
+  private double upTheDesk = 0.70;
+  private boolean swapButtons;
 
   /**
    * Whether the pointer is held inside the machine's picture, which is what gives it no edges.
@@ -132,11 +136,7 @@ public class MouseInternalFrame extends AttachedFrame {
   public MouseInternalFrame(Function<JInternalFrame, Speccy> machineOf) {
     super("Kempston Mouse");
     this.machineOf = machineOf;
-    setSize(300, 220);
 
-    sensitivity.setPreferredSize(new Dimension(110, 24));
-    sensitivity.setToolTipText("How far the machine's pointer goes for the same hand movement");
-    sensitivity.addChangeListener(e -> say());
     hold.setToolTipText("Keep the pointer in the machine's picture, so the mouse has no edges"
         + " - the middle button lets go, as it does in Fuse");
     hold.addActionListener(e -> held(hold.isSelected()));
@@ -144,11 +144,18 @@ public class MouseInternalFrame extends AttachedFrame {
     record.setToolTipText("Write down what the hand does and what the program reads, together");
     record.addActionListener(e -> recording(record.isSelected()));
     controls.add(record);
-    controls.add(new JLabel("Sensitivity"));
-    controls.add(sensitivity);
     controls.add(reading);
-    assemble(counters);
+
+    JPanel inside = new JPanel(new BorderLayout(8, 0));
+    JPanel turning = new KnobRows(this::say).of(knobs());
+    // Given a width of its own, or the knobs take every pixel and the picture of what the
+    // machine is being told - the reason this window exists - is squeezed out of existence.
+    turning.setPreferredSize(new Dimension(320, turning.getPreferredSize().height));
+    inside.add(turning, BorderLayout.WEST);
+    inside.add(counters, BorderLayout.CENTER);
+    assemble(inside);
     setCompact(false);
+    setSize(600, 320);
 
     Timer refresh = new Timer(REFRESH_MILLIS, e -> {
       counters.repaint();
@@ -255,9 +262,8 @@ public class MouseInternalFrame extends AttachedFrame {
       putBackInTheMiddle(picture, middle);
     }
     if (wasAt != null) {
-      double scale = sensitivity.getValue() / 100.0;
-      double dx = (now.x - wasAt.x) * scale + restX;
-      double dy = (now.y - wasAt.y) * scale + restY;
+      double dx = (now.x - wasAt.x) * acrossTheDesk + restX;
+      double dy = (now.y - wasAt.y) * upTheDesk + restY;
       int wholeX = (int) dx, wholeY = (int) dy;
       restX = dx - wholeX;
       restY = dy - wholeY;
@@ -280,8 +286,8 @@ public class MouseInternalFrame extends AttachedFrame {
     // The mouse on the desk has its buttons in the order the machine expects: left, right, then
     // the wheel if it is one that can be pressed.
     int number = switch (which.getButton()) {
-      case MouseEvent.BUTTON1 -> 0;
-      case MouseEvent.BUTTON3 -> 1;
+      case MouseEvent.BUTTON1 -> swapButtons ? 1 : 0;
+      case MouseEvent.BUTTON3 -> swapButtons ? 0 : 1;
       case MouseEvent.BUTTON2 -> 2;
       default -> -1;
     };
@@ -428,8 +434,46 @@ public class MouseInternalFrame extends AttachedFrame {
 
   private void say() {
     reading.setText(mouse == null ? "not plugged into a machine"
-        : String.format("%d%%%s", sensitivity.getValue(),
-            hold.isSelected() ? " - held, middle button lets go" : ""));
+        : hold.isSelected() ? "held - the middle button lets go" : "over the machine's picture");
+  }
+
+  /**
+   * Everything about this mouse that is worth turning, each saying what it is for itself.
+   * <p>
+   * Written as knobs rather than as controls because the window that draws them already exists
+   * and belongs to nobody in particular: the screen has ten of these and they are laid out by
+   * the same code. A setting added here is a line, not a dialog.
+   */
+  private List<Knob> knobs() {
+    return List.of(
+        Knob.number("across", "Sideways", "How far the machine's pointer goes for the same"
+                + " movement of the hand, across. More than a hundred is the pointer moving"
+                + " further than your hand does.",
+            "Movement", 0.1, 8, 0.05, 0.70,
+            () -> acrossTheDesk, value -> acrossTheDesk = asDouble(value)),
+        Knob.number("up", "Up and down", "The same for the other direction. A Spectrum screen is"
+                + " wider than it is tall, so the two are not always the same number.",
+            "Movement", 0.1, 8, 0.05, 0.70,
+            () -> upTheDesk, value -> upTheDesk = asDouble(value)),
+        Knob.switching("carry", "Carry over", "A stroke too quick to be read at once arrives at"
+                + " the next reading instead of being lost. Off, it is dropped and the pointer"
+                + " stays under your hand rather than catching up behind it.",
+            "Movement", true,
+            () -> mouse == null || mouse.mouse().isCarryOver(),
+            value -> {
+              if (mouse != null) {
+                mouse.mouse().setCarryOver(Boolean.parseBoolean(String.valueOf(value)));
+              }
+            }),
+        Knob.switching("swap", "Swap the buttons", "The right button becomes the machine's first"
+                + " one, as it is in Fuse for people who hold a mouse the other way.",
+            "Buttons", false,
+            () -> swapButtons, value -> swapButtons = Boolean.parseBoolean(String.valueOf(value))));
+  }
+
+  private static double asDouble(Object value) {
+    return value instanceof Number number ? number.doubleValue()
+        : Double.parseDouble(String.valueOf(value));
   }
 
   @Override

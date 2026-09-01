@@ -21,7 +21,7 @@ package model.tests.ui;
 import com.fpetrola.oozx.speccy.screen.Scaler;
 import com.fpetrola.oozx.speccy.screen.ScreenContext;
 import com.fpetrola.oozx.speccy.screen.ScreenProfile;
-import com.fpetrola.oozx.speccy.screen.ScreenSetting;
+import com.fpetrola.oozx.speccy.screen.Knob;
 import com.fpetrola.oozx.speccy.screen.ScreenSettings;
 import com.fpetrola.oozx.speccy.screen.Scalers;
 import org.junit.jupiter.api.Test;
@@ -139,17 +139,17 @@ class ScreenPipelineTest {
     // A window over these is a loop over the list, so anything the loop needs has to be there:
     // without a step it has to invent a granularity, without a default it cannot offer a reset,
     // without a group it has to guess the layout from the names.
-    for (ScreenSetting setting : new ScreenSettings().settings()) {
+    for (Knob setting : new ScreenSettings().settings()) {
       assertNotNull(setting.label(), setting.key() + " has no label");
       assertFalse(setting.about().isBlank(), setting.key() + " says nothing about what it does");
       assertNotNull(setting.group(), setting.key() + " belongs to no part of the window");
       assertNotNull(setting.fallback(), setting.key() + " cannot be put back");
       assertNotNull(setting.value(), setting.key() + " will not say what it is");
-      if (setting.kind() == ScreenSetting.Kind.NUMBER) {
+      if (setting.kind() == Knob.Kind.NUMBER) {
         assertTrue(setting.step() > 0, setting.key() + " has no step, so a slider must guess one");
         assertTrue(setting.maximum() > setting.minimum(), setting.key() + " has no range");
       }
-      if (setting.kind() == ScreenSetting.Kind.CHOICE) {
+      if (setting.kind() == Knob.Kind.CHOICE) {
         assertFalse(setting.options().isEmpty(), setting.key() + " offers nothing to choose");
         assertTrue(setting.options().contains(String.valueOf(setting.fallback())),
             setting.key() + " falls back to something it does not offer");

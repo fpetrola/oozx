@@ -72,31 +72,31 @@ public class ScreenSettings {
    * The order is the order they are worth meeting in, and the group is which part of a window
    * they belong to, so nothing downstream has to guess either from the names.
    */
-  public List<ScreenSetting> settings() {
-    List<ScreenSetting> all = new ArrayList<>();
+  public List<Knob> settings() {
+    List<Knob> all = new ArrayList<>();
 
-    all.add(ScreenSetting.choice("scaler", "Scaler",
+    all.add(Knob.choice("scaler", "Scaler",
         "How 256 by 192 becomes a windowful. Repeating pixels is exact and uneven at odd sizes; "
             + "averaging is even and soft; the rest guess at the shapes the pixels suggest.",
-        ScreenSetting.Group.SCALING,
+        "Scaling",
         Scalers.all().stream().map(Scaler::label).toList(), new Scalers.Nearest().label(),
         () -> scaler.label(), value -> {
           scaler = Scalers.byName(String.valueOf(value));
           changed();
         }));
 
-    all.add(ScreenSetting.switching("border", "Show border",
+    all.add(Knob.switching("border", "Show border",
         "The colour around the picture. Games flash it, and a tape loading stripes it.",
-        ScreenSetting.Group.SCALING, false,
+        "Scaling", false,
         () -> border, value -> {
           border = (Boolean) value;
           changed();
         }));
 
-    all.add(ScreenSetting.choice("tv", "Lead",
+    all.add(Knob.choice("tv", "Lead",
         "Which lead the picture came down. A composite signal carries colour with a quarter the "
             + "bandwidth it carries brightness, so colour smears sideways and brightness does not.",
-        ScreenSetting.Group.TELEVISION,
+        "Television",
         java.util.Arrays.stream(TvScreen.values()).map(TvScreen::label).toList(),
         TvScreen.RGB_MONITOR.label(),
         () -> tv.label(), value -> {
@@ -104,19 +104,19 @@ public class ScreenSettings {
           changed();
         }));
 
-    all.add(ScreenSetting.number("scanlines", "Scan lines",
+    all.add(Knob.number("scanlines", "Scan lines",
         "How dark the unlit gaps between the tube's lines are. Nothing below two screen pixels "
             + "to a machine pixel, where there is no gap to leave.",
-        ScreenSetting.Group.TELEVISION, 0, 0.8, 0.05, 0,
+        "Television", 0, 0.8, 0.05, 0,
         () -> scanLines, value -> {
           scanLines = ((Number) value).doubleValue();
           changed();
         }));
 
-    all.add(ScreenSetting.choice("mask", "Phosphor layout",
+    all.add(Knob.choice("mask", "Phosphor layout",
         "A colour tube has no pixels: it has stripes or dots of red, green and blue phosphor, and "
             + "the picture is a beam landing across them.",
-        ScreenSetting.Group.TELEVISION,
+        "Television",
         java.util.Arrays.stream(ScreenEffects.ShadowMask.Pattern.values()).map(Enum::name).toList(),
         ScreenEffects.ShadowMask.Pattern.NONE.name(),
         () -> mask.name(), value -> {
@@ -124,27 +124,27 @@ public class ScreenSettings {
           changed();
         }));
 
-    all.add(ScreenSetting.number("maskdepth", "Phosphor depth",
+    all.add(Knob.number("maskdepth", "Phosphor depth",
         "How strongly the stripes show. Too much and the picture goes dark; the tube did dim it.",
-        ScreenSetting.Group.TELEVISION, 0, 0.8, 0.05, 0.35,
+        "Television", 0, 0.8, 0.05, 0.35,
         () -> maskDepth, value -> {
           maskDepth = ((Number) value).doubleValue();
           changed();
         }));
 
-    all.add(ScreenSetting.number("phosphor", "Persistence",
+    all.add(Knob.number("phosphor", "Persistence",
         "How much of the frame before is still glowing. A tube fades rather than going dark, "
             + "which is why a sprite has a tail on one and a flickering game is easier to watch.",
-        ScreenSetting.Group.TELEVISION, 0, 0.9, 0.05, 0,
+        "Television", 0, 0.9, 0.05, 0,
         () -> phosphor, value -> {
           phosphor = ((Number) value).doubleValue();
           changed();
         }));
 
-    all.add(ScreenSetting.choice("shade", "Tint",
+    all.add(Knob.choice("shade", "Tint",
         "What the colours become on the way out: an old monochrome monitor, or something easier "
             + "on the eyes at night.",
-        ScreenSetting.Group.COLOUR,
+        "Colour",
         java.util.Arrays.stream(ScreenEffects.Tint.Shade.values())
             .map(ScreenEffects.Tint.Shade::label).toList(),
         ScreenEffects.Tint.Shade.NONE.label(),
@@ -158,17 +158,17 @@ public class ScreenSettings {
           changed();
         }));
 
-    all.add(ScreenSetting.number("brightness", "Brightness", "How bright, all over.",
-        ScreenSetting.Group.COLOUR, 0.4, 1.8, 0.05, 1,
+    all.add(Knob.number("brightness", "Brightness", "How bright, all over.",
+        "Colour", 0.4, 1.8, 0.05, 1,
         () -> brightness, value -> {
           brightness = ((Number) value).doubleValue();
           changed();
         }));
 
-    all.add(ScreenSetting.number("saturation", "Colour depth",
+    all.add(Knob.number("saturation", "Colour depth",
         "How strong the colours are. Nothing is black and white; two is more than a Spectrum "
             + "ever managed.",
-        ScreenSetting.Group.COLOUR, 0, 2, 0.05, 1,
+        "Colour", 0, 2, 0.05, 1,
         () -> saturation, value -> {
           saturation = ((Number) value).doubleValue();
           changed();
@@ -186,7 +186,7 @@ public class ScreenSettings {
    */
   public Map<String, String> values() {
     Map<String, String> written = new LinkedHashMap<>();
-    for (ScreenSetting setting : settings()) {
+    for (Knob setting : settings()) {
       written.put(setting.key(), String.valueOf(setting.value()));
     }
     return written;
@@ -197,7 +197,7 @@ public class ScreenSettings {
     if (written == null) {
       return;
     }
-    for (ScreenSetting setting : settings()) {
+    for (Knob setting : settings()) {
       String value = written.get(setting.key());
       if (value == null) {
         continue;
@@ -218,7 +218,7 @@ public class ScreenSettings {
 
   /** Puts every knob back to what it is when nobody has touched it. */
   public void reset() {
-    settings().forEach(ScreenSetting::reset);
+    settings().forEach(Knob::reset);
   }
 
   /**
