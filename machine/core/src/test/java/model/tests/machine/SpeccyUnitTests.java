@@ -494,7 +494,7 @@ public class SpeccyUnitTests extends SpeccyBaseForTests {
       case "PENT512" -> r += 0;                   // stub
       case "PENT1024" -> r += 0;                  // stub
       case "TC2048" -> r += paging_test_timex(2, memory.sourceNone, memory.sourceNone);
-      case "TC2068", "TS2068" -> r += paging_test_timex(2, memory.sourceNone, memory.sourceExrom);
+      case "TC2068", "TS2068" -> r += paging_test_timex(2, memory.sourceNone, memory.sourceFind("Timex EXROM"));
       case "SE" -> r += 0;                        // stub
       default -> System.out.printf("%s:%d: unknown machine?%n",
           "SpeccyUnitTests.java", 420);

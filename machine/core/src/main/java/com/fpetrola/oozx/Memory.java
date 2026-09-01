@@ -54,8 +54,6 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   public List<String> memorySources;
   public int sourceRom;
   public int sourceRam;
-  public int sourceDock;
-  public int sourceExrom;
   public int sourceAny;
   public int sourceNone;
 
@@ -85,8 +83,6 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
 
     sourceRom = sourceRegister("ROM");
     sourceRam = sourceRegister("RAM");
-    sourceDock = sourceRegister("Timex Dock");
-    sourceExrom = sourceRegister("Timex EXROM");
     sourceAny = sourceRegister("Absolute address");
     sourceNone = sourceRegister("None");
 
