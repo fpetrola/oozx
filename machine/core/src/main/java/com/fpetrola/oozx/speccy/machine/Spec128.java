@@ -30,9 +30,6 @@ import com.google.inject.Inject;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
-import com.fpetrola.oozx.speccy.devices.memory.Spec128MemoryPeripheral;
-import com.fpetrola.oozx.speccy.devices.memory.SeMemoryPeripheral;
-import com.fpetrola.oozx.speccy.devices.ay.AyPeripheral;
 import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.oozx.speccy.modules.Display;
 import com.fpetrola.oozx.speccy.modules.EventManager;

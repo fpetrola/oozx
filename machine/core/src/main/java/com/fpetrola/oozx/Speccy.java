@@ -27,17 +27,10 @@ import com.fpetrola.oozx.speccy.modules.Keyboard;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.modules.z80.Z80;
 import com.fpetrola.oozx.speccy.peripherals.PeripheralBus;
-import com.fpetrola.oozx.speccy.devices.ay.MelodikPeripheral;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.fpetrola.oozx.speccy.devices.ay.AyPeripheral;
-import com.fpetrola.oozx.speccy.devices.ay.AyPlus3Peripheral;
-import com.fpetrola.oozx.speccy.devices.memory.Spec128MemoryPeripheral;
-import com.fpetrola.oozx.speccy.devices.memory.SpecPlus3MemoryPeripheral;
-import com.fpetrola.oozx.speccy.devices.memory.SeMemoryPeripheral;
-import com.fpetrola.oozx.speccy.devices.disk.Upd765Peripheral;
 import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 
 @Singleton

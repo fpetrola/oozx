@@ -18,27 +18,16 @@
 
 package com.fpetrola.oozx.speccy.peripherals;
 
-import com.fpetrola.oozx.speccy.devices.disk.Upd765Peripheral;
 
-import com.fpetrola.oozx.speccy.devices.memory.SeMemoryPeripheral;
 
-import com.fpetrola.oozx.speccy.devices.memory.SpecPlus3MemoryPeripheral;
 
-import com.fpetrola.oozx.speccy.devices.memory.Spec128MemoryPeripheral;
 
-import com.fpetrola.oozx.speccy.devices.ula.UlaFullDecodePeripheral;
 
-import com.fpetrola.oozx.speccy.devices.ula.UlaPeripheral;
 
-import com.fpetrola.oozx.speccy.devices.joystick.KempstonLoosePeriphPeripheral;
 
-import com.fpetrola.oozx.speccy.devices.joystick.KempstonStrictPeripheral;
 
-import com.fpetrola.oozx.speccy.devices.ay.MelodikPeripheral;
 
-import com.fpetrola.oozx.speccy.devices.ay.AyPlus3Peripheral;
 
-import com.fpetrola.oozx.speccy.devices.ay.AyPeripheral;
 
 import com.fpetrola.oozx.UserInterface;
 
