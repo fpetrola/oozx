@@ -54,28 +54,11 @@ import java.util.function.Function;
  * How fast it plays comes from the machine's own speed setting, so the emulator window's speed
  * control works on a replay as it does on anything else.
  */
-public class RzxPlayerInternalFrame extends JInternalFrame {
+public class RzxPlayerInternalFrame extends AttachedFrame {
 
   /** A Spectrum frame, so a paced replay runs at the speed it was recorded at. */
   private static final int FRAME_MILLIS = 20;
   private static final int REFRESH_MILLIS = 100;
-  /**
-   * How near its resting place a drag has to finish for the player to attach.
-   * <p>
-   * Measured from where it would sit, which is a seam inside the machine's outline, so the reach
-   * has to cover that seam as well as the slack in somebody's aim.
-   */
-  private static final int STICKY = 40;
-  /** How long the window has to stand still before a drag counts as finished. */
-  private static final int SETTLE_MILLIS = 180;
-  /**
-   * -Drzx.dock.trace=true prints what the docking decides and why.
-   * <p>
-   * Here because a report of "it snaps and then does not follow" could not be reproduced from
-   * the outside: the decision is right in a test that walks the same steps, so what is wanted is
-   * what the running program sees rather than another guess about it.
-   */
-  private static final boolean TRACE = Boolean.getBoolean("rzx.dock.trace");
 
   private enum Mode { EMPTY, STOPPED, PLAYING, TAKEN_OVER, FINISHED }
 
@@ -92,9 +75,6 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
    * of them open it is possible to tell at a glance which controls drive which picture.
    */
   private final int number;
-
-  /** The emulator window showing this player's machine, while there is one. */
-  private JInternalFrame machineWindow;
 
   private File file;
   /** Where the open recording came from: a URL when fetched, the path when opened locally. */
@@ -123,53 +103,11 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   private final JTable table = new JTable(model);
   /** The list of parts, which is everything the compact form hides. */
   private final JScrollPane parts = new JScrollPane(table);
-  private final JPanel controls = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
 
-  /**
-   * Where the player sits against its machine's window, if it sits against it at all.
-   * <p>
-   * Bottom by default because that is where it belongs: the controls for a picture go under the
-   * picture, the same width, the way the transport bar of anything else does.
-   */
-  public enum Dock { FREE, BOTTOM, TOP, LEFT, RIGHT }
-
-  private Dock dock = Dock.BOTTOM;
-  private boolean compact = true;
-  /**
-   * The height somebody dragged this to, which docking has to respect.
-   * <p>
-   * Before this, every placement recomputed the height, so moving the window - or moving the
-   * machine, which moves the window - handed back a size nobody asked for and threw away the one
-   * they had set.
-   */
-  private int chosenHeight;
-  /**
-   * The last height this code set for itself.
-   * <p>
-   * Resize events are POSTED, not delivered on the spot, so one describing a height this code
-   * chose can arrive long afterwards - after {@link #compact} has been turned off, for instance,
-   * at which point the listener below reads it as "the person wants it this tall" and records the
-   * compact height as their preference. Expanding then does nothing at all, about half the time.
-   * An event carrying the height we just set is not somebody resizing the window.
-   */
-  private int placedHeight = -1;
-  private final Progress progress = new Progress();
-  /**
-   * Set while THIS code is moving the window, so that its own placement is not mistaken for
-   * somebody dragging it. Without it, docking moves the window, the move looks like a drag, the
-   * drag re-docks, and the two feed each other.
-   */
-  private boolean placing;
-  private JToggleButton dockButton;
-  /** Fires once the window has stopped being dragged; see the listener that restarts it. */
-  private Timer settle;
-  private JToggleButton expandButton;
-  /** Watches the machine's window so the player follows it about while attached. */
-  private ComponentAdapter machineWatcher;
 
   public RzxPlayerInternalFrame(int number, Function<RzxPlayerInternalFrame, File> chooseRecording,
                                 BiConsumer<RzxPlayerInternalFrame, RzxSession> showMachine) {
-    super("RZX #" + number, true, true, true, true);
+    super("RZX #" + number);
     this.number = number;
     this.chooseRecording = chooseRecording;
     this.showMachine = showMachine;
@@ -200,64 +138,13 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
     });
     controls.add(favoriteButton);
 
-    expandButton = EmulatorInternalFrame.iconToggle("expand-panel.svg", "Expand",
-        "Show what is in the recording, or just the controls");
-    expandButton.addActionListener(e -> setCompact(!expandButton.isSelected()));
-    controls.add(expandButton);
-
-    dockButton = EmulatorInternalFrame.iconToggle("dock-bottom.svg", "Attach",
-        "Keep this under the machine's window, the same width as it");
-    dockButton.setSelected(true);
-    dockButton.addActionListener(e -> {
-      dock = dockButton.isSelected() ? Dock.BOTTOM : Dock.FREE;
-      place();
-    });
-    controls.add(dockButton);
-    EmulatorInternalFrame.tighten(controls);
-
     table.setRowHeight(22);
     table.getColumnModel().getColumn(0).setPreferredWidth(130);
     table.getColumnModel().getColumn(1).setPreferredWidth(400);
     table.getColumnModel().getColumn(2).setPreferredWidth(140);
     table.getColumnModel().getColumn(2).setCellRenderer(new ProgressRenderer());
 
-    JPanel top = new JPanel(new BorderLayout());
-    top.add(controls, BorderLayout.NORTH);
-    // Under the buttons and across the whole width: while a recording plays, how far along it is
-    // is the one thing worth seeing at a glance, and the compact form has no room for anything
-    // that takes a row of its own.
-    top.add(progress, BorderLayout.SOUTH);
-    setLayout(new BorderLayout());
-    add(top, BorderLayout.NORTH);
-    add(parts, BorderLayout.CENTER);
-    parts.setVisible(false);                    // compact until asked otherwise
-
-    // Sticky edges: a drag that finishes near the machine's window attaches to whichever side it
-    // finished nearest, and one that finishes away from it lets go.
-    // Decided when the dragging STOPS, not at every position along the way. A drag is a stream
-    // of moves, and most of them are nowhere near anything: judging each one in turn means a
-    // quick drag downwards detaches the moment it clears the machine, and a drag across the
-    // desktop attaches and detaches to whatever it passes. Waiting for the moves to stop asks
-    // the only question that matters - where was it LEFT.
-    settle = new Timer(SETTLE_MILLIS, e -> snapIfNear());
-    settle.setRepeats(false);
-    addComponentListener(new ComponentAdapter() {
-      @Override
-      public void componentMoved(ComponentEvent moved) {
-        if (!placing) {
-          settle.restart();
-        }
-      }
-
-      @Override
-      public void componentResized(ComponentEvent resized) {
-        // Only a resize that somebody did counts. The ones this code makes are how it gets
-        // placed, and treating those as a preference is how a window slowly grows on its own.
-        if (!placing && !compact && getHeight() != placedHeight) {
-          chosenHeight = getHeight();
-        }
-      }
-    });
+    assemble(parts);
 
     Timer refresh = new Timer(REFRESH_MILLIS, e -> refresh());
     refresh.start();
@@ -265,7 +152,6 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
       @Override
       public void internalFrameClosed(javax.swing.event.InternalFrameEvent e) {
         refresh.stop();
-        settle.stop();
         alive = false;
       }
     });
@@ -281,13 +167,24 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
   }
 
   /** The emulator window showing this recording's machine was closed: stop driving it. */
-  public void machineClosed() {
+  @Override
+  protected void machineClosed() {
     stopThread();
     session = null;
-    machineWindow = null;
     mode = Mode.EMPTY;
     model.fireTableDataChanged();
     refresh();
+    super.machineClosed();
+  }
+
+  @Override
+  protected String expandTip() {
+    return "Show what is in the recording, or just the controls";
+  }
+
+  @Override
+  protected String attachTip() {
+    return "Keep this under the machine's window, the same width as it";
   }
 
   /** Loads a recording, builds its machine and hands that machine over to be shown. */
@@ -311,219 +208,6 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
     return number;
   }
 
-  /** The emulator window driven by this player, or null while there is none. */
-  public JInternalFrame getMachineWindow() {
-    return machineWindow;
-  }
-
-  public void setMachineWindow(JInternalFrame machineWindow) {
-    if (this.machineWindow != null && machineWatcher != null) {
-      this.machineWindow.removeComponentListener(machineWatcher);
-    }
-    this.machineWindow = machineWindow;
-    if (machineWindow != null) {
-      machineWatcher = new ComponentAdapter() {
-        @Override
-        public void componentMoved(ComponentEvent moved) {
-          if (TRACE) {
-            System.out.printf("rzx dock: the machine moved to %s, dock is %s%n",
-                RzxPlayerInternalFrame.this.machineWindow.getBounds(), dock);
-          }
-          place();
-        }
-
-        @Override
-        public void componentResized(ComponentEvent resized) {
-          place();
-        }
-      };
-      machineWindow.addComponentListener(machineWatcher);
-      place();
-    }
-  }
-
-  /**
-   * How tall this is with the list hidden: the toolbar and the title bar, and nothing else.
-   * <p>
-   * Asked of the frame rather than added up by hand. A JInternalFrame's insets are its border
-   * alone - the title bar is a component inside it, not an inset - so adding the toolbar to the
-   * insets comes out a title bar short, and the compact form loses its bottom row of buttons.
-   * The layout already skips what is not visible, so with the list hidden the preferred height is
-   * exactly the compact height.
-   */
-  private int compactHeight() {
-    boolean showing = parts.isVisible();
-    parts.setVisible(false);
-    int tall = getPreferredSize().height;
-    parts.setVisible(showing);
-    return tall;
-  }
-
-  /** Puts the player against its machine, if it is attached to it. */
-  private void place() {
-    if (machineWindow == null || machineWindow.isClosed() || dock == Dock.FREE) {
-      return;
-    }
-    Rectangle m = machineWindow.getBounds();
-    int tall = compact ? compactHeight() : Math.max(compactHeight(), chosenHeight);
-    placing = true;
-    placedHeight = tall;
-    try {
-      switch (dock) {
-        // Along the top or the bottom it takes the machine's width, which is the whole point of
-        // putting it there: the controls for a picture, the width of the picture.
-        // Overlapped by the two borders that meet, or the frames sit a seam apart: each draws
-        // its own edge and the gap between the picture and the buttons is the sum of the two.
-        case BOTTOM -> setBounds(m.x, m.y + m.height - seam(), m.width, tall);
-        case TOP -> setBounds(m.x, Math.max(0, m.y - tall + seam()), m.width, tall);
-        // Against a side it is only moved, never resized. Stretching it to the machine's height
-        // turns a toolbar into a column of empty space, and a window that changes size because
-        // it drifted near something else is a window fighting the person holding it.
-        case LEFT -> setLocation(Math.max(0, m.x - getWidth() + sideSeam()), m.y);
-        case RIGHT -> setLocation(m.x + m.width - sideSeam(), m.y);
-        default -> { }
-      }
-    } finally {
-      placing = false;
-    }
-    keepWithMachine();
-  }
-
-  /**
-   * Puts the player immediately in front of its machine in the stack of windows.
-   * <p>
-   * While attached it is part of that window, not a window in its own right, so it has no
-   * business having its own place in the order: anything raised over the machine - the game
-   * browser, most often, which brings itself to the front whenever it is used - would otherwise
-   * come up over the controls as well and leave them buried under something unrelated.
-   * <p>
-   * Index nought is the front in AWT, so taking the machine's index puts this one in front of it
-   * and pushes the machine back by one. Detached, none of this applies and it takes its chances
-   * like any other window.
-   */
-  private void keepWithMachine() {
-    Container desktop = getParent();
-    if (desktop == null || machineWindow == null || machineWindow.getParent() != desktop) {
-      return;
-    }
-    int machineAt = desktop.getComponentZOrder(machineWindow);
-    if (machineAt >= 0 && desktop.getComponentZOrder(this) != machineAt) {
-      desktop.setComponentZOrder(this, machineAt);
-    }
-  }
-
-  /** The two borders that meet where the frames touch, which is what to overlap by. */
-  private int seam() {
-    return machineWindow == null ? 0 : machineWindow.getInsets().bottom + getInsets().top;
-  }
-
-  private int sideSeam() {
-    return machineWindow == null ? 0 : machineWindow.getInsets().left + getInsets().right;
-  }
-
-  /**
-   * Attaches to whichever side of the machine's window this one was left nearest, or lets go.
-   * <p>
-   * Only the sides it actually overlaps count: a player dragged well below and to the right of
-   * the machine is near its bottom edge by one measure and near nothing by eye.
-   */
-  void snapIfNear() {
-    if (machineWindow == null || machineWindow.isClosed()) {
-      return;
-    }
-    Rectangle m = machineWindow.getBounds(), me = getBounds();
-    Dock nearest = Dock.FREE;
-    int closest = STICKY;
-    // Measured against where it would SIT if attached, not against the machine's outline. The
-    // two are a seam apart, and measuring to the outline meant that the moment docking placed
-    // the window - a seam inside the edge - the next look found it exactly a seam away and let
-    // go again. With the seam at 24 and the reach at 24, "closer than" was never true and the
-    // window attached and detached in the same breath: it moved into place and never held.
-    if (me.x < m.x + m.width && m.x < me.x + me.width) {
-      int under = Math.abs(me.y - (m.y + m.height - seam()));
-      if (under < closest) {
-        closest = under;
-        nearest = Dock.BOTTOM;
-      }
-      int over = Math.abs(me.y - (m.y - me.height + seam()));
-      if (over < closest) {
-        closest = over;
-        nearest = Dock.TOP;
-      }
-    }
-    if (me.y < m.y + m.height && m.y < me.y + me.height) {
-      int right = Math.abs(me.x - (m.x + m.width - sideSeam()));
-      if (right < closest) {
-        closest = right;
-        nearest = Dock.RIGHT;
-      }
-      int left = Math.abs(me.x - (m.x - me.width + sideSeam()));
-      if (left < closest) {
-        closest = left;
-        nearest = Dock.LEFT;
-      }
-    }
-    if (TRACE) {
-      System.out.printf("rzx dock: machine=%s player=%s -> %s (nearest %d px)%n",
-          m, me, nearest, closest);
-    }
-    dock = nearest;
-    dockButton.setSelected(nearest != Dock.FREE);
-    place();
-  }
-
-  /** Which side of the machine's window this is attached to, or FREE. */
-  Dock dockedTo() {
-    return dock;
-  }
-
-  /** The compact form is the controls alone; expanded adds what is in the recording. */
-  void setCompact(boolean wanted) {
-    if (!wanted && chosenHeight < compactHeight() + 40) {
-      chosenHeight = 300;                       // never expanded before: a sensible first size
-    }
-    compact = wanted;
-    parts.setVisible(!wanted);
-    if (dock == Dock.FREE) {
-      placedHeight = wanted ? compactHeight() : chosenHeight;
-      setSize(getWidth(), placedHeight);
-    } else {
-      place();
-    }
-    revalidate();
-    repaint();
-  }
-
-  /**
-   * How far along the recording is, as a line under the buttons.
-   * <p>
-   * Its own component rather than a JProgressBar: a few pixels tall is the point, and a progress
-   * bar with a look and feel behind it has its own opinion about how short it is allowed to be.
-   */
-  private static class Progress extends JComponent {
-
-    private double howFar;
-
-    Progress() {
-      setPreferredSize(new Dimension(10, 5));
-    }
-
-    void setHowFar(double howFar) {
-      double clamped = Math.max(0, Math.min(1, howFar));
-      if (Math.abs(clamped - this.howFar) > 0.0005) {
-        this.howFar = clamped;
-        repaint();
-      }
-    }
-
-    @Override
-    protected void paintComponent(Graphics pen) {
-      pen.setColor(getBackground().darker());
-      pen.fillRect(0, 0, getWidth(), getHeight());
-      pen.setColor(new Color(0x3F7FBF));
-      pen.fillRect(0, 0, (int) Math.round(getWidth() * howFar), getHeight());
-    }
-  }
 
   public void setOnFavorite(Runnable onFavorite) {
     this.onFavorite = onFavorite;
@@ -715,7 +399,7 @@ public class RzxPlayerInternalFrame extends JInternalFrame {
       return;
     }
     RzxPlayback playback = session.getPlayback();
-    progress.setHowFar(playback.getFrameCount() == 0 ? 0
+    showProgress(playback.getFrameCount() == 0 ? 0
         : (double) playback.getFrameIndex() / playback.getFrameCount());
     String where = playback.getFrameIndex() + " of " + playback.getFrameCount() + " frames";
     String state = switch (mode) {
