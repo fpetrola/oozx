@@ -48,6 +48,10 @@ public class Printout {
     listeners.add(listener);
   }
 
+  public void stopWatching(Listener listener) {
+    listeners.remove(listener);
+  }
+
   public int height() {
     return rows.size();
   }

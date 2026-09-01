@@ -1137,6 +1137,10 @@ public class ZXSpectrumDesktopApp extends JFrame {
     tapeBrowserItem.addActionListener(e -> showTapeBrowser());
     emulatorMenu.add(tapeBrowserItem);
 
+    JMenuItem printerItem = new JMenuItem("ZX Printer");
+    printerItem.addActionListener(e -> showPrinter());
+    emulatorMenu.add(printerItem);
+
     JMenuItem audioInItem = new JMenuItem("Real Cassette (audio in)...");
     audioInItem.addActionListener(e -> showAudioIn());
     emulatorMenu.add(audioInItem);
@@ -1964,6 +1968,9 @@ public class ZXSpectrumDesktopApp extends JFrame {
    * The deck belonging to each machine. Weak so a closed emulator can be collected; the browser
    * looks a tape up from whichever emulator is in front rather than being tied to one.
    */
+  private final java.util.Map<EmulatorCore, com.fpetrola.oozx.Speccy> machinesByCore =
+      new java.util.HashMap<>();
+
   private final java.util.Map<EmulatorCore, com.fpetrola.oozx.speccy.modules.tape.Tape> tapesByCore =
       new java.util.WeakHashMap<>();
 
@@ -1972,6 +1979,16 @@ public class ZXSpectrumDesktopApp extends JFrame {
   }
 
   /** The deck inside a machine's window, or null when that window is not a machine. */
+  /** The emulator behind a window, for a peripheral that has to reach the machine it is clipped to. */
+  public void registerMachine(EmulatorCore core, com.fpetrola.oozx.Speccy speccy) {
+    machinesByCore.put(core, speccy);
+  }
+
+  public com.fpetrola.oozx.Speccy machineOf(JInternalFrame window) {
+    return window instanceof EmulatorInternalFrame emulator
+        ? machinesByCore.get(emulator.emulatorCore) : null;
+  }
+
   public com.fpetrola.oozx.speccy.modules.tape.Tape deckOf(JInternalFrame machine) {
     return machine instanceof EmulatorInternalFrame emulator
         ? tapesByCore.get(emulator.emulatorCore) : null;
@@ -1986,6 +2003,9 @@ public class ZXSpectrumDesktopApp extends JFrame {
    * you move it by unplugging it and clipping it onto the next.
    */
   private final java.util.List<TapeBrowserInternalFrame> cassettes = new java.util.ArrayList<>();
+
+  /** Every printer open at once, one per machine, clipped on the same way a deck is. */
+  private final java.util.List<PrinterInternalFrame> printers = new java.util.ArrayList<>();
 
   /**
    * Every player open at once. There used to be one, kept in a field and reused, so a second
@@ -2343,6 +2363,31 @@ public class ZXSpectrumDesktopApp extends JFrame {
       }
     }
     return newCassette();
+  }
+
+  /**
+   * A printer, clipped onto the machine in front - which is what plugs it in. Opening the one that
+   * is already there rather than a second one, the way the cassette does.
+   */
+  public PrinterInternalFrame showPrinter() {
+    printers.removeIf(JInternalFrame::isClosed);
+    for (PrinterInternalFrame open : printers) {
+      if (!open.isAttached() || open.getMachineWindow() == machineBeingUsed()) {
+        open.setVisible(true);
+        open.toFront();
+        return open;
+      }
+    }
+
+    PrinterInternalFrame printer = new PrinterInternalFrame(this::machineOf);
+    printer.setLocation(360 + (printers.size() * 30) % 300, 60 + (printers.size() * 30) % 200);
+    printers.add(printer);
+    desktop.add(printer);
+    printer.setVisible(true);
+    if (machineBeingUsed() != null) {
+      printer.attachTo(machineBeingUsed());
+    }
+    return printer;
   }
 
   /** Another deck, whatever the open ones are doing. */

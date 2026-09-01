@@ -59,6 +59,7 @@ public class OOSpectrumLauncher {
     // plug into and quietly did nothing.
     java.util.function.Function<Speccy, EmulatorCore> known = speccy -> {
       appHolder[0].registerTape(speccy.z80.mockCore, speccy.tape);
+      appHolder[0].registerMachine(speccy.z80.mockCore, speccy);
       return speccy.z80.mockCore;
     };
 
