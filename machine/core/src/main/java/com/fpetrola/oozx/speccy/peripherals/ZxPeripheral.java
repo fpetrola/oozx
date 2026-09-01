@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx.speccy.peripherals;
 
+import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.ports.PortHandler;
 
 public interface ZxPeripheral {
@@ -33,11 +34,18 @@ public interface ZxPeripheral {
   PortHandler[] getPorts();
 
   /**
+   * Whether this device belongs on that machine. Asked in what a machine can do, never in which
+   * machine it is; a device that names no machine fits none, which is how one arrives switched off
+   * until it says where it goes.
+   */
+  boolean fitsOn(SpectrumMachine machine);
+
+  /**
    * Whether whoever is using this emulator has asked for this one.
    * <p>
-   * Only asked of a peripheral a machine says it can have but does not come with. Fuse holds a
-   * pointer to the settings flag; this answers from it, which is the same thing said in a language
-   * that has no pointers.
+   * Only tells apart the devices that are plugged in by choice: one a machine comes with is always
+   * wanted. Fuse holds a pointer to the settings flag; this answers from it, which is the same
+   * thing said in a language that has no pointers.
    */
   boolean isWanted();
 

@@ -50,10 +50,10 @@ import com.fpetrola.emulation.helpers.machine.MachineTypes;
 public class Pentagon extends Spec128 {
 
   @Inject
-  public Pentagon(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph,
+  public Pentagon(Memory memory, Display display, PeriphDelegate periph,
                   Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module,
                   Sound sound, UserInterface userInterface) {
-    super(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, sound,
+    super(memory, display, periph, settings, eventManager, cpu, timer, module, sound,
         userInterface);
   }
 
@@ -61,6 +61,10 @@ public class Pentagon extends Spec128 {
   @Override
   public Set<MachineCapability> getCapabilities() {
     return Set.of(AY, MEMORY_128);
+  }
+
+  public boolean fullyDecodesPorts() {
+    return true;
   }
 
   /** A Pentagon has no contention and no floating bus. */
@@ -91,7 +95,6 @@ public class Pentagon extends Spec128 {
 
   @Override
   protected void installPeripherals() {
-    machinesPeriph.machinesPeriphPentagon();
   }
 
   @Override

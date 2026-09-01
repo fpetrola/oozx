@@ -25,6 +25,7 @@ import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
 import com.fpetrola.oozx.speccy.modules.Ula;
 
 import java.util.List;
+import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 
 public class UlaPeripheral extends AbstractZxPeripheral {
 
@@ -47,5 +48,9 @@ public class UlaPeripheral extends AbstractZxPeripheral {
   @Override
   public void deactivate() {
     ula.detachSpeaker();
+  }
+
+  public boolean fitsOn(SpectrumMachine machine) {
+    return !machine.fullyDecodesPorts();
   }
 }

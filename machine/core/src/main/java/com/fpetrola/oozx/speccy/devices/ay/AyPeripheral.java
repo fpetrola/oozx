@@ -26,6 +26,8 @@ import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.List;
+import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
+import com.fpetrola.oozx.MachineCapability;
 
 /**
  * The sound chip a 128K machine has and a 48K one does not, and the chip itself.
@@ -93,5 +95,10 @@ public class AyPeripheral extends AbstractZxPeripheral {
    */
   public long writes() {
     return chip == null ? 0 : chip.writes;
+  }
+
+  /** The chip a machine comes with, decoded as a 128 does; the +3 answers its ports differently. */
+  public boolean fitsOn(SpectrumMachine machine) {
+    return machine.has(MachineCapability.AY) && !machine.has(MachineCapability.PLUS3_MEMORY);
   }
 }

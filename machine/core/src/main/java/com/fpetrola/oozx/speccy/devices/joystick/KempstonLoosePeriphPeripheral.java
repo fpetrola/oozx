@@ -26,6 +26,8 @@ import com.fpetrola.oozx.speccy.modules.Joystick;
 
 import java.util.List;
 import java.util.function.BooleanSupplier;
+import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
+import com.fpetrola.oozx.MachineCapability;
 
 /**
  * The looser decoding some interfaces used, answering on more addresses.
@@ -48,5 +50,10 @@ public class KempstonLoosePeriphPeripheral extends AbstractZxPeripheral {
   @Override
   public boolean isWanted() {
     return wanted.getAsBoolean();
+  }
+
+  /** The interface a Timex has, which decodes even fewer bits than the strict one. */
+  public boolean fitsOn(SpectrumMachine machine) {
+    return machine.has(MachineCapability.TIMEX_VIDEO);
   }
 }

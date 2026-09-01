@@ -34,8 +34,8 @@ import com.fpetrola.emulation.helpers.machine.MachineTypes;
 @Singleton
 public class SpecPlus2 extends Spec128 {
   @Inject
-  public SpecPlus2(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
-    super(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, sound, userInterface);
+  public SpecPlus2(Memory memory, Display display, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
+    super(memory, display, periph, settings, eventManager, cpu, timer, module, sound, userInterface);
   }
 
   public String shortName() {

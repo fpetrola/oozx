@@ -51,8 +51,8 @@ public class SpecPlus3 extends Spec128 {
   public UPDFdc uPDFdc;
 
   @Inject
-  public SpecPlus3(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, Fdd fdd, UPDFdc uPDFdc, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
-    super(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, new SpecPlus3RamInfo(8), sound, userInterface);
+  public SpecPlus3(Memory memory, Display display, PeriphDelegate periph, Settings settings, Fdd fdd, UPDFdc uPDFdc, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
+    super(memory, display, periph, settings, eventManager, cpu, timer, module, new SpecPlus3RamInfo(8), sound, userInterface);
     this.fdd = fdd;
     this.uPDFdc = uPDFdc;
     specplus3765Init();
@@ -177,7 +177,6 @@ public class SpecPlus3 extends Spec128 {
   }
 
   protected void resetStep2() {
-    periph.setPresent(Periph.Type.UPD765, Periph.Present.ALWAYS);
     periph.update();
     specplus3765Reset();
     specplus3MenuItems();
@@ -385,7 +384,6 @@ public class SpecPlus3 extends Spec128 {
     plus2aCommonReset();
 
     periph.clear();
-    machinesPeriph.machinesPeriphPlus3();
   }
 
   public int unattachedPort(int port) {

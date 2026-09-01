@@ -59,6 +59,11 @@ public interface SpectrumMachine {
    * Whether the ULA leaves the video data it is reading on the bus, which is what a port nothing
    * answers to reads back. The Amstrad machines and the Pentagon drive theirs instead.
    */
+  /** Whether this machine decodes a port on all of its bits, where a Sinclair one looks at a few. */
+  default boolean fullyDecodesPorts() {
+    return false;
+  }
+
   default boolean hasFloatingBus() {
     return true;
   }

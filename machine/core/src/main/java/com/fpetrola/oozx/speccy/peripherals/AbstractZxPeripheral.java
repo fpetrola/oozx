@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx.speccy.peripherals;
 
+import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.ports.PortHandler;
 
 import java.util.List;
@@ -57,9 +58,13 @@ public class AbstractZxPeripheral implements ZxPeripheral {
     return portHandlers;
   }
 
-  /** Built in, or not offered: either way nobody is asked. A peripheral that can be plugged in says so. */
-  public boolean isWanted() {
+  public boolean fitsOn(SpectrumMachine machine) {
     return false;
+  }
+
+  /** Built in: nobody is asked. One that is plugged in by choice answers from what was chosen. */
+  public boolean isWanted() {
+    return true;
   }
 
   public boolean hasHardReset() {

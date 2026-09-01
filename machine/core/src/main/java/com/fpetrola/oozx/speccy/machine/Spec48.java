@@ -35,8 +35,8 @@ import com.fpetrola.emulation.helpers.machine.MachineTypes;
 public class Spec48 extends Spectrum {
 
   @Inject
-  public Spec48(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
-    super(memory, display, eventManager, cpu, timer, module, settings, new Spec48RamInfo(3), machinesPeriph, periph, sound, userInterface);
+  public Spec48(Memory memory, Display display, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
+    super(memory, display, eventManager, cpu, timer, module, settings, new Spec48RamInfo(3), periph, sound, userInterface);
   }
 
   // Initialize the Spectrum 48K speccyMachineInfo
@@ -54,7 +54,6 @@ public class Spec48 extends Spectrum {
     loadRom(0, settings.current.rom48, settings.defaults.rom48, 0x4000);
 
     periph.clear();
-    machinesPeriph.machinesPeriph48();
     periph.update();
 
     Beta.builtin = false;

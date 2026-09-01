@@ -25,10 +25,17 @@ import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
 import com.fpetrola.oozx.speccy.machine.Spec128;
 
 import java.util.List;
+import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
+import com.fpetrola.oozx.MachineCapability;
 
 public class Spec128MemoryPeripheral extends AbstractZxPeripheral {
   public Spec128MemoryPeripheral(Spec128 spec128) {
     super(Periph.Type._128_MEMORY,
         List.of(new Spec128PortHandler(0x8002, 0x0000, spec128)));
+  }
+
+  /** The 128's pager, on the machines whose paging is only that - the +3 pages differently. */
+  public boolean fitsOn(SpectrumMachine machine) {
+    return machine.has(MachineCapability.MEMORY_128) && !machine.has(MachineCapability.PLUS3_MEMORY);
   }
 }

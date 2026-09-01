@@ -140,22 +140,12 @@ public class Periph implements IPeriph {
     }
   }
 
-  // Enum for peripheral presence
-  public enum Present {
-    NEVER,
-    OPTIONAL,
-    ALWAYS
-  }
-
   // Private structure for peripheral data
   private class PrivatePeripheral {
-    Present present;
     boolean active;
     ZxPeripheral peripheral;
 
-    PrivatePeripheral(Present present, boolean active, ZxPeripheral peripheral) {
-      this.present = present;
-      this.active = active;
+    PrivatePeripheral(ZxPeripheral peripheral) {
       this.peripheral = peripheral;
     }
   }
@@ -198,23 +188,7 @@ public class Periph implements IPeriph {
       peripherals = new HashMap<>();
     }
 
-    PrivatePeripheral privatePeriph = new PrivatePeripheral(Present.NEVER, false, zxPeripheral);
-    peripherals.put(zxPeripheral.getClass(), privatePeriph);
-  }
-
-  // Set whether a peripheral can be present on this machine
-  @Override
-  public void setPresent(Type type, Present present) {
-    Class<? extends ZxPeripheral> zxPeripheralClass = type.getZxPeripheralClass();
-    setPresent(zxPeripheralClass, present);
-  }
-
-  @Override
-  public void setPresent(Class<? extends ZxPeripheral> zxPeripheralClass, Present present) {
-    PrivatePeripheral typeData = peripherals.get(zxPeripheralClass);
-    if (typeData != null) {
-      typeData.present = present;
-    }
+    peripherals.put(zxPeripheral.getClass(), new PrivatePeripheral(zxPeripheral));
   }
 
   // Mark a specific peripheral as (in)active
@@ -279,10 +253,7 @@ public class Periph implements IPeriph {
     ports.clear();
     busListeners.clear();
     if (peripherals != null) {
-      peripherals.forEach((type, data) -> {
-        data.present = Present.NEVER;
-        data.active = false;
-      });
+      peripherals.forEach((type, data) -> data.active = false);
     }
   }
 
@@ -455,12 +426,7 @@ public class Periph implements IPeriph {
     }
 
     peripherals.forEach((type, privatePeriph) -> {
-      boolean active = switch (privatePeriph.present) {
-        case NEVER -> false;
-        case OPTIONAL -> privatePeriph.peripheral.isWanted();
-        case ALWAYS -> true;
-      };
-      boolean changed = activateType(privatePeriph.peripheral.getClass(), active);
+      boolean changed = activateType(privatePeriph.peripheral.getClass(), wanted(privatePeriph));
       needsHardReset[0] |= changed && privatePeriph.peripheral.hasHardReset();
     });
 
@@ -468,6 +434,11 @@ public class Periph implements IPeriph {
     getSpectrumMachine().memoryMap();
 
     return needsHardReset[0];
+  }
+
+  /** Switched on when it belongs on the machine that is running and whoever is here asked for it. */
+  private boolean wanted(PrivatePeripheral privatePeriph) {
+    return privatePeriph.peripheral.fitsOn(getSpectrumMachine()) && privatePeriph.peripheral.isWanted();
   }
 
   // Perform post-update hook
@@ -484,12 +455,7 @@ public class Periph implements IPeriph {
     boolean[] needsHardReset = {false};
 
     peripherals.forEach((type, privatePeriph) -> {
-      boolean active = switch (privatePeriph.present) {
-        case NEVER -> false;
-        case OPTIONAL -> privatePeriph.peripheral.isWanted();
-        case ALWAYS -> true;
-      };
-      boolean needsReset = privatePeriph != null && privatePeriph.active != active && privatePeriph.peripheral.hasHardReset();
+      boolean needsReset = privatePeriph.active != wanted(privatePeriph) && privatePeriph.peripheral.hasHardReset();
       needsHardReset[0] |= needsReset;
     });
 

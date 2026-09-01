@@ -43,12 +43,12 @@ import com.fpetrola.emulation.helpers.machine.MachineTypes;
 @Singleton
 public class Spec128 extends Spectrum {
   @Inject
-  public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
-    this(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, new Spec48RamInfo(8), sound, userInterface);
+  public Spec128(Memory memory, Display display, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
+    this(memory, display, periph, settings, eventManager, cpu, timer, module, new Spec48RamInfo(8), sound, userInterface);
   }
 
-  public Spec128(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, RamInfo ramInfo, Sound sound, UserInterface userInterface) {
-    super(memory, display, eventManager, cpu, timer, module, settings, ramInfo, machinesPeriph, periph, sound, userInterface);
+  public Spec128(Memory memory, Display display, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, RamInfo ramInfo, Sound sound, UserInterface userInterface) {
+    super(memory, display, eventManager, cpu, timer, module, settings, ramInfo, periph, sound, userInterface);
   }
 
   /** The 128 is the first with a sound chip and with paging through port 0x7ffd. */
@@ -108,7 +108,6 @@ public class Spec128 extends Spectrum {
   }
 
   protected void installPeripherals() {
-    machinesPeriph.machinesPeriph128();
   }
 
   public int commonReset(boolean contention) {

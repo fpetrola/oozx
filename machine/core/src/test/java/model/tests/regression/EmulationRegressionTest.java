@@ -22,7 +22,6 @@ import model.tests.media.TzxLoadingTest;
 
 import com.fpetrola.oozx.EmulatorModule;
 import com.fpetrola.oozx.Speccy;
-import com.fpetrola.oozx.MachinesPeriph;
 import com.fpetrola.oozx.Memory;
 import com.fpetrola.oozx.PeriphDelegate;
 import com.fpetrola.oozx.SpectrumZ80Clock;
@@ -130,7 +129,7 @@ public class EmulationRegressionTest {
     Injector injector = Guice.createInjector(new EmulatorModule(new SpectrumZ80Clock()));
 
     for (Class<?> shared : new Class<?>[]{
-        Tape.class, Sound.class, Memory.class, Ula.class, MachinesPeriph.class,
+        Tape.class, Sound.class, Memory.class, Ula.class,
         IPeriph.class, PeriphDelegate.class}) {
       assertSame(injector.getInstance(shared), injector.getInstance(shared),
           shared.getSimpleName() + " is handed out more than once; it needs @Singleton");

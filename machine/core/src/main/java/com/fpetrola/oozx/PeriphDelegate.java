@@ -29,14 +29,6 @@ public interface PeriphDelegate extends IPeriph {
     getPeriph().register(zxPeripheral);
   }
 
-  default void setPresent(Periph.Type type, Periph.Present present) {
-    getPeriph().setPresent(type, present);
-  }
-
-  default void setPresent(Class<? extends ZxPeripheral> zxPeripheralClass, Periph.Present present) {
-    getPeriph().setPresent(zxPeripheralClass, present);
-  }
-
   default boolean activateType(Class<? extends ZxPeripheral> type, boolean active) {
     return getPeriph().activateType(type, active);
   }

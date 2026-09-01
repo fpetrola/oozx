@@ -33,7 +33,6 @@ import java.util.Arrays;
 public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModule {
   protected final Memory memory;
   protected final Display display;
-  protected final MachinesPeriph machinesPeriph;
   protected final IPeriph periph;
   private final EventManager eventManager;
   private final Cpu cpu;
@@ -52,7 +51,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
 
   private final UserInterface userInterface;
 
-  public Spectrum(Memory memory, Display display, EventManager eventManager, Cpu cpu, Timer timer, Module module, Settings settings1, RamInfo ramInfo1, MachinesPeriph machinesPeriph, PeriphDelegate periph, Sound sound, UserInterface userInterface) {
+  public Spectrum(Memory memory, Display display, EventManager eventManager, Cpu cpu, Timer timer, Module module, Settings settings1, RamInfo ramInfo1, PeriphDelegate periph, Sound sound, UserInterface userInterface) {
     super(display, settings1, ramInfo1);
     this.userInterface = userInterface;
     this.memory = memory;
@@ -63,7 +62,6 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
     this.timer = timer;
     this.module = module;
     this.ram = memory.getRAM();
-    this.machinesPeriph = machinesPeriph;
     this.periph = periph;
     this.sound = sound;
   }

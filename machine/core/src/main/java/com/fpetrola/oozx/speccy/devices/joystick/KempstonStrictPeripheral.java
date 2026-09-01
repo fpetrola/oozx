@@ -26,6 +26,7 @@ import com.fpetrola.oozx.speccy.modules.Joystick;
 
 import java.util.List;
 import java.util.function.BooleanSupplier;
+import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 
 /**
  * The Kempston as most things decode it: bit 5 low.
@@ -48,5 +49,10 @@ public class KempstonStrictPeripheral extends AbstractZxPeripheral {
   @Override
   public boolean isWanted() {
     return wanted.getAsBoolean();
+  }
+
+  /** Its port is decoded loosely, so it only goes where the machine leaves those bits alone. */
+  public boolean fitsOn(SpectrumMachine machine) {
+    return !machine.fullyDecodesPorts();
   }
 }

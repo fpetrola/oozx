@@ -24,6 +24,8 @@ import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.function.BooleanSupplier;
+import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
+import com.fpetrola.oozx.MachineCapability;
 
 /**
  * A box with an AY in it, for a machine that has not got one.
@@ -44,5 +46,11 @@ public class MelodikPeripheral extends AyPeripheral {
   @Override
   public boolean isWanted() {
     return wanted.getAsBoolean();
+  }
+
+  /** The point of the box: it goes where the machine has no chip of its own. */
+  @Override
+  public boolean fitsOn(SpectrumMachine machine) {
+    return !machine.has(MachineCapability.AY);
   }
 }

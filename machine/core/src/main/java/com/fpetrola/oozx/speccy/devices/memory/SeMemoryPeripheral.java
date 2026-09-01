@@ -26,9 +26,15 @@ import com.fpetrola.oozx.Machine;
 import com.fpetrola.oozx.Spectrum;
 
 import java.util.List;
+import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
+import com.fpetrola.oozx.MachineCapability;
 
 public class SeMemoryPeripheral extends AbstractZxPeripheral {
   public SeMemoryPeripheral(Spectrum spectrum) {
     super(Periph.Type.SE_MEMORY, List.of(new SeMemoryPortHandler(spectrum)));
+  }
+
+  public boolean fitsOn(SpectrumMachine machine) {
+    return machine.has(MachineCapability.SE_MEMORY);
   }
 }

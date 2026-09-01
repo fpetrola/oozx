@@ -47,7 +47,6 @@ public class Speccy {
   public final Ula ula;
   public final EventManager eventManager;
   public final PeriphDelegate ulaPeriph;
-  public final MachinesPeriph machinesPeriph;
   public final Joystick joystick;
   public final Input input;
   public final Machine machine;
@@ -85,8 +84,7 @@ public class Speccy {
   @Inject
   public Speccy(SpectrumZ80Clock zxClock, EmulationSession session, Settings settings, Memory memory,
               Display display, Keyboard keyboard, IPeriph periph, Tape tape, Sound sound, Ula ula,
-              EventManager eventManager, PeriphDelegate ulaPeriph, MachinesPeriph machinesPeriph,
-              Joystick joystick, Input input, Machine machine, Z80 z80, UiDisplay uiDisplay,
+              EventManager eventManager, PeriphDelegate ulaPeriph, Joystick joystick, Input input, Machine machine, Z80 z80, UiDisplay uiDisplay,
               Spec48 spec48, Spec128 spec128, SpecPlus3 specPlus3, SpecPlus2 specPlus2,
               SpecPlus2A specPlus2a, SpecPlus3E specPlus3e, Spec48Ntsc spec48Ntsc, Pentagon pentagon,
               java.util.Set<Spectrum> models, @DefaultMachine Spectrum defaultMachine,
@@ -103,7 +101,6 @@ public class Speccy {
     this.ula = ula;
     this.eventManager = eventManager;
     this.ulaPeriph = ulaPeriph;
-    this.machinesPeriph = machinesPeriph;
     this.joystick = joystick;
     this.input = input;
     this.machine = machine;

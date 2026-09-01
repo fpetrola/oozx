@@ -23,10 +23,6 @@ import com.fpetrola.oozx.MachineChangeListener;
 public interface IPeriph extends MachineChangeListener {
   void register(ZxPeripheral zxPeripheral);
 
-  void setPresent(Periph.Type type, Periph.Present present);
-
-  void setPresent(Class<? extends ZxPeripheral> zxPeripheralClass, Periph.Present present);
-
   boolean activateType(Class<? extends ZxPeripheral> type, boolean active);
 
   boolean isActive(Periph.Type type);

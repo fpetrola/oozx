@@ -40,8 +40,8 @@ import com.fpetrola.emulation.helpers.machine.MachineTypes;
 @Singleton
 public class Spec48Ntsc extends Spec48 {
   @Inject
-  public Spec48Ntsc(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
-    super(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, sound, userInterface);
+  public Spec48Ntsc(Memory memory, Display display, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
+    super(memory, display, periph, settings, eventManager, cpu, timer, module, sound, userInterface);
     init();
   }
 
@@ -68,7 +68,6 @@ public class Spec48Ntsc extends Spec48 {
 
     // Limpiar y configurar periféricos 48K
     periph.clear();
-    machinesPeriph.machinesPeriph48();
     periph.update();
 
     // Pantalla en RAM 5
