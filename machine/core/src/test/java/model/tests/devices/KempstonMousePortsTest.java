@@ -111,8 +111,13 @@ class KempstonMousePortsTest {
     KempstonMouse mouse = mouseOf(speccy).mouse();
 
     // A program reads the difference from what it read last, so a counter that stopped at its
-    // end would freeze the pointer against an edge that does not exist on the desk.
+    // end would freeze the pointer against an edge that does not exist on the desk. Three
+    // hundred is more than one reading can carry, so it arrives over two of them.
     mouse.moved(300, 0);
+    // Three hundred is more than two readings can carry between them, so it arrives over
+    // three - none of which is a jump the program would read as going the other way.
+    read(speccy, X);
+    read(speccy, X);
     assertEquals(300 & 0xFF, read(speccy, X), "the count wraps at eight bits");
     mouse.moved(-1, 0);
     assertNotEquals(300 & 0xFF, read(speccy, X), "and goes backwards as happily as forwards");

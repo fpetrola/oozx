@@ -20,6 +20,7 @@ package com.fpetrola.oozx.speccy.peripherals.t;
 
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.devices.mouse.KempstonMouse;
+import com.fpetrola.oozx.speccy.devices.mouse.KempstonMouse.Watcher;
 import com.fpetrola.oozx.speccy.devices.mouse.KempstonMousePeripheral;
 
 import javax.swing.*;
@@ -57,8 +58,13 @@ public class MouseInternalFrame extends AttachedFrame {
    * window happens to be, so the same hand movement is a different number of pixels from one
    * moment to the next. Rather than guess, this is a knob: turn it while watching the program
    * being pointed at, which is the only place the answer can be seen.
+   * <p>
+   * Seventy to begin with, and not a hundred, from a measurement: a hand at an ordinary speed
+   * was putting 175 counts between two readings of a program polling fifty times a second, and
+   * a reading can only carry 127. Seventy per cent of 175 is 122, which fits. Record, in this
+   * window, is how to find the number for another hand or another program.
    */
-  private final JSlider sensitivity = new JSlider(25, 400, 100);
+  private final JSlider sensitivity = new JSlider(25, 400, 70);
 
   /**
    * Whether the pointer is held inside the machine's picture, which is what gives it no edges.
@@ -69,6 +75,11 @@ public class MouseInternalFrame extends AttachedFrame {
    * stroke that leaves it is lost. With it there is nowhere to run out to.
    */
   private final JToggleButton hold = new JToggleButton("Hold");
+
+  /** Writes down both ends of the wire at once, so they can be laid side by side afterwards. */
+  private final JToggleButton record = new JToggleButton("Record");
+
+  private final Recording recording = new Recording();
 
   /**
    * What was left over from the last move, kept rather than thrown away.
@@ -130,6 +141,9 @@ public class MouseInternalFrame extends AttachedFrame {
         + " - the middle button lets go, as it does in Fuse");
     hold.addActionListener(e -> held(hold.isSelected()));
     controls.add(hold);
+    record.setToolTipText("Write down what the hand does and what the program reads, together");
+    record.addActionListener(e -> recording(record.isSelected()));
+    controls.add(record);
     controls.add(new JLabel("Sensitivity"));
     controls.add(sensitivity);
     controls.add(reading);
@@ -273,6 +287,98 @@ public class MouseInternalFrame extends AttachedFrame {
     };
     if (number >= 0) {
       mouse.mouse().button(number, down);
+    }
+  }
+
+  private void recording(boolean wanted) {
+    if (mouse == null) {
+      record.setSelected(false);
+      return;
+    }
+    if (wanted) {
+      recording.start();
+      mouse.mouse().watch(recording);
+    } else {
+      mouse.mouse().watch(null);
+      JOptionPane.showMessageDialog(this, recording.report(), "What went over the wire",
+          JOptionPane.INFORMATION_MESSAGE);
+    }
+    say();
+  }
+
+  /**
+   * Both ends of the wire, written down with the time, and then crossed.
+   * <p>
+   * What the hand did is known here; what the program made of it is only visible in when it
+   * asked and what it got. The number that decides whether a pointer behaves is the largest
+   * step between two consecutive readings: a program works out how far to move from the
+   * difference between what it reads now and what it read last, as a signed byte, so a step of
+   * more than 127 is read as a large move BACKWARDS. That is a pointer that jumps about no
+   * matter how steadily the hand moves.
+   */
+  private static class Recording implements KempstonMouse.Watcher {
+
+    private long began;
+    private int hand;
+    private int counts;
+    private int reads;
+    private int biggestStep;
+    private int stepsOver127;
+
+    /**
+     * Counts that have gone by since the program last looked.
+     * <p>
+     * This is the crossing of the two ends, and it cannot be had from either alone: the counter
+     * itself only ever shows a difference of at most 127 either way, so by the time a step is
+     * too big to read the evidence of it is gone. Knowing what the hand did is what makes the
+     * real size of the step visible.
+     */
+    private int sinceItLooked;
+
+    void start() {
+      began = System.currentTimeMillis();
+      hand = counts = reads = biggestStep = stepsOver127 = sinceItLooked = 0;
+    }
+
+    @Override
+    public void handMoved(int dx, int dy, int x, int y) {
+      hand += Math.abs(dx);
+      counts += Math.abs(dx);
+      sinceItLooked += Math.abs(dx);
+    }
+
+    @Override
+    public void programRead(String which, int value) {
+      if (!"x".equals(which)) {
+        return;
+      }
+      reads++;
+      biggestStep = Math.max(biggestStep, sinceItLooked);
+      if (sinceItLooked > 127) {
+        stepsOver127++;
+      }
+      sinceItLooked = 0;
+    }
+
+    String report() {
+      double seconds = Math.max(0.001, (System.currentTimeMillis() - began) / 1000.0);
+      return String.format(
+          "Over %.1f seconds:%n%n"
+              + "  the hand moved %d pixels sideways%n"
+              + "  which sent %d counts%n%n"
+              + "  the program read the horizontal counter %d times, %.0f a second%n"
+              + "  the most counts that went by between two of its readings: %d%n"
+              + "  times more than 127 went by unseen: %d%n%n"
+              + "%s",
+          seconds, hand, counts, reads, reads / seconds, biggestStep, stepsOver127,
+          stepsOver127 > 0
+              ? "A step over 127 is read as a large move BACKWARDS, because a program works out\n"
+              + "how far to go from the difference as a signed byte. That is the pointer jumping\n"
+              + "about however steadily the hand moves. Lower the sensitivity until this is zero."
+              : reads == 0
+                  ? "The program never read the mouse at all while this was recording."
+                  : "No reading was more than 127 from the one before it, so nothing here would\n"
+                  + "make a pointer jump backwards.");
     }
   }
 
