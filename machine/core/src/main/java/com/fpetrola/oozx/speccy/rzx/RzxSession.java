@@ -216,6 +216,9 @@ public class RzxSession {
    * @return false at the end of the recording
    */
   public boolean playFrame() {
+    // This is how a machine driven by a recording advances, so it is where what was deferred
+    // gets done - the ordinary loop does it at the end of doOpcodes, which never runs here.
+    speccy.z80.applyWhatWasDeferred();
     try {
       if (!playback.playFrame()) {
         return false;

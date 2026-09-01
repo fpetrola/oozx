@@ -512,6 +512,20 @@ public class Z80 implements ZxModule, Cpu {
       }
     }
 
+    applyWhatWasDeferred();
+  }
+
+  /**
+   * Does whatever was asked for with {@link #later}, which every loop that advances this machine
+   * has to call.
+   * <p>
+   * It used to happen at the end of doOpcodes and nowhere else, which was the same thing while
+   * doOpcodes was the only way a machine ran. A recording drives its machine frame by frame
+   * instead, through RzxSession, so while one played nothing was ever applied: changing the
+   * speed, changing the machine, plugging a device in - all queued and none of it happening,
+   * with no sign that anything had been asked for.
+   */
+  public void applyWhatWasDeferred() {
     for (Runnable work = pending.poll(); work != null; work = pending.poll()) {
       work.run();
     }
