@@ -66,7 +66,6 @@ import java.util.zip.InflaterInputStream;
 @Singleton
 public class Tape implements ClockTimeoutListener {
 
-    public boolean microphone;
     //    private Z80 cpu;
     private ByteArrayOutputStream record;
     private DeflaterOutputStream dos;
@@ -165,7 +164,7 @@ public class Tape implements ClockTimeoutListener {
         tapePlaying = tapeRecording = false;
         tapeExtension = TapeExtensionType.NO_TAPE;
         tapePos = 0;
-        earBit = EAR_ON;
+        earBit = EAR_OFF;
         spectrumModel = MachineTypes.SPECTRUM48K;
         nOffsetBlocks = 0;
         idxHeader = 0;
@@ -780,7 +779,7 @@ public class Tape implements ClockTimeoutListener {
     }
 
     public boolean isTapeRunning() {
-        return tapePlaying || tapeRecording || earSource != null;
+        return tapePlaying || tapeRecording;
     }
 
     public boolean isTapeInserted() {
@@ -821,6 +820,10 @@ public class Tape implements ClockTimeoutListener {
 
         tapePlaying = false;
         statePlay = State.STOP;
+        // Back to a resting line, the way Fuse puts its microphone down on stop: the port reads
+        // this level whether or not anything is playing, so a tape that stopped halfway through
+        // an edge would otherwise leave the line held high for good.
+        earBit = EAR_OFF;
 
         fireTapeBlockChanged(idxHeader);
         fireTapeStateChanged(TapeState.STOP);

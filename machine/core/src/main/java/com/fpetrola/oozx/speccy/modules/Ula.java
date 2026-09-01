@@ -120,15 +120,13 @@ public class Ula implements ZxModule, MachineChangeListener {
     r &= PhantomTypist.ulaRead(port);
     byte read = keyboard.read((byte) (port >> 8));
     r &= read;
-    if (tape.microphone) r ^= EAR;
 
-    // Only the ear bit comes from the tape. Taking the whole byte threw the keyboard away with
-    // it: bit 6 is the tape, bits 0 to 4 are the keys, and a machine reading this port is asking
-    // about both at once. It went unnoticed while the only thing that made a tape "running" was
-    // a file playing, because nobody types during a load - but a real cassette player plugged
-    // into the ear line is running the whole time it is plugged in, and the keyboard was dead.
-    if (tape.isTapeRunning()) {
-      r = (byte) ((r & ~EAR) | (tape.getEarBit() & EAR));
+    // What the tape is saying, laid over the idle value of the port, which is Fuse's line -
+    // see ula_read in peripherals/ula.c. Only bit 6: bits 0 to 4 are the keys, and this port is
+    // asked about both at once. Taking the whole byte from the tape, which is what this did,
+    // threw the keyboard away for as long as anything was playing.
+    if (tape.isEarHigh()) {
+      r ^= EAR;
     }
 
     return r;
@@ -146,7 +144,7 @@ public class Ula implements ZxModule, MachineChangeListener {
       boolean earIn = tape.isTapePlaying() && tape.isEarHigh();
       if (speaker != null) {
         speaker.write(z80Clock.getTStates(),
-            ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || tape.microphone || earIn ? 1 : 0),
+            ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || earIn ? 1 : 0),
             getCurrent().separatesTapeFromSpeaker());
       }
 
