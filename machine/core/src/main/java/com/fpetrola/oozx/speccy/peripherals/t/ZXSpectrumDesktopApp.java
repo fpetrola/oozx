@@ -66,6 +66,7 @@ class EmulatorInternalFrame extends JInternalFrame {
   private float scaleFactor0 = 1.73f;
   private float scaleFactor = scaleFactor0;
   private JDialog fullscreen;
+  private KeyListener keys;
   //  private JLabel tapeStatusLabel;
   private List<com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod> appliedPokes = new ArrayList<>();
 
@@ -541,6 +542,20 @@ class EmulatorInternalFrame extends JInternalFrame {
     return turboIcon;
   }
 
+  /**
+   * This machine's keyboard, asked for once.
+   * <p>
+   * getKeyListener builds a new one on every call, which was harmless while it was called once
+   * per window and would be one keyboard per keystroke now that the keys are routed rather than
+   * bound to the panel.
+   */
+  KeyListener keys() {
+    if (keys == null) {
+      keys = emulatorCore.getKeyListener();
+    }
+    return keys;
+  }
+
   private void openPokesDialog() {
     if (parentApp == null) return;
 
@@ -998,6 +1013,10 @@ public class ZXSpectrumDesktopApp extends JFrame {
     this.mockCore = mockCore;
     this.mockCoreState = mockCoreState1;
     this.config = OOZxConfiguration.load();
+    // One place for the keyboard, rather than one per emulator window: which machine is being
+    // typed into is a question about this desktop, not about any one of the machines on it.
+    KeyboardFocusManager.getCurrentKeyboardFocusManager()
+        .addKeyEventDispatcher(this::typeIntoTheMachineInFront);
     applySavedLookAndFeel();
     // Emulators apply the defaults themselves as they are built, so putting the saved ones in
     // place here is all it takes for the next window to open configured.
@@ -2427,6 +2446,62 @@ public class ZXSpectrumDesktopApp extends JFrame {
     return null;
   }
 
+  /**
+   * Sends what is typed to the machine being used, whatever happens to hold the focus.
+   * <p>
+   * The keys used to be wired to the emulator's own panel gaining and losing focus, which made
+   * every window that appears beside a machine able to take its keyboard away: clicking a
+   * cassette deck clipped under it left the machine deaf until somebody clicked the picture
+   * again, and each such window had to be taught to hand the keys back. What somebody means by
+   * "the machine I am typing into" is the machine in front, or the machine that the thing in
+   * front is clipped onto - not whichever component Swing last gave the focus to.
+   */
+  private boolean typeIntoTheMachineInFront(KeyEvent event) {
+    if (somebodyIsWriting()) {
+      return false;
+    }
+    EmulatorInternalFrame machine = machineBeingUsed();
+    KeyListener keys = machine == null ? null : machine.keys();
+    if (keys == null) {
+      return false;
+    }
+    switch (event.getID()) {
+      case KeyEvent.KEY_PRESSED -> keys.keyPressed(event);
+      case KeyEvent.KEY_RELEASED -> keys.keyReleased(event);
+      case KeyEvent.KEY_TYPED -> keys.keyTyped(event);
+      default -> { }
+    }
+    return false;
+  }
+
+  /** The machine in front, or the machine whatever is in front is clipped onto. */
+  private EmulatorInternalFrame machineBeingUsed() {
+    JInternalFrame selected = desktop == null ? null : desktop.getSelectedFrame();
+    if (selected instanceof EmulatorInternalFrame machine && !machine.isClosed()) {
+      return machine;
+    }
+    if (selected instanceof AttachedFrame clipped && clipped.isAttached()
+        && clipped.getMachineWindow() instanceof EmulatorInternalFrame machine) {
+      return machine;
+    }
+    return null;
+  }
+
+  /**
+   * Whether the keys belong to somebody writing rather than to a machine: a box being typed in,
+   * a list being chosen from, or a dialog that has taken the keyboard for itself.
+   */
+  private static boolean somebodyIsWriting() {
+    KeyboardFocusManager focus = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+    Window window = focus.getFocusedWindow();
+    if (window instanceof Dialog dialog && dialog.isModal()) {
+      return true;
+    }
+    Component owner = focus.getFocusOwner();
+    return owner instanceof javax.swing.text.JTextComponent
+        || owner instanceof JComboBox<?> list && (list.isEditable() || list.isPopupVisible());
+  }
+
   /** A window on what is coming in the sound card, for a cassette player with a real lead. */
   public AudioInInternalFrame showAudioIn() {
     AudioInInternalFrame watching = new AudioInInternalFrame(this::deckOf);
@@ -2481,24 +2556,9 @@ public class ZXSpectrumDesktopApp extends JFrame {
       }
     });
 
+    // Focusable so that clicking the picture still raises its window; the keys themselves no
+    // longer depend on it holding the focus - see typeIntoTheMachineInFront.
     panel.setFocusable(true);
-    KeyListener keyListener = core1.getKeyListener();
-    panel.addFocusListener(new FocusListener() {
-      public void focusGained(FocusEvent e) {
-        panel.addKeyListener(keyListener);
-        System.out.println("gained");
-      }
-
-      public void focusLost(FocusEvent e) {
-        panel.removeKeyListener(keyListener);
-        System.out.println("lost");
-
-      }
-
-      private Container getParent() {
-        return frame;
-      }
-    });
 
     desktop.add(frame);
     frame.setVisible(true);

@@ -190,17 +190,6 @@ public abstract class AttachedFrame extends JInternalFrame {
         settle.stop();
       }
 
-      /**
-       * Clicking a deck raises it, and raising it takes the keyboard off the machine. While it
-       * is clipped on it is part of that machine, so it hands the keys straight back: its own
-       * controls are pressed with the mouse and none of them wants typing.
-       */
-      @Override
-      public void internalFrameActivated(InternalFrameEvent e) {
-        if (dock != Dock.FREE) {
-          leaveKeyboardWithMachine();
-        }
-      }
     });
 
   }
@@ -299,7 +288,6 @@ public abstract class AttachedFrame extends JInternalFrame {
       place();
     }
     attachmentChanged();
-    leaveKeyboardWithMachine();
   }
 
   /**
@@ -424,9 +412,6 @@ public abstract class AttachedFrame extends JInternalFrame {
       attachmentChanged();
     }
     place();
-    if (nearest != Dock.FREE) {
-      leaveKeyboardWithMachine();
-    }
   }
 
   /**
@@ -502,53 +487,6 @@ public abstract class AttachedFrame extends JInternalFrame {
     };
   }
 
-  /**
-   * Gives the keyboard back to the machine.
-   * <p>
-   * The keys are wired to the machine's own panel gaining focus - see createNewEmulator - so a
-   * window that clips on and takes the focus with it leaves the machine deaf until somebody
-   * clicks the picture again. Being part of a machine means not taking its keyboard away.
-   */
-  private void leaveKeyboardWithMachine() {
-    if (!(machineWindow instanceof EmulatorInternalFrame machine)) {
-      return;
-    }
-    SwingUtilities.invokeLater(() -> {
-      // Except while somebody is using a list on this window: taking the machine back closes
-      // it, and a list that shuts the moment it is opened cannot be chosen from.
-      if (aListIsOpen() || aListHasTheFocus()) {
-        return;
-      }
-      try {
-        machine.setSelected(true);
-      } catch (java.beans.PropertyVetoException refused) {
-        return;
-      }
-      machine.emulatorCore.getPanel().requestFocusInWindow();
-    });
-  }
-
-  private boolean aListIsOpen() {
-    return anyListOpen(getContentPane());
-  }
-
-  /** Whether what holds the keyboard just now is a list of this window's, being chosen from. */
-  private boolean aListHasTheFocus() {
-    Component owner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
-    return owner instanceof JComboBox<?> && SwingUtilities.isDescendingFrom(owner, this);
-  }
-
-  private static boolean anyListOpen(Container where) {
-    for (Component child : where.getComponents()) {
-      if (child instanceof JComboBox<?> list && list.isPopupVisible()) {
-        return true;
-      }
-      if (child instanceof Container inner && anyListOpen(inner)) {
-        return true;
-      }
-    }
-    return false;
-  }
 
   /**
    * Clips this back onto a machine, which is what a deck asking for a computer wants.
