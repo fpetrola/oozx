@@ -18,7 +18,6 @@
 
 package com.fpetrola.oozx.speccy.devices.ay;
 
-import com.fpetrola.oozx.speccy.peripherals.Periph;
 
 import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.z80.cpu.Z80Clock;
@@ -39,7 +38,7 @@ public class MelodikPeripheral extends AyPeripheral {
   private final BooleanSupplier wanted;
 
   public MelodikPeripheral(Sound sound, Z80Clock clock, BooleanSupplier wanted) {
-    super(Periph.Type.MELODIK, sound, clock, false);
+    super(sound, clock, false);
     this.wanted = wanted;
   }
 

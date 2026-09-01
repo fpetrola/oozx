@@ -24,16 +24,10 @@ import com.fpetrola.oozx.speccy.ports.PortHandler;
 import java.util.List;
 
 public class AbstractZxPeripheral implements ZxPeripheral {
-  protected final Periph.Type type;
   private PortHandler[] portHandlers;
 
-  public AbstractZxPeripheral(Periph.Type type, List<PortHandler> portHandlers) {
-    this.type = type;
+  public AbstractZxPeripheral(List<PortHandler> portHandlers) {
     this.portHandlers = portHandlers.toArray(new PortHandler[0]);
-  }
-
-  public Periph.Type getType() {
-    return type;
   }
 
   public boolean canActivate() {

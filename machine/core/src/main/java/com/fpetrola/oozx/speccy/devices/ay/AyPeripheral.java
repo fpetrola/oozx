@@ -18,7 +18,6 @@
 
 package com.fpetrola.oozx.speccy.devices.ay;
 
-import com.fpetrola.oozx.speccy.peripherals.Periph;
 
 import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
 
@@ -47,11 +46,11 @@ public class AyPeripheral extends AbstractZxPeripheral {
   private Ay chip;
 
   public AyPeripheral(Sound sound, Z80Clock clock) {
-    this(Periph.Type.AY, sound, clock, false);
+    this(sound, clock, false);
   }
 
-  protected AyPeripheral(Periph.Type type, Sound sound, Z80Clock clock, boolean dataPortAnswers) {
-    super(type, List.of());
+  protected AyPeripheral(Sound sound, Z80Clock clock, boolean dataPortAnswers) {
+    super(List.of());
     this.sound = sound;
     // 0xFFFD: bits 15 and 14 high - which register is being spoken to.
     // 0xBFFD: bit 14 high, bit 15 low - the value for it.

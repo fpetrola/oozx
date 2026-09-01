@@ -21,10 +21,11 @@ package model.tests.devices;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.SpectrumZ80Clock;
 import com.fpetrola.oozx.speccy.OOSpectrumConnector;
-import com.fpetrola.oozx.speccy.peripherals.Periph;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 import com.fpetrola.oozx.speccy.sound.SilentSoundDevice;
 import org.junit.jupiter.api.Test;
+import com.fpetrola.oozx.speccy.devices.joystick.KempstonStrictPeripheral;
+import com.fpetrola.oozx.speccy.devices.ula.UlaPeripheral;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -54,18 +55,18 @@ class OptionalPeripheralsTest {
   @Test
   void whatTheMachineComesWithIsThere() {
     Speccy speccy = machineWith(false);
-    assertTrue(speccy.periph.isActive(Periph.Type.ULA), "every machine has a ULA");
+    assertTrue(speccy.periph.isActive(UlaPeripheral.class), "every machine has a ULA");
   }
 
   @Test
   void aJoystickIsThereWhenSomebodyAskedForOne() {
-    assertTrue(machineWith(true).periph.isActive(Periph.Type.KEMPSTON),
+    assertTrue(machineWith(true).periph.isActive(KempstonStrictPeripheral.class),
         "a Kempston was asked for and did not arrive");
   }
 
   @Test
   void andIsNotWhenNobodyDid() {
-    assertFalse(machineWith(false).periph.isActive(Periph.Type.KEMPSTON),
+    assertFalse(machineWith(false).periph.isActive(KempstonStrictPeripheral.class),
         "a Kempston nobody asked for is answering on its ports");
   }
 }

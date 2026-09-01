@@ -18,7 +18,6 @@
 
 package com.fpetrola.oozx.speccy.devices.memory;
 
-import com.fpetrola.oozx.speccy.peripherals.Periph;
 
 import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
 
@@ -31,7 +30,7 @@ import com.fpetrola.oozx.MachineCapability;
 
 public class SeMemoryPeripheral extends AbstractZxPeripheral {
   public SeMemoryPeripheral(Spectrum spectrum) {
-    super(Periph.Type.SE_MEMORY, List.of(new SeMemoryPortHandler(spectrum)));
+    super(List.of(new SeMemoryPortHandler(spectrum)));
   }
 
   public boolean fitsOn(SpectrumMachine machine) {

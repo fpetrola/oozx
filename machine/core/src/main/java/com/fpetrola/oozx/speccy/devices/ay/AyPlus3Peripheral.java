@@ -18,7 +18,6 @@
 
 package com.fpetrola.oozx.speccy.devices.ay;
 
-import com.fpetrola.oozx.speccy.peripherals.Periph;
 
 import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.z80.cpu.Z80Clock;
@@ -28,15 +27,12 @@ import com.fpetrola.oozx.MachineCapability;
 /**
  * The same sound chip, wired as a +2A and a +3 wire it.
  * <p>
- * Those machines are given {@link Periph.Type#AY_PLUS3} rather than {@link Periph.Type#AY}, and
- * that entry of the enum carried no class - so the chip was declared always present on a +3 and
- * nothing was there to be present. It differs in one wire: the data port answers when read, where
- * on a 128K it does not.
+ * It differs in one wire: the data port answers when read, where on a 128K it does not.
  */
 public class AyPlus3Peripheral extends AyPeripheral {
 
   public AyPlus3Peripheral(Sound sound, Z80Clock clock) {
-    super(Periph.Type.AY_PLUS3, sound, clock, true);
+    super(sound, clock, true);
   }
 
   public boolean fitsOn(SpectrumMachine machine) {

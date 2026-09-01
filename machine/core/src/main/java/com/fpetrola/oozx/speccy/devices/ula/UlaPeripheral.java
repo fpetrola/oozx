@@ -18,7 +18,6 @@
 
 package com.fpetrola.oozx.speccy.devices.ula;
 
-import com.fpetrola.oozx.speccy.peripherals.Periph;
 
 import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
 
@@ -31,7 +30,7 @@ public class UlaPeripheral extends AbstractZxPeripheral {
 
   private final Ula ula;
   public UlaPeripheral(Ula ula) {
-    super(Periph.Type.ULA, List.of(new UlaPortHandler(ula)));
+    super(List.of(new UlaPortHandler(ula)));
     this.ula = ula;
   }
   @Override

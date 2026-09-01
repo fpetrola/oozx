@@ -19,7 +19,6 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.speccy.peripherals.IPeriph;
-import com.fpetrola.oozx.speccy.peripherals.Periph;
 import com.fpetrola.oozx.speccy.peripherals.ZxPeripheral;
 
 public interface PeriphDelegate extends IPeriph {
@@ -33,12 +32,8 @@ public interface PeriphDelegate extends IPeriph {
     return getPeriph().activateType(type, active);
   }
 
-  default com.fpetrola.oozx.speccy.peripherals.ZxPeripheral find(Periph.Type type) {
-    return getPeriph().find(type);
-  }
-
-  default boolean isActive(Periph.Type type) {
-    return getPeriph().isActive(type);
+  default ZxPeripheral find(Class<? extends ZxPeripheral> zxPeripheralClass) {
+    return getPeriph().find(zxPeripheralClass);
   }
 
   default boolean isActive(Class<? extends ZxPeripheral> zxPeripheralClass) {

@@ -18,7 +18,6 @@
 
 package com.fpetrola.oozx.speccy.devices.disk;
 
-import com.fpetrola.oozx.speccy.peripherals.Periph;
 
 import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
 
@@ -31,7 +30,7 @@ import java.util.List;
 
 public class Upd765Peripheral extends AbstractZxPeripheral {
   public Upd765Peripheral(SpecPlus3 specPlus3) {
-    super(Periph.Type.UPD765, List.of(
+    super(List.of(
         new FdcPortHandler(0xf002, 0x3000, specPlus3),
         new FdcStatusPortHandler(0xf002, 0x2000, specPlus3)
     ));

@@ -18,7 +18,6 @@
 
 package com.fpetrola.oozx.speccy.devices.joystick;
 
-import com.fpetrola.oozx.speccy.peripherals.Periph;
 
 import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
 
@@ -43,7 +42,7 @@ public class KempstonLoosePeriphPeripheral extends AbstractZxPeripheral {
   private final BooleanSupplier wanted;
 
   public KempstonLoosePeriphPeripheral(Joystick joystick, BooleanSupplier wanted) {
-    super(Periph.Type.KEMPSTON_LOOSE, List.of(new JoystickPortHandler(0x0020, 0x0000, joystick)));
+    super(List.of(new JoystickPortHandler(0x0020, 0x0000, joystick)));
     this.wanted = wanted;
   }
 

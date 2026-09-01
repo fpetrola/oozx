@@ -21,13 +21,14 @@ package model.tests.devices;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.OOSpectrumConnector;
 import com.fpetrola.oozx.speccy.devices.ay.AyPeripheral;
-import com.fpetrola.oozx.speccy.peripherals.Periph;
 import com.fpetrola.oozx.speccy.peripherals.ZxPeripheral;
 import com.fpetrola.oozx.speccy.rzx.RzxSession;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.List;
+import com.fpetrola.oozx.speccy.devices.ay.AyPlus3Peripheral;
 
 import static com.fpetrola.oozx.MachineCapability.AY;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -48,8 +49,8 @@ class AyFromSnapshotTest {
   }
 
   private static long writesTo(Speccy speccy) {
-    for (Periph.Type type : new Periph.Type[]{Periph.Type.AY, Periph.Type.AY_PLUS3}) {
-      ZxPeripheral peripheral = speccy.periph.find(type);
+    for (Class<? extends ZxPeripheral> kind : List.of(AyPeripheral.class, AyPlus3Peripheral.class)) {
+      ZxPeripheral peripheral = speccy.periph.find(kind);
       if (peripheral instanceof AyPeripheral ay && ay.writes() > 0) {
         return ay.writes();
       }

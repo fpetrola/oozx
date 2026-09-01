@@ -21,10 +21,10 @@ package model.tests.devices;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.SpectrumZ80Clock;
 import com.fpetrola.oozx.speccy.OOSpectrumConnector;
-import com.fpetrola.oozx.speccy.peripherals.Periph;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 import com.fpetrola.oozx.speccy.sound.SilentSoundDevice;
 import org.junit.jupiter.api.Test;
+import com.fpetrola.oozx.speccy.devices.ay.MelodikPeripheral;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -66,7 +66,7 @@ class MelodikTest {
   @Test
   void aFortyEightWithOneHasASoundChip() {
     Speccy speccy = aFortyEightWith(true);
-    assertTrue(speccy.periph.isActive(Periph.Type.MELODIK), "the box was asked for and is not there");
+    assertTrue(speccy.periph.isActive(MelodikPeripheral.class), "the box was asked for and is not there");
 
     // The 128's own ports, which is what the box answers on.
     speccy.periph.writePort(0xFFFD, (byte) 0);
@@ -104,7 +104,7 @@ class MelodikTest {
 
     speccy.settings.current.melodik = false;
     speccy.periph.update();
-    assertFalse(speccy.periph.isActive(Periph.Type.MELODIK), "it is still plugged in");
+    assertFalse(speccy.periph.isActive(MelodikPeripheral.class), "it is still plugged in");
 
     heard.peak = 0;
     speccy.sound.frame();
@@ -115,7 +115,7 @@ class MelodikTest {
   @Test
   void andWithoutOneItIsStillSilent() {
     Speccy speccy = aFortyEightWith(false);
-    assertFalse(speccy.periph.isActive(Periph.Type.MELODIK));
+    assertFalse(speccy.periph.isActive(MelodikPeripheral.class));
 
     speccy.periph.writePort(0xFFFD, (byte) 8);
     speccy.periph.writePort(0xBFFD, (byte) 0x0F);

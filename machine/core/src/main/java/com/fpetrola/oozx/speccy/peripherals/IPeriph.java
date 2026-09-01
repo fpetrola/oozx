@@ -25,12 +25,10 @@ public interface IPeriph extends MachineChangeListener {
 
   boolean activateType(Class<? extends ZxPeripheral> type, boolean active);
 
-  boolean isActive(Periph.Type type);
-
   boolean isActive(Class<? extends ZxPeripheral> zxPeripheralClass);
 
   /** The registered peripheral of a kind, or null if this build has none. */
-  ZxPeripheral find(Periph.Type type);
+  ZxPeripheral find(Class<? extends ZxPeripheral> zxPeripheralClass);
 
   void clear();
 

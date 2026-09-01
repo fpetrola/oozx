@@ -144,8 +144,8 @@ class PeripheralPresenceTest {
 
   /**
    * The +3's drive, which until now was built, registered and never once switched on: its machine
-   * asked for it through a Periph.Type that named no class, so the request landed on the generic
-   * entry nothing registers. A +2A is the same machine without a drive and must not gain one.
+   * asked for it by a name that stood for no class, so the request landed on a generic entry that
+   * nothing registered. A +2A is the same machine without a drive and must not gain one.
    */
   @Test
   void theDiskControllerBelongsToTheMachineWithADrive() {

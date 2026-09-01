@@ -22,8 +22,6 @@ import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.ports.PortHandler;
 
 public interface ZxPeripheral {
-  Periph.Type getType();
-
   boolean canActivate();
 
   void activate();

@@ -72,74 +72,6 @@ public class Periph implements IPeriph {
     spectrumMachine = newMachine;
   }
 
-  // Enum for peripheral types
-  public enum Type {
-    UNKNOWN,
-    _128_MEMORY(Spec128MemoryPeripheral.class),
-    // Naming the class is what makes marking the type present mean anything: without it the type
-    // falls back to the generic peripheral, so "AY is always present" marked something that was
-    // not the AY, and the real one sat registered and never activated.
-    AY(AyPeripheral.class),
-    AY_FULL_DECODE,
-    AY_PLUS3(AyPlus3Peripheral.class),
-    AY_TIMEX,
-    AY_TIMEX_WITH_JOYSTICK,
-    BETA128,
-    BETA128_PENTAGON,
-    BETA128_PENTAGON_LATE,
-    COVOX_DD,
-    COVOX_FB,
-    DIVIDE,
-    DIVMMC,
-    PLUSD,
-    DIDAKTIK80,
-    DISCIPLE,
-    FULLER,
-    INTERFACE1,
-    INTERFACE2,
-    KEMPSTON(KempstonStrictPeripheral.class),
-    KEMPSTON_LOOSE(KempstonLoosePeriphPeripheral.class),
-    KEMPSTON_MOUSE,
-    MELODIK(MelodikPeripheral.class),
-    MULTIFACE_1,
-    MULTIFACE_128,
-    MULTIFACE_3,
-    OPUS,
-    PARALLEL_PRINTER,
-    PENTAGON1024_MEMORY,
-    PLUS3_MEMORY(SpecPlus3MemoryPeripheral.class),
-    SCLD,
-    SE_MEMORY,
-    SIMPLEIDE,
-    SPECCYBOOT,
-    SPECDRUM,
-    SPECTRANET,
-    TTX2000S,
-    ULA(UlaPeripheral.class),
-    ULA_FULL_DECODE(UlaFullDecodePeripheral.class),
-    UPD765,
-    USOURCE,
-    ZXATASP,
-    ZXCF,
-    ZXMMC,
-    ZXPRINTER,
-    ZXPRINTER_FULL_DECODE;
-
-    private final Class<? extends ZxPeripheral> aClass;
-
-    Type(Class<? extends ZxPeripheral> aClass) {
-      this.aClass = aClass;
-    }
-
-    Type() {
-      this(GenericZxPeripheral.class);
-    }
-
-    public Class<? extends ZxPeripheral> getZxPeripheralClass() {
-      return aClass;
-    }
-  }
-
   // Private structure for peripheral data
   private class PrivatePeripheral {
     boolean active;
@@ -227,18 +159,10 @@ public class Periph implements IPeriph {
   }
 
   /** The registered peripheral of a kind, or null if this build has none. */
-  public ZxPeripheral find(Type type) {
-    PrivatePeripheral data = peripherals.get(type.getZxPeripheralClass());
-    return data == null ? null : data.peripheral;
-  }
-
-  // Check if a specific peripheral is active
   @Override
-  public boolean isActive(Type type) {
-    // By the class, as everything else here does: the map is keyed by it, and a Type is a name
-    // for one. Looking the Type up directly found nothing and answered no about every peripheral
-    // there has ever been, including the ULA.
-    return isActive(type.getZxPeripheralClass());
+  public ZxPeripheral find(Class<? extends ZxPeripheral> zxPeripheralClass) {
+    PrivatePeripheral data = peripherals.get(zxPeripheralClass);
+    return data == null ? null : data.peripheral;
   }
 
   @Override
