@@ -124,10 +124,10 @@ public abstract class AttachedFrame extends JInternalFrame {
   protected void assemble(JComponent detail) {
     this.detail = detail;
 
-    expandButton = EmulatorInternalFrame.iconToggle("expand-panel.svg", "Expand", expandTip());
+    expandButton = Widgets.iconToggle("expand-panel.svg", "Expand", expandTip());
     expandButton.addActionListener(e -> setCompact(!expandButton.isSelected()));
 
-    dockButton = EmulatorInternalFrame.iconToggle("dock-bottom.svg", "Attach", attachTip());
+    dockButton = Widgets.iconToggle("dock-bottom.svg", "Attach", attachTip());
     dockButton.setSelected(true);
     dockButton.addActionListener(e -> {
       dock = dockButton.isSelected() ? Dock.BOTTOM : Dock.FREE;
@@ -141,8 +141,8 @@ public abstract class AttachedFrame extends JInternalFrame {
     JPanel corner = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
     corner.add(expandButton);
     corner.add(dockButton);
-    EmulatorInternalFrame.tighten(controls);
-    EmulatorInternalFrame.tighten(corner);
+    Widgets.tighten(controls);
+    Widgets.tighten(corner);
 
     JPanel row = new JPanel(new BorderLayout());
     row.add(controls, BorderLayout.CENTER);
@@ -426,7 +426,7 @@ public abstract class AttachedFrame extends JInternalFrame {
     Container desktop = getParent();
     if (desktop != null) {
       for (Component component : desktop.getComponents()) {
-        if (component instanceof EmulatorInternalFrame machine && !machine.isClosed()) {
+        if (component instanceof MachineWindow && component instanceof JInternalFrame machine && !machine.isClosed()) {
           machines.add(machine);
         }
       }

@@ -52,7 +52,24 @@ import java.util.function.Function;
 import static com.fpetrola.oozx.speccy.peripherals.t.EmulatorInternalFrame.loadIcon;
 
 // Emulator Internal Frame
-class EmulatorInternalFrame extends JInternalFrame {
+class EmulatorInternalFrame extends JInternalFrame implements MachineWindow {
+  /** The toolbar's small change lives below this now; these keep the name every caller here uses. */
+  public static ImageIcon loadIcon(String iconFile) {
+    return Widgets.loadIcon(iconFile);
+  }
+
+  static JButton iconButton(String iconFile, String text, String tooltip) {
+    return Widgets.iconButton(iconFile, text, tooltip);
+  }
+
+  static JToggleButton iconToggle(String iconFile, String text, String tooltip) {
+    return Widgets.iconToggle(iconFile, text, tooltip);
+  }
+
+  static void tighten(Container toolBar) {
+    Widgets.tighten(toolBar);
+  }
+
   public EmulatorCore emulatorCore;
   private ZXSpectrumDesktopApp parentApp;
   private GameSearchResult gameSearchResult;
@@ -306,40 +323,12 @@ class EmulatorInternalFrame extends JInternalFrame {
    * loader throws on a missing file, so without this a mistyped name takes the whole window
    * down instead of one picture.
    */
-  static JButton iconButton(String iconFile, String text, String tooltip) {
-    JButton button = new JButton();
-    try {
-      button.setIcon(loadIcon(iconFile));
-    } catch (RuntimeException missing) {
-      button.setText(text);
-    }
-    if (tooltip != null) button.setToolTipText(tooltip);
-    return button;
-  }
 
   /**
    * The same, for a button that stays down: a toggle is not a JButton, so {@link #iconButton}
    * cannot make one and the border button was the last unguarded drawing in this toolbar.
    */
-  static JToggleButton iconToggle(String iconFile, String text, String tooltip) {
-    JToggleButton button = new JToggleButton();
-    try {
-      button.setIcon(loadIcon(iconFile));
-    } catch (RuntimeException missing) {
-      button.setText(text);
-    }
-    if (tooltip != null) button.setToolTipText(tooltip);
-    return button;
-  }
 
-  static void tighten(Container toolBar) {
-    for (Component component : toolBar.getComponents()) {
-      if (component instanceof AbstractButton button) {
-        button.setMargin(new Insets(2, 3, 2, 3));
-        button.setFocusPainted(false);
-      }
-    }
-  }
 
   private JToolBar createToolBar() {
     JToolBar toolBar = new JToolBar();
@@ -565,11 +554,6 @@ class EmulatorInternalFrame extends JInternalFrame {
   /** Every toolbar in the application draws its icons at this size. */
   public static final int TOOLBAR_ICON_SIZE = 19;
 
-  public static ImageIcon loadIcon(String iconFile) {
-    int size = TOOLBAR_ICON_SIZE;
-    ImageIcon turboIcon = SvgIconLoader.loadSvgAsImageIcon("/icons/" + iconFile, size, size);
-    return turboIcon;
-  }
 
   /**
    * This machine's keyboard, asked for once.

@@ -18,6 +18,13 @@
     </properties>
 
     <dependencies>
+        <!-- Windows and the picture: below this, so that a peripheral can bring its own. -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>ui</artifactId>
+            <version>0.0.2-alu-SNAPSHOT</version>
+        </dependency>
+
         <!--
           xBRZ, the pixel-art scaler, as a Java port by Stanio of Zenju's original.
 

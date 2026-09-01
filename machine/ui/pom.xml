@@ -1,0 +1,46 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.fpetrola</groupId>
+        <artifactId>machine</artifactId>
+        <version>0.0.2-alu-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>ui</artifactId>
+    <packaging>jar</packaging>
+
+    <name>ui</name>
+
+    <!--
+      Windows, and what draws a Spectrum's picture in one. Below both the emulator and the
+      peripherals on purpose: a peripheral that brings its own window - the printer's paper, the
+      mouse's pointer - needs the frame that clips onto a machine, and if that frame lived in the
+      application then the application would depend on the peripheral that depends on it.
+
+      This module depends on NOTHING of the emulator, which is what keeps that true. If something
+      here ever needs to ask a machine a question, the answer is a listener, not a dependency.
+    -->
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <!-- The scaler: see the note in core's pom, which explains why it is a dependency and not a copy. -->
+        <dependency>
+            <groupId>io.github.stanio</groupId>
+            <artifactId>xbrz-core</artifactId>
+            <version>1.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>5.14.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-transcoder</artifactId>
+            <version>1.17</version>
+        </dependency>
+    </dependencies>
+</project>
