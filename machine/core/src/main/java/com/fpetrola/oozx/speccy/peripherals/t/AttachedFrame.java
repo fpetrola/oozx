@@ -357,7 +357,11 @@ public abstract class AttachedFrame extends JInternalFrame {
 
   /** The two borders that meet where the frames touch, which is what to overlap by. */
   private int seam() {
-    return machineWindow == null ? 0 : machineWindow.getInsets().bottom + getInsets().top;
+    return seamWith(machineWindow);
+  }
+
+  private int seamWith(JInternalFrame machine) {
+    return machine == null ? 0 : machine.getInsets().bottom + getInsets().top;
   }
 
   private int sideSeam() {
@@ -417,6 +421,33 @@ public abstract class AttachedFrame extends JInternalFrame {
       attachmentChanged();
     }
     place();
+  }
+
+  /**
+   * Clips this back onto a machine, which is what a deck asking for a computer wants.
+   * <p>
+   * Setting the window alone is not enough once somebody has unplugged this: the window would
+   * be remembered and the lead would still be out, so it would sit beside a machine it cannot
+   * play into. Asking for a machine is asking to be plugged into it.
+   */
+  public void attachTo(JInternalFrame machine) {
+    dock = Dock.BOTTOM;
+    dockButton.setSelected(true);
+    setMachineWindow(machine);
+  }
+
+  /**
+   * Clips onto a machine that was opened FOR this window, by bringing the machine here.
+   * <p>
+   * A deck somebody carried across the desk and then pressed play on has been put where they
+   * want it. Plugging it in by moving it to wherever the new machine happened to land takes
+   * that away, so the machine is placed above this window instead: it is the one that has just
+   * arrived and has no place of its own yet.
+   */
+  public void takeMachine(JInternalFrame machine) {
+    machine.setBounds(getX(), Math.max(0, getY() - machine.getHeight() + seamWith(machine)),
+        getWidth(), machine.getHeight());
+    attachTo(machine);
   }
 
   /** Which side of the machine's window this is attached to, or FREE. */
