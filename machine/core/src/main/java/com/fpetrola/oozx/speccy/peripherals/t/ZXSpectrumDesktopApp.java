@@ -1137,6 +1137,10 @@ public class ZXSpectrumDesktopApp extends JFrame {
     tapeBrowserItem.addActionListener(e -> showTapeBrowser());
     emulatorMenu.add(tapeBrowserItem);
 
+    JMenuItem mouseItem = new JMenuItem("Kempston Mouse");
+    mouseItem.addActionListener(e -> showMouse());
+    emulatorMenu.add(mouseItem);
+
     JMenuItem printerItem = new JMenuItem("ZX Printer");
     printerItem.addActionListener(e -> showPrinter());
     emulatorMenu.add(printerItem);
@@ -2388,6 +2392,35 @@ public class ZXSpectrumDesktopApp extends JFrame {
       printer.attachTo(machineBeingUsed());
     }
     return printer;
+  }
+
+  private final java.util.List<MouseInternalFrame> mice = new java.util.ArrayList<>();
+
+  /**
+   * The mouse for the machine in front, or the one already on it.
+   * <p>
+   * One per machine, like the rest of the equipment: two mice on one Spectrum would be two sets
+   * of counters answering the same three ports.
+   */
+  public MouseInternalFrame showMouse() {
+    mice.removeIf(JInternalFrame::isClosed);
+    for (MouseInternalFrame open : mice) {
+      if (!open.isAttached() || open.getMachineWindow() == machineBeingUsed()) {
+        open.setVisible(true);
+        open.toFront();
+        return open;
+      }
+    }
+
+    MouseInternalFrame mouse = new MouseInternalFrame(this::machineOf);
+    mouse.setLocation(420 + (mice.size() * 30) % 300, 100 + (mice.size() * 30) % 200);
+    mice.add(mouse);
+    desktop.add(mouse);
+    mouse.setVisible(true);
+    if (machineBeingUsed() != null) {
+      mouse.attachTo(machineBeingUsed());
+    }
+    return mouse;
   }
 
   /** Another deck, whatever the open ones are doing. */
