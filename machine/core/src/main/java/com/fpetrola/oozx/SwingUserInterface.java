@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
+import com.fpetrola.oozx.speccy.peripherals.EmulatorControl;
 import com.fpetrola.oozx.speccy.peripherals.MockEmulatorCore;
 import com.google.inject.Singleton;
 
@@ -33,7 +33,7 @@ import javax.swing.SwingUtilities;
 public class SwingUserInterface extends NullUserInterface {
 
   @Override
-  public void statusbarUpdateSpeed(float currentSpeed, EmulatorCore core) {
+  public void statusbarUpdateSpeed(float currentSpeed, EmulatorControl core) {
     SwingUtilities.invokeLater(() -> {
       if (core != null) ((MockEmulatorCore) core).notifyEmulationSpeedChange(currentSpeed);
     });

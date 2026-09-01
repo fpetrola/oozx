@@ -58,10 +58,11 @@ public class OOSpectrumLauncher {
     // snapshot arrived with no deck anybody could find: the cassette windows had nothing to
     // plug into and quietly did nothing.
     java.util.function.Function<Speccy, EmulatorCore> known = speccy -> {
-      speccy.z80.mockCore = new com.fpetrola.oozx.speccy.peripherals.SpeccyEmulatorCore(speccy);
-      appHolder[0].registerTape(speccy.z80.mockCore, speccy.tape);
-      appHolder[0].registerMachine(speccy.z80.mockCore, speccy);
-      return speccy.z80.mockCore;
+      EmulatorCore core = new com.fpetrola.oozx.speccy.peripherals.SpeccyEmulatorCore(speccy);
+      speccy.z80.mockCore = core;
+      appHolder[0].registerTape(core, speccy.tape);
+      appHolder[0].registerMachine(core, speccy);
+      return core;
     };
 
     Function<SpectrumState, EmulatorCore> mockCoreState =

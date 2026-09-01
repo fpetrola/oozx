@@ -19,7 +19,7 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.speccy.modules.Joystick;
-import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
+import com.fpetrola.oozx.speccy.peripherals.EmulatorControl;
 
 /**
  * What the machine asks of whoever is showing it.
@@ -38,7 +38,7 @@ public interface UserInterface {
    */
   void error(Object level, String format, Object... args);
 
-  void statusbarUpdateSpeed(float currentSpeed, EmulatorCore core);
+  void statusbarUpdateSpeed(float currentSpeed, EmulatorControl core);
 
   void menuActivate(MenuItem item, boolean active);
 

@@ -2207,7 +2207,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
       if (previous != null && !previous.isClosed()) {
         previous.dispose();
       }
-      EmulatorInternalFrame machine = createNewEmulator(session.getSpeccy().z80.mockCore);
+      EmulatorInternalFrame machine = createNewEmulator(session.getCore());
       // The same number the controls carry, so it is possible to tell across a crowded desktop
       // which picture belongs to which set of buttons.
       String name = player.getRecordingFile() == null ? "" : ": " + player.getRecordingFile().getName();

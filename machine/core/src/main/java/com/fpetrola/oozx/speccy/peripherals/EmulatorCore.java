@@ -18,89 +18,12 @@
 
 package com.fpetrola.oozx.speccy.peripherals;
 
-import com.fpetrola.oozx.speccy.pokes.PokFile;
-import com.fpetrola.z80.cpu.RegistersGetter;
-import com.fpetrola.z80.cpu.State;
-
-import javax.swing.*;
+import javax.swing.JComponent;
 import java.awt.event.KeyListener;
 
-public interface EmulatorCore {
-  void startEmulation();
-
-  void stopEmulation();
-
-  void pauseEmulation();
-
-  void resumeEmulation();
-
-  void resetEmulation();
-
-  void loadFile(String filePath);
-
-  void saveState(String filePath);
-
-  void loadState(String filePath);
-
-  void setMachineModel(String model); // e.g., "48K", "128K"
-
-  void setVideoOption(String option, Object value); // e.g., "border", true
-
-  void setAudioOption(String option, Object value);
-
-  void setInputOption(String option, Object value);
-
-  void setStorageOption(String option, Object value);
-
-  void setPeripheralOption(String option, Object value);
-
-  void setGeneralOption(String option, Object value);
-
-  // Add more as needed for peripherals, etc.
-  void addEmulatorListener(EmulatorListener listener);
-
-  double getEmulationSpeed(); // New: Get emulation speed
-
-  String getCurrentModel(); // New: Get current machine model
-
-  java.util.List<String> getMachineModels();
-
-  boolean isPaused(); // New: Check if paused
-
-  boolean isTurboMode(); // New: Check if turbo mode is on
-
-  String getTapeStatus(); // New: Get tape status
-
+/** A machine as a window has it: everything you can do to one, plus the picture and the keys. */
+public interface EmulatorCore extends EmulatorControl {
   JComponent getPanel();
 
   KeyListener getKeyListener();
-
-  void finishEmulation();
-
-  default RegistersGetter getRegistersGetter() {
-    return null;
-  }
-
-  default State getState() {
-    return null;
-  }
-
-  default boolean isMuted() {
-    return false;
-  }
-
-  default String getFilename() {
-    return "";
-  }
-
-  default void setFilename(String string) {
-  }
-
-  default void applyMod(PokFile.PokeMod mod) {
-
-  }
-
-  default void revertMod(PokFile.PokeMod mod) {
-
-  }
 }

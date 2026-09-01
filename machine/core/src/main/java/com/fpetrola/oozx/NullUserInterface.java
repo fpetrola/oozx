@@ -19,7 +19,7 @@
 package com.fpetrola.oozx;
 
 import com.fpetrola.oozx.speccy.modules.Joystick;
-import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
+import com.fpetrola.oozx.speccy.peripherals.EmulatorControl;
 import com.google.inject.Singleton;
 
 /**
@@ -35,7 +35,7 @@ public class NullUserInterface implements UserInterface {
   public void error(Object level, String format, Object... args) {
   }
 
-  public void statusbarUpdateSpeed(float currentSpeed, EmulatorCore core) {
+  public void statusbarUpdateSpeed(float currentSpeed, EmulatorControl core) {
   }
 
   public void menuActivate(MenuItem item, boolean active) {

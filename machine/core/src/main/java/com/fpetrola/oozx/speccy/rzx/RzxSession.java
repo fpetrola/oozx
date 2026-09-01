@@ -55,6 +55,7 @@ public class RzxSession {
 
   private final RzxFile recording;
   private final Speccy speccy;
+  private com.fpetrola.oozx.speccy.peripherals.EmulatorCore core;
   private final SwitchableIO ports;
   /** Replaced by {@link #rewind()}: a driver counts from where it started and cannot go back. */
   private RzxPlayback playback;
@@ -137,7 +138,9 @@ public class RzxSession {
     speccy.settings.current.emulationSpeed = 100;
     speccy.init();
     speccy.z80.bridgeCommand = (command, data) -> null;
-    speccy.z80.mockCore = new com.fpetrola.oozx.speccy.peripherals.SpeccyEmulatorCore(speccy);
+    com.fpetrola.oozx.speccy.peripherals.EmulatorCore core =
+        new com.fpetrola.oozx.speccy.peripherals.SpeccyEmulatorCore(speccy);
+    speccy.z80.mockCore = core;
     // BEFORE the snapshot, because loading one WRITES: it puts back the paging the snapshot was
     // saved under by sending it through the machine's own port, and these are the ports it goes
     // through. Set afterwards, as it was, that write went to a null and was dropped without a
@@ -156,6 +159,7 @@ public class RzxSession {
     RzxSession session = new RzxSession(recording, speccy,
         new RzxPlayback(speccy.z80.ooz80, player, recording, framesTStatesOf(speccy)), ports);
     session.timer = injector.getInstance(com.fpetrola.oozx.speccy.modules.Timer.class);
+    session.core = core;
     session.snapshot = snapshot;
     return session;
   }
@@ -291,6 +295,11 @@ public class RzxSession {
     } catch (IOException e) {
       throw new UncheckedIOException("could not write the recording's snapshot", e);
     }
+  }
+
+  /** What a window drives this recording's machine with, which the session builds because it built the machine. */
+  public com.fpetrola.oozx.speccy.peripherals.EmulatorCore getCore() {
+    return core;
   }
 
   public Speccy getSpeccy() {

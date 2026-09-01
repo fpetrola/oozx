@@ -19,7 +19,7 @@
 package com.fpetrola.oozx.speccy.modules.z80;
 
 import com.fpetrola.oozx.SpectrumZ80Clock;
-import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
+import com.fpetrola.oozx.speccy.peripherals.EmulatorControl;
 
 /**
  * All a Spectrum model needs from the processor it drives.
@@ -47,5 +47,5 @@ public interface Cpu {
    * should update. It belongs on the user interface, and moves there when Ui becomes an
    * injected {@code UserInterface} rather than a class full of statics.
    */
-  EmulatorCore getEmulatorCore();
+  EmulatorControl getEmulatorCore();
 }

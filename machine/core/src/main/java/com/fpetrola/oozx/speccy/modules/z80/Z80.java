@@ -100,7 +100,7 @@ public class Z80 implements ZxModule, Cpu {
     return userInterface;
   }
   private final Timer timer;
-  public EmulatorCore mockCore;
+  public EmulatorControl mockCore;
   /**
    * Work asked for from outside the emulation, run where stopping is safe.
    * <p>
@@ -187,7 +187,7 @@ public class Z80 implements ZxModule, Cpu {
   }
 
   @Override
-  public EmulatorCore getEmulatorCore() {
+  public EmulatorControl getEmulatorCore() {
     return mockCore;
   }
 
