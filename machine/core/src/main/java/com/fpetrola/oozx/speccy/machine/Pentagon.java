@@ -63,6 +63,11 @@ public class Pentagon extends Spec128 {
     return Set.of(AY, MEMORY_128);
   }
 
+  /** A Pentagon has no contention and no floating bus. */
+  public boolean hasFloatingBus() {
+    return false;
+  }
+
   public String shortName() {
     return "Pentagon";
   }

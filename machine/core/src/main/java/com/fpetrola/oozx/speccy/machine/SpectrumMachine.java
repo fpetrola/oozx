@@ -56,6 +56,19 @@ public interface SpectrumMachine {
   boolean portFromUla(int port);
 
   /**
+   * Whether the ULA leaves the video data it is reading on the bus, which is what a port nothing
+   * answers to reads back. The Amstrad machines and the Pentagon drive theirs instead.
+   */
+  default boolean hasFloatingBus() {
+    return true;
+  }
+
+  /** Whether reading this machine's paging port also pages it. A machine with no pager does not. */
+  default boolean pagesWhenItsPortIsRead() {
+    return false;
+  }
+
+  /**
    * The short name a core speaks - what libretro and the test driver call this machine, as against
    * getName, which is what the box shows.
    */

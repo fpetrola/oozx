@@ -48,8 +48,6 @@ import com.google.inject.Inject;
 import cern.colt.list.ObjectArrayList;
 import com.fpetrola.oozx.MachineChangeListener;
 import com.fpetrola.oozx.Settings;
-import com.fpetrola.oozx.speccy.machine.Spec128;
-import com.fpetrola.oozx.speccy.machine.SpecPlus2;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.ports.PortHandler;
 import com.fpetrola.z80.cpu.Z80Clock;
@@ -61,6 +59,7 @@ public class Periph implements IPeriph {
   private Z80Clock z80Clock;
   private Settings settings;
   private SpectrumMachine spectrumMachine;
+  private boolean pagesOnBusRead;
   private final UserInterface userInterface;
 
   @Inject
@@ -72,6 +71,7 @@ public class Periph implements IPeriph {
 
   public void machineChanged(SpectrumMachine newMachine) {
     spectrumMachine = newMachine;
+    pagesOnBusRead = newMachine.pagesWhenItsPortIsRead();
   }
 
   // Enum for peripheral types
@@ -308,10 +308,8 @@ public class Periph implements IPeriph {
   public byte readPort(int port) {
     byte b = readPortInternal(port);
 
-    // Special case for 128K/+2 machines
-    if ((port & 0x8002) == 0 &&
-        (getSpectrumMachine().getClass() == Spec128.class ||
-            getSpectrumMachine().getClass() == SpecPlus2.class)) {
+    // Asked of the machine once, when it changes, rather than on every read.
+    if (pagesOnBusRead && (port & 0x8002) == 0) {
       writePortInternal(0x7ffd, b);
     }
 

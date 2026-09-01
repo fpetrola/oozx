@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.fpetrola.oozx.MachineCapability.MEMORY_128;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -56,6 +57,35 @@ class PagingReachesItsMachineTest {
     speccy.uiDisplay.active = false;
     speccy.z80.bridgeCommand = (a, b) -> null;
     return speccy;
+  }
+
+  /**
+   * A 128 and a +2 leave the video data on the bus, so reading the paging port is also a write of
+   * whatever was floating there - a quirk of those two that games rely on. The +2A and +3 drive
+   * their bus and the Pentagon has none, so on them the same read must page nothing. This used to
+   * be decided by naming the two classes inside Periph.
+   */
+  @Test
+  void onlyAMachineWithAFloatingBusPagesWhenItsPortIsRead() {
+    for (Spectrum model : speccy().machine.getMachineTypes()) {
+      if (!model.has(MEMORY_128)) continue;
+
+      Speccy speccy = speccy();
+      Spectrum wanted = speccy.machine.getMachineTypes().stream()
+          .filter(type -> type.getClass() == model.getClass()).findFirst().orElseThrow();
+      speccy.machine.selectDefault();
+      speccy.machine.select(wanted);
+
+      speccy.periph.writePort(0x7ffd, (byte) 0x00);
+      speccy.periph.readPort(0x7ffd);
+
+      // 0xff is what an unattached port reads outside the screen, and bit 5 of it locks paging.
+      // Said by name rather than by asking the machine the same question the code under test
+      // asks, which would agree with itself no matter what either of them answered.
+      boolean pages = List.of("Spectrum 128K", "Spectrum Plus 2").contains(wanted.getName());
+      assertEquals(pages, wanted.getRamInfo().locked,
+          wanted.getName() + " after reading its paging port");
+    }
   }
 
   @Test

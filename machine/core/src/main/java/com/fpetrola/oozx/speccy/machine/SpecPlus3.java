@@ -152,6 +152,11 @@ public class SpecPlus3 extends Spec128 {
     return (byte) 0xbf;
   }
 
+  /** The +3 family drives its bus, so nothing of the video is left on it - and the +2A inherits that. */
+  public boolean hasFloatingBus() {
+    return false;
+  }
+
   public String shortName() {
     return "+3";
   }
