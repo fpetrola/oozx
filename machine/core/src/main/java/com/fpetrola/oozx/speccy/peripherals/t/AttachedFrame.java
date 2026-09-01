@@ -533,11 +533,15 @@ public abstract class AttachedFrame extends JInternalFrame {
     compact = wanted;
     detail.setVisible(!wanted);
     expandButton.setSelected(!wanted);
-    if (dock == Dock.FREE) {
+    // Asked whether it is clipped onto something, not which side it would clip onto: a window
+    // that has never been attached still says BOTTOM, and taking that as attached sent it to
+    // place(), which returns at once when there is no machine - so the content folded away and
+    // the frame stayed the size it was.
+    if (isAttached()) {
+      place();
+    } else {
       placedHeight = wanted ? compactHeight() : chosenHeight;
       setSize(getWidth(), placedHeight);
-    } else {
-      place();
     }
     revalidate();
     repaint();
