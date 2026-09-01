@@ -23,14 +23,17 @@ import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.z80.cpu.Z80Clock;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.MachineCapability;
+import com.google.inject.Inject;
 
 /**
  * The same sound chip, wired as a +2A and a +3 wire it.
  * <p>
  * It differs in one wire: the data port answers when read, where on a 128K it does not.
  */
+@com.google.inject.Singleton
 public class AyPlus3Peripheral extends AyPeripheral {
 
+  @Inject
   public AyPlus3Peripheral(Sound sound, Z80Clock clock) {
     super(sound, clock, true);
   }

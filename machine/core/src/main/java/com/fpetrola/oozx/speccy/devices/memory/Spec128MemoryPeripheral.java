@@ -27,10 +27,13 @@ import java.util.List;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.MachineCapability;
 import com.fpetrola.oozx.speccy.machine.Paging128;
+import com.google.inject.Inject;
 
+@com.google.inject.Singleton
 public class Spec128MemoryPeripheral extends AbstractPeripheral {
   private Paging128 machine;
 
+  @Inject
   public Spec128MemoryPeripheral() {
     super(List.of());
     ports(new Spec128PortHandler(0x8002, 0x0000, () -> machine));

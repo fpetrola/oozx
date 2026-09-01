@@ -27,10 +27,13 @@ import com.fpetrola.oozx.Spectrum;
 import java.util.List;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.MachineCapability;
+import com.google.inject.Inject;
 
+@com.google.inject.Singleton
 public class SeMemoryPeripheral extends AbstractPeripheral {
   private SpectrumMachine machine;
 
+  @Inject
   public SeMemoryPeripheral() {
     super(List.of());
     ports(new SeMemoryPortHandler(() -> machine));

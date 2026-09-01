@@ -25,10 +25,13 @@ import com.fpetrola.oozx.speccy.modules.Ula;
 
 import java.util.List;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
+import com.google.inject.Inject;
 
+@com.google.inject.Singleton
 public class UlaPeripheral extends AbstractPeripheral {
 
   private final Ula ula;
+  @Inject
   public UlaPeripheral(Ula ula) {
     super(List.of(new UlaPortHandler(ula)));
     this.ula = ula;

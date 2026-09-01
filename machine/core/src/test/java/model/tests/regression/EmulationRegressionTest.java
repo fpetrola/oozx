@@ -46,6 +46,7 @@ import java.lang.reflect.Field;
 import java.security.MessageDigest;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import com.fpetrola.oozx.speccy.devices.ula.UlaPeripheral;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -124,6 +125,24 @@ public class EmulationRegressionTest {
    * mirror image — the raw Peripherals and the ContendedPeripheralBus that decorates it have to stay distinct,
    * or the ULA ends up wrapped around itself.
    */
+  /**
+   * A singleton here is one per emulator, not one per program: every Speccy.create builds its own
+   * injector, so two emulators running side by side - which the desktop does, one per window -
+   * have their own machines, their own devices and their own bus. What the scope buys is that
+   * within one emulator the machine the box selects is the machine the ports reach.
+   */
+  @Test
+  public void twoEmulatorsShareNothing() {
+    Speccy one = bootedSpectrum();
+    Speccy other = bootedSpectrum();
+
+    assertNotSame(one.spec48, other.spec48, "two emulators were handed the same 48K");
+    assertNotSame(one.machine, other.machine, "and the same machine list");
+    assertNotSame(one.peripherals, other.peripherals, "and the same peripheral bus");
+    assertNotSame(one.peripherals.find(UlaPeripheral.class), other.peripherals.find(UlaPeripheral.class),
+        "and the same ULA device, which holds the machine it was switched on for");
+  }
+
   @Test
   public void theGraphHandsOutOneOfEachSharedPart() {
     Injector injector = Guice.createInjector(new EmulatorModule(new SpectrumZ80Clock()));

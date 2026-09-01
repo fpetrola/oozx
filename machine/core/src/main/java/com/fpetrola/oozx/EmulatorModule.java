@@ -81,6 +81,14 @@ public class EmulatorModule extends AbstractModule {
 
     // Every model the emulator can be, and separately which one it falls back to. The set says
     // nothing about order, so nothing depends on the order these are listed in.
+    // Every device package says what it contributes; the composition root registers whatever
+    // turned up. Nothing here names a device.
+    install(new com.fpetrola.oozx.speccy.devices.ay.AyDevices());
+    install(new com.fpetrola.oozx.speccy.devices.memory.MemoryDevices());
+    install(new com.fpetrola.oozx.speccy.devices.disk.DiskDevices());
+    install(new com.fpetrola.oozx.speccy.devices.ula.UlaDevices());
+    install(new com.fpetrola.oozx.speccy.devices.joystick.JoystickDevices());
+
     Multibinder<Spectrum> models = Multibinder.newSetBinder(binder(), Spectrum.class);
     models.addBinding().to(Spec48.class);
     models.addBinding().to(Pentagon.class);

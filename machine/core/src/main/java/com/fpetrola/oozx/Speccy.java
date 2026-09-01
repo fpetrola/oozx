@@ -38,6 +38,7 @@ import com.fpetrola.oozx.speccy.devices.memory.Spec128MemoryPeripheral;
 import com.fpetrola.oozx.speccy.devices.memory.SpecPlus3MemoryPeripheral;
 import com.fpetrola.oozx.speccy.devices.memory.SeMemoryPeripheral;
 import com.fpetrola.oozx.speccy.devices.disk.Upd765Peripheral;
+import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 
 @Singleton
 public class Speccy {
@@ -56,6 +57,7 @@ public class Speccy {
   public final Joystick joystick;
   public final Input input;
   public final Machine machine;
+  private final java.util.Set<Peripheral> devices;
   public final Z80 z80;
   public final UiDisplay uiDisplay;
   public final Spec48 spec48;
@@ -93,7 +95,8 @@ public class Speccy {
               EventManager eventManager, PeripheralBusDelegate contendedBus, Joystick joystick, Input input, Machine machine, Z80 z80, UiDisplay uiDisplay,
               Spec48 spec48, Spec128 spec128, SpecPlus3 specPlus3, SpecPlus2 specPlus2,
               SpecPlus2A specPlus2a, SpecPlus3E specPlus3e, Spec48Ntsc spec48Ntsc, Pentagon pentagon,
-              java.util.Set<Spectrum> models, @DefaultMachine Spectrum defaultMachine,
+              java.util.Set<Spectrum> models, java.util.Set<Peripheral> devices,
+              @DefaultMachine Spectrum defaultMachine,
               Module module, Timer timer) {
     this.zxClock = zxClock;
     this.session = session;
@@ -110,6 +113,7 @@ public class Speccy {
     this.joystick = joystick;
     this.input = input;
     this.machine = machine;
+    this.devices = devices;
     this.z80 = z80;
     this.uiDisplay = uiDisplay;
     this.spec48 = spec48;
@@ -153,15 +157,9 @@ public class Speccy {
     joystick.start();
     keyboard.start();
 
-    // Expansions, which belong to no machine: a box somebody plugged in, offered to every machine
-    // that will take one. What a machine is made of it registers itself; this is the other kind.
-    peripherals.register(new MelodikPeripheral(sound, zxClock, () -> settings.current.melodik));
-    peripherals.register(new AyPeripheral(sound, zxClock));
-    peripherals.register(new AyPlus3Peripheral(sound, zxClock));
-    peripherals.register(new Spec128MemoryPeripheral());
-    peripherals.register(new SpecPlus3MemoryPeripheral());
-    peripherals.register(new SeMemoryPeripheral());
-    peripherals.register(new Upd765Peripheral());
+    // Whatever devices the build turned out to have. Each says which machines it fits, so they can
+    // all be registered here without anything knowing what any of them is.
+    devices.forEach(peripherals::register);
 
     spec48.start();
     timer.start();

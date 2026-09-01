@@ -27,6 +27,7 @@ import com.fpetrola.z80.cpu.Z80Clock;
 import java.util.List;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.MachineCapability;
+import com.google.inject.Inject;
 
 /**
  * The sound chip a 128K machine has and a 48K one does not, and the chip itself.
@@ -39,12 +40,14 @@ import com.fpetrola.oozx.MachineCapability;
  * up for a machine after that machine has said what it contains - so at construction there is
  * nothing yet to make a synth from.
  */
+@com.google.inject.Singleton
 public class AyPeripheral extends AbstractPeripheral {
 
   private final Sound sound;
   private final AyRegisters registers = new AyRegisters();
   private Ay chip;
 
+  @Inject
   public AyPeripheral(Sound sound, Z80Clock clock) {
     this(sound, clock, false);
   }

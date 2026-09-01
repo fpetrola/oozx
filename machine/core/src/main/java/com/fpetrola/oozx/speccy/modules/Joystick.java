@@ -61,9 +61,6 @@ public class Joystick implements ZxModule {
     kempstonValue = timex1Value = timex2Value = 0x00;
     fullerValue = (byte) 0xff;
 
-    peripherals.register(new KempstonStrictPeripheral(this, () -> settings.current.joyKempston));
-    peripherals.register(new KempstonLoosePeriphPeripheral(this, () -> settings.current.joyKempston));
-
     return;
   }
 

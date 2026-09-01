@@ -28,10 +28,13 @@ import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 
 import java.util.List;
 import com.fpetrola.oozx.speccy.machine.FloppyDrive;
+import com.google.inject.Inject;
 
+@com.google.inject.Singleton
 public class Upd765Peripheral extends AbstractPeripheral {
   private FloppyDrive machine;
 
+  @Inject
   public Upd765Peripheral() {
     super(List.of());
     ports(new FdcPortHandler(0xf002, 0x3000, () -> machine),

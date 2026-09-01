@@ -97,9 +97,6 @@ public class Ula implements ZxModule, MachineChangeListener {
   }
 
   public void start() {
-    peripherals.register(new UlaPeripheral(this));
-    peripherals.register(new UlaFullDecodePeripheral(this));
-
     defaultValue = (byte) 0xff;
 
     return;
