@@ -22,6 +22,7 @@ import com.fpetrola.emulation.helpers.machine.MachineTypes;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.Spectrum;
 import com.fpetrola.oozx.SpectrumZ80Clock;
+import com.fpetrola.oozx.speccy.LocalLibretroCore;
 import com.fpetrola.oozx.speccy.OOSpectrumConnector;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 import com.fpetrola.oozx.speccy.sound.SilentSoundDevice;
@@ -51,6 +52,11 @@ class SnapshotChoosesItsMachineTest {
     return speccy;
   }
 
+  private LocalLibretroCore core(Speccy speccy) {
+    return new LocalLibretroCore(speccy.eventManager, speccy.display, speccy.machine, speccy.z80,
+        speccy.zxClock, speccy.periph, speccy);
+  }
+
   private void goesTo(Spectrum expected, MachineTypes model, Speccy speccy) {
     assertSame(expected, speccy.machine.forSnapshotModel(model).orElse(null),
         "a " + model + " snapshot");
@@ -72,6 +78,33 @@ class SnapshotChoosesItsMachineTest {
   void aModelThisBuildDoesNotHaveFallsBackToItsCode() {
     Speccy speccy = speccy();
     goesTo(speccy.spec48, MachineTypes.SPECTRUM16K, speccy);
+  }
+
+  /**
+   * The other way a machine is asked for by a name it owns: the short one a core speaks. That used
+   * to be a switch over Speccy's fields, so a machine could be built and still be unreachable.
+   */
+  @Test
+  void aCoreReachesEveryMachineByItsShortName() {
+    Speccy speccy = speccy();
+    Set<String> shortNames = new HashSet<>();
+
+    for (Spectrum machine : speccy.machine.getMachineTypes()) {
+      assertTrue(shortNames.add(machine.shortName()),
+          machine.getName() + " shares its short name with another machine: " + machine.shortName());
+      core(speccy).retro_select_machine(machine.shortName());
+      assertSame(machine, speccy.machine.current, "asking a core for " + machine.shortName());
+    }
+  }
+
+  /** A name no machine here answers to leaves the default running, as the switch's last arm did. */
+  @Test
+  void anUnknownNameFallsBackToTheDefault() {
+    Speccy speccy = speccy();
+    speccy.machine.select(speccy.spec128);
+
+    core(speccy).retro_select_machine("TC2048");
+    assertSame(speccy.spec48, speccy.machine.current, "an unknown machine name");
   }
 
   /**

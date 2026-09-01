@@ -219,18 +219,8 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_select_machine(String name) {
-    SpectrumMachine spectrumMachine = switch (name) {
-      case "48K" -> speccy.spec48;
-      case "128K" -> speccy.spec128;
-      case "+3" -> speccy.specPlus3;
-      case "+2" -> speccy.specPlus2;
-      case "+2A" -> speccy.specPlus2a;
-      case "+3E" -> speccy.specPlus3e;
-      case "48K_NTSC" -> speccy.spec48Ntsc;
-      case "Pentagon" -> speccy.pentagon;
-      default -> speccy.spec48;
-    };
-    machine.select(spectrumMachine);
+    machine.getMachineTypes().stream().filter(m -> m.shortName().equals(name)).findFirst()
+        .ifPresentOrElse(machine::select, machine::selectDefault);
   }
 
   public void retro_if1_page(boolean in) {

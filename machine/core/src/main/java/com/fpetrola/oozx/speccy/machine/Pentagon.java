@@ -63,6 +63,10 @@ public class Pentagon extends Spec128 {
     return Set.of(AY, MEMORY_128);
   }
 
+  public String shortName() {
+    return "Pentagon";
+  }
+
   /** No snapshot format here names a Pentagon, so it is never chosen by one. */
   @Override
   public MachineTypes snapshotModel() {

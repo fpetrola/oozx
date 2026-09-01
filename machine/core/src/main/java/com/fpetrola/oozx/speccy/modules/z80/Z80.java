@@ -729,21 +729,6 @@ public class Z80 implements ZxModule, Cpu {
       }
     });
 
-    // Create first emulator
-//    zxSpectrumDesktopApp.createNewEmulator(mockCore);
-
-//    ZXSpectrumEmulatorUI ui = new ZXSpectrumEmulatorUI(mockCore);
-//    ui.setVisible(true);
-//    ui.addKeyListener(keyListener);
-
-//    JFrame frame = new JFrame("Speccy ZX Spectrum");
-//    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//    frame.setContentPane(contentPane);
-//    frame.setLocationRelativeTo(null);
-//    frame.pack();
-//    frame.setVisible(true);
-//    frame.addKeyListener(keyListener);
-
     return null;
   }
 

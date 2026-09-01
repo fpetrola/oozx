@@ -72,6 +72,10 @@ public class Spec128 extends Spectrum {
     return Set.of(AY, MEMORY_128);
   }
 
+  public String shortName() {
+    return "128K";
+  }
+
   @Override
   public MachineTypes snapshotModel() {
     return MachineTypes.SPECTRUM128K;

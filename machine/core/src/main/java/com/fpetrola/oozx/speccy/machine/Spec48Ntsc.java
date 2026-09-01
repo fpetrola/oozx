@@ -53,6 +53,10 @@ public class Spec48Ntsc extends Spec48 {
     return Set.of(NTSC);
   }
 
+  public String shortName() {
+    return "48K_NTSC";
+  }
+
   /** A snapshot does not say PAL or NTSC: a 48K one loads into the 48K. */
   public MachineTypes snapshotModel() {
     return null;

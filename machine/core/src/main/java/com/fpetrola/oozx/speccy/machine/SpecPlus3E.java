@@ -39,6 +39,10 @@ public class SpecPlus3E extends SpecPlus3 {
     init();
   }
 
+  public String shortName() {
+    return "+3E";
+  }
+
   /** The +3e differs by its ROM, which no snapshot asks for. */
   public MachineTypes snapshotModel() {
     return null;

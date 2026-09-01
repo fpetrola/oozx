@@ -38,6 +38,10 @@ public class SpecPlus2 extends Spec128 {
     super(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, sound, userInterface);
   }
 
+  public String shortName() {
+    return "+2";
+  }
+
   public MachineTypes snapshotModel() {
     return MachineTypes.SPECTRUMPLUS2;
   }

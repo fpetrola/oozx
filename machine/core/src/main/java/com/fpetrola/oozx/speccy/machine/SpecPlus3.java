@@ -152,6 +152,10 @@ public class SpecPlus3 extends Spec128 {
     return (byte) 0xbf;
   }
 
+  public String shortName() {
+    return "+3";
+  }
+
   public MachineTypes snapshotModel() {
     return MachineTypes.SPECTRUMPLUS3;
   }

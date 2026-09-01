@@ -56,6 +56,14 @@ public interface SpectrumMachine {
   boolean portFromUla(int port);
 
   /**
+   * The short name a core speaks - what libretro and the test driver call this machine, as against
+   * getName, which is what the box shows.
+   */
+  default String shortName() {
+    return getName();
+  }
+
+  /**
    * Which machine a snapshot names when it was taken on this one, or null for a machine no
    * snapshot format can name - a variant then loads into the machine it is a variant of.
    */

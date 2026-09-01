@@ -51,6 +51,10 @@ public class SpecPlus2A extends SpecPlus3 {
     return Set.of(AY, MEMORY_128, PLUS3_MEMORY);
   }
 
+  public String shortName() {
+    return "+2A";
+  }
+
   public MachineTypes snapshotModel() {
     return MachineTypes.SPECTRUMPLUS2A;
   }

@@ -41,6 +41,10 @@ public class Spec48 extends Spectrum {
 
   // Initialize the Spectrum 48K speccyMachineInfo
 
+  public String shortName() {
+    return "48K";
+  }
+
   // Reset the Spectrum 48K machine
   public MachineTypes snapshotModel() {
     return MachineTypes.SPECTRUM48K;
