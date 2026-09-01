@@ -43,7 +43,11 @@ public class AluOperationBase {
   private static final int[] OVERFLOW_ADD = {0, 0, 0, FLAG_V, FLAG_V, 0, 0, 0};
   private static final int[] OVERFLOW_SUB = {0, FLAG_V, 0, 0, 0, 0, FLAG_V, 0};
 
-  /** One entry per byte: the sign, the two undocumented bits and zero; parity; and both together. */
+  /**
+   * One entry per byte: the sign and the two undocumented bits, the parity, and both together.
+   * Zero is not in them - it is asked of the whole value, because a caller can hand this a 16 bit
+   * result whose low byte happens to be zero and that is not a zero result.
+   */
   private static final int[] SZ53 = new int[0x100];
   private static final int[] PARITY = new int[0x100];
   private static final int[] SZ53P = new int[0x100];
@@ -55,7 +59,7 @@ public class AluOperationBase {
         bits ^= bit & 1;
       }
       PARITY[i] = bits != 0 ? 0 : FLAG_P;
-      SZ53[i] = i & (FLAG_3 | FLAG_5 | FLAG_S) | (i == 0 ? FLAG_Z : 0);
+      SZ53[i] = i & (FLAG_3 | FLAG_5 | FLAG_S);
       SZ53P[i] = SZ53[i] | PARITY[i];
     }
   }
@@ -80,14 +84,14 @@ public class AluOperationBase {
   }
 
   final protected int sz53Table(int i) {
-    return SZ53[i];
+    return SZ53[i & 0xff] | (i == 0 ? FLAG_Z : 0);
   }
 
   final protected int sz53pTable(int i) {
-    return SZ53P[i];
+    return SZ53P[i & 0xff] | (i == 0 ? FLAG_Z : 0);
   }
 
   final protected int parityTable(int i) {
-    return PARITY[i];
+    return PARITY[i & 0xff];
   }
 }
