@@ -68,17 +68,25 @@ queda con Swing fuera de `peripherals/t` está todo del lado de la aplicación:
 | `EmulatorCore`, `MockEmulatorCore`, `SpeccyEmulatorCore`, `SettingsDialog` | ui / app |
 | `devices/printer/PrinterPaper` | devices — la vista de un periférico, que depende de ui |
 
-### El cuarto nudo, que apareció al desatar el primero
+### El cuarto nudo, que apareció al desatar el primero — desatado
 
 `EmulatorCore` es **dos interfaces en una**: control del emulador (pausa, velocidad, `saveState`,
 el modelo) y vista (`getPanel()` devuelve un `JComponent`, `getKeyListener()` un `KeyListener`). El
 Z80 tiene un campo `public EmulatorCore mockCore`, así que si `EmulatorCore` se va a la aplicación,
 la base importa la aplicación.
 
-Hay que partirla antes del paso 3: la mitad de control se queda abajo, la mitad de vista sube. O
-—más simple y quizás mejor— el campo desaparece del Z80 y la aplicación se guarda su adaptador,
-como ya hace con `machinesByCore`. Los usos de `z80.mockCore` son ocho, todos en el launcher, el
-escritorio, la sesión de RZX y tres tests.
+**Partida**: `EmulatorControl` es la mitad que se puede decir sin pantalla, y `EmulatorCore` es lo
+que una ventana necesita además — la imagen y a dónde mandar las teclas. La base lleva la mitad de
+control (`Cpu`, el campo del Z80, `UserInterface.statusbarUpdateSpeed`) y **el escritorio no cambió
+en nada**: conserva el nombre y los métodos que tenía.
+
+De paso, los dos lugares que construyen una máquina para ser mirada se guardan su propia
+referencia en vez de leerla de vuelta del procesador — el launcher, que ya la tenía en la mano, y
+la sesión de RZX, que construía una y no tenía dónde ponerla (el escritorio la buscaba a través de
+`session.getSpeccy().z80.mockCore`).
+
+**Con esto la base no tiene camino a un toolkit de UI, ni por import ni por tipo**, que es la
+condición que el paso 3 necesitaba.
 
 ## El destino
 
@@ -122,9 +130,9 @@ Hoy eso son cuatro o cinco periféricos, no once. Ahí muere la preocupación po
 
 Cada uno deja el gate verde y se commitea solo.
 
-**1. Desatar los tres nudos. HECHO.** Ninguna clase de emulación importa Swing ni el escritorio, y
-se verifica con un grep sin escribir un pom. Apareció el cuarto nudo (`EmulatorCore`), que hay que
-resolver antes del paso 3.
+**1. Desatar los nudos. HECHO — los tres del plan y el cuarto que apareció debajo.** Ninguna clase
+de emulación importa Swing ni el escritorio, y ningún tipo que lleve la base arrastra uno. Se
+verifica con un grep, sin escribir un pom.
 
 **2. `machine/ui`.** Mover `AttachedFrame`, los cargadores de iconos, `ScrollPane`, los componentes
 de pantalla. Es el módulo más chico y el que menos riesgo tiene.
