@@ -42,7 +42,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Which devices are switched on in which machine, said once so that changing how that is decided
@@ -99,8 +102,8 @@ class PeripheralPresenceTest {
     has("UlaPeripheral Spec128MemoryPeripheral AyPeripheral", speccy.spec128, speccy);
     has("UlaPeripheral Spec128MemoryPeripheral AyPeripheral", speccy.specPlus2, speccy);
     has("UlaPeripheral SpecPlus3MemoryPeripheral AyPlus3Peripheral", speccy.specPlus2a, speccy);
-    has("UlaPeripheral SpecPlus3MemoryPeripheral AyPlus3Peripheral", speccy.specPlus3, speccy);
-    has("UlaPeripheral SpecPlus3MemoryPeripheral AyPlus3Peripheral", speccy.specPlus3e, speccy);
+    has("UlaPeripheral SpecPlus3MemoryPeripheral AyPlus3Peripheral Upd765Peripheral", speccy.specPlus3, speccy);
+    has("UlaPeripheral SpecPlus3MemoryPeripheral AyPlus3Peripheral Upd765Peripheral", speccy.specPlus3e, speccy);
     has("UlaFullDecodePeripheral Spec128MemoryPeripheral AyPeripheral", speccy.pentagon, speccy);
   }
 
@@ -117,17 +120,15 @@ class PeripheralPresenceTest {
     has("UlaPeripheral Spec128MemoryPeripheral AyPeripheral KempstonStrictPeripheral", speccy.spec128, speccy);
     has("UlaPeripheral Spec128MemoryPeripheral AyPeripheral KempstonStrictPeripheral", speccy.specPlus2, speccy);
     has("UlaPeripheral SpecPlus3MemoryPeripheral AyPlus3Peripheral KempstonStrictPeripheral", speccy.specPlus2a, speccy);
-    has("UlaPeripheral SpecPlus3MemoryPeripheral AyPlus3Peripheral KempstonStrictPeripheral", speccy.specPlus3, speccy);
-    has("UlaPeripheral SpecPlus3MemoryPeripheral AyPlus3Peripheral KempstonStrictPeripheral", speccy.specPlus3e, speccy);
+    has("UlaPeripheral SpecPlus3MemoryPeripheral AyPlus3Peripheral KempstonStrictPeripheral Upd765Peripheral", speccy.specPlus3, speccy);
+    has("UlaPeripheral SpecPlus3MemoryPeripheral AyPlus3Peripheral KempstonStrictPeripheral Upd765Peripheral", speccy.specPlus3e, speccy);
     has("UlaFullDecodePeripheral Spec128MemoryPeripheral AyPeripheral", speccy.pentagon, speccy);
   }
 
   /**
-   * Three peripherals this build registers and never switches on, said out loud so that turning
-   * one on is a decision and not a surprise. The loose-decoding Kempston belongs to the TC2048 and
-   * the SE memory to the SE, neither of which exists here - but the +3's disk controller is a
-   * mistake: its machine asks for it by a Periph.Type that names no class, so the request lands
-   * nowhere and no port of it has ever answered.
+   * The two this build registers and no machine here takes: the loose-decoding Kempston belongs to
+   * the TC2048 and the SE memory to the SE, and neither machine exists yet. They say so themselves
+   * now, in the capability they ask for, rather than by being left out of a list.
    */
   @Test
   void theOnesNothingEverSwitchesOn() {
@@ -135,9 +136,52 @@ class PeripheralPresenceTest {
 
     for (Spectrum machine : speccy.machine.getMachineTypes()) {
       String active = activeOn(speccy, machine);
-      for (String never : List.of("SeMemoryPeripheral", "KempstonLoosePeriphPeripheral", "Upd765Peripheral")) {
+      for (String never : List.of("SeMemoryPeripheral", "KempstonLoosePeriphPeripheral")) {
         assertEquals(false, active.contains(never), never + " is now active on " + machine.getName());
       }
     }
+  }
+
+  /**
+   * The +3's drive, which until now was built, registered and never once switched on: its machine
+   * asked for it through a Periph.Type that named no class, so the request landed on the generic
+   * entry nothing registers. A +2A is the same machine without a drive and must not gain one.
+   */
+  @Test
+  void theDiskControllerBelongsToTheMachineWithADrive() {
+    Speccy speccy = speccy(false);
+
+    speccy.machine.select(speccy.specPlus3);
+    speccy.periph.update();
+    assertTrue(speccy.periph.isActive(Upd765Peripheral.class), "the +3 has a drive");
+    assertDoesNotThrow(() -> speccy.periph.readPort(0x2ffd), "reading the FDC status port");
+    assertDoesNotThrow(() -> speccy.periph.readPort(0x3ffd), "reading the FDC data port");
+
+    speccy.machine.select(speccy.specPlus2a);
+    speccy.periph.update();
+    assertFalse(speccy.periph.isActive(Upd765Peripheral.class), "a +2A has no drive");
+  }
+
+  /**
+   * And that switching it on did not stop the machine: the +3's ROM asks the drive whether it is
+   * ready, and used to get the same 0xff a port nothing answers gives. Now it gets the controller,
+   * so this runs the machine long enough to leave the boot screen.
+   */
+  @Test
+  void aPlus3StillRunsWithItsDrivePresent() {
+    Speccy speccy = speccy(false);
+    speccy.machine.select(speccy.specPlus3);
+
+    long previous = speccy.zxClock.getTStates();
+    int frames = 0;
+    while (frames < 50) {
+      speccy.z80.doOpcodes();
+      speccy.eventManager.eventDoEvents();
+      long now = speccy.zxClock.getTStates();
+      if (now < previous) frames++;
+      previous = now;
+    }
+
+    assertTrue(speccy.periph.isActive(Upd765Peripheral.class), "the drive stayed on");
   }
 }

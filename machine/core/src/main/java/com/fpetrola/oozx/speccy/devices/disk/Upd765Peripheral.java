@@ -24,6 +24,9 @@ import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
 
 import com.fpetrola.oozx.speccy.machine.SpecPlus3;
 
+import com.fpetrola.oozx.MachineCapability;
+import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
+
 import java.util.List;
 
 public class Upd765Peripheral extends AbstractZxPeripheral {
@@ -32,5 +35,10 @@ public class Upd765Peripheral extends AbstractZxPeripheral {
         new FdcPortHandler(0xf002, 0x3000, specPlus3),
         new FdcStatusPortHandler(0xf002, 0x2000, specPlus3)
     ));
+  }
+
+  /** The drive is the +3's; a +2A is the same machine without one. */
+  public boolean fitsOn(SpectrumMachine machine) {
+    return machine.has(MachineCapability.PLUS3_DISK);
   }
 }
