@@ -54,7 +54,6 @@ public class TapeBrowserInternalFrame extends AttachedFrame {
   private final Consumer<File> loadInNewEmulator;
   private final BlockTableModel model;
   private final JTable table;
-  private final JLabel status;
   private final JButton playButton;
   private final JButton pauseButton;
   private final JButton stopButton;
@@ -119,9 +118,6 @@ public class TapeBrowserInternalFrame extends AttachedFrame {
     controls.add(stopButton);
     controls.add(Box.createHorizontalStrut(10));
     controls.add(insertButton);
-    status = new JLabel();
-    controls.add(Box.createHorizontalStrut(15));
-    controls.add(status);
 
     assemble(new JScrollPane(table));
 
@@ -177,7 +173,7 @@ public class TapeBrowserInternalFrame extends AttachedFrame {
       // Plugged into nothing: open a machine on this cassette and let it load itself from the
       // start, which is what clicking a game in the game browser does. This window is clipped
       // onto that machine as it comes up, so it goes on showing the load.
-      status.setText("Opening an emulator for " + tapeFile.getName() + "...");
+      setTitle(title("Opening an emulator..."));
       loadInNewEmulator.accept(tapeFile);
       return;
     }
@@ -243,7 +239,6 @@ public class TapeBrowserInternalFrame extends AttachedFrame {
     blocks = TapeBlock.read(file);
     currentBlock = -1;
     paused = false;
-    setTitle("Cassette - " + file.getName());
     model.fireTableDataChanged();
     refresh();
   }
@@ -261,6 +256,19 @@ public class TapeBrowserInternalFrame extends AttachedFrame {
     refresh();
   }
 
+  /**
+   * The window's name doubles as its status line, the way the recording player's does.
+   * <p>
+   * There was a label for it in the row of buttons, which grew as the tape played - "block 7 of
+   * 23, Turbo speed data" - until the row wrapped and took the expand and attach buttons onto a
+   * second line the compact form cuts off. The title bar has room for the sentence and is
+   * already there.
+   */
+  private String title(String state) {
+    return "Cassette" + (tapeFile == null ? "" : " - " + tapeFile.getName())
+        + (state == null || state.isEmpty() ? "" : " - " + state);
+  }
+
   private void refresh() {
     boolean hasTape = !blocks.isEmpty();
     boolean playing = hasTape && deck != null && deck.isTapePlaying();
@@ -269,7 +277,7 @@ public class TapeBrowserInternalFrame extends AttachedFrame {
     stopButton.setEnabled(hasTape && (playing || paused));
 
     if (!hasTape) {
-      status.setText("No cassette - use Open Tape");
+      setTitle(title("no cassette - use Open Tape"));
       return;
     }
 
@@ -277,8 +285,8 @@ public class TapeBrowserInternalFrame extends AttachedFrame {
         ? "block " + (currentBlock + 1) + " of " + blocks.size() + ", " + blocks.get(currentBlock).type()
         : blocks.size() + " blocks";
     String state = playing ? "Playing" : paused ? "Paused"
-        : deck == null ? "Not plugged in - clip this onto a machine" : "Stopped";
-    status.setText(state + " - " + where);
+        : deck == null ? "not plugged in - clip this onto a machine" : "Stopped";
+    setTitle(title(state + " - " + where));
 
     showProgress(blocks.isEmpty() || currentBlock < 0 ? 0
         : (currentBlock + progressOf(currentBlock) / 100.0) / blocks.size());

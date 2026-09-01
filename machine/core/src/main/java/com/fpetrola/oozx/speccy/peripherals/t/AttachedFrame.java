@@ -124,7 +124,6 @@ public abstract class AttachedFrame extends JInternalFrame {
 
     expandButton = EmulatorInternalFrame.iconToggle("expand-panel.svg", "Expand", expandTip());
     expandButton.addActionListener(e -> setCompact(!expandButton.isSelected()));
-    controls.add(expandButton);
 
     dockButton = EmulatorInternalFrame.iconToggle("dock-bottom.svg", "Attach", attachTip());
     dockButton.setSelected(true);
@@ -133,11 +132,22 @@ public abstract class AttachedFrame extends JInternalFrame {
       attachmentChanged();
       place();
     });
-    controls.add(dockButton);
+    // Held against the right edge rather than added to the row of buttons: the row wraps when
+    // what a subclass put in it grows - a cassette that says which block it is reading, say -
+    // and whatever wrapped went onto a second line that the compact height cuts off. These two
+    // are how the window is folded and unfolded, so they are the last thing that may disappear.
+    JPanel corner = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+    corner.add(expandButton);
+    corner.add(dockButton);
     EmulatorInternalFrame.tighten(controls);
+    EmulatorInternalFrame.tighten(corner);
+
+    JPanel row = new JPanel(new BorderLayout());
+    row.add(controls, BorderLayout.CENTER);
+    row.add(corner, BorderLayout.EAST);
 
     JPanel top = new JPanel(new BorderLayout());
-    top.add(controls, BorderLayout.NORTH);
+    top.add(row, BorderLayout.NORTH);
     // Under the buttons and across the whole width: how far along it is is the one thing worth
     // seeing at a glance, and the compact form has no room for anything that takes a row.
     top.add(progress, BorderLayout.SOUTH);
