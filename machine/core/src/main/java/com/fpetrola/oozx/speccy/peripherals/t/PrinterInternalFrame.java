@@ -27,6 +27,7 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JScrollPane;
+import javax.swing.JToggleButton;
 import javax.swing.ScrollPaneConstants;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -55,20 +56,25 @@ public class PrinterInternalFrame extends AttachedFrame {
 
     setSize(320, 460);
 
-    JButton tearOff = new JButton("Tear off");
-    JButton save = new JButton("Save...");
-    JButton bigger = new JButton("Zoom");
-    tearOff.setToolTipText("Tear the paper off and start a new sheet");
-    save.setToolTipText("Save the printout as a PNG");
-    bigger.setToolTipText("Show the dots larger");
+    JButton tearOff = EmulatorInternalFrame.iconButton("printer-tear.svg", "Tear off",
+        "Tear the paper off and start a new sheet");
+    JButton save = EmulatorInternalFrame.iconButton("printer-save.svg", "Save...",
+        "Save the printout as a PNG");
+    JButton fit = EmulatorInternalFrame.iconButton("printer-fit.svg", "Fit",
+        "Fit the paper across the window; the wheel zooms and dragging moves it");
+    JToggleButton filter = EmulatorInternalFrame.iconToggle("printer-filter.svg", "Paper",
+        "Show it as paper out of a printer, or as the dots the printer was sent");
+    filter.setSelected(true);
+    filter.addActionListener(e -> paper.setFiltered(filter.isSelected()));
     tearOff.addActionListener(e -> paper.printout().tearOff());
     save.addActionListener(e -> save());
-    bigger.addActionListener(e -> paper.setScale(paper.scale() % 4 + 1));
+    fit.addActionListener(e -> paper.fitWidth());
 
     controls.add(tearOff);
     controls.add(save);
     controls.add(Box.createHorizontalStrut(10));
-    controls.add(bigger);
+    controls.add(fit);
+    controls.add(filter);
 
     JScrollPane scroll = new JScrollPane(paper);
     scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -141,8 +147,10 @@ public class PrinterInternalFrame extends AttachedFrame {
     }
     // Saved as it is shown, paper and all: a picture of a printout is a picture of the paper it
     // came out on, and the panel already knows how to draw one.
-    int width = Printout.WIDTH * paper.scale();
-    int height = printout.height() * paper.scale();
+    // Saved at three pixels a dot however it is being looked at: what is on the paper does not
+    // depend on how close the window happens to be to it.
+    int width = Printout.WIDTH * 3;
+    int height = printout.height() * 3;
     BufferedImage image = new BufferedImage(width + 24, height + 24, BufferedImage.TYPE_INT_RGB);
     java.awt.Graphics2D canvas = image.createGraphics();
     canvas.setColor(new java.awt.Color(0x2e, 0x30, 0x2c));
