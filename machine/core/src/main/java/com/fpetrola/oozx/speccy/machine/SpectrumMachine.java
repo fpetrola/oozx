@@ -59,6 +59,12 @@ public interface SpectrumMachine {
    * Whether the ULA leaves the video data it is reading on the bus, which is what a port nothing
    * answers to reads back. The Amstrad machines and the Pentagon drive theirs instead.
    */
+  /**
+   * How many frames this machine has run, counting up and never back. A device that measures time
+   * across frames needs it, because the t-state clock is rebased at every frame end.
+   */
+  long frameCount();
+
   /** Whether this machine decodes a port on all of its bits, where a Sinclair one looks at a few. */
   default boolean fullyDecodesPorts() {
     return false;

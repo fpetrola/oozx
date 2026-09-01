@@ -59,6 +59,11 @@ public class ZxPrinter {
     this.frameLength = frameLength;
   }
 
+  /** The paper this one prints on, which is how a window finds a printout to show. */
+  public Printout paper() {
+    return paper;
+  }
+
   /** Bit 2 stops the motor, bit 1 chooses the speed, bit 7 is the stylus. */
   public void write(byte value) {
     boolean stop = (value & 0x04) != 0;

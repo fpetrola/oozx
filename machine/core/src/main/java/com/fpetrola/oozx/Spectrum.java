@@ -43,7 +43,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
 
   public int spectrumFrameEvent = -1;
 
-  private long framesSinceReset;
+  private long frames;
   private final Timer timer;
   private final Module module;
   private final int[][] ram;
@@ -117,19 +117,14 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
     loadRomBank(memory.mapRom, pageNum, filename, fallback, expectedLength);
   }
 
-  @Override
-  public void machineWasReset(boolean hard) {
-    framesSinceReset = 0;
-  }
-
   private void spectrumFrameEventFn(long lastTstates, int type, Object userData) {
     spectrumFrame();
     cpu.interrupt();
     timer.estimateSpeed(cpu);
   }
 
-  private long getFrameCount() {
-    return framesSinceReset;
+  public long frameCount() {
+    return frames;
   }
 
   public void start() {
@@ -162,7 +157,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
 
     PhantomTypist.frame();
 
-    framesSinceReset++;
+    frames++;
   }
 
   public int contendDelayNone(long time) {
