@@ -65,6 +65,7 @@ class EmulatorInternalFrame extends JInternalFrame {
   private boolean isMuted = false;
   private float scaleFactor0 = 1.73f;
   private float scaleFactor = scaleFactor0;
+  private JDialog fullscreen;
   //  private JLabel tapeStatusLabel;
   private List<com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod> appliedPokes = new ArrayList<>();
 
@@ -343,7 +344,7 @@ class EmulatorInternalFrame extends JInternalFrame {
 
     //    Icon turboIcon = UIManager.getIcon("FileChooser.upFolderIcon");
     JButton turboButton = new JButton(loadIcon("1F680.svg"));
-    turboButton.setToolTipText("Toggle Turbo Mode");
+    turboButton.setToolTipText("Full speed");
     turboButton.addActionListener(e -> emulatorCore.setGeneralOption("turbo", !emulatorCore.isTurboMode()));
     toolBar.add(turboButton);
 
@@ -418,7 +419,7 @@ class EmulatorInternalFrame extends JInternalFrame {
     toolBar.addSeparator();
 
     JButton pauseButton = new JButton(loadIcon("23EF.svg"));
-    pauseButton.setToolTipText("Pause Emulation");
+    pauseButton.setToolTipText("Pause or continue");
     pauseButton.addActionListener(e -> emulatorCore.pauseEmulation());
     toolBar.add(pauseButton);
 
@@ -468,13 +469,12 @@ class EmulatorInternalFrame extends JInternalFrame {
 //    model128KButton.addActionListener(e -> emulatorCore.setMachineModel("Spectrum 128K"));
 //    toolBar.add(model128KButton);
 
-    JButton fullscreenButton = new JButton(loadIcon("1F4FA.svg"));
-    fullscreenButton.setToolTipText("Toggle Fullscreen");
-//    fullscreenButton.addActionListener(e -> setExtendedState(getExtendedState() == JFrame.MAXIMIZED_BOTH ? JFrame.NORMAL : JFrame.MAXIMIZED_BOTH));
+    JButton fullscreenButton = iconButton("1F4FA.svg", "Fullscreen", "Fullscreen (Escape to leave)");
+    fullscreenButton.addActionListener(e -> toggleFullscreen());
     toolBar.add(fullscreenButton);
 
     JButton changeSize = new JButton(loadIcon("E243.svg"));
-    changeSize.setToolTipText("Change size");
+    changeSize.setToolTipText("Small or large window");
     changeSize.addActionListener(e -> {
       Dimension size = EmulatorInternalFrame.this.getSize();
       if (size.width > 1000)
@@ -501,6 +501,33 @@ class EmulatorInternalFrame extends JInternalFrame {
 
     tighten(toolBar);
     return toolBar;
+  }
+
+  /**
+   * The screen alone, filling the display. The panel moves into an undecorated window and back,
+   * rather than being redrawn somewhere else, so the emulator goes on running and the keyboard
+   * goes on working: the keys follow the panel's focus, see createNewEmulator.
+   */
+  private void toggleFullscreen() {
+    JComponent panel = emulatorCore.getPanel();
+    if (fullscreen != null) {
+      fullscreen.dispose();
+      fullscreen = null;
+      add(panel, BorderLayout.CENTER);
+    } else {
+      Window owner = SwingUtilities.getWindowAncestor(this);
+      fullscreen = new JDialog(owner);
+      fullscreen.setUndecorated(true);
+      fullscreen.getContentPane().setBackground(Color.BLACK);
+      fullscreen.getRootPane().registerKeyboardAction(e -> toggleFullscreen(),
+          KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+      fullscreen.add(panel);
+      fullscreen.setBounds(owner.getGraphicsConfiguration().getBounds());
+      fullscreen.setVisible(true);
+    }
+    revalidate();
+    repaint();
+    panel.requestFocusInWindow();
   }
 
   /** Every toolbar in the application draws its icons at this size. */
