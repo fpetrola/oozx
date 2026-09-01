@@ -55,14 +55,14 @@ import com.fpetrola.z80.cpu.Z80Clock;
 import java.util.*;
 
 @Singleton
-public class Periph implements IPeriph {
+public class Peripherals implements PeripheralBus {
   private Z80Clock z80Clock;
   private Settings settings;
   private SpectrumMachine spectrumMachine;
   private final UserInterface userInterface;
 
   @Inject
-  public Periph(Z80Clock z80Clock, Settings settings, UserInterface userInterface) {
+  public Peripherals(Z80Clock z80Clock, Settings settings, UserInterface userInterface) {
     this.userInterface = userInterface;
     this.z80Clock = z80Clock;
     this.settings = settings;
@@ -75,26 +75,26 @@ public class Periph implements IPeriph {
   // Private structure for peripheral data
   private class PrivatePeripheral {
     boolean active;
-    ZxPeripheral peripheral;
+    Peripheral peripheral;
 
-    PrivatePeripheral(ZxPeripheral peripheral) {
+    PrivatePeripheral(Peripheral peripheral) {
       this.peripheral = peripheral;
     }
   }
 
   // Private structure for port response with peripheral type
   private class PrivatePort {
-    Class<? extends ZxPeripheral> type;
+    Class<? extends Peripheral> type;
     PortHandler port;
 
-    PrivatePort(Class<? extends ZxPeripheral> type, PortHandler port) {
+    PrivatePort(Class<? extends Peripheral> type, PortHandler port) {
       this.type = type;
       this.port = port;
     }
   }
 
   // All peripherals known to the system
-  private Map<Class<? extends ZxPeripheral>, PrivatePeripheral> peripherals = new HashMap<>();
+  private Map<Class<? extends Peripheral>, PrivatePeripheral> peripherals = new HashMap<>();
 
   // List of currently active ports
   private final ObjectArrayList ports = new ObjectArrayList();
@@ -108,17 +108,17 @@ public class Periph implements IPeriph {
   private final String UNPAGE_EVENT_STRING = "unpage";
 
   @Override
-  public void register(ZxPeripheral zxPeripheral) {
+  public void register(Peripheral peripheral) {
     if (peripherals == null) {
       peripherals = new HashMap<>();
     }
 
-    peripherals.put(zxPeripheral.getClass(), new PrivatePeripheral(zxPeripheral));
+    peripherals.put(peripheral.getClass(), new PrivatePeripheral(peripheral));
   }
 
   // Mark a specific peripheral as (in)active
   @Override
-  public boolean activateType(Class<? extends ZxPeripheral> type, boolean active) {
+  public boolean activateType(Class<? extends Peripheral> type, boolean active) {
     PrivatePeripheral privatePeriph = peripherals.get(type);
     if (privatePeriph == null || privatePeriph.active == active) {
       return false;
@@ -153,14 +153,14 @@ public class Periph implements IPeriph {
 
   /** The registered peripheral of a kind, or null if this build has none. */
   @Override
-  public ZxPeripheral find(Class<? extends ZxPeripheral> zxPeripheralClass) {
-    PrivatePeripheral data = peripherals.get(zxPeripheralClass);
+  public Peripheral find(Class<? extends Peripheral> peripheralClass) {
+    PrivatePeripheral data = peripherals.get(peripheralClass);
     return data == null ? null : data.peripheral;
   }
 
   @Override
-  public boolean isActive(Class<? extends ZxPeripheral> zxPeripheralClass) {
-    PrivatePeripheral typeData = peripherals.get(zxPeripheralClass);
+  public boolean isActive(Class<? extends Peripheral> peripheralClass) {
+    PrivatePeripheral typeData = peripherals.get(peripheralClass);
     return typeData != null && typeData.active;
   }
 

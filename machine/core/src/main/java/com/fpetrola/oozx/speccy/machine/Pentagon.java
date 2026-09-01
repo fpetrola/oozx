@@ -20,7 +20,7 @@ package com.fpetrola.oozx.speccy.machine;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
-import com.fpetrola.oozx.PeriphDelegate;
+import com.fpetrola.oozx.PeripheralBusDelegate;
 import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.oozx.speccy.modules.Display;
 import com.fpetrola.oozx.speccy.modules.EventManager;
@@ -50,10 +50,10 @@ import com.fpetrola.emulation.helpers.machine.MachineTypes;
 public class Pentagon extends Spec128 {
 
   @Inject
-  public Pentagon(Memory memory, Display display, PeriphDelegate periph,
+  public Pentagon(Memory memory, Display display, PeripheralBusDelegate peripherals,
                   Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module,
                   Sound sound, UserInterface userInterface) {
-    super(memory, display, periph, settings, eventManager, cpu, timer, module, sound,
+    super(memory, display, peripherals, settings, eventManager, cpu, timer, module, sound,
         userInterface);
   }
 

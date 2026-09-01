@@ -23,10 +23,10 @@ import com.fpetrola.oozx.speccy.ports.PortHandler;
 
 import java.util.List;
 
-public class AbstractZxPeripheral implements ZxPeripheral {
+public class AbstractPeripheral implements Peripheral {
   private PortHandler[] portHandlers;
 
-  public AbstractZxPeripheral(List<PortHandler> portHandlers) {
+  public AbstractPeripheral(List<PortHandler> portHandlers) {
     this.portHandlers = portHandlers.toArray(new PortHandler[0]);
   }
 

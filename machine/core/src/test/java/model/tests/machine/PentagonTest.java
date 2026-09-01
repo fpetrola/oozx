@@ -101,7 +101,7 @@ class PentagonTest {
   void itCanBeAskedForByName() {
     Speccy speccy = speccy();
     new LocalLibretroCore(speccy.eventManager, speccy.display, speccy.machine, speccy.z80,
-        speccy.zxClock, speccy.periph, speccy).retro_select_machine("Pentagon");
+        speccy.zxClock, speccy.peripherals, speccy).retro_select_machine("Pentagon");
     assertSame(speccy.pentagon, speccy.machine.current, "the name reaches the machine");
     assertEquals("Pentagon", speccy.machine.current.getName());
   }

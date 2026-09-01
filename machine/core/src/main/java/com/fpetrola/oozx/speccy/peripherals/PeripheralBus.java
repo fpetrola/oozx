@@ -20,15 +20,15 @@ package com.fpetrola.oozx.speccy.peripherals;
 
 import com.fpetrola.oozx.MachineChangeListener;
 
-public interface IPeriph extends MachineChangeListener {
-  void register(ZxPeripheral zxPeripheral);
+public interface PeripheralBus extends MachineChangeListener {
+  void register(Peripheral peripheral);
 
-  boolean activateType(Class<? extends ZxPeripheral> type, boolean active);
+  boolean activateType(Class<? extends Peripheral> type, boolean active);
 
-  boolean isActive(Class<? extends ZxPeripheral> zxPeripheralClass);
+  boolean isActive(Class<? extends Peripheral> peripheralClass);
 
   /** The registered peripheral of a kind, or null if this build has none. */
-  ZxPeripheral find(Class<? extends ZxPeripheral> zxPeripheralClass);
+  Peripheral find(Class<? extends Peripheral> peripheralClass);
 
   void clear();
 

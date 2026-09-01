@@ -48,7 +48,7 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
 
   public final Settings settings;
   private Movie movie;
-  private IPeriph periph;
+  private PeripheralBus peripherals;
   private final SpectrumZ80Clock clock;
 
   private JavaSoundDevice javaSoundDevice;
@@ -56,12 +56,12 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
   private SpectrumMachine spectrumMachine;
 
 @Inject
-  public Sound(Settings settings, Movie movie, IPeriph periph, SpectrumZ80Clock clock,
+  public Sound(Settings settings, Movie movie, PeripheralBus peripherals, SpectrumZ80Clock clock,
                JavaSoundDevice javaSoundDevice) {
     this.javaSoundDevice = javaSoundDevice;
     this.settings = settings;
     this.movie = movie;
-    this.periph = periph;
+    this.peripherals = peripherals;
     this.clock = clock;
   }
 

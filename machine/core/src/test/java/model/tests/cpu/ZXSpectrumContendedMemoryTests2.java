@@ -48,7 +48,7 @@ public class ZXSpectrumContendedMemoryTests2 {
   public static void beforeall() {
     OOSpectrumConnector.noTest = false;
     Speccy speccy = Speccy.create();
-    localLibretroCore = new LocalLibretroCore(speccy.eventManager, speccy.display, speccy.machine, speccy.z80, speccy.zxClock, speccy.periph, speccy);
+    localLibretroCore = new LocalLibretroCore(speccy.eventManager, speccy.display, speccy.machine, speccy.z80, speccy.zxClock, speccy.peripherals, speccy);
     remoteCore = OOSpectrumConnector.core;
     CommandHandler commandHandler1 = DefaultCommandHandler.createCommandHandler(localLibretroCore);
     CommandHandler commandHandler2 = DefaultCommandHandler.createCommandHandler(remoteCore);

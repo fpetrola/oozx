@@ -20,14 +20,14 @@ package com.fpetrola.oozx.speccy.modules;
 
 import com.fpetrola.oozx.UserInterface;
 
-import com.fpetrola.oozx.PeriphDelegate;
+import com.fpetrola.oozx.PeripheralBusDelegate;
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
 
 import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.speccy.KeyboardKeyName;
-import com.fpetrola.oozx.speccy.peripherals.IPeriph;
+import com.fpetrola.oozx.speccy.peripherals.PeripheralBus;
 import com.fpetrola.oozx.speccy.devices.joystick.KempstonLoosePeriphPeripheral;
 import com.fpetrola.oozx.speccy.devices.joystick.KempstonStrictPeripheral;
 
@@ -42,16 +42,16 @@ public class Joystick implements ZxModule {
   // Number of joysticks supported
   public int joysticksSupported = 0;
   private Keyboard keyboard;
-  private IPeriph periph;
+  private PeripheralBus peripherals;
   private Module module;
   private Settings settings;
   private final UserInterface userInterface;
 
   @Inject
-  public Joystick(Keyboard keyboard, PeriphDelegate periph, Module module, Settings settings, UserInterface userInterface) {
+  public Joystick(Keyboard keyboard, PeripheralBusDelegate peripherals, Module module, Settings settings, UserInterface userInterface) {
     this.userInterface = userInterface;
     this.keyboard = keyboard;
-    this.periph = periph;
+    this.peripherals = peripherals;
     this.module = module;
     this.settings = settings;
   }
@@ -61,8 +61,8 @@ public class Joystick implements ZxModule {
     kempstonValue = timex1Value = timex2Value = 0x00;
     fullerValue = (byte) 0xff;
 
-    periph.register(new KempstonStrictPeripheral(this, () -> settings.current.joyKempston));
-    periph.register(new KempstonLoosePeriphPeripheral(this, () -> settings.current.joyKempston));
+    peripherals.register(new KempstonStrictPeripheral(this, () -> settings.current.joyKempston));
+    peripherals.register(new KempstonLoosePeriphPeripheral(this, () -> settings.current.joyKempston));
 
     return;
   }

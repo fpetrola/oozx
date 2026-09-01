@@ -54,7 +54,7 @@ class SnapshotChoosesItsMachineTest {
 
   private LocalLibretroCore core(Speccy speccy) {
     return new LocalLibretroCore(speccy.eventManager, speccy.display, speccy.machine, speccy.z80,
-        speccy.zxClock, speccy.periph, speccy);
+        speccy.zxClock, speccy.peripherals, speccy);
   }
 
   private void goesTo(Spectrum expected, MachineTypes model, Speccy speccy) {

@@ -23,24 +23,24 @@ import com.google.inject.Inject;
 
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.modules.Ula;
-import com.fpetrola.oozx.speccy.peripherals.IPeriph;
+import com.fpetrola.oozx.speccy.peripherals.PeripheralBus;
 import com.fpetrola.z80.cpu.Z80Clock;
 
 @Singleton
-public class UlaPeriph implements PeriphDelegate {
+public class ContendedPeripheralBus implements PeripheralBusDelegate {
   private final Ula ula;
   private final Z80Clock z80Clock;
-  private final IPeriph periph;
+  private final PeripheralBus peripherals;
 
 @Inject
-  public UlaPeriph(Ula ula, Z80Clock z80Clock, IPeriph periph) {
+  public ContendedPeripheralBus(Ula ula, Z80Clock z80Clock, PeripheralBus peripherals) {
     this.ula = ula;
     this.z80Clock = z80Clock;
-    this.periph = periph;
+    this.peripherals = peripherals;
   }
 
-  public IPeriph getPeriph() {
-    return periph;
+  public PeripheralBus getPeripherals() {
+    return peripherals;
   }
 
   public void writePort(int port, byte b) {
@@ -53,10 +53,10 @@ public class UlaPeriph implements PeriphDelegate {
   public byte readPort(int port) {
     ula.contendPortEarly(port);
     ula.contendPortLate(port);
-    return getPeriph().readPort(port);
+    return getPeripherals().readPort(port);
   }
 
   public void machineChanged(SpectrumMachine newMachine) {
-    periph.machineChanged(newMachine);
+    peripherals.machineChanged(newMachine);
   }
 }

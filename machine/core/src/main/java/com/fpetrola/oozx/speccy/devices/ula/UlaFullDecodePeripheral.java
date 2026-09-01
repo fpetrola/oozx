@@ -19,14 +19,14 @@
 package com.fpetrola.oozx.speccy.devices.ula;
 
 
-import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.AbstractPeripheral;
 
 import com.fpetrola.oozx.speccy.modules.Ula;
 
 import java.util.List;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 
-public class UlaFullDecodePeripheral extends AbstractZxPeripheral {
+public class UlaFullDecodePeripheral extends AbstractPeripheral {
 
   private final Ula ula;
   public UlaFullDecodePeripheral(Ula ula) {

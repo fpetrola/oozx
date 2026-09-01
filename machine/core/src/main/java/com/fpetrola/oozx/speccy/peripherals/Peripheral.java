@@ -21,7 +21,7 @@ package com.fpetrola.oozx.speccy.peripherals;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.ports.PortHandler;
 
-public interface ZxPeripheral {
+public interface Peripheral {
   boolean canActivate();
 
   void activate();

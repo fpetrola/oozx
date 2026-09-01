@@ -19,7 +19,7 @@
 package com.fpetrola.oozx.speccy.devices.joystick;
 
 
-import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.AbstractPeripheral;
 
 import com.fpetrola.oozx.speccy.modules.Joystick;
 
@@ -37,7 +37,7 @@ import com.fpetrola.oozx.MachineCapability;
  * turn it on while the emulator runs, but that needs a question and not everything the emulator
  * has ever been configured with.
  */
-public class KempstonLoosePeriphPeripheral extends AbstractZxPeripheral {
+public class KempstonLoosePeriphPeripheral extends AbstractPeripheral {
 
   private final BooleanSupplier wanted;
 

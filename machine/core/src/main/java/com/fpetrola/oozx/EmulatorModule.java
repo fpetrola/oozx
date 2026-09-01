@@ -22,8 +22,8 @@ import com.fpetrola.oozx.speccy.machine.*;
 import com.fpetrola.oozx.speccy.modules.z80.Cpu;
 import com.fpetrola.oozx.speccy.modules.z80.PeripheralIO;
 import com.fpetrola.oozx.speccy.modules.z80.Z80;
-import com.fpetrola.oozx.speccy.peripherals.IPeriph;
-import com.fpetrola.oozx.speccy.peripherals.Periph;
+import com.fpetrola.oozx.speccy.peripherals.PeripheralBus;
+import com.fpetrola.oozx.speccy.peripherals.Peripherals;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.Z80Clock;
 import com.google.inject.AbstractModule;
@@ -64,11 +64,11 @@ public class EmulatorModule extends AbstractModule {
     // Memory is the RAM holder; the two names are the same object seen from two sides.
     bind(RAMHolder.class).to(Memory.class);
 
-    // The two peripheral buses. IPeriph is the raw one; PeriphDelegate is the UlaPeriph that
-    // decorates it, and the ULA itself must keep receiving the raw one — UlaPeriph wraps the
-    // ULA, so handing the ULA the delegate would close a loop.
-    bind(IPeriph.class).to(Periph.class);
-    bind(PeriphDelegate.class).to(UlaPeriph.class);
+    // The two peripheral buses. PeripheralBus is the raw one; the delegate is the contended bus
+    // that decorates it, and the ULA itself must keep receiving the raw one — the contended bus
+    // wraps the ULA, so handing the ULA the delegate would close a loop.
+    bind(PeripheralBus.class).to(Peripherals.class);
+    bind(PeripheralBusDelegate.class).to(ContendedPeripheralBus.class);
 
     bind(Cpu.class).to(Z80.class);
 

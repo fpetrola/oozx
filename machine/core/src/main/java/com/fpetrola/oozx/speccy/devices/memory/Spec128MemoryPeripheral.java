@@ -19,7 +19,7 @@
 package com.fpetrola.oozx.speccy.devices.memory;
 
 
-import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.AbstractPeripheral;
 
 import com.fpetrola.oozx.speccy.machine.Spec128;
 
@@ -27,7 +27,7 @@ import java.util.List;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.MachineCapability;
 
-public class Spec128MemoryPeripheral extends AbstractZxPeripheral {
+public class Spec128MemoryPeripheral extends AbstractPeripheral {
   public Spec128MemoryPeripheral(Spec128 spec128) {
     super(List.of(new Spec128PortHandler(0x8002, 0x0000, spec128)));
   }

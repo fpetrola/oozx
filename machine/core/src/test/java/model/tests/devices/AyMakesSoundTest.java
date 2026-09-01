@@ -81,8 +81,8 @@ class AyMakesSoundTest {
   }
 
   private void write(Speccy speccy, int register, int value) {
-    speccy.periph.writePort(0xFFFD, (byte) register);
-    speccy.periph.writePort(0xBFFD, (byte) value);
+    speccy.peripherals.writePort(0xFFFD, (byte) register);
+    speccy.peripherals.writePort(0xBFFD, (byte) value);
   }
 
   @Test

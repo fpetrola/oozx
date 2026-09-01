@@ -66,15 +66,15 @@ class MelodikTest {
   @Test
   void aFortyEightWithOneHasASoundChip() {
     Speccy speccy = aFortyEightWith(true);
-    assertTrue(speccy.periph.isActive(MelodikPeripheral.class), "the box was asked for and is not there");
+    assertTrue(speccy.peripherals.isActive(MelodikPeripheral.class), "the box was asked for and is not there");
 
     // The 128's own ports, which is what the box answers on.
-    speccy.periph.writePort(0xFFFD, (byte) 0);
-    speccy.periph.writePort(0xBFFD, (byte) 0x50);
-    speccy.periph.writePort(0xFFFD, (byte) 8);
-    speccy.periph.writePort(0xBFFD, (byte) 0x0F);
-    speccy.periph.writePort(0xFFFD, (byte) 7);
-    speccy.periph.writePort(0xBFFD, (byte) 0x3E);
+    speccy.peripherals.writePort(0xFFFD, (byte) 0);
+    speccy.peripherals.writePort(0xBFFD, (byte) 0x50);
+    speccy.peripherals.writePort(0xFFFD, (byte) 8);
+    speccy.peripherals.writePort(0xBFFD, (byte) 0x0F);
+    speccy.peripherals.writePort(0xFFFD, (byte) 7);
+    speccy.peripherals.writePort(0xBFFD, (byte) 0x3E);
     speccy.sound.frame();
 
     Loudest heard = (Loudest) speccy.sound.getJavaSoundDevice();
@@ -93,18 +93,18 @@ class MelodikTest {
     Speccy speccy = aFortyEightWith(true);
     Loudest heard = (Loudest) speccy.sound.getJavaSoundDevice();
 
-    speccy.periph.writePort(0xFFFD, (byte) 8);
-    speccy.periph.writePort(0xBFFD, (byte) 0x0F);
-    speccy.periph.writePort(0xFFFD, (byte) 7);
-    speccy.periph.writePort(0xBFFD, (byte) 0x3E);
-    speccy.periph.writePort(0xFFFD, (byte) 0);
-    speccy.periph.writePort(0xBFFD, (byte) 0x50);
+    speccy.peripherals.writePort(0xFFFD, (byte) 8);
+    speccy.peripherals.writePort(0xBFFD, (byte) 0x0F);
+    speccy.peripherals.writePort(0xFFFD, (byte) 7);
+    speccy.peripherals.writePort(0xBFFD, (byte) 0x3E);
+    speccy.peripherals.writePort(0xFFFD, (byte) 0);
+    speccy.peripherals.writePort(0xBFFD, (byte) 0x50);
     speccy.sound.frame();
     assertTrue(heard.peak > 0, "it was not playing before being unplugged");
 
     speccy.settings.current.melodik = false;
-    speccy.periph.update();
-    assertFalse(speccy.periph.isActive(MelodikPeripheral.class), "it is still plugged in");
+    speccy.peripherals.update();
+    assertFalse(speccy.peripherals.isActive(MelodikPeripheral.class), "it is still plugged in");
 
     heard.peak = 0;
     speccy.sound.frame();
@@ -115,12 +115,12 @@ class MelodikTest {
   @Test
   void andWithoutOneItIsStillSilent() {
     Speccy speccy = aFortyEightWith(false);
-    assertFalse(speccy.periph.isActive(MelodikPeripheral.class));
+    assertFalse(speccy.peripherals.isActive(MelodikPeripheral.class));
 
-    speccy.periph.writePort(0xFFFD, (byte) 8);
-    speccy.periph.writePort(0xBFFD, (byte) 0x0F);
-    speccy.periph.writePort(0xFFFD, (byte) 7);
-    speccy.periph.writePort(0xBFFD, (byte) 0x3E);
+    speccy.peripherals.writePort(0xFFFD, (byte) 8);
+    speccy.peripherals.writePort(0xBFFD, (byte) 0x0F);
+    speccy.peripherals.writePort(0xFFFD, (byte) 7);
+    speccy.peripherals.writePort(0xBFFD, (byte) 0x3E);
     speccy.sound.frame();
 
     assertEquals(0, ((Loudest) speccy.sound.getJavaSoundDevice()).peak,

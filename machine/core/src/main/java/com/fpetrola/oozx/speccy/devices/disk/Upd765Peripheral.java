@@ -19,7 +19,7 @@
 package com.fpetrola.oozx.speccy.devices.disk;
 
 
-import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.AbstractPeripheral;
 
 import com.fpetrola.oozx.speccy.machine.SpecPlus3;
 
@@ -28,7 +28,7 @@ import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 
 import java.util.List;
 
-public class Upd765Peripheral extends AbstractZxPeripheral {
+public class Upd765Peripheral extends AbstractPeripheral {
   public Upd765Peripheral(SpecPlus3 specPlus3) {
     super(List.of(
         new FdcPortHandler(0xf002, 0x3000, specPlus3),

@@ -21,7 +21,7 @@ package model.tests.devices;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.OOSpectrumConnector;
 import com.fpetrola.oozx.speccy.devices.ay.AyPeripheral;
-import com.fpetrola.oozx.speccy.peripherals.ZxPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 import com.fpetrola.oozx.speccy.rzx.RzxSession;
 import org.junit.jupiter.api.Test;
 
@@ -49,8 +49,8 @@ class AyFromSnapshotTest {
   }
 
   private static long writesTo(Speccy speccy) {
-    for (Class<? extends ZxPeripheral> kind : List.of(AyPeripheral.class, AyPlus3Peripheral.class)) {
-      ZxPeripheral peripheral = speccy.periph.find(kind);
+    for (Class<? extends Peripheral> kind : List.of(AyPeripheral.class, AyPlus3Peripheral.class)) {
+      Peripheral peripheral = speccy.peripherals.find(kind);
       if (peripheral instanceof AyPeripheral ay && ay.writes() > 0) {
         return ay.writes();
       }

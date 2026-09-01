@@ -26,7 +26,7 @@ import com.fpetrola.oozx.speccy.modules.BeanPosition;
 import com.fpetrola.oozx.speccy.modules.Display;
 import com.fpetrola.oozx.speccy.modules.EventManager;
 import com.fpetrola.oozx.speccy.modules.z80.Z80;
-import com.fpetrola.oozx.speccy.peripherals.IPeriph;
+import com.fpetrola.oozx.speccy.peripherals.PeripheralBus;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.cpu.Z80Clock;
@@ -47,16 +47,16 @@ public class LocalLibretroCore implements LibretroCore {
   private Machine machine;
   private Z80 z80;
   private Z80Clock z80Clock;
-  private IPeriph periph;
+  private PeripheralBus peripherals;
   private Speccy speccy;
 
-  public LocalLibretroCore(EventManager eventManager, Display display, Machine machine, Z80 z80, Z80Clock z80Clock, IPeriph periph, Speccy speccy) {
+  public LocalLibretroCore(EventManager eventManager, Display display, Machine machine, Z80 z80, Z80Clock z80Clock, PeripheralBus peripherals, Speccy speccy) {
     this.eventManager = eventManager;
     this.display = display;
     this.machine = machine;
     this.z80 = z80;
     this.z80Clock = z80Clock;
-    this.periph = periph;
+    this.peripherals = peripherals;
     this.speccy = speccy;
   }
 
@@ -212,10 +212,10 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_write_port(int port, int value) {
-    periph.writePortInternal(port, (byte) value);
+    peripherals.writePortInternal(port, (byte) value);
 
 //    getState().getIo().out(WordNumber.createValue(port), WordNumber.createValue(value));
-//    Periph.writePortInternal(port, (byte) value);
+//    Peripherals.writePortInternal(port, (byte) value);
   }
 
   public void retro_select_machine(String name) {

@@ -62,7 +62,7 @@ public class SpeccyUnitTests extends SpeccyBaseForTests {
 
   public SpeccyUnitTests(){
     speccy= createSpeccy();
-    localLibretroCore = new LocalLibretroCore(speccy.eventManager, speccy.display, speccy.machine, speccy.z80, speccy.zxClock, speccy.periph, speccy);
+    localLibretroCore = new LocalLibretroCore(speccy.eventManager, speccy.display, speccy.machine, speccy.z80, speccy.zxClock, speccy.peripherals, speccy);
 
     testDriver = new TestDriver(DefaultCommandHandler.createCommandHandler(speccy));
     //        bus = new ConnectedSpectrumBus(speccy.memory, speccy.ula, testDriver);

@@ -20,7 +20,7 @@ package model.tests.devices;
 
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.devices.ay.AyPeripheral;
-import com.fpetrola.oozx.speccy.peripherals.ZxPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 import com.fpetrola.oozx.speccy.OOSpectrumConnector;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 import org.junit.jupiter.api.Test;
@@ -63,8 +63,8 @@ class AySoundPortsTest {
    * It holds sound sources now and knows nothing about what an AY is.
    */
   private static long writesTo(Speccy speccy) {
-    for (Class<? extends ZxPeripheral> kind : List.of(AyPeripheral.class, AyPlus3Peripheral.class)) {
-      ZxPeripheral peripheral = speccy.periph.find(kind);
+    for (Class<? extends Peripheral> kind : List.of(AyPeripheral.class, AyPlus3Peripheral.class)) {
+      Peripheral peripheral = speccy.peripherals.find(kind);
       if (peripheral instanceof AyPeripheral ay && ay.writes() > 0) {
         return ay.writes();
       }
@@ -75,10 +75,10 @@ class AySoundPortsTest {
   /** A register is chosen on one port and its value sent on the other. */
   private static long writeTwoRegisters(Speccy speccy) {
     long before = writesTo(speccy);
-    speccy.periph.writePort(0xFFFD, (byte) 7);
-    speccy.periph.writePort(0xBFFD, (byte) 0x38);
-    speccy.periph.writePort(0xFFFD, (byte) 8);
-    speccy.periph.writePort(0xBFFD, (byte) 0x0F);
+    speccy.peripherals.writePort(0xFFFD, (byte) 7);
+    speccy.peripherals.writePort(0xBFFD, (byte) 0x38);
+    speccy.peripherals.writePort(0xFFFD, (byte) 8);
+    speccy.peripherals.writePort(0xBFFD, (byte) 0x0F);
     return writesTo(speccy) - before;
   }
 
@@ -113,10 +113,10 @@ class AySoundPortsTest {
   @Test
   void the_chip_can_be_read_back_which_is_how_a_game_finds_it() {
     Speccy speccy = machine("Spec128");
-    speccy.periph.writePort(0xFFFD, (byte) 8);      // channel A volume
-    speccy.periph.writePort(0xBFFD, (byte) 0x0D);
+    speccy.peripherals.writePort(0xFFFD, (byte) 8);      // channel A volume
+    speccy.peripherals.writePort(0xBFFD, (byte) 0x0D);
 
-    assertEquals(0x0D, speccy.periph.readPort(0xFFFD) & 0xFF,
+    assertEquals(0x0D, speccy.peripherals.readPort(0xFFFD) & 0xFF,
         "written and read back is how a program decides there is a chip to play");
   }
 
@@ -127,12 +127,12 @@ class AySoundPortsTest {
   @Test
   void the_registers_answer_as_the_chip_does() {
     Speccy speccy = machine("Spec128");
-    speccy.periph.writePort(0xFFFD, (byte) 1);      // channel A period, high byte: four bits wide
-    speccy.periph.writePort(0xBFFD, (byte) 0xFF);
-    assertEquals(0x0F, speccy.periph.readPort(0xFFFD) & 0xFF, "the other four bits are not there");
+    speccy.peripherals.writePort(0xFFFD, (byte) 1);      // channel A period, high byte: four bits wide
+    speccy.peripherals.writePort(0xBFFD, (byte) 0xFF);
+    assertEquals(0x0F, speccy.peripherals.readPort(0xFFFD) & 0xFF, "the other four bits are not there");
 
-    speccy.periph.writePort(0xFFFD, (byte) 15);     // the 8912 has no second I/O port
-    assertEquals(0xFF, speccy.periph.readPort(0xFFFD) & 0xFF);
+    speccy.peripherals.writePort(0xFFFD, (byte) 15);     // the 8912 has no second I/O port
+    assertEquals(0xFF, speccy.peripherals.readPort(0xFFFD) & 0xFF);
   }
 
   @Test

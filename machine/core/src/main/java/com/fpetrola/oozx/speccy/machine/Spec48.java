@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx.speccy.machine;
 
-import com.fpetrola.oozx.PeriphDelegate;
+import com.fpetrola.oozx.PeripheralBusDelegate;
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
 
@@ -35,8 +35,8 @@ import com.fpetrola.emulation.helpers.machine.MachineTypes;
 public class Spec48 extends Spectrum {
 
   @Inject
-  public Spec48(Memory memory, Display display, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
-    super(memory, display, eventManager, cpu, timer, module, settings, new Spec48RamInfo(3), periph, sound, userInterface);
+  public Spec48(Memory memory, Display display, PeripheralBusDelegate peripherals, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
+    super(memory, display, eventManager, cpu, timer, module, settings, new Spec48RamInfo(3), peripherals, sound, userInterface);
   }
 
   // Initialize the Spectrum 48K speccyMachineInfo
@@ -53,8 +53,8 @@ public class Spec48 extends Spectrum {
   public int reset() {
     loadRom(0, settings.current.rom48, settings.defaults.rom48, 0x4000);
 
-    periph.clear();
-    periph.update();
+    peripherals.clear();
+    peripherals.update();
 
     Beta.builtin = false;
 

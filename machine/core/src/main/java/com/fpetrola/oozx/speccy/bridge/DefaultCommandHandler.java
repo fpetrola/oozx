@@ -39,7 +39,7 @@ public class DefaultCommandHandler implements CommandHandler  {
 
   public static CommandHandler createCommandHandler(Speccy speccy) {
     LibretroCore core = LibretroCore.INSTANCE;
-    core = new LocalLibretroCore(speccy.eventManager, speccy.display, speccy.machine, speccy.z80, speccy.zxClock, speccy.periph, speccy);
+    core = new LocalLibretroCore(speccy.eventManager, speccy.display, speccy.machine, speccy.z80, speccy.zxClock, speccy.peripherals, speccy);
     return createCommandHandler(core);
   }
 

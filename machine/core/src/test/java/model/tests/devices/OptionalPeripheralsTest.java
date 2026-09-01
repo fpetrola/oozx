@@ -55,18 +55,18 @@ class OptionalPeripheralsTest {
   @Test
   void whatTheMachineComesWithIsThere() {
     Speccy speccy = machineWith(false);
-    assertTrue(speccy.periph.isActive(UlaPeripheral.class), "every machine has a ULA");
+    assertTrue(speccy.peripherals.isActive(UlaPeripheral.class), "every machine has a ULA");
   }
 
   @Test
   void aJoystickIsThereWhenSomebodyAskedForOne() {
-    assertTrue(machineWith(true).periph.isActive(KempstonStrictPeripheral.class),
+    assertTrue(machineWith(true).peripherals.isActive(KempstonStrictPeripheral.class),
         "a Kempston was asked for and did not arrive");
   }
 
   @Test
   void andIsNotWhenNobodyDid() {
-    assertFalse(machineWith(false).periph.isActive(KempstonStrictPeripheral.class),
+    assertFalse(machineWith(false).peripherals.isActive(KempstonStrictPeripheral.class),
         "a Kempston nobody asked for is answering on its ports");
   }
 }

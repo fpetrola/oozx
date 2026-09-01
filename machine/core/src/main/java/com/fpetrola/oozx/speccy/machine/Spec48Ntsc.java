@@ -24,7 +24,7 @@ import java.util.Set;
 
 import static com.fpetrola.oozx.MachineCapability.*;
 
-import com.fpetrola.oozx.PeriphDelegate;
+import com.fpetrola.oozx.PeripheralBusDelegate;
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
 
@@ -40,8 +40,8 @@ import com.fpetrola.emulation.helpers.machine.MachineTypes;
 @Singleton
 public class Spec48Ntsc extends Spec48 {
   @Inject
-  public Spec48Ntsc(Memory memory, Display display, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
-    super(memory, display, periph, settings, eventManager, cpu, timer, module, sound, userInterface);
+  public Spec48Ntsc(Memory memory, Display display, PeripheralBusDelegate peripherals, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
+    super(memory, display, peripherals, settings, eventManager, cpu, timer, module, sound, userInterface);
     init();
   }
 
@@ -67,8 +67,8 @@ public class Spec48Ntsc extends Spec48 {
     loadRom(0, settings.current.rom48, settings.defaults.rom48, 0x4000);
 
     // Limpiar y configurar periféricos 48K
-    periph.clear();
-    periph.update();
+    peripherals.clear();
+    peripherals.update();
 
     // Pantalla en RAM 5
     memory.currentScreen = 5;

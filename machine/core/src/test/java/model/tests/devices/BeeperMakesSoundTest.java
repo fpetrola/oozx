@@ -77,7 +77,7 @@ class BeeperMakesSoundTest {
       // other way in - which is the point of it living there.
       for (int edge = 0; edge < 40; edge++) {
         speccy.zxClock.setTStates(edge * 800);
-        speccy.periph.writePort(0x00FE, (byte) ((edge & 1) == 0 ? 0x10 : 0x00));
+        speccy.peripherals.writePort(0x00FE, (byte) ((edge & 1) == 0 ? 0x10 : 0x00));
       }
     }
 

@@ -19,7 +19,7 @@
 package com.fpetrola.oozx.speccy.devices.memory;
 
 
-import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.AbstractPeripheral;
 
 import com.fpetrola.oozx.Machine;
 import com.fpetrola.oozx.Spectrum;
@@ -28,7 +28,7 @@ import java.util.List;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.MachineCapability;
 
-public class SeMemoryPeripheral extends AbstractZxPeripheral {
+public class SeMemoryPeripheral extends AbstractPeripheral {
   public SeMemoryPeripheral(Spectrum spectrum) {
     super(List.of(new SeMemoryPortHandler(spectrum)));
   }

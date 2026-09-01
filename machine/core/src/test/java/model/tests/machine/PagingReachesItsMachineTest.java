@@ -63,7 +63,7 @@ class PagingReachesItsMachineTest {
    * A 128 and a +2 leave the video data on the bus, so reading the paging port is also a write of
    * whatever was floating there - a quirk of those two that games rely on. The +2A and +3 drive
    * their bus and the Pentagon has none, so on them the same read must page nothing. This used to
-   * be decided by naming the two classes inside Periph.
+   * be decided by naming the two classes inside Peripherals.
    */
   @Test
   void onlyAMachineWithAFloatingBusPagesWhenItsPortIsRead() {
@@ -76,8 +76,8 @@ class PagingReachesItsMachineTest {
       speccy.machine.selectDefault();
       speccy.machine.select(wanted);
 
-      speccy.periph.writePort(0x7ffd, (byte) 0x00);
-      speccy.periph.readPort(0x7ffd);
+      speccy.peripherals.writePort(0x7ffd, (byte) 0x00);
+      speccy.peripherals.readPort(0x7ffd);
 
       // 0xff is what an unattached port reads outside the screen, and bit 5 of it locks paging.
       // Said by name rather than by asking the machine the same question the code under test
@@ -105,7 +105,7 @@ class PagingReachesItsMachineTest {
 
       asked.add(wanted.getName());
       // Bit 5 of the 128's paging port locks paging, and the machine remembers that it is locked.
-      speccy.periph.writePort(0x7ffd, (byte) 0x20);
+      speccy.peripherals.writePort(0x7ffd, (byte) 0x20);
       if (!speccy.machine.current.getRamInfo().locked) {
         deaf.add(wanted.getName());
       }

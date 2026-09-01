@@ -23,13 +23,13 @@ import model.tests.media.TzxLoadingTest;
 import com.fpetrola.oozx.EmulatorModule;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.Memory;
-import com.fpetrola.oozx.PeriphDelegate;
+import com.fpetrola.oozx.PeripheralBusDelegate;
 import com.fpetrola.oozx.SpectrumZ80Clock;
 import com.fpetrola.oozx.speccy.OOSpectrumConnector;
 import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.oozx.speccy.modules.Ula;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
-import com.fpetrola.oozx.speccy.peripherals.IPeriph;
+import com.fpetrola.oozx.speccy.peripherals.PeripheralBus;
 import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -121,7 +121,7 @@ public class EmulationRegressionTest {
    * A missing @Singleton does not fail loudly: with two Tapes the emulator starts perfectly,
    * the browser shows the cassette, and nothing ever loads, because Sound, the ULA and the
    * public speccy.tape are each driving a different deck. The two peripheral buses are the
-   * mirror image — the raw Periph and the UlaPeriph that decorates it have to stay distinct,
+   * mirror image — the raw Peripherals and the ContendedPeripheralBus that decorates it have to stay distinct,
    * or the ULA ends up wrapped around itself.
    */
   @Test
@@ -130,12 +130,12 @@ public class EmulationRegressionTest {
 
     for (Class<?> shared : new Class<?>[]{
         Tape.class, Sound.class, Memory.class, Ula.class,
-        IPeriph.class, PeriphDelegate.class}) {
+        PeripheralBus.class, PeripheralBusDelegate.class}) {
       assertSame(injector.getInstance(shared), injector.getInstance(shared),
           shared.getSimpleName() + " is handed out more than once; it needs @Singleton");
     }
 
-    assertNotSame(injector.getInstance(IPeriph.class), injector.getInstance(PeriphDelegate.class),
+    assertNotSame(injector.getInstance(PeripheralBus.class), injector.getInstance(PeripheralBusDelegate.class),
         "the raw and the ULA-decorated peripheral bus collapsed into one object");
   }
 

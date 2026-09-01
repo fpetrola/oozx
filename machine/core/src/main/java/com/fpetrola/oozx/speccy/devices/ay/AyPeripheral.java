@@ -19,7 +19,7 @@
 package com.fpetrola.oozx.speccy.devices.ay;
 
 
-import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.AbstractPeripheral;
 
 import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.z80.cpu.Z80Clock;
@@ -39,7 +39,7 @@ import com.fpetrola.oozx.MachineCapability;
  * up for a machine after that machine has said what it contains - so at construction there is
  * nothing yet to make a synth from.
  */
-public class AyPeripheral extends AbstractZxPeripheral {
+public class AyPeripheral extends AbstractPeripheral {
 
   private final Sound sound;
   private final AyRegisters registers = new AyRegisters();

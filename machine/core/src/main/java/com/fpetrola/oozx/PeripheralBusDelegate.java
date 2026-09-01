@@ -18,53 +18,53 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.speccy.peripherals.IPeriph;
-import com.fpetrola.oozx.speccy.peripherals.ZxPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.PeripheralBus;
+import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 
-public interface PeriphDelegate extends IPeriph {
-  IPeriph getPeriph();
+public interface PeripheralBusDelegate extends PeripheralBus {
+  PeripheralBus getPeripherals();
 
-  default void register(ZxPeripheral zxPeripheral) {
-    getPeriph().register(zxPeripheral);
+  default void register(Peripheral peripheral) {
+    getPeripherals().register(peripheral);
   }
 
-  default boolean activateType(Class<? extends ZxPeripheral> type, boolean active) {
-    return getPeriph().activateType(type, active);
+  default boolean activateType(Class<? extends Peripheral> type, boolean active) {
+    return getPeripherals().activateType(type, active);
   }
 
-  default ZxPeripheral find(Class<? extends ZxPeripheral> zxPeripheralClass) {
-    return getPeriph().find(zxPeripheralClass);
+  default Peripheral find(Class<? extends Peripheral> peripheralClass) {
+    return getPeripherals().find(peripheralClass);
   }
 
-  default boolean isActive(Class<? extends ZxPeripheral> zxPeripheralClass) {
-    return getPeriph().isActive(zxPeripheralClass);
+  default boolean isActive(Class<? extends Peripheral> peripheralClass) {
+    return getPeripherals().isActive(peripheralClass);
   }
 
   default void clear() {
-    getPeriph().clear();
+    getPeripherals().clear();
   }
 
   default void end() {
-    getPeriph().end();
+    getPeripherals().end();
   }
 
   default byte mergeFloatingBus(byte value, byte attached, byte floatingBus) {
-    return getPeriph().mergeFloatingBus(value, attached, floatingBus);
+    return getPeripherals().mergeFloatingBus(value, attached, floatingBus);
   }
 
   default void writePortInternal(int port, byte b) {
-    getPeriph().writePortInternal(port, b);
+    getPeripherals().writePortInternal(port, b);
   }
 
   default boolean update() {
-    return getPeriph().update();
+    return getPeripherals().update();
   }
 
   default void postHook() {
-    getPeriph().postHook();
+    getPeripherals().postHook();
   }
 
   default boolean postCheck() {
-    return getPeriph().postCheck();
+    return getPeripherals().postCheck();
   }
 }

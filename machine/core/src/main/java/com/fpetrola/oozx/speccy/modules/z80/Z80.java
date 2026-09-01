@@ -86,7 +86,7 @@ public class Z80 implements ZxModule, Cpu {
   private Keyboard keyboard;
   public SpectrumZ80Clock zxClock;
   private Input input;
-  private final IPeriph periph;
+  private final PeripheralBus peripherals;
   private final UiDisplay uiDisplay;
   private volatile boolean emulatorPaused;
   private final Timer timer;
@@ -107,7 +107,7 @@ public class Z80 implements ZxModule, Cpu {
   private Memory memory1;
 
   @Inject
-  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Machine machine, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, PeriphDelegate periph, UiDisplay uiDisplay, Timer timer, Module module, EmulationSession session, Sound sound, Settings settings, Tape tape, IO io, UserInterface userInterface) {
+  public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Machine machine, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, PeripheralBusDelegate peripherals, UiDisplay uiDisplay, Timer timer, Module module, EmulationSession session, Sound sound, Settings settings, Tape tape, IO io, UserInterface userInterface) {
     this.eventManager = eventManager;
     this.memory = memory;
     this.display = display;
@@ -116,7 +116,7 @@ public class Z80 implements ZxModule, Cpu {
     this.keyboard = keyboard;
     this.zxClock = zxClock;
     this.input = input;
-    this.periph = periph;
+    this.peripherals = peripherals;
     this.uiDisplay = uiDisplay;
     this.timer = timer;
     this.module = module;

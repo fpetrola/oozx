@@ -24,7 +24,7 @@ import java.util.Set;
 
 import static com.fpetrola.oozx.MachineCapability.*;
 
-import com.fpetrola.oozx.PeriphDelegate;
+import com.fpetrola.oozx.PeripheralBusDelegate;
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
 
@@ -43,12 +43,12 @@ import com.fpetrola.emulation.helpers.machine.MachineTypes;
 @Singleton
 public class Spec128 extends Spectrum {
   @Inject
-  public Spec128(Memory memory, Display display, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
-    this(memory, display, periph, settings, eventManager, cpu, timer, module, new Spec48RamInfo(8), sound, userInterface);
+  public Spec128(Memory memory, Display display, PeripheralBusDelegate peripherals, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
+    this(memory, display, peripherals, settings, eventManager, cpu, timer, module, new Spec48RamInfo(8), sound, userInterface);
   }
 
-  public Spec128(Memory memory, Display display, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, RamInfo ramInfo, Sound sound, UserInterface userInterface) {
-    super(memory, display, eventManager, cpu, timer, module, settings, ramInfo, periph, sound, userInterface);
+  public Spec128(Memory memory, Display display, PeripheralBusDelegate peripherals, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, RamInfo ramInfo, Sound sound, UserInterface userInterface) {
+    super(memory, display, eventManager, cpu, timer, module, settings, ramInfo, peripherals, sound, userInterface);
   }
 
   /** The 128 is the first with a sound chip and with paging through port 0x7ffd. */
@@ -62,9 +62,9 @@ public class Spec128 extends Spectrum {
    */
   @Override
   public void init() {
-    periph.register(new Spec128MemoryPeripheral(this));
-    periph.register(new SeMemoryPeripheral(this));
-    periph.register(new AyPeripheral(sound, z80Clock));
+    peripherals.register(new Spec128MemoryPeripheral(this));
+    peripherals.register(new SeMemoryPeripheral(this));
+    peripherals.register(new AyPeripheral(sound, z80Clock));
   }
 
   @Override
@@ -91,9 +91,9 @@ public class Spec128 extends Spectrum {
     loadRom(1, rom1282, rom1283, 0x4000);
     commonReset(contendsMemory());
 
-    periph.clear();
+    peripherals.clear();
     installPeripherals();
-    periph.update();
+    peripherals.update();
 
     Beta.builtin = false;
 

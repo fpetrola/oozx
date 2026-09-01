@@ -26,7 +26,7 @@ import com.fpetrola.oozx.speccy.modules.*;
 import com.fpetrola.oozx.speccy.modules.Keyboard;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.modules.z80.Z80;
-import com.fpetrola.oozx.speccy.peripherals.IPeriph;
+import com.fpetrola.oozx.speccy.peripherals.PeripheralBus;
 import com.fpetrola.oozx.speccy.devices.ay.MelodikPeripheral;
 import com.google.inject.Guice;
 import com.google.inject.util.Modules;
@@ -41,12 +41,12 @@ public class Speccy {
   public final Memory memory;
   public final Display display;
   public final Keyboard keyboard;
-  public final IPeriph periph;
+  public final PeripheralBus peripherals;
   public final Tape tape;
   public final Sound sound;
   public final Ula ula;
   public final EventManager eventManager;
-  public final PeriphDelegate ulaPeriph;
+  public final PeripheralBusDelegate contendedBus;
   public final Joystick joystick;
   public final Input input;
   public final Machine machine;
@@ -83,8 +83,8 @@ public class Speccy {
 
   @Inject
   public Speccy(SpectrumZ80Clock zxClock, EmulationSession session, Settings settings, Memory memory,
-              Display display, Keyboard keyboard, IPeriph periph, Tape tape, Sound sound, Ula ula,
-              EventManager eventManager, PeriphDelegate ulaPeriph, Joystick joystick, Input input, Machine machine, Z80 z80, UiDisplay uiDisplay,
+              Display display, Keyboard keyboard, PeripheralBus peripherals, Tape tape, Sound sound, Ula ula,
+              EventManager eventManager, PeripheralBusDelegate contendedBus, Joystick joystick, Input input, Machine machine, Z80 z80, UiDisplay uiDisplay,
               Spec48 spec48, Spec128 spec128, SpecPlus3 specPlus3, SpecPlus2 specPlus2,
               SpecPlus2A specPlus2a, SpecPlus3E specPlus3e, Spec48Ntsc spec48Ntsc, Pentagon pentagon,
               java.util.Set<Spectrum> models, @DefaultMachine Spectrum defaultMachine,
@@ -95,12 +95,12 @@ public class Speccy {
     this.memory = memory;
     this.display = display;
     this.keyboard = keyboard;
-    this.periph = periph;
+    this.peripherals = peripherals;
     this.tape = tape;
     this.sound = sound;
     this.ula = ula;
     this.eventManager = eventManager;
-    this.ulaPeriph = ulaPeriph;
+    this.contendedBus = contendedBus;
     this.joystick = joystick;
     this.input = input;
     this.machine = machine;
@@ -119,7 +119,7 @@ public class Speccy {
     this.module = module;
     this.timer = timer;
 
-    machine.addMachineChangeListeners(sound, display, timer, periph, ula, eventManager);
+    machine.addMachineChangeListeners(sound, display, timer, peripherals, ula, eventManager);
   }
 
   public boolean isAlive() {
@@ -149,7 +149,7 @@ public class Speccy {
 
     // Expansions, which belong to no machine: a box somebody plugged in, offered to every machine
     // that will take one. What a machine is made of it registers itself; this is the other kind.
-    periph.register(new MelodikPeripheral(sound, zxClock, () -> settings.current.melodik));
+    peripherals.register(new MelodikPeripheral(sound, zxClock, () -> settings.current.melodik));
 
     spec48.start();
     timer.start();
@@ -165,6 +165,6 @@ public class Speccy {
     machine.end();
     keyboard.end();
     joystick.end();
-    periph.end();
+    peripherals.end();
   }
 }

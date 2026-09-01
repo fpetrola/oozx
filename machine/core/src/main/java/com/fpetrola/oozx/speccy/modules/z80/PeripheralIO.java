@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx.speccy.modules.z80;
 
-import com.fpetrola.oozx.PeriphDelegate;
+import com.fpetrola.oozx.PeripheralBusDelegate;
 import com.fpetrola.z80.cpu.IO;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -37,20 +37,20 @@ import com.google.inject.Singleton;
 @Singleton
 public class PeripheralIO implements IO {
 
-  private final PeriphDelegate periph;
+  private final PeripheralBusDelegate peripherals;
 
   @Inject
-  public PeripheralIO(PeriphDelegate periph) {
-    this.periph = periph;
+  public PeripheralIO(PeripheralBusDelegate peripherals) {
+    this.peripherals = peripherals;
   }
 
   @Override
   public int in(int port) {
-    return periph.readPort(port);
+    return peripherals.readPort(port);
   }
 
   @Override
   public void out(int port, int value) {
-    periph.writePort(port, (byte) value);
+    peripherals.writePort(port, (byte) value);
   }
 }

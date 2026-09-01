@@ -25,7 +25,7 @@ import com.fpetrola.oozx.speccy.machine.RamInfo;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.modules.*;
 import com.fpetrola.oozx.speccy.modules.z80.Cpu;
-import com.fpetrola.oozx.speccy.peripherals.IPeriph;
+import com.fpetrola.oozx.speccy.peripherals.PeripheralBus;
 import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.Arrays;
@@ -33,7 +33,7 @@ import java.util.Arrays;
 public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModule {
   protected final Memory memory;
   protected final Display display;
-  protected final IPeriph periph;
+  protected final PeripheralBus peripherals;
   private final EventManager eventManager;
   private final Cpu cpu;
   protected final Z80Clock z80Clock;
@@ -51,7 +51,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
 
   private final UserInterface userInterface;
 
-  public Spectrum(Memory memory, Display display, EventManager eventManager, Cpu cpu, Timer timer, Module module, Settings settings1, RamInfo ramInfo1, PeriphDelegate periph, Sound sound, UserInterface userInterface) {
+  public Spectrum(Memory memory, Display display, EventManager eventManager, Cpu cpu, Timer timer, Module module, Settings settings1, RamInfo ramInfo1, PeripheralBusDelegate peripherals, Sound sound, UserInterface userInterface) {
     super(display, settings1, ramInfo1);
     this.userInterface = userInterface;
     this.memory = memory;
@@ -62,7 +62,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
     this.timer = timer;
     this.module = module;
     this.ram = memory.getRAM();
-    this.periph = periph;
+    this.peripherals = peripherals;
     this.sound = sound;
   }
 

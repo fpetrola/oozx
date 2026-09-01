@@ -33,7 +33,7 @@ import com.fpetrola.oozx.speccy.devices.memory.SeMemoryPeripheral;
 import com.fpetrola.oozx.speccy.devices.memory.SpecPlus3MemoryPeripheral;
 import com.fpetrola.oozx.speccy.devices.ula.UlaFullDecodePeripheral;
 import com.fpetrola.oozx.speccy.devices.ula.UlaPeripheral;
-import com.fpetrola.oozx.speccy.peripherals.ZxPeripheral;
+import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 import com.fpetrola.oozx.speccy.sound.SilentSoundDevice;
 import org.junit.jupiter.api.Test;
@@ -58,7 +58,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class PeripheralPresenceTest {
 
-  private static final List<Class<? extends ZxPeripheral>> REGISTERED = List.of(
+  private static final List<Class<? extends Peripheral>> REGISTERED = List.of(
       UlaPeripheral.class, UlaFullDecodePeripheral.class,
       Spec128MemoryPeripheral.class, SpecPlus3MemoryPeripheral.class, SeMemoryPeripheral.class,
       AyPeripheral.class, AyPlus3Peripheral.class, MelodikPeripheral.class,
@@ -79,11 +79,11 @@ class PeripheralPresenceTest {
 
   private String activeOn(Speccy speccy, Spectrum machine) {
     speccy.machine.select(machine);
-    speccy.periph.update();
+    speccy.peripherals.update();
 
     Set<String> active = new LinkedHashSet<>();
-    for (Class<? extends ZxPeripheral> peripheral : REGISTERED) {
-      if (speccy.periph.isActive(peripheral)) active.add(peripheral.getSimpleName());
+    for (Class<? extends Peripheral> peripheral : REGISTERED) {
+      if (speccy.peripherals.isActive(peripheral)) active.add(peripheral.getSimpleName());
     }
     return String.join(" ", active);
   }
@@ -152,14 +152,14 @@ class PeripheralPresenceTest {
     Speccy speccy = speccy(false);
 
     speccy.machine.select(speccy.specPlus3);
-    speccy.periph.update();
-    assertTrue(speccy.periph.isActive(Upd765Peripheral.class), "the +3 has a drive");
-    assertDoesNotThrow(() -> speccy.periph.readPort(0x2ffd), "reading the FDC status port");
-    assertDoesNotThrow(() -> speccy.periph.readPort(0x3ffd), "reading the FDC data port");
+    speccy.peripherals.update();
+    assertTrue(speccy.peripherals.isActive(Upd765Peripheral.class), "the +3 has a drive");
+    assertDoesNotThrow(() -> speccy.peripherals.readPort(0x2ffd), "reading the FDC status port");
+    assertDoesNotThrow(() -> speccy.peripherals.readPort(0x3ffd), "reading the FDC data port");
 
     speccy.machine.select(speccy.specPlus2a);
-    speccy.periph.update();
-    assertFalse(speccy.periph.isActive(Upd765Peripheral.class), "a +2A has no drive");
+    speccy.peripherals.update();
+    assertFalse(speccy.peripherals.isActive(Upd765Peripheral.class), "a +2A has no drive");
   }
 
   /**
@@ -182,6 +182,6 @@ class PeripheralPresenceTest {
       previous = now;
     }
 
-    assertTrue(speccy.periph.isActive(Upd765Peripheral.class), "the drive stayed on");
+    assertTrue(speccy.peripherals.isActive(Upd765Peripheral.class), "the drive stayed on");
   }
 }

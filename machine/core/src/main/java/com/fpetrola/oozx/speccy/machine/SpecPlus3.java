@@ -28,7 +28,7 @@ import java.util.Set;
 
 import static com.fpetrola.oozx.MachineCapability.*;
 
-import com.fpetrola.oozx.PeriphDelegate;
+import com.fpetrola.oozx.PeripheralBusDelegate;
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
 
@@ -51,8 +51,8 @@ public class SpecPlus3 extends Spec128 {
   public UPDFdc uPDFdc;
 
   @Inject
-  public SpecPlus3(Memory memory, Display display, PeriphDelegate periph, Settings settings, Fdd fdd, UPDFdc uPDFdc, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
-    super(memory, display, periph, settings, eventManager, cpu, timer, module, new SpecPlus3RamInfo(8), sound, userInterface);
+  public SpecPlus3(Memory memory, Display display, PeripheralBusDelegate peripherals, Settings settings, Fdd fdd, UPDFdc uPDFdc, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
+    super(memory, display, peripherals, settings, eventManager, cpu, timer, module, new SpecPlus3RamInfo(8), sound, userInterface);
     this.fdd = fdd;
     this.uPDFdc = uPDFdc;
     specplus3765Init();
@@ -70,10 +70,10 @@ public class SpecPlus3 extends Spec128 {
   @Override
   public void init() {
     super.init();
-    periph.register(new SpecPlus3MemoryPeripheral(this));
-    periph.register(new Upd765Peripheral(this));
+    peripherals.register(new SpecPlus3MemoryPeripheral(this));
+    peripherals.register(new Upd765Peripheral(this));
     // The same chip wired as this family wires it, its data port answering when read.
-    periph.register(new AyPlus3Peripheral(sound, z80Clock));
+    peripherals.register(new AyPlus3Peripheral(sound, z80Clock));
   }
 
   public Fdd[] specplus3Drives = new Fdd[SpecPlus3Constants.SPECPLUS3_NUM_DRIVES];
@@ -177,7 +177,7 @@ public class SpecPlus3 extends Spec128 {
   }
 
   protected void resetStep2() {
-    periph.update();
+    peripherals.update();
     specplus3765Reset();
     specplus3MenuItems();
 //    spec48.commonDisplaySetup();
@@ -383,7 +383,7 @@ public class SpecPlus3 extends Spec128 {
 
     plus2aCommonReset();
 
-    periph.clear();
+    peripherals.clear();
   }
 
   public int unattachedPort(int port) {

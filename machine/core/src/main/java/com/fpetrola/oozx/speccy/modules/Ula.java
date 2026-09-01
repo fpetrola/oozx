@@ -26,7 +26,7 @@ import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.speccy.sound.Beeper;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
-import com.fpetrola.oozx.speccy.peripherals.IPeriph;
+import com.fpetrola.oozx.speccy.peripherals.PeripheralBus;
 import com.fpetrola.oozx.speccy.devices.ula.UlaFullDecodePeripheral;
 import com.fpetrola.oozx.speccy.devices.ula.UlaPeripheral;
 
@@ -52,7 +52,7 @@ public class Ula implements ZxModule, MachineChangeListener {
   private final Display display;
   private final Keyboard keyboard;
   private final SpectrumZ80Clock z80Clock;
-  private final IPeriph periph;
+  private final PeripheralBus peripherals;
   private final String contendPortLate = "contend_port_late";
   private final String contendPortEarly = "contend_port_early";
   private final Module module;
@@ -64,12 +64,12 @@ public class Ula implements ZxModule, MachineChangeListener {
   private Beeper speaker;
 
 @Inject
-  public Ula(Memory memory, Display display, Keyboard keyboard, SpectrumZ80Clock z80Clock, IPeriph periph, Module module, Settings settings, Tape tape, Sound sound) {
+  public Ula(Memory memory, Display display, Keyboard keyboard, SpectrumZ80Clock z80Clock, PeripheralBus peripherals, Module module, Settings settings, Tape tape, Sound sound) {
     this.memory = memory;
     this.display = display;
     this.keyboard = keyboard;
     this.z80Clock = z80Clock;
-    this.periph = periph;
+    this.peripherals = peripherals;
     this.module = module;
     this.settings = settings;
     this.tape = tape;
@@ -97,8 +97,8 @@ public class Ula implements ZxModule, MachineChangeListener {
   }
 
   public void start() {
-    periph.register(new UlaPeripheral(this));
-    periph.register(new UlaFullDecodePeripheral(this));
+    peripherals.register(new UlaPeripheral(this));
+    peripherals.register(new UlaFullDecodePeripheral(this));
 
     defaultValue = (byte) 0xff;
 
