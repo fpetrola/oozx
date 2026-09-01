@@ -47,7 +47,6 @@ import com.fpetrola.emulation.helpers.machine.ClockTimeoutListener;
 import com.fpetrola.oozx.SpectrumZ80Clock;
 import com.fpetrola.emulation.helpers.machine.MachineTypes;
 
-import javax.swing.table.AbstractTableModel;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -142,7 +141,6 @@ public class Tape implements ClockTimeoutListener {
     private int freqSample;
     private float cswStatesSample;
     private MachineTypes spectrumModel;
-    private final TapeTableModel tapeTableModel;
     private final TapeSettingsType settings;
     // # of Calls & origin block of TZX CALL block 
     private int nCalls, callBlk;
@@ -169,7 +167,6 @@ public class Tape implements ClockTimeoutListener {
         nOffsetBlocks = 0;
         idxHeader = 0;
         Arrays.fill(offsetBlocks, 0);
-        tapeTableModel = new TapeTableModel();
     }
 
     /**
@@ -569,10 +566,6 @@ public class Tape implements ClockTimeoutListener {
         return msg;
     }
 
-    public TapeTableModel getTapeTableModel() {
-        return tapeTableModel;
-    }
-
     @Override
     public void clockTimeout() {
         if (earSource != null) {
@@ -654,7 +647,6 @@ public class Tape implements ClockTimeoutListener {
                 return false;
         }
 
-        tapeTableModel.fireTableDataChanged();
         fireTapeStateChanged(TapeState.INSERT);
         fireTapeBlockChanged(0);
         return true;
@@ -695,7 +687,6 @@ public class Tape implements ClockTimeoutListener {
                 return false;
         }
 
-        tapeTableModel.fireTableDataChanged();
         fireTapeStateChanged(TapeState.INSERT);
         fireTapeBlockChanged(selectedBlock);
         return true;
@@ -710,7 +701,6 @@ public class Tape implements ClockTimeoutListener {
         tapeBuffer = null;
         filename = null;
         nOffsetBlocks = 0;
-        tapeTableModel.fireTableDataChanged();
         fireTapeStateChanged(TapeState.EJECT);
         return true;
     }
@@ -2086,43 +2076,4 @@ public class Tape implements ClockTimeoutListener {
         micBit = micState;
     }
 
-    private class TapeTableModel extends AbstractTableModel {
-
-        public TapeTableModel() {
-        }
-
-        @Override
-        public int getRowCount() {
-            return getNumBlocks();
-        }
-
-        @Override
-        public int getColumnCount() {
-            return 3;
-        }
-
-        @Override
-        public Object getValueAt(int row, int col) {
-
-//            log.trace("getValueAt row {}, col {}", row, col);
-            return switch (col) {
-                case 0 -> String.format("%4d", row + 1);
-                case 1 -> getBlockType(row);
-                case 2 -> getBlockInfo(row);
-                default -> "NON EXISTENT COLUMN!";
-            };
-        }
-
-        @Override
-        public String getColumnName(int col) {
-            java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("gui/Bundle"); // NOI18N
-
-            return switch (col) {
-                case 0 -> bundle.getString("JSpeccy.tapeCatalog.columnModel.title0");
-                case 1 -> bundle.getString("JSpeccy.tapeCatalog.columnModel.title1");
-                case 2 -> bundle.getString("JSpeccy.tapeCatalog.columnModel.title2");
-                default -> "COLUMN ERROR!";
-            };
-        }
-    }
 }
