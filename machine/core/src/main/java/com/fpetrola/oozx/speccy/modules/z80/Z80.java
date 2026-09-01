@@ -55,8 +55,6 @@ import com.fpetrola.oozx.speccy.machine.SpecPlus2;
 import com.fpetrola.oozx.speccy.machine.SpecPlus2A;
 import com.fpetrola.oozx.speccy.machine.SpecPlus3;
 
-import javax.swing.*;
-import java.awt.event.*;
 import java.io.File;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
@@ -89,6 +87,18 @@ public class Z80 implements ZxModule, Cpu {
   private final PeripheralBus peripherals;
   private final UiDisplay uiDisplay;
   private volatile boolean emulatorPaused;
+
+  public boolean isPaused() {
+    return emulatorPaused;
+  }
+
+  public void setPaused(boolean paused) {
+    emulatorPaused = paused;
+  }
+
+  public UserInterface userInterface() {
+    return userInterface;
+  }
   private final Timer timer;
   public EmulatorCore mockCore;
   /**
@@ -250,7 +260,6 @@ public class Z80 implements ZxModule, Cpu {
     };
     var state = createState(memory1);
     createOOZ80(state);
-    createScreenNoTest();
     phaseProcessor = new FusePhaseProcessor(this);
 
     uiDisplay.screenMatrix = screenBytes;
@@ -286,26 +295,6 @@ public class Z80 implements ZxModule, Cpu {
     });
   }
 
-  private void createScreenNoTest() {
-    //      JFrame screen1 = MiniZX.createScreen(io.miniZXKeyboard, EmulatedMiniZX.getMemFunction(ooz80));
-//      JFrame screen = createScreen(io.miniZXKeyboard, zxScreenComponent);
-//    audio = new Audio(new AY8912Type());
-//    audio.open(MachineTypes.SPECTRUM48K, new AY8912(), false, 32000);
-    SpeccyScreen contentPane = new SpeccyScreen(screenBytes);
-    contentPane.addMouseListener(new MouseAdapter() {
-      public void mouseClicked(MouseEvent e) {
-        contentPane.requestFocus();
-      }
-    });
-
-//    contentPane.addKeyListener(new KeyAdapter() {
-//      public void keyTyped(KeyEvent e) {
-//        super.keyTyped(e);
-//      }
-//    });
-    JFrame screen = createScreen(null, contentPane);
-//      new SwingKeyboard(screen, keyboard, input);
-  }
 
   private void createMemoryTEst() {
     memory1 = new AbstractMemory() {
@@ -550,197 +539,6 @@ public class Z80 implements ZxModule, Cpu {
 //    zxClock.setTStates(tStates);
     // zxClock.addTStates(-zxClock.getTStates());
     memory1.enableReadListener();
-  }
-
-  public JFrame createScreen(KeyListener keyListener, JComponent contentPane) {
-    // Whatever changes the machine - a tape named for a 128K, a snapshot, the box itself -
-    // says so once, here, instead of each caller remembering to announce it.
-    machine.addMachineChangeListener(newMachine -> {
-      if (mockCore instanceof MockEmulatorCore core) core.announceMachine(newMachine.getName());
-    });
-    mockCore = new MockEmulatorCore(contentPane) {
-      private String filename;
-      private boolean turbo = settings.current.emulationSpeed != 100;
-
-      /**
-       * Asked of the machine rather than remembered.
-       * <p>
-       * A copy of the answer has to be kept in step by everything that changes the machine, and
-       * it was not: choosing a machine for a snapshot updated it, choosing one for a 128K tape
-       * did not, and the indicator went on naming whatever the emulator had started as. There is
-       * no keeping a copy honest; there is only not keeping one.
-       */
-      @Override
-      public String getCurrentModel() {
-        return machine.current == null ? super.getCurrentModel() : machine.current.getName();
-      }
-
-      /** The machines this build has, so the list is not a copy of them that can go stale. */
-      @Override
-      public java.util.List<String> getMachineModels() {
-        return machine.getMachineTypes().stream().map(com.fpetrola.oozx.speccy.machine.SpectrumMachine::getName).toList();
-      }
-
-
-
-      public void applyMod(PokFile.PokeMod mod) {
-        PokInstruction parsedInstruction = mod.getParsedInstruction();
-        parsedInstruction.apply(new PokInstruction.EmulatorMemoryWriter() {
-          public void writeMemory(int bank, int address, int value) {
-            ooz80.getState().getMemory().write(address, value);
-          }
-
-          public int readMemory(int bank, int address) {
-            return ooz80.getState().getMemory().read(address);
-          }
-        });
-      }
-
-      public void revertMod(PokFile.PokeMod mod) {
-        PokInstruction parsedInstruction = mod.getParsedInstruction();
-        parsedInstruction.revert(new PokInstruction.EmulatorMemoryWriter() {
-          public void writeMemory(int bank, int address, int value) {
-            ooz80.getState().getMemory().write(address, value);
-          }
-
-          public int readMemory(int bank, int address) {
-            return ooz80.getState().getMemory().read(address);
-          }
-        });
-      }
-
-      public void setFilename(String filename) {
-        this.filename = filename;
-      }
-
-      public String getFilename() {
-        return filename;
-      }
-
-      public KeyListener getKeyListener() {
-        return new SwingKeyboard(keyboard, input, userInterface);
-      }
-
-      public void finishEmulation() {
-        session.finish();
-      }
-
-      public boolean isPaused() {
-        return emulatorPaused;
-      }
-
-      public void pauseEmulation() {
-        emulatorPaused = !emulatorPaused;
-        notifyPauseStateChange(emulatorPaused);
-      }
-
-      @Override
-      public void resumeEmulation() {
-        emulatorPaused = false;
-        notifyPauseStateChange(emulatorPaused);
-      }
-
-      public void setGeneralOption(String option, Object value) {
-        if (option.equals("turbo")) {
-          turbo = (boolean) value;
-          int emulationSpeed = turbo ? 15000 : 100;
-          changeSpeed1(emulationSpeed);
-//          timer.estimateReset();
-        } else if (option.equals("mute")) {
-          sound.soundEnabled = !(boolean) value;
-//          timer.estimateReset();
-        } else if (option.equals("pause")) {
-          emulatorPaused = (boolean) value;
-          notifyPauseStateChange(emulatorPaused);
-        } else {
-          // Anything this one has no opinion on goes to the core it overrides, which is where
-          // the options that are about the panel rather than the machine are answered. Without
-          // this the override swallowed them: an option nobody handled and nobody reported.
-          super.setGeneralOption(option, value);
-        }
-      }
-
-      public void changeSpeed1(int emulationSpeed) {
-        later(() -> changeSpeed(emulationSpeed));
-        notifyTurboModeChange(turbo);
-        notifyEmulationSpeedChange(Z80.emulationSpeed);
-      }
-
-      @Override
-      public double getEmulationSpeed() {
-        return settings.current.emulationSpeed;
-      }
-
-      @Override
-      public boolean isTurboMode() {
-        return turbo;
-      }
-
-      public boolean isMuted() {
-        return !sound.soundEnabled;
-      }
-
-      public State getState() {
-        return ooz80.getState();
-      }
-
-      public RegistersGetter getRegistersGetter() {
-        return new RegistersBase(ooz80.getState());
-      }
-    };
-    mockCore.addEmulatorListener(new EmulatorListener() {
-      @Override
-      public void onEmulationStateChanged(String state) {
-        SwingUtilities.invokeLater(() -> {
-          if (state.equals("Reset")) {
-            tape.insert(new File("/tmp/zxinfo_extracted/SOLARINV.TAP"));
-            tape.play(true);
-          }
-        });
-      }
-
-      @Override
-      public void onError(String message) {
-
-      }
-
-      @Override
-      public void onEmulationSpeedChanged(double speed) {
-
-      }
-
-      @Override
-      public void onModelChanged(String model) {
-        // Also reached when the machine announces itself, which is the machine saying it already
-        // is this. Selecting it again from there resets the machine that just started, and the
-        // reset announces itself, and so on.
-        if (machine.current != null && model.equals(machine.current.getName())) {
-          return;
-        }
-        later(() -> machine.getMachineTypes().stream().filter(m -> m.getName().equals(model))
-            .forEach(type -> {
-              machine.selectDefault();
-              machine.select(type);
-            }));
-      }
-
-      @Override
-      public void onPauseStateChanged(boolean paused) {
-
-      }
-
-      @Override
-      public void onTurboModeChanged(boolean turbo) {
-
-      }
-
-      @Override
-      public void onTapeStatusChanged(String status) {
-
-      }
-    });
-
-    return null;
   }
 
   public void changeSpeed(int emulationSpeed) {

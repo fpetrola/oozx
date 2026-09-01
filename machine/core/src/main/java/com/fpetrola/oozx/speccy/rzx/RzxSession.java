@@ -137,6 +137,7 @@ public class RzxSession {
     speccy.settings.current.emulationSpeed = 100;
     speccy.init();
     speccy.z80.bridgeCommand = (command, data) -> null;
+    speccy.z80.mockCore = new com.fpetrola.oozx.speccy.peripherals.SpeccyEmulatorCore(speccy);
     // BEFORE the snapshot, because loading one WRITES: it puts back the paging the snapshot was
     // saved under by sending it through the machine's own port, and these are the ports it goes
     // through. Set afterwards, as it was, that write went to a null and was dropped without a
