@@ -147,8 +147,8 @@ class EmulatorInternalFrame extends JInternalFrame {
   }
 
   private void updateTurboLabel(boolean turbo) {
-    turboIndicator.setText(turbo ? "✔ Turbo" : "✘ Turbo");
-    turboIndicator.setForeground(turbo ? Color.BLUE : Color.GRAY);
+    turboIndicator.setEnabled(turbo);
+    turboIndicator.setToolTipText(turbo ? "Turbo: running at full speed" : "Turbo off");
   }
 
   private void toggleMute() {
@@ -209,10 +209,9 @@ class EmulatorInternalFrame extends JInternalFrame {
     pauseIndicator.setHorizontalAlignment(JLabel.CENTER);
     showPaused(emulatorCore.isPaused());
 
-    // Turbo Indicator
-    turboIndicator = new JLabel(emulatorCore.isTurboMode() ? "✔ Turbo" : "✘ Turbo");
-    turboIndicator.setForeground(emulatorCore.isTurboMode() ? Color.BLUE : Color.GRAY);
-    turboIndicator.setPreferredSize(new Dimension(40, componentHeight));
+    turboIndicator = new JLabel(loadIcon("1F680.svg"));
+    turboIndicator.setHorizontalAlignment(JLabel.CENTER);
+    updateTurboLabel(emulatorCore.isTurboMode());
 
     // Tape Status
 //    tapeStatusLabel = new JLabel();
