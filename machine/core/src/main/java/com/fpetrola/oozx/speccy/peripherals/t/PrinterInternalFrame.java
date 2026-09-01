@@ -61,7 +61,7 @@ public class PrinterInternalFrame extends AttachedFrame {
     JButton save = EmulatorInternalFrame.iconButton("printer-save.svg", "Save...",
         "Save the printout as a PNG");
     JButton fit = EmulatorInternalFrame.iconButton("printer-fit.svg", "Fit",
-        "Fit the paper across the window; the wheel zooms and dragging moves it");
+        "Fit the paper across the window; ctrl and the wheel zooms, dragging moves it");
     JToggleButton filter = EmulatorInternalFrame.iconToggle("printer-filter.svg", "Paper",
         "Show it as paper out of a printer, or as the dots the printer was sent");
     filter.setSelected(true);

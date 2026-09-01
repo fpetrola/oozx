@@ -76,8 +76,15 @@ public class PrinterPaper extends JPanel {
     setPrintout(paper);
     setAutoscrolls(true);
 
-    addMouseWheelListener(wheel -> zoomAbout(wheel.getPoint(),
-        zoom * Math.pow(0.88, wheel.getPreciseWheelRotation())));
+    // Ctrl and the wheel zooms; the wheel on its own is scrolling, and a panel with a wheel
+    // listener keeps the event to itself, so what is not a zoom is handed back to the scroll pane.
+    addMouseWheelListener(wheel -> {
+      if (wheel.isControlDown()) {
+        zoomAbout(wheel.getPoint(), zoom * Math.pow(0.88, wheel.getPreciseWheelRotation()));
+      } else if (getParent() != null) {
+        getParent().dispatchEvent(SwingUtilities.convertMouseEvent(this, wheel, getParent()));
+      }
+    });
 
     MouseAdapter dragging = new MouseAdapter() {
       @Override
