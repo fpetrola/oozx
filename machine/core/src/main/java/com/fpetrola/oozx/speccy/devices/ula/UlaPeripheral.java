@@ -16,16 +16,36 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.peripherals;
+package com.fpetrola.oozx.speccy.devices.ula;
 
-import com.fpetrola.oozx.speccy.machine.Spec128;
-import com.fpetrola.oozx.speccy.ports.Spec128PortHandler;
+import com.fpetrola.oozx.speccy.peripherals.Periph;
+
+import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
+
+import com.fpetrola.oozx.speccy.modules.Ula;
 
 import java.util.List;
 
-public class Spec128MemoryPeripheral extends AbstractZxPeripheral {
-  public Spec128MemoryPeripheral(Spec128 spec128) {
-    super(Periph.Type._128_MEMORY,
-        List.of(new Spec128PortHandler(0x8002, 0x0000, spec128)));
+public class UlaPeripheral extends AbstractZxPeripheral {
+
+  private final Ula ula;
+  public UlaPeripheral(Ula ula) {
+    super(Periph.Type.ULA, List.of(new UlaPortHandler(ula)));
+    this.ula = ula;
+  }
+  @Override
+  public boolean canActivate() {
+    return true;
+  }
+
+  /** Every machine has a speaker, and it is part of the ULA. */
+  @Override
+  public void activate() {
+    ula.attachSpeaker();
+  }
+
+  @Override
+  public void deactivate() {
+    ula.detachSpeaker();
   }
 }

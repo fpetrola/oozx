@@ -16,33 +16,25 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.peripherals;
+package com.fpetrola.oozx.speccy.devices.disk;
 
-import com.fpetrola.oozx.speccy.modules.Ula;
-import com.fpetrola.oozx.speccy.ports.UlaFullDecodePortHandler;
+import com.fpetrola.oozx.speccy.ports.DefaultPortHandler;
 
-import java.util.List;
+import com.fpetrola.oozx.speccy.machine.SpecPlus3;
 
-public class UlaFullDecodePeripheral extends AbstractZxPeripheral {
+class FdcPortHandler extends DefaultPortHandler {
+  private SpecPlus3 specPlus3;
 
-  private final Ula ula;
-  public UlaFullDecodePeripheral(Ula ula) {
-    super(Periph.Type.ULA_FULL_DECODE, List.of(new UlaFullDecodePortHandler(ula)));
-    this.ula = ula;
-  }
-  @Override
-  public boolean canActivate() {
-    return true;
+  public FdcPortHandler(int mask, int value, SpecPlus3 specPlus3) {
+    super(mask, value, true, true);
+    this.specPlus3 = specPlus3;
   }
 
-  /** Every machine has a speaker, and it is part of the ULA. */
-  @Override
-  public void activate() {
-    ula.attachSpeaker();
+  public byte read(int port, byte[] attached) {
+    return specPlus3.fdcRead(port, attached);
   }
 
-  @Override
-  public void deactivate() {
-    ula.detachSpeaker();
+  public void write(int port, byte value) {
+    specPlus3.fdcWrite(port, value);
   }
 }

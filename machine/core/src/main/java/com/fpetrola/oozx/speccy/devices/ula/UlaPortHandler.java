@@ -16,19 +16,25 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.peripherals;
+package com.fpetrola.oozx.speccy.devices.ula;
 
-import com.fpetrola.oozx.speccy.machine.SpecPlus3;
-import com.fpetrola.oozx.speccy.ports.FdcPortHandler;
-import com.fpetrola.oozx.speccy.ports.FdcStatusPortHandler;
+import com.fpetrola.oozx.speccy.ports.DefaultPortHandler;
 
-import java.util.List;
+import com.fpetrola.oozx.speccy.modules.Ula;
 
-public class Upd765Peripheral extends AbstractZxPeripheral {
-  public Upd765Peripheral(SpecPlus3 specPlus3) {
-    super(Periph.Type.UPD765, List.of(
-        new FdcPortHandler(0xf002, 0x3000, specPlus3),
-        new FdcStatusPortHandler(0xf002, 0x2000, specPlus3)
-    ));
+class UlaPortHandler extends DefaultPortHandler {
+  private Ula ula;
+
+  public UlaPortHandler(Ula ula) {
+    super(0x0001, 0x0000, true, true);
+    this.ula = ula;
+  }
+
+  public byte read(int port, byte[] attached) {
+    return ula.read(port, attached);
+  }
+
+  public void write(int port, byte value) {
+    ula.write(port, value);
   }
 }

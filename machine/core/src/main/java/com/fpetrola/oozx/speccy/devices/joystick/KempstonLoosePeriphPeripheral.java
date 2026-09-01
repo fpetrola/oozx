@@ -16,10 +16,13 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.peripherals;
+package com.fpetrola.oozx.speccy.devices.joystick;
+
+import com.fpetrola.oozx.speccy.peripherals.Periph;
+
+import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
 
 import com.fpetrola.oozx.speccy.modules.Joystick;
-import com.fpetrola.oozx.speccy.ports.JoystickPortHandler;
 
 import java.util.List;
 import java.util.function.BooleanSupplier;

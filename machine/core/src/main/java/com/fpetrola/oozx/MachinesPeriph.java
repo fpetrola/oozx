@@ -18,6 +18,16 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.speccy.devices.memory.SpecPlus3MemoryPeripheral;
+
+import com.fpetrola.oozx.speccy.devices.memory.Spec128MemoryPeripheral;
+
+import com.fpetrola.oozx.speccy.devices.ula.UlaFullDecodePeripheral;
+
+import com.fpetrola.oozx.speccy.devices.ula.UlaPeripheral;
+
+import com.fpetrola.oozx.speccy.devices.joystick.KempstonStrictPeripheral;
+
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
 

@@ -28,8 +28,8 @@ import com.fpetrola.oozx.*;
 import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.speccy.KeyboardKeyName;
 import com.fpetrola.oozx.speccy.peripherals.IPeriph;
-import com.fpetrola.oozx.speccy.peripherals.KempstonLoosePeriphPeripheral;
-import com.fpetrola.oozx.speccy.peripherals.KempstonStrictPeripheral;
+import com.fpetrola.oozx.speccy.devices.joystick.KempstonLoosePeriphPeripheral;
+import com.fpetrola.oozx.speccy.devices.joystick.KempstonStrictPeripheral;
 
 @Singleton
 public class Joystick implements ZxModule {

@@ -16,16 +16,26 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.peripherals;
+package com.fpetrola.oozx.speccy.devices.joystick;
 
-import com.fpetrola.oozx.Machine;
-import com.fpetrola.oozx.Spectrum;
-import com.fpetrola.oozx.speccy.ports.SeMemoryPortHandler;
+import com.fpetrola.oozx.speccy.ports.DefaultPortHandler;
 
-import java.util.List;
+import com.fpetrola.oozx.speccy.modules.Joystick;
 
-public class SeMemoryPeripheral extends AbstractZxPeripheral {
-  public SeMemoryPeripheral(Spectrum spectrum) {
-    super(Periph.Type.SE_MEMORY, List.of(new SeMemoryPortHandler(spectrum)));
+class JoystickPortHandler extends DefaultPortHandler {
+  private Joystick joystick;
+
+  public JoystickPortHandler(int mask, int value, Joystick joystick) {
+    super(mask, value, true, false);
+    this.joystick = joystick;
+  }
+
+  @Override
+  public byte read(int port, byte[] attached) {
+    return joystick.kempstonRead(port, attached);
+  }
+
+  @Override
+  public void write(int port, byte value) {
   }
 }

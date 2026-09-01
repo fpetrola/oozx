@@ -16,11 +16,13 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.ports;
+package com.fpetrola.oozx.speccy.devices.disk;
+
+import com.fpetrola.oozx.speccy.ports.DefaultPortHandler;
 
 import com.fpetrola.oozx.speccy.machine.SpecPlus3;
 
-public class FdcStatusPortHandler extends DefaultPortHandler {
+class FdcStatusPortHandler extends DefaultPortHandler {
   private SpecPlus3 specPlus3;
 
   public FdcStatusPortHandler(int mask, int value, SpecPlus3 specPlus3) {

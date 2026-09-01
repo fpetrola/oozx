@@ -16,33 +16,21 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.peripherals;
+package com.fpetrola.oozx.speccy.devices.memory;
 
-import com.fpetrola.oozx.speccy.modules.Ula;
-import com.fpetrola.oozx.speccy.ports.UlaPortHandler;
+import com.fpetrola.oozx.speccy.peripherals.Periph;
+
+import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
+
+import com.fpetrola.oozx.speccy.machine.SpecPlus3;
 
 import java.util.List;
 
-public class UlaPeripheral extends AbstractZxPeripheral {
-
-  private final Ula ula;
-  public UlaPeripheral(Ula ula) {
-    super(Periph.Type.ULA, List.of(new UlaPortHandler(ula)));
-    this.ula = ula;
-  }
-  @Override
-  public boolean canActivate() {
-    return true;
-  }
-
-  /** Every machine has a speaker, and it is part of the ULA. */
-  @Override
-  public void activate() {
-    ula.attachSpeaker();
-  }
-
-  @Override
-  public void deactivate() {
-    ula.detachSpeaker();
+public class SpecPlus3MemoryPeripheral extends AbstractZxPeripheral {
+  public SpecPlus3MemoryPeripheral(SpecPlus3 specPlus3) {
+    super(Periph.Type.PLUS3_MEMORY, List.of(
+        new Spec128PortHandler(0xc002, 0x4000, specPlus3),
+        new SpecPlus3PortHandler(0xf002, 0x1000, specPlus3)
+    ));
   }
 }

@@ -16,19 +16,19 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.peripherals;
+package com.fpetrola.oozx.speccy.devices.memory;
 
-import com.fpetrola.oozx.speccy.machine.SpecPlus3;
-import com.fpetrola.oozx.speccy.ports.Spec128PortHandler;
-import com.fpetrola.oozx.speccy.ports.SpecPlus3PortHandler;
+import com.fpetrola.oozx.speccy.peripherals.Periph;
+
+import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
+
+import com.fpetrola.oozx.speccy.machine.Spec128;
 
 import java.util.List;
 
-public class SpecPlus3MemoryPeripheral extends AbstractZxPeripheral {
-  public SpecPlus3MemoryPeripheral(SpecPlus3 specPlus3) {
-    super(Periph.Type.PLUS3_MEMORY, List.of(
-        new Spec128PortHandler(0xc002, 0x4000, specPlus3),
-        new SpecPlus3PortHandler(0xf002, 0x1000, specPlus3)
-    ));
+public class Spec128MemoryPeripheral extends AbstractZxPeripheral {
+  public Spec128MemoryPeripheral(Spec128 spec128) {
+    super(Periph.Type._128_MEMORY,
+        List.of(new Spec128PortHandler(0x8002, 0x0000, spec128)));
   }
 }

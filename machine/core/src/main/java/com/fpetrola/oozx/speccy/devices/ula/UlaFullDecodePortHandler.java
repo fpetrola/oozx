@@ -16,23 +16,25 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.ports;
+package com.fpetrola.oozx.speccy.devices.ula;
 
-import com.fpetrola.oozx.speccy.machine.SpecPlus3;
+import com.fpetrola.oozx.speccy.ports.DefaultPortHandler;
 
-public class FdcPortHandler extends DefaultPortHandler {
-  private SpecPlus3 specPlus3;
+import com.fpetrola.oozx.speccy.modules.Ula;
 
-  public FdcPortHandler(int mask, int value, SpecPlus3 specPlus3) {
-    super(mask, value, true, true);
-    this.specPlus3 = specPlus3;
+class UlaFullDecodePortHandler extends DefaultPortHandler {
+  private Ula ula;
+
+  public UlaFullDecodePortHandler(Ula ula) {
+    super(0x00ff, 0x00fe, true, true);
+    this.ula = ula;
   }
 
   public byte read(int port, byte[] attached) {
-    return specPlus3.fdcRead(port, attached);
+    return ula.read(port, attached);
   }
 
   public void write(int port, byte value) {
-    specPlus3.fdcWrite(port, value);
+    ula.write(port, value);
   }
 }

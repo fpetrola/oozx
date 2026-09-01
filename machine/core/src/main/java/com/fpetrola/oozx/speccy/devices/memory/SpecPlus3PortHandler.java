@@ -16,11 +16,13 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.ports;
+package com.fpetrola.oozx.speccy.devices.memory;
+
+import com.fpetrola.oozx.speccy.ports.DefaultPortHandler;
 
 import com.fpetrola.oozx.speccy.machine.SpecPlus3;
 
-public class SpecPlus3PortHandler extends DefaultPortHandler {
+class SpecPlus3PortHandler extends DefaultPortHandler {
   private SpecPlus3 specPlus3;
 
   public SpecPlus3PortHandler(int mask, int value, SpecPlus3 specPlus3) {

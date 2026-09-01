@@ -18,6 +18,10 @@
 
 package com.fpetrola.oozx.speccy.machine;
 
+import com.fpetrola.oozx.speccy.devices.disk.Upd765Peripheral;
+
+import com.fpetrola.oozx.speccy.devices.memory.SpecPlus3MemoryPeripheral;
+
 import com.fpetrola.oozx.MachineCapability;
 
 import java.util.Set;

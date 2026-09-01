@@ -16,23 +16,21 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.ports;
+package com.fpetrola.oozx.speccy.devices.disk;
 
-import com.fpetrola.oozx.speccy.modules.Ula;
+import com.fpetrola.oozx.speccy.peripherals.Periph;
 
-public class UlaFullDecodePortHandler extends DefaultPortHandler {
-  private Ula ula;
+import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
 
-  public UlaFullDecodePortHandler(Ula ula) {
-    super(0x00ff, 0x00fe, true, true);
-    this.ula = ula;
-  }
+import com.fpetrola.oozx.speccy.machine.SpecPlus3;
 
-  public byte read(int port, byte[] attached) {
-    return ula.read(port, attached);
-  }
+import java.util.List;
 
-  public void write(int port, byte value) {
-    ula.write(port, value);
+public class Upd765Peripheral extends AbstractZxPeripheral {
+  public Upd765Peripheral(SpecPlus3 specPlus3) {
+    super(Periph.Type.UPD765, List.of(
+        new FdcPortHandler(0xf002, 0x3000, specPlus3),
+        new FdcStatusPortHandler(0xf002, 0x2000, specPlus3)
+    ));
   }
 }

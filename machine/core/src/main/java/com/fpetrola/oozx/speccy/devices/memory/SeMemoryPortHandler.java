@@ -16,24 +16,23 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.ports;
+package com.fpetrola.oozx.speccy.devices.memory;
 
-import com.fpetrola.oozx.speccy.modules.Joystick;
+import com.fpetrola.oozx.speccy.ports.DefaultPortHandler;
 
-public class JoystickPortHandler extends DefaultPortHandler {
-  private Joystick joystick;
+import com.fpetrola.oozx.Spectrum;
 
-  public JoystickPortHandler(int mask, int value, Joystick joystick) {
-    super(mask, value, true, false);
-    this.joystick = joystick;
-  }
+class SeMemoryPortHandler extends DefaultPortHandler {
+  private final Spectrum spectrum;
 
-  @Override
-  public byte read(int port, byte[] attached) {
-    return joystick.kempstonRead(port, attached);
+  public SeMemoryPortHandler(Spectrum spectrum) {
+    super(0xffff, 0x7ffd, false, true);
+    this.spectrum = spectrum;
   }
 
   @Override
   public void write(int port, byte value) {
+    spectrum.getRamInfo().lastByte = value;
+    spectrum.memoryMap();
   }
 }

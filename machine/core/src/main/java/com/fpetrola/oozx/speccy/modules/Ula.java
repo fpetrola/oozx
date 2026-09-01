@@ -27,8 +27,8 @@ import com.fpetrola.oozx.speccy.sound.Beeper;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.peripherals.IPeriph;
-import com.fpetrola.oozx.speccy.peripherals.UlaFullDecodePeripheral;
-import com.fpetrola.oozx.speccy.peripherals.UlaPeripheral;
+import com.fpetrola.oozx.speccy.devices.ula.UlaFullDecodePeripheral;
+import com.fpetrola.oozx.speccy.devices.ula.UlaPeripheral;
 
 import java.util.function.Supplier;
 

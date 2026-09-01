@@ -16,23 +16,21 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.ports;
+package com.fpetrola.oozx.speccy.devices.memory;
 
-import com.fpetrola.oozx.speccy.modules.Ula;
+import com.fpetrola.oozx.speccy.ports.DefaultPortHandler;
 
-public class UlaPortHandler extends DefaultPortHandler {
-  private Ula ula;
+import com.fpetrola.oozx.speccy.machine.Spec128;
 
-  public UlaPortHandler(Ula ula) {
-    super(0x0001, 0x0000, true, true);
-    this.ula = ula;
-  }
+class Spec128PortHandler extends DefaultPortHandler {
+  private Spec128 spec128;
 
-  public byte read(int port, byte[] attached) {
-    return ula.read(port, attached);
+  public Spec128PortHandler(int mask, int value, Spec128 spec128) {
+    super(mask, value, false, true);
+    this.spec128 = spec128;
   }
 
   public void write(int port, byte value) {
-    ula.write(port, value);
+    spec128.memoryPortWrite(port, value);
   }
 }

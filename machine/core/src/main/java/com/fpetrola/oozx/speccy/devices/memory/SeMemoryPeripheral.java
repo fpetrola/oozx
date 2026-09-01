@@ -16,19 +16,19 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.ports;
+package com.fpetrola.oozx.speccy.devices.memory;
 
-import com.fpetrola.oozx.speccy.machine.Spec128;
+import com.fpetrola.oozx.speccy.peripherals.Periph;
 
-public class Spec128PortHandler extends DefaultPortHandler {
-  private Spec128 spec128;
+import com.fpetrola.oozx.speccy.peripherals.AbstractZxPeripheral;
 
-  public Spec128PortHandler(int mask, int value, Spec128 spec128) {
-    super(mask, value, false, true);
-    this.spec128 = spec128;
-  }
+import com.fpetrola.oozx.Machine;
+import com.fpetrola.oozx.Spectrum;
 
-  public void write(int port, byte value) {
-    spec128.memoryPortWrite(port, value);
+import java.util.List;
+
+public class SeMemoryPeripheral extends AbstractZxPeripheral {
+  public SeMemoryPeripheral(Spectrum spectrum) {
+    super(Periph.Type.SE_MEMORY, List.of(new SeMemoryPortHandler(spectrum)));
   }
 }
