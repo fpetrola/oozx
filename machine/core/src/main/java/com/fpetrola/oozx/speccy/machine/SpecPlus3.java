@@ -147,6 +147,10 @@ public class SpecPlus3 extends Spec128 {
     return Set.of(AY, MEMORY_128, PLUS3_MEMORY, PLUS3_DISK);
   }
 
+  public byte ulaPortIdleValue(byte lastOut) {
+    return (byte) 0xbf;
+  }
+
   public int reset() {
     doReset(settings.current.romPlus30, settings.defaults.romPlus30,
         settings.current.romPlus31, settings.defaults.romPlus31,

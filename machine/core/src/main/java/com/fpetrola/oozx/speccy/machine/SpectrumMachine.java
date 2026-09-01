@@ -54,5 +54,13 @@ public interface SpectrumMachine {
 
   boolean portFromUla(int port);
 
-  boolean isTimex();
+  /** What the ULA's own port reads on the bits the keyboard does not drive, after this write to it. */
+  default byte ulaPortIdleValue(byte lastOut) {
+    return (byte) ((lastOut & 0x10) != 0 ? 0xff : 0xbf);
+  }
+
+  /** Whether this port gives the tape and the program a bit each, which a Timex does not. */
+  default boolean separatesTapeFromSpeaker() {
+    return true;
+  }
 }

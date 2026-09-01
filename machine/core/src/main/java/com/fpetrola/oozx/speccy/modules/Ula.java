@@ -32,9 +32,6 @@ import com.fpetrola.oozx.speccy.devices.ula.UlaPeripheral;
 
 import java.util.function.Supplier;
 
-import static com.fpetrola.oozx.MachineCapability.PLUS3_MEMORY;
-import static com.fpetrola.oozx.MachineCapability.MEMORY_128;
-
 @Singleton
 public class Ula implements ZxModule, MachineChangeListener {
   private final Memory memory;
@@ -148,18 +145,12 @@ public class Ula implements ZxModule, MachineChangeListener {
       if (speaker != null) {
         speaker.write(z80Clock.getTStates(),
             ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || tape.microphone || earIn ? 1 : 0),
-            getCurrent().isTimex());
+            getCurrent().separatesTapeFromSpeaker());
       }
 
 //    sound.beeper(z80Clock.getTStates(), (int) (Math.random() * 4));
 
-    if (getCurrent().has(PLUS3_MEMORY)) {
-      defaultValue = (byte) 0xbf;
-    } else if (getCurrent().has(MEMORY_128) || !settings.current.issue2) {
-      defaultValue = (byte) ((b & 0x10) != 0 ? 0xff : 0xbf);
-    } else {
-      defaultValue = (byte) ((b & 0x18) != 0 ? 0xff : 0xbf);
-    }
+    defaultValue = getCurrent().ulaPortIdleValue(b);
   }
 
   private SpectrumMachine getCurrent() {

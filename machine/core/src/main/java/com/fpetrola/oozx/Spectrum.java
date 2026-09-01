@@ -44,11 +44,6 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
 
   public int spectrumFrameEvent = -1;
 
-  public boolean isTimex() {
-    return timex;
-  }
-
-  public boolean timex;
   private long framesSinceReset;
   private final Timer timer;
   private final Module module;

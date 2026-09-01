@@ -58,6 +58,10 @@ public class Spec48 extends Spectrum {
     return commonReset();
   }
 
+  public byte ulaPortIdleValue(byte lastOut) {
+    return (byte) ((lastOut & (settings.current.issue2 ? 0x18 : 0x10)) != 0 ? 0xff : 0xbf);
+  }
+
   // Set up common display configuration
   public void commonDisplaySetup() {
   }

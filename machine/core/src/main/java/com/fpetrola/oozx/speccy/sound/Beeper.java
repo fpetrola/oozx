@@ -60,11 +60,11 @@ public class Beeper implements AudioSource {
 
   /**
    * @param bits  the tape's bit and the program's, as the ULA hands them over
-   * @param timex whether this machine's port keeps the two apart, which a Timex does not
+   * @param separateTapeBit whether this machine's port keeps the two apart, which a Timex does not
    */
-  public void write(long tstates, int bits, boolean timex) {
+  public void write(long tstates, int bits, boolean separateTapeBit) {
     if (tape.isTapePlaying()) {
-      if (!settings.current.soundLoad || timex) {
+      if (!settings.current.soundLoad || !separateTapeBit) {
         bits &= 0x02;
       }
     } else if (bits == 1) {
