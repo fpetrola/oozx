@@ -30,4 +30,13 @@ public interface PortHandler {
   boolean isWriter();
 
   void write(int port, byte value);
+
+  /** Whether this port wants to hear reads of it that it did not answer. Asked when it is plugged in. */
+  default boolean listensToBusReads() {
+    return false;
+  }
+
+  /** A read of this port, with whatever the bus was left holding - nothing here answered it. */
+  default void busRead(int port, byte onTheBus) {
+  }
 }

@@ -72,14 +72,6 @@ public class Spec128 extends Spectrum {
     return Set.of(AY, MEMORY_128);
   }
 
-  /**
-   * Its pager listens loosely enough that the floating bus reaches it: reading the port latches
-   * whatever the video left there. The machines below that drive their bus answer no by saying so.
-   */
-  public boolean pagesWhenItsPortIsRead() {
-    return hasFloatingBus();
-  }
-
   public String shortName() {
     return "128K";
   }

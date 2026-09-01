@@ -59,7 +59,6 @@ public class Periph implements IPeriph {
   private Z80Clock z80Clock;
   private Settings settings;
   private SpectrumMachine spectrumMachine;
-  private boolean pagesOnBusRead;
   private final UserInterface userInterface;
 
   @Inject
@@ -71,7 +70,6 @@ public class Periph implements IPeriph {
 
   public void machineChanged(SpectrumMachine newMachine) {
     spectrumMachine = newMachine;
-    pagesOnBusRead = newMachine.pagesWhenItsPortIsRead();
   }
 
   // Enum for peripheral types
@@ -179,6 +177,10 @@ public class Periph implements IPeriph {
   // List of currently active ports
   private final ObjectArrayList ports = new ObjectArrayList();
 
+  // The few of those that asked to hear reads of their own port, kept apart so a read costs
+  // nothing on a machine where nobody listens.
+  private final ObjectArrayList busListeners = new ObjectArrayList();
+
   // Strings for debugger events
   private final String PAGE_EVENT_STRING = "page";
   private final String UNPAGE_EVENT_STRING = "unpage";
@@ -230,7 +232,9 @@ public class Periph implements IPeriph {
         privatePeriph.peripheral.activate();
       }
       for (PortHandler port : privatePeriph.peripheral.getPorts()) {
-        ports.add(new PrivatePort(type, port));
+        PrivatePort privatePort = new PrivatePort(type, port);
+        ports.add(privatePort);
+        if (port.listensToBusReads()) busListeners.add(privatePort);
       }
     } else {
       privatePeriph.peripheral.deactivate();
@@ -242,6 +246,7 @@ public class Periph implements IPeriph {
         }
       }
       ports.removeAll(toRemove, true);
+      busListeners.removeAll(toRemove, true);
     }
 
     return true;
@@ -272,6 +277,7 @@ public class Periph implements IPeriph {
   @Override
   public void clear() {
     ports.clear();
+    busListeners.clear();
     if (peripherals != null) {
       peripherals.forEach((type, data) -> {
         data.present = Present.NEVER;
@@ -284,6 +290,7 @@ public class Periph implements IPeriph {
   @Override
   public void end() {
     ports.clear();
+    busListeners.clear();
     if (peripherals != null) {
       peripherals.clear();
       peripherals = null;
@@ -308,9 +315,11 @@ public class Periph implements IPeriph {
   public byte readPort(int port) {
     byte b = readPortInternal(port);
 
-    // Asked of the machine once, when it changes, rather than on every read.
-    if (pagesOnBusRead && (port & 0x8002) == 0) {
-      writePortInternal(0x7ffd, b);
+    for (int i = 0, size = busListeners.size(); i < size; i++) {
+      PrivatePort listener = (PrivatePort) busListeners.get(i);
+      if ((port & listener.port.getMask()) == listener.port.getValue()) {
+        listener.port.busRead(port, b);
+      }
     }
 
     z80Clock.addTStates(1);

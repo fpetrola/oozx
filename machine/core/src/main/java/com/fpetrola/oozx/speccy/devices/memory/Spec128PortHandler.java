@@ -33,4 +33,17 @@ class Spec128PortHandler extends DefaultPortHandler {
   public void write(int port, byte value) {
     spec128.memoryPortWrite(port, value);
   }
+
+  /**
+   * This pager listens loosely enough that the video data the ULA leaves floating reaches it, so
+   * reading the port pages the machine - which games use. A machine that drives its bus, the +3
+   * family and the Pentagon, leaves nothing there to hear.
+   */
+  public boolean listensToBusReads() {
+    return spec128.hasFloatingBus();
+  }
+
+  public void busRead(int port, byte onTheBus) {
+    write(port, onTheBus);
+  }
 }
