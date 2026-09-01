@@ -28,7 +28,7 @@ import java.awt.*;
 import java.io.File;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 /**
  * Shows what is on a tape and lets it be driven by hand: the blocks and their details, which one
@@ -43,12 +43,13 @@ import java.util.function.Supplier;
  * honoured here as it should be: the person watching is the one who decides when it starts again.
  * An automatic load runs through those instead, because there is nobody to press anything.
  */
-public class TapeBrowserInternalFrame extends JInternalFrame {
+public class TapeBrowserInternalFrame extends AttachedFrame {
 
   /** How often the progress column is refreshed. The tape moves on the emulation thread. */
   private static final int REFRESH_MILLIS = 100;
 
-  private final Supplier<Tape> activeTape;
+  /** The deck inside a machine's window, which is what being attached to it gives this one. */
+  private final Function<JInternalFrame, Tape> deckOf;
   private final Runnable openTapeChooser;
   private final Consumer<File> loadInNewEmulator;
   private final BlockTableModel model;
@@ -63,7 +64,13 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
   private File tapeFile;
   private List<TapeBlock> blocks = List.of();
 
-  /** The deck the cassette was last played into, or null if it has not been played yet. */
+  /**
+   * The deck this cassette is plugged into: the one belonging to the machine it is clipped to.
+   * <p>
+   * Attaching is the cable. A cassette against a machine plays into that machine and no other,
+   * so switching machines is unplugging it from one and clipping it onto the next, which is
+   * what it is with a real deck and a real lead.
+   */
   private Tape deck;
 
   /** The block the player last reported starting, which is the one being read. */
@@ -71,14 +78,14 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
   private boolean paused;
 
   /**
-   * @param activeTape      supplies the deck of whatever machine is in front, or null if there is none
+   * @param deckOf            the deck belonging to a machine's window, or null if it has none
    * @param openTapeChooser   asks the user for a tape file and calls back {@link #openTape}
    * @param loadInNewEmulator opens a machine on a tape and lets it load itself from the start
    */
-  public TapeBrowserInternalFrame(Supplier<Tape> activeTape, Runnable openTapeChooser,
+  public TapeBrowserInternalFrame(Function<JInternalFrame, Tape> deckOf, Runnable openTapeChooser,
                                   Consumer<File> loadInNewEmulator) {
-    super("Cassette", true, true, true, true);
-    this.activeTape = activeTape;
+    super("Cassette");
+    this.deckOf = deckOf;
     this.openTapeChooser = openTapeChooser;
     this.loadInNewEmulator = loadInNewEmulator;
 
@@ -107,7 +114,6 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
     insertButton.addActionListener(e -> openTapeChooser.run());
     pauseButton.setToolTipText("Stops the tape where it is; playing again restarts the current block");
 
-    JPanel controls = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
     controls.add(playButton);
     controls.add(pauseButton);
     controls.add(stopButton);
@@ -116,11 +122,8 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
     status = new JLabel();
     controls.add(Box.createHorizontalStrut(15));
     controls.add(status);
-    EmulatorInternalFrame.tighten(controls);
 
-    setLayout(new BorderLayout());
-    add(controls, BorderLayout.NORTH);
-    add(new JScrollPane(table), BorderLayout.CENTER);
+    assemble(new JScrollPane(table));
 
     Timer refresh = new Timer(REFRESH_MILLIS, e -> refresh());
     refresh.start();
@@ -134,32 +137,61 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
     refresh();
   }
 
-  /** Puts the cassette in this window into the machine in front and plays it. */
+  /**
+   * The machine this is clipped to changed, so the lead now goes somewhere else.
+   * <p>
+   * Unplugged, the tape stops turning: a deck carried away from the computer is not still
+   * loading it. Nothing is played by plugging in - that is what the play button is for.
+   */
+  @Override
+  protected void attachmentChanged() {
+    Tape plugged = isAttached() ? deckOf.apply(getMachineWindow()) : null;
+    if (plugged == deck) {
+      return;
+    }
+    if (deck != null) {
+      deck.stop();
+    }
+    deck = plugged;
+    currentBlock = -1;
+    paused = false;
+    refresh();
+  }
+
+  @Override
+  protected String expandTip() {
+    return "Show what is on the cassette, or just the controls";
+  }
+
+  @Override
+  protected String attachTip() {
+    return "Clip this onto the machine's window, which is what plugs it in";
+  }
+
+  /** Puts the cassette in this window into the machine it is plugged into, and plays it. */
   private void play() {
     if (tapeFile == null) {
       return;
     }
-    Tape active = activeTape.get();
-    if (active == null) {
-      // Nothing to play into: open a machine on this cassette and let it load itself from the
-      // start, which is what clicking a game in the game browser does. The window is handed the
-      // deck of that machine as it comes up, so it goes on showing the load.
+    if (deck == null) {
+      // Plugged into nothing: open a machine on this cassette and let it load itself from the
+      // start, which is what clicking a game in the game browser does. This window is clipped
+      // onto that machine as it comes up, so it goes on showing the load.
       status.setText("Opening an emulator for " + tapeFile.getName() + "...");
       loadInNewEmulator.accept(tapeFile);
       return;
     }
 
-    // A different machine, or the same one with something else in it: load the cassette there.
-    if (active != deck || !tapeFile.equals(active.getTapeFilename())) {
-      active.stop();
-      active.eject();
-      if (!active.insert(tapeFile)) {
+    // Something else in that machine's deck: load this cassette there instead.
+    if (!tapeFile.equals(deck.getTapeFilename())) {
+      deck.stop();
+      deck.eject();
+      if (!deck.insert(tapeFile)) {
         JOptionPane.showMessageDialog(this, "The deck could not read " + tapeFile.getName() + ".",
             "Play", JOptionPane.ERROR_MESSAGE);
         return;
       }
-      active.addTapeBlockListener(block -> currentBlock = block);
-      deck = active;
+      deck.addTapeBlockListener(block -> currentBlock = block);
       paused = false;
     }
 
@@ -189,11 +221,26 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
     currentBlock = -1;
   }
 
+  /** Whether there is a cassette in this deck, or it is an empty one waiting for one. */
+  public boolean hasTape() {
+    return tapeFile != null;
+  }
+
+  /**
+   * Whether this is the deck already holding that machine's tape, waiting for its window.
+   * <p>
+   * Asked about the deck itself rather than about the file it came from: the same cassette
+   * reaches the two sides as two different path strings - one unzipped, one the address it was
+   * fetched from - and comparing those matched nothing.
+   */
+  public boolean waitingFor(Tape playing) {
+    return getMachineWindow() == null && deck == playing;
+  }
+
   /** Loads a cassette into this window. No emulator is needed to look at what is on it. */
   public void openTape(File file) {
     tapeFile = file;
     blocks = TapeBlock.read(file);
-    deck = null;
     currentBlock = -1;
     paused = false;
     setTitle("Cassette - " + file.getName());
@@ -201,11 +248,17 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
     refresh();
   }
 
-  /** Adopts a cassette already loaded and running in a machine, as the game browser does. */
+  /**
+   * Adopts a cassette already loaded and running in a machine, as the game browser does.
+   * <p>
+   * The lead is plugged in before the machine has a window to clip onto - it is being built -
+   * so the deck is taken directly here and the window follows when there is one.
+   */
   public void adopt(File file, Tape playingDeck) {
     openTape(file);
     deck = playingDeck;
     playingDeck.addTapeBlockListener(block -> currentBlock = block);
+    refresh();
   }
 
   private void refresh() {
@@ -223,10 +276,12 @@ public class TapeBrowserInternalFrame extends JInternalFrame {
     String where = currentBlock >= 0 && currentBlock < blocks.size()
         ? "block " + (currentBlock + 1) + " of " + blocks.size() + ", " + blocks.get(currentBlock).type()
         : blocks.size() + " blocks";
-    String state = playing ? "Playing" : paused ? "Paused" : deck == null
-        ? (activeTape.get() == null ? "Not loaded - no emulator open" : "Not loaded") : "Stopped";
+    String state = playing ? "Playing" : paused ? "Paused"
+        : deck == null ? "Not plugged in - clip this onto a machine" : "Stopped";
     status.setText(state + " - " + where);
 
+    showProgress(blocks.isEmpty() || currentBlock < 0 ? 0
+        : (currentBlock + progressOf(currentBlock) / 100.0) / blocks.size());
     model.fireProgressChanged();
     if (playing && currentBlock >= 0 && currentBlock < table.getRowCount()) {
       table.scrollRectToVisible(table.getCellRect(currentBlock, 0, true));

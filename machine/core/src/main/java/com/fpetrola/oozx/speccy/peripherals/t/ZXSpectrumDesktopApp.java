@@ -1946,13 +1946,21 @@ public class ZXSpectrumDesktopApp extends JFrame {
     tapesByCore.put(core, tape);
   }
 
-  /** The deck of the emulator in front, or null when there is no emulator. */
-  public com.fpetrola.oozx.speccy.modules.tape.Tape getActiveTape() {
-    EmulatorInternalFrame active = getActiveEmulator();
-    return active == null ? null : tapesByCore.get(active.emulatorCore);
+  /** The deck inside a machine's window, or null when that window is not a machine. */
+  public com.fpetrola.oozx.speccy.modules.tape.Tape deckOf(JInternalFrame machine) {
+    return machine instanceof EmulatorInternalFrame emulator
+        ? tapesByCore.get(emulator.emulatorCore) : null;
   }
 
-  private TapeBrowserInternalFrame tapeBrowser;
+  /**
+   * Every cassette deck open at once, one per machine.
+   * <p>
+   * There used to be one window, kept in a field, which played into whichever machine was in
+   * front - so the tape you were watching load jumped to another computer when you clicked on
+   * it. A deck is a piece of equipment: it is clipped onto one machine, plays into that one, and
+   * you move it by unplugging it and clipping it onto the next.
+   */
+  private final java.util.List<TapeBrowserInternalFrame> cassettes = new java.util.ArrayList<>();
 
   /**
    * Every player open at once. There used to be one, kept in a field and reused, so a second
@@ -2128,13 +2136,9 @@ public class ZXSpectrumDesktopApp extends JFrame {
       machine.setTitle("Spectrum #" + player.getNumber() + name);
       player.setMachineWindow(machine);
       machine.addInternalFrameListener(new InternalFrameAdapter() {
-        @Override
-        public void internalFrameClosed(InternalFrameEvent e) {
-          // Closing the machine's window stops the recording driving it; otherwise the thread
-          // goes on running a machine nobody can see, and it goes on making sound.
-          player.machineClosed();
-        }
-
+        // Closing the machine's window stops the recording driving it - AttachedFrame watches
+        // for that itself now, for every window clipped onto a machine, so it is not repeated
+        // here.
         @Override
         public void internalFrameActivated(InternalFrameEvent e) {
           raisePartner(player, machine);
@@ -2297,21 +2301,87 @@ public class ZXSpectrumDesktopApp extends JFrame {
     return dialog;
   }
 
-  /** Opens the cassette browser, or brings the open one to the front. */
+  /**
+   * A deck ready for a cassette: an open one with nothing in it, or another.
+   * <p>
+   * Reusing an empty one keeps the menu item from leaving a trail of blank decks behind someone
+   * who clicked it twice; opening a second cassette while the first is loading gets its own
+   * window, which is the point of there being more than one.
+   */
   public TapeBrowserInternalFrame showTapeBrowser() {
-    if (tapeBrowser == null || tapeBrowser.isClosed()) {
-      tapeBrowser = new TapeBrowserInternalFrame(this::getActiveTape, this::chooseTapeForBrowser,
-          file -> loadInNewEmulator(file.getAbsolutePath()));
-      desktop.add(tapeBrowser);
+    cassettes.removeIf(JInternalFrame::isClosed);
+    for (TapeBrowserInternalFrame open : cassettes) {
+      if (!open.hasTape()) {
+        open.setVisible(true);
+        open.toFront();
+        return open;
+      }
     }
-    tapeBrowser.setVisible(true);
-    tapeBrowser.toFront();
-    return tapeBrowser;
+    return newCassette();
   }
 
-  /** Opens the browser on a cassette already loaded and running, as a game from the browser is. */
+  /** Another deck, whatever the open ones are doing. */
+  public TapeBrowserInternalFrame newCassette() {
+    cassettes.removeIf(JInternalFrame::isClosed);
+    TapeBrowserInternalFrame cassette = new TapeBrowserInternalFrame(this::deckOf,
+        this::chooseTapeForBrowser, file -> loadInNewEmulator(file.getAbsolutePath()));
+    // Cascaded like the emulators, so the second one does not land exactly on the first.
+    cassette.setLocation(80 + (cassettes.size() * 30) % 300, 80 + (cassettes.size() * 30) % 200);
+    cassettes.add(cassette);
+    desktop.add(cassette);
+    cassette.setVisible(true);
+    // Clipped onto the machine in front, if there is one: that is what plugs it in, and a deck
+    // that arrives already connected to the computer you are looking at is what you wanted.
+    // Before being raised, so it arrives where it belongs rather than moving once it is up.
+    cassette.setMachineWindow(getActiveEmulator());
+    cassette.toFront();
+    return cassette;
+  }
+
+  /** Opens a deck on a cassette already loaded and running, as a game from the browser is. */
   public void showTapeBrowser(java.io.File tapeFile, com.fpetrola.oozx.speccy.modules.tape.Tape deck) {
-    SwingUtilities.invokeLater(() -> showTapeBrowser().adopt(tapeFile, deck));
+    SwingUtilities.invokeLater(() -> {
+      TapeBrowserInternalFrame cassette = showTapeBrowser();
+      cassette.adopt(tapeFile, deck);
+      // Its machine may already be up - the two are built in either order. Only clipped on when
+      // there is one: handing this a null window means UNPLUGGED, which would throw away the
+      // deck adopt just gave it and leave nothing for createNewEmulator to recognise later.
+      EmulatorInternalFrame machine = machineFor(deck);
+      if (machine != null) {
+        cassette.setMachineWindow(machine);
+      }
+    });
+  }
+
+  /**
+   * Clips the deck holding this machine's tape onto it, if one is waiting for a window.
+   * <p>
+   * The two arrive in either order - a cassette opened from the command line exists before its
+   * machine, one opened from the menu after it - so both sides look for the other: this on the
+   * way in, and {@link #machineFor} when the deck is the one that turns up late.
+   */
+  private void plugCassetteInto(EmulatorInternalFrame machine) {
+    com.fpetrola.oozx.speccy.modules.tape.Tape playing = deckOf(machine);
+    if (playing == null) {
+      return;
+    }
+    cassettes.removeIf(JInternalFrame::isClosed);
+    for (TapeBrowserInternalFrame cassette : cassettes) {
+      if (cassette.waitingFor(playing)) {
+        cassette.setMachineWindow(machine);
+        return;
+      }
+    }
+  }
+
+  /** The machine window whose deck this is, or null while that machine is still being built. */
+  private EmulatorInternalFrame machineFor(com.fpetrola.oozx.speccy.modules.tape.Tape playing) {
+    for (JInternalFrame frame : desktop.getAllFrames()) {
+      if (frame instanceof EmulatorInternalFrame machine && deckOf(machine) == playing) {
+        return machine;
+      }
+    }
+    return null;
   }
 
   /** Asks for a tape file and loads it into the cassette browser. No emulator is needed. */
@@ -2377,6 +2447,10 @@ public class ZXSpectrumDesktopApp extends JFrame {
     desktop.add(frame);
     frame.setVisible(true);
     emulatorCount++;
+    // A cassette can be opened before the machine that plays it exists - the launcher does
+    // exactly that, and so does the game browser - so the clipping is done here, where every
+    // machine passes, rather than at each of the places one gets built.
+    plugCassetteInto(frame);
 
     // Registrar en el historial - capturar el estado inicial después de cargar
     // Usar un timer para permitir que se cargue el snapshot completamente
