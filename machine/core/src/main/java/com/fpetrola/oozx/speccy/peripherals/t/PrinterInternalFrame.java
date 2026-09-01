@@ -63,7 +63,7 @@ public class PrinterInternalFrame extends AttachedFrame {
     bigger.setToolTipText("Show the dots larger");
     tearOff.addActionListener(e -> paper.printout().tearOff());
     save.addActionListener(e -> save());
-    bigger.addActionListener(e -> paper.setScale(paper.getWidth() > 600 ? 1 : 3));
+    bigger.addActionListener(e -> paper.setScale(paper.scale() % 4 + 1));
 
     controls.add(tearOff);
     controls.add(save);
@@ -139,13 +139,18 @@ public class PrinterInternalFrame extends AttachedFrame {
     if (chooser.showSaveDialog(this) != javax.swing.JFileChooser.APPROVE_OPTION) {
       return;
     }
-    BufferedImage image = new BufferedImage(Printout.WIDTH, printout.height(), BufferedImage.TYPE_INT_RGB);
-    for (int row = 0; row < printout.height(); row++) {
-      boolean[] line = printout.row(row);
-      for (int dot = 0; dot < line.length; dot++) {
-        image.setRGB(dot, row, line[dot] ? 0x1a1a1a : 0xd4d6d0);
-      }
-    }
+    // Saved as it is shown, paper and all: a picture of a printout is a picture of the paper it
+    // came out on, and the panel already knows how to draw one.
+    int width = Printout.WIDTH * paper.scale();
+    int height = printout.height() * paper.scale();
+    BufferedImage image = new BufferedImage(width + 24, height + 24, BufferedImage.TYPE_INT_RGB);
+    java.awt.Graphics2D canvas = image.createGraphics();
+    canvas.setColor(new java.awt.Color(0x2e, 0x30, 0x2c));
+    canvas.fillRect(0, 0, image.getWidth(), image.getHeight());
+    canvas.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
+        java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+    paper.paint(canvas, 12, 12, width, height);
+    canvas.dispose();
     try {
       javax.imageio.ImageIO.write(image, "png", chooser.getSelectedFile());
     } catch (java.io.IOException couldNotWrite) {
