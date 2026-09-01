@@ -97,6 +97,9 @@ public class SettingsDialog extends JDialog {
 
     JLabel borderLabel = new JLabel("Show Border:");
     JCheckBox borderCheck = new JCheckBox();
+    if (emulatorCore.getPanel() instanceof com.fpetrola.oozx.speccy.SpeccyScreen screen) {
+      borderCheck.setSelected(screen.getScreenSettings().isBorder());
+    }
     borderCheck.addActionListener(e -> emulatorCore.setVideoOption("border", borderCheck.isSelected()));
 
     JLabel scanlinesLabel = new JLabel("Scanlines:");
@@ -467,8 +470,9 @@ public class SettingsDialog extends JDialog {
     layout.setAutoCreateContainerGaps(true);
 
     JLabel modelLabel = new JLabel("Machine Model:");
-    String[] models = {"16K", "48K", "48K NTSC", "128K", "+2", "+2A", "+3", "TC2048", "TC2068", "TS2068", "Pentagon 128", "Pentagon 512", "Pentagon 1024", "Scorpion ZS 256", "Spectrum SE"};
-    JComboBox<String> modelCombo = new JComboBox<>(models);
+    JComboBox<String> modelCombo = new JComboBox<>(emulatorCore.getMachineModels().toArray(new String[0]));
+    // Chosen before the listener is on, so opening the dialog is not a change of machine.
+    modelCombo.setSelectedItem(emulatorCore.getCurrentModel());
     modelCombo.addActionListener(e -> emulatorCore.setMachineModel((String) modelCombo.getSelectedItem()));
 
     JLabel romLabel = new JLabel("Custom ROM:");

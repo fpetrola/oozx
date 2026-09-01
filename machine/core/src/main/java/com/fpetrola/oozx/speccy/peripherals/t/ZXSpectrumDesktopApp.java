@@ -1196,7 +1196,13 @@ public class ZXSpectrumDesktopApp extends JFrame {
   }
 
   private void openSettings() {
-    SettingsDialog settingsDialog = new SettingsDialog(ZXSpectrumDesktopApp.this, null);
+    EmulatorInternalFrame active = getActiveEmulator();
+    if (active == null) {
+      JOptionPane.showMessageDialog(this, "Open an emulator first: these settings are one machine's",
+          "Settings", JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+    SettingsDialog settingsDialog = new SettingsDialog(ZXSpectrumDesktopApp.this, active.emulatorCore);
     settingsDialog.setLocationRelativeTo(ZXSpectrumDesktopApp.this);
     settingsDialog.setVisible(true);
   }

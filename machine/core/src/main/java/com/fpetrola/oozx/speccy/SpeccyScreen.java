@@ -51,7 +51,6 @@ public class SpeccyScreen extends JPanel {
    * and most of the time it is a colour going by. It is a button away when a game uses it for
    * something - the loading stripes, or a game that flashes it.
    */
-  private volatile boolean borderVisible;
   private BufferedImage croppedBuffer;
 
   /**
@@ -102,12 +101,11 @@ public class SpeccyScreen extends JPanel {
    * way: the smaller of the two ratios.
    */
   public void setBorderVisible(boolean borderVisible) {
-    if (this.borderVisible == borderVisible) {
+    if (screen.isBorder() == borderVisible) {
       return;
     }
     int previousWidth = imageWidth();
     int previousHeight = imageHeight();
-    this.borderVisible = borderVisible;
     set("border", borderVisible);
     setPreferredSize(new Dimension((int) (imageWidth() * zoom), (int) (imageHeight() * zoom)));
     resizeWindowBy(previousWidth, previousHeight);
@@ -211,21 +209,21 @@ public class SpeccyScreen extends JPanel {
   }
 
   private int imageWidth() {
-    return borderVisible ? width : SCREEN_W;
+    return screen.isBorder() ? width : SCREEN_W;
   }
 
   private int imageHeight() {
-    return borderVisible ? height : SCREEN_H;
+    return screen.isBorder() ? height : SCREEN_H;
   }
 
   public boolean isBorderVisible() {
-    return borderVisible;
+    return screen.isBorder();
   }
 
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
 
-    boolean withBorder = borderVisible;
+    boolean withBorder = screen.isBorder();
     BufferedImage target = withBorder ? screenBuffer : croppedBuffer;
     int originX = withBorder ? 0 : SCREEN_X;
     int originY = withBorder ? 0 : SCREEN_Y;

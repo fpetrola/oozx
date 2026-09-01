@@ -93,7 +93,25 @@ public class MockEmulatorCore implements EmulatorCore {
 
   @Override
   public void setVideoOption(String option, Object value) {
-    System.out.println("Mock: Setting video option " + option + " to " + value);
+    setScreenOption(option, value);
+  }
+
+  /**
+   * The knobs that belong to the panel rather than to the machine. Whoever asks knows it wants a
+   * border or scan lines, not which component draws them, so both the video options and the
+   * general ones arrive here.
+   */
+  private void setScreenOption(String option, Object value) {
+    if (contentPane instanceof com.fpetrola.oozx.speccy.SpeccyScreen screen) {
+      switch (option) {
+        case "border" -> screen.setBorderVisible((Boolean) value);
+        case "tv" -> screen.setTvScreen(com.fpetrola.oozx.speccy.TvScreen.byName(String.valueOf(value)));
+        case "scanlines" -> screen.setScanLines((Boolean) value);
+        // null is a real answer here and means what it has always meant: decide by the scale.
+        case "smoothing" -> screen.setSmoothing((Boolean) value);
+        default -> { }
+      }
+    }
   }
 
   @Override
@@ -129,18 +147,7 @@ public class MockEmulatorCore implements EmulatorCore {
       notifyTurboModeChange(turboMode);
       notifyEmulationSpeedChange(emulationSpeed);
     }
-    // Here rather than in the toolbar, because the panel is this core's to hand out: whoever
-    // presses the button knows it wants a border, not which component draws one.
-    if (contentPane instanceof com.fpetrola.oozx.speccy.SpeccyScreen screen) {
-      switch (option) {
-        case "border" -> screen.setBorderVisible((Boolean) value);
-        case "tv" -> screen.setTvScreen(com.fpetrola.oozx.speccy.TvScreen.byName(String.valueOf(value)));
-        case "scanlines" -> screen.setScanLines((Boolean) value);
-        // null is a real answer here and means what it has always meant: decide by the scale.
-        case "smoothing" -> screen.setSmoothing((Boolean) value);
-        default -> { }
-      }
-    }
+    setScreenOption(option, value);
   }
 
   @Override
