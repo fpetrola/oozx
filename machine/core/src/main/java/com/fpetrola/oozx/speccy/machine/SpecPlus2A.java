@@ -35,6 +35,7 @@ import com.fpetrola.oozx.speccy.modules.Display;
 import com.fpetrola.oozx.speccy.modules.EventManager;
 import com.fpetrola.oozx.speccy.modules.Timer;
 import com.fpetrola.oozx.speccy.modules.z80.Cpu;
+import com.fpetrola.emulation.helpers.machine.MachineTypes;
 
 @Singleton
 public class SpecPlus2A extends SpecPlus3 {
@@ -48,6 +49,10 @@ public class SpecPlus2A extends SpecPlus3 {
   @Override
   public Set<MachineCapability> getCapabilities() {
     return Set.of(AY, MEMORY_128, PLUS3_MEMORY);
+  }
+
+  public MachineTypes snapshotModel() {
+    return MachineTypes.SPECTRUMPLUS2A;
   }
 
   public int reset() {

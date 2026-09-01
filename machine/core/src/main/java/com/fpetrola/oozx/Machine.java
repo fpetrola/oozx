@@ -30,6 +30,8 @@ import com.fpetrola.z80.cpu.Z80Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import com.fpetrola.emulation.helpers.machine.MachineTypes;
+import java.util.Optional;
 
 @Singleton
 public class Machine implements ZxModule {
@@ -72,6 +74,17 @@ public class Machine implements ZxModule {
   public void addMachine(Spectrum spectrumMachine) {
     machineTypes.add(spectrumMachine);
     setConstTimings(spectrumMachine);
+  }
+
+  /**
+   * The machine a snapshot taken on this model should load into: the one that says it is that
+   * model, or failing that the nearest one running the same code - a 16K snapshot has no 16K here
+   * to go to and lands on the 48K.
+   */
+  public Optional<Spectrum> forSnapshotModel(MachineTypes model) {
+    return machineTypes.stream().filter(m -> m.snapshotModel() == model).findFirst()
+        .or(() -> machineTypes.stream()
+            .filter(m -> m.snapshotModel() != null && m.snapshotModel().codeModel == model.codeModel).findFirst());
   }
 
   public void setDefaultMachine(Spectrum spectrumMachine) {

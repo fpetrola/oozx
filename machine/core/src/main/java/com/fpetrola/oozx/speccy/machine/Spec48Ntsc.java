@@ -35,6 +35,7 @@ import com.fpetrola.oozx.speccy.modules.Display;
 import com.fpetrola.oozx.speccy.modules.EventManager;
 import com.fpetrola.oozx.speccy.modules.Timer;
 import com.fpetrola.oozx.speccy.modules.z80.Cpu;
+import com.fpetrola.emulation.helpers.machine.MachineTypes;
 
 @Singleton
 public class Spec48Ntsc extends Spec48 {
@@ -50,6 +51,11 @@ public class Spec48Ntsc extends Spec48 {
   @Override
   public Set<MachineCapability> getCapabilities() {
     return Set.of(NTSC);
+  }
+
+  /** A snapshot does not say PAL or NTSC: a 48K one loads into the 48K. */
+  public MachineTypes snapshotModel() {
+    return null;
   }
 
   public int reset() {

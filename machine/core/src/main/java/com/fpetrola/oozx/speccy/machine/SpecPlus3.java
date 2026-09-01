@@ -42,6 +42,7 @@ import com.fpetrola.oozx.speccy.modules.Timer;
 import com.fpetrola.oozx.speccy.modules.z80.Cpu;
 import com.fpetrola.oozx.speccy.peripherals.*;
 import com.fpetrola.z80.helpers.Helper;
+import com.fpetrola.emulation.helpers.machine.MachineTypes;
 
 @Singleton
 public class SpecPlus3 extends Spec128 {
@@ -149,6 +150,10 @@ public class SpecPlus3 extends Spec128 {
 
   public byte ulaPortIdleValue(byte lastOut) {
     return (byte) 0xbf;
+  }
+
+  public MachineTypes snapshotModel() {
+    return MachineTypes.SPECTRUMPLUS3;
   }
 
   public int reset() {

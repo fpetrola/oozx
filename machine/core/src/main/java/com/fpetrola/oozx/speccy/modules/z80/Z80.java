@@ -60,6 +60,7 @@ import java.awt.event.*;
 import java.io.File;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
+import com.fpetrola.emulation.helpers.machine.MachineTypes;
 
 @Singleton
 public class Z80 implements ZxModule, Cpu {
@@ -403,23 +404,15 @@ public class Z80 implements ZxModule, Cpu {
    * that is known rather than from the leftovers of the last one.
    */
   private void selectMachineFor(SpectrumState snapshot) {
-    Class<?> wanted = switch (snapshot.getSpectrumModel()) {
-      case SPECTRUM128K -> Spec128.class;
-      case SPECTRUMPLUS2 -> SpecPlus2.class;
-      case SPECTRUMPLUS2A -> SpecPlus2A.class;
-      case SPECTRUMPLUS3 -> SpecPlus3.class;
-      default -> Spec48.class;
-    };
-    if (machine.current != null && machine.current.getClass() == wanted) {
+    MachineTypes wanted = snapshot.getSpectrumModel();
+    if (machine.current != null && machine.current.snapshotModel() == wanted) {
       return;
     }
-    machine.getMachineTypes().stream().filter(m -> m.getClass() == wanted).findFirst()
-        .ifPresentOrElse(type -> {
-          machine.selectDefault();
-          machine.select(type);
-        }, () -> userInterface.error(UiError.ERROR,
-            "this build has no %s, so the snapshot is loaded into the machine already running",
-            wanted.getSimpleName()));
+    machine.forSnapshotModel(wanted).ifPresentOrElse(type -> {
+      machine.selectDefault();
+      machine.select(type);
+    }, () -> userInterface.error(UiError.ERROR,
+        "this build has no %s, so the snapshot is loaded into the machine already running", wanted));
   }
 
 

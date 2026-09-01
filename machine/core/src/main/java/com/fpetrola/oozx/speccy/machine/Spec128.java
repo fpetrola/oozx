@@ -38,6 +38,7 @@ import com.fpetrola.oozx.speccy.modules.Display;
 import com.fpetrola.oozx.speccy.modules.EventManager;
 import com.fpetrola.oozx.speccy.modules.Timer;
 import com.fpetrola.oozx.speccy.modules.z80.Cpu;
+import com.fpetrola.emulation.helpers.machine.MachineTypes;
 
 @Singleton
 public class Spec128 extends Spectrum {
@@ -69,6 +70,11 @@ public class Spec128 extends Spectrum {
   @Override
   public Set<MachineCapability> getCapabilities() {
     return Set.of(AY, MEMORY_128);
+  }
+
+  @Override
+  public MachineTypes snapshotModel() {
+    return MachineTypes.SPECTRUM128K;
   }
 
   @Override

@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx.speccy.machine;
 
+import com.fpetrola.emulation.helpers.machine.MachineTypes;
 import com.fpetrola.oozx.MachineCapability;
 
 import java.util.Set;
@@ -53,6 +54,14 @@ public interface SpectrumMachine {
   }
 
   boolean portFromUla(int port);
+
+  /**
+   * Which machine a snapshot names when it was taken on this one, or null for a machine no
+   * snapshot format can name - a variant then loads into the machine it is a variant of.
+   */
+  default MachineTypes snapshotModel() {
+    return null;
+  }
 
   /** What the ULA's own port reads on the bits the keyboard does not drive, after this write to it. */
   default byte ulaPortIdleValue(byte lastOut) {

@@ -33,6 +33,7 @@ import java.util.Set;
 
 import static com.fpetrola.oozx.MachineCapability.AY;
 import static com.fpetrola.oozx.MachineCapability.MEMORY_128;
+import com.fpetrola.emulation.helpers.machine.MachineTypes;
 
 /**
  * A 1991-era Pentagon 128, the Russian clone with an AY and TR-DOS built in.
@@ -60,6 +61,12 @@ public class Pentagon extends Spec128 {
   @Override
   public Set<MachineCapability> getCapabilities() {
     return Set.of(AY, MEMORY_128);
+  }
+
+  /** No snapshot format here names a Pentagon, so it is never chosen by one. */
+  @Override
+  public MachineTypes snapshotModel() {
+    return null;
   }
 
   @Override

@@ -29,6 +29,7 @@ import com.fpetrola.oozx.speccy.modules.Display;
 import com.fpetrola.oozx.speccy.modules.EventManager;
 import com.fpetrola.oozx.speccy.modules.Timer;
 import com.fpetrola.oozx.speccy.modules.z80.Cpu;
+import com.fpetrola.emulation.helpers.machine.MachineTypes;
 
 @Singleton
 public class Spec48 extends Spectrum {
@@ -41,6 +42,10 @@ public class Spec48 extends Spectrum {
   // Initialize the Spectrum 48K speccyMachineInfo
 
   // Reset the Spectrum 48K machine
+  public MachineTypes snapshotModel() {
+    return MachineTypes.SPECTRUM48K;
+  }
+
   public int reset() {
     loadRom(0, settings.current.rom48, settings.defaults.rom48, 0x4000);
 

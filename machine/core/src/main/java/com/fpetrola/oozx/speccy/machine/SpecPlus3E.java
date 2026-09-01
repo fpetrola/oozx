@@ -29,6 +29,7 @@ import com.fpetrola.oozx.speccy.modules.Display;
 import com.fpetrola.oozx.speccy.modules.EventManager;
 import com.fpetrola.oozx.speccy.modules.Timer;
 import com.fpetrola.oozx.speccy.modules.z80.Cpu;
+import com.fpetrola.emulation.helpers.machine.MachineTypes;
 
 @Singleton
 public class SpecPlus3E extends SpecPlus3 {
@@ -36,6 +37,11 @@ public class SpecPlus3E extends SpecPlus3 {
   public SpecPlus3E(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Fdd fdd1, UPDFdc uPDFdc1, Sound sound, UserInterface userInterface) {
     super(memory, display, machinesPeriph, periph, settings, fdd1, uPDFdc1, eventManager, cpu, timer, module, sound, userInterface);
     init();
+  }
+
+  /** The +3e differs by its ROM, which no snapshot asks for. */
+  public MachineTypes snapshotModel() {
+    return null;
   }
 
   public int reset() {

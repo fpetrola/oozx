@@ -29,12 +29,17 @@ import com.fpetrola.oozx.speccy.modules.Display;
 import com.fpetrola.oozx.speccy.modules.EventManager;
 import com.fpetrola.oozx.speccy.modules.Timer;
 import com.fpetrola.oozx.speccy.modules.z80.Cpu;
+import com.fpetrola.emulation.helpers.machine.MachineTypes;
 
 @Singleton
 public class SpecPlus2 extends Spec128 {
   @Inject
   public SpecPlus2(Memory memory, Display display, MachinesPeriph machinesPeriph, PeriphDelegate periph, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
     super(memory, display, machinesPeriph, periph, settings, eventManager, cpu, timer, module, sound, userInterface);
+  }
+
+  public MachineTypes snapshotModel() {
+    return MachineTypes.SPECTRUMPLUS2;
   }
 
   public int reset() {
