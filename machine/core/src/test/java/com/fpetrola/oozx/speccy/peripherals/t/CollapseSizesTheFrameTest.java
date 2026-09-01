@@ -3,6 +3,7 @@ package com.fpetrola.oozx.speccy.peripherals.t;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.JDesktopPane;
+import javax.swing.JInternalFrame;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -41,6 +42,41 @@ class CollapseSizesTheFrameTest {
     window.setCompact(false);
     assertEquals(expanded, window.getHeight(),
         window.getTitle() + " did not open back to the size it was given");
+  }
+
+  /**
+   * The case the first fix missed, which is the one that happens: a window clipped onto the side
+   * of a machine. Placing one against a side only moved it, on purpose - a toolbar stretched to a
+   * machine's height is a column of empty space - and never resizing at all meant collapsing did
+   * nothing to the frame either.
+   */
+  @Test
+  void aWindowClippedToTheSideFoldsToo() throws Exception {
+    JDesktopPane desktop = desktop();
+    JInternalFrame machine = new JInternalFrame("machine");
+    machine.setBounds(400, 100, 400, 300);
+    desktop.add(machine);
+    machine.setVisible(true);
+
+    PrinterInternalFrame printer = new PrinterInternalFrame(window -> null);
+    desktop.add(printer);
+    printer.setVisible(true);
+    printer.setSize(320, 460);
+    printer.attachTo(machine);
+    // A side is chosen by dragging the window there, which needs events and a settling delay; the
+    // state that produces is this, and it is the state being tested.
+    java.lang.reflect.Field side = AttachedFrame.class.getDeclaredField("dock");
+    side.setAccessible(true);
+    side.set(printer, AttachedFrame.Dock.RIGHT);
+
+    printer.setCompact(false);
+    assertTrue(printer.getHeight() > 200, "it did not open: " + printer.getHeight());
+    int wide = printer.getWidth();
+
+    printer.setCompact(true);
+    assertTrue(printer.getHeight() < 140,
+        "clipped to the side, it folded its contents away and stayed " + printer.getHeight() + " tall");
+    assertEquals(wide, printer.getWidth(), "collapsing changed its width, which is not its business");
   }
 
   @Test

@@ -71,6 +71,16 @@ public class PrinterPaper extends JPanel {
   /** Whether to draw a printout or the dots themselves, which is what a printer test wants to see. */
   private boolean filtered = true;
 
+  /**
+   * Whether the view is watching the paper come out. True until somebody scrolls away from the
+   * end, true again the moment they come back to it - which is how anything that shows something
+   * arriving behaves, and the only way that keeps working when a row makes the paper longer than
+   * the window can show. Asking "is the bottom in view" at the moment a row arrives cannot: one
+   * row that lands while the view is a few pixels behind turns following off for good.
+   */
+  private boolean following = true;
+  private boolean scrollingItself;
+
   public PrinterPaper(Printout paper) {
     setBackground(new Color(0x2e, 0x30, 0x2c));
     setPrintout(paper);
@@ -197,14 +207,43 @@ public class PrinterPaper extends JPanel {
 
   private void rowArrived() {
     strip = null;
-    // Following the paper out of the printer, unless whoever is looking has scrolled away to read
-    // something further up, in which case moving the view under them is rude.
+    scrollingItself = true;
+    try {
+      revalidate();
+      // Laid out here and not left for later: the panel has to be its new, taller self before
+      // anything can scroll to the bottom of it, and a scroll asked for before that is quietly
+      // clamped to where the bottom used to be.
+      if (getParent() != null) {
+        getParent().doLayout();
+      }
+      repaint();
+      if (following) {
+        scrollRectToVisible(new Rectangle(0, getPreferredSize().height - 1, 1, 1));
+      }
+    } finally {
+      scrollingItself = false;
+    }
+  }
+
+  /** Whether the end of the paper is in view, within a few rows of slack. */
+  private boolean showingTheEnd() {
     Rectangle shown = getVisibleRect();
-    boolean atTheEnd = shown.y + shown.height >= getHeight() - (int) (2 * zoom) - 1;
-    revalidate();
-    repaint();
-    if (atTheEnd) {
-      SwingUtilities.invokeLater(() -> scrollRectToVisible(new Rectangle(0, getHeight() - 1, 1, 1)));
+    return shown.y + shown.height >= getHeight() - Math.max(MARGIN, (int) (3 * zoom));
+  }
+
+  /**
+   * Every way of scrolling ends here - the wheel, the bars, a hand on the paper - so this is where
+   * to notice that somebody has stopped watching the end, and that they have come back to it.
+   */
+  @Override
+  public void addNotify() {
+    super.addNotify();
+    if (getParent() instanceof javax.swing.JViewport viewport) {
+      viewport.addChangeListener(moved -> {
+        if (!scrollingItself) {
+          following = showingTheEnd();
+        }
+      });
     }
   }
 

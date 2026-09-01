@@ -533,15 +533,20 @@ public abstract class AttachedFrame extends JInternalFrame {
     compact = wanted;
     detail.setVisible(!wanted);
     expandButton.setSelected(!wanted);
-    // Asked whether it is clipped onto something, not which side it would clip onto: a window
-    // that has never been attached still says BOTTOM, and taking that as attached sent it to
-    // place(), which returns at once when there is no machine - so the content folded away and
-    // the frame stayed the size it was.
+    // Who decides the height here. Along the top or the bottom the machine does, through place().
+    // Loose, or against a side - where attaching is a move and never a resize - this window's own
+    // height is its own business, and folding is exactly that: it used to hide the contents and
+    // leave the frame standing at whatever size it had. Asked as "is it clipped onto something",
+    // not as "which side would it clip onto": a window that has never been attached still says
+    // BOTTOM, and taking that as attached sent it to place(), which returns at once with no
+    // machine, so nothing resized at all.
+    boolean machineSetsTheHeight = isAttached() && (dock == Dock.TOP || dock == Dock.BOTTOM);
+    if (!machineSetsTheHeight) {
+      placedHeight = wanted ? compactHeight() : Math.max(compactHeight(), chosenHeight);
+      setSize(getWidth(), placedHeight);
+    }
     if (isAttached()) {
       place();
-    } else {
-      placedHeight = wanted ? compactHeight() : chosenHeight;
-      setSize(getWidth(), placedHeight);
     }
     revalidate();
     repaint();
