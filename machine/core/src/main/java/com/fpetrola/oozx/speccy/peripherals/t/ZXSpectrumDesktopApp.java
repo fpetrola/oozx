@@ -488,6 +488,11 @@ class EmulatorInternalFrame extends JInternalFrame {
     });
     toolBar.add(changeSize);
 
+    JButton snapshotButton = iconButton("E260.svg", "Snapshot",
+        "Save this machine exactly as it is, to open again later");
+    snapshotButton.addActionListener(e -> saveSnapshot());
+    toolBar.add(snapshotButton);
+
     JButton screenButton = new JButton(loadIcon("1F39B.svg"));
     screenButton.setToolTipText("Screen - scaling, television and colour");
     screenButton.addActionListener(e -> {
@@ -531,6 +536,30 @@ class EmulatorInternalFrame extends JInternalFrame {
     revalidate();
     repaint();
     panel.requestFocusInWindow();
+  }
+
+  /**
+   * Writes this machine to a file exactly as it stands, so getting back here is opening it.
+   * <p>
+   * Reaching an interesting state can be most of the work - a program loaded from tape, set up,
+   * and left on the screen worth looking at - and until now that state could only be reached
+   * again by doing all of it over. The file opens like any other: the machine it describes is
+   * built from it.
+   */
+  private void saveSnapshot() {
+    JFileChooser chooser = new JFileChooser();
+    String name = emulatorCore.getFilename();
+    name = name == null ? "snapshot" : new java.io.File(name).getName().replaceAll("\\.[^.]*$", "");
+    chooser.setSelectedFile(new java.io.File(name + ".z80"));
+    if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+      return;
+    }
+    java.io.File file = chooser.getSelectedFile();
+    emulatorCore.saveState(file.getAbsolutePath());
+    setTitle(getTitle() + "");
+    JOptionPane.showMessageDialog(this, file.getName() + " written.\n\n"
+        + "Open it the way you would open a tape and the machine comes back as it is now.",
+        "Snapshot", JOptionPane.INFORMATION_MESSAGE);
   }
 
   /** Every toolbar in the application draws its icons at this size. */

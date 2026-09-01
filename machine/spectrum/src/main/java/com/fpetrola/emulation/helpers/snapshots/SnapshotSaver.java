@@ -68,6 +68,10 @@ public class SnapshotSaver {
 
       // Copiar otros estados (AY8912, etc)
       spectrumState.setAY8912State(new AY8912State());
+      // The writer asks the state which joystick to record, and nothing here had ever answered:
+      // saving threw on the question rather than writing a file. None is the honest answer - a
+      // joystick is a thing plugged into the machine, not a thing the machine remembers.
+      spectrumState.setJoystick(com.fpetrola.emulation.helpers.machine.Keyboard.JoystickModel.NONE);
       spectrumState.setTstates(state.clock.getTStates());
 
       // Guardar usando SnapshotZ80

@@ -74,9 +74,18 @@ public class MockEmulatorCore implements EmulatorCore {
     System.out.println("Mock: Loading file " + filePath);
   }
 
+  /**
+   * Writes the machine as it stands to a file, which can be opened again like any other.
+   * <p>
+   * Here rather than in the emulator that has the registers, because the two things it needs -
+   * the registers and the state - are already on this interface, and every core that has them
+   * can be saved. It printed a line and did nothing before, which is why the button that would
+   * have called it was commented out.
+   */
   @Override
   public void saveState(String filePath) {
-    System.out.println("Mock: Saving state to " + filePath);
+    com.fpetrola.emulation.helpers.snapshots.SnapshotSaver.setupSnapshotWithState(
+        getRegistersGetter(), filePath, getState());
   }
 
   @Override
