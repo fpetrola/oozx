@@ -1118,6 +1118,10 @@ public class ZXSpectrumDesktopApp extends JFrame {
     tapeBrowserItem.addActionListener(e -> showTapeBrowser());
     emulatorMenu.add(tapeBrowserItem);
 
+    JMenuItem audioInItem = new JMenuItem("Real Cassette (audio in)...");
+    audioInItem.addActionListener(e -> showAudioIn());
+    emulatorMenu.add(audioInItem);
+
     JMenuItem gameBrowserMenuItem = new JMenuItem("Game Browser...");
     gameBrowserMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.CTRL_DOWN_MASK));
     gameBrowserMenuItem.addActionListener(e -> openGameBrowser());
@@ -2421,6 +2425,19 @@ public class ZXSpectrumDesktopApp extends JFrame {
       }
     }
     return null;
+  }
+
+  /** A window on what is coming in the sound card, for a cassette player with a real lead. */
+  public AudioInInternalFrame showAudioIn() {
+    AudioInInternalFrame watching = new AudioInInternalFrame(this::deckOf);
+    watching.setLocation(60 + (desktop.getAllFrames().length * 20) % 200,
+        60 + (desktop.getAllFrames().length * 20) % 160);
+    desktop.add(watching);
+    watching.setVisible(true);
+    // Clipped onto the machine in front, which is what puts its lead in that machine's ear.
+    watching.setMachineWindow(getActiveEmulator());
+    watching.toFront();
+    return watching;
   }
 
   /** Asks for a tape file and loads it into the cassette browser. No emulator is needed. */

@@ -576,6 +576,11 @@ public class Tape implements ClockTimeoutListener {
 
     @Override
     public void clockTimeout() {
+        if (earSource != null) {
+            setEarBit(earSource.earHigh());
+            clock.setTimeout(tstatesPerSample());
+            return;
+        }
 
         switch (tapeExtension) {
             case TAP:
@@ -711,6 +716,48 @@ public class Tape implements ClockTimeoutListener {
         return true;
     }
 
+    /**
+     * Something other than a file driving the ear line: a real cassette player on the sound card.
+     * <p>
+     * Where the level comes from has been the kind of tape in the deck and nothing else, decided
+     * by a switch over the file formats. A player with a lead in the line input is not a format,
+     * so it arrives here instead: asked once per sample, ahead of that switch.
+     */
+    public interface EarSource {
+        boolean earHigh();
+    }
+
+    private EarSource earSource;
+
+    /**
+     * Takes the ear level from outside, or stops taking it when given null.
+     * <p>
+     * The machine is asked once per sound-card sample, which at this machine's clock is what the
+     * timeout below counts. Faster would read the same sample twice and slower would step over
+     * edges, and a tape read with its edges stepped over is a tape that does not load.
+     */
+    public void takeEarFrom(EarSource source) {
+        if (earSource != null) {
+            clock.removeClockTimeoutListener(this);
+        }
+        earSource = source;
+        if (source != null) {
+            clock.addClockTimeoutListener(this);
+            clock.setTimeout(tstatesPerSample());
+        }
+    }
+
+    public boolean isTakingEarFromOutside() {
+        return earSource != null;
+    }
+
+    private int tstatesPerSample() {
+        return Math.max(1, spectrumModel.clockFreq / SAMPLE_RATE);
+    }
+
+    /** What {@link com.fpetrola.oozx.speccy.sound.AudioIn} records at. */
+    private static final int SAMPLE_RATE = 44100;
+
     public int getEarBit() {
         return earBit;
     }
@@ -733,7 +780,7 @@ public class Tape implements ClockTimeoutListener {
     }
 
     public boolean isTapeRunning() {
-        return tapePlaying || tapeRecording;
+        return tapePlaying || tapeRecording || earSource != null;
     }
 
     public boolean isTapeInserted() {
