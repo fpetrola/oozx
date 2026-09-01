@@ -109,6 +109,9 @@ public class Ula implements ZxModule, MachineChangeListener {
 
   // Register ULA with startup manager
 
+  /** Bit 6 of the ULA port: what the tape is saying, as against bits 0 to 4, which are the keys. */
+  private static final int EAR = 0x40;
+
   // Read from ULA port
   public byte read(int port, byte[] attached) {
     byte r = defaultValue;
@@ -117,13 +120,15 @@ public class Ula implements ZxModule, MachineChangeListener {
     r &= PhantomTypist.ulaRead(port);
     byte read = keyboard.read((byte) (port >> 8));
     r &= read;
-    if (tape.microphone) r ^= 0x40;
+    if (tape.microphone) r ^= EAR;
 
-    int earBit = tape.getEarBit();
+    // Only the ear bit comes from the tape. Taking the whole byte threw the keyboard away with
+    // it: bit 6 is the tape, bits 0 to 4 are the keys, and a machine reading this port is asking
+    // about both at once. It went unnoticed while the only thing that made a tape "running" was
+    // a file playing, because nobody types during a load - but a real cassette player plugged
+    // into the ear line is running the whole time it is plugged in, and the keyboard was dead.
     if (tape.isTapeRunning()) {
-//        if (earBit != 0xff)
-//          System.out.println("dasgag");
-      r = (byte) earBit;
+      r = (byte) ((r & ~EAR) | (tape.getEarBit() & EAR));
     }
 
     return r;
