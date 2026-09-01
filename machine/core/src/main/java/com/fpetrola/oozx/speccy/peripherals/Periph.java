@@ -107,13 +107,6 @@ public class Periph implements IPeriph {
   private final String PAGE_EVENT_STRING = "page";
   private final String UNPAGE_EVENT_STRING = "unpage";
 
-//  // Register a peripheral with the system
-//  public  void register(Type type, Peripheral peripheral) {
-//    ZxPeripheralAdapter peripheral1 = new ZxPeripheralAdapter(type, peripheral);
-//
-//    register(peripheral1);
-//  }
-
   @Override
   public void register(ZxPeripheral zxPeripheral) {
     if (peripherals == null) {
