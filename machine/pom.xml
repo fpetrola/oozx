@@ -26,6 +26,7 @@
         <module>generated</module>
         <module>zxinfo</module>
         <module>pokes</module>
+        <module>bridge</module>
     </modules>
 
 </project>
