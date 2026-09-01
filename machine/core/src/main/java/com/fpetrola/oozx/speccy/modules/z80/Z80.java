@@ -90,7 +90,13 @@ public class Z80 implements ZxModule, Cpu {
   private volatile boolean emulatorPaused;
   private final Timer timer;
   public EmulatorCore mockCore;
-  private Runnable changeMachine;
+  /**
+   * Work asked for from outside the emulation, run where stopping is safe.
+   * <p>
+   * Volatile because the asking is done on the event thread and the running on this one.
+   */
+  private volatile Runnable changeMachine;
+  private volatile Runnable speedChange;
   private final Module module;
   private final EmulationSession session;
   private final Sound sound;
@@ -508,9 +514,20 @@ public class Z80 implements ZxModule, Cpu {
       }
     }
 
-    if (changeMachine != null) {
-      changeMachine.run();
+    Runnable machine = changeMachine;
+    if (machine != null) {
       changeMachine = null;
+      machine.run();
+    }
+
+    // Changing speed rebuilds the output and hands every source a new synth, which cannot be
+    // done while this thread is in the middle of mixing a frame with the old ones. Asked for
+    // from the event thread, done here. Asking twice before it is done keeps the last answer,
+    // which is what pressing the button twice quickly means.
+    Runnable speed = speedChange;
+    if (speed != null) {
+      speedChange = null;
+      speed.run();
     }
   }
 
@@ -639,7 +656,7 @@ public class Z80 implements ZxModule, Cpu {
       }
 
       public void changeSpeed1(int emulationSpeed) {
-        changeSpeed(emulationSpeed);
+        speedChange = () -> changeSpeed(emulationSpeed);
         notifyTurboModeChange(turbo);
         notifyEmulationSpeedChange(Z80.emulationSpeed);
       }
