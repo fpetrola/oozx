@@ -105,6 +105,27 @@ class KempstonMousePortsTest {
     assertEquals(0xFD, read(speccy, BUTTONS), "letting go puts its bit back up and no other");
   }
 
+  /**
+   * The price of never reporting a move the program would read backwards, said out loud.
+   * <p>
+   * A hand that gets further ahead than two readings can carry has moved faster than this mouse
+   * resolves, and the rest is not reported at all. A real one does the same - it has a limit to
+   * how fast it can count - and the pointer stays under the hand rather than crawling along
+   * behind it paying off a debt.
+   */
+  @Test
+  void a_stroke_faster_than_the_mouse_resolves_is_not_reported_at_all() {
+    Speccy speccy = plugged(true);
+    KempstonMouse mouse = mouseOf(speccy).mouse();
+
+    mouse.moved(300, 0);                        // one impossible flick
+
+    assertEquals(127, read(speccy, X), "the first reading carries as much as a reading can");
+    assertEquals(254, read(speccy, X), "and the second the rest of what was kept");
+    assertEquals(254, read(speccy, X), "the other 46 were never resolved, so they never arrive");
+    assertEquals(0, mouse.owed(), "and nothing is left owing to arrive late");
+  }
+
   @Test
   void the_counts_wrap_rather_than_stop() {
     Speccy speccy = plugged(true);
@@ -113,11 +134,11 @@ class KempstonMousePortsTest {
     // A program reads the difference from what it read last, so a counter that stopped at its
     // end would freeze the pointer against an edge that does not exist on the desk. Three
     // hundred is more than one reading can carry, so it arrives over two of them.
-    mouse.moved(300, 0);
-    // Three hundred is more than two readings can carry between them, so it arrives over
-    // three - none of which is a jump the program would read as going the other way.
-    read(speccy, X);
-    read(speccy, X);
+    // Moved in strokes a reading can carry, so nothing is dropped and the total is exact.
+    for (int stroke = 0; stroke < 3; stroke++) {
+      mouse.moved(100, 0);
+      read(speccy, X);
+    }
     assertEquals(300 & 0xFF, read(speccy, X), "the count wraps at eight bits");
     mouse.moved(-1, 0);
     assertNotEquals(300 & 0xFF, read(speccy, X), "and goes backwards as happily as forwards");

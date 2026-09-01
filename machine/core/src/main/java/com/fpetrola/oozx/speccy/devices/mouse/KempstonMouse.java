@@ -78,14 +78,41 @@ public class KempstonMouse {
   private int buttons = WRAP;
 
   /**
-   * Movement the program has not been shown yet.
+   * Movement the program has not been shown yet, and never more than one more reading's worth.
    * <p>
-   * A hand can always move faster than a program looks. Rather than hand over a difference that
-   * cannot be read, the rest is kept and given at the next reading: the pointer arrives a
-   * fiftieth of a second late instead of leaping backwards, and nothing is thrown away.
+   * A hand can always move faster than a program looks. What is over what a reading can carry is
+   * held back and given at the next one, so a quick stroke arrives a fiftieth of a second late
+   * rather than leaping backwards.
+   * <p>
+   * But only that much. Keeping ALL of it turns a hand that is faster than the program into a
+   * debt that grows for as long as somebody keeps moving, and a pointer that crawls along
+   * playing catch-up minutes later - which is not what a mouse does. Past this, the movement is
+   * dropped, exactly as it is on a real one: a mouse that cannot resolve how fast you moved
+   * simply does not report it, and the pointer stays under the hand instead of behind it.
    */
   private int owedX;
   private int owedY;
+
+  /**
+   * Whether a stroke too quick to be read at once arrives at the next reading, or not at all.
+   * <p>
+   * Carried, the pointer is exact but a fiftieth of a second behind on quick strokes. Dropped,
+   * it is always under the hand and quick strokes simply move it less far, which is how a mouse
+   * that cannot count that fast behaves. Neither is wrong; which one feels right depends on the
+   * program and on the hand, so it is a knob rather than a decision made here.
+   */
+  private boolean carryOver = true;
+
+  public void setCarryOver(boolean wanted) {
+    carryOver = wanted;
+    if (!wanted) {
+      owedX = owedY = 0;
+    }
+  }
+
+  public boolean isCarryOver() {
+    return carryOver;
+  }
 
   /**
    * How far each counter has moved since the program last looked at it.
@@ -102,7 +129,14 @@ public class KempstonMouse {
     owedX += dx;
     owedY -= dy;
     payWhatCanBeRead();
+    owedX = carryOver ? keepAtMostOneReading(owedX) : 0;
+    owedY = carryOver ? keepAtMostOneReading(owedY) : 0;
     watcher.handMoved(dx, dy, x, y);
+  }
+
+  /** What is owed beyond one more reading is not late, it is gone, as it would be on a desk. */
+  private static int keepAtMostOneReading(int owed) {
+    return Math.max(-MOST_ONE_READING_CAN_SHOW, Math.min(MOST_ONE_READING_CAN_SHOW, owed));
   }
 
   /** Hands over as much as this reading can still carry, and keeps the rest for the next one. */
