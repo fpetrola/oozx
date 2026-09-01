@@ -19,7 +19,6 @@
 // src/main/java/com/example/Main.java
 package com.fpetrola.oozx.api;
 
-import com.fpetrola.oozx.speccy.peripherals.t.GameBrowserInternalFrame;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
@@ -138,7 +137,7 @@ public class ZxInfoApiHandler {
     if (entry.screens != null && !entry.screens.isEmpty()) {
       detail.screenshots = new java.util.ArrayList<>();
       for (Object screenMap : entry.screens) {
-        Screen screen = GameBrowserInternalFrame.getScreen(screenMap);
+        Screen screen = Screen.from(screenMap);
         if (screen != null) {
           String screenshotUrl = null;
           // Try to use URL if available

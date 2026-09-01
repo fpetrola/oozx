@@ -390,7 +390,7 @@ public class GameDetailsDialogEnhanced extends JDialog {
       screenshotsGridPanel.setLayout(new GridLayout(rows, cols, 10, 10));
 
       for (Object screenMap : gameEntry.screens) {
-        Screen screen = GameBrowserInternalFrame.getScreen(screenMap);
+        Screen screen = Screen.from(screenMap);
 
         if (screen != null) {
           JPanel screenshotPanel = new JPanel(new BorderLayout());

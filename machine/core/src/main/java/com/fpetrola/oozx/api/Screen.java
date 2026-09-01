@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Screen {
+  private static final com.google.gson.Gson GSON = new com.google.gson.Gson();
+
     public int entry_id;
     public String release_seq;
     public String filename;
@@ -32,4 +34,18 @@ public class Screen {
     public String type;
     public String format;
     public String title;
+
+  /**
+   * One of these out of whatever the API handed back, or null if it is not one.
+   * <p>
+   * It lived as a static on the game browser's window, so a class that talks to a web service
+   * imported a window to read its own answers.
+   */
+  public static Screen from(Object fromTheApi) {
+    try {
+      return GSON.fromJson(GSON.toJson(fromTheApi), Screen.class);
+    } catch (com.google.gson.JsonSyntaxException notOne) {
+      return null;
+    }
+  }
 }

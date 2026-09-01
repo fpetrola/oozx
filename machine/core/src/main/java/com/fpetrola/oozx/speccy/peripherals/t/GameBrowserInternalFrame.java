@@ -397,7 +397,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
       if (game.contentType.equals("SOFTWARE")) {
         List<String> screenshots = new ArrayList<>();
         game.screens.forEach(s1 -> {
-          Screen screen = getScreen(s1);
+          Screen screen = Screen.from(s1);
 
           if (screen != null) {
             String filename = getFileURL(screen.url);
@@ -481,16 +481,6 @@ public class GameBrowserInternalFrame extends JInternalFrame {
       return "https://spectrumcomputing.co.uk" + f1;
 
     return result;
-  }
-
-  public static Screen getScreen(Object s1) {
-    Screen screen = null;
-    try {
-      screen = gson.fromJson(gson.toJson(s1), Screen.class);
-    } catch (JsonSyntaxException e) {
-//      e.printStackTrace();
-    }
-    return screen;
   }
 
   private String getFileURL(List<String> screenshots, int x) {
