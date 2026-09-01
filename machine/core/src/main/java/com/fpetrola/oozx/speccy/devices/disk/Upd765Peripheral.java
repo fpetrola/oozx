@@ -21,7 +21,6 @@ package com.fpetrola.oozx.speccy.devices.disk;
 
 import com.fpetrola.oozx.speccy.peripherals.AbstractPeripheral;
 
-import com.fpetrola.oozx.speccy.machine.SpecPlus3;
 
 import com.fpetrola.oozx.MachineCapability;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;

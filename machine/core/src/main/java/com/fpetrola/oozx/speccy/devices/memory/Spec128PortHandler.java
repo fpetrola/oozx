@@ -20,7 +20,6 @@ package com.fpetrola.oozx.speccy.devices.memory;
 
 import com.fpetrola.oozx.speccy.ports.DefaultPortHandler;
 
-import com.fpetrola.oozx.speccy.machine.Spec128;
 import java.util.function.Supplier;
 import com.fpetrola.oozx.speccy.machine.Paging128;
 

@@ -20,7 +20,6 @@ package com.fpetrola.oozx.speccy.devices.disk;
 
 import com.fpetrola.oozx.speccy.ports.DefaultPortHandler;
 
-import com.fpetrola.oozx.speccy.machine.SpecPlus3;
 import java.util.function.Supplier;
 import com.fpetrola.oozx.speccy.machine.FloppyDrive;
 

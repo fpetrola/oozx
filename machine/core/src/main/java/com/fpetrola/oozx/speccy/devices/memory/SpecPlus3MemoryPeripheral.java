@@ -21,7 +21,6 @@ package com.fpetrola.oozx.speccy.devices.memory;
 
 import com.fpetrola.oozx.speccy.peripherals.AbstractPeripheral;
 
-import com.fpetrola.oozx.speccy.machine.SpecPlus3;
 
 import java.util.List;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
