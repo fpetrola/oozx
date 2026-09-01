@@ -45,7 +45,7 @@ import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.emulation.helpers.machine.MachineTypes;
 
 @Singleton
-public class SpecPlus3 extends Spec128 {
+public class SpecPlus3 extends Spec128 implements PagingPlus3, FloppyDrive {
   private UPDFdc specplus3Fdc;
   public Fdd fdd;
   public UPDFdc uPDFdc;
@@ -65,15 +65,6 @@ public class SpecPlus3 extends Spec128 {
 
   public int contendDelayNoMreq(long time) {
     return contendDelayNone(time);
-  }
-
-  @Override
-  public void init() {
-    super.init();
-    peripherals.register(new SpecPlus3MemoryPeripheral(this));
-    peripherals.register(new Upd765Peripheral(this));
-    // The same chip wired as this family wires it, its data port answering when read.
-    peripherals.register(new AyPlus3Peripheral(sound, z80Clock));
   }
 
   public Fdd[] specplus3Drives = new Fdd[SpecPlus3Constants.SPECPLUS3_NUM_DRIVES];

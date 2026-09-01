@@ -26,13 +26,20 @@ import com.fpetrola.oozx.speccy.machine.SpecPlus3;
 import java.util.List;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.MachineCapability;
+import com.fpetrola.oozx.speccy.machine.PagingPlus3;
 
 public class SpecPlus3MemoryPeripheral extends AbstractPeripheral {
-  public SpecPlus3MemoryPeripheral(SpecPlus3 specPlus3) {
-    super(List.of(
-        new Spec128PortHandler(0xc002, 0x4000, specPlus3),
-        new SpecPlus3PortHandler(0xf002, 0x1000, specPlus3)
-    ));
+  private PagingPlus3 machine;
+
+  public SpecPlus3MemoryPeripheral() {
+    super(List.of());
+    ports(new Spec128PortHandler(0xc002, 0x4000, () -> machine),
+        new SpecPlus3PortHandler(0xf002, 0x1000, () -> machine));
+  }
+
+  @Override
+  public void activate(SpectrumMachine machine) {
+    this.machine = (PagingPlus3) machine;
   }
 
   public boolean fitsOn(SpectrumMachine machine) {

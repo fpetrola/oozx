@@ -33,14 +33,9 @@ public class UlaPeripheral extends AbstractPeripheral {
     super(List.of(new UlaPortHandler(ula)));
     this.ula = ula;
   }
-  @Override
-  public boolean canActivate() {
-    return true;
-  }
-
   /** Every machine has a speaker, and it is part of the ULA. */
   @Override
-  public void activate() {
+  public void activate(SpectrumMachine machine) {
     ula.attachSpeaker();
   }
 

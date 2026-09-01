@@ -29,8 +29,16 @@ import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.MachineCapability;
 
 public class SeMemoryPeripheral extends AbstractPeripheral {
-  public SeMemoryPeripheral(Spectrum spectrum) {
-    super(List.of(new SeMemoryPortHandler(spectrum)));
+  private SpectrumMachine machine;
+
+  public SeMemoryPeripheral() {
+    super(List.of());
+    ports(new SeMemoryPortHandler(() -> machine));
+  }
+
+  @Override
+  public void activate(SpectrumMachine machine) {
+    this.machine = machine;
   }
 
   public boolean fitsOn(SpectrumMachine machine) {

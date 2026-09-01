@@ -68,8 +68,14 @@ public class Peripherals implements PeripheralBus {
     this.settings = settings;
   }
 
+  /**
+   * Everything is switched off when the machine changes, and switched on again by the update that
+   * follows: a device binds to the machine it was switched on for, so one left on across the
+   * change would go on answering for the machine that is no longer there.
+   */
   public void machineChanged(SpectrumMachine newMachine) {
     spectrumMachine = newMachine;
+    clear();
   }
 
   // Private structure for peripheral data
@@ -127,9 +133,7 @@ public class Peripherals implements PeripheralBus {
     privatePeriph.active = active;
 
     if (active) {
-      if (privatePeriph.peripheral.canActivate()) {
-        privatePeriph.peripheral.activate();
-      }
+      privatePeriph.peripheral.activate(getSpectrumMachine());
       for (PortHandler port : privatePeriph.peripheral.getPorts()) {
         PrivatePort privatePort = new PrivatePort(type, port);
         ports.add(privatePort);

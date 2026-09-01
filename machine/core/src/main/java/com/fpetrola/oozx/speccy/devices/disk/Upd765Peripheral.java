@@ -27,13 +27,20 @@ import com.fpetrola.oozx.MachineCapability;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 
 import java.util.List;
+import com.fpetrola.oozx.speccy.machine.FloppyDrive;
 
 public class Upd765Peripheral extends AbstractPeripheral {
-  public Upd765Peripheral(SpecPlus3 specPlus3) {
-    super(List.of(
-        new FdcPortHandler(0xf002, 0x3000, specPlus3),
-        new FdcStatusPortHandler(0xf002, 0x2000, specPlus3)
-    ));
+  private FloppyDrive machine;
+
+  public Upd765Peripheral() {
+    super(List.of());
+    ports(new FdcPortHandler(0xf002, 0x3000, () -> machine),
+        new FdcStatusPortHandler(0xf002, 0x2000, () -> machine));
+  }
+
+  @Override
+  public void activate(SpectrumMachine machine) {
+    this.machine = (FloppyDrive) machine;
   }
 
   /** The drive is the +3's; a +2A is the same machine without one. */

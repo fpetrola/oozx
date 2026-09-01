@@ -21,17 +21,19 @@ package com.fpetrola.oozx.speccy.devices.memory;
 import com.fpetrola.oozx.speccy.ports.DefaultPortHandler;
 
 import com.fpetrola.oozx.speccy.machine.Spec128;
+import java.util.function.Supplier;
+import com.fpetrola.oozx.speccy.machine.Paging128;
 
 class Spec128PortHandler extends DefaultPortHandler {
-  private Spec128 spec128;
+  private final Supplier<? extends Paging128> machine;
 
-  public Spec128PortHandler(int mask, int value, Spec128 spec128) {
+  public Spec128PortHandler(int mask, int value, Supplier<? extends Paging128> machine) {
     super(mask, value, false, true);
-    this.spec128 = spec128;
+    this.machine = machine;
   }
 
   public void write(int port, byte value) {
-    spec128.memoryPortWrite(port, value);
+    machine.get().memoryPortWrite(port, value);
   }
 
   /**
@@ -40,7 +42,7 @@ class Spec128PortHandler extends DefaultPortHandler {
    * family and the Pentagon, leaves nothing there to hear.
    */
   public boolean listensToBusReads() {
-    return spec128.hasFloatingBus();
+    return machine.get().hasFloatingBus();
   }
 
   public void busRead(int port, byte onTheBus) {

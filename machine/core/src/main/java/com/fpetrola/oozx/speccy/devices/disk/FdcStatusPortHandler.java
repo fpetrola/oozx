@@ -21,16 +21,18 @@ package com.fpetrola.oozx.speccy.devices.disk;
 import com.fpetrola.oozx.speccy.ports.DefaultPortHandler;
 
 import com.fpetrola.oozx.speccy.machine.SpecPlus3;
+import java.util.function.Supplier;
+import com.fpetrola.oozx.speccy.machine.FloppyDrive;
 
 class FdcStatusPortHandler extends DefaultPortHandler {
-  private SpecPlus3 specPlus3;
+  private final Supplier<FloppyDrive> machine;
 
-  public FdcStatusPortHandler(int mask, int value, SpecPlus3 specPlus3) {
+  public FdcStatusPortHandler(int mask, int value, Supplier<FloppyDrive> machine) {
     super(mask, value, true, true);
-    this.specPlus3 = specPlus3;
+    this.machine = machine;
   }
 
   public byte read(int port, byte[] attached) {
-    return specPlus3.fdcStatus(port, attached);
+    return machine.get().fdcStatus(port, attached);
   }
 }

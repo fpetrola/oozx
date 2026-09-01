@@ -21,16 +21,18 @@ package com.fpetrola.oozx.speccy.devices.memory;
 import com.fpetrola.oozx.speccy.ports.DefaultPortHandler;
 
 import com.fpetrola.oozx.speccy.machine.SpecPlus3;
+import java.util.function.Supplier;
+import com.fpetrola.oozx.speccy.machine.PagingPlus3;
 
 class SpecPlus3PortHandler extends DefaultPortHandler {
-  private SpecPlus3 specPlus3;
+  private final Supplier<PagingPlus3> machine;
 
-  public SpecPlus3PortHandler(int mask, int value, SpecPlus3 specPlus3) {
+  public SpecPlus3PortHandler(int mask, int value, Supplier<PagingPlus3> machine) {
     super(mask, value, false, true);
-    this.specPlus3 = specPlus3;
+    this.machine = machine;
   }
 
   public void write(int port, byte value) {
-    specPlus3.memoryPort2Write(port, value);
+    machine.get().memoryPort2Write(port, value);
   }
 }

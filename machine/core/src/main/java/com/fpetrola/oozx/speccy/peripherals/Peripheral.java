@@ -22,9 +22,8 @@ import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.ports.PortHandler;
 
 public interface Peripheral {
-  boolean canActivate();
-
-  void activate();
+  /** Switched on for the machine that is running, which is the only one it will answer for. */
+  void activate(SpectrumMachine machine);
 
   /** Switched off: put back whatever activating took. */
   void deactivate();

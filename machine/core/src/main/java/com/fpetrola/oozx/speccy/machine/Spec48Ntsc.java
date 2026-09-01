@@ -42,10 +42,6 @@ public class Spec48Ntsc extends Spec48 {
   @Inject
   public Spec48Ntsc(Memory memory, Display display, PeripheralBusDelegate peripherals, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
     super(memory, display, peripherals, settings, eventManager, cpu, timer, module, sound, userInterface);
-    init();
-  }
-
-  public void init() {
   }
 
   @Override

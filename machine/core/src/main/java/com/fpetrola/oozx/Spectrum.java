@@ -66,9 +66,6 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
     this.sound = sound;
   }
 
-  protected void init() {
-  }
-
   public void loadRomBankFromBuffer(MemoryPage[] bankMap, int pageNum, byte[] buffer, int length, boolean custom) {
     int offset = 0;
     int[] data = new int[length];

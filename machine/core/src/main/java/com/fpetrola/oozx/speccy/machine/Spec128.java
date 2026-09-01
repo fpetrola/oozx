@@ -41,7 +41,7 @@ import com.fpetrola.oozx.speccy.modules.z80.Cpu;
 import com.fpetrola.emulation.helpers.machine.MachineTypes;
 
 @Singleton
-public class Spec128 extends Spectrum {
+public class Spec128 extends Spectrum implements Paging128 {
   @Inject
   public Spec128(Memory memory, Display display, PeripheralBusDelegate peripherals, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
     this(memory, display, peripherals, settings, eventManager, cpu, timer, module, new Spec48RamInfo(8), sound, userInterface);
@@ -52,21 +52,6 @@ public class Spec128 extends Spectrum {
   }
 
   /** The 128 is the first with a sound chip and with paging through port 0x7ffd. */
-  /**
-   * What this machine is made of, registered again whenever it is selected.
-   * <p>
-   * Its own, and its subclasses' own: the peripheral is built with this, so a +2 selecting itself
-   * gets one bound to a +2. Peripherals are held in a map keyed by their class, so only the last
-   * registration of a kind is kept - which is right exactly because selecting a machine is what
-   * registers it, and the machine in front is therefore the one its ports reach.
-   */
-  @Override
-  public void init() {
-    peripherals.register(new Spec128MemoryPeripheral(this));
-    peripherals.register(new SeMemoryPeripheral(this));
-    peripherals.register(new AyPeripheral(sound, z80Clock));
-  }
-
   @Override
   public Set<MachineCapability> getCapabilities() {
     return Set.of(AY, MEMORY_128);

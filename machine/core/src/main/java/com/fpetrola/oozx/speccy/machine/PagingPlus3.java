@@ -16,25 +16,12 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.devices.memory;
+package com.fpetrola.oozx.speccy.machine;
 
-import com.fpetrola.oozx.speccy.ports.DefaultPortHandler;
-
-import com.fpetrola.oozx.Spectrum;
-import java.util.function.Supplier;
-import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
-
-class SeMemoryPortHandler extends DefaultPortHandler {
-  private final Supplier<SpectrumMachine> machine;
-
-  public SeMemoryPortHandler(Supplier<SpectrumMachine> machine) {
-    super(0xffff, 0x7ffd, false, true);
-    this.machine = machine;
-  }
-
-  @Override
-  public void write(int port, byte value) {
-    machine.get().getRamInfo().lastByte = value;
-    machine.get().memoryMap();
-  }
+/**
+ * What a device asks of the machine it is switched on for: the +3's second paging port. It pages
+ * the 128's way as well, which is why its own pager can hold one of these and use both.
+ */
+public interface PagingPlus3 extends Paging128 {
+  void memoryPort2Write(int port, byte b);
 }

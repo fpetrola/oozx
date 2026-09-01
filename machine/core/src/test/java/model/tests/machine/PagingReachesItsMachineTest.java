@@ -31,6 +31,7 @@ import java.util.List;
 
 import static com.fpetrola.oozx.MachineCapability.MEMORY_128;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -86,6 +87,24 @@ class PagingReachesItsMachineTest {
       assertEquals(pages, wanted.getRamInfo().locked,
           wanted.getName() + " after reading its paging port");
     }
+  }
+
+  /**
+   * Switching straight from one machine to another that shares a pager, with no 48K in between.
+   * The pager is one object now and binds to the machine it is switched on for, so what keeps it
+   * pointed at the right one is that a machine's reset clears the bus and switches everything on
+   * again. Going through the default machine would hide that; this does not.
+   */
+  @Test
+  void aPagerFollowsTheMachineEvenWhenSwitchedToDirectly() {
+    Speccy speccy = speccy();
+    speccy.machine.select(speccy.spec128);
+    speccy.machine.select(speccy.specPlus2);
+
+    speccy.peripherals.writePort(0x7ffd, (byte) 0x20);
+
+    assertTrue(speccy.specPlus2.getRamInfo().locked, "the +2 did not get its own paging write");
+    assertFalse(speccy.spec128.getRamInfo().locked, "the write reached the machine left behind");
   }
 
   @Test

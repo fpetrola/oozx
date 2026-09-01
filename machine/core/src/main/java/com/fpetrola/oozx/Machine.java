@@ -132,7 +132,6 @@ public class Machine implements ZxModule {
 
     current = machine;
     machineChangeListeners.forEach(listener -> listener.machineChanged(current));
-    current.init();
 
     settings.setString(settings.current.startMachine, machine.getClass().getSimpleName());
 

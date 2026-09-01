@@ -59,12 +59,7 @@ public class AyPeripheral extends AbstractPeripheral {
   }
 
   @Override
-  public boolean canActivate() {
-    return true;
-  }
-
-  @Override
-  public void activate() {
+  public void activate(SpectrumMachine machine) {
     registers.reset();
     chip = sound.add(new Ay(sound));
   }

@@ -30,11 +30,7 @@ public class AbstractPeripheral implements Peripheral {
     this.portHandlers = portHandlers.toArray(new PortHandler[0]);
   }
 
-  public boolean canActivate() {
-    return false;
-  }
-
-  public void activate() {
+  public void activate(SpectrumMachine machine) {
   }
 
   public void deactivate() {

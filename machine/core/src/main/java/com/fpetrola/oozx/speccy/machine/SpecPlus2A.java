@@ -42,7 +42,6 @@ public class SpecPlus2A extends SpecPlus3 {
   @Inject
   public SpecPlus2A(Memory memory, Display display, PeripheralBusDelegate peripherals, Settings settings, EventManager eventManager, Cpu cpu, Timer timer, Module module, Fdd fdd1, UPDFdc uPDFdc1, Sound sound, UserInterface userInterface) {
     super(memory, display, peripherals, settings, fdd1, uPDFdc1, eventManager, cpu, timer, module, sound, userInterface);
-    init();
   }
 
   /** A +3 without the floppy: same paging, no drive. */

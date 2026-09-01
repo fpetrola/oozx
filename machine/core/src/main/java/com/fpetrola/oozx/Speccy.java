@@ -32,6 +32,12 @@ import com.google.inject.Guice;
 import com.google.inject.util.Modules;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.fpetrola.oozx.speccy.devices.ay.AyPeripheral;
+import com.fpetrola.oozx.speccy.devices.ay.AyPlus3Peripheral;
+import com.fpetrola.oozx.speccy.devices.memory.Spec128MemoryPeripheral;
+import com.fpetrola.oozx.speccy.devices.memory.SpecPlus3MemoryPeripheral;
+import com.fpetrola.oozx.speccy.devices.memory.SeMemoryPeripheral;
+import com.fpetrola.oozx.speccy.devices.disk.Upd765Peripheral;
 
 @Singleton
 public class Speccy {
@@ -150,6 +156,12 @@ public class Speccy {
     // Expansions, which belong to no machine: a box somebody plugged in, offered to every machine
     // that will take one. What a machine is made of it registers itself; this is the other kind.
     peripherals.register(new MelodikPeripheral(sound, zxClock, () -> settings.current.melodik));
+    peripherals.register(new AyPeripheral(sound, zxClock));
+    peripherals.register(new AyPlus3Peripheral(sound, zxClock));
+    peripherals.register(new Spec128MemoryPeripheral());
+    peripherals.register(new SpecPlus3MemoryPeripheral());
+    peripherals.register(new SeMemoryPeripheral());
+    peripherals.register(new Upd765Peripheral());
 
     spec48.start();
     timer.start();

@@ -26,10 +26,19 @@ import com.fpetrola.oozx.speccy.machine.Spec128;
 import java.util.List;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.MachineCapability;
+import com.fpetrola.oozx.speccy.machine.Paging128;
 
 public class Spec128MemoryPeripheral extends AbstractPeripheral {
-  public Spec128MemoryPeripheral(Spec128 spec128) {
-    super(List.of(new Spec128PortHandler(0x8002, 0x0000, spec128)));
+  private Paging128 machine;
+
+  public Spec128MemoryPeripheral() {
+    super(List.of());
+    ports(new Spec128PortHandler(0x8002, 0x0000, () -> machine));
+  }
+
+  @Override
+  public void activate(SpectrumMachine machine) {
+    this.machine = (Paging128) machine;
   }
 
   /** The 128's pager, on the machines whose paging is only that - the +3 pages differently. */
