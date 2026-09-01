@@ -117,8 +117,7 @@ class EmulatorInternalFrame extends JInternalFrame {
 
       @Override
       public void onEmulationSpeedChanged(double speed) {
-        speedBar.setValue((int) (speed * 1));
-        speedBar.setString(String.format("%.2f%%", speed));
+        showSpeed(speed);
       }
 
       @Override
@@ -129,9 +128,7 @@ class EmulatorInternalFrame extends JInternalFrame {
 
       @Override
       public void onPauseStateChanged(boolean paused) {
-        pauseIndicator.setBackground(paused ? Color.RED : Color.GREEN);
-        pauseIndicator.setForeground(Color.DARK_GRAY);
-        pauseIndicator.setToolTipText(paused ? "Paused" : "Running");
+        showPaused(paused);
       }
 
       @Override
@@ -160,6 +157,18 @@ class EmulatorInternalFrame extends JInternalFrame {
     muteButton.setToolTipText(emulatorCore.isMuted() ? "Unmute Sound" : "Mute Sound");
   }
 
+  /** How fast it is going, against the speed of the real machine rather than against 7000. */
+  private void showSpeed(double speed) {
+    speedBar.setValue((int) Math.min(100, Math.round(speed)));
+    speedBar.setString(String.format("%.0f%%", speed));
+  }
+
+  /** Running or paused, as the same drawing the buttons use rather than a coloured box. */
+  private void showPaused(boolean paused) {
+    pauseIndicator.setIcon(loadIcon(paused ? "23F8.svg" : "25B6.svg"));
+    pauseIndicator.setToolTipText(paused ? "Paused" : "Running");
+  }
+
   private JPanel createStatusBar() {
     JPanel statusBar = new JPanel();
 //    statusBar.setBorder(BorderFactory.createEtchedBorder());
@@ -177,10 +186,13 @@ class EmulatorInternalFrame extends JInternalFrame {
 //    statusLabel.setPreferredSize(new Dimension(100, componentHeight));
 
     // Speed Progress Bar
-    speedBar = new JProgressBar(0, 7000); // Max 4x speed
-    speedBar.setValue((int) (emulatorCore.getEmulationSpeed()));
+    // Full is the speed of the real machine, which is what the number beside it means: drawn
+    // against 7000 before, so a machine running exactly right filled a fortieth of the bar and
+    // read as a stray line down its left edge. Turbo runs past the end and pins it full, which
+    // is what the turbo mark next to it is for.
+    speedBar = new JProgressBar(0, 100);
     speedBar.setStringPainted(true);
-    speedBar.setString(String.format("%.2f%%", emulatorCore.getEmulationSpeed()));
+    showSpeed(emulatorCore.getEmulationSpeed());
     speedBar.setPreferredSize(new Dimension(150, 24));
     speedBar.setMinimumSize(new Dimension(100, 24));
 
@@ -193,15 +205,9 @@ class EmulatorInternalFrame extends JInternalFrame {
     modelCombo.setPreferredSize(new Dimension(80, 10));
     modelCombo.addActionListener(e -> emulatorCore.setMachineModel((String) modelCombo.getSelectedItem()));
 
-    // Pause Indicator (LED-like)
-    pauseIndicator = new JLabel(emulatorCore.isPaused() ? "Paused" : "Running");
+    pauseIndicator = new JLabel();
     pauseIndicator.setHorizontalAlignment(JLabel.CENTER);
-    pauseIndicator.setOpaque(true);
-    pauseIndicator.setForeground(Color.DARK_GRAY);
-    pauseIndicator.setBackground(emulatorCore.isPaused() ? Color.RED : Color.GREEN);
-    pauseIndicator.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-    pauseIndicator.setMinimumSize(new Dimension(70, componentHeight + 4));
-    pauseIndicator.setToolTipText(emulatorCore.isPaused() ? "Paused" : "Running");
+    showPaused(emulatorCore.isPaused());
 
     // Turbo Indicator
     turboIndicator = new JLabel(emulatorCore.isTurboMode() ? "✔ Turbo" : "✘ Turbo");
@@ -245,8 +251,7 @@ class EmulatorInternalFrame extends JInternalFrame {
       }
 
       public void onEmulationSpeedChanged(double speed) {
-        speedBar.setValue((int) (speed));
-        speedBar.setString(String.format("%.2f%%", speed));
+        showSpeed(speed);
       }
 
       public void onModelChanged(String model) {
@@ -254,9 +259,7 @@ class EmulatorInternalFrame extends JInternalFrame {
       }
 
       public void onPauseStateChanged(boolean paused) {
-        pauseIndicator.setBackground(paused ? Color.RED : Color.GREEN);
-        pauseIndicator.setText(paused ? "Paused" : "Running");
-        pauseIndicator.setToolTipText(paused ? "Paused" : "Running");
+        showPaused(paused);
       }
 
       public void onTurboModeChanged(boolean turbo) {
