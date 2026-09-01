@@ -51,11 +51,19 @@ public class OOSpectrumLauncher {
     OOSpectrumConnector.noTest = true;
     LafManager.install(new SolarizedLightTheme());
 
-    Function<SpectrumState, EmulatorCore> mockCoreState = spectrumState -> {
-      Speccy speccy = createSpeccy2(spectrumState);
+    ZXSpectrumDesktopApp[] appHolder = new ZXSpectrumDesktopApp[1];
+
+    // Both ways of building a machine end here, so its deck is known however it was built.
+    // Only the one that starts from a file used to say so, and a machine restored from a
+    // snapshot arrived with no deck anybody could find: the cassette windows had nothing to
+    // plug into and quietly did nothing.
+    java.util.function.Function<Speccy, EmulatorCore> known = speccy -> {
+      appHolder[0].registerTape(speccy.z80.mockCore, speccy.tape);
       return speccy.z80.mockCore;
     };
-    ZXSpectrumDesktopApp[] appHolder = new ZXSpectrumDesktopApp[1];
+
+    Function<SpectrumState, EmulatorCore> mockCoreState =
+        spectrumState -> known.apply(createSpeccy2(spectrumState));
     ZXSpectrumDesktopApp zxSpectrumDesktopApp = new ZXSpectrumDesktopApp((filename, chosenMachine) -> {
       Speccy speccy;
       String string = null;
@@ -70,13 +78,10 @@ public class OOSpectrumLauncher {
         speccy = createSpeccy(string, chosenMachine);
       }
 
-      EmulatorCore mockCore = speccy.z80.mockCore;
+      EmulatorCore mockCore = known.apply(speccy);
       if (string != null) {
         mockCore.setFilename(string);
       }
-      // Every machine has a deck, whether or not it was started with a tape, so the cassette
-      // browser can drive whichever emulator is in front.
-      appHolder[0].registerTape(mockCore, speccy.tape);
       if (string != null && isTape(string)) {
         appHolder[0].showTapeBrowser(new File(string), speccy.tape);
       }
