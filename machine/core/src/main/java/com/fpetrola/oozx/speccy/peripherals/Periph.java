@@ -259,7 +259,12 @@ public class Periph implements IPeriph {
     // By the class, as everything else here does: the map is keyed by it, and a Type is a name
     // for one. Looking the Type up directly found nothing and answered no about every peripheral
     // there has ever been, including the ULA.
-    PrivatePeripheral typeData = peripherals.get(type.getZxPeripheralClass());
+    return isActive(type.getZxPeripheralClass());
+  }
+
+  @Override
+  public boolean isActive(Class<? extends ZxPeripheral> zxPeripheralClass) {
+    PrivatePeripheral typeData = peripherals.get(zxPeripheralClass);
     return typeData != null && typeData.active;
   }
 

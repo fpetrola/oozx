@@ -49,6 +49,10 @@ public interface PeriphDelegate extends IPeriph {
     return getPeriph().isActive(type);
   }
 
+  default boolean isActive(Class<? extends ZxPeripheral> zxPeripheralClass) {
+    return getPeriph().isActive(zxPeripheralClass);
+  }
+
   default void clear() {
     getPeriph().clear();
   }
