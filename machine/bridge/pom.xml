@@ -1,0 +1,113 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.fpetrola</groupId>
+        <artifactId>machine</artifactId>
+        <version>0.0.2-alu-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>bridge</artifactId>
+    <packaging>jar</packaging>
+
+    <name>bridge</name>
+
+    <!--
+      The bridge to a reference emulator. A JNA connector runs a libretro core from Java, steps it
+      and reads its state, and a set of tests is written against it; the same tests then run against
+      the Java machine through the same commands, and that is how the machine is held to a
+      known-good answer. Everything of that lives here: the
+      libretro interface, the Java machine behind the same interface, the command queue the tests
+      drive, and the tests.
+
+      The emulator does not know this exists. The bridge knows the machine and reaches it through
+      what the machine offers to anything - its traps, its scheduler, its Speccy - which is what
+      keeps the machine from carrying a hook whose only user is a test.
+    -->
+    <dependencies>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>machines</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>media-snapshot</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>host-sound</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>media-tape</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>devices-all</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>5.14.0</version>
+        </dependency>
+
+        <!-- test -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                </configuration>
+            </plugin>
+            <!-- A machine per test class, on its own thread that is never told to stop: one JVM
+                 each, so the thread dies with it. The fork timeout is the backstop for a spin that
+                 cannot be interrupted from inside. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                        <include>**/*Tests?.java</include>
+                    </includes>
+                    <reuseForks>false</reuseForks>
+                    <forkedProcessTimeoutInSeconds>120</forkedProcessTimeoutInSeconds>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
