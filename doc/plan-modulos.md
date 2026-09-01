@@ -35,20 +35,50 @@ emulador, los dispositivos, el escritorio, el launcher y la pantalla adentro.
 Lo bueno: **la emulación casi no conoce al escritorio.** Sólo hay cuatro aristas hacia adentro de
 `peripherals/t`, y tres son del launcher, que es parte de la aplicación.
 
-## Los tres nudos
+## Los tres nudos — desatados
 
 Hay que desatarlos antes de mover nada, porque son ciclos que ningún orden de módulos resuelve.
+**Los tres están hechos** (1 de septiembre de 2026, gate en 338 verdes), y dos resultaron ser otra
+cosa de la que decía este plan cuando se escribió:
 
-1. **`Z80.createScreen(...)`** abre un `JFrame` — el camino "noTest" del arranque. Un emulador que
-   construye una ventana no puede vivir en un módulo sin Swing. Va a la aplicación, que es quien
-   sabe dónde se muestra una máquina.
+1. **`Z80.createScreen(...)`** no abría ningún `JFrame`: devolvía `null` siempre. Lo que hacía en
+   190 líneas era **construir el adaptador con el que hablan todas las ventanas** — pausa,
+   velocidad, el modelo, guardar, el listener de teclado, el componente de pantalla. Por eso un Z80
+   importaba `javax.swing`. Ahora es `SpeccyEmulatorCore`, una clase del lado de las ventanas,
+   construida a partir de un `Speccy` y no desde adentro de una de sus partes. Tres lugares
+   construyen una máquina para ser mirada y cada uno lo dice en una línea: el launcher, la sesión
+   de RZX, y el test que graba una máquina a un archivo como lo haría una ventana.
 
-2. **`Tape.TapeTableModel`** es un `AbstractTableModel` de Swing adentro de la casetera. El modelo
-   de la tabla es de la ventana que la muestra, no de la cinta. (Zona de la sesión paralela:
-   coordinar antes de tocarlo.)
+2. **`Tape.TapeTableModel`** estaba muerto: nadie fuera de la cinta lo pedía. Sólo existía para que
+   le llamaran `fireTableDataChanged()` tres veces, para una tabla que nadie mostraba — la ventana
+   de casete arma su propio modelo con `TapeBlock`. Borrado, −47 líneas.
 
-3. **`api/ZxInfoApiHandler` → `GameBrowserInternalFrame`**: un cliente HTTP que importa una
-   ventana. Es una inversión: la ventana escucha al handler, no al revés.
+3. **`api/ZxInfoApiHandler` → `GameBrowserInternalFrame`**: el parseo del JSON vivía como `static`
+   en la ventana. Ahora es `Screen.from(...)`, al lado de la cosa que se parsea.
+
+### Lo que queda de Swing fuera del escritorio
+
+Después de los tres nudos, **nada bajo `speccy/modules`, `speccy/machine` ni la memoria importa un
+toolkit de UI** — la base compila sin Swing, que es lo que el paso 1 tenía que averiguar. Lo que
+queda con Swing fuera de `peripherals/t` está todo del lado de la aplicación:
+
+| archivo | a dónde va |
+|---|---|
+| `OOSpectrumConnector` | app — es un punto de entrada que abre una ventana |
+| `EmulatorCore`, `MockEmulatorCore`, `SpeccyEmulatorCore`, `SettingsDialog` | ui / app |
+| `devices/printer/PrinterPaper` | devices — la vista de un periférico, que depende de ui |
+
+### El cuarto nudo, que apareció al desatar el primero
+
+`EmulatorCore` es **dos interfaces en una**: control del emulador (pausa, velocidad, `saveState`,
+el modelo) y vista (`getPanel()` devuelve un `JComponent`, `getKeyListener()` un `KeyListener`). El
+Z80 tiene un campo `public EmulatorCore mockCore`, así que si `EmulatorCore` se va a la aplicación,
+la base importa la aplicación.
+
+Hay que partirla antes del paso 3: la mitad de control se queda abajo, la mitad de vista sube. O
+—más simple y quizás mejor— el campo desaparece del Z80 y la aplicación se guarda su adaptador,
+como ya hace con `machinesByCore`. Los usos de `z80.mockCore` son ocho, todos en el launcher, el
+escritorio, la sesión de RZX y tres tests.
 
 ## El destino
 
@@ -92,10 +122,9 @@ Hoy eso son cuatro o cinco periféricos, no once. Ahí muere la preocupación po
 
 Cada uno deja el gate verde y se commitea solo.
 
-**1. Desatar los tres nudos.** Sin mover ningún archivo de módulo todavía: sacar el `JFrame` del
-Z80, el `TableModel` de la casetera, e invertir el handler de la api. Al terminar, ninguna clase de
-emulación importa Swing ni el escritorio. Es el paso que dice si el corte es posible, y se puede
-verificar con un grep antes de escribir un pom.
+**1. Desatar los tres nudos. HECHO.** Ninguna clase de emulación importa Swing ni el escritorio, y
+se verifica con un grep sin escribir un pom. Apareció el cuarto nudo (`EmulatorCore`), que hay que
+resolver antes del paso 3.
 
 **2. `machine/ui`.** Mover `AttachedFrame`, los cargadores de iconos, `ScrollPane`, los componentes
 de pantalla. Es el módulo más chico y el que menos riesgo tiene.
