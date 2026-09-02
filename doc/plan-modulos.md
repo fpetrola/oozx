@@ -5,6 +5,9 @@ lo conozca, en vez de que sea una convención que se respeta hasta que alguien n
 
 Medido sobre `machine/core` el 1 de septiembre de 2026, con el gate en 320 tests verdes.
 
+**Estado: los pasos 1 a 4 están hechos.** Queda el 5 (el test que prueba el descubrimiento desde la
+aplicación) y el 6 opcional (promover un periférico a módulo propio).
+
 ## El principio
 
 Un periférico real conocía el hardware: quien diseñó la ZX Printer tenía los esquemáticos de la
@@ -172,10 +175,26 @@ sin dejar que se entregara el evento de resize, y funcionaba porque otros tests 
 
 **core 293, ui 16, app 29: los mismos 338 tests, cada uno en el módulo al que pertenece.**
 
-**4. `machine/devices`.** Mover los periféricos opcionales con sus vistas y sus service files. Cada
-módulo trae su propio `META-INF/services/…DeviceModule`: el `ServiceLoader` lee todos los que
-encuentra en el classpath, así que la lista deja de ser un archivo compartido y pasa a ser una
-línea que cada módulo trae consigo. Eso es la historia de plugins funcionando de verdad.
+**4. `machine/devices`. HECHO.** La impresora, el mouse, el Melodik y los dos Kempston, cada uno
+con sus puertos, su modelo y —los dos que la tienen— su ventana, que salió del escritorio para
+vivir con el dispositivo que muestra.
+
+Lo que una máquina trae se quedó: los pagers de la 128 y del +3, la FDC, la memoria SE, las dos
+ULA y el AY que una 128K tiene en la placa. El módulo del AY perdió el Melodik a un módulo propio
+por la misma razón: mismo chip, distinta cosa — uno está en la placa, el otro se compró y se cableó.
+
+**El archivo de servicios se partió con ellos**: el del emulador lista lo que una máquina tiene, el
+de los periféricos lista lo que este build ofrece para enchufar. El `ServiceLoader` lee todos los
+que encuentra, así que **agregar un periférico es agregar un jar** — que es la frase que este
+refactor se propuso volver verdadera.
+
+Dos inversiones más, de la misma forma que las anteriores: el mouse trabajaba sobre la imagen de la
+máquina y la conseguía nombrando la clase de ventana del escritorio (ahora una ventana de máquina
+ofrece su imagen), y las filas de perillas con las que arma su panel bajaron al módulo de ventanas.
+
+`machine/core` no referencia ninguno de estos y **no tiene una sola línea de Swing**.
+
+**core 260, ui 16, devices 33, app 29: los mismos 338 tests, en cuatro módulos.**
 
 **5. La prueba.** Un test en `app` que arranque el emulador y verifique que la impresora está —
 sin importar ninguna clase de la impresora, sólo por el bus. Ya existe en espíritu
