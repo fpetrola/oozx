@@ -18,7 +18,6 @@
 
 package fuse.tstates;
 
-import cern.colt.list.ObjectArrayList;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.impl.*;
@@ -87,8 +86,6 @@ public abstract class PhaseProcessor extends PhaseProcessorBase {
   }
 
   public void visitingLd(Ld ld) {
-    addAfterExecution(ld);
-
     if (isLdSP(ld))
       phase.acceptBeforeExecution((e) -> addMultipleMCIR(2));
     else if (ld.getTarget().equals(registerI) || ld.getTarget().equals(registerR) || ld instanceof LdAI || ld instanceof LdAR)
@@ -106,47 +103,6 @@ public abstract class PhaseProcessor extends PhaseProcessorBase {
 
   private void addMc2PC(int times, int delta) {
     addMultipleMCPc2(times, delta);
-  }
-
-  private void addAfterExecution(Ld ld) {
-    final ObjectArrayList afterExecutionActions = new ObjectArrayList();
-
-    ld.getTarget().accept(new InstructionVisitor<>() {
-      public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference1) {
-        if (indirectMemory8BitReference1.getTarget() instanceof Register register
-            && (register.getName().equals("BC") || register.getName().equals("DE")) || indirectMemory8BitReference1.getTarget() instanceof Memory16BitReference)
-          addToActions(afterExecutionActions, () -> memptr.write(((ld.getSource().read() << 8) | indirectMemory8BitReference1.address + 1 & 0xff) & 0xFFFF));
-      }
-
-      public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
-        addToActions(afterExecutionActions, () -> memptr.write((indirectMemory16BitReference.address + 1) & 0xFFFF));
-      }
-
-      public boolean visitMemory16BitReference(Memory16BitReference memory16BitReference) {
-        addToActions(afterExecutionActions, () -> memptr.write((memory16BitReference.read() + 2) & 0xFFFF));
-        return false;
-      }
-    });
-    ld.getSource().accept(new InstructionVisitor<>() {
-      public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
-        boolean b = indirectMemory8BitReference.getTarget() instanceof Register register && (register.getName().equals("BC") || register.getName().equals("DE"));
-        if (b || indirectMemory8BitReference.getTarget() instanceof Memory16BitReference)
-          addToActions(afterExecutionActions, () -> memptr.write((indirectMemory8BitReference.address + 1) & 0xFFFF));
-      }
-
-      public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
-        addToActions(afterExecutionActions, () -> memptr.write((indirectMemory16BitReference.address + 1) & 0xFFFF));
-      }
-    });
-
-    if (!afterExecutionActions.isEmpty()) {
-      Runnable runnable = computeActions(afterExecutionActions);
-      phase.acceptAfterExecution((e) -> runnable.run());
-    }
-  }
-
-  private void addToActions(ObjectArrayList afterExecutionActions, Runnable runnable) {
-    afterExecutionActions.add(runnable);
   }
 
   public void visitingJR(JR jr) {
@@ -168,45 +124,18 @@ public abstract class PhaseProcessor extends PhaseProcessorBase {
   }
 
   public void visitEx(Ex ex) {
-    final ObjectArrayList afterExecutionActions = new ObjectArrayList();
-
-    if (ex.getTarget() instanceof IndirectMemory16BitReference indirectMemory16BitReference)
-      if (indirectMemory16BitReference.getTarget() instanceof Register register && register.getName().equals(RegisterName.SP.name())) {
-        addToActions(afterExecutionActions, () -> memptr.write(ex.getSource().read()));
-      }
-
     if (ex.getTarget() instanceof IndirectMemory16BitReference) {
-      addToActions(afterExecutionActions, () -> {
+      phase.acceptAfterExecution((e) -> {
         currentRegister = registerSP;
         addMultipleMCRegister(2, 0);
       });
-    }
-
-    if (!afterExecutionActions.isEmpty()) {
-      Runnable runnable = computeActions(afterExecutionActions);
-      phase.acceptAfterExecution((e) -> runnable.run());
-    }
-
-    if (ex.getTarget() instanceof IndirectMemory16BitReference)
       phase.acceptBeforeWrite((e) -> {
         if (writeCount == 0) {
           currentRegister = registerSP;
           addMultipleMcRegister();
         }
       });
-  }
-
-  private Runnable computeActions(ObjectArrayList afterExecutionActions) {
-    Runnable action = (Runnable) afterExecutionActions.get(0);
-    if (afterExecutionActions.size() == 2) {
-      Runnable action1 = (Runnable) afterExecutionActions.get(0);
-      Runnable action2 = (Runnable) afterExecutionActions.get(1);
-      action = () -> {
-        action1.run();
-        action2.run();
-      };
     }
-    return action;
   }
 
   public boolean visitRepeatingInstruction(RepeatingInstruction instruction) {

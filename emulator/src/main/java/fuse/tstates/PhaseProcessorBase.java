@@ -54,13 +54,11 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
   protected final Register registerDE;
   protected final Register registerBC;
   protected final Register registerHL;
-  protected final Register memptr;
   private final Map<Instruction, CachedPhase> phases = new IdentityHashMap<>();
   private CachedPhase current;
 
   public PhaseProcessorBase(State state) {
     this.state = state;
-    memptr = state.getMemptr();
     registerI = getRegister(I);
     registerR = getRegister(R);
     registerIR = getRegister(IR);

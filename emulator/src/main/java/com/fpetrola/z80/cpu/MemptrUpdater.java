@@ -120,6 +120,27 @@ public class MemptrUpdater {
         return false;
       }
 
+      public void visitingLd(Ld ld) {
+        if (ld.getTarget() instanceof IndirectMemory8BitReference indirect && throughBcDeOrNn(indirect))
+          memptr.write(((ld.getSource().read() << 8) | ((indirect.address + 1) & 0xff)) & 0xFFFF);
+        else if (ld.getTarget() instanceof IndirectMemory16BitReference indirect)
+          memptr.write((indirect.address + 1) & 0xFFFF);
+        if (ld.getSource() instanceof IndirectMemory8BitReference indirect && throughBcDeOrNn(indirect))
+          memptr.write((indirect.address + 1) & 0xFFFF);
+        else if (ld.getSource() instanceof IndirectMemory16BitReference indirect)
+          memptr.write((indirect.address + 1) & 0xFFFF);
+      }
+
+      private boolean throughBcDeOrNn(IndirectMemory8BitReference indirect) {
+        return indirect.getTarget() instanceof Register register && (register.getName().equals("BC") || register.getName().equals("DE"))
+            || indirect.getTarget() instanceof Memory16BitReference;
+      }
+
+      public void visitEx(Ex ex) {
+        if (ex.getTarget() instanceof IndirectMemory16BitReference indirect && indirect.getTarget() instanceof Register register && register.getName().equals("SP"))
+          memptr.write(ex.getSource().read());
+      }
+
       public boolean visitOuti(Outi outi) {
         memptr.write((outi.getBc().read() + 1) & 0xFFFF);
 
