@@ -15,7 +15,7 @@
  *  * limitations under the License.
  *
  */
-package com.fpetrola.oozx.speccy.devices.divide;
+package com.fpetrola.oozx.speccy.devices.divmmc;
 
 import com.fpetrola.oozx.speccy.devices.IdeBayFrame;
 import com.fpetrola.oozx.speccy.peripherals.t.Widgets;
@@ -26,10 +26,10 @@ import javax.swing.JToggleButton;
 import java.io.File;
 
 /**
- * The DivIDE on the desk: its two drives, and what the board itself has - the EPROM, which is
- * chosen here and read at a hard reset, its write-protect jumper, and the NMI button.
+ * The DivMMC on the desk: its card, the EPROM esxDOS is read from at a hard reset, the
+ * write-protect jumper the automapper needs, and the button.
  */
-public class DivIdeFrame extends IdeBayFrame<DivIdePeripheral> {
+public class DivMmcFrame extends IdeBayFrame<DivMmcPeripheral> {
 
   private final JButton eprom = Widgets.iconButton("multiface-rom.svg", "EPROM...",
       "Choose the firmware the EPROM is filled with at the next hard reset");
@@ -38,14 +38,14 @@ public class DivIdeFrame extends IdeBayFrame<DivIdePeripheral> {
   private final JButton button = Widgets.iconButton("multiface-button.svg", "NMI",
       "The button on the board: stops the program and brings up the firmware's menu");
 
-  public DivIdeFrame() {
-    super("DivIDE", DivIdePeripheral.class, "disk", "hdf", "master", "slave");
+  public DivMmcFrame() {
+    super("DivMMC", DivMmcPeripheral.class, "card", "mmc", "card");
     eprom.addActionListener(e -> chooseEprom());
     jumper.addActionListener(e -> onEmulator(d -> {
-      machine().settings.current.divideWp = jumper.isSelected();
+      machine().settings.current.divmmcWp = jumper.isSelected();
       d.refresh();
     }));
-    button.addActionListener(e -> onEmulator(DivIdePeripheral::nmi));
+    button.addActionListener(e -> onEmulator(DivMmcPeripheral::nmi));
     controls.add(eprom);
     controls.add(jumper);
     controls.add(button);
@@ -54,16 +54,17 @@ public class DivIdeFrame extends IdeBayFrame<DivIdePeripheral> {
   }
 
   @Override
-  protected void plugged(DivIdePeripheral device) {
+  protected void plugged(DivMmcPeripheral device) {
     super.plugged(device);
+    if (eprom == null) {
+      return;
+    }
     boolean in = device != null;
-    if (eprom != null) {
-      eprom.setEnabled(in);
-      jumper.setEnabled(in);
-      button.setEnabled(in);
-      if (in) {
-        jumper.setSelected(machine().settings.current.divideWp);
-      }
+    eprom.setEnabled(in);
+    jumper.setEnabled(in);
+    button.setEnabled(in);
+    if (in) {
+      jumper.setSelected(machine().settings.current.divmmcWp);
     }
   }
 
@@ -72,10 +73,10 @@ public class DivIdeFrame extends IdeBayFrame<DivIdePeripheral> {
       return;
     }
     JFileChooser chooser = new JFileChooser();
-    chooser.setDialogTitle("The DivIDE's EPROM (8K)");
+    chooser.setDialogTitle("The DivMMC's EPROM (8K)");
     if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
       File chosen = chooser.getSelectedFile();
-      machine().settings.current.romDivide = chosen.getPath();
+      machine().settings.current.romDivmmc = chosen.getPath();
       machine().z80.later(() -> machine().machine.reset(true));
     }
   }

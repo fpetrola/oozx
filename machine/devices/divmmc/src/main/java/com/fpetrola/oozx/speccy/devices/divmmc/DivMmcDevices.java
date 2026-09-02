@@ -16,18 +16,16 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.devices.simpleide;
+package com.fpetrola.oozx.speccy.devices.divmmc;
 
-import com.fpetrola.oozx.speccy.devices.DeviceFrame;
-import com.fpetrola.oozx.speccy.devices.Equipment;
-import com.fpetrola.oozx.speccy.devices.IdeBayFrame;
+import com.fpetrola.oozx.speccy.devices.DeviceModule;
+import com.fpetrola.oozx.speccy.peripherals.Peripheral;
+import com.google.inject.AbstractModule;
+import com.google.inject.multibindings.Multibinder;
 
-public class SimpleIdeEquipment implements Equipment {
-  public String name() {
-    return "Simple 8-bit IDE";
-  }
-
-  public DeviceFrame<?> open() {
-    return new IdeBayFrame<>("Simple 8-bit IDE", SimpleIdePeripheral.class, "disk", "hdf", "master", "slave");
+/** The DivMMC: the automapper of the DivIDE with a card slot instead of a channel. */
+public class DivMmcDevices extends AbstractModule implements DeviceModule {
+  protected void configure() {
+    Multibinder.newSetBinder(binder(), Peripheral.class).addBinding().to(DivMmcPeripheral.class);
   }
 }

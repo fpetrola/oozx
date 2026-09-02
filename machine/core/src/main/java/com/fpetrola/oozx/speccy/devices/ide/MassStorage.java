@@ -15,19 +15,24 @@
  *  * limitations under the License.
  *
  */
+package com.fpetrola.oozx.speccy.devices.ide;
 
-package com.fpetrola.oozx.speccy.devices.simpleide;
+import java.io.File;
+import java.io.IOException;
 
-import com.fpetrola.oozx.speccy.devices.DeviceFrame;
-import com.fpetrola.oozx.speccy.devices.Equipment;
-import com.fpetrola.oozx.speccy.devices.IdeBayFrame;
+/**
+ * Something a file stands in for and the machine reads sectors from: a hard disk on an IDE
+ * channel, a card in an MMC slot. What was written stays here until it is committed, which is
+ * the window's "save".
+ */
+public interface MassStorage {
+  boolean present();
 
-public class SimpleIdeEquipment implements Equipment {
-  public String name() {
-    return "Simple 8-bit IDE";
-  }
+  String filename();
 
-  public DeviceFrame<?> open() {
-    return new IdeBayFrame<>("Simple 8-bit IDE", SimpleIdePeripheral.class, "disk", "hdf", "master", "slave");
-  }
+  boolean dirty();
+
+  long sectors();
+
+  void commit(File into) throws IOException;
 }

@@ -21,13 +21,14 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * An IDE interface as the desk sees it: some drives that take hard disk images, and a line
- * about the rest of its state - which memory it has paged where - for the window to show.
+ * A mass storage interface as the desk sees it: some slots that take images, and a line about
+ * the rest of its state - which memory it has paged where - for the window to show. The IDE
+ * boards and the MMC ones differ in what is in the slot, and that is the slot's business.
  */
 public interface IdeInterface {
   int units();
 
-  IdeChannel.Drive drive(int unit);
+  MassStorage drive(int unit);
 
   void insert(int unit, File image) throws IOException;
 

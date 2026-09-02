@@ -16,18 +16,16 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.devices.simpleide;
+package com.fpetrola.oozx.speccy.devices.zxmmc;
 
-import com.fpetrola.oozx.speccy.devices.DeviceFrame;
-import com.fpetrola.oozx.speccy.devices.Equipment;
-import com.fpetrola.oozx.speccy.devices.IdeBayFrame;
+import com.fpetrola.oozx.speccy.devices.DeviceModule;
+import com.fpetrola.oozx.speccy.peripherals.Peripheral;
+import com.google.inject.AbstractModule;
+import com.google.inject.multibindings.Multibinder;
 
-public class SimpleIdeEquipment implements Equipment {
-  public String name() {
-    return "Simple 8-bit IDE";
-  }
-
-  public DeviceFrame<?> open() {
-    return new IdeBayFrame<>("Simple 8-bit IDE", SimpleIdePeripheral.class, "disk", "hdf", "master", "slave");
+/** The ZXMMC: a card slot on two ports. */
+public class ZxmmcDevices extends AbstractModule implements DeviceModule {
+  protected void configure() {
+    Multibinder.newSetBinder(binder(), Peripheral.class).addBinding().to(ZxmmcPeripheral.class);
   }
 }

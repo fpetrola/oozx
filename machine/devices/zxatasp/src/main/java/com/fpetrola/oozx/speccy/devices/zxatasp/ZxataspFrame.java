@@ -30,7 +30,7 @@ public class ZxataspFrame extends IdeBayFrame<ZxataspPeripheral> {
   private final JToggleButton upload = new JToggleButton("Upload");
 
   public ZxataspFrame() {
-    super("ZXATASP", ZxataspPeripheral.class, "master", "slave");
+    super("ZXATASP", ZxataspPeripheral.class, "disk", "hdf", "master", "slave");
     upload.setToolTipText("Upload mode: reads see the machine's ROM while writes go to the bank, to fill one safely");
     jumper.addActionListener(e -> onEmulator(d -> {
       machine().settings.current.zxataspWp = jumper.isSelected();

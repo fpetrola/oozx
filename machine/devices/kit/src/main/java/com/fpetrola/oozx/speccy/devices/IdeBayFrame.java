@@ -19,6 +19,7 @@ package com.fpetrola.oozx.speccy.devices;
 
 import com.fpetrola.oozx.speccy.devices.ide.IdeChannel;
 import com.fpetrola.oozx.speccy.devices.ide.IdeInterface;
+import com.fpetrola.oozx.speccy.devices.ide.MassStorage;
 import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 import com.fpetrola.oozx.speccy.peripherals.Pluggable;
 
@@ -45,9 +46,10 @@ import java.util.function.Consumer;
 public class IdeBayFrame<P extends Peripheral & Pluggable & IdeInterface> extends DeviceFrame<P> {
 
   private static final int REFRESH_MILLIS = 100;
-  private static final FileNameExtensionFilter IMAGES = new FileNameExtensionFilter("Hard disk image (HDF)", "hdf");
+  private final FileNameExtensionFilter images;
 
   private final String name;
+  private final String slotKind;
   private final String[] units;
   private final MediaSlot[] slots;
   private final JLabel[] sizes;
@@ -55,9 +57,11 @@ public class IdeBayFrame<P extends Peripheral & Pluggable & IdeInterface> extend
   private final JLabel status = new JLabel();
   private final Timer refresh = new Timer(REFRESH_MILLIS, e -> refresh());
 
-  public IdeBayFrame(String name, Class<? extends P> kind, String... units) {
+  public IdeBayFrame(String name, Class<? extends P> kind, String kind0, String extension, String... units) {
     super(name, kind);
     this.name = name;
+    this.slotKind = kind0;
+    images = new FileNameExtensionFilter(kind0 + " image (" + extension.toUpperCase() + ")", extension);
     this.units = units;
     slots = new MediaSlot[units.length];
     sizes = new JLabel[units.length];
@@ -67,7 +71,7 @@ public class IdeBayFrame<P extends Peripheral & Pluggable & IdeInterface> extend
     bays.setOpaque(false);
     for (int i = 0; i < slots.length; i++) {
       int which = i;
-      slots[i] = new MediaSlot(units[i] + " disk", "floppy.svg", IMAGES, file -> insert(which, file), () -> eject(which))
+      slots[i] = new MediaSlot(units[i] + " " + slotKind, "floppy.svg", images, file -> insert(which, file), () -> eject(which))
           .withSave(file -> commit(which, file));
       bays.add(slots[i]);
     }
@@ -152,7 +156,7 @@ public class IdeBayFrame<P extends Peripheral & Pluggable & IdeInterface> extend
     paged.setForeground(plugged.isPaged() ? Color.RED : Color.GRAY);
     status.setText(plugged.status());
     for (int i = 0; i < slots.length; i++) {
-      IdeChannel.Drive drive = plugged.drive(i);
+      MassStorage drive = plugged.drive(i);
       slots[i].show(drive.present() ? new File(drive.filename()).getName() + (drive.dirty() ? " (changed)" : "") : null);
       sizes[i].setText(units[i] + ": " + (drive.present()
           ? drive.sectors() + " sectors, " + drive.sectors() * IdeChannel.SECTOR / 1024 / 1024 + " MB" : "empty"));

@@ -27,7 +27,7 @@ public class ZxcfFrame extends IdeBayFrame<ZxcfPeripheral> {
   private final JToggleButton upload = new JToggleButton("Upload");
 
   public ZxcfFrame() {
-    super("ZXCF CompactFlash", ZxcfPeripheral.class, "card");
+    super("ZXCF CompactFlash", ZxcfPeripheral.class, "card", "hdf", "card");
     upload.setToolTipText("Upload mode: reads see the machine's ROM while writes go to the bank, to fill one safely");
     upload.addActionListener(e -> onEmulator(d -> {
       machine().settings.current.zxcfUpload = upload.isSelected();

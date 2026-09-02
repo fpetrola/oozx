@@ -16,18 +16,18 @@
  *
  */
 
-package com.fpetrola.oozx.speccy.devices.simpleide;
+package com.fpetrola.oozx.speccy.devices.zxmmc;
 
 import com.fpetrola.oozx.speccy.devices.DeviceFrame;
 import com.fpetrola.oozx.speccy.devices.Equipment;
 import com.fpetrola.oozx.speccy.devices.IdeBayFrame;
 
-public class SimpleIdeEquipment implements Equipment {
+public class ZxmmcEquipment implements Equipment {
   public String name() {
-    return "Simple 8-bit IDE";
+    return "ZXMMC";
   }
 
   public DeviceFrame<?> open() {
-    return new IdeBayFrame<>("Simple 8-bit IDE", SimpleIdePeripheral.class, "disk", "hdf", "master", "slave");
+    return new IdeBayFrame<>("ZXMMC", ZxmmcPeripheral.class, "card", "mmc", "card");
   }
 }

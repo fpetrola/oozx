@@ -112,7 +112,7 @@ gate verde, commit — antes de empezar el siguiente.
 | 11 | **Interface 1** — HECHO | 1.410 líneas: microdrives, RS232, ZX Net; `if1.rom` está en `~/detodo/spectrum/Roms`, `success.mdr` en Fuse | `CAT 1` de un cartucho; la terminal RS232 muestra lo que el programa escribe |
 | 12 | **DivIDE** — HECHO | primera IDE; `FATware-0-12.rom` y `demfir.rom` están en `~/detodo/spectrum/Roms` | arranca el firmware desde un HDF |
 | 13 | **Simple 8-bit IDE**, **ZXATASP**, **ZXCF** — HECHO | sobre la misma `IdeChannel` | idem, con sus paginados |
-| 14 | **DivMMC** y **ZXMMC** | tarjeta SD por SPI (`MmcCard`), que no existe en el árbol y se escribe desde el protocolo | igual, desde una imagen de tarjeta |
+| 14 | **DivMMC** y **ZXMMC** — HECHO | tarjeta SD por SPI (`MmcCard`), que no existe en el árbol y se escribe desde el protocolo | igual, desde una imagen de tarjeta |
 | 15 | **Currah uSpeech** | SP0256 (1.545 líneas); ROM no disponible acá | el Spectrum habla |
 | 16 | **Currah uSource** | ROM no disponible; 305 líneas | el ensamblador en pantalla |
 | 17 | **SpeccyBoot** | ENC28J60 por SPI; el TAP es de Linux y pide root; ROM viene con Fuse | el chip contesta; la red sólo si hay TAP |
@@ -408,7 +408,7 @@ los tests de `*_unittest()` de Fuse como oráculo del lado de los puertos.
   par de jumpers donde los hay. El canal secundario del ZXATASP existe y nunca tiene disco, como
   en Fuse.
 
-### 14. DivMMC y ZXMMC — `machine/devices/divmmc`, `machine/devices/zxmmc`
+### 14. DivMMC y ZXMMC — `machine/devices/divmmc`, `machine/devices/zxmmc` — HECHO
 
 **`MmcCard`**: una tarjeta SD/MMC por SPI sobre una imagen de archivo (CMD0, CMD1, CMD8, CMD16,
 CMD17, CMD24, ACMD41, CMD58, respuestas R1/R3/R7, tokens de datos, CRC ignorado), que tampoco
@@ -419,6 +419,14 @@ está en el árbol y se escribe desde el protocolo.
   `2` → tarjeta, `1`/otro → ninguna), 0xeb datos SPI. Ventana: EPROM + una `MediaSlot` con la
   imagen de la tarjeta.
 - **ZXMMC** (243): sin memoria; 0x1f selección, 0x3f datos SPI. Ventana: una `MediaSlot`.
+
+Cómo quedaron: `MmcCard` en `core/speccy/devices/ide` (el protocolo SPI escrito desde las
+especificaciones MMC y SD, porque el de libspectrum no está en el árbol: comando de seis bytes,
+respuesta de un byte, token 0xfe y 512 bytes; CMD0/CMD1/ACMD41 para despertarla, CMD9/CMD10,
+CMD17 y CMD24, CMD58; lo escrito espera hasta el commit) y `MmcSlot` (los dos puertos, que es lo
+único en que difieren las dos placas). El DivMMC es `DivPeripheral` con 16 páginas y esa ranura;
+el ZXMMC es `MmcBoard`, la ranura y nada más. La bahía del kit ahora sirve para cualquier
+almacenamiento (`MassStorage`), no sólo para un disco IDE.
 
 ### 15. Currah uSpeech (`uspeech.c` 444 + `sp0256.c` 1.545) — `machine/devices/uspeech`
 

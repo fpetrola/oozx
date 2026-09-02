@@ -112,5 +112,15 @@
             <artifactId>device-zxcf</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-divmmc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-zxmmc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 </dependencies>
 </project>

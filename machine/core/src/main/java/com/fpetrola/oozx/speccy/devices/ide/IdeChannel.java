@@ -58,7 +58,7 @@ public class IdeChannel {
   private enum Phase { IDLE, READ, WRITE }
 
   /** A drive: its file, its shape, and the sectors written since the last commit. */
-  public static final class Drive {
+  public static final class Drive implements MassStorage {
     private RandomAccessFile file;
     private String filename;
     private int dataOffset;
@@ -68,18 +68,22 @@ public class IdeChannel {
     private long totalSectors;
     private final Map<Long, byte[]> changed = new HashMap<>();
 
+    @Override
     public boolean present() {
       return file != null;
     }
 
+    @Override
     public String filename() {
       return filename;
     }
 
+    @Override
     public boolean dirty() {
       return !changed.isEmpty();
     }
 
+    @Override
     public long sectors() {
       return totalSectors;
     }
@@ -147,6 +151,7 @@ public class IdeChannel {
     }
 
     /** Writes the changed sectors into that file - the one it came from, or a copy of it. */
+    @Override
     public void commit(File into) throws IOException {
       File source = new File(filename);
       if (!into.getAbsoluteFile().equals(source.getAbsoluteFile())) {

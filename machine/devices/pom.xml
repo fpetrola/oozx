@@ -48,6 +48,8 @@
         <module>simpleide</module>
         <module>zxatasp</module>
         <module>zxcf</module>
+        <module>divmmc</module>
+        <module>zxmmc</module>
         <module>all</module>
     </modules>
 
