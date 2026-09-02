@@ -139,8 +139,8 @@ public class Settings {
     public String mdrFile6;
     public String mdrFile7;
     public String mdrFile8;
-    public int mdrLen;
-    public int mdrRandomLen;
+    public int mdrLen = 180;
+    public boolean mdrRandomLen = true;
     public boolean melodik;
     public boolean mouseSwapButtons;
     public String movieCompr;
@@ -172,7 +172,7 @@ public class Settings {
     public String romBeta128 = "trdos.rom";
     public String romDidaktik80 = "didaktik80.rom";
     public String romDisciple = "disciple.rom";
-    public String romInterface1;
+    public String romInterface1 = "if1-2.rom";
     public String romMultiface1 = "mf1.rom";
     public String romMultiface128 = "mf128.rom";
     public String romMultiface3 = "mf3.rom";

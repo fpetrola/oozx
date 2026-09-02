@@ -87,5 +87,10 @@
             <artifactId>device-didaktik</artifactId>
             <version>${project.version}</version>
         </dependency>
-    </dependencies>
+            <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-interface1</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+</dependencies>
 </project>

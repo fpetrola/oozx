@@ -109,7 +109,7 @@ gate verde, commit — antes de empezar el siguiente.
 | 8 | **Fuller Box** — HECHO | AY en otros puertos + joystick; reusa `AyPeripheral` y `Joystick.fullerRead`, que ya existe | música AY en un 48K, y el joystick del Fuller |
 | 9 | **Opus Discovery** — HECHO | misma pila; `success.opd` de Fuse como medio de prueba | catálogo de un disco Opus |
 | 10 | **Didaktik 40/80** — HECHO | misma pila, con un 8255 | idem |
-| 11 | **Interface 1** | 1.410 líneas: microdrives, RS232, ZX Net; `if1.rom` está en `~/detodo/spectrum/Roms`, `success.mdr` en Fuse | `CAT 1` de un cartucho; la terminal RS232 muestra lo que el programa escribe |
+| 11 | **Interface 1** — HECHO | 1.410 líneas: microdrives, RS232, ZX Net; `if1.rom` está en `~/detodo/spectrum/Roms`, `success.mdr` en Fuse | `CAT 1` de un cartucho; la terminal RS232 muestra lo que el programa escribe |
 | 12 | **DivIDE** | primera IDE; `FATware-0-12.rom` y `demfir.rom` están en `~/detodo/spectrum/Roms` | arranca el firmware desde un HDF |
 | 13 | **Simple 8-bit IDE**, **ZXATASP**, **ZXCF** | sobre la misma `IdeChannel` | idem, con sus paginados |
 | 14 | **DivMMC** y **ZXMMC** | tarjeta SD por SPI (`MmcCard`), que no existe en el árbol y se escribe desde el protocolo | igual, desde una imagen de tarjeta |
@@ -327,7 +327,7 @@ activarse y se limpia al desactivarse (`eventRemoveType`). El uPD765 del +3 (`UP
 1.537 líneas) queda para después: no es un periférico, pero con `Disk` y `Fdd` reales deja de
 estar bloqueado.
 
-### 11. Interface 1 (`if1.c`, 1.410 líneas) — `machine/devices/interface1`
+### 11. Interface 1 (`if1.c`, 1.410 líneas) — `machine/devices/interface1` — HECHO
 
 - **ROM** 8K, mapeada dos veces (0x0000 y 0x2000). Trampas: antes del fetch `PC ∈ {0x0008,
   0x1708}` pagina; después del fetch `PC == 0x0700` despagina. ROM `if1.rom`/`if1v2.rom` en
@@ -356,8 +356,14 @@ estar bloqueado.
   transmite aparece como texto; lo que se escribe se le manda) y el conector de red. Acá se
   aparta de Fuse a propósito: Fuse sólo ofrece archivos; la terminal es la misma funcionalidad
   con la cara de este escritorio, y los archivos siguen estando.
-- **Test**: `success.mdr` de Fuse: `CAT 1` desde la ROM del usuario si está; sin ella, el registro
-  de motores, el preámbulo y la lectura de un sector contra el archivo.
+- **Test**: `success.mdr` de Fuse: el registro de motores, GAP/SYNC, la lectura de un sector contra
+  el archivo, un cartucho en blanco formateado por el puerto y guardado, un byte en cada sentido del
+  RS232 por bits, y con la ROM del usuario un RST 8 que entra a la sombra y vuelve por 0x0700.
+- **Cómo quedó**: `Microdrive` (unidad + cartucho + MDR; iría en `core` junto a `Disk` si otro
+  periférico lo usara, y nadie más lo usa), `Rs232` (los dos serializadores y el otro extremo: la
+  terminal del escritorio o los archivos con los escapes de Fuse), `ZxNet` (el cable en un archivo,
+  crudo o interpretado) y `Interface1Peripheral`, que es la ULA: los tres puertos y la ROM. Lo único
+  que difiere de Fuse a propósito: la salida a la red no exige un TxD enchufado.
 
 ### 12-13. DivIDE, Simple 8-bit IDE, ZXATASP, ZXCF (`ide/`, 2.912 líneas con los MMC)
 

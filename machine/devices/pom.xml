@@ -43,6 +43,7 @@
         <module>fuller</module>
         <module>opus</module>
         <module>didaktik</module>
+        <module>interface1</module>
         <module>all</module>
     </modules>
 
