@@ -65,33 +65,15 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
     this.sound = sound;
   }
 
-  void loadRomBankFromFile(MemoryPage[] bankMap, int pageNum, String filename, int expectedLength, boolean custom) {
-    Utils.File rom = new Utils.File();
-    if (Utils.readAuxiliaryFile("roms/" + filename, rom, Utils.AuxiliaryType.ROM) != 0) {
-      throw new RomNotLoadedException("couldn't find ROM '" + filename + "'");
-    }
-//    rom.buffer = new byte[0x4000];
-//    rom.length = rom.buffer.length;
-
-    if (rom.length != expectedLength) {
-      Utils.closeFile(rom);
-      throw new RomNotLoadedException("ROM '" + filename + "' is " + rom.length
-          + " bytes long; expected " + expectedLength);
-    }
-
-    memory.fillRomBank(bankMap, pageNum, rom.buffer, rom.length, custom);
-    Utils.closeFile(rom);
-  }
-
   public void loadRomBank(MemoryPage[] bankMap, int pageNum, String filename, String fallback, int expectedLength) {
     boolean custom = fallback != null && !filename.equals(fallback);
     try {
-      loadRomBankFromFile(bankMap, pageNum, filename, expectedLength, custom);
+      memory.loadRomBank(bankMap, pageNum, filename, expectedLength, custom);
     } catch (RomNotLoadedException e) {
       // The settings named a ROM this machine does not have; fall back to the one it shipped
       // with. If that is missing too there is nothing left to try, so it goes up.
       if (fallback == null || !custom) throw e;
-      loadRomBankFromFile(bankMap, pageNum, fallback, expectedLength, false);
+      memory.loadRomBank(bankMap, pageNum, fallback, expectedLength, false);
     }
   }
 

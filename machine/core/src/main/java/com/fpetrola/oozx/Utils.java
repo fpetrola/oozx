@@ -30,17 +30,22 @@ public class Utils {
     return 0;
   }
 
+  /**
+   * A ROM by name from the jars, or by path from the disk - which is where the ones nobody may
+   * ship live. Answers non-zero when it is nowhere; callers fall back or say so.
+   */
   public static int readAuxiliaryFile(String filename, File rom, AuxiliaryType auxiliaryType) {
     try {
-      InputStream resource = Utils.class.getResourceAsStream("/" + filename);
-      // Say so instead of letting the copy below fail on a null stream. Callers are written to
-      // handle this — loading a ROM bank falls back to the machine's own on a non-zero answer —
-      // and could not, because a missing file threw before they got the chance.
-      if (resource == null) return -1;
-
-      java.io.File tempFile = java.io.File.createTempFile("aux", "rom");
-      FileUtils.copyToFile(resource, tempFile);
-      rom.buffer = FileUtils.readFileToByteArray(tempFile);
+      InputStream resource = Utils.class.getResourceAsStream("/roms/" + filename);
+      if (resource != null) {
+        try (resource) {
+          rom.buffer = resource.readAllBytes();
+        }
+      } else {
+        java.io.File onDisk = new java.io.File(filename);
+        if (!onDisk.isFile()) return -1;
+        rom.buffer = FileUtils.readFileToByteArray(onDisk);
+      }
       rom.length = rom.buffer.length;
     } catch (IOException e) {
       throw new RuntimeException(e);

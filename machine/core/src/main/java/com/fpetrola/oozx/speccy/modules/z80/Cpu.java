@@ -36,6 +36,15 @@ public interface Cpu {
 
   void interrupt();
 
+  /** Pulls /NMI: taken between this instruction and the next, at 0x0066. */
+  void nmi();
+
+  /** What is watching the address bus before each fetch. */
+  PcTraps beforeFetch();
+
+  /** What is watching it once the instruction fetched there has run. */
+  PcTraps afterInstruction();
+
   /**
    * A frame boundary just moved the clock back by {@code frameLength}; move the CPU's own
    * bookkeeping with it, so the moment interrupts became enabled stays comparable to the clock.

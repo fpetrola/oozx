@@ -157,7 +157,7 @@ public class RzxSession {
     // boundary to keep the clock inside a frame. Handing it the wrong length leaves the clock
     // drifting by a thousand T-states a frame, which the sound and the display both read.
     RzxSession session = new RzxSession(recording, speccy,
-        new RzxPlayback(speccy.z80.ooz80, player, recording, framesTStatesOf(speccy)), ports);
+        new RzxPlayback(speccy.z80.ooz80, player, recording, framesTStatesOf(speccy)).steppedBy(speccy.z80::step), ports);
     session.timer = injector.getInstance(com.fpetrola.oozx.speccy.modules.Timer.class);
     session.core = core;
     session.snapshot = snapshot;
@@ -186,7 +186,7 @@ public class RzxSession {
     ports.replaying = true;
     finished = false;
     speccy.z80.loadSnap(snapshot.toAbsolutePath().toString());
-    playback = new RzxPlayback(speccy.z80.ooz80, player, recording, framesTStatesOf(speccy));
+    playback = new RzxPlayback(speccy.z80.ooz80, player, recording, framesTStatesOf(speccy)).steppedBy(speccy.z80::step);
   }
 
   /** How long a frame is on the machine currently selected. */

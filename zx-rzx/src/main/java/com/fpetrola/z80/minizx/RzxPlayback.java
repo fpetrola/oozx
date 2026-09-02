@@ -146,8 +146,17 @@ public class RzxPlayback {
     return played;
   }
 
+  /** How an instruction is run: the processor alone, unless the machine wraps it. */
+  private Runnable stepper;
+
+  /** Steps through the machine rather than the bare processor - whatever it hangs on a fetch, it hears. */
+  public RzxPlayback steppedBy(Runnable stepper) {
+    this.stepper = stepper;
+    return this;
+  }
+
   private void step() {
-    cpu.execute();
+    if (stepper != null) stepper.run(); else cpu.execute();
     instructions++;
     int now = registerR.read() & 0x7F;
     int stepped = (now - previousR) & 0x7F;

@@ -47,6 +47,7 @@ public class OOZ80 implements Z80Cpu {
   public void execute() {
     if (state.isActiveNMI()) {
       state.setActiveNMI(false);
+      nmi();
       return;
     }
     if (state.isIntLine() && state.isIff1() && !state.isPendingEI())
@@ -109,6 +110,23 @@ public class OOZ80 implements Z80Cpu {
     }
     pc.write(value);
     state.getMemptr().write(value);
+  }
+
+  /**
+   * The non-maskable interrupt, taken between two instructions: out of HALT if it was there,
+   * IFF1 copied into IFF2 and cleared, PC pushed, and off to 0x0066.
+   */
+  public void nmi() {
+    Register pc = state.getPc();
+    if (state.isHalted()) {
+      state.setHalted(false);
+      pc.increment();
+    }
+    state.getRegisterR().increment();
+    Push.doPush(pc.read(), state.getRegisterSP(), state.getMemory());
+    state.setIff2(state.isIff1());
+    state.setIff1(false);
+    pc.write(0x0066);
   }
 
   @Override

@@ -253,13 +253,39 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
     }
   }
 
-  /** As many pages as a 16K bank has, for a device to fill with what it brings. */
-  public MemoryPage[] newBank() {
+  /** Fills a bank from a ROM by name - from the jars, or from a file on disk. */
+  public void loadRomBank(MemoryPage[] bank, int pageNum, String filename, int expectedLength, boolean custom) {
+    Utils.File rom = new Utils.File();
+    if (Utils.readAuxiliaryFile(filename, rom, Utils.AuxiliaryType.ROM) != 0) {
+      throw new RomNotLoadedException("couldn't find ROM '" + filename + "'");
+    }
+    if (rom.length != expectedLength) {
+      throw new RomNotLoadedException("ROM '" + filename + "' is " + rom.length
+          + " bytes long; expected " + expectedLength);
+    }
+    fillRomBank(bank, pageNum, rom.buffer, rom.length, custom);
+  }
+
+  /** As many pages as a 16K bank has, for a device to fill with the ROM it brings. */
+  public MemoryPage[] newRomBank() {
     MemoryPage[] bank = new MemoryPage[PAGES_IN_16K];
     for (int i = 0; i < bank.length; i++) {
       bank[i] = new MemoryPage();
     }
     return bank;
+  }
+
+  /** That many bytes of a device's own RAM, as pages it can map over the machine's. */
+  public MemoryPage[] newRam(int length) {
+    int[] data = new int[length];
+    MemoryPage[] pages = new MemoryPage[length / PAGE_SIZE];
+    for (int i = 0; i < pages.length; i++) {
+      pages[i] = new MemoryPage();
+      pages[i].offset = i * PAGE_SIZE;
+      pages[i].setPage(data);
+      pages[i].setWritable(true);
+    }
+    return pages;
   }
 
   // Page in 16K from /ROMCS

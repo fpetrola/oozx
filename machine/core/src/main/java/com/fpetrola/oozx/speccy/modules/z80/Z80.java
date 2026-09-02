@@ -124,6 +124,9 @@ public class Z80 implements ZxModule, Cpu {
   private final Tape tape;
   private final byte[][] screenBytes = new byte[1000][1000];
   private Memory memory1;
+  private final PcTraps beforeFetch = new PcTraps();
+  private final PcTraps afterInstruction = new PcTraps();
+  private int z80_nmi_event;
 
   @Inject
   public Z80(EventManager eventManager, com.fpetrola.oozx.Memory memory, Display display, Ula ula, Machine machine, Keyboard keyboard, SpectrumZ80Clock zxClock, Input input, PeripheralBusDelegate peripherals, UiDisplay uiDisplay, Timer timer, Module module, EmulationSession session, Sound sound, Settings settings, Tape tape, IO io, UserInterface userInterface) {
@@ -484,7 +487,7 @@ public class Z80 implements ZxModule, Cpu {
 
   public void start() {
     z80_interrupt_event = eventManager.eventRegister(this::z80_interrupt_event_fn, "Retriggered interrupt");
-    int z80_nmi_event = eventManager.eventRegister(this::z80_nmi, "Non-maskable interrupt");
+    z80_nmi_event = eventManager.eventRegister(this::z80_nmi, "Non-maskable interrupt");
     int z80_nmos_iff2_event = eventManager.eventRegister(null, "IFF2 update dummy event");
 
     module.register(this);
@@ -500,8 +503,37 @@ public class Z80 implements ZxModule, Cpu {
   public void end() {
   }
 
+  /** Eleven T-states: five of the processor's own, and the two pushes the memory counts. */
   private void z80_nmi(long l, int i, Object o) {
-    System.out.println("Z80 NMI");
+    zxClock.addTStates(5, "nmi");
+    ooz80.nmi();
+  }
+
+  @Override
+  public void nmi() {
+    eventManager.eventAdd(zxClock.getTStates(), z80_nmi_event);
+  }
+
+  @Override
+  public PcTraps beforeFetch() {
+    return beforeFetch;
+  }
+
+  @Override
+  public PcTraps afterInstruction() {
+    return afterInstruction;
+  }
+
+  /** One instruction, and whatever is watching the address it was fetched from is told. */
+  public void step() {
+    if (beforeFetch.armed() || afterInstruction.armed()) {
+      int pc = ooz80.getState().getPc().read();
+      beforeFetch.at(pc);
+      ooz80.execute();
+      afterInstruction.at(pc);
+    } else {
+      ooz80.execute();
+    }
   }
 
   private void z80_interrupt_event_fn(long l, int i, Object o) {
@@ -513,7 +545,7 @@ public class Z80 implements ZxModule, Cpu {
       while (emulatorPaused) Thread.onSpinWait();
       bridgeCommand.invoke(0, null);
       try {
-        ooz80.execute();
+        step();
       } catch (Exception e) {
         e.printStackTrace();
       }

@@ -59,7 +59,7 @@ public class Interface2Peripheral extends PluggablePeripheral implements ZxModul
     this.module = module;
     this.machine = machine;
     this.settings = settings;
-    this.rom = memory.newBank();
+    this.rom = memory.newRomBank();
   }
 
   /** Any Sinclair machine with an edge connector that has /ROMCS, and the Timexes. Not a +2A or +3. */

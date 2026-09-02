@@ -33,6 +33,7 @@
         <module>joystick</module>
         <module>melodik</module>
         <module>interface2</module>
+        <module>multiface</module>
         <module>all</module>
     </modules>
 

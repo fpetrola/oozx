@@ -36,11 +36,11 @@ import javax.swing.event.InternalFrameEvent;
  */
 public abstract class DeviceFrame<P extends PluggablePeripheral> extends AttachedFrame {
 
-  private final Class<P> kind;
+  private final Class<? extends P> kind;
   private Speccy machine;
   private P device;
 
-  protected DeviceFrame(String title, Class<P> kind) {
+  protected DeviceFrame(String title, Class<? extends P> kind) {
     super(title);
     this.kind = kind;
     // Closing the window takes the device out of the machine: it was the device.
@@ -102,7 +102,12 @@ public abstract class DeviceFrame<P extends PluggablePeripheral> extends Attache
     Speccy into = machine;
     into.z80.later(() -> {
       wired.plugIn(connected);
-      into.peripherals.update();
+      // A device that changes the machine's memory map - a ROM, RAM of its own - only arrives at
+      // a reset, which is what the hardware needed too: you did not plug a Multiface into a
+      // running Spectrum.
+      if (into.peripherals.update()) {
+        into.machine.reset(true);
+      }
     });
   }
 }
