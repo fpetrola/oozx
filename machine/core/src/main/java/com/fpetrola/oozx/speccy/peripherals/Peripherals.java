@@ -123,9 +123,17 @@ public class Peripherals implements PeripheralBus {
 
     if (active) {
       privatePeriph.peripheral.activate(getSpectrumMachine());
+      // The first to attach to a port wins the bits it drives, as in Fuse, so something plugged
+      // in goes in front of the machine's own chips: a board on the even ports the ULA answers
+      // has to be heard over the keyboard.
+      int front = 0;
       for (PortHandler port : privatePeriph.peripheral.getPorts()) {
         PrivatePort privatePort = new PrivatePort(type, port);
-        ports.add(privatePort);
+        if (privatePeriph.peripheral instanceof Pluggable) {
+          ports.beforeInsert(front++, privatePort);
+        } else {
+          ports.add(privatePort);
+        }
         if (port.listensToBusReads()) busListeners.add(privatePort);
       }
     } else {

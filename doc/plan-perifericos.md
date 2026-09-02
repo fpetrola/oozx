@@ -111,7 +111,7 @@ gate verde, commit — antes de empezar el siguiente.
 | 10 | **Didaktik 40/80** — HECHO | misma pila, con un 8255 | idem |
 | 11 | **Interface 1** — HECHO | 1.410 líneas: microdrives, RS232, ZX Net; `if1.rom` está en `~/detodo/spectrum/Roms`, `success.mdr` en Fuse | `CAT 1` de un cartucho; la terminal RS232 muestra lo que el programa escribe |
 | 12 | **DivIDE** — HECHO | primera IDE; `FATware-0-12.rom` y `demfir.rom` están en `~/detodo/spectrum/Roms` | arranca el firmware desde un HDF |
-| 13 | **Simple 8-bit IDE**, **ZXATASP**, **ZXCF** | sobre la misma `IdeChannel` | idem, con sus paginados |
+| 13 | **Simple 8-bit IDE**, **ZXATASP**, **ZXCF** — HECHO | sobre la misma `IdeChannel` | idem, con sus paginados |
 | 14 | **DivMMC** y **ZXMMC** | tarjeta SD por SPI (`MmcCard`), que no existe en el árbol y se escribe desde el protocolo | igual, desde una imagen de tarjeta |
 | 15 | **Currah uSpeech** | SP0256 (1.545 líneas); ROM no disponible acá | el Spectrum habla |
 | 16 | **Currah uSource** | ROM no disponible; 305 líneas | el ensamblador en pantalla |
@@ -392,16 +392,21 @@ los tests de `*_unittest()` de Fuse como oráculo del lado de los puertos.
   `DivIdePeripheral` (el canal en 0xa3-0xbf) y `DivIdeFrame` (EPROM, jumper, NMI). Las trampas
   "después del fetch" de Fuse son "después de la instrucción" acá; en 0x0008 FATware tiene los
   mismos operandos que la ROM, así que da lo mismo, y el boot real por 0x0000 se prueba.
-- **Simple 8-bit IDE** (187) — `machine/devices/simpleide`. Un solo puerto: máscara 0x0010, valor
+- **Simple 8-bit IDE** (187) — `machine/devices/simpleide` — HECHO. Un solo puerto: máscara 0x0010, valor
   0x0000; registro = bits 8, 12 y 13 del puerto. Sin memoria. Ventana: dos `MediaSlot`.
-- **ZXATASP** (604) — `machine/devices/zxatasp`. 8255 en 0x009f/0x019f/0x029f/0x039f (máscara
+- **ZXATASP** (604) — `machine/devices/zxatasp` — HECHO. 8255 en 0x009f/0x019f/0x029f/0x039f (máscara
   0x039f); puerto C: bits 0-2 registro IDE, 3 WR, 4 RD, 5 primario, 6 latch de RAM, 7 secundario
   o RAM off; 32 bancos × 16K de RAM sobre 0x0000-0x3fff, sólo los impares protegidos con wp;
   `upload` mapea escritura sin lectura. Vectores en `zxatasp_unittest`. Ventana: dos `MediaSlot`,
   el banco y los flags.
-- **ZXCF** (377) — `machine/devices/zxcf`. `memctl` en 0x10b4 (máscara 0x10f4): bit 7 memoria
+- **ZXCF** (377) — `machine/devices/zxcf` — HECHO. `memctl` en 0x10b4 (máscara 0x10f4): bit 7 memoria
   apagada, bit 6 escribible, bits 0-5 banco de 64×16K; IDE en 0x00b4 (registro en bits 8-10).
   Sólo maestro. Ventana: una `MediaSlot`, banco, protección.
+  Cómo quedaron los tres: `IdeBoard` en `core` (un canal y nada que paginar: el Simple IDE tal
+  cual) y `BankedIdePeripheral` encima (los bancos de 16K que hacen de flash, con `upload`:
+  ZXATASP y ZXCF sólo ponen su registro), cada uno en su módulo con la `IdeBayFrame` del kit y un
+  par de jumpers donde los hay. El canal secundario del ZXATASP existe y nunca tiene disco, como
+  en Fuse.
 
 ### 14. DivMMC y ZXMMC — `machine/devices/divmmc`, `machine/devices/zxmmc`
 
