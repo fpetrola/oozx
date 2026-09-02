@@ -43,6 +43,7 @@ public class Widgets {
   /** A button with an icon, falling back to words when the icon is not there to be found. */
   public static JButton iconButton(String iconFile, String text, String tooltip) {
     JButton button = new JButton();
+    button.setFocusable(false);
     try {
       button.setIcon(loadIcon(iconFile));
     } catch (RuntimeException missing) {
@@ -55,6 +56,7 @@ public class Widgets {
   /** The same, for a button that stays down. */
   public static JToggleButton iconToggle(String iconFile, String text, String tooltip) {
     JToggleButton button = new JToggleButton();
+    button.setFocusable(false);
     try {
       button.setIcon(loadIcon(iconFile));
     } catch (RuntimeException missing) {
@@ -69,6 +71,9 @@ public class Widgets {
       if (component instanceof AbstractButton button) {
         button.setMargin(new Insets(2, 3, 2, 3));
         button.setFocusPainted(false);
+        // And it does not take the keyboard: a button that holds the focus is a button that Enter
+        // presses, which is how Enter stopped reaching the machine and pressed the turbo instead.
+        button.setFocusable(false);
       }
     }
   }

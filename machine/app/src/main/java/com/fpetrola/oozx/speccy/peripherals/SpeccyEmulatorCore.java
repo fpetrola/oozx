@@ -46,6 +46,16 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
   public SpeccyEmulatorCore(Speccy speccy) {
     super(new SpeccyScreen(speccy.uiDisplay.screenMatrix));
     this.speccy = speccy;
+    // Clicking the picture puts the keyboard on the machine. Without it, whatever was clicked last
+    // keeps the focus - a toolbar button, usually - and then Enter presses that button instead of
+    // reaching the Spectrum.
+    getPanel().setFocusable(true);
+    getPanel().addMouseListener(new java.awt.event.MouseAdapter() {
+      @Override
+      public void mousePressed(java.awt.event.MouseEvent clicked) {
+        getPanel().requestFocusInWindow();
+      }
+    });
     // Whatever changes the machine - a tape named for a 128K, a snapshot, the box itself - says so
     // once, here, instead of each caller remembering to announce it.
     speccy.machine.addMachineChangeListener(newMachine -> announceMachine(newMachine.getName()));
