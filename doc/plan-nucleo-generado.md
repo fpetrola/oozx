@@ -9,7 +9,12 @@ OOP de `emulator`, que es el único dueño.
 
 Medido sobre `emulator` el 1 de septiembre de 2026, con la suite Fuse en 1355 verdes.
 
-**Estado: plan. Nada hecho.**
+**Estado (2 de septiembre de 2026, rama `nucleo-generado`): hecho, salvo C.** A, B y D están
+hechos y commiteados; el generador existe y `GeneratedZ80.java` pasa los 1355 tests de Fuse
+evento por evento, la referencia ALU exhaustiva, y los 260 tests de `machine/core` con los
+mismos hashes de boot que el núcleo OOP. La máquina lo usa con `-Doozx.cpu=generated`; el
+default sigue siendo el OOP. C (fetch y executor) queda como propuesta a revisar, y el generador
+lleva mientras tanto sus dos reglas de deuda. Lo medido está al final, en "Lo que quedó".
 
 ## El principio
 
@@ -342,57 +347,76 @@ campos públicos que rastrear. Neto: ≈ −60 líneas, y el aspecto entero en u
 Un archivo, `GeneratedZ80.java`, con esta forma (nombres a decidir):
 
 ```java
-public abstract class GeneratedZ80 extends UnrolledRegisterBank implements Z80Cpu {
-  private final Memory memory;   // la de la máquina: cobra 3/4 T y la contención ULA de cada acceso
-  private final IO io;
-  private final State state;     // iff1/iff2/IM/halted, como hoy
+public abstract class GeneratedZ80 extends UnrolledRegisterBank {
+  protected final Memory memory;   // la de la máquina: cobra 3/4 T y la contención ULA de cada acceso
+  protected final IO io;
+  protected State state;           // iff1/iff2/IM/halted, como hoy
 
-  protected abstract void contend(int address, int times, int tstates);   // el gancho de B: la máquina y el test lo implementan
+  public abstract void contend(int address, int times, int tstates, Contention.Kind kind);   // el gancho de B
 
-  public void execute() { /* OOZ80.execute() especializado: interrupciones, R++, y: */ decode(memory.read(PC, 1)); }
+  public void step() {
+      R = (R + 1 & 0x7f) | regRBit7;
+      decode(memory.read(PC, 1));
+  }
 
-  private void decode(int opcode) {
+  private void decode(int opcode) {          // un método por tabla, partido de a 16 opcodes por el límite del JIT
+    switch (opcode >> 4) { case 0: decode_0(opcode); break; /* ... */ }
+  }
+
+  private void decode_8(int opcode) {
     switch (opcode) {
-      case 0x86: {                                       // ADD A,(HL)
-        int value2 = memory.read(H << 8 | L, 0);         // source.read()
-        int value1 = A;                                  // target.read()
-        int addtemp = value2 + value1;                   // Add8TableAluOperation.calculate2Values1Boolean
-        int lookup = ((value2 & 0x88) >> 3) | ((value1 & 0x88) >> 2) | ((addtemp & 0x88) >> 1);
-        value2 = addtemp & 0xff;
-        F = ((addtemp & 0x100) != 0 ? FLAG_C : 0) | HALF_CARRY_ADD[lookup & 0x07]
-            | OVERFLOW_ADD[lookup >> 4] | sz53Table(value2);
-        A = value2;                                      // target.write()
-        PC = (PC + 1) & 0xFFFF;
-        break;
-      }
-      case 0x20: {                                       // JR NZ,d
-        int nextPC = (PC + 2) & 0xFFFF;
-        boolean jumped = (F & 0x40) != 0x40;             // ConditionFlag(F, ZERO_FLAG, negate)
-        if (jumped) {
-          int d = memory.read((PC + 1) & 0xFFFF, 0);     // se lee sólo si salta
-          nextPC = (PC + 2 + (byte) d) & 0xFFFF;         // calculateRelativeJumpAddress
-          MEMPTR = nextPC;                               // MemptrUpdater, tejido
-        }
-        if (jumped) contend((PC + 1) & 0xFFFF, 5, 1);    // la lista de contención de la instancia, impresa
-        else contend((PC + 1) & 0xFFFF, 1, 3);
-        PC = nextPC;
-        break;
-      }
-      case 0xDD: {                                       // prefijo: R++, segundo opcode con fetch M1
-        R = (R + 1 & 0x7f) | regRBit7;
-        decodeDD(memory.read((PC + 1) & 0xFFFF, 1));
-        break;
+      case 0x86: {                                       // ADD A,(HL), tal como salió
+          int _F181 = 0;
+          int _address84 = 0;
+          _address84 = (H << 8) | L;
+          int sourceValue_288 = memory.read(_address84, 0);
+          int value1_289 = A & 0xFF;
+          int value2_290 = sourceValue_288 & 0xFF;
+          _F181 = value2_290;
+          int addtemp_292 = value2_290 + value1_289;
+          int lookup_293 = ((value2_290 & 0x88) >> 3) | ((value1_289 & 0x88) >> 2) | ((addtemp_292 & 0x88) >> 1);
+          value2_290 = addtemp_292 & 0xff;
+          _F181 = ((addtemp_292 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_293 & 0x07)] | OVERFLOW_ADD[(lookup_293 >> 4)] | (SZ53[value2_290 & 0xff] | (value2_290 == 0 ? 0x40 : 0));
+          int result_294 = value2_290 & 0xFF;
+          F = _F181 & 0xFF;
+          A = result_294;
+          PC = (PC + 1) & 0xFFFF;
+          break;
       }
       // ...
     }
   }
 
-  private void decodeDD(int opcode) {
+  private void decode_2(int opcode) {
     switch (opcode) {
-      case 0xCB: {                                       // DDCB: d en PC+2, cuarto byte en PC+3 sin M1
-        int d = memory.read((PC + 2) & 0xFFFF, 0);
-        decodeDDCB(memory.read((PC + 3) & 0xFFFF, 2), d);
-        break;
+      case 0x20: {                                       // JR NZ,d, tal como salió
+          int _nextPC51 = 0;
+          if ((!((F & 0x40) == 0x40))) {
+              int operand_105 = memory.read((PC + 1) & 0xFFFF, 0);     // se lee sólo si salta
+              int jumpAddress2_104 = ((PC + 2 + (byte) operand_105) & 0xFFFF);
+              _nextPC51 = jumpAddress2_104;
+          } else {
+              _nextPC51 = -1;
+          }
+          int nextPC_106 = _nextPC51;
+          MEMPTR = nextPC_106 == -1 ? 0 : nextPC_106;                  // MemptrUpdater, tejido
+          if (_nextPC51 != -1)
+              contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);   // los valores de PhaseProcessor, impresos
+          if (_nextPC51 == -1)
+              contend((PC + 1) & 0xFFFF, 1, 3, Contention.Kind.READ);
+          PC = _nextPC51 == -1 ? (PC + 2) & 0xFFFF : _nextPC51;
+          break;
+      }
+      // ...
+    }
+  }
+
+  private void decode_13(int opcode) {
+    switch (opcode) {
+      case 0xDD: {                                       // prefijo: R++, segundo opcode con fetch M1
+          R = (R + 1 & 0x7f) | regRBit7;
+          decodeDD(memory.read((PC + 1) & 0xFFFF, 1));
+          break;
       }
       // ...
     }
@@ -400,23 +424,22 @@ public abstract class GeneratedZ80 extends UnrolledRegisterBank implements Z80Cp
 }
 ```
 
-Los dos `case` están derivados a mano de los fuentes actuales (`ParameterizedBinaryAluInstruction`,
-`Add`, `JR`, `ConditionalInstruction`, `ConditionFlag`, `MemptrUpdater`, `PhaseProcessor`) y
-coinciden con lo que Fuse espera: para `20_1` (tomado) un MR en 0001 y cinco MC en 0001; para
-`20_2` (no tomado) un único MC en 0001 de 3 T y ningún MR. Eso es lo que el generador tiene que
-producir solo. Y se ve lo que tejer significa: la línea de MEMPTR es el visitor de
-`MemptrUpdater` aplanado, y las dos de contención son los dos valores que `PhaseProcessor` produce
-para `JR` —"al final si saltó: 5×1 T en PC+1", "al final si no: 1×3 T en PC+1"— impresos. Si el
-modelo cambia cualquiera de las tres, el generado cambia con él.
+Los tres `case` son los que el generador produjo (los nombres con sufijo numérico son los locales
+que el especializador renombra; los que empiezan con `_` son campos de instancia del modelo
+vueltos variables). Coinciden con lo que Fuse espera: para `20_1` (tomado) un MR en 0001 y cinco
+MC en 0001; para `20_2` (no tomado) un único MC en 0001 de 3 T y ningún MR. Y se ve lo que tejer
+significa: la línea de MEMPTR es el visitor de `MemptrUpdater` aplanado —incluido el `0` que
+escribe cuando no salta—, y las dos de contención son los dos valores que `PhaseProcessor`
+produce para `JR` impresos. Si el modelo cambia cualquiera de las tres, el generado cambia con él,
+y `GeneratedZ80IsCurrentTest` lo exige.
 
 Restricciones de la forma:
 
 - **HotSpot no compila métodos de más de 8000 bytes de bytecode** (`HugeMethodLimit`,
   `DontCompileHugeMethods=true`): un método con 256 `case` de este tamaño quedaría interpretado
-  para siempre, que es peor que el núcleo OOP. Por eso un método por tabla, y el generador mide
-  el tamaño del `Code` de cada uno tras compilar y parte por rangos de opcode (`< 0x80`) hasta
-  que entren. Criterio de aceptación: con `-XX:+PrintCompilation`, los siete `decode*` aparecen
-  compilados en tier 4.
+  para siempre, que es peor que el núcleo OOP. Medido: una tabla entera son entre 15 y 47 KB de
+  bytecode. Por eso cada tabla se parte en métodos de 16 opcodes (el más grande, 3.562 bytes),
+  con un `switch (opcode >> 4)` delante: dos saltos de tabla por instrucción.
 - **Lo que queda virtual**: `memory.read/write`, `io.in/out`, `contend` y los accesos a `state`.
   Son de la máquina, no del núcleo, y Z80Core hace lo mismo con `MemIoOps`.
 - **Hacia afuera**: `State` recibe este mismo objeto como banco de registros, así snapshots, RZX,
@@ -489,51 +512,57 @@ va a `emulator/src/main/java`, commiteado y legible, como `Z80.java` de Z80Core.
 
 Cada uno deja los gates verdes y se commitea solo.
 
-**0. Medir.** Un test que recorre las siete tablas e imprime: instancias por tabla, formas
+**0. Medir. HECHO en parte.** El benchmark existe (`CoreBenchmark`); el catálogo de formas no se
+escribió porque el generador recorre las tablas enteras y falla en la primera forma que no cubre,
+que resultó ser mejor inventario. Lo que decía: un test que recorre las siete tablas e imprime: instancias por tabla, formas
 distintas (clase, clase del target, clase del source, condición) —el catálogo que el
 especializador tiene que cubrir— y los lugares `null`. Un benchmark sin JMH: instrucciones por
 segundo del núcleo OOP sobre el boot de la ROM de 48K (`EmulationRegressionTest` ya corre 200
 frames) y sobre un programa sintético en `MockedMemory`. Baseline hoy: Fuse 1355/1355.
 
-**1. A: los aspectos fuera del modelo.** Gate: Fuse, `machine`, y un grep: ningún archivo de
+**1. A: los aspectos fuera del modelo. HECHO** (`49de2b1d3`, −73 líneas). Gate: Fuse, `machine`, y un grep: ningún archivo de
 `cpu`, `instructions`, `opcodes` ni `registers` importa `fuse.tstates`.
 
-**2. B: la contención como valores.** Gate: Fuse evento por evento, `ZXSpectrumContendedMemoryTests`,
+**2. B: la contención como valores. HECHO** (`24775046d`, −537 líneas). Gate: Fuse evento por evento, `ZXSpectrumContendedMemoryTests`,
 hashes de `EmulationRegressionTest`. El núcleo OOP sale más rápido de acá aunque no se genere
 nada: no hay despacho de fases por lectura.
 
-**3. D: MEMPTR con un dueño.** Gate: Fuse verifica MEMPTR en cada test; el translator y los tests
+**3. D: MEMPTR con un dueño. HECHO** (`f395170d5`, −50 líneas). Gate: Fuse verifica MEMPTR en cada test; el translator y los tests
 siguen instalando el spy como hoy. La máquina decide si lo instala (ver decisiones abiertas).
 
-**4. C: fetch y executor**, después de revisar la propuesta: lo muerto; el área de operandos
+**4. C: fetch y executor. PENDIENTE**, después de revisar la propuesta: lo muerto; el área de operandos
 leída una vez; los desplazamientos de índice al preparar; el prefijo que declara. Fuse después de
 cada uno. Hasta entonces el generador lleva las dos reglas de deuda de C.
 
-**5. El especializador sobre hojas**, reglas 1 a 8, con tests dorados sobre diez instancias que
+**5. El especializador sobre hojas. HECHO** (`16d29ae4d`), reglas 1 a 8; los dorados están como
+prueba exploratoria (`SpecializerTest`) y no como texto fijado todavía: con tests dorados sobre diez instancias que
 cubren todas las formas: `LD A,(IX+d)`, `LD (IX+d),n`, `ADD A,n`, `JR NZ,d`, `CALL NZ,nn`,
 `LDIR`, `BIT 3,(IX+d)` (DDCB con `LdOperation`), `IN A,(n)`, `EX (SP),HL`, `ADC HL,DE`.
 Reemplazan los tres dorados de `TestInlinerTest`. Los dorados se revisan a mano una vez: son la
 especificación del generador.
 
-**6. Los aspectos.** El visitor de MEMPTR (regla 2) y la lista de contención (regla 9). Mismos
+**6. Los aspectos. HECHO.** El visitor de MEMPTR (regla 2) y la lista de contención (regla 9). Mismos
 diez dorados, ahora con las líneas de MEMPTR y de `contend`, revisadas contra `MemptrUpdater` y
 `PhaseProcessor` a ojo y contra Fuse después.
 
-**7. Desde `OOZ80.execute()`.** El especializador arranca arriba y produce la clase completa,
+**7. Desde `OOZ80.execute()`. HECHO CON MARCO A MANO.** Hasta que C exista, el marco (R++, la
+lectura del opcode, los prefijos con sus parámetros leídos por reflexión de
+`DefaultFetchNextOpcodeInstruction`, el próximo PC) lo escribe `CoreGenerator` en unas 60 líneas; lo
+que decía este paso: el especializador arranca arriba y produce la clase completa,
 con las cascadas por la regla 4. `GenerateZ80` la escribe, la compila en el test (`javax.tools`),
 mide los métodos y parte si hace falta. `FuseTests` y `AluReferenceTest` se parametrizan por
 núcleo y corren sobre los dos. Gate: 1355 verdes también en el generado, con la misma lista de
 eventos. Éste es el paso donde todo se cobra: si un `case` sale mal, Fuse dice cuál y el dorado
 dice por qué.
 
-**8. Enchufar y medir.** `Z80.createOOZ80` elige el núcleo por configuración (propiedad de
+**8. Enchufar y medir. HECHO** (`d6a5fdbc2`), default OOP. `Z80.createOOZ80` elige el núcleo por configuración (propiedad de
 sistema; default OOP). Con el generado la máquina no instala el aspecto de contención —lo tiene
 adentro— y le implementa `contend` con lo que hoy hace `FusePhaseProcessor`. Con el generado:
 `ZXSpectrumContendedMemoryTests`, `EmulationRegressionTest` con los mismos hashes, las
 grabaciones RZX, y el benchmark del paso 0. Se cambia el default cuando todo eso está verde y el
 número justifica el cambio.
 
-**9. El candado.** `GeneratedZ80IsCurrentTest` en la suite normal, más una línea en el README de
+**9. El candado. HECHO.** `GeneratedZ80IsCurrentTest` en la suite normal, más una línea en el README de
 cómo regenerar. A partir de acá, tocar una instrucción, un aspecto o el fetcher y no regenerar
 rompe el build, que es lo que sostiene la consecuencia 1 del principio.
 
@@ -607,3 +636,42 @@ rompe el build, que es lo que sostiene la consecuencia 1 del principio.
   Antes de apoyar el generado en él, correr Fuse con el núcleo OOP sobre ese banco: una línea en
   `FuseTestParser`, y prueba el banco por separado del generador.
 - **Java 18** es el nivel del proyecto: alcanza (`switch` clásico, `instanceof` con patrón).
+
+## Lo que quedó
+
+Medido el 2 de septiembre de 2026, en la rama `nucleo-generado`.
+
+| qué | resultado |
+|---|---|
+| `GeneratedZ80.java` | 27.400 líneas, 1.616 `case`, 7 tablas en 112 métodos de hasta 3.562 bytes de bytecode |
+| Fuse sobre el generado | 1355/1355, evento por evento (`GeneratedFuseTests`) |
+| ALU exhaustiva sobre el generado | verde (`GeneratedAluReferenceTest`) |
+| `machine/core` con `-Doozx.cpu=generated` | 260/260, los mismos hashes de boot que el OOP |
+| CPU pura, programa sintético (`CoreBenchmark`) | OOP ≈ 36–43 M instr/s, generado ≈ 133–148 M instr/s: **3,5×** |
+| estado persistente que sobrevivió | 3 campos: el `nextPC` de los tres HALT, que el modelo también guarda |
+| candado | `GeneratedZ80IsCurrentTest`: la generación es determinista y el commiteado es lo que el modelo produce |
+
+Lo que el generador aprendió del modelo en el camino, y que conviene saber:
+
+- **Los aspectos sí se tejen desde sus visitors.** `MemptrUpdater` se especializa sin cambios:
+  el doble despacho se resuelve con la instancia, y los visitors anónimos se tratan como objetos
+  "virtuales" cuyos métodos son el cuerpo anónimo y cuyo `this` exterior es el updater. Las
+  contenciones, siendo valores, se imprimen.
+- **Las cinco lambdas** se resolvieron como decía: `ConditionPredicate` es la identidad,
+  `memoryWriter` se elige reevaluando la condición del constructor, `triFunction` no se toca
+  porque la ALU va por el `calculate*` del delegado, y las dos del fetch no se especializan
+  porque el marco es a mano.
+- **Lo que un objeto compartido guarda entre ejecuciones** (`address`, `value`, `nextPC`,
+  `jumpAddress`, el `F` de una operación) se vuelve variable del `case` cuando se asigna antes de
+  leerse en todo camino, y campo de la clase cuando no; sólo HALT necesitó el campo.
+- **Deudas del generador** (reglas que existen porque C no está hecho): las lecturas repetidas de
+  un byte de operando son una (`MemoryForOpcodes`), los envoltorios del fetch se inlinean como
+  parte del grafo, y el marco es a mano.
+
+Para revisar a la mañana:
+
+- El código generado se lee, pero los nombres (`value2_290`, `_F181`) son los del especializador;
+  un pase de nombres bonitos es cosmético y se puede hacer sobre los dorados.
+- Decidir cuándo el generado pasa a ser el default de la máquina (hoy: propiedad de sistema).
+- C, con la propuesta de arriba.
+

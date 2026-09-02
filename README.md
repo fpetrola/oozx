@@ -305,6 +305,19 @@ mvn package
 java -jar target/machine-0.0.1-SNAPSHOT.jar
 ```
 
+### The generated Z80 core
+
+`emulator/src/main/java/com/fpetrola/z80/cpu/GeneratedZ80.java` is generated from the OOP
+model, never edited by hand. After changing an instruction, `MemptrUpdater` or
+`PhaseProcessor`, regenerate it and the build checks it is current:
+
+```bash
+mvn test -pl emulator -Dtest=GenerateZ80
+```
+
+The machine runs on it with `-Doozx.cpu=generated`; the OOP core stays the default. The plan and
+what was measured are in `doc/plan-nucleo-generado.md`.
+
 ### Game Translation
 
 Use the bytecode translation engine to convert games:
