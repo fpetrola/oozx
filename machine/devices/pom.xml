@@ -8,21 +8,33 @@
     </parent>
 
     <artifactId>devices</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <name>devices</name>
 
     <!--
       The peripherals somebody plugs in: a printer, a mouse, a sound box, a joystick interface -
-      each with whatever it needs to work and whatever it needs to be looked at.
+      each in a module of its own, with whatever it needs to work and whatever it needs to be
+      looked at. A device that connects to another one depends on that one, and on nothing else
+      here but the kit.
 
       What a machine comes with is NOT here. The 128's pager, the +3's drive, the ULA, the AY a
       128K has on its board: that is the computer, and it lives with the emulator. This module is
       for what somebody bought separately and cabled on.
 
       The emulator does not depend on this and does not know these exist: it finds them through
-      META-INF/services, which is the whole point of the arrangement.
+      META-INF/services, which is the whole point of the arrangement. The application depends on
+      `all`, which is every device this build offers and nothing else.
     -->
+    <modules>
+        <module>kit</module>
+        <module>printer</module>
+        <module>mouse</module>
+        <module>joystick</module>
+        <module>melodik</module>
+        <module>all</module>
+    </modules>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -31,46 +43,17 @@
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>core</artifactId>
-            <version>0.0.2-alu-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>ui</artifactId>
-            <version>0.0.2-alu-SNAPSHOT</version>
-        </dependency>
-        <!-- The emulator's test harness and its ROMs, tapes and recordings. -->
-        <dependency>
-            <groupId>com.fpetrola</groupId>
-            <artifactId>core</artifactId>
-            <version>0.0.2-alu-SNAPSHOT</version>
-            <type>test-jar</type>
-            <scope>test</scope>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-suite</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <!-- The scaler: see the note in core's pom, which explains why it is a dependency and not a copy. -->
-        <dependency>
-            <groupId>io.github.stanio</groupId>
-            <artifactId>xbrz-core</artifactId>
-            <version>1.8.2</version>
-        </dependency>
-        <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna</artifactId>
-            <version>5.14.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>batik-transcoder</artifactId>
-            <version>1.17</version>
         </dependency>
     </dependencies>
 </project>

@@ -526,7 +526,7 @@ public abstract class AttachedFrame extends JInternalFrame {
   }
 
   /** The compact form is the controls alone; expanded adds the listing under them. */
-  void setCompact(boolean wanted) {
+  protected void setCompact(boolean wanted) {
     if (!wanted && chosenHeight < compactHeight() + 40) {
       chosenHeight = 300;                       // never expanded before: a sensible first size
     }

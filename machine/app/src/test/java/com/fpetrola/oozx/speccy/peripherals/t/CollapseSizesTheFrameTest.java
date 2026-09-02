@@ -1,5 +1,7 @@
 package com.fpetrola.oozx.speccy.peripherals.t;
 
+import com.fpetrola.oozx.speccy.devices.printer.PrinterInternalFrame;
+
 import org.junit.jupiter.api.Test;
 
 import javax.swing.JDesktopPane;
@@ -75,7 +77,7 @@ class CollapseSizesTheFrameTest {
     desktop.add(machine);
     machine.setVisible(true);
 
-    PrinterInternalFrame printer = new PrinterInternalFrame(window -> null);
+    PrinterInternalFrame printer = new PrinterInternalFrame();
     desktop.add(printer);
     printer.setVisible(true);
     printer.setSize(320, 460);
@@ -99,7 +101,7 @@ class CollapseSizesTheFrameTest {
 
   @Test
   void thePrinterFolds() {
-    collapses(new PrinterInternalFrame(window -> null));
+    collapses(new PrinterInternalFrame());
   }
 
   /** The same base class, so the same bug: worth saying out loud that it is fixed for all of them. */

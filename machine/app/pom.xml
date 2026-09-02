@@ -37,7 +37,7 @@
         <!-- The peripherals this build offers. Nothing here names one; they arrive by service file. -->
         <dependency>
             <groupId>com.fpetrola</groupId>
-            <artifactId>devices</artifactId>
+            <artifactId>devices-all</artifactId>
             <version>0.0.2-alu-SNAPSHOT</version>
         </dependency>
         <!-- The emulator's test harness and its ROMs, tapes and recordings. -->

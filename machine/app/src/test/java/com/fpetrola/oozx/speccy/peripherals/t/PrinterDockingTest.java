@@ -1,5 +1,9 @@
 package com.fpetrola.oozx.speccy.peripherals.t;
 
+import com.fpetrola.oozx.speccy.devices.EmulatorWindow;
+import com.fpetrola.oozx.speccy.devices.printer.PrinterInternalFrame;
+import javax.swing.JComponent;
+
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.SpectrumZ80Clock;
 import com.fpetrola.oozx.speccy.Emulation;
@@ -33,6 +37,20 @@ class PrinterDockingTest {
     return speccy;
   }
 
+  /** A machine's window, as far as a printer can tell: it says which machine it shows. */
+  private JInternalFrame windowOf(Speccy speccy) {
+    class Machine extends JInternalFrame implements EmulatorWindow {
+      public JComponent picture() {
+        return this;
+      }
+
+      public Speccy machine() {
+        return speccy;
+      }
+    }
+    return new Machine();
+  }
+
   /** The window asks for the change; the emulator's own thread makes it, between instructions. */
   private void letTheEmulatorCatchUp(Speccy speccy) {
     speccy.z80.doOpcodes();
@@ -41,12 +59,12 @@ class PrinterDockingTest {
   @Test
   void attachingPlugsThePrinterIn() {
     Speccy speccy = speccy();
-    PrinterInternalFrame printer = new PrinterInternalFrame(window -> speccy);
+    PrinterInternalFrame printer = new PrinterInternalFrame();
 
     assertFalse(speccy.peripherals.isActive(ZxPrinterPeripheral.class),
         "a printer nobody has clipped on is not plugged in");
 
-    printer.attachTo(new JInternalFrame());
+    printer.attachTo(windowOf(speccy));
     letTheEmulatorCatchUp(speccy);
     assertTrue(speccy.peripherals.isActive(ZxPrinterPeripheral.class),
         "clipping the printer onto the machine did not plug it in");
@@ -55,11 +73,12 @@ class PrinterDockingTest {
   @Test
   void theMachineClosingTakesThePrinterWithIt() {
     Speccy speccy = speccy();
-    PrinterInternalFrame printer = new PrinterInternalFrame(window -> speccy);
-    printer.attachTo(new JInternalFrame());
+    PrinterInternalFrame printer = new PrinterInternalFrame();
+    JInternalFrame machine = windowOf(speccy);
+    printer.attachTo(machine);
     letTheEmulatorCatchUp(speccy);
 
-    printer.machineClosed();
+    machine.dispose();
     letTheEmulatorCatchUp(speccy);
     assertFalse(speccy.peripherals.isActive(ZxPrinterPeripheral.class),
         "the machine went away and its printer stayed plugged into it");

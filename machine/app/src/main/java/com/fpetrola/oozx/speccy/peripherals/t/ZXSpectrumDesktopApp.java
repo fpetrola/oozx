@@ -18,6 +18,11 @@
 
 package com.fpetrola.oozx.speccy.peripherals.t;
 
+import com.fpetrola.oozx.speccy.devices.DeviceFrame;
+import com.fpetrola.oozx.speccy.devices.EmulatorWindow;
+import com.fpetrola.oozx.speccy.devices.Equipment;
+import java.util.ServiceLoader;
+
 import com.fpetrola.oozx.speccy.screen.ScreenProfile;
 import java.util.Map;
 import java.util.LinkedHashMap;
@@ -52,10 +57,15 @@ import java.util.function.Function;
 import static com.fpetrola.oozx.speccy.peripherals.t.EmulatorInternalFrame.loadIcon;
 
 // Emulator Internal Frame
-class EmulatorInternalFrame extends JInternalFrame implements MachineWindow {
+class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
   @Override
   public JComponent picture() {
     return emulatorCore.getPanel();
+  }
+
+  @Override
+  public com.fpetrola.oozx.Speccy machine() {
+    return parentApp.machineOf(this);
   }
 
   /** The toolbar's small change lives below this now; these keep the name every caller here uses. */
@@ -1155,13 +1165,14 @@ public class ZXSpectrumDesktopApp extends JFrame {
     tapeBrowserItem.addActionListener(e -> showTapeBrowser());
     emulatorMenu.add(tapeBrowserItem);
 
-    JMenuItem mouseItem = new JMenuItem("Kempston Mouse");
-    mouseItem.addActionListener(e -> showMouse());
-    emulatorMenu.add(mouseItem);
-
-    JMenuItem printerItem = new JMenuItem("ZX Printer");
-    printerItem.addActionListener(e -> showPrinter());
-    emulatorMenu.add(printerItem);
+    // What there is to plug in: every device jar on the classpath, and nothing named here.
+    JMenu equipmentMenu = new JMenu("Equipment");
+    for (Equipment kind : equipmentKinds) {
+      JMenuItem item = new JMenuItem(kind.name());
+      item.addActionListener(e -> show(kind));
+      equipmentMenu.add(item);
+    }
+    emulatorMenu.add(equipmentMenu);
 
     JMenuItem audioInItem = new JMenuItem("Real Cassette (audio in)...");
     audioInItem.addActionListener(e -> showAudioIn());
@@ -2026,9 +2037,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
    */
   private final java.util.List<TapeBrowserInternalFrame> cassettes = new java.util.ArrayList<>();
 
-  /** Every printer open at once, one per machine, clipped on the same way a deck is. */
-  private final java.util.List<PrinterInternalFrame> printers = new java.util.ArrayList<>();
-
   /**
    * Every player open at once. There used to be one, kept in a field and reused, so a second
    * recording took the first one's window and its machine: watching two was watching the later
@@ -2387,58 +2395,40 @@ public class ZXSpectrumDesktopApp extends JFrame {
     return newCassette();
   }
 
+  /** The equipment this build offers, in the order the menu shows it. */
+  private final java.util.List<Equipment> equipmentKinds = ServiceLoader.load(Equipment.class).stream()
+      .map(ServiceLoader.Provider::get)
+      .sorted(java.util.Comparator.comparing(Equipment::name))
+      .toList();
+
+  /** Every piece of equipment open at once, one per machine, clipped on the same way a deck is. */
+  private final java.util.Map<Equipment, java.util.List<DeviceFrame<?>>> equipment = new java.util.HashMap<>();
+
   /**
-   * A printer, clipped onto the machine in front - which is what plugs it in. Opening the one that
-   * is already there rather than a second one, the way the cassette does.
+   * That piece of equipment, clipped onto the machine in front - which is what plugs it in.
+   * Opening the one that is already there rather than a second one, the way the cassette does:
+   * two mice on one Spectrum would be two sets of counters answering the same three ports.
    */
-  public PrinterInternalFrame showPrinter() {
-    printers.removeIf(JInternalFrame::isClosed);
-    for (PrinterInternalFrame open : printers) {
-      if (!open.isAttached() || open.getMachineWindow() == machineBeingUsed()) {
-        open.setVisible(true);
-        open.toFront();
-        return open;
+  public DeviceFrame<?> show(Equipment kind) {
+    java.util.List<DeviceFrame<?>> open = equipment.computeIfAbsent(kind, k -> new java.util.ArrayList<>());
+    open.removeIf(JInternalFrame::isClosed);
+    for (DeviceFrame<?> window : open) {
+      if (!window.isAttached() || window.getMachineWindow() == machineBeingUsed()) {
+        window.setVisible(true);
+        window.toFront();
+        return window;
       }
     }
 
-    PrinterInternalFrame printer = new PrinterInternalFrame(this::machineOf);
-    printer.setLocation(360 + (printers.size() * 30) % 300, 60 + (printers.size() * 30) % 200);
-    printers.add(printer);
-    desktop.add(printer);
-    printer.setVisible(true);
+    DeviceFrame<?> window = kind.open();
+    window.setLocation(360 + (open.size() * 30) % 300, 60 + (open.size() * 30) % 200);
+    open.add(window);
+    desktop.add(window);
+    window.setVisible(true);
     if (machineBeingUsed() != null) {
-      printer.attachTo(machineBeingUsed());
+      window.attachTo(machineBeingUsed());
     }
-    return printer;
-  }
-
-  private final java.util.List<MouseInternalFrame> mice = new java.util.ArrayList<>();
-
-  /**
-   * The mouse for the machine in front, or the one already on it.
-   * <p>
-   * One per machine, like the rest of the equipment: two mice on one Spectrum would be two sets
-   * of counters answering the same three ports.
-   */
-  public MouseInternalFrame showMouse() {
-    mice.removeIf(JInternalFrame::isClosed);
-    for (MouseInternalFrame open : mice) {
-      if (!open.isAttached() || open.getMachineWindow() == machineBeingUsed()) {
-        open.setVisible(true);
-        open.toFront();
-        return open;
-      }
-    }
-
-    MouseInternalFrame mouse = new MouseInternalFrame(this::machineOf);
-    mouse.setLocation(420 + (mice.size() * 30) % 300, 100 + (mice.size() * 30) % 200);
-    mice.add(mouse);
-    desktop.add(mouse);
-    mouse.setVisible(true);
-    if (machineBeingUsed() != null) {
-      mouse.attachTo(machineBeingUsed());
-    }
-    return mouse;
+    return window;
   }
 
   /** Another deck, whatever the open ones are doing. */
