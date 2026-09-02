@@ -18,328 +18,230 @@
 
 package fuse.tstates;
 
-import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
-import fuse.tstates.phases.AfterMRPhaseVisitor;
 
-import java.util.Optional;
+import static fuse.tstates.Contention.ANY;
+import static fuse.tstates.Contention.Base.*;
+import static fuse.tstates.Contention.Kind.*;
 
-import static com.fpetrola.z80.registers.RegisterName.HL;
-
+/**
+ * Which contention each shape of instruction has, as Fuse has it. The only knowledge of the
+ * Spectrum's timing in the emulator; the Z80 model does not know this class exists.
+ */
 public abstract class PhaseProcessor extends PhaseProcessorBase {
-  protected Register currentRegister;
-
   public PhaseProcessor(State state) {
     super(state);
   }
 
-  protected boolean isMemory8BitReference(ImmutableOpcodeReference source) {
-    return source instanceof Memory8BitReference;
+  private boolean isImmediate(ImmutableOpcodeReference reference) {
+    return reference instanceof Memory8BitReference;
   }
 
-  protected boolean isMemoryPlus(OpcodeReferenceBase target) {
-    return target instanceof MemoryPlusRegister8BitReference;
+  private boolean isIndexed(OpcodeReferenceBase reference) {
+    return reference instanceof MemoryPlusRegister8BitReference;
   }
 
-  protected Optional<Boolean> isMemoryPlusOptional(OpcodeReferenceBase target) {
-    return Optional.ofNullable(isMemoryPlus(target) ? true : null);
-  }
-
-  public boolean isLdSP(Ld ld) {
+  private boolean isLdSP(Ld ld) {
     return ld.getTarget().equals(registerSP) && ld.getSource() instanceof Register;
   }
 
-  public Optional<Boolean> isIndirectHL(TargetInstruction targetInstruction) {
-    return Optional.ofNullable(targetInstruction.getTarget() instanceof IndirectMemory8BitReference indirectMemory8BitReference && indirectMemory8BitReference.getTarget() instanceof Register register && register.getName().equals(HL.name()) ? true : null);
+  private boolean isIndirectHL(TargetInstruction instruction) {
+    return instruction.getTarget() instanceof IndirectMemory8BitReference indirect && indirect.getTarget() instanceof Register register && register.getName().equals(RegisterName.HL.name());
   }
 
   public void visitingRst(RST rst) {
-    addMcBeforeExecution(1);
+    before(1, IR);
   }
 
   public boolean visitingRet(Ret ret) {
     if (!(ret.getCondition() instanceof ConditionAlwaysTrue))
-      addMcBeforeExecution(1);
+      before(1, IR);
     return false;
   }
 
-  public boolean visiting16BitsOperation(Binary16BitsOperation binary16BitsOperation) {
-    addMcBeforeExecution(7);
+  public boolean visiting16BitsOperation(Binary16BitsOperation operation) {
+    before(7, IR);
     return true;
   }
 
-  public void visitingInc16(Inc16 tInc16) {
-    addMcAfterExecution();
+  public void visitingInc16(Inc16 inc16) {
+    after(2, IR, 0, READ_NO_MREQ);
   }
 
-  public void visitingDec16(Dec16 tDec16) {
-    addMcAfterExecution();
+  public void visitingDec16(Dec16 dec16) {
+    after(2, IR, 0, READ_NO_MREQ);
   }
 
   public void visitPush(Push push) {
-    addMcBeforeExecution(1);
+    before(1, IR);
   }
 
   public void visitingLd(Ld ld) {
     if (isLdSP(ld))
-      phase.acceptBeforeExecution((e) -> addMultipleMCIR(2));
+      before(2, IR);
     else if (ld.getTarget().equals(registerI) || ld.getTarget().equals(registerR) || ld instanceof LdAI || ld instanceof LdAR)
-      phase.acceptBeforeExecution((e) -> addMultipleMCIR(1));
-
-    if (isMemoryPlus(ld.getTarget()) && isMemory8BitReference(ld.getSource()))
-      phase.acceptBeforeWrite((e) -> addMc2PC(2, 3));
-
-    if (!isMemory8BitReference(ld.getSource()) && (isMemoryPlus(ld.getSource()) || isMemoryPlus(ld.getTarget())))
-      phase.acceptAfterMR((e) -> {
-        if (readCount == 1)
-          addMultipleMCIR(5);
-      });
-  }
-
-  private void addMc2PC(int times, int delta) {
-    addMultipleMCPc2(times, delta);
+      before(1, IR);
+    if (isIndexed(ld.getTarget()) && isImmediate(ld.getSource()))
+      onWrite(ANY, 2, PC, 3);
+    if (!isImmediate(ld.getSource()) && (isIndexed(ld.getSource()) || isIndexed(ld.getTarget())))
+      onRead(1, 5, IR);
   }
 
   public void visitingJR(JR jr) {
-    phase.acceptAfterExecution(afterExecution -> addForRelativeJump(jr));
+    relativeJump();
   }
 
   public boolean visitingDjnz(DJNZ djnz) {
-    phase.acceptBeforeExecution((e) -> addMultipleMCIR(1));
-    phase.acceptAfterExecution((e) -> addForRelativeJump(djnz));
+    before(1, IR);
+    relativeJump();
     return false;
   }
 
-  private void addForRelativeJump(JumpInstruction conditionalInstruction) {
-    if (conditionalInstruction.getNextPC() != -1) {
-      addMultipleMCPc2(5, 1);
-    } else {
-      addMultipleMCPC3();
-    }
+  /** Not taken, the displacement is contended for the three T-states of a read but not read. */
+  private void relativeJump() {
+    ifJumped(5, PC, 1, READ_NO_MREQ);
+    ifNotJumped(1, PC, 1, 3, READ);
   }
 
   public void visitEx(Ex ex) {
     if (ex.getTarget() instanceof IndirectMemory16BitReference) {
-      phase.acceptAfterExecution((e) -> {
-        currentRegister = registerSP;
-        addMultipleMCRegister(2, 0);
-      });
-      phase.acceptBeforeWrite((e) -> {
-        if (writeCount == 0) {
-          currentRegister = registerSP;
-          addMultipleMcRegister();
-        }
-      });
+      after(2, SP, 0, WRITE_NO_MREQ);
+      onWrite(1, 1, SP, 1);
     }
   }
 
-  public boolean visitRepeatingInstruction(RepeatingInstruction instruction) {
-//    instruction.getInstructionToRepeat().accept(this);
+  public boolean visitOutir(Outir outir) {
+    before(1, IR);
+    ifJumped(5, BC, 0, WRITE_NO_MREQ);
+    return true;
+  }
 
-    int delta;
-    int times;
+  public boolean visitOutdr(Outdr outdr) {
+    before(1, IR);
+    ifJumped(5, BC, 0, WRITE_NO_MREQ);
+    return true;
+  }
 
-    if (instruction instanceof Outdr || instruction instanceof Outir) {
-      currentRegister = registerBC;
-      delta = 0;
-      times = 0;
-    } else if (instruction instanceof Inir) {
-      delta = -1;
-      currentRegister = this.registerHL;
-      times = 0;
-    } else if (instruction instanceof Indr) {
-      delta = 1;
-      currentRegister = this.registerHL;
-      times = 0;
-    } else if (instruction instanceof Cpir) {
-      delta = -1;
-      currentRegister = this.registerHL;
-      times = 5;
-    } else if (instruction instanceof Cpdr) {
-      delta = 1;
-      currentRegister = this.registerHL;
-      times = 5;
-    } else if (instruction instanceof Ldir) {
-      currentRegister = registerDE;
-      delta = -1;
-      times = 2;
-    } else {
-      currentRegister = registerDE;
-      delta = 1;
-      times = 2;
-    }
+  public boolean visitInir(Inir inir) {
+    before(1, IR);
+    ifJumped(5, HL, -1, WRITE_NO_MREQ);
+    return true;
+  }
 
-    if (times > 0) {
-      phase.acceptAfterExecution((a) -> {
-        addMultipleMCRegister(times, delta);
-        if (instruction.getNextPC() != -1) {
-          addMultipleMCRegister(5, delta);
-        }
-      });
-    } else {
-      addMcBeforeExecution(1);
-      phase.acceptAfterExecution((a) -> {
-        if (instruction.getNextPC() != -1) {
-          addMultipleMCRegister(5, delta);
-        }
-      });
-    }
+  public boolean visitIndr(Indr indr) {
+    before(1, IR);
+    ifJumped(5, HL, 1, WRITE_NO_MREQ);
+    return true;
+  }
 
-    return false;
+  public boolean visitCpir(Cpir cpir) {
+    after(5, HL, -1, WRITE_NO_MREQ);
+    ifJumped(5, HL, -1, WRITE_NO_MREQ);
+    return true;
+  }
+
+  public boolean visitCpdr(Cpdr cpdr) {
+    after(5, HL, 1, WRITE_NO_MREQ);
+    ifJumped(5, HL, 1, WRITE_NO_MREQ);
+    return true;
+  }
+
+  public boolean visitLdir(Ldir ldir) {
+    after(2, DE, -1, WRITE_NO_MREQ);
+    ifJumped(5, DE, -1, WRITE_NO_MREQ);
+    return true;
+  }
+
+  public boolean visitLddr(Lddr lddr) {
+    after(2, DE, 1, WRITE_NO_MREQ);
+    ifJumped(5, DE, 1, WRITE_NO_MREQ);
+    return true;
   }
 
   public void visitBlockInstruction(BlockInstruction blockInstruction) {
-    addMcBeforeExecution(1);
+    before(1, IR);
   }
 
   public boolean visitLdi(Ldi ldi) {
-    phase.acceptAfterExecution(p -> {
-      currentRegister = registerDE;
-      addMultipleMCRegister(2, -1);
-    });
+    after(2, DE, -1, WRITE_NO_MREQ);
     return true;
   }
 
   public boolean visitLdd(Ldd ldd) {
-    phase.acceptAfterExecution(p -> {
-      currentRegister = registerDE;
-      addMultipleMCRegister(2, 1);
-    });
+    after(2, DE, 1, WRITE_NO_MREQ);
     return true;
   }
 
   public boolean visitCpi(Cpi cpi) {
-    phase.acceptAfterExecution(p -> {
-      currentRegister = registerHL;
-      addMultipleMCRegister2(5, -1);
-    });
+    after(5, HL, -1, READ_NO_MREQ);
     return true;
   }
 
   public boolean visitCpd(Cpd cpd) {
-    phase.acceptAfterExecution(p -> {
-      currentRegister = registerHL;
-      addMultipleMCRegister2(5, 1);
-    });
+    after(5, HL, 1, READ_NO_MREQ);
     return true;
   }
 
   public boolean visitLdOperation(LdOperation ldOperation) {
-    AfterMRPhaseVisitor afterMRPhaseVisitor = p -> {
-      if (readCount == 4) {
-        addMultipleMcAddress();
-      }
-    };
-    processTargetInstruction((TargetInstruction) ldOperation.getInstruction(), afterMRPhaseVisitor);
+    indexedOrIndirectHL((TargetInstruction) ldOperation.getInstruction());
     return true;
   }
 
-  public boolean visitingBitOperation(BitOperation instruction) {
-    return processTargetInstruction(instruction, (e) -> {
-    });
+  public boolean visitingBitOperation(BitOperation bitOperation) {
+    indexedOrIndirectHL(bitOperation);
+    return true;
   }
 
   public boolean visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction instruction) {
-    return processTargetInstruction(instruction, (e) -> {
-    });
-  }
-
-  private boolean processTargetInstruction(TargetInstruction instruction, AfterMRPhaseVisitor afterMRPhaseVisitor) {
-    isMemoryPlusOptional(instruction.getTarget()).ifPresent(x -> {
-      phase.acceptBeforeExecution((e -> {
-        if (readCount == 0)
-          addMultipleMCPc2(2, 3);
-      }));
-
-      phase.acceptAfterMR((e -> {
-        if (readCount == 1) {
-          addMultipleMcAddress();
-        }
-
-        afterMRPhaseVisitor.visit(e);
-      }));
-    });
-
-    isIndirectHL(instruction).ifPresent((x) -> {
-      phase.acceptAfterMR(e -> {
-        if (readCount == 1)
-          addMultipleMCHL2(1);
-
-        afterMRPhaseVisitor.visit(e);
-      });
-    });
-
+    indexedOrIndirectHL(instruction);
     return true;
   }
 
-  public boolean visitingInc(Inc tInc) {
-    addMcForDecInc(tInc);
+  private void indexedOrIndirectHL(TargetInstruction instruction) {
+    if (isIndexed(instruction.getTarget())) {
+      before(2, PC, 3);
+      onRead(1, 1, LAST_ACCESS);
+    }
+    if (isIndirectHL(instruction))
+      onRead(1, 1, HL);
+  }
+
+  public boolean visitingInc(Inc inc) {
+    incDec(inc);
     return true;
   }
 
   public boolean visitingDec(Dec dec) {
-    addMcForDecInc(dec);
+    incDec(dec);
     return true;
   }
 
-  private void addMcForDecInc(TargetInstruction instruction) {
-    isMemoryPlusOptional(instruction.getTarget()).ifPresent(x -> phase.acceptAfterMR((e -> {
-      if (readCount == 1) {
-        addMultipleMCPc2(5, 2);
-      } else if (readCount == 2) {
-        addMultipleMcAddress();
-      }
-    })));
-
-    isIndirectHL(instruction).ifPresent((x) -> phase.acceptBeforeWrite(e -> addMultipleMCHL2(1)));
+  private void incDec(TargetInstruction instruction) {
+    if (isIndexed(instruction.getTarget())) {
+      onRead(1, 5, PC, 2);
+      onRead(2, 1, LAST_ACCESS);
+    }
+    if (isIndirectHL(instruction))
+      onWrite(ANY, 1, HL, 0);
   }
 
   public boolean visitRLD(RLD rld) {
-    phase.acceptAfterMR(p -> addMultipleMCHL2(4));
+    onRead(ANY, 4, HL);
     return false;
   }
 
   public void visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction instruction) {
-    isMemoryPlusOptional(instruction.getSource()).ifPresent(x ->
-        phase.acceptAfterMR(e -> {
-          if (readCount == 1) addMultipleMCPc2(5, 2);
-        }));
+    if (isIndexed(instruction.getSource()))
+      onRead(1, 5, PC, 2);
   }
 
-  public boolean visitingCall(Call tCall) {
-    phase.acceptBeforeWrite(e -> {
-      if (writeCount == 0)
-        addMc2PC(1, 2);
-    });
+  public boolean visitingCall(Call call) {
+    onWrite(1, 1, PC, 2);
     return false;
   }
-
-  private void addMcBeforeExecution(final int time) {
-    phase.acceptBeforeExecution(beforeExecution -> addMultipleMCIR(time));
-  }
-
-  private void addMcAfterExecution() {
-    phase.acceptAfterExecution(afterExecution -> addMultipleMCIR(2));
-  }
-
-  protected abstract void addMultipleMcRegister();
-
-  protected abstract void addMultipleMCPC3();
-
-  protected abstract void addMultipleMCRegister(int x, int delta1);
-
-  protected abstract void addMultipleMCRegister2(int x, int delta1);
-
-  protected abstract void addMultipleMcAddress();
-
-  protected abstract void addMultipleMCPc2(int x, int delta);
-
-  protected abstract void addMultipleMCHL2(int x);
-
-  protected abstract void addMultipleMCIR(int time);
 }

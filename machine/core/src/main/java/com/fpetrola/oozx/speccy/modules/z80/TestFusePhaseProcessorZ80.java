@@ -19,24 +19,24 @@
 package com.fpetrola.oozx.speccy.modules.z80;
 
 import com.fpetrola.oozx.fuse.modules.z80.TestFusePhaseProcessor;
+import fuse.tstates.Contention.Kind;
 
+/** The machine under its own tests: the ULA's contention on contended pages, and the T-states either way. */
 public class TestFusePhaseProcessorZ80 extends TestFusePhaseProcessor {
   private final Z80 z80;
 
   public TestFusePhaseProcessorZ80(Z80 z80) {
-    super(z80.ooz80.getState(), event -> z80.zxClock.addTStates(event.getTime(), event.description));
+    super(z80.ooz80.getState(), event -> {
+    });
     this.z80 = z80;
   }
 
-  public void addMultipleMc(final int x, final int time1, final int delta, final int baseAddress, final String description) {
-    boolean memoryContended = z80.memory.mapRead[baseAddress >>> z80.memory.PAGE_SIZE_LOGARITHM].contended;
-    for (int i = 0; i < x; i++) {
-      if (memoryContended) {
-        z80.ula.addUlaStates(0, getAddMultipleMcStringSupplier(description));
-      }
-
-      addSingleMc(time1, delta, baseAddress, description);
+  public void contend(int address, int times, int tstates, Kind kind) {
+    boolean contended = z80.memory.mapRead[address >>> z80.memory.PAGE_SIZE_LOGARITHM].contended;
+    for (int i = 0; i < times; i++) {
+      if (contended)
+        z80.ula.addUlaStates(0, () -> "ula " + kind.description);
+      z80.zxClock.addTStates(tstates, kind.description);
     }
   }
-
 }

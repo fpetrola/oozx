@@ -18,14 +18,14 @@
 
 package com.fpetrola.oozx.fuse.modules.z80;
 
-import fuse.tstates.Event;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.registers.Register;
+import fuse.tstates.Contention.Kind;
+import fuse.tstates.Event;
 import fuse.tstates.PhaseProcessor;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
+/** The contention as Fuse's test harness records it: one MC event per cycle, and the memory accesses beside them. */
 public class TestFusePhaseProcessor extends PhaseProcessor {
   private final Consumer<Event> events;
 
@@ -35,85 +35,15 @@ public class TestFusePhaseProcessor extends PhaseProcessor {
   }
 
   public void addMw(int address, int value) {
-    getAddEvent(new Event(0, "MW", address, value));
-  }
-
-  public void addSingleMc(int time1, int delta, int baseAddress, String description) {
-    getAddEvent(new Event(time1, "MC", baseAddress + delta, null, description));
+    events.accept(new Event(0, "MW", address, value));
   }
 
   public void addMr(int address, int value) {
-    getAddEvent(new Event(0, "MR", address, value));
+    events.accept(new Event(0, "MR", address, value));
   }
 
-  protected void getAddEvent(Event event) {
-    event.description = getDescription(event);
-    events.accept(event);
-  }
-
-  protected String getDescription(Event event) {
-    if (event.description != null)
-      return event.description;
-    else
-      return switch (event.getType()) {
-        case "MR" -> "contend_read";
-        case "MW" -> "contend_write";
-        case "MC" -> "contend_read_no_mreq";
-        default -> "unknown";
-      };
-  }
-
-  protected Supplier<String> getAddMultipleMcStringSupplier(String description) {
-    return () -> "ula " + (description != null ? description : "contend_read_no_mreq");
-  }
-
-  public void addMultipleMc(int x, int time1, int delta, int baseAddress, String description) {
-    for (int i = 0; i < x; i++) {
-      addSingleMc(time1, delta, baseAddress, description);
-    }
-  }
-
-  public void addMultipleMc(int x, int time1, int delta, Register register, String description) {
-    addMultipleMc(x, time1, delta, register.read(), description);
-  }
-
-  @Override
-  protected void addMultipleMcRegister() {
-    addMultipleMc(1, 1, 1, currentRegister, null);
-  }
-
-  @Override
-  protected void addMultipleMCPC3() {
-    addMultipleMc(1, 3, 1, registerPC, "readbyte");
-  }
-
-  @Override
-  protected void addMultipleMCRegister(int x, int delta1) {
-    addMultipleMc(x, 1, delta1, currentRegister, "contend_write_no_mreq");
-  }
-
-  @Override
-  protected void addMultipleMCRegister2(int x, int delta1) {
-    addMultipleMc(x, 1, delta1, currentRegister, "contend_read_no_mreq");
-  }
-
-  @Override
-  protected void addMultipleMcAddress() {
-    addMultipleMc(1, 1, 0, address, null);
-  }
-
-  @Override
-  protected void addMultipleMCPc2(int x, int delta) {
-    addMultipleMc(x, 1, delta, registerPC, null);
-  }
-
-  @Override
-  protected void addMultipleMCHL2(int x) {
-    addMultipleMc(x, 1, 0, registerHL, null);
-  }
-
-  @Override
-  protected void addMultipleMCIR(int time) {
-    addMultipleMc(time, 1, 0, this.registerIR, null);
+  public void contend(int address, int times, int tstates, Kind kind) {
+    for (int i = 0; i < times; i++)
+      events.accept(new Event(tstates, "MC", address, null, kind.description));
   }
 }

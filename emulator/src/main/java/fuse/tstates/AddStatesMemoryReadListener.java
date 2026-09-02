@@ -20,11 +20,9 @@ package fuse.tstates;
 
 import com.fpetrola.oozx.fuse.modules.z80.TestFusePhaseProcessor;
 import com.fpetrola.z80.memory.MemoryReadListener;
-import fuse.tstates.phases.AfterMR;
 
 public class AddStatesMemoryReadListener implements MemoryReadListener {
   private final TestFusePhaseProcessor phaseProcessor;
-  private AfterMR afterMR = new AfterMR();
 
   public AddStatesMemoryReadListener(TestFusePhaseProcessor phaseProcessor) {
     this.phaseProcessor = phaseProcessor;
@@ -32,12 +30,9 @@ public class AddStatesMemoryReadListener implements MemoryReadListener {
 
   public void readingMemoryAt(int address, int value, int fetching) {
     doRead(address, value, fetching);
-
-    phaseProcessor.addMultipleMc(1, fetching == 1 ? 4 : 3, 0, address, "readbyte");
+    phaseProcessor.contend(address, 1, fetching == 1 ? 4 : 3, Contention.Kind.READ);
     phaseProcessor.addMr(address, value);
-    phaseProcessor.setAddress(address);
-    phaseProcessor.readCount++;
-    phaseProcessor.processPhase(afterMR);
+    phaseProcessor.afterRead(address);
   }
 
   protected void doRead(int address, int value, int fetching) {

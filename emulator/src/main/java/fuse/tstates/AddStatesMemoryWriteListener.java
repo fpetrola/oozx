@@ -20,24 +20,18 @@ package fuse.tstates;
 
 import com.fpetrola.oozx.fuse.modules.z80.TestFusePhaseProcessor;
 import com.fpetrola.z80.memory.MemoryWriteListener;
-import fuse.tstates.phases.BeforeWrite;
 
 public class AddStatesMemoryWriteListener implements MemoryWriteListener {
   protected final TestFusePhaseProcessor phaseProcessor;
-  private final BeforeWrite phase = new BeforeWrite();
 
   public AddStatesMemoryWriteListener(TestFusePhaseProcessor phaseProcessor1) {
     phaseProcessor = phaseProcessor1;
   }
 
   public void writtingMemoryAt(int address, int value) {
-//    System.out.printf("writtingMemoryAt: address= %s - value= %s %n", address, value);
-    if (!phaseProcessor.state.isIntLine()) {
-      phaseProcessor.processPhase(phase);
-    }
+    phaseProcessor.beforeWrite(address);
     doWrite(address, value);
-    phaseProcessor.writeCount++;
-    phaseProcessor.addMultipleMc(1, 3, 0, address, "writebyte");
+    phaseProcessor.contend(address, 1, 3, Contention.Kind.WRITE);
     phaseProcessor.addMw(address, value);
   }
 

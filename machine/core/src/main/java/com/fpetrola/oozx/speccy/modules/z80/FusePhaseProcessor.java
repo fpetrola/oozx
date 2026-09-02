@@ -22,8 +22,10 @@ import com.fpetrola.oozx.Memory;
 import com.fpetrola.oozx.MemoryPage;
 import com.fpetrola.oozx.SpectrumZ80Clock;
 import com.fpetrola.oozx.speccy.modules.Ula;
+import fuse.tstates.Contention.Kind;
 import fuse.tstates.PhaseProcessor;
 
+/** The contention on a real Spectrum: the ULA's, when the page is contended; plain T-states when it is not. */
 final public class FusePhaseProcessor extends PhaseProcessor {
   private final Ula ula;
   private final SpectrumZ80Clock zxClock;
@@ -39,50 +41,11 @@ final public class FusePhaseProcessor extends PhaseProcessor {
     mapRead = memory.mapRead;
   }
 
-  private void addMultipleMc(int x, int time) {
+  public void contend(int address, int times, int tstates, Kind kind) {
     if (mapRead[address >>> pageSizeLogarithm].contended) {
-      for (int i = 0; i < x; i++)
-        ula.addUlaStates(time);
+      for (int i = 0; i < times; i++)
+        ula.addUlaStates(tstates);
     } else
-      zxClock.addTStates(time * x);
-  }
-
-  protected void addMultipleMcRegister() {
-    address = currentRegister.read();
-    addMultipleMc(1, 1);
-  }
-
-  protected void addMultipleMCPC3() {
-    address = registerPC.read();
-    addMultipleMc(1, 3);
-  }
-
-  protected void addMultipleMCRegister(int x, int delta1) {
-    address = currentRegister.read();
-    addMultipleMc(x, 1);
-  }
-
-  @Override
-  protected void addMultipleMCRegister2(int x, int delta1) {
-    addMultipleMCRegister(x, delta1);
-  }
-
-  protected void addMultipleMcAddress() {
-    addMultipleMc(1, 1);
-  }
-
-  protected void addMultipleMCPc2(int x, int delta) {
-    address = registerPC.read();
-    addMultipleMc(x, 1);
-  }
-
-  protected void addMultipleMCHL2(int x) {
-    address = registerHL.read();
-    addMultipleMc(x, 1);
-  }
-
-  protected void addMultipleMCIR(int time) {
-    address = this.registerIR.read();
-    addMultipleMc(time, 1);
+      zxClock.addTStates(tstates * times);
   }
 }

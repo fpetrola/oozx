@@ -46,8 +46,6 @@ import com.fpetrola.oozx.fuse.modules.z80.TestFusePhaseProcessor;
 import fuse.tstates.AddStatesMemoryReadListener;
 import fuse.tstates.AddStatesMemoryWriteListener;
 import fuse.tstates.PhaseProcessor;
-import fuse.tstates.phases.AfterMR;
-import fuse.tstates.phases.BeforeWrite;
 import com.fpetrola.emulation.helpers.snapshots.SpectrumState;
 import com.fpetrola.oozx.speccy.machine.Spec128;
 import com.fpetrola.oozx.speccy.machine.Spec48;
@@ -211,29 +209,21 @@ public class Z80 implements ZxModule, Cpu {
 
     memory1 = new Memory() {
       private boolean disabled;
-      private final AfterMR afterMR = new AfterMR();
-      private final BeforeWrite phase = new BeforeWrite();
 
       public int read(int address, int fetching) {
         int value = memory.readByteInternal(address);
         if (!disabled) {
           memory.readByte(address, ula);
-
           zxClock.addTStates(fetching == 1 ? 4 : 3);
-          phaseProcessor.setAddress(address);
-          phaseProcessor.readCount++;
-          phaseProcessor.processPhase(afterMR);
+          phaseProcessor.afterRead(address);
         }
         return value;
       }
 
       public void write(int address, int value) {
         if (!disabled) {
-          if (!phaseProcessor.state.isIntLine()) {
-            phaseProcessor.processPhase(phase);
-          }
+          phaseProcessor.beforeWrite(address);
           memory.writeByte(address, (byte) (value & 0xff), ula, display);
-          phaseProcessor.writeCount++;
           zxClock.addTStates(3);
         }
         memory.writeByteInternal2(address, (byte) value);
