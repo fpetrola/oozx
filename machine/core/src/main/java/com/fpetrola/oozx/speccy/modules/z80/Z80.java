@@ -215,6 +215,8 @@ public class Z80 implements ZxModule, Cpu {
 
   private void initNoTest() {
 
+    // The generated core carries its contention inside, so the aspect is not told about its accesses.
+    final boolean contentionOutside = !generatedCore();
     memory1 = new Memory() {
       private boolean disabled;
 
@@ -223,14 +225,16 @@ public class Z80 implements ZxModule, Cpu {
         if (!disabled) {
           memory.readByte(address, ula);
           zxClock.addTStates(fetching == 1 ? 4 : 3);
-          phaseProcessor.afterRead(address);
+          if (contentionOutside)
+            phaseProcessor.afterRead(address);
         }
         return value;
       }
 
       public void write(int address, int value) {
         if (!disabled) {
-          phaseProcessor.beforeWrite(address);
+          if (contentionOutside)
+            phaseProcessor.beforeWrite(address);
           memory.writeByte(address, (byte) (value & 0xff), ula, display);
           zxClock.addTStates(3);
         }
