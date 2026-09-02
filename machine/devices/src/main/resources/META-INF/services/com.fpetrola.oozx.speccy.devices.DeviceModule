@@ -1,0 +1,4 @@
+com.fpetrola.oozx.speccy.devices.printer.PrinterDevices
+com.fpetrola.oozx.speccy.devices.mouse.MouseDevices
+com.fpetrola.oozx.speccy.devices.joystick.JoystickDevices
+com.fpetrola.oozx.speccy.devices.ay.MelodikDevices

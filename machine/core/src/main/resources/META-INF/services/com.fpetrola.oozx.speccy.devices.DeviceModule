@@ -2,6 +2,3 @@ com.fpetrola.oozx.speccy.devices.ay.AyDevices
 com.fpetrola.oozx.speccy.devices.memory.MemoryDevices
 com.fpetrola.oozx.speccy.devices.disk.DiskDevices
 com.fpetrola.oozx.speccy.devices.ula.UlaDevices
-com.fpetrola.oozx.speccy.devices.joystick.JoystickDevices
-com.fpetrola.oozx.speccy.devices.printer.PrinterDevices
-com.fpetrola.oozx.speccy.devices.mouse.MouseDevices

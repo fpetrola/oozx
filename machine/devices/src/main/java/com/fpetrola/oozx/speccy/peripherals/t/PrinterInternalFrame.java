@@ -56,13 +56,13 @@ public class PrinterInternalFrame extends AttachedFrame {
 
     setSize(320, 460);
 
-    JButton tearOff = EmulatorInternalFrame.iconButton("printer-tear.svg", "Tear off",
+    JButton tearOff = Widgets.iconButton("printer-tear.svg", "Tear off",
         "Tear the paper off and start a new sheet");
-    JButton save = EmulatorInternalFrame.iconButton("printer-save.svg", "Save...",
+    JButton save = Widgets.iconButton("printer-save.svg", "Save...",
         "Save the printout as a PNG");
-    JButton fit = EmulatorInternalFrame.iconButton("printer-fit.svg", "Fit",
+    JButton fit = Widgets.iconButton("printer-fit.svg", "Fit",
         "Fit the paper across the window; ctrl and the wheel zooms, dragging moves it");
-    JToggleButton filter = EmulatorInternalFrame.iconToggle("printer-filter.svg", "Paper",
+    JToggleButton filter = Widgets.iconToggle("printer-filter.svg", "Paper",
         "Show it as paper out of a printer, or as the dots the printer was sent");
     filter.setSelected(true);
     filter.addActionListener(e -> paper.setFiltered(filter.isSelected()));

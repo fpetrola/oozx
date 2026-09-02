@@ -26,4 +26,10 @@ package com.fpetrola.oozx.speccy.peripherals.t;
  * window is in a position to say so.
  */
 public interface MachineWindow {
+  /**
+   * What this window shows the machine on, for a peripheral that has to work on top of the picture
+   * - a mouse, a light gun, anything that points at the screen. The frame underneath cannot know
+   * what an emulator core is, and does not have to: it needs the component and nothing else.
+   */
+  javax.swing.JComponent picture();
 }

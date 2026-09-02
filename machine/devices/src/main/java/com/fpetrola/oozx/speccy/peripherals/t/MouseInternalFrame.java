@@ -224,10 +224,10 @@ public class MouseInternalFrame extends AttachedFrame {
    * belongs to the machine, so it is moved over the machine.
    */
   private void watch(JInternalFrame window, boolean wanted) {
-    if (!(window instanceof EmulatorInternalFrame machine)) {
+    if (!(window instanceof MachineWindow machine)) {
       return;
     }
-    JComponent picture = machine.emulatorCore.getPanel();
+    JComponent picture = machine.picture();
     picture.removeMouseMotionListener(moving);
     picture.removeMouseListener(pressing);
     wasAt = null;
@@ -392,10 +392,10 @@ public class MouseInternalFrame extends AttachedFrame {
   private void held(boolean wanted) {
     held = wanted;
     wasAt = null;
-    if (!(getMachineWindow() instanceof EmulatorInternalFrame machine)) {
+    if (!(getMachineWindow() instanceof MachineWindow machine)) {
       return;
     }
-    JComponent picture = machine.emulatorCore.getPanel();
+    JComponent picture = machine.picture();
     picture.setCursor(wanted ? hidden() : Cursor.getDefaultCursor());
     if (wanted) {
       putBackInTheMiddle(picture, new Point(picture.getWidth() / 2, picture.getHeight() / 2));

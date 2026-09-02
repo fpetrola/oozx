@@ -19,6 +19,7 @@
 package com.fpetrola.oozx.speccy.devices.ay;
 
 import com.fpetrola.oozx.Settings;
+import com.fpetrola.oozx.speccy.devices.DeviceModule;
 import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 import com.fpetrola.z80.cpu.Z80Clock;
@@ -26,14 +27,21 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
-import com.fpetrola.oozx.speccy.devices.DeviceModule;
 
-/** The sound chip a machine has, the one a +3 wires differently, and the box for a machine with none. */
-public class AyDevices extends AbstractModule implements DeviceModule {
+/**
+ * The AY box for a machine that has none of its own, which is a thing somebody bought and plugged
+ * in - so it ships with the peripherals and not with the emulator, unlike the chip a 128K has on
+ * its board.
+ */
+public class MelodikDevices extends AbstractModule implements DeviceModule {
   protected void configure() {
-    Multibinder<Peripheral> devices = Multibinder.newSetBinder(binder(), Peripheral.class);
-    devices.addBinding().to(AyPeripheral.class);
-    devices.addBinding().to(AyPlus3Peripheral.class);
+    Multibinder.newSetBinder(binder(), Peripheral.class).addBinding().to(MelodikPeripheral.class);
   }
 
+  /** The box answers from the settings flag, and this is where that flag becomes a question. */
+  @Provides
+  @Singleton
+  MelodikPeripheral melodik(Sound sound, Z80Clock clock, Settings settings) {
+    return new MelodikPeripheral(sound, clock, () -> settings.current.melodik);
+  }
 }

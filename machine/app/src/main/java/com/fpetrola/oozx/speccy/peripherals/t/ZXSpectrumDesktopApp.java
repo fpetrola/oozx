@@ -53,6 +53,11 @@ import static com.fpetrola.oozx.speccy.peripherals.t.EmulatorInternalFrame.loadI
 
 // Emulator Internal Frame
 class EmulatorInternalFrame extends JInternalFrame implements MachineWindow {
+  @Override
+  public JComponent picture() {
+    return emulatorCore.getPanel();
+  }
+
   /** The toolbar's small change lives below this now; these keep the name every caller here uses. */
   public static ImageIcon loadIcon(String iconFile) {
     return Widgets.loadIcon(iconFile);
