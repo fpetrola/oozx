@@ -664,6 +664,337 @@ public class Disk {
     }
   }
 
+  // ---- TR-DOS: TRD sector images and SCL file containers
+
+  private static final byte[] BETA128_BOOT_LOADER = {
+      0x00, 0x01, 0x1c, 0x00, (byte) 0xf9, (byte) 0xc0, 0x31, 0x35, 0x36, 0x31, 0x39, 0x0e,
+      0x00, 0x00, 0x03, 0x3d, 0x00, 0x3a, (byte) 0xea, 0x3a, (byte) 0xf7, 0x22, 0x20, 0x20,
+      0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x22, 0x0d,
+  };
+
+  private static final int SECLEN_256 = 1;
+
+  private void openTrd(byte[] buffer) throws DiskException {
+    int spec = 8 * 256;
+    if (buffer.length < spec + 256 || (buffer[spec + 231] & 0xff) != 0x10
+        || (buffer[spec + 227] & 0xff) < 0x16 || (buffer[spec + 227] & 0xff) > 0x19) {
+      throw new DiskException("not a TR-DOS disk: no specification sector");
+    }
+    sides = (buffer[spec + 227] & 0x08) != 0 ? 1 : 2;
+    cylinders = (buffer[spec + 227] & 0x01) != 0 ? 40 : 80;
+    if (buffer.length > sides * cylinders * 16 * 256) {
+      int more = cylinders + 1;
+      while (more < 83 && sides * more * 16 * 256 < buffer.length) {
+        more++;
+      }
+      cylinders = more;
+    }
+    density = Density.DD;
+    alloc();
+    int[] from = {0};
+    for (int c = 0; c < cylinders; c++) {
+      for (int j = 0; j < sides; j++) {
+        if (trackgen(buffer, from, j, c, 1, 16, 256, false, GAP_TRDOS, INTERLEAVE_2, 0x00)) {
+          throw new DiskException("invalid disk geometry");
+        }
+      }
+    }
+  }
+
+  private static int trdosSectorAt(int sector, int slen) {
+    return GAPS[GAP_TRDOS].len[1] + (sector % 8 * 2 + sector / 8) * slen;
+  }
+
+  private static int trdosPreDam() {
+    Gap g = GAPS[GAP_TRDOS];
+    return g.syncLen + (g.mark >= 0 ? 3 : 0) + 7 + g.len[2];
+  }
+
+  private static int trdosPreData() {
+    Gap g = GAPS[GAP_TRDOS];
+    return trdosPreDam() + g.syncLen + (g.mark >= 0 ? 3 : 0) + 1;
+  }
+
+  private boolean insertBasicFile(TrDos.Spec spec, byte[] file) {
+    byte[] trailing = {(byte) 0x80, (byte) 0xaa, 0x01, 0x00};
+    if (spec.fileCount >= 128) {
+      return false;
+    }
+    int sectors = (file.length + trailing.length + 255) / 256;
+    if (spec.freeSectors < sectors) {
+      return false;
+    }
+    int slen = calcSectorLen(density != Density.SD && density != Density.SD8, 256, GAP_TRDOS);
+    byte[] head = new byte[256];
+    int copied = 0;
+    int s = spec.firstFreeSector;
+    int t = spec.firstFreeTrack;
+    setTrackIdx(t);
+    for (int n = 0; n < sectors; n++) {
+      Arrays.fill(head, (byte) 0);
+      int bytes = 0;
+      if (copied < file.length) {
+        bytes = Math.min(256, file.length - copied);
+        System.arraycopy(file, copied, head, 0, bytes);
+        copied += bytes;
+      }
+      if (copied >= file.length) {
+        while (copied - file.length < trailing.length && bytes < 256) {
+          head[bytes++] = trailing[copied - file.length];
+          copied++;
+        }
+      }
+      i = trdosSectorAt(s, slen) + trdosPreDam();
+      dataAdd(null, null, head, 256, false, GAP_TRDOS, false, NO_AUTOFILL);
+      s = (s + 1) % 16;
+      if (s == 0) {
+        t++;
+        if (t >= cylinders) {
+          return false;
+        }
+        setTrackIdx(t);
+      }
+    }
+    TrDos.DirEntry entry = new TrDos.DirEntry();
+    entry.filename = "boot    ".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+    entry.extension = 'B';
+    entry.param1 = file.length;
+    entry.param2 = file.length;
+    entry.lengthInSectors = sectors;
+    entry.startSector = spec.firstFreeSector;
+    entry.startTrack = spec.firstFreeTrack;
+    setTrackIdx(0);
+    int fatSector = spec.fileCount / 16;
+    i = trdosSectorAt(fatSector, slen);
+    System.arraycopy(data, track + i + trdosPreData(), head, 0, 256);
+    entry.write(head, spec.fileCount % 16 * 16);
+    i += trdosPreDam();
+    dataAdd(null, null, head, 256, false, GAP_TRDOS, false, NO_AUTOFILL);
+    spec.fileCount++;
+    spec.freeSectors -= sectors;
+    spec.firstFreeSector = s;
+    spec.firstFreeTrack = t;
+    spec.write(head, 0);
+    i = trdosSectorAt(8, slen) + trdosPreDam();
+    dataAdd(null, null, head, 256, false, GAP_TRDOS, false, NO_AUTOFILL);
+    return true;
+  }
+
+  /**
+   * What Fuse does for a TR-DOS disk with no "boot" file when auto-load is on: writes one that
+   * runs the first BASIC program, so RUN "boot" starts the game.
+   */
+  public void insertTrdosBootLoader() {
+    int savedTrack = track, savedI = i, savedCBpt = cBpt, savedClocks = clocks, savedFm = fm, savedWeak = weak;
+    try {
+      setTrackIdx(0);
+      if (!idSeek(9) || datamarkRead() < 0) {
+        return;
+      }
+      TrDos.Spec spec = TrDos.Spec.read(data, track + i);
+      if (spec == null || spec.fileCount >= 128 || spec.freeSectors == 0) {
+        return;
+      }
+      int slen = calcSectorLen(density != Density.SD && density != Density.SD8, 256, GAP_TRDOS);
+      if (!idSeek(1) || datamarkRead() < 0) {
+        return;
+      }
+      TrDos.BootInfo info = TrDos.readFat(data, track + i, slen);
+      if (info.hasBootFile || info.basicFiles < 1) {
+        return;
+      }
+      byte[] loader = BETA128_BOOT_LOADER.clone();
+      System.arraycopy(info.firstBasicFile, 0, loader, 22, 8);
+      insertBasicFile(spec, loader);
+    } finally {
+      track = savedTrack;
+      i = savedI;
+      cBpt = savedCBpt;
+      clocks = savedClocks;
+      fm = savedFm;
+      weak = savedWeak;
+    }
+  }
+
+  private void openScl(byte[] buffer) throws DiskException {
+    sides = 2;
+    cylinders = 80;
+    density = Density.DD;
+    alloc();
+    int files = buffer.length > 8 ? buffer[8] & 0xff : 0;
+    if (files > 128 || files < 1) {
+      throw new DiskException("an SCL file holds between 1 and 128 files, not " + files);
+    }
+    int[] from = {9};
+    setTrackIdx(0);
+    i = 0;
+    postindexAdd(GAP_TRDOS);
+    int firstSector = i;
+    int s = 1;
+    int deleted = 0;
+    int sectors = 0;
+    byte[] head = new byte[256];
+    int j = 0;
+    int seclen = calcSectorLen(true, 256, GAP_TRDOS);
+    for (int n = 0; n < files; n++) {
+      if (from[0] + 14 > buffer.length) {
+        throw new DiskException("the SCL file ends inside its directory");
+      }
+      System.arraycopy(buffer, from[0], head, j, 14);
+      from[0] += 14;
+      head[j + 14] = (byte) (sectors % 16);
+      head[j + 15] = (byte) (sectors / 16 + 1);
+      sectors += head[j + 13] & 0xff;
+      if (head[j] == 0x01) {
+        deleted++;
+      }
+      if (sectors > 16 * 159) {
+        throw new DiskException("the SCL file needs more sectors than a disk has");
+      }
+      j += 16;
+      if (j == 256) {
+        i = firstSector + ((s - 1) % 8 * 2 + (s - 1) / 8) * seclen;
+        idAdd(0, 0, s, SECLEN_256, GAP_TRDOS, false);
+        dataAdd(null, null, head, 256, false, GAP_TRDOS, false, NO_AUTOFILL);
+        Arrays.fill(head, (byte) 0);
+        s++;
+        j = 0;
+      }
+    }
+    if (j != 0) {
+      i = firstSector + ((s - 1) % 8 * 2 + (s - 1) / 8) * seclen;
+      idAdd(0, 0, s, SECLEN_256, GAP_TRDOS, false);
+      dataAdd(null, null, head, 256, false, GAP_TRDOS, false, NO_AUTOFILL);
+      s++;
+    }
+    Arrays.fill(head, (byte) 0);
+    for (; s <= 16; s++) {
+      i = firstSector + ((s - 1) % 8 * 2 + (s - 1) / 8) * seclen;
+      idAdd(0, 0, s, SECLEN_256, GAP_TRDOS, false);
+      if (s == 9) {
+        head[225] = (byte) (sectors % 16);
+        head[226] = (byte) (sectors / 16 + 1);
+        head[227] = 0x16;
+        head[228] = (byte) files;
+        head[229] = (byte) ((2544 - sectors) % 256);
+        head[230] = (byte) ((2544 - sectors) / 256);
+        head[231] = 0x10;
+        Arrays.fill(head, 234, 243, (byte) 32);
+        head[244] = (byte) deleted;
+        System.arraycopy("FUSE-SCL".getBytes(java.nio.charset.StandardCharsets.US_ASCII), 0, head, 245, 8);
+      }
+      dataAdd(null, null, head, 256, false, GAP_TRDOS, false, NO_AUTOFILL);
+      if (s == 9) {
+        Arrays.fill(head, (byte) 0);
+      }
+    }
+    gap4Add(GAP_TRDOS);
+    for (int n = 1; n < sides * cylinders; n++) {
+      if (trackgen(buffer, from, n % 2, n / 2, 1, 16, 256, false, GAP_TRDOS, INTERLEAVE_2, 0x00)) {
+        throw new DiskException("invalid disk geometry");
+      }
+    }
+  }
+
+  private void writeTrd(java.io.OutputStream out) throws IOException {
+    int[] geom = new int[5];
+    if (checkDiskGeom(geom) != 0 || geom[0] != 1 || geom[2] != 1 || geom[1] != 16) {
+      throw new DiskException("this disk is not the shape a TRD image can hold");
+    }
+    int cyl = geom[4] == -1 ? cylinders : geom[4];
+    for (int c = 0; c < cyl; c++) {
+      for (int j = 0; j < sides; j++) saveTrack(out, j, c, 1, 16, 1);
+    }
+  }
+
+  private void writeScl(java.io.OutputStream out) throws IOException {
+    int[] geom = new int[5];
+    if (checkDiskGeom(geom) != 0 || geom[0] != 1 || geom[2] != 1 || geom[1] != 16) {
+      throw new DiskException("this disk is not the shape an SCL file can hold");
+    }
+    setTrackIdx(0);
+    if (!idSeek(9) || datamarkRead() < 0) {
+      throw new DiskException("no TR-DOS specification sector");
+    }
+    int entries = trackByte(i + 228);
+    int type = trackByte(i + 227);
+    if (entries > 128 || trackByte(i + 231) != 0x10 || type < 0x16 || type > 0x19 || trackByte(i) != 0) {
+      throw new DiskException("not a TR-DOS disk");
+    }
+    long sum = 597;
+    out.write("SINCLAIR".getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+    out.write(entries);
+    sum += entries;
+    byte[] head = new byte[256];
+    int j = 1, k = 0;
+    for (int n = 0; n < entries; n++) {
+      if (j > 8) {
+        throw new DiskException("a TR-DOS directory is eight sectors long");
+      }
+      if (k == 0 && (!idSeek(j) || datamarkRead() < 0)) {
+        throw new DiskException("directory sector " + j + " is missing");
+      }
+      out.write(data, track + i + k, 14);
+      for (int b = 0; b < 14; b++) {
+        sum += trackByte(i + k);
+        k++;
+      }
+      k += 2;
+      if (k >= 256) {
+        j++;
+        k = 0;
+      }
+    }
+    j = 1;
+    k = 0;
+    for (int n = 0; n < entries; n++) {
+      setTrackIdx(0);
+      if (k == 0) {
+        if (!idSeek(j) || datamarkRead() < 0) {
+          throw new DiskException("directory sector " + j + " is missing");
+        }
+        System.arraycopy(data, track + i, head, 0, 256);
+      }
+      int s = head[k + 14] & 0xff;
+      int t = head[k + 15] & 0xff;
+      int last = (head[k + 13] & 0xff) + s;
+      k += 16;
+      if (k == 256) {
+        k = 0;
+        j++;
+      }
+      if (t >= sides * cylinders) {
+        throw new DiskException("a file starts beyond the disk");
+      }
+      if (s % 16 == 0) {
+        t--;
+      }
+      setTrackIdx(t);
+      for (; s < last; s++) {
+        if (s % 16 == 0) {
+          t++;
+          if (t >= sides * cylinders) {
+            throw new DiskException("a file runs beyond the disk");
+          }
+          setTrackIdx(t);
+        }
+        if (!idSeek(s % 16 + 1)) {
+          throw new DiskException("sector " + (s % 16 + 1) + " of track " + t + " is missing");
+        }
+        if (datamarkRead() >= 0) {
+          writeSector(out, 1);
+          for (int b = 0; b < 256; b++) {
+            sum += trackByte(i + b);
+          }
+        }
+      }
+    }
+    out.write((int) (sum & 0xff));
+    out.write((int) ((sum >> 8) & 0xff));
+    out.write((int) ((sum >> 16) & 0xff));
+    out.write((int) ((sum >> 24) & 0xff));
+  }
+
   // ---- files
 
   /** Which format a file is, from its name and its size; what this cannot read yet says so. */
@@ -682,7 +1013,9 @@ public class Disk {
         }
         yield Type.MGT;
       }
-      case "trd", "scl", "udi", "fdi", "td0", "sad", "d40", "d80" ->
+      case "trd" -> Type.TRD;
+      case "scl" -> Type.SCL;
+      case "udi", "fdi", "td0", "sad", "d40", "d80" ->
           throw new DiskException("." + ext + " images are not read yet");
       default -> throw new DiskException("not a disk image this knows: " + name);
     };
@@ -701,6 +1034,8 @@ public class Disk {
     disk.type = typeOf(name, buffer);
     switch (disk.type) {
       case MGT, IMG, OPD -> disk.openImgMgtOpd(buffer);
+      case TRD -> disk.openTrd(buffer);
+      case SCL -> disk.openScl(buffer);
       default -> throw new DiskException("cannot open " + name);
     }
     disk.dirty = false;
@@ -717,6 +1052,8 @@ public class Disk {
       updateTracksMode();
       switch (type) {
         case IMG, MGT, OPD -> writeImgMgtOpd(out);
+        case TRD -> writeTrd(out);
+        case SCL -> writeScl(out);
         default -> throw new DiskException("cannot write a " + type + " image yet");
       }
     } finally {

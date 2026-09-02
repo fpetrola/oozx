@@ -15,18 +15,23 @@
  *  * limitations under the License.
  *
  */
+
 package com.fpetrola.oozx.speccy.devices.disciple;
 
 import com.fpetrola.oozx.speccy.devices.DeviceFrame;
+import com.fpetrola.oozx.speccy.devices.DriveBayFrame;
 import com.fpetrola.oozx.speccy.devices.Equipment;
-import com.fpetrola.oozx.speccy.devices.plusd.DriveBayFrame;
+import com.fpetrola.oozx.speccy.devices.disk.DiskInterface;
 
 public class DiscipleEquipment implements Equipment {
+  static final DiskInterface SHAPE = DiskInterface.shape(2, "NMI",
+      "The button on the DISCiPLE: stops the program and brings up its snapshot menu", "mgt", "img", "dsk");
+
   public String name() {
     return "DISCiPLE";
   }
 
   public DeviceFrame<?> open() {
-    return new DriveBayFrame<>("DISCiPLE", DisciplePeripheral.class);
+    return new DriveBayFrame<>("DISCiPLE", DisciplePeripheral.class, SHAPE);
   }
 }

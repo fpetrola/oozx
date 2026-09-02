@@ -173,6 +173,12 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
   }
 
   @Override
+  public BlipSynth newFlatSynth(int volume) {
+    return new BlipSynth(BlipBuffer.BLIP_HIGH_QUALITY, soundFreq, 1000, effectiveSpeed, bass,
+        getVolume(volume), 0.0);
+  }
+
+  @Override
   public int frameSize() {
     return soundFrameSize;
   }

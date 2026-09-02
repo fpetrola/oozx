@@ -56,7 +56,6 @@ public class Spec48 extends Spectrum {
     peripherals.clear();
     peripherals.update();
 
-    Beta.builtin = false;
 
     memory.currentScreen = 5;
     memory.screenMask = 0xffff;

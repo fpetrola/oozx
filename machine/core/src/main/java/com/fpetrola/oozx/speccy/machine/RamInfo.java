@@ -23,6 +23,12 @@ public abstract class RamInfo {
   int currentPage;
   int currentRom;
   public byte lastByte;
+
+  /** Which of its ROMs a 128 has at the bottom: 1 is the 48 BASIC, where the Beta's traps live. */
+  public int currentRom() {
+    return currentRom;
+  }
+
   public byte lastByte2;
   boolean special;
   public boolean romcs;

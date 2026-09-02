@@ -169,7 +169,7 @@ public class Settings {
     public String rom1281 = "128-1.rom";
     public String rom16;
     public String rom48 = "48.rom";
-    public String romBeta128;
+    public String romBeta128 = "trdos.rom";
     public String romDidaktik80;
     public String romDisciple = "disciple.rom";
     public String romInterface1;
@@ -189,7 +189,7 @@ public class Settings {
     // Its third ROM is TR-DOS, which needs the disk side that does not exist yet.
     public String romPentagon0 = "128-0.rom";
     public String romPentagon1 = "128-1.rom";
-    public String romPentagon2;
+    public String romPentagon2 = "trdos.rom";
     public String romPlus20 = "plus2-0.rom";
     public String romPlus21 = "plus2-1.rom";
     public String romPlus2a0 = "plus3-0.rom";
@@ -263,8 +263,8 @@ public class Settings {
     public boolean usource;
     public int volumeAy;
     public int volumeBeeper;
-    public int volumeCovox;
-    public int volumeSpecdrum;
+    public int volumeCovox = 100;
+    public int volumeSpecdrum = 100;
     public boolean writableRoms;
     public boolean z80IsCmos;
     public boolean zxataspActive;

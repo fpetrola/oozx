@@ -15,12 +15,14 @@
  *  * limitations under the License.
  *
  */
-package com.fpetrola.oozx.speccy.devices.plusd;
 
-import com.fpetrola.oozx.speccy.devices.DeviceFrame;
-import com.fpetrola.oozx.speccy.devices.MediaSlot;
+package com.fpetrola.oozx.speccy.devices;
+
 import com.fpetrola.oozx.speccy.devices.disk.Disk;
+import com.fpetrola.oozx.speccy.devices.disk.DiskInterface;
 import com.fpetrola.oozx.speccy.devices.disk.Fdd;
+import com.fpetrola.oozx.speccy.peripherals.Peripheral;
+import com.fpetrola.oozx.speccy.peripherals.Pluggable;
 import com.fpetrola.oozx.speccy.peripherals.t.Widgets;
 
 import javax.swing.Box;
@@ -38,35 +40,41 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * An MGT interface on the desk: two drive bays, each with its light and its slot, the button,
- * and a lamp for the ROM being paged in. Expanded, where each head is.
+ * A disk interface on the desk: a bay per drive, each with its light and its slot, the button
+ * the board has, and a lamp for its ROM being paged in. Expanded, where each head is.
  */
-public class DriveBayFrame<P extends MgtDiskInterface> extends DeviceFrame<P> {
+public class DriveBayFrame<P extends Peripheral & Pluggable & DiskInterface> extends DeviceFrame<P> {
 
   private static final int REFRESH_MILLIS = 100;
-  private static final FileNameExtensionFilter DISKS =
-      new FileNameExtensionFilter("MGT disk image (MGT, IMG, DSK)", "mgt", "img", "dsk");
 
   private final String name;
-  private final MediaSlot[] slots = new MediaSlot[MgtDiskInterface.DRIVES];
-  private final JLabel[] heads = new JLabel[MgtDiskInterface.DRIVES];
+  private final MediaSlot[] slots;
+  private final JLabel[] heads;
   private final JButton button;
   private final JLabel paged = new JLabel("●");
   private final JLabel status = new JLabel();
   private final Timer refresh = new Timer(REFRESH_MILLIS, e -> refresh());
 
-  public DriveBayFrame(String name, Class<? extends P> kind) {
+  /**
+   * @param shape what the board has, before one is plugged in: how many drives, which images,
+   *              what its button is called. The one plugged in later says the same things.
+   */
+  public DriveBayFrame(String name, Class<? extends P> kind, DiskInterface shape) {
     super(name, kind);
     this.name = name;
-    button = Widgets.iconButton("multiface-button.svg", "NMI",
-        "The button on the " + name + ": stops the program and brings up its snapshot menu");
-    setSize(560, 220);
+    slots = new MediaSlot[shape.drives()];
+    heads = new JLabel[shape.drives()];
+    button = Widgets.iconButton("multiface-button.svg", shape.buttonName(), shape.buttonTip());
+    button.setVisible(shape.buttonName() != null);
+    FileNameExtensionFilter disks = new FileNameExtensionFilter(
+        "Disk image (" + String.join(", ", shape.imageExtensions()).toUpperCase() + ")", shape.imageExtensions());
+    setSize(560, 160 + 30 * shape.drives());
 
     JPanel bays = new JPanel(new GridLayout(0, 1, 0, 2));
     bays.setOpaque(false);
     for (int i = 0; i < slots.length; i++) {
       int which = i;
-      slots[i] = new MediaSlot("disk " + (i + 1), "floppy.svg", DISKS, file -> insert(which, file), () -> eject(which))
+      slots[i] = new MediaSlot("disk " + (i + 1), "floppy.svg", disks, file -> insert(which, file), () -> eject(which))
           .withLed("Lit while drive " + (i + 1) + " is turning")
           .withNew(() -> insertBlank(which))
           .withSave(file -> save(which, file))
@@ -76,7 +84,7 @@ public class DriveBayFrame<P extends MgtDiskInterface> extends DeviceFrame<P> {
     }
     controls.add(bays);
     controls.add(Box.createHorizontalStrut(10));
-    button.addActionListener(e -> onEmulator(MgtDiskInterface::button));
+    button.addActionListener(e -> onEmulator(DiskInterface::button));
     paged.setToolTipText("Lit while the " + name + "'s ROM is paged in over the machine's");
     controls.add(button);
     controls.add(paged);
@@ -99,12 +107,12 @@ public class DriveBayFrame<P extends MgtDiskInterface> extends DeviceFrame<P> {
   }
 
   private interface Work {
-    void on(MgtDiskInterface device);
+    void on(DiskInterface device);
   }
 
   /** On the emulator's thread: the drives and the controller run there, on its clock. */
   private void onEmulator(Work work) {
-    MgtDiskInterface plugged = device();
+    DiskInterface plugged = device();
     if (plugged != null) {
       machine().z80.later(() -> work.on(plugged));
     }
@@ -144,7 +152,7 @@ public class DriveBayFrame<P extends MgtDiskInterface> extends DeviceFrame<P> {
   }
 
   private void save(int which, File file) {
-    MgtDiskInterface plugged = device();
+    DiskInterface plugged = device();
     if (plugged == null) {
       return;
     }
@@ -156,7 +164,7 @@ public class DriveBayFrame<P extends MgtDiskInterface> extends DeviceFrame<P> {
   }
 
   private void refresh() {
-    MgtDiskInterface plugged = device();
+    DiskInterface plugged = device();
     if (plugged == null) {
       status.setText("not plugged into a machine");
       paged.setForeground(Color.GRAY);

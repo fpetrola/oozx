@@ -25,6 +25,7 @@ import com.fpetrola.oozx.speccy.Emulation;
 import com.fpetrola.oozx.speccy.devices.ay.AyPeripheral;
 import com.fpetrola.oozx.speccy.devices.ay.AyPlus3Peripheral;
 import com.fpetrola.oozx.speccy.devices.melodik.MelodikPeripheral;
+import com.fpetrola.oozx.speccy.devices.disk.Beta128Peripheral;
 import com.fpetrola.oozx.speccy.devices.disk.Upd765Peripheral;
 import com.fpetrola.oozx.speccy.devices.joystick.KempstonLoosePeriphPeripheral;
 import com.fpetrola.oozx.speccy.devices.joystick.KempstonStrictPeripheral;
@@ -63,7 +64,7 @@ class PeripheralPresenceTest {
       Spec128MemoryPeripheral.class, SpecPlus3MemoryPeripheral.class, SeMemoryPeripheral.class,
       AyPeripheral.class, AyPlus3Peripheral.class, MelodikPeripheral.class,
       KempstonStrictPeripheral.class, KempstonLoosePeriphPeripheral.class,
-      Upd765Peripheral.class);
+      Upd765Peripheral.class, Beta128Peripheral.class);
 
   private Speccy speccy(boolean wantOptionals) {
     Emulation.noTest = true;
@@ -104,7 +105,7 @@ class PeripheralPresenceTest {
     has("UlaPeripheral SpecPlus3MemoryPeripheral AyPlus3Peripheral", speccy.specPlus2a, speccy);
     has("UlaPeripheral SpecPlus3MemoryPeripheral AyPlus3Peripheral Upd765Peripheral", speccy.specPlus3, speccy);
     has("UlaPeripheral SpecPlus3MemoryPeripheral AyPlus3Peripheral Upd765Peripheral", speccy.specPlus3e, speccy);
-    has("UlaFullDecodePeripheral Spec128MemoryPeripheral AyPeripheral", speccy.pentagon, speccy);
+    has("UlaFullDecodePeripheral Spec128MemoryPeripheral AyPeripheral Beta128Peripheral", speccy.pentagon, speccy);
   }
 
   /**
@@ -122,7 +123,7 @@ class PeripheralPresenceTest {
     has("UlaPeripheral SpecPlus3MemoryPeripheral AyPlus3Peripheral KempstonStrictPeripheral", speccy.specPlus2a, speccy);
     has("UlaPeripheral SpecPlus3MemoryPeripheral AyPlus3Peripheral KempstonStrictPeripheral Upd765Peripheral", speccy.specPlus3, speccy);
     has("UlaPeripheral SpecPlus3MemoryPeripheral AyPlus3Peripheral KempstonStrictPeripheral Upd765Peripheral", speccy.specPlus3e, speccy);
-    has("UlaFullDecodePeripheral Spec128MemoryPeripheral AyPeripheral", speccy.pentagon, speccy);
+    has("UlaFullDecodePeripheral Spec128MemoryPeripheral AyPeripheral Beta128Peripheral", speccy.pentagon, speccy);
   }
 
   /**

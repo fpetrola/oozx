@@ -35,6 +35,9 @@ public interface AudioOutput {
    */
   BlipSynth newSynth(int volumePercent);
 
+  /** The same, with no speaker's colouring: a DAC goes to the mixer as it is. */
+  BlipSynth newFlatSynth(int volumePercent);
+
   /** How many stereo frames one frame of output holds. */
   int frameSize();
 }

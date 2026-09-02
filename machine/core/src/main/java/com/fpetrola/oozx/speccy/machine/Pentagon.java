@@ -33,6 +33,7 @@ import java.util.Set;
 
 import static com.fpetrola.oozx.MachineCapability.AY;
 import static com.fpetrola.oozx.MachineCapability.MEMORY_128;
+import static com.fpetrola.oozx.MachineCapability.TRDOS_DISK;
 import com.fpetrola.emulation.helpers.machine.MachineTypes;
 
 /**
@@ -60,7 +61,7 @@ public class Pentagon extends Spec128 {
 
   @Override
   public Set<MachineCapability> getCapabilities() {
-    return Set.of(AY, MEMORY_128);
+    return Set.of(AY, MEMORY_128, TRDOS_DISK);
   }
 
   public boolean fullyDecodesPorts() {

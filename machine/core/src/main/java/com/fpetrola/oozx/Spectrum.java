@@ -84,15 +84,22 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
   private void spectrumFrameEventFn(long lastTstates, int type, Object userData) {
     spectrumFrame();
     cpu.interrupt();
-    timer.estimateSpeed(cpu);
   }
 
   public long frameCount() {
     return frames;
   }
 
+  /** This machine's own end of frame, registered the first time anyone needs it. */
+  public int frameEvent() {
+    if (spectrumFrameEvent == -1) {
+      spectrumFrameEvent = eventManager.eventRegister(this::spectrumFrameEventFn, "End of frame");
+    }
+    return spectrumFrameEvent;
+  }
+
   public void start() {
-    spectrumFrameEvent = eventManager.eventRegister(this::spectrumFrameEventFn, "End of frame");
+    frameEvent();
 
     module.register(this);
 

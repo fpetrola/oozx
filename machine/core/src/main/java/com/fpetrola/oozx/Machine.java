@@ -124,11 +124,9 @@ public class Machine implements ZxModule {
   private int selectMachine(Spectrum machine) {
     int width, height;
 
-    int spectrumFrameEvent;
-    if (current != null && current.spectrumFrameEvent != -1)
-      spectrumFrameEvent = current.spectrumFrameEvent;
-    else
-      spectrumFrameEvent = machine.spectrumFrameEvent;
+    // The new machine's own frame event, not the old one's: with the old one a Pentagon ran on
+    // the 48K's frame length and counted its frames on the 48K.
+    int spectrumFrameEvent = machine.frameEvent();
 
     current = machine;
     machineChangeListeners.forEach(listener -> listener.machineChanged(current));

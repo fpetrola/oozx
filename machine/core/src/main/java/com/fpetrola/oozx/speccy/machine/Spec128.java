@@ -77,7 +77,6 @@ public class Spec128 extends Spectrum implements Paging128 {
     installPeripherals();
     peripherals.update();
 
-    Beta.builtin = false;
 
 //    spec48.commonDisplaySetup();
 

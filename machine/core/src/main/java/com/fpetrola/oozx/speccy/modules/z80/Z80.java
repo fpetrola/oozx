@@ -507,10 +507,28 @@ public class Z80 implements ZxModule, Cpu {
   public void end() {
   }
 
+  private final java.util.List<Runnable> nmiListeners = new java.util.concurrent.CopyOnWriteArrayList<>();
+
   /** Eleven T-states: five of the processor's own, and the two pushes the memory counts. */
   private void z80_nmi(long l, int i, Object o) {
     zxClock.addTStates(5, "nmi");
+    nmiListeners.forEach(Runnable::run);
     ooz80.nmi();
+  }
+
+  @Override
+  public void onNmi(Runnable listener) {
+    nmiListeners.add(listener);
+  }
+
+  @Override
+  public void offNmi(Runnable listener) {
+    nmiListeners.remove(listener);
+  }
+
+  @Override
+  public void jump(int address) {
+    ooz80.getState().getPc().write(address);
   }
 
   @Override

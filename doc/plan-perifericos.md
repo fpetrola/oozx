@@ -80,7 +80,7 @@ faltaban. Se hacen antes del periférico que las necesita, cada una con su test,
 | **Trampas de PC** (`PcTraps`, un aspecto en `speccy/modules/z80`) — HECHO | IF1, +D, DISCiPLE, Opus, Didaktik, Beta, Multiface, uSource, uSpeech, DivIDE, DivMMC, Spectranet | Fuse pagina ROMs cuando el PC pasa por direcciones fijas (0x0008, 0x0066, 0x1708…), antes o después del fetch. Acá no hay ningún hook de ese tipo. Es un aspecto lateral, como `PhaseProcessor`: una tabla de 64K bits, una consulta por instrucción, sin tocar las instrucciones. `Z80.step()` = `traps.before(pc)` → `execute()` → `traps.after(pc)`, y lo usan los dos loops (el de `doOpcodes` y el de RZX, que hoy llama a `ooz80` directo). "Después del fetch" en Fuse es después del byte de opcode; acá es después de la instrucción, y se verifica ROM por ROM que la instrucción en cada dirección de trampa no lee memoria baja (`xxd` sobre la ROM, en el test). |
 | **`Module.unregister`** y **`RomcsDevice` por periférico** — HECHO | todo lo que tiene ROM | el mecanismo existe (`ramInfo.romcs` → `memory.romcsMap` → `Module.romcs()` → `RomcsDevice.mapRom()`) y nadie lo implementa aún. Falta que un periférico pueda irse: `Module` registra y nunca borra. |
 | **ROM desde un archivo** en `Utils.readAuxiliaryFile` — HECHO | Multiface, IF1, Beta, Opus, Didaktik, DivIDE, uSpeech, uSource, Spectranet, TTX2000S | hoy sólo busca `roms/<nombre>` en el classpath. Fuse busca también en el disco. Las ROMs de estos periféricos no se pueden distribuir (`mf1.rom`, `if1.rom`, `trdos.rom` están en `~/detodo/spectrum/Roms`, no en el repo), así que la ventana las elige y el nombre queda en el setting que ya existe (`romMultiface1`, `romInterface1`, `romBeta128`…). |
-| **`Dac`**, un `AudioSource` con un nivel de 8 bits | Covox, SpecDrum, uSpeech | es el `Beeper` sin la cinta: `synth.update(tstates, nivel × volumen)`. Un solo dueño del concepto "un DAC que va al mixer". |
+| **`Dac`**, un `AudioSource` con un nivel de 8 bits — HECHO | Covox, SpecDrum, uSpeech | es el `Beeper` sin la cinta: `synth.update(tstates, nivel × volumen)`. Un solo dueño del concepto "un DAC que va al mixer". |
 | **La pila de disquete** en `core`: `Disk` (formatos), `Fdd`, `WdFdc`, `Crc` — HECHA (MGT/IMG/OPD; el resto de formatos con cada periférico) | +D, DISCiPLE, Beta, Opus, Didaktik — y el uPD765 del +3 | `Fdd` está portado pero `Disk` es un stub de 40 líneas, así que la disquetera del +3 tampoco lee nada. Van a `core` porque el Beta del Pentagon es la computadora, y porque el uPD765 ya vive ahí. `disk.c` son 3.114 líneas; se portan por formato, en el orden en que los periféricos los necesitan (MGT/IMG para +D, TRD/SCL para Beta, OPD para Opus, D40/D80 para Didaktik, DSK/EDSK para el +3; UDI, FDI, TD0 y SAD al final). |
 
 ### 4. La ventana de cada uno
@@ -104,9 +104,9 @@ gate verde, commit — antes de empezar el siguiente.
 | 3 | **pila de disquete + +D** — HECHO | primer usuario de `Disk`/`WdFdc`; `plusd.rom` viene con Fuse | se inserta un disco MGT, `CAT 1` lista el catálogo, `LOAD d1"juego"` carga |
 | 4 | **impresora paralela** — HECHO | el +D y el +3 tienen el puerto; 8 puertos, sin chip | `LPRINT` en un +3 y sale texto en la ventana |
 | 5 | **DISCiPLE** — HECHO | +D con más puertos; `disciple.rom` viene con Fuse | igual que el +D, con joystick y red |
-| 6 | **Beta 128** | TRD/SCL es el formato con más software; `trdos.rom` está en `~/detodo/spectrum/Roms`; de paso el Pentagon arranca en TR-DOS | `RUN "boot"` en un Pentagon y en un 128 con la interfaz |
-| 7 | **Covox** y **SpecDrum** | dos DACs de 134 y 117 líneas sobre el mismo `Dac` | un vúmetro que se mueve con la música |
-| 8 | **Fuller Box** | AY en otros puertos + joystick; reusa `AyPeripheral` y `Joystick.fullerRead`, que ya existe | música AY en un 48K, y el joystick del Fuller |
+| 6 | **Beta 128** — HECHO | TRD/SCL es el formato con más software; `trdos.rom` está en `~/detodo/spectrum/Roms`; de paso el Pentagon arranca en TR-DOS | `RUN "boot"` en un Pentagon y en un 128 con la interfaz |
+| 7 | **Covox** y **SpecDrum** — HECHO | dos DACs de 134 y 117 líneas sobre el mismo `Dac` | un vúmetro que se mueve con la música |
+| 8 | **Fuller Box** — HECHO | AY en otros puertos + joystick; reusa `AyPeripheral` y `Joystick.fullerRead`, que ya existe | música AY en un 48K, y el joystick del Fuller |
 | 9 | **Opus Discovery** | misma pila; `success.opd` de Fuse como medio de prueba | catálogo de un disco Opus |
 | 10 | **Didaktik 40/80** | misma pila, con un 8255 | idem |
 | 11 | **Interface 1** | 1.410 líneas: microdrives, RS232, ZX Net; `if1.rom` está en `~/detodo/spectrum/Roms`, `success.mdr` en Fuse | `CAT 1` de un cartucho; la terminal RS232 muestra lo que el programa escribe |
@@ -225,7 +225,7 @@ y es lo que cada migración tiene que cumplir. Las direcciones y máscaras está
   los dos comparten: el módulo `disciple` depende de `plusd` por eso). El joystick y la red no
   están emulados, como en Fuse.
 
-### 6. Beta 128 (`beta.c`, 676 líneas) — `machine/devices/beta128`, y el Pentagon en `core`
+### 6. Beta 128 (`beta.c`, 676 líneas) — `machine/devices/beta128`, y el Pentagon en `core` — HECHO
 
 - **ROM** 16K completa en 0x0000-0x3fff (`trdos.rom`, no viene con Fuse; está en
   `~/detodo/spectrum/Roms`). Sin RAM propia.
@@ -247,7 +247,7 @@ y es lo que cada migración tiene que cumplir. Las direcciones y máscaras está
 - **Test**: un TRD en blanco formateado en Java, `LIST` del catálogo desde TR-DOS en una 128 con la
   ROM del usuario si está, y sin ella el test de paginado y de puertos solamente.
 
-### 7. Covox (`covox.c`, 134) y SpecDrum (`specdrum.c`, 117) — `machine/devices/covox`, `machine/devices/specdrum`
+### 7. Covox (`covox.c`, 134) y SpecDrum (`specdrum.c`, 117) — `machine/devices/covox`, `machine/devices/specdrum` — HECHO
 
 - **Covox**: dos puertos de escritura, 0xfb y 0xdd (máscara 0xff), un solo flag: los dos a la
   vez. Nivel `val × 128` en el instante `tstates`, volumen `volumeCovox`. Encaja en todo lo que
@@ -265,7 +265,7 @@ y es lo que cada migración tiene que cumplir. Las direcciones y máscaras está
   frame.
 - **Test**: escribir una onda al puerto durante un frame y medir en el mixer (como `MelodikTest`).
 
-### 8. Fuller Box (`fuller.c`, 101 líneas) — `machine/devices/fuller`
+### 8. Fuller Box (`fuller.c`, 101 líneas) — `machine/devices/fuller` — HECHO
 
 - AY en 0x3f (registro, lectura/escritura) y 0x5f (datos, escritura), máscara 0xff; joystick en
   0x7f (lectura): activo en bajo, `{izq 0x04, der 0x08, arriba 0x01, abajo 0x02, fuego 0x80}` —
@@ -476,6 +476,12 @@ está en el árbol y se escribe desde el protocolo.
   máquina (hecho en el paso 1).
 - `EventManager.eventNextEvent` arranca en −1 y "menor que −1" nunca es verdad: el primer
   `doOpcodes` de cada máquina no corre hasta que `eventDoEvents` lo corrige. Funciona de casualidad.
+- `EventManager.eventRemoveType` marcaba los eventos como nulos *dentro* del árbol ordenado por
+  (tiempo, tipo): cambiaba la clave en el lugar, y un controlador que arma y cancela un evento por
+  byte dejaba miles de entradas muertas que cada pasada recorría. Ahora los saca (hecho en el paso 6).
+- `Machine.selectMachine` le daba a la máquina nueva el evento de frame de la anterior: un Pentagon
+  corría con el frame del 48K y contaba sus frames en el 48K. Ahora cada máquina usa el suyo (paso 6).
+- `-Devents.trace=true` imprime cada evento al dispararse, como `-Ddock.trace` para el docking.
 
 ## Lo que queda fuera, y por qué
 

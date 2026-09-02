@@ -39,6 +39,14 @@ public interface Cpu {
   /** Pulls /NMI: taken between this instruction and the next, at 0x0066. */
   void nmi();
 
+  /** Told as an NMI is taken, before the jump: a Beta pages its ROM in there, as Fuse's does. */
+  void onNmi(Runnable listener);
+
+  void offNmi(Runnable listener);
+
+  /** Where the processor goes on next: a device that boots the machine into its own ROM sets it. */
+  void jump(int address);
+
   /** What is watching the address bus before each fetch. */
   PcTraps beforeFetch();
 

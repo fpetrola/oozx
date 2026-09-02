@@ -19,7 +19,8 @@
 package com.fpetrola.oozx.speccy.devices;
 
 import com.fpetrola.oozx.Speccy;
-import com.fpetrola.oozx.speccy.peripherals.PluggablePeripheral;
+import com.fpetrola.oozx.speccy.peripherals.Peripheral;
+import com.fpetrola.oozx.speccy.peripherals.Pluggable;
 import com.fpetrola.oozx.speccy.peripherals.t.AttachedFrame;
 
 import javax.swing.event.InternalFrameAdapter;
@@ -34,7 +35,7 @@ import javax.swing.event.InternalFrameEvent;
  * again when it is unclipped or the machine closes. What is shown while it is plugged in is the
  * subclass's business, told through {@link #plugged}.
  */
-public abstract class DeviceFrame<P extends PluggablePeripheral> extends AttachedFrame {
+public abstract class DeviceFrame<P extends Peripheral & Pluggable> extends AttachedFrame {
 
   private final Class<? extends P> kind;
   private Speccy machine;
@@ -62,6 +63,11 @@ public abstract class DeviceFrame<P extends PluggablePeripheral> extends Attache
     return machine;
   }
 
+  /** Which device on that machine this window is for: the one of its kind, unless a subclass has a better answer. */
+  protected P find(Speccy machine) {
+    return kind.cast(machine.peripherals.find(kind));
+  }
+
   /** The device changed hands: this one, on another machine, or none at all. */
   protected void plugged(P device) {
   }
@@ -75,7 +81,7 @@ public abstract class DeviceFrame<P extends PluggablePeripheral> extends Attache
     }
     connect(false);
     machine = attached;
-    device = machine == null ? null : kind.cast(machine.peripherals.find(kind));
+    device = machine == null ? null : find(machine);
     connect(true);
     plugged(device);
   }

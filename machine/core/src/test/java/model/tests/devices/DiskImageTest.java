@@ -49,6 +49,23 @@ class DiskImageTest {
   }
 
   @Test
+  void aTrdImageComesBackAsItWentIn() throws Exception {
+    byte[] image = new byte[2 * 80 * 16 * 256];
+    for (int i = 0; i < image.length; i++) {
+      image[i] = (byte) (i * 3 + (i >> 8));
+    }
+    // The specification sector: TR-DOS's id and a disk type that says 80 tracks, two sides.
+    int spec = 8 * 256;
+    image[spec] = 0;
+    image[spec + 227] = 0x16;
+    image[spec + 231] = 0x10;
+    Disk disk = Disk.openBuffer("round.trd", image);
+    assertEquals(2, disk.sides);
+    assertEquals(80, disk.cylinders);
+    assertArrayEquals(image, disk.toImage());
+  }
+
+  @Test
   void aBlankDiskHasNoSectorsUntilItIsFormatted() throws Exception {
     Disk blank = Disk.blank(2, 80, Disk.Density.DD, Disk.Type.MGT);
     assertThrows(Exception.class, blank::toImage, "an unformatted disk has no sectors to write as MGT");

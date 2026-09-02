@@ -53,12 +53,18 @@ public class AyPeripheral extends AbstractPeripheral {
   }
 
   protected AyPeripheral(Sound sound, Z80Clock clock, boolean dataPortAnswers) {
-    super(List.of());
-    this.sound = sound;
     // 0xFFFD: bits 15 and 14 high - which register is being spoken to.
     // 0xBFFD: bit 14 high, bit 15 low - the value for it.
-    ports(new AyPortHandler(0xC002, 0xC000, true, registers, this, clock),
-        new AyPortHandler(0xC002, 0x8000, false, registers, this, clock, dataPortAnswers));
+    this(sound, clock, 0xC002, 0xC000, 0xC002, 0x8000, dataPortAnswers);
+  }
+
+  /** The same chip on other ports, which is what a box with one in it is. */
+  protected AyPeripheral(Sound sound, Z80Clock clock, int selectMask, int selectValue, int dataMask, int dataValue,
+                         boolean dataPortAnswers) {
+    super(List.of());
+    this.sound = sound;
+    ports(new AyPortHandler(selectMask, selectValue, true, registers, this, clock),
+        new AyPortHandler(dataMask, dataValue, false, registers, this, clock, dataPortAnswers));
   }
 
   @Override

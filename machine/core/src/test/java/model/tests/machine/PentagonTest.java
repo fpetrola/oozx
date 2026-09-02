@@ -63,16 +63,15 @@ class PentagonTest {
   }
 
   @Test
-  void aPentagonIsAOneTwentyEightThatCannotReachADisk() {
+  void aPentagonIsAOneTwentyEightWithADisk() {
     Pentagon pentagon = speccy().pentagon;
     assertTrue(pentagon.has(AY), "it has the sound chip");
     assertTrue(pentagon.has(MEMORY_128), "and the 128's paging");
     assertFalse(pentagon.has(PLUS3_MEMORY), "but not the +3's");
-
-    // A real Pentagon has TR-DOS. This one says no, because the Beta 128 needs a WD1793 and a
-    // way to read a disk image, and a capability that answers yes while nothing is behind it is
-    // exactly how the +3 ended up unable to switch its drive off.
-    assertFalse(pentagon.has(TRDOS_DISK), "and no disk until there is one");
+    // Said only now that there is a Beta 128 behind it - an FD1793 that reads a disk image - and
+    // not before: a capability that answers yes with nothing behind it is how the +3 ended up
+    // unable to switch its drive off.
+    assertTrue(pentagon.has(TRDOS_DISK), "and TR-DOS, which is what its third ROM is");
   }
 
   @Test

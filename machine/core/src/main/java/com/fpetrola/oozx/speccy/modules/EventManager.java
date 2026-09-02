@@ -40,6 +40,9 @@ public class EventManager implements ZxModule, MachineChangeListener {
 
   public long eventNextEvent;
 
+  /** -Devents.trace=true prints every event as it fires. */
+  private static final boolean TRACE = Boolean.getBoolean("events.trace");
+
   // The actual list of events
 //  private final List<Event> eventList = new LinkedList<>();
 
@@ -143,6 +146,9 @@ public class EventManager implements ZxModule, MachineChangeListener {
         eventNextEvent = events.getFirst().tstates;
       }
 
+      if (TRACE) {
+        System.out.printf("event: %s at %d (clock %d)%n", descriptor.description, firstEvent.tstates, z80Clock.getTStates());
+      }
       if (descriptor.fn != null) {
         descriptor.fn.apply(firstEvent.tstates, firstEvent.type, firstEvent.userData);
       }
@@ -172,31 +178,19 @@ public class EventManager implements ZxModule, MachineChangeListener {
     }
   }
 
-  private void setEventNull(Event ptr, int type) {
-    if (ptr.type == type) {
-      ptr.type = eventTypeNull;
-    }
-  }
-
-  private void setEventNullWithUserData(Event event, Event template) {
-    if (event.type == template.type && event.userData == template.userData) {
-      event.type = eventTypeNull;
-    }
-  }
-
-  // Remove all events of a specific type from the stack
+  /**
+   * Takes every event of a type out. Out, not marked: the type is part of the tree's key, so
+   * changing it in place left the tree misordered, and a controller that arms and cancels an
+   * event on every byte left thousands of dead entries for each pass to walk.
+   */
   public void eventRemoveType(int type) {
-    for (Event event : events) {
-      setEventNull(event, type);
-    }
+    events.removeIf(event -> event.type == type);
+    eventNextEvent = events.isEmpty() ? EVENT_NO_EVENTS : events.first().tstates;
   }
 
-  // Remove all events of a specific type and user data from the stack
   public void eventRemoveTypeUserData(int type, Object userData) {
-    Event template = new Event(-1, type, userData);
-    for (Event event : events) {
-      setEventNullWithUserData(event, template);
-    }
+    events.removeIf(event -> event.type == type && event.userData == userData);
+    eventNextEvent = events.isEmpty() ? EVENT_NO_EVENTS : events.first().tstates;
   }
 
   public void reset() {

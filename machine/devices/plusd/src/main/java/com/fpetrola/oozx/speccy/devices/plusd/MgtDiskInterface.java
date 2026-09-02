@@ -25,6 +25,7 @@ import com.fpetrola.oozx.RomNotLoadedException;
 import com.fpetrola.oozx.Settings;
 import com.fpetrola.oozx.speccy.devices.disk.Disk;
 import com.fpetrola.oozx.speccy.devices.disk.DiskException;
+import com.fpetrola.oozx.speccy.devices.disk.DiskInterface;
 import com.fpetrola.oozx.speccy.devices.disk.Fdd;
 import com.fpetrola.oozx.speccy.devices.disk.WdFdc;
 import com.fpetrola.oozx.speccy.devices.parallelprinter.ParallelPrinterPeripheral;
@@ -48,7 +49,7 @@ import java.util.List;
  * printer port, and a button. The +D and the DISCiPLE differ in the port numbers, in what the
  * control register's bits mean, and in whether the halves can swap.
  */
-public abstract class MgtDiskInterface extends PluggablePeripheral implements ZxModule, RomcsDevice {
+public abstract class MgtDiskInterface extends PluggablePeripheral implements ZxModule, RomcsDevice, DiskInterface {
 
   public static final int ROM_SIZE = 0x2000;
   public static final int RAM_SIZE = 0x2000;
@@ -271,8 +272,29 @@ public abstract class MgtDiskInterface extends PluggablePeripheral implements Zx
     return controlRegister;
   }
 
+  @Override
+  public int drives() {
+    return DRIVES;
+  }
+
+  @Override
   public Fdd drive(int which) {
     return drives[which];
+  }
+
+  @Override
+  public String buttonName() {
+    return "NMI";
+  }
+
+  @Override
+  public String buttonTip() {
+    return "The button on the interface: stops the program and brings up its snapshot menu";
+  }
+
+  @Override
+  public String[] imageExtensions() {
+    return new String[] {"mgt", "img", "dsk"};
   }
 
   public WdFdc fdc() {

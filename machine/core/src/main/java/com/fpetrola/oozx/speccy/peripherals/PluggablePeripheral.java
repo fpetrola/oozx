@@ -22,20 +22,22 @@ import com.fpetrola.oozx.speccy.ports.PortHandler;
 
 import java.util.List;
 
-/**
- * A peripheral somebody plugs in from outside, by clipping its window onto the machine - as
- * against one a machine comes with, or one a setting asks for.
- */
-public abstract class PluggablePeripheral extends AbstractPeripheral {
+/** The usual way of being {@link Pluggable}: a flag, which is what {@link #isWanted} answers. */
+public abstract class PluggablePeripheral extends AbstractPeripheral implements Pluggable {
   private boolean pluggedIn;
 
   protected PluggablePeripheral(List<PortHandler> ports) {
     super(ports);
   }
 
-  /** The cable. Takes effect at the next update, which is the emulator's own thread's business. */
+  @Override
   public void plugIn(boolean connected) {
     pluggedIn = connected;
+  }
+
+  @Override
+  public boolean isPluggedIn() {
+    return pluggedIn;
   }
 
   @Override

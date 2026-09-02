@@ -37,6 +37,10 @@
         <module>parallel-printer</module>
         <module>plusd</module>
         <module>disciple</module>
+        <module>beta128</module>
+        <module>covox</module>
+        <module>specdrum</module>
+        <module>fuller</module>
         <module>all</module>
     </modules>
 
