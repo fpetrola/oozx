@@ -637,6 +637,18 @@ El ruido del micro-benchmark es de ±8 % entre corridas: una diferencia menor a 
 El gate de inlining del núcleo puro da 16 métodos compilados a C2 y **ninguna** llamada a memoria,
 contención o boxing sin inlinear: el techo del núcleo puro ya está.
 
+**Las dos líneas base de la máquina no son reproducibles todavía.** Repitiendo la del RZX el mismo
+día sin tocar nada de ese camino, el núcleo OOP dio 458 fps donde antes había dado 555, y la del
+generado cayó más todavía cuando corrió detrás de dos suites completas. Con 7 GB en la máquina,
+un `mvn test` previo deja el equipo en otro estado. Antes de que esos números puedan decidir algo
+—y el paso 5 depende de ellos— hay que tomarlos con la máquina quieta, alternando núcleos y
+quedándose con la mejor de varias corridas, como hace `CoreBenchmark`. Los números confiables
+hoy son el del núcleo puro y el conteo de bytecode.
+
+`RzxCoreMeasurement` ya no tira la excepción, pero ahora se pasa del límite de 60 segundos que
+`machine/app` le pone a un test: el bloque del loop propio corre de verdad y no entra. O el
+bloque baja de 3000 frames, o la medición sale del suite.
+
 El bloque final de `RzxCoreMeasurement` tiraba `IndexOutOfBounds`, y no era del test:
 `RzxSession.release` reponía el evento de fin de frame leyendo el campo `spectrumFrameEvent`, que
 vale -1 mientras nadie lo registró, y `eventDoEvents` indexaba la tabla de descriptores con -1.
