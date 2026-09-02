@@ -650,6 +650,7 @@ Medido el 2 de septiembre de 2026, en la rama `nucleo-generado`.
 | CPU pura, programa sintético (`CoreBenchmark`) | OOP ≈ 36–43 M instr/s, generado ≈ 133–148 M instr/s: **3,5×** |
 | estado persistente que sobrevivió | 3 campos: el `nextPC` de los tres HALT, que el modelo también guarda |
 | candado | `GeneratedZ80IsCurrentTest`: la generación es determinista y el commiteado es lo que el modelo produce |
+| el resto del proyecto | `emulator` 1647 tests, `machine/ui` 16, `machine/devices` 33, `machine/app` 29 (también con el generado), `zx-rzx` 20: todo verde |
 
 Lo que el generador aprendió del modelo en el camino, y que conviene saber:
 
