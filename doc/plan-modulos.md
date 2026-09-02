@@ -149,9 +149,28 @@ Dos cosas tuvieron que cambiar para que pudiera decir eso:
 
 `ScrollPane` se volvió a core en el camino: necesita una galería, así que no era infraestructura.
 
-**3. `machine/app`.** Mover `peripherals/t` (menos lo que se fue a ui), `OOSpectrumLauncher`,
-`SwingUserInterface`, la UI de pokes y de config. `machine/base` queda siendo lo que sobra, y hay
-que verificar que compila **sin** el classpath de Swing.
+**3. `machine/app`. HECHO.** 38 archivos: el escritorio y sus ventanas, el launcher, la sesión de
+RZX, el core que maneja una ventana, el diálogo de settings. Lo que queda en `machine/core` es un
+emulador — sin dependencia a `machine/ui`, y con **un solo archivo que dibuja algo**, el papel de
+la impresora, que se va en el paso 4.
+
+Tres cosas hubo que resolver, y cada una dice dónde está la línea:
+
+- **El flag `noTest`** vivía como estático del conector de libretro, y lo leían desde el Z80 hasta
+  el dispositivo de sonido: el emulador le preguntaba a un launcher si estaba bajo test. Ahora es
+  `Emulation`, en el emulador.
+- **Cuatro clases del paquete `t` no eran ventanas** (los bloques de hardware de la cinta, el
+  descargador, el modelo de bloque, la opción de RZX) y volvieron al emulador. Ese paquete hacía
+  dos trabajos.
+- **Los tests se partieron como el código.** Los que necesitan un programa entero —una grabación
+  reproduciéndose, una máquina guardada como la guarda una ventana, una impresora clipeada— están
+  en la aplicación, y leen sus cintas y grabaciones del **test-jar** del emulador en vez de de un
+  directorio, que es lo que un recurso de otro módulo es.
+
+De paso aparecieron dos tests que pasaban de suerte: el del colapso leía el tamaño de una ventana
+sin dejar que se entregara el evento de resize, y funcionaba porque otros tests bombeaban la cola.
+
+**core 293, ui 16, app 29: los mismos 338 tests, cada uno en el módulo al que pertenece.**
 
 **4. `machine/devices`.** Mover los periféricos opcionales con sus vistas y sus service files. Cada
 módulo trae su propio `META-INF/services/…DeviceModule`: el `ServiceLoader` lee todos los que
