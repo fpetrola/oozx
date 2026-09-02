@@ -119,16 +119,21 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
 
     cpu.rebaseInterruptWindow(frameLength);
 
-    if (sound.soundEnabled)
-      sound.frame();
-
-    if (display.frame() != 0) return;
+    if (presentFrame() != 0) return;
 
     eventManager.eventAdd(getTimings().tstatesPerFrame, spectrumFrameEvent);
 
     PhantomTypist.frame();
 
     frames++;
+  }
+
+  /** What a frame of the clock shows: the sound, how fast it is going, and the picture. */
+  public int presentFrame() {
+    if (sound.soundEnabled)
+      sound.frame();
+    timer.estimateSpeed(cpu);
+    return display.frame();
   }
 
   public int contendDelayNone(long time) {

@@ -210,8 +210,8 @@ public class RzxSession {
    * Plays one frame of the recording and shows it.
    * <p>
    * Driving the processor means the machine's own loop never runs, and that loop is what asks the
-   * sound and the display for a frame, so both are asked here. Without the sound one a replay is
-   * silent, which is not the emulator being quiet - it is nobody telling it a frame went by.
+   * machine to present a frame - sound, speed, picture - so it is asked here. Without it a replay
+   * is silent, which is not the emulator being quiet - it is nobody telling it a frame went by.
    * <p>
    * They are asked once per frame OF THE CLOCK, not once per recorded frame. A recorded frame is
    * a count of fetches and runs a little over or under a frame's worth of T-states; the sound
@@ -242,10 +242,7 @@ public class RzxSession {
       return false;
     }
     for (int frames = playback.takeElapsedMachineFrames(); frames > 0; frames--) {
-      if (speccy.sound.soundEnabled) {
-        speccy.sound.frame();
-      }
-      speccy.display.frame();
+      speccy.machine.current.presentFrame();
     }
     return true;
   }
