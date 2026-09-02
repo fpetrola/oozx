@@ -24,7 +24,7 @@ import com.fpetrola.z80.cpu.State.InterruptionMode;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 
 public class IM extends AbstractInstruction {
-  int mode;
+  private final int mode;
   private final State state;
 
   public IM(State state, int mode) {

@@ -265,7 +265,7 @@ public class RzxSession {
     // it. Not for the pacing alone: with only one event the queue empties every frame, and an
     // empty queue puts eventNextEvent back to -1 with the same result as below.
     timer.addEvent();
-    speccy.eventManager.eventAdd(framesTStatesOf(speccy), speccy.machine.current.spectrumFrameEvent);
+    speccy.eventManager.eventAdd(framesTStatesOf(speccy), speccy.machine.current.frameEvent());
     // reset leaves eventNextEvent at EVENT_NO_EVENTS, which is 0xffffffff held in a long: -1.
     // Adding an event does not lower it, since nothing is less than -1, so the queue reads as
     // due forever and eventDoEvents takes events that have not come round yet. eventFrame(0)

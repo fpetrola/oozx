@@ -29,6 +29,9 @@ public class Folder {
   }
 
   private static Expression foldInPlace(Expression e) {
+    if (e instanceof MethodCallExpr m && m.getNameAsString().equals("equals") && m.getScope().isPresent()
+        && m.getScope().get() instanceof StringLiteralExpr a && m.getArguments().size() == 1 && m.getArgument(0) instanceof StringLiteralExpr b)
+      return new BooleanLiteralExpr(a.getValue().equals(b.getValue()));
     if (e instanceof AssignExpr || e instanceof MethodCallExpr || e instanceof ArrayAccessExpr || e instanceof VariableDeclarationExpr || e instanceof FieldAccessExpr || e instanceof ObjectCreationExpr || e instanceof InstanceOfExpr) {
       for (var child : new ArrayList<>(e.getChildNodes()))
         if (child instanceof Expression c && !(c instanceof NameExpr && e instanceof AssignExpr a && a.getTarget() == c)) {
@@ -82,11 +85,6 @@ public class Folder {
       if (cond instanceof BooleanLiteralExpr b)
         return foldInPlace(b.getValue() ? c.getThenExpr() : c.getElseExpr());
       return new ConditionalExpr(cond, foldInPlace(c.getThenExpr()), foldInPlace(c.getElseExpr()));
-    }
-    if (e instanceof MethodCallExpr m) {
-      if (m.getNameAsString().equals("equals") && m.getScope().isPresent() && m.getScope().get() instanceof StringLiteralExpr a && m.getArgument(0) instanceof StringLiteralExpr b)
-        return new BooleanLiteralExpr(a.getValue().equals(b.getValue()));
-      return m;
     }
     if (!(e instanceof BinaryExpr b))
       return e;
@@ -156,6 +154,78 @@ public class Folder {
     if (l instanceof IntegerLiteralExpr ln && ln.asNumber().intValue() == 0 && (op == BinaryExpr.Operator.PLUS || op == BinaryExpr.Operator.BINARY_OR))
       return r;
     return new BinaryExpr(l, r, op);
+  }
+
+  /**
+   * The bits a value can have, or {@link #UNKNOWN} when it could be anything, negative included.
+   * The generator knows things about its own code that the JIT cannot: that a memory read is a
+   * byte, that a masked value stays masked, that an address built from two bytes is not -1. This
+   * is what lets a mask or a comparison that cannot fail be dropped.
+   */
+  public static final int UNKNOWN = -1;
+
+  public static int maskOf(Expression e, java.util.Map<String, Integer> names) {
+    if (e instanceof EnclosedExpr en)
+      return maskOf(en.getInner(), names);
+    if (e instanceof CastExpr c)
+      return c.getType().toString().equals("int") ? maskOf(c.getExpression(), names) : UNKNOWN;
+    Integer value = intValue(e);
+    if (value != null)
+      return value >= 0 ? value : UNKNOWN;
+    if (e instanceof NameExpr n)
+      return names.getOrDefault(n.getNameAsString(), UNKNOWN);
+    if (e instanceof AssignExpr a)
+      return a.getOperator() == AssignExpr.Operator.ASSIGN ? maskOf(a.getValue(), names) : UNKNOWN;
+    if (e instanceof MethodCallExpr m)
+      return isByteRead(m) ? 0xFF : UNKNOWN;
+    if (e instanceof ConditionalExpr c) {
+      int then = maskOf(c.getThenExpr(), names), otherwise = maskOf(c.getElseExpr(), names);
+      return then == UNKNOWN || otherwise == UNKNOWN ? UNKNOWN : then | otherwise;
+    }
+    if (!(e instanceof BinaryExpr b))
+      return UNKNOWN;
+    int l = maskOf(b.getLeft(), names), r = maskOf(b.getRight(), names);
+    Integer shift = intValue(b.getRight());
+    switch (b.getOperator()) {
+      // Masking with a non-negative constant bounds the result whatever the other side was.
+      case BINARY_AND:
+        return l == UNKNOWN ? r : r == UNKNOWN ? l : l & r;
+      case BINARY_OR:
+      case XOR:
+        return l == UNKNOWN || r == UNKNOWN ? UNKNOWN : l | r;
+      case LEFT_SHIFT:
+        return l == UNKNOWN || shift == null || shift < 0 || shift > 31 || (l << shift) < 0 || (l << shift) >>> shift != l ? UNKNOWN : l << shift;
+      case SIGNED_RIGHT_SHIFT:
+        return l == UNKNOWN || shift == null || shift < 1 || shift > 31 ? UNKNOWN : l >>> shift;
+      case UNSIGNED_RIGHT_SHIFT:
+        return shift == null || shift < 1 || shift > 31 ? UNKNOWN : (l == UNKNOWN ? -1 >>> shift : l >>> shift);
+      case PLUS:
+        return l == UNKNOWN || r == UNKNOWN ? UNKNOWN : widen(l + r);
+      case MULTIPLY:
+        return l == UNKNOWN || r == UNKNOWN ? UNKNOWN : widen((long) l * r);
+      default:
+        return UNKNOWN;
+    }
+  }
+
+  /** Every bit up to the highest the sum could reach. */
+  private static int widen(long max) {
+    return max < 0 || max > Integer.MAX_VALUE ? UNKNOWN : (int) (Long.highestOneBit(max) == 0 ? 0 : (Long.highestOneBit(max) << 1) - 1);
+  }
+
+  /** The memory's contract: a read is one byte. */
+  private static boolean isByteRead(MethodCallExpr m) {
+    return m.getNameAsString().equals("read") && m.getScope().isPresent() && m.getScope().get().toString().equals("memory");
+  }
+
+  static Integer intValue(Expression e) {
+    if (e instanceof EnclosedExpr en)
+      return intValue(en.getInner());
+    if (e instanceof IntegerLiteralExpr n)
+      return n.asNumber().intValue();
+    if (e instanceof UnaryExpr u && u.getOperator() == UnaryExpr.Operator.MINUS && u.getExpression() instanceof IntegerLiteralExpr n)
+      return -n.asNumber().intValue();
+    return null;
   }
 
   private static boolean isBoolean(Expression e) {

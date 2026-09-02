@@ -26,12 +26,14 @@ import java.util.*;
 
 /** What is left to tidy once the objects are gone: constants that fell out, branches that cannot run, names that stand for one value. */
 public class Simplifier {
-  public static void simplify(List<Statement> body) {
+  public static void simplify(List<Statement> body, Map<String, Integer> masks) {
     boolean changed = true;
     for (int round = 0; changed && round < 8; round++) {
       changed = foldAll(body);
       changed |= dropDeadBranches(body);
       changed |= propagateAliases(body);
+      changed |= dropDeadStores(body);
+      changed |= dropWhatCannotFail(body, masks);
       changed |= dropUnusedLocals(body);
     }
   }
@@ -159,6 +161,142 @@ public class Simplifier {
       if (!body.get(i).findAll(VariableDeclarator.class, d -> d.getNameAsString().equals(name)).isEmpty())
         return true;
     return false;
+  }
+
+  /**
+   * A store nobody reads before the next one to the same name: the zero a slot's declaration
+   * gives it, and the same value assigned twice by two inlined bodies. Names here are locals of
+   * the case or private fields of the generated class, so nothing between the two stores can see
+   * the first one; a branch, a label or any read of the name ends the search.
+   */
+  /**
+   * Masks and comparisons the generated code carries but cannot fail: a byte masked with 0xFF, a
+   * jump address compared against -1. The model writes them because it does not know which
+   * instance it is; here the instance is known.
+   */
+  private static boolean dropWhatCannotFail(List<Statement> body, Map<String, Integer> masks) {
+    boolean[] changed = {false};
+    for (Statement s : body) {
+      for (BinaryExpr b : s.findAll(BinaryExpr.class, x -> x.getOperator() == BinaryExpr.Operator.BINARY_AND)) {
+        Integer mask = Folder.intValue(b.getRight());
+        int known = Folder.maskOf(b.getLeft(), masks);
+        if (mask != null && mask >= 0 && known != Folder.UNKNOWN && (known & ~mask) == 0) {
+          b.replace(b.getLeft().clone());
+          changed[0] = true;
+        }
+      }
+      for (BinaryExpr b : s.findAll(BinaryExpr.class, x -> x.getOperator() == BinaryExpr.Operator.EQUALS || x.getOperator() == BinaryExpr.Operator.NOT_EQUALS)) {
+        Integer other = Folder.intValue(b.getRight());
+        if (other == null || other >= 0 || Folder.maskOf(b.getLeft(), masks) == Folder.UNKNOWN)
+          continue;
+        b.replace(new BooleanLiteralExpr(b.getOperator() == BinaryExpr.Operator.NOT_EQUALS));
+        changed[0] = true;
+      }
+    }
+    return changed[0];
+  }
+
+  /**
+   * What each name can hold, as the bits of every value ever stored into it. The registers are
+   * fields that outlive an instruction and that the bank's own views write too, so this looks at
+   * every case and at the bank's source: a width the model does not keep is a width the generated
+   * code cannot assume. Masks only grow, so repeating until nothing changes reaches the answer
+   * even when a name feeds itself.
+   */
+  public static Map<String, Integer> masksOf(List<Node> roots, Map<String, Integer> seed) {
+    List<Map.Entry<String, Expression>> stores = new ArrayList<>();
+    for (Node root : roots)
+      collectStores(root, stores);
+    Map<String, Integer> masks = new HashMap<>(seed);
+    for (boolean growing = true; growing; ) {
+      growing = false;
+      for (Map.Entry<String, Expression> store : stores) {
+        int before = masks.getOrDefault(store.getKey(), 0);
+        if (before == Folder.UNKNOWN)
+          continue;
+        int value = Folder.maskOf(store.getValue(), masks);
+        int after = value == Folder.UNKNOWN ? Folder.UNKNOWN : before | value;
+        if (after != before) {
+          masks.put(store.getKey(), after);
+          growing = true;
+        }
+      }
+    }
+    return masks;
+  }
+
+  /** Anything that puts a value in a name: a declaration with an initializer, an assignment, an increment. */
+  private static void collectStores(Node root, List<Map.Entry<String, Expression>> stores) {
+    for (VariableDeclarator d : root.findAll(VariableDeclarator.class))
+      d.getInitializer().ifPresent(init -> stores.add(Map.entry(d.getNameAsString(), init)));
+    for (AssignExpr a : root.findAll(AssignExpr.class))
+      if (a.getTarget() instanceof NameExpr n)
+        stores.add(Map.entry(n.getNameAsString(), a.getOperator() == AssignExpr.Operator.ASSIGN ? a.getValue() : new NullLiteralExpr()));
+    for (UnaryExpr u : root.findAll(UnaryExpr.class, x -> x.getOperator().name().contains("CREMENT")))
+      if (u.getExpression() instanceof NameExpr n)
+        stores.add(Map.entry(n.getNameAsString(), new NullLiteralExpr()));
+  }
+
+  private static boolean dropDeadStores(List<Statement> body) {
+    boolean changed = false;
+    for (int i = 0; i < body.size(); i++) {
+      String name = storedName(body.get(i));
+      Expression value = storedValue(body.get(i));
+      if (name == null || value == null || !Specializer.isPure(value))
+        continue;
+      int overwritten = nextStore(body, i, name);
+      if (overwritten < 0)
+        continue;
+      VariableDeclarator declaration = declaratorOf(body.get(i));
+      if (declaration == null)
+        body.remove(i--);
+      else if (overwritten == i + 1) {
+        declaration.setInitializer(storedValue(body.get(overwritten)).clone());
+        body.remove(overwritten);
+      } else
+        declaration.removeInitializer();
+      changed = true;
+    }
+    return changed;
+  }
+
+  /** The index of the plain assignment that overwrites the name, or -1 if anything could see it first. */
+  private static int nextStore(List<Statement> body, int from, String name) {
+    for (int i = from + 1; i < body.size(); i++) {
+      Statement s = body.get(i);
+      if (!(s instanceof ExpressionStmt))
+        return -1;
+      if (reads(s, name))
+        return -1;
+      if (name.equals(storedName(s)) && declaratorOf(s) == null)
+        return i;
+    }
+    return -1;
+  }
+
+  private static boolean reads(Statement s, String name) {
+    return !s.findAll(NameExpr.class, n -> n.getNameAsString().equals(name)
+        && !(n.getParentNode().orElse(null) instanceof AssignExpr a && a.getTarget() == n && a.getOperator() == AssignExpr.Operator.ASSIGN)).isEmpty();
+  }
+
+  /** The name a statement stores into, whether it declares it or assigns it. */
+  private static String storedName(Statement s) {
+    VariableDeclarator d = declaratorOf(s);
+    if (d != null)
+      return d.getInitializer().isPresent() ? d.getNameAsString() : null;
+    return s instanceof ExpressionStmt es && es.getExpression() instanceof AssignExpr a
+        && a.getOperator() == AssignExpr.Operator.ASSIGN && a.getTarget() instanceof NameExpr n ? n.getNameAsString() : null;
+  }
+
+  private static Expression storedValue(Statement s) {
+    VariableDeclarator d = declaratorOf(s);
+    if (d != null)
+      return d.getInitializer().orElse(null);
+    return s instanceof ExpressionStmt es && es.getExpression() instanceof AssignExpr a ? a.getValue() : null;
+  }
+
+  private static VariableDeclarator declaratorOf(Statement s) {
+    return s instanceof ExpressionStmt es && es.getExpression() instanceof VariableDeclarationExpr v && v.getVariables().size() == 1 ? v.getVariable(0) : null;
   }
 
   private static boolean dropUnusedLocals(List<Statement> body) {

@@ -23,6 +23,7 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
+import com.fpetrola.z80.registers.UnrolledRegisterBank;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.InitializerDeclaration;
@@ -289,7 +290,25 @@ public class CoreGenerator {
         if (assigned.contains(slot) && read.contains(slot) && !definitelyAssigned(c.body, slot))
           fields.add(slot);
     for (Case c : cases)
-      finish(c);
+      finish(c, masksOfEverything());
+  }
+
+  /**
+   * The width the model actually keeps for every name the generated code uses. Derived, not
+   * assumed: a register is a field of the bank that the bank's own views write too, so the bank's
+   * source counts as much as the cases do.
+   */
+  private Map<String, Integer> masksOfEverything() {
+    List<com.github.javaparser.ast.Node> roots = new ArrayList<>();
+    roots.add(spec.index.type(UnrolledRegisterBank.class));
+    for (Case c : cases)
+      roots.addAll(c.body);
+    Map<String, Integer> seed = new LinkedHashMap<>();
+    for (String field : fields) {
+      Object initial = slotNamed(field).initial();
+      seed.put(field, initial instanceof Integer i && i >= 0 ? i : Folder.UNKNOWN);
+    }
+    return Simplifier.masksOf(roots, seed);
   }
 
   private Set<String> slotsIn(List<Statement> body) {
@@ -308,7 +327,7 @@ public class CoreGenerator {
     return null;
   }
 
-  private void finish(Case c) {
+  private void finish(Case c, Map<String, Integer> masks) {
     List<Statement> body = c.body;
     for (String slot : slotsIn(body)) {
       Specializer.Slot s = slotNamed(slot);
@@ -326,7 +345,7 @@ public class CoreGenerator {
       } else if (!fields.contains(slot))
         body.add(0, Specializer.declare(new ClassOrInterfaceType(null, s.type().getSimpleName()), slot, s.type() == boolean.class ? new BooleanLiteralExpr(false) : lit(0)));
     }
-    Simplifier.simplify(body);
+    Simplifier.simplify(body, masks);
     String parameters = parametersOf.getOrDefault(c.method, List.of()).stream().map(p -> ", int " + p).reduce("", String::concat);
     String group = c.method + "_" + (c.opcode >> GROUP_SHIFT);
     String header = "  private void " + group + "(int opcode" + parameters + ") {\n    switch (opcode) {\n";

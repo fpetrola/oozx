@@ -29,6 +29,7 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.Type;
 
@@ -365,6 +366,8 @@ public class Specializer {
   }
 
   private Object invokeStatic(Class<?> c, String name, List<Object> args, List<Statement> out, Scope caller) {
+    if (c.isEnum() && name.equals("values") && args.isEmpty())
+      return c.getEnumConstants();
     Found found = findDeclared(c, name, args.size());
     if (found == null) {
       NodeList<Expression> arguments = new NodeList<>();
@@ -643,9 +646,16 @@ public class Specializer {
       return new NameExpr(r);
     }
     if (e instanceof ArrayAccessExpr a) {
-      Expression name = asExpression(rewriteExpr(a.getName(), scope, out));
+      Object array = rewriteExpr(a.getName(), scope, out);
       Expression idx = asExpression(rewriteExpr(a.getIndex(), scope, out));
-      return new ArrayAccessExpr(name, idx);
+      if (array instanceof Object[] values) {
+        Class<?> component = values.getClass().getComponentType();
+        if (idx instanceof IntegerLiteralExpr n)
+          return literal(values[n.asNumber().intValue()], component);
+        imports.add(component.getName().replace('$', '.'));
+        return new ArrayAccessExpr(new MethodCallExpr(new NameExpr(component.getSimpleName()), "values"), idx);
+      }
+      return new ArrayAccessExpr(asExpression(array), idx);
     }
     if (e instanceof LiteralExpr)
       return e.clone();
@@ -903,8 +913,23 @@ public class Specializer {
   }
 
   static Statement declare(Type type, String name, Expression init) {
-    VariableDeclarator d = init == null ? new VariableDeclarator(type.clone(), name) : new VariableDeclarator(type.clone(), name, init);
+    Type unboxed = unbox(type);
+    VariableDeclarator d = init == null ? new VariableDeclarator(unboxed, name) : new VariableDeclarator(unboxed, name, init);
     return new ExpressionStmt(new VariableDeclarationExpr(d));
+  }
+
+  /** A local the model declared as a wrapper is an int here: the generated code has no nulls to carry. */
+  private static Type unbox(Type type) {
+    if (type instanceof ClassOrInterfaceType c)
+      switch (c.getNameAsString()) {
+        case "Integer": return PrimitiveType.intType();
+        case "Boolean": return PrimitiveType.booleanType();
+        case "Long": return PrimitiveType.longType();
+        case "Byte": return PrimitiveType.byteType();
+        case "Short": return PrimitiveType.shortType();
+        case "Character": return PrimitiveType.charType();
+      }
+    return type.clone();
   }
 
   static boolean isSimple(Expression e) {

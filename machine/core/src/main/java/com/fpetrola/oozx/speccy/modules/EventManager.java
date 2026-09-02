@@ -136,7 +136,7 @@ public class EventManager implements ZxModule, MachineChangeListener {
 
   // Do all events which have passed
   public int eventDoEvents() {
-    while (eventNextEvent <= z80Clock.getTStates()) {
+    while (!events.isEmpty() && eventNextEvent <= z80Clock.getTStates()) {
       Event firstEvent = events.removeFirst();
       EventDescriptor descriptor = (EventDescriptor) registeredEvents.get(firstEvent.type);
 

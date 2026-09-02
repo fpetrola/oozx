@@ -589,7 +589,7 @@ M1 y M2 son las que más pesan: son las doce llamadas y la doble escritura de la
 
 Cada paso termina verde en su gate y con su número anotado; el siguiente no empieza sin eso.
 
-0. **Medir bien.** `CoreBenchmark` sobre un `int[]` sin listeners, un núcleo por JVM (la
+0. **Medir bien.** *Hecho.* `CoreBenchmark` sobre un `int[]` sin listeners, un núcleo por JVM (la
    contaminación de perfiles ya le costó un 30 % a la tabla de la fase 1). Un script que corra
    con `PrintInlining` y cuente, para los `decode_N` calientes, cuántos sitios de `memory.*` y
    `contend` quedaron como llamada. `LoopCoreMeasurement` (ROM) y `RzxCoreMeasurement` (JSW)
@@ -597,6 +597,7 @@ Cada paso termina verde en su gate y con su número anotado; el siguiente no emp
    `IndexOutOfBounds` en `EventManager.eventDoEvents`). Son las tres líneas base.
 1. **A3 y A2** en `Folder` y `Simplifier`: sin riesgo semántico, cambian el bytecode. Gate: Fuse
    1355, ALU, `IsCurrentTest` regenerado; el tamaño de bytecode por método, antes y después.
+   *Hecho, menos el ancho de registro: falta la consistencia de `UnrolledRegisterBank`.*
 2. **A4**: el tejido por rama. Gate: Fuse evento por evento, que es exactamente lo que cambia.
 3. **A6**: `GROUP_SHIFT` y un método por opcode, con el benchmark del paso 0. Se queda uno.
 4. **M1–M5** en la máquina, con el núcleo OOP. Gate: `machine/core` 260, memoria contendida,
@@ -613,6 +614,72 @@ Cada paso termina verde en su gate y con su número anotado; el siguiente no emp
    tests de traps (cinta, TR-DOS, debugger).
 7. **A5** si `PrintInlining` o el fuente muestran que quedó algo.
 8. La tabla de "Lo que quedó" con las tres líneas base al lado.
+
+## Lo hecho
+
+Medido el 2 de septiembre de 2026, rama `nucleo-generado`, JDK 21.0.2, en esta máquina.
+
+### Paso 0: las líneas base
+
+`CoreBenchmark` se rehizo: cada núcleo en su propio JVM, sobre un `int[]` pelado sin listeners, y
+un segundo test que corre con `PrintCompilation` y `PrintInlining` y dice qué se compiló y qué
+quedó como llamada. Correr los dos núcleos en el mismo JVM le costaba un 30 % al generado: los
+dos comparten los sitios de llamada de la memoria y el primero decide cómo se perfilan.
+
+| línea base | OOP | generado |
+|---|---|---|
+| CPU pura, `CoreBenchmark` sobre `int[]` | 44–48 M instr/s | 195–215 M instr/s (**4,5×**) |
+| loop propio, ROM ociosa (`LoopCoreMeasurement`) | 1191–1398 fps | 9076–10478 fps |
+| RZX de JSW, 6000 frames (`RzxCoreMeasurement`) | 555 fps | 847 fps |
+| ídem con `presentFrame`, sin sonido | 559–667 fps | 784–803 fps |
+
+El ruido del micro-benchmark es de ±8 % entre corridas: una diferencia menor a esa no dice nada.
+El gate de inlining del núcleo puro da 16 métodos compilados a C2 y **ninguna** llamada a memoria,
+contención o boxing sin inlinear: el techo del núcleo puro ya está.
+
+El bloque final de `RzxCoreMeasurement` tiraba `IndexOutOfBounds`, y no era del test:
+`RzxSession.release` reponía el evento de fin de frame leyendo el campo `spectrumFrameEvent`, que
+vale -1 mientras nadie lo registró, y `eventDoEvents` indexaba la tabla de descriptores con -1.
+Va por `frameEvent()`, que registra si hace falta, como hace el cambio de máquina. Y
+`eventDoEvents` ahora pide que la cola no esté vacía: sin eventos no hay ninguno vencido, y el
+centinela `EVENT_NO_EVENTS` vale -1 justamente para que `doOpcodes` no corra.
+
+### Paso 1: A3 y A2
+
+| qué | antes | después |
+|---|---|---|
+| líneas de `GeneratedZ80.java` | 27.421 | 26.391 |
+| bytecode total | 215.069 | **199.689** (-7,2 %) |
+| método más grande | 3.547 | 3.355 |
+| `& 0xFF` | 3.052 | 2.034 |
+| `& 0xFFFF` | 4.472 | 4.134 |
+| `== -1` | 273 | 226 |
+| `"BC".equals("BC")` | 57 | 0 |
+| `InterruptionMode.values()[n]` | 8 | 0 |
+| boxing (`Integer`) | 4 | 0 |
+
+Gate: `emulator` 3003 tests verdes, Fuse evento por evento incluido, y el candado de frescura.
+
+Lo que salió de hacerlo:
+
+- **La regla del `equals` era código muerto.** `Folder` ya sabía plegar `"BC".equals("BC")`, pero
+  `MethodCallExpr` retornaba en la primera rama de `foldInPlace` y nunca llegaba a la de abajo.
+- **Los rangos van derivados, no supuestos.** El primer intento leyó los anchos de registro del
+  propio `case` y sacó los `A & 0xFF`: mal, porque un registro es un campo que sobrevive a la
+  instrucción y que las vistas del banco escriben desde afuera. Ahora el generador calcula qué
+  puede tener cada nombre mirando **todas** las escrituras que hay, las de los 1.616 `case` y las
+  del fuente de `UnrolledRegisterBank`, y repitiendo hasta que dejan de crecer. Con eso `A & 0xFF`
+  vuelve solo: `ARegister.write` es `A = value` sin enmascarar, así que el modelo no garantiza ese
+  ancho y el generado no puede asumirlo. Los 1.018 masks que sí se fueron son los que el propio
+  `case` prueba: lo que sale de `memory.read`, lo ya enmascarado, lo que se corrió a la derecha.
+- **Queda plata sobre la mesa, y está en el modelo.** `UnrolledRegisterBank` es inconsistente:
+  `IXRegister` enmascara al escribir, incrementar y decrementar; los de 8 bits enmascaran al
+  decrementar pero no al incrementar (`A++` deja 0x100) ni al escribir; `PC`, `SP` y `MEMPTR` no
+  enmascaran nunca; y los pares hacen `if (++C < 0x100) return; C = 0;`, que deja el campo fuera de
+  rango a mitad de camino. Que todos hagan lo que hace `IXRegister` es una mejora que vale sola
+  —hoy una escritura de afuera, un snapshot por ejemplo, puede dejar un registro de 8 bits con
+  0x1FF y corromper la lectura del par— y de paso le da al generador el invariante para sacar los
+  otros ~700 masks. Es lo primero del paso 1 que queda.
 
 ## Cómo se verifica
 
