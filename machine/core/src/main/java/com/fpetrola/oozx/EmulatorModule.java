@@ -75,8 +75,10 @@ public class EmulatorModule extends AbstractModule {
 
     bind(Cpu.class).to(Z80.class);
 
-    // Who is watching. A headless run overrides this with NullUserInterface.
-    bind(UserInterface.class).to(SwingUserInterface.class);
+    // Who is watching, when nobody is: an application that has windows binds its own over this.
+    // The default has to be the one that needs nothing, or the emulator's own wiring names the
+    // desktop - which is the dependency this whole split exists to remove.
+    bind(UserInterface.class).to(NullUserInterface.class);
 
     // The processor's ports. Bound to a type rather than built inside the Z80, so an RZX
     // recording can replace it to play back, or wrap it to record.

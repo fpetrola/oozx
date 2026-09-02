@@ -49,6 +49,9 @@ public class OOSpectrumLauncher {
 
   public void init() {
     OOSpectrumConnector.noTest = true;
+    // The keys a Spectrum understands, written in this toolkit's key codes: the emulator has no
+    // opinion about what a keyboard sends, so whoever has one says so before a machine is built.
+    com.fpetrola.oozx.speccy.modules.Keyboard.KEYSYMS_MAP = SwingKeyboard.KEYSYMS_MAP;
     LafManager.install(new SolarizedLightTheme());
 
     ZXSpectrumDesktopApp[] appHolder = new ZXSpectrumDesktopApp[1];

@@ -96,7 +96,9 @@ public class Timer implements ZxModule, MachineChangeListener {
       currentSpeed = (float) (10 * 100.0 / (currentTime - storedTimes[nextStoredTime]));
     }
 
-    userInterface.statusbarUpdateSpeed(currentSpeed, cpu.getEmulatorCore());
+    if (cpu.getEmulatorCore() != null) {
+      cpu.getEmulatorCore().notifySpeed(currentSpeed);
+    }
 
     storedTimes[nextStoredTime] = currentTime;
     nextStoredTime = (nextStoredTime + 1) % 10;

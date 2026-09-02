@@ -35,8 +35,6 @@ public class NullUserInterface implements UserInterface {
   public void error(Object level, String format, Object... args) {
   }
 
-  public void statusbarUpdateSpeed(float currentSpeed, EmulatorControl core) {
-  }
 
   public void menuActivate(MenuItem item, boolean active) {
   }

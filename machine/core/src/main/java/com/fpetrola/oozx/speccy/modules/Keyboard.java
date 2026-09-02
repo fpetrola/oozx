@@ -282,7 +282,8 @@ public class Keyboard implements ZxModule {
   };
 
   // Placeholder for keysyms_map (to be populated based on UI-specific keysyms)
-  static KeysymsMap[] KEYSYMS_MAP = {};
+  /** The keycodes a keyboard sends, mapped to Spectrum keys. Set by an application that has one. */
+  public static KeysymsMap[] KEYSYMS_MAP = {};
 
   public void start() {
     releaseAll();
@@ -300,8 +301,8 @@ public class Keyboard implements ZxModule {
       spectrumKeys.put(value, entry.spectrum);
     }
 
-    KEYSYMS_MAP = SwingKeyboard.KEYSYMS_MAP;
-    // Populate keysyms_hash
+    // Populate keysyms_hash from whatever table was handed in. Empty when nobody did: the table
+    // is written in a window toolkit's key codes, so it belongs to whoever has the windows.
     for (KeysymsMap entry : KEYSYMS_MAP) {
       if (entry.ui == 0) break;
       keysymsHash.put(entry.ui, entry.speccy);

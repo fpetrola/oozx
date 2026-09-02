@@ -38,7 +38,6 @@ public interface UserInterface {
    */
   void error(Object level, String format, Object... args);
 
-  void statusbarUpdateSpeed(float currentSpeed, EmulatorControl core);
 
   void menuActivate(MenuItem item, boolean active);
 

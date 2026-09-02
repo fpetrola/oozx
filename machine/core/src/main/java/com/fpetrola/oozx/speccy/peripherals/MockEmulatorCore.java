@@ -266,4 +266,13 @@ public class MockEmulatorCore implements EmulatorCore {
   public void finishEmulation() {
 
   }
+
+  /**
+   * Onto the event thread on the way in, because this is where the answer becomes a label and the
+   * measuring is done on the emulator's thread.
+   */
+  @Override
+  public void notifySpeed(float currentSpeed) {
+    javax.swing.SwingUtilities.invokeLater(() -> notifyEmulationSpeedChange(currentSpeed));
+  }
 }

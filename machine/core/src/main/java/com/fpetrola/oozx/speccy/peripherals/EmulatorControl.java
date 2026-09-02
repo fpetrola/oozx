@@ -64,7 +64,15 @@ public interface EmulatorControl {
   // Add more as needed for peripherals, etc.
   void addEmulatorListener(EmulatorListener listener);
 
-  double getEmulationSpeed(); // New: Get emulation speed
+  double getEmulationSpeed();
+
+  /**
+   * How fast the machine is actually running, said as it is measured. It used to go out through
+   * UserInterface, which meant the emulator's own module had to name the desktop's implementation
+   * to have anything happen - and what happened was this call, cast back to a window's adapter.
+   */
+  default void notifySpeed(float currentSpeed) {
+  } // New: Get emulation speed
 
   String getCurrentModel(); // New: Get current machine model
 
