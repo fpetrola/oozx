@@ -110,7 +110,7 @@ gate verde, commit — antes de empezar el siguiente.
 | 9 | **Opus Discovery** — HECHO | misma pila; `success.opd` de Fuse como medio de prueba | catálogo de un disco Opus |
 | 10 | **Didaktik 40/80** — HECHO | misma pila, con un 8255 | idem |
 | 11 | **Interface 1** — HECHO | 1.410 líneas: microdrives, RS232, ZX Net; `if1.rom` está en `~/detodo/spectrum/Roms`, `success.mdr` en Fuse | `CAT 1` de un cartucho; la terminal RS232 muestra lo que el programa escribe |
-| 12 | **DivIDE** | primera IDE; `FATware-0-12.rom` y `demfir.rom` están en `~/detodo/spectrum/Roms` | arranca el firmware desde un HDF |
+| 12 | **DivIDE** — HECHO | primera IDE; `FATware-0-12.rom` y `demfir.rom` están en `~/detodo/spectrum/Roms` | arranca el firmware desde un HDF |
 | 13 | **Simple 8-bit IDE**, **ZXATASP**, **ZXCF** | sobre la misma `IdeChannel` | idem, con sus paginados |
 | 14 | **DivMMC** y **ZXMMC** | tarjeta SD por SPI (`MmcCard`), que no existe en el árbol y se escribe desde el protocolo | igual, desde una imagen de tarjeta |
 | 15 | **Currah uSpeech** | SP0256 (1.545 líneas); ROM no disponible acá | el Spectrum habla |
@@ -372,7 +372,7 @@ ATA con maestro y esclavo sobre archivos HDF: cabecera HDF, sectores de 512, LBA
 READ/WRITE SECTORS, bus de 8 o 16 bits) — se escribe desde la especificación de HDF y ATA, con
 los tests de `*_unittest()` de Fuse como oráculo del lado de los puertos.
 
-- **DivIDE** (`divide.c` 371 + `divxxx.c` 335) — `machine/devices/divide`. EPROM 8K en 0x0000,
+- **DivIDE** (`divide.c` 371 + `divxxx.c` 335) — `machine/devices/divide` — HECHO. EPROM 8K en 0x0000,
   RAM 4×8K en 0x2000 (`control & 3`). Puertos: 0x00e3 (máscara 0xff, escritura) control: bit 7
   CONMEM, bit 6 MAPRAM (pegajoso: un `OUT` sólo puede ponerlo, lo saca el reset duro), bits 0-1
   banco; IDE en 0xa3/0xa7/0xab/0xaf/0xb3/0xb7/0xbb/0xbf (máscara 0x00e3, valor 0x00a3). Automap:
@@ -383,6 +383,15 @@ los tests de `*_unittest()` de Fuse como oráculo del lado de los puertos.
   `divxxx_unittest` da los vectores. Firmware: `FATware-0-12.rom`, `demfir.rom` en
   `~/detodo/spectrum/Roms`. Ventana: la EPROM (elegir, proteger), dos `MediaSlot` (maestro y
   esclavo, archivos HDF: insertar, guardar, expulsar), el estado CONMEM/MAPRAM/banco.
+  Cómo quedó: `IdeChannel` en `core/speccy/devices/ide` (ATA desde la especificación: registros,
+  READ/WRITE SECTORS por CHS o LBA, IDENTIFY, los comandos que sólo dicen que sí; HDF con o sin
+  bloque IDENTIFY, sectores de 512 o medios; lo escrito espera en memoria hasta el commit, como en
+  libspectrum), `DivPeripheral` (el motor `divxxx`, que el DivMMC va a heredar; a diferencia de
+  Fuse la EPROM se puede llenar desde un archivo en el reset duro, `Settings.romDivide`),
+  `IdeInterface` y `IdeBayFrame` en el kit (la bahía que comparten los cuatro IDE), y en el módulo
+  `DivIdePeripheral` (el canal en 0xa3-0xbf) y `DivIdeFrame` (EPROM, jumper, NMI). Las trampas
+  "después del fetch" de Fuse son "después de la instrucción" acá; en 0x0008 FATware tiene los
+  mismos operandos que la ROM, así que da lo mismo, y el boot real por 0x0000 se prueba.
 - **Simple 8-bit IDE** (187) — `machine/devices/simpleide`. Un solo puerto: máscara 0x0010, valor
   0x0000; registro = bits 8, 12 y 13 del puerto. Sin memoria. Ventana: dos `MediaSlot`.
 - **ZXATASP** (604) — `machine/devices/zxatasp`. 8255 en 0x009f/0x019f/0x029f/0x039f (máscara

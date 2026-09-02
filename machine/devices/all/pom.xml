@@ -92,5 +92,10 @@
             <artifactId>device-interface1</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-divide</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 </dependencies>
 </project>
