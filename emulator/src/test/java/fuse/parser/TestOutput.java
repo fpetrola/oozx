@@ -18,7 +18,7 @@
 
 package fuse.parser;
 
-import com.fpetrola.z80.cpu.Event;
+import fuse.tstates.Event;
 
 import java.util.List;
 

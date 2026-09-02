@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.cpu;
 
-import com.fpetrola.oozx.fuse.modules.z80.TestFusePhaseProcessor;
 import com.fpetrola.z80.helpers.CollectionHandler;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
@@ -28,8 +27,6 @@ import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.registers.RRegister;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
-import fuse.tstates.CachedPhase;
-import fuse.tstates.PhaseProcessor;
 
 public class DefaultInstructionFetcher implements InstructionFetcher {
   protected final MultiOpcodeFetcher multiOpcodeFetcher;
@@ -42,9 +39,9 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
   protected int rdelta;
   private final boolean prefetch;
   protected final Register registerR;
-  public PhaseProcessor tPhaseProcessor;
   private final Register pc;
-  private FetchListener fetchListener;
+  private FetchListener fetchListener = new FetchListener() {
+  };
 
   public DefaultInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory, boolean clone, boolean prefetch) {
     this.state = aState;
@@ -53,7 +50,6 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
     pcValue = state.getPc().read();
     this.registerR = state.getRegisterR();
     this.pc = state.getPc();
-    tPhaseProcessor = new TestFusePhaseProcessor(this, state);
   }
 
   public DefaultInstructionFetcher(State aState, InstructionFactory instructionFactory, boolean clone, boolean prefetch) {
@@ -99,18 +95,8 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
 
   private Instruction fetchInstruction(int address) {
     Instruction fetchedInstruction = multiOpcodeFetcher.fetchInstruction(address);
-    setupPhaseInterceptor((AbstractInstruction) fetchedInstruction);
-//    fetchListeners.forAll(l -> l.instructionFetchedAt(address, fetchedInstruction));
+    fetchListener.instructionFetchedAt(address, fetchedInstruction);
     return fetchedInstruction;
-  }
-
-  protected void setupPhaseInterceptor(AbstractInstruction fetchedInstruction) {
-    CachedPhase phase1 = fetchedInstruction.getCachedPhase();
-    if (!phase1.isReady()) {
-      tPhaseProcessor.setPhase(phase1);
-      fetchedInstruction.accept(tPhaseProcessor);
-      phase1.ready();
-    }
   }
 
 

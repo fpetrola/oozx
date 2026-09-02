@@ -16,7 +16,7 @@
  *
  */
 
-package com.fpetrola.z80.cpu;
+package fuse.tstates;
 
 import java.util.Objects;
 

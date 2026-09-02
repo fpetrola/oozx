@@ -25,7 +25,7 @@ import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.spy.InstructionSpy;
-import com.fpetrola.z80.cpu.Event;
+import fuse.tstates.Event;
 import com.fpetrola.z80.spy.MemptrUpdateInstructionSpy;
 import fuse.tstates.AddStatesMemoryReadListener;
 import fuse.tstates.AddStatesMemoryWriteListener;
@@ -49,6 +49,7 @@ public class FuseTestParser {
   private Z80Cpu cpu;
   private DefaultInstructionFetcher instructionFetcher;
   private State state;
+  private RecordedEvents events;
 
   public FuseTestParser(Path testDataDir) {
     URL resource = FuseTestParser.class.getResource("/" + testDataDir.toString());
@@ -85,7 +86,7 @@ public class FuseTestParser {
           memory.append("\n").append(line);
         }
 
-        FuseTest fuseTest = new FuseTest(testId, registers, state, memory.toString(), z80Cpu, namesLines, lineNumber);
+        FuseTest fuseTest = new FuseTest(testId, registers, state, memory.toString(), z80Cpu, events, namesLines, lineNumber);
 //        fuseTest.initCpu();
 //        fuseTest.run();
         tests.add(fuseTest);
@@ -99,31 +100,18 @@ public class FuseTestParser {
 
   private Z80Cpu getZ80Cpu() {
     MockedMemory memory = new MockedMemory(true);
-
-    AddStatesIO io = new AddStatesIO();
-    state = new State(io, memory) {
-      public void addEvent(Event event) {
-        super.addEvent(event);
-        events.add(event);
-      }
-    };
+    events = new RecordedEvents();
+    AddStatesIO io = new AddStatesIO(events);
+    state = new State(io, memory);
+    events.clock = state.clock;
     io.setState(state);
     InstructionSpy spy = new MemptrUpdateInstructionSpy(state);
     DefaultInstructionFactory instructionFactory = new DefaultInstructionFactory(state);
     instructionFetcher = new MyDefaultInstructionFetcher(state, spy, instructionFactory);
     cpu = (OOZ80) new OOZ80(state, instructionFetcher, new DefaultInstructionExecutor(state, false));
     spy.addExecutionListeners(cpu.getInstructionExecutor());
-
-//    PhaseProcessor phaseProcessor = new PhaseProcessor(cpu.getInstructionFetcher(), cpu.getState());
-    TestFusePhaseProcessor phaseProcessor = (TestFusePhaseProcessor) instructionFetcher.tPhaseProcessor;
-
-//    phaseProcessor.processPhase(new BeforeExecution());
-//    phaseProcessor.processPhase(new AfterMR());
-//    phaseProcessor.processPhase(new BeforeWrite());
-//    phaseProcessor.processPhase(new AfterExecution());
-
-
-    cpu.getInstructionExecutor().setExecutionListener(new PhaseProcessorExecutionListener(phaseProcessor));
+    TestFusePhaseProcessor phaseProcessor = new TestFusePhaseProcessor(state, events);
+    cpu.getInstructionExecutor().setExecutionListener(phaseProcessor);
     memory.addMemoryReadListener(new AddStatesMemoryReadListener(phaseProcessor));
     memory.addMemoryWriteListener(new AddStatesMemoryWriteListener(phaseProcessor));
     return cpu;

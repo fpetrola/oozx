@@ -19,13 +19,12 @@
 package com.fpetrola.oozx.speccy.modules.z80;
 
 import com.fpetrola.oozx.fuse.modules.z80.TestFusePhaseProcessor;
-import com.fpetrola.z80.cpu.Event;
 
 public class TestFusePhaseProcessorZ80 extends TestFusePhaseProcessor {
   private final Z80 z80;
 
   public TestFusePhaseProcessorZ80(Z80 z80) {
-    super(z80.ooz80.getInstructionFetcher(), z80.ooz80.getState());
+    super(z80.ooz80.getState(), event -> z80.zxClock.addTStates(event.getTime(), event.description));
     this.z80 = z80;
   }
 
@@ -40,8 +39,4 @@ public class TestFusePhaseProcessorZ80 extends TestFusePhaseProcessor {
     }
   }
 
-  protected void getAddEvent(Event event) {
-    event.description = getDescription(event);
-    z80.zxClock.addTStates(event.getTime(), event.description);
-  }
 }

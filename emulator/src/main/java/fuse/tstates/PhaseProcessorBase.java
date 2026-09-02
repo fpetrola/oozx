@@ -19,23 +19,32 @@
 package fuse.tstates;
 
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
-import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
+import com.fpetrola.z80.spy.ExecutionListener;
+import fuse.tstates.phases.AfterExecution;
+import fuse.tstates.phases.BeforeExecution;
 import fuse.tstates.phases.Phase;
+
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 
-public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang.Integer> {
+/**
+ * The contention of an instruction is worked out once, by visiting it, and applied while that
+ * instruction executes: from before its execution to after it, and at each of its memory
+ * accesses in between. Nothing of it lives in the instruction.
+ */
+public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang.Integer>, ExecutionListener {
+  private static final BeforeExecution BEFORE_EXECUTION = new BeforeExecution();
+  private static final AfterExecution AFTER_EXECUTION = new AfterExecution();
   public int writeCount;
   protected Phase phase;
   protected int address;
-  protected boolean processing;
   public int readCount;
-  protected final InstructionFetcher instructionFetcher;
   public final State state;
   protected final Register registerI;
   protected final Register registerR;
@@ -46,9 +55,10 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
   protected final Register registerBC;
   protected final Register registerHL;
   protected final Register memptr;
+  private final Map<Instruction, CachedPhase> phases = new IdentityHashMap<>();
+  private CachedPhase current;
 
-  public PhaseProcessorBase(InstructionFetcher instructionFetcher, State state) {
-    this.instructionFetcher = instructionFetcher;
+  public PhaseProcessorBase(State state) {
     this.state = state;
     memptr = state.getMemptr();
     registerI = getRegister(I);
@@ -61,34 +71,35 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
     registerHL = getRegister(HL);
   }
 
-
   private Register getRegister(RegisterName registerName) {
     return state.getRegister(registerName);
+  }
+
+  public void beforeExecution(Instruction instruction) {
+    current = phases.computeIfAbsent(instruction, this::plan);
+    readCount = 0;
+    writeCount = 0;
+    processPhase(BEFORE_EXECUTION);
+  }
+
+  public void afterExecution(Instruction instruction) {
+    processPhase(AFTER_EXECUTION);
+    current = null;
+  }
+
+  private CachedPhase plan(Instruction instruction) {
+    CachedPhase planned = new CachedPhase();
+    phase = planned;
+    instruction.accept(this);
+    return planned;
   }
 
   public void setAddress(int address) {
     this.address = address;
   }
 
-  public void setPhase(Phase phase) {
-    this.phase = phase;
-  }
-
-  public void reset() {
-    readCount = 0;
-    writeCount = 0;
-  }
-
   public void processPhase(Phase phase) {
-    processing = true;
-    Instruction lastExecutedInstruction = ((DefaultInstructionFetcher) instructionFetcher).getLastExecutedInstruction();
-
-    if (lastExecutedInstruction != null) {
-      CachedPhase cachedPhase = lastExecutedInstruction.getCachedPhase();
-      if (!cachedPhase.isSkippable()) {
-        cachedPhase.execute(phase);
-      }
-    }
-    processing = false;
+    if (current != null && !current.isSkippable())
+      current.execute(phase);
   }
 }

@@ -36,12 +36,14 @@ public class FuseTest {
   public final String memory;
   public final String testId;
   public Z80Cpu cpu;
+  public final RecordedEvents events;
   private final List<String> namesLines;
   private final int lineNumber;
   private String name = "";
 
-  public FuseTest(String testId, String registers, String state, String memory, Z80Cpu z80Cpu, List<String> namesLines, int lineNumber) {
+  public FuseTest(String testId, String registers, String state, String memory, Z80Cpu z80Cpu, RecordedEvents events, List<String> namesLines, int lineNumber) {
     this.testId = testId;
+    this.events = events;
     this.registers = registers;
     this.state = state;
     this.memory = memory;
@@ -52,6 +54,7 @@ public class FuseTest {
 
   public void initCpu() {
     cpu.reset();
+    events.clear();
 
     List<java.lang.Integer> registersArray = Arrays.stream(registers.split(" "))
         .filter(s -> !s.isEmpty()).map(s -> java.lang.Integer.parseInt(s, 16)).toList();

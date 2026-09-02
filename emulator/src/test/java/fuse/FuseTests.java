@@ -66,7 +66,7 @@ public class FuseTests {
     boolean runResult = fuseTest.run(fuseResult.getExpectedPC());
 
     Assertions.assertTrue(runResult, "Test timed-out.");
-    fuseResult.verify(fuseTest.cpu);
+    fuseResult.verify(fuseTest.cpu, fuseTest.events.list());
   }
 
 //  public static void main(String[] args) {

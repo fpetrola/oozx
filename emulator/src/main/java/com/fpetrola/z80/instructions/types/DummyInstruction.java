@@ -19,7 +19,6 @@
 package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.base.InstructionVisitor;
-import fuse.tstates.CachedPhase;
 
 public class DummyInstruction implements Instruction {
   @Override
@@ -35,8 +34,4 @@ public class DummyInstruction implements Instruction {
   public void accept(InstructionVisitor<?> visitor) {
   }
 
-  @Override
-  public CachedPhase getCachedPhase() {
-    return null;
-  }
 }

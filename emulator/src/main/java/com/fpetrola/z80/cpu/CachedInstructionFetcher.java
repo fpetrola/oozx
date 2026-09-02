@@ -18,16 +18,13 @@
 
 package com.fpetrola.z80.cpu;
 
-import com.fpetrola.z80.instructions.factory.InstructionFactory;
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
-import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.cache.InstructionCache;
-import fuse.tstates.CachedPhase;
+import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
+import com.fpetrola.z80.instructions.factory.InstructionFactory;
+import com.fpetrola.z80.instructions.types.Instruction;
 
 public class CachedInstructionFetcher extends DefaultInstructionFetcher {
   protected InstructionCache instructionCache;
-  private Instruction cached;
 
   public CachedInstructionFetcher(State aState, InstructionFactory instructionFactory, boolean clone) {
     super(aState, instructionFactory, clone, false);
@@ -36,30 +33,11 @@ public class CachedInstructionFetcher extends DefaultInstructionFetcher {
 
   public Instruction fetchNextInstruction() {
     pcValue = state.getPc().read();
-    Instruction result;
-
     InstructionCache.CacheEntry cacheEntry = instructionCache.getCacheEntryAt(pcValue);
-    if (cacheEntry != null && !cacheEntry.isMutable()) {
-      cached = cacheEntry.getInstruction();
-      result = cached;
-      result = super.fetchNextInstruction();
-//      result = cacheEntry.getOpcode();
-    } else {
-      cached = null;
-      result = super.fetchNextInstruction();
-      if (cacheEntry == null || !cacheEntry.isMutable())
-        instructionCache.cacheInstruction(pcValue, result);
-    }
+    Instruction result = super.fetchNextInstruction();
+    if (cacheEntry == null)
+      instructionCache.cacheInstruction(pcValue, result);
     return result;
-  }
-
-  protected void setupPhaseInterceptor(AbstractInstruction fetchedInstruction) {
-    if (cached != null) {
-      CachedPhase cachedPhase = cached.getCachedPhase();
-      tPhaseProcessor.setPhase(cachedPhase);
-      fetchedInstruction.setPhaseInterceptor(cachedPhase);
-    } else
-      super.setupPhaseInterceptor(fetchedInstruction);
   }
 
   public void reset() {

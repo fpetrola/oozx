@@ -21,8 +21,6 @@ package com.fpetrola.z80.cpu;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Stream;
 
 import static com.fpetrola.z80.cpu.State.InterruptionMode.IM0;
@@ -30,31 +28,17 @@ import static com.fpetrola.z80.registers.RegisterName.*;
 
 public class State {
   private RunState runState;
-  protected final ArrayList<Event> events = new ArrayList<>();
   public Z80Clock clock = new DefaultZ80Clock();
 
   public long getTStatesSinceCpuStart() {
     return getTstates();
   }
 
-  public List<Event> getEvents() {
-    return events;
-  }
 
-  public void addEvent(Event event) {
-//    System.out.println(event);
-    int time = event.getTime();
-    event.setTime((int) getTstates());
-    addEventNumber(time);
-  }
 
-  public void addEventNumber(int time) {
-    clock.addTStates(time);
-  }
 
   public void reset() {
     setTstates(0);
-    getEvents().clear();
     Stream.of(values()).forEach(r -> r(r).write(0xFFFF));
     getRegister(IR).write(0);
     getRegister(AF).write(0xFFFF);

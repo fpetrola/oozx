@@ -42,7 +42,6 @@ import com.fpetrola.z80.minizx.emulation.Helper;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 import com.fpetrola.oozx.fuse.modules.z80.TestFusePhaseProcessor;
-import fuse.PhaseProcessorExecutionListener;
 import fuse.tstates.AddStatesMemoryReadListener;
 import fuse.tstates.AddStatesMemoryWriteListener;
 import fuse.tstates.PhaseProcessor;
@@ -277,9 +276,7 @@ public class Z80 implements ZxModule, Cpu {
   }
 
   private void setupExecutionFetcher() {
-    ooz80.getInstructionExecutor().setExecutionListener(new PhaseProcessorExecutionListener(phaseProcessor));
-    DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) ooz80.getInstructionFetcher();
-    instructionFetcher.tPhaseProcessor = phaseProcessor;
+    ooz80.getInstructionExecutor().setExecutionListener(phaseProcessor);
   }
 
   private void setupMemoryTEst() {

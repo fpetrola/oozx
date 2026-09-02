@@ -19,7 +19,6 @@
 package com.fpetrola.z80.instructions.types;
 
 import com.fpetrola.z80.base.InstructionVisitor;
-import fuse.tstates.CachedPhase;
 
 public interface Instruction {
   void execute();
@@ -27,6 +26,4 @@ public interface Instruction {
   int getLength();
 
   void accept(InstructionVisitor<?> visitor);
-
-  CachedPhase getCachedPhase();
 }

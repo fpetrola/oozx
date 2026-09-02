@@ -18,18 +18,20 @@
 
 package com.fpetrola.oozx.fuse.modules.z80;
 
-import com.fpetrola.z80.cpu.Event;
-import com.fpetrola.z80.cpu.InstructionFetcher;
+import fuse.tstates.Event;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.registers.Register;
 import fuse.tstates.PhaseProcessor;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class TestFusePhaseProcessor  extends PhaseProcessor {
+public class TestFusePhaseProcessor extends PhaseProcessor {
+  private final Consumer<Event> events;
 
-  public TestFusePhaseProcessor(InstructionFetcher instructionFetcher1, State state1) {
-    super(instructionFetcher1, state1);
+  public TestFusePhaseProcessor(State state, Consumer<Event> events) {
+    super(state);
+    this.events = events;
   }
 
   public void addMw(int address, int value) {
@@ -46,7 +48,7 @@ public class TestFusePhaseProcessor  extends PhaseProcessor {
 
   protected void getAddEvent(Event event) {
     event.description = getDescription(event);
-    state.addEvent(event);
+    events.accept(event);
   }
 
   protected String getDescription(Event event) {

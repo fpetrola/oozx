@@ -18,14 +18,17 @@
 
 package fuse.tstates;
 
-import com.fpetrola.z80.cpu.Event;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.State;
 
+import java.util.function.Consumer;
+
 public class AddStatesIO implements IO {
   private State state;
+  private final Consumer<Event> events;
 
-  public AddStatesIO() {
+  public AddStatesIO(Consumer<Event> events) {
+    this.events = events;
   }
 
   public void setState(State state) {
@@ -40,7 +43,7 @@ public class AddStatesIO implements IO {
   }
 
   private void addPCEvent(Integer port, int time) {
-    getState().addEvent(new Event(time, "PC", port, null));
+    events.accept(new Event(time, "PC", port, null));
   }
 
   void contend_port_postio(Integer port) {
@@ -64,14 +67,14 @@ public class AddStatesIO implements IO {
   public int in(int port) {
     int value = port >> 8;
     contend_port_preio(port);
-    getState().addEvent(new Event(0, "PR", port, value));
+    events.accept(new Event(0, "PR", port, value));
     contend_port_postio(port);
     return value;
   }
 
   public void out(int port, int value) {
     contend_port_preio(port);
-    getState().addEvent(new Event(0, "PW", port, value));
+    events.accept(new Event(0, "PW", port, value));
     contend_port_postio(port);
   }
 }

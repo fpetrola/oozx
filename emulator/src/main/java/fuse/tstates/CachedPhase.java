@@ -27,7 +27,6 @@ public class CachedPhase implements Phase {
   private BeforeWritePhaseVisitor beforeWritePhaseVisitors;
   private AfterExecutionPhaseVisitor afterExecutionPhaseVisitors;
 
-  private boolean ready = false;
   private boolean skippable = true;
 
   public CachedPhase() {
@@ -65,13 +64,6 @@ public class CachedPhase implements Phase {
     phase.accept(visitor);
   }
 
-  public void ready() {
-    ready = true;
-  }
-
-  public boolean isReady() {
-    return ready;
-  }
 
   public boolean isSkippable() {
     return skippable;

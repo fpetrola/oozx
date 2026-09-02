@@ -20,7 +20,7 @@ package fuse;
 
 import com.fpetrola.z80.cpu.Z80Cpu;
 import com.fpetrola.z80.registers.RegisterName;
-import com.fpetrola.z80.cpu.Event;
+import fuse.tstates.Event;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.Arrays;
@@ -64,17 +64,16 @@ public class FuseResult {
     return registers[11];
   }
 
-  public void verify(Z80Cpu cpu) {
+  public void verify(Z80Cpu cpu, List<Event> eventsFromCpu) {
     Assertions.assertAll(
-        () -> verifyEvents(cpu),
+        () -> verifyEvents(eventsFromCpu),
         () -> verifyRegisters(cpu),
         () -> verifyCpuState(cpu),
         () -> verifyMemory(cpu)
     );
   }
 
-  private void verifyEvents(Z80Cpu cpu) {
-    List<Event> eventsFromCpu = cpu.getState().getEvents();
+  private void verifyEvents(List<Event> eventsFromCpu) {
     Assertions.assertEquals(events, eventsFromCpu, "Events mismatch");
     for (int i = 0; i < events.size(); i++) {
       Assertions.assertEquals(events.get(i), eventsFromCpu.get(i), "Event mismatch");

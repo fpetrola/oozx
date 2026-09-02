@@ -20,7 +20,6 @@ package fuse.tstates;
 
 import cern.colt.list.ObjectArrayList;
 import com.fpetrola.z80.base.InstructionVisitor;
-import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
@@ -36,8 +35,8 @@ import static com.fpetrola.z80.registers.RegisterName.HL;
 public abstract class PhaseProcessor extends PhaseProcessorBase {
   protected Register currentRegister;
 
-  public PhaseProcessor(InstructionFetcher instructionFetcher, State state) {
-    super(instructionFetcher, state);
+  public PhaseProcessor(State state) {
+    super(state);
   }
 
   protected boolean isMemory8BitReference(ImmutableOpcodeReference source) {

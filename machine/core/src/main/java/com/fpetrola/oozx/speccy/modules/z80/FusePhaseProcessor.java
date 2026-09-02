@@ -31,7 +31,7 @@ final public class FusePhaseProcessor extends PhaseProcessor {
   private final MemoryPage[] mapRead;
 
   public FusePhaseProcessor(Z80 z80) {
-    super(z80.ooz80.getInstructionFetcher(), z80.ooz80.getState());
+    super(z80.ooz80.getState());
     Memory memory = z80.memory;
     ula = z80.ula;
     zxClock = z80.zxClock;
