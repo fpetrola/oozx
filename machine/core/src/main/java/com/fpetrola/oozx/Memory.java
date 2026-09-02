@@ -232,6 +232,36 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
     mapRead[pageNum] = mapWrite[pageNum] = source[pageNum];
   }
 
+  /**
+   * Fills a bank's pages from a ROM image, as read-only. A machine fills its own ROMs this way,
+   * and a device with a ROM of its own fills the pages it will page in over the machine's.
+   */
+  public void fillRomBank(MemoryPage[] bank, int pageNum, byte[] image, int length, boolean custom) {
+    int[] data = new int[length];
+    for (int i = 0; i < length; i++) {
+      data[i] = image[i] & 0xff;
+    }
+    int offset = 0;
+    for (int i = pageNum * PAGES_IN_16K; i < pageNum * PAGES_IN_16K + length / PAGE_SIZE; i++) {
+      MemoryPage page = bank[i];
+      page.offset = offset;
+      page.setPage(data);
+      page.setPageNum(pageNum);
+      page.saveToSnapshot = custom;
+      page.setWritable(false);
+      offset += PAGE_SIZE;
+    }
+  }
+
+  /** As many pages as a 16K bank has, for a device to fill with what it brings. */
+  public MemoryPage[] newBank() {
+    MemoryPage[] bank = new MemoryPage[PAGES_IN_16K];
+    for (int i = 0; i < bank.length; i++) {
+      bank[i] = new MemoryPage();
+    }
+    return bank;
+  }
+
   // Page in 16K from /ROMCS
   public void mapRomcsFull(MemoryPage[] source) {
     map16k(0x0000, source, 0);

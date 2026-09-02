@@ -163,7 +163,14 @@ public class Peripherals implements PeripheralBus {
     ports.clear();
     busListeners.clear();
     if (peripherals != null) {
-      peripherals.forEach((type, data) -> data.active = false);
+      peripherals.forEach((type, data) -> {
+        // Told, not just marked: a device that was on has things to put back - a chip in the
+        // mixer, a ROM paged over the machine's - and only it knows what they are.
+        if (data.active) {
+          data.peripheral.deactivate();
+        }
+        data.active = false;
+      });
     }
   }
 

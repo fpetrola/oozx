@@ -32,6 +32,7 @@
         <module>mouse</module>
         <module>joystick</module>
         <module>melodik</module>
+        <module>interface2</module>
         <module>all</module>
     </modules>
 

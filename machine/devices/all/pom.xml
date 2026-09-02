@@ -32,5 +32,10 @@
             <artifactId>device-melodik</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-interface2</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

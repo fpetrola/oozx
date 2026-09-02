@@ -45,9 +45,20 @@ public class Module {
   private final List<RomcsDevice> romcsDevices = new ArrayList<>();
 
   public void register(ZxModule module) {
+    if (modules.contains(module)) {
+      return;
+    }
     modules.add(module);
     if (module instanceof RomcsDevice romcs) {
       romcsDevices.add(romcs);
+    }
+  }
+
+  /** A device switched off: it is not told about resets any more, and pages no ROM in. */
+  public void unregister(ZxModule module) {
+    modules.remove(module);
+    if (module instanceof RomcsDevice romcs) {
+      romcsDevices.remove(romcs);
     }
   }
 

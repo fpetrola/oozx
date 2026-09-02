@@ -28,7 +28,6 @@ import com.fpetrola.oozx.speccy.modules.z80.Cpu;
 import com.fpetrola.oozx.speccy.peripherals.PeripheralBus;
 import com.fpetrola.z80.cpu.Z80Clock;
 
-import java.util.Arrays;
 
 public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModule {
   protected final Memory memory;
@@ -66,23 +65,6 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
     this.sound = sound;
   }
 
-  public void loadRomBankFromBuffer(MemoryPage[] bankMap, int pageNum, byte[] buffer, int length, boolean custom) {
-    int offset = 0;
-    int[] data = new int[length];
-
-    for (int i = 0; i < length; i++) {
-      data[i] = buffer[i] & 0xff;
-    }
-    for (MemoryPage page : Arrays.asList(bankMap).subList(pageNum * memory.PAGES_IN_16K, pageNum * memory.PAGES_IN_16K + length / memory.PAGE_SIZE)) {
-      page.offset = offset;
-      page.setPage(data);
-      page.setPageNum(pageNum);
-      page.saveToSnapshot = custom;
-      page.setWritable(false);
-      offset += memory.PAGE_SIZE;
-    }
-  }
-
   void loadRomBankFromFile(MemoryPage[] bankMap, int pageNum, String filename, int expectedLength, boolean custom) {
     Utils.File rom = new Utils.File();
     if (Utils.readAuxiliaryFile("roms/" + filename, rom, Utils.AuxiliaryType.ROM) != 0) {
@@ -97,7 +79,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
           + " bytes long; expected " + expectedLength);
     }
 
-    loadRomBankFromBuffer(bankMap, pageNum, rom.buffer, rom.length, custom);
+    memory.fillRomBank(bankMap, pageNum, rom.buffer, rom.length, custom);
     Utils.closeFile(rom);
   }
 
