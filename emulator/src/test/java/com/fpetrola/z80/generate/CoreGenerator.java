@@ -289,8 +289,9 @@ public class CoreGenerator {
       for (String slot : slotsIn(c.body))
         if (assigned.contains(slot) && read.contains(slot) && !definitelyAssigned(c.body, slot))
           fields.add(slot);
+    Map<String, Integer> masks = masksOfEverything();
     for (Case c : cases)
-      finish(c, masksOfEverything());
+      finish(c, masks);
   }
 
   /**
