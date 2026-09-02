@@ -81,7 +81,7 @@ faltaban. Se hacen antes del periférico que las necesita, cada una con su test,
 | **`Module.unregister`** y **`RomcsDevice` por periférico** — HECHO | todo lo que tiene ROM | el mecanismo existe (`ramInfo.romcs` → `memory.romcsMap` → `Module.romcs()` → `RomcsDevice.mapRom()`) y nadie lo implementa aún. Falta que un periférico pueda irse: `Module` registra y nunca borra. |
 | **ROM desde un archivo** en `Utils.readAuxiliaryFile` — HECHO | Multiface, IF1, Beta, Opus, Didaktik, DivIDE, uSpeech, uSource, Spectranet, TTX2000S | hoy sólo busca `roms/<nombre>` en el classpath. Fuse busca también en el disco. Las ROMs de estos periféricos no se pueden distribuir (`mf1.rom`, `if1.rom`, `trdos.rom` están en `~/detodo/spectrum/Roms`, no en el repo), así que la ventana las elige y el nombre queda en el setting que ya existe (`romMultiface1`, `romInterface1`, `romBeta128`…). |
 | **`Dac`**, un `AudioSource` con un nivel de 8 bits | Covox, SpecDrum, uSpeech | es el `Beeper` sin la cinta: `synth.update(tstates, nivel × volumen)`. Un solo dueño del concepto "un DAC que va al mixer". |
-| **La pila de disquete** en `core`: `Disk` (formatos), `Fdd`, `WdFdc`, `Crc` | +D, DISCiPLE, Beta, Opus, Didaktik — y el uPD765 del +3 | `Fdd` está portado pero `Disk` es un stub de 40 líneas, así que la disquetera del +3 tampoco lee nada. Van a `core` porque el Beta del Pentagon es la computadora, y porque el uPD765 ya vive ahí. `disk.c` son 3.114 líneas; se portan por formato, en el orden en que los periféricos los necesitan (MGT/IMG para +D, TRD/SCL para Beta, OPD para Opus, D40/D80 para Didaktik, DSK/EDSK para el +3; UDI, FDI, TD0 y SAD al final). |
+| **La pila de disquete** en `core`: `Disk` (formatos), `Fdd`, `WdFdc`, `Crc` — HECHA (MGT/IMG/OPD; el resto de formatos con cada periférico) | +D, DISCiPLE, Beta, Opus, Didaktik — y el uPD765 del +3 | `Fdd` está portado pero `Disk` es un stub de 40 líneas, así que la disquetera del +3 tampoco lee nada. Van a `core` porque el Beta del Pentagon es la computadora, y porque el uPD765 ya vive ahí. `disk.c` son 3.114 líneas; se portan por formato, en el orden en que los periféricos los necesitan (MGT/IMG para +D, TRD/SCL para Beta, OPD para Opus, D40/D80 para Didaktik, DSK/EDSK para el +3; UDI, FDI, TD0 y SAD al final). |
 
 ### 4. La ventana de cada uno
 
@@ -101,8 +101,8 @@ gate verde, commit — antes de empezar el siguiente.
 | 0 | infraestructura (padre, `kit`, mover los 4 que hay, menú por `ServiceLoader`) — HECHO | todos la usan | el menú Equipment se arma solo |
 | 1 | **Interface 2** — HECHO | 314 líneas en Fuse, sin chip ni trampas: sólo ROMCS. Deja hecha la ranura (`MediaSlot`) | se inserta un cartucho y la máquina arranca en él, sin cinta |
 | 2 | **NMI + trampas de PC**, luego **Multiface One / 128 / 3** — HECHO | primera necesidad de las dos piezas del núcleo; el usuario tiene las tres ROMs | se aprieta el botón rojo y aparece el menú del Multiface sobre el juego |
-| 3 | **pila de disquete + +D** | primer usuario de `Disk`/`WdFdc`; `plusd.rom` viene con Fuse | se inserta un disco MGT, `CAT 1` lista el catálogo, `LOAD d1"juego"` carga |
-| 4 | **impresora paralela** | el +D y el +3 tienen el puerto; 8 puertos, sin chip | `LPRINT` en un +3 y sale texto en la ventana |
+| 3 | **pila de disquete + +D** — HECHO | primer usuario de `Disk`/`WdFdc`; `plusd.rom` viene con Fuse | se inserta un disco MGT, `CAT 1` lista el catálogo, `LOAD d1"juego"` carga |
+| 4 | **impresora paralela** — HECHO | el +D y el +3 tienen el puerto; 8 puertos, sin chip | `LPRINT` en un +3 y sale texto en la ventana |
 | 5 | **DISCiPLE** | +D con más puertos; `disciple.rom` viene con Fuse | igual que el +D, con joystick y red |
 | 6 | **Beta 128** | TRD/SCL es el formato con más software; `trdos.rom` está en `~/detodo/spectrum/Roms`; de paso el Pentagon arranca en TR-DOS | `RUN "boot"` en un Pentagon y en un 128 con la interfaz |
 | 7 | **Covox** y **SpecDrum** | dos DACs de 134 y 117 líneas sobre el mismo `Dac` | un vúmetro que se mueve con la música |
@@ -162,7 +162,7 @@ y es lo que cada migración tiene que cumplir. Las direcciones y máscaras está
   pantalla; sin ella: una ROM sintética en 0x0066 que marca la RAM y `RETN`, y los puertos de
   paginado de cada modelo.
 
-### 3. +D (`plusd.c`, 588 líneas) — `machine/devices/plusd`
+### 3. +D (`plusd.c`, 588 líneas) — `machine/devices/plusd` — HECHO
 
 - **ROM** 8K en 0x0000-0x1fff; **RAM** 8K en 0x2000-0x3fff (persistente, se borra sólo en reset duro).
   Se pagina leyendo el puerto 0xe7 y se despagina escribiéndolo. Trampas de PC, antes del fetch:
@@ -181,10 +181,13 @@ y es lo que cada migración tiene que cumplir. Las direcciones y máscaras está
 - **Ventana**: la bahía de dos disqueteras: por unidad una `MediaSlot` (LED de motor, nombre del
   disco, insertar/expulsar/nueva/guardar/dar vuelta/proteger), la pista y el sector del FDC, el
   botón NMI, y el conector de impresora (depende de `parallel-printer`).
-- **Test**: un disco MGT en blanco formateado en Java (`Disk.preformat` + catálogo vacío de G+DOS),
-  `CAT 1` en un 48K con la ROM `plusd.rom` de Fuse, y leer del RAM de pantalla el catálogo.
+- **Test**: sin G+DOS a mano (la ROM del +D carga el DOS desde un disco de sistema, que no se
+  puede distribuir), el test maneja el WD1770 por sus puertos sobre una imagen MGT sintética:
+  restore, seek, lectura y escritura de sectores por ambas caras, y la imagen vuelve a salir con
+  lo escrito. Más el paginado por 0xe7 y en qué máquinas encaja. Lo visual queda para el
+  escritorio: un disco de sistema real en la bahía y `RUN`.
 
-### 4. Impresora paralela (+2A/+3; `printer.c`, la mitad no portada) — `machine/devices/parallel-printer`
+### 4. Impresora paralela (+2A/+3; `printer.c`, la mitad no portada) — `machine/devices/parallel-printer` — HECHO
 
 - **Puerto** máscara 0xf002, valor 0x0000: escritura guarda el byte; lectura 0xfe con impresora
   (bit 0 = BUSY en bajo, "nunca ocupada"), 0xff sin ella. El **strobe** no es un puerto: lo
@@ -200,8 +203,9 @@ y es lo que cada migración tiene que cumplir. Las direcciones y máscaras está
 - **Ventana**: la impresora de matriz de puntos: el papel continuo con el texto que llega
   (monoespaciado, avance de línea), "cortar", "guardar como .txt"; el archivo de Fuse se
   mantiene como opción.
-- **Test**: en un +3, `LPRINT "hola"` desde BASIC (tecleado por el `PhantomTypist`) y leer "hola"
-  del papel.
+- **Test**: `PhantomTypist` es un stub, así que el test hace lo que hace la ROM del +3 al
+  imprimir: el byte al puerto de datos, el strobe abajo y arriba por el bit 4 de 0x1ffd, y "OK"
+  aparece en el papel. Y el emparejado de flancos de Fuse, aparte.
 
 ### 5. DISCiPLE (`disciple.c`, 755 líneas) — `machine/devices/disciple`
 

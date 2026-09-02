@@ -59,8 +59,8 @@ public class Settings {
     public String divmmcFile;
     public boolean divmmcWp;
     public boolean doublescanMode;
-    public int drive40MaxTrack;
-    public int drive80MaxTrack;
+    public int drive40MaxTrack = 42;
+    public int drive80MaxTrack = 83;
     public String driveBeta128aType;
     public String driveBeta128bType;
     public String driveBeta128cType;
@@ -171,7 +171,7 @@ public class Settings {
     public String rom48 = "48.rom";
     public String romBeta128;
     public String romDidaktik80;
-    public String romDisciple;
+    public String romDisciple = "disciple.rom";
     public String romInterface1;
     public String romMultiface1 = "mf1.rom";
     public String romMultiface128 = "mf128.rom";
@@ -204,7 +204,7 @@ public class Settings {
     public String romPlus3e1 = "plus3e-1.rom";
     public String romPlus3e2 = "plus3e-2.rom";
     public String romPlus3e3 = "plus3e-3.rom";
-    public String romPlusd;
+    public String romPlusd = "plusd.rom";
     public String romScorpion0;
     public String romScorpion1;
     public String romScorpion2;

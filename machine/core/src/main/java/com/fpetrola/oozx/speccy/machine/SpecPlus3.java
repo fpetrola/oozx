@@ -31,6 +31,8 @@ import com.google.inject.Singleton;
 import com.google.inject.Inject;
 
 import com.fpetrola.oozx.*;
+import com.fpetrola.oozx.speccy.devices.disk.Disk;
+import com.fpetrola.oozx.speccy.devices.disk.Fdd;
 import com.fpetrola.oozx.Module;
 import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.oozx.speccy.modules.Display;
@@ -42,17 +44,15 @@ import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.emulation.helpers.machine.MachineTypes;
 
 @Singleton
-public class SpecPlus3 extends Spec128 implements PagingPlus3, FloppyDrive {
+public class SpecPlus3 extends Spec128 implements PagingPlus3, FloppyDrive, PrinterPort {
   private UPDFdc specplus3Fdc;
-  public Fdd fdd;
   public UPDFdc uPDFdc;
 
   @Inject
-  public SpecPlus3(Memory memory, Display display, PeripheralBusDelegate peripherals, Settings settings, Fdd fdd, UPDFdc uPDFdc, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
+  public SpecPlus3(Memory memory, Display display, PeripheralBusDelegate peripherals, Settings settings, UPDFdc uPDFdc, EventManager eventManager, Cpu cpu, Timer timer, Module module, Sound sound, UserInterface userInterface) {
     super(memory, display, peripherals, settings, eventManager, cpu, timer, module, new SpecPlus3RamInfo(8), sound, userInterface);
-    this.fdd = fdd;
     this.uPDFdc = uPDFdc;
-    specplus3765Init();
+    specplus3765Init(eventManager, cpu);
     specplus3MenuItems();
   }
 
@@ -81,25 +81,22 @@ public class SpecPlus3 extends Spec128 implements PagingPlus3, FloppyDrive {
   }
 
   // Initialize FDC and drives
-  public void specplus3765Init() {
+  public void specplus3765Init(EventManager eventManager, Cpu cpu) {
     specplus3Fdc = uPDFdc.allocFdc(UPDFdc.UpdType.UPD765A, UPDFdc.UpdClock.UPD_CLOCK_4MHZ);
+    for (int i = 0; i < SpecPlus3Constants.SPECPLUS3_NUM_DRIVES; i++) {
+      specplus3Drives[i] = new Fdd(eventManager, cpu.getClock(), () -> getTimings().processorSpeed, settings);
+      specplus3Drives[i].disk.flag = Disk.FLAG_PLUS3_CPC;
+    }
     // +3 uses US0 pin to select drives: drive 2 := drive 0, drive 3 := drive 1
     specplus3Fdc.drive[0] = specplus3Drives[0];
     specplus3Fdc.drive[1] = specplus3Drives[1];
     specplus3Fdc.drive[2] = specplus3Drives[0];
     specplus3Fdc.drive[3] = specplus3Drives[1];
 
-    for (int i = 0; i < SpecPlus3Constants.SPECPLUS3_NUM_DRIVES; i++) {
-      specplus3Drives[i] = new Fdd(settings);
-      specplus3Drives[i].disk.flag = Disk.DISK_FLAG_PLUS3_CPC;
-    }
-
     // Built-in drive 1 head 42 track
-    Helper.fillArrayWith(FddParams.fddParams, FddParams::new);
-
-    fdd.init(specplus3Drives[0], fdd.FDD_SHUGART, FddParams.fddParams[1], false);
+    specplus3Drives[0].init(Fdd.Type.SHUGART, Fdd.PARAMS[1], false);
     // Drive geometry autodetect
-    fdd.init(specplus3Drives[1], fdd.FDD_SHUGART, null, false);
+    specplus3Drives[1].init(Fdd.Type.SHUGART, null, false);
 
     specplus3Fdc = new UPDFdc(settings);
 
@@ -118,12 +115,12 @@ public class SpecPlus3 extends Spec128 implements PagingPlus3, FloppyDrive {
 
   // Reset FDC and drives
   public void specplus3765Reset() {
-    FddParams dt = FddParams.fddParams[Options.enumerateDiskoptionsDrivePlus3aType() + 1]; // +1 => no Disabled
+    Fdd.Params dt = Fdd.PARAMS[Options.enumerateDiskoptionsDrivePlus3aType() + 1]; // +1 => no Disabled
     uPDFdc.masterReset(specplus3Fdc);
-    fdd.init(specplus3Drives[0], fdd.FDD_SHUGART, dt, true);
+    specplus3Drives[0].init(Fdd.Type.SHUGART, dt, true);
 
-    dt = FddParams.fddParams[Options.enumerateDiskoptionsDrivePlus3bType()];
-    fdd.init(specplus3Drives[1], dt.enabled != 0 ? fdd.FDD_SHUGART : FddConstants.FDD_TYPE_NONE, dt, true);
+    dt = Fdd.PARAMS[Options.enumerateDiskoptionsDrivePlus3bType()];
+    specplus3Drives[1].init(dt.enabled() ? Fdd.Type.SHUGART : Fdd.Type.NONE, dt, true);
   }
 
   // Reset the Spectrum +3 machine
@@ -236,11 +233,21 @@ public class SpecPlus3 extends Spec128 implements PagingPlus3, FloppyDrive {
     memory.map16k(0xc000, memory.mapRam, page4);
   }
 
+  private java.util.function.Consumer<Boolean> printerStrobe;
+
+  @Override
+  public void onStrobe(java.util.function.Consumer<Boolean> printer) {
+    printerStrobe = printer;
+  }
+
   // Write to the +3 memory port 2 (0x1FFD)
   public void memoryPort2WriteInternal(int port, byte b) {
     if (has(PLUS3_DISK)) {
-      fdd.motorOn(specplus3Drives[0], (b & 0x08) != 0);
-      fdd.motorOn(specplus3Drives[1], (b & 0x08) != 0);
+      specplus3Drives[0].motorOn((b & 0x08) != 0);
+      specplus3Drives[1].motorOn((b & 0x08) != 0);
+    }
+    if (printerStrobe != null) {
+      printerStrobe.accept((b & 0x10) != 0);
     }
 
     ramInfo.lastByte2 = b;

@@ -1,0 +1,6 @@
+<svg id="emoji" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+  <g id="color"><path fill="#fcea2b" d="M16 10 H56 V62 H16 Z"/><path fill="#d0cfce" d="M16 10 H22 V62 H16 Z M50 10 H56 V62 H50 Z"/></g>
+  <g id="line" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round">
+    <path d="M16 10 H56 V62 H16 Z"/><path d="M28 24 H44 M28 34 H44 M28 44 H40"/>
+  </g>
+</svg>

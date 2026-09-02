@@ -34,6 +34,8 @@
         <module>melodik</module>
         <module>interface2</module>
         <module>multiface</module>
+        <module>parallel-printer</module>
+        <module>plusd</module>
         <module>all</module>
     </modules>
 

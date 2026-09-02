@@ -15,24 +15,17 @@
  *  * limitations under the License.
  *
  */
+package com.fpetrola.oozx.speccy.devices.plusd;
 
-package com.fpetrola.oozx;
+import com.fpetrola.oozx.speccy.devices.DeviceFrame;
+import com.fpetrola.oozx.speccy.devices.Equipment;
 
-import com.fpetrola.z80.helpers.Helper;
-
-public class FddParams {
-  public static FddParams[] fddParams = new FddParams[10];
-
-  public int enabled;
-  int heads;
-  int cylinders;
-
-  public FddParams() {
+public class PlusDEquipment implements Equipment {
+  public String name() {
+    return "+D";
   }
 
-  public FddParams(int enabled, int heads, int cylinders) {
-    this.enabled = enabled;
-    this.heads = heads;
-    this.cylinders = cylinders;
+  public DeviceFrame<?> open() {
+    return new PlusDFrame();
   }
 }

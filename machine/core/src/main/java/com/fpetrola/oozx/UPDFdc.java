@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.speccy.devices.disk.Fdd;
+
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
 
@@ -106,7 +108,6 @@ public class UPDFdc {
   private Settings settings;
 
   {
-    Helper.fillArrayWith(drive, () -> new Fdd(settings));
   }
 
 

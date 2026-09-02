@@ -42,5 +42,15 @@
             <artifactId>device-multiface</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-parallel-printer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-plusd</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

@@ -1,0 +1,6 @@
+<svg id="emoji" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+  <g id="color"><rect x="18" y="32" width="36" height="28" rx="4" fill="#f1b31c"/></g>
+  <g id="line" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round">
+    <rect x="18" y="32" width="36" height="28" rx="4"/><path d="M26 32 V24 A10 10 0 0 1 46 24 V32"/>
+  </g>
+</svg>

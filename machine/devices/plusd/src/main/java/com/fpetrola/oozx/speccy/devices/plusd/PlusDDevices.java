@@ -15,20 +15,16 @@
  *  * limitations under the License.
  *
  */
+package com.fpetrola.oozx.speccy.devices.plusd;
 
-package com.fpetrola.oozx;
+import com.fpetrola.oozx.speccy.devices.DeviceModule;
+import com.fpetrola.oozx.speccy.peripherals.Peripheral;
+import com.google.inject.AbstractModule;
+import com.google.inject.multibindings.Multibinder;
 
-public interface FddConstants {
-    int FDD_LOAD_FACT = 2;
-    int FDD_HEAD_FACT = 16;
-    int FDD_STEP_FACT = 34;
-    int FDD_MAX_TRACK = 99;
-    int FDD_TRACK_TRESHOLD = 10;
-    int FDD_LAST_ERROR = 4;
-    int FDD_SHUGART = 0;
-    int FDD_TYPE_NONE = 1;
-    int FDD_GEOM = 111;
-    int FDD_OK = 1;
-    int FDD_NONE = 2;
-    int FDD_RDONLY = 3;
+/** The +D: a WD1770, two drives, 8K of ROM and 8K of RAM, and a printer port. */
+public class PlusDDevices extends AbstractModule implements DeviceModule {
+  protected void configure() {
+    Multibinder.newSetBinder(binder(), Peripheral.class).addBinding().to(PlusDPeripheral.class);
+  }
 }
