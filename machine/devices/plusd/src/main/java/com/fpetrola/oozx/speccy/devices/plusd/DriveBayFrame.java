@@ -38,25 +38,28 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * The +D on the desk: two drive bays, each with its light and its slot, the button, and a lamp
- * for the ROM being paged in. Expanded, where each head is.
+ * An MGT interface on the desk: two drive bays, each with its light and its slot, the button,
+ * and a lamp for the ROM being paged in. Expanded, where each head is.
  */
-public class PlusDFrame extends DeviceFrame<PlusDPeripheral> {
+public class DriveBayFrame<P extends MgtDiskInterface> extends DeviceFrame<P> {
 
   private static final int REFRESH_MILLIS = 100;
   private static final FileNameExtensionFilter DISKS =
-      new FileNameExtensionFilter("+D disk image (MGT, IMG, DSK)", "mgt", "img", "dsk");
+      new FileNameExtensionFilter("MGT disk image (MGT, IMG, DSK)", "mgt", "img", "dsk");
 
-  private final MediaSlot[] slots = new MediaSlot[PlusDPeripheral.DRIVES];
-  private final JLabel[] heads = new JLabel[PlusDPeripheral.DRIVES];
-  private final JButton button = Widgets.iconButton("multiface-button.svg", "NMI",
-      "The button on the +D: stops the program and brings up its snapshot menu");
+  private final String name;
+  private final MediaSlot[] slots = new MediaSlot[MgtDiskInterface.DRIVES];
+  private final JLabel[] heads = new JLabel[MgtDiskInterface.DRIVES];
+  private final JButton button;
   private final JLabel paged = new JLabel("●");
   private final JLabel status = new JLabel();
   private final Timer refresh = new Timer(REFRESH_MILLIS, e -> refresh());
 
-  public PlusDFrame() {
-    super("+D", PlusDPeripheral.class);
+  public DriveBayFrame(String name, Class<? extends P> kind) {
+    super(name, kind);
+    this.name = name;
+    button = Widgets.iconButton("multiface-button.svg", "NMI",
+        "The button on the " + name + ": stops the program and brings up its snapshot menu");
     setSize(560, 220);
 
     JPanel bays = new JPanel(new GridLayout(0, 1, 0, 2));
@@ -73,8 +76,8 @@ public class PlusDFrame extends DeviceFrame<PlusDPeripheral> {
     }
     controls.add(bays);
     controls.add(Box.createHorizontalStrut(10));
-    button.addActionListener(e -> onEmulator(PlusDPeripheral::button));
-    paged.setToolTipText("Lit while the +D's ROM is paged in over the machine's");
+    button.addActionListener(e -> onEmulator(MgtDiskInterface::button));
+    paged.setToolTipText("Lit while the " + name + "'s ROM is paged in over the machine's");
     controls.add(button);
     controls.add(paged);
     controls.add(status);
@@ -96,19 +99,19 @@ public class PlusDFrame extends DeviceFrame<PlusDPeripheral> {
   }
 
   private interface Work {
-    void on(PlusDPeripheral plusd);
+    void on(MgtDiskInterface device);
   }
 
   /** On the emulator's thread: the drives and the controller run there, on its clock. */
   private void onEmulator(Work work) {
-    PlusDPeripheral plusd = device();
-    if (plusd != null) {
-      machine().z80.later(() -> work.on(plusd));
+    MgtDiskInterface plugged = device();
+    if (plugged != null) {
+      machine().z80.later(() -> work.on(plugged));
     }
   }
 
   @Override
-  protected void plugged(PlusDPeripheral device) {
+  protected void plugged(P device) {
     boolean in = device != null;
     for (MediaSlot slot : slots) {
       slot.setEnabled(in);
@@ -141,28 +144,28 @@ public class PlusDFrame extends DeviceFrame<PlusDPeripheral> {
   }
 
   private void save(int which, File file) {
-    PlusDPeripheral plusd = device();
-    if (plusd == null) {
+    MgtDiskInterface plugged = device();
+    if (plugged == null) {
       return;
     }
     try {
-      plusd.drive(which).disk.write(file);
+      plugged.drive(which).disk.write(file);
     } catch (IOException cannot) {
       JOptionPane.showMessageDialog(this, cannot.getMessage());
     }
   }
 
   private void refresh() {
-    PlusDPeripheral plusd = device();
-    if (plusd == null) {
+    MgtDiskInterface plugged = device();
+    if (plugged == null) {
       status.setText("not plugged into a machine");
       paged.setForeground(Color.GRAY);
       return;
     }
-    paged.setForeground(plusd.isPaged() ? Color.RED : Color.GRAY);
-    status.setText(plusd.isAvailable() ? "" : "no ROM: " + machine().settings.current.romPlusd);
+    paged.setForeground(plugged.isPaged() ? Color.RED : Color.GRAY);
+    status.setText(plugged.isAvailable() ? "" : "no ROM: " + plugged.romName());
     for (int i = 0; i < slots.length; i++) {
-      Fdd drive = plusd.drive(i);
+      Fdd drive = plugged.drive(i);
       slots[i].led(drive.motoron);
       slots[i].show(drive.loaded ? nameOf(drive.disk) : null);
       slots[i].showFlipped(drive.upsidedown);
@@ -183,6 +186,6 @@ public class PlusDFrame extends DeviceFrame<PlusDPeripheral> {
 
   @Override
   protected String attachTip() {
-    return "Clip this onto the machine's window, which is what plugs the +D in";
+    return "Clip this onto the machine's window, which is what plugs the " + name + " in";
   }
 }

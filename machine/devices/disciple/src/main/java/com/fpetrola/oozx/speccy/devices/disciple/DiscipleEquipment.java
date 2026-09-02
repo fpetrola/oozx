@@ -15,17 +15,18 @@
  *  * limitations under the License.
  *
  */
-package com.fpetrola.oozx.speccy.devices.plusd;
+package com.fpetrola.oozx.speccy.devices.disciple;
 
 import com.fpetrola.oozx.speccy.devices.DeviceFrame;
 import com.fpetrola.oozx.speccy.devices.Equipment;
+import com.fpetrola.oozx.speccy.devices.plusd.DriveBayFrame;
 
-public class PlusDEquipment implements Equipment {
+public class DiscipleEquipment implements Equipment {
   public String name() {
-    return "+D";
+    return "DISCiPLE";
   }
 
   public DeviceFrame<?> open() {
-    return new DriveBayFrame<>("+D", PlusDPeripheral.class);
+    return new DriveBayFrame<>("DISCiPLE", DisciplePeripheral.class);
   }
 }

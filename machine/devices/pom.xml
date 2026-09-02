@@ -36,6 +36,7 @@
         <module>multiface</module>
         <module>parallel-printer</module>
         <module>plusd</module>
+        <module>disciple</module>
         <module>all</module>
     </modules>
 

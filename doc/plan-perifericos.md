@@ -103,7 +103,7 @@ gate verde, commit — antes de empezar el siguiente.
 | 2 | **NMI + trampas de PC**, luego **Multiface One / 128 / 3** — HECHO | primera necesidad de las dos piezas del núcleo; el usuario tiene las tres ROMs | se aprieta el botón rojo y aparece el menú del Multiface sobre el juego |
 | 3 | **pila de disquete + +D** — HECHO | primer usuario de `Disk`/`WdFdc`; `plusd.rom` viene con Fuse | se inserta un disco MGT, `CAT 1` lista el catálogo, `LOAD d1"juego"` carga |
 | 4 | **impresora paralela** — HECHO | el +D y el +3 tienen el puerto; 8 puertos, sin chip | `LPRINT` en un +3 y sale texto en la ventana |
-| 5 | **DISCiPLE** | +D con más puertos; `disciple.rom` viene con Fuse | igual que el +D, con joystick y red |
+| 5 | **DISCiPLE** — HECHO | +D con más puertos; `disciple.rom` viene con Fuse | igual que el +D, con joystick y red |
 | 6 | **Beta 128** | TRD/SCL es el formato con más software; `trdos.rom` está en `~/detodo/spectrum/Roms`; de paso el Pentagon arranca en TR-DOS | `RUN "boot"` en un Pentagon y en un 128 con la interfaz |
 | 7 | **Covox** y **SpecDrum** | dos DACs de 134 y 117 líneas sobre el mismo `Dac` | un vúmetro que se mueve con la música |
 | 8 | **Fuller Box** | AY en otros puertos + joystick; reusa `AyPeripheral` y `Joystick.fullerRead`, que ya existe | música AY en un 48K, y el joystick del Fuller |
@@ -207,7 +207,7 @@ y es lo que cada migración tiene que cumplir. Las direcciones y máscaras está
   imprimir: el byte al puerto de datos, el strobe abajo y arriba por el bit 4 de 0x1ffd, y "OK"
   aparece en el papel. Y el emparejado de flancos de Fuse, aparte.
 
-### 5. DISCiPLE (`disciple.c`, 755 líneas) — `machine/devices/disciple`
+### 5. DISCiPLE (`disciple.c`, 755 líneas) — `machine/devices/disciple` — HECHO
 
 - Un +D con más puertos y una diferencia: **ROM y RAM se pueden intercambiar** (`memswap`: normal
   ROM en 0x0000/RAM en 0x2000; intercambiado al revés), por el puerto 0x7b (leer → normal,
@@ -221,8 +221,9 @@ y es lo que cada migración tiene que cumplir. Las direcciones y máscaras está
   vacío); 0xfb datos de impresora.
 - **FDC** WD1770; dos unidades. Snapshot como el +D más `inhibit`. ROM `disciple.rom` viene con Fuse
   (8K; los dumps de 16K son GDOS en RAM y no sirven).
-- **Ventana**: la misma bahía del +D (se reusa la vista; cambia el modelo), con el conector de
-  joystick y el de red dibujados y marcados como no emulados, que es lo que Fuse hace.
+- **Ventana**: la misma bahía del +D (`DriveBayFrame`, sobre `MgtDiskInterface`, que es lo que
+  los dos comparten: el módulo `disciple` depende de `plusd` por eso). El joystick y la red no
+  están emulados, como en Fuse.
 
 ### 6. Beta 128 (`beta.c`, 676 líneas) — `machine/devices/beta128`, y el Pentagon en `core`
 

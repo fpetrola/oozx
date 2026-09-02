@@ -52,5 +52,10 @@
             <artifactId>device-plusd</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-disciple</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

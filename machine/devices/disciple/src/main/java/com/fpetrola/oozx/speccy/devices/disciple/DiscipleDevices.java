@@ -15,17 +15,16 @@
  *  * limitations under the License.
  *
  */
-package com.fpetrola.oozx.speccy.devices.plusd;
+package com.fpetrola.oozx.speccy.devices.disciple;
 
-import com.fpetrola.oozx.speccy.devices.DeviceFrame;
-import com.fpetrola.oozx.speccy.devices.Equipment;
+import com.fpetrola.oozx.speccy.devices.DeviceModule;
+import com.fpetrola.oozx.speccy.peripherals.Peripheral;
+import com.google.inject.AbstractModule;
+import com.google.inject.multibindings.Multibinder;
 
-public class PlusDEquipment implements Equipment {
-  public String name() {
-    return "+D";
-  }
-
-  public DeviceFrame<?> open() {
-    return new DriveBayFrame<>("+D", PlusDPeripheral.class);
+/** The DISCiPLE: MGT's first interface - the +D's disk side, plus a joystick port and a network. */
+public class DiscipleDevices extends AbstractModule implements DeviceModule {
+  protected void configure() {
+    Multibinder.newSetBinder(binder(), Peripheral.class).addBinding().to(DisciplePeripheral.class);
   }
 }
