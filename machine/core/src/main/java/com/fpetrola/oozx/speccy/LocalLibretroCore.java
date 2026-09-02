@@ -27,7 +27,6 @@ import com.fpetrola.oozx.speccy.modules.Display;
 import com.fpetrola.oozx.speccy.modules.EventManager;
 import com.fpetrola.oozx.speccy.modules.z80.Z80;
 import com.fpetrola.oozx.speccy.peripherals.PeripheralBus;
-import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.cpu.Z80Clock;
 import com.fpetrola.z80.memory.Memory;
@@ -172,8 +171,6 @@ public class LocalLibretroCore implements LibretroCore {
   }
 
   public void retro_set_memory_data_contended(int address, int id) {
-    DefaultInstructionFetcher instructionFetcher = (DefaultInstructionFetcher) z80.ooz80.getInstructionFetcher();
-    instructionFetcher.setLastExecutedInstruction(null);
     getMemory().write(address, id);
   }
 

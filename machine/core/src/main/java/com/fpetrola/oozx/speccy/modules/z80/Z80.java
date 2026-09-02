@@ -18,6 +18,11 @@
 
 package com.fpetrola.oozx.speccy.modules.z80;
 
+import com.fpetrola.z80.cpu.GeneratedZ80;
+import com.fpetrola.z80.cpu.GeneratedZ80Cpu;
+import com.fpetrola.z80.registers.RegisterBank;
+import fuse.tstates.Contention;
+
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
 
@@ -266,7 +271,10 @@ public class Z80 implements ZxModule, Cpu {
     setupExecutionFetcher();
   }
 
+  /** The generated core carries MEMPTR and the contention inside; the OOP core gets them as listeners. */
   private void setupExecutionFetcher() {
+    if (ooz80 instanceof GeneratedZ80Cpu)
+      return;
     ooz80.getInstructionExecutor().setExecutionListener(phaseProcessor);
     new MemptrUpdateInstructionSpy(ooz80.getState()).addExecutionListeners(ooz80.getInstructionExecutor());
   }
@@ -302,12 +310,32 @@ public class Z80 implements ZxModule, Cpu {
     };
   }
 
+  public static boolean generatedCore() {
+    return "generated".equals(System.getProperty("oozx.cpu"));
+  }
+
+  private GeneratedZ80 generated;
+
   private void createOOZ80(State state1) {
-    ooz80 = new OOZ80(state1, Helper.getInstructionFetcher(state1, new NullInstructionSpy(), new DefaultInstructionFactory(state1)), new DefaultInstructionExecutor(state1, false));
+    if (generated != null)
+      ooz80 = new GeneratedZ80Cpu(state1, generated);
+    else
+      ooz80 = new OOZ80(state1, Helper.getInstructionFetcher(state1, new NullInstructionSpy(), new DefaultInstructionFactory(state1)), new DefaultInstructionExecutor(state1, false));
+  }
+
+  private RegisterBank createBank(Memory memory2) {
+    if (!generatedCore())
+      return new DefaultRegisterBankFactory().createBank();
+    generated = new GeneratedZ80(memory2, io) {
+      public void contend(int address, int times, int tstates, Contention.Kind kind) {
+        phaseProcessor.contend(address, times, tstates, kind);
+      }
+    };
+    return generated;
   }
 
   private State createState(Memory memory2) {
-    var state1 = new State(io, new DefaultRegisterBankFactory().createBank(), memory2) {
+    var state1 = new State(io, createBank(memory2), memory2) {
       public void enableInterrupt() {
         super.enableInterrupt();
         interruptsEnabledAt = clock.getTStates();
