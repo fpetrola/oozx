@@ -223,6 +223,11 @@ el `case` no escribe `H` ni `L` entre las dos, y puede reusar el local. Es una C
 puras sobre campos que el `case` no asigna en el tramo. Con A1 hecho desaparece por sí sola (sin
 llamadas, C2 la hace), así que va después y sólo si queda algo. Dónde: `Simplifier`.
 
+**Lo que esta CSE nunca puede tocar** es nada que salga de la tabla de páginas: `mapRead[...]`,
+`mapWrite[...]`, los campos de un `MemoryPage`, ni el `int[]` de una página. Un `OUT` pagina en
+medio de la instrucción y el que sigue tiene que ver la página nueva. La regla, en el generador,
+es la de la frontera de más abajo: eso vive adentro de un helper y no sale de ahí.
+
 ### A6. La forma del despacho
 
 Hoy: `execute()` → `decode` (inlineado, `switch (opcode >> 4)`) → `decode_N` (llamada real,
@@ -400,6 +405,128 @@ public void run(int until) {           // generado; reemplaza a doOpcodes cuando
 }
 ```
 
+## La frontera: qué se congela y qué se lee
+
+Es la pregunta que decide si esto funciona. El especializador de la fase 1 **evalúa el grafo vivo
+en tiempo de generación**: un campo primitivo `final` de un objeto vivo se vuelve un literal, uno
+no final se vuelve un *slot*, o sea una copia que a partir de ahí vive en la clase generada, y un
+objeto se vuelve otro `Obj` en el que sigue entrando. Para una instrucción eso es exactamente lo
+que se quiere, porque su grafo no cambia nunca después de construida la tabla. Para la máquina es
+al revés: casi todo lo que la memoria toca cambia mientras el emulador corre.
+
+Si se apuntara el especializador de hoy a la memoria de la máquina sin más, saldría esto:
+
+| lo que lee el camino de acceso | qué es | qué haría hoy el especializador | qué tiene que hacer |
+|---|---|---|---|
+| `PAGE_SIZE_LOGARITHM` | `final int` = 11 | literal `11` | **literal**, está bien |
+| `mapRead`, `mapWrite` | `final MemoryPage[]` | `UnsupportedOperationException("instance array")` | campo `final` inyectado, acceso a array |
+| `page.contended`, `.offset`, `.writable`, `.source` | campos mutables de `MemoryPage` | *copia* con el valor que tenían al generar | **lectura de campo** en cada acceso |
+| `page.page` | `int[]` reemplazable con `setPage` | copia de la referencia | **lectura de campo**, después índice |
+| `ula.contention`, `contentionNoMreq` | `final byte[]`, se rellenan al resetear la máquina | excepción | campo `final` inyectado, acceso a array |
+| `memory.currentScreen`, `screenMask`, `sourceRam`, `sourceNone` | `int` mutables | copia | **lectura de campo** |
+| `clock.tStates` | `int` mutable que leen la ULA, la cinta, los eventos | copia, y el reloj de la máquina se queda atrás | **el contador vive en el reloj**, nunca se copia |
+| `settings.current.writableRoms` | objeto reemplazable | congela el `Settings.current` de hoy | lectura, o M3 lo saca del camino |
+
+O sea: **la regla de hoy es exactamente la equivocada para la máquina**, y por eso la frontera hay
+que declararla, no dejarla salir sola. La regla que la define:
+
+> Se congela lo que no puede cambiar mientras esta instancia del núcleo exista: la forma del
+> algoritmo y las constantes de forma. Se lee en cada acceso todo lo que la máquina muta: la tabla
+> de páginas, los campos de una página, las tablas de contención y el contador de T-states. Un
+> objeto que la máquina pudiera *reemplazar* no se congela nunca: entra como campo `final` al
+> constructor, y quien lo reemplace tiene que reconstruir el núcleo.
+
+### Por qué alcanza: la máquina muta, no reemplaza
+
+Lo verifiqué en el código, porque de esto depende todo lo demás.
+
+**Cambio de máquina.** `Machine.selectMachine` no reconstruye nada: pone `current`, avisa a los
+`MachineChangeListener`, pone el reloj en cero y resetea el `EventManager`. `Memory`, `Ula`,
+`Display`, `SpectrumZ80Clock` y `Z80` son singletons de Guice, creados una vez; `Z80.start()`, que
+es donde se arma el envoltorio de memoria y el núcleo, corre una sola vez desde `Speccy`. El reset
+de la máquina rellena `ula.contention[i]` y `contentionNoMreq[i]` **en el mismo array**, y llama a
+`current.memoryMap()`, que remapea entradas de `mapRead` y `mapWrite`; `ramSet16kContention` prende
+y apaga `contended` **en los mismos `MemoryPage`**. Un núcleo con referencias `final` a esos
+objetos ve el cambio de 48K a 128K sin enterarse de que hubo uno.
+
+**Paginado desde el asm.** `OUT (0x7FFD),A` entra por `io.out`, que sigue siendo una llamada opaca
+al bus de periféricos, y termina en `Spec128.memoryPortWrite` → `memoryMap()` → `memory.map16k`,
+que reemplaza entradas de `mapRead` y `mapWrite`. El núcleo lo ve porque cada acceso vuelve a
+hacer `mapRead[address >>> 11]`; no hay nada cacheado entre accesos. Lo mismo vale para el
+`/ROMCS` de los periféricos: DivIDE, ZXCF y la TR-DOS paginan con `mapRomcs8k` y compañía, que es
+la misma mutación de la misma tabla.
+
+Ese es el hallazgo de fondo, y es lo que hace que el enfoque cierre: **todo el modelo de bancos de
+esta máquina es "mutar la tabla de páginas"**, y una tabla que se lee en cada acceso sobrevive
+intacta al inlining. Lo que no sobreviviría es un modelo que reemplazara el objeto memoria al
+paginar; no es el caso.
+
+### Lo que hay que proteger
+
+- **Invariante**: ningún cambio de máquina, de configuración o de periférico puede reemplazar el
+  `Memory`, la `Ula`, el `Display` ni el reloj. Si alguna vez hace falta, quien lo reemplace
+  reconstruye el núcleo, como reconstruye hoy el `OOZ80`. Un test lo fija: con el núcleo generado,
+  arrancar en 48K, cambiar a 128K, paginar RAM con un `OUT` y verificar que una lectura ve la
+  página nueva y la contención nueva. Hoy no existe ese test para ningún núcleo.
+- **Nada de estado de páginas fuera de un helper.** El helper busca la página, la usa y la
+  descarta; no hay locals de página que crucen dos accesos, ni CSE que los cruce (A5).
+- **`clock.tStates` no se copia.** Es del reloj y lo leen la ULA, la cinta y los eventos. El
+  generador lo trata como terminal compartido, no como slot. Nota práctica: hoy es `protected` en
+  `DefaultZ80Clock`, así que una clase generada en otro paquete no puede tocarlo; o se hace
+  público, o —más simple— el reloj se deja como llamada, que después de M1 son seis bytes que C2
+  inlinea siempre.
+
+## Quién es el dueño del código que queda adentro
+
+La tercera pregunta, y la más cara: **sí, los helpers de `GeneratedSpectrumZ80` son código de
+`machine/core` inlineado, y si ese código cambia, el generado cambia.**
+
+En volumen es poco: el archivo sigue siendo 95 % instrucciones, y los helpers son la
+especialización de `Memory.readByte`, `writeByte`, `writeByteInternal`, `displayDirtySinclair`,
+`FusePhaseProcessor.contend`, `Ula.addUlaStates` y `SpectrumZ80Clock.addTStates`, unas cien líneas
+de máquina repartidas en diez o veinte métodos. En consecuencias es mucho:
+
+1. **`machine/core` pasa a ser entrada del generador.** Es el mismo contrato que ya rige para las
+   instrucciones —el código OOP es el único dueño, el archivo generado es un artefacto que se
+   regenera— pero ahora alcanza al módulo de la máquina. Y necesita su propio candado: un
+   `GeneratedSpectrumZ80IsCurrentTest` que corra en el build de `machine/core`, porque si alguien
+   toca `Memory.writeByte` y no regenera, los dos núcleos divergen en silencio y el generado sigue
+   pasando Fuse, que no conoce la máquina.
+2. **Ese código deja de poder escribirse de cualquier forma.** Tiene que seguir siendo
+   especializable: campos y aritmética, sin reflection, sin polimorfismo que el generador no pueda
+   resolver desde el grafo vivo. Hoy `Memory` califica; el punto es que a partir de acá es una
+   restricción, y las restricciones que no están escritas se rompen sin querer.
+3. **Hay dos envoltorios de memoria**, el de `initNoTest` y el de `initTest`, y el generado se
+   ataría a uno. Es una razón más para M2: que haya un solo camino de acceso.
+
+### La alternativa más barata, que hay que medir antes de decidir
+
+El documento arranca dando por hecho que hay que generar el código de la máquina. No es obvio, y
+el orden de los pasos permite decidirlo con números en la mano:
+
+**B0. La máquina expone su acceso, sin generar nada.** Hoy `memory.read` no se inlinea por dos
+razones sumadas: el sitio es una interfaz, y el cuerpo es grande y llama a tres objetos más, uno
+con boxing. **M1 y M2 sacan la segunda razón**: una lectura queda en unos cuarenta bytes de
+bytecode sin llamadas adentro, muy por debajo de los 325 de `FreqInlineSize`, y entonces C2 la
+inlinea en cada sitio caliente y ve los campos directamente. El "no hay llamada opaca" se consigue
+sin que el generador sepa nada de la máquina.
+
+Lo que quedaría afuera de B0, y es lo único que justifica G1–G3:
+
+- **La contención con `times` literal.** `contend(addr, 5, 1, READ_NO_MREQ)` con `times` en una
+  variable es un loop; con el literal en el sitio se desenrolla. Son cinco lecturas de tabla
+  contra un loop de cinco vueltas.
+- **El sitio de `contend` es polimórfico.** El campo es `PhaseProcessor` y hay tres
+  implementaciones cargadas entre la máquina y los tests; ahí C2 no inlinea nada. Se arregla
+  generando, o haciendo el campo del tipo concreto.
+- **El `Kind` que nadie usa** y el `if (fetching == 1)` de cada lectura.
+
+Mi estimación, con la tabla de LDIR de arriba: **B0 con M1–M3 se lleva más de la mitad** de lo que
+hay para ganar en la CPU, sin acoplar nada. G1–G3 se lleva el resto y cuesta el acoplamiento del
+punto anterior. Por eso el paso 4 va antes del 5 y **entre los dos hay una decisión, no un
+trámite**: se mide `RzxCoreMeasurement` después de M1–M3 y recién ahí se decide si vale generar
+código de la máquina.
+
 ## Mejoras de OOP en la máquina, antes de todo
 
 Como en la fase 1: valen solas, se hacen primero con el núcleo OOP, y las verifican los tests de
@@ -435,11 +562,15 @@ M1 y M2 son las que más pesan: son las doce llamadas y la doble escritura de la
   los mismos ganchos de hoy; para el de la máquina, los objetos vivos (`Memory` de `oozx`, `Ula`,
   `SpectrumZ80Clock`, `Display`) que se especializan como cualquier otro `Obj`. Lo que queda
   opaco de verdad (`io`, `display.dirtySinclair`, el `State`) sigue siendo llamada.
-- **G2. Objetos externos como campos `final` del constructor.** Un slot del especializador es
-  hoy literal, local o campo con inicial. Un objeto de la máquina no tiene inicial: es una
-  referencia que llega al construir. Nuevo tipo de slot: `final`, inyectado en el constructor,
-  con el nombre del campo de origen (`mapRead`, `contention`). Las lecturas de sus campos
-  (`page.contended`) se emiten como accesos; sus arrays, como accesos a array.
+- **G2. Objetos externos como campos `final` del constructor, y la frontera invertida.** Un slot
+  del especializador es hoy literal, local o campo con inicial. Un objeto de la máquina no tiene
+  inicial: es una referencia que llega al construir. Nuevo tipo de slot: `final`, inyectado en el
+  constructor, con el nombre del campo de origen (`mapRead`, `contention`). Y adentro de esos
+  objetos la regla se invierte respecto de la fase 1: los campos mutables se emiten como lecturas,
+  no como copias, y los arrays de instancia como accesos a array —hoy `fieldValue` los rechaza con
+  `UnsupportedOperationException("instance array")`, así que es código nuevo, no un ajuste. Es la
+  frontera de la sección de arriba, y es la parte del generador donde un error no lo ve ningún
+  test que exista hoy.
 - **G3. Helpers en vez de llamadas.** `CoreGenerator` emite, por cada terminal especializado y
   por cada combinación de argumentos literales que aparece (`read(x, 0)`, `read(x, 1)`,
   `contend(x, 2, 1)`, `contend(x, 5, 1)`), un método privado cuyo cuerpo es la especialización;
@@ -471,9 +602,13 @@ Cada paso termina verde en su gate y con su número anotado; el siguiente no emp
 4. **M1–M5** en la máquina, con el núcleo OOP. Gate: `machine/core` 260, memoria contendida,
    hashes de boot, los tests de cinta; `RzxCoreMeasurement` para ver cuánto movió M1 y M2
    solas (se espera bastante: es la mitad de la tabla de LDIR).
-5. **G1–G3**: los terminales especializados y `GeneratedSpectrumZ80`. Gate: `machine/core` con
-   `-Doozx.cpu=generated` con los mismos hashes; `PrintInlining` sin llamadas a `memory.*` en
-   los `decode_N` calientes; `RzxCoreMeasurement`.
+5. **Decisión**, con el número del paso 4 en la mano: si B0 ya inlineó los accesos
+   (`PrintInlining` sin `Memory::read` como llamada en los `decode_N` calientes), G1–G3 sólo
+   agrega la contención desenrollada, y quizás no vale el acoplamiento. Si se hace: los terminales
+   como parámetro, arrays de instancia en el especializador, la frontera declarada,
+   `GeneratedSpectrumZ80` y su candado en `machine/core`. Gate: los 260 con
+   `-Doozx.cpu=generated` y los mismos hashes, el test de cambio de máquina y paginado,
+   `PrintInlining`, `RzxCoreMeasurement`.
 6. **A7 y B5**: `run(until)` y el loop de la máquina por tramos. Gate: los mismos, más los
    tests de traps (cinta, TR-DOS, debugger).
 7. **A5** si `PrintInlining` o el fuente muestran que quedó algo.
@@ -493,8 +628,14 @@ Cada paso termina verde en su gate y con su número anotado; el siguiente no emp
 ## Riesgos y decisiones abiertas
 
 - **Dos artefactos generados.** El núcleo de la máquina acopla el generado a `oozx.Memory`,
-  `Ula` y el reloj. Es el precio de inlinear la máquina, y está contenido: el puro sigue siendo el
-  que Fuse verifica, y el de la máquina se verifica contra el puro con los mismos hashes.
+  `Ula` y el reloj, y convierte a `machine/core` en entrada del generador con su propio candado de
+  frescura. Es el precio de inlinear la máquina, y por eso B0 existe: puede que no haga falta
+  pagarlo. Si se paga, está contenido: el puro sigue siendo el que Fuse verifica, y el de la
+  máquina se verifica contra el puro con los mismos hashes.
+- **La frontera mal puesta es un bug silencioso.** Congelar `contended` o copiar `tStates` da un
+  núcleo que pasa Fuse —que no pagina— y falla en un juego de 128K media hora después. El test de
+  cambio de máquina y paginado del punto anterior es obligatorio antes del paso 5, y tiene que
+  correr con los dos núcleos.
 - **El presupuesto de bytecode.** Con helpers de 30–60 bytes y hasta cuatro accesos por `case`,
   un `decode_N` de 16 opcodes sigue bajo 8.000; si A1 se hiciera inlineando en el sitio, no. Se
   mide en el paso 5 y `GROUP_SHIFT` regula.
@@ -517,8 +658,8 @@ medido (1,3 ms a 760 fps).
 |---|---|---|---|
 | núcleo puro, `CoreBenchmark` sobre `int[]` | 184–197 M instr/s | A2–A6 | +10–25 %: menos bytecode, menos saltos, menos máscaras |
 | ROM ociosa, `LoopCoreMeasurement` | 10.250 fps | M1, M2, G1–G3, A7/B5 | la CPU deja de ser distinguible del núcleo puro |
-| JSW, parte CPU (LDIR ≈ 400 µs) | ~130 ns por iteración | M1, M2 | ~60–70 ns: sin `Consumer`, sin doble escritura |
-| ídem | | G1–G3 | 15–25 ns: sin llamadas |
+| JSW, parte CPU (LDIR ≈ 400 µs) | ~130 ns por iteración | M1–M3, o sea B0 | ~50–70 ns: sin `Consumer`, sin doble escritura, y el acceso ya entra en el presupuesto de inlining de C2 |
+| ídem | | G1–G3 | 15–25 ns: contención desenrollada y `contend` no polimórfico |
 | JSW, fps de reproducción | 760 | todo lo anterior | ~1.000–1.100: el resto es AY (200 µs), pantalla y RZX |
 
 La última fila es la que responde a "3000 % contra 12000 %": el núcleo de la máquina saca de JSW
