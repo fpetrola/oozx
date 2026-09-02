@@ -664,6 +664,44 @@ public class Disk {
     }
   }
 
+  // ---- Didaktik: D40 and D80, sectors with a small header of geometry
+
+  private void openD40D80(byte[] buffer) throws DiskException {
+    if (buffer.length < 180) {
+      throw new DiskException("a Didaktik image is at least 180 bytes long");
+    }
+    sides = (buffer[0xb1] & 0x10) != 0 ? 2 : 1;
+    cylinders = buffer[0xb2] & 0xff;
+    int sectors = buffer[0xb3] & 0xff;
+    if (cylinders > 83 || sectors > 127) {
+      throw new DiskException("invalid disk geometry");
+    }
+    density = Density.DD;
+    alloc();
+    int[] from = {0};
+    for (int c = 0; c < cylinders; c++) {
+      for (int j = 0; j < sides; j++) {
+        if (trackgen(buffer, from, j, c, 1, sectors, 512, false, GAP_MGT_PLUSD, NO_INTERLEAVE, NO_AUTOFILL)) {
+          throw new DiskException("invalid disk geometry");
+        }
+      }
+    }
+  }
+
+  private void writeD40D80(java.io.OutputStream out) throws IOException {
+    int[] geom = new int[5];
+    if (checkDiskGeom(geom) != 0 || geom[0] != 1) {
+      throw new DiskException("this disk is not the shape a Didaktik image can hold");
+    }
+    int cyl = geom[4] == -1 ? cylinders : geom[4];
+    if ((type == Type.D40 && cyl > 43) || (type == Type.D80 && cyl > 83)) {
+      throw new DiskException("too many tracks for a " + type + " image");
+    }
+    for (int c = 0; c < cyl; c++) {
+      for (int j = 0; j < sides; j++) saveTrack(out, j, c, 1, geom[1], geom[2]);
+    }
+  }
+
   // ---- TR-DOS: TRD sector images and SCL file containers
 
   private static final byte[] BETA128_BOOT_LOADER = {
@@ -1015,7 +1053,8 @@ public class Disk {
       }
       case "trd" -> Type.TRD;
       case "scl" -> Type.SCL;
-      case "udi", "fdi", "td0", "sad", "d40", "d80" ->
+      case "d40", "d80" -> Type.D80;
+      case "udi", "fdi", "td0", "sad" ->
           throw new DiskException("." + ext + " images are not read yet");
       default -> throw new DiskException("not a disk image this knows: " + name);
     };
@@ -1036,6 +1075,7 @@ public class Disk {
       case MGT, IMG, OPD -> disk.openImgMgtOpd(buffer);
       case TRD -> disk.openTrd(buffer);
       case SCL -> disk.openScl(buffer);
+      case D80 -> disk.openD40D80(buffer);
       default -> throw new DiskException("cannot open " + name);
     }
     disk.dirty = false;
@@ -1054,6 +1094,7 @@ public class Disk {
         case IMG, MGT, OPD -> writeImgMgtOpd(out);
         case TRD -> writeTrd(out);
         case SCL -> writeScl(out);
+        case D40, D80 -> writeD40D80(out);
         default -> throw new DiskException("cannot write a " + type + " image yet");
       }
     } finally {

@@ -532,6 +532,13 @@ public class Z80 implements ZxModule, Cpu {
   }
 
   @Override
+  public void rst(int vector) {
+    var state = ooz80.getState();
+    com.fpetrola.z80.instructions.impl.Push.doPush((state.getPc().read() + 1) & 0xffff, state.getRegisterSP(), state.getMemory());
+    state.getPc().write(vector);
+  }
+
+  @Override
   public void nmi() {
     eventManager.eventAdd(zxClock.getTStates(), z80_nmi_event);
   }

@@ -107,8 +107,8 @@ gate verde, commit — antes de empezar el siguiente.
 | 6 | **Beta 128** — HECHO | TRD/SCL es el formato con más software; `trdos.rom` está en `~/detodo/spectrum/Roms`; de paso el Pentagon arranca en TR-DOS | `RUN "boot"` en un Pentagon y en un 128 con la interfaz |
 | 7 | **Covox** y **SpecDrum** — HECHO | dos DACs de 134 y 117 líneas sobre el mismo `Dac` | un vúmetro que se mueve con la música |
 | 8 | **Fuller Box** — HECHO | AY en otros puertos + joystick; reusa `AyPeripheral` y `Joystick.fullerRead`, que ya existe | música AY en un 48K, y el joystick del Fuller |
-| 9 | **Opus Discovery** | misma pila; `success.opd` de Fuse como medio de prueba | catálogo de un disco Opus |
-| 10 | **Didaktik 40/80** | misma pila, con un 8255 | idem |
+| 9 | **Opus Discovery** — HECHO | misma pila; `success.opd` de Fuse como medio de prueba | catálogo de un disco Opus |
+| 10 | **Didaktik 40/80** — HECHO | misma pila, con un 8255 | idem |
 | 11 | **Interface 1** | 1.410 líneas: microdrives, RS232, ZX Net; `if1.rom` está en `~/detodo/spectrum/Roms`, `success.mdr` en Fuse | `CAT 1` de un cartucho; la terminal RS232 muestra lo que el programa escribe |
 | 12 | **DivIDE** | primera IDE; `FATware-0-12.rom` y `demfir.rom` están en `~/detodo/spectrum/Roms` | arranca el firmware desde un HDF |
 | 13 | **Simple 8-bit IDE**, **ZXATASP**, **ZXCF** | sobre la misma `IdeChannel` | idem, con sus paginados |
@@ -275,13 +275,15 @@ y es lo que cada migración tiene que cumplir. Las direcciones y máscaras está
 - **Ventana**: la caja con el conector de joystick (dónde va el joystick del teclado, como en la
   Interface 2) y tres barras de nivel, una por canal.
 
-### 9. Opus Discovery (`opus.c`, 675 líneas) — `machine/devices/opus`
+### 9. Opus Discovery (`opus.c`, 675 líneas) — `machine/devices/opus` — HECHO
 
 - **ROM** 8K en 0x0000-0x1fff; **RAM** 2K en 0x2000-0x27ff. **No tiene puertos de E/S**: el FDC y
   la PIA 6821 están mapeados en memoria — 0x2800-0x2fff el WD1770 (`addr & 3`: estado, pista,
   sector, datos), 0x3000-0x37ff la 6821 (`addr & 3`). Eso pide al núcleo una cosa que hoy no
   tiene: **un dispositivo mapeado en memoria** que `Memory` consulte en un rango cuando está
-  activo (en Fuse es un `if (opus_active)` dentro de `readbyte`/`writebyte`).
+  activo (en Fuse es un `if (opus_active)` dentro de `readbyte`/`writebyte`). Acá es una
+  `DevicePage`: una página de memoria cuyo `get`/`set` es el dispositivo, mapeada como cualquier
+  otra, sin tocar el camino caliente de `Memory`.
 - Trampas **después del fetch**: activo y `PC == 0x1748` → despagina; inactivo y `PC ∈ {0x0008,
   0x0048, 0x1708}` → pagina.
 - **6821**: registro 0 (con `CRA & 4`) bit 1 unidad, bit 4 lado, bit 6 "impresora nunca ocupada";
@@ -290,13 +292,13 @@ y es lo que cada migración tiene que cumplir. Las direcciones y máscaras está
 - **Medios**: OPD/OPU (`success.opd` de Fuse como prueba). Snapshot: registros de la PIA además.
 - **Ventana**: la bahía de dos unidades, más el conector de impresora.
 
-### 10. Didaktik 40/80 (`didaktik.c`, 644 líneas) — `machine/devices/didaktik`
+### 10. Didaktik 40/80 (`didaktik.c`, 644 líneas) — `machine/devices/didaktik` — HECHO
 
 - **ROM** 14K en tres trozos (8K en 0x0000, 4K en 0x2000, 2K en 0x3000); **RAM** 2K en 0x3800.
   Trampas antes del fetch: `PC ∈ {0x0000, 0x0008}` pagina, `PC == 0x1700` despagina. Botón SNAP:
   con el PC en 0x0066 y la interfaz despaginada, el opcode recién leído se reemplaza por `RST 0`
-  — es el único caso en que una trampa cambia el opcode, y pide que el aspecto pueda decir "ejecutá
-  esto en vez de lo que hay".
+  — es el único caso en que una trampa cambia el opcode. Acá: `Cpu.rst(0)` desde la trampa de
+  0x0066 (empuja 0x0067 y salta a 0), que es lo que ese `RST 0` haría, y pagina la ROM.
 - **Puertos**: 0x81 estado/comando, 0x83 pista, 0x85 sector, 0x87 datos (máscara 0xff); AUX
   (máscara 0xf9, valor 0x89, escritura): bit 0 unidad 0, bit 1 unidad 1, bit 2 motor 0, bit 3
   motor 1, bit 6 DATARQ habilita NMI, bit 7 INTRQ habilita NMI; 8255 (máscara 0x80, valor 0x00):
@@ -307,6 +309,11 @@ y es lo que cada migración tiene que cumplir. Las direcciones y máscaras está
 - **Medios**: D40/D80. **Ventana**: la bahía, con el botón SNAP.
 
 ### La pila de disquete que estos cinco comparten (en `core`, junto al uPD765)
+
+Lo que los cuatro con WD comparten más allá del chip — la ROM paginada por trampas, la RAM, las
+unidades, el reset, la bahía — es `WdDiskInterface` en `core`; `MgtDiskInterface` (en `plusd`)
+le agrega lo del +D y el DISCiPLE (puerto parche, control, impresora), y Opus y Didaktik van
+directo sobre la base.
 
 | pieza | Fuse | qué hay hoy | qué hay que hacer |
 |---|---|---|---|

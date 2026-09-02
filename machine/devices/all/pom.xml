@@ -77,5 +77,15 @@
             <artifactId>device-fuller</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-opus</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-didaktik</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

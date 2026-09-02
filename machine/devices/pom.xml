@@ -41,6 +41,8 @@
         <module>covox</module>
         <module>specdrum</module>
         <module>fuller</module>
+        <module>opus</module>
+        <module>didaktik</module>
         <module>all</module>
     </modules>
 

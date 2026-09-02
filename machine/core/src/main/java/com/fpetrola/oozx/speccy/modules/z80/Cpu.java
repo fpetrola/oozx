@@ -47,6 +47,9 @@ public interface Cpu {
   /** Where the processor goes on next: a device that boots the machine into its own ROM sets it. */
   void jump(int address);
 
+  /** As if the instruction about to run were RST to that vector: the address after it is pushed. */
+  void rst(int vector);
+
   /** What is watching the address bus before each fetch. */
   PcTraps beforeFetch();
 

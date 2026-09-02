@@ -170,13 +170,13 @@ public class Settings {
     public String rom16;
     public String rom48 = "48.rom";
     public String romBeta128 = "trdos.rom";
-    public String romDidaktik80;
+    public String romDidaktik80 = "didaktik80.rom";
     public String romDisciple = "disciple.rom";
     public String romInterface1;
     public String romMultiface1 = "mf1.rom";
     public String romMultiface128 = "mf128.rom";
     public String romMultiface3 = "mf3.rom";
-    public String romOpus;
+    public String romOpus = "opus.rom";
     public String romPentagon10240;
     public String romPentagon10241;
     public String romPentagon10242;
