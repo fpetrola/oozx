@@ -19,27 +19,47 @@
 package com.fpetrola.z80.registers;
 
 public class UnrolledRegisterBank extends RegisterBank {
-  private int A;
-  private int F;
-  private int B;
-  private int C;
-  private int D;
-  private int E;
-  private int H;
-  private int L;
-  private int I;
-  private int R;
-  private int _AF;
-  private int _BC;
-  private int _DE;
-  private int _HL;
-  private int IX;
-  private int IY;
-  private int PC;
-  private int SP;
-  private int MEMPTR;
-  private int VIRTUAL;
-  private int regRBit7;
+  public UnrolledRegisterBank() {
+
+    registerAf = new AFRegister(new ARegister(), new FRegister());
+    registerBc = new BCRegister(new BRegister(), new CRegister());
+    registerDe = new DERegister(new DRegister(), new ERegister());
+    registerHl = new HLRegister(new HRegister(), new LRegister());
+    register_af = new AFxRegister(new AxRegister(), new FxRegister());
+    register_bc = new BCxRegister(new BxRegister(), new CxRegister());
+    register_de = new DExRegister(new DxRegister(), new ExRegister());
+    register_hl = new HLxRegister(new HxRegister(), new LxRegister());
+    registerIx = new IXRegister(new IXHRegister(), new IXLRegister());
+    registerIy = new IYRegister(new IYHRegister(), new IYLRegister());
+    registerIr = new IRRegister(new IRegister(), new RRegister());
+    registerPc = new PCRegister();
+    registerSp = new SPRegister();
+    registerMemptr = new MEMPTRRegister();
+    registerVirtual = new VirtualRegister();
+
+  }
+
+  protected int A;
+  protected int F;
+  protected int B;
+  protected int C;
+  protected int D;
+  protected int E;
+  protected int H;
+  protected int L;
+  protected int I;
+  protected int R;
+  protected int _AF;
+  protected int _BC;
+  protected int _DE;
+  protected int _HL;
+  protected int IX;
+  protected int IY;
+  protected int PC;
+  protected int SP;
+  protected int MEMPTR;
+  protected int VIRTUAL;
+  protected int regRBit7;
 
   public final class ARegister implements Register {
     public ARegister() {

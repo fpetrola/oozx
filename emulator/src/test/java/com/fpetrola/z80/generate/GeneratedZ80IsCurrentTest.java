@@ -16,10 +16,19 @@
  *
  */
 
-package com.fpetrola.z80.registers;
+package com.fpetrola.z80.generate;
 
-public class UnrolledRegisterBankFactory {
-  public RegisterBank createBank() {
-    return new UnrolledRegisterBank();
+import org.junit.jupiter.api.Test;
+
+import java.nio.file.Files;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+/** The committed core is what the model produces today; if not, the model changed and nobody regenerated. */
+public class GeneratedZ80IsCurrentTest {
+  @Test
+  public void committedCoreIsWhatTheModelGenerates() throws Exception {
+    String committed = Files.readString(GenerateZ80.TARGET);
+    assertEquals(GenerateZ80.generate(), committed, "GeneratedZ80.java is stale: run mvn test -pl emulator -Dtest=GenerateZ80");
   }
 }

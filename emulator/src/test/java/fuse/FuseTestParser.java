@@ -18,6 +18,9 @@
 
 package fuse;
 
+import com.fpetrola.z80.cpu.GeneratedZ80;
+import com.fpetrola.z80.cpu.GeneratedZ80Cpu;
+
 import com.fpetrola.oozx.fuse.modules.z80.TestFusePhaseProcessor;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
@@ -51,7 +54,14 @@ public class FuseTestParser {
   private State state;
   private RecordedEvents events;
 
+  private final boolean generated;
+
   public FuseTestParser(Path testDataDir) {
+    this(testDataDir, false);
+  }
+
+  public FuseTestParser(Path testDataDir, boolean generated) {
+    this.generated = generated;
     URL resource = FuseTestParser.class.getResource("/" + testDataDir.toString());
     File file = new File(resource.getFile());
     this.inFile = new File(file, "tests.in");
@@ -99,6 +109,31 @@ public class FuseTestParser {
   }
 
   private Z80Cpu getZ80Cpu() {
+    return generated ? getGeneratedZ80Cpu() : getOOZ80();
+  }
+
+  /** The generated core under the same harness: memory and ports record their events, and the woven contention reports through the same processor. */
+  private Z80Cpu getGeneratedZ80Cpu() {
+    MockedMemory memory = new MockedMemory(true);
+    events = new RecordedEvents();
+    AddStatesIO io = new AddStatesIO(events);
+    TestFusePhaseProcessor[] processor = new TestFusePhaseProcessor[1];
+    GeneratedZ80 core = new GeneratedZ80(memory, io) {
+      public void contend(int address, int times, int tstates, fuse.tstates.Contention.Kind kind) {
+        processor[0].contend(address, times, tstates, kind);
+      }
+    };
+    state = new State(io, core, memory);
+    events.clock = state.clock;
+    io.setState(state);
+    processor[0] = new TestFusePhaseProcessor(state, events);
+    memory.addMemoryReadListener(new AddStatesMemoryReadListener(processor[0]));
+    memory.addMemoryWriteListener(new AddStatesMemoryWriteListener(processor[0]));
+    cpu = new GeneratedZ80Cpu(state, core);
+    return cpu;
+  }
+
+  private Z80Cpu getOOZ80() {
     MockedMemory memory = new MockedMemory(true);
     events = new RecordedEvents();
     AddStatesIO io = new AddStatesIO(events);

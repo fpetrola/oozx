@@ -77,7 +77,7 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
   }
 
   public void beforeExecution(Instruction instruction) {
-    current = plans.computeIfAbsent(instruction, this::plan);
+    current = plans.computeIfAbsent(instruction, this::contentionOf);
     reads = 0;
     writes = 0;
     apply(BEFORE_EXECUTION, 0);
@@ -103,7 +103,8 @@ public abstract class PhaseProcessorBase implements InstructionVisitor<java.lang
     lastAccess = address;
   }
 
-  private Contention[] plan(Instruction instruction) {
+  /** What this instruction will cost, as values: what the executor applies, and what a generator can print. */
+  public Contention[] contentionOf(Instruction instruction) {
     planning.clear();
     instruction.accept(this);
     return planning.toArray(new Contention[0]);

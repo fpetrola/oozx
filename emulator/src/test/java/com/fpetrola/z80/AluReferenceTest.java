@@ -22,6 +22,7 @@ import com.fpetrola.z80.cpu.DefaultInstructionExecutor;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.cpu.Z80Cpu;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
@@ -68,19 +69,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * passes while the instruction is broken. What a game sees is A and F after the opcode.
  */
 @DisplayName("Every ALU instruction against the documented Z80")
-class AluReferenceTest {
+public class AluReferenceTest {
 
   private static final int S = 0x80, Z = 0x40, F5 = 0x20, H = 0x10, F3 = 0x08, PV = 0x04,
       N = 0x02, C = 0x01;
 
-  private OOZ80 cpu;
+  private Z80Cpu cpu;
+
+  /** The processor under test; a subclass answers with another core. */
+  protected Z80Cpu processor(IO io, Memory memory) {
+    State state = new State(io, memory);
+    DefaultInstructionFactory factory = new DefaultInstructionFactory(state);
+    return new OOZ80(state, new DefaultInstructionFetcher(state, factory, false, false), new DefaultInstructionExecutor(state, false));
+  }
   private Memory memory;
   private Register pc, af, bc, de, hl;
 
   @BeforeEach
   void buildProcessor() {
     memory = new MockedMemory(true);
-    State state = new State(new IO() {
+    cpu = processor(new IO() {
       public int in(int port) {
         return 0xFF;
       }
@@ -88,9 +96,7 @@ class AluReferenceTest {
       public void out(int port, int value) {
       }
     }, memory);
-    DefaultInstructionFactory factory = new DefaultInstructionFactory(state);
-    cpu = new OOZ80(state, new DefaultInstructionFetcher(state, factory, false, false),
-        new DefaultInstructionExecutor(state, false));
+    State state = cpu.getState();
     pc = state.getPc();
     af = state.getRegister(RegisterName.AF);
     bc = state.getRegister(RegisterName.BC);
