@@ -21,7 +21,7 @@ package model.tests.devices;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.devices.ay.AyPeripheral;
 import com.fpetrola.oozx.speccy.peripherals.Peripheral;
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Emulation;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 import org.junit.jupiter.api.Test;
 import java.util.List;
@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class AySoundPortsTest {
 
   private static Speccy machine(String wanted) {
-    OOSpectrumConnector.noTest = true;
+    Emulation.noTest = true;
     Speccy speccy = Speccy.create();
     speccy.sound.setJavaSoundDevice(new JavaSoundDevice() {
       public void sound_lowlevel_frame(int[] data, int length) {

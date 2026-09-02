@@ -19,7 +19,7 @@
 package model.tests.devices;
 
 import com.fpetrola.oozx.Speccy;
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Emulation;
 import com.fpetrola.oozx.speccy.devices.mouse.KempstonMouse;
 import com.fpetrola.oozx.speccy.devices.mouse.KempstonMousePeripheral;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
@@ -45,7 +45,7 @@ class KempstonMousePortsTest {
   private static final int Y = 0xFFDF;
 
   private Speccy plugged(boolean connected) {
-    OOSpectrumConnector.noTest = true;
+    Emulation.noTest = true;
     Speccy speccy = Speccy.create(new SpectrumZ80Clock(),
         binder -> binder.bind(JavaSoundDevice.class).to(SilentSoundDevice.class));
     speccy.init();

@@ -18,12 +18,6 @@
     </properties>
 
     <dependencies>
-        <!-- Windows and the picture: below this, so that a peripheral can bring its own. -->
-        <dependency>
-            <groupId>com.fpetrola</groupId>
-            <artifactId>ui</artifactId>
-            <version>0.0.2-alu-SNAPSHOT</version>
-        </dependency>
 
         <!--
           xBRZ, the pixel-art scaler, as a Java port by Stanio of Zenju's original.
@@ -194,6 +188,21 @@
 
     <build>
         <plugins>
+            <!--
+              The test harness and the test files - ROMs, tapes, recordings - are shared with the
+              application's tests, which is where the tests that need a whole program moved to.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

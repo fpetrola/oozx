@@ -19,7 +19,7 @@
 package model.tests.machine;
 
 import com.fpetrola.oozx.Speccy;
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Emulation;
 import com.fpetrola.oozx.speccy.OOSpectrumLauncher;
 import org.junit.jupiter.api.Test;
 
@@ -62,7 +62,7 @@ class TapeMachineChoiceTest {
   }
 
   private static String machineFor(String name, String chosen) throws IOException {
-    OOSpectrumConnector.noTest = true;
+    Emulation.noTest = true;
     Speccy speccy = new OOSpectrumLauncher()
         .createSpeccy(tapeCalled(name).getAbsolutePath(), chosen);
     return speccy.machine.current.getName();

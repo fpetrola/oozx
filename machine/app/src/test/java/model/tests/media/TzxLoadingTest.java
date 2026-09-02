@@ -24,7 +24,7 @@ import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.api.GameEntry;
 import com.fpetrola.oozx.api.Hit;
 import com.fpetrola.oozx.api.ZxInfoApiHandler;
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Emulation;
 import com.fpetrola.oozx.speccy.bridge.SpeccyBaseForTests;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.peripherals.t.DownloadAndUnzip;
@@ -235,7 +235,7 @@ public class TzxLoadingTest extends SpeccyBaseForTests {
   }
 
   private Report runTape(String query, String title, File tapeFile) {
-    OOSpectrumConnector.noTest = true;
+    Emulation.noTest = true;
     // Plain Speccy, exactly like OOSpectrumLauncher.createSpeccy. SpeccyBaseForTests.createSpeccy
     // installs an instrumented clock that records every tState update.
     Speccy speccy = Speccy.create();

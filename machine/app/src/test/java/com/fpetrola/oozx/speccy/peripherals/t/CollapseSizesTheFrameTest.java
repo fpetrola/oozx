@@ -25,21 +25,38 @@ class CollapseSizesTheFrameTest {
     return desktop;
   }
 
+  /**
+   * Lets the resize be delivered. A component's size change POSTS an event rather than calling the
+   * listener there and then, and the frame remembers the size it was given from that listener - so
+   * a test that never lets the queue run reads back the size the window had before.
+   */
+  private static void settle() {
+    try {
+      javax.swing.SwingUtilities.invokeAndWait(() -> { });
+    } catch (Exception interrupted) {
+      throw new IllegalStateException(interrupted);
+    }
+  }
+
   private void collapses(AttachedFrame window) {
     JDesktopPane desktop = desktop();
     desktop.add(window);
     window.setVisible(true);
     window.setSize(320, 460);
+    settle();
 
     window.setCompact(false);
+    settle();
     int expanded = window.getHeight();
     assertTrue(expanded > 200, window.getTitle() + " did not open to a usable size: " + expanded);
 
     window.setCompact(true);
+    settle();
     assertTrue(window.getHeight() < 140,
         window.getTitle() + " folded its contents away and stayed " + window.getHeight() + " tall");
 
     window.setCompact(false);
+    settle();
     assertEquals(expanded, window.getHeight(),
         window.getTitle() + " did not open back to the size it was given");
   }
@@ -62,6 +79,7 @@ class CollapseSizesTheFrameTest {
     desktop.add(printer);
     printer.setVisible(true);
     printer.setSize(320, 460);
+    settle();
     printer.attachTo(machine);
     // A side is chosen by dragging the window there, which needs events and a settling delay; the
     // state that produces is this, and it is the state being tested.

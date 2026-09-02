@@ -18,7 +18,7 @@
 
 package com.fpetrola.oozx.speccy.bridge;
 
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Emulation;
 import com.fpetrola.oozx.speccy.KVPair;
 import com.fpetrola.oozx.speccy.LibretroCore;
 import com.fpetrola.oozx.speccy.TStateUpdate;
@@ -33,7 +33,7 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
   public static List<TStateUpdate> tstatesUpdates = new ArrayList<>();
 
   private static List<TStateUpdate> getTstatesUpdates() {
-    if (OOSpectrumConnector.noTest)
+    if (Emulation.noTest)
       tstatesUpdates.clear();
     return tstatesUpdates;
   }
@@ -43,7 +43,7 @@ public class GetTStatesHistory implements EmulatorCommand<List<TStateUpdate>> {
   }
 
   public static void addTStateUpdate(int tstatesToAdd, Supplier<String> description, long tstates, Register pcRegister) {
-    if (!OOSpectrumConnector.noTest) {
+    if (!Emulation.noTest) {
       int pc = pcRegister.read();
 //      int pc = 0;
 //    if (tstates == 20 && pc == 50758) {

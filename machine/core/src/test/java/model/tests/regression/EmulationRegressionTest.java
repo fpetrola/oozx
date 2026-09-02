@@ -18,14 +18,13 @@
 
 package model.tests.regression;
 
-import model.tests.media.TzxLoadingTest;
 
 import com.fpetrola.oozx.EmulatorModule;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.Memory;
 import com.fpetrola.oozx.PeripheralBusDelegate;
 import com.fpetrola.oozx.SpectrumZ80Clock;
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Emulation;
 import com.fpetrola.oozx.speccy.modules.Sound;
 import com.fpetrola.oozx.speccy.modules.Ula;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
@@ -61,7 +60,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
  * {@code src/main/resources/roms} and the boot exercises the Z80, memory paging, the event
  * queue, the ULA and the display. It runs in a couple of seconds.
  * <p>
- * It is the complement of {@link TzxLoadingTest}, not a replacement: that one answers "can we
+ * It is the complement of TzxLoadingTest, which now lives with the application, not a replacement: that one answers "can we
  * still load real tapes", which needs the network and takes about eighty seconds. This one
  * answers "did anything at all shift", and is meant to be run after every commit of a refactor.
  * <p>
@@ -216,7 +215,7 @@ public class EmulationRegressionTest {
    */
   @Test
   public void aMissingRomFallsBackToTheOneTheMachineShippedWith() throws Exception {
-    OOSpectrumConnector.noTest = true;
+    Emulation.noTest = true;
     Speccy speccy = Speccy.create(new SpectrumZ80Clock(),
         binder -> binder.bind(JavaSoundDevice.class).to(SilentSoundDevice.class));
 
@@ -236,7 +235,7 @@ public class EmulationRegressionTest {
    * silenced so the run is headless and does not wait on anything.
    */
   private Speccy bootedSpectrum() {
-    OOSpectrumConnector.noTest = true;
+    Emulation.noTest = true;
     // Overriding the frame callback was not enough: the device still opened a real audio line on
     // init, and a crash inside the platform's audio server takes the JVM down with it.
     Speccy speccy = Speccy.create(new SpectrumZ80Clock(),

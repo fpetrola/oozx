@@ -20,7 +20,7 @@ package model.tests.devices;
 
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.SpectrumZ80Clock;
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Emulation;
 import com.fpetrola.oozx.speccy.devices.printer.Printout;
 import com.fpetrola.oozx.speccy.devices.printer.ZxPrinterPeripheral;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
@@ -44,7 +44,7 @@ class RomPrintsToThePrinterTest {
   private static final int SCREEN = 0x4000;
 
   private Speccy speccy() {
-    OOSpectrumConnector.noTest = true;
+    Emulation.noTest = true;
     Speccy speccy = Speccy.create(new SpectrumZ80Clock(),
         binder -> binder.bind(JavaSoundDevice.class).to(SilentSoundDevice.class));
     speccy.init();

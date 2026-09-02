@@ -1,0 +1,72 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.fpetrola</groupId>
+        <artifactId>machine</artifactId>
+        <version>0.0.2-alu-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>app</artifactId>
+    <packaging>jar</packaging>
+
+    <name>app</name>
+
+    <!--
+      The program: the desktop, its windows and menus, the launcher, and main(). Everything that
+      knows there is a person here.
+
+      It sits on top of everything and nothing sits on it, which is the whole point: the emulator
+      does not know this exists, and neither does a peripheral.
+    -->
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>core</artifactId>
+            <version>0.0.2-alu-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>ui</artifactId>
+            <version>0.0.2-alu-SNAPSHOT</version>
+        </dependency>
+        <!-- The emulator's test harness and its ROMs, tapes and recordings. -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>core</artifactId>
+            <version>0.0.2-alu-SNAPSHOT</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- The scaler: see the note in core's pom, which explains why it is a dependency and not a copy. -->
+        <dependency>
+            <groupId>io.github.stanio</groupId>
+            <artifactId>xbrz-core</artifactId>
+            <version>1.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>5.14.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-transcoder</artifactId>
+            <version>1.17</version>
+        </dependency>
+    </dependencies>
+</project>

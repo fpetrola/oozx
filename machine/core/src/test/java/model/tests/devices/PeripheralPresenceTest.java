@@ -21,7 +21,7 @@ package model.tests.devices;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.Spectrum;
 import com.fpetrola.oozx.SpectrumZ80Clock;
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Emulation;
 import com.fpetrola.oozx.speccy.devices.ay.AyPeripheral;
 import com.fpetrola.oozx.speccy.devices.ay.AyPlus3Peripheral;
 import com.fpetrola.oozx.speccy.devices.ay.MelodikPeripheral;
@@ -66,7 +66,7 @@ class PeripheralPresenceTest {
       Upd765Peripheral.class);
 
   private Speccy speccy(boolean wantOptionals) {
-    OOSpectrumConnector.noTest = true;
+    Emulation.noTest = true;
     Speccy speccy = Speccy.create(new SpectrumZ80Clock(),
         binder -> binder.bind(JavaSoundDevice.class).to(SilentSoundDevice.class));
     speccy.init();

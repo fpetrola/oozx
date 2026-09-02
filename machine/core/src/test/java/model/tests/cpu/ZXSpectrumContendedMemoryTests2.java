@@ -18,7 +18,7 @@
 
 package model.tests.cpu;
 
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Emulation;
 
 import model.harness.TestDriver;
 
@@ -46,7 +46,7 @@ public class ZXSpectrumContendedMemoryTests2 {
 
   @BeforeAll
   public static void beforeall() {
-    OOSpectrumConnector.noTest = false;
+    Emulation.noTest = false;
     Speccy speccy = Speccy.create();
     localLibretroCore = new LocalLibretroCore(speccy.eventManager, speccy.display, speccy.machine, speccy.z80, speccy.zxClock, speccy.peripherals, speccy);
     remoteCore = OOSpectrumConnector.core;

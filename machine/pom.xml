@@ -15,6 +15,7 @@
         <module>spectrum</module>
         <module>ui</module>
         <module>core</module>
+        <module>app</module>
     </modules>
 
 </project>

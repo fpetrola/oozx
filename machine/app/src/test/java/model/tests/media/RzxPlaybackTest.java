@@ -21,7 +21,7 @@ package model.tests.media;
 import model.tags.Slow;
 
 import com.fpetrola.oozx.Speccy;
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Emulation;
 import com.fpetrola.oozx.speccy.rzx.RzxSession;
 import com.fpetrola.z80.minizx.RzxPlayback;
 import org.junit.jupiter.api.Tag;
@@ -48,7 +48,7 @@ class RzxPlaybackTest {
 
   private static File recording() {
     try {
-      return Path.of(RzxPlaybackTest.class.getResource("/rzx/jsw-full.rzx").toURI()).toFile();
+      return model.harness.TestFiles.testFile("/rzx/jsw-full.rzx");
     } catch (Exception e) {
       throw new IllegalStateException("the jsw-full.rzx test resource is missing", e);
     }
@@ -56,7 +56,7 @@ class RzxPlaybackTest {
 
   @Test
   void the_recording_drives_the_machine_frame_for_frame() {
-    OOSpectrumConnector.noTest = true;
+    Emulation.noTest = true;
     RzxSession session = RzxSession.open(recording());
     RzxPlayback playback = session.getPlayback();
 
@@ -90,7 +90,7 @@ class RzxPlaybackTest {
    */
   @Test
   void two_recordings_run_at_once_without_touching_each_other() {
-    OOSpectrumConnector.noTest = true;
+    Emulation.noTest = true;
     RzxSession one = RzxSession.open(recording());
     RzxSession other = RzxSession.open(recording());
 

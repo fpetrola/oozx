@@ -27,7 +27,6 @@ import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,14 +37,13 @@ import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
 public class OOSpectrumConnector {
   public static LibretroCore core = LibretroCore.INSTANCE;
-  public static boolean noTest;
   public static List<double[]> localData = new ArrayList<>();
   public static List<double[]> remoteData = new ArrayList<>();
   String device = "buffer=8192,frames=4,verbose";
   private int counter;
 
   public static void main(String[] args) {
-    noTest = true;
+    Emulation.noTest = true;
     new OOSpectrumConnector();
     DefaultCommandHandler.createCommandHandler(SpeccyBaseForTests.createSpeccy());
   }
@@ -69,9 +67,9 @@ public class OOSpectrumConnector {
 //    core.retro_set_register_data("name", 1);
 //    core.retro_tstates_history_init();
 
-//    SpectrumPanel panel = getSpectrumPanel(noTest);
+//    SpectrumPanel panel = getSpectrumPanel(Emulation.noTest);
 //    aCore.retro_set_video_refresh((data1, width, height, pitch) -> {
-////      if (noTest)
+////      if (Emulation.noTest)
 ////        panel.updateFrame(data1, width, height, pitch);
 //    });
 //    aCore.retro_set_environment((cmd, data) -> {
@@ -118,7 +116,7 @@ public class OOSpectrumConnector {
 //      };
 //    }
 
-    if (noTest)
+    if (Emulation.noTest)
       bridgeCommand = (cmd, data) -> null;
 
     aCore.retro_set_bridge_command(bridgeCommand);
@@ -196,20 +194,6 @@ public class OOSpectrumConnector {
     }
   }
 
-  private static SpectrumPanel getSpectrumPanel(boolean noTest) {
-    SpectrumPanel panel = new SpectrumPanel(320, 240);
-
-    if (noTest)
-      SwingUtilities.invokeLater(() -> {
-        JFrame frame = new JFrame("ZX Spectrum via Libretro");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(panel);
-        frame.pack();
-        frame.setVisible(true);
-      });
-
-    return panel;
-  }
 
   private static void extracted(LibretroCore core) {
     // Obtener puntero a la RAM

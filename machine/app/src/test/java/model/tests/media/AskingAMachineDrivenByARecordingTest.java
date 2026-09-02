@@ -18,7 +18,7 @@
 
 package model.tests.media;
 
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Emulation;
 import com.fpetrola.oozx.speccy.rzx.RzxSession;
 import org.junit.jupiter.api.Test;
 
@@ -42,8 +42,7 @@ class AskingAMachineDrivenByARecordingTest {
 
   private static File recording() {
     try {
-      return Path.of(AskingAMachineDrivenByARecordingTest.class
-          .getResource("/rzx/jsw-full.rzx").toURI()).toFile();
+      return model.harness.TestFiles.testFile("/rzx/jsw-full.rzx");
     } catch (Exception e) {
       throw new IllegalStateException("the jsw-full.rzx test resource is missing", e);
     }
@@ -51,7 +50,7 @@ class AskingAMachineDrivenByARecordingTest {
 
   @Test
   void what_was_asked_for_happens_while_the_recording_plays() {
-    OOSpectrumConnector.noTest = true;
+    Emulation.noTest = true;
     RzxSession session = RzxSession.open(recording());
 
     boolean[] done = {false};
@@ -64,7 +63,7 @@ class AskingAMachineDrivenByARecordingTest {
 
   @Test
   void changing_the_speed_while_a_recording_plays_changes_the_speed() {
-    OOSpectrumConnector.noTest = true;
+    Emulation.noTest = true;
     RzxSession session = RzxSession.open(recording());
     int before = session.getSpeccy().settings.current.emulationSpeed;
 

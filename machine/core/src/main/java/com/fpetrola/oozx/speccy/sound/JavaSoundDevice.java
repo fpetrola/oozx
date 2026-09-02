@@ -18,7 +18,6 @@
 
 package com.fpetrola.oozx.speccy.sound;
 
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
 
 import javax.sound.sampled.*;
 import java.nio.ByteBuffer;

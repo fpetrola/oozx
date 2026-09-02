@@ -18,7 +18,7 @@
 
 package model.tests.devices;
 
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Emulation;
 
 import model.harness.TestDriver;
 
@@ -47,7 +47,7 @@ public class ZXInterface1Tests {
 
     @BeforeAll
     public static void beforeall() {
-    OOSpectrumConnector.noTest = false;
+    Emulation.noTest = false;
         testDriver = new TestDriver(DefaultCommandHandler.createCommandHandler(SpeccyBaseForTests.createSpeccy()));
         bus = new ConnectedSpectrumBus(new ConnectedMemory(testDriver), new ConnectedULA(testDriver), testDriver);
         interface1 = new ConnectedInterface1(testDriver);

@@ -18,7 +18,7 @@
 
 package model.tests.devices;
 
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Emulation;
 
 import model.harness.TestDriver;
 
@@ -37,7 +37,7 @@ class ZXSpectrumLECExpansionTests {
 
     @BeforeAll
     public static void beforeall() {
-    OOSpectrumConnector.noTest = false;
+    Emulation.noTest = false;
         testDriver = new TestDriver(DefaultCommandHandler.createCommandHandler(SpeccyBaseForTests.createSpeccy()));
         memory = new ConnectedMemory(testDriver);
     }

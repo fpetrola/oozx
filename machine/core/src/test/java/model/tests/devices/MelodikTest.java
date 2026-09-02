@@ -20,7 +20,7 @@ package model.tests.devices;
 
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.SpectrumZ80Clock;
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Emulation;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 import com.fpetrola.oozx.speccy.sound.SilentSoundDevice;
 import org.junit.jupiter.api.Test;
@@ -51,7 +51,7 @@ class MelodikTest {
   }
 
   private Speccy aFortyEightWith(boolean melodik) {
-    OOSpectrumConnector.noTest = true;
+    Emulation.noTest = true;
     Speccy speccy = Speccy.create(new SpectrumZ80Clock(),
         binder -> binder.bind(JavaSoundDevice.class).toInstance(new Loudest()));
     speccy.init();

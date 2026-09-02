@@ -21,7 +21,7 @@ package model.tests.regression;
 import model.tags.Slow;
 
 import com.fpetrola.oozx.Speccy;
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Emulation;
 import com.fpetrola.oozx.speccy.bridge.SpeccyBaseForTests;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 import com.fpetrola.emulation.helpers.snapshots.SnapshotSaver;
@@ -48,13 +48,13 @@ public class TestGameExecution extends SpeccyBaseForTests {
 
   @AfterAll
   static void tearDown() {
-    OOSpectrumConnector.noTest = false;
+    Emulation.noTest = false;
   }
 
   @Tag("slow")
   @Test
   void test48KExecuteEmlyn() {
-    OOSpectrumConnector.noTest = true;
+    Emulation.noTest = true;
     createSpeccy();
     speccy.sound.setJavaSoundDevice(new JavaSoundDevice() {
       public void sound_lowlevel_frame(int[] data, int len) {

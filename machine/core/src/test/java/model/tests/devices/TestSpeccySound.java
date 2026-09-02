@@ -20,7 +20,7 @@ package model.tests.devices;
 
 import model.tags.NeedsNativeCore;
 
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Emulation;
 
 import model.harness.TestDriver;
 
@@ -56,7 +56,7 @@ public class TestSpeccySound extends SpeccyBaseForTests {
 
   @BeforeAll
   public static void beforeall() {
-    OOSpectrumConnector.noTest = false;
+    Emulation.noTest = false;
     Speccy speccy = createSpeccy();
     speccy.sound.setJavaSoundDevice(new JavaSoundDevice() {
       public void sound_lowlevel_frame(int[] data, int len) {

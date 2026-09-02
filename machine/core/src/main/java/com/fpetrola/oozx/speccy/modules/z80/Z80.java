@@ -59,6 +59,7 @@ import java.io.File;
 
 import static com.fpetrola.z80.registers.RegisterName.*;
 import com.fpetrola.emulation.helpers.machine.MachineTypes;
+import com.fpetrola.oozx.speccy.Emulation;
 
 @Singleton
 public class Z80 implements ZxModule, Cpu {
@@ -471,7 +472,7 @@ public class Z80 implements ZxModule, Cpu {
 
     module.register(this);
 
-    if (OOSpectrumConnector.noTest)
+    if (Emulation.noTest)
       initNoTest();
     else
       initTest();

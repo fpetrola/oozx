@@ -19,7 +19,7 @@
 package model.tests.devices;
 
 import com.fpetrola.oozx.Speccy;
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Emulation;
 import com.fpetrola.oozx.speccy.devices.ay.AyPeripheral;
 import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 import com.fpetrola.oozx.speccy.rzx.RzxSession;
@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AyFromSnapshotTest {
 
   private static File recording() throws Exception {
-    return Path.of(AyFromSnapshotTest.class.getResource("/rzx/jsw-full.rzx").toURI()).toFile();
+    return model.harness.TestFiles.testFile("/rzx/jsw-full.rzx");
   }
 
   private static long writesTo(Speccy speccy) {
@@ -60,7 +60,7 @@ class AyFromSnapshotTest {
 
   @Test
   void openingARecordingSetsUpItsSoundChip() throws Exception {
-    OOSpectrumConnector.noTest = true;
+    Emulation.noTest = true;
     RzxSession session = RzxSession.open(recording());
 
     assertTrue(session.getSpeccy().machine.current.has(AY),
