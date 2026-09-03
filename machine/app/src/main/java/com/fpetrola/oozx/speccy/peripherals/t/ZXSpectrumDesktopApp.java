@@ -184,8 +184,25 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     turboIndicator.setToolTipText(turbo ? "Turbo: running at full speed" : "Turbo off");
   }
 
-  /** The most the slider asks for; the turbo button is for no limit at all. */
+  /** The most the slider asks for, and what the rocket asks for when pressed. */
   static final int TOP_SPEED = 30000;
+  private final ImageIcon rocket = loadIcon("1F680.svg");
+  private JButton turboButton;
+  private JSlider speedSlider;
+  private boolean reflectingSpeed;
+
+  /** The slider and the rocket say what the speed is: the rocket greys as it nears the top. */
+  private void reflectSpeed(int speed) {
+    reflectingSpeed = true;
+    speedSlider.setValue(Math.max(25, Math.min(TOP_SPEED, speed)));
+    reflectingSpeed = false;
+    turboButton.setIcon(Widgets.greyed(rocket, (speed - 100) / (float) (TOP_SPEED - 100)));
+  }
+
+  private void speedChosen(int speed) {
+    emulatorCore.setGeneralOption("speed", speed);
+    reflectSpeed(speed);
+  }
 
   /**
    * A speed to run at, in percent, from a quarter of real time to the top. Applied when the
@@ -193,7 +210,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
    * one drag would crackle.
    */
   private JComponent speedSlider() {
-    JSlider slider = new JSlider(25, TOP_SPEED, (int) Math.max(25, Math.min(TOP_SPEED, emulatorCore.getEmulationSpeed())));
+    JSlider slider = speedSlider = new JSlider(25, TOP_SPEED, 100);
     java.util.Hashtable<Integer, JComponent> labels = new java.util.Hashtable<>();
     labels.put(25, new JLabel("25%"));
     for (int speed = 5000; speed <= TOP_SPEED; speed += 5000) {
@@ -206,8 +223,8 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     slider.setPaintTicks(true);
     slider.setPreferredSize(new Dimension(420, slider.getPreferredSize().height));
     slider.addChangeListener(e -> {
-      if (!slider.getValueIsAdjusting()) {
-        emulatorCore.setGeneralOption("speed", slider.getValue());
+      if (!slider.getValueIsAdjusting() && !reflectingSpeed) {
+        speedChosen(slider.getValue());
       }
     });
     return slider;
@@ -389,10 +406,11 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     toolBar.setFloatable(false);
 
     //    Icon turboIcon = UIManager.getIcon("FileChooser.upFolderIcon");
-    JButton turboButton = new JButton(loadIcon("1F680.svg"));
+    turboButton = new JButton(rocket);
     turboButton.setToolTipText("Full speed - right-click for a speed");
-    turboButton.addActionListener(e -> emulatorCore.setGeneralOption("turbo", !emulatorCore.isTurboMode()));
+    turboButton.addActionListener(e -> speedChosen(emulatorCore.getEmulationSpeed() >= TOP_SPEED ? 100 : TOP_SPEED));
     Widgets.popUpOnRightClick(turboButton, speedSlider());
+    reflectSpeed((int) emulatorCore.getEmulationSpeed());
     toolBar.add(turboButton);
 
     toolBar.addSeparator();

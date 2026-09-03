@@ -102,4 +102,17 @@ public class Widgets {
       }
     });
   }
+
+  /** The icon with that much of its colour gone: nought is the icon, one is it greyed out. */
+  public static ImageIcon greyed(ImageIcon icon, float amount) {
+    java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(icon.getIconWidth(), icon.getIconHeight(), java.awt.image.BufferedImage.TYPE_INT_ARGB);
+    java.awt.Graphics2D g = image.createGraphics();
+    g.drawImage(icon.getImage(), 0, 0, null);
+    if (amount > 0) {
+      g.setComposite(java.awt.AlphaComposite.SrcOver.derive(Math.min(1f, amount)));
+      g.drawImage(javax.swing.GrayFilter.createDisabledImage(icon.getImage()), 0, 0, null);
+    }
+    g.dispose();
+    return new ImageIcon(image);
+  }
 }

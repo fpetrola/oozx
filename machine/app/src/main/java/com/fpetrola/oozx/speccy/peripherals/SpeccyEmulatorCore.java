@@ -153,7 +153,7 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
 //          speccy.timer.estimateReset();
     } else if (option.equals("speed")) {
       int emulationSpeed = (int) value;
-      turbo = emulationSpeed == com.fpetrola.oozx.Settings.SettingsInfo.UNLIMITED_SPEED;
+      turbo = emulationSpeed != 100;
       changeSpeed1(emulationSpeed);
     } else if (option.equals("mute")) {
       speccy.sound.soundEnabled = !(boolean) value;
