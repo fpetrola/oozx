@@ -110,7 +110,7 @@ class LiveRecordingTest {
    */
   private static int[] correr(RZXPlayerIO io, int frames, int lecturasPorFrame,
                               int desde, int pasosMaximos) {
-    Predicate<Integer> corte = io.getInterruptionCondition();
+    java.util.function.IntPredicate corte = io.getInterruptionCondition();
     int[] bordes = new int[frames];
     int encontrados = 0, porLeer = lecturasPorFrame;
     for (int i = desde; i < desde + pasosMaximos && encontrados < frames; i++) {
@@ -150,7 +150,7 @@ class LiveRecordingTest {
   @Test
   void lo_grabado_es_lo_que_devolvio_el_puerto() {
     RZXPlayerIO io = enVivo(false);
-    Predicate<Integer> corte = io.getInterruptionCondition();
+    java.util.function.IntPredicate corte = io.getInterruptionCondition();
     int devuelto = -1;
     for (int i = 0; i < 500_000 && io.getRecordedFrames().isEmpty(); i++) {
       if (devuelto < 0)
@@ -304,7 +304,7 @@ class LiveRecordingTest {
     assertEquals(CORTE, io.getCurrentFrameIndex());
 
     // el frame del corte arranca y consume 3 de sus lecturas grabadas; RECIEN AHI se aprieta F1
-    Predicate<Integer> corte = io.getInterruptionCondition();
+    java.util.function.IntPredicate corte = io.getInterruptionCondition();
     for (int k = 0; k < 3; k++)
       io.in(0xfefe);
     io.goLive();
@@ -388,7 +388,7 @@ class LiveRecordingTest {
    */
   private static int reproducir(RZXPlayerIO io,
                                 List<InputRecordingBlock.Frame> grabados, int cuantos) {
-    Predicate<Integer> corte = io.getInterruptionCondition();
+    java.util.function.IntPredicate corte = io.getInterruptionCondition();
     int i = 0;
     for (int n = 0; n < cuantos; n++) {
       for (int k = 0; k < grabados.get(n).inCounter; k++)
@@ -569,7 +569,7 @@ class LiveRecordingTest {
     io.setRecordLive(true);
     io.setAcceptsInterrupt(() -> false);
 
-    Predicate<Integer> corte = io.getInterruptionCondition();
+    java.util.function.IntPredicate corte = io.getInterruptionCondition();
     int total = io.getRecordedFrames().size();
     for (int i = 0; i < 200_000_000 && !io.isLive(); i++) {
       io.in(0xfefe);

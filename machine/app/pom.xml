@@ -40,14 +40,7 @@
             <artifactId>devices-all</artifactId>
             <version>0.0.2-alu-SNAPSHOT</version>
         </dependency>
-        <!-- Declared beside the test-jar below: with only the test-jar named here, Maven keeps
-             that one and drops the emulator itself, which arrives through core. -->
-        <dependency>
-            <groupId>com.fpetrola</groupId>
-            <artifactId>emulator</artifactId>
-            <version>0.0.2-alu-SNAPSHOT</version>
-        </dependency>
-        <!-- The Slow tag: a test the gate does not run unless someone asks for it. -->
+        <!-- The Slow tag, which lives in the most upstream module so every module shares it. -->
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>emulator</artifactId>

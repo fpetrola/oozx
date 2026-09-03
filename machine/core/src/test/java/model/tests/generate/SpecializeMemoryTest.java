@@ -15,7 +15,8 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import java.util.List;
 
-/** What the specializer makes of the machine's memory, printed. The short loop for building it. */
+/** What the specializer makes of the machine's memory, printed. It asserts nothing: it is for reading. */
+@model.tags.Slow
 public class SpecializeMemoryTest {
   static final Path[] SOURCES = {Path.of("../../emulator/src/main/java"), Path.of("src/main/java")};
 

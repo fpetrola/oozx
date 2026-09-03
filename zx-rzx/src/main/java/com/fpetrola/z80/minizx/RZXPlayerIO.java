@@ -26,6 +26,7 @@ import com.fpetrola.z80.registers.Register;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 
@@ -570,7 +571,8 @@ public class RZXPlayerIO implements MiniZXIO {
     com.fpetrola.z80.ide.rzx.RzxWriter.writePrepended(source, recordedFrames, fromFrame, out);
   }
 
-  public Predicate<Integer> getInterruptionCondition() {
+  /** Asked once per instruction, so it takes the count itself and not a boxed one. */
+  public IntPredicate getInterruptionCondition() {
     return (i) -> {
       fetchCounter = i;
       if (live) {

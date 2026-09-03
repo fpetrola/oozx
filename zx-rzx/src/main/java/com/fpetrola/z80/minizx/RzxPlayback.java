@@ -54,7 +54,7 @@ public class RzxPlayback {
   private final State state;
   private final Register registerR;
   private final RZXPlayerIO player;
-  private final java.util.function.Predicate<Integer> endOfFrame;
+  private final java.util.function.IntPredicate endOfFrame;
   private final int frames;
   private final com.fpetrola.z80.cpu.Z80Clock clock;
   private final int frameTStates;
