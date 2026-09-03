@@ -17,43 +17,18 @@
  */
 package com.fpetrola.z80.generate;
 
-import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction;
-import com.fpetrola.z80.opcodes.decoder.table.MemoryForOpcodes;
-import com.fpetrola.z80.opcodes.decoder.table.TableBasedOpCodeDecoder;
-import com.fpetrola.z80.opcodes.references.OpcodeConditions;
-import com.fpetrola.z80.registers.RegisterName;
-import com.fpetrola.z80.registers.UnrolledRegisterBankFactory;
 import com.github.javaparser.ast.stmt.Statement;
 import model.tags.Slow;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Path;
 import java.util.List;
 
+/** Prints what the specializer makes of a handful of instructions. It asserts nothing: it is for reading. */
 @Slow
 public class SpecializerTest {
-  static final Path SOURCES = Path.of("src/main/java");
-
-  static State state() {
-    return new State(new IO() {
-      public int in(int port) {
-        return 0xFF;
-      }
-
-      public void out(int port, int value) {
-      }
-    }, new UnrolledRegisterBankFactory().createBank(), new MockedMemory(true));
-  }
-
-  static Instruction[] tables(State state) {
-    DefaultInstructionFactory factory = new DefaultInstructionFactory(state);
-    return new TableBasedOpCodeDecoder(state, OpcodeConditions.createOpcodeConditions(state.getFlag(), state.getRegister(RegisterName.B)), factory.getFetchNextOpcodeInstructionFactory(), factory, new MemoryForOpcodes(state.getMemory(), state)).getOpcodeLookupTable();
-  }
 
   static Instruction at(Instruction[] table, int... path) {
     Instruction i = table[path[0]];
@@ -73,9 +48,9 @@ public class SpecializerTest {
 
   @Test
   public void jrWithMemptr() {
-    State state = state();
-    Instruction[] table = tables(state);
-    Specializer specializer = new Specializer(new SourceIndex(SOURCES));
+    State state = GenerateZ80.state();
+    Instruction[] table = GenerateZ80.tables(state);
+    Specializer specializer = new Specializer(new SourceIndex(GenerateZ80.SOURCES));
     Specializer.Obj memptr = specializer.of(new com.fpetrola.z80.cpu.MemptrUpdater(state.getMemptr(), state.getMemory()));
     for (int[] path : new int[][]{{0x20}, {0xCD}, {0xC0}}) {
       Specializer.Obj leaf = specializer.of(at(table, path));
@@ -91,9 +66,9 @@ public class SpecializerTest {
 
   @Test
   public void firstShapes() {
-    State state = state();
-    Instruction[] table = tables(state);
-    Specializer specializer = new Specializer(new SourceIndex(SOURCES));
+    State state = GenerateZ80.state();
+    Instruction[] table = GenerateZ80.tables(state);
+    Specializer specializer = new Specializer(new SourceIndex(GenerateZ80.SOURCES));
     for (int[] path : new int[][]{{0x86}, {0x20}, {0x3E}, {0xDD, 0x7E}, {0xCD}, {0xED, 0xB0}, {0xE3}, {0xDD, 0xCB, 0x5E}, {0xDB}, {0xED, 0x5A}}) {
       Instruction instruction = at(table, path);
       System.out.println("==== " + java.util.Arrays.toString(path) + " " + instruction);
