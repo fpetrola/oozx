@@ -588,7 +588,7 @@ public class Z80 implements ZxModule, Cpu {
     settings.current.emulationSpeed = emulationSpeed;
     zxClock.rebaseTStates(60000);
     timer.changeSpeed(emulationSpeed);
-    sound.speedChanged();
+    sound.rebuildOutput();
   }
 
 }

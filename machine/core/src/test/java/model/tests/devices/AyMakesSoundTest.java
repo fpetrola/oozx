@@ -26,6 +26,7 @@ import com.fpetrola.oozx.speccy.sound.SilentSoundDevice;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -53,9 +54,9 @@ class AyMakesSoundTest {
     }
   }
 
-  private int peakOf(String model, boolean playANote) {
+  /** A machine of the named model, its sound on and heard by the given listener. */
+  private Speccy machine(String model, Loudest listener) {
     Emulation.noTest = true;
-    Loudest listener = new Loudest();
     Speccy speccy = Speccy.create(new SpectrumZ80Clock(),
         binder -> binder.bind(JavaSoundDevice.class).toInstance(listener));
     speccy.init();
@@ -68,6 +69,12 @@ class AyMakesSoundTest {
           speccy.machine.select(type);
         });
     speccy.settings.current.sound = true;
+    return speccy;
+  }
+
+  private int peakOf(String model, boolean playANote) {
+    Loudest listener = new Loudest();
+    Speccy speccy = machine(model, listener);
 
     if (playANote) {
       write(speccy, 0, 0x50);   // channel A period, low byte
@@ -100,35 +107,46 @@ class AyMakesSoundTest {
    */
   @Test
   void aFortyEightHasNoChipToWriteTo() {
-    assertEquals(0, peakWritingToTheChip("Spec48"),
+    assertEquals(0, peakOf("Spec48", true),
         "a 48K produced sound chip output, which a 48K cannot make");
-    assertTrue(peakWritingToTheChip("Spec128") > 0,
+    assertTrue(peakOf("Spec128", true) > 0,
         "and the same writes on a 128K have to be heard, or this proves nothing");
   }
 
-  private int peakWritingToTheChip(String model) {
-    Emulation.noTest = true;
-    Loudest listener = new Loudest();
-    Speccy speccy = Speccy.create(new SpectrumZ80Clock(),
-        binder -> binder.bind(JavaSoundDevice.class).toInstance(listener));
-    speccy.init();
-    speccy.uiDisplay.active = false;
-    speccy.z80.bridgeCommand = (a, b) -> null;
-    speccy.machine.getMachineTypes().stream()
-        .filter(type -> type.getClass().getSimpleName().equals(model))
-        .findFirst().ifPresent(type -> {
-          speccy.machine.selectDefault();
-          speccy.machine.select(type);
-        });
-    speccy.settings.current.sound = true;
-
-    write(speccy, 0, 0x50);
-    write(speccy, 1, 0x01);
-    write(speccy, 8, 0x0F);
-    write(speccy, 7, 0x3E);
+  /**
+   * The output is built for the machine as it is, not as it was when the sound started.
+   * <p>
+   * A source is handed a frame's worth of T-states and asked for a frame's worth of samples
+   * back, and the size of that answer was worked out for whatever the machine was when the
+   * output was last built. Let the two be different frames - a +2A's is 1020 T-states longer
+   * than a 48K's, and loading a recording's snapshot makes a machine one of those after init
+   * sized the sound for the other - and every frame leaves six samples behind. A second of them
+   * fills the buffer and comes out as an ArrayIndexOutOfBounds from the middle of the mix, seven
+   * thousand frames after the cause, which is what made it hard to place.
+   */
+  @Test
+  void theOutputFollowsAMachineWhoseFrameChangedLength() {
+    Speccy speccy = machine("Spec128", new Loudest());
+    // At real time, which is the speed a replay runs at and the only speed where a frame of
+    // audio is big enough for two frame lengths to ask for different sizes at all.
+    speccy.settings.current.emulationSpeed = 100;
+    // On this machine, and sized for a frame 1020 T-states shorter than its own - the distance
+    // between a 48K's frame and a +2A's, which is the pair this happens with. Taken off
+    // whatever this machine's frame is, so the test is about two lengths disagreeing rather
+    // than about which models they came from.
+    speccy.sound.machineChanged(speccy.machine.current);
+    int machinesFrame = speccy.machine.current.getTimings().tstatesPerFrame;
+    speccy.sound.initSound(3500000, machinesFrame - 1020, true, false);
+    int sizedForTheOtherFrame = speccy.sound.frameSize();
 
     speccy.sound.frame();
-    return listener.peak;
+
+    assertNotEquals(sizedForTheOtherFrame, speccy.sound.frameSize(),
+        "the output kept a size worked out for a frame 1020 T-states shorter than the machine's");
+    // And it goes on playing: a second of audio is where the leak used to overflow.
+    for (int frame = 0; frame < 8000; frame++) {
+      speccy.sound.frame();
+    }
   }
 
   @Test

@@ -228,7 +228,7 @@ public class RzxSession {
     if (speed == soundedAt)
       return;
     soundedAt = speed;
-    speccy.sound.speedChanged();
+    speccy.sound.rebuildOutput();
   }
 
   /**

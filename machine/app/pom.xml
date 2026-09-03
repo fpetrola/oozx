@@ -117,6 +117,15 @@
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>com.fpetrola.oozx.speccy.OOSpectrumLauncher</mainClass>
+                                    <manifestEntries>
+                                        <!-- El look and feel entra por reflexion a JRootPane para el doble
+                                             buffer de los popups, y desde JDK 17 eso pide permiso: sin esto
+                                             cada tooltip tira InaccessibleObjectException en el hilo de
+                                             eventos. Vale solo para el jar; corriendo por -classpath hay que
+                                             pasar a mano la opcion add-opens de java para ese paquete. -->
+                                        <Add-Opens>java.desktop/javax.swing</Add-Opens>
+                                        <Enable-Native-Access>ALL-UNNAMED</Enable-Native-Access>
+                                    </manifestEntries>
                                 </transformer>
                             </transformers>
                         </configuration>

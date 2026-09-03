@@ -71,6 +71,8 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
 
   public boolean soundEnabled = false;
   private int soundFrameSize;
+  /** The frame of the machine {@link #soundFrameSize} was worked out for. */
+  private int sizedFor;
   private long effectiveSpeed;
   private int bass;
   private double treble;
@@ -100,8 +102,12 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
     initSound(3500000, frameTstates, enabled, true);
   }
 
-  /** The emulator changed speed. The output is rebuilt for it; what is playing goes on playing. */
-  public void speedChanged() {
+  /**
+   * The output no longer fits the machine - it changed speed, or became a model whose frame is a
+   * different length - so it is built again for the machine as it is now. What is playing goes
+   * on playing.
+   */
+  public void rebuildOutput() {
     initSound(3500000, spectrumMachine.getTimings().tstatesPerFrame, true, false);
   }
 
@@ -126,6 +132,7 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
     this.bass = speakerBass[speakerType];
     double hz = (double) effectiveSpeed / tstatesPerFrame;
     soundFrameSize = (int) (soundFreq / hz) + 1;
+    sizedFor = tstatesPerFrame;
     outputSamples = new int[soundFrameSize * 2];
     // A new machine brings its own sources, which arrive as its peripherals are switched on.
     if (forANewMachine) {
@@ -186,6 +193,14 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
   public void frame() {
     int frameTstates = spectrumMachine.getTimings().tstatesPerFrame;
     if (!soundEnabled) return;
+    // FILLED AND EMPTIED BY THE SAME FRAME, or every one of them leaks the difference into the
+    // sources' buffers: a source is handed a frame's worth of T-states here and asked for
+    // soundFrameSize samples back, and that size was worked out for whatever the machine was
+    // when the output was last built. A machine that becomes a +2A after the sound was sized
+    // for a 48K - which is what loading a recording's snapshot does, the snapshot arriving
+    // after init - leaks six samples a frame, and a second of them is a full buffer and an
+    // ArrayIndexOutOfBounds out of the middle of the mix, seven thousand frames from the cause.
+    if (frameTstates != sizedFor) rebuildOutput();
 
     for (AudioSource source : sources) {
       source.endFrame(frameTstates);
