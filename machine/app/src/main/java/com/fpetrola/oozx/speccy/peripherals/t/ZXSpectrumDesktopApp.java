@@ -186,42 +186,31 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
 
   /** The most the slider asks for; the turbo button is for no limit at all. */
   static final int TOP_SPEED = 30000;
-  private static final int TOP_NOTCH = 17;
 
   /**
-   * A speed to run at, from a quarter of real time up, doubling every two notches, the last
-   * notch being the top. Applied when the knob is let go: a change of speed rebuilds the sound,
-   * and rebuilding it forty times along one drag would crackle.
+   * A speed to run at, in percent, from a quarter of real time to the top. Applied when the
+   * knob is let go: a change of speed rebuilds the sound, and rebuilding it forty times along
+   * one drag would crackle.
    */
   private JComponent speedSlider() {
-    JSlider slider = new JSlider(-4, TOP_NOTCH, notchOf(emulatorCore.getEmulationSpeed()));
+    JSlider slider = new JSlider(25, TOP_SPEED, (int) Math.max(25, Math.min(TOP_SPEED, emulatorCore.getEmulationSpeed())));
     java.util.Hashtable<Integer, JComponent> labels = new java.util.Hashtable<>();
-    for (int notch = -4; notch <= 12; notch += 4) {
-      labels.put(notch, new JLabel(speedAt(notch) + "%"));
+    labels.put(25, new JLabel("25%"));
+    for (int speed = 5000; speed <= TOP_SPEED; speed += 5000) {
+      labels.put(speed, new JLabel(speed + "%"));
     }
-    labels.put(TOP_NOTCH, new JLabel(TOP_SPEED + "%"));
     slider.setLabelTable(labels);
     slider.setPaintLabels(true);
-    slider.setMajorTickSpacing(4);
-    slider.setMinorTickSpacing(1);
+    slider.setMajorTickSpacing(5000);
+    slider.setMinorTickSpacing(1000);
     slider.setPaintTicks(true);
-    slider.setSnapToTicks(true);
     slider.setPreferredSize(new Dimension(420, slider.getPreferredSize().height));
     slider.addChangeListener(e -> {
       if (!slider.getValueIsAdjusting()) {
-        emulatorCore.setGeneralOption("speed", speedAt(slider.getValue()));
+        emulatorCore.setGeneralOption("speed", slider.getValue());
       }
     });
     return slider;
-  }
-
-  static int speedAt(int notch) {
-    return notch >= TOP_NOTCH ? TOP_SPEED : (int) Math.round(100 * Math.pow(2, notch / 2.0));
-  }
-
-  static int notchOf(double speed) {
-    if (speed >= TOP_SPEED) return TOP_NOTCH;
-    return Math.max(-4, Math.min(TOP_NOTCH - 1, (int) Math.round(2 * Math.log(Math.max(1, speed) / 100) / Math.log(2))));
   }
 
   private JComponent volumeSlider() {
