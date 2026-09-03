@@ -109,9 +109,8 @@ static final int[] SZ53 = new int[0x100];
       byte value_6384 = ((byte) (value & 0xff));
       if ((memoryPage_6383.writable) || (memoryPage_6383.source != ram.sourceNone && ram.settings.current.writableRoms)) {
           int addressMasked_6385 = address & 0x7FF;
-          int offset2_6386 = addressMasked_6385 + memoryPage_6383.offset;
-          if (memoryPage_6383.source == ram.sourceRam && (memoryPage_6383.pageNum) == ram.currentScreen && (offset2_6386 & ram.screenMask) < 0x1b00 && memoryPage_6383.page[memoryPage_6383.offset + addressMasked_6385] != value_6384) {
-              display.dirtySinclair(offset2_6386);
+          if (addressMasked_6385 < memoryPage_6383.screenBytes && memoryPage_6383.page[memoryPage_6383.offset + addressMasked_6385] != value_6384) {
+              display.dirtySinclair(addressMasked_6385 + memoryPage_6383.offset);
           }
           memoryPage_6383.page[memoryPage_6383.offset + addressMasked_6385] = value_6384 & 0xff;
       }

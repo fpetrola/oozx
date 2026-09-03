@@ -239,6 +239,15 @@ public class Ula implements ZxModule, MachineChangeListener {
     }
   }
 
+  /** What the ULA takes from a read of a contended page while it is drawing. */
+  public void contendRead() {
+    z80Clock.addTStates(contention[z80Clock.getTStates()], "ula readbyte");
+  }
+
+  public void contendWrite() {
+    z80Clock.addTStates(contention[z80Clock.getTStates()], "ula writebyte");
+  }
+
   public void addUlaStates(int states, String description) {
     z80Clock.addTStates(contentionNoMreq[z80Clock.getTStates()] + states, description);
   }

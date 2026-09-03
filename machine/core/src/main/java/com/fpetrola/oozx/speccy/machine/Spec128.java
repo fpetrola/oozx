@@ -98,8 +98,7 @@ public class Spec128 extends Spectrum implements Paging128 {
     ramInfo.currentPage = 0;
     ramInfo.currentRom = 0;
 
-    memory.currentScreen = 5;
-    memory.screenMask = 0xffff;
+    memory.showScreen(5);
 
     // Odd pages contended on the 128K/+2; loop up to 16 for Scorpion's 256Kb RAM
     for (int i = 0; i < 16; i++) {
@@ -154,7 +153,7 @@ public class Spec128 extends Spectrum implements Paging128 {
     if (memory.currentScreen != screen) {
       display.updateCritical(0, 0);
       display.refreshMainScreen();
-      memory.currentScreen = screen;
+      memory.showScreen(screen);
     }
 
     selectRom(rom);

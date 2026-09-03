@@ -141,7 +141,14 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
 
   // Current screen and mask
   public int currentScreen;
-  public int screenMask;
+
+  /** Which RAM page the picture comes from: the pages learn it here, so a write can ask them. */
+  public void showScreen(int page) {
+    currentScreen = page;
+    for (MemoryPage chunk : mapRam) {
+      chunk.screenBytes = chunk.pageNum == page ? Math.max(0, Math.min(PAGE_SIZE, 0x1b00 - chunk.offset)) : 0;
+    }
+  }
 
   // Register a new memory source
   public int sourceRegister(String description) {
@@ -315,7 +322,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   public int readByte(final int address, final Ula ula) {
     final MemoryPage mapping = mapRead[address >>> PAGE_SIZE_LOGARITHM];
     if (mapping.contended)
-      zxClock.addTStates(ula.contention[zxClock.getTStates()], "ula readbyte");
+      ula.contendRead();
     return mapping.get(address & PAGE_SIZE_MASK);
   }
 
@@ -329,7 +336,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   public void writeByte(final int address, final byte b, final Ula ula, final Display display) {
     MemoryPage memoryPage = mapWrite[address >>> PAGE_SIZE_LOGARITHM];
     if (memoryPage.contended) {
-      zxClock.addTStates(ula.contention[zxClock.getTStates()], "ula writebyte");
+      ula.contendWrite();
     }
     writeByteInternal(address, b, display, memoryPage);
   }
@@ -349,10 +356,8 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
 
   // Handle dirty display for Sinclair mode
   public void displayDirtySinclair(final int address, final byte value, final Display display, final MemoryPage mapping) {
-    final int offset2 = address + mapping.offset;
-
-    if (mapping.source == sourceRam && mapping.getPageNum() == currentScreen && (offset2 & screenMask) < 0x1b00 && mapping.get(address) != value) {
-      display.dirtySinclair(offset2);
+    if (address < mapping.screenBytes && mapping.get(address) != value) {
+      display.dirtySinclair(address + mapping.offset);
     }
   }
 

@@ -179,8 +179,7 @@ public class SpecPlus3 extends Spec128 implements PagingPlus3, FloppyDrive, Prin
     ramInfo1.lastByte = 0;
     ramInfo1.lastByte2 = 0;
 
-    memory.currentScreen = 5;
-    memory.screenMask = 0xffff;
+    memory.showScreen(5);
 
     // All memory comes from the home bank
     for (int i = 0; i < memory.PAGES_IN_64K; i++) {
@@ -275,7 +274,7 @@ public class SpecPlus3 extends Spec128 implements PagingPlus3, FloppyDrive, Prin
       display.refreshMainScreen();
 //      display.dirtySinclair(0);
 //      display.writeIfDirtySinclair(0, 0);
-      memory.currentScreen = screen;
+      memory.showScreen(screen);
     }
 
     if ((lastByte2 & 0x01) != 0) {

@@ -27,6 +27,11 @@ public class MemoryPage {
   boolean saveToSnapshot; // Should this page be saved to snapshots?
   public int pageNum; // Which page from the source
   public int offset; // How far into the page this chunk starts
+  /**
+   * How much of this chunk is the screen being shown: all of it, none, or the attributes' tail.
+   * Decided when the screen page changes, so a write asks one question instead of four.
+   */
+  public int screenBytes;
   /** Public like the rest of what a page is: the generated core reads it without going through get. */
   public int[] page;
 

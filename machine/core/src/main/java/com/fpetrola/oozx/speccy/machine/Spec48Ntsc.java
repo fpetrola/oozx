@@ -67,8 +67,7 @@ public class Spec48Ntsc extends Spec48 {
     peripherals.update();
 
     // Pantalla en RAM 5
-    memory.currentScreen = 5;
-    memory.screenMask = 0xFFFF;
+    memory.showScreen(5);
 
     // Configurar pantalla como en 48K
 //    spec48.commonDisplaySetup();

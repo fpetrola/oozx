@@ -201,6 +201,24 @@ no mueve mucho, así que el valor está en las cargas que se ahorran, no en la l
 Es barato de probar porque los helpers salen de `Memory.readByte/writeByte` especializados: se
 cambia el modelo, se regenera, se mide.
 
+**Hecho, primera parte (2026-09-03): una pregunta por escritura.** `MemoryPage.screenBytes`
+dice cuánto de ese trozo es la pantalla que se muestra — todo, nada o la cola de los atributos —
+y lo decide `Memory.showScreen(page)`, que es ahora por donde las máquinas eligen la pantalla
+(`screenMask` desapareció: era `0xffff` en todas). La escritura pregunta
+`addressMasked < screenBytes` donde preguntaba cuatro cosas de dos objetos, y `write` bajó de
+199 a 160 bytes. Lo que la ULA le quita a un acceso contendido es suyo: `Ula.contendRead()` /
+`contendWrite()`, que `Memory.readByte/writeByte` llaman y el generador inlinea como antes.
+
+Medido, alternado: Manic Miner 16 595 / 15 616 → 17 039 / 16 145 (**+3 %**), JSW 8 278 → 8 889
+(**+7 %**, es el que escribe atributos).
+
+**Probado y descartado: la ULA como terminal.** Emitir `ula.addUlaStates(1)` como llamada
+dejaba `contend1x1` en 35 bytes justos, el umbral del JIT, pero midió −2 a −4 % en los tres
+pares: la ULA llega al reloj por su propio campo (`ula.z80Clock`) y el JIT no sabe que es el
+mismo `clock` del núcleo — pierde la identidad que el especializador sí conocía. La lección es
+general: **lo que el generador inlinea llega con las identidades resueltas; lo que el JIT
+inlinea, no.** No conviene devolverle al JIT lo que el generador ya decidió.
+
 ## 4. Puertos y teclado: alocar por cada IN
 
 JSW lee el teclado varias veces por frame y eso es el 6 % de sus muestras (`Keyboard.read` 5,4,
