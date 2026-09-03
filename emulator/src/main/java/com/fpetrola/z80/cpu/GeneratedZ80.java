@@ -289,24 +289,21 @@ static final int[] SZ53 = new int[0x100];
   private void decode_1(int opcode) {
     switch (opcode) {
       case 0x10: {
-          int _nextPC26 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           B = (B - 1) & 0xFF;
           if ((B != 0)) {
               int operand_50 = memory.read((PC + 1) & 0xFFFF, 0);
               int jumpAddress2_49 = ((PC + 2 + (byte) operand_50) & 0xFFFF);
-              _nextPC26 = jumpAddress2_49;
-          } else {
-              _nextPC26 = -1;
-          }
-          int nextPC_51 = _nextPC26;
-          MEMPTR = (nextPC_51 == -1 ? 0 : nextPC_51) & 0xFFFF;
-          if (_nextPC26 != -1)
+              MEMPTR = jumpAddress2_49;
               contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          if (_nextPC26 == -1)
+              PC = jumpAddress2_49;
+              break;
+          } else {
+              MEMPTR = 0;
               contend((PC + 1) & 0xFFFF, 1, 3, Contention.Kind.READ);
-          PC = _nextPC26 == -1 ? (PC + 2) & 0xFFFF : _nextPC26;
-          break;
+              PC = (PC + 2) & 0xFFFF;
+              break;
+          }
       }
       case 0x11: {
           int address_52 = (PC + 1) & 0xFFFF;
@@ -388,8 +385,7 @@ static final int[] SZ53 = new int[0x100];
           int operand_75 = memory.read((PC + 1) & 0xFFFF, 0);
           int jumpAddress2_74 = ((PC + 2 + (byte) operand_75) & 0xFFFF);
           _nextPC38 = jumpAddress2_74;
-          int nextPC_76 = _nextPC38;
-          MEMPTR = nextPC_76;
+          MEMPTR = _nextPC38;
           contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
           PC = _nextPC38;
           break;
@@ -489,22 +485,19 @@ static final int[] SZ53 = new int[0x100];
   private void decode_2(int opcode) {
     switch (opcode) {
       case 0x20: {
-          int _nextPC51 = 0;
           if ((!((F & 0x40) == 0x40))) {
               int operand_105 = memory.read((PC + 1) & 0xFFFF, 0);
               int jumpAddress2_104 = ((PC + 2 + (byte) operand_105) & 0xFFFF);
-              _nextPC51 = jumpAddress2_104;
-          } else {
-              _nextPC51 = -1;
-          }
-          int nextPC_106 = _nextPC51;
-          MEMPTR = (nextPC_106 == -1 ? 0 : nextPC_106) & 0xFFFF;
-          if (_nextPC51 != -1)
+              MEMPTR = jumpAddress2_104;
               contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          if (_nextPC51 == -1)
+              PC = jumpAddress2_104;
+              break;
+          } else {
+              MEMPTR = 0;
               contend((PC + 1) & 0xFFFF, 1, 3, Contention.Kind.READ);
-          PC = _nextPC51 == -1 ? (PC + 2) & 0xFFFF : _nextPC51;
-          break;
+              PC = (PC + 2) & 0xFFFF;
+              break;
+          }
       }
       case 0x21: {
           int address_107 = (PC + 1) & 0xFFFF;
@@ -597,11 +590,8 @@ static final int[] SZ53 = new int[0x100];
           _data62 = and_136;
           if ((_F61 & 2) != 0) {
               int value1_137 = value1_130;
-              int value2_138 = add_133;
-              int value3_139 = 0;
-              _F63 = _data62;
-              int subtemp_140 = value1_137 - value2_138;
-              int lookup_141 = ((value1_137 & 0x88) >> 3) | ((value2_138 & 0x88) >> 2) | ((subtemp_140 & 0x88) >> 1);
+              int subtemp_140 = value1_137 - add_133;
+              int lookup_141 = ((value1_137 & 0x88) >> 3) | ((add_133 & 0x88) >> 2) | ((subtemp_140 & 0x88) >> 1);
               value1_137 = subtemp_140 & 0xff;
               _F63 = ((subtemp_140 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_141 & 0x07)] | OVERFLOW_SUB[(lookup_141 >> 4)] | (SZ53[value1_137 & 0xff] | (value1_137 == 0 ? 0x40 : 0));
               int result_142 = value1_137 & 0xFF;
@@ -609,12 +599,9 @@ static final int[] SZ53 = new int[0x100];
               _data62 = and_143;
               value1_130 = result_142;
           } else {
-              int value1_144 = add_133;
               int value2_145 = value1_130;
-              int value3_146 = 0;
-              _F64 = _data62;
-              int addtemp_147 = value2_145 + value1_144;
-              int lookup_148 = ((value2_145 & 0x88) >> 3) | ((value1_144 & 0x88) >> 2) | ((addtemp_147 & 0x88) >> 1);
+              int addtemp_147 = value2_145 + add_133;
+              int lookup_148 = ((value2_145 & 0x88) >> 3) | ((add_133 & 0x88) >> 2) | ((addtemp_147 & 0x88) >> 1);
               value2_145 = addtemp_147 & 0xff;
               _F64 = ((addtemp_147 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_148 & 0x07)] | OVERFLOW_ADD[(lookup_148 >> 4)] | (SZ53[value2_145 & 0xff] | (value2_145 == 0 ? 0x40 : 0));
               int result_149 = value2_145 & 0xFF;
@@ -631,22 +618,19 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x28: {
-          int _nextPC66 = 0;
           if (((F & 0x40) == 0x40)) {
               int operand_153 = memory.read((PC + 1) & 0xFFFF, 0);
               int jumpAddress2_152 = ((PC + 2 + (byte) operand_153) & 0xFFFF);
-              _nextPC66 = jumpAddress2_152;
-          } else {
-              _nextPC66 = -1;
-          }
-          int nextPC_154 = _nextPC66;
-          MEMPTR = (nextPC_154 == -1 ? 0 : nextPC_154) & 0xFFFF;
-          if (_nextPC66 != -1)
+              MEMPTR = jumpAddress2_152;
               contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          if (_nextPC66 == -1)
+              PC = jumpAddress2_152;
+              break;
+          } else {
+              MEMPTR = 0;
               contend((PC + 1) & 0xFFFF, 1, 3, Contention.Kind.READ);
-          PC = _nextPC66 == -1 ? (PC + 2) & 0xFFFF : _nextPC66;
-          break;
+              PC = (PC + 2) & 0xFFFF;
+              break;
+          }
       }
       case 0x29: {
           int _F67;
@@ -748,22 +732,19 @@ static final int[] SZ53 = new int[0x100];
   private void decode_3(int opcode) {
     switch (opcode) {
       case 0x30: {
-          int _nextPC79 = 0;
           if ((!((F & 1) == 1))) {
               int operand_188 = memory.read((PC + 1) & 0xFFFF, 0);
               int jumpAddress2_187 = ((PC + 2 + (byte) operand_188) & 0xFFFF);
-              _nextPC79 = jumpAddress2_187;
-          } else {
-              _nextPC79 = -1;
-          }
-          int nextPC_189 = _nextPC79;
-          MEMPTR = (nextPC_189 == -1 ? 0 : nextPC_189) & 0xFFFF;
-          if (_nextPC79 != -1)
+              MEMPTR = jumpAddress2_187;
               contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          if (_nextPC79 == -1)
+              PC = jumpAddress2_187;
+              break;
+          } else {
+              MEMPTR = 0;
               contend((PC + 1) & 0xFFFF, 1, 3, Contention.Kind.READ);
-          PC = _nextPC79 == -1 ? (PC + 2) & 0xFFFF : _nextPC79;
-          break;
+              PC = (PC + 2) & 0xFFFF;
+              break;
+          }
       }
       case 0x31: {
           int address_190 = (PC + 1) & 0xFFFF;
@@ -844,22 +825,19 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x38: {
-          int _nextPC92 = 0;
           if (((F & 1) == 1)) {
               int operand_215 = memory.read((PC + 1) & 0xFFFF, 0);
               int jumpAddress2_214 = ((PC + 2 + (byte) operand_215) & 0xFFFF);
-              _nextPC92 = jumpAddress2_214;
-          } else {
-              _nextPC92 = -1;
-          }
-          int nextPC_216 = _nextPC92;
-          MEMPTR = (nextPC_216 == -1 ? 0 : nextPC_216) & 0xFFFF;
-          if (_nextPC92 != -1)
+              MEMPTR = jumpAddress2_214;
               contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          if (_nextPC92 == -1)
+              PC = jumpAddress2_214;
+              break;
+          } else {
+              MEMPTR = 0;
               contend((PC + 1) & 0xFFFF, 1, 3, Contention.Kind.READ);
-          PC = _nextPC92 == -1 ? (PC + 2) & 0xFFFF : _nextPC92;
-          break;
+              PC = (PC + 2) & 0xFFFF;
+              break;
+          }
       }
       case 0x39: {
           int _F93;
@@ -1323,9 +1301,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_256 = ((value2_253 & 0x88) >> 3) | ((value1_252 & 0x88) >> 2) | ((addtemp_255 & 0x88) >> 1);
           value2_253 = addtemp_255 & 0xff;
           _F169 = ((addtemp_255 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_256 & 0x07)] | OVERFLOW_ADD[(lookup_256 >> 4)] | (SZ53[value2_253] | (value2_253 == 0 ? 0x40 : 0));
-          int result_257 = value2_253;
           F = (_F169 & 0xFF);
-          A = result_257;
+          A = value2_253;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1337,9 +1314,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_262 = ((value2_259 & 0x88) >> 3) | ((value1_258 & 0x88) >> 2) | ((addtemp_261 & 0x88) >> 1);
           value2_259 = addtemp_261 & 0xff;
           _F171 = ((addtemp_261 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_262 & 0x07)] | OVERFLOW_ADD[(lookup_262 >> 4)] | (SZ53[value2_259] | (value2_259 == 0 ? 0x40 : 0));
-          int result_263 = value2_259;
           F = (_F171 & 0xFF);
-          A = result_263;
+          A = value2_259;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1351,9 +1327,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_268 = ((value2_265 & 0x88) >> 3) | ((value1_264 & 0x88) >> 2) | ((addtemp_267 & 0x88) >> 1);
           value2_265 = addtemp_267 & 0xff;
           _F173 = ((addtemp_267 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_268 & 0x07)] | OVERFLOW_ADD[(lookup_268 >> 4)] | (SZ53[value2_265] | (value2_265 == 0 ? 0x40 : 0));
-          int result_269 = value2_265;
           F = (_F173 & 0xFF);
-          A = result_269;
+          A = value2_265;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1365,9 +1340,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_274 = ((value2_271 & 0x88) >> 3) | ((value1_270 & 0x88) >> 2) | ((addtemp_273 & 0x88) >> 1);
           value2_271 = addtemp_273 & 0xff;
           _F175 = ((addtemp_273 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_274 & 0x07)] | OVERFLOW_ADD[(lookup_274 >> 4)] | (SZ53[value2_271] | (value2_271 == 0 ? 0x40 : 0));
-          int result_275 = value2_271;
           F = (_F175 & 0xFF);
-          A = result_275;
+          A = value2_271;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1379,9 +1353,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_280 = ((value2_277 & 0x88) >> 3) | ((value1_276 & 0x88) >> 2) | ((addtemp_279 & 0x88) >> 1);
           value2_277 = addtemp_279 & 0xff;
           _F177 = ((addtemp_279 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_280 & 0x07)] | OVERFLOW_ADD[(lookup_280 >> 4)] | (SZ53[value2_277] | (value2_277 == 0 ? 0x40 : 0));
-          int result_281 = value2_277;
           F = (_F177 & 0xFF);
-          A = result_281;
+          A = value2_277;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1393,9 +1366,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_286 = ((value2_283 & 0x88) >> 3) | ((value1_282 & 0x88) >> 2) | ((addtemp_285 & 0x88) >> 1);
           value2_283 = addtemp_285 & 0xff;
           _F179 = ((addtemp_285 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_286 & 0x07)] | OVERFLOW_ADD[(lookup_286 >> 4)] | (SZ53[value2_283] | (value2_283 == 0 ? 0x40 : 0));
-          int result_287 = value2_283;
           F = (_F179 & 0xFF);
-          A = result_287;
+          A = value2_283;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1409,9 +1381,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_293 = ((value2_290 & 0x88) >> 3) | ((value1_289 & 0x88) >> 2) | ((addtemp_292 & 0x88) >> 1);
           value2_290 = addtemp_292 & 0xff;
           _F181 = ((addtemp_292 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_293 & 0x07)] | OVERFLOW_ADD[(lookup_293 >> 4)] | (SZ53[value2_290] | (value2_290 == 0 ? 0x40 : 0));
-          int result_294 = value2_290;
           F = (_F181 & 0xFF);
-          A = result_294;
+          A = value2_290;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1423,9 +1394,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_299 = ((value2_296 & 0x88) >> 3) | ((value1_295 & 0x88) >> 2) | ((addtemp_298 & 0x88) >> 1);
           value2_296 = addtemp_298 & 0xff;
           _F183 = ((addtemp_298 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_299 & 0x07)] | OVERFLOW_ADD[(lookup_299 >> 4)] | (SZ53[value2_296] | (value2_296 == 0 ? 0x40 : 0));
-          int result_300 = value2_296;
           F = (_F183 & 0xFF);
-          A = result_300;
+          A = value2_296;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1438,9 +1408,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_305 = ((value1_301 & 0x88) >> 3) | ((B & 0x88) >> 2) | ((adctemp_304 & 0x88) >> 1);
           value1_301 = adctemp_304 & 0xff;
           _F185 = ((adctemp_304 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_305 & 0x07)] | OVERFLOW_ADD[(lookup_305 >> 4)] | (SZ53[value1_301] | (value1_301 == 0 ? 0x40 : 0));
-          int result_306 = value1_301;
           F = (_F185 & 0xFF);
-          A = result_306;
+          A = value1_301;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1453,9 +1422,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_311 = ((value1_307 & 0x88) >> 3) | ((C & 0x88) >> 2) | ((adctemp_310 & 0x88) >> 1);
           value1_307 = adctemp_310 & 0xff;
           _F187 = ((adctemp_310 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_311 & 0x07)] | OVERFLOW_ADD[(lookup_311 >> 4)] | (SZ53[value1_307] | (value1_307 == 0 ? 0x40 : 0));
-          int result_312 = value1_307;
           F = (_F187 & 0xFF);
-          A = result_312;
+          A = value1_307;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1468,9 +1436,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_317 = ((value1_313 & 0x88) >> 3) | ((D & 0x88) >> 2) | ((adctemp_316 & 0x88) >> 1);
           value1_313 = adctemp_316 & 0xff;
           _F189 = ((adctemp_316 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_317 & 0x07)] | OVERFLOW_ADD[(lookup_317 >> 4)] | (SZ53[value1_313] | (value1_313 == 0 ? 0x40 : 0));
-          int result_318 = value1_313;
           F = (_F189 & 0xFF);
-          A = result_318;
+          A = value1_313;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1483,9 +1450,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_323 = ((value1_319 & 0x88) >> 3) | ((E & 0x88) >> 2) | ((adctemp_322 & 0x88) >> 1);
           value1_319 = adctemp_322 & 0xff;
           _F191 = ((adctemp_322 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_323 & 0x07)] | OVERFLOW_ADD[(lookup_323 >> 4)] | (SZ53[value1_319] | (value1_319 == 0 ? 0x40 : 0));
-          int result_324 = value1_319;
           F = (_F191 & 0xFF);
-          A = result_324;
+          A = value1_319;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1498,9 +1464,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_329 = ((value1_325 & 0x88) >> 3) | ((H & 0x88) >> 2) | ((adctemp_328 & 0x88) >> 1);
           value1_325 = adctemp_328 & 0xff;
           _F193 = ((adctemp_328 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_329 & 0x07)] | OVERFLOW_ADD[(lookup_329 >> 4)] | (SZ53[value1_325] | (value1_325 == 0 ? 0x40 : 0));
-          int result_330 = value1_325;
           F = (_F193 & 0xFF);
-          A = result_330;
+          A = value1_325;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1513,9 +1478,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_335 = ((value1_331 & 0x88) >> 3) | ((L & 0x88) >> 2) | ((adctemp_334 & 0x88) >> 1);
           value1_331 = adctemp_334 & 0xff;
           _F195 = ((adctemp_334 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_335 & 0x07)] | OVERFLOW_ADD[(lookup_335 >> 4)] | (SZ53[value1_331] | (value1_331 == 0 ? 0x40 : 0));
-          int result_336 = value1_331;
           F = (_F195 & 0xFF);
-          A = result_336;
+          A = value1_331;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1530,9 +1494,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_342 = ((value1_338 & 0x88) >> 3) | ((sourceValue_337 & 0x88) >> 2) | ((adctemp_341 & 0x88) >> 1);
           value1_338 = adctemp_341 & 0xff;
           _F197 = ((adctemp_341 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_342 & 0x07)] | OVERFLOW_ADD[(lookup_342 >> 4)] | (SZ53[value1_338] | (value1_338 == 0 ? 0x40 : 0));
-          int result_343 = value1_338;
           F = (_F197 & 0xFF);
-          A = result_343;
+          A = value1_338;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1546,9 +1509,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_348 = ((value1_344 & 0x88) >> 3) | ((value2_345 & 0x88) >> 2) | ((adctemp_347 & 0x88) >> 1);
           value1_344 = adctemp_347 & 0xff;
           _F199 = ((adctemp_347 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_348 & 0x07)] | OVERFLOW_ADD[(lookup_348 >> 4)] | (SZ53[value1_344] | (value1_344 == 0 ? 0x40 : 0));
-          int result_349 = value1_344;
           F = (_F199 & 0xFF);
-          A = result_349;
+          A = value1_344;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1566,9 +1528,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_354 = ((value1_350 & 0x88) >> 3) | ((B & 0x88) >> 2) | ((subtemp_353 & 0x88) >> 1);
           value1_350 = subtemp_353 & 0xff;
           _F201 = ((subtemp_353 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_354 & 0x07)] | OVERFLOW_SUB[(lookup_354 >> 4)] | (SZ53[value1_350] | (value1_350 == 0 ? 0x40 : 0));
-          int result_355 = value1_350;
           F = (_F201 & 0xFF);
-          A = result_355;
+          A = value1_350;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1579,9 +1540,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_360 = ((value1_356 & 0x88) >> 3) | ((C & 0x88) >> 2) | ((subtemp_359 & 0x88) >> 1);
           value1_356 = subtemp_359 & 0xff;
           _F203 = ((subtemp_359 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_360 & 0x07)] | OVERFLOW_SUB[(lookup_360 >> 4)] | (SZ53[value1_356] | (value1_356 == 0 ? 0x40 : 0));
-          int result_361 = value1_356;
           F = (_F203 & 0xFF);
-          A = result_361;
+          A = value1_356;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1592,9 +1552,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_366 = ((value1_362 & 0x88) >> 3) | ((D & 0x88) >> 2) | ((subtemp_365 & 0x88) >> 1);
           value1_362 = subtemp_365 & 0xff;
           _F205 = ((subtemp_365 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_366 & 0x07)] | OVERFLOW_SUB[(lookup_366 >> 4)] | (SZ53[value1_362] | (value1_362 == 0 ? 0x40 : 0));
-          int result_367 = value1_362;
           F = (_F205 & 0xFF);
-          A = result_367;
+          A = value1_362;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1605,9 +1564,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_372 = ((value1_368 & 0x88) >> 3) | ((E & 0x88) >> 2) | ((subtemp_371 & 0x88) >> 1);
           value1_368 = subtemp_371 & 0xff;
           _F207 = ((subtemp_371 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_372 & 0x07)] | OVERFLOW_SUB[(lookup_372 >> 4)] | (SZ53[value1_368] | (value1_368 == 0 ? 0x40 : 0));
-          int result_373 = value1_368;
           F = (_F207 & 0xFF);
-          A = result_373;
+          A = value1_368;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1618,9 +1576,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_378 = ((value1_374 & 0x88) >> 3) | ((H & 0x88) >> 2) | ((subtemp_377 & 0x88) >> 1);
           value1_374 = subtemp_377 & 0xff;
           _F209 = ((subtemp_377 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_378 & 0x07)] | OVERFLOW_SUB[(lookup_378 >> 4)] | (SZ53[value1_374] | (value1_374 == 0 ? 0x40 : 0));
-          int result_379 = value1_374;
           F = (_F209 & 0xFF);
-          A = result_379;
+          A = value1_374;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1631,9 +1588,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_384 = ((value1_380 & 0x88) >> 3) | ((L & 0x88) >> 2) | ((subtemp_383 & 0x88) >> 1);
           value1_380 = subtemp_383 & 0xff;
           _F211 = ((subtemp_383 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_384 & 0x07)] | OVERFLOW_SUB[(lookup_384 >> 4)] | (SZ53[value1_380] | (value1_380 == 0 ? 0x40 : 0));
-          int result_385 = value1_380;
           F = (_F211 & 0xFF);
-          A = result_385;
+          A = value1_380;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1646,9 +1602,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_391 = ((value1_387 & 0x88) >> 3) | ((sourceValue_386 & 0x88) >> 2) | ((subtemp_390 & 0x88) >> 1);
           value1_387 = subtemp_390 & 0xff;
           _F213 = ((subtemp_390 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_391 & 0x07)] | OVERFLOW_SUB[(lookup_391 >> 4)] | (SZ53[value1_387] | (value1_387 == 0 ? 0x40 : 0));
-          int result_392 = value1_387;
           F = (_F213 & 0xFF);
-          A = result_392;
+          A = value1_387;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1660,9 +1615,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_397 = ((value1_393 & 0x88) >> 3) | ((value2_394 & 0x88) >> 2) | ((subtemp_396 & 0x88) >> 1);
           value1_393 = subtemp_396 & 0xff;
           _F215 = ((subtemp_396 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_397 & 0x07)] | OVERFLOW_SUB[(lookup_397 >> 4)] | (SZ53[value1_393] | (value1_393 == 0 ? 0x40 : 0));
-          int result_398 = value1_393;
           F = (_F215 & 0xFF);
-          A = result_398;
+          A = value1_393;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1675,9 +1629,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_403 = ((value1_399 & 0x88) >> 3) | ((B & 0x88) >> 2) | ((sbctemp_402 & 0x88) >> 1);
           value1_399 = sbctemp_402 & 0xff;
           _F217 = ((sbctemp_402 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_403 & 0x07)] | OVERFLOW_SUB[(lookup_403 >> 4)] | (SZ53[value1_399] | (value1_399 == 0 ? 0x40 : 0));
-          int result_404 = value1_399;
           F = (_F217 & 0xFF);
-          A = result_404;
+          A = value1_399;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1690,9 +1643,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_409 = ((value1_405 & 0x88) >> 3) | ((C & 0x88) >> 2) | ((sbctemp_408 & 0x88) >> 1);
           value1_405 = sbctemp_408 & 0xff;
           _F219 = ((sbctemp_408 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_409 & 0x07)] | OVERFLOW_SUB[(lookup_409 >> 4)] | (SZ53[value1_405] | (value1_405 == 0 ? 0x40 : 0));
-          int result_410 = value1_405;
           F = (_F219 & 0xFF);
-          A = result_410;
+          A = value1_405;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1705,9 +1657,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_415 = ((value1_411 & 0x88) >> 3) | ((D & 0x88) >> 2) | ((sbctemp_414 & 0x88) >> 1);
           value1_411 = sbctemp_414 & 0xff;
           _F221 = ((sbctemp_414 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_415 & 0x07)] | OVERFLOW_SUB[(lookup_415 >> 4)] | (SZ53[value1_411] | (value1_411 == 0 ? 0x40 : 0));
-          int result_416 = value1_411;
           F = (_F221 & 0xFF);
-          A = result_416;
+          A = value1_411;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1720,9 +1671,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_421 = ((value1_417 & 0x88) >> 3) | ((E & 0x88) >> 2) | ((sbctemp_420 & 0x88) >> 1);
           value1_417 = sbctemp_420 & 0xff;
           _F223 = ((sbctemp_420 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_421 & 0x07)] | OVERFLOW_SUB[(lookup_421 >> 4)] | (SZ53[value1_417] | (value1_417 == 0 ? 0x40 : 0));
-          int result_422 = value1_417;
           F = (_F223 & 0xFF);
-          A = result_422;
+          A = value1_417;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1735,9 +1685,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_427 = ((value1_423 & 0x88) >> 3) | ((H & 0x88) >> 2) | ((sbctemp_426 & 0x88) >> 1);
           value1_423 = sbctemp_426 & 0xff;
           _F225 = ((sbctemp_426 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_427 & 0x07)] | OVERFLOW_SUB[(lookup_427 >> 4)] | (SZ53[value1_423] | (value1_423 == 0 ? 0x40 : 0));
-          int result_428 = value1_423;
           F = (_F225 & 0xFF);
-          A = result_428;
+          A = value1_423;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1750,9 +1699,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_433 = ((value1_429 & 0x88) >> 3) | ((L & 0x88) >> 2) | ((sbctemp_432 & 0x88) >> 1);
           value1_429 = sbctemp_432 & 0xff;
           _F227 = ((sbctemp_432 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_433 & 0x07)] | OVERFLOW_SUB[(lookup_433 >> 4)] | (SZ53[value1_429] | (value1_429 == 0 ? 0x40 : 0));
-          int result_434 = value1_429;
           F = (_F227 & 0xFF);
-          A = result_434;
+          A = value1_429;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1767,9 +1715,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_440 = ((value1_436 & 0x88) >> 3) | ((sourceValue_435 & 0x88) >> 2) | ((sbctemp_439 & 0x88) >> 1);
           value1_436 = sbctemp_439 & 0xff;
           _F229 = ((sbctemp_439 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_440 & 0x07)] | OVERFLOW_SUB[(lookup_440 >> 4)] | (SZ53[value1_436] | (value1_436 == 0 ? 0x40 : 0));
-          int result_441 = value1_436;
           F = (_F229 & 0xFF);
-          A = result_441;
+          A = value1_436;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -1783,9 +1730,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_446 = ((value1_442 & 0x88) >> 3) | ((value2_443 & 0x88) >> 2) | ((sbctemp_445 & 0x88) >> 1);
           value1_442 = sbctemp_445 & 0xff;
           _F231 = ((sbctemp_445 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_446 & 0x07)] | OVERFLOW_SUB[(lookup_446 >> 4)] | (SZ53[value1_442] | (value1_442 == 0 ? 0x40 : 0));
-          int result_447 = value1_442;
           F = (_F231 & 0xFF);
-          A = result_447;
+          A = value1_442;
           PC = (PC + 1) & 0xFFFF;
           break;
       }
@@ -2179,7 +2125,6 @@ static final int[] SZ53 = new int[0x100];
   private void decode_12(int opcode) {
     switch (opcode) {
       case 0xC0: {
-          int _nextPC297 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_596 = SP;
           if ((!((F & 0x40) == 0x40))) {
@@ -2189,14 +2134,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_600 = SP;
               SP = ((wordNumber_600 + 2) & 0xFFFF);
               jumpAddress2_596 = value_597;
-              _nextPC297 = jumpAddress2_596;
+              MEMPTR = jumpAddress2_596;
+              PC = jumpAddress2_596;
+              break;
           } else {
-              _nextPC297 = -1;
+              MEMPTR = 0;
+              PC = (PC + 1) & 0xFFFF;
+              break;
           }
-          int nextPC_601 = _nextPC297;
-          MEMPTR = (nextPC_601 == -1 ? 0 : nextPC_601) & 0xFFFF;
-          PC = _nextPC297 == -1 ? (PC + 1) & 0xFFFF : _nextPC297;
-          break;
       }
       case 0xC1: {
           int wordNumber1_604 = memory.read(SP, 0);
@@ -2210,7 +2155,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xC2: {
-          int _nextPC299 = 0;
           int _jumpAddress299 = 0;
           int address_608 = (PC + 1) & 0xFFFF;
           int operand_610 = memory.read(address_608, 0);
@@ -2218,14 +2162,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_607 = (_jumpAddress299 = (operand_612 << 8) | operand_610);
           if ((!((F & 0x40) == 0x40))) {
               _jumpAddress299 = jumpAddress2_607;
-              _nextPC299 = jumpAddress2_607;
+              MEMPTR = _jumpAddress299;
+              PC = jumpAddress2_607;
+              break;
           } else {
-              _nextPC299 = -1;
+              MEMPTR = _jumpAddress299;
+              PC = (PC + 3) & 0xFFFF;
+              break;
           }
-          int nextPC_613 = _jumpAddress299;
-          MEMPTR = (nextPC_613 == -1 ? 0 : nextPC_613) & 0xFFFF;
-          PC = _nextPC299 == -1 ? (PC + 3) & 0xFFFF : _nextPC299;
-          break;
       }
       case 0xC3: {
           int _nextPC300;
@@ -2236,13 +2180,11 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_614 = (_jumpAddress300 = (operand_619 << 8) | operand_617);
           _jumpAddress300 = jumpAddress2_614;
           _nextPC300 = jumpAddress2_614;
-          int nextPC_620 = _jumpAddress300;
-          MEMPTR = nextPC_620;
+          MEMPTR = _jumpAddress300;
           PC = _nextPC300;
           break;
       }
       case 0xC4: {
-          int _nextPC301 = 0;
           int _jumpAddress301 = 0;
           int address_621 = (PC + 1) & 0xFFFF;
           int operand_623 = memory.read(address_621, 0);
@@ -2257,14 +2199,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_631 >>> 8));
               memory.write(SP, (value_631 & 0xFF));
               _jumpAddress301 = jumpAddress2_627;
-              _nextPC301 = jumpAddress2_627;
+              MEMPTR = _jumpAddress301;
+              PC = jumpAddress2_627;
+              break;
           } else {
-              _nextPC301 = -1;
+              MEMPTR = _jumpAddress301;
+              PC = (PC + 3) & 0xFFFF;
+              break;
           }
-          int nextPC_632 = _jumpAddress301;
-          MEMPTR = (nextPC_632 == -1 ? 0 : nextPC_632) & 0xFFFF;
-          PC = _nextPC301 == -1 ? (PC + 3) & 0xFFFF : _nextPC301;
-          break;
       }
       case 0xC5: {
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
@@ -2284,9 +2226,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_639 = ((value2_636 & 0x88) >> 3) | ((value1_635 & 0x88) >> 2) | ((addtemp_638 & 0x88) >> 1);
           value2_636 = addtemp_638 & 0xff;
           _F303 = ((addtemp_638 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_639 & 0x07)] | OVERFLOW_ADD[(lookup_639 >> 4)] | (SZ53[value2_636] | (value2_636 == 0 ? 0x40 : 0));
-          int result_640 = value2_636;
           F = (_F303 & 0xFF);
-          A = result_640;
+          A = value2_636;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -2303,7 +2244,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xC8: {
-          int _nextPC306 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_642 = SP;
           if (((F & 0x40) == 0x40)) {
@@ -2313,14 +2253,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_646 = SP;
               SP = ((wordNumber_646 + 2) & 0xFFFF);
               jumpAddress2_642 = value_643;
-              _nextPC306 = jumpAddress2_642;
+              MEMPTR = jumpAddress2_642;
+              PC = jumpAddress2_642;
+              break;
           } else {
-              _nextPC306 = -1;
+              MEMPTR = 0;
+              PC = (PC + 1) & 0xFFFF;
+              break;
           }
-          int nextPC_647 = _nextPC306;
-          MEMPTR = (nextPC_647 == -1 ? 0 : nextPC_647) & 0xFFFF;
-          PC = _nextPC306 == -1 ? (PC + 1) & 0xFFFF : _nextPC306;
-          break;
       }
       case 0xC9: {
           int _nextPC307;
@@ -2332,13 +2272,11 @@ static final int[] SZ53 = new int[0x100];
           SP = ((wordNumber_652 + 2) & 0xFFFF);
           jumpAddress2_648 = value_649;
           _nextPC307 = jumpAddress2_648;
-          int nextPC_653 = _nextPC307;
-          MEMPTR = nextPC_653;
+          MEMPTR = _nextPC307;
           PC = _nextPC307;
           break;
       }
       case 0xCA: {
-          int _nextPC308 = 0;
           int _jumpAddress308 = 0;
           int address_655 = (PC + 1) & 0xFFFF;
           int operand_657 = memory.read(address_655, 0);
@@ -2346,14 +2284,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_654 = (_jumpAddress308 = (operand_659 << 8) | operand_657);
           if (((F & 0x40) == 0x40)) {
               _jumpAddress308 = jumpAddress2_654;
-              _nextPC308 = jumpAddress2_654;
+              MEMPTR = _jumpAddress308;
+              PC = jumpAddress2_654;
+              break;
           } else {
-              _nextPC308 = -1;
+              MEMPTR = _jumpAddress308;
+              PC = (PC + 3) & 0xFFFF;
+              break;
           }
-          int nextPC_660 = _jumpAddress308;
-          MEMPTR = (nextPC_660 == -1 ? 0 : nextPC_660) & 0xFFFF;
-          PC = _nextPC308 == -1 ? (PC + 3) & 0xFFFF : _nextPC308;
-          break;
       }
       case 0xCB: {
           R = (R + 1 & 0x7f) | regRBit7;
@@ -2361,7 +2299,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xCC: {
-          int _nextPC693 = 0;
           int _jumpAddress693 = 0;
           int address_1333 = (PC + 1) & 0xFFFF;
           int operand_1335 = memory.read(address_1333, 0);
@@ -2376,14 +2313,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_1343 >>> 8));
               memory.write(SP, (value_1343 & 0xFF));
               _jumpAddress693 = jumpAddress2_1339;
-              _nextPC693 = jumpAddress2_1339;
+              MEMPTR = _jumpAddress693;
+              PC = jumpAddress2_1339;
+              break;
           } else {
-              _nextPC693 = -1;
+              MEMPTR = _jumpAddress693;
+              PC = (PC + 3) & 0xFFFF;
+              break;
           }
-          int nextPC_1344 = _jumpAddress693;
-          MEMPTR = (nextPC_1344 == -1 ? 0 : nextPC_1344) & 0xFFFF;
-          PC = _nextPC693 == -1 ? (PC + 3) & 0xFFFF : _nextPC693;
-          break;
       }
       case 0xCD: {
           int _nextPC694;
@@ -2400,8 +2337,7 @@ static final int[] SZ53 = new int[0x100];
           memory.write(SP, (value_1355 & 0xFF));
           _jumpAddress694 = jumpAddress2_1351;
           _nextPC694 = jumpAddress2_1351;
-          int nextPC_1356 = _jumpAddress694;
-          MEMPTR = nextPC_1356;
+          MEMPTR = _jumpAddress694;
           PC = _nextPC694;
           break;
       }
@@ -2415,9 +2351,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1362 = ((value1_1358 & 0x88) >> 3) | ((operand_1357 & 0x88) >> 2) | ((adctemp_1361 & 0x88) >> 1);
           value1_1358 = adctemp_1361 & 0xff;
           _F695 = ((adctemp_1361 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_1362 & 0x07)] | OVERFLOW_ADD[(lookup_1362 >> 4)] | (SZ53[value1_1358] | (value1_1358 == 0 ? 0x40 : 0));
-          int result_1363 = value1_1358;
           F = (_F695 & 0xFF);
-          A = result_1363;
+          A = value1_1358;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -2441,7 +2376,6 @@ static final int[] SZ53 = new int[0x100];
   private void decode_13(int opcode) {
     switch (opcode) {
       case 0xD0: {
-          int _nextPC698 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_1365 = SP;
           if ((!((F & 1) == 1))) {
@@ -2451,14 +2385,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_1369 = SP;
               SP = ((wordNumber_1369 + 2) & 0xFFFF);
               jumpAddress2_1365 = value_1366;
-              _nextPC698 = jumpAddress2_1365;
+              MEMPTR = jumpAddress2_1365;
+              PC = jumpAddress2_1365;
+              break;
           } else {
-              _nextPC698 = -1;
+              MEMPTR = 0;
+              PC = (PC + 1) & 0xFFFF;
+              break;
           }
-          int nextPC_1370 = _nextPC698;
-          MEMPTR = (nextPC_1370 == -1 ? 0 : nextPC_1370) & 0xFFFF;
-          PC = _nextPC698 == -1 ? (PC + 1) & 0xFFFF : _nextPC698;
-          break;
       }
       case 0xD1: {
           int wordNumber1_1373 = memory.read(SP, 0);
@@ -2472,7 +2406,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xD2: {
-          int _nextPC700 = 0;
           int _jumpAddress700 = 0;
           int address_1377 = (PC + 1) & 0xFFFF;
           int operand_1379 = memory.read(address_1377, 0);
@@ -2480,14 +2413,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_1376 = (_jumpAddress700 = (operand_1381 << 8) | operand_1379);
           if ((!((F & 1) == 1))) {
               _jumpAddress700 = jumpAddress2_1376;
-              _nextPC700 = jumpAddress2_1376;
+              MEMPTR = _jumpAddress700;
+              PC = jumpAddress2_1376;
+              break;
           } else {
-              _nextPC700 = -1;
+              MEMPTR = _jumpAddress700;
+              PC = (PC + 3) & 0xFFFF;
+              break;
           }
-          int nextPC_1382 = _jumpAddress700;
-          MEMPTR = (nextPC_1382 == -1 ? 0 : nextPC_1382) & 0xFFFF;
-          PC = _nextPC700 == -1 ? (PC + 3) & 0xFFFF : _nextPC700;
-          break;
       }
       case 0xD3: {
           int operand_1384 = memory.read((PC + 1) & 0xFFFF, 0);
@@ -2502,7 +2435,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xD4: {
-          int _nextPC702 = 0;
           int _jumpAddress702 = 0;
           int address_1386 = (PC + 1) & 0xFFFF;
           int operand_1388 = memory.read(address_1386, 0);
@@ -2517,14 +2449,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_1396 >>> 8));
               memory.write(SP, (value_1396 & 0xFF));
               _jumpAddress702 = jumpAddress2_1392;
-              _nextPC702 = jumpAddress2_1392;
+              MEMPTR = _jumpAddress702;
+              PC = jumpAddress2_1392;
+              break;
           } else {
-              _nextPC702 = -1;
+              MEMPTR = _jumpAddress702;
+              PC = (PC + 3) & 0xFFFF;
+              break;
           }
-          int nextPC_1397 = _jumpAddress702;
-          MEMPTR = (nextPC_1397 == -1 ? 0 : nextPC_1397) & 0xFFFF;
-          PC = _nextPC702 == -1 ? (PC + 3) & 0xFFFF : _nextPC702;
-          break;
       }
       case 0xD5: {
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
@@ -2543,9 +2475,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1404 = ((value1_1400 & 0x88) >> 3) | ((operand_1399 & 0x88) >> 2) | ((subtemp_1403 & 0x88) >> 1);
           value1_1400 = subtemp_1403 & 0xff;
           _F704 = ((subtemp_1403 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_1404 & 0x07)] | OVERFLOW_SUB[(lookup_1404 >> 4)] | (SZ53[value1_1400] | (value1_1400 == 0 ? 0x40 : 0));
-          int result_1405 = value1_1400;
           F = (_F704 & 0xFF);
-          A = result_1405;
+          A = value1_1400;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -2562,7 +2493,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xD8: {
-          int _nextPC707 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_1407 = SP;
           if (((F & 1) == 1)) {
@@ -2572,14 +2502,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_1411 = SP;
               SP = ((wordNumber_1411 + 2) & 0xFFFF);
               jumpAddress2_1407 = value_1408;
-              _nextPC707 = jumpAddress2_1407;
+              MEMPTR = jumpAddress2_1407;
+              PC = jumpAddress2_1407;
+              break;
           } else {
-              _nextPC707 = -1;
+              MEMPTR = 0;
+              PC = (PC + 1) & 0xFFFF;
+              break;
           }
-          int nextPC_1412 = _nextPC707;
-          MEMPTR = (nextPC_1412 == -1 ? 0 : nextPC_1412) & 0xFFFF;
-          PC = _nextPC707 == -1 ? (PC + 1) & 0xFFFF : _nextPC707;
-          break;
       }
       case 0xD9: {
           int v1_1413 = ((B << 8) | C);
@@ -2598,7 +2528,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xDA: {
-          int _nextPC709 = 0;
           int _jumpAddress709 = 0;
           int address_1415 = (PC + 1) & 0xFFFF;
           int operand_1417 = memory.read(address_1415, 0);
@@ -2606,14 +2535,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_1414 = (_jumpAddress709 = (operand_1419 << 8) | operand_1417);
           if (((F & 1) == 1)) {
               _jumpAddress709 = jumpAddress2_1414;
-              _nextPC709 = jumpAddress2_1414;
+              MEMPTR = _jumpAddress709;
+              PC = jumpAddress2_1414;
+              break;
           } else {
-              _nextPC709 = -1;
+              MEMPTR = _jumpAddress709;
+              PC = (PC + 3) & 0xFFFF;
+              break;
           }
-          int nextPC_1420 = _jumpAddress709;
-          MEMPTR = (nextPC_1420 == -1 ? 0 : nextPC_1420) & 0xFFFF;
-          PC = _nextPC709 == -1 ? (PC + 3) & 0xFFFF : _nextPC709;
-          break;
       }
       case 0xDB: {
           int operand_1422 = memory.read((PC + 1) & 0xFFFF, 0);
@@ -2627,7 +2556,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xDC: {
-          int _nextPC711 = 0;
           int _jumpAddress711 = 0;
           int address_1425 = (PC + 1) & 0xFFFF;
           int operand_1427 = memory.read(address_1425, 0);
@@ -2642,14 +2570,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_1435 >>> 8));
               memory.write(SP, (value_1435 & 0xFF));
               _jumpAddress711 = jumpAddress2_1431;
-              _nextPC711 = jumpAddress2_1431;
+              MEMPTR = _jumpAddress711;
+              PC = jumpAddress2_1431;
+              break;
           } else {
-              _nextPC711 = -1;
+              MEMPTR = _jumpAddress711;
+              PC = (PC + 3) & 0xFFFF;
+              break;
           }
-          int nextPC_1436 = _jumpAddress711;
-          MEMPTR = (nextPC_1436 == -1 ? 0 : nextPC_1436) & 0xFFFF;
-          PC = _nextPC711 == -1 ? (PC + 3) & 0xFFFF : _nextPC711;
-          break;
       }
       case 0xDD: {
           R = (R + 1 & 0x7f) | regRBit7;
@@ -2666,9 +2594,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_3580 = ((value1_3576 & 0x88) >> 3) | ((operand_3575 & 0x88) >> 2) | ((sbctemp_3579 & 0x88) >> 1);
           value1_3576 = sbctemp_3579 & 0xff;
           _F1721 = ((sbctemp_3579 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3580 & 0x07)] | OVERFLOW_SUB[(lookup_3580 >> 4)] | (SZ53[value1_3576] | (value1_3576 == 0 ? 0x40 : 0));
-          int result_3581 = value1_3576;
           F = (_F1721 & 0xFF);
-          A = result_3581;
+          A = value1_3576;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -2692,7 +2619,6 @@ static final int[] SZ53 = new int[0x100];
   private void decode_14(int opcode) {
     switch (opcode) {
       case 0xE0: {
-          int _nextPC1724 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_3583 = SP;
           if ((!((F & 4) == 4))) {
@@ -2702,14 +2628,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_3587 = SP;
               SP = ((wordNumber_3587 + 2) & 0xFFFF);
               jumpAddress2_3583 = value_3584;
-              _nextPC1724 = jumpAddress2_3583;
+              MEMPTR = jumpAddress2_3583;
+              PC = jumpAddress2_3583;
+              break;
           } else {
-              _nextPC1724 = -1;
+              MEMPTR = 0;
+              PC = (PC + 1) & 0xFFFF;
+              break;
           }
-          int nextPC_3588 = _nextPC1724;
-          MEMPTR = (nextPC_3588 == -1 ? 0 : nextPC_3588) & 0xFFFF;
-          PC = _nextPC1724 == -1 ? (PC + 1) & 0xFFFF : _nextPC1724;
-          break;
       }
       case 0xE1: {
           int wordNumber1_3591 = memory.read(SP, 0);
@@ -2723,7 +2649,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xE2: {
-          int _nextPC1726 = 0;
           int _jumpAddress1726 = 0;
           int address_3595 = (PC + 1) & 0xFFFF;
           int operand_3597 = memory.read(address_3595, 0);
@@ -2731,14 +2656,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_3594 = (_jumpAddress1726 = (operand_3599 << 8) | operand_3597);
           if ((!((F & 4) == 4))) {
               _jumpAddress1726 = jumpAddress2_3594;
-              _nextPC1726 = jumpAddress2_3594;
+              MEMPTR = _jumpAddress1726;
+              PC = jumpAddress2_3594;
+              break;
           } else {
-              _nextPC1726 = -1;
+              MEMPTR = _jumpAddress1726;
+              PC = (PC + 3) & 0xFFFF;
+              break;
           }
-          int nextPC_3600 = _jumpAddress1726;
-          MEMPTR = (nextPC_3600 == -1 ? 0 : nextPC_3600) & 0xFFFF;
-          PC = _nextPC1726 == -1 ? (PC + 3) & 0xFFFF : _nextPC1726;
-          break;
       }
       case 0xE3: {
           int _address1727 = SP;
@@ -2758,7 +2683,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xE4: {
-          int _nextPC1729 = 0;
           int _jumpAddress1729 = 0;
           int address_3605 = (PC + 1) & 0xFFFF;
           int operand_3607 = memory.read(address_3605, 0);
@@ -2773,14 +2697,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_3615 >>> 8));
               memory.write(SP, (value_3615 & 0xFF));
               _jumpAddress1729 = jumpAddress2_3611;
-              _nextPC1729 = jumpAddress2_3611;
+              MEMPTR = _jumpAddress1729;
+              PC = jumpAddress2_3611;
+              break;
           } else {
-              _nextPC1729 = -1;
+              MEMPTR = _jumpAddress1729;
+              PC = (PC + 3) & 0xFFFF;
+              break;
           }
-          int nextPC_3616 = _jumpAddress1729;
-          MEMPTR = (nextPC_3616 == -1 ? 0 : nextPC_3616) & 0xFFFF;
-          PC = _nextPC1729 == -1 ? (PC + 3) & 0xFFFF : _nextPC1729;
-          break;
       }
       case 0xE5: {
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
@@ -2817,7 +2741,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xE8: {
-          int _nextPC1734 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_3624 = SP;
           if (((F & 4) == 4)) {
@@ -2827,14 +2750,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_3628 = SP;
               SP = ((wordNumber_3628 + 2) & 0xFFFF);
               jumpAddress2_3624 = value_3625;
-              _nextPC1734 = jumpAddress2_3624;
+              MEMPTR = jumpAddress2_3624;
+              PC = jumpAddress2_3624;
+              break;
           } else {
-              _nextPC1734 = -1;
+              MEMPTR = 0;
+              PC = (PC + 1) & 0xFFFF;
+              break;
           }
-          int nextPC_3629 = _nextPC1734;
-          MEMPTR = (nextPC_3629 == -1 ? 0 : nextPC_3629) & 0xFFFF;
-          PC = _nextPC1734 == -1 ? (PC + 1) & 0xFFFF : _nextPC1734;
-          break;
       }
       case 0xE9: {
           int _nextPC1735;
@@ -2845,7 +2768,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xEA: {
-          int _nextPC1736 = 0;
           int _jumpAddress1736 = 0;
           int address_3633 = (PC + 1) & 0xFFFF;
           int operand_3635 = memory.read(address_3633, 0);
@@ -2853,14 +2775,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_3632 = (_jumpAddress1736 = (operand_3637 << 8) | operand_3635);
           if (((F & 4) == 4)) {
               _jumpAddress1736 = jumpAddress2_3632;
-              _nextPC1736 = jumpAddress2_3632;
+              MEMPTR = _jumpAddress1736;
+              PC = jumpAddress2_3632;
+              break;
           } else {
-              _nextPC1736 = -1;
+              MEMPTR = _jumpAddress1736;
+              PC = (PC + 3) & 0xFFFF;
+              break;
           }
-          int nextPC_3638 = _jumpAddress1736;
-          MEMPTR = (nextPC_3638 == -1 ? 0 : nextPC_3638) & 0xFFFF;
-          PC = _nextPC1736 == -1 ? (PC + 3) & 0xFFFF : _nextPC1736;
-          break;
       }
       case 0xEB: {
           int v1_3639 = ((D << 8) | E);
@@ -2873,7 +2795,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xEC: {
-          int _nextPC1738 = 0;
           int _jumpAddress1738 = 0;
           int address_3641 = (PC + 1) & 0xFFFF;
           int operand_3643 = memory.read(address_3641, 0);
@@ -2888,14 +2809,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_3651 >>> 8));
               memory.write(SP, (value_3651 & 0xFF));
               _jumpAddress1738 = jumpAddress2_3647;
-              _nextPC1738 = jumpAddress2_3647;
+              MEMPTR = _jumpAddress1738;
+              PC = jumpAddress2_3647;
+              break;
           } else {
-              _nextPC1738 = -1;
+              MEMPTR = _jumpAddress1738;
+              PC = (PC + 3) & 0xFFFF;
+              break;
           }
-          int nextPC_3652 = _jumpAddress1738;
-          MEMPTR = (nextPC_3652 == -1 ? 0 : nextPC_3652) & 0xFFFF;
-          PC = _nextPC1738 == -1 ? (PC + 3) & 0xFFFF : _nextPC1738;
-          break;
       }
       case 0xED: {
           R = (R + 1 & 0x7f) | regRBit7;
@@ -2935,7 +2856,6 @@ static final int[] SZ53 = new int[0x100];
   private void decode_15(int opcode) {
     switch (opcode) {
       case 0xF0: {
-          int _nextPC1874 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_4173 = SP;
           if ((!((F & 0x80) == 0x80))) {
@@ -2945,14 +2865,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_4177 = SP;
               SP = ((wordNumber_4177 + 2) & 0xFFFF);
               jumpAddress2_4173 = value_4174;
-              _nextPC1874 = jumpAddress2_4173;
+              MEMPTR = jumpAddress2_4173;
+              PC = jumpAddress2_4173;
+              break;
           } else {
-              _nextPC1874 = -1;
+              MEMPTR = 0;
+              PC = (PC + 1) & 0xFFFF;
+              break;
           }
-          int nextPC_4178 = _nextPC1874;
-          MEMPTR = (nextPC_4178 == -1 ? 0 : nextPC_4178) & 0xFFFF;
-          PC = _nextPC1874 == -1 ? (PC + 1) & 0xFFFF : _nextPC1874;
-          break;
       }
       case 0xF1: {
           int wordNumber1_4181 = memory.read(SP, 0);
@@ -2966,7 +2886,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xF2: {
-          int _nextPC1876 = 0;
           int _jumpAddress1876 = 0;
           int address_4185 = (PC + 1) & 0xFFFF;
           int operand_4187 = memory.read(address_4185, 0);
@@ -2974,14 +2893,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_4184 = (_jumpAddress1876 = (operand_4189 << 8) | operand_4187);
           if ((!((F & 0x80) == 0x80))) {
               _jumpAddress1876 = jumpAddress2_4184;
-              _nextPC1876 = jumpAddress2_4184;
+              MEMPTR = _jumpAddress1876;
+              PC = jumpAddress2_4184;
+              break;
           } else {
-              _nextPC1876 = -1;
+              MEMPTR = _jumpAddress1876;
+              PC = (PC + 3) & 0xFFFF;
+              break;
           }
-          int nextPC_4190 = _jumpAddress1876;
-          MEMPTR = (nextPC_4190 == -1 ? 0 : nextPC_4190) & 0xFFFF;
-          PC = _nextPC1876 == -1 ? (PC + 3) & 0xFFFF : _nextPC1876;
-          break;
       }
       case 0xF3: {
           state.resetInterrupt();
@@ -2989,7 +2908,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xF4: {
-          int _nextPC1878 = 0;
           int _jumpAddress1878 = 0;
           int address_4191 = (PC + 1) & 0xFFFF;
           int operand_4193 = memory.read(address_4191, 0);
@@ -3004,14 +2922,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_4201 >>> 8));
               memory.write(SP, (value_4201 & 0xFF));
               _jumpAddress1878 = jumpAddress2_4197;
-              _nextPC1878 = jumpAddress2_4197;
+              MEMPTR = _jumpAddress1878;
+              PC = jumpAddress2_4197;
+              break;
           } else {
-              _nextPC1878 = -1;
+              MEMPTR = _jumpAddress1878;
+              PC = (PC + 3) & 0xFFFF;
+              break;
           }
-          int nextPC_4202 = _jumpAddress1878;
-          MEMPTR = (nextPC_4202 == -1 ? 0 : nextPC_4202) & 0xFFFF;
-          PC = _nextPC1878 == -1 ? (PC + 3) & 0xFFFF : _nextPC1878;
-          break;
       }
       case 0xF5: {
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
@@ -3048,7 +2966,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xF8: {
-          int _nextPC1883 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_4210 = SP;
           if (((F & 0x80) == 0x80)) {
@@ -3058,14 +2975,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_4214 = SP;
               SP = ((wordNumber_4214 + 2) & 0xFFFF);
               jumpAddress2_4210 = value_4211;
-              _nextPC1883 = jumpAddress2_4210;
+              MEMPTR = jumpAddress2_4210;
+              PC = jumpAddress2_4210;
+              break;
           } else {
-              _nextPC1883 = -1;
+              MEMPTR = 0;
+              PC = (PC + 1) & 0xFFFF;
+              break;
           }
-          int nextPC_4215 = _nextPC1883;
-          MEMPTR = (nextPC_4215 == -1 ? 0 : nextPC_4215) & 0xFFFF;
-          PC = _nextPC1883 == -1 ? (PC + 1) & 0xFFFF : _nextPC1883;
-          break;
       }
       case 0xF9: {
           contend(((I << 8) | R), 2, 1, Contention.Kind.READ_NO_MREQ);
@@ -3074,7 +2991,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xFA: {
-          int _nextPC1885 = 0;
           int _jumpAddress1885 = 0;
           int address_4217 = (PC + 1) & 0xFFFF;
           int operand_4219 = memory.read(address_4217, 0);
@@ -3082,14 +2998,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_4216 = (_jumpAddress1885 = (operand_4221 << 8) | operand_4219);
           if (((F & 0x80) == 0x80)) {
               _jumpAddress1885 = jumpAddress2_4216;
-              _nextPC1885 = jumpAddress2_4216;
+              MEMPTR = _jumpAddress1885;
+              PC = jumpAddress2_4216;
+              break;
           } else {
-              _nextPC1885 = -1;
+              MEMPTR = _jumpAddress1885;
+              PC = (PC + 3) & 0xFFFF;
+              break;
           }
-          int nextPC_4222 = _jumpAddress1885;
-          MEMPTR = (nextPC_4222 == -1 ? 0 : nextPC_4222) & 0xFFFF;
-          PC = _nextPC1885 == -1 ? (PC + 3) & 0xFFFF : _nextPC1885;
-          break;
       }
       case 0xFB: {
           state.enableInterrupt();
@@ -3097,7 +3013,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xFC: {
-          int _nextPC1887 = 0;
           int _jumpAddress1887 = 0;
           int address_4223 = (PC + 1) & 0xFFFF;
           int operand_4225 = memory.read(address_4223, 0);
@@ -3112,14 +3027,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_4233 >>> 8));
               memory.write(SP, (value_4233 & 0xFF));
               _jumpAddress1887 = jumpAddress2_4229;
-              _nextPC1887 = jumpAddress2_4229;
+              MEMPTR = _jumpAddress1887;
+              PC = jumpAddress2_4229;
+              break;
           } else {
-              _nextPC1887 = -1;
+              MEMPTR = _jumpAddress1887;
+              PC = (PC + 3) & 0xFFFF;
+              break;
           }
-          int nextPC_4234 = _jumpAddress1887;
-          MEMPTR = (nextPC_4234 == -1 ? 0 : nextPC_4234) & 0xFFFF;
-          PC = _nextPC1887 == -1 ? (PC + 3) & 0xFFFF : _nextPC1887;
-          break;
       }
       case 0xFD: {
           R = (R + 1 & 0x7f) | regRBit7;
@@ -3199,9 +3114,8 @@ static final int[] SZ53 = new int[0x100];
           int value1_661 = B;
           value1_661 = (value1_661 << 1 | value1_661 >> 7) & 0xff;
           _F309 = (value1_661 & 1) | (SZ53P[value1_661] | (value1_661 == 0 ? 0x40 : 0));
-          int result_664 = value1_661;
           F = (_F309 & 0xFF);
-          B = result_664;
+          B = value1_661;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -3210,9 +3124,8 @@ static final int[] SZ53 = new int[0x100];
           int value1_665 = C;
           value1_665 = (value1_665 << 1 | value1_665 >> 7) & 0xff;
           _F311 = (value1_665 & 1) | (SZ53P[value1_665] | (value1_665 == 0 ? 0x40 : 0));
-          int result_668 = value1_665;
           F = (_F311 & 0xFF);
-          C = result_668;
+          C = value1_665;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -3221,9 +3134,8 @@ static final int[] SZ53 = new int[0x100];
           int value1_669 = D;
           value1_669 = (value1_669 << 1 | value1_669 >> 7) & 0xff;
           _F313 = (value1_669 & 1) | (SZ53P[value1_669] | (value1_669 == 0 ? 0x40 : 0));
-          int result_672 = value1_669;
           F = (_F313 & 0xFF);
-          D = result_672;
+          D = value1_669;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -3232,9 +3144,8 @@ static final int[] SZ53 = new int[0x100];
           int value1_673 = E;
           value1_673 = (value1_673 << 1 | value1_673 >> 7) & 0xff;
           _F315 = (value1_673 & 1) | (SZ53P[value1_673] | (value1_673 == 0 ? 0x40 : 0));
-          int result_676 = value1_673;
           F = (_F315 & 0xFF);
-          E = result_676;
+          E = value1_673;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -3243,9 +3154,8 @@ static final int[] SZ53 = new int[0x100];
           int value1_677 = H;
           value1_677 = (value1_677 << 1 | value1_677 >> 7) & 0xff;
           _F317 = (value1_677 & 1) | (SZ53P[value1_677] | (value1_677 == 0 ? 0x40 : 0));
-          int result_680 = value1_677;
           F = (_F317 & 0xFF);
-          H = result_680;
+          H = value1_677;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -3254,9 +3164,8 @@ static final int[] SZ53 = new int[0x100];
           int value1_681 = L;
           value1_681 = (value1_681 << 1 | value1_681 >> 7) & 0xff;
           _F319 = (value1_681 & 1) | (SZ53P[value1_681] | (value1_681 == 0 ? 0x40 : 0));
-          int result_684 = value1_681;
           F = (_F319 & 0xFF);
-          L = result_684;
+          L = value1_681;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -3267,10 +3176,9 @@ static final int[] SZ53 = new int[0x100];
           contend(((H << 8) | L), 1, 1, Contention.Kind.READ_NO_MREQ);
           value1_685 = (value1_685 << 1 | value1_685 >> 7) & 0xff;
           _F321 = (value1_685 & 1) | (SZ53P[value1_685] | (value1_685 == 0 ? 0x40 : 0));
-          int result_688 = value1_685;
           F = (_F321 & 0xFF);
           _address84 = (H << 8) | L;
-          memory.write(_address84, result_688);
+          memory.write(_address84, value1_685);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -3279,9 +3187,8 @@ static final int[] SZ53 = new int[0x100];
           int value1_689 = A;
           value1_689 = (value1_689 << 1 | value1_689 >> 7) & 0xff;
           _F323 = (value1_689 & 1) | (SZ53P[value1_689] | (value1_689 == 0 ? 0x40 : 0));
-          int result_692 = value1_689;
           F = (_F323 & 0xFF);
-          A = result_692;
+          A = value1_689;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -4099,11 +4006,10 @@ static final int[] SZ53 = new int[0x100];
           int address_933;
           address_933 = B;
           int nAndCarry_934 = F & 1;
-          int value1_935 = address_933;
           int value3_937 = nAndCarry_934;
           _F437 = value3_937;
           value3_937 = value3_937 >>> 1;
-          _F437 = (_F437 & 1) | 0x10 | (value1_935 & 0x28);
+          _F437 = (_F437 & 1) | 0x10 | (address_933 & 0x28);
           if ((B & (0x01 << value3_937)) == 0) {
               _F437 |= 0x44;
           }
@@ -4119,11 +4025,10 @@ static final int[] SZ53 = new int[0x100];
           int address_939;
           address_939 = C;
           int nAndCarry_940 = F & 1;
-          int value1_941 = address_939;
           int value3_943 = nAndCarry_940;
           _F439 = value3_943;
           value3_943 = value3_943 >>> 1;
-          _F439 = (_F439 & 1) | 0x10 | (value1_941 & 0x28);
+          _F439 = (_F439 & 1) | 0x10 | (address_939 & 0x28);
           if ((C & (0x01 << value3_943)) == 0) {
               _F439 |= 0x44;
           }
@@ -4139,11 +4044,10 @@ static final int[] SZ53 = new int[0x100];
           int address_945;
           address_945 = D;
           int nAndCarry_946 = F & 1;
-          int value1_947 = address_945;
           int value3_949 = nAndCarry_946;
           _F441 = value3_949;
           value3_949 = value3_949 >>> 1;
-          _F441 = (_F441 & 1) | 0x10 | (value1_947 & 0x28);
+          _F441 = (_F441 & 1) | 0x10 | (address_945 & 0x28);
           if ((D & (0x01 << value3_949)) == 0) {
               _F441 |= 0x44;
           }
@@ -4159,11 +4063,10 @@ static final int[] SZ53 = new int[0x100];
           int address_951;
           address_951 = E;
           int nAndCarry_952 = F & 1;
-          int value1_953 = address_951;
           int value3_955 = nAndCarry_952;
           _F443 = value3_955;
           value3_955 = value3_955 >>> 1;
-          _F443 = (_F443 & 1) | 0x10 | (value1_953 & 0x28);
+          _F443 = (_F443 & 1) | 0x10 | (address_951 & 0x28);
           if ((E & (0x01 << value3_955)) == 0) {
               _F443 |= 0x44;
           }
@@ -4179,11 +4082,10 @@ static final int[] SZ53 = new int[0x100];
           int address_957;
           address_957 = H;
           int nAndCarry_958 = F & 1;
-          int value1_959 = address_957;
           int value3_961 = nAndCarry_958;
           _F445 = value3_961;
           value3_961 = value3_961 >>> 1;
-          _F445 = (_F445 & 1) | 0x10 | (value1_959 & 0x28);
+          _F445 = (_F445 & 1) | 0x10 | (address_957 & 0x28);
           if ((H & (0x01 << value3_961)) == 0) {
               _F445 |= 0x44;
           }
@@ -4199,11 +4101,10 @@ static final int[] SZ53 = new int[0x100];
           int address_963;
           address_963 = L;
           int nAndCarry_964 = F & 1;
-          int value1_965 = address_963;
           int value3_967 = nAndCarry_964;
           _F447 = value3_967;
           value3_967 = value3_967 >>> 1;
-          _F447 = (_F447 & 1) | 0x10 | (value1_965 & 0x28);
+          _F447 = (_F447 & 1) | 0x10 | (address_963 & 0x28);
           if ((L & (0x01 << value3_967)) == 0) {
               _F447 |= 0x44;
           }
@@ -4221,13 +4122,12 @@ static final int[] SZ53 = new int[0x100];
           address_969 = MEMPTR >>> 8;
           int nAndCarry_970 = F & 1;
           _address84 = (H << 8) | L;
-          int value1_971 = address_969;
           int value2_972 = memory.read(_address84, 0);
           contend(((H << 8) | L), 1, 1, Contention.Kind.READ_NO_MREQ);
           int value3_973 = nAndCarry_970;
           _F449 = value3_973;
           value3_973 = value3_973 >>> 1;
-          _F449 = (_F449 & 1) | 0x10 | (value1_971 & 0x28);
+          _F449 = (_F449 & 1) | 0x10 | (address_969 & 0x28);
           if ((value2_972 & (0x01 << value3_973)) == 0) {
               _F449 |= 0x44;
           }
@@ -4243,11 +4143,10 @@ static final int[] SZ53 = new int[0x100];
           int address_975;
           address_975 = A;
           int nAndCarry_976 = F & 1;
-          int value1_977 = address_975;
           int value3_979 = nAndCarry_976;
           _F451 = value3_979;
           value3_979 = value3_979 >>> 1;
-          _F451 = (_F451 & 1) | 0x10 | (value1_977 & 0x28);
+          _F451 = (_F451 & 1) | 0x10 | (address_975 & 0x28);
           if ((A & (0x01 << value3_979)) == 0) {
               _F451 |= 0x44;
           }
@@ -4263,11 +4162,10 @@ static final int[] SZ53 = new int[0x100];
           int address_981;
           address_981 = B;
           int nAndCarry_982 = 2 | F & 1;
-          int value1_983 = address_981;
           int value3_985 = nAndCarry_982;
           _F453 = value3_985 & 1;
           value3_985 = value3_985 >>> 1;
-          _F453 = (_F453 & 1) | 0x10 | (value1_983 & 0x28);
+          _F453 = (_F453 & 1) | 0x10 | (address_981 & 0x28);
           if ((B & (0x01 << value3_985)) == 0) {
               _F453 |= 0x44;
           }
@@ -4283,11 +4181,10 @@ static final int[] SZ53 = new int[0x100];
           int address_987;
           address_987 = C;
           int nAndCarry_988 = 2 | F & 1;
-          int value1_989 = address_987;
           int value3_991 = nAndCarry_988;
           _F455 = value3_991 & 1;
           value3_991 = value3_991 >>> 1;
-          _F455 = (_F455 & 1) | 0x10 | (value1_989 & 0x28);
+          _F455 = (_F455 & 1) | 0x10 | (address_987 & 0x28);
           if ((C & (0x01 << value3_991)) == 0) {
               _F455 |= 0x44;
           }
@@ -4303,11 +4200,10 @@ static final int[] SZ53 = new int[0x100];
           int address_993;
           address_993 = D;
           int nAndCarry_994 = 2 | F & 1;
-          int value1_995 = address_993;
           int value3_997 = nAndCarry_994;
           _F457 = value3_997 & 1;
           value3_997 = value3_997 >>> 1;
-          _F457 = (_F457 & 1) | 0x10 | (value1_995 & 0x28);
+          _F457 = (_F457 & 1) | 0x10 | (address_993 & 0x28);
           if ((D & (0x01 << value3_997)) == 0) {
               _F457 |= 0x44;
           }
@@ -4323,11 +4219,10 @@ static final int[] SZ53 = new int[0x100];
           int address_999;
           address_999 = E;
           int nAndCarry_1000 = 2 | F & 1;
-          int value1_1001 = address_999;
           int value3_1003 = nAndCarry_1000;
           _F459 = value3_1003 & 1;
           value3_1003 = value3_1003 >>> 1;
-          _F459 = (_F459 & 1) | 0x10 | (value1_1001 & 0x28);
+          _F459 = (_F459 & 1) | 0x10 | (address_999 & 0x28);
           if ((E & (0x01 << value3_1003)) == 0) {
               _F459 |= 0x44;
           }
@@ -4343,11 +4238,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1005;
           address_1005 = H;
           int nAndCarry_1006 = 2 | F & 1;
-          int value1_1007 = address_1005;
           int value3_1009 = nAndCarry_1006;
           _F461 = value3_1009 & 1;
           value3_1009 = value3_1009 >>> 1;
-          _F461 = (_F461 & 1) | 0x10 | (value1_1007 & 0x28);
+          _F461 = (_F461 & 1) | 0x10 | (address_1005 & 0x28);
           if ((H & (0x01 << value3_1009)) == 0) {
               _F461 |= 0x44;
           }
@@ -4363,11 +4257,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1011;
           address_1011 = L;
           int nAndCarry_1012 = 2 | F & 1;
-          int value1_1013 = address_1011;
           int value3_1015 = nAndCarry_1012;
           _F463 = value3_1015 & 1;
           value3_1015 = value3_1015 >>> 1;
-          _F463 = (_F463 & 1) | 0x10 | (value1_1013 & 0x28);
+          _F463 = (_F463 & 1) | 0x10 | (address_1011 & 0x28);
           if ((L & (0x01 << value3_1015)) == 0) {
               _F463 |= 0x44;
           }
@@ -4385,13 +4278,12 @@ static final int[] SZ53 = new int[0x100];
           address_1017 = MEMPTR >>> 8;
           int nAndCarry_1018 = 2 | F & 1;
           _address84 = (H << 8) | L;
-          int value1_1019 = address_1017;
           int value2_1020 = memory.read(_address84, 0);
           contend(((H << 8) | L), 1, 1, Contention.Kind.READ_NO_MREQ);
           int value3_1021 = nAndCarry_1018;
           _F465 = value3_1021 & 1;
           value3_1021 = value3_1021 >>> 1;
-          _F465 = (_F465 & 1) | 0x10 | (value1_1019 & 0x28);
+          _F465 = (_F465 & 1) | 0x10 | (address_1017 & 0x28);
           if ((value2_1020 & (0x01 << value3_1021)) == 0) {
               _F465 |= 0x44;
           }
@@ -4407,11 +4299,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1023;
           address_1023 = A;
           int nAndCarry_1024 = 2 | F & 1;
-          int value1_1025 = address_1023;
           int value3_1027 = nAndCarry_1024;
           _F467 = value3_1027 & 1;
           value3_1027 = value3_1027 >>> 1;
-          _F467 = (_F467 & 1) | 0x10 | (value1_1025 & 0x28);
+          _F467 = (_F467 & 1) | 0x10 | (address_1023 & 0x28);
           if ((A & (0x01 << value3_1027)) == 0) {
               _F467 |= 0x44;
           }
@@ -4434,11 +4325,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1029;
           address_1029 = B;
           int nAndCarry_1030 = 4 | F & 1;
-          int value1_1031 = address_1029;
           int value3_1033 = nAndCarry_1030;
           _F469 = value3_1033 & 1;
           value3_1033 = value3_1033 >>> 1;
-          _F469 = (_F469 & 1) | 0x10 | (value1_1031 & 0x28);
+          _F469 = (_F469 & 1) | 0x10 | (address_1029 & 0x28);
           if ((B & (0x01 << value3_1033)) == 0) {
               _F469 |= 0x44;
           }
@@ -4454,11 +4344,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1035;
           address_1035 = C;
           int nAndCarry_1036 = 4 | F & 1;
-          int value1_1037 = address_1035;
           int value3_1039 = nAndCarry_1036;
           _F471 = value3_1039 & 1;
           value3_1039 = value3_1039 >>> 1;
-          _F471 = (_F471 & 1) | 0x10 | (value1_1037 & 0x28);
+          _F471 = (_F471 & 1) | 0x10 | (address_1035 & 0x28);
           if ((C & (0x01 << value3_1039)) == 0) {
               _F471 |= 0x44;
           }
@@ -4474,11 +4363,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1041;
           address_1041 = D;
           int nAndCarry_1042 = 4 | F & 1;
-          int value1_1043 = address_1041;
           int value3_1045 = nAndCarry_1042;
           _F473 = value3_1045 & 1;
           value3_1045 = value3_1045 >>> 1;
-          _F473 = (_F473 & 1) | 0x10 | (value1_1043 & 0x28);
+          _F473 = (_F473 & 1) | 0x10 | (address_1041 & 0x28);
           if ((D & (0x01 << value3_1045)) == 0) {
               _F473 |= 0x44;
           }
@@ -4494,11 +4382,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1047;
           address_1047 = E;
           int nAndCarry_1048 = 4 | F & 1;
-          int value1_1049 = address_1047;
           int value3_1051 = nAndCarry_1048;
           _F475 = value3_1051 & 1;
           value3_1051 = value3_1051 >>> 1;
-          _F475 = (_F475 & 1) | 0x10 | (value1_1049 & 0x28);
+          _F475 = (_F475 & 1) | 0x10 | (address_1047 & 0x28);
           if ((E & (0x01 << value3_1051)) == 0) {
               _F475 |= 0x44;
           }
@@ -4514,11 +4401,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1053;
           address_1053 = H;
           int nAndCarry_1054 = 4 | F & 1;
-          int value1_1055 = address_1053;
           int value3_1057 = nAndCarry_1054;
           _F477 = value3_1057 & 1;
           value3_1057 = value3_1057 >>> 1;
-          _F477 = (_F477 & 1) | 0x10 | (value1_1055 & 0x28);
+          _F477 = (_F477 & 1) | 0x10 | (address_1053 & 0x28);
           if ((H & (0x01 << value3_1057)) == 0) {
               _F477 |= 0x44;
           }
@@ -4534,11 +4420,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1059;
           address_1059 = L;
           int nAndCarry_1060 = 4 | F & 1;
-          int value1_1061 = address_1059;
           int value3_1063 = nAndCarry_1060;
           _F479 = value3_1063 & 1;
           value3_1063 = value3_1063 >>> 1;
-          _F479 = (_F479 & 1) | 0x10 | (value1_1061 & 0x28);
+          _F479 = (_F479 & 1) | 0x10 | (address_1059 & 0x28);
           if ((L & (0x01 << value3_1063)) == 0) {
               _F479 |= 0x44;
           }
@@ -4556,13 +4441,12 @@ static final int[] SZ53 = new int[0x100];
           address_1065 = MEMPTR >>> 8;
           int nAndCarry_1066 = 4 | F & 1;
           _address84 = (H << 8) | L;
-          int value1_1067 = address_1065;
           int value2_1068 = memory.read(_address84, 0);
           contend(((H << 8) | L), 1, 1, Contention.Kind.READ_NO_MREQ);
           int value3_1069 = nAndCarry_1066;
           _F481 = value3_1069 & 1;
           value3_1069 = value3_1069 >>> 1;
-          _F481 = (_F481 & 1) | 0x10 | (value1_1067 & 0x28);
+          _F481 = (_F481 & 1) | 0x10 | (address_1065 & 0x28);
           if ((value2_1068 & (0x01 << value3_1069)) == 0) {
               _F481 |= 0x44;
           }
@@ -4578,11 +4462,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1071;
           address_1071 = A;
           int nAndCarry_1072 = 4 | F & 1;
-          int value1_1073 = address_1071;
           int value3_1075 = nAndCarry_1072;
           _F483 = value3_1075 & 1;
           value3_1075 = value3_1075 >>> 1;
-          _F483 = (_F483 & 1) | 0x10 | (value1_1073 & 0x28);
+          _F483 = (_F483 & 1) | 0x10 | (address_1071 & 0x28);
           if ((A & (0x01 << value3_1075)) == 0) {
               _F483 |= 0x44;
           }
@@ -4598,11 +4481,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1077;
           address_1077 = B;
           int nAndCarry_1078 = 6 | F & 1;
-          int value1_1079 = address_1077;
           int value3_1081 = nAndCarry_1078;
           _F485 = value3_1081 & 1;
           value3_1081 = value3_1081 >>> 1;
-          _F485 = (_F485 & 1) | 0x10 | (value1_1079 & 0x28);
+          _F485 = (_F485 & 1) | 0x10 | (address_1077 & 0x28);
           if ((B & (0x01 << value3_1081)) == 0) {
               _F485 |= 0x44;
           }
@@ -4618,11 +4500,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1083;
           address_1083 = C;
           int nAndCarry_1084 = 6 | F & 1;
-          int value1_1085 = address_1083;
           int value3_1087 = nAndCarry_1084;
           _F487 = value3_1087 & 1;
           value3_1087 = value3_1087 >>> 1;
-          _F487 = (_F487 & 1) | 0x10 | (value1_1085 & 0x28);
+          _F487 = (_F487 & 1) | 0x10 | (address_1083 & 0x28);
           if ((C & (0x01 << value3_1087)) == 0) {
               _F487 |= 0x44;
           }
@@ -4638,11 +4519,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1089;
           address_1089 = D;
           int nAndCarry_1090 = 6 | F & 1;
-          int value1_1091 = address_1089;
           int value3_1093 = nAndCarry_1090;
           _F489 = value3_1093 & 1;
           value3_1093 = value3_1093 >>> 1;
-          _F489 = (_F489 & 1) | 0x10 | (value1_1091 & 0x28);
+          _F489 = (_F489 & 1) | 0x10 | (address_1089 & 0x28);
           if ((D & (0x01 << value3_1093)) == 0) {
               _F489 |= 0x44;
           }
@@ -4658,11 +4538,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1095;
           address_1095 = E;
           int nAndCarry_1096 = 6 | F & 1;
-          int value1_1097 = address_1095;
           int value3_1099 = nAndCarry_1096;
           _F491 = value3_1099 & 1;
           value3_1099 = value3_1099 >>> 1;
-          _F491 = (_F491 & 1) | 0x10 | (value1_1097 & 0x28);
+          _F491 = (_F491 & 1) | 0x10 | (address_1095 & 0x28);
           if ((E & (0x01 << value3_1099)) == 0) {
               _F491 |= 0x44;
           }
@@ -4678,11 +4557,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1101;
           address_1101 = H;
           int nAndCarry_1102 = 6 | F & 1;
-          int value1_1103 = address_1101;
           int value3_1105 = nAndCarry_1102;
           _F493 = value3_1105 & 1;
           value3_1105 = value3_1105 >>> 1;
-          _F493 = (_F493 & 1) | 0x10 | (value1_1103 & 0x28);
+          _F493 = (_F493 & 1) | 0x10 | (address_1101 & 0x28);
           if ((H & (0x01 << value3_1105)) == 0) {
               _F493 |= 0x44;
           }
@@ -4698,11 +4576,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1107;
           address_1107 = L;
           int nAndCarry_1108 = 6 | F & 1;
-          int value1_1109 = address_1107;
           int value3_1111 = nAndCarry_1108;
           _F495 = value3_1111 & 1;
           value3_1111 = value3_1111 >>> 1;
-          _F495 = (_F495 & 1) | 0x10 | (value1_1109 & 0x28);
+          _F495 = (_F495 & 1) | 0x10 | (address_1107 & 0x28);
           if ((L & (0x01 << value3_1111)) == 0) {
               _F495 |= 0x44;
           }
@@ -4720,13 +4597,12 @@ static final int[] SZ53 = new int[0x100];
           address_1113 = MEMPTR >>> 8;
           int nAndCarry_1114 = 6 | F & 1;
           _address84 = (H << 8) | L;
-          int value1_1115 = address_1113;
           int value2_1116 = memory.read(_address84, 0);
           contend(((H << 8) | L), 1, 1, Contention.Kind.READ_NO_MREQ);
           int value3_1117 = nAndCarry_1114;
           _F497 = value3_1117 & 1;
           value3_1117 = value3_1117 >>> 1;
-          _F497 = (_F497 & 1) | 0x10 | (value1_1115 & 0x28);
+          _F497 = (_F497 & 1) | 0x10 | (address_1113 & 0x28);
           if ((value2_1116 & (0x01 << value3_1117)) == 0) {
               _F497 |= 0x44;
           }
@@ -4742,11 +4618,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1119;
           address_1119 = A;
           int nAndCarry_1120 = 6 | F & 1;
-          int value1_1121 = address_1119;
           int value3_1123 = nAndCarry_1120;
           _F499 = value3_1123 & 1;
           value3_1123 = value3_1123 >>> 1;
-          _F499 = (_F499 & 1) | 0x10 | (value1_1121 & 0x28);
+          _F499 = (_F499 & 1) | 0x10 | (address_1119 & 0x28);
           if ((A & (0x01 << value3_1123)) == 0) {
               _F499 |= 0x44;
           }
@@ -4769,11 +4644,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1125;
           address_1125 = B;
           int nAndCarry_1126 = 8 | F & 1;
-          int value1_1127 = address_1125;
           int value3_1129 = nAndCarry_1126;
           _F501 = value3_1129 & 1;
           value3_1129 = value3_1129 >>> 1;
-          _F501 = (_F501 & 1) | 0x10 | (value1_1127 & 0x28);
+          _F501 = (_F501 & 1) | 0x10 | (address_1125 & 0x28);
           if ((B & (0x01 << value3_1129)) == 0) {
               _F501 |= 0x44;
           }
@@ -4789,11 +4663,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1131;
           address_1131 = C;
           int nAndCarry_1132 = 8 | F & 1;
-          int value1_1133 = address_1131;
           int value3_1135 = nAndCarry_1132;
           _F503 = value3_1135 & 1;
           value3_1135 = value3_1135 >>> 1;
-          _F503 = (_F503 & 1) | 0x10 | (value1_1133 & 0x28);
+          _F503 = (_F503 & 1) | 0x10 | (address_1131 & 0x28);
           if ((C & (0x01 << value3_1135)) == 0) {
               _F503 |= 0x44;
           }
@@ -4809,11 +4682,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1137;
           address_1137 = D;
           int nAndCarry_1138 = 8 | F & 1;
-          int value1_1139 = address_1137;
           int value3_1141 = nAndCarry_1138;
           _F505 = value3_1141 & 1;
           value3_1141 = value3_1141 >>> 1;
-          _F505 = (_F505 & 1) | 0x10 | (value1_1139 & 0x28);
+          _F505 = (_F505 & 1) | 0x10 | (address_1137 & 0x28);
           if ((D & (0x01 << value3_1141)) == 0) {
               _F505 |= 0x44;
           }
@@ -4829,11 +4701,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1143;
           address_1143 = E;
           int nAndCarry_1144 = 8 | F & 1;
-          int value1_1145 = address_1143;
           int value3_1147 = nAndCarry_1144;
           _F507 = value3_1147 & 1;
           value3_1147 = value3_1147 >>> 1;
-          _F507 = (_F507 & 1) | 0x10 | (value1_1145 & 0x28);
+          _F507 = (_F507 & 1) | 0x10 | (address_1143 & 0x28);
           if ((E & (0x01 << value3_1147)) == 0) {
               _F507 |= 0x44;
           }
@@ -4849,11 +4720,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1149;
           address_1149 = H;
           int nAndCarry_1150 = 8 | F & 1;
-          int value1_1151 = address_1149;
           int value3_1153 = nAndCarry_1150;
           _F509 = value3_1153 & 1;
           value3_1153 = value3_1153 >>> 1;
-          _F509 = (_F509 & 1) | 0x10 | (value1_1151 & 0x28);
+          _F509 = (_F509 & 1) | 0x10 | (address_1149 & 0x28);
           if ((H & (0x01 << value3_1153)) == 0) {
               _F509 |= 0x44;
           }
@@ -4869,11 +4739,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1155;
           address_1155 = L;
           int nAndCarry_1156 = 8 | F & 1;
-          int value1_1157 = address_1155;
           int value3_1159 = nAndCarry_1156;
           _F511 = value3_1159 & 1;
           value3_1159 = value3_1159 >>> 1;
-          _F511 = (_F511 & 1) | 0x10 | (value1_1157 & 0x28);
+          _F511 = (_F511 & 1) | 0x10 | (address_1155 & 0x28);
           if ((L & (0x01 << value3_1159)) == 0) {
               _F511 |= 0x44;
           }
@@ -4891,13 +4760,12 @@ static final int[] SZ53 = new int[0x100];
           address_1161 = MEMPTR >>> 8;
           int nAndCarry_1162 = 8 | F & 1;
           _address84 = (H << 8) | L;
-          int value1_1163 = address_1161;
           int value2_1164 = memory.read(_address84, 0);
           contend(((H << 8) | L), 1, 1, Contention.Kind.READ_NO_MREQ);
           int value3_1165 = nAndCarry_1162;
           _F513 = value3_1165 & 1;
           value3_1165 = value3_1165 >>> 1;
-          _F513 = (_F513 & 1) | 0x10 | (value1_1163 & 0x28);
+          _F513 = (_F513 & 1) | 0x10 | (address_1161 & 0x28);
           if ((value2_1164 & (0x01 << value3_1165)) == 0) {
               _F513 |= 0x44;
           }
@@ -4913,11 +4781,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1167;
           address_1167 = A;
           int nAndCarry_1168 = 8 | F & 1;
-          int value1_1169 = address_1167;
           int value3_1171 = nAndCarry_1168;
           _F515 = value3_1171 & 1;
           value3_1171 = value3_1171 >>> 1;
-          _F515 = (_F515 & 1) | 0x10 | (value1_1169 & 0x28);
+          _F515 = (_F515 & 1) | 0x10 | (address_1167 & 0x28);
           if ((A & (0x01 << value3_1171)) == 0) {
               _F515 |= 0x44;
           }
@@ -4933,11 +4800,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1173;
           address_1173 = B;
           int nAndCarry_1174 = 10 | F & 1;
-          int value1_1175 = address_1173;
           int value3_1177 = nAndCarry_1174;
           _F517 = value3_1177 & 1;
           value3_1177 = value3_1177 >>> 1;
-          _F517 = (_F517 & 1) | 0x10 | (value1_1175 & 0x28);
+          _F517 = (_F517 & 1) | 0x10 | (address_1173 & 0x28);
           if ((B & (0x01 << value3_1177)) == 0) {
               _F517 |= 0x44;
           }
@@ -4953,11 +4819,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1179;
           address_1179 = C;
           int nAndCarry_1180 = 10 | F & 1;
-          int value1_1181 = address_1179;
           int value3_1183 = nAndCarry_1180;
           _F519 = value3_1183 & 1;
           value3_1183 = value3_1183 >>> 1;
-          _F519 = (_F519 & 1) | 0x10 | (value1_1181 & 0x28);
+          _F519 = (_F519 & 1) | 0x10 | (address_1179 & 0x28);
           if ((C & (0x01 << value3_1183)) == 0) {
               _F519 |= 0x44;
           }
@@ -4973,11 +4838,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1185;
           address_1185 = D;
           int nAndCarry_1186 = 10 | F & 1;
-          int value1_1187 = address_1185;
           int value3_1189 = nAndCarry_1186;
           _F521 = value3_1189 & 1;
           value3_1189 = value3_1189 >>> 1;
-          _F521 = (_F521 & 1) | 0x10 | (value1_1187 & 0x28);
+          _F521 = (_F521 & 1) | 0x10 | (address_1185 & 0x28);
           if ((D & (0x01 << value3_1189)) == 0) {
               _F521 |= 0x44;
           }
@@ -4993,11 +4857,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1191;
           address_1191 = E;
           int nAndCarry_1192 = 10 | F & 1;
-          int value1_1193 = address_1191;
           int value3_1195 = nAndCarry_1192;
           _F523 = value3_1195 & 1;
           value3_1195 = value3_1195 >>> 1;
-          _F523 = (_F523 & 1) | 0x10 | (value1_1193 & 0x28);
+          _F523 = (_F523 & 1) | 0x10 | (address_1191 & 0x28);
           if ((E & (0x01 << value3_1195)) == 0) {
               _F523 |= 0x44;
           }
@@ -5013,11 +4876,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1197;
           address_1197 = H;
           int nAndCarry_1198 = 10 | F & 1;
-          int value1_1199 = address_1197;
           int value3_1201 = nAndCarry_1198;
           _F525 = value3_1201 & 1;
           value3_1201 = value3_1201 >>> 1;
-          _F525 = (_F525 & 1) | 0x10 | (value1_1199 & 0x28);
+          _F525 = (_F525 & 1) | 0x10 | (address_1197 & 0x28);
           if ((H & (0x01 << value3_1201)) == 0) {
               _F525 |= 0x44;
           }
@@ -5033,11 +4895,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1203;
           address_1203 = L;
           int nAndCarry_1204 = 10 | F & 1;
-          int value1_1205 = address_1203;
           int value3_1207 = nAndCarry_1204;
           _F527 = value3_1207 & 1;
           value3_1207 = value3_1207 >>> 1;
-          _F527 = (_F527 & 1) | 0x10 | (value1_1205 & 0x28);
+          _F527 = (_F527 & 1) | 0x10 | (address_1203 & 0x28);
           if ((L & (0x01 << value3_1207)) == 0) {
               _F527 |= 0x44;
           }
@@ -5055,13 +4916,12 @@ static final int[] SZ53 = new int[0x100];
           address_1209 = MEMPTR >>> 8;
           int nAndCarry_1210 = 10 | F & 1;
           _address84 = (H << 8) | L;
-          int value1_1211 = address_1209;
           int value2_1212 = memory.read(_address84, 0);
           contend(((H << 8) | L), 1, 1, Contention.Kind.READ_NO_MREQ);
           int value3_1213 = nAndCarry_1210;
           _F529 = value3_1213 & 1;
           value3_1213 = value3_1213 >>> 1;
-          _F529 = (_F529 & 1) | 0x10 | (value1_1211 & 0x28);
+          _F529 = (_F529 & 1) | 0x10 | (address_1209 & 0x28);
           if ((value2_1212 & (0x01 << value3_1213)) == 0) {
               _F529 |= 0x44;
           }
@@ -5077,11 +4937,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1215;
           address_1215 = A;
           int nAndCarry_1216 = 10 | F & 1;
-          int value1_1217 = address_1215;
           int value3_1219 = nAndCarry_1216;
           _F531 = value3_1219 & 1;
           value3_1219 = value3_1219 >>> 1;
-          _F531 = (_F531 & 1) | 0x10 | (value1_1217 & 0x28);
+          _F531 = (_F531 & 1) | 0x10 | (address_1215 & 0x28);
           if ((A & (0x01 << value3_1219)) == 0) {
               _F531 |= 0x44;
           }
@@ -5104,11 +4963,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1221;
           address_1221 = B;
           int nAndCarry_1222 = 12 | F & 1;
-          int value1_1223 = address_1221;
           int value3_1225 = nAndCarry_1222;
           _F533 = value3_1225 & 1;
           value3_1225 = value3_1225 >>> 1;
-          _F533 = (_F533 & 1) | 0x10 | (value1_1223 & 0x28);
+          _F533 = (_F533 & 1) | 0x10 | (address_1221 & 0x28);
           if ((B & (0x01 << value3_1225)) == 0) {
               _F533 |= 0x44;
           }
@@ -5124,11 +4982,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1227;
           address_1227 = C;
           int nAndCarry_1228 = 12 | F & 1;
-          int value1_1229 = address_1227;
           int value3_1231 = nAndCarry_1228;
           _F535 = value3_1231 & 1;
           value3_1231 = value3_1231 >>> 1;
-          _F535 = (_F535 & 1) | 0x10 | (value1_1229 & 0x28);
+          _F535 = (_F535 & 1) | 0x10 | (address_1227 & 0x28);
           if ((C & (0x01 << value3_1231)) == 0) {
               _F535 |= 0x44;
           }
@@ -5144,11 +5001,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1233;
           address_1233 = D;
           int nAndCarry_1234 = 12 | F & 1;
-          int value1_1235 = address_1233;
           int value3_1237 = nAndCarry_1234;
           _F537 = value3_1237 & 1;
           value3_1237 = value3_1237 >>> 1;
-          _F537 = (_F537 & 1) | 0x10 | (value1_1235 & 0x28);
+          _F537 = (_F537 & 1) | 0x10 | (address_1233 & 0x28);
           if ((D & (0x01 << value3_1237)) == 0) {
               _F537 |= 0x44;
           }
@@ -5164,11 +5020,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1239;
           address_1239 = E;
           int nAndCarry_1240 = 12 | F & 1;
-          int value1_1241 = address_1239;
           int value3_1243 = nAndCarry_1240;
           _F539 = value3_1243 & 1;
           value3_1243 = value3_1243 >>> 1;
-          _F539 = (_F539 & 1) | 0x10 | (value1_1241 & 0x28);
+          _F539 = (_F539 & 1) | 0x10 | (address_1239 & 0x28);
           if ((E & (0x01 << value3_1243)) == 0) {
               _F539 |= 0x44;
           }
@@ -5184,11 +5039,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1245;
           address_1245 = H;
           int nAndCarry_1246 = 12 | F & 1;
-          int value1_1247 = address_1245;
           int value3_1249 = nAndCarry_1246;
           _F541 = value3_1249 & 1;
           value3_1249 = value3_1249 >>> 1;
-          _F541 = (_F541 & 1) | 0x10 | (value1_1247 & 0x28);
+          _F541 = (_F541 & 1) | 0x10 | (address_1245 & 0x28);
           if ((H & (0x01 << value3_1249)) == 0) {
               _F541 |= 0x44;
           }
@@ -5204,11 +5058,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1251;
           address_1251 = L;
           int nAndCarry_1252 = 12 | F & 1;
-          int value1_1253 = address_1251;
           int value3_1255 = nAndCarry_1252;
           _F543 = value3_1255 & 1;
           value3_1255 = value3_1255 >>> 1;
-          _F543 = (_F543 & 1) | 0x10 | (value1_1253 & 0x28);
+          _F543 = (_F543 & 1) | 0x10 | (address_1251 & 0x28);
           if ((L & (0x01 << value3_1255)) == 0) {
               _F543 |= 0x44;
           }
@@ -5226,13 +5079,12 @@ static final int[] SZ53 = new int[0x100];
           address_1257 = MEMPTR >>> 8;
           int nAndCarry_1258 = 12 | F & 1;
           _address84 = (H << 8) | L;
-          int value1_1259 = address_1257;
           int value2_1260 = memory.read(_address84, 0);
           contend(((H << 8) | L), 1, 1, Contention.Kind.READ_NO_MREQ);
           int value3_1261 = nAndCarry_1258;
           _F545 = value3_1261 & 1;
           value3_1261 = value3_1261 >>> 1;
-          _F545 = (_F545 & 1) | 0x10 | (value1_1259 & 0x28);
+          _F545 = (_F545 & 1) | 0x10 | (address_1257 & 0x28);
           if ((value2_1260 & (0x01 << value3_1261)) == 0) {
               _F545 |= 0x44;
           }
@@ -5248,11 +5100,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1263;
           address_1263 = A;
           int nAndCarry_1264 = 12 | F & 1;
-          int value1_1265 = address_1263;
           int value3_1267 = nAndCarry_1264;
           _F547 = value3_1267 & 1;
           value3_1267 = value3_1267 >>> 1;
-          _F547 = (_F547 & 1) | 0x10 | (value1_1265 & 0x28);
+          _F547 = (_F547 & 1) | 0x10 | (address_1263 & 0x28);
           if ((A & (0x01 << value3_1267)) == 0) {
               _F547 |= 0x44;
           }
@@ -5268,11 +5119,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1269;
           address_1269 = B;
           int nAndCarry_1270 = 14 | F & 1;
-          int value1_1271 = address_1269;
           int value3_1273 = nAndCarry_1270;
           _F549 = value3_1273 & 1;
           value3_1273 = value3_1273 >>> 1;
-          _F549 = (_F549 & 1) | 0x10 | (value1_1271 & 0x28);
+          _F549 = (_F549 & 1) | 0x10 | (address_1269 & 0x28);
           if ((B & (0x01 << value3_1273)) == 0) {
               _F549 |= 0x44;
           }
@@ -5288,11 +5138,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1275;
           address_1275 = C;
           int nAndCarry_1276 = 14 | F & 1;
-          int value1_1277 = address_1275;
           int value3_1279 = nAndCarry_1276;
           _F551 = value3_1279 & 1;
           value3_1279 = value3_1279 >>> 1;
-          _F551 = (_F551 & 1) | 0x10 | (value1_1277 & 0x28);
+          _F551 = (_F551 & 1) | 0x10 | (address_1275 & 0x28);
           if ((C & (0x01 << value3_1279)) == 0) {
               _F551 |= 0x44;
           }
@@ -5308,11 +5157,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1281;
           address_1281 = D;
           int nAndCarry_1282 = 14 | F & 1;
-          int value1_1283 = address_1281;
           int value3_1285 = nAndCarry_1282;
           _F553 = value3_1285 & 1;
           value3_1285 = value3_1285 >>> 1;
-          _F553 = (_F553 & 1) | 0x10 | (value1_1283 & 0x28);
+          _F553 = (_F553 & 1) | 0x10 | (address_1281 & 0x28);
           if ((D & (0x01 << value3_1285)) == 0) {
               _F553 |= 0x44;
           }
@@ -5328,11 +5176,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1287;
           address_1287 = E;
           int nAndCarry_1288 = 14 | F & 1;
-          int value1_1289 = address_1287;
           int value3_1291 = nAndCarry_1288;
           _F555 = value3_1291 & 1;
           value3_1291 = value3_1291 >>> 1;
-          _F555 = (_F555 & 1) | 0x10 | (value1_1289 & 0x28);
+          _F555 = (_F555 & 1) | 0x10 | (address_1287 & 0x28);
           if ((E & (0x01 << value3_1291)) == 0) {
               _F555 |= 0x44;
           }
@@ -5348,11 +5195,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1293;
           address_1293 = H;
           int nAndCarry_1294 = 14 | F & 1;
-          int value1_1295 = address_1293;
           int value3_1297 = nAndCarry_1294;
           _F557 = value3_1297 & 1;
           value3_1297 = value3_1297 >>> 1;
-          _F557 = (_F557 & 1) | 0x10 | (value1_1295 & 0x28);
+          _F557 = (_F557 & 1) | 0x10 | (address_1293 & 0x28);
           if ((H & (0x01 << value3_1297)) == 0) {
               _F557 |= 0x44;
           }
@@ -5368,11 +5214,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1299;
           address_1299 = L;
           int nAndCarry_1300 = 14 | F & 1;
-          int value1_1301 = address_1299;
           int value3_1303 = nAndCarry_1300;
           _F559 = value3_1303 & 1;
           value3_1303 = value3_1303 >>> 1;
-          _F559 = (_F559 & 1) | 0x10 | (value1_1301 & 0x28);
+          _F559 = (_F559 & 1) | 0x10 | (address_1299 & 0x28);
           if ((L & (0x01 << value3_1303)) == 0) {
               _F559 |= 0x44;
           }
@@ -5390,13 +5235,12 @@ static final int[] SZ53 = new int[0x100];
           address_1305 = MEMPTR >>> 8;
           int nAndCarry_1306 = 14 | F & 1;
           _address84 = (H << 8) | L;
-          int value1_1307 = address_1305;
           int value2_1308 = memory.read(_address84, 0);
           contend(((H << 8) | L), 1, 1, Contention.Kind.READ_NO_MREQ);
           int value3_1309 = nAndCarry_1306;
           _F561 = value3_1309 & 1;
           value3_1309 = value3_1309 >>> 1;
-          _F561 = (_F561 & 1) | 0x10 | (value1_1307 & 0x28);
+          _F561 = (_F561 & 1) | 0x10 | (address_1305 & 0x28);
           if ((value2_1308 & (0x01 << value3_1309)) == 0) {
               _F561 |= 0x44;
           }
@@ -5412,11 +5256,10 @@ static final int[] SZ53 = new int[0x100];
           int address_1311;
           address_1311 = A;
           int nAndCarry_1312 = 14 | F & 1;
-          int value1_1313 = address_1311;
           int value3_1315 = nAndCarry_1312;
           _F563 = value3_1315 & 1;
           value3_1315 = value3_1315 >>> 1;
-          _F563 = (_F563 & 1) | 0x10 | (value1_1313 & 0x28);
+          _F563 = (_F563 & 1) | 0x10 | (address_1311 & 0x28);
           if ((A & (0x01 << value3_1315)) == 0) {
               _F563 |= 0x44;
           }
@@ -6411,24 +6254,21 @@ static final int[] SZ53 = new int[0x100];
   private void decodeDD_1(int opcode) {
     switch (opcode) {
       case 0x10: {
-          int _nextPC737 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           B = (B - 1) & 0xFF;
           if ((B != 0)) {
               int operand_1484 = memory.read((PC + 2) & 0xFFFF, 0);
               int jumpAddress2_1483 = ((PC + 3 + (byte) operand_1484) & 0xFFFF);
-              _nextPC737 = jumpAddress2_1483;
-          } else {
-              _nextPC737 = -1;
-          }
-          int nextPC_1485 = _nextPC737;
-          MEMPTR = (nextPC_1485 == -1 ? 0 : nextPC_1485) & 0xFFFF;
-          if (_nextPC737 != -1)
+              MEMPTR = jumpAddress2_1483;
               contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          if (_nextPC737 == -1)
+              PC = jumpAddress2_1483;
+              break;
+          } else {
+              MEMPTR = 0;
               contend((PC + 1) & 0xFFFF, 1, 3, Contention.Kind.READ);
-          PC = _nextPC737 == -1 ? (PC + 3) & 0xFFFF : _nextPC737;
-          break;
+              PC = (PC + 3) & 0xFFFF;
+              break;
+          }
       }
       case 0x11: {
           int address_1486 = (PC + 2) & 0xFFFF;
@@ -6510,8 +6350,7 @@ static final int[] SZ53 = new int[0x100];
           int operand_1509 = memory.read((PC + 2) & 0xFFFF, 0);
           int jumpAddress2_1508 = ((PC + 3 + (byte) operand_1509) & 0xFFFF);
           _nextPC749 = jumpAddress2_1508;
-          int nextPC_1510 = _nextPC749;
-          MEMPTR = nextPC_1510;
+          MEMPTR = _nextPC749;
           contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
           PC = _nextPC749;
           break;
@@ -6608,22 +6447,19 @@ static final int[] SZ53 = new int[0x100];
   private void decodeDD_2(int opcode) {
     switch (opcode) {
       case 0x20: {
-          int _nextPC762 = 0;
           if ((!((F & 0x40) == 0x40))) {
               int operand_1537 = memory.read((PC + 2) & 0xFFFF, 0);
               int jumpAddress2_1536 = ((PC + 3 + (byte) operand_1537) & 0xFFFF);
-              _nextPC762 = jumpAddress2_1536;
-          } else {
-              _nextPC762 = -1;
-          }
-          int nextPC_1538 = _nextPC762;
-          MEMPTR = (nextPC_1538 == -1 ? 0 : nextPC_1538) & 0xFFFF;
-          if (_nextPC762 != -1)
+              MEMPTR = jumpAddress2_1536;
               contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          if (_nextPC762 == -1)
+              PC = jumpAddress2_1536;
+              break;
+          } else {
+              MEMPTR = 0;
               contend((PC + 1) & 0xFFFF, 1, 3, Contention.Kind.READ);
-          PC = _nextPC762 == -1 ? (PC + 3) & 0xFFFF : _nextPC762;
-          break;
+              PC = (PC + 3) & 0xFFFF;
+              break;
+          }
       }
       case 0x21: {
           int address_1539 = (PC + 2) & 0xFFFF;
@@ -6711,11 +6547,8 @@ static final int[] SZ53 = new int[0x100];
           _data773 = and_1565;
           if ((_F772 & 2) != 0) {
               int value1_1566 = value1_1559;
-              int value2_1567 = add_1562;
-              int value3_1568 = 0;
-              _F774 = _data773;
-              int subtemp_1569 = value1_1566 - value2_1567;
-              int lookup_1570 = ((value1_1566 & 0x88) >> 3) | ((value2_1567 & 0x88) >> 2) | ((subtemp_1569 & 0x88) >> 1);
+              int subtemp_1569 = value1_1566 - add_1562;
+              int lookup_1570 = ((value1_1566 & 0x88) >> 3) | ((add_1562 & 0x88) >> 2) | ((subtemp_1569 & 0x88) >> 1);
               value1_1566 = subtemp_1569 & 0xff;
               _F774 = ((subtemp_1569 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_1570 & 0x07)] | OVERFLOW_SUB[(lookup_1570 >> 4)] | (SZ53[value1_1566 & 0xff] | (value1_1566 == 0 ? 0x40 : 0));
               int result_1571 = value1_1566 & 0xFF;
@@ -6723,12 +6556,9 @@ static final int[] SZ53 = new int[0x100];
               _data773 = and_1572;
               value1_1559 = result_1571;
           } else {
-              int value1_1573 = add_1562;
               int value2_1574 = value1_1559;
-              int value3_1575 = 0;
-              _F775 = _data773;
-              int addtemp_1576 = value2_1574 + value1_1573;
-              int lookup_1577 = ((value2_1574 & 0x88) >> 3) | ((value1_1573 & 0x88) >> 2) | ((addtemp_1576 & 0x88) >> 1);
+              int addtemp_1576 = value2_1574 + add_1562;
+              int lookup_1577 = ((value2_1574 & 0x88) >> 3) | ((add_1562 & 0x88) >> 2) | ((addtemp_1576 & 0x88) >> 1);
               value2_1574 = addtemp_1576 & 0xff;
               _F775 = ((addtemp_1576 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_1577 & 0x07)] | OVERFLOW_ADD[(lookup_1577 >> 4)] | (SZ53[value2_1574 & 0xff] | (value2_1574 == 0 ? 0x40 : 0));
               int result_1578 = value2_1574 & 0xFF;
@@ -6745,22 +6575,19 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x28: {
-          int _nextPC777 = 0;
           if (((F & 0x40) == 0x40)) {
               int operand_1582 = memory.read((PC + 2) & 0xFFFF, 0);
               int jumpAddress2_1581 = ((PC + 3 + (byte) operand_1582) & 0xFFFF);
-              _nextPC777 = jumpAddress2_1581;
-          } else {
-              _nextPC777 = -1;
-          }
-          int nextPC_1583 = _nextPC777;
-          MEMPTR = (nextPC_1583 == -1 ? 0 : nextPC_1583) & 0xFFFF;
-          if (_nextPC777 != -1)
+              MEMPTR = jumpAddress2_1581;
               contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          if (_nextPC777 == -1)
+              PC = jumpAddress2_1581;
+              break;
+          } else {
+              MEMPTR = 0;
               contend((PC + 1) & 0xFFFF, 1, 3, Contention.Kind.READ);
-          PC = _nextPC777 == -1 ? (PC + 3) & 0xFFFF : _nextPC777;
-          break;
+              PC = (PC + 3) & 0xFFFF;
+              break;
+          }
       }
       case 0x29: {
           int _F778;
@@ -6854,22 +6681,19 @@ static final int[] SZ53 = new int[0x100];
   private void decodeDD_3(int opcode) {
     switch (opcode) {
       case 0x30: {
-          int _nextPC790 = 0;
           if ((!((F & 1) == 1))) {
               int operand_1612 = memory.read((PC + 2) & 0xFFFF, 0);
               int jumpAddress2_1611 = ((PC + 3 + (byte) operand_1612) & 0xFFFF);
-              _nextPC790 = jumpAddress2_1611;
-          } else {
-              _nextPC790 = -1;
-          }
-          int nextPC_1613 = _nextPC790;
-          MEMPTR = (nextPC_1613 == -1 ? 0 : nextPC_1613) & 0xFFFF;
-          if (_nextPC790 != -1)
+              MEMPTR = jumpAddress2_1611;
               contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          if (_nextPC790 == -1)
+              PC = jumpAddress2_1611;
+              break;
+          } else {
+              MEMPTR = 0;
               contend((PC + 1) & 0xFFFF, 1, 3, Contention.Kind.READ);
-          PC = _nextPC790 == -1 ? (PC + 3) & 0xFFFF : _nextPC790;
-          break;
+              PC = (PC + 3) & 0xFFFF;
+              break;
+          }
       }
       case 0x31: {
           int address_1614 = (PC + 2) & 0xFFFF;
@@ -6969,22 +6793,19 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x38: {
-          int _nextPC804 = 0;
           if (((F & 1) == 1)) {
               int operand_1644 = memory.read((PC + 2) & 0xFFFF, 0);
               int jumpAddress2_1643 = ((PC + 3 + (byte) operand_1644) & 0xFFFF);
-              _nextPC804 = jumpAddress2_1643;
-          } else {
-              _nextPC804 = -1;
-          }
-          int nextPC_1645 = _nextPC804;
-          MEMPTR = (nextPC_1645 == -1 ? 0 : nextPC_1645) & 0xFFFF;
-          if (_nextPC804 != -1)
+              MEMPTR = jumpAddress2_1643;
               contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          if (_nextPC804 == -1)
+              PC = jumpAddress2_1643;
+              break;
+          } else {
+              MEMPTR = 0;
               contend((PC + 1) & 0xFFFF, 1, 3, Contention.Kind.READ);
-          PC = _nextPC804 == -1 ? (PC + 3) & 0xFFFF : _nextPC804;
-          break;
+              PC = (PC + 3) & 0xFFFF;
+              break;
+          }
       }
       case 0x39: {
           int _F805;
@@ -7378,72 +7199,60 @@ static final int[] SZ53 = new int[0x100];
   private void decodeDD_7(int opcode) {
     switch (opcode) {
       case 0x70: {
-          int _value795;
           int _address795;
           int operand_1684 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
           _address795 = (IX + (int) ((byte) operand_1684)) & 0xFFFF;
-          _value795 = B;
           memory.write(_address795, B);
           MEMPTR = _address795;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x71: {
-          int _value795;
           int _address795;
           int operand_1685 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
           _address795 = (IX + (int) ((byte) operand_1685)) & 0xFFFF;
-          _value795 = C;
           memory.write(_address795, C);
           MEMPTR = _address795;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x72: {
-          int _value795;
           int _address795;
           int operand_1686 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
           _address795 = (IX + (int) ((byte) operand_1686)) & 0xFFFF;
-          _value795 = D;
           memory.write(_address795, D);
           MEMPTR = _address795;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x73: {
-          int _value795;
           int _address795;
           int operand_1687 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
           _address795 = (IX + (int) ((byte) operand_1687)) & 0xFFFF;
-          _value795 = E;
           memory.write(_address795, E);
           MEMPTR = _address795;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x74: {
-          int _value795;
           int _address795;
           int operand_1688 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
           _address795 = (IX + (int) ((byte) operand_1688)) & 0xFFFF;
-          _value795 = H;
           memory.write(_address795, H);
           MEMPTR = _address795;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x75: {
-          int _value795;
           int _address795;
           int operand_1689 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
           _address795 = (IX + (int) ((byte) operand_1689)) & 0xFFFF;
-          _value795 = L;
           memory.write(_address795, L);
           MEMPTR = _address795;
           PC = (PC + 3) & 0xFFFF;
@@ -7458,12 +7267,10 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x77: {
-          int _value795;
           int _address795;
           int operand_1690 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
           _address795 = (IX + (int) ((byte) operand_1690)) & 0xFFFF;
-          _value795 = A;
           memory.write(_address795, A);
           MEMPTR = _address795;
           PC = (PC + 3) & 0xFFFF;
@@ -7531,9 +7338,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1697 = ((value2_1694 & 0x88) >> 3) | ((value1_1693 & 0x88) >> 2) | ((addtemp_1696 & 0x88) >> 1);
           value2_1694 = addtemp_1696 & 0xff;
           _F881 = ((addtemp_1696 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_1697 & 0x07)] | OVERFLOW_ADD[(lookup_1697 >> 4)] | (SZ53[value2_1694] | (value2_1694 == 0 ? 0x40 : 0));
-          int result_1698 = value2_1694;
           F = (_F881 & 0xFF);
-          A = result_1698;
+          A = value2_1694;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7545,9 +7351,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1703 = ((value2_1700 & 0x88) >> 3) | ((value1_1699 & 0x88) >> 2) | ((addtemp_1702 & 0x88) >> 1);
           value2_1700 = addtemp_1702 & 0xff;
           _F883 = ((addtemp_1702 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_1703 & 0x07)] | OVERFLOW_ADD[(lookup_1703 >> 4)] | (SZ53[value2_1700] | (value2_1700 == 0 ? 0x40 : 0));
-          int result_1704 = value2_1700;
           F = (_F883 & 0xFF);
-          A = result_1704;
+          A = value2_1700;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7559,9 +7364,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1709 = ((value2_1706 & 0x88) >> 3) | ((value1_1705 & 0x88) >> 2) | ((addtemp_1708 & 0x88) >> 1);
           value2_1706 = addtemp_1708 & 0xff;
           _F885 = ((addtemp_1708 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_1709 & 0x07)] | OVERFLOW_ADD[(lookup_1709 >> 4)] | (SZ53[value2_1706] | (value2_1706 == 0 ? 0x40 : 0));
-          int result_1710 = value2_1706;
           F = (_F885 & 0xFF);
-          A = result_1710;
+          A = value2_1706;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7573,9 +7377,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1715 = ((value2_1712 & 0x88) >> 3) | ((value1_1711 & 0x88) >> 2) | ((addtemp_1714 & 0x88) >> 1);
           value2_1712 = addtemp_1714 & 0xff;
           _F887 = ((addtemp_1714 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_1715 & 0x07)] | OVERFLOW_ADD[(lookup_1715 >> 4)] | (SZ53[value2_1712] | (value2_1712 == 0 ? 0x40 : 0));
-          int result_1716 = value2_1712;
           F = (_F887 & 0xFF);
-          A = result_1716;
+          A = value2_1712;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7587,9 +7390,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1721 = ((value2_1718 & 0x88) >> 3) | ((value1_1717 & 0x88) >> 2) | ((addtemp_1720 & 0x88) >> 1);
           value2_1718 = addtemp_1720 & 0xff;
           _F889 = ((addtemp_1720 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_1721 & 0x07)] | OVERFLOW_ADD[(lookup_1721 >> 4)] | (SZ53[value2_1718] | (value2_1718 == 0 ? 0x40 : 0));
-          int result_1722 = value2_1718;
           F = (_F889 & 0xFF);
-          A = result_1722;
+          A = value2_1718;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7601,9 +7403,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1727 = ((value2_1724 & 0x88) >> 3) | ((value1_1723 & 0x88) >> 2) | ((addtemp_1726 & 0x88) >> 1);
           value2_1724 = addtemp_1726 & 0xff;
           _F891 = ((addtemp_1726 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_1727 & 0x07)] | OVERFLOW_ADD[(lookup_1727 >> 4)] | (SZ53[value2_1724] | (value2_1724 == 0 ? 0x40 : 0));
-          int result_1728 = value2_1724;
           F = (_F891 & 0xFF);
-          A = result_1728;
+          A = value2_1724;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7622,9 +7423,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1735 = ((value2_1732 & 0x88) >> 3) | ((value1_1731 & 0x88) >> 2) | ((addtemp_1734 & 0x88) >> 1);
           value2_1732 = addtemp_1734 & 0xff;
           _F893 = ((addtemp_1734 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_1735 & 0x07)] | OVERFLOW_ADD[(lookup_1735 >> 4)] | (SZ53[value2_1732] | (value2_1732 == 0 ? 0x40 : 0));
-          int result_1736 = value2_1732;
           F = (_F893 & 0xFF);
-          A = result_1736;
+          A = value2_1732;
           MEMPTR = _address795;
           PC = (PC + 3) & 0xFFFF;
           break;
@@ -7637,9 +7437,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1741 = ((value2_1738 & 0x88) >> 3) | ((value1_1737 & 0x88) >> 2) | ((addtemp_1740 & 0x88) >> 1);
           value2_1738 = addtemp_1740 & 0xff;
           _F895 = ((addtemp_1740 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_1741 & 0x07)] | OVERFLOW_ADD[(lookup_1741 >> 4)] | (SZ53[value2_1738] | (value2_1738 == 0 ? 0x40 : 0));
-          int result_1742 = value2_1738;
           F = (_F895 & 0xFF);
-          A = result_1742;
+          A = value2_1738;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7652,9 +7451,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1747 = ((value1_1743 & 0x88) >> 3) | ((B & 0x88) >> 2) | ((adctemp_1746 & 0x88) >> 1);
           value1_1743 = adctemp_1746 & 0xff;
           _F897 = ((adctemp_1746 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_1747 & 0x07)] | OVERFLOW_ADD[(lookup_1747 >> 4)] | (SZ53[value1_1743] | (value1_1743 == 0 ? 0x40 : 0));
-          int result_1748 = value1_1743;
           F = (_F897 & 0xFF);
-          A = result_1748;
+          A = value1_1743;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7667,9 +7465,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1753 = ((value1_1749 & 0x88) >> 3) | ((C & 0x88) >> 2) | ((adctemp_1752 & 0x88) >> 1);
           value1_1749 = adctemp_1752 & 0xff;
           _F899 = ((adctemp_1752 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_1753 & 0x07)] | OVERFLOW_ADD[(lookup_1753 >> 4)] | (SZ53[value1_1749] | (value1_1749 == 0 ? 0x40 : 0));
-          int result_1754 = value1_1749;
           F = (_F899 & 0xFF);
-          A = result_1754;
+          A = value1_1749;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7682,9 +7479,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1759 = ((value1_1755 & 0x88) >> 3) | ((D & 0x88) >> 2) | ((adctemp_1758 & 0x88) >> 1);
           value1_1755 = adctemp_1758 & 0xff;
           _F901 = ((adctemp_1758 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_1759 & 0x07)] | OVERFLOW_ADD[(lookup_1759 >> 4)] | (SZ53[value1_1755] | (value1_1755 == 0 ? 0x40 : 0));
-          int result_1760 = value1_1755;
           F = (_F901 & 0xFF);
-          A = result_1760;
+          A = value1_1755;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7697,9 +7493,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1765 = ((value1_1761 & 0x88) >> 3) | ((E & 0x88) >> 2) | ((adctemp_1764 & 0x88) >> 1);
           value1_1761 = adctemp_1764 & 0xff;
           _F903 = ((adctemp_1764 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_1765 & 0x07)] | OVERFLOW_ADD[(lookup_1765 >> 4)] | (SZ53[value1_1761] | (value1_1761 == 0 ? 0x40 : 0));
-          int result_1766 = value1_1761;
           F = (_F903 & 0xFF);
-          A = result_1766;
+          A = value1_1761;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7713,9 +7508,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1771 = ((value1_1767 & 0x88) >> 3) | ((value2_1768 & 0x88) >> 2) | ((adctemp_1770 & 0x88) >> 1);
           value1_1767 = adctemp_1770 & 0xff;
           _F905 = ((adctemp_1770 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_1771 & 0x07)] | OVERFLOW_ADD[(lookup_1771 >> 4)] | (SZ53[value1_1767] | (value1_1767 == 0 ? 0x40 : 0));
-          int result_1772 = value1_1767;
           F = (_F905 & 0xFF);
-          A = result_1772;
+          A = value1_1767;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7729,9 +7523,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1777 = ((value1_1773 & 0x88) >> 3) | ((value2_1774 & 0x88) >> 2) | ((adctemp_1776 & 0x88) >> 1);
           value1_1773 = adctemp_1776 & 0xff;
           _F907 = ((adctemp_1776 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_1777 & 0x07)] | OVERFLOW_ADD[(lookup_1777 >> 4)] | (SZ53[value1_1773] | (value1_1773 == 0 ? 0x40 : 0));
-          int result_1778 = value1_1773;
           F = (_F907 & 0xFF);
-          A = result_1778;
+          A = value1_1773;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7745,16 +7538,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_1780 = memory.read(_address795, 0);
           _value795 = operand_1780;
           int value1_1781 = A;
-          int value2_1782 = _value795;
           int value3_1783 = F & 1;
           _F909 = value3_1783;
-          int adctemp_1784 = value1_1781 + value2_1782 + (_F909 & 1);
-          int lookup_1785 = ((value1_1781 & 0x88) >> 3) | ((value2_1782 & 0x88) >> 2) | ((adctemp_1784 & 0x88) >> 1);
+          int adctemp_1784 = value1_1781 + _value795 + (_F909 & 1);
+          int lookup_1785 = ((value1_1781 & 0x88) >> 3) | ((_value795 & 0x88) >> 2) | ((adctemp_1784 & 0x88) >> 1);
           value1_1781 = adctemp_1784 & 0xff;
           _F909 = ((adctemp_1784 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_1785 & 0x07)] | OVERFLOW_ADD[(lookup_1785 >> 4)] | (SZ53[value1_1781] | (value1_1781 == 0 ? 0x40 : 0));
-          int result_1786 = value1_1781;
           F = (_F909 & 0xFF);
-          A = result_1786;
+          A = value1_1781;
           MEMPTR = _address795;
           PC = (PC + 3) & 0xFFFF;
           break;
@@ -7769,9 +7560,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1791 = ((value1_1787 & 0x88) >> 3) | ((value2_1788 & 0x88) >> 2) | ((adctemp_1790 & 0x88) >> 1);
           value1_1787 = adctemp_1790 & 0xff;
           _F911 = ((adctemp_1790 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_1791 & 0x07)] | OVERFLOW_ADD[(lookup_1791 >> 4)] | (SZ53[value1_1787] | (value1_1787 == 0 ? 0x40 : 0));
-          int result_1792 = value1_1787;
           F = (_F911 & 0xFF);
-          A = result_1792;
+          A = value1_1787;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7789,9 +7579,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1797 = ((value1_1793 & 0x88) >> 3) | ((B & 0x88) >> 2) | ((subtemp_1796 & 0x88) >> 1);
           value1_1793 = subtemp_1796 & 0xff;
           _F913 = ((subtemp_1796 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_1797 & 0x07)] | OVERFLOW_SUB[(lookup_1797 >> 4)] | (SZ53[value1_1793] | (value1_1793 == 0 ? 0x40 : 0));
-          int result_1798 = value1_1793;
           F = (_F913 & 0xFF);
-          A = result_1798;
+          A = value1_1793;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7802,9 +7591,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1803 = ((value1_1799 & 0x88) >> 3) | ((C & 0x88) >> 2) | ((subtemp_1802 & 0x88) >> 1);
           value1_1799 = subtemp_1802 & 0xff;
           _F915 = ((subtemp_1802 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_1803 & 0x07)] | OVERFLOW_SUB[(lookup_1803 >> 4)] | (SZ53[value1_1799] | (value1_1799 == 0 ? 0x40 : 0));
-          int result_1804 = value1_1799;
           F = (_F915 & 0xFF);
-          A = result_1804;
+          A = value1_1799;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7815,9 +7603,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1809 = ((value1_1805 & 0x88) >> 3) | ((D & 0x88) >> 2) | ((subtemp_1808 & 0x88) >> 1);
           value1_1805 = subtemp_1808 & 0xff;
           _F917 = ((subtemp_1808 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_1809 & 0x07)] | OVERFLOW_SUB[(lookup_1809 >> 4)] | (SZ53[value1_1805] | (value1_1805 == 0 ? 0x40 : 0));
-          int result_1810 = value1_1805;
           F = (_F917 & 0xFF);
-          A = result_1810;
+          A = value1_1805;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7828,9 +7615,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1815 = ((value1_1811 & 0x88) >> 3) | ((E & 0x88) >> 2) | ((subtemp_1814 & 0x88) >> 1);
           value1_1811 = subtemp_1814 & 0xff;
           _F919 = ((subtemp_1814 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_1815 & 0x07)] | OVERFLOW_SUB[(lookup_1815 >> 4)] | (SZ53[value1_1811] | (value1_1811 == 0 ? 0x40 : 0));
-          int result_1816 = value1_1811;
           F = (_F919 & 0xFF);
-          A = result_1816;
+          A = value1_1811;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7842,9 +7628,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1821 = ((value1_1817 & 0x88) >> 3) | ((value2_1818 & 0x88) >> 2) | ((subtemp_1820 & 0x88) >> 1);
           value1_1817 = subtemp_1820 & 0xff;
           _F921 = ((subtemp_1820 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_1821 & 0x07)] | OVERFLOW_SUB[(lookup_1821 >> 4)] | (SZ53[value1_1817] | (value1_1817 == 0 ? 0x40 : 0));
-          int result_1822 = value1_1817;
           F = (_F921 & 0xFF);
-          A = result_1822;
+          A = value1_1817;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7856,9 +7641,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1827 = ((value1_1823 & 0x88) >> 3) | ((value2_1824 & 0x88) >> 2) | ((subtemp_1826 & 0x88) >> 1);
           value1_1823 = subtemp_1826 & 0xff;
           _F923 = ((subtemp_1826 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_1827 & 0x07)] | OVERFLOW_SUB[(lookup_1827 >> 4)] | (SZ53[value1_1823] | (value1_1823 == 0 ? 0x40 : 0));
-          int result_1828 = value1_1823;
           F = (_F923 & 0xFF);
-          A = result_1828;
+          A = value1_1823;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7872,14 +7656,12 @@ static final int[] SZ53 = new int[0x100];
           int operand_1830 = memory.read(_address795, 0);
           _value795 = operand_1830;
           int value1_1831 = A;
-          int value2_1832 = _value795;
-          int subtemp_1834 = value1_1831 - value2_1832;
-          int lookup_1835 = ((value1_1831 & 0x88) >> 3) | ((value2_1832 & 0x88) >> 2) | ((subtemp_1834 & 0x88) >> 1);
+          int subtemp_1834 = value1_1831 - _value795;
+          int lookup_1835 = ((value1_1831 & 0x88) >> 3) | ((_value795 & 0x88) >> 2) | ((subtemp_1834 & 0x88) >> 1);
           value1_1831 = subtemp_1834 & 0xff;
           _F925 = ((subtemp_1834 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_1835 & 0x07)] | OVERFLOW_SUB[(lookup_1835 >> 4)] | (SZ53[value1_1831] | (value1_1831 == 0 ? 0x40 : 0));
-          int result_1836 = value1_1831;
           F = (_F925 & 0xFF);
-          A = result_1836;
+          A = value1_1831;
           MEMPTR = _address795;
           PC = (PC + 3) & 0xFFFF;
           break;
@@ -7892,9 +7674,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1841 = ((value1_1837 & 0x88) >> 3) | ((value2_1838 & 0x88) >> 2) | ((subtemp_1840 & 0x88) >> 1);
           value1_1837 = subtemp_1840 & 0xff;
           _F927 = ((subtemp_1840 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_1841 & 0x07)] | OVERFLOW_SUB[(lookup_1841 >> 4)] | (SZ53[value1_1837] | (value1_1837 == 0 ? 0x40 : 0));
-          int result_1842 = value1_1837;
           F = (_F927 & 0xFF);
-          A = result_1842;
+          A = value1_1837;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7907,9 +7688,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1847 = ((value1_1843 & 0x88) >> 3) | ((B & 0x88) >> 2) | ((sbctemp_1846 & 0x88) >> 1);
           value1_1843 = sbctemp_1846 & 0xff;
           _F929 = ((sbctemp_1846 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_1847 & 0x07)] | OVERFLOW_SUB[(lookup_1847 >> 4)] | (SZ53[value1_1843] | (value1_1843 == 0 ? 0x40 : 0));
-          int result_1848 = value1_1843;
           F = (_F929 & 0xFF);
-          A = result_1848;
+          A = value1_1843;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7922,9 +7702,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1853 = ((value1_1849 & 0x88) >> 3) | ((C & 0x88) >> 2) | ((sbctemp_1852 & 0x88) >> 1);
           value1_1849 = sbctemp_1852 & 0xff;
           _F931 = ((sbctemp_1852 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_1853 & 0x07)] | OVERFLOW_SUB[(lookup_1853 >> 4)] | (SZ53[value1_1849] | (value1_1849 == 0 ? 0x40 : 0));
-          int result_1854 = value1_1849;
           F = (_F931 & 0xFF);
-          A = result_1854;
+          A = value1_1849;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7937,9 +7716,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1859 = ((value1_1855 & 0x88) >> 3) | ((D & 0x88) >> 2) | ((sbctemp_1858 & 0x88) >> 1);
           value1_1855 = sbctemp_1858 & 0xff;
           _F933 = ((sbctemp_1858 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_1859 & 0x07)] | OVERFLOW_SUB[(lookup_1859 >> 4)] | (SZ53[value1_1855] | (value1_1855 == 0 ? 0x40 : 0));
-          int result_1860 = value1_1855;
           F = (_F933 & 0xFF);
-          A = result_1860;
+          A = value1_1855;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7952,9 +7730,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1865 = ((value1_1861 & 0x88) >> 3) | ((E & 0x88) >> 2) | ((sbctemp_1864 & 0x88) >> 1);
           value1_1861 = sbctemp_1864 & 0xff;
           _F935 = ((sbctemp_1864 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_1865 & 0x07)] | OVERFLOW_SUB[(lookup_1865 >> 4)] | (SZ53[value1_1861] | (value1_1861 == 0 ? 0x40 : 0));
-          int result_1866 = value1_1861;
           F = (_F935 & 0xFF);
-          A = result_1866;
+          A = value1_1861;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7968,9 +7745,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1871 = ((value1_1867 & 0x88) >> 3) | ((value2_1868 & 0x88) >> 2) | ((sbctemp_1870 & 0x88) >> 1);
           value1_1867 = sbctemp_1870 & 0xff;
           _F937 = ((sbctemp_1870 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_1871 & 0x07)] | OVERFLOW_SUB[(lookup_1871 >> 4)] | (SZ53[value1_1867] | (value1_1867 == 0 ? 0x40 : 0));
-          int result_1872 = value1_1867;
           F = (_F937 & 0xFF);
-          A = result_1872;
+          A = value1_1867;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -7984,9 +7760,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1877 = ((value1_1873 & 0x88) >> 3) | ((value2_1874 & 0x88) >> 2) | ((sbctemp_1876 & 0x88) >> 1);
           value1_1873 = sbctemp_1876 & 0xff;
           _F939 = ((sbctemp_1876 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_1877 & 0x07)] | OVERFLOW_SUB[(lookup_1877 >> 4)] | (SZ53[value1_1873] | (value1_1873 == 0 ? 0x40 : 0));
-          int result_1878 = value1_1873;
           F = (_F939 & 0xFF);
-          A = result_1878;
+          A = value1_1873;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -8000,16 +7775,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_1880 = memory.read(_address795, 0);
           _value795 = operand_1880;
           int value1_1881 = A;
-          int value2_1882 = _value795;
           int value3_1883 = F & 1;
           _F941 = value3_1883;
-          int sbctemp_1884 = value1_1881 - value2_1882 - (_F941 & 1);
-          int lookup_1885 = ((value1_1881 & 0x88) >> 3) | ((value2_1882 & 0x88) >> 2) | ((sbctemp_1884 & 0x88) >> 1);
+          int sbctemp_1884 = value1_1881 - _value795 - (_F941 & 1);
+          int lookup_1885 = ((value1_1881 & 0x88) >> 3) | ((_value795 & 0x88) >> 2) | ((sbctemp_1884 & 0x88) >> 1);
           value1_1881 = sbctemp_1884 & 0xff;
           _F941 = ((sbctemp_1884 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_1885 & 0x07)] | OVERFLOW_SUB[(lookup_1885 >> 4)] | (SZ53[value1_1881] | (value1_1881 == 0 ? 0x40 : 0));
-          int result_1886 = value1_1881;
           F = (_F941 & 0xFF);
-          A = result_1886;
+          A = value1_1881;
           MEMPTR = _address795;
           PC = (PC + 3) & 0xFFFF;
           break;
@@ -8024,9 +7797,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_1891 = ((value1_1887 & 0x88) >> 3) | ((value2_1888 & 0x88) >> 2) | ((sbctemp_1890 & 0x88) >> 1);
           value1_1887 = sbctemp_1890 & 0xff;
           _F943 = ((sbctemp_1890 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_1891 & 0x07)] | OVERFLOW_SUB[(lookup_1891 >> 4)] | (SZ53[value1_1887] | (value1_1887 == 0 ? 0x40 : 0));
-          int result_1892 = value1_1887;
           F = (_F943 & 0xFF);
-          A = result_1892;
+          A = value1_1887;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -8421,10 +8193,9 @@ static final int[] SZ53 = new int[0x100];
           _address795 = (IX + (int) ((byte) operand_2031)) & 0xFFFF;
           int operand_2032 = memory.read(_address795, 0);
           _value795 = operand_2032;
-          int value2_2034 = _value795;
-          int cptemp_2036 = A - value2_2034;
-          int lookup_2037 = ((A & 0x88) >> 3) | ((value2_2034 & 0x88) >> 2) | ((cptemp_2036 & 0x88) >> 1);
-          _F1005 = ((cptemp_2036 & 0x100) != 0 ? 1 : (cptemp_2036 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_2037 & 0x07)] | OVERFLOW_SUB[(lookup_2037 >> 4)] | (value2_2034 & 0x28) | (cptemp_2036 & 0x80);
+          int cptemp_2036 = A - _value795;
+          int lookup_2037 = ((A & 0x88) >> 3) | ((_value795 & 0x88) >> 2) | ((cptemp_2036 & 0x88) >> 1);
+          _F1005 = ((cptemp_2036 & 0x100) != 0 ? 1 : (cptemp_2036 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_2037 & 0x07)] | OVERFLOW_SUB[(lookup_2037 >> 4)] | (_value795 & 0x28) | (cptemp_2036 & 0x80);
           F = (_F1005 & 0xFF);
           MEMPTR = _address795;
           PC = (PC + 3) & 0xFFFF;
@@ -8447,7 +8218,6 @@ static final int[] SZ53 = new int[0x100];
   private void decodeDD_12(int opcode) {
     switch (opcode) {
       case 0xC0: {
-          int _nextPC1009 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_2045 = SP;
           if ((!((F & 0x40) == 0x40))) {
@@ -8457,14 +8227,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_2049 = SP;
               SP = ((wordNumber_2049 + 2) & 0xFFFF);
               jumpAddress2_2045 = value_2046;
-              _nextPC1009 = jumpAddress2_2045;
+              MEMPTR = jumpAddress2_2045;
+              PC = jumpAddress2_2045;
+              break;
           } else {
-              _nextPC1009 = -1;
+              MEMPTR = 0;
+              PC = (PC + 2) & 0xFFFF;
+              break;
           }
-          int nextPC_2050 = _nextPC1009;
-          MEMPTR = (nextPC_2050 == -1 ? 0 : nextPC_2050) & 0xFFFF;
-          PC = _nextPC1009 == -1 ? (PC + 2) & 0xFFFF : _nextPC1009;
-          break;
       }
       case 0xC1: {
           int wordNumber1_2053 = memory.read(SP, 0);
@@ -8478,7 +8248,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xC2: {
-          int _nextPC1011 = 0;
           int _jumpAddress1011 = 0;
           int address_2057 = (PC + 2) & 0xFFFF;
           int operand_2059 = memory.read(address_2057, 0);
@@ -8486,14 +8255,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_2056 = (_jumpAddress1011 = (operand_2061 << 8) | operand_2059);
           if ((!((F & 0x40) == 0x40))) {
               _jumpAddress1011 = jumpAddress2_2056;
-              _nextPC1011 = jumpAddress2_2056;
+              MEMPTR = _jumpAddress1011;
+              PC = jumpAddress2_2056;
+              break;
           } else {
-              _nextPC1011 = -1;
+              MEMPTR = _jumpAddress1011;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_2062 = _jumpAddress1011;
-          MEMPTR = (nextPC_2062 == -1 ? 0 : nextPC_2062) & 0xFFFF;
-          PC = _nextPC1011 == -1 ? (PC + 4) & 0xFFFF : _nextPC1011;
-          break;
       }
       case 0xC3: {
           int _nextPC1012;
@@ -8504,13 +8273,11 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_2063 = (_jumpAddress1012 = (operand_2068 << 8) | operand_2066);
           _jumpAddress1012 = jumpAddress2_2063;
           _nextPC1012 = jumpAddress2_2063;
-          int nextPC_2069 = _jumpAddress1012;
-          MEMPTR = nextPC_2069;
+          MEMPTR = _jumpAddress1012;
           PC = _nextPC1012;
           break;
       }
       case 0xC4: {
-          int _nextPC1013 = 0;
           int _jumpAddress1013 = 0;
           int address_2070 = (PC + 2) & 0xFFFF;
           int operand_2072 = memory.read(address_2070, 0);
@@ -8525,14 +8292,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_2080 >>> 8));
               memory.write(SP, (value_2080 & 0xFF));
               _jumpAddress1013 = jumpAddress2_2076;
-              _nextPC1013 = jumpAddress2_2076;
+              MEMPTR = _jumpAddress1013;
+              PC = jumpAddress2_2076;
+              break;
           } else {
-              _nextPC1013 = -1;
+              MEMPTR = _jumpAddress1013;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_2081 = _jumpAddress1013;
-          MEMPTR = (nextPC_2081 == -1 ? 0 : nextPC_2081) & 0xFFFF;
-          PC = _nextPC1013 == -1 ? (PC + 4) & 0xFFFF : _nextPC1013;
-          break;
       }
       case 0xC5: {
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
@@ -8552,9 +8319,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_2088 = ((value2_2085 & 0x88) >> 3) | ((value1_2084 & 0x88) >> 2) | ((addtemp_2087 & 0x88) >> 1);
           value2_2085 = addtemp_2087 & 0xff;
           _F1015 = ((addtemp_2087 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_2088 & 0x07)] | OVERFLOW_ADD[(lookup_2088 >> 4)] | (SZ53[value2_2085] | (value2_2085 == 0 ? 0x40 : 0));
-          int result_2089 = value2_2085;
           F = (_F1015 & 0xFF);
-          A = result_2089;
+          A = value2_2085;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
@@ -8571,7 +8337,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xC8: {
-          int _nextPC1018 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_2091 = SP;
           if (((F & 0x40) == 0x40)) {
@@ -8581,14 +8346,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_2095 = SP;
               SP = ((wordNumber_2095 + 2) & 0xFFFF);
               jumpAddress2_2091 = value_2092;
-              _nextPC1018 = jumpAddress2_2091;
+              MEMPTR = jumpAddress2_2091;
+              PC = jumpAddress2_2091;
+              break;
           } else {
-              _nextPC1018 = -1;
+              MEMPTR = 0;
+              PC = (PC + 2) & 0xFFFF;
+              break;
           }
-          int nextPC_2096 = _nextPC1018;
-          MEMPTR = (nextPC_2096 == -1 ? 0 : nextPC_2096) & 0xFFFF;
-          PC = _nextPC1018 == -1 ? (PC + 2) & 0xFFFF : _nextPC1018;
-          break;
       }
       case 0xC9: {
           int _nextPC1019;
@@ -8600,13 +8365,11 @@ static final int[] SZ53 = new int[0x100];
           SP = ((wordNumber_2101 + 2) & 0xFFFF);
           jumpAddress2_2097 = value_2098;
           _nextPC1019 = jumpAddress2_2097;
-          int nextPC_2102 = _nextPC1019;
-          MEMPTR = nextPC_2102;
+          MEMPTR = _nextPC1019;
           PC = _nextPC1019;
           break;
       }
       case 0xCA: {
-          int _nextPC1020 = 0;
           int _jumpAddress1020 = 0;
           int address_2104 = (PC + 2) & 0xFFFF;
           int operand_2106 = memory.read(address_2104, 0);
@@ -8614,14 +8377,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_2103 = (_jumpAddress1020 = (operand_2108 << 8) | operand_2106);
           if (((F & 0x40) == 0x40)) {
               _jumpAddress1020 = jumpAddress2_2103;
-              _nextPC1020 = jumpAddress2_2103;
+              MEMPTR = _jumpAddress1020;
+              PC = jumpAddress2_2103;
+              break;
           } else {
-              _nextPC1020 = -1;
+              MEMPTR = _jumpAddress1020;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_2109 = _jumpAddress1020;
-          MEMPTR = (nextPC_2109 == -1 ? 0 : nextPC_2109) & 0xFFFF;
-          PC = _nextPC1020 == -1 ? (PC + 4) & 0xFFFF : _nextPC1020;
-          break;
       }
       case 0xCB: {
           int displacement = memory.read((PC + 2) & 0xFFFF, 0);
@@ -8629,7 +8392,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xCC: {
-          int _nextPC1661 = 0;
           int _jumpAddress1661 = 0;
           int address_3318 = (PC + 2) & 0xFFFF;
           int operand_3320 = memory.read(address_3318, 0);
@@ -8644,14 +8406,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_3328 >>> 8));
               memory.write(SP, (value_3328 & 0xFF));
               _jumpAddress1661 = jumpAddress2_3324;
-              _nextPC1661 = jumpAddress2_3324;
+              MEMPTR = _jumpAddress1661;
+              PC = jumpAddress2_3324;
+              break;
           } else {
-              _nextPC1661 = -1;
+              MEMPTR = _jumpAddress1661;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_3329 = _jumpAddress1661;
-          MEMPTR = (nextPC_3329 == -1 ? 0 : nextPC_3329) & 0xFFFF;
-          PC = _nextPC1661 == -1 ? (PC + 4) & 0xFFFF : _nextPC1661;
-          break;
       }
       case 0xCD: {
           int _nextPC1662;
@@ -8668,8 +8430,7 @@ static final int[] SZ53 = new int[0x100];
           memory.write(SP, (value_3340 & 0xFF));
           _jumpAddress1662 = jumpAddress2_3336;
           _nextPC1662 = jumpAddress2_3336;
-          int nextPC_3341 = _jumpAddress1662;
-          MEMPTR = nextPC_3341;
+          MEMPTR = _jumpAddress1662;
           PC = _nextPC1662;
           break;
       }
@@ -8683,9 +8444,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_3347 = ((value1_3343 & 0x88) >> 3) | ((operand_3342 & 0x88) >> 2) | ((adctemp_3346 & 0x88) >> 1);
           value1_3343 = adctemp_3346 & 0xff;
           _F1663 = ((adctemp_3346 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_3347 & 0x07)] | OVERFLOW_ADD[(lookup_3347 >> 4)] | (SZ53[value1_3343] | (value1_3343 == 0 ? 0x40 : 0));
-          int result_3348 = value1_3343;
           F = (_F1663 & 0xFF);
-          A = result_3348;
+          A = value1_3343;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
@@ -8709,7 +8469,6 @@ static final int[] SZ53 = new int[0x100];
   private void decodeDD_13(int opcode) {
     switch (opcode) {
       case 0xD0: {
-          int _nextPC1666 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_3350 = SP;
           if ((!((F & 1) == 1))) {
@@ -8719,14 +8478,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_3354 = SP;
               SP = ((wordNumber_3354 + 2) & 0xFFFF);
               jumpAddress2_3350 = value_3351;
-              _nextPC1666 = jumpAddress2_3350;
+              MEMPTR = jumpAddress2_3350;
+              PC = jumpAddress2_3350;
+              break;
           } else {
-              _nextPC1666 = -1;
+              MEMPTR = 0;
+              PC = (PC + 2) & 0xFFFF;
+              break;
           }
-          int nextPC_3355 = _nextPC1666;
-          MEMPTR = (nextPC_3355 == -1 ? 0 : nextPC_3355) & 0xFFFF;
-          PC = _nextPC1666 == -1 ? (PC + 2) & 0xFFFF : _nextPC1666;
-          break;
       }
       case 0xD1: {
           int wordNumber1_3358 = memory.read(SP, 0);
@@ -8740,7 +8499,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xD2: {
-          int _nextPC1668 = 0;
           int _jumpAddress1668 = 0;
           int address_3362 = (PC + 2) & 0xFFFF;
           int operand_3364 = memory.read(address_3362, 0);
@@ -8748,14 +8506,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_3361 = (_jumpAddress1668 = (operand_3366 << 8) | operand_3364);
           if ((!((F & 1) == 1))) {
               _jumpAddress1668 = jumpAddress2_3361;
-              _nextPC1668 = jumpAddress2_3361;
+              MEMPTR = _jumpAddress1668;
+              PC = jumpAddress2_3361;
+              break;
           } else {
-              _nextPC1668 = -1;
+              MEMPTR = _jumpAddress1668;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_3367 = _jumpAddress1668;
-          MEMPTR = (nextPC_3367 == -1 ? 0 : nextPC_3367) & 0xFFFF;
-          PC = _nextPC1668 == -1 ? (PC + 4) & 0xFFFF : _nextPC1668;
-          break;
       }
       case 0xD3: {
           int operand_3369 = memory.read((PC + 2) & 0xFFFF, 0);
@@ -8770,7 +8528,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xD4: {
-          int _nextPC1670 = 0;
           int _jumpAddress1670 = 0;
           int address_3371 = (PC + 2) & 0xFFFF;
           int operand_3373 = memory.read(address_3371, 0);
@@ -8785,14 +8542,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_3381 >>> 8));
               memory.write(SP, (value_3381 & 0xFF));
               _jumpAddress1670 = jumpAddress2_3377;
-              _nextPC1670 = jumpAddress2_3377;
+              MEMPTR = _jumpAddress1670;
+              PC = jumpAddress2_3377;
+              break;
           } else {
-              _nextPC1670 = -1;
+              MEMPTR = _jumpAddress1670;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_3382 = _jumpAddress1670;
-          MEMPTR = (nextPC_3382 == -1 ? 0 : nextPC_3382) & 0xFFFF;
-          PC = _nextPC1670 == -1 ? (PC + 4) & 0xFFFF : _nextPC1670;
-          break;
       }
       case 0xD5: {
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
@@ -8811,9 +8568,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_3389 = ((value1_3385 & 0x88) >> 3) | ((operand_3384 & 0x88) >> 2) | ((subtemp_3388 & 0x88) >> 1);
           value1_3385 = subtemp_3388 & 0xff;
           _F1672 = ((subtemp_3388 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3389 & 0x07)] | OVERFLOW_SUB[(lookup_3389 >> 4)] | (SZ53[value1_3385] | (value1_3385 == 0 ? 0x40 : 0));
-          int result_3390 = value1_3385;
           F = (_F1672 & 0xFF);
-          A = result_3390;
+          A = value1_3385;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
@@ -8830,7 +8586,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xD8: {
-          int _nextPC1675 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_3392 = SP;
           if (((F & 1) == 1)) {
@@ -8840,14 +8595,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_3396 = SP;
               SP = ((wordNumber_3396 + 2) & 0xFFFF);
               jumpAddress2_3392 = value_3393;
-              _nextPC1675 = jumpAddress2_3392;
+              MEMPTR = jumpAddress2_3392;
+              PC = jumpAddress2_3392;
+              break;
           } else {
-              _nextPC1675 = -1;
+              MEMPTR = 0;
+              PC = (PC + 2) & 0xFFFF;
+              break;
           }
-          int nextPC_3397 = _nextPC1675;
-          MEMPTR = (nextPC_3397 == -1 ? 0 : nextPC_3397) & 0xFFFF;
-          PC = _nextPC1675 == -1 ? (PC + 2) & 0xFFFF : _nextPC1675;
-          break;
       }
       case 0xD9: {
           int v1_3398 = ((B << 8) | C);
@@ -8866,7 +8621,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xDA: {
-          int _nextPC1677 = 0;
           int _jumpAddress1677 = 0;
           int address_3400 = (PC + 2) & 0xFFFF;
           int operand_3402 = memory.read(address_3400, 0);
@@ -8874,14 +8628,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_3399 = (_jumpAddress1677 = (operand_3404 << 8) | operand_3402);
           if (((F & 1) == 1)) {
               _jumpAddress1677 = jumpAddress2_3399;
-              _nextPC1677 = jumpAddress2_3399;
+              MEMPTR = _jumpAddress1677;
+              PC = jumpAddress2_3399;
+              break;
           } else {
-              _nextPC1677 = -1;
+              MEMPTR = _jumpAddress1677;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_3405 = _jumpAddress1677;
-          MEMPTR = (nextPC_3405 == -1 ? 0 : nextPC_3405) & 0xFFFF;
-          PC = _nextPC1677 == -1 ? (PC + 4) & 0xFFFF : _nextPC1677;
-          break;
       }
       case 0xDB: {
           int operand_3407 = memory.read((PC + 2) & 0xFFFF, 0);
@@ -8895,7 +8649,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xDC: {
-          int _nextPC1679 = 0;
           int _jumpAddress1679 = 0;
           int address_3410 = (PC + 2) & 0xFFFF;
           int operand_3412 = memory.read(address_3410, 0);
@@ -8910,14 +8663,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_3420 >>> 8));
               memory.write(SP, (value_3420 & 0xFF));
               _jumpAddress1679 = jumpAddress2_3416;
-              _nextPC1679 = jumpAddress2_3416;
+              MEMPTR = _jumpAddress1679;
+              PC = jumpAddress2_3416;
+              break;
           } else {
-              _nextPC1679 = -1;
+              MEMPTR = _jumpAddress1679;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_3421 = _jumpAddress1679;
-          MEMPTR = (nextPC_3421 == -1 ? 0 : nextPC_3421) & 0xFFFF;
-          PC = _nextPC1679 == -1 ? (PC + 4) & 0xFFFF : _nextPC1679;
-          break;
       }
       case 0xDD: {
           PC = (PC + 2) & 0xFFFF;
@@ -8933,9 +8686,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_3427 = ((value1_3423 & 0x88) >> 3) | ((operand_3422 & 0x88) >> 2) | ((sbctemp_3426 & 0x88) >> 1);
           value1_3423 = sbctemp_3426 & 0xff;
           _F1681 = ((sbctemp_3426 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3427 & 0x07)] | OVERFLOW_SUB[(lookup_3427 >> 4)] | (SZ53[value1_3423] | (value1_3423 == 0 ? 0x40 : 0));
-          int result_3428 = value1_3423;
           F = (_F1681 & 0xFF);
-          A = result_3428;
+          A = value1_3423;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
@@ -8959,7 +8711,6 @@ static final int[] SZ53 = new int[0x100];
   private void decodeDD_14(int opcode) {
     switch (opcode) {
       case 0xE0: {
-          int _nextPC1684 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_3430 = SP;
           if ((!((F & 4) == 4))) {
@@ -8969,14 +8720,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_3434 = SP;
               SP = ((wordNumber_3434 + 2) & 0xFFFF);
               jumpAddress2_3430 = value_3431;
-              _nextPC1684 = jumpAddress2_3430;
+              MEMPTR = jumpAddress2_3430;
+              PC = jumpAddress2_3430;
+              break;
           } else {
-              _nextPC1684 = -1;
+              MEMPTR = 0;
+              PC = (PC + 2) & 0xFFFF;
+              break;
           }
-          int nextPC_3435 = _nextPC1684;
-          MEMPTR = (nextPC_3435 == -1 ? 0 : nextPC_3435) & 0xFFFF;
-          PC = _nextPC1684 == -1 ? (PC + 2) & 0xFFFF : _nextPC1684;
-          break;
       }
       case 0xE1: {
           int wordNumber1_3438 = memory.read(SP, 0);
@@ -8989,7 +8740,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xE2: {
-          int _nextPC1686 = 0;
           int _jumpAddress1686 = 0;
           int address_3442 = (PC + 2) & 0xFFFF;
           int operand_3444 = memory.read(address_3442, 0);
@@ -8997,14 +8747,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_3441 = (_jumpAddress1686 = (operand_3446 << 8) | operand_3444);
           if ((!((F & 4) == 4))) {
               _jumpAddress1686 = jumpAddress2_3441;
-              _nextPC1686 = jumpAddress2_3441;
+              MEMPTR = _jumpAddress1686;
+              PC = jumpAddress2_3441;
+              break;
           } else {
-              _nextPC1686 = -1;
+              MEMPTR = _jumpAddress1686;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_3447 = _jumpAddress1686;
-          MEMPTR = (nextPC_3447 == -1 ? 0 : nextPC_3447) & 0xFFFF;
-          PC = _nextPC1686 == -1 ? (PC + 4) & 0xFFFF : _nextPC1686;
-          break;
       }
       case 0xE3: {
           int _address1687 = SP;
@@ -9023,7 +8773,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xE4: {
-          int _nextPC1689 = 0;
           int _jumpAddress1689 = 0;
           int address_3452 = (PC + 2) & 0xFFFF;
           int operand_3454 = memory.read(address_3452, 0);
@@ -9038,14 +8787,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_3462 >>> 8));
               memory.write(SP, (value_3462 & 0xFF));
               _jumpAddress1689 = jumpAddress2_3458;
-              _nextPC1689 = jumpAddress2_3458;
+              MEMPTR = _jumpAddress1689;
+              PC = jumpAddress2_3458;
+              break;
           } else {
-              _nextPC1689 = -1;
+              MEMPTR = _jumpAddress1689;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_3463 = _jumpAddress1689;
-          MEMPTR = (nextPC_3463 == -1 ? 0 : nextPC_3463) & 0xFFFF;
-          PC = _nextPC1689 == -1 ? (PC + 4) & 0xFFFF : _nextPC1689;
-          break;
       }
       case 0xE5: {
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
@@ -9081,7 +8830,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xE8: {
-          int _nextPC1694 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_3470 = SP;
           if (((F & 4) == 4)) {
@@ -9091,14 +8839,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_3474 = SP;
               SP = ((wordNumber_3474 + 2) & 0xFFFF);
               jumpAddress2_3470 = value_3471;
-              _nextPC1694 = jumpAddress2_3470;
+              MEMPTR = jumpAddress2_3470;
+              PC = jumpAddress2_3470;
+              break;
           } else {
-              _nextPC1694 = -1;
+              MEMPTR = 0;
+              PC = (PC + 2) & 0xFFFF;
+              break;
           }
-          int nextPC_3475 = _nextPC1694;
-          MEMPTR = (nextPC_3475 == -1 ? 0 : nextPC_3475) & 0xFFFF;
-          PC = _nextPC1694 == -1 ? (PC + 2) & 0xFFFF : _nextPC1694;
-          break;
       }
       case 0xE9: {
           MEMPTR = 0;
@@ -9106,7 +8854,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xEA: {
-          int _nextPC1696 = 0;
           int _jumpAddress1696 = 0;
           int address_3479 = (PC + 2) & 0xFFFF;
           int operand_3481 = memory.read(address_3479, 0);
@@ -9114,14 +8861,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_3478 = (_jumpAddress1696 = (operand_3483 << 8) | operand_3481);
           if (((F & 4) == 4)) {
               _jumpAddress1696 = jumpAddress2_3478;
-              _nextPC1696 = jumpAddress2_3478;
+              MEMPTR = _jumpAddress1696;
+              PC = jumpAddress2_3478;
+              break;
           } else {
-              _nextPC1696 = -1;
+              MEMPTR = _jumpAddress1696;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_3484 = _jumpAddress1696;
-          MEMPTR = (nextPC_3484 == -1 ? 0 : nextPC_3484) & 0xFFFF;
-          PC = _nextPC1696 == -1 ? (PC + 4) & 0xFFFF : _nextPC1696;
-          break;
       }
       case 0xEB: {
           int v1_3485 = ((D << 8) | E);
@@ -9134,7 +8881,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xEC: {
-          int _nextPC1698 = 0;
           int _jumpAddress1698 = 0;
           int address_3487 = (PC + 2) & 0xFFFF;
           int operand_3489 = memory.read(address_3487, 0);
@@ -9149,14 +8895,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_3497 >>> 8));
               memory.write(SP, (value_3497 & 0xFF));
               _jumpAddress1698 = jumpAddress2_3493;
-              _nextPC1698 = jumpAddress2_3493;
+              MEMPTR = _jumpAddress1698;
+              PC = jumpAddress2_3493;
+              break;
           } else {
-              _nextPC1698 = -1;
+              MEMPTR = _jumpAddress1698;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_3498 = _jumpAddress1698;
-          MEMPTR = (nextPC_3498 == -1 ? 0 : nextPC_3498) & 0xFFFF;
-          PC = _nextPC1698 == -1 ? (PC + 4) & 0xFFFF : _nextPC1698;
-          break;
       }
       case 0xED: {
           PC = (PC + 2) & 0xFFFF;
@@ -9195,7 +8941,6 @@ static final int[] SZ53 = new int[0x100];
   private void decodeDD_15(int opcode) {
     switch (opcode) {
       case 0xF0: {
-          int _nextPC1703 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_3505 = SP;
           if ((!((F & 0x80) == 0x80))) {
@@ -9205,14 +8950,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_3509 = SP;
               SP = ((wordNumber_3509 + 2) & 0xFFFF);
               jumpAddress2_3505 = value_3506;
-              _nextPC1703 = jumpAddress2_3505;
+              MEMPTR = jumpAddress2_3505;
+              PC = jumpAddress2_3505;
+              break;
           } else {
-              _nextPC1703 = -1;
+              MEMPTR = 0;
+              PC = (PC + 2) & 0xFFFF;
+              break;
           }
-          int nextPC_3510 = _nextPC1703;
-          MEMPTR = (nextPC_3510 == -1 ? 0 : nextPC_3510) & 0xFFFF;
-          PC = _nextPC1703 == -1 ? (PC + 2) & 0xFFFF : _nextPC1703;
-          break;
       }
       case 0xF1: {
           int wordNumber1_3513 = memory.read(SP, 0);
@@ -9226,7 +8971,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xF2: {
-          int _nextPC1705 = 0;
           int _jumpAddress1705 = 0;
           int address_3517 = (PC + 2) & 0xFFFF;
           int operand_3519 = memory.read(address_3517, 0);
@@ -9234,14 +8978,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_3516 = (_jumpAddress1705 = (operand_3521 << 8) | operand_3519);
           if ((!((F & 0x80) == 0x80))) {
               _jumpAddress1705 = jumpAddress2_3516;
-              _nextPC1705 = jumpAddress2_3516;
+              MEMPTR = _jumpAddress1705;
+              PC = jumpAddress2_3516;
+              break;
           } else {
-              _nextPC1705 = -1;
+              MEMPTR = _jumpAddress1705;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_3522 = _jumpAddress1705;
-          MEMPTR = (nextPC_3522 == -1 ? 0 : nextPC_3522) & 0xFFFF;
-          PC = _nextPC1705 == -1 ? (PC + 4) & 0xFFFF : _nextPC1705;
-          break;
       }
       case 0xF3: {
           state.resetInterrupt();
@@ -9249,7 +8993,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xF4: {
-          int _nextPC1707 = 0;
           int _jumpAddress1707 = 0;
           int address_3523 = (PC + 2) & 0xFFFF;
           int operand_3525 = memory.read(address_3523, 0);
@@ -9264,14 +9007,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_3533 >>> 8));
               memory.write(SP, (value_3533 & 0xFF));
               _jumpAddress1707 = jumpAddress2_3529;
-              _nextPC1707 = jumpAddress2_3529;
+              MEMPTR = _jumpAddress1707;
+              PC = jumpAddress2_3529;
+              break;
           } else {
-              _nextPC1707 = -1;
+              MEMPTR = _jumpAddress1707;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_3534 = _jumpAddress1707;
-          MEMPTR = (nextPC_3534 == -1 ? 0 : nextPC_3534) & 0xFFFF;
-          PC = _nextPC1707 == -1 ? (PC + 4) & 0xFFFF : _nextPC1707;
-          break;
       }
       case 0xF5: {
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
@@ -9308,7 +9051,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xF8: {
-          int _nextPC1712 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_3542 = SP;
           if (((F & 0x80) == 0x80)) {
@@ -9318,14 +9060,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_3546 = SP;
               SP = ((wordNumber_3546 + 2) & 0xFFFF);
               jumpAddress2_3542 = value_3543;
-              _nextPC1712 = jumpAddress2_3542;
+              MEMPTR = jumpAddress2_3542;
+              PC = jumpAddress2_3542;
+              break;
           } else {
-              _nextPC1712 = -1;
+              MEMPTR = 0;
+              PC = (PC + 2) & 0xFFFF;
+              break;
           }
-          int nextPC_3547 = _nextPC1712;
-          MEMPTR = (nextPC_3547 == -1 ? 0 : nextPC_3547) & 0xFFFF;
-          PC = _nextPC1712 == -1 ? (PC + 2) & 0xFFFF : _nextPC1712;
-          break;
       }
       case 0xF9: {
           contend(((I << 8) | R), 2, 1, Contention.Kind.READ_NO_MREQ);
@@ -9334,7 +9076,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xFA: {
-          int _nextPC1714 = 0;
           int _jumpAddress1714 = 0;
           int address_3549 = (PC + 2) & 0xFFFF;
           int operand_3551 = memory.read(address_3549, 0);
@@ -9342,14 +9083,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_3548 = (_jumpAddress1714 = (operand_3553 << 8) | operand_3551);
           if (((F & 0x80) == 0x80)) {
               _jumpAddress1714 = jumpAddress2_3548;
-              _nextPC1714 = jumpAddress2_3548;
+              MEMPTR = _jumpAddress1714;
+              PC = jumpAddress2_3548;
+              break;
           } else {
-              _nextPC1714 = -1;
+              MEMPTR = _jumpAddress1714;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_3554 = _jumpAddress1714;
-          MEMPTR = (nextPC_3554 == -1 ? 0 : nextPC_3554) & 0xFFFF;
-          PC = _nextPC1714 == -1 ? (PC + 4) & 0xFFFF : _nextPC1714;
-          break;
       }
       case 0xFB: {
           state.enableInterrupt();
@@ -9357,7 +9098,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xFC: {
-          int _nextPC1716 = 0;
           int _jumpAddress1716 = 0;
           int address_3555 = (PC + 2) & 0xFFFF;
           int operand_3557 = memory.read(address_3555, 0);
@@ -9372,14 +9112,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_3565 >>> 8));
               memory.write(SP, (value_3565 & 0xFF));
               _jumpAddress1716 = jumpAddress2_3561;
-              _nextPC1716 = jumpAddress2_3561;
+              MEMPTR = _jumpAddress1716;
+              PC = jumpAddress2_3561;
+              break;
           } else {
-              _nextPC1716 = -1;
+              MEMPTR = _jumpAddress1716;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_3566 = _jumpAddress1716;
-          MEMPTR = (nextPC_3566 == -1 ? 0 : nextPC_3566) & 0xFFFF;
-          PC = _nextPC1716 == -1 ? (PC + 4) & 0xFFFF : _nextPC1716;
-          break;
       }
       case 0xFD: {
           PC = (PC + 2) & 0xFFFF;
@@ -9465,11 +9205,10 @@ static final int[] SZ53 = new int[0x100];
           int value1_2111 = _value1021;
           value1_2111 = (value1_2111 << 1 | value1_2111 >> 7) & 0xff;
           _F1022 = (value1_2111 & 1) | (SZ53P[value1_2111] | (value1_2111 == 0 ? 0x40 : 0));
-          int result_2114 = value1_2111;
           F = (_F1022 & 0xFF);
           _address1021 = (IX + (int) ((byte) displacement)) & 0xFFFF;
-          _value1021 = result_2114;
-          memory.write(_address1021, result_2114);
+          _value1021 = value1_2111;
+          memory.write(_address1021, value1_2111);
           int read_2115;
           read_2115 = _value1021;
           B = read_2115;
@@ -9489,11 +9228,10 @@ static final int[] SZ53 = new int[0x100];
           int value1_2117 = _value1024;
           value1_2117 = (value1_2117 << 1 | value1_2117 >> 7) & 0xff;
           _F1025 = (value1_2117 & 1) | (SZ53P[value1_2117] | (value1_2117 == 0 ? 0x40 : 0));
-          int result_2120 = value1_2117;
           F = (_F1025 & 0xFF);
           _address1024 = (IX + (int) ((byte) displacement)) & 0xFFFF;
-          _value1024 = result_2120;
-          memory.write(_address1024, result_2120);
+          _value1024 = value1_2117;
+          memory.write(_address1024, value1_2117);
           int read_2121;
           read_2121 = _value1024;
           C = read_2121;
@@ -9513,11 +9251,10 @@ static final int[] SZ53 = new int[0x100];
           int value1_2123 = _value1027;
           value1_2123 = (value1_2123 << 1 | value1_2123 >> 7) & 0xff;
           _F1028 = (value1_2123 & 1) | (SZ53P[value1_2123] | (value1_2123 == 0 ? 0x40 : 0));
-          int result_2126 = value1_2123;
           F = (_F1028 & 0xFF);
           _address1027 = (IX + (int) ((byte) displacement)) & 0xFFFF;
-          _value1027 = result_2126;
-          memory.write(_address1027, result_2126);
+          _value1027 = value1_2123;
+          memory.write(_address1027, value1_2123);
           int read_2127;
           read_2127 = _value1027;
           D = read_2127;
@@ -9537,11 +9274,10 @@ static final int[] SZ53 = new int[0x100];
           int value1_2129 = _value1030;
           value1_2129 = (value1_2129 << 1 | value1_2129 >> 7) & 0xff;
           _F1031 = (value1_2129 & 1) | (SZ53P[value1_2129] | (value1_2129 == 0 ? 0x40 : 0));
-          int result_2132 = value1_2129;
           F = (_F1031 & 0xFF);
           _address1030 = (IX + (int) ((byte) displacement)) & 0xFFFF;
-          _value1030 = result_2132;
-          memory.write(_address1030, result_2132);
+          _value1030 = value1_2129;
+          memory.write(_address1030, value1_2129);
           int read_2133;
           read_2133 = _value1030;
           E = read_2133;
@@ -9561,11 +9297,10 @@ static final int[] SZ53 = new int[0x100];
           int value1_2135 = _value1033;
           value1_2135 = (value1_2135 << 1 | value1_2135 >> 7) & 0xff;
           _F1034 = (value1_2135 & 1) | (SZ53P[value1_2135] | (value1_2135 == 0 ? 0x40 : 0));
-          int result_2138 = value1_2135;
           F = (_F1034 & 0xFF);
           _address1033 = (IX + (int) ((byte) displacement)) & 0xFFFF;
-          _value1033 = result_2138;
-          memory.write(_address1033, result_2138);
+          _value1033 = value1_2135;
+          memory.write(_address1033, value1_2135);
           int read_2139;
           read_2139 = _value1033;
           H = read_2139;
@@ -9585,11 +9320,10 @@ static final int[] SZ53 = new int[0x100];
           int value1_2141 = _value1036;
           value1_2141 = (value1_2141 << 1 | value1_2141 >> 7) & 0xff;
           _F1037 = (value1_2141 & 1) | (SZ53P[value1_2141] | (value1_2141 == 0 ? 0x40 : 0));
-          int result_2144 = value1_2141;
           F = (_F1037 & 0xFF);
           _address1036 = (IX + (int) ((byte) displacement)) & 0xFFFF;
-          _value1036 = result_2144;
-          memory.write(_address1036, result_2144);
+          _value1036 = value1_2141;
+          memory.write(_address1036, value1_2141);
           int read_2145;
           read_2145 = _value1036;
           L = read_2145;
@@ -9609,11 +9343,10 @@ static final int[] SZ53 = new int[0x100];
           int value1_2147 = _value1039;
           value1_2147 = (value1_2147 << 1 | value1_2147 >> 7) & 0xff;
           _F1040 = (value1_2147 & 1) | (SZ53P[value1_2147] | (value1_2147 == 0 ? 0x40 : 0));
-          int result_2150 = value1_2147;
           F = (_F1040 & 0xFF);
           _address1039 = (IX + (int) ((byte) displacement)) & 0xFFFF;
-          _value1039 = result_2150;
-          memory.write(_address1039, result_2150);
+          _value1039 = value1_2147;
+          memory.write(_address1039, value1_2147);
           MEMPTR = _address1039;
           PC = (PC + 4) & 0xFFFF;
           break;
@@ -9630,11 +9363,10 @@ static final int[] SZ53 = new int[0x100];
           int value1_2152 = _value1042;
           value1_2152 = (value1_2152 << 1 | value1_2152 >> 7) & 0xff;
           _F1043 = (value1_2152 & 1) | (SZ53P[value1_2152] | (value1_2152 == 0 ? 0x40 : 0));
-          int result_2155 = value1_2152;
           F = (_F1043 & 0xFF);
           _address1042 = (IX + (int) ((byte) displacement)) & 0xFFFF;
-          _value1042 = result_2155;
-          memory.write(_address1042, result_2155);
+          _value1042 = value1_2152;
+          memory.write(_address1042, value1_2152);
           int read_2156;
           read_2156 = _value1042;
           A = read_2156;
@@ -11149,16 +10881,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2504 = memory.read(_address1213, 0);
           contend(_address1213, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1213 = operand_2504;
-          int value1_2505 = address_2502;
-          int value2_2506 = _value1213;
           int value3_2507 = nAndCarry_2503;
           _F1214 = value3_2507;
           value3_2507 = value3_2507 >>> 1;
-          _F1214 = (_F1214 & 1) | 0x10 | (value1_2505 & 0x28);
-          if ((value2_2506 & (0x01 << value3_2507)) == 0) {
+          _F1214 = (_F1214 & 1) | 0x10 | (address_2502 & 0x28);
+          if ((_value1213 & (0x01 << value3_2507)) == 0) {
               _F1214 |= 0x44;
           }
-          if (value3_2507 == 7 && (value2_2506 & 0x80) != 0) {
+          if (value3_2507 == 7 && (_value1213 & 0x80) != 0) {
               _F1214 |= 0x80;
           }
           F = (_F1214 & 0xFF);
@@ -11178,16 +10908,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2511 = memory.read(_address1216, 0);
           contend(_address1216, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1216 = operand_2511;
-          int value1_2512 = address_2509;
-          int value2_2513 = _value1216;
           int value3_2514 = nAndCarry_2510;
           _F1217 = value3_2514;
           value3_2514 = value3_2514 >>> 1;
-          _F1217 = (_F1217 & 1) | 0x10 | (value1_2512 & 0x28);
-          if ((value2_2513 & (0x01 << value3_2514)) == 0) {
+          _F1217 = (_F1217 & 1) | 0x10 | (address_2509 & 0x28);
+          if ((_value1216 & (0x01 << value3_2514)) == 0) {
               _F1217 |= 0x44;
           }
-          if (value3_2514 == 7 && (value2_2513 & 0x80) != 0) {
+          if (value3_2514 == 7 && (_value1216 & 0x80) != 0) {
               _F1217 |= 0x80;
           }
           F = (_F1217 & 0xFF);
@@ -11207,16 +10935,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2518 = memory.read(_address1219, 0);
           contend(_address1219, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1219 = operand_2518;
-          int value1_2519 = address_2516;
-          int value2_2520 = _value1219;
           int value3_2521 = nAndCarry_2517;
           _F1220 = value3_2521;
           value3_2521 = value3_2521 >>> 1;
-          _F1220 = (_F1220 & 1) | 0x10 | (value1_2519 & 0x28);
-          if ((value2_2520 & (0x01 << value3_2521)) == 0) {
+          _F1220 = (_F1220 & 1) | 0x10 | (address_2516 & 0x28);
+          if ((_value1219 & (0x01 << value3_2521)) == 0) {
               _F1220 |= 0x44;
           }
-          if (value3_2521 == 7 && (value2_2520 & 0x80) != 0) {
+          if (value3_2521 == 7 && (_value1219 & 0x80) != 0) {
               _F1220 |= 0x80;
           }
           F = (_F1220 & 0xFF);
@@ -11236,16 +10962,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2525 = memory.read(_address1222, 0);
           contend(_address1222, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1222 = operand_2525;
-          int value1_2526 = address_2523;
-          int value2_2527 = _value1222;
           int value3_2528 = nAndCarry_2524;
           _F1223 = value3_2528;
           value3_2528 = value3_2528 >>> 1;
-          _F1223 = (_F1223 & 1) | 0x10 | (value1_2526 & 0x28);
-          if ((value2_2527 & (0x01 << value3_2528)) == 0) {
+          _F1223 = (_F1223 & 1) | 0x10 | (address_2523 & 0x28);
+          if ((_value1222 & (0x01 << value3_2528)) == 0) {
               _F1223 |= 0x44;
           }
-          if (value3_2528 == 7 && (value2_2527 & 0x80) != 0) {
+          if (value3_2528 == 7 && (_value1222 & 0x80) != 0) {
               _F1223 |= 0x80;
           }
           F = (_F1223 & 0xFF);
@@ -11265,16 +10989,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2532 = memory.read(_address1225, 0);
           contend(_address1225, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1225 = operand_2532;
-          int value1_2533 = address_2530;
-          int value2_2534 = _value1225;
           int value3_2535 = nAndCarry_2531;
           _F1226 = value3_2535;
           value3_2535 = value3_2535 >>> 1;
-          _F1226 = (_F1226 & 1) | 0x10 | (value1_2533 & 0x28);
-          if ((value2_2534 & (0x01 << value3_2535)) == 0) {
+          _F1226 = (_F1226 & 1) | 0x10 | (address_2530 & 0x28);
+          if ((_value1225 & (0x01 << value3_2535)) == 0) {
               _F1226 |= 0x44;
           }
-          if (value3_2535 == 7 && (value2_2534 & 0x80) != 0) {
+          if (value3_2535 == 7 && (_value1225 & 0x80) != 0) {
               _F1226 |= 0x80;
           }
           F = (_F1226 & 0xFF);
@@ -11294,16 +11016,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2539 = memory.read(_address1228, 0);
           contend(_address1228, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1228 = operand_2539;
-          int value1_2540 = address_2537;
-          int value2_2541 = _value1228;
           int value3_2542 = nAndCarry_2538;
           _F1229 = value3_2542;
           value3_2542 = value3_2542 >>> 1;
-          _F1229 = (_F1229 & 1) | 0x10 | (value1_2540 & 0x28);
-          if ((value2_2541 & (0x01 << value3_2542)) == 0) {
+          _F1229 = (_F1229 & 1) | 0x10 | (address_2537 & 0x28);
+          if ((_value1228 & (0x01 << value3_2542)) == 0) {
               _F1229 |= 0x44;
           }
-          if (value3_2542 == 7 && (value2_2541 & 0x80) != 0) {
+          if (value3_2542 == 7 && (_value1228 & 0x80) != 0) {
               _F1229 |= 0x80;
           }
           F = (_F1229 & 0xFF);
@@ -11323,16 +11043,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2546 = memory.read(_address1231, 0);
           contend(_address1231, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1231 = operand_2546;
-          int value1_2547 = address_2544;
-          int value2_2548 = _value1231;
           int value3_2549 = nAndCarry_2545;
           _F1232 = value3_2549;
           value3_2549 = value3_2549 >>> 1;
-          _F1232 = (_F1232 & 1) | 0x10 | (value1_2547 & 0x28);
-          if ((value2_2548 & (0x01 << value3_2549)) == 0) {
+          _F1232 = (_F1232 & 1) | 0x10 | (address_2544 & 0x28);
+          if ((_value1231 & (0x01 << value3_2549)) == 0) {
               _F1232 |= 0x44;
           }
-          if (value3_2549 == 7 && (value2_2548 & 0x80) != 0) {
+          if (value3_2549 == 7 && (_value1231 & 0x80) != 0) {
               _F1232 |= 0x80;
           }
           F = (_F1232 & 0xFF);
@@ -11352,16 +11070,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2553 = memory.read(_address1234, 0);
           contend(_address1234, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1234 = operand_2553;
-          int value1_2554 = address_2551;
-          int value2_2555 = _value1234;
           int value3_2556 = nAndCarry_2552;
           _F1235 = value3_2556;
           value3_2556 = value3_2556 >>> 1;
-          _F1235 = (_F1235 & 1) | 0x10 | (value1_2554 & 0x28);
-          if ((value2_2555 & (0x01 << value3_2556)) == 0) {
+          _F1235 = (_F1235 & 1) | 0x10 | (address_2551 & 0x28);
+          if ((_value1234 & (0x01 << value3_2556)) == 0) {
               _F1235 |= 0x44;
           }
-          if (value3_2556 == 7 && (value2_2555 & 0x80) != 0) {
+          if (value3_2556 == 7 && (_value1234 & 0x80) != 0) {
               _F1235 |= 0x80;
           }
           F = (_F1235 & 0xFF);
@@ -11381,16 +11097,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2560 = memory.read(_address1237, 0);
           contend(_address1237, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1237 = operand_2560;
-          int value1_2561 = address_2558;
-          int value2_2562 = _value1237;
           int value3_2563 = nAndCarry_2559;
           _F1238 = value3_2563 & 1;
           value3_2563 = value3_2563 >>> 1;
-          _F1238 = (_F1238 & 1) | 0x10 | (value1_2561 & 0x28);
-          if ((value2_2562 & (0x01 << value3_2563)) == 0) {
+          _F1238 = (_F1238 & 1) | 0x10 | (address_2558 & 0x28);
+          if ((_value1237 & (0x01 << value3_2563)) == 0) {
               _F1238 |= 0x44;
           }
-          if (value3_2563 == 7 && (value2_2562 & 0x80) != 0) {
+          if (value3_2563 == 7 && (_value1237 & 0x80) != 0) {
               _F1238 |= 0x80;
           }
           F = (_F1238 & 0xFF);
@@ -11410,16 +11124,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2567 = memory.read(_address1240, 0);
           contend(_address1240, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1240 = operand_2567;
-          int value1_2568 = address_2565;
-          int value2_2569 = _value1240;
           int value3_2570 = nAndCarry_2566;
           _F1241 = value3_2570 & 1;
           value3_2570 = value3_2570 >>> 1;
-          _F1241 = (_F1241 & 1) | 0x10 | (value1_2568 & 0x28);
-          if ((value2_2569 & (0x01 << value3_2570)) == 0) {
+          _F1241 = (_F1241 & 1) | 0x10 | (address_2565 & 0x28);
+          if ((_value1240 & (0x01 << value3_2570)) == 0) {
               _F1241 |= 0x44;
           }
-          if (value3_2570 == 7 && (value2_2569 & 0x80) != 0) {
+          if (value3_2570 == 7 && (_value1240 & 0x80) != 0) {
               _F1241 |= 0x80;
           }
           F = (_F1241 & 0xFF);
@@ -11439,16 +11151,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2574 = memory.read(_address1243, 0);
           contend(_address1243, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1243 = operand_2574;
-          int value1_2575 = address_2572;
-          int value2_2576 = _value1243;
           int value3_2577 = nAndCarry_2573;
           _F1244 = value3_2577 & 1;
           value3_2577 = value3_2577 >>> 1;
-          _F1244 = (_F1244 & 1) | 0x10 | (value1_2575 & 0x28);
-          if ((value2_2576 & (0x01 << value3_2577)) == 0) {
+          _F1244 = (_F1244 & 1) | 0x10 | (address_2572 & 0x28);
+          if ((_value1243 & (0x01 << value3_2577)) == 0) {
               _F1244 |= 0x44;
           }
-          if (value3_2577 == 7 && (value2_2576 & 0x80) != 0) {
+          if (value3_2577 == 7 && (_value1243 & 0x80) != 0) {
               _F1244 |= 0x80;
           }
           F = (_F1244 & 0xFF);
@@ -11468,16 +11178,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2581 = memory.read(_address1246, 0);
           contend(_address1246, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1246 = operand_2581;
-          int value1_2582 = address_2579;
-          int value2_2583 = _value1246;
           int value3_2584 = nAndCarry_2580;
           _F1247 = value3_2584 & 1;
           value3_2584 = value3_2584 >>> 1;
-          _F1247 = (_F1247 & 1) | 0x10 | (value1_2582 & 0x28);
-          if ((value2_2583 & (0x01 << value3_2584)) == 0) {
+          _F1247 = (_F1247 & 1) | 0x10 | (address_2579 & 0x28);
+          if ((_value1246 & (0x01 << value3_2584)) == 0) {
               _F1247 |= 0x44;
           }
-          if (value3_2584 == 7 && (value2_2583 & 0x80) != 0) {
+          if (value3_2584 == 7 && (_value1246 & 0x80) != 0) {
               _F1247 |= 0x80;
           }
           F = (_F1247 & 0xFF);
@@ -11497,16 +11205,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2588 = memory.read(_address1249, 0);
           contend(_address1249, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1249 = operand_2588;
-          int value1_2589 = address_2586;
-          int value2_2590 = _value1249;
           int value3_2591 = nAndCarry_2587;
           _F1250 = value3_2591 & 1;
           value3_2591 = value3_2591 >>> 1;
-          _F1250 = (_F1250 & 1) | 0x10 | (value1_2589 & 0x28);
-          if ((value2_2590 & (0x01 << value3_2591)) == 0) {
+          _F1250 = (_F1250 & 1) | 0x10 | (address_2586 & 0x28);
+          if ((_value1249 & (0x01 << value3_2591)) == 0) {
               _F1250 |= 0x44;
           }
-          if (value3_2591 == 7 && (value2_2590 & 0x80) != 0) {
+          if (value3_2591 == 7 && (_value1249 & 0x80) != 0) {
               _F1250 |= 0x80;
           }
           F = (_F1250 & 0xFF);
@@ -11526,16 +11232,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2595 = memory.read(_address1252, 0);
           contend(_address1252, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1252 = operand_2595;
-          int value1_2596 = address_2593;
-          int value2_2597 = _value1252;
           int value3_2598 = nAndCarry_2594;
           _F1253 = value3_2598 & 1;
           value3_2598 = value3_2598 >>> 1;
-          _F1253 = (_F1253 & 1) | 0x10 | (value1_2596 & 0x28);
-          if ((value2_2597 & (0x01 << value3_2598)) == 0) {
+          _F1253 = (_F1253 & 1) | 0x10 | (address_2593 & 0x28);
+          if ((_value1252 & (0x01 << value3_2598)) == 0) {
               _F1253 |= 0x44;
           }
-          if (value3_2598 == 7 && (value2_2597 & 0x80) != 0) {
+          if (value3_2598 == 7 && (_value1252 & 0x80) != 0) {
               _F1253 |= 0x80;
           }
           F = (_F1253 & 0xFF);
@@ -11555,16 +11259,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2602 = memory.read(_address1255, 0);
           contend(_address1255, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1255 = operand_2602;
-          int value1_2603 = address_2600;
-          int value2_2604 = _value1255;
           int value3_2605 = nAndCarry_2601;
           _F1256 = value3_2605 & 1;
           value3_2605 = value3_2605 >>> 1;
-          _F1256 = (_F1256 & 1) | 0x10 | (value1_2603 & 0x28);
-          if ((value2_2604 & (0x01 << value3_2605)) == 0) {
+          _F1256 = (_F1256 & 1) | 0x10 | (address_2600 & 0x28);
+          if ((_value1255 & (0x01 << value3_2605)) == 0) {
               _F1256 |= 0x44;
           }
-          if (value3_2605 == 7 && (value2_2604 & 0x80) != 0) {
+          if (value3_2605 == 7 && (_value1255 & 0x80) != 0) {
               _F1256 |= 0x80;
           }
           F = (_F1256 & 0xFF);
@@ -11584,16 +11286,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2609 = memory.read(_address1258, 0);
           contend(_address1258, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1258 = operand_2609;
-          int value1_2610 = address_2607;
-          int value2_2611 = _value1258;
           int value3_2612 = nAndCarry_2608;
           _F1259 = value3_2612 & 1;
           value3_2612 = value3_2612 >>> 1;
-          _F1259 = (_F1259 & 1) | 0x10 | (value1_2610 & 0x28);
-          if ((value2_2611 & (0x01 << value3_2612)) == 0) {
+          _F1259 = (_F1259 & 1) | 0x10 | (address_2607 & 0x28);
+          if ((_value1258 & (0x01 << value3_2612)) == 0) {
               _F1259 |= 0x44;
           }
-          if (value3_2612 == 7 && (value2_2611 & 0x80) != 0) {
+          if (value3_2612 == 7 && (_value1258 & 0x80) != 0) {
               _F1259 |= 0x80;
           }
           F = (_F1259 & 0xFF);
@@ -11620,16 +11320,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2616 = memory.read(_address1261, 0);
           contend(_address1261, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1261 = operand_2616;
-          int value1_2617 = address_2614;
-          int value2_2618 = _value1261;
           int value3_2619 = nAndCarry_2615;
           _F1262 = value3_2619 & 1;
           value3_2619 = value3_2619 >>> 1;
-          _F1262 = (_F1262 & 1) | 0x10 | (value1_2617 & 0x28);
-          if ((value2_2618 & (0x01 << value3_2619)) == 0) {
+          _F1262 = (_F1262 & 1) | 0x10 | (address_2614 & 0x28);
+          if ((_value1261 & (0x01 << value3_2619)) == 0) {
               _F1262 |= 0x44;
           }
-          if (value3_2619 == 7 && (value2_2618 & 0x80) != 0) {
+          if (value3_2619 == 7 && (_value1261 & 0x80) != 0) {
               _F1262 |= 0x80;
           }
           F = (_F1262 & 0xFF);
@@ -11649,16 +11347,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2623 = memory.read(_address1264, 0);
           contend(_address1264, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1264 = operand_2623;
-          int value1_2624 = address_2621;
-          int value2_2625 = _value1264;
           int value3_2626 = nAndCarry_2622;
           _F1265 = value3_2626 & 1;
           value3_2626 = value3_2626 >>> 1;
-          _F1265 = (_F1265 & 1) | 0x10 | (value1_2624 & 0x28);
-          if ((value2_2625 & (0x01 << value3_2626)) == 0) {
+          _F1265 = (_F1265 & 1) | 0x10 | (address_2621 & 0x28);
+          if ((_value1264 & (0x01 << value3_2626)) == 0) {
               _F1265 |= 0x44;
           }
-          if (value3_2626 == 7 && (value2_2625 & 0x80) != 0) {
+          if (value3_2626 == 7 && (_value1264 & 0x80) != 0) {
               _F1265 |= 0x80;
           }
           F = (_F1265 & 0xFF);
@@ -11678,16 +11374,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2630 = memory.read(_address1267, 0);
           contend(_address1267, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1267 = operand_2630;
-          int value1_2631 = address_2628;
-          int value2_2632 = _value1267;
           int value3_2633 = nAndCarry_2629;
           _F1268 = value3_2633 & 1;
           value3_2633 = value3_2633 >>> 1;
-          _F1268 = (_F1268 & 1) | 0x10 | (value1_2631 & 0x28);
-          if ((value2_2632 & (0x01 << value3_2633)) == 0) {
+          _F1268 = (_F1268 & 1) | 0x10 | (address_2628 & 0x28);
+          if ((_value1267 & (0x01 << value3_2633)) == 0) {
               _F1268 |= 0x44;
           }
-          if (value3_2633 == 7 && (value2_2632 & 0x80) != 0) {
+          if (value3_2633 == 7 && (_value1267 & 0x80) != 0) {
               _F1268 |= 0x80;
           }
           F = (_F1268 & 0xFF);
@@ -11707,16 +11401,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2637 = memory.read(_address1270, 0);
           contend(_address1270, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1270 = operand_2637;
-          int value1_2638 = address_2635;
-          int value2_2639 = _value1270;
           int value3_2640 = nAndCarry_2636;
           _F1271 = value3_2640 & 1;
           value3_2640 = value3_2640 >>> 1;
-          _F1271 = (_F1271 & 1) | 0x10 | (value1_2638 & 0x28);
-          if ((value2_2639 & (0x01 << value3_2640)) == 0) {
+          _F1271 = (_F1271 & 1) | 0x10 | (address_2635 & 0x28);
+          if ((_value1270 & (0x01 << value3_2640)) == 0) {
               _F1271 |= 0x44;
           }
-          if (value3_2640 == 7 && (value2_2639 & 0x80) != 0) {
+          if (value3_2640 == 7 && (_value1270 & 0x80) != 0) {
               _F1271 |= 0x80;
           }
           F = (_F1271 & 0xFF);
@@ -11736,16 +11428,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2644 = memory.read(_address1273, 0);
           contend(_address1273, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1273 = operand_2644;
-          int value1_2645 = address_2642;
-          int value2_2646 = _value1273;
           int value3_2647 = nAndCarry_2643;
           _F1274 = value3_2647 & 1;
           value3_2647 = value3_2647 >>> 1;
-          _F1274 = (_F1274 & 1) | 0x10 | (value1_2645 & 0x28);
-          if ((value2_2646 & (0x01 << value3_2647)) == 0) {
+          _F1274 = (_F1274 & 1) | 0x10 | (address_2642 & 0x28);
+          if ((_value1273 & (0x01 << value3_2647)) == 0) {
               _F1274 |= 0x44;
           }
-          if (value3_2647 == 7 && (value2_2646 & 0x80) != 0) {
+          if (value3_2647 == 7 && (_value1273 & 0x80) != 0) {
               _F1274 |= 0x80;
           }
           F = (_F1274 & 0xFF);
@@ -11765,16 +11455,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2651 = memory.read(_address1276, 0);
           contend(_address1276, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1276 = operand_2651;
-          int value1_2652 = address_2649;
-          int value2_2653 = _value1276;
           int value3_2654 = nAndCarry_2650;
           _F1277 = value3_2654 & 1;
           value3_2654 = value3_2654 >>> 1;
-          _F1277 = (_F1277 & 1) | 0x10 | (value1_2652 & 0x28);
-          if ((value2_2653 & (0x01 << value3_2654)) == 0) {
+          _F1277 = (_F1277 & 1) | 0x10 | (address_2649 & 0x28);
+          if ((_value1276 & (0x01 << value3_2654)) == 0) {
               _F1277 |= 0x44;
           }
-          if (value3_2654 == 7 && (value2_2653 & 0x80) != 0) {
+          if (value3_2654 == 7 && (_value1276 & 0x80) != 0) {
               _F1277 |= 0x80;
           }
           F = (_F1277 & 0xFF);
@@ -11794,16 +11482,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2658 = memory.read(_address1279, 0);
           contend(_address1279, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1279 = operand_2658;
-          int value1_2659 = address_2656;
-          int value2_2660 = _value1279;
           int value3_2661 = nAndCarry_2657;
           _F1280 = value3_2661 & 1;
           value3_2661 = value3_2661 >>> 1;
-          _F1280 = (_F1280 & 1) | 0x10 | (value1_2659 & 0x28);
-          if ((value2_2660 & (0x01 << value3_2661)) == 0) {
+          _F1280 = (_F1280 & 1) | 0x10 | (address_2656 & 0x28);
+          if ((_value1279 & (0x01 << value3_2661)) == 0) {
               _F1280 |= 0x44;
           }
-          if (value3_2661 == 7 && (value2_2660 & 0x80) != 0) {
+          if (value3_2661 == 7 && (_value1279 & 0x80) != 0) {
               _F1280 |= 0x80;
           }
           F = (_F1280 & 0xFF);
@@ -11823,16 +11509,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2665 = memory.read(_address1282, 0);
           contend(_address1282, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1282 = operand_2665;
-          int value1_2666 = address_2663;
-          int value2_2667 = _value1282;
           int value3_2668 = nAndCarry_2664;
           _F1283 = value3_2668 & 1;
           value3_2668 = value3_2668 >>> 1;
-          _F1283 = (_F1283 & 1) | 0x10 | (value1_2666 & 0x28);
-          if ((value2_2667 & (0x01 << value3_2668)) == 0) {
+          _F1283 = (_F1283 & 1) | 0x10 | (address_2663 & 0x28);
+          if ((_value1282 & (0x01 << value3_2668)) == 0) {
               _F1283 |= 0x44;
           }
-          if (value3_2668 == 7 && (value2_2667 & 0x80) != 0) {
+          if (value3_2668 == 7 && (_value1282 & 0x80) != 0) {
               _F1283 |= 0x80;
           }
           F = (_F1283 & 0xFF);
@@ -11852,16 +11536,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2672 = memory.read(_address1285, 0);
           contend(_address1285, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1285 = operand_2672;
-          int value1_2673 = address_2670;
-          int value2_2674 = _value1285;
           int value3_2675 = nAndCarry_2671;
           _F1286 = value3_2675 & 1;
           value3_2675 = value3_2675 >>> 1;
-          _F1286 = (_F1286 & 1) | 0x10 | (value1_2673 & 0x28);
-          if ((value2_2674 & (0x01 << value3_2675)) == 0) {
+          _F1286 = (_F1286 & 1) | 0x10 | (address_2670 & 0x28);
+          if ((_value1285 & (0x01 << value3_2675)) == 0) {
               _F1286 |= 0x44;
           }
-          if (value3_2675 == 7 && (value2_2674 & 0x80) != 0) {
+          if (value3_2675 == 7 && (_value1285 & 0x80) != 0) {
               _F1286 |= 0x80;
           }
           F = (_F1286 & 0xFF);
@@ -11881,16 +11563,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2679 = memory.read(_address1288, 0);
           contend(_address1288, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1288 = operand_2679;
-          int value1_2680 = address_2677;
-          int value2_2681 = _value1288;
           int value3_2682 = nAndCarry_2678;
           _F1289 = value3_2682 & 1;
           value3_2682 = value3_2682 >>> 1;
-          _F1289 = (_F1289 & 1) | 0x10 | (value1_2680 & 0x28);
-          if ((value2_2681 & (0x01 << value3_2682)) == 0) {
+          _F1289 = (_F1289 & 1) | 0x10 | (address_2677 & 0x28);
+          if ((_value1288 & (0x01 << value3_2682)) == 0) {
               _F1289 |= 0x44;
           }
-          if (value3_2682 == 7 && (value2_2681 & 0x80) != 0) {
+          if (value3_2682 == 7 && (_value1288 & 0x80) != 0) {
               _F1289 |= 0x80;
           }
           F = (_F1289 & 0xFF);
@@ -11910,16 +11590,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2686 = memory.read(_address1291, 0);
           contend(_address1291, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1291 = operand_2686;
-          int value1_2687 = address_2684;
-          int value2_2688 = _value1291;
           int value3_2689 = nAndCarry_2685;
           _F1292 = value3_2689 & 1;
           value3_2689 = value3_2689 >>> 1;
-          _F1292 = (_F1292 & 1) | 0x10 | (value1_2687 & 0x28);
-          if ((value2_2688 & (0x01 << value3_2689)) == 0) {
+          _F1292 = (_F1292 & 1) | 0x10 | (address_2684 & 0x28);
+          if ((_value1291 & (0x01 << value3_2689)) == 0) {
               _F1292 |= 0x44;
           }
-          if (value3_2689 == 7 && (value2_2688 & 0x80) != 0) {
+          if (value3_2689 == 7 && (_value1291 & 0x80) != 0) {
               _F1292 |= 0x80;
           }
           F = (_F1292 & 0xFF);
@@ -11939,16 +11617,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2693 = memory.read(_address1294, 0);
           contend(_address1294, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1294 = operand_2693;
-          int value1_2694 = address_2691;
-          int value2_2695 = _value1294;
           int value3_2696 = nAndCarry_2692;
           _F1295 = value3_2696 & 1;
           value3_2696 = value3_2696 >>> 1;
-          _F1295 = (_F1295 & 1) | 0x10 | (value1_2694 & 0x28);
-          if ((value2_2695 & (0x01 << value3_2696)) == 0) {
+          _F1295 = (_F1295 & 1) | 0x10 | (address_2691 & 0x28);
+          if ((_value1294 & (0x01 << value3_2696)) == 0) {
               _F1295 |= 0x44;
           }
-          if (value3_2696 == 7 && (value2_2695 & 0x80) != 0) {
+          if (value3_2696 == 7 && (_value1294 & 0x80) != 0) {
               _F1295 |= 0x80;
           }
           F = (_F1295 & 0xFF);
@@ -11968,16 +11644,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2700 = memory.read(_address1297, 0);
           contend(_address1297, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1297 = operand_2700;
-          int value1_2701 = address_2698;
-          int value2_2702 = _value1297;
           int value3_2703 = nAndCarry_2699;
           _F1298 = value3_2703 & 1;
           value3_2703 = value3_2703 >>> 1;
-          _F1298 = (_F1298 & 1) | 0x10 | (value1_2701 & 0x28);
-          if ((value2_2702 & (0x01 << value3_2703)) == 0) {
+          _F1298 = (_F1298 & 1) | 0x10 | (address_2698 & 0x28);
+          if ((_value1297 & (0x01 << value3_2703)) == 0) {
               _F1298 |= 0x44;
           }
-          if (value3_2703 == 7 && (value2_2702 & 0x80) != 0) {
+          if (value3_2703 == 7 && (_value1297 & 0x80) != 0) {
               _F1298 |= 0x80;
           }
           F = (_F1298 & 0xFF);
@@ -11997,16 +11671,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2707 = memory.read(_address1300, 0);
           contend(_address1300, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1300 = operand_2707;
-          int value1_2708 = address_2705;
-          int value2_2709 = _value1300;
           int value3_2710 = nAndCarry_2706;
           _F1301 = value3_2710 & 1;
           value3_2710 = value3_2710 >>> 1;
-          _F1301 = (_F1301 & 1) | 0x10 | (value1_2708 & 0x28);
-          if ((value2_2709 & (0x01 << value3_2710)) == 0) {
+          _F1301 = (_F1301 & 1) | 0x10 | (address_2705 & 0x28);
+          if ((_value1300 & (0x01 << value3_2710)) == 0) {
               _F1301 |= 0x44;
           }
-          if (value3_2710 == 7 && (value2_2709 & 0x80) != 0) {
+          if (value3_2710 == 7 && (_value1300 & 0x80) != 0) {
               _F1301 |= 0x80;
           }
           F = (_F1301 & 0xFF);
@@ -12026,16 +11698,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2714 = memory.read(_address1303, 0);
           contend(_address1303, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1303 = operand_2714;
-          int value1_2715 = address_2712;
-          int value2_2716 = _value1303;
           int value3_2717 = nAndCarry_2713;
           _F1304 = value3_2717 & 1;
           value3_2717 = value3_2717 >>> 1;
-          _F1304 = (_F1304 & 1) | 0x10 | (value1_2715 & 0x28);
-          if ((value2_2716 & (0x01 << value3_2717)) == 0) {
+          _F1304 = (_F1304 & 1) | 0x10 | (address_2712 & 0x28);
+          if ((_value1303 & (0x01 << value3_2717)) == 0) {
               _F1304 |= 0x44;
           }
-          if (value3_2717 == 7 && (value2_2716 & 0x80) != 0) {
+          if (value3_2717 == 7 && (_value1303 & 0x80) != 0) {
               _F1304 |= 0x80;
           }
           F = (_F1304 & 0xFF);
@@ -12055,16 +11725,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2721 = memory.read(_address1306, 0);
           contend(_address1306, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1306 = operand_2721;
-          int value1_2722 = address_2719;
-          int value2_2723 = _value1306;
           int value3_2724 = nAndCarry_2720;
           _F1307 = value3_2724 & 1;
           value3_2724 = value3_2724 >>> 1;
-          _F1307 = (_F1307 & 1) | 0x10 | (value1_2722 & 0x28);
-          if ((value2_2723 & (0x01 << value3_2724)) == 0) {
+          _F1307 = (_F1307 & 1) | 0x10 | (address_2719 & 0x28);
+          if ((_value1306 & (0x01 << value3_2724)) == 0) {
               _F1307 |= 0x44;
           }
-          if (value3_2724 == 7 && (value2_2723 & 0x80) != 0) {
+          if (value3_2724 == 7 && (_value1306 & 0x80) != 0) {
               _F1307 |= 0x80;
           }
           F = (_F1307 & 0xFF);
@@ -12091,16 +11759,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2728 = memory.read(_address1309, 0);
           contend(_address1309, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1309 = operand_2728;
-          int value1_2729 = address_2726;
-          int value2_2730 = _value1309;
           int value3_2731 = nAndCarry_2727;
           _F1310 = value3_2731 & 1;
           value3_2731 = value3_2731 >>> 1;
-          _F1310 = (_F1310 & 1) | 0x10 | (value1_2729 & 0x28);
-          if ((value2_2730 & (0x01 << value3_2731)) == 0) {
+          _F1310 = (_F1310 & 1) | 0x10 | (address_2726 & 0x28);
+          if ((_value1309 & (0x01 << value3_2731)) == 0) {
               _F1310 |= 0x44;
           }
-          if (value3_2731 == 7 && (value2_2730 & 0x80) != 0) {
+          if (value3_2731 == 7 && (_value1309 & 0x80) != 0) {
               _F1310 |= 0x80;
           }
           F = (_F1310 & 0xFF);
@@ -12120,16 +11786,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2735 = memory.read(_address1312, 0);
           contend(_address1312, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1312 = operand_2735;
-          int value1_2736 = address_2733;
-          int value2_2737 = _value1312;
           int value3_2738 = nAndCarry_2734;
           _F1313 = value3_2738 & 1;
           value3_2738 = value3_2738 >>> 1;
-          _F1313 = (_F1313 & 1) | 0x10 | (value1_2736 & 0x28);
-          if ((value2_2737 & (0x01 << value3_2738)) == 0) {
+          _F1313 = (_F1313 & 1) | 0x10 | (address_2733 & 0x28);
+          if ((_value1312 & (0x01 << value3_2738)) == 0) {
               _F1313 |= 0x44;
           }
-          if (value3_2738 == 7 && (value2_2737 & 0x80) != 0) {
+          if (value3_2738 == 7 && (_value1312 & 0x80) != 0) {
               _F1313 |= 0x80;
           }
           F = (_F1313 & 0xFF);
@@ -12149,16 +11813,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2742 = memory.read(_address1315, 0);
           contend(_address1315, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1315 = operand_2742;
-          int value1_2743 = address_2740;
-          int value2_2744 = _value1315;
           int value3_2745 = nAndCarry_2741;
           _F1316 = value3_2745 & 1;
           value3_2745 = value3_2745 >>> 1;
-          _F1316 = (_F1316 & 1) | 0x10 | (value1_2743 & 0x28);
-          if ((value2_2744 & (0x01 << value3_2745)) == 0) {
+          _F1316 = (_F1316 & 1) | 0x10 | (address_2740 & 0x28);
+          if ((_value1315 & (0x01 << value3_2745)) == 0) {
               _F1316 |= 0x44;
           }
-          if (value3_2745 == 7 && (value2_2744 & 0x80) != 0) {
+          if (value3_2745 == 7 && (_value1315 & 0x80) != 0) {
               _F1316 |= 0x80;
           }
           F = (_F1316 & 0xFF);
@@ -12178,16 +11840,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2749 = memory.read(_address1318, 0);
           contend(_address1318, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1318 = operand_2749;
-          int value1_2750 = address_2747;
-          int value2_2751 = _value1318;
           int value3_2752 = nAndCarry_2748;
           _F1319 = value3_2752 & 1;
           value3_2752 = value3_2752 >>> 1;
-          _F1319 = (_F1319 & 1) | 0x10 | (value1_2750 & 0x28);
-          if ((value2_2751 & (0x01 << value3_2752)) == 0) {
+          _F1319 = (_F1319 & 1) | 0x10 | (address_2747 & 0x28);
+          if ((_value1318 & (0x01 << value3_2752)) == 0) {
               _F1319 |= 0x44;
           }
-          if (value3_2752 == 7 && (value2_2751 & 0x80) != 0) {
+          if (value3_2752 == 7 && (_value1318 & 0x80) != 0) {
               _F1319 |= 0x80;
           }
           F = (_F1319 & 0xFF);
@@ -12207,16 +11867,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2756 = memory.read(_address1321, 0);
           contend(_address1321, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1321 = operand_2756;
-          int value1_2757 = address_2754;
-          int value2_2758 = _value1321;
           int value3_2759 = nAndCarry_2755;
           _F1322 = value3_2759 & 1;
           value3_2759 = value3_2759 >>> 1;
-          _F1322 = (_F1322 & 1) | 0x10 | (value1_2757 & 0x28);
-          if ((value2_2758 & (0x01 << value3_2759)) == 0) {
+          _F1322 = (_F1322 & 1) | 0x10 | (address_2754 & 0x28);
+          if ((_value1321 & (0x01 << value3_2759)) == 0) {
               _F1322 |= 0x44;
           }
-          if (value3_2759 == 7 && (value2_2758 & 0x80) != 0) {
+          if (value3_2759 == 7 && (_value1321 & 0x80) != 0) {
               _F1322 |= 0x80;
           }
           F = (_F1322 & 0xFF);
@@ -12236,16 +11894,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2763 = memory.read(_address1324, 0);
           contend(_address1324, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1324 = operand_2763;
-          int value1_2764 = address_2761;
-          int value2_2765 = _value1324;
           int value3_2766 = nAndCarry_2762;
           _F1325 = value3_2766 & 1;
           value3_2766 = value3_2766 >>> 1;
-          _F1325 = (_F1325 & 1) | 0x10 | (value1_2764 & 0x28);
-          if ((value2_2765 & (0x01 << value3_2766)) == 0) {
+          _F1325 = (_F1325 & 1) | 0x10 | (address_2761 & 0x28);
+          if ((_value1324 & (0x01 << value3_2766)) == 0) {
               _F1325 |= 0x44;
           }
-          if (value3_2766 == 7 && (value2_2765 & 0x80) != 0) {
+          if (value3_2766 == 7 && (_value1324 & 0x80) != 0) {
               _F1325 |= 0x80;
           }
           F = (_F1325 & 0xFF);
@@ -12265,16 +11921,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2770 = memory.read(_address1327, 0);
           contend(_address1327, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1327 = operand_2770;
-          int value1_2771 = address_2768;
-          int value2_2772 = _value1327;
           int value3_2773 = nAndCarry_2769;
           _F1328 = value3_2773 & 1;
           value3_2773 = value3_2773 >>> 1;
-          _F1328 = (_F1328 & 1) | 0x10 | (value1_2771 & 0x28);
-          if ((value2_2772 & (0x01 << value3_2773)) == 0) {
+          _F1328 = (_F1328 & 1) | 0x10 | (address_2768 & 0x28);
+          if ((_value1327 & (0x01 << value3_2773)) == 0) {
               _F1328 |= 0x44;
           }
-          if (value3_2773 == 7 && (value2_2772 & 0x80) != 0) {
+          if (value3_2773 == 7 && (_value1327 & 0x80) != 0) {
               _F1328 |= 0x80;
           }
           F = (_F1328 & 0xFF);
@@ -12294,16 +11948,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2777 = memory.read(_address1330, 0);
           contend(_address1330, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1330 = operand_2777;
-          int value1_2778 = address_2775;
-          int value2_2779 = _value1330;
           int value3_2780 = nAndCarry_2776;
           _F1331 = value3_2780 & 1;
           value3_2780 = value3_2780 >>> 1;
-          _F1331 = (_F1331 & 1) | 0x10 | (value1_2778 & 0x28);
-          if ((value2_2779 & (0x01 << value3_2780)) == 0) {
+          _F1331 = (_F1331 & 1) | 0x10 | (address_2775 & 0x28);
+          if ((_value1330 & (0x01 << value3_2780)) == 0) {
               _F1331 |= 0x44;
           }
-          if (value3_2780 == 7 && (value2_2779 & 0x80) != 0) {
+          if (value3_2780 == 7 && (_value1330 & 0x80) != 0) {
               _F1331 |= 0x80;
           }
           F = (_F1331 & 0xFF);
@@ -12323,16 +11975,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2784 = memory.read(_address1333, 0);
           contend(_address1333, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1333 = operand_2784;
-          int value1_2785 = address_2782;
-          int value2_2786 = _value1333;
           int value3_2787 = nAndCarry_2783;
           _F1334 = value3_2787 & 1;
           value3_2787 = value3_2787 >>> 1;
-          _F1334 = (_F1334 & 1) | 0x10 | (value1_2785 & 0x28);
-          if ((value2_2786 & (0x01 << value3_2787)) == 0) {
+          _F1334 = (_F1334 & 1) | 0x10 | (address_2782 & 0x28);
+          if ((_value1333 & (0x01 << value3_2787)) == 0) {
               _F1334 |= 0x44;
           }
-          if (value3_2787 == 7 && (value2_2786 & 0x80) != 0) {
+          if (value3_2787 == 7 && (_value1333 & 0x80) != 0) {
               _F1334 |= 0x80;
           }
           F = (_F1334 & 0xFF);
@@ -12352,16 +12002,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2791 = memory.read(_address1336, 0);
           contend(_address1336, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1336 = operand_2791;
-          int value1_2792 = address_2789;
-          int value2_2793 = _value1336;
           int value3_2794 = nAndCarry_2790;
           _F1337 = value3_2794 & 1;
           value3_2794 = value3_2794 >>> 1;
-          _F1337 = (_F1337 & 1) | 0x10 | (value1_2792 & 0x28);
-          if ((value2_2793 & (0x01 << value3_2794)) == 0) {
+          _F1337 = (_F1337 & 1) | 0x10 | (address_2789 & 0x28);
+          if ((_value1336 & (0x01 << value3_2794)) == 0) {
               _F1337 |= 0x44;
           }
-          if (value3_2794 == 7 && (value2_2793 & 0x80) != 0) {
+          if (value3_2794 == 7 && (_value1336 & 0x80) != 0) {
               _F1337 |= 0x80;
           }
           F = (_F1337 & 0xFF);
@@ -12381,16 +12029,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2798 = memory.read(_address1339, 0);
           contend(_address1339, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1339 = operand_2798;
-          int value1_2799 = address_2796;
-          int value2_2800 = _value1339;
           int value3_2801 = nAndCarry_2797;
           _F1340 = value3_2801 & 1;
           value3_2801 = value3_2801 >>> 1;
-          _F1340 = (_F1340 & 1) | 0x10 | (value1_2799 & 0x28);
-          if ((value2_2800 & (0x01 << value3_2801)) == 0) {
+          _F1340 = (_F1340 & 1) | 0x10 | (address_2796 & 0x28);
+          if ((_value1339 & (0x01 << value3_2801)) == 0) {
               _F1340 |= 0x44;
           }
-          if (value3_2801 == 7 && (value2_2800 & 0x80) != 0) {
+          if (value3_2801 == 7 && (_value1339 & 0x80) != 0) {
               _F1340 |= 0x80;
           }
           F = (_F1340 & 0xFF);
@@ -12410,16 +12056,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2805 = memory.read(_address1342, 0);
           contend(_address1342, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1342 = operand_2805;
-          int value1_2806 = address_2803;
-          int value2_2807 = _value1342;
           int value3_2808 = nAndCarry_2804;
           _F1343 = value3_2808 & 1;
           value3_2808 = value3_2808 >>> 1;
-          _F1343 = (_F1343 & 1) | 0x10 | (value1_2806 & 0x28);
-          if ((value2_2807 & (0x01 << value3_2808)) == 0) {
+          _F1343 = (_F1343 & 1) | 0x10 | (address_2803 & 0x28);
+          if ((_value1342 & (0x01 << value3_2808)) == 0) {
               _F1343 |= 0x44;
           }
-          if (value3_2808 == 7 && (value2_2807 & 0x80) != 0) {
+          if (value3_2808 == 7 && (_value1342 & 0x80) != 0) {
               _F1343 |= 0x80;
           }
           F = (_F1343 & 0xFF);
@@ -12439,16 +12083,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2812 = memory.read(_address1345, 0);
           contend(_address1345, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1345 = operand_2812;
-          int value1_2813 = address_2810;
-          int value2_2814 = _value1345;
           int value3_2815 = nAndCarry_2811;
           _F1346 = value3_2815 & 1;
           value3_2815 = value3_2815 >>> 1;
-          _F1346 = (_F1346 & 1) | 0x10 | (value1_2813 & 0x28);
-          if ((value2_2814 & (0x01 << value3_2815)) == 0) {
+          _F1346 = (_F1346 & 1) | 0x10 | (address_2810 & 0x28);
+          if ((_value1345 & (0x01 << value3_2815)) == 0) {
               _F1346 |= 0x44;
           }
-          if (value3_2815 == 7 && (value2_2814 & 0x80) != 0) {
+          if (value3_2815 == 7 && (_value1345 & 0x80) != 0) {
               _F1346 |= 0x80;
           }
           F = (_F1346 & 0xFF);
@@ -12468,16 +12110,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2819 = memory.read(_address1348, 0);
           contend(_address1348, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1348 = operand_2819;
-          int value1_2820 = address_2817;
-          int value2_2821 = _value1348;
           int value3_2822 = nAndCarry_2818;
           _F1349 = value3_2822 & 1;
           value3_2822 = value3_2822 >>> 1;
-          _F1349 = (_F1349 & 1) | 0x10 | (value1_2820 & 0x28);
-          if ((value2_2821 & (0x01 << value3_2822)) == 0) {
+          _F1349 = (_F1349 & 1) | 0x10 | (address_2817 & 0x28);
+          if ((_value1348 & (0x01 << value3_2822)) == 0) {
               _F1349 |= 0x44;
           }
-          if (value3_2822 == 7 && (value2_2821 & 0x80) != 0) {
+          if (value3_2822 == 7 && (_value1348 & 0x80) != 0) {
               _F1349 |= 0x80;
           }
           F = (_F1349 & 0xFF);
@@ -12497,16 +12137,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2826 = memory.read(_address1351, 0);
           contend(_address1351, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1351 = operand_2826;
-          int value1_2827 = address_2824;
-          int value2_2828 = _value1351;
           int value3_2829 = nAndCarry_2825;
           _F1352 = value3_2829 & 1;
           value3_2829 = value3_2829 >>> 1;
-          _F1352 = (_F1352 & 1) | 0x10 | (value1_2827 & 0x28);
-          if ((value2_2828 & (0x01 << value3_2829)) == 0) {
+          _F1352 = (_F1352 & 1) | 0x10 | (address_2824 & 0x28);
+          if ((_value1351 & (0x01 << value3_2829)) == 0) {
               _F1352 |= 0x44;
           }
-          if (value3_2829 == 7 && (value2_2828 & 0x80) != 0) {
+          if (value3_2829 == 7 && (_value1351 & 0x80) != 0) {
               _F1352 |= 0x80;
           }
           F = (_F1352 & 0xFF);
@@ -12526,16 +12164,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2833 = memory.read(_address1354, 0);
           contend(_address1354, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1354 = operand_2833;
-          int value1_2834 = address_2831;
-          int value2_2835 = _value1354;
           int value3_2836 = nAndCarry_2832;
           _F1355 = value3_2836 & 1;
           value3_2836 = value3_2836 >>> 1;
-          _F1355 = (_F1355 & 1) | 0x10 | (value1_2834 & 0x28);
-          if ((value2_2835 & (0x01 << value3_2836)) == 0) {
+          _F1355 = (_F1355 & 1) | 0x10 | (address_2831 & 0x28);
+          if ((_value1354 & (0x01 << value3_2836)) == 0) {
               _F1355 |= 0x44;
           }
-          if (value3_2836 == 7 && (value2_2835 & 0x80) != 0) {
+          if (value3_2836 == 7 && (_value1354 & 0x80) != 0) {
               _F1355 |= 0x80;
           }
           F = (_F1355 & 0xFF);
@@ -12562,16 +12198,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2840 = memory.read(_address1357, 0);
           contend(_address1357, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1357 = operand_2840;
-          int value1_2841 = address_2838;
-          int value2_2842 = _value1357;
           int value3_2843 = nAndCarry_2839;
           _F1358 = value3_2843 & 1;
           value3_2843 = value3_2843 >>> 1;
-          _F1358 = (_F1358 & 1) | 0x10 | (value1_2841 & 0x28);
-          if ((value2_2842 & (0x01 << value3_2843)) == 0) {
+          _F1358 = (_F1358 & 1) | 0x10 | (address_2838 & 0x28);
+          if ((_value1357 & (0x01 << value3_2843)) == 0) {
               _F1358 |= 0x44;
           }
-          if (value3_2843 == 7 && (value2_2842 & 0x80) != 0) {
+          if (value3_2843 == 7 && (_value1357 & 0x80) != 0) {
               _F1358 |= 0x80;
           }
           F = (_F1358 & 0xFF);
@@ -12591,16 +12225,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2847 = memory.read(_address1360, 0);
           contend(_address1360, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1360 = operand_2847;
-          int value1_2848 = address_2845;
-          int value2_2849 = _value1360;
           int value3_2850 = nAndCarry_2846;
           _F1361 = value3_2850 & 1;
           value3_2850 = value3_2850 >>> 1;
-          _F1361 = (_F1361 & 1) | 0x10 | (value1_2848 & 0x28);
-          if ((value2_2849 & (0x01 << value3_2850)) == 0) {
+          _F1361 = (_F1361 & 1) | 0x10 | (address_2845 & 0x28);
+          if ((_value1360 & (0x01 << value3_2850)) == 0) {
               _F1361 |= 0x44;
           }
-          if (value3_2850 == 7 && (value2_2849 & 0x80) != 0) {
+          if (value3_2850 == 7 && (_value1360 & 0x80) != 0) {
               _F1361 |= 0x80;
           }
           F = (_F1361 & 0xFF);
@@ -12620,16 +12252,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2854 = memory.read(_address1363, 0);
           contend(_address1363, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1363 = operand_2854;
-          int value1_2855 = address_2852;
-          int value2_2856 = _value1363;
           int value3_2857 = nAndCarry_2853;
           _F1364 = value3_2857 & 1;
           value3_2857 = value3_2857 >>> 1;
-          _F1364 = (_F1364 & 1) | 0x10 | (value1_2855 & 0x28);
-          if ((value2_2856 & (0x01 << value3_2857)) == 0) {
+          _F1364 = (_F1364 & 1) | 0x10 | (address_2852 & 0x28);
+          if ((_value1363 & (0x01 << value3_2857)) == 0) {
               _F1364 |= 0x44;
           }
-          if (value3_2857 == 7 && (value2_2856 & 0x80) != 0) {
+          if (value3_2857 == 7 && (_value1363 & 0x80) != 0) {
               _F1364 |= 0x80;
           }
           F = (_F1364 & 0xFF);
@@ -12649,16 +12279,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2861 = memory.read(_address1366, 0);
           contend(_address1366, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1366 = operand_2861;
-          int value1_2862 = address_2859;
-          int value2_2863 = _value1366;
           int value3_2864 = nAndCarry_2860;
           _F1367 = value3_2864 & 1;
           value3_2864 = value3_2864 >>> 1;
-          _F1367 = (_F1367 & 1) | 0x10 | (value1_2862 & 0x28);
-          if ((value2_2863 & (0x01 << value3_2864)) == 0) {
+          _F1367 = (_F1367 & 1) | 0x10 | (address_2859 & 0x28);
+          if ((_value1366 & (0x01 << value3_2864)) == 0) {
               _F1367 |= 0x44;
           }
-          if (value3_2864 == 7 && (value2_2863 & 0x80) != 0) {
+          if (value3_2864 == 7 && (_value1366 & 0x80) != 0) {
               _F1367 |= 0x80;
           }
           F = (_F1367 & 0xFF);
@@ -12678,16 +12306,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2868 = memory.read(_address1369, 0);
           contend(_address1369, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1369 = operand_2868;
-          int value1_2869 = address_2866;
-          int value2_2870 = _value1369;
           int value3_2871 = nAndCarry_2867;
           _F1370 = value3_2871 & 1;
           value3_2871 = value3_2871 >>> 1;
-          _F1370 = (_F1370 & 1) | 0x10 | (value1_2869 & 0x28);
-          if ((value2_2870 & (0x01 << value3_2871)) == 0) {
+          _F1370 = (_F1370 & 1) | 0x10 | (address_2866 & 0x28);
+          if ((_value1369 & (0x01 << value3_2871)) == 0) {
               _F1370 |= 0x44;
           }
-          if (value3_2871 == 7 && (value2_2870 & 0x80) != 0) {
+          if (value3_2871 == 7 && (_value1369 & 0x80) != 0) {
               _F1370 |= 0x80;
           }
           F = (_F1370 & 0xFF);
@@ -12707,16 +12333,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2875 = memory.read(_address1372, 0);
           contend(_address1372, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1372 = operand_2875;
-          int value1_2876 = address_2873;
-          int value2_2877 = _value1372;
           int value3_2878 = nAndCarry_2874;
           _F1373 = value3_2878 & 1;
           value3_2878 = value3_2878 >>> 1;
-          _F1373 = (_F1373 & 1) | 0x10 | (value1_2876 & 0x28);
-          if ((value2_2877 & (0x01 << value3_2878)) == 0) {
+          _F1373 = (_F1373 & 1) | 0x10 | (address_2873 & 0x28);
+          if ((_value1372 & (0x01 << value3_2878)) == 0) {
               _F1373 |= 0x44;
           }
-          if (value3_2878 == 7 && (value2_2877 & 0x80) != 0) {
+          if (value3_2878 == 7 && (_value1372 & 0x80) != 0) {
               _F1373 |= 0x80;
           }
           F = (_F1373 & 0xFF);
@@ -12736,16 +12360,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2882 = memory.read(_address1375, 0);
           contend(_address1375, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1375 = operand_2882;
-          int value1_2883 = address_2880;
-          int value2_2884 = _value1375;
           int value3_2885 = nAndCarry_2881;
           _F1376 = value3_2885 & 1;
           value3_2885 = value3_2885 >>> 1;
-          _F1376 = (_F1376 & 1) | 0x10 | (value1_2883 & 0x28);
-          if ((value2_2884 & (0x01 << value3_2885)) == 0) {
+          _F1376 = (_F1376 & 1) | 0x10 | (address_2880 & 0x28);
+          if ((_value1375 & (0x01 << value3_2885)) == 0) {
               _F1376 |= 0x44;
           }
-          if (value3_2885 == 7 && (value2_2884 & 0x80) != 0) {
+          if (value3_2885 == 7 && (_value1375 & 0x80) != 0) {
               _F1376 |= 0x80;
           }
           F = (_F1376 & 0xFF);
@@ -12765,16 +12387,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2889 = memory.read(_address1378, 0);
           contend(_address1378, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1378 = operand_2889;
-          int value1_2890 = address_2887;
-          int value2_2891 = _value1378;
           int value3_2892 = nAndCarry_2888;
           _F1379 = value3_2892 & 1;
           value3_2892 = value3_2892 >>> 1;
-          _F1379 = (_F1379 & 1) | 0x10 | (value1_2890 & 0x28);
-          if ((value2_2891 & (0x01 << value3_2892)) == 0) {
+          _F1379 = (_F1379 & 1) | 0x10 | (address_2887 & 0x28);
+          if ((_value1378 & (0x01 << value3_2892)) == 0) {
               _F1379 |= 0x44;
           }
-          if (value3_2892 == 7 && (value2_2891 & 0x80) != 0) {
+          if (value3_2892 == 7 && (_value1378 & 0x80) != 0) {
               _F1379 |= 0x80;
           }
           F = (_F1379 & 0xFF);
@@ -12794,16 +12414,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2896 = memory.read(_address1381, 0);
           contend(_address1381, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1381 = operand_2896;
-          int value1_2897 = address_2894;
-          int value2_2898 = _value1381;
           int value3_2899 = nAndCarry_2895;
           _F1382 = value3_2899 & 1;
           value3_2899 = value3_2899 >>> 1;
-          _F1382 = (_F1382 & 1) | 0x10 | (value1_2897 & 0x28);
-          if ((value2_2898 & (0x01 << value3_2899)) == 0) {
+          _F1382 = (_F1382 & 1) | 0x10 | (address_2894 & 0x28);
+          if ((_value1381 & (0x01 << value3_2899)) == 0) {
               _F1382 |= 0x44;
           }
-          if (value3_2899 == 7 && (value2_2898 & 0x80) != 0) {
+          if (value3_2899 == 7 && (_value1381 & 0x80) != 0) {
               _F1382 |= 0x80;
           }
           F = (_F1382 & 0xFF);
@@ -12823,16 +12441,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2903 = memory.read(_address1384, 0);
           contend(_address1384, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1384 = operand_2903;
-          int value1_2904 = address_2901;
-          int value2_2905 = _value1384;
           int value3_2906 = nAndCarry_2902;
           _F1385 = value3_2906 & 1;
           value3_2906 = value3_2906 >>> 1;
-          _F1385 = (_F1385 & 1) | 0x10 | (value1_2904 & 0x28);
-          if ((value2_2905 & (0x01 << value3_2906)) == 0) {
+          _F1385 = (_F1385 & 1) | 0x10 | (address_2901 & 0x28);
+          if ((_value1384 & (0x01 << value3_2906)) == 0) {
               _F1385 |= 0x44;
           }
-          if (value3_2906 == 7 && (value2_2905 & 0x80) != 0) {
+          if (value3_2906 == 7 && (_value1384 & 0x80) != 0) {
               _F1385 |= 0x80;
           }
           F = (_F1385 & 0xFF);
@@ -12852,16 +12468,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2910 = memory.read(_address1387, 0);
           contend(_address1387, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1387 = operand_2910;
-          int value1_2911 = address_2908;
-          int value2_2912 = _value1387;
           int value3_2913 = nAndCarry_2909;
           _F1388 = value3_2913 & 1;
           value3_2913 = value3_2913 >>> 1;
-          _F1388 = (_F1388 & 1) | 0x10 | (value1_2911 & 0x28);
-          if ((value2_2912 & (0x01 << value3_2913)) == 0) {
+          _F1388 = (_F1388 & 1) | 0x10 | (address_2908 & 0x28);
+          if ((_value1387 & (0x01 << value3_2913)) == 0) {
               _F1388 |= 0x44;
           }
-          if (value3_2913 == 7 && (value2_2912 & 0x80) != 0) {
+          if (value3_2913 == 7 && (_value1387 & 0x80) != 0) {
               _F1388 |= 0x80;
           }
           F = (_F1388 & 0xFF);
@@ -12881,16 +12495,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2917 = memory.read(_address1390, 0);
           contend(_address1390, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1390 = operand_2917;
-          int value1_2918 = address_2915;
-          int value2_2919 = _value1390;
           int value3_2920 = nAndCarry_2916;
           _F1391 = value3_2920 & 1;
           value3_2920 = value3_2920 >>> 1;
-          _F1391 = (_F1391 & 1) | 0x10 | (value1_2918 & 0x28);
-          if ((value2_2919 & (0x01 << value3_2920)) == 0) {
+          _F1391 = (_F1391 & 1) | 0x10 | (address_2915 & 0x28);
+          if ((_value1390 & (0x01 << value3_2920)) == 0) {
               _F1391 |= 0x44;
           }
-          if (value3_2920 == 7 && (value2_2919 & 0x80) != 0) {
+          if (value3_2920 == 7 && (_value1390 & 0x80) != 0) {
               _F1391 |= 0x80;
           }
           F = (_F1391 & 0xFF);
@@ -12910,16 +12522,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2924 = memory.read(_address1393, 0);
           contend(_address1393, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1393 = operand_2924;
-          int value1_2925 = address_2922;
-          int value2_2926 = _value1393;
           int value3_2927 = nAndCarry_2923;
           _F1394 = value3_2927 & 1;
           value3_2927 = value3_2927 >>> 1;
-          _F1394 = (_F1394 & 1) | 0x10 | (value1_2925 & 0x28);
-          if ((value2_2926 & (0x01 << value3_2927)) == 0) {
+          _F1394 = (_F1394 & 1) | 0x10 | (address_2922 & 0x28);
+          if ((_value1393 & (0x01 << value3_2927)) == 0) {
               _F1394 |= 0x44;
           }
-          if (value3_2927 == 7 && (value2_2926 & 0x80) != 0) {
+          if (value3_2927 == 7 && (_value1393 & 0x80) != 0) {
               _F1394 |= 0x80;
           }
           F = (_F1394 & 0xFF);
@@ -12939,16 +12549,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2931 = memory.read(_address1396, 0);
           contend(_address1396, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1396 = operand_2931;
-          int value1_2932 = address_2929;
-          int value2_2933 = _value1396;
           int value3_2934 = nAndCarry_2930;
           _F1397 = value3_2934 & 1;
           value3_2934 = value3_2934 >>> 1;
-          _F1397 = (_F1397 & 1) | 0x10 | (value1_2932 & 0x28);
-          if ((value2_2933 & (0x01 << value3_2934)) == 0) {
+          _F1397 = (_F1397 & 1) | 0x10 | (address_2929 & 0x28);
+          if ((_value1396 & (0x01 << value3_2934)) == 0) {
               _F1397 |= 0x44;
           }
-          if (value3_2934 == 7 && (value2_2933 & 0x80) != 0) {
+          if (value3_2934 == 7 && (_value1396 & 0x80) != 0) {
               _F1397 |= 0x80;
           }
           F = (_F1397 & 0xFF);
@@ -12968,16 +12576,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2938 = memory.read(_address1399, 0);
           contend(_address1399, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1399 = operand_2938;
-          int value1_2939 = address_2936;
-          int value2_2940 = _value1399;
           int value3_2941 = nAndCarry_2937;
           _F1400 = value3_2941 & 1;
           value3_2941 = value3_2941 >>> 1;
-          _F1400 = (_F1400 & 1) | 0x10 | (value1_2939 & 0x28);
-          if ((value2_2940 & (0x01 << value3_2941)) == 0) {
+          _F1400 = (_F1400 & 1) | 0x10 | (address_2936 & 0x28);
+          if ((_value1399 & (0x01 << value3_2941)) == 0) {
               _F1400 |= 0x44;
           }
-          if (value3_2941 == 7 && (value2_2940 & 0x80) != 0) {
+          if (value3_2941 == 7 && (_value1399 & 0x80) != 0) {
               _F1400 |= 0x80;
           }
           F = (_F1400 & 0xFF);
@@ -12997,16 +12603,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_2945 = memory.read(_address1402, 0);
           contend(_address1402, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value1402 = operand_2945;
-          int value1_2946 = address_2943;
-          int value2_2947 = _value1402;
           int value3_2948 = nAndCarry_2944;
           _F1403 = value3_2948 & 1;
           value3_2948 = value3_2948 >>> 1;
-          _F1403 = (_F1403 & 1) | 0x10 | (value1_2946 & 0x28);
-          if ((value2_2947 & (0x01 << value3_2948)) == 0) {
+          _F1403 = (_F1403 & 1) | 0x10 | (address_2943 & 0x28);
+          if ((_value1402 & (0x01 << value3_2948)) == 0) {
               _F1403 |= 0x44;
           }
-          if (value3_2948 == 7 && (value2_2947 & 0x80) != 0) {
+          if (value3_2948 == 7 && (_value1402 & 0x80) != 0) {
               _F1403 |= 0x80;
           }
           F = (_F1403 & 0xFF);
@@ -15544,9 +15148,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_3682 = ((value2_3679 & 0x88) >> 3) | ((value1_3678 & 0x88) >> 2) | ((subtemp_3681 & 0x88) >> 1);
           value2_3679 = subtemp_3681 & 0xff;
           _F1746 = ((subtemp_3681 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3682 & 0x07)] | OVERFLOW_SUB[(lookup_3682 >> 4)] | (SZ53[value2_3679] | (value2_3679 == 0 ? 0x40 : 0));
-          int result_3683 = value2_3679;
           F = (_F1746 & 0xFF);
-          A = result_3683;
+          A = value2_3679;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -15561,8 +15164,7 @@ static final int[] SZ53 = new int[0x100];
           SP = ((wordNumber_3688 + 2) & 0xFFFF);
           jumpAddress2_3684 = value_3685;
           _nextPC1748 = jumpAddress2_3684;
-          int nextPC_3689 = _nextPC1748;
-          MEMPTR = nextPC_3689;
+          MEMPTR = _nextPC1748;
           PC = _nextPC1748;
           break;
       }
@@ -15643,9 +15245,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_3721 = ((value2_3718 & 0x88) >> 3) | ((value1_3717 & 0x88) >> 2) | ((subtemp_3720 & 0x88) >> 1);
           value2_3718 = subtemp_3720 & 0xff;
           _F1758 = ((subtemp_3720 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3721 & 0x07)] | OVERFLOW_SUB[(lookup_3721 >> 4)] | (SZ53[value2_3718] | (value2_3718 == 0 ? 0x40 : 0));
-          int result_3722 = value2_3718;
           F = (_F1758 & 0xFF);
-          A = result_3722;
+          A = value2_3718;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -15660,8 +15261,7 @@ static final int[] SZ53 = new int[0x100];
           SP = ((wordNumber_3727 + 2) & 0xFFFF);
           jumpAddress2_3723 = value_3724;
           _nextPC1760 = jumpAddress2_3723;
-          int nextPC_3728 = _nextPC1760;
-          MEMPTR = nextPC_3728;
+          MEMPTR = _nextPC1760;
           PC = _nextPC1760;
           break;
       }
@@ -15672,10 +15272,17 @@ static final int[] SZ53 = new int[0x100];
       }
       case 0x4F: {
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
-          regRBit7 = (A > 0x7f) ? 0x80 : 0;
-          R = (A & 0x7f) | regRBit7;
-          PC = (PC + 2) & 0xFFFF;
-          break;
+          if ((A > 0x7f)) {
+              regRBit7 = 0x80;
+              R = (A & 0x7f) | 0x80;
+              PC = (PC + 2) & 0xFFFF;
+              break;
+          } else {
+              regRBit7 = 0;
+              R = (A & 0x7f);
+              PC = (PC + 2) & 0xFFFF;
+              break;
+          }
       }
       default:
         throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
@@ -15748,9 +15355,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_3758 = ((value2_3755 & 0x88) >> 3) | ((value1_3754 & 0x88) >> 2) | ((subtemp_3757 & 0x88) >> 1);
           value2_3755 = subtemp_3757 & 0xff;
           _F1770 = ((subtemp_3757 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3758 & 0x07)] | OVERFLOW_SUB[(lookup_3758 >> 4)] | (SZ53[value2_3755] | (value2_3755 == 0 ? 0x40 : 0));
-          int result_3759 = value2_3755;
           F = (_F1770 & 0xFF);
-          A = result_3759;
+          A = value2_3755;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -15765,8 +15371,7 @@ static final int[] SZ53 = new int[0x100];
           SP = ((wordNumber_3764 + 2) & 0xFFFF);
           jumpAddress2_3760 = value_3761;
           _nextPC1772 = jumpAddress2_3760;
-          int nextPC_3765 = _nextPC1772;
-          MEMPTR = nextPC_3765;
+          MEMPTR = _nextPC1772;
           PC = _nextPC1772;
           break;
       }
@@ -15854,9 +15459,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_3804 = ((value2_3801 & 0x88) >> 3) | ((value1_3800 & 0x88) >> 2) | ((subtemp_3803 & 0x88) >> 1);
           value2_3801 = subtemp_3803 & 0xff;
           _F1783 = ((subtemp_3803 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3804 & 0x07)] | OVERFLOW_SUB[(lookup_3804 >> 4)] | (SZ53[value2_3801] | (value2_3801 == 0 ? 0x40 : 0));
-          int result_3805 = value2_3801;
           F = (_F1783 & 0xFF);
-          A = result_3805;
+          A = value2_3801;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -15871,8 +15475,7 @@ static final int[] SZ53 = new int[0x100];
           SP = ((wordNumber_3810 + 2) & 0xFFFF);
           jumpAddress2_3806 = value_3807;
           _nextPC1785 = jumpAddress2_3806;
-          int nextPC_3811 = _nextPC1785;
-          MEMPTR = nextPC_3811;
+          MEMPTR = _nextPC1785;
           PC = _nextPC1785;
           break;
       }
@@ -15965,9 +15568,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_3848 = ((value2_3845 & 0x88) >> 3) | ((value1_3844 & 0x88) >> 2) | ((subtemp_3847 & 0x88) >> 1);
           value2_3845 = subtemp_3847 & 0xff;
           _F1796 = ((subtemp_3847 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3848 & 0x07)] | OVERFLOW_SUB[(lookup_3848 >> 4)] | (SZ53[value2_3845] | (value2_3845 == 0 ? 0x40 : 0));
-          int result_3849 = value2_3845;
           F = (_F1796 & 0xFF);
-          A = result_3849;
+          A = value2_3845;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -15982,8 +15584,7 @@ static final int[] SZ53 = new int[0x100];
           SP = ((wordNumber_3854 + 2) & 0xFFFF);
           jumpAddress2_3850 = value_3851;
           _nextPC1798 = jumpAddress2_3850;
-          int nextPC_3855 = _nextPC1798;
-          MEMPTR = nextPC_3855;
+          MEMPTR = _nextPC1798;
           PC = _nextPC1798;
           break;
       }
@@ -16080,9 +15681,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_3898 = ((value2_3895 & 0x88) >> 3) | ((value1_3894 & 0x88) >> 2) | ((subtemp_3897 & 0x88) >> 1);
           value2_3895 = subtemp_3897 & 0xff;
           _F1809 = ((subtemp_3897 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3898 & 0x07)] | OVERFLOW_SUB[(lookup_3898 >> 4)] | (SZ53[value2_3895] | (value2_3895 == 0 ? 0x40 : 0));
-          int result_3899 = value2_3895;
           F = (_F1809 & 0xFF);
-          A = result_3899;
+          A = value2_3895;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -16097,8 +15697,7 @@ static final int[] SZ53 = new int[0x100];
           SP = ((wordNumber_3904 + 2) & 0xFFFF);
           jumpAddress2_3900 = value_3901;
           _nextPC1811 = jumpAddress2_3900;
-          int nextPC_3905 = _nextPC1811;
-          MEMPTR = nextPC_3905;
+          MEMPTR = _nextPC1811;
           PC = _nextPC1811;
           break;
       }
@@ -16197,9 +15796,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_3944 = ((value2_3941 & 0x88) >> 3) | ((value1_3940 & 0x88) >> 2) | ((subtemp_3943 & 0x88) >> 1);
           value2_3941 = subtemp_3943 & 0xff;
           _F1822 = ((subtemp_3943 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3944 & 0x07)] | OVERFLOW_SUB[(lookup_3944 >> 4)] | (SZ53[value2_3941] | (value2_3941 == 0 ? 0x40 : 0));
-          int result_3945 = value2_3941;
           F = (_F1822 & 0xFF);
-          A = result_3945;
+          A = value2_3941;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -16214,8 +15812,7 @@ static final int[] SZ53 = new int[0x100];
           SP = ((wordNumber_3950 + 2) & 0xFFFF);
           jumpAddress2_3946 = value_3947;
           _nextPC1824 = jumpAddress2_3946;
-          int nextPC_3951 = _nextPC1824;
-          MEMPTR = nextPC_3951;
+          MEMPTR = _nextPC1824;
           PC = _nextPC1824;
           break;
       }
@@ -16291,9 +15888,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_3981 = ((value2_3978 & 0x88) >> 3) | ((value1_3977 & 0x88) >> 2) | ((subtemp_3980 & 0x88) >> 1);
           value2_3978 = subtemp_3980 & 0xff;
           _F1834 = ((subtemp_3980 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3981 & 0x07)] | OVERFLOW_SUB[(lookup_3981 >> 4)] | (SZ53[value2_3978] | (value2_3978 == 0 ? 0x40 : 0));
-          int result_3982 = value2_3978;
           F = (_F1834 & 0xFF);
-          A = result_3982;
+          A = value2_3978;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -16308,8 +15904,7 @@ static final int[] SZ53 = new int[0x100];
           SP = ((wordNumber_3987 + 2) & 0xFFFF);
           jumpAddress2_3983 = value_3984;
           _nextPC1836 = jumpAddress2_3983;
-          int nextPC_3988 = _nextPC1836;
-          MEMPTR = nextPC_3988;
+          MEMPTR = _nextPC1836;
           PC = _nextPC1836;
           break;
       }
@@ -16397,10 +15992,9 @@ static final int[] SZ53 = new int[0x100];
               H = (H + 1) & 0xFF;
           }
           B = (B - 1) & 0xFF;
-          int b_4010 = B;
           int initemp_4015 = in_4007 & 0xff;
           int initemp2_4016 = (initemp_4015 + C + 1) & 0xff;
-          _F1843 = ((initemp_4015 & 0x80) != 0 ? 2 : 0) | ((initemp2_4016 < initemp_4015) ? 0x11 : 0) | (PARITY[((initemp2_4016 & 0x07) ^ b_4010)] != 0 ? 4 : 0) | (SZ53[b_4010] | (b_4010 == 0 ? 0x40 : 0));
+          _F1843 = ((initemp_4015 & 0x80) != 0 ? 2 : 0) | ((initemp2_4016 < initemp_4015) ? 0x11 : 0) | (PARITY[((initemp2_4016 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
           F = (_F1843 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -16416,10 +16010,8 @@ static final int[] SZ53 = new int[0x100];
           if (L == 0) {
               H = (H + 1) & 0xFF;
           }
-          int value2_4025 = B;
-          int value3_4026 = L;
-          int outitemp2_4030 = (valueFromHL_4023 + value3_4026) & 0xff;
-          _F1845 = ((valueFromHL_4023 & 0x80) != 0 ? 2 : 0) | ((outitemp2_4030 < valueFromHL_4023) ? 0x11 : 0) | (PARITY[((outitemp2_4030 & 0x07) ^ value2_4025)] != 0 ? 4 : 0) | (SZ53[value2_4025] | (value2_4025 == 0 ? 0x40 : 0));
+          int outitemp2_4030 = (valueFromHL_4023 + L) & 0xff;
+          _F1845 = ((valueFromHL_4023 & 0x80) != 0 ? 2 : 0) | ((outitemp2_4030 < valueFromHL_4023) ? 0x11 : 0) | (PARITY[((outitemp2_4030 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
           F = (_F1845 & 0xFF);
           MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
           PC = (PC + 2) & 0xFFFF;
@@ -16493,10 +16085,9 @@ static final int[] SZ53 = new int[0x100];
               H = (H - 1) & 0xFF;
           }
           B = (B - 1) & 0xFF;
-          int b_4050 = B;
           int initemp_4055 = in_4048 & 0xff;
           int initemp2_4056 = (initemp_4055 + C + -1) & 0xff;
-          _F1851 = ((initemp_4055 & 0x80) != 0 ? 2 : 0) | ((initemp2_4056 < initemp_4055) ? 0x11 : 0) | (PARITY[((initemp2_4056 & 0x07) ^ b_4050)] != 0 ? 4 : 0) | (SZ53[b_4050] | (b_4050 == 0 ? 0x40 : 0));
+          _F1851 = ((initemp_4055 & 0x80) != 0 ? 2 : 0) | ((initemp2_4056 < initemp_4055) ? 0x11 : 0) | (PARITY[((initemp2_4056 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
           F = (_F1851 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -16512,10 +16103,8 @@ static final int[] SZ53 = new int[0x100];
           if (L == 0xFF) {
               H = (H - 1) & 0xFF;
           }
-          int value2_4065 = B;
-          int value3_4066 = L;
-          int outitemp2_4070 = (valueFromHL_4063 + value3_4066) & 0xff;
-          _F1853 = ((valueFromHL_4063 & 0x80) != 0 ? 2 : 0) | ((outitemp2_4070 < valueFromHL_4063) ? 0x11 : 0) | (PARITY[((outitemp2_4070 & 0x07) ^ value2_4065)] != 0 ? 4 : 0) | (SZ53[value2_4065] | (value2_4065 == 0 ? 0x40 : 0));
+          int outitemp2_4070 = (valueFromHL_4063 + L) & 0xff;
+          _F1853 = ((valueFromHL_4063 & 0x80) != 0 ? 2 : 0) | ((outitemp2_4070 < valueFromHL_4063) ? 0x11 : 0) | (PARITY[((outitemp2_4070 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
           F = (_F1853 & 0xFF);
           MEMPTR = ((((B << 8) | C) + -1) & 0xFFFF);
           PC = (PC + 2) & 0xFFFF;
@@ -16529,7 +16118,6 @@ static final int[] SZ53 = new int[0x100];
   private void decodeED_11(int opcode) {
     switch (opcode) {
       case 0xB0: {
-          int _nextPC1856 = 0;
           int _F1855 = 0;
           int read_4072 = memory.read(((H << 8) | L), 0);
           memory.write(((D << 8) | E), read_4072);
@@ -16552,24 +16140,30 @@ static final int[] SZ53 = new int[0x100];
           _F1855 = value1_4074;
           _F1855 = (_F1855 & 0xC1) | (value3_4076 != 0 ? 4 : 0) | (value2_4075 & 8) | ((value2_4075 & 0x02) != 0 ? 0x20 : 0);
           F = _F1855;
-          _nextPC1856 = (((B << 8) | C) != 0) ? PC : -1;
-          int nextPC_4080 = _nextPC1856;
-          int newValue_4081;
-          if (nextPC_4080 != -1) {
-              newValue_4081 = (nextPC_4080 + 1) & 0xFFFF;
+          if ((((B << 8) | C) != 0)) {
+              int nextPC_4080 = PC;
+              int newValue_4081;
+              if (nextPC_4080 != -1) {
+                  newValue_4081 = (nextPC_4080 + 1) & 0xFFFF;
+              } else {
+                  newValue_4081 = MEMPTR;
+              }
+              MEMPTR = newValue_4081;
+              contend((((D << 8) | E) - 1) & 0xFFFF, 2, 1, Contention.Kind.WRITE_NO_MREQ);
+              if (PC != -1)
+                  contend((((D << 8) | E) - 1) & 0xFFFF, 5, 1, Contention.Kind.WRITE_NO_MREQ);
+              PC = PC == -1 ? (PC + 2) & 0xFFFF : PC;
+              break;
           } else {
-              int wordNumber_4082 = MEMPTR;
-              newValue_4081 = wordNumber_4082;
+              int newValue_4081;
+              newValue_4081 = MEMPTR;
+              MEMPTR = newValue_4081;
+              contend((((D << 8) | E) - 1) & 0xFFFF, 2, 1, Contention.Kind.WRITE_NO_MREQ);
+              PC = (PC + 2) & 0xFFFF;
+              break;
           }
-          MEMPTR = newValue_4081;
-          contend((((D << 8) | E) - 1) & 0xFFFF, 2, 1, Contention.Kind.WRITE_NO_MREQ);
-          if (_nextPC1856 != -1)
-              contend((((D << 8) | E) - 1) & 0xFFFF, 5, 1, Contention.Kind.WRITE_NO_MREQ);
-          PC = _nextPC1856 == -1 ? (PC + 2) & 0xFFFF : _nextPC1856;
-          break;
       }
       case 0xB1: {
-          int _nextPC1858 = 0;
           int _F1857 = 0;
           C = (C - 1) & 0xFF;
           if (C == 0xFF) {
@@ -16592,24 +16186,30 @@ static final int[] SZ53 = new int[0x100];
           if (L == 0) {
               H = (H + 1) & 0xFF;
           }
-          _nextPC1858 = ((F & 0x40) == 0 && ((B << 8) | C) != 0) ? PC : -1;
-          int nextPC_4092 = _nextPC1858;
-          int newValue_4093;
-          if (nextPC_4092 != -1) {
-              newValue_4093 = (nextPC_4092 + 1) & 0xFFFF;
-          } else {
-              int wordNumber_4094 = MEMPTR;
-              newValue_4093 = (wordNumber_4094 + 1) & 0xFFFF;
-          }
-          MEMPTR = newValue_4093;
-          contend((((H << 8) | L) - 1) & 0xFFFF, 5, 1, Contention.Kind.WRITE_NO_MREQ);
-          if (_nextPC1858 != -1)
+          if (((F & 0x40) == 0 && ((B << 8) | C) != 0)) {
+              int nextPC_4092 = PC;
+              int newValue_4093;
+              if (nextPC_4092 != -1) {
+                  newValue_4093 = (nextPC_4092 + 1) & 0xFFFF;
+              } else {
+                  newValue_4093 = (MEMPTR + 1) & 0xFFFF;
+              }
+              MEMPTR = newValue_4093;
               contend((((H << 8) | L) - 1) & 0xFFFF, 5, 1, Contention.Kind.WRITE_NO_MREQ);
-          PC = _nextPC1858 == -1 ? (PC + 2) & 0xFFFF : _nextPC1858;
-          break;
+              if (PC != -1)
+                  contend((((H << 8) | L) - 1) & 0xFFFF, 5, 1, Contention.Kind.WRITE_NO_MREQ);
+              PC = PC == -1 ? (PC + 2) & 0xFFFF : PC;
+              break;
+          } else {
+              int newValue_4093;
+              newValue_4093 = (MEMPTR + 1) & 0xFFFF;
+              MEMPTR = newValue_4093;
+              contend((((H << 8) | L) - 1) & 0xFFFF, 5, 1, Contention.Kind.WRITE_NO_MREQ);
+              PC = (PC + 2) & 0xFFFF;
+              break;
+          }
       }
       case 0xB2: {
-          int _nextPC1860 = 0;
           int _F1859 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
@@ -16622,19 +16222,21 @@ static final int[] SZ53 = new int[0x100];
               H = (H + 1) & 0xFF;
           }
           B = (B - 1) & 0xFF;
-          int b_4099 = B;
           int initemp_4104 = in_4096 & 0xff;
           int initemp2_4105 = (initemp_4104 + C + 1) & 0xff;
-          _F1859 = ((initemp_4104 & 0x80) != 0 ? 2 : 0) | ((initemp2_4105 < initemp_4104) ? 0x11 : 0) | (PARITY[((initemp2_4105 & 0x07) ^ b_4099)] != 0 ? 4 : 0) | (SZ53[b_4099] | (b_4099 == 0 ? 0x40 : 0));
+          _F1859 = ((initemp_4104 & 0x80) != 0 ? 2 : 0) | ((initemp2_4105 < initemp_4104) ? 0x11 : 0) | (PARITY[((initemp2_4105 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
           F = (_F1859 & 0xFF);
-          _nextPC1860 = (B != 0) ? PC : -1;
-          if (_nextPC1860 != -1)
-              contend((((H << 8) | L) - 1) & 0xFFFF, 5, 1, Contention.Kind.WRITE_NO_MREQ);
-          PC = _nextPC1860 == -1 ? (PC + 2) & 0xFFFF : _nextPC1860;
-          break;
+          if ((B != 0)) {
+              if (PC != -1)
+                  contend((((H << 8) | L) - 1) & 0xFFFF, 5, 1, Contention.Kind.WRITE_NO_MREQ);
+              PC = PC == -1 ? (PC + 2) & 0xFFFF : PC;
+              break;
+          } else {
+              PC = (PC + 2) & 0xFFFF;
+              break;
+          }
       }
       case 0xB3: {
-          int _nextPC1862 = 0;
           int _F1861 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int hlValue_4110 = ((H << 8) | L);
@@ -16645,20 +16247,22 @@ static final int[] SZ53 = new int[0x100];
           if (L == 0) {
               H = (H + 1) & 0xFF;
           }
-          int value2_4114 = B;
-          int value3_4115 = L;
-          int outitemp2_4119 = (valueFromHL_4112 + value3_4115) & 0xff;
-          _F1861 = ((valueFromHL_4112 & 0x80) != 0 ? 2 : 0) | ((outitemp2_4119 < valueFromHL_4112) ? 0x11 : 0) | (PARITY[((outitemp2_4119 & 0x07) ^ value2_4114)] != 0 ? 4 : 0) | (SZ53[value2_4114] | (value2_4114 == 0 ? 0x40 : 0));
+          int outitemp2_4119 = (valueFromHL_4112 + L) & 0xff;
+          _F1861 = ((valueFromHL_4112 & 0x80) != 0 ? 2 : 0) | ((outitemp2_4119 < valueFromHL_4112) ? 0x11 : 0) | (PARITY[((outitemp2_4119 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
           F = (_F1861 & 0xFF);
-          _nextPC1862 = (B != 0) ? PC : -1;
-          MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
-          if (_nextPC1862 != -1)
-              contend(((B << 8) | C), 5, 1, Contention.Kind.WRITE_NO_MREQ);
-          PC = _nextPC1862 == -1 ? (PC + 2) & 0xFFFF : _nextPC1862;
-          break;
+          if ((B != 0)) {
+              MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
+              if (PC != -1)
+                  contend(((B << 8) | C), 5, 1, Contention.Kind.WRITE_NO_MREQ);
+              PC = PC == -1 ? (PC + 2) & 0xFFFF : PC;
+              break;
+          } else {
+              MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
+              PC = (PC + 2) & 0xFFFF;
+              break;
+          }
       }
       case 0xB8: {
-          int _nextPC1864 = 0;
           int _F1863 = 0;
           int read_4121 = memory.read(((H << 8) | L), 0);
           memory.write(((D << 8) | E), read_4121);
@@ -16681,24 +16285,30 @@ static final int[] SZ53 = new int[0x100];
           _F1863 = value1_4123;
           _F1863 = (_F1863 & 0xC1) | (value3_4125 != 0 ? 4 : 0) | (value2_4124 & 8) | ((value2_4124 & 0x02) != 0 ? 0x20 : 0);
           F = _F1863;
-          _nextPC1864 = (((B << 8) | C) != 0) ? PC : -1;
-          int nextPC_4129 = _nextPC1864;
-          int newValue_4130;
-          if (nextPC_4129 != -1) {
-              newValue_4130 = (nextPC_4129 + 1) & 0xFFFF;
+          if ((((B << 8) | C) != 0)) {
+              int nextPC_4129 = PC;
+              int newValue_4130;
+              if (nextPC_4129 != -1) {
+                  newValue_4130 = (nextPC_4129 + 1) & 0xFFFF;
+              } else {
+                  newValue_4130 = MEMPTR;
+              }
+              MEMPTR = newValue_4130;
+              contend((((D << 8) | E) + 1) & 0xFFFF, 2, 1, Contention.Kind.WRITE_NO_MREQ);
+              if (PC != -1)
+                  contend((((D << 8) | E) + 1) & 0xFFFF, 5, 1, Contention.Kind.WRITE_NO_MREQ);
+              PC = PC == -1 ? (PC + 2) & 0xFFFF : PC;
+              break;
           } else {
-              int wordNumber_4131 = MEMPTR;
-              newValue_4130 = wordNumber_4131;
+              int newValue_4130;
+              newValue_4130 = MEMPTR;
+              MEMPTR = newValue_4130;
+              contend((((D << 8) | E) + 1) & 0xFFFF, 2, 1, Contention.Kind.WRITE_NO_MREQ);
+              PC = (PC + 2) & 0xFFFF;
+              break;
           }
-          MEMPTR = newValue_4130;
-          contend((((D << 8) | E) + 1) & 0xFFFF, 2, 1, Contention.Kind.WRITE_NO_MREQ);
-          if (_nextPC1864 != -1)
-              contend((((D << 8) | E) + 1) & 0xFFFF, 5, 1, Contention.Kind.WRITE_NO_MREQ);
-          PC = _nextPC1864 == -1 ? (PC + 2) & 0xFFFF : _nextPC1864;
-          break;
       }
       case 0xB9: {
-          int _nextPC1866 = 0;
           int _F1865 = 0;
           C = (C - 1) & 0xFF;
           if (C == 0xFF) {
@@ -16721,24 +16331,30 @@ static final int[] SZ53 = new int[0x100];
           if (L == 0xFF) {
               H = (H - 1) & 0xFF;
           }
-          _nextPC1866 = ((F & 0x40) == 0 && ((B << 8) | C) != 0) ? PC : -1;
-          int nextPC_4139 = _nextPC1866;
-          int newValue_4140;
-          if (nextPC_4139 != -1) {
-              newValue_4140 = (nextPC_4139 + 1) & 0xFFFF;
-          } else {
-              int wordNumber_4141 = MEMPTR;
-              newValue_4140 = (wordNumber_4141 + -1) & 0xFFFF;
-          }
-          MEMPTR = newValue_4140;
-          contend((((H << 8) | L) + 1) & 0xFFFF, 5, 1, Contention.Kind.WRITE_NO_MREQ);
-          if (_nextPC1866 != -1)
+          if (((F & 0x40) == 0 && ((B << 8) | C) != 0)) {
+              int nextPC_4139 = PC;
+              int newValue_4140;
+              if (nextPC_4139 != -1) {
+                  newValue_4140 = (nextPC_4139 + 1) & 0xFFFF;
+              } else {
+                  newValue_4140 = (MEMPTR + -1) & 0xFFFF;
+              }
+              MEMPTR = newValue_4140;
               contend((((H << 8) | L) + 1) & 0xFFFF, 5, 1, Contention.Kind.WRITE_NO_MREQ);
-          PC = _nextPC1866 == -1 ? (PC + 2) & 0xFFFF : _nextPC1866;
-          break;
+              if (PC != -1)
+                  contend((((H << 8) | L) + 1) & 0xFFFF, 5, 1, Contention.Kind.WRITE_NO_MREQ);
+              PC = PC == -1 ? (PC + 2) & 0xFFFF : PC;
+              break;
+          } else {
+              int newValue_4140;
+              newValue_4140 = (MEMPTR + -1) & 0xFFFF;
+              MEMPTR = newValue_4140;
+              contend((((H << 8) | L) + 1) & 0xFFFF, 5, 1, Contention.Kind.WRITE_NO_MREQ);
+              PC = (PC + 2) & 0xFFFF;
+              break;
+          }
       }
       case 0xBA: {
-          int _nextPC1868 = 0;
           int _F1867 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           MEMPTR = ((((B << 8) | C) + -1) & 0xFFFF);
@@ -16751,19 +16367,21 @@ static final int[] SZ53 = new int[0x100];
               H = (H - 1) & 0xFF;
           }
           B = (B - 1) & 0xFF;
-          int b_4145 = B;
           int initemp_4150 = in_4143 & 0xff;
           int initemp2_4151 = (initemp_4150 + C + -1) & 0xff;
-          _F1867 = ((initemp_4150 & 0x80) != 0 ? 2 : 0) | ((initemp2_4151 < initemp_4150) ? 0x11 : 0) | (PARITY[((initemp2_4151 & 0x07) ^ b_4145)] != 0 ? 4 : 0) | (SZ53[b_4145] | (b_4145 == 0 ? 0x40 : 0));
+          _F1867 = ((initemp_4150 & 0x80) != 0 ? 2 : 0) | ((initemp2_4151 < initemp_4150) ? 0x11 : 0) | (PARITY[((initemp2_4151 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
           F = (_F1867 & 0xFF);
-          _nextPC1868 = (B != 0) ? PC : -1;
-          if (_nextPC1868 != -1)
-              contend((((H << 8) | L) + 1) & 0xFFFF, 5, 1, Contention.Kind.WRITE_NO_MREQ);
-          PC = _nextPC1868 == -1 ? (PC + 2) & 0xFFFF : _nextPC1868;
-          break;
+          if ((B != 0)) {
+              if (PC != -1)
+                  contend((((H << 8) | L) + 1) & 0xFFFF, 5, 1, Contention.Kind.WRITE_NO_MREQ);
+              PC = PC == -1 ? (PC + 2) & 0xFFFF : PC;
+              break;
+          } else {
+              PC = (PC + 2) & 0xFFFF;
+              break;
+          }
       }
       case 0xBB: {
-          int _nextPC1870 = 0;
           int _F1869 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int hlValue_4156 = ((H << 8) | L);
@@ -16774,17 +16392,20 @@ static final int[] SZ53 = new int[0x100];
           if (L == 0xFF) {
               H = (H - 1) & 0xFF;
           }
-          int value2_4160 = B;
-          int value3_4161 = L;
-          int outitemp2_4165 = (valueFromHL_4158 + value3_4161) & 0xff;
-          _F1869 = ((valueFromHL_4158 & 0x80) != 0 ? 2 : 0) | ((outitemp2_4165 < valueFromHL_4158) ? 0x11 : 0) | (PARITY[((outitemp2_4165 & 0x07) ^ value2_4160)] != 0 ? 4 : 0) | (SZ53[value2_4160] | (value2_4160 == 0 ? 0x40 : 0));
+          int outitemp2_4165 = (valueFromHL_4158 + L) & 0xff;
+          _F1869 = ((valueFromHL_4158 & 0x80) != 0 ? 2 : 0) | ((outitemp2_4165 < valueFromHL_4158) ? 0x11 : 0) | (PARITY[((outitemp2_4165 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
           F = (_F1869 & 0xFF);
-          _nextPC1870 = (B != 0) ? PC : -1;
-          MEMPTR = ((((B << 8) | C) + -1) & 0xFFFF);
-          if (_nextPC1870 != -1)
-              contend(((B << 8) | C), 5, 1, Contention.Kind.WRITE_NO_MREQ);
-          PC = _nextPC1870 == -1 ? (PC + 2) & 0xFFFF : _nextPC1870;
-          break;
+          if ((B != 0)) {
+              MEMPTR = ((((B << 8) | C) + -1) & 0xFFFF);
+              if (PC != -1)
+                  contend(((B << 8) | C), 5, 1, Contention.Kind.WRITE_NO_MREQ);
+              PC = PC == -1 ? (PC + 2) & 0xFFFF : PC;
+              break;
+          } else {
+              MEMPTR = ((((B << 8) | C) + -1) & 0xFFFF);
+              PC = (PC + 2) & 0xFFFF;
+              break;
+          }
       }
       default:
         throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
@@ -17010,24 +16631,21 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFD_1(int opcode) {
     switch (opcode) {
       case 0x10: {
-          int _nextPC1913 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           B = (B - 1) & 0xFF;
           if ((B != 0)) {
               int operand_4282 = memory.read((PC + 2) & 0xFFFF, 0);
               int jumpAddress2_4281 = ((PC + 3 + (byte) operand_4282) & 0xFFFF);
-              _nextPC1913 = jumpAddress2_4281;
-          } else {
-              _nextPC1913 = -1;
-          }
-          int nextPC_4283 = _nextPC1913;
-          MEMPTR = (nextPC_4283 == -1 ? 0 : nextPC_4283) & 0xFFFF;
-          if (_nextPC1913 != -1)
+              MEMPTR = jumpAddress2_4281;
               contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          if (_nextPC1913 == -1)
+              PC = jumpAddress2_4281;
+              break;
+          } else {
+              MEMPTR = 0;
               contend((PC + 1) & 0xFFFF, 1, 3, Contention.Kind.READ);
-          PC = _nextPC1913 == -1 ? (PC + 3) & 0xFFFF : _nextPC1913;
-          break;
+              PC = (PC + 3) & 0xFFFF;
+              break;
+          }
       }
       case 0x11: {
           int address_4284 = (PC + 2) & 0xFFFF;
@@ -17109,8 +16727,7 @@ static final int[] SZ53 = new int[0x100];
           int operand_4307 = memory.read((PC + 2) & 0xFFFF, 0);
           int jumpAddress2_4306 = ((PC + 3 + (byte) operand_4307) & 0xFFFF);
           _nextPC1925 = jumpAddress2_4306;
-          int nextPC_4308 = _nextPC1925;
-          MEMPTR = nextPC_4308;
+          MEMPTR = _nextPC1925;
           contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
           PC = _nextPC1925;
           break;
@@ -17207,22 +16824,19 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFD_2(int opcode) {
     switch (opcode) {
       case 0x20: {
-          int _nextPC1938 = 0;
           if ((!((F & 0x40) == 0x40))) {
               int operand_4335 = memory.read((PC + 2) & 0xFFFF, 0);
               int jumpAddress2_4334 = ((PC + 3 + (byte) operand_4335) & 0xFFFF);
-              _nextPC1938 = jumpAddress2_4334;
-          } else {
-              _nextPC1938 = -1;
-          }
-          int nextPC_4336 = _nextPC1938;
-          MEMPTR = (nextPC_4336 == -1 ? 0 : nextPC_4336) & 0xFFFF;
-          if (_nextPC1938 != -1)
+              MEMPTR = jumpAddress2_4334;
               contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          if (_nextPC1938 == -1)
+              PC = jumpAddress2_4334;
+              break;
+          } else {
+              MEMPTR = 0;
               contend((PC + 1) & 0xFFFF, 1, 3, Contention.Kind.READ);
-          PC = _nextPC1938 == -1 ? (PC + 3) & 0xFFFF : _nextPC1938;
-          break;
+              PC = (PC + 3) & 0xFFFF;
+              break;
+          }
       }
       case 0x21: {
           int address_4337 = (PC + 2) & 0xFFFF;
@@ -17310,11 +16924,8 @@ static final int[] SZ53 = new int[0x100];
           _data1949 = and_4363;
           if ((_F1948 & 2) != 0) {
               int value1_4364 = value1_4357;
-              int value2_4365 = add_4360;
-              int value3_4366 = 0;
-              _F1950 = _data1949;
-              int subtemp_4367 = value1_4364 - value2_4365;
-              int lookup_4368 = ((value1_4364 & 0x88) >> 3) | ((value2_4365 & 0x88) >> 2) | ((subtemp_4367 & 0x88) >> 1);
+              int subtemp_4367 = value1_4364 - add_4360;
+              int lookup_4368 = ((value1_4364 & 0x88) >> 3) | ((add_4360 & 0x88) >> 2) | ((subtemp_4367 & 0x88) >> 1);
               value1_4364 = subtemp_4367 & 0xff;
               _F1950 = ((subtemp_4367 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4368 & 0x07)] | OVERFLOW_SUB[(lookup_4368 >> 4)] | (SZ53[value1_4364 & 0xff] | (value1_4364 == 0 ? 0x40 : 0));
               int result_4369 = value1_4364 & 0xFF;
@@ -17322,12 +16933,9 @@ static final int[] SZ53 = new int[0x100];
               _data1949 = and_4370;
               value1_4357 = result_4369;
           } else {
-              int value1_4371 = add_4360;
               int value2_4372 = value1_4357;
-              int value3_4373 = 0;
-              _F1951 = _data1949;
-              int addtemp_4374 = value2_4372 + value1_4371;
-              int lookup_4375 = ((value2_4372 & 0x88) >> 3) | ((value1_4371 & 0x88) >> 2) | ((addtemp_4374 & 0x88) >> 1);
+              int addtemp_4374 = value2_4372 + add_4360;
+              int lookup_4375 = ((value2_4372 & 0x88) >> 3) | ((add_4360 & 0x88) >> 2) | ((addtemp_4374 & 0x88) >> 1);
               value2_4372 = addtemp_4374 & 0xff;
               _F1951 = ((addtemp_4374 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4375 & 0x07)] | OVERFLOW_ADD[(lookup_4375 >> 4)] | (SZ53[value2_4372 & 0xff] | (value2_4372 == 0 ? 0x40 : 0));
               int result_4376 = value2_4372 & 0xFF;
@@ -17344,22 +16952,19 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x28: {
-          int _nextPC1953 = 0;
           if (((F & 0x40) == 0x40)) {
               int operand_4380 = memory.read((PC + 2) & 0xFFFF, 0);
               int jumpAddress2_4379 = ((PC + 3 + (byte) operand_4380) & 0xFFFF);
-              _nextPC1953 = jumpAddress2_4379;
-          } else {
-              _nextPC1953 = -1;
-          }
-          int nextPC_4381 = _nextPC1953;
-          MEMPTR = (nextPC_4381 == -1 ? 0 : nextPC_4381) & 0xFFFF;
-          if (_nextPC1953 != -1)
+              MEMPTR = jumpAddress2_4379;
               contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          if (_nextPC1953 == -1)
+              PC = jumpAddress2_4379;
+              break;
+          } else {
+              MEMPTR = 0;
               contend((PC + 1) & 0xFFFF, 1, 3, Contention.Kind.READ);
-          PC = _nextPC1953 == -1 ? (PC + 3) & 0xFFFF : _nextPC1953;
-          break;
+              PC = (PC + 3) & 0xFFFF;
+              break;
+          }
       }
       case 0x29: {
           int _F1954;
@@ -17453,22 +17058,19 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFD_3(int opcode) {
     switch (opcode) {
       case 0x30: {
-          int _nextPC1966 = 0;
           if ((!((F & 1) == 1))) {
               int operand_4410 = memory.read((PC + 2) & 0xFFFF, 0);
               int jumpAddress2_4409 = ((PC + 3 + (byte) operand_4410) & 0xFFFF);
-              _nextPC1966 = jumpAddress2_4409;
-          } else {
-              _nextPC1966 = -1;
-          }
-          int nextPC_4411 = _nextPC1966;
-          MEMPTR = (nextPC_4411 == -1 ? 0 : nextPC_4411) & 0xFFFF;
-          if (_nextPC1966 != -1)
+              MEMPTR = jumpAddress2_4409;
               contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          if (_nextPC1966 == -1)
+              PC = jumpAddress2_4409;
+              break;
+          } else {
+              MEMPTR = 0;
               contend((PC + 1) & 0xFFFF, 1, 3, Contention.Kind.READ);
-          PC = _nextPC1966 == -1 ? (PC + 3) & 0xFFFF : _nextPC1966;
-          break;
+              PC = (PC + 3) & 0xFFFF;
+              break;
+          }
       }
       case 0x31: {
           int address_4412 = (PC + 2) & 0xFFFF;
@@ -17568,22 +17170,19 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x38: {
-          int _nextPC1980 = 0;
           if (((F & 1) == 1)) {
               int operand_4442 = memory.read((PC + 2) & 0xFFFF, 0);
               int jumpAddress2_4441 = ((PC + 3 + (byte) operand_4442) & 0xFFFF);
-              _nextPC1980 = jumpAddress2_4441;
-          } else {
-              _nextPC1980 = -1;
-          }
-          int nextPC_4443 = _nextPC1980;
-          MEMPTR = (nextPC_4443 == -1 ? 0 : nextPC_4443) & 0xFFFF;
-          if (_nextPC1980 != -1)
+              MEMPTR = jumpAddress2_4441;
               contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          if (_nextPC1980 == -1)
+              PC = jumpAddress2_4441;
+              break;
+          } else {
+              MEMPTR = 0;
               contend((PC + 1) & 0xFFFF, 1, 3, Contention.Kind.READ);
-          PC = _nextPC1980 == -1 ? (PC + 3) & 0xFFFF : _nextPC1980;
-          break;
+              PC = (PC + 3) & 0xFFFF;
+              break;
+          }
       }
       case 0x39: {
           int _F1981;
@@ -17977,72 +17576,60 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFD_7(int opcode) {
     switch (opcode) {
       case 0x70: {
-          int _value1971;
           int _address1971;
           int operand_4482 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
           _address1971 = (IY + (int) ((byte) operand_4482)) & 0xFFFF;
-          _value1971 = B;
           memory.write(_address1971, B);
           MEMPTR = _address1971;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x71: {
-          int _value1971;
           int _address1971;
           int operand_4483 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
           _address1971 = (IY + (int) ((byte) operand_4483)) & 0xFFFF;
-          _value1971 = C;
           memory.write(_address1971, C);
           MEMPTR = _address1971;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x72: {
-          int _value1971;
           int _address1971;
           int operand_4484 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
           _address1971 = (IY + (int) ((byte) operand_4484)) & 0xFFFF;
-          _value1971 = D;
           memory.write(_address1971, D);
           MEMPTR = _address1971;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x73: {
-          int _value1971;
           int _address1971;
           int operand_4485 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
           _address1971 = (IY + (int) ((byte) operand_4485)) & 0xFFFF;
-          _value1971 = E;
           memory.write(_address1971, E);
           MEMPTR = _address1971;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x74: {
-          int _value1971;
           int _address1971;
           int operand_4486 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
           _address1971 = (IY + (int) ((byte) operand_4486)) & 0xFFFF;
-          _value1971 = H;
           memory.write(_address1971, H);
           MEMPTR = _address1971;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x75: {
-          int _value1971;
           int _address1971;
           int operand_4487 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
           _address1971 = (IY + (int) ((byte) operand_4487)) & 0xFFFF;
-          _value1971 = L;
           memory.write(_address1971, L);
           MEMPTR = _address1971;
           PC = (PC + 3) & 0xFFFF;
@@ -18057,12 +17644,10 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x77: {
-          int _value1971;
           int _address1971;
           int operand_4488 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
           _address1971 = (IY + (int) ((byte) operand_4488)) & 0xFFFF;
-          _value1971 = A;
           memory.write(_address1971, A);
           MEMPTR = _address1971;
           PC = (PC + 3) & 0xFFFF;
@@ -18130,9 +17715,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4495 = ((value2_4492 & 0x88) >> 3) | ((value1_4491 & 0x88) >> 2) | ((addtemp_4494 & 0x88) >> 1);
           value2_4492 = addtemp_4494 & 0xff;
           _F2057 = ((addtemp_4494 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4495 & 0x07)] | OVERFLOW_ADD[(lookup_4495 >> 4)] | (SZ53[value2_4492] | (value2_4492 == 0 ? 0x40 : 0));
-          int result_4496 = value2_4492;
           F = (_F2057 & 0xFF);
-          A = result_4496;
+          A = value2_4492;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18144,9 +17728,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4501 = ((value2_4498 & 0x88) >> 3) | ((value1_4497 & 0x88) >> 2) | ((addtemp_4500 & 0x88) >> 1);
           value2_4498 = addtemp_4500 & 0xff;
           _F2059 = ((addtemp_4500 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4501 & 0x07)] | OVERFLOW_ADD[(lookup_4501 >> 4)] | (SZ53[value2_4498] | (value2_4498 == 0 ? 0x40 : 0));
-          int result_4502 = value2_4498;
           F = (_F2059 & 0xFF);
-          A = result_4502;
+          A = value2_4498;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18158,9 +17741,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4507 = ((value2_4504 & 0x88) >> 3) | ((value1_4503 & 0x88) >> 2) | ((addtemp_4506 & 0x88) >> 1);
           value2_4504 = addtemp_4506 & 0xff;
           _F2061 = ((addtemp_4506 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4507 & 0x07)] | OVERFLOW_ADD[(lookup_4507 >> 4)] | (SZ53[value2_4504] | (value2_4504 == 0 ? 0x40 : 0));
-          int result_4508 = value2_4504;
           F = (_F2061 & 0xFF);
-          A = result_4508;
+          A = value2_4504;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18172,9 +17754,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4513 = ((value2_4510 & 0x88) >> 3) | ((value1_4509 & 0x88) >> 2) | ((addtemp_4512 & 0x88) >> 1);
           value2_4510 = addtemp_4512 & 0xff;
           _F2063 = ((addtemp_4512 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4513 & 0x07)] | OVERFLOW_ADD[(lookup_4513 >> 4)] | (SZ53[value2_4510] | (value2_4510 == 0 ? 0x40 : 0));
-          int result_4514 = value2_4510;
           F = (_F2063 & 0xFF);
-          A = result_4514;
+          A = value2_4510;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18186,9 +17767,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4519 = ((value2_4516 & 0x88) >> 3) | ((value1_4515 & 0x88) >> 2) | ((addtemp_4518 & 0x88) >> 1);
           value2_4516 = addtemp_4518 & 0xff;
           _F2065 = ((addtemp_4518 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4519 & 0x07)] | OVERFLOW_ADD[(lookup_4519 >> 4)] | (SZ53[value2_4516] | (value2_4516 == 0 ? 0x40 : 0));
-          int result_4520 = value2_4516;
           F = (_F2065 & 0xFF);
-          A = result_4520;
+          A = value2_4516;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18200,9 +17780,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4525 = ((value2_4522 & 0x88) >> 3) | ((value1_4521 & 0x88) >> 2) | ((addtemp_4524 & 0x88) >> 1);
           value2_4522 = addtemp_4524 & 0xff;
           _F2067 = ((addtemp_4524 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4525 & 0x07)] | OVERFLOW_ADD[(lookup_4525 >> 4)] | (SZ53[value2_4522] | (value2_4522 == 0 ? 0x40 : 0));
-          int result_4526 = value2_4522;
           F = (_F2067 & 0xFF);
-          A = result_4526;
+          A = value2_4522;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18221,9 +17800,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4533 = ((value2_4530 & 0x88) >> 3) | ((value1_4529 & 0x88) >> 2) | ((addtemp_4532 & 0x88) >> 1);
           value2_4530 = addtemp_4532 & 0xff;
           _F2069 = ((addtemp_4532 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4533 & 0x07)] | OVERFLOW_ADD[(lookup_4533 >> 4)] | (SZ53[value2_4530] | (value2_4530 == 0 ? 0x40 : 0));
-          int result_4534 = value2_4530;
           F = (_F2069 & 0xFF);
-          A = result_4534;
+          A = value2_4530;
           MEMPTR = _address1971;
           PC = (PC + 3) & 0xFFFF;
           break;
@@ -18236,9 +17814,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4539 = ((value2_4536 & 0x88) >> 3) | ((value1_4535 & 0x88) >> 2) | ((addtemp_4538 & 0x88) >> 1);
           value2_4536 = addtemp_4538 & 0xff;
           _F2071 = ((addtemp_4538 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4539 & 0x07)] | OVERFLOW_ADD[(lookup_4539 >> 4)] | (SZ53[value2_4536] | (value2_4536 == 0 ? 0x40 : 0));
-          int result_4540 = value2_4536;
           F = (_F2071 & 0xFF);
-          A = result_4540;
+          A = value2_4536;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18251,9 +17828,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4545 = ((value1_4541 & 0x88) >> 3) | ((B & 0x88) >> 2) | ((adctemp_4544 & 0x88) >> 1);
           value1_4541 = adctemp_4544 & 0xff;
           _F2073 = ((adctemp_4544 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4545 & 0x07)] | OVERFLOW_ADD[(lookup_4545 >> 4)] | (SZ53[value1_4541] | (value1_4541 == 0 ? 0x40 : 0));
-          int result_4546 = value1_4541;
           F = (_F2073 & 0xFF);
-          A = result_4546;
+          A = value1_4541;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18266,9 +17842,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4551 = ((value1_4547 & 0x88) >> 3) | ((C & 0x88) >> 2) | ((adctemp_4550 & 0x88) >> 1);
           value1_4547 = adctemp_4550 & 0xff;
           _F2075 = ((adctemp_4550 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4551 & 0x07)] | OVERFLOW_ADD[(lookup_4551 >> 4)] | (SZ53[value1_4547] | (value1_4547 == 0 ? 0x40 : 0));
-          int result_4552 = value1_4547;
           F = (_F2075 & 0xFF);
-          A = result_4552;
+          A = value1_4547;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18281,9 +17856,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4557 = ((value1_4553 & 0x88) >> 3) | ((D & 0x88) >> 2) | ((adctemp_4556 & 0x88) >> 1);
           value1_4553 = adctemp_4556 & 0xff;
           _F2077 = ((adctemp_4556 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4557 & 0x07)] | OVERFLOW_ADD[(lookup_4557 >> 4)] | (SZ53[value1_4553] | (value1_4553 == 0 ? 0x40 : 0));
-          int result_4558 = value1_4553;
           F = (_F2077 & 0xFF);
-          A = result_4558;
+          A = value1_4553;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18296,9 +17870,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4563 = ((value1_4559 & 0x88) >> 3) | ((E & 0x88) >> 2) | ((adctemp_4562 & 0x88) >> 1);
           value1_4559 = adctemp_4562 & 0xff;
           _F2079 = ((adctemp_4562 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4563 & 0x07)] | OVERFLOW_ADD[(lookup_4563 >> 4)] | (SZ53[value1_4559] | (value1_4559 == 0 ? 0x40 : 0));
-          int result_4564 = value1_4559;
           F = (_F2079 & 0xFF);
-          A = result_4564;
+          A = value1_4559;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18312,9 +17885,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4569 = ((value1_4565 & 0x88) >> 3) | ((value2_4566 & 0x88) >> 2) | ((adctemp_4568 & 0x88) >> 1);
           value1_4565 = adctemp_4568 & 0xff;
           _F2081 = ((adctemp_4568 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4569 & 0x07)] | OVERFLOW_ADD[(lookup_4569 >> 4)] | (SZ53[value1_4565] | (value1_4565 == 0 ? 0x40 : 0));
-          int result_4570 = value1_4565;
           F = (_F2081 & 0xFF);
-          A = result_4570;
+          A = value1_4565;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18328,9 +17900,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4575 = ((value1_4571 & 0x88) >> 3) | ((value2_4572 & 0x88) >> 2) | ((adctemp_4574 & 0x88) >> 1);
           value1_4571 = adctemp_4574 & 0xff;
           _F2083 = ((adctemp_4574 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4575 & 0x07)] | OVERFLOW_ADD[(lookup_4575 >> 4)] | (SZ53[value1_4571] | (value1_4571 == 0 ? 0x40 : 0));
-          int result_4576 = value1_4571;
           F = (_F2083 & 0xFF);
-          A = result_4576;
+          A = value1_4571;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18344,16 +17915,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_4578 = memory.read(_address1971, 0);
           _value1971 = operand_4578;
           int value1_4579 = A;
-          int value2_4580 = _value1971;
           int value3_4581 = F & 1;
           _F2085 = value3_4581;
-          int adctemp_4582 = value1_4579 + value2_4580 + (_F2085 & 1);
-          int lookup_4583 = ((value1_4579 & 0x88) >> 3) | ((value2_4580 & 0x88) >> 2) | ((adctemp_4582 & 0x88) >> 1);
+          int adctemp_4582 = value1_4579 + _value1971 + (_F2085 & 1);
+          int lookup_4583 = ((value1_4579 & 0x88) >> 3) | ((_value1971 & 0x88) >> 2) | ((adctemp_4582 & 0x88) >> 1);
           value1_4579 = adctemp_4582 & 0xff;
           _F2085 = ((adctemp_4582 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4583 & 0x07)] | OVERFLOW_ADD[(lookup_4583 >> 4)] | (SZ53[value1_4579] | (value1_4579 == 0 ? 0x40 : 0));
-          int result_4584 = value1_4579;
           F = (_F2085 & 0xFF);
-          A = result_4584;
+          A = value1_4579;
           MEMPTR = _address1971;
           PC = (PC + 3) & 0xFFFF;
           break;
@@ -18368,9 +17937,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4589 = ((value1_4585 & 0x88) >> 3) | ((value2_4586 & 0x88) >> 2) | ((adctemp_4588 & 0x88) >> 1);
           value1_4585 = adctemp_4588 & 0xff;
           _F2087 = ((adctemp_4588 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4589 & 0x07)] | OVERFLOW_ADD[(lookup_4589 >> 4)] | (SZ53[value1_4585] | (value1_4585 == 0 ? 0x40 : 0));
-          int result_4590 = value1_4585;
           F = (_F2087 & 0xFF);
-          A = result_4590;
+          A = value1_4585;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18388,9 +17956,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4595 = ((value1_4591 & 0x88) >> 3) | ((B & 0x88) >> 2) | ((subtemp_4594 & 0x88) >> 1);
           value1_4591 = subtemp_4594 & 0xff;
           _F2089 = ((subtemp_4594 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4595 & 0x07)] | OVERFLOW_SUB[(lookup_4595 >> 4)] | (SZ53[value1_4591] | (value1_4591 == 0 ? 0x40 : 0));
-          int result_4596 = value1_4591;
           F = (_F2089 & 0xFF);
-          A = result_4596;
+          A = value1_4591;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18401,9 +17968,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4601 = ((value1_4597 & 0x88) >> 3) | ((C & 0x88) >> 2) | ((subtemp_4600 & 0x88) >> 1);
           value1_4597 = subtemp_4600 & 0xff;
           _F2091 = ((subtemp_4600 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4601 & 0x07)] | OVERFLOW_SUB[(lookup_4601 >> 4)] | (SZ53[value1_4597] | (value1_4597 == 0 ? 0x40 : 0));
-          int result_4602 = value1_4597;
           F = (_F2091 & 0xFF);
-          A = result_4602;
+          A = value1_4597;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18414,9 +17980,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4607 = ((value1_4603 & 0x88) >> 3) | ((D & 0x88) >> 2) | ((subtemp_4606 & 0x88) >> 1);
           value1_4603 = subtemp_4606 & 0xff;
           _F2093 = ((subtemp_4606 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4607 & 0x07)] | OVERFLOW_SUB[(lookup_4607 >> 4)] | (SZ53[value1_4603] | (value1_4603 == 0 ? 0x40 : 0));
-          int result_4608 = value1_4603;
           F = (_F2093 & 0xFF);
-          A = result_4608;
+          A = value1_4603;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18427,9 +17992,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4613 = ((value1_4609 & 0x88) >> 3) | ((E & 0x88) >> 2) | ((subtemp_4612 & 0x88) >> 1);
           value1_4609 = subtemp_4612 & 0xff;
           _F2095 = ((subtemp_4612 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4613 & 0x07)] | OVERFLOW_SUB[(lookup_4613 >> 4)] | (SZ53[value1_4609] | (value1_4609 == 0 ? 0x40 : 0));
-          int result_4614 = value1_4609;
           F = (_F2095 & 0xFF);
-          A = result_4614;
+          A = value1_4609;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18441,9 +18005,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4619 = ((value1_4615 & 0x88) >> 3) | ((value2_4616 & 0x88) >> 2) | ((subtemp_4618 & 0x88) >> 1);
           value1_4615 = subtemp_4618 & 0xff;
           _F2097 = ((subtemp_4618 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4619 & 0x07)] | OVERFLOW_SUB[(lookup_4619 >> 4)] | (SZ53[value1_4615] | (value1_4615 == 0 ? 0x40 : 0));
-          int result_4620 = value1_4615;
           F = (_F2097 & 0xFF);
-          A = result_4620;
+          A = value1_4615;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18455,9 +18018,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4625 = ((value1_4621 & 0x88) >> 3) | ((value2_4622 & 0x88) >> 2) | ((subtemp_4624 & 0x88) >> 1);
           value1_4621 = subtemp_4624 & 0xff;
           _F2099 = ((subtemp_4624 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4625 & 0x07)] | OVERFLOW_SUB[(lookup_4625 >> 4)] | (SZ53[value1_4621] | (value1_4621 == 0 ? 0x40 : 0));
-          int result_4626 = value1_4621;
           F = (_F2099 & 0xFF);
-          A = result_4626;
+          A = value1_4621;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18471,14 +18033,12 @@ static final int[] SZ53 = new int[0x100];
           int operand_4628 = memory.read(_address1971, 0);
           _value1971 = operand_4628;
           int value1_4629 = A;
-          int value2_4630 = _value1971;
-          int subtemp_4632 = value1_4629 - value2_4630;
-          int lookup_4633 = ((value1_4629 & 0x88) >> 3) | ((value2_4630 & 0x88) >> 2) | ((subtemp_4632 & 0x88) >> 1);
+          int subtemp_4632 = value1_4629 - _value1971;
+          int lookup_4633 = ((value1_4629 & 0x88) >> 3) | ((_value1971 & 0x88) >> 2) | ((subtemp_4632 & 0x88) >> 1);
           value1_4629 = subtemp_4632 & 0xff;
           _F2101 = ((subtemp_4632 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4633 & 0x07)] | OVERFLOW_SUB[(lookup_4633 >> 4)] | (SZ53[value1_4629] | (value1_4629 == 0 ? 0x40 : 0));
-          int result_4634 = value1_4629;
           F = (_F2101 & 0xFF);
-          A = result_4634;
+          A = value1_4629;
           MEMPTR = _address1971;
           PC = (PC + 3) & 0xFFFF;
           break;
@@ -18491,9 +18051,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4639 = ((value1_4635 & 0x88) >> 3) | ((value2_4636 & 0x88) >> 2) | ((subtemp_4638 & 0x88) >> 1);
           value1_4635 = subtemp_4638 & 0xff;
           _F2103 = ((subtemp_4638 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4639 & 0x07)] | OVERFLOW_SUB[(lookup_4639 >> 4)] | (SZ53[value1_4635] | (value1_4635 == 0 ? 0x40 : 0));
-          int result_4640 = value1_4635;
           F = (_F2103 & 0xFF);
-          A = result_4640;
+          A = value1_4635;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18506,9 +18065,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4645 = ((value1_4641 & 0x88) >> 3) | ((B & 0x88) >> 2) | ((sbctemp_4644 & 0x88) >> 1);
           value1_4641 = sbctemp_4644 & 0xff;
           _F2105 = ((sbctemp_4644 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4645 & 0x07)] | OVERFLOW_SUB[(lookup_4645 >> 4)] | (SZ53[value1_4641] | (value1_4641 == 0 ? 0x40 : 0));
-          int result_4646 = value1_4641;
           F = (_F2105 & 0xFF);
-          A = result_4646;
+          A = value1_4641;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18521,9 +18079,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4651 = ((value1_4647 & 0x88) >> 3) | ((C & 0x88) >> 2) | ((sbctemp_4650 & 0x88) >> 1);
           value1_4647 = sbctemp_4650 & 0xff;
           _F2107 = ((sbctemp_4650 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4651 & 0x07)] | OVERFLOW_SUB[(lookup_4651 >> 4)] | (SZ53[value1_4647] | (value1_4647 == 0 ? 0x40 : 0));
-          int result_4652 = value1_4647;
           F = (_F2107 & 0xFF);
-          A = result_4652;
+          A = value1_4647;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18536,9 +18093,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4657 = ((value1_4653 & 0x88) >> 3) | ((D & 0x88) >> 2) | ((sbctemp_4656 & 0x88) >> 1);
           value1_4653 = sbctemp_4656 & 0xff;
           _F2109 = ((sbctemp_4656 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4657 & 0x07)] | OVERFLOW_SUB[(lookup_4657 >> 4)] | (SZ53[value1_4653] | (value1_4653 == 0 ? 0x40 : 0));
-          int result_4658 = value1_4653;
           F = (_F2109 & 0xFF);
-          A = result_4658;
+          A = value1_4653;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18551,9 +18107,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4663 = ((value1_4659 & 0x88) >> 3) | ((E & 0x88) >> 2) | ((sbctemp_4662 & 0x88) >> 1);
           value1_4659 = sbctemp_4662 & 0xff;
           _F2111 = ((sbctemp_4662 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4663 & 0x07)] | OVERFLOW_SUB[(lookup_4663 >> 4)] | (SZ53[value1_4659] | (value1_4659 == 0 ? 0x40 : 0));
-          int result_4664 = value1_4659;
           F = (_F2111 & 0xFF);
-          A = result_4664;
+          A = value1_4659;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18567,9 +18122,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4669 = ((value1_4665 & 0x88) >> 3) | ((value2_4666 & 0x88) >> 2) | ((sbctemp_4668 & 0x88) >> 1);
           value1_4665 = sbctemp_4668 & 0xff;
           _F2113 = ((sbctemp_4668 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4669 & 0x07)] | OVERFLOW_SUB[(lookup_4669 >> 4)] | (SZ53[value1_4665] | (value1_4665 == 0 ? 0x40 : 0));
-          int result_4670 = value1_4665;
           F = (_F2113 & 0xFF);
-          A = result_4670;
+          A = value1_4665;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18583,9 +18137,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4675 = ((value1_4671 & 0x88) >> 3) | ((value2_4672 & 0x88) >> 2) | ((sbctemp_4674 & 0x88) >> 1);
           value1_4671 = sbctemp_4674 & 0xff;
           _F2115 = ((sbctemp_4674 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4675 & 0x07)] | OVERFLOW_SUB[(lookup_4675 >> 4)] | (SZ53[value1_4671] | (value1_4671 == 0 ? 0x40 : 0));
-          int result_4676 = value1_4671;
           F = (_F2115 & 0xFF);
-          A = result_4676;
+          A = value1_4671;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18599,16 +18152,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_4678 = memory.read(_address1971, 0);
           _value1971 = operand_4678;
           int value1_4679 = A;
-          int value2_4680 = _value1971;
           int value3_4681 = F & 1;
           _F2117 = value3_4681;
-          int sbctemp_4682 = value1_4679 - value2_4680 - (_F2117 & 1);
-          int lookup_4683 = ((value1_4679 & 0x88) >> 3) | ((value2_4680 & 0x88) >> 2) | ((sbctemp_4682 & 0x88) >> 1);
+          int sbctemp_4682 = value1_4679 - _value1971 - (_F2117 & 1);
+          int lookup_4683 = ((value1_4679 & 0x88) >> 3) | ((_value1971 & 0x88) >> 2) | ((sbctemp_4682 & 0x88) >> 1);
           value1_4679 = sbctemp_4682 & 0xff;
           _F2117 = ((sbctemp_4682 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4683 & 0x07)] | OVERFLOW_SUB[(lookup_4683 >> 4)] | (SZ53[value1_4679] | (value1_4679 == 0 ? 0x40 : 0));
-          int result_4684 = value1_4679;
           F = (_F2117 & 0xFF);
-          A = result_4684;
+          A = value1_4679;
           MEMPTR = _address1971;
           PC = (PC + 3) & 0xFFFF;
           break;
@@ -18623,9 +18174,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4689 = ((value1_4685 & 0x88) >> 3) | ((value2_4686 & 0x88) >> 2) | ((sbctemp_4688 & 0x88) >> 1);
           value1_4685 = sbctemp_4688 & 0xff;
           _F2119 = ((sbctemp_4688 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4689 & 0x07)] | OVERFLOW_SUB[(lookup_4689 >> 4)] | (SZ53[value1_4685] | (value1_4685 == 0 ? 0x40 : 0));
-          int result_4690 = value1_4685;
           F = (_F2119 & 0xFF);
-          A = result_4690;
+          A = value1_4685;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -19020,10 +18570,9 @@ static final int[] SZ53 = new int[0x100];
           _address1971 = (IY + (int) ((byte) operand_4829)) & 0xFFFF;
           int operand_4830 = memory.read(_address1971, 0);
           _value1971 = operand_4830;
-          int value2_4832 = _value1971;
-          int cptemp_4834 = A - value2_4832;
-          int lookup_4835 = ((A & 0x88) >> 3) | ((value2_4832 & 0x88) >> 2) | ((cptemp_4834 & 0x88) >> 1);
-          _F2181 = ((cptemp_4834 & 0x100) != 0 ? 1 : (cptemp_4834 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_4835 & 0x07)] | OVERFLOW_SUB[(lookup_4835 >> 4)] | (value2_4832 & 0x28) | (cptemp_4834 & 0x80);
+          int cptemp_4834 = A - _value1971;
+          int lookup_4835 = ((A & 0x88) >> 3) | ((_value1971 & 0x88) >> 2) | ((cptemp_4834 & 0x88) >> 1);
+          _F2181 = ((cptemp_4834 & 0x100) != 0 ? 1 : (cptemp_4834 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_4835 & 0x07)] | OVERFLOW_SUB[(lookup_4835 >> 4)] | (_value1971 & 0x28) | (cptemp_4834 & 0x80);
           F = (_F2181 & 0xFF);
           MEMPTR = _address1971;
           PC = (PC + 3) & 0xFFFF;
@@ -19046,7 +18595,6 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFD_12(int opcode) {
     switch (opcode) {
       case 0xC0: {
-          int _nextPC2185 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_4843 = SP;
           if ((!((F & 0x40) == 0x40))) {
@@ -19056,14 +18604,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_4847 = SP;
               SP = ((wordNumber_4847 + 2) & 0xFFFF);
               jumpAddress2_4843 = value_4844;
-              _nextPC2185 = jumpAddress2_4843;
+              MEMPTR = jumpAddress2_4843;
+              PC = jumpAddress2_4843;
+              break;
           } else {
-              _nextPC2185 = -1;
+              MEMPTR = 0;
+              PC = (PC + 2) & 0xFFFF;
+              break;
           }
-          int nextPC_4848 = _nextPC2185;
-          MEMPTR = (nextPC_4848 == -1 ? 0 : nextPC_4848) & 0xFFFF;
-          PC = _nextPC2185 == -1 ? (PC + 2) & 0xFFFF : _nextPC2185;
-          break;
       }
       case 0xC1: {
           int wordNumber1_4851 = memory.read(SP, 0);
@@ -19077,7 +18625,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xC2: {
-          int _nextPC2187 = 0;
           int _jumpAddress2187 = 0;
           int address_4855 = (PC + 2) & 0xFFFF;
           int operand_4857 = memory.read(address_4855, 0);
@@ -19085,14 +18632,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_4854 = (_jumpAddress2187 = (operand_4859 << 8) | operand_4857);
           if ((!((F & 0x40) == 0x40))) {
               _jumpAddress2187 = jumpAddress2_4854;
-              _nextPC2187 = jumpAddress2_4854;
+              MEMPTR = _jumpAddress2187;
+              PC = jumpAddress2_4854;
+              break;
           } else {
-              _nextPC2187 = -1;
+              MEMPTR = _jumpAddress2187;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_4860 = _jumpAddress2187;
-          MEMPTR = (nextPC_4860 == -1 ? 0 : nextPC_4860) & 0xFFFF;
-          PC = _nextPC2187 == -1 ? (PC + 4) & 0xFFFF : _nextPC2187;
-          break;
       }
       case 0xC3: {
           int _nextPC2188;
@@ -19103,13 +18650,11 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_4861 = (_jumpAddress2188 = (operand_4866 << 8) | operand_4864);
           _jumpAddress2188 = jumpAddress2_4861;
           _nextPC2188 = jumpAddress2_4861;
-          int nextPC_4867 = _jumpAddress2188;
-          MEMPTR = nextPC_4867;
+          MEMPTR = _jumpAddress2188;
           PC = _nextPC2188;
           break;
       }
       case 0xC4: {
-          int _nextPC2189 = 0;
           int _jumpAddress2189 = 0;
           int address_4868 = (PC + 2) & 0xFFFF;
           int operand_4870 = memory.read(address_4868, 0);
@@ -19124,14 +18669,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_4878 >>> 8));
               memory.write(SP, (value_4878 & 0xFF));
               _jumpAddress2189 = jumpAddress2_4874;
-              _nextPC2189 = jumpAddress2_4874;
+              MEMPTR = _jumpAddress2189;
+              PC = jumpAddress2_4874;
+              break;
           } else {
-              _nextPC2189 = -1;
+              MEMPTR = _jumpAddress2189;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_4879 = _jumpAddress2189;
-          MEMPTR = (nextPC_4879 == -1 ? 0 : nextPC_4879) & 0xFFFF;
-          PC = _nextPC2189 == -1 ? (PC + 4) & 0xFFFF : _nextPC2189;
-          break;
       }
       case 0xC5: {
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
@@ -19151,9 +18696,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_4886 = ((value2_4883 & 0x88) >> 3) | ((value1_4882 & 0x88) >> 2) | ((addtemp_4885 & 0x88) >> 1);
           value2_4883 = addtemp_4885 & 0xff;
           _F2191 = ((addtemp_4885 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4886 & 0x07)] | OVERFLOW_ADD[(lookup_4886 >> 4)] | (SZ53[value2_4883] | (value2_4883 == 0 ? 0x40 : 0));
-          int result_4887 = value2_4883;
           F = (_F2191 & 0xFF);
-          A = result_4887;
+          A = value2_4883;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
@@ -19170,7 +18714,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xC8: {
-          int _nextPC2194 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_4889 = SP;
           if (((F & 0x40) == 0x40)) {
@@ -19180,14 +18723,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_4893 = SP;
               SP = ((wordNumber_4893 + 2) & 0xFFFF);
               jumpAddress2_4889 = value_4890;
-              _nextPC2194 = jumpAddress2_4889;
+              MEMPTR = jumpAddress2_4889;
+              PC = jumpAddress2_4889;
+              break;
           } else {
-              _nextPC2194 = -1;
+              MEMPTR = 0;
+              PC = (PC + 2) & 0xFFFF;
+              break;
           }
-          int nextPC_4894 = _nextPC2194;
-          MEMPTR = (nextPC_4894 == -1 ? 0 : nextPC_4894) & 0xFFFF;
-          PC = _nextPC2194 == -1 ? (PC + 2) & 0xFFFF : _nextPC2194;
-          break;
       }
       case 0xC9: {
           int _nextPC2195;
@@ -19199,13 +18742,11 @@ static final int[] SZ53 = new int[0x100];
           SP = ((wordNumber_4899 + 2) & 0xFFFF);
           jumpAddress2_4895 = value_4896;
           _nextPC2195 = jumpAddress2_4895;
-          int nextPC_4900 = _nextPC2195;
-          MEMPTR = nextPC_4900;
+          MEMPTR = _nextPC2195;
           PC = _nextPC2195;
           break;
       }
       case 0xCA: {
-          int _nextPC2196 = 0;
           int _jumpAddress2196 = 0;
           int address_4902 = (PC + 2) & 0xFFFF;
           int operand_4904 = memory.read(address_4902, 0);
@@ -19213,14 +18754,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_4901 = (_jumpAddress2196 = (operand_4906 << 8) | operand_4904);
           if (((F & 0x40) == 0x40)) {
               _jumpAddress2196 = jumpAddress2_4901;
-              _nextPC2196 = jumpAddress2_4901;
+              MEMPTR = _jumpAddress2196;
+              PC = jumpAddress2_4901;
+              break;
           } else {
-              _nextPC2196 = -1;
+              MEMPTR = _jumpAddress2196;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_4907 = _jumpAddress2196;
-          MEMPTR = (nextPC_4907 == -1 ? 0 : nextPC_4907) & 0xFFFF;
-          PC = _nextPC2196 == -1 ? (PC + 4) & 0xFFFF : _nextPC2196;
-          break;
       }
       case 0xCB: {
           int displacement = memory.read((PC + 2) & 0xFFFF, 0);
@@ -19228,7 +18769,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xCC: {
-          int _nextPC2837 = 0;
           int _jumpAddress2837 = 0;
           int address_6116 = (PC + 2) & 0xFFFF;
           int operand_6118 = memory.read(address_6116, 0);
@@ -19243,14 +18783,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_6126 >>> 8));
               memory.write(SP, (value_6126 & 0xFF));
               _jumpAddress2837 = jumpAddress2_6122;
-              _nextPC2837 = jumpAddress2_6122;
+              MEMPTR = _jumpAddress2837;
+              PC = jumpAddress2_6122;
+              break;
           } else {
-              _nextPC2837 = -1;
+              MEMPTR = _jumpAddress2837;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_6127 = _jumpAddress2837;
-          MEMPTR = (nextPC_6127 == -1 ? 0 : nextPC_6127) & 0xFFFF;
-          PC = _nextPC2837 == -1 ? (PC + 4) & 0xFFFF : _nextPC2837;
-          break;
       }
       case 0xCD: {
           int _nextPC2838;
@@ -19267,8 +18807,7 @@ static final int[] SZ53 = new int[0x100];
           memory.write(SP, (value_6138 & 0xFF));
           _jumpAddress2838 = jumpAddress2_6134;
           _nextPC2838 = jumpAddress2_6134;
-          int nextPC_6139 = _jumpAddress2838;
-          MEMPTR = nextPC_6139;
+          MEMPTR = _jumpAddress2838;
           PC = _nextPC2838;
           break;
       }
@@ -19282,9 +18821,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_6145 = ((value1_6141 & 0x88) >> 3) | ((operand_6140 & 0x88) >> 2) | ((adctemp_6144 & 0x88) >> 1);
           value1_6141 = adctemp_6144 & 0xff;
           _F2839 = ((adctemp_6144 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_6145 & 0x07)] | OVERFLOW_ADD[(lookup_6145 >> 4)] | (SZ53[value1_6141] | (value1_6141 == 0 ? 0x40 : 0));
-          int result_6146 = value1_6141;
           F = (_F2839 & 0xFF);
-          A = result_6146;
+          A = value1_6141;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
@@ -19308,7 +18846,6 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFD_13(int opcode) {
     switch (opcode) {
       case 0xD0: {
-          int _nextPC2842 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_6148 = SP;
           if ((!((F & 1) == 1))) {
@@ -19318,14 +18855,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_6152 = SP;
               SP = ((wordNumber_6152 + 2) & 0xFFFF);
               jumpAddress2_6148 = value_6149;
-              _nextPC2842 = jumpAddress2_6148;
+              MEMPTR = jumpAddress2_6148;
+              PC = jumpAddress2_6148;
+              break;
           } else {
-              _nextPC2842 = -1;
+              MEMPTR = 0;
+              PC = (PC + 2) & 0xFFFF;
+              break;
           }
-          int nextPC_6153 = _nextPC2842;
-          MEMPTR = (nextPC_6153 == -1 ? 0 : nextPC_6153) & 0xFFFF;
-          PC = _nextPC2842 == -1 ? (PC + 2) & 0xFFFF : _nextPC2842;
-          break;
       }
       case 0xD1: {
           int wordNumber1_6156 = memory.read(SP, 0);
@@ -19339,7 +18876,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xD2: {
-          int _nextPC2844 = 0;
           int _jumpAddress2844 = 0;
           int address_6160 = (PC + 2) & 0xFFFF;
           int operand_6162 = memory.read(address_6160, 0);
@@ -19347,14 +18883,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_6159 = (_jumpAddress2844 = (operand_6164 << 8) | operand_6162);
           if ((!((F & 1) == 1))) {
               _jumpAddress2844 = jumpAddress2_6159;
-              _nextPC2844 = jumpAddress2_6159;
+              MEMPTR = _jumpAddress2844;
+              PC = jumpAddress2_6159;
+              break;
           } else {
-              _nextPC2844 = -1;
+              MEMPTR = _jumpAddress2844;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_6165 = _jumpAddress2844;
-          MEMPTR = (nextPC_6165 == -1 ? 0 : nextPC_6165) & 0xFFFF;
-          PC = _nextPC2844 == -1 ? (PC + 4) & 0xFFFF : _nextPC2844;
-          break;
       }
       case 0xD3: {
           int operand_6167 = memory.read((PC + 2) & 0xFFFF, 0);
@@ -19369,7 +18905,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xD4: {
-          int _nextPC2846 = 0;
           int _jumpAddress2846 = 0;
           int address_6169 = (PC + 2) & 0xFFFF;
           int operand_6171 = memory.read(address_6169, 0);
@@ -19384,14 +18919,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_6179 >>> 8));
               memory.write(SP, (value_6179 & 0xFF));
               _jumpAddress2846 = jumpAddress2_6175;
-              _nextPC2846 = jumpAddress2_6175;
+              MEMPTR = _jumpAddress2846;
+              PC = jumpAddress2_6175;
+              break;
           } else {
-              _nextPC2846 = -1;
+              MEMPTR = _jumpAddress2846;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_6180 = _jumpAddress2846;
-          MEMPTR = (nextPC_6180 == -1 ? 0 : nextPC_6180) & 0xFFFF;
-          PC = _nextPC2846 == -1 ? (PC + 4) & 0xFFFF : _nextPC2846;
-          break;
       }
       case 0xD5: {
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
@@ -19410,9 +18945,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_6187 = ((value1_6183 & 0x88) >> 3) | ((operand_6182 & 0x88) >> 2) | ((subtemp_6186 & 0x88) >> 1);
           value1_6183 = subtemp_6186 & 0xff;
           _F2848 = ((subtemp_6186 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_6187 & 0x07)] | OVERFLOW_SUB[(lookup_6187 >> 4)] | (SZ53[value1_6183] | (value1_6183 == 0 ? 0x40 : 0));
-          int result_6188 = value1_6183;
           F = (_F2848 & 0xFF);
-          A = result_6188;
+          A = value1_6183;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
@@ -19429,7 +18963,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xD8: {
-          int _nextPC2851 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_6190 = SP;
           if (((F & 1) == 1)) {
@@ -19439,14 +18972,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_6194 = SP;
               SP = ((wordNumber_6194 + 2) & 0xFFFF);
               jumpAddress2_6190 = value_6191;
-              _nextPC2851 = jumpAddress2_6190;
+              MEMPTR = jumpAddress2_6190;
+              PC = jumpAddress2_6190;
+              break;
           } else {
-              _nextPC2851 = -1;
+              MEMPTR = 0;
+              PC = (PC + 2) & 0xFFFF;
+              break;
           }
-          int nextPC_6195 = _nextPC2851;
-          MEMPTR = (nextPC_6195 == -1 ? 0 : nextPC_6195) & 0xFFFF;
-          PC = _nextPC2851 == -1 ? (PC + 2) & 0xFFFF : _nextPC2851;
-          break;
       }
       case 0xD9: {
           int v1_6196 = ((B << 8) | C);
@@ -19465,7 +18998,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xDA: {
-          int _nextPC2853 = 0;
           int _jumpAddress2853 = 0;
           int address_6198 = (PC + 2) & 0xFFFF;
           int operand_6200 = memory.read(address_6198, 0);
@@ -19473,14 +19005,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_6197 = (_jumpAddress2853 = (operand_6202 << 8) | operand_6200);
           if (((F & 1) == 1)) {
               _jumpAddress2853 = jumpAddress2_6197;
-              _nextPC2853 = jumpAddress2_6197;
+              MEMPTR = _jumpAddress2853;
+              PC = jumpAddress2_6197;
+              break;
           } else {
-              _nextPC2853 = -1;
+              MEMPTR = _jumpAddress2853;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_6203 = _jumpAddress2853;
-          MEMPTR = (nextPC_6203 == -1 ? 0 : nextPC_6203) & 0xFFFF;
-          PC = _nextPC2853 == -1 ? (PC + 4) & 0xFFFF : _nextPC2853;
-          break;
       }
       case 0xDB: {
           int operand_6205 = memory.read((PC + 2) & 0xFFFF, 0);
@@ -19494,7 +19026,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xDC: {
-          int _nextPC2855 = 0;
           int _jumpAddress2855 = 0;
           int address_6208 = (PC + 2) & 0xFFFF;
           int operand_6210 = memory.read(address_6208, 0);
@@ -19509,14 +19040,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_6218 >>> 8));
               memory.write(SP, (value_6218 & 0xFF));
               _jumpAddress2855 = jumpAddress2_6214;
-              _nextPC2855 = jumpAddress2_6214;
+              MEMPTR = _jumpAddress2855;
+              PC = jumpAddress2_6214;
+              break;
           } else {
-              _nextPC2855 = -1;
+              MEMPTR = _jumpAddress2855;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_6219 = _jumpAddress2855;
-          MEMPTR = (nextPC_6219 == -1 ? 0 : nextPC_6219) & 0xFFFF;
-          PC = _nextPC2855 == -1 ? (PC + 4) & 0xFFFF : _nextPC2855;
-          break;
       }
       case 0xDD: {
           PC = (PC + 2) & 0xFFFF;
@@ -19532,9 +19063,8 @@ static final int[] SZ53 = new int[0x100];
           int lookup_6225 = ((value1_6221 & 0x88) >> 3) | ((operand_6220 & 0x88) >> 2) | ((sbctemp_6224 & 0x88) >> 1);
           value1_6221 = sbctemp_6224 & 0xff;
           _F2857 = ((sbctemp_6224 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_6225 & 0x07)] | OVERFLOW_SUB[(lookup_6225 >> 4)] | (SZ53[value1_6221] | (value1_6221 == 0 ? 0x40 : 0));
-          int result_6226 = value1_6221;
           F = (_F2857 & 0xFF);
-          A = result_6226;
+          A = value1_6221;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
@@ -19558,7 +19088,6 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFD_14(int opcode) {
     switch (opcode) {
       case 0xE0: {
-          int _nextPC2860 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_6228 = SP;
           if ((!((F & 4) == 4))) {
@@ -19568,14 +19097,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_6232 = SP;
               SP = ((wordNumber_6232 + 2) & 0xFFFF);
               jumpAddress2_6228 = value_6229;
-              _nextPC2860 = jumpAddress2_6228;
+              MEMPTR = jumpAddress2_6228;
+              PC = jumpAddress2_6228;
+              break;
           } else {
-              _nextPC2860 = -1;
+              MEMPTR = 0;
+              PC = (PC + 2) & 0xFFFF;
+              break;
           }
-          int nextPC_6233 = _nextPC2860;
-          MEMPTR = (nextPC_6233 == -1 ? 0 : nextPC_6233) & 0xFFFF;
-          PC = _nextPC2860 == -1 ? (PC + 2) & 0xFFFF : _nextPC2860;
-          break;
       }
       case 0xE1: {
           int wordNumber1_6236 = memory.read(SP, 0);
@@ -19588,7 +19117,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xE2: {
-          int _nextPC2862 = 0;
           int _jumpAddress2862 = 0;
           int address_6240 = (PC + 2) & 0xFFFF;
           int operand_6242 = memory.read(address_6240, 0);
@@ -19596,14 +19124,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_6239 = (_jumpAddress2862 = (operand_6244 << 8) | operand_6242);
           if ((!((F & 4) == 4))) {
               _jumpAddress2862 = jumpAddress2_6239;
-              _nextPC2862 = jumpAddress2_6239;
+              MEMPTR = _jumpAddress2862;
+              PC = jumpAddress2_6239;
+              break;
           } else {
-              _nextPC2862 = -1;
+              MEMPTR = _jumpAddress2862;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_6245 = _jumpAddress2862;
-          MEMPTR = (nextPC_6245 == -1 ? 0 : nextPC_6245) & 0xFFFF;
-          PC = _nextPC2862 == -1 ? (PC + 4) & 0xFFFF : _nextPC2862;
-          break;
       }
       case 0xE3: {
           int _address2863 = SP;
@@ -19622,7 +19150,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xE4: {
-          int _nextPC2865 = 0;
           int _jumpAddress2865 = 0;
           int address_6250 = (PC + 2) & 0xFFFF;
           int operand_6252 = memory.read(address_6250, 0);
@@ -19637,14 +19164,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_6260 >>> 8));
               memory.write(SP, (value_6260 & 0xFF));
               _jumpAddress2865 = jumpAddress2_6256;
-              _nextPC2865 = jumpAddress2_6256;
+              MEMPTR = _jumpAddress2865;
+              PC = jumpAddress2_6256;
+              break;
           } else {
-              _nextPC2865 = -1;
+              MEMPTR = _jumpAddress2865;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_6261 = _jumpAddress2865;
-          MEMPTR = (nextPC_6261 == -1 ? 0 : nextPC_6261) & 0xFFFF;
-          PC = _nextPC2865 == -1 ? (PC + 4) & 0xFFFF : _nextPC2865;
-          break;
       }
       case 0xE5: {
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
@@ -19680,7 +19207,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xE8: {
-          int _nextPC2870 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_6268 = SP;
           if (((F & 4) == 4)) {
@@ -19690,14 +19216,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_6272 = SP;
               SP = ((wordNumber_6272 + 2) & 0xFFFF);
               jumpAddress2_6268 = value_6269;
-              _nextPC2870 = jumpAddress2_6268;
+              MEMPTR = jumpAddress2_6268;
+              PC = jumpAddress2_6268;
+              break;
           } else {
-              _nextPC2870 = -1;
+              MEMPTR = 0;
+              PC = (PC + 2) & 0xFFFF;
+              break;
           }
-          int nextPC_6273 = _nextPC2870;
-          MEMPTR = (nextPC_6273 == -1 ? 0 : nextPC_6273) & 0xFFFF;
-          PC = _nextPC2870 == -1 ? (PC + 2) & 0xFFFF : _nextPC2870;
-          break;
       }
       case 0xE9: {
           MEMPTR = 0;
@@ -19705,7 +19231,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xEA: {
-          int _nextPC2872 = 0;
           int _jumpAddress2872 = 0;
           int address_6277 = (PC + 2) & 0xFFFF;
           int operand_6279 = memory.read(address_6277, 0);
@@ -19713,14 +19238,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_6276 = (_jumpAddress2872 = (operand_6281 << 8) | operand_6279);
           if (((F & 4) == 4)) {
               _jumpAddress2872 = jumpAddress2_6276;
-              _nextPC2872 = jumpAddress2_6276;
+              MEMPTR = _jumpAddress2872;
+              PC = jumpAddress2_6276;
+              break;
           } else {
-              _nextPC2872 = -1;
+              MEMPTR = _jumpAddress2872;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_6282 = _jumpAddress2872;
-          MEMPTR = (nextPC_6282 == -1 ? 0 : nextPC_6282) & 0xFFFF;
-          PC = _nextPC2872 == -1 ? (PC + 4) & 0xFFFF : _nextPC2872;
-          break;
       }
       case 0xEB: {
           int v1_6283 = ((D << 8) | E);
@@ -19733,7 +19258,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xEC: {
-          int _nextPC2874 = 0;
           int _jumpAddress2874 = 0;
           int address_6285 = (PC + 2) & 0xFFFF;
           int operand_6287 = memory.read(address_6285, 0);
@@ -19748,14 +19272,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_6295 >>> 8));
               memory.write(SP, (value_6295 & 0xFF));
               _jumpAddress2874 = jumpAddress2_6291;
-              _nextPC2874 = jumpAddress2_6291;
+              MEMPTR = _jumpAddress2874;
+              PC = jumpAddress2_6291;
+              break;
           } else {
-              _nextPC2874 = -1;
+              MEMPTR = _jumpAddress2874;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_6296 = _jumpAddress2874;
-          MEMPTR = (nextPC_6296 == -1 ? 0 : nextPC_6296) & 0xFFFF;
-          PC = _nextPC2874 == -1 ? (PC + 4) & 0xFFFF : _nextPC2874;
-          break;
       }
       case 0xED: {
           PC = (PC + 2) & 0xFFFF;
@@ -19794,7 +19318,6 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFD_15(int opcode) {
     switch (opcode) {
       case 0xF0: {
-          int _nextPC2879 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_6303 = SP;
           if ((!((F & 0x80) == 0x80))) {
@@ -19804,14 +19327,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_6307 = SP;
               SP = ((wordNumber_6307 + 2) & 0xFFFF);
               jumpAddress2_6303 = value_6304;
-              _nextPC2879 = jumpAddress2_6303;
+              MEMPTR = jumpAddress2_6303;
+              PC = jumpAddress2_6303;
+              break;
           } else {
-              _nextPC2879 = -1;
+              MEMPTR = 0;
+              PC = (PC + 2) & 0xFFFF;
+              break;
           }
-          int nextPC_6308 = _nextPC2879;
-          MEMPTR = (nextPC_6308 == -1 ? 0 : nextPC_6308) & 0xFFFF;
-          PC = _nextPC2879 == -1 ? (PC + 2) & 0xFFFF : _nextPC2879;
-          break;
       }
       case 0xF1: {
           int wordNumber1_6311 = memory.read(SP, 0);
@@ -19825,7 +19348,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xF2: {
-          int _nextPC2881 = 0;
           int _jumpAddress2881 = 0;
           int address_6315 = (PC + 2) & 0xFFFF;
           int operand_6317 = memory.read(address_6315, 0);
@@ -19833,14 +19355,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_6314 = (_jumpAddress2881 = (operand_6319 << 8) | operand_6317);
           if ((!((F & 0x80) == 0x80))) {
               _jumpAddress2881 = jumpAddress2_6314;
-              _nextPC2881 = jumpAddress2_6314;
+              MEMPTR = _jumpAddress2881;
+              PC = jumpAddress2_6314;
+              break;
           } else {
-              _nextPC2881 = -1;
+              MEMPTR = _jumpAddress2881;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_6320 = _jumpAddress2881;
-          MEMPTR = (nextPC_6320 == -1 ? 0 : nextPC_6320) & 0xFFFF;
-          PC = _nextPC2881 == -1 ? (PC + 4) & 0xFFFF : _nextPC2881;
-          break;
       }
       case 0xF3: {
           state.resetInterrupt();
@@ -19848,7 +19370,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xF4: {
-          int _nextPC2883 = 0;
           int _jumpAddress2883 = 0;
           int address_6321 = (PC + 2) & 0xFFFF;
           int operand_6323 = memory.read(address_6321, 0);
@@ -19863,14 +19384,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_6331 >>> 8));
               memory.write(SP, (value_6331 & 0xFF));
               _jumpAddress2883 = jumpAddress2_6327;
-              _nextPC2883 = jumpAddress2_6327;
+              MEMPTR = _jumpAddress2883;
+              PC = jumpAddress2_6327;
+              break;
           } else {
-              _nextPC2883 = -1;
+              MEMPTR = _jumpAddress2883;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_6332 = _jumpAddress2883;
-          MEMPTR = (nextPC_6332 == -1 ? 0 : nextPC_6332) & 0xFFFF;
-          PC = _nextPC2883 == -1 ? (PC + 4) & 0xFFFF : _nextPC2883;
-          break;
       }
       case 0xF5: {
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
@@ -19907,7 +19428,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xF8: {
-          int _nextPC2888 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int jumpAddress2_6340 = SP;
           if (((F & 0x80) == 0x80)) {
@@ -19917,14 +19437,14 @@ static final int[] SZ53 = new int[0x100];
               int wordNumber_6344 = SP;
               SP = ((wordNumber_6344 + 2) & 0xFFFF);
               jumpAddress2_6340 = value_6341;
-              _nextPC2888 = jumpAddress2_6340;
+              MEMPTR = jumpAddress2_6340;
+              PC = jumpAddress2_6340;
+              break;
           } else {
-              _nextPC2888 = -1;
+              MEMPTR = 0;
+              PC = (PC + 2) & 0xFFFF;
+              break;
           }
-          int nextPC_6345 = _nextPC2888;
-          MEMPTR = (nextPC_6345 == -1 ? 0 : nextPC_6345) & 0xFFFF;
-          PC = _nextPC2888 == -1 ? (PC + 2) & 0xFFFF : _nextPC2888;
-          break;
       }
       case 0xF9: {
           contend(((I << 8) | R), 2, 1, Contention.Kind.READ_NO_MREQ);
@@ -19933,7 +19453,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xFA: {
-          int _nextPC2890 = 0;
           int _jumpAddress2890 = 0;
           int address_6347 = (PC + 2) & 0xFFFF;
           int operand_6349 = memory.read(address_6347, 0);
@@ -19941,14 +19460,14 @@ static final int[] SZ53 = new int[0x100];
           int jumpAddress2_6346 = (_jumpAddress2890 = (operand_6351 << 8) | operand_6349);
           if (((F & 0x80) == 0x80)) {
               _jumpAddress2890 = jumpAddress2_6346;
-              _nextPC2890 = jumpAddress2_6346;
+              MEMPTR = _jumpAddress2890;
+              PC = jumpAddress2_6346;
+              break;
           } else {
-              _nextPC2890 = -1;
+              MEMPTR = _jumpAddress2890;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_6352 = _jumpAddress2890;
-          MEMPTR = (nextPC_6352 == -1 ? 0 : nextPC_6352) & 0xFFFF;
-          PC = _nextPC2890 == -1 ? (PC + 4) & 0xFFFF : _nextPC2890;
-          break;
       }
       case 0xFB: {
           state.enableInterrupt();
@@ -19956,7 +19475,6 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xFC: {
-          int _nextPC2892 = 0;
           int _jumpAddress2892 = 0;
           int address_6353 = (PC + 2) & 0xFFFF;
           int operand_6355 = memory.read(address_6353, 0);
@@ -19971,14 +19489,14 @@ static final int[] SZ53 = new int[0x100];
               memory.write((SP + 1) & 0xFFFF, (value_6363 >>> 8));
               memory.write(SP, (value_6363 & 0xFF));
               _jumpAddress2892 = jumpAddress2_6359;
-              _nextPC2892 = jumpAddress2_6359;
+              MEMPTR = _jumpAddress2892;
+              PC = jumpAddress2_6359;
+              break;
           } else {
-              _nextPC2892 = -1;
+              MEMPTR = _jumpAddress2892;
+              PC = (PC + 4) & 0xFFFF;
+              break;
           }
-          int nextPC_6364 = _jumpAddress2892;
-          MEMPTR = (nextPC_6364 == -1 ? 0 : nextPC_6364) & 0xFFFF;
-          PC = _nextPC2892 == -1 ? (PC + 4) & 0xFFFF : _nextPC2892;
-          break;
       }
       case 0xFD: {
           PC = (PC + 2) & 0xFFFF;
@@ -20064,11 +19582,10 @@ static final int[] SZ53 = new int[0x100];
           int value1_4909 = _value2197;
           value1_4909 = (value1_4909 << 1 | value1_4909 >> 7) & 0xff;
           _F2198 = (value1_4909 & 1) | (SZ53P[value1_4909] | (value1_4909 == 0 ? 0x40 : 0));
-          int result_4912 = value1_4909;
           F = (_F2198 & 0xFF);
           _address2197 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2197 = result_4912;
-          memory.write(_address2197, result_4912);
+          _value2197 = value1_4909;
+          memory.write(_address2197, value1_4909);
           int read_4913;
           read_4913 = _value2197;
           B = read_4913;
@@ -20088,11 +19605,10 @@ static final int[] SZ53 = new int[0x100];
           int value1_4915 = _value2200;
           value1_4915 = (value1_4915 << 1 | value1_4915 >> 7) & 0xff;
           _F2201 = (value1_4915 & 1) | (SZ53P[value1_4915] | (value1_4915 == 0 ? 0x40 : 0));
-          int result_4918 = value1_4915;
           F = (_F2201 & 0xFF);
           _address2200 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2200 = result_4918;
-          memory.write(_address2200, result_4918);
+          _value2200 = value1_4915;
+          memory.write(_address2200, value1_4915);
           int read_4919;
           read_4919 = _value2200;
           C = read_4919;
@@ -20112,11 +19628,10 @@ static final int[] SZ53 = new int[0x100];
           int value1_4921 = _value2203;
           value1_4921 = (value1_4921 << 1 | value1_4921 >> 7) & 0xff;
           _F2204 = (value1_4921 & 1) | (SZ53P[value1_4921] | (value1_4921 == 0 ? 0x40 : 0));
-          int result_4924 = value1_4921;
           F = (_F2204 & 0xFF);
           _address2203 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2203 = result_4924;
-          memory.write(_address2203, result_4924);
+          _value2203 = value1_4921;
+          memory.write(_address2203, value1_4921);
           int read_4925;
           read_4925 = _value2203;
           D = read_4925;
@@ -20136,11 +19651,10 @@ static final int[] SZ53 = new int[0x100];
           int value1_4927 = _value2206;
           value1_4927 = (value1_4927 << 1 | value1_4927 >> 7) & 0xff;
           _F2207 = (value1_4927 & 1) | (SZ53P[value1_4927] | (value1_4927 == 0 ? 0x40 : 0));
-          int result_4930 = value1_4927;
           F = (_F2207 & 0xFF);
           _address2206 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2206 = result_4930;
-          memory.write(_address2206, result_4930);
+          _value2206 = value1_4927;
+          memory.write(_address2206, value1_4927);
           int read_4931;
           read_4931 = _value2206;
           E = read_4931;
@@ -20160,11 +19674,10 @@ static final int[] SZ53 = new int[0x100];
           int value1_4933 = _value2209;
           value1_4933 = (value1_4933 << 1 | value1_4933 >> 7) & 0xff;
           _F2210 = (value1_4933 & 1) | (SZ53P[value1_4933] | (value1_4933 == 0 ? 0x40 : 0));
-          int result_4936 = value1_4933;
           F = (_F2210 & 0xFF);
           _address2209 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2209 = result_4936;
-          memory.write(_address2209, result_4936);
+          _value2209 = value1_4933;
+          memory.write(_address2209, value1_4933);
           int read_4937;
           read_4937 = _value2209;
           H = read_4937;
@@ -20184,11 +19697,10 @@ static final int[] SZ53 = new int[0x100];
           int value1_4939 = _value2212;
           value1_4939 = (value1_4939 << 1 | value1_4939 >> 7) & 0xff;
           _F2213 = (value1_4939 & 1) | (SZ53P[value1_4939] | (value1_4939 == 0 ? 0x40 : 0));
-          int result_4942 = value1_4939;
           F = (_F2213 & 0xFF);
           _address2212 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2212 = result_4942;
-          memory.write(_address2212, result_4942);
+          _value2212 = value1_4939;
+          memory.write(_address2212, value1_4939);
           int read_4943;
           read_4943 = _value2212;
           L = read_4943;
@@ -20208,11 +19720,10 @@ static final int[] SZ53 = new int[0x100];
           int value1_4945 = _value2215;
           value1_4945 = (value1_4945 << 1 | value1_4945 >> 7) & 0xff;
           _F2216 = (value1_4945 & 1) | (SZ53P[value1_4945] | (value1_4945 == 0 ? 0x40 : 0));
-          int result_4948 = value1_4945;
           F = (_F2216 & 0xFF);
           _address2215 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2215 = result_4948;
-          memory.write(_address2215, result_4948);
+          _value2215 = value1_4945;
+          memory.write(_address2215, value1_4945);
           MEMPTR = _address2215;
           PC = (PC + 4) & 0xFFFF;
           break;
@@ -20229,11 +19740,10 @@ static final int[] SZ53 = new int[0x100];
           int value1_4950 = _value2218;
           value1_4950 = (value1_4950 << 1 | value1_4950 >> 7) & 0xff;
           _F2219 = (value1_4950 & 1) | (SZ53P[value1_4950] | (value1_4950 == 0 ? 0x40 : 0));
-          int result_4953 = value1_4950;
           F = (_F2219 & 0xFF);
           _address2218 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2218 = result_4953;
-          memory.write(_address2218, result_4953);
+          _value2218 = value1_4950;
+          memory.write(_address2218, value1_4950);
           int read_4954;
           read_4954 = _value2218;
           A = read_4954;
@@ -21748,16 +21258,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5302 = memory.read(_address2389, 0);
           contend(_address2389, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2389 = operand_5302;
-          int value1_5303 = address_5300;
-          int value2_5304 = _value2389;
           int value3_5305 = nAndCarry_5301;
           _F2390 = value3_5305;
           value3_5305 = value3_5305 >>> 1;
-          _F2390 = (_F2390 & 1) | 0x10 | (value1_5303 & 0x28);
-          if ((value2_5304 & (0x01 << value3_5305)) == 0) {
+          _F2390 = (_F2390 & 1) | 0x10 | (address_5300 & 0x28);
+          if ((_value2389 & (0x01 << value3_5305)) == 0) {
               _F2390 |= 0x44;
           }
-          if (value3_5305 == 7 && (value2_5304 & 0x80) != 0) {
+          if (value3_5305 == 7 && (_value2389 & 0x80) != 0) {
               _F2390 |= 0x80;
           }
           F = (_F2390 & 0xFF);
@@ -21777,16 +21285,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5309 = memory.read(_address2392, 0);
           contend(_address2392, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2392 = operand_5309;
-          int value1_5310 = address_5307;
-          int value2_5311 = _value2392;
           int value3_5312 = nAndCarry_5308;
           _F2393 = value3_5312;
           value3_5312 = value3_5312 >>> 1;
-          _F2393 = (_F2393 & 1) | 0x10 | (value1_5310 & 0x28);
-          if ((value2_5311 & (0x01 << value3_5312)) == 0) {
+          _F2393 = (_F2393 & 1) | 0x10 | (address_5307 & 0x28);
+          if ((_value2392 & (0x01 << value3_5312)) == 0) {
               _F2393 |= 0x44;
           }
-          if (value3_5312 == 7 && (value2_5311 & 0x80) != 0) {
+          if (value3_5312 == 7 && (_value2392 & 0x80) != 0) {
               _F2393 |= 0x80;
           }
           F = (_F2393 & 0xFF);
@@ -21806,16 +21312,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5316 = memory.read(_address2395, 0);
           contend(_address2395, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2395 = operand_5316;
-          int value1_5317 = address_5314;
-          int value2_5318 = _value2395;
           int value3_5319 = nAndCarry_5315;
           _F2396 = value3_5319;
           value3_5319 = value3_5319 >>> 1;
-          _F2396 = (_F2396 & 1) | 0x10 | (value1_5317 & 0x28);
-          if ((value2_5318 & (0x01 << value3_5319)) == 0) {
+          _F2396 = (_F2396 & 1) | 0x10 | (address_5314 & 0x28);
+          if ((_value2395 & (0x01 << value3_5319)) == 0) {
               _F2396 |= 0x44;
           }
-          if (value3_5319 == 7 && (value2_5318 & 0x80) != 0) {
+          if (value3_5319 == 7 && (_value2395 & 0x80) != 0) {
               _F2396 |= 0x80;
           }
           F = (_F2396 & 0xFF);
@@ -21835,16 +21339,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5323 = memory.read(_address2398, 0);
           contend(_address2398, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2398 = operand_5323;
-          int value1_5324 = address_5321;
-          int value2_5325 = _value2398;
           int value3_5326 = nAndCarry_5322;
           _F2399 = value3_5326;
           value3_5326 = value3_5326 >>> 1;
-          _F2399 = (_F2399 & 1) | 0x10 | (value1_5324 & 0x28);
-          if ((value2_5325 & (0x01 << value3_5326)) == 0) {
+          _F2399 = (_F2399 & 1) | 0x10 | (address_5321 & 0x28);
+          if ((_value2398 & (0x01 << value3_5326)) == 0) {
               _F2399 |= 0x44;
           }
-          if (value3_5326 == 7 && (value2_5325 & 0x80) != 0) {
+          if (value3_5326 == 7 && (_value2398 & 0x80) != 0) {
               _F2399 |= 0x80;
           }
           F = (_F2399 & 0xFF);
@@ -21864,16 +21366,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5330 = memory.read(_address2401, 0);
           contend(_address2401, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2401 = operand_5330;
-          int value1_5331 = address_5328;
-          int value2_5332 = _value2401;
           int value3_5333 = nAndCarry_5329;
           _F2402 = value3_5333;
           value3_5333 = value3_5333 >>> 1;
-          _F2402 = (_F2402 & 1) | 0x10 | (value1_5331 & 0x28);
-          if ((value2_5332 & (0x01 << value3_5333)) == 0) {
+          _F2402 = (_F2402 & 1) | 0x10 | (address_5328 & 0x28);
+          if ((_value2401 & (0x01 << value3_5333)) == 0) {
               _F2402 |= 0x44;
           }
-          if (value3_5333 == 7 && (value2_5332 & 0x80) != 0) {
+          if (value3_5333 == 7 && (_value2401 & 0x80) != 0) {
               _F2402 |= 0x80;
           }
           F = (_F2402 & 0xFF);
@@ -21893,16 +21393,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5337 = memory.read(_address2404, 0);
           contend(_address2404, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2404 = operand_5337;
-          int value1_5338 = address_5335;
-          int value2_5339 = _value2404;
           int value3_5340 = nAndCarry_5336;
           _F2405 = value3_5340;
           value3_5340 = value3_5340 >>> 1;
-          _F2405 = (_F2405 & 1) | 0x10 | (value1_5338 & 0x28);
-          if ((value2_5339 & (0x01 << value3_5340)) == 0) {
+          _F2405 = (_F2405 & 1) | 0x10 | (address_5335 & 0x28);
+          if ((_value2404 & (0x01 << value3_5340)) == 0) {
               _F2405 |= 0x44;
           }
-          if (value3_5340 == 7 && (value2_5339 & 0x80) != 0) {
+          if (value3_5340 == 7 && (_value2404 & 0x80) != 0) {
               _F2405 |= 0x80;
           }
           F = (_F2405 & 0xFF);
@@ -21922,16 +21420,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5344 = memory.read(_address2407, 0);
           contend(_address2407, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2407 = operand_5344;
-          int value1_5345 = address_5342;
-          int value2_5346 = _value2407;
           int value3_5347 = nAndCarry_5343;
           _F2408 = value3_5347;
           value3_5347 = value3_5347 >>> 1;
-          _F2408 = (_F2408 & 1) | 0x10 | (value1_5345 & 0x28);
-          if ((value2_5346 & (0x01 << value3_5347)) == 0) {
+          _F2408 = (_F2408 & 1) | 0x10 | (address_5342 & 0x28);
+          if ((_value2407 & (0x01 << value3_5347)) == 0) {
               _F2408 |= 0x44;
           }
-          if (value3_5347 == 7 && (value2_5346 & 0x80) != 0) {
+          if (value3_5347 == 7 && (_value2407 & 0x80) != 0) {
               _F2408 |= 0x80;
           }
           F = (_F2408 & 0xFF);
@@ -21951,16 +21447,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5351 = memory.read(_address2410, 0);
           contend(_address2410, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2410 = operand_5351;
-          int value1_5352 = address_5349;
-          int value2_5353 = _value2410;
           int value3_5354 = nAndCarry_5350;
           _F2411 = value3_5354;
           value3_5354 = value3_5354 >>> 1;
-          _F2411 = (_F2411 & 1) | 0x10 | (value1_5352 & 0x28);
-          if ((value2_5353 & (0x01 << value3_5354)) == 0) {
+          _F2411 = (_F2411 & 1) | 0x10 | (address_5349 & 0x28);
+          if ((_value2410 & (0x01 << value3_5354)) == 0) {
               _F2411 |= 0x44;
           }
-          if (value3_5354 == 7 && (value2_5353 & 0x80) != 0) {
+          if (value3_5354 == 7 && (_value2410 & 0x80) != 0) {
               _F2411 |= 0x80;
           }
           F = (_F2411 & 0xFF);
@@ -21980,16 +21474,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5358 = memory.read(_address2413, 0);
           contend(_address2413, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2413 = operand_5358;
-          int value1_5359 = address_5356;
-          int value2_5360 = _value2413;
           int value3_5361 = nAndCarry_5357;
           _F2414 = value3_5361 & 1;
           value3_5361 = value3_5361 >>> 1;
-          _F2414 = (_F2414 & 1) | 0x10 | (value1_5359 & 0x28);
-          if ((value2_5360 & (0x01 << value3_5361)) == 0) {
+          _F2414 = (_F2414 & 1) | 0x10 | (address_5356 & 0x28);
+          if ((_value2413 & (0x01 << value3_5361)) == 0) {
               _F2414 |= 0x44;
           }
-          if (value3_5361 == 7 && (value2_5360 & 0x80) != 0) {
+          if (value3_5361 == 7 && (_value2413 & 0x80) != 0) {
               _F2414 |= 0x80;
           }
           F = (_F2414 & 0xFF);
@@ -22009,16 +21501,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5365 = memory.read(_address2416, 0);
           contend(_address2416, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2416 = operand_5365;
-          int value1_5366 = address_5363;
-          int value2_5367 = _value2416;
           int value3_5368 = nAndCarry_5364;
           _F2417 = value3_5368 & 1;
           value3_5368 = value3_5368 >>> 1;
-          _F2417 = (_F2417 & 1) | 0x10 | (value1_5366 & 0x28);
-          if ((value2_5367 & (0x01 << value3_5368)) == 0) {
+          _F2417 = (_F2417 & 1) | 0x10 | (address_5363 & 0x28);
+          if ((_value2416 & (0x01 << value3_5368)) == 0) {
               _F2417 |= 0x44;
           }
-          if (value3_5368 == 7 && (value2_5367 & 0x80) != 0) {
+          if (value3_5368 == 7 && (_value2416 & 0x80) != 0) {
               _F2417 |= 0x80;
           }
           F = (_F2417 & 0xFF);
@@ -22038,16 +21528,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5372 = memory.read(_address2419, 0);
           contend(_address2419, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2419 = operand_5372;
-          int value1_5373 = address_5370;
-          int value2_5374 = _value2419;
           int value3_5375 = nAndCarry_5371;
           _F2420 = value3_5375 & 1;
           value3_5375 = value3_5375 >>> 1;
-          _F2420 = (_F2420 & 1) | 0x10 | (value1_5373 & 0x28);
-          if ((value2_5374 & (0x01 << value3_5375)) == 0) {
+          _F2420 = (_F2420 & 1) | 0x10 | (address_5370 & 0x28);
+          if ((_value2419 & (0x01 << value3_5375)) == 0) {
               _F2420 |= 0x44;
           }
-          if (value3_5375 == 7 && (value2_5374 & 0x80) != 0) {
+          if (value3_5375 == 7 && (_value2419 & 0x80) != 0) {
               _F2420 |= 0x80;
           }
           F = (_F2420 & 0xFF);
@@ -22067,16 +21555,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5379 = memory.read(_address2422, 0);
           contend(_address2422, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2422 = operand_5379;
-          int value1_5380 = address_5377;
-          int value2_5381 = _value2422;
           int value3_5382 = nAndCarry_5378;
           _F2423 = value3_5382 & 1;
           value3_5382 = value3_5382 >>> 1;
-          _F2423 = (_F2423 & 1) | 0x10 | (value1_5380 & 0x28);
-          if ((value2_5381 & (0x01 << value3_5382)) == 0) {
+          _F2423 = (_F2423 & 1) | 0x10 | (address_5377 & 0x28);
+          if ((_value2422 & (0x01 << value3_5382)) == 0) {
               _F2423 |= 0x44;
           }
-          if (value3_5382 == 7 && (value2_5381 & 0x80) != 0) {
+          if (value3_5382 == 7 && (_value2422 & 0x80) != 0) {
               _F2423 |= 0x80;
           }
           F = (_F2423 & 0xFF);
@@ -22096,16 +21582,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5386 = memory.read(_address2425, 0);
           contend(_address2425, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2425 = operand_5386;
-          int value1_5387 = address_5384;
-          int value2_5388 = _value2425;
           int value3_5389 = nAndCarry_5385;
           _F2426 = value3_5389 & 1;
           value3_5389 = value3_5389 >>> 1;
-          _F2426 = (_F2426 & 1) | 0x10 | (value1_5387 & 0x28);
-          if ((value2_5388 & (0x01 << value3_5389)) == 0) {
+          _F2426 = (_F2426 & 1) | 0x10 | (address_5384 & 0x28);
+          if ((_value2425 & (0x01 << value3_5389)) == 0) {
               _F2426 |= 0x44;
           }
-          if (value3_5389 == 7 && (value2_5388 & 0x80) != 0) {
+          if (value3_5389 == 7 && (_value2425 & 0x80) != 0) {
               _F2426 |= 0x80;
           }
           F = (_F2426 & 0xFF);
@@ -22125,16 +21609,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5393 = memory.read(_address2428, 0);
           contend(_address2428, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2428 = operand_5393;
-          int value1_5394 = address_5391;
-          int value2_5395 = _value2428;
           int value3_5396 = nAndCarry_5392;
           _F2429 = value3_5396 & 1;
           value3_5396 = value3_5396 >>> 1;
-          _F2429 = (_F2429 & 1) | 0x10 | (value1_5394 & 0x28);
-          if ((value2_5395 & (0x01 << value3_5396)) == 0) {
+          _F2429 = (_F2429 & 1) | 0x10 | (address_5391 & 0x28);
+          if ((_value2428 & (0x01 << value3_5396)) == 0) {
               _F2429 |= 0x44;
           }
-          if (value3_5396 == 7 && (value2_5395 & 0x80) != 0) {
+          if (value3_5396 == 7 && (_value2428 & 0x80) != 0) {
               _F2429 |= 0x80;
           }
           F = (_F2429 & 0xFF);
@@ -22154,16 +21636,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5400 = memory.read(_address2431, 0);
           contend(_address2431, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2431 = operand_5400;
-          int value1_5401 = address_5398;
-          int value2_5402 = _value2431;
           int value3_5403 = nAndCarry_5399;
           _F2432 = value3_5403 & 1;
           value3_5403 = value3_5403 >>> 1;
-          _F2432 = (_F2432 & 1) | 0x10 | (value1_5401 & 0x28);
-          if ((value2_5402 & (0x01 << value3_5403)) == 0) {
+          _F2432 = (_F2432 & 1) | 0x10 | (address_5398 & 0x28);
+          if ((_value2431 & (0x01 << value3_5403)) == 0) {
               _F2432 |= 0x44;
           }
-          if (value3_5403 == 7 && (value2_5402 & 0x80) != 0) {
+          if (value3_5403 == 7 && (_value2431 & 0x80) != 0) {
               _F2432 |= 0x80;
           }
           F = (_F2432 & 0xFF);
@@ -22183,16 +21663,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5407 = memory.read(_address2434, 0);
           contend(_address2434, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2434 = operand_5407;
-          int value1_5408 = address_5405;
-          int value2_5409 = _value2434;
           int value3_5410 = nAndCarry_5406;
           _F2435 = value3_5410 & 1;
           value3_5410 = value3_5410 >>> 1;
-          _F2435 = (_F2435 & 1) | 0x10 | (value1_5408 & 0x28);
-          if ((value2_5409 & (0x01 << value3_5410)) == 0) {
+          _F2435 = (_F2435 & 1) | 0x10 | (address_5405 & 0x28);
+          if ((_value2434 & (0x01 << value3_5410)) == 0) {
               _F2435 |= 0x44;
           }
-          if (value3_5410 == 7 && (value2_5409 & 0x80) != 0) {
+          if (value3_5410 == 7 && (_value2434 & 0x80) != 0) {
               _F2435 |= 0x80;
           }
           F = (_F2435 & 0xFF);
@@ -22219,16 +21697,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5414 = memory.read(_address2437, 0);
           contend(_address2437, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2437 = operand_5414;
-          int value1_5415 = address_5412;
-          int value2_5416 = _value2437;
           int value3_5417 = nAndCarry_5413;
           _F2438 = value3_5417 & 1;
           value3_5417 = value3_5417 >>> 1;
-          _F2438 = (_F2438 & 1) | 0x10 | (value1_5415 & 0x28);
-          if ((value2_5416 & (0x01 << value3_5417)) == 0) {
+          _F2438 = (_F2438 & 1) | 0x10 | (address_5412 & 0x28);
+          if ((_value2437 & (0x01 << value3_5417)) == 0) {
               _F2438 |= 0x44;
           }
-          if (value3_5417 == 7 && (value2_5416 & 0x80) != 0) {
+          if (value3_5417 == 7 && (_value2437 & 0x80) != 0) {
               _F2438 |= 0x80;
           }
           F = (_F2438 & 0xFF);
@@ -22248,16 +21724,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5421 = memory.read(_address2440, 0);
           contend(_address2440, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2440 = operand_5421;
-          int value1_5422 = address_5419;
-          int value2_5423 = _value2440;
           int value3_5424 = nAndCarry_5420;
           _F2441 = value3_5424 & 1;
           value3_5424 = value3_5424 >>> 1;
-          _F2441 = (_F2441 & 1) | 0x10 | (value1_5422 & 0x28);
-          if ((value2_5423 & (0x01 << value3_5424)) == 0) {
+          _F2441 = (_F2441 & 1) | 0x10 | (address_5419 & 0x28);
+          if ((_value2440 & (0x01 << value3_5424)) == 0) {
               _F2441 |= 0x44;
           }
-          if (value3_5424 == 7 && (value2_5423 & 0x80) != 0) {
+          if (value3_5424 == 7 && (_value2440 & 0x80) != 0) {
               _F2441 |= 0x80;
           }
           F = (_F2441 & 0xFF);
@@ -22277,16 +21751,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5428 = memory.read(_address2443, 0);
           contend(_address2443, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2443 = operand_5428;
-          int value1_5429 = address_5426;
-          int value2_5430 = _value2443;
           int value3_5431 = nAndCarry_5427;
           _F2444 = value3_5431 & 1;
           value3_5431 = value3_5431 >>> 1;
-          _F2444 = (_F2444 & 1) | 0x10 | (value1_5429 & 0x28);
-          if ((value2_5430 & (0x01 << value3_5431)) == 0) {
+          _F2444 = (_F2444 & 1) | 0x10 | (address_5426 & 0x28);
+          if ((_value2443 & (0x01 << value3_5431)) == 0) {
               _F2444 |= 0x44;
           }
-          if (value3_5431 == 7 && (value2_5430 & 0x80) != 0) {
+          if (value3_5431 == 7 && (_value2443 & 0x80) != 0) {
               _F2444 |= 0x80;
           }
           F = (_F2444 & 0xFF);
@@ -22306,16 +21778,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5435 = memory.read(_address2446, 0);
           contend(_address2446, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2446 = operand_5435;
-          int value1_5436 = address_5433;
-          int value2_5437 = _value2446;
           int value3_5438 = nAndCarry_5434;
           _F2447 = value3_5438 & 1;
           value3_5438 = value3_5438 >>> 1;
-          _F2447 = (_F2447 & 1) | 0x10 | (value1_5436 & 0x28);
-          if ((value2_5437 & (0x01 << value3_5438)) == 0) {
+          _F2447 = (_F2447 & 1) | 0x10 | (address_5433 & 0x28);
+          if ((_value2446 & (0x01 << value3_5438)) == 0) {
               _F2447 |= 0x44;
           }
-          if (value3_5438 == 7 && (value2_5437 & 0x80) != 0) {
+          if (value3_5438 == 7 && (_value2446 & 0x80) != 0) {
               _F2447 |= 0x80;
           }
           F = (_F2447 & 0xFF);
@@ -22335,16 +21805,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5442 = memory.read(_address2449, 0);
           contend(_address2449, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2449 = operand_5442;
-          int value1_5443 = address_5440;
-          int value2_5444 = _value2449;
           int value3_5445 = nAndCarry_5441;
           _F2450 = value3_5445 & 1;
           value3_5445 = value3_5445 >>> 1;
-          _F2450 = (_F2450 & 1) | 0x10 | (value1_5443 & 0x28);
-          if ((value2_5444 & (0x01 << value3_5445)) == 0) {
+          _F2450 = (_F2450 & 1) | 0x10 | (address_5440 & 0x28);
+          if ((_value2449 & (0x01 << value3_5445)) == 0) {
               _F2450 |= 0x44;
           }
-          if (value3_5445 == 7 && (value2_5444 & 0x80) != 0) {
+          if (value3_5445 == 7 && (_value2449 & 0x80) != 0) {
               _F2450 |= 0x80;
           }
           F = (_F2450 & 0xFF);
@@ -22364,16 +21832,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5449 = memory.read(_address2452, 0);
           contend(_address2452, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2452 = operand_5449;
-          int value1_5450 = address_5447;
-          int value2_5451 = _value2452;
           int value3_5452 = nAndCarry_5448;
           _F2453 = value3_5452 & 1;
           value3_5452 = value3_5452 >>> 1;
-          _F2453 = (_F2453 & 1) | 0x10 | (value1_5450 & 0x28);
-          if ((value2_5451 & (0x01 << value3_5452)) == 0) {
+          _F2453 = (_F2453 & 1) | 0x10 | (address_5447 & 0x28);
+          if ((_value2452 & (0x01 << value3_5452)) == 0) {
               _F2453 |= 0x44;
           }
-          if (value3_5452 == 7 && (value2_5451 & 0x80) != 0) {
+          if (value3_5452 == 7 && (_value2452 & 0x80) != 0) {
               _F2453 |= 0x80;
           }
           F = (_F2453 & 0xFF);
@@ -22393,16 +21859,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5456 = memory.read(_address2455, 0);
           contend(_address2455, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2455 = operand_5456;
-          int value1_5457 = address_5454;
-          int value2_5458 = _value2455;
           int value3_5459 = nAndCarry_5455;
           _F2456 = value3_5459 & 1;
           value3_5459 = value3_5459 >>> 1;
-          _F2456 = (_F2456 & 1) | 0x10 | (value1_5457 & 0x28);
-          if ((value2_5458 & (0x01 << value3_5459)) == 0) {
+          _F2456 = (_F2456 & 1) | 0x10 | (address_5454 & 0x28);
+          if ((_value2455 & (0x01 << value3_5459)) == 0) {
               _F2456 |= 0x44;
           }
-          if (value3_5459 == 7 && (value2_5458 & 0x80) != 0) {
+          if (value3_5459 == 7 && (_value2455 & 0x80) != 0) {
               _F2456 |= 0x80;
           }
           F = (_F2456 & 0xFF);
@@ -22422,16 +21886,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5463 = memory.read(_address2458, 0);
           contend(_address2458, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2458 = operand_5463;
-          int value1_5464 = address_5461;
-          int value2_5465 = _value2458;
           int value3_5466 = nAndCarry_5462;
           _F2459 = value3_5466 & 1;
           value3_5466 = value3_5466 >>> 1;
-          _F2459 = (_F2459 & 1) | 0x10 | (value1_5464 & 0x28);
-          if ((value2_5465 & (0x01 << value3_5466)) == 0) {
+          _F2459 = (_F2459 & 1) | 0x10 | (address_5461 & 0x28);
+          if ((_value2458 & (0x01 << value3_5466)) == 0) {
               _F2459 |= 0x44;
           }
-          if (value3_5466 == 7 && (value2_5465 & 0x80) != 0) {
+          if (value3_5466 == 7 && (_value2458 & 0x80) != 0) {
               _F2459 |= 0x80;
           }
           F = (_F2459 & 0xFF);
@@ -22451,16 +21913,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5470 = memory.read(_address2461, 0);
           contend(_address2461, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2461 = operand_5470;
-          int value1_5471 = address_5468;
-          int value2_5472 = _value2461;
           int value3_5473 = nAndCarry_5469;
           _F2462 = value3_5473 & 1;
           value3_5473 = value3_5473 >>> 1;
-          _F2462 = (_F2462 & 1) | 0x10 | (value1_5471 & 0x28);
-          if ((value2_5472 & (0x01 << value3_5473)) == 0) {
+          _F2462 = (_F2462 & 1) | 0x10 | (address_5468 & 0x28);
+          if ((_value2461 & (0x01 << value3_5473)) == 0) {
               _F2462 |= 0x44;
           }
-          if (value3_5473 == 7 && (value2_5472 & 0x80) != 0) {
+          if (value3_5473 == 7 && (_value2461 & 0x80) != 0) {
               _F2462 |= 0x80;
           }
           F = (_F2462 & 0xFF);
@@ -22480,16 +21940,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5477 = memory.read(_address2464, 0);
           contend(_address2464, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2464 = operand_5477;
-          int value1_5478 = address_5475;
-          int value2_5479 = _value2464;
           int value3_5480 = nAndCarry_5476;
           _F2465 = value3_5480 & 1;
           value3_5480 = value3_5480 >>> 1;
-          _F2465 = (_F2465 & 1) | 0x10 | (value1_5478 & 0x28);
-          if ((value2_5479 & (0x01 << value3_5480)) == 0) {
+          _F2465 = (_F2465 & 1) | 0x10 | (address_5475 & 0x28);
+          if ((_value2464 & (0x01 << value3_5480)) == 0) {
               _F2465 |= 0x44;
           }
-          if (value3_5480 == 7 && (value2_5479 & 0x80) != 0) {
+          if (value3_5480 == 7 && (_value2464 & 0x80) != 0) {
               _F2465 |= 0x80;
           }
           F = (_F2465 & 0xFF);
@@ -22509,16 +21967,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5484 = memory.read(_address2467, 0);
           contend(_address2467, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2467 = operand_5484;
-          int value1_5485 = address_5482;
-          int value2_5486 = _value2467;
           int value3_5487 = nAndCarry_5483;
           _F2468 = value3_5487 & 1;
           value3_5487 = value3_5487 >>> 1;
-          _F2468 = (_F2468 & 1) | 0x10 | (value1_5485 & 0x28);
-          if ((value2_5486 & (0x01 << value3_5487)) == 0) {
+          _F2468 = (_F2468 & 1) | 0x10 | (address_5482 & 0x28);
+          if ((_value2467 & (0x01 << value3_5487)) == 0) {
               _F2468 |= 0x44;
           }
-          if (value3_5487 == 7 && (value2_5486 & 0x80) != 0) {
+          if (value3_5487 == 7 && (_value2467 & 0x80) != 0) {
               _F2468 |= 0x80;
           }
           F = (_F2468 & 0xFF);
@@ -22538,16 +21994,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5491 = memory.read(_address2470, 0);
           contend(_address2470, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2470 = operand_5491;
-          int value1_5492 = address_5489;
-          int value2_5493 = _value2470;
           int value3_5494 = nAndCarry_5490;
           _F2471 = value3_5494 & 1;
           value3_5494 = value3_5494 >>> 1;
-          _F2471 = (_F2471 & 1) | 0x10 | (value1_5492 & 0x28);
-          if ((value2_5493 & (0x01 << value3_5494)) == 0) {
+          _F2471 = (_F2471 & 1) | 0x10 | (address_5489 & 0x28);
+          if ((_value2470 & (0x01 << value3_5494)) == 0) {
               _F2471 |= 0x44;
           }
-          if (value3_5494 == 7 && (value2_5493 & 0x80) != 0) {
+          if (value3_5494 == 7 && (_value2470 & 0x80) != 0) {
               _F2471 |= 0x80;
           }
           F = (_F2471 & 0xFF);
@@ -22567,16 +22021,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5498 = memory.read(_address2473, 0);
           contend(_address2473, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2473 = operand_5498;
-          int value1_5499 = address_5496;
-          int value2_5500 = _value2473;
           int value3_5501 = nAndCarry_5497;
           _F2474 = value3_5501 & 1;
           value3_5501 = value3_5501 >>> 1;
-          _F2474 = (_F2474 & 1) | 0x10 | (value1_5499 & 0x28);
-          if ((value2_5500 & (0x01 << value3_5501)) == 0) {
+          _F2474 = (_F2474 & 1) | 0x10 | (address_5496 & 0x28);
+          if ((_value2473 & (0x01 << value3_5501)) == 0) {
               _F2474 |= 0x44;
           }
-          if (value3_5501 == 7 && (value2_5500 & 0x80) != 0) {
+          if (value3_5501 == 7 && (_value2473 & 0x80) != 0) {
               _F2474 |= 0x80;
           }
           F = (_F2474 & 0xFF);
@@ -22596,16 +22048,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5505 = memory.read(_address2476, 0);
           contend(_address2476, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2476 = operand_5505;
-          int value1_5506 = address_5503;
-          int value2_5507 = _value2476;
           int value3_5508 = nAndCarry_5504;
           _F2477 = value3_5508 & 1;
           value3_5508 = value3_5508 >>> 1;
-          _F2477 = (_F2477 & 1) | 0x10 | (value1_5506 & 0x28);
-          if ((value2_5507 & (0x01 << value3_5508)) == 0) {
+          _F2477 = (_F2477 & 1) | 0x10 | (address_5503 & 0x28);
+          if ((_value2476 & (0x01 << value3_5508)) == 0) {
               _F2477 |= 0x44;
           }
-          if (value3_5508 == 7 && (value2_5507 & 0x80) != 0) {
+          if (value3_5508 == 7 && (_value2476 & 0x80) != 0) {
               _F2477 |= 0x80;
           }
           F = (_F2477 & 0xFF);
@@ -22625,16 +22075,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5512 = memory.read(_address2479, 0);
           contend(_address2479, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2479 = operand_5512;
-          int value1_5513 = address_5510;
-          int value2_5514 = _value2479;
           int value3_5515 = nAndCarry_5511;
           _F2480 = value3_5515 & 1;
           value3_5515 = value3_5515 >>> 1;
-          _F2480 = (_F2480 & 1) | 0x10 | (value1_5513 & 0x28);
-          if ((value2_5514 & (0x01 << value3_5515)) == 0) {
+          _F2480 = (_F2480 & 1) | 0x10 | (address_5510 & 0x28);
+          if ((_value2479 & (0x01 << value3_5515)) == 0) {
               _F2480 |= 0x44;
           }
-          if (value3_5515 == 7 && (value2_5514 & 0x80) != 0) {
+          if (value3_5515 == 7 && (_value2479 & 0x80) != 0) {
               _F2480 |= 0x80;
           }
           F = (_F2480 & 0xFF);
@@ -22654,16 +22102,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5519 = memory.read(_address2482, 0);
           contend(_address2482, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2482 = operand_5519;
-          int value1_5520 = address_5517;
-          int value2_5521 = _value2482;
           int value3_5522 = nAndCarry_5518;
           _F2483 = value3_5522 & 1;
           value3_5522 = value3_5522 >>> 1;
-          _F2483 = (_F2483 & 1) | 0x10 | (value1_5520 & 0x28);
-          if ((value2_5521 & (0x01 << value3_5522)) == 0) {
+          _F2483 = (_F2483 & 1) | 0x10 | (address_5517 & 0x28);
+          if ((_value2482 & (0x01 << value3_5522)) == 0) {
               _F2483 |= 0x44;
           }
-          if (value3_5522 == 7 && (value2_5521 & 0x80) != 0) {
+          if (value3_5522 == 7 && (_value2482 & 0x80) != 0) {
               _F2483 |= 0x80;
           }
           F = (_F2483 & 0xFF);
@@ -22690,16 +22136,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5526 = memory.read(_address2485, 0);
           contend(_address2485, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2485 = operand_5526;
-          int value1_5527 = address_5524;
-          int value2_5528 = _value2485;
           int value3_5529 = nAndCarry_5525;
           _F2486 = value3_5529 & 1;
           value3_5529 = value3_5529 >>> 1;
-          _F2486 = (_F2486 & 1) | 0x10 | (value1_5527 & 0x28);
-          if ((value2_5528 & (0x01 << value3_5529)) == 0) {
+          _F2486 = (_F2486 & 1) | 0x10 | (address_5524 & 0x28);
+          if ((_value2485 & (0x01 << value3_5529)) == 0) {
               _F2486 |= 0x44;
           }
-          if (value3_5529 == 7 && (value2_5528 & 0x80) != 0) {
+          if (value3_5529 == 7 && (_value2485 & 0x80) != 0) {
               _F2486 |= 0x80;
           }
           F = (_F2486 & 0xFF);
@@ -22719,16 +22163,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5533 = memory.read(_address2488, 0);
           contend(_address2488, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2488 = operand_5533;
-          int value1_5534 = address_5531;
-          int value2_5535 = _value2488;
           int value3_5536 = nAndCarry_5532;
           _F2489 = value3_5536 & 1;
           value3_5536 = value3_5536 >>> 1;
-          _F2489 = (_F2489 & 1) | 0x10 | (value1_5534 & 0x28);
-          if ((value2_5535 & (0x01 << value3_5536)) == 0) {
+          _F2489 = (_F2489 & 1) | 0x10 | (address_5531 & 0x28);
+          if ((_value2488 & (0x01 << value3_5536)) == 0) {
               _F2489 |= 0x44;
           }
-          if (value3_5536 == 7 && (value2_5535 & 0x80) != 0) {
+          if (value3_5536 == 7 && (_value2488 & 0x80) != 0) {
               _F2489 |= 0x80;
           }
           F = (_F2489 & 0xFF);
@@ -22748,16 +22190,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5540 = memory.read(_address2491, 0);
           contend(_address2491, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2491 = operand_5540;
-          int value1_5541 = address_5538;
-          int value2_5542 = _value2491;
           int value3_5543 = nAndCarry_5539;
           _F2492 = value3_5543 & 1;
           value3_5543 = value3_5543 >>> 1;
-          _F2492 = (_F2492 & 1) | 0x10 | (value1_5541 & 0x28);
-          if ((value2_5542 & (0x01 << value3_5543)) == 0) {
+          _F2492 = (_F2492 & 1) | 0x10 | (address_5538 & 0x28);
+          if ((_value2491 & (0x01 << value3_5543)) == 0) {
               _F2492 |= 0x44;
           }
-          if (value3_5543 == 7 && (value2_5542 & 0x80) != 0) {
+          if (value3_5543 == 7 && (_value2491 & 0x80) != 0) {
               _F2492 |= 0x80;
           }
           F = (_F2492 & 0xFF);
@@ -22777,16 +22217,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5547 = memory.read(_address2494, 0);
           contend(_address2494, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2494 = operand_5547;
-          int value1_5548 = address_5545;
-          int value2_5549 = _value2494;
           int value3_5550 = nAndCarry_5546;
           _F2495 = value3_5550 & 1;
           value3_5550 = value3_5550 >>> 1;
-          _F2495 = (_F2495 & 1) | 0x10 | (value1_5548 & 0x28);
-          if ((value2_5549 & (0x01 << value3_5550)) == 0) {
+          _F2495 = (_F2495 & 1) | 0x10 | (address_5545 & 0x28);
+          if ((_value2494 & (0x01 << value3_5550)) == 0) {
               _F2495 |= 0x44;
           }
-          if (value3_5550 == 7 && (value2_5549 & 0x80) != 0) {
+          if (value3_5550 == 7 && (_value2494 & 0x80) != 0) {
               _F2495 |= 0x80;
           }
           F = (_F2495 & 0xFF);
@@ -22806,16 +22244,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5554 = memory.read(_address2497, 0);
           contend(_address2497, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2497 = operand_5554;
-          int value1_5555 = address_5552;
-          int value2_5556 = _value2497;
           int value3_5557 = nAndCarry_5553;
           _F2498 = value3_5557 & 1;
           value3_5557 = value3_5557 >>> 1;
-          _F2498 = (_F2498 & 1) | 0x10 | (value1_5555 & 0x28);
-          if ((value2_5556 & (0x01 << value3_5557)) == 0) {
+          _F2498 = (_F2498 & 1) | 0x10 | (address_5552 & 0x28);
+          if ((_value2497 & (0x01 << value3_5557)) == 0) {
               _F2498 |= 0x44;
           }
-          if (value3_5557 == 7 && (value2_5556 & 0x80) != 0) {
+          if (value3_5557 == 7 && (_value2497 & 0x80) != 0) {
               _F2498 |= 0x80;
           }
           F = (_F2498 & 0xFF);
@@ -22835,16 +22271,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5561 = memory.read(_address2500, 0);
           contend(_address2500, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2500 = operand_5561;
-          int value1_5562 = address_5559;
-          int value2_5563 = _value2500;
           int value3_5564 = nAndCarry_5560;
           _F2501 = value3_5564 & 1;
           value3_5564 = value3_5564 >>> 1;
-          _F2501 = (_F2501 & 1) | 0x10 | (value1_5562 & 0x28);
-          if ((value2_5563 & (0x01 << value3_5564)) == 0) {
+          _F2501 = (_F2501 & 1) | 0x10 | (address_5559 & 0x28);
+          if ((_value2500 & (0x01 << value3_5564)) == 0) {
               _F2501 |= 0x44;
           }
-          if (value3_5564 == 7 && (value2_5563 & 0x80) != 0) {
+          if (value3_5564 == 7 && (_value2500 & 0x80) != 0) {
               _F2501 |= 0x80;
           }
           F = (_F2501 & 0xFF);
@@ -22864,16 +22298,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5568 = memory.read(_address2503, 0);
           contend(_address2503, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2503 = operand_5568;
-          int value1_5569 = address_5566;
-          int value2_5570 = _value2503;
           int value3_5571 = nAndCarry_5567;
           _F2504 = value3_5571 & 1;
           value3_5571 = value3_5571 >>> 1;
-          _F2504 = (_F2504 & 1) | 0x10 | (value1_5569 & 0x28);
-          if ((value2_5570 & (0x01 << value3_5571)) == 0) {
+          _F2504 = (_F2504 & 1) | 0x10 | (address_5566 & 0x28);
+          if ((_value2503 & (0x01 << value3_5571)) == 0) {
               _F2504 |= 0x44;
           }
-          if (value3_5571 == 7 && (value2_5570 & 0x80) != 0) {
+          if (value3_5571 == 7 && (_value2503 & 0x80) != 0) {
               _F2504 |= 0x80;
           }
           F = (_F2504 & 0xFF);
@@ -22893,16 +22325,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5575 = memory.read(_address2506, 0);
           contend(_address2506, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2506 = operand_5575;
-          int value1_5576 = address_5573;
-          int value2_5577 = _value2506;
           int value3_5578 = nAndCarry_5574;
           _F2507 = value3_5578 & 1;
           value3_5578 = value3_5578 >>> 1;
-          _F2507 = (_F2507 & 1) | 0x10 | (value1_5576 & 0x28);
-          if ((value2_5577 & (0x01 << value3_5578)) == 0) {
+          _F2507 = (_F2507 & 1) | 0x10 | (address_5573 & 0x28);
+          if ((_value2506 & (0x01 << value3_5578)) == 0) {
               _F2507 |= 0x44;
           }
-          if (value3_5578 == 7 && (value2_5577 & 0x80) != 0) {
+          if (value3_5578 == 7 && (_value2506 & 0x80) != 0) {
               _F2507 |= 0x80;
           }
           F = (_F2507 & 0xFF);
@@ -22922,16 +22352,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5582 = memory.read(_address2509, 0);
           contend(_address2509, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2509 = operand_5582;
-          int value1_5583 = address_5580;
-          int value2_5584 = _value2509;
           int value3_5585 = nAndCarry_5581;
           _F2510 = value3_5585 & 1;
           value3_5585 = value3_5585 >>> 1;
-          _F2510 = (_F2510 & 1) | 0x10 | (value1_5583 & 0x28);
-          if ((value2_5584 & (0x01 << value3_5585)) == 0) {
+          _F2510 = (_F2510 & 1) | 0x10 | (address_5580 & 0x28);
+          if ((_value2509 & (0x01 << value3_5585)) == 0) {
               _F2510 |= 0x44;
           }
-          if (value3_5585 == 7 && (value2_5584 & 0x80) != 0) {
+          if (value3_5585 == 7 && (_value2509 & 0x80) != 0) {
               _F2510 |= 0x80;
           }
           F = (_F2510 & 0xFF);
@@ -22951,16 +22379,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5589 = memory.read(_address2512, 0);
           contend(_address2512, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2512 = operand_5589;
-          int value1_5590 = address_5587;
-          int value2_5591 = _value2512;
           int value3_5592 = nAndCarry_5588;
           _F2513 = value3_5592 & 1;
           value3_5592 = value3_5592 >>> 1;
-          _F2513 = (_F2513 & 1) | 0x10 | (value1_5590 & 0x28);
-          if ((value2_5591 & (0x01 << value3_5592)) == 0) {
+          _F2513 = (_F2513 & 1) | 0x10 | (address_5587 & 0x28);
+          if ((_value2512 & (0x01 << value3_5592)) == 0) {
               _F2513 |= 0x44;
           }
-          if (value3_5592 == 7 && (value2_5591 & 0x80) != 0) {
+          if (value3_5592 == 7 && (_value2512 & 0x80) != 0) {
               _F2513 |= 0x80;
           }
           F = (_F2513 & 0xFF);
@@ -22980,16 +22406,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5596 = memory.read(_address2515, 0);
           contend(_address2515, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2515 = operand_5596;
-          int value1_5597 = address_5594;
-          int value2_5598 = _value2515;
           int value3_5599 = nAndCarry_5595;
           _F2516 = value3_5599 & 1;
           value3_5599 = value3_5599 >>> 1;
-          _F2516 = (_F2516 & 1) | 0x10 | (value1_5597 & 0x28);
-          if ((value2_5598 & (0x01 << value3_5599)) == 0) {
+          _F2516 = (_F2516 & 1) | 0x10 | (address_5594 & 0x28);
+          if ((_value2515 & (0x01 << value3_5599)) == 0) {
               _F2516 |= 0x44;
           }
-          if (value3_5599 == 7 && (value2_5598 & 0x80) != 0) {
+          if (value3_5599 == 7 && (_value2515 & 0x80) != 0) {
               _F2516 |= 0x80;
           }
           F = (_F2516 & 0xFF);
@@ -23009,16 +22433,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5603 = memory.read(_address2518, 0);
           contend(_address2518, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2518 = operand_5603;
-          int value1_5604 = address_5601;
-          int value2_5605 = _value2518;
           int value3_5606 = nAndCarry_5602;
           _F2519 = value3_5606 & 1;
           value3_5606 = value3_5606 >>> 1;
-          _F2519 = (_F2519 & 1) | 0x10 | (value1_5604 & 0x28);
-          if ((value2_5605 & (0x01 << value3_5606)) == 0) {
+          _F2519 = (_F2519 & 1) | 0x10 | (address_5601 & 0x28);
+          if ((_value2518 & (0x01 << value3_5606)) == 0) {
               _F2519 |= 0x44;
           }
-          if (value3_5606 == 7 && (value2_5605 & 0x80) != 0) {
+          if (value3_5606 == 7 && (_value2518 & 0x80) != 0) {
               _F2519 |= 0x80;
           }
           F = (_F2519 & 0xFF);
@@ -23038,16 +22460,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5610 = memory.read(_address2521, 0);
           contend(_address2521, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2521 = operand_5610;
-          int value1_5611 = address_5608;
-          int value2_5612 = _value2521;
           int value3_5613 = nAndCarry_5609;
           _F2522 = value3_5613 & 1;
           value3_5613 = value3_5613 >>> 1;
-          _F2522 = (_F2522 & 1) | 0x10 | (value1_5611 & 0x28);
-          if ((value2_5612 & (0x01 << value3_5613)) == 0) {
+          _F2522 = (_F2522 & 1) | 0x10 | (address_5608 & 0x28);
+          if ((_value2521 & (0x01 << value3_5613)) == 0) {
               _F2522 |= 0x44;
           }
-          if (value3_5613 == 7 && (value2_5612 & 0x80) != 0) {
+          if (value3_5613 == 7 && (_value2521 & 0x80) != 0) {
               _F2522 |= 0x80;
           }
           F = (_F2522 & 0xFF);
@@ -23067,16 +22487,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5617 = memory.read(_address2524, 0);
           contend(_address2524, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2524 = operand_5617;
-          int value1_5618 = address_5615;
-          int value2_5619 = _value2524;
           int value3_5620 = nAndCarry_5616;
           _F2525 = value3_5620 & 1;
           value3_5620 = value3_5620 >>> 1;
-          _F2525 = (_F2525 & 1) | 0x10 | (value1_5618 & 0x28);
-          if ((value2_5619 & (0x01 << value3_5620)) == 0) {
+          _F2525 = (_F2525 & 1) | 0x10 | (address_5615 & 0x28);
+          if ((_value2524 & (0x01 << value3_5620)) == 0) {
               _F2525 |= 0x44;
           }
-          if (value3_5620 == 7 && (value2_5619 & 0x80) != 0) {
+          if (value3_5620 == 7 && (_value2524 & 0x80) != 0) {
               _F2525 |= 0x80;
           }
           F = (_F2525 & 0xFF);
@@ -23096,16 +22514,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5624 = memory.read(_address2527, 0);
           contend(_address2527, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2527 = operand_5624;
-          int value1_5625 = address_5622;
-          int value2_5626 = _value2527;
           int value3_5627 = nAndCarry_5623;
           _F2528 = value3_5627 & 1;
           value3_5627 = value3_5627 >>> 1;
-          _F2528 = (_F2528 & 1) | 0x10 | (value1_5625 & 0x28);
-          if ((value2_5626 & (0x01 << value3_5627)) == 0) {
+          _F2528 = (_F2528 & 1) | 0x10 | (address_5622 & 0x28);
+          if ((_value2527 & (0x01 << value3_5627)) == 0) {
               _F2528 |= 0x44;
           }
-          if (value3_5627 == 7 && (value2_5626 & 0x80) != 0) {
+          if (value3_5627 == 7 && (_value2527 & 0x80) != 0) {
               _F2528 |= 0x80;
           }
           F = (_F2528 & 0xFF);
@@ -23125,16 +22541,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5631 = memory.read(_address2530, 0);
           contend(_address2530, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2530 = operand_5631;
-          int value1_5632 = address_5629;
-          int value2_5633 = _value2530;
           int value3_5634 = nAndCarry_5630;
           _F2531 = value3_5634 & 1;
           value3_5634 = value3_5634 >>> 1;
-          _F2531 = (_F2531 & 1) | 0x10 | (value1_5632 & 0x28);
-          if ((value2_5633 & (0x01 << value3_5634)) == 0) {
+          _F2531 = (_F2531 & 1) | 0x10 | (address_5629 & 0x28);
+          if ((_value2530 & (0x01 << value3_5634)) == 0) {
               _F2531 |= 0x44;
           }
-          if (value3_5634 == 7 && (value2_5633 & 0x80) != 0) {
+          if (value3_5634 == 7 && (_value2530 & 0x80) != 0) {
               _F2531 |= 0x80;
           }
           F = (_F2531 & 0xFF);
@@ -23161,16 +22575,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5638 = memory.read(_address2533, 0);
           contend(_address2533, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2533 = operand_5638;
-          int value1_5639 = address_5636;
-          int value2_5640 = _value2533;
           int value3_5641 = nAndCarry_5637;
           _F2534 = value3_5641 & 1;
           value3_5641 = value3_5641 >>> 1;
-          _F2534 = (_F2534 & 1) | 0x10 | (value1_5639 & 0x28);
-          if ((value2_5640 & (0x01 << value3_5641)) == 0) {
+          _F2534 = (_F2534 & 1) | 0x10 | (address_5636 & 0x28);
+          if ((_value2533 & (0x01 << value3_5641)) == 0) {
               _F2534 |= 0x44;
           }
-          if (value3_5641 == 7 && (value2_5640 & 0x80) != 0) {
+          if (value3_5641 == 7 && (_value2533 & 0x80) != 0) {
               _F2534 |= 0x80;
           }
           F = (_F2534 & 0xFF);
@@ -23190,16 +22602,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5645 = memory.read(_address2536, 0);
           contend(_address2536, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2536 = operand_5645;
-          int value1_5646 = address_5643;
-          int value2_5647 = _value2536;
           int value3_5648 = nAndCarry_5644;
           _F2537 = value3_5648 & 1;
           value3_5648 = value3_5648 >>> 1;
-          _F2537 = (_F2537 & 1) | 0x10 | (value1_5646 & 0x28);
-          if ((value2_5647 & (0x01 << value3_5648)) == 0) {
+          _F2537 = (_F2537 & 1) | 0x10 | (address_5643 & 0x28);
+          if ((_value2536 & (0x01 << value3_5648)) == 0) {
               _F2537 |= 0x44;
           }
-          if (value3_5648 == 7 && (value2_5647 & 0x80) != 0) {
+          if (value3_5648 == 7 && (_value2536 & 0x80) != 0) {
               _F2537 |= 0x80;
           }
           F = (_F2537 & 0xFF);
@@ -23219,16 +22629,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5652 = memory.read(_address2539, 0);
           contend(_address2539, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2539 = operand_5652;
-          int value1_5653 = address_5650;
-          int value2_5654 = _value2539;
           int value3_5655 = nAndCarry_5651;
           _F2540 = value3_5655 & 1;
           value3_5655 = value3_5655 >>> 1;
-          _F2540 = (_F2540 & 1) | 0x10 | (value1_5653 & 0x28);
-          if ((value2_5654 & (0x01 << value3_5655)) == 0) {
+          _F2540 = (_F2540 & 1) | 0x10 | (address_5650 & 0x28);
+          if ((_value2539 & (0x01 << value3_5655)) == 0) {
               _F2540 |= 0x44;
           }
-          if (value3_5655 == 7 && (value2_5654 & 0x80) != 0) {
+          if (value3_5655 == 7 && (_value2539 & 0x80) != 0) {
               _F2540 |= 0x80;
           }
           F = (_F2540 & 0xFF);
@@ -23248,16 +22656,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5659 = memory.read(_address2542, 0);
           contend(_address2542, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2542 = operand_5659;
-          int value1_5660 = address_5657;
-          int value2_5661 = _value2542;
           int value3_5662 = nAndCarry_5658;
           _F2543 = value3_5662 & 1;
           value3_5662 = value3_5662 >>> 1;
-          _F2543 = (_F2543 & 1) | 0x10 | (value1_5660 & 0x28);
-          if ((value2_5661 & (0x01 << value3_5662)) == 0) {
+          _F2543 = (_F2543 & 1) | 0x10 | (address_5657 & 0x28);
+          if ((_value2542 & (0x01 << value3_5662)) == 0) {
               _F2543 |= 0x44;
           }
-          if (value3_5662 == 7 && (value2_5661 & 0x80) != 0) {
+          if (value3_5662 == 7 && (_value2542 & 0x80) != 0) {
               _F2543 |= 0x80;
           }
           F = (_F2543 & 0xFF);
@@ -23277,16 +22683,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5666 = memory.read(_address2545, 0);
           contend(_address2545, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2545 = operand_5666;
-          int value1_5667 = address_5664;
-          int value2_5668 = _value2545;
           int value3_5669 = nAndCarry_5665;
           _F2546 = value3_5669 & 1;
           value3_5669 = value3_5669 >>> 1;
-          _F2546 = (_F2546 & 1) | 0x10 | (value1_5667 & 0x28);
-          if ((value2_5668 & (0x01 << value3_5669)) == 0) {
+          _F2546 = (_F2546 & 1) | 0x10 | (address_5664 & 0x28);
+          if ((_value2545 & (0x01 << value3_5669)) == 0) {
               _F2546 |= 0x44;
           }
-          if (value3_5669 == 7 && (value2_5668 & 0x80) != 0) {
+          if (value3_5669 == 7 && (_value2545 & 0x80) != 0) {
               _F2546 |= 0x80;
           }
           F = (_F2546 & 0xFF);
@@ -23306,16 +22710,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5673 = memory.read(_address2548, 0);
           contend(_address2548, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2548 = operand_5673;
-          int value1_5674 = address_5671;
-          int value2_5675 = _value2548;
           int value3_5676 = nAndCarry_5672;
           _F2549 = value3_5676 & 1;
           value3_5676 = value3_5676 >>> 1;
-          _F2549 = (_F2549 & 1) | 0x10 | (value1_5674 & 0x28);
-          if ((value2_5675 & (0x01 << value3_5676)) == 0) {
+          _F2549 = (_F2549 & 1) | 0x10 | (address_5671 & 0x28);
+          if ((_value2548 & (0x01 << value3_5676)) == 0) {
               _F2549 |= 0x44;
           }
-          if (value3_5676 == 7 && (value2_5675 & 0x80) != 0) {
+          if (value3_5676 == 7 && (_value2548 & 0x80) != 0) {
               _F2549 |= 0x80;
           }
           F = (_F2549 & 0xFF);
@@ -23335,16 +22737,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5680 = memory.read(_address2551, 0);
           contend(_address2551, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2551 = operand_5680;
-          int value1_5681 = address_5678;
-          int value2_5682 = _value2551;
           int value3_5683 = nAndCarry_5679;
           _F2552 = value3_5683 & 1;
           value3_5683 = value3_5683 >>> 1;
-          _F2552 = (_F2552 & 1) | 0x10 | (value1_5681 & 0x28);
-          if ((value2_5682 & (0x01 << value3_5683)) == 0) {
+          _F2552 = (_F2552 & 1) | 0x10 | (address_5678 & 0x28);
+          if ((_value2551 & (0x01 << value3_5683)) == 0) {
               _F2552 |= 0x44;
           }
-          if (value3_5683 == 7 && (value2_5682 & 0x80) != 0) {
+          if (value3_5683 == 7 && (_value2551 & 0x80) != 0) {
               _F2552 |= 0x80;
           }
           F = (_F2552 & 0xFF);
@@ -23364,16 +22764,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5687 = memory.read(_address2554, 0);
           contend(_address2554, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2554 = operand_5687;
-          int value1_5688 = address_5685;
-          int value2_5689 = _value2554;
           int value3_5690 = nAndCarry_5686;
           _F2555 = value3_5690 & 1;
           value3_5690 = value3_5690 >>> 1;
-          _F2555 = (_F2555 & 1) | 0x10 | (value1_5688 & 0x28);
-          if ((value2_5689 & (0x01 << value3_5690)) == 0) {
+          _F2555 = (_F2555 & 1) | 0x10 | (address_5685 & 0x28);
+          if ((_value2554 & (0x01 << value3_5690)) == 0) {
               _F2555 |= 0x44;
           }
-          if (value3_5690 == 7 && (value2_5689 & 0x80) != 0) {
+          if (value3_5690 == 7 && (_value2554 & 0x80) != 0) {
               _F2555 |= 0x80;
           }
           F = (_F2555 & 0xFF);
@@ -23393,16 +22791,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5694 = memory.read(_address2557, 0);
           contend(_address2557, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2557 = operand_5694;
-          int value1_5695 = address_5692;
-          int value2_5696 = _value2557;
           int value3_5697 = nAndCarry_5693;
           _F2558 = value3_5697 & 1;
           value3_5697 = value3_5697 >>> 1;
-          _F2558 = (_F2558 & 1) | 0x10 | (value1_5695 & 0x28);
-          if ((value2_5696 & (0x01 << value3_5697)) == 0) {
+          _F2558 = (_F2558 & 1) | 0x10 | (address_5692 & 0x28);
+          if ((_value2557 & (0x01 << value3_5697)) == 0) {
               _F2558 |= 0x44;
           }
-          if (value3_5697 == 7 && (value2_5696 & 0x80) != 0) {
+          if (value3_5697 == 7 && (_value2557 & 0x80) != 0) {
               _F2558 |= 0x80;
           }
           F = (_F2558 & 0xFF);
@@ -23422,16 +22818,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5701 = memory.read(_address2560, 0);
           contend(_address2560, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2560 = operand_5701;
-          int value1_5702 = address_5699;
-          int value2_5703 = _value2560;
           int value3_5704 = nAndCarry_5700;
           _F2561 = value3_5704 & 1;
           value3_5704 = value3_5704 >>> 1;
-          _F2561 = (_F2561 & 1) | 0x10 | (value1_5702 & 0x28);
-          if ((value2_5703 & (0x01 << value3_5704)) == 0) {
+          _F2561 = (_F2561 & 1) | 0x10 | (address_5699 & 0x28);
+          if ((_value2560 & (0x01 << value3_5704)) == 0) {
               _F2561 |= 0x44;
           }
-          if (value3_5704 == 7 && (value2_5703 & 0x80) != 0) {
+          if (value3_5704 == 7 && (_value2560 & 0x80) != 0) {
               _F2561 |= 0x80;
           }
           F = (_F2561 & 0xFF);
@@ -23451,16 +22845,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5708 = memory.read(_address2563, 0);
           contend(_address2563, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2563 = operand_5708;
-          int value1_5709 = address_5706;
-          int value2_5710 = _value2563;
           int value3_5711 = nAndCarry_5707;
           _F2564 = value3_5711 & 1;
           value3_5711 = value3_5711 >>> 1;
-          _F2564 = (_F2564 & 1) | 0x10 | (value1_5709 & 0x28);
-          if ((value2_5710 & (0x01 << value3_5711)) == 0) {
+          _F2564 = (_F2564 & 1) | 0x10 | (address_5706 & 0x28);
+          if ((_value2563 & (0x01 << value3_5711)) == 0) {
               _F2564 |= 0x44;
           }
-          if (value3_5711 == 7 && (value2_5710 & 0x80) != 0) {
+          if (value3_5711 == 7 && (_value2563 & 0x80) != 0) {
               _F2564 |= 0x80;
           }
           F = (_F2564 & 0xFF);
@@ -23480,16 +22872,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5715 = memory.read(_address2566, 0);
           contend(_address2566, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2566 = operand_5715;
-          int value1_5716 = address_5713;
-          int value2_5717 = _value2566;
           int value3_5718 = nAndCarry_5714;
           _F2567 = value3_5718 & 1;
           value3_5718 = value3_5718 >>> 1;
-          _F2567 = (_F2567 & 1) | 0x10 | (value1_5716 & 0x28);
-          if ((value2_5717 & (0x01 << value3_5718)) == 0) {
+          _F2567 = (_F2567 & 1) | 0x10 | (address_5713 & 0x28);
+          if ((_value2566 & (0x01 << value3_5718)) == 0) {
               _F2567 |= 0x44;
           }
-          if (value3_5718 == 7 && (value2_5717 & 0x80) != 0) {
+          if (value3_5718 == 7 && (_value2566 & 0x80) != 0) {
               _F2567 |= 0x80;
           }
           F = (_F2567 & 0xFF);
@@ -23509,16 +22899,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5722 = memory.read(_address2569, 0);
           contend(_address2569, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2569 = operand_5722;
-          int value1_5723 = address_5720;
-          int value2_5724 = _value2569;
           int value3_5725 = nAndCarry_5721;
           _F2570 = value3_5725 & 1;
           value3_5725 = value3_5725 >>> 1;
-          _F2570 = (_F2570 & 1) | 0x10 | (value1_5723 & 0x28);
-          if ((value2_5724 & (0x01 << value3_5725)) == 0) {
+          _F2570 = (_F2570 & 1) | 0x10 | (address_5720 & 0x28);
+          if ((_value2569 & (0x01 << value3_5725)) == 0) {
               _F2570 |= 0x44;
           }
-          if (value3_5725 == 7 && (value2_5724 & 0x80) != 0) {
+          if (value3_5725 == 7 && (_value2569 & 0x80) != 0) {
               _F2570 |= 0x80;
           }
           F = (_F2570 & 0xFF);
@@ -23538,16 +22926,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5729 = memory.read(_address2572, 0);
           contend(_address2572, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2572 = operand_5729;
-          int value1_5730 = address_5727;
-          int value2_5731 = _value2572;
           int value3_5732 = nAndCarry_5728;
           _F2573 = value3_5732 & 1;
           value3_5732 = value3_5732 >>> 1;
-          _F2573 = (_F2573 & 1) | 0x10 | (value1_5730 & 0x28);
-          if ((value2_5731 & (0x01 << value3_5732)) == 0) {
+          _F2573 = (_F2573 & 1) | 0x10 | (address_5727 & 0x28);
+          if ((_value2572 & (0x01 << value3_5732)) == 0) {
               _F2573 |= 0x44;
           }
-          if (value3_5732 == 7 && (value2_5731 & 0x80) != 0) {
+          if (value3_5732 == 7 && (_value2572 & 0x80) != 0) {
               _F2573 |= 0x80;
           }
           F = (_F2573 & 0xFF);
@@ -23567,16 +22953,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5736 = memory.read(_address2575, 0);
           contend(_address2575, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2575 = operand_5736;
-          int value1_5737 = address_5734;
-          int value2_5738 = _value2575;
           int value3_5739 = nAndCarry_5735;
           _F2576 = value3_5739 & 1;
           value3_5739 = value3_5739 >>> 1;
-          _F2576 = (_F2576 & 1) | 0x10 | (value1_5737 & 0x28);
-          if ((value2_5738 & (0x01 << value3_5739)) == 0) {
+          _F2576 = (_F2576 & 1) | 0x10 | (address_5734 & 0x28);
+          if ((_value2575 & (0x01 << value3_5739)) == 0) {
               _F2576 |= 0x44;
           }
-          if (value3_5739 == 7 && (value2_5738 & 0x80) != 0) {
+          if (value3_5739 == 7 && (_value2575 & 0x80) != 0) {
               _F2576 |= 0x80;
           }
           F = (_F2576 & 0xFF);
@@ -23596,16 +22980,14 @@ static final int[] SZ53 = new int[0x100];
           int operand_5743 = memory.read(_address2578, 0);
           contend(_address2578, 1, 1, Contention.Kind.READ_NO_MREQ);
           _value2578 = operand_5743;
-          int value1_5744 = address_5741;
-          int value2_5745 = _value2578;
           int value3_5746 = nAndCarry_5742;
           _F2579 = value3_5746 & 1;
           value3_5746 = value3_5746 >>> 1;
-          _F2579 = (_F2579 & 1) | 0x10 | (value1_5744 & 0x28);
-          if ((value2_5745 & (0x01 << value3_5746)) == 0) {
+          _F2579 = (_F2579 & 1) | 0x10 | (address_5741 & 0x28);
+          if ((_value2578 & (0x01 << value3_5746)) == 0) {
               _F2579 |= 0x44;
           }
-          if (value3_5746 == 7 && (value2_5745 & 0x80) != 0) {
+          if (value3_5746 == 7 && (_value2578 & 0x80) != 0) {
               _F2579 |= 0x80;
           }
           F = (_F2579 & 0xFF);

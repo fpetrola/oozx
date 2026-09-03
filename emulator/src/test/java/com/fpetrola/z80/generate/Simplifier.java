@@ -18,6 +18,7 @@
 package com.fpetrola.z80.generate;
 
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
@@ -29,8 +30,9 @@ public class Simplifier {
   public static void simplify(List<Statement> body, Map<String, Integer> masks) {
     boolean changed = true;
     for (int round = 0; changed && round < 8; round++) {
-      changed = foldAll(body);
-      changed |= dropDeadBranches(body);
+      changed = decideOnce(body);
+      changed |= foldAll(body);
+      changed |= dropDeadBranches(body, masks);
       changed |= propagateAliases(body);
       changed |= dropDeadStores(body);
       changed |= dropWhatCannotFail(body, masks);
@@ -67,7 +69,7 @@ public class Simplifier {
     return result;
   }
 
-  private static boolean dropDeadBranches(List<Statement> body) {
+  private static boolean dropDeadBranches(List<Statement> body, Map<String, Integer> masks) {
     boolean changed = false;
     for (int i = 0; i < body.size(); i++) {
       Statement s = body.get(i);
@@ -78,9 +80,9 @@ public class Simplifier {
         changed = true;
         i--;
       } else if (s instanceof IfStmt f) {
-        changed |= simplifyNested(f.getThenStmt());
+        changed |= simplifyNested(f.getThenStmt(), masks);
         if (f.getElseStmt().isPresent()) {
-          changed |= simplifyNested(f.getElseStmt().get());
+          changed |= simplifyNested(f.getElseStmt().get(), masks);
           if (f.getElseStmt().get() instanceof BlockStmt eb && eb.isEmpty()) {
             f.removeElseStmt();
             changed = true;
@@ -92,7 +94,7 @@ public class Simplifier {
           i--;
         }
       } else if (s instanceof LabeledStmt l && l.getStatement() instanceof BlockStmt lb)
-        changed |= simplifyNested(lb);
+        changed |= simplifyNested(lb, masks);
       else if (s instanceof ExpressionStmt es && es.getExpression() instanceof AssignExpr a && a.getOperator() == AssignExpr.Operator.ASSIGN && a.getTarget().toString().equals(a.getValue().toString())) {
         body.remove(i);
         changed = true;
@@ -102,10 +104,12 @@ public class Simplifier {
     return changed;
   }
 
-  private static boolean simplifyNested(Statement s) {
+  /** The same passes one level in; dropDeadBranches calls this again from there, so depth is covered. */
+  private static boolean simplifyNested(Statement s, Map<String, Integer> masks) {
     if (s instanceof BlockStmt b) {
       List<Statement> inner = new ArrayList<>(b.getStatements());
-      boolean changed = foldAll(inner) | dropDeadBranches(inner);
+      boolean changed = foldAll(inner) | dropDeadBranches(inner, masks) | propagateAliases(inner)
+          | dropDeadStores(inner) | dropWhatCannotFail(inner, masks) | dropUnusedLocals(inner);
       if (changed) {
         b.getStatements().clear();
         inner.forEach(b::addStatement);
@@ -126,7 +130,11 @@ public class Simplifier {
     return result;
   }
 
-  /** A local declared with a literal or another name and never reassigned is just that value. */
+  /**
+   * A local declared with a literal or another name and never reassigned is just that value. What
+   * it was declared from may have been assigned before the declaration - that is the value it
+   * took - so only an assignment after it makes the two drift apart.
+   */
   private static boolean propagateAliases(List<Statement> body) {
     boolean changed = false;
     Map<String, Integer> assignments = new HashMap<>();
@@ -143,7 +151,7 @@ public class Simplifier {
       if (d.getInitializer().isEmpty() || assignments.containsKey(d.getNameAsString()))
         continue;
       Expression init = d.getInitializer().get();
-      if (!(init instanceof LiteralExpr || init instanceof NameExpr n && !assignments.containsKey(n.getNameAsString()) && !isDeclaredLater(body, n.getNameAsString(), i)))
+      if (!(init instanceof LiteralExpr || init instanceof NameExpr n && !writes(body.subList(i + 1, body.size()), n.getNameAsString()) && !isDeclaredLater(body, n.getNameAsString(), i)))
         continue;
       String name = d.getNameAsString();
       for (Statement s : body)
@@ -163,12 +171,6 @@ public class Simplifier {
     return false;
   }
 
-  /**
-   * A store nobody reads before the next one to the same name: the zero a slot's declaration
-   * gives it, and the same value assigned twice by two inlined bodies. Names here are locals of
-   * the case or private fields of the generated class, so nothing between the two stores can see
-   * the first one; a branch, a label or any read of the name ends the search.
-   */
   /**
    * Masks and comparisons the generated code carries but cannot fail: a byte masked with 0xFF, a
    * jump address compared against -1. The model writes them because it does not know which
@@ -237,6 +239,12 @@ public class Simplifier {
         stores.add(Map.entry(n.getNameAsString(), new NullLiteralExpr()));
   }
 
+  /**
+   * A store nobody reads before the next one to the same name: the zero a slot's declaration
+   * gives it, and the same value assigned twice by two inlined bodies. Names here are locals of
+   * the case or private fields of the generated class, so nothing between the two stores can see
+   * the first one; a branch, a label or any read of the name ends the search.
+   */
   private static boolean dropDeadStores(List<Statement> body) {
     boolean changed = false;
     for (int i = 0; i < body.size(); i++) {
@@ -295,10 +303,137 @@ public class Simplifier {
     return s instanceof ExpressionStmt es && es.getExpression() instanceof AssignExpr a ? a.getValue() : null;
   }
 
+  /** A statement of the body itself has no parent to remove it from: the list is the parent. */
+  private static boolean drop(List<Statement> body, Statement statement) {
+    for (int i = 0; i < body.size(); i++)
+      if (body.get(i) == statement) {
+        body.remove(i);
+        return true;
+      }
+    return false;
+  }
+
   private static VariableDeclarator declaratorOf(Statement s) {
     return s instanceof ExpressionStmt es && es.getExpression() instanceof VariableDeclarationExpr v && v.getVariables().size() == 1 ? v.getVariable(0) : null;
   }
 
+  /**
+   * The tail of a case that only asks which way the branch went, put inside the branch. An
+   * instruction that may jump decides where it goes and then everything after it asks again: the
+   * contention asks, MEMPTR asks, and PC asks. With the answer already in hand, each copy of the
+   * tail folds its questions away and one decision is left where there were four.
+   */
+  private static boolean decideOnce(List<Statement> body) {
+    for (int i = 0; i + 1 < body.size(); i++) {
+      IfStmt f = decisionAt(body.get(i));
+      if (f == null)
+        continue;
+      List<Statement> tail = new ArrayList<>(body.subList(i + 1, body.size()));
+      Map<String, Expression> whenTaken = decided(f.getThenStmt()), whenNot = decided(f.getElseStmt().get());
+      whenTaken.keySet().retainAll(whenNot.keySet());
+      whenTaken.keySet().removeIf(name -> writes(tail, name) || !readsAny(tail, name)
+          || !standsIn(tail, name, whenTaken.get(name)) || !standsIn(tail, name, whenNot.get(name)));
+      if (whenTaken.keySet().stream().noneMatch(name -> Folder.intValue(whenTaken.get(name)) != null || Folder.intValue(whenNot.get(name)) != null))
+        continue;
+      whenNot.keySet().retainAll(whenTaken.keySet());
+      body.set(i, f);
+      graft(f.getThenStmt(), tail, whenTaken);
+      graft(f.getElseStmt().get(), tail, whenNot);
+      body.subList(i + 1, body.size()).clear();
+      return true;
+    }
+    return false;
+  }
+
+  /** The two ways a statement can decide a name: a branch, or an assignment of a conditional. */
+  private static IfStmt decisionAt(Statement s) {
+    if (s instanceof IfStmt f && f.getElseStmt().isPresent())
+      return f;
+    if (s instanceof ExpressionStmt es && es.getExpression() instanceof AssignExpr a
+        && a.getOperator() == AssignExpr.Operator.ASSIGN && a.getTarget() instanceof NameExpr n
+        && a.getValue() instanceof ConditionalExpr c && Specializer.isPure(c.getCondition()))
+      return new IfStmt(c.getCondition().clone(), assigns(n, c.getThenExpr()), assigns(n, c.getElseExpr()));
+    return null;
+  }
+
+  private static BlockStmt assigns(NameExpr name, Expression value) {
+    return new BlockStmt(new NodeList<>(new ExpressionStmt(new AssignExpr(name.clone(), value.clone(), AssignExpr.Operator.ASSIGN))));
+  }
+
+  /** What a branch leaves in a name, for the names it writes once, at its own top level, as a literal or another name. */
+  private static Map<String, Expression> decided(Statement branch) {
+    Map<String, Integer> writes = new HashMap<>();
+    for (AssignExpr a : branch.findAll(AssignExpr.class))
+      if (a.getTarget() instanceof NameExpr n)
+        writes.merge(n.getNameAsString(), 1, Integer::sum);
+    for (UnaryExpr u : branch.findAll(UnaryExpr.class, x -> x.getOperator().name().contains("CREMENT")))
+      if (u.getExpression() instanceof NameExpr n)
+        writes.merge(n.getNameAsString(), 1, Integer::sum);
+    Map<String, Expression> values = new LinkedHashMap<>();
+    for (Statement s : statements(branch))
+      if (s instanceof ExpressionStmt es && es.getExpression() instanceof AssignExpr a
+          && a.getOperator() == AssignExpr.Operator.ASSIGN && a.getTarget() instanceof NameExpr n
+          && (Folder.intValue(a.getValue()) != null || a.getValue() instanceof NameExpr)
+          && writes.getOrDefault(n.getNameAsString(), 0) == 1)
+        values.put(n.getNameAsString(), a.getValue());
+    return values;
+  }
+
+  /**
+   * Whether a value can stand for the name through the tail: nothing may change the value before
+   * the tail's last read of the name. The statement that changes it may be that read itself -
+   * {@code PC = nextPC} - because an assignment evaluates its right hand side first.
+   */
+  private static boolean standsIn(List<Statement> tail, String name, Expression value) {
+    if (Folder.intValue(value) != null)
+      return true;
+    if (!(value instanceof NameExpr v))
+      return false;
+    for (int i = 0; i < tail.size(); i++) {
+      if (!writes(List.of(tail.get(i)), v.getNameAsString()))
+        continue;
+      if (!(tail.get(i) instanceof ExpressionStmt es && es.getExpression() instanceof AssignExpr a && a.getOperator() == AssignExpr.Operator.ASSIGN))
+        return false;
+      for (int later = i + 1; later < tail.size(); later++)
+        if (reads(tail.get(later), name))
+          return false;
+    }
+    return true;
+  }
+
+  private static boolean writes(List<Statement> statements, String name) {
+    for (Statement s : statements) {
+      for (AssignExpr a : s.findAll(AssignExpr.class))
+        if (a.getTarget().toString().equals(name))
+          return true;
+      for (UnaryExpr u : s.findAll(UnaryExpr.class, x -> x.getOperator().name().contains("CREMENT")))
+        if (u.getExpression().toString().equals(name))
+          return true;
+    }
+    return false;
+  }
+
+  private static boolean readsAny(List<Statement> statements, String name) {
+    for (Statement s : statements)
+      if (reads(s, name))
+        return true;
+    return false;
+  }
+
+  private static void graft(Statement branch, List<Statement> tail, Map<String, Expression> values) {
+    BlockStmt block = branch instanceof BlockStmt b ? b : new BlockStmt(new NodeList<>(branch.clone()));
+    if (block != branch)
+      branch.replace(block);
+    for (Statement s : tail) {
+      Statement copy = s.clone();
+      for (Map.Entry<String, Expression> decision : values.entrySet())
+        for (NameExpr n : copy.findAll(NameExpr.class, x -> x.getNameAsString().equals(decision.getKey())))
+          n.replace(decision.getValue().clone());
+      block.addStatement(copy);
+    }
+  }
+
+  /** A local nothing reads: gone, and so are the stores that only fed it. */
   private static boolean dropUnusedLocals(List<Statement> body) {
     boolean changed = false;
     for (int i = 0; i < body.size(); i++) {
@@ -306,15 +441,28 @@ public class Simplifier {
         continue;
       VariableDeclarator d = v.getVariable(0);
       String name = d.getNameAsString();
-      boolean used = false;
-      for (Statement s : body)
-        if (s != body.get(i) && !s.findAll(NameExpr.class, x -> x.getNameAsString().equals(name)).isEmpty())
-          used = true;
-      if (!used && (d.getInitializer().isEmpty() || Specializer.isPure(d.getInitializer().get()))) {
-        body.remove(i);
-        changed = true;
-        i--;
+      if (d.getInitializer().isPresent() && !Specializer.isPure(d.getInitializer().get()))
+        continue;
+      Statement declaration = body.get(i);
+      List<ExpressionStmt> writes = new ArrayList<>();
+      int mentions = 0;
+      boolean read = false;
+      for (Statement s : body) {
+        if (s == declaration)
+          continue;
+        read |= reads(s, name);
+        mentions += s.findAll(NameExpr.class, x -> x.getNameAsString().equals(name)).size();
+        writes.addAll(s.findAll(ExpressionStmt.class, x -> x.getExpression() instanceof AssignExpr a
+            && a.getOperator() == AssignExpr.Operator.ASSIGN && a.getTarget().toString().equals(name) && Specializer.isPure(a.getValue())));
       }
+      if (read || mentions != writes.size())
+        continue;
+      for (ExpressionStmt write : writes)
+        if (!drop(body, write))
+          write.remove();
+      drop(body, declaration);
+      changed = true;
+      i = -1;
     }
     return changed;
   }

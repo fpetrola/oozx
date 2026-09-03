@@ -599,6 +599,7 @@ Cada paso termina verde en su gate y con su número anotado; el siguiente no emp
    1355, ALU, `IsCurrentTest` regenerado; el tamaño de bytecode por método, antes y después.
    *Hecho.*
 2. **A4**: el tejido por rama. Gate: Fuse evento por evento, que es exactamente lo que cambia.
+   *Hecho.*
 3. **A6**: `GROUP_SHIFT` y un método por opcode, con el benchmark del paso 0. Se queda uno.
 4. **M1–M5** en la máquina, con el núcleo OOP. Gate: `machine/core` 260, memoria contendida,
    hashes de boot, los tests de cinta; `RzxCoreMeasurement` para ver cuánto movió M1 y M2
@@ -704,6 +705,79 @@ Lo que salió de hacerlo:
   `RRegister` ya enmascara y el `if` que las guardaba nunca es falso, y la única que corría llamaba
   a `low.increment()`. Como R no acarrea a I en un Z80, el par se mueve cuando se mueve R: eso es
   lo que dicen ahora las dos. Nadie las llamaba, así que el bug nunca se vio.
+
+### Paso 2: A4, la decisión se toma una vez
+
+| qué | tras el paso 1 | ahora |
+|---|---|---|
+| líneas de `GeneratedZ80.java` | 26.061 | **25.443** |
+| bytecode total | 195.310 | **191.253** |
+| `== -1` | 203 | **14** |
+| `!= -1` | 27 | **12** |
+| método más grande | 3.291 | 3.295 |
+
+Sobre los dos pasos: 215.069 → 191.253 bytes, **-11,1 %**. DJNZ, por ejemplo:
+
+```java
+// antes: la rama decide y después le preguntan cuatro veces
+if ((B != 0)) { ...; _nextPC26 = jumpAddress2_49; } else { _nextPC26 = -1; }
+int nextPC_51 = _nextPC26;
+MEMPTR = (nextPC_51 == -1 ? 0 : nextPC_51) & 0xFFFF;
+if (_nextPC26 != -1) contend((PC + 1) & 0xFFFF, 5, 1, READ_NO_MREQ);
+if (_nextPC26 == -1) contend((PC + 1) & 0xFFFF, 1, 3, READ);
+PC = _nextPC26 == -1 ? (PC + 2) & 0xFFFF : _nextPC26;
+
+// ahora
+if ((B != 0)) {
+    int operand_50 = memory.read((PC + 1) & 0xFFFF, 0);
+    int jumpAddress2_49 = ((PC + 2 + (byte) operand_50) & 0xFFFF);
+    MEMPTR = jumpAddress2_49;
+    contend((PC + 1) & 0xFFFF, 5, 1, READ_NO_MREQ);
+    PC = jumpAddress2_49;
+    break;
+} else {
+    MEMPTR = 0;
+    contend((PC + 1) & 0xFFFF, 1, 3, READ);
+    PC = (PC + 2) & 0xFFFF;
+    break;
+}
+```
+
+**No es una regla del tejido, es una del simplificador.** El plan proponía que `CoreGenerator.weave`
+reconociera el patrón del `nextPC`. Salió mejor una regla que no nombra ninguna instrucción: *la
+cola de un `case` que sólo pregunta por dónde fue la rama se copia adentro de la rama*. Con la
+respuesta en la mano, cada copia pliega sus preguntas. Alcanza para las cuatro —la contención, el
+MEMPTR y el PC— y también para la forma `n = cond ? a : b`, que es la de las ocho instrucciones de
+bloque de ED. Las condiciones para que dispare, que son las que la hacen segura:
+
+- las dos ramas dejan el nombre decidido, cada una con un literal o con otro nombre;
+- la cola lo lee y nunca lo escribe;
+- lo que va a ocupar su lugar no cambia antes de la última lectura del nombre. La sentencia que lo
+  cambia puede ser esa última lectura —`PC = nextPC`— porque una asignación evalúa primero la
+  derecha. Sin esa precisión, LDIR no entraba.
+
+Lo que salió de hacerlo:
+
+- **Los masks hay que volver a preguntarlos.** Mientras a `PC` se le asignaba `saltó ? allá : acá`,
+  su ancho era desconocido, y con eso no se plegaba nada adentro de las ramas nuevas. Ahora
+  `classify` recalcula los masks después de simplificar y vuelve a simplificar, hasta que la
+  respuesta deja de mejorar. Son dos vueltas y la generación pasó de 8 a 15 segundos.
+- **La propagación de alias era de más conservadora.** Se negaba a reemplazar `x` por `y` si `y` se
+  asignaba en cualquier parte del cuerpo; lo que importa es si se asigna *después* de la
+  declaración, porque lo de antes es justamente el valor que `x` tomó. Con eso caen los
+  `int nextPC_601 = jumpAddress2_596;` que quedaban.
+- **`Node.remove()` no saca una sentencia de primer nivel.** Las del cuerpo de un `case` están
+  sueltas en una lista y no tienen padre, así que `remove()` devuelve false y no hace nada. El
+  primer intento sacaba la declaración de un local y dejaba sus asignaciones, y el generado no
+  compilaba. Lo agarró el build, no un test: el candado compara texto y no le importa que el texto
+  compile.
+
+Quedan 14 `== -1`, y se sabe por qué: seis son de HALT, que guarda su `nextPC` en un campo con -1
+inicial —y eso es fiel al modelo, `AbstractInstruction.nextPC` tampoco se resetea entre
+ejecuciones—, y ese campo le contagia a `PC` un ancho desconocido, que deja dos preguntas adentro
+de la rama tomada de las ocho instrucciones de bloque. Para sacarlas habría que distinguir "cuántos
+bits tiene" de "puede ser -1", que son dos hechos y hoy el análisis lleva uno solo. Es un frente
+abierto chico y bien delimitado.
 
 ## Cómo se verifica
 

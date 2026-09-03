@@ -291,7 +291,20 @@ public class CoreGenerator {
           fields.add(slot);
     Map<String, Integer> masks = masksOfEverything();
     for (Case c : cases)
-      finish(c, masks);
+      simplify(c, masks);
+    // Simplifying changes what a name can hold: while PC was assigned "jumped ? there : here" it
+    // could be anything, and once each branch says where it goes it is an address again. So it is
+    // asked again, and the cases are simplified again, until the answer stops improving.
+    for (int round = 0; round < 4; round++) {
+      Map<String, Integer> narrower = masksOfEverything();
+      if (narrower.equals(masks))
+        break;
+      masks = narrower;
+      for (Case c : cases)
+        Simplifier.simplify(c.body, masks);
+    }
+    for (Case c : cases)
+      emit(c);
   }
 
   /**
@@ -328,7 +341,7 @@ public class CoreGenerator {
     return null;
   }
 
-  private void finish(Case c, Map<String, Integer> masks) {
+  private void simplify(Case c, Map<String, Integer> masks) {
     List<Statement> body = c.body;
     for (String slot : slotsIn(body)) {
       Specializer.Slot s = slotNamed(slot);
@@ -347,6 +360,10 @@ public class CoreGenerator {
         body.add(0, Specializer.declare(new ClassOrInterfaceType(null, s.type().getSimpleName()), slot, s.type() == boolean.class ? new BooleanLiteralExpr(false) : lit(0)));
     }
     Simplifier.simplify(body, masks);
+  }
+
+  private void emit(Case c) {
+    List<Statement> body = c.body;
     String parameters = parametersOf.getOrDefault(c.method, List.of()).stream().map(p -> ", int " + p).reduce("", String::concat);
     String group = c.method + "_" + (c.opcode >> GROUP_SHIFT);
     String header = "  private void " + group + "(int opcode" + parameters + ") {\n    switch (opcode) {\n";
