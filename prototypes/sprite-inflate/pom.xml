@@ -37,10 +37,11 @@
       <version>1.8.2</version>
     </dependency>
 
-    <!-- Only Grab needs this: it plays a recording and reads the screen out of the machine. -->
+    <!-- Only Grab needs this: it plays a recording and reads the screen out of the machine.
+         RzxSession lives in the app module, which brings the core along. -->
     <dependency>
       <groupId>com.fpetrola</groupId>
-      <artifactId>core</artifactId>
+      <artifactId>app</artifactId>
       <version>0.0.2-alu-SNAPSHOT</version>
     </dependency>
 

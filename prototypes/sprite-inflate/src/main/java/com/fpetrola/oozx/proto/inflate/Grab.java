@@ -1,7 +1,7 @@
 package com.fpetrola.oozx.proto.inflate;
 
 import com.fpetrola.oozx.Speccy;
-import com.fpetrola.oozx.speccy.OOSpectrumConnector;
+import com.fpetrola.oozx.speccy.Emulation;
 import com.fpetrola.oozx.speccy.rzx.RzxSession;
 import com.fpetrola.oozx.speccy.sound.JavaSoundDevice;
 
@@ -18,7 +18,7 @@ public class Grab {
 
   public static void main(String[] args) throws Exception {
     System.setProperty("java.awt.headless", "true");
-    OOSpectrumConnector.noTest = true;
+    Emulation.noTest = true;
     RzxSession session = RzxSession.open(new File(args[0]));
     session.getSpeccy().sound.setJavaSoundDevice(new JavaSoundDevice() {
       public void sound_lowlevel_frame(int[] data, int length) {
