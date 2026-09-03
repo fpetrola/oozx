@@ -186,6 +186,9 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
 
   /** The most the slider asks for, and what the rocket asks for when pressed. */
   static final int TOP_SPEED = 30000;
+  /** Where the slider's two halves meet: the left half is the speeds one plays at, the right the rest. */
+  static final int KNEE_SPEED = 300;
+  private static final int HALF = 500;
   private final ImageIcon rocket = loadIcon("1F680.svg");
   private JButton turboButton;
   private JSlider speedSlider;
@@ -194,7 +197,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
   /** The slider and the rocket say what the speed is: the rocket greys as it nears the top. */
   private void reflectSpeed(int speed) {
     reflectingSpeed = true;
-    speedSlider.setValue(Math.max(25, Math.min(TOP_SPEED, speed)));
+    speedSlider.setValue(positionOf(speed));
     reflectingSpeed = false;
     turboButton.setIcon(Widgets.greyed(rocket, (speed - 100) / (float) (TOP_SPEED - 100)));
   }
@@ -204,27 +207,37 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     reflectSpeed(speed);
   }
 
+  /** The speed at a position: the left half runs from a quarter to the knee, the right half from the knee to the top. */
+  static int speedAt(int position) {
+    if (position <= HALF) return 25 + Math.round((KNEE_SPEED - 25) * position / (float) HALF);
+    return KNEE_SPEED + Math.round((TOP_SPEED - KNEE_SPEED) * (position - HALF) / (float) HALF);
+  }
+
+  static int positionOf(double speed) {
+    if (speed <= KNEE_SPEED) return Math.max(0, Math.round((float) (speed - 25) * HALF / (KNEE_SPEED - 25)));
+    return Math.min(2 * HALF, HALF + Math.round((float) (speed - KNEE_SPEED) * HALF / (TOP_SPEED - KNEE_SPEED)));
+  }
+
   /**
-   * A speed to run at, in percent, from a quarter of real time to the top. Applied when the
-   * knob is let go: a change of speed rebuilds the sound, and rebuilding it forty times along
-   * one drag would crackle.
+   * A speed to run at, in two halves: the left from a quarter of real time to three times it,
+   * where a game is played, the right from there to the top. Applied when the knob is let go: a
+   * change of speed rebuilds the sound, and rebuilding it forty times along one drag would crackle.
    */
   private JComponent speedSlider() {
-    JSlider slider = speedSlider = new JSlider(25, TOP_SPEED, 100);
+    JSlider slider = speedSlider = new JSlider(0, 2 * HALF, positionOf(100));
     java.util.Hashtable<Integer, JComponent> labels = new java.util.Hashtable<>();
-    labels.put(25, new JLabel("25%"));
-    for (int speed = 5000; speed <= TOP_SPEED; speed += 5000) {
-      labels.put(speed, new JLabel(speed + "%"));
+    for (int speed : new int[]{25, 100, 200, KNEE_SPEED, 10000, 20000, TOP_SPEED}) {
+      labels.put(positionOf(speed), new JLabel(speed + "%"));
     }
     slider.setLabelTable(labels);
     slider.setPaintLabels(true);
-    slider.setMajorTickSpacing(5000);
-    slider.setMinorTickSpacing(1000);
+    slider.setMajorTickSpacing(HALF);
+    slider.setMinorTickSpacing(HALF / 10);
     slider.setPaintTicks(true);
-    slider.setPreferredSize(new Dimension(420, slider.getPreferredSize().height));
+    slider.setPreferredSize(new Dimension(480, slider.getPreferredSize().height));
     slider.addChangeListener(e -> {
       if (!slider.getValueIsAdjusting() && !reflectingSpeed) {
-        speedChosen(slider.getValue());
+        speedChosen(speedAt(slider.getValue()));
       }
     });
     return slider;

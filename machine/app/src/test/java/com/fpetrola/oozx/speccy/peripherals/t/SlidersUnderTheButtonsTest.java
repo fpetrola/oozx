@@ -27,11 +27,25 @@ import javax.swing.SwingUtilities;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.MouseEvent;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-/** The drop-down a right click on a button opens. */
+/** The speed slider's two halves, and the drop-down a right click on a button opens. */
 class SlidersUnderTheButtonsTest {
+
+  /** The left half is the quarter to three times real time, the right half the rest; each speed has its place. */
+  @Test
+  void theSliderHasTwoHalvesAndEachSpeedHasItsPlace() {
+    assertEquals(25, EmulatorInternalFrame.speedAt(0));
+    assertEquals(EmulatorInternalFrame.KNEE_SPEED, EmulatorInternalFrame.speedAt(500));
+    assertEquals(EmulatorInternalFrame.TOP_SPEED, EmulatorInternalFrame.speedAt(1000));
+    assertEquals(500, EmulatorInternalFrame.positionOf(EmulatorInternalFrame.KNEE_SPEED), "the knee sits in the middle");
+    for (int speed : new int[]{25, 50, 100, 200, 300, 1000, 10000, 20000, 30000}) {
+      int back = EmulatorInternalFrame.speedAt(EmulatorInternalFrame.positionOf(speed));
+      assertTrue(Math.abs(back - speed) <= (speed <= 300 ? 1 : 60), speed + "% came back as " + back);
+    }
+  }
 
   @Test
   void aRightClickOnTheButtonDropsTheSliderDown() throws Exception {
