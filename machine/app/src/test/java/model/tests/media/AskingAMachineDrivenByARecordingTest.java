@@ -26,6 +26,7 @@ import java.io.File;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -59,6 +60,19 @@ class AskingAMachineDrivenByARecordingTest {
     assertTrue(session.playFrame(), "the recording should have a frame to play");
 
     assertTrue(done[0], "what was asked for while a recording plays must actually happen");
+  }
+
+  /**
+   * A recording picked off the disk has to be recognised as one, because that is what decides
+   * which window it opens in. Handed to a machine instead it is read as a snapshot, which is
+   * what Open File did with one until now.
+   */
+  @Test
+  void a_recording_is_recognised_as_one_and_a_snapshot_is_not() {
+    assertTrue(RzxSession.isRecording(recording().getAbsolutePath()),
+        "the very file this can open must be recognised as a recording");
+    assertFalse(RzxSession.isRecording("manicminer.z80"), "a snapshot is a machine's to load");
+    assertFalse(RzxSession.isRecording(null));
   }
 
   @Test

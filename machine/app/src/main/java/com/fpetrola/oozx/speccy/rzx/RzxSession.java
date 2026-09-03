@@ -107,6 +107,15 @@ public class RzxSession {
     return speccy.machine.current.getName();
   }
 
+  /**
+   * Whether a path names a recording, and so is this class's to open rather than a machine's to
+   * load. Asked wherever someone picks a file: a recording brings its own machine, so handing one
+   * to a machine that is already built gets it read as a snapshot, which it is not.
+   */
+  public static boolean isRecording(String path) {
+    return path != null && path.toLowerCase().endsWith(".rzx");
+  }
+
   public static RzxSession open(File file) {
     RzxFile recording = new RzxParser().parseFile(file.getAbsolutePath());
     // The parser answers null for anything it does not recognise rather than saying so, and a

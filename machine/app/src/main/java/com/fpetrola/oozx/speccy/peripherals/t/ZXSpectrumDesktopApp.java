@@ -960,8 +960,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
   {
     // Configuración única del file chooser
     FileNameExtensionFilter filter = new FileNameExtensionFilter(
-        "ZX Spectrum files (*.tap, *.tzx, *.z80, *.sna, *.szx)",
-        "tap", "tzx", "z80", "sna", "szx");
+        "ZX Spectrum files (*.tap, *.tzx, *.z80, *.sna, *.szx, *.rzx)",
+        "tap", "tzx", "z80", "sna", "szx", "rzx");
     fileChooser.setFileFilter(filter);
     fileChooser.setCurrentDirectory(new java.io.File(System.getProperty("user.home")));
   }
@@ -973,11 +973,21 @@ public class ZXSpectrumDesktopApp extends JFrame {
       config.setLastOpenDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
       config.addRecentFile(path);
       updateRecentFilesMenu();
-//      EmulatorInternalFrame target = getActiveEmulatorOrCreateNew();
-//      if (target != null) {
+      open(path);
+    }
+  }
+
+  /**
+   * Opens whatever was picked in the window that plays it: a recording drives a machine of its
+   * own from its own controls, anything else is a machine's to load. Every way of arriving at a
+   * file goes through here - the menu, the recent list - so that a recording opens the same way
+   * whichever of them it came from.
+   */
+  public void open(String path) {
+    if (com.fpetrola.oozx.speccy.rzx.RzxSession.isRecording(path)) {
+      showRzxPlayer().openRecording(new java.io.File(path));
+    } else {
       loadInNewEmulator(path);
-//        target.emulatorCore.loadFile(path);
-//      }
     }
   }
 
@@ -2906,10 +2916,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     for (String filePath : recentFiles) {
       JMenuItem item = new JMenuItem(new java.io.File(filePath).getName());
       item.setToolTipText(filePath);
-      item.addActionListener(e -> {
-        EmulatorCore emulatorCore = mockCore.apply(filePath, null);
-        createNewEmulator(emulatorCore);
-      });
+      item.addActionListener(e -> open(filePath));
       recentFilesMenu.add(item);
     }
 
