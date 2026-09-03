@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.generate;
 
+import model.tags.Slow;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
@@ -25,6 +26,7 @@ import java.nio.file.Files;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /** The committed core is what the model produces today; if not, the model changed and nobody regenerated. */
+@Slow
 public class GeneratedZ80IsCurrentTest {
   @Test
   public void committedCoreIsWhatTheModelGenerates() throws Exception {

@@ -309,10 +309,18 @@ java -jar target/machine-0.0.1-SNAPSHOT.jar
 
 `emulator/src/main/java/com/fpetrola/z80/cpu/GeneratedZ80.java` is generated from the OOP
 model, never edited by hand. After changing an instruction, `MemptrUpdater` or
-`PhaseProcessor`, regenerate it and the build checks it is current:
+`PhaseProcessor`, regenerate it:
 
 ```bash
 mvn test -pl emulator -Dtest=GenerateZ80
+```
+
+`GeneratedZ80IsCurrentTest` regenerates in memory and fails if the committed file differs. It
+rebuilds the whole core to do it, so it is tagged `@Slow` and stays out of the gate that runs on
+every change; ask for it, along with the rest of the slow tests, with:
+
+```bash
+mvn test -pl emulator -Doozx.slow=true
 ```
 
 The machine runs on it with `-Doozx.cpu=generated`; the OOP core stays the default. The plan and

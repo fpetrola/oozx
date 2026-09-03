@@ -40,6 +40,14 @@
             <artifactId>devices-all</artifactId>
             <version>0.0.2-alu-SNAPSHOT</version>
         </dependency>
+        <!-- The Slow tag: a test the gate does not run unless someone asks for it. -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>emulator</artifactId>
+            <version>0.0.2-alu-SNAPSHOT</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
         <!-- The emulator's test harness and its ROMs, tapes and recordings. -->
         <dependency>
             <groupId>com.fpetrola</groupId>

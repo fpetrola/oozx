@@ -46,6 +46,14 @@
             <artifactId>emulator</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- The Slow tag: a test the gate does not run unless someone asks for it. -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>emulator</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>spectrum</artifactId>

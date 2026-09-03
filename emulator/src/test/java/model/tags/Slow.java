@@ -30,7 +30,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Minutes of emulation, not seconds. Kept out of the gate that runs on every change.
+ * What the gate that runs on every change does not run: minutes of emulation, and the generator,
+ * which rebuilds the whole core from the model to see whether the committed one still matches it.
  * <p>
  * The condition lives on the test rather than in surefire's configuration because a build is not
  * the only thing that runs tests: asking an IDE for "all tests in the module" ignores anything the

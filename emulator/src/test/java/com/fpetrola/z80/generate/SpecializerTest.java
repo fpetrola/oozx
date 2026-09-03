@@ -29,11 +29,13 @@ import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.registers.UnrolledRegisterBankFactory;
 import com.github.javaparser.ast.stmt.Statement;
+import model.tags.Slow;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.List;
 
+@Slow
 public class SpecializerTest {
   static final Path SOURCES = Path.of("src/main/java");
 

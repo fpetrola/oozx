@@ -505,7 +505,9 @@ En `emulator/src/test/java`, reemplazando el prototipo (`com/fpetrola/oozx/CodeI
 compañía, 971 líneas): es lo que ese código intentaba ser, necesita el JavaParser de scope test,
 y no se despacha con el emulador. Se corre como ya se corre la actualización de baselines de las
 tablas ALU: `mvn test -pl emulator -Dtest=GenerateZ80` regenera; `GeneratedZ80IsCurrentTest`
-regenera en memoria y compara con el archivo commiteado, y falla si difieren. El archivo generado
+regenera en memoria y compara con el archivo commiteado, y falla si difieren. Como para eso
+reconstruye el núcleo entero, está marcado `@Slow` y no corre en el gate de cada cambio: se pide
+con `-Doozx.slow=true`. El archivo generado
 va a `emulator/src/main/java`, commiteado y legible, como `Z80.java` de Z80Core.
 
 ## Los pasos
