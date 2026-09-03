@@ -158,6 +158,8 @@ public class Folder {
 
   /**
    * The bits a value can have, or {@link #UNKNOWN} when it could be anything, negative included.
+   * A call is looked up by its name with "()" after it, so what the memory's read gives back is
+   * said once, wherever that read is written.
    * The generator knows things about its own code that the JIT cannot: that a memory read is a
    * byte, that a masked value stays masked, that an address built from two bytes is not -1. This
    * is what lets a mask or a comparison that cannot fail be dropped.
@@ -177,7 +179,7 @@ public class Folder {
     if (e instanceof AssignExpr a)
       return a.getOperator() == AssignExpr.Operator.ASSIGN ? maskOf(a.getValue(), names) : UNKNOWN;
     if (e instanceof MethodCallExpr m)
-      return isByteRead(m) ? 0xFF : UNKNOWN;
+      return names.getOrDefault(m.getNameAsString() + "()", UNKNOWN);
     if (e instanceof ConditionalExpr c) {
       int then = maskOf(c.getThenExpr(), names), otherwise = maskOf(c.getElseExpr(), names);
       return then == UNKNOWN || otherwise == UNKNOWN ? UNKNOWN : then | otherwise;
@@ -211,11 +213,6 @@ public class Folder {
   /** Every bit up to the highest the sum could reach. */
   private static int widen(long max) {
     return max < 0 || max > Integer.MAX_VALUE ? UNKNOWN : (int) (Long.highestOneBit(max) == 0 ? 0 : (Long.highestOneBit(max) << 1) - 1);
-  }
-
-  /** The memory's contract: a read is one byte. */
-  private static boolean isByteRead(MethodCallExpr m) {
-    return m.getNameAsString().equals("read") && m.getScope().isPresent() && m.getScope().get().toString().equals("memory");
   }
 
   static Integer intValue(Expression e) {

@@ -393,6 +393,8 @@ public class CoreGenerator {
     for (Case c : cases)
       roots.addAll(c.body);
     Map<String, Integer> seed = new LinkedHashMap<>();
+    // The memory's contract, however the read is written: on a field, or on this class.
+    seed.put("read()", 0xFF);
     for (String field : fields) {
       Object initial = slotNamed(field).initial();
       seed.put(field, initial instanceof Integer i && i >= 0 ? i : Folder.UNKNOWN);

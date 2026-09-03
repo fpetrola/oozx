@@ -48,7 +48,10 @@ class RzxCoreMeasurement {
     System.out.printf("core=%s recordedFrames=6000 machineFrames=%d tstatesPerRecordedFrame=%.1f instructions=%d seconds=%.2f fps=%.0f speed=%.0f%%%n",
         System.getProperty("oozx.cpu", "oop"), machineFrames, tstates / 6000.0, playback.getInstructions(), seconds, 6000 / seconds, 6000 / seconds / 50 * 100);
     session.getSpeccy().uiDisplay.active = false;
+    // The sound device paces the machine to the audio card: with it in the way this measures
+    // JavaSound, and a loop that runs faster than real time waits forever on line.write.
     session.getSpeccy().settings.current.sound = false;
+    session.getSpeccy().sound.setJavaSoundDevice(new com.fpetrola.oozx.speccy.sound.SilentSoundDevice());
     for (int round = 0; round < 2; round++) {
       start = System.nanoTime();
       for (int frame = 0; frame < 3000; frame++)
