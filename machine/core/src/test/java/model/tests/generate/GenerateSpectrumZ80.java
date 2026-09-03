@@ -39,6 +39,8 @@ public class GenerateSpectrumZ80 {
     CoreGenerator.Target target = new CoreGenerator.Target();
     target.packageName = "com.fpetrola.oozx.speccy.modules.z80";
     target.className = "GeneratedSpectrumZ80";
+    // Eight opcodes per method: measured on doOpcodes, four percent over sixteen and well over thirty two.
+    target.groupShift = Integer.getInteger("oozx.groupshift", 3);
     target.held.put("ram", Memory.class);
     target.held.put("mapRead", com.fpetrola.oozx.MemoryPage[].class);
     target.held.put("mapWrite", com.fpetrola.oozx.MemoryPage[].class);

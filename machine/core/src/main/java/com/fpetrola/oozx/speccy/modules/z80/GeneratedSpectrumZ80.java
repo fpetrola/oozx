@@ -1,6 +1,5 @@
 package com.fpetrola.oozx.speccy.modules.z80;
 
-import com.fpetrola.oozx.MemoryPage;
 import com.fpetrola.oozx.Memory;
 import com.fpetrola.oozx.MemoryPage;
 import com.fpetrola.oozx.SpectrumZ80Clock;
@@ -175,7 +174,7 @@ static final int[] SZ53 = new int[0x100];
   }
 
   private void decode(int opcode) {
-    switch (opcode >> 4) {
+    switch (opcode >> 3) {
       case 0: decode_0(opcode);
         break;
       case 1: decode_1(opcode);
@@ -207,6 +206,38 @@ static final int[] SZ53 = new int[0x100];
       case 14: decode_14(opcode);
         break;
       case 15: decode_15(opcode);
+        break;
+      case 16: decode_16(opcode);
+        break;
+      case 17: decode_17(opcode);
+        break;
+      case 18: decode_18(opcode);
+        break;
+      case 19: decode_19(opcode);
+        break;
+      case 20: decode_20(opcode);
+        break;
+      case 21: decode_21(opcode);
+        break;
+      case 22: decode_22(opcode);
+        break;
+      case 23: decode_23(opcode);
+        break;
+      case 24: decode_24(opcode);
+        break;
+      case 25: decode_25(opcode);
+        break;
+      case 26: decode_26(opcode);
+        break;
+      case 27: decode_27(opcode);
+        break;
+      case 28: decode_28(opcode);
+        break;
+      case 29: decode_29(opcode);
+        break;
+      case 30: decode_30(opcode);
+        break;
+      case 31: decode_31(opcode);
         break;
       default:
         throw new IllegalStateException("undefined opcode " + opcode + " in decode");
@@ -293,6 +324,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 1) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decode");
+    }
+  }
+
+  private void decode_1(int opcode) {
+    switch (opcode) {
       case 0x08: {
           int v1_22 = ((A << 8) | F);
           int v2_23 = _AF;
@@ -393,7 +431,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decode_1(int opcode) {
+  private void decode_2(int opcode) {
     switch (opcode) {
       case 0x10: {
           contend1x1(((I << 8) | R));
@@ -487,6 +525,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 1) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decode");
+    }
+  }
+
+  private void decode_3(int opcode) {
+    switch (opcode) {
       case 0x18: {
           int _nextPC38;
           int operand_75 = read((PC + 1) & 0xFFFF, 0);
@@ -589,7 +634,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decode_2(int opcode) {
+  private void decode_4(int opcode) {
     switch (opcode) {
       case 0x20: {
           if ((!((F & 0x40) == 0x40))) {
@@ -724,6 +769,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 1) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decode");
+    }
+  }
+
+  private void decode_5(int opcode) {
+    switch (opcode) {
       case 0x28: {
           if (((F & 0x40) == 0x40)) {
               int operand_153 = read((PC + 1) & 0xFFFF, 0);
@@ -836,7 +888,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decode_3(int opcode) {
+  private void decode_6(int opcode) {
     switch (opcode) {
       case 0x30: {
           if ((!((F & 1) == 1))) {
@@ -931,6 +983,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 1) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decode");
+    }
+  }
+
+  private void decode_7(int opcode) {
+    switch (opcode) {
       case 0x38: {
           if (((F & 1) == 1)) {
               int operand_215 = read((PC + 1) & 0xFFFF, 0);
@@ -1033,7 +1092,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decode_4(int opcode) {
+  private void decode_8(int opcode) {
     switch (opcode) {
       case 0x40: {
           PC = (PC + 1) & 0xFFFF;
@@ -1076,6 +1135,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 1) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decode");
+    }
+  }
+
+  private void decode_9(int opcode) {
+    switch (opcode) {
       case 0x48: {
           C = B;
           PC = (PC + 1) & 0xFFFF;
@@ -1122,7 +1188,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decode_5(int opcode) {
+  private void decode_10(int opcode) {
     switch (opcode) {
       case 0x50: {
           D = B;
@@ -1165,6 +1231,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 1) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decode");
+    }
+  }
+
+  private void decode_11(int opcode) {
+    switch (opcode) {
       case 0x58: {
           E = B;
           PC = (PC + 1) & 0xFFFF;
@@ -1211,7 +1284,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decode_6(int opcode) {
+  private void decode_12(int opcode) {
     switch (opcode) {
       case 0x60: {
           H = B;
@@ -1254,6 +1327,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 1) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decode");
+    }
+  }
+
+  private void decode_13(int opcode) {
+    switch (opcode) {
       case 0x68: {
           L = B;
           PC = (PC + 1) & 0xFFFF;
@@ -1300,7 +1380,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decode_7(int opcode) {
+  private void decode_14(int opcode) {
     switch (opcode) {
       case 0x70: {
           int _address84 = (H << 8) | L;
@@ -1352,6 +1432,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 1) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decode");
+    }
+  }
+
+  private void decode_15(int opcode) {
+    switch (opcode) {
       case 0x78: {
           A = B;
           PC = (PC + 1) & 0xFFFF;
@@ -1398,7 +1485,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decode_8(int opcode) {
+  private void decode_16(int opcode) {
     switch (opcode) {
       case 0x80: {
           int _F169;
@@ -1506,6 +1593,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 1) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decode");
+    }
+  }
+
+  private void decode_17(int opcode) {
+    switch (opcode) {
       case 0x88: {
           int _F185;
           int value1_301 = A;
@@ -1626,7 +1720,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decode_9(int opcode) {
+  private void decode_18(int opcode) {
     switch (opcode) {
       case 0x90: {
           int _F201;
@@ -1727,6 +1821,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 1) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decode");
+    }
+  }
+
+  private void decode_19(int opcode) {
+    switch (opcode) {
       case 0x98: {
           int _F217;
           int value1_399 = A;
@@ -1847,7 +1948,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decode_10(int opcode) {
+  private void decode_20(int opcode) {
     switch (opcode) {
       case 0xA0: {
           int _F233;
@@ -1947,6 +2048,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 1) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decode");
+    }
+  }
+
+  private void decode_21(int opcode) {
+    switch (opcode) {
       case 0xA8: {
           int _F249;
           int value1_481 = A;
@@ -2050,7 +2158,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decode_11(int opcode) {
+  private void decode_22(int opcode) {
     switch (opcode) {
       case 0xB0: {
           int _F265;
@@ -2150,6 +2258,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 1) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decode");
+    }
+  }
+
+  private void decode_23(int opcode) {
+    switch (opcode) {
       case 0xB8: {
           int _F281;
           int cptemp_550 = A - B;
@@ -2229,7 +2344,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decode_12(int opcode) {
+  private void decode_24(int opcode) {
     switch (opcode) {
       case 0xC0: {
           contend1x1(((I << 8) | R));
@@ -2350,6 +2465,13 @@ static final int[] SZ53 = new int[0x100];
           PC = _nextPC305 == -1 ? (PC + 1) & 0xFFFF : _nextPC305;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decode");
+    }
+  }
+
+  private void decode_25(int opcode) {
+    switch (opcode) {
       case 0xC8: {
           contend1x1(((I << 8) | R));
           int jumpAddress2_642 = SP;
@@ -2480,7 +2602,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decode_13(int opcode) {
+  private void decode_26(int opcode) {
     switch (opcode) {
       case 0xD0: {
           contend1x1(((I << 8) | R));
@@ -2599,6 +2721,13 @@ static final int[] SZ53 = new int[0x100];
           PC = _nextPC706;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decode");
+    }
+  }
+
+  private void decode_27(int opcode) {
+    switch (opcode) {
       case 0xD8: {
           contend1x1(((I << 8) | R));
           int jumpAddress2_1407 = SP;
@@ -2723,7 +2852,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decode_14(int opcode) {
+  private void decode_28(int opcode) {
     switch (opcode) {
       case 0xE0: {
           contend1x1(((I << 8) | R));
@@ -2847,6 +2976,13 @@ static final int[] SZ53 = new int[0x100];
           PC = _nextPC1733;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decode");
+    }
+  }
+
+  private void decode_29(int opcode) {
+    switch (opcode) {
       case 0xE8: {
           contend1x1(((I << 8) | R));
           int jumpAddress2_3624 = SP;
@@ -2960,7 +3096,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decode_15(int opcode) {
+  private void decode_30(int opcode) {
     switch (opcode) {
       case 0xF0: {
           contend1x1(((I << 8) | R));
@@ -3072,6 +3208,13 @@ static final int[] SZ53 = new int[0x100];
           PC = _nextPC2058;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decode");
+    }
+  }
+
+  private void decode_31(int opcode) {
+    switch (opcode) {
       case 0xF8: {
           contend1x1(((I << 8) | R));
           int jumpAddress2_4210 = SP;
@@ -3176,7 +3319,7 @@ static final int[] SZ53 = new int[0x100];
   }
 
   private void decodeCB(int opcode) {
-    switch (opcode >> 4) {
+    switch (opcode >> 3) {
       case 0: decodeCB_0(opcode);
         break;
       case 1: decodeCB_1(opcode);
@@ -3208,6 +3351,38 @@ static final int[] SZ53 = new int[0x100];
       case 14: decodeCB_14(opcode);
         break;
       case 15: decodeCB_15(opcode);
+        break;
+      case 16: decodeCB_16(opcode);
+        break;
+      case 17: decodeCB_17(opcode);
+        break;
+      case 18: decodeCB_18(opcode);
+        break;
+      case 19: decodeCB_19(opcode);
+        break;
+      case 20: decodeCB_20(opcode);
+        break;
+      case 21: decodeCB_21(opcode);
+        break;
+      case 22: decodeCB_22(opcode);
+        break;
+      case 23: decodeCB_23(opcode);
+        break;
+      case 24: decodeCB_24(opcode);
+        break;
+      case 25: decodeCB_25(opcode);
+        break;
+      case 26: decodeCB_26(opcode);
+        break;
+      case 27: decodeCB_27(opcode);
+        break;
+      case 28: decodeCB_28(opcode);
+        break;
+      case 29: decodeCB_29(opcode);
+        break;
+      case 30: decodeCB_30(opcode);
+        break;
+      case 31: decodeCB_31(opcode);
         break;
       default:
         throw new IllegalStateException("undefined opcode " + opcode + " in decodeCB");
@@ -3299,6 +3474,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeCB");
+    }
+  }
+
+  private void decodeCB_1(int opcode) {
+    switch (opcode) {
       case 0x08: {
           int _F325;
           int value1_693 = B;
@@ -3411,7 +3593,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeCB_1(int opcode) {
+  private void decodeCB_2(int opcode) {
     switch (opcode) {
       case 0x10: {
           int _F341;
@@ -3536,6 +3718,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeCB");
+    }
+  }
+
+  private void decodeCB_3(int opcode) {
+    switch (opcode) {
       case 0x18: {
           int _F357;
           int value1_765 = B;
@@ -3664,7 +3853,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeCB_2(int opcode) {
+  private void decodeCB_4(int opcode) {
     switch (opcode) {
       case 0x20: {
           int _F373;
@@ -3773,6 +3962,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeCB");
+    }
+  }
+
+  private void decodeCB_5(int opcode) {
+    switch (opcode) {
       case 0x28: {
           int _F389;
           int value1_837 = B;
@@ -3885,7 +4081,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeCB_3(int opcode) {
+  private void decodeCB_6(int opcode) {
     switch (opcode) {
       case 0x30: {
           int _F405;
@@ -3994,6 +4190,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeCB");
+    }
+  }
+
+  private void decodeCB_7(int opcode) {
+    switch (opcode) {
       case 0x38: {
           int _F421;
           int value1_901 = B;
@@ -4106,7 +4309,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeCB_4(int opcode) {
+  private void decodeCB_8(int opcode) {
     switch (opcode) {
       case 0x40: {
           int _F437;
@@ -4264,6 +4467,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeCB");
+    }
+  }
+
+  private void decodeCB_9(int opcode) {
+    switch (opcode) {
       case 0x48: {
           int _F453;
           int address_981;
@@ -4425,7 +4635,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeCB_5(int opcode) {
+  private void decodeCB_10(int opcode) {
     switch (opcode) {
       case 0x50: {
           int _F469;
@@ -4583,6 +4793,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeCB");
+    }
+  }
+
+  private void decodeCB_11(int opcode) {
+    switch (opcode) {
       case 0x58: {
           int _F485;
           int address_1077;
@@ -4744,7 +4961,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeCB_6(int opcode) {
+  private void decodeCB_12(int opcode) {
     switch (opcode) {
       case 0x60: {
           int _F501;
@@ -4902,6 +5119,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeCB");
+    }
+  }
+
+  private void decodeCB_13(int opcode) {
+    switch (opcode) {
       case 0x68: {
           int _F517;
           int address_1173;
@@ -5063,7 +5287,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeCB_7(int opcode) {
+  private void decodeCB_14(int opcode) {
     switch (opcode) {
       case 0x70: {
           int _F533;
@@ -5221,6 +5445,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeCB");
+    }
+  }
+
+  private void decodeCB_15(int opcode) {
+    switch (opcode) {
       case 0x78: {
           int _F549;
           int address_1269;
@@ -5382,7 +5613,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeCB_8(int opcode) {
+  private void decodeCB_16(int opcode) {
     switch (opcode) {
       case 0x80: {
           B = (B & -2);
@@ -5428,6 +5659,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeCB");
+    }
+  }
+
+  private void decodeCB_17(int opcode) {
+    switch (opcode) {
       case 0x88: {
           B = (B & -3);
           PC = (PC + 2) & 0xFFFF;
@@ -5477,7 +5715,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeCB_9(int opcode) {
+  private void decodeCB_18(int opcode) {
     switch (opcode) {
       case 0x90: {
           B = (B & -5);
@@ -5523,6 +5761,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeCB");
+    }
+  }
+
+  private void decodeCB_19(int opcode) {
+    switch (opcode) {
       case 0x98: {
           B = (B & -9);
           PC = (PC + 2) & 0xFFFF;
@@ -5572,7 +5817,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeCB_10(int opcode) {
+  private void decodeCB_20(int opcode) {
     switch (opcode) {
       case 0xA0: {
           B = (B & -17);
@@ -5618,6 +5863,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeCB");
+    }
+  }
+
+  private void decodeCB_21(int opcode) {
+    switch (opcode) {
       case 0xA8: {
           B = (B & -33);
           PC = (PC + 2) & 0xFFFF;
@@ -5667,7 +5919,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeCB_11(int opcode) {
+  private void decodeCB_22(int opcode) {
     switch (opcode) {
       case 0xB0: {
           B = (B & -65);
@@ -5713,6 +5965,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeCB");
+    }
+  }
+
+  private void decodeCB_23(int opcode) {
+    switch (opcode) {
       case 0xB8: {
           B = (B & -129);
           PC = (PC + 2) & 0xFFFF;
@@ -5762,7 +6021,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeCB_12(int opcode) {
+  private void decodeCB_24(int opcode) {
     switch (opcode) {
       case 0xC0: {
           B = (B | 1);
@@ -5808,6 +6067,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeCB");
+    }
+  }
+
+  private void decodeCB_25(int opcode) {
+    switch (opcode) {
       case 0xC8: {
           B = (B | 2);
           PC = (PC + 2) & 0xFFFF;
@@ -5857,7 +6123,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeCB_13(int opcode) {
+  private void decodeCB_26(int opcode) {
     switch (opcode) {
       case 0xD0: {
           B = (B | 4);
@@ -5903,6 +6169,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeCB");
+    }
+  }
+
+  private void decodeCB_27(int opcode) {
+    switch (opcode) {
       case 0xD8: {
           B = (B | 8);
           PC = (PC + 2) & 0xFFFF;
@@ -5952,7 +6225,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeCB_14(int opcode) {
+  private void decodeCB_28(int opcode) {
     switch (opcode) {
       case 0xE0: {
           B = (B | 0x10);
@@ -5998,6 +6271,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeCB");
+    }
+  }
+
+  private void decodeCB_29(int opcode) {
+    switch (opcode) {
       case 0xE8: {
           B = (B | 0x20);
           PC = (PC + 2) & 0xFFFF;
@@ -6047,7 +6327,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeCB_15(int opcode) {
+  private void decodeCB_30(int opcode) {
     switch (opcode) {
       case 0xF0: {
           B = (B | 0x40);
@@ -6093,6 +6373,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeCB");
+    }
+  }
+
+  private void decodeCB_31(int opcode) {
+    switch (opcode) {
       case 0xF8: {
           B = (B | 0x80);
           PC = (PC + 2) & 0xFFFF;
@@ -6143,7 +6430,7 @@ static final int[] SZ53 = new int[0x100];
   }
 
   private void decodeDD(int opcode) {
-    switch (opcode >> 4) {
+    switch (opcode >> 3) {
       case 0: decodeDD_0(opcode);
         break;
       case 1: decodeDD_1(opcode);
@@ -6175,6 +6462,38 @@ static final int[] SZ53 = new int[0x100];
       case 14: decodeDD_14(opcode);
         break;
       case 15: decodeDD_15(opcode);
+        break;
+      case 16: decodeDD_16(opcode);
+        break;
+      case 17: decodeDD_17(opcode);
+        break;
+      case 18: decodeDD_18(opcode);
+        break;
+      case 19: decodeDD_19(opcode);
+        break;
+      case 20: decodeDD_20(opcode);
+        break;
+      case 21: decodeDD_21(opcode);
+        break;
+      case 22: decodeDD_22(opcode);
+        break;
+      case 23: decodeDD_23(opcode);
+        break;
+      case 24: decodeDD_24(opcode);
+        break;
+      case 25: decodeDD_25(opcode);
+        break;
+      case 26: decodeDD_26(opcode);
+        break;
+      case 27: decodeDD_27(opcode);
+        break;
+      case 28: decodeDD_28(opcode);
+        break;
+      case 29: decodeDD_29(opcode);
+        break;
+      case 30: decodeDD_30(opcode);
+        break;
+      case 31: decodeDD_31(opcode);
         break;
       default:
         throw new IllegalStateException("undefined opcode " + opcode + " in decodeDD");
@@ -6261,6 +6580,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDD");
+    }
+  }
+
+  private void decodeDD_1(int opcode) {
+    switch (opcode) {
       case 0x08: {
           int v1_1458 = ((A << 8) | F);
           int v2_1459 = _AF;
@@ -6358,7 +6684,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDD_1(int opcode) {
+  private void decodeDD_2(int opcode) {
     switch (opcode) {
       case 0x10: {
           contend1x1(((I << 8) | R));
@@ -6452,6 +6778,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDD");
+    }
+  }
+
+  private void decodeDD_3(int opcode) {
+    switch (opcode) {
       case 0x18: {
           int _nextPC749;
           int operand_1509 = read((PC + 2) & 0xFFFF, 0);
@@ -6551,7 +6884,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDD_2(int opcode) {
+  private void decodeDD_4(int opcode) {
     switch (opcode) {
       case 0x20: {
           if ((!((F & 0x40) == 0x40))) {
@@ -6681,6 +7014,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDD");
+    }
+  }
+
+  private void decodeDD_5(int opcode) {
+    switch (opcode) {
       case 0x28: {
           if (((F & 0x40) == 0x40)) {
               int operand_1582 = read((PC + 2) & 0xFFFF, 0);
@@ -6785,7 +7125,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDD_3(int opcode) {
+  private void decodeDD_6(int opcode) {
     switch (opcode) {
       case 0x30: {
           if ((!((F & 1) == 1))) {
@@ -6899,6 +7239,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDD");
+    }
+  }
+
+  private void decodeDD_7(int opcode) {
+    switch (opcode) {
       case 0x38: {
           if (((F & 1) == 1)) {
               int operand_1644 = read((PC + 2) & 0xFFFF, 0);
@@ -6998,7 +7345,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDD_4(int opcode) {
+  private void decodeDD_8(int opcode) {
     switch (opcode) {
       case 0x40: {
           PC = (PC + 2) & 0xFFFF;
@@ -7047,6 +7394,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDD");
+    }
+  }
+
+  private void decodeDD_9(int opcode) {
+    switch (opcode) {
       case 0x48: {
           C = B;
           PC = (PC + 2) & 0xFFFF;
@@ -7099,7 +7453,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDD_5(int opcode) {
+  private void decodeDD_10(int opcode) {
     switch (opcode) {
       case 0x50: {
           D = B;
@@ -7148,6 +7502,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDD");
+    }
+  }
+
+  private void decodeDD_11(int opcode) {
+    switch (opcode) {
       case 0x58: {
           E = B;
           PC = (PC + 2) & 0xFFFF;
@@ -7200,7 +7561,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDD_6(int opcode) {
+  private void decodeDD_12(int opcode) {
     switch (opcode) {
       case 0x60: {
           IX = (IX & 0x00FF) | (B << 8);
@@ -7250,6 +7611,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDD");
+    }
+  }
+
+  private void decodeDD_13(int opcode) {
+    switch (opcode) {
       case 0x68: {
           IX = (IX & 0xFF00) | B;
           PC = (PC + 2) & 0xFFFF;
@@ -7303,7 +7671,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDD_7(int opcode) {
+  private void decodeDD_14(int opcode) {
     switch (opcode) {
       case 0x70: {
           int _address795;
@@ -7383,6 +7751,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 3) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDD");
+    }
+  }
+
+  private void decodeDD_15(int opcode) {
+    switch (opcode) {
       case 0x78: {
           A = B;
           PC = (PC + 2) & 0xFFFF;
@@ -7435,7 +7810,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDD_8(int opcode) {
+  private void decodeDD_16(int opcode) {
     switch (opcode) {
       case 0x80: {
           int _F881;
@@ -7549,6 +7924,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDD");
+    }
+  }
+
+  private void decodeDD_17(int opcode) {
+    switch (opcode) {
       case 0x88: {
           int _F897;
           int value1_1743 = A;
@@ -7677,7 +8059,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDD_9(int opcode) {
+  private void decodeDD_18(int opcode) {
     switch (opcode) {
       case 0x90: {
           int _F913;
@@ -7786,6 +8168,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDD");
+    }
+  }
+
+  private void decodeDD_19(int opcode) {
+    switch (opcode) {
       case 0x98: {
           int _F929;
           int value1_1843 = A;
@@ -7914,7 +8303,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDD_10(int opcode) {
+  private void decodeDD_20(int opcode) {
     switch (opcode) {
       case 0xA0: {
           int _F945;
@@ -8020,6 +8409,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDD");
+    }
+  }
+
+  private void decodeDD_21(int opcode) {
+    switch (opcode) {
       case 0xA8: {
           int _F961;
           int value1_1927 = A;
@@ -8129,7 +8525,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDD_11(int opcode) {
+  private void decodeDD_22(int opcode) {
     switch (opcode) {
       case 0xB0: {
           int _F977;
@@ -8235,6 +8631,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDD");
+    }
+  }
+
+  private void decodeDD_23(int opcode) {
+    switch (opcode) {
       case 0xB8: {
           int _F993;
           int cptemp_1998 = A - B;
@@ -8322,7 +8725,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDD_12(int opcode) {
+  private void decodeDD_24(int opcode) {
     switch (opcode) {
       case 0xC0: {
           contend1x1(((I << 8) | R));
@@ -8443,6 +8846,13 @@ static final int[] SZ53 = new int[0x100];
           PC = _nextPC1017 == -1 ? (PC + 2) & 0xFFFF : _nextPC1017;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDD");
+    }
+  }
+
+  private void decodeDD_25(int opcode) {
+    switch (opcode) {
       case 0xC8: {
           contend1x1(((I << 8) | R));
           int jumpAddress2_2091 = SP;
@@ -8573,7 +8983,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDD_13(int opcode) {
+  private void decodeDD_26(int opcode) {
     switch (opcode) {
       case 0xD0: {
           contend1x1(((I << 8) | R));
@@ -8692,6 +9102,13 @@ static final int[] SZ53 = new int[0x100];
           PC = _nextPC1674;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDD");
+    }
+  }
+
+  private void decodeDD_27(int opcode) {
+    switch (opcode) {
       case 0xD8: {
           contend1x1(((I << 8) | R));
           int jumpAddress2_3392 = SP;
@@ -8815,7 +9232,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDD_14(int opcode) {
+  private void decodeDD_28(int opcode) {
     switch (opcode) {
       case 0xE0: {
           contend1x1(((I << 8) | R));
@@ -8936,6 +9353,13 @@ static final int[] SZ53 = new int[0x100];
           PC = _nextPC1693;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDD");
+    }
+  }
+
+  private void decodeDD_29(int opcode) {
+    switch (opcode) {
       case 0xE8: {
           contend1x1(((I << 8) | R));
           int jumpAddress2_3470 = SP;
@@ -9045,7 +9469,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDD_15(int opcode) {
+  private void decodeDD_30(int opcode) {
     switch (opcode) {
       case 0xF0: {
           contend1x1(((I << 8) | R));
@@ -9157,6 +9581,13 @@ static final int[] SZ53 = new int[0x100];
           PC = _nextPC1711;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDD");
+    }
+  }
+
+  private void decodeDD_31(int opcode) {
+    switch (opcode) {
       case 0xF8: {
           contend1x1(((I << 8) | R));
           int jumpAddress2_3542 = SP;
@@ -9260,7 +9691,7 @@ static final int[] SZ53 = new int[0x100];
   }
 
   private void decodeDDCB(int opcode, int displacement) {
-    switch (opcode >> 4) {
+    switch (opcode >> 3) {
       case 0: decodeDDCB_0(opcode, displacement);
         break;
       case 1: decodeDDCB_1(opcode, displacement);
@@ -9292,6 +9723,38 @@ static final int[] SZ53 = new int[0x100];
       case 14: decodeDDCB_14(opcode, displacement);
         break;
       case 15: decodeDDCB_15(opcode, displacement);
+        break;
+      case 16: decodeDDCB_16(opcode, displacement);
+        break;
+      case 17: decodeDDCB_17(opcode, displacement);
+        break;
+      case 18: decodeDDCB_18(opcode, displacement);
+        break;
+      case 19: decodeDDCB_19(opcode, displacement);
+        break;
+      case 20: decodeDDCB_20(opcode, displacement);
+        break;
+      case 21: decodeDDCB_21(opcode, displacement);
+        break;
+      case 22: decodeDDCB_22(opcode, displacement);
+        break;
+      case 23: decodeDDCB_23(opcode, displacement);
+        break;
+      case 24: decodeDDCB_24(opcode, displacement);
+        break;
+      case 25: decodeDDCB_25(opcode, displacement);
+        break;
+      case 26: decodeDDCB_26(opcode, displacement);
+        break;
+      case 27: decodeDDCB_27(opcode, displacement);
+        break;
+      case 28: decodeDDCB_28(opcode, displacement);
+        break;
+      case 29: decodeDDCB_29(opcode, displacement);
+        break;
+      case 30: decodeDDCB_30(opcode, displacement);
+        break;
+      case 31: decodeDDCB_31(opcode, displacement);
         break;
       default:
         throw new IllegalStateException("undefined opcode " + opcode + " in decodeDDCB");
@@ -9481,6 +9944,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDDCB");
+    }
+  }
+
+  private void decodeDDCB_1(int opcode, int displacement) {
+    switch (opcode) {
       case 0x08: {
           int _F1046;
           int _value1045;
@@ -9691,7 +10161,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDDCB_1(int opcode, int displacement) {
+  private void decodeDDCB_2(int opcode, int displacement) {
     switch (opcode) {
       case 0x10: {
           int _F1070;
@@ -9914,6 +10384,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDDCB");
+    }
+  }
+
+  private void decodeDDCB_3(int opcode, int displacement) {
+    switch (opcode) {
       case 0x18: {
           int _F1094;
           int _value1093;
@@ -10140,7 +10617,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDDCB_2(int opcode, int displacement) {
+  private void decodeDDCB_4(int opcode, int displacement) {
     switch (opcode) {
       case 0x20: {
           int _F1118;
@@ -10347,6 +10824,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDDCB");
+    }
+  }
+
+  private void decodeDDCB_5(int opcode, int displacement) {
+    switch (opcode) {
       case 0x28: {
           int _F1142;
           int _value1141;
@@ -10557,7 +11041,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDDCB_3(int opcode, int displacement) {
+  private void decodeDDCB_6(int opcode, int displacement) {
     switch (opcode) {
       case 0x30: {
           int _F1166;
@@ -10764,6 +11248,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDDCB");
+    }
+  }
+
+  private void decodeDDCB_7(int opcode, int displacement) {
+    switch (opcode) {
       case 0x38: {
           int _F1190;
           int _value1189;
@@ -10974,7 +11465,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDDCB_4(int opcode, int displacement) {
+  private void decodeDDCB_8(int opcode, int displacement) {
     switch (opcode) {
       case 0x40: {
           int _F1214;
@@ -11192,6 +11683,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDDCB");
+    }
+  }
+
+  private void decodeDDCB_9(int opcode, int displacement) {
+    switch (opcode) {
       case 0x48: {
           int _F1238;
           int _value1237;
@@ -11413,7 +11911,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDDCB_5(int opcode, int displacement) {
+  private void decodeDDCB_10(int opcode, int displacement) {
     switch (opcode) {
       case 0x50: {
           int _F1262;
@@ -11631,6 +12129,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDDCB");
+    }
+  }
+
+  private void decodeDDCB_11(int opcode, int displacement) {
+    switch (opcode) {
       case 0x58: {
           int _F1286;
           int _value1285;
@@ -11852,7 +12357,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDDCB_6(int opcode, int displacement) {
+  private void decodeDDCB_12(int opcode, int displacement) {
     switch (opcode) {
       case 0x60: {
           int _F1310;
@@ -12070,6 +12575,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDDCB");
+    }
+  }
+
+  private void decodeDDCB_13(int opcode, int displacement) {
+    switch (opcode) {
       case 0x68: {
           int _F1334;
           int _value1333;
@@ -12291,7 +12803,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDDCB_7(int opcode, int displacement) {
+  private void decodeDDCB_14(int opcode, int displacement) {
     switch (opcode) {
       case 0x70: {
           int _F1358;
@@ -12509,6 +13021,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDDCB");
+    }
+  }
+
+  private void decodeDDCB_15(int opcode, int displacement) {
+    switch (opcode) {
       case 0x78: {
           int _F1382;
           int _value1381;
@@ -12730,7 +13249,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDDCB_8(int opcode, int displacement) {
+  private void decodeDDCB_16(int opcode, int displacement) {
     switch (opcode) {
       case 0x80: {
           int _value1405;
@@ -12881,6 +13400,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDDCB");
+    }
+  }
+
+  private void decodeDDCB_17(int opcode, int displacement) {
+    switch (opcode) {
       case 0x88: {
           int _value1421;
           int _address1421;
@@ -13035,7 +13561,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDDCB_9(int opcode, int displacement) {
+  private void decodeDDCB_18(int opcode, int displacement) {
     switch (opcode) {
       case 0x90: {
           int _value1437;
@@ -13186,6 +13712,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDDCB");
+    }
+  }
+
+  private void decodeDDCB_19(int opcode, int displacement) {
+    switch (opcode) {
       case 0x98: {
           int _value1453;
           int _address1453;
@@ -13340,7 +13873,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDDCB_10(int opcode, int displacement) {
+  private void decodeDDCB_20(int opcode, int displacement) {
     switch (opcode) {
       case 0xA0: {
           int _value1469;
@@ -13491,6 +14024,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDDCB");
+    }
+  }
+
+  private void decodeDDCB_21(int opcode, int displacement) {
+    switch (opcode) {
       case 0xA8: {
           int _value1485;
           int _address1485;
@@ -13645,7 +14185,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDDCB_11(int opcode, int displacement) {
+  private void decodeDDCB_22(int opcode, int displacement) {
     switch (opcode) {
       case 0xB0: {
           int _value1501;
@@ -13796,6 +14336,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDDCB");
+    }
+  }
+
+  private void decodeDDCB_23(int opcode, int displacement) {
+    switch (opcode) {
       case 0xB8: {
           int _value1517;
           int _address1517;
@@ -13950,7 +14497,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDDCB_12(int opcode, int displacement) {
+  private void decodeDDCB_24(int opcode, int displacement) {
     switch (opcode) {
       case 0xC0: {
           int _value1533;
@@ -14101,6 +14648,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDDCB");
+    }
+  }
+
+  private void decodeDDCB_25(int opcode, int displacement) {
+    switch (opcode) {
       case 0xC8: {
           int _value1549;
           int _address1549;
@@ -14255,7 +14809,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDDCB_13(int opcode, int displacement) {
+  private void decodeDDCB_26(int opcode, int displacement) {
     switch (opcode) {
       case 0xD0: {
           int _value1565;
@@ -14406,6 +14960,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDDCB");
+    }
+  }
+
+  private void decodeDDCB_27(int opcode, int displacement) {
+    switch (opcode) {
       case 0xD8: {
           int _value1581;
           int _address1581;
@@ -14560,7 +15121,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDDCB_14(int opcode, int displacement) {
+  private void decodeDDCB_28(int opcode, int displacement) {
     switch (opcode) {
       case 0xE0: {
           int _value1597;
@@ -14711,6 +15272,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDDCB");
+    }
+  }
+
+  private void decodeDDCB_29(int opcode, int displacement) {
+    switch (opcode) {
       case 0xE8: {
           int _value1613;
           int _address1613;
@@ -14865,7 +15433,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeDDCB_15(int opcode, int displacement) {
+  private void decodeDDCB_30(int opcode, int displacement) {
     switch (opcode) {
       case 0xF0: {
           int _value1629;
@@ -15016,6 +15584,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeDDCB");
+    }
+  }
+
+  private void decodeDDCB_31(int opcode, int displacement) {
+    switch (opcode) {
       case 0xF8: {
           int _value1645;
           int _address1645;
@@ -15171,7 +15746,7 @@ static final int[] SZ53 = new int[0x100];
   }
 
   private void decodeED(int opcode) {
-    switch (opcode >> 4) {
+    switch (opcode >> 3) {
       case 0: decodeED_0(opcode);
         break;
       case 1: decodeED_1(opcode);
@@ -15203,6 +15778,38 @@ static final int[] SZ53 = new int[0x100];
       case 14: decodeED_14(opcode);
         break;
       case 15: decodeED_15(opcode);
+        break;
+      case 16: decodeED_16(opcode);
+        break;
+      case 17: decodeED_17(opcode);
+        break;
+      case 18: decodeED_18(opcode);
+        break;
+      case 19: decodeED_19(opcode);
+        break;
+      case 20: decodeED_20(opcode);
+        break;
+      case 21: decodeED_21(opcode);
+        break;
+      case 22: decodeED_22(opcode);
+        break;
+      case 23: decodeED_23(opcode);
+        break;
+      case 24: decodeED_24(opcode);
+        break;
+      case 25: decodeED_25(opcode);
+        break;
+      case 26: decodeED_26(opcode);
+        break;
+      case 27: decodeED_27(opcode);
+        break;
+      case 28: decodeED_28(opcode);
+        break;
+      case 29: decodeED_29(opcode);
+        break;
+      case 30: decodeED_30(opcode);
+        break;
+      case 31: decodeED_31(opcode);
         break;
       default:
         throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
@@ -15243,6 +15850,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_1(int opcode) {
+    switch (opcode) {
       case 0x08: {
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -15280,7 +15894,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeED_1(int opcode) {
+  private void decodeED_2(int opcode) {
     switch (opcode) {
       case 0x10: {
           PC = (PC + 2) & 0xFFFF;
@@ -15314,6 +15928,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_3(int opcode) {
+    switch (opcode) {
       case 0x18: {
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -15351,7 +15972,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeED_2(int opcode) {
+  private void decodeED_4(int opcode) {
     switch (opcode) {
       case 0x20: {
           PC = (PC + 2) & 0xFFFF;
@@ -15385,6 +16006,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_5(int opcode) {
+    switch (opcode) {
       case 0x28: {
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -15422,7 +16050,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeED_3(int opcode) {
+  private void decodeED_6(int opcode) {
     switch (opcode) {
       case 0x30: {
           PC = (PC + 2) & 0xFFFF;
@@ -15456,6 +16084,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_7(int opcode) {
+    switch (opcode) {
       case 0x38: {
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -15493,7 +16128,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeED_4(int opcode) {
+  private void decodeED_8(int opcode) {
     switch (opcode) {
       case 0x40: {
           int _F1803;
@@ -15590,6 +16225,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_9(int opcode) {
+    switch (opcode) {
       case 0x48: {
           int _F1815;
           MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
@@ -15700,7 +16342,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeED_5(int opcode) {
+  private void decodeED_10(int opcode) {
     switch (opcode) {
       case 0x50: {
           int _F1827;
@@ -15804,6 +16446,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_11(int opcode) {
+    switch (opcode) {
       case 0x58: {
           int _F1840;
           MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
@@ -15913,7 +16562,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeED_6(int opcode) {
+  private void decodeED_12(int opcode) {
     switch (opcode) {
       case 0x60: {
           int _F1853;
@@ -16026,6 +16675,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_13(int opcode) {
+    switch (opcode) {
       case 0x68: {
           int _F1866;
           MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
@@ -16144,7 +16800,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeED_7(int opcode) {
+  private void decodeED_14(int opcode) {
     switch (opcode) {
       case 0x70: {
           int _F1879;
@@ -16236,6 +16892,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_15(int opcode) {
+    switch (opcode) {
       case 0x78: {
           int _F1891;
           MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
@@ -16333,7 +16996,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeED_8(int opcode) {
+  private void decodeED_16(int opcode) {
     switch (opcode) {
       case 0x80: {
           PC = (PC + 2) & 0xFFFF;
@@ -16367,6 +17030,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_17(int opcode) {
+    switch (opcode) {
       case 0x88: {
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -16404,7 +17074,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeED_9(int opcode) {
+  private void decodeED_18(int opcode) {
     switch (opcode) {
       case 0x90: {
           PC = (PC + 2) & 0xFFFF;
@@ -16438,6 +17108,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_19(int opcode) {
+    switch (opcode) {
       case 0x98: {
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -16475,7 +17152,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeED_10(int opcode) {
+  private void decodeED_20(int opcode) {
     switch (opcode) {
       case 0xA0: {
           int _F1935 = 0;
@@ -16586,6 +17263,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_21(int opcode) {
+    switch (opcode) {
       case 0xA8: {
           int _F1947 = 0;
           int read_4032 = read(((H << 8) | L), 0);
@@ -16700,7 +17384,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeED_11(int opcode) {
+  private void decodeED_22(int opcode) {
     switch (opcode) {
       case 0xB0: {
           int _F1959 = 0;
@@ -16863,6 +17547,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_23(int opcode) {
+    switch (opcode) {
       case 0xB8: {
           int _F1971 = 0;
           int read_4121 = read(((H << 8) | L), 0);
@@ -17029,7 +17720,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeED_12(int opcode) {
+  private void decodeED_24(int opcode) {
     switch (opcode) {
       case 0xC0: {
           PC = (PC + 2) & 0xFFFF;
@@ -17063,6 +17754,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_25(int opcode) {
+    switch (opcode) {
       case 0xC8: {
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -17100,7 +17798,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeED_13(int opcode) {
+  private void decodeED_26(int opcode) {
     switch (opcode) {
       case 0xD0: {
           PC = (PC + 2) & 0xFFFF;
@@ -17134,6 +17832,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_27(int opcode) {
+    switch (opcode) {
       case 0xD8: {
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -17171,7 +17876,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeED_14(int opcode) {
+  private void decodeED_28(int opcode) {
     switch (opcode) {
       case 0xE0: {
           PC = (PC + 2) & 0xFFFF;
@@ -17205,6 +17910,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_29(int opcode) {
+    switch (opcode) {
       case 0xE8: {
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -17242,7 +17954,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeED_15(int opcode) {
+  private void decodeED_30(int opcode) {
     switch (opcode) {
       case 0xF0: {
           PC = (PC + 2) & 0xFFFF;
@@ -17276,6 +17988,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_31(int opcode) {
+    switch (opcode) {
       case 0xF8: {
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -17314,7 +18033,7 @@ static final int[] SZ53 = new int[0x100];
   }
 
   private void decodeFD(int opcode) {
-    switch (opcode >> 4) {
+    switch (opcode >> 3) {
       case 0: decodeFD_0(opcode);
         break;
       case 1: decodeFD_1(opcode);
@@ -17346,6 +18065,38 @@ static final int[] SZ53 = new int[0x100];
       case 14: decodeFD_14(opcode);
         break;
       case 15: decodeFD_15(opcode);
+        break;
+      case 16: decodeFD_16(opcode);
+        break;
+      case 17: decodeFD_17(opcode);
+        break;
+      case 18: decodeFD_18(opcode);
+        break;
+      case 19: decodeFD_19(opcode);
+        break;
+      case 20: decodeFD_20(opcode);
+        break;
+      case 21: decodeFD_21(opcode);
+        break;
+      case 22: decodeFD_22(opcode);
+        break;
+      case 23: decodeFD_23(opcode);
+        break;
+      case 24: decodeFD_24(opcode);
+        break;
+      case 25: decodeFD_25(opcode);
+        break;
+      case 26: decodeFD_26(opcode);
+        break;
+      case 27: decodeFD_27(opcode);
+        break;
+      case 28: decodeFD_28(opcode);
+        break;
+      case 29: decodeFD_29(opcode);
+        break;
+      case 30: decodeFD_30(opcode);
+        break;
+      case 31: decodeFD_31(opcode);
         break;
       default:
         throw new IllegalStateException("undefined opcode " + opcode + " in decodeFD");
@@ -17432,6 +18183,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFD");
+    }
+  }
+
+  private void decodeFD_1(int opcode) {
+    switch (opcode) {
       case 0x08: {
           int v1_4256 = ((A << 8) | F);
           int v2_4257 = _AF;
@@ -17529,7 +18287,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFD_1(int opcode) {
+  private void decodeFD_2(int opcode) {
     switch (opcode) {
       case 0x10: {
           contend1x1(((I << 8) | R));
@@ -17623,6 +18381,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFD");
+    }
+  }
+
+  private void decodeFD_3(int opcode) {
+    switch (opcode) {
       case 0x18: {
           int _nextPC2101;
           int operand_4307 = read((PC + 2) & 0xFFFF, 0);
@@ -17722,7 +18487,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFD_2(int opcode) {
+  private void decodeFD_4(int opcode) {
     switch (opcode) {
       case 0x20: {
           if ((!((F & 0x40) == 0x40))) {
@@ -17852,6 +18617,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFD");
+    }
+  }
+
+  private void decodeFD_5(int opcode) {
+    switch (opcode) {
       case 0x28: {
           if (((F & 0x40) == 0x40)) {
               int operand_4380 = read((PC + 2) & 0xFFFF, 0);
@@ -17956,7 +18728,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFD_3(int opcode) {
+  private void decodeFD_6(int opcode) {
     switch (opcode) {
       case 0x30: {
           if ((!((F & 1) == 1))) {
@@ -18070,6 +18842,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFD");
+    }
+  }
+
+  private void decodeFD_7(int opcode) {
+    switch (opcode) {
       case 0x38: {
           if (((F & 1) == 1)) {
               int operand_4442 = read((PC + 2) & 0xFFFF, 0);
@@ -18169,7 +18948,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFD_4(int opcode) {
+  private void decodeFD_8(int opcode) {
     switch (opcode) {
       case 0x40: {
           PC = (PC + 2) & 0xFFFF;
@@ -18218,6 +18997,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFD");
+    }
+  }
+
+  private void decodeFD_9(int opcode) {
+    switch (opcode) {
       case 0x48: {
           C = B;
           PC = (PC + 2) & 0xFFFF;
@@ -18270,7 +19056,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFD_5(int opcode) {
+  private void decodeFD_10(int opcode) {
     switch (opcode) {
       case 0x50: {
           D = B;
@@ -18319,6 +19105,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFD");
+    }
+  }
+
+  private void decodeFD_11(int opcode) {
+    switch (opcode) {
       case 0x58: {
           E = B;
           PC = (PC + 2) & 0xFFFF;
@@ -18371,7 +19164,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFD_6(int opcode) {
+  private void decodeFD_12(int opcode) {
     switch (opcode) {
       case 0x60: {
           IY = (IY & 0x00FF) | (B << 8);
@@ -18421,6 +19214,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFD");
+    }
+  }
+
+  private void decodeFD_13(int opcode) {
+    switch (opcode) {
       case 0x68: {
           IY = (IY & 0xFF00) | B;
           PC = (PC + 2) & 0xFFFF;
@@ -18474,7 +19274,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFD_7(int opcode) {
+  private void decodeFD_14(int opcode) {
     switch (opcode) {
       case 0x70: {
           int _address2147;
@@ -18554,6 +19354,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 3) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFD");
+    }
+  }
+
+  private void decodeFD_15(int opcode) {
+    switch (opcode) {
       case 0x78: {
           A = B;
           PC = (PC + 2) & 0xFFFF;
@@ -18606,7 +19413,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFD_8(int opcode) {
+  private void decodeFD_16(int opcode) {
     switch (opcode) {
       case 0x80: {
           int _F2233;
@@ -18720,6 +19527,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFD");
+    }
+  }
+
+  private void decodeFD_17(int opcode) {
+    switch (opcode) {
       case 0x88: {
           int _F2249;
           int value1_4541 = A;
@@ -18848,7 +19662,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFD_9(int opcode) {
+  private void decodeFD_18(int opcode) {
     switch (opcode) {
       case 0x90: {
           int _F2265;
@@ -18957,6 +19771,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFD");
+    }
+  }
+
+  private void decodeFD_19(int opcode) {
+    switch (opcode) {
       case 0x98: {
           int _F2281;
           int value1_4641 = A;
@@ -19085,7 +19906,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFD_10(int opcode) {
+  private void decodeFD_20(int opcode) {
     switch (opcode) {
       case 0xA0: {
           int _F2297;
@@ -19191,6 +20012,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFD");
+    }
+  }
+
+  private void decodeFD_21(int opcode) {
+    switch (opcode) {
       case 0xA8: {
           int _F2313;
           int value1_4725 = A;
@@ -19300,7 +20128,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFD_11(int opcode) {
+  private void decodeFD_22(int opcode) {
     switch (opcode) {
       case 0xB0: {
           int _F2329;
@@ -19406,6 +20234,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFD");
+    }
+  }
+
+  private void decodeFD_23(int opcode) {
+    switch (opcode) {
       case 0xB8: {
           int _F2345;
           int cptemp_4796 = A - B;
@@ -19493,7 +20328,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFD_12(int opcode) {
+  private void decodeFD_24(int opcode) {
     switch (opcode) {
       case 0xC0: {
           contend1x1(((I << 8) | R));
@@ -19614,6 +20449,13 @@ static final int[] SZ53 = new int[0x100];
           PC = _nextPC2369 == -1 ? (PC + 2) & 0xFFFF : _nextPC2369;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFD");
+    }
+  }
+
+  private void decodeFD_25(int opcode) {
+    switch (opcode) {
       case 0xC8: {
           contend1x1(((I << 8) | R));
           int jumpAddress2_4889 = SP;
@@ -19744,7 +20586,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFD_13(int opcode) {
+  private void decodeFD_26(int opcode) {
     switch (opcode) {
       case 0xD0: {
           contend1x1(((I << 8) | R));
@@ -19863,6 +20705,13 @@ static final int[] SZ53 = new int[0x100];
           PC = _nextPC3026;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFD");
+    }
+  }
+
+  private void decodeFD_27(int opcode) {
+    switch (opcode) {
       case 0xD8: {
           contend1x1(((I << 8) | R));
           int jumpAddress2_6190 = SP;
@@ -19986,7 +20835,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFD_14(int opcode) {
+  private void decodeFD_28(int opcode) {
     switch (opcode) {
       case 0xE0: {
           contend1x1(((I << 8) | R));
@@ -20107,6 +20956,13 @@ static final int[] SZ53 = new int[0x100];
           PC = _nextPC3045;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFD");
+    }
+  }
+
+  private void decodeFD_29(int opcode) {
+    switch (opcode) {
       case 0xE8: {
           contend1x1(((I << 8) | R));
           int jumpAddress2_6268 = SP;
@@ -20216,7 +21072,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFD_15(int opcode) {
+  private void decodeFD_30(int opcode) {
     switch (opcode) {
       case 0xF0: {
           contend1x1(((I << 8) | R));
@@ -20328,6 +21184,13 @@ static final int[] SZ53 = new int[0x100];
           PC = _nextPC3063;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFD");
+    }
+  }
+
+  private void decodeFD_31(int opcode) {
+    switch (opcode) {
       case 0xF8: {
           contend1x1(((I << 8) | R));
           int jumpAddress2_6340 = SP;
@@ -20431,7 +21294,7 @@ static final int[] SZ53 = new int[0x100];
   }
 
   private void decodeFDCB(int opcode, int displacement) {
-    switch (opcode >> 4) {
+    switch (opcode >> 3) {
       case 0: decodeFDCB_0(opcode, displacement);
         break;
       case 1: decodeFDCB_1(opcode, displacement);
@@ -20463,6 +21326,38 @@ static final int[] SZ53 = new int[0x100];
       case 14: decodeFDCB_14(opcode, displacement);
         break;
       case 15: decodeFDCB_15(opcode, displacement);
+        break;
+      case 16: decodeFDCB_16(opcode, displacement);
+        break;
+      case 17: decodeFDCB_17(opcode, displacement);
+        break;
+      case 18: decodeFDCB_18(opcode, displacement);
+        break;
+      case 19: decodeFDCB_19(opcode, displacement);
+        break;
+      case 20: decodeFDCB_20(opcode, displacement);
+        break;
+      case 21: decodeFDCB_21(opcode, displacement);
+        break;
+      case 22: decodeFDCB_22(opcode, displacement);
+        break;
+      case 23: decodeFDCB_23(opcode, displacement);
+        break;
+      case 24: decodeFDCB_24(opcode, displacement);
+        break;
+      case 25: decodeFDCB_25(opcode, displacement);
+        break;
+      case 26: decodeFDCB_26(opcode, displacement);
+        break;
+      case 27: decodeFDCB_27(opcode, displacement);
+        break;
+      case 28: decodeFDCB_28(opcode, displacement);
+        break;
+      case 29: decodeFDCB_29(opcode, displacement);
+        break;
+      case 30: decodeFDCB_30(opcode, displacement);
+        break;
+      case 31: decodeFDCB_31(opcode, displacement);
         break;
       default:
         throw new IllegalStateException("undefined opcode " + opcode + " in decodeFDCB");
@@ -20652,6 +21547,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFDCB");
+    }
+  }
+
+  private void decodeFDCB_1(int opcode, int displacement) {
+    switch (opcode) {
       case 0x08: {
           int _F2398;
           int _value2397;
@@ -20862,7 +21764,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFDCB_1(int opcode, int displacement) {
+  private void decodeFDCB_2(int opcode, int displacement) {
     switch (opcode) {
       case 0x10: {
           int _F2422;
@@ -21085,6 +21987,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFDCB");
+    }
+  }
+
+  private void decodeFDCB_3(int opcode, int displacement) {
+    switch (opcode) {
       case 0x18: {
           int _F2446;
           int _value2445;
@@ -21311,7 +22220,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFDCB_2(int opcode, int displacement) {
+  private void decodeFDCB_4(int opcode, int displacement) {
     switch (opcode) {
       case 0x20: {
           int _F2470;
@@ -21518,6 +22427,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFDCB");
+    }
+  }
+
+  private void decodeFDCB_5(int opcode, int displacement) {
+    switch (opcode) {
       case 0x28: {
           int _F2494;
           int _value2493;
@@ -21728,7 +22644,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFDCB_3(int opcode, int displacement) {
+  private void decodeFDCB_6(int opcode, int displacement) {
     switch (opcode) {
       case 0x30: {
           int _F2518;
@@ -21935,6 +22851,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFDCB");
+    }
+  }
+
+  private void decodeFDCB_7(int opcode, int displacement) {
+    switch (opcode) {
       case 0x38: {
           int _F2542;
           int _value2541;
@@ -22145,7 +23068,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFDCB_4(int opcode, int displacement) {
+  private void decodeFDCB_8(int opcode, int displacement) {
     switch (opcode) {
       case 0x40: {
           int _F2566;
@@ -22363,6 +23286,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFDCB");
+    }
+  }
+
+  private void decodeFDCB_9(int opcode, int displacement) {
+    switch (opcode) {
       case 0x48: {
           int _F2590;
           int _value2589;
@@ -22584,7 +23514,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFDCB_5(int opcode, int displacement) {
+  private void decodeFDCB_10(int opcode, int displacement) {
     switch (opcode) {
       case 0x50: {
           int _F2614;
@@ -22802,6 +23732,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFDCB");
+    }
+  }
+
+  private void decodeFDCB_11(int opcode, int displacement) {
+    switch (opcode) {
       case 0x58: {
           int _F2638;
           int _value2637;
@@ -23023,7 +23960,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFDCB_6(int opcode, int displacement) {
+  private void decodeFDCB_12(int opcode, int displacement) {
     switch (opcode) {
       case 0x60: {
           int _F2662;
@@ -23241,6 +24178,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFDCB");
+    }
+  }
+
+  private void decodeFDCB_13(int opcode, int displacement) {
+    switch (opcode) {
       case 0x68: {
           int _F2686;
           int _value2685;
@@ -23462,7 +24406,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFDCB_7(int opcode, int displacement) {
+  private void decodeFDCB_14(int opcode, int displacement) {
     switch (opcode) {
       case 0x70: {
           int _F2710;
@@ -23680,6 +24624,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFDCB");
+    }
+  }
+
+  private void decodeFDCB_15(int opcode, int displacement) {
+    switch (opcode) {
       case 0x78: {
           int _F2734;
           int _value2733;
@@ -23901,7 +24852,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFDCB_8(int opcode, int displacement) {
+  private void decodeFDCB_16(int opcode, int displacement) {
     switch (opcode) {
       case 0x80: {
           int _value2757;
@@ -24052,6 +25003,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFDCB");
+    }
+  }
+
+  private void decodeFDCB_17(int opcode, int displacement) {
+    switch (opcode) {
       case 0x88: {
           int _value2773;
           int _address2773;
@@ -24206,7 +25164,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFDCB_9(int opcode, int displacement) {
+  private void decodeFDCB_18(int opcode, int displacement) {
     switch (opcode) {
       case 0x90: {
           int _value2789;
@@ -24357,6 +25315,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFDCB");
+    }
+  }
+
+  private void decodeFDCB_19(int opcode, int displacement) {
+    switch (opcode) {
       case 0x98: {
           int _value2805;
           int _address2805;
@@ -24511,7 +25476,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFDCB_10(int opcode, int displacement) {
+  private void decodeFDCB_20(int opcode, int displacement) {
     switch (opcode) {
       case 0xA0: {
           int _value2821;
@@ -24662,6 +25627,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFDCB");
+    }
+  }
+
+  private void decodeFDCB_21(int opcode, int displacement) {
+    switch (opcode) {
       case 0xA8: {
           int _value2837;
           int _address2837;
@@ -24816,7 +25788,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFDCB_11(int opcode, int displacement) {
+  private void decodeFDCB_22(int opcode, int displacement) {
     switch (opcode) {
       case 0xB0: {
           int _value2853;
@@ -24967,6 +25939,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFDCB");
+    }
+  }
+
+  private void decodeFDCB_23(int opcode, int displacement) {
+    switch (opcode) {
       case 0xB8: {
           int _value2869;
           int _address2869;
@@ -25121,7 +26100,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFDCB_12(int opcode, int displacement) {
+  private void decodeFDCB_24(int opcode, int displacement) {
     switch (opcode) {
       case 0xC0: {
           int _value2885;
@@ -25272,6 +26251,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFDCB");
+    }
+  }
+
+  private void decodeFDCB_25(int opcode, int displacement) {
+    switch (opcode) {
       case 0xC8: {
           int _value2901;
           int _address2901;
@@ -25426,7 +26412,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFDCB_13(int opcode, int displacement) {
+  private void decodeFDCB_26(int opcode, int displacement) {
     switch (opcode) {
       case 0xD0: {
           int _value2917;
@@ -25577,6 +26563,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFDCB");
+    }
+  }
+
+  private void decodeFDCB_27(int opcode, int displacement) {
+    switch (opcode) {
       case 0xD8: {
           int _value2933;
           int _address2933;
@@ -25731,7 +26724,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFDCB_14(int opcode, int displacement) {
+  private void decodeFDCB_28(int opcode, int displacement) {
     switch (opcode) {
       case 0xE0: {
           int _value2949;
@@ -25882,6 +26875,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFDCB");
+    }
+  }
+
+  private void decodeFDCB_29(int opcode, int displacement) {
+    switch (opcode) {
       case 0xE8: {
           int _value2965;
           int _address2965;
@@ -26036,7 +27036,7 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
-  private void decodeFDCB_15(int opcode, int displacement) {
+  private void decodeFDCB_30(int opcode, int displacement) {
     switch (opcode) {
       case 0xF0: {
           int _value2981;
@@ -26187,6 +27187,13 @@ static final int[] SZ53 = new int[0x100];
           PC = (PC + 4) & 0xFFFF;
           break;
       }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeFDCB");
+    }
+  }
+
+  private void decodeFDCB_31(int opcode, int displacement) {
+    switch (opcode) {
       case 0xF8: {
           int _value2997;
           int _address2997;

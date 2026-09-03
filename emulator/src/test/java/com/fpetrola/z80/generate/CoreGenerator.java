@@ -57,6 +57,13 @@ public class CoreGenerator {
     public final Map<String, String> helperSignatures = new LinkedHashMap<>();
     /** Whose contend is written into the class, one method per pair of cycles it takes; null keeps the hook. */
     public Object contention;
+    /**
+     * How many opcodes share a method: the cases are split so HotSpot compiles them, and where the
+     * best split is depends on what else is in the method. Measured on a bare array the pure core
+     * wants sixteen; measured on the machine's own loop, the core that carries that machine's
+     * memory and contention wants eight, and thirty two is clearly worse for both.
+     */
+    public int groupShift = Integer.getInteger("oozx.groupshift", 4);
   }
 
   private final State state;
@@ -162,12 +169,12 @@ public class CoreGenerator {
     for (String method : parametersOf.keySet()) {
       String parameters = parametersOf.get(method).stream().map(p -> ", int " + p).reduce("", String::concat);
       String arguments = parametersOf.get(method).stream().map(p -> ", " + p).reduce("", String::concat);
-      out.append("  private void ").append(method).append("(int opcode").append(parameters).append(") {\n    switch (opcode >> ").append(GROUP_SHIFT).append(") {\n");
-      for (int group = 0; group < 256 >> GROUP_SHIFT; group++)
+      out.append("  private void ").append(method).append("(int opcode").append(parameters).append(") {\n    switch (opcode >> ").append(target.groupShift).append(") {\n");
+      for (int group = 0; group < 256 >> target.groupShift; group++)
         if (methodBodies.containsKey(method + "_" + group))
           out.append("      case ").append(group).append(": ").append(method).append("_").append(group).append("(opcode").append(arguments).append(");\n        break;\n");
       out.append("      default:\n        throw new IllegalStateException(\"undefined opcode \" + opcode + \" in ").append(method).append("\");\n    }\n  }\n\n");
-      for (int group = 0; group < 256 >> GROUP_SHIFT; group++) {
+      for (int group = 0; group < 256 >> target.groupShift; group++) {
         StringBuilder body = methodBodies.get(method + "_" + group);
         if (body != null)
           out.append(body).append("      default:\n        throw new IllegalStateException(\"undefined opcode \" + opcode + \" in ").append(method).append("\");\n    }\n  }\n\n");
@@ -177,14 +184,6 @@ public class CoreGenerator {
     return out.toString();
   }
 
-  /**
-   * HotSpot does not compile a method over 8000 bytes of bytecode, and sixteen cases stay well
-   * under it. Measured against the alternatives, interleaved, on a bare array: 32 cases per method
-   * is the same to within the noise, 8 cases and one case per method are both about 13 percent
-   * slower. It stays settable because inlining the accesses will make the methods grow, and this
-   * is what regulates them; changing it changes the generated file, which the lock will say.
-   */
-  private static final int GROUP_SHIFT = Integer.getInteger("oozx.groupshift", 4);
 
   /** The body of a helper: one of the machine's own methods, taken apart, written once. */
   private List<Statement> helperBody(String name, Object object) {
@@ -466,7 +465,7 @@ public class CoreGenerator {
   private void emit(Case c) {
     List<Statement> body = c.body;
     String parameters = parametersOf.getOrDefault(c.method, List.of()).stream().map(p -> ", int " + p).reduce("", String::concat);
-    String group = c.method + "_" + (c.opcode >> GROUP_SHIFT);
+    String group = c.method + "_" + (c.opcode >> target.groupShift);
     String header = "  private void " + group + "(int opcode" + parameters + ") {\n    switch (opcode) {\n";
     methodBodies.computeIfAbsent(group, k -> new StringBuilder(header))
         .append("      case ").append(String.format("0x%02X", c.opcode)).append(": ").append(new BlockStmt(new NodeList<>(body)).toString().replace("\n", "\n      ")).append("\n");

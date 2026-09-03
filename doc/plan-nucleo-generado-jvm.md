@@ -1123,6 +1123,25 @@ La lección que queda es sobre medir, otra vez: una variante escrita a mano que 
 generador va a producir contesta otra pregunta. `times` como parámetro y `times` como literal son
 dos cosas distintas, y la diferencia entre ellas era el 9 %.
 
+### `GROUP_SHIFT` con los métodos crecidos: cambia la respuesta
+
+Medido sobre el núcleo de la máquina, que ahora lleva los helpers de memoria y las seis
+contenciones adentro. Tres corridas intercaladas de cada variante, `doOpcodes` sobre Manic Miner:
+
+| corte | métodos | método más grande | mejor | media |
+|---|---|---|---|---|
+| **3, ocho opcodes por método** | 242 | 1.668 | **4.071** | **3.853** |
+| 4, dieciséis | 130 | 3.289 | 3.907 | 3.705 |
+| 5, treinta y dos | 74 | 5.657 | 3.454 | 3.081 |
+
+**Gana el 3, y en el núcleo puro el 3 era un 14 % peor.** O sea que el corte no es una propiedad
+del generador sino de cada núcleo: depende de qué más hay adentro del método. Así que `groupShift`
+pasó a ser del `Target` —dieciséis para el puro, ocho para el de la máquina— y no una constante
+del generador.
+
+De paso, `machine/app` declaraba el test-jar del emulador y no el emulador: Maven se queda con uno
+solo de los dos y el que sobrevivía era el de tests. Ahora los declara a los dos.
+
 ## Cómo se verifica
 
 - **Semántica**: Fuse 1355 evento por evento sobre `GeneratedZ80`; `GeneratedAluReferenceTest`;
