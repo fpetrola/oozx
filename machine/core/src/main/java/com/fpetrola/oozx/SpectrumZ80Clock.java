@@ -18,71 +18,24 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.speccy.modules.tape.Log1;
-import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.z80.cpu.DefaultZ80Clock;
-import com.fpetrola.z80.helpers.CollectionHandler;
-import com.fpetrola.emulation.helpers.machine.ClockTimeoutListener;
 
-import java.util.function.Supplier;
-
+/**
+ * Adding T-states is the most repeated thing the machine does - half a dozen times per
+ * instruction - so it is the one addition it inherits and nothing else: what used to wait on the
+ * clock here, the tape, waits on an event now, the way everything else that wants a future
+ * T-state does.
+ */
 public class SpectrumZ80Clock extends DefaultZ80Clock {
-  private int timeout;
-  private final CollectionHandler<ClockTimeoutListener> clockListeners = new CollectionHandler<>();
-
-  /**
-   * Adding T-states is the most repeated thing the machine does - a dozen times per LDIR - so what
-   * waits for the clock waits on a field, not through a Consumer&lt;Integer&gt; that boxed the
-   * number every time. Only the tape waits, and only while it is loading.
-   */
-  public void addTStates(int tStatesToAdd) {
-    tStates += tStatesToAdd;
-    if (timeout > 0 && tStatesToAdd >= 0 && (timeout -= tStatesToAdd) <= 0)
-      timedOut();
-  }
 
   /** The description is for the test clock, which records what each addition was for. */
   public void addTStates(int tStatesToAdd, String description) {
     addTStates(tStatesToAdd);
   }
 
-  public void addTStates(int tStatesToAdd, Supplier<String> description) {
-    addTStates(tStatesToAdd);
-  }
-
-  private void timedOut() {
-    int overshoot = timeout;
-    clockListeners.forAll(ClockTimeoutListener::clockTimeout);
-    if (timeout > 0) {
-      new Log1().trace("Timeout: {}, res: {}", timeout, overshoot);
-      timeout += overshoot;
-    }
-  }
-
-  /**
-   * Moves the clock to a new position without counting the move as time that has passed.
-   * <p>
-   * A speed change repositions the clock, which is bookkeeping rather than elapsed time. Doing it
-   * with addTStates fed the difference to the timeout countdown, and since the difference is
-   * positive whenever the clock sits below the target - most of a frame - it ate up to 60000
-   * T-states of whatever was waiting. The tape waits that way, a pulse at a time, so changing
-   * speed while a tape was loading skipped it past dozens of pulses and the loader lost sync.
-   */
+  /** Moves the clock without counting the move as time that has passed: a speed change repositions it. */
   public void rebaseTStates(int newTStates) {
     this.tStates = newTStates;
-  }
-
-  public void setTimeout(int ntstates) {
-    if (timeout <= 0)
-      timeout = Math.max(ntstates, 10);
-  }
-
-  public void addClockTimeoutListener(Tape tape) {
-    clockListeners.add(tape);
-  }
-
-  public void removeClockTimeoutListener(Tape tape) {
-    clockListeners.remove(tape);
   }
 
   public long getAbsTstates() {

@@ -43,7 +43,7 @@ package com.fpetrola.oozx.speccy.modules.tape;
 import com.google.inject.Singleton;
 import com.google.inject.Inject;
 
-import com.fpetrola.emulation.helpers.machine.ClockTimeoutListener;
+import com.fpetrola.oozx.speccy.modules.EventManager;
 import com.fpetrola.oozx.SpectrumZ80Clock;
 import com.fpetrola.emulation.helpers.machine.MachineTypes;
 
@@ -63,7 +63,7 @@ import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
 @Singleton
-public class Tape implements ClockTimeoutListener {
+public class Tape {
 
     //    private Z80 cpu;
     private ByteArrayOutputStream record;
@@ -84,6 +84,10 @@ public class Tape implements ClockTimeoutListener {
     private byte byteTmp;
     private int cswPulses;
     private final SpectrumZ80Clock clock;
+    private final EventManager events;
+    private final int edgeEvent;
+    /** When the edge being played was due; the next one is measured from it, so nothing drifts. */
+    private long edgeAt;
     private Log1 log= new Log1();
 
     public enum TapeState {
@@ -153,10 +157,15 @@ public class Tape implements ClockTimeoutListener {
     private boolean manualMode = false;
 
     @Inject
-    public Tape(TapeSettingsType tapeSettings, SpectrumZ80Clock aClock) {
+    public Tape(TapeSettingsType tapeSettings, SpectrumZ80Clock aClock, EventManager events) {
         blockListeners = new ArrayList<>();
         stateListeners = new ArrayList<>();
         clock = aClock;
+        this.events = events;
+        edgeEvent = events.eventRegister((tstates, type, data) -> {
+            edgeAt = tstates;
+            edge();
+        }, "Tape edge");
         settings = tapeSettings;
         statePlay = State.STOP;
         tapePlaying = tapeRecording = false;
@@ -566,11 +575,15 @@ public class Tape implements ClockTimeoutListener {
         return msg;
     }
 
-    @Override
-    public void clockTimeout() {
+    /**
+     * Plays up to the next edge of the signal, and asks for the one after: an event on the
+     * machine's clock, the way Fuse's tape waits, rather than a countdown the clock had to keep
+     * on every one of its additions.
+     */
+    private void edge() {
         if (earSource != null) {
             setEarBit(earSource.earHigh());
-            clock.setTimeout(tstatesPerSample());
+            nextEdgeIn(tstatesPerSample());
             return;
         }
 
@@ -585,7 +598,7 @@ public class Tape implements ClockTimeoutListener {
                 playCsw();
                 break;
             default:
-                log.warn("Warning!, clockTimeout without tape playing");
+                log.warn("Warning!, an edge without tape playing");
         }
     }
 
@@ -727,17 +740,27 @@ public class Tape implements ClockTimeoutListener {
      */
     public void takeEarFrom(EarSource source) {
         if (earSource != null) {
-            clock.removeClockTimeoutListener(this);
+            events.eventRemoveType(edgeEvent);
         }
         earSource = source;
         if (source != null) {
-            clock.addClockTimeoutListener(this);
-            clock.setTimeout(tstatesPerSample());
+            startEdges();
+            nextEdgeIn(tstatesPerSample());
         }
     }
 
     public boolean isTakingEarFromOutside() {
         return earSource != null;
+    }
+
+    private void nextEdgeIn(int tstates) {
+        events.eventRemoveType(edgeEvent);
+        events.eventAdd(edgeAt + tstates, edgeEvent);
+    }
+
+    /** Edges from now on, for a tape that starts playing or a line that starts being listened to. */
+    private void startEdges() {
+        edgeAt = clock.getTStates();
     }
 
     private int tstatesPerSample() {
@@ -798,8 +821,8 @@ public class Tape implements ClockTimeoutListener {
 
         fireTapeStateChanged(TapeState.PLAY);
         tapePlaying = true;
-        clock.addClockTimeoutListener(this);
-        clockTimeout();
+        startEdges();
+        edge();
         return true;
     }
 
@@ -817,7 +840,7 @@ public class Tape implements ClockTimeoutListener {
 
         fireTapeBlockChanged(idxHeader);
         fireTapeStateChanged(TapeState.STOP);
-        clock.removeClockTimeoutListener(this);
+        events.eventRemoveType(edgeEvent);
     }
 
     public boolean rewind() {
@@ -871,21 +894,21 @@ public class Tape implements ClockTimeoutListener {
                 leaderPulses = tapeBuffer[tapePos] >= 0 ? HEADER_PULSES : DATA_PULSES;
                 earBit = EAR_ON;
                 statePlay = State.LEADER;
-                clock.setTimeout(LEADER_LENGHT);
+                nextEdgeIn(LEADER_LENGHT);
                 break;
             case LEADER:
                 earBit ^= EAR_MASK;
                 if (leaderPulses-- > 0) {
-                    clock.setTimeout(LEADER_LENGHT);
+                    nextEdgeIn(LEADER_LENGHT);
                     break;
                 }
                 statePlay = State.SYNC;
-                clock.setTimeout(SYNC1_LENGHT);
+                nextEdgeIn(SYNC1_LENGHT);
                 break;
             case SYNC:
                 earBit ^= EAR_MASK;
                 statePlay = State.NEWBYTE;
-                clock.setTimeout(SYNC2_LENGHT);
+                nextEdgeIn(SYNC2_LENGHT);
                 break;
             case NEWBYTE:
                 mask = 0x80; // se empieza por el bit 7
@@ -897,11 +920,11 @@ public class Tape implements ClockTimeoutListener {
                     bitTime = ONE_LENGHT;
                 }
                 statePlay = State.HALF2;
-                clock.setTimeout(bitTime);
+                nextEdgeIn(bitTime);
                 break;
             case HALF2:
                 earBit ^= EAR_MASK;
-                clock.setTimeout(bitTime);
+                nextEdgeIn(bitTime);
                 mask >>>= 1;
                 if (mask == 0) {
                     tapePos++;
@@ -926,7 +949,7 @@ public class Tape implements ClockTimeoutListener {
                 // ROM returns to BASIC, works out what it was told, and calls the loader again;
                 // that takes many thousands of T-states, by which time the next block's pilot
                 // tone had been playing to nobody and its beginning was gone.
-                clock.setTimeout(END_BLOCK_PAUSE);
+                nextEdgeIn(END_BLOCK_PAUSE);
 //                System.out.println(String.format("tapeBufferLength: %d, tapePos: %d",
 //                    tapeBuffer.length, tapePos));
                 break;
@@ -1119,15 +1142,15 @@ public class Tape implements ClockTimeoutListener {
                 case LEADER_NOCHG:
                     if (leaderPulses-- > 0) {
                         statePlay = State.LEADER;
-                        clock.setTimeout(leaderLenght);
+                        nextEdgeIn(leaderLenght);
                         break;
                     }
-                    clock.setTimeout(sync1Lenght);
+                    nextEdgeIn(sync1Lenght);
                     statePlay = State.SYNC;
                     break;
                 case SYNC:
                     earBit ^= EAR_MASK;
-                    clock.setTimeout(sync2Lenght);
+                    nextEdgeIn(sync2Lenght);
                     if (blockLen > 0) {
                         statePlay = State.NEWBYTE;
                     } else {
@@ -1148,11 +1171,11 @@ public class Tape implements ClockTimeoutListener {
                         bitTime = oneLenght;
                     }
                     statePlay = State.HALF2;
-                    clock.setTimeout(bitTime);
+                    nextEdgeIn(bitTime);
                     break;
                 case HALF2:
                     earBit ^= EAR_MASK;
-                    clock.setTimeout(bitTime);
+                    nextEdgeIn(bitTime);
                     mask >>>= 1;
                     if (blockLen == 1 && bitsLastByte < 8) {
                         if (mask == (0x80 >>> bitsLastByte)) {
@@ -1184,12 +1207,12 @@ public class Tape implements ClockTimeoutListener {
                         break;
                     }
                     statePlay = State.PAUSE;
-                    clock.setTimeout(3500); // 1 ms by TZX spec
+                    nextEdgeIn(3500); // 1 ms by TZX spec
                     break;
                 case PAUSE:
                     earBit = settings.isInvertedEar() ? EAR_ON : EAR_OFF;
                     statePlay = State.TZX_HEADER;
-                    clock.setTimeout(endBlockPause);
+                    nextEdgeIn(endBlockPause);
                     break;
                 case TZX_HEADER:
                     if (idxHeader >= nOffsetBlocks) {
@@ -1205,7 +1228,7 @@ public class Tape implements ClockTimeoutListener {
                     earBit ^= EAR_MASK;
                 case PURE_TONE_NOCHG:
                     if (leaderPulses-- > 0) {
-                        clock.setTimeout(leaderLenght);
+                        nextEdgeIn(leaderLenght);
                         statePlay = State.PURE_TONE;
                         break;
                     }
@@ -1216,7 +1239,7 @@ public class Tape implements ClockTimeoutListener {
                     earBit ^= EAR_MASK;
                 case PULSE_SEQUENCE_NOCHG:
                     if (leaderPulses-- > 0) {
-                        clock.setTimeout(readInt(tapeBuffer, tapePos, 2));
+                        nextEdgeIn(readInt(tapeBuffer, tapePos, 2));
                         tapePos += 2;
                         statePlay = State.PULSE_SEQUENCE;
                         break;
@@ -1260,7 +1283,7 @@ public class Tape implements ClockTimeoutListener {
                             }
                         }
                     }
-                    clock.setTimeout(timeout);
+                    nextEdgeIn(timeout);
                     break;
                 case PAUSE_STOP:
                     if (endBlockPause == 0) {
@@ -1285,7 +1308,7 @@ public class Tape implements ClockTimeoutListener {
                     } else {
                         earBit = settings.isInvertedEar() ? EAR_ON : EAR_OFF;
                         statePlay = State.TZX_HEADER;
-                        clock.setTimeout(endBlockPause);
+                        nextEdgeIn(endBlockPause);
                     }
                     break;
                 case CSW_RLE:
@@ -1305,7 +1328,7 @@ public class Tape implements ClockTimeoutListener {
                     }
 
                     timeout *= cswStatesSample;
-                    clock.setTimeout(timeout);
+                    nextEdgeIn(timeout);
                     break;
                 case CSW_ZRLE:
                     earBit ^= EAR_MASK;
@@ -1343,7 +1366,7 @@ public class Tape implements ClockTimeoutListener {
                         }
 
                         timeout *= cswStatesSample;
-                        clock.setTimeout(timeout);
+                        nextEdgeIn(timeout);
 
                     } catch (IOException ex) {
                         log.error("IOexception: ", ex);
@@ -1358,7 +1381,7 @@ public class Tape implements ClockTimeoutListener {
 //                        leaderPulses =
 //                    }
 //                    if (leaderPulses-- > 0) {
-//                        clock.setTimeout(leaderLenght);
+//                        nextEdgeIn(leaderLenght);
 //                        break;
 //                    }
 //                    if (totp-- > 0) {
@@ -1688,7 +1711,7 @@ public class Tape implements ClockTimeoutListener {
                                 tapeBuffer.length - tapePos);
                         iis = new InflaterInputStream(bais);
                         statePlay = State.CSW_ZRLE;
-                        clock.setTimeout(1);
+                        nextEdgeIn(1);
                         return true;
                     } else { // RLE as CSW v1.01
                         statePlay = State.CSW_RLE;
@@ -1709,7 +1732,7 @@ public class Tape implements ClockTimeoutListener {
                 }
 
                 timeout *= cswStatesSample;
-                clock.setTimeout(timeout);
+                nextEdgeIn(timeout);
                 break;
             case CSW_ZRLE:
                 earBit ^= EAR_MASK;
@@ -1745,7 +1768,7 @@ public class Tape implements ClockTimeoutListener {
                     }
 
                     timeout *= cswStatesSample;
-                    clock.setTimeout(timeout);
+                    nextEdgeIn(timeout);
 
                 } catch (final IOException ex) {
                     log.error("IOexception: ", ex);

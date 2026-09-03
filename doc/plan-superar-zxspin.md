@@ -148,6 +148,21 @@ mecanismo con que entró la memoria: `held` en el `Target`, y `SpectrumZ80Clock`
 **Cuánto.** +10-20 %. **Custodia:** los tests de cinta (`TapeHardwareTest`, `TzxLoadingTest`,
 la carga con `soundLoad`) son los que pueden romperse; y `Where`.
 
+**Hecho (2026-09-03).** La cinta espera por un evento del `EventManager` ("Tape edge"): cada
+flanco pide el siguiente medido desde el instante en que el suyo vencía, que es lo que hacía el
+`overshoot` del timeout y lo que hace Fuse. `SpectrumZ80Clock` quedó en la suma que hereda de
+`DefaultZ80Clock` (diez bytes) más `rebaseTStates`; el timeout, sus listeners y
+`ClockTimeoutListener` en la cinta se fueron. `Ula.addUlaStates(int, String)` ya no arma un
+lambda por acceso a puerto. La sobrecarga con etiqueta **se queda**: el reloj de test de
+`SpeccyBaseForTests` graba las adiciones a través de ella para las comparaciones de historia de
+T-states, y con la etiqueta constante e inlineada no cuesta nada; la de `Supplier` sí se fue.
+
+Medido, alternado, mismos cores: Manic Miner 15 838 / 14 586 → 16 768 / 14 971 (**+3 a
++6 %**), JSW 8 041 → 8 852 (**+10 %**); bytes por frame en el loop 951 → 756. En el perfil de
+después `addTStates` y `contend5x1` desaparecieron del tope: se inlinean, y el tiempo aparece
+donde corresponde (`decodeED_22`, que es LDIR, es el 28 % del demo de Manic Miner). Lo que sigue
+por encima de los 35 bytes es `read` (558 sitios "callee is too large"): el §3.
+
 ## 3. Los helpers de memoria no se inlinean
 
 `read` (78 bytes) y `write` (199) son llamadas en 640 sitios. "La memoria inline en el núcleo"

@@ -40,11 +40,6 @@ public class SpeccyBaseForTests {
         log(() -> description, (byte) tStatesToAdd);
         this.tStates += tStatesToAdd;
       }
-
-      public void addTStates(int tStatesToAdd, Supplier<String> description) {
-        log(description, (byte) tStatesToAdd);
-        addTStates(tStatesToAdd);
-      }
     }, binder -> binder.bind(JavaSoundDevice.class).to(SilentSoundDevice.class));
 
     return speccy;

@@ -29,7 +29,6 @@ import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.peripherals.PeripheralBus;
 
 import java.util.Arrays;
-import java.util.function.Supplier;
 
 @Singleton
 public class Ula implements ZxModule, MachineChangeListener {
@@ -240,12 +239,8 @@ public class Ula implements ZxModule, MachineChangeListener {
     }
   }
 
-  private void addUlaStates(int i, String description) {
-    addUlaStates(i, () -> "ula_" + description);
-  }
-
-  public void addUlaStates(int states, Supplier<String> descriptionSupplier) {
-    z80Clock.addTStates(contentionNoMreq[z80Clock.getTStates()] + states, descriptionSupplier);
+  public void addUlaStates(int states, String description) {
+    z80Clock.addTStates(contentionNoMreq[z80Clock.getTStates()] + states, description);
   }
 
   public void addUlaStates(int states) {

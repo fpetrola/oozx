@@ -35,7 +35,7 @@ public class TestFusePhaseProcessorZ80 extends TestFusePhaseProcessor {
     boolean contended = z80.memory.mapRead[address >>> z80.memory.PAGE_SIZE_LOGARITHM].contended;
     for (int i = 0; i < times; i++) {
       if (contended)
-        z80.ula.addUlaStates(0, () -> "ula " + kind.description);
+        z80.ula.addUlaStates(0, "ula " + kind.description);
       z80.zxClock.addTStates(tstates, kind.description);
     }
   }
