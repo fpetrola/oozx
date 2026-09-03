@@ -1001,6 +1001,32 @@ Lo que dice:
   con una base por slot, `all[base[slot] + (address & 0x7FF)]`, que son dos cargas. Es un cambio
   estructural de `Memory` y vale como mucho la mitad de ese 5 %.
 
+#### De dónde sale el 3 %, exactamente
+
+Cuatro variantes, mismo trabajo, fijadas a un P-core:
+
+| qué | fps |
+|---|---|
+| base: llamada de interfaz al envoltorio con sus banderas y su cadena | 1.359 |
+| helper privado que reenvía a `memory.read/write` | 1.344 |
+| envoltorio sin las banderas `disabled` y `contentionOutside` | 1.372 |
+| envoltorio con el trabajo de la máquina escrito plano, sin delegar | 1.365 |
+| **el mismo trabajo plano, en un método privado del núcleo** | **1.399** |
+
+Lo que separa las dos últimas es sólo dónde vive el método: la misma cuenta, detrás de una llamada
+de interfaz da 1.365 y adentro de la clase generada da 1.399. **El 3 % es la llamada, no el
+cuerpo** —el cuerpo plano vale medio punto— y para sacarla el código de la máquina tiene que estar
+adentro de la clase generada. Eso es G1–G3 completo: un módulo que el generador pueda usar y que
+vea `machine/core`, los terminales como parámetro, arrays de instancia en el especializador, la
+frontera declarada, y un segundo artefacto generado con su propio candado y sus propios gates.
+
+Lo barato que se puede hacer sin nada de eso es sacar las dos banderas del envoltorio cuando el
+núcleo es el generado: **+1 %**, y es una simplificación que vale sola, porque `contentionOutside`
+es una constante por instancia y `disabled` es del debugger.
+
+**El resto, 2 %, cuesta todo el programa de G1–G3 y su acoplamiento permanente.** El número está
+medido; la decisión es del proyecto.
+
 #### M3 y M5
 
 - **M3 no se hizo**, y la medición de arriba dice por qué: sacar `displayDirtySinclair` del camino
