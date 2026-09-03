@@ -134,7 +134,8 @@ public class RzxSession {
     Speccy speccy = injector.getInstance(Speccy.class);
     // Before init, because that is when the sound works out how big a frame of audio is: at the
     // default 200x it comes to four samples a frame instead of the eight hundred odd a real one
-    // has, and a replay is heard through that. Pacing is this session's own job either way.
+    // has, and a replay is heard through that. It starts at real time and follows the speed
+    // control from there, in followTheSpeed.
     speccy.settings.current.emulationSpeed = 100;
     speccy.init();
     speccy.z80.bridgeCommand = (command, data) -> null;
@@ -205,6 +206,21 @@ public class RzxSession {
   }
 
   private com.fpetrola.oozx.speccy.modules.Timer timer;
+  private int soundedAt = 100;
+
+  /**
+   * The sound is what a replay waits on above real time: a frame of audio is sized for a speed,
+   * and writing a real time frame of it per frame of the machine holds the whole thing to real
+   * time, however little the window sleeps between frames. The ordinary loop resizes it when the
+   * speed changes; a replay is driven from outside that loop, so it does it here.
+   */
+  private void followTheSpeed() {
+    int speed = Math.max(1, speccy.settings.current.emulationSpeed);
+    if (speed == soundedAt)
+      return;
+    soundedAt = speed;
+    speccy.sound.speedChanged();
+  }
 
   /**
    * Plays one frame of the recording and shows it.
@@ -224,6 +240,7 @@ public class RzxSession {
     // This is how a machine driven by a recording advances, so it is where what was deferred
     // gets done - the ordinary loop does it at the end of doOpcodes, which never runs here.
     speccy.z80.applyWhatWasDeferred();
+    followTheSpeed();
     try {
       if (!playback.playFrame()) {
         return false;
