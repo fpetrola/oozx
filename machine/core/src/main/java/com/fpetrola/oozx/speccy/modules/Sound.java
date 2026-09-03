@@ -130,8 +130,10 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
 
     this.treble = speakerTreble[speakerType];
     this.bass = speakerBass[speakerType];
-    double hz = (double) effectiveSpeed / tstatesPerFrame;
-    soundFrameSize = (int) (soundFreq / hz) + 1;
+    // Asked of the buffer rather than worked out again here: the two sums have to agree to the
+    // sample or every frame leaves the difference behind, and at speed the difference is the
+    // rounding rather than anything visible.
+    soundFrameSize = BlipBuffer.samplesInAFrame(soundFreq, effectiveSpeed, tstatesPerFrame);
     sizedFor = tstatesPerFrame;
     outputSamples = new int[soundFrameSize * 2];
     // A new machine brings its own sources, which arrive as its peripherals are switched on.
@@ -175,7 +177,13 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
   /** A synth wired for this output, for whoever is going to make samples with it. */
   @Override
   public BlipSynth newSynth(int volume) {
-    return new BlipSynth(BlipBuffer.BLIP_HIGH_QUALITY, soundFreq, 1000, effectiveSpeed, bass,
+    // Long enough to hold what a frame can write into it, which is two of them: a source is
+    // handed the clock as it stands and the clock passes the end of a frame before whoever
+    // drives it takes a frame off, so a write can land most of a frame past the last one. A
+    // second covers fourteen frames at normal speed and is nowhere near one below about 7%,
+    // where a frame of the machine is most of a second of audio.
+    int millis = (int) Math.max(1000, 2 * soundFrameSize * 1000L / soundFreq + 1);
+    return new BlipSynth(BlipBuffer.BLIP_HIGH_QUALITY, soundFreq, millis, effectiveSpeed, bass,
         getVolume(volume), treble);
   }
 

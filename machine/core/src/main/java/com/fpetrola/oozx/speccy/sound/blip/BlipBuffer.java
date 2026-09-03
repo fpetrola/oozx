@@ -78,7 +78,7 @@ public class BlipBuffer {
   }
 
   public void clockRate(long cps) {
-    factor = clockRateFactor(clockRate = cps);
+    factor = clockRateFactor(sampleRate, clockRate = cps);
   }
 
   public void endFrame(long t) {
@@ -190,10 +190,24 @@ public class BlipBuffer {
     return BLIP_WIDEST_IMPULSE / 2;
   }
 
-  private long clockRateFactor(long clockRate) {
+  private static long clockRateFactor(long sampleRate, long clockRate) {
     double ratio = (double) sampleRate / clockRate;
-    long factor = (long) (ratio * (1L << BLIP_BUFFER_ACCURACY) + 0.5);
-    return factor;
+    return (long) (ratio * (1L << BLIP_BUFFER_ACCURACY) + 0.5);
+  }
+
+  /**
+   * The most samples a frame of that many T-states can put in, which is what whoever empties the
+   * buffer has to ask for.
+   * <p>
+   * Worked out with the same rounded factor {@link #endFrame} fills by, because that rounding is
+   * the whole of it: at 150x a frame is 2.7525 samples, the factor rounds it to 3, and anyone
+   * emptying 2 - which is what the same sum in floating point and truncated comes to - leaves a
+   * quarter of a sample behind every frame. A hundred and eighty thousand frames later the
+   * buffer is full and the mix throws.
+   */
+  public static int samplesInAFrame(long sampleRate, long clockRate, int tstatesPerFrame) {
+    long fill = tstatesPerFrame * clockRateFactor(sampleRate, clockRate);
+    return (int) ((fill + (1L << BLIP_BUFFER_ACCURACY) - 1) >>> BLIP_BUFFER_ACCURACY);
   }
 
   public void removeSamples(long count) {
