@@ -216,54 +216,11 @@ public class Z80 implements ZxModule, Cpu {
   private void initNoTest() {
 
     // The generated core carries its contention inside, so the aspect is not told about its accesses.
-    final boolean contentionOutside = !generatedCore();
-    memory1 = new Memory() {
-      private boolean disabled;
-
-      public int read(int address, int fetching) {
-        if (disabled)
-          return memory.readByteInternal(address);
-        int value = memory.readByte(address, ula);
-        zxClock.addTStates(fetching == 1 ? 4 : 3);
-        if (contentionOutside)
-          phaseProcessor.afterRead(address);
-        return value;
-      }
-
-      public void write(int address, int value) {
-        if (disabled) {
-          memory.writeByteInternal2(address, (byte) value);
-          return;
-        }
-        if (contentionOutside)
-          phaseProcessor.beforeWrite(address);
-        memory.writeByte(address, (byte) (value & 0xff), ula, display);
-        zxClock.addTStates(3);
-      }
-
-      public void reset() {
-        memory.reset();
-      }
-
-      public void disableReadListener() {
-        disabled = true;
-      }
-
-      public void disableWriteListener() {
-        disabled = true;
-      }
-
-      public void enableReadListener() {
-        disabled = false;
-      }
-
-      public void enableWriteListener() {
-        disabled = false;
-      }
-    };
+    memory1 = new ContendedMemory(memory, ula, display, zxClock, !generatedCore());
     var state = createState(memory1);
     createOOZ80(state);
     phaseProcessor = new FusePhaseProcessor(this);
+    ((ContendedMemory) memory1).watchedBy(phaseProcessor);
 
     uiDisplay.screenMatrix = screenBytes;
     setupExecutionFetcher();
@@ -608,16 +565,9 @@ public class Z80 implements ZxModule, Cpu {
     Memory memory1 = ooz80.getState().getMemory();
 
 //    int tStates = zxClock.getTStates();
-    memory1.disableReadListener();
-
-    for (int i = 0x4000; i < 0x8000; i++) {
-      int datum = memory1.read(i, 0);
-      memory.writeByteInternal(i, (byte) (datum & 0xff), display);
-    }
-
-//    zxClock.setTStates(tStates);
-    // zxClock.addTStates(-zxClock.getTStates());
-    memory1.enableReadListener();
+    // readByteInternal is the read with no clock and no contention, which is what this wants.
+    for (int i = 0x4000; i < 0x8000; i++)
+      memory.writeByteInternal(i, (byte) (memory.readByteInternal(i) & 0xff), display);
   }
 
   public void changeSpeed(int emulationSpeed) {
