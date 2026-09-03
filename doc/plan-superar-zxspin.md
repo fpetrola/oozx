@@ -425,6 +425,41 @@ Los porcentajes no se suman: cada uno se mide después del anterior, y lo que di
 después de cada paso decide el siguiente. Con los tres primeros, si dan lo que las cuentas
 dicen, sobra para el 20 % que separa de ZXSpin; los demás son para no quedarse justo.
 
+## 9. Lo que el sonido hace con la velocidad
+
+Medido con la placa de audio real, reproduciendo la grabación de JSW a la velocidad pedida:
+
+| velocidad pedida | fps | equivale a | CPU/pared |
+|---|---|---|---|
+| 100 % | 51 | 103 % | 0,01 |
+| 2 000 % | 970 | 1 941 % | 0,08 |
+| 15 000 % (el turbo de la app) | 6 866 | 13 731 % | 0,48 |
+| 60 000 % | 13 707 | 27 413 % | 0,99 |
+| 15 000 %, dispositivo silencioso | 13 601 | 27 202 % | 1,00 |
+
+**Con el sonido puesto la máquina corre exactamente a la velocidad pedida y ni un frame más.** El
+frame de audio se dimensiona para esa velocidad (`Sound.initSound`), la placa lo consume a
+44 100 muestras por segundo y `line.write` bloquea cuando se adelanta: el sonido es el reloj. A
+15 000 % el hilo pasa la mitad del tiempo dormido en la placa, no calculando — no hay
+procesamiento de sonido que optimizar, ni muestras que saltear: con el dispositivo silencioso
+la síntesis cuesta ~1 %. "Sin sonido va al doble" era "sin sonido nadie acompasa".
+
+De ahí que ZXSpin "con sonido" corra más: su máxima velocidad no la fija el audio. Acá el turbo
+pedía 15 000 %, un número, y el sonido se lo cumplía. Ahora el turbo pide
+`Settings.SettingsInfo.UNLIMITED_SPEED`, que es "lo más rápido que pueda": a esa velocidad un
+frame de audio son cero muestras, la placa no recibe nada y no bloquea, la línea sigue abierta y
+vuelve a sonar al bajar a 100 %, y el `Timer` concede más T-states por tick de los que un tick
+puede correr (acotado a `int`: desbordaba y dejaba la máquina quieta). Medido: el loop de la
+máquina a velocidad ilimitada, 7 702 fps con sonido y 7 888 sin; a 100 %, 49 y 50.
+
+Lo que se oye en turbo: nada — antes, a 150×, se oía un zumbido de 8 muestras por frame. Si se
+prefiere el zumbido, un turbo de ~50 000 % deja 1-2 muestras por frame sin acompasar.
+
+Un hallazgo al pasar, para otro día: la línea se abre **mono** y la mezcla le escribe los pares
+L/R intercalados como muestras consecutivas; el `× 2` de `effectiveSpeed` compensa la duración.
+El tono sale bien, pero la resolución efectiva es de 22 kHz. Abrir la línea estéreo y quitar el
+`× 2` lo arregla sin cambiar la velocidad.
+
 **Lo que no hay que tocar** porque ya está a la par o no pesa: el `EventManager` (0,2 %), la
 mezcla del sonido (`Sound.frame`), el `updateBorder` (4 %: es el borde a mitad de frame, y en un
 juego real cambia poco), el decodificador por grupos (`GROUP_SHIFT` ya está medido en 3).

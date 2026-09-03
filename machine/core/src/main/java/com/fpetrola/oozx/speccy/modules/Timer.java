@@ -173,7 +173,9 @@ public class Timer implements ZxModule, MachineChangeListener {
         return;
       }
       double difference = currentTime - startTime;
-      int tstates = (int) (((difference + TEN_MS / 1000.0) * spectrumMachine.getTimings().processorSpeed) * speed + 0.5);
+      // Clamped: at an unlimited speed the grant for one tick overflowed an int and came out
+      // negative, which fired the timer at once and again, and the machine stood still.
+      int tstates = (int) Math.min(((difference + TEN_MS / 1000.0) * spectrumMachine.getTimings().processorSpeed) * speed + 0.5, Integer.MAX_VALUE / 2);
       eventManager.eventAdd(lastTstates + tstates, timerEvent);
       startTime = currentTime + TEN_MS / 1000.0;
     }

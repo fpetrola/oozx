@@ -146,7 +146,9 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
   public void setGeneralOption(String option, Object value) {
     if (option.equals("turbo")) {
       turbo = (boolean) value;
-      int emulationSpeed = turbo ? 15000 : 100;
+      // Turbo is as fast as it can, not a number: at any number the sound is the clock and holds
+      // the machine to exactly that, which at 15000 was half of what it can do.
+      int emulationSpeed = turbo ? com.fpetrola.oozx.Settings.SettingsInfo.UNLIMITED_SPEED : 100;
       changeSpeed1(emulationSpeed);
 //          speccy.timer.estimateReset();
     } else if (option.equals("mute")) {

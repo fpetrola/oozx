@@ -76,6 +76,12 @@ public class Settings {
     public String drivePlusd1Type;
     public String drivePlusd2Type;
     public boolean embedSnapshot;
+    /**
+     * The speed that means as fast as the machine can go. Nothing paces it: a frame of audio for
+     * it is no samples, so the sound stays on without holding the machine to any rate, and the
+     * timer grants more T-states per tick than a tick can run.
+     */
+    public static final int UNLIMITED_SPEED = 1_000_000;
     public int emulationSpeed = 20000;
     public boolean fastload;
     public int fbMode;
