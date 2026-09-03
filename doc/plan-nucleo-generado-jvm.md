@@ -1040,6 +1040,32 @@ medido; la decisión es del proyecto.
 Lo que el perfil sí señala, y no es CPU: el AY se sintetiza con el sonido apagado y se lleva el
 10,5 %, y el camino de escritura lee el byte viejo de la pantalla para decidir si ensuciarla.
 
+### Paso 5: hecho, y medido con el arnés que se parece a la app
+
+`GeneratedSpectrumZ80` existe: las mismas instrucciones, y el `read` y el `write` de cada `case`
+llaman a un método privado de la clase cuyo cuerpo es la memoria de la máquina desarmada.
+
+**Medido con `doOpcodes`, que es como corre la app**, sobre Manic Miner cargado de un snapshot,
+fijado a un P-core, cinco corridas intercaladas de cada uno:
+
+| núcleo | mejor | media |
+|---|---|---|
+| **generado contra la máquina** | **3.587** | **3.445** |
+| generado puro | 3.293 | 3.131 |
+| OOP | — | 790 |
+
+**+10 % sobre el núcleo puro**, y 4,3× sobre el OOP.
+
+Lo que hay que aprender de esto es sobre la medición, no sobre el núcleo. El arnés de RZX decía
+3 %, y llegó a decir que el núcleo de la máquina era **más lento**. No mentía sobre lo que medía:
+`RzxPlayback` avanza las instrucciones por su cuenta contando fetches por el registro R, no pasa
+por `doOpcodes`, y se lleva el 8 % del frame en eso. Medir la reproducción de una grabación no es
+medir el emulador.
+
+Tres arneses dieron tres respuestas distintas sobre el mismo cambio: el RZX dijo -13 %, el loop de
+la ROM ociosa no dice nada porque no ejecuta nada parecido a un juego, y el loop de la máquina con
+un juego cargado dice +10 %. **El que vale es el último**, porque es lo que la app hace.
+
 ## Cómo se verifica
 
 - **Semántica**: Fuse 1355 evento por evento sobre `GeneratedZ80`; `GeneratedAluReferenceTest`;
