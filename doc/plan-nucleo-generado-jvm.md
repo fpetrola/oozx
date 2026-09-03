@@ -1066,6 +1066,24 @@ Tres arneses dieron tres respuestas distintas sobre el mismo cambio: el RZX dijo
 la ROM ociosa no dice nada porque no ejecuta nada parecido a un juego, y el loop de la máquina con
 un juego cargado dice +10 %. **El que vale es el último**, porque es lo que la app hace.
 
+### Lo que quedaba de G1–G3: la contención, medida y descartada
+
+El único punto que quedaba en pie del plan era especializar también el gancho de contención, con
+el `times` literal en cada uno de los 1.322 sitios para que el loop se desenrolle. Medido con el
+arnés que anda —`doOpcodes` sobre Manic Miner, fijado a un P-core, cuatro pares alternados—:
+
+| | media |
+|---|---|
+| gancho abstracto, como está | 3.545 |
+| contención especializada en un helper | 3.526 |
+
+Empatado. **No compra nada**, y tiene sentido: el gancho llega a `FusePhaseProcessor.contend`, que
+es chico y monomórfico, y C2 ya lo resuelve. El `times` literal desenrolla el loop igual una vez
+que lo inlinea.
+
+Así que G1–G3 queda como está: la memoria adentro, la contención afuera. Lo que falta medir con
+este arnés es `GROUP_SHIFT`, que se eligió cuando los métodos eran más chicos.
+
 ## Cómo se verifica
 
 - **Semántica**: Fuse 1355 evento por evento sobre `GeneratedZ80`; `GeneratedAluReferenceTest`;
