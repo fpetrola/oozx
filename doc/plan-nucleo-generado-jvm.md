@@ -879,20 +879,54 @@ que da C2, y son instructivas:
 Y el envoltorio es grande justamente **porque** `Memory.writeByte`, `writeByteInternal` y
 `displayDirtySinclair` sí están inlineados adentro de él. Se comió su propio presupuesto.
 
-Eso abre un camino que B0 no había considerado, y que es mucho más barato que G1–G3: **achicar el
-envoltorio hasta que entre**. Si `displayDirtySinclair` —63 bytes— dejara de estar en el camino de
-toda escritura y se llamara sólo para las páginas de pantalla, el tamaño compilado del envoltorio
-bajaría de `InlineSmallCode` y C2 lo inlinearía en los 433 sitios. Eso **reformula M3 por
-completo**: no vale por las dos comparaciones que saca, vale porque es lo que pone al callee bajo
-el umbral. Es la próxima cosa a probar, y se prueba con `PrintInlining`, no estimando.
+Parecía abrir un camino más barato que G1–G3 —achicar el envoltorio hasta que entre— y se probó
+**sin escribir código**, que es la forma más barata de probarlo: subiendo los umbrales del JIT por
+línea de comandos. Cuatro corridas de cada configuración:
+
+| | mejor | media |
+|---|---|---|
+| como está | 878 | 813 |
+| `-XX:MaxInlineSize=120` | 848 | 823 |
+| `+ -XX:InlineSmallCode=10000` | 904 | 836 |
+| `+ -XX:FreqInlineSize=1000` | 847 | 800 |
+
+Los flags **sí** cambian el inlining —los sitios inlineados pasan de 89 a 132 en lectura y de 4 a
+14 en escritura, y las 263 negativas por `medium method` desaparecen— y la velocidad **no se
+mueve**: todo cae dentro de un ruido de ±3 %.
+
+O sea: **las llamadas están, y sacarlas no sirve.** El 31 % y el 17,6 % que el perfil le atribuye
+al envoltorio son el trabajo, no la llamada.
+
+Se midió también sacando cada pieza del camino, del todo, para ver cuál era:
+
+| | mejor de 3 |
+|---|---|
+| como está | 826 |
+| sin ensuciar la pantalla | 841 |
+| sin contención | 854 |
+| restaurado | 803 |
+
+Ninguna pasa el ruido. **El costo de la máquina está repartido**: no hay una pieza que sacar.
+
+Lo que esto le hace al plan:
+
+- **A1 y G1–G3 valen alrededor del 3 % en JSW**, no lo que este documento estimaba. Su premisa
+  —que la llamada opaca cuesta por lo que le hace al resto del `case`— es cierta en el papel y no
+  se ve en la medición.
+- **M3 no se justifica** por esta vía: sacar `displayDirtySinclair` del camino da 2 %, dentro del
+  ruido.
+- **El piso de ruido de esta medición, ±3 %, es del tamaño de los efectos que quedan.** Antes de
+  seguir optimizando la máquina hay que medir mejor, o aceptar que lo que queda es difuso.
+- Con el núcleo generado en 8,8 % del frame, **hacer la CPU infinitamente rápida da 10 %**. Lo que
+  queda para JSW no es una optimización, es una decisión de diseño: la contención se calcula por
+  acceso, y lo único que observa el T-state exacto adentro del frame son el borde y el bus
+  flotante. Eso es de la máquina y es tuyo decidirlo.
 
 #### M3 y M5
 
-- **M3 pasa a ser lo próximo**, por la razón de arriba: sacar `displayDirtySinclair` del camino de
-  toda escritura no es ahorrar dos comparaciones, es bajar el tamaño compilado del envoltorio para
-  que C2 lo inlinee en los 433 sitios. La bandera por página tiene que mantenerse sin quedarse
-  vieja, que es el riesgo, y se verifica con el mismo test de cambio de máquina y paginado que ya
-  pide la sección de la frontera.
+- **M3 no se hizo**, y la medición de arriba dice por qué: sacar `displayDirtySinclair` del camino
+  de toda escritura da 2 %, dentro del ruido, y forzar el inlining del envoltorio entero tampoco
+  mueve nada.
 - **M5** no aparece en este perfil: `Z80.doOpcodes` no está entre las muestras porque
   `RzxPlayback` avanza las instrucciones por su cuenta y no pasa por ahí. Para la app de escritorio
   sí importa —ahí el bridge se consulta por instrucción— pero eso no se mide con esta herramienta,
