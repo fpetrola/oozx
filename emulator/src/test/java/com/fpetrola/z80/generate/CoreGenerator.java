@@ -121,8 +121,14 @@ public class CoreGenerator {
     return out.toString();
   }
 
-  /** HotSpot does not compile a method over 8000 bytes of bytecode; sixteen cases stay well under it. */
-  private static final int GROUP_SHIFT = 4;
+  /**
+   * HotSpot does not compile a method over 8000 bytes of bytecode, and sixteen cases stay well
+   * under it. Measured against the alternatives, interleaved, on a bare array: 32 cases per method
+   * is the same to within the noise, 8 cases and one case per method are both about 13 percent
+   * slower. It stays settable because inlining the accesses will make the methods grow, and this
+   * is what regulates them; changing it changes the generated file, which the lock will say.
+   */
+  private static final int GROUP_SHIFT = Integer.getInteger("oozx.groupshift", 4);
 
   private void table(String method, FetchedInstructionWrapper[] wrappers, Expression preRead) {
     for (int opcode = 0; opcode < wrappers.length; opcode++) {

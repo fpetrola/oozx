@@ -601,6 +601,7 @@ Cada paso termina verde en su gate y con su número anotado; el siguiente no emp
 2. **A4**: el tejido por rama. Gate: Fuse evento por evento, que es exactamente lo que cambia.
    *Hecho.*
 3. **A6**: `GROUP_SHIFT` y un método por opcode, con el benchmark del paso 0. Se queda uno.
+   *Hecho: se queda el 4, que era el que estaba.*
 4. **M1–M5** en la máquina, con el núcleo OOP. Gate: `machine/core` 260, memoria contendida,
    hashes de boot, los tests de cinta; `RzxCoreMeasurement` para ver cuánto movió M1 y M2
    solas (se espera bastante: es la mitad de la tabla de LDIR).
@@ -778,6 +779,36 @@ ejecuciones—, y ese campo le contagia a `PC` un ancho desconocido, que deja do
 de la rama tomada de las ocho instrucciones de bloque. Para sacarlas habría que distinguir "cuántos
 bits tiene" de "puede ser -1", que son dos hechos y hoy el análisis lleva uno solo. Es un frente
 abierto chico y bien delimitado.
+
+### Paso 3: A6, la forma del despacho
+
+Medido con el benchmark del paso 0 sobre un `int[]`, cada variante compilada aparte y las cuatro
+corridas **intercaladas** doce veces, en los dos órdenes, porque la diferencia esperada era del
+tamaño del ruido:
+
+| corte | métodos | bytecode | mejor | media |
+|---|---|---|---|---|
+| 0, un método por opcode | 1.626 | 262.899 | 196,5 | 190,9 |
+| 3, ocho casos por método | 214 | 196.654 | 193,2 | 185,6 |
+| **4, dieciséis casos** | **112** | **191.253** | **222,8** | **216,5** |
+| 5, treinta y dos casos | 61 | 187.042 | 219,9 | 213,4 |
+
+**Gana el que ya estaba, y no hay nada que cambiar.** 4 y 5 empatan dentro del ruido; 3 y 0 son un
+13 % más lentos, reproducible en los dos órdenes.
+
+Lo que enseñó el experimento es que no se podía extrapolar. De 4 a 3 empeora, así que la tendencia
+decía que un método por opcode iba a ser peor todavía; medido, es *mejor* que 3. Son dos regímenes
+distintos: con un caso por método los cuerpos son chicos y C2 puede inlinearlos en el despacho, lo
+que recupera parte de lo que se pierde. Recupera parte, no todo, pero el argumento de la tendencia
+era inválido y sólo se ve midiendo.
+
+`GROUP_SHIFT` queda configurable con `-Doozx.groupshift`, con 4 por default, porque el paso 5 lo
+va a necesitar: cuando los accesos se inlineen los métodos crecen y esto es lo que los regula.
+Cambiarlo cambia el archivo generado, y eso lo dice el candado.
+
+Nota de medición: corrido directo, sin maven en el medio, el mismo núcleo da 216 M instr/s de
+media contra los 194-205 que salían por `mvn test`. Para comparar variantes hay que sacar a maven
+del lazo.
 
 ## Cómo se verifica
 
