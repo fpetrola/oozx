@@ -184,23 +184,29 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     turboIndicator.setToolTipText(turbo ? "Turbo: running at full speed" : "Turbo off");
   }
 
+  /** The most the slider asks for; the turbo button is for no limit at all. */
+  static final int TOP_SPEED = 30000;
+  private static final int TOP_NOTCH = 17;
+
   /**
-   * A speed to run at, from a quarter of real time to sixteen times it, doubling every two
-   * notches; the turbo button is for no limit at all. Applied when the knob is let go: a change
-   * of speed rebuilds the sound, and rebuilding it forty times along one drag would crackle.
+   * A speed to run at, from a quarter of real time up, doubling every two notches, the last
+   * notch being the top. Applied when the knob is let go: a change of speed rebuilds the sound,
+   * and rebuilding it forty times along one drag would crackle.
    */
   private JComponent speedSlider() {
-    JSlider slider = new JSlider(-4, 8, notchOf(emulatorCore.getEmulationSpeed()));
+    JSlider slider = new JSlider(-4, TOP_NOTCH, notchOf(emulatorCore.getEmulationSpeed()));
     java.util.Hashtable<Integer, JComponent> labels = new java.util.Hashtable<>();
-    for (int notch = -4; notch <= 8; notch += 2) {
+    for (int notch = -4; notch <= 12; notch += 4) {
       labels.put(notch, new JLabel(speedAt(notch) + "%"));
     }
+    labels.put(TOP_NOTCH, new JLabel(TOP_SPEED + "%"));
     slider.setLabelTable(labels);
     slider.setPaintLabels(true);
-    slider.setMajorTickSpacing(2);
+    slider.setMajorTickSpacing(4);
+    slider.setMinorTickSpacing(1);
     slider.setPaintTicks(true);
     slider.setSnapToTicks(true);
-    slider.setPreferredSize(new Dimension(320, slider.getPreferredSize().height));
+    slider.setPreferredSize(new Dimension(420, slider.getPreferredSize().height));
     slider.addChangeListener(e -> {
       if (!slider.getValueIsAdjusting()) {
         emulatorCore.setGeneralOption("speed", speedAt(slider.getValue()));
@@ -210,11 +216,12 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
   }
 
   static int speedAt(int notch) {
-    return (int) Math.round(100 * Math.pow(2, notch / 2.0));
+    return notch >= TOP_NOTCH ? TOP_SPEED : (int) Math.round(100 * Math.pow(2, notch / 2.0));
   }
 
   static int notchOf(double speed) {
-    return Math.max(-4, Math.min(8, (int) Math.round(2 * Math.log(Math.max(1, speed) / 100) / Math.log(2))));
+    if (speed >= TOP_SPEED) return TOP_NOTCH;
+    return Math.max(-4, Math.min(TOP_NOTCH - 1, (int) Math.round(2 * Math.log(Math.max(1, speed) / 100) / Math.log(2))));
   }
 
   private JComponent volumeSlider() {

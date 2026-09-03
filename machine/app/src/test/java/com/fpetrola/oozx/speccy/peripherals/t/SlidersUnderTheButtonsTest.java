@@ -41,10 +41,12 @@ class SlidersUnderTheButtonsTest {
     assertEquals(100, EmulatorInternalFrame.speedAt(0));
     assertEquals(200, EmulatorInternalFrame.speedAt(2));
     assertEquals(1600, EmulatorInternalFrame.speedAt(8));
-    for (int notch = -4; notch <= 8; notch++) {
+    assertEquals(25600, EmulatorInternalFrame.speedAt(16));
+    assertEquals(EmulatorInternalFrame.TOP_SPEED, EmulatorInternalFrame.speedAt(17), "the last notch is the top");
+    for (int notch = -4; notch <= 17; notch++) {
       assertEquals(notch, EmulatorInternalFrame.notchOf(EmulatorInternalFrame.speedAt(notch)), "notch " + notch);
     }
-    assertEquals(8, EmulatorInternalFrame.notchOf(com.fpetrola.oozx.Settings.SettingsInfo.UNLIMITED_SPEED), "no limit sits at the top");
+    assertEquals(17, EmulatorInternalFrame.notchOf(com.fpetrola.oozx.Settings.SettingsInfo.UNLIMITED_SPEED), "no limit sits at the top");
   }
 
   @Test
