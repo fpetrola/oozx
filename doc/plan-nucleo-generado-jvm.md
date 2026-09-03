@@ -856,27 +856,43 @@ JFR sobre la reproducción de JSW con el núcleo generado, 227 muestras:
 | avance del RZX | 7,9 % |
 | **todo el núcleo generado junto** | **8,8 %** |
 
-**`Memory.readByte` y `writeByte` no aparecen como frames: están inlineados adentro del
-envoltorio.** O sea que en el camino de memoria **ya no queda ninguna llamada opaca**, que era
-exactamente lo que B0 predecía que iba a pasar con M1 y M2 hechos.
+`Memory.readByte` y `writeByte` no aparecen como frames porque están inlineados adentro del
+envoltorio `Z80$1.read`/`write`. Pero ésa es la pregunta equivocada. La que importa es si **el
+envoltorio** está inlineado adentro de los `decode_N`, o sea si `memory.write(_address84, ...)` en
+el `case` es una llamada de verdad. Medido con `PrintInlining` sobre la misma reproducción:
 
-Y eso **invalida la premisa del paso 5**. El plan decía que lo que cuesta es la llamada opaca y lo
-que le hace al resto del `case`. Medido, no hay llamada: C2 ya inlineó todo el camino de memoria
-adentro del envoltorio, y el 60 % que se lleva memoria más reloj es **trabajo real**, no overhead
-de llamada: la búsqueda en la tabla de páginas, la lectura de la tabla de contención de 1 MB, el
-test de escribible, el test de pantalla sucia con su lectura extra del byte viejo, el guardado y la
-suma al reloj. Generar ese mismo código adentro del `case` no saca nada de eso. Lo único que
-quedaría en pie de G1–G3 es la contención con el `times` literal, que desenrolla un loop de hasta
-siete vueltas.
+| sitio | decisiones | inlineadas |
+|---|---|---|
+| `memory.read` | 1.040 | **89 (8,6 %)** |
+| `memory.write` | 433 | **4 (0,9 %)** |
+| `contend` | 583 | **40 (6,9 %)** |
 
-#### Por qué M3 y M5 no se hicieron
+**Más del 90 % de los accesos son llamadas reales**, que es exactamente lo que A1 dice. Las razones
+que da C2, y son instructivas:
 
-Con el perfil en la mano dejan de justificarse por ahora:
+- `callee is too large`: el envoltorio son 78 y 82 bytes, por encima de los 35 de `MaxInlineSize`,
+  y C2 no consideró esos sitios lo bastante calientes para usar el presupuesto de 325.
+- `already compiled into a medium method`: una vez que compiló `Z80$1.read`/`write` por separado,
+  su tamaño **compilado** pasa los 2.500 de `InlineSmallCode` y deja de inlinearlo en todos lados.
+- `callee uses too much stack` para `contend`: el `decode_N` que llama ya usa mucha pila.
 
-- **M3** ataca el 31 % de la escritura, pero lo que saca son dos comparaciones y dos accesos a
-  campo de unos quince que hace el camino: alrededor del 1 % del frame, debajo del ruido. Y la
-  mitad cara —`writableRoms`, que viene de la configuración— pide un listener y una bandera que se
-  puede quedar vieja en silencio, que es justo la clase de error que este plan viene evitando.
+Y el envoltorio es grande justamente **porque** `Memory.writeByte`, `writeByteInternal` y
+`displayDirtySinclair` sí están inlineados adentro de él. Se comió su propio presupuesto.
+
+Eso abre un camino que B0 no había considerado, y que es mucho más barato que G1–G3: **achicar el
+envoltorio hasta que entre**. Si `displayDirtySinclair` —63 bytes— dejara de estar en el camino de
+toda escritura y se llamara sólo para las páginas de pantalla, el tamaño compilado del envoltorio
+bajaría de `InlineSmallCode` y C2 lo inlinearía en los 433 sitios. Eso **reformula M3 por
+completo**: no vale por las dos comparaciones que saca, vale porque es lo que pone al callee bajo
+el umbral. Es la próxima cosa a probar, y se prueba con `PrintInlining`, no estimando.
+
+#### M3 y M5
+
+- **M3 pasa a ser lo próximo**, por la razón de arriba: sacar `displayDirtySinclair` del camino de
+  toda escritura no es ahorrar dos comparaciones, es bajar el tamaño compilado del envoltorio para
+  que C2 lo inlinee en los 433 sitios. La bandera por página tiene que mantenerse sin quedarse
+  vieja, que es el riesgo, y se verifica con el mismo test de cambio de máquina y paginado que ya
+  pide la sección de la frontera.
 - **M5** no aparece en este perfil: `Z80.doOpcodes` no está entre las muestras porque
   `RzxPlayback` avanza las instrucciones por su cuenta y no pasa por ahí. Para la app de escritorio
   sí importa —ahí el bridge se consulta por instrucción— pero eso no se mide con esta herramienta,
