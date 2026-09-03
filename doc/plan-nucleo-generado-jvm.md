@@ -605,6 +605,8 @@ Cada paso termina verde en su gate y con su número anotado; el siguiente no emp
 4. **M1–M5** en la máquina, con el núcleo OOP. Gate: `machine/core` 260, memoria contendida,
    hashes de boot, los tests de cinta; `RzxCoreMeasurement` para ver cuánto movió M1 y M2
    solas (se espera bastante: es la mitad de la tabla de LDIR).
+   *Hecho M1, M2 y M4. No movieron nada y el perfil dice por qué; M3 y M5 quedan sin hacer, con
+   razón escrita.*
 5. **Decisión**, con el número del paso 4 en la mano: si B0 ya inlineó los accesos
    (`PrintInlining` sin `Memory::read` como llamada en los `decode_N` calientes), G1–G3 sólo
    agrega la contención desenrollada, y quizás no vale el acoplamiento. Si se hace: los terminales
@@ -809,6 +811,79 @@ Cambiarlo cambia el archivo generado, y eso lo dice el candado.
 Nota de medición: corrido directo, sin maven en el medio, el mismo núcleo da 216 M instr/s de
 media contra los 194-205 que salían por `mvn test`. Para comparar variantes hay que sacar a maven
 del lazo.
+
+### Paso 4: M1, M2 y M4, y lo que la medición dice del paso 5
+
+**M2. Un acceso hace una sola cosa.** Una lectura buscaba la página dos veces, una para el byte y
+otra para lo que la página cuesta, y una escritura escribía dos veces —la segunda estaba para que
+el camino del debugger apagado igual guardara—. `Memory.readByte` contesta las dos cosas de una
+sola mirada a la tabla, y el envoltorio de `Z80` resuelve primero el caso apagado y después hace
+cada cosa una vez.
+
+**M4. Un ED indefinido ya no explota.** La tabla devolvía "no hay instrucción", el fetcher se
+encontraba un null y el generado tiraba. En el hardware son dos bytes y ocho T-states de nada, que
+es lo que ya genera el `Nop` de la propia tabla ED. Son 160 opcodes y 794 líneas más en el
+generado.
+
+**M1. El reloj no boxea más, y no cambia nada.** La cuenta regresiva esperaba detrás de un
+`Consumer<Integer>`. Ahora espera en un campo. Medido, **no mueve nada**, y la razón hay que
+escribirla: `setTimeout` lo llama solamente la cinta, así que sin cinta cargando el `Consumer` era
+null y nunca se boxeó nada. Este documento decía "doce llamadas boxeadas por iteración de LDIR";
+eso vale sólo mientras carga una cinta, y ni JSW por RZX ni el loop de la ROM cargan ninguna. Las
+tres sobrecargas de `addTStates` se quedan, porque el reloj de test las sobreescribe para grabar
+para qué fue cada suma.
+
+**Medido, A/B en la misma sesión**, mejor de tres corridas de 6000 frames de JSW, con los tres
+archivos de la máquina puestos y sacados con `git checkout`:
+
+| | antes | después |
+|---|---|---|
+| núcleo generado | 851 fps | 798 fps |
+| núcleo OOP | 708 fps | 697 fps |
+
+Dentro del ruido, y con el "antes" nominalmente adelante. **M1 y M2 no mueven JSW.**
+
+#### El perfil, que es lo que había que hacer antes de estimar
+
+JFR sobre la reproducción de JSW con el núcleo generado, 227 muestras:
+
+| | |
+|---|---|
+| `Z80$1.write` | **31,3 %** |
+| `Z80$1.read` | **17,6 %** |
+| `SpectrumZ80Clock.addTStates` | 10,6 % |
+| `Ay.synthesise` + `BlipSynth` | 10,5 % |
+| avance del RZX | 7,9 % |
+| **todo el núcleo generado junto** | **8,8 %** |
+
+**`Memory.readByte` y `writeByte` no aparecen como frames: están inlineados adentro del
+envoltorio.** O sea que en el camino de memoria **ya no queda ninguna llamada opaca**, que era
+exactamente lo que B0 predecía que iba a pasar con M1 y M2 hechos.
+
+Y eso **invalida la premisa del paso 5**. El plan decía que lo que cuesta es la llamada opaca y lo
+que le hace al resto del `case`. Medido, no hay llamada: C2 ya inlineó todo el camino de memoria
+adentro del envoltorio, y el 60 % que se lleva memoria más reloj es **trabajo real**, no overhead
+de llamada: la búsqueda en la tabla de páginas, la lectura de la tabla de contención de 1 MB, el
+test de escribible, el test de pantalla sucia con su lectura extra del byte viejo, el guardado y la
+suma al reloj. Generar ese mismo código adentro del `case` no saca nada de eso. Lo único que
+quedaría en pie de G1–G3 es la contención con el `times` literal, que desenrolla un loop de hasta
+siete vueltas.
+
+#### Por qué M3 y M5 no se hicieron
+
+Con el perfil en la mano dejan de justificarse por ahora:
+
+- **M3** ataca el 31 % de la escritura, pero lo que saca son dos comparaciones y dos accesos a
+  campo de unos quince que hace el camino: alrededor del 1 % del frame, debajo del ruido. Y la
+  mitad cara —`writableRoms`, que viene de la configuración— pide un listener y una bandera que se
+  puede quedar vieja en silencio, que es justo la clase de error que este plan viene evitando.
+- **M5** no aparece en este perfil: `Z80.doOpcodes` no está entre las muestras porque
+  `RzxPlayback` avanza las instrucciones por su cuenta y no pasa por ahí. Para la app de escritorio
+  sí importa —ahí el bridge se consulta por instrucción— pero eso no se mide con esta herramienta,
+  así que no hay con qué decidirlo.
+
+Lo que el perfil sí señala, y no es CPU: el AY se sintetiza con el sonido apagado y se lleva el
+10,5 %, y el camino de escritura lee el byte viejo de la pantalla para decidir si ensuciarla.
 
 ## Cómo se verifica
 
