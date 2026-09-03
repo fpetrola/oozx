@@ -69,22 +69,28 @@ public class PokesManager {
       return;
     }
     
-    // Convertir URL a Path para poder iterar directorios
-    Path pokesPath = null;
-    if (pokesUrl.getProtocol().equals("file")) {
-      pokesPath = Paths.get(pokesUrl.toURI());
-    } else if (pokesUrl.getProtocol().equals("jar")) {
-      // Si está en un JAR, crear un FileSystem temporal
-      String[] parts = pokesUrl.getPath().split("!");
-      Path jarPath = Paths.get(parts[0].substring(5)); // Quitar "file:"
-      pokesPath = Paths.get(parts[1]);
-    }
+    Path pokesPath = pathOf(pokesUrl.toURI());
     
     if (pokesPath != null && Files.exists(pokesPath)) {
       indexPokesDirectory(pokesPath);
     } else {
       System.err.println("Could not access pokes directory");
     }
+  }
+
+  /**
+   * Dentro de un jar las entradas no son del filesystem por defecto: hace falta montarlo, y queda
+   * montado porque cada PokFile lee su contenido por el Path mucho despues de indexarlo.
+   */
+  private Path pathOf(java.net.URI uri) throws IOException {
+    if (!"jar".equals(uri.getScheme())) {
+      return Paths.get(uri);
+    }
+    try {
+      FileSystems.newFileSystem(uri, Map.of());
+    } catch (FileSystemAlreadyExistsException alreadyMounted) {
+    }
+    return FileSystems.getFileSystem(uri).getPath(POKES_RESOURCE_PATH);
   }
 
   /**
