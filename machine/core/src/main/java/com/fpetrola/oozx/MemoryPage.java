@@ -32,25 +32,34 @@ public class MemoryPage {
    * Decided when the screen page changes, so a write asks one question instead of four.
    */
   public int screenBytes;
-  /** Public like the rest of what a page is: the generated core reads it without going through get. */
-  public int[] page;
+  /**
+   * Public like the rest of what a page is: the generated core reads it without going through get.
+   * Bytes, because that is what they are: as ints a 128K's RAM was half a megabyte, four times
+   * what fits in the cache alongside everything else a frame touches.
+   */
+  public byte[] page;
 
   public MemoryPage() {
   }
 
   public int get(final int index) {
-    return page[offset + index];
+    return page[offset + index] & 0xff;
+  }
+
+  /** Whether the byte there is already this one: a write that changes nothing dirties nothing. */
+  public boolean holds(final int index, final byte value) {
+    return page[offset + index] == value;
   }
 
   public void set(final int index, final byte value) {
-    page[offset + index] = value & 0xff;
+    page[offset + index] = value;
   }
 
-  public void setPage(int[] page) {
+  public void setPage(byte[] page) {
     this.page = page;
   }
 
-  public void setPage(int[][] ram, int i) {
+  public void setPage(byte[][] ram, int i) {
     setPage(ram[i]);
   }
 
@@ -62,7 +71,7 @@ public class MemoryPage {
     return pageNum;
   }
 
-  public int[] getPage() {
+  public byte[] getPage() {
     return page;
   }
 

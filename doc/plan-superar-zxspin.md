@@ -219,6 +219,20 @@ mismo `clock` del núcleo — pierde la identidad que el especializador sí cono
 general: **lo que el generador inlinea llega con las identidades resueltas; lo que el JIT
 inlinea, no.** No conviene devolverle al JIT lo que el generador ya decidió.
 
+**Hecho, segunda parte (2026-09-03): páginas de `byte[]`.** `RAMHolder`, `MemoryPage`,
+`Memory.newRam`, el bus flotante de `Spectrum`, la carga de snapshots en `Z80`, los tres puntos
+de `Display` y los tres dispositivos que rellenan sus páginas; el generado lee `& 0xff` y guarda
+el byte. Y una comparación que estaba mal desde antes y que los bytes dejaron a la vista:
+`get(address) != value` comparaba un `int` 0..255 con un `byte` con signo, así que **todo byte
+≥ 0x80 escrito sin cambio se marcaba sucio igual** — la mitad de los bytes de píxeles de un
+sprite, y cada uno era un `dirty8`, o un `dirty64` de ocho marcas si era un atributo con FLASH.
+Ahora es `MemoryPage.holds(address, value)`, byte contra byte.
+
+Medido, alternado: Manic Miner neutro (16 649 / 13 167 → 15 933 / 14 859, la segunda corrida de
+"antes" estaba perturbada), **JSW 7 882 → 11 697 (+48 %)**. En el perfil de JSW `dirty64` ya no
+está entre los ocho primeros; lo que queda arriba es `contend2x1` 10 %, la síntesis del AY 9 %,
+`decode`/`step`, `read` 7 %. Eso rebaja lo que el §5 puede dar: la mitad de su 32 % era esto.
+
 ## 4. Puertos y teclado: alocar por cada IN
 
 JSW lee el teclado varias veces por frame y eso es el 6 % de sus muestras (`Keyboard.read` 5,4,

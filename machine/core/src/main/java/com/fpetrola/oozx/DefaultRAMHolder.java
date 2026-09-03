@@ -20,9 +20,9 @@ package com.fpetrola.oozx;
 
 public class DefaultRAMHolder implements RAMHolder {
   // RAM array: 65 pages of 16KB each (from SPECTRUM_RAM_PAGES)
-  private final int[][] RAM = new int[Memory.SPECTRUM_RAM_PAGES][0x4000];
+  private final byte[][] RAM = new byte[Memory.SPECTRUM_RAM_PAGES][0x4000];
 
-  public int[][] getRAM() {
+  public byte[][] getRAM() {
     return RAM;
   }
 }

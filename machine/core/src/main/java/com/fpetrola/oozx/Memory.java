@@ -244,9 +244,9 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
    * and a device with a ROM of its own fills the pages it will page in over the machine's.
    */
   public void fillRomBank(MemoryPage[] bank, int pageNum, byte[] image, int length, boolean custom) {
-    int[] data = new int[length];
+    byte[] data = new byte[length];
     for (int i = 0; i < length; i++) {
-      data[i] = image[i] & 0xff;
+      data[i] = (byte) (image[i] & 0xff);
     }
     int offset = 0;
     for (int i = pageNum * PAGES_IN_16K; i < pageNum * PAGES_IN_16K + length / PAGE_SIZE; i++) {
@@ -284,7 +284,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
 
   /** That many bytes of a device's own RAM, as pages it can map over the machine's. */
   public MemoryPage[] newRam(int length) {
-    int[] data = new int[length];
+    byte[] data = new byte[length];
     MemoryPage[] pages = new MemoryPage[length / PAGE_SIZE];
     for (int i = 0; i < pages.length; i++) {
       pages[i] = new MemoryPage();
@@ -356,7 +356,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
 
   // Handle dirty display for Sinclair mode
   public void displayDirtySinclair(final int address, final byte value, final Display display, final MemoryPage mapping) {
-    if (address < mapping.screenBytes && mapping.get(address) != value) {
+    if (address < mapping.screenBytes && !mapping.holds(address, value)) {
       display.dirtySinclair(address + mapping.offset);
     }
   }

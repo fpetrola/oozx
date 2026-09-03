@@ -136,7 +136,7 @@ public abstract class MultifacePeripheral extends PluggablePeripheral implements
       return;
     }
     if (hard) {
-      Arrays.fill(ram[0].getPage(), 0);
+      Arrays.fill(ram[0].getPage(), (byte) 0);
     }
     ic8aQ = true;
     ic8bQ = true;
@@ -165,7 +165,7 @@ public abstract class MultifacePeripheral extends PluggablePeripheral implements
   }
 
   public int ram(int address) {
-    return ram[0].getPage()[address & (RAM_SIZE - 1)];
+    return ram[0].getPage()[address & (RAM_SIZE - 1)] & 0xff;
   }
 
   /**

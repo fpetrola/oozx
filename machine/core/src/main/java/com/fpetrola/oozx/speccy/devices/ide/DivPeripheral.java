@@ -77,7 +77,7 @@ public abstract class DivPeripheral extends PluggablePeripheral implements ZxMod
         page.setPageNum(i);
       }
     }
-    Arrays.fill(eprom[0].getPage(), 0xff);
+    Arrays.fill(eprom[0].getPage(), (byte) 0xff);
   }
 
   /** The file the EPROM is filled from at a hard reset, or null for one left erased. */
@@ -209,14 +209,14 @@ public abstract class DivPeripheral extends PluggablePeripheral implements ZxMod
     if (hard) {
       control = 0;
       for (MemoryPage[] page : ram) {
-        Arrays.fill(page[0].getPage(), 0);
+        Arrays.fill(page[0].getPage(), (byte) 0);
       }
-      Arrays.fill(eprom[0].getPage(), 0xff);
+      Arrays.fill(eprom[0].getPage(), (byte) 0xff);
       if (romName() != null) {
         try {
           memory.loadRomBank(eprom, 0, romName(), PAGE_SIZE, true);
         } catch (RomNotLoadedException missing) {
-          Arrays.fill(eprom[0].getPage(), 0xff);
+          Arrays.fill(eprom[0].getPage(), (byte) 0xff);
         }
       }
     } else {

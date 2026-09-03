@@ -45,7 +45,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
   private long frames;
   private final Timer timer;
   private final Module module;
-  private final int[][] ram;
+  private final byte[][] ram;
   protected Sound sound;
 
   private final UserInterface userInterface;
@@ -177,17 +177,17 @@ public abstract class Spectrum extends AbstractSpectrumMachine implements ZxModu
     if (tstatesThroughLine < timings.leftBorder) return 0xff;
     if (tstatesThroughLine >= timings.leftBorder + timings.horizontalScreen) return 0xff;
     int column = ((tstatesThroughLine - timings.leftBorder) / 8) * 2;
-    int[] bytes = ram[memory.currentScreen];
+    byte[] bytes = ram[memory.currentScreen];
 
     switch (tstatesThroughLine % 8) {
       case 5:
         column++;
       case 3:
-        return bytes[display.attrStart[line] + column];
+        return bytes[display.attrStart[line] + column] & 0xff;
       case 4:
         column++;
       case 2:
-        return bytes[display.lineStart[line] + column];
+        return bytes[display.lineStart[line] + column] & 0xff;
       case 0:
       case 1:
       case 6:

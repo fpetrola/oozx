@@ -417,14 +417,14 @@ public class Z80 implements ZxModule, Cpu {
    * lock bit that a game sets once and relies on - happens the way it does when a game writes it.
    */
   private void loadPagedRam(SpectrumState spectrumState) {
-    int[][] ram = memory.getRAM();
+    byte[][] ram = memory.getRAM();
     for (int bank = 0; bank < 8 && bank < ram.length; bank++) {
       byte[] page = spectrumState.getMemoryState().getPageRam(bank);
       if (page == null) {
         continue;
       }
       for (int i = 0; i < page.length; i++) {
-        ram[bank][i] = page[i] & 0xff;
+        ram[bank][i] = page[i];
       }
     }
     io.out(0x7ffd, spectrumState.getPort7ffd() & 0xff);

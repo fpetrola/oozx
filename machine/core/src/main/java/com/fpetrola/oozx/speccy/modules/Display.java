@@ -104,7 +104,7 @@ public class Display implements ZxModule, MachineChangeListener {
   private int criticalRegionY;
   private final Z80Clock z80Clock;
   private final UiDisplay uiDisplay;
-  private final int[][] ram;
+  private final byte[][] ram;
   private final BeanPosition beam;
   private SpectrumMachine spectrumMachine;
 
@@ -214,8 +214,8 @@ public class Display implements ZxModule, MachineChangeListener {
     int beamY = y + BORDER_HEIGHT;
     int offset = getOffset(x, y);
 
-    int[] screen = ram[memory.currentScreen];
-    int data = screen[offset];
+    byte[] screen = ram[memory.currentScreen];
+    int data = screen[offset] & 0xff;
     byte data2 = getAttrByte(x, y);
 
     int lastChunkDetail = ((flashReversed ? 1 : 0) << 24) | ((data2 & 0xFF) << 8) | (data & 0xFF);
@@ -481,7 +481,7 @@ public class Display implements ZxModule, MachineChangeListener {
   }
 
   public void dirtyFlashingSinclair() {
-    int[] screen = ram[memory.currentScreen];
+    byte[] screen = ram[memory.currentScreen];
     for (int offset = 0x1800; offset < 0x1b00; offset++) {
       int attr = screen[offset];
       if ((attr & 0x80) != 0) dirty64(offset);

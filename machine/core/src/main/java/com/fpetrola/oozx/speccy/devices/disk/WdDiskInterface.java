@@ -190,7 +190,7 @@ public abstract class WdDiskInterface extends PluggablePeripheral implements ZxM
     }
     available = true;
     if (hard && ram != null) {
-      Arrays.fill(ram[0].getPage(), 0);
+      Arrays.fill(ram[0].getPage(), (byte) 0);
     }
     fdc.masterReset();
     fdc.currentDrive = drives[0];

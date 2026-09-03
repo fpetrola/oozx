@@ -96,7 +96,7 @@ static final int[] SZ53 = new int[0x100];
       if (mapping_6382.contended) {
           clock.addTStates(ula.contention[clock.getTStates()], "ula readbyte");
       }
-      int value_6381 = mapping_6382.page[mapping_6382.offset + (address & 0x7FF)];
+      int value_6381 = (mapping_6382.page[mapping_6382.offset + (address & 0x7FF)] & 0xff);
       clock.addTStates(fetching == 1 ? 4 : 3);
       return value_6381;
   }
@@ -109,10 +109,10 @@ static final int[] SZ53 = new int[0x100];
       byte value_6384 = ((byte) (value & 0xff));
       if ((memoryPage_6383.writable) || (memoryPage_6383.source != ram.sourceNone && ram.settings.current.writableRoms)) {
           int addressMasked_6385 = address & 0x7FF;
-          if (addressMasked_6385 < memoryPage_6383.screenBytes && memoryPage_6383.page[memoryPage_6383.offset + addressMasked_6385] != value_6384) {
+          if (addressMasked_6385 < memoryPage_6383.screenBytes && !(memoryPage_6383.page[memoryPage_6383.offset + addressMasked_6385] == value_6384)) {
               display.dirtySinclair(addressMasked_6385 + memoryPage_6383.offset);
           }
-          memoryPage_6383.page[memoryPage_6383.offset + addressMasked_6385] = value_6384 & 0xff;
+          memoryPage_6383.page[memoryPage_6383.offset + addressMasked_6385] = value_6384;
       }
       clock.addTStates(3);
   }
