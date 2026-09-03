@@ -953,6 +953,54 @@ hacen crecer el código compilado, y eso se paga en caché de instrucciones.
 Ésa es la respuesta a la pregunta que motivaba G1–G3, y es que no: **el trabajo de la memoria de la
 máquina es trabajo, y ponerlo adentro del `case` no lo hace más barato.**
 
+#### El instrumento estaba roto, y eso invalida todo lo medido antes
+
+En esta máquina, `RzxCoreMeasurement` y todo lo de arriba se midieron con:
+
+- **IntelliJ usando el 66 % de la CPU** y 2,7 GB de swap ocupados;
+- un **i5-1335U híbrido**: cuatro P-cores a 4,6 GHz y ocho E-cores a 3,4 GHz, con el hilo saltando
+  entre unos y otros;
+- el governor en `powersave`.
+
+Con eso, una sola corrida daba bloques de 829, 1026, 1082, 831, 752, 980... **±12 % adentro de la
+misma corrida**, que es más grande que cualquier efecto que se haya medido hoy.
+
+Fijando el hilo a un P-core con `taskset -c 2` y midiendo la meseta —doce bloques de 500 frames,
+promedio de los últimos seis— la dispersión baja a **~1 %**, y **el mismo código corre a 1.360 fps
+en vez de 830**. Los E-cores se estaban comiendo el 40 %.
+
+Cualquier número de este documento tomado antes de esto tiene ±12 % encima. Lo que sobrevive es lo
+que se midió intercalado muchas veces con diferencias grandes: el 4,5× del núcleo generado y el
+14 % del `GROUP_SHIFT` 3.
+
+#### Qué cuesta la memoria de la máquina, medido bien
+
+Todas las variantes ejecutan las mismas 29.097.384 instrucciones. Fijado a un P-core:
+
+| variante | fps | vs base |
+|---|---|---|
+| base, llamada de interfaz al envoltorio | 1.360 | — |
+| el código de la máquina adentro del núcleo, llamada privada | 1.398 | **+3 %** |
+| lo mismo forzado a inlinear, sin ninguna llamada | 1.362 | 0 % |
+| sin ensuciar la pantalla | 1.408 | +3,5 % |
+| sin contención | 1.399 | +3 % |
+| tabla de páginas como arrays paralelos en vez de objetos | 1.400 | +3 % |
+| **piso: un array plano, sin paginado ni contención ni pantalla** | **1.470** | **+8 %** |
+
+Lo que dice:
+
+- **El premio entero de optimizar la memoria de la máquina es 8 %.**
+- **Sacar la llamada de interfaz vale 3 %**, y es lo que G3 propone: métodos privados con el código
+  de la máquina. Forzarlos a inlinear del todo **devuelve esos 3 %**: 1.412 copias de un cuerpo de
+  60 bytes adentro de métodos de 2.000 a 3.400 se pagan en caché de instrucciones. O sea que la
+  forma que el plan ya proponía —helpers, no pegar el código en cada `case`— es la correcta.
+- **La contención, el ensuciado de pantalla y la indirección por objeto valen ~1 % cada uno.** La
+  tabla de páginas como arrays paralelos no gana nada: el costo no es el salto de puntero, es la
+  **cantidad de cargas** por acceso, cuatro contra una.
+- El 5 % que queda entre lo mejor y el piso es esa cuenta de cargas. Bajarla pide un array plano
+  con una base por slot, `all[base[slot] + (address & 0x7FF)]`, que son dos cargas. Es un cambio
+  estructural de `Memory` y vale como mucho la mitad de ese 5 %.
+
 #### M3 y M5
 
 - **M3 no se hizo**, y la medición de arriba dice por qué: sacar `displayDirtySinclair` del camino
