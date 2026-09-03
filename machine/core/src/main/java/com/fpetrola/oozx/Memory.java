@@ -308,15 +308,18 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
     map2kReadWrite(address, source, 0, true, true);
   }
 
-  // Read a byte from memory
-  public void readByte(int address, Ula ula) {
-    if (mapRead[address >>> PAGE_SIZE_LOGARITHM].contended) {
+  /**
+   * A read the way the processor makes it: what the page costs and what it holds, from one look at
+   * the page table. Asking for the two separately looked the page up twice per read.
+   */
+  public int readByte(final int address, final Ula ula) {
+    final MemoryPage mapping = mapRead[address >>> PAGE_SIZE_LOGARITHM];
+    if (mapping.contended)
       zxClock.addTStates(ula.contention[zxClock.getTStates()], "ula readbyte");
-    }
-//      tStatesHolder.tstates += 3;
-//    mapping.getPage().get(address & PAGE_SIZE_MASK);
+    return mapping.get(address & PAGE_SIZE_MASK);
   }
 
+  /** The same byte with no clock and no contention: what a debugger or a snapshot sees. */
   public int readByteInternal(final int address) {
     final MemoryPage mapping = mapRead[address >>> PAGE_SIZE_LOGARITHM];
     return mapping.get(address & PAGE_SIZE_MASK);

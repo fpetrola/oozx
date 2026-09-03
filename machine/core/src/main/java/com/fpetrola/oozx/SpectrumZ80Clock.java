@@ -24,45 +24,38 @@ import com.fpetrola.z80.cpu.DefaultZ80Clock;
 import com.fpetrola.z80.helpers.CollectionHandler;
 import com.fpetrola.emulation.helpers.machine.ClockTimeoutListener;
 
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class SpectrumZ80Clock extends DefaultZ80Clock {
-  protected Consumer<Integer> timeoutProcessor;
   private int timeout;
-  private CollectionHandler<ClockTimeoutListener> clockListeners = new CollectionHandler<>();
+  private final CollectionHandler<ClockTimeoutListener> clockListeners = new CollectionHandler<>();
 
+  /**
+   * Adding T-states is the most repeated thing the machine does - a dozen times per LDIR - so what
+   * waits for the clock waits on a field, not through a Consumer&lt;Integer&gt; that boxed the
+   * number every time. Only the tape waits, and only while it is loading.
+   */
   public void addTStates(int tStatesToAdd) {
-    this.tStates += tStatesToAdd;
-    if (timeoutProcessor != null)
-      timeoutProcessor.accept(tStatesToAdd);
+    tStates += tStatesToAdd;
+    if (timeout > 0 && tStatesToAdd >= 0 && (timeout -= tStatesToAdd) <= 0)
+      timedOut();
   }
 
+  /** The description is for the test clock, which records what each addition was for. */
   public void addTStates(int tStatesToAdd, String description) {
-    this.tStates += tStatesToAdd;
-    if (timeoutProcessor != null)
-      timeoutProcessor.accept(tStatesToAdd);
+    addTStates(tStatesToAdd);
   }
 
   public void addTStates(int tStatesToAdd, Supplier<String> description) {
     addTStates(tStatesToAdd);
   }
 
-  private void timeOutProcess(int tStatesToAdd) {
-    if (timeout > 0 && tStatesToAdd >= 0) {
-      timeout -= tStatesToAdd;
-
-//      if (timeout > 60000)
-//        System.out.println("max1");
-      if (timeout <= 0) {
-        int res = timeout;
-        clockListeners.forAll(ClockTimeoutListener::clockTimeout);
-
-        if (timeout > 0) {
-          new Log1().trace("Timeout: {}, res: {}", timeout, res);
-          timeout += res;
-        }
-      }
+  private void timedOut() {
+    int overshoot = timeout;
+    clockListeners.forAll(ClockTimeoutListener::clockTimeout);
+    if (timeout > 0) {
+      new Log1().trace("Timeout: {}, res: {}", timeout, overshoot);
+      timeout += overshoot;
     }
   }
 
@@ -80,10 +73,8 @@ public class SpectrumZ80Clock extends DefaultZ80Clock {
   }
 
   public void setTimeout(int ntstates) {
-    if (this.timeout <= 0) {
-      this.timeout = Math.max(ntstates, 10);
-      timeoutProcessor = this::timeOutProcess;
-    }
+    if (timeout <= 0)
+      timeout = Math.max(ntstates, 10);
   }
 
   public void addClockTimeoutListener(Tape tape) {

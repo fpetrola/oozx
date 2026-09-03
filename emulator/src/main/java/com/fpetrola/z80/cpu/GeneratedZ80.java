@@ -49,7 +49,7 @@ static final int[] SZ53 = new int[0x100];
 
   private int _nextPC159 = -1;
   private int _nextPC871 = -1;
-  private int _nextPC2047 = -1;
+  private int _nextPC2223 = -1;
 
   public GeneratedZ80(Memory memory, IO io) {
     this.memory = memory;
@@ -2824,28 +2824,28 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xEE: {
-          int _F1871;
+          int _F2047;
           int operand_4167 = memory.read((PC + 1) & 0xFFFF, 0);
           int value1_4168 = A;
           int value2_4169 = operand_4167;
           value2_4169 ^= value1_4168;
-          _F1871 = SZ53P[value2_4169 & 0xff] | (value2_4169 == 0 ? 0x40 : 0);
+          _F2047 = SZ53P[value2_4169 & 0xff] | (value2_4169 == 0 ? 0x40 : 0);
           int result_4171 = value2_4169 & 0xFF;
-          F = (_F1871 & 0xFF);
+          F = (_F2047 & 0xFF);
           A = result_4171;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xEF: {
-          int _nextPC1873;
+          int _nextPC2049;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           SP = ((SP - 2) & 0xFFFF);
           int value_4172 = ((PC + 1) & 0xFFFF);
           memory.write((SP + 1) & 0xFFFF, (value_4172 >>> 8));
           memory.write(SP, (value_4172 & 0xFF));
-          _nextPC1873 = 0x28;
-          MEMPTR = _nextPC1873;
-          PC = _nextPC1873;
+          _nextPC2049 = 0x28;
+          MEMPTR = _nextPC2049;
+          PC = _nextPC2049;
           break;
       }
       default:
@@ -2886,18 +2886,18 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xF2: {
-          int _jumpAddress1876 = 0;
+          int _jumpAddress2052 = 0;
           int address_4185 = (PC + 1) & 0xFFFF;
           int operand_4187 = memory.read(address_4185, 0);
           int operand_4189 = memory.read((address_4185 + 1) & 0xFFFF, 0);
-          int jumpAddress2_4184 = (_jumpAddress1876 = (operand_4189 << 8) | operand_4187);
+          int jumpAddress2_4184 = (_jumpAddress2052 = (operand_4189 << 8) | operand_4187);
           if ((!((F & 0x80) == 0x80))) {
-              _jumpAddress1876 = jumpAddress2_4184;
-              MEMPTR = _jumpAddress1876;
+              _jumpAddress2052 = jumpAddress2_4184;
+              MEMPTR = _jumpAddress2052;
               PC = jumpAddress2_4184;
               break;
           } else {
-              MEMPTR = _jumpAddress1876;
+              MEMPTR = _jumpAddress2052;
               PC = (PC + 3) & 0xFFFF;
               break;
           }
@@ -2908,25 +2908,25 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xF4: {
-          int _jumpAddress1878 = 0;
+          int _jumpAddress2054 = 0;
           int address_4191 = (PC + 1) & 0xFFFF;
           int operand_4193 = memory.read(address_4191, 0);
           int operand_4195 = memory.read((address_4191 + 1) & 0xFFFF, 0);
-          int value_4196 = (_jumpAddress1878 = (operand_4195 << 8) | operand_4193);
+          int value_4196 = (_jumpAddress2054 = (operand_4195 << 8) | operand_4193);
           MEMPTR = value_4196;
-          int jumpAddress2_4197 = (_jumpAddress1878 = (operand_4195 << 8) | operand_4193);
+          int jumpAddress2_4197 = (_jumpAddress2054 = (operand_4195 << 8) | operand_4193);
           if ((!((F & 0x80) == 0x80))) {
               SP = ((SP - 2) & 0xFFFF);
               int value_4201 = ((PC + 3) & 0xFFFF);
               contend((PC + 2) & 0xFFFF, 1, 1, Contention.Kind.READ_NO_MREQ);
               memory.write((SP + 1) & 0xFFFF, (value_4201 >>> 8));
               memory.write(SP, (value_4201 & 0xFF));
-              _jumpAddress1878 = jumpAddress2_4197;
-              MEMPTR = _jumpAddress1878;
+              _jumpAddress2054 = jumpAddress2_4197;
+              MEMPTR = _jumpAddress2054;
               PC = jumpAddress2_4197;
               break;
           } else {
-              MEMPTR = _jumpAddress1878;
+              MEMPTR = _jumpAddress2054;
               PC = (PC + 3) & 0xFFFF;
               break;
           }
@@ -2941,28 +2941,28 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xF6: {
-          int _F1880;
+          int _F2056;
           int operand_4204 = memory.read((PC + 1) & 0xFFFF, 0);
           int value1_4205 = A;
           int value2_4206 = operand_4204;
           value2_4206 |= value1_4205;
-          _F1880 = SZ53P[value2_4206 & 0xff] | (value2_4206 == 0 ? 0x40 : 0);
+          _F2056 = SZ53P[value2_4206 & 0xff] | (value2_4206 == 0 ? 0x40 : 0);
           int result_4208 = value2_4206 & 0xFF;
-          F = (_F1880 & 0xFF);
+          F = (_F2056 & 0xFF);
           A = result_4208;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xF7: {
-          int _nextPC1882;
+          int _nextPC2058;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           SP = ((SP - 2) & 0xFFFF);
           int value_4209 = ((PC + 1) & 0xFFFF);
           memory.write((SP + 1) & 0xFFFF, (value_4209 >>> 8));
           memory.write(SP, (value_4209 & 0xFF));
-          _nextPC1882 = 0x30;
-          MEMPTR = _nextPC1882;
-          PC = _nextPC1882;
+          _nextPC2058 = 0x30;
+          MEMPTR = _nextPC2058;
+          PC = _nextPC2058;
           break;
       }
       case 0xF8: {
@@ -2991,18 +2991,18 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xFA: {
-          int _jumpAddress1885 = 0;
+          int _jumpAddress2061 = 0;
           int address_4217 = (PC + 1) & 0xFFFF;
           int operand_4219 = memory.read(address_4217, 0);
           int operand_4221 = memory.read((address_4217 + 1) & 0xFFFF, 0);
-          int jumpAddress2_4216 = (_jumpAddress1885 = (operand_4221 << 8) | operand_4219);
+          int jumpAddress2_4216 = (_jumpAddress2061 = (operand_4221 << 8) | operand_4219);
           if (((F & 0x80) == 0x80)) {
-              _jumpAddress1885 = jumpAddress2_4216;
-              MEMPTR = _jumpAddress1885;
+              _jumpAddress2061 = jumpAddress2_4216;
+              MEMPTR = _jumpAddress2061;
               PC = jumpAddress2_4216;
               break;
           } else {
-              MEMPTR = _jumpAddress1885;
+              MEMPTR = _jumpAddress2061;
               PC = (PC + 3) & 0xFFFF;
               break;
           }
@@ -3013,25 +3013,25 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xFC: {
-          int _jumpAddress1887 = 0;
+          int _jumpAddress2063 = 0;
           int address_4223 = (PC + 1) & 0xFFFF;
           int operand_4225 = memory.read(address_4223, 0);
           int operand_4227 = memory.read((address_4223 + 1) & 0xFFFF, 0);
-          int value_4228 = (_jumpAddress1887 = (operand_4227 << 8) | operand_4225);
+          int value_4228 = (_jumpAddress2063 = (operand_4227 << 8) | operand_4225);
           MEMPTR = value_4228;
-          int jumpAddress2_4229 = (_jumpAddress1887 = (operand_4227 << 8) | operand_4225);
+          int jumpAddress2_4229 = (_jumpAddress2063 = (operand_4227 << 8) | operand_4225);
           if (((F & 0x80) == 0x80)) {
               SP = ((SP - 2) & 0xFFFF);
               int value_4233 = ((PC + 3) & 0xFFFF);
               contend((PC + 2) & 0xFFFF, 1, 1, Contention.Kind.READ_NO_MREQ);
               memory.write((SP + 1) & 0xFFFF, (value_4233 >>> 8));
               memory.write(SP, (value_4233 & 0xFF));
-              _jumpAddress1887 = jumpAddress2_4229;
-              MEMPTR = _jumpAddress1887;
+              _jumpAddress2063 = jumpAddress2_4229;
+              MEMPTR = _jumpAddress2063;
               PC = jumpAddress2_4229;
               break;
           } else {
-              MEMPTR = _jumpAddress1887;
+              MEMPTR = _jumpAddress2063;
               PC = (PC + 3) & 0xFFFF;
               break;
           }
@@ -3042,25 +3042,25 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xFE: {
-          int _F2897;
+          int _F3073;
           int operand_6373 = memory.read((PC + 1) & 0xFFFF, 0);
           int cptemp_6377 = A - operand_6373;
           int lookup_6378 = ((A & 0x88) >> 3) | ((operand_6373 & 0x88) >> 2) | ((cptemp_6377 & 0x88) >> 1);
-          _F2897 = ((cptemp_6377 & 0x100) != 0 ? 1 : (cptemp_6377 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_6378 & 0x07)] | OVERFLOW_SUB[(lookup_6378 >> 4)] | (operand_6373 & 0x28) | (cptemp_6377 & 0x80);
-          F = (_F2897 & 0xFF);
+          _F3073 = ((cptemp_6377 & 0x100) != 0 ? 1 : (cptemp_6377 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_6378 & 0x07)] | OVERFLOW_SUB[(lookup_6378 >> 4)] | (operand_6373 & 0x28) | (cptemp_6377 & 0x80);
+          F = (_F3073 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xFF: {
-          int _nextPC2899;
+          int _nextPC3075;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           SP = ((SP - 2) & 0xFFFF);
           int value_6380 = ((PC + 1) & 0xFFFF);
           memory.write((SP + 1) & 0xFFFF, (value_6380 >>> 8));
           memory.write(SP, (value_6380 & 0xFF));
-          _nextPC2899 = 0x38;
-          MEMPTR = _nextPC2899;
-          PC = _nextPC2899;
+          _nextPC3075 = 0x38;
+          MEMPTR = _nextPC3075;
+          PC = _nextPC3075;
           break;
       }
       default:
@@ -15065,6 +15065,14 @@ static final int[] SZ53 = new int[0x100];
 
   private void decodeED(int opcode) {
     switch (opcode >> 4) {
+      case 0: decodeED_0(opcode);
+        break;
+      case 1: decodeED_1(opcode);
+        break;
+      case 2: decodeED_2(opcode);
+        break;
+      case 3: decodeED_3(opcode);
+        break;
       case 4: decodeED_4(opcode);
         break;
       case 5: decodeED_5(opcode);
@@ -15073,10 +15081,306 @@ static final int[] SZ53 = new int[0x100];
         break;
       case 7: decodeED_7(opcode);
         break;
+      case 8: decodeED_8(opcode);
+        break;
+      case 9: decodeED_9(opcode);
+        break;
       case 10: decodeED_10(opcode);
         break;
       case 11: decodeED_11(opcode);
         break;
+      case 12: decodeED_12(opcode);
+        break;
+      case 13: decodeED_13(opcode);
+        break;
+      case 14: decodeED_14(opcode);
+        break;
+      case 15: decodeED_15(opcode);
+        break;
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_0(int opcode) {
+    switch (opcode) {
+      case 0x00: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x01: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x02: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x03: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x04: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x05: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x06: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x07: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x08: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x09: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x0A: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x0B: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x0C: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x0D: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x0E: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x0F: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_1(int opcode) {
+    switch (opcode) {
+      case 0x10: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x11: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x12: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x13: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x14: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x15: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x16: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x17: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x18: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x19: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x1A: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x1B: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x1C: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x1D: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x1E: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x1F: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_2(int opcode) {
+    switch (opcode) {
+      case 0x20: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x21: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x22: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x23: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x24: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x25: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x26: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x27: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x28: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x29: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x2A: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x2B: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x2C: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x2D: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x2E: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x2F: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_3(int opcode) {
+    switch (opcode) {
+      case 0x30: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x31: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x32: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x33: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x34: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x35: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x36: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x37: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x38: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x39: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x3A: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x3B: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x3C: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x3D: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x3E: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x3F: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
       default:
         throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
     }
@@ -15085,16 +15389,16 @@ static final int[] SZ53 = new int[0x100];
   private void decodeED_4(int opcode) {
     switch (opcode) {
       case 0x40: {
-          int _F1739;
+          int _F1803;
           MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
           int port_3653 = (B << 8) | C;
           int value_3654 = io.in(port_3653);
           B = value_3654 & 0xFF;
           int value1_3655 = value_3654 & 0xFF;
           int value2_3656 = F;
-          _F1739 = value2_3656;
-          _F1739 = (_F1739 & 1) | (SZ53P[value1_3655] | (value1_3655 == 0 ? 0x40 : 0));
-          F = (_F1739 & 0xFF);
+          _F1803 = value2_3656;
+          _F1803 = (_F1803 & 1) | (SZ53P[value1_3655] | (value1_3655 == 0 ? 0x40 : 0));
+          F = (_F1803 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -15107,7 +15411,7 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x42: {
-          int _F1742;
+          int _F1806;
           contend(((I << 8) | R), 7, 1, Contention.Kind.READ_NO_MREQ);
           MEMPTR = ((((H << 8) | L) + 1) & 0xFFFF);
           int a_3661 = ((H << 8) | L);
@@ -15119,8 +15423,8 @@ static final int[] SZ53 = new int[0x100];
           i_3667 |= i_3667 << 1 & 0x04;
           int result1_3668 = i_3667 << 11 & 0x1A800;
           int lookup_3669 = (value2_3665 << 8 & 0x8800) >> 11 | (value2_3665 << 9 & 0x8800) >> 10 | (result1_3668 & 0x8800) >> 9;
-          _F1742 = ((result1_3668 & 0x10000) != 0 ? 1 : 0) | 2 | OVERFLOW_SUB[(lookup_3669 >> 4)] | (result1_3668 >> 8 & 0xA8) | HALF_CARRY_SUB[(lookup_3669 & 0x07)] | (value1_3664 != 0 ? 0 : 0x40);
-          F = (_F1742 & 0xFF);
+          _F1806 = ((result1_3668 & 0x10000) != 0 ? 1 : 0) | 2 | OVERFLOW_SUB[(lookup_3669 >> 4)] | (result1_3668 >> 8 & 0xA8) | HALF_CARRY_SUB[(lookup_3669 & 0x07)] | (value1_3664 != 0 ? 0 : 0x40);
+          F = (_F1806 & 0xFF);
           int value_3671 = (result_3663 & 0xffff);
           H = (value_3671 >>> 8);
           L = value_3671 & 0xFF;
@@ -15128,33 +15432,33 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x43: {
-          int _address1744;
+          int _address1808;
           int address_3672 = (PC + 2) & 0xFFFF;
           int operand_3674 = memory.read(address_3672, 0);
           int operand_3676 = memory.read((address_3672 + 1) & 0xFFFF, 0);
-          _address1744 = (operand_3676 << 8) | operand_3674;
+          _address1808 = (operand_3676 << 8) | operand_3674;
           int value_3677 = ((B << 8) | C);
-          memory.write(_address1744, (value_3677 & 0xFF));
-          memory.write((_address1744 + 1) & 0xFFFF, (value_3677 >>> 8));
-          MEMPTR = ((_address1744 + 1) & 0xFFFF);
+          memory.write(_address1808, (value_3677 & 0xFF));
+          memory.write((_address1808 + 1) & 0xFFFF, (value_3677 >>> 8));
+          MEMPTR = ((_address1808 + 1) & 0xFFFF);
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x44: {
-          int _F1746;
+          int _F1810;
           int value1_3678 = A;
           int value2_3679 = 0;
           int subtemp_3681 = value2_3679 - value1_3678;
           int lookup_3682 = ((value2_3679 & 0x88) >> 3) | ((value1_3678 & 0x88) >> 2) | ((subtemp_3681 & 0x88) >> 1);
           value2_3679 = subtemp_3681 & 0xff;
-          _F1746 = ((subtemp_3681 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3682 & 0x07)] | OVERFLOW_SUB[(lookup_3682 >> 4)] | (SZ53[value2_3679] | (value2_3679 == 0 ? 0x40 : 0));
-          F = (_F1746 & 0xFF);
+          _F1810 = ((subtemp_3681 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3682 & 0x07)] | OVERFLOW_SUB[(lookup_3682 >> 4)] | (SZ53[value2_3679] | (value2_3679 == 0 ? 0x40 : 0));
+          F = (_F1810 & 0xFF);
           A = value2_3679;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x45: {
-          int _nextPC1748;
+          int _nextPC1812;
           state.setIff1(state.isIff2());
           int jumpAddress2_3684;
           int wordNumber1_3686 = memory.read(SP, 0);
@@ -15163,9 +15467,9 @@ static final int[] SZ53 = new int[0x100];
           int wordNumber_3688 = SP;
           SP = ((wordNumber_3688 + 2) & 0xFFFF);
           jumpAddress2_3684 = value_3685;
-          _nextPC1748 = jumpAddress2_3684;
-          MEMPTR = _nextPC1748;
-          PC = _nextPC1748;
+          _nextPC1812 = jumpAddress2_3684;
+          MEMPTR = _nextPC1812;
+          PC = _nextPC1812;
           break;
       }
       case 0x46: {
@@ -15180,16 +15484,16 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x48: {
-          int _F1751;
+          int _F1815;
           MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
           int port_3690 = (B << 8) | C;
           int value_3691 = io.in(port_3690);
           C = value_3691 & 0xFF;
           int value1_3692 = value_3691 & 0xFF;
           int value2_3693 = F;
-          _F1751 = value2_3693;
-          _F1751 = (_F1751 & 1) | (SZ53P[value1_3692] | (value1_3692 == 0 ? 0x40 : 0));
-          F = (_F1751 & 0xFF);
+          _F1815 = value2_3693;
+          _F1815 = (_F1815 & 1) | (SZ53P[value1_3692] | (value1_3692 == 0 ? 0x40 : 0));
+          F = (_F1815 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -15202,7 +15506,7 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x4A: {
-          int _F1754;
+          int _F1818;
           contend(((I << 8) | R), 7, 1, Contention.Kind.READ_NO_MREQ);
           MEMPTR = ((((H << 8) | L) + 1) & 0xFFFF);
           int a_3698 = ((B << 8) | C);
@@ -15214,8 +15518,8 @@ static final int[] SZ53 = new int[0x100];
           i_3704 |= (i_3704 & 0x02) != 0 ? 0x04 : 0x00;
           int result1_3705 = (i_3704 << 11) & 0x1A800;
           int lookup_3706 = (value2_3702 << 8 & 0x8800) >> 11 | (value2_3702 << 9 & 0x8800) >> 10 | (result1_3705 & 0x8800) >> 9;
-          _F1754 = ((result1_3705 & 0x10000) != 0 ? 1 : 0) | OVERFLOW_ADD[(lookup_3706 >> 4)] | (result1_3705 >> 8 & 0xA8) | HALF_CARRY_ADD[(lookup_3706 & 0x07)] | (value1_3701 == 1 ? 0 : 0x40);
-          F = (_F1754 & 0xFF);
+          _F1818 = ((result1_3705 & 0x10000) != 0 ? 1 : 0) | OVERFLOW_ADD[(lookup_3706 >> 4)] | (result1_3705 >> 8 & 0xA8) | HALF_CARRY_ADD[(lookup_3706 & 0x07)] | (value1_3701 == 1 ? 0 : 0x40);
+          F = (_F1818 & 0xFF);
           int value_3708 = (result_3700 & 0xffff);
           H = (value_3708 >>> 8);
           L = value_3708 & 0xFF;
@@ -15223,35 +15527,35 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x4B: {
-          int _address1756;
+          int _address1820;
           int address_3709 = (PC + 2) & 0xFFFF;
           int operand_3711 = memory.read(address_3709, 0);
           int operand_3713 = memory.read((address_3709 + 1) & 0xFFFF, 0);
-          _address1756 = (operand_3713 << 8) | operand_3711;
-          int wordNumber1_3714 = memory.read(_address1756, 0);
-          int wordNumber_3715 = memory.read((_address1756 + 1) & 0xFFFF, 0);
+          _address1820 = (operand_3713 << 8) | operand_3711;
+          int wordNumber1_3714 = memory.read(_address1820, 0);
+          int wordNumber_3715 = memory.read((_address1820 + 1) & 0xFFFF, 0);
           int value_3716 = ((wordNumber_3715 << 8) | wordNumber1_3714);
           B = (value_3716 >>> 8);
           C = value_3716 & 0xFF;
-          MEMPTR = ((_address1756 + 1) & 0xFFFF);
+          MEMPTR = ((_address1820 + 1) & 0xFFFF);
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x4C: {
-          int _F1758;
+          int _F1822;
           int value1_3717 = A;
           int value2_3718 = 0;
           int subtemp_3720 = value2_3718 - value1_3717;
           int lookup_3721 = ((value2_3718 & 0x88) >> 3) | ((value1_3717 & 0x88) >> 2) | ((subtemp_3720 & 0x88) >> 1);
           value2_3718 = subtemp_3720 & 0xff;
-          _F1758 = ((subtemp_3720 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3721 & 0x07)] | OVERFLOW_SUB[(lookup_3721 >> 4)] | (SZ53[value2_3718] | (value2_3718 == 0 ? 0x40 : 0));
-          F = (_F1758 & 0xFF);
+          _F1822 = ((subtemp_3720 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3721 & 0x07)] | OVERFLOW_SUB[(lookup_3721 >> 4)] | (SZ53[value2_3718] | (value2_3718 == 0 ? 0x40 : 0));
+          F = (_F1822 & 0xFF);
           A = value2_3718;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x4D: {
-          int _nextPC1760;
+          int _nextPC1824;
           state.setIff1(state.isIff2());
           int jumpAddress2_3723;
           int wordNumber1_3725 = memory.read(SP, 0);
@@ -15260,9 +15564,9 @@ static final int[] SZ53 = new int[0x100];
           int wordNumber_3727 = SP;
           SP = ((wordNumber_3727 + 2) & 0xFFFF);
           jumpAddress2_3723 = value_3724;
-          _nextPC1760 = jumpAddress2_3723;
-          MEMPTR = _nextPC1760;
-          PC = _nextPC1760;
+          _nextPC1824 = jumpAddress2_3723;
+          MEMPTR = _nextPC1824;
+          PC = _nextPC1824;
           break;
       }
       case 0x4E: {
@@ -15292,16 +15596,16 @@ static final int[] SZ53 = new int[0x100];
   private void decodeED_5(int opcode) {
     switch (opcode) {
       case 0x50: {
-          int _F1763;
+          int _F1827;
           MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
           int port_3729 = (B << 8) | C;
           int value_3730 = io.in(port_3729);
           D = value_3730 & 0xFF;
           int value1_3731 = value_3730 & 0xFF;
           int value2_3732 = F;
-          _F1763 = value2_3732;
-          _F1763 = (_F1763 & 1) | (SZ53P[value1_3731] | (value1_3731 == 0 ? 0x40 : 0));
-          F = (_F1763 & 0xFF);
+          _F1827 = value2_3732;
+          _F1827 = (_F1827 & 1) | (SZ53P[value1_3731] | (value1_3731 == 0 ? 0x40 : 0));
+          F = (_F1827 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -15314,7 +15618,7 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x52: {
-          int _F1766;
+          int _F1830;
           contend(((I << 8) | R), 7, 1, Contention.Kind.READ_NO_MREQ);
           MEMPTR = ((((H << 8) | L) + 1) & 0xFFFF);
           int a_3737 = ((H << 8) | L);
@@ -15326,8 +15630,8 @@ static final int[] SZ53 = new int[0x100];
           i_3743 |= i_3743 << 1 & 0x04;
           int result1_3744 = i_3743 << 11 & 0x1A800;
           int lookup_3745 = (value2_3741 << 8 & 0x8800) >> 11 | (value2_3741 << 9 & 0x8800) >> 10 | (result1_3744 & 0x8800) >> 9;
-          _F1766 = ((result1_3744 & 0x10000) != 0 ? 1 : 0) | 2 | OVERFLOW_SUB[(lookup_3745 >> 4)] | (result1_3744 >> 8 & 0xA8) | HALF_CARRY_SUB[(lookup_3745 & 0x07)] | (value1_3740 != 0 ? 0 : 0x40);
-          F = (_F1766 & 0xFF);
+          _F1830 = ((result1_3744 & 0x10000) != 0 ? 1 : 0) | 2 | OVERFLOW_SUB[(lookup_3745 >> 4)] | (result1_3744 >> 8 & 0xA8) | HALF_CARRY_SUB[(lookup_3745 & 0x07)] | (value1_3740 != 0 ? 0 : 0x40);
+          F = (_F1830 & 0xFF);
           int value_3747 = (result_3739 & 0xffff);
           H = (value_3747 >>> 8);
           L = value_3747 & 0xFF;
@@ -15335,33 +15639,33 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x53: {
-          int _address1768;
+          int _address1832;
           int address_3748 = (PC + 2) & 0xFFFF;
           int operand_3750 = memory.read(address_3748, 0);
           int operand_3752 = memory.read((address_3748 + 1) & 0xFFFF, 0);
-          _address1768 = (operand_3752 << 8) | operand_3750;
+          _address1832 = (operand_3752 << 8) | operand_3750;
           int value_3753 = ((D << 8) | E);
-          memory.write(_address1768, (value_3753 & 0xFF));
-          memory.write((_address1768 + 1) & 0xFFFF, (value_3753 >>> 8));
-          MEMPTR = ((_address1768 + 1) & 0xFFFF);
+          memory.write(_address1832, (value_3753 & 0xFF));
+          memory.write((_address1832 + 1) & 0xFFFF, (value_3753 >>> 8));
+          MEMPTR = ((_address1832 + 1) & 0xFFFF);
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x54: {
-          int _F1770;
+          int _F1834;
           int value1_3754 = A;
           int value2_3755 = 0;
           int subtemp_3757 = value2_3755 - value1_3754;
           int lookup_3758 = ((value2_3755 & 0x88) >> 3) | ((value1_3754 & 0x88) >> 2) | ((subtemp_3757 & 0x88) >> 1);
           value2_3755 = subtemp_3757 & 0xff;
-          _F1770 = ((subtemp_3757 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3758 & 0x07)] | OVERFLOW_SUB[(lookup_3758 >> 4)] | (SZ53[value2_3755] | (value2_3755 == 0 ? 0x40 : 0));
-          F = (_F1770 & 0xFF);
+          _F1834 = ((subtemp_3757 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3758 & 0x07)] | OVERFLOW_SUB[(lookup_3758 >> 4)] | (SZ53[value2_3755] | (value2_3755 == 0 ? 0x40 : 0));
+          F = (_F1834 & 0xFF);
           A = value2_3755;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x55: {
-          int _nextPC1772;
+          int _nextPC1836;
           state.setIff1(state.isIff2());
           int jumpAddress2_3760;
           int wordNumber1_3762 = memory.read(SP, 0);
@@ -15370,9 +15674,9 @@ static final int[] SZ53 = new int[0x100];
           int wordNumber_3764 = SP;
           SP = ((wordNumber_3764 + 2) & 0xFFFF);
           jumpAddress2_3760 = value_3761;
-          _nextPC1772 = jumpAddress2_3760;
-          MEMPTR = _nextPC1772;
-          PC = _nextPC1772;
+          _nextPC1836 = jumpAddress2_3760;
+          MEMPTR = _nextPC1836;
+          PC = _nextPC1836;
           break;
       }
       case 0x56: {
@@ -15381,29 +15685,29 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x57: {
-          int _F1774;
+          int _F1838;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           boolean iff2_3767 = state.isIff2();
           int value2_3769 = F;
           int value3_3770 = (iff2_3767 ? 1 : 0);
-          _F1774 = value2_3769;
-          _F1774 = (_F1774 & 1) | (SZ53[I] | (I == 0 ? 0x40 : 0)) | (value3_3770 != 0 ? 4 : 0);
-          F = (_F1774 & 0xFF);
+          _F1838 = value2_3769;
+          _F1838 = (_F1838 & 1) | (SZ53[I] | (I == 0 ? 0x40 : 0)) | (value3_3770 != 0 ? 4 : 0);
+          F = (_F1838 & 0xFF);
           A = I;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x58: {
-          int _F1776;
+          int _F1840;
           MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
           int port_3773 = (B << 8) | C;
           int value_3774 = io.in(port_3773);
           E = value_3774 & 0xFF;
           int value1_3775 = value_3774 & 0xFF;
           int value2_3776 = F;
-          _F1776 = value2_3776;
-          _F1776 = (_F1776 & 1) | (SZ53P[value1_3775] | (value1_3775 == 0 ? 0x40 : 0));
-          F = (_F1776 & 0xFF);
+          _F1840 = value2_3776;
+          _F1840 = (_F1840 & 1) | (SZ53P[value1_3775] | (value1_3775 == 0 ? 0x40 : 0));
+          F = (_F1840 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -15416,7 +15720,7 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x5A: {
-          int _F1779;
+          int _F1843;
           contend(((I << 8) | R), 7, 1, Contention.Kind.READ_NO_MREQ);
           MEMPTR = ((((H << 8) | L) + 1) & 0xFFFF);
           int a_3781 = ((D << 8) | E);
@@ -15428,8 +15732,8 @@ static final int[] SZ53 = new int[0x100];
           i_3787 |= (i_3787 & 0x02) != 0 ? 0x04 : 0x00;
           int result1_3788 = (i_3787 << 11) & 0x1A800;
           int lookup_3789 = (value2_3785 << 8 & 0x8800) >> 11 | (value2_3785 << 9 & 0x8800) >> 10 | (result1_3788 & 0x8800) >> 9;
-          _F1779 = ((result1_3788 & 0x10000) != 0 ? 1 : 0) | OVERFLOW_ADD[(lookup_3789 >> 4)] | (result1_3788 >> 8 & 0xA8) | HALF_CARRY_ADD[(lookup_3789 & 0x07)] | (value1_3784 == 1 ? 0 : 0x40);
-          F = (_F1779 & 0xFF);
+          _F1843 = ((result1_3788 & 0x10000) != 0 ? 1 : 0) | OVERFLOW_ADD[(lookup_3789 >> 4)] | (result1_3788 >> 8 & 0xA8) | HALF_CARRY_ADD[(lookup_3789 & 0x07)] | (value1_3784 == 1 ? 0 : 0x40);
+          F = (_F1843 & 0xFF);
           int value_3791 = (result_3783 & 0xffff);
           H = (value_3791 >>> 8);
           L = value_3791 & 0xFF;
@@ -15437,35 +15741,35 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x5B: {
-          int _address1781;
+          int _address1845;
           int address_3792 = (PC + 2) & 0xFFFF;
           int operand_3794 = memory.read(address_3792, 0);
           int operand_3796 = memory.read((address_3792 + 1) & 0xFFFF, 0);
-          _address1781 = (operand_3796 << 8) | operand_3794;
-          int wordNumber1_3797 = memory.read(_address1781, 0);
-          int wordNumber_3798 = memory.read((_address1781 + 1) & 0xFFFF, 0);
+          _address1845 = (operand_3796 << 8) | operand_3794;
+          int wordNumber1_3797 = memory.read(_address1845, 0);
+          int wordNumber_3798 = memory.read((_address1845 + 1) & 0xFFFF, 0);
           int value_3799 = ((wordNumber_3798 << 8) | wordNumber1_3797);
           D = (value_3799 >>> 8);
           E = value_3799 & 0xFF;
-          MEMPTR = ((_address1781 + 1) & 0xFFFF);
+          MEMPTR = ((_address1845 + 1) & 0xFFFF);
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x5C: {
-          int _F1783;
+          int _F1847;
           int value1_3800 = A;
           int value2_3801 = 0;
           int subtemp_3803 = value2_3801 - value1_3800;
           int lookup_3804 = ((value2_3801 & 0x88) >> 3) | ((value1_3800 & 0x88) >> 2) | ((subtemp_3803 & 0x88) >> 1);
           value2_3801 = subtemp_3803 & 0xff;
-          _F1783 = ((subtemp_3803 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3804 & 0x07)] | OVERFLOW_SUB[(lookup_3804 >> 4)] | (SZ53[value2_3801] | (value2_3801 == 0 ? 0x40 : 0));
-          F = (_F1783 & 0xFF);
+          _F1847 = ((subtemp_3803 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3804 & 0x07)] | OVERFLOW_SUB[(lookup_3804 >> 4)] | (SZ53[value2_3801] | (value2_3801 == 0 ? 0x40 : 0));
+          F = (_F1847 & 0xFF);
           A = value2_3801;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x5D: {
-          int _nextPC1785;
+          int _nextPC1849;
           state.setIff1(state.isIff2());
           int jumpAddress2_3806;
           int wordNumber1_3808 = memory.read(SP, 0);
@@ -15474,9 +15778,9 @@ static final int[] SZ53 = new int[0x100];
           int wordNumber_3810 = SP;
           SP = ((wordNumber_3810 + 2) & 0xFFFF);
           jumpAddress2_3806 = value_3807;
-          _nextPC1785 = jumpAddress2_3806;
-          MEMPTR = _nextPC1785;
-          PC = _nextPC1785;
+          _nextPC1849 = jumpAddress2_3806;
+          MEMPTR = _nextPC1849;
+          PC = _nextPC1849;
           break;
       }
       case 0x5E: {
@@ -15485,13 +15789,13 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x5F: {
-          int _F1787;
+          int _F1851;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int value2_3815 = F;
           int value3_3816 = (state.isIff2() ? 1 : 0);
-          _F1787 = value2_3815;
-          _F1787 = (_F1787 & 1) | (SZ53[R] | (R == 0 ? 0x40 : 0)) | (value3_3816 != 0 ? 4 : 0);
-          int result_3818 = _F1787 & 0xFF;
+          _F1851 = value2_3815;
+          _F1851 = (_F1851 & 1) | (SZ53[R] | (R == 0 ? 0x40 : 0)) | (value3_3816 != 0 ? 4 : 0);
+          int result_3818 = _F1851 & 0xFF;
           F = result_3818;
           A = R;
           PC = (PC + 2) & 0xFFFF;
@@ -15505,16 +15809,16 @@ static final int[] SZ53 = new int[0x100];
   private void decodeED_6(int opcode) {
     switch (opcode) {
       case 0x60: {
-          int _F1789;
+          int _F1853;
           MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
           int port_3819 = (B << 8) | C;
           int value_3820 = io.in(port_3819);
           H = value_3820 & 0xFF;
           int value1_3821 = value_3820 & 0xFF;
           int value2_3822 = F;
-          _F1789 = value2_3822;
-          _F1789 = (_F1789 & 1) | (SZ53P[value1_3821] | (value1_3821 == 0 ? 0x40 : 0));
-          F = (_F1789 & 0xFF);
+          _F1853 = value2_3822;
+          _F1853 = (_F1853 & 1) | (SZ53P[value1_3821] | (value1_3821 == 0 ? 0x40 : 0));
+          F = (_F1853 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -15527,7 +15831,7 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x62: {
-          int _F1792;
+          int _F1856;
           contend(((I << 8) | R), 7, 1, Contention.Kind.READ_NO_MREQ);
           MEMPTR = ((((H << 8) | L) + 1) & 0xFFFF);
           int a_3827 = ((H << 8) | L);
@@ -15539,8 +15843,8 @@ static final int[] SZ53 = new int[0x100];
           i_3833 |= i_3833 << 1 & 0x04;
           int result1_3834 = i_3833 << 11 & 0x1A800;
           int lookup_3835 = (value2_3831 << 8 & 0x8800) >> 11 | (value2_3831 << 9 & 0x8800) >> 10 | (result1_3834 & 0x8800) >> 9;
-          _F1792 = ((result1_3834 & 0x10000) != 0 ? 1 : 0) | 2 | OVERFLOW_SUB[(lookup_3835 >> 4)] | (result1_3834 >> 8 & 0xA8) | HALF_CARRY_SUB[(lookup_3835 & 0x07)] | (value1_3830 != 0 ? 0 : 0x40);
-          F = (_F1792 & 0xFF);
+          _F1856 = ((result1_3834 & 0x10000) != 0 ? 1 : 0) | 2 | OVERFLOW_SUB[(lookup_3835 >> 4)] | (result1_3834 >> 8 & 0xA8) | HALF_CARRY_SUB[(lookup_3835 & 0x07)] | (value1_3830 != 0 ? 0 : 0x40);
+          F = (_F1856 & 0xFF);
           int value_3837 = (result_3829 & 0xffff);
           H = (value_3837 >>> 8);
           L = value_3837 & 0xFF;
@@ -15548,33 +15852,33 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x63: {
-          int _address1794;
+          int _address1858;
           int address_3838 = (PC + 2) & 0xFFFF;
           int operand_3840 = memory.read(address_3838, 0);
           int operand_3842 = memory.read((address_3838 + 1) & 0xFFFF, 0);
-          _address1794 = (operand_3842 << 8) | operand_3840;
+          _address1858 = (operand_3842 << 8) | operand_3840;
           int value_3843 = ((H << 8) | L);
-          memory.write(_address1794, (value_3843 & 0xFF));
-          memory.write((_address1794 + 1) & 0xFFFF, (value_3843 >>> 8));
-          MEMPTR = ((_address1794 + 1) & 0xFFFF);
+          memory.write(_address1858, (value_3843 & 0xFF));
+          memory.write((_address1858 + 1) & 0xFFFF, (value_3843 >>> 8));
+          MEMPTR = ((_address1858 + 1) & 0xFFFF);
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x64: {
-          int _F1796;
+          int _F1860;
           int value1_3844 = A;
           int value2_3845 = 0;
           int subtemp_3847 = value2_3845 - value1_3844;
           int lookup_3848 = ((value2_3845 & 0x88) >> 3) | ((value1_3844 & 0x88) >> 2) | ((subtemp_3847 & 0x88) >> 1);
           value2_3845 = subtemp_3847 & 0xff;
-          _F1796 = ((subtemp_3847 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3848 & 0x07)] | OVERFLOW_SUB[(lookup_3848 >> 4)] | (SZ53[value2_3845] | (value2_3845 == 0 ? 0x40 : 0));
-          F = (_F1796 & 0xFF);
+          _F1860 = ((subtemp_3847 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3848 & 0x07)] | OVERFLOW_SUB[(lookup_3848 >> 4)] | (SZ53[value2_3845] | (value2_3845 == 0 ? 0x40 : 0));
+          F = (_F1860 & 0xFF);
           A = value2_3845;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x65: {
-          int _nextPC1798;
+          int _nextPC1862;
           state.setIff1(state.isIff2());
           int jumpAddress2_3850;
           int wordNumber1_3852 = memory.read(SP, 0);
@@ -15583,9 +15887,9 @@ static final int[] SZ53 = new int[0x100];
           int wordNumber_3854 = SP;
           SP = ((wordNumber_3854 + 2) & 0xFFFF);
           jumpAddress2_3850 = value_3851;
-          _nextPC1798 = jumpAddress2_3850;
-          MEMPTR = _nextPC1798;
-          PC = _nextPC1798;
+          _nextPC1862 = jumpAddress2_3850;
+          MEMPTR = _nextPC1862;
+          PC = _nextPC1862;
           break;
       }
       case 0x66: {
@@ -15594,7 +15898,7 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x67: {
-          int _F1800;
+          int _F1864;
           MEMPTR = ((((H << 8) | L) + 1) & 0xFFFF);
           int reg_A_3856 = A;
           int nibble1_3857 = (reg_A_3856 & 0x00F0) >> 4;
@@ -15607,25 +15911,25 @@ static final int[] SZ53 = new int[0x100];
           int value_3862 = ((nibble1_3857 << 4) | nibble4_3861);
           int value2_3864 = reg_A_3856;
           int value3_3865 = F & 1;
-          _F1800 = value3_3865;
+          _F1864 = value3_3865;
           value2_3864 = (value2_3864 & 0xf0) | (temp_3859 & 0x0f);
-          _F1800 = (_F1800 & 1) | (SZ53P[value2_3864] | (value2_3864 == 0 ? 0x40 : 0));
-          F = (_F1800 & 0xFF);
+          _F1864 = (_F1864 & 1) | (SZ53P[value2_3864] | (value2_3864 == 0 ? 0x40 : 0));
+          F = (_F1864 & 0xFF);
           A = value_3862;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x68: {
-          int _F1802;
+          int _F1866;
           MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
           int port_3867 = (B << 8) | C;
           int value_3868 = io.in(port_3867);
           L = value_3868 & 0xFF;
           int value1_3869 = value_3868 & 0xFF;
           int value2_3870 = F;
-          _F1802 = value2_3870;
-          _F1802 = (_F1802 & 1) | (SZ53P[value1_3869] | (value1_3869 == 0 ? 0x40 : 0));
-          F = (_F1802 & 0xFF);
+          _F1866 = value2_3870;
+          _F1866 = (_F1866 & 1) | (SZ53P[value1_3869] | (value1_3869 == 0 ? 0x40 : 0));
+          F = (_F1866 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -15638,7 +15942,7 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x6A: {
-          int _F1805;
+          int _F1869;
           contend(((I << 8) | R), 7, 1, Contention.Kind.READ_NO_MREQ);
           MEMPTR = ((((H << 8) | L) + 1) & 0xFFFF);
           int a_3875 = ((H << 8) | L);
@@ -15650,8 +15954,8 @@ static final int[] SZ53 = new int[0x100];
           i_3881 |= (i_3881 & 0x02) != 0 ? 0x04 : 0x00;
           int result1_3882 = (i_3881 << 11) & 0x1A800;
           int lookup_3883 = (value2_3879 << 8 & 0x8800) >> 11 | (value2_3879 << 9 & 0x8800) >> 10 | (result1_3882 & 0x8800) >> 9;
-          _F1805 = ((result1_3882 & 0x10000) != 0 ? 1 : 0) | OVERFLOW_ADD[(lookup_3883 >> 4)] | (result1_3882 >> 8 & 0xA8) | HALF_CARRY_ADD[(lookup_3883 & 0x07)] | (value1_3878 == 1 ? 0 : 0x40);
-          F = (_F1805 & 0xFF);
+          _F1869 = ((result1_3882 & 0x10000) != 0 ? 1 : 0) | OVERFLOW_ADD[(lookup_3883 >> 4)] | (result1_3882 >> 8 & 0xA8) | HALF_CARRY_ADD[(lookup_3883 & 0x07)] | (value1_3878 == 1 ? 0 : 0x40);
+          F = (_F1869 & 0xFF);
           int value_3885 = (result_3877 & 0xffff);
           H = (value_3885 >>> 8);
           L = value_3885 & 0xFF;
@@ -15659,35 +15963,35 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x6B: {
-          int _address1807;
+          int _address1871;
           int address_3886 = (PC + 2) & 0xFFFF;
           int operand_3888 = memory.read(address_3886, 0);
           int operand_3890 = memory.read((address_3886 + 1) & 0xFFFF, 0);
-          _address1807 = (operand_3890 << 8) | operand_3888;
-          int wordNumber1_3891 = memory.read(_address1807, 0);
-          int wordNumber_3892 = memory.read((_address1807 + 1) & 0xFFFF, 0);
+          _address1871 = (operand_3890 << 8) | operand_3888;
+          int wordNumber1_3891 = memory.read(_address1871, 0);
+          int wordNumber_3892 = memory.read((_address1871 + 1) & 0xFFFF, 0);
           int value_3893 = ((wordNumber_3892 << 8) | wordNumber1_3891);
           H = (value_3893 >>> 8);
           L = value_3893 & 0xFF;
-          MEMPTR = ((_address1807 + 1) & 0xFFFF);
+          MEMPTR = ((_address1871 + 1) & 0xFFFF);
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x6C: {
-          int _F1809;
+          int _F1873;
           int value1_3894 = A;
           int value2_3895 = 0;
           int subtemp_3897 = value2_3895 - value1_3894;
           int lookup_3898 = ((value2_3895 & 0x88) >> 3) | ((value1_3894 & 0x88) >> 2) | ((subtemp_3897 & 0x88) >> 1);
           value2_3895 = subtemp_3897 & 0xff;
-          _F1809 = ((subtemp_3897 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3898 & 0x07)] | OVERFLOW_SUB[(lookup_3898 >> 4)] | (SZ53[value2_3895] | (value2_3895 == 0 ? 0x40 : 0));
-          F = (_F1809 & 0xFF);
+          _F1873 = ((subtemp_3897 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3898 & 0x07)] | OVERFLOW_SUB[(lookup_3898 >> 4)] | (SZ53[value2_3895] | (value2_3895 == 0 ? 0x40 : 0));
+          F = (_F1873 & 0xFF);
           A = value2_3895;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x6D: {
-          int _nextPC1811;
+          int _nextPC1875;
           state.setIff1(state.isIff2());
           int jumpAddress2_3900;
           int wordNumber1_3902 = memory.read(SP, 0);
@@ -15696,9 +16000,9 @@ static final int[] SZ53 = new int[0x100];
           int wordNumber_3904 = SP;
           SP = ((wordNumber_3904 + 2) & 0xFFFF);
           jumpAddress2_3900 = value_3901;
-          _nextPC1811 = jumpAddress2_3900;
-          MEMPTR = _nextPC1811;
-          PC = _nextPC1811;
+          _nextPC1875 = jumpAddress2_3900;
+          MEMPTR = _nextPC1875;
+          PC = _nextPC1875;
           break;
       }
       case 0x6E: {
@@ -15707,7 +16011,7 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x6F: {
-          int _F1813;
+          int _F1877;
           MEMPTR = ((((H << 8) | L) + 1) & 0xFFFF);
           int reg_A_3906 = A;
           int nibble1_3907 = (reg_A_3906 & 0x00F0) >> 4;
@@ -15720,10 +16024,10 @@ static final int[] SZ53 = new int[0x100];
           int value_3912 = ((nibble1_3907 << 4) | nibble3_3910);
           int value2_3914 = reg_A_3906;
           int value3_3915 = F & 1;
-          _F1813 = value3_3915;
+          _F1877 = value3_3915;
           value2_3914 = (value2_3914 & 0xf0) | (temp_3909 >> 4);
-          _F1813 = (_F1813 & 1) | (SZ53P[value2_3914] | (value2_3914 == 0 ? 0x40 : 0));
-          F = (_F1813 & 0xFF);
+          _F1877 = (_F1877 & 1) | (SZ53P[value2_3914] | (value2_3914 == 0 ? 0x40 : 0));
+          F = (_F1877 & 0xFF);
           A = value_3912;
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -15736,15 +16040,15 @@ static final int[] SZ53 = new int[0x100];
   private void decodeED_7(int opcode) {
     switch (opcode) {
       case 0x70: {
-          int _F1815;
+          int _F1879;
           MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
           int port_3917 = (B << 8) | C;
           int value_3918 = io.in(port_3917);
           int value1_3919 = value_3918 & 0xFF;
           int value2_3920 = F;
-          _F1815 = value2_3920;
-          _F1815 = (_F1815 & 1) | (SZ53P[value1_3919] | (value1_3919 == 0 ? 0x40 : 0));
-          F = (_F1815 & 0xFF);
+          _F1879 = value2_3920;
+          _F1879 = (_F1879 & 1) | (SZ53P[value1_3919] | (value1_3919 == 0 ? 0x40 : 0));
+          F = (_F1879 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -15757,7 +16061,7 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x72: {
-          int _F1818;
+          int _F1882;
           contend(((I << 8) | R), 7, 1, Contention.Kind.READ_NO_MREQ);
           MEMPTR = ((((H << 8) | L) + 1) & 0xFFFF);
           int a_3925 = ((H << 8) | L);
@@ -15768,8 +16072,8 @@ static final int[] SZ53 = new int[0x100];
           i_3930 |= i_3930 << 1 & 0x04;
           int result1_3931 = i_3930 << 11 & 0x1A800;
           int lookup_3932 = (value2_3928 << 8 & 0x8800) >> 11 | (value2_3928 << 9 & 0x8800) >> 10 | (result1_3931 & 0x8800) >> 9;
-          _F1818 = ((result1_3931 & 0x10000) != 0 ? 1 : 0) | 2 | OVERFLOW_SUB[(lookup_3932 >> 4)] | (result1_3931 >> 8 & 0xA8) | HALF_CARRY_SUB[(lookup_3932 & 0x07)] | (value1_3927 != 0 ? 0 : 0x40);
-          F = (_F1818 & 0xFF);
+          _F1882 = ((result1_3931 & 0x10000) != 0 ? 1 : 0) | 2 | OVERFLOW_SUB[(lookup_3932 >> 4)] | (result1_3931 >> 8 & 0xA8) | HALF_CARRY_SUB[(lookup_3932 & 0x07)] | (value1_3927 != 0 ? 0 : 0x40);
+          F = (_F1882 & 0xFF);
           int value_3934 = (result_3926 & 0xffff);
           H = (value_3934 >>> 8);
           L = value_3934 & 0xFF;
@@ -15777,32 +16081,32 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x73: {
-          int _address1820;
+          int _address1884;
           int address_3935 = (PC + 2) & 0xFFFF;
           int operand_3937 = memory.read(address_3935, 0);
           int operand_3939 = memory.read((address_3935 + 1) & 0xFFFF, 0);
-          _address1820 = (operand_3939 << 8) | operand_3937;
-          memory.write(_address1820, (SP & 0xFF));
-          memory.write((_address1820 + 1) & 0xFFFF, (SP >>> 8));
-          MEMPTR = ((_address1820 + 1) & 0xFFFF);
+          _address1884 = (operand_3939 << 8) | operand_3937;
+          memory.write(_address1884, (SP & 0xFF));
+          memory.write((_address1884 + 1) & 0xFFFF, (SP >>> 8));
+          MEMPTR = ((_address1884 + 1) & 0xFFFF);
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x74: {
-          int _F1822;
+          int _F1886;
           int value1_3940 = A;
           int value2_3941 = 0;
           int subtemp_3943 = value2_3941 - value1_3940;
           int lookup_3944 = ((value2_3941 & 0x88) >> 3) | ((value1_3940 & 0x88) >> 2) | ((subtemp_3943 & 0x88) >> 1);
           value2_3941 = subtemp_3943 & 0xff;
-          _F1822 = ((subtemp_3943 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3944 & 0x07)] | OVERFLOW_SUB[(lookup_3944 >> 4)] | (SZ53[value2_3941] | (value2_3941 == 0 ? 0x40 : 0));
-          F = (_F1822 & 0xFF);
+          _F1886 = ((subtemp_3943 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3944 & 0x07)] | OVERFLOW_SUB[(lookup_3944 >> 4)] | (SZ53[value2_3941] | (value2_3941 == 0 ? 0x40 : 0));
+          F = (_F1886 & 0xFF);
           A = value2_3941;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x75: {
-          int _nextPC1824;
+          int _nextPC1888;
           state.setIff1(state.isIff2());
           int jumpAddress2_3946;
           int wordNumber1_3948 = memory.read(SP, 0);
@@ -15811,9 +16115,9 @@ static final int[] SZ53 = new int[0x100];
           int wordNumber_3950 = SP;
           SP = ((wordNumber_3950 + 2) & 0xFFFF);
           jumpAddress2_3946 = value_3947;
-          _nextPC1824 = jumpAddress2_3946;
-          MEMPTR = _nextPC1824;
-          PC = _nextPC1824;
+          _nextPC1888 = jumpAddress2_3946;
+          MEMPTR = _nextPC1888;
+          PC = _nextPC1888;
           break;
       }
       case 0x76: {
@@ -15826,16 +16130,16 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x78: {
-          int _F1827;
+          int _F1891;
           MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
           int port_3952 = (B << 8) | C;
           int value_3953 = io.in(port_3952);
           A = value_3953 & 0xFF;
           int value1_3954 = value_3953 & 0xFF;
           int value2_3955 = F;
-          _F1827 = value2_3955;
-          _F1827 = (_F1827 & 1) | (SZ53P[value1_3954] | (value1_3954 == 0 ? 0x40 : 0));
-          F = (_F1827 & 0xFF);
+          _F1891 = value2_3955;
+          _F1891 = (_F1891 & 1) | (SZ53P[value1_3954] | (value1_3954 == 0 ? 0x40 : 0));
+          F = (_F1891 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -15848,7 +16152,7 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x7A: {
-          int _F1830;
+          int _F1894;
           contend(((I << 8) | R), 7, 1, Contention.Kind.READ_NO_MREQ);
           MEMPTR = ((((H << 8) | L) + 1) & 0xFFFF);
           int b_3960 = ((H << 8) | L);
@@ -15859,8 +16163,8 @@ static final int[] SZ53 = new int[0x100];
           i_3965 |= (i_3965 & 0x02) != 0 ? 0x04 : 0x00;
           int result1_3966 = (i_3965 << 11) & 0x1A800;
           int lookup_3967 = (value2_3963 << 8 & 0x8800) >> 11 | (value2_3963 << 9 & 0x8800) >> 10 | (result1_3966 & 0x8800) >> 9;
-          _F1830 = ((result1_3966 & 0x10000) != 0 ? 1 : 0) | OVERFLOW_ADD[(lookup_3967 >> 4)] | (result1_3966 >> 8 & 0xA8) | HALF_CARRY_ADD[(lookup_3967 & 0x07)] | (value1_3962 == 1 ? 0 : 0x40);
-          F = (_F1830 & 0xFF);
+          _F1894 = ((result1_3966 & 0x10000) != 0 ? 1 : 0) | OVERFLOW_ADD[(lookup_3967 >> 4)] | (result1_3966 >> 8 & 0xA8) | HALF_CARRY_ADD[(lookup_3967 & 0x07)] | (value1_3962 == 1 ? 0 : 0x40);
+          F = (_F1894 & 0xFF);
           int value_3969 = (result_3961 & 0xffff);
           H = (value_3969 >>> 8);
           L = value_3969 & 0xFF;
@@ -15868,33 +16172,33 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x7B: {
-          int _address1832;
+          int _address1896;
           int address_3970 = (PC + 2) & 0xFFFF;
           int operand_3972 = memory.read(address_3970, 0);
           int operand_3974 = memory.read((address_3970 + 1) & 0xFFFF, 0);
-          _address1832 = (operand_3974 << 8) | operand_3972;
-          int wordNumber1_3975 = memory.read(_address1832, 0);
-          int wordNumber_3976 = memory.read((_address1832 + 1) & 0xFFFF, 0);
+          _address1896 = (operand_3974 << 8) | operand_3972;
+          int wordNumber1_3975 = memory.read(_address1896, 0);
+          int wordNumber_3976 = memory.read((_address1896 + 1) & 0xFFFF, 0);
           SP = ((wordNumber_3976 << 8) | wordNumber1_3975);
-          MEMPTR = ((_address1832 + 1) & 0xFFFF);
+          MEMPTR = ((_address1896 + 1) & 0xFFFF);
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x7C: {
-          int _F1834;
+          int _F1898;
           int value1_3977 = A;
           int value2_3978 = 0;
           int subtemp_3980 = value2_3978 - value1_3977;
           int lookup_3981 = ((value2_3978 & 0x88) >> 3) | ((value1_3977 & 0x88) >> 2) | ((subtemp_3980 & 0x88) >> 1);
           value2_3978 = subtemp_3980 & 0xff;
-          _F1834 = ((subtemp_3980 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3981 & 0x07)] | OVERFLOW_SUB[(lookup_3981 >> 4)] | (SZ53[value2_3978] | (value2_3978 == 0 ? 0x40 : 0));
-          F = (_F1834 & 0xFF);
+          _F1898 = ((subtemp_3980 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_3981 & 0x07)] | OVERFLOW_SUB[(lookup_3981 >> 4)] | (SZ53[value2_3978] | (value2_3978 == 0 ? 0x40 : 0));
+          F = (_F1898 & 0xFF);
           A = value2_3978;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x7D: {
-          int _nextPC1836;
+          int _nextPC1900;
           state.setIff1(state.isIff2());
           int jumpAddress2_3983;
           int wordNumber1_3985 = memory.read(SP, 0);
@@ -15903,9 +16207,9 @@ static final int[] SZ53 = new int[0x100];
           int wordNumber_3987 = SP;
           SP = ((wordNumber_3987 + 2) & 0xFFFF);
           jumpAddress2_3983 = value_3984;
-          _nextPC1836 = jumpAddress2_3983;
-          MEMPTR = _nextPC1836;
-          PC = _nextPC1836;
+          _nextPC1900 = jumpAddress2_3983;
+          MEMPTR = _nextPC1900;
+          PC = _nextPC1900;
           break;
       }
       case 0x7E: {
@@ -15922,10 +16226,152 @@ static final int[] SZ53 = new int[0x100];
     }
   }
 
+  private void decodeED_8(int opcode) {
+    switch (opcode) {
+      case 0x80: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x81: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x82: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x83: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x84: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x85: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x86: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x87: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x88: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x89: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x8A: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x8B: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x8C: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x8D: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x8E: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x8F: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_9(int opcode) {
+    switch (opcode) {
+      case 0x90: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x91: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x92: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x93: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x94: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x95: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x96: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x97: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x98: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x99: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x9A: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x9B: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x9C: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x9D: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x9E: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0x9F: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
   private void decodeED_10(int opcode) {
     switch (opcode) {
       case 0xA0: {
-          int _F1839 = 0;
+          int _F1935 = 0;
           int read_3989 = memory.read(((H << 8) | L), 0);
           memory.write(((D << 8) | E), read_3989);
           L = (L + 1) & 0xFF;
@@ -15944,15 +16390,15 @@ static final int[] SZ53 = new int[0x100];
           int value1_3991 = F;
           int value2_3992 = byteTemp_3990 & 0xFF;
           int value3_3993 = (((B << 8) | C) != 0 ? 1 : 0);
-          _F1839 = value1_3991;
-          _F1839 = (_F1839 & 0xC1) | (value3_3993 != 0 ? 4 : 0) | (value2_3992 & 8) | ((value2_3992 & 0x02) != 0 ? 0x20 : 0);
-          F = _F1839;
+          _F1935 = value1_3991;
+          _F1935 = (_F1935 & 0xC1) | (value3_3993 != 0 ? 4 : 0) | (value2_3992 & 8) | ((value2_3992 & 0x02) != 0 ? 0x20 : 0);
+          F = _F1935;
           contend((((D << 8) | E) - 1) & 0xFFFF, 2, 1, Contention.Kind.WRITE_NO_MREQ);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xA1: {
-          int _F1841 = 0;
+          int _F1937 = 0;
           MEMPTR = (MEMPTR + 1) & 0xFFFF;
           C = (C - 1) & 0xFF;
           if (C == 0xFF) {
@@ -15961,15 +16407,15 @@ static final int[] SZ53 = new int[0x100];
           int value_3997 = memory.read(((H << 8) | L), 0);
           int carry_3999 = F & 1;
           int value3_4002 = (((B << 8) | C) != 0 ? 1 : 0);
-          _F1841 = 0;
+          _F1937 = 0;
           int bytetemp_4003 = A - value_3997;
           int lookup_4004 = ((A & 0x08) >> 3) | ((value_3997 & 0x08) >> 2) | ((bytetemp_4003 & 0x08) >> 1);
-          _F1841 = (_F1841 & 1) | (value3_4002 != 0 ? 6 : 2) | HALF_CARRY_SUB[lookup_4004] | (bytetemp_4003 != 0 ? 0 : 0x40) | (bytetemp_4003 & 0x80);
-          if ((_F1841 & 0x10) != 0) {
+          _F1937 = (_F1937 & 1) | (value3_4002 != 0 ? 6 : 2) | HALF_CARRY_SUB[lookup_4004] | (bytetemp_4003 != 0 ? 0 : 0x40) | (bytetemp_4003 & 0x80);
+          if ((_F1937 & 0x10) != 0) {
               bytetemp_4003--;
           }
-          _F1841 |= (bytetemp_4003 & 8) | ((bytetemp_4003 & 0x02) != 0 ? 0x20 : 0);
-          F = (_F1841 & 0xFF);
+          _F1937 |= (bytetemp_4003 & 8) | ((bytetemp_4003 & 0x02) != 0 ? 0x20 : 0);
+          F = (_F1937 & 0xFF);
           F = ((F & -2) | carry_3999);
           L = (L + 1) & 0xFF;
           if (L == 0) {
@@ -15980,7 +16426,7 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xA2: {
-          int _F1843 = 0;
+          int _F1939 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
           int port_4006 = ((B << 8) | C);
@@ -15994,13 +16440,13 @@ static final int[] SZ53 = new int[0x100];
           B = (B - 1) & 0xFF;
           int initemp_4015 = in_4007 & 0xff;
           int initemp2_4016 = (initemp_4015 + C + 1) & 0xff;
-          _F1843 = ((initemp_4015 & 0x80) != 0 ? 2 : 0) | ((initemp2_4016 < initemp_4015) ? 0x11 : 0) | (PARITY[((initemp2_4016 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
-          F = (_F1843 & 0xFF);
+          _F1939 = ((initemp_4015 & 0x80) != 0 ? 2 : 0) | ((initemp2_4016 < initemp_4015) ? 0x11 : 0) | (PARITY[((initemp2_4016 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
+          F = (_F1939 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xA3: {
-          int _F1845 = 0;
+          int _F1941 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int hlValue_4021 = ((H << 8) | L);
           int valueFromHL_4023 = memory.read(hlValue_4021, 0);
@@ -16011,14 +16457,30 @@ static final int[] SZ53 = new int[0x100];
               H = (H + 1) & 0xFF;
           }
           int outitemp2_4030 = (valueFromHL_4023 + L) & 0xff;
-          _F1845 = ((valueFromHL_4023 & 0x80) != 0 ? 2 : 0) | ((outitemp2_4030 < valueFromHL_4023) ? 0x11 : 0) | (PARITY[((outitemp2_4030 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
-          F = (_F1845 & 0xFF);
+          _F1941 = ((valueFromHL_4023 & 0x80) != 0 ? 2 : 0) | ((outitemp2_4030 < valueFromHL_4023) ? 0x11 : 0) | (PARITY[((outitemp2_4030 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
+          F = (_F1941 & 0xFF);
           MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
+      case 0xA4: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xA5: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xA6: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xA7: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
       case 0xA8: {
-          int _F1847 = 0;
+          int _F1947 = 0;
           int read_4032 = memory.read(((H << 8) | L), 0);
           memory.write(((D << 8) | E), read_4032);
           L = (L - 1) & 0xFF;
@@ -16037,15 +16499,15 @@ static final int[] SZ53 = new int[0x100];
           int value1_4034 = F;
           int value2_4035 = byteTemp_4033 & 0xFF;
           int value3_4036 = (((B << 8) | C) != 0 ? 1 : 0);
-          _F1847 = value1_4034;
-          _F1847 = (_F1847 & 0xC1) | (value3_4036 != 0 ? 4 : 0) | (value2_4035 & 8) | ((value2_4035 & 0x02) != 0 ? 0x20 : 0);
-          F = _F1847;
+          _F1947 = value1_4034;
+          _F1947 = (_F1947 & 0xC1) | (value3_4036 != 0 ? 4 : 0) | (value2_4035 & 8) | ((value2_4035 & 0x02) != 0 ? 0x20 : 0);
+          F = _F1947;
           contend((((D << 8) | E) + 1) & 0xFFFF, 2, 1, Contention.Kind.WRITE_NO_MREQ);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xA9: {
-          int _F1849 = 0;
+          int _F1949 = 0;
           MEMPTR = (MEMPTR - 1) & 0xFFFF;
           C = (C - 1) & 0xFF;
           if (C == 0xFF) {
@@ -16054,15 +16516,15 @@ static final int[] SZ53 = new int[0x100];
           int lastCarry_4040 = F & 1;
           int value1_4041 = memory.read(((H << 8) | L), 0);
           int value3_4043 = (((B << 8) | C) != 0 ? 1 : 0);
-          _F1849 = A;
+          _F1949 = A;
           int bytetemp_4044 = A - value1_4041;
           int lookup_4045 = ((A & 0x08) >> 3) | ((value1_4041 & 0x08) >> 2) | ((bytetemp_4044 & 0x08) >> 1);
-          _F1849 = (_F1849 & 1) | (value3_4043 != 0 ? 6 : 2) | HALF_CARRY_SUB[lookup_4045] | (bytetemp_4044 != 0 ? 0 : 0x40) | (bytetemp_4044 & 0x80);
-          if ((_F1849 & 0x10) != 0) {
+          _F1949 = (_F1949 & 1) | (value3_4043 != 0 ? 6 : 2) | HALF_CARRY_SUB[lookup_4045] | (bytetemp_4044 != 0 ? 0 : 0x40) | (bytetemp_4044 & 0x80);
+          if ((_F1949 & 0x10) != 0) {
               bytetemp_4044--;
           }
-          _F1849 |= (bytetemp_4044 & 8) | ((bytetemp_4044 & 0x02) != 0 ? 0x20 : 0);
-          F = (_F1849 & 0xFF);
+          _F1949 |= (bytetemp_4044 & 8) | ((bytetemp_4044 & 0x02) != 0 ? 0x20 : 0);
+          F = (_F1949 & 0xFF);
           F = (F | lastCarry_4040);
           L = (L - 1) & 0xFF;
           if (L == 0xFF) {
@@ -16073,7 +16535,7 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xAA: {
-          int _F1851 = 0;
+          int _F1951 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           MEMPTR = ((((B << 8) | C) + -1) & 0xFFFF);
           int port_4047 = ((B << 8) | C);
@@ -16087,13 +16549,13 @@ static final int[] SZ53 = new int[0x100];
           B = (B - 1) & 0xFF;
           int initemp_4055 = in_4048 & 0xff;
           int initemp2_4056 = (initemp_4055 + C + -1) & 0xff;
-          _F1851 = ((initemp_4055 & 0x80) != 0 ? 2 : 0) | ((initemp2_4056 < initemp_4055) ? 0x11 : 0) | (PARITY[((initemp2_4056 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
-          F = (_F1851 & 0xFF);
+          _F1951 = ((initemp_4055 & 0x80) != 0 ? 2 : 0) | ((initemp2_4056 < initemp_4055) ? 0x11 : 0) | (PARITY[((initemp2_4056 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
+          F = (_F1951 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xAB: {
-          int _F1853 = 0;
+          int _F1953 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int hlValue_4061 = ((H << 8) | L);
           int valueFromHL_4063 = memory.read(hlValue_4061, 0);
@@ -16104,9 +16566,25 @@ static final int[] SZ53 = new int[0x100];
               H = (H - 1) & 0xFF;
           }
           int outitemp2_4070 = (valueFromHL_4063 + L) & 0xff;
-          _F1853 = ((valueFromHL_4063 & 0x80) != 0 ? 2 : 0) | ((outitemp2_4070 < valueFromHL_4063) ? 0x11 : 0) | (PARITY[((outitemp2_4070 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
-          F = (_F1853 & 0xFF);
+          _F1953 = ((valueFromHL_4063 & 0x80) != 0 ? 2 : 0) | ((outitemp2_4070 < valueFromHL_4063) ? 0x11 : 0) | (PARITY[((outitemp2_4070 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
+          F = (_F1953 & 0xFF);
           MEMPTR = ((((B << 8) | C) + -1) & 0xFFFF);
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xAC: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xAD: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xAE: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xAF: {
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -16118,7 +16596,7 @@ static final int[] SZ53 = new int[0x100];
   private void decodeED_11(int opcode) {
     switch (opcode) {
       case 0xB0: {
-          int _F1855 = 0;
+          int _F1959 = 0;
           int read_4072 = memory.read(((H << 8) | L), 0);
           memory.write(((D << 8) | E), read_4072);
           L = (L + 1) & 0xFF;
@@ -16137,9 +16615,9 @@ static final int[] SZ53 = new int[0x100];
           int value1_4074 = F;
           int value2_4075 = byteTemp_4073 & 0xFF;
           int value3_4076 = (((B << 8) | C) != 0 ? 1 : 0);
-          _F1855 = value1_4074;
-          _F1855 = (_F1855 & 0xC1) | (value3_4076 != 0 ? 4 : 0) | (value2_4075 & 8) | ((value2_4075 & 0x02) != 0 ? 0x20 : 0);
-          F = _F1855;
+          _F1959 = value1_4074;
+          _F1959 = (_F1959 & 0xC1) | (value3_4076 != 0 ? 4 : 0) | (value2_4075 & 8) | ((value2_4075 & 0x02) != 0 ? 0x20 : 0);
+          F = _F1959;
           if ((((B << 8) | C) != 0)) {
               int nextPC_4080 = PC;
               int newValue_4081;
@@ -16164,7 +16642,7 @@ static final int[] SZ53 = new int[0x100];
           }
       }
       case 0xB1: {
-          int _F1857 = 0;
+          int _F1961 = 0;
           C = (C - 1) & 0xFF;
           if (C == 0xFF) {
               B = (B - 1) & 0xFF;
@@ -16172,15 +16650,15 @@ static final int[] SZ53 = new int[0x100];
           int value_4083 = memory.read(((H << 8) | L), 0);
           int carry_4085 = F & 1;
           int value3_4088 = (((B << 8) | C) != 0 ? 1 : 0);
-          _F1857 = 0;
+          _F1961 = 0;
           int bytetemp_4089 = A - value_4083;
           int lookup_4090 = ((A & 0x08) >> 3) | ((value_4083 & 0x08) >> 2) | ((bytetemp_4089 & 0x08) >> 1);
-          _F1857 = (_F1857 & 1) | (value3_4088 != 0 ? 6 : 2) | HALF_CARRY_SUB[lookup_4090] | (bytetemp_4089 != 0 ? 0 : 0x40) | (bytetemp_4089 & 0x80);
-          if ((_F1857 & 0x10) != 0) {
+          _F1961 = (_F1961 & 1) | (value3_4088 != 0 ? 6 : 2) | HALF_CARRY_SUB[lookup_4090] | (bytetemp_4089 != 0 ? 0 : 0x40) | (bytetemp_4089 & 0x80);
+          if ((_F1961 & 0x10) != 0) {
               bytetemp_4089--;
           }
-          _F1857 |= (bytetemp_4089 & 8) | ((bytetemp_4089 & 0x02) != 0 ? 0x20 : 0);
-          F = (_F1857 & 0xFF);
+          _F1961 |= (bytetemp_4089 & 8) | ((bytetemp_4089 & 0x02) != 0 ? 0x20 : 0);
+          F = (_F1961 & 0xFF);
           F = ((F & -2) | carry_4085);
           L = (L + 1) & 0xFF;
           if (L == 0) {
@@ -16210,7 +16688,7 @@ static final int[] SZ53 = new int[0x100];
           }
       }
       case 0xB2: {
-          int _F1859 = 0;
+          int _F1963 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
           int port_4095 = ((B << 8) | C);
@@ -16224,8 +16702,8 @@ static final int[] SZ53 = new int[0x100];
           B = (B - 1) & 0xFF;
           int initemp_4104 = in_4096 & 0xff;
           int initemp2_4105 = (initemp_4104 + C + 1) & 0xff;
-          _F1859 = ((initemp_4104 & 0x80) != 0 ? 2 : 0) | ((initemp2_4105 < initemp_4104) ? 0x11 : 0) | (PARITY[((initemp2_4105 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
-          F = (_F1859 & 0xFF);
+          _F1963 = ((initemp_4104 & 0x80) != 0 ? 2 : 0) | ((initemp2_4105 < initemp_4104) ? 0x11 : 0) | (PARITY[((initemp2_4105 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
+          F = (_F1963 & 0xFF);
           if ((B != 0)) {
               if (PC != -1)
                   contend((((H << 8) | L) - 1) & 0xFFFF, 5, 1, Contention.Kind.WRITE_NO_MREQ);
@@ -16237,7 +16715,7 @@ static final int[] SZ53 = new int[0x100];
           }
       }
       case 0xB3: {
-          int _F1861 = 0;
+          int _F1965 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int hlValue_4110 = ((H << 8) | L);
           int valueFromHL_4112 = memory.read(hlValue_4110, 0);
@@ -16248,8 +16726,8 @@ static final int[] SZ53 = new int[0x100];
               H = (H + 1) & 0xFF;
           }
           int outitemp2_4119 = (valueFromHL_4112 + L) & 0xff;
-          _F1861 = ((valueFromHL_4112 & 0x80) != 0 ? 2 : 0) | ((outitemp2_4119 < valueFromHL_4112) ? 0x11 : 0) | (PARITY[((outitemp2_4119 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
-          F = (_F1861 & 0xFF);
+          _F1965 = ((valueFromHL_4112 & 0x80) != 0 ? 2 : 0) | ((outitemp2_4119 < valueFromHL_4112) ? 0x11 : 0) | (PARITY[((outitemp2_4119 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
+          F = (_F1965 & 0xFF);
           if ((B != 0)) {
               MEMPTR = ((((B << 8) | C) + 1) & 0xFFFF);
               if (PC != -1)
@@ -16262,8 +16740,24 @@ static final int[] SZ53 = new int[0x100];
               break;
           }
       }
+      case 0xB4: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xB5: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xB6: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xB7: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
       case 0xB8: {
-          int _F1863 = 0;
+          int _F1971 = 0;
           int read_4121 = memory.read(((H << 8) | L), 0);
           memory.write(((D << 8) | E), read_4121);
           L = (L - 1) & 0xFF;
@@ -16282,9 +16776,9 @@ static final int[] SZ53 = new int[0x100];
           int value1_4123 = F;
           int value2_4124 = byteTemp_4122 & 0xFF;
           int value3_4125 = (((B << 8) | C) != 0 ? 1 : 0);
-          _F1863 = value1_4123;
-          _F1863 = (_F1863 & 0xC1) | (value3_4125 != 0 ? 4 : 0) | (value2_4124 & 8) | ((value2_4124 & 0x02) != 0 ? 0x20 : 0);
-          F = _F1863;
+          _F1971 = value1_4123;
+          _F1971 = (_F1971 & 0xC1) | (value3_4125 != 0 ? 4 : 0) | (value2_4124 & 8) | ((value2_4124 & 0x02) != 0 ? 0x20 : 0);
+          F = _F1971;
           if ((((B << 8) | C) != 0)) {
               int nextPC_4129 = PC;
               int newValue_4130;
@@ -16309,7 +16803,7 @@ static final int[] SZ53 = new int[0x100];
           }
       }
       case 0xB9: {
-          int _F1865 = 0;
+          int _F1973 = 0;
           C = (C - 1) & 0xFF;
           if (C == 0xFF) {
               B = (B - 1) & 0xFF;
@@ -16317,15 +16811,15 @@ static final int[] SZ53 = new int[0x100];
           int lastCarry_4132 = F & 1;
           int value1_4133 = memory.read(((H << 8) | L), 0);
           int value3_4135 = (((B << 8) | C) != 0 ? 1 : 0);
-          _F1865 = A;
+          _F1973 = A;
           int bytetemp_4136 = A - value1_4133;
           int lookup_4137 = ((A & 0x08) >> 3) | ((value1_4133 & 0x08) >> 2) | ((bytetemp_4136 & 0x08) >> 1);
-          _F1865 = (_F1865 & 1) | (value3_4135 != 0 ? 6 : 2) | HALF_CARRY_SUB[lookup_4137] | (bytetemp_4136 != 0 ? 0 : 0x40) | (bytetemp_4136 & 0x80);
-          if ((_F1865 & 0x10) != 0) {
+          _F1973 = (_F1973 & 1) | (value3_4135 != 0 ? 6 : 2) | HALF_CARRY_SUB[lookup_4137] | (bytetemp_4136 != 0 ? 0 : 0x40) | (bytetemp_4136 & 0x80);
+          if ((_F1973 & 0x10) != 0) {
               bytetemp_4136--;
           }
-          _F1865 |= (bytetemp_4136 & 8) | ((bytetemp_4136 & 0x02) != 0 ? 0x20 : 0);
-          F = (_F1865 & 0xFF);
+          _F1973 |= (bytetemp_4136 & 8) | ((bytetemp_4136 & 0x02) != 0 ? 0x20 : 0);
+          F = (_F1973 & 0xFF);
           F = (F | lastCarry_4132);
           L = (L - 1) & 0xFF;
           if (L == 0xFF) {
@@ -16355,7 +16849,7 @@ static final int[] SZ53 = new int[0x100];
           }
       }
       case 0xBA: {
-          int _F1867 = 0;
+          int _F1975 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           MEMPTR = ((((B << 8) | C) + -1) & 0xFFFF);
           int port_4142 = ((B << 8) | C);
@@ -16369,8 +16863,8 @@ static final int[] SZ53 = new int[0x100];
           B = (B - 1) & 0xFF;
           int initemp_4150 = in_4143 & 0xff;
           int initemp2_4151 = (initemp_4150 + C + -1) & 0xff;
-          _F1867 = ((initemp_4150 & 0x80) != 0 ? 2 : 0) | ((initemp2_4151 < initemp_4150) ? 0x11 : 0) | (PARITY[((initemp2_4151 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
-          F = (_F1867 & 0xFF);
+          _F1975 = ((initemp_4150 & 0x80) != 0 ? 2 : 0) | ((initemp2_4151 < initemp_4150) ? 0x11 : 0) | (PARITY[((initemp2_4151 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
+          F = (_F1975 & 0xFF);
           if ((B != 0)) {
               if (PC != -1)
                   contend((((H << 8) | L) + 1) & 0xFFFF, 5, 1, Contention.Kind.WRITE_NO_MREQ);
@@ -16382,7 +16876,7 @@ static final int[] SZ53 = new int[0x100];
           }
       }
       case 0xBB: {
-          int _F1869 = 0;
+          int _F1977 = 0;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           int hlValue_4156 = ((H << 8) | L);
           int valueFromHL_4158 = memory.read(hlValue_4156, 0);
@@ -16393,8 +16887,8 @@ static final int[] SZ53 = new int[0x100];
               H = (H - 1) & 0xFF;
           }
           int outitemp2_4165 = (valueFromHL_4158 + L) & 0xff;
-          _F1869 = ((valueFromHL_4158 & 0x80) != 0 ? 2 : 0) | ((outitemp2_4165 < valueFromHL_4158) ? 0x11 : 0) | (PARITY[((outitemp2_4165 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
-          F = (_F1869 & 0xFF);
+          _F1977 = ((valueFromHL_4158 & 0x80) != 0 ? 2 : 0) | ((outitemp2_4165 < valueFromHL_4158) ? 0x11 : 0) | (PARITY[((outitemp2_4165 & 0x07) ^ B)] != 0 ? 4 : 0) | (SZ53[B] | (B == 0 ? 0x40 : 0));
+          F = (_F1977 & 0xFF);
           if ((B != 0)) {
               MEMPTR = ((((B << 8) | C) + -1) & 0xFFFF);
               if (PC != -1)
@@ -16406,6 +16900,306 @@ static final int[] SZ53 = new int[0x100];
               PC = (PC + 2) & 0xFFFF;
               break;
           }
+      }
+      case 0xBC: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xBD: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xBE: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xBF: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_12(int opcode) {
+    switch (opcode) {
+      case 0xC0: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xC1: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xC2: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xC3: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xC4: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xC5: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xC6: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xC7: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xC8: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xC9: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xCA: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xCB: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xCC: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xCD: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xCE: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xCF: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_13(int opcode) {
+    switch (opcode) {
+      case 0xD0: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xD1: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xD2: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xD3: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xD4: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xD5: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xD6: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xD7: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xD8: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xD9: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xDA: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xDB: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xDC: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xDD: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xDE: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xDF: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_14(int opcode) {
+    switch (opcode) {
+      case 0xE0: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xE1: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xE2: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xE3: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xE4: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xE5: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xE6: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xE7: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xE8: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xE9: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xEA: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xEB: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xEC: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xED: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xEE: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xEF: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      default:
+        throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
+    }
+  }
+
+  private void decodeED_15(int opcode) {
+    switch (opcode) {
+      case 0xF0: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xF1: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xF2: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xF3: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xF4: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xF5: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xF6: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xF7: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xF8: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xF9: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xFA: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xFB: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xFC: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xFD: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xFE: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
+      }
+      case 0xFF: {
+          PC = (PC + 2) & 0xFFFF;
+          break;
       }
       default:
         throw new IllegalStateException("undefined opcode " + opcode + " in decodeED");
@@ -16468,9 +17262,9 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x02: {
-          int _address1890 = (B << 8) | C;
-          memory.write(_address1890, A);
-          MEMPTR = ((A << 8) | ((_address1890 + 1) & 0xff));
+          int _address2066 = (B << 8) | C;
+          memory.write(_address2066, A);
+          MEMPTR = ((A << 8) | ((_address2066 + 1) & 0xff));
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -16484,30 +17278,30 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x04: {
-          int _F1893;
+          int _F2069;
           int value1_4243 = B;
           int value2_4244 = F;
-          _F1893 = value2_4244;
+          _F2069 = value2_4244;
           value1_4243++;
           value1_4243 &= 0xff;
-          _F1893 = (_F1893 & 1) | (value1_4243 == 0x80 ? 4 : 0) | ((value1_4243 & 0x0f) != 0 ? 0 : 0x10) | (SZ53[value1_4243 & 0xff] | (value1_4243 == 0 ? 0x40 : 0));
+          _F2069 = (_F2069 & 1) | (value1_4243 == 0x80 ? 4 : 0) | ((value1_4243 & 0x0f) != 0 ? 0 : 0x10) | (SZ53[value1_4243 & 0xff] | (value1_4243 == 0 ? 0x40 : 0));
           int result_4246 = value1_4243 & 0xFF;
-          F = (_F1893 & 0xFF);
+          F = (_F2069 & 0xFF);
           B = result_4246;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x05: {
-          int _F1895;
+          int _F2071;
           int value1_4247 = B;
           int value2_4248 = F;
-          _F1895 = value2_4248;
-          _F1895 = (_F1895 & 1) | ((value1_4247 & 0x0f) != 0 ? 0 : 0x10) | 2;
+          _F2071 = value2_4248;
+          _F2071 = (_F2071 & 1) | ((value1_4247 & 0x0f) != 0 ? 0 : 0x10) | 2;
           value1_4247--;
           value1_4247 &= 0xff;
-          _F1895 |= (value1_4247 == 0x7f ? 4 : 0) | (SZ53[value1_4247 & 0xff] | (value1_4247 == 0 ? 0x40 : 0));
+          _F2071 |= (value1_4247 == 0x7f ? 4 : 0) | (SZ53[value1_4247 & 0xff] | (value1_4247 == 0 ? 0x40 : 0));
           int result_4250 = value1_4247 & 0xFF;
-          F = (_F1895 & 0xFF);
+          F = (_F2071 & 0xFF);
           B = result_4250;
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -16519,14 +17313,14 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x07: {
-          int _F1898;
+          int _F2074;
           int value1_4252 = A;
           int value2_4253 = F;
-          _F1898 = value2_4253;
+          _F2074 = value2_4253;
           value1_4252 = (value1_4252 << 1) | (value1_4252 >> 7);
-          _F1898 = (_F1898 & 0xC4) | (value1_4252 & 0x29);
+          _F2074 = (_F2074 & 0xC4) | (value1_4252 & 0x29);
           int result_4255 = value1_4252 & 0xFF;
-          F = _F1898;
+          F = _F2074;
           A = result_4255;
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -16541,7 +17335,7 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x09: {
-          int _F1901;
+          int _F2077;
           contend(((I << 8) | R), 7, 1, Contention.Kind.READ_NO_MREQ);
           MEMPTR = ((IY + 1) & 0xFFFF);
           int b_4258 = ((B << 8) | C);
@@ -16549,20 +17343,20 @@ static final int[] SZ53 = new int[0x100];
           int value1_4260 = ((IY & 0x0800) >> 4 | result_4259 >> 11);
           int value2_4261 = F;
           int value3_4262 = (b_4258 >> 11) & 1;
-          _F1901 = value2_4261;
+          _F2077 = value2_4261;
           int add16temp_4263 = value1_4260 << 11;
           int lookup_4264 = (((value1_4260 << 4) & 0x0800) >> 11) | ((value3_4262 << 11) >> 10) | ((add16temp_4263 & 0x0800) >> 9);
-          _F1901 = (_F1901 & 0xC4) | ((add16temp_4263 & 0x10000) != 0 ? 1 : 0) | ((add16temp_4263 >> 8) & 0x28) | HALF_CARRY_ADD[lookup_4264];
-          F = (_F1901 & 0xFF);
+          _F2077 = (_F2077 & 0xC4) | ((add16temp_4263 & 0x10000) != 0 ? 1 : 0) | ((add16temp_4263 >> 8) & 0x28) | HALF_CARRY_ADD[lookup_4264];
+          F = (_F2077 & 0xFF);
           IY = (result_4259 & 0xffff);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x0A: {
-          int _address1903 = (B << 8) | C;
-          int value_4266 = memory.read(_address1903, 0);
+          int _address2079 = (B << 8) | C;
+          int value_4266 = memory.read(_address2079, 0);
           A = value_4266;
-          MEMPTR = ((_address1903 + 1) & 0xFFFF);
+          MEMPTR = ((_address2079 + 1) & 0xFFFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -16575,30 +17369,30 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x0C: {
-          int _F1906;
+          int _F2082;
           int value1_4268 = C;
           int value2_4269 = F;
-          _F1906 = value2_4269;
+          _F2082 = value2_4269;
           value1_4268++;
           value1_4268 &= 0xff;
-          _F1906 = (_F1906 & 1) | (value1_4268 == 0x80 ? 4 : 0) | ((value1_4268 & 0x0f) != 0 ? 0 : 0x10) | (SZ53[value1_4268 & 0xff] | (value1_4268 == 0 ? 0x40 : 0));
+          _F2082 = (_F2082 & 1) | (value1_4268 == 0x80 ? 4 : 0) | ((value1_4268 & 0x0f) != 0 ? 0 : 0x10) | (SZ53[value1_4268 & 0xff] | (value1_4268 == 0 ? 0x40 : 0));
           int result_4271 = value1_4268 & 0xFF;
-          F = (_F1906 & 0xFF);
+          F = (_F2082 & 0xFF);
           C = result_4271;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x0D: {
-          int _F1908;
+          int _F2084;
           int value1_4272 = C;
           int value2_4273 = F;
-          _F1908 = value2_4273;
-          _F1908 = (_F1908 & 1) | ((value1_4272 & 0x0f) != 0 ? 0 : 0x10) | 2;
+          _F2084 = value2_4273;
+          _F2084 = (_F2084 & 1) | ((value1_4272 & 0x0f) != 0 ? 0 : 0x10) | 2;
           value1_4272--;
           value1_4272 &= 0xff;
-          _F1908 |= (value1_4272 == 0x7f ? 4 : 0) | (SZ53[value1_4272 & 0xff] | (value1_4272 == 0 ? 0x40 : 0));
+          _F2084 |= (value1_4272 == 0x7f ? 4 : 0) | (SZ53[value1_4272 & 0xff] | (value1_4272 == 0 ? 0x40 : 0));
           int result_4275 = value1_4272 & 0xFF;
-          F = (_F1908 & 0xFF);
+          F = (_F2084 & 0xFF);
           C = result_4275;
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -16610,15 +17404,15 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x0F: {
-          int _F1911;
+          int _F2087;
           int value1_4277 = A;
           int value2_4278 = F;
-          _F1911 = value2_4278;
-          _F1911 = (_F1911 & 0xC4) | (value1_4277 & 1);
+          _F2087 = value2_4278;
+          _F2087 = (_F2087 & 0xC4) | (value1_4277 & 1);
           value1_4277 = (value1_4277 >> 1) | (value1_4277 << 7);
-          _F1911 |= (value1_4277 & 0x28);
+          _F2087 |= (value1_4277 & 0x28);
           int result_4280 = (value1_4277 & 0xff);
-          F = (_F1911 & 0xFF);
+          F = (_F2087 & 0xFF);
           A = result_4280;
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -16658,9 +17452,9 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x12: {
-          int _address1915 = (D << 8) | E;
-          memory.write(_address1915, A);
-          MEMPTR = ((A << 8) | ((_address1915 + 1) & 0xff));
+          int _address2091 = (D << 8) | E;
+          memory.write(_address2091, A);
+          MEMPTR = ((A << 8) | ((_address2091 + 1) & 0xff));
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -16674,30 +17468,30 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x14: {
-          int _F1918;
+          int _F2094;
           int value1_4292 = D;
           int value2_4293 = F;
-          _F1918 = value2_4293;
+          _F2094 = value2_4293;
           value1_4292++;
           value1_4292 &= 0xff;
-          _F1918 = (_F1918 & 1) | (value1_4292 == 0x80 ? 4 : 0) | ((value1_4292 & 0x0f) != 0 ? 0 : 0x10) | (SZ53[value1_4292 & 0xff] | (value1_4292 == 0 ? 0x40 : 0));
+          _F2094 = (_F2094 & 1) | (value1_4292 == 0x80 ? 4 : 0) | ((value1_4292 & 0x0f) != 0 ? 0 : 0x10) | (SZ53[value1_4292 & 0xff] | (value1_4292 == 0 ? 0x40 : 0));
           int result_4295 = value1_4292 & 0xFF;
-          F = (_F1918 & 0xFF);
+          F = (_F2094 & 0xFF);
           D = result_4295;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x15: {
-          int _F1920;
+          int _F2096;
           int value1_4296 = D;
           int value2_4297 = F;
-          _F1920 = value2_4297;
-          _F1920 = (_F1920 & 1) | ((value1_4296 & 0x0f) != 0 ? 0 : 0x10) | 2;
+          _F2096 = value2_4297;
+          _F2096 = (_F2096 & 1) | ((value1_4296 & 0x0f) != 0 ? 0 : 0x10) | 2;
           value1_4296--;
           value1_4296 &= 0xff;
-          _F1920 |= (value1_4296 == 0x7f ? 4 : 0) | (SZ53[value1_4296 & 0xff] | (value1_4296 == 0 ? 0x40 : 0));
+          _F2096 |= (value1_4296 == 0x7f ? 4 : 0) | (SZ53[value1_4296 & 0xff] | (value1_4296 == 0 ? 0x40 : 0));
           int result_4299 = value1_4296 & 0xFF;
-          F = (_F1920 & 0xFF);
+          F = (_F2096 & 0xFF);
           D = result_4299;
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -16709,31 +17503,31 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x17: {
-          int _F1923;
+          int _F2099;
           int value1_4301 = A;
           int value2_4302 = F;
-          _F1923 = value2_4302;
+          _F2099 = value2_4302;
           int bytetemp_4304 = value1_4301;
-          value1_4301 = (value1_4301 << 1) | (_F1923 & 1);
-          _F1923 = (_F1923 & 0xC4) | (value1_4301 & 0x28) | (bytetemp_4304 >> 7);
+          value1_4301 = (value1_4301 << 1) | (_F2099 & 1);
+          _F2099 = (_F2099 & 0xC4) | (value1_4301 & 0x28) | (bytetemp_4304 >> 7);
           int result_4305 = value1_4301 & 0xFF;
-          F = (_F1923 & 0xFF);
+          F = (_F2099 & 0xFF);
           A = result_4305;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x18: {
-          int _nextPC1925;
+          int _nextPC2101;
           int operand_4307 = memory.read((PC + 2) & 0xFFFF, 0);
           int jumpAddress2_4306 = ((PC + 3 + (byte) operand_4307) & 0xFFFF);
-          _nextPC1925 = jumpAddress2_4306;
-          MEMPTR = _nextPC1925;
+          _nextPC2101 = jumpAddress2_4306;
+          MEMPTR = _nextPC2101;
           contend((PC + 1) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          PC = _nextPC1925;
+          PC = _nextPC2101;
           break;
       }
       case 0x19: {
-          int _F1926;
+          int _F2102;
           contend(((I << 8) | R), 7, 1, Contention.Kind.READ_NO_MREQ);
           MEMPTR = ((IY + 1) & 0xFFFF);
           int b_4309 = ((D << 8) | E);
@@ -16741,20 +17535,20 @@ static final int[] SZ53 = new int[0x100];
           int value1_4311 = ((IY & 0x0800) >> 4 | result_4310 >> 11);
           int value2_4312 = F;
           int value3_4313 = (b_4309 >> 11) & 1;
-          _F1926 = value2_4312;
+          _F2102 = value2_4312;
           int add16temp_4314 = value1_4311 << 11;
           int lookup_4315 = (((value1_4311 << 4) & 0x0800) >> 11) | ((value3_4313 << 11) >> 10) | ((add16temp_4314 & 0x0800) >> 9);
-          _F1926 = (_F1926 & 0xC4) | ((add16temp_4314 & 0x10000) != 0 ? 1 : 0) | ((add16temp_4314 >> 8) & 0x28) | HALF_CARRY_ADD[lookup_4315];
-          F = (_F1926 & 0xFF);
+          _F2102 = (_F2102 & 0xC4) | ((add16temp_4314 & 0x10000) != 0 ? 1 : 0) | ((add16temp_4314 >> 8) & 0x28) | HALF_CARRY_ADD[lookup_4315];
+          F = (_F2102 & 0xFF);
           IY = (result_4310 & 0xffff);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x1A: {
-          int _address1928 = (D << 8) | E;
-          int value_4317 = memory.read(_address1928, 0);
+          int _address2104 = (D << 8) | E;
+          int value_4317 = memory.read(_address2104, 0);
           A = value_4317;
-          MEMPTR = ((_address1928 + 1) & 0xFFFF);
+          MEMPTR = ((_address2104 + 1) & 0xFFFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -16767,30 +17561,30 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x1C: {
-          int _F1931;
+          int _F2107;
           int value1_4319 = E;
           int value2_4320 = F;
-          _F1931 = value2_4320;
+          _F2107 = value2_4320;
           value1_4319++;
           value1_4319 &= 0xff;
-          _F1931 = (_F1931 & 1) | (value1_4319 == 0x80 ? 4 : 0) | ((value1_4319 & 0x0f) != 0 ? 0 : 0x10) | (SZ53[value1_4319 & 0xff] | (value1_4319 == 0 ? 0x40 : 0));
+          _F2107 = (_F2107 & 1) | (value1_4319 == 0x80 ? 4 : 0) | ((value1_4319 & 0x0f) != 0 ? 0 : 0x10) | (SZ53[value1_4319 & 0xff] | (value1_4319 == 0 ? 0x40 : 0));
           int result_4322 = value1_4319 & 0xFF;
-          F = (_F1931 & 0xFF);
+          F = (_F2107 & 0xFF);
           E = result_4322;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x1D: {
-          int _F1933;
+          int _F2109;
           int value1_4323 = E;
           int value2_4324 = F;
-          _F1933 = value2_4324;
-          _F1933 = (_F1933 & 1) | ((value1_4323 & 0x0f) != 0 ? 0 : 0x10) | 2;
+          _F2109 = value2_4324;
+          _F2109 = (_F2109 & 1) | ((value1_4323 & 0x0f) != 0 ? 0 : 0x10) | 2;
           value1_4323--;
           value1_4323 &= 0xff;
-          _F1933 |= (value1_4323 == 0x7f ? 4 : 0) | (SZ53[value1_4323 & 0xff] | (value1_4323 == 0 ? 0x40 : 0));
+          _F2109 |= (value1_4323 == 0x7f ? 4 : 0) | (SZ53[value1_4323 & 0xff] | (value1_4323 == 0 ? 0x40 : 0));
           int result_4326 = value1_4323 & 0xFF;
-          F = (_F1933 & 0xFF);
+          F = (_F2109 & 0xFF);
           E = result_4326;
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -16802,16 +17596,16 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x1F: {
-          int _F1936;
+          int _F2112;
           int value1_4328 = A;
           int value2_4329 = F;
-          _F1936 = value2_4329;
+          _F2112 = value2_4329;
           int A_4331 = value1_4328;
           int bytetemp_4332 = A_4331;
-          A_4331 = (A_4331 >> 1) | (_F1936 << 7);
-          _F1936 = (_F1936 & 0xC4) | (A_4331 & 0x28) | (bytetemp_4332 & 1);
+          A_4331 = (A_4331 >> 1) | (_F2112 << 7);
+          _F2112 = (_F2112 & 0xC4) | (A_4331 & 0x28) | (bytetemp_4332 & 1);
           int result_4333 = A_4331 & 0xFF;
-          F = _F1936;
+          F = _F2112;
           A = result_4333;
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -16847,14 +17641,14 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x22: {
-          int _address1940;
+          int _address2116;
           int address_4342 = (PC + 2) & 0xFFFF;
           int operand_4344 = memory.read(address_4342, 0);
           int operand_4346 = memory.read((address_4342 + 1) & 0xFFFF, 0);
-          _address1940 = (operand_4346 << 8) | operand_4344;
-          memory.write(_address1940, (IY & 0xFF));
-          memory.write((_address1940 + 1) & 0xFFFF, (IY >>> 8));
-          MEMPTR = ((_address1940 + 1) & 0xFFFF);
+          _address2116 = (operand_4346 << 8) | operand_4344;
+          memory.write(_address2116, (IY & 0xFF));
+          memory.write((_address2116 + 1) & 0xFFFF, (IY >>> 8));
+          MEMPTR = ((_address2116 + 1) & 0xFFFF);
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -16866,30 +17660,30 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x24: {
-          int _F1943;
+          int _F2119;
           int value1_4348 = (IY >> 8);
           int value2_4349 = F;
-          _F1943 = value2_4349;
+          _F2119 = value2_4349;
           value1_4348++;
           value1_4348 &= 0xff;
-          _F1943 = (_F1943 & 1) | (value1_4348 == 0x80 ? 4 : 0) | ((value1_4348 & 0x0f) != 0 ? 0 : 0x10) | (SZ53[value1_4348 & 0xff] | (value1_4348 == 0 ? 0x40 : 0));
+          _F2119 = (_F2119 & 1) | (value1_4348 == 0x80 ? 4 : 0) | ((value1_4348 & 0x0f) != 0 ? 0 : 0x10) | (SZ53[value1_4348 & 0xff] | (value1_4348 == 0 ? 0x40 : 0));
           int result_4351 = value1_4348 & 0xFF;
-          F = (_F1943 & 0xFF);
+          F = (_F2119 & 0xFF);
           IY = (IY & 0x00FF) | (result_4351 << 8);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x25: {
-          int _F1945;
+          int _F2121;
           int value1_4352 = (IY >> 8);
           int value2_4353 = F;
-          _F1945 = value2_4353;
-          _F1945 = (_F1945 & 1) | ((value1_4352 & 0x0f) != 0 ? 0 : 0x10) | 2;
+          _F2121 = value2_4353;
+          _F2121 = (_F2121 & 1) | ((value1_4352 & 0x0f) != 0 ? 0 : 0x10) | 2;
           value1_4352--;
           value1_4352 &= 0xff;
-          _F1945 |= (value1_4352 == 0x7f ? 4 : 0) | (SZ53[value1_4352 & 0xff] | (value1_4352 == 0 ? 0x40 : 0));
+          _F2121 |= (value1_4352 == 0x7f ? 4 : 0) | (SZ53[value1_4352 & 0xff] | (value1_4352 == 0 ? 0x40 : 0));
           int result_4355 = value1_4352 & 0xFF;
-          F = (_F1945 & 0xFF);
+          F = (_F2121 & 0xFF);
           IY = (IY & 0x00FF) | (result_4355 << 8);
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -16901,17 +17695,17 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x27: {
-          int _F1951 = 0;
-          int _F1950 = 0;
-          int _data1949 = 0;
-          int _F1948;
+          int _F2127 = 0;
+          int _F2126 = 0;
+          int _data2125 = 0;
+          int _F2124;
           int value1_4357 = A;
           int value2_4358 = F;
-          _F1948 = value2_4358;
+          _F2124 = value2_4358;
           value1_4357 &= 0xff;
           int add_4360 = 0;
-          int carry_4361 = (_F1948 & 1);
-          if (((_F1948 & 0x10) != 0) || ((value1_4357 & 0x0f) > 9)) {
+          int carry_4361 = (_F2124 & 1);
+          if (((_F2124 & 0x10) != 0) || ((value1_4357 & 0x0f) > 9)) {
               add_4360 = 6;
           }
           if (carry_4361 != 0 || (value1_4357 > 0x99)) {
@@ -16920,33 +17714,33 @@ static final int[] SZ53 = new int[0x100];
           if (value1_4357 > 0x99) {
               carry_4361 = 1;
           }
-          int and_4363 = _F1948 & 0xff;
-          _data1949 = and_4363;
-          if ((_F1948 & 2) != 0) {
+          int and_4363 = _F2124 & 0xff;
+          _data2125 = and_4363;
+          if ((_F2124 & 2) != 0) {
               int value1_4364 = value1_4357;
               int subtemp_4367 = value1_4364 - add_4360;
               int lookup_4368 = ((value1_4364 & 0x88) >> 3) | ((add_4360 & 0x88) >> 2) | ((subtemp_4367 & 0x88) >> 1);
               value1_4364 = subtemp_4367 & 0xff;
-              _F1950 = ((subtemp_4367 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4368 & 0x07)] | OVERFLOW_SUB[(lookup_4368 >> 4)] | (SZ53[value1_4364 & 0xff] | (value1_4364 == 0 ? 0x40 : 0));
+              _F2126 = ((subtemp_4367 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4368 & 0x07)] | OVERFLOW_SUB[(lookup_4368 >> 4)] | (SZ53[value1_4364 & 0xff] | (value1_4364 == 0 ? 0x40 : 0));
               int result_4369 = value1_4364 & 0xFF;
-              int and_4370 = (_F1950 & 0xFF);
-              _data1949 = and_4370;
+              int and_4370 = (_F2126 & 0xFF);
+              _data2125 = and_4370;
               value1_4357 = result_4369;
           } else {
               int value2_4372 = value1_4357;
               int addtemp_4374 = value2_4372 + add_4360;
               int lookup_4375 = ((value2_4372 & 0x88) >> 3) | ((add_4360 & 0x88) >> 2) | ((addtemp_4374 & 0x88) >> 1);
               value2_4372 = addtemp_4374 & 0xff;
-              _F1951 = ((addtemp_4374 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4375 & 0x07)] | OVERFLOW_ADD[(lookup_4375 >> 4)] | (SZ53[value2_4372 & 0xff] | (value2_4372 == 0 ? 0x40 : 0));
+              _F2127 = ((addtemp_4374 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4375 & 0x07)] | OVERFLOW_ADD[(lookup_4375 >> 4)] | (SZ53[value2_4372 & 0xff] | (value2_4372 == 0 ? 0x40 : 0));
               int result_4376 = value2_4372 & 0xFF;
-              int and_4377 = (_F1951 & 0xFF);
-              _data1949 = and_4377;
+              int and_4377 = (_F2127 & 0xFF);
+              _data2125 = and_4377;
               value1_4357 = result_4376;
           }
-          _F1948 = _data1949;
-          _F1948 = (_F1948 & -6) | carry_4361 | PARITY[value1_4357 & 0xff];
+          _F2124 = _data2125;
+          _F2124 = (_F2124 & -6) | carry_4361 | PARITY[value1_4357 & 0xff];
           int result_4378 = value1_4357 & 0xFF;
-          F = (_F1948 & 0xFF);
+          F = (_F2124 & 0xFF);
           A = result_4378;
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -16967,32 +17761,32 @@ static final int[] SZ53 = new int[0x100];
           }
       }
       case 0x29: {
-          int _F1954;
+          int _F2130;
           contend(((I << 8) | R), 7, 1, Contention.Kind.READ_NO_MREQ);
           MEMPTR = ((IY + 1) & 0xFFFF);
           int result_4382 = (IY + IY);
           int value1_4383 = ((IY & 0x0800) >> 4 | result_4382 >> 11);
           int value2_4384 = F;
           int value3_4385 = (IY >> 11) & 1;
-          _F1954 = value2_4384;
+          _F2130 = value2_4384;
           int add16temp_4386 = value1_4383 << 11;
           int lookup_4387 = (((value1_4383 << 4) & 0x0800) >> 11) | ((value3_4385 << 11) >> 10) | ((add16temp_4386 & 0x0800) >> 9);
-          _F1954 = (_F1954 & 0xC4) | ((add16temp_4386 & 0x10000) != 0 ? 1 : 0) | ((add16temp_4386 >> 8) & 0x28) | HALF_CARRY_ADD[lookup_4387];
-          F = (_F1954 & 0xFF);
+          _F2130 = (_F2130 & 0xC4) | ((add16temp_4386 & 0x10000) != 0 ? 1 : 0) | ((add16temp_4386 >> 8) & 0x28) | HALF_CARRY_ADD[lookup_4387];
+          F = (_F2130 & 0xFF);
           IY = (result_4382 & 0xffff);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x2A: {
-          int _address1956;
+          int _address2132;
           int address_4389 = (PC + 2) & 0xFFFF;
           int operand_4391 = memory.read(address_4389, 0);
           int operand_4393 = memory.read((address_4389 + 1) & 0xFFFF, 0);
-          _address1956 = (operand_4393 << 8) | operand_4391;
-          int wordNumber1_4394 = memory.read(_address1956, 0);
-          int wordNumber_4395 = memory.read((_address1956 + 1) & 0xFFFF, 0);
+          _address2132 = (operand_4393 << 8) | operand_4391;
+          int wordNumber1_4394 = memory.read(_address2132, 0);
+          int wordNumber_4395 = memory.read((_address2132 + 1) & 0xFFFF, 0);
           IY = ((wordNumber_4395 << 8) | wordNumber1_4394);
-          MEMPTR = ((_address1956 + 1) & 0xFFFF);
+          MEMPTR = ((_address2132 + 1) & 0xFFFF);
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -17003,30 +17797,30 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x2C: {
-          int _F1959;
+          int _F2135;
           int value1_4396 = (IY & 0xFF);
           int value2_4397 = F;
-          _F1959 = value2_4397;
+          _F2135 = value2_4397;
           value1_4396++;
           value1_4396 &= 0xff;
-          _F1959 = (_F1959 & 1) | (value1_4396 == 0x80 ? 4 : 0) | ((value1_4396 & 0x0f) != 0 ? 0 : 0x10) | (SZ53[value1_4396 & 0xff] | (value1_4396 == 0 ? 0x40 : 0));
+          _F2135 = (_F2135 & 1) | (value1_4396 == 0x80 ? 4 : 0) | ((value1_4396 & 0x0f) != 0 ? 0 : 0x10) | (SZ53[value1_4396 & 0xff] | (value1_4396 == 0 ? 0x40 : 0));
           int result_4399 = value1_4396 & 0xFF;
-          F = (_F1959 & 0xFF);
+          F = (_F2135 & 0xFF);
           IY = (IY & 0xFF00) | result_4399;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x2D: {
-          int _F1961;
+          int _F2137;
           int value1_4400 = (IY & 0xFF);
           int value2_4401 = F;
-          _F1961 = value2_4401;
-          _F1961 = (_F1961 & 1) | ((value1_4400 & 0x0f) != 0 ? 0 : 0x10) | 2;
+          _F2137 = value2_4401;
+          _F2137 = (_F2137 & 1) | ((value1_4400 & 0x0f) != 0 ? 0 : 0x10) | 2;
           value1_4400--;
           value1_4400 &= 0xff;
-          _F1961 |= (value1_4400 == 0x7f ? 4 : 0) | (SZ53[value1_4400 & 0xff] | (value1_4400 == 0 ? 0x40 : 0));
+          _F2137 |= (value1_4400 == 0x7f ? 4 : 0) | (SZ53[value1_4400 & 0xff] | (value1_4400 == 0 ? 0x40 : 0));
           int result_4403 = value1_4400 & 0xFF;
-          F = (_F1961 & 0xFF);
+          F = (_F2137 & 0xFF);
           IY = (IY & 0xFF00) | result_4403;
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -17038,14 +17832,14 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x2F: {
-          int _F1964;
+          int _F2140;
           int value1_4405 = A;
           int value2_4406 = F;
-          _F1964 = value2_4406;
+          _F2140 = value2_4406;
           value1_4405 ^= 0xff;
-          _F1964 = (_F1964 & 0xC5) | (value1_4405 & 0x28) | 0x12;
+          _F2140 = (_F2140 & 0xC5) | (value1_4405 & 0x28) | 0x12;
           int result_4408 = value1_4405 & 0xFF;
-          F = _F1964;
+          F = _F2140;
           A = result_4408;
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -17081,13 +17875,13 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x32: {
-          int _address1968;
+          int _address2144;
           int address_4417 = (PC + 2) & 0xFFFF;
           int operand_4419 = memory.read(address_4417, 0);
           int operand_4421 = memory.read((address_4417 + 1) & 0xFFFF, 0);
-          _address1968 = (operand_4421 << 8) | operand_4419;
-          memory.write(_address1968, A);
-          MEMPTR = ((A << 8) | ((_address1968 + 1) & 0xff));
+          _address2144 = (operand_4421 << 8) | operand_4419;
+          memory.write(_address2144, A);
+          MEMPTR = ((A << 8) | ((_address2144 + 1) & 0xff));
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -17099,73 +17893,73 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x34: {
-          int _F1972;
-          int _value1971;
-          int _address1971;
+          int _F2148;
+          int _value2147;
+          int _address2147;
           int operand_4423 = memory.read((PC + 2) & 0xFFFF, 0);
           contend((PC + 2) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4423)) & 0xFFFF;
-          int operand_4424 = memory.read(_address1971, 0);
-          contend(_address1971, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value1971 = operand_4424;
-          int value1_4425 = _value1971;
+          _address2147 = (IY + (int) ((byte) operand_4423)) & 0xFFFF;
+          int operand_4424 = memory.read(_address2147, 0);
+          contend(_address2147, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2147 = operand_4424;
+          int value1_4425 = _value2147;
           int value2_4426 = F;
-          _F1972 = value2_4426;
+          _F2148 = value2_4426;
           value1_4425++;
           value1_4425 &= 0xff;
-          _F1972 = (_F1972 & 1) | (value1_4425 == 0x80 ? 4 : 0) | ((value1_4425 & 0x0f) != 0 ? 0 : 0x10) | (SZ53[value1_4425 & 0xff] | (value1_4425 == 0 ? 0x40 : 0));
+          _F2148 = (_F2148 & 1) | (value1_4425 == 0x80 ? 4 : 0) | ((value1_4425 & 0x0f) != 0 ? 0 : 0x10) | (SZ53[value1_4425 & 0xff] | (value1_4425 == 0 ? 0x40 : 0));
           int result_4428 = value1_4425 & 0xFF;
-          F = (_F1972 & 0xFF);
-          _address1971 = (IY + (int) ((byte) operand_4423)) & 0xFFFF;
-          _value1971 = result_4428;
-          memory.write(_address1971, result_4428);
-          MEMPTR = _address1971;
+          F = (_F2148 & 0xFF);
+          _address2147 = (IY + (int) ((byte) operand_4423)) & 0xFFFF;
+          _value2147 = result_4428;
+          memory.write(_address2147, result_4428);
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x35: {
-          int _F1974;
-          int _value1971;
-          int _address1971;
+          int _F2150;
+          int _value2147;
+          int _address2147;
           int operand_4429 = memory.read((PC + 2) & 0xFFFF, 0);
           contend((PC + 2) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4429)) & 0xFFFF;
-          int operand_4430 = memory.read(_address1971, 0);
-          contend(_address1971, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value1971 = operand_4430;
-          int value1_4431 = _value1971;
+          _address2147 = (IY + (int) ((byte) operand_4429)) & 0xFFFF;
+          int operand_4430 = memory.read(_address2147, 0);
+          contend(_address2147, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2147 = operand_4430;
+          int value1_4431 = _value2147;
           int value2_4432 = F;
-          _F1974 = value2_4432;
-          _F1974 = (_F1974 & 1) | ((value1_4431 & 0x0f) != 0 ? 0 : 0x10) | 2;
+          _F2150 = value2_4432;
+          _F2150 = (_F2150 & 1) | ((value1_4431 & 0x0f) != 0 ? 0 : 0x10) | 2;
           value1_4431--;
           value1_4431 &= 0xff;
-          _F1974 |= (value1_4431 == 0x7f ? 4 : 0) | (SZ53[value1_4431 & 0xff] | (value1_4431 == 0 ? 0x40 : 0));
+          _F2150 |= (value1_4431 == 0x7f ? 4 : 0) | (SZ53[value1_4431 & 0xff] | (value1_4431 == 0 ? 0x40 : 0));
           int result_4434 = value1_4431 & 0xFF;
-          F = (_F1974 & 0xFF);
-          _address1971 = (IY + (int) ((byte) operand_4429)) & 0xFFFF;
-          _value1971 = result_4434;
-          memory.write(_address1971, result_4434);
-          MEMPTR = _address1971;
+          F = (_F2150 & 0xFF);
+          _address2147 = (IY + (int) ((byte) operand_4429)) & 0xFFFF;
+          _value2147 = result_4434;
+          memory.write(_address2147, result_4434);
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x36: {
-          int _address1976;
+          int _address2152;
           int operand_4435 = memory.read((PC + 2) & 0xFFFF, 0);
           int operand_4436 = memory.read((PC + 3) & 0xFFFF, 0);
-          _address1976 = (IY + (int) ((byte) operand_4435)) & 0xFFFF;
+          _address2152 = (IY + (int) ((byte) operand_4435)) & 0xFFFF;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          memory.write(_address1976, operand_4436);
-          MEMPTR = _address1976;
+          memory.write(_address2152, operand_4436);
+          MEMPTR = _address2152;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x37: {
-          int _F1978;
+          int _F2154;
           int value2_4438 = F;
-          _F1978 = value2_4438;
-          _F1978 = _F1978 & 0xC4 | A & 0x28 | 1;
-          F = _F1978;
+          _F2154 = value2_4438;
+          _F2154 = _F2154 & 0xC4 | A & 0x28 | 1;
+          F = _F2154;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -17185,31 +17979,31 @@ static final int[] SZ53 = new int[0x100];
           }
       }
       case 0x39: {
-          int _F1981;
+          int _F2157;
           contend(((I << 8) | R), 7, 1, Contention.Kind.READ_NO_MREQ);
           MEMPTR = ((IY + 1) & 0xFFFF);
           int result_4444 = (IY + SP);
           int value1_4445 = ((IY & 0x0800) >> 4 | result_4444 >> 11);
           int value2_4446 = F;
           int value3_4447 = (SP >> 11) & 1;
-          _F1981 = value2_4446;
+          _F2157 = value2_4446;
           int add16temp_4448 = value1_4445 << 11;
           int lookup_4449 = (((value1_4445 << 4) & 0x0800) >> 11) | ((value3_4447 << 11) >> 10) | ((add16temp_4448 & 0x0800) >> 9);
-          _F1981 = (_F1981 & 0xC4) | ((add16temp_4448 & 0x10000) != 0 ? 1 : 0) | ((add16temp_4448 >> 8) & 0x28) | HALF_CARRY_ADD[lookup_4449];
-          F = (_F1981 & 0xFF);
+          _F2157 = (_F2157 & 0xC4) | ((add16temp_4448 & 0x10000) != 0 ? 1 : 0) | ((add16temp_4448 >> 8) & 0x28) | HALF_CARRY_ADD[lookup_4449];
+          F = (_F2157 & 0xFF);
           IY = (result_4444 & 0xffff);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x3A: {
-          int _address1983;
+          int _address2159;
           int address_4451 = (PC + 2) & 0xFFFF;
           int operand_4453 = memory.read(address_4451, 0);
           int operand_4455 = memory.read((address_4451 + 1) & 0xFFFF, 0);
-          _address1983 = (operand_4455 << 8) | operand_4453;
-          int value_4456 = memory.read(_address1983, 0);
+          _address2159 = (operand_4455 << 8) | operand_4453;
+          int value_4456 = memory.read(_address2159, 0);
           A = value_4456;
-          MEMPTR = ((_address1983 + 1) & 0xFFFF);
+          MEMPTR = ((_address2159 + 1) & 0xFFFF);
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -17220,30 +18014,30 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x3C: {
-          int _F1986;
+          int _F2162;
           int value1_4457 = A;
           int value2_4458 = F;
-          _F1986 = value2_4458;
+          _F2162 = value2_4458;
           value1_4457++;
           value1_4457 &= 0xff;
-          _F1986 = (_F1986 & 1) | (value1_4457 == 0x80 ? 4 : 0) | ((value1_4457 & 0x0f) != 0 ? 0 : 0x10) | (SZ53[value1_4457 & 0xff] | (value1_4457 == 0 ? 0x40 : 0));
+          _F2162 = (_F2162 & 1) | (value1_4457 == 0x80 ? 4 : 0) | ((value1_4457 & 0x0f) != 0 ? 0 : 0x10) | (SZ53[value1_4457 & 0xff] | (value1_4457 == 0 ? 0x40 : 0));
           int result_4460 = value1_4457 & 0xFF;
-          F = (_F1986 & 0xFF);
+          F = (_F2162 & 0xFF);
           A = result_4460;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x3D: {
-          int _F1988;
+          int _F2164;
           int value1_4461 = A;
           int value2_4462 = F;
-          _F1988 = value2_4462;
-          _F1988 = (_F1988 & 1) | ((value1_4461 & 0x0f) != 0 ? 0 : 0x10) | 2;
+          _F2164 = value2_4462;
+          _F2164 = (_F2164 & 1) | ((value1_4461 & 0x0f) != 0 ? 0 : 0x10) | 2;
           value1_4461--;
           value1_4461 &= 0xff;
-          _F1988 |= (value1_4461 == 0x7f ? 4 : 0) | (SZ53[value1_4461 & 0xff] | (value1_4461 == 0 ? 0x40 : 0));
+          _F2164 |= (value1_4461 == 0x7f ? 4 : 0) | (SZ53[value1_4461 & 0xff] | (value1_4461 == 0 ? 0x40 : 0));
           int result_4464 = value1_4461 & 0xFF;
-          F = (_F1988 & 0xFF);
+          F = (_F2164 & 0xFF);
           A = result_4464;
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -17255,11 +18049,11 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x3F: {
-          int _F1991;
+          int _F2167;
           int value2_4467 = F;
-          _F1991 = value2_4467;
-          _F1991 = _F1991 & 0xC4 | ((_F1991 & 1) != 0 ? 0x10 : 1) | A & 0x28;
-          F = _F1991;
+          _F2167 = value2_4467;
+          _F2167 = _F2167 & 0xC4 | ((_F2167 & 1) != 0 ? 0x10 : 1) | A & 0x28;
+          F = _F2167;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -17300,15 +18094,15 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x46: {
-          int _value1971;
-          int _address1971;
+          int _value2147;
+          int _address2147;
           int operand_4470 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4470)) & 0xFFFF;
-          int operand_4471 = memory.read(_address1971, 0);
-          _value1971 = operand_4471;
-          B = _value1971;
-          MEMPTR = _address1971;
+          _address2147 = (IY + (int) ((byte) operand_4470)) & 0xFFFF;
+          int operand_4471 = memory.read(_address2147, 0);
+          _value2147 = operand_4471;
+          B = _value2147;
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
@@ -17347,15 +18141,15 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x4E: {
-          int _value1971;
-          int _address1971;
+          int _value2147;
+          int _address2147;
           int operand_4472 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4472)) & 0xFFFF;
-          int operand_4473 = memory.read(_address1971, 0);
-          _value1971 = operand_4473;
-          C = _value1971;
-          MEMPTR = _address1971;
+          _address2147 = (IY + (int) ((byte) operand_4472)) & 0xFFFF;
+          int operand_4473 = memory.read(_address2147, 0);
+          _value2147 = operand_4473;
+          C = _value2147;
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
@@ -17401,15 +18195,15 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x56: {
-          int _value1971;
-          int _address1971;
+          int _value2147;
+          int _address2147;
           int operand_4474 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4474)) & 0xFFFF;
-          int operand_4475 = memory.read(_address1971, 0);
-          _value1971 = operand_4475;
-          D = _value1971;
-          MEMPTR = _address1971;
+          _address2147 = (IY + (int) ((byte) operand_4474)) & 0xFFFF;
+          int operand_4475 = memory.read(_address2147, 0);
+          _value2147 = operand_4475;
+          D = _value2147;
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
@@ -17448,15 +18242,15 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x5E: {
-          int _value1971;
-          int _address1971;
+          int _value2147;
+          int _address2147;
           int operand_4476 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4476)) & 0xFFFF;
-          int operand_4477 = memory.read(_address1971, 0);
-          _value1971 = operand_4477;
-          E = _value1971;
-          MEMPTR = _address1971;
+          _address2147 = (IY + (int) ((byte) operand_4476)) & 0xFFFF;
+          int operand_4477 = memory.read(_address2147, 0);
+          _value2147 = operand_4477;
+          E = _value2147;
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
@@ -17503,15 +18297,15 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x66: {
-          int _value1971;
-          int _address1971;
+          int _value2147;
+          int _address2147;
           int operand_4478 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4478)) & 0xFFFF;
-          int operand_4479 = memory.read(_address1971, 0);
-          _value1971 = operand_4479;
-          H = _value1971;
-          MEMPTR = _address1971;
+          _address2147 = (IY + (int) ((byte) operand_4478)) & 0xFFFF;
+          int operand_4479 = memory.read(_address2147, 0);
+          _value2147 = operand_4479;
+          H = _value2147;
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
@@ -17551,15 +18345,15 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x6E: {
-          int _value1971;
-          int _address1971;
+          int _value2147;
+          int _address2147;
           int operand_4480 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4480)) & 0xFFFF;
-          int operand_4481 = memory.read(_address1971, 0);
-          _value1971 = operand_4481;
-          L = _value1971;
-          MEMPTR = _address1971;
+          _address2147 = (IY + (int) ((byte) operand_4480)) & 0xFFFF;
+          int operand_4481 = memory.read(_address2147, 0);
+          _value2147 = operand_4481;
+          L = _value2147;
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
@@ -17576,80 +18370,80 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFD_7(int opcode) {
     switch (opcode) {
       case 0x70: {
-          int _address1971;
+          int _address2147;
           int operand_4482 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4482)) & 0xFFFF;
-          memory.write(_address1971, B);
-          MEMPTR = _address1971;
+          _address2147 = (IY + (int) ((byte) operand_4482)) & 0xFFFF;
+          memory.write(_address2147, B);
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x71: {
-          int _address1971;
+          int _address2147;
           int operand_4483 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4483)) & 0xFFFF;
-          memory.write(_address1971, C);
-          MEMPTR = _address1971;
+          _address2147 = (IY + (int) ((byte) operand_4483)) & 0xFFFF;
+          memory.write(_address2147, C);
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x72: {
-          int _address1971;
+          int _address2147;
           int operand_4484 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4484)) & 0xFFFF;
-          memory.write(_address1971, D);
-          MEMPTR = _address1971;
+          _address2147 = (IY + (int) ((byte) operand_4484)) & 0xFFFF;
+          memory.write(_address2147, D);
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x73: {
-          int _address1971;
+          int _address2147;
           int operand_4485 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4485)) & 0xFFFF;
-          memory.write(_address1971, E);
-          MEMPTR = _address1971;
+          _address2147 = (IY + (int) ((byte) operand_4485)) & 0xFFFF;
+          memory.write(_address2147, E);
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x74: {
-          int _address1971;
+          int _address2147;
           int operand_4486 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4486)) & 0xFFFF;
-          memory.write(_address1971, H);
-          MEMPTR = _address1971;
+          _address2147 = (IY + (int) ((byte) operand_4486)) & 0xFFFF;
+          memory.write(_address2147, H);
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x75: {
-          int _address1971;
+          int _address2147;
           int operand_4487 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4487)) & 0xFFFF;
-          memory.write(_address1971, L);
-          MEMPTR = _address1971;
+          _address2147 = (IY + (int) ((byte) operand_4487)) & 0xFFFF;
+          memory.write(_address2147, L);
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x76: {
           if (!state.isHalted()) {
               state.setHalted(true);
-              _nextPC2047 = PC;
+              _nextPC2223 = PC;
           }
-          PC = _nextPC2047 == -1 ? (PC + 2) & 0xFFFF : _nextPC2047;
+          PC = _nextPC2223 == -1 ? (PC + 2) & 0xFFFF : _nextPC2223;
           break;
       }
       case 0x77: {
-          int _address1971;
+          int _address2147;
           int operand_4488 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4488)) & 0xFFFF;
-          memory.write(_address1971, A);
-          MEMPTR = _address1971;
+          _address2147 = (IY + (int) ((byte) operand_4488)) & 0xFFFF;
+          memory.write(_address2147, A);
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
@@ -17684,15 +18478,15 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0x7E: {
-          int _value1971;
-          int _address1971;
+          int _value2147;
+          int _address2147;
           int operand_4489 = memory.read((PC + 2) & 0xFFFF, 0);
           contend(((I << 8) | R), 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4489)) & 0xFFFF;
-          int operand_4490 = memory.read(_address1971, 0);
-          _value1971 = operand_4490;
-          A = _value1971;
-          MEMPTR = _address1971;
+          _address2147 = (IY + (int) ((byte) operand_4489)) & 0xFFFF;
+          int operand_4490 = memory.read(_address2147, 0);
+          _value2147 = operand_4490;
+          A = _value2147;
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
@@ -17708,236 +18502,236 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFD_8(int opcode) {
     switch (opcode) {
       case 0x80: {
-          int _F2057;
+          int _F2233;
           int value1_4491 = A;
           int value2_4492 = B;
           int addtemp_4494 = value2_4492 + value1_4491;
           int lookup_4495 = ((value2_4492 & 0x88) >> 3) | ((value1_4491 & 0x88) >> 2) | ((addtemp_4494 & 0x88) >> 1);
           value2_4492 = addtemp_4494 & 0xff;
-          _F2057 = ((addtemp_4494 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4495 & 0x07)] | OVERFLOW_ADD[(lookup_4495 >> 4)] | (SZ53[value2_4492] | (value2_4492 == 0 ? 0x40 : 0));
-          F = (_F2057 & 0xFF);
+          _F2233 = ((addtemp_4494 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4495 & 0x07)] | OVERFLOW_ADD[(lookup_4495 >> 4)] | (SZ53[value2_4492] | (value2_4492 == 0 ? 0x40 : 0));
+          F = (_F2233 & 0xFF);
           A = value2_4492;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x81: {
-          int _F2059;
+          int _F2235;
           int value1_4497 = A;
           int value2_4498 = C;
           int addtemp_4500 = value2_4498 + value1_4497;
           int lookup_4501 = ((value2_4498 & 0x88) >> 3) | ((value1_4497 & 0x88) >> 2) | ((addtemp_4500 & 0x88) >> 1);
           value2_4498 = addtemp_4500 & 0xff;
-          _F2059 = ((addtemp_4500 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4501 & 0x07)] | OVERFLOW_ADD[(lookup_4501 >> 4)] | (SZ53[value2_4498] | (value2_4498 == 0 ? 0x40 : 0));
-          F = (_F2059 & 0xFF);
+          _F2235 = ((addtemp_4500 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4501 & 0x07)] | OVERFLOW_ADD[(lookup_4501 >> 4)] | (SZ53[value2_4498] | (value2_4498 == 0 ? 0x40 : 0));
+          F = (_F2235 & 0xFF);
           A = value2_4498;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x82: {
-          int _F2061;
+          int _F2237;
           int value1_4503 = A;
           int value2_4504 = D;
           int addtemp_4506 = value2_4504 + value1_4503;
           int lookup_4507 = ((value2_4504 & 0x88) >> 3) | ((value1_4503 & 0x88) >> 2) | ((addtemp_4506 & 0x88) >> 1);
           value2_4504 = addtemp_4506 & 0xff;
-          _F2061 = ((addtemp_4506 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4507 & 0x07)] | OVERFLOW_ADD[(lookup_4507 >> 4)] | (SZ53[value2_4504] | (value2_4504 == 0 ? 0x40 : 0));
-          F = (_F2061 & 0xFF);
+          _F2237 = ((addtemp_4506 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4507 & 0x07)] | OVERFLOW_ADD[(lookup_4507 >> 4)] | (SZ53[value2_4504] | (value2_4504 == 0 ? 0x40 : 0));
+          F = (_F2237 & 0xFF);
           A = value2_4504;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x83: {
-          int _F2063;
+          int _F2239;
           int value1_4509 = A;
           int value2_4510 = E;
           int addtemp_4512 = value2_4510 + value1_4509;
           int lookup_4513 = ((value2_4510 & 0x88) >> 3) | ((value1_4509 & 0x88) >> 2) | ((addtemp_4512 & 0x88) >> 1);
           value2_4510 = addtemp_4512 & 0xff;
-          _F2063 = ((addtemp_4512 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4513 & 0x07)] | OVERFLOW_ADD[(lookup_4513 >> 4)] | (SZ53[value2_4510] | (value2_4510 == 0 ? 0x40 : 0));
-          F = (_F2063 & 0xFF);
+          _F2239 = ((addtemp_4512 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4513 & 0x07)] | OVERFLOW_ADD[(lookup_4513 >> 4)] | (SZ53[value2_4510] | (value2_4510 == 0 ? 0x40 : 0));
+          F = (_F2239 & 0xFF);
           A = value2_4510;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x84: {
-          int _F2065;
+          int _F2241;
           int value1_4515 = A;
           int value2_4516 = (IY >> 8);
           int addtemp_4518 = value2_4516 + value1_4515;
           int lookup_4519 = ((value2_4516 & 0x88) >> 3) | ((value1_4515 & 0x88) >> 2) | ((addtemp_4518 & 0x88) >> 1);
           value2_4516 = addtemp_4518 & 0xff;
-          _F2065 = ((addtemp_4518 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4519 & 0x07)] | OVERFLOW_ADD[(lookup_4519 >> 4)] | (SZ53[value2_4516] | (value2_4516 == 0 ? 0x40 : 0));
-          F = (_F2065 & 0xFF);
+          _F2241 = ((addtemp_4518 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4519 & 0x07)] | OVERFLOW_ADD[(lookup_4519 >> 4)] | (SZ53[value2_4516] | (value2_4516 == 0 ? 0x40 : 0));
+          F = (_F2241 & 0xFF);
           A = value2_4516;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x85: {
-          int _F2067;
+          int _F2243;
           int value1_4521 = A;
           int value2_4522 = (IY & 0xFF);
           int addtemp_4524 = value2_4522 + value1_4521;
           int lookup_4525 = ((value2_4522 & 0x88) >> 3) | ((value1_4521 & 0x88) >> 2) | ((addtemp_4524 & 0x88) >> 1);
           value2_4522 = addtemp_4524 & 0xff;
-          _F2067 = ((addtemp_4524 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4525 & 0x07)] | OVERFLOW_ADD[(lookup_4525 >> 4)] | (SZ53[value2_4522] | (value2_4522 == 0 ? 0x40 : 0));
-          F = (_F2067 & 0xFF);
+          _F2243 = ((addtemp_4524 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4525 & 0x07)] | OVERFLOW_ADD[(lookup_4525 >> 4)] | (SZ53[value2_4522] | (value2_4522 == 0 ? 0x40 : 0));
+          F = (_F2243 & 0xFF);
           A = value2_4522;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x86: {
-          int _F2069;
-          int _value1971;
-          int _address1971;
+          int _F2245;
+          int _value2147;
+          int _address2147;
           int operand_4527 = memory.read((PC + 2) & 0xFFFF, 0);
           contend((PC + 2) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4527)) & 0xFFFF;
-          int operand_4528 = memory.read(_address1971, 0);
-          _value1971 = operand_4528;
+          _address2147 = (IY + (int) ((byte) operand_4527)) & 0xFFFF;
+          int operand_4528 = memory.read(_address2147, 0);
+          _value2147 = operand_4528;
           int value1_4529 = A;
-          int value2_4530 = _value1971;
+          int value2_4530 = _value2147;
           int addtemp_4532 = value2_4530 + value1_4529;
           int lookup_4533 = ((value2_4530 & 0x88) >> 3) | ((value1_4529 & 0x88) >> 2) | ((addtemp_4532 & 0x88) >> 1);
           value2_4530 = addtemp_4532 & 0xff;
-          _F2069 = ((addtemp_4532 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4533 & 0x07)] | OVERFLOW_ADD[(lookup_4533 >> 4)] | (SZ53[value2_4530] | (value2_4530 == 0 ? 0x40 : 0));
-          F = (_F2069 & 0xFF);
+          _F2245 = ((addtemp_4532 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4533 & 0x07)] | OVERFLOW_ADD[(lookup_4533 >> 4)] | (SZ53[value2_4530] | (value2_4530 == 0 ? 0x40 : 0));
+          F = (_F2245 & 0xFF);
           A = value2_4530;
-          MEMPTR = _address1971;
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x87: {
-          int _F2071;
+          int _F2247;
           int value1_4535 = A;
           int value2_4536 = A;
           int addtemp_4538 = value2_4536 + value1_4535;
           int lookup_4539 = ((value2_4536 & 0x88) >> 3) | ((value1_4535 & 0x88) >> 2) | ((addtemp_4538 & 0x88) >> 1);
           value2_4536 = addtemp_4538 & 0xff;
-          _F2071 = ((addtemp_4538 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4539 & 0x07)] | OVERFLOW_ADD[(lookup_4539 >> 4)] | (SZ53[value2_4536] | (value2_4536 == 0 ? 0x40 : 0));
-          F = (_F2071 & 0xFF);
+          _F2247 = ((addtemp_4538 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4539 & 0x07)] | OVERFLOW_ADD[(lookup_4539 >> 4)] | (SZ53[value2_4536] | (value2_4536 == 0 ? 0x40 : 0));
+          F = (_F2247 & 0xFF);
           A = value2_4536;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x88: {
-          int _F2073;
+          int _F2249;
           int value1_4541 = A;
           int value3_4543 = F & 1;
-          _F2073 = value3_4543;
-          int adctemp_4544 = value1_4541 + B + (_F2073 & 1);
+          _F2249 = value3_4543;
+          int adctemp_4544 = value1_4541 + B + (_F2249 & 1);
           int lookup_4545 = ((value1_4541 & 0x88) >> 3) | ((B & 0x88) >> 2) | ((adctemp_4544 & 0x88) >> 1);
           value1_4541 = adctemp_4544 & 0xff;
-          _F2073 = ((adctemp_4544 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4545 & 0x07)] | OVERFLOW_ADD[(lookup_4545 >> 4)] | (SZ53[value1_4541] | (value1_4541 == 0 ? 0x40 : 0));
-          F = (_F2073 & 0xFF);
+          _F2249 = ((adctemp_4544 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4545 & 0x07)] | OVERFLOW_ADD[(lookup_4545 >> 4)] | (SZ53[value1_4541] | (value1_4541 == 0 ? 0x40 : 0));
+          F = (_F2249 & 0xFF);
           A = value1_4541;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x89: {
-          int _F2075;
+          int _F2251;
           int value1_4547 = A;
           int value3_4549 = F & 1;
-          _F2075 = value3_4549;
-          int adctemp_4550 = value1_4547 + C + (_F2075 & 1);
+          _F2251 = value3_4549;
+          int adctemp_4550 = value1_4547 + C + (_F2251 & 1);
           int lookup_4551 = ((value1_4547 & 0x88) >> 3) | ((C & 0x88) >> 2) | ((adctemp_4550 & 0x88) >> 1);
           value1_4547 = adctemp_4550 & 0xff;
-          _F2075 = ((adctemp_4550 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4551 & 0x07)] | OVERFLOW_ADD[(lookup_4551 >> 4)] | (SZ53[value1_4547] | (value1_4547 == 0 ? 0x40 : 0));
-          F = (_F2075 & 0xFF);
+          _F2251 = ((adctemp_4550 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4551 & 0x07)] | OVERFLOW_ADD[(lookup_4551 >> 4)] | (SZ53[value1_4547] | (value1_4547 == 0 ? 0x40 : 0));
+          F = (_F2251 & 0xFF);
           A = value1_4547;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x8A: {
-          int _F2077;
+          int _F2253;
           int value1_4553 = A;
           int value3_4555 = F & 1;
-          _F2077 = value3_4555;
-          int adctemp_4556 = value1_4553 + D + (_F2077 & 1);
+          _F2253 = value3_4555;
+          int adctemp_4556 = value1_4553 + D + (_F2253 & 1);
           int lookup_4557 = ((value1_4553 & 0x88) >> 3) | ((D & 0x88) >> 2) | ((adctemp_4556 & 0x88) >> 1);
           value1_4553 = adctemp_4556 & 0xff;
-          _F2077 = ((adctemp_4556 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4557 & 0x07)] | OVERFLOW_ADD[(lookup_4557 >> 4)] | (SZ53[value1_4553] | (value1_4553 == 0 ? 0x40 : 0));
-          F = (_F2077 & 0xFF);
+          _F2253 = ((adctemp_4556 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4557 & 0x07)] | OVERFLOW_ADD[(lookup_4557 >> 4)] | (SZ53[value1_4553] | (value1_4553 == 0 ? 0x40 : 0));
+          F = (_F2253 & 0xFF);
           A = value1_4553;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x8B: {
-          int _F2079;
+          int _F2255;
           int value1_4559 = A;
           int value3_4561 = F & 1;
-          _F2079 = value3_4561;
-          int adctemp_4562 = value1_4559 + E + (_F2079 & 1);
+          _F2255 = value3_4561;
+          int adctemp_4562 = value1_4559 + E + (_F2255 & 1);
           int lookup_4563 = ((value1_4559 & 0x88) >> 3) | ((E & 0x88) >> 2) | ((adctemp_4562 & 0x88) >> 1);
           value1_4559 = adctemp_4562 & 0xff;
-          _F2079 = ((adctemp_4562 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4563 & 0x07)] | OVERFLOW_ADD[(lookup_4563 >> 4)] | (SZ53[value1_4559] | (value1_4559 == 0 ? 0x40 : 0));
-          F = (_F2079 & 0xFF);
+          _F2255 = ((adctemp_4562 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4563 & 0x07)] | OVERFLOW_ADD[(lookup_4563 >> 4)] | (SZ53[value1_4559] | (value1_4559 == 0 ? 0x40 : 0));
+          F = (_F2255 & 0xFF);
           A = value1_4559;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x8C: {
-          int _F2081;
+          int _F2257;
           int value1_4565 = A;
           int value2_4566 = (IY >> 8);
           int value3_4567 = F & 1;
-          _F2081 = value3_4567;
-          int adctemp_4568 = value1_4565 + value2_4566 + (_F2081 & 1);
+          _F2257 = value3_4567;
+          int adctemp_4568 = value1_4565 + value2_4566 + (_F2257 & 1);
           int lookup_4569 = ((value1_4565 & 0x88) >> 3) | ((value2_4566 & 0x88) >> 2) | ((adctemp_4568 & 0x88) >> 1);
           value1_4565 = adctemp_4568 & 0xff;
-          _F2081 = ((adctemp_4568 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4569 & 0x07)] | OVERFLOW_ADD[(lookup_4569 >> 4)] | (SZ53[value1_4565] | (value1_4565 == 0 ? 0x40 : 0));
-          F = (_F2081 & 0xFF);
+          _F2257 = ((adctemp_4568 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4569 & 0x07)] | OVERFLOW_ADD[(lookup_4569 >> 4)] | (SZ53[value1_4565] | (value1_4565 == 0 ? 0x40 : 0));
+          F = (_F2257 & 0xFF);
           A = value1_4565;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x8D: {
-          int _F2083;
+          int _F2259;
           int value1_4571 = A;
           int value2_4572 = (IY & 0xFF);
           int value3_4573 = F & 1;
-          _F2083 = value3_4573;
-          int adctemp_4574 = value1_4571 + value2_4572 + (_F2083 & 1);
+          _F2259 = value3_4573;
+          int adctemp_4574 = value1_4571 + value2_4572 + (_F2259 & 1);
           int lookup_4575 = ((value1_4571 & 0x88) >> 3) | ((value2_4572 & 0x88) >> 2) | ((adctemp_4574 & 0x88) >> 1);
           value1_4571 = adctemp_4574 & 0xff;
-          _F2083 = ((adctemp_4574 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4575 & 0x07)] | OVERFLOW_ADD[(lookup_4575 >> 4)] | (SZ53[value1_4571] | (value1_4571 == 0 ? 0x40 : 0));
-          F = (_F2083 & 0xFF);
+          _F2259 = ((adctemp_4574 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4575 & 0x07)] | OVERFLOW_ADD[(lookup_4575 >> 4)] | (SZ53[value1_4571] | (value1_4571 == 0 ? 0x40 : 0));
+          F = (_F2259 & 0xFF);
           A = value1_4571;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x8E: {
-          int _F2085;
-          int _value1971;
-          int _address1971;
+          int _F2261;
+          int _value2147;
+          int _address2147;
           int operand_4577 = memory.read((PC + 2) & 0xFFFF, 0);
           contend((PC + 2) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4577)) & 0xFFFF;
-          int operand_4578 = memory.read(_address1971, 0);
-          _value1971 = operand_4578;
+          _address2147 = (IY + (int) ((byte) operand_4577)) & 0xFFFF;
+          int operand_4578 = memory.read(_address2147, 0);
+          _value2147 = operand_4578;
           int value1_4579 = A;
           int value3_4581 = F & 1;
-          _F2085 = value3_4581;
-          int adctemp_4582 = value1_4579 + _value1971 + (_F2085 & 1);
-          int lookup_4583 = ((value1_4579 & 0x88) >> 3) | ((_value1971 & 0x88) >> 2) | ((adctemp_4582 & 0x88) >> 1);
+          _F2261 = value3_4581;
+          int adctemp_4582 = value1_4579 + _value2147 + (_F2261 & 1);
+          int lookup_4583 = ((value1_4579 & 0x88) >> 3) | ((_value2147 & 0x88) >> 2) | ((adctemp_4582 & 0x88) >> 1);
           value1_4579 = adctemp_4582 & 0xff;
-          _F2085 = ((adctemp_4582 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4583 & 0x07)] | OVERFLOW_ADD[(lookup_4583 >> 4)] | (SZ53[value1_4579] | (value1_4579 == 0 ? 0x40 : 0));
-          F = (_F2085 & 0xFF);
+          _F2261 = ((adctemp_4582 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4583 & 0x07)] | OVERFLOW_ADD[(lookup_4583 >> 4)] | (SZ53[value1_4579] | (value1_4579 == 0 ? 0x40 : 0));
+          F = (_F2261 & 0xFF);
           A = value1_4579;
-          MEMPTR = _address1971;
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x8F: {
-          int _F2087;
+          int _F2263;
           int value1_4585 = A;
           int value2_4586 = A;
           int value3_4587 = F & 1;
-          _F2087 = value3_4587;
-          int adctemp_4588 = value1_4585 + value2_4586 + (_F2087 & 1);
+          _F2263 = value3_4587;
+          int adctemp_4588 = value1_4585 + value2_4586 + (_F2263 & 1);
           int lookup_4589 = ((value1_4585 & 0x88) >> 3) | ((value2_4586 & 0x88) >> 2) | ((adctemp_4588 & 0x88) >> 1);
           value1_4585 = adctemp_4588 & 0xff;
-          _F2087 = ((adctemp_4588 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4589 & 0x07)] | OVERFLOW_ADD[(lookup_4589 >> 4)] | (SZ53[value1_4585] | (value1_4585 == 0 ? 0x40 : 0));
-          F = (_F2087 & 0xFF);
+          _F2263 = ((adctemp_4588 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4589 & 0x07)] | OVERFLOW_ADD[(lookup_4589 >> 4)] | (SZ53[value1_4585] | (value1_4585 == 0 ? 0x40 : 0));
+          F = (_F2263 & 0xFF);
           A = value1_4585;
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -17950,231 +18744,231 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFD_9(int opcode) {
     switch (opcode) {
       case 0x90: {
-          int _F2089;
+          int _F2265;
           int value1_4591 = A;
           int subtemp_4594 = value1_4591 - B;
           int lookup_4595 = ((value1_4591 & 0x88) >> 3) | ((B & 0x88) >> 2) | ((subtemp_4594 & 0x88) >> 1);
           value1_4591 = subtemp_4594 & 0xff;
-          _F2089 = ((subtemp_4594 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4595 & 0x07)] | OVERFLOW_SUB[(lookup_4595 >> 4)] | (SZ53[value1_4591] | (value1_4591 == 0 ? 0x40 : 0));
-          F = (_F2089 & 0xFF);
+          _F2265 = ((subtemp_4594 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4595 & 0x07)] | OVERFLOW_SUB[(lookup_4595 >> 4)] | (SZ53[value1_4591] | (value1_4591 == 0 ? 0x40 : 0));
+          F = (_F2265 & 0xFF);
           A = value1_4591;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x91: {
-          int _F2091;
+          int _F2267;
           int value1_4597 = A;
           int subtemp_4600 = value1_4597 - C;
           int lookup_4601 = ((value1_4597 & 0x88) >> 3) | ((C & 0x88) >> 2) | ((subtemp_4600 & 0x88) >> 1);
           value1_4597 = subtemp_4600 & 0xff;
-          _F2091 = ((subtemp_4600 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4601 & 0x07)] | OVERFLOW_SUB[(lookup_4601 >> 4)] | (SZ53[value1_4597] | (value1_4597 == 0 ? 0x40 : 0));
-          F = (_F2091 & 0xFF);
+          _F2267 = ((subtemp_4600 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4601 & 0x07)] | OVERFLOW_SUB[(lookup_4601 >> 4)] | (SZ53[value1_4597] | (value1_4597 == 0 ? 0x40 : 0));
+          F = (_F2267 & 0xFF);
           A = value1_4597;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x92: {
-          int _F2093;
+          int _F2269;
           int value1_4603 = A;
           int subtemp_4606 = value1_4603 - D;
           int lookup_4607 = ((value1_4603 & 0x88) >> 3) | ((D & 0x88) >> 2) | ((subtemp_4606 & 0x88) >> 1);
           value1_4603 = subtemp_4606 & 0xff;
-          _F2093 = ((subtemp_4606 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4607 & 0x07)] | OVERFLOW_SUB[(lookup_4607 >> 4)] | (SZ53[value1_4603] | (value1_4603 == 0 ? 0x40 : 0));
-          F = (_F2093 & 0xFF);
+          _F2269 = ((subtemp_4606 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4607 & 0x07)] | OVERFLOW_SUB[(lookup_4607 >> 4)] | (SZ53[value1_4603] | (value1_4603 == 0 ? 0x40 : 0));
+          F = (_F2269 & 0xFF);
           A = value1_4603;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x93: {
-          int _F2095;
+          int _F2271;
           int value1_4609 = A;
           int subtemp_4612 = value1_4609 - E;
           int lookup_4613 = ((value1_4609 & 0x88) >> 3) | ((E & 0x88) >> 2) | ((subtemp_4612 & 0x88) >> 1);
           value1_4609 = subtemp_4612 & 0xff;
-          _F2095 = ((subtemp_4612 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4613 & 0x07)] | OVERFLOW_SUB[(lookup_4613 >> 4)] | (SZ53[value1_4609] | (value1_4609 == 0 ? 0x40 : 0));
-          F = (_F2095 & 0xFF);
+          _F2271 = ((subtemp_4612 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4613 & 0x07)] | OVERFLOW_SUB[(lookup_4613 >> 4)] | (SZ53[value1_4609] | (value1_4609 == 0 ? 0x40 : 0));
+          F = (_F2271 & 0xFF);
           A = value1_4609;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x94: {
-          int _F2097;
+          int _F2273;
           int value1_4615 = A;
           int value2_4616 = (IY >> 8);
           int subtemp_4618 = value1_4615 - value2_4616;
           int lookup_4619 = ((value1_4615 & 0x88) >> 3) | ((value2_4616 & 0x88) >> 2) | ((subtemp_4618 & 0x88) >> 1);
           value1_4615 = subtemp_4618 & 0xff;
-          _F2097 = ((subtemp_4618 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4619 & 0x07)] | OVERFLOW_SUB[(lookup_4619 >> 4)] | (SZ53[value1_4615] | (value1_4615 == 0 ? 0x40 : 0));
-          F = (_F2097 & 0xFF);
+          _F2273 = ((subtemp_4618 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4619 & 0x07)] | OVERFLOW_SUB[(lookup_4619 >> 4)] | (SZ53[value1_4615] | (value1_4615 == 0 ? 0x40 : 0));
+          F = (_F2273 & 0xFF);
           A = value1_4615;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x95: {
-          int _F2099;
+          int _F2275;
           int value1_4621 = A;
           int value2_4622 = (IY & 0xFF);
           int subtemp_4624 = value1_4621 - value2_4622;
           int lookup_4625 = ((value1_4621 & 0x88) >> 3) | ((value2_4622 & 0x88) >> 2) | ((subtemp_4624 & 0x88) >> 1);
           value1_4621 = subtemp_4624 & 0xff;
-          _F2099 = ((subtemp_4624 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4625 & 0x07)] | OVERFLOW_SUB[(lookup_4625 >> 4)] | (SZ53[value1_4621] | (value1_4621 == 0 ? 0x40 : 0));
-          F = (_F2099 & 0xFF);
+          _F2275 = ((subtemp_4624 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4625 & 0x07)] | OVERFLOW_SUB[(lookup_4625 >> 4)] | (SZ53[value1_4621] | (value1_4621 == 0 ? 0x40 : 0));
+          F = (_F2275 & 0xFF);
           A = value1_4621;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x96: {
-          int _F2101;
-          int _value1971;
-          int _address1971;
+          int _F2277;
+          int _value2147;
+          int _address2147;
           int operand_4627 = memory.read((PC + 2) & 0xFFFF, 0);
           contend((PC + 2) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4627)) & 0xFFFF;
-          int operand_4628 = memory.read(_address1971, 0);
-          _value1971 = operand_4628;
+          _address2147 = (IY + (int) ((byte) operand_4627)) & 0xFFFF;
+          int operand_4628 = memory.read(_address2147, 0);
+          _value2147 = operand_4628;
           int value1_4629 = A;
-          int subtemp_4632 = value1_4629 - _value1971;
-          int lookup_4633 = ((value1_4629 & 0x88) >> 3) | ((_value1971 & 0x88) >> 2) | ((subtemp_4632 & 0x88) >> 1);
+          int subtemp_4632 = value1_4629 - _value2147;
+          int lookup_4633 = ((value1_4629 & 0x88) >> 3) | ((_value2147 & 0x88) >> 2) | ((subtemp_4632 & 0x88) >> 1);
           value1_4629 = subtemp_4632 & 0xff;
-          _F2101 = ((subtemp_4632 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4633 & 0x07)] | OVERFLOW_SUB[(lookup_4633 >> 4)] | (SZ53[value1_4629] | (value1_4629 == 0 ? 0x40 : 0));
-          F = (_F2101 & 0xFF);
+          _F2277 = ((subtemp_4632 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4633 & 0x07)] | OVERFLOW_SUB[(lookup_4633 >> 4)] | (SZ53[value1_4629] | (value1_4629 == 0 ? 0x40 : 0));
+          F = (_F2277 & 0xFF);
           A = value1_4629;
-          MEMPTR = _address1971;
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x97: {
-          int _F2103;
+          int _F2279;
           int value1_4635 = A;
           int value2_4636 = A;
           int subtemp_4638 = value1_4635 - value2_4636;
           int lookup_4639 = ((value1_4635 & 0x88) >> 3) | ((value2_4636 & 0x88) >> 2) | ((subtemp_4638 & 0x88) >> 1);
           value1_4635 = subtemp_4638 & 0xff;
-          _F2103 = ((subtemp_4638 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4639 & 0x07)] | OVERFLOW_SUB[(lookup_4639 >> 4)] | (SZ53[value1_4635] | (value1_4635 == 0 ? 0x40 : 0));
-          F = (_F2103 & 0xFF);
+          _F2279 = ((subtemp_4638 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4639 & 0x07)] | OVERFLOW_SUB[(lookup_4639 >> 4)] | (SZ53[value1_4635] | (value1_4635 == 0 ? 0x40 : 0));
+          F = (_F2279 & 0xFF);
           A = value1_4635;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x98: {
-          int _F2105;
+          int _F2281;
           int value1_4641 = A;
           int value3_4643 = F & 1;
-          _F2105 = value3_4643;
-          int sbctemp_4644 = value1_4641 - B - (_F2105 & 1);
+          _F2281 = value3_4643;
+          int sbctemp_4644 = value1_4641 - B - (_F2281 & 1);
           int lookup_4645 = ((value1_4641 & 0x88) >> 3) | ((B & 0x88) >> 2) | ((sbctemp_4644 & 0x88) >> 1);
           value1_4641 = sbctemp_4644 & 0xff;
-          _F2105 = ((sbctemp_4644 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4645 & 0x07)] | OVERFLOW_SUB[(lookup_4645 >> 4)] | (SZ53[value1_4641] | (value1_4641 == 0 ? 0x40 : 0));
-          F = (_F2105 & 0xFF);
+          _F2281 = ((sbctemp_4644 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4645 & 0x07)] | OVERFLOW_SUB[(lookup_4645 >> 4)] | (SZ53[value1_4641] | (value1_4641 == 0 ? 0x40 : 0));
+          F = (_F2281 & 0xFF);
           A = value1_4641;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x99: {
-          int _F2107;
+          int _F2283;
           int value1_4647 = A;
           int value3_4649 = F & 1;
-          _F2107 = value3_4649;
-          int sbctemp_4650 = value1_4647 - C - (_F2107 & 1);
+          _F2283 = value3_4649;
+          int sbctemp_4650 = value1_4647 - C - (_F2283 & 1);
           int lookup_4651 = ((value1_4647 & 0x88) >> 3) | ((C & 0x88) >> 2) | ((sbctemp_4650 & 0x88) >> 1);
           value1_4647 = sbctemp_4650 & 0xff;
-          _F2107 = ((sbctemp_4650 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4651 & 0x07)] | OVERFLOW_SUB[(lookup_4651 >> 4)] | (SZ53[value1_4647] | (value1_4647 == 0 ? 0x40 : 0));
-          F = (_F2107 & 0xFF);
+          _F2283 = ((sbctemp_4650 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4651 & 0x07)] | OVERFLOW_SUB[(lookup_4651 >> 4)] | (SZ53[value1_4647] | (value1_4647 == 0 ? 0x40 : 0));
+          F = (_F2283 & 0xFF);
           A = value1_4647;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x9A: {
-          int _F2109;
+          int _F2285;
           int value1_4653 = A;
           int value3_4655 = F & 1;
-          _F2109 = value3_4655;
-          int sbctemp_4656 = value1_4653 - D - (_F2109 & 1);
+          _F2285 = value3_4655;
+          int sbctemp_4656 = value1_4653 - D - (_F2285 & 1);
           int lookup_4657 = ((value1_4653 & 0x88) >> 3) | ((D & 0x88) >> 2) | ((sbctemp_4656 & 0x88) >> 1);
           value1_4653 = sbctemp_4656 & 0xff;
-          _F2109 = ((sbctemp_4656 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4657 & 0x07)] | OVERFLOW_SUB[(lookup_4657 >> 4)] | (SZ53[value1_4653] | (value1_4653 == 0 ? 0x40 : 0));
-          F = (_F2109 & 0xFF);
+          _F2285 = ((sbctemp_4656 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4657 & 0x07)] | OVERFLOW_SUB[(lookup_4657 >> 4)] | (SZ53[value1_4653] | (value1_4653 == 0 ? 0x40 : 0));
+          F = (_F2285 & 0xFF);
           A = value1_4653;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x9B: {
-          int _F2111;
+          int _F2287;
           int value1_4659 = A;
           int value3_4661 = F & 1;
-          _F2111 = value3_4661;
-          int sbctemp_4662 = value1_4659 - E - (_F2111 & 1);
+          _F2287 = value3_4661;
+          int sbctemp_4662 = value1_4659 - E - (_F2287 & 1);
           int lookup_4663 = ((value1_4659 & 0x88) >> 3) | ((E & 0x88) >> 2) | ((sbctemp_4662 & 0x88) >> 1);
           value1_4659 = sbctemp_4662 & 0xff;
-          _F2111 = ((sbctemp_4662 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4663 & 0x07)] | OVERFLOW_SUB[(lookup_4663 >> 4)] | (SZ53[value1_4659] | (value1_4659 == 0 ? 0x40 : 0));
-          F = (_F2111 & 0xFF);
+          _F2287 = ((sbctemp_4662 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4663 & 0x07)] | OVERFLOW_SUB[(lookup_4663 >> 4)] | (SZ53[value1_4659] | (value1_4659 == 0 ? 0x40 : 0));
+          F = (_F2287 & 0xFF);
           A = value1_4659;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x9C: {
-          int _F2113;
+          int _F2289;
           int value1_4665 = A;
           int value2_4666 = (IY >> 8);
           int value3_4667 = F & 1;
-          _F2113 = value3_4667;
-          int sbctemp_4668 = value1_4665 - value2_4666 - (_F2113 & 1);
+          _F2289 = value3_4667;
+          int sbctemp_4668 = value1_4665 - value2_4666 - (_F2289 & 1);
           int lookup_4669 = ((value1_4665 & 0x88) >> 3) | ((value2_4666 & 0x88) >> 2) | ((sbctemp_4668 & 0x88) >> 1);
           value1_4665 = sbctemp_4668 & 0xff;
-          _F2113 = ((sbctemp_4668 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4669 & 0x07)] | OVERFLOW_SUB[(lookup_4669 >> 4)] | (SZ53[value1_4665] | (value1_4665 == 0 ? 0x40 : 0));
-          F = (_F2113 & 0xFF);
+          _F2289 = ((sbctemp_4668 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4669 & 0x07)] | OVERFLOW_SUB[(lookup_4669 >> 4)] | (SZ53[value1_4665] | (value1_4665 == 0 ? 0x40 : 0));
+          F = (_F2289 & 0xFF);
           A = value1_4665;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x9D: {
-          int _F2115;
+          int _F2291;
           int value1_4671 = A;
           int value2_4672 = (IY & 0xFF);
           int value3_4673 = F & 1;
-          _F2115 = value3_4673;
-          int sbctemp_4674 = value1_4671 - value2_4672 - (_F2115 & 1);
+          _F2291 = value3_4673;
+          int sbctemp_4674 = value1_4671 - value2_4672 - (_F2291 & 1);
           int lookup_4675 = ((value1_4671 & 0x88) >> 3) | ((value2_4672 & 0x88) >> 2) | ((sbctemp_4674 & 0x88) >> 1);
           value1_4671 = sbctemp_4674 & 0xff;
-          _F2115 = ((sbctemp_4674 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4675 & 0x07)] | OVERFLOW_SUB[(lookup_4675 >> 4)] | (SZ53[value1_4671] | (value1_4671 == 0 ? 0x40 : 0));
-          F = (_F2115 & 0xFF);
+          _F2291 = ((sbctemp_4674 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4675 & 0x07)] | OVERFLOW_SUB[(lookup_4675 >> 4)] | (SZ53[value1_4671] | (value1_4671 == 0 ? 0x40 : 0));
+          F = (_F2291 & 0xFF);
           A = value1_4671;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0x9E: {
-          int _F2117;
-          int _value1971;
-          int _address1971;
+          int _F2293;
+          int _value2147;
+          int _address2147;
           int operand_4677 = memory.read((PC + 2) & 0xFFFF, 0);
           contend((PC + 2) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4677)) & 0xFFFF;
-          int operand_4678 = memory.read(_address1971, 0);
-          _value1971 = operand_4678;
+          _address2147 = (IY + (int) ((byte) operand_4677)) & 0xFFFF;
+          int operand_4678 = memory.read(_address2147, 0);
+          _value2147 = operand_4678;
           int value1_4679 = A;
           int value3_4681 = F & 1;
-          _F2117 = value3_4681;
-          int sbctemp_4682 = value1_4679 - _value1971 - (_F2117 & 1);
-          int lookup_4683 = ((value1_4679 & 0x88) >> 3) | ((_value1971 & 0x88) >> 2) | ((sbctemp_4682 & 0x88) >> 1);
+          _F2293 = value3_4681;
+          int sbctemp_4682 = value1_4679 - _value2147 - (_F2293 & 1);
+          int lookup_4683 = ((value1_4679 & 0x88) >> 3) | ((_value2147 & 0x88) >> 2) | ((sbctemp_4682 & 0x88) >> 1);
           value1_4679 = sbctemp_4682 & 0xff;
-          _F2117 = ((sbctemp_4682 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4683 & 0x07)] | OVERFLOW_SUB[(lookup_4683 >> 4)] | (SZ53[value1_4679] | (value1_4679 == 0 ? 0x40 : 0));
-          F = (_F2117 & 0xFF);
+          _F2293 = ((sbctemp_4682 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4683 & 0x07)] | OVERFLOW_SUB[(lookup_4683 >> 4)] | (SZ53[value1_4679] | (value1_4679 == 0 ? 0x40 : 0));
+          F = (_F2293 & 0xFF);
           A = value1_4679;
-          MEMPTR = _address1971;
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0x9F: {
-          int _F2119;
+          int _F2295;
           int value1_4685 = A;
           int value2_4686 = A;
           int value3_4687 = F & 1;
-          _F2119 = value3_4687;
-          int sbctemp_4688 = value1_4685 - value2_4686 - (_F2119 & 1);
+          _F2295 = value3_4687;
+          int sbctemp_4688 = value1_4685 - value2_4686 - (_F2295 & 1);
           int lookup_4689 = ((value1_4685 & 0x88) >> 3) | ((value2_4686 & 0x88) >> 2) | ((sbctemp_4688 & 0x88) >> 1);
           value1_4685 = sbctemp_4688 & 0xff;
-          _F2119 = ((sbctemp_4688 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4689 & 0x07)] | OVERFLOW_SUB[(lookup_4689 >> 4)] | (SZ53[value1_4685] | (value1_4685 == 0 ? 0x40 : 0));
-          F = (_F2119 & 0xFF);
+          _F2295 = ((sbctemp_4688 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_4689 & 0x07)] | OVERFLOW_SUB[(lookup_4689 >> 4)] | (SZ53[value1_4685] | (value1_4685 == 0 ? 0x40 : 0));
+          F = (_F2295 & 0xFF);
           A = value1_4685;
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -18187,209 +18981,209 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFD_10(int opcode) {
     switch (opcode) {
       case 0xA0: {
-          int _F2121;
+          int _F2297;
           int value1_4691 = A;
           int value2_4692 = B;
           value2_4692 &= value1_4691;
-          _F2121 = 0x10 | (SZ53P[value2_4692 & 0xff] | (value2_4692 == 0 ? 0x40 : 0));
+          _F2297 = 0x10 | (SZ53P[value2_4692 & 0xff] | (value2_4692 == 0 ? 0x40 : 0));
           int result_4694 = value2_4692 & 0xFF;
-          F = (_F2121 & 0xFF);
+          F = (_F2297 & 0xFF);
           A = result_4694;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xA1: {
-          int _F2123;
+          int _F2299;
           int value1_4695 = A;
           int value2_4696 = C;
           value2_4696 &= value1_4695;
-          _F2123 = 0x10 | (SZ53P[value2_4696 & 0xff] | (value2_4696 == 0 ? 0x40 : 0));
+          _F2299 = 0x10 | (SZ53P[value2_4696 & 0xff] | (value2_4696 == 0 ? 0x40 : 0));
           int result_4698 = value2_4696 & 0xFF;
-          F = (_F2123 & 0xFF);
+          F = (_F2299 & 0xFF);
           A = result_4698;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xA2: {
-          int _F2125;
+          int _F2301;
           int value1_4699 = A;
           int value2_4700 = D;
           value2_4700 &= value1_4699;
-          _F2125 = 0x10 | (SZ53P[value2_4700 & 0xff] | (value2_4700 == 0 ? 0x40 : 0));
+          _F2301 = 0x10 | (SZ53P[value2_4700 & 0xff] | (value2_4700 == 0 ? 0x40 : 0));
           int result_4702 = value2_4700 & 0xFF;
-          F = (_F2125 & 0xFF);
+          F = (_F2301 & 0xFF);
           A = result_4702;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xA3: {
-          int _F2127;
+          int _F2303;
           int value1_4703 = A;
           int value2_4704 = E;
           value2_4704 &= value1_4703;
-          _F2127 = 0x10 | (SZ53P[value2_4704 & 0xff] | (value2_4704 == 0 ? 0x40 : 0));
+          _F2303 = 0x10 | (SZ53P[value2_4704 & 0xff] | (value2_4704 == 0 ? 0x40 : 0));
           int result_4706 = value2_4704 & 0xFF;
-          F = (_F2127 & 0xFF);
+          F = (_F2303 & 0xFF);
           A = result_4706;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xA4: {
-          int _F2129;
+          int _F2305;
           int value1_4707 = A;
           int value2_4708 = (IY >> 8);
           value2_4708 &= value1_4707;
-          _F2129 = 0x10 | (SZ53P[value2_4708 & 0xff] | (value2_4708 == 0 ? 0x40 : 0));
+          _F2305 = 0x10 | (SZ53P[value2_4708 & 0xff] | (value2_4708 == 0 ? 0x40 : 0));
           int result_4710 = value2_4708 & 0xFF;
-          F = (_F2129 & 0xFF);
+          F = (_F2305 & 0xFF);
           A = result_4710;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xA5: {
-          int _F2131;
+          int _F2307;
           int value1_4711 = A;
           int value2_4712 = (IY & 0xFF);
           value2_4712 &= value1_4711;
-          _F2131 = 0x10 | (SZ53P[value2_4712 & 0xff] | (value2_4712 == 0 ? 0x40 : 0));
+          _F2307 = 0x10 | (SZ53P[value2_4712 & 0xff] | (value2_4712 == 0 ? 0x40 : 0));
           int result_4714 = value2_4712 & 0xFF;
-          F = (_F2131 & 0xFF);
+          F = (_F2307 & 0xFF);
           A = result_4714;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xA6: {
-          int _F2133;
-          int _value1971;
-          int _address1971;
+          int _F2309;
+          int _value2147;
+          int _address2147;
           int operand_4715 = memory.read((PC + 2) & 0xFFFF, 0);
           contend((PC + 2) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4715)) & 0xFFFF;
-          int operand_4716 = memory.read(_address1971, 0);
-          _value1971 = operand_4716;
+          _address2147 = (IY + (int) ((byte) operand_4715)) & 0xFFFF;
+          int operand_4716 = memory.read(_address2147, 0);
+          _value2147 = operand_4716;
           int value1_4717 = A;
-          int value2_4718 = _value1971;
+          int value2_4718 = _value2147;
           value2_4718 &= value1_4717;
-          _F2133 = 0x10 | (SZ53P[value2_4718 & 0xff] | (value2_4718 == 0 ? 0x40 : 0));
+          _F2309 = 0x10 | (SZ53P[value2_4718 & 0xff] | (value2_4718 == 0 ? 0x40 : 0));
           int result_4720 = value2_4718 & 0xFF;
-          F = (_F2133 & 0xFF);
+          F = (_F2309 & 0xFF);
           A = result_4720;
-          MEMPTR = _address1971;
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0xA7: {
-          int _F2135;
+          int _F2311;
           int value1_4721 = A;
           int value2_4722 = A;
           value2_4722 &= value1_4721;
-          _F2135 = 0x10 | (SZ53P[value2_4722 & 0xff] | (value2_4722 == 0 ? 0x40 : 0));
+          _F2311 = 0x10 | (SZ53P[value2_4722 & 0xff] | (value2_4722 == 0 ? 0x40 : 0));
           int result_4724 = value2_4722 & 0xFF;
-          F = (_F2135 & 0xFF);
+          F = (_F2311 & 0xFF);
           A = result_4724;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xA8: {
-          int _F2137;
+          int _F2313;
           int value1_4725 = A;
           int value2_4726 = B;
           value2_4726 ^= value1_4725;
-          _F2137 = SZ53P[value2_4726 & 0xff] | (value2_4726 == 0 ? 0x40 : 0);
+          _F2313 = SZ53P[value2_4726 & 0xff] | (value2_4726 == 0 ? 0x40 : 0);
           int result_4728 = value2_4726 & 0xFF;
-          F = (_F2137 & 0xFF);
+          F = (_F2313 & 0xFF);
           A = result_4728;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xA9: {
-          int _F2139;
+          int _F2315;
           int value1_4729 = A;
           int value2_4730 = C;
           value2_4730 ^= value1_4729;
-          _F2139 = SZ53P[value2_4730 & 0xff] | (value2_4730 == 0 ? 0x40 : 0);
+          _F2315 = SZ53P[value2_4730 & 0xff] | (value2_4730 == 0 ? 0x40 : 0);
           int result_4732 = value2_4730 & 0xFF;
-          F = (_F2139 & 0xFF);
+          F = (_F2315 & 0xFF);
           A = result_4732;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xAA: {
-          int _F2141;
+          int _F2317;
           int value1_4733 = A;
           int value2_4734 = D;
           value2_4734 ^= value1_4733;
-          _F2141 = SZ53P[value2_4734 & 0xff] | (value2_4734 == 0 ? 0x40 : 0);
+          _F2317 = SZ53P[value2_4734 & 0xff] | (value2_4734 == 0 ? 0x40 : 0);
           int result_4736 = value2_4734 & 0xFF;
-          F = (_F2141 & 0xFF);
+          F = (_F2317 & 0xFF);
           A = result_4736;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xAB: {
-          int _F2143;
+          int _F2319;
           int value1_4737 = A;
           int value2_4738 = E;
           value2_4738 ^= value1_4737;
-          _F2143 = SZ53P[value2_4738 & 0xff] | (value2_4738 == 0 ? 0x40 : 0);
+          _F2319 = SZ53P[value2_4738 & 0xff] | (value2_4738 == 0 ? 0x40 : 0);
           int result_4740 = value2_4738 & 0xFF;
-          F = (_F2143 & 0xFF);
+          F = (_F2319 & 0xFF);
           A = result_4740;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xAC: {
-          int _F2145;
+          int _F2321;
           int value1_4741 = A;
           int value2_4742 = (IY >> 8);
           value2_4742 ^= value1_4741;
-          _F2145 = SZ53P[value2_4742 & 0xff] | (value2_4742 == 0 ? 0x40 : 0);
+          _F2321 = SZ53P[value2_4742 & 0xff] | (value2_4742 == 0 ? 0x40 : 0);
           int result_4744 = value2_4742 & 0xFF;
-          F = (_F2145 & 0xFF);
+          F = (_F2321 & 0xFF);
           A = result_4744;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xAD: {
-          int _F2147;
+          int _F2323;
           int value1_4745 = A;
           int value2_4746 = (IY & 0xFF);
           value2_4746 ^= value1_4745;
-          _F2147 = SZ53P[value2_4746 & 0xff] | (value2_4746 == 0 ? 0x40 : 0);
+          _F2323 = SZ53P[value2_4746 & 0xff] | (value2_4746 == 0 ? 0x40 : 0);
           int result_4748 = value2_4746 & 0xFF;
-          F = (_F2147 & 0xFF);
+          F = (_F2323 & 0xFF);
           A = result_4748;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xAE: {
-          int _F2149;
-          int _value1971;
-          int _address1971;
+          int _F2325;
+          int _value2147;
+          int _address2147;
           int operand_4749 = memory.read((PC + 2) & 0xFFFF, 0);
           contend((PC + 2) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4749)) & 0xFFFF;
-          int operand_4750 = memory.read(_address1971, 0);
-          _value1971 = operand_4750;
+          _address2147 = (IY + (int) ((byte) operand_4749)) & 0xFFFF;
+          int operand_4750 = memory.read(_address2147, 0);
+          _value2147 = operand_4750;
           int value1_4751 = A;
-          int value2_4752 = _value1971;
+          int value2_4752 = _value2147;
           value2_4752 ^= value1_4751;
-          _F2149 = SZ53P[value2_4752 & 0xff] | (value2_4752 == 0 ? 0x40 : 0);
+          _F2325 = SZ53P[value2_4752 & 0xff] | (value2_4752 == 0 ? 0x40 : 0);
           int result_4754 = value2_4752 & 0xFF;
-          F = (_F2149 & 0xFF);
+          F = (_F2325 & 0xFF);
           A = result_4754;
-          MEMPTR = _address1971;
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0xAF: {
-          int _F2151;
+          int _F2327;
           int value1_4755 = A;
           int value2_4756 = A;
           value2_4756 ^= value1_4755;
-          _F2151 = SZ53P[value2_4756 & 0xff] | (value2_4756 == 0 ? 0x40 : 0);
+          _F2327 = SZ53P[value2_4756 & 0xff] | (value2_4756 == 0 ? 0x40 : 0);
           int result_4758 = value2_4756 & 0xFF;
-          F = (_F2151 & 0xFF);
+          F = (_F2327 & 0xFF);
           A = result_4758;
           PC = (PC + 2) & 0xFFFF;
           break;
@@ -18402,188 +19196,188 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFD_11(int opcode) {
     switch (opcode) {
       case 0xB0: {
-          int _F2153;
+          int _F2329;
           int value1_4759 = A;
           int value2_4760 = B;
           value2_4760 |= value1_4759;
-          _F2153 = SZ53P[value2_4760 & 0xff] | (value2_4760 == 0 ? 0x40 : 0);
+          _F2329 = SZ53P[value2_4760 & 0xff] | (value2_4760 == 0 ? 0x40 : 0);
           int result_4762 = value2_4760 & 0xFF;
-          F = (_F2153 & 0xFF);
+          F = (_F2329 & 0xFF);
           A = result_4762;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xB1: {
-          int _F2155;
+          int _F2331;
           int value1_4763 = A;
           int value2_4764 = C;
           value2_4764 |= value1_4763;
-          _F2155 = SZ53P[value2_4764 & 0xff] | (value2_4764 == 0 ? 0x40 : 0);
+          _F2331 = SZ53P[value2_4764 & 0xff] | (value2_4764 == 0 ? 0x40 : 0);
           int result_4766 = value2_4764 & 0xFF;
-          F = (_F2155 & 0xFF);
+          F = (_F2331 & 0xFF);
           A = result_4766;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xB2: {
-          int _F2157;
+          int _F2333;
           int value1_4767 = A;
           int value2_4768 = D;
           value2_4768 |= value1_4767;
-          _F2157 = SZ53P[value2_4768 & 0xff] | (value2_4768 == 0 ? 0x40 : 0);
+          _F2333 = SZ53P[value2_4768 & 0xff] | (value2_4768 == 0 ? 0x40 : 0);
           int result_4770 = value2_4768 & 0xFF;
-          F = (_F2157 & 0xFF);
+          F = (_F2333 & 0xFF);
           A = result_4770;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xB3: {
-          int _F2159;
+          int _F2335;
           int value1_4771 = A;
           int value2_4772 = E;
           value2_4772 |= value1_4771;
-          _F2159 = SZ53P[value2_4772 & 0xff] | (value2_4772 == 0 ? 0x40 : 0);
+          _F2335 = SZ53P[value2_4772 & 0xff] | (value2_4772 == 0 ? 0x40 : 0);
           int result_4774 = value2_4772 & 0xFF;
-          F = (_F2159 & 0xFF);
+          F = (_F2335 & 0xFF);
           A = result_4774;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xB4: {
-          int _F2161;
+          int _F2337;
           int value1_4775 = A;
           int value2_4776 = (IY >> 8);
           value2_4776 |= value1_4775;
-          _F2161 = SZ53P[value2_4776 & 0xff] | (value2_4776 == 0 ? 0x40 : 0);
+          _F2337 = SZ53P[value2_4776 & 0xff] | (value2_4776 == 0 ? 0x40 : 0);
           int result_4778 = value2_4776 & 0xFF;
-          F = (_F2161 & 0xFF);
+          F = (_F2337 & 0xFF);
           A = result_4778;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xB5: {
-          int _F2163;
+          int _F2339;
           int value1_4779 = A;
           int value2_4780 = (IY & 0xFF);
           value2_4780 |= value1_4779;
-          _F2163 = SZ53P[value2_4780 & 0xff] | (value2_4780 == 0 ? 0x40 : 0);
+          _F2339 = SZ53P[value2_4780 & 0xff] | (value2_4780 == 0 ? 0x40 : 0);
           int result_4782 = value2_4780 & 0xFF;
-          F = (_F2163 & 0xFF);
+          F = (_F2339 & 0xFF);
           A = result_4782;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xB6: {
-          int _F2165;
-          int _value1971;
-          int _address1971;
+          int _F2341;
+          int _value2147;
+          int _address2147;
           int operand_4783 = memory.read((PC + 2) & 0xFFFF, 0);
           contend((PC + 2) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4783)) & 0xFFFF;
-          int operand_4784 = memory.read(_address1971, 0);
-          _value1971 = operand_4784;
+          _address2147 = (IY + (int) ((byte) operand_4783)) & 0xFFFF;
+          int operand_4784 = memory.read(_address2147, 0);
+          _value2147 = operand_4784;
           int value1_4785 = A;
-          int value2_4786 = _value1971;
+          int value2_4786 = _value2147;
           value2_4786 |= value1_4785;
-          _F2165 = SZ53P[value2_4786 & 0xff] | (value2_4786 == 0 ? 0x40 : 0);
+          _F2341 = SZ53P[value2_4786 & 0xff] | (value2_4786 == 0 ? 0x40 : 0);
           int result_4788 = value2_4786 & 0xFF;
-          F = (_F2165 & 0xFF);
+          F = (_F2341 & 0xFF);
           A = result_4788;
-          MEMPTR = _address1971;
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0xB7: {
-          int _F2167;
+          int _F2343;
           int value1_4789 = A;
           int value2_4790 = A;
           value2_4790 |= value1_4789;
-          _F2167 = SZ53P[value2_4790 & 0xff] | (value2_4790 == 0 ? 0x40 : 0);
+          _F2343 = SZ53P[value2_4790 & 0xff] | (value2_4790 == 0 ? 0x40 : 0);
           int result_4792 = value2_4790 & 0xFF;
-          F = (_F2167 & 0xFF);
+          F = (_F2343 & 0xFF);
           A = result_4792;
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xB8: {
-          int _F2169;
+          int _F2345;
           int cptemp_4796 = A - B;
           int lookup_4797 = ((A & 0x88) >> 3) | ((B & 0x88) >> 2) | ((cptemp_4796 & 0x88) >> 1);
-          _F2169 = ((cptemp_4796 & 0x100) != 0 ? 1 : (cptemp_4796 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_4797 & 0x07)] | OVERFLOW_SUB[(lookup_4797 >> 4)] | (B & 0x28) | (cptemp_4796 & 0x80);
-          F = (_F2169 & 0xFF);
+          _F2345 = ((cptemp_4796 & 0x100) != 0 ? 1 : (cptemp_4796 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_4797 & 0x07)] | OVERFLOW_SUB[(lookup_4797 >> 4)] | (B & 0x28) | (cptemp_4796 & 0x80);
+          F = (_F2345 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xB9: {
-          int _F2171;
+          int _F2347;
           int cptemp_4802 = A - C;
           int lookup_4803 = ((A & 0x88) >> 3) | ((C & 0x88) >> 2) | ((cptemp_4802 & 0x88) >> 1);
-          _F2171 = ((cptemp_4802 & 0x100) != 0 ? 1 : (cptemp_4802 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_4803 & 0x07)] | OVERFLOW_SUB[(lookup_4803 >> 4)] | (C & 0x28) | (cptemp_4802 & 0x80);
-          F = (_F2171 & 0xFF);
+          _F2347 = ((cptemp_4802 & 0x100) != 0 ? 1 : (cptemp_4802 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_4803 & 0x07)] | OVERFLOW_SUB[(lookup_4803 >> 4)] | (C & 0x28) | (cptemp_4802 & 0x80);
+          F = (_F2347 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xBA: {
-          int _F2173;
+          int _F2349;
           int cptemp_4808 = A - D;
           int lookup_4809 = ((A & 0x88) >> 3) | ((D & 0x88) >> 2) | ((cptemp_4808 & 0x88) >> 1);
-          _F2173 = ((cptemp_4808 & 0x100) != 0 ? 1 : (cptemp_4808 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_4809 & 0x07)] | OVERFLOW_SUB[(lookup_4809 >> 4)] | (D & 0x28) | (cptemp_4808 & 0x80);
-          F = (_F2173 & 0xFF);
+          _F2349 = ((cptemp_4808 & 0x100) != 0 ? 1 : (cptemp_4808 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_4809 & 0x07)] | OVERFLOW_SUB[(lookup_4809 >> 4)] | (D & 0x28) | (cptemp_4808 & 0x80);
+          F = (_F2349 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xBB: {
-          int _F2175;
+          int _F2351;
           int cptemp_4814 = A - E;
           int lookup_4815 = ((A & 0x88) >> 3) | ((E & 0x88) >> 2) | ((cptemp_4814 & 0x88) >> 1);
-          _F2175 = ((cptemp_4814 & 0x100) != 0 ? 1 : (cptemp_4814 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_4815 & 0x07)] | OVERFLOW_SUB[(lookup_4815 >> 4)] | (E & 0x28) | (cptemp_4814 & 0x80);
-          F = (_F2175 & 0xFF);
+          _F2351 = ((cptemp_4814 & 0x100) != 0 ? 1 : (cptemp_4814 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_4815 & 0x07)] | OVERFLOW_SUB[(lookup_4815 >> 4)] | (E & 0x28) | (cptemp_4814 & 0x80);
+          F = (_F2351 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xBC: {
-          int _F2177;
+          int _F2353;
           int value2_4818 = (IY >> 8);
           int cptemp_4820 = A - value2_4818;
           int lookup_4821 = ((A & 0x88) >> 3) | ((value2_4818 & 0x88) >> 2) | ((cptemp_4820 & 0x88) >> 1);
-          _F2177 = ((cptemp_4820 & 0x100) != 0 ? 1 : (cptemp_4820 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_4821 & 0x07)] | OVERFLOW_SUB[(lookup_4821 >> 4)] | (value2_4818 & 0x28) | (cptemp_4820 & 0x80);
-          F = (_F2177 & 0xFF);
+          _F2353 = ((cptemp_4820 & 0x100) != 0 ? 1 : (cptemp_4820 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_4821 & 0x07)] | OVERFLOW_SUB[(lookup_4821 >> 4)] | (value2_4818 & 0x28) | (cptemp_4820 & 0x80);
+          F = (_F2353 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xBD: {
-          int _F2179;
+          int _F2355;
           int value2_4824 = (IY & 0xFF);
           int cptemp_4826 = A - value2_4824;
           int lookup_4827 = ((A & 0x88) >> 3) | ((value2_4824 & 0x88) >> 2) | ((cptemp_4826 & 0x88) >> 1);
-          _F2179 = ((cptemp_4826 & 0x100) != 0 ? 1 : (cptemp_4826 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_4827 & 0x07)] | OVERFLOW_SUB[(lookup_4827 >> 4)] | (value2_4824 & 0x28) | (cptemp_4826 & 0x80);
-          F = (_F2179 & 0xFF);
+          _F2355 = ((cptemp_4826 & 0x100) != 0 ? 1 : (cptemp_4826 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_4827 & 0x07)] | OVERFLOW_SUB[(lookup_4827 >> 4)] | (value2_4824 & 0x28) | (cptemp_4826 & 0x80);
+          F = (_F2355 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
       case 0xBE: {
-          int _F2181;
-          int _value1971;
-          int _address1971;
+          int _F2357;
+          int _value2147;
+          int _address2147;
           int operand_4829 = memory.read((PC + 2) & 0xFFFF, 0);
           contend((PC + 2) & 0xFFFF, 5, 1, Contention.Kind.READ_NO_MREQ);
-          _address1971 = (IY + (int) ((byte) operand_4829)) & 0xFFFF;
-          int operand_4830 = memory.read(_address1971, 0);
-          _value1971 = operand_4830;
-          int cptemp_4834 = A - _value1971;
-          int lookup_4835 = ((A & 0x88) >> 3) | ((_value1971 & 0x88) >> 2) | ((cptemp_4834 & 0x88) >> 1);
-          _F2181 = ((cptemp_4834 & 0x100) != 0 ? 1 : (cptemp_4834 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_4835 & 0x07)] | OVERFLOW_SUB[(lookup_4835 >> 4)] | (_value1971 & 0x28) | (cptemp_4834 & 0x80);
-          F = (_F2181 & 0xFF);
-          MEMPTR = _address1971;
+          _address2147 = (IY + (int) ((byte) operand_4829)) & 0xFFFF;
+          int operand_4830 = memory.read(_address2147, 0);
+          _value2147 = operand_4830;
+          int cptemp_4834 = A - _value2147;
+          int lookup_4835 = ((A & 0x88) >> 3) | ((_value2147 & 0x88) >> 2) | ((cptemp_4834 & 0x88) >> 1);
+          _F2357 = ((cptemp_4834 & 0x100) != 0 ? 1 : (cptemp_4834 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_4835 & 0x07)] | OVERFLOW_SUB[(lookup_4835 >> 4)] | (_value2147 & 0x28) | (cptemp_4834 & 0x80);
+          F = (_F2357 & 0xFF);
+          MEMPTR = _address2147;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0xBF: {
-          int _F2183;
+          int _F2359;
           int cptemp_4840 = A - A;
           int lookup_4841 = ((A & 0x88) >> 3) | ((A & 0x88) >> 2) | ((cptemp_4840 & 0x88) >> 1);
-          _F2183 = ((cptemp_4840 & 0x100) != 0 ? 1 : (cptemp_4840 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_4841 & 0x07)] | OVERFLOW_SUB[(lookup_4841 >> 4)] | (A & 0x28) | (cptemp_4840 & 0x80);
-          F = (_F2183 & 0xFF);
+          _F2359 = ((cptemp_4840 & 0x100) != 0 ? 1 : (cptemp_4840 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_4841 & 0x07)] | OVERFLOW_SUB[(lookup_4841 >> 4)] | (A & 0x28) | (cptemp_4840 & 0x80);
+          F = (_F2359 & 0xFF);
           PC = (PC + 2) & 0xFFFF;
           break;
       }
@@ -18625,55 +19419,55 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xC2: {
-          int _jumpAddress2187 = 0;
+          int _jumpAddress2363 = 0;
           int address_4855 = (PC + 2) & 0xFFFF;
           int operand_4857 = memory.read(address_4855, 0);
           int operand_4859 = memory.read((address_4855 + 1) & 0xFFFF, 0);
-          int jumpAddress2_4854 = (_jumpAddress2187 = (operand_4859 << 8) | operand_4857);
+          int jumpAddress2_4854 = (_jumpAddress2363 = (operand_4859 << 8) | operand_4857);
           if ((!((F & 0x40) == 0x40))) {
-              _jumpAddress2187 = jumpAddress2_4854;
-              MEMPTR = _jumpAddress2187;
+              _jumpAddress2363 = jumpAddress2_4854;
+              MEMPTR = _jumpAddress2363;
               PC = jumpAddress2_4854;
               break;
           } else {
-              MEMPTR = _jumpAddress2187;
+              MEMPTR = _jumpAddress2363;
               PC = (PC + 4) & 0xFFFF;
               break;
           }
       }
       case 0xC3: {
-          int _nextPC2188;
-          int _jumpAddress2188;
+          int _nextPC2364;
+          int _jumpAddress2364;
           int address_4862 = (PC + 2) & 0xFFFF;
           int operand_4864 = memory.read(address_4862, 0);
           int operand_4866 = memory.read((address_4862 + 1) & 0xFFFF, 0);
-          int jumpAddress2_4861 = (_jumpAddress2188 = (operand_4866 << 8) | operand_4864);
-          _jumpAddress2188 = jumpAddress2_4861;
-          _nextPC2188 = jumpAddress2_4861;
-          MEMPTR = _jumpAddress2188;
-          PC = _nextPC2188;
+          int jumpAddress2_4861 = (_jumpAddress2364 = (operand_4866 << 8) | operand_4864);
+          _jumpAddress2364 = jumpAddress2_4861;
+          _nextPC2364 = jumpAddress2_4861;
+          MEMPTR = _jumpAddress2364;
+          PC = _nextPC2364;
           break;
       }
       case 0xC4: {
-          int _jumpAddress2189 = 0;
+          int _jumpAddress2365 = 0;
           int address_4868 = (PC + 2) & 0xFFFF;
           int operand_4870 = memory.read(address_4868, 0);
           int operand_4872 = memory.read((address_4868 + 1) & 0xFFFF, 0);
-          int value_4873 = (_jumpAddress2189 = (operand_4872 << 8) | operand_4870);
+          int value_4873 = (_jumpAddress2365 = (operand_4872 << 8) | operand_4870);
           MEMPTR = value_4873;
-          int jumpAddress2_4874 = (_jumpAddress2189 = (operand_4872 << 8) | operand_4870);
+          int jumpAddress2_4874 = (_jumpAddress2365 = (operand_4872 << 8) | operand_4870);
           if ((!((F & 0x40) == 0x40))) {
               SP = ((SP - 2) & 0xFFFF);
               int value_4878 = ((PC + 4) & 0xFFFF);
               contend((PC + 2) & 0xFFFF, 1, 1, Contention.Kind.READ_NO_MREQ);
               memory.write((SP + 1) & 0xFFFF, (value_4878 >>> 8));
               memory.write(SP, (value_4878 & 0xFF));
-              _jumpAddress2189 = jumpAddress2_4874;
-              MEMPTR = _jumpAddress2189;
+              _jumpAddress2365 = jumpAddress2_4874;
+              MEMPTR = _jumpAddress2365;
               PC = jumpAddress2_4874;
               break;
           } else {
-              MEMPTR = _jumpAddress2189;
+              MEMPTR = _jumpAddress2365;
               PC = (PC + 4) & 0xFFFF;
               break;
           }
@@ -18688,29 +19482,29 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xC6: {
-          int _F2191;
+          int _F2367;
           int operand_4881 = memory.read((PC + 2) & 0xFFFF, 0);
           int value1_4882 = A;
           int value2_4883 = operand_4881;
           int addtemp_4885 = value2_4883 + value1_4882;
           int lookup_4886 = ((value2_4883 & 0x88) >> 3) | ((value1_4882 & 0x88) >> 2) | ((addtemp_4885 & 0x88) >> 1);
           value2_4883 = addtemp_4885 & 0xff;
-          _F2191 = ((addtemp_4885 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4886 & 0x07)] | OVERFLOW_ADD[(lookup_4886 >> 4)] | (SZ53[value2_4883] | (value2_4883 == 0 ? 0x40 : 0));
-          F = (_F2191 & 0xFF);
+          _F2367 = ((addtemp_4885 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_4886 & 0x07)] | OVERFLOW_ADD[(lookup_4886 >> 4)] | (SZ53[value2_4883] | (value2_4883 == 0 ? 0x40 : 0));
+          F = (_F2367 & 0xFF);
           A = value2_4883;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0xC7: {
-          int _nextPC2193;
+          int _nextPC2369;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           SP = ((SP - 2) & 0xFFFF);
           int value_4888 = ((PC + 1) & 0xFFFF);
           memory.write((SP + 1) & 0xFFFF, (value_4888 >>> 8));
           memory.write(SP, (value_4888 & 0xFF));
-          _nextPC2193 = 0;
-          MEMPTR = _nextPC2193 & 0xFFFF;
-          PC = _nextPC2193 == -1 ? (PC + 2) & 0xFFFF : _nextPC2193;
+          _nextPC2369 = 0;
+          MEMPTR = _nextPC2369 & 0xFFFF;
+          PC = _nextPC2369 == -1 ? (PC + 2) & 0xFFFF : _nextPC2369;
           break;
       }
       case 0xC8: {
@@ -18733,7 +19527,7 @@ static final int[] SZ53 = new int[0x100];
           }
       }
       case 0xC9: {
-          int _nextPC2195;
+          int _nextPC2371;
           int jumpAddress2_4895;
           int wordNumber1_4897 = memory.read(SP, 0);
           int wordNumber_4898 = memory.read((SP + 1) & 0xFFFF, 0);
@@ -18741,24 +19535,24 @@ static final int[] SZ53 = new int[0x100];
           int wordNumber_4899 = SP;
           SP = ((wordNumber_4899 + 2) & 0xFFFF);
           jumpAddress2_4895 = value_4896;
-          _nextPC2195 = jumpAddress2_4895;
-          MEMPTR = _nextPC2195;
-          PC = _nextPC2195;
+          _nextPC2371 = jumpAddress2_4895;
+          MEMPTR = _nextPC2371;
+          PC = _nextPC2371;
           break;
       }
       case 0xCA: {
-          int _jumpAddress2196 = 0;
+          int _jumpAddress2372 = 0;
           int address_4902 = (PC + 2) & 0xFFFF;
           int operand_4904 = memory.read(address_4902, 0);
           int operand_4906 = memory.read((address_4902 + 1) & 0xFFFF, 0);
-          int jumpAddress2_4901 = (_jumpAddress2196 = (operand_4906 << 8) | operand_4904);
+          int jumpAddress2_4901 = (_jumpAddress2372 = (operand_4906 << 8) | operand_4904);
           if (((F & 0x40) == 0x40)) {
-              _jumpAddress2196 = jumpAddress2_4901;
-              MEMPTR = _jumpAddress2196;
+              _jumpAddress2372 = jumpAddress2_4901;
+              MEMPTR = _jumpAddress2372;
               PC = jumpAddress2_4901;
               break;
           } else {
-              MEMPTR = _jumpAddress2196;
+              MEMPTR = _jumpAddress2372;
               PC = (PC + 4) & 0xFFFF;
               break;
           }
@@ -18769,73 +19563,73 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xCC: {
-          int _jumpAddress2837 = 0;
+          int _jumpAddress3013 = 0;
           int address_6116 = (PC + 2) & 0xFFFF;
           int operand_6118 = memory.read(address_6116, 0);
           int operand_6120 = memory.read((address_6116 + 1) & 0xFFFF, 0);
-          int value_6121 = (_jumpAddress2837 = (operand_6120 << 8) | operand_6118);
+          int value_6121 = (_jumpAddress3013 = (operand_6120 << 8) | operand_6118);
           MEMPTR = value_6121;
-          int jumpAddress2_6122 = (_jumpAddress2837 = (operand_6120 << 8) | operand_6118);
+          int jumpAddress2_6122 = (_jumpAddress3013 = (operand_6120 << 8) | operand_6118);
           if (((F & 0x40) == 0x40)) {
               SP = ((SP - 2) & 0xFFFF);
               int value_6126 = ((PC + 4) & 0xFFFF);
               contend((PC + 2) & 0xFFFF, 1, 1, Contention.Kind.READ_NO_MREQ);
               memory.write((SP + 1) & 0xFFFF, (value_6126 >>> 8));
               memory.write(SP, (value_6126 & 0xFF));
-              _jumpAddress2837 = jumpAddress2_6122;
-              MEMPTR = _jumpAddress2837;
+              _jumpAddress3013 = jumpAddress2_6122;
+              MEMPTR = _jumpAddress3013;
               PC = jumpAddress2_6122;
               break;
           } else {
-              MEMPTR = _jumpAddress2837;
+              MEMPTR = _jumpAddress3013;
               PC = (PC + 4) & 0xFFFF;
               break;
           }
       }
       case 0xCD: {
-          int _nextPC2838;
-          int _jumpAddress2838;
+          int _nextPC3014;
+          int _jumpAddress3014;
           int address_6128 = (PC + 2) & 0xFFFF;
           int operand_6130 = memory.read(address_6128, 0);
           int operand_6132 = memory.read((address_6128 + 1) & 0xFFFF, 0);
-          int value_6133 = (_jumpAddress2838 = (operand_6132 << 8) | operand_6130);
-          int jumpAddress2_6134 = (_jumpAddress2838 = (operand_6132 << 8) | operand_6130);
+          int value_6133 = (_jumpAddress3014 = (operand_6132 << 8) | operand_6130);
+          int jumpAddress2_6134 = (_jumpAddress3014 = (operand_6132 << 8) | operand_6130);
           SP = ((SP - 2) & 0xFFFF);
           int value_6138 = ((PC + 4) & 0xFFFF);
           contend((PC + 2) & 0xFFFF, 1, 1, Contention.Kind.READ_NO_MREQ);
           memory.write((SP + 1) & 0xFFFF, (value_6138 >>> 8));
           memory.write(SP, (value_6138 & 0xFF));
-          _jumpAddress2838 = jumpAddress2_6134;
-          _nextPC2838 = jumpAddress2_6134;
-          MEMPTR = _jumpAddress2838;
-          PC = _nextPC2838;
+          _jumpAddress3014 = jumpAddress2_6134;
+          _nextPC3014 = jumpAddress2_6134;
+          MEMPTR = _jumpAddress3014;
+          PC = _nextPC3014;
           break;
       }
       case 0xCE: {
-          int _F2839;
+          int _F3015;
           int operand_6140 = memory.read((PC + 2) & 0xFFFF, 0);
           int value1_6141 = A;
           int value3_6143 = F & 1;
-          _F2839 = value3_6143;
-          int adctemp_6144 = value1_6141 + operand_6140 + (_F2839 & 1);
+          _F3015 = value3_6143;
+          int adctemp_6144 = value1_6141 + operand_6140 + (_F3015 & 1);
           int lookup_6145 = ((value1_6141 & 0x88) >> 3) | ((operand_6140 & 0x88) >> 2) | ((adctemp_6144 & 0x88) >> 1);
           value1_6141 = adctemp_6144 & 0xff;
-          _F2839 = ((adctemp_6144 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_6145 & 0x07)] | OVERFLOW_ADD[(lookup_6145 >> 4)] | (SZ53[value1_6141] | (value1_6141 == 0 ? 0x40 : 0));
-          F = (_F2839 & 0xFF);
+          _F3015 = ((adctemp_6144 & 0x100) != 0 ? 1 : 0) | HALF_CARRY_ADD[(lookup_6145 & 0x07)] | OVERFLOW_ADD[(lookup_6145 >> 4)] | (SZ53[value1_6141] | (value1_6141 == 0 ? 0x40 : 0));
+          F = (_F3015 & 0xFF);
           A = value1_6141;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0xCF: {
-          int _nextPC2841;
+          int _nextPC3017;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           SP = ((SP - 2) & 0xFFFF);
           int value_6147 = ((PC + 1) & 0xFFFF);
           memory.write((SP + 1) & 0xFFFF, (value_6147 >>> 8));
           memory.write(SP, (value_6147 & 0xFF));
-          _nextPC2841 = 8;
-          MEMPTR = _nextPC2841;
-          PC = _nextPC2841;
+          _nextPC3017 = 8;
+          MEMPTR = _nextPC3017;
+          PC = _nextPC3017;
           break;
       }
       default:
@@ -18876,18 +19670,18 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xD2: {
-          int _jumpAddress2844 = 0;
+          int _jumpAddress3020 = 0;
           int address_6160 = (PC + 2) & 0xFFFF;
           int operand_6162 = memory.read(address_6160, 0);
           int operand_6164 = memory.read((address_6160 + 1) & 0xFFFF, 0);
-          int jumpAddress2_6159 = (_jumpAddress2844 = (operand_6164 << 8) | operand_6162);
+          int jumpAddress2_6159 = (_jumpAddress3020 = (operand_6164 << 8) | operand_6162);
           if ((!((F & 1) == 1))) {
-              _jumpAddress2844 = jumpAddress2_6159;
-              MEMPTR = _jumpAddress2844;
+              _jumpAddress3020 = jumpAddress2_6159;
+              MEMPTR = _jumpAddress3020;
               PC = jumpAddress2_6159;
               break;
           } else {
-              MEMPTR = _jumpAddress2844;
+              MEMPTR = _jumpAddress3020;
               PC = (PC + 4) & 0xFFFF;
               break;
           }
@@ -18905,25 +19699,25 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xD4: {
-          int _jumpAddress2846 = 0;
+          int _jumpAddress3022 = 0;
           int address_6169 = (PC + 2) & 0xFFFF;
           int operand_6171 = memory.read(address_6169, 0);
           int operand_6173 = memory.read((address_6169 + 1) & 0xFFFF, 0);
-          int value_6174 = (_jumpAddress2846 = (operand_6173 << 8) | operand_6171);
+          int value_6174 = (_jumpAddress3022 = (operand_6173 << 8) | operand_6171);
           MEMPTR = value_6174;
-          int jumpAddress2_6175 = (_jumpAddress2846 = (operand_6173 << 8) | operand_6171);
+          int jumpAddress2_6175 = (_jumpAddress3022 = (operand_6173 << 8) | operand_6171);
           if ((!((F & 1) == 1))) {
               SP = ((SP - 2) & 0xFFFF);
               int value_6179 = ((PC + 4) & 0xFFFF);
               contend((PC + 2) & 0xFFFF, 1, 1, Contention.Kind.READ_NO_MREQ);
               memory.write((SP + 1) & 0xFFFF, (value_6179 >>> 8));
               memory.write(SP, (value_6179 & 0xFF));
-              _jumpAddress2846 = jumpAddress2_6175;
-              MEMPTR = _jumpAddress2846;
+              _jumpAddress3022 = jumpAddress2_6175;
+              MEMPTR = _jumpAddress3022;
               PC = jumpAddress2_6175;
               break;
           } else {
-              MEMPTR = _jumpAddress2846;
+              MEMPTR = _jumpAddress3022;
               PC = (PC + 4) & 0xFFFF;
               break;
           }
@@ -18938,28 +19732,28 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xD6: {
-          int _F2848;
+          int _F3024;
           int operand_6182 = memory.read((PC + 2) & 0xFFFF, 0);
           int value1_6183 = A;
           int subtemp_6186 = value1_6183 - operand_6182;
           int lookup_6187 = ((value1_6183 & 0x88) >> 3) | ((operand_6182 & 0x88) >> 2) | ((subtemp_6186 & 0x88) >> 1);
           value1_6183 = subtemp_6186 & 0xff;
-          _F2848 = ((subtemp_6186 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_6187 & 0x07)] | OVERFLOW_SUB[(lookup_6187 >> 4)] | (SZ53[value1_6183] | (value1_6183 == 0 ? 0x40 : 0));
-          F = (_F2848 & 0xFF);
+          _F3024 = ((subtemp_6186 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_6187 & 0x07)] | OVERFLOW_SUB[(lookup_6187 >> 4)] | (SZ53[value1_6183] | (value1_6183 == 0 ? 0x40 : 0));
+          F = (_F3024 & 0xFF);
           A = value1_6183;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0xD7: {
-          int _nextPC2850;
+          int _nextPC3026;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           SP = ((SP - 2) & 0xFFFF);
           int value_6189 = ((PC + 1) & 0xFFFF);
           memory.write((SP + 1) & 0xFFFF, (value_6189 >>> 8));
           memory.write(SP, (value_6189 & 0xFF));
-          _nextPC2850 = 0x10;
-          MEMPTR = _nextPC2850;
-          PC = _nextPC2850;
+          _nextPC3026 = 0x10;
+          MEMPTR = _nextPC3026;
+          PC = _nextPC3026;
           break;
       }
       case 0xD8: {
@@ -18998,18 +19792,18 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xDA: {
-          int _jumpAddress2853 = 0;
+          int _jumpAddress3029 = 0;
           int address_6198 = (PC + 2) & 0xFFFF;
           int operand_6200 = memory.read(address_6198, 0);
           int operand_6202 = memory.read((address_6198 + 1) & 0xFFFF, 0);
-          int jumpAddress2_6197 = (_jumpAddress2853 = (operand_6202 << 8) | operand_6200);
+          int jumpAddress2_6197 = (_jumpAddress3029 = (operand_6202 << 8) | operand_6200);
           if (((F & 1) == 1)) {
-              _jumpAddress2853 = jumpAddress2_6197;
-              MEMPTR = _jumpAddress2853;
+              _jumpAddress3029 = jumpAddress2_6197;
+              MEMPTR = _jumpAddress3029;
               PC = jumpAddress2_6197;
               break;
           } else {
-              MEMPTR = _jumpAddress2853;
+              MEMPTR = _jumpAddress3029;
               PC = (PC + 4) & 0xFFFF;
               break;
           }
@@ -19026,25 +19820,25 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xDC: {
-          int _jumpAddress2855 = 0;
+          int _jumpAddress3031 = 0;
           int address_6208 = (PC + 2) & 0xFFFF;
           int operand_6210 = memory.read(address_6208, 0);
           int operand_6212 = memory.read((address_6208 + 1) & 0xFFFF, 0);
-          int value_6213 = (_jumpAddress2855 = (operand_6212 << 8) | operand_6210);
+          int value_6213 = (_jumpAddress3031 = (operand_6212 << 8) | operand_6210);
           MEMPTR = value_6213;
-          int jumpAddress2_6214 = (_jumpAddress2855 = (operand_6212 << 8) | operand_6210);
+          int jumpAddress2_6214 = (_jumpAddress3031 = (operand_6212 << 8) | operand_6210);
           if (((F & 1) == 1)) {
               SP = ((SP - 2) & 0xFFFF);
               int value_6218 = ((PC + 4) & 0xFFFF);
               contend((PC + 2) & 0xFFFF, 1, 1, Contention.Kind.READ_NO_MREQ);
               memory.write((SP + 1) & 0xFFFF, (value_6218 >>> 8));
               memory.write(SP, (value_6218 & 0xFF));
-              _jumpAddress2855 = jumpAddress2_6214;
-              MEMPTR = _jumpAddress2855;
+              _jumpAddress3031 = jumpAddress2_6214;
+              MEMPTR = _jumpAddress3031;
               PC = jumpAddress2_6214;
               break;
           } else {
-              MEMPTR = _jumpAddress2855;
+              MEMPTR = _jumpAddress3031;
               PC = (PC + 4) & 0xFFFF;
               break;
           }
@@ -19054,30 +19848,30 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xDE: {
-          int _F2857;
+          int _F3033;
           int operand_6220 = memory.read((PC + 2) & 0xFFFF, 0);
           int value1_6221 = A;
           int value3_6223 = F & 1;
-          _F2857 = value3_6223;
-          int sbctemp_6224 = value1_6221 - operand_6220 - (_F2857 & 1);
+          _F3033 = value3_6223;
+          int sbctemp_6224 = value1_6221 - operand_6220 - (_F3033 & 1);
           int lookup_6225 = ((value1_6221 & 0x88) >> 3) | ((operand_6220 & 0x88) >> 2) | ((sbctemp_6224 & 0x88) >> 1);
           value1_6221 = sbctemp_6224 & 0xff;
-          _F2857 = ((sbctemp_6224 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_6225 & 0x07)] | OVERFLOW_SUB[(lookup_6225 >> 4)] | (SZ53[value1_6221] | (value1_6221 == 0 ? 0x40 : 0));
-          F = (_F2857 & 0xFF);
+          _F3033 = ((sbctemp_6224 & 0x100) != 0 ? 1 : 0) | 2 | HALF_CARRY_SUB[(lookup_6225 & 0x07)] | OVERFLOW_SUB[(lookup_6225 >> 4)] | (SZ53[value1_6221] | (value1_6221 == 0 ? 0x40 : 0));
+          F = (_F3033 & 0xFF);
           A = value1_6221;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0xDF: {
-          int _nextPC2859;
+          int _nextPC3035;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           SP = ((SP - 2) & 0xFFFF);
           int value_6227 = ((PC + 1) & 0xFFFF);
           memory.write((SP + 1) & 0xFFFF, (value_6227 >>> 8));
           memory.write(SP, (value_6227 & 0xFF));
-          _nextPC2859 = 0x18;
-          MEMPTR = _nextPC2859;
-          PC = _nextPC2859;
+          _nextPC3035 = 0x18;
+          MEMPTR = _nextPC3035;
+          PC = _nextPC3035;
           break;
       }
       default:
@@ -19117,32 +19911,32 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xE2: {
-          int _jumpAddress2862 = 0;
+          int _jumpAddress3038 = 0;
           int address_6240 = (PC + 2) & 0xFFFF;
           int operand_6242 = memory.read(address_6240, 0);
           int operand_6244 = memory.read((address_6240 + 1) & 0xFFFF, 0);
-          int jumpAddress2_6239 = (_jumpAddress2862 = (operand_6244 << 8) | operand_6242);
+          int jumpAddress2_6239 = (_jumpAddress3038 = (operand_6244 << 8) | operand_6242);
           if ((!((F & 4) == 4))) {
-              _jumpAddress2862 = jumpAddress2_6239;
-              MEMPTR = _jumpAddress2862;
+              _jumpAddress3038 = jumpAddress2_6239;
+              MEMPTR = _jumpAddress3038;
               PC = jumpAddress2_6239;
               break;
           } else {
-              MEMPTR = _jumpAddress2862;
+              MEMPTR = _jumpAddress3038;
               PC = (PC + 4) & 0xFFFF;
               break;
           }
       }
       case 0xE3: {
-          int _address2863 = SP;
-          int wordNumber1_6247 = memory.read(_address2863, 0);
-          int wordNumber_6248 = memory.read((_address2863 + 1) & 0xFFFF, 0);
+          int _address3039 = SP;
+          int wordNumber1_6247 = memory.read(_address3039, 0);
+          int wordNumber_6248 = memory.read((_address3039 + 1) & 0xFFFF, 0);
           int v1_6246 = ((wordNumber_6248 << 8) | wordNumber1_6247);
           int v2_6249 = IY;
-          _address2863 = SP;
+          _address3039 = SP;
           contend((SP + 1) & 0xFFFF, 1, 1, Contention.Kind.READ_NO_MREQ);
-          memory.write((_address2863 + 1) & 0xFFFF, (v2_6249 >>> 8));
-          memory.write(_address2863, (v2_6249 & 0xFF));
+          memory.write((_address3039 + 1) & 0xFFFF, (v2_6249 >>> 8));
+          memory.write(_address3039, (v2_6249 & 0xFF));
           IY = v1_6246;
           MEMPTR = IY;
           contend(SP, 2, 1, Contention.Kind.WRITE_NO_MREQ);
@@ -19150,25 +19944,25 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xE4: {
-          int _jumpAddress2865 = 0;
+          int _jumpAddress3041 = 0;
           int address_6250 = (PC + 2) & 0xFFFF;
           int operand_6252 = memory.read(address_6250, 0);
           int operand_6254 = memory.read((address_6250 + 1) & 0xFFFF, 0);
-          int value_6255 = (_jumpAddress2865 = (operand_6254 << 8) | operand_6252);
+          int value_6255 = (_jumpAddress3041 = (operand_6254 << 8) | operand_6252);
           MEMPTR = value_6255;
-          int jumpAddress2_6256 = (_jumpAddress2865 = (operand_6254 << 8) | operand_6252);
+          int jumpAddress2_6256 = (_jumpAddress3041 = (operand_6254 << 8) | operand_6252);
           if ((!((F & 4) == 4))) {
               SP = ((SP - 2) & 0xFFFF);
               int value_6260 = ((PC + 4) & 0xFFFF);
               contend((PC + 2) & 0xFFFF, 1, 1, Contention.Kind.READ_NO_MREQ);
               memory.write((SP + 1) & 0xFFFF, (value_6260 >>> 8));
               memory.write(SP, (value_6260 & 0xFF));
-              _jumpAddress2865 = jumpAddress2_6256;
-              MEMPTR = _jumpAddress2865;
+              _jumpAddress3041 = jumpAddress2_6256;
+              MEMPTR = _jumpAddress3041;
               PC = jumpAddress2_6256;
               break;
           } else {
-              MEMPTR = _jumpAddress2865;
+              MEMPTR = _jumpAddress3041;
               PC = (PC + 4) & 0xFFFF;
               break;
           }
@@ -19182,28 +19976,28 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xE6: {
-          int _F2867;
+          int _F3043;
           int operand_6262 = memory.read((PC + 2) & 0xFFFF, 0);
           int value1_6263 = A;
           int value2_6264 = operand_6262;
           value2_6264 &= value1_6263;
-          _F2867 = 0x10 | (SZ53P[value2_6264 & 0xff] | (value2_6264 == 0 ? 0x40 : 0));
+          _F3043 = 0x10 | (SZ53P[value2_6264 & 0xff] | (value2_6264 == 0 ? 0x40 : 0));
           int result_6266 = value2_6264 & 0xFF;
-          F = (_F2867 & 0xFF);
+          F = (_F3043 & 0xFF);
           A = result_6266;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0xE7: {
-          int _nextPC2869;
+          int _nextPC3045;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           SP = ((SP - 2) & 0xFFFF);
           int value_6267 = ((PC + 1) & 0xFFFF);
           memory.write((SP + 1) & 0xFFFF, (value_6267 >>> 8));
           memory.write(SP, (value_6267 & 0xFF));
-          _nextPC2869 = 0x20;
-          MEMPTR = _nextPC2869;
-          PC = _nextPC2869;
+          _nextPC3045 = 0x20;
+          MEMPTR = _nextPC3045;
+          PC = _nextPC3045;
           break;
       }
       case 0xE8: {
@@ -19231,18 +20025,18 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xEA: {
-          int _jumpAddress2872 = 0;
+          int _jumpAddress3048 = 0;
           int address_6277 = (PC + 2) & 0xFFFF;
           int operand_6279 = memory.read(address_6277, 0);
           int operand_6281 = memory.read((address_6277 + 1) & 0xFFFF, 0);
-          int jumpAddress2_6276 = (_jumpAddress2872 = (operand_6281 << 8) | operand_6279);
+          int jumpAddress2_6276 = (_jumpAddress3048 = (operand_6281 << 8) | operand_6279);
           if (((F & 4) == 4)) {
-              _jumpAddress2872 = jumpAddress2_6276;
-              MEMPTR = _jumpAddress2872;
+              _jumpAddress3048 = jumpAddress2_6276;
+              MEMPTR = _jumpAddress3048;
               PC = jumpAddress2_6276;
               break;
           } else {
-              MEMPTR = _jumpAddress2872;
+              MEMPTR = _jumpAddress3048;
               PC = (PC + 4) & 0xFFFF;
               break;
           }
@@ -19258,25 +20052,25 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xEC: {
-          int _jumpAddress2874 = 0;
+          int _jumpAddress3050 = 0;
           int address_6285 = (PC + 2) & 0xFFFF;
           int operand_6287 = memory.read(address_6285, 0);
           int operand_6289 = memory.read((address_6285 + 1) & 0xFFFF, 0);
-          int value_6290 = (_jumpAddress2874 = (operand_6289 << 8) | operand_6287);
+          int value_6290 = (_jumpAddress3050 = (operand_6289 << 8) | operand_6287);
           MEMPTR = value_6290;
-          int jumpAddress2_6291 = (_jumpAddress2874 = (operand_6289 << 8) | operand_6287);
+          int jumpAddress2_6291 = (_jumpAddress3050 = (operand_6289 << 8) | operand_6287);
           if (((F & 4) == 4)) {
               SP = ((SP - 2) & 0xFFFF);
               int value_6295 = ((PC + 4) & 0xFFFF);
               contend((PC + 2) & 0xFFFF, 1, 1, Contention.Kind.READ_NO_MREQ);
               memory.write((SP + 1) & 0xFFFF, (value_6295 >>> 8));
               memory.write(SP, (value_6295 & 0xFF));
-              _jumpAddress2874 = jumpAddress2_6291;
-              MEMPTR = _jumpAddress2874;
+              _jumpAddress3050 = jumpAddress2_6291;
+              MEMPTR = _jumpAddress3050;
               PC = jumpAddress2_6291;
               break;
           } else {
-              MEMPTR = _jumpAddress2874;
+              MEMPTR = _jumpAddress3050;
               PC = (PC + 4) & 0xFFFF;
               break;
           }
@@ -19286,28 +20080,28 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xEE: {
-          int _F2876;
+          int _F3052;
           int operand_6297 = memory.read((PC + 2) & 0xFFFF, 0);
           int value1_6298 = A;
           int value2_6299 = operand_6297;
           value2_6299 ^= value1_6298;
-          _F2876 = SZ53P[value2_6299 & 0xff] | (value2_6299 == 0 ? 0x40 : 0);
+          _F3052 = SZ53P[value2_6299 & 0xff] | (value2_6299 == 0 ? 0x40 : 0);
           int result_6301 = value2_6299 & 0xFF;
-          F = (_F2876 & 0xFF);
+          F = (_F3052 & 0xFF);
           A = result_6301;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0xEF: {
-          int _nextPC2878;
+          int _nextPC3054;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           SP = ((SP - 2) & 0xFFFF);
           int value_6302 = ((PC + 1) & 0xFFFF);
           memory.write((SP + 1) & 0xFFFF, (value_6302 >>> 8));
           memory.write(SP, (value_6302 & 0xFF));
-          _nextPC2878 = 0x28;
-          MEMPTR = _nextPC2878;
-          PC = _nextPC2878;
+          _nextPC3054 = 0x28;
+          MEMPTR = _nextPC3054;
+          PC = _nextPC3054;
           break;
       }
       default:
@@ -19348,18 +20142,18 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xF2: {
-          int _jumpAddress2881 = 0;
+          int _jumpAddress3057 = 0;
           int address_6315 = (PC + 2) & 0xFFFF;
           int operand_6317 = memory.read(address_6315, 0);
           int operand_6319 = memory.read((address_6315 + 1) & 0xFFFF, 0);
-          int jumpAddress2_6314 = (_jumpAddress2881 = (operand_6319 << 8) | operand_6317);
+          int jumpAddress2_6314 = (_jumpAddress3057 = (operand_6319 << 8) | operand_6317);
           if ((!((F & 0x80) == 0x80))) {
-              _jumpAddress2881 = jumpAddress2_6314;
-              MEMPTR = _jumpAddress2881;
+              _jumpAddress3057 = jumpAddress2_6314;
+              MEMPTR = _jumpAddress3057;
               PC = jumpAddress2_6314;
               break;
           } else {
-              MEMPTR = _jumpAddress2881;
+              MEMPTR = _jumpAddress3057;
               PC = (PC + 4) & 0xFFFF;
               break;
           }
@@ -19370,25 +20164,25 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xF4: {
-          int _jumpAddress2883 = 0;
+          int _jumpAddress3059 = 0;
           int address_6321 = (PC + 2) & 0xFFFF;
           int operand_6323 = memory.read(address_6321, 0);
           int operand_6325 = memory.read((address_6321 + 1) & 0xFFFF, 0);
-          int value_6326 = (_jumpAddress2883 = (operand_6325 << 8) | operand_6323);
+          int value_6326 = (_jumpAddress3059 = (operand_6325 << 8) | operand_6323);
           MEMPTR = value_6326;
-          int jumpAddress2_6327 = (_jumpAddress2883 = (operand_6325 << 8) | operand_6323);
+          int jumpAddress2_6327 = (_jumpAddress3059 = (operand_6325 << 8) | operand_6323);
           if ((!((F & 0x80) == 0x80))) {
               SP = ((SP - 2) & 0xFFFF);
               int value_6331 = ((PC + 4) & 0xFFFF);
               contend((PC + 2) & 0xFFFF, 1, 1, Contention.Kind.READ_NO_MREQ);
               memory.write((SP + 1) & 0xFFFF, (value_6331 >>> 8));
               memory.write(SP, (value_6331 & 0xFF));
-              _jumpAddress2883 = jumpAddress2_6327;
-              MEMPTR = _jumpAddress2883;
+              _jumpAddress3059 = jumpAddress2_6327;
+              MEMPTR = _jumpAddress3059;
               PC = jumpAddress2_6327;
               break;
           } else {
-              MEMPTR = _jumpAddress2883;
+              MEMPTR = _jumpAddress3059;
               PC = (PC + 4) & 0xFFFF;
               break;
           }
@@ -19403,28 +20197,28 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xF6: {
-          int _F2885;
+          int _F3061;
           int operand_6334 = memory.read((PC + 2) & 0xFFFF, 0);
           int value1_6335 = A;
           int value2_6336 = operand_6334;
           value2_6336 |= value1_6335;
-          _F2885 = SZ53P[value2_6336 & 0xff] | (value2_6336 == 0 ? 0x40 : 0);
+          _F3061 = SZ53P[value2_6336 & 0xff] | (value2_6336 == 0 ? 0x40 : 0);
           int result_6338 = value2_6336 & 0xFF;
-          F = (_F2885 & 0xFF);
+          F = (_F3061 & 0xFF);
           A = result_6338;
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0xF7: {
-          int _nextPC2887;
+          int _nextPC3063;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           SP = ((SP - 2) & 0xFFFF);
           int value_6339 = ((PC + 1) & 0xFFFF);
           memory.write((SP + 1) & 0xFFFF, (value_6339 >>> 8));
           memory.write(SP, (value_6339 & 0xFF));
-          _nextPC2887 = 0x30;
-          MEMPTR = _nextPC2887;
-          PC = _nextPC2887;
+          _nextPC3063 = 0x30;
+          MEMPTR = _nextPC3063;
+          PC = _nextPC3063;
           break;
       }
       case 0xF8: {
@@ -19453,18 +20247,18 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xFA: {
-          int _jumpAddress2890 = 0;
+          int _jumpAddress3066 = 0;
           int address_6347 = (PC + 2) & 0xFFFF;
           int operand_6349 = memory.read(address_6347, 0);
           int operand_6351 = memory.read((address_6347 + 1) & 0xFFFF, 0);
-          int jumpAddress2_6346 = (_jumpAddress2890 = (operand_6351 << 8) | operand_6349);
+          int jumpAddress2_6346 = (_jumpAddress3066 = (operand_6351 << 8) | operand_6349);
           if (((F & 0x80) == 0x80)) {
-              _jumpAddress2890 = jumpAddress2_6346;
-              MEMPTR = _jumpAddress2890;
+              _jumpAddress3066 = jumpAddress2_6346;
+              MEMPTR = _jumpAddress3066;
               PC = jumpAddress2_6346;
               break;
           } else {
-              MEMPTR = _jumpAddress2890;
+              MEMPTR = _jumpAddress3066;
               PC = (PC + 4) & 0xFFFF;
               break;
           }
@@ -19475,25 +20269,25 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xFC: {
-          int _jumpAddress2892 = 0;
+          int _jumpAddress3068 = 0;
           int address_6353 = (PC + 2) & 0xFFFF;
           int operand_6355 = memory.read(address_6353, 0);
           int operand_6357 = memory.read((address_6353 + 1) & 0xFFFF, 0);
-          int value_6358 = (_jumpAddress2892 = (operand_6357 << 8) | operand_6355);
+          int value_6358 = (_jumpAddress3068 = (operand_6357 << 8) | operand_6355);
           MEMPTR = value_6358;
-          int jumpAddress2_6359 = (_jumpAddress2892 = (operand_6357 << 8) | operand_6355);
+          int jumpAddress2_6359 = (_jumpAddress3068 = (operand_6357 << 8) | operand_6355);
           if (((F & 0x80) == 0x80)) {
               SP = ((SP - 2) & 0xFFFF);
               int value_6363 = ((PC + 4) & 0xFFFF);
               contend((PC + 2) & 0xFFFF, 1, 1, Contention.Kind.READ_NO_MREQ);
               memory.write((SP + 1) & 0xFFFF, (value_6363 >>> 8));
               memory.write(SP, (value_6363 & 0xFF));
-              _jumpAddress2892 = jumpAddress2_6359;
-              MEMPTR = _jumpAddress2892;
+              _jumpAddress3068 = jumpAddress2_6359;
+              MEMPTR = _jumpAddress3068;
               PC = jumpAddress2_6359;
               break;
           } else {
-              MEMPTR = _jumpAddress2892;
+              MEMPTR = _jumpAddress3068;
               PC = (PC + 4) & 0xFFFF;
               break;
           }
@@ -19503,25 +20297,25 @@ static final int[] SZ53 = new int[0x100];
           break;
       }
       case 0xFE: {
-          int _F2894;
+          int _F3070;
           int operand_6365 = memory.read((PC + 2) & 0xFFFF, 0);
           int cptemp_6369 = A - operand_6365;
           int lookup_6370 = ((A & 0x88) >> 3) | ((operand_6365 & 0x88) >> 2) | ((cptemp_6369 & 0x88) >> 1);
-          _F2894 = ((cptemp_6369 & 0x100) != 0 ? 1 : (cptemp_6369 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_6370 & 0x07)] | OVERFLOW_SUB[(lookup_6370 >> 4)] | (operand_6365 & 0x28) | (cptemp_6369 & 0x80);
-          F = (_F2894 & 0xFF);
+          _F3070 = ((cptemp_6369 & 0x100) != 0 ? 1 : (cptemp_6369 != 0 ? 0 : 0x40)) | 2 | HALF_CARRY_SUB[(lookup_6370 & 0x07)] | OVERFLOW_SUB[(lookup_6370 >> 4)] | (operand_6365 & 0x28) | (cptemp_6369 & 0x80);
+          F = (_F3070 & 0xFF);
           PC = (PC + 3) & 0xFFFF;
           break;
       }
       case 0xFF: {
-          int _nextPC2896;
+          int _nextPC3072;
           contend(((I << 8) | R), 1, 1, Contention.Kind.READ_NO_MREQ);
           SP = ((SP - 2) & 0xFFFF);
           int value_6372 = ((PC + 1) & 0xFFFF);
           memory.write((SP + 1) & 0xFFFF, (value_6372 >>> 8));
           memory.write(SP, (value_6372 & 0xFF));
-          _nextPC2896 = 0x38;
-          MEMPTR = _nextPC2896;
-          PC = _nextPC2896;
+          _nextPC3072 = 0x38;
+          MEMPTR = _nextPC3072;
+          PC = _nextPC3072;
           break;
       }
       default:
@@ -19571,388 +20365,388 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFDCB_0(int opcode, int displacement) {
     switch (opcode) {
       case 0x00: {
-          int _F2198;
-          int _value2197;
-          int _address2197;
+          int _F2374;
+          int _value2373;
+          int _address2373;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2197 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_4908 = memory.read(_address2197, 0);
-          contend(_address2197, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2197 = operand_4908;
-          int value1_4909 = _value2197;
+          _address2373 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_4908 = memory.read(_address2373, 0);
+          contend(_address2373, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2373 = operand_4908;
+          int value1_4909 = _value2373;
           value1_4909 = (value1_4909 << 1 | value1_4909 >> 7) & 0xff;
-          _F2198 = (value1_4909 & 1) | (SZ53P[value1_4909] | (value1_4909 == 0 ? 0x40 : 0));
-          F = (_F2198 & 0xFF);
-          _address2197 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2197 = value1_4909;
-          memory.write(_address2197, value1_4909);
+          _F2374 = (value1_4909 & 1) | (SZ53P[value1_4909] | (value1_4909 == 0 ? 0x40 : 0));
+          F = (_F2374 & 0xFF);
+          _address2373 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2373 = value1_4909;
+          memory.write(_address2373, value1_4909);
           int read_4913;
-          read_4913 = _value2197;
+          read_4913 = _value2373;
           B = read_4913;
-          MEMPTR = _address2197;
+          MEMPTR = _address2373;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x01: {
-          int _F2201;
-          int _value2200;
-          int _address2200;
+          int _F2377;
+          int _value2376;
+          int _address2376;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2200 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_4914 = memory.read(_address2200, 0);
-          contend(_address2200, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2200 = operand_4914;
-          int value1_4915 = _value2200;
+          _address2376 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_4914 = memory.read(_address2376, 0);
+          contend(_address2376, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2376 = operand_4914;
+          int value1_4915 = _value2376;
           value1_4915 = (value1_4915 << 1 | value1_4915 >> 7) & 0xff;
-          _F2201 = (value1_4915 & 1) | (SZ53P[value1_4915] | (value1_4915 == 0 ? 0x40 : 0));
-          F = (_F2201 & 0xFF);
-          _address2200 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2200 = value1_4915;
-          memory.write(_address2200, value1_4915);
+          _F2377 = (value1_4915 & 1) | (SZ53P[value1_4915] | (value1_4915 == 0 ? 0x40 : 0));
+          F = (_F2377 & 0xFF);
+          _address2376 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2376 = value1_4915;
+          memory.write(_address2376, value1_4915);
           int read_4919;
-          read_4919 = _value2200;
+          read_4919 = _value2376;
           C = read_4919;
-          MEMPTR = _address2200;
+          MEMPTR = _address2376;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x02: {
-          int _F2204;
-          int _value2203;
-          int _address2203;
+          int _F2380;
+          int _value2379;
+          int _address2379;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2203 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_4920 = memory.read(_address2203, 0);
-          contend(_address2203, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2203 = operand_4920;
-          int value1_4921 = _value2203;
+          _address2379 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_4920 = memory.read(_address2379, 0);
+          contend(_address2379, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2379 = operand_4920;
+          int value1_4921 = _value2379;
           value1_4921 = (value1_4921 << 1 | value1_4921 >> 7) & 0xff;
-          _F2204 = (value1_4921 & 1) | (SZ53P[value1_4921] | (value1_4921 == 0 ? 0x40 : 0));
-          F = (_F2204 & 0xFF);
-          _address2203 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2203 = value1_4921;
-          memory.write(_address2203, value1_4921);
+          _F2380 = (value1_4921 & 1) | (SZ53P[value1_4921] | (value1_4921 == 0 ? 0x40 : 0));
+          F = (_F2380 & 0xFF);
+          _address2379 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2379 = value1_4921;
+          memory.write(_address2379, value1_4921);
           int read_4925;
-          read_4925 = _value2203;
+          read_4925 = _value2379;
           D = read_4925;
-          MEMPTR = _address2203;
+          MEMPTR = _address2379;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x03: {
-          int _F2207;
-          int _value2206;
-          int _address2206;
+          int _F2383;
+          int _value2382;
+          int _address2382;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2206 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_4926 = memory.read(_address2206, 0);
-          contend(_address2206, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2206 = operand_4926;
-          int value1_4927 = _value2206;
+          _address2382 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_4926 = memory.read(_address2382, 0);
+          contend(_address2382, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2382 = operand_4926;
+          int value1_4927 = _value2382;
           value1_4927 = (value1_4927 << 1 | value1_4927 >> 7) & 0xff;
-          _F2207 = (value1_4927 & 1) | (SZ53P[value1_4927] | (value1_4927 == 0 ? 0x40 : 0));
-          F = (_F2207 & 0xFF);
-          _address2206 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2206 = value1_4927;
-          memory.write(_address2206, value1_4927);
+          _F2383 = (value1_4927 & 1) | (SZ53P[value1_4927] | (value1_4927 == 0 ? 0x40 : 0));
+          F = (_F2383 & 0xFF);
+          _address2382 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2382 = value1_4927;
+          memory.write(_address2382, value1_4927);
           int read_4931;
-          read_4931 = _value2206;
+          read_4931 = _value2382;
           E = read_4931;
-          MEMPTR = _address2206;
+          MEMPTR = _address2382;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x04: {
-          int _F2210;
-          int _value2209;
-          int _address2209;
+          int _F2386;
+          int _value2385;
+          int _address2385;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2209 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_4932 = memory.read(_address2209, 0);
-          contend(_address2209, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2209 = operand_4932;
-          int value1_4933 = _value2209;
+          _address2385 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_4932 = memory.read(_address2385, 0);
+          contend(_address2385, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2385 = operand_4932;
+          int value1_4933 = _value2385;
           value1_4933 = (value1_4933 << 1 | value1_4933 >> 7) & 0xff;
-          _F2210 = (value1_4933 & 1) | (SZ53P[value1_4933] | (value1_4933 == 0 ? 0x40 : 0));
-          F = (_F2210 & 0xFF);
-          _address2209 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2209 = value1_4933;
-          memory.write(_address2209, value1_4933);
+          _F2386 = (value1_4933 & 1) | (SZ53P[value1_4933] | (value1_4933 == 0 ? 0x40 : 0));
+          F = (_F2386 & 0xFF);
+          _address2385 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2385 = value1_4933;
+          memory.write(_address2385, value1_4933);
           int read_4937;
-          read_4937 = _value2209;
+          read_4937 = _value2385;
           H = read_4937;
-          MEMPTR = _address2209;
+          MEMPTR = _address2385;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x05: {
-          int _F2213;
-          int _value2212;
-          int _address2212;
+          int _F2389;
+          int _value2388;
+          int _address2388;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2212 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_4938 = memory.read(_address2212, 0);
-          contend(_address2212, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2212 = operand_4938;
-          int value1_4939 = _value2212;
+          _address2388 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_4938 = memory.read(_address2388, 0);
+          contend(_address2388, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2388 = operand_4938;
+          int value1_4939 = _value2388;
           value1_4939 = (value1_4939 << 1 | value1_4939 >> 7) & 0xff;
-          _F2213 = (value1_4939 & 1) | (SZ53P[value1_4939] | (value1_4939 == 0 ? 0x40 : 0));
-          F = (_F2213 & 0xFF);
-          _address2212 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2212 = value1_4939;
-          memory.write(_address2212, value1_4939);
+          _F2389 = (value1_4939 & 1) | (SZ53P[value1_4939] | (value1_4939 == 0 ? 0x40 : 0));
+          F = (_F2389 & 0xFF);
+          _address2388 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2388 = value1_4939;
+          memory.write(_address2388, value1_4939);
           int read_4943;
-          read_4943 = _value2212;
+          read_4943 = _value2388;
           L = read_4943;
-          MEMPTR = _address2212;
+          MEMPTR = _address2388;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x06: {
-          int _F2216;
-          int _value2215;
-          int _address2215;
+          int _F2392;
+          int _value2391;
+          int _address2391;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2215 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_4944 = memory.read(_address2215, 0);
-          contend(_address2215, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2215 = operand_4944;
-          int value1_4945 = _value2215;
+          _address2391 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_4944 = memory.read(_address2391, 0);
+          contend(_address2391, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2391 = operand_4944;
+          int value1_4945 = _value2391;
           value1_4945 = (value1_4945 << 1 | value1_4945 >> 7) & 0xff;
-          _F2216 = (value1_4945 & 1) | (SZ53P[value1_4945] | (value1_4945 == 0 ? 0x40 : 0));
-          F = (_F2216 & 0xFF);
-          _address2215 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2215 = value1_4945;
-          memory.write(_address2215, value1_4945);
-          MEMPTR = _address2215;
+          _F2392 = (value1_4945 & 1) | (SZ53P[value1_4945] | (value1_4945 == 0 ? 0x40 : 0));
+          F = (_F2392 & 0xFF);
+          _address2391 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2391 = value1_4945;
+          memory.write(_address2391, value1_4945);
+          MEMPTR = _address2391;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x07: {
-          int _F2219;
-          int _value2218;
-          int _address2218;
+          int _F2395;
+          int _value2394;
+          int _address2394;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2218 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_4949 = memory.read(_address2218, 0);
-          contend(_address2218, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2218 = operand_4949;
-          int value1_4950 = _value2218;
+          _address2394 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_4949 = memory.read(_address2394, 0);
+          contend(_address2394, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2394 = operand_4949;
+          int value1_4950 = _value2394;
           value1_4950 = (value1_4950 << 1 | value1_4950 >> 7) & 0xff;
-          _F2219 = (value1_4950 & 1) | (SZ53P[value1_4950] | (value1_4950 == 0 ? 0x40 : 0));
-          F = (_F2219 & 0xFF);
-          _address2218 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2218 = value1_4950;
-          memory.write(_address2218, value1_4950);
+          _F2395 = (value1_4950 & 1) | (SZ53P[value1_4950] | (value1_4950 == 0 ? 0x40 : 0));
+          F = (_F2395 & 0xFF);
+          _address2394 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2394 = value1_4950;
+          memory.write(_address2394, value1_4950);
           int read_4954;
-          read_4954 = _value2218;
+          read_4954 = _value2394;
           A = read_4954;
-          MEMPTR = _address2218;
+          MEMPTR = _address2394;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x08: {
-          int _F2222;
-          int _value2221;
-          int _address2221;
+          int _F2398;
+          int _value2397;
+          int _address2397;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2221 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_4955 = memory.read(_address2221, 0);
-          contend(_address2221, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2221 = operand_4955;
-          int value1_4956 = _value2221;
-          _F2222 = value1_4956 & 1;
+          _address2397 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_4955 = memory.read(_address2397, 0);
+          contend(_address2397, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2397 = operand_4955;
+          int value1_4956 = _value2397;
+          _F2398 = value1_4956 & 1;
           value1_4956 = (value1_4956 >> 1) | (value1_4956 << 7);
           value1_4956 &= 0xff;
-          _F2222 |= (SZ53P[value1_4956 & 0xff] | (value1_4956 == 0 ? 0x40 : 0));
+          _F2398 |= (SZ53P[value1_4956 & 0xff] | (value1_4956 == 0 ? 0x40 : 0));
           int result_4959 = value1_4956 & 0xFF;
-          F = (_F2222 & 0xFF);
-          _address2221 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2221 = result_4959;
-          memory.write(_address2221, result_4959);
+          F = (_F2398 & 0xFF);
+          _address2397 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2397 = result_4959;
+          memory.write(_address2397, result_4959);
           int read_4960;
-          read_4960 = _value2221;
+          read_4960 = _value2397;
           B = read_4960;
-          MEMPTR = _address2221;
+          MEMPTR = _address2397;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x09: {
-          int _F2225;
-          int _value2224;
-          int _address2224;
+          int _F2401;
+          int _value2400;
+          int _address2400;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2224 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_4961 = memory.read(_address2224, 0);
-          contend(_address2224, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2224 = operand_4961;
-          int value1_4962 = _value2224;
-          _F2225 = value1_4962 & 1;
+          _address2400 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_4961 = memory.read(_address2400, 0);
+          contend(_address2400, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2400 = operand_4961;
+          int value1_4962 = _value2400;
+          _F2401 = value1_4962 & 1;
           value1_4962 = (value1_4962 >> 1) | (value1_4962 << 7);
           value1_4962 &= 0xff;
-          _F2225 |= (SZ53P[value1_4962 & 0xff] | (value1_4962 == 0 ? 0x40 : 0));
+          _F2401 |= (SZ53P[value1_4962 & 0xff] | (value1_4962 == 0 ? 0x40 : 0));
           int result_4965 = value1_4962 & 0xFF;
-          F = (_F2225 & 0xFF);
-          _address2224 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2224 = result_4965;
-          memory.write(_address2224, result_4965);
+          F = (_F2401 & 0xFF);
+          _address2400 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2400 = result_4965;
+          memory.write(_address2400, result_4965);
           int read_4966;
-          read_4966 = _value2224;
+          read_4966 = _value2400;
           C = read_4966;
-          MEMPTR = _address2224;
+          MEMPTR = _address2400;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x0A: {
-          int _F2228;
-          int _value2227;
-          int _address2227;
+          int _F2404;
+          int _value2403;
+          int _address2403;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2227 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_4967 = memory.read(_address2227, 0);
-          contend(_address2227, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2227 = operand_4967;
-          int value1_4968 = _value2227;
-          _F2228 = value1_4968 & 1;
+          _address2403 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_4967 = memory.read(_address2403, 0);
+          contend(_address2403, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2403 = operand_4967;
+          int value1_4968 = _value2403;
+          _F2404 = value1_4968 & 1;
           value1_4968 = (value1_4968 >> 1) | (value1_4968 << 7);
           value1_4968 &= 0xff;
-          _F2228 |= (SZ53P[value1_4968 & 0xff] | (value1_4968 == 0 ? 0x40 : 0));
+          _F2404 |= (SZ53P[value1_4968 & 0xff] | (value1_4968 == 0 ? 0x40 : 0));
           int result_4971 = value1_4968 & 0xFF;
-          F = (_F2228 & 0xFF);
-          _address2227 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2227 = result_4971;
-          memory.write(_address2227, result_4971);
+          F = (_F2404 & 0xFF);
+          _address2403 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2403 = result_4971;
+          memory.write(_address2403, result_4971);
           int read_4972;
-          read_4972 = _value2227;
+          read_4972 = _value2403;
           D = read_4972;
-          MEMPTR = _address2227;
+          MEMPTR = _address2403;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x0B: {
-          int _F2231;
-          int _value2230;
-          int _address2230;
+          int _F2407;
+          int _value2406;
+          int _address2406;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2230 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_4973 = memory.read(_address2230, 0);
-          contend(_address2230, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2230 = operand_4973;
-          int value1_4974 = _value2230;
-          _F2231 = value1_4974 & 1;
+          _address2406 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_4973 = memory.read(_address2406, 0);
+          contend(_address2406, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2406 = operand_4973;
+          int value1_4974 = _value2406;
+          _F2407 = value1_4974 & 1;
           value1_4974 = (value1_4974 >> 1) | (value1_4974 << 7);
           value1_4974 &= 0xff;
-          _F2231 |= (SZ53P[value1_4974 & 0xff] | (value1_4974 == 0 ? 0x40 : 0));
+          _F2407 |= (SZ53P[value1_4974 & 0xff] | (value1_4974 == 0 ? 0x40 : 0));
           int result_4977 = value1_4974 & 0xFF;
-          F = (_F2231 & 0xFF);
-          _address2230 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2230 = result_4977;
-          memory.write(_address2230, result_4977);
+          F = (_F2407 & 0xFF);
+          _address2406 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2406 = result_4977;
+          memory.write(_address2406, result_4977);
           int read_4978;
-          read_4978 = _value2230;
+          read_4978 = _value2406;
           E = read_4978;
-          MEMPTR = _address2230;
+          MEMPTR = _address2406;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x0C: {
-          int _F2234;
-          int _value2233;
-          int _address2233;
+          int _F2410;
+          int _value2409;
+          int _address2409;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2233 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_4979 = memory.read(_address2233, 0);
-          contend(_address2233, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2233 = operand_4979;
-          int value1_4980 = _value2233;
-          _F2234 = value1_4980 & 1;
+          _address2409 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_4979 = memory.read(_address2409, 0);
+          contend(_address2409, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2409 = operand_4979;
+          int value1_4980 = _value2409;
+          _F2410 = value1_4980 & 1;
           value1_4980 = (value1_4980 >> 1) | (value1_4980 << 7);
           value1_4980 &= 0xff;
-          _F2234 |= (SZ53P[value1_4980 & 0xff] | (value1_4980 == 0 ? 0x40 : 0));
+          _F2410 |= (SZ53P[value1_4980 & 0xff] | (value1_4980 == 0 ? 0x40 : 0));
           int result_4983 = value1_4980 & 0xFF;
-          F = (_F2234 & 0xFF);
-          _address2233 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2233 = result_4983;
-          memory.write(_address2233, result_4983);
+          F = (_F2410 & 0xFF);
+          _address2409 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2409 = result_4983;
+          memory.write(_address2409, result_4983);
           int read_4984;
-          read_4984 = _value2233;
+          read_4984 = _value2409;
           H = read_4984;
-          MEMPTR = _address2233;
+          MEMPTR = _address2409;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x0D: {
-          int _F2237;
-          int _value2236;
-          int _address2236;
+          int _F2413;
+          int _value2412;
+          int _address2412;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2236 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_4985 = memory.read(_address2236, 0);
-          contend(_address2236, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2236 = operand_4985;
-          int value1_4986 = _value2236;
-          _F2237 = value1_4986 & 1;
+          _address2412 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_4985 = memory.read(_address2412, 0);
+          contend(_address2412, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2412 = operand_4985;
+          int value1_4986 = _value2412;
+          _F2413 = value1_4986 & 1;
           value1_4986 = (value1_4986 >> 1) | (value1_4986 << 7);
           value1_4986 &= 0xff;
-          _F2237 |= (SZ53P[value1_4986 & 0xff] | (value1_4986 == 0 ? 0x40 : 0));
+          _F2413 |= (SZ53P[value1_4986 & 0xff] | (value1_4986 == 0 ? 0x40 : 0));
           int result_4989 = value1_4986 & 0xFF;
-          F = (_F2237 & 0xFF);
-          _address2236 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2236 = result_4989;
-          memory.write(_address2236, result_4989);
+          F = (_F2413 & 0xFF);
+          _address2412 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2412 = result_4989;
+          memory.write(_address2412, result_4989);
           int read_4990;
-          read_4990 = _value2236;
+          read_4990 = _value2412;
           L = read_4990;
-          MEMPTR = _address2236;
+          MEMPTR = _address2412;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x0E: {
-          int _F2240;
-          int _value2239;
-          int _address2239;
+          int _F2416;
+          int _value2415;
+          int _address2415;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2239 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_4991 = memory.read(_address2239, 0);
-          contend(_address2239, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2239 = operand_4991;
-          int value1_4992 = _value2239;
-          _F2240 = value1_4992 & 1;
+          _address2415 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_4991 = memory.read(_address2415, 0);
+          contend(_address2415, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2415 = operand_4991;
+          int value1_4992 = _value2415;
+          _F2416 = value1_4992 & 1;
           value1_4992 = (value1_4992 >> 1) | (value1_4992 << 7);
           value1_4992 &= 0xff;
-          _F2240 |= (SZ53P[value1_4992 & 0xff] | (value1_4992 == 0 ? 0x40 : 0));
+          _F2416 |= (SZ53P[value1_4992 & 0xff] | (value1_4992 == 0 ? 0x40 : 0));
           int result_4995 = value1_4992 & 0xFF;
-          F = (_F2240 & 0xFF);
-          _address2239 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2239 = result_4995;
-          memory.write(_address2239, result_4995);
-          MEMPTR = _address2239;
+          F = (_F2416 & 0xFF);
+          _address2415 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2415 = result_4995;
+          memory.write(_address2415, result_4995);
+          MEMPTR = _address2415;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x0F: {
-          int _F2243;
-          int _value2242;
-          int _address2242;
+          int _F2419;
+          int _value2418;
+          int _address2418;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2242 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_4996 = memory.read(_address2242, 0);
-          contend(_address2242, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2242 = operand_4996;
-          int value1_4997 = _value2242;
-          _F2243 = value1_4997 & 1;
+          _address2418 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_4996 = memory.read(_address2418, 0);
+          contend(_address2418, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2418 = operand_4996;
+          int value1_4997 = _value2418;
+          _F2419 = value1_4997 & 1;
           value1_4997 = (value1_4997 >> 1) | (value1_4997 << 7);
           value1_4997 &= 0xff;
-          _F2243 |= (SZ53P[value1_4997 & 0xff] | (value1_4997 == 0 ? 0x40 : 0));
+          _F2419 |= (SZ53P[value1_4997 & 0xff] | (value1_4997 == 0 ? 0x40 : 0));
           int result_5000 = value1_4997 & 0xFF;
-          F = (_F2243 & 0xFF);
-          _address2242 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2242 = result_5000;
-          memory.write(_address2242, result_5000);
+          F = (_F2419 & 0xFF);
+          _address2418 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2418 = result_5000;
+          memory.write(_address2418, result_5000);
           int read_5001;
-          read_5001 = _value2242;
+          read_5001 = _value2418;
           A = read_5001;
-          MEMPTR = _address2242;
+          MEMPTR = _address2418;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -19964,444 +20758,444 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFDCB_1(int opcode, int displacement) {
     switch (opcode) {
       case 0x10: {
-          int _F2246;
-          int _value2245;
-          int _address2245;
+          int _F2422;
+          int _value2421;
+          int _address2421;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2245 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5002 = memory.read(_address2245, 0);
-          contend(_address2245, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2245 = operand_5002;
-          int value1_5003 = _value2245;
+          _address2421 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5002 = memory.read(_address2421, 0);
+          contend(_address2421, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2421 = operand_5002;
+          int value1_5003 = _value2421;
           int value2_5004 = F;
-          _F2246 = value2_5004;
+          _F2422 = value2_5004;
           int rltemp_5006 = value1_5003;
-          value1_5003 = (value1_5003 << 1) | (_F2246 & 1);
+          value1_5003 = (value1_5003 << 1) | (_F2422 & 1);
           value1_5003 &= 0xff;
-          _F2246 = (rltemp_5006 >> 7) | (SZ53P[value1_5003 & 0xff] | (value1_5003 == 0 ? 0x40 : 0));
+          _F2422 = (rltemp_5006 >> 7) | (SZ53P[value1_5003 & 0xff] | (value1_5003 == 0 ? 0x40 : 0));
           int result_5007 = value1_5003 & 0xFF;
-          F = (_F2246 & 0xFF);
-          _address2245 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2245 = result_5007;
-          memory.write(_address2245, result_5007);
+          F = (_F2422 & 0xFF);
+          _address2421 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2421 = result_5007;
+          memory.write(_address2421, result_5007);
           int read_5008;
-          read_5008 = _value2245;
+          read_5008 = _value2421;
           B = read_5008;
-          MEMPTR = _address2245;
+          MEMPTR = _address2421;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x11: {
-          int _F2249;
-          int _value2248;
-          int _address2248;
+          int _F2425;
+          int _value2424;
+          int _address2424;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2248 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5009 = memory.read(_address2248, 0);
-          contend(_address2248, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2248 = operand_5009;
-          int value1_5010 = _value2248;
+          _address2424 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5009 = memory.read(_address2424, 0);
+          contend(_address2424, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2424 = operand_5009;
+          int value1_5010 = _value2424;
           int value2_5011 = F;
-          _F2249 = value2_5011;
+          _F2425 = value2_5011;
           int rltemp_5013 = value1_5010;
-          value1_5010 = (value1_5010 << 1) | (_F2249 & 1);
+          value1_5010 = (value1_5010 << 1) | (_F2425 & 1);
           value1_5010 &= 0xff;
-          _F2249 = (rltemp_5013 >> 7) | (SZ53P[value1_5010 & 0xff] | (value1_5010 == 0 ? 0x40 : 0));
+          _F2425 = (rltemp_5013 >> 7) | (SZ53P[value1_5010 & 0xff] | (value1_5010 == 0 ? 0x40 : 0));
           int result_5014 = value1_5010 & 0xFF;
-          F = (_F2249 & 0xFF);
-          _address2248 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2248 = result_5014;
-          memory.write(_address2248, result_5014);
+          F = (_F2425 & 0xFF);
+          _address2424 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2424 = result_5014;
+          memory.write(_address2424, result_5014);
           int read_5015;
-          read_5015 = _value2248;
+          read_5015 = _value2424;
           C = read_5015;
-          MEMPTR = _address2248;
+          MEMPTR = _address2424;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x12: {
-          int _F2252;
-          int _value2251;
-          int _address2251;
+          int _F2428;
+          int _value2427;
+          int _address2427;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2251 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5016 = memory.read(_address2251, 0);
-          contend(_address2251, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2251 = operand_5016;
-          int value1_5017 = _value2251;
+          _address2427 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5016 = memory.read(_address2427, 0);
+          contend(_address2427, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2427 = operand_5016;
+          int value1_5017 = _value2427;
           int value2_5018 = F;
-          _F2252 = value2_5018;
+          _F2428 = value2_5018;
           int rltemp_5020 = value1_5017;
-          value1_5017 = (value1_5017 << 1) | (_F2252 & 1);
+          value1_5017 = (value1_5017 << 1) | (_F2428 & 1);
           value1_5017 &= 0xff;
-          _F2252 = (rltemp_5020 >> 7) | (SZ53P[value1_5017 & 0xff] | (value1_5017 == 0 ? 0x40 : 0));
+          _F2428 = (rltemp_5020 >> 7) | (SZ53P[value1_5017 & 0xff] | (value1_5017 == 0 ? 0x40 : 0));
           int result_5021 = value1_5017 & 0xFF;
-          F = (_F2252 & 0xFF);
-          _address2251 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2251 = result_5021;
-          memory.write(_address2251, result_5021);
+          F = (_F2428 & 0xFF);
+          _address2427 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2427 = result_5021;
+          memory.write(_address2427, result_5021);
           int read_5022;
-          read_5022 = _value2251;
+          read_5022 = _value2427;
           D = read_5022;
-          MEMPTR = _address2251;
+          MEMPTR = _address2427;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x13: {
-          int _F2255;
-          int _value2254;
-          int _address2254;
+          int _F2431;
+          int _value2430;
+          int _address2430;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2254 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5023 = memory.read(_address2254, 0);
-          contend(_address2254, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2254 = operand_5023;
-          int value1_5024 = _value2254;
+          _address2430 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5023 = memory.read(_address2430, 0);
+          contend(_address2430, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2430 = operand_5023;
+          int value1_5024 = _value2430;
           int value2_5025 = F;
-          _F2255 = value2_5025;
+          _F2431 = value2_5025;
           int rltemp_5027 = value1_5024;
-          value1_5024 = (value1_5024 << 1) | (_F2255 & 1);
+          value1_5024 = (value1_5024 << 1) | (_F2431 & 1);
           value1_5024 &= 0xff;
-          _F2255 = (rltemp_5027 >> 7) | (SZ53P[value1_5024 & 0xff] | (value1_5024 == 0 ? 0x40 : 0));
+          _F2431 = (rltemp_5027 >> 7) | (SZ53P[value1_5024 & 0xff] | (value1_5024 == 0 ? 0x40 : 0));
           int result_5028 = value1_5024 & 0xFF;
-          F = (_F2255 & 0xFF);
-          _address2254 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2254 = result_5028;
-          memory.write(_address2254, result_5028);
+          F = (_F2431 & 0xFF);
+          _address2430 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2430 = result_5028;
+          memory.write(_address2430, result_5028);
           int read_5029;
-          read_5029 = _value2254;
+          read_5029 = _value2430;
           E = read_5029;
-          MEMPTR = _address2254;
+          MEMPTR = _address2430;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x14: {
-          int _F2258;
-          int _value2257;
-          int _address2257;
+          int _F2434;
+          int _value2433;
+          int _address2433;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2257 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5030 = memory.read(_address2257, 0);
-          contend(_address2257, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2257 = operand_5030;
-          int value1_5031 = _value2257;
+          _address2433 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5030 = memory.read(_address2433, 0);
+          contend(_address2433, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2433 = operand_5030;
+          int value1_5031 = _value2433;
           int value2_5032 = F;
-          _F2258 = value2_5032;
+          _F2434 = value2_5032;
           int rltemp_5034 = value1_5031;
-          value1_5031 = (value1_5031 << 1) | (_F2258 & 1);
+          value1_5031 = (value1_5031 << 1) | (_F2434 & 1);
           value1_5031 &= 0xff;
-          _F2258 = (rltemp_5034 >> 7) | (SZ53P[value1_5031 & 0xff] | (value1_5031 == 0 ? 0x40 : 0));
+          _F2434 = (rltemp_5034 >> 7) | (SZ53P[value1_5031 & 0xff] | (value1_5031 == 0 ? 0x40 : 0));
           int result_5035 = value1_5031 & 0xFF;
-          F = (_F2258 & 0xFF);
-          _address2257 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2257 = result_5035;
-          memory.write(_address2257, result_5035);
+          F = (_F2434 & 0xFF);
+          _address2433 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2433 = result_5035;
+          memory.write(_address2433, result_5035);
           int read_5036;
-          read_5036 = _value2257;
+          read_5036 = _value2433;
           H = read_5036;
-          MEMPTR = _address2257;
+          MEMPTR = _address2433;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x15: {
-          int _F2261;
-          int _value2260;
-          int _address2260;
+          int _F2437;
+          int _value2436;
+          int _address2436;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2260 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5037 = memory.read(_address2260, 0);
-          contend(_address2260, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2260 = operand_5037;
-          int value1_5038 = _value2260;
+          _address2436 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5037 = memory.read(_address2436, 0);
+          contend(_address2436, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2436 = operand_5037;
+          int value1_5038 = _value2436;
           int value2_5039 = F;
-          _F2261 = value2_5039;
+          _F2437 = value2_5039;
           int rltemp_5041 = value1_5038;
-          value1_5038 = (value1_5038 << 1) | (_F2261 & 1);
+          value1_5038 = (value1_5038 << 1) | (_F2437 & 1);
           value1_5038 &= 0xff;
-          _F2261 = (rltemp_5041 >> 7) | (SZ53P[value1_5038 & 0xff] | (value1_5038 == 0 ? 0x40 : 0));
+          _F2437 = (rltemp_5041 >> 7) | (SZ53P[value1_5038 & 0xff] | (value1_5038 == 0 ? 0x40 : 0));
           int result_5042 = value1_5038 & 0xFF;
-          F = (_F2261 & 0xFF);
-          _address2260 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2260 = result_5042;
-          memory.write(_address2260, result_5042);
+          F = (_F2437 & 0xFF);
+          _address2436 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2436 = result_5042;
+          memory.write(_address2436, result_5042);
           int read_5043;
-          read_5043 = _value2260;
+          read_5043 = _value2436;
           L = read_5043;
-          MEMPTR = _address2260;
+          MEMPTR = _address2436;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x16: {
-          int _F2264;
-          int _value2263;
-          int _address2263;
+          int _F2440;
+          int _value2439;
+          int _address2439;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2263 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5044 = memory.read(_address2263, 0);
-          contend(_address2263, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2263 = operand_5044;
-          int value1_5045 = _value2263;
+          _address2439 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5044 = memory.read(_address2439, 0);
+          contend(_address2439, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2439 = operand_5044;
+          int value1_5045 = _value2439;
           int value2_5046 = F;
-          _F2264 = value2_5046;
+          _F2440 = value2_5046;
           int rltemp_5048 = value1_5045;
-          value1_5045 = (value1_5045 << 1) | (_F2264 & 1);
+          value1_5045 = (value1_5045 << 1) | (_F2440 & 1);
           value1_5045 &= 0xff;
-          _F2264 = (rltemp_5048 >> 7) | (SZ53P[value1_5045 & 0xff] | (value1_5045 == 0 ? 0x40 : 0));
+          _F2440 = (rltemp_5048 >> 7) | (SZ53P[value1_5045 & 0xff] | (value1_5045 == 0 ? 0x40 : 0));
           int result_5049 = value1_5045 & 0xFF;
-          F = (_F2264 & 0xFF);
-          _address2263 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2263 = result_5049;
-          memory.write(_address2263, result_5049);
-          MEMPTR = _address2263;
+          F = (_F2440 & 0xFF);
+          _address2439 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2439 = result_5049;
+          memory.write(_address2439, result_5049);
+          MEMPTR = _address2439;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x17: {
-          int _F2267;
-          int _value2266;
-          int _address2266;
+          int _F2443;
+          int _value2442;
+          int _address2442;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2266 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5050 = memory.read(_address2266, 0);
-          contend(_address2266, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2266 = operand_5050;
-          int value1_5051 = _value2266;
+          _address2442 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5050 = memory.read(_address2442, 0);
+          contend(_address2442, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2442 = operand_5050;
+          int value1_5051 = _value2442;
           int value2_5052 = F;
-          _F2267 = value2_5052;
+          _F2443 = value2_5052;
           int rltemp_5054 = value1_5051;
-          value1_5051 = (value1_5051 << 1) | (_F2267 & 1);
+          value1_5051 = (value1_5051 << 1) | (_F2443 & 1);
           value1_5051 &= 0xff;
-          _F2267 = (rltemp_5054 >> 7) | (SZ53P[value1_5051 & 0xff] | (value1_5051 == 0 ? 0x40 : 0));
+          _F2443 = (rltemp_5054 >> 7) | (SZ53P[value1_5051 & 0xff] | (value1_5051 == 0 ? 0x40 : 0));
           int result_5055 = value1_5051 & 0xFF;
-          F = (_F2267 & 0xFF);
-          _address2266 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2266 = result_5055;
-          memory.write(_address2266, result_5055);
+          F = (_F2443 & 0xFF);
+          _address2442 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2442 = result_5055;
+          memory.write(_address2442, result_5055);
           int read_5056;
-          read_5056 = _value2266;
+          read_5056 = _value2442;
           A = read_5056;
-          MEMPTR = _address2266;
+          MEMPTR = _address2442;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x18: {
-          int _F2270;
-          int _value2269;
-          int _address2269;
+          int _F2446;
+          int _value2445;
+          int _address2445;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2269 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5057 = memory.read(_address2269, 0);
-          contend(_address2269, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2269 = operand_5057;
-          int value1_5058 = _value2269;
+          _address2445 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5057 = memory.read(_address2445, 0);
+          contend(_address2445, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2445 = operand_5057;
+          int value1_5058 = _value2445;
           int value2_5059 = F;
-          _F2270 = value2_5059;
+          _F2446 = value2_5059;
           int rrtemp_5061 = value1_5058;
-          value1_5058 = (value1_5058 >> 1) | (_F2270 << 7);
+          value1_5058 = (value1_5058 >> 1) | (_F2446 << 7);
           value1_5058 &= 0xff;
-          _F2270 = (rrtemp_5061 & 1) | (SZ53P[value1_5058 & 0xff] | (value1_5058 == 0 ? 0x40 : 0));
+          _F2446 = (rrtemp_5061 & 1) | (SZ53P[value1_5058 & 0xff] | (value1_5058 == 0 ? 0x40 : 0));
           int result_5062 = value1_5058 & 0xFF;
-          F = (_F2270 & 0xFF);
-          _address2269 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2269 = result_5062;
-          memory.write(_address2269, result_5062);
+          F = (_F2446 & 0xFF);
+          _address2445 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2445 = result_5062;
+          memory.write(_address2445, result_5062);
           int read_5063;
-          read_5063 = _value2269;
+          read_5063 = _value2445;
           B = read_5063;
-          MEMPTR = _address2269;
+          MEMPTR = _address2445;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x19: {
-          int _F2273;
-          int _value2272;
-          int _address2272;
+          int _F2449;
+          int _value2448;
+          int _address2448;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2272 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5064 = memory.read(_address2272, 0);
-          contend(_address2272, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2272 = operand_5064;
-          int value1_5065 = _value2272;
+          _address2448 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5064 = memory.read(_address2448, 0);
+          contend(_address2448, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2448 = operand_5064;
+          int value1_5065 = _value2448;
           int value2_5066 = F;
-          _F2273 = value2_5066;
+          _F2449 = value2_5066;
           int rrtemp_5068 = value1_5065;
-          value1_5065 = (value1_5065 >> 1) | (_F2273 << 7);
+          value1_5065 = (value1_5065 >> 1) | (_F2449 << 7);
           value1_5065 &= 0xff;
-          _F2273 = (rrtemp_5068 & 1) | (SZ53P[value1_5065 & 0xff] | (value1_5065 == 0 ? 0x40 : 0));
+          _F2449 = (rrtemp_5068 & 1) | (SZ53P[value1_5065 & 0xff] | (value1_5065 == 0 ? 0x40 : 0));
           int result_5069 = value1_5065 & 0xFF;
-          F = (_F2273 & 0xFF);
-          _address2272 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2272 = result_5069;
-          memory.write(_address2272, result_5069);
+          F = (_F2449 & 0xFF);
+          _address2448 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2448 = result_5069;
+          memory.write(_address2448, result_5069);
           int read_5070;
-          read_5070 = _value2272;
+          read_5070 = _value2448;
           C = read_5070;
-          MEMPTR = _address2272;
+          MEMPTR = _address2448;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x1A: {
-          int _F2276;
-          int _value2275;
-          int _address2275;
+          int _F2452;
+          int _value2451;
+          int _address2451;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2275 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5071 = memory.read(_address2275, 0);
-          contend(_address2275, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2275 = operand_5071;
-          int value1_5072 = _value2275;
+          _address2451 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5071 = memory.read(_address2451, 0);
+          contend(_address2451, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2451 = operand_5071;
+          int value1_5072 = _value2451;
           int value2_5073 = F;
-          _F2276 = value2_5073;
+          _F2452 = value2_5073;
           int rrtemp_5075 = value1_5072;
-          value1_5072 = (value1_5072 >> 1) | (_F2276 << 7);
+          value1_5072 = (value1_5072 >> 1) | (_F2452 << 7);
           value1_5072 &= 0xff;
-          _F2276 = (rrtemp_5075 & 1) | (SZ53P[value1_5072 & 0xff] | (value1_5072 == 0 ? 0x40 : 0));
+          _F2452 = (rrtemp_5075 & 1) | (SZ53P[value1_5072 & 0xff] | (value1_5072 == 0 ? 0x40 : 0));
           int result_5076 = value1_5072 & 0xFF;
-          F = (_F2276 & 0xFF);
-          _address2275 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2275 = result_5076;
-          memory.write(_address2275, result_5076);
+          F = (_F2452 & 0xFF);
+          _address2451 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2451 = result_5076;
+          memory.write(_address2451, result_5076);
           int read_5077;
-          read_5077 = _value2275;
+          read_5077 = _value2451;
           D = read_5077;
-          MEMPTR = _address2275;
+          MEMPTR = _address2451;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x1B: {
-          int _F2279;
-          int _value2278;
-          int _address2278;
+          int _F2455;
+          int _value2454;
+          int _address2454;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2278 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5078 = memory.read(_address2278, 0);
-          contend(_address2278, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2278 = operand_5078;
-          int value1_5079 = _value2278;
+          _address2454 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5078 = memory.read(_address2454, 0);
+          contend(_address2454, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2454 = operand_5078;
+          int value1_5079 = _value2454;
           int value2_5080 = F;
-          _F2279 = value2_5080;
+          _F2455 = value2_5080;
           int rrtemp_5082 = value1_5079;
-          value1_5079 = (value1_5079 >> 1) | (_F2279 << 7);
+          value1_5079 = (value1_5079 >> 1) | (_F2455 << 7);
           value1_5079 &= 0xff;
-          _F2279 = (rrtemp_5082 & 1) | (SZ53P[value1_5079 & 0xff] | (value1_5079 == 0 ? 0x40 : 0));
+          _F2455 = (rrtemp_5082 & 1) | (SZ53P[value1_5079 & 0xff] | (value1_5079 == 0 ? 0x40 : 0));
           int result_5083 = value1_5079 & 0xFF;
-          F = (_F2279 & 0xFF);
-          _address2278 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2278 = result_5083;
-          memory.write(_address2278, result_5083);
+          F = (_F2455 & 0xFF);
+          _address2454 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2454 = result_5083;
+          memory.write(_address2454, result_5083);
           int read_5084;
-          read_5084 = _value2278;
+          read_5084 = _value2454;
           E = read_5084;
-          MEMPTR = _address2278;
+          MEMPTR = _address2454;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x1C: {
-          int _F2282;
-          int _value2281;
-          int _address2281;
+          int _F2458;
+          int _value2457;
+          int _address2457;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2281 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5085 = memory.read(_address2281, 0);
-          contend(_address2281, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2281 = operand_5085;
-          int value1_5086 = _value2281;
+          _address2457 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5085 = memory.read(_address2457, 0);
+          contend(_address2457, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2457 = operand_5085;
+          int value1_5086 = _value2457;
           int value2_5087 = F;
-          _F2282 = value2_5087;
+          _F2458 = value2_5087;
           int rrtemp_5089 = value1_5086;
-          value1_5086 = (value1_5086 >> 1) | (_F2282 << 7);
+          value1_5086 = (value1_5086 >> 1) | (_F2458 << 7);
           value1_5086 &= 0xff;
-          _F2282 = (rrtemp_5089 & 1) | (SZ53P[value1_5086 & 0xff] | (value1_5086 == 0 ? 0x40 : 0));
+          _F2458 = (rrtemp_5089 & 1) | (SZ53P[value1_5086 & 0xff] | (value1_5086 == 0 ? 0x40 : 0));
           int result_5090 = value1_5086 & 0xFF;
-          F = (_F2282 & 0xFF);
-          _address2281 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2281 = result_5090;
-          memory.write(_address2281, result_5090);
+          F = (_F2458 & 0xFF);
+          _address2457 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2457 = result_5090;
+          memory.write(_address2457, result_5090);
           int read_5091;
-          read_5091 = _value2281;
+          read_5091 = _value2457;
           H = read_5091;
-          MEMPTR = _address2281;
+          MEMPTR = _address2457;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x1D: {
-          int _F2285;
-          int _value2284;
-          int _address2284;
+          int _F2461;
+          int _value2460;
+          int _address2460;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2284 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5092 = memory.read(_address2284, 0);
-          contend(_address2284, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2284 = operand_5092;
-          int value1_5093 = _value2284;
+          _address2460 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5092 = memory.read(_address2460, 0);
+          contend(_address2460, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2460 = operand_5092;
+          int value1_5093 = _value2460;
           int value2_5094 = F;
-          _F2285 = value2_5094;
+          _F2461 = value2_5094;
           int rrtemp_5096 = value1_5093;
-          value1_5093 = (value1_5093 >> 1) | (_F2285 << 7);
+          value1_5093 = (value1_5093 >> 1) | (_F2461 << 7);
           value1_5093 &= 0xff;
-          _F2285 = (rrtemp_5096 & 1) | (SZ53P[value1_5093 & 0xff] | (value1_5093 == 0 ? 0x40 : 0));
+          _F2461 = (rrtemp_5096 & 1) | (SZ53P[value1_5093 & 0xff] | (value1_5093 == 0 ? 0x40 : 0));
           int result_5097 = value1_5093 & 0xFF;
-          F = (_F2285 & 0xFF);
-          _address2284 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2284 = result_5097;
-          memory.write(_address2284, result_5097);
+          F = (_F2461 & 0xFF);
+          _address2460 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2460 = result_5097;
+          memory.write(_address2460, result_5097);
           int read_5098;
-          read_5098 = _value2284;
+          read_5098 = _value2460;
           L = read_5098;
-          MEMPTR = _address2284;
+          MEMPTR = _address2460;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x1E: {
-          int _F2288;
-          int _value2287;
-          int _address2287;
+          int _F2464;
+          int _value2463;
+          int _address2463;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2287 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5099 = memory.read(_address2287, 0);
-          contend(_address2287, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2287 = operand_5099;
-          int value1_5100 = _value2287;
+          _address2463 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5099 = memory.read(_address2463, 0);
+          contend(_address2463, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2463 = operand_5099;
+          int value1_5100 = _value2463;
           int value2_5101 = F;
-          _F2288 = value2_5101;
+          _F2464 = value2_5101;
           int rrtemp_5103 = value1_5100;
-          value1_5100 = (value1_5100 >> 1) | (_F2288 << 7);
+          value1_5100 = (value1_5100 >> 1) | (_F2464 << 7);
           value1_5100 &= 0xff;
-          _F2288 = (rrtemp_5103 & 1) | (SZ53P[value1_5100 & 0xff] | (value1_5100 == 0 ? 0x40 : 0));
+          _F2464 = (rrtemp_5103 & 1) | (SZ53P[value1_5100 & 0xff] | (value1_5100 == 0 ? 0x40 : 0));
           int result_5104 = value1_5100 & 0xFF;
-          F = (_F2288 & 0xFF);
-          _address2287 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2287 = result_5104;
-          memory.write(_address2287, result_5104);
-          MEMPTR = _address2287;
+          F = (_F2464 & 0xFF);
+          _address2463 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2463 = result_5104;
+          memory.write(_address2463, result_5104);
+          MEMPTR = _address2463;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x1F: {
-          int _F2291;
-          int _value2290;
-          int _address2290;
+          int _F2467;
+          int _value2466;
+          int _address2466;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2290 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5105 = memory.read(_address2290, 0);
-          contend(_address2290, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2290 = operand_5105;
-          int value1_5106 = _value2290;
+          _address2466 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5105 = memory.read(_address2466, 0);
+          contend(_address2466, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2466 = operand_5105;
+          int value1_5106 = _value2466;
           int value2_5107 = F;
-          _F2291 = value2_5107;
+          _F2467 = value2_5107;
           int rrtemp_5109 = value1_5106;
-          value1_5106 = (value1_5106 >> 1) | (_F2291 << 7);
+          value1_5106 = (value1_5106 >> 1) | (_F2467 << 7);
           value1_5106 &= 0xff;
-          _F2291 = (rrtemp_5109 & 1) | (SZ53P[value1_5106 & 0xff] | (value1_5106 == 0 ? 0x40 : 0));
+          _F2467 = (rrtemp_5109 & 1) | (SZ53P[value1_5106 & 0xff] | (value1_5106 == 0 ? 0x40 : 0));
           int result_5110 = value1_5106 & 0xFF;
-          F = (_F2291 & 0xFF);
-          _address2290 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2290 = result_5110;
-          memory.write(_address2290, result_5110);
+          F = (_F2467 & 0xFF);
+          _address2466 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2466 = result_5110;
+          memory.write(_address2466, result_5110);
           int read_5111;
-          read_5111 = _value2290;
+          read_5111 = _value2466;
           A = read_5111;
-          MEMPTR = _address2290;
+          MEMPTR = _address2466;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -20413,412 +21207,412 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFDCB_2(int opcode, int displacement) {
     switch (opcode) {
       case 0x20: {
-          int _F2294;
-          int _value2293;
-          int _address2293;
+          int _F2470;
+          int _value2469;
+          int _address2469;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2293 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5112 = memory.read(_address2293, 0);
-          contend(_address2293, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2293 = operand_5112;
-          int value1_5113 = _value2293;
-          _F2294 = value1_5113 >> 7;
+          _address2469 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5112 = memory.read(_address2469, 0);
+          contend(_address2469, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2469 = operand_5112;
+          int value1_5113 = _value2469;
+          _F2470 = value1_5113 >> 7;
           value1_5113 <<= 1;
           value1_5113 &= 0xff;
-          _F2294 |= (SZ53P[value1_5113 & 0xff] | (value1_5113 == 0 ? 0x40 : 0));
+          _F2470 |= (SZ53P[value1_5113 & 0xff] | (value1_5113 == 0 ? 0x40 : 0));
           int result_5116 = value1_5113 & 0xFF;
-          F = (_F2294 & 0xFF);
-          _address2293 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2293 = result_5116;
-          memory.write(_address2293, result_5116);
+          F = (_F2470 & 0xFF);
+          _address2469 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2469 = result_5116;
+          memory.write(_address2469, result_5116);
           int read_5117;
-          read_5117 = _value2293;
+          read_5117 = _value2469;
           B = read_5117;
-          MEMPTR = _address2293;
+          MEMPTR = _address2469;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x21: {
-          int _F2297;
-          int _value2296;
-          int _address2296;
+          int _F2473;
+          int _value2472;
+          int _address2472;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2296 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5118 = memory.read(_address2296, 0);
-          contend(_address2296, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2296 = operand_5118;
-          int value1_5119 = _value2296;
-          _F2297 = value1_5119 >> 7;
+          _address2472 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5118 = memory.read(_address2472, 0);
+          contend(_address2472, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2472 = operand_5118;
+          int value1_5119 = _value2472;
+          _F2473 = value1_5119 >> 7;
           value1_5119 <<= 1;
           value1_5119 &= 0xff;
-          _F2297 |= (SZ53P[value1_5119 & 0xff] | (value1_5119 == 0 ? 0x40 : 0));
+          _F2473 |= (SZ53P[value1_5119 & 0xff] | (value1_5119 == 0 ? 0x40 : 0));
           int result_5122 = value1_5119 & 0xFF;
-          F = (_F2297 & 0xFF);
-          _address2296 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2296 = result_5122;
-          memory.write(_address2296, result_5122);
+          F = (_F2473 & 0xFF);
+          _address2472 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2472 = result_5122;
+          memory.write(_address2472, result_5122);
           int read_5123;
-          read_5123 = _value2296;
+          read_5123 = _value2472;
           C = read_5123;
-          MEMPTR = _address2296;
+          MEMPTR = _address2472;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x22: {
-          int _F2300;
-          int _value2299;
-          int _address2299;
+          int _F2476;
+          int _value2475;
+          int _address2475;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2299 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5124 = memory.read(_address2299, 0);
-          contend(_address2299, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2299 = operand_5124;
-          int value1_5125 = _value2299;
-          _F2300 = value1_5125 >> 7;
+          _address2475 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5124 = memory.read(_address2475, 0);
+          contend(_address2475, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2475 = operand_5124;
+          int value1_5125 = _value2475;
+          _F2476 = value1_5125 >> 7;
           value1_5125 <<= 1;
           value1_5125 &= 0xff;
-          _F2300 |= (SZ53P[value1_5125 & 0xff] | (value1_5125 == 0 ? 0x40 : 0));
+          _F2476 |= (SZ53P[value1_5125 & 0xff] | (value1_5125 == 0 ? 0x40 : 0));
           int result_5128 = value1_5125 & 0xFF;
-          F = (_F2300 & 0xFF);
-          _address2299 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2299 = result_5128;
-          memory.write(_address2299, result_5128);
+          F = (_F2476 & 0xFF);
+          _address2475 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2475 = result_5128;
+          memory.write(_address2475, result_5128);
           int read_5129;
-          read_5129 = _value2299;
+          read_5129 = _value2475;
           D = read_5129;
-          MEMPTR = _address2299;
+          MEMPTR = _address2475;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x23: {
-          int _F2303;
-          int _value2302;
-          int _address2302;
+          int _F2479;
+          int _value2478;
+          int _address2478;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2302 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5130 = memory.read(_address2302, 0);
-          contend(_address2302, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2302 = operand_5130;
-          int value1_5131 = _value2302;
-          _F2303 = value1_5131 >> 7;
+          _address2478 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5130 = memory.read(_address2478, 0);
+          contend(_address2478, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2478 = operand_5130;
+          int value1_5131 = _value2478;
+          _F2479 = value1_5131 >> 7;
           value1_5131 <<= 1;
           value1_5131 &= 0xff;
-          _F2303 |= (SZ53P[value1_5131 & 0xff] | (value1_5131 == 0 ? 0x40 : 0));
+          _F2479 |= (SZ53P[value1_5131 & 0xff] | (value1_5131 == 0 ? 0x40 : 0));
           int result_5134 = value1_5131 & 0xFF;
-          F = (_F2303 & 0xFF);
-          _address2302 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2302 = result_5134;
-          memory.write(_address2302, result_5134);
+          F = (_F2479 & 0xFF);
+          _address2478 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2478 = result_5134;
+          memory.write(_address2478, result_5134);
           int read_5135;
-          read_5135 = _value2302;
+          read_5135 = _value2478;
           E = read_5135;
-          MEMPTR = _address2302;
+          MEMPTR = _address2478;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x24: {
-          int _F2306;
-          int _value2305;
-          int _address2305;
+          int _F2482;
+          int _value2481;
+          int _address2481;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2305 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5136 = memory.read(_address2305, 0);
-          contend(_address2305, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2305 = operand_5136;
-          int value1_5137 = _value2305;
-          _F2306 = value1_5137 >> 7;
+          _address2481 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5136 = memory.read(_address2481, 0);
+          contend(_address2481, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2481 = operand_5136;
+          int value1_5137 = _value2481;
+          _F2482 = value1_5137 >> 7;
           value1_5137 <<= 1;
           value1_5137 &= 0xff;
-          _F2306 |= (SZ53P[value1_5137 & 0xff] | (value1_5137 == 0 ? 0x40 : 0));
+          _F2482 |= (SZ53P[value1_5137 & 0xff] | (value1_5137 == 0 ? 0x40 : 0));
           int result_5140 = value1_5137 & 0xFF;
-          F = (_F2306 & 0xFF);
-          _address2305 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2305 = result_5140;
-          memory.write(_address2305, result_5140);
+          F = (_F2482 & 0xFF);
+          _address2481 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2481 = result_5140;
+          memory.write(_address2481, result_5140);
           int read_5141;
-          read_5141 = _value2305;
+          read_5141 = _value2481;
           H = read_5141;
-          MEMPTR = _address2305;
+          MEMPTR = _address2481;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x25: {
-          int _F2309;
-          int _value2308;
-          int _address2308;
+          int _F2485;
+          int _value2484;
+          int _address2484;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2308 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5142 = memory.read(_address2308, 0);
-          contend(_address2308, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2308 = operand_5142;
-          int value1_5143 = _value2308;
-          _F2309 = value1_5143 >> 7;
+          _address2484 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5142 = memory.read(_address2484, 0);
+          contend(_address2484, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2484 = operand_5142;
+          int value1_5143 = _value2484;
+          _F2485 = value1_5143 >> 7;
           value1_5143 <<= 1;
           value1_5143 &= 0xff;
-          _F2309 |= (SZ53P[value1_5143 & 0xff] | (value1_5143 == 0 ? 0x40 : 0));
+          _F2485 |= (SZ53P[value1_5143 & 0xff] | (value1_5143 == 0 ? 0x40 : 0));
           int result_5146 = value1_5143 & 0xFF;
-          F = (_F2309 & 0xFF);
-          _address2308 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2308 = result_5146;
-          memory.write(_address2308, result_5146);
+          F = (_F2485 & 0xFF);
+          _address2484 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2484 = result_5146;
+          memory.write(_address2484, result_5146);
           int read_5147;
-          read_5147 = _value2308;
+          read_5147 = _value2484;
           L = read_5147;
-          MEMPTR = _address2308;
+          MEMPTR = _address2484;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x26: {
-          int _F2312;
-          int _value2311;
-          int _address2311;
+          int _F2488;
+          int _value2487;
+          int _address2487;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2311 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5148 = memory.read(_address2311, 0);
-          contend(_address2311, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2311 = operand_5148;
-          int value1_5149 = _value2311;
-          _F2312 = value1_5149 >> 7;
+          _address2487 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5148 = memory.read(_address2487, 0);
+          contend(_address2487, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2487 = operand_5148;
+          int value1_5149 = _value2487;
+          _F2488 = value1_5149 >> 7;
           value1_5149 <<= 1;
           value1_5149 &= 0xff;
-          _F2312 |= (SZ53P[value1_5149 & 0xff] | (value1_5149 == 0 ? 0x40 : 0));
+          _F2488 |= (SZ53P[value1_5149 & 0xff] | (value1_5149 == 0 ? 0x40 : 0));
           int result_5152 = value1_5149 & 0xFF;
-          F = (_F2312 & 0xFF);
-          _address2311 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2311 = result_5152;
-          memory.write(_address2311, result_5152);
-          MEMPTR = _address2311;
+          F = (_F2488 & 0xFF);
+          _address2487 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2487 = result_5152;
+          memory.write(_address2487, result_5152);
+          MEMPTR = _address2487;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x27: {
-          int _F2315;
-          int _value2314;
-          int _address2314;
+          int _F2491;
+          int _value2490;
+          int _address2490;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2314 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5153 = memory.read(_address2314, 0);
-          contend(_address2314, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2314 = operand_5153;
-          int value1_5154 = _value2314;
-          _F2315 = value1_5154 >> 7;
+          _address2490 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5153 = memory.read(_address2490, 0);
+          contend(_address2490, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2490 = operand_5153;
+          int value1_5154 = _value2490;
+          _F2491 = value1_5154 >> 7;
           value1_5154 <<= 1;
           value1_5154 &= 0xff;
-          _F2315 |= (SZ53P[value1_5154 & 0xff] | (value1_5154 == 0 ? 0x40 : 0));
+          _F2491 |= (SZ53P[value1_5154 & 0xff] | (value1_5154 == 0 ? 0x40 : 0));
           int result_5157 = value1_5154 & 0xFF;
-          F = (_F2315 & 0xFF);
-          _address2314 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2314 = result_5157;
-          memory.write(_address2314, result_5157);
+          F = (_F2491 & 0xFF);
+          _address2490 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2490 = result_5157;
+          memory.write(_address2490, result_5157);
           int read_5158;
-          read_5158 = _value2314;
+          read_5158 = _value2490;
           A = read_5158;
-          MEMPTR = _address2314;
+          MEMPTR = _address2490;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x28: {
-          int _F2318;
-          int _value2317;
-          int _address2317;
+          int _F2494;
+          int _value2493;
+          int _address2493;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2317 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5159 = memory.read(_address2317, 0);
-          contend(_address2317, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2317 = operand_5159;
-          int value1_5160 = _value2317;
-          _F2318 = value1_5160 & 1;
+          _address2493 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5159 = memory.read(_address2493, 0);
+          contend(_address2493, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2493 = operand_5159;
+          int value1_5160 = _value2493;
+          _F2494 = value1_5160 & 1;
           value1_5160 = (value1_5160 & 0x80) | (value1_5160 >> 1);
           value1_5160 &= 0xff;
-          _F2318 |= (SZ53P[value1_5160 & 0xff] | (value1_5160 == 0 ? 0x40 : 0));
+          _F2494 |= (SZ53P[value1_5160 & 0xff] | (value1_5160 == 0 ? 0x40 : 0));
           int result_5163 = value1_5160 & 0xFF;
-          F = (_F2318 & 0xFF);
-          _address2317 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2317 = result_5163;
-          memory.write(_address2317, result_5163);
+          F = (_F2494 & 0xFF);
+          _address2493 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2493 = result_5163;
+          memory.write(_address2493, result_5163);
           int read_5164;
-          read_5164 = _value2317;
+          read_5164 = _value2493;
           B = read_5164;
-          MEMPTR = _address2317;
+          MEMPTR = _address2493;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x29: {
-          int _F2321;
-          int _value2320;
-          int _address2320;
+          int _F2497;
+          int _value2496;
+          int _address2496;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2320 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5165 = memory.read(_address2320, 0);
-          contend(_address2320, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2320 = operand_5165;
-          int value1_5166 = _value2320;
-          _F2321 = value1_5166 & 1;
+          _address2496 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5165 = memory.read(_address2496, 0);
+          contend(_address2496, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2496 = operand_5165;
+          int value1_5166 = _value2496;
+          _F2497 = value1_5166 & 1;
           value1_5166 = (value1_5166 & 0x80) | (value1_5166 >> 1);
           value1_5166 &= 0xff;
-          _F2321 |= (SZ53P[value1_5166 & 0xff] | (value1_5166 == 0 ? 0x40 : 0));
+          _F2497 |= (SZ53P[value1_5166 & 0xff] | (value1_5166 == 0 ? 0x40 : 0));
           int result_5169 = value1_5166 & 0xFF;
-          F = (_F2321 & 0xFF);
-          _address2320 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2320 = result_5169;
-          memory.write(_address2320, result_5169);
+          F = (_F2497 & 0xFF);
+          _address2496 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2496 = result_5169;
+          memory.write(_address2496, result_5169);
           int read_5170;
-          read_5170 = _value2320;
+          read_5170 = _value2496;
           C = read_5170;
-          MEMPTR = _address2320;
+          MEMPTR = _address2496;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x2A: {
-          int _F2324;
-          int _value2323;
-          int _address2323;
+          int _F2500;
+          int _value2499;
+          int _address2499;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2323 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5171 = memory.read(_address2323, 0);
-          contend(_address2323, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2323 = operand_5171;
-          int value1_5172 = _value2323;
-          _F2324 = value1_5172 & 1;
+          _address2499 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5171 = memory.read(_address2499, 0);
+          contend(_address2499, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2499 = operand_5171;
+          int value1_5172 = _value2499;
+          _F2500 = value1_5172 & 1;
           value1_5172 = (value1_5172 & 0x80) | (value1_5172 >> 1);
           value1_5172 &= 0xff;
-          _F2324 |= (SZ53P[value1_5172 & 0xff] | (value1_5172 == 0 ? 0x40 : 0));
+          _F2500 |= (SZ53P[value1_5172 & 0xff] | (value1_5172 == 0 ? 0x40 : 0));
           int result_5175 = value1_5172 & 0xFF;
-          F = (_F2324 & 0xFF);
-          _address2323 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2323 = result_5175;
-          memory.write(_address2323, result_5175);
+          F = (_F2500 & 0xFF);
+          _address2499 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2499 = result_5175;
+          memory.write(_address2499, result_5175);
           int read_5176;
-          read_5176 = _value2323;
+          read_5176 = _value2499;
           D = read_5176;
-          MEMPTR = _address2323;
+          MEMPTR = _address2499;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x2B: {
-          int _F2327;
-          int _value2326;
-          int _address2326;
+          int _F2503;
+          int _value2502;
+          int _address2502;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2326 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5177 = memory.read(_address2326, 0);
-          contend(_address2326, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2326 = operand_5177;
-          int value1_5178 = _value2326;
-          _F2327 = value1_5178 & 1;
+          _address2502 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5177 = memory.read(_address2502, 0);
+          contend(_address2502, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2502 = operand_5177;
+          int value1_5178 = _value2502;
+          _F2503 = value1_5178 & 1;
           value1_5178 = (value1_5178 & 0x80) | (value1_5178 >> 1);
           value1_5178 &= 0xff;
-          _F2327 |= (SZ53P[value1_5178 & 0xff] | (value1_5178 == 0 ? 0x40 : 0));
+          _F2503 |= (SZ53P[value1_5178 & 0xff] | (value1_5178 == 0 ? 0x40 : 0));
           int result_5181 = value1_5178 & 0xFF;
-          F = (_F2327 & 0xFF);
-          _address2326 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2326 = result_5181;
-          memory.write(_address2326, result_5181);
+          F = (_F2503 & 0xFF);
+          _address2502 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2502 = result_5181;
+          memory.write(_address2502, result_5181);
           int read_5182;
-          read_5182 = _value2326;
+          read_5182 = _value2502;
           E = read_5182;
-          MEMPTR = _address2326;
+          MEMPTR = _address2502;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x2C: {
-          int _F2330;
-          int _value2329;
-          int _address2329;
+          int _F2506;
+          int _value2505;
+          int _address2505;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2329 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5183 = memory.read(_address2329, 0);
-          contend(_address2329, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2329 = operand_5183;
-          int value1_5184 = _value2329;
-          _F2330 = value1_5184 & 1;
+          _address2505 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5183 = memory.read(_address2505, 0);
+          contend(_address2505, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2505 = operand_5183;
+          int value1_5184 = _value2505;
+          _F2506 = value1_5184 & 1;
           value1_5184 = (value1_5184 & 0x80) | (value1_5184 >> 1);
           value1_5184 &= 0xff;
-          _F2330 |= (SZ53P[value1_5184 & 0xff] | (value1_5184 == 0 ? 0x40 : 0));
+          _F2506 |= (SZ53P[value1_5184 & 0xff] | (value1_5184 == 0 ? 0x40 : 0));
           int result_5187 = value1_5184 & 0xFF;
-          F = (_F2330 & 0xFF);
-          _address2329 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2329 = result_5187;
-          memory.write(_address2329, result_5187);
+          F = (_F2506 & 0xFF);
+          _address2505 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2505 = result_5187;
+          memory.write(_address2505, result_5187);
           int read_5188;
-          read_5188 = _value2329;
+          read_5188 = _value2505;
           H = read_5188;
-          MEMPTR = _address2329;
+          MEMPTR = _address2505;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x2D: {
-          int _F2333;
-          int _value2332;
-          int _address2332;
+          int _F2509;
+          int _value2508;
+          int _address2508;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2332 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5189 = memory.read(_address2332, 0);
-          contend(_address2332, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2332 = operand_5189;
-          int value1_5190 = _value2332;
-          _F2333 = value1_5190 & 1;
+          _address2508 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5189 = memory.read(_address2508, 0);
+          contend(_address2508, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2508 = operand_5189;
+          int value1_5190 = _value2508;
+          _F2509 = value1_5190 & 1;
           value1_5190 = (value1_5190 & 0x80) | (value1_5190 >> 1);
           value1_5190 &= 0xff;
-          _F2333 |= (SZ53P[value1_5190 & 0xff] | (value1_5190 == 0 ? 0x40 : 0));
+          _F2509 |= (SZ53P[value1_5190 & 0xff] | (value1_5190 == 0 ? 0x40 : 0));
           int result_5193 = value1_5190 & 0xFF;
-          F = (_F2333 & 0xFF);
-          _address2332 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2332 = result_5193;
-          memory.write(_address2332, result_5193);
+          F = (_F2509 & 0xFF);
+          _address2508 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2508 = result_5193;
+          memory.write(_address2508, result_5193);
           int read_5194;
-          read_5194 = _value2332;
+          read_5194 = _value2508;
           L = read_5194;
-          MEMPTR = _address2332;
+          MEMPTR = _address2508;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x2E: {
-          int _F2336;
-          int _value2335;
-          int _address2335;
+          int _F2512;
+          int _value2511;
+          int _address2511;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2335 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5195 = memory.read(_address2335, 0);
-          contend(_address2335, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2335 = operand_5195;
-          int value1_5196 = _value2335;
-          _F2336 = value1_5196 & 1;
+          _address2511 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5195 = memory.read(_address2511, 0);
+          contend(_address2511, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2511 = operand_5195;
+          int value1_5196 = _value2511;
+          _F2512 = value1_5196 & 1;
           value1_5196 = (value1_5196 & 0x80) | (value1_5196 >> 1);
           value1_5196 &= 0xff;
-          _F2336 |= (SZ53P[value1_5196 & 0xff] | (value1_5196 == 0 ? 0x40 : 0));
+          _F2512 |= (SZ53P[value1_5196 & 0xff] | (value1_5196 == 0 ? 0x40 : 0));
           int result_5199 = value1_5196 & 0xFF;
-          F = (_F2336 & 0xFF);
-          _address2335 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2335 = result_5199;
-          memory.write(_address2335, result_5199);
-          MEMPTR = _address2335;
+          F = (_F2512 & 0xFF);
+          _address2511 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2511 = result_5199;
+          memory.write(_address2511, result_5199);
+          MEMPTR = _address2511;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x2F: {
-          int _F2339;
-          int _value2338;
-          int _address2338;
+          int _F2515;
+          int _value2514;
+          int _address2514;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2338 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5200 = memory.read(_address2338, 0);
-          contend(_address2338, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2338 = operand_5200;
-          int value1_5201 = _value2338;
-          _F2339 = value1_5201 & 1;
+          _address2514 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5200 = memory.read(_address2514, 0);
+          contend(_address2514, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2514 = operand_5200;
+          int value1_5201 = _value2514;
+          _F2515 = value1_5201 & 1;
           value1_5201 = (value1_5201 & 0x80) | (value1_5201 >> 1);
           value1_5201 &= 0xff;
-          _F2339 |= (SZ53P[value1_5201 & 0xff] | (value1_5201 == 0 ? 0x40 : 0));
+          _F2515 |= (SZ53P[value1_5201 & 0xff] | (value1_5201 == 0 ? 0x40 : 0));
           int result_5204 = value1_5201 & 0xFF;
-          F = (_F2339 & 0xFF);
-          _address2338 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2338 = result_5204;
-          memory.write(_address2338, result_5204);
+          F = (_F2515 & 0xFF);
+          _address2514 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2514 = result_5204;
+          memory.write(_address2514, result_5204);
           int read_5205;
-          read_5205 = _value2338;
+          read_5205 = _value2514;
           A = read_5205;
-          MEMPTR = _address2338;
+          MEMPTR = _address2514;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -20830,412 +21624,412 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFDCB_3(int opcode, int displacement) {
     switch (opcode) {
       case 0x30: {
-          int _F2342;
-          int _value2341;
-          int _address2341;
+          int _F2518;
+          int _value2517;
+          int _address2517;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2341 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5206 = memory.read(_address2341, 0);
-          contend(_address2341, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2341 = operand_5206;
-          int value1_5207 = _value2341;
-          _F2342 = value1_5207 >> 7;
+          _address2517 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5206 = memory.read(_address2517, 0);
+          contend(_address2517, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2517 = operand_5206;
+          int value1_5207 = _value2517;
+          _F2518 = value1_5207 >> 7;
           value1_5207 = (value1_5207 << 1) | 0x01;
           value1_5207 &= 0xff;
-          _F2342 |= (SZ53P[value1_5207 & 0xff] | (value1_5207 == 0 ? 0x40 : 0));
+          _F2518 |= (SZ53P[value1_5207 & 0xff] | (value1_5207 == 0 ? 0x40 : 0));
           int result_5210 = value1_5207 & 0xFF;
-          F = (_F2342 & 0xFF);
-          _address2341 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2341 = result_5210;
-          memory.write(_address2341, result_5210);
+          F = (_F2518 & 0xFF);
+          _address2517 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2517 = result_5210;
+          memory.write(_address2517, result_5210);
           int read_5211;
-          read_5211 = _value2341;
+          read_5211 = _value2517;
           B = read_5211;
-          MEMPTR = _address2341;
+          MEMPTR = _address2517;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x31: {
-          int _F2345;
-          int _value2344;
-          int _address2344;
+          int _F2521;
+          int _value2520;
+          int _address2520;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2344 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5212 = memory.read(_address2344, 0);
-          contend(_address2344, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2344 = operand_5212;
-          int value1_5213 = _value2344;
-          _F2345 = value1_5213 >> 7;
+          _address2520 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5212 = memory.read(_address2520, 0);
+          contend(_address2520, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2520 = operand_5212;
+          int value1_5213 = _value2520;
+          _F2521 = value1_5213 >> 7;
           value1_5213 = (value1_5213 << 1) | 0x01;
           value1_5213 &= 0xff;
-          _F2345 |= (SZ53P[value1_5213 & 0xff] | (value1_5213 == 0 ? 0x40 : 0));
+          _F2521 |= (SZ53P[value1_5213 & 0xff] | (value1_5213 == 0 ? 0x40 : 0));
           int result_5216 = value1_5213 & 0xFF;
-          F = (_F2345 & 0xFF);
-          _address2344 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2344 = result_5216;
-          memory.write(_address2344, result_5216);
+          F = (_F2521 & 0xFF);
+          _address2520 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2520 = result_5216;
+          memory.write(_address2520, result_5216);
           int read_5217;
-          read_5217 = _value2344;
+          read_5217 = _value2520;
           C = read_5217;
-          MEMPTR = _address2344;
+          MEMPTR = _address2520;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x32: {
-          int _F2348;
-          int _value2347;
-          int _address2347;
+          int _F2524;
+          int _value2523;
+          int _address2523;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2347 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5218 = memory.read(_address2347, 0);
-          contend(_address2347, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2347 = operand_5218;
-          int value1_5219 = _value2347;
-          _F2348 = value1_5219 >> 7;
+          _address2523 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5218 = memory.read(_address2523, 0);
+          contend(_address2523, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2523 = operand_5218;
+          int value1_5219 = _value2523;
+          _F2524 = value1_5219 >> 7;
           value1_5219 = (value1_5219 << 1) | 0x01;
           value1_5219 &= 0xff;
-          _F2348 |= (SZ53P[value1_5219 & 0xff] | (value1_5219 == 0 ? 0x40 : 0));
+          _F2524 |= (SZ53P[value1_5219 & 0xff] | (value1_5219 == 0 ? 0x40 : 0));
           int result_5222 = value1_5219 & 0xFF;
-          F = (_F2348 & 0xFF);
-          _address2347 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2347 = result_5222;
-          memory.write(_address2347, result_5222);
+          F = (_F2524 & 0xFF);
+          _address2523 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2523 = result_5222;
+          memory.write(_address2523, result_5222);
           int read_5223;
-          read_5223 = _value2347;
+          read_5223 = _value2523;
           D = read_5223;
-          MEMPTR = _address2347;
+          MEMPTR = _address2523;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x33: {
-          int _F2351;
-          int _value2350;
-          int _address2350;
+          int _F2527;
+          int _value2526;
+          int _address2526;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2350 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5224 = memory.read(_address2350, 0);
-          contend(_address2350, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2350 = operand_5224;
-          int value1_5225 = _value2350;
-          _F2351 = value1_5225 >> 7;
+          _address2526 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5224 = memory.read(_address2526, 0);
+          contend(_address2526, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2526 = operand_5224;
+          int value1_5225 = _value2526;
+          _F2527 = value1_5225 >> 7;
           value1_5225 = (value1_5225 << 1) | 0x01;
           value1_5225 &= 0xff;
-          _F2351 |= (SZ53P[value1_5225 & 0xff] | (value1_5225 == 0 ? 0x40 : 0));
+          _F2527 |= (SZ53P[value1_5225 & 0xff] | (value1_5225 == 0 ? 0x40 : 0));
           int result_5228 = value1_5225 & 0xFF;
-          F = (_F2351 & 0xFF);
-          _address2350 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2350 = result_5228;
-          memory.write(_address2350, result_5228);
+          F = (_F2527 & 0xFF);
+          _address2526 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2526 = result_5228;
+          memory.write(_address2526, result_5228);
           int read_5229;
-          read_5229 = _value2350;
+          read_5229 = _value2526;
           E = read_5229;
-          MEMPTR = _address2350;
+          MEMPTR = _address2526;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x34: {
-          int _F2354;
-          int _value2353;
-          int _address2353;
+          int _F2530;
+          int _value2529;
+          int _address2529;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2353 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5230 = memory.read(_address2353, 0);
-          contend(_address2353, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2353 = operand_5230;
-          int value1_5231 = _value2353;
-          _F2354 = value1_5231 >> 7;
+          _address2529 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5230 = memory.read(_address2529, 0);
+          contend(_address2529, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2529 = operand_5230;
+          int value1_5231 = _value2529;
+          _F2530 = value1_5231 >> 7;
           value1_5231 = (value1_5231 << 1) | 0x01;
           value1_5231 &= 0xff;
-          _F2354 |= (SZ53P[value1_5231 & 0xff] | (value1_5231 == 0 ? 0x40 : 0));
+          _F2530 |= (SZ53P[value1_5231 & 0xff] | (value1_5231 == 0 ? 0x40 : 0));
           int result_5234 = value1_5231 & 0xFF;
-          F = (_F2354 & 0xFF);
-          _address2353 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2353 = result_5234;
-          memory.write(_address2353, result_5234);
+          F = (_F2530 & 0xFF);
+          _address2529 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2529 = result_5234;
+          memory.write(_address2529, result_5234);
           int read_5235;
-          read_5235 = _value2353;
+          read_5235 = _value2529;
           H = read_5235;
-          MEMPTR = _address2353;
+          MEMPTR = _address2529;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x35: {
-          int _F2357;
-          int _value2356;
-          int _address2356;
+          int _F2533;
+          int _value2532;
+          int _address2532;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2356 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5236 = memory.read(_address2356, 0);
-          contend(_address2356, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2356 = operand_5236;
-          int value1_5237 = _value2356;
-          _F2357 = value1_5237 >> 7;
+          _address2532 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5236 = memory.read(_address2532, 0);
+          contend(_address2532, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2532 = operand_5236;
+          int value1_5237 = _value2532;
+          _F2533 = value1_5237 >> 7;
           value1_5237 = (value1_5237 << 1) | 0x01;
           value1_5237 &= 0xff;
-          _F2357 |= (SZ53P[value1_5237 & 0xff] | (value1_5237 == 0 ? 0x40 : 0));
+          _F2533 |= (SZ53P[value1_5237 & 0xff] | (value1_5237 == 0 ? 0x40 : 0));
           int result_5240 = value1_5237 & 0xFF;
-          F = (_F2357 & 0xFF);
-          _address2356 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2356 = result_5240;
-          memory.write(_address2356, result_5240);
+          F = (_F2533 & 0xFF);
+          _address2532 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2532 = result_5240;
+          memory.write(_address2532, result_5240);
           int read_5241;
-          read_5241 = _value2356;
+          read_5241 = _value2532;
           L = read_5241;
-          MEMPTR = _address2356;
+          MEMPTR = _address2532;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x36: {
-          int _F2360;
-          int _value2359;
-          int _address2359;
+          int _F2536;
+          int _value2535;
+          int _address2535;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2359 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5242 = memory.read(_address2359, 0);
-          contend(_address2359, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2359 = operand_5242;
-          int value1_5243 = _value2359;
-          _F2360 = value1_5243 >> 7;
+          _address2535 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5242 = memory.read(_address2535, 0);
+          contend(_address2535, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2535 = operand_5242;
+          int value1_5243 = _value2535;
+          _F2536 = value1_5243 >> 7;
           value1_5243 = (value1_5243 << 1) | 0x01;
           value1_5243 &= 0xff;
-          _F2360 |= (SZ53P[value1_5243 & 0xff] | (value1_5243 == 0 ? 0x40 : 0));
+          _F2536 |= (SZ53P[value1_5243 & 0xff] | (value1_5243 == 0 ? 0x40 : 0));
           int result_5246 = value1_5243 & 0xFF;
-          F = (_F2360 & 0xFF);
-          _address2359 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2359 = result_5246;
-          memory.write(_address2359, result_5246);
-          MEMPTR = _address2359;
+          F = (_F2536 & 0xFF);
+          _address2535 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2535 = result_5246;
+          memory.write(_address2535, result_5246);
+          MEMPTR = _address2535;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x37: {
-          int _F2363;
-          int _value2362;
-          int _address2362;
+          int _F2539;
+          int _value2538;
+          int _address2538;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2362 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5247 = memory.read(_address2362, 0);
-          contend(_address2362, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2362 = operand_5247;
-          int value1_5248 = _value2362;
-          _F2363 = value1_5248 >> 7;
+          _address2538 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5247 = memory.read(_address2538, 0);
+          contend(_address2538, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2538 = operand_5247;
+          int value1_5248 = _value2538;
+          _F2539 = value1_5248 >> 7;
           value1_5248 = (value1_5248 << 1) | 0x01;
           value1_5248 &= 0xff;
-          _F2363 |= (SZ53P[value1_5248 & 0xff] | (value1_5248 == 0 ? 0x40 : 0));
+          _F2539 |= (SZ53P[value1_5248 & 0xff] | (value1_5248 == 0 ? 0x40 : 0));
           int result_5251 = value1_5248 & 0xFF;
-          F = (_F2363 & 0xFF);
-          _address2362 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2362 = result_5251;
-          memory.write(_address2362, result_5251);
+          F = (_F2539 & 0xFF);
+          _address2538 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2538 = result_5251;
+          memory.write(_address2538, result_5251);
           int read_5252;
-          read_5252 = _value2362;
+          read_5252 = _value2538;
           A = read_5252;
-          MEMPTR = _address2362;
+          MEMPTR = _address2538;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x38: {
-          int _F2366;
-          int _value2365;
-          int _address2365;
+          int _F2542;
+          int _value2541;
+          int _address2541;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2365 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5253 = memory.read(_address2365, 0);
-          contend(_address2365, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2365 = operand_5253;
-          int value1_5254 = _value2365;
-          _F2366 = value1_5254 & 1;
+          _address2541 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5253 = memory.read(_address2541, 0);
+          contend(_address2541, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2541 = operand_5253;
+          int value1_5254 = _value2541;
+          _F2542 = value1_5254 & 1;
           value1_5254 >>= 1;
           value1_5254 &= 0xff;
-          _F2366 |= (SZ53P[value1_5254 & 0xff] | (value1_5254 == 0 ? 0x40 : 0));
+          _F2542 |= (SZ53P[value1_5254 & 0xff] | (value1_5254 == 0 ? 0x40 : 0));
           int result_5257 = value1_5254 & 0xFF;
-          F = (_F2366 & 0xFF);
-          _address2365 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2365 = result_5257;
-          memory.write(_address2365, result_5257);
+          F = (_F2542 & 0xFF);
+          _address2541 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2541 = result_5257;
+          memory.write(_address2541, result_5257);
           int read_5258;
-          read_5258 = _value2365;
+          read_5258 = _value2541;
           B = read_5258;
-          MEMPTR = _address2365;
+          MEMPTR = _address2541;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x39: {
-          int _F2369;
-          int _value2368;
-          int _address2368;
+          int _F2545;
+          int _value2544;
+          int _address2544;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2368 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5259 = memory.read(_address2368, 0);
-          contend(_address2368, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2368 = operand_5259;
-          int value1_5260 = _value2368;
-          _F2369 = value1_5260 & 1;
+          _address2544 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5259 = memory.read(_address2544, 0);
+          contend(_address2544, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2544 = operand_5259;
+          int value1_5260 = _value2544;
+          _F2545 = value1_5260 & 1;
           value1_5260 >>= 1;
           value1_5260 &= 0xff;
-          _F2369 |= (SZ53P[value1_5260 & 0xff] | (value1_5260 == 0 ? 0x40 : 0));
+          _F2545 |= (SZ53P[value1_5260 & 0xff] | (value1_5260 == 0 ? 0x40 : 0));
           int result_5263 = value1_5260 & 0xFF;
-          F = (_F2369 & 0xFF);
-          _address2368 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2368 = result_5263;
-          memory.write(_address2368, result_5263);
+          F = (_F2545 & 0xFF);
+          _address2544 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2544 = result_5263;
+          memory.write(_address2544, result_5263);
           int read_5264;
-          read_5264 = _value2368;
+          read_5264 = _value2544;
           C = read_5264;
-          MEMPTR = _address2368;
+          MEMPTR = _address2544;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x3A: {
-          int _F2372;
-          int _value2371;
-          int _address2371;
+          int _F2548;
+          int _value2547;
+          int _address2547;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2371 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5265 = memory.read(_address2371, 0);
-          contend(_address2371, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2371 = operand_5265;
-          int value1_5266 = _value2371;
-          _F2372 = value1_5266 & 1;
+          _address2547 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5265 = memory.read(_address2547, 0);
+          contend(_address2547, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2547 = operand_5265;
+          int value1_5266 = _value2547;
+          _F2548 = value1_5266 & 1;
           value1_5266 >>= 1;
           value1_5266 &= 0xff;
-          _F2372 |= (SZ53P[value1_5266 & 0xff] | (value1_5266 == 0 ? 0x40 : 0));
+          _F2548 |= (SZ53P[value1_5266 & 0xff] | (value1_5266 == 0 ? 0x40 : 0));
           int result_5269 = value1_5266 & 0xFF;
-          F = (_F2372 & 0xFF);
-          _address2371 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2371 = result_5269;
-          memory.write(_address2371, result_5269);
+          F = (_F2548 & 0xFF);
+          _address2547 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2547 = result_5269;
+          memory.write(_address2547, result_5269);
           int read_5270;
-          read_5270 = _value2371;
+          read_5270 = _value2547;
           D = read_5270;
-          MEMPTR = _address2371;
+          MEMPTR = _address2547;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x3B: {
-          int _F2375;
-          int _value2374;
-          int _address2374;
+          int _F2551;
+          int _value2550;
+          int _address2550;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2374 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5271 = memory.read(_address2374, 0);
-          contend(_address2374, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2374 = operand_5271;
-          int value1_5272 = _value2374;
-          _F2375 = value1_5272 & 1;
+          _address2550 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5271 = memory.read(_address2550, 0);
+          contend(_address2550, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2550 = operand_5271;
+          int value1_5272 = _value2550;
+          _F2551 = value1_5272 & 1;
           value1_5272 >>= 1;
           value1_5272 &= 0xff;
-          _F2375 |= (SZ53P[value1_5272 & 0xff] | (value1_5272 == 0 ? 0x40 : 0));
+          _F2551 |= (SZ53P[value1_5272 & 0xff] | (value1_5272 == 0 ? 0x40 : 0));
           int result_5275 = value1_5272 & 0xFF;
-          F = (_F2375 & 0xFF);
-          _address2374 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2374 = result_5275;
-          memory.write(_address2374, result_5275);
+          F = (_F2551 & 0xFF);
+          _address2550 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2550 = result_5275;
+          memory.write(_address2550, result_5275);
           int read_5276;
-          read_5276 = _value2374;
+          read_5276 = _value2550;
           E = read_5276;
-          MEMPTR = _address2374;
+          MEMPTR = _address2550;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x3C: {
-          int _F2378;
-          int _value2377;
-          int _address2377;
+          int _F2554;
+          int _value2553;
+          int _address2553;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2377 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5277 = memory.read(_address2377, 0);
-          contend(_address2377, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2377 = operand_5277;
-          int value1_5278 = _value2377;
-          _F2378 = value1_5278 & 1;
+          _address2553 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5277 = memory.read(_address2553, 0);
+          contend(_address2553, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2553 = operand_5277;
+          int value1_5278 = _value2553;
+          _F2554 = value1_5278 & 1;
           value1_5278 >>= 1;
           value1_5278 &= 0xff;
-          _F2378 |= (SZ53P[value1_5278 & 0xff] | (value1_5278 == 0 ? 0x40 : 0));
+          _F2554 |= (SZ53P[value1_5278 & 0xff] | (value1_5278 == 0 ? 0x40 : 0));
           int result_5281 = value1_5278 & 0xFF;
-          F = (_F2378 & 0xFF);
-          _address2377 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2377 = result_5281;
-          memory.write(_address2377, result_5281);
+          F = (_F2554 & 0xFF);
+          _address2553 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2553 = result_5281;
+          memory.write(_address2553, result_5281);
           int read_5282;
-          read_5282 = _value2377;
+          read_5282 = _value2553;
           H = read_5282;
-          MEMPTR = _address2377;
+          MEMPTR = _address2553;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x3D: {
-          int _F2381;
-          int _value2380;
-          int _address2380;
+          int _F2557;
+          int _value2556;
+          int _address2556;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2380 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5283 = memory.read(_address2380, 0);
-          contend(_address2380, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2380 = operand_5283;
-          int value1_5284 = _value2380;
-          _F2381 = value1_5284 & 1;
+          _address2556 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5283 = memory.read(_address2556, 0);
+          contend(_address2556, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2556 = operand_5283;
+          int value1_5284 = _value2556;
+          _F2557 = value1_5284 & 1;
           value1_5284 >>= 1;
           value1_5284 &= 0xff;
-          _F2381 |= (SZ53P[value1_5284 & 0xff] | (value1_5284 == 0 ? 0x40 : 0));
+          _F2557 |= (SZ53P[value1_5284 & 0xff] | (value1_5284 == 0 ? 0x40 : 0));
           int result_5287 = value1_5284 & 0xFF;
-          F = (_F2381 & 0xFF);
-          _address2380 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2380 = result_5287;
-          memory.write(_address2380, result_5287);
+          F = (_F2557 & 0xFF);
+          _address2556 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2556 = result_5287;
+          memory.write(_address2556, result_5287);
           int read_5288;
-          read_5288 = _value2380;
+          read_5288 = _value2556;
           L = read_5288;
-          MEMPTR = _address2380;
+          MEMPTR = _address2556;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x3E: {
-          int _F2384;
-          int _value2383;
-          int _address2383;
+          int _F2560;
+          int _value2559;
+          int _address2559;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2383 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5289 = memory.read(_address2383, 0);
-          contend(_address2383, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2383 = operand_5289;
-          int value1_5290 = _value2383;
-          _F2384 = value1_5290 & 1;
+          _address2559 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5289 = memory.read(_address2559, 0);
+          contend(_address2559, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2559 = operand_5289;
+          int value1_5290 = _value2559;
+          _F2560 = value1_5290 & 1;
           value1_5290 >>= 1;
           value1_5290 &= 0xff;
-          _F2384 |= (SZ53P[value1_5290 & 0xff] | (value1_5290 == 0 ? 0x40 : 0));
+          _F2560 |= (SZ53P[value1_5290 & 0xff] | (value1_5290 == 0 ? 0x40 : 0));
           int result_5293 = value1_5290 & 0xFF;
-          F = (_F2384 & 0xFF);
-          _address2383 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2383 = result_5293;
-          memory.write(_address2383, result_5293);
-          MEMPTR = _address2383;
+          F = (_F2560 & 0xFF);
+          _address2559 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2559 = result_5293;
+          memory.write(_address2559, result_5293);
+          MEMPTR = _address2559;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x3F: {
-          int _F2387;
-          int _value2386;
-          int _address2386;
+          int _F2563;
+          int _value2562;
+          int _address2562;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2386 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5294 = memory.read(_address2386, 0);
-          contend(_address2386, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2386 = operand_5294;
-          int value1_5295 = _value2386;
-          _F2387 = value1_5295 & 1;
+          _address2562 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5294 = memory.read(_address2562, 0);
+          contend(_address2562, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2562 = operand_5294;
+          int value1_5295 = _value2562;
+          _F2563 = value1_5295 & 1;
           value1_5295 >>= 1;
           value1_5295 &= 0xff;
-          _F2387 |= (SZ53P[value1_5295 & 0xff] | (value1_5295 == 0 ? 0x40 : 0));
+          _F2563 |= (SZ53P[value1_5295 & 0xff] | (value1_5295 == 0 ? 0x40 : 0));
           int result_5298 = value1_5295 & 0xFF;
-          F = (_F2387 & 0xFF);
-          _address2386 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2386 = result_5298;
-          memory.write(_address2386, result_5298);
+          F = (_F2563 & 0xFF);
+          _address2562 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2562 = result_5298;
+          memory.write(_address2562, result_5298);
           int read_5299;
-          read_5299 = _value2386;
+          read_5299 = _value2562;
           A = read_5299;
-          MEMPTR = _address2386;
+          MEMPTR = _address2562;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -21247,434 +22041,434 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFDCB_4(int opcode, int displacement) {
     switch (opcode) {
       case 0x40: {
-          int _F2390;
-          int _value2389;
-          int _address2389;
+          int _F2566;
+          int _value2565;
+          int _address2565;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5300;
           address_5300 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5301 = F & 1;
-          _address2389 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5302 = memory.read(_address2389, 0);
-          contend(_address2389, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2389 = operand_5302;
+          _address2565 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5302 = memory.read(_address2565, 0);
+          contend(_address2565, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2565 = operand_5302;
           int value3_5305 = nAndCarry_5301;
-          _F2390 = value3_5305;
+          _F2566 = value3_5305;
           value3_5305 = value3_5305 >>> 1;
-          _F2390 = (_F2390 & 1) | 0x10 | (address_5300 & 0x28);
-          if ((_value2389 & (0x01 << value3_5305)) == 0) {
-              _F2390 |= 0x44;
+          _F2566 = (_F2566 & 1) | 0x10 | (address_5300 & 0x28);
+          if ((_value2565 & (0x01 << value3_5305)) == 0) {
+              _F2566 |= 0x44;
           }
-          if (value3_5305 == 7 && (_value2389 & 0x80) != 0) {
-              _F2390 |= 0x80;
+          if (value3_5305 == 7 && (_value2565 & 0x80) != 0) {
+              _F2566 |= 0x80;
           }
-          F = (_F2390 & 0xFF);
-          MEMPTR = _address2389;
+          F = (_F2566 & 0xFF);
+          MEMPTR = _address2565;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x41: {
-          int _F2393;
-          int _value2392;
-          int _address2392;
+          int _F2569;
+          int _value2568;
+          int _address2568;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5307;
           address_5307 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5308 = F & 1;
-          _address2392 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5309 = memory.read(_address2392, 0);
-          contend(_address2392, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2392 = operand_5309;
+          _address2568 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5309 = memory.read(_address2568, 0);
+          contend(_address2568, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2568 = operand_5309;
           int value3_5312 = nAndCarry_5308;
-          _F2393 = value3_5312;
+          _F2569 = value3_5312;
           value3_5312 = value3_5312 >>> 1;
-          _F2393 = (_F2393 & 1) | 0x10 | (address_5307 & 0x28);
-          if ((_value2392 & (0x01 << value3_5312)) == 0) {
-              _F2393 |= 0x44;
+          _F2569 = (_F2569 & 1) | 0x10 | (address_5307 & 0x28);
+          if ((_value2568 & (0x01 << value3_5312)) == 0) {
+              _F2569 |= 0x44;
           }
-          if (value3_5312 == 7 && (_value2392 & 0x80) != 0) {
-              _F2393 |= 0x80;
+          if (value3_5312 == 7 && (_value2568 & 0x80) != 0) {
+              _F2569 |= 0x80;
           }
-          F = (_F2393 & 0xFF);
-          MEMPTR = _address2392;
+          F = (_F2569 & 0xFF);
+          MEMPTR = _address2568;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x42: {
-          int _F2396;
-          int _value2395;
-          int _address2395;
+          int _F2572;
+          int _value2571;
+          int _address2571;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5314;
           address_5314 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5315 = F & 1;
-          _address2395 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5316 = memory.read(_address2395, 0);
-          contend(_address2395, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2395 = operand_5316;
+          _address2571 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5316 = memory.read(_address2571, 0);
+          contend(_address2571, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2571 = operand_5316;
           int value3_5319 = nAndCarry_5315;
-          _F2396 = value3_5319;
+          _F2572 = value3_5319;
           value3_5319 = value3_5319 >>> 1;
-          _F2396 = (_F2396 & 1) | 0x10 | (address_5314 & 0x28);
-          if ((_value2395 & (0x01 << value3_5319)) == 0) {
-              _F2396 |= 0x44;
+          _F2572 = (_F2572 & 1) | 0x10 | (address_5314 & 0x28);
+          if ((_value2571 & (0x01 << value3_5319)) == 0) {
+              _F2572 |= 0x44;
           }
-          if (value3_5319 == 7 && (_value2395 & 0x80) != 0) {
-              _F2396 |= 0x80;
+          if (value3_5319 == 7 && (_value2571 & 0x80) != 0) {
+              _F2572 |= 0x80;
           }
-          F = (_F2396 & 0xFF);
-          MEMPTR = _address2395;
+          F = (_F2572 & 0xFF);
+          MEMPTR = _address2571;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x43: {
-          int _F2399;
-          int _value2398;
-          int _address2398;
+          int _F2575;
+          int _value2574;
+          int _address2574;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5321;
           address_5321 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5322 = F & 1;
-          _address2398 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5323 = memory.read(_address2398, 0);
-          contend(_address2398, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2398 = operand_5323;
+          _address2574 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5323 = memory.read(_address2574, 0);
+          contend(_address2574, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2574 = operand_5323;
           int value3_5326 = nAndCarry_5322;
-          _F2399 = value3_5326;
+          _F2575 = value3_5326;
           value3_5326 = value3_5326 >>> 1;
-          _F2399 = (_F2399 & 1) | 0x10 | (address_5321 & 0x28);
-          if ((_value2398 & (0x01 << value3_5326)) == 0) {
-              _F2399 |= 0x44;
+          _F2575 = (_F2575 & 1) | 0x10 | (address_5321 & 0x28);
+          if ((_value2574 & (0x01 << value3_5326)) == 0) {
+              _F2575 |= 0x44;
           }
-          if (value3_5326 == 7 && (_value2398 & 0x80) != 0) {
-              _F2399 |= 0x80;
+          if (value3_5326 == 7 && (_value2574 & 0x80) != 0) {
+              _F2575 |= 0x80;
           }
-          F = (_F2399 & 0xFF);
-          MEMPTR = _address2398;
+          F = (_F2575 & 0xFF);
+          MEMPTR = _address2574;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x44: {
-          int _F2402;
-          int _value2401;
-          int _address2401;
+          int _F2578;
+          int _value2577;
+          int _address2577;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5328;
           address_5328 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5329 = F & 1;
-          _address2401 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5330 = memory.read(_address2401, 0);
-          contend(_address2401, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2401 = operand_5330;
+          _address2577 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5330 = memory.read(_address2577, 0);
+          contend(_address2577, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2577 = operand_5330;
           int value3_5333 = nAndCarry_5329;
-          _F2402 = value3_5333;
+          _F2578 = value3_5333;
           value3_5333 = value3_5333 >>> 1;
-          _F2402 = (_F2402 & 1) | 0x10 | (address_5328 & 0x28);
-          if ((_value2401 & (0x01 << value3_5333)) == 0) {
-              _F2402 |= 0x44;
+          _F2578 = (_F2578 & 1) | 0x10 | (address_5328 & 0x28);
+          if ((_value2577 & (0x01 << value3_5333)) == 0) {
+              _F2578 |= 0x44;
           }
-          if (value3_5333 == 7 && (_value2401 & 0x80) != 0) {
-              _F2402 |= 0x80;
+          if (value3_5333 == 7 && (_value2577 & 0x80) != 0) {
+              _F2578 |= 0x80;
           }
-          F = (_F2402 & 0xFF);
-          MEMPTR = _address2401;
+          F = (_F2578 & 0xFF);
+          MEMPTR = _address2577;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x45: {
-          int _F2405;
-          int _value2404;
-          int _address2404;
+          int _F2581;
+          int _value2580;
+          int _address2580;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5335;
           address_5335 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5336 = F & 1;
-          _address2404 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5337 = memory.read(_address2404, 0);
-          contend(_address2404, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2404 = operand_5337;
+          _address2580 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5337 = memory.read(_address2580, 0);
+          contend(_address2580, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2580 = operand_5337;
           int value3_5340 = nAndCarry_5336;
-          _F2405 = value3_5340;
+          _F2581 = value3_5340;
           value3_5340 = value3_5340 >>> 1;
-          _F2405 = (_F2405 & 1) | 0x10 | (address_5335 & 0x28);
-          if ((_value2404 & (0x01 << value3_5340)) == 0) {
-              _F2405 |= 0x44;
+          _F2581 = (_F2581 & 1) | 0x10 | (address_5335 & 0x28);
+          if ((_value2580 & (0x01 << value3_5340)) == 0) {
+              _F2581 |= 0x44;
           }
-          if (value3_5340 == 7 && (_value2404 & 0x80) != 0) {
-              _F2405 |= 0x80;
+          if (value3_5340 == 7 && (_value2580 & 0x80) != 0) {
+              _F2581 |= 0x80;
           }
-          F = (_F2405 & 0xFF);
-          MEMPTR = _address2404;
+          F = (_F2581 & 0xFF);
+          MEMPTR = _address2580;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x46: {
-          int _F2408;
-          int _value2407;
-          int _address2407;
+          int _F2584;
+          int _value2583;
+          int _address2583;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5342;
           address_5342 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5343 = F & 1;
-          _address2407 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5344 = memory.read(_address2407, 0);
-          contend(_address2407, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2407 = operand_5344;
+          _address2583 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5344 = memory.read(_address2583, 0);
+          contend(_address2583, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2583 = operand_5344;
           int value3_5347 = nAndCarry_5343;
-          _F2408 = value3_5347;
+          _F2584 = value3_5347;
           value3_5347 = value3_5347 >>> 1;
-          _F2408 = (_F2408 & 1) | 0x10 | (address_5342 & 0x28);
-          if ((_value2407 & (0x01 << value3_5347)) == 0) {
-              _F2408 |= 0x44;
+          _F2584 = (_F2584 & 1) | 0x10 | (address_5342 & 0x28);
+          if ((_value2583 & (0x01 << value3_5347)) == 0) {
+              _F2584 |= 0x44;
           }
-          if (value3_5347 == 7 && (_value2407 & 0x80) != 0) {
-              _F2408 |= 0x80;
+          if (value3_5347 == 7 && (_value2583 & 0x80) != 0) {
+              _F2584 |= 0x80;
           }
-          F = (_F2408 & 0xFF);
-          MEMPTR = _address2407;
+          F = (_F2584 & 0xFF);
+          MEMPTR = _address2583;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x47: {
-          int _F2411;
-          int _value2410;
-          int _address2410;
+          int _F2587;
+          int _value2586;
+          int _address2586;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5349;
           address_5349 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5350 = F & 1;
-          _address2410 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5351 = memory.read(_address2410, 0);
-          contend(_address2410, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2410 = operand_5351;
+          _address2586 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5351 = memory.read(_address2586, 0);
+          contend(_address2586, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2586 = operand_5351;
           int value3_5354 = nAndCarry_5350;
-          _F2411 = value3_5354;
+          _F2587 = value3_5354;
           value3_5354 = value3_5354 >>> 1;
-          _F2411 = (_F2411 & 1) | 0x10 | (address_5349 & 0x28);
-          if ((_value2410 & (0x01 << value3_5354)) == 0) {
-              _F2411 |= 0x44;
+          _F2587 = (_F2587 & 1) | 0x10 | (address_5349 & 0x28);
+          if ((_value2586 & (0x01 << value3_5354)) == 0) {
+              _F2587 |= 0x44;
           }
-          if (value3_5354 == 7 && (_value2410 & 0x80) != 0) {
-              _F2411 |= 0x80;
+          if (value3_5354 == 7 && (_value2586 & 0x80) != 0) {
+              _F2587 |= 0x80;
           }
-          F = (_F2411 & 0xFF);
-          MEMPTR = _address2410;
+          F = (_F2587 & 0xFF);
+          MEMPTR = _address2586;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x48: {
-          int _F2414;
-          int _value2413;
-          int _address2413;
+          int _F2590;
+          int _value2589;
+          int _address2589;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5356;
           address_5356 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5357 = 2 | F & 1;
-          _address2413 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5358 = memory.read(_address2413, 0);
-          contend(_address2413, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2413 = operand_5358;
+          _address2589 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5358 = memory.read(_address2589, 0);
+          contend(_address2589, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2589 = operand_5358;
           int value3_5361 = nAndCarry_5357;
-          _F2414 = value3_5361 & 1;
+          _F2590 = value3_5361 & 1;
           value3_5361 = value3_5361 >>> 1;
-          _F2414 = (_F2414 & 1) | 0x10 | (address_5356 & 0x28);
-          if ((_value2413 & (0x01 << value3_5361)) == 0) {
-              _F2414 |= 0x44;
+          _F2590 = (_F2590 & 1) | 0x10 | (address_5356 & 0x28);
+          if ((_value2589 & (0x01 << value3_5361)) == 0) {
+              _F2590 |= 0x44;
           }
-          if (value3_5361 == 7 && (_value2413 & 0x80) != 0) {
-              _F2414 |= 0x80;
+          if (value3_5361 == 7 && (_value2589 & 0x80) != 0) {
+              _F2590 |= 0x80;
           }
-          F = (_F2414 & 0xFF);
-          MEMPTR = _address2413;
+          F = (_F2590 & 0xFF);
+          MEMPTR = _address2589;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x49: {
-          int _F2417;
-          int _value2416;
-          int _address2416;
+          int _F2593;
+          int _value2592;
+          int _address2592;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5363;
           address_5363 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5364 = 2 | F & 1;
-          _address2416 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5365 = memory.read(_address2416, 0);
-          contend(_address2416, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2416 = operand_5365;
+          _address2592 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5365 = memory.read(_address2592, 0);
+          contend(_address2592, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2592 = operand_5365;
           int value3_5368 = nAndCarry_5364;
-          _F2417 = value3_5368 & 1;
+          _F2593 = value3_5368 & 1;
           value3_5368 = value3_5368 >>> 1;
-          _F2417 = (_F2417 & 1) | 0x10 | (address_5363 & 0x28);
-          if ((_value2416 & (0x01 << value3_5368)) == 0) {
-              _F2417 |= 0x44;
+          _F2593 = (_F2593 & 1) | 0x10 | (address_5363 & 0x28);
+          if ((_value2592 & (0x01 << value3_5368)) == 0) {
+              _F2593 |= 0x44;
           }
-          if (value3_5368 == 7 && (_value2416 & 0x80) != 0) {
-              _F2417 |= 0x80;
+          if (value3_5368 == 7 && (_value2592 & 0x80) != 0) {
+              _F2593 |= 0x80;
           }
-          F = (_F2417 & 0xFF);
-          MEMPTR = _address2416;
+          F = (_F2593 & 0xFF);
+          MEMPTR = _address2592;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x4A: {
-          int _F2420;
-          int _value2419;
-          int _address2419;
+          int _F2596;
+          int _value2595;
+          int _address2595;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5370;
           address_5370 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5371 = 2 | F & 1;
-          _address2419 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5372 = memory.read(_address2419, 0);
-          contend(_address2419, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2419 = operand_5372;
+          _address2595 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5372 = memory.read(_address2595, 0);
+          contend(_address2595, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2595 = operand_5372;
           int value3_5375 = nAndCarry_5371;
-          _F2420 = value3_5375 & 1;
+          _F2596 = value3_5375 & 1;
           value3_5375 = value3_5375 >>> 1;
-          _F2420 = (_F2420 & 1) | 0x10 | (address_5370 & 0x28);
-          if ((_value2419 & (0x01 << value3_5375)) == 0) {
-              _F2420 |= 0x44;
+          _F2596 = (_F2596 & 1) | 0x10 | (address_5370 & 0x28);
+          if ((_value2595 & (0x01 << value3_5375)) == 0) {
+              _F2596 |= 0x44;
           }
-          if (value3_5375 == 7 && (_value2419 & 0x80) != 0) {
-              _F2420 |= 0x80;
+          if (value3_5375 == 7 && (_value2595 & 0x80) != 0) {
+              _F2596 |= 0x80;
           }
-          F = (_F2420 & 0xFF);
-          MEMPTR = _address2419;
+          F = (_F2596 & 0xFF);
+          MEMPTR = _address2595;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x4B: {
-          int _F2423;
-          int _value2422;
-          int _address2422;
+          int _F2599;
+          int _value2598;
+          int _address2598;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5377;
           address_5377 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5378 = 2 | F & 1;
-          _address2422 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5379 = memory.read(_address2422, 0);
-          contend(_address2422, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2422 = operand_5379;
+          _address2598 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5379 = memory.read(_address2598, 0);
+          contend(_address2598, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2598 = operand_5379;
           int value3_5382 = nAndCarry_5378;
-          _F2423 = value3_5382 & 1;
+          _F2599 = value3_5382 & 1;
           value3_5382 = value3_5382 >>> 1;
-          _F2423 = (_F2423 & 1) | 0x10 | (address_5377 & 0x28);
-          if ((_value2422 & (0x01 << value3_5382)) == 0) {
-              _F2423 |= 0x44;
+          _F2599 = (_F2599 & 1) | 0x10 | (address_5377 & 0x28);
+          if ((_value2598 & (0x01 << value3_5382)) == 0) {
+              _F2599 |= 0x44;
           }
-          if (value3_5382 == 7 && (_value2422 & 0x80) != 0) {
-              _F2423 |= 0x80;
+          if (value3_5382 == 7 && (_value2598 & 0x80) != 0) {
+              _F2599 |= 0x80;
           }
-          F = (_F2423 & 0xFF);
-          MEMPTR = _address2422;
+          F = (_F2599 & 0xFF);
+          MEMPTR = _address2598;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x4C: {
-          int _F2426;
-          int _value2425;
-          int _address2425;
+          int _F2602;
+          int _value2601;
+          int _address2601;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5384;
           address_5384 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5385 = 2 | F & 1;
-          _address2425 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5386 = memory.read(_address2425, 0);
-          contend(_address2425, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2425 = operand_5386;
+          _address2601 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5386 = memory.read(_address2601, 0);
+          contend(_address2601, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2601 = operand_5386;
           int value3_5389 = nAndCarry_5385;
-          _F2426 = value3_5389 & 1;
+          _F2602 = value3_5389 & 1;
           value3_5389 = value3_5389 >>> 1;
-          _F2426 = (_F2426 & 1) | 0x10 | (address_5384 & 0x28);
-          if ((_value2425 & (0x01 << value3_5389)) == 0) {
-              _F2426 |= 0x44;
+          _F2602 = (_F2602 & 1) | 0x10 | (address_5384 & 0x28);
+          if ((_value2601 & (0x01 << value3_5389)) == 0) {
+              _F2602 |= 0x44;
           }
-          if (value3_5389 == 7 && (_value2425 & 0x80) != 0) {
-              _F2426 |= 0x80;
+          if (value3_5389 == 7 && (_value2601 & 0x80) != 0) {
+              _F2602 |= 0x80;
           }
-          F = (_F2426 & 0xFF);
-          MEMPTR = _address2425;
+          F = (_F2602 & 0xFF);
+          MEMPTR = _address2601;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x4D: {
-          int _F2429;
-          int _value2428;
-          int _address2428;
+          int _F2605;
+          int _value2604;
+          int _address2604;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5391;
           address_5391 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5392 = 2 | F & 1;
-          _address2428 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5393 = memory.read(_address2428, 0);
-          contend(_address2428, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2428 = operand_5393;
+          _address2604 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5393 = memory.read(_address2604, 0);
+          contend(_address2604, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2604 = operand_5393;
           int value3_5396 = nAndCarry_5392;
-          _F2429 = value3_5396 & 1;
+          _F2605 = value3_5396 & 1;
           value3_5396 = value3_5396 >>> 1;
-          _F2429 = (_F2429 & 1) | 0x10 | (address_5391 & 0x28);
-          if ((_value2428 & (0x01 << value3_5396)) == 0) {
-              _F2429 |= 0x44;
+          _F2605 = (_F2605 & 1) | 0x10 | (address_5391 & 0x28);
+          if ((_value2604 & (0x01 << value3_5396)) == 0) {
+              _F2605 |= 0x44;
           }
-          if (value3_5396 == 7 && (_value2428 & 0x80) != 0) {
-              _F2429 |= 0x80;
+          if (value3_5396 == 7 && (_value2604 & 0x80) != 0) {
+              _F2605 |= 0x80;
           }
-          F = (_F2429 & 0xFF);
-          MEMPTR = _address2428;
+          F = (_F2605 & 0xFF);
+          MEMPTR = _address2604;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x4E: {
-          int _F2432;
-          int _value2431;
-          int _address2431;
+          int _F2608;
+          int _value2607;
+          int _address2607;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5398;
           address_5398 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5399 = 2 | F & 1;
-          _address2431 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5400 = memory.read(_address2431, 0);
-          contend(_address2431, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2431 = operand_5400;
+          _address2607 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5400 = memory.read(_address2607, 0);
+          contend(_address2607, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2607 = operand_5400;
           int value3_5403 = nAndCarry_5399;
-          _F2432 = value3_5403 & 1;
+          _F2608 = value3_5403 & 1;
           value3_5403 = value3_5403 >>> 1;
-          _F2432 = (_F2432 & 1) | 0x10 | (address_5398 & 0x28);
-          if ((_value2431 & (0x01 << value3_5403)) == 0) {
-              _F2432 |= 0x44;
+          _F2608 = (_F2608 & 1) | 0x10 | (address_5398 & 0x28);
+          if ((_value2607 & (0x01 << value3_5403)) == 0) {
+              _F2608 |= 0x44;
           }
-          if (value3_5403 == 7 && (_value2431 & 0x80) != 0) {
-              _F2432 |= 0x80;
+          if (value3_5403 == 7 && (_value2607 & 0x80) != 0) {
+              _F2608 |= 0x80;
           }
-          F = (_F2432 & 0xFF);
-          MEMPTR = _address2431;
+          F = (_F2608 & 0xFF);
+          MEMPTR = _address2607;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x4F: {
-          int _F2435;
-          int _value2434;
-          int _address2434;
+          int _F2611;
+          int _value2610;
+          int _address2610;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5405;
           address_5405 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5406 = 2 | F & 1;
-          _address2434 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5407 = memory.read(_address2434, 0);
-          contend(_address2434, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2434 = operand_5407;
+          _address2610 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5407 = memory.read(_address2610, 0);
+          contend(_address2610, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2610 = operand_5407;
           int value3_5410 = nAndCarry_5406;
-          _F2435 = value3_5410 & 1;
+          _F2611 = value3_5410 & 1;
           value3_5410 = value3_5410 >>> 1;
-          _F2435 = (_F2435 & 1) | 0x10 | (address_5405 & 0x28);
-          if ((_value2434 & (0x01 << value3_5410)) == 0) {
-              _F2435 |= 0x44;
+          _F2611 = (_F2611 & 1) | 0x10 | (address_5405 & 0x28);
+          if ((_value2610 & (0x01 << value3_5410)) == 0) {
+              _F2611 |= 0x44;
           }
-          if (value3_5410 == 7 && (_value2434 & 0x80) != 0) {
-              _F2435 |= 0x80;
+          if (value3_5410 == 7 && (_value2610 & 0x80) != 0) {
+              _F2611 |= 0x80;
           }
-          F = (_F2435 & 0xFF);
-          MEMPTR = _address2434;
+          F = (_F2611 & 0xFF);
+          MEMPTR = _address2610;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -21686,434 +22480,434 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFDCB_5(int opcode, int displacement) {
     switch (opcode) {
       case 0x50: {
-          int _F2438;
-          int _value2437;
-          int _address2437;
+          int _F2614;
+          int _value2613;
+          int _address2613;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5412;
           address_5412 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5413 = 4 | F & 1;
-          _address2437 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5414 = memory.read(_address2437, 0);
-          contend(_address2437, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2437 = operand_5414;
+          _address2613 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5414 = memory.read(_address2613, 0);
+          contend(_address2613, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2613 = operand_5414;
           int value3_5417 = nAndCarry_5413;
-          _F2438 = value3_5417 & 1;
+          _F2614 = value3_5417 & 1;
           value3_5417 = value3_5417 >>> 1;
-          _F2438 = (_F2438 & 1) | 0x10 | (address_5412 & 0x28);
-          if ((_value2437 & (0x01 << value3_5417)) == 0) {
-              _F2438 |= 0x44;
+          _F2614 = (_F2614 & 1) | 0x10 | (address_5412 & 0x28);
+          if ((_value2613 & (0x01 << value3_5417)) == 0) {
+              _F2614 |= 0x44;
           }
-          if (value3_5417 == 7 && (_value2437 & 0x80) != 0) {
-              _F2438 |= 0x80;
+          if (value3_5417 == 7 && (_value2613 & 0x80) != 0) {
+              _F2614 |= 0x80;
           }
-          F = (_F2438 & 0xFF);
-          MEMPTR = _address2437;
+          F = (_F2614 & 0xFF);
+          MEMPTR = _address2613;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x51: {
-          int _F2441;
-          int _value2440;
-          int _address2440;
+          int _F2617;
+          int _value2616;
+          int _address2616;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5419;
           address_5419 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5420 = 4 | F & 1;
-          _address2440 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5421 = memory.read(_address2440, 0);
-          contend(_address2440, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2440 = operand_5421;
+          _address2616 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5421 = memory.read(_address2616, 0);
+          contend(_address2616, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2616 = operand_5421;
           int value3_5424 = nAndCarry_5420;
-          _F2441 = value3_5424 & 1;
+          _F2617 = value3_5424 & 1;
           value3_5424 = value3_5424 >>> 1;
-          _F2441 = (_F2441 & 1) | 0x10 | (address_5419 & 0x28);
-          if ((_value2440 & (0x01 << value3_5424)) == 0) {
-              _F2441 |= 0x44;
+          _F2617 = (_F2617 & 1) | 0x10 | (address_5419 & 0x28);
+          if ((_value2616 & (0x01 << value3_5424)) == 0) {
+              _F2617 |= 0x44;
           }
-          if (value3_5424 == 7 && (_value2440 & 0x80) != 0) {
-              _F2441 |= 0x80;
+          if (value3_5424 == 7 && (_value2616 & 0x80) != 0) {
+              _F2617 |= 0x80;
           }
-          F = (_F2441 & 0xFF);
-          MEMPTR = _address2440;
+          F = (_F2617 & 0xFF);
+          MEMPTR = _address2616;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x52: {
-          int _F2444;
-          int _value2443;
-          int _address2443;
+          int _F2620;
+          int _value2619;
+          int _address2619;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5426;
           address_5426 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5427 = 4 | F & 1;
-          _address2443 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5428 = memory.read(_address2443, 0);
-          contend(_address2443, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2443 = operand_5428;
+          _address2619 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5428 = memory.read(_address2619, 0);
+          contend(_address2619, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2619 = operand_5428;
           int value3_5431 = nAndCarry_5427;
-          _F2444 = value3_5431 & 1;
+          _F2620 = value3_5431 & 1;
           value3_5431 = value3_5431 >>> 1;
-          _F2444 = (_F2444 & 1) | 0x10 | (address_5426 & 0x28);
-          if ((_value2443 & (0x01 << value3_5431)) == 0) {
-              _F2444 |= 0x44;
+          _F2620 = (_F2620 & 1) | 0x10 | (address_5426 & 0x28);
+          if ((_value2619 & (0x01 << value3_5431)) == 0) {
+              _F2620 |= 0x44;
           }
-          if (value3_5431 == 7 && (_value2443 & 0x80) != 0) {
-              _F2444 |= 0x80;
+          if (value3_5431 == 7 && (_value2619 & 0x80) != 0) {
+              _F2620 |= 0x80;
           }
-          F = (_F2444 & 0xFF);
-          MEMPTR = _address2443;
+          F = (_F2620 & 0xFF);
+          MEMPTR = _address2619;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x53: {
-          int _F2447;
-          int _value2446;
-          int _address2446;
+          int _F2623;
+          int _value2622;
+          int _address2622;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5433;
           address_5433 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5434 = 4 | F & 1;
-          _address2446 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5435 = memory.read(_address2446, 0);
-          contend(_address2446, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2446 = operand_5435;
+          _address2622 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5435 = memory.read(_address2622, 0);
+          contend(_address2622, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2622 = operand_5435;
           int value3_5438 = nAndCarry_5434;
-          _F2447 = value3_5438 & 1;
+          _F2623 = value3_5438 & 1;
           value3_5438 = value3_5438 >>> 1;
-          _F2447 = (_F2447 & 1) | 0x10 | (address_5433 & 0x28);
-          if ((_value2446 & (0x01 << value3_5438)) == 0) {
-              _F2447 |= 0x44;
+          _F2623 = (_F2623 & 1) | 0x10 | (address_5433 & 0x28);
+          if ((_value2622 & (0x01 << value3_5438)) == 0) {
+              _F2623 |= 0x44;
           }
-          if (value3_5438 == 7 && (_value2446 & 0x80) != 0) {
-              _F2447 |= 0x80;
+          if (value3_5438 == 7 && (_value2622 & 0x80) != 0) {
+              _F2623 |= 0x80;
           }
-          F = (_F2447 & 0xFF);
-          MEMPTR = _address2446;
+          F = (_F2623 & 0xFF);
+          MEMPTR = _address2622;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x54: {
-          int _F2450;
-          int _value2449;
-          int _address2449;
+          int _F2626;
+          int _value2625;
+          int _address2625;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5440;
           address_5440 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5441 = 4 | F & 1;
-          _address2449 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5442 = memory.read(_address2449, 0);
-          contend(_address2449, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2449 = operand_5442;
+          _address2625 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5442 = memory.read(_address2625, 0);
+          contend(_address2625, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2625 = operand_5442;
           int value3_5445 = nAndCarry_5441;
-          _F2450 = value3_5445 & 1;
+          _F2626 = value3_5445 & 1;
           value3_5445 = value3_5445 >>> 1;
-          _F2450 = (_F2450 & 1) | 0x10 | (address_5440 & 0x28);
-          if ((_value2449 & (0x01 << value3_5445)) == 0) {
-              _F2450 |= 0x44;
+          _F2626 = (_F2626 & 1) | 0x10 | (address_5440 & 0x28);
+          if ((_value2625 & (0x01 << value3_5445)) == 0) {
+              _F2626 |= 0x44;
           }
-          if (value3_5445 == 7 && (_value2449 & 0x80) != 0) {
-              _F2450 |= 0x80;
+          if (value3_5445 == 7 && (_value2625 & 0x80) != 0) {
+              _F2626 |= 0x80;
           }
-          F = (_F2450 & 0xFF);
-          MEMPTR = _address2449;
+          F = (_F2626 & 0xFF);
+          MEMPTR = _address2625;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x55: {
-          int _F2453;
-          int _value2452;
-          int _address2452;
+          int _F2629;
+          int _value2628;
+          int _address2628;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5447;
           address_5447 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5448 = 4 | F & 1;
-          _address2452 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5449 = memory.read(_address2452, 0);
-          contend(_address2452, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2452 = operand_5449;
+          _address2628 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5449 = memory.read(_address2628, 0);
+          contend(_address2628, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2628 = operand_5449;
           int value3_5452 = nAndCarry_5448;
-          _F2453 = value3_5452 & 1;
+          _F2629 = value3_5452 & 1;
           value3_5452 = value3_5452 >>> 1;
-          _F2453 = (_F2453 & 1) | 0x10 | (address_5447 & 0x28);
-          if ((_value2452 & (0x01 << value3_5452)) == 0) {
-              _F2453 |= 0x44;
+          _F2629 = (_F2629 & 1) | 0x10 | (address_5447 & 0x28);
+          if ((_value2628 & (0x01 << value3_5452)) == 0) {
+              _F2629 |= 0x44;
           }
-          if (value3_5452 == 7 && (_value2452 & 0x80) != 0) {
-              _F2453 |= 0x80;
+          if (value3_5452 == 7 && (_value2628 & 0x80) != 0) {
+              _F2629 |= 0x80;
           }
-          F = (_F2453 & 0xFF);
-          MEMPTR = _address2452;
+          F = (_F2629 & 0xFF);
+          MEMPTR = _address2628;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x56: {
-          int _F2456;
-          int _value2455;
-          int _address2455;
+          int _F2632;
+          int _value2631;
+          int _address2631;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5454;
           address_5454 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5455 = 4 | F & 1;
-          _address2455 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5456 = memory.read(_address2455, 0);
-          contend(_address2455, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2455 = operand_5456;
+          _address2631 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5456 = memory.read(_address2631, 0);
+          contend(_address2631, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2631 = operand_5456;
           int value3_5459 = nAndCarry_5455;
-          _F2456 = value3_5459 & 1;
+          _F2632 = value3_5459 & 1;
           value3_5459 = value3_5459 >>> 1;
-          _F2456 = (_F2456 & 1) | 0x10 | (address_5454 & 0x28);
-          if ((_value2455 & (0x01 << value3_5459)) == 0) {
-              _F2456 |= 0x44;
+          _F2632 = (_F2632 & 1) | 0x10 | (address_5454 & 0x28);
+          if ((_value2631 & (0x01 << value3_5459)) == 0) {
+              _F2632 |= 0x44;
           }
-          if (value3_5459 == 7 && (_value2455 & 0x80) != 0) {
-              _F2456 |= 0x80;
+          if (value3_5459 == 7 && (_value2631 & 0x80) != 0) {
+              _F2632 |= 0x80;
           }
-          F = (_F2456 & 0xFF);
-          MEMPTR = _address2455;
+          F = (_F2632 & 0xFF);
+          MEMPTR = _address2631;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x57: {
-          int _F2459;
-          int _value2458;
-          int _address2458;
+          int _F2635;
+          int _value2634;
+          int _address2634;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5461;
           address_5461 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5462 = 4 | F & 1;
-          _address2458 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5463 = memory.read(_address2458, 0);
-          contend(_address2458, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2458 = operand_5463;
+          _address2634 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5463 = memory.read(_address2634, 0);
+          contend(_address2634, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2634 = operand_5463;
           int value3_5466 = nAndCarry_5462;
-          _F2459 = value3_5466 & 1;
+          _F2635 = value3_5466 & 1;
           value3_5466 = value3_5466 >>> 1;
-          _F2459 = (_F2459 & 1) | 0x10 | (address_5461 & 0x28);
-          if ((_value2458 & (0x01 << value3_5466)) == 0) {
-              _F2459 |= 0x44;
+          _F2635 = (_F2635 & 1) | 0x10 | (address_5461 & 0x28);
+          if ((_value2634 & (0x01 << value3_5466)) == 0) {
+              _F2635 |= 0x44;
           }
-          if (value3_5466 == 7 && (_value2458 & 0x80) != 0) {
-              _F2459 |= 0x80;
+          if (value3_5466 == 7 && (_value2634 & 0x80) != 0) {
+              _F2635 |= 0x80;
           }
-          F = (_F2459 & 0xFF);
-          MEMPTR = _address2458;
+          F = (_F2635 & 0xFF);
+          MEMPTR = _address2634;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x58: {
-          int _F2462;
-          int _value2461;
-          int _address2461;
+          int _F2638;
+          int _value2637;
+          int _address2637;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5468;
           address_5468 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5469 = 6 | F & 1;
-          _address2461 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5470 = memory.read(_address2461, 0);
-          contend(_address2461, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2461 = operand_5470;
+          _address2637 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5470 = memory.read(_address2637, 0);
+          contend(_address2637, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2637 = operand_5470;
           int value3_5473 = nAndCarry_5469;
-          _F2462 = value3_5473 & 1;
+          _F2638 = value3_5473 & 1;
           value3_5473 = value3_5473 >>> 1;
-          _F2462 = (_F2462 & 1) | 0x10 | (address_5468 & 0x28);
-          if ((_value2461 & (0x01 << value3_5473)) == 0) {
-              _F2462 |= 0x44;
+          _F2638 = (_F2638 & 1) | 0x10 | (address_5468 & 0x28);
+          if ((_value2637 & (0x01 << value3_5473)) == 0) {
+              _F2638 |= 0x44;
           }
-          if (value3_5473 == 7 && (_value2461 & 0x80) != 0) {
-              _F2462 |= 0x80;
+          if (value3_5473 == 7 && (_value2637 & 0x80) != 0) {
+              _F2638 |= 0x80;
           }
-          F = (_F2462 & 0xFF);
-          MEMPTR = _address2461;
+          F = (_F2638 & 0xFF);
+          MEMPTR = _address2637;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x59: {
-          int _F2465;
-          int _value2464;
-          int _address2464;
+          int _F2641;
+          int _value2640;
+          int _address2640;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5475;
           address_5475 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5476 = 6 | F & 1;
-          _address2464 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5477 = memory.read(_address2464, 0);
-          contend(_address2464, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2464 = operand_5477;
+          _address2640 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5477 = memory.read(_address2640, 0);
+          contend(_address2640, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2640 = operand_5477;
           int value3_5480 = nAndCarry_5476;
-          _F2465 = value3_5480 & 1;
+          _F2641 = value3_5480 & 1;
           value3_5480 = value3_5480 >>> 1;
-          _F2465 = (_F2465 & 1) | 0x10 | (address_5475 & 0x28);
-          if ((_value2464 & (0x01 << value3_5480)) == 0) {
-              _F2465 |= 0x44;
+          _F2641 = (_F2641 & 1) | 0x10 | (address_5475 & 0x28);
+          if ((_value2640 & (0x01 << value3_5480)) == 0) {
+              _F2641 |= 0x44;
           }
-          if (value3_5480 == 7 && (_value2464 & 0x80) != 0) {
-              _F2465 |= 0x80;
+          if (value3_5480 == 7 && (_value2640 & 0x80) != 0) {
+              _F2641 |= 0x80;
           }
-          F = (_F2465 & 0xFF);
-          MEMPTR = _address2464;
+          F = (_F2641 & 0xFF);
+          MEMPTR = _address2640;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x5A: {
-          int _F2468;
-          int _value2467;
-          int _address2467;
+          int _F2644;
+          int _value2643;
+          int _address2643;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5482;
           address_5482 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5483 = 6 | F & 1;
-          _address2467 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5484 = memory.read(_address2467, 0);
-          contend(_address2467, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2467 = operand_5484;
+          _address2643 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5484 = memory.read(_address2643, 0);
+          contend(_address2643, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2643 = operand_5484;
           int value3_5487 = nAndCarry_5483;
-          _F2468 = value3_5487 & 1;
+          _F2644 = value3_5487 & 1;
           value3_5487 = value3_5487 >>> 1;
-          _F2468 = (_F2468 & 1) | 0x10 | (address_5482 & 0x28);
-          if ((_value2467 & (0x01 << value3_5487)) == 0) {
-              _F2468 |= 0x44;
+          _F2644 = (_F2644 & 1) | 0x10 | (address_5482 & 0x28);
+          if ((_value2643 & (0x01 << value3_5487)) == 0) {
+              _F2644 |= 0x44;
           }
-          if (value3_5487 == 7 && (_value2467 & 0x80) != 0) {
-              _F2468 |= 0x80;
+          if (value3_5487 == 7 && (_value2643 & 0x80) != 0) {
+              _F2644 |= 0x80;
           }
-          F = (_F2468 & 0xFF);
-          MEMPTR = _address2467;
+          F = (_F2644 & 0xFF);
+          MEMPTR = _address2643;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x5B: {
-          int _F2471;
-          int _value2470;
-          int _address2470;
+          int _F2647;
+          int _value2646;
+          int _address2646;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5489;
           address_5489 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5490 = 6 | F & 1;
-          _address2470 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5491 = memory.read(_address2470, 0);
-          contend(_address2470, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2470 = operand_5491;
+          _address2646 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5491 = memory.read(_address2646, 0);
+          contend(_address2646, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2646 = operand_5491;
           int value3_5494 = nAndCarry_5490;
-          _F2471 = value3_5494 & 1;
+          _F2647 = value3_5494 & 1;
           value3_5494 = value3_5494 >>> 1;
-          _F2471 = (_F2471 & 1) | 0x10 | (address_5489 & 0x28);
-          if ((_value2470 & (0x01 << value3_5494)) == 0) {
-              _F2471 |= 0x44;
+          _F2647 = (_F2647 & 1) | 0x10 | (address_5489 & 0x28);
+          if ((_value2646 & (0x01 << value3_5494)) == 0) {
+              _F2647 |= 0x44;
           }
-          if (value3_5494 == 7 && (_value2470 & 0x80) != 0) {
-              _F2471 |= 0x80;
+          if (value3_5494 == 7 && (_value2646 & 0x80) != 0) {
+              _F2647 |= 0x80;
           }
-          F = (_F2471 & 0xFF);
-          MEMPTR = _address2470;
+          F = (_F2647 & 0xFF);
+          MEMPTR = _address2646;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x5C: {
-          int _F2474;
-          int _value2473;
-          int _address2473;
+          int _F2650;
+          int _value2649;
+          int _address2649;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5496;
           address_5496 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5497 = 6 | F & 1;
-          _address2473 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5498 = memory.read(_address2473, 0);
-          contend(_address2473, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2473 = operand_5498;
+          _address2649 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5498 = memory.read(_address2649, 0);
+          contend(_address2649, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2649 = operand_5498;
           int value3_5501 = nAndCarry_5497;
-          _F2474 = value3_5501 & 1;
+          _F2650 = value3_5501 & 1;
           value3_5501 = value3_5501 >>> 1;
-          _F2474 = (_F2474 & 1) | 0x10 | (address_5496 & 0x28);
-          if ((_value2473 & (0x01 << value3_5501)) == 0) {
-              _F2474 |= 0x44;
+          _F2650 = (_F2650 & 1) | 0x10 | (address_5496 & 0x28);
+          if ((_value2649 & (0x01 << value3_5501)) == 0) {
+              _F2650 |= 0x44;
           }
-          if (value3_5501 == 7 && (_value2473 & 0x80) != 0) {
-              _F2474 |= 0x80;
+          if (value3_5501 == 7 && (_value2649 & 0x80) != 0) {
+              _F2650 |= 0x80;
           }
-          F = (_F2474 & 0xFF);
-          MEMPTR = _address2473;
+          F = (_F2650 & 0xFF);
+          MEMPTR = _address2649;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x5D: {
-          int _F2477;
-          int _value2476;
-          int _address2476;
+          int _F2653;
+          int _value2652;
+          int _address2652;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5503;
           address_5503 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5504 = 6 | F & 1;
-          _address2476 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5505 = memory.read(_address2476, 0);
-          contend(_address2476, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2476 = operand_5505;
+          _address2652 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5505 = memory.read(_address2652, 0);
+          contend(_address2652, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2652 = operand_5505;
           int value3_5508 = nAndCarry_5504;
-          _F2477 = value3_5508 & 1;
+          _F2653 = value3_5508 & 1;
           value3_5508 = value3_5508 >>> 1;
-          _F2477 = (_F2477 & 1) | 0x10 | (address_5503 & 0x28);
-          if ((_value2476 & (0x01 << value3_5508)) == 0) {
-              _F2477 |= 0x44;
+          _F2653 = (_F2653 & 1) | 0x10 | (address_5503 & 0x28);
+          if ((_value2652 & (0x01 << value3_5508)) == 0) {
+              _F2653 |= 0x44;
           }
-          if (value3_5508 == 7 && (_value2476 & 0x80) != 0) {
-              _F2477 |= 0x80;
+          if (value3_5508 == 7 && (_value2652 & 0x80) != 0) {
+              _F2653 |= 0x80;
           }
-          F = (_F2477 & 0xFF);
-          MEMPTR = _address2476;
+          F = (_F2653 & 0xFF);
+          MEMPTR = _address2652;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x5E: {
-          int _F2480;
-          int _value2479;
-          int _address2479;
+          int _F2656;
+          int _value2655;
+          int _address2655;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5510;
           address_5510 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5511 = 6 | F & 1;
-          _address2479 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5512 = memory.read(_address2479, 0);
-          contend(_address2479, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2479 = operand_5512;
+          _address2655 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5512 = memory.read(_address2655, 0);
+          contend(_address2655, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2655 = operand_5512;
           int value3_5515 = nAndCarry_5511;
-          _F2480 = value3_5515 & 1;
+          _F2656 = value3_5515 & 1;
           value3_5515 = value3_5515 >>> 1;
-          _F2480 = (_F2480 & 1) | 0x10 | (address_5510 & 0x28);
-          if ((_value2479 & (0x01 << value3_5515)) == 0) {
-              _F2480 |= 0x44;
+          _F2656 = (_F2656 & 1) | 0x10 | (address_5510 & 0x28);
+          if ((_value2655 & (0x01 << value3_5515)) == 0) {
+              _F2656 |= 0x44;
           }
-          if (value3_5515 == 7 && (_value2479 & 0x80) != 0) {
-              _F2480 |= 0x80;
+          if (value3_5515 == 7 && (_value2655 & 0x80) != 0) {
+              _F2656 |= 0x80;
           }
-          F = (_F2480 & 0xFF);
-          MEMPTR = _address2479;
+          F = (_F2656 & 0xFF);
+          MEMPTR = _address2655;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x5F: {
-          int _F2483;
-          int _value2482;
-          int _address2482;
+          int _F2659;
+          int _value2658;
+          int _address2658;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5517;
           address_5517 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5518 = 6 | F & 1;
-          _address2482 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5519 = memory.read(_address2482, 0);
-          contend(_address2482, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2482 = operand_5519;
+          _address2658 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5519 = memory.read(_address2658, 0);
+          contend(_address2658, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2658 = operand_5519;
           int value3_5522 = nAndCarry_5518;
-          _F2483 = value3_5522 & 1;
+          _F2659 = value3_5522 & 1;
           value3_5522 = value3_5522 >>> 1;
-          _F2483 = (_F2483 & 1) | 0x10 | (address_5517 & 0x28);
-          if ((_value2482 & (0x01 << value3_5522)) == 0) {
-              _F2483 |= 0x44;
+          _F2659 = (_F2659 & 1) | 0x10 | (address_5517 & 0x28);
+          if ((_value2658 & (0x01 << value3_5522)) == 0) {
+              _F2659 |= 0x44;
           }
-          if (value3_5522 == 7 && (_value2482 & 0x80) != 0) {
-              _F2483 |= 0x80;
+          if (value3_5522 == 7 && (_value2658 & 0x80) != 0) {
+              _F2659 |= 0x80;
           }
-          F = (_F2483 & 0xFF);
-          MEMPTR = _address2482;
+          F = (_F2659 & 0xFF);
+          MEMPTR = _address2658;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -22125,434 +22919,434 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFDCB_6(int opcode, int displacement) {
     switch (opcode) {
       case 0x60: {
-          int _F2486;
-          int _value2485;
-          int _address2485;
+          int _F2662;
+          int _value2661;
+          int _address2661;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5524;
           address_5524 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5525 = 8 | F & 1;
-          _address2485 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5526 = memory.read(_address2485, 0);
-          contend(_address2485, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2485 = operand_5526;
+          _address2661 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5526 = memory.read(_address2661, 0);
+          contend(_address2661, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2661 = operand_5526;
           int value3_5529 = nAndCarry_5525;
-          _F2486 = value3_5529 & 1;
+          _F2662 = value3_5529 & 1;
           value3_5529 = value3_5529 >>> 1;
-          _F2486 = (_F2486 & 1) | 0x10 | (address_5524 & 0x28);
-          if ((_value2485 & (0x01 << value3_5529)) == 0) {
-              _F2486 |= 0x44;
+          _F2662 = (_F2662 & 1) | 0x10 | (address_5524 & 0x28);
+          if ((_value2661 & (0x01 << value3_5529)) == 0) {
+              _F2662 |= 0x44;
           }
-          if (value3_5529 == 7 && (_value2485 & 0x80) != 0) {
-              _F2486 |= 0x80;
+          if (value3_5529 == 7 && (_value2661 & 0x80) != 0) {
+              _F2662 |= 0x80;
           }
-          F = (_F2486 & 0xFF);
-          MEMPTR = _address2485;
+          F = (_F2662 & 0xFF);
+          MEMPTR = _address2661;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x61: {
-          int _F2489;
-          int _value2488;
-          int _address2488;
+          int _F2665;
+          int _value2664;
+          int _address2664;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5531;
           address_5531 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5532 = 8 | F & 1;
-          _address2488 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5533 = memory.read(_address2488, 0);
-          contend(_address2488, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2488 = operand_5533;
+          _address2664 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5533 = memory.read(_address2664, 0);
+          contend(_address2664, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2664 = operand_5533;
           int value3_5536 = nAndCarry_5532;
-          _F2489 = value3_5536 & 1;
+          _F2665 = value3_5536 & 1;
           value3_5536 = value3_5536 >>> 1;
-          _F2489 = (_F2489 & 1) | 0x10 | (address_5531 & 0x28);
-          if ((_value2488 & (0x01 << value3_5536)) == 0) {
-              _F2489 |= 0x44;
+          _F2665 = (_F2665 & 1) | 0x10 | (address_5531 & 0x28);
+          if ((_value2664 & (0x01 << value3_5536)) == 0) {
+              _F2665 |= 0x44;
           }
-          if (value3_5536 == 7 && (_value2488 & 0x80) != 0) {
-              _F2489 |= 0x80;
+          if (value3_5536 == 7 && (_value2664 & 0x80) != 0) {
+              _F2665 |= 0x80;
           }
-          F = (_F2489 & 0xFF);
-          MEMPTR = _address2488;
+          F = (_F2665 & 0xFF);
+          MEMPTR = _address2664;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x62: {
-          int _F2492;
-          int _value2491;
-          int _address2491;
+          int _F2668;
+          int _value2667;
+          int _address2667;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5538;
           address_5538 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5539 = 8 | F & 1;
-          _address2491 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5540 = memory.read(_address2491, 0);
-          contend(_address2491, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2491 = operand_5540;
+          _address2667 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5540 = memory.read(_address2667, 0);
+          contend(_address2667, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2667 = operand_5540;
           int value3_5543 = nAndCarry_5539;
-          _F2492 = value3_5543 & 1;
+          _F2668 = value3_5543 & 1;
           value3_5543 = value3_5543 >>> 1;
-          _F2492 = (_F2492 & 1) | 0x10 | (address_5538 & 0x28);
-          if ((_value2491 & (0x01 << value3_5543)) == 0) {
-              _F2492 |= 0x44;
+          _F2668 = (_F2668 & 1) | 0x10 | (address_5538 & 0x28);
+          if ((_value2667 & (0x01 << value3_5543)) == 0) {
+              _F2668 |= 0x44;
           }
-          if (value3_5543 == 7 && (_value2491 & 0x80) != 0) {
-              _F2492 |= 0x80;
+          if (value3_5543 == 7 && (_value2667 & 0x80) != 0) {
+              _F2668 |= 0x80;
           }
-          F = (_F2492 & 0xFF);
-          MEMPTR = _address2491;
+          F = (_F2668 & 0xFF);
+          MEMPTR = _address2667;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x63: {
-          int _F2495;
-          int _value2494;
-          int _address2494;
+          int _F2671;
+          int _value2670;
+          int _address2670;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5545;
           address_5545 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5546 = 8 | F & 1;
-          _address2494 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5547 = memory.read(_address2494, 0);
-          contend(_address2494, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2494 = operand_5547;
+          _address2670 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5547 = memory.read(_address2670, 0);
+          contend(_address2670, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2670 = operand_5547;
           int value3_5550 = nAndCarry_5546;
-          _F2495 = value3_5550 & 1;
+          _F2671 = value3_5550 & 1;
           value3_5550 = value3_5550 >>> 1;
-          _F2495 = (_F2495 & 1) | 0x10 | (address_5545 & 0x28);
-          if ((_value2494 & (0x01 << value3_5550)) == 0) {
-              _F2495 |= 0x44;
+          _F2671 = (_F2671 & 1) | 0x10 | (address_5545 & 0x28);
+          if ((_value2670 & (0x01 << value3_5550)) == 0) {
+              _F2671 |= 0x44;
           }
-          if (value3_5550 == 7 && (_value2494 & 0x80) != 0) {
-              _F2495 |= 0x80;
+          if (value3_5550 == 7 && (_value2670 & 0x80) != 0) {
+              _F2671 |= 0x80;
           }
-          F = (_F2495 & 0xFF);
-          MEMPTR = _address2494;
+          F = (_F2671 & 0xFF);
+          MEMPTR = _address2670;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x64: {
-          int _F2498;
-          int _value2497;
-          int _address2497;
+          int _F2674;
+          int _value2673;
+          int _address2673;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5552;
           address_5552 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5553 = 8 | F & 1;
-          _address2497 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5554 = memory.read(_address2497, 0);
-          contend(_address2497, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2497 = operand_5554;
+          _address2673 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5554 = memory.read(_address2673, 0);
+          contend(_address2673, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2673 = operand_5554;
           int value3_5557 = nAndCarry_5553;
-          _F2498 = value3_5557 & 1;
+          _F2674 = value3_5557 & 1;
           value3_5557 = value3_5557 >>> 1;
-          _F2498 = (_F2498 & 1) | 0x10 | (address_5552 & 0x28);
-          if ((_value2497 & (0x01 << value3_5557)) == 0) {
-              _F2498 |= 0x44;
+          _F2674 = (_F2674 & 1) | 0x10 | (address_5552 & 0x28);
+          if ((_value2673 & (0x01 << value3_5557)) == 0) {
+              _F2674 |= 0x44;
           }
-          if (value3_5557 == 7 && (_value2497 & 0x80) != 0) {
-              _F2498 |= 0x80;
+          if (value3_5557 == 7 && (_value2673 & 0x80) != 0) {
+              _F2674 |= 0x80;
           }
-          F = (_F2498 & 0xFF);
-          MEMPTR = _address2497;
+          F = (_F2674 & 0xFF);
+          MEMPTR = _address2673;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x65: {
-          int _F2501;
-          int _value2500;
-          int _address2500;
+          int _F2677;
+          int _value2676;
+          int _address2676;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5559;
           address_5559 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5560 = 8 | F & 1;
-          _address2500 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5561 = memory.read(_address2500, 0);
-          contend(_address2500, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2500 = operand_5561;
+          _address2676 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5561 = memory.read(_address2676, 0);
+          contend(_address2676, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2676 = operand_5561;
           int value3_5564 = nAndCarry_5560;
-          _F2501 = value3_5564 & 1;
+          _F2677 = value3_5564 & 1;
           value3_5564 = value3_5564 >>> 1;
-          _F2501 = (_F2501 & 1) | 0x10 | (address_5559 & 0x28);
-          if ((_value2500 & (0x01 << value3_5564)) == 0) {
-              _F2501 |= 0x44;
+          _F2677 = (_F2677 & 1) | 0x10 | (address_5559 & 0x28);
+          if ((_value2676 & (0x01 << value3_5564)) == 0) {
+              _F2677 |= 0x44;
           }
-          if (value3_5564 == 7 && (_value2500 & 0x80) != 0) {
-              _F2501 |= 0x80;
+          if (value3_5564 == 7 && (_value2676 & 0x80) != 0) {
+              _F2677 |= 0x80;
           }
-          F = (_F2501 & 0xFF);
-          MEMPTR = _address2500;
+          F = (_F2677 & 0xFF);
+          MEMPTR = _address2676;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x66: {
-          int _F2504;
-          int _value2503;
-          int _address2503;
+          int _F2680;
+          int _value2679;
+          int _address2679;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5566;
           address_5566 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5567 = 8 | F & 1;
-          _address2503 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5568 = memory.read(_address2503, 0);
-          contend(_address2503, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2503 = operand_5568;
+          _address2679 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5568 = memory.read(_address2679, 0);
+          contend(_address2679, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2679 = operand_5568;
           int value3_5571 = nAndCarry_5567;
-          _F2504 = value3_5571 & 1;
+          _F2680 = value3_5571 & 1;
           value3_5571 = value3_5571 >>> 1;
-          _F2504 = (_F2504 & 1) | 0x10 | (address_5566 & 0x28);
-          if ((_value2503 & (0x01 << value3_5571)) == 0) {
-              _F2504 |= 0x44;
+          _F2680 = (_F2680 & 1) | 0x10 | (address_5566 & 0x28);
+          if ((_value2679 & (0x01 << value3_5571)) == 0) {
+              _F2680 |= 0x44;
           }
-          if (value3_5571 == 7 && (_value2503 & 0x80) != 0) {
-              _F2504 |= 0x80;
+          if (value3_5571 == 7 && (_value2679 & 0x80) != 0) {
+              _F2680 |= 0x80;
           }
-          F = (_F2504 & 0xFF);
-          MEMPTR = _address2503;
+          F = (_F2680 & 0xFF);
+          MEMPTR = _address2679;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x67: {
-          int _F2507;
-          int _value2506;
-          int _address2506;
+          int _F2683;
+          int _value2682;
+          int _address2682;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5573;
           address_5573 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5574 = 8 | F & 1;
-          _address2506 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5575 = memory.read(_address2506, 0);
-          contend(_address2506, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2506 = operand_5575;
+          _address2682 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5575 = memory.read(_address2682, 0);
+          contend(_address2682, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2682 = operand_5575;
           int value3_5578 = nAndCarry_5574;
-          _F2507 = value3_5578 & 1;
+          _F2683 = value3_5578 & 1;
           value3_5578 = value3_5578 >>> 1;
-          _F2507 = (_F2507 & 1) | 0x10 | (address_5573 & 0x28);
-          if ((_value2506 & (0x01 << value3_5578)) == 0) {
-              _F2507 |= 0x44;
+          _F2683 = (_F2683 & 1) | 0x10 | (address_5573 & 0x28);
+          if ((_value2682 & (0x01 << value3_5578)) == 0) {
+              _F2683 |= 0x44;
           }
-          if (value3_5578 == 7 && (_value2506 & 0x80) != 0) {
-              _F2507 |= 0x80;
+          if (value3_5578 == 7 && (_value2682 & 0x80) != 0) {
+              _F2683 |= 0x80;
           }
-          F = (_F2507 & 0xFF);
-          MEMPTR = _address2506;
+          F = (_F2683 & 0xFF);
+          MEMPTR = _address2682;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x68: {
-          int _F2510;
-          int _value2509;
-          int _address2509;
+          int _F2686;
+          int _value2685;
+          int _address2685;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5580;
           address_5580 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5581 = 10 | F & 1;
-          _address2509 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5582 = memory.read(_address2509, 0);
-          contend(_address2509, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2509 = operand_5582;
+          _address2685 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5582 = memory.read(_address2685, 0);
+          contend(_address2685, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2685 = operand_5582;
           int value3_5585 = nAndCarry_5581;
-          _F2510 = value3_5585 & 1;
+          _F2686 = value3_5585 & 1;
           value3_5585 = value3_5585 >>> 1;
-          _F2510 = (_F2510 & 1) | 0x10 | (address_5580 & 0x28);
-          if ((_value2509 & (0x01 << value3_5585)) == 0) {
-              _F2510 |= 0x44;
+          _F2686 = (_F2686 & 1) | 0x10 | (address_5580 & 0x28);
+          if ((_value2685 & (0x01 << value3_5585)) == 0) {
+              _F2686 |= 0x44;
           }
-          if (value3_5585 == 7 && (_value2509 & 0x80) != 0) {
-              _F2510 |= 0x80;
+          if (value3_5585 == 7 && (_value2685 & 0x80) != 0) {
+              _F2686 |= 0x80;
           }
-          F = (_F2510 & 0xFF);
-          MEMPTR = _address2509;
+          F = (_F2686 & 0xFF);
+          MEMPTR = _address2685;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x69: {
-          int _F2513;
-          int _value2512;
-          int _address2512;
+          int _F2689;
+          int _value2688;
+          int _address2688;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5587;
           address_5587 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5588 = 10 | F & 1;
-          _address2512 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5589 = memory.read(_address2512, 0);
-          contend(_address2512, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2512 = operand_5589;
+          _address2688 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5589 = memory.read(_address2688, 0);
+          contend(_address2688, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2688 = operand_5589;
           int value3_5592 = nAndCarry_5588;
-          _F2513 = value3_5592 & 1;
+          _F2689 = value3_5592 & 1;
           value3_5592 = value3_5592 >>> 1;
-          _F2513 = (_F2513 & 1) | 0x10 | (address_5587 & 0x28);
-          if ((_value2512 & (0x01 << value3_5592)) == 0) {
-              _F2513 |= 0x44;
+          _F2689 = (_F2689 & 1) | 0x10 | (address_5587 & 0x28);
+          if ((_value2688 & (0x01 << value3_5592)) == 0) {
+              _F2689 |= 0x44;
           }
-          if (value3_5592 == 7 && (_value2512 & 0x80) != 0) {
-              _F2513 |= 0x80;
+          if (value3_5592 == 7 && (_value2688 & 0x80) != 0) {
+              _F2689 |= 0x80;
           }
-          F = (_F2513 & 0xFF);
-          MEMPTR = _address2512;
+          F = (_F2689 & 0xFF);
+          MEMPTR = _address2688;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x6A: {
-          int _F2516;
-          int _value2515;
-          int _address2515;
+          int _F2692;
+          int _value2691;
+          int _address2691;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5594;
           address_5594 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5595 = 10 | F & 1;
-          _address2515 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5596 = memory.read(_address2515, 0);
-          contend(_address2515, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2515 = operand_5596;
+          _address2691 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5596 = memory.read(_address2691, 0);
+          contend(_address2691, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2691 = operand_5596;
           int value3_5599 = nAndCarry_5595;
-          _F2516 = value3_5599 & 1;
+          _F2692 = value3_5599 & 1;
           value3_5599 = value3_5599 >>> 1;
-          _F2516 = (_F2516 & 1) | 0x10 | (address_5594 & 0x28);
-          if ((_value2515 & (0x01 << value3_5599)) == 0) {
-              _F2516 |= 0x44;
+          _F2692 = (_F2692 & 1) | 0x10 | (address_5594 & 0x28);
+          if ((_value2691 & (0x01 << value3_5599)) == 0) {
+              _F2692 |= 0x44;
           }
-          if (value3_5599 == 7 && (_value2515 & 0x80) != 0) {
-              _F2516 |= 0x80;
+          if (value3_5599 == 7 && (_value2691 & 0x80) != 0) {
+              _F2692 |= 0x80;
           }
-          F = (_F2516 & 0xFF);
-          MEMPTR = _address2515;
+          F = (_F2692 & 0xFF);
+          MEMPTR = _address2691;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x6B: {
-          int _F2519;
-          int _value2518;
-          int _address2518;
+          int _F2695;
+          int _value2694;
+          int _address2694;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5601;
           address_5601 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5602 = 10 | F & 1;
-          _address2518 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5603 = memory.read(_address2518, 0);
-          contend(_address2518, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2518 = operand_5603;
+          _address2694 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5603 = memory.read(_address2694, 0);
+          contend(_address2694, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2694 = operand_5603;
           int value3_5606 = nAndCarry_5602;
-          _F2519 = value3_5606 & 1;
+          _F2695 = value3_5606 & 1;
           value3_5606 = value3_5606 >>> 1;
-          _F2519 = (_F2519 & 1) | 0x10 | (address_5601 & 0x28);
-          if ((_value2518 & (0x01 << value3_5606)) == 0) {
-              _F2519 |= 0x44;
+          _F2695 = (_F2695 & 1) | 0x10 | (address_5601 & 0x28);
+          if ((_value2694 & (0x01 << value3_5606)) == 0) {
+              _F2695 |= 0x44;
           }
-          if (value3_5606 == 7 && (_value2518 & 0x80) != 0) {
-              _F2519 |= 0x80;
+          if (value3_5606 == 7 && (_value2694 & 0x80) != 0) {
+              _F2695 |= 0x80;
           }
-          F = (_F2519 & 0xFF);
-          MEMPTR = _address2518;
+          F = (_F2695 & 0xFF);
+          MEMPTR = _address2694;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x6C: {
-          int _F2522;
-          int _value2521;
-          int _address2521;
+          int _F2698;
+          int _value2697;
+          int _address2697;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5608;
           address_5608 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5609 = 10 | F & 1;
-          _address2521 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5610 = memory.read(_address2521, 0);
-          contend(_address2521, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2521 = operand_5610;
+          _address2697 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5610 = memory.read(_address2697, 0);
+          contend(_address2697, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2697 = operand_5610;
           int value3_5613 = nAndCarry_5609;
-          _F2522 = value3_5613 & 1;
+          _F2698 = value3_5613 & 1;
           value3_5613 = value3_5613 >>> 1;
-          _F2522 = (_F2522 & 1) | 0x10 | (address_5608 & 0x28);
-          if ((_value2521 & (0x01 << value3_5613)) == 0) {
-              _F2522 |= 0x44;
+          _F2698 = (_F2698 & 1) | 0x10 | (address_5608 & 0x28);
+          if ((_value2697 & (0x01 << value3_5613)) == 0) {
+              _F2698 |= 0x44;
           }
-          if (value3_5613 == 7 && (_value2521 & 0x80) != 0) {
-              _F2522 |= 0x80;
+          if (value3_5613 == 7 && (_value2697 & 0x80) != 0) {
+              _F2698 |= 0x80;
           }
-          F = (_F2522 & 0xFF);
-          MEMPTR = _address2521;
+          F = (_F2698 & 0xFF);
+          MEMPTR = _address2697;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x6D: {
-          int _F2525;
-          int _value2524;
-          int _address2524;
+          int _F2701;
+          int _value2700;
+          int _address2700;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5615;
           address_5615 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5616 = 10 | F & 1;
-          _address2524 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5617 = memory.read(_address2524, 0);
-          contend(_address2524, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2524 = operand_5617;
+          _address2700 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5617 = memory.read(_address2700, 0);
+          contend(_address2700, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2700 = operand_5617;
           int value3_5620 = nAndCarry_5616;
-          _F2525 = value3_5620 & 1;
+          _F2701 = value3_5620 & 1;
           value3_5620 = value3_5620 >>> 1;
-          _F2525 = (_F2525 & 1) | 0x10 | (address_5615 & 0x28);
-          if ((_value2524 & (0x01 << value3_5620)) == 0) {
-              _F2525 |= 0x44;
+          _F2701 = (_F2701 & 1) | 0x10 | (address_5615 & 0x28);
+          if ((_value2700 & (0x01 << value3_5620)) == 0) {
+              _F2701 |= 0x44;
           }
-          if (value3_5620 == 7 && (_value2524 & 0x80) != 0) {
-              _F2525 |= 0x80;
+          if (value3_5620 == 7 && (_value2700 & 0x80) != 0) {
+              _F2701 |= 0x80;
           }
-          F = (_F2525 & 0xFF);
-          MEMPTR = _address2524;
+          F = (_F2701 & 0xFF);
+          MEMPTR = _address2700;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x6E: {
-          int _F2528;
-          int _value2527;
-          int _address2527;
+          int _F2704;
+          int _value2703;
+          int _address2703;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5622;
           address_5622 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5623 = 10 | F & 1;
-          _address2527 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5624 = memory.read(_address2527, 0);
-          contend(_address2527, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2527 = operand_5624;
+          _address2703 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5624 = memory.read(_address2703, 0);
+          contend(_address2703, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2703 = operand_5624;
           int value3_5627 = nAndCarry_5623;
-          _F2528 = value3_5627 & 1;
+          _F2704 = value3_5627 & 1;
           value3_5627 = value3_5627 >>> 1;
-          _F2528 = (_F2528 & 1) | 0x10 | (address_5622 & 0x28);
-          if ((_value2527 & (0x01 << value3_5627)) == 0) {
-              _F2528 |= 0x44;
+          _F2704 = (_F2704 & 1) | 0x10 | (address_5622 & 0x28);
+          if ((_value2703 & (0x01 << value3_5627)) == 0) {
+              _F2704 |= 0x44;
           }
-          if (value3_5627 == 7 && (_value2527 & 0x80) != 0) {
-              _F2528 |= 0x80;
+          if (value3_5627 == 7 && (_value2703 & 0x80) != 0) {
+              _F2704 |= 0x80;
           }
-          F = (_F2528 & 0xFF);
-          MEMPTR = _address2527;
+          F = (_F2704 & 0xFF);
+          MEMPTR = _address2703;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x6F: {
-          int _F2531;
-          int _value2530;
-          int _address2530;
+          int _F2707;
+          int _value2706;
+          int _address2706;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5629;
           address_5629 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5630 = 10 | F & 1;
-          _address2530 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5631 = memory.read(_address2530, 0);
-          contend(_address2530, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2530 = operand_5631;
+          _address2706 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5631 = memory.read(_address2706, 0);
+          contend(_address2706, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2706 = operand_5631;
           int value3_5634 = nAndCarry_5630;
-          _F2531 = value3_5634 & 1;
+          _F2707 = value3_5634 & 1;
           value3_5634 = value3_5634 >>> 1;
-          _F2531 = (_F2531 & 1) | 0x10 | (address_5629 & 0x28);
-          if ((_value2530 & (0x01 << value3_5634)) == 0) {
-              _F2531 |= 0x44;
+          _F2707 = (_F2707 & 1) | 0x10 | (address_5629 & 0x28);
+          if ((_value2706 & (0x01 << value3_5634)) == 0) {
+              _F2707 |= 0x44;
           }
-          if (value3_5634 == 7 && (_value2530 & 0x80) != 0) {
-              _F2531 |= 0x80;
+          if (value3_5634 == 7 && (_value2706 & 0x80) != 0) {
+              _F2707 |= 0x80;
           }
-          F = (_F2531 & 0xFF);
-          MEMPTR = _address2530;
+          F = (_F2707 & 0xFF);
+          MEMPTR = _address2706;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -22564,434 +23358,434 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFDCB_7(int opcode, int displacement) {
     switch (opcode) {
       case 0x70: {
-          int _F2534;
-          int _value2533;
-          int _address2533;
+          int _F2710;
+          int _value2709;
+          int _address2709;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5636;
           address_5636 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5637 = 12 | F & 1;
-          _address2533 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5638 = memory.read(_address2533, 0);
-          contend(_address2533, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2533 = operand_5638;
+          _address2709 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5638 = memory.read(_address2709, 0);
+          contend(_address2709, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2709 = operand_5638;
           int value3_5641 = nAndCarry_5637;
-          _F2534 = value3_5641 & 1;
+          _F2710 = value3_5641 & 1;
           value3_5641 = value3_5641 >>> 1;
-          _F2534 = (_F2534 & 1) | 0x10 | (address_5636 & 0x28);
-          if ((_value2533 & (0x01 << value3_5641)) == 0) {
-              _F2534 |= 0x44;
+          _F2710 = (_F2710 & 1) | 0x10 | (address_5636 & 0x28);
+          if ((_value2709 & (0x01 << value3_5641)) == 0) {
+              _F2710 |= 0x44;
           }
-          if (value3_5641 == 7 && (_value2533 & 0x80) != 0) {
-              _F2534 |= 0x80;
+          if (value3_5641 == 7 && (_value2709 & 0x80) != 0) {
+              _F2710 |= 0x80;
           }
-          F = (_F2534 & 0xFF);
-          MEMPTR = _address2533;
+          F = (_F2710 & 0xFF);
+          MEMPTR = _address2709;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x71: {
-          int _F2537;
-          int _value2536;
-          int _address2536;
+          int _F2713;
+          int _value2712;
+          int _address2712;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5643;
           address_5643 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5644 = 12 | F & 1;
-          _address2536 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5645 = memory.read(_address2536, 0);
-          contend(_address2536, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2536 = operand_5645;
+          _address2712 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5645 = memory.read(_address2712, 0);
+          contend(_address2712, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2712 = operand_5645;
           int value3_5648 = nAndCarry_5644;
-          _F2537 = value3_5648 & 1;
+          _F2713 = value3_5648 & 1;
           value3_5648 = value3_5648 >>> 1;
-          _F2537 = (_F2537 & 1) | 0x10 | (address_5643 & 0x28);
-          if ((_value2536 & (0x01 << value3_5648)) == 0) {
-              _F2537 |= 0x44;
+          _F2713 = (_F2713 & 1) | 0x10 | (address_5643 & 0x28);
+          if ((_value2712 & (0x01 << value3_5648)) == 0) {
+              _F2713 |= 0x44;
           }
-          if (value3_5648 == 7 && (_value2536 & 0x80) != 0) {
-              _F2537 |= 0x80;
+          if (value3_5648 == 7 && (_value2712 & 0x80) != 0) {
+              _F2713 |= 0x80;
           }
-          F = (_F2537 & 0xFF);
-          MEMPTR = _address2536;
+          F = (_F2713 & 0xFF);
+          MEMPTR = _address2712;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x72: {
-          int _F2540;
-          int _value2539;
-          int _address2539;
+          int _F2716;
+          int _value2715;
+          int _address2715;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5650;
           address_5650 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5651 = 12 | F & 1;
-          _address2539 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5652 = memory.read(_address2539, 0);
-          contend(_address2539, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2539 = operand_5652;
+          _address2715 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5652 = memory.read(_address2715, 0);
+          contend(_address2715, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2715 = operand_5652;
           int value3_5655 = nAndCarry_5651;
-          _F2540 = value3_5655 & 1;
+          _F2716 = value3_5655 & 1;
           value3_5655 = value3_5655 >>> 1;
-          _F2540 = (_F2540 & 1) | 0x10 | (address_5650 & 0x28);
-          if ((_value2539 & (0x01 << value3_5655)) == 0) {
-              _F2540 |= 0x44;
+          _F2716 = (_F2716 & 1) | 0x10 | (address_5650 & 0x28);
+          if ((_value2715 & (0x01 << value3_5655)) == 0) {
+              _F2716 |= 0x44;
           }
-          if (value3_5655 == 7 && (_value2539 & 0x80) != 0) {
-              _F2540 |= 0x80;
+          if (value3_5655 == 7 && (_value2715 & 0x80) != 0) {
+              _F2716 |= 0x80;
           }
-          F = (_F2540 & 0xFF);
-          MEMPTR = _address2539;
+          F = (_F2716 & 0xFF);
+          MEMPTR = _address2715;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x73: {
-          int _F2543;
-          int _value2542;
-          int _address2542;
+          int _F2719;
+          int _value2718;
+          int _address2718;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5657;
           address_5657 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5658 = 12 | F & 1;
-          _address2542 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5659 = memory.read(_address2542, 0);
-          contend(_address2542, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2542 = operand_5659;
+          _address2718 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5659 = memory.read(_address2718, 0);
+          contend(_address2718, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2718 = operand_5659;
           int value3_5662 = nAndCarry_5658;
-          _F2543 = value3_5662 & 1;
+          _F2719 = value3_5662 & 1;
           value3_5662 = value3_5662 >>> 1;
-          _F2543 = (_F2543 & 1) | 0x10 | (address_5657 & 0x28);
-          if ((_value2542 & (0x01 << value3_5662)) == 0) {
-              _F2543 |= 0x44;
+          _F2719 = (_F2719 & 1) | 0x10 | (address_5657 & 0x28);
+          if ((_value2718 & (0x01 << value3_5662)) == 0) {
+              _F2719 |= 0x44;
           }
-          if (value3_5662 == 7 && (_value2542 & 0x80) != 0) {
-              _F2543 |= 0x80;
+          if (value3_5662 == 7 && (_value2718 & 0x80) != 0) {
+              _F2719 |= 0x80;
           }
-          F = (_F2543 & 0xFF);
-          MEMPTR = _address2542;
+          F = (_F2719 & 0xFF);
+          MEMPTR = _address2718;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x74: {
-          int _F2546;
-          int _value2545;
-          int _address2545;
+          int _F2722;
+          int _value2721;
+          int _address2721;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5664;
           address_5664 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5665 = 12 | F & 1;
-          _address2545 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5666 = memory.read(_address2545, 0);
-          contend(_address2545, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2545 = operand_5666;
+          _address2721 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5666 = memory.read(_address2721, 0);
+          contend(_address2721, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2721 = operand_5666;
           int value3_5669 = nAndCarry_5665;
-          _F2546 = value3_5669 & 1;
+          _F2722 = value3_5669 & 1;
           value3_5669 = value3_5669 >>> 1;
-          _F2546 = (_F2546 & 1) | 0x10 | (address_5664 & 0x28);
-          if ((_value2545 & (0x01 << value3_5669)) == 0) {
-              _F2546 |= 0x44;
+          _F2722 = (_F2722 & 1) | 0x10 | (address_5664 & 0x28);
+          if ((_value2721 & (0x01 << value3_5669)) == 0) {
+              _F2722 |= 0x44;
           }
-          if (value3_5669 == 7 && (_value2545 & 0x80) != 0) {
-              _F2546 |= 0x80;
+          if (value3_5669 == 7 && (_value2721 & 0x80) != 0) {
+              _F2722 |= 0x80;
           }
-          F = (_F2546 & 0xFF);
-          MEMPTR = _address2545;
+          F = (_F2722 & 0xFF);
+          MEMPTR = _address2721;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x75: {
-          int _F2549;
-          int _value2548;
-          int _address2548;
+          int _F2725;
+          int _value2724;
+          int _address2724;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5671;
           address_5671 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5672 = 12 | F & 1;
-          _address2548 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5673 = memory.read(_address2548, 0);
-          contend(_address2548, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2548 = operand_5673;
+          _address2724 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5673 = memory.read(_address2724, 0);
+          contend(_address2724, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2724 = operand_5673;
           int value3_5676 = nAndCarry_5672;
-          _F2549 = value3_5676 & 1;
+          _F2725 = value3_5676 & 1;
           value3_5676 = value3_5676 >>> 1;
-          _F2549 = (_F2549 & 1) | 0x10 | (address_5671 & 0x28);
-          if ((_value2548 & (0x01 << value3_5676)) == 0) {
-              _F2549 |= 0x44;
+          _F2725 = (_F2725 & 1) | 0x10 | (address_5671 & 0x28);
+          if ((_value2724 & (0x01 << value3_5676)) == 0) {
+              _F2725 |= 0x44;
           }
-          if (value3_5676 == 7 && (_value2548 & 0x80) != 0) {
-              _F2549 |= 0x80;
+          if (value3_5676 == 7 && (_value2724 & 0x80) != 0) {
+              _F2725 |= 0x80;
           }
-          F = (_F2549 & 0xFF);
-          MEMPTR = _address2548;
+          F = (_F2725 & 0xFF);
+          MEMPTR = _address2724;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x76: {
-          int _F2552;
-          int _value2551;
-          int _address2551;
+          int _F2728;
+          int _value2727;
+          int _address2727;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5678;
           address_5678 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5679 = 12 | F & 1;
-          _address2551 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5680 = memory.read(_address2551, 0);
-          contend(_address2551, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2551 = operand_5680;
+          _address2727 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5680 = memory.read(_address2727, 0);
+          contend(_address2727, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2727 = operand_5680;
           int value3_5683 = nAndCarry_5679;
-          _F2552 = value3_5683 & 1;
+          _F2728 = value3_5683 & 1;
           value3_5683 = value3_5683 >>> 1;
-          _F2552 = (_F2552 & 1) | 0x10 | (address_5678 & 0x28);
-          if ((_value2551 & (0x01 << value3_5683)) == 0) {
-              _F2552 |= 0x44;
+          _F2728 = (_F2728 & 1) | 0x10 | (address_5678 & 0x28);
+          if ((_value2727 & (0x01 << value3_5683)) == 0) {
+              _F2728 |= 0x44;
           }
-          if (value3_5683 == 7 && (_value2551 & 0x80) != 0) {
-              _F2552 |= 0x80;
+          if (value3_5683 == 7 && (_value2727 & 0x80) != 0) {
+              _F2728 |= 0x80;
           }
-          F = (_F2552 & 0xFF);
-          MEMPTR = _address2551;
+          F = (_F2728 & 0xFF);
+          MEMPTR = _address2727;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x77: {
-          int _F2555;
-          int _value2554;
-          int _address2554;
+          int _F2731;
+          int _value2730;
+          int _address2730;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5685;
           address_5685 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5686 = 12 | F & 1;
-          _address2554 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5687 = memory.read(_address2554, 0);
-          contend(_address2554, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2554 = operand_5687;
+          _address2730 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5687 = memory.read(_address2730, 0);
+          contend(_address2730, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2730 = operand_5687;
           int value3_5690 = nAndCarry_5686;
-          _F2555 = value3_5690 & 1;
+          _F2731 = value3_5690 & 1;
           value3_5690 = value3_5690 >>> 1;
-          _F2555 = (_F2555 & 1) | 0x10 | (address_5685 & 0x28);
-          if ((_value2554 & (0x01 << value3_5690)) == 0) {
-              _F2555 |= 0x44;
+          _F2731 = (_F2731 & 1) | 0x10 | (address_5685 & 0x28);
+          if ((_value2730 & (0x01 << value3_5690)) == 0) {
+              _F2731 |= 0x44;
           }
-          if (value3_5690 == 7 && (_value2554 & 0x80) != 0) {
-              _F2555 |= 0x80;
+          if (value3_5690 == 7 && (_value2730 & 0x80) != 0) {
+              _F2731 |= 0x80;
           }
-          F = (_F2555 & 0xFF);
-          MEMPTR = _address2554;
+          F = (_F2731 & 0xFF);
+          MEMPTR = _address2730;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x78: {
-          int _F2558;
-          int _value2557;
-          int _address2557;
+          int _F2734;
+          int _value2733;
+          int _address2733;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5692;
           address_5692 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5693 = 14 | F & 1;
-          _address2557 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5694 = memory.read(_address2557, 0);
-          contend(_address2557, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2557 = operand_5694;
+          _address2733 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5694 = memory.read(_address2733, 0);
+          contend(_address2733, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2733 = operand_5694;
           int value3_5697 = nAndCarry_5693;
-          _F2558 = value3_5697 & 1;
+          _F2734 = value3_5697 & 1;
           value3_5697 = value3_5697 >>> 1;
-          _F2558 = (_F2558 & 1) | 0x10 | (address_5692 & 0x28);
-          if ((_value2557 & (0x01 << value3_5697)) == 0) {
-              _F2558 |= 0x44;
+          _F2734 = (_F2734 & 1) | 0x10 | (address_5692 & 0x28);
+          if ((_value2733 & (0x01 << value3_5697)) == 0) {
+              _F2734 |= 0x44;
           }
-          if (value3_5697 == 7 && (_value2557 & 0x80) != 0) {
-              _F2558 |= 0x80;
+          if (value3_5697 == 7 && (_value2733 & 0x80) != 0) {
+              _F2734 |= 0x80;
           }
-          F = (_F2558 & 0xFF);
-          MEMPTR = _address2557;
+          F = (_F2734 & 0xFF);
+          MEMPTR = _address2733;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x79: {
-          int _F2561;
-          int _value2560;
-          int _address2560;
+          int _F2737;
+          int _value2736;
+          int _address2736;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5699;
           address_5699 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5700 = 14 | F & 1;
-          _address2560 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5701 = memory.read(_address2560, 0);
-          contend(_address2560, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2560 = operand_5701;
+          _address2736 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5701 = memory.read(_address2736, 0);
+          contend(_address2736, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2736 = operand_5701;
           int value3_5704 = nAndCarry_5700;
-          _F2561 = value3_5704 & 1;
+          _F2737 = value3_5704 & 1;
           value3_5704 = value3_5704 >>> 1;
-          _F2561 = (_F2561 & 1) | 0x10 | (address_5699 & 0x28);
-          if ((_value2560 & (0x01 << value3_5704)) == 0) {
-              _F2561 |= 0x44;
+          _F2737 = (_F2737 & 1) | 0x10 | (address_5699 & 0x28);
+          if ((_value2736 & (0x01 << value3_5704)) == 0) {
+              _F2737 |= 0x44;
           }
-          if (value3_5704 == 7 && (_value2560 & 0x80) != 0) {
-              _F2561 |= 0x80;
+          if (value3_5704 == 7 && (_value2736 & 0x80) != 0) {
+              _F2737 |= 0x80;
           }
-          F = (_F2561 & 0xFF);
-          MEMPTR = _address2560;
+          F = (_F2737 & 0xFF);
+          MEMPTR = _address2736;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x7A: {
-          int _F2564;
-          int _value2563;
-          int _address2563;
+          int _F2740;
+          int _value2739;
+          int _address2739;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5706;
           address_5706 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5707 = 14 | F & 1;
-          _address2563 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5708 = memory.read(_address2563, 0);
-          contend(_address2563, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2563 = operand_5708;
+          _address2739 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5708 = memory.read(_address2739, 0);
+          contend(_address2739, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2739 = operand_5708;
           int value3_5711 = nAndCarry_5707;
-          _F2564 = value3_5711 & 1;
+          _F2740 = value3_5711 & 1;
           value3_5711 = value3_5711 >>> 1;
-          _F2564 = (_F2564 & 1) | 0x10 | (address_5706 & 0x28);
-          if ((_value2563 & (0x01 << value3_5711)) == 0) {
-              _F2564 |= 0x44;
+          _F2740 = (_F2740 & 1) | 0x10 | (address_5706 & 0x28);
+          if ((_value2739 & (0x01 << value3_5711)) == 0) {
+              _F2740 |= 0x44;
           }
-          if (value3_5711 == 7 && (_value2563 & 0x80) != 0) {
-              _F2564 |= 0x80;
+          if (value3_5711 == 7 && (_value2739 & 0x80) != 0) {
+              _F2740 |= 0x80;
           }
-          F = (_F2564 & 0xFF);
-          MEMPTR = _address2563;
+          F = (_F2740 & 0xFF);
+          MEMPTR = _address2739;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x7B: {
-          int _F2567;
-          int _value2566;
-          int _address2566;
+          int _F2743;
+          int _value2742;
+          int _address2742;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5713;
           address_5713 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5714 = 14 | F & 1;
-          _address2566 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5715 = memory.read(_address2566, 0);
-          contend(_address2566, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2566 = operand_5715;
+          _address2742 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5715 = memory.read(_address2742, 0);
+          contend(_address2742, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2742 = operand_5715;
           int value3_5718 = nAndCarry_5714;
-          _F2567 = value3_5718 & 1;
+          _F2743 = value3_5718 & 1;
           value3_5718 = value3_5718 >>> 1;
-          _F2567 = (_F2567 & 1) | 0x10 | (address_5713 & 0x28);
-          if ((_value2566 & (0x01 << value3_5718)) == 0) {
-              _F2567 |= 0x44;
+          _F2743 = (_F2743 & 1) | 0x10 | (address_5713 & 0x28);
+          if ((_value2742 & (0x01 << value3_5718)) == 0) {
+              _F2743 |= 0x44;
           }
-          if (value3_5718 == 7 && (_value2566 & 0x80) != 0) {
-              _F2567 |= 0x80;
+          if (value3_5718 == 7 && (_value2742 & 0x80) != 0) {
+              _F2743 |= 0x80;
           }
-          F = (_F2567 & 0xFF);
-          MEMPTR = _address2566;
+          F = (_F2743 & 0xFF);
+          MEMPTR = _address2742;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x7C: {
-          int _F2570;
-          int _value2569;
-          int _address2569;
+          int _F2746;
+          int _value2745;
+          int _address2745;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5720;
           address_5720 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5721 = 14 | F & 1;
-          _address2569 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5722 = memory.read(_address2569, 0);
-          contend(_address2569, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2569 = operand_5722;
+          _address2745 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5722 = memory.read(_address2745, 0);
+          contend(_address2745, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2745 = operand_5722;
           int value3_5725 = nAndCarry_5721;
-          _F2570 = value3_5725 & 1;
+          _F2746 = value3_5725 & 1;
           value3_5725 = value3_5725 >>> 1;
-          _F2570 = (_F2570 & 1) | 0x10 | (address_5720 & 0x28);
-          if ((_value2569 & (0x01 << value3_5725)) == 0) {
-              _F2570 |= 0x44;
+          _F2746 = (_F2746 & 1) | 0x10 | (address_5720 & 0x28);
+          if ((_value2745 & (0x01 << value3_5725)) == 0) {
+              _F2746 |= 0x44;
           }
-          if (value3_5725 == 7 && (_value2569 & 0x80) != 0) {
-              _F2570 |= 0x80;
+          if (value3_5725 == 7 && (_value2745 & 0x80) != 0) {
+              _F2746 |= 0x80;
           }
-          F = (_F2570 & 0xFF);
-          MEMPTR = _address2569;
+          F = (_F2746 & 0xFF);
+          MEMPTR = _address2745;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x7D: {
-          int _F2573;
-          int _value2572;
-          int _address2572;
+          int _F2749;
+          int _value2748;
+          int _address2748;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5727;
           address_5727 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5728 = 14 | F & 1;
-          _address2572 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5729 = memory.read(_address2572, 0);
-          contend(_address2572, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2572 = operand_5729;
+          _address2748 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5729 = memory.read(_address2748, 0);
+          contend(_address2748, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2748 = operand_5729;
           int value3_5732 = nAndCarry_5728;
-          _F2573 = value3_5732 & 1;
+          _F2749 = value3_5732 & 1;
           value3_5732 = value3_5732 >>> 1;
-          _F2573 = (_F2573 & 1) | 0x10 | (address_5727 & 0x28);
-          if ((_value2572 & (0x01 << value3_5732)) == 0) {
-              _F2573 |= 0x44;
+          _F2749 = (_F2749 & 1) | 0x10 | (address_5727 & 0x28);
+          if ((_value2748 & (0x01 << value3_5732)) == 0) {
+              _F2749 |= 0x44;
           }
-          if (value3_5732 == 7 && (_value2572 & 0x80) != 0) {
-              _F2573 |= 0x80;
+          if (value3_5732 == 7 && (_value2748 & 0x80) != 0) {
+              _F2749 |= 0x80;
           }
-          F = (_F2573 & 0xFF);
-          MEMPTR = _address2572;
+          F = (_F2749 & 0xFF);
+          MEMPTR = _address2748;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x7E: {
-          int _F2576;
-          int _value2575;
-          int _address2575;
+          int _F2752;
+          int _value2751;
+          int _address2751;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5734;
           address_5734 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5735 = 14 | F & 1;
-          _address2575 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5736 = memory.read(_address2575, 0);
-          contend(_address2575, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2575 = operand_5736;
+          _address2751 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5736 = memory.read(_address2751, 0);
+          contend(_address2751, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2751 = operand_5736;
           int value3_5739 = nAndCarry_5735;
-          _F2576 = value3_5739 & 1;
+          _F2752 = value3_5739 & 1;
           value3_5739 = value3_5739 >>> 1;
-          _F2576 = (_F2576 & 1) | 0x10 | (address_5734 & 0x28);
-          if ((_value2575 & (0x01 << value3_5739)) == 0) {
-              _F2576 |= 0x44;
+          _F2752 = (_F2752 & 1) | 0x10 | (address_5734 & 0x28);
+          if ((_value2751 & (0x01 << value3_5739)) == 0) {
+              _F2752 |= 0x44;
           }
-          if (value3_5739 == 7 && (_value2575 & 0x80) != 0) {
-              _F2576 |= 0x80;
+          if (value3_5739 == 7 && (_value2751 & 0x80) != 0) {
+              _F2752 |= 0x80;
           }
-          F = (_F2576 & 0xFF);
-          MEMPTR = _address2575;
+          F = (_F2752 & 0xFF);
+          MEMPTR = _address2751;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x7F: {
-          int _F2579;
-          int _value2578;
-          int _address2578;
+          int _F2755;
+          int _value2754;
+          int _address2754;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
           int address_5741;
           address_5741 = ((IY + (int) ((byte) displacement)) & 0xFFFF) >> 8;
           int nAndCarry_5742 = 14 | F & 1;
-          _address2578 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5743 = memory.read(_address2578, 0);
-          contend(_address2578, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2578 = operand_5743;
+          _address2754 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5743 = memory.read(_address2754, 0);
+          contend(_address2754, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2754 = operand_5743;
           int value3_5746 = nAndCarry_5742;
-          _F2579 = value3_5746 & 1;
+          _F2755 = value3_5746 & 1;
           value3_5746 = value3_5746 >>> 1;
-          _F2579 = (_F2579 & 1) | 0x10 | (address_5741 & 0x28);
-          if ((_value2578 & (0x01 << value3_5746)) == 0) {
-              _F2579 |= 0x44;
+          _F2755 = (_F2755 & 1) | 0x10 | (address_5741 & 0x28);
+          if ((_value2754 & (0x01 << value3_5746)) == 0) {
+              _F2755 |= 0x44;
           }
-          if (value3_5746 == 7 && (_value2578 & 0x80) != 0) {
-              _F2579 |= 0x80;
+          if (value3_5746 == 7 && (_value2754 & 0x80) != 0) {
+              _F2755 |= 0x80;
           }
-          F = (_F2579 & 0xFF);
-          MEMPTR = _address2578;
+          F = (_F2755 & 0xFF);
+          MEMPTR = _address2754;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -23003,300 +23797,300 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFDCB_8(int opcode, int displacement) {
     switch (opcode) {
       case 0x80: {
-          int _value2581;
-          int _address2581;
+          int _value2757;
+          int _address2757;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2581 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5748 = memory.read(_address2581, 0);
-          contend(_address2581, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2581 = operand_5748;
-          int value_5749 = (_value2581 & -2);
-          _address2581 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2581 = value_5749;
-          memory.write(_address2581, value_5749);
+          _address2757 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5748 = memory.read(_address2757, 0);
+          contend(_address2757, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2757 = operand_5748;
+          int value_5749 = (_value2757 & -2);
+          _address2757 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2757 = value_5749;
+          memory.write(_address2757, value_5749);
           int read_5750;
-          read_5750 = _value2581;
+          read_5750 = _value2757;
           B = read_5750;
-          MEMPTR = _address2581;
+          MEMPTR = _address2757;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x81: {
-          int _value2583;
-          int _address2583;
+          int _value2759;
+          int _address2759;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2583 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5751 = memory.read(_address2583, 0);
-          contend(_address2583, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2583 = operand_5751;
-          int value_5752 = (_value2583 & -2);
-          _address2583 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2583 = value_5752;
-          memory.write(_address2583, value_5752);
+          _address2759 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5751 = memory.read(_address2759, 0);
+          contend(_address2759, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2759 = operand_5751;
+          int value_5752 = (_value2759 & -2);
+          _address2759 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2759 = value_5752;
+          memory.write(_address2759, value_5752);
           int read_5753;
-          read_5753 = _value2583;
+          read_5753 = _value2759;
           C = read_5753;
-          MEMPTR = _address2583;
+          MEMPTR = _address2759;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x82: {
-          int _value2585;
-          int _address2585;
+          int _value2761;
+          int _address2761;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2585 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5754 = memory.read(_address2585, 0);
-          contend(_address2585, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2585 = operand_5754;
-          int value_5755 = (_value2585 & -2);
-          _address2585 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2585 = value_5755;
-          memory.write(_address2585, value_5755);
+          _address2761 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5754 = memory.read(_address2761, 0);
+          contend(_address2761, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2761 = operand_5754;
+          int value_5755 = (_value2761 & -2);
+          _address2761 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2761 = value_5755;
+          memory.write(_address2761, value_5755);
           int read_5756;
-          read_5756 = _value2585;
+          read_5756 = _value2761;
           D = read_5756;
-          MEMPTR = _address2585;
+          MEMPTR = _address2761;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x83: {
-          int _value2587;
-          int _address2587;
+          int _value2763;
+          int _address2763;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2587 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5757 = memory.read(_address2587, 0);
-          contend(_address2587, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2587 = operand_5757;
-          int value_5758 = (_value2587 & -2);
-          _address2587 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2587 = value_5758;
-          memory.write(_address2587, value_5758);
+          _address2763 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5757 = memory.read(_address2763, 0);
+          contend(_address2763, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2763 = operand_5757;
+          int value_5758 = (_value2763 & -2);
+          _address2763 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2763 = value_5758;
+          memory.write(_address2763, value_5758);
           int read_5759;
-          read_5759 = _value2587;
+          read_5759 = _value2763;
           E = read_5759;
-          MEMPTR = _address2587;
+          MEMPTR = _address2763;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x84: {
-          int _value2589;
-          int _address2589;
+          int _value2765;
+          int _address2765;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2589 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5760 = memory.read(_address2589, 0);
-          contend(_address2589, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2589 = operand_5760;
-          int value_5761 = (_value2589 & -2);
-          _address2589 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2589 = value_5761;
-          memory.write(_address2589, value_5761);
+          _address2765 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5760 = memory.read(_address2765, 0);
+          contend(_address2765, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2765 = operand_5760;
+          int value_5761 = (_value2765 & -2);
+          _address2765 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2765 = value_5761;
+          memory.write(_address2765, value_5761);
           int read_5762;
-          read_5762 = _value2589;
+          read_5762 = _value2765;
           H = read_5762;
-          MEMPTR = _address2589;
+          MEMPTR = _address2765;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x85: {
-          int _value2591;
-          int _address2591;
+          int _value2767;
+          int _address2767;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2591 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5763 = memory.read(_address2591, 0);
-          contend(_address2591, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2591 = operand_5763;
-          int value_5764 = (_value2591 & -2);
-          _address2591 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2591 = value_5764;
-          memory.write(_address2591, value_5764);
+          _address2767 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5763 = memory.read(_address2767, 0);
+          contend(_address2767, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2767 = operand_5763;
+          int value_5764 = (_value2767 & -2);
+          _address2767 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2767 = value_5764;
+          memory.write(_address2767, value_5764);
           int read_5765;
-          read_5765 = _value2591;
+          read_5765 = _value2767;
           L = read_5765;
-          MEMPTR = _address2591;
+          MEMPTR = _address2767;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x86: {
-          int _value2593;
-          int _address2593;
+          int _value2769;
+          int _address2769;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2593 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5766 = memory.read(_address2593, 0);
-          contend(_address2593, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2593 = operand_5766;
-          int value_5767 = (_value2593 & -2);
-          _address2593 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2593 = value_5767;
-          memory.write(_address2593, value_5767);
-          MEMPTR = _address2593;
+          _address2769 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5766 = memory.read(_address2769, 0);
+          contend(_address2769, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2769 = operand_5766;
+          int value_5767 = (_value2769 & -2);
+          _address2769 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2769 = value_5767;
+          memory.write(_address2769, value_5767);
+          MEMPTR = _address2769;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x87: {
-          int _value2595;
-          int _address2595;
+          int _value2771;
+          int _address2771;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2595 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5768 = memory.read(_address2595, 0);
-          contend(_address2595, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2595 = operand_5768;
-          int value_5769 = (_value2595 & -2);
-          _address2595 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2595 = value_5769;
-          memory.write(_address2595, value_5769);
+          _address2771 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5768 = memory.read(_address2771, 0);
+          contend(_address2771, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2771 = operand_5768;
+          int value_5769 = (_value2771 & -2);
+          _address2771 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2771 = value_5769;
+          memory.write(_address2771, value_5769);
           int read_5770;
-          read_5770 = _value2595;
+          read_5770 = _value2771;
           A = read_5770;
-          MEMPTR = _address2595;
+          MEMPTR = _address2771;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x88: {
-          int _value2597;
-          int _address2597;
+          int _value2773;
+          int _address2773;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2597 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5771 = memory.read(_address2597, 0);
-          contend(_address2597, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2597 = operand_5771;
-          int value_5772 = (_value2597 & -3);
-          _address2597 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2597 = value_5772;
-          memory.write(_address2597, value_5772);
+          _address2773 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5771 = memory.read(_address2773, 0);
+          contend(_address2773, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2773 = operand_5771;
+          int value_5772 = (_value2773 & -3);
+          _address2773 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2773 = value_5772;
+          memory.write(_address2773, value_5772);
           int read_5773;
-          read_5773 = _value2597;
+          read_5773 = _value2773;
           B = read_5773;
-          MEMPTR = _address2597;
+          MEMPTR = _address2773;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x89: {
-          int _value2599;
-          int _address2599;
+          int _value2775;
+          int _address2775;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2599 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5774 = memory.read(_address2599, 0);
-          contend(_address2599, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2599 = operand_5774;
-          int value_5775 = (_value2599 & -3);
-          _address2599 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2599 = value_5775;
-          memory.write(_address2599, value_5775);
+          _address2775 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5774 = memory.read(_address2775, 0);
+          contend(_address2775, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2775 = operand_5774;
+          int value_5775 = (_value2775 & -3);
+          _address2775 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2775 = value_5775;
+          memory.write(_address2775, value_5775);
           int read_5776;
-          read_5776 = _value2599;
+          read_5776 = _value2775;
           C = read_5776;
-          MEMPTR = _address2599;
+          MEMPTR = _address2775;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x8A: {
-          int _value2601;
-          int _address2601;
+          int _value2777;
+          int _address2777;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2601 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5777 = memory.read(_address2601, 0);
-          contend(_address2601, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2601 = operand_5777;
-          int value_5778 = (_value2601 & -3);
-          _address2601 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2601 = value_5778;
-          memory.write(_address2601, value_5778);
+          _address2777 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5777 = memory.read(_address2777, 0);
+          contend(_address2777, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2777 = operand_5777;
+          int value_5778 = (_value2777 & -3);
+          _address2777 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2777 = value_5778;
+          memory.write(_address2777, value_5778);
           int read_5779;
-          read_5779 = _value2601;
+          read_5779 = _value2777;
           D = read_5779;
-          MEMPTR = _address2601;
+          MEMPTR = _address2777;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x8B: {
-          int _value2603;
-          int _address2603;
+          int _value2779;
+          int _address2779;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2603 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5780 = memory.read(_address2603, 0);
-          contend(_address2603, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2603 = operand_5780;
-          int value_5781 = (_value2603 & -3);
-          _address2603 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2603 = value_5781;
-          memory.write(_address2603, value_5781);
+          _address2779 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5780 = memory.read(_address2779, 0);
+          contend(_address2779, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2779 = operand_5780;
+          int value_5781 = (_value2779 & -3);
+          _address2779 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2779 = value_5781;
+          memory.write(_address2779, value_5781);
           int read_5782;
-          read_5782 = _value2603;
+          read_5782 = _value2779;
           E = read_5782;
-          MEMPTR = _address2603;
+          MEMPTR = _address2779;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x8C: {
-          int _value2605;
-          int _address2605;
+          int _value2781;
+          int _address2781;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2605 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5783 = memory.read(_address2605, 0);
-          contend(_address2605, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2605 = operand_5783;
-          int value_5784 = (_value2605 & -3);
-          _address2605 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2605 = value_5784;
-          memory.write(_address2605, value_5784);
+          _address2781 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5783 = memory.read(_address2781, 0);
+          contend(_address2781, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2781 = operand_5783;
+          int value_5784 = (_value2781 & -3);
+          _address2781 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2781 = value_5784;
+          memory.write(_address2781, value_5784);
           int read_5785;
-          read_5785 = _value2605;
+          read_5785 = _value2781;
           H = read_5785;
-          MEMPTR = _address2605;
+          MEMPTR = _address2781;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x8D: {
-          int _value2607;
-          int _address2607;
+          int _value2783;
+          int _address2783;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2607 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5786 = memory.read(_address2607, 0);
-          contend(_address2607, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2607 = operand_5786;
-          int value_5787 = (_value2607 & -3);
-          _address2607 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2607 = value_5787;
-          memory.write(_address2607, value_5787);
+          _address2783 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5786 = memory.read(_address2783, 0);
+          contend(_address2783, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2783 = operand_5786;
+          int value_5787 = (_value2783 & -3);
+          _address2783 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2783 = value_5787;
+          memory.write(_address2783, value_5787);
           int read_5788;
-          read_5788 = _value2607;
+          read_5788 = _value2783;
           L = read_5788;
-          MEMPTR = _address2607;
+          MEMPTR = _address2783;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x8E: {
-          int _value2609;
-          int _address2609;
+          int _value2785;
+          int _address2785;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2609 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5789 = memory.read(_address2609, 0);
-          contend(_address2609, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2609 = operand_5789;
-          int value_5790 = (_value2609 & -3);
-          _address2609 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2609 = value_5790;
-          memory.write(_address2609, value_5790);
-          MEMPTR = _address2609;
+          _address2785 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5789 = memory.read(_address2785, 0);
+          contend(_address2785, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2785 = operand_5789;
+          int value_5790 = (_value2785 & -3);
+          _address2785 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2785 = value_5790;
+          memory.write(_address2785, value_5790);
+          MEMPTR = _address2785;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x8F: {
-          int _value2611;
-          int _address2611;
+          int _value2787;
+          int _address2787;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2611 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5791 = memory.read(_address2611, 0);
-          contend(_address2611, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2611 = operand_5791;
-          int value_5792 = (_value2611 & -3);
-          _address2611 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2611 = value_5792;
-          memory.write(_address2611, value_5792);
+          _address2787 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5791 = memory.read(_address2787, 0);
+          contend(_address2787, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2787 = operand_5791;
+          int value_5792 = (_value2787 & -3);
+          _address2787 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2787 = value_5792;
+          memory.write(_address2787, value_5792);
           int read_5793;
-          read_5793 = _value2611;
+          read_5793 = _value2787;
           A = read_5793;
-          MEMPTR = _address2611;
+          MEMPTR = _address2787;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -23308,300 +24102,300 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFDCB_9(int opcode, int displacement) {
     switch (opcode) {
       case 0x90: {
-          int _value2613;
-          int _address2613;
+          int _value2789;
+          int _address2789;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2613 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5794 = memory.read(_address2613, 0);
-          contend(_address2613, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2613 = operand_5794;
-          int value_5795 = (_value2613 & -5);
-          _address2613 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2613 = value_5795;
-          memory.write(_address2613, value_5795);
+          _address2789 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5794 = memory.read(_address2789, 0);
+          contend(_address2789, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2789 = operand_5794;
+          int value_5795 = (_value2789 & -5);
+          _address2789 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2789 = value_5795;
+          memory.write(_address2789, value_5795);
           int read_5796;
-          read_5796 = _value2613;
+          read_5796 = _value2789;
           B = read_5796;
-          MEMPTR = _address2613;
+          MEMPTR = _address2789;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x91: {
-          int _value2615;
-          int _address2615;
+          int _value2791;
+          int _address2791;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2615 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5797 = memory.read(_address2615, 0);
-          contend(_address2615, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2615 = operand_5797;
-          int value_5798 = (_value2615 & -5);
-          _address2615 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2615 = value_5798;
-          memory.write(_address2615, value_5798);
+          _address2791 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5797 = memory.read(_address2791, 0);
+          contend(_address2791, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2791 = operand_5797;
+          int value_5798 = (_value2791 & -5);
+          _address2791 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2791 = value_5798;
+          memory.write(_address2791, value_5798);
           int read_5799;
-          read_5799 = _value2615;
+          read_5799 = _value2791;
           C = read_5799;
-          MEMPTR = _address2615;
+          MEMPTR = _address2791;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x92: {
-          int _value2617;
-          int _address2617;
+          int _value2793;
+          int _address2793;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2617 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5800 = memory.read(_address2617, 0);
-          contend(_address2617, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2617 = operand_5800;
-          int value_5801 = (_value2617 & -5);
-          _address2617 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2617 = value_5801;
-          memory.write(_address2617, value_5801);
+          _address2793 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5800 = memory.read(_address2793, 0);
+          contend(_address2793, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2793 = operand_5800;
+          int value_5801 = (_value2793 & -5);
+          _address2793 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2793 = value_5801;
+          memory.write(_address2793, value_5801);
           int read_5802;
-          read_5802 = _value2617;
+          read_5802 = _value2793;
           D = read_5802;
-          MEMPTR = _address2617;
+          MEMPTR = _address2793;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x93: {
-          int _value2619;
-          int _address2619;
+          int _value2795;
+          int _address2795;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2619 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5803 = memory.read(_address2619, 0);
-          contend(_address2619, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2619 = operand_5803;
-          int value_5804 = (_value2619 & -5);
-          _address2619 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2619 = value_5804;
-          memory.write(_address2619, value_5804);
+          _address2795 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5803 = memory.read(_address2795, 0);
+          contend(_address2795, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2795 = operand_5803;
+          int value_5804 = (_value2795 & -5);
+          _address2795 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2795 = value_5804;
+          memory.write(_address2795, value_5804);
           int read_5805;
-          read_5805 = _value2619;
+          read_5805 = _value2795;
           E = read_5805;
-          MEMPTR = _address2619;
+          MEMPTR = _address2795;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x94: {
-          int _value2621;
-          int _address2621;
+          int _value2797;
+          int _address2797;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2621 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5806 = memory.read(_address2621, 0);
-          contend(_address2621, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2621 = operand_5806;
-          int value_5807 = (_value2621 & -5);
-          _address2621 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2621 = value_5807;
-          memory.write(_address2621, value_5807);
+          _address2797 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5806 = memory.read(_address2797, 0);
+          contend(_address2797, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2797 = operand_5806;
+          int value_5807 = (_value2797 & -5);
+          _address2797 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2797 = value_5807;
+          memory.write(_address2797, value_5807);
           int read_5808;
-          read_5808 = _value2621;
+          read_5808 = _value2797;
           H = read_5808;
-          MEMPTR = _address2621;
+          MEMPTR = _address2797;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x95: {
-          int _value2623;
-          int _address2623;
+          int _value2799;
+          int _address2799;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2623 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5809 = memory.read(_address2623, 0);
-          contend(_address2623, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2623 = operand_5809;
-          int value_5810 = (_value2623 & -5);
-          _address2623 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2623 = value_5810;
-          memory.write(_address2623, value_5810);
+          _address2799 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5809 = memory.read(_address2799, 0);
+          contend(_address2799, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2799 = operand_5809;
+          int value_5810 = (_value2799 & -5);
+          _address2799 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2799 = value_5810;
+          memory.write(_address2799, value_5810);
           int read_5811;
-          read_5811 = _value2623;
+          read_5811 = _value2799;
           L = read_5811;
-          MEMPTR = _address2623;
+          MEMPTR = _address2799;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x96: {
-          int _value2625;
-          int _address2625;
+          int _value2801;
+          int _address2801;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2625 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5812 = memory.read(_address2625, 0);
-          contend(_address2625, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2625 = operand_5812;
-          int value_5813 = (_value2625 & -5);
-          _address2625 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2625 = value_5813;
-          memory.write(_address2625, value_5813);
-          MEMPTR = _address2625;
+          _address2801 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5812 = memory.read(_address2801, 0);
+          contend(_address2801, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2801 = operand_5812;
+          int value_5813 = (_value2801 & -5);
+          _address2801 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2801 = value_5813;
+          memory.write(_address2801, value_5813);
+          MEMPTR = _address2801;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x97: {
-          int _value2627;
-          int _address2627;
+          int _value2803;
+          int _address2803;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2627 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5814 = memory.read(_address2627, 0);
-          contend(_address2627, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2627 = operand_5814;
-          int value_5815 = (_value2627 & -5);
-          _address2627 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2627 = value_5815;
-          memory.write(_address2627, value_5815);
+          _address2803 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5814 = memory.read(_address2803, 0);
+          contend(_address2803, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2803 = operand_5814;
+          int value_5815 = (_value2803 & -5);
+          _address2803 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2803 = value_5815;
+          memory.write(_address2803, value_5815);
           int read_5816;
-          read_5816 = _value2627;
+          read_5816 = _value2803;
           A = read_5816;
-          MEMPTR = _address2627;
+          MEMPTR = _address2803;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x98: {
-          int _value2629;
-          int _address2629;
+          int _value2805;
+          int _address2805;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2629 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5817 = memory.read(_address2629, 0);
-          contend(_address2629, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2629 = operand_5817;
-          int value_5818 = (_value2629 & -9);
-          _address2629 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2629 = value_5818;
-          memory.write(_address2629, value_5818);
+          _address2805 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5817 = memory.read(_address2805, 0);
+          contend(_address2805, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2805 = operand_5817;
+          int value_5818 = (_value2805 & -9);
+          _address2805 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2805 = value_5818;
+          memory.write(_address2805, value_5818);
           int read_5819;
-          read_5819 = _value2629;
+          read_5819 = _value2805;
           B = read_5819;
-          MEMPTR = _address2629;
+          MEMPTR = _address2805;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x99: {
-          int _value2631;
-          int _address2631;
+          int _value2807;
+          int _address2807;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2631 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5820 = memory.read(_address2631, 0);
-          contend(_address2631, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2631 = operand_5820;
-          int value_5821 = (_value2631 & -9);
-          _address2631 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2631 = value_5821;
-          memory.write(_address2631, value_5821);
+          _address2807 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5820 = memory.read(_address2807, 0);
+          contend(_address2807, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2807 = operand_5820;
+          int value_5821 = (_value2807 & -9);
+          _address2807 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2807 = value_5821;
+          memory.write(_address2807, value_5821);
           int read_5822;
-          read_5822 = _value2631;
+          read_5822 = _value2807;
           C = read_5822;
-          MEMPTR = _address2631;
+          MEMPTR = _address2807;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x9A: {
-          int _value2633;
-          int _address2633;
+          int _value2809;
+          int _address2809;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2633 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5823 = memory.read(_address2633, 0);
-          contend(_address2633, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2633 = operand_5823;
-          int value_5824 = (_value2633 & -9);
-          _address2633 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2633 = value_5824;
-          memory.write(_address2633, value_5824);
+          _address2809 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5823 = memory.read(_address2809, 0);
+          contend(_address2809, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2809 = operand_5823;
+          int value_5824 = (_value2809 & -9);
+          _address2809 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2809 = value_5824;
+          memory.write(_address2809, value_5824);
           int read_5825;
-          read_5825 = _value2633;
+          read_5825 = _value2809;
           D = read_5825;
-          MEMPTR = _address2633;
+          MEMPTR = _address2809;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x9B: {
-          int _value2635;
-          int _address2635;
+          int _value2811;
+          int _address2811;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2635 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5826 = memory.read(_address2635, 0);
-          contend(_address2635, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2635 = operand_5826;
-          int value_5827 = (_value2635 & -9);
-          _address2635 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2635 = value_5827;
-          memory.write(_address2635, value_5827);
+          _address2811 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5826 = memory.read(_address2811, 0);
+          contend(_address2811, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2811 = operand_5826;
+          int value_5827 = (_value2811 & -9);
+          _address2811 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2811 = value_5827;
+          memory.write(_address2811, value_5827);
           int read_5828;
-          read_5828 = _value2635;
+          read_5828 = _value2811;
           E = read_5828;
-          MEMPTR = _address2635;
+          MEMPTR = _address2811;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x9C: {
-          int _value2637;
-          int _address2637;
+          int _value2813;
+          int _address2813;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2637 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5829 = memory.read(_address2637, 0);
-          contend(_address2637, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2637 = operand_5829;
-          int value_5830 = (_value2637 & -9);
-          _address2637 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2637 = value_5830;
-          memory.write(_address2637, value_5830);
+          _address2813 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5829 = memory.read(_address2813, 0);
+          contend(_address2813, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2813 = operand_5829;
+          int value_5830 = (_value2813 & -9);
+          _address2813 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2813 = value_5830;
+          memory.write(_address2813, value_5830);
           int read_5831;
-          read_5831 = _value2637;
+          read_5831 = _value2813;
           H = read_5831;
-          MEMPTR = _address2637;
+          MEMPTR = _address2813;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x9D: {
-          int _value2639;
-          int _address2639;
+          int _value2815;
+          int _address2815;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2639 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5832 = memory.read(_address2639, 0);
-          contend(_address2639, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2639 = operand_5832;
-          int value_5833 = (_value2639 & -9);
-          _address2639 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2639 = value_5833;
-          memory.write(_address2639, value_5833);
+          _address2815 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5832 = memory.read(_address2815, 0);
+          contend(_address2815, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2815 = operand_5832;
+          int value_5833 = (_value2815 & -9);
+          _address2815 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2815 = value_5833;
+          memory.write(_address2815, value_5833);
           int read_5834;
-          read_5834 = _value2639;
+          read_5834 = _value2815;
           L = read_5834;
-          MEMPTR = _address2639;
+          MEMPTR = _address2815;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x9E: {
-          int _value2641;
-          int _address2641;
+          int _value2817;
+          int _address2817;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2641 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5835 = memory.read(_address2641, 0);
-          contend(_address2641, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2641 = operand_5835;
-          int value_5836 = (_value2641 & -9);
-          _address2641 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2641 = value_5836;
-          memory.write(_address2641, value_5836);
-          MEMPTR = _address2641;
+          _address2817 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5835 = memory.read(_address2817, 0);
+          contend(_address2817, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2817 = operand_5835;
+          int value_5836 = (_value2817 & -9);
+          _address2817 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2817 = value_5836;
+          memory.write(_address2817, value_5836);
+          MEMPTR = _address2817;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0x9F: {
-          int _value2643;
-          int _address2643;
+          int _value2819;
+          int _address2819;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2643 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5837 = memory.read(_address2643, 0);
-          contend(_address2643, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2643 = operand_5837;
-          int value_5838 = (_value2643 & -9);
-          _address2643 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2643 = value_5838;
-          memory.write(_address2643, value_5838);
+          _address2819 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5837 = memory.read(_address2819, 0);
+          contend(_address2819, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2819 = operand_5837;
+          int value_5838 = (_value2819 & -9);
+          _address2819 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2819 = value_5838;
+          memory.write(_address2819, value_5838);
           int read_5839;
-          read_5839 = _value2643;
+          read_5839 = _value2819;
           A = read_5839;
-          MEMPTR = _address2643;
+          MEMPTR = _address2819;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -23613,300 +24407,300 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFDCB_10(int opcode, int displacement) {
     switch (opcode) {
       case 0xA0: {
-          int _value2645;
-          int _address2645;
+          int _value2821;
+          int _address2821;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2645 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5840 = memory.read(_address2645, 0);
-          contend(_address2645, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2645 = operand_5840;
-          int value_5841 = (_value2645 & -17);
-          _address2645 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2645 = value_5841;
-          memory.write(_address2645, value_5841);
+          _address2821 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5840 = memory.read(_address2821, 0);
+          contend(_address2821, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2821 = operand_5840;
+          int value_5841 = (_value2821 & -17);
+          _address2821 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2821 = value_5841;
+          memory.write(_address2821, value_5841);
           int read_5842;
-          read_5842 = _value2645;
+          read_5842 = _value2821;
           B = read_5842;
-          MEMPTR = _address2645;
+          MEMPTR = _address2821;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xA1: {
-          int _value2647;
-          int _address2647;
+          int _value2823;
+          int _address2823;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2647 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5843 = memory.read(_address2647, 0);
-          contend(_address2647, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2647 = operand_5843;
-          int value_5844 = (_value2647 & -17);
-          _address2647 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2647 = value_5844;
-          memory.write(_address2647, value_5844);
+          _address2823 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5843 = memory.read(_address2823, 0);
+          contend(_address2823, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2823 = operand_5843;
+          int value_5844 = (_value2823 & -17);
+          _address2823 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2823 = value_5844;
+          memory.write(_address2823, value_5844);
           int read_5845;
-          read_5845 = _value2647;
+          read_5845 = _value2823;
           C = read_5845;
-          MEMPTR = _address2647;
+          MEMPTR = _address2823;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xA2: {
-          int _value2649;
-          int _address2649;
+          int _value2825;
+          int _address2825;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2649 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5846 = memory.read(_address2649, 0);
-          contend(_address2649, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2649 = operand_5846;
-          int value_5847 = (_value2649 & -17);
-          _address2649 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2649 = value_5847;
-          memory.write(_address2649, value_5847);
+          _address2825 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5846 = memory.read(_address2825, 0);
+          contend(_address2825, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2825 = operand_5846;
+          int value_5847 = (_value2825 & -17);
+          _address2825 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2825 = value_5847;
+          memory.write(_address2825, value_5847);
           int read_5848;
-          read_5848 = _value2649;
+          read_5848 = _value2825;
           D = read_5848;
-          MEMPTR = _address2649;
+          MEMPTR = _address2825;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xA3: {
-          int _value2651;
-          int _address2651;
+          int _value2827;
+          int _address2827;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2651 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5849 = memory.read(_address2651, 0);
-          contend(_address2651, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2651 = operand_5849;
-          int value_5850 = (_value2651 & -17);
-          _address2651 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2651 = value_5850;
-          memory.write(_address2651, value_5850);
+          _address2827 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5849 = memory.read(_address2827, 0);
+          contend(_address2827, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2827 = operand_5849;
+          int value_5850 = (_value2827 & -17);
+          _address2827 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2827 = value_5850;
+          memory.write(_address2827, value_5850);
           int read_5851;
-          read_5851 = _value2651;
+          read_5851 = _value2827;
           E = read_5851;
-          MEMPTR = _address2651;
+          MEMPTR = _address2827;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xA4: {
-          int _value2653;
-          int _address2653;
+          int _value2829;
+          int _address2829;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2653 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5852 = memory.read(_address2653, 0);
-          contend(_address2653, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2653 = operand_5852;
-          int value_5853 = (_value2653 & -17);
-          _address2653 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2653 = value_5853;
-          memory.write(_address2653, value_5853);
+          _address2829 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5852 = memory.read(_address2829, 0);
+          contend(_address2829, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2829 = operand_5852;
+          int value_5853 = (_value2829 & -17);
+          _address2829 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2829 = value_5853;
+          memory.write(_address2829, value_5853);
           int read_5854;
-          read_5854 = _value2653;
+          read_5854 = _value2829;
           H = read_5854;
-          MEMPTR = _address2653;
+          MEMPTR = _address2829;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xA5: {
-          int _value2655;
-          int _address2655;
+          int _value2831;
+          int _address2831;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2655 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5855 = memory.read(_address2655, 0);
-          contend(_address2655, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2655 = operand_5855;
-          int value_5856 = (_value2655 & -17);
-          _address2655 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2655 = value_5856;
-          memory.write(_address2655, value_5856);
+          _address2831 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5855 = memory.read(_address2831, 0);
+          contend(_address2831, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2831 = operand_5855;
+          int value_5856 = (_value2831 & -17);
+          _address2831 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2831 = value_5856;
+          memory.write(_address2831, value_5856);
           int read_5857;
-          read_5857 = _value2655;
+          read_5857 = _value2831;
           L = read_5857;
-          MEMPTR = _address2655;
+          MEMPTR = _address2831;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xA6: {
-          int _value2657;
-          int _address2657;
+          int _value2833;
+          int _address2833;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2657 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5858 = memory.read(_address2657, 0);
-          contend(_address2657, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2657 = operand_5858;
-          int value_5859 = (_value2657 & -17);
-          _address2657 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2657 = value_5859;
-          memory.write(_address2657, value_5859);
-          MEMPTR = _address2657;
+          _address2833 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5858 = memory.read(_address2833, 0);
+          contend(_address2833, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2833 = operand_5858;
+          int value_5859 = (_value2833 & -17);
+          _address2833 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2833 = value_5859;
+          memory.write(_address2833, value_5859);
+          MEMPTR = _address2833;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xA7: {
-          int _value2659;
-          int _address2659;
+          int _value2835;
+          int _address2835;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2659 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5860 = memory.read(_address2659, 0);
-          contend(_address2659, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2659 = operand_5860;
-          int value_5861 = (_value2659 & -17);
-          _address2659 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2659 = value_5861;
-          memory.write(_address2659, value_5861);
+          _address2835 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5860 = memory.read(_address2835, 0);
+          contend(_address2835, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2835 = operand_5860;
+          int value_5861 = (_value2835 & -17);
+          _address2835 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2835 = value_5861;
+          memory.write(_address2835, value_5861);
           int read_5862;
-          read_5862 = _value2659;
+          read_5862 = _value2835;
           A = read_5862;
-          MEMPTR = _address2659;
+          MEMPTR = _address2835;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xA8: {
-          int _value2661;
-          int _address2661;
+          int _value2837;
+          int _address2837;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2661 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5863 = memory.read(_address2661, 0);
-          contend(_address2661, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2661 = operand_5863;
-          int value_5864 = (_value2661 & -33);
-          _address2661 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2661 = value_5864;
-          memory.write(_address2661, value_5864);
+          _address2837 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5863 = memory.read(_address2837, 0);
+          contend(_address2837, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2837 = operand_5863;
+          int value_5864 = (_value2837 & -33);
+          _address2837 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2837 = value_5864;
+          memory.write(_address2837, value_5864);
           int read_5865;
-          read_5865 = _value2661;
+          read_5865 = _value2837;
           B = read_5865;
-          MEMPTR = _address2661;
+          MEMPTR = _address2837;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xA9: {
-          int _value2663;
-          int _address2663;
+          int _value2839;
+          int _address2839;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2663 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5866 = memory.read(_address2663, 0);
-          contend(_address2663, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2663 = operand_5866;
-          int value_5867 = (_value2663 & -33);
-          _address2663 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2663 = value_5867;
-          memory.write(_address2663, value_5867);
+          _address2839 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5866 = memory.read(_address2839, 0);
+          contend(_address2839, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2839 = operand_5866;
+          int value_5867 = (_value2839 & -33);
+          _address2839 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2839 = value_5867;
+          memory.write(_address2839, value_5867);
           int read_5868;
-          read_5868 = _value2663;
+          read_5868 = _value2839;
           C = read_5868;
-          MEMPTR = _address2663;
+          MEMPTR = _address2839;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xAA: {
-          int _value2665;
-          int _address2665;
+          int _value2841;
+          int _address2841;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2665 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5869 = memory.read(_address2665, 0);
-          contend(_address2665, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2665 = operand_5869;
-          int value_5870 = (_value2665 & -33);
-          _address2665 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2665 = value_5870;
-          memory.write(_address2665, value_5870);
+          _address2841 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5869 = memory.read(_address2841, 0);
+          contend(_address2841, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2841 = operand_5869;
+          int value_5870 = (_value2841 & -33);
+          _address2841 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2841 = value_5870;
+          memory.write(_address2841, value_5870);
           int read_5871;
-          read_5871 = _value2665;
+          read_5871 = _value2841;
           D = read_5871;
-          MEMPTR = _address2665;
+          MEMPTR = _address2841;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xAB: {
-          int _value2667;
-          int _address2667;
+          int _value2843;
+          int _address2843;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2667 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5872 = memory.read(_address2667, 0);
-          contend(_address2667, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2667 = operand_5872;
-          int value_5873 = (_value2667 & -33);
-          _address2667 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2667 = value_5873;
-          memory.write(_address2667, value_5873);
+          _address2843 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5872 = memory.read(_address2843, 0);
+          contend(_address2843, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2843 = operand_5872;
+          int value_5873 = (_value2843 & -33);
+          _address2843 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2843 = value_5873;
+          memory.write(_address2843, value_5873);
           int read_5874;
-          read_5874 = _value2667;
+          read_5874 = _value2843;
           E = read_5874;
-          MEMPTR = _address2667;
+          MEMPTR = _address2843;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xAC: {
-          int _value2669;
-          int _address2669;
+          int _value2845;
+          int _address2845;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2669 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5875 = memory.read(_address2669, 0);
-          contend(_address2669, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2669 = operand_5875;
-          int value_5876 = (_value2669 & -33);
-          _address2669 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2669 = value_5876;
-          memory.write(_address2669, value_5876);
+          _address2845 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5875 = memory.read(_address2845, 0);
+          contend(_address2845, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2845 = operand_5875;
+          int value_5876 = (_value2845 & -33);
+          _address2845 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2845 = value_5876;
+          memory.write(_address2845, value_5876);
           int read_5877;
-          read_5877 = _value2669;
+          read_5877 = _value2845;
           H = read_5877;
-          MEMPTR = _address2669;
+          MEMPTR = _address2845;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xAD: {
-          int _value2671;
-          int _address2671;
+          int _value2847;
+          int _address2847;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2671 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5878 = memory.read(_address2671, 0);
-          contend(_address2671, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2671 = operand_5878;
-          int value_5879 = (_value2671 & -33);
-          _address2671 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2671 = value_5879;
-          memory.write(_address2671, value_5879);
+          _address2847 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5878 = memory.read(_address2847, 0);
+          contend(_address2847, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2847 = operand_5878;
+          int value_5879 = (_value2847 & -33);
+          _address2847 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2847 = value_5879;
+          memory.write(_address2847, value_5879);
           int read_5880;
-          read_5880 = _value2671;
+          read_5880 = _value2847;
           L = read_5880;
-          MEMPTR = _address2671;
+          MEMPTR = _address2847;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xAE: {
-          int _value2673;
-          int _address2673;
+          int _value2849;
+          int _address2849;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2673 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5881 = memory.read(_address2673, 0);
-          contend(_address2673, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2673 = operand_5881;
-          int value_5882 = (_value2673 & -33);
-          _address2673 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2673 = value_5882;
-          memory.write(_address2673, value_5882);
-          MEMPTR = _address2673;
+          _address2849 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5881 = memory.read(_address2849, 0);
+          contend(_address2849, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2849 = operand_5881;
+          int value_5882 = (_value2849 & -33);
+          _address2849 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2849 = value_5882;
+          memory.write(_address2849, value_5882);
+          MEMPTR = _address2849;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xAF: {
-          int _value2675;
-          int _address2675;
+          int _value2851;
+          int _address2851;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2675 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5883 = memory.read(_address2675, 0);
-          contend(_address2675, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2675 = operand_5883;
-          int value_5884 = (_value2675 & -33);
-          _address2675 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2675 = value_5884;
-          memory.write(_address2675, value_5884);
+          _address2851 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5883 = memory.read(_address2851, 0);
+          contend(_address2851, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2851 = operand_5883;
+          int value_5884 = (_value2851 & -33);
+          _address2851 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2851 = value_5884;
+          memory.write(_address2851, value_5884);
           int read_5885;
-          read_5885 = _value2675;
+          read_5885 = _value2851;
           A = read_5885;
-          MEMPTR = _address2675;
+          MEMPTR = _address2851;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -23918,300 +24712,300 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFDCB_11(int opcode, int displacement) {
     switch (opcode) {
       case 0xB0: {
-          int _value2677;
-          int _address2677;
+          int _value2853;
+          int _address2853;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2677 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5886 = memory.read(_address2677, 0);
-          contend(_address2677, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2677 = operand_5886;
-          int value_5887 = (_value2677 & -65);
-          _address2677 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2677 = value_5887;
-          memory.write(_address2677, value_5887);
+          _address2853 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5886 = memory.read(_address2853, 0);
+          contend(_address2853, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2853 = operand_5886;
+          int value_5887 = (_value2853 & -65);
+          _address2853 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2853 = value_5887;
+          memory.write(_address2853, value_5887);
           int read_5888;
-          read_5888 = _value2677;
+          read_5888 = _value2853;
           B = read_5888;
-          MEMPTR = _address2677;
+          MEMPTR = _address2853;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xB1: {
-          int _value2679;
-          int _address2679;
+          int _value2855;
+          int _address2855;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2679 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5889 = memory.read(_address2679, 0);
-          contend(_address2679, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2679 = operand_5889;
-          int value_5890 = (_value2679 & -65);
-          _address2679 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2679 = value_5890;
-          memory.write(_address2679, value_5890);
+          _address2855 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5889 = memory.read(_address2855, 0);
+          contend(_address2855, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2855 = operand_5889;
+          int value_5890 = (_value2855 & -65);
+          _address2855 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2855 = value_5890;
+          memory.write(_address2855, value_5890);
           int read_5891;
-          read_5891 = _value2679;
+          read_5891 = _value2855;
           C = read_5891;
-          MEMPTR = _address2679;
+          MEMPTR = _address2855;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xB2: {
-          int _value2681;
-          int _address2681;
+          int _value2857;
+          int _address2857;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2681 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5892 = memory.read(_address2681, 0);
-          contend(_address2681, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2681 = operand_5892;
-          int value_5893 = (_value2681 & -65);
-          _address2681 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2681 = value_5893;
-          memory.write(_address2681, value_5893);
+          _address2857 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5892 = memory.read(_address2857, 0);
+          contend(_address2857, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2857 = operand_5892;
+          int value_5893 = (_value2857 & -65);
+          _address2857 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2857 = value_5893;
+          memory.write(_address2857, value_5893);
           int read_5894;
-          read_5894 = _value2681;
+          read_5894 = _value2857;
           D = read_5894;
-          MEMPTR = _address2681;
+          MEMPTR = _address2857;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xB3: {
-          int _value2683;
-          int _address2683;
+          int _value2859;
+          int _address2859;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2683 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5895 = memory.read(_address2683, 0);
-          contend(_address2683, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2683 = operand_5895;
-          int value_5896 = (_value2683 & -65);
-          _address2683 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2683 = value_5896;
-          memory.write(_address2683, value_5896);
+          _address2859 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5895 = memory.read(_address2859, 0);
+          contend(_address2859, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2859 = operand_5895;
+          int value_5896 = (_value2859 & -65);
+          _address2859 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2859 = value_5896;
+          memory.write(_address2859, value_5896);
           int read_5897;
-          read_5897 = _value2683;
+          read_5897 = _value2859;
           E = read_5897;
-          MEMPTR = _address2683;
+          MEMPTR = _address2859;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xB4: {
-          int _value2685;
-          int _address2685;
+          int _value2861;
+          int _address2861;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2685 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5898 = memory.read(_address2685, 0);
-          contend(_address2685, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2685 = operand_5898;
-          int value_5899 = (_value2685 & -65);
-          _address2685 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2685 = value_5899;
-          memory.write(_address2685, value_5899);
+          _address2861 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5898 = memory.read(_address2861, 0);
+          contend(_address2861, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2861 = operand_5898;
+          int value_5899 = (_value2861 & -65);
+          _address2861 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2861 = value_5899;
+          memory.write(_address2861, value_5899);
           int read_5900;
-          read_5900 = _value2685;
+          read_5900 = _value2861;
           H = read_5900;
-          MEMPTR = _address2685;
+          MEMPTR = _address2861;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xB5: {
-          int _value2687;
-          int _address2687;
+          int _value2863;
+          int _address2863;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2687 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5901 = memory.read(_address2687, 0);
-          contend(_address2687, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2687 = operand_5901;
-          int value_5902 = (_value2687 & -65);
-          _address2687 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2687 = value_5902;
-          memory.write(_address2687, value_5902);
+          _address2863 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5901 = memory.read(_address2863, 0);
+          contend(_address2863, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2863 = operand_5901;
+          int value_5902 = (_value2863 & -65);
+          _address2863 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2863 = value_5902;
+          memory.write(_address2863, value_5902);
           int read_5903;
-          read_5903 = _value2687;
+          read_5903 = _value2863;
           L = read_5903;
-          MEMPTR = _address2687;
+          MEMPTR = _address2863;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xB6: {
-          int _value2689;
-          int _address2689;
+          int _value2865;
+          int _address2865;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2689 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5904 = memory.read(_address2689, 0);
-          contend(_address2689, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2689 = operand_5904;
-          int value_5905 = (_value2689 & -65);
-          _address2689 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2689 = value_5905;
-          memory.write(_address2689, value_5905);
-          MEMPTR = _address2689;
+          _address2865 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5904 = memory.read(_address2865, 0);
+          contend(_address2865, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2865 = operand_5904;
+          int value_5905 = (_value2865 & -65);
+          _address2865 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2865 = value_5905;
+          memory.write(_address2865, value_5905);
+          MEMPTR = _address2865;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xB7: {
-          int _value2691;
-          int _address2691;
+          int _value2867;
+          int _address2867;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2691 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5906 = memory.read(_address2691, 0);
-          contend(_address2691, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2691 = operand_5906;
-          int value_5907 = (_value2691 & -65);
-          _address2691 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2691 = value_5907;
-          memory.write(_address2691, value_5907);
+          _address2867 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5906 = memory.read(_address2867, 0);
+          contend(_address2867, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2867 = operand_5906;
+          int value_5907 = (_value2867 & -65);
+          _address2867 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2867 = value_5907;
+          memory.write(_address2867, value_5907);
           int read_5908;
-          read_5908 = _value2691;
+          read_5908 = _value2867;
           A = read_5908;
-          MEMPTR = _address2691;
+          MEMPTR = _address2867;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xB8: {
-          int _value2693;
-          int _address2693;
+          int _value2869;
+          int _address2869;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2693 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5909 = memory.read(_address2693, 0);
-          contend(_address2693, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2693 = operand_5909;
-          int value_5910 = (_value2693 & -129);
-          _address2693 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2693 = value_5910;
-          memory.write(_address2693, value_5910);
+          _address2869 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5909 = memory.read(_address2869, 0);
+          contend(_address2869, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2869 = operand_5909;
+          int value_5910 = (_value2869 & -129);
+          _address2869 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2869 = value_5910;
+          memory.write(_address2869, value_5910);
           int read_5911;
-          read_5911 = _value2693;
+          read_5911 = _value2869;
           B = read_5911;
-          MEMPTR = _address2693;
+          MEMPTR = _address2869;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xB9: {
-          int _value2695;
-          int _address2695;
+          int _value2871;
+          int _address2871;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2695 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5912 = memory.read(_address2695, 0);
-          contend(_address2695, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2695 = operand_5912;
-          int value_5913 = (_value2695 & -129);
-          _address2695 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2695 = value_5913;
-          memory.write(_address2695, value_5913);
+          _address2871 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5912 = memory.read(_address2871, 0);
+          contend(_address2871, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2871 = operand_5912;
+          int value_5913 = (_value2871 & -129);
+          _address2871 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2871 = value_5913;
+          memory.write(_address2871, value_5913);
           int read_5914;
-          read_5914 = _value2695;
+          read_5914 = _value2871;
           C = read_5914;
-          MEMPTR = _address2695;
+          MEMPTR = _address2871;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xBA: {
-          int _value2697;
-          int _address2697;
+          int _value2873;
+          int _address2873;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2697 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5915 = memory.read(_address2697, 0);
-          contend(_address2697, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2697 = operand_5915;
-          int value_5916 = (_value2697 & -129);
-          _address2697 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2697 = value_5916;
-          memory.write(_address2697, value_5916);
+          _address2873 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5915 = memory.read(_address2873, 0);
+          contend(_address2873, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2873 = operand_5915;
+          int value_5916 = (_value2873 & -129);
+          _address2873 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2873 = value_5916;
+          memory.write(_address2873, value_5916);
           int read_5917;
-          read_5917 = _value2697;
+          read_5917 = _value2873;
           D = read_5917;
-          MEMPTR = _address2697;
+          MEMPTR = _address2873;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xBB: {
-          int _value2699;
-          int _address2699;
+          int _value2875;
+          int _address2875;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2699 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5918 = memory.read(_address2699, 0);
-          contend(_address2699, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2699 = operand_5918;
-          int value_5919 = (_value2699 & -129);
-          _address2699 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2699 = value_5919;
-          memory.write(_address2699, value_5919);
+          _address2875 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5918 = memory.read(_address2875, 0);
+          contend(_address2875, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2875 = operand_5918;
+          int value_5919 = (_value2875 & -129);
+          _address2875 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2875 = value_5919;
+          memory.write(_address2875, value_5919);
           int read_5920;
-          read_5920 = _value2699;
+          read_5920 = _value2875;
           E = read_5920;
-          MEMPTR = _address2699;
+          MEMPTR = _address2875;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xBC: {
-          int _value2701;
-          int _address2701;
+          int _value2877;
+          int _address2877;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2701 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5921 = memory.read(_address2701, 0);
-          contend(_address2701, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2701 = operand_5921;
-          int value_5922 = (_value2701 & -129);
-          _address2701 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2701 = value_5922;
-          memory.write(_address2701, value_5922);
+          _address2877 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5921 = memory.read(_address2877, 0);
+          contend(_address2877, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2877 = operand_5921;
+          int value_5922 = (_value2877 & -129);
+          _address2877 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2877 = value_5922;
+          memory.write(_address2877, value_5922);
           int read_5923;
-          read_5923 = _value2701;
+          read_5923 = _value2877;
           H = read_5923;
-          MEMPTR = _address2701;
+          MEMPTR = _address2877;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xBD: {
-          int _value2703;
-          int _address2703;
+          int _value2879;
+          int _address2879;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2703 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5924 = memory.read(_address2703, 0);
-          contend(_address2703, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2703 = operand_5924;
-          int value_5925 = (_value2703 & -129);
-          _address2703 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2703 = value_5925;
-          memory.write(_address2703, value_5925);
+          _address2879 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5924 = memory.read(_address2879, 0);
+          contend(_address2879, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2879 = operand_5924;
+          int value_5925 = (_value2879 & -129);
+          _address2879 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2879 = value_5925;
+          memory.write(_address2879, value_5925);
           int read_5926;
-          read_5926 = _value2703;
+          read_5926 = _value2879;
           L = read_5926;
-          MEMPTR = _address2703;
+          MEMPTR = _address2879;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xBE: {
-          int _value2705;
-          int _address2705;
+          int _value2881;
+          int _address2881;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2705 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5927 = memory.read(_address2705, 0);
-          contend(_address2705, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2705 = operand_5927;
-          int value_5928 = (_value2705 & -129);
-          _address2705 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2705 = value_5928;
-          memory.write(_address2705, value_5928);
-          MEMPTR = _address2705;
+          _address2881 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5927 = memory.read(_address2881, 0);
+          contend(_address2881, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2881 = operand_5927;
+          int value_5928 = (_value2881 & -129);
+          _address2881 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2881 = value_5928;
+          memory.write(_address2881, value_5928);
+          MEMPTR = _address2881;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xBF: {
-          int _value2707;
-          int _address2707;
+          int _value2883;
+          int _address2883;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2707 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5929 = memory.read(_address2707, 0);
-          contend(_address2707, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2707 = operand_5929;
-          int value_5930 = (_value2707 & -129);
-          _address2707 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2707 = value_5930;
-          memory.write(_address2707, value_5930);
+          _address2883 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5929 = memory.read(_address2883, 0);
+          contend(_address2883, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2883 = operand_5929;
+          int value_5930 = (_value2883 & -129);
+          _address2883 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2883 = value_5930;
+          memory.write(_address2883, value_5930);
           int read_5931;
-          read_5931 = _value2707;
+          read_5931 = _value2883;
           A = read_5931;
-          MEMPTR = _address2707;
+          MEMPTR = _address2883;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -24223,300 +25017,300 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFDCB_12(int opcode, int displacement) {
     switch (opcode) {
       case 0xC0: {
-          int _value2709;
-          int _address2709;
+          int _value2885;
+          int _address2885;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2709 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5932 = memory.read(_address2709, 0);
-          contend(_address2709, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2709 = operand_5932;
-          int value_5933 = (_value2709 | 1);
-          _address2709 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2709 = value_5933;
-          memory.write(_address2709, value_5933);
+          _address2885 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5932 = memory.read(_address2885, 0);
+          contend(_address2885, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2885 = operand_5932;
+          int value_5933 = (_value2885 | 1);
+          _address2885 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2885 = value_5933;
+          memory.write(_address2885, value_5933);
           int read_5934;
-          read_5934 = _value2709;
+          read_5934 = _value2885;
           B = read_5934;
-          MEMPTR = _address2709;
+          MEMPTR = _address2885;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xC1: {
-          int _value2711;
-          int _address2711;
+          int _value2887;
+          int _address2887;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2711 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5935 = memory.read(_address2711, 0);
-          contend(_address2711, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2711 = operand_5935;
-          int value_5936 = (_value2711 | 1);
-          _address2711 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2711 = value_5936;
-          memory.write(_address2711, value_5936);
+          _address2887 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5935 = memory.read(_address2887, 0);
+          contend(_address2887, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2887 = operand_5935;
+          int value_5936 = (_value2887 | 1);
+          _address2887 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2887 = value_5936;
+          memory.write(_address2887, value_5936);
           int read_5937;
-          read_5937 = _value2711;
+          read_5937 = _value2887;
           C = read_5937;
-          MEMPTR = _address2711;
+          MEMPTR = _address2887;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xC2: {
-          int _value2713;
-          int _address2713;
+          int _value2889;
+          int _address2889;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2713 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5938 = memory.read(_address2713, 0);
-          contend(_address2713, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2713 = operand_5938;
-          int value_5939 = (_value2713 | 1);
-          _address2713 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2713 = value_5939;
-          memory.write(_address2713, value_5939);
+          _address2889 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5938 = memory.read(_address2889, 0);
+          contend(_address2889, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2889 = operand_5938;
+          int value_5939 = (_value2889 | 1);
+          _address2889 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2889 = value_5939;
+          memory.write(_address2889, value_5939);
           int read_5940;
-          read_5940 = _value2713;
+          read_5940 = _value2889;
           D = read_5940;
-          MEMPTR = _address2713;
+          MEMPTR = _address2889;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xC3: {
-          int _value2715;
-          int _address2715;
+          int _value2891;
+          int _address2891;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2715 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5941 = memory.read(_address2715, 0);
-          contend(_address2715, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2715 = operand_5941;
-          int value_5942 = (_value2715 | 1);
-          _address2715 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2715 = value_5942;
-          memory.write(_address2715, value_5942);
+          _address2891 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5941 = memory.read(_address2891, 0);
+          contend(_address2891, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2891 = operand_5941;
+          int value_5942 = (_value2891 | 1);
+          _address2891 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2891 = value_5942;
+          memory.write(_address2891, value_5942);
           int read_5943;
-          read_5943 = _value2715;
+          read_5943 = _value2891;
           E = read_5943;
-          MEMPTR = _address2715;
+          MEMPTR = _address2891;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xC4: {
-          int _value2717;
-          int _address2717;
+          int _value2893;
+          int _address2893;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2717 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5944 = memory.read(_address2717, 0);
-          contend(_address2717, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2717 = operand_5944;
-          int value_5945 = (_value2717 | 1);
-          _address2717 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2717 = value_5945;
-          memory.write(_address2717, value_5945);
+          _address2893 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5944 = memory.read(_address2893, 0);
+          contend(_address2893, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2893 = operand_5944;
+          int value_5945 = (_value2893 | 1);
+          _address2893 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2893 = value_5945;
+          memory.write(_address2893, value_5945);
           int read_5946;
-          read_5946 = _value2717;
+          read_5946 = _value2893;
           H = read_5946;
-          MEMPTR = _address2717;
+          MEMPTR = _address2893;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xC5: {
-          int _value2719;
-          int _address2719;
+          int _value2895;
+          int _address2895;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2719 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5947 = memory.read(_address2719, 0);
-          contend(_address2719, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2719 = operand_5947;
-          int value_5948 = (_value2719 | 1);
-          _address2719 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2719 = value_5948;
-          memory.write(_address2719, value_5948);
+          _address2895 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5947 = memory.read(_address2895, 0);
+          contend(_address2895, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2895 = operand_5947;
+          int value_5948 = (_value2895 | 1);
+          _address2895 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2895 = value_5948;
+          memory.write(_address2895, value_5948);
           int read_5949;
-          read_5949 = _value2719;
+          read_5949 = _value2895;
           L = read_5949;
-          MEMPTR = _address2719;
+          MEMPTR = _address2895;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xC6: {
-          int _value2721;
-          int _address2721;
+          int _value2897;
+          int _address2897;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2721 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5950 = memory.read(_address2721, 0);
-          contend(_address2721, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2721 = operand_5950;
-          int value_5951 = (_value2721 | 1);
-          _address2721 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2721 = value_5951;
-          memory.write(_address2721, value_5951);
-          MEMPTR = _address2721;
+          _address2897 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5950 = memory.read(_address2897, 0);
+          contend(_address2897, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2897 = operand_5950;
+          int value_5951 = (_value2897 | 1);
+          _address2897 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2897 = value_5951;
+          memory.write(_address2897, value_5951);
+          MEMPTR = _address2897;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xC7: {
-          int _value2723;
-          int _address2723;
+          int _value2899;
+          int _address2899;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2723 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5952 = memory.read(_address2723, 0);
-          contend(_address2723, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2723 = operand_5952;
-          int value_5953 = (_value2723 | 1);
-          _address2723 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2723 = value_5953;
-          memory.write(_address2723, value_5953);
+          _address2899 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5952 = memory.read(_address2899, 0);
+          contend(_address2899, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2899 = operand_5952;
+          int value_5953 = (_value2899 | 1);
+          _address2899 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2899 = value_5953;
+          memory.write(_address2899, value_5953);
           int read_5954;
-          read_5954 = _value2723;
+          read_5954 = _value2899;
           A = read_5954;
-          MEMPTR = _address2723;
+          MEMPTR = _address2899;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xC8: {
-          int _value2725;
-          int _address2725;
+          int _value2901;
+          int _address2901;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2725 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5955 = memory.read(_address2725, 0);
-          contend(_address2725, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2725 = operand_5955;
-          int value_5956 = (_value2725 | 2);
-          _address2725 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2725 = value_5956;
-          memory.write(_address2725, value_5956);
+          _address2901 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5955 = memory.read(_address2901, 0);
+          contend(_address2901, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2901 = operand_5955;
+          int value_5956 = (_value2901 | 2);
+          _address2901 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2901 = value_5956;
+          memory.write(_address2901, value_5956);
           int read_5957;
-          read_5957 = _value2725;
+          read_5957 = _value2901;
           B = read_5957;
-          MEMPTR = _address2725;
+          MEMPTR = _address2901;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xC9: {
-          int _value2727;
-          int _address2727;
+          int _value2903;
+          int _address2903;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2727 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5958 = memory.read(_address2727, 0);
-          contend(_address2727, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2727 = operand_5958;
-          int value_5959 = (_value2727 | 2);
-          _address2727 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2727 = value_5959;
-          memory.write(_address2727, value_5959);
+          _address2903 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5958 = memory.read(_address2903, 0);
+          contend(_address2903, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2903 = operand_5958;
+          int value_5959 = (_value2903 | 2);
+          _address2903 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2903 = value_5959;
+          memory.write(_address2903, value_5959);
           int read_5960;
-          read_5960 = _value2727;
+          read_5960 = _value2903;
           C = read_5960;
-          MEMPTR = _address2727;
+          MEMPTR = _address2903;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xCA: {
-          int _value2729;
-          int _address2729;
+          int _value2905;
+          int _address2905;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2729 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5961 = memory.read(_address2729, 0);
-          contend(_address2729, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2729 = operand_5961;
-          int value_5962 = (_value2729 | 2);
-          _address2729 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2729 = value_5962;
-          memory.write(_address2729, value_5962);
+          _address2905 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5961 = memory.read(_address2905, 0);
+          contend(_address2905, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2905 = operand_5961;
+          int value_5962 = (_value2905 | 2);
+          _address2905 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2905 = value_5962;
+          memory.write(_address2905, value_5962);
           int read_5963;
-          read_5963 = _value2729;
+          read_5963 = _value2905;
           D = read_5963;
-          MEMPTR = _address2729;
+          MEMPTR = _address2905;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xCB: {
-          int _value2731;
-          int _address2731;
+          int _value2907;
+          int _address2907;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2731 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5964 = memory.read(_address2731, 0);
-          contend(_address2731, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2731 = operand_5964;
-          int value_5965 = (_value2731 | 2);
-          _address2731 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2731 = value_5965;
-          memory.write(_address2731, value_5965);
+          _address2907 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5964 = memory.read(_address2907, 0);
+          contend(_address2907, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2907 = operand_5964;
+          int value_5965 = (_value2907 | 2);
+          _address2907 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2907 = value_5965;
+          memory.write(_address2907, value_5965);
           int read_5966;
-          read_5966 = _value2731;
+          read_5966 = _value2907;
           E = read_5966;
-          MEMPTR = _address2731;
+          MEMPTR = _address2907;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xCC: {
-          int _value2733;
-          int _address2733;
+          int _value2909;
+          int _address2909;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2733 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5967 = memory.read(_address2733, 0);
-          contend(_address2733, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2733 = operand_5967;
-          int value_5968 = (_value2733 | 2);
-          _address2733 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2733 = value_5968;
-          memory.write(_address2733, value_5968);
+          _address2909 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5967 = memory.read(_address2909, 0);
+          contend(_address2909, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2909 = operand_5967;
+          int value_5968 = (_value2909 | 2);
+          _address2909 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2909 = value_5968;
+          memory.write(_address2909, value_5968);
           int read_5969;
-          read_5969 = _value2733;
+          read_5969 = _value2909;
           H = read_5969;
-          MEMPTR = _address2733;
+          MEMPTR = _address2909;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xCD: {
-          int _value2735;
-          int _address2735;
+          int _value2911;
+          int _address2911;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2735 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5970 = memory.read(_address2735, 0);
-          contend(_address2735, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2735 = operand_5970;
-          int value_5971 = (_value2735 | 2);
-          _address2735 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2735 = value_5971;
-          memory.write(_address2735, value_5971);
+          _address2911 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5970 = memory.read(_address2911, 0);
+          contend(_address2911, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2911 = operand_5970;
+          int value_5971 = (_value2911 | 2);
+          _address2911 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2911 = value_5971;
+          memory.write(_address2911, value_5971);
           int read_5972;
-          read_5972 = _value2735;
+          read_5972 = _value2911;
           L = read_5972;
-          MEMPTR = _address2735;
+          MEMPTR = _address2911;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xCE: {
-          int _value2737;
-          int _address2737;
+          int _value2913;
+          int _address2913;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2737 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5973 = memory.read(_address2737, 0);
-          contend(_address2737, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2737 = operand_5973;
-          int value_5974 = (_value2737 | 2);
-          _address2737 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2737 = value_5974;
-          memory.write(_address2737, value_5974);
-          MEMPTR = _address2737;
+          _address2913 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5973 = memory.read(_address2913, 0);
+          contend(_address2913, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2913 = operand_5973;
+          int value_5974 = (_value2913 | 2);
+          _address2913 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2913 = value_5974;
+          memory.write(_address2913, value_5974);
+          MEMPTR = _address2913;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xCF: {
-          int _value2739;
-          int _address2739;
+          int _value2915;
+          int _address2915;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2739 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5975 = memory.read(_address2739, 0);
-          contend(_address2739, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2739 = operand_5975;
-          int value_5976 = (_value2739 | 2);
-          _address2739 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2739 = value_5976;
-          memory.write(_address2739, value_5976);
+          _address2915 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5975 = memory.read(_address2915, 0);
+          contend(_address2915, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2915 = operand_5975;
+          int value_5976 = (_value2915 | 2);
+          _address2915 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2915 = value_5976;
+          memory.write(_address2915, value_5976);
           int read_5977;
-          read_5977 = _value2739;
+          read_5977 = _value2915;
           A = read_5977;
-          MEMPTR = _address2739;
+          MEMPTR = _address2915;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -24528,300 +25322,300 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFDCB_13(int opcode, int displacement) {
     switch (opcode) {
       case 0xD0: {
-          int _value2741;
-          int _address2741;
+          int _value2917;
+          int _address2917;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2741 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5978 = memory.read(_address2741, 0);
-          contend(_address2741, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2741 = operand_5978;
-          int value_5979 = (_value2741 | 4);
-          _address2741 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2741 = value_5979;
-          memory.write(_address2741, value_5979);
+          _address2917 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5978 = memory.read(_address2917, 0);
+          contend(_address2917, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2917 = operand_5978;
+          int value_5979 = (_value2917 | 4);
+          _address2917 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2917 = value_5979;
+          memory.write(_address2917, value_5979);
           int read_5980;
-          read_5980 = _value2741;
+          read_5980 = _value2917;
           B = read_5980;
-          MEMPTR = _address2741;
+          MEMPTR = _address2917;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xD1: {
-          int _value2743;
-          int _address2743;
+          int _value2919;
+          int _address2919;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2743 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5981 = memory.read(_address2743, 0);
-          contend(_address2743, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2743 = operand_5981;
-          int value_5982 = (_value2743 | 4);
-          _address2743 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2743 = value_5982;
-          memory.write(_address2743, value_5982);
+          _address2919 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5981 = memory.read(_address2919, 0);
+          contend(_address2919, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2919 = operand_5981;
+          int value_5982 = (_value2919 | 4);
+          _address2919 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2919 = value_5982;
+          memory.write(_address2919, value_5982);
           int read_5983;
-          read_5983 = _value2743;
+          read_5983 = _value2919;
           C = read_5983;
-          MEMPTR = _address2743;
+          MEMPTR = _address2919;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xD2: {
-          int _value2745;
-          int _address2745;
+          int _value2921;
+          int _address2921;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2745 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5984 = memory.read(_address2745, 0);
-          contend(_address2745, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2745 = operand_5984;
-          int value_5985 = (_value2745 | 4);
-          _address2745 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2745 = value_5985;
-          memory.write(_address2745, value_5985);
+          _address2921 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5984 = memory.read(_address2921, 0);
+          contend(_address2921, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2921 = operand_5984;
+          int value_5985 = (_value2921 | 4);
+          _address2921 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2921 = value_5985;
+          memory.write(_address2921, value_5985);
           int read_5986;
-          read_5986 = _value2745;
+          read_5986 = _value2921;
           D = read_5986;
-          MEMPTR = _address2745;
+          MEMPTR = _address2921;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xD3: {
-          int _value2747;
-          int _address2747;
+          int _value2923;
+          int _address2923;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2747 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5987 = memory.read(_address2747, 0);
-          contend(_address2747, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2747 = operand_5987;
-          int value_5988 = (_value2747 | 4);
-          _address2747 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2747 = value_5988;
-          memory.write(_address2747, value_5988);
+          _address2923 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5987 = memory.read(_address2923, 0);
+          contend(_address2923, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2923 = operand_5987;
+          int value_5988 = (_value2923 | 4);
+          _address2923 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2923 = value_5988;
+          memory.write(_address2923, value_5988);
           int read_5989;
-          read_5989 = _value2747;
+          read_5989 = _value2923;
           E = read_5989;
-          MEMPTR = _address2747;
+          MEMPTR = _address2923;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xD4: {
-          int _value2749;
-          int _address2749;
+          int _value2925;
+          int _address2925;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2749 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5990 = memory.read(_address2749, 0);
-          contend(_address2749, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2749 = operand_5990;
-          int value_5991 = (_value2749 | 4);
-          _address2749 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2749 = value_5991;
-          memory.write(_address2749, value_5991);
+          _address2925 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5990 = memory.read(_address2925, 0);
+          contend(_address2925, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2925 = operand_5990;
+          int value_5991 = (_value2925 | 4);
+          _address2925 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2925 = value_5991;
+          memory.write(_address2925, value_5991);
           int read_5992;
-          read_5992 = _value2749;
+          read_5992 = _value2925;
           H = read_5992;
-          MEMPTR = _address2749;
+          MEMPTR = _address2925;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xD5: {
-          int _value2751;
-          int _address2751;
+          int _value2927;
+          int _address2927;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2751 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5993 = memory.read(_address2751, 0);
-          contend(_address2751, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2751 = operand_5993;
-          int value_5994 = (_value2751 | 4);
-          _address2751 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2751 = value_5994;
-          memory.write(_address2751, value_5994);
+          _address2927 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5993 = memory.read(_address2927, 0);
+          contend(_address2927, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2927 = operand_5993;
+          int value_5994 = (_value2927 | 4);
+          _address2927 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2927 = value_5994;
+          memory.write(_address2927, value_5994);
           int read_5995;
-          read_5995 = _value2751;
+          read_5995 = _value2927;
           L = read_5995;
-          MEMPTR = _address2751;
+          MEMPTR = _address2927;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xD6: {
-          int _value2753;
-          int _address2753;
+          int _value2929;
+          int _address2929;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2753 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5996 = memory.read(_address2753, 0);
-          contend(_address2753, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2753 = operand_5996;
-          int value_5997 = (_value2753 | 4);
-          _address2753 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2753 = value_5997;
-          memory.write(_address2753, value_5997);
-          MEMPTR = _address2753;
+          _address2929 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5996 = memory.read(_address2929, 0);
+          contend(_address2929, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2929 = operand_5996;
+          int value_5997 = (_value2929 | 4);
+          _address2929 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2929 = value_5997;
+          memory.write(_address2929, value_5997);
+          MEMPTR = _address2929;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xD7: {
-          int _value2755;
-          int _address2755;
+          int _value2931;
+          int _address2931;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2755 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_5998 = memory.read(_address2755, 0);
-          contend(_address2755, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2755 = operand_5998;
-          int value_5999 = (_value2755 | 4);
-          _address2755 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2755 = value_5999;
-          memory.write(_address2755, value_5999);
+          _address2931 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_5998 = memory.read(_address2931, 0);
+          contend(_address2931, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2931 = operand_5998;
+          int value_5999 = (_value2931 | 4);
+          _address2931 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2931 = value_5999;
+          memory.write(_address2931, value_5999);
           int read_6000;
-          read_6000 = _value2755;
+          read_6000 = _value2931;
           A = read_6000;
-          MEMPTR = _address2755;
+          MEMPTR = _address2931;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xD8: {
-          int _value2757;
-          int _address2757;
+          int _value2933;
+          int _address2933;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2757 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6001 = memory.read(_address2757, 0);
-          contend(_address2757, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2757 = operand_6001;
-          int value_6002 = (_value2757 | 8);
-          _address2757 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2757 = value_6002;
-          memory.write(_address2757, value_6002);
+          _address2933 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6001 = memory.read(_address2933, 0);
+          contend(_address2933, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2933 = operand_6001;
+          int value_6002 = (_value2933 | 8);
+          _address2933 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2933 = value_6002;
+          memory.write(_address2933, value_6002);
           int read_6003;
-          read_6003 = _value2757;
+          read_6003 = _value2933;
           B = read_6003;
-          MEMPTR = _address2757;
+          MEMPTR = _address2933;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xD9: {
-          int _value2759;
-          int _address2759;
+          int _value2935;
+          int _address2935;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2759 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6004 = memory.read(_address2759, 0);
-          contend(_address2759, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2759 = operand_6004;
-          int value_6005 = (_value2759 | 8);
-          _address2759 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2759 = value_6005;
-          memory.write(_address2759, value_6005);
+          _address2935 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6004 = memory.read(_address2935, 0);
+          contend(_address2935, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2935 = operand_6004;
+          int value_6005 = (_value2935 | 8);
+          _address2935 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2935 = value_6005;
+          memory.write(_address2935, value_6005);
           int read_6006;
-          read_6006 = _value2759;
+          read_6006 = _value2935;
           C = read_6006;
-          MEMPTR = _address2759;
+          MEMPTR = _address2935;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xDA: {
-          int _value2761;
-          int _address2761;
+          int _value2937;
+          int _address2937;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2761 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6007 = memory.read(_address2761, 0);
-          contend(_address2761, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2761 = operand_6007;
-          int value_6008 = (_value2761 | 8);
-          _address2761 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2761 = value_6008;
-          memory.write(_address2761, value_6008);
+          _address2937 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6007 = memory.read(_address2937, 0);
+          contend(_address2937, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2937 = operand_6007;
+          int value_6008 = (_value2937 | 8);
+          _address2937 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2937 = value_6008;
+          memory.write(_address2937, value_6008);
           int read_6009;
-          read_6009 = _value2761;
+          read_6009 = _value2937;
           D = read_6009;
-          MEMPTR = _address2761;
+          MEMPTR = _address2937;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xDB: {
-          int _value2763;
-          int _address2763;
+          int _value2939;
+          int _address2939;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2763 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6010 = memory.read(_address2763, 0);
-          contend(_address2763, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2763 = operand_6010;
-          int value_6011 = (_value2763 | 8);
-          _address2763 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2763 = value_6011;
-          memory.write(_address2763, value_6011);
+          _address2939 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6010 = memory.read(_address2939, 0);
+          contend(_address2939, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2939 = operand_6010;
+          int value_6011 = (_value2939 | 8);
+          _address2939 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2939 = value_6011;
+          memory.write(_address2939, value_6011);
           int read_6012;
-          read_6012 = _value2763;
+          read_6012 = _value2939;
           E = read_6012;
-          MEMPTR = _address2763;
+          MEMPTR = _address2939;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xDC: {
-          int _value2765;
-          int _address2765;
+          int _value2941;
+          int _address2941;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2765 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6013 = memory.read(_address2765, 0);
-          contend(_address2765, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2765 = operand_6013;
-          int value_6014 = (_value2765 | 8);
-          _address2765 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2765 = value_6014;
-          memory.write(_address2765, value_6014);
+          _address2941 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6013 = memory.read(_address2941, 0);
+          contend(_address2941, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2941 = operand_6013;
+          int value_6014 = (_value2941 | 8);
+          _address2941 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2941 = value_6014;
+          memory.write(_address2941, value_6014);
           int read_6015;
-          read_6015 = _value2765;
+          read_6015 = _value2941;
           H = read_6015;
-          MEMPTR = _address2765;
+          MEMPTR = _address2941;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xDD: {
-          int _value2767;
-          int _address2767;
+          int _value2943;
+          int _address2943;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2767 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6016 = memory.read(_address2767, 0);
-          contend(_address2767, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2767 = operand_6016;
-          int value_6017 = (_value2767 | 8);
-          _address2767 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2767 = value_6017;
-          memory.write(_address2767, value_6017);
+          _address2943 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6016 = memory.read(_address2943, 0);
+          contend(_address2943, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2943 = operand_6016;
+          int value_6017 = (_value2943 | 8);
+          _address2943 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2943 = value_6017;
+          memory.write(_address2943, value_6017);
           int read_6018;
-          read_6018 = _value2767;
+          read_6018 = _value2943;
           L = read_6018;
-          MEMPTR = _address2767;
+          MEMPTR = _address2943;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xDE: {
-          int _value2769;
-          int _address2769;
+          int _value2945;
+          int _address2945;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2769 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6019 = memory.read(_address2769, 0);
-          contend(_address2769, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2769 = operand_6019;
-          int value_6020 = (_value2769 | 8);
-          _address2769 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2769 = value_6020;
-          memory.write(_address2769, value_6020);
-          MEMPTR = _address2769;
+          _address2945 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6019 = memory.read(_address2945, 0);
+          contend(_address2945, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2945 = operand_6019;
+          int value_6020 = (_value2945 | 8);
+          _address2945 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2945 = value_6020;
+          memory.write(_address2945, value_6020);
+          MEMPTR = _address2945;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xDF: {
-          int _value2771;
-          int _address2771;
+          int _value2947;
+          int _address2947;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2771 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6021 = memory.read(_address2771, 0);
-          contend(_address2771, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2771 = operand_6021;
-          int value_6022 = (_value2771 | 8);
-          _address2771 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2771 = value_6022;
-          memory.write(_address2771, value_6022);
+          _address2947 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6021 = memory.read(_address2947, 0);
+          contend(_address2947, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2947 = operand_6021;
+          int value_6022 = (_value2947 | 8);
+          _address2947 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2947 = value_6022;
+          memory.write(_address2947, value_6022);
           int read_6023;
-          read_6023 = _value2771;
+          read_6023 = _value2947;
           A = read_6023;
-          MEMPTR = _address2771;
+          MEMPTR = _address2947;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -24833,300 +25627,300 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFDCB_14(int opcode, int displacement) {
     switch (opcode) {
       case 0xE0: {
-          int _value2773;
-          int _address2773;
+          int _value2949;
+          int _address2949;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2773 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6024 = memory.read(_address2773, 0);
-          contend(_address2773, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2773 = operand_6024;
-          int value_6025 = (_value2773 | 0x10);
-          _address2773 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2773 = value_6025;
-          memory.write(_address2773, value_6025);
+          _address2949 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6024 = memory.read(_address2949, 0);
+          contend(_address2949, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2949 = operand_6024;
+          int value_6025 = (_value2949 | 0x10);
+          _address2949 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2949 = value_6025;
+          memory.write(_address2949, value_6025);
           int read_6026;
-          read_6026 = _value2773;
+          read_6026 = _value2949;
           B = read_6026;
-          MEMPTR = _address2773;
+          MEMPTR = _address2949;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xE1: {
-          int _value2775;
-          int _address2775;
+          int _value2951;
+          int _address2951;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2775 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6027 = memory.read(_address2775, 0);
-          contend(_address2775, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2775 = operand_6027;
-          int value_6028 = (_value2775 | 0x10);
-          _address2775 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2775 = value_6028;
-          memory.write(_address2775, value_6028);
+          _address2951 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6027 = memory.read(_address2951, 0);
+          contend(_address2951, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2951 = operand_6027;
+          int value_6028 = (_value2951 | 0x10);
+          _address2951 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2951 = value_6028;
+          memory.write(_address2951, value_6028);
           int read_6029;
-          read_6029 = _value2775;
+          read_6029 = _value2951;
           C = read_6029;
-          MEMPTR = _address2775;
+          MEMPTR = _address2951;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xE2: {
-          int _value2777;
-          int _address2777;
+          int _value2953;
+          int _address2953;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2777 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6030 = memory.read(_address2777, 0);
-          contend(_address2777, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2777 = operand_6030;
-          int value_6031 = (_value2777 | 0x10);
-          _address2777 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2777 = value_6031;
-          memory.write(_address2777, value_6031);
+          _address2953 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6030 = memory.read(_address2953, 0);
+          contend(_address2953, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2953 = operand_6030;
+          int value_6031 = (_value2953 | 0x10);
+          _address2953 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2953 = value_6031;
+          memory.write(_address2953, value_6031);
           int read_6032;
-          read_6032 = _value2777;
+          read_6032 = _value2953;
           D = read_6032;
-          MEMPTR = _address2777;
+          MEMPTR = _address2953;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xE3: {
-          int _value2779;
-          int _address2779;
+          int _value2955;
+          int _address2955;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2779 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6033 = memory.read(_address2779, 0);
-          contend(_address2779, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2779 = operand_6033;
-          int value_6034 = (_value2779 | 0x10);
-          _address2779 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2779 = value_6034;
-          memory.write(_address2779, value_6034);
+          _address2955 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6033 = memory.read(_address2955, 0);
+          contend(_address2955, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2955 = operand_6033;
+          int value_6034 = (_value2955 | 0x10);
+          _address2955 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2955 = value_6034;
+          memory.write(_address2955, value_6034);
           int read_6035;
-          read_6035 = _value2779;
+          read_6035 = _value2955;
           E = read_6035;
-          MEMPTR = _address2779;
+          MEMPTR = _address2955;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xE4: {
-          int _value2781;
-          int _address2781;
+          int _value2957;
+          int _address2957;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2781 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6036 = memory.read(_address2781, 0);
-          contend(_address2781, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2781 = operand_6036;
-          int value_6037 = (_value2781 | 0x10);
-          _address2781 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2781 = value_6037;
-          memory.write(_address2781, value_6037);
+          _address2957 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6036 = memory.read(_address2957, 0);
+          contend(_address2957, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2957 = operand_6036;
+          int value_6037 = (_value2957 | 0x10);
+          _address2957 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2957 = value_6037;
+          memory.write(_address2957, value_6037);
           int read_6038;
-          read_6038 = _value2781;
+          read_6038 = _value2957;
           H = read_6038;
-          MEMPTR = _address2781;
+          MEMPTR = _address2957;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xE5: {
-          int _value2783;
-          int _address2783;
+          int _value2959;
+          int _address2959;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2783 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6039 = memory.read(_address2783, 0);
-          contend(_address2783, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2783 = operand_6039;
-          int value_6040 = (_value2783 | 0x10);
-          _address2783 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2783 = value_6040;
-          memory.write(_address2783, value_6040);
+          _address2959 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6039 = memory.read(_address2959, 0);
+          contend(_address2959, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2959 = operand_6039;
+          int value_6040 = (_value2959 | 0x10);
+          _address2959 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2959 = value_6040;
+          memory.write(_address2959, value_6040);
           int read_6041;
-          read_6041 = _value2783;
+          read_6041 = _value2959;
           L = read_6041;
-          MEMPTR = _address2783;
+          MEMPTR = _address2959;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xE6: {
-          int _value2785;
-          int _address2785;
+          int _value2961;
+          int _address2961;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2785 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6042 = memory.read(_address2785, 0);
-          contend(_address2785, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2785 = operand_6042;
-          int value_6043 = (_value2785 | 0x10);
-          _address2785 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2785 = value_6043;
-          memory.write(_address2785, value_6043);
-          MEMPTR = _address2785;
+          _address2961 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6042 = memory.read(_address2961, 0);
+          contend(_address2961, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2961 = operand_6042;
+          int value_6043 = (_value2961 | 0x10);
+          _address2961 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2961 = value_6043;
+          memory.write(_address2961, value_6043);
+          MEMPTR = _address2961;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xE7: {
-          int _value2787;
-          int _address2787;
+          int _value2963;
+          int _address2963;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2787 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6044 = memory.read(_address2787, 0);
-          contend(_address2787, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2787 = operand_6044;
-          int value_6045 = (_value2787 | 0x10);
-          _address2787 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2787 = value_6045;
-          memory.write(_address2787, value_6045);
+          _address2963 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6044 = memory.read(_address2963, 0);
+          contend(_address2963, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2963 = operand_6044;
+          int value_6045 = (_value2963 | 0x10);
+          _address2963 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2963 = value_6045;
+          memory.write(_address2963, value_6045);
           int read_6046;
-          read_6046 = _value2787;
+          read_6046 = _value2963;
           A = read_6046;
-          MEMPTR = _address2787;
+          MEMPTR = _address2963;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xE8: {
-          int _value2789;
-          int _address2789;
+          int _value2965;
+          int _address2965;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2789 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6047 = memory.read(_address2789, 0);
-          contend(_address2789, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2789 = operand_6047;
-          int value_6048 = (_value2789 | 0x20);
-          _address2789 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2789 = value_6048;
-          memory.write(_address2789, value_6048);
+          _address2965 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6047 = memory.read(_address2965, 0);
+          contend(_address2965, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2965 = operand_6047;
+          int value_6048 = (_value2965 | 0x20);
+          _address2965 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2965 = value_6048;
+          memory.write(_address2965, value_6048);
           int read_6049;
-          read_6049 = _value2789;
+          read_6049 = _value2965;
           B = read_6049;
-          MEMPTR = _address2789;
+          MEMPTR = _address2965;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xE9: {
-          int _value2791;
-          int _address2791;
+          int _value2967;
+          int _address2967;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2791 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6050 = memory.read(_address2791, 0);
-          contend(_address2791, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2791 = operand_6050;
-          int value_6051 = (_value2791 | 0x20);
-          _address2791 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2791 = value_6051;
-          memory.write(_address2791, value_6051);
+          _address2967 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6050 = memory.read(_address2967, 0);
+          contend(_address2967, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2967 = operand_6050;
+          int value_6051 = (_value2967 | 0x20);
+          _address2967 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2967 = value_6051;
+          memory.write(_address2967, value_6051);
           int read_6052;
-          read_6052 = _value2791;
+          read_6052 = _value2967;
           C = read_6052;
-          MEMPTR = _address2791;
+          MEMPTR = _address2967;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xEA: {
-          int _value2793;
-          int _address2793;
+          int _value2969;
+          int _address2969;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2793 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6053 = memory.read(_address2793, 0);
-          contend(_address2793, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2793 = operand_6053;
-          int value_6054 = (_value2793 | 0x20);
-          _address2793 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2793 = value_6054;
-          memory.write(_address2793, value_6054);
+          _address2969 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6053 = memory.read(_address2969, 0);
+          contend(_address2969, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2969 = operand_6053;
+          int value_6054 = (_value2969 | 0x20);
+          _address2969 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2969 = value_6054;
+          memory.write(_address2969, value_6054);
           int read_6055;
-          read_6055 = _value2793;
+          read_6055 = _value2969;
           D = read_6055;
-          MEMPTR = _address2793;
+          MEMPTR = _address2969;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xEB: {
-          int _value2795;
-          int _address2795;
+          int _value2971;
+          int _address2971;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2795 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6056 = memory.read(_address2795, 0);
-          contend(_address2795, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2795 = operand_6056;
-          int value_6057 = (_value2795 | 0x20);
-          _address2795 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2795 = value_6057;
-          memory.write(_address2795, value_6057);
+          _address2971 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6056 = memory.read(_address2971, 0);
+          contend(_address2971, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2971 = operand_6056;
+          int value_6057 = (_value2971 | 0x20);
+          _address2971 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2971 = value_6057;
+          memory.write(_address2971, value_6057);
           int read_6058;
-          read_6058 = _value2795;
+          read_6058 = _value2971;
           E = read_6058;
-          MEMPTR = _address2795;
+          MEMPTR = _address2971;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xEC: {
-          int _value2797;
-          int _address2797;
+          int _value2973;
+          int _address2973;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2797 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6059 = memory.read(_address2797, 0);
-          contend(_address2797, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2797 = operand_6059;
-          int value_6060 = (_value2797 | 0x20);
-          _address2797 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2797 = value_6060;
-          memory.write(_address2797, value_6060);
+          _address2973 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6059 = memory.read(_address2973, 0);
+          contend(_address2973, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2973 = operand_6059;
+          int value_6060 = (_value2973 | 0x20);
+          _address2973 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2973 = value_6060;
+          memory.write(_address2973, value_6060);
           int read_6061;
-          read_6061 = _value2797;
+          read_6061 = _value2973;
           H = read_6061;
-          MEMPTR = _address2797;
+          MEMPTR = _address2973;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xED: {
-          int _value2799;
-          int _address2799;
+          int _value2975;
+          int _address2975;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2799 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6062 = memory.read(_address2799, 0);
-          contend(_address2799, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2799 = operand_6062;
-          int value_6063 = (_value2799 | 0x20);
-          _address2799 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2799 = value_6063;
-          memory.write(_address2799, value_6063);
+          _address2975 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6062 = memory.read(_address2975, 0);
+          contend(_address2975, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2975 = operand_6062;
+          int value_6063 = (_value2975 | 0x20);
+          _address2975 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2975 = value_6063;
+          memory.write(_address2975, value_6063);
           int read_6064;
-          read_6064 = _value2799;
+          read_6064 = _value2975;
           L = read_6064;
-          MEMPTR = _address2799;
+          MEMPTR = _address2975;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xEE: {
-          int _value2801;
-          int _address2801;
+          int _value2977;
+          int _address2977;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2801 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6065 = memory.read(_address2801, 0);
-          contend(_address2801, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2801 = operand_6065;
-          int value_6066 = (_value2801 | 0x20);
-          _address2801 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2801 = value_6066;
-          memory.write(_address2801, value_6066);
-          MEMPTR = _address2801;
+          _address2977 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6065 = memory.read(_address2977, 0);
+          contend(_address2977, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2977 = operand_6065;
+          int value_6066 = (_value2977 | 0x20);
+          _address2977 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2977 = value_6066;
+          memory.write(_address2977, value_6066);
+          MEMPTR = _address2977;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xEF: {
-          int _value2803;
-          int _address2803;
+          int _value2979;
+          int _address2979;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2803 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6067 = memory.read(_address2803, 0);
-          contend(_address2803, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2803 = operand_6067;
-          int value_6068 = (_value2803 | 0x20);
-          _address2803 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2803 = value_6068;
-          memory.write(_address2803, value_6068);
+          _address2979 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6067 = memory.read(_address2979, 0);
+          contend(_address2979, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2979 = operand_6067;
+          int value_6068 = (_value2979 | 0x20);
+          _address2979 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2979 = value_6068;
+          memory.write(_address2979, value_6068);
           int read_6069;
-          read_6069 = _value2803;
+          read_6069 = _value2979;
           A = read_6069;
-          MEMPTR = _address2803;
+          MEMPTR = _address2979;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
@@ -25138,300 +25932,300 @@ static final int[] SZ53 = new int[0x100];
   private void decodeFDCB_15(int opcode, int displacement) {
     switch (opcode) {
       case 0xF0: {
-          int _value2805;
-          int _address2805;
+          int _value2981;
+          int _address2981;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2805 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6070 = memory.read(_address2805, 0);
-          contend(_address2805, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2805 = operand_6070;
-          int value_6071 = (_value2805 | 0x40);
-          _address2805 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2805 = value_6071;
-          memory.write(_address2805, value_6071);
+          _address2981 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6070 = memory.read(_address2981, 0);
+          contend(_address2981, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2981 = operand_6070;
+          int value_6071 = (_value2981 | 0x40);
+          _address2981 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2981 = value_6071;
+          memory.write(_address2981, value_6071);
           int read_6072;
-          read_6072 = _value2805;
+          read_6072 = _value2981;
           B = read_6072;
-          MEMPTR = _address2805;
+          MEMPTR = _address2981;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xF1: {
-          int _value2807;
-          int _address2807;
+          int _value2983;
+          int _address2983;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2807 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6073 = memory.read(_address2807, 0);
-          contend(_address2807, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2807 = operand_6073;
-          int value_6074 = (_value2807 | 0x40);
-          _address2807 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2807 = value_6074;
-          memory.write(_address2807, value_6074);
+          _address2983 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6073 = memory.read(_address2983, 0);
+          contend(_address2983, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2983 = operand_6073;
+          int value_6074 = (_value2983 | 0x40);
+          _address2983 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2983 = value_6074;
+          memory.write(_address2983, value_6074);
           int read_6075;
-          read_6075 = _value2807;
+          read_6075 = _value2983;
           C = read_6075;
-          MEMPTR = _address2807;
+          MEMPTR = _address2983;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xF2: {
-          int _value2809;
-          int _address2809;
+          int _value2985;
+          int _address2985;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2809 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6076 = memory.read(_address2809, 0);
-          contend(_address2809, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2809 = operand_6076;
-          int value_6077 = (_value2809 | 0x40);
-          _address2809 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2809 = value_6077;
-          memory.write(_address2809, value_6077);
+          _address2985 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6076 = memory.read(_address2985, 0);
+          contend(_address2985, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2985 = operand_6076;
+          int value_6077 = (_value2985 | 0x40);
+          _address2985 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2985 = value_6077;
+          memory.write(_address2985, value_6077);
           int read_6078;
-          read_6078 = _value2809;
+          read_6078 = _value2985;
           D = read_6078;
-          MEMPTR = _address2809;
+          MEMPTR = _address2985;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xF3: {
-          int _value2811;
-          int _address2811;
+          int _value2987;
+          int _address2987;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2811 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6079 = memory.read(_address2811, 0);
-          contend(_address2811, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2811 = operand_6079;
-          int value_6080 = (_value2811 | 0x40);
-          _address2811 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2811 = value_6080;
-          memory.write(_address2811, value_6080);
+          _address2987 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6079 = memory.read(_address2987, 0);
+          contend(_address2987, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2987 = operand_6079;
+          int value_6080 = (_value2987 | 0x40);
+          _address2987 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2987 = value_6080;
+          memory.write(_address2987, value_6080);
           int read_6081;
-          read_6081 = _value2811;
+          read_6081 = _value2987;
           E = read_6081;
-          MEMPTR = _address2811;
+          MEMPTR = _address2987;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xF4: {
-          int _value2813;
-          int _address2813;
+          int _value2989;
+          int _address2989;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2813 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6082 = memory.read(_address2813, 0);
-          contend(_address2813, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2813 = operand_6082;
-          int value_6083 = (_value2813 | 0x40);
-          _address2813 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2813 = value_6083;
-          memory.write(_address2813, value_6083);
+          _address2989 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6082 = memory.read(_address2989, 0);
+          contend(_address2989, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2989 = operand_6082;
+          int value_6083 = (_value2989 | 0x40);
+          _address2989 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2989 = value_6083;
+          memory.write(_address2989, value_6083);
           int read_6084;
-          read_6084 = _value2813;
+          read_6084 = _value2989;
           H = read_6084;
-          MEMPTR = _address2813;
+          MEMPTR = _address2989;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xF5: {
-          int _value2815;
-          int _address2815;
+          int _value2991;
+          int _address2991;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2815 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6085 = memory.read(_address2815, 0);
-          contend(_address2815, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2815 = operand_6085;
-          int value_6086 = (_value2815 | 0x40);
-          _address2815 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2815 = value_6086;
-          memory.write(_address2815, value_6086);
+          _address2991 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6085 = memory.read(_address2991, 0);
+          contend(_address2991, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2991 = operand_6085;
+          int value_6086 = (_value2991 | 0x40);
+          _address2991 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2991 = value_6086;
+          memory.write(_address2991, value_6086);
           int read_6087;
-          read_6087 = _value2815;
+          read_6087 = _value2991;
           L = read_6087;
-          MEMPTR = _address2815;
+          MEMPTR = _address2991;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xF6: {
-          int _value2817;
-          int _address2817;
+          int _value2993;
+          int _address2993;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2817 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6088 = memory.read(_address2817, 0);
-          contend(_address2817, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2817 = operand_6088;
-          int value_6089 = (_value2817 | 0x40);
-          _address2817 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2817 = value_6089;
-          memory.write(_address2817, value_6089);
-          MEMPTR = _address2817;
+          _address2993 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6088 = memory.read(_address2993, 0);
+          contend(_address2993, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2993 = operand_6088;
+          int value_6089 = (_value2993 | 0x40);
+          _address2993 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2993 = value_6089;
+          memory.write(_address2993, value_6089);
+          MEMPTR = _address2993;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xF7: {
-          int _value2819;
-          int _address2819;
+          int _value2995;
+          int _address2995;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2819 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6090 = memory.read(_address2819, 0);
-          contend(_address2819, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2819 = operand_6090;
-          int value_6091 = (_value2819 | 0x40);
-          _address2819 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2819 = value_6091;
-          memory.write(_address2819, value_6091);
+          _address2995 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6090 = memory.read(_address2995, 0);
+          contend(_address2995, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2995 = operand_6090;
+          int value_6091 = (_value2995 | 0x40);
+          _address2995 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2995 = value_6091;
+          memory.write(_address2995, value_6091);
           int read_6092;
-          read_6092 = _value2819;
+          read_6092 = _value2995;
           A = read_6092;
-          MEMPTR = _address2819;
+          MEMPTR = _address2995;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xF8: {
-          int _value2821;
-          int _address2821;
+          int _value2997;
+          int _address2997;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2821 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6093 = memory.read(_address2821, 0);
-          contend(_address2821, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2821 = operand_6093;
-          int value_6094 = (_value2821 | 0x80);
-          _address2821 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2821 = value_6094;
-          memory.write(_address2821, value_6094);
+          _address2997 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6093 = memory.read(_address2997, 0);
+          contend(_address2997, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2997 = operand_6093;
+          int value_6094 = (_value2997 | 0x80);
+          _address2997 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2997 = value_6094;
+          memory.write(_address2997, value_6094);
           int read_6095;
-          read_6095 = _value2821;
+          read_6095 = _value2997;
           B = read_6095;
-          MEMPTR = _address2821;
+          MEMPTR = _address2997;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xF9: {
-          int _value2823;
-          int _address2823;
+          int _value2999;
+          int _address2999;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2823 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6096 = memory.read(_address2823, 0);
-          contend(_address2823, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2823 = operand_6096;
-          int value_6097 = (_value2823 | 0x80);
-          _address2823 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2823 = value_6097;
-          memory.write(_address2823, value_6097);
+          _address2999 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6096 = memory.read(_address2999, 0);
+          contend(_address2999, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value2999 = operand_6096;
+          int value_6097 = (_value2999 | 0x80);
+          _address2999 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value2999 = value_6097;
+          memory.write(_address2999, value_6097);
           int read_6098;
-          read_6098 = _value2823;
+          read_6098 = _value2999;
           C = read_6098;
-          MEMPTR = _address2823;
+          MEMPTR = _address2999;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xFA: {
-          int _value2825;
-          int _address2825;
+          int _value3001;
+          int _address3001;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2825 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6099 = memory.read(_address2825, 0);
-          contend(_address2825, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2825 = operand_6099;
-          int value_6100 = (_value2825 | 0x80);
-          _address2825 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2825 = value_6100;
-          memory.write(_address2825, value_6100);
+          _address3001 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6099 = memory.read(_address3001, 0);
+          contend(_address3001, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value3001 = operand_6099;
+          int value_6100 = (_value3001 | 0x80);
+          _address3001 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value3001 = value_6100;
+          memory.write(_address3001, value_6100);
           int read_6101;
-          read_6101 = _value2825;
+          read_6101 = _value3001;
           D = read_6101;
-          MEMPTR = _address2825;
+          MEMPTR = _address3001;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xFB: {
-          int _value2827;
-          int _address2827;
+          int _value3003;
+          int _address3003;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2827 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6102 = memory.read(_address2827, 0);
-          contend(_address2827, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2827 = operand_6102;
-          int value_6103 = (_value2827 | 0x80);
-          _address2827 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2827 = value_6103;
-          memory.write(_address2827, value_6103);
+          _address3003 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6102 = memory.read(_address3003, 0);
+          contend(_address3003, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value3003 = operand_6102;
+          int value_6103 = (_value3003 | 0x80);
+          _address3003 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value3003 = value_6103;
+          memory.write(_address3003, value_6103);
           int read_6104;
-          read_6104 = _value2827;
+          read_6104 = _value3003;
           E = read_6104;
-          MEMPTR = _address2827;
+          MEMPTR = _address3003;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xFC: {
-          int _value2829;
-          int _address2829;
+          int _value3005;
+          int _address3005;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2829 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6105 = memory.read(_address2829, 0);
-          contend(_address2829, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2829 = operand_6105;
-          int value_6106 = (_value2829 | 0x80);
-          _address2829 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2829 = value_6106;
-          memory.write(_address2829, value_6106);
+          _address3005 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6105 = memory.read(_address3005, 0);
+          contend(_address3005, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value3005 = operand_6105;
+          int value_6106 = (_value3005 | 0x80);
+          _address3005 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value3005 = value_6106;
+          memory.write(_address3005, value_6106);
           int read_6107;
-          read_6107 = _value2829;
+          read_6107 = _value3005;
           H = read_6107;
-          MEMPTR = _address2829;
+          MEMPTR = _address3005;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xFD: {
-          int _value2831;
-          int _address2831;
+          int _value3007;
+          int _address3007;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2831 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6108 = memory.read(_address2831, 0);
-          contend(_address2831, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2831 = operand_6108;
-          int value_6109 = (_value2831 | 0x80);
-          _address2831 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2831 = value_6109;
-          memory.write(_address2831, value_6109);
+          _address3007 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6108 = memory.read(_address3007, 0);
+          contend(_address3007, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value3007 = operand_6108;
+          int value_6109 = (_value3007 | 0x80);
+          _address3007 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value3007 = value_6109;
+          memory.write(_address3007, value_6109);
           int read_6110;
-          read_6110 = _value2831;
+          read_6110 = _value3007;
           L = read_6110;
-          MEMPTR = _address2831;
+          MEMPTR = _address3007;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xFE: {
-          int _value2833;
-          int _address2833;
+          int _value3009;
+          int _address3009;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2833 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6111 = memory.read(_address2833, 0);
-          contend(_address2833, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2833 = operand_6111;
-          int value_6112 = (_value2833 | 0x80);
-          _address2833 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2833 = value_6112;
-          memory.write(_address2833, value_6112);
-          MEMPTR = _address2833;
+          _address3009 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6111 = memory.read(_address3009, 0);
+          contend(_address3009, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value3009 = operand_6111;
+          int value_6112 = (_value3009 | 0x80);
+          _address3009 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value3009 = value_6112;
+          memory.write(_address3009, value_6112);
+          MEMPTR = _address3009;
           PC = (PC + 4) & 0xFFFF;
           break;
       }
       case 0xFF: {
-          int _value2835;
-          int _address2835;
+          int _value3011;
+          int _address3011;
           contend((PC + 3) & 0xFFFF, 2, 1, Contention.Kind.READ_NO_MREQ);
-          _address2835 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          int operand_6113 = memory.read(_address2835, 0);
-          contend(_address2835, 1, 1, Contention.Kind.READ_NO_MREQ);
-          _value2835 = operand_6113;
-          int value_6114 = (_value2835 | 0x80);
-          _address2835 = (IY + (int) ((byte) displacement)) & 0xFFFF;
-          _value2835 = value_6114;
-          memory.write(_address2835, value_6114);
+          _address3011 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          int operand_6113 = memory.read(_address3011, 0);
+          contend(_address3011, 1, 1, Contention.Kind.READ_NO_MREQ);
+          _value3011 = operand_6113;
+          int value_6114 = (_value3011 | 0x80);
+          _address3011 = (IY + (int) ((byte) displacement)) & 0xFFFF;
+          _value3011 = value_6114;
+          memory.write(_address3011, value_6114);
           int read_6115;
-          read_6115 = _value2835;
+          read_6115 = _value3011;
           A = read_6115;
-          MEMPTR = _address2835;
+          MEMPTR = _address3011;
           PC = (PC + 4) & 0xFFFF;
           break;
       }

@@ -58,7 +58,10 @@ public class EDPrefixTableOpCodeGenerator extends TableOpCodeGenerator {
       if (z <= 3 && y >= 4)
         return bli[y][z];
     }
-    return null;
+    // An ED prefix on anything else is two bytes and eight T-states of nothing, which is what the
+    // processor does with it. Leaving the table empty made the fetcher fail on a program that ran
+    // one, and some protections do.
+    return i.Nop();
   }
 
   private OpcodeReference nullTarget() {

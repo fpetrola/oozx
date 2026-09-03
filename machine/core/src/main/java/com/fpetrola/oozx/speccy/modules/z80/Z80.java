@@ -221,24 +221,24 @@ public class Z80 implements ZxModule, Cpu {
       private boolean disabled;
 
       public int read(int address, int fetching) {
-        int value = memory.readByteInternal(address);
-        if (!disabled) {
-          memory.readByte(address, ula);
-          zxClock.addTStates(fetching == 1 ? 4 : 3);
-          if (contentionOutside)
-            phaseProcessor.afterRead(address);
-        }
+        if (disabled)
+          return memory.readByteInternal(address);
+        int value = memory.readByte(address, ula);
+        zxClock.addTStates(fetching == 1 ? 4 : 3);
+        if (contentionOutside)
+          phaseProcessor.afterRead(address);
         return value;
       }
 
       public void write(int address, int value) {
-        if (!disabled) {
-          if (contentionOutside)
-            phaseProcessor.beforeWrite(address);
-          memory.writeByte(address, (byte) (value & 0xff), ula, display);
-          zxClock.addTStates(3);
+        if (disabled) {
+          memory.writeByteInternal2(address, (byte) value);
+          return;
         }
-        memory.writeByteInternal2(address, (byte) value);
+        if (contentionOutside)
+          phaseProcessor.beforeWrite(address);
+        memory.writeByte(address, (byte) (value & 0xff), ula, display);
+        zxClock.addTStates(3);
       }
 
       public void reset() {
