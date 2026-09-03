@@ -339,6 +339,27 @@ flanco en flanco (el próximo tick de tono o ruido, o el próximo cambio de regi
 paso fijo, y partir `offsetResampled` en un camino corto para el delta que entra en un impulso.
 Es el ítem de menos valor por esfuerzo; queda para después de los anteriores.
 
+**Hecho (2026-09-03): de evento en evento.** Entre dos eventos del chip —el flanco de un tono
+audible, un paso de la envolvente, un tick del ruido, una escritura de registro, el fin del
+frame— la salida es constante y cada contador solo sube, así que `synthesise` calcula cuántos
+pasos faltan hasta el próximo (`quietSteps`) y los da de una vez; Fuse da los 2 216 de cada
+frame. Tres reglas para que la salida sea idéntica muestra a muestra: el primer paso del frame
+siempre se toma (el original reinicia `lastMixed` y emite el nivel inicial); el paso siguiente a
+un tick de ruido siempre se toma (el ruido se actualiza *después* de la mezcla y se oye recién
+en el paso siguiente); y un tono con volumen cero no es evento — su fase se adelanta en O(1),
+`tick` módulo período y `high` por paridad de cruces. Las tres las encontró
+`AyStepsToTheNextEventTest`: el mismo chip, una vez obligado a dar todos los pasos y otra
+saltando, sobre 60 frames de escrituras aleatorias, tiene que emitir los mismos niveles en los
+mismos T-states.
+
+Y un dato que cambia lo que este ítem valía: **JSW no le escribe nunca al AY** en la grabación
+(mezcla `0xff`, volúmenes 0); el 16 % que costaba era moler 2 216 pasos por frame para no
+producir nada. Síntesis sola: ×13,7 en ese estado, ×11,7 tras un reset (todo encendido, volumen
+0), ×2,7 tocando una melodía. En la máquina, alternado: JSW 11 801 / 11 689 → 12 867 / 12 702
+(**+9 %**), y la síntesis pasó del 16 % a ~1 % del frame; Manic Miner sin cambio (no tiene chip).
+El peor caso que queda es un tono audible de período ≤ 2 — un evento por paso más el costo de
+calcularlo — que en música no ocurre.
+
 ## 7. Lo que el loop hace por instrucción
 
 `Z80.doOpcodes` es el 1,4-1,9 %:

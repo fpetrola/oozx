@@ -46,6 +46,10 @@ class Ay implements AudioSource {
   private static final int AY_CHANGE_MAX = 8000;
   private static final int AY_CLOCK_DIVISOR = 16;
   private static final int AY_CLOCK_RATIO = 2;
+  /** T-states of the machine between two steps of the chip. */
+  private static final int STEP = AY_CLOCK_DIVISOR * AY_CLOCK_RATIO;
+  /** For quietSteps: nothing is waiting to be written. */
+  private static final long NO_CHANGE = Long.MAX_VALUE;
 
   /** As published for the chip, and scaled the way Fuse scales them. */
   private static final int[] AY_TONE_LEVELS = {
@@ -158,9 +162,37 @@ class Ay implements AudioSource {
     boolean envRev = false;
     int envShape = 0;
 
-    int lastA = 0, lastB = 0, lastC = 0;
-
-    for (long f = 0; f < frameTstates; f += AY_CLOCK_DIVISOR * AY_CLOCK_RATIO) {
+    boolean noiseTicked = false;
+    for (long f = 0; f < frameTstates; f += STEP) {
+      // Nothing the chip puts out changes between two of its events - the edge of a tone, a step
+      // of the envelope, a tick of the noise, a write to a register, the end of the frame - and
+      // between them every counter only climbs. So the steps up to the next event are taken at
+      // once, the counters climbing by that many, and the loop goes on from the step where
+      // something happens. Fuse takes every one of the two thousand steps a frame has; the
+      // samples that come out are the same.
+      // A tone that cannot be heard - volume nought, and not the envelope's - changes nothing
+      // when it crosses, so it is no event: its counter and its phase are moved on at once.
+      int audible = 0;
+      for (int chan = 0; chan < 3; chan++) {
+        int level = (ayRegisters[8 + chan] & 16) != 0 ? ayToneLevelsScaled[envCounter] : ayToneLevelsScaled[ayRegisters[8 + chan] & 15];
+        if (level != 0) audible |= 1 << chan;
+      }
+      int quiet = noiseTicked ? 0 : quietSteps(f, frameTstates, changesLeft > 0 ? ayChanges[changeIdx].tstates : NO_CHANGE, audible);
+      if (quiet > 0) {
+        int on = ayRegisters[7] & 0xFF;
+        for (int chan = 0; chan < 3; chan++) {
+          if ((on & (1 << chan)) != 0) continue;
+          int ticks = ayToneTick[chan] + 2 * quiet;
+          if ((audible & (1 << chan)) == 0 && ticks >= ayTonePeriod[chan]) {
+            ayToneHigh[chan] ^= (ticks / ayTonePeriod[chan]) & 1;
+            ticks %= ayTonePeriod[chan];
+          }
+          ayToneTick[chan] = ticks;
+        }
+        ayEnvTick += quiet;
+        ayNoiseTick += quiet;
+        f += (long) STEP * quiet;
+      }
 
       // Aplicar cambios de registros pendientes
       while (changesLeft > 0 && ayChanges[changeIdx].tstates <= f) {
@@ -253,9 +285,12 @@ class Ay implements AudioSource {
         lastMixed = mixed;
       }
 
-      // Ruido
+      // Ruido. Ticks after the mix, so what it does is heard on the step after: that one is
+      // always taken.
       ayNoiseTick += noiseCount;
+      noiseTicked = false;
       while (ayNoiseTick >= ayNoisePeriod && ayNoisePeriod > 0) {
+        noiseTicked = true;
         ayNoiseTick -= ayNoisePeriod;
         boolean feedback = ((rng & 1) ^ ((rng & 2) != 0 ? 1 : 0)) != 0;
         if (feedback) noiseToggle = !noiseToggle;
@@ -264,6 +299,29 @@ class Ay implements AudioSource {
         if (ayNoisePeriod == 0) break;
       }
     }
+  }
+
+  /**
+   * How many steps go by before the one on which something happens. A tone that is on climbs two
+   * ticks a step towards its period, the envelope and the noise one; a write lands on the first
+   * step at or past its time; and the frame's last step counts as one, so the loop ends there.
+   */
+  int quietSteps(long f, long frameTstates, long nextChange, int audible) {
+    // The frame's first step is always taken: the level the frame starts at is put out then,
+    // whether or not anything changed.
+    if (f == 0) return 0;
+    long quiet = (frameTstates - f + STEP - 1) / STEP - 1;
+    if (nextChange <= f) return 0;
+    if (nextChange != NO_CHANGE) quiet = Math.min(quiet, (nextChange - f + STEP - 1) / STEP);
+    int on = ayRegisters[7] & 0xFF;
+    for (int chan = 0; chan < 3; chan++) {
+      if ((on & (1 << chan)) == 0 && (audible & (1 << chan)) != 0) {
+        quiet = Math.min(quiet, Math.max(0, (ayTonePeriod[chan] - ayToneTick[chan] + 1) / 2 - 1));
+      }
+    }
+    if (ayEnvPeriod > 0) quiet = Math.min(quiet, Math.max(0, ayEnvPeriod - ayEnvTick - 1));
+    if (ayNoisePeriod > 0) quiet = Math.min(quiet, Math.max(0, ayNoisePeriod - ayNoiseTick - 1));
+    return (int) quiet;
   }
 
   private int ayDoTone(int count, int chan, int level) {
