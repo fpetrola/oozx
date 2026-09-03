@@ -157,7 +157,7 @@ public class Display implements ZxModule, MachineChangeListener {
 
     refreshAll();
 
-    borderChanges.clear();
+    borderChangesUsed = 0;
     if (addBorderSentinel() != 0) {
       throw new IllegalStateException("the display could not record where the border starts");
     }
@@ -221,9 +221,7 @@ public class Display implements ZxModule, MachineChangeListener {
     int lastChunkDetail = ((flashReversed ? 1 : 0) << 24) | ((data2 & 0xFF) << 8) | (data & 0xFF);
     int index = beamX + beamY * SCREEN_WIDTH_COLS;
     if (lastScreen[index] != lastChunkDetail) {
-      byte[] inkPaper = new byte[2];
-      parseAttr(data2, inkPaper);
-      byte ink = inkPaper[0], paper = inkPaper[1];
+      byte ink = ink(data2), paper = paper(data2);
 //            System.err.printf("display_write_if_dirty_sinclair: x=%d y=%d data=%02x attr=%02x ink=%d paper=%d\n", x, y, data, data2, ink, paper );
       uiDisplay.plot8(beamX, beamY, (byte) (data & 0xff), ink, paper);
       lastScreen[index] = lastChunkDetail;
@@ -322,24 +320,31 @@ public class Display implements ZxModule, MachineChangeListener {
     }
   }
 
-  private void getAttr(int x, int y, byte[] inkPaper) {
-    parseAttr(getAttrByte(x, y), inkPaper);
+  /** The ink of an attribute, or its paper while it flashes the other way round. */
+  private byte ink(byte attr) {
+    return (attr & 0x80) != 0 && flashReversed ? paperBits(attr) : inkBits(attr);
   }
 
-  public void parseAttr(byte attr, byte[] inkPaper) {
-    if ((attr & 0x80) != 0 && flashReversed) {
-      inkPaper[0] = (byte) ((attr & (0x0f << 3)) >> 3);
-      inkPaper[1] = (byte) ((attr & 0x07) + ((attr & 0x40) >> 3));
-    } else {
-      inkPaper[0] = (byte) ((attr & 0x07) + ((attr & 0x40) >> 3));
-      inkPaper[1] = (byte) ((attr & (0x0f << 3)) >> 3);
-    }
+  private byte paper(byte attr) {
+    return (attr & 0x80) != 0 && flashReversed ? inkBits(attr) : paperBits(attr);
   }
+
+  private static byte inkBits(byte attr) {
+    return (byte) ((attr & 0x07) + ((attr & 0x40) >> 3));
+  }
+
+  private static byte paperBits(byte attr) {
+    return (byte) ((attr & (0x0f << 3)) >> 3);
+  }
+
+  /** How many of borderChanges are this frame's; the rest are last frame's, kept to be reused. */
+  private int borderChangesUsed;
 
   private BorderChange allocChange() {
-    BorderChange change = new BorderChange();
-    borderChanges.add(change);
-    return change;
+    if (borderChangesUsed == borderChanges.size()) {
+      borderChanges.add(new BorderChange());
+    }
+    return borderChanges.get(borderChangesUsed++);
   }
 
   int addBorderSentinel() {
@@ -451,11 +456,11 @@ public class Display implements ZxModule, MachineChangeListener {
     endSentinel.y = BORDER_CHANGE_END_SENTINEL.y;
     endSentinel.colour = BORDER_CHANGE_END_SENTINEL.colour;
 
-    for (int pos = 0; pos < borderChanges.size() - 1; pos++) {
+    for (int pos = 0; pos < borderChangesUsed - 1; pos++) {
       doBorderChange(borderChanges.get(pos), borderChanges.get(pos + 1));
     }
 
-    borderChanges.clear();
+    borderChangesUsed = 0;
     addBorderSentinel();
   }
 
@@ -508,7 +513,6 @@ public class Display implements ZxModule, MachineChangeListener {
   }
 
   public int getPixel(int x, int y) {
-    byte[] inkPaper = new byte[2];
     byte data, data2;
     int mask = 1 << (7 - (x % 8));
     int index;
@@ -518,9 +522,7 @@ public class Display implements ZxModule, MachineChangeListener {
 
     data = (byte) (lastScreen[index] & 0xff);
     data2 = (byte) ((lastScreen[index] & 0xff00) >> 8);
-    parseAttr(data2, inkPaper);
-
-    return (data & mask) != 0 ? inkPaper[0] : inkPaper[1];
+    return (data & mask) != 0 ? ink(data2) : paper(data2);
   }
 
   public int dirtyBorder() {

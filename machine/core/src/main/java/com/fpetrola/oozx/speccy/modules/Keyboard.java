@@ -30,6 +30,11 @@ public class Keyboard implements ZxModule {
 
   // Static fields
   public byte[] returnValues = new byte[8]; // keyboard_return_values
+  /**
+   * What each of the 256 high bytes reads: the rows its zero bits select, ANDed together. Worked
+   * out when a key goes down or up, so the read a game makes eight times a frame is one load.
+   */
+  private final byte[] byHighByte = new byte[256];
   public byte defaultValue = (byte) 0xFF; // keyboard_default_value
   Map<Integer, KeyBit> keyboardData = new HashMap<>();
   Map<Integer, SpectrumKeys> spectrumKeys = new HashMap<>();
@@ -50,13 +55,19 @@ public class Keyboard implements ZxModule {
 
   // Read keyboard port
   public byte read(byte porth) {
-    byte data = (byte) 0xFF;
-    for (int i = 0; i < 8; i++, porth >>= 1) {
-      if ((porth & 0x01) == 0) {
-        data &= returnValues[i];
+    return byHighByte[porth & 0xff];
+  }
+
+  private void rowsChanged() {
+    for (int high = 0; high < 256; high++) {
+      byte data = (byte) 0xFF;
+      for (int row = 0; row < 8; row++) {
+        if ((high & (1 << row)) == 0) {
+          data &= returnValues[row];
+        }
       }
+      byHighByte[high] = data;
     }
-    return data;
   }
 
   // Press a key
@@ -64,6 +75,7 @@ public class Keyboard implements ZxModule {
     KeyBit ptr = keyboardData.get(key.getValue());
     if (ptr != null) {
       returnValues[ptr.port] &= ~ptr.bit;
+      rowsChanged();
     }
   }
 
@@ -72,6 +84,7 @@ public class Keyboard implements ZxModule {
     KeyBit ptr = keyboardData.get(key.getValue());
     if (ptr != null) {
       returnValues[ptr.port] |= ptr.bit;
+      rowsChanged();
     }
   }
 
@@ -80,6 +93,7 @@ public class Keyboard implements ZxModule {
     for (int i = 0; i < 8; i++) {
       returnValues[i] = (byte) 0xFF;
     }
+    rowsChanged();
     return 0;
   }
 

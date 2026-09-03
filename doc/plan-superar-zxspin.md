@@ -254,6 +254,21 @@ enchufa o desenchufa algo; el 99 % de los `IN` son `0xFE`, `0x7FFD` y `0xFFFD`. 
 `AySoundPortsTest`, `UlaIdlePortValueTest`, `TapeDoesNotSilenceTheKeyboardTest`, los tests de RZX
 (que pasan por el mismo `in`).
 
+**Hecho (2026-09-03).** `Peripherals` decide una vez por puerto quién lo responde
+(`readersOf`/`writersOf`, 65 536 entradas cada una, llenadas a demanda y olvidadas cuando se
+enchufa o desenchufa algo: 512 KB por máquina, de los que se tocan unas decenas de líneas), y un
+`IN` no aloca: ni el `PeripheralData` ni el `byte[1]` por handler, que ahora es uno reusado —
+las lecturas no se anidan. `Keyboard` resuelve las 256 filas posibles cuando una tecla sube o
+baja, y `read` es una carga. Y como los bytes por frame no bajaron con eso (791 → 839), la basura
+que quedaba era de la pantalla, no de los puertos: un `byte[2]` por celda pintada
+(`parseAttr`, ahora `ink(attr)` / `paper(attr)`) y un `BorderChange` nuevo por cambio de borde y
+por frame (ahora se reusan). Con eso 831 → 671; lo que queda son los `Event` del frame y cosas
+por el estilo, 8 MB/s a 12 000 fps, que no vale perseguir.
+
+Medido, alternado: JSW 11 195 → 11 950 (**+7 %**), Manic Miner dentro del ruido (no lee puertos).
+El perfil de JSW deja arriba `contend2x1` (10 %), la síntesis del AY (10 %), `decode`/`step` y
+`readPortInternal` (7 %, que es la llamada de interfaz al handler y el bus flotante).
+
 ## 5. Pantalla: ocho marcas por cada byte de atributo
 
 `Display.dirty64` es el **32 %** del tiempo propio de JSW y no depende de que la pantalla se

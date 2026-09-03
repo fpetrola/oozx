@@ -98,6 +98,17 @@ public class Peripherals implements PeripheralBus {
   // nothing on a machine where nobody listens.
   private final ObjectArrayList busListeners = new ObjectArrayList();
 
+  /**
+   * Who answers each of the 65536 ports, worked out the first time a port is asked and forgotten
+   * whenever what is plugged in changes. A program asks the same few dozen ports thousands of
+   * times a frame, and each time this walked every handler on the machine asking three things
+   * of it before finding the one or two that were its.
+   */
+  private final PortHandler[][] readersOf = new PortHandler[0x10000][];
+  private final PortHandler[][] writersOf = new PortHandler[0x10000][];
+  /** Handed to a handler to say whether it drove the bus; one for all of them, reads do not nest. */
+  private final byte[] attached = new byte[1];
+
   // Strings for debugger events
   private final String PAGE_EVENT_STRING = "page";
   private final String UNPAGE_EVENT_STRING = "unpage";
@@ -148,8 +159,25 @@ public class Peripherals implements PeripheralBus {
       ports.removeAll(toRemove, true);
       busListeners.removeAll(toRemove, true);
     }
+    forgetWhoAnswers();
 
     return true;
+  }
+
+  private void forgetWhoAnswers() {
+    Arrays.fill(readersOf, null);
+    Arrays.fill(writersOf, null);
+  }
+
+  private PortHandler[] whoAnswers(int port, boolean reading) {
+    List<PortHandler> answering = new ArrayList<>();
+    for (int i = 0, portsSize = ports.size(); i < portsSize; i++) {
+      PortHandler handler = ((PrivatePort) ports.get(i)).port;
+      if ((reading ? handler.isReader() : handler.isWriter()) && (port & handler.getMask()) == handler.getValue()) {
+        answering.add(handler);
+      }
+    }
+    return answering.toArray(new PortHandler[0]);
   }
 
   /** The registered peripheral of a kind, or null if this build has none. */
@@ -170,6 +198,7 @@ public class Peripherals implements PeripheralBus {
   public void clear() {
     ports.clear();
     busListeners.clear();
+    forgetWhoAnswers();
     if (peripherals != null) {
       peripherals.forEach((type, data) -> {
         // Told, not just marked: a device that was on has things to put back - a chip in the
@@ -187,24 +216,13 @@ public class Peripherals implements PeripheralBus {
   public void end() {
     ports.clear();
     busListeners.clear();
+    forgetWhoAnswers();
     if (peripherals != null) {
       peripherals.clear();
       peripherals = null;
     }
   }
 
-  // Structure for peripheral data during read/write
-  private class PeripheralData {
-    int port;
-    byte attached;
-    byte value;
-
-    PeripheralData(int port, byte attached, byte value) {
-      this.port = port;
-      this.attached = attached;
-      this.value = value;
-    }
-  }
 
   // Read a byte from a port, taking the appropriate time
   @Override
@@ -229,27 +247,24 @@ public class Peripherals implements PeripheralBus {
 
   // Read a byte from a port, taking no time
   private byte readPortInternal(int port) {
-    // Handle RZX playback
-
-    // Normal port read
-    PeripheralData callbackInfo = new PeripheralData(port, (byte) 0x00, (byte) 0xff);
-    for (int i = 0, portsSize = ports.size(); i < portsSize; i++) {
-      PrivatePort privatePort = (PrivatePort) ports.get(i);
-      PortHandler portData = privatePort.port;
-      if (portData.isReader() && (callbackInfo.port & portData.getMask()) == portData.getValue()) {
-        byte[] attached = new byte[]{0};
-        byte value = portData.read(callbackInfo.port, attached);
-        callbackInfo.value &= (byte) (value | callbackInfo.attached);
-        callbackInfo.attached |= attached[0] != 0 ? (byte) 0xff : 0;
-      }
+    PortHandler[] readers = readersOf[port];
+    if (readers == null) {
+      readers = readersOf[port] = whoAnswers(port, true);
+    }
+    byte value = (byte) 0xff;
+    byte driven = 0;
+    for (PortHandler reader : readers) {
+      attached[0] = 0;
+      byte read = reader.read(port, attached);
+      value &= (byte) (read | driven);
+      driven |= attached[0] != 0 ? (byte) 0xff : 0;
     }
 
-    if (callbackInfo.attached != (byte) 0xff) {
-      callbackInfo.value = mergeFloatingBus(callbackInfo.value, callbackInfo.attached,
-          (byte) getSpectrumMachine().unattachedPort(port));
+    if (driven != (byte) 0xff) {
+      value = mergeFloatingBus(value, driven, (byte) getSpectrumMachine().unattachedPort(port));
     }
 
-    return callbackInfo.value;
+    return value;
   }
 
   // Merge the read value with the floating bus
@@ -268,13 +283,12 @@ public class Peripherals implements PeripheralBus {
   // Write a byte to a port, taking no time
   @Override
   public void writePortInternal(int port, byte b) {
-    PeripheralData callbackInfo = new PeripheralData(port, (byte) 0, b);
-    for (int i = 0, portsSize = ports.size(); i < portsSize; i++) {
-      PrivatePort privatePort = (PrivatePort) ports.get(i);
-      PortHandler portData = privatePort.port;
-      if (portData.isWriter() && (callbackInfo.port & portData.getMask()) == portData.getValue()) {
-        portData.write(callbackInfo.port, callbackInfo.value);
-      }
+    PortHandler[] writers = writersOf[port];
+    if (writers == null) {
+      writers = writersOf[port] = whoAnswers(port, false);
+    }
+    for (PortHandler writer : writers) {
+      writer.write(port, b);
     }
   }
 
