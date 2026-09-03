@@ -367,11 +367,20 @@ public class RzxPlayerInternalFrame extends AttachedFrame {
    * governs it like it governs everything else. This window used to have a Full speed box of its
    * own, which meant two controls for one thing and neither of them right.
    */
+  private long nextFrameAt;
+
   private void pace(RzxSession current) {
     int speed = Math.max(1, current.getSpeccy().settings.current.emulationSpeed);
-    long millis = FRAME_MILLIS * 100L / speed;
-    if (millis > 0) {
-      sleep((int) millis);
+    // A frame's share of the time, kept to the nanosecond and owed forward: a sleep is whole
+    // milliseconds, and at anything past 2000% a frame is less than one, so sleeping per frame
+    // slept nothing at all. Sleep when a millisecond is owed; after a stall, start over.
+    long frameNanos = FRAME_MILLIS * 1_000_000L * 100 / speed;
+    long now = System.nanoTime();
+    if (nextFrameAt < now - 100_000_000L) nextFrameAt = now;
+    nextFrameAt += frameNanos;
+    long owed = nextFrameAt - now;
+    if (owed >= 1_000_000L) {
+      sleep((int) (owed / 1_000_000L));
     }
   }
 
