@@ -35,13 +35,15 @@ public class SourceIndex {
   private final Map<String, TypeDeclaration<?>> types = new HashMap<>();
   private final Map<TypeDeclaration<?>, CompilationUnit> units = new IdentityHashMap<>();
 
-  public SourceIndex(Path root) {
+  /** More than one root when the core is generated against a machine: the model and that machine. */
+  public SourceIndex(Path... roots) {
     StaticJavaParser.getParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_17);
-    try (Stream<Path> files = Files.walk(root)) {
-      files.filter(f -> f.toString().endsWith(".java")).forEach(this::parse);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    for (Path root : roots)
+      try (Stream<Path> files = Files.walk(root)) {
+        files.filter(f -> f.toString().endsWith(".java")).forEach(this::parse);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
   }
 
   private void parse(Path file) {

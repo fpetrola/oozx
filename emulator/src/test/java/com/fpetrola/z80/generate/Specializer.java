@@ -80,16 +80,29 @@ public class Specializer {
     final ObjectCreationExpr anon;
     final Obj outer;
     final Scope creation;
+    /**
+     * How the generated code reaches this object while it runs, for the ones that are not frozen
+     * at generation time: the machine's memory, and whatever is found through it. Null for an
+     * object whose whole graph is decided now, which is every instruction.
+     */
+    final Expression expression;
+    final Class<?> type;
 
     Obj(Object value, ObjectCreationExpr anon, Obj outer, Scope creation) {
+      this(value, anon, outer, creation, null, null);
+    }
+
+    Obj(Object value, ObjectCreationExpr anon, Obj outer, Scope creation, Expression expression, Class<?> type) {
       this.value = value;
       this.anon = anon;
       this.outer = outer;
       this.creation = creation;
+      this.expression = expression;
+      this.type = type;
     }
 
     Class<?> runtimeClass() {
-      return value.getClass();
+      return value != null ? value.getClass() : type;
     }
 
     boolean isVirtual() {
@@ -97,16 +110,28 @@ public class Specializer {
     }
 
     int id() {
-      return ids.computeIfAbsent(isVirtual() ? this : value, k -> ids.size() + 1);
+      return ids.computeIfAbsent(isVirtual() || value == null ? this : value, k -> ids.size() + 1);
     }
 
     public String toString() {
-      return isVirtual() ? "anon(" + anon.getType() + ")" : value.getClass().getSimpleName() + "#" + id();
+      return isVirtual() ? "anon(" + anon.getType() + ")" : runtimeClass().getSimpleName() + (expression == null ? "#" + id() : "@" + expression);
     }
   }
 
+  /**
+   * Objects the generated class keeps a reference to instead of taking apart: everything found
+   * through them is read while it runs. This is the frontier - what is on this map is a field of
+   * the generated class, and what is not is decided now and printed as a literal.
+   */
+  public final Map<Object, String> shared = new IdentityHashMap<>();
+
   public Obj of(Object value) {
-    return new Obj(value, null, null, null);
+    String held = shared.get(value);
+    return held == null ? new Obj(value, null, null, null) : new Obj(value, null, null, null, new NameExpr(held), null);
+  }
+
+  private Obj atRunTime(Object value, Expression expression, Class<?> type) {
+    return new Obj(value, null, null, null, expression, type);
   }
 
   final class Scope {
@@ -318,10 +343,17 @@ public class Specializer {
 
   // ------------------------------------------------------------------ special receivers
 
+  /**
+   * What stays a call instead of being inlined, and the name of the field it is called on. The
+   * pure core keeps the memory out; a core generated against a machine inlines that machine's
+   * memory and keeps only what is really opaque.
+   */
+  public final Map<Class<?>, String> terminals = new LinkedHashMap<>(Map.of(Memory.class, "memory", IO.class, "io", State.class, "state"));
+
   private String terminalName(Object value) {
-    if (value instanceof Memory) return "memory";
-    if (value instanceof IO) return "io";
-    if (value instanceof State) return "state";
+    for (Map.Entry<Class<?>, String> terminal : terminals.entrySet())
+      if (terminal.getKey().isInstance(value))
+        return terminal.getValue();
     return null;
   }
 
@@ -447,8 +479,17 @@ public class Specializer {
           String local = fresh(d.getNameAsString());
           if (d.getInitializer().isPresent()) {
             Object init = rewriteExpr(d.getInitializer().get(), scope, out);
-            if (init instanceof Obj o)
-              scope.names.put(d.getNameAsString(), o);
+            if (init instanceof Obj o) {
+              // A local the model declared for something it reaches at run time stays a local here:
+              // otherwise every use of it repeats the way it was reached, and a page lookup that
+              // the model does once would be done eight times.
+              if (o.expression != null && !(o.expression instanceof NameExpr)) {
+                imports.add(o.runtimeClass().getName().replace('$', '.'));
+                out.add(declare(new ClassOrInterfaceType(null, o.runtimeClass().getSimpleName()), local, o.expression.clone()));
+                scope.names.put(d.getNameAsString(), atRunTime(o.value, new NameExpr(local), o.runtimeClass()));
+              } else
+                scope.names.put(d.getNameAsString(), o);
+            }
             else {
               Expression ie = (Expression) init;
               out.add(declare(d.getType(), local, ie));
@@ -655,6 +696,11 @@ public class Specializer {
         imports.add(component.getName().replace('$', '.'));
         return new ArrayAccessExpr(new MethodCallExpr(new NameExpr(component.getSimpleName()), "values"), idx);
       }
+      if (array instanceof Obj o && o.expression != null && o.runtimeClass().isArray()) {
+        Expression element = new ArrayAccessExpr(o.expression.clone(), idx);
+        Class<?> component = o.runtimeClass().getComponentType();
+        return isValueType(component) ? element : atRunTime(null, element, component);
+      }
       return new ArrayAccessExpr(asExpression(array), idx);
     }
     if (e instanceof LiteralExpr)
@@ -695,6 +741,8 @@ public class Specializer {
       Object bound = name(n.getNameAsString(), scope);
       if (bound instanceof NameExpr)
         return (NameExpr) bound;
+      if (bound instanceof FieldAccessExpr access)
+        return access;
       throw new UnsupportedOperationException("assignment to " + bound + " in " + target);
     }
     if (target instanceof FieldAccessExpr f) {
@@ -703,6 +751,8 @@ public class Specializer {
         Object v = fieldValue(o, f.getNameAsString(), scope);
         if (v instanceof NameExpr ne)
           return ne;
+        if (v instanceof FieldAccessExpr access)
+          return access;
       }
     }
     if (target instanceof ArrayAccessExpr)
@@ -802,6 +852,18 @@ public class Specializer {
     }
     if (java.lang.reflect.Modifier.isStatic(f.getModifiers()))
       return staticField(f);
+    if (o.expression != null) {
+      Object held = o.value == null ? null : get(f, o.value);
+      if (held != null && shared.containsKey(held))
+        return of(held);
+      // A final field of the one object that is there cannot change: it is a constant of the shape.
+      if (isValueType(f.getType()) && java.lang.reflect.Modifier.isFinal(f.getModifiers()) && o.value != null)
+        return literal(get(f, o.value), f.getType());
+      Expression access = new FieldAccessExpr(o.expression.clone(), name);
+      if (isValueType(f.getType()))
+        return access;
+      return atRunTime(held, access, f.getType());
+    }
     Object value = get(f, o.value);
     if (o.value instanceof RegisterBank)
       return new NameExpr(name);
@@ -812,6 +874,8 @@ public class Specializer {
     }
     if (value == null)
       return new NullLiteralExpr();
+    if (shared.containsKey(value))
+      return of(value);
     if (f.getType().isArray())
       throw new UnsupportedOperationException("instance array " + f);
     if (value.getClass().isSynthetic())
@@ -907,6 +971,8 @@ public class Specializer {
   Expression asExpression(Object o) {
     if (o instanceof Expression e)
       return e;
+    if (o instanceof Obj obj && obj.expression != null)
+      return obj.expression.clone();
     if (o == null)
       throw new IllegalStateException("void where a value was needed");
     throw new UnsupportedOperationException("object escapes into the generated code: " + o);

@@ -64,7 +64,7 @@ public class Memory extends DefaultRAMHolder implements ZxModule {
   public final MemoryPage[] mapRom = new MemoryPage[SPECTRUM_ROM_PAGES * PAGES_IN_16K];
   private final SpectrumZ80Clock zxClock;
   private final Module module;
-  private final Settings settings;
+  public final Settings settings;
 
 @Inject
   public Memory(SpectrumZ80Clock zxClock, Module module, Settings settings) {
