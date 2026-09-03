@@ -117,7 +117,7 @@ public class OOSpectrumConnector {
 //    }
 
     if (Emulation.noTest)
-      bridgeCommand = (cmd, data) -> null;
+      bridgeCommand = LibretroCore.bridge_command.NONE;
 
     aCore.retro_set_bridge_command(bridgeCommand);
 

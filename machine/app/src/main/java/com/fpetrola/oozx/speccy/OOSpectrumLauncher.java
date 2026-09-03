@@ -203,7 +203,6 @@ public class OOSpectrumLauncher {
   }
 
   private void extracted(Speccy speccy) {
-    speccy.z80.bridgeCommand = (a, b) -> null;
 
     TapeAutoLoader tapeAutoLoader = autoLoader;
     autoLoader = null;

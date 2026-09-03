@@ -105,6 +105,9 @@ public interface LibretroCore extends Library {
 
   public interface bridge_command extends Callback {
     BridgeResponse invoke(int cmd, Pointer data);
+
+    /** Nobody on the other side: what a machine runs with unless a driver is connected to it. */
+    bridge_command NONE = (cmd, data) -> null;
   }
 
   public interface retro_environment_t extends Callback {

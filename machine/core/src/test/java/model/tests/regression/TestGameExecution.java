@@ -101,7 +101,6 @@ public class TestGameExecution extends SpeccyBaseForTests {
 
   private void extracted(Speccy speccy) {
     long states = 0;
-    speccy.z80.bridgeCommand = (a, b) -> null;
     String lastX = "";
     String expected = "Score: 4 - 2";
     String x = "";

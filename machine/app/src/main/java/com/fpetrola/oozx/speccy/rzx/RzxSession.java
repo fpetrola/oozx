@@ -147,7 +147,6 @@ public class RzxSession {
     // control from there, in followTheSpeed.
     speccy.settings.current.emulationSpeed = 100;
     speccy.init();
-    speccy.z80.bridgeCommand = (command, data) -> null;
     com.fpetrola.oozx.speccy.peripherals.EmulatorCore core =
         new com.fpetrola.oozx.speccy.peripherals.SpeccyEmulatorCore(speccy);
     speccy.z80.mockCore = core;

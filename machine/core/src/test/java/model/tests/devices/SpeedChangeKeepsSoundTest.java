@@ -67,7 +67,6 @@ class SpeedChangeKeepsSoundTest {
         binder -> binder.bind(JavaSoundDevice.class).toInstance(listener));
     speccy.init();
     speccy.uiDisplay.active = false;
-    speccy.z80.bridgeCommand = (a, b) -> null;
     speccy.settings.current.sound = true;
 
     assertTrue(aNoteOn(speccy, listener) > 0, "it was not making a noise to begin with");

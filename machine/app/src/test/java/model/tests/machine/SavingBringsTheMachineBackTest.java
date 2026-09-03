@@ -47,7 +47,6 @@ class SavingBringsTheMachineBackTest {
         binder -> binder.bind(JavaSoundDevice.class).to(SilentSoundDevice.class));
     speccy.init();
     speccy.uiDisplay.active = false;
-    speccy.z80.bridgeCommand = (a, b) -> null;
     // Saving a machine to a file is asked of it the way a window asks, so the test needs the same
     // adapter a window would have; building one is what an application does at startup.
     speccy.z80.mockCore = new com.fpetrola.oozx.speccy.peripherals.SpeccyEmulatorCore(speccy);

@@ -51,7 +51,6 @@ class Interface2Test {
         binder -> binder.bind(JavaSoundDevice.class).to(SilentSoundDevice.class));
     speccy.init();
     speccy.uiDisplay.active = false;
-    speccy.z80.bridgeCommand = (a, b) -> null;
     speccy.machine.select(speccy.spec48);
     return speccy;
   }

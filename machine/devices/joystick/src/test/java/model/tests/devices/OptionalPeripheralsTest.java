@@ -46,7 +46,6 @@ class OptionalPeripheralsTest {
         binder -> binder.bind(JavaSoundDevice.class).to(SilentSoundDevice.class));
     speccy.init();
     speccy.uiDisplay.active = false;
-    speccy.z80.bridgeCommand = (a, b) -> null;
     speccy.settings.current.joyKempston = kempstonWanted;
     speccy.machine.selectDefault();
     return speccy;

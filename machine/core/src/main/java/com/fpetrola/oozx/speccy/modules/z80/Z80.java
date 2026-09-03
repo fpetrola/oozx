@@ -73,7 +73,7 @@ public class Z80 implements ZxModule, Cpu {
 
   public long interruptsEnabledAt;
   public OOZ80 ooz80;
-  public LibretroCore.bridge_command bridgeCommand;
+  public LibretroCore.bridge_command bridgeCommand = LibretroCore.bridge_command.NONE;
   private PhaseProcessor phaseProcessor;
 
   private final IO io;
@@ -87,7 +87,7 @@ public class Z80 implements ZxModule, Cpu {
   public final Ula ula;
   private final Machine machine;
   private Keyboard keyboard;
-  public SpectrumZ80Clock zxClock;
+  public final SpectrumZ80Clock zxClock;
   private Input input;
   private final PeripheralBus peripherals;
   private final UiDisplay uiDisplay;

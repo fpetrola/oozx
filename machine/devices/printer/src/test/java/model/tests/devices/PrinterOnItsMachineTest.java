@@ -47,7 +47,6 @@ class PrinterOnItsMachineTest {
         binder -> binder.bind(JavaSoundDevice.class).to(SilentSoundDevice.class));
     speccy.init();
     speccy.uiDisplay.active = false;
-    speccy.z80.bridgeCommand = (a, b) -> null;
     ((ZxPrinterPeripheral) speccy.peripherals.find(ZxPrinterPeripheral.class)).plugIn(wanted);
     ((ZxPrinterFullDecodePeripheral) speccy.peripherals.find(ZxPrinterFullDecodePeripheral.class)).plugIn(wanted);
     return speccy;

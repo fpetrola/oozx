@@ -57,7 +57,6 @@ class Beta128Test {
         binder -> binder.bind(JavaSoundDevice.class).to(SilentSoundDevice.class));
     speccy.init();
     speccy.uiDisplay.active = false;
-    speccy.z80.bridgeCommand = (a, b) -> null;
     return speccy;
   }
 

@@ -377,6 +377,20 @@ instrucción, `tstates < event_next_event`. Pausa, bridge y trampas pueden pregu
 por tajada de eventos** (al entrar a `doOpcodes`), y quien quiera cortar antes pone
 `eventNextEvent` en ahora: es el mecanismo que ya existe. +1-2 %, gratis.
 
+**Hecho (2026-09-03), en parte.** El bridge vacío está definido una vez
+(`LibretroCore.bridge_command.NONE`) y es lo que una máquina trae puesto: 43 lugares —la app,
+la sesión de RZX y 39 tests de dispositivos— ponían su propia copia `(a, b) -> null`, cada una
+una clase de lambda distinta que podía hacer polimórfico el sitio de llamada. `Z80.zxClock` es
+`final` (solo se asigna en el constructor). La pausa y las trampas quedaron donde estaban: la
+pausa es una lectura volátil por instrucción, un `mov` en x86 que el JIT no puede sacar del
+bucle pero que no cuesta nada más, y moverla a la tajada retrasaría el pausado hasta el
+próximo evento; las trampas son dos booleanos que solo se leen.
+
+Medido, alternado, con IntelliJ al 47 %: neutro dentro de ±6 % (Manic Miner 17 332 / 15 418
+antes contra 15 527 / 16 371 después: el orden se invierte entre rondas, que es la firma del
+ruido, no de un cambio). Lo que este ítem podía dar no se ve con el instrumento en estas
+condiciones; lo que quedó vale por sí mismo.
+
 ## 8. Cómo medir, y el orden
 
 **El arnés.** `Where` (hoy en el scratchpad de la sesión) corre el loop de la app sobre un

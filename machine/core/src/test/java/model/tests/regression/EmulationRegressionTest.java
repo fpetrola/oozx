@@ -222,7 +222,6 @@ public class EmulationRegressionTest {
     speccy.settings.current.rom48 = "no-such.rom";     // defaults.rom48 stays 48.rom
     speccy.init();
     speccy.uiDisplay.active = false;
-    speccy.z80.bridgeCommand = (a, b) -> null;
 
     runFrames(speccy, BOOT_FRAMES);
     assertEquals(EXPECTED.get("screen"), digest(readRange(speccy, SCREEN_BASE, SCREEN_END)),
@@ -242,7 +241,6 @@ public class EmulationRegressionTest {
         binder -> binder.bind(JavaSoundDevice.class).to(SilentSoundDevice.class));
     speccy.init();
     speccy.uiDisplay.active = false;
-    speccy.z80.bridgeCommand = (a, b) -> null;
     return speccy;
   }
 

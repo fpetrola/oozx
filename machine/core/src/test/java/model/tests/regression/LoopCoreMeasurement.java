@@ -34,7 +34,6 @@ class LoopCoreMeasurement {
     Speccy speccy = Speccy.create(new SpectrumZ80Clock(), binder -> binder.bind(JavaSoundDevice.class).to(SilentSoundDevice.class));
     speccy.init();
     speccy.uiDisplay.active = false;
-    speccy.z80.bridgeCommand = (a, b) -> null;
     runFrames(speccy, 500);
     for (int round = 0; round < 3; round++) {
       long start = System.nanoTime();

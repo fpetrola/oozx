@@ -61,7 +61,6 @@ class AyMakesSoundTest {
         binder -> binder.bind(JavaSoundDevice.class).toInstance(listener));
     speccy.init();
     speccy.uiDisplay.active = false;
-    speccy.z80.bridgeCommand = (a, b) -> null;
     speccy.machine.getMachineTypes().stream()
         .filter(type -> type.getClass().getSimpleName().equals(model))
         .findFirst().ifPresent(type -> {

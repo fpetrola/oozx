@@ -50,7 +50,6 @@ class KempstonMousePortsTest {
         binder -> binder.bind(JavaSoundDevice.class).to(SilentSoundDevice.class));
     speccy.init();
     speccy.uiDisplay.active = false;
-    speccy.z80.bridgeCommand = (a, b) -> null;
     mouseOf(speccy).plugIn(connected);
     speccy.machine.select(speccy.spec48);
     speccy.peripherals.update();

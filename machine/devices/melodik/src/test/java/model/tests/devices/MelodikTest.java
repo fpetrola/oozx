@@ -56,7 +56,6 @@ class MelodikTest {
         binder -> binder.bind(JavaSoundDevice.class).toInstance(new Loudest()));
     speccy.init();
     speccy.uiDisplay.active = false;
-    speccy.z80.bridgeCommand = (a, b) -> null;
     speccy.settings.current.melodik = melodik;
     speccy.settings.current.sound = true;
     speccy.machine.selectDefault();

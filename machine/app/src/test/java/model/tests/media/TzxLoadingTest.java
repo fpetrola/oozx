@@ -245,7 +245,6 @@ public class TzxLoadingTest extends SpeccyBaseForTests {
     });
     speccy.init();
     speccy.uiDisplay.active = false;
-    speccy.z80.bridgeCommand = (a, b) -> null;
 
     Tape tape = speccy.tape;
 

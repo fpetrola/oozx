@@ -72,7 +72,6 @@ class PeripheralPresenceTest {
         binder -> binder.bind(JavaSoundDevice.class).to(SilentSoundDevice.class));
     speccy.init();
     speccy.uiDisplay.active = false;
-    speccy.z80.bridgeCommand = (a, b) -> null;
     speccy.settings.current.melodik = wantOptionals;
     speccy.settings.current.joyKempston = wantOptionals;
     return speccy;
