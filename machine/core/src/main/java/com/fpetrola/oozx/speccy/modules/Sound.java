@@ -83,6 +83,7 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
   private int soundFrameSize;
   /** The frame of the machine {@link #soundFrameSize} was worked out for. */
   private int sizedFor;
+  private int sizedForSpeed = -1;
   private long effectiveSpeed;
   private int bass;
   private double treble;
@@ -118,7 +119,15 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
    * on playing.
    */
   public void rebuildOutput() {
-    initSound(3500000, spectrumMachine.getTimings().tstatesPerFrame, true, false);
+    // Above real time the frame is a real-time frame whatever the speed, so a speed slid from
+    // one such to another changes only whether the card waits; reopening the line for that would
+    // click at every notch of a drag.
+    int tstatesPerFrame = spectrumMachine.getTimings().tstatesPerFrame;
+    if (tstatesPerFrame == sizedFor && Math.min(settings.current.emulationSpeed, 100) == sizedForSpeed) {
+      javaSoundDevice.dropWhenAhead(settings.current.emulationSpeed > 100);
+      return;
+    }
+    initSound(3500000, tstatesPerFrame, true, false);
   }
 
   public void end() {
@@ -135,7 +144,7 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
     // pitch, skipping ahead - not the game sped up, which past a few times is a buzz, and past a
     // hundred is nothing. Below real time the frame is stretched to the speed, and the card,
     // which then waits for room, is what holds the machine to it.
-    int speed = Math.min(settings.current.emulationSpeed, 100);
+    int speed = sizedForSpeed = Math.min(settings.current.emulationSpeed, 100);
     this.effectiveSpeed = cpuFrequency * speed / 100 * 2;
 
     int[] ints = {0};

@@ -220,8 +220,8 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
 
   /**
    * A speed to run at, in two halves: the left from a quarter of real time to three times it,
-   * where a game is played, the right from there to the top. Applied when the knob is let go: a
-   * change of speed rebuilds the sound, and rebuilding it forty times along one drag would crackle.
+   * where a game is played, the right from there to the top. Applied as the knob moves: above real
+   * time a change of speed no longer rebuilds the sound, so there is nothing to crackle.
    */
   private JComponent speedSlider() {
     JSlider slider = speedSlider = new JSlider(0, 2 * HALF, positionOf(100));
@@ -236,9 +236,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     slider.setPaintTicks(true);
     slider.setPreferredSize(new Dimension(480, slider.getPreferredSize().height));
     slider.addChangeListener(e -> {
-      if (!slider.getValueIsAdjusting() && !reflectingSpeed) {
-        speedChosen(speedAt(slider.getValue()));
-      }
+      if (!reflectingSpeed) speedChosen(speedAt(slider.getValue()));
     });
     return slider;
   }
