@@ -31,6 +31,8 @@ final public class FusePhaseProcessor extends PhaseProcessor {
   private final SpectrumZ80Clock zxClock;
   private final int pageSizeLogarithm;
   private final MemoryPage[] mapRead;
+  /** By length, what a run of one-T-state internal cycles at a contended address takes; a Z80's are seven long at most. */
+  private final byte[][] noMreqRun = new byte[8][];
 
   public FusePhaseProcessor(Z80 z80) {
     super(z80.ooz80.getState());
@@ -39,12 +41,18 @@ final public class FusePhaseProcessor extends PhaseProcessor {
     zxClock = z80.zxClock;
     pageSizeLogarithm = memory.PAGE_SIZE_LOGARITHM;
     mapRead = memory.mapRead;
+    for (int times = 2; times < noMreqRun.length; times++) {
+      noMreqRun[times] = ula.noMreqRun(times);
+    }
   }
 
   public void contend(int address, int times, int tstates, Kind kind) {
     if (mapRead[address >>> pageSizeLogarithm].contended) {
-      for (int i = 0; i < times; i++)
-        ula.addUlaStates(tstates);
+      if (tstates == 1 && times > 1 && times < noMreqRun.length)
+        zxClock.addTStates(noMreqRun[times][zxClock.getTStates()]);
+      else
+        for (int i = 0; i < times; i++)
+          ula.addUlaStates(tstates);
     } else
       zxClock.addTStates(tstates * times);
   }

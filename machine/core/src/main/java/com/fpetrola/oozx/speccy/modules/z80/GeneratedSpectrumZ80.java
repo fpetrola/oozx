@@ -21,6 +21,12 @@ public abstract class GeneratedSpectrumZ80 extends UnrolledRegisterBank implemen
   protected final SpectrumZ80Clock clock;
   protected final Display display;
   protected final IO io;
+  protected final byte[] noMreqRun2;
+  protected final byte[] noMreqRun3;
+  protected final byte[] noMreqRun4;
+  protected final byte[] noMreqRun5;
+  protected final byte[] noMreqRun6;
+  protected final byte[] noMreqRun7;
   protected State state;
 
   static final int FLAG_C = 0x0001;
@@ -63,7 +69,7 @@ static final int[] SZ53 = new int[0x100];
   private int _nextPC871 = -1;
   private int _nextPC2223 = -1;
 
-  public GeneratedSpectrumZ80(Memory ram, MemoryPage[] mapRead, MemoryPage[] mapWrite, Ula ula, SpectrumZ80Clock clock, Display display, IO io) {
+  public GeneratedSpectrumZ80(Memory ram, MemoryPage[] mapRead, MemoryPage[] mapWrite, Ula ula, SpectrumZ80Clock clock, Display display, IO io, byte[] noMreqRun2, byte[] noMreqRun3, byte[] noMreqRun4, byte[] noMreqRun5, byte[] noMreqRun6, byte[] noMreqRun7) {
     this.ram = ram;
     this.mapRead = mapRead;
     this.mapWrite = mapWrite;
@@ -71,6 +77,12 @@ static final int[] SZ53 = new int[0x100];
     this.clock = clock;
     this.display = display;
     this.io = io;
+    this.noMreqRun2 = noMreqRun2;
+    this.noMreqRun3 = noMreqRun3;
+    this.noMreqRun4 = noMreqRun4;
+    this.noMreqRun5 = noMreqRun5;
+    this.noMreqRun6 = noMreqRun6;
+    this.noMreqRun7 = noMreqRun7;
   }
 
   public void attach(State state) {
@@ -108,8 +120,7 @@ static final int[] SZ53 = new int[0x100];
 
   private void contend2x1(int address) {
       if (mapRead[address >>> 11].contended) {
-          clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
-          clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
+          clock.addTStates(noMreqRun2[clock.getTStates()]);
       } else {
           clock.addTStates(2);
       }
@@ -117,13 +128,7 @@ static final int[] SZ53 = new int[0x100];
 
   private void contend7x1(int address) {
       if (mapRead[address >>> 11].contended) {
-          clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
-          clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
-          clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
-          clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
-          clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
-          clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
-          clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
+          clock.addTStates(noMreqRun7[clock.getTStates()]);
       } else {
           clock.addTStates(7);
       }
@@ -139,11 +144,7 @@ static final int[] SZ53 = new int[0x100];
 
   private void contend5x1(int address) {
       if (mapRead[address >>> 11].contended) {
-          clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
-          clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
-          clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
-          clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
-          clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
+          clock.addTStates(noMreqRun5[clock.getTStates()]);
       } else {
           clock.addTStates(5);
       }
@@ -159,10 +160,7 @@ static final int[] SZ53 = new int[0x100];
 
   private void contend4x1(int address) {
       if (mapRead[address >>> 11].contended) {
-          clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
-          clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
-          clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
-          clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
+          clock.addTStates(noMreqRun4[clock.getTStates()]);
       } else {
           clock.addTStates(4);
       }

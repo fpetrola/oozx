@@ -94,6 +94,20 @@ en otros. Es el ítem más grande y el de menos riesgo.
 (`ZXSpectrumContendedMemoryTests2`, `ZXSpectrumULATests`: los que fallaron cuando el núcleo de
 máquina saltó los listeners); y `Where` en los dos juegos.
 
+**Hecho (2026-09-03).** La ULA construye las corridas a pedido (`Ula.noMreqRun(n)`) y llena sus
+propias tablas (`tablesFor`, que estaba en `Machine`); `FusePhaseProcessor.contend` las usa; el
+especializador aprendió que un elemento de un arreglo conocido en un índice literal es ese
+elemento, y que `.length` de uno conocido es un literal; el núcleo las recibe como campos y
+`contend5x1` quedó en `clock.addTStates(noMreqRun5[clock.getTStates()])`.
+`ContentionRunsTest` compara cada tabla con el bucle, en seis máquinas, desde cada T-state.
+
+Medido, alternado, mismos cores: Manic Miner 14 151 / 13 743 → 16 368 / 14 898 fps (**+8 a
++16 %**), JSW 8 580 → 8 703 (ruido). Menos que lo estimado, y el perfil dice por qué: el helper
+bajó de 147 a 46 bytes, pero 46 sigue por encima de los 35 que el JIT inlinea sin preguntar, así
+que queda como llamada en 77 de sus 99 sitios, y adentro le quedan la consulta de página y la
+llamada a `addTStates`. Las cinco búsquedas dependientes ya no están; lo que resta es la llamada,
+que es el §2 (el reloj de ocho bytes) y el §3 (helpers de menos de 35).
+
 ## 2. El reloj: el timeout de la cinta se paga en cada suma
 
 `SpectrumZ80Clock.addTStates` es el 17 % (Manic Miner) y el 28 % (JSW) del tiempo propio, y no

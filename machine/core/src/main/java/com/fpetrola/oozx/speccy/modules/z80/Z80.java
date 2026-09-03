@@ -295,7 +295,8 @@ public class Z80 implements ZxModule, Cpu {
     // pointed at the instrumented memory the test harness puts in the way. That harness measures
     // the pure core instead, through its listeners; the machine runs on its own.
     if (Emulation.noTest) {
-      GeneratedSpectrumZ80 core = new GeneratedSpectrumZ80(memory, memory.mapRead, memory.mapWrite, ula, zxClock, display, io) {
+      GeneratedSpectrumZ80 core = new GeneratedSpectrumZ80(memory, memory.mapRead, memory.mapWrite, ula, zxClock, display, io,
+          ula.noMreqRun(2), ula.noMreqRun(3), ula.noMreqRun(4), ula.noMreqRun(5), ula.noMreqRun(6), ula.noMreqRun(7)) {
         public void contend(int address, int times, int tstates, Contention.Kind kind) {
           phaseProcessor.contend(address, times, tstates, kind);
         }

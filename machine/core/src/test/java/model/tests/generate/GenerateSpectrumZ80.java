@@ -48,6 +48,11 @@ public class GenerateSpectrumZ80 {
     target.held.put("clock", SpectrumZ80Clock.class);
     target.held.put("display", Display.class);
     target.held.put("io", IO.class);
+    // The runs of contended internal cycles, one table per length, held by name so that a run is
+    // one lookup in the core; the phase processor asks the ULA for the same ones.
+    for (int times = 2; times <= 7; times++) {
+      target.held.put("noMreqRun" + times, byte[].class);
+    }
     target.contention = new FusePhaseProcessor(speccy.z80);
     target.helpers.put("read", memory);
     target.helperSignatures.put("read", "int read(int address, int fetching)");
@@ -65,6 +70,9 @@ public class GenerateSpectrumZ80 {
     generator.spec.shared.put(speccy.ula, "ula");
     generator.spec.shared.put(speccy.zxClock, "clock");
     generator.spec.shared.put(speccy.display, "display");
+    for (int times = 2; times <= 7; times++) {
+      generator.spec.shared.put(speccy.ula.noMreqRun(times), "noMreqRun" + times);
+    }
     return generator.generate();
   }
 

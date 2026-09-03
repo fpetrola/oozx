@@ -592,6 +592,8 @@ public class Specializer {
     }
     if (e instanceof FieldAccessExpr f) {
       Object target = rewriteExpr(f.getScope(), scope, out);
+      if (target instanceof Obj o && o.expression == null && o.value != null && o.runtimeClass().isArray() && f.getNameAsString().equals("length"))
+        return intLiteral(java.lang.reflect.Array.getLength(o.value));
       if (target instanceof Obj o)
         return fieldValue(o, f.getNameAsString(), scope);
       throw new UnsupportedOperationException("field access on " + target + ": " + f);
@@ -718,6 +720,15 @@ public class Specializer {
           return literal(values[n.asNumber().intValue()], component);
         imports.add(component.getName().replace('$', '.'));
         return new ArrayAccessExpr(new MethodCallExpr(new NameExpr(component.getSimpleName()), "values"), idx);
+      }
+      if (array instanceof Obj o && o.expression == null && o.value != null && o.runtimeClass().isArray()) {
+        // An element of an array that is there, at an index decided now, is that element: by the
+        // name it is held under if it is shared, as a literal if it is a value. An index decided
+        // at run time would need the whole array printed, and there is no printing one.
+        if (!(idx instanceof IntegerLiteralExpr n))
+          throw new UnsupportedOperationException("instance array of " + o.runtimeClass().getComponentType().getSimpleName() + " indexed at run time");
+        Object element = java.lang.reflect.Array.get(o.value, n.asNumber().intValue());
+        return shared.containsKey(element) ? of(element) : literal(element, o.runtimeClass().getComponentType());
       }
       if (array instanceof Obj o && o.expression != null && o.runtimeClass().isArray()) {
         Expression element = new ArrayAccessExpr(o.expression.clone(), idx);
@@ -900,7 +911,7 @@ public class Specializer {
     if (shared.containsKey(value))
       return of(value);
     if (f.getType().isArray())
-      throw new UnsupportedOperationException("instance array " + f);
+      return new Obj(value, null, null, null);
     if (value.getClass().isSynthetic())
       return of(lambdaBehind(o, f));
     return new Obj(value, null, null, null);

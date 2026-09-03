@@ -198,10 +198,7 @@ public class Machine implements ZxModule {
     current.memoryMap();
 //        if (error != 0) return error;
 
-    for (int i = 0; i < current.getTimings().tstatesPerFrame; i++) {
-      ula.contention[i] = (byte) current.contendDelay(i);
-      ula.contentionNoMreq[i] = (byte) current.contendDelayNoMreq(i);
-    }
+    ula.tablesFor(current);
 
 //        Ui.menuDiskUpdate();
 

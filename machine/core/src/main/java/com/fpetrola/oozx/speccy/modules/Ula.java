@@ -28,6 +28,7 @@ import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.peripherals.PeripheralBus;
 
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 @Singleton
@@ -42,6 +43,59 @@ public class Ula implements ZxModule, MachineChangeListener {
 
   // And how much when it is inactive
   public final byte[] contentionNoMreq = new byte[CONTENTION_SIZE];
+
+  private final byte[][] noMreqRuns = new byte[8][];
+  /** How far the delays reach: a frame of the machine they were filled for, nothing before the first. */
+  private int contendedTStates;
+
+  /**
+   * What a run of that many one-T-state accesses to a contended address takes, from every
+   * T-state it can start at.
+   * <p>
+   * A Z80's internal cycles come in runs - five for an indexed displacement - and each one waits
+   * for the ULA from wherever the previous one left the clock, so asked one at a time they are
+   * as many dependent lookups as the run is long. The whole run depends on nothing but where it
+   * starts, and this is it looked up once. Built the first time a length is asked for and again
+   * whenever the delays change, in {@link #tablesFor}.
+   */
+  public byte[] noMreqRun(int times) {
+    if (noMreqRuns[times] == null) {
+      noMreqRuns[times] = new byte[CONTENTION_SIZE];
+      fillRun(times);
+    }
+    return noMreqRuns[times];
+  }
+
+  /** The delays of this machine, and the runs built from them. */
+  public void tablesFor(Spectrum current) {
+    int frame = contendedTStates = current.getTimings().tstatesPerFrame;
+    for (int i = 0; i < frame; i++) {
+      contention[i] = (byte) current.contendDelay(i);
+      contentionNoMreq[i] = (byte) current.contendDelayNoMreq(i);
+    }
+    // Past the frame there is no contention, and a shorter frame than the last machine's must
+    // not leave that one's tail behind: the clock runs past a frame while a recording plays.
+    Arrays.fill(contention, frame, contention.length, (byte) 0);
+    Arrays.fill(contentionNoMreq, frame, contentionNoMreq.length, (byte) 0);
+    for (int times = 0; times < noMreqRuns.length; times++) {
+      if (noMreqRuns[times] != null) {
+        fillRun(times);
+      }
+    }
+  }
+
+  private void fillRun(int times) {
+    byte[] run = noMreqRuns[times];
+    int frame = contendedTStates;
+    for (int start = 0; start < frame; start++) {
+      int t = start;
+      for (int i = 0; i < times; i++) {
+        t += contentionNoMreq[t] + 1;
+      }
+      run[start] = (byte) (t - start);
+    }
+    Arrays.fill(run, frame, run.length, (byte) times);
+  }
 
   byte lastByte;
 

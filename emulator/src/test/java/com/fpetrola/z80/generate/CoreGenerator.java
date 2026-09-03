@@ -127,8 +127,11 @@ public class CoreGenerator {
     Set<String> imports = new TreeSet<>(spec.imports);
     imports.addAll(List.of("com.fpetrola.z80.registers.UnrolledRegisterBank", "fuse.tstates.Contention",
         "com.fpetrola.z80.cpu.GeneratedCore", "com.fpetrola.z80.cpu.State", "com.fpetrola.z80.cpu.IO"));
-    for (Class<?> type : target.held.values())
-      imports.add((type.isArray() ? type.getComponentType() : type).getName().replace('$', '.'));
+    for (Class<?> type : target.held.values()) {
+      Class<?> named = type.isArray() ? type.getComponentType() : type;
+      if (!named.isPrimitive())
+        imports.add(named.getName().replace('$', '.'));
+    }
     for (String i : imports)
       if (!i.startsWith(target.packageName + ".") || i.indexOf('.', target.packageName.length() + 1) >= 0)
         out.append("import ").append(i).append(";\n");
