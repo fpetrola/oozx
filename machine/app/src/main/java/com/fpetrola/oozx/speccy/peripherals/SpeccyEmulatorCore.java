@@ -151,6 +151,10 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
       int emulationSpeed = turbo ? com.fpetrola.oozx.Settings.SettingsInfo.UNLIMITED_SPEED : 100;
       changeSpeed1(emulationSpeed);
 //          speccy.timer.estimateReset();
+    } else if (option.equals("speed")) {
+      int emulationSpeed = (int) value;
+      turbo = emulationSpeed == com.fpetrola.oozx.Settings.SettingsInfo.UNLIMITED_SPEED;
+      changeSpeed1(emulationSpeed);
     } else if (option.equals("mute")) {
       speccy.sound.soundEnabled = !(boolean) value;
 //          speccy.timer.estimateReset();
@@ -183,6 +187,20 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
 
   public boolean isMuted() {
     return !speccy.sound.soundEnabled;
+  }
+
+  @Override
+  public int getVolume() {
+    return speccy.sound.volume();
+  }
+
+  @Override
+  public void setAudioOption(String option, Object value) {
+    if (option.equals("volume")) {
+      speccy.sound.setVolume((int) value);
+    } else {
+      super.setAudioOption(option, value);
+    }
   }
 
   public State getState() {

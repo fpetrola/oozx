@@ -184,6 +184,49 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     turboIndicator.setToolTipText(turbo ? "Turbo: running at full speed" : "Turbo off");
   }
 
+  /**
+   * A speed to run at, from a quarter of real time to sixteen times it, doubling every two
+   * notches; the turbo button is for no limit at all. Applied when the knob is let go: a change
+   * of speed rebuilds the sound, and rebuilding it forty times along one drag would crackle.
+   */
+  private JComponent speedSlider() {
+    JSlider slider = new JSlider(-4, 8, notchOf(emulatorCore.getEmulationSpeed()));
+    java.util.Hashtable<Integer, JComponent> labels = new java.util.Hashtable<>();
+    for (int notch = -4; notch <= 8; notch += 2) {
+      labels.put(notch, new JLabel(speedAt(notch) + "%"));
+    }
+    slider.setLabelTable(labels);
+    slider.setPaintLabels(true);
+    slider.setMajorTickSpacing(2);
+    slider.setPaintTicks(true);
+    slider.setSnapToTicks(true);
+    slider.setPreferredSize(new Dimension(320, slider.getPreferredSize().height));
+    slider.addChangeListener(e -> {
+      if (!slider.getValueIsAdjusting()) {
+        emulatorCore.setGeneralOption("speed", speedAt(slider.getValue()));
+      }
+    });
+    return slider;
+  }
+
+  static int speedAt(int notch) {
+    return (int) Math.round(100 * Math.pow(2, notch / 2.0));
+  }
+
+  static int notchOf(double speed) {
+    return Math.max(-4, Math.min(8, (int) Math.round(2 * Math.log(Math.max(1, speed) / 100) / Math.log(2))));
+  }
+
+  private JComponent volumeSlider() {
+    JSlider slider = new JSlider(0, 100, emulatorCore.getVolume());
+    slider.setMajorTickSpacing(25);
+    slider.setPaintTicks(true);
+    slider.setPaintLabels(true);
+    slider.setPreferredSize(new Dimension(220, slider.getPreferredSize().height));
+    slider.addChangeListener(e -> emulatorCore.setAudioOption("volume", slider.getValue()));
+    return slider;
+  }
+
   private void toggleMute() {
     emulatorCore.setGeneralOption("mute", !emulatorCore.isMuted());
     muteButton.setIcon(loadIcon(!emulatorCore.isMuted() ? "1F507.svg" : "1F509.svg"));
@@ -351,8 +394,9 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
 
     //    Icon turboIcon = UIManager.getIcon("FileChooser.upFolderIcon");
     JButton turboButton = new JButton(loadIcon("1F680.svg"));
-    turboButton.setToolTipText("Full speed");
+    turboButton.setToolTipText("Full speed - right-click for a speed");
     turboButton.addActionListener(e -> emulatorCore.setGeneralOption("turbo", !emulatorCore.isTurboMode()));
+    Widgets.popUpOnRightClick(turboButton, speedSlider());
     toolBar.add(turboButton);
 
     toolBar.addSeparator();
@@ -433,8 +477,9 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     toolBar.addSeparator();
 
     muteButton = new JButton(loadIcon("1F507.svg"));
-    muteButton.setToolTipText("Mute/Unmute Sound");
+    muteButton.setToolTipText("Mute/Unmute Sound - right-click for the volume");
     muteButton.addActionListener(e -> toggleMute());
+    Widgets.popUpOnRightClick(muteButton, volumeSlider());
     toolBar.add(muteButton);
 
     toolBar.addSeparator();

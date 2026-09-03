@@ -70,6 +70,16 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
   }
 
   public boolean soundEnabled = false;
+  /** How loud the whole machine is, in percent; the sources keep their own balance under it. */
+  private int volume = 100;
+
+  public int volume() {
+    return volume;
+  }
+
+  public void setVolume(int percent) {
+    volume = Math.max(0, Math.min(100, percent));
+  }
   private int soundFrameSize;
   /** The frame of the machine {@link #soundFrameSize} was worked out for. */
   private int sizedFor;
@@ -228,6 +238,11 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
       frames = Math.max(frames, source.mixInto(outputSamples, soundFrameSize));
     }
     int count = frames * 2;
+    if (volume < 100) {
+      for (int i = 0; i < count; i++) {
+        outputSamples[i] = outputSamples[i] * volume / 100;
+      }
+    }
 
     if (settings.current.sound) {
       lowlevelFrame(outputSamples, (int) count);

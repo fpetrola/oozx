@@ -98,6 +98,11 @@ public interface EmulatorControl {
     return false;
   }
 
+  /** In percent. */
+  default int getVolume() {
+    return 100;
+  }
+
   default String getFilename() {
     return "";
   }

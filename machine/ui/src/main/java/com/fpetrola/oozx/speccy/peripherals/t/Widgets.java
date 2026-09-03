@@ -18,6 +18,10 @@
 
 package com.fpetrola.oozx.speccy.peripherals.t;
 
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseAdapter;
+import javax.swing.JPopupMenu;
+import javax.swing.JComponent;
 import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -76,5 +80,26 @@ public class Widgets {
         button.setFocusable(false);
       }
     }
+  }
+
+  /**
+   * Shows the given component under the button on a right click, the way a menu would; the left
+   * click keeps doing what the button does. For the setting behind a button - a slider for the
+   * speed under the turbo button, one for the volume under the mute button.
+   */
+  public static void popUpOnRightClick(AbstractButton button, JComponent content) {
+    JPopupMenu popup = new JPopupMenu();
+    popup.add(content);
+    button.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mousePressed(MouseEvent e) {
+        if (e.isPopupTrigger()) popup.show(button, 0, button.getHeight());
+      }
+
+      @Override
+      public void mouseReleased(MouseEvent e) {
+        if (e.isPopupTrigger()) popup.show(button, 0, button.getHeight());
+      }
+    });
   }
 }

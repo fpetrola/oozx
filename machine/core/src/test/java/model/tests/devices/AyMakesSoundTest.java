@@ -148,6 +148,26 @@ class AyMakesSoundTest {
     }
   }
 
+  /**
+   * The master volume is the whole machine's: half of it is half the peak, whatever plays. Two
+   * machines playing the same note, so the frames compared are the same frame.
+   */
+  @Test
+  void theMasterVolumeScalesWhatComesOut() {
+    int full = peakOf("Spec128", true);
+    Loudest listener = new Loudest();
+    Speccy speccy = machine("Spec128", listener);
+    speccy.sound.setVolume(50);
+    write(speccy, 0, 0x50);
+    write(speccy, 1, 0x01);
+    write(speccy, 8, 0x0F);
+    write(speccy, 7, 0x3E);
+    speccy.sound.frame();
+
+    assertTrue(full > 0, "it was not making a noise to begin with");
+    assertTrue(Math.abs(listener.peak - full / 2) <= 1, "at half volume the peak was " + listener.peak + " of " + full);
+  }
+
   @Test
   void andSaysNothingWhenNothingIsPlaying() {
     assertEquals(0, peakOf("Spec128", false),
