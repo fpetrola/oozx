@@ -922,6 +922,37 @@ Lo que esto le hace al plan:
   acceso, y lo único que observa el T-state exacto adentro del frame son el borde y el bus
   flotante. Eso es de la máquina y es tuyo decidirlo.
 
+#### La prueba directa: el acceso adentro del `case`, sin llamada
+
+Subir los umbrales del JIT no es lo mismo que sacar la llamada —con `MaxInlineSize=120`, 708
+sitios de lectura siguieron diciendo `callee is too large`— así que se hizo la prueba de verdad,
+sobre el archivo generado:
+
+1. Se le agregaron al núcleo campos con los objetos de la máquina (`Memory`, `Ula`, el reloj, el
+   `Display`) y métodos privados `ramRead`, `ramWrite` y `contendAt` con el código de la máquina
+   escrito directamente contra esos campos.
+2. Se reemplazaron los 1.036 `memory.read(`, los 604 `memory.write(` y los 1.322 `contend(` por
+   llamadas a esos métodos. **Cero llamadas virtuales a `memory`.**
+3. Como C2 tampoco inlineaba los privados —`ramWrite` sacó cero `inline (hot)`— se forzó con
+   `-XX:CompileCommand=inline,...::ramWrite` y compañía. Verificado: **1.412 sitios
+   `force inline by CompileCommand`**, o sea el acceso queda escrito adentro del `case`.
+
+Las tres variantes ejecutan **exactamente 29.097.384 instrucciones**, así que hacen el mismo
+trabajo. Cinco corridas de cada una, intercaladas:
+
+| | mejor | media |
+|---|---|---|
+| como está | 858 | 783 |
+| con los helpers, sin llamada a `memory` | 868 | 835 |
+| **forzado, sin ninguna llamada** | **836** | **789** |
+
+**Sacar todas las llamadas no acelera nada.** Forzado es incluso un poco más lento que con los
+helpers: 1.412 copias de un cuerpo de 60 bytes adentro de métodos que ya tienen 2.000 a 3.400
+hacen crecer el código compilado, y eso se paga en caché de instrucciones.
+
+Ésa es la respuesta a la pregunta que motivaba G1–G3, y es que no: **el trabajo de la memoria de la
+máquina es trabajo, y ponerlo adentro del `case` no lo hace más barato.**
+
 #### M3 y M5
 
 - **M3 no se hizo**, y la medición de arriba dice por qué: sacar `displayDirtySinclair` del camino
