@@ -1095,12 +1095,33 @@ y lo que cuesta es lo que hacen: la búsqueda de página, y por cada uno de los 
 lectura de la tabla de 1 MB más una suma al reloj. Un `contend(IR, 7, 1)` sobre página contendida
 son siete lecturas de tabla.
 
-Es el mismo resultado que con la memoria, y ya van tres: **la llamada no es lo que cuesta, el
-trabajo sí.** Bajar ese 11 % pide cambiar lo que la contención calcula, no dónde vive el método,
-y eso es de la máquina.
+Es el mismo resultado que con la memoria: la llamada no es lo que cuesta, el trabajo sí.
 
-Así que G1–G3 queda como está: la memoria adentro, la contención afuera. Lo que falta medir con
-este arnés es `GROUP_SHIFT`, que se eligió cuando los métodos eran más chicos.
+**Y sin embargo la contención sí se generó, porque la prueba estaba mal hecha.** El helper que se
+midió tomaba `times` como parámetro, así que el loop seguía siendo un loop. Con `times` literal en
+cada sitio —que es lo que la contención es, un valor— el loop se desenrolla:
+
+```java
+private void contend2x1(int address) {
+    if (mapRead[address >>> 11].contended) {
+        clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
+        clock.addTStates(ula.contentionNoMreq[clock.getTStates()] + 1);
+    } else
+        clock.addTStates(2);
+}
+```
+
+Son seis métodos, uno por cada par de ciclos que aparece en la tabla: 1x1, 2x1, 5x1, 7x1, 1x3 y
+4x1. Y da **3.815 de media contra 3.500**, casi todo el 11 % que la contención costaba.
+
+Lo que hizo falta en el generador: desenrollar un `for` cuyo número de vueltas se sabe —la
+contención dice cuántos ciclos toma como un número, y una vez que ese número está acá los ciclos
+se escriben uno atrás del otro—, y que la clase generada tenga la tabla de páginas como campo,
+con lo que la memoria también dejó de escribir `ram.mapRead` para escribir `mapRead`.
+
+La lección que queda es sobre medir, otra vez: una variante escrita a mano que **no es** lo que el
+generador va a producir contesta otra pregunta. `times` como parámetro y `times` como literal son
+dos cosas distintas, y la diferencia entre ellas era el 9 %.
 
 ## Cómo se verifica
 

@@ -547,10 +547,33 @@ public class Specializer {
       List<Statement> body = new ArrayList<>();
       rewriteStmt(w.getBody(), new Scope(scope), body);
       out.add(new WhileStmt(cond, block(body)));
+    } else if (s instanceof ForStmt f) {
+      unroll(f, scope, out);
     } else if (s instanceof ThrowStmt t) {
       out.add(new ThrowStmt(asExpression(rewriteExpr(t.getExpression(), scope, out))));
     } else
       throw new UnsupportedOperationException("statement " + s.getClass().getSimpleName() + ": " + s);
+  }
+
+  /**
+   * A loop whose trip count is known is not a loop: the contention says how many cycles it takes
+   * as a number, and once that number is here the cycles are written out one after another.
+   */
+  private void unroll(ForStmt loop, Scope scope, List<Statement> out) {
+    if (loop.getInitialization().size() != 1 || loop.getUpdate().size() != 1 || loop.getCompare().isEmpty())
+      throw new UnsupportedOperationException("loop that is not counted: " + loop);
+    VariableDeclarationExpr declaration = loop.getInitialization().get(0).asVariableDeclarationExpr();
+    String counter = declaration.getVariable(0).getNameAsString();
+    Integer from = Folder.intValue(asExpression(rewriteExpr(declaration.getVariable(0).getInitializer().orElseThrow(), scope, out)));
+    BinaryExpr compare = loop.getCompare().get().asBinaryExpr();
+    Integer to = Folder.intValue(asExpression(rewriteExpr(compare.getRight(), scope, out)));
+    if (from == null || to == null || compare.getOperator() != BinaryExpr.Operator.LESS)
+      throw new UnsupportedOperationException("loop whose count is not known here: " + loop);
+    for (int i = from; i < to; i++) {
+      Scope turn = new Scope(scope);
+      turn.names.put(counter, intLiteral(i));
+      rewriteStmt(loop.getBody(), turn, out);
+    }
   }
 
   private BlockStmt block(List<Statement> statements) {

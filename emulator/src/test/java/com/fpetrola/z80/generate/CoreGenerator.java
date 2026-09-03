@@ -55,6 +55,8 @@ public class CoreGenerator {
     public final Map<String, Object> helpers = new LinkedHashMap<>();
     /** The signature of each helper, by name, as it is written. */
     public final Map<String, String> helperSignatures = new LinkedHashMap<>();
+    /** Whose contend is written into the class, one method per pair of cycles it takes; null keeps the hook. */
+    public Object contention;
   }
 
   private final State state;
@@ -107,13 +109,19 @@ public class CoreGenerator {
     Map<String, String> helpers = new LinkedHashMap<>();
     for (Map.Entry<String, Object> helper : target.helpers.entrySet())
       helpers.put(helper.getKey(), new BlockStmt(new NodeList<>(helperBody(helper.getKey(), helper.getValue()))).toString().replace("\n", "\n  "));
+    for (String cycles : contentions) {
+      String name = "contend" + cycles;
+      target.helperSignatures.put(name, "void " + name + "(int address)");
+      int times = Integer.parseInt(cycles.split("x")[0]), tstates = Integer.parseInt(cycles.split("x")[1]);
+      helpers.put(name, new BlockStmt(new NodeList<>(contendBody(times, tstates))).toString().replace("\n", "\n  "));
+    }
     StringBuilder out = new StringBuilder();
     out.append("package ").append(target.packageName).append(";\n\n");
     Set<String> imports = new TreeSet<>(spec.imports);
     imports.addAll(List.of("com.fpetrola.z80.registers.UnrolledRegisterBank", "fuse.tstates.Contention",
         "com.fpetrola.z80.cpu.GeneratedCore", "com.fpetrola.z80.cpu.State", "com.fpetrola.z80.cpu.IO"));
     for (Class<?> type : target.held.values())
-      imports.add(type.getName().replace('$', '.'));
+      imports.add((type.isArray() ? type.getComponentType() : type).getName().replace('$', '.'));
     for (String i : imports)
       if (!i.startsWith(target.packageName + ".") || i.indexOf('.', target.packageName.length() + 1) >= 0)
         out.append("import ").append(i).append(";\n");
@@ -194,6 +202,16 @@ public class CoreGenerator {
       body.add(new ReturnStmt(value));
     Simplifier.simplify(body, Map.of());
     spec.terminals.putAll(naming);
+    return body;
+  }
+
+  /** What the machine's contention does for that many cycles of that length, written out. */
+  private List<Statement> contendBody(int times, int tstates) {
+    spec.newCase();
+    List<Statement> body = new ArrayList<>();
+    spec.call(spec.of(target.contention), "contend",
+        List.of(new NameExpr("address"), lit(times), lit(tstates), spec.of(Contention.Kind.READ_NO_MREQ)), body);
+    Simplifier.simplify(body, Map.of());
     return body;
   }
 
@@ -320,6 +338,9 @@ public class CoreGenerator {
     return calls.isEmpty() ? null : calls.get(0);
   }
 
+  /** The cycles each contention takes, so one method can be written for each pair that occurs. */
+  private final Set<String> contentions = new LinkedHashSet<>();
+
   private Statement contend(Contention c, Expression lastAccess) {
     Expression base = switch (c.base()) {
       case IR -> register(state.getRegister(RegisterName.IR));
@@ -331,7 +352,10 @@ public class CoreGenerator {
       case LAST_ACCESS -> lastAccess.clone();
     };
     Expression address = c.delta() == 0 ? base : new BinaryExpr(new EnclosedExpr(new BinaryExpr(base, lit(Math.abs(c.delta())), c.delta() > 0 ? BinaryExpr.Operator.PLUS : BinaryExpr.Operator.MINUS)), new IntegerLiteralExpr("0xFFFF"), BinaryExpr.Operator.BINARY_AND);
-    return new ExpressionStmt(new MethodCallExpr(null, "contend", new NodeList<>(Folder.fold(address), lit(c.times()), lit(c.tstates()), new FieldAccessExpr(new FieldAccessExpr(new NameExpr("Contention"), "Kind"), c.kind().name()))));
+    if (target.contention == null)
+      return new ExpressionStmt(new MethodCallExpr(null, "contend", new NodeList<>(Folder.fold(address), lit(c.times()), lit(c.tstates()), new FieldAccessExpr(new FieldAccessExpr(new NameExpr("Contention"), "Kind"), c.kind().name()))));
+    contentions.add(c.times() + "x" + c.tstates());
+    return new ExpressionStmt(new MethodCallExpr(null, "contend" + c.times() + "x" + c.tstates(), new NodeList<>(Folder.fold(address))));
   }
 
   private Expression register(Register register) {
