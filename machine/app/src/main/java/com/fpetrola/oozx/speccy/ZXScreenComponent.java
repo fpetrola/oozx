@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.speccy;
 
+import com.fpetrola.z80.minizx.SimpleQueue;
+
 import com.fpetrola.z80.memory.MemoryWriteListener;
 
 import javax.swing.*;
@@ -40,7 +42,7 @@ public class ZXScreenComponent extends JComponent {
 
     Thread consumerThread = new Thread(() -> {
       while (true) {
-        if (!threadSafeQueue.empty()) {
+        if (!threadSafeQueue.isEmpty()) {
           Runnable item = threadSafeQueue.poll();
           if (item != null)
             item.run();

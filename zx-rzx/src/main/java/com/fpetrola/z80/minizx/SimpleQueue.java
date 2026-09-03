@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2024 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -15,35 +15,28 @@
  *  * limitations under the License.
  *
  */
-
 package com.fpetrola.z80.minizx;
 
+/** A ring of a fixed size; clearing it costs nothing, which matters to whoever clears it every frame. */
 public class SimpleQueue<E> {
-  int index = 0;
-  int head = 0;
-  int size = 100;
-  volatile int counter = 0;
-  E[] data;
-
+  private final E[] data;
+  private int index;
+  private int head;
+  private volatile int counter;
 
   public SimpleQueue(int size) {
-    init(size);
-  }
-
-  private void init(int size) {
-    this.size = size;
     data = (E[]) new Object[size];
   }
 
   public void add(E e) {
     data[index] = e;
-    index = (index + 1) % size;
+    index = (index + 1) % data.length;
     counter++;
   }
 
   public E poll() {
     E value = data[head];
-    head = (head + 1) % size;
+    head = (head + 1) % data.length;
     counter--;
     return value;
   }
@@ -53,6 +46,6 @@ public class SimpleQueue<E> {
   }
 
   public void clear() {
-    init(size);
+    index = head = counter = 0;
   }
 }
