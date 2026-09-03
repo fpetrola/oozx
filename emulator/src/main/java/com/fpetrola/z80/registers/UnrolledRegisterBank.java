@@ -18,6 +18,14 @@
 
 package com.fpetrola.z80.registers;
 
+/**
+ * The registers as plain int fields, one per register, so a generated core can read and write
+ * them without going through an object.
+ * <p>
+ * Every field holds a value of its register's width at every point: whatever writes one masks it,
+ * including a carry halfway through incrementing a pair. Code that reads a register can count on
+ * that, and the generator does - it derives each width from the writes it can see here.
+ */
 public class UnrolledRegisterBank extends RegisterBank {
   public UnrolledRegisterBank() {
 
@@ -71,11 +79,11 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public void write(int value) {
-      A = value;
+      A = value & 0xFF;
     }
 
     public void increment() {
-      A++;
+      A = (A + 1) & 0xFF;
     }
 
     public void decrement() {
@@ -107,11 +115,11 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public void write(int value) {
-      F = value;
+      F = value & 0xFF;
     }
 
     public void increment() {
-      F++;
+      F = (F + 1) & 0xFF;
     }
 
     public void decrement() {
@@ -143,11 +151,11 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public void write(int value) {
-      B = value;
+      B = value & 0xFF;
     }
 
     public void increment() {
-      B++;
+      B = (B + 1) & 0xFF;
     }
 
     public void decrement() {
@@ -179,11 +187,11 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public void write(int value) {
-      C = value;
+      C = value & 0xFF;
     }
 
     public void increment() {
-      C++;
+      C = (C + 1) & 0xFF;
     }
 
     public void decrement() {
@@ -215,11 +223,11 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public void write(int value) {
-      D = value;
+      D = value & 0xFF;
     }
 
     public void increment() {
-      D++;
+      D = (D + 1) & 0xFF;
     }
 
     public void decrement() {
@@ -251,11 +259,11 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public void write(int value) {
-      E = value;
+      E = value & 0xFF;
     }
 
     public void increment() {
-      E++;
+      E = (E + 1) & 0xFF;
     }
 
     public void decrement() {
@@ -287,11 +295,11 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public void write(int value) {
-      H = value;
+      H = value & 0xFF;
     }
 
     public void increment() {
-      H++;
+      H = (H + 1) & 0xFF;
     }
 
     public void decrement() {
@@ -323,11 +331,11 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public void write(int value) {
-      L = value;
+      L = value & 0xFF;
     }
 
     public void increment() {
-      L++;
+      L = (L + 1) & 0xFF;
     }
 
     public void decrement() {
@@ -359,11 +367,11 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public void write(int value) {
-      I = value;
+      I = value & 0xFF;
     }
 
     public void increment() {
-      I++;
+      I = (I + 1) & 0xFF;
     }
 
     public void decrement() {
@@ -859,22 +867,20 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public void write(int value) {
-      A = value >>> 8;
+      A = (value >>> 8) & 0xFF;
       F = value & 0xFF;
     }
 
     public void increment() {
-      if (++F < 0x100) return;
-      F = 0;
-      if (++A < 0x100) return;
-      A = 0;
+      F = (F + 1) & 0xFF;
+      if (F == 0)
+        A = (A + 1) & 0xFF;
     }
 
     public void decrement() {
-      if (--F >= 0) return;
-      F = 0xFF;
-      if (--A >= 0) return;
-      A = 0xFF;
+      F = (F - 1) & 0xFF;
+      if (F == 0xFF)
+        A = (A - 1) & 0xFF;
     }
 
     public Register getHigh() {
@@ -914,22 +920,20 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public void write(int value) {
-      B = value >>> 8;
+      B = (value >>> 8) & 0xFF;
       C = value & 0xFF;
     }
 
     public void increment() {
-      if (++C < 0x100) return;
-      C = 0;
-      if (++B < 0x100) return;
-      B = 0;
+      C = (C + 1) & 0xFF;
+      if (C == 0)
+        B = (B + 1) & 0xFF;
     }
 
     public void decrement() {
-      if (--C >= 0) return;
-      C = 0xFF;
-      if (--B >= 0) return;
-      B = 0xFF;
+      C = (C - 1) & 0xFF;
+      if (C == 0xFF)
+        B = (B - 1) & 0xFF;
     }
 
     public Register getHigh() {
@@ -969,22 +973,20 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public void write(int value) {
-      D = value >>> 8;
+      D = (value >>> 8) & 0xFF;
       E = value & 0xFF;
     }
 
     public void increment() {
-      if (++E < 0x100) return;
-      E = 0;
-      if (++D < 0x100) return;
-      D = 0;
+      E = (E + 1) & 0xFF;
+      if (E == 0)
+        D = (D + 1) & 0xFF;
     }
 
     public void decrement() {
-      if (--E >= 0) return;
-      E = 0xFF;
-      if (--D >= 0) return;
-      D = 0xFF;
+      E = (E - 1) & 0xFF;
+      if (E == 0xFF)
+        D = (D - 1) & 0xFF;
     }
 
     public Register getHigh() {
@@ -1024,22 +1026,20 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public void write(int value) {
-      H = value >>> 8;
+      H = (value >>> 8) & 0xFF;
       L = value & 0xFF;
     }
 
     public void increment() {
-      if (++L < 0x100) return;
-      L = 0;
-      if (++H < 0x100) return;
-      H = 0;
+      L = (L + 1) & 0xFF;
+      if (L == 0)
+        H = (H + 1) & 0xFF;
     }
 
     public void decrement() {
-      if (--L >= 0) return;
-      L = 0xFF;
-      if (--H >= 0) return;
-      H = 0xFF;
+      L = (L - 1) & 0xFF;
+      if (L == 0xFF)
+        H = (H - 1) & 0xFF;
     }
 
     public Register getHigh() {
@@ -1083,24 +1083,17 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public void write(int value) {
-      I = value >>> 8;
+      I = (value >>> 8) & 0xFF;
       low.write(value);
     }
 
+    /** R counts on its own seven bits and never carries into I, so the pair moves when R does. */
     public void increment() {
       low.increment();
-      if (low.read() < 0x100) return;
-      low.write(0);
-      if (++I < 0x100) return;
-      I = 0;
     }
 
     public void decrement() {
-      low.increment();
-      if (low.read() >= 0) return;
-      low.write(0xff);
-      if (--I >= 0) return;
-      I = 0xFF;
+      low.decrement();
     }
 
     public Register getHigh() {
@@ -1424,16 +1417,15 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public void write(int value) {
-      PC = value;
+      PC = value & 0xFFFF;
     }
 
     public void increment() {
-      PC++;
+      PC = (PC + 1) & 0xFFFF;
     }
 
     public void decrement() {
-      PC--;
-      PC &= 0xFFFF;
+      PC = (PC - 1) & 0xFFFF;
     }
 
     public int getLength() {
@@ -1461,16 +1453,15 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public void write(int value) {
-      SP = value;
+      SP = value & 0xFFFF;
     }
 
     public void increment() {
-      SP++;
+      SP = (SP + 1) & 0xFFFF;
     }
 
     public void decrement() {
-      SP--;
-      SP &= 0xFFFF;
+      SP = (SP - 1) & 0xFFFF;
     }
 
     public int getLength() {
@@ -1498,16 +1489,15 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public void write(int value) {
-      MEMPTR = value;
+      MEMPTR = value & 0xFFFF;
     }
 
     public void increment() {
-      MEMPTR++;
+      MEMPTR = (MEMPTR + 1) & 0xFFFF;
     }
 
     public void decrement() {
-      MEMPTR--;
-      MEMPTR &= 0xFFFF;
+      MEMPTR = (MEMPTR - 1) & 0xFFFF;
     }
 
     public int getLength() {
@@ -1535,16 +1525,15 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     public void write(int value) {
-      VIRTUAL = value;
+      VIRTUAL = value & 0xFFFF;
     }
 
     public void increment() {
-      VIRTUAL++;
+      VIRTUAL = (VIRTUAL + 1) & 0xFFFF;
     }
 
     public void decrement() {
-      VIRTUAL--;
-      VIRTUAL &= 0xFFFF;
+      VIRTUAL = (VIRTUAL - 1) & 0xFFFF;
     }
 
     public int getLength() {
