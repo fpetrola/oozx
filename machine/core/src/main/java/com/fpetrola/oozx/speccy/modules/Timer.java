@@ -145,7 +145,10 @@ public class Timer implements ZxModule, MachineChangeListener {
       changeRequested= false;
       estimateReset();
     }
-    if (sound.soundEnabled && settings.current.sound) {
+    // At real time or below the sound is the clock: the card takes a frame of audio in a frame's
+    // time and the machine waits on it. Above real time the card drops what it has no room for
+    // and waits on nothing, so the pacing is done here.
+    if (sound.soundEnabled && settings.current.sound && settings.current.emulationSpeed <= 100) {
       frameCallbackSound(lastTstates);
       return;
     }

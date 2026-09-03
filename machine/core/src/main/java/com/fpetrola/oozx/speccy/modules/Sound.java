@@ -120,13 +120,20 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
 
   public boolean initSound(long cpuFrequency, int tstatesPerFrame, Object initContext, boolean forANewMachine) {
 
-    this.effectiveSpeed = cpuFrequency * settings.current.emulationSpeed / 100 * 2;
+    // Above real time the frame of audio is a real-time frame all the same: the card plays the
+    // ones it has room for, whole, and drops the rest, so what is heard is the game at its own
+    // pitch, skipping ahead - not the game sped up, which past a few times is a buzz, and past a
+    // hundred is nothing. Below real time the frame is stretched to the speed, and the card,
+    // which then waits for room, is what holds the machine to it.
+    int speed = Math.min(settings.current.emulationSpeed, 100);
+    this.effectiveSpeed = cpuFrequency * speed / 100 * 2;
 
     int[] ints = {0};
     int[] soundFreqArray = {soundFreq};
 
     String device = "buffer=8192,frames=8";
     boolean b = lowlevelInit(device, soundFreqArray, ints);
+    javaSoundDevice.dropWhenAhead(settings.current.emulationSpeed > 100);
 
     this.treble = speakerTreble[speakerType];
     this.bass = speakerBass[speakerType];

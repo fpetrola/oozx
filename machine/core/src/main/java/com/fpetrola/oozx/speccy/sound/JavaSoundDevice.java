@@ -36,6 +36,16 @@ public class JavaSoundDevice {
   private int frameSize;
   private boolean verbose = false;
   private static boolean firstInit = true;
+  private boolean dropWhenAhead;
+  private byte[] audioBytes = new byte[0];
+
+  /**
+   * Whether a frame the card has no room for is dropped rather than waited on. Waiting is what
+   * holds the machine to real time; dropping is what lets it run ahead and still be heard.
+   */
+  public void dropWhenAhead(boolean drop) {
+    dropWhenAhead = drop;
+  }
 
   /**
    * Inicializa el dispositivo de audio.
@@ -168,19 +178,13 @@ public class JavaSoundDevice {
    * @param len  Cantidad de samples (no frames). En C: len /= ch
    */
   public void sound_lowlevel_frame(int[] data, int len) {
-//    System.out.println("local:" + Arrays.toString(data));
-
     if (line == null || !line.isOpen()) return;
-
     int frames = len / channels;
     int bytesToWrite = frames * frameSize;
-
-    byte[] audioBytes = convertToBytes(data, len);
-
-//    System.out.println("local2:" + Arrays.toString(audioBytes));
-
-//    bytesToWrite = audioBytes.length;
-
+    // A frame is played whole or not at all: dropping the tail of every frame would play the
+    // heads one after another, which is the sped-up buzz again.
+    if (dropWhenAhead && line.available() < bytesToWrite) return;
+    convertToBytes(data, len);
     int written = 0;
     while (written < bytesToWrite) {
       int ret = line.write(audioBytes, written, bytesToWrite - written);
@@ -193,16 +197,13 @@ public class JavaSoundDevice {
     }
   }
 
-  private byte[] convertToBytes(int[] data, int len) {
-    byte[] audioBytes = new byte[len * 2];
-
+  private void convertToBytes(int[] data, int len) {
+    if (audioBytes.length < len * 2) audioBytes = new byte[len * 2];
     for (int i = 0; i < len; i++) {
       int idx = i * 2;
       audioBytes[idx] = (byte) (data[i] & 0xFF);
       audioBytes[idx + 1] = (byte) (data[i] >> 8 & 0xFF);
     }
-
-    return audioBytes;
   }
 
   /**

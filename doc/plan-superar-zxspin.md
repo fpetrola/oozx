@@ -427,7 +427,8 @@ dicen, sobra para el 20 % que separa de ZXSpin; los demás son para no quedarse 
 
 ## 9. Lo que el sonido hace con la velocidad
 
-Medido con la placa de audio real, reproduciendo la grabación de JSW a la velocidad pedida:
+Medido con la placa de audio real, reproduciendo la grabación de JSW a la velocidad pedida, con
+la regla que venía de Fuse — el frame de audio se dimensiona para la velocidad pedida:
 
 | velocidad pedida | fps | equivale a | CPU/pared |
 |---|---|---|---|
@@ -437,23 +438,27 @@ Medido con la placa de audio real, reproduciendo la grabación de JSW a la veloc
 | 60 000 % | 13 707 | 27 413 % | 0,99 |
 | 15 000 %, dispositivo silencioso | 13 601 | 27 202 % | 1,00 |
 
-**Con el sonido puesto la máquina corre exactamente a la velocidad pedida y ni un frame más.** El
-frame de audio se dimensiona para esa velocidad (`Sound.initSound`), la placa lo consume a
-44 100 muestras por segundo y `line.write` bloquea cuando se adelanta: el sonido es el reloj. A
-15 000 % el hilo pasa la mitad del tiempo dormido en la placa, no calculando — no hay
-procesamiento de sonido que optimizar, ni muestras que saltear: con el dispositivo silencioso
-la síntesis cuesta ~1 %. "Sin sonido va al doble" era "sin sonido nadie acompasa".
+**Con esa regla la máquina corre exactamente a la velocidad pedida y ni un frame más**: la placa
+consume el frame a 44 100 muestras por segundo y `line.write` bloquea cuando la máquina se
+adelanta — el sonido es el reloj. A 15 000 % el hilo pasa la mitad del tiempo dormido en la placa;
+con el dispositivo silencioso la síntesis cuesta ~1 %. No había procesamiento de sonido que
+optimizar: "sin sonido va al doble" era "sin sonido nadie acompasa". Y lo que se oía a 150× era un
+zumbido de 8 muestras por frame — el juego comprimido 150 veces.
 
-De ahí que ZXSpin "con sonido" corra más: su máxima velocidad no la fija el audio. Acá el turbo
-pedía 15 000 %, un número, y el sonido se lo cumplía. Ahora el turbo pide
-`Settings.SettingsInfo.UNLIMITED_SPEED`, que es "lo más rápido que pueda": a esa velocidad un
-frame de audio son cero muestras, la placa no recibe nada y no bloquea, la línea sigue abierta y
-vuelve a sonar al bajar a 100 %, y el `Timer` concede más T-states por tick de los que un tick
-puede correr (acotado a `int`: desbordaba y dejaba la máquina quieta). Medido: el loop de la
-máquina a velocidad ilimitada, 7 702 fps con sonido y 7 888 sin; a 100 %, 49 y 50.
+**La regla nueva (2026-09-03), que es la de ZXSpin.** Por encima de tiempo real el frame de audio
+sigue siendo un frame de tiempo real —el juego a su tono— y la placa **toma el frame entero si
+tiene lugar o lo descarta entero** (`JavaSoundDevice.dropWhenAhead`); descartar la cola de cada
+frame volvería a tocar las cabezas una tras otra, que es el zumbido de nuevo. Lo que se oye a
+cualquier velocidad es el juego a su tono, saltando en el tiempo: avance rápido con audio. Por
+debajo de tiempo real el frame se estira y la placa, que espera lugar, es la que acompasa. El
+turbo pide `Settings.SettingsInfo.UNLIMITED_SPEED`, "lo más rápido que pueda"; el `Timer` acompasa
+las velocidades intermedias con sonido puesto (antes le dejaba eso a la placa) y su concesión por
+tick está acotada a `int` (desbordaba y dejaba la máquina quieta). Un frame no aloca su `byte[]`.
 
-Lo que se oye en turbo: nada — antes, a 150×, se oía un zumbido de 8 muestras por frame. Si se
-prefiere el zumbido, un turbo de ~50 000 % deja 1-2 muestras por frame sin acompasar.
+Medido: por el camino del RZX, a 100 % 51 fps y la placa toca 44 164 muestras/s; a 2 000 %,
+15 000 % y sin límite, 13 300-14 000 fps (el máximo de la máquina) **y la placa sigue tocando
+44 060 muestras/s** — continuo, sin huecos. Por el loop de la máquina con sonido: 100 % → 49 fps,
+200 % → 100 fps (el Timer), sin límite → 14 247 fps.
 
 Un hallazgo al pasar, para otro día: la línea se abre **mono** y la mezcla le escribe los pares
 L/R intercalados como muestras consecutivas; el `× 2` de `effectiveSpeed` compensa la duración.
