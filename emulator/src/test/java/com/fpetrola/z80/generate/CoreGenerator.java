@@ -42,9 +42,25 @@ import java.util.*;
  * per opcode table, one case per instruction, the MEMPTR and contention aspects woven in.
  */
 public class CoreGenerator {
+  /**
+   * What is being generated: the pure core, whose memory and contention are hooks, or a core made
+   * against a machine, which holds that machine's objects and reaches its memory without a call.
+   */
+  public static class Target {
+    public String packageName = "com.fpetrola.z80.cpu";
+    public String className = "GeneratedZ80";
+    /** What the generated class holds, by the type it is declared as, in constructor order. */
+    public final Map<String, Class<?>> held = new LinkedHashMap<>();
+    /** Methods of the generated class whose body is the specialization of a live object's method. */
+    public final Map<String, Object> helpers = new LinkedHashMap<>();
+    /** The signature of each helper, by name, as it is written. */
+    public final Map<String, String> helperSignatures = new LinkedHashMap<>();
+  }
+
   private final State state;
   private final Instruction[] root;
-  private final Specializer spec;
+  private final Target target;
+  public final Specializer spec;
   private final Specializer.Obj memptrUpdater;
   private final PhaseProcessor contention;
   private final List<Case> cases = new ArrayList<>();
@@ -58,8 +74,20 @@ public class CoreGenerator {
   }
 
   public CoreGenerator(State state, Instruction[] root, SourceIndex index) {
+    this(state, root, index, pureCore(state));
+  }
+
+  private static Target pureCore(State state) {
+    Target target = new Target();
+    target.held.put("memory", com.fpetrola.z80.memory.Memory.class);
+    target.held.put("io", IO.class);
+    return target;
+  }
+
+  public CoreGenerator(State state, Instruction[] root, SourceIndex index, Target target) {
     this.state = state;
     this.root = root;
+    this.target = target;
     this.spec = new Specializer(index);
     this.memptrUpdater = spec.of(new MemptrUpdater(state.getMemptr(), state.getMemory()));
     this.contention = new TestFusePhaseProcessor(state, event -> {
@@ -76,15 +104,24 @@ public class CoreGenerator {
     parametersOf.put("decode", List.of());
     table("decode", wrappers, null);
     classify();
+    Map<String, String> helpers = new LinkedHashMap<>();
+    for (Map.Entry<String, Object> helper : target.helpers.entrySet())
+      helpers.put(helper.getKey(), new BlockStmt(new NodeList<>(helperBody(helper.getKey(), helper.getValue()))).toString().replace("\n", "\n  "));
     StringBuilder out = new StringBuilder();
-    out.append("package com.fpetrola.z80.cpu;\n\n");
+    out.append("package ").append(target.packageName).append(";\n\n");
     Set<String> imports = new TreeSet<>(spec.imports);
-    imports.addAll(List.of("com.fpetrola.z80.memory.Memory", "com.fpetrola.z80.registers.UnrolledRegisterBank", "fuse.tstates.Contention"));
+    imports.addAll(List.of("com.fpetrola.z80.registers.UnrolledRegisterBank", "fuse.tstates.Contention",
+        "com.fpetrola.z80.cpu.GeneratedCore", "com.fpetrola.z80.cpu.State", "com.fpetrola.z80.cpu.IO"));
+    for (Class<?> type : target.held.values())
+      imports.add(type.getName().replace('$', '.'));
     for (String i : imports)
-      out.append("import ").append(i).append(";\n");
-    out.append("\n/** Generated from the OOP model by GenerateZ80: the instructions, MEMPTR and the contention, flattened. Do not edit; regenerate. */\n");
-    out.append("public abstract class GeneratedZ80 extends UnrolledRegisterBank {\n");
-    out.append("  protected final Memory memory;\n  protected final IO io;\n  protected State state;\n\n");
+      if (!i.startsWith(target.packageName + ".") || i.indexOf('.', target.packageName.length() + 1) >= 0)
+        out.append("import ").append(i).append(";\n");
+    out.append("\n/** Generated from the OOP model by the generator: the instructions, MEMPTR and the contention, flattened. Do not edit; regenerate. */\n");
+    out.append("public abstract class ").append(target.className).append(" extends UnrolledRegisterBank implements GeneratedCore {\n");
+    for (Map.Entry<String, Class<?>> holding : target.held.entrySet())
+      out.append("  protected final ").append(holding.getValue().getSimpleName()).append(' ').append(holding.getKey()).append(";\n");
+    out.append("  protected State state;\n\n");
     for (Class<?> support : spec.staticSupport) {
       TypeDeclaration<?> type = spec.index.type(support);
       for (var member : type.getMembers()) {
@@ -99,9 +136,20 @@ public class CoreGenerator {
       Specializer.Slot slot = slotNamed(field);
       out.append("  private ").append(slot.type().getSimpleName()).append(' ').append(field).append(" = ").append(literal(slot.initial())).append(";\n");
     }
-    out.append("\n  public GeneratedZ80(Memory memory, IO io) {\n    this.memory = memory;\n    this.io = io;\n  }\n\n");
+    out.append("\n  public ").append(target.className).append('(');
+    String comma = "";
+    for (Map.Entry<String, Class<?>> holding : target.held.entrySet()) {
+      out.append(comma).append(holding.getValue().getSimpleName()).append(' ').append(holding.getKey());
+      comma = ", ";
+    }
+    out.append(") {\n");
+    for (String name : target.held.keySet())
+      out.append("    this.").append(name).append(" = ").append(name).append(";\n");
+    out.append("  }\n\n");
     out.append("  public void attach(State state) {\n    this.state = state;\n  }\n\n");
     out.append("  public abstract void contend(int address, int times, int tstates, Contention.Kind kind);\n\n");
+    for (Map.Entry<String, String> helper : helpers.entrySet())
+      out.append("  private ").append(target.helperSignatures.get(helper.getKey())).append(' ').append(helper.getValue()).append("\n\n");
     out.append("  public void step() ").append(new BlockStmt(new NodeList<>(step)).toString().replace("\n", "\n  ")).append("\n\n");
     for (String method : parametersOf.keySet()) {
       String parameters = parametersOf.get(method).stream().map(p -> ", int " + p).reduce("", String::concat);
@@ -129,6 +177,25 @@ public class CoreGenerator {
    * is what regulates them; changing it changes the generated file, which the lock will say.
    */
   private static final int GROUP_SHIFT = Integer.getInteger("oozx.groupshift", 4);
+
+  /** The body of a helper: one of the machine's own methods, taken apart, written once. */
+  private List<Statement> helperBody(String name, Object object) {
+    // A helper is the body of what its callers call by name, so while it is written the terminals
+    // that name it are not terminals: otherwise it would be written in terms of itself.
+    Map<Class<?>, String> naming = new LinkedHashMap<>();
+    spec.terminals.entrySet().removeIf(t -> t.getValue().isEmpty() && naming.put(t.getKey(), t.getValue()) == null);
+    spec.newCase();
+    List<Statement> body = new ArrayList<>();
+    List<Object> arguments = new ArrayList<>();
+    for (String parameter : target.helperSignatures.get(name).replaceAll(".*\\(|\\)", "").split(", "))
+      arguments.add(new NameExpr(parameter.split(" ")[1]));
+    Object result = spec.call(spec.of(object), name, arguments, body);
+    if (result instanceof Expression value)
+      body.add(new ReturnStmt(value));
+    Simplifier.simplify(body, Map.of());
+    spec.terminals.putAll(naming);
+    return body;
+  }
 
   private void table(String method, FetchedInstructionWrapper[] wrappers, Expression preRead) {
     for (int opcode = 0; opcode < wrappers.length; opcode++) {
@@ -244,8 +311,10 @@ public class CoreGenerator {
     }
   }
 
+  /** An access, however the memory terminal is named: on a field, or on this class when it is a helper. */
   private MethodCallExpr memoryAccess(Statement s) {
-    List<MethodCallExpr> calls = s.findAll(MethodCallExpr.class, m -> m.getScope().isPresent() && m.getScope().get().toString().equals("memory") && (m.getNameAsString().equals("read") || m.getNameAsString().equals("write")));
+    String terminal = spec.terminals.getOrDefault(com.fpetrola.z80.memory.Memory.class, "memory");
+    List<MethodCallExpr> calls = s.findAll(MethodCallExpr.class, m -> m.getScope().map(Object::toString).orElse("").equals(terminal) && (m.getNameAsString().equals("read") || m.getNameAsString().equals("write")));
     if (calls.size() > 1)
       throw new IllegalStateException("two memory accesses in one statement: " + s);
     return calls.isEmpty() ? null : calls.get(0);
@@ -441,7 +510,8 @@ public class CoreGenerator {
   }
 
   private MethodCallExpr read(Expression address, int fetching) {
-    return new MethodCallExpr(new NameExpr("memory"), "read", new NodeList<>(address, lit(fetching)));
+    String terminal = spec.terminals.get(com.fpetrola.z80.memory.Memory.class);
+    return new MethodCallExpr(terminal == null || terminal.isEmpty() ? null : new NameExpr(terminal), "read", new NodeList<>(address, lit(fetching)));
   }
 
   private static Statement call(String method, Expression... args) {

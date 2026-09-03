@@ -36,10 +36,10 @@ import java.nio.file.Path;
 public class GenerateZ80 {
   public static final Path TARGET = Path.of("src/main/java/com/fpetrola/z80/cpu/GeneratedZ80.java");
   /** The model the generator reads: the instances come from it and so does the source it inlines. */
-  static final Path SOURCES = Path.of("src/main/java");
+  public static final Path SOURCES = Path.of("src/main/java");
 
   /** A machine that only has to be built, not run: the generator reads its instruction graph. */
-  static State state() {
+  public static State state() {
     return new State(new IO() {
       public int in(int port) {
         return 0xFF;
@@ -50,7 +50,7 @@ public class GenerateZ80 {
     }, new UnrolledRegisterBankFactory().createBank(), new MockedMemory(true));
   }
 
-  static Instruction[] tables(State state) {
+  public static Instruction[] tables(State state) {
     DefaultInstructionFactory factory = new DefaultInstructionFactory(state);
     return new TableBasedOpCodeDecoder(state, OpcodeConditions.createOpcodeConditions(state.getFlag(), state.getRegister(RegisterName.B)), factory.getFetchNextOpcodeInstructionFactory(), factory, new MemoryForOpcodes(state.getMemory(), state)).getOpcodeLookupTable();
   }

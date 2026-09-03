@@ -24,9 +24,9 @@ import com.fpetrola.z80.instructions.types.Instruction;
  * one instruction step is the generated switch instead of a fetch and an execute.
  */
 public class GeneratedZ80Cpu extends OOZ80 {
-  private final GeneratedZ80 core;
+  private final GeneratedCore core;
 
-  public GeneratedZ80Cpu(State state, GeneratedZ80 core) {
+  public GeneratedZ80Cpu(State state, GeneratedCore core) {
     super(state, new InstructionFetcher() {
       public Instruction fetchNextInstruction() {
         return null;
@@ -56,7 +56,7 @@ public class GeneratedZ80Cpu extends OOZ80 {
     return null;
   }
 
-  public GeneratedZ80 getCore() {
+  public GeneratedCore getCore() {
     return core;
   }
 }

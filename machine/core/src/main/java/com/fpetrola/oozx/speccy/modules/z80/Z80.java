@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx.speccy.modules.z80;
 
+import com.fpetrola.z80.cpu.GeneratedCore;
 import com.fpetrola.z80.cpu.GeneratedZ80;
 import com.fpetrola.z80.cpu.GeneratedZ80Cpu;
 import com.fpetrola.z80.registers.RegisterBank;
@@ -278,7 +279,7 @@ public class Z80 implements ZxModule, Cpu {
     return "generated".equals(System.getProperty("oozx.cpu"));
   }
 
-  private GeneratedZ80 generated;
+  private GeneratedCore generated;
 
   private void createOOZ80(State state1) {
     if (generated != null)
@@ -290,12 +291,25 @@ public class Z80 implements ZxModule, Cpu {
   private RegisterBank createBank(Memory memory2) {
     if (!generatedCore())
       return new DefaultRegisterBankFactory().createBank();
-    generated = new GeneratedZ80(memory2, io) {
+    // The core generated against this machine reaches its page table itself, so it cannot be
+    // pointed at the instrumented memory the test harness puts in the way. That harness measures
+    // the pure core instead, through its listeners; the machine runs on its own.
+    if (Emulation.noTest) {
+      GeneratedSpectrumZ80 core = new GeneratedSpectrumZ80(memory, ula, zxClock, display, io) {
+        public void contend(int address, int times, int tstates, Contention.Kind kind) {
+          phaseProcessor.contend(address, times, tstates, kind);
+        }
+      };
+      generated = core;
+      return core;
+    }
+    GeneratedZ80 core = new GeneratedZ80(memory2, io) {
       public void contend(int address, int times, int tstates, Contention.Kind kind) {
         phaseProcessor.contend(address, times, tstates, kind);
       }
     };
-    return generated;
+    generated = core;
+    return core;
   }
 
   private State createState(Memory memory2) {

@@ -369,7 +369,7 @@ public class Specializer {
     NodeList<Expression> arguments = new NodeList<>();
     for (Object a : args)
       arguments.add(asExpression(a));
-    MethodCallExpr call = new MethodCallExpr(new NameExpr(field), name, arguments);
+    MethodCallExpr call = new MethodCallExpr(field.isEmpty() ? null : new NameExpr(field), name, arguments);
     if (receiver.value instanceof MemoryForOpcodes && name.equals("read"))
       return operandRead(call, out);
     return call;
