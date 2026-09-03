@@ -1077,9 +1077,27 @@ arnés que anda —`doOpcodes` sobre Manic Miner, fijado a un P-core, cuatro par
 | gancho abstracto, como está | 3.545 |
 | contención especializada en un helper | 3.526 |
 
-Empatado. **No compra nada**, y tiene sentido: el gancho llega a `FusePhaseProcessor.contend`, que
-es chico y monomórfico, y C2 ya lo resuelve. El `times` literal desenrolla el loop igual una vez
-que lo inlinea.
+Empatado. Pero la razón no es que el gancho sea barato: `PhaseProcessorBase.contend` tiene **tres
+implementaciones** y las tres se cargan, así que C2 no puede resolverlo por jerarquía, y el log de
+inlining ya lo decía —`Z80$5::contend`, 413 veces `callee uses too much stack`—. O sea que ahí hay
+una llamada de verdad en la mayoría de los sitios, y sacarlas no cambió nada.
+
+Para saber si esos sitios son calientes, se midió una tercera variante que **no hace nada**:
+
+| | media |
+|---|---|
+| gancho, como está | 3.540 |
+| contención especializada en un helper | 3.526 |
+| contención que no hace nada | **3.944** |
+
+**El trabajo de la contención es el 11 % del frame; la llamada, cero.** Los sitios son calientes,
+y lo que cuesta es lo que hacen: la búsqueda de página, y por cada uno de los `times` ciclos una
+lectura de la tabla de 1 MB más una suma al reloj. Un `contend(IR, 7, 1)` sobre página contendida
+son siete lecturas de tabla.
+
+Es el mismo resultado que con la memoria, y ya van tres: **la llamada no es lo que cuesta, el
+trabajo sí.** Bajar ese 11 % pide cambiar lo que la contención calcula, no dónde vive el método,
+y eso es de la máquina.
 
 Así que G1–G3 queda como está: la memoria adentro, la contención afuera. Lo que falta medir con
 este arnés es `GROUP_SHIFT`, que se eligió cuando los métodos eran más chicos.
