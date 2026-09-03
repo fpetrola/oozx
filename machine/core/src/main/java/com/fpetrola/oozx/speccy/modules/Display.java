@@ -75,13 +75,9 @@ public class Display implements ZxModule, MachineChangeListener {
 
   // If you write to the byte at display_dirty_?table[n+0x4000], then
   // the eight pixels starting at (8*xtable[n],ytable[n]) must be replotted
-  private final int[] dirtyYtable = new int[WIDTH_COLS * HEIGHT];
-  private final int[] dirtyXtable = new int[WIDTH_COLS * HEIGHT];
 
   // If you write to the byte at display_dirty_?table2[n+0x5800], then
   // the 64 pixels starting at (8*xtable2[n],ytable2[n]) must be replotted
-  private final int[] dirtyYtable2 = new int[WIDTH_COLS * HEIGHT_ROWS];
-  private final int[] dirtyXtable2 = new int[WIDTH_COLS * HEIGHT_ROWS];
 
   // The number of frames mod 32 that have elapsed
   private int frameCount;
@@ -138,20 +134,6 @@ public class Display implements ZxModule, MachineChangeListener {
       attrStart[y] = 6144 + (32 * (y / 8));
     }
 
-    for (y = 0; y < HEIGHT; y++) {
-      for (x = 0; x < WIDTH_COLS; x++) {
-        dirtyYtable[lineStart[y] + x] = y;
-        dirtyXtable[lineStart[y] + x] = x;
-      }
-    }
-
-    for (y = 0; y < HEIGHT_ROWS; y++) {
-      for (x = 0; x < WIDTH_COLS; x++) {
-        dirtyYtable2[(32 * y) + x] = y * 8;
-        dirtyXtable2[(32 * y) + x] = x;
-      }
-    }
-
     frameCount = 0;
     flashReversed = false;
 
@@ -174,6 +156,7 @@ public class Display implements ZxModule, MachineChangeListener {
   @Override
   public void machineChanged(SpectrumMachine newMachine) {
     this.spectrumMachine = newMachine;
+    beamLineStart = Long.MIN_VALUE;
   }
 
   // Structure for border change
@@ -257,6 +240,10 @@ public class Display implements ZxModule, MachineChangeListener {
     criticalRegionX = beamX;
   }
 
+  /** The line the beam was last found on, and where that line starts, counted from the first. */
+  private int beamLine;
+  private long beamLineStart = Long.MIN_VALUE;
+
   public BeanPosition getBeamPosition() {
     long[] lineTimes = spectrumMachine.getLineTimes();
 
@@ -266,7 +253,16 @@ public class Display implements ZxModule, MachineChangeListener {
       return beam;
     }
 
-    beam.y = (int) ((tStates - lineTimes[0]) / spectrumMachine.getTimings().tstatesPerLine);
+    // Asked for every byte that changes on the screen, and a screen copy changes one every
+    // twenty-one T-states: the line is the one it was a moment ago far more often than not, so
+    // the division that finds it is paid once per line rather than once per byte.
+    long intoFrame = tStates - lineTimes[0];
+    int tstatesPerLine = spectrumMachine.getTimings().tstatesPerLine;
+    if (intoFrame < beamLineStart || intoFrame >= beamLineStart + tstatesPerLine) {
+      beamLine = (int) (intoFrame / tstatesPerLine);
+      beamLineStart = (long) beamLine * tstatesPerLine;
+    }
+    beam.y = beamLine;
 
     if (beam.y >= 0 && beam.y <= SCREEN_HEIGHT) {
       beam.x = (int) ((tStates - lineTimes[beam.y]) / 4);
@@ -306,15 +302,19 @@ public class Display implements ZxModule, MachineChangeListener {
     maybeDirty[y] |= (1 << x);
   }
 
+  /**
+   * Which cell a screen byte is, from the address: bits 0-4 the column, 5-7 the character row
+   * within its third, 8-10 the pixel row, 11-12 the third. Shifts, where two tables of six
+   * thousand entries used to say the same thing and take forty-eight kilobytes of cache to do it.
+   */
   private void dirty8(int offset) {
-    int x = dirtyXtable[offset];
-    int y = dirtyYtable[offset];
-    dirtyChunk(x, y);
+    dirtyChunk(offset & 31, 64 * ((offset >> 11) & 3) + 8 * ((offset >> 5) & 7) + ((offset >> 8) & 7));
   }
 
   private void dirty64(int offset) {
-    int x = dirtyXtable2[offset - 0x1800];
-    int y = dirtyYtable2[offset - 0x1800];
+    int cell = offset - 0x1800;
+    int x = cell & 31;
+    int y = (cell >> 5) * 8;
     for (int i = 0; i < 8; i++) {
       dirtyChunk(x, y + i);
     }

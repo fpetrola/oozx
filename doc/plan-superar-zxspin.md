@@ -298,6 +298,38 @@ por celda (las ocho líneas contra `criticalRegionY`). `copyCriticalRegionLine`,
 tests de video (`ZXSpectrumBeamBatchTests`, la regresión de video): la región crítica es lo que
 hace que un cambio a mitad de frame se vea donde estaba el haz, y es lo único que puede romperse.
 
+**Hecho (2026-09-03), y una lección del instrumento.** Después del §3 la pantalla de JSW ya no
+costaba nada (la comparación exacta se llevó las marcas espurias), y en Manic Miner el perfil
+decía `dirtySinclair` **17 %**. Lo que había ahí: `getBeamPosition` hacía **dos divisiones de 64
+bits por byte cambiado** (la línea del haz y la columna), y `dirty8` pasaba por dos tablas de
+6 144 enteros — 48 KB de caché para decir lo que dicen tres shifts. Ahora la línea del haz se
+divide una vez por línea (el byte siguiente de una copia de pantalla está en la misma línea casi
+siempre) y las celdas salen por shifts, como en Fuse; las cuatro tablas desaparecieron.
+
+Resultado: `dirtySinclair` bajó del 17,4 % al **0,9 %** del tiempo propio… y los fps no se
+movieron (Manic Miner 15 995 / 14 790 → 16 327 / 14 318, JSW igual). El tiempo se corrió a
+`decodeED_22` —LDIR— de 34 % a 37 %: **aquel 17 % era el stall de los stores de la copia de
+pantalla, que el sampler cargaba a la llamada siguiente.** Un perfil de tiempo propio atribuye
+la espera a quien está *después* del que espera; antes de creerle a un método, medir con él
+quitado.
+
+Lo que la pantalla cuesta como subsistema, medido apagándola: **7 % en Manic Miner, 2 % en
+JSW**, y es la presentación (`writeIfDirtySinclair` → `UiDisplay.plot8` por celda cambiada), del
+lado de la UI. El marcado por celda que proponía esta sección no tiene ya un costo que
+justifique rediseñar la región crítica; queda descartado.
+
+Estado al cierre del paso 5, cada parte encendida de a una (mismo arnés que el §0):
+
+| | Manic Miner 48K | JSW 128K |
+|---|---|---|
+| solo el núcleo | 17 355 fps | 13 135 fps |
+| + presentar la pantalla | 16 194 | 12 905 |
+| + síntesis de sonido | 15 955 | 11 082 |
+| todo, como la app | 15 256 | 11 896 |
+
+Contra el §0 (13 333 / 7 939): **+14 % y +50 %** con todo encendido. Lo que queda grande es el
+AY en 128K (§6: 16 %) y, en el núcleo, LDIR.
+
 ## 6. Sonido en 128K
 
 La síntesis cuesta un 4 % en JSW (8 542 → 8 231) y nada en 48K. `Ay.synthesise` avanza de a 32
