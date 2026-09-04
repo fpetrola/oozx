@@ -85,6 +85,10 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     Widgets.tighten(toolBar);
   }
 
+  static void tighten(Container toolBar, int sideMargin) {
+    Widgets.tighten(toolBar, sideMargin);
+  }
+
   public EmulatorCore emulatorCore;
   private ZXSpectrumDesktopApp parentApp;
   private GameSearchResult gameSearchResult;
@@ -95,8 +99,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
   private JLabel turboIndicator;
   private JButton muteButton;
   private boolean isMuted = false;
-  private float scaleFactor0 = 1.73f;
-  private float scaleFactor = scaleFactor0;
   private JDialog fullscreen;
   private KeyListener keys;
   //  private JLabel tapeStatusLabel;
@@ -265,20 +267,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
   }
 
   private JPanel createStatusBar() {
-    JPanel statusBar = new JPanel();
-//    statusBar.setBorder(BorderFactory.createEtchedBorder());
-    GroupLayout layout = new GroupLayout(statusBar);
-    statusBar.setLayout(layout);
-    layout.setAutoCreateGaps(true);
-
-    // Fixed height for all components
-    int componentHeight = 20;
-
-    // State Label
-//    statusLabel = new JLabel("State: Ready");
-//    statusLabel.setPreferredSize(new Dimension(100, componentHeight));
-
-    // Speed Progress Bar
+    JPanel statusBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
     // Full is the speed of the real machine, which is what the number beside it means: drawn
     // against 7000 before, so a machine running exactly right filled a fortieth of the bar and
     // read as a stray line down its left edge. Turbo runs past the end and pins it full, which
@@ -286,54 +275,20 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     speedBar = new JProgressBar(0, 100);
     speedBar.setStringPainted(true);
     showSpeed(emulatorCore.getEmulationSpeed());
-    speedBar.setPreferredSize(new Dimension(150, 24));
-    speedBar.setMinimumSize(new Dimension(100, 24));
-
-    // Model Combo
+    speedBar.setPreferredSize(new Dimension(64, 20));
     // Asked for, not written out again: the hand-written list had no +2A, no +3e and no NTSC,
     // so selecting one of those found nothing in the box and left it naming the machine before.
     modelCombo = new JComboBox<>(emulatorCore.getMachineModels().toArray(new String[0]));
-    modelCombo.setRenderer(new CustomComboBox());
     modelCombo.setSelectedItem(emulatorCore.getCurrentModel());
-    modelCombo.setPreferredSize(new Dimension(80, 10));
     modelCombo.addActionListener(e -> emulatorCore.setMachineModel((String) modelCombo.getSelectedItem()));
-
     pauseIndicator = new JLabel();
-    pauseIndicator.setHorizontalAlignment(JLabel.CENTER);
     showPaused(emulatorCore.isPaused());
-
     turboIndicator = new JLabel(loadIcon("1F680.svg"));
-    turboIndicator.setHorizontalAlignment(JLabel.CENTER);
     updateTurboLabel(emulatorCore.isTurboMode());
-
-    // Tape Status
-//    tapeStatusLabel = new JLabel();
-//    tapeStatusLabel.setIcon(emulatorCore.getTapeStatus().equals("Loaded") ?
-//        UIManager.getIcon("FileChooser.upFolderIcon") :
-//        UIManager.getIcon("FileChooser.newFolderIcon"));
-//    tapeStatusLabel.setPreferredSize(new Dimension(80, componentHeight));
-//    tapeStatusLabel.setToolTipText("Tape: " + emulatorCore.getTapeStatus());
-
-
-    layout.setHorizontalGroup(layout.createSequentialGroup()
-//        .addComponent(statusLabel)
-            .addComponent(speedBar)
-            .addComponent(modelCombo)
-            .addComponent(pauseIndicator)
-            .addComponent(turboIndicator)
-//        .addComponent(tapeStatusLabel)
-    );
-
-    layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-//        .addComponent(statusLabel)
-            .addComponent(speedBar)
-            .addComponent(modelCombo)
-            .addComponent(pauseIndicator)
-            .addComponent(turboIndicator)
-//        .addComponent(tapeStatusLabel)
-    );
-
-    // Bind data to components
+    statusBar.add(speedBar);
+    statusBar.add(modelCombo);
+    statusBar.add(pauseIndicator);
+    statusBar.add(turboIndicator);
     emulatorCore.addEmulatorListener(new EmulatorListener() {
       public void onEmulationStateChanged(String state) {
 //        statusLabel.setText("State: " + state);
@@ -369,26 +324,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     return statusBar;
   }
 
-  static class CustomComboBox extends JLabel implements ListCellRenderer {
-    @Override
-    public Component getListCellRendererComponent(
-        JList list,
-        Object value,
-        int index,
-        boolean isSelected,
-        boolean cellHasFocus) {
-
-      JLabel label = new JLabel() {
-        public Dimension getPreferredSize() {
-          return new Dimension(200, 15);
-        }
-      };
-      label.setText(String.valueOf(value));
-
-      return label;
-    }
-  }
-
   /**
    * Trims the padding a button keeps around its icon. Shrinking the icon alone leaves the
    * button the size it was, since most of a toolbar button is margin.
@@ -417,7 +352,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     reflectSpeed((int) emulatorCore.getEmulationSpeed());
     toolBar.add(turboButton);
 
-    toolBar.addSeparator();
 
 //    // Use built-in Swing icons
 //    Icon openIcon = UIManager.getIcon("FileView.fileIcon");
@@ -485,14 +419,12 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     });
     toolBar.add(borderButton);
 
-    toolBar.addSeparator();
 
     JButton pauseButton = new JButton(loadIcon("23EF.svg"));
     pauseButton.setToolTipText("Pause or continue");
     pauseButton.addActionListener(e -> emulatorCore.pauseEmulation());
     toolBar.add(pauseButton);
 
-    toolBar.addSeparator();
 
     muteButton = new JButton(loadIcon("1F507.svg"));
     muteButton.setToolTipText("Mute/Unmute Sound - right-click for the volume");
@@ -500,7 +432,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     Widgets.popUpOnRightClick(muteButton, volumeSlider());
     toolBar.add(muteButton);
 
-    toolBar.addSeparator();
 
     if (parentApp != null) {
       JButton pokesButton = new JButton(loadIcon("1F513.svg"));
@@ -546,12 +477,9 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     JButton changeSize = new JButton(loadIcon("E243.svg"));
     changeSize.setToolTipText("Small or large window");
     changeSize.addActionListener(e -> {
-      Dimension size = EmulatorInternalFrame.this.getSize();
-      if (size.width > 1000)
-        scaleFactor = 1 / scaleFactor0;
-      if (size.width < 600)
-        scaleFactor = scaleFactor0;
-      EmulatorInternalFrame.this.setSize((int) (size.width * scaleFactor), (int) (size.height * scaleFactor));
+      Dimension one = emulatorCore.getPanel().getPreferredSize();
+      int step = emulatorCore.getPanel().getWidth() < 2 * one.width ? 1 : -1;
+      setSize(getWidth() + step * one.width, getHeight() + step * one.height);
     });
     toolBar.add(changeSize);
 
@@ -574,7 +502,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     });
     toolBar.add(favoriteButton);
 
-    tighten(toolBar);
+    tighten(toolBar, 1);
     return toolBar;
   }
 
@@ -2974,6 +2902,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
       JMenuItem item = new JMenuItem(new java.io.File(filePath).getName());
       item.setToolTipText(filePath);
       item.addActionListener(e -> open(filePath));
+      int place = recentFilesMenu.getItemCount() + 1;
+      if (place <= 10) item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0 + place % 10, InputEvent.CTRL_DOWN_MASK));
       recentFilesMenu.add(item);
     }
 

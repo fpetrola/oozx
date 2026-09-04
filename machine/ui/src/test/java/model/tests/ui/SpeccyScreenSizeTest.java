@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * The size the screen asks for is what a window packed around it gets, so it has to be the
- * picture it shows at its zoom: 320 by 236 with the border, 256 by 192 without. It used to ask
+ * picture it shows: 320 by 236 with the border, 256 by 192 without. It used to ask
  * for the bare picture whatever the defaults said about the border.
  */
 class SpeccyScreenSizeTest {
@@ -24,9 +24,9 @@ class SpeccyScreenSizeTest {
     ScreenSettings.setDefaults(withBorder);
     try {
       SpeccyScreen screen = new SpeccyScreen(new byte[1000][1000]);
-      assertEquals(new Dimension(640, 472), screen.getPreferredSize(), "with the border, at zoom 2");
+      assertEquals(new Dimension(320, 236), screen.getPreferredSize(), "with the border");
       screen.setBorderVisible(false);
-      assertEquals(new Dimension(512, 384), screen.getPreferredSize(), "without the border, at zoom 2");
+      assertEquals(new Dimension(256, 192), screen.getPreferredSize(), "without the border");
     } finally {
       ScreenSettings.setDefaults(previous);
     }

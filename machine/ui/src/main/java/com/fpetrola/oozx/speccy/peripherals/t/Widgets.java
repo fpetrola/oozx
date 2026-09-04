@@ -71,9 +71,13 @@ public class Widgets {
   }
 
   public static void tighten(Container toolBar) {
+    tighten(toolBar, 3);
+  }
+
+  public static void tighten(Container toolBar, int sideMargin) {
     for (Component component : toolBar.getComponents()) {
       if (component instanceof AbstractButton button) {
-        button.setMargin(new Insets(2, 3, 2, 3));
+        button.setMargin(new Insets(2, sideMargin, 2, sideMargin));
         button.setFocusPainted(false);
         // And it does not take the keyboard: a button that holds the focus is a button that Enter
         // presses, which is how Enter stopped reaching the machine and pressed the turbo instead.

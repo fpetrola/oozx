@@ -28,7 +28,7 @@ import java.util.stream.IntStream;
 public class SpeccyScreen extends JPanel {
   private final byte[][] screenMatrix;
   private final BufferedImage screenBuffer;
-  private double zoom = 2;
+  private double zoom = 1;
   Color[] lightColors = {Color.BLACK, Color.BLUE, Color.RED, Color.MAGENTA, Color.GREEN, Color.CYAN, Color.YELLOW, Color.WHITE};
   Color[] darkColors = new Color[8];
 
