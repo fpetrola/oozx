@@ -23,6 +23,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
 import javax.swing.JSlider;
+import com.fpetrola.oozx.speccy.peripherals.t.Widgets;
 import javax.swing.SwingUtilities;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.MouseEvent;
@@ -82,5 +83,16 @@ class SlidersUnderTheButtonsTest {
     } finally {
       SwingUtilities.invokeAndWait(frame::dispose);
     }
+  }
+
+  @Test
+  void aClickAnywhereOnTheTrackJumpsTheThumbThere() {
+    JSlider slider = new JSlider(0, 1000, 0);
+    slider.setSize(100, 20);   // no border, so the track is the whole width
+    Widgets.jumpToClick(slider);
+    slider.dispatchEvent(new MouseEvent(slider, MouseEvent.MOUSE_PRESSED, System.currentTimeMillis(), 0, 75, 10, 1, false, MouseEvent.BUTTON1));
+    assertTrue(Math.abs(slider.getValue() - 750) <= 20, "a click three quarters along should land near 750, was " + slider.getValue());
+    slider.dispatchEvent(new MouseEvent(slider, MouseEvent.MOUSE_PRESSED, System.currentTimeMillis(), 0, 0, 10, 1, false, MouseEvent.BUTTON1));
+    assertEquals(0, slider.getValue(), "a click at the far left is the minimum");
   }
 }

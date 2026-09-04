@@ -116,6 +116,18 @@ public class SpeccyScreen extends JPanel {
     setPreferredSize(new Dimension((int) (imageWidth() * zoom), (int) (imageHeight() * zoom)));
   }
 
+  public double getZoom() {
+    return zoom;
+  }
+
+  /** How many screen pixels to a Spectrum one. The window is packed around the new size by its owner. */
+  public void setZoom(double newZoom) {
+    zoom = newZoom;
+    preferNativeSize();
+    revalidate();
+    repaint();
+  }
+
   private void resizeWindowBy(int previousWidth, int previousHeight) {
     Container window = SwingUtilities.getAncestorOfClass(JInternalFrame.class, this);
     if (window == null) {

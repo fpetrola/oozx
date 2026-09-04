@@ -26,6 +26,8 @@ import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JToggleButton;
+import javax.swing.JSlider;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Insets;
@@ -96,6 +98,40 @@ public class Widgets {
    * is the picture. Kept inside the window on purpose - a popup that has to stand outside it
    * takes the focus, and the frame losing it closes the popup at once.
    */
+  /**
+   * A click anywhere on the track jumps the thumb to that point and drags from there, rather than
+   * the L&F's block-step. The UI's own track listener is taken off first, since it is the one that
+   * steps by a block and swallows the click.
+   */
+  public static void jumpToClick(JSlider slider) {
+    for (java.awt.event.MouseListener listener : slider.getMouseListeners()) slider.removeMouseListener(listener);
+    for (java.awt.event.MouseMotionListener listener : slider.getMouseMotionListeners()) slider.removeMouseMotionListener(listener);
+    MouseAdapter toThePoint = new MouseAdapter() {
+      @Override
+      public void mousePressed(MouseEvent e) {
+        setFromX(e);
+      }
+    };
+    slider.addMouseListener(toThePoint);
+    slider.addMouseMotionListener(new MouseMotionAdapter() {
+      @Override
+      public void mouseDragged(MouseEvent e) {
+        setFromX(e);
+      }
+    });
+  }
+
+  static void setFromX(MouseEvent e) {
+    JSlider slider = (JSlider) e.getSource();
+    if (!slider.isEnabled()) return;
+    Insets in = slider.getInsets();
+    int span = slider.getWidth() - in.left - in.right;
+    if (span <= 0) return;
+    double ratio = Math.max(0, Math.min(1, (e.getX() - in.left) / (double) span));
+    int min = slider.getMinimum();
+    slider.setValue((int) Math.round(min + ratio * (slider.getMaximum() - min)));
+  }
+
   public static void popUpOnRightClick(AbstractButton button, JComponent content) {
     JPopupMenu popup = new JPopupMenu();
     popup.add(content);

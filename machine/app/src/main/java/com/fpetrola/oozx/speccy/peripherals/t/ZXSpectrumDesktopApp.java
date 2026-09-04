@@ -96,6 +96,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
   private JProgressBar speedBar;
   private JComboBox<String> modelCombo;
   private JLabel pauseIndicator;
+  private JButton pauseButton;
   private JLabel turboIndicator;
   private JButton muteButton;
   private boolean isMuted = false;
@@ -228,9 +229,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     }
     slider.setLabelTable(labels);
     slider.setPaintLabels(true);
-    slider.setMajorTickSpacing(HALF);
-    slider.setMinorTickSpacing(HALF / 10);
-    slider.setPaintTicks(true);
+    Widgets.jumpToClick(slider);
     slider.setPreferredSize(new Dimension(250, slider.getPreferredSize().height));
     slider.addChangeListener(e -> {
       if (!reflectingSpeed) speedChosen(speedAt(slider.getValue()));
@@ -240,9 +239,8 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
 
   private JComponent volumeSlider() {
     JSlider slider = new JSlider(0, 100, emulatorCore.getVolume());
-    slider.setMajorTickSpacing(25);
-    slider.setPaintTicks(true);
     slider.setPaintLabels(true);
+    Widgets.jumpToClick(slider);
     slider.setPreferredSize(new Dimension(180, slider.getPreferredSize().height));
     slider.addChangeListener(e -> emulatorCore.setAudioOption("volume", slider.getValue()));
     return slider;
@@ -264,6 +262,14 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
   private void showPaused(boolean paused) {
     pauseIndicator.setIcon(loadIcon(paused ? "23F8.svg" : "25B6.svg"));
     pauseIndicator.setToolTipText(paused ? "Paused" : "Running");
+    showPlayPause(paused);
+  }
+
+  /** One button showing the move it makes: the play arrow when stopped, the pause bars when running. */
+  private void showPlayPause(boolean paused) {
+    if (pauseButton == null) return;
+    pauseButton.setIcon(loadIcon(paused ? "25B6.svg" : "23F8.svg"));
+    pauseButton.setToolTipText(paused ? "Continue" : "Pause");
   }
 
   private JPanel createStatusBar() {
@@ -420,8 +426,8 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     toolBar.add(borderButton);
 
 
-    JButton pauseButton = new JButton(loadIcon("23EF.svg"));
-    pauseButton.setToolTipText("Pause or continue");
+    pauseButton = new JButton();
+    showPlayPause(emulatorCore.isPaused());
     pauseButton.addActionListener(e -> emulatorCore.pauseEmulation());
     toolBar.add(pauseButton);
 
@@ -475,11 +481,12 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     toolBar.add(fullscreenButton);
 
     JButton changeSize = new JButton(loadIcon("E243.svg"));
-    changeSize.setToolTipText("Small or large window");
+    changeSize.setToolTipText("Zoom: 1x, 2x, 3x");
     changeSize.addActionListener(e -> {
-      Dimension one = emulatorCore.getPanel().getPreferredSize();
-      int step = emulatorCore.getPanel().getWidth() < 2 * one.width ? 1 : -1;
-      setSize(getWidth() + step * one.width, getHeight() + step * one.height);
+      if (emulatorCore.getPanel() instanceof SpeccyScreen screen) {
+        screen.setZoom(screen.getZoom() >= 3 ? 1 : screen.getZoom() + 1);
+        pack();
+      }
     });
     toolBar.add(changeSize);
 
@@ -2214,6 +2221,11 @@ public class ZXSpectrumDesktopApp extends JFrame {
       // which picture belongs to which set of buttons.
       String name = player.getRecordingFile() == null ? "" : ": " + player.getRecordingFile().getName();
       machine.setTitle("Spectrum #" + player.getNumber() + name);
+      // Put the screen straight above the controls that were already on screen, so the pair comes
+      // up joined where the person is looking rather than the screen landing elsewhere and the
+      // controls jumping across to it once the recording finishes loading.
+      java.awt.Rectangle where = player.getBounds();
+      machine.setLocation(where.x, Math.max(0, where.y - machine.getHeight()));
       player.setMachineWindow(machine);
       machine.addInternalFrameListener(new InternalFrameAdapter() {
         // Closing the machine's window stops the recording driving it - AttachedFrame watches
