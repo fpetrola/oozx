@@ -100,6 +100,8 @@ public abstract class AttachedFrame extends JInternalFrame {
 
   /** Fires once the window has stopped being dragged; see the listener that restarts it. */
   private Timer settle;
+  /** The machine a live drag is over and would attach to, lit on both windows until let go. */
+  private JInternalFrame glowingMachine;
 
   private JInternalFrame machineWindow;
 
@@ -171,6 +173,7 @@ public abstract class AttachedFrame extends JInternalFrame {
       public void componentMoved(ComponentEvent moved) {
         if (!getBounds().equals(placedAt)) {
           settle.restart();
+          previewSnap();
         }
       }
 
@@ -187,6 +190,7 @@ public abstract class AttachedFrame extends JInternalFrame {
       @Override
       public void internalFrameClosed(InternalFrameEvent e) {
         settle.stop();
+        clearGlow();
       }
 
     });
@@ -236,6 +240,7 @@ public abstract class AttachedFrame extends JInternalFrame {
    * that is no longer there are a window nobody can use. Detached, it stays and lets go.
    */
   protected void machineClosed() {
+    clearGlow();
     boolean wasAttached = dock != Dock.FREE;
     setMachineWindow(null);
     attachmentChanged();
@@ -374,22 +379,12 @@ public abstract class AttachedFrame extends JInternalFrame {
    * the machine is near its bottom edge by one measure and near nothing by eye.
    */
   void snapIfNear() {
+    clearGlow();
     Rectangle me = getBounds();
-    JInternalFrame nearestMachine = null;
-    Dock nearest = Dock.FREE;
-    int closest = STICKY;
-    for (JInternalFrame candidate : machinesAround()) {
-      Dock side = nearestSideOf(candidate, me);
-      if (side != Dock.FREE) {
-        int away = distanceTo(candidate, me, side);
-        if (away < closest) {
-          closest = away;
-          nearest = side;
-          nearestMachine = candidate;
-        }
-      }
-    }
+    JInternalFrame nearestMachine = snapCandidate();
+    Dock nearest = nearestMachine == null ? Dock.FREE : nearestSideOf(nearestMachine, me);
     if (TRACE) {
+      int closest = nearestMachine == null ? STICKY : distanceTo(nearestMachine, me, nearest);
       System.out.printf("dock: window=%s -> %s of %s (nearest %d px)%n",
           me, nearest, nearestMachine, closest);
     }
@@ -415,6 +410,83 @@ public abstract class AttachedFrame extends JInternalFrame {
    * ever notices its own machine can be taken off that one and never put onto any other, which
    * leaves moving it between computers impossible by the one gesture that should do it.
    */
+  /** The machine this would attach to if let go now, or null if it is not near one. */
+  private JInternalFrame snapCandidate() {
+    Rectangle me = getBounds();
+    JInternalFrame nearest = null;
+    int closest = STICKY;
+    for (JInternalFrame candidate : machinesAround()) {
+      Dock side = nearestSideOf(candidate, me);
+      if (side != Dock.FREE) {
+        int away = distanceTo(candidate, me, side);
+        if (away < closest) {
+          closest = away;
+          nearest = candidate;
+        }
+      }
+    }
+    return nearest;
+  }
+
+  /**
+   * While a drag is over a machine it would attach to, both windows carry a soft edge, so it is
+   * plain before letting go that dropping it there will join the two. Cleared the moment the drag
+   * ends, when snapIfNear turns the hint into the real thing or lets it go.
+   */
+  void previewSnap() {
+    JInternalFrame target = getBounds().equals(placedAt) ? null : snapCandidate();
+    if (target == glowingMachine) {
+      return;
+    }
+    setGlow(glowingMachine, false);
+    glowingMachine = target;
+    setGlow(this, target != null);
+    setGlow(target, true);
+  }
+
+  /** The machine a live drag would attach to, lit on both windows, or null. */
+  JInternalFrame previewTarget() {
+    return glowingMachine;
+  }
+
+  private void clearGlow() {
+    setGlow(this, false);
+    setGlow(glowingMachine, false);
+    glowingMachine = null;
+  }
+
+  private static void setGlow(JInternalFrame frame, boolean on) {
+    if (frame == null || frame.getRootPane() == null) {
+      return;
+    }
+    Component glass = frame.getGlassPane();
+    if (on && !(glass instanceof SnapGlow)) {
+      frame.setGlassPane(new SnapGlow());
+      glass = frame.getGlassPane();
+    }
+    if (glass instanceof SnapGlow) {
+      glass.setVisible(on);
+    }
+  }
+
+  /** A soft rounded edge over a frame, transparent to the mouse so the machine still takes input. */
+  private static final class SnapGlow extends JComponent {
+    @Override
+    public boolean contains(int x, int y) {
+      return false;
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+      Graphics2D pen = (Graphics2D) g.create();
+      pen.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+      pen.setStroke(new BasicStroke(3f));
+      pen.setColor(new Color(110, 190, 255, 215));
+      pen.drawRoundRect(2, 2, getWidth() - 5, getHeight() - 5, 14, 14);
+      pen.dispose();
+    }
+  }
+
   private List<JInternalFrame> machinesAround() {
     List<JInternalFrame> machines = new ArrayList<>();
     Container desktop = getParent();

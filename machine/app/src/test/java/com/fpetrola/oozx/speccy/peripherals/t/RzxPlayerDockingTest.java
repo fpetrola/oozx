@@ -30,6 +30,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -261,5 +263,29 @@ class RzxPlayerDockingTest {
     assertEquals(40 + 380 - seam(machines.get(1), player), player.getY(), "not under the new machine");
     assertTrue(player.getTitle().contains("Playing"), "opened but not playing: " + player.getTitle());
     player.dispose();
+  }
+
+  @Test
+  void nearingAMachineLightsBothWindowsUntilLetGo() {
+    JDesktopPane desktop = new JDesktopPane();
+    RzxPlayerInternalFrame player = player();
+    JInternalFrame machine = machine(100, 100, 400, 300);
+    desktop.add(machine);
+    desktop.add(player);
+    player.setMachineWindow(machine);
+    // Lifted a few pixels off the bottom edge, the way a hand holds it just before dropping.
+    player.setBounds(104, 100 + 300 + 5, 300, 120);
+    player.previewSnap();
+    assertSame(machine, player.previewTarget(), "no hint while hovering the machine it would join");
+    // Carried well away: the hint goes.
+    player.setBounds(900, 700, 300, 120);
+    player.previewSnap();
+    assertNull(player.previewTarget(), "still hinting when nowhere near a machine");
+    // Back near it and then let go: the settle turns the hint off, docked or not.
+    player.setBounds(104, 100 + 300 + 5, 300, 120);
+    player.previewSnap();
+    assertSame(machine, player.previewTarget(), "did not light up on the way back");
+    player.snapIfNear();
+    assertNull(player.previewTarget(), "the hint outlived the drop");
   }
 }
