@@ -185,7 +185,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
   }
 
   /** The most the slider asks for, and what the rocket asks for when pressed. */
-  static final int TOP_SPEED = 30000;
+  static final int TOP_SPEED = 40000;
   /** Where the slider's two halves meet: the left half is the speeds one plays at, the right the rest. */
   static final int KNEE_SPEED = 1000;
   private static final int HALF = 500;
