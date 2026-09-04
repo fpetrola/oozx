@@ -52,6 +52,7 @@ public class OOZxConfiguration {
    * leaves that knob alone.
    */
   private Map<String, String> screenDefaults = new LinkedHashMap<>();
+  private boolean turboByDefault;
   /**
    * Looks someone saved, by name. A map of plain text rather than the profile objects
    * themselves, for the same reason the defaults are: the file is read by versions that did not
@@ -164,6 +165,14 @@ public class OOZxConfiguration {
 
   public void setScreenDefaults(Map<String, String> screenDefaults) {
     this.screenDefaults = screenDefaults;
+  }
+
+  public boolean isTurboByDefault() {
+    return turboByDefault;
+  }
+
+  public void setTurboByDefault(boolean turboByDefault) {
+    this.turboByDefault = turboByDefault;
   }
 
   public Map<String, Map<String, String>> getKeptScreenProfiles() {

@@ -77,11 +77,11 @@ public class SpeccyScreen extends JPanel {
   public SpeccyScreen(byte[][] screenMatrix) {
     IntStream.range(0, 8).forEach(i -> darkColors[i] = lightColors[i].darker());
     this.screenMatrix = screenMatrix;
-    setPreferredSize(new Dimension((int) (SCREEN_W * zoom), (int) (SCREEN_H * zoom)));
     this.screenBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
     this.croppedBuffer = new BufferedImage(SCREEN_W, SCREEN_H, BufferedImage.TYPE_INT_RGB);
 
     screen.apply(com.fpetrola.oozx.speccy.screen.ScreenSettings.getDefaults());
+    preferNativeSize();
     screen.onChange(this::repaint);
 
     new Timer(30, e -> SwingUtilities.invokeLater(this::repaint)).start();
@@ -107,9 +107,13 @@ public class SpeccyScreen extends JPanel {
     int previousWidth = imageWidth();
     int previousHeight = imageHeight();
     set("border", borderVisible);
-    setPreferredSize(new Dimension((int) (imageWidth() * zoom), (int) (imageHeight() * zoom)));
+    preferNativeSize();
     resizeWindowBy(previousWidth, previousHeight);
     repaint();
+  }
+
+  private void preferNativeSize() {
+    setPreferredSize(new Dimension((int) (imageWidth() * zoom), (int) (imageHeight() * zoom)));
   }
 
   private void resizeWindowBy(int previousWidth, int previousHeight) {

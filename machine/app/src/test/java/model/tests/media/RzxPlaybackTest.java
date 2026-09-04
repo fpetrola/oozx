@@ -22,13 +22,21 @@ import model.tags.Slow;
 
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.Emulation;
+import com.fpetrola.oozx.speccy.peripherals.t.RzxPlayerInternalFrame;
 import com.fpetrola.oozx.speccy.rzx.RzxSession;
+import com.fpetrola.z80.ide.rzx.RzxParser;
+import com.fpetrola.z80.ide.rzx.RzxWriter;
 import com.fpetrola.z80.minizx.RzxPlayback;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.SwingUtilities;
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -143,5 +151,35 @@ class RzxPlaybackTest {
       }
     }
     return '?';
+  }
+
+  /**
+   * Loop is on from the start: reaching the end, the player winds the recording back and goes on.
+   * On a copy cut to forty frames, so that the end is a second away rather than a minute.
+   */
+  @Test
+  void the_player_starts_over_when_the_recording_ends() throws Exception {
+    Emulation.noTest = true;
+    Path shortOne = Files.createTempFile("forty-frames", ".rzx");
+    RzxWriter.writeExtended(new RzxParser().parseFile(recording().getPath()), 40, List.of(),
+        shortOne, RzxWriter.Mode.CONTINUE_BLOCK);
+    RzxPlayerInternalFrame player = new RzxPlayerInternalFrame(1, one -> null, (one, session) -> { });
+    SwingUtilities.invokeAndWait(() -> player.openRecording(shortOne.toFile()));
+    int furthest = 0;
+    boolean wentBack = false;
+    for (long until = System.currentTimeMillis() + 10_000; !wentBack && System.currentTimeMillis() < until; Thread.sleep(20)) {
+      int at = frameShown(player);
+      wentBack = at < furthest;
+      furthest = Math.max(furthest, at);
+    }
+    assertTrue(furthest >= 20, "the recording never got going: " + player.getTitle());
+    assertTrue(wentBack, "reached the end and did not start over: " + player.getTitle());
+    assertTrue(player.getTitle().contains("Playing"), "started over but stopped: " + player.getTitle());
+    SwingUtilities.invokeAndWait(player::dispose);
+  }
+
+  private static int frameShown(RzxPlayerInternalFrame player) {
+    Matcher shown = Pattern.compile("(\\d+) of \\d+ frames").matcher(player.getTitle());
+    return shown.find() ? Integer.parseInt(shown.group(1)) : 0;
   }
 }

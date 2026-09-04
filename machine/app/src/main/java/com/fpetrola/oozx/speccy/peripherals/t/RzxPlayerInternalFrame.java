@@ -99,6 +99,8 @@ public class RzxPlayerInternalFrame extends AttachedFrame {
       EmulatorInternalFrame.iconButton("23F9.svg", "Stop", "Stop and go back to the start");
   private final JButton takeOverButton =
       EmulatorInternalFrame.iconButton("1F579.svg", "Take Over", null);
+  private final JToggleButton loopButton =
+      EmulatorInternalFrame.iconToggle("1F501.svg", "Loop", "Start again when the recording ends");
   private final PartsTableModel model = new PartsTableModel();
   private final JTable table = new JTable(model);
   /** The list of parts, which is everything the compact form hides. */
@@ -130,6 +132,8 @@ public class RzxPlayerInternalFrame extends AttachedFrame {
     controls.add(pauseButton);
     controls.add(stopButton);
     controls.add(takeOverButton);
+    loopButton.setSelected(true);
+    controls.add(loopButton);
 
     JButton favoriteButton =
         EmulatorInternalFrame.iconButton("2B50.svg", "Favorite", "Keep this recording");
@@ -352,7 +356,7 @@ public class RzxPlayerInternalFrame extends AttachedFrame {
       switch (mode) {
         case PLAYING -> {
           if (!current.playFrame()) {
-            mode = Mode.FINISHED;
+            if (loopButton.isSelected()) current.rewind(); else mode = Mode.FINISHED;
           } else {
             pace(current);
           }

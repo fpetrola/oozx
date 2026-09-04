@@ -115,7 +115,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
      // Every emulator window is built here, so this is where the machines a build has become
      // known - the browser needs them before one is open and cannot make one to ask.
      parentApp.rememberMachines(core);
-    setSize(420, 380);
     setLocation(x, y);
 
     // Main Panel (emulator screen)
@@ -123,10 +122,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
 
     JComponent mainPanel = core.getPanel();
     mainPanel.setBackground(Color.BLACK);
-    String text = "Emulator Screen - " + core.getCurrentModel();
-    JLabel screenLabel = new JLabel("");
-    screenLabel.setForeground(Color.WHITE);
-    mainPanel.add(screenLabel);
     add(mainPanel, BorderLayout.CENTER);
 
 
@@ -272,11 +267,9 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
   private JPanel createStatusBar() {
     JPanel statusBar = new JPanel();
 //    statusBar.setBorder(BorderFactory.createEtchedBorder());
-    statusBar.setPreferredSize(new Dimension(600, 48));
     GroupLayout layout = new GroupLayout(statusBar);
     statusBar.setLayout(layout);
     layout.setAutoCreateGaps(true);
-    layout.setAutoCreateContainerGaps(true);
 
     // Fixed height for all components
     int componentHeight = 20;
@@ -1344,7 +1337,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
           "Settings", JOptionPane.INFORMATION_MESSAGE);
       return;
     }
-    SettingsDialog settingsDialog = new SettingsDialog(ZXSpectrumDesktopApp.this, active.emulatorCore);
+    SettingsDialog settingsDialog = new SettingsDialog(ZXSpectrumDesktopApp.this, active.emulatorCore, config);
     settingsDialog.setLocationRelativeTo(ZXSpectrumDesktopApp.this);
     settingsDialog.setVisible(true);
   }
@@ -2704,6 +2697,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
       core.setFilename(filePath);
     }
 
+    if (config.isTurboByDefault()) core.setGeneralOption("turbo", true);
     JComponent panel = core.getPanel();
     int x = (emulatorCount * 30) % 400;
     int y = (emulatorCount * 30) % 300;
@@ -2719,6 +2713,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     panel.setFocusable(true);
 
     desktop.add(frame);
+    frame.pack();
     frame.setVisible(true);
     emulatorCount++;
     // A cassette can be opened before the machine that plays it exists - the launcher does

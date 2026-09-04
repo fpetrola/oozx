@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.speccy.peripherals;
 
+import com.fpetrola.oozx.speccy.config.OOZxConfiguration;
+
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -27,10 +29,12 @@ import java.awt.event.KeyEvent;
 // Settings Dialog with tabs
 public class SettingsDialog extends JDialog {
   private EmulatorCore emulatorCore;
+  private final OOZxConfiguration config;
 
-  public SettingsDialog(Frame owner, EmulatorCore core) {
+  public SettingsDialog(Frame owner, EmulatorCore core, OOZxConfiguration config) {
     super(owner, "Settings", true);
     this.emulatorCore = core;
+    this.config = config;
     setSize(600, 400);
 
     JTabbedPane tabbedPane = new JTabbedPane();
@@ -626,8 +630,13 @@ public class SettingsDialog extends JDialog {
     layout.setAutoCreateContainerGaps(true);
 
     JLabel turboLabel = new JLabel("Turbo Mode:");
-    JCheckBox turboCheck = new JCheckBox();
-    turboCheck.addActionListener(e -> emulatorCore.setGeneralOption("turbo", turboCheck.isSelected()));
+    JCheckBox turboCheck = new JCheckBox("", config.isTurboByDefault());
+    turboCheck.setToolTipText("For this machine, and for every one opened from now on");
+    turboCheck.addActionListener(e -> {
+      config.setTurboByDefault(turboCheck.isSelected());
+      config.save();
+      emulatorCore.setGeneralOption("turbo", turboCheck.isSelected());
+    });
 
     JLabel frameRateLabel = new JLabel("Frame Rate:");
     JSpinner frameRateSpinner = new JSpinner(new SpinnerNumberModel(50, 1, 100, 1));
