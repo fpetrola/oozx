@@ -23,8 +23,13 @@ import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.SwingUtilities;
 import java.awt.Rectangle;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -223,5 +228,38 @@ class RzxPlayerDockingTest {
     assertEquals(520, player.getWidth(), "expanding changed its width");
     assertEquals(40 + 380 - seam(machine, player), player.getY(),
         "expanding moved it off the bottom edge");
+  }
+
+  /**
+   * Opening a recording while another plays gave a player nobody could see attached to anything:
+   * the previous machine window was closed while the player still held it, which read as the
+   * person closing the machine, so the player dropped the recording just opened and let go.
+   */
+  @Test
+  void another_recording_moves_it_under_the_new_machine_window_and_plays() throws Exception {
+    File recording = model.harness.TestFiles.testFile("/rzx/jsw-full.rzx");
+    JDesktopPane desktop = new JDesktopPane();
+    List<JInternalFrame> machines = new ArrayList<>();
+    RzxPlayerInternalFrame player = new RzxPlayerInternalFrame(1, one -> null, (one, session) ->
+        SwingUtilities.invokeLater(() -> {
+          JInternalFrame machine = machine(60 + 200 * machines.size(), 40, 520, 380);
+          machines.add(machine);
+          desktop.add(machine);
+          one.setMachineWindow(machine);
+        }));
+    desktop.add(player);
+    SwingUtilities.invokeAndWait(() -> player.openRecording(recording));
+    settle();
+    SwingUtilities.invokeAndWait(() -> player.openRecording(recording));
+    settle();
+
+    assertEquals(2, machines.size(), "each recording brings its own machine");
+    assertTrue(machines.get(0).isClosed(), "the previous machine's window was left behind");
+    assertFalse(player.isClosed(), "the player closed itself");
+    assertNotSame(machines.get(0), player.getMachineWindow(), "still holding the previous window");
+    assertEquals(260, player.getX(), "not lined up with the new machine's left edge");
+    assertEquals(40 + 380 - seam(machines.get(1), player), player.getY(), "not under the new machine");
+    assertTrue(player.getTitle().contains("Playing"), "opened but not playing: " + player.getTitle());
+    player.dispose();
   }
 }

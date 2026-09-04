@@ -261,8 +261,13 @@ public class RzxPlayerInternalFrame extends AttachedFrame {
     }
 
     busy = null;
-    mode = Mode.STOPPED;
+    mode = Mode.PLAYING;
     model.fireTableDataChanged();
+    // The window the previous recording was on is let go of before it is closed: closed while
+    // still held, it reads as the person closing the machine, which drops the recording just opened.
+    JInternalFrame previous = getMachineWindow();
+    setMachineWindow(null);
+    if (previous != null && !previous.isClosed()) previous.dispose();
     showMachine.accept(this, session);
     startThread();
     refresh();

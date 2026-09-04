@@ -87,14 +87,13 @@ public abstract class AttachedFrame extends JInternalFrame {
    * compact height as their preference. Expanding then does nothing at all, about half the time.
    * An event carrying the height we just set is not somebody resizing the window.
    */
-  private int placedHeight = -1;
+  private Rectangle placedAt = new Rectangle();
 
   /**
    * Set while THIS code is moving the window, so that its own placement is not mistaken for
    * somebody dragging it. Without it, docking moves the window, the move looks like a drag, the
    * drag re-docks, and the two feed each other.
    */
-  private boolean placing;
 
   private JToggleButton dockButton;
   private JToggleButton expandButton;
@@ -170,7 +169,7 @@ public abstract class AttachedFrame extends JInternalFrame {
     addComponentListener(new ComponentAdapter() {
       @Override
       public void componentMoved(ComponentEvent moved) {
-        if (!placing) {
+        if (!getBounds().equals(placedAt)) {
           settle.restart();
         }
       }
@@ -179,7 +178,7 @@ public abstract class AttachedFrame extends JInternalFrame {
       public void componentResized(ComponentEvent resized) {
         // Only a resize that somebody did counts. The ones this code makes are how it gets
         // placed, and treating those as a preference is how a window slowly grows on its own.
-        if (!placing && !compact && getHeight() != placedHeight) {
+        if (!compact && getHeight() != placedAt.height) {
           chosenHeight = getHeight();
         }
       }
@@ -212,8 +211,8 @@ public abstract class AttachedFrame extends JInternalFrame {
     // the height it has, and taking the compact height there folds it shut before anyone sees it.
     if (!sized && compact) {
       sized = true;
-      placedHeight = compactHeight();
-      setSize(getWidth(), placedHeight);
+      setSize(getWidth(), compactHeight());
+      placedAt = getBounds();
     }
   }
 
@@ -314,26 +313,21 @@ public abstract class AttachedFrame extends JInternalFrame {
     }
     Rectangle m = machineWindow.getBounds();
     int tall = compact ? compactHeight() : Math.max(compactHeight(), chosenHeight);
-    placing = true;
-    placedHeight = tall;
-    try {
-      switch (dock) {
-        // Along the top or the bottom it takes the machine's width, which is the whole point of
-        // putting it there: the controls for a picture, the width of the picture.
-        // Overlapped by the two borders that meet, or the frames sit a seam apart: each draws
-        // its own edge and the gap between the picture and the buttons is the sum of the two.
-        case BOTTOM -> setBounds(m.x, m.y + m.height - seam(), m.width, tall);
-        case TOP -> setBounds(m.x, Math.max(0, m.y - tall + seam()), m.width, tall);
-        // Against a side it is only moved, never resized. Stretching it to the machine's height
-        // turns a toolbar into a column of empty space, and a window that changes size because
-        // it drifted near something else is a window fighting the person holding it.
-        case LEFT -> setLocation(Math.max(0, m.x - getWidth() + sideSeam()), m.y);
-        case RIGHT -> setLocation(m.x + m.width - sideSeam(), m.y);
-        default -> { }
-      }
-    } finally {
-      placing = false;
+    switch (dock) {
+      // Along the top or the bottom it takes the machine's width, which is the whole point of
+      // putting it there: the controls for a picture, the width of the picture.
+      // Overlapped by the two borders that meet, or the frames sit a seam apart: each draws
+      // its own edge and the gap between the picture and the buttons is the sum of the two.
+      case BOTTOM -> setBounds(m.x, m.y + m.height - seam(), m.width, tall);
+      case TOP -> setBounds(m.x, Math.max(0, m.y - tall + seam()), m.width, tall);
+      // Against a side it is only moved, never resized. Stretching it to the machine's height
+      // turns a toolbar into a column of empty space, and a window that changes size because
+      // it drifted near something else is a window fighting the person holding it.
+      case LEFT -> setLocation(Math.max(0, m.x - getWidth() + sideSeam()), m.y);
+      case RIGHT -> setLocation(m.x + m.width - sideSeam(), m.y);
+      default -> { }
     }
+    placedAt = getBounds();
     keepWithMachine();
   }
 
@@ -542,8 +536,8 @@ public abstract class AttachedFrame extends JInternalFrame {
     // machine, so nothing resized at all.
     boolean machineSetsTheHeight = isAttached() && (dock == Dock.TOP || dock == Dock.BOTTOM);
     if (!machineSetsTheHeight) {
-      placedHeight = wanted ? compactHeight() : Math.max(compactHeight(), chosenHeight);
-      setSize(getWidth(), placedHeight);
+      setSize(getWidth(), wanted ? compactHeight() : Math.max(compactHeight(), chosenHeight));
+      placedAt = getBounds();
     }
     if (isAttached()) {
       place();

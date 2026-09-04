@@ -2276,14 +2276,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private void showRzxMachine(RzxPlayerInternalFrame player,
                               com.fpetrola.oozx.speccy.rzx.RzxSession session) {
     SwingUtilities.invokeLater(() -> {
-      // One window per player, reused: starting the recording over builds a new machine, and
-      // leaving the old window behind would pile up a dead emulator per press of Stop. Per
-      // PLAYER, though - the previous one belonging to this player, not whichever was made last,
-      // which with two recordings open was the other player's and still being watched.
-      JInternalFrame previous = player.getMachineWindow();
-      if (previous != null && !previous.isClosed()) {
-        previous.dispose();
-      }
       EmulatorInternalFrame machine = createNewEmulator(session.getCore());
       // The same number the controls carry, so it is possible to tell across a crowded desktop
       // which picture belongs to which set of buttons.
