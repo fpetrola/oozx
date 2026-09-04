@@ -1046,6 +1046,14 @@ public class ZXSpectrumDesktopApp extends JFrame {
     // typed into is a question about this desktop, not about any one of the machines on it.
     KeyboardFocusManager.getCurrentKeyboardFocusManager()
         .addKeyEventDispatcher(this::typeIntoTheMachineInFront);
+    try {
+      new com.fpetrola.oozx.speccy.Gamepad(() -> {
+        EmulatorInternalFrame machine = machineBeingUsed();
+        return machine == null ? null : machine.machine();
+      });
+    } catch (RuntimeException | LinkageError withoutGamepads) {
+      System.err.println("Gamepads are off: " + withoutGamepads.getMessage());
+    }
     applySavedLookAndFeel();
     // Emulators apply the defaults themselves as they are built, so putting the saved ones in
     // place here is all it takes for the next window to open configured.
