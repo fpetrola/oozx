@@ -427,10 +427,10 @@ public class Z80 implements ZxModule, Cpu {
         ram[bank][i] = page[i];
       }
     }
-    io.out(0x7ffd, spectrumState.getPort7ffd() & 0xff);
     if (spectrumState.getSpectrumModel().codeModel == com.fpetrola.emulation.helpers.machine.MachineTypes.CodeModel.SPECTRUMPLUS3) {
       io.out(0x1ffd, spectrumState.getPort1ffd() & 0xff);
     }
+    io.out(0x7ffd, spectrumState.getPort7ffd() & 0xff);
     restoreSoundChip(spectrumState);
   }
 

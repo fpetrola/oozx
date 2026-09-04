@@ -19,6 +19,9 @@
 package model.tests.machine;
 
 import com.fpetrola.emulation.helpers.machine.MachineTypes;
+import com.fpetrola.emulation.helpers.snapshots.MemoryState;
+import com.fpetrola.emulation.helpers.snapshots.SpectrumState;
+import com.fpetrola.emulation.helpers.snapshots.Z80State;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.Spectrum;
 import com.fpetrola.oozx.SpectrumZ80Clock;
@@ -31,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -122,5 +126,27 @@ class SnapshotChoosesItsMachineTest {
       }
     }
     assertEquals(5, claimed.size(), "the models a snapshot can name here");
+  }
+
+  /**
+   * A +2A saved in 48K mode: 0x7ffd carries the lock bit, 0x1ffd the high bit of the ROM number,
+   * and the game reads its font from that ROM. Writing the lock first left 0x1ffd unheard, which
+   * paged the syntax checker where the 48K BASIC belonged and drew every text as noise.
+   */
+  @Test
+  void aSnapshotLockedIntoFortyEightModeComesBackWithThatRom() {
+    Speccy speccy = speccy();
+    SpectrumState state = new SpectrumState();
+    state.setSpectrumModel(MachineTypes.SPECTRUMPLUS2A);
+    state.setZ80State(new Z80State());
+    state.setMemoryState(new MemoryState());
+    state.setPort7ffd(0x30);
+    state.setPort1ffd(0x04);
+
+    speccy.z80.loadSnap(state);
+
+    byte[] glyphOfA = new byte[8];
+    for (int i = 0; i < 8; i++) glyphOfA[i] = (byte) speccy.memory.readByteInternal(0x3E08 + i);
+    assertArrayEquals(new byte[]{0, 0x3C, 0x42, 0x42, 0x7E, 0x42, 0x42, 0}, glyphOfA, "the font of the 48K ROM");
   }
 }
