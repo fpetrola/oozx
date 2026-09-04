@@ -223,7 +223,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
   private JComponent speedSlider() {
     JSlider slider = speedSlider = new JSlider(0, 2 * HALF, positionOf(100));
     java.util.Hashtable<Integer, JComponent> labels = new java.util.Hashtable<>();
-    for (int speed : new int[]{25, 300, 600, KNEE_SPEED, 10000, 20000, TOP_SPEED}) {
+    for (int speed : new int[]{25, 500, KNEE_SPEED, 20000, TOP_SPEED}) {
       labels.put(positionOf(speed), new JLabel(speed + "%"));
     }
     slider.setLabelTable(labels);
@@ -231,7 +231,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     slider.setMajorTickSpacing(HALF);
     slider.setMinorTickSpacing(HALF / 10);
     slider.setPaintTicks(true);
-    slider.setPreferredSize(new Dimension(560, slider.getPreferredSize().height));
+    slider.setPreferredSize(new Dimension(250, slider.getPreferredSize().height));
     slider.addChangeListener(e -> {
       if (!reflectingSpeed) speedChosen(speedAt(slider.getValue()));
     });
@@ -243,7 +243,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     slider.setMajorTickSpacing(25);
     slider.setPaintTicks(true);
     slider.setPaintLabels(true);
-    slider.setPreferredSize(new Dimension(220, slider.getPreferredSize().height));
+    slider.setPreferredSize(new Dimension(180, slider.getPreferredSize().height));
     slider.addChangeListener(e -> emulatorCore.setAudioOption("volume", slider.getValue()));
     return slider;
   }

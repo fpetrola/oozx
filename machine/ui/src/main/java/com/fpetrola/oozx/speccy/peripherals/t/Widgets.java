@@ -91,18 +91,23 @@ public class Widgets {
    * click keeps doing what the button does. For the setting behind a button - a slider for the
    * speed under the turbo button, one for the volume under the mute button.
    */
+  /**
+   * Opens over the toolbar and title bar, ending at the button's bottom edge: below the toolbar
+   * is the picture. Kept inside the window on purpose - a popup that has to stand outside it
+   * takes the focus, and the frame losing it closes the popup at once.
+   */
   public static void popUpOnRightClick(AbstractButton button, JComponent content) {
     JPopupMenu popup = new JPopupMenu();
     popup.add(content);
     button.addMouseListener(new MouseAdapter() {
       @Override
       public void mousePressed(MouseEvent e) {
-        if (e.isPopupTrigger()) popup.show(button, 0, button.getHeight());
+        mouseReleased(e);
       }
 
       @Override
       public void mouseReleased(MouseEvent e) {
-        if (e.isPopupTrigger()) popup.show(button, 0, button.getHeight());
+        if (e.isPopupTrigger()) popup.show(button, 0, button.getHeight() - popup.getPreferredSize().height);
       }
     });
   }

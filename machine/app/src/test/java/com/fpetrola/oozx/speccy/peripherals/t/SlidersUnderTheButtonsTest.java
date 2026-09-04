@@ -48,24 +48,37 @@ class SlidersUnderTheButtonsTest {
   }
 
   @Test
-  void aRightClickOnTheButtonDropsTheSliderDown() throws Exception {
-    assumeFalse(GraphicsEnvironment.isHeadless(), "a popup needs a screen to drop down on");
+  void aRightClickOnTheButtonOpensTheSliderOverTheBarNotUnderIt() throws Exception {
+    assumeFalse(GraphicsEnvironment.isHeadless(), "a popup needs a screen to open on");
     JButton button = new JButton("turbo");
     JSlider slider = new JSlider();
     JFrame frame = new JFrame();
     try {
       SwingUtilities.invokeAndWait(() -> {
         frame.add(button);
+        frame.add(javax.swing.Box.createVerticalStrut(120), java.awt.BorderLayout.NORTH);
         frame.pack();
+        frame.setLocation(300, 300);
         frame.setVisible(true);
+      });
+      // The window manager places the frame a moment after it is shown; a popup opened before
+      // that is measured against where the button was, not where it ends up.
+      Thread.sleep(300);
+      // Looked at right after the click, on the event thread: a popup holding a slider is a
+      // window of its own that takes the focus, and a frame nobody is really using lets go of
+      // the popup as soon as the focus moves, which a person's frame does not.
+      String[] where = new String[1];
+      SwingUtilities.invokeAndWait(() -> {
         Widgets.popUpOnRightClick(button, slider);
         long now = System.currentTimeMillis();
         button.dispatchEvent(new MouseEvent(button, MouseEvent.MOUSE_PRESSED, now, 0, 2, 2, 1, true, MouseEvent.BUTTON3));
         button.dispatchEvent(new MouseEvent(button, MouseEvent.MOUSE_RELEASED, now, 0, 2, 2, 1, true, MouseEvent.BUTTON3));
+        if (!slider.isShowing()) where[0] = "the slider did not open on a right click";
+        else if (SwingUtilities.getAncestorOfClass(JPopupMenu.class, slider) == null) where[0] = "it is not in a popup";
+        else if (slider.getLocationOnScreen().y + slider.getHeight() > button.getLocationOnScreen().y + button.getHeight())
+          where[0] = "the slider reaches below the button, over what is under the bar";
       });
-      SwingUtilities.invokeAndWait(() -> { });
-      assertTrue(slider.isShowing(), "the slider did not drop down on a right click");
-      assertTrue(SwingUtilities.getAncestorOfClass(JPopupMenu.class, slider) != null, "it is not in a popup");
+      assertEquals(null, where[0]);
     } finally {
       SwingUtilities.invokeAndWait(frame::dispose);
     }
