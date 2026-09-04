@@ -946,6 +946,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private final JFileChooser fileChooser = new JFileChooser();
   protected OOZxConfiguration config;
   private JMenu recentFilesMenu;
+  private com.fpetrola.oozx.speccy.Gamepad gamepad;
   protected PokesManager pokesManager;
 
   {
@@ -1047,7 +1048,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     KeyboardFocusManager.getCurrentKeyboardFocusManager()
         .addKeyEventDispatcher(this::typeIntoTheMachineInFront);
     try {
-      new com.fpetrola.oozx.speccy.Gamepad(() -> {
+      gamepad = new com.fpetrola.oozx.speccy.Gamepad(() -> {
         EmulatorInternalFrame machine = machineBeingUsed();
         return machine == null ? null : machine.machine();
       });
@@ -1186,6 +1187,9 @@ public class ZXSpectrumDesktopApp extends JFrame {
     JMenuItem audioInItem = new JMenuItem("Real Cassette (audio in)...");
     audioInItem.addActionListener(e -> showAudioIn());
     emulatorMenu.add(audioInItem);
+    JMenuItem joystickItem = new JMenuItem("Joystick...");
+    joystickItem.addActionListener(e -> showJoystick());
+    emulatorMenu.add(joystickItem);
 
     JMenuItem gameBrowserMenuItem = new JMenuItem("Game Browser...");
     gameBrowserMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.CTRL_DOWN_MASK));
@@ -2591,15 +2595,24 @@ public class ZXSpectrumDesktopApp extends JFrame {
 
   /** A window on what is coming in the sound card, for a cassette player with a real lead. */
   public AudioInInternalFrame showAudioIn() {
-    AudioInInternalFrame watching = new AudioInInternalFrame(this::deckOf);
-    watching.setLocation(60 + (desktop.getAllFrames().length * 20) % 200,
+    return clipOntoTheMachineInFront(new AudioInInternalFrame(this::deckOf));
+  }
+
+  /** A window on the joystick of the machine in front: what is pushed, and which gamepad does it. */
+  public JoystickInternalFrame showJoystick() {
+    return clipOntoTheMachineInFront(new JoystickInternalFrame(this::machineOf,
+        () -> gamepad == null ? null : gamepad.controller()));
+  }
+
+  /** Placed, shown and clipped onto the machine in front, which is what wires it to that machine. */
+  private <T extends AttachedFrame> T clipOntoTheMachineInFront(T window) {
+    window.setLocation(60 + (desktop.getAllFrames().length * 20) % 200,
         60 + (desktop.getAllFrames().length * 20) % 160);
-    desktop.add(watching);
-    watching.setVisible(true);
-    // Clipped onto the machine in front, which is what puts its lead in that machine's ear.
-    watching.setMachineWindow(getActiveEmulator());
-    watching.toFront();
-    return watching;
+    desktop.add(window);
+    window.setVisible(true);
+    window.setMachineWindow(getActiveEmulator());
+    window.toFront();
+    return window;
   }
 
   /** Asks for a tape file and loads it into the cassette browser. No emulator is needed. */

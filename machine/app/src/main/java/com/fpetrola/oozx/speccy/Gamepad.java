@@ -39,6 +39,7 @@ public class Gamepad {
   private final ControllerManager controllers = new ControllerManager();
   private final Supplier<Speccy> machineInFront;
   private EnumSet<JoystickButton> held = EnumSet.noneOf(JoystickButton.class);
+  private ControllerState pad;
   private Speccy driving;
 
   public Gamepad(Supplier<Speccy> machineInFront) {
@@ -47,13 +48,21 @@ public class Gamepad {
     new Timer(10, e -> poll()).start();
   }
 
+  /** The gamepad in use, by the name SDL gives it, or null while there is none. */
+  public String controller() {
+    return pad != null && pad.isConnected ? pad.controllerType : null;
+  }
+
   private void poll() {
-    ControllerState pad = controllers.getState(0);
+    pad = controllers.getState(0);
     Speccy machine = pad.isConnected ? machineInFront.get() : null;
     if (machine != driving) {
       move(driving, held, false);
       driving = machine;
-      if (machine != null) machine.settings.current.joyKempston = true;
+      if (machine != null) {
+        machine.settings.current.joyKempston = true;
+        machine.peripherals.update();
+      }
       move(machine, held, true);
     }
     EnumSet<JoystickButton> now = pressed(pad);
