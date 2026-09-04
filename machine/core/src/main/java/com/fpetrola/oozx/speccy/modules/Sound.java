@@ -83,7 +83,6 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
   private int soundFrameSize;
   /** The frame of the machine {@link #soundFrameSize} was worked out for. */
   private int sizedFor;
-  private int sizedForSpeed = -1;
   private long effectiveSpeed;
   private int bass;
   private double treble;
@@ -119,15 +118,7 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
    * on playing.
    */
   public void rebuildOutput() {
-    // Above real time the frame is a real-time frame whatever the speed, so a speed slid from
-    // one such to another changes only whether the card waits; reopening the line for that would
-    // click at every notch of a drag.
-    int tstatesPerFrame = spectrumMachine.getTimings().tstatesPerFrame;
-    if (tstatesPerFrame == sizedFor && Math.min(settings.current.emulationSpeed, 100) == sizedForSpeed) {
-      javaSoundDevice.dropWhenAhead(settings.current.emulationSpeed > 100);
-      return;
-    }
-    initSound(3500000, tstatesPerFrame, true, false);
+    initSound(3500000, spectrumMachine.getTimings().tstatesPerFrame, true, false);
   }
 
   public void end() {
@@ -139,19 +130,21 @@ public class Sound implements ZxModule, MachineChangeListener , AudioOutput {
 
   public boolean initSound(long cpuFrequency, int tstatesPerFrame, Object initContext, boolean forANewMachine) {
 
-    // Above real time the frame of audio is a real-time frame all the same: the card plays the
-    // ones it has room for, whole, and drops the rest, so what is heard is the game at its own
-    // pitch, skipping ahead - not the game sped up, which past a few times is a buzz, and past a
-    // hundred is nothing. Below real time the frame is stretched to the speed, and the card,
-    // which then waits for room, is what holds the machine to it.
-    int speed = sizedForSpeed = Math.min(settings.current.emulationSpeed, 100);
-    this.effectiveSpeed = cpuFrequency * speed / 100 * 2;
+    // The frame of audio is sized for the speed, so that at three times real time the game is
+    // heard three times as high - sped up, as a tape would be. Below real time the card, waiting
+    // for room, is what holds the machine to the speed; above it the Timer holds it and the card
+    // drops what it has no room for, so that it never holds the machine back.
+    this.effectiveSpeed = cpuFrequency * settings.current.emulationSpeed / 100 * 2;
 
     int[] ints = {0};
     int[] soundFreqArray = {soundFreq};
 
     String device = "buffer=8192,frames=8";
-    boolean b = lowlevelInit(device, soundFreqArray, ints);
+    // The line is opened for a machine, not for a speed: a speed slid along its slider changes
+    // the frame at every notch, and reopening the card for each would click at each.
+    if (forANewMachine || !javaSoundDevice.isActive()) {
+      lowlevelInit(device, soundFreqArray, ints);
+    }
     javaSoundDevice.dropWhenAhead(settings.current.emulationSpeed > 100);
 
     this.treble = speakerTreble[speakerType];

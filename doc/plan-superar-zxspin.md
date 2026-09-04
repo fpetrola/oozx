@@ -445,20 +445,22 @@ con el dispositivo silencioso la síntesis cuesta ~1 %. No había procesamiento 
 optimizar: "sin sonido va al doble" era "sin sonido nadie acompasa". Y lo que se oía a 150× era un
 zumbido de 8 muestras por frame — el juego comprimido 150 veces.
 
-**La regla nueva (2026-09-03), que es la de ZXSpin.** Por encima de tiempo real el frame de audio
-sigue siendo un frame de tiempo real —el juego a su tono— y la placa **toma el frame entero si
-tiene lugar o lo descarta entero** (`JavaSoundDevice.dropWhenAhead`); descartar la cola de cada
-frame volvería a tocar las cabezas una tras otra, que es el zumbido de nuevo. Lo que se oye a
-cualquier velocidad es el juego a su tono, saltando en el tiempo: avance rápido con audio. Por
-debajo de tiempo real el frame se estira y la placa, que espera lugar, es la que acompasa. El
-turbo pide `Settings.SettingsInfo.UNLIMITED_SPEED`, "lo más rápido que pueda"; el `Timer` acompasa
-las velocidades intermedias con sonido puesto (antes le dejaba eso a la placa) y su concesión por
-tick está acotada a `int` (desbordaba y dejaba la máquina quieta). Un frame no aloca su `byte[]`.
+**La regla (2026-09-03), que es la de ZXSpin.** El frame de audio se dimensiona para la
+velocidad pedida, como en Fuse, así que a 300 % el juego se oye tres veces más agudo — acelerado,
+como una cinta; a 30 000 % es un zumbido. Lo que cambió es **quién sostiene la velocidad**: por
+debajo de tiempo real la placa, que espera lugar; por encima, el `Timer` (con sonido puesto
+antes le dejaba eso a la placa) y el `pace()` del reproductor de RZX, que ahora lleva la cuota de
+cada frame en nanosegundos (dormía milisegundos enteros y por encima de 2 000 % no dormía nada).
+La placa, por encima de tiempo real, **toma el frame entero si tiene lugar o lo descarta entero**
+(`JavaSoundDevice.dropWhenAhead`) y no retiene nunca a la máquina. Un cambio de velocidad rearma
+los sintetizadores pero no reabre la línea (se abre por máquina, no por velocidad), así que el
+slider de velocidad se puede arrastrar en vivo sin crepitar. El turbo pide 30 000 %; el tope del
+slider. `Settings.SettingsInfo.UNLIMITED_SPEED` queda para quien quiera "sin límite" (frame de
+cero muestras: silencio).
 
-Medido: por el camino del RZX, a 100 % 51 fps y la placa toca 44 164 muestras/s; a 2 000 %,
-15 000 % y sin límite, 13 300-14 000 fps (el máximo de la máquina) **y la placa sigue tocando
-44 060 muestras/s** — continuo, sin huecos. Por el loop de la máquina con sonido: 100 % → 49 fps,
-200 % → 100 fps (el Timer), sin límite → 14 247 fps.
+Medido en el loop de la máquina con sonido: 100 % → 49 fps y la placa toca 44 125 muestras/s;
+300 % → 150 fps, frames de 150 muestras, 44 106/s continuo; 3 000 % → 1 501 fps, 44 119/s;
+30 000 % → 14 177 fps (28 355 %, el máximo de la máquina) y la placa se queda corta, 30 457/s.
 
 Un hallazgo al pasar, para otro día: la línea se abre **mono** y la mezcla le escribe los pares
 L/R intercalados como muestras consecutivas; el `× 2` de `effectiveSpeed` compensa la duración.
