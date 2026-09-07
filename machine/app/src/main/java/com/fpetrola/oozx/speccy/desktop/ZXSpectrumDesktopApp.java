@@ -1,0 +1,2967 @@
+/*
+ *
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *      http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *
+ */
+
+package com.fpetrola.oozx.speccy.desktop;
+
+import com.fpetrola.oozx.speccy.modules.z80.Processors;
+import com.fpetrola.oozx.speccy.devices.MachineFrame;
+import com.fpetrola.oozx.speccy.media.DownloadAndUnzip;
+import com.fpetrola.oozx.speccy.windows.Widgets;
+import com.fpetrola.oozx.speccy.windows.AttachedFrame;
+import com.fpetrola.oozx.speccy.modules.z80.Cpu;
+import com.fpetrola.oozx.speccy.devices.DeviceFrame;
+import com.fpetrola.oozx.speccy.devices.EmulatorWindow;
+import com.fpetrola.oozx.speccy.devices.Equipment;
+import java.util.ServiceLoader;
+
+import com.fpetrola.oozx.speccy.screen.ScreenProfile;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import com.fpetrola.oozx.speccy.screen.ScreenSettings;
+import com.fpetrola.oozx.speccy.screen.SpeccyScreen;
+import com.fpetrola.oozx.speccy.screen.TvScreen;
+import com.fpetrola.oozx.api.Hit;
+import com.fpetrola.oozx.api.ZxInfoApiHandler;
+import com.fpetrola.oozx.speccy.config.OOZxConfiguration;
+import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
+import com.fpetrola.oozx.EmulatorListener;
+import com.fpetrola.oozx.speccy.peripherals.SettingsDialog;
+import com.fpetrola.oozx.speccy.pokes.PokesManager;
+import com.fpetrola.oozx.speccy.pokes.PokesDialog;
+import com.fpetrola.emulation.helpers.snapshots.SnapshotSaver;
+import com.fpetrola.z80.cpu.State;
+import com.github.weisj.darklaf.LafManager;
+import com.github.weisj.darklaf.theme.*;
+import com.fpetrola.emulation.helpers.snapshots.SpectrumState;
+
+import javax.swing.*;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+
+import com.fpetrola.oozx.rzx.RzxOption;
+import com.fpetrola.oozx.rzx.RzxPlayerInternalFrame;
+import com.fpetrola.oozx.rzx.RzxSession;
+import static com.fpetrola.oozx.speccy.desktop.EmulatorInternalFrame.loadIcon;
+
+// Emulator Internal Frame
+class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
+  @Override
+  public JComponent picture() {
+    return emulatorCore.getPanel();
+  }
+
+  @Override
+  public com.fpetrola.oozx.Speccy machine() {
+    return parentApp.machineOf(this);
+  }
+
+  /** The toolbar's small change lives below this now; these keep the name every caller here uses. */
+  public static ImageIcon loadIcon(String iconFile) {
+    return Widgets.loadIcon(iconFile);
+  }
+
+  static JButton iconButton(String iconFile, String text, String tooltip) {
+    return Widgets.iconButton(iconFile, text, tooltip);
+  }
+
+  static JToggleButton iconToggle(String iconFile, String text, String tooltip) {
+    return Widgets.iconToggle(iconFile, text, tooltip);
+  }
+
+  static void tighten(Container toolBar) {
+    Widgets.tighten(toolBar);
+  }
+
+  static void tighten(Container toolBar, int sideMargin) {
+    Widgets.tighten(toolBar, sideMargin);
+  }
+
+  public EmulatorCore emulatorCore;
+  private ZXSpectrumDesktopApp parentApp;
+  private GameSearchResult gameSearchResult;
+  //  private JLabel statusLabel;
+  private JProgressBar speedBar;
+  private JComboBox<String> modelCombo;
+  private JLabel pauseIndicator;
+  private JButton pauseButton;
+  private JLabel turboIndicator;
+  private JButton muteButton;
+  private boolean isMuted = false;
+  private JDialog fullscreen;
+  private KeyListener keys;
+  //  private JLabel tapeStatusLabel;
+  private List<com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod> appliedPokes = new ArrayList<>();
+
+  public EmulatorInternalFrame(EmulatorCore core, int x, int y, ZXSpectrumDesktopApp parentApp) {
+    this(core, x, y, parentApp, null);
+  }
+
+  public EmulatorInternalFrame(EmulatorCore core, int x, int y, ZXSpectrumDesktopApp parentApp, GameSearchResult gameSearchResult) {
+     super("ZX Spectrum Emulator", true, true, true, true);
+     this.parentApp = parentApp;
+     this.gameSearchResult = gameSearchResult;
+     this.emulatorCore = core;
+     // Every emulator window is built here, so this is where the machines a build has become
+     // known - the browser needs them before one is open and cannot make one to ask.
+     parentApp.rememberMachines(core);
+    setLocation(x, y);
+
+    // Main Panel (emulator screen)
+
+    JComponent mainPanel = core.getPanel();
+    mainPanel.setBackground(Color.BLACK);
+    add(mainPanel, BorderLayout.CENTER);
+
+    JToolBar toolBar = createToolBar();
+    add(toolBar, BorderLayout.NORTH);
+    // Status bar
+    JPanel statusBar = createStatusBar();
+    add(statusBar, BorderLayout.SOUTH);
+
+    // Bind data
+    emulatorCore.addEmulatorListener(new EmulatorListener() {
+      @Override
+      public void onEmulationStateChanged(String state) {
+//        statusLabel.setText("State: " + state);
+      }
+
+      @Override
+      public void onError(String message) {
+        JOptionPane.showMessageDialog(EmulatorInternalFrame.this, message, "Error", JOptionPane.ERROR_MESSAGE);
+      }
+
+      @Override
+      public void onEmulationSpeedChanged(double speed) {
+        showSpeed(speed);
+      }
+
+      @Override
+      public void onModelChanged(String model) {
+        modelCombo.setSelectedItem(model);
+        setTitle("ZX Spectrum Emulator - " + model);
+      }
+
+      @Override
+      public void onPauseStateChanged(boolean paused) {
+        showPaused(paused);
+      }
+
+      @Override
+      public void onTurboModeChanged(boolean turbo) {
+        updateTurboLabel(turbo);
+      }
+
+      @Override
+      public void onTapeStatusChanged(String status) {
+      }
+    });
+  }
+
+  private void updateTurboLabel(boolean turbo) {
+    turboIndicator.setEnabled(turbo);
+    turboIndicator.setToolTipText(turbo ? "Turbo: running at full speed" : "Turbo off");
+  }
+
+  /** The most the slider asks for, and what the rocket asks for when pressed. */
+  static final int TOP_SPEED = 40000;
+  /** Where the slider's two halves meet: the left half is the speeds one plays at, the right the rest. */
+  static final int KNEE_SPEED = 1000;
+  private static final int HALF = 500;
+  private final ImageIcon rocket = loadIcon("1F680.svg");
+  private JButton turboButton;
+  private JSlider speedSlider;
+  private boolean reflectingSpeed;
+
+  /** The slider and the rocket say what the speed is: the rocket greys as it nears the top. */
+  private void reflectSpeed(int speed) {
+    reflectingSpeed = true;
+    speedSlider.setValue(positionOf(speed));
+    reflectingSpeed = false;
+    turboButton.setIcon(Widgets.greyed(rocket, (speed - 100) / (float) (TOP_SPEED - 100)));
+  }
+
+  private void speedChosen(int speed) {
+    emulatorCore.setGeneralOption("speed", speed);
+    reflectSpeed(speed);
+  }
+
+  /** The speed at a position: the left half runs from a quarter to the knee, the right half from the knee to the top. */
+  static int speedAt(int position) {
+    if (position <= HALF) return 25 + Math.round((KNEE_SPEED - 25) * position / (float) HALF);
+    return KNEE_SPEED + Math.round((TOP_SPEED - KNEE_SPEED) * (position - HALF) / (float) HALF);
+  }
+
+  static int positionOf(double speed) {
+    if (speed <= KNEE_SPEED) return Math.max(0, Math.round((float) (speed - 25) * HALF / (KNEE_SPEED - 25)));
+    return Math.min(2 * HALF, HALF + Math.round((float) (speed - KNEE_SPEED) * HALF / (TOP_SPEED - KNEE_SPEED)));
+  }
+
+  /**
+   * A speed to run at, in two halves: the left from a quarter of real time to ten times it,
+   * where a game is played, the right from there to the top. Applied as the knob moves: above real
+   * time a change of speed no longer rebuilds the sound, so there is nothing to crackle.
+   */
+  private JComponent speedSlider() {
+    JSlider slider = speedSlider = new JSlider(0, 2 * HALF, positionOf(100));
+    java.util.Hashtable<Integer, JComponent> labels = new java.util.Hashtable<>();
+    for (int speed : new int[]{25, 500, KNEE_SPEED, 20000, TOP_SPEED}) {
+      labels.put(positionOf(speed), new JLabel(speed + "%"));
+    }
+    slider.setLabelTable(labels);
+    slider.setPaintLabels(true);
+    Widgets.upright(slider, 64, 220);
+    slider.addChangeListener(e -> {
+      if (!reflectingSpeed) speedChosen(speedAt(slider.getValue()));
+    });
+    return slider;
+  }
+
+  private JComponent volumeSlider() {
+    JSlider slider = new JSlider(0, 100, emulatorCore.getVolume());
+    Widgets.upright(slider, 24, 160);
+    slider.addChangeListener(e -> emulatorCore.setAudioOption("volume", slider.getValue()));
+    return slider;
+  }
+
+  private void toggleMute() {
+    emulatorCore.setGeneralOption("mute", !emulatorCore.isMuted());
+    muteButton.setIcon(loadIcon(!emulatorCore.isMuted() ? "1F507.svg" : "1F509.svg"));
+    muteButton.setToolTipText(emulatorCore.isMuted() ? "Unmute Sound" : "Mute Sound");
+  }
+
+  /** How fast it is going, against the speed of the real machine rather than against 7000. */
+  private void showSpeed(double speed) {
+    speedBar.setValue((int) Math.min(100, Math.round(speed)));
+    speedBar.setString(String.format("%.0f%%", speed));
+  }
+
+  /** Running or paused, as the same drawing the buttons use rather than a coloured box. */
+  private void showPaused(boolean paused) {
+    pauseIndicator.setIcon(loadIcon(paused ? "23F8.svg" : "25B6.svg"));
+    pauseIndicator.setToolTipText(paused ? "Paused" : "Running");
+    showPlayPause(paused);
+  }
+
+  /** One button showing the move it makes: the play arrow when stopped, the pause bars when running. */
+  private void showPlayPause(boolean paused) {
+    if (pauseButton == null) return;
+    pauseButton.setIcon(loadIcon(paused ? "25B6.svg" : "23F8.svg"));
+    pauseButton.setToolTipText(paused ? "Continue" : "Pause");
+  }
+
+  private JPanel createStatusBar() {
+    JPanel statusBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
+    // Full is the speed of the real machine, which is what the number beside it means: drawn
+    // against 7000 before, so a machine running exactly right filled a fortieth of the bar and
+    // read as a stray line down its left edge. Turbo runs past the end and pins it full, which
+    // is what the turbo mark next to it is for.
+    speedBar = new JProgressBar(0, 100);
+    speedBar.setStringPainted(true);
+    showSpeed(emulatorCore.getEmulationSpeed());
+    speedBar.setPreferredSize(new Dimension(64, 20));
+    // Asked for, not written out again: the hand-written list had no +2A, no +3e and no NTSC,
+    // so selecting one of those found nothing in the box and left it naming the machine before.
+    modelCombo = new JComboBox<>(emulatorCore.getMachineModels().toArray(new String[0]));
+    modelCombo.setSelectedItem(emulatorCore.getCurrentModel());
+    modelCombo.addActionListener(e -> emulatorCore.setMachineModel((String) modelCombo.getSelectedItem()));
+    pauseIndicator = new JLabel();
+    showPaused(emulatorCore.isPaused());
+    turboIndicator = new JLabel(loadIcon("1F680.svg"));
+    updateTurboLabel(emulatorCore.isTurboMode());
+    statusBar.add(speedBar);
+    statusBar.add(modelCombo);
+    statusBar.add(pauseIndicator);
+    statusBar.add(turboIndicator);
+    emulatorCore.addEmulatorListener(new EmulatorListener() {
+      public void onEmulationStateChanged(String state) {
+//        statusLabel.setText("State: " + state);
+      }
+
+      public void onError(String message) {
+      }
+
+      public void onEmulationSpeedChanged(double speed) {
+        showSpeed(speed);
+      }
+
+      public void onModelChanged(String model) {
+        modelCombo.setSelectedItem(model);
+      }
+
+      public void onPauseStateChanged(boolean paused) {
+        showPaused(paused);
+      }
+
+      public void onTurboModeChanged(boolean turbo) {
+        updateTurboLabel(turbo);
+      }
+
+      public void onTapeStatusChanged(String status) {
+      }
+    });
+
+    return statusBar;
+  }
+
+  /**
+   * Trims the padding a button keeps around its icon. Shrinking the icon alone leaves the
+   * button the size it was, since most of a toolbar button is margin.
+   */
+  /**
+   * A button showing a drawing, falling back to its word if the drawing will not load — the
+   * loader throws on a missing file, so without this a mistyped name takes the whole window
+   * down instead of one picture.
+   */
+
+  /**
+   * The same, for a button that stays down: a toggle is not a JButton, so {@link #iconButton}
+   * cannot make one and the border button was the last unguarded drawing in this toolbar.
+   */
+
+  private JToolBar createToolBar() {
+    JToolBar toolBar = new JToolBar();
+    toolBar.setFloatable(false);
+
+    //    Icon turboIcon = UIManager.getIcon("FileChooser.upFolderIcon");
+    turboButton = new JButton(rocket);
+    turboButton.setToolTipText("Full speed - right-click for a speed");
+    turboButton.addActionListener(e -> speedChosen(emulatorCore.getEmulationSpeed() >= TOP_SPEED ? 100 : TOP_SPEED));
+    Widgets.popUpOnRightClick(turboButton, speedSlider());
+    reflectSpeed((int) emulatorCore.getEmulationSpeed());
+    toolBar.add(turboButton);
+
+    // A toggle rather than a button: it stays down while the border is showing, the way the
+    // border either is there or is not. Up to start with - see SpeccyScreen.
+    JToggleButton borderButton = iconToggle("border-stripes.svg", "Border", "Show the Border");
+    // The border is a screen knob like the rest, so the button shows what this emulator has and
+    // writing it goes to the same place the window writes.
+    if (emulatorCore.getPanel() instanceof SpeccyScreen screen) {
+      borderButton.setSelected(screen.getScreenSettings().isBorder());
+    }
+    borderButton.addActionListener(e -> {
+      emulatorCore.setGeneralOption("border", borderButton.isSelected());
+      if (parentApp != null) {
+        parentApp.setScreenDefault("border", String.valueOf(borderButton.isSelected()));
+      }
+    });
+    toolBar.add(borderButton);
+
+    pauseButton = new JButton();
+    showPlayPause(emulatorCore.isPaused());
+    pauseButton.addActionListener(e -> emulatorCore.pauseEmulation());
+    toolBar.add(pauseButton);
+
+    muteButton = new JButton(loadIcon("1F507.svg"));
+    muteButton.setToolTipText("Mute/Unmute Sound - right-click for the volume");
+    muteButton.addActionListener(e -> toggleMute());
+    Widgets.popUpOnRightClick(muteButton, volumeSlider());
+    toolBar.add(muteButton);
+
+    if (parentApp != null) {
+      JButton pokesButton = new JButton(loadIcon("1F513.svg"));
+      pokesButton.setToolTipText("Cheats/Pokes");
+      pokesButton.addActionListener(e -> openPokesDialog());
+      toolBar.add(pokesButton);
+      
+      JButton viewDetailsButton = new JButton(loadIcon("E259.svg"));
+      viewDetailsButton.setToolTipText("View Game Details");
+      viewDetailsButton.addActionListener(e -> openGameDetails());
+      toolBar.add(viewDetailsButton);
+    }
+
+    JButton fullscreenButton = iconButton("1F4FA.svg", "Fullscreen", "Fullscreen (Escape to leave)");
+    fullscreenButton.addActionListener(e -> toggleFullscreen());
+    toolBar.add(fullscreenButton);
+
+    JButton changeSize = new JButton(loadIcon("E243.svg"));
+    changeSize.setToolTipText("Zoom: 1x, 2x, 3x");
+    changeSize.addActionListener(e -> {
+      if (emulatorCore.getPanel() instanceof SpeccyScreen screen) {
+        screen.setZoom(screen.getZoom() >= 3 ? 1 : screen.getZoom() + 1);
+        pack();
+      }
+    });
+    toolBar.add(changeSize);
+
+    JButton snapshotButton = iconButton("E260.svg", "Snapshot",
+        "Save this machine exactly as it is, to open again later");
+    snapshotButton.addActionListener(e -> saveSnapshot());
+    toolBar.add(snapshotButton);
+
+    JButton screenButton = new JButton(loadIcon("1F39B.svg"));
+    screenButton.setToolTipText("Screen - scaling, television and colour");
+    screenButton.addActionListener(e -> {
+      if (parentApp != null) parentApp.openScreenSettings(emulatorCore, getTitle());
+    });
+    toolBar.add(screenButton);
+
+    JButton favoriteButton = new JButton(loadIcon("2B50.svg"));
+    favoriteButton.setToolTipText("Keep this game in Favorites");
+    favoriteButton.addActionListener(e -> {
+      if (parentApp != null) parentApp.keepAsFavorite(gameSearchResult, emulatorCore.getFilename());
+    });
+    toolBar.add(favoriteButton);
+
+    tighten(toolBar, 1);
+    return toolBar;
+  }
+
+  /**
+   * The screen alone, filling the display. The panel moves into an undecorated window and back,
+   * rather than being redrawn somewhere else, so the emulator goes on running and the keyboard
+   * goes on working: the keys follow the panel's focus, see createNewEmulator.
+   */
+  private void toggleFullscreen() {
+    JComponent panel = emulatorCore.getPanel();
+    if (fullscreen != null) {
+      fullscreen.dispose();
+      fullscreen = null;
+      add(panel, BorderLayout.CENTER);
+    } else {
+      Window owner = SwingUtilities.getWindowAncestor(this);
+      fullscreen = new JDialog(owner);
+      fullscreen.setUndecorated(true);
+      fullscreen.getContentPane().setBackground(Color.BLACK);
+      fullscreen.getRootPane().registerKeyboardAction(e -> toggleFullscreen(),
+          KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+      fullscreen.add(panel);
+      fullscreen.setBounds(owner.getGraphicsConfiguration().getBounds());
+      fullscreen.setVisible(true);
+    }
+    revalidate();
+    repaint();
+    panel.requestFocusInWindow();
+  }
+
+  /**
+   * Writes this machine to a file exactly as it stands, so getting back here is opening it.
+   * <p>
+   * Reaching an interesting state can be most of the work - a program loaded from tape, set up,
+   * and left on the screen worth looking at - and until now that state could only be reached
+   * again by doing all of it over. The file opens like any other: the machine it describes is
+   * built from it.
+   */
+  private void saveSnapshot() {
+    JFileChooser chooser = new JFileChooser();
+    String name = emulatorCore.getFilename();
+    name = name == null ? "snapshot" : new java.io.File(name).getName().replaceAll("\\.[^.]*$", "");
+    chooser.setSelectedFile(new java.io.File(name + ".z80"));
+    if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+      return;
+    }
+    java.io.File file = chooser.getSelectedFile();
+    emulatorCore.saveState(file.getAbsolutePath());
+    setTitle(getTitle() + "");
+    JOptionPane.showMessageDialog(this, file.getName() + " written.\n\n"
+        + "Open it the way you would open a tape and the machine comes back as it is now.",
+        "Snapshot", JOptionPane.INFORMATION_MESSAGE);
+  }
+
+  /** Every toolbar in the application draws its icons at this size. */
+  public static final int TOOLBAR_ICON_SIZE = 19;
+
+  /**
+   * This machine's keyboard, asked for once.
+   * <p>
+   * getKeyListener builds a new one on every call, which was harmless while it was called once
+   * per window and would be one keyboard per keystroke now that the keys are routed rather than
+   * bound to the panel.
+   */
+  KeyListener keys() {
+    if (keys == null) {
+      keys = emulatorCore.getKeyListener();
+    }
+    return keys;
+  }
+
+  private void openPokesDialog() {
+    if (parentApp == null) return;
+
+    String gameName = emulatorCore.getFilename();
+    if (gameName != null) {
+      gameName = new java.io.File(gameName).getName().replace(".tap", "").replace(".tzx", "")
+          .replace(".z80", "").replace(".sna", "").replace(".szx", "");
+    }
+
+    if (gameName == null || gameName.isEmpty()) {
+      JOptionPane.showMessageDialog(this, "No game loaded", "Info", JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+
+    List<com.fpetrola.oozx.speccy.pokes.PokFile> availablePokes =
+        parentApp.pokesManager.findPokesForGame(gameName);
+
+    if (availablePokes.isEmpty()) {
+      JOptionPane.showMessageDialog(this,
+          "No pokes found for: " + gameName,
+          "Pokes Not Found",
+          JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+
+    PokesDialog pokesDialog = new PokesDialog(
+        (Frame) SwingUtilities.getWindowAncestor(this),
+        gameName,
+        availablePokes,
+        parentApp.pokesManager,
+        new ArrayList<>(appliedPokes)); // Pasar pokes previamente aplicados en el constructor
+
+    pokesDialog.setOnPokesAppliedListener(selectedMods -> {
+      if (!selectedMods.isEmpty()) {
+        applyPokes(selectedMods);
+      }
+    });
+
+    // Listener para revertir pokes removidos
+    pokesDialog.setOnPokesChangedListener(removedMods -> {
+      if (!removedMods.isEmpty()) {
+        revertPokes(removedMods);
+      }
+    });
+
+    pokesDialog.setVisible(true);
+  }
+  
+  private void openGameDetails() {
+    String gameId = null;
+    String gameName = null;
+    
+    // Try to get game ID from gameSearchResult first
+    if (gameSearchResult != null) {
+      gameId = gameSearchResult.id;
+    } else {
+      // If no gameSearchResult, try to extract game name from filename
+      String filename = emulatorCore.getFilename();
+      if (filename != null && !filename.isEmpty()) {
+        gameName = new java.io.File(filename).getName()
+            .replace(".tap", "").replace(".tzx", "")
+            .replace(".z80", "").replace(".sna", "").replace(".szx", "")
+            .replace(".dsk", "").replace(".vg", "");
+      }
+    }
+    
+    // If we don't have either gameId or gameName, show error
+    if (gameId == null && (gameName == null || gameName.isEmpty())) {
+      JOptionPane.showMessageDialog(this, 
+          "No game information available", 
+          "Info", 
+          JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+    
+    // Show loading dialog while fetching from API
+    JDialog loadingDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), 
+        "Loading Game Details", true);
+    loadingDialog.setSize(300, 100);
+    loadingDialog.setLocationRelativeTo(this);
+    JLabel loadingLabel = new JLabel("Fetching game details from ZXInfo API...");
+    loadingLabel.setHorizontalAlignment(JLabel.CENTER);
+    loadingDialog.add(loadingLabel);
+    
+    final String finalGameId = gameId;
+    final String finalGameName = gameName;
+    
+    // Fetch details in background thread
+    SwingWorker<com.fpetrola.oozx.api.GameDetail, Void> worker =
+        new SwingWorker<com.fpetrola.oozx.api.GameDetail, Void>() {
+          @Override
+          protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
+            try {
+              ZxInfoApiHandler apiHandler =
+                  new ZxInfoApiHandler();
+              
+              // If we have gameId, use it directly
+              if (finalGameId != null) {
+                return apiHandler.fetchGameDetails(finalGameId);
+              } else {
+                // Otherwise search by game name and use the first result
+                List<Hit> results = apiHandler.search(finalGameName);
+                if (results == null || results.isEmpty()) {
+                  return null;
+                }
+                Hit bestMatch = results.get(0);
+                return apiHandler.fetchGameDetails(bestMatch._id);
+              }
+            } catch (Exception e) {
+              System.err.println("Error fetching game details: " + e.getMessage());
+              e.printStackTrace();
+              return null;
+            }
+          }
+          
+          @Override
+          protected void done() {
+            loadingDialog.dispose();
+            try {
+              com.fpetrola.oozx.api.GameDetail detail = get();
+              if (detail != null) {
+                GameDetailsDialog dialog = new GameDetailsDialog(
+                    (Frame) SwingUtilities.getWindowAncestor(EmulatorInternalFrame.this), 
+                    detail);
+                dialog.setVisible(true);
+              } else {
+                String searchTerm = finalGameId != null ? "game ID" : ("\"" + finalGameName + "\"");
+                JOptionPane.showMessageDialog(EmulatorInternalFrame.this,
+                    "No game details found for " + searchTerm,
+                    "Game Not Found", JOptionPane.INFORMATION_MESSAGE);
+              }
+            } catch (Exception e) {
+              JOptionPane.showMessageDialog(EmulatorInternalFrame.this,
+                  "Error loading game details: " + e.getMessage(),
+                  "Error", JOptionPane.ERROR_MESSAGE);
+            }
+          }
+        };
+    worker.execute();
+    loadingDialog.setVisible(true);
+  }
+
+  private void applyPokes(List<com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod> mods) {
+    System.out.println("Aplicando " + mods.size() + " pokes:");
+
+    // Identificar pokes nuevos que no estaban aplicados
+    List<com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod> newMods = new ArrayList<>();
+    for (com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod mod : mods) {
+      boolean wasAlreadyApplied = appliedPokes.stream()
+          .anyMatch(p -> p.getName().equals(mod.getName()) &&
+                         p.getRawInstruction().equals(mod.getRawInstruction()));
+      if (!wasAlreadyApplied) {
+        newMods.add(mod);
+      }
+    }
+
+    // Actualizar la lista de pokes aplicados
+    appliedPokes.clear();
+    appliedPokes.addAll(mods);
+
+    // Solo aplicar los nuevos pokes
+    for (com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod mod : newMods) {
+      System.out.println("  - " + mod.getName() + ": " + mod.getDescription());
+      System.out.println("    Type: " + mod.getInstructionType() + ", Raw: " + mod.getRawInstruction());
+      emulatorCore.applyMod(mod);
+    }
+
+    if (newMods.isEmpty()) {
+      System.out.println("  (No nuevos pokes para aplicar)");
+    }
+  }
+
+  private void revertPokes(List<com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod> mods) {
+    System.out.println("Revertiendo " + mods.size() + " pokes:");
+    for (com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod mod : mods) {
+      System.out.println("  - " + mod.getName() + ": " + mod.getDescription());
+      // Remover del registro
+      appliedPokes.removeIf(p -> p.getName().equals(mod.getName()) &&
+                                 p.getRawInstruction().equals(mod.getRawInstruction()));
+      // Revertir el poke en el emulador (el valor previo está guardado en PokInstruction)
+      emulatorCore.revertMod(mod);
+    }
+  }
+
+  public OOZxConfiguration.WindowState saveWindowState(String filePath) {
+    OOZxConfiguration.WindowState state = new OOZxConfiguration.WindowState(
+        "EMULATOR", getX(), getY(), getWidth(), getHeight());
+    state.setFilePath(filePath);
+    state.setZOrder(ZXSpectrumDesktopApp.getComponentZOrder(this));
+
+    // Guardar el nombre legible del archivo/snapshot
+    if (filePath != null && !filePath.isEmpty()) {
+      state.setSnapshotName(new java.io.File(filePath).getName());
+    }
+
+    state.setTurboMode(emulatorCore.isTurboMode());
+    state.setMuted(emulatorCore.isMuted());
+    state.setPaused(emulatorCore.isPaused());
+
+    // Guardar los pokes aplicados con información completa y valores de reversión
+    List<OOZxConfiguration.PokModState> pokModStates = new ArrayList<>();
+    for (com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod mod : appliedPokes) {
+      com.fpetrola.oozx.speccy.pokes.PokInstruction instruction = mod.getParsedInstruction();
+      OOZxConfiguration.PokModState pokState = new OOZxConfiguration.PokModState(
+          mod.getName(),
+          mod.getRawInstruction(),
+          mod.getPokFileName(),
+          mod.getGameName(),
+          mod.getInstructionType(),
+          mod.getDescription(),
+          instruction.getPreviousValue(),
+          instruction.getPreviousBank(),
+          instruction.getPreviousAddress()
+      );
+      pokModStates.add(pokState);
+    }
+    state.setAppliedPokes(pokModStates);
+
+    // Guardar el estado actual del emulador en formato Unicode empaquetado y obtener su ID
+    try {
+      String unicodePackedSnapshot = emulatorCore.packedState();
+      // Guardar el snapshot en el mapa centralizado y obtener su ID
+      String snapshotId = ((ZXSpectrumDesktopApp) SwingUtilities.getWindowAncestor(this)).config.saveSnapshot(unicodePackedSnapshot);
+      state.setSnapshotId(snapshotId);
+    } catch (Exception e) {
+      System.err.println("Error guardando snapshot en configuración: " + e.getMessage());
+    }
+
+    return state;
+  }
+
+  /**
+   * Puts the window back the way it was left: its size and place, its buttons, and the pokes
+   * that were applied to it.
+   * <p>
+   * Not the machine. What the window state carries of the machine is the id of a snapshot, and by
+   * the time this runs the machine has already been built from that snapshot - restoreOpenWindows
+   * decodes it, makes a machine of it and only then makes this window for it. Decoding it a second
+   * time here and dropping what came back, which is what this did under a comment saying it
+   * restored the emulator, restored nothing and unpacked the same bytes twice.
+   */
+  public void restoreWindowState(OOZxConfiguration.WindowState state) {
+    if (state.getWidth() > 0 && state.getHeight() > 0) {
+      setSize(state.getWidth(), state.getHeight());
+    }
+    if (state.getX() >= 0 && state.getY() >= 0) {
+      setLocation(state.getX(), state.getY());
+    }
+
+    // Restaurar el mute
+    isMuted = state.isMuted();
+    if (isMuted) {
+      emulatorCore.setGeneralOption("mute", true);
+      muteButton.setIcon(loadIcon("1F509.svg"));
+      muteButton.setToolTipText("Unmute Sound");
+    } else {
+      emulatorCore.setGeneralOption("mute", false);
+      muteButton.setIcon(loadIcon("1F507.svg"));
+      muteButton.setToolTipText("Mute Sound");
+    }
+
+    emulatorCore.setGeneralOption("turbo", state.isTurboMode());
+    emulatorCore.setGeneralOption("pause", state.isPaused());
+
+    emulatorCore.setFilename(state.getFilePath());
+
+    // Restaurar los pokes aplicados
+    if (state.getAppliedPokes() != null && !state.getAppliedPokes().isEmpty()) {
+      appliedPokes.clear();
+      List<com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod> mods = new ArrayList<>();
+      for (OOZxConfiguration.PokModState pokState : state.getAppliedPokes()) {
+        com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod mod = new com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod(
+            pokState.getName(),
+            pokState.getRawInstruction(),
+            pokState.getPokFileName(),
+            pokState.getGameName()
+        );
+        // Restaurar los valores de reversión en la instrucción parseada
+        com.fpetrola.oozx.speccy.pokes.PokInstruction instruction = mod.getParsedInstruction();
+        if (instruction != null) {
+          instruction.setPreviousValue(pokState.getPreviousValue());
+          instruction.setPreviousBank(pokState.getPreviousBank());
+          instruction.setPreviousAddress(pokState.getPreviousAddress());
+        }
+        mods.add(mod);
+        appliedPokes.add(mod);
+      }
+      // Aplicar los pokes restaurados
+      if (!mods.isEmpty()) {
+        applyPokes(mods);
+      }
+    }
+  }
+}
+
+// --- NEW: Game Search Result Model ---
+class GameSearchResult {
+  public String id;
+  String title;
+  String url;
+  String screenshot1;
+  String screenshot2;
+  String filename;
+  /** What the entry offers that cannot be loaded, for saying so instead of "no tape". */
+  String offers;
+  /** Whether the chosen file can be expected to come down; false for what the archive withholds. */
+  boolean available;
+  /** Every file the entry offers that could be loaded, best first, for choosing among them. */
+  java.util.List<String> files = java.util.List.of();
+  /** Extras the entry carries, for filters the server cannot apply itself. */
+  boolean hasRzx;
+  boolean hasMap;
+  /** The machine somebody picked for it, or null to let the file and its name decide. */
+  String machine;
+  /** Recordings of this game offered for playing, from both catalogues. */
+  java.util.List<RzxOption> recordings = java.util.List.of();
+
+  public GameSearchResult(String _id, String title, String url, String screenshot1, String screenshot2, String filename) {
+    id = _id;
+    this.title = title;
+    this.url = url;
+    this.screenshot1 = screenshot1;
+    this.screenshot2 = screenshot2;
+    this.filename = filename;
+  }
+}
+
+// --- NEW: Game Browser Listener Interface ---
+interface GameBrowserListener {
+  /** @param whenDone run on the event thread once the game is up, or the attempt failed. */
+  void onGameSelected(GameSearchResult gameUrl, Runnable whenDone);
+
+  void onViewDetails(GameSearchResult gameSearchResult);
+
+  void onAddToFavorites(GameSearchResult game);
+
+  void onDownloadGame(String gameUrl);
+
+  /** Fetches a recording of the game and plays it. */
+  void onPlayRecording(RzxOption recording);
+
+  /** The machines a game can be started on, for offering them beside the file it lives in. */
+  java.util.List<String> machines();
+}
+
+// --- UPDATED: ZXSpectrumDesktopApp with Game Browser ---
+public class ZXSpectrumDesktopApp extends JFrame {
+  /** Builds a machine for a file; the second argument names the machine, or is null for automatic. */
+  private final java.util.function.BiFunction<String, String, EmulatorCore> mockCore;
+  /** The machines this build has, learnt from the last emulator made, for offering them. */
+  private java.util.List<String> knownMachines = java.util.List.of();
+
+  void rememberMachines(EmulatorCore core) {
+    if (knownMachines.isEmpty() && core != null) {
+      knownMachines = core.getMachineModels();
+    }
+  }
+  private final Function<SpectrumState, EmulatorCore> mockCoreState;
+  private JDesktopPane desktop;
+  private int emulatorCount = 0;
+  private GameBrowserInternalFrame gameBrowser;
+  private SnapshotHistoryInternalFrame snapshotHistory;
+  private FavoritesInternalFrame favorites;
+  private final JFileChooser fileChooser = new JFileChooser();
+  protected OOZxConfiguration config;
+  private JMenu recentFilesMenu;
+  private com.fpetrola.oozx.speccy.desktop.Gamepad gamepad;
+  protected PokesManager pokesManager;
+
+  {
+    // Configuración única del file chooser
+    FileNameExtensionFilter filter = new FileNameExtensionFilter(
+        "ZX Spectrum files (*.tap, *.tzx, *.z80, *.sna, *.szx, *.rzx)",
+        "tap", "tzx", "z80", "sna", "szx", "rzx");
+    fileChooser.setFileFilter(filter);
+    fileChooser.setCurrentDirectory(new java.io.File(System.getProperty("user.home")));
+  }
+
+  private void openFile() {
+    fileChooser.setCurrentDirectory(new java.io.File(config.getLastOpenDirectory()));
+    if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+      String path = fileChooser.getSelectedFile().getAbsolutePath();
+      config.setLastOpenDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
+      config.addRecentFile(path);
+      updateRecentFilesMenu();
+      open(path);
+    }
+  }
+
+  /**
+   * Opens whatever was picked in the window that plays it: a recording drives a machine of its
+   * own from its own controls, anything else is a machine's to load. Every way of arriving at a
+   * file goes through here - the menu, the recent list - so that a recording opens the same way
+   * whichever of them it came from.
+   */
+  public void open(String path) {
+    if (RzxSession.isRecording(path)) {
+      playWhatever("Could not open " + nameOf(path) + ".",
+          () -> new Chosen(new java.io.File(path), null, null));
+    } else {
+      loadInNewEmulator(path);
+    }
+  }
+
+  private void saveState() {
+    EmulatorInternalFrame active = getActiveEmulator();
+    if (active == null) {
+      JOptionPane.showMessageDialog(this, "No hay emulador activo para guardar estado.", "Save State", JOptionPane.WARNING_MESSAGE);
+      return;
+    }
+    fileChooser.setCurrentDirectory(new java.io.File(config.getLastSaveStateDirectory()));
+    if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+      String path = fileChooser.getSelectedFile().getAbsolutePath();
+      config.setLastSaveStateDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
+      active.emulatorCore.saveState(path);
+    }
+  }
+
+  private void loadState() {
+    fileChooser.setCurrentDirectory(new java.io.File(config.getLastLoadStateDirectory()));
+    if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+      String path = fileChooser.getSelectedFile().getAbsolutePath();
+      config.setLastLoadStateDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
+      EmulatorInternalFrame target = getActiveEmulatorOrCreateNew();
+      if (target != null) {
+        target.emulatorCore.loadState(path);
+      }
+    }
+  }
+
+  // Devuelve el emulador que está seleccionado o visible, o null
+  private EmulatorInternalFrame getActiveEmulator() {
+    JInternalFrame selected = desktop.getSelectedFrame();
+    if (selected instanceof EmulatorInternalFrame) {
+      return (EmulatorInternalFrame) selected;
+    }
+    // Si no hay seleccionado, devuelve el primero visible
+    for (JInternalFrame f : desktop.getAllFrames()) {
+      if (f instanceof EmulatorInternalFrame && f.isVisible()) {
+        return (EmulatorInternalFrame) f;
+      }
+    }
+    return null;
+  }
+
+  // Devuelve el emulador activo o crea uno nuevo si no existe ninguno
+  private EmulatorInternalFrame getActiveEmulatorOrCreateNew() {
+    EmulatorInternalFrame frame = getActiveEmulator();
+    if (frame == null) {
+      EmulatorCore core = mockCore.apply("", null);
+      knownMachines = core.getMachineModels();
+      frame = createNewEmulator(core);
+    }
+    try {
+      frame.setSelected(true);
+    } catch (Exception ignored) {
+    }
+    return frame;
+  }
+
+  public ZXSpectrumDesktopApp(java.util.function.BiFunction<String, String, EmulatorCore> mockCore, Function<SpectrumState, EmulatorCore> mockCoreState1) {
+    this.mockCore = mockCore;
+    this.mockCoreState = mockCoreState1;
+    this.config = com.fpetrola.oozx.config.Configuration.shared().of(OOZxConfiguration.class);
+    Processors.startsOn = config.getProcessor();
+    // One place for the keyboard, rather than one per emulator window: which machine is being
+    // typed into is a question about this desktop, not about any one of the machines on it.
+    KeyboardFocusManager.getCurrentKeyboardFocusManager()
+        .addKeyEventDispatcher(this::typeIntoTheMachineInFront);
+    try {
+      gamepad = new com.fpetrola.oozx.speccy.desktop.Gamepad(() -> {
+        EmulatorInternalFrame machine = machineBeingUsed();
+        return machine == null ? null : machine.machine();
+      });
+    } catch (RuntimeException | LinkageError withoutGamepads) {
+      System.err.println("Gamepads are off: " + withoutGamepads.getMessage());
+    }
+    applySavedLookAndFeel();
+    // Emulators apply the defaults themselves as they are built, so putting the saved ones in
+    // place here is all it takes for the next window to open configured.
+    if (config.getScreenDefaults() != null && !config.getScreenDefaults().isEmpty()) {
+      ScreenSettings.setDefaults(config.getScreenDefaults());
+    }
+    restoreKeptProfiles();
+    this.pokesManager = new PokesManager();
+
+    setTitle("ZX Spectrum Multi-Emulator");
+    setSize(1200, 800);
+    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+    desktop = new JDesktopPane();
+    add(desktop, BorderLayout.CENTER);
+
+    // Menu Bar
+    JMenuBar menuBar = createMenuBar();
+    setJMenuBar(menuBar);
+
+    // Toolbar
+    JToolBar toolBar = createMainToolBar();
+    add(toolBar, BorderLayout.NORTH);
+
+    // Restaurar estado de la ventana principal
+    restoreMainWindowState();
+
+    // Restaurar ventanas abiertas
+    restoreOpenWindows();
+
+    config.getSnapshots().clear();
+
+    // Guardar configuración al cerrar la aplicación
+    addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosing(WindowEvent e) {
+        saveMainWindowState();
+        saveOpenWindows();
+        config.save();
+      }
+    });
+  }
+
+  private JMenuBar createMenuBar() {
+    JMenuBar menuBar = new JMenuBar();
+
+    // ====================== MENU FILE ======================
+    JMenu fileMenu = new JMenu("File");
+    fileMenu.setMnemonic(KeyEvent.VK_F);
+
+    // ---- Open (cargar tape/snapshot) ----
+    JMenuItem openItem = new JMenuItem("Open...");
+    openItem.setMnemonic(KeyEvent.VK_O);
+    openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
+    openItem.addActionListener(e -> openFile());
+    fileMenu.add(openItem);
+
+    fileMenu.addSeparator();
+
+    // ---- Recent Files ----
+    recentFilesMenu = new JMenu("Recent Files");
+    recentFilesMenu.setMnemonic(KeyEvent.VK_R);
+    updateRecentFilesMenu();
+    fileMenu.add(recentFilesMenu);
+
+    fileMenu.addSeparator();
+
+    // ---- Save State ----
+    JMenuItem saveStateItem = new JMenuItem("Save State...");
+    saveStateItem.setMnemonic(KeyEvent.VK_S);
+    saveStateItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
+    saveStateItem.addActionListener(e -> saveState());
+    fileMenu.add(saveStateItem);
+
+    // ---- Load State ----
+    JMenuItem loadStateItem = new JMenuItem("Load State...");
+    loadStateItem.setMnemonic(KeyEvent.VK_L);
+    loadStateItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK));
+    loadStateItem.addActionListener(e -> loadState());
+    fileMenu.add(loadStateItem);
+
+    fileMenu.addSeparator();
+
+    // ---- Quit ----
+    JMenuItem quitItem = new JMenuItem("Quit");
+    quitItem.setMnemonic(KeyEvent.VK_Q);
+    quitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
+    quitItem.addActionListener(e -> System.exit(0));
+    fileMenu.add(quitItem);
+
+    menuBar.add(fileMenu);
+
+    // ====================== MENU EMULATOR ======================
+    JMenu emulatorMenu = new JMenu("Emulator");
+    emulatorMenu.setMnemonic(KeyEvent.VK_E);
+
+    AbstractAction newEmulatorAction = new AbstractAction("New Emulator") {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        EmulatorCore emulatorCore = mockCore.apply("", null);
+        createNewEmulator(emulatorCore);
+      }
+    };
+    newEmulatorAction.putValue(AbstractAction.ACCELERATOR_KEY,
+        KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
+    emulatorMenu.add(newEmulatorAction);
+
+    JMenuItem openTapeItem = new JMenuItem("Open Tape...");
+    openTapeItem.addActionListener(e -> chooseTapeForBrowser());
+    emulatorMenu.add(openTapeItem);
+
+    JMenuItem rzxPlayerItem = new JMenuItem("RZX Player...");
+    rzxPlayerItem.addActionListener(e -> playWhatever("Could not open a recording.", this::chooseRecording));
+    emulatorMenu.add(rzxPlayerItem);
+
+    JMenuItem tapeBrowserItem = new JMenuItem("Cassette Browser");
+    tapeBrowserItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK));
+    tapeBrowserItem.addActionListener(e -> showTapeBrowser());
+    emulatorMenu.add(tapeBrowserItem);
+
+    // What there is to plug in: every device jar on the classpath, and nothing named here.
+    JMenu equipmentMenu = new JMenu("Equipment");
+    for (Equipment kind : equipmentKinds) {
+      JMenuItem item = new JMenuItem(kind.name());
+      item.addActionListener(e -> show(kind));
+      equipmentMenu.add(item);
+    }
+    emulatorMenu.add(equipmentMenu);
+
+    JMenuItem audioInItem = new JMenuItem("Real Cassette (audio in)...");
+    audioInItem.addActionListener(e -> showAudioIn());
+    emulatorMenu.add(audioInItem);
+    JMenuItem joystickItem = new JMenuItem("Joystick...");
+    joystickItem.addActionListener(e -> showJoystick());
+    emulatorMenu.add(joystickItem);
+
+    JMenuItem gameBrowserMenuItem = new JMenuItem("Game Browser...");
+    gameBrowserMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.CTRL_DOWN_MASK));
+    gameBrowserMenuItem.addActionListener(e -> openGameBrowser());
+    emulatorMenu.add(gameBrowserMenuItem);
+
+    emulatorMenu.addSeparator();
+
+    // ---- Pause/Resume ----
+    JMenuItem pauseResumeItem = new JMenuItem("Pause/Resume");
+    pauseResumeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_DOWN_MASK));
+    pauseResumeItem.addActionListener(e -> {
+      EmulatorInternalFrame active = getActiveEmulator();
+      if (active != null) {
+        active.emulatorCore.pauseEmulation();
+      }
+    });
+    emulatorMenu.add(pauseResumeItem);
+
+    // ---- Turbo Mode ----
+    JMenuItem turboModeItem = new JMenuItem("Toggle Turbo Mode");
+    turboModeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK));
+    turboModeItem.addActionListener(e -> {
+      EmulatorInternalFrame active = getActiveEmulator();
+      if (active != null) {
+        active.emulatorCore.setGeneralOption("turbo", !active.emulatorCore.isTurboMode());
+      }
+    });
+    emulatorMenu.add(turboModeItem);
+
+    // ---- Mute/Unmute ----
+    JMenuItem muteItem = new JMenuItem("Toggle Mute");
+    muteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_DOWN_MASK));
+    muteItem.addActionListener(e -> {
+      EmulatorInternalFrame active = getActiveEmulator();
+      if (active != null) {
+        active.emulatorCore.setGeneralOption("mute", !active.emulatorCore.isMuted());
+      }
+    });
+    emulatorMenu.add(muteItem);
+
+    menuBar.add(emulatorMenu);
+
+    // ====================== MENU OPTIONS ======================
+    JMenu optionsMenu = new JMenu("Options");
+    optionsMenu.setMnemonic(KeyEvent.VK_O);
+
+    AbstractAction settingsAction = new AbstractAction("Settings...") {
+      public void actionPerformed(ActionEvent e) {
+        openSettings();
+      }
+    };
+    optionsMenu.add(settingsAction);
+    optionsMenu.addSeparator();
+    optionsMenu.add(createTvMenu());
+    menuBar.add(optionsMenu);
+
+    // Window menu (includes Look&Feel submenu)
+    addWindowMenu(menuBar);
+
+    // ====================== MENU HELP ======================
+    JMenu helpMenu = new JMenu("Help");
+    helpMenu.setMnemonic(KeyEvent.VK_H);
+
+    JMenuItem readmeItem = new JMenuItem("View README");
+    readmeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
+    readmeItem.addActionListener(e -> openReadme());
+    helpMenu.add(readmeItem);
+
+    helpMenu.addSeparator();
+
+    JMenuItem aboutItem = new JMenuItem("About");
+    aboutItem.addActionListener(e -> showAboutDialog());
+    helpMenu.add(aboutItem);
+
+    menuBar.add(helpMenu);
+
+    return menuBar;
+  }
+
+  /** These settings are one machine's, so asking for them with none open opens one, as loading a state does. */
+  private void openSettings() {
+    SettingsDialog settingsDialog = new SettingsDialog(this, getActiveEmulatorOrCreateNew().emulatorCore, config);
+    settingsDialog.setLocationRelativeTo(this);
+    settingsDialog.setVisible(true);
+  }
+
+  private void openReadme() {
+    SwingUtilities.invokeLater(() -> {
+      try {
+        // Leer el README desde resources
+        String readmeContent = loadReadmeFromResources();
+
+        if (readmeContent != null && !readmeContent.isEmpty()) {
+          // Convertir markdown a HTML
+          String html = markdownToHtml(readmeContent);
+
+          // Mostrar en una ventana interna
+          showReadmeWindow(html);
+        } else {
+          JOptionPane.showMessageDialog(this,
+              "Could not load README",
+              "Error", JOptionPane.ERROR_MESSAGE);
+        }
+      } catch (Exception e) {
+        JOptionPane.showMessageDialog(this,
+            "Error loading README:n" + e.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
+      }
+    });
+  }
+
+  private String loadReadmeFromResources() throws Exception {
+    try (java.io.InputStream in = getClass().getClassLoader().getResourceAsStream("README.md")) {
+      if (in == null) {
+        throw new Exception("README.md not found in resources");
+      }
+      return new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+    }
+  }
+
+  private String markdownToHtml(String markdown) {
+    org.commonmark.parser.Parser parser = org.commonmark.parser.Parser.builder()
+        .extensions(List.of(
+            org.commonmark.ext.gfm.tables.TablesExtension.create()
+        ))
+        .build();
+    org.commonmark.node.Node document = parser.parse(markdown);
+    org.commonmark.renderer.html.HtmlRenderer renderer = org.commonmark.renderer.html.HtmlRenderer.builder()
+        .extensions(List.of(
+            org.commonmark.ext.gfm.tables.TablesExtension.create()
+        ))
+        .build();
+    String html = renderer.render(document);
+
+    // Agregar estilos CSS
+    String styledHtml = "<html><head><style>" +
+                        "body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; color: #333; }" +
+                        "h1 { color: #1f77b4; border-bottom: 2px solid #1f77b4; padding-bottom: 10px; }" +
+                        "h2 { color: #ff7f0e; margin-top: 20px; }" +
+                        "h3 { color: #2ca02c; }" +
+                        "code { background-color: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New'; }" +
+                        "pre { background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow-x: auto; }" +
+                        "pre code { background-color: transparent; padding: 0; }" +
+                        "a { color: #1f77b4; text-decoration: none; }" +
+                        "a:hover { text-decoration: underline; }" +
+                        "blockquote { border-left: 4px solid #ddd; padding-left: 15px; color: #666; margin-left: 0; }" +
+                        "img { max-width: 100%; height: auto; }" +
+                        "table { border-collapse: collapse; width: 100%; }" +
+                        "th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }" +
+                        "th { background-color: #f5f5f5; }" +
+                        "</style></head><body>" +
+                        html +
+                        "</body></html>";
+
+    return styledHtml;
+  }
+
+  private void showReadmeWindow(String html) {
+    JInternalFrame readmeFrame = new JInternalFrame("README - OOZX", true, true, true, true);
+    readmeFrame.setSize(800, 600);
+    readmeFrame.setLocation(50, 50);
+
+    // Crear un JEditorPane para renderizar HTML
+    JEditorPane editorPane = new JEditorPane();
+    editorPane.setContentType("text/html");
+    editorPane.setText(html);
+    editorPane.setEditable(false);
+    editorPane.setCaretPosition(0);
+
+    // Agregar scroll
+    JScrollPane scrollPane = new JScrollPane(editorPane);
+    scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+    readmeFrame.add(scrollPane, BorderLayout.CENTER);
+    desktop.add(readmeFrame);
+    readmeFrame.setVisible(true);
+
+    try {
+      readmeFrame.setSelected(true);
+    } catch (java.beans.PropertyVetoException e) {
+      // Ignore
+    }
+  }
+
+  private void showAboutDialog() {
+    String appName = "OOZX";
+    String version = "0.0.1";
+    String versionSuffix = "SNAPSHOT";
+    String shortDescription = "Modern ZX Spectrum Emulator";
+    String fullDescription = "Object-Oriented emulator with modular, pluggable architecture";
+    String author = "Fernando Damian Petrola";
+    String copyright = "Copyright (C) 2023-2025";
+    String license = "Apache License 2.0";
+    String website = "github.com/fpetrola/oozx";
+
+    String about = String.format("""
+            <html>
+                  <head>
+                    <title></title>
+                  </head>
+                  <body style='font-family: Segoe UI, Arial, sans-serif; width: 420px; color: #333;'>
+                    <div style='text-align: center;'>
+                      <h1 style='margin: 0; padding: 0; font-size: 28px; color: #1f77b4;'>%s</h1>
+                      <p style='margin: 2px 0; font-size: 10px; color: #999;'>v%s <span style='color: #aaa;'>%s</span></p>
+                    </div>
+                    <p style='text-align: center; margin: 8px 0; font-size: 12px; color: #555;'><b>%s</b></p>
+                    <p style='text-align: center; margin: 4px 0; font-size: 11px; color: #777;'>%s</p>
+                    <hr style='border: none; border-top: 1px solid #ddd; margin: 12px 0;'>
+                    <table style='width: 100%%; font-size: 11px; line-height: 1.8;'>
+                      <tr>
+                        <td style='color: #666;'><b>Author:</b></td>
+                        <td style='text-align: right; color: #333;'>%s</td>
+                      </tr>
+                      <tr>
+                        <td style='color: #666;'><b>License:</b></td>
+                        <td style='text-align: right; color: #333;'>%s</td>
+                      </tr>
+                      <tr>
+                        <td style='color: #666;'><b>Repository:</b></td>
+                        <td style='text-align: right;'><span style='color: #0066cc;'>%s</span></td>
+                      </tr>
+                    </table>
+                    <hr style='border: none; border-top: 1px solid #ddd; margin: 12px 0;'>
+                    <div style='padding: 8px; border-radius: 4px; border-left: 3px solid #1f77b4;'>
+                      <p style='font-size: 10px; color: #666; margin: 0; line-height: 1.5;'>A high-performance, multi-model Z80 emulator built with pure object-oriented design. Features pluggable peripherals, simultaneous multi-game emulation, online game discovery, and automatic state preservation between sessions.</p>
+                    </div>
+                    <p style='text-align: center; margin-top: 12px; font-size: 9px; color: #999;'>%s</p>
+                  </body>
+                  </html>
+            """,
+        appName, version, versionSuffix, shortDescription, fullDescription, author, license, website, copyright
+    );
+
+    JOptionPane.showMessageDialog(this,
+        new JLabel(about),
+        "About " + appName,
+        JOptionPane.INFORMATION_MESSAGE);
+  }
+
+  private void addLaf(JMenu menu, final Theme theme) {
+    AbstractAction themeAction = new AbstractAction(theme.getName()) {
+      public void actionPerformed(ActionEvent e) {
+        LafManager.install(theme);
+        rememberLookAndFeel(theme.getName());
+      }
+    };
+    menu.add(themeAction);
+  }
+
+  /** The themes the menu offers, so a saved name can be turned back into one on the next run. */
+  private static final List<Theme> THEMES = List.of(new DarculaTheme(), new OneDarkTheme(),
+      new SolarizedLightTheme(), new SolarizedDarkTheme(), new IntelliJTheme());
+
+  private static final String METAL = "Metal";
+
+  private void rememberLookAndFeel(String name) {
+    config.setLookAndFeel(name);
+    config.save();
+  }
+
+  /**
+   * Puts back the theme chosen last time. The launcher installs one before there is any
+   * configuration to read, so this runs afterwards and replaces it; picking a theme is a
+   * decision worth surviving the window closing.
+   */
+  private void applySavedLookAndFeel() {
+    String saved = config.getLookAndFeel();
+    if (saved == null) return;
+
+    try {
+      if (METAL.equals(saved)) {
+        UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+        LafManager.updateLaf();
+        return;
+      }
+      THEMES.stream().filter(t -> t.getName().equals(saved)).findFirst()
+          .ifPresent(LafManager::install);
+    } catch (Exception e) {
+      // A theme that no longer exists is not a reason to refuse to start.
+      System.err.println("could not restore the look and feel '" + saved + "': " + e);
+    }
+  }
+
+  /**
+   * Which lead the picture is imagined to arrive through, and the two things that go with it.
+   * <p>
+   * The modes come from the enum rather than being listed here, so adding one to the engine puts
+   * it in the menu without anybody remembering to.
+   */
+  /** Looks saved in an earlier run, put back where the windows look for them. */
+  private void restoreKeptProfiles() {
+    List<ScreenProfile> kept = new java.util.ArrayList<>();
+    config.getKeptScreenProfiles().forEach((name, values) ->
+        kept.add(new ScreenProfile(name, values, false)));
+    ScreenSettings.setKeptProfiles(kept);
+  }
+
+  /** Writes back whatever the engine now holds, after one was saved or forgotten. */
+  void rememberKeptProfiles() {
+    Map<String, Map<String, String>> kept = new LinkedHashMap<>();
+    for (ScreenProfile profile : ScreenSettings.getKeptProfiles()) {
+      kept.put(profile.name(), new LinkedHashMap<>(profile.values()));
+    }
+    config.setKeptScreenProfiles(kept);
+    config.save();
+  }
+
+  /** The screen knobs of one emulator, in a window of their own. */
+  void openScreenSettings(EmulatorCore core, String machineName) {
+    if (!(core.getPanel() instanceof SpeccyScreen screen)) {
+      JOptionPane.showMessageDialog(this, "This emulator has no adjustable screen.",
+          "Screen", JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+
+    ScreenSettingsInternalFrame window = new ScreenSettingsInternalFrame(machineName,
+        screen.getScreenSettings(), kept -> {
+      config.setScreenDefaults(new LinkedHashMap<>(kept));
+      config.save();
+    }, this::rememberKeptProfiles);
+    desktop.add(window);
+    window.setVisible(true);
+    window.toFront();
+    try {
+      window.setSelected(true);
+    } catch (java.beans.PropertyVetoException ignored) {
+    }
+  }
+
+  private JMenu createTvMenu() {
+    JMenu tvMenu = new JMenu("TV");
+    ButtonGroup leads = new ButtonGroup();
+
+    String current = screenDefault("tv", TvScreen.RGB_MONITOR.label());
+    for (TvScreen lead : TvScreen.values()) {
+      boolean chosen = lead.label().equals(current) || lead.name().equals(current);
+      JRadioButtonMenuItem item = new JRadioButtonMenuItem(lead.label(), chosen);
+      item.addActionListener(e -> setScreenDefault("tv", lead.label()));
+      leads.add(item);
+      tvMenu.add(item);
+    }
+
+    tvMenu.addSeparator();
+
+    // Scan lines are a depth in the window, not a switch, so the shortcut ticks to a visible
+    // amount and unticks to none rather than pretending there are only two states.
+    JCheckBoxMenuItem scanLines = new JCheckBoxMenuItem("Scan lines",
+        Double.parseDouble(screenDefault("scanlines", "0")) > 0);
+    scanLines.addActionListener(e ->
+        setScreenDefault("scanlines", scanLines.isSelected() ? "0.35" : "0"));
+    tvMenu.add(scanLines);
+
+    return tvMenu;
+  }
+
+  /**
+   * Through the core, the same way the border button asks for its option, rather than reaching
+   * into the panel to find the screen: the screen is somewhere under a component tree that is
+   * not ours to depend on, and a search that stops finding it would fail silently.
+   */
+  /**
+   * Changes one screen knob everywhere: in what new emulators start with, in the file, and in
+   * the windows already open.
+   * <p>
+   * There used to be two ways to remember the same thing — this menu had its own fields in the
+   * configuration, older than the knobs — and the one that ran last won. A new emulator applied
+   * the saved defaults in its constructor and then had them overwritten by whatever the menu
+   * happened to hold, which for scan lines nobody had touched was off. One place now.
+   */
+  void setScreenDefault(String key, String value) {
+    Map<String, String> defaults = new LinkedHashMap<>(config.getScreenDefaults());
+    defaults.put(key, value);
+    config.setScreenDefaults(defaults);
+    config.save();
+    ScreenSettings.setDefaults(defaults);
+    applyScreenSettingsToAll();
+  }
+
+  private String screenDefault(String key, String fallback) {
+    return config.getScreenDefaults().getOrDefault(key, fallback);
+  }
+
+  private void applyScreenSettingsToAll() {
+    for (JInternalFrame frame : desktop.getAllFrames()) {
+      if (frame instanceof EmulatorInternalFrame emulator
+          && emulator.emulatorCore != null
+          && emulator.emulatorCore.getPanel() instanceof SpeccyScreen screen) {
+        screen.getScreenSettings().apply(config.getScreenDefaults());
+      }
+    }
+  }
+
+  private void addWindowMenu(JMenuBar menuBar) {
+    JMenu windowMenu = new JMenu("Window");
+    windowMenu.setMnemonic(KeyEvent.VK_W);
+
+    // ---- Close Active Window ----
+    AbstractAction closeWindowAction = new AbstractAction("Close Active Window") {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        closeActiveWindow();
+      }
+    };
+    closeWindowAction.putValue(AbstractAction.ACCELERATOR_KEY,
+        KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK));
+    windowMenu.add(closeWindowAction);
+
+    // ---- Close All Windows ----
+    AbstractAction closeAllWindowsAction = new AbstractAction("Close All Windows") {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        closeAllWindows();
+      }
+    };
+    closeAllWindowsAction.putValue(AbstractAction.ACCELERATOR_KEY,
+        KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+    windowMenu.add(closeAllWindowsAction);
+
+    windowMenu.addSeparator();
+
+    AbstractAction cascadeAction = new AbstractAction("Cascade") {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        cascadeWindows();
+      }
+    };
+    cascadeAction.putValue(AbstractAction.ACCELERATOR_KEY,
+        KeyStroke.getKeyStroke(KeyEvent.VK_1, InputEvent.ALT_DOWN_MASK));
+    windowMenu.add(cascadeAction);
+
+    AbstractAction tileAction = new AbstractAction("Tile") {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        tileWindows();
+      }
+    };
+    tileAction.putValue(AbstractAction.ACCELERATOR_KEY,
+        KeyStroke.getKeyStroke(KeyEvent.VK_2, InputEvent.ALT_DOWN_MASK));
+    windowMenu.add(tileAction);
+
+    windowMenu.addSeparator();
+
+    // ---- Look&Feel Submenu ----
+    JMenu lookAndFeelMenu = new JMenu("Look&Feel");
+    lookAndFeelMenu.setMnemonic(KeyEvent.VK_L);
+
+    addLaf(lookAndFeelMenu, new DarculaTheme());
+    addLaf(lookAndFeelMenu, new OneDarkTheme());
+    addLaf(lookAndFeelMenu, new SolarizedLightTheme());
+    addLaf(lookAndFeelMenu, new SolarizedDarkTheme());
+    addLaf(lookAndFeelMenu, new IntelliJTheme());
+
+    AbstractAction metalAction = new AbstractAction("Metal") {
+      public void actionPerformed(ActionEvent e) {
+        try {
+          UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+          LafManager.updateLaf();
+          rememberLookAndFeel(METAL);
+        } catch (Exception ex) {
+          throw new RuntimeException(ex);
+        }
+      }
+    };
+    lookAndFeelMenu.add(metalAction);
+
+    windowMenu.add(lookAndFeelMenu);
+
+    menuBar.add(windowMenu);
+  }
+
+  private void closeActiveWindow() {
+    JInternalFrame frame = desktop.getSelectedFrame();
+    if (frame != null) {
+      try {
+        frame.setClosed(true);
+      } catch (java.beans.PropertyVetoException e) {
+        // Window refused to close
+      }
+    }
+  }
+
+  private void closeAllWindows() {
+    JInternalFrame[] frames = desktop.getAllFrames();
+    for (JInternalFrame frame : frames) {
+      try {
+        frame.setClosed(true);
+      } catch (java.beans.PropertyVetoException e) {
+        // Window refused to close
+      }
+    }
+  }
+
+  private JToolBar createMainToolBar() {
+    JToolBar toolBar = new JToolBar();
+    toolBar.setFloatable(false);
+
+    JButton newEmulatorBtn = new JButton(loadIcon("Sinclair_ZX_Spectrum-02b.svg"));
+    newEmulatorBtn.setToolTipText("New Emulator");
+    newEmulatorBtn.addActionListener(e -> {
+      EmulatorCore core = mockCore.apply("", null);
+      createNewEmulator(core);
+    });
+    toolBar.add(newEmulatorBtn);
+
+    JButton gameBrowserBtn = new JButton(loadIcon("1F579.svg"));
+    gameBrowserBtn.setToolTipText("Open Game Browser");
+    gameBrowserBtn.addActionListener(e -> openGameBrowser());
+    toolBar.add(gameBrowserBtn);
+
+    JButton historyBtn = new JButton(loadIcon("E260.svg"));
+    historyBtn.setToolTipText("Snapshot History");
+    historyBtn.addActionListener(e -> openSnapshotHistory());
+    toolBar.add(historyBtn);
+
+    JButton favoritesBtn = new JButton(loadIcon("2B50.svg"));
+    favoritesBtn.setToolTipText("Favorites");
+    favoritesBtn.addActionListener(e -> openFavorites());
+    toolBar.add(favoritesBtn);
+
+    JButton settingsBtn = new JButton(loadIcon("2699.svg"));
+    settingsBtn.setToolTipText("Settings");
+    settingsBtn.addActionListener(e -> openSettings());
+    toolBar.add(settingsBtn);
+
+    EmulatorInternalFrame.tighten(toolBar);
+    return toolBar;
+  }
+
+  private void openGameBrowser() {
+    if (gameBrowser == null || gameBrowser.isClosed()) {
+      gameBrowser = new GameBrowserInternalFrame(createGameBrowserListener());
+      desktop.add(gameBrowser);
+      gameBrowser.setVisible(true);
+      try {
+        gameBrowser.setSelected(true);
+      } catch (java.beans.PropertyVetoException ex) {
+      }
+    } else {
+      try {
+        gameBrowser.setSelected(true);
+        gameBrowser.toFront();
+      } catch (java.beans.PropertyVetoException ex) {
+      }
+    }
+  }
+
+  /**
+   * Keeps a game to come back to. What is stored is the thing the launcher can open — the
+   * downloadable file or the path already loaded — and not the game's page, which would make an
+   * entry that can be read and not played.
+   */
+  void keepAsFavorite(GameSearchResult game, String loadedPath) {
+    String source = game != null && game.filename != null ? game.filename : loadedPath;
+    // A machine started from a recording has neither: it was not opened from a search and it
+    // has no file of its own, so the thing worth keeping is the recording driving it.
+    RzxPlayerInternalFrame driving = playerDriving(getActiveEmulator());
+    if (source == null && driving != null && driving.getSourceUrl() != null) {
+      keepRecordingAsFavorite(driving);
+      return;
+    }
+    if (source == null) {
+      JOptionPane.showMessageDialog(this,
+          (game != null ? game.title : "This game") + " has nothing to download, so there is "
+              + "nothing to come back to.", "Favorites", JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+
+    String title = game != null && game.title != null ? game.title
+        : new java.io.File(source).getName();
+    boolean added = config.addFavorite(new OOZxConfiguration.Favorite(source, title, "GAME",
+        game == null ? null : game.id));
+    if (favorites != null && !favorites.isClosed()) favorites.refresh();
+
+    JOptionPane.showMessageDialog(this, added ? title + " is now a favourite."
+        : title + " was already a favourite.", "Favorites", JOptionPane.INFORMATION_MESSAGE);
+  }
+
+  /**
+   * Keeps the recording a player has open. What is stored is where it came from plus which file
+   * inside the archive it turned out to be, because a URL alone comes back to a zip and not to
+   * the recording that was actually being watched.
+   */
+  void keepRecordingAsFavorite(RzxPlayerInternalFrame player) {
+    String source = player.getSourceUrl();
+    if (source == null) {
+      JOptionPane.showMessageDialog(this, "There is no recording open to keep.",
+          "Favorites", JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+
+    String title = player.getRecordingName() == null ? source : player.getRecordingName();
+    boolean added = config.addFavorite(new OOZxConfiguration.Favorite(source, title, "RECORDING",
+        null, player.getSourceEntry()));
+    if (favorites != null && !favorites.isClosed()) favorites.refresh();
+
+    JOptionPane.showMessageDialog(this, added ? title + " is now a favourite."
+        : title + " was already a favourite.", "Favorites", JOptionPane.INFORMATION_MESSAGE);
+  }
+
+  public void openFavorites() {
+    if (favorites == null || favorites.isClosed()) {
+      favorites = new FavoritesInternalFrame(config, favorite -> {
+        // Straight back through the paths the application already uses, so a favourite opens
+        // exactly the way it opened the first time.
+        if (favorite.isRecording()) {
+          // Fetching wants something it can open as a URL, and a favourite made from a file on
+          // the disk kept a plain path because that is what is worth reading in the list.
+          String from = favorite.getSource();
+          if (!from.startsWith("http") && !from.startsWith("file:")) {
+            from = new java.io.File(from).toURI().toString();
+          }
+          playRecording(new RzxOption(favorite.getTitle(), from), favorite.getEntry());
+        } else {
+          loadInNewEmulator(favorite.getSource());
+        }
+      });
+      desktop.add(favorites);
+    }
+    favorites.setVisible(true);
+    favorites.toFront();
+    try {
+      favorites.setSelected(true);
+    } catch (java.beans.PropertyVetoException ignored) {
+    }
+  }
+
+  private void openSnapshotHistory() {
+    if (snapshotHistory == null || snapshotHistory.isClosed()) {
+      snapshotHistory = new SnapshotHistoryInternalFrame(config);
+
+      // Listener para cargar un snapshot del historial
+      snapshotHistory.setOnSnapshotSelectedListener(entry -> {
+        // Si hay estado guardado, usarlo; si no, cargar desde el archivo
+        if (entry.getInitialStateId() != null && !entry.getInitialStateId().isEmpty()) {
+          try {
+            String snapshotData = config.getSnapshot(entry.getInitialStateId());
+            if (snapshotData != null && !snapshotData.isEmpty()) {
+              SpectrumState spectrumState = SnapshotSaver.loadSnapshotFromUnicodePacked(snapshotData);
+              EmulatorCore core = mockCoreState.apply(spectrumState);
+              createNewEmulator(core, entry.getFilePath());
+              return;
+            }
+          } catch (Exception ex) {
+            System.err.println("Error restaurando snapshot guardado: " + ex.getMessage());
+            // Fallback a cargar desde archivo
+          }
+        }
+
+        // Fallback: cargar desde el archivo
+        EmulatorCore core = mockCore.apply(entry.getFilePath(), null);
+        createNewEmulator(core, entry.getFilePath());
+      });
+
+      // Listener para remover del historial
+      snapshotHistory.setOnSnapshotRemovedListener(entry -> {
+        if (entry == null) {
+          // Limpiar el historial completo
+          config.getSnapshotHistory().clear();
+        } else {
+          // Remover un snapshot específico
+          String key = new java.io.File(entry.getFilePath()).getAbsolutePath();
+          config.getSnapshotHistory().remove(key);
+        }
+        // Guardar (se limpian automáticamente snapshots huérfanos)
+        config.save();
+      });
+
+      // Listener para ver detalles del juego
+      snapshotHistory.setOnViewDetailsListener(gameName -> {
+        showGameDetailsFromHistory(gameName);
+      });
+
+      // Callback para refrescar la lista cuando cambia el historial
+      config.setOnHistoryChanged(() -> {
+        if (snapshotHistory != null && !snapshotHistory.isClosed()) {
+          snapshotHistory.refreshHistory(config);
+        }
+      });
+
+      // Callback para guardar estado cuando se cierre la ventana
+      snapshotHistory.setOnClosedListener(() -> {
+        config.save();
+      });
+
+      desktop.add(snapshotHistory);
+      snapshotHistory.setVisible(true);
+      try {
+        snapshotHistory.setSelected(true);
+      } catch (java.beans.PropertyVetoException ex) {
+      }
+    } else {
+      try {
+        snapshotHistory.setSelected(true);
+        snapshotHistory.toFront();
+      } catch (java.beans.PropertyVetoException ex) {
+      }
+    }
+  }
+
+  /**
+   * Search for game by name and show details dialog
+   */
+  private void showGameDetailsFromHistory(String gameName) {
+    // Remove file extensions from game name
+    String cleanGameName = gameName
+        .replaceAll("\\.(z80|sna|tap|tzx|szx)$", "")
+        .trim();
+
+    // Show loading dialog
+    JDialog loadingDialog = new JDialog(this, "Loading Game Details", true);
+    loadingDialog.setSize(300, 100);
+    loadingDialog.setLocationRelativeTo(this);
+    JLabel loadingLabel = new JLabel("Searching for: " + cleanGameName);
+    loadingLabel.setHorizontalAlignment(JLabel.CENTER);
+    loadingDialog.add(loadingLabel);
+
+    // Search in background
+    SwingWorker<com.fpetrola.oozx.api.GameDetail, Void> worker =
+        new SwingWorker<com.fpetrola.oozx.api.GameDetail, Void>() {
+          @Override
+          protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
+            try {
+              // Search for the game by name (without file extension)
+              ZxInfoApiHandler apiHandler = new ZxInfoApiHandler();
+              List<Hit> results = apiHandler.search(cleanGameName);
+
+              if (results == null || results.isEmpty()) {
+                return null;
+              }
+
+              // Get the best matching result (first one)
+              Hit bestMatch = results.get(0);
+              String gameId = bestMatch._id;
+
+              // Fetch full details from API
+              return apiHandler.fetchGameDetails(gameId);
+            } catch (Exception e) {
+              System.err.println("Error searching for game: " + e.getMessage());
+              return null;
+            }
+          }
+
+          @Override
+          protected void done() {
+            loadingDialog.dispose();
+            try {
+              com.fpetrola.oozx.api.GameDetail gameDetail = get();
+
+              if (gameDetail == null) {
+                // Show dialog to allow user to search again
+                showGameNotFoundDialog(cleanGameName);
+                return;
+              }
+
+              GameDetailsDialog dialog = new GameDetailsDialog(ZXSpectrumDesktopApp.this, gameDetail);
+              dialog.setVisible(true);
+            } catch (Exception e) {
+              JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+                  "Error loading game details: " + e.getMessage(),
+                  "Error", JOptionPane.ERROR_MESSAGE);
+            }
+          }
+        };
+
+    worker.execute();
+    loadingDialog.setVisible(true);
+  }
+
+  /**
+   * Show dialog when game not found, allowing user to search with different name
+   */
+  private void showGameNotFoundDialog(String attemptedName) {
+    GameNotFoundDialog.showWithRetry(this, "Game not found: " + attemptedName,
+        newName -> showGameDetailsFromHistory(newName));
+  }
+
+  private void getActiveEmulatorOrCreateNew(GameSearchResult gameSearchResult, Runnable whenDone) {
+    new SwingWorker<EmulatorCore, Void>() {
+      @Override
+      protected EmulatorCore doInBackground() {
+        EmulatorCore core = mockCore.apply(gameSearchResult.filename, gameSearchResult.machine);
+        knownMachines = core.getMachineModels();
+        return core;
+      }
+
+      @Override
+      protected void done() {
+        try {
+          createNewEmulator(get(), gameSearchResult);
+        } catch (Exception e) {
+          JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+              "Could not load \"" + gameSearchResult.title + "\".\n\n" + reason(e),
+              "Load failed", JOptionPane.ERROR_MESSAGE);
+        } finally {
+          whenDone.run();
+        }
+      }
+    }.execute();
+  }
+
+  // ... (rest of the methods: createNewEmulator, cascadeWindows, tileWindows remain unchanged)
+
+  /**
+   * The deck belonging to each machine. Weak so a closed emulator can be collected; the browser
+   * looks a tape up from whichever emulator is in front rather than being tied to one.
+   */
+  private final java.util.Map<EmulatorCore, com.fpetrola.oozx.Speccy> machinesByCore =
+      new java.util.HashMap<>();
+
+  private final java.util.Map<EmulatorCore, com.fpetrola.oozx.speccy.modules.tape.Tape> tapesByCore =
+      new java.util.WeakHashMap<>();
+
+  public void registerTape(EmulatorCore core, com.fpetrola.oozx.speccy.modules.tape.Tape tape) {
+    tapesByCore.put(core, tape);
+  }
+
+  /** The deck inside a machine's window, or null when that window is not a machine. */
+  /** The emulator behind a window, for a peripheral that has to reach the machine it is clipped to. */
+  public void registerMachine(EmulatorCore core, com.fpetrola.oozx.Speccy speccy) {
+    machinesByCore.put(core, speccy);
+  }
+
+  public com.fpetrola.oozx.Speccy machineOf(JInternalFrame window) {
+    return window instanceof EmulatorInternalFrame emulator
+        ? machinesByCore.get(emulator.emulatorCore) : null;
+  }
+
+  public com.fpetrola.oozx.speccy.modules.tape.Tape deckOf(JInternalFrame machine) {
+    return machine instanceof EmulatorInternalFrame emulator
+        ? tapesByCore.get(emulator.emulatorCore) : null;
+  }
+
+  /**
+   * Every cassette deck open at once, one per machine.
+   * <p>
+   * There used to be one window, kept in a field, which played into whichever machine was in
+   * front - so the tape you were watching load jumped to another computer when you clicked on
+   * it. A deck is a piece of equipment: it is clipped onto one machine, plays into that one, and
+   * you move it by unplugging it and clipping it onto the next.
+   */
+  private final java.util.List<TapeBrowserInternalFrame> cassettes = new java.util.ArrayList<>();
+
+  /**
+   * Every player open at once. There used to be one, kept in a field and reused, so a second
+   * recording took the first one's window and its machine: watching two was watching the later
+   * one. A recording already builds its own machine - {@link RzxSession#open} makes its own
+   * injector and its own Speccy - so nothing below the window ever required there to be one.
+   */
+  private final java.util.List<RzxPlayerInternalFrame> rzxPlayers = new java.util.ArrayList<>();
+
+  /**
+   * A player ready to take a recording: the open one if it is still empty, otherwise another.
+   * <p>
+   * Reusing an empty one keeps the menu item from leaving a trail of blank players behind
+   * someone who clicked it twice, and opening a second recording while the first is playing
+   * gets its own window, which is the point.
+   */
+  public RzxPlayerInternalFrame showRzxPlayer() {
+    rzxPlayers.removeIf(JInternalFrame::isClosed);
+    for (RzxPlayerInternalFrame open : rzxPlayers) {
+      if (!open.hasRecording()) {
+        open.setVisible(true);
+        open.toFront();
+        return open;
+      }
+    }
+    return newRzxPlayer();
+  }
+
+  /** Another player, whatever the open ones are doing. */
+  public RzxPlayerInternalFrame newRzxPlayer() {
+    return newRzxPlayer(true);
+  }
+
+  private RzxPlayerInternalFrame newRzxPlayer(boolean shown) {
+    rzxPlayers.removeIf(JInternalFrame::isClosed);
+    RzxPlayerInternalFrame player =
+        new RzxPlayerInternalFrame(nextPlayerNumber(), this::intoThePlayer, this::showRzxMachine);
+    player.setOnFavorite(() -> keepRecordingAsFavorite(player));
+    // Cascaded like the emulators, so the second one does not land exactly on the first.
+    player.setLocation(120 + (rzxPlayers.size() * 30) % 300, 60 + (rzxPlayers.size() * 30) % 200);
+    player.addInternalFrameListener(new InternalFrameAdapter() {
+      @Override
+      public void internalFrameClosed(InternalFrameEvent e) {
+        rzxPlayers.remove(player);
+        // Closing the controls closes the picture they were driving. Leaving the machine behind
+        // would leave a window nobody can stop, still running and still making sound.
+        JInternalFrame machine = player.getMachineWindow();
+        if (machine != null && !machine.isClosed()) {
+          machine.dispose();
+        }
+      }
+
+      @Override
+      public void internalFrameActivated(InternalFrameEvent e) {
+        raisePartner(player.getMachineWindow(), player);
+      }
+    });
+    rzxPlayers.add(player);
+    if (shown) {
+      desktop.add(player);
+      player.setVisible(true);
+      player.toFront();
+    }
+    return player;
+  }
+
+  /**
+   * The smallest number not in use, rather than one more than the last: with four open, closing
+   * #2 and opening another should give back #2 and not #5, or the numbers climb forever while
+   * the desktop stays the same size.
+   */
+  private int nextPlayerNumber() {
+    for (int candidate = 1; ; candidate++) {
+      boolean taken = false;
+      for (RzxPlayerInternalFrame open : rzxPlayers) {
+        taken |= open.getNumber() == candidate;
+      }
+      if (!taken) {
+        return candidate;
+      }
+    }
+  }
+
+  /** Which player, if any, is driving that machine's window. */
+  private RzxPlayerInternalFrame playerDriving(JInternalFrame machine) {
+    if (machine == null) {
+      return null;
+    }
+    for (RzxPlayerInternalFrame player : rzxPlayers) {
+      if (player.getMachineWindow() == machine) {
+        return player;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Brings a pair up together, the activated one on top.
+   * <p>
+   * Raising the partner first and the activated window second is what keeps clicking the
+   * controls from burying them under their own picture. The two are not dragged together: with
+   * several recordings open the whole point is to put the pictures side by side and the controls
+   * where there is room, and windows that follow each other about would be fought all day.
+   */
+  private void raisePartner(JInternalFrame partner, JInternalFrame activated) {
+    if (partner != null && !partner.isClosed() && partner.isVisible()) {
+      partner.toFront();
+      activated.toFront();
+    }
+  }
+
+  /**
+   * Fetches a recording and plays it. The fetching is off the event thread, and a recording may
+   * arrive on its own or inside a zip, which is the same choice a game download already makes.
+   */
+  public void playRecording(RzxOption option) {
+    playRecording(option, null);
+  }
+
+  /**
+   * @param preferredEntry the file inside the archive to open, when one was chosen before and
+   *                       kept. With it a favourite comes back to the same recording instead of
+   *                       asking again which part was meant.
+   */
+  public void playRecording(RzxOption option, String preferredEntry) {
+    playWhatever("Could not fetch " + option.label() + ".", () -> {
+      java.util.List<java.nio.file.Path> parts = DownloadAndUnzip.fetchAll(option.url(),
+          java.nio.file.Path.of(System.getProperty("java.io.tmpdir"), "rzx-downloads"));
+      if (parts.isEmpty()) {
+        throw new java.io.IOException("nothing playable came out of it");
+      }
+      java.io.File part = choosePart(option, parts, preferredEntry).toFile();
+      return new Chosen(part, option.url(), part.getName());
+    });
+  }
+
+  /**
+   * The one way in for a recording, wherever it was named: off the disk, out of the archive, or
+   * from a favourite. What is decided before anything is on the desktop is which file to play;
+   * only then does a player appear, and it appears with its machine.
+   *
+   * @param decide what to play, run off the event thread when it fetches; null if nothing was chosen
+   */
+  private void playWhatever(String whenItFails, java.util.concurrent.Callable<Chosen> decide) {
+    RzxPlayerInternalFrame player = newRzxPlayer(false);
+    // Deciding takes seconds - an archive is fetched and unpacked before there is anything to
+    // ask about - and nothing is on the desktop yet to say so. The pointer is what is left.
+    working(true);
+    new SwingWorker<Chosen, Void>() {
+      @Override
+      protected Chosen doInBackground() throws Exception {
+        return decide.call();
+      }
+
+      @Override
+      protected void done() {
+        working(false);
+        Chosen chosen;
+        try {
+          chosen = get();
+        } catch (Exception e) {
+          discard(player);
+          JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this, whenItFails + "\n\n" + reason(e),
+              "Play recording", JOptionPane.ERROR_MESSAGE);
+          return;
+        }
+        if (chosen == null) {
+          discard(player);
+          return;
+        }
+        show(player);
+        chosen.rememberOn(player);
+        player.openRecording(chosen.file());
+      }
+    }.execute();
+  }
+
+  /** The wait pointer over the whole application, for work nobody can see yet. */
+  private void working(boolean busy) {
+    java.awt.Window window = SwingUtilities.getWindowAncestor(this);
+    java.awt.Component root = window == null ? this : window;
+    root.setCursor(java.awt.Cursor.getPredefinedCursor(busy ? java.awt.Cursor.WAIT_CURSOR : java.awt.Cursor.DEFAULT_CURSOR));
+    if (root instanceof javax.swing.RootPaneContainer panes) {
+      panes.getGlassPane().setCursor(root.getCursor());
+      panes.getGlassPane().setVisible(busy);
+    }
+  }
+
+  private void discard(RzxPlayerInternalFrame player) {
+    rzxPlayers.remove(player);
+    player.dispose();
+  }
+
+  private void show(RzxPlayerInternalFrame player) {
+    desktop.add(player);
+    player.setVisible(true);
+    player.toFront();
+  }
+
+  /**
+   * Puts a recording's machine in an ordinary emulator window. It is an emulator like any other
+   * from here on - which is what lets the recording be stopped and the game carried on by hand.
+   */
+  private void showRzxMachine(RzxPlayerInternalFrame player,
+                              RzxSession session) {
+    SwingUtilities.invokeLater(() -> {
+      com.fpetrola.oozx.speccy.peripherals.SpeccyEmulatorCore core =
+          new com.fpetrola.oozx.speccy.peripherals.SpeccyEmulatorCore(session.getSpeccy());
+      session.getSpeccy().control = core;
+      EmulatorInternalFrame machine = createNewEmulator(core);
+      // The same number the controls carry, so it is possible to tell across a crowded desktop
+      // which picture belongs to which set of buttons.
+      String name = player.getRecordingFile() == null ? "" : ": " + player.getRecordingFile().getName();
+      machine.setTitle("Spectrum #" + player.getNumber() + name);
+      // Put the screen straight above the controls that were already on screen, so the pair comes
+      // up joined where the person is looking rather than the screen landing elsewhere and the
+      // controls jumping across to it once the recording finishes loading.
+      player.takeMachine(machine);
+      machine.addInternalFrameListener(new InternalFrameAdapter() {
+        // Closing the machine's window stops the recording driving it - AttachedFrame watches
+        // for that itself now, for every window clipped onto a machine, so it is not repeated
+        // here.
+        @Override
+        public void internalFrameActivated(InternalFrameEvent e) {
+          raisePartner(player, machine);
+        }
+      });
+    });
+  }
+
+  /**
+   * Which part to play. A game recorded over several sittings arrives as one file per part -
+   * Rick Dangerous 2 comes as five - and playing whichever one happened to be picked shows a
+   * fifth of the game and looks like a fault, so the choice is the person's.
+   */
+  private java.nio.file.Path choosePart(RzxOption option, java.util.List<java.nio.file.Path> parts,
+                                        String preferredEntry) {
+    if (parts.size() == 1) {
+      return parts.get(0);
+    }
+    if (preferredEntry != null) {
+      java.util.Optional<java.nio.file.Path> remembered = parts.stream()
+          .filter(part -> part.getFileName().toString().equals(preferredEntry)).findFirst();
+      if (remembered.isPresent()) return remembered.get();
+    }
+    Object[] names = parts.stream().map(part -> part.getFileName().toString()).toArray();
+    Object chosen = JOptionPane.showInputDialog(this,
+        option.label() + " was recorded in " + parts.size() + " parts. Which one?",
+        "Play recording", JOptionPane.QUESTION_MESSAGE, null, names, names[0]);
+    return parts.stream()
+        .filter(part -> part.getFileName().toString().equals(chosen))
+        .findFirst().orElse(parts.get(0));
+  }
+
+  /** Asks for a recording. A recording brings its own machine, so no emulator is needed. */
+  /** The player's own Open button: the same choosing, put into the player that asked. */
+  private java.io.File intoThePlayer(RzxPlayerInternalFrame player) {
+    Chosen chosen;
+    try {
+      chosen = chooseRecording();
+    } catch (java.io.IOException e) {
+      throw new java.io.UncheckedIOException(e);
+    }
+    if (chosen == null) {
+      return null;
+    }
+    chosen.rememberOn(player);
+    return chosen.file();
+  }
+
+  /** What a chosen recording is: the file to play, and what it lasts as - a URL or a zip plus the entry inside it. */
+  record Chosen(java.io.File file, String source, String entry) {
+    void rememberOn(RzxPlayerInternalFrame player) {
+      if (source != null) player.setPendingSource(source, entry);
+    }
+  }
+
+  private Chosen chooseRecording() throws java.io.IOException {
+    fileChooser.setCurrentDirectory(new java.io.File(config.getLastOpenDirectory()));
+    javax.swing.filechooser.FileFilter previous = fileChooser.getFileFilter();
+    // Zips as well as recordings: the archive serves a good part of its catalogue that way, and
+    // someone who saved one has a zip on their disk, not a .rzx. Offering only .rzx hid those
+    // files from the dialog, and picking one through All Files handed the zip straight to the
+    // parser, which rightly says it is not a recording it can read.
+    javax.swing.filechooser.FileNameExtensionFilter recordings =
+        new javax.swing.filechooser.FileNameExtensionFilter("Recordings (*.rzx, *.zip)", "rzx", "zip");
+    fileChooser.addChoosableFileFilter(recordings);
+    fileChooser.setFileFilter(recordings);
+    int answer = fileChooser.showOpenDialog(this);
+    fileChooser.removeChoosableFileFilter(recordings);
+    fileChooser.setFileFilter(previous);
+    if (answer != JFileChooser.APPROVE_OPTION) {
+      return null;
+    }
+    config.setLastOpenDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
+    return openableRecording(fileChooser.getSelectedFile());
+  }
+
+  /**
+   * What to hand the player for a file off the disk: the file itself, or, if it is an archive,
+   * whichever recording inside it the person picked.
+   * <p>
+   * Fetching one from the archive already unpacks and asks; opening the same file from disk did
+   * not, so the two ways of arriving at the same recording did not agree. A zip holding one
+   * recording opens without a question; one holding several asks the same way a download does.
+   */
+  private Chosen openableRecording(java.io.File chosen) throws java.io.IOException {
+    if (chosen == null) {
+      return null;
+    }
+    if (!chosen.getName().toLowerCase().endsWith(".zip")) {
+      return new Chosen(chosen, null, null);
+    }
+    java.util.List<java.nio.file.Path> parts = DownloadAndUnzip.fetchAll(
+        chosen.toURI().toString(),
+        java.nio.file.Path.of(System.getProperty("java.io.tmpdir"), "rzx-downloads"));
+    if (parts.isEmpty()) {
+      throw new IllegalArgumentException("there is nothing playable inside it");
+    }
+    java.io.File part =
+        choosePart(new RzxOption(chosen.getName(), chosen.toURI().toString()), parts, null).toFile();
+    // The unpacked entry lives in a temporary directory that will not be there tomorrow. What
+    // lasts is the zip the person picked plus which recording inside it this was, so a
+    // favourite made from here can unpack the same one again.
+    return new Chosen(part, chosen.getAbsolutePath(), part.getName());
+  }
+
+  /**
+   * Opens a machine on a file and lets it load itself, which for a tape means the auto loader
+   * types LOAD "" and plays from the start. Off the event thread: building a machine downloads,
+   * unzips and boots, and doing that on the event thread freezes the window.
+   */
+  /**
+   * What to tell someone about a failure: what went wrong, not the pile of wrappers that carried
+   * it here. A download refused by an archive arrives as an ExecutionException around a
+   * RuntimeException around an IOException, and printing that put three Java class names and a
+   * full URL in front of the one sentence that says anything.
+   */
+  static String reason(Throwable failure) {
+    return com.fpetrola.oozx.speccy.windows.Widgets.reason(failure);
+  }
+
+  public void loadInNewEmulator(String path) {
+    // Downloading, unzipping and booting can take several seconds, and until now they took them
+    // in silence: nothing appeared until the machine did, which reads as the click not working.
+    JDialog loading = showLoading(path.startsWith("http") ? "Fetching " + nameOf(path) + "..."
+        : "Loading " + nameOf(path) + "...");
+
+    new SwingWorker<EmulatorCore, Void>() {
+      @Override
+      protected EmulatorCore doInBackground() {
+        return mockCore.apply(path, null);
+      }
+
+      @Override
+      protected void done() {
+        loading.dispose();
+        try {
+          createNewEmulator(get(), path);
+        } catch (Exception e) {
+          JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+              "Could not load " + path + ".\n\n" + reason(e), "Load failed", JOptionPane.ERROR_MESSAGE);
+        }
+      }
+    }.execute();
+  }
+
+  private static String nameOf(String path) {
+    int slash = Math.max(path.lastIndexOf('/'), path.lastIndexOf(java.io.File.separatorChar));
+    return slash < 0 ? path : path.substring(slash + 1);
+  }
+
+  /**
+   * A small window saying something is happening, for work that runs off the event thread.
+   * Deliberately not modal: it says wait, it does not take the application away.
+   */
+  JDialog showLoading(String message) {
+    JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Loading");
+    JPanel panel = new JPanel(new BorderLayout(8, 8));
+    panel.setBorder(BorderFactory.createEmptyBorder(12, 16, 12, 16));
+    panel.add(new JLabel(message), BorderLayout.NORTH);
+
+    JProgressBar progress = new JProgressBar();
+    progress.setIndeterminate(true);
+    panel.add(progress, BorderLayout.CENTER);
+
+    dialog.setContentPane(panel);
+    dialog.pack();
+    dialog.setLocationRelativeTo(this);
+    dialog.setVisible(true);
+    return dialog;
+  }
+
+  /**
+   * A deck ready for a cassette: an open one with nothing in it, or another.
+   * <p>
+   * Reusing an empty one keeps the menu item from leaving a trail of blank decks behind someone
+   * who clicked it twice; opening a second cassette while the first is loading gets its own
+   * window, which is the point of there being more than one.
+   */
+  public TapeBrowserInternalFrame showTapeBrowser() {
+    cassettes.removeIf(JInternalFrame::isClosed);
+    for (TapeBrowserInternalFrame open : cassettes) {
+      if (!open.hasTape()) {
+        open.setVisible(true);
+        open.toFront();
+        return open;
+      }
+    }
+    return newCassette();
+  }
+
+  /** The equipment this build offers, in the order the menu shows it. */
+  private final java.util.List<Equipment> equipmentKinds = ServiceLoader.load(Equipment.class).stream()
+      .map(ServiceLoader.Provider::get)
+      .sorted(java.util.Comparator.comparing(Equipment::name))
+      .toList();
+
+  /** Every piece of equipment open at once, one per machine, clipped on the same way a deck is. */
+  private final java.util.Map<Equipment, java.util.List<MachineFrame>> equipment = new java.util.HashMap<>();
+
+  /**
+   * That piece of equipment, clipped onto the machine in front - which is what plugs it in.
+   * Opening the one that is already there rather than a second one, the way the cassette does:
+   * two mice on one Spectrum would be two sets of counters answering the same three ports.
+   */
+  public MachineFrame show(Equipment kind) {
+    java.util.List<MachineFrame> open = equipment.computeIfAbsent(kind, k -> new java.util.ArrayList<>());
+    open.removeIf(JInternalFrame::isClosed);
+    for (MachineFrame window : open) {
+      if (!window.isAttached() || window.getMachineWindow() == machineBeingUsed()) {
+        window.setVisible(true);
+        window.toFront();
+        return window;
+      }
+    }
+
+    MachineFrame window = kind.open();
+    window.setLocation(360 + (open.size() * 30) % 300, 60 + (open.size() * 30) % 200);
+    open.add(window);
+    desktop.add(window);
+    window.setVisible(true);
+    if (machineBeingUsed() != null) {
+      window.attachTo(machineBeingUsed());
+    }
+    return window;
+  }
+
+  /** Another deck, whatever the open ones are doing. */
+  public TapeBrowserInternalFrame newCassette() {
+    cassettes.removeIf(JInternalFrame::isClosed);
+    TapeBrowserInternalFrame[] holder = new TapeBrowserInternalFrame[1];
+    TapeBrowserInternalFrame cassette = new TapeBrowserInternalFrame(this::deckOf,
+        this::chooseTapeForBrowser, file -> openMachineFor(holder[0], file));
+    holder[0] = cassette;
+    // Cascaded like the emulators, so the second one does not land exactly on the first.
+    cassette.setLocation(80 + (cassettes.size() * 30) % 300, 80 + (cassettes.size() * 30) % 200);
+    cassettes.add(cassette);
+    desktop.add(cassette);
+    cassette.setVisible(true);
+    // Clipped onto the machine in front, if there is one: that is what plugs it in, and a deck
+    // that arrives already connected to the computer you are looking at is what you wanted.
+    // Before being raised, so it arrives where it belongs rather than moving once it is up.
+    cassette.setMachineWindow(getActiveEmulator());
+    cassette.toFront();
+    return cassette;
+  }
+
+  /**
+   * The deck that pressed play with its lead in nothing, while its computer is being built.
+   * <p>
+   * Without it, the machine came up and the cassette that had asked for it was handed a second
+   * deck holding the same tape: the one you pressed play on stayed where it was, unplugged, and
+   * a new one appeared under the new machine.
+   */
+  private TapeBrowserInternalFrame cassetteWantingAMachine;
+
+  /** Opens a computer for a deck that has nothing to play into, and remembers which deck. */
+  private void openMachineFor(TapeBrowserInternalFrame cassette, java.io.File tape) {
+    cassetteWantingAMachine = cassette;
+    loadInNewEmulator(tape.getAbsolutePath());
+  }
+
+  /** Opens a deck on a cassette already loaded and running, as a game from the browser is. */
+  public void showTapeBrowser(java.io.File tapeFile, com.fpetrola.oozx.speccy.modules.tape.Tape deck) {
+    SwingUtilities.invokeLater(() -> {
+      // The deck that asked for this machine, if one did, rather than another holding the same
+      // cassette: pressing play on a deck is asking for a computer for THAT deck.
+      TapeBrowserInternalFrame cassette =
+          cassetteWantingAMachine != null && !cassetteWantingAMachine.isClosed()
+              ? cassetteWantingAMachine : showTapeBrowser();
+      cassette.adopt(tapeFile, deck);
+      // Its machine may already be up - the two are built in either order. Only clipped on when
+      // there is one: handing this a null window means UNPLUGGED, which would throw away the
+      // deck adopt just gave it and leave nothing for createNewEmulator to recognise later.
+      EmulatorInternalFrame machine = machineFor(deck);
+      if (machine != null) {
+        clip(cassette, machine);
+      }
+    });
+  }
+
+  /**
+   * Clips the deck holding this machine's tape onto it, if one is waiting for a window.
+   * <p>
+   * The two arrive in either order - a cassette opened from the command line exists before its
+   * machine, one opened from the menu after it - so both sides look for the other: this on the
+   * way in, and {@link #machineFor} when the deck is the one that turns up late.
+   */
+  private void plugCassetteInto(EmulatorInternalFrame machine) {
+    com.fpetrola.oozx.speccy.modules.tape.Tape playing = deckOf(machine);
+    if (playing == null) {
+      return;
+    }
+    cassettes.removeIf(JInternalFrame::isClosed);
+    for (TapeBrowserInternalFrame cassette : cassettes) {
+      if (cassette.waitingFor(playing)) {
+        clip(cassette, machine);
+        return;
+      }
+    }
+  }
+
+  /**
+   * Puts the two together, deciding which of them moves.
+   * <p>
+   * A deck that asked for this machine stays where it was left and the machine is placed above
+   * it; one that was opened along with the machine goes under it, because it has not been put
+   * anywhere yet.
+   */
+  private void clip(TapeBrowserInternalFrame cassette, EmulatorInternalFrame machine) {
+    if (cassette == cassetteWantingAMachine) {
+      cassetteWantingAMachine = null;
+      cassette.takeMachine(machine);
+    } else {
+      cassette.attachTo(machine);
+    }
+  }
+
+  /** The machine window whose deck this is, or null while that machine is still being built. */
+  private EmulatorInternalFrame machineFor(com.fpetrola.oozx.speccy.modules.tape.Tape playing) {
+    for (JInternalFrame frame : desktop.getAllFrames()) {
+      if (frame instanceof EmulatorInternalFrame machine && deckOf(machine) == playing) {
+        return machine;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Sends what is typed to the machine being used, whatever happens to hold the focus.
+   * <p>
+   * The keys used to be wired to the emulator's own panel gaining and losing focus, which made
+   * every window that appears beside a machine able to take its keyboard away: clicking a
+   * cassette deck clipped under it left the machine deaf until somebody clicked the picture
+   * again, and each such window had to be taught to hand the keys back. What somebody means by
+   * "the machine I am typing into" is the machine in front, or the machine that the thing in
+   * front is clipped onto - not whichever component Swing last gave the focus to.
+   */
+  private boolean typeIntoTheMachineInFront(KeyEvent event) {
+    if (somebodyIsWriting()) {
+      return false;
+    }
+    EmulatorInternalFrame machine = machineBeingUsed();
+    KeyListener keys = machine == null ? null : machine.keys();
+    if (keys == null) {
+      return false;
+    }
+    switch (event.getID()) {
+      case KeyEvent.KEY_PRESSED -> keys.keyPressed(event);
+      case KeyEvent.KEY_RELEASED -> keys.keyReleased(event);
+      case KeyEvent.KEY_TYPED -> keys.keyTyped(event);
+      default -> { }
+    }
+    return false;
+  }
+
+  /** The machine in front, or the machine whatever is in front is clipped onto. */
+  private EmulatorInternalFrame machineBeingUsed() {
+    JInternalFrame selected = desktop == null ? null : desktop.getSelectedFrame();
+    if (selected instanceof EmulatorInternalFrame machine && !machine.isClosed()) {
+      return machine;
+    }
+    if (selected instanceof AttachedFrame clipped && clipped.isAttached()
+        && clipped.getMachineWindow() instanceof EmulatorInternalFrame machine) {
+      return machine;
+    }
+    return null;
+  }
+
+  /**
+   * Whether the keys belong to somebody writing rather than to a machine: a box being typed in,
+   * a list being chosen from, or a dialog that has taken the keyboard for itself.
+   */
+  private static boolean somebodyIsWriting() {
+    KeyboardFocusManager focus = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+    Window window = focus.getFocusedWindow();
+    if (window instanceof Dialog dialog && dialog.isModal()) {
+      return true;
+    }
+    Component owner = focus.getFocusOwner();
+    return owner instanceof javax.swing.text.JTextComponent
+        || owner instanceof JComboBox<?> list && (list.isEditable() || list.isPopupVisible());
+  }
+
+  /** A window on what is coming in the sound card, for a cassette player with a real lead. */
+  public AudioInInternalFrame showAudioIn() {
+    return clipOntoTheMachineInFront(new AudioInInternalFrame(this::deckOf));
+  }
+
+  /** A window on the joystick of the machine in front: what is pushed, and which gamepad does it. */
+  public JoystickInternalFrame showJoystick() {
+    return clipOntoTheMachineInFront(new JoystickInternalFrame(this::machineOf,
+        () -> gamepad == null ? null : gamepad.controller()));
+  }
+
+  /** Placed, shown and clipped onto the machine in front, which is what wires it to that machine. */
+  private <T extends AttachedFrame> T clipOntoTheMachineInFront(T window) {
+    window.setLocation(60 + (desktop.getAllFrames().length * 20) % 200,
+        60 + (desktop.getAllFrames().length * 20) % 160);
+    desktop.add(window);
+    window.setVisible(true);
+    window.setMachineWindow(getActiveEmulator());
+    window.toFront();
+    return window;
+  }
+
+  /** Asks for a tape file and loads it into the cassette browser. No emulator is needed. */
+  public void chooseTapeForBrowser() {
+    fileChooser.setCurrentDirectory(new java.io.File(config.getLastOpenDirectory()));
+    if (fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+      return;
+    }
+    java.io.File file = fileChooser.getSelectedFile();
+    config.setLastOpenDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
+    showTapeBrowser().openTape(file);
+  }
+
+  public EmulatorInternalFrame createNewEmulator(EmulatorCore core1) {
+    return createNewEmulator(core1, (String) null);
+  }
+
+  public EmulatorInternalFrame createNewEmulator(EmulatorCore core1, String filePath) {
+    return createNewEmulator(core1, filePath, null);
+  }
+
+  public EmulatorInternalFrame createNewEmulator(EmulatorCore core1, GameSearchResult gameSearchResult) {
+    return createNewEmulator(core1, null, gameSearchResult);
+  }
+
+  public EmulatorInternalFrame createNewEmulator(EmulatorCore core1, String filePath, GameSearchResult gameSearchResult) {
+    EmulatorCore core = core1;
+
+    // Asignar el filename si se proporciona
+    if (filePath != null && !filePath.isEmpty()) {
+      core.setFilename(filePath);
+    }
+
+    if (config.isTurboByDefault()) core.setGeneralOption("turbo", true);
+    JComponent panel = core.getPanel();
+    int x = (emulatorCount * 30) % 400;
+    int y = (emulatorCount * 30) % 300;
+    EmulatorInternalFrame frame = new EmulatorInternalFrame(core, x, y, this, gameSearchResult);
+    frame.addInternalFrameListener(new InternalFrameAdapter() {
+      public void internalFrameClosed(InternalFrameEvent e) {
+        core1.finishEmulation();
+      }
+    });
+
+    // Focusable so that clicking the picture still raises its window; the keys themselves no
+    // longer depend on it holding the focus - see typeIntoTheMachineInFront.
+    panel.setFocusable(true);
+
+    desktop.add(frame);
+    frame.pack();
+    frame.setVisible(true);
+    emulatorCount++;
+    // A cassette can be opened before the machine that plays it exists - the launcher does
+    // exactly that, and so does the game browser - so the clipping is done here, where every
+    // machine passes, rather than at each of the places one gets built.
+    plugCassetteInto(frame);
+
+    // Registrar en el historial - capturar el estado inicial después de cargar
+    // Usar un timer para permitir que se cargue el snapshot completamente
+    final String finalFilePath = filePath;
+    final EmulatorCore finalCore = core;
+
+    Timer stateCapture = new Timer(500, e -> {
+      try {
+        // Obtener el path real del emulator
+        String actualFilePath = finalFilePath;
+        if (actualFilePath == null || actualFilePath.isEmpty()) {
+          actualFilePath = finalCore.getFilename();
+        }
+
+        if (actualFilePath != null && !actualFilePath.isEmpty()) {
+          String gameName = new java.io.File(actualFilePath).getName();
+
+          // Intentar capturar el estado inicial
+          String initialStateData = null;
+          try {
+            initialStateData = finalCore.packedState();
+          } catch (Exception ex) {
+            System.err.println("Error capturando estado inicial: " + ex.getMessage());
+          }
+
+          // Registrar en el historial con el estado (o sin si no se pudo capturar)
+          config.addToSnapshotHistory(actualFilePath, gameName, initialStateData);
+        }
+      } finally {
+        ((Timer) e.getSource()).stop();
+      }
+    });
+    stateCapture.setRepeats(false);
+//    stateCapture.start();
+
+    return frame;
+  }
+
+  private void saveMainWindowState() {
+    OOZxConfiguration.WindowState mainState = new OOZxConfiguration.WindowState(
+        "MAIN_WINDOW", getX(), getY(), getWidth(), getHeight());
+    config.setMainWindowState(mainState);
+  }
+
+  private void restoreMainWindowState() {
+    OOZxConfiguration.WindowState mainState = config.getMainWindowState();
+    if (mainState != null) {
+      if (mainState.getWidth() > 0 && mainState.getHeight() > 0) {
+        setSize(mainState.getWidth(), mainState.getHeight());
+      }
+      if (mainState.getX() >= 0 && mainState.getY() >= 0) {
+        setLocation(mainState.getX(), mainState.getY());
+      }
+    }
+  }
+
+  private void saveOpenWindows() {
+    config.getOpenWindows().clear();
+
+    for (JInternalFrame frame : desktop.getAllFrames()) {
+      if (frame instanceof EmulatorInternalFrame) {
+        EmulatorInternalFrame eFrame = (EmulatorInternalFrame) frame;
+        // Obtener el archivo que se está emulando (si existe)
+        String filePath = eFrame.emulatorCore.getFilename();
+        config.getOpenWindows().add(eFrame.saveWindowState(filePath));
+      } else if (frame instanceof GameBrowserInternalFrame) {
+        GameBrowserInternalFrame gFrame = (GameBrowserInternalFrame) frame;
+        config.getOpenWindows().add(gFrame.saveWindowState());
+      } else if (frame instanceof SnapshotHistoryInternalFrame) {
+        SnapshotHistoryInternalFrame hFrame = (SnapshotHistoryInternalFrame) frame;
+        config.getOpenWindows().add(hFrame.saveWindowState());
+      }
+    }
+  }
+
+  private void restoreOpenWindows() {
+    // Crear todas las ventanas primero
+    for (OOZxConfiguration.WindowState windowState : config.getOpenWindows()) {
+      if ("EMULATOR".equals(windowState.getType())) {
+        // Restaurar el estado del emulador desde el snapshot comprimido
+        if (windowState.getSnapshotId() != null && !windowState.getSnapshotId().isEmpty()) {
+          try {
+            String snapshotData = config.getSnapshot(windowState.getSnapshotId());
+            if (snapshotData != null && !snapshotData.isEmpty()) {
+              SpectrumState spectrumState = SnapshotSaver.loadSnapshotFromUnicodePacked(snapshotData);
+              EmulatorCore core = mockCoreState.apply(spectrumState);
+              EmulatorInternalFrame frame = createNewEmulator(core);
+              frame.restoreWindowState(windowState);
+            }
+          } catch (Exception e) {
+            System.err.println("Error restaurando snapshot desde configuración: " + e.getMessage());
+          }
+        }
+      } else if ("GAME_BROWSER".equals(windowState.getType())) {
+        if (gameBrowser == null || gameBrowser.isClosed()) {
+          gameBrowser = new GameBrowserInternalFrame(createGameBrowserListener());
+          desktop.add(gameBrowser);
+          gameBrowser.setVisible(true);
+        }
+        gameBrowser.restoreWindowState(windowState);
+      } else if ("SNAPSHOT_HISTORY".equals(windowState.getType())) {
+        if (snapshotHistory == null || snapshotHistory.isClosed()) {
+          openSnapshotHistory();
+        }
+        if (snapshotHistory != null && !snapshotHistory.isClosed()) {
+          snapshotHistory.restoreWindowState(windowState);
+        }
+      }
+    }
+
+  }
+
+  private JInternalFrame findFrameByWindowState(OOZxConfiguration.WindowState windowState) {
+    for (JInternalFrame frame : desktop.getAllFrames()) {
+      if ("EMULATOR".equals(windowState.getType()) && frame instanceof EmulatorInternalFrame) {
+        EmulatorInternalFrame eFrame = (EmulatorInternalFrame) frame;
+        if (windowState.getSnapshotId() != null && eFrame.saveWindowState(eFrame.emulatorCore.getFilename()).getSnapshotId().equals(windowState.getSnapshotId())) {
+          return frame;
+        }
+      } else if ("GAME_BROWSER".equals(windowState.getType()) && frame instanceof GameBrowserInternalFrame) {
+        return frame;
+      }
+    }
+    return null;
+  }
+
+  private GameBrowserListener createGameBrowserListener() {
+    return new GameBrowserListener() {
+      @Override
+      public void onGameSelected(GameSearchResult gameSearchResult, Runnable whenDone) {
+        getActiveEmulatorOrCreateNew(gameSearchResult, whenDone);
+      }
+
+      @Override
+      public void onPlayRecording(RzxOption recording) {
+        playRecording(recording);
+      }
+
+      /**
+       * Learnt from a machine that exists, because the list belongs to the build and there is no
+       * copy of it to read. Any emulator can answer; the first one to be made is remembered so
+       * the browser can offer them without one having to be open.
+       */
+      @Override
+      public java.util.List<String> machines() {
+        // A running machine is the truth and is asked first, but the browser is usually opened
+        // before there is one, so what the module declares stands in until then.
+        return knownMachines.isEmpty()
+            ? com.fpetrola.oozx.speccy.machines.Machines.MODEL_NAMES : knownMachines;
+      }
+
+      @Override
+      public void onViewDetails(GameSearchResult gameSearchResult) {
+        // Show loading dialog while fetching from API
+        JDialog loadingDialog = new JDialog(ZXSpectrumDesktopApp.this, "Loading Game Details", true);
+        loadingDialog.setSize(300, 100);
+        loadingDialog.setLocationRelativeTo(ZXSpectrumDesktopApp.this);
+        JLabel loadingLabel = new JLabel("Fetching game details from ZXInfo API...");
+        loadingLabel.setHorizontalAlignment(JLabel.CENTER);
+        loadingDialog.add(loadingLabel);
+
+        // Fetch details in background thread
+        SwingWorker<com.fpetrola.oozx.api.GameDetail, Void> worker =
+            new SwingWorker<com.fpetrola.oozx.api.GameDetail, Void>() {
+              @Override
+              protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
+                // Extract ID from URL (e.g., "https://zxinfo.dk/games/xxxx")
+                String gameId = gameSearchResult.id;
+                // Fetch full details from API
+                ZxInfoApiHandler apiHandler = new ZxInfoApiHandler();
+                return apiHandler.fetchGameDetails(gameId);
+              }
+
+              @Override
+              protected void done() {
+                loadingDialog.dispose();
+                try {
+                  com.fpetrola.oozx.api.GameDetail gameDetail = get();
+
+                  if (gameDetail == null) {
+                    // Fallback to basic info if API call fails
+                    gameDetail = new com.fpetrola.oozx.api.GameDetail();
+                    gameDetail.id = gameSearchResult.url;
+                    gameDetail.title = gameSearchResult.title;
+                    gameDetail.yearOfRelease = "Unknown";
+                    gameDetail.publisher = "Unknown";
+                    gameDetail.genre = "Unknown";
+                    gameDetail.machineType = "Spectrum 48K";
+                    gameDetail.memoryRequired = "48K";
+                    gameDetail.screenshots = new ArrayList<>();
+                    if (gameSearchResult.screenshot1 != null && !gameSearchResult.screenshot1.isEmpty()) {
+                      gameDetail.screenshots.add(gameSearchResult.screenshot1);
+                    }
+                    if (gameSearchResult.screenshot2 != null && !gameSearchResult.screenshot2.isEmpty()) {
+                      gameDetail.screenshots.add(gameSearchResult.screenshot2);
+                    }
+                    gameDetail.description = "Game description not available";
+                  }
+
+                  GameDetailsDialog dialog = new GameDetailsDialog(ZXSpectrumDesktopApp.this, gameDetail);
+                  dialog.setVisible(true);
+                } catch (Exception e) {
+                  JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+                      "Error loading game details: " + e.getMessage(),
+                      "Error", JOptionPane.ERROR_MESSAGE);
+                }
+              }
+            };
+
+        worker.execute();
+        loadingDialog.setVisible(true);
+      }
+
+      @Override
+      public void onAddToFavorites(GameSearchResult game) {
+        keepAsFavorite(game, null);
+      }
+
+      @Override
+      public void onDownloadGame(String gameUrl) {
+        JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+            "Downloading: " + gameUrl + "n(Download feature coming soon)", "Download",
+            JOptionPane.INFORMATION_MESSAGE);
+      }
+    };
+  }
+
+  private void updateRecentFilesMenu() {
+    recentFilesMenu.removeAll();
+    List<String> recentFiles = config.getRecentFiles();
+
+    if (recentFiles.isEmpty()) {
+      JMenuItem emptyItem = new JMenuItem("(No recent files)");
+      emptyItem.setEnabled(false);
+      recentFilesMenu.add(emptyItem);
+      return;
+    }
+
+    for (String filePath : recentFiles) {
+      JMenuItem item = new JMenuItem(new java.io.File(filePath).getName());
+      item.setToolTipText(filePath);
+      item.addActionListener(e -> open(filePath));
+      int place = recentFilesMenu.getItemCount() + 1;
+      if (place <= 10) item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0 + place % 10, InputEvent.CTRL_DOWN_MASK));
+      recentFilesMenu.add(item);
+    }
+
+    recentFilesMenu.addSeparator();
+    JMenuItem clearItem = new JMenuItem("Clear Recent Files");
+    clearItem.addActionListener(e -> {
+      config.getRecentFiles().clear();
+      config.save();
+      updateRecentFilesMenu();
+    });
+    recentFilesMenu.add(clearItem);
+  }
+
+  private void cascadeWindows() {
+    JInternalFrame[] frames = desktop.getAllFrames();
+    int x = 0;
+    int y = 0;
+    int width = desktop.getWidth() / 2;
+    int height = desktop.getHeight() / 2;
+
+    for (int i = 0; i < frames.length; i++) {
+      if (!frames[i].isIcon()) {
+        try {
+          frames[i].setMaximum(false);
+          frames[i].reshape(x, y, width, height);
+          x += 30;
+          y += 30;
+          if (x + width > desktop.getWidth()) x = 0;
+          if (y + height > desktop.getHeight()) y = 0;
+        } catch (Exception ex) {
+        }
+      }
+    }
+  }
+
+  private void tileWindows() {
+    JInternalFrame[] frames = desktop.getAllFrames();
+    int count = frames.length;
+    if (count == 0) return;
+
+    int sqrt = (int) Math.sqrt(count);
+    int rows = sqrt;
+    int cols = count / rows;
+    int extra = count % rows;
+
+    int width = desktop.getWidth() / cols;
+    int height = desktop.getHeight() / rows;
+
+    int x = 0;
+    int y = 0;
+    int w = width;
+    int h = height;
+
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        int index = i * cols + j;
+        if (index >= count) break;
+        if (!frames[index].isIcon()) {
+          try {
+            frames[index].setMaximum(false);
+            frames[index].reshape(x, y, w, h);
+          } catch (Exception ex) {
+          }
+        }
+        x += w;
+      }
+      x = 0;
+      y += h;
+      if (i == rows - extra - 1) {
+        cols++;
+        w = desktop.getWidth() / cols;
+      }
+    }
+  }
+
+  public static int getComponentZOrder(JInternalFrame component) {
+    Container parent = component.getParent();
+    if (parent != null) {
+      Component[] components = parent.getComponents();
+      for (int i = 0; i < components.length; i++) {
+        if (components[i] == component) {
+          return i;
+        }
+      }
+    }
+    return 0;
+  }
+
+  public static void main(String[] args) {
+  }
+}
