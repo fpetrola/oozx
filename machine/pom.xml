@@ -27,6 +27,7 @@
         <module>zxinfo</module>
         <module>pokes</module>
         <module>bridge</module>
+        <module>app</module>
     </modules>
 
 </project>

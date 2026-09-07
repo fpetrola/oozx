@@ -1,0 +1,391 @@
+/*
+ *
+ *  * Copyright (c) 2023-2025 Fernando Damian Petrola
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *      http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *
+ */
+
+package com.fpetrola.oozx.speccy.desktop;
+
+import com.fpetrola.oozx.speccy.modules.tape.TapeBlock;
+import com.fpetrola.oozx.speccy.windows.AttachedFrame;
+import com.fpetrola.oozx.speccy.modules.tape.Tape;
+
+import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
+import java.io.File;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+/**
+ * Shows what is on a tape and lets it be driven by hand: the blocks and their details, which one
+ * is being read, how far into it the player has got, and play, pause and stop.
+ * <p>
+ * The cassette belongs to the window, not to a machine: open a tape here and its composition can
+ * be read with no emulator running at all. Playing it needs one, and it goes into whichever
+ * emulator is in front at that moment - opening one afterwards, or switching to another, and
+ * pressing play again puts the same cassette into that one.
+ * <p>
+ * The deck is driven with {@code play(true)}, the manual mode, so a "stop the tape" block is
+ * honoured here as it should be: the person watching is the one who decides when it starts again.
+ * An automatic load runs through those instead, because there is nobody to press anything.
+ */
+public class TapeBrowserInternalFrame extends AttachedFrame {
+
+  /** How often the progress column is refreshed. The tape moves on the emulation thread. */
+  private static final int REFRESH_MILLIS = 100;
+
+  /** The deck inside a machine's window, which is what being attached to it gives this one. */
+  private final Function<JInternalFrame, Tape> deckOf;
+  private final Runnable openTapeChooser;
+  private final Consumer<File> loadInNewEmulator;
+  private final BlockTableModel model;
+  private final JTable table;
+  private final JButton playPauseButton;
+  private final JButton stopButton;
+  private final JButton insertButton;
+
+  /** The cassette this window holds, which needs no emulator to be looked at. */
+  private File tapeFile;
+  private List<TapeBlock> blocks = List.of();
+
+  /**
+   * The deck this cassette is plugged into: the one belonging to the machine it is clipped to.
+   * <p>
+   * Attaching is the cable. A cassette against a machine plays into that machine and no other,
+   * so switching machines is unplugging it from one and clipping it onto the next, which is
+   * what it is with a real deck and a real lead.
+   */
+  private Tape deck;
+
+  /** The block the player last reported starting, which is the one being read. */
+  private volatile int currentBlock = -1;
+  private boolean paused;
+
+  /**
+   * @param deckOf            the deck belonging to a machine's window, or null if it has none
+   * @param openTapeChooser   asks the user for a tape file and calls back {@link #openTape}
+   * @param loadInNewEmulator opens a machine on a tape and lets it load itself from the start
+   */
+  public TapeBrowserInternalFrame(Function<JInternalFrame, Tape> deckOf, Runnable openTapeChooser,
+                                  Consumer<File> loadInNewEmulator) {
+    super("Cassette");
+    this.deckOf = deckOf;
+    this.openTapeChooser = openTapeChooser;
+    this.loadInNewEmulator = loadInNewEmulator;
+
+    setSize(720, 420);
+    setLocation(80, 80);
+
+    model = new BlockTableModel();
+    table = new JTable(model);
+    table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    table.setRowHeight(22);
+    table.getColumnModel().getColumn(0).setPreferredWidth(40);
+    table.getColumnModel().getColumn(1).setPreferredWidth(150);
+    table.getColumnModel().getColumn(2).setPreferredWidth(320);
+    table.getColumnModel().getColumn(3).setPreferredWidth(70);
+    table.getColumnModel().getColumn(4).setPreferredWidth(120);
+    table.getColumnModel().getColumn(4).setCellRenderer(new ProgressRenderer());
+    table.setDefaultRenderer(Object.class, new CurrentBlockRenderer());
+
+    playPauseButton = EmulatorInternalFrame.iconButton("25B6.svg", "Play", "Play the tape");
+    stopButton = EmulatorInternalFrame.iconButton("23F9.svg", "Stop", "Stop the tape and rewind it");
+    insertButton = EmulatorInternalFrame.iconButton("1F4FC.svg", "Open Tape...", "Open a tape");
+    playPauseButton.addActionListener(e -> {
+      if (deck != null && deck.isTapePlaying()) {
+        pause();
+      } else {
+        play();
+      }
+      refresh();
+    });
+    stopButton.addActionListener(e -> stop());
+    insertButton.addActionListener(e -> openTapeChooser.run());
+
+    controls.add(playPauseButton);
+    controls.add(stopButton);
+    controls.add(Box.createHorizontalStrut(10));
+    controls.add(insertButton);
+
+    assemble(new JScrollPane(table));
+
+    Timer refresh = new Timer(REFRESH_MILLIS, e -> refresh());
+    refresh.start();
+    addInternalFrameListener(new javax.swing.event.InternalFrameAdapter() {
+      @Override
+      public void internalFrameClosed(javax.swing.event.InternalFrameEvent e) {
+        refresh.stop();
+      }
+    });
+
+    refresh();
+  }
+
+  /**
+   * The machine this is clipped to changed, so the lead now goes somewhere else.
+   * <p>
+   * Unplugged, the tape stops turning: a deck carried away from the computer is not still
+   * loading it. Nothing is played by plugging in - that is what the play button is for.
+   */
+  @Override
+  protected void attachmentChanged() {
+    Tape plugged = isAttached() ? deckOf.apply(getMachineWindow()) : null;
+    if (plugged == deck) {
+      return;
+    }
+    if (deck != null) {
+      deck.stop();
+    }
+    deck = plugged;
+    currentBlock = -1;
+    paused = false;
+    refresh();
+  }
+
+  @Override
+  protected String expandTip() {
+    return "Show what is on the cassette, or just the controls";
+  }
+
+  @Override
+  protected String attachTip() {
+    return "Clip this onto the machine's window, which is what plugs it in";
+  }
+
+  /** Puts the cassette in this window into the machine it is plugged into, and plays it. */
+  private void play() {
+    if (tapeFile == null) {
+      return;
+    }
+    if (deck == null) {
+      // Plugged into nothing: open a machine on this cassette and let it load itself from the
+      // start, which is what clicking a game in the game browser does. This window is clipped
+      // onto that machine as it comes up, so it goes on showing the load.
+      setTitle(title("Opening an emulator..."));
+      loadInNewEmulator.accept(tapeFile);
+      return;
+    }
+
+    // Something else in that machine's deck: load this cassette there instead.
+    if (!tapeFile.equals(deck.getTapeFilename())) {
+      deck.stop();
+      deck.eject();
+      if (!deck.insert(tapeFile)) {
+        JOptionPane.showMessageDialog(this, "The deck could not read " + tapeFile.getName() + ".",
+            "Play", JOptionPane.ERROR_MESSAGE);
+        return;
+      }
+      deck.addTapeBlockListener(block -> currentBlock = block);
+      paused = false;
+    }
+
+    int selected = table.getSelectedRow();
+    if (!paused && selected >= 0) {
+      deck.setSelectedBlock(selected); // ignored while playing, which is what we want
+    }
+    paused = false;
+    deck.play(true);
+  }
+
+  private void pause() {
+    if (deck == null) {
+      return;
+    }
+    paused = deck.isTapePlaying();
+    deck.stop();
+  }
+
+  private void stop() {
+    if (deck == null) {
+      return;
+    }
+    paused = false;
+    deck.stop();
+    deck.setSelectedBlock(0);
+    currentBlock = -1;
+  }
+
+  /** Whether there is a cassette in this deck, or it is an empty one waiting for one. */
+  public boolean hasTape() {
+    return tapeFile != null;
+  }
+
+  /**
+   * Whether this is the deck already holding that machine's tape, waiting for its window.
+   * <p>
+   * Asked about the deck itself rather than about the file it came from: the same cassette
+   * reaches the two sides as two different path strings - one unzipped, one the address it was
+   * fetched from - and comparing those matched nothing.
+   */
+  public boolean waitingFor(Tape playing) {
+    return getMachineWindow() == null && deck == playing;
+  }
+
+  /** Loads a cassette into this window. No emulator is needed to look at what is on it. */
+  public void openTape(File file) {
+    tapeFile = file;
+    blocks = TapeBlock.read(file);
+    currentBlock = -1;
+    paused = false;
+    model.fireTableDataChanged();
+    refresh();
+  }
+
+  /**
+   * Adopts a cassette already loaded and running in a machine, as the game browser does.
+   * <p>
+   * The lead is plugged in before the machine has a window to clip onto - it is being built -
+   * so the deck is taken directly here and the window follows when there is one.
+   */
+  public void adopt(File file, Tape playingDeck) {
+    openTape(file);
+    deck = playingDeck;
+    playingDeck.addTapeBlockListener(block -> currentBlock = block);
+    refresh();
+  }
+
+  /**
+   * The window's name doubles as its status line, the way the recording player's does.
+   * <p>
+   * There was a label for it in the row of buttons, which grew as the tape played - "block 7 of
+   * 23, Turbo speed data" - until the row wrapped and took the expand and attach buttons onto a
+   * second line the compact form cuts off. The title bar has room for the sentence and is
+   * already there.
+   */
+  private String title(String state) {
+    return "Cassette" + (tapeFile == null ? "" : " - " + tapeFile.getName())
+        + (state == null || state.isEmpty() ? "" : " - " + state);
+  }
+
+  private void refresh() {
+    boolean hasTape = !blocks.isEmpty();
+    boolean playing = hasTape && deck != null && deck.isTapePlaying();
+    playPauseButton.setIcon(EmulatorInternalFrame.loadIcon(playing ? "23F8.svg" : "25B6.svg"));
+    playPauseButton.setToolTipText(playing
+        ? "Stops the tape where it is; playing again restarts the current block"
+        : "Play the tape");
+    playPauseButton.setEnabled(hasTape);
+    stopButton.setEnabled(hasTape && (playing || paused));
+
+    if (!hasTape) {
+      setTitle(title("no cassette - use Open Tape"));
+      return;
+    }
+
+    String where = currentBlock >= 0 && currentBlock < blocks.size()
+        ? "block " + (currentBlock + 1) + " of " + blocks.size() + ", " + blocks.get(currentBlock).type()
+        : blocks.size() + " blocks";
+    String state = playing ? "Playing" : paused ? "Paused"
+        : deck == null ? "not plugged in - clip this onto a machine" : "Stopped";
+    setTitle(title(state + " - " + where));
+
+    showProgress(blocks.isEmpty() || currentBlock < 0 ? 0
+        : (currentBlock + progressOf(currentBlock) / 100.0) / blocks.size());
+    model.fireProgressChanged();
+    if (playing && currentBlock >= 0 && currentBlock < table.getRowCount()) {
+      table.scrollRectToVisible(table.getCellRect(currentBlock, 0, true));
+    }
+  }
+
+  /**
+   * How far the player is into a block, 0 to 100. Blocks already behind it read full and ones
+   * ahead read empty, so the column doubles as a position along the whole tape.
+   */
+  private int progressOf(int row) {
+    if (deck == null || currentBlock < 0 || row > currentBlock) {
+      return 0;
+    }
+    if (row < currentBlock) {
+      return 100;
+    }
+
+    TapeBlock block = blocks.get(row);
+    int length = block.length();
+    if (length <= 0) {
+      return 100;
+    }
+    int played = deck.getTapePosition() - block.start();
+    return Math.max(0, Math.min(100, played * 100 / length));
+  }
+
+  private class BlockTableModel extends AbstractTableModel {
+    private final String[] columns = {"#", "Type", "Details", "Bytes", "Progress"};
+
+    public int getRowCount() {
+      return blocks.size();
+    }
+
+    public int getColumnCount() {
+      return columns.length;
+    }
+
+    public String getColumnName(int column) {
+      return columns[column];
+    }
+
+    public Object getValueAt(int row, int column) {
+      TapeBlock block = blocks.get(row);
+      return switch (column) {
+        case 0 -> row + 1;
+        case 1 -> block.type();
+        case 2 -> block.details();
+        case 3 -> block.length();
+        case 4 -> progressOf(row);
+        default -> "";
+      };
+    }
+
+    @Override
+    public boolean isCellEditable(int row, int column) {
+      return false; // a listing, not a form
+    }
+
+    void fireProgressChanged() {
+      fireTableRowsUpdated(0, Math.max(0, blocks.size() - 1));
+    }
+  }
+
+  /** Draws the progress column as a bar rather than a number. */
+  private static class ProgressRenderer extends JProgressBar implements TableCellRenderer {
+    ProgressRenderer() {
+      super(0, 100);
+      setStringPainted(true);
+    }
+
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean selected,
+                                                   boolean focused, int row, int column) {
+      int progress = value instanceof Integer ? (Integer) value : 0;
+      setValue(progress);
+      setString(progress + "%");
+      return this;
+    }
+  }
+
+  /** Marks the block being read, so it can be picked out without reading the progress column. */
+  private class CurrentBlockRenderer extends DefaultTableCellRenderer {
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean selected,
+                                                   boolean focused, int row, int column) {
+      Component component =
+          super.getTableCellRendererComponent(table, value, selected, focused, row, column);
+      Font font = component.getFont();
+      component.setFont(row == currentBlock ? font.deriveFont(Font.BOLD) : font.deriveFont(Font.PLAIN));
+      return component;
+    }
+  }
+}
