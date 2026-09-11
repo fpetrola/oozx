@@ -1,0 +1,87 @@
+{
+  "speed" : {
+    "emulation" : 20000,
+    "fastLoading" : false
+  },
+  "memory" : {
+    "writableRoms" : false
+  },
+  "machine" : {
+    "lateTimings" : false,
+    "issue2" : false,
+    "plus3" : {
+      "detectSpeedlock" : false,
+      "driveA" : "SINGLE_SIDED_40",
+      "driveB" : "DOUBLE_SIDED_80"
+    }
+  },
+  "sound" : {
+    "enabled" : true,
+    "device" : "buffer=8192,frames=4,verbose",
+    "whileLoading" : true
+  },
+  "input" : {
+    "arrowsShifted" : false,
+    "kempstonJoystick" : false,
+    "kempstonMouse" : false,
+    "recreatedSpectrum" : false
+  },
+  "floppy" : {
+    "fortyTrackMax" : 42,
+    "eightyTrackMax" : 83
+  },
+  "beta128" : {
+    "bootOn48k" : false,
+    "autoBoot" : false
+  },
+  "roms" : {
+    "files" : {
+      "Spec48" : [ "48.rom" ],
+      "Spec128" : [ "128-0.rom", "128-1.rom" ],
+      "SpecPlus2" : [ "plus2-0.rom", "plus2-1.rom" ],
+      "Pentagon" : [ "128-0.rom", "128-1.rom" ],
+      "SpecPlus3" : [ "plus3-0.rom", "plus3-1.rom", "plus3-2.rom", "plus3-3.rom" ],
+      "SpecPlus3E" : [ "plus3e-0.rom", "plus3e-1.rom", "plus3e-2.rom", "plus3e-3.rom" ],
+      "Beta128Peripheral" : [ "trdos.rom" ],
+      "DidaktikPeripheral" : [ "didaktik80.rom" ],
+      "DisciplePeripheral" : [ "disciple.rom" ],
+      "OpusPeripheral" : [ "opus.rom" ],
+      "PlusDPeripheral" : [ "plusd.rom" ],
+      "Interface1Peripheral" : [ "if1-2.rom" ],
+      "MultifaceOnePeripheral" : [ "mf1.rom" ],
+      "Multiface128Peripheral" : [ "mf128.rom" ],
+      "Multiface3Peripheral" : [ "mf3.rom" ]
+    }
+  },
+  "interface1" : {
+    "microdriveSectors" : 180,
+    "randomMicrodriveLength" : true,
+    "rs232Handshake" : false,
+    "rawNetwork" : false
+  },
+  "covox" : {
+    "volume" : 100
+  },
+  "specdrum" : {
+    "volume" : 100
+  },
+  "multiface" : {
+    "stealth" : false
+  },
+  "melodik" : {
+    "fitted" : false
+  },
+  "divide" : {
+    "writeProtect" : false
+  },
+  "divmmc" : {
+    "writeProtect" : false
+  },
+  "zxatasp" : {
+    "writeProtect" : false,
+    "upload" : false
+  },
+  "zxcf" : {
+    "upload" : false
+  }
+}
