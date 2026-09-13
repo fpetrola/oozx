@@ -167,12 +167,13 @@ cambia; con el bit 3 pone la RAM 0 en 0x0000; y con el bit 0 entra el modo de 16
 - Hechos: las 64 páginas por los tres caminos, el bloqueo que aparece en 2.2, la RAM abajo.
 
 **Los 16 colores son otra cosa y van después de todo lo demás.** Ese modo lee cuatro bytes por
-columna de dos páginas a la vez, la 5 y la 4 o la 7 y la 6, y no usa atributos: dos bitmaps se
-combinan en cuatro bits por pixel. Nuestra pintura lee un banco, el que se muestra. Traer esto es
-una regla de pintura nueva, "el color de una columna sale de cuatro bytes en dos páginas", y es el
-cambio más profundo de este plan. Se hace último, solo, y con la máquina ya andando en los otros
-modos: hasta entonces el bit 0 se lee, se guarda y se ignora, y el hecho que lo dice es que no está
-soportado.
+columna de dos páginas a la vez, la 5 y la 4 o la 7 y la 6, y no usa atributos. Hecho: cada byte es
+un color para su pixel izquierdo y otro para el derecho, en los mismos bits en que un atributo
+guarda tinta y papel, así que el decodificador ya estaba escrito y `Colouring` se reusó entero. El
+core aprendió dos cosas nuevas y nada más: que una columna puede ser cuatro bytes
+(`ScreenLayout.fourBytesToAColumn`, `Picture.plotPair`) y que puede haber un segundo banco leído
+junto al mostrado (`SpectrumMemory.alongside/beside`, que además lo hace vigilado para que
+escribirlo cambie la imagen). Quién pide todo eso lo decide la máquina en su `memoryMap()`.
 
 ### 6. Scorpion, cuando haya ROM
 
@@ -187,7 +188,8 @@ páginas, sin contención, Beta 128 a bordo.
 
 1. Alta resolución sobre el TC2048. Es el único cambio de modelo; se hace primero y solo.
 2. Dock y exrom como dispositivo. Cero cambios en core; prueba `plug` en serio.
-3. TC2068. Y el TS2068 el día que esté su ROM.
+3. TC2068. Y el TS2068 el día que esté su ROM. El 2068 exige que 0xf4 se pueda leer: su arranque
+   presta los ocho K de abajo y los devuelve leyendo el puerto que los prestó.
 4. SE.
 5. Pentagon 1024 sin 16 colores.
 6. Scorpion, con ROM.
