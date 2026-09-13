@@ -52,6 +52,7 @@ public class ScldPortHandler extends DefaultPortHandler {
   };
 
   private final Display display;
+  private final java.util.List<Runnable> whenWritten = new java.util.ArrayList<>();
   private byte register;
 
   @Inject
@@ -77,6 +78,12 @@ public class ScldPortHandler extends DefaultPortHandler {
     layout.pairOfColours = PAIRS[(value & COLOUR_PAIR) >> 3];
     display.picture().columnWidth(layout.twoBytesToAColumn ? 16 : 8);
     display.refreshAll();
+    whenWritten.forEach(Runnable::run);
+  }
+
+  /** The top bit says which cartridge is paged, so whoever pages them has to hear about a write. */
+  public void onWrite(Runnable listener) {
+    whenWritten.add(listener);
   }
 
   public byte register() {

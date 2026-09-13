@@ -26,5 +26,6 @@ public class ScldDevices extends AbstractModule implements Extension {
   protected void configure() {
     Multibinder<Peripheral> devices = Multibinder.newSetBinder(binder(), Peripheral.class);
     devices.addBinding().to(ScldPeripheral.class);
+    devices.addBinding().to(TimexMemoryPeripheral.class);
   }
 }

@@ -18,6 +18,7 @@
 package com.fpetrola.oozx.speccy.machine;
 
 import com.fpetrola.oozx.speccy.devices.scld.ScldPeripheral;
+import com.fpetrola.oozx.speccy.devices.scld.TimexMemoryPeripheral;
 import com.fpetrola.oozx.speccy.modules.display.Display;
 import com.fpetrola.oozx.speccy.modules.machine.Machine;
 import com.fpetrola.oozx.speccy.modules.memory.MemoryBus;
@@ -48,7 +49,7 @@ public class Tc2048 extends Spec48 {
 
   @Override
   public Set<Class<? extends Peripheral>> onBoard() {
-    return Set.of(ScldPeripheral.class);
+    return Set.of(ScldPeripheral.class, TimexMemoryPeripheral.class);
   }
 
   /** The SCLD answers 0xf4 and 0xff as well as the ULA's own port. */
