@@ -87,12 +87,26 @@ class PagingTest extends MachineTest {
     return shownPage(speccy);
   }
 
+  /**
+   * Two facts were one here until a 16K existed to tell them apart: that a machine without the
+   * port keeps whatever map it has, which is true of all of them, and that the map is rom, five,
+   * two and zero, which is only true of the ones with 48K in them.
+   */
   @ParameterizedTest
   @MethodSource("unpaged")
-  void a48KHasOneMapAndWritingThePagingPortChangesNothing(String model) {
+  void withNoPagingPortTheMapIsWhateverItWasBeforeTheWrite(String model) {
     on(model);
-    assertMap(0, 5, 2, 0);
+    var before = java.util.stream.IntStream.of(0x0000, 0x4000, 0x8000, 0xc000)
+        .mapToObj(address -> speccy.memory.reading(address).memory()).toList();
     out(0x7ffd, 0x17);
+    var after = java.util.stream.IntStream.of(0x0000, 0x4000, 0x8000, 0xc000)
+        .mapToObj(address -> speccy.memory.reading(address).memory()).toList();
+    assertEquals(before, after, "writing 0x7ffd moved something on a machine with no paging port");
+  }
+
+  @Test
+  void a48KIsRomAndThenPagesFiveTwoAndZero() {
+    on("Spectrum 48K");
     assertMap(0, 5, 2, 0);
   }
 

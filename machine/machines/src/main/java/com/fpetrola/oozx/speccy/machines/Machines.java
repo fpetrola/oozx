@@ -19,6 +19,7 @@ package com.fpetrola.oozx.speccy.machines;
 
 import com.fpetrola.oozx.Extension;
 import com.fpetrola.oozx.speccy.machine.Pentagon;
+import com.fpetrola.oozx.speccy.machine.Spec16;
 import com.fpetrola.oozx.speccy.machine.Spec128;
 import com.fpetrola.oozx.speccy.machine.Spec48;
 import com.fpetrola.oozx.speccy.machine.SpecPlus2;
@@ -43,11 +44,12 @@ public class Machines extends AbstractModule implements Extension {
    * stale, so a test asserts it against the machines themselves.
    */
   public static final java.util.List<String> MODEL_NAMES = java.util.List.of(
-      "Spectrum 48K", "Spectrum 128K", "Spectrum Plus 3", "Spectrum Plus 2", "Spectrum Plus 2A",
+      "Spectrum 16K", "Spectrum 48K", "Spectrum 128K", "Spectrum Plus 3", "Spectrum Plus 2", "Spectrum Plus 2A",
       "Sinclair Spectrum 48K (NTSC)", "Amstrad Spectrum +3e", "Pentagon");
 
   protected void configure() {
     Multibinder<Spectrum> models = Multibinder.newSetBinder(binder(), Spectrum.class);
+    models.addBinding().to(Spec16.class);
     models.addBinding().to(Spec48.class);
     models.addBinding().to(Spec128.class);
     models.addBinding().to(SpecPlus3.class);

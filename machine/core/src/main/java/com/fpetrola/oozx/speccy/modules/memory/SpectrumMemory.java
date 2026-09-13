@@ -36,6 +36,7 @@ public class SpectrumMemory {
   private final Ram[] ram = new Ram[SPECTRUM_RAM_PAGES];
   private final Rom[] rom = new Rom[SPECTRUM_ROM_PAGES];
   private Ram shown;
+  private Rom absent;
 
   @Inject
   public SpectrumMemory(Rom.Protection protection) {
@@ -55,6 +56,18 @@ public class SpectrumMemory {
 
   public Rom rom(int page) {
     return rom[page];
+  }
+
+  /**
+   * The sixteen K a machine has nothing in: every address reads as 0xff and a write goes nowhere,
+   * which is what a bus with no chip on it does. One of these is enough, since it has no state.
+   */
+  public Rom absent() {
+    if (absent == null) {
+      absent = new Rom(0x4000, null);
+      java.util.Arrays.fill(absent.bytes, (byte) 0xff);
+    }
+    return absent;
   }
 
   public Ram shown() {

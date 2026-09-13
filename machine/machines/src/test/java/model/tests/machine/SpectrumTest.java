@@ -23,6 +23,7 @@ import com.fpetrola.oozx.speccy.devices.disk.Upd765Peripheral;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.machine.Pentagon;
 import com.fpetrola.oozx.speccy.machine.Spec128;
+import com.fpetrola.oozx.speccy.machine.Spec16;
 import com.fpetrola.oozx.speccy.machine.Spec48;
 import com.fpetrola.oozx.speccy.machine.Spec48Ntsc;
 import com.fpetrola.oozx.speccy.machine.SpecPlus2A;
@@ -89,8 +90,26 @@ class SpectrumTest extends MachineTest {
     assertEquals(3_500_000, timings.processorSpeed());
   }
 
+  /**
+   * The first machine sold had a quarter of the memory and no way to tell the difference from
+   * inside except by looking: above the sixteen K that is there, every address reads as 0xff and
+   * a write to it is gone as soon as it is made.
+   */
+  @Test
+  void aSixteenKHasNothingAboveItsSixteenK() {
+    on(Spec16.class);
+    for (int address : new int[]{0x8000, 0xbfff, 0xc000, 0xffff}) {
+      speccy.memory.poke(address, (byte) 0x42);
+      assertEquals(0xff, speccy.memory.peek(address) & 0xff, "there is no chip at " + Integer.toHexString(address));
+    }
+    on(Spec48.class);
+    speccy.memory.poke(0x8000, (byte) 0x42);
+    assertEquals(0x42, speccy.memory.peek(0x8000) & 0xff, "a 48K does have one there");
+  }
+
   static Stream<Arguments> models() {
     return Stream.of(
+        Arguments.of(Spec16.class, 224, 312, 3_500_000L),
         Arguments.of(Spec128.class, 228, 311, 3_546_900L),
         Arguments.of(SpecPlus3.class, 228, 311, 3_546_900L),
         Arguments.of(Pentagon.class, 224, 320, 3_584_000L),
@@ -129,7 +148,7 @@ class SpectrumTest extends MachineTest {
   }
 
   static Stream<Arguments> interruptLengths() {
-    return Stream.of(Arguments.of(Spec48.class, 32), Arguments.of(Spec128.class, 36), Arguments.of(SpecPlus3.class, 32),
+    return Stream.of(Arguments.of(Spec16.class, 32), Arguments.of(Spec48.class, 32), Arguments.of(Spec128.class, 36), Arguments.of(SpecPlus3.class, 32),
         Arguments.of(Pentagon.class, 36), Arguments.of(Spec48Ntsc.class, 32));
   }
 
@@ -156,7 +175,7 @@ class SpectrumTest extends MachineTest {
   }
 
   static Stream<Arguments> firstPixels() {
-    return Stream.of(Arguments.of(Spec48.class, 14336), Arguments.of(Spec128.class, 14362),
+    return Stream.of(Arguments.of(Spec16.class, 14336), Arguments.of(Spec48.class, 14336), Arguments.of(Spec128.class, 14362),
         Arguments.of(SpecPlus3.class, 14365), Arguments.of(Spec48Ntsc.class, 8960), Arguments.of(Pentagon.class, 17988));
   }
 
