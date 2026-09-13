@@ -38,11 +38,11 @@ public final class Colouring {
     return (attribute & 0x80) != 0;
   }
 
-  private static byte inkBits(byte attribute) {
+  public static byte inkBits(byte attribute) {
     return (byte) ((attribute & 0x07) + ((attribute & 0x40) >> 3));
   }
 
-  private static byte paperBits(byte attribute) {
+  public static byte paperBits(byte attribute) {
     return (byte) ((attribute & (0x0f << 3)) >> 3);
   }
 }

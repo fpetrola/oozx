@@ -36,6 +36,7 @@ public class SpectrumMemory {
   private final Ram[] ram = new Ram[SPECTRUM_RAM_PAGES];
   private final Rom[] rom = new Rom[SPECTRUM_ROM_PAGES];
   private Ram shown;
+  private Ram beside;
   private Rom absent;
 
   @Inject
@@ -74,11 +75,24 @@ public class SpectrumMemory {
     return shown;
   }
 
+  /** The bank read alongside the shown one, or the shown one itself where a picture comes from one bank. */
+  public Ram beside() {
+    return beside == null ? shown : beside;
+  }
+
+  /** Says that a second bank is read with the shown one, so that writing to it changes the picture too. */
+  public void alongside(Ram bank) {
+    if (beside != null && beside != shown) beside.shownTo = null;
+    beside = bank;
+    if (bank != null && bank != shown) bank.shownTo = shown.shownTo;
+  }
+
   /** Switches which bank is displayed and where its screen-byte writes get reported. */
   public void show(Ram bank, IntConsumer screen) {
     if (shown != null) {
       shown.shownTo = null;
     }
+    alongside(null);
     shown = bank;
     bank.shownTo = screen;
   }
