@@ -69,6 +69,12 @@ public final class Painting {
     plottedX = plottedY = 0;
   }
 
+  /** A byte that is not a bitmap but two colours: the same bits an attribute puts its ink and paper in. */
+  private void plotColours(int x, int y, int pair, byte colours) {
+    canvas.plotPair(x + BORDER_WIDTH_COLS, y + BORDER_HEIGHT, pair,
+        Colouring.inkBits(colours), Colouring.paperBits(colours));
+  }
+
   private void plotLine(int y, int from, int to) {
     int bits = dirty.between(y, from, to);
     if (bits == 0) {
@@ -78,6 +84,15 @@ public final class Painting {
     byte[] screen = banks.shown().bytes;
     for (; bits != 0; bits &= bits - 1) {
       int x = Integer.numberOfTrailingZeros(bits);
+      if (layout.fourBytesToAColumn) {
+        int at = layout.pixelsAt(y, x), above = layout.secondByteAt(y, x);
+        byte[] other = banks.beside().bytes;
+        plotColours(x, y, 0, other[at]);
+        plotColours(x, y, 1, screen[at]);
+        plotColours(x, y, 2, other[above]);
+        plotColours(x, y, 3, screen[above]);
+        continue;
+      }
       if (layout.twoBytesToAColumn) {
         byte pair = layout.pairOfColours;
         int wide = ((screen[layout.pixelsAt(y, x)] & 0xff) << 8) | (screen[layout.secondByteAt(y, x)] & 0xff);

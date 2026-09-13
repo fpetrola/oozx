@@ -82,6 +82,14 @@ public class Picture {
     }
   }
 
+  /** Two pixels of their own colours, one pair of the four a column is made of when a byte is a colour. */
+  public void plotPair(int x, int y, int pair, byte left, byte right) {
+    if (!active) return;
+    int at = y * STRIDE + x * columnWidth + pair * 2;
+    pixels[at] = PALETTE[left];
+    pixels[at + 1] = PALETTE[right];
+  }
+
   /** Sixteen pixels of their own, from the two bytes a column is made of where one is not enough. */
   public void plot16(int x, int y, int data, byte ink, byte paper) {
     if (!active) return;

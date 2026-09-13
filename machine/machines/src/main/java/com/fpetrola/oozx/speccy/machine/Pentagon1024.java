@@ -44,7 +44,7 @@ public class Pentagon1024 extends Pentagon512 {
   private static final int REVISED = 0x04;
   /** RAM at the bottom, where the ROM usually is. */
   private static final int RAM_BELOW = 0x08;
-  /** Sixteen colours at once, which this machine can do and this emulator does not. */
+  /** Sixteen colours at once, out of four bytes read from two banks. */
   private static final int SIXTEEN_COLOURS = 0x01;
 
   private byte second;
@@ -79,12 +79,7 @@ public class Pentagon1024 extends Pentagon512 {
     memoryMap();
   }
 
-  @Override
-  public int reset() {
-    second = 0;
-    locked = false;
-    return super.reset();
-  }
+
 
   @Override
   protected int pageAt(int slot) {
@@ -94,10 +89,29 @@ public class Pentagon1024 extends Pentagon512 {
     return (port & 0x07) + ((port & 0xc0) >> 3) + (port & 0x20);
   }
 
+  /**
+   * The picture of this mode is built out of the shown bank and the one below it - five with four,
+   * seven with six - so the machine says which second bank is being read and how a column is made,
+   * and the drawing knows nothing about which machine asked for it.
+   */
   @Override
   public void memoryMap() {
     super.memoryMap();
     if ((second & RAM_BELOW) != 0) memory.slot(0x0000, banks.ram(0));
+    boolean sixteen = (second & SIXTEEN_COLOURS) != 0;
+    banks.alongside(sixteen ? banks.ram(banks.shown().pageNum - 1) : null);
+    if (display.layout.fourBytesToAColumn != sixteen) {
+      display.layout.fourBytesToAColumn = sixteen;
+      display.refreshAll();
+    }
+  }
+
+  @Override
+  public int reset() {
+    second = 0;
+    locked = false;
+    display.layout.fourBytesToAColumn = false;
+    return super.reset();
   }
 
   @Override
