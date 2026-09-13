@@ -27,8 +27,8 @@
       `all`, which is every device this build offers and nothing else.
     -->
     <modules>
-        <module>tape</module>
         <module>snapshot</module>
+        <module>tape</module>
         <module>rzx</module>
     </modules>
 
