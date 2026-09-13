@@ -96,6 +96,10 @@
       "SpecSe": [
         "se-0.rom",
         "se-1.rom"
+      ],
+      "Pentagon1024": [
+        "128-0.rom",
+        "128-1.rom"
       ]
     }
   },

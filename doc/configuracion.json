@@ -52,7 +52,8 @@
       "Multiface128Peripheral" : [ "mf128.rom" ],
       "Multiface3Peripheral" : [ "mf3.rom" ],
       "Tc2048" : [ "tc2048.rom" ],
-      "SpecSe" : [ "se-0.rom", "se-1.rom" ]
+      "SpecSe" : [ "se-0.rom", "se-1.rom" ],
+      "Pentagon1024" : [ "128-0.rom", "128-1.rom" ]
     }
   },
   "interface1" : {
