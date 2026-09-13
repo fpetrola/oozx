@@ -21,7 +21,10 @@ package model.tests.devices;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.machine.Spec48;
 import com.fpetrola.oozx.speccy.machine.Tc2048;
+import com.fpetrola.oozx.speccy.devices.scld.TimexMemoryPeripheral;
 import com.fpetrola.oozx.speccy.modules.display.ScreenLayout;
+import com.fpetrola.oozx.speccy.modules.memory.MemoryPart;
+import com.fpetrola.oozx.speccy.modules.memory.Ram;
 import model.harness.MachineTest;
 import org.junit.jupiter.api.Test;
 
@@ -136,6 +139,57 @@ class ScldTest extends MachineTest {
     out(0xff, 0x04 | 0x38);
     assertEquals(0x47, speccy.display.layout.pairOfColours & 0xff, "white on black, the last");
     assertEquals(0x07, speccy.display.attribute(0, 0) & 0xff, "and what is in memory was never asked");
+  }
+
+  private TimexMemoryPeripheral slots() {
+    return (TimexMemoryPeripheral) speccy.peripheralRegistry.find(TimexMemoryPeripheral.class);
+  }
+
+  private MemoryPart[] eightChunksOf(int filler) {
+    MemoryPart[] chunks = new MemoryPart[8];
+    for (int chunk = 0; chunk < 8; chunk++) {
+      Ram ram = new Ram(0x2000);
+      java.util.Arrays.fill(ram.bytes, (byte) filler);
+      chunks[chunk] = ram;
+    }
+    return chunks;
+  }
+
+  /**
+   * Eight bits, one per eight K: where a bit is set the cartridge covers what the machine had
+   * there, and where it is clear the machine's own memory shows through again. Nothing in between
+   * moves, which is the whole point of the port being a bitmap rather than a number.
+   */
+  @Test
+  void eachBitOfTheOtherPortCoversItsOwnEightKAndNothingElse() {
+    on(Tc2048.class);
+    slots().carrying(eightChunksOf(0x11), eightChunksOf(0x22));
+    speccy.memory.poke(0x8000, (byte) 0x99);
+    speccy.memory.poke(0xa000, (byte) 0x99);
+
+    out(0xf4, 0x00);
+    assertEquals(0x99, speccy.memory.peek(0x8000) & 0xff, "nothing paged, so the machine's own RAM");
+
+    out(0xf4, 0x10);
+    assertEquals(0x11, speccy.memory.peek(0x8000) & 0xff, "bit 4 covers 0x8000");
+    assertEquals(0x99, speccy.memory.peek(0xa000) & 0xff, "and the eight K above it did not move");
+
+    out(0xf4, 0x00);
+    assertEquals(0x99, speccy.memory.peek(0x8000) & 0xff, "and back it comes");
+  }
+
+  /** Which of the two cartridges is paged is the top bit of the display register: one chip, both jobs. */
+  @Test
+  void theTopBitOfTheRegisterChoosesWhichCartridgeIsPaged() {
+    on(Tc2048.class);
+    slots().carrying(eightChunksOf(0x11), eightChunksOf(0x22));
+
+    out(0xff, 0x00);
+    out(0xf4, 0x10);
+    assertEquals(0x11, speccy.memory.peek(0x8000) & 0xff, "the one in the slot");
+
+    out(0xff, 0x80);
+    assertEquals(0x22, speccy.memory.peek(0x8000) & 0xff, "the one behind it");
   }
 
   /** Timex machines start their picture fifteen T-states before a Sinclair does. */
