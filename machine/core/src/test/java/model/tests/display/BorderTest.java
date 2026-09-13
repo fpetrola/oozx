@@ -49,7 +49,7 @@ class BorderTest {
 
   /** A row of the top border, which is border all the way across. */
   private int colourOfRow(int row, int column) {
-    return canvas.pixels[row * Picture.WIDTH + column * 8];
+    return canvas.pixels[row * Picture.STRIDE + column * 8];
   }
 
   @Test
