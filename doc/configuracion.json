@@ -50,7 +50,8 @@
       "Interface1Peripheral" : [ "if1-2.rom" ],
       "MultifaceOnePeripheral" : [ "mf1.rom" ],
       "Multiface128Peripheral" : [ "mf128.rom" ],
-      "Multiface3Peripheral" : [ "mf3.rom" ]
+      "Multiface3Peripheral" : [ "mf3.rom" ],
+      "Tc2048" : [ "tc2048.rom" ]
     }
   },
   "interface1" : {
