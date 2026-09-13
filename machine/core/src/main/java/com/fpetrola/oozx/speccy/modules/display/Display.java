@@ -92,6 +92,10 @@ public class Display {
     refreshAll();
   }
 
+  public Picture picture() {
+    return picture;
+  }
+
   public void refreshAll() {
     beamLineStart = Long.MIN_VALUE;
     dirty.all();

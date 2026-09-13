@@ -107,6 +107,37 @@ class ScldTest extends MachineTest {
     assertEquals(0xaa, speccy.display.pixels(0, 0), "and the bitmap did not move");
   }
 
+  /**
+   * Bit 2 makes a column two bytes instead of one: the second is the same address in the other
+   * file, and the two are sixteen pixels of the same line rather than eight of twice the width.
+   * A picture drawn this way reads no attribute at all, so the column is twice as wide.
+   */
+  @Test
+  void theThirdBitMakesAColumnTwoBytesAndSixteenPixels() {
+    on(Tc2048.class);
+    assertEquals(8, speccy.picture.columnWidth(), "eight until something says otherwise");
+    out(0xff, 0x04);
+    assertEquals(16, speccy.picture.columnWidth(), "a column is worth sixteen now");
+    out(0xff, 0x00);
+    assertEquals(8, speccy.picture.columnWidth(), "and eight again");
+  }
+
+  /**
+   * The colours of a picture that has no attributes come from the register itself: three bits pick
+   * one of eight pairs, each an ink against its own opposite, and every one of them bright.
+   */
+  @Test
+  void theColoursOfAWidePictureComeFromTheRegisterAndNotFromMemory() {
+    on(Tc2048.class);
+    poke(ScreenLayout.ATTRIBUTES, 0x07);
+
+    out(0xff, 0x04);
+    assertEquals(0x78, speccy.display.layout.pairOfColours & 0xff, "black on white, the first pair");
+    out(0xff, 0x04 | 0x38);
+    assertEquals(0x47, speccy.display.layout.pairOfColours & 0xff, "white on black, the last");
+    assertEquals(0x07, speccy.display.attribute(0, 0) & 0xff, "and what is in memory was never asked");
+  }
+
   /** Timex machines start their picture fifteen T-states before a Sinclair does. */
   @Test
   void thePictureStartsEarlierThanOnASinclair() {

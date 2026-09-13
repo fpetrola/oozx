@@ -78,6 +78,13 @@ public final class Painting {
     byte[] screen = banks.shown().bytes;
     for (; bits != 0; bits &= bits - 1) {
       int x = Integer.numberOfTrailingZeros(bits);
+      if (layout.twoBytesToAColumn) {
+        byte pair = layout.pairOfColours;
+        int wide = ((screen[layout.pixelsAt(y, x)] & 0xff) << 8) | (screen[layout.secondByteAt(y, x)] & 0xff);
+        canvas.plot16(x + BORDER_WIDTH_COLS, y + BORDER_HEIGHT, wide,
+            colouring.ink(pair), colouring.paper(pair));
+        continue;
+      }
       byte attribute = screen[layout.colourAt(y, x)];
       canvas.plot8(x + BORDER_WIDTH_COLS, y + BORDER_HEIGHT, screen[layout.pixelsAt(y, x)],
           colouring.ink(attribute), colouring.paper(attribute));

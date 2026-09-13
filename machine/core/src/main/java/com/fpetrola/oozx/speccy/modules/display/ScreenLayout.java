@@ -62,6 +62,20 @@ public final class ScreenLayout {
     return colourPerLine ? SECOND_FILE + lineStart[line] + column : file + attrStart[line] + column;
   }
 
+  /**
+   * Whether a column is two bytes wide instead of one. The second byte is the same address in the
+   * other file, so the two together are sixteen pixels of the same line, and no colour is read from
+   * memory at all.
+   */
+  public boolean twoBytesToAColumn;
+
+  /** The one pair of colours the whole picture is drawn in while a column is two bytes wide. */
+  public byte pairOfColours;
+
+  public int secondByteAt(int line, int column) {
+    return SECOND_FILE + lineStart[line] + column;
+  }
+
   public int lineOf(int offset) {
     return ((offset >> 11) & 3) * 64 + ((offset >> 5) & 7) * 8 + ((offset >> 8) & 7);
   }
