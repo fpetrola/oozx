@@ -51,6 +51,7 @@ public class TimexMemoryPeripheral extends AbstractPeripheral {
   private MemoryPart[] slot = new MemoryPart[CHUNKS];
   private MemoryPart[] behind = new MemoryPart[CHUNKS];
   private int wanted;
+  private int also;
 
   @Inject
   public TimexMemoryPeripheral(MemoryBus memory, ScldPortHandler register) {
@@ -74,12 +75,23 @@ public class TimexMemoryPeripheral extends AbstractPeripheral {
     map();
   }
 
+  /** Which bits a machine wants covered beyond the ones the port asks for, when it has a rule of its own. */
+  public void alsoCover(int chunks) {
+    if (also == chunks) return;
+    also = chunks;
+    map();
+  }
+
+  public int wanted() {
+    return wanted;
+  }
+
   public void map() {
     memory.unplug(plugged.toArray(new MappedMemory[0]));
     plugged.clear();
     MemoryPart[] paged = (register.register() & THE_OTHER_ONE) != 0 ? behind : slot;
     for (int chunk = 0; chunk < CHUNKS; chunk++) {
-      if ((wanted & (1 << chunk)) == 0 || paged[chunk] == null) continue;
+      if (((wanted | also) & (1 << chunk)) == 0 || paged[chunk] == null) continue;
       plugged.add(new MappedMemory(chunk * CHUNK, paged[chunk], 0, CHUNK));
     }
     memory.plug(plugged.toArray(new MappedMemory[0]));
