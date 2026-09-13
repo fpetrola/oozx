@@ -39,6 +39,17 @@ public class ScldPortHandler extends DefaultPortHandler {
   public static final int COLOUR_PER_LINE = 0x02;
   /** Five hundred and twelve pixels across, in one pair of colours. */
   public static final int HI_RES = 0x04;
+  /** Which of the eight pairs those colours are, in bits 3 to 5. */
+  public static final int COLOUR_PAIR = 0x38;
+
+  /**
+   * The eight pairs, as the attribute byte that says the same thing: bright, and ink against its
+   * own opposite. A picture drawn this way has no attributes in memory, so there is nothing for a
+   * cell to clash with.
+   */
+  private static final byte[] PAIRS = {
+      0x78, 0x71, 0x6a, 0x63, 0x5c, 0x55, 0x4e, 0x47
+  };
 
   private final Display display;
   private byte register;
@@ -62,6 +73,9 @@ public class ScldPortHandler extends DefaultPortHandler {
     ScreenLayout layout = display.layout;
     layout.file = (value & SECOND_FILE) != 0 ? ScreenLayout.SECOND_FILE : 0;
     layout.colourPerLine = (value & COLOUR_PER_LINE) != 0;
+    layout.twoBytesToAColumn = (value & HI_RES) != 0;
+    layout.pairOfColours = PAIRS[(value & COLOUR_PAIR) >> 3];
+    display.picture().columnWidth(layout.twoBytesToAColumn ? 16 : 8);
     display.refreshAll();
   }
 
