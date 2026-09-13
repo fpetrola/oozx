@@ -62,6 +62,14 @@ class PagingTest extends MachineTest {
     return machines(machine -> machine.pagesThrough7ffd() && !machine.pagesThrough1ffd());
   }
 
+  /**
+   * The ones whose bit 5 is a lock. Named rather than asked, so the test is not confirming itself,
+   * and because a machine with more memory than the port has bits may be using that bit to say so.
+   */
+  static Stream<String> lockedByBit5() {
+    return paged().filter(name -> !name.equals("Pentagon 1024K"));
+  }
+
   static Stream<String> pagedLikeAPlus3() {
     return machines(machine -> machine.pagesThrough1ffd());
   }
@@ -134,6 +142,52 @@ class PagingTest extends MachineTest {
     assertMap(0, 5, 2, 31);
   }
 
+  /**
+   * A megabyte needs six bits and the port has three. The other three are bits 5, 6 and 7 of the
+   * same port, which is one more than the half-megabyte machine takes, and the one it takes extra
+   * is the bit a 128 locks itself with - so on this machine, until it is told otherwise, there is
+   * no lock at all.
+   */
+  @Test
+  void aPentagon1024ReadsThreeMorePageBitsAndHasNoLockWhileItDoes() {
+    on("Pentagon 1024K");
+    out(0x7ffd, 0x03);
+    assertRomAndTop(0, 3);
+    out(0x7ffd, 0x23);
+    assertRomAndTop(0, 35);
+    out(0x7ffd, 0xe7);
+    assertRomAndTop(0, 63);
+  }
+
+  /**
+   * Its own port says how the other one is read. Told that it is the later revision, the page goes
+   * back to the three low bits and the bit that was part of it becomes the lock a 128 has, so the
+   * same value that named a page a moment ago now stops the machine from paging ever again.
+   */
+  @Test
+  void theSecondPortOfAPentagon1024DecidesWhatTheFirstOneMeans() {
+    on("Pentagon 1024K");
+    out(0x7ffd, 0x23);
+    assertRomAndTop(0, 35);
+
+    out(0xeff7, 0x04);
+    assertRomAndTop(0, 3);
+
+    out(0x7ffd, 0x26);
+    assertRomAndTop(0, 6);
+    out(0x7ffd, 0x01);
+    assertRomAndTop(0, 6);
+  }
+
+  /** And with another of its bits there is RAM where every other machine has its ROM. */
+  @Test
+  void aPentagon1024CanPutRamWhereTheRomIs() {
+    on("Pentagon 1024K");
+    assertSame(speccy.banks.rom(0), speccy.memory.reading(0x0000).memory());
+    out(0xeff7, 0x08);
+    assertSame(speccy.banks.ram(0), speccy.memory.reading(0x0000).memory(), "RAM at the bottom");
+  }
+
   @Test
   void a48KIsRomAndThenPagesFiveTwoAndZero() {
     on("Spectrum 48K");
@@ -172,7 +226,7 @@ class PagingTest extends MachineTest {
   }
 
   @ParameterizedTest
-  @MethodSource("paged")
+  @MethodSource("lockedByBit5")
   void bit5LocksThePagingAsItIsAndEveryLaterWriteIsIgnored(String model) {
     on(model);
     out(0x7ffd, 0x20 | 0x10 | 0x08 | 3);
