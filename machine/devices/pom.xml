@@ -27,32 +27,32 @@
       `all`, which is every device this build offers and nothing else.
     -->
     <modules>
-        <module>all</module>
-        <module>beta128</module>
-        <module>covox</module>
-        <module>debugger</module>
-        <module>didaktik</module>
-        <module>disciple</module>
-        <module>divide</module>
-        <module>divmmc</module>
-        <module>fuller</module>
         <module>ide</module>
-        <module>interface1</module>
-        <module>interface2</module>
-        <module>joystick</module>
         <module>kit</module>
-        <module>melodik</module>
+        <module>debugger</module>
+        <module>printer</module>
         <module>mouse</module>
+        <module>joystick</module>
+        <module>melodik</module>
+        <module>interface2</module>
         <module>multiface</module>
-        <module>opus</module>
         <module>parallel-printer</module>
         <module>plusd</module>
-        <module>printer</module>
-        <module>simpleide</module>
+        <module>disciple</module>
+        <module>beta128</module>
+        <module>covox</module>
         <module>specdrum</module>
+        <module>fuller</module>
+        <module>opus</module>
+        <module>didaktik</module>
+        <module>interface1</module>
+        <module>divide</module>
+        <module>simpleide</module>
         <module>zxatasp</module>
         <module>zxcf</module>
+        <module>divmmc</module>
         <module>zxmmc</module>
+        <module>all</module>
     </modules>
 
     <properties>

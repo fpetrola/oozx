@@ -31,6 +31,8 @@
         <module>zx-rzx</module>
         <module>machine</module>
         <module>translation</module>
+        <module>prototypes/sprite-inflate</module>
+        <module>prototypes/tdd</module>
     </modules>
 
     <properties>
