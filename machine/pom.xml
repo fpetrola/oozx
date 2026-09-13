@@ -13,20 +13,20 @@
     <name>ide</name>
     <modules>
         <module>spectrum</module>
-        <module>core</module>
         <module>ui</module>
+        <module>core</module>
+        <module>generated</module>
+        <module>bridge</module>
         <module>media</module>
-        <module>machines/ula</module>
         <module>host</module>
+        <module>devices</module>
+        <module>machines/ula</module>
         <module>machines/ay</module>
         <module>machines/memory</module>
         <module>machines/disk</module>
         <module>machines</module>
-        <module>devices</module>
-        <module>generated</module>
         <module>zxinfo</module>
         <module>pokes</module>
-        <module>bridge</module>
         <module>app</module>
     </modules>
 
