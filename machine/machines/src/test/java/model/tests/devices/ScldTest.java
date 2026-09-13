@@ -141,6 +141,18 @@ class ScldTest extends MachineTest {
     assertEquals(0x07, speccy.display.attribute(0, 0) & 0xff, "and what is in memory was never asked");
   }
 
+  /**
+   * The bitmap can be read back, and it has to be: the machine's own start-up borrows the eight K
+   * at the bottom, and the routine that gives it back reads what was there rather than remembering
+   * it. Without the read-back it hands back a zero it never had and runs off into its own text.
+   */
+  @Test
+  void theBitmapSaysWhatItIsHolding() {
+    on(Tc2048.class);
+    out(0xf4, 0x25);
+    assertEquals(0x25, in(0xf4), "the port gives back the bitmap it was given");
+  }
+
   private TimexMemoryPeripheral slots() {
     return (TimexMemoryPeripheral) speccy.peripheralRegistry.find(TimexMemoryPeripheral.class);
   }
