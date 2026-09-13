@@ -255,19 +255,26 @@ public class SpeccyScreen extends JPanel {
     return screen.isBorder();
   }
 
-  /** The picture without its border, copied out: a scaler reads an image's pixels from its first. */
+  /** The picture, copied out: a scaler reads an image's pixels from its first. */
   private BufferedImage whole() {
-    int[] target = com.fpetrola.oozx.speccy.screen.ScreenContext.pixelsOf(wholeBuffer);
-    System.arraycopy(pixels, 0, target, 0, Math.min(pixels.length, target.length));
-    return wholeBuffer;
+    return copyOut(wholeBuffer, 0, 0, width, height);
   }
 
   private BufferedImage cropped() {
-    int[] target = com.fpetrola.oozx.speccy.screen.ScreenContext.pixelsOf(croppedBuffer);
-    for (int y = 0; y < SCREEN_H; y++) {
-      System.arraycopy(pixels, (SCREEN_Y + y) * width + SCREEN_X, target, y * SCREEN_W, SCREEN_W);
+    return copyOut(croppedBuffer, SCREEN_X, SCREEN_Y, SCREEN_W, SCREEN_H);
+  }
+
+  /**
+   * A rectangle of the machine's frame into an image of exactly that size. A row at a time and
+   * never in one go: rows sit {@link #stride} apart in the frame and touch in the image, and the
+   * two are only the same number when no machine here can draw a column twice as wide.
+   */
+  private BufferedImage copyOut(BufferedImage into, int x, int y, int w, int h) {
+    int[] target = com.fpetrola.oozx.speccy.screen.ScreenContext.pixelsOf(into);
+    for (int row = 0; row < h; row++) {
+      System.arraycopy(pixels, (y + row) * stride + x, target, row * w, w);
     }
-    return croppedBuffer;
+    return into;
   }
 
   protected void paintComponent(Graphics g) {
