@@ -49,7 +49,7 @@ class BorderComesFromThePortTest {
   private int borderColour() {
     speccy.zxClock.setTStates(0);
     speccy.display.frame();
-    int rgb = speccy.picture.pixels[5 * Picture.WIDTH + 8];
+    int rgb = speccy.picture.pixels[5 * Picture.STRIDE + 8];
     for (int colour = 0; colour < Picture.PALETTE.length; colour++) {
       if (Picture.PALETTE[colour] == rgb) return colour;
     }

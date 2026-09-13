@@ -32,6 +32,7 @@ public class SpeccyScreen extends JPanel {
   private final BufferedImage screenBuffer;
   private double zoom = 1;
 
+  private final int stride;
   private final int width = 256 + 48 + 48 - 32;
   private final int height = 192 + 64 + 56 - 56 - 20;
 
@@ -82,10 +83,19 @@ public class SpeccyScreen extends JPanel {
    * are shown, read a row at a time along its width.
    */
   public SpeccyScreen(int[] pixels) {
+    this(pixels, 256 + 48 + 48 - 32);
+  }
+
+  /**
+   * @param stride how far apart two rows are in the array, which is not the width when the machine
+   *               can draw a column twice as wide as this one is showing.
+   */
+  public SpeccyScreen(int[] pixels, int stride) {
+    this.stride = stride;
     this.pixels = pixels;
     int[] masks = {0xff0000, 0xff00, 0xff};
     this.screenBuffer = new BufferedImage(new DirectColorModel(24, masks[0], masks[1], masks[2]),
-        Raster.createPackedRaster(new DataBufferInt(pixels, pixels.length), width, height, width, masks, null),
+        Raster.createPackedRaster(new DataBufferInt(pixels, pixels.length), width, height, stride, masks, null),
         false, null);
     this.croppedBuffer = new BufferedImage(SCREEN_W, SCREEN_H, BufferedImage.TYPE_INT_RGB);
     this.wholeBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);

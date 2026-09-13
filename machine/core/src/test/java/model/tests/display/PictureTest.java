@@ -14,7 +14,7 @@ class PictureTest {
   private final Picture canvas = new Picture();
 
   private int at(int x, int y) {
-    return canvas.pixels[y * Picture.WIDTH + x];
+    return canvas.pixels[y * Picture.STRIDE + x];
   }
 
   /**

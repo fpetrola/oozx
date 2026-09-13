@@ -46,7 +46,7 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
   private final Speccy speccy;
 
   public SpeccyEmulatorCore(Speccy speccy) {
-    super(new SpeccyScreen(speccy.picture.pixels));
+    super(new SpeccyScreen(speccy.picture.pixels, com.fpetrola.oozx.speccy.modules.display.Picture.STRIDE));
     this.speccy = speccy;
     // Clicking the picture puts the keyboard on the machine. Without it, whatever was clicked last
     // keeps the focus - a toolbar button, usually - and then Enter presses that button instead of
