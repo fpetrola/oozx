@@ -40,6 +40,27 @@ public final class ScreenLayout {
   }
 
   /** Inverse of {@link #lineStart}: decodes a bitmap offset's (third, char-row, pixel-row) bit fields. */
+  /** How far the second display file sits above the first. */
+  public static final int SECOND_FILE = 0x2000;
+
+  /** Which display file is being shown: nought for the usual one, {@link #SECOND_FILE} for the other. */
+  public int file;
+
+  /**
+   * Whether a colour covers one line of a cell instead of eight. When it does, the colour of a
+   * byte is at that byte's own address in the other file, which is what gives a Timex machine
+   * eight times the colour resolution down the screen for the same bitmap.
+   */
+  public boolean colourPerLine;
+
+  public int pixelsAt(int line, int column) {
+    return file + lineStart[line] + column;
+  }
+
+  public int colourAt(int line, int column) {
+    return colourPerLine ? SECOND_FILE + lineStart[line] + column : file + attrStart[line] + column;
+  }
+
   public int lineOf(int offset) {
     return ((offset >> 11) & 3) * 64 + ((offset >> 5) & 7) * 8 + ((offset >> 8) & 7);
   }

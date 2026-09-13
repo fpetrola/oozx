@@ -37,6 +37,8 @@ public record MachineTimings(long processorSpeed, Frame frame) {
   public static final Frame FERRANTI_5C_6C = new Frame(new Span(24, 128, 24, 48), new Span(48, 192, 48, 24), 32, 14336);
   public static final Frame FERRANTI_60HZ = new Frame(new Span(24, 128, 24, 48), new Span(24, 192, 25, 23), 32, 8960);
   public static final Frame FERRANTI_7C = new Frame(new Span(24, 128, 24, 52), new Span(48, 192, 48, 23), 36, 14362);
+  /** A Timex machine at 50Hz: a Ferranti's frame with the first pixel fifteen T-states earlier. */
+  public static final Frame TIMEX_SCLD_50HZ = new Frame(new Span(24, 128, 24, 48), new Span(48, 192, 48, 24), 32, 14321);
   public static final Frame AMSTRAD_ASIC = new Frame(new Span(24, 128, 24, 52), new Span(48, 192, 48, 23), 32, 14365);
   /** 224 clocks over 320 lines is 71680 to a frame, which at 3.584MHz is fifty of them a second. */
   public static final Frame PENTAGON = new Frame(new Span(36, 128, 28, 32), new Span(64, 192, 48, 16), 36, 17988);

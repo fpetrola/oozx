@@ -191,10 +191,10 @@ public class Display {
   }
 
   public int pixels(int line, int column) {
-    return banks.shown().bytes[layout.lineStart[line] + column] & 0xff;
+    return banks.shown().bytes[layout.pixelsAt(line, column)] & 0xff;
   }
 
   public int attribute(int line, int column) {
-    return banks.shown().bytes[layout.attrStart[line] + column] & 0xff;
+    return banks.shown().bytes[layout.colourAt(line, column)] & 0xff;
   }
 }

@@ -87,7 +87,7 @@ class SnapshotChoosesItsMachineTest {
   /** An unrecognised short name resolves to nothing, never to an unrelated machine. */
   @Test
   void anUnknownNameIsNobody() {
-    assertTrue(speccy().machine.forShortName("TC2048").isEmpty(), "an unknown machine name");
+    assertTrue(speccy().machine.forShortName("Jupiter Ace").isEmpty(), "an unknown machine name");
   }
 
   /** No two machines may claim the same snapshot model; variants like Pentagon/NTSC/+3e claim

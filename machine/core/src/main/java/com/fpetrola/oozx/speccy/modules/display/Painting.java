@@ -75,11 +75,10 @@ public final class Painting {
     }
     dirty.plotted(y, bits);
     byte[] screen = banks.shown().bytes;
-    int pixels = layout.lineStart[y], attrs = layout.attrStart[y];
     for (; bits != 0; bits &= bits - 1) {
       int x = Integer.numberOfTrailingZeros(bits);
-      byte attribute = screen[attrs + x];
-      canvas.plot8(x + BORDER_WIDTH_COLS, y + BORDER_HEIGHT, screen[pixels + x],
+      byte attribute = screen[layout.colourAt(y, x)];
+      canvas.plot8(x + BORDER_WIDTH_COLS, y + BORDER_HEIGHT, screen[layout.pixelsAt(y, x)],
           colouring.ink(attribute), colouring.paper(attribute));
     }
   }
