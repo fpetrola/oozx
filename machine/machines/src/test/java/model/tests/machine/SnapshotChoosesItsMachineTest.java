@@ -22,6 +22,7 @@ import com.fpetrola.emulation.helpers.machine.MachineTypes;
 import com.fpetrola.oozx.speccy.machine.SpecPlus3;
 import com.fpetrola.oozx.speccy.machine.SpecPlus2A;
 import com.fpetrola.oozx.speccy.machine.SpecPlus2;
+import com.fpetrola.oozx.speccy.machine.Spec16;
 import com.fpetrola.oozx.speccy.machine.Spec48;
 import com.fpetrola.oozx.speccy.machine.Spec128;
 import com.fpetrola.oozx.Speccy;
@@ -61,18 +62,12 @@ class SnapshotChoosesItsMachineTest {
   void everyModelASnapshotCanNameHasItsMachine() {
     Speccy speccy = speccy();
 
+    goesTo(speccy.machine.model(Spec16.class), MachineTypes.SPECTRUM16K, speccy);
     goesTo(speccy.machine.model(Spec48.class), MachineTypes.SPECTRUM48K, speccy);
     goesTo(speccy.machine.model(Spec128.class), MachineTypes.SPECTRUM128K, speccy);
     goesTo(speccy.machine.model(SpecPlus2.class), MachineTypes.SPECTRUMPLUS2, speccy);
     goesTo(speccy.machine.model(SpecPlus2A.class), MachineTypes.SPECTRUMPLUS2A, speccy);
     goesTo(speccy.machine.model(SpecPlus3.class), MachineTypes.SPECTRUMPLUS3, speccy);
-  }
-
-  /** An unbuilt model (16K) falls back to the nearest machine sharing its code. */
-  @Test
-  void aModelThisBuildDoesNotHaveFallsBackToItsCode() {
-    Speccy speccy = speccy();
-    goesTo(speccy.machine.model(Spec48.class), MachineTypes.SPECTRUM16K, speccy);
   }
 
   /** A machine is also reachable by its short name, previously a switch over Speccy's fields
@@ -108,6 +103,6 @@ class SnapshotChoosesItsMachineTest {
             machine.getName() + " claims " + model + ", which another machine already answers for");
       }
     }
-    assertEquals(5, claimed.size(), "the models a snapshot can name here");
+    assertEquals(6, claimed.size(), "the models a snapshot can name here");
   }
 }
