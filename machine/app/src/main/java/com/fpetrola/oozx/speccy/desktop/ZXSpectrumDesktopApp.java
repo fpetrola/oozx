@@ -463,17 +463,13 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
 
     if (emulatorCore.getPanel() instanceof SpeccyScreen screen) {
       ScreenSettings settings = screen.getScreenSettings();
-      JMenu look = new JMenu("Look");
       ScreenProfile current = settings.currentProfile();
-      for (ScreenProfile profile : ScreenSettings.profiles()) {
-        JRadioButtonMenuItem item = new JRadioButtonMenuItem(profile.name(), profile.equals(current));
-        item.addActionListener(e -> settings.apply(profile));
-        look.add(item);
-      }
-      menu.add(look);
+      java.util.Map<String, Runnable> looks = new java.util.LinkedHashMap<>();
+      for (ScreenProfile profile : ScreenSettings.profiles())
+        looks.put(profile.name(), () -> settings.apply(profile));
+      menu.add(ZXSpectrumDesktopApp.radioMenu("Look", looks, current == null ? null : current.name()));
     }
 
-    JMenu speed = new JMenu("Speed");
     // The machine and not the slider: the slider's positions are whole numbers over a range of
     // forty thousand, so real time comes back from it as ninety-nine and nothing would ever tick.
     int running = (int) Math.round(emulatorCore.getEmulationSpeed());
@@ -482,12 +478,14 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     speeds.put("Normal", 100);
     speeds.put("Double", 200);
     speeds.put("Full", TOP_SPEED);
-    speeds.forEach((name, wanted) -> {
-      JRadioButtonMenuItem item = new JRadioButtonMenuItem(name, running == wanted);
-      item.addActionListener(e -> speedChosen(wanted));
-      speed.add(item);
-    });
-    menu.add(speed);
+    java.util.Map<String, Runnable> speedItems = new java.util.LinkedHashMap<>();
+    String runningName = null;
+    for (java.util.Map.Entry<String, Integer> e : speeds.entrySet()) {
+      int wanted = e.getValue();
+      speedItems.put(e.getKey(), () -> speedChosen(wanted));
+      if (running == wanted) runningName = e.getKey();
+    }
+    menu.add(ZXSpectrumDesktopApp.radioMenu("Speed", speedItems, runningName));
 
     JMenu volume = new JMenu("Volume (" + emulatorCore.getVolume() + "%)");
     JMenuItem louder = new JMenuItem("Louder");
@@ -1501,18 +1499,28 @@ public class ZXSpectrumDesktopApp extends JFrame {
     }
   }
 
-  private JMenu createTvMenu() {
-    JMenu tvMenu = new JMenu("TV");
-    ButtonGroup leads = new ButtonGroup();
+  /** One choice among several: the group is what makes the previous tick go out when a new one lights. */
+  static JMenu radioMenu(String title, java.util.Map<String, Runnable> options, String chosen) {
+    JMenu menu = new JMenu(title);
+    ButtonGroup group = new ButtonGroup();
+    options.forEach((name, action) -> {
+      JRadioButtonMenuItem item = new JRadioButtonMenuItem(name, name.equals(chosen));
+      item.addActionListener(e -> action.run());
+      group.add(item);
+      menu.add(item);
+    });
+    return menu;
+  }
 
+  private JMenu createTvMenu() {
     String current = screenDefault("tv", TvScreen.RGB_MONITOR.label());
+    Map<String, Runnable> leads = new LinkedHashMap<>();
+    String chosen = null;
     for (TvScreen lead : TvScreen.values()) {
-      boolean chosen = lead.label().equals(current) || lead.name().equals(current);
-      JRadioButtonMenuItem item = new JRadioButtonMenuItem(lead.label(), chosen);
-      item.addActionListener(e -> setScreenDefault("tv", lead.label()));
-      leads.add(item);
-      tvMenu.add(item);
+      leads.put(lead.label(), () -> setScreenDefault("tv", lead.label()));
+      if (lead.label().equals(current) || lead.name().equals(current)) chosen = lead.label();
     }
+    JMenu tvMenu = radioMenu("TV", leads, chosen);
 
     tvMenu.addSeparator();
 
