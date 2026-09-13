@@ -1,0 +1,129 @@
+oozx
+Copyright (c) 2023-2025 Fernando Damian Petrola
+
+This product includes software developed as part of the oozx project, licensed
+under the Apache License, Version 2.0. See LICENSE.
+
+------------------------------------------------------------------------------
+THIRD-PARTY COMPONENTS
+------------------------------------------------------------------------------
+
+The following are NOT under the Apache License and keep their own terms.
+Anything distributed from here must carry this notice and the components' own
+licences with it.
+
+
+DEPENDED UPON AS PUBLISHED
+------------------------------------------------------------------------------
+
+Resolved as a dependency, unmodified, and not copied into this source tree.
+
+xBRZ
+    A pixel-art image scaling filter.
+
+    Algorithm and original implementation:
+        Copyright (C) Zenju (zenju AT gmx DOT de)
+        GNU General Public License, version 3
+        https://sourceforge.net/projects/xbrz/
+
+    Java port:
+        Copyright (C) Stanio (stanio AT yahoo DOT com)
+        https://github.com/stanio/xbrz-java
+        Maven: io.github.stanio:xbrz-core
+
+    Used here through the linking exception the Java port grants, which
+    permits linking the library with independent modules and distributing the
+    result under terms of the linker's choice, provided the terms of each
+    linked module are met. This project links it as an independent module and
+    does not modify it; a modification would be under the GNU General Public
+    License.
+
+    Used by: com.fpetrola.oozx.speccy.screen.XbrzScaler
+
+    The other scalers this project offers are its own work, under the Apache
+    License like the rest, so nothing here depends on this component being
+    present.
+
+
+PRESENT IN THIS SOURCE TREE
+------------------------------------------------------------------------------
+
+Files that are not this project's work, kept here because a test or a machine
+cannot do without them. No code here is derived from any of them.
+
+Spectrum and clone ROMs
+
+    machine/core/src/main/resources/roms/*.rom
+
+    Copyright Amstrad, Datel Microelectronics, Nine Tiles Networks Ltd, Garry
+    Lancaster, Andrew Owen and Patrick Persson, each allowing distribution on
+    their own terms, which are not the same terms. Which one covers which file
+    is set out in README.copyright in that directory, and that file is part of
+    this notice.
+
+    A machine needs its ROM to boot, and the emulator ships them for that.
+
+POKE listings
+
+    machine/pokes/src/main/resources/pokes/<letter or digit>/*.pok
+
+    Three thousand six hundred and eighty-three cheat listings for published
+    games, in the .pok format Spectrum emulators read, named by the title,
+    year and publisher of the game each is for. They are the work of the
+    people who found the pokes, over decades; no file records who wrote it,
+    none carries a licence, and this project is not their author.
+
+    Taken from the AllTipshopPokes collection
+    <https://github.com/ladyeklipse/all-tipshop-pokes>, made by Lady Eklipse,
+    which declares no licence of its own and which gathered them by crawling
+    the Tipshop <http://www.the-tipshop.co.uk/>, run by Gerard Sweeney, where
+    the people who found the pokes published them. Bundled here so that the
+    cheat dialog works with nothing to download.
+
+    A poke is a description and an address to write a byte to. Nothing here
+    is derived from them: they are read at run time and applied to whatever
+    game is loaded.
+
+RZX Archive catalogue
+
+    machine/core/src/main/resources/rzx/rzx-archive.json
+
+    Copyright the RZX Archive <https://www.rzxarchive.co.uk> and the people
+    who submitted the recordings it lists, whose names it records.
+
+    Four thousand two hundred and ninety-one entries describing recorded
+    playthroughs: a title, a note, the submitter, the archive's own page, the
+    Spectrum Computing id of the game, and where the file can be had. It is
+    the catalogue and not the recordings - no RZX file is here - and the two
+    hundred and forty-three entries the archive marks as distribution denied
+    are recorded as such rather than dropped. Gathered from the archive's
+    browse pages, one a second, because it offers no interface to ask.
+
+    Read to answer whether a game the browser found has anyone's playthrough
+    against it, by an id the two sites share.
+
+Z80 instruction test vectors
+
+    emulator/src/test/resources/fuse/tests.in
+    emulator/src/test/resources/fuse/tests.expected
+    emulator/src/test/resources/fuse/tests.names
+
+    Copyright Philip Kendall and contributors. GNU General Public License,
+    version 2 or later. Taken unmodified from the Fuse emulator, which
+    distributes them.
+
+    One thousand three hundred and fifty-six tests that say what a Z80 does
+    to its registers, its memory and its clock, event by event. This project's
+    processor is held to them; nothing here is a translation of them, and they
+    reach no artefact but the test jar.
+
+Microdrive cartridge
+
+    machine/devices/interface1/src/test/resources/success.mdr
+
+    Same origin and licence as the vectors above: a formatted cartridge of 179
+    sectors from the Fuse distribution.
+
+    Read by the two tests that ask whether the Interface 1's head gives back
+    what a cartridge holds. That it is somebody else's file is the point: they
+    are bytes this project did not write.
