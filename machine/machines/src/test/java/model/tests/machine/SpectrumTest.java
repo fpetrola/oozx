@@ -26,6 +26,7 @@ import com.fpetrola.oozx.speccy.machine.Spec128;
 import com.fpetrola.oozx.speccy.machine.Spec16;
 import com.fpetrola.oozx.speccy.machine.Spec48;
 import com.fpetrola.oozx.speccy.machine.Tc2048;
+import com.fpetrola.oozx.speccy.machine.Tc2068;
 import com.fpetrola.oozx.speccy.machine.Spec48Ntsc;
 import com.fpetrola.oozx.speccy.machine.SpecPlus2A;
 import com.fpetrola.oozx.speccy.machine.SpecPlus3;
@@ -111,7 +112,7 @@ class SpectrumTest extends MachineTest {
   static Stream<Arguments> models() {
     return Stream.of(
         Arguments.of(Spec16.class, 224, 312, 3_500_000L),
-        Arguments.of(Tc2048.class, 224, 312, 3_500_000L),
+        Arguments.of(Tc2048.class, 224, 312, 3_500_000L), Arguments.of(Tc2068.class, 224, 312, 3_500_000L),
         Arguments.of(Spec128.class, 228, 311, 3_546_900L),
         Arguments.of(SpecPlus3.class, 228, 311, 3_546_900L),
         Arguments.of(Pentagon.class, 224, 320, 3_584_000L),
@@ -150,7 +151,7 @@ class SpectrumTest extends MachineTest {
   }
 
   static Stream<Arguments> interruptLengths() {
-    return Stream.of(Arguments.of(Spec16.class, 32), Arguments.of(Tc2048.class, 32), Arguments.of(Spec48.class, 32), Arguments.of(Spec128.class, 36), Arguments.of(SpecPlus3.class, 32),
+    return Stream.of(Arguments.of(Spec16.class, 32), Arguments.of(Tc2048.class, 32), Arguments.of(Tc2068.class, 32), Arguments.of(Spec48.class, 32), Arguments.of(Spec128.class, 36), Arguments.of(SpecPlus3.class, 32),
         Arguments.of(Pentagon.class, 36), Arguments.of(Spec48Ntsc.class, 32));
   }
 
@@ -177,7 +178,7 @@ class SpectrumTest extends MachineTest {
   }
 
   static Stream<Arguments> firstPixels() {
-    return Stream.of(Arguments.of(Spec16.class, 14336), Arguments.of(Tc2048.class, 14321), Arguments.of(Spec48.class, 14336), Arguments.of(Spec128.class, 14362),
+    return Stream.of(Arguments.of(Spec16.class, 14336), Arguments.of(Tc2048.class, 14321), Arguments.of(Tc2068.class, 14321), Arguments.of(Spec48.class, 14336), Arguments.of(Spec128.class, 14362),
         Arguments.of(SpecPlus3.class, 14365), Arguments.of(Spec48Ntsc.class, 8960), Arguments.of(Pentagon.class, 17988));
   }
 

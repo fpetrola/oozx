@@ -65,6 +65,11 @@ public class TimexMemoryPeripheral extends AbstractPeripheral {
         wanted = value & 0xff;
         map();
       }
+
+      @Override
+      public com.fpetrola.oozx.speccy.ports.BusAnswer read(int port) {
+        return com.fpetrola.oozx.speccy.ports.BusAnswer.of(wanted);
+      }
     }));
   }
 
