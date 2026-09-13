@@ -15,23 +15,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
 package com.fpetrola.oozx.speccy.devices.ay;
 
-import com.fpetrola.oozx.speccy.peripherals.Peripheral;
+import com.fpetrola.oozx.speccy.modules.sound.Sound;
 import com.fpetrola.z80.cpu.Z80Clock;
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
-import com.google.inject.multibindings.Multibinder;
-import com.fpetrola.oozx.Extension;
+import com.google.inject.Inject;
 
-/** The sound chip a machine has, the one a +3 wires differently, and the box for a machine with none. */
-public class AyDevices extends AbstractModule implements Extension {
-  protected void configure() {
-    Multibinder<Peripheral> devices = Multibinder.newSetBinder(binder(), Peripheral.class);
-    devices.addBinding().to(AyPeripheral.class);
-    devices.addBinding().to(AyPlus3Peripheral.class);
-    devices.addBinding().to(AyTimexPeripheral.class);
+/** The same chip a 128 has, answering on the two ports a Timex machine puts it on. */
+@com.google.inject.Singleton
+public class AyTimexPeripheral extends AyPeripheral {
+  @Inject
+  public AyTimexPeripheral(Sound sound, Z80Clock clock) {
+    super(sound, clock, 0x00ff, 0x00f5, 0x00ff, 0x00f6, false);
   }
-
 }
