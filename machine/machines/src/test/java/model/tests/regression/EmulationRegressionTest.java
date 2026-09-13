@@ -161,7 +161,7 @@ public class EmulationRegressionTest extends MachineTest {
     Speccy speccy = silentMachine();
 
     // Exactly 8: an unexplained change here means a model got registered or dropped silently.
-    assertEquals(14, speccy.machine.getMachineTypes().size(), "not every model was registered");
+    assertEquals(15, speccy.machine.getMachineTypes().size(), "not every model was registered");
     assertSame(speccy.machine.model(Spec48.class), speccy.machine.current,
         "the machine did not come up as the 48K; check the @DefaultMachine binding");
   }

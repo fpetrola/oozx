@@ -23,9 +23,12 @@ for more details.
 
 tc2068-0.rom
 tc2068-1.rom
+ts2068-0.rom
+ts2068-1.rom
 
 These are derived from Amstrad code, so the above statement applies. The
-modifications made by Timex are in the public domain.
+modifications made by Timex are in the public domain. The TS2068 pair was
+published by World of Spectrum at <https://worldofspectrum.net/item/1000506/>.
 
 plus3e-0.rom
 plus3e-1.rom

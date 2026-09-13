@@ -54,7 +54,8 @@
       "Tc2048" : [ "tc2048.rom" ],
       "SpecSe" : [ "se-0.rom", "se-1.rom" ],
       "Pentagon1024" : [ "128-0.rom", "128-1.rom" ],
-      "Tc2068" : [ "tc2068-0.rom", "tc2068-1.rom" ]
+      "Tc2068" : [ "tc2068-0.rom", "tc2068-1.rom" ],
+      "Ts2068" : [ "ts2068-0.rom", "ts2068-1.rom" ]
     }
   },
   "interface1" : {
