@@ -104,6 +104,25 @@ class PagingTest extends MachineTest {
     assertEquals(before, after, "writing 0x7ffd moved something on a machine with no paging port");
   }
 
+  /**
+   * Half a megabyte needs five bits to name a page and the port has three, so a Pentagon 512 reads
+   * two more out of bits 6 and 7 - which a 128 leaves undecoded, and which is why the machine needs
+   * nothing else of its own. The three low bits still count first, so the pages go 0 to 7, then 8
+   * to 15 with bit 6 up, and so on to 31.
+   */
+  @Test
+  void aPentagon512ReadsTwoMorePageBitsOutOfThePortsTopTwo() {
+    on("Pentagon 512K");
+    out(0x7ffd, 0x03);
+    assertMap(0, 5, 2, 3);
+    out(0x7ffd, 0x43);
+    assertMap(0, 5, 2, 11);
+    out(0x7ffd, 0x83);
+    assertMap(0, 5, 2, 19);
+    out(0x7ffd, 0xc7);
+    assertMap(0, 5, 2, 31);
+  }
+
   @Test
   void a48KIsRomAndThenPagesFiveTwoAndZero() {
     on("Spectrum 48K");

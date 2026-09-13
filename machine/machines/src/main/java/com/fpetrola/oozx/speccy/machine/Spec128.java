@@ -106,6 +106,11 @@ public class Spec128 extends Spectrum implements Paging128 {
     return 0;
   }
 
+  /** Which page a slot holds. A machine with more memory than the port has bits says so here. */
+  protected int pageAt(int slot) {
+    return paging.page(slot);
+  }
+
   public void memoryPortWrite(int port, byte b) {
     if (paging.write7ffd(b)) memoryMap();
   }
@@ -117,9 +122,9 @@ public class Spec128 extends Spectrum implements Paging128 {
       display.screenChanging();
       banks.show(banks.ram(paging.screen()), display::screenWritten);
     }
-    memory.slot(0x0000, paging.special() ? banks.ram(paging.page(0)) : banks.rom(paging.rom()));
+    memory.slot(0x0000, paging.special() ? banks.ram(pageAt(0)) : banks.rom(paging.rom()));
     for (int slot = 1; slot < 4; slot++) {
-      memory.slot(slot << 14, banks.ram(paging.page(slot)));
+      memory.slot(slot << 14, banks.ram(pageAt(slot)));
     }
   }
 
