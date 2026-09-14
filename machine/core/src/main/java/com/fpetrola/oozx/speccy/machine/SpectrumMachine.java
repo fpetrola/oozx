@@ -107,6 +107,16 @@ public interface SpectrumMachine {
   byte ulaPortIdleValue(byte lastOut);
 
   /** Whether this port gives the tape and the program a bit each, which a Timex does not. */
+  /**
+   * What the chip that draws actually receives when a program writes to its port. Whatever was
+   * written, on every machine that hands it over cleanly - and not every one of them does: one of
+   * these clones puts what is on the bus through what is in its memory at that same address, so a
+   * program writing a colour gets that colour and whatever was lying there.
+   */
+  default byte asWrittenToTheUla(int port, byte value) {
+    return value;
+  }
+
   default boolean separatesTapeFromSpeaker() {
     return true;
   }

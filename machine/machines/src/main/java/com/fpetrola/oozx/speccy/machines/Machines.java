@@ -32,6 +32,7 @@ import com.fpetrola.oozx.speccy.machine.Tc2068;
 import com.fpetrola.oozx.speccy.machine.Chloe140Se;
 import com.fpetrola.oozx.speccy.machine.Chloe280Se;
 import com.fpetrola.oozx.speccy.machine.CzSpectrum;
+import com.fpetrola.oozx.speccy.machine.Inves;
 import com.fpetrola.oozx.speccy.machine.CzSpectrumPlus;
 import com.fpetrola.oozx.speccy.machine.Scorpion;
 import com.fpetrola.oozx.speccy.machine.Tk90x;
@@ -61,13 +62,15 @@ public class Machines extends AbstractModule implements Extension {
   public static final java.util.List<String> MODEL_NAMES = java.util.List.of(
       "Spectrum 16K", "Spectrum 48K", "Spectrum 128K", "Spectrum Plus 3", "Spectrum Plus 2", "Spectrum Plus 2A",
       "Sinclair Spectrum 48K (NTSC)", "Amstrad Spectrum +3e", "Pentagon", "Pentagon 512K", "Timex TC2048", "Timex TC2068", "Timex TS2068", "Spectrum SE", "Scorpion ZS 256",
-      "Microdigital TK90X", "Microdigital TK95", "Czerweny CZ Spectrum", "Czerweny CZ Spectrum Plus", "Chloe 140SE", "Chloe 280SE", "Pentagon 1024K");
+      "Microdigital TK90X", "Microdigital TK95", "Czerweny CZ Spectrum", "Czerweny CZ Spectrum Plus", "Chloe 140SE", "Chloe 280SE", "Inves Spectrum+", "Pentagon 1024K");
 
   protected void configure() {
     Multibinder.newSetBinder(binder(), com.fpetrola.oozx.speccy.peripherals.Peripheral.class)
         .addBinding().to(Pentagon1024MemoryPeripheral.class);
     Multibinder.newSetBinder(binder(), com.fpetrola.oozx.speccy.peripherals.Peripheral.class)
         .addBinding().to(com.fpetrola.oozx.speccy.machine.ChloeUla2Peripheral.class);
+    Multibinder.newSetBinder(binder(), com.fpetrola.oozx.speccy.peripherals.Peripheral.class)
+        .addBinding().to(com.fpetrola.oozx.speccy.machine.InvesInterruptFault.class);
     Multibinder<Spectrum> models = Multibinder.newSetBinder(binder(), Spectrum.class);
     models.addBinding().to(Spec16.class);
     models.addBinding().to(Spec48.class);
@@ -91,6 +94,7 @@ public class Machines extends AbstractModule implements Extension {
     models.addBinding().to(CzSpectrumPlus.class);
     models.addBinding().to(Chloe140Se.class);
     models.addBinding().to(Chloe280Se.class);
+    models.addBinding().to(Inves.class);
     bind(Spectrum.class).annotatedWith(DefaultMachine.class).to(Spec48.class);
   }
 }

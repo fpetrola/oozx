@@ -60,7 +60,8 @@
       "Tk90x" : [ "tk90x.rom" ],
       "Tk95" : [ "tk95.rom" ],
       "CzSpectrum" : [ "48.rom" ],
-      "CzSpectrumPlus" : [ "inves.rom" ]
+      "CzSpectrumPlus" : [ "inves.rom" ],
+      "Inves" : [ "inves.rom" ]
     },
     "sources" : {
       "scorpion-0.rom" : {

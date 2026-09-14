@@ -80,6 +80,7 @@ public class UlaPortHandler extends DefaultPortHandler {
   }
 
   public void write(int port, byte b) {
+    b = machine.asWrittenToTheUla(port, b);
     display.border.becomes(b & 0x07);
     // Tape audio is mixed in on every border write, since a loader already toggles the
     // border once per tape edge anyway.
