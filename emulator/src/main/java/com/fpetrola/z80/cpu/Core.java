@@ -32,7 +32,7 @@ public interface Core {
 
   RegisterBank bank(Memory memory, IO io);
 
-  /** The processor over the state, reporting its contention to {@code contention}. */
+  /** The processor over the state, reporting its contention to {@code contention}, or to nobody. */
   OOZ80 cpu(State state, PhaseProcessor contention);
 
   /** When the core counts its contention itself, the memory it runs on must not tell the aspect about its accesses. */

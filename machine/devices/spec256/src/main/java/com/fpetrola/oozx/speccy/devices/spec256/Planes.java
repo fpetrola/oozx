@@ -18,6 +18,7 @@
 package com.fpetrola.oozx.speccy.devices.spec256;
 
 import com.fpetrola.z80.memory.Memory;
+import com.google.inject.Singleton;
 
 /**
  * The colour of every pixel a game has, held as eight memories the shape of the one the game runs
@@ -32,6 +33,7 @@ import com.fpetrola.z80.memory.Memory;
  * as the last colour where the byte is set and the first where it is not, which is what an
  * uncoloured graphic looks like.
  */
+@Singleton
 public final class Planes {
   public static final int PLANES = 8;
   /** Where the machine's RAM starts, which is as far as a file's colours reach. */
@@ -40,35 +42,49 @@ public final class Planes {
   /** What a file weighs: the colour of every pixel of the RAM of a 48K machine. */
   public static final int LENGTH = (SIZE - RAM) * PLANES;
 
-  private final byte[][] bytes = new byte[PLANES][SIZE];
-
-  private Planes() {
-  }
+  private byte[][] bytes;
 
   /** The colours of a whole game, as a file has them. */
   public static Planes of(byte[] file) {
+    Planes planes = new Planes();
+    planes.take(file);
+    return planes;
+  }
+
+  /** The colours of a whole game, over whatever was here before. */
+  public void take(byte[] file) {
     if (file.length != LENGTH) {
       throw new IllegalArgumentException("The colours of a 48K game are " + LENGTH + " bytes, and these are " + file.length);
     }
-    Planes planes = new Planes();
+    blank();
     for (int address = RAM; address < SIZE; address++) {
       int at = (address - RAM) * PLANES;
       for (int fromTheRight = 0; fromTheRight < PLANES; fromTheRight++) {
         int colour = file[at + fromTheRight] & 0xff;
         for (int plane = 0; plane < PLANES; plane++) {
-          if ((colour & (1 << plane)) != 0) planes.bytes[plane][address] |= (byte) (1 << fromTheRight);
+          if ((colour & (1 << plane)) != 0) bytes[plane][address] |= (byte) (1 << fromTheRight);
         }
       }
     }
-    return planes;
+  }
+
+  /** No colours at all, which is how much room this takes until a game brings some. */
+  public void blank() {
+    bytes = new byte[PLANES][SIZE];
+  }
+
+  private byte[][] bytes() {
+    if (bytes == null) blank();
+    return bytes;
   }
 
   /** The colour of one pixel of the byte at an address, the leftmost being the first. */
   public int colourOf(int address, int pixel) {
+    byte[][] planes = bytes();
     int bit = 1 << (7 - pixel);
     int colour = 0;
     for (int plane = 0; plane < PLANES; plane++) {
-      if ((bytes[plane][address] & bit) != 0) colour |= 1 << plane;
+      if ((planes[plane][address] & bit) != 0) colour |= 1 << plane;
     }
     return colour;
   }
@@ -80,7 +96,7 @@ public final class Planes {
    * RAM there are none, and the machine's byte is already what eight equal planes would say.
    */
   public Memory plane(int which, Memory machine) {
-    byte[] mine = bytes[which];
+    byte[] mine = bytes()[which];
     return new Memory() {
       public int read(int address, int fetching) {
         return fetching != 0 || address < RAM ? machine.peek(address) : mine[address] & 0xff;

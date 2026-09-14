@@ -36,7 +36,7 @@ public class OopCore implements Core {
   public OOZ80 cpu(State state, PhaseProcessor contention) {
     OOZ80 cpu = new OOZ80(state, new DefaultInstructionFetcher(state, false, false), new DefaultInstructionExecutor(state, false));
     new MemptrUpdateInstructionSpy(state).addExecutionListeners(cpu.getInstructionExecutor());
-    cpu.getInstructionExecutor().setExecutionListener(contention);
+    if (contention != null) cpu.getInstructionExecutor().setExecutionListener(contention);
     return cpu;
   }
 

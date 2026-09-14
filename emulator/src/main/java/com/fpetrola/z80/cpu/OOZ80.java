@@ -30,6 +30,11 @@ public class OOZ80 implements Z80Cpu {
   private final InstructionExecutor instructionExecutor;
   protected State state;
 
+  /** The same processor again, for whoever puts something around it: one state, one fetcher, one executor. */
+  protected OOZ80(OOZ80 one) {
+    this(one.state, one.instructionFetcher, one.instructionExecutor);
+  }
+
   public OOZ80(State aState, InstructionFetcher instructionFetcher, InstructionExecutor instructionExecutor) {
     this.state = aState;
     this.instructionFetcher = instructionFetcher;
