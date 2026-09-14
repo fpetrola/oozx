@@ -28,7 +28,19 @@ package com.fpetrola.oozx.speccy.machine;
  */
 public class RomNotLoadedException extends RuntimeException {
 
+  private final String file;
+
   public RomNotLoadedException(String message) {
+    this(message, null);
+  }
+
+  public RomNotLoadedException(String message, String file) {
     super(message);
+    this.file = file;
+  }
+
+  /** Which ROM it was, so that whoever can do something about it does not have to read the sentence. */
+  public String file() {
+    return file;
   }
 }

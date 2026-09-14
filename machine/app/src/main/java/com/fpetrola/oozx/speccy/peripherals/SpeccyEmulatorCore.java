@@ -269,11 +269,16 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
         if (speccy.machine.current != null && model.equals(speccy.machine.current.getName())) {
           return;
         }
-        speccy.loop.later(() -> speccy.machine.getMachineTypes().stream().filter(m -> m.getName().equals(model))
-            .forEach(type -> {
-              speccy.machine.selectDefault();
-              speccy.machine.select(type);
-            }));
+        speccy.machine.getMachineTypes().stream().filter(m -> m.getName().equals(model)).findFirst()
+            .ifPresent(type -> {
+              // Whatever this machine needs is brought here and now, where a question can be asked:
+              // by the time the emulator's own thread builds it, everything it reads is on this disk.
+              if (!com.fpetrola.oozx.speccy.desktop.RomNotShippedDialog.readyFor(type)) return;
+              speccy.loop.later(() -> {
+                speccy.machine.selectDefault();
+                speccy.machine.select(type);
+              });
+            });
       }
 
       @Override

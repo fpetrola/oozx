@@ -119,30 +119,52 @@ public final class RomFiles implements Roms {
         if (shipped == null || shipped.equals(chosen)) throw chosenOneIsNoGood;
       }
     }
-    if (shipped == null || page >= shipped.size()) throw new RomNotLoadedException("nothing was chosen for " + key + ", which has no ROM of its own");
+    if (shipped == null || page >= shipped.size()) throw new RomNotLoadedException("nothing was chosen for " + key + ", which has no ROM of its own", null);
     return image(shipped.get(page), length);
   }
 
   /**
    * The classpath first, for the ROMs that may be shipped; then the file the person chose; then the
-   * copy kept from an earlier download; and only then, for a ROM that says where it is published,
-   * the network. A packaged ROM is answered before any of that, so it can never reach out.
+   * copy kept from an earlier download. Never the network: this is called while a machine is being
+   * built, and a machine being built is no place to ask a question or wait on an answer from far
+   * away. What is not here yet is brought by {@link #bring}, before anybody starts a machine.
    */
   private byte[] image(String filename, int length) {
     byte[] image = packaged(filename);
     if (image == null) image = bytesOf(new File(filename));
     if (image == null) image = bytesOf(kept(filename));
-    if (image == null) image = fetched(filename);
-    if (image == null) throw new RomNotLoadedException("couldn't find ROM '" + filename + "'");
-    if (image.length != length) throw new RomNotLoadedException("ROM '" + filename + "' is " + image.length + " bytes long; expected " + length);
+    if (image == null) throw new RomNotLoadedException("couldn't find ROM '" + filename + "'", filename);
+    if (image.length != length) throw new RomNotLoadedException("ROM '" + filename + "' is " + image.length + " bytes long; expected " + length, filename);
     return image;
+  }
+
+  /** Which of the ROMs this machine or device asks for are not here yet, in the order it asks. */
+  public List<String> missingFor(Object device) {
+    List<String> missing = new java.util.ArrayList<>();
+    for (String filename : files.getOrDefault(keyOf(device), List.of())) {
+      if (!here(filename)) missing.add(filename);
+    }
+    return missing;
+  }
+
+  private static boolean here(String filename) {
+    return RomFiles.class.getResource("/roms/" + filename) != null
+        || new File(filename).isFile() || kept(filename).isFile();
+  }
+
+  /**
+   * Brings a ROM that is not here from wherever it is published, and keeps it. Says whether it is
+   * here now. Called by whoever is about to start a machine, and never by the machine itself.
+   */
+  public boolean bring(String filename) {
+    return fetched(filename) != null;
   }
 
   private static byte[] packaged(String filename) {
     try (InputStream packaged = RomFiles.class.getResourceAsStream("/roms/" + filename)) {
       return packaged == null ? null : packaged.readAllBytes();
     } catch (IOException cannot) {
-      throw new RomNotLoadedException("ROM '" + filename + "' cannot be read: " + cannot);
+      throw new RomNotLoadedException("ROM '" + filename + "' cannot be read: " + cannot, filename);
     }
   }
 
@@ -150,7 +172,7 @@ public final class RomFiles implements Roms {
     try {
       return file.isFile() ? org.apache.commons.io.FileUtils.readFileToByteArray(file) : null;
     } catch (IOException cannot) {
-      throw new RomNotLoadedException("ROM '" + file + "' cannot be read: " + cannot);
+      throw new RomNotLoadedException("ROM '" + file + "' cannot be read: " + cannot, file.getName());
     }
   }
 
@@ -186,7 +208,7 @@ public final class RomFiles implements Roms {
     java.net.URI where = java.net.URI.create(from);
     if ("file".equals(where.getScheme())) {
       byte[] published = bytesOf(new File(where));
-      if (published == null) throw new RomNotLoadedException("ROM '" + filename + "' was not at " + from);
+      if (published == null) throw new RomNotLoadedException("ROM '" + filename + "' was not at " + from, filename);
       return published;
     }
     try {
@@ -194,7 +216,7 @@ public final class RomFiles implements Roms {
           .connectTimeout(java.time.Duration.ofSeconds(20)).followRedirects(java.net.http.HttpClient.Redirect.NORMAL).build()
           .send(java.net.http.HttpRequest.newBuilder(where).timeout(java.time.Duration.ofSeconds(60)).build(),
               java.net.http.HttpResponse.BodyHandlers.ofInputStream());
-      if (answer.statusCode() != 200) throw new RomNotLoadedException("ROM '" + filename + "' was not at " + from + ": " + answer.statusCode());
+      if (answer.statusCode() != 200) throw new RomNotLoadedException("ROM '" + filename + "' was not at " + from + ": " + answer.statusCode(), filename);
       // Read in pieces rather than in one go, which is the only way anybody can be told how it is going.
       long length = answer.headers().firstValueAsLong("content-length").orElse(-1);
       java.io.ByteArrayOutputStream arriving = new java.io.ByteArrayOutputStream();
@@ -208,7 +230,7 @@ public final class RomFiles implements Roms {
       return arriving.toByteArray();
     } catch (IOException | InterruptedException didNotArrive) {
       if (didNotArrive instanceof InterruptedException) Thread.currentThread().interrupt();
-      throw new RomNotLoadedException("ROM '" + filename + "' could not be fetched from " + from + ": " + didNotArrive);
+      throw new RomNotLoadedException("ROM '" + filename + "' could not be fetched from " + from + ": " + didNotArrive, filename);
     }
   }
 
@@ -217,7 +239,7 @@ public final class RomFiles implements Roms {
    * work around being wrong about: wrong bytes boot into nonsense far from where the mistake was.
    */
   private static void mustBe(String filename, byte[] image, String sha256) {
-    if (sha256 == null) throw new RomNotLoadedException("ROM '" + filename + "' says where it comes from but not what it should be");
+    if (sha256 == null) throw new RomNotLoadedException("ROM '" + filename + "' says where it comes from but not what it should be", filename);
     StringBuilder digest = new StringBuilder();
     try {
       for (byte b : java.security.MessageDigest.getInstance("SHA-256").digest(image)) digest.append(String.format("%02x", b));
@@ -225,6 +247,6 @@ public final class RomFiles implements Roms {
       throw new IllegalStateException(everyJavaHasIt);
     }
     if (!digest.toString().equalsIgnoreCase(sha256))
-      throw new RomNotLoadedException("ROM '" + filename + "' is not the one expected: " + digest + " arrived, " + sha256 + " was asked for");
+      throw new RomNotLoadedException("ROM '" + filename + "' is not the one expected: " + digest + " arrived, " + sha256 + " was asked for", filename);
   }
 }
