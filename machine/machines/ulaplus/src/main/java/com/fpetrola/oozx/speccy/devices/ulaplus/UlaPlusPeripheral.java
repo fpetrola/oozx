@@ -39,7 +39,8 @@ import java.util.List;
  * sixteen, the ink is the low eight of it and the paper the high eight, and nothing flashes.
  */
 @Singleton
-public class UlaPlusPeripheral extends AbstractPeripheral implements com.fpetrola.oozx.speccy.modules.display.ColoursOfItsOwn {
+public class UlaPlusPeripheral extends AbstractPeripheral
+    implements com.fpetrola.oozx.speccy.modules.display.ColoursOfItsOwn, com.fpetrola.oozx.speccy.peripherals.Pluggable {
   /** Which of the two groups of registers the named one is in: the colours, or the one about them. */
   private static final int MODE_GROUP = 0x40;
   /** The bit of the mode register that says the machine is painting in these colours. */
@@ -103,6 +104,32 @@ public class UlaPlusPeripheral extends AbstractPeripheral implements com.fpetrol
   @Override
   public void fitted(boolean modified) {
     fitted = modified;
+  }
+
+  /** Fitting it is plugging it in, so that a window clipped onto a machine is what gives it these colours. */
+  @Override
+  public void plugIn(boolean connected) {
+    fitted(connected);
+  }
+
+  @Override
+  public boolean isPluggedIn() {
+    return fitted;
+  }
+
+  /** Whether the machine is painting in these colours, for whoever is showing them. */
+  public boolean inUse() {
+    return (mode & PALETTE_ON) != 0;
+  }
+
+  /** What one of the sixty-four is worth, as a colour rather than as the byte it was written as. */
+  public int colourOf(int index) {
+    return rgb(colours[index & (Picture.COLOURS - 1)]);
+  }
+
+  /** Which register was named last, which is where the next byte written would go. */
+  public int named() {
+    return named;
   }
 
   /** The same thing said the way the other devices somebody switches on and off say it. */
