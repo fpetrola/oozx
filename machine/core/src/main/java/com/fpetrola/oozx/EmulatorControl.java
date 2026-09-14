@@ -81,6 +81,21 @@ public interface EmulatorControl {
   default void setProcessor(String processor) {
   }
 
+  /**
+   * The ROM sets this machine can be run on - another language, a later revision - the one it is
+   * running, and moving it onto another. Not machines: the same hardware with other bytes in it.
+   */
+  default java.util.List<String> getRomSets() {
+    return java.util.List.of();
+  }
+
+  default String getRomSet() {
+    return "";
+  }
+
+  default void setRomSet(String set) {
+  }
+
   java.util.List<String> getMachineModels();
 
   boolean isPaused();

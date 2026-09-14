@@ -61,10 +61,12 @@ Spectrum and clone ROMs
 
     A machine needs its ROM to boot, and the emulator ships them for that.
 
-    Not every machine's ROM can be shipped, and none that cannot is here. For those, the
-    configuration says where the ROM is published and what its bytes have to be; the emulator
-    asks before fetching one, fetches it from whoever publishes it, and keeps the copy under
-    the home directory rather than in this tree.
+    Some ROMs are not ours to ship, and none of those is here. The same goes for the ones a
+    machine can be run on instead of the set it came with - another language, a later revision -
+    which are not carried either. For all of them the configuration says where the ROM is
+    published and what its bytes have to be; the emulator asks before fetching one, fetches it
+    from whoever publishes it, and keeps the copy under the home directory rather than in this
+    tree.
 
 POKE listings
 

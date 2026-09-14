@@ -41,6 +41,13 @@ public final class RomFiles implements Roms {
    */
   public Map<String, Source> sources = new LinkedHashMap<>();
 
+  /**
+   * The ROM sets a machine can be run with, by the name each one goes by - a language, a revision.
+   * Keyed like {@link #files}, and the build's knowledge rather than a setting: which of them is
+   * running is what {@code files} holds, and that one is the person's.
+   */
+  public Map<String, Map<String, List<String>>> sets = new LinkedHashMap<>();
+
   public static final class Source {
     public String url;
     public String sha256;
@@ -82,25 +89,69 @@ public final class RomFiles implements Roms {
     consent = asking == null ? (rom, from) -> false : asking;
   }
 
-  /** Fallback used when the chosen file for a key can't be read. */
-  private static Map<String, List<String>> shipped;
-  private static Map<String, Source> shippedSources;
+  /** This same section as the build carries it, with nobody's saved settings over it. */
+  private static RomFiles ofTheBuild;
 
-  private static List<String> shipped(String key) {
-    if (shipped == null) shipped = Configuration.shipped().of(RomFiles.class).files;
-    return shipped.get(key);
+  private static RomFiles theBuild() {
+    if (ofTheBuild == null) ofTheBuild = Configuration.shipped().of(RomFiles.class);
+    return ofTheBuild;
   }
 
   /**
-   * Where a ROM is published and what it has to be, as this build knows it, and only then as the
-   * person's own file has it. That way round because it is the build's knowledge and not a setting:
-   * a run that saved the file when the build pointed somewhere else would otherwise go on sending
-   * every later run to the place this build has already stopped believing in.
+   * What this build knows about something, and only then what the person's own file says about it.
+   * That way round for everything that is knowledge rather than a setting: a run that saved the
+   * file while the build knew something else would otherwise go on telling every later run what
+   * this build has already stopped believing.
    */
+  private static <K> K whatTheBuildKnows(Map<String, K> itsOwn, Map<String, K> theirs, String key) {
+    K known = itsOwn.get(key);
+    return known != null ? known : theirs.get(key);
+  }
+
+  /** Fallback used when the chosen file for a key can't be read. */
+  private static List<String> shipped(String key) {
+    return theBuild().files.get(key);
+  }
+
+  /** Where a ROM is published and what it has to be. */
   public Source sourceFor(String filename) {
-    if (shippedSources == null) shippedSources = Configuration.shipped().of(RomFiles.class).sources;
-    Source source = shippedSources.get(filename);
-    return source != null ? source : sources.get(filename);
+    return whatTheBuildKnows(theBuild().sources, sources, filename);
+  }
+
+  /** The ROM sets this machine can be run with, by the name each one goes by. */
+  public Map<String, List<String>> setsFor(Object device) {
+    Map<String, List<String>> known = whatTheBuildKnows(theBuild().sets, sets, keyOf(device));
+    return known == null ? Map.of() : known;
+  }
+
+  /** The ROMs this machine is running, whether they came from a set or from somebody's own file. */
+  public List<String> running(Object device) {
+    return files.getOrDefault(keyOf(device), List.of());
+  }
+
+  public void runOn(Object device, List<String> roms) {
+    files.put(keyOf(device), List.copyOf(roms));
+  }
+
+  /**
+   * Runs this machine on the set that goes by that name. A machine that shares its ROMs with
+   * another - a +2A with a +3 - is choosing for both, which is what sharing them means.
+   */
+  public void chooseSet(Object device, String name) {
+    Map<String, List<String>> known = setsFor(device);
+    List<String> set = known.get(name);
+    if (set == null)
+      throw new IllegalArgumentException("there is no ROM set called '" + name + "' for "
+          + device.getClass().getSimpleName() + "; there is " + known.keySet());
+    runOn(device, set);
+  }
+
+  /** Which of them it is running on, or nothing when it was pointed at a file of somebody's own. */
+  public String chosenSet(Object device) {
+    List<String> running = running(device);
+    for (Map.Entry<String, List<String>> set : setsFor(device).entrySet())
+      if (set.getValue().equals(running)) return set.getKey();
+    return null;
   }
 
   public String nameOf(Object device) {
