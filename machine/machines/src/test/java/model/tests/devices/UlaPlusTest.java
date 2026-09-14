@@ -179,6 +179,32 @@ class UlaPlusTest extends MachineTest {
         "the border was not painted in the colour this machine was told that colour is");
   }
 
+  /**
+   * A snapshot is a machine as it stood, and one taken of a machine painting in colours of its own
+   * comes back painting in them. Which they were has been written in those files and read out of
+   * them for a long time; until there was a chip to put them into there was nowhere to put them.
+   */
+  @Test
+  void theColoursASnapshotWasTakenInComeBackWithIt() {
+    modified(false);
+    com.fpetrola.oozx.speccy.modules.display.ColoursOfItsOwn chip =
+        speccy.peripheralRegistry.anyThatIs(com.fpetrola.oozx.speccy.modules.display.ColoursOfItsOwn.class);
+    int[] sixtyFour = new int[Picture.COLOURS];
+    sixtyFour[3] = 0xe0;
+
+    com.fpetrola.emulation.helpers.snapshots.SpectrumState snapshot =
+        new com.fpetrola.emulation.helpers.snapshots.SpectrumState();
+    snapshot.setULAPlusEnabled(true);
+    snapshot.setULAPlusActive(true);
+    snapshot.setULAPlusPalette(sixtyFour);
+    chip.fitted(snapshot.isULAPlusEnabled());
+    speccy.peripheralRegistry.update();
+    chip.asItWas(snapshot.getULAPlusPalette(), snapshot.isULAPlusActive());
+
+    assertEquals(0x00ff00, speccy.picture.palette[3], "the colour it was taken in");
+    assertEquals(3, ink(0x03), "and it is painting in them");
+  }
+
   /** A machine switched on is painting in the sixteen it was born with, whatever it was doing before. */
   @Test
   void switchingTheMachineOnPutsTheSixteenBack() {
