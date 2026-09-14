@@ -96,6 +96,39 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
     speccy.processors.use(processor);
   }
 
+  /** The ROM sets this machine can be run on, asked of the machine that is in. */
+  @Override
+  public java.util.List<String> getRomSets() {
+    return speccy.machine.current == null ? java.util.List.of()
+        : java.util.List.copyOf(speccy.roms.setsFor(speccy.machine.current).keySet());
+  }
+
+  @Override
+  public String getRomSet() {
+    String running = speccy.machine.current == null ? null : speccy.roms.chosenSet(speccy.machine.current);
+    return running == null ? "" : running;
+  }
+
+  /**
+   * Puts other ROMs in this machine and starts it again with them, which is the only way a ROM
+   * change means anything: a machine reads its ROMs when it is switched on.
+   * <p>
+   * What is not on this disk yet is brought here, before anything is built, and if it does not
+   * arrive the machine is left running what it was running.
+   */
+  @Override
+  public void setRomSet(String set) {
+    com.fpetrola.oozx.speccy.machine.Spectrum machine = speccy.machine.current;
+    if (machine == null || set == null || set.equals(getRomSet())) return;
+    java.util.List<String> before = speccy.roms.running(machine);
+    speccy.roms.chooseSet(machine, set);
+    if (!com.fpetrola.oozx.speccy.desktop.RomNotShippedDialog.readyFor(machine)) {
+      speccy.roms.runOn(machine, before);
+      return;
+    }
+    speccy.loop.later(() -> speccy.machine.select(machine));
+  }
+
   /** The machines this build has, so the list is not a copy of them that can go stale. */
   @Override
   public java.util.List<String> getMachineModels() {

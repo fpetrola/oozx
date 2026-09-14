@@ -176,13 +176,20 @@ public class EmulationRegressionTest extends MachineTest {
     Speccy speccy = Speccy.create(new SpectrumZ80Clock(),
         binder -> binder.bind(SoundCard.class).to(SilentSoundDevice.class));
 
-    speccy.roms.choose("Spec48", "no-such.rom");
-    speccy.init();
-    speccy.picture.active = false;
+    // Put back afterwards: the settings are one object for the whole process, so a 48K left
+    // pointing at a ROM that is not there is left that way for every test that runs after this one.
+    java.util.List<String> before = speccy.roms.files.get("Spec48");
+    try {
+      speccy.roms.choose("Spec48", "no-such.rom");
+      speccy.init();
+      speccy.picture.active = false;
 
-    runFrames(speccy, BOOT_FRAMES);
-    assertEquals(EXPECTED.get("screen"), digest(readRange(speccy, SCREEN_BASE, SCREEN_END)),
-        "the fallback ROM did not produce the same boot as the configured one");
+      runFrames(speccy, BOOT_FRAMES);
+      assertEquals(EXPECTED.get("screen"), digest(readRange(speccy, SCREEN_BASE, SCREEN_END)),
+          "the fallback ROM did not produce the same boot as the configured one");
+    } finally {
+      speccy.roms.files.put("Spec48", before);
+    }
   }
 
   private byte[] readRange(Speccy speccy, int from, int to) {

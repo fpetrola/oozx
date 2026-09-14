@@ -480,6 +480,18 @@ public class SettingsDialog extends JDialog {
     modelCombo.setSelectedItem(emulatorCore.getCurrentModel());
     modelCombo.addActionListener(e -> emulatorCore.setMachineModel((String) modelCombo.getSelectedItem()));
 
+    // The same machine was sold with other ROMs in it: another language, a later revision. Empty
+    // for a machine that only ever had one set, and then there is nothing to offer.
+    JLabel romSetLabel = new JLabel("ROMs:");
+    JComboBox<String> romSetCombo = new JComboBox<>(emulatorCore.getRomSets().toArray(new String[0]));
+    romSetCombo.setEnabled(romSetCombo.getItemCount() > 1);
+    romSetCombo.setSelectedItem(emulatorCore.getRomSet());
+    romSetCombo.addActionListener(e -> {
+      emulatorCore.setRomSet((String) romSetCombo.getSelectedItem());
+      // What it is running now, which is not what was asked for when the ROMs did not arrive.
+      romSetCombo.setSelectedItem(emulatorCore.getRomSet());
+    });
+
     JLabel romLabel = new JLabel("Custom ROM:");
     JTextField romField = new JTextField(20);
     JButton browseButton = new JButton("Browse...");
@@ -506,12 +518,14 @@ public class SettingsDialog extends JDialog {
     layout.setHorizontalGroup(layout.createSequentialGroup()
         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
             .addComponent(modelLabel)
+            .addComponent(romSetLabel)
             .addComponent(romLabel)
             .addComponent(lateTimingsLabel)
             .addComponent(contentionLabel)
             .addComponent(highResLabel))
         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
             .addComponent(modelCombo)
+            .addComponent(romSetCombo)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(romField)
                 .addComponent(browseButton))
@@ -524,6 +538,9 @@ public class SettingsDialog extends JDialog {
         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
             .addComponent(modelLabel)
             .addComponent(modelCombo))
+        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+            .addComponent(romSetLabel)
+            .addComponent(romSetCombo))
         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
             .addComponent(romLabel)
             .addComponent(romField)
