@@ -83,8 +83,14 @@ public final class Painting {
     plottedX = x;
   }
 
+  /**
+   * A new frame from the top. Whoever has pixels of its own gets the whole screen: those pixels
+   * change for reasons written nowhere in the machine's memory, so the writes this screen watches
+   * cannot say which of them moved, and a cell nobody wrote to would keep what it had for good.
+   */
   public void startAgain() {
     plottedX = plottedY = 0;
+    if (ofItsOwn != null) dirty.all();
   }
 
   /** A byte that is not a bitmap but two colours: the same bits an attribute puts its ink and paper in. */

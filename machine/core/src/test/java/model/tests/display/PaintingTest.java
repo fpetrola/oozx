@@ -45,8 +45,7 @@ class PaintingTest {
   private final Painting painting = new Painting(banks, layout, dirty, colouring, canvas);
 
   PaintingTest() {
-    banks.show(banks.ram(5), offset -> {
-    });
+    banks.show(banks.ram(5), offset -> dirty.cell(layout.columnOf(offset), layout.lineOf(offset)));
     banks.ram(5).bytes[layout.pixelsAt(LINE, COLUMN)] = (byte) 0xff;
     banks.ram(5).bytes[layout.colourAt(LINE, COLUMN)] = 7;
   }
@@ -92,17 +91,34 @@ class PaintingTest {
     assertEquals(Picture.SINCLAIR[7], leftmostPixel());
   }
 
+  /**
+   * The whole point of the dirty cells is that the picture is made of the machine's bytes, so a
+   * cell nobody wrote to cannot have changed. Whoever has pixels of its own breaks that: they
+   * change for reasons written nowhere in this memory, and a cell nobody wrote to would keep what
+   * it had for as long as the game ran.
+   */
   @Test
-  void aColumnThatIsNotDirtyIsNobodysToPaint() {
+  void whoeverHasThePixelsIsAskedForEveryColumnOfEveryFrame() {
     List<String> painted = new ArrayList<>();
     painting.pixelsOfItsOwn((x, y) -> painted.add(x + "," + y));
     paint();
     painted.clear();
 
     painting.startAgain();
-    dirty.cell(COLUMN, LINE);
     painting.upTo(COLUMNS, LAST_LINE);
 
-    assertEquals(List.of(COLUMN + "," + LINE), painted, "the beam went past every line and one cell was dirty");
+    assertEquals(COLUMNS * Display.HEIGHT, painted.size(), "every cell of the screen, with nothing written to any of them");
   }
+
+  @Test
+  void andWithNobodySittingACellNobodyWroteToIsNobodysToPaint() {
+    paint();
+    dirty.plotted(LINE, dirty.between(LINE, 0, COLUMNS));
+
+    painting.startAgain();
+    painting.upTo(COLUMNS, LAST_LINE);
+
+    assertEquals(0, dirty.between(LINE, 0, COLUMNS), "which is what makes the usual screen cheap");
+  }
+
 }
