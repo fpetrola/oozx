@@ -69,6 +69,9 @@ public final class RomFiles implements Roms {
 
   private static Consent consent = (rom, from) -> false;
 
+  /** What this emulator calls itself when it asks somebody for a file. */
+  private static final String WHO_IS_ASKING = "oozx (ZX Spectrum emulator)";
+
   public static void askingFirst(Consent asking) {
     consent = asking == null ? (rom, from) -> false : asking;
   }
@@ -212,9 +215,14 @@ public final class RomFiles implements Roms {
       return published;
     }
     try {
+      // Saying who is asking, and saying it as this emulator: the archives that publish these ROMs
+      // hang up on a request that does not introduce itself, and one of them hangs up on the name
+      // this toolkit gives itself when nobody sets one.
       java.net.http.HttpResponse<InputStream> answer = java.net.http.HttpClient.newBuilder()
+          .version(java.net.http.HttpClient.Version.HTTP_1_1)
           .connectTimeout(java.time.Duration.ofSeconds(20)).followRedirects(java.net.http.HttpClient.Redirect.NORMAL).build()
-          .send(java.net.http.HttpRequest.newBuilder(where).timeout(java.time.Duration.ofSeconds(60)).build(),
+          .send(java.net.http.HttpRequest.newBuilder(where).header("User-Agent", WHO_IS_ASKING)
+              .timeout(java.time.Duration.ofSeconds(60)).build(),
               java.net.http.HttpResponse.BodyHandlers.ofInputStream());
       if (answer.statusCode() != 200) throw new RomNotLoadedException("ROM '" + filename + "' was not at " + from + ": " + answer.statusCode(), filename);
       // Read in pieces rather than in one go, which is the only way anybody can be told how it is going.
