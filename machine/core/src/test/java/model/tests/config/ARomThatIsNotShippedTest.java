@@ -226,6 +226,31 @@ class ARomThatIsNotShippedTest {
     assertTrue(finished[0], "and that nothing more was coming");
   }
 
+  /**
+   * Some archives publish a machine's ROMs as the one image its chips were read out into, so a
+   * source can say where in that image its own sixteen K begins. What is checked and what is kept
+   * is the piece, not the image it came in.
+   */
+  @Test
+  void aRomPublishedInsideABiggerImageIsCutOutOfIt() throws Exception {
+    byte[] whole = new byte[4 * LENGTH];
+    for (int at = 0; at < whole.length; at++) whole[at] = (byte) (at * 11);
+    byte[] third = java.util.Arrays.copyOfRange(whole, 2 * LENGTH, 3 * LENGTH);
+    java.io.File image = new java.io.File(RomFiles.kept("published-together.rom").getParentFile(), "together.rom");
+    org.apache.commons.io.FileUtils.writeByteArrayToFile(image, whole);
+
+    RomFiles.Source source = new RomFiles.Source();
+    source.url = image.toURI().toString();
+    source.at = 2 * LENGTH;
+    source.length = LENGTH;
+    source.sha256 = shaOf(third);
+    roms.sources.put(NAME, source);
+
+    assertTrue(roms.bring(NAME));
+    assertArrayEquals(third, roms.of(asking, LENGTH), "the piece that was asked for");
+    assertArrayEquals(third, Files.readAllBytes(RomFiles.kept(NAME).toPath()), "and only the piece was kept");
+  }
+
   private String shaOfTheFile() throws Exception {
     return shaOf(Files.readAllBytes(new File(java.net.URI.create(publishedAt)).toPath()));
   }
