@@ -52,6 +52,18 @@ public final class RomFiles implements Roms {
    */
   public interface Consent {
     boolean toDownload(String rom, String from);
+
+    /**
+     * How much of it has arrived so far, told often enough to be watched. The length is what the
+     * other end said it would send, or -1 when it would not say, which is what a bar that cannot
+     * show a fraction has to live with.
+     */
+    default void arriving(String rom, long soFar, long length) {
+    }
+
+    /** Nothing more is coming, whether because it all arrived or because it stopped. */
+    default void arrived(String rom) {
+    }
   }
 
   private static Consent consent = (rom, from) -> false;
@@ -154,7 +166,12 @@ public final class RomFiles implements Roms {
   private byte[] fetched(String filename) {
     Source source = sources.get(filename);
     if (source == null || source.url == null || !consent.toDownload(filename, source.url)) return null;
-    byte[] image = download(filename, source.url);
+    byte[] image;
+    try {
+      image = download(filename, source.url, consent);
+    } finally {
+      consent.arrived(filename);
+    }
     mustBe(filename, image, source.sha256);
     try {
       org.apache.commons.io.FileUtils.writeByteArrayToFile(kept(filename), image);
@@ -164,7 +181,7 @@ public final class RomFiles implements Roms {
     return image;
   }
 
-  private static byte[] download(String filename, String from) {
+  private static byte[] download(String filename, String from, Consent watching) {
     java.net.URI where = java.net.URI.create(from);
     if ("file".equals(where.getScheme())) {
       byte[] published = bytesOf(new File(where));
@@ -172,12 +189,22 @@ public final class RomFiles implements Roms {
       return published;
     }
     try {
-      java.net.http.HttpResponse<byte[]> answer = java.net.http.HttpClient.newBuilder()
+      java.net.http.HttpResponse<InputStream> answer = java.net.http.HttpClient.newBuilder()
           .connectTimeout(java.time.Duration.ofSeconds(20)).followRedirects(java.net.http.HttpClient.Redirect.NORMAL).build()
-          .send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(from)).timeout(java.time.Duration.ofSeconds(60)).build(),
-              java.net.http.HttpResponse.BodyHandlers.ofByteArray());
+          .send(java.net.http.HttpRequest.newBuilder(where).timeout(java.time.Duration.ofSeconds(60)).build(),
+              java.net.http.HttpResponse.BodyHandlers.ofInputStream());
       if (answer.statusCode() != 200) throw new RomNotLoadedException("ROM '" + filename + "' was not at " + from + ": " + answer.statusCode());
-      return answer.body();
+      // Read in pieces rather than in one go, which is the only way anybody can be told how it is going.
+      long length = answer.headers().firstValueAsLong("content-length").orElse(-1);
+      java.io.ByteArrayOutputStream arriving = new java.io.ByteArrayOutputStream();
+      byte[] piece = new byte[8192];
+      try (InputStream coming = answer.body()) {
+        for (int read; (read = coming.read(piece)) > 0; ) {
+          arriving.write(piece, 0, read);
+          watching.arriving(filename, arriving.size(), length);
+        }
+      }
+      return arriving.toByteArray();
     } catch (IOException | InterruptedException didNotArrive) {
       if (didNotArrive instanceof InterruptedException) Thread.currentThread().interrupt();
       throw new RomNotLoadedException("ROM '" + filename + "' could not be fetched from " + from + ": " + didNotArrive);

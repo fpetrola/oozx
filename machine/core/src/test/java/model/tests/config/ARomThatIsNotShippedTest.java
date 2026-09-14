@@ -155,10 +155,65 @@ class ARomThatIsNotShippedTest {
     assertEquals(0, timesAsked, "nothing was asked, because nothing was fetched");
   }
 
+  /**
+   * How much has arrived, told as it arrives. A ROM is small, but the person who said yes is
+   * waiting on a machine that will not start until it is here, and a wait with nothing moving is
+   * the same as a wait that has gone wrong.
+   */
+  @Test
+  void howMuchOfItHasArrivedIsToldWhileItArrives() throws Exception {
+    byte[] big = new byte[64 * 1024];
+    for (int at = 0; at < big.length; at++) big[at] = (byte) at;
+    java.util.List<Long> told = new java.util.ArrayList<>();
+    boolean[] finished = {false};
+    long[] lengthSaid = {0};
+    RomFiles.askingFirst(new RomFiles.Consent() {
+      public boolean toDownload(String rom, String from) {
+        return true;
+      }
+
+      public void arriving(String rom, long soFar, long length) {
+        told.add(soFar);
+        lengthSaid[0] = length;
+      }
+
+      public void arrived(String rom) {
+        finished[0] = true;
+      }
+    });
+
+    com.sun.net.httpserver.HttpServer server = com.sun.net.httpserver.HttpServer.create(new java.net.InetSocketAddress("127.0.0.1", 0), 0);
+    server.createContext("/rom", exchange -> {
+      exchange.sendResponseHeaders(200, big.length);
+      try (java.io.OutputStream out = exchange.getResponseBody()) {
+        out.write(big);
+      }
+    });
+    server.start();
+    try {
+      RomFiles.Source source = new RomFiles.Source();
+      source.url = "http://127.0.0.1:" + server.getAddress().getPort() + "/rom";
+      source.sha256 = shaOf(big);
+      roms.sources.put(NAME, source);
+
+      assertArrayEquals(big, roms.of(asking, big.length));
+    } finally {
+      server.stop(0);
+    }
+
+    assertTrue(told.size() > 1, "it arrived in one piece and nobody could have watched it: " + told);
+    assertEquals(big.length, told.get(told.size() - 1), "the last thing said was that all of it was here");
+    assertEquals(big.length, lengthSaid[0], "and it said how much there was to wait for");
+    assertTrue(finished[0], "and that nothing more was coming");
+  }
+
   private String shaOfTheFile() throws Exception {
-    byte[] published = Files.readAllBytes(new File(java.net.URI.create(publishedAt)).toPath());
+    return shaOf(Files.readAllBytes(new File(java.net.URI.create(publishedAt)).toPath()));
+  }
+
+  private static String shaOf(byte[] bytes) throws Exception {
     StringBuilder digest = new StringBuilder();
-    for (byte b : java.security.MessageDigest.getInstance("SHA-256").digest(published)) digest.append(String.format("%02x", b));
+    for (byte b : java.security.MessageDigest.getInstance("SHA-256").digest(bytes)) digest.append(String.format("%02x", b));
     return digest.toString();
   }
 }

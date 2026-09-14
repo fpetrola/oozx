@@ -56,13 +56,7 @@ public class OOSpectrumLauncher {
 
     // Some machines need a ROM this build cannot ship. Nothing is fetched without a yes, and
     // whoever is in front of the machine is the only one who can give it.
-    com.fpetrola.oozx.config.RomFiles.askingFirst((rom, from) ->
-        javax.swing.JOptionPane.showConfirmDialog(null,
-            "<html>This machine needs <b>" + rom + "</b>, which is not part of this emulator."
-                + "<br><br>It is published at:<br>" + from
-                + "<br><br>Fetch it from there and keep a copy?</html>",
-            "A ROM that is not shipped", javax.swing.JOptionPane.YES_NO_OPTION)
-            == javax.swing.JOptionPane.YES_OPTION);
+    com.fpetrola.oozx.config.RomFiles.askingFirst(new RomNotShippedDialog());
 
     ZXSpectrumDesktopApp[] appHolder = new ZXSpectrumDesktopApp[1];
 
