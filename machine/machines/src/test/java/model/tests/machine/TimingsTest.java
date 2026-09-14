@@ -10,6 +10,7 @@ import model.harness.MachineTest;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * Frame-timing facts not already covered by SpectrumTest: line/frame part breakdowns, clock
@@ -25,6 +26,46 @@ class TimingsTest extends MachineTest {
 
   private int firstPixel() {
     return (int) speccy.machine.current.lineStart(speccy.display.BORDER_HEIGHT) + speccy.display.BORDER_WIDTH_COLS * 4;
+  }
+
+  /**
+   * Some clones can be told by a register of their own to run faster than they were built to.
+   * What that means is more of the processor's cycles in the same picture: a line of it takes the
+   * time it always took, and the frame is still the same lines, so the machine goes on showing
+   * fifty pictures a second while getting four times as much done between two of them.
+   */
+  @Test
+  void aMachineToldToRunFasterHasMoreCyclesInTheSamePicture() {
+    MachineTimings built = on(Spec48.class).getTimings();
+    MachineTimings faster = built.times(4);
+
+    assertEquals(224 * 4, faster.tstatesPerLine(), "four times the cycles in a line");
+    assertEquals(312, faster.linesPerFrame(), "and the same lines, because lines are lines");
+    assertEquals(built.frame().interruptLength() * 4, faster.frame().interruptLength(),
+        "the interrupt is held for the time it was held for, which is more cycles now");
+    assertEquals(built.frame().firstPixel() * 4, faster.frame().firstPixel());
+    assertEquals(built.processorSpeed() * 4, faster.processorSpeed(), "and the clock it all measures against");
+
+    assertEquals((double) built.tstatesPerFrame() / built.processorSpeed(),
+        (double) faster.tstatesPerFrame() / faster.processorSpeed(), 1e-9,
+        "a frame took as long as it took; that is what running faster means and what it does not");
+  }
+
+  /** Being told to run at the speed it was built at is not being told anything. */
+  @Test
+  void theSameSpeedIsTheSameTimings() {
+    MachineTimings built = on(Spec48.class).getTimings();
+
+    assertSame(built, built.times(1));
+    assertSame(built, built.times(0), "and nothing runs slower than it was built to");
+  }
+
+  /** No machine here has such a register yet, and every one of them says so. */
+  @Test
+  void aMachineNobodyToldAnythingRunsAtWhatItWasBuiltAt() {
+    for (Spectrum machine : speccy.machine.getMachineTypes()) {
+      assertEquals(1, machine.timesFaster(), machine.getName() + " started up running faster than it was built to");
+    }
   }
 
   /** A line/frame each sum their four parts (border, picture, border, retrace) exactly. */

@@ -8,6 +8,10 @@ public record MachineTimings(long processorSpeed, Frame frame) {
     public int length() {
       return before + picture + after + retrace;
     }
+
+    public Span times(int speed) {
+      return new Span(before * speed, picture * speed, after * speed, retrace * speed);
+    }
   }
 
   /**
@@ -48,6 +52,16 @@ public record MachineTimings(long processorSpeed, Frame frame) {
 
   public int firstPixel() {
     return frame.firstPixel;
+  }
+
+  /**
+   * The same machine running faster than it was built to, which some clones can be told to do.
+   * A line of the picture takes the same time it always took and gets that many more of the
+   * processor's cycles in it; the frame is still lines, and there are still as many of them.
+   */
+  public MachineTimings times(int speed) {
+    return speed <= 1 ? this : new MachineTimings(processorSpeed * speed,
+        new Frame(frame.line.times(speed), frame.lines, frame.interruptLength * speed, frame.firstPixel * speed));
   }
 
   /** The same model in a unit that starts the picture one T-state later, which is all that differs. */
