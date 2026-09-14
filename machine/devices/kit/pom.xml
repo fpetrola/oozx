@@ -19,6 +19,11 @@
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
+            <artifactId>device-ulaplus</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
             <artifactId>device-disk</artifactId>
             <version>${project.version}</version>
         </dependency>
