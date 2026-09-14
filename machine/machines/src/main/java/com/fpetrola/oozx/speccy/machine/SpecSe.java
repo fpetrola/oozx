@@ -56,6 +56,15 @@ public class SpecSe extends Spec128 {
   public SpecSe(MemoryBus memory, SpectrumMemory banks, Display display, PeripheralRegistry peripherals,
                 Roms roms, Scheduler scheduler, Cpu cpu, Timer timer, Sound sound) {
     super(memory, banks, display, peripherals, roms, scheduler, cpu, timer, sound);
+  }
+
+  /**
+   * The sixteen eight K of the slots, made the first time this machine is switched on. Every
+   * machine this build has is built when the emulator is, and one that is never selected has no
+   * business holding a hundred and twenty-eight K nobody is going to read.
+   */
+  private void slotsExist() {
+    if (slot[0] != null) return;
     for (int chunk = 0; chunk < 8; chunk++) {
       slot[chunk] = new Ram(0x2000);
       behind[chunk] = new Ram(0x2000);
@@ -82,6 +91,7 @@ public class SpecSe extends Spec128 {
   @Override
   public int reset() {
     int result = super.reset();
+    slotsExist();
     for (int page = 0; page < PAGES; page++) {
       banks.ram(page).contended = (page & 1) != 0;
     }
