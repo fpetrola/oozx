@@ -59,8 +59,13 @@ public class Configuration {
   /** Process-wide, so every machine and the desktop share the same sections and a save by one can't undo another's change. */
   public static synchronized Configuration shared() {
     if (shared == null)
-      shared = new Configuration(new File(System.getProperty("user.home"), ".oozx" + File.separator + "config.json"));
+      shared = new Configuration(new File(home(), "config.json"));
     return shared;
+  }
+
+  /** Where this emulator keeps what belongs to the person using it rather than to the build. */
+  public static File home() {
+    return new File(System.getProperty("user.home"), ".oozx");
   }
 
   public Configuration(File file) {

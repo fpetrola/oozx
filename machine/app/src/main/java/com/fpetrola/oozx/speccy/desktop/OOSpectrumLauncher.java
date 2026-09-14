@@ -55,6 +55,16 @@ public class OOSpectrumLauncher {
     // opinion about what a keyboard sends, so whoever has one says so before a machine is built.
     LafManager.install(new SolarizedLightTheme());
 
+    // Some machines need a ROM this build cannot ship. Nothing is fetched without a yes, and
+    // whoever is in front of the machine is the only one who can give it.
+    com.fpetrola.oozx.config.RomFiles.askingFirst((rom, from) ->
+        javax.swing.JOptionPane.showConfirmDialog(null,
+            "<html>This machine needs <b>" + rom + "</b>, which is not part of this emulator."
+                + "<br><br>It is published at:<br>" + from
+                + "<br><br>Fetch it from there and keep a copy?</html>",
+            "A ROM that is not shipped", javax.swing.JOptionPane.YES_NO_OPTION)
+            == javax.swing.JOptionPane.YES_OPTION);
+
     ZXSpectrumDesktopApp[] appHolder = new ZXSpectrumDesktopApp[1];
 
     // Both ways of building a machine end here, so its deck is known however it was built.

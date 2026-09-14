@@ -63,6 +63,11 @@ Spectrum and clone ROMs
 
     A machine needs its ROM to boot, and the emulator ships them for that.
 
+    Not every machine's ROM can be shipped, and none that cannot is here. For those, the
+    configuration says where the ROM is published and what its bytes have to be; the emulator
+    asks before fetching one, fetches it from whoever publishes it, and keeps the copy under
+    the home directory rather than in this tree.
+
 POKE listings
 
     machine/pokes/src/main/resources/pokes/<letter or digit>/*.pok
