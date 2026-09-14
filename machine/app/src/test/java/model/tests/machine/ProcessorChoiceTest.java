@@ -33,17 +33,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * The application offers a choice of processor and moves the machine onto the one it is given.
  * Exchanging one for the other is the Z80's and is proved there; what this proves is that the
- * build the desktop runs has both on its classpath and reaches them through the same seam its
+ * build the desktop runs has them on its classpath and reaches them through the same seam its
  * settings window uses, so the choice is really there to make.
  */
 class ProcessorChoiceTest extends MachineTest {
   @Test
-  void theSettingsSeamOffersBothProcessorsAndMovesTheMachine() {
+  void theSettingsSeamOffersEveryProcessorAndMovesTheMachine() {
     Processors.startsOn = null;
     Speccy speccy = silentMachine();
     EmulatorControl control = new SpeccyEmulatorCore(speccy);
 
-    assertEquals(List.of("Generated", "OOP"), control.getProcessors(), "both, in a stable order");
+    assertEquals(List.of("Generated", "OOP", "Spec256"), control.getProcessors(), "all of them, in a stable order");
     assertEquals("Generated", control.getProcessor(), "a machine starts on the one this build prefers");
 
     control.setProcessor("OOP");

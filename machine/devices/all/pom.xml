@@ -119,6 +119,11 @@
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
+            <artifactId>device-spec256</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
             <artifactId>device-specdrum</artifactId>
             <version>${project.version}</version>
         </dependency>

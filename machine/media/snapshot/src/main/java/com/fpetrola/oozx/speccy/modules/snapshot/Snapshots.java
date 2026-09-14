@@ -101,6 +101,17 @@ public class Snapshots extends AbstractPeripheral {
     }
     load(snapshot);
     state().clock.setTStates(snapshot.getTstates());
+    whateverKeepsFilesBesideIt(url);
+  }
+
+  /**
+   * A snapshot came from somewhere, and a device may keep a file of its own next to it. This is
+   * the only thing said about that path, and it is said to whoever asked to hear it.
+   */
+  private void whateverKeepsFilesBesideIt(String url) {
+    com.fpetrola.oozx.speccy.peripherals.FilesOfItsOwn device =
+        peripherals.anyThatIs(com.fpetrola.oozx.speccy.peripherals.FilesOfItsOwn.class);
+    if (device != null) device.beside(url);
   }
 
   /**

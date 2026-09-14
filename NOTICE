@@ -109,6 +109,25 @@ RZX Archive catalogue
     Read to answer whether a game the browser found has anyone's playthrough
     against it, by an id the two sites share.
 
+Spec256 palette
+
+    machine/devices/spec256/src/main/resources/spec256/spec256.pal
+
+    Copyright (c) 1999-2026 Jiri Svoboda, under the MIT-style licence GZX
+    <https://github.com/jxsvoboda/gzx> is published under, which permits
+    redistribution provided the copyright notice and its conditions are kept.
+    Taken from that emulator's sp256.pal, which carries the 256 colours a
+    Spec256 game is painted in - they belong to the format and not to any
+    game - and written here as the 768 bytes they are rather than as text.
+
+    Changed in one place: colour 255 is white rather than red. It is the
+    colour every pixel of an uncoloured graphic comes out as, and what the
+    rules a game's own file describes treat as its ink; ZX-Poly's copy of the
+    same palette has it white.
+
+    Read at run time to fill the palette while a Spec256 game is loaded.
+    Nothing here is derived from GZX's code.
+
 Z80 instruction test vectors
 
     emulator/src/test/resources/fuse/tests.in

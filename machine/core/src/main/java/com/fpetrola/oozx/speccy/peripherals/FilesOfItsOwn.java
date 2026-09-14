@@ -17,17 +17,17 @@
  */
 
 
-package com.fpetrola.oozx.speccy.devices.spec256;
+package com.fpetrola.oozx.speccy.peripherals;
 
-import com.fpetrola.oozx.Extension;
-import com.fpetrola.oozx.speccy.peripherals.Peripheral;
-import com.fpetrola.z80.cpu.Core;
-import com.google.inject.AbstractModule;
-import com.google.inject.multibindings.Multibinder;
-
-public class Spec256Devices extends AbstractModule implements Extension {
-  protected void configure() {
-    Multibinder.newSetBinder(binder(), Core.class).addBinding().to(Spec256Core.class);
-    Multibinder.newSetBinder(binder(), Peripheral.class).addBinding().to(Spec256Peripheral.class);
-  }
+/**
+ * A device that has files of its own beside the one a snapshot came from.
+ * <p>
+ * Here because a snapshot is a file somewhere, and not all of them come alone: the colours of a
+ * game in 256 colours are in a file with the same name, and so would be a list of pokes. Whoever
+ * loads a snapshot knows the path and has nothing to do with it, and what it should hand the path
+ * to is not something it can be made to name.
+ */
+public interface FilesOfItsOwn {
+  /** Where the snapshot came from, so that whoever keeps something beside it can go and look. */
+  void beside(String url);
 }
