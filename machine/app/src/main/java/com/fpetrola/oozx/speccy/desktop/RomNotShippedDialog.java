@@ -41,15 +41,20 @@ public class RomNotShippedDialog implements RomFiles.Consent {
   private JLabel howMuch;
 
   public boolean toDownload(String rom, String from) {
-    return JOptionPane.showConfirmDialog(null,
+    boolean yes = JOptionPane.showConfirmDialog(null,
         "<html>This machine needs <b>" + rom + "</b>, which is not part of this emulator."
             + "<br><br>It is published at:<br>" + from
             + "<br><br>Fetch it from there and keep a copy?</html>",
         "A ROM that is not shipped", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+    // Opened on the yes and not on the first byte: what there is to wait for is mostly getting
+    // through to the other end, and a ROM is small enough to arrive in a read or two after that.
+    if (yes) onTheEventThread(() -> openFor(rom));
+    return yes;
   }
 
   public void arriving(String rom, long soFar, long length) {
-    if (window == null) openFor(rom);
+    if (window == null) onTheEventThread(() -> openFor(rom));
+    if (window == null) return;
     if (length > 0) {
       bar.setIndeterminate(false);
       bar.setValue((int) (soFar * 100 / length));
@@ -60,8 +65,27 @@ public class RomNotShippedDialog implements RomFiles.Consent {
 
   public void arrived(String rom) {
     if (window == null) return;
-    window.dispose();
+    JDialog closing = window;
     window = null;
+    onTheEventThread(closing::dispose);
+  }
+
+  /**
+   * Windows are built and closed where Swing says they are, whichever thread asked. Waited for
+   * rather than queued: what comes next is a download that will not give this thread back.
+   */
+  private static void onTheEventThread(Runnable what) {
+    if (SwingUtilities.isEventDispatchThread()) {
+      what.run();
+      return;
+    }
+    try {
+      SwingUtilities.invokeAndWait(what);
+    } catch (InterruptedException stopped) {
+      Thread.currentThread().interrupt();
+    } catch (java.lang.reflect.InvocationTargetException itThrew) {
+      throw new IllegalStateException(itThrew.getCause());
+    }
   }
 
   private static String kb(long bytes) {
@@ -81,7 +105,9 @@ public class RomNotShippedDialog implements RomFiles.Consent {
     window.setContentPane(inside);
     window.setSize(320, 120);
     window.setLocationRelativeTo(null);
+    window.setAlwaysOnTop(true);
     window.setVisible(true);
+    showItNow();
   }
 
   /**
@@ -89,8 +115,11 @@ public class RomNotShippedDialog implements RomFiles.Consent {
    * here, so nothing is going to repaint this window on its own: it is painted where it stands.
    */
   private void showItNow() {
-    if (!SwingUtilities.isEventDispatchThread()) return;
-    bar.paintImmediately(0, 0, bar.getWidth(), bar.getHeight());
-    howMuch.paintImmediately(0, 0, howMuch.getWidth(), howMuch.getHeight());
+    if (window == null || !SwingUtilities.isEventDispatchThread()) return;
+    // The whole of it, not just the bar: with nothing pumping events the window has never had a
+    // first paint either, and a bar painted onto a window that was never drawn is nothing at all.
+    JPanel inside = (JPanel) window.getContentPane();
+    inside.paintImmediately(0, 0, inside.getWidth(), inside.getHeight());
+    java.awt.Toolkit.getDefaultToolkit().sync();
   }
 }
