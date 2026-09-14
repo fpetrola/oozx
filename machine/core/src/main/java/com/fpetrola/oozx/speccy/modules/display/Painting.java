@@ -34,8 +34,26 @@ public final class Painting {
   private final DirtyCells dirty;
   private final Colouring colouring;
   private final Picture canvas;
+  private PixelsOfItsOwn ofItsOwn;
   private int plottedX;
   private int plottedY;
+
+  /**
+   * Whoever paints a column of the screen where the machine's memory is not where its pixels are.
+   * <p>
+   * The three rules below read the bytes the machine is showing; something that keeps its pixels
+   * somewhere else cannot be one of them, and asking it is the only thing the screen has to know
+   * about it.
+   */
+  public interface PixelsOfItsOwn {
+    /** The eight pixels of column {@code x} of line {@code y} of the screen, painted on the canvas. */
+    void column(int x, int y);
+  }
+
+  /** Who paints the columns from now on, or nobody, which is the machine's own three rules. */
+  public void pixelsOfItsOwn(PixelsOfItsOwn another) {
+    ofItsOwn = another;
+  }
 
   public Painting(SpectrumMemory banks, ScreenLayout layout, DirtyCells dirty, Colouring colouring, Picture canvas) {
     this.banks = banks;
@@ -83,6 +101,10 @@ public final class Painting {
     byte[] screen = banks.shown().bytes;
     for (; bits != 0; bits &= bits - 1) {
       int x = Integer.numberOfTrailingZeros(bits);
+      if (ofItsOwn != null) {
+        ofItsOwn.column(x, y);
+        continue;
+      }
       if (layout.fourBytesToAColumn) {
         int at = layout.pixelsAt(y, x), above = layout.secondByteAt(y, x);
         byte[] other = banks.beside().bytes;
