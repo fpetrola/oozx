@@ -234,17 +234,35 @@ con `UseBrightInMix=0`, y lo único que queda es un tono de gris que es nuestro 
 
 ## Qué queda como pregunta
 
-- **El `T` de `zxpAlignRegs`.** Con `T`, que está en el valor por omisión de ZX-Poly, un GPU usa
-  para *direccionar* los punteros del CPU —HL, DE, BC, IX, IY, SP, y B o BC como cuenta en los
-  bloques— y conserva los suyos como *valor*: un HL que una suma de colores corrompió no lo lleva
-  a otra dirección, y `LD HL,(a); LD (b),HL` sigue moviendo dos bytes de color. Distinguir el uso
-  del valor sólo se puede dentro del procesador; ZX-Poly lo hace con ganchos del bus y un `ctx`.
-  Nuestro procesador arma las referencias `(HL)` en el decodificador (`OpcodeTargets`), no en la
-  fábrica, así que hoy no hay asiento. Sin `T`, lo que hay es alinear HL como valor, que diez de
-  los 24 juegos de la base de ZX-Poly necesitan de todos modos; y de esos 24, los quince que fueron
-  ajustados a mano apagaron `T`: sólo sobrevive en los nueve que quedaron con el valor por omisión.
-  Se decide en el paso 9, con los juegos: si alguno lo pide, el asiento OOP es que `InstructionFactory` arme las referencias
-  indirectas, y la fábrica de un GPU las armaría sobre los registros del CPU.
+- **El `T` de `zxpAlignRegs`, y la deriva de punteros que es lo que arregla.** Con `T`, que está
+  en el valor por omisión de ZX-Poly, un GPU usa para *direccionar* los punteros del CPU —HL, DE,
+  BC, IX, IY, SP— y conserva los suyos como *valor*: un HL que una suma de colores corrompió no lo
+  lleva a otra dirección, y `LD HL,(a); LD (b),HL` sigue moviendo dos bytes de color. Distinguir el
+  uso del valor sólo se puede dentro del procesador; ZX-Poly lo hace con ganchos del bus y un
+  `ctx`. Nuestro procesador arma las referencias `(HL)` en `OpcodeTargets`, que lo construye
+  `MultiOpcodeFetcher` adentro de `DefaultInstructionFetcher`, así que para llegar ahí haría falta
+  que la `InstructionFactory` pudiera dar también el decodificador. Ése es el asiento, y no está.
+
+  **La deriva existe y está medida.** En el Atom Ant 2 281 celdas y en el Bubbler 1 963, en 60
+  cuadros, cambian de color en direcciones que la máquina **nunca escribió** —lo único que puede
+  hacerlo es un seguidor escribiendo donde el CPU no—. Alineando los punteros como *valor*, las dos
+  cuentas dan cero. Eso confirma la causa; lo que no hace es decidir el valor por omisión, porque
+  alinearlos cuesta los colores que esos registros llevaban. Los quince juegos con captura, lo
+  mejor de tres momentos, tal cual contra alineados:
+
+  | | tal cual | alineados |
+  |---|---|---|
+  | Atic Atac, Phantis | 100,00 % | igual |
+  | Dizzy 1, Jetpac, Scooby Doo | 99,31 / 99,02 / 99,06 % | iguales |
+  | Cybernoid, Solomons Key, Knight Lore | 98,91 / 98,63 / 97,92 % | iguales |
+  | Army Moves 1, Sabre Woolf, Abu Simbel | 95,88 / 95,63 / 90,02 % | iguales |
+  | Bruce Lee, Underwurlde | 64,19 / 36,17 % | iguales |
+  | **Bubbler** | 67,24 % | **83,16 %** |
+  | **Cybernoid 2** | **81,18 %** | 79,65 % |
+
+  Trece de quince idénticos, uno mucho mejor, uno peor. Es por juego, que es justo lo que dice la
+  base de ZX-Poly con un `zxpAlignRegs` distinto para cada uno. Así que el valor por omisión no se
+  toca y la ventana trae el interruptor, para que quien tiene los juegos lo pruebe mirando.
 - **El brillo de la mezcla.** `UpMixChgBright=50` está en nueve `.CFG` y ningún oráculo abierto
   lo implementa. Ninguno de los juegos comparados arriba lo pide, así que todavía no se nota.
 - **Con qué dieciséis colores se mezcla.** Con los de esta máquina, que es con lo que la máquina
@@ -359,6 +377,8 @@ Al 14 de septiembre de 2026, con el árbol verde desde un repositorio local vac�
 | 7. Las reglas del `.CFG` | `06b90426a` | `Rules` lee el archivo del juego; el pintor las aplica y `LevelledInstructions` da a los seguidores un `OR`, `AND` y `XOR` por nivel, sin tocar el emulador: `doExecute` de una instrucción es `protected`, así que una subclase deja las banderas que la operación de siempre pone y cambia sólo lo que se escribe. Lo que la mezcla usa son los dieciséis colores de la máquina, que es con lo que la máquina habría pintado ahí |
 | 8. La ventana | `69517a542` | `Spec256Frame` sobre `MachineFrame` y no sobre `DeviceFrame`: esto no es algo que se enchufa, es una sesión, y la ventana la encuentra en el registro de la máquina a la que está prendida. Muestra el juego, lo que su archivo pidió, los 256 colores, los fondos, y el interruptor que todo emulador de esto tiene |
 | 9. Contra los juegos | `edcd0b7a2` | Los 29 juegos del repositorio que traen snapshot y colores **arrancan y se pintan**, ninguno se cuelga. Lo que faltaba y se encontró acá: el `ROM0.GFX`, los colores de la fuente de la ROM, que el Jetpac trae y sin el cual sus dígitos salían grises — 94,50 % a 99,02 % |
+| Después: la estela | `caf50a4b1` | La pantalla de un Spec256 se pinta entera cada cuadro, porque los planos cambian donde la memoria de la máquina no lo registra |
+| Después: la deriva de punteros | | Medida, y el interruptor en la ventana. No cambia el valor por omisión: trece de quince juegos dan lo mismo, uno mejora mucho y otro empeora |
 
 ## La estela, y por qué la pantalla de un Spec256 se pinta entera
 
