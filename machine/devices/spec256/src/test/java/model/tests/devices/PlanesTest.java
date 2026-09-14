@@ -112,6 +112,28 @@ class PlanesTest {
   }
 
   @Test
+  void aGameThatColouredTheRomIsReadFromItsOwnPlanesThereInstead() {
+    byte[] rom = new byte[Planes.ROM_LENGTH];
+    for (int pixel = 0; pixel < 8; pixel++) rom[0x1234 * 8 + (7 - pixel)] = (byte) 90;
+    Planes planes = Planes.of(file);
+    Memory plane = planes.plane(1, machineWith());
+
+    assertEquals(0, plane.peek(0x1234), "without those colours the machine's own byte is the answer");
+    assertFalse(planes.romColoured());
+
+    planes.takeTheRom(rom);
+    assertTrue(planes.romColoured());
+    assertEquals(90, planes.colourOf(0x1234, 0), "and with them the letters the machine draws with have a colour");
+    assertEquals(0xff, plane.peek(0x1234), "plane 1 of colour 90, which has that bit set in all eight pixels");
+  }
+
+  @Test
+  void theColoursOfARomAreOneSizeAndNoOther() {
+    assertEquals(131072, Planes.ROM_LENGTH, "16384 bytes of ROM, eight colours each");
+    assertThrows(IllegalArgumentException.class, () -> Planes.of(file).takeTheRom(new byte[Planes.ROM_LENGTH - 1]));
+  }
+
+  @Test
   void whatAProcessorWritesToAPlaneIsWhatTheNextPixelIsPaintedFrom() {
     Planes planes = Planes.of(file);
     for (int plane = 0; plane < Planes.PLANES; plane++) {

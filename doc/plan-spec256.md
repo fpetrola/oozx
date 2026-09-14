@@ -237,7 +237,15 @@ con `UseBrightInMix=0`, y lo único que queda es un tono de gris que es nuestro 
   Se decide en el paso 9, con los juegos: si alguno lo pide, el asiento OOP es que `InstructionFactory` arme las referencias
   indirectas, y la fábrica de un GPU las armaría sobre los registros del CPU.
 - **El brillo de la mezcla.** `UpMixChgBright=50` está en nueve `.CFG` y ningún oráculo abierto
-  lo implementa. Se ve contra las capturas del repositorio si se nota.
+  lo implementa. Ninguno de los juegos comparados arriba lo pide, así que todavía no se nota.
+- **Con qué dieciséis colores se mezcla.** Con los de esta máquina, que es con lo que la máquina
+  habría pintado ahí. El emulador que sacó las capturas usa otros —su blanco apagado es 192 y el
+  nuestro 178— y ésa es toda la diferencia que queda en el Cybernoid y en el Solomons Key. Cambiar
+  el blanco de la máquina por esto sería cambiar todas las pantallas de todos los juegos: no.
+- **Cybernoid 2 y Abu Simbel.** 84 % y 90 %, y lo que difiere son pixeles prendidos contra
+  apagados y no tonos. Los dos animan su título; mover el momento del disparo mejora y no cierra.
+  Queda para mirar con la ventana abierta y el juego corriendo, que es donde se ve si es el momento
+  o es una regla.
 - **Qué se le copia a un GPU además de lo alineado.** MEMPTR y la bandera Q, que GZX no tiene y
   nosotros sí: al entrar, con el estado entero; por paso, sólo lo que diga el `Alignment`. Un
   hecho lo dice.
@@ -275,11 +283,9 @@ estado anterior, así que la sesión arranca sin resetear el juego.
    color 255 que con `Paper00InkFF` es la tinta del atributo y sin ella es la entrada 255; un `OR`
    que con `GFXLeveledOR` da el mayor y sin ella el bit a bit. El `Alignment` es una regla más.
 8. **La ventana.**
-9. **Contra los juegos.** A mano, con el repositorio del usuario, comparando con las capturas que
-   trae. Primero uno sin `.CFG` y con fondo, el Cybernoid; después uno con `.CFG` y fondo, el
-   Bruce Lee o el Scooby Doo, y uno con `.CFG` sin fondo, el Atic Atac o el Renegade. Head Over
-   Heels y Exolon no sirven: vienen sólo en `.EZX`. Ahí se decide lo del `T` y se ve qué juegos no
-   arrancan bien.
+9. **Contra los juegos.** Con el repositorio del usuario, cada juego contra la captura que trae de
+   su propia pantalla de título, pixel por pixel. Head Over Heels y Exolon no sirven: vienen sólo
+   en `.EZX`. Los resultados están más abajo, en [Contra los juegos](#contra-los-juegos-el-14-de-septiembre-de-2026).
 
 Cada paso deja el árbol verde desde un repositorio local vacío y va en su commit con sus hechos.
 
@@ -320,10 +326,14 @@ Cada paso deja el árbol verde desde un repositorio local vacío y va en su comm
 
 La paleta: 768 números de `sp256.pal`, publicados por GZX bajo su licencia tipo MIT, declarados en
 el `NOTICE`, con la entrada 255 en blanco por la razón de arriba. Un `ROM0.GFX` no hace falta
-llevarlo: los planos de la ROM se calculan de la ROM, y ahora sólo importan para los datos de la
-ROM, como la fuente, porque el código lo leen de la máquina. Y lo que el repositorio de juegos
-trae de valor para nosotros son sus capturas, que son el oráculo visual del paso 9, y no se copian:
-se miran.
+llevarlo: viene con el juego el que lo necesita. Y hace falta más de lo que este plan creía: los
+planos de la ROM no se calculan de la ROM cuando el juego trae los suyos, porque un juego que
+coloreó la fuente los quiere. El Jetpac lo demostró —sus dígitos salían grises y la captura los
+tiene celestes— y con su `ROM0.GFX` cargado pasó de 94,50 % a 99,02 %. Sin uno, el byte de la
+máquina sigue siendo lo que ocho planos iguales dirían, y no se copia nada.
+
+Y lo que el repositorio de juegos trae de valor para nosotros son sus capturas, que son el oráculo
+visual del paso 9, y no se copian: se miran.
 
 ## Dónde está cada paso
 
@@ -339,7 +349,30 @@ Al 14 de septiembre de 2026, con el árbol verde desde un repositorio local vac�
 | 6. La pantalla | `3f82adbb7` | El pintor de columnas, la paleta de 256 y los fondos, todo en `Spec256Peripheral`: la sesión es la que tiene pixeles propios. Cuatro `plotPair` por celda, que es el mismo camino que ya pinta un Timex de color por byte; ninguna función nueva en `Picture`. La dirección que indexa los planos es la de la máquina, no el desplazamiento dentro de la página |
 | 7. Las reglas del `.CFG` | `06b90426a` | `Rules` lee el archivo del juego; el pintor las aplica y `LevelledInstructions` da a los seguidores un `OR`, `AND` y `XOR` por nivel, sin tocar el emulador: `doExecute` de una instrucción es `protected`, así que una subclase deja las banderas que la operación de siempre pone y cambia sólo lo que se escribe. Lo que la mezcla usa son los dieciséis colores de la máquina, que es con lo que la máquina habría pintado ahí |
 | 8. La ventana | | `Spec256Frame` sobre `MachineFrame` y no sobre `DeviceFrame`: esto no es algo que se enchufa, es una sesión, y la ventana la encuentra en el registro de la máquina a la que está prendida. Muestra el juego, lo que su archivo pidió, los 256 colores, los fondos, y el interruptor que todo emulador de esto tiene |
-| 9 | | pendiente |
+| 9. Contra los juegos | | Los 29 juegos del repositorio que traen snapshot y colores **arrancan y se pintan**, ninguno se cuelga. Lo que faltaba y se encontró acá: el `ROM0.GFX`, los colores de la fuente de la ROM, que el Jetpac trae y sin el cual sus dígitos salían grises — 94,50 % a 99,02 % |
+
+## Contra los juegos, el 14 de septiembre de 2026
+
+Los 29 del repositorio que traen `.SNA` y `.GFX`, 300 cuadros cada uno con todo por omisión, contra
+la captura que cada uno trae de su propia pantalla de título, pixel por pixel sobre los 49 152 de
+la pantalla. Ninguno se cuelga ni se queda en negro.
+
+| juego | idéntico | qué explica lo que no |
+|---|---|---|
+| Atic Atac, Phantis | 100,00 % | nada que explicar |
+| Cybernoid | 98,91 % | el resto, dentro de 16 por canal: el blanco apagado de esta máquina contra el de la que sacó la captura |
+| Solomons Key | 98,63 % | lo mismo: 100 % dentro de 16 |
+| Dizzy 1 | 99,31 % | |
+| Scooby Doo | 99,08 % | |
+| Jetpac | 99,02 % | era 94,50 % hasta que se cargó su `ROM0.GFX` |
+| Knight Lore | 97,92 % | con su fondo 0, que es el que va; con los otros tres, 77 %, 77 % y 70 % |
+| Army Moves 1, Sabre Woolf | 95,9 % y 95,6 % | |
+| Abu Simbel Profanation | 90,02 % | |
+| Cybernoid 2 | 83,97 % | la cuerda del marco se anima; lo que difiere no son tonos sino pixeles prendidos contra apagados, y mover el momento del disparo lo sube pero no lo cierra |
+| Underwurlde | 36,17 % | la captura muestra una pared verde que **no está en esta copia del juego**: el único fondo que trae es `UNDERW.B01`, una cueva roja. Con el fondo apagado da 25 %, así que tampoco está en sus planos |
+
+Dos capturas más, Bruce Lee y Bubbler, son PNG con paleta y el comparador no las lee; los juegos
+corren igual. Los otros catorce no traen captura del título.
 
 ## ZX-Poly contra el plan
 

@@ -41,8 +41,11 @@ public final class Planes {
   private static final int SIZE = 0x10000;
   /** What a file weighs: the colour of every pixel of the RAM of a 48K machine. */
   public static final int LENGTH = (SIZE - RAM) * PLANES;
+  /** And what the one for the ROM weighs, where a game colours the letters the machine draws with. */
+  public static final int ROM_LENGTH = RAM * PLANES;
 
   private byte[][] bytes;
+  private boolean romColoured;
 
   /** The colours of a whole game, as a file has them. */
   public static Planes of(byte[] file) {
@@ -57,20 +60,45 @@ public final class Planes {
       throw new IllegalArgumentException("The colours of a 48K game are " + LENGTH + " bytes, and these are " + file.length);
     }
     blank();
-    for (int address = RAM; address < SIZE; address++) {
-      int at = (address - RAM) * PLANES;
+    slice(file, RAM, SIZE);
+  }
+
+  /** The eight colours of each address of a stretch, as a file has them, cut the other way. */
+  private void slice(byte[] file, int from, int to) {
+    byte[][] planes = bytes();
+    for (int address = from; address < to; address++) {
+      int at = (address - from) * PLANES;
       for (int fromTheRight = 0; fromTheRight < PLANES; fromTheRight++) {
         int colour = file[at + fromTheRight] & 0xff;
         for (int plane = 0; plane < PLANES; plane++) {
-          if ((colour & (1 << plane)) != 0) bytes[plane][address] |= (byte) (1 << fromTheRight);
+          if ((colour & (1 << plane)) != 0) planes[plane][address] |= (byte) (1 << fromTheRight);
         }
       }
     }
   }
 
+  /**
+   * The colours of the ROM, for a game that coloured the letters and the sprites the machine
+   * draws with. Without one the ROM is no picture, and the machine's own byte is already what
+   * eight planes equal to it would say.
+   */
+  public void takeTheRom(byte[] file) {
+    if (file.length != ROM_LENGTH) {
+      throw new IllegalArgumentException("The colours of a ROM are " + ROM_LENGTH + " bytes, and these are " + file.length);
+    }
+    slice(file, 0, RAM);
+    romColoured = true;
+  }
+
+  /** Whether the ROM has colours of its own, or is read from the machine as it stands. */
+  public boolean romColoured() {
+    return romColoured;
+  }
+
   /** No colours at all, which is how much room this takes until a game brings some. */
   public void blank() {
     bytes = new byte[PLANES][SIZE];
+    romColoured = false;
   }
 
   private byte[][] bytes() {
@@ -93,13 +121,14 @@ public final class Planes {
    * One of the eight as a memory a processor runs on: whatever is read to be executed comes from
    * the machine, so that the processor on this plane can never decode an instruction other than
    * the one the machine is running, and everything else is this plane's own colours. Below the
-   * RAM there are none, and the machine's byte is already what eight equal planes would say.
+   * RAM there are none unless the game brought them, and the machine's byte is already what eight
+   * equal planes would say.
    */
   public Memory plane(int which, Memory machine) {
     byte[] mine = bytes()[which];
     return new Memory() {
       public int read(int address, int fetching) {
-        return fetching != 0 || address < RAM ? machine.peek(address) : mine[address] & 0xff;
+        return fetching != 0 || (address < RAM && !romColoured) ? machine.peek(address) : mine[address] & 0xff;
       }
 
       public void write(int address, int value) {
@@ -107,7 +136,7 @@ public final class Planes {
       }
 
       public int peek(int address) {
-        return address < RAM ? machine.peek(address) : mine[address] & 0xff;
+        return address < RAM && !romColoured ? machine.peek(address) : mine[address] & 0xff;
       }
 
       public void poke(int address, int value) {

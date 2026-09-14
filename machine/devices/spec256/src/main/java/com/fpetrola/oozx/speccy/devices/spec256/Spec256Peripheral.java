@@ -51,6 +51,8 @@ import java.util.List;
 public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsOwn, Painting.PixelsOfItsOwn {
   private static final String COLOURS = ".gfx";
   private static final String SAYS = ".cfg";
+  /** A game that coloured the letters the machine draws with keeps them in a file of this name. */
+  private static final String ROM = "rom0.gfx";
   /** A background is 320 by 200 of a colour each, laid under the screen and centred on it. */
   private static final int BACKGROUND_WIDTH = 320, BACKGROUND_HEIGHT = 200;
   private static final int BACKGROUND_SIZE = BACKGROUND_WIDTH * BACKGROUND_HEIGHT;
@@ -102,6 +104,7 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
       return;
     }
     playing = colours.getName();
+    romBeside(colours);
     backgroundsBeside(colours);
     rules.read(withTheSameName(url, SAYS));
     alignment.says(rules.registersTaken);
@@ -214,6 +217,24 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     if (background < 0 || background >= backgrounds.size()) return;
     showing = background;
     display.refreshAll();
+  }
+
+  /**
+   * The colours of the ROM, which are not named after the game: every one of them that has any
+   * calls the file the same thing, because the ROM is the machine's and not the game's.
+   */
+  private void romBeside(File colours) {
+    File[] beside = colours.getParentFile().listFiles();
+    if (beside == null) return;
+    for (File file : beside) {
+      if (!file.getName().equalsIgnoreCase(ROM)) continue;
+      try {
+        planes.takeTheRom(Files.readAllBytes(file.toPath()));
+      } catch (IOException | IllegalArgumentException notTheRomsColours) {
+        System.out.printf("oozx: %s is not this ROM's colours: %s%n", file, notTheRomsColours.getMessage());
+      }
+      return;
+    }
   }
 
   /**
