@@ -123,6 +123,26 @@ class ResetReachesThePartsInOrderTest {
             + "into its own ROM lost the jump it made");
   }
 
+  /**
+   * A machine put in finds memory as a machine just switched on finds it. It used to find whatever
+   * the last one left, and the ROMs that write over everything they use hid it: a clone whose ROM
+   * reads memory to decide whether it has run before then booted differently depending on which
+   * machine had been running, which looked like chance and was not.
+   */
+  @Test
+  void aMachinePutInDoesNotFindWhatTheLastOneLeft() {
+    on(speccy.machine.model(Spec48.class));
+    for (int page = 0; page < 8; page++) java.util.Arrays.fill(speccy.banks.ram(page).bytes, (byte) 0xa5);
+
+    on(speccy.machine.model(Spec128.class));
+
+    for (int page = 0; page < 8; page++) {
+      for (byte at : speccy.banks.ram(page).bytes) {
+        assertEquals(0, at, "page " + page + " still had what the machine before it wrote");
+      }
+    }
+  }
+
   @Test
   void aDeviceThatDoesNotFitThisMachineIsNotToldAtAll() {
     on(speccy.machine.model(Spec128.class));

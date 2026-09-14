@@ -72,6 +72,15 @@ public class SpectrumMemory {
     return absent;
   }
 
+  /**
+   * Every page as a machine that was just switched on finds it. A machine put in is not handed
+   * what the last one left: a ROM that looks at memory to decide whether it has run before - and
+   * the clones do look - would read another machine's leavings as its own.
+   */
+  public void blank() {
+    for (Ram page : ram) java.util.Arrays.fill(page.bytes, (byte) 0);
+  }
+
   public Ram shown() {
     return shown;
   }

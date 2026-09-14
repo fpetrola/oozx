@@ -28,6 +28,7 @@ import com.fpetrola.oozx.speccy.modules.timer.Timer;
 import com.fpetrola.oozx.speccy.modules.ula.Ula;
 import com.fpetrola.oozx.speccy.modules.display.Display;
 import com.fpetrola.oozx.speccy.modules.memory.MemoryBus;
+import com.fpetrola.oozx.speccy.modules.memory.SpectrumMemory;
 import com.fpetrola.oozx.speccy.machine.Spectrum;
 import com.fpetrola.oozx.speccy.modules.display.Picture;
 import com.google.inject.Singleton;
@@ -48,6 +49,7 @@ import com.google.inject.Singleton;
 public class Machine {
   private final Scheduler scheduler;
   private final MemoryBus memory;
+  private final SpectrumMemory banks;
   private final Display display;
   private final Ula ula;
   private final Cpu cpu;
@@ -65,8 +67,9 @@ public class Machine {
   private Sound sound;
 
   @Inject
-  public Machine(Set<Spectrum> models, @DefaultMachine Spectrum defaultMachine, Scheduler scheduler, MemoryBus memory, Display display, Ula ula, Z80Clock z80Clock, Picture picture, Timer timer, Cpu cpu, PeripheralRegistry peripherals, Unit unit, Sound.Output soundOutput, Sound sound) {
+  public Machine(Set<Spectrum> models, @DefaultMachine Spectrum defaultMachine, Scheduler scheduler, MemoryBus memory, SpectrumMemory banks, Display display, Ula ula, Z80Clock z80Clock, Picture picture, Timer timer, Cpu cpu, PeripheralRegistry peripherals, Unit unit, Sound.Output soundOutput, Sound sound) {
     this.defaultMachine = defaultMachine;
+    this.banks = banks;
     this.scheduler = scheduler;
     this.memory = memory;
     this.display = display;
@@ -142,6 +145,10 @@ public class Machine {
     scheduler.schedule(endOfFrame, machine.getTimings().tstatesPerFrame());
 
     sound.init();
+
+    // Switching a machine on is switching a machine on, and a machine that has just been switched
+    // on has memory of its own rather than the last one's.
+    banks.blank();
 
     machine.reset();
 
