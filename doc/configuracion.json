@@ -70,10 +70,6 @@
       "scorpion-2.rom" : {
         "url" : "https://speccy4ever.speccy.org/rom/SCORP2.ROM",
         "sha256" : "9f7571982a90268ef567bb6a8523d7c96db1d9644c85fee83c0ef0fa8a8900e1"
-      },
-      "scorpion-3.rom" : {
-        "url" : "https://speccy4ever.speccy.org/rom/SCORP3.ROM",
-        "sha256" : "31eda65b203179f466e5fcea8741ecb7c14d3c8f022e622585103e903969eadd"
       }
     }
   },
