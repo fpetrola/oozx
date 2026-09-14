@@ -61,7 +61,8 @@
       "Tk95" : [ "tk95.rom" ],
       "CzSpectrum" : [ "48.rom" ],
       "CzSpectrumPlus" : [ "inves.rom" ],
-      "Inves" : [ "inves.rom" ]
+      "Inves" : [ "inves.rom" ],
+      "Chrome" : [ "chrome-0.rom", "chrome-1.rom", "chrome-2.rom", "chrome-3.rom" ]
     },
     "sources" : {
       "scorpion-0.rom" : {
@@ -201,6 +202,30 @@
         "sha256" : "b237d9facdc7ecb1b5e277f79870b1d8cba943b05e1b7fb1769a7e43a71742de",
         "at" : 0,
         "length" : 0
+      },
+      "chrome-0.rom" : {
+        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/chrome.rom",
+        "sha256" : "8757f634823518cfd9365eed33221e8b340f9696e79039cc345d6b9ab9d35427",
+        "at" : 0,
+        "length" : 16384
+      },
+      "chrome-1.rom" : {
+        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/chrome.rom",
+        "sha256" : "d55daa439b673b0e3f5897f99ac37ecb45f974d1862b4dadb85dec34af99cb42",
+        "at" : 16384,
+        "length" : 16384
+      },
+      "chrome-2.rom" : {
+        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/chrome.rom",
+        "sha256" : "3ba308f23b9471d13d9ba30c23030059a9ce5d4b317b85b86274b132651d1425",
+        "at" : 32768,
+        "length" : 16384
+      },
+      "chrome-3.rom" : {
+        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/chrome.rom",
+        "sha256" : "8d93c3342321e9d1e51d60afcd7d15f6a7afd978c231b43435a7c0757c60b9a3",
+        "at" : 49152,
+        "length" : 16384
       }
     },
     "sets" : {
