@@ -50,8 +50,8 @@ class BorderComesFromThePortTest {
     speccy.zxClock.setTStates(0);
     speccy.display.frame();
     int rgb = speccy.picture.pixels[5 * Picture.STRIDE + 8];
-    for (int colour = 0; colour < Picture.PALETTE.length; colour++) {
-      if (Picture.PALETTE[colour] == rgb) return colour;
+    for (int colour = 0; colour < Picture.SINCLAIR.length; colour++) {
+      if (Picture.SINCLAIR[colour] == rgb) return colour;
     }
     return -1;
   }

@@ -33,14 +33,37 @@ public class Picture {
   public static final int HEIGHT = Display.SCREEN_HEIGHT;
 
   /** Indices 0-7 are normal (channel value 0xB2), 8-15 the bright versions (0xFF). */
-  public static final int[] PALETTE = new int[16];
+  public static final int[] SINCLAIR = new int[16];
+
+  /** How many colours a picture can be painted in, which is as many as anything here can ask for. */
+  public static final int COLOURS = 64;
 
   static {
     for (int colour = 0; colour < 8; colour++) {
       int bright = ((colour & 1) != 0 ? 0x0000ff : 0) | ((colour & 2) != 0 ? 0xff0000 : 0) | ((colour & 4) != 0 ? 0x00ff00 : 0);
-      PALETTE[colour] = bright & 0xB2B2B2;
-      PALETTE[8 + colour] = bright;
+      SINCLAIR[colour] = bright & 0xB2B2B2;
+      SINCLAIR[8 + colour] = bright;
     }
+  }
+
+  /**
+   * What each colour index is worth. The sixteen a Sinclair has, over and over, until something
+   * gives a machine more of them and says what they are: a colour is an index here and nothing
+   * else, so who filled it in is not asked at the time of drawing a pixel.
+   */
+  public final int[] palette = new int[COLOURS];
+
+  {
+    sinclairColours();
+  }
+
+  /** The sixteen back, in every one of the four tables a byte can name. */
+  public void sinclairColours() {
+    for (int colour = 0; colour < COLOURS; colour++) palette[colour] = SINCLAIR[colour & 0x0f];
+  }
+
+  public void colour(int index, int rgb) {
+    palette[index & (COLOURS - 1)] = rgb;
   }
 
   public final int[] pixels = new int[STRIDE * HEIGHT];
@@ -68,7 +91,7 @@ public class Picture {
   public void plot8(int x, int y, byte data, byte ink, byte paper) {
     if (!active) return;
     int at = y * STRIDE + x * columnWidth;
-    int inkColour = PALETTE[ink], paperColour = PALETTE[paper];
+    int inkColour = palette[ink], paperColour = palette[paper];
     if (columnWidth == 8) {
       for (int i = 0; i < 8; i++) {
         pixels[at + i] = (data & (0x80 >> i)) != 0 ? inkColour : paperColour;
@@ -86,15 +109,15 @@ public class Picture {
   public void plotPair(int x, int y, int pair, byte left, byte right) {
     if (!active) return;
     int at = y * STRIDE + x * columnWidth + pair * 2;
-    pixels[at] = PALETTE[left];
-    pixels[at + 1] = PALETTE[right];
+    pixels[at] = palette[left];
+    pixels[at + 1] = palette[right];
   }
 
   /** Sixteen pixels of their own, from the two bytes a column is made of where one is not enough. */
   public void plot16(int x, int y, int data, byte ink, byte paper) {
     if (!active) return;
     int at = y * STRIDE + (x << 4);
-    int inkColour = PALETTE[ink], paperColour = PALETTE[paper];
+    int inkColour = palette[ink], paperColour = palette[paper];
     for (int i = 0; i < 16; i++) {
       pixels[at + i] = (data & (0x8000 >> i)) != 0 ? inkColour : paperColour;
     }

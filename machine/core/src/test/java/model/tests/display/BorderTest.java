@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class BorderTest {
   private final Picture canvas = new Picture();
   private int column, row;
-  private final Border border = new Border(canvas, new Border.BeamAt() {
+  private final Border border = new Border(canvas, new com.fpetrola.oozx.speccy.modules.display.Colouring(), new Border.BeamAt() {
     public int column() {
       return column;
     }
@@ -40,9 +40,9 @@ class BorderTest {
     border.becomes(2);
     border.paintTheFrame();
 
-    assertEquals(Picture.PALETTE[2], colourOfRow(0, 0));
-    assertEquals(Picture.PALETTE[2], colourOfRow(5, 10), "top border");
-    assertEquals(Picture.PALETTE[2], colourOfRow(Display.SCREEN_HEIGHT - 1, 0), "and bottom");
+    assertEquals(Picture.SINCLAIR[2], colourOfRow(0, 0));
+    assertEquals(Picture.SINCLAIR[2], colourOfRow(5, 10), "top border");
+    assertEquals(Picture.SINCLAIR[2], colourOfRow(Display.SCREEN_HEIGHT - 1, 0), "and bottom");
   }
 
   @Test
@@ -52,10 +52,10 @@ class BorderTest {
     border.becomes(6);
     border.paintTheFrame();
 
-    assertEquals(Picture.PALETTE[1], colourOfRow(4, 20), "the row above the change is all the first colour");
-    assertEquals(Picture.PALETTE[1], colourOfRow(5, 9), "and so is this row up to where the beam was");
-    assertEquals(Picture.PALETTE[6], colourOfRow(5, 10), "from there on it is the second");
-    assertEquals(Picture.PALETTE[6], colourOfRow(6, 0), "and every row after it");
+    assertEquals(Picture.SINCLAIR[1], colourOfRow(4, 20), "the row above the change is all the first colour");
+    assertEquals(Picture.SINCLAIR[1], colourOfRow(5, 9), "and so is this row up to where the beam was");
+    assertEquals(Picture.SINCLAIR[6], colourOfRow(5, 10), "from there on it is the second");
+    assertEquals(Picture.SINCLAIR[6], colourOfRow(6, 0), "and every row after it");
   }
 
   @Test
@@ -67,9 +67,9 @@ class BorderTest {
     border.becomes(3);
     border.paintTheFrame();
 
-    assertEquals(Picture.PALETTE[1], colourOfRow(2, 0));
-    assertEquals(Picture.PALETTE[2], colourOfRow(6, 0));
-    assertEquals(Picture.PALETTE[3], colourOfRow(10, 0));
+    assertEquals(Picture.SINCLAIR[1], colourOfRow(2, 0));
+    assertEquals(Picture.SINCLAIR[2], colourOfRow(6, 0));
+    assertEquals(Picture.SINCLAIR[3], colourOfRow(10, 0));
   }
 
   @Test
@@ -79,6 +79,6 @@ class BorderTest {
 
     border.refreshAll();
     border.paintTheFrame();
-    assertEquals(Picture.PALETTE[5], colourOfRow(3, 0), "nothing was written this frame, so it is what it was");
+    assertEquals(Picture.SINCLAIR[5], colourOfRow(3, 0), "nothing was written this frame, so it is what it was");
   }
 }

@@ -80,7 +80,7 @@ public class Display {
     this.picture = picture;
     beam = new BeamPosition();
     painting = new Painting(banks, layout, dirty, colouring, picture);
-    border = new Border(picture, new Border.BeamAt() {
+    border = new Border(picture, colouring, new Border.BeamAt() {
       public int column() {
         return getBeamPosition().x;
       }

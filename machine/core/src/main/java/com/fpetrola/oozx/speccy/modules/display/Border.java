@@ -46,7 +46,10 @@ public final class Border {
     int row();
   }
 
-  public Border(Picture picture, BeamAt beam) {
+  private final Colouring colouring;
+
+  public Border(Picture picture, Colouring colouring, BeamAt beam) {
+    this.colouring = colouring;
     this.picture = picture;
     this.beam = beam;
     addSentinel();
@@ -87,9 +90,15 @@ public final class Border {
     }
   }
 
+  /**
+   * The border is a cell with nothing but paper in it, so which colour that is gets asked the way
+   * a cell asks: a machine that reads a byte's paper differently borders itself differently too,
+   * and here that question is already answered.
+   */
   public void paint(int y, int start, int end, int colour) {
+    byte paper = colouring.paper((byte) ((colour & 0x07) << 3));
     for (; start < end; start++) {
-      picture.plot8(start, y, (byte) 0, (byte) 0, (byte) colour);
+      picture.plot8(start, y, (byte) 0, (byte) 0, paper);
     }
   }
 
