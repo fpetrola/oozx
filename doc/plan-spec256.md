@@ -9,19 +9,29 @@ condición: si el core no lo nombra, el core no lo paga.
 
 ## Lo que se midió, el 14 de septiembre de 2026
 
-**El oráculo.** El Spec256 original es cerrado y de DOS; EmuZWin, que heredó el formato, es cerrado
-y de Windows; ZEsarUX no lo implementa (no hay una línea sobre él en sus fuentes). La única
-implementación abierta es la de GZX (Jiří Svoboda, licencia tipo MIT): `z80g.c`, 267 líneas, y
-`video/spec256.c`, 330. GZX mismo dice "not 100% done". Lo que sigue se leyó de ahí y se comprobó
-contra los archivos de un juego real, el Cybernoid del repositorio `mvvproject/Spec256-Games`.
+**Los oráculos.** El Spec256 original es cerrado y de DOS; EmuZWin, que heredó el formato, es
+cerrado y de Windows; ZEsarUX no lo implementa (no hay una línea sobre él en sus fuentes). Hay dos
+implementaciones abiertas. La de GZX (Jiří Svoboda, licencia tipo MIT): `z80g.c`, 267 líneas, y
+`video/spec256.c`, 330, y GZX mismo dice "not 100% done". Y la de ZX-Poly (Igor Maznitsa, Java,
+GPL-3), que es la completa: lee los `.CFG` de EmuZWin, sabe de 128K, y trae una base de 24 juegos
+conocidos con el ajuste que cada uno necesita. Lo que sigue se leyó de las dos y se comprobó contra
+los archivos de un juego real, el Cybernoid del repositorio `mvvproject/Spec256-Games`. De ZX-Poly
+no se copia una línea, por la licencia: se lee como especificación, y la sección [ZX-Poly contra
+el plan](#zx-poly-contra-el-plan) dice qué cambió por leerla.
 
 **Los archivos de un juego.** Un `.SNA` o `.Z80` de 48K, y a su lado, con el mismo nombre, un
 `.GFX` de exactamente 393 216 bytes: 49 152 direcciones de RAM por ocho bytes, **un byte de color
 por pixel**, el pixel de la derecha primero. Opcionalmente un `ROM0.GFX` con lo mismo para la ROM,
 y fondos `.B00`, `.B01`… de 64 000 bytes: imágenes de 320 por 200 de un byte por pixel, centradas
 bajo la pantalla, que se ven donde el color es cero. La paleta es fija, 256 entradas RGB, y viene
-con el emulador y no con el juego (`sp256.pal` en GZX, 768 números, MIT). Los `.CFG` y `.EZX` son
-de EmuZWin y describen reglas que GZX no tiene; van al final.
+con el emulador y no con el juego: GZX y ZX-Poly traen los mismos 768 números salvo la entrada
+255, roja en GZX y blanca en ZX-Poly. Es blanca: 255 es el color que sale de un byte sin colorear,
+porque ocho planos iguales dan todos los bits donde el bitmap está encendido, y las reglas de
+EmuZWin la tratan como "la tinta". Los `.CFG` son texto `clave=valor` de EmuZWin con las reglas de
+mezcla, y ZX-Poly los lee. Los `.EZX` son el contenedor propio de EmuZWin (`EZX\0`, comprimido),
+nadie abierto lo lee, y siete de los 37 juegos del repositorio vienen sólo así: Dizzy 2, Exolon,
+Gun Runner, Head Over Heels, Highway Encounter, Mad Mix 2 y Pac Mania. De los otros treinta, 29
+traen `.SNA` más `.GFX`, 18 traen `.CFG`, 15 fondos y 3 un `ROM0.GFX`; ninguno trae paleta.
 
 **Cómo se leen los ocho bytes.** GZX no los guarda así: los rebana en **ocho planos**. El plano *v*
 guarda, en cada dirección, un byte cuyo bit *w* es el bit *v* del color del pixel *w*. Un plano es
@@ -60,8 +70,12 @@ Por cada instrucción:
 1. A cada GPU se le copian del CPU el PC, SP, I, R, IFF1, IFF2, el modo de interrupción, si está
    parado, y **todas las banderas menos el acarreo**. Sus registros de datos - A, BC, DE, HL, los
    alternativos, IX, IY - no se tocan: son suyos, y llevan colores.
-2. Cada GPU ejecuta la instrucción que está en su propio plano en ese PC. Como en las zonas de
-   código los planos son copias del original, ejecuta la misma instrucción que el CPU.
+2. Cada GPU ejecuta la instrucción que hay en ese PC. GZX la lee de su propio plano, que en las
+   zonas de código es copia del original. ZX-Poly la lee de **la memoria de la máquina** —para un
+   GPU, todo byte que se lee por el PC es código y viene de ahí; todo lo que se lee o escribe por
+   una dirección es dato y va a su plano— y así el GPU decodifica siempre la misma instrucción que
+   el CPU, aun cuando el código lo generó el juego en tiempo de ejecución y en los planos hay ahí
+   colores. Es la regla que adoptamos.
 3. El CPU la ejecuta.
 
 Una interrupción se toma en los nueve. Un GPU no puede desviarse del flujo del CPU aunque calcule
@@ -75,10 +89,16 @@ plano 0, 1, … 7 en *u*. Si da cero se ve el fondo, y si no hay fondo, negro. L
 miran. El borde es el de la ULA de siempre. GZX dibuja el cuadro entero a 50 Hz; nosotros ya
 pintamos siguiendo el haz, así que quedaríamos mejor sin hacer nada.
 
-**Puertos en los GPUs.** No los tienen. Un `IN` en un GPU devuelve 0xff y un `OUT` no hace nada, y
-no importa: lo que lee un puerto nunca es un color, y el flujo lo lleva el CPU.
+**Puertos en los GPUs.** No los tienen. En GZX un `IN` en un GPU devuelve 0xff y un `OUT` no hace
+nada; ZX-Poly le deja leer el puerto real, con la dirección de puerto tomada de los registros del
+CPU. Da lo mismo: lo que lee un puerto nunca es un color, y el flujo lo lleva el CPU. Lo que no da
+lo mismo es que un `OUT` de un GPU no llegue jamás al bus —lleva colores en A, y el puerto puede
+ser el borde o la paginación—, y un `IO` que no contesta lo garantiza sin preguntar nada.
 
-**Sólo 48K.** GZX se niega con otro modelo; el formato es de 49 152 bytes y no sabe de páginas.
+**Sólo 48K.** GZX se niega con otro modelo; el formato crudo es de 49 152 bytes y no sabe de
+páginas. ZX-Poly lo extiende con un plano por página (`.gf0` a `.gf7`) que sigue al 7FFD y con
+`rom0.gfx`, `.gfa` y `.gfb` para las ROMs, dentro de un `.zip`. Ningún juego del repositorio lo
+usa; queda para cuando uno lo use.
 
 ## Dónde aterriza en nuestro modelo
 
@@ -86,7 +106,7 @@ no importa: lo que lee un puerto nunca es un color, y el flujo lo lleva el CPU.
 |---|---|---|---|
 | `Core`, `Processors` | un conjunto de implementaciones del procesador (`Multibinder<Core>`), cada una llega en su módulo por `Extension`, y `Processors.use` mueve una máquina que corre a otra | una implementación más, "Spec256": el OOP nueve veces en paso | **ninguno** |
 | `OOZ80` | `execute()` e `interruption()` públicos | una subclase que ejecuta en nueve | ninguno, si admite herencia; si está cerrada, abrirla es una palabra |
-| `State`, `Memory` | un `State` sobre una `Memory` y un `IO`; `State(IO, Memory)` existe | ocho estados sobre ocho planos con un `IO` que no contesta | ninguno: el plano implementa `Memory` en el módulo |
+| `State`, `Memory` | un `State` sobre una `Memory` y un `IO`; `State(IO, Memory)` existe; `Memory.read(address, fetching)` ya distingue el fetch de un opcode del dato, y `peek` lee sin avisar a nadie | ocho estados sobre ocho planos con un `IO` que no contesta; cada plano sirve el código de la máquina y los datos suyos | ninguno: el plano implementa `Memory` en el módulo, con `read` que manda `fetching != 0` al `peek` de la máquina y lo demás a sus bits |
 | `Picture.COLOURS` y sus búsquedas | 64 colores, índices `byte` | 256, e índices que no se vuelvan negativos | **dos líneas**: 256 y `& 0xff` al buscar |
 | `Painting.plotLine` | tres reglas, una por bandera del `ScreenLayout` | una cuarta que no lee la memoria de la máquina sino ocho planos que viven en otro lado | **un asiento**: quién pinta una columna, si alguien lo dijo |
 | `Snapshots.load(url)` | conoce la ruta y no se la dice a nadie | que alguien sepa de qué archivo vino un snapshot, para mirar al lado | **un asiento**: a quién avisar |
@@ -127,36 +147,73 @@ Un módulo bajo `machine/devices`, como los demás dispositivos que traen ventan
 `Extension` tres cosas:
 
 - **`Spec256Core`**, un `Core` más. Su `cpu(state, contention)` construye el OOZ80 de siempre sobre
-  el estado de la máquina y ocho OOZ80 sobre ocho `Plane` - una `Memory` de 64K cada uno, sin
-  contención y con un `IO` que devuelve 0xff - y devuelve un `LockstepZ80` cuyo `execute()` hace
-  los tres pasos de arriba y cuyo `interruption()` la toma en los nueve. Ningún oyente de
-  contención en los GPUs: los T-states los cuenta el CPU, una vez. El PC del CPU sigue siendo el
-  que ven las trampas, el depurador y el RZX.
+  el estado de la máquina y ocho OOZ80 sobre ocho `Plane` - una `Memory` de 64K cada uno que da
+  el código de la máquina cuando `fetching != 0` y sus propios bits cuando no, sin contención y con
+  un `IO` que devuelve 0xff - y devuelve un `LockstepZ80` cuyo `execute()` hace los tres pasos de
+  arriba y cuyo `interruption()` la toma en los nueve. Lo que se le copia a cada GPU antes de su
+  paso lo dice un `Alignment`: por omisión PC, SP, I, R, IFF1, IFF2, IM, parado y F menos el
+  acarreo; por juego, lo que su `.CFG` diga en `zxpAlignRegs`, que admite además A, BC, DE, HL,
+  IX, IY y los alternativos —15 de los 24 juegos de la base de ZX-Poly se apartan del valor por
+  omisión. Al entrar en
+  el núcleo los ocho estados arrancan como copias del CPU con `State.takeFrom`, que ya existe.
+  Ningún oyente de contención en los GPUs: los T-states los cuenta el CPU, una vez. El PC del CPU
+  sigue siendo el que ven las trampas, el depurador y el RZX.
 - **`Spec256Peripheral`**, un dispositivo sin puertos. Al activarse instala su `ColumnPainter` y la
   paleta; al desactivarse los retira y pide `refreshAll`. Escucha a `Snapshots`: si al lado del
   snapshot hay un `.GFX`, carga los planos, los fondos y el `ROM0.GFX` si está - y si no está,
   llena los planos de ROM con la ROM misma, que es exactamente la codificación de "no es gráfico"
   y deja a los GPUs ejecutar sus rutinas en paso -, mueve la máquina al núcleo Spec256 y recuerda
-  en cuál estaba. Un snapshot sin `.GFX`, un cambio de máquina o un reset la devuelven a ese.
+  en cuál estaba; si hay un `.CFG`, lee de él el `Alignment` y las reglas de mezcla, y si no hay,
+  las de EmuZWin por omisión. Un snapshot sin `.GFX`, un cambio de máquina o un reset la devuelven
+  a ese.
 - **`Spec256Equipment`**, la ventana: qué `.GFX` está cargado, cuántos fondos hay y cuál se ve, los
   256 colores, y un interruptor "256 colores / los originales" que es lo que EmuZWin tiene en F2.
   Es la ventana de ULAplus de ayer con otros datos adentro.
 
+## Las reglas del `.CFG`, leídas de ZX-Poly
+
+Son las de EmuZWin, y ahora tienen oráculo abierto. ZX-Poly implementa estas y sólo estas:
+
+| clave | por omisión | qué hace |
+|---|---|---|
+| `BkOverFF` | 0 | con fondo, el color 255 también deja ver el fondo, no sólo el 0 |
+| `Paper00InkFF` | 0 | el color 0 se pinta con el papel del atributo y el 255 con su tinta: un gráfico sin colorear se ve como en el Spectrum, no negro y blanco |
+| `HideSameInkPaper` | 1 | donde tinta y papel del atributo son iguales, se pinta ese color, o el fondo si lo hay: es cómo el juego borra |
+| `UpColorsMixed`, `DownColorsMixed` | 64, 0 | los colores por encima de `255-Up` y por debajo de `Down` se promedian en RGB con la tinta o el papel del atributo, según el bit del bitmap original |
+| `GFXLeveledXOR`, `GFXLeveledOR`, `GFXLeveledAND` | 0 | en los GPUs la operación no es bit a bit: `OR` es `max`, `AND` es `min`, `XOR` es `max` salvo `XOR A,A`, que da 0. Los bytes son niveles de color, no máscaras |
+| `zxpAlignRegs` | `1PSsT` | qué registros toma el GPU del CPU antes de cada instrucción; suyo, no de EmuZWin |
+
+Y además: con el atributo en FLASH y la fase activa, se ve el fondo. Ignora `BkMixed`,
+`BkMixBkAttr`, `UpMixChgBright`, `DownMixChgBright`, `UseBrightInMix`, `UpMixPaper`,
+`DownMixPaper`, `GFXScreenXORbuffered` y `OrderPaletteSignedBytes`, que también están en los
+`.CFG` del repositorio. De los 18 que hay, lo único que se aparta de los valores por omisión es
+`BkOverFF=1` en 17, y `UpColorsMixed=1` con `UpMixChgBright=50` en 9: lo que ZX-Poly implementa
+alcanza para todos ellos salvo por el brillo de la mezcla. El bitmap original **sólo** se mira para
+elegir tinta o papel en la mezcla; un pixel apagado con color se pinta, en GZX y en ZX-Poly.
+
 ## Qué queda como pregunta
 
-- **Los pixeles apagados con color.** En el Cybernoid hay 2 421 en la pantalla del título. GZX los
-  pinta porque no mira el bitmap; el Spec256 original quizá enmascaraba. Se decide mirando el
-  resultado contra las capturas que el repositorio trae de cada juego (`*-title.png`), que son
-  el único oráculo visual que hay.
-- **Las reglas de EmuZWin.** `GFXLeveledXOR`, `GFXLeveledOR`, `GFXLeveledAND`, las mezclas con
-  papel y brillo, `BkOverFF`: los juegos nuevos del repositorio, hechos con EmuZWin, dependen de
-  ellas y GZX no las tiene. Su documentación está en un sitio con certificado inválido y sus
-  fuentes son cerradas. Se hace después y con otro oráculo, o no se hace.
-- **`Processors.use` en caliente.** Mueve una máquina que corre entre implementaciones; hay que
-  confirmar que conserva los registros y no reconstruye el estado. Si los conserva, la sesión
-  arranca sin resetear el juego; si no, se copia el estado, que es lo que hace `gpu_reset`.
-- **Qué se le copia a un GPU.** GZX copia lo listado arriba y deja el acarreo. Quedan MEMPTR y la
-  bandera Q, que GZX no tiene y nosotros sí; se copian también, y un hecho lo dice.
+- **El `T` de `zxpAlignRegs`.** Con `T`, que está en el valor por omisión de ZX-Poly, un GPU usa
+  para *direccionar* los punteros del CPU —HL, DE, BC, IX, IY, SP, y B o BC como cuenta en los
+  bloques— y conserva los suyos como *valor*: un HL que una suma de colores corrompió no lo lleva
+  a otra dirección, y `LD HL,(a); LD (b),HL` sigue moviendo dos bytes de color. Distinguir el uso
+  del valor sólo se puede dentro del procesador; ZX-Poly lo hace con ganchos del bus y un `ctx`.
+  Nuestro procesador arma las referencias `(HL)` en el decodificador (`OpcodeTargets`), no en la
+  fábrica, así que hoy no hay asiento. Sin `T`, lo que hay es alinear HL como valor, que diez de
+  los 24 juegos de la base de ZX-Poly necesitan de todos modos; y de esos 24, los quince que fueron
+  ajustados a mano apagaron `T`: sólo sobrevive en los nueve que quedaron con el valor por omisión.
+  Se decide en el paso 9, con los juegos: si alguno lo pide, el asiento OOP es que `InstructionFactory` arme las referencias
+  indirectas, y la fábrica de un GPU las armaría sobre los registros del CPU.
+- **El brillo de la mezcla.** `UpMixChgBright=50` está en nueve `.CFG` y ningún oráculo abierto
+  lo implementa. Se ve contra las capturas del repositorio si se nota.
+- **Qué se le copia a un GPU además de lo alineado.** MEMPTR y la bandera Q, que GZX no tiene y
+  nosotros sí: al entrar, con el estado entero; por paso, sólo lo que diga el `Alignment`. Un
+  hecho lo dice.
+
+Y dos que ya no lo son. **Los pixeles apagados con color** se pintan; el bitmap sólo elige tinta o
+papel para la mezcla, y los 2 421 del Cybernoid son la imagen del `.GFX`, que es más rica que el
+bitmap. **`Processors.use` en caliente** conserva los registros: `runOn` hace `State.takeFrom` del
+estado anterior, así que la sesión arranca sin resetear el juego.
 
 ## El orden, y por qué
 
@@ -170,8 +227,10 @@ Un módulo bajo `machine/devices`, como los demás dispositivos que traen ventan
    original, que 393 216 es el único tamaño que se acepta.
 4. **El núcleo en paso.** Módulo. Hechos sin ningún juego: que un `LD` mueve un color plano a
    plano, que un `LDIR` copia un sprite entero, que un `AND` con máscara deja pasar los colores
-   donde debe, que un `IN` en un GPU no lee nada, que un salto que el CPU toma por un puerto lo
-   toman los nueve, que una interrupción llega a los nueve, que los T-states se cuentan una vez.
+   donde debe, que un `IN` en un GPU no lee nada y un `OUT` no llega al bus, que un salto que el
+   CPU toma por un puerto lo toman los nueve, que una interrupción llega a los nueve, que los
+   T-states se cuentan una vez, que un GPU cuyo plano tiene colores donde el CPU escribió código
+   ejecuta el código igual, y que el `Alignment` por omisión deja HL suyo y uno que diga `HL` no.
    Y el número: cuánto cuesta un cuadro en este núcleo, medido y escrito.
 5. **El asiento del snapshot y la sesión.** Core, agnóstico, más el dispositivo. Hechos: un
    snapshot con `.GFX` al lado enciende la sesión y uno sin ella no; la sesión devuelve la máquina
@@ -179,10 +238,16 @@ Un módulo bajo `machine/devices`, como los demás dispositivos que traen ventan
 6. **La pantalla.** El `ColumnPainter` del módulo, los fondos, el color cero. Hechos con planos
    sintéticos: ocho pixeles con ocho colores de una columna, el fondo donde el color es cero, el
    borde de la ULA intacto.
-7. **La ventana.**
-8. **Contra los juegos.** A mano, con el repositorio del usuario: Cybernoid, Head over Heels,
-   Exolon, comparando con las capturas que trae. Ahí se contesta la pregunta de los pixeles
-   apagados, y ahí se ve qué juegos son de EmuZWin y no arrancan bien.
+7. **Las reglas del `.CFG`.** El lector del `.CFG` y las seis reglas de la tabla, en el pintor y en
+   la fábrica de instrucciones de los GPUs. Hechos con un `.CFG` sintético por regla: un pixel de
+   color 255 que con `Paper00InkFF` es la tinta del atributo y sin ella es la entrada 255; un `OR`
+   que con `GFXLeveledOR` da el mayor y sin ella el bit a bit. El `Alignment` es una regla más.
+8. **La ventana.**
+9. **Contra los juegos.** A mano, con el repositorio del usuario, comparando con las capturas que
+   trae. Primero uno sin `.CFG` y con fondo, el Cybernoid; después uno con `.CFG` y fondo, el
+   Bruce Lee o el Scooby Doo, y uno con `.CFG` sin fondo, el Atic Atac o el Renegade. Head Over
+   Heels y Exolon no sirven: vienen sólo en `.EZX`. Ahí se decide lo del `T` y se ve qué juegos no
+   arrancan bien.
 
 Cada paso deja el árbol verde desde un repositorio local vacío y va en su commit con sus hechos.
 
@@ -213,11 +278,38 @@ Cada paso deja el árbol verde desde un repositorio local vacío y va en su comm
   EmuZWin, sin licencia escrita; y los `.SNA` de Ultimate y Codemasters ni siquiera se
   distribuyen con ellos, lo dice el propio repositorio. Los hechos usan planos sintéticos; la
   comprobación contra juegos es a mano y contra la copia del usuario.
-- **Empezar por las reglas de EmuZWin.** Sin oráculo abierto no hay hechos que escribir.
+- **Un `ctx` en el procesador.** ZX-Poly pasa un entero por cada acceso a memoria y a puerto, y su
+  bus pregunta `ctx == 0` en cada rama; su Z80 sabe que puede ser un GPU. Acá el objeto `Memory`
+  de cada GPU *es* el contexto, y el procesador no sabe que hay nueve.
+- **Copiar de ZX-Poly.** Es GPL-3 y este árbol es Apache-2.0. Se lee como especificación de las
+  reglas y del formato, y el código es nuestro.
 
 ## Lo que sí se puede llevar
 
 La paleta: 768 números de `sp256.pal`, publicados por GZX bajo su licencia tipo MIT, declarados en
-el `NOTICE`. Un `ROM0.GFX` no hace falta llevarlo: los planos de la ROM se calculan de la ROM. Y
-lo que el repositorio de juegos trae de valor para nosotros son sus capturas, que son el oráculo
-visual del paso 8, y no se copian: se miran.
+el `NOTICE`, con la entrada 255 en blanco por la razón de arriba. Un `ROM0.GFX` no hace falta
+llevarlo: los planos de la ROM se calculan de la ROM, y ahora sólo importan para los datos de la
+ROM, como la fuente, porque el código lo leen de la máquina. Y lo que el repositorio de juegos
+trae de valor para nosotros son sus capturas, que son el oráculo visual del paso 9, y no se copian:
+se miran.
+
+## ZX-Poly contra el plan
+
+Leído el 14 de septiembre de 2026. Lo que cambió el plan está marcado; lo demás confirma lo que
+ya decía o queda para después.
+
+| en ZX-Poly | en el plan | qué pasó |
+|---|---|---|
+| un GPU lee por el PC de la memoria de la máquina y por dirección de su plano (`ctx == 0 \|\| cmdOrPrefix`) | los GPUs ejecutaban lo que había en su plano, como GZX | **cambió**: el `Plane` manda `fetching != 0` al `peek` de la máquina. Un GPU nunca decodifica otra instrucción que el CPU, y los planos ya no tienen que reproducir el código. Cuesta cero en core: `Memory.read(address, fetching)` ya existía |
+| un `Z80` con `ctx` en cada acceso y un bus con `if (ctx == 0)` | ocho `State` sobre ocho `Memory` | igual: la `Memory` de cada GPU es el contexto |
+| `alignRegisterValuesWith(cpu, flags)` con `zxpAlignRegs` por juego, por omisión PC, SP, F menos C, y siempre I, R, IFF, IM, prefijo | se copiaba una lista fija, la de GZX | **cambió**: es un `Alignment` configurable, leído del `.CFG`, con la lista de GZX por omisión |
+| `T`: los punteros para direccionar vienen del CPU, por ganchos del bus (`readPtr`, `readSpecRegValue`) | no existía | pregunta abierta: no hay asiento sin tocar el decodificador; se decide con los juegos |
+| `postProcessXor/And/Or` en el bus, por `ctx` | no existía | **cambió**: la fábrica de instrucciones de los GPUs devuelve `And`, `Or` y `Xor` por nivel; `InstructionFactory.And(source)` es el asiento, y `DefaultInstructionFetcher` acepta la fábrica |
+| `fillDataBufferForSpec256VideoMode`: las reglas de la tabla, contra tinta y papel del atributo | "las reglas de EmuZWin se hacen después o no se hacen" | **cambió**: son el paso 7, con hechos por regla |
+| `readGfxVideo` vuelve a armar los ocho bytes por dirección desde los planos, cada cuadro entero | el `ColumnPainter` hace lo mismo por celda sucia, siguiendo el haz | igual, y mejor |
+| planos entrelazados, `(dirección << 3) + plano`, un solo arreglo | ocho `Plane` con su arreglo cada uno | igual; el entrelazado es una optimización del lector de video que no hace falta |
+| `.zip` con `.sna`, `.gfx` o `.gf0`–`.gf7`, `rom0.gfx`/`.gfa`/`.gfb`, `.bNN`, `.pal`/`.pNN`, `.cfg`, `.xor` | archivos sueltos al lado del snapshot, que es cómo viene el repositorio | igual por ahora; el `.zip` y las páginas quedan para un juego que los traiga |
+| la paleta con la 255 en blanco | la de GZX, con la 255 en rojo | **cambió**: blanca |
+| los GPUs leen los puertos reales con la dirección del CPU | `IO` que devuelve 0xff | igual: el `OUT` es lo que importa y ninguno lo deja pasar |
+| `fillByState` al entrar: el estado entero, MEMPTR incluido | `gpu_reset` de GZX | igual, y ya existe: `State.takeFrom` |
+| base de 24 juegos por SHA-256 con sus ajustes | nada | para después: cuando un juego del repositorio lo pida, el `.CFG` de al lado es el lugar |
