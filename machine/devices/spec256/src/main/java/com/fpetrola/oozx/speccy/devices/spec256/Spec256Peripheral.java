@@ -19,9 +19,11 @@
 package com.fpetrola.oozx.speccy.devices.spec256;
 
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
+import com.fpetrola.oozx.speccy.modules.display.Colouring;
 import com.fpetrola.oozx.speccy.modules.display.Display;
 import com.fpetrola.oozx.speccy.modules.display.Painting;
 import com.fpetrola.oozx.speccy.modules.display.Picture;
+import com.fpetrola.oozx.speccy.modules.memory.SpectrumMemory;
 import com.fpetrola.oozx.speccy.modules.z80.Processors;
 import com.fpetrola.oozx.speccy.peripherals.AbstractPeripheral;
 import com.fpetrola.oozx.speccy.peripherals.FilesOfItsOwn;
@@ -48,6 +50,7 @@ import java.util.List;
 @Singleton
 public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsOwn, Painting.PixelsOfItsOwn {
   private static final String COLOURS = ".gfx";
+  private static final String SAYS = ".cfg";
   /** A background is 320 by 200 of a colour each, laid under the screen and centred on it. */
   private static final int BACKGROUND_WIDTH = 320, BACKGROUND_HEIGHT = 200;
   private static final int BACKGROUND_SIZE = BACKGROUND_WIDTH * BACKGROUND_HEIGHT;
@@ -57,17 +60,26 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
   private final Planes planes;
   private final Processors processors;
   private final Display display;
+  private final SpectrumMemory banks;
+  private final Alignment alignment;
+  private final Rules rules;
   private final List<byte[]> backgrounds = new ArrayList<>();
   private int showing;
   private String playing;
   private String wasOn;
+  private int bitmap, ink, paper;
+  private boolean flashedAway;
 
   @Inject
-  public Spec256Peripheral(Planes planes, Processors processors, Display display) {
+  public Spec256Peripheral(Planes planes, Processors processors, Display display, SpectrumMemory banks,
+                           Alignment alignment, Rules rules) {
     super(List.of());
     this.planes = planes;
     this.processors = processors;
     this.display = display;
+    this.banks = banks;
+    this.alignment = alignment;
+    this.rules = rules;
   }
 
   /** Every machine, because what decides is the file beside the snapshot and not the hardware. */
@@ -76,7 +88,7 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
   }
 
   public void beside(String url) {
-    File colours = withTheSameName(url);
+    File colours = withTheSameName(url, COLOURS);
     if (colours == null) {
       over();
       return;
@@ -90,6 +102,8 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     }
     playing = colours.getName();
     backgroundsBeside(colours);
+    rules.read(withTheSameName(url, SAYS));
+    alignment.says(rules.registersTaken);
     if (wasOn == null) wasOn = processors.current();
     processors.use(Spec256Core.NAME);
     theTwoHundredAndFiftySixColours();
@@ -97,23 +111,74 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     display.refreshAll();
   }
 
-  /** The eight pixels of a column, a colour each, taken one bit out of each of the eight planes. */
+  /**
+   * The eight pixels of a column, a colour each, taken one bit out of each of the eight planes,
+   * and then whatever the game's own rules have to say about how they meet the cell's attribute.
+   */
   public void column(int x, int y) {
-    int address = Planes.RAM + display.layout.pixelsAt(y, x);
+    int at = display.layout.pixelsAt(y, x);
+    byte[] shown = banks.shown().bytes;
+    byte attribute = shown[display.layout.colourAt(y, x)];
+    bitmap = shown[at] & 0xff;
+    ink = attributeColour(attribute, attribute & 0x07);
+    paper = attributeColour(attribute, (attribute >> 3) & 0x07);
+    flashedAway = Colouring.flashes(attribute) && display.colouring.reversed;
+    int address = Planes.RAM + at;
     Picture canvas = display.picture();
     for (int pair = 0; pair < 4; pair++) {
-      canvas.plotPair(x + Display.BORDER_WIDTH_COLS, y + Display.BORDER_HEIGHT, pair,
-          (byte) colourAt(address, x, y, pair * 2), (byte) colourAt(address, x, y, pair * 2 + 1));
+      canvas.paintPair(x + Display.BORDER_WIDTH_COLS, y + Display.BORDER_HEIGHT, pair,
+          rgbOf(address, x, y, pair * 2), rgbOf(address, x, y, pair * 2 + 1));
     }
   }
 
-  /** Where a pixel has no colour of its own, what shows through is the background, or nothing. */
-  private int colourAt(int address, int x, int y, int pixel) {
+  /** One of the machine's own sixteen, which is what the game's colours are mixed with. */
+  private int attributeColour(byte attribute, int which) {
+    return Picture.SINCLAIR[rules.brightInTheMix && (attribute & 0x40) != 0 ? which + 8 : which];
+  }
+
+  /**
+   * What one pixel comes out as. The colour on the planes to begin with, then the game's rules:
+   * which colours the cell's own ink and paper stand in for, which ones let the picture under the
+   * screen through, and which ones are mixed half and half with what the machine would have
+   * painted there.
+   */
+  private int rgbOf(int address, int x, int y, int pixel) {
     int colour = planes.colourOf(address, pixel);
-    if (colour != 0 || backgrounds.isEmpty()) return colour;
+    int rgb = display.picture().palette[colour];
+    boolean underneath = !backgrounds.isEmpty();
+    boolean covered = rules.hiddenWhereInkIsPaper && ink == paper;
+    boolean draw = true;
+    if (!underneath) {
+      if (covered) {
+        rgb = ink;
+      } else if (rules.paperForNoneInkForAll) {
+        if (colour == 0) rgb = paper;
+        else if (colour == 255) rgb = ink;
+      }
+    } else if (rules.paperForNoneInkForAll) {
+      if (colour == 0) rgb = paper;
+      else if (colour == 255) rgb = ink;
+      else draw = !(flashedAway || covered);
+    } else {
+      draw = !(flashedAway || covered || colour == 0 || (rules.backgroundOverTheLast && colour == 255));
+    }
+    if (draw && rules.mixed(colour)) {
+      rgb = halfway((bitmap & (0x80 >> pixel)) != 0 ? ink : paper, rgb);
+    }
+    return draw ? rgb : under(x, y, pixel);
+  }
+
+  /** The picture that lies under the screen, at the pixel the screen has there, or nothing. */
+  private int under(int x, int y, int pixel) {
     int row = y + ABOVE_THE_SCREEN, column = x * 8 + pixel + LEFT_OF_THE_SCREEN;
     if (row < 0 || row >= BACKGROUND_HEIGHT || column < 0 || column >= BACKGROUND_WIDTH) return 0;
-    return backgrounds.get(showing)[row * BACKGROUND_WIDTH + column] & 0xff;
+    return display.picture().palette[backgrounds.get(showing)[row * BACKGROUND_WIDTH + column] & 0xff];
+  }
+
+  private static int halfway(int one, int other) {
+    return ((one >> 16 & 0xff) + (other >> 16 & 0xff)) / 2 << 16
+        | ((one >> 8 & 0xff) + (other >> 8 & 0xff)) / 2 << 8
+        | ((one & 0xff) + (other & 0xff)) / 2;
   }
 
   /** How many pictures lie under this game's screen, and which of them is showing. */
@@ -181,6 +246,15 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     return playing;
   }
 
+  /** What this game said about its colours, and what its followers take, for whoever shows them. */
+  public Rules rules() {
+    return rules;
+  }
+
+  public Alignment alignment() {
+    return alignment;
+  }
+
   @Override
   public void machineWasReset(boolean hard) {
     over();
@@ -204,6 +278,8 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     playing = null;
     backgrounds.clear();
     planes.blank();
+    rules.asTheyComeByDefault();
+    alignment.says(rules.registersTaken);
     display.painting.pixelsOfItsOwn(null);
     display.picture().sinclairColours();
     display.refreshAll();
@@ -213,11 +289,11 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
    * The colours of this game: the same name as the snapshot with another ending. Which letters
    * they are written in is the operating system's business and not the game's.
    */
-  private static File withTheSameName(String url) {
+  private static File withTheSameName(String url, String ending) {
     File snapshot = new File(url);
     File where = snapshot.getParentFile();
     if (where == null) return null;
-    String wanted = withoutItsEnding(snapshot.getName()) + COLOURS;
+    String wanted = withoutItsEnding(snapshot.getName()) + ending;
     File[] beside = where.listFiles();
     if (beside == null) return null;
     for (File file : beside) {

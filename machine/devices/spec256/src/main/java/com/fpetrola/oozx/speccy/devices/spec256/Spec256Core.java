@@ -54,11 +54,13 @@ public class Spec256Core implements Core {
   private final OopCore ordinary = new OopCore();
   private final Planes planes;
   private final Alignment alignment;
+  private final Rules rules;
 
   @Inject
-  public Spec256Core(Planes planes, Alignment alignment) {
+  public Spec256Core(Planes planes, Alignment alignment, Rules rules) {
     this.planes = planes;
     this.alignment = alignment;
+    this.rules = rules;
   }
 
   public String name() {
@@ -77,7 +79,7 @@ public class Spec256Core implements Core {
     OOZ80[] followers = new OOZ80[Planes.PLANES];
     for (int plane = 0; plane < followers.length; plane++) {
       State own = new State(DEAF, ordinary.bank(null, DEAF), planes.plane(plane, state.getMemory()));
-      followers[plane] = ordinary.cpu(own, null);
+      followers[plane] = ordinary.cpu(own, null, new LevelledInstructions(own, rules));
     }
     return new LockstepZ80(ordinary.cpu(state, contention), followers, alignment);
   }

@@ -20,6 +20,7 @@ package model.tests.devices;
 
 import com.fpetrola.oozx.speccy.devices.spec256.Alignment;
 import com.fpetrola.oozx.speccy.devices.spec256.Planes;
+import com.fpetrola.oozx.speccy.devices.spec256.Rules;
 import com.fpetrola.oozx.speccy.devices.spec256.Spec256Core;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.OOZ80;
@@ -45,6 +46,7 @@ class NineInStepTest {
   private final byte[] ram = new byte[0x10000];
   private final Map<Integer, int[]> painted = new LinkedHashMap<>();
   private final Alignment alignment = new Alignment();
+  private final Rules rules = new Rules();
   private int portsRead, portsWritten, lastPortWritten = -1;
   private Planes planes;
   private State state;
@@ -104,7 +106,7 @@ class NineInStepTest {
         lastPortWritten = value;
       }
     }, new DefaultRegisterBankFactory().createBank(), memory);
-    OOZ80 cpu = new Spec256Core(planes, alignment).cpu(state, null);
+    OOZ80 cpu = new Spec256Core(planes, alignment, rules).cpu(state, null);
     cpu.reset();
     state.setHalted(false);
     state.getRegister(RegisterName.PC).write(CODE);
@@ -199,6 +201,41 @@ class NineInStepTest {
     Memory plane = planes.plane(0, memory);
     assertEquals(CODE + 1, (plane.peek(0xbffe) & 0xff) | (plane.peek(0xbfff) << 8),
         "each of them pushed the machine's own return address, in its own plane");
+  }
+
+  /**
+   * Two pixels of one byte, so that the planes hold bytes that differ as numbers and not only as
+   * bits: with the rule off the two drawings merge, with it on the higher byte wins outright.
+   */
+  @Test
+  void whereAGameSaysSoTheLogicalInstructionsTakeTheHigherByteInsteadOfBothOfThem() {
+    code(CODE, 0x7e, 0x2c, 0xb6, 0x12);              // LD A,(HL) ; INC L ; OR (HL) ; LD (DE),A
+    colours(FROM, 1, 0, 0, 0, 0, 0, 0, 0);
+    colours(FROM + 1, 0, 1, 0, 0, 0, 0, 0, 0);
+    rules.levelledOr = true;
+    OOZ80 cpu = nine();
+    state.getRegister(RegisterName.HL).write(FROM);
+    state.getRegister(RegisterName.DE).write(TO);
+
+    run(cpu, 4);
+
+    assertEquals(1, colourOf(TO, 0), "the higher byte is the one with the leftmost pixel, and it is what arrives");
+    assertEquals(0, colourOf(TO, 1), "the other drawing is covered rather than merged into it");
+  }
+
+  @Test
+  void otherwiseTheyAreTheOnesTheMachineHasAndBothDrawingsShow() {
+    code(CODE, 0x7e, 0x2c, 0xb6, 0x12);              // LD A,(HL) ; INC L ; OR (HL) ; LD (DE),A
+    colours(FROM, 1, 0, 0, 0, 0, 0, 0, 0);
+    colours(FROM + 1, 0, 1, 0, 0, 0, 0, 0, 0);
+    OOZ80 cpu = nine();
+    state.getRegister(RegisterName.HL).write(FROM);
+    state.getRegister(RegisterName.DE).write(TO);
+
+    run(cpu, 4);
+
+    assertEquals(1, colourOf(TO, 0), "bit for bit, which is what a machine does");
+    assertEquals(1, colourOf(TO, 1));
   }
 
   @Test

@@ -203,16 +203,25 @@ Son las de EmuZWin, y ahora tienen oráculo abierto. ZX-Poly implementa estas y 
 | `Paper00InkFF` | 0 | el color 0 se pinta con el papel del atributo y el 255 con su tinta: un gráfico sin colorear se ve como en el Spectrum, no negro y blanco |
 | `HideSameInkPaper` | 1 | donde tinta y papel del atributo son iguales, se pinta ese color, o el fondo si lo hay: es cómo el juego borra |
 | `UpColorsMixed`, `DownColorsMixed` | 64, 0 | los colores por encima de `255-Up` y por debajo de `Down` se promedian en RGB con la tinta o el papel del atributo, según el bit del bitmap original |
-| `GFXLeveledXOR`, `GFXLeveledOR`, `GFXLeveledAND` | 0 | en los GPUs la operación no es bit a bit: `OR` es `max`, `AND` es `min`, `XOR` es `max` salvo `XOR A,A`, que da 0. Los bytes son niveles de color, no máscaras |
+| `GFXLeveledXOR`, `GFXLeveledOR`, `GFXLeveledAND` | 0 | en los GPUs la operación no es bit a bit: `OR` es `max`, `AND` es `min`, `XOR` es `max` salvo `XOR A,A`, que da 0. Ojo con qué se compara: el máximo es **del byte del plano**, no del color del pixel. Con un solo pixel por byte da lo mismo que el `OR`; la diferencia aparece cuando el byte lleva varios, y entonces un dibujo tapa al otro en vez de sumarse |
+| `UseBrightInMix` | 0 | si la mezcla usa los ocho colores brillantes cuando el atributo dice brillante, o los apagados igual. ZX-Poly no lo lee; la captura del Cybernoid dice que no los usa |
 | `zxpAlignRegs` | `1PSsT` | qué registros toma el GPU del CPU antes de cada instrucción; suyo, no de EmuZWin |
 
-Y además: con el atributo en FLASH y la fase activa, se ve el fondo. Ignora `BkMixed`,
-`BkMixBkAttr`, `UpMixChgBright`, `DownMixChgBright`, `UseBrightInMix`, `UpMixPaper`,
-`DownMixPaper`, `GFXScreenXORbuffered` y `OrderPaletteSignedBytes`, que también están en los
-`.CFG` del repositorio. De los 18 que hay, lo único que se aparta de los valores por omisión es
-`BkOverFF=1` en 17, y `UpColorsMixed=1` con `UpMixChgBright=50` en 9: lo que ZX-Poly implementa
-alcanza para todos ellos salvo por el brillo de la mezcla. El bitmap original **sólo** se mira para
-elegir tinta o papel en la mezcla; un pixel apagado con color se pinta, en GZX y en ZX-Poly.
+Y además: con el atributo en FLASH y la fase activa, se ve el fondo. Quedan sin leer `BkMixed`,
+`BkMixBkAttr`, `UpMixChgBright`, `DownMixChgBright`, `UpMixPaper`, `DownMixPaper`,
+`GFXScreenXORbuffered` y `OrderPaletteSignedBytes`, que también están en los `.CFG` del
+repositorio. De los 18 que hay, lo único que se aparta de los valores por omisión es
+`BkOverFF=1` en 17, y `UpColorsMixed=1` con `UpMixChgBright=50` en 9: alcanza para todos ellos
+salvo por el brillo de la mezcla. El bitmap original **sólo** se mira para elegir tinta o papel en
+la mezcla; un pixel apagado con color se pinta, en GZX y en ZX-Poly.
+
+**Cómo se comprobó la mezcla.** La pantalla del título del Cybernoid, que no trae `.CFG` y por lo
+tanto corre con los valores por omisión, contra la captura que el repositorio trae de ella. Sin las
+reglas: 48 616 de los 49 152 pixeles idénticos, y los 536 que no lo eran, todos del color 246, a 18
+y 96 de distancia por canal. Con las reglas: los mismos 536, pero todos a **7 de distancia**, que
+es exactamente la diferencia entre el blanco apagado de esta máquina (178) y el del emulador que
+sacó la captura (192) entrando en la mezcla. Es decir: la regla es la de arriba, `UpColorsMixed=64`
+con `UseBrightInMix=0`, y lo único que queda es un tono de gris que es nuestro y no de Spec256.
 
 ## Qué queda como pregunta
 
@@ -328,7 +337,8 @@ Al 14 de septiembre de 2026, con el árbol verde desde un repositorio local vac�
 | 4. El núcleo en paso | `ba8e1048c` | `LockstepZ80`, `Alignment`, `Spec256Core`. El `peek` de `ContendedMemory` era un hueco de verdad y sin él no arranca. El costo: 6,08 ms por cuadro, 3,3 veces el tiempo real |
 | 5. El snapshot y la sesión | | `FilesOfItsOwn` en core: `Snapshots` le dice a quién guarda archivos al lado de dónde vino el snapshot, y no nombra a nadie. `Spec256Peripheral` es la sesión. Los hechos escriben un `.SNA` de 48K y un `.GFX` sintéticos en un directorio temporal, así que son de verdad y no traen nada de nadie |
 | 6. La pantalla | | El pintor de columnas, la paleta de 256 y los fondos, todo en `Spec256Peripheral`: la sesión es la que tiene pixeles propios. Cuatro `plotPair` por celda, que es el mismo camino que ya pinta un Timex de color por byte; ninguna función nueva en `Picture`. La dirección que indexa los planos es la de la máquina, no el desplazamiento dentro de la página |
-| 7 a 9 | | pendientes |
+| 7. Las reglas del `.CFG` | | `Rules` lee el archivo del juego; el pintor las aplica y `LevelledInstructions` da a los seguidores un `OR`, `AND` y `XOR` por nivel, sin tocar el emulador: `doExecute` de una instrucción es `protected`, así que una subclase deja las banderas que la operación de siempre pone y cambia sólo lo que se escribe. Lo que la mezcla usa son los dieciséis colores de la máquina, que es con lo que la máquina habría pintado ahí |
+| 8 y 9 | | pendientes |
 
 ## ZX-Poly contra el plan
 

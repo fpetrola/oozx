@@ -73,6 +73,8 @@ class TheScreenOfAGameTest extends MachineTest {
     Path snapshot = where.resolve("game.sna");
     byte[] sna = new byte[27 + 0xc000];
     sna[24] = 0x40;
+    // A cell whose ink and paper differ, or the rule that hides a cleared one covers the game up.
+    sna[27 + 0x1800 + (LINE / 8) * 32 + COLUMN] = 0x07;
     Files.write(snapshot, sna);
     Snapshots.of(speccy).load(snapshot.toString());
     speccy.loop.applyWhatWasDeferred();
@@ -106,11 +108,11 @@ class TheScreenOfAGameTest extends MachineTest {
 
   @Test
   void eightPixelsOfACellAreEightColoursOfTheirOwn() throws IOException {
-    colours(addressOf(LINE, COLUMN), 1, 2, 3, 4, 250, 251, 252, 253);
+    colours(addressOf(LINE, COLUMN), 1, 2, 3, 4, 100, 101, 102, 103);
     started();
 
     for (int within = 0; within < 8; within++) {
-      int expected = within < 4 ? within + 1 : 246 + within;
+      int expected = within < 4 ? within + 1 : 96 + within;
       assertEquals(rgbOf(expected), pixel(COLUMN, LINE, within),
           "pixel " + within + " is colour " + expected + ", with no attribute anywhere near it");
     }
