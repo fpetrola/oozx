@@ -133,6 +133,7 @@ public class Machine {
     Task endOfFrame = machine.endOfFrame();
 
     current = machine;
+    machine.whenItsTimingsChange(this::timingsChanged);
     peripherals.clear();
     machineChangeListeners.forEach(listener -> listener.machineChanged(current));
 
@@ -168,6 +169,17 @@ public class Machine {
     ula.contention.forMachine(current);
 
     display.refreshAll();
+  }
+
+  /**
+   * The machine's cycles are not what they were: a clone told to run faster has more of them in
+   * the same picture. Everything sized in them is sized again, which is what a reset does about
+   * timings and no more - the machine goes on running, with what it had.
+   */
+  public void timingsChanged() {
+    setVariableTimings(current);
+    ula.contention.forMachine(current);
+    sound.rebuildOutput();
   }
 
   /** Backs off from the first pixel by the border size to find where the first displayed line starts. */

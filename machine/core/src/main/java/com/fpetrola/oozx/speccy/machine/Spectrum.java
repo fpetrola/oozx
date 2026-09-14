@@ -72,6 +72,40 @@ public abstract class Spectrum extends AbstractSpectrumMachine {
     this.sound = sound;
   }
 
+  private int timesFaster = 1;
+  private MachineTimings running;
+  private Runnable measureAgain = () -> { };
+
+  /** How many of the processor's cycles fit where one fitted when this machine was built. */
+  public int timesFaster() {
+    return timesFaster;
+  }
+
+  /**
+   * A machine told by one of its own registers to run faster. Everything measured in this
+   * machine's cycles is measured again, because all of it just changed: where the beam is at a
+   * given cycle, what a contended read costs, and how many samples make a frame of sound.
+   */
+  protected void runsTimesFaster(int times) {
+    times = Math.max(1, times);
+    if (times == timesFaster) return;
+    timesFaster = times;
+    running = null;
+    measureAgain.run();
+  }
+
+  /** What a machine with such a register returns from {@code getTimings}: what it is, at the speed it is running. */
+  protected MachineTimings atThisSpeed(MachineTimings built) {
+    if (timesFaster == 1) return built;
+    if (running == null) running = built.times(timesFaster);
+    return running;
+  }
+
+  /** Whoever is holding this machine says here what to do when its cycles stop being what they were. */
+  public void whenItsTimingsChange(Runnable measureAgain) {
+    this.measureAgain = measureAgain == null ? () -> { } : measureAgain;
+  }
+
   /** This machine's ROM page, whichever bytes stand in for it outside. */
   public void loadRom(int pageNum, int expectedLength) {
     banks.rom(pageNum).fill(roms.of(this, pageNum, expectedLength));
