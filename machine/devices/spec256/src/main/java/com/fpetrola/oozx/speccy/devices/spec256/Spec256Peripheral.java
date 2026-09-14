@@ -69,6 +69,7 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
   private String wasOn;
   private int bitmap, ink, paper;
   private boolean flashedAway;
+  private boolean inItsColours = true;
 
   @Inject
   public Spec256Peripheral(Planes planes, Processors processors, Display display, SpectrumMemory banks,
@@ -106,8 +107,27 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     alignment.says(rules.registersTaken);
     if (wasOn == null) wasOn = processors.current();
     processors.use(Spec256Core.NAME);
-    theTwoHundredAndFiftySixColours();
-    display.painting.pixelsOfItsOwn(this);
+    paintFromThePlanes(inItsColours);
+  }
+
+  /** Whether the screen is the game's colours or the ones the machine itself would show. */
+  public boolean inItsColours() {
+    return inItsColours;
+  }
+
+  /**
+   * The switch every Spec256 emulator has: the same game either way and the followers keep
+   * running, so it is only a question of who paints and out of which palette.
+   */
+  public void inItsColours(boolean colourful) {
+    inItsColours = colourful;
+    if (playing != null) paintFromThePlanes(colourful);
+  }
+
+  private void paintFromThePlanes(boolean colourful) {
+    display.painting.pixelsOfItsOwn(colourful ? this : null);
+    if (colourful) theTwoHundredAndFiftySixColours();
+    else display.picture().sinclairColours();
     display.refreshAll();
   }
 
