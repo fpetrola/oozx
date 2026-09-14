@@ -43,10 +43,10 @@ class PictureTest {
     canvas.plot8(3, 40, (byte) 0b11000000, (byte) 7, (byte) 0);
     int left = 3 * 8;
 
-    assertEquals(Picture.PALETTE[7], at(left, 40), "bit 7 is set, so the leftmost pixel takes the ink");
-    assertEquals(Picture.PALETTE[7], at(left + 1, 40), "and bit 6 the one beside it");
-    assertEquals(Picture.PALETTE[0], at(left + 2, 40), "the rest is paper");
-    assertEquals(Picture.PALETTE[0], at(left + 7, 40), "including the rightmost, which is bit 0");
+    assertEquals(Picture.SINCLAIR[7], at(left, 40), "bit 7 is set, so the leftmost pixel takes the ink");
+    assertEquals(Picture.SINCLAIR[7], at(left + 1, 40), "and bit 6 the one beside it");
+    assertEquals(Picture.SINCLAIR[0], at(left + 2, 40), "the rest is paper");
+    assertEquals(Picture.SINCLAIR[0], at(left + 7, 40), "including the rightmost, which is bit 0");
   }
 
   @Test
@@ -61,9 +61,9 @@ class PictureTest {
   /** Bright is the top half of the palette, and the dim colours are not the same as the bright ones. */
   @Test
   void thePaletteHasEachColourDimAndBright() {
-    assertNotEquals(Picture.PALETTE[7], Picture.PALETTE[15], "white and bright white differ");
-    assertEquals(0, Picture.PALETTE[0], "black is black either way");
-    assertEquals(0, Picture.PALETTE[8]);
+    assertNotEquals(Picture.SINCLAIR[7], Picture.SINCLAIR[15], "white and bright white differ");
+    assertEquals(0, Picture.SINCLAIR[0], "black is black either way");
+    assertEquals(0, Picture.SINCLAIR[8]);
   }
 
   @Test

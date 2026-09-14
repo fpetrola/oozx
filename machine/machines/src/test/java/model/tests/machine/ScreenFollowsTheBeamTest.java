@@ -82,8 +82,8 @@ class ScreenFollowsTheBeamTest {
 
   private int colourAt(int x, int y) {
     int rgb = speccy.picture.pixels[y * Picture.STRIDE + x];
-    for (int colour = 0; colour < Picture.PALETTE.length; colour++) {
-      if (Picture.PALETTE[colour] == rgb) return colour;
+    for (int colour = 0; colour < Picture.SINCLAIR.length; colour++) {
+      if (Picture.SINCLAIR[colour] == rgb) return colour;
     }
     return -1;
   }

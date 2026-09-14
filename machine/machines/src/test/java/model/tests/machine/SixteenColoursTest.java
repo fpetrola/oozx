@@ -71,8 +71,8 @@ class SixteenColoursTest extends MachineTest {
   private int pixel(int which) {
     int x = Display.BORDER_WIDTH_COLS * 8 + which;
     int rgb = speccy.picture.pixels[Display.BORDER_HEIGHT * Picture.STRIDE + x];
-    for (int colour = 0; colour < Picture.PALETTE.length; colour++) {
-      if (Picture.PALETTE[colour] == rgb) return colour;
+    for (int colour = 0; colour < Picture.SINCLAIR.length; colour++) {
+      if (Picture.SINCLAIR[colour] == rgb) return colour;
     }
     return -1;
   }

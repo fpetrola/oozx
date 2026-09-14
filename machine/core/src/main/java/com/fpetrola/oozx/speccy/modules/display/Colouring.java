@@ -26,12 +26,39 @@ package com.fpetrola.oozx.speccy.modules.display;
 public final class Colouring {
   public boolean reversed;
 
+  /**
+   * How a byte says which two colours a cell is drawn in. The Sinclair way is one of these, and a
+   * machine whose colours come out of a byte differently gives its own rather than being asked for.
+   */
+  public interface Reading {
+    byte ink(byte attribute, boolean reversed);
+
+    byte paper(byte attribute, boolean reversed);
+  }
+
+  /** Three bits each way, a bit that lifts the ink into the bright eight, and a bit that swaps them. */
+  public static final Reading SINCLAIR = new Reading() {
+    public byte ink(byte attribute, boolean reversed) {
+      return flashes(attribute) && reversed ? paperBits(attribute) : inkBits(attribute);
+    }
+
+    public byte paper(byte attribute, boolean reversed) {
+      return flashes(attribute) && reversed ? inkBits(attribute) : paperBits(attribute);
+    }
+  };
+
+  private Reading reading = SINCLAIR;
+
+  public void reading(Reading another) {
+    reading = another == null ? SINCLAIR : another;
+  }
+
   public byte ink(byte attribute) {
-    return flashes(attribute) && reversed ? paperBits(attribute) : inkBits(attribute);
+    return reading.ink(attribute, reversed);
   }
 
   public byte paper(byte attribute) {
-    return flashes(attribute) && reversed ? inkBits(attribute) : paperBits(attribute);
+    return reading.paper(attribute, reversed);
   }
 
   public static boolean flashes(byte attribute) {
