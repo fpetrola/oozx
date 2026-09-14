@@ -38,6 +38,9 @@ import com.google.inject.Singleton;
  */
 @Singleton
 public class Spec256Core implements Core {
+  /** What this implementation of the processor is called, where a machine is moved onto it. */
+  public static final String NAME = "Spec256";
+
   /** A follower has no ports: what a port answers is never a colour, and what it would say is not its to say. */
   private static final IO DEAF = new IO() {
     public int in(int port) {
@@ -59,7 +62,7 @@ public class Spec256Core implements Core {
   }
 
   public String name() {
-    return "Spec256";
+    return NAME;
   }
 
   public RegisterBank bank(Memory memory, IO io) {

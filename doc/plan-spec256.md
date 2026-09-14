@@ -325,8 +325,10 @@ Al 14 de septiembre de 2026, con el árbol verde desde un repositorio local vac�
 | 1. La paleta a 256 | `6ed40f795` | Dos líneas y una máscara por celda: pintar una pantalla entera cuesta 0,021 ms con paleta de 64 y con paleta de 256, medido. Lo que no estaba previsto: ULAplus usaba `Picture.COLOURS` para decir cuántos registros tiene. Eran los dos 64 y no son el mismo número; ahora dice 64 él |
 | 2. El asiento de la columna | `af4e9d9cf` | `Painting.PixelsOfItsOwn`, consultado antes de las tres reglas, instalado y retirado como `Colouring.Reading`. El haz y las celdas sucias siguen siendo de `Painting`: al asiento se le ofrece una columna sólo cuando está sucia |
 | 3. Los planos y el `.GFX` | `f7fdd7837` | `Planes` y el orden del archivo en un solo lugar. Leído contra el Cybernoid real da los mismos 11 706 y 2 421 que el plan había anotado antes de que hubiera código. Los planos de la ROM no se calculan ni se copian: por debajo de 0x4000 el plano devuelve el byte de la máquina, que ya es lo que ocho planos iguales dirían, y así la paginación no se piensa |
-| 4. El núcleo en paso | | `LockstepZ80`, `Alignment`, `Spec256Core`. El `peek` de `ContendedMemory` era un hueco de verdad y sin él no arranca. El costo: 6,08 ms por cuadro, 3,3 veces el tiempo real |
-| 5 a 9 | | pendientes |
+| 4. El núcleo en paso | `ba8e1048c` | `LockstepZ80`, `Alignment`, `Spec256Core`. El `peek` de `ContendedMemory` era un hueco de verdad y sin él no arranca. El costo: 6,08 ms por cuadro, 3,3 veces el tiempo real |
+| 5. El snapshot y la sesión | | `FilesOfItsOwn` en core: `Snapshots` le dice a quién guarda archivos al lado de dónde vino el snapshot, y no nombra a nadie. `Spec256Peripheral` es la sesión. Los hechos escriben un `.SNA` de 48K y un `.GFX` sintéticos en un directorio temporal, así que son de verdad y no traen nada de nadie |
+| 6. La pantalla | | El pintor de columnas, la paleta de 256 y los fondos, todo en `Spec256Peripheral`: la sesión es la que tiene pixeles propios. Cuatro `plotPair` por celda, que es el mismo camino que ya pinta un Timex de color por byte; ninguna función nueva en `Picture`. La dirección que indexa los planos es la de la máquina, no el desplazamiento dentro de la página |
+| 7 a 9 | | pendientes |
 
 ## ZX-Poly contra el plan
 
