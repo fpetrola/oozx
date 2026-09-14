@@ -19,10 +19,14 @@ package model.tests.machine;
 
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.config.RomFiles;
+import com.fpetrola.oozx.speccy.machine.CzSpectrum;
+import com.fpetrola.oozx.speccy.machine.CzSpectrumPlus;
 import com.fpetrola.oozx.speccy.machine.Spec128;
 import com.fpetrola.oozx.speccy.machine.Spec48;
 import com.fpetrola.oozx.speccy.machine.SpecPlus2A;
 import com.fpetrola.oozx.speccy.machine.SpecPlus3;
+import com.fpetrola.oozx.speccy.machine.Tk90x;
+import com.fpetrola.oozx.speccy.machine.Tk95;
 import model.harness.MachineTest;
 import org.junit.jupiter.api.Test;
 
@@ -96,6 +100,27 @@ class TheRomsAMachineRunsOnTest extends MachineTest {
         () -> roms.chooseSet(machine(Spec48.class), "Portuguese"));
 
     assertTrue(noSuchSet.getMessage().contains("Spanish"), "it should say what there is: " + noSuchSet.getMessage());
+  }
+
+  /**
+   * Each machine reads the ROM of its own name. These are derived from one another - a TK95 from
+   * a TK90X, a CZ Plus from a CZ - and the settings find a machine's ROMs by walking up to the
+   * nearest name they know of, so one left out of the list would quietly run the one above it.
+   */
+  @Test
+  void aMachineDerivedFromAnotherStillReadsItsOwnRom() {
+    assertEquals(List.of("tk90x.rom"), roms.running(machine(Tk90x.class)));
+    assertEquals(List.of("tk95.rom"), roms.running(machine(Tk95.class)));
+    assertEquals(List.of("48.rom"), roms.running(machine(CzSpectrum.class)),
+        "the one Czerweny sold is a 48K down to the ROM in it");
+    assertEquals(List.of("inves.rom"), roms.running(machine(CzSpectrumPlus.class)));
+  }
+
+  /** A machine can be offered its other ROMs before any of them is on this disk. */
+  @Test
+  void aMachineWhoseRomsAreNotHereYetStillSaysWhichSetsItHas() {
+    assertEquals(List.of("Portuguese", "Spanish"), List.copyOf(roms.setsFor(machine(Tk90x.class)).keySet()));
+    assertEquals(List.of("tk90x.rom"), roms.missingFor(machine(Tk90x.class)), "and that the one it runs is not here");
   }
 
   /**

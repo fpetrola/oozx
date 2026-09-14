@@ -56,7 +56,11 @@
       "Pentagon1024" : [ "128-0.rom", "128-1.rom" ],
       "Tc2068" : [ "tc2068-0.rom", "tc2068-1.rom" ],
       "Ts2068" : [ "ts2068-0.rom", "ts2068-1.rom" ],
-      "Scorpion" : [ "scorpion-0.rom", "scorpion-1.rom", "scorpion-2.rom" ]
+      "Scorpion" : [ "scorpion-0.rom", "scorpion-1.rom", "scorpion-2.rom" ],
+      "Tk90x" : [ "tk90x.rom" ],
+      "Tk95" : [ "tk95.rom" ],
+      "CzSpectrum" : [ "48.rom" ],
+      "CzSpectrumPlus" : [ "inves.rom" ]
     },
     "sources" : {
       "scorpion-0.rom" : {
@@ -166,6 +170,36 @@
         "sha256" : "24a9fff69995e0fe6397b6437e3e7ae60010b6ff65e1680087f578c27871a9ef",
         "at" : 49152,
         "length" : 16384
+      },
+      "tk90x.rom" : {
+        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/tk90x.rom",
+        "sha256" : "f3892b4140901f8289b962f5e097cf330c6997260052baac351026639012beeb",
+        "at" : 0,
+        "length" : 0
+      },
+      "tk90x-spanish.rom" : {
+        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/tk90xs.rom",
+        "sha256" : "9eff5867aa1123e84fb366f1e7f68a484666f845c6b33f67a62f6e6b7f1fcb4b",
+        "at" : 0,
+        "length" : 0
+      },
+      "tk95.rom" : {
+        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/tk95.rom",
+        "sha256" : "c0f7c0a7b2dd838488189cda052e414cd3474f3a718c1fde0a6cef3e8e0f4776",
+        "at" : 0,
+        "length" : 0
+      },
+      "tk95-spanish.rom" : {
+        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/tk95es.rom",
+        "sha256" : "4aa2421e29487917bfd183012b114a3caacbf10ff46f3686c87e94ba5c492819",
+        "at" : 0,
+        "length" : 0
+      },
+      "inves.rom" : {
+        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/inves.rom",
+        "sha256" : "b237d9facdc7ecb1b5e277f79870b1d8cba943b05e1b7fb1769a7e43a71742de",
+        "at" : 0,
+        "length" : 0
       }
     },
     "sets" : {
@@ -186,6 +220,14 @@
         "Version 4.0" : [ "plus3-0.rom", "plus3-1.rom", "plus3-2.rom", "plus3-3.rom" ],
         "Version 4.1" : [ "plus3-41-0.rom", "plus3-41-1.rom", "plus3-41-2.rom", "plus3-41-3.rom" ],
         "Spanish" : [ "plus3-spanish-0.rom", "plus3-spanish-1.rom", "plus3-spanish-2.rom", "plus3-spanish-3.rom" ]
+      },
+      "Tk90x" : {
+        "Portuguese" : [ "tk90x.rom" ],
+        "Spanish" : [ "tk90x-spanish.rom" ]
+      },
+      "Tk95" : {
+        "Portuguese" : [ "tk95.rom" ],
+        "Spanish" : [ "tk95-spanish.rom" ]
       }
     }
   },
