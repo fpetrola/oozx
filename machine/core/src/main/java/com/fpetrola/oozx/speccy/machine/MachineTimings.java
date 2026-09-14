@@ -25,6 +25,8 @@ public record MachineTimings(long processorSpeed, Frame frame) {
   /** The same chip in a machine sold where the mains is sixty cycles: fifty lines fewer and a shorter wait. */
   public static final Frame TIMEX_SCLD_60HZ = new Frame(new Span(24, 128, 24, 48), new Span(24, 192, 25, 21), 32, 9169);
   public static final Frame AMSTRAD_ASIC = new Frame(new Span(24, 128, 24, 52), new Span(48, 192, 48, 23), 32, 14365);
+  /** A Ferranti's frame on a clone that waits a little longer for its interrupt. */
+  public static final Frame SCORPION = new Frame(new Span(24, 128, 32, 40), new Span(48, 192, 48, 24), 36, 14336);
   /** 224 clocks over 320 lines is 71680 to a frame, which at 3.584MHz is fifty of them a second. */
   public static final Frame PENTAGON = new Frame(new Span(36, 128, 28, 32), new Span(64, 192, 48, 16), 36, 17988);
 

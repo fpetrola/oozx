@@ -55,9 +55,27 @@
       "SpecSe" : [ "se-0.rom", "se-1.rom" ],
       "Pentagon1024" : [ "128-0.rom", "128-1.rom" ],
       "Tc2068" : [ "tc2068-0.rom", "tc2068-1.rom" ],
-      "Ts2068" : [ "ts2068-0.rom", "ts2068-1.rom" ]
+      "Ts2068" : [ "ts2068-0.rom", "ts2068-1.rom" ],
+      "Scorpion" : [ "scorpion-0.rom", "scorpion-1.rom", "scorpion-2.rom" ]
     },
-    "sources" : { }
+    "sources" : {
+      "scorpion-0.rom" : {
+        "url" : "https://speccy4ever.speccy.org/rom/SCORP0.ROM",
+        "sha256" : "c7ba1b5a4895b9ffba4499a40f227f955bc147092532f95023afe3a393bba602"
+      },
+      "scorpion-1.rom" : {
+        "url" : "https://speccy4ever.speccy.org/rom/SCORP1.ROM",
+        "sha256" : "e8b8ec052e5e7283a59173326a954773583fc282ccdf1dfff1724c30fdbc86f8"
+      },
+      "scorpion-2.rom" : {
+        "url" : "https://speccy4ever.speccy.org/rom/SCORP2.ROM",
+        "sha256" : "9f7571982a90268ef567bb6a8523d7c96db1d9644c85fee83c0ef0fa8a8900e1"
+      },
+      "scorpion-3.rom" : {
+        "url" : "https://speccy4ever.speccy.org/rom/SCORP3.ROM",
+        "sha256" : "31eda65b203179f466e5fcea8741ecb7c14d3c8f022e622585103e903969eadd"
+      }
+    }
   },
   "interface1" : {
     "microdriveSectors" : 180,

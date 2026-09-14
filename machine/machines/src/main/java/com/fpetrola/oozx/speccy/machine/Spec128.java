@@ -112,6 +112,11 @@ public class Spec128 extends Spectrum implements Paging128 {
     return paging.page(slot);
   }
 
+  /** Which ROM is at the bottom. A machine that reads the same bits differently says so here. */
+  protected int romAt() {
+    return paging.rom();
+  }
+
   public void memoryPortWrite(int port, byte b) {
     if (paging.write7ffd(b)) memoryMap();
   }
@@ -123,7 +128,7 @@ public class Spec128 extends Spectrum implements Paging128 {
       display.screenChanging();
       banks.show(banks.ram(paging.screen()), display::screenWritten);
     }
-    memory.slot(0x0000, paging.special() ? banks.ram(pageAt(0)) : banks.rom(paging.rom()));
+    memory.slot(0x0000, paging.special() ? banks.ram(pageAt(0)) : banks.rom(romAt()));
     for (int slot = 1; slot < 4; slot++) {
       memory.slot(slot << 14, banks.ram(pageAt(slot)));
     }

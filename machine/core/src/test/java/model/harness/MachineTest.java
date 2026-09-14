@@ -46,6 +46,19 @@ public abstract class MachineTest {
     return speccy;
   }
 
+  /**
+   * Puts a machine in, or gives up on this test when its ROM is not part of this build. A few
+   * machines are real and their ROM is not ours to carry: until somebody fetches one, a fact asked
+   * of every machine cannot be asked of that one.
+   */
+  public static void select(com.fpetrola.oozx.Speccy speccy, com.fpetrola.oozx.speccy.machine.Spectrum machine) {
+    try {
+      speccy.machine.select(machine);
+    } catch (com.fpetrola.oozx.speccy.machine.RomNotLoadedException itsRomIsNotHere) {
+      org.junit.jupiter.api.Assumptions.abort(machine.getName() + " needs a ROM this build does not carry");
+    }
+  }
+
   /** One turn of the machine's own loop: the processor up to the next task, then what is due. */
   public static void step(Speccy speccy) {
     speccy.loop.doOpcodes();

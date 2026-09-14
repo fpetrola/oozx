@@ -175,14 +175,18 @@ core aprendió dos cosas nuevas y nada más: que una columna puede ser cuatro by
 junto al mostrado (`SpectrumMemory.alongside/beside`, que además lo hace vigilado para que
 escribirlo cambie la imagen). Quién pide todo eso lo decide la máquina en su `memoryMap()`.
 
-### 6. Scorpion, cuando haya ROM
+### 6. Scorpion
 
 Cabe entero en lo que hay: pagina por los dos puertos del +3 con otros significados. Bit 0 de 0x1ffd
 pone RAM en 0x0000, bit 1 elige su ROM de servicio, bit 4 es el cuarto bit de página. Dieciséis
 páginas, sin contención, Beta 128 a bordo.
 
-- `Scorpion extends SpecPlus3` con `pageAt` y `romAt`.
-- No entra hasta tener sus tres ROMs: una máquina que no arranca es peor que una que no está.
+- `Scorpion extends SpecPlus3` con `pageAt` y `romAt`. Hecho: `Spec128` ganó el segundo asiento
+  (`romAt()`) al lado del que ya tenía, y el bit que un +3 lee como la primera de cuatro
+  distribuciones de RAM esta máquina lo lee como una sola cosa, la página cero abajo.
+- Sus cuatro ROMs no son nuestras para distribuir, así que no están en el árbol: la configuración
+  dice dónde están publicadas y qué bytes tienen que ser, y el emulador las busca una vez con
+  permiso. Los hechos que necesitan arrancarla se saltean solos mientras no estén.
 
 ## El orden, y por qué
 
