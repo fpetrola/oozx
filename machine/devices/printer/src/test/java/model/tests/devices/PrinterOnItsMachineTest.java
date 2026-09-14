@@ -77,7 +77,7 @@ class PrinterOnItsMachineTest {
   void theFullyDecodedOneIsOffEverywhere() {
     Speccy speccy = speccy(true);
     for (com.fpetrola.oozx.speccy.machine.Spectrum machine : speccy.machine.getMachineTypes()) {
-      speccy.machine.select(machine);
+      model.harness.MachineTest.select(speccy, machine);
       assertFalse(speccy.peripheralRegistry.isActive(ZxPrinterFullDecodePeripheral.class),
           "a machine here answered the Timex decoding: " + machine.getName());
     }

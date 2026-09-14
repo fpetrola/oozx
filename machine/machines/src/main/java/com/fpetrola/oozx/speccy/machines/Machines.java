@@ -28,6 +28,7 @@ import com.fpetrola.oozx.speccy.machine.Spec48;
 import com.fpetrola.oozx.speccy.machine.SpecSe;
 import com.fpetrola.oozx.speccy.machine.Tc2048;
 import com.fpetrola.oozx.speccy.machine.Tc2068;
+import com.fpetrola.oozx.speccy.machine.Scorpion;
 import com.fpetrola.oozx.speccy.machine.Ts2068;
 import com.fpetrola.oozx.speccy.machine.SpecPlus2;
 import com.fpetrola.oozx.speccy.machine.SpecPlus2A;
@@ -52,7 +53,7 @@ public class Machines extends AbstractModule implements Extension {
    */
   public static final java.util.List<String> MODEL_NAMES = java.util.List.of(
       "Spectrum 16K", "Spectrum 48K", "Spectrum 128K", "Spectrum Plus 3", "Spectrum Plus 2", "Spectrum Plus 2A",
-      "Sinclair Spectrum 48K (NTSC)", "Amstrad Spectrum +3e", "Pentagon", "Pentagon 512K", "Timex TC2048", "Timex TC2068", "Timex TS2068", "Spectrum SE", "Pentagon 1024K");
+      "Sinclair Spectrum 48K (NTSC)", "Amstrad Spectrum +3e", "Pentagon", "Pentagon 512K", "Timex TC2048", "Timex TC2068", "Timex TS2068", "Spectrum SE", "Scorpion ZS 256", "Pentagon 1024K");
 
   protected void configure() {
     Multibinder.newSetBinder(binder(), com.fpetrola.oozx.speccy.peripherals.Peripheral.class)
@@ -73,6 +74,7 @@ public class Machines extends AbstractModule implements Extension {
     models.addBinding().to(Tc2068.class);
     models.addBinding().to(Ts2068.class);
     models.addBinding().to(SpecSe.class);
+    models.addBinding().to(Scorpion.class);
     bind(Spectrum.class).annotatedWith(DefaultMachine.class).to(Spec48.class);
   }
 }

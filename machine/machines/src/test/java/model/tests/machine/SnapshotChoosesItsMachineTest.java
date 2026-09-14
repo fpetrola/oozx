@@ -79,7 +79,7 @@ class SnapshotChoosesItsMachineTest {
     for (Spectrum machine : speccy.machine.getMachineTypes()) {
       assertTrue(shortNames.add(machine.shortName()),
           machine.getName() + " shares its short name with another machine: " + machine.shortName());
-      speccy.machine.select(speccy.machine.forShortName(machine.shortName()).orElseThrow());
+      model.harness.MachineTest.select(speccy, speccy.machine.forShortName(machine.shortName()).orElseThrow());
       assertSame(machine, speccy.machine.current, "asking for " + machine.shortName());
     }
   }

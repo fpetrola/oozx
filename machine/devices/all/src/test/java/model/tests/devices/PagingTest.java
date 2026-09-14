@@ -26,6 +26,8 @@ import com.fpetrola.oozx.speccy.machine.Spectrum;
 import com.fpetrola.oozx.speccy.modules.snapshot.Snapshots;
 import model.harness.MachineTest;
 import org.junit.jupiter.api.Test;
+
+import static model.harness.MachineTest.select;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -76,7 +78,7 @@ class PagingTest extends MachineTest {
 
   private void on(String model) {
     speccy.machine.selectDefault();
-    speccy.machine.select(speccy.machine.getMachineTypes().stream()
+    select(speccy, speccy.machine.getMachineTypes().stream()
         .filter(type -> type.getName().equals(model)).findFirst().orElseThrow());
   }
 

@@ -55,7 +55,7 @@ class TheInterruptLineTest extends MachineTest {
    */
   private Speccy readyToBeInterrupted(String model) {
     Speccy speccy = silentMachine();
-    speccy.machine.select(speccy.machine.getMachineTypes().stream()
+    select(speccy, speccy.machine.getMachineTypes().stream()
         .filter(type -> type.getName().equals(model)).findFirst().orElseThrow());
     boolean[] handled = {false};
     var watch = speccy.cpu.beforeFetch().watch(0x0038, pc -> handled[0] = true);
