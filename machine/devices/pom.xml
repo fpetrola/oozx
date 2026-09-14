@@ -41,6 +41,7 @@
         <module>disciple</module>
         <module>beta128</module>
         <module>covox</module>
+        <module>spec256</module>
         <module>specdrum</module>
         <module>fuller</module>
         <module>opus</module>
