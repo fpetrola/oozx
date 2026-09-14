@@ -36,7 +36,7 @@ public class Picture {
   public static final int[] SINCLAIR = new int[16];
 
   /** How many colours a picture can be painted in, which is as many as anything here can ask for. */
-  public static final int COLOURS = 64;
+  public static final int COLOURS = 256;
 
   static {
     for (int colour = 0; colour < 8; colour++) {
@@ -91,7 +91,7 @@ public class Picture {
   public void plot8(int x, int y, byte data, byte ink, byte paper) {
     if (!active) return;
     int at = y * STRIDE + x * columnWidth;
-    int inkColour = palette[ink], paperColour = palette[paper];
+    int inkColour = palette[ink & 0xff], paperColour = palette[paper & 0xff];
     if (columnWidth == 8) {
       for (int i = 0; i < 8; i++) {
         pixels[at + i] = (data & (0x80 >> i)) != 0 ? inkColour : paperColour;
@@ -109,15 +109,15 @@ public class Picture {
   public void plotPair(int x, int y, int pair, byte left, byte right) {
     if (!active) return;
     int at = y * STRIDE + x * columnWidth + pair * 2;
-    pixels[at] = palette[left];
-    pixels[at + 1] = palette[right];
+    pixels[at] = palette[left & 0xff];
+    pixels[at + 1] = palette[right & 0xff];
   }
 
   /** Sixteen pixels of their own, from the two bytes a column is made of where one is not enough. */
   public void plot16(int x, int y, int data, byte ink, byte paper) {
     if (!active) return;
     int at = y * STRIDE + (x << 4);
-    int inkColour = palette[ink], paperColour = palette[paper];
+    int inkColour = palette[ink & 0xff], paperColour = palette[paper & 0xff];
     for (int i = 0; i < 16; i++) {
       pixels[at + i] = (data & (0x8000 >> i)) != 0 ? inkColour : paperColour;
     }

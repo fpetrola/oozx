@@ -46,7 +46,7 @@ public class UlaPlusFrame extends DeviceFrame<UlaPlusPeripheral> {
   private static final int REFRESH_MILLIS = 120;
   private static final String[] ROWS = {"plain", "bright", "flash", "both"};
 
-  private final JLabel[] swatches = new JLabel[Picture.COLOURS];
+  private final JLabel[] swatches = new JLabel[UlaPlusPeripheral.COLOURS];
   private final JLabel painting = new JLabel();
   private final JLabel told = new JLabel();
   private final Timer refresh = new Timer(REFRESH_MILLIS, e -> refresh());
@@ -105,7 +105,7 @@ public class UlaPlusFrame extends DeviceFrame<UlaPlusPeripheral> {
       return;
     }
     int ofItsOwn = 0;
-    for (int colour = 0; colour < Picture.COLOURS; colour++) {
+    for (int colour = 0; colour < UlaPlusPeripheral.COLOURS; colour++) {
       int rgb = chip.colourOf(colour);
       swatches[colour].setBackground(new Color(rgb));
       if (rgb != Picture.SINCLAIR[colour & 0x0f]) ofItsOwn++;
@@ -129,6 +129,6 @@ public class UlaPlusFrame extends DeviceFrame<UlaPlusPeripheral> {
   /** What a byte written to the register port asked for, said the way the chip reads it. */
   private static String named(int register) {
     return (register & 0x40) != 0 ? "the one that says whether to paint in them"
-        : "colour " + (register & (Picture.COLOURS - 1));
+        : "colour " + (register & (UlaPlusPeripheral.COLOURS - 1));
   }
 }

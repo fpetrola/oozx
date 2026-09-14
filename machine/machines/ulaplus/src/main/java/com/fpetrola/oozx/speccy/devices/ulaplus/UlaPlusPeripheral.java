@@ -21,7 +21,6 @@ package com.fpetrola.oozx.speccy.devices.ulaplus;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.modules.display.Colouring;
 import com.fpetrola.oozx.speccy.modules.display.Display;
-import com.fpetrola.oozx.speccy.modules.display.Picture;
 import com.fpetrola.oozx.speccy.peripherals.AbstractPeripheral;
 import com.fpetrola.oozx.speccy.ports.BusAnswer;
 import com.fpetrola.oozx.speccy.ports.DefaultPortHandler;
@@ -42,6 +41,8 @@ import java.util.List;
 @Singleton
 public class UlaPlusPeripheral extends AbstractPeripheral
     implements com.fpetrola.oozx.speccy.modules.display.ColoursOfItsOwn, com.fpetrola.oozx.speccy.peripherals.Pluggable {
+  /** How many colours this chip has, which is how many registers of them it has. */
+  public static final int COLOURS = 64;
   /** Which of the two groups of registers the named one is in: the colours, or the one about them. */
   private static final int MODE_GROUP = 0x40;
   /** The bit of the mode register that says the machine is painting in these colours. */
@@ -69,7 +70,7 @@ public class UlaPlusPeripheral extends AbstractPeripheral
   };
 
   private final Display display;
-  private final byte[] colours = new byte[Picture.COLOURS];
+  private final byte[] colours = new byte[COLOURS];
   private int named;
   private byte mode;
   private boolean fitted;
@@ -91,7 +92,7 @@ public class UlaPlusPeripheral extends AbstractPeripheral
 
       @Override
       public BusAnswer read(int port) {
-        return BusAnswer.of((named & MODE_GROUP) != 0 ? mode : colours[named & (Picture.COLOURS - 1)]);
+        return BusAnswer.of((named & MODE_GROUP) != 0 ? mode : colours[named & (COLOURS - 1)]);
       }
     }));
   }
@@ -125,7 +126,7 @@ public class UlaPlusPeripheral extends AbstractPeripheral
 
   /** What one of the sixty-four is worth, as a colour rather than as the byte it was written as. */
   public int colourOf(int index) {
-    return rgb(colours[index & (Picture.COLOURS - 1)]);
+    return rgb(colours[index & (COLOURS - 1)]);
   }
 
   /** Which register was named last, which is where the next byte written would go. */
@@ -143,8 +144,8 @@ public class UlaPlusPeripheral extends AbstractPeripheral
       mode = value;
       painting();
     } else {
-      colours[named & (Picture.COLOURS - 1)] = value;
-      if (painting()) display.picture().colour(named & (Picture.COLOURS - 1), rgb(value));
+      colours[named & (COLOURS - 1)] = value;
+      if (painting()) display.picture().colour(named & (COLOURS - 1), rgb(value));
     }
     display.refreshAll();
   }
@@ -154,7 +155,7 @@ public class UlaPlusPeripheral extends AbstractPeripheral
     boolean on = (mode & PALETTE_ON) != 0;
     display.colouring.reading(on ? READING : null);
     if (on) {
-      for (int colour = 0; colour < Picture.COLOURS; colour++) display.picture().colour(colour, rgb(colours[colour]));
+      for (int colour = 0; colour < COLOURS; colour++) display.picture().colour(colour, rgb(colours[colour]));
     } else {
       display.picture().sinclairColours();
     }
@@ -181,7 +182,7 @@ public class UlaPlusPeripheral extends AbstractPeripheral
   @Override
   public void asItWas(int[] sixtyFour, boolean painting) {
     if (sixtyFour != null) {
-      for (int colour = 0; colour < Math.min(sixtyFour.length, Picture.COLOURS); colour++) {
+      for (int colour = 0; colour < Math.min(sixtyFour.length, COLOURS); colour++) {
         colours[colour] = (byte) sixtyFour[colour];
       }
     }
