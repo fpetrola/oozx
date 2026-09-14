@@ -378,7 +378,7 @@ Al 14 de septiembre de 2026, con el árbol verde desde un repositorio local vac�
 | 8. La ventana | `69517a542` | `Spec256Frame` sobre `MachineFrame` y no sobre `DeviceFrame`: esto no es algo que se enchufa, es una sesión, y la ventana la encuentra en el registro de la máquina a la que está prendida. Muestra el juego, lo que su archivo pidió, los 256 colores, los fondos, y el interruptor que todo emulador de esto tiene |
 | 9. Contra los juegos | `edcd0b7a2` | Los 29 juegos del repositorio que traen snapshot y colores **arrancan y se pintan**, ninguno se cuelga. Lo que faltaba y se encontró acá: el `ROM0.GFX`, los colores de la fuente de la ROM, que el Jetpac trae y sin el cual sus dígitos salían grises — 94,50 % a 99,02 % |
 | Después: la estela | `caf50a4b1` | La pantalla de un Spec256 se pinta entera cada cuadro, porque los planos cambian donde la memoria de la máquina no lo registra |
-| Después: la deriva de punteros | | Medida, y el interruptor en la ventana. No cambia el valor por omisión: trece de quince juegos dan lo mismo, uno mejora mucho y otro empeora |
+| Después: la deriva de punteros | `901ef2623` | Medida, y el interruptor en la ventana. No cambia el valor por omisión: trece de quince juegos dan lo mismo, uno mejora mucho y otro empeora |
 
 ## La estela, y por qué la pantalla de un Spec256 se pinta entera
 
