@@ -105,8 +105,8 @@ usa; queda para cuando uno lo use.
 | pieza nuestra | qué es hoy | lo que Spec256 le pide | cambio en core |
 |---|---|---|---|
 | `Core`, `Processors` | un conjunto de implementaciones del procesador (`Multibinder<Core>`), cada una llega en su módulo por `Extension`, y `Processors.use` mueve una máquina que corre a otra | una implementación más, "Spec256": el OOP nueve veces en paso | **ninguno** |
-| `OOZ80` | `execute()` e `interruption()` públicos | una subclase que ejecuta en nueve | ninguno, si admite herencia; si está cerrada, abrirla es una palabra |
-| `State`, `Memory` | un `State` sobre una `Memory` y un `IO`; `State(IO, Memory)` existe; `Memory.read(address, fetching)` ya distingue el fetch de un opcode del dato, y `peek` lee sin avisar a nadie | ocho estados sobre ocho planos con un `IO` que no contesta; cada plano sirve el código de la máquina y los datos suyos | ninguno: el plano implementa `Memory` en el módulo, con `read` que manda `fetching != 0` al `peek` de la máquina y lo demás a sus bits |
+| `OOZ80`, `Cpu` | `Cpu` sólo le pide al procesador `execute()`, `interruption()`, `nmi()`, `reset()` y `getState()`; `OOZ80` es una clase abierta con esos cuatro públicos | una subclase que es el OOZ80 del CPU con ocho seguidores y contesta esos cuatro en nueve | **ninguno**: `getState()` sigue siendo el CPU, y con él las trampas, el RZX, la contención y `takeFrom` |
+| `State`, `Memory` | un `State` sobre una `Memory` y un `IO`; `State(IO, Memory)` existe; `Memory.read(address, fetching)` ya distingue el fetch de un opcode del dato, y `peek` lee sin avisar a nadie | ocho estados sobre ocho planos con un `IO` que no contesta; cada plano sirve el código de la máquina y los datos suyos | **tres líneas, y son un arreglo**: `ContendedMemory`, que es la memoria que recibe el procesador, no contesta `peek` —cae en el `getData()` vacío de `Memory`— y delegarlo a lo que envuelve es lo que `peek` promete. El plano implementa `Memory` en el módulo, con `read` que manda `fetching != 0` a ese `peek` y lo demás a sus bits |
 | `Picture.COLOURS` y sus búsquedas | 64 colores, índices `byte` | 256, e índices que no se vuelvan negativos | **dos líneas**: 256 y `& 0xff` al buscar |
 | `Painting.plotLine` | tres reglas, una por bandera del `ScreenLayout` | una cuarta que no lee la memoria de la máquina sino ocho planos que viven en otro lado | **un asiento**: quién pinta una columna, si alguien lo dijo |
 | `Snapshots.load(url)` | conoce la ruta y no se la dice a nadie | que alguien sepa de qué archivo vino un snapshot, para mirar al lado | **un asiento**: a quién avisar |
@@ -114,7 +114,9 @@ usa; queda para cuando uno lo use.
 | las máquinas | veinticuatro | nada: es un juego de 48K en un 48K | ninguno |
 | el escritorio | ventanas por `Equipment` en `META-INF/services` | una ventana más | ninguno |
 
-Tres cambios en core, ninguno con la palabra Spec256, ninguno en un camino caliente de nadie:
+Tres asientos en core y un arreglo, ninguno con la palabra Spec256, ninguno en un camino caliente
+de nadie. El arreglo es el `peek` de `ContendedMemory`, que hoy no cumple el contrato de `Memory`;
+los asientos:
 
 ### 1. La paleta tiene 256 entradas
 
@@ -149,13 +151,19 @@ Un módulo bajo `machine/devices`, como los demás dispositivos que traen ventan
 - **`Spec256Core`**, un `Core` más. Su `cpu(state, contention)` construye el OOZ80 de siempre sobre
   el estado de la máquina y ocho OOZ80 sobre ocho `Plane` - una `Memory` de 64K cada uno que da
   el código de la máquina cuando `fetching != 0` y sus propios bits cuando no, sin contención y con
-  un `IO` que devuelve 0xff - y devuelve un `LockstepZ80` cuyo `execute()` hace los tres pasos de
-  arriba y cuyo `interruption()` la toma en los nueve. Lo que se le copia a cada GPU antes de su
-  paso lo dice un `Alignment`: por omisión PC, SP, I, R, IFF1, IFF2, IM, parado y F menos el
+  un `IO` que devuelve 0xff - y devuelve un `LockstepZ80`: el OOZ80 del CPU, construido como lo
+  construye `OopCore`, con los ocho adentro. Hereda, y redefine lo único que la máquina le pide a
+  un procesador: `execute()` hace los tres pasos de arriba, `interruption()` y `nmi()` las toman
+  en los nueve, `reset()` resetea a los nueve; `getState()` sigue devolviendo el estado del CPU, y
+  por eso `Cpu`, las trampas, el RZX y `Processors` no notan nada. Un GPU nunca toma una
+  interrupción por su cuenta: su línea INT no la levanta nadie, y la toma cuando la toma el CPU.
+  Lo que se le copia a cada GPU antes de su paso lo dice un `Alignment`: por omisión PC, SP, I, R, IFF1, IFF2, IM, parado y F menos el
   acarreo; por juego, lo que su `.CFG` diga en `zxpAlignRegs`, que admite además A, BC, DE, HL,
   IX, IY y los alternativos —15 de los 24 juegos de la base de ZX-Poly se apartan del valor por
   omisión. Al entrar en
-  el núcleo los ocho estados arrancan como copias del CPU con `State.takeFrom`, que ya existe.
+  el núcleo los ocho estados arrancan como copias del CPU con `State.takeFrom`, que ya existe, y lo
+  hacen en su primer `execute()`, no al construirse: `Processors.runOn` pasa los registros del
+  procesador anterior *después* de construir el nuevo.
   Ningún oyente de contención en los GPUs: los T-states los cuenta el CPU, una vez. El PC del CPU
   sigue siendo el que ven las trampas, el depurador y el RZX.
 - **`Spec256Peripheral`**, un dispositivo sin puertos. Al activarse instala su `ColumnPainter` y la
