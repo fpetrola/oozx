@@ -116,11 +116,15 @@ class TheRomsAMachineRunsOnTest extends MachineTest {
     assertEquals(List.of("inves.rom"), roms.running(machine(CzSpectrumPlus.class)));
   }
 
-  /** A machine can be offered its other ROMs before any of them is on this disk. */
+  /**
+   * A machine is offered its other ROMs whether or not any of them has been fetched yet: which
+   * sets there are is what the build knows, and knowing is not having.
+   */
   @Test
-  void aMachineWhoseRomsAreNotHereYetStillSaysWhichSetsItHas() {
+  void aMachineIsOfferedItsSetsWhetherOrNotItHasThem() {
     assertEquals(List.of("Portuguese", "Spanish"), List.copyOf(roms.setsFor(machine(Tk90x.class)).keySet()));
-    assertEquals(List.of("tk90x.rom"), roms.missingFor(machine(Tk90x.class)), "and that the one it runs is not here");
+    assertEquals(List.of("tk90x.rom"), roms.setsFor(machine(Tk90x.class)).get("Portuguese"));
+    assertEquals(List.of("tk90x-spanish.rom"), roms.setsFor(machine(Tk90x.class)).get("Spanish"));
   }
 
   /**
