@@ -107,10 +107,15 @@ public class Picture {
 
   /** Two pixels of their own colours, one pair of the four a column is made of when a byte is a colour. */
   public void plotPair(int x, int y, int pair, byte left, byte right) {
+    paintPair(x, y, pair, palette[left & 0xff], palette[right & 0xff]);
+  }
+
+  /** The same two pixels in colours that are in no palette, for whoever worked them out itself. */
+  public void paintPair(int x, int y, int pair, int left, int right) {
     if (!active) return;
     int at = y * STRIDE + x * columnWidth + pair * 2;
-    pixels[at] = palette[left & 0xff];
-    pixels[at + 1] = palette[right & 0xff];
+    pixels[at] = left;
+    pixels[at + 1] = right;
   }
 
   /** Sixteen pixels of their own, from the two bytes a column is made of where one is not enough. */

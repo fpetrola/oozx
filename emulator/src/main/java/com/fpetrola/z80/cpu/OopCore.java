@@ -34,7 +34,12 @@ public class OopCore implements Core {
   }
 
   public OOZ80 cpu(State state, PhaseProcessor contention) {
-    OOZ80 cpu = new OOZ80(state, new DefaultInstructionFetcher(state, false, false), new DefaultInstructionExecutor(state, false));
+    return cpu(state, contention, new com.fpetrola.z80.instructions.factory.DefaultInstructionFactory(state));
+  }
+
+  /** The same, for a processor whose instructions are not quite the ordinary ones. */
+  public OOZ80 cpu(State state, PhaseProcessor contention, com.fpetrola.z80.instructions.factory.InstructionFactory instructions) {
+    OOZ80 cpu = new OOZ80(state, new DefaultInstructionFetcher(state, instructions, false, false), new DefaultInstructionExecutor(state, false));
     new MemptrUpdateInstructionSpy(state).addExecutionListeners(cpu.getInstructionExecutor());
     if (contention != null) cpu.getInstructionExecutor().setExecutionListener(contention);
     return cpu;
