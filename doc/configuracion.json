@@ -60,16 +60,22 @@
     },
     "sources" : {
       "scorpion-0.rom" : {
-        "url" : "https://speccy4ever.speccy.org/rom/SCORP0.ROM",
-        "sha256" : "c7ba1b5a4895b9ffba4499a40f227f955bc147092532f95023afe3a393bba602"
+        "url" : "https://speccy4ever.speccy.org/rom/SC140893.rom",
+        "sha256" : "b6e09abc8d7acbca57761a453d26283865b045e94c67a673ed0453df6dda6474",
+        "at" : 0,
+        "length" : 16384
       },
       "scorpion-1.rom" : {
-        "url" : "https://speccy4ever.speccy.org/rom/SCORP1.ROM",
-        "sha256" : "e8b8ec052e5e7283a59173326a954773583fc282ccdf1dfff1724c30fdbc86f8"
+        "url" : "https://speccy4ever.speccy.org/rom/SC140893.rom",
+        "sha256" : "badd2ef7edcf9dafd0fc5309ae8dca06dcd007d07b4885263f69405b5a6d13e3",
+        "at" : 16384,
+        "length" : 16384
       },
       "scorpion-2.rom" : {
-        "url" : "https://speccy4ever.speccy.org/rom/SCORP2.ROM",
-        "sha256" : "9f7571982a90268ef567bb6a8523d7c96db1d9644c85fee83c0ef0fa8a8900e1"
+        "url" : "https://speccy4ever.speccy.org/rom/SC140893.rom",
+        "sha256" : "0fbba07a833d4dcfc7024eaf313661a0ba8f80a05c6d29b8801c612e10e60dee",
+        "at" : 32768,
+        "length" : 16384
       }
     }
   },

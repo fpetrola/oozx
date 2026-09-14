@@ -45,6 +45,13 @@ public final class RomFiles implements Roms {
   public static final class Source {
     public String url;
     public String sha256;
+    /**
+     * Where this ROM starts inside what is published, and how long it is, for the archives that
+     * publish a machine's ROMs as the one image its chips were read out into. Left out when what
+     * is published is the ROM itself.
+     */
+    public int at;
+    public int length;
   }
 
   /**
@@ -197,6 +204,12 @@ public final class RomFiles implements Roms {
       image = download(filename, source.url, consent);
     } finally {
       consent.arrived(filename);
+    }
+    if (source.length > 0) {
+      if (image.length < source.at + source.length)
+        throw new RomNotLoadedException("ROM '" + filename + "' should be " + source.length + " bytes at " + source.at
+            + " of " + source.url + ", which is only " + image.length + " bytes long", filename);
+      image = java.util.Arrays.copyOfRange(image, source.at, source.at + source.length);
     }
     mustBe(filename, image, source.sha256);
     try {
