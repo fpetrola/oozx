@@ -2571,6 +2571,15 @@ public class ZXSpectrumDesktopApp extends JFrame {
    * front is clipped onto - not whichever component Swing last gave the focus to.
    */
   private boolean typeIntoTheMachineInFront(KeyEvent event) {
+    // Run with -Doozx.keys=true to watch what the keyboard is actually sending, which is the only
+    // way to tell a key this build is reading wrongly from one the desktop is sending twice.
+    if (Boolean.getBoolean("oozx.keys")) {
+      System.out.printf("key %s code=%d (%s) char=%d (%s) modifiers=%s%n",
+          event.getID() == KeyEvent.KEY_PRESSED ? "down" : event.getID() == KeyEvent.KEY_RELEASED ? "up  " : "typed",
+          event.getKeyCode(), KeyEvent.getKeyText(event.getKeyCode()), (int) event.getKeyChar(),
+          event.getKeyChar() == KeyEvent.CHAR_UNDEFINED ? "none" : String.valueOf(event.getKeyChar()),
+          KeyEvent.getModifiersExText(event.getModifiersEx()));
+    }
     if (somebodyIsWriting()) {
       return false;
     }
