@@ -56,7 +56,8 @@
       "Pentagon1024" : [ "128-0.rom", "128-1.rom" ],
       "Tc2068" : [ "tc2068-0.rom", "tc2068-1.rom" ],
       "Ts2068" : [ "ts2068-0.rom", "ts2068-1.rom" ]
-    }
+    },
+    "sources" : { }
   },
   "interface1" : {
     "microdriveSectors" : 180,
