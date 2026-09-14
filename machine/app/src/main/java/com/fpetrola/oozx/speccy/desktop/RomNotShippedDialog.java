@@ -99,7 +99,7 @@ public class RomNotShippedDialog implements RomFiles.Consent {
     StringBuilder said = new StringBuilder("<html>This machine needs "
         + (missing.size() == 1 ? "a ROM" : missing.size() + " ROMs") + " that this emulator does not carry:<br><br>");
     for (String rom : missing) {
-      RomFiles.Source source = roms.sources.get(rom);
+      RomFiles.Source source = roms.sourceFor(rom);
       said.append("<b>").append(rom).append("</b> - ").append(source == null ? "nowhere published; choose the file yourself" : source.url).append("<br>");
     }
     said.append("<br>Fetch them from there and keep a copy?</html>");
