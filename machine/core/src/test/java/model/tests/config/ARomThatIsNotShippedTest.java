@@ -96,7 +96,7 @@ class ARomThatIsNotShippedTest {
 
   private String whatArrives() {
     try {
-      roms.of(asking, LENGTH);
+      roms.bring(NAME);
       return null;
     } catch (RomNotLoadedException itDidNotArrive) {
       return itDidNotArrive.getMessage();
@@ -106,9 +106,12 @@ class ARomThatIsNotShippedTest {
   @Test
   void itIsFetchedOnceAndThenItIsKept() throws Exception {
     publishedAs(shaOfTheFile());
+    assertEquals(List.of(NAME), roms.missingFor(asking), "it is not here yet, and the machine says which one");
+    assertTrue(roms.bring(NAME), "and it is here now");
     byte[] first = roms.of(asking, LENGTH);
 
     assertEquals(1, timesAsked, "it asked before going to fetch it");
+    assertEquals(List.of(), roms.missingFor(asking), "and nothing is missing any more");
     assertTrue(RomFiles.kept(NAME).isFile(), "the one that arrived was kept");
     assertArrayEquals(first, Files.readAllBytes(RomFiles.kept(NAME).toPath()), "and kept as it arrived");
 
@@ -138,8 +141,22 @@ class ARomThatIsNotShippedTest {
     publishedAs(shaOfTheFile());
     RomFiles.askingFirst((rom, from) -> false);
 
-    assertTrue(whatArrives().contains("couldn't find"), "without a yes there is nothing to find");
+    assertFalse(roms.bring(NAME), "without a yes it does not arrive");
     assertFalse(RomFiles.kept(NAME).isFile());
+  }
+
+  /**
+   * A machine is built on the emulator's own thread, and nothing there may wait on an answer from
+   * somebody at a keyboard or from somewhere far away. Asking a machine for a ROM that is not here
+   * fails at once; bringing it is a separate act, done by whoever is about to start the machine.
+   */
+  @Test
+  void buildingAMachineNeverGoesLookingForARom() throws Exception {
+    publishedAs(shaOfTheFile());
+
+    RomNotLoadedException itIsNotHere = assertThrows(RomNotLoadedException.class, () -> roms.of(asking, LENGTH));
+    assertEquals(NAME, itIsNotHere.file(), "and it says which one, so somebody can go and get it");
+    assertEquals(0, timesAsked, "a machine being built stopped to ask a question");
   }
 
   /** A ROM that is in the build is answered from the build, so it can never reach out for one. */
@@ -151,6 +168,7 @@ class ARomThatIsNotShippedTest {
     wrong.sha256 = "0".repeat(64);
     roms.sources.put("48.rom", wrong);
 
+    assertEquals(List.of(), roms.missingFor(asking), "what the build carries was never missing");
     assertEquals(0x4000, roms.of(asking, 0x4000).length, "the packaged one");
     assertEquals(0, timesAsked, "nothing was asked, because nothing was fetched");
   }
@@ -196,6 +214,7 @@ class ARomThatIsNotShippedTest {
       source.sha256 = shaOf(big);
       roms.sources.put(NAME, source);
 
+      assertTrue(roms.bring(NAME));
       assertArrayEquals(big, roms.of(asking, big.length));
     } finally {
       server.stop(0);

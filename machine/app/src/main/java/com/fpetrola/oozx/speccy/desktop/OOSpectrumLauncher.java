@@ -56,7 +56,7 @@ public class OOSpectrumLauncher {
 
     // Some machines need a ROM this build cannot ship. Nothing is fetched without a yes, and
     // whoever is in front of the machine is the only one who can give it.
-    com.fpetrola.oozx.config.RomFiles.askingFirst(new RomNotShippedDialog());
+    com.fpetrola.oozx.config.RomFiles.askingFirst(RomNotShippedDialog.asking());
 
     ZXSpectrumDesktopApp[] appHolder = new ZXSpectrumDesktopApp[1];
 
@@ -181,6 +181,7 @@ public class OOSpectrumLauncher {
     speccy.machine.getMachineTypes().stream()
         .filter(type -> type.getName().equals(wanted))
         .findFirst().ifPresent(type -> {
+          if (!RomNotShippedDialog.readyFor(type)) return;
           speccy.machine.selectDefault();
           speccy.machine.select(type);
         });

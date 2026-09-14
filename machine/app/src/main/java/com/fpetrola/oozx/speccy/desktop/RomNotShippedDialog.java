@@ -17,6 +17,7 @@
 
 package com.fpetrola.oozx.speccy.desktop;
 
+import com.fpetrola.oozx.config.Configuration;
 import com.fpetrola.oozx.config.RomFiles;
 
 import javax.swing.BorderFactory;
@@ -26,100 +27,126 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import java.awt.BorderLayout;
+import java.util.List;
 
 /**
- * Asks before a ROM this build cannot carry is fetched, and then shows how much of it has arrived.
+ * Brings the ROMs a machine needs and this build cannot carry, before anybody starts that machine.
  * <p>
- * Not a lambda in the launcher, which is where the asking began: a window and a bar are state that
- * lives across three answers, and something has to own it.
+ * Before, and never during: a machine is built on the emulator's own thread, and asking a question
+ * there means the window that asks is waiting on a thread that is waiting on the window. The
+ * emulator hung exactly there. So the asking and the fetching happen while nothing is being built,
+ * the fetching on a thread of its own, and the machine is started only once everything is here.
  */
 public class RomNotShippedDialog implements RomFiles.Consent {
+  private static final RomNotShippedDialog ASKING = new RomNotShippedDialog();
+
+  private boolean agreed;
   private JDialog window;
   private JProgressBar bar;
   private JLabel howMuch;
 
-  public boolean toDownload(String rom, String from) {
-    boolean yes = JOptionPane.showConfirmDialog(null,
-        "<html>This machine needs <b>" + rom + "</b>, which is not part of this emulator."
-            + "<br><br>It is published at:<br>" + from
-            + "<br><br>Fetch it from there and keep a copy?</html>",
-        "A ROM that is not shipped", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
-    // Opened on the yes and not on the first byte: what there is to wait for is mostly getting
-    // through to the other end, and a ROM is small enough to arrive in a read or two after that.
-    if (yes) onTheEventThread(() -> openFor(rom));
-    return yes;
-  }
-
-  public void arriving(String rom, long soFar, long length) {
-    if (window == null) onTheEventThread(() -> openFor(rom));
-    if (window == null) return;
-    if (length > 0) {
-      bar.setIndeterminate(false);
-      bar.setValue((int) (soFar * 100 / length));
-    }
-    howMuch.setText(kb(soFar) + (length > 0 ? " of " + kb(length) : ""));
-    showItNow();
-  }
-
-  public void arrived(String rom) {
-    if (window == null) return;
-    JDialog closing = window;
-    window = null;
-    onTheEventThread(closing::dispose);
+  public static RomNotShippedDialog asking() {
+    return ASKING;
   }
 
   /**
-   * Windows are built and closed where Swing says they are, whichever thread asked. Waited for
-   * rather than queued: what comes next is a download that will not give this thread back.
+   * Whether this machine can be started: everything it asks for is here, or was brought just now
+   * because somebody said so. Answered from the window's own thread, where questions belong.
    */
-  private static void onTheEventThread(Runnable what) {
-    if (SwingUtilities.isEventDispatchThread()) {
-      what.run();
-      return;
-    }
+  public static boolean readyFor(Object machine) {
+    return ASKING.bringWhatIsMissing(machine);
+  }
+
+  private boolean bringWhatIsMissing(Object machine) {
+    RomFiles roms = Configuration.shared().of(RomFiles.class);
+    List<String> missing = roms.missingFor(machine);
+    if (missing.isEmpty()) return true;
+    if (!SwingUtilities.isEventDispatchThread()) return false;
+    if (!agreesTo(missing)) return false;
+
+    open(missing);
+    agreed = true;
+    SwingWorker<Boolean, Void> fetching = new SwingWorker<>() {
+      protected Boolean doInBackground() {
+        for (String rom : missing) {
+          if (!roms.bring(rom)) return false;
+        }
+        return true;
+      }
+
+      protected void done() {
+        close();
+      }
+    };
+    fetching.execute();
+    // The window is modal, so this pumps the events that paint it while the fetching goes on.
+    window.setVisible(true);
+    agreed = false;
     try {
-      SwingUtilities.invokeAndWait(what);
-    } catch (InterruptedException stopped) {
-      Thread.currentThread().interrupt();
-    } catch (java.lang.reflect.InvocationTargetException itThrew) {
-      throw new IllegalStateException(itThrew.getCause());
+      return fetching.get();
+    } catch (Exception itDidNotArrive) {
+      JOptionPane.showMessageDialog(null, String.valueOf(itDidNotArrive.getCause() == null
+          ? itDidNotArrive.getMessage() : itDidNotArrive.getCause().getMessage()), "That ROM did not arrive", JOptionPane.WARNING_MESSAGE);
+      return false;
     }
+  }
+
+  private static boolean agreesTo(List<String> missing) {
+    RomFiles roms = Configuration.shared().of(RomFiles.class);
+    StringBuilder said = new StringBuilder("<html>This machine needs "
+        + (missing.size() == 1 ? "a ROM" : missing.size() + " ROMs") + " that this emulator does not carry:<br><br>");
+    for (String rom : missing) {
+      RomFiles.Source source = roms.sources.get(rom);
+      said.append("<b>").append(rom).append("</b> - ").append(source == null ? "nowhere published; choose the file yourself" : source.url).append("<br>");
+    }
+    said.append("<br>Fetch them from there and keep a copy?</html>");
+    return JOptionPane.showConfirmDialog(null, said.toString(), "ROMs that are not shipped",
+        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+  }
+
+  public boolean toDownload(String rom, String from) {
+    return agreed;
+  }
+
+  public void arriving(String rom, long soFar, long length) {
+    SwingUtilities.invokeLater(() -> {
+      if (window == null) return;
+      if (length > 0) {
+        bar.setIndeterminate(false);
+        bar.setValue((int) (soFar * 100 / length));
+      }
+      howMuch.setText(rom + "  -  " + kb(soFar) + (length > 0 ? " of " + kb(length) : ""));
+    });
+  }
+
+  public void arrived(String rom) {
   }
 
   private static String kb(long bytes) {
     return (bytes + 1023) / 1024 + " KB";
   }
 
-  private void openFor(String rom) {
-    window = new JDialog((java.awt.Frame) null, "Fetching " + rom, false);
+  private void open(List<String> missing) {
+    window = new JDialog((java.awt.Frame) null, missing.size() == 1 ? "Fetching a ROM" : "Fetching " + missing.size() + " ROMs", true);
     bar = new JProgressBar(0, 100);
     bar.setIndeterminate(true);
-    howMuch = new JLabel(" ", JLabel.CENTER);
-    JPanel inside = new JPanel(new BorderLayout(0, 6));
-    inside.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
-    inside.add(new JLabel(rom, JLabel.CENTER), BorderLayout.NORTH);
+    howMuch = new JLabel(String.join(", ", missing), JLabel.CENTER);
+    JPanel inside = new JPanel(new BorderLayout(0, 8));
+    inside.setBorder(BorderFactory.createEmptyBorder(14, 14, 14, 14));
     inside.add(bar, BorderLayout.CENTER);
     inside.add(howMuch, BorderLayout.SOUTH);
     window.setContentPane(inside);
-    window.setSize(320, 120);
+    window.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+    window.setSize(380, 120);
     window.setLocationRelativeTo(null);
-    window.setAlwaysOnTop(true);
-    window.setVisible(true);
-    showItNow();
   }
 
-  /**
-   * The machine is being built on the event thread and will not give it back until the ROM is
-   * here, so nothing is going to repaint this window on its own: it is painted where it stands.
-   */
-  private void showItNow() {
-    if (window == null || !SwingUtilities.isEventDispatchThread()) return;
-    // The whole of it, not just the bar: with nothing pumping events the window has never had a
-    // first paint either, and a bar painted onto a window that was never drawn is nothing at all.
-    JPanel inside = (JPanel) window.getContentPane();
-    inside.paintImmediately(0, 0, inside.getWidth(), inside.getHeight());
-    java.awt.Toolkit.getDefaultToolkit().sync();
+  private void close() {
+    if (window == null) return;
+    window.dispose();
+    window = null;
   }
 }
