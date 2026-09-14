@@ -87,7 +87,11 @@ public final class ContentionTable {
 
   /** The delays of this machine, and the runs built from them. */
   public void forMachine(Spectrum current) {
-    frame = current.getTimings().tstatesPerFrame();
+    // A machine told to run faster than it was built to is not held up at all: the chip that
+    // draws cannot hold up a processor that is not going at the speed it was made to sit beside.
+    // Its frame, measured in its own cycles, is also longer than these tables are - and with
+    // nothing in them to look up, where a lookup lands stops mattering.
+    frame = current.timesFaster() == 1 ? Math.min(current.getTimings().tstatesPerFrame(), delay.length) : 0;
     for (int tState = 0; tState < frame; tState++) {
       delay[tState] = (byte) current.contendDelay(tState);
       delayNoMreq[tState] = (byte) current.contendDelayNoMreq(tState);
