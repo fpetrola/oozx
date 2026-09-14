@@ -53,6 +53,13 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
   private static final String SAYS = ".cfg";
   /** A game that coloured the letters the machine draws with keeps them in a file of this name. */
   private static final String ROM = "rom0.gfx";
+  /**
+   * The registers a follower addresses memory with. Its own carry colours, so one addition on one
+   * of them is enough to send a write somewhere the machine never wrote - and a colour that lands
+   * where nothing asked for it stays there. Taking them from the machine costs the colours they
+   * were carrying, which some games want and others do not: it is a thing to try, not a default.
+   */
+  private static final String POINTERS = "HLDEBCXxYy";
   /** A background is 320 by 200 of a colour each, laid under the screen and centred on it. */
   private static final int BACKGROUND_WIDTH = 320, BACKGROUND_HEIGHT = 200;
   private static final int BACKGROUND_SIZE = BACKGROUND_WIDTH * BACKGROUND_HEIGHT;
@@ -72,6 +79,7 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
   private int bitmap, ink, paper;
   private boolean flashedAway;
   private boolean inItsColours = true;
+  private boolean pointersFromTheMachine;
 
   @Inject
   public Spec256Peripheral(Planes planes, Processors processors, Display display, SpectrumMemory banks,
@@ -107,7 +115,7 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     romBeside(colours);
     backgroundsBeside(colours);
     rules.read(withTheSameName(url, SAYS));
-    alignment.says(rules.registersTaken);
+    takeWhatTheGameAsksFor();
     if (wasOn == null) wasOn = processors.current();
     processors.use(Spec256Core.NAME);
     paintFromThePlanes(inItsColours);
@@ -296,6 +304,20 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     return alignment;
   }
 
+  /** Whether a follower addresses memory with the machine's pointers rather than its own. */
+  public boolean pointersFromTheMachine() {
+    return pointersFromTheMachine;
+  }
+
+  public void pointersFromTheMachine(boolean fromTheMachine) {
+    pointersFromTheMachine = fromTheMachine;
+    takeWhatTheGameAsksFor();
+  }
+
+  private void takeWhatTheGameAsksFor() {
+    alignment.says(pointersFromTheMachine ? rules.registersTaken + POINTERS : rules.registersTaken);
+  }
+
   @Override
   public void machineWasReset(boolean hard) {
     over();
@@ -320,7 +342,7 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     backgrounds.clear();
     planes.blank();
     rules.asTheyComeByDefault();
-    alignment.says(rules.registersTaken);
+    takeWhatTheGameAsksFor();
     display.painting.pixelsOfItsOwn(null);
     display.picture().sinclairColours();
     display.refreshAll();

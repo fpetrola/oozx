@@ -39,6 +39,7 @@ public class Spec256Frame extends MachineFrame {
   private final JLabel said = new JLabel();
   private final JLabel under = new JLabel();
   private final JCheckBox colourful = new JCheckBox("In its own colours");
+  private final JCheckBox pointers = new JCheckBox("Address with the machine's pointers");
   private final JButton previous = new JButton("<");
   private final JButton next = new JButton(">");
   private final JLabel[] swatches = new JLabel[256];
@@ -46,7 +47,7 @@ public class Spec256Frame extends MachineFrame {
 
   public Spec256Frame() {
     super("Spec256");
-    setSize(430, 280);
+    setSize(470, 290);
 
     JPanel palette = new JPanel(new GridLayout(256 / ACROSS, ACROSS, 1, 1));
     for (int colour = 0; colour < swatches.length; colour++) {
@@ -62,6 +63,14 @@ public class Spec256Frame extends MachineFrame {
       if (game != null) game.inItsColours(colourful.isSelected());
       refresh();
     });
+    pointers.setToolTipText("<html>A follower's own pointer registers carry colours, and one addition on one of them<br>"
+        + "sends a write somewhere the machine never wrote. Taking them from the machine costs<br>"
+        + "the colours they were carrying: some games want it and others look worse with it.</html>");
+    pointers.addActionListener(e -> {
+      Spec256Peripheral game = game();
+      if (game != null) game.pointersFromTheMachine(pointers.isSelected());
+      refresh();
+    });
     previous.addActionListener(e -> show(-1));
     next.addActionListener(e -> show(1));
 
@@ -74,9 +83,13 @@ public class Spec256Frame extends MachineFrame {
     top.add(playing);
     top.add(said);
 
+    JPanel switches = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+    switches.add(colourful);
+    switches.add(pointers);
+
     JPanel bottom = new JPanel(new BorderLayout());
-    bottom.add(colourful, BorderLayout.WEST);
-    bottom.add(backgrounds, BorderLayout.CENTER);
+    bottom.add(switches, BorderLayout.WEST);
+    bottom.add(backgrounds, BorderLayout.EAST);
 
     JPanel inside = new JPanel(new BorderLayout(0, 6));
     inside.add(top, BorderLayout.NORTH);
@@ -129,6 +142,7 @@ public class Spec256Frame extends MachineFrame {
       said.setText(" ");
       under.setText(" ");
       colourful.setEnabled(false);
+      pointers.setEnabled(false);
       previous.setEnabled(false);
       next.setEnabled(false);
       for (JLabel swatch : swatches) swatch.setBackground(Color.DARK_GRAY);
@@ -141,6 +155,8 @@ public class Spec256Frame extends MachineFrame {
         : "Under the screen: " + (game.showing() + 1) + " of " + pictures);
     colourful.setEnabled(true);
     colourful.setSelected(game.inItsColours());
+    pointers.setEnabled(true);
+    pointers.setSelected(game.pointersFromTheMachine());
     previous.setEnabled(pictures > 1 && game.showing() > 0);
     next.setEnabled(pictures > 1 && game.showing() < pictures - 1);
     int[] palette = machine().picture.palette;

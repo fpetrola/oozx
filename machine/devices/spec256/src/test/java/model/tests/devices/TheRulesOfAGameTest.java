@@ -186,6 +186,28 @@ class TheRulesOfAGameTest extends MachineTest {
     assertEquals("1PSsHL", session().alignment().said());
   }
 
+  /**
+   * A follower's own pointer registers carry colours, so one addition on one of them sends a write
+   * somewhere the machine never wrote. Taking them from the machine stops that and costs whatever
+   * colour they were carrying, which is why it is asked for rather than always done.
+   */
+  @Test
+  void aFollowerCanBeToldToAddressWithTheMachinesPointersInstead() throws IOException {
+    colours(addressOf(LINE, COLUMN), 0, 0, 0, 0, 0, 0, 0, 0);
+    started("zxpAlignRegs=1PSs\n", null);
+    assertEquals("1PSs", session().alignment().said());
+
+    session().pointersFromTheMachine(true);
+
+    assertTrue(session().pointersFromTheMachine());
+    assertTrue(session().alignment().said().contains("HL"), "and what the game asked for is still in there: "
+        + session().alignment().said());
+    assertTrue(session().alignment().said().startsWith("1PSs"));
+
+    session().pointersFromTheMachine(false);
+    assertEquals("1PSs", session().alignment().said(), "back to the game's own word on it");
+  }
+
   @Test
   void whenTheGameIsOverItsRulesAreNobodysAnyMore() throws IOException {
     colours(addressOf(LINE, COLUMN), 0, 0, 0, 0, 0, 0, 0, 0);
