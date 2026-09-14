@@ -127,7 +127,23 @@ public class Cpu {
         if (getOoz80().getState().isIff1() && zxClock.getTStates() < interruptLength) {
             zxClock.acknowledge(7);
             getOoz80().interruption();
+            whenTaken.forEach(Runnable::run);
         }
+    }
+
+    private final java.util.List<Runnable> whenTaken = new java.util.concurrent.CopyOnWriteArrayList<>();
+
+    /**
+     * Told each time an interrupt is accepted, for a machine whose hardware does something of its
+     * own at that moment - and one of these clones does, which is why this is here and why what it
+     * does is not welcome.
+     */
+    public void whenAnInterruptIsTaken(Runnable what) {
+        whenTaken.add(what);
+    }
+
+    public void stopTellingAboutInterrupts(Runnable what) {
+        whenTaken.remove(what);
     }
 
 
