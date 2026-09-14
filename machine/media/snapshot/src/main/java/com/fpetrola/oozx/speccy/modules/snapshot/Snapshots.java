@@ -58,11 +58,14 @@ public class Snapshots extends AbstractPeripheral {
   /** The processor itself, not the {@link com.fpetrola.oozx.speccy.modules.z80.Cpu} a machine drives: what goes back into it is its registers. */
   private final Cpu cpu;
   private final com.fpetrola.oozx.speccy.modules.keyboard.KeyMatrix keys;
+  private final com.fpetrola.oozx.speccy.peripherals.PeripheralRegistry peripherals;
 
   @Inject
   public Snapshots(Machine machine, MemoryBus memory, SpectrumMemory banks, IO io, Display display, Cpu cpu,
-                   com.fpetrola.oozx.speccy.modules.keyboard.KeyMatrix keys) {
+                   com.fpetrola.oozx.speccy.modules.keyboard.KeyMatrix keys,
+                   com.fpetrola.oozx.speccy.peripherals.PeripheralRegistry peripherals) {
     super(java.util.List.of());
+    this.peripherals = peripherals;
     this.banks = banks;
     this.machine = machine;
     this.memory = memory;
@@ -126,7 +129,25 @@ public class Snapshots extends AbstractPeripheral {
       SnapshotLoader.setZ80State(registersBase, spectrumState.getZ80State());
       state.clock.setTStates(spectrumState.getTstates());
     }
+    theColoursItWasTakenIn(spectrumState);
     display.refreshAll();
+  }
+
+  /**
+   * A snapshot is a machine as it stood, and one taken of a machine painting in sixty-four colours
+   * of its own has to come back painting in them. Which are they, and whether the machine was
+   * painting in them at all, is written in the file and has been read for a long time; until there
+   * was a chip to put them into there was nowhere to put them.
+   */
+  private void theColoursItWasTakenIn(SpectrumState snapshot) {
+    com.fpetrola.oozx.speccy.modules.display.ColoursOfItsOwn chip =
+        peripherals.anyThatIs(com.fpetrola.oozx.speccy.modules.display.ColoursOfItsOwn.class);
+    if (chip == null) return;
+    chip.fitted(snapshot.isULAPlusEnabled());
+    peripherals.update();
+    if (snapshot.isULAPlusEnabled()) {
+      chip.asItWas(snapshot.getULAPlusPalette(), snapshot.isULAPlusActive());
+    }
   }
 
   /** The processor's registers, which a snapshot both reads and writes through the same object. */

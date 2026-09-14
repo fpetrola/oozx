@@ -72,6 +72,17 @@ public class PeripheralRegistry {
     return device == null ? null : device.peripheral;
   }
 
+  /**
+   * Whatever is registered that does a certain thing, asked for by what it does rather than by
+   * what it is - for the places that must not know which device they are talking to.
+   */
+  public <T> T anyThatIs(Class<T> kind) {
+    for (Registration device : registry.values()) {
+      if (kind.isInstance(device.peripheral)) return kind.cast(device.peripheral);
+    }
+    return null;
+  }
+
   public boolean isActive(Class<? extends Peripheral> type) {
     Registration device = registry.get(type);
     return device != null && device.active;

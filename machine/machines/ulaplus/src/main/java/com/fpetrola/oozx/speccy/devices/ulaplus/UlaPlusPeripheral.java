@@ -40,7 +40,7 @@ import java.util.List;
  * sixteen, the ink is the low eight of it and the paper the high eight, and nothing flashes.
  */
 @Singleton
-public class UlaPlusPeripheral extends AbstractPeripheral {
+public class UlaPlusPeripheral extends AbstractPeripheral implements com.fpetrola.oozx.speccy.modules.display.ColoursOfItsOwn {
   /** Which of the two groups of registers the named one is in: the colours, or the one about them. */
   private static final int MODE_GROUP = 0x40;
   /** The bit of the mode register that says the machine is painting in these colours. */
@@ -101,8 +101,14 @@ public class UlaPlusPeripheral extends AbstractPeripheral {
     return fitted || machine.hasOnBoard(UlaPlusPeripheral.class);
   }
 
-  public void setFitted(boolean modified) {
+  @Override
+  public void fitted(boolean modified) {
     fitted = modified;
+  }
+
+  /** The same thing said the way the other devices somebody switches on and off say it. */
+  public void setFitted(boolean modified) {
+    fitted(modified);
   }
 
   private void written(byte value) {
@@ -139,6 +145,22 @@ public class UlaPlusPeripheral extends AbstractPeripheral {
     int blue = (colour & 0x03) << 1;
     if (blue != 0) blue |= 1;
     return EIGHTH[red] << 16 | EIGHTH[green] << 8 | EIGHTH[blue];
+  }
+
+  /**
+   * The colours a machine was painting in when somebody wrote it down, put back. Sixty-four of
+   * them and whether they were being painted in, which is everything this chip is.
+   */
+  @Override
+  public void asItWas(int[] sixtyFour, boolean painting) {
+    if (sixtyFour != null) {
+      for (int colour = 0; colour < Math.min(sixtyFour.length, Picture.COLOURS); colour++) {
+        colours[colour] = (byte) sixtyFour[colour];
+      }
+    }
+    mode = (byte) (painting ? PALETTE_ON : 0);
+    painting();
+    display.refreshAll();
   }
 
   /** A machine switched on is a machine painting in the sixteen it was born with. */
