@@ -54,10 +54,14 @@ entonces una memoria de 64K con la forma de la memoria de un Spectrum, y ésa es
 |---|---|---|
 | generado | 29 | ~200 |
 | OOP | 105 a 114 | ~55 |
+| **en paso, los nueve** | **1825** | **3,3** |
 
-Trescientos cuadros son seis segundos de máquina. Nueve ejecuciones OOP por instrucción —que es lo
-que Spec256 hace— dan del orden de un segundo por 300 cuadros: **seis veces el tiempo real**, sin
-optimizar nada, y sólo mientras hay un juego Spec256 cargado.
+Trescientos cuadros son seis segundos de máquina. La última fila se midió el 14 de septiembre con
+el núcleo ya escrito, el mejor de cinco bloques de 300 cuadros sobre un 48K arrancado, imagen
+apagada, dos núcleos fijados: **6,08 ms por cuadro, tres veces y media el tiempo real**. Son 14,8
+veces el OOP solo y no nueve: el resto lo ponen la memoria del plano, que es otro sitio de llamada,
+y lo que se le copia a cada seguidor en cada instrucción. Sobra para correr un juego a velocidad
+real, y sólo se paga mientras hay un juego Spec256 cargado.
 
 ## Cómo funciona, leído de GZX
 
@@ -75,7 +79,18 @@ Por cada instrucción:
    GPU, todo byte que se lee por el PC es código y viene de ahí; todo lo que se lee o escribe por
    una dirección es dato y va a su plano— y así el GPU decodifica siempre la misma instrucción que
    el CPU, aun cuando el código lo generó el juego en tiempo de ejecución y en los planos hay ahí
-   colores. Es la regla que adoptamos.
+   colores.
+   <p>
+   **La nuestra es una tercera, y es la que el modelo ya sabía distinguir.** `Memory.read(address,
+   fetching)` marca el opcode y el prefijo, y nada más: el plano manda **eso** a la máquina y todo
+   lo demás —incluidos los operandos inmediatos, que GZX lee del plano y ZX-Poly de la máquina— a
+   sus propios bits. Un GPU nunca decodifica otra instrucción que el CPU, que es lo que ZX-Poly
+   arregló, y un inmediato que el juego coloreó sigue llevando color, que es lo que GZX permite.
+   Los dos casos que importan salen bien: código generado en ejecución se decodifica igual en los
+   nueve, y una rutina que se automodifica —que escribe su propio operando y después lo ejecuta—
+   escribe un color en su plano y lo usa, que es exactamente para lo que se automodifica un
+   ploteador de sprites. Un inmediato que alimenta el PC no puede desviar a nadie: el PC se
+   realinea antes de la siguiente instrucción.
 3. El CPU la ejecuta.
 
 Una interrupción se toma en los nueve. Un GPU no puede desviarse del flujo del CPU aunque calcule
@@ -105,8 +120,8 @@ usa; queda para cuando uno lo use.
 | pieza nuestra | qué es hoy | lo que Spec256 le pide | cambio en core |
 |---|---|---|---|
 | `Core`, `Processors` | un conjunto de implementaciones del procesador (`Multibinder<Core>`), cada una llega en su módulo por `Extension`, y `Processors.use` mueve una máquina que corre a otra | una implementación más, "Spec256": el OOP nueve veces en paso | **ninguno** |
-| `OOZ80`, `Cpu` | `Cpu` sólo le pide al procesador `execute()`, `interruption()`, `nmi()`, `reset()` y `getState()`; `OOZ80` es una clase abierta con esos cuatro públicos | una subclase que es el OOZ80 del CPU con ocho seguidores y contesta esos cuatro en nueve | **ninguno**: `getState()` sigue siendo el CPU, y con él las trampas, el RZX, la contención y `takeFrom` |
-| `State`, `Memory` | un `State` sobre una `Memory` y un `IO`; `State(IO, Memory)` existe; `Memory.read(address, fetching)` ya distingue el fetch de un opcode del dato, y `peek` lee sin avisar a nadie | ocho estados sobre ocho planos con un `IO` que no contesta; cada plano sirve el código de la máquina y los datos suyos | **tres líneas, y son un arreglo**: `ContendedMemory`, que es la memoria que recibe el procesador, no contesta `peek` —cae en el `getData()` vacío de `Memory`— y delegarlo a lo que envuelve es lo que `peek` promete. El plano implementa `Memory` en el módulo, con `read` que manda `fetching != 0` a ese `peek` y lo demás a sus bits |
+| `OOZ80`, `Cpu` | `Cpu` sólo le pide al procesador `execute()`, `interruption()`, `nmi()`, `reset()` y `getState()`; `OOZ80` es una clase abierta con esos cuatro públicos | una subclase que es el OOZ80 del CPU con ocho seguidores y contesta esos cuatro en nueve | **cinco líneas**: un constructor de copia protegido en `OOZ80`, para que la subclase sea el mismo procesador y no otro armado en paralelo, y que `OopCore` acepte que nadie le cuente el tiempo —un procesador que no está en una máquina—. `getState()` sigue siendo el del CPU, y con él las trampas, el RZX, la contención y `takeFrom` |
+| `State`, `Memory` | un `State` sobre una `Memory` y un `IO`; `State(IO, Memory)` existe; `Memory.read(address, fetching)` ya distingue el fetch de un opcode del dato, y `peek` lee sin avisar a nadie | ocho estados sobre ocho planos con un `IO` que no contesta; cada plano sirve el código de la máquina y los datos suyos | **ocho líneas, y son un arreglo**: `ContendedMemory`, que es la memoria que recibe el procesador, no contestaba `peek` ni `poke` —caían en el `getData()` vacío de `Memory`, que tira `ArrayIndexOutOfBounds`— y delegarlos a lo que envuelve es lo que prometen. Sin eso cada fetch de un seguidor tiraba una excepción que el procesador se tragaba, e imprimía una traza: el árbol andaba, pero a paso de hombre |
 | `Picture.COLOURS` y sus búsquedas | 64 colores, índices `byte` | 256, e índices que no se vuelvan negativos | **dos líneas**: 256 y `& 0xff` al buscar |
 | `Painting.plotLine` | tres reglas, una por bandera del `ScreenLayout` | una cuarta que no lee la memoria de la máquina sino ocho planos que viven en otro lado | **un asiento**: quién pinta una columna, si alguien lo dijo |
 | `Snapshots.load(url)` | conoce la ruta y no se la dice a nadie | que alguien sepa de qué archivo vino un snapshot, para mirar al lado | **un asiento**: a quién avisar |
@@ -300,6 +315,18 @@ llevarlo: los planos de la ROM se calculan de la ROM, y ahora sólo importan par
 ROM, como la fuente, porque el código lo leen de la máquina. Y lo que el repositorio de juegos
 trae de valor para nosotros son sus capturas, que son el oráculo visual del paso 9, y no se copian:
 se miran.
+
+## Dónde está cada paso
+
+Al 14 de septiembre de 2026, con el árbol verde desde un repositorio local vacío en cada uno.
+
+| paso | commit | qué dejó, y qué enseñó que el plan no sabía |
+|---|---|---|
+| 1. La paleta a 256 | `6ed40f795` | Dos líneas y una máscara por celda: pintar una pantalla entera cuesta 0,021 ms con paleta de 64 y con paleta de 256, medido. Lo que no estaba previsto: ULAplus usaba `Picture.COLOURS` para decir cuántos registros tiene. Eran los dos 64 y no son el mismo número; ahora dice 64 él |
+| 2. El asiento de la columna | `af4e9d9cf` | `Painting.PixelsOfItsOwn`, consultado antes de las tres reglas, instalado y retirado como `Colouring.Reading`. El haz y las celdas sucias siguen siendo de `Painting`: al asiento se le ofrece una columna sólo cuando está sucia |
+| 3. Los planos y el `.GFX` | `f7fdd7837` | `Planes` y el orden del archivo en un solo lugar. Leído contra el Cybernoid real da los mismos 11 706 y 2 421 que el plan había anotado antes de que hubiera código. Los planos de la ROM no se calculan ni se copian: por debajo de 0x4000 el plano devuelve el byte de la máquina, que ya es lo que ocho planos iguales dirían, y así la paginación no se piensa |
+| 4. El núcleo en paso | | `LockstepZ80`, `Alignment`, `Spec256Core`. El `peek` de `ContendedMemory` era un hueco de verdad y sin él no arranca. El costo: 6,08 ms por cuadro, 3,3 veces el tiempo real |
+| 5 a 9 | | pendientes |
 
 ## ZX-Poly contra el plan
 

@@ -65,6 +65,14 @@ public final class ContendedMemory implements com.fpetrola.z80.memory.Memory {
         clock.addTStates(3);
     }
 
+    public int peek(int address) {
+        return memory.peek(address);
+    }
+
+    public void poke(int address, int value) {
+        memory.write(address, (byte) (value & 0xff));
+    }
+
     public void reset() {
     }
 }
