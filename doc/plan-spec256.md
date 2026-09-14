@@ -50,18 +50,27 @@ entonces una memoria de 64K con la forma de la memoria de un Spectrum, y ésa es
 
 **Nuestros números**, 300 cuadros con la imagen apagada, el mejor de cinco bloques:
 
-| núcleo | ms por 300 cuadros | veces el tiempo real |
+| núcleo | ms por cuadro | veces el tiempo real |
 |---|---|---|
-| generado | 29 | ~200 |
-| OOP | 105 a 114 | ~55 |
-| **en paso, los nueve** | **1825** | **3,3** |
+| generado, imagen apagada | 0,10 | ~200 |
+| OOP, imagen apagada | 0,35 a 0,38 | ~55 |
+| en paso los nueve, imagen apagada | 6,08 | 3,3 |
+| **en paso los nueve, un juego de verdad pintándose** | **17 a 19** | **~1,1** |
 
-Trescientos cuadros son seis segundos de máquina. La última fila se midió el 14 de septiembre con
-el núcleo ya escrito, el mejor de cinco bloques de 300 cuadros sobre un 48K arrancado, imagen
-apagada, dos núcleos fijados: **6,08 ms por cuadro, tres veces y media el tiempo real**. Son 14,8
-veces el OOP solo y no nueve: el resto lo ponen la memoria del plano, que es otro sitio de llamada,
-y lo que se le copia a cada seguidor en cada instrucción. Sobra para correr un juego a velocidad
-real, y sólo se paga mientras hay un juego Spec256 cargado.
+La tercera fila se midió con el núcleo ya escrito, el mejor de cinco bloques de 300 cuadros sobre
+un 48K arrancado, imagen apagada, dos núcleos fijados: 6,08 ms por cuadro, 14,8 veces el OOP solo
+y no nueve, porque el resto lo ponen la memoria del plano y lo que se le copia a cada seguidor en
+cada instrucción.
+
+**La cuarta es la que importa y se midió después**, con el Cybernoid cargado y la pantalla
+pintándose de verdad: 17 a 19 ms por cuadro, contra los 20 que dura un cuadro real. Un juego
+Spec256 corre a velocidad real y con poco margen. De eso, 1,1 ms es repintar la pantalla entera
+cada cuadro, que es lo que hay que hacer y se explica abajo. Y sólo se paga mientras hay un juego
+Spec256 cargado.
+
+Trampa que costó una hora: medir con `taskset -c 2,3` mientras otro barrido propio corría en esos
+mismos dos núcleos da 64 ms por cuadro y parece una regresión de cinco veces. Antes de creerle a un
+número, mirar que la máquina esté quieta.
 
 ## Cómo funciona, leído de GZX
 
@@ -350,6 +359,34 @@ Al 14 de septiembre de 2026, con el árbol verde desde un repositorio local vac�
 | 7. Las reglas del `.CFG` | `06b90426a` | `Rules` lee el archivo del juego; el pintor las aplica y `LevelledInstructions` da a los seguidores un `OR`, `AND` y `XOR` por nivel, sin tocar el emulador: `doExecute` de una instrucción es `protected`, así que una subclase deja las banderas que la operación de siempre pone y cambia sólo lo que se escribe. Lo que la mezcla usa son los dieciséis colores de la máquina, que es con lo que la máquina habría pintado ahí |
 | 8. La ventana | `69517a542` | `Spec256Frame` sobre `MachineFrame` y no sobre `DeviceFrame`: esto no es algo que se enchufa, es una sesión, y la ventana la encuentra en el registro de la máquina a la que está prendida. Muestra el juego, lo que su archivo pidió, los 256 colores, los fondos, y el interruptor que todo emulador de esto tiene |
 | 9. Contra los juegos | `edcd0b7a2` | Los 29 juegos del repositorio que traen snapshot y colores **arrancan y se pintan**, ninguno se cuelga. Lo que faltaba y se encontró acá: el `ROM0.GFX`, los colores de la fuente de la ROM, que el Jetpac trae y sin el cual sus dígitos salían grises — 94,50 % a 99,02 % |
+
+## La estela, y por qué la pantalla de un Spec256 se pinta entera
+
+Encontrada por el usuario jugando: al moverse las cosas quedaban pixeles viejos. Medida así:
+correr un cuadro, dejar que el haz complete una pasada más con la máquina quieta, y comparar esa
+pantalla contra un repintado completo. Lo que sobra es lo que nunca se iba a repintar.
+
+- Atom Ant: 2 281 celdas viejas en 60 cuadros. Bubbler: 1 963. Y **todas** en celdas donde los
+  bytes de la máquina nunca se movieron.
+- Cybernoid 2 y Abu Simbel parecían peores todavía —6 353 y 4 137— pero eran celdas donde los
+  bytes sí se habían movido: el haz no había vuelto a pasar. Un artefacto del primer diagnóstico,
+  no un problema. Con la pasada de más: cero.
+
+Las celdas sucias existen porque la imagen **es** los bytes de la máquina: una celda que nadie
+escribió no puede haber cambiado. Con un juego Spec256 eso es falso. Un seguidor escribe en su
+plano en la dirección que tiene en sus propios registros, y esos registros llevan colores: basta
+una suma para que escriba en otro lado. Ahí cambia un color sin que la memoria de la máquina lo
+registre, y la celda no se ensucia nunca más.
+
+Por eso los dos oráculos repintan la pantalla entera todos los cuadros y ninguno usa celdas sucias.
+Nosotros también, y sólo mientras alguien tenga pixeles propios: dos líneas en `Painting.startAgain`.
+Cuesta 1,1 ms por cuadro, medido de dos maneras que coinciden —el A/B de tres corridas de 300
+cuadros (17,8 contra 16,7) y el costo de pintar una pantalla entera con la máquina congelada
+(1,244 ms)—. Después de eso, los 29 juegos dan cero celdas viejas.
+
+Lo que **no** conviene: leer los ocho planos de una celda de una sola pasada en vez de uno por
+pixel. Parece ocho veces menos memoria y es más lento (18,85 contra 17,82): los ocho bytes ya
+estaban en la caché y el arreglo intermedio cuesta más que releerlos. Probado y descartado.
 
 ## Contra los juegos, el 14 de septiembre de 2026
 
