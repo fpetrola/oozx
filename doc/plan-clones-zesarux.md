@@ -232,6 +232,34 @@ otro procesador.
 Ninguno de los dos cabe en lo que hay ni en lo que este plan agrega. Si algún día se quieren, son
 planes propios, y el del Next empieza por el procesador.
 
+## Dónde está cada paso, al 14 de septiembre de 2026
+
+Los pasos 1 a 7 están hechos, cada uno con sus hechos y con el árbol verde desde un repositorio
+local vacío. Lo que se aprendió en el camino, que no estaba en este plan cuando se escribió:
+
+- **La contención se apaga cuando una máquina corre más rápido de lo que fue construida.** El
+  emulador del que se leyó todo esto apunta las tablas a unas llenas de ceros y ni las recalcula.
+  Eso es lo que el chip que dibuja puede hacer de verdad, y decirlo dejó las tablas del tamaño que
+  ya tenían - la alternativa era una tabla dieciséis veces más larga.
+- **Un idioma no es una máquina.** Las variantes de ROM de las TK y de las Amstrad entraron como
+  juegos a elegir sobre la misma máquina, con el mecanismo del paso 1, y no como entradas del menú.
+- **Guardar un snapshot no lleva todavía los colores propios.** Cargarlo sí: quien abre un archivo
+  pregunta por "lo que pinte con colores propios" y no por un chip con nombre. Lo que escribe un
+  snapshot lo arma con el procesador y la memoria solos, y desde donde está no ve un dispositivo.
+- **La suite necesita más heap del que da una caja chica por omisión**, y ahora el build lo dice.
+- **Una ROM puede tardar ocho segundos en tomar su primera interrupción.** La Chrome los tarda, en
+  bucles de espera, y el límite que les quedaba bien a las Sinclair la daba por muerta.
+
+Con las ROMs traídas, las veinticuatro máquinas del build arrancan y toman su interrupción: 297
+hechos en el módulo de máquinas, sin uno solo salteado. Sin ellas se saltean seis, que es lo que
+corresponde a un árbol que no las lleva.
+
+**Falta el 8 y el 9.** El ZX-Uno no es una máquina sino una caja de máquinas, y su cargador de ocho
+K no muestra nada sin la imagen de flash de cuatro megas: traerlo a medias sería registrar una
+máquina que no arranca, que es peor que no tenerla. El BaseConf empieza por el bit CMOS del Z80, que
+es lo más profundo del árbol - el procesador y su generador -, y sigue por una paginación de cuatro
+megas con tablas de mapas. Los dos son trabajo de una sesión entera cada uno, no de una madrugada.
+
 ## El orden, y por qué
 
 1. Las ROMs elegibles para las máquinas que ya tenemos. Cero modelo; descubre si `choose` alcanza.

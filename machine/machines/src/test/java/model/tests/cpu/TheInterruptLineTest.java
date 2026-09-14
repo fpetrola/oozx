@@ -60,7 +60,9 @@ class TheInterruptLineTest extends MachineTest {
         .filter(type -> type.getName().equals(model)).findFirst().orElseThrow());
     boolean[] handled = {false};
     var watch = speccy.cpu.beforeFetch().watch(0x0038, pc -> handled[0] = true);
-    for (int frames = 0; frames < 400 && !handled[0]; frames += 20) {
+    // Eight hundred because one of these clones spends the best part of eight seconds in delay
+    // loops before it takes its first interrupt, and a limit that fitted the Sinclairs failed it.
+    for (int frames = 0; frames < 800 && !handled[0]; frames += 20) {
       runFrames(speccy, 20);
     }
     watch.off();
