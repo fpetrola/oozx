@@ -85,10 +85,23 @@ public final class RomFiles implements Roms {
 
   /** Fallback used when the chosen file for a key can't be read. */
   private static Map<String, List<String>> shipped;
+  private static Map<String, Source> shippedSources;
 
   private static List<String> shipped(String key) {
     if (shipped == null) shipped = Configuration.shipped().of(RomFiles.class).files;
     return shipped.get(key);
+  }
+
+  /**
+   * Where a ROM is published and what it has to be, as this build knows it, and only then as the
+   * person's own file has it. That way round because it is the build's knowledge and not a setting:
+   * a run that saved the file when the build pointed somewhere else would otherwise go on sending
+   * every later run to the place this build has already stopped believing in.
+   */
+  public Source sourceFor(String filename) {
+    if (shippedSources == null) shippedSources = Configuration.shipped().of(RomFiles.class).sources;
+    Source source = shippedSources.get(filename);
+    return source != null ? source : sources.get(filename);
   }
 
   public String nameOf(Object device) {
@@ -142,7 +155,7 @@ public final class RomFiles implements Roms {
   private byte[] image(String filename, int length) {
     byte[] image = packaged(filename);
     if (image == null) image = bytesOf(new File(filename));
-    if (image == null) image = bytesOf(kept(filename));
+    if (image == null) image = keptIfItIsStillTheRightOne(filename);
     if (image == null) throw new RomNotLoadedException("couldn't find ROM '" + filename + "'", filename);
     if (image.length != length) throw new RomNotLoadedException("ROM '" + filename + "' is " + image.length + " bytes long; expected " + length, filename);
     return image;
@@ -157,9 +170,21 @@ public final class RomFiles implements Roms {
     return missing;
   }
 
-  private static boolean here(String filename) {
+  private boolean here(String filename) {
     return RomFiles.class.getResource("/roms/" + filename) != null
-        || new File(filename).isFile() || kept(filename).isFile();
+        || new File(filename).isFile() || keptIfItIsStillTheRightOne(filename) != null;
+  }
+
+  /**
+   * The copy kept from an earlier fetch, unless this build has since come to expect different
+   * bytes under that name - which happens when a better image of the same ROM is found. Kept
+   * copies are not settings: one that no longer matches is fetched again rather than believed.
+   */
+  private byte[] keptIfItIsStillTheRightOne(String filename) {
+    byte[] kept = bytesOf(kept(filename));
+    Source source = sourceFor(filename);
+    if (kept == null || source == null || source.sha256 == null) return kept;
+    return source.sha256.equalsIgnoreCase(digestOf(kept)) ? kept : null;
   }
 
   /**
@@ -197,7 +222,7 @@ public final class RomFiles implements Roms {
    * asked for once and not once a boot.
    */
   private byte[] fetched(String filename) {
-    Source source = sources.get(filename);
+    Source source = sourceFor(filename);
     if (source == null || source.url == null || !consent.toDownload(filename, source.url)) return null;
     byte[] image;
     try {
@@ -261,13 +286,18 @@ public final class RomFiles implements Roms {
    */
   private static void mustBe(String filename, byte[] image, String sha256) {
     if (sha256 == null) throw new RomNotLoadedException("ROM '" + filename + "' says where it comes from but not what it should be", filename);
+    String digest = digestOf(image);
+    if (!digest.equalsIgnoreCase(sha256))
+      throw new RomNotLoadedException("ROM '" + filename + "' is not the one expected: " + digest + " arrived, " + sha256 + " was asked for", filename);
+  }
+
+  private static String digestOf(byte[] image) {
     StringBuilder digest = new StringBuilder();
     try {
       for (byte b : java.security.MessageDigest.getInstance("SHA-256").digest(image)) digest.append(String.format("%02x", b));
     } catch (java.security.NoSuchAlgorithmException everyJavaHasIt) {
       throw new IllegalStateException(everyJavaHasIt);
     }
-    if (!digest.toString().equalsIgnoreCase(sha256))
-      throw new RomNotLoadedException("ROM '" + filename + "' is not the one expected: " + digest + " arrived, " + sha256 + " was asked for", filename);
+    return digest.toString();
   }
 }

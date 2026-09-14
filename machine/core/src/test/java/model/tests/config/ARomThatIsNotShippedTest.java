@@ -35,6 +35,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -250,6 +251,47 @@ class ARomThatIsNotShippedTest {
     assertTrue(roms.bring(NAME));
     assertArrayEquals(third, roms.of(asking, LENGTH), "the piece that was asked for");
     assertArrayEquals(third, Files.readAllBytes(RomFiles.kept(NAME).toPath()), "and only the piece was kept");
+  }
+
+  /**
+   * Where a ROM is published is what this build knows, not what somebody's file remembers. A run
+   * that saved its settings while the build pointed at one archive left that archive written down,
+   * and every later run went there instead - which, once the build had moved on to a different
+   * image of the same ROM, meant fetching from the old place and cutting it as if it were the new.
+   */
+  @Test
+  void whereARomComesFromIsWhatThisBuildSaysAndNotWhatAnOlderRunWroteDown() {
+    RomFiles.Source stale = new RomFiles.Source();
+    stale.url = "https://somewhere.example/OLD.ROM";
+    stale.sha256 = "0".repeat(64);
+    roms.sources.put("scorpion-0.rom", stale);
+
+    RomFiles.Source known = roms.sourceFor("scorpion-0.rom");
+    assertNotEquals(stale.url, known.url, "the file's copy won over what this build carries");
+    assertEquals(0x4000, known.length, "and this build says its ROMs come out of one image");
+
+    RomFiles.Source mine = new RomFiles.Source();
+    mine.url = publishedAt;
+    roms.sources.put("a-rom-this-build-never-heard-of.rom", mine);
+    assertEquals(publishedAt, roms.sourceFor("a-rom-this-build-never-heard-of.rom").url,
+        "a source nobody in this build knows about is still the person's to add");
+  }
+
+  /**
+   * A copy kept from an earlier fetch is used without asking anybody - unless this build has since
+   * come to expect different bytes under that name, which is what happens when a better image of
+   * the same ROM turns up. Then the one on disk is not believed, and is fetched again.
+   */
+  @Test
+  void aKeptCopyThatIsNoLongerWhatThisBuildExpectsIsFetchedAgain() throws Exception {
+    org.apache.commons.io.FileUtils.writeByteArrayToFile(RomFiles.kept(NAME), new byte[LENGTH]);
+    publishedAs(shaOfTheFile());
+
+    assertEquals(List.of(NAME), roms.missingFor(asking), "the one on disk is not the one this build expects");
+    assertTrue(roms.bring(NAME), "so it is fetched again");
+    assertEquals(1, timesAsked);
+    assertArrayEquals(Files.readAllBytes(new File(java.net.URI.create(publishedAt)).toPath()),
+        roms.of(asking, LENGTH), "and what is read now is what was published");
   }
 
   private String shaOfTheFile() throws Exception {
