@@ -189,7 +189,7 @@ class UlaPlusTest extends MachineTest {
     modified(false);
     com.fpetrola.oozx.speccy.modules.display.ColoursOfItsOwn chip =
         speccy.peripheralRegistry.anyThatIs(com.fpetrola.oozx.speccy.modules.display.ColoursOfItsOwn.class);
-    int[] sixtyFour = new int[Picture.COLOURS];
+    int[] sixtyFour = new int[UlaPlusPeripheral.COLOURS];
     sixtyFour[3] = 0xe0;
 
     com.fpetrola.emulation.helpers.snapshots.SpectrumState snapshot =

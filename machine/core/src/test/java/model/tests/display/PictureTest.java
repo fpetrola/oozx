@@ -66,6 +66,28 @@ class PictureTest {
     assertEquals(0, Picture.SINCLAIR[8]);
   }
 
+  /**
+   * A colour index is a byte where it is plotted with, and a byte past 127 is a negative number:
+   * the colour above the middle of the palette is the one that says whether it is looked up as
+   * what it means or as what Java made of it.
+   */
+  @Test
+  void aColourPastTheHalfIsTheOneItWasPutAt() {
+    canvas.colour(200, 0x123456);
+    canvas.plot8(3, 40, (byte) 0b10000000, (byte) 200, (byte) 0);
+
+    assertEquals(0x123456, at(3 * 8, 40), "the ink is the colour written at 200");
+    assertEquals(Picture.SINCLAIR[0], at(3 * 8 + 1, 40), "and the paper is still the paper");
+  }
+
+  @Test
+  void everyColourOfThePaletteHasAColour() {
+    canvas.sinclairColours();
+
+    assertEquals(256, Picture.COLOURS, "as many as a byte can name");
+    assertEquals(Picture.SINCLAIR[7], canvas.palette[Picture.COLOURS - 9], "the sixteen repeat to the end");
+  }
+
   @Test
   void anInactiveCanvasIsNotPlottedOn() {
     canvas.active = false;
