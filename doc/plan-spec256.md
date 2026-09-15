@@ -615,7 +615,38 @@ escalares (`T`) los ocho leen la misma entrada y **los sprites salen blancos** �
 prueba que esa página no tiene colores propios en el `.GFX`, porque si los tuviera, leerla escalar
 los devolvería. O sea: una lectura escalar de esa tabla no puede dar color, y el original **sí** da
 color. Algo por carril hace el original ahí también, y en este árbol eso es exactamente la
-indexación por plano que la tercera regla conserva. Y la regla no cuesta tiempo: 19,95 ms por cuadro con ella y 19,95 sin ella, en la misma
+indexación por plano que la tercera regla conserva.
+
+**Y esto quedó probado en vez de deducido, leyendo los archivos del juego.** El código de la rutina
+está en el `.SNA` y dice dónde vive la tabla:
+
+```
+9991: e1        POP HL        ; dos índices, uno por plano
+9992: 4c        LD C,H
+9993: 26 be     LD H,BE       ; la tabla está en 0xBE00
+9995: 1a        LD A,(DE)
+9996: a6        AND (HL)      ; la máscara: tabla[L]
+9997: 69        LD L,C
+9998: b6        OR (HL)       ; el dato:    tabla[C]
+9999: 12        LD (DE),A
+```
+
+Y el `.GFX` dice qué colores tiene cada página, contando cuántos de sus 256 bytes tienen colores
+propios:
+
+| página | con colores propios | valores que aparecen |
+|---|---|---|
+| **la tabla, `BE00`** | **0 de 256** | **sólo 0 y 255** |
+| el buffer de composición, `FD00` | 137 de 256 | 3, 4, 49, 65, 90, 93, 188… |
+| gráficos, `C000` / `D000` | 101 / 97 de 256 | 2, 34, 80, 88, 90, 116… |
+| pantalla, `4000` | 30 de 256 | 65, 68, 69, 70 |
+
+La tabla está enteramente sin colorear. Leerla con una sola dirección devuelve blanco o negro y
+nada más, en cualquier emulador; el original muestra esos sprites con color, así que el original
+indexa por carril. **La conclusión que queda: los dos diseños tienen la misma capacidad, y lo que
+yo había llamado "el modelo de 64 bits no puede" era falso.** La diferencia entre ellos es de
+costo —ocho decodificaciones contra una— y de dónde aparece la deriva, no de lo que se puede
+dibujar. Y la regla no cuesta tiempo: 19,95 ms por cuadro con ella y 19,95 sin ella, en la misma
 máquina el mismo minuto.
 
 El asiento: `Core.wrapping`, una línea por omisión que devuelve la memoria tal cual y que el
