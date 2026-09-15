@@ -37,7 +37,7 @@ public class TableBasedOpCodeDecoder implements OpCodeDecoder {
 
   public TableBasedOpCodeDecoder(State state, OpcodeConditions oc, FetchNextOpcodeInstructionFactory fif, InstructionFactory instructionFactory, Memory memoryForOpcodes) {
     this.instructionFactory = instructionFactory;
-    OpcodeTargets opcodeTargets = new OpcodeTargets(state, memoryForOpcodes);
+    OpcodeTargets opcodeTargets = instructionFactory.targets(state, memoryForOpcodes);
     OpcodeReference a = opcodeTargets.iRR(HL);
     Instruction edOpcode = fif.createFetchInstruction(new EDPrefixTableOpCodeGenerator(state, a, oc, this.instructionFactory, memoryForOpcodes).getOpcodesTable(), "ED", 1, memoryForOpcodes);
     Instruction cbOpcode = fif.createFetchInstruction(new CBPrefixTableOpCodeGenerator(state, a, oc, this.instructionFactory, memoryForOpcodes).getOpcodesTable(), "CB", 1, memoryForOpcodes);

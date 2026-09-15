@@ -19,7 +19,9 @@
 package com.fpetrola.z80.instructions.factory;
 
 import com.fpetrola.z80.instructions.impl.*;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.*;
 
@@ -27,6 +29,14 @@ public interface InstructionFactoryDelegator extends InstructionFactory {
 
   default FetchNextOpcodeInstructionFactory getFetchNextOpcodeInstructionFactory() {
     return getDelegate().getFetchNextOpcodeInstructionFactory();
+  }
+
+  default OpcodeTargets targets(State state, Memory memoryForOpcodes) {
+    return getDelegate().targets(state, memoryForOpcodes);
+  }
+
+  default Memory memoryForOpcodes(State state) {
+    return getDelegate().memoryForOpcodes(state);
   }
 
   default DJNZ DJNZ(BNotZeroCondition bnz, ImmutableOpcodeReference target) {

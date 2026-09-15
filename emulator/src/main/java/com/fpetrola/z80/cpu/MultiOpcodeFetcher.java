@@ -49,10 +49,10 @@ public class MultiOpcodeFetcher {
     this.state = state;
     this.pc = state.getPc();
     this.clone = clone;
-    memoryForOpcode = new MemoryForOpcodes(this.state.memoryForOpcodes(), this.state);
+    memoryForOpcode = new MemoryForOpcodes(instructionFactory.memoryForOpcodes(state), this.state);
     tableFactory = () -> createOpcodesTables(opcodeConditions, instructionFactory.getFetchNextOpcodeInstructionFactory(), instructionFactory);
     createOpcodeTables();
-    memory = state.memoryForOpcodes();
+    memory = instructionFactory.memoryForOpcodes(state);
     this.registerR = state.getRegisterR();
   }
 
