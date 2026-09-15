@@ -733,6 +733,77 @@ La lección repetida: el porcentaje contra una captura **baja** en el Abu Simbel
 puesto, y sin embargo el render es más correcto. Una pantalla que se mueve no se puede comparar por
 mejor-de-tres cuadros; hay que mirarla.
 
+## El borde de los sprites del Renegade, seguido hasta el fondo y sin arreglo
+
+Queda un artefacto que **no se arregló**: al costado de cada hombre hay una franja de píxeles
+equivocados. Se siguió hasta la instrucción y se entiende del todo; lo que no hay es una regla que
+lo arregle sin romper otra cosa. Queda anotado con todo lo medido para que nadie lo empiece de cero.
+
+### Cómo se sigue un píxel hasta su instrucción
+
+La herramienta que sirvió: **espiar un byte de pantalla y anotar cada escritura**, la de la máquina
+y la de los ocho planos, con su PC, su valor viejo y el nuevo, más los punteros de la máquina en ese
+momento. Con eso, un píxel malo deja de ser una opinión y pasa a ser una lista. El byte `487b` del
+costado de una pierna se forma así, en tres escrituras:
+
+| PC | qué pasa |
+|---|---|
+| `97df` | la máquina copia el **piso** al buffer `fd1a`: su byte queda en `00` (papel) y los planos 2, 3 y 6 en `ff` — color 76 en los ocho píxeles |
+| `9999` | el blit del sprite sobre ese mismo byte: máquina `00 → 24`, planos `a4 84 59 01 20 20 01 00` |
+| `987f` | el byte se copia del buffer a la pantalla, tal cual |
+
+Reconstruida, **la máscara del juego en ese paso era `01`**: conserva un solo píxel y borra los otros
+siete. El dato del sprite rellena seis de ellos (colores 3, 4, 49, 4, 4, 3) y en el séptimo no pone
+nada — ni la máquina, cuyo byte `24` no tiene ese bit, ni ningún plano. Resultado: el piso borrado y
+nada encima.
+
+**La máscara del juego borra más ancho de lo que el sprite dibuja.** En una Spectrum eso no se nota:
+lo borrado muestra el *papel* de la celda. Acá no hay papel, y un píxel sin color es negro, porque
+en este modelo **"acá no hay nada" y "acá hay negro" son el mismo estado**.
+
+### Las dos reglas que se probaron, y por qué las dos fallan igual
+
+1. **Un píxel que nadie pinta conserva el color que tenía.** Doce líneas en `Planes`, en el momento
+   en que aterrizan las ocho escrituras, que es el único lugar donde se ven los ocho planos juntos y
+   se puede decidir por píxel. Saca el contorno negro y devuelve el piso — y deja **estela**: los
+   pedazos de sprite que el juego borra escribiendo ceros no se borran más.
+2. **Lo mismo, salvo donde la máquina apaga ese píxel**, para distinguir un borrado de verdad de un
+   hueco de máscara. También saca el contorno, y la basura **sigue y se acumula**: al cuadro 400 hay
+   manchones de color al costado de cada hombre.
+
+**Por qué las dos fallan, que es el hallazgo:** nuestros planos tienen color **fuera de la forma de
+la máquina**. Medido en los registros de los ocho durante el blit: el dato del sprite da bits 0 a 4
+mientras la máquina tiene 0, 2 y 4. Ese color que vive fuera de la silueta **no se puede borrar
+nunca** con una regla basada en la máquina, porque la máquina jamás tuvo ese bit prendido para
+apagarlo.
+
+Y por eso mismo la regla simétrica tampoco sirve: recortar el color a la forma de la máquina al
+pintar —probado— deja el piso negro, porque el piso de este juego existe **sólo** en los planos (su
+byte de máquina es `00`, papel).
+
+### Lo que haría falta
+
+Esto es lo único que encontramos donde la transposición cuesta algo de verdad: el modelo de 64 bits
+lleva la forma en el byte ordinario y el color en los carriles, separados, y ahí el hueco de máscara
+se ve como papel; el nuestro los tiene en los mismos bits. Para cerrarlo haría falta o bien el
+código del emulador original, o bien una captura del original **en el mismo cuadro** que la nuestra,
+que ninguna de las dos cosas tenemos. Lo demás ya está medido y anotado acá.
+
+## Lo que del `.CFG` todavía no miramos
+
+Contando las claves de los 18 packs contra las que `Rules` entiende, **ignoramos nueve**:
+`UpMixPaper`, `DownMixPaper`, `UpMixChgBright`, `DownMixChgBright`, `BkMixed`, `BkMixBkAttr`,
+`AndMaskCF`, `GFXScreenXORbuffered` y `OrderPaletteSignedBytes`. No son todas letra muerta:
+
+| clave | juegos que la piden |
+|---|---|
+| `DownMixPaper=1` | Atom Ant, Bruce Lee, Into the Eagle's Nest, Jilly's Farm, Page and the curse of the Pharaoh, Ruff and Reddy, Silk Worm, Sink Feel, That Sink Filling, TreeWeeks |
+| `UpMixChgBright=50` | los mismos menos Bruce Lee |
+| `AndMaskCF=0` | ocho packs, todos en cero: apagada en todos lados |
+
+O sea que **diez juegos piden una mezcla con los atributos que hoy no hacemos**, y es el pedazo más
+grande del formato que falta. Del resto de las claves, ningún pack las enciende.
+
 ## Qué instrucción pierde el color, medido en vez de razonado
 
 La pregunta que el Renegade hizo inevitable: ¿hay instrucciones por las que el color no llega a
