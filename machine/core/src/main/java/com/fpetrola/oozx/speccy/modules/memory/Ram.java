@@ -38,13 +38,10 @@ public final class Ram extends Storage {
     super(bytes);
   }
 
-  public static boolean[] WRITTEN_THIS_FRAME = new boolean[0x1b00];
-
   public void write(int offset, byte value) {
     if (writeProtected) {
       return;
     }
-    if (shownTo != null && offset < SCREEN_BYTES) WRITTEN_THIS_FRAME[offset] = true;
     if (shownTo != null && offset < SCREEN_BYTES && bytes[offset] != value) {
       shownTo.accept(offset);
     }

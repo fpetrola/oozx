@@ -350,6 +350,7 @@ Al 14 de septiembre de 2026, con el árbol verde desde un repositorio local vac�
 | 9. Contra los juegos | `edcd0b7a2` | Los 29 juegos del repositorio que traen snapshot y colores **arrancan y se pintan**, ninguno se cuelga. Lo que faltaba y se encontró acá: el `ROM0.GFX`, los colores de la fuente de la ROM, que el Jetpac trae y sin el cual sus dígitos salían grises — 94,50 % a 99,02 % |
 | Después: la estela | `caf50a4b1` | La pantalla de un Spec256 se pinta entera cada cuadro, porque los planos cambian donde la memoria de la máquina no lo registra |
 | Después: la deriva de punteros | `901ef2623` | Medida, y el interruptor en la ventana. No cambia el valor por omisión: trece de quince juegos dan lo mismo, uno mejora mucho y otro empeora |
+| Después: dos reglas por omisión | `920a91b31` | Una dirección no es un color. La escritura de un seguidor cae donde cayó la de la máquina y la suma de un `ADD` sobre un puntero es la que la máquina hace: el Renegade con la línea por omisión queda a 269 píxeles del `1DEPSs` que ZX-Poly le tiene escrito a mano, y de los quince con captura ninguno empeora. El asiento es `Core.wrapping`, porque un oyente de escrituras en `ContendedMemory` es justo lo que el generador no puede aplanar |
 
 ## La estela, y por qué la pantalla de un Spec256 se pinta entera
 
@@ -436,6 +437,10 @@ de la máquina cuestan diez puntos en el Army Moves y arreglan el marcador del R
 son reales, ninguna domina, y por eso las dos son un interruptor en la ventana y no una decisión
 escrita en el código. Lo que el juego diga en su `.CFG` manda sobre las dos.
 
+Los dos interruptores que vinieron después —escribir donde escribió la máquina y sumar lo que suma
+la máquina— sí van por omisión, y la razón es la misma vista del otro lado: éstos no le quitan al
+seguidor ningún registro, así que no hay color que puedan costar. Están más abajo.
+
 ## Lo que ZX-Poly tiene y este árbol no: una base por juego
 
 La pregunta directa —¿qué se me está pasando respecto al otro emulador?— tiene una respuesta
@@ -472,6 +477,96 @@ los dos interruptores daba solo: la deriva era por DE —y DE alineado como valo
 que el espejado de sprites indexa una tabla con HL, que tiene que seguir siendo el del seguidor.
 `T` tocaba las dos y por eso las caras salían blancas. Lo único que no cierra es un dígito del
 récord, "058100" contra "050000", que la captura del juego da a favor de `T`; queda anotado.
+
+## Las dos reglas que hacen falta una vez, en lugar de una línea por juego
+
+La hipótesis, después de leer la base de ZX-Poly: **una dirección no es un color**. Lo que un
+seguidor hace con *datos* es suyo —ahí vive el color— pero una dirección la decide la máquina,
+porque un color metido en una dirección lo manda a escribir donde la máquina no estuvo. Faltaba
+decir por dónde entra un color a una dirección, y jugando aparecen exactamente dos caminos.
+
+**Por la escritura.** Un seguidor escribe donde apunta su puntero, y si el puntero llevaba color la
+escritura cae en cualquier lado: ésa es la estela. La regla es que *la n-ésima escritura de un
+seguidor en una instrucción cae donde cayó la n-ésima de la máquina*, y donde la máquina escribió
+menos veces, donde el seguidor quería. Lo que **lee** sigue siendo suyo, que es lo que necesita una
+tabla indexada por color.
+
+**Por la suma.** `ADD HL,BC` con un color dentro de BC deja a cada plano con un HL distinto, y
+desde ahí *lee* y escribe mal. La regla es que *la suma es la que la máquina está por hacer con sus
+dos registros*. Un puntero que el seguidor recibió en vez de sumarlo sigue siendo suyo: `LD L,A`
+con un color en A es justamente el espejado de sprites del Renegade, y ahí el seguidor tiene razón.
+
+Medidas con «píxeles encendidos donde la máquina no dibujó ninguna forma», que es color que llegó
+adonde no iba:
+
+| | ninguna | escritura | suma | las dos |
+|---|---|---|---|---|
+| Atom Ant, 200 cuadros | 34 | 1 418 | **22** | **22** |
+| Bubbler, 400 cuadros | 9 500 | **0** | 1 | **1** |
+
+Las dos hacen falta y ninguna alcanza sola, y se ve por qué. El Atom Ant dibuja con
+`POP HL ; LD A,(DE) ; AND F8 ; RRCA×3 ; LD C,A ; LD B,0 ; ADD HL,BC ; LD A,(HL) ; XOR B ; LD (HL),A`:
+el desplazamiento sale de un dato, así que el color entra por la suma, y con sólo la regla de la
+escritura la basura deja de caer lejos y pasa a caer encima de la celda buena —de 34 a 1 418—. El
+Renegade es el caso opuesto: su DE se desvía por otro lado y su HL indexa la tabla de espejado, así
+que necesita la escritura y no la suma.
+
+**El resultado que importa**: el Renegade con la línea por omisión (`1PSs`) y las dos reglas,
+contra el mismo Renegade con el `1DEPSs` que ZX-Poly le tiene escrito a mano, píxeles distintos de
+los 49 152 de la pantalla:
+
+| cuadro | `1PSs` | + escritura | + suma | + las dos |
+|---|---|---|---|---|
+| 60 | 1 760 | 256 | 1 595 | **256** |
+| 200 | 3 882 | 1 266 | 3 674 | **307** |
+| 400 | 5 114 | 1 981 | 4 631 | **269** |
+
+Es decir: **la base por juego deja de hacer falta para el caso que la motivó**, y la línea del juego
+sigue mandando si el `.CFG` la trae.
+
+A diferencia de `T`, las dos van por omisión porque no cuestan colores: no le sacan al seguidor
+ningún registro, sólo le corrigen la dirección en los dos lugares por donde un color se le había
+metido. Tampoco cuestan tiempo: tres rondas intercaladas sobre el Renegade en el menú, 300 cuadros,
+núcleos fijados, dan **7,10 / 8,22 / 8,31 ms por cuadro con las dos y 7,89 / 8,06 / 7,99 sin
+ninguna**, contra 7,88 en el árbol de antes. La dispersión entre corridas es más grande que la
+diferencia entre las dos columnas: no se mide.
+
+Los quince títulos que traen captura del título, con nada, con una, con la otra y con las dos
+(porcentaje idéntico contra la captura, mejor de los cuadros 200, 300 y 400):
+
+| | nada | escritura | suma | las dos |
+|---|---|---|---|---|
+| Bubbler | 67,26 % | 83,32 % | 83,15 % | **83,15 %** |
+| los otros catorce | — | iguales | iguales | **iguales** |
+
+Uno mejora dieciséis puntos y ninguno empeora: Abu Simbel 90,02, Army Moves 95,88, Atic Atac y
+Phantis 100,00, Bruce Lee 64,19, Cybernoid 98,91, Cybernoid 2 81,18, Dizzy 1 99,31, Jetpac 99,02,
+Knight Lore 97,92, Sabre Wulf 95,63, Scooby Doo 99,06, Solomons Key 98,63, Underwurlde 36,17, los
+mismos dígitos con las cuatro combinaciones. Lo que las reglas arreglan no se ve en una pantalla de
+título quieta —se ve jugando— y por eso el Renegade se mide contra el otro emulador y el Atom Ant
+con píxeles sobre nada.
+
+El asiento: `Core.wrapping`, una línea por omisión que devuelve la memoria tal cual y que el
+cableado le ofrece a cualquier núcleo antes de construirle el estado. El Spec256 la contesta con
+una memoria que delega y le cuenta a los planos dónde escribió la máquina; el núcleo no sabe nada
+de Spec256 y el generado no ve un solo cambio. La suma vive en la fábrica de instrucciones del
+seguidor, que es donde ya vivían el AND, el OR y el XOR nivelados.
+
+**Y por qué no fue un oyente de escrituras en `ContendedMemory`**, que era lo primero que probé:
+`Memory.addMemoryWriteListener` ya existe en la interfaz como no-op, pero el generador aplana esa
+clase y con el campo en `null` al generar emitió `if (null != null) { null.writtingMemoryAt(...) }`,
+que no compila. Una costura para el núcleo rápido tiene que ser algo que el generador pueda
+aplanar: un método que devuelve lo que recibe lo es, un campo que a veces es `null` no.
+
+Lo que no cubre: `ADC` y `SBC` de 16 bits, que no aparecieron como problema en ningún juego medido,
+y un puntero que recibe un color por una carga, que del lado de la escritura lo arregla la primera
+regla y del lado de la lectura tiene que seguir siendo del seguidor.
+
+Un tropiezo de medición que vale la pena anotar: con el árbol viejo instalado en `~/.m2` y sólo el
+módulo del dispositivo recompilado, la regla de la escritura **no hacía nada** y las mediciones
+daban iguales con y sin ella. El oyente de escrituras vive en `machine/core`; si no se reinstala,
+la interfaz devuelve su no-op y no hay error en ningún lado. Se vio contando las escrituras que el
+dispositivo veía: cero.
 
 ## Qué instrucción pierde el color, medido en vez de razonado
 

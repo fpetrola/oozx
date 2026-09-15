@@ -52,7 +52,7 @@ public class ContendedWiring implements ProcessorWiring {
   @Override
   public OOZ80 build(Core core, Function<Memory, State> states) {
     ContendedMemory contended = new ContendedMemory(memory, clock, !core.countsItsOwnContention());
-    State state = states.apply(contended);
+    State state = states.apply(core.wrapping(contended));
     SpeccyPhaseProcessor phases = new SpeccyPhaseProcessor(state, memory, ula, clock);
     contended.watchedBy(phases);
     return core.cpu(state, phases);

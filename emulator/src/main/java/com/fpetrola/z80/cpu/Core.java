@@ -35,6 +35,14 @@ public interface Core {
   /** The processor over the state, reporting its contention to {@code contention}, or to nobody. */
   OOZ80 cpu(State state, PhaseProcessor contention);
 
+  /**
+   * The memory the processor will run on, which a core may wrap when it has to see what the
+   * processor does to it. Whatever comes back is what the state is built over.
+   */
+  default Memory wrapping(Memory memory) {
+    return memory;
+  }
+
   /** When the core counts its contention itself, the memory it runs on must not tell the aspect about its accesses. */
   boolean countsItsOwnContention();
 }
