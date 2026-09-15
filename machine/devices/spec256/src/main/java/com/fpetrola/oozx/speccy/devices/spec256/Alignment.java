@@ -46,15 +46,12 @@ import java.util.function.IntPredicate;
  */
 @Singleton
 public final class Alignment {
-  public static int PC;
   /** Whether what the machine is pointing at is a picture rather than a table every plane shares. */
   private IntPredicate aPictureIsThere = address -> false;
 
   public void aPictureIsThere(IntPredicate there) {
     aPictureIsThere = there;
   }
-
-  public static final java.util.Map<String, Long> DRIFT = new java.util.concurrent.ConcurrentHashMap<>();
 
   /**
    * What is taken when a game says nothing: the stack pointer and every flag but the carry, and

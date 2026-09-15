@@ -24,9 +24,7 @@ import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.OopCore;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterBank;
-import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.tstates.PhaseProcessor;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -107,44 +105,10 @@ public class Spec256Core implements Core {
   public OOZ80 cpu(State state, PhaseProcessor contention) {
     OOZ80[] followers = new OOZ80[Planes.PLANES];
     for (int plane = 0; plane < followers.length; plane++) {
-      State own = goingWhereItGoes(state, planes.plane(plane, state.getMemory()));
-      followers[plane] = ordinary.cpu(own, null, new LevelledInstructions(own, rules, state));
+      State own = new State(DEAF, ordinary.bank(null, DEAF), planes.plane(plane, state.getMemory()));
+      followers[plane] = ordinary.cpu(own, null, new LevelledInstructions(own, rules, state, alignment));
     }
     return new LockstepZ80(ordinary.cpu(state, contention), followers, alignment, planes);
   }
 
-  /**
-   * A follower's state: the plane it runs on, and the two things it can be told to take from the
-   * machine rather than work out itself - the addresses it reads and writes by, and the numbers
-   * written into the instructions it runs. Both are the game's business and both are asked every
-   * time, so that a person can turn them over while the game is running.
-   */
-  private State goingWhereItGoes(State followed, Memory plane) {
-    return new State(DEAF, ordinary.bank(null, DEAF), plane) {
-      @Override
-      public Memory memoryForOpcodes() {
-        return new Memory() {
-          public int read(int address, int fetching) {
-            return alignment.numbersFromTheOneFollowed() ? followed.getMemory().peek(address) : plane.read(address, fetching);
-          }
-
-          public int peek(int address) {
-            return plane.peek(address);
-          }
-
-          public void write(int address, int value) {
-            plane.write(address, value);
-          }
-
-          public void reset() {
-          }
-        };
-      }
-
-      @Override
-      public Register pointer(RegisterName name) {
-        return alignment.addressing(followed.getRegister(name), super.pointer(name));
-      }
-    };
-  }
 }

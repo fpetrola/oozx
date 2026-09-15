@@ -22,12 +22,28 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.impl.Add16;
 import com.fpetrola.z80.instructions.impl.And;
+import com.fpetrola.z80.instructions.impl.Cpd;
+import com.fpetrola.z80.instructions.impl.Cpi;
+import com.fpetrola.z80.instructions.impl.Ind;
+import com.fpetrola.z80.instructions.impl.Ini;
+import com.fpetrola.z80.instructions.impl.Ldd;
+import com.fpetrola.z80.instructions.impl.Ldi;
 import com.fpetrola.z80.instructions.impl.Or;
+import com.fpetrola.z80.instructions.impl.Outd;
+import com.fpetrola.z80.instructions.impl.Outi;
 import com.fpetrola.z80.instructions.impl.Xor;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
+import com.fpetrola.z80.opcodes.references.OpcodeTargets;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
+import com.fpetrola.z80.registers.RegisterPair;
+
+import static com.fpetrola.z80.registers.RegisterName.A;
+import static com.fpetrola.z80.registers.RegisterName.BC;
+import static com.fpetrola.z80.registers.RegisterName.DE;
+import static com.fpetrola.z80.registers.RegisterName.HL;
 
 /**
  * The instructions a follower runs, where a game asked for the three logical ones to work on
@@ -44,11 +60,103 @@ import com.fpetrola.z80.registers.RegisterName;
 final class LevelledInstructions extends DefaultInstructionFactory {
   private final Rules rules;
   private final State followed;
+  private final Alignment alignment;
 
-  LevelledInstructions(State state, Rules rules, State followed) {
+  LevelledInstructions(State state, Rules rules, State followed, Alignment alignment) {
     super(state);
     this.rules = rules;
     this.followed = followed;
+    this.alignment = alignment;
+  }
+
+  /**
+   * The registers a block instruction walks memory and counts with, taken from the machine: a
+   * colour that walked into one of them would send this follower reading and writing where the
+   * machine never went, and would make it repeat a different number of times.
+   */
+  private Register walking(RegisterName name) {
+    return alignment.addressing(followed.getRegister(name), state.getRegister(name));
+  }
+
+  private RegisterPair walkingPair(RegisterName name) {
+    return (RegisterPair) walking(name);
+  }
+
+  /** Every address a reference takes from a register is one this follower walks with the machine. */
+  @Override
+  public OpcodeTargets targets(State state, Memory memoryForOpcodes) {
+    return new OpcodeTargets(state, memoryForOpcodes) {
+      @Override
+      public Register address(RegisterName name) {
+        return walking(name);
+      }
+    };
+  }
+
+  /**
+   * The numbers written into the instructions this follower runs: its own plane, which is where
+   * its colours are, unless the game would rather it read what the machine is running - a number
+   * a game painted could otherwise send a follower somewhere nothing asked for.
+   */
+  @Override
+  public Memory memoryForOpcodes(State state) {
+    Memory plane = state.getMemory();
+    return new Memory() {
+      public int read(int address, int fetching) {
+        return alignment.numbersFromTheOneFollowed() ? followed.getMemory().peek(address) : plane.read(address, fetching);
+      }
+
+      public int peek(int address) {
+        return plane.peek(address);
+      }
+
+      public void write(int address, int value) {
+        plane.write(address, value);
+      }
+
+      public void reset() {
+      }
+    };
+  }
+
+  @Override
+  public Ldi Ldi() {
+    return new Ldi(walking(DE), walkingPair(BC), walkingPair(HL), flag, memory, state.getIo(), state.getRegister(A));
+  }
+
+  @Override
+  public Ldd Ldd() {
+    return new Ldd(walking(DE), walkingPair(BC), walkingPair(HL), flag, memory, state.getIo(), state.getRegister(A));
+  }
+
+  @Override
+  public Cpi Cpi() {
+    return new Cpi(state.getRegister(A), flag, walkingPair(BC), walkingPair(HL), memory, state.getIo());
+  }
+
+  @Override
+  public Cpd Cpd() {
+    return new Cpd(state.getRegister(A), flag, walkingPair(BC), walkingPair(HL), memory, state.getIo());
+  }
+
+  @Override
+  public Ini Ini() {
+    return new Ini(walkingPair(BC), walkingPair(HL), flag, memory, state.getIo());
+  }
+
+  @Override
+  public Ind Ind() {
+    return new Ind(walkingPair(BC), walkingPair(HL), flag, memory, state.getIo());
+  }
+
+  @Override
+  public Outi Outi() {
+    return new Outi(walkingPair(BC), walkingPair(HL), flag, memory, state.getIo());
+  }
+
+  @Override
+  public Outd Outd() {
+    return new Outd(walkingPair(BC), walkingPair(HL), flag, memory, state.getIo());
   }
 
   @Override

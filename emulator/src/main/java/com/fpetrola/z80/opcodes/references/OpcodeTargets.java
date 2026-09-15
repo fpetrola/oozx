@@ -27,7 +27,7 @@ import static com.fpetrola.z80.registers.RegisterName.PC;
 
 public class OpcodeTargets {
 
-  private final State state;
+  protected final State state;
   private final Memory memoryForOpcode;
 
   public OpcodeTargets(State state, Memory memoryForOpcode) {
@@ -43,8 +43,16 @@ public class OpcodeTargets {
     return state.getRegister(name);
   }
 
+  /**
+   * The register a reference takes an <em>address</em> from, as against {@link #r} which takes a
+   * value: {@code LD A,(HL)} against {@code LD A,H}.
+   */
+  public Register address(RegisterName name) {
+    return state.getRegister(name);
+  }
+
   public OpcodeReference iRR(RegisterName name) {
-    return iRR(state.pointer(name));
+    return iRR(address(name));
   }
 
   public OpcodeReference iRR(ImmutableOpcodeReference r) {
@@ -52,7 +60,7 @@ public class OpcodeTargets {
   }
 
   public OpcodeReference iRRn(RegisterName name, boolean rewindOnWrite, int valueDelta) {
-    return iRRn(valueDelta, state.pointer(name));
+    return iRRn(valueDelta, address(name));
   }
 
   public OpcodeReference iRRn(int valueDelta, ImmutableOpcodeReference r) {
@@ -60,7 +68,7 @@ public class OpcodeTargets {
   }
 
   public OpcodeReference iiRR(RegisterName name) {
-    return iiRR(state.pointer(name));
+    return iiRR(address(name));
   }
 
   public OpcodeReference iiRR(ImmutableOpcodeReference r) {

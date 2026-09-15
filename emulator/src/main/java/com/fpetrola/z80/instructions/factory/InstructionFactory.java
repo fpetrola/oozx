@@ -19,12 +19,23 @@
 package com.fpetrola.z80.instructions.factory;
 
 import com.fpetrola.z80.instructions.impl.*;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.decoder.table.FetchNextOpcodeInstructionFactory;
 import com.fpetrola.z80.opcodes.references.*;
 
 public interface InstructionFactory {
   FetchNextOpcodeInstructionFactory getFetchNextOpcodeInstructionFactory();
+
+  /** The references to operands the instructions this factory builds are made of. */
+  OpcodeTargets targets(State state, Memory memoryForOpcodes);
+
+  /**
+   * Where the bytes of an instruction itself are read from: the opcode, its prefix, the
+   * displacement of an index and any number written into the instruction.
+   */
+  Memory memoryForOpcodes(State state);
 
   DJNZ DJNZ(BNotZeroCondition bnz, ImmutableOpcodeReference target);
 
