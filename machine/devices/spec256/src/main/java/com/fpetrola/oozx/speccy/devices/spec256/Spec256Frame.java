@@ -41,6 +41,7 @@ public class Spec256Frame extends MachineFrame {
   private final JCheckBox colourful = new JCheckBox("In its own colours");
   private final JCheckBox pointers = new JCheckBox("Address with the machine's pointers");
   private final JCheckBox numbers = new JCheckBox("Take numbers from the machine");
+  private final JTextField taken = new JTextField(12);
   private final JButton previous = new JButton("<");
   private final JButton next = new JButton(">");
   private final JLabel[] swatches = new JLabel[256];
@@ -48,7 +49,7 @@ public class Spec256Frame extends MachineFrame {
 
   public Spec256Frame() {
     super("Spec256");
-    setSize(560, 300);
+    setSize(700, 300);
 
     JPanel palette = new JPanel(new GridLayout(256 / ACROSS, ACROSS, 1, 1));
     for (int colour = 0; colour < swatches.length; colour++) {
@@ -81,6 +82,20 @@ public class Spec256Frame extends MachineFrame {
       if (game != null) game.numbersFromTheMachine(numbers.isSelected());
       refresh();
     });
+    taken.setToolTipText("<html>What the followers take from the machine before every instruction, in the letters<br>"
+        + "a game's own file uses: A F B C D E H L for registers, X x Y y for the index halves,<br>"
+        + "1 for the flags but the carry, P and S for where it is, T to address with the machine's<br>"
+        + "pointers. Most games need a line of their own; Renegade wants 1DEPSs, Dizzy 1HLPSs.</html>");
+    taken.addActionListener(e -> {
+      Spec256Peripheral game = game();
+      if (game == null) return;
+      try {
+        game.registersTaken(taken.getText().trim());
+      } catch (IllegalArgumentException notOneOfThese) {
+        taken.setText(game.alignment().said());
+      }
+      refresh();
+    });
     previous.addActionListener(e -> show(-1));
     next.addActionListener(e -> show(1));
 
@@ -97,6 +112,8 @@ public class Spec256Frame extends MachineFrame {
     switches.add(colourful);
     switches.add(pointers);
     switches.add(numbers);
+    switches.add(new JLabel("takes"));
+    switches.add(taken);
 
     JPanel bottom = new JPanel(new BorderLayout());
     bottom.add(switches, BorderLayout.WEST);
@@ -155,6 +172,7 @@ public class Spec256Frame extends MachineFrame {
       colourful.setEnabled(false);
       pointers.setEnabled(false);
       numbers.setEnabled(false);
+      taken.setEnabled(false);
       previous.setEnabled(false);
       next.setEnabled(false);
       for (JLabel swatch : swatches) swatch.setBackground(Color.DARK_GRAY);
@@ -174,6 +192,8 @@ public class Spec256Frame extends MachineFrame {
     pointers.setSelected(game.pointersFromTheMachine());
     numbers.setEnabled(true);
     numbers.setSelected(game.numbersFromTheMachine());
+    taken.setEnabled(true);
+    if (!taken.hasFocus()) taken.setText(game.alignment().said());
     previous.setEnabled(pictures > 1 && game.showing() > 0);
     next.setEnabled(pictures > 1 && game.showing() < pictures - 1);
     int[] palette = machine().picture.palette;

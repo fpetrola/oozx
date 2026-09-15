@@ -353,6 +353,23 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     return pointersFromTheMachine;
   }
 
+  /**
+   * The letters a game's file gives for what its followers take, as they stand - a game that
+   * brought no file says the default. Said again from a window they replace what the file said,
+   * the pointers switch on top of them either way, because most games need a line of their own
+   * and few bring one.
+   */
+  public String registersTaken() {
+    return rules.registersTaken;
+  }
+
+  public void registersTaken(String letters) {
+    alignment.says(letters);
+    rules.registersTaken = letters;
+    pointersFromTheMachine = letters.contains(POINTERS);
+    takeWhatTheGameAsksFor();
+  }
+
   /** Whether the numbers written into the instructions a follower runs come from the machine. */
   public boolean numbersFromTheMachine() {
     return alignment.numbersFromTheOneFollowed();

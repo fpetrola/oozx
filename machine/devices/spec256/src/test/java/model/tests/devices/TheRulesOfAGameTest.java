@@ -209,6 +209,25 @@ class TheRulesOfAGameTest extends MachineTest {
     assertFalse(session().alignment().addressesFromTheOneFollowed());
   }
 
+  /**
+   * Most games need a line of their own and few bring one - ZX-Poly keeps a base of them, one per
+   * snapshot - so the letters can be said from a window as well as from the file, and they
+   * replace what the file said rather than adding to it.
+   */
+  @Test
+  void whatTheFollowersTakeCanBeSaidFromAWindowInTheGamesOwnLetters() throws IOException {
+    colours(addressOf(LINE, COLUMN), 0, 0, 0, 0, 0, 0, 0, 0);
+    started("zxpAlignRegs=1PSsT\n", null);
+    assertTrue(session().pointersFromTheMachine(), "the file said T");
+
+    session().registersTaken("1DEPSs");
+
+    assertEquals("1DEPSs", session().alignment().said(), "what was said replaces what the file said");
+    assertFalse(session().pointersFromTheMachine(), "and the switch follows the letters, not the other way round");
+    assertThrows(IllegalArgumentException.class, () -> session().registersTaken("1PSsQ"));
+    assertEquals("1DEPSs", session().alignment().said(), "a letter nobody knows changes nothing");
+  }
+
   @Test
   void whenTheGameIsOverItsRulesAreNobodysAnyMore() throws IOException {
     colours(addressOf(LINE, COLUMN), 0, 0, 0, 0, 0, 0, 0, 0);
