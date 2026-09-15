@@ -77,13 +77,39 @@ public class Spec256Core implements Core {
     return ordinary.countsItsOwnContention();
   }
 
+  /** The machine's memory, with the planes told where it writes: that is where what they write goes. */
+  public Memory wrapping(Memory memory) {
+    return new Memory() {
+      public int read(int address, int fetching) {
+        return memory.read(address, fetching);
+      }
+
+      public void write(int address, int value) {
+        memory.write(address, value);
+        planes.machineWroteAt(address);
+      }
+
+      public int peek(int address) {
+        return memory.peek(address);
+      }
+
+      public void poke(int address, int value) {
+        memory.poke(address, value);
+      }
+
+      public void reset() {
+        memory.reset();
+      }
+    };
+  }
+
   public OOZ80 cpu(State state, PhaseProcessor contention) {
     OOZ80[] followers = new OOZ80[Planes.PLANES];
     for (int plane = 0; plane < followers.length; plane++) {
       State own = goingWhereItGoes(state, planes.plane(plane, state.getMemory()));
-      followers[plane] = ordinary.cpu(own, null, new LevelledInstructions(own, rules));
+      followers[plane] = ordinary.cpu(own, null, new LevelledInstructions(own, rules, state));
     }
-    return new LockstepZ80(ordinary.cpu(state, contention), followers, alignment);
+    return new LockstepZ80(ordinary.cpu(state, contention), followers, alignment, planes);
   }
 
   /**

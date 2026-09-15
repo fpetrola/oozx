@@ -20,6 +20,8 @@ package com.fpetrola.oozx.speccy.devices.spec256;
 import com.fpetrola.z80.memory.Memory;
 import com.google.inject.Singleton;
 
+import java.util.Arrays;
+
 /**
  * The colour of every pixel a game has, held as eight memories the shape of the one the game runs
  * in.
@@ -44,8 +46,15 @@ public final class Planes {
   /** And what the one for the ROM weighs, where a game colours the letters the machine draws with. */
   public static final int ROM_LENGTH = RAM * PLANES;
 
+  /** The most memory one instruction writes, which is the two bytes of a call, and room to spare. */
+  private static final int MOST_WRITES = 4;
   private byte[][] bytes;
   private boolean romColoured;
+  private final int[] wroteAt = new int[MOST_WRITES];
+  private int wrote;
+  private final int[][] heldAt = new int[PLANES][MOST_WRITES], held = new int[PLANES][MOST_WRITES];
+  private final int[] holding = new int[PLANES];
+  private boolean writingWhereTheMachineWrote = true;
 
   /** The colours of a whole game, as a file has them. */
   public static Planes of(byte[] file) {
@@ -99,7 +108,49 @@ public final class Planes {
   public void blank() {
     bytes = new byte[PLANES][SIZE];
     romColoured = false;
+    writingWhereTheMachineWrote = true;
+    Arrays.fill(holding, 0);
   }
+
+  /**
+   * Whether what a follower writes lands where the machine wrote in that same instruction, rather
+   * than where the follower's own pointers sent it. Its registers carry colours, and one addition
+   * on a pointer is enough to send a write somewhere the machine never wrote; where the machine
+   * wrote is the one address nobody has to guess. What it <em>reads</em> is still its own, which
+   * is what a table indexed by a colour needs.
+   */
+  public boolean writingWhereTheMachineWrote() {
+    return writingWhereTheMachineWrote;
+  }
+
+  public void writingWhereTheMachineWrote(boolean whereTheMachineWrote) {
+    writingWhereTheMachineWrote = whereTheMachineWrote;
+  }
+
+  /** The machine is about to run the instruction the eight have just run, and to write where it writes. */
+  public void machineIsWriting() {
+    wrote = 0;
+  }
+
+  /**
+   * It has written, and what the eight held back lands now: each one's n-th write where the
+   * machine's n-th went, and where the machine wrote fewer, where the follower meant it to go.
+   */
+  public void machineHasWritten() {
+    for (int plane = 0; plane < PLANES; plane++) {
+      for (int n = 0; n < holding[plane]; n++) {
+        int at = n < wrote ? wroteAt[n] : heldAt[plane][n];
+        if (at >= RAM) bytes()[plane][at] = (byte) held[plane][n];
+      }
+      holding[plane] = 0;
+    }
+  }
+
+  /** Where the machine has just written, in the order it wrote. */
+  public void machineWroteAt(int address) {
+    if (wrote < MOST_WRITES) wroteAt[wrote++] = address;
+  }
+
 
   private byte[][] bytes() {
     if (bytes == null) blank();
@@ -150,7 +201,12 @@ public final class Planes {
       }
 
       public void write(int address, int value) {
-        if (address >= RAM) mine[address] = (byte) value;
+        if (!writingWhereTheMachineWrote) {
+          if (address >= RAM) mine[address] = (byte) value;
+        } else if (holding[which] < MOST_WRITES) {
+          heldAt[which][holding[which]] = address;
+          held[which][holding[which]++] = value;
+        }
       }
 
       public int peek(int address) {

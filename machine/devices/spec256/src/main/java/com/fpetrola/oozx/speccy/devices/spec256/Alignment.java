@@ -48,7 +48,10 @@ public final class Alignment {
    * What is taken when a game says nothing: the stack pointer and every flag but the carry, and
    * not {@code T}. A follower's pointer is not always drifting - a game that mirrors a sprite
    * looks it up in a table indexed by the very byte it is mirroring, and there the follower is
-   * right to go somewhere the machine did not. Which of the two a game does is the game's to say.
+   * right to go somewhere the machine did not. Which of the two a game does is the game's to say,
+   * and most games need to say nothing: a colour that walks into an address is caught where it
+   * walks in, by {@link Planes#writingWhereTheMachineWrote} and by
+   * {@link Rules#addressesAddedUpByTheMachine}, without costing the register its colour.
    */
   public static final String BY_DEFAULT = "1PSs";
   private static final int CARRY = 0x01;

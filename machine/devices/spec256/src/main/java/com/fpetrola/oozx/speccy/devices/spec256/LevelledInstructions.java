@@ -20,12 +20,14 @@ package com.fpetrola.oozx.speccy.devices.spec256;
 
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
+import com.fpetrola.z80.instructions.impl.Add16;
 import com.fpetrola.z80.instructions.impl.And;
 import com.fpetrola.z80.instructions.impl.Or;
 import com.fpetrola.z80.instructions.impl.Xor;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.RegisterName;
 
 /**
  * The instructions a follower runs, where a game asked for the three logical ones to work on
@@ -41,10 +43,23 @@ import com.fpetrola.z80.registers.Register;
  */
 final class LevelledInstructions extends DefaultInstructionFactory {
   private final Rules rules;
+  private final State followed;
 
-  LevelledInstructions(State state, Rules rules) {
+  LevelledInstructions(State state, Rules rules, State followed) {
     super(state);
     this.rules = rules;
+    this.followed = followed;
+  }
+
+  @Override
+  public Add16 Add16(OpcodeReference target, ImmutableOpcodeReference source) {
+    Register into = machines(target), what = machines(source);
+    return into == null || what == null ? super.Add16(target, source) : new AddedUp(target, source, flag, into, what, rules);
+  }
+
+  /** The machine's register of the same name, for a reference that is one. */
+  private Register machines(Object reference) {
+    return reference instanceof Register named ? followed.getRegister(RegisterName.valueOf(named.getName())) : null;
   }
 
   @Override
@@ -64,6 +79,30 @@ final class LevelledInstructions extends DefaultInstructionFactory {
     Xor ordinary = super.Xor(source);
     if (!rules.levelledXor || source == ordinary.getTarget()) return ordinary;
     return new HigherStill(ordinary.getTarget(), source, flag);
+  }
+
+  /**
+   * An address a follower worked out by adding: the sum is the one the machine is about to make
+   * with its own two registers, because a register that carried a colour into the addition would
+   * send this one to read and write where the machine never went. A pointer a follower was given
+   * rather than added up is still its own, so a table indexed by a colour keeps working.
+   */
+  private static final class AddedUp extends Add16 {
+    private final Register into, what;
+    private final Rules rules;
+
+    AddedUp(OpcodeReference target, ImmutableOpcodeReference source, Register flag, Register into, Register what, Rules rules) {
+      super(target, source, flag);
+      this.into = into;
+      this.what = what;
+      this.rules = rules;
+    }
+
+    @Override
+    protected int doExecute(int sourceValue, int targetValue) {
+      int sum = super.doExecute(sourceValue, targetValue);
+      return rules.addressesAddedUpByTheMachine ? (into.read() + what.read()) & 0xffff : sum;
+    }
   }
 
   private static final class Lower extends And {

@@ -385,6 +385,26 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     takeWhatTheGameAsksFor();
   }
 
+  /** Whether an address a follower adds up is taken from the machine, which has already added it. */
+  public boolean addressesAddedUpByTheMachine() {
+    return rules.addressesAddedUpByTheMachine;
+  }
+
+  public void addressesAddedUpByTheMachine(boolean fromTheMachine) {
+    rules.addressesAddedUpByTheMachine = fromTheMachine;
+    display.refreshAll();
+  }
+
+  /** Whether what a follower writes lands where the machine wrote in the same instruction. */
+  public boolean writesWhereTheMachineWrites() {
+    return planes.writingWhereTheMachineWrote();
+  }
+
+  public void writesWhereTheMachineWrites(boolean whereTheMachineWrites) {
+    planes.writingWhereTheMachineWrote(whereTheMachineWrites);
+    display.refreshAll();
+  }
+
   private void takeWhatTheGameAsksFor() {
     String asked = rules.registersTaken.replace(POINTERS, "");
     alignment.says(pointersFromTheMachine ? asked + POINTERS : asked);

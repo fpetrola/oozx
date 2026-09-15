@@ -136,11 +136,44 @@ class PlanesTest {
   @Test
   void whatAProcessorWritesToAPlaneIsWhatTheNextPixelIsPaintedFrom() {
     Planes planes = Planes.of(file);
+    planes.machineIsWriting();
     for (int plane = 0; plane < Planes.PLANES; plane++) {
       planes.plane(plane, machineWith()).write(SOMEWHERE, (plane & 1) == 0 ? 0x80 : 0);
     }
+    planes.machineHasWritten();
 
     assertEquals(0b01010101, planes.colourOf(SOMEWHERE, 0), "the planes that were written are the bits that are set");
     assertEquals(0, planes.colourOf(SOMEWHERE, 1), "and the pixels beside it were not written at all");
+  }
+
+  @Test
+  void whatAFollowerWritesLandsWhereTheMachineWrote() {
+    Planes planes = Planes.of(file);
+    Memory plane = planes.plane(3, machineWith());
+    planes.machineIsWriting();
+    plane.write(SOMEWHERE, 0x55);
+    assertEquals(0, plane.peek(SOMEWHERE), "held back until the machine has had its turn");
+    planes.machineWroteAt(SOMEWHERE + 0x40);
+    planes.machineHasWritten();
+
+    assertEquals(0x55, plane.peek(SOMEWHERE + 0x40), "and then it lands where the machine wrote");
+    assertEquals(0, plane.peek(SOMEWHERE), "not where the follower's own pointer said");
+  }
+
+  @Test
+  void aFollowerThatWritesMoreThanTheMachineWritesTheRestWhereItMeantTo() {
+    Planes planes = Planes.of(file);
+    Memory plane = planes.plane(0, machineWith());
+    planes.machineIsWriting();
+    plane.write(SOMEWHERE, 1);
+    plane.write(SOMEWHERE + 1, 2);
+    planes.machineWroteAt(SOMEWHERE + 0x40);
+    planes.machineHasWritten();
+
+    assertEquals(1, plane.peek(SOMEWHERE + 0x40), "the first where the machine's first went");
+    assertEquals(2, plane.peek(SOMEWHERE + 1), "the second where the follower sent it, the machine having written once");
+    planes.writingWhereTheMachineWrote(false);
+    plane.write(SOMEWHERE + 2, 3);
+    assertEquals(3, plane.peek(SOMEWHERE + 2), "and told not to, a write goes where it is sent, at once");
   }
 }

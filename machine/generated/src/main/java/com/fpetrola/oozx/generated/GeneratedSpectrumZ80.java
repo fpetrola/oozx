@@ -1,4 +1,4 @@
-// Written by the build from the model, not by hand. Model: 3ca7417aae06bde0
+// Written by the build from the model, not by hand. Model: e8ba2189f948bec2
 
 package com.fpetrola.oozx.generated;
 
@@ -70,8 +70,6 @@ static final int[] SZ53 = new int[0x100];
           SZ53P[i] = SZ53[i] | PARITY[i];
       }
   }
-  static final int SCREEN_BYTES = 0x1b00;
-  public static boolean[] WRITTEN_THIS_FRAME = new boolean[0x1b00];
 
   private int _nextPC159 = -1;
   private int _nextPC871 = -1;
@@ -135,9 +133,6 @@ static final int[] SZ53 = new int[0x100];
           done_6409: {
               if (((Ram) covering_6405.memory).writeProtected) {
                   break done_6409;
-              }
-              if (((Ram) covering_6405.memory).shownTo != null && offset_6407 < 0x1B00) {
-                  WRITTEN_THIS_FRAME[offset_6407] = true;
               }
               if (((Ram) covering_6405.memory).shownTo != null && offset_6407 < 0x1B00 && ((Ram) covering_6405.memory).bytes[offset_6407] != value_6408) {
                   ((Ram) covering_6405.memory).shownTo.accept(offset_6407);

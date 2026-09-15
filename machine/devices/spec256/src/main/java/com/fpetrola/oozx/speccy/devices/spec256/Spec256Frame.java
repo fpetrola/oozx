@@ -41,6 +41,8 @@ public class Spec256Frame extends MachineFrame {
   private final JCheckBox colourful = new JCheckBox("In its own colours");
   private final JCheckBox pointers = new JCheckBox("Address with the machine's pointers");
   private final JCheckBox numbers = new JCheckBox("Take numbers from the machine");
+  private final JCheckBox writes = new JCheckBox("Write where the machine writes");
+  private final JCheckBox added = new JCheckBox("Add up as the machine does");
   private final JTextField taken = new JTextField(12);
   private final JButton previous = new JButton("<");
   private final JButton next = new JButton(">");
@@ -49,7 +51,7 @@ public class Spec256Frame extends MachineFrame {
 
   public Spec256Frame() {
     super("Spec256");
-    setSize(700, 300);
+    setSize(760, 320);
 
     JPanel palette = new JPanel(new GridLayout(256 / ACROSS, ACROSS, 1, 1));
     for (int colour = 0; colour < swatches.length; colour++) {
@@ -82,6 +84,24 @@ public class Spec256Frame extends MachineFrame {
       if (game != null) game.numbersFromTheMachine(numbers.isSelected());
       refresh();
     });
+    writes.setToolTipText("<html>A follower's write lands where the machine wrote in that same instruction, whatever<br>"
+        + "its own pointers said, while what it reads still comes from where they point: a colour<br>"
+        + "used as an index into a table keeps working, and a pointer that drifted no longer<br>"
+        + "writes where the machine never did.</html>");
+    writes.addActionListener(e -> {
+      Spec256Peripheral game = game();
+      if (game != null) game.writesWhereTheMachineWrites(writes.isSelected());
+      refresh();
+    });
+    added.setToolTipText("<html>An address a follower works out by adding is taken from the machine, which has<br>"
+        + "just added it up itself: a register that carried a colour into the addition would send<br>"
+        + "this one to read and write somewhere the machine never went. A pointer it was given<br>"
+        + "rather than worked out is still its own, so a table indexed by colour keeps working.</html>");
+    added.addActionListener(e -> {
+      Spec256Peripheral game = game();
+      if (game != null) game.addressesAddedUpByTheMachine(added.isSelected());
+      refresh();
+    });
     taken.setToolTipText("<html>What the followers take from the machine before every instruction, in the letters<br>"
         + "a game's own file uses: A F B C D E H L for registers, X x Y y for the index halves,<br>"
         + "1 for the flags but the carry, P and S for where it is, T to address with the machine's<br>"
@@ -99,25 +119,17 @@ public class Spec256Frame extends MachineFrame {
     previous.addActionListener(e -> show(-1));
     next.addActionListener(e -> show(1));
 
-    JPanel backgrounds = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
-    backgrounds.add(under);
-    backgrounds.add(previous);
-    backgrounds.add(next);
-
     JPanel top = new JPanel(new GridLayout(2, 1));
     top.add(playing);
     top.add(said);
 
-    JPanel switches = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
-    switches.add(colourful);
-    switches.add(pointers);
-    switches.add(numbers);
-    switches.add(new JLabel("takes"));
-    switches.add(taken);
+    JPanel switches = new JPanel(new GridLayout(2, 1));
+    switches.add(inARow(colourful, pointers, numbers));
+    switches.add(inARow(writes, added, new JLabel("takes"), taken));
 
     JPanel bottom = new JPanel(new BorderLayout());
     bottom.add(switches, BorderLayout.WEST);
-    bottom.add(backgrounds, BorderLayout.EAST);
+    bottom.add(inARow(under, previous, next), BorderLayout.EAST);
 
     JPanel inside = new JPanel(new BorderLayout(0, 6));
     inside.add(top, BorderLayout.NORTH);
@@ -155,6 +167,12 @@ public class Spec256Frame extends MachineFrame {
     return machine == null ? null : (Spec256Peripheral) machine.peripheralRegistry.find(Spec256Peripheral.class);
   }
 
+  private JPanel inARow(Component... these) {
+    JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+    for (Component one : these) row.add(one);
+    return row;
+  }
+
   private void show(int by) {
     Spec256Peripheral game = game();
     if (game != null) game.show(game.showing() + by);
@@ -172,6 +190,8 @@ public class Spec256Frame extends MachineFrame {
       colourful.setEnabled(false);
       pointers.setEnabled(false);
       numbers.setEnabled(false);
+      writes.setEnabled(false);
+      added.setEnabled(false);
       taken.setEnabled(false);
       previous.setEnabled(false);
       next.setEnabled(false);
@@ -192,6 +212,10 @@ public class Spec256Frame extends MachineFrame {
     pointers.setSelected(game.pointersFromTheMachine());
     numbers.setEnabled(true);
     numbers.setSelected(game.numbersFromTheMachine());
+    writes.setEnabled(true);
+    writes.setSelected(game.writesWhereTheMachineWrites());
+    added.setEnabled(true);
+    added.setSelected(game.addressesAddedUpByTheMachine());
     taken.setEnabled(true);
     if (!taken.hasFocus()) taken.setText(game.alignment().said());
     previous.setEnabled(pictures > 1 && game.showing() > 0);

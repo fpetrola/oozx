@@ -95,6 +95,7 @@ class NineInStepTest {
       public void reset() {
       }
     };
+    Spec256Core core = new Spec256Core(planes, alignment, rules);
     state = new State(new IO() {
       public int in(int port) {
         portsRead++;
@@ -105,8 +106,8 @@ class NineInStepTest {
         portsWritten++;
         lastPortWritten = value;
       }
-    }, new DefaultRegisterBankFactory().createBank(), memory);
-    OOZ80 cpu = new Spec256Core(planes, alignment, rules).cpu(state, null);
+    }, new DefaultRegisterBankFactory().createBank(), core.wrapping(memory));
+    OOZ80 cpu = core.cpu(state, null);
     cpu.reset();
     state.setHalted(false);
     state.getRegister(RegisterName.PC).write(CODE);
@@ -311,5 +312,62 @@ class NineInStepTest {
     run(cpu, 1);
 
     assertEquals(77, colourOf(TO, 0), "they decoded what the machine decoded, not what their planes said");
+  }
+
+  @Test
+  void aWriteLandsWhereTheMachineWroteAndNotWhereAColourSentIt() {
+    run(aPointerCarryingAColour(), 6);
+    assertEquals(0xff, ram[TO + 0x40] & 0xff, "the machine wrote where its own pointer said");
+    assertEquals(7, colourOf(TO + 0x40, 0), "and every follower's write landed there, whatever its pointer said");
+    assertEquals(0, colourOf(TO, 0), "nothing was left where the machine never wrote");
+
+    fromScratch();
+    OOZ80 cpu = aPointerCarryingAColour();
+    planes.writingWhereTheMachineWrote(false);
+    run(cpu, 6);
+    assertEquals(0, colourOf(TO + 0x40, 0), "left to themselves, the followers whose pointer carried nothing");
+    assertEquals(7, colourOf(TO, 0), "wrote the colour where the machine never went");
+  }
+
+  /** LD A,(HL) ; LD E,A ; LD D,TO>>8 ; INC HL ; LD A,(HL) ; LD (DE),A, with a colour in the pointer. */
+  private OOZ80 aPointerCarryingAColour() {
+    code(CODE, 0x7e, 0x5f, 0x16, TO >> 8, 0x23, 0x7e, 0x12);
+    code(FROM, 0x40, 0xff);
+    colours(FROM, 0, 200, 0, 0, 0, 0, 0, 0);          // only the planes of colour 200 carry the 0x40
+    colours(FROM + 1, 7, 7, 7, 7, 7, 7, 7, 7);        // what is written: colour 7, in planes that carry no 0x40
+    OOZ80 cpu = nine();
+    state.getRegister(RegisterName.HL).write(FROM);
+    return cpu;
+  }
+
+  @Test
+  void anAddressAFollowerAddsUpIsTheMachinesAddition() {
+    run(aColourAddedIntoAnAddress(), 6);
+    assertEquals(0xff, ram[TO] & 0xff, "the machine read one past HL and moved that byte");
+    assertEquals(90, colourOf(TO, 0), "and every follower read where the machine's addition landed");
+
+    fromScratch();
+    OOZ80 cpu = aColourAddedIntoAnAddress();
+    rules.addressesAddedUpByTheMachine = false;
+    run(cpu, 6);
+    assertEquals(0, colourOf(TO, 0), "left to themselves, each follower read a byte of its own and the colour was lost");
+  }
+
+  /** LD A,(HL) ; LD C,A ; LD B,0 ; ADD HL,BC ; LD A,(HL) ; LD (DE),A, with the colour inside the addition. */
+  private OOZ80 aColourAddedIntoAnAddress() {
+    code(CODE, 0x7e, 0x4f, 0x06, 0x00, 0x09, 0x7e, 0x12);
+    code(FROM, 0x01, 0xff);
+    colours(FROM, 0, 0, 0, 0, 0, 0, 0, 5);            // the index: only the planes of colour 5 carry the 1
+    colours(FROM + 1, 90, 90, 90, 90, 90, 90, 90, 90);   // and one past it is the colour to be moved
+    OOZ80 cpu = nine();
+    state.getRegister(RegisterName.HL).write(FROM);
+    state.getRegister(RegisterName.DE).write(TO);
+    return cpu;
+  }
+
+  /** A second machine in the same fact starts on memory nobody has run on yet. */
+  private void fromScratch() {
+    java.util.Arrays.fill(ram, (byte) 0);
+    painted.clear();
   }
 }

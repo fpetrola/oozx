@@ -49,6 +49,9 @@ public final class Rules {
   public boolean brightInTheMix;
   /** Whether the three logical instructions work on colours rather than on bits, in the followers. */
   public boolean levelledOr, levelledAnd, levelledXor;
+
+  /** Whether an address a follower works out by adding is taken from the machine, which just did. */
+  public boolean addressesAddedUpByTheMachine = true;
   /** Which registers a follower takes from the machine before every instruction. */
   public String registersTaken = Alignment.BY_DEFAULT;
 
@@ -64,6 +67,7 @@ public final class Rules {
     mixedFromTheBottom = 0;
     brightInTheMix = false;
     levelledOr = levelledAnd = levelledXor = false;
+    addressesAddedUpByTheMachine = true;
     registersTaken = Alignment.BY_DEFAULT;
   }
 
