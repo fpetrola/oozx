@@ -646,7 +646,35 @@ nada más, en cualquier emulador; el original muestra esos sprites con color, as
 indexa por carril. **La conclusión que queda: los dos diseños tienen la misma capacidad, y lo que
 yo había llamado "el modelo de 64 bits no puede" era falso.** La diferencia entre ellos es de
 costo —ocho decodificaciones contra una— y de dónde aparece la deriva, no de lo que se puede
-dibujar. Y la regla no cuesta tiempo: 19,95 ms por cuadro con ella y 19,95 sin ella, en la misma
+dibujar.
+
+### El criterio exacto, que reemplaza a la heurística
+
+Leer la tabla del `BE00` dio además el criterio que faltaba. Esa tabla, comprobada entrada por
+entrada, es **la inversión de bits**: el bit 0 sale del 7, el 1 del 6, y así. Y ahí está el
+teorema: **mover bits conmuta con partir un byte en planos**. El byte del plano *p* es el bit *p*
+del color de ocho píxeles; invertirle los bits es invertir el orden de esos ocho píxeles, y si los
+ocho planos hacen cada uno la suya, los ocho coinciden en a dónde fue cada píxel. El píxel se mueve
+entero, con sus ocho bits de color.
+
+Un píxel prendido a la izquierda con color 90 (`01011010`): los planos 1, 3, 4 y 6 tienen `0x80` y
+buscan `tabla[0x80] = 0x01`; los otros cuatro buscan `tabla[0x00] = 0x00`. Resultado: el píxel de la
+derecha con bits en 1, 3, 4 y 6, **color 90 otra vez**. Con una sola dirección, los ocho leen
+`tabla[0x80]`, los ocho bits quedan iguales y el color colapsa a 255: blanco.
+
+Entonces la pregunta correcta no es "¿tiene colores propios?" sino **"¿esta tabla mueve bits sin
+mezclarlos?"**: si cada bit de una entrada viene de un solo bit del índice, indexar por plano es
+idénticamente lo mismo que indexar una vez, y el color sobrevive; si mezcla bits —una fuente, una
+suma— el plano *p* junta bits de píxeles distintos y sale basura. Se comprueba leyendo la entrada
+del cero y las de las ocho potencias de dos, y verificando las 256: 264 lecturas por página, una
+sola vez, y se vuelve a preguntar cuando el juego escribe en esa página, porque estas tablas se
+arman en tiempo de ejecución.
+
+`Permutations` es esa pregunta y nada más. Medido: la imagen del Renegade sale **idéntica** a la
+que daba la heurística de color (0 píxeles de diferencia hasta el cuadro 400, 23 ahí), el Atom Ant
+sigue en 22, el Bubbler en 1, los quince títulos con captura no mueven un dígito, y el tiempo por
+cuadro es el mismo (19,95 ms contra 19,95). Lo que cambia no es el resultado sino de qué depende:
+una corazonada sobre colores pasó a ser una propiedad de la tabla que se verifica. Y la regla no cuesta tiempo: 19,95 ms por cuadro con ella y 19,95 sin ella, en la misma
 máquina el mismo minuto.
 
 El asiento: `Core.wrapping`, una línea por omisión que devuelve la memoria tal cual y que el

@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * put where the facts need them.
  */
 class NineInStepTest {
-  private static final int CODE = 0x8000, FROM = 0x9000, TO = 0xa000;
+  private static final int CODE = 0x8000, FROM = 0x9000, TO = 0xa000, TABLE = 0xbe00;
 
   private final byte[] ram = new byte[0x10000];
   private final Map<Integer, int[]> painted = new LinkedHashMap<>();
@@ -379,27 +379,36 @@ class NineInStepTest {
   }
 
   @Test
-  void aPointerCarryingAColourReadsWhereTheMachineReadsUnlessItIsATable() {
-    code(CODE, 0x7e, 0x6f, 0x7e, 0x12);               // LD A,(HL) ; LD L,A ; LD A,(HL) ; LD (DE),A
+  void aPointerCarryingAColourReadsWhereTheMachineReadsUnlessTheTableMovesBits() {
+    mirroring(TABLE);
+    run(aColourUsedAsAnIndex(), 5);
+    assertEquals(0x80, ram[TO] & 0xff, "the machine reversed the bits of the byte it read");
+    assertEquals(5, colourOf(TO, 0), "and every follower reversed its own, so the colour came back whole");
+
+    fromScratch();
+    mirroring(TABLE);
+    code(TABLE + 3, 0x00);                            // 0xc0 is what reversing 3 gives: now the page mixes bits
+    run(aColourUsedAsAnIndex(), 5);
+    assertEquals(255, colourOf(TO, 0), "and in a table that mixes them they all read the machine's entry");
+  }
+
+  /** LD A,(HL) ; LD H,&be ; LD L,A ; LD A,(HL) ; LD (DE),A: a colour looking something up. */
+  private OOZ80 aColourUsedAsAnIndex() {
+    code(CODE, 0x7e, 0x26, TABLE >> 8, 0x6f, 0x7e, 0x12);
     code(FROM, 0x01);
     colours(FROM, 0, 0, 0, 0, 0, 0, 0, 5);            // the index: only the planes of colour 5 carry the 1
-    code(FROM + 1, 0x80);
-    colours(FROM + 1, 90, 0, 0, 0, 0, 0, 0, 0);       // and a picture is what it points at
     OOZ80 cpu = nine();
     state.getRegister(RegisterName.HL).write(FROM);
     state.getRegister(RegisterName.DE).write(TO);
-    run(cpu, 4);
-    assertEquals(90, colourOf(TO, 0), "the ones whose index was empty read the pixel the machine read");
+    return cpu;
+  }
 
-    fromScratch();
-    code(CODE, 0x7e, 0x6f, 0x7e, 0x12);
-    code(FROM, 0x01);
-    colours(FROM, 0, 0, 0, 0, 0, 0, 0, 5);
-    code(FROM + 1, 0x80);                             // this time what it points at is a table: eight planes alike
-    cpu = nine();
-    state.getRegister(RegisterName.HL).write(FROM);
-    state.getRegister(RegisterName.DE).write(TO);
-    run(cpu, 4);
-    assertEquals(5, colourOf(TO, 0), "and in a table each one looked up its own colour, which is what comes back");
+  /** A page that reverses the eight bits of whatever looks it up, which is what a game mirrors with. */
+  private void mirroring(int page) {
+    for (int index = 0; index < 0x100; index++) {
+      int reversed = 0;
+      for (int bit = 0; bit < 8; bit++) if ((index & (1 << bit)) != 0) reversed |= 1 << (7 - bit);
+      code(page + index, reversed);
+    }
   }
 }

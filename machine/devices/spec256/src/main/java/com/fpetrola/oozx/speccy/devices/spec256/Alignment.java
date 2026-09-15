@@ -46,7 +46,7 @@ import java.util.function.IntPredicate;
  */
 @Singleton
 public final class Alignment {
-  /** Whether what the machine is pointing at is a picture rather than a table every plane shares. */
+  /** Whether what the machine is pointing at is a picture rather than a table that moves bits. */
   private IntPredicate aPictureIsThere = address -> false;
 
   public void aPictureIsThere(IntPredicate there) {
