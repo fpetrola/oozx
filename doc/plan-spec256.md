@@ -351,6 +351,7 @@ Al 14 de septiembre de 2026, con el árbol verde desde un repositorio local vac�
 | Después: la estela | `caf50a4b1` | La pantalla de un Spec256 se pinta entera cada cuadro, porque los planos cambian donde la memoria de la máquina no lo registra |
 | Después: la deriva de punteros | `901ef2623` | Medida, y el interruptor en la ventana. No cambia el valor por omisión: trece de quince juegos dan lo mismo, uno mejora mucho y otro empeora |
 | Después: dos reglas por omisión | `7c9c9f4c7` | Una dirección no es un color. La escritura de un seguidor cae donde cayó la de la máquina y la suma de un `ADD` sobre un puntero es la que la máquina hace: el Renegade con la línea por omisión queda a 269 píxeles del `1DEPSs` que ZX-Poly le tiene escrito a mano, y de los quince con captura ninguno empeora. El asiento es `Core.wrapping`, porque un oyente de escrituras en `ContendedMemory` es justo lo que el generador no puede aplanar |
+| Después: la tercera regla | `9e422b09e` | Un puntero **cargado** desde un dato con color: lo que distingue la deriva de la búsqueda deliberada no es la instrucción sino qué hay del otro lado, tabla o dibujo. Renegade de 269 a 126 píxeles del `1DEPSs`; los 126 que quedan son los dígitos del récord, que es el canje |
 
 ## La estela, y por qué la pantalla de un Spec256 se pinta entera
 
