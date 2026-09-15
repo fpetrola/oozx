@@ -574,17 +574,31 @@ contestar eso —`noColoursOfItsOwn`, que estaba para decir qué celda no tiene 
 | Army Moves contra su captura | 95,88 % | 95,88 % |
 | los quince títulos con captura | — | los mismos dígitos, uno por uno |
 
-**Lo que no arregla, que es el canje:** esos 126 píxeles que quedan son los dígitos del récord del
-Renegade. El glifo se copia de una tabla de fuente, que no tiene colores propios, así que la regla
-le deja al seguidor su propio índice — y ese índice lleva color. Arreglarlo pide el índice de la
-máquina, que es lo que hace `1DEPSs` con DE y lo que hace también "números de la máquina", a diez
-puntos de Army Moves. Con la regla los sprites que se mueven salen bien solos y el marcador no; sin
-ella, al revés.
+**Los 126 píxeles que quedan son el marcador, y resultaron ser al revés de lo que decía acá.**
+Medidos contra el render de ZX-Poly parecían la regla rompiendo los dígitos del récord. Contra la
+**captura que trae el propio pack**, hecha con el emulador original, es al revés: el original dice
+`HI: 050000`, nosotros decimos `050000` y el `1DEPSs` de ZX-Poly dice `058100`. La regla los
+arregla, y la referencia estaba mal elegida.
+
+**La lección de método, que costó medio día:** el render ajustado a mano de otro emulador no es la
+verdad, es otra opinión. La verdad de un juego de Spec256 está en la captura que viene en su propio
+pack (`renegade.png`, `*-game.png`), hecha con el emulador para el que el pack fue armado. Contra
+esa captura se mide de ahora en adelante.
 
 **Medido y descartado por el camino:** todos los punteros de la máquina (`T`) da 1 839 píxeles de
-diferencia, mucho peor —la tabla de espejado es real y necesita el puntero propio—; los números de
-16 bits de la máquina (que son direcciones en todo menos en el nombre) no cambian nada en el
-Renegade. Y la regla no cuesta tiempo: 19,95 ms por cuadro con ella y 19,95 sin ella, en la misma
+diferencia contra ZX-Poly, y contra la captura del pack se ve por qué: los sprites que el Renegade
+compone salen **blancos**. Los números de 16 bits de la máquina no cambian nada en este juego.
+
+**Y la semántica del modelo de 64 bits, medida entera.** El original es una máquina SIMD de 64 bits:
+un solo juego de registros de dirección, los ocho colores viajando al lado como dato. Eso se
+implementa en este árbol con dos interruptores que ya existen —`T` y los números de la máquina— y
+está medido: en los quince títulos con captura da idéntico a las tres reglas salvo Army Moves, que
+pierde diez puntos por los números (95,88 % contra 85,69 %); y jugando, el Renegade pierde el color
+de los sprites compuestos. O sea que **direcciones escalares más color al lado no alcanza para
+reproducir al original**: falta algo que todavía no sabemos. La hipótesis siguiente, sin medir aún,
+es que en ese modelo **leer de una dirección sin colores propios no pisa el color que el registro ya
+tenía** —se lleva la forma nueva y conserva el color viejo—, que es lo que haría que un sprite
+espejado por tabla salga con color sin ninguna línea por juego. Y la regla no cuesta tiempo: 19,95 ms por cuadro con ella y 19,95 sin ella, en la misma
 máquina el mismo minuto.
 
 El asiento: `Core.wrapping`, una línea por omisión que devuelve la memoria tal cual y que el
