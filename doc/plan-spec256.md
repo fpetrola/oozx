@@ -802,6 +802,23 @@ Si los bits del índice que la máquina no tiene son color y no forma, recortarl
 color y recortarlo lo destruye. En este juego la rama de la tabla se toma 2 350 veces por corrida,
 contra 67 040 de la rama de dibujo y 227 466 lecturas sin divergencia.
 
+### El espejo del original, que corrige el razonamiento de arriba
+
+Se probó con la captura del pack, que trae motoqueros mirando para los dos lados: **el sprite
+espejado del original es un espejo de verdad, colores incluidos** — el pelo, la bandana, el chaleco
+y los reflejos del vaquero caen todos en la posición espejada, y comparado contra el mismo sprite
+espejado a mano coincide.
+
+Eso descarta la explicación que se venía armando —que el original conservara el color mientras
+cambia la forma, y que por eso no necesitara indexar por carril— y descarta con ella el argumento de
+"una sola dirección de lectura": de una tabla sin colores, una sola lectura no puede dar color, así
+que **el original hace en ese punto algo equivalente a nuestras ocho lecturas por plano**. Nuestra
+indexación por plano no es el problema: es lo mismo que hace él.
+
+Queda entonces más acotado y también más raro: el mecanismo del hueco está medido hasta la
+instrucción, nuestra indexación coincide con la suya, y sin embargo su borde sale limpio. Lo que no
+sabemos es qué hace con ese séptimo píxel que la máscara borra y el sprite no rellena.
+
 ### Lo que haría falta
 
 Esto es lo único que encontramos donde la transposición cuesta algo de verdad: el modelo de 64 bits
