@@ -699,6 +699,40 @@ daban iguales con y sin ella. El oyente de escrituras vive en `machine/core`; si
 la interfaz devuelve su no-op y no hay error en ningún lado. Se vio contando las escrituras que el
 dispositivo veía: cero.
 
+## El tablero que no se veía entero, y que no era un problema de color
+
+El tablero del Renegade salía incompleto: faltaban la barra `BOSS`, los cuatro retratos y dos de
+las cuatro cabezas. Contando en esas 52 líneas dio **1 032 píxeles con forma y sin color visible en
+40 celdas** — pero mirando los planos de una de ellas el color estaba entero:
+
+```
+celda fila 19 columna 11: atributo 40  (tinta 0, papel 0, brillo 1)
+máquina 7c | colores de los ocho píxeles:  0  48  48  48  48  48  0  0
+```
+
+El byte tiene los bits 1 a 5 prendidos y los colores están exactamente debajo. Lo que pasa es que
+el juego marca esas celdas con **tinta 0 y papel 0** —invisibles en una Spectrum de verdad— y pinta
+el tablero sólo por los planos. Nuestra `hiddenWhereInkIsPaper`, la `HideSameInkPaper` del `.CFG`,
+las tapaba. No era pérdida de color: era el pintor escondiendo lo que el juego había pintado.
+
+ZX-Poly la trae encendida por omisión también (`gfxHideSameInkPaper = true`, y del `.CFG` sólo la
+apaga un `0` explícito), así que tendría el mismo tablero incompleto; el original, por su captura,
+no la aplica ahí.
+
+**El arreglo no fue apagarla sino afinarla:** se tapa lo que **no tiene colores propios**. Una celda
+que el juego marcó invisible sigue invisible —que es como un juego borra un pedazo de pantalla— pero
+lo que este juego pintó en ocho planos se ve, que es para lo que están los planos.
+
+| | antes | con la regla afinada |
+|---|---|---|
+| tablero del Renegade | sin la barra BOSS, sin retratos, dos cabezas | **completo e igual a la captura** |
+| Abu Simbel, el texto que scrollea | `Y SNATCHO.` cortado, sin el punto | **el renglón entero** |
+| los quince títulos | — | los mismos, salvo dos décimas de Abu Simbel y cinco centésimas de Scooby que son el momento del scroll, no el render |
+
+La lección repetida: el porcentaje contra una captura **baja** en el Abu Simbel con el arreglo
+puesto, y sin embargo el render es más correcto. Una pantalla que se mueve no se puede comparar por
+mejor-de-tres cuadros; hay que mirarla.
+
 ## Qué instrucción pierde el color, medido en vez de razonado
 
 La pregunta que el Renegade hizo inevitable: ¿hay instrucciones por las que el color no llega a
