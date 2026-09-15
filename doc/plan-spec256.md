@@ -436,6 +436,36 @@ de la máquina cuestan diez puntos en el Army Moves y arreglan el marcador del R
 son reales, ninguna domina, y por eso las dos son un interruptor en la ventana y no una decisión
 escrita en el código. Lo que el juego diga en su `.CFG` manda sobre las dos.
 
+## Qué instrucción pierde el color, medido en vez de razonado
+
+La pregunta que el Renegade hizo inevitable: ¿hay instrucciones por las que el color no llega a
+los otros ocho? Se contesta anotando, por cada escritura a la pantalla, si los ocho seguidores
+escribieron lo mismo —y entonces no hay color— o cosas distintas. En el Renegade, 240 cuadros ya
+jugando: **4 405 escrituras con color y cero sin color**, desde veinte lugares. El dibujante de
+sprites está en 0x9847 y es un `LD A,(DE)` / `LD (HL),A` desenrollado, que es la forma más pura
+de llevar un color. Y en pantalla, pixeles del color 255 —el blanco de lo no coloreado—: cero.
+
+Así que no es que una instrucción pierda información. Lo que sí la pierde, para tener la lista:
+
+- **Leer de donde el `.GFX` no pintó.** El color no estaba; es el caso más común de todos.
+- **`OR` o `AND` con una máscara sin colorear.** Bit a bit, un `OR` con una máscara pone ese bit
+  en los ocho planos, y esos pixeles salen 255: blanco. Es la manera clásica de emblanquecer un
+  sprite enmascarado, y sólo la evita `GFXLeveledOR`, que el juego tiene que pedir.
+- **Cualquier aritmética sobre un byte de color.** Una suma corrompe, y se acepta.
+- **Un `IN`**, que siempre devuelve 0xff.
+- **Los dos interruptores puestos al revés** para ese juego.
+
+**Y el arranque.** Cuando la sesión empieza, los ocho seguidores reciben los registros de la
+máquina, que no llevan color: lo único que hay para darles. Todo lo que el juego dibuje con lo que
+ya estaba en un registro sale sin color hasta que lo vuelva a buscar a memoria — y eso pasa en
+cuanto el sprite se redibuja. Por eso se ve mal al principio y bien en cuanto las cosas se mueven.
+GZX hace lo mismo en su `gpu_reset`; no hay de dónde sacar un color que todavía no se leyó.
+
+**Y una trampa del propio medidor.** La cuenta de "celdas sin colores propios" contaba también las
+celdas negras, porque ocho planos en cero son ocho planos iguales: decía 676 de 768 sobre una
+pantalla casi vacía. Ocho planos de nada no es una forma sin colores, es ninguna forma. Corregida,
+el Renegade da cero en todo momento: al cargar, en la atracción y jugando.
+
 ## Lo que parecía blanco y negro y no lo era
 
 El Renegade con `T` puesto: algunos personajes enteros de color y otros con el torso blanco y los

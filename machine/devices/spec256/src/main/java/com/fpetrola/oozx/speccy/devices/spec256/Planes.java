@@ -107,13 +107,16 @@ public final class Planes {
   }
 
   /**
-   * Whether the eight planes say the same thing at an address, which is how a byte that is no
-   * picture is written: its pixels come out the last colour where it is set and the first where
-   * it is not, and that is what somebody looking at a white shape wants to be able to ask.
+   * Whether there is something at an address with no colours of its own: the eight planes all
+   * saying the same thing, which is how a byte that is no picture is written, and saying
+   * something rather than nothing. Its pixels come out the last colour where the byte is set,
+   * and that is the white somebody looking at a white shape wants to ask about. Eight planes of
+   * nothing is not a shape without colours, it is no shape.
    */
   public boolean noColoursOfItsOwn(int address) {
     byte[][] planes = bytes();
     byte first = planes[0][address];
+    if (first == 0) return false;
     for (int plane = 1; plane < PLANES; plane++) {
       if (planes[plane][address] != first) return false;
     }

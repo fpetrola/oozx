@@ -169,12 +169,20 @@ class TheScreenOfAGameTest extends MachineTest {
     colours(addressOf(LINE, COLUMN), 1, 2, 3, 4, 5, 6, 7, 8);
     started();
 
-    assertEquals(24 * 32 - 1, session().cellsWithNoColours(),
-        "one cell was painted and the rest of this game is blank, which has no colours either");
+    assertEquals(0, session().cellsWithNoColours(),
+        "one cell is painted in eight colours and the rest is blank, which is no shape rather than a shape without colours");
+  }
 
+  @Test
+  void aShapeWithNoColoursAtAllIsWhatThatCountIsFor() throws IOException {
+    // Eight planes all saying the same thing, which is how a byte that is no picture is written.
     for (int within = 0; within < 8; within++) {
-      colours(addressOf(LINE - LINE % 8 + within, COLUMN), 0, 0, 0, 0, 0, 0, 0, 0);
+      int at = addressOf(LINE - LINE % 8 + within, COLUMN);
+      for (int pixel = 0; pixel < 8; pixel++) colours[(at - Planes.RAM) * 8 + (7 - pixel)] = (byte) 0xff;
     }
+    started();
+
+    assertEquals(1, session().cellsWithNoColours(), "one cell of white where a game drew something");
   }
 
   @Test

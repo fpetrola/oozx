@@ -236,10 +236,16 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
   }
 
   private boolean noColoursAnywhereIn(int line, int column) {
+    boolean anything = false;
     for (int within = 0; within < 8; within++) {
-      if (!planes.noColoursOfItsOwn(Planes.RAM + display.layout.pixelsAt(line + within, column))) return false;
+      int address = Planes.RAM + display.layout.pixelsAt(line + within, column);
+      if (!planes.noColoursOfItsOwn(address)) {
+        if (planes.colourOf(address, 0) != 0 || banks.shown().bytes[address - Planes.RAM] != 0) return false;
+      } else {
+        anything = true;
+      }
     }
-    return true;
+    return anything;
   }
 
   /** How many pictures lie under this game's screen, and which of them is showing. */
