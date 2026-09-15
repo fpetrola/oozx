@@ -195,17 +195,18 @@ class TheRulesOfAGameTest extends MachineTest {
   void aFollowerCanBeToldToAddressWithTheMachinesPointersInstead() throws IOException {
     colours(addressOf(LINE, COLUMN), 0, 0, 0, 0, 0, 0, 0, 0);
     started("zxpAlignRegs=1PSs\n", null);
-    assertEquals("1PSs", session().alignment().said());
+    assertEquals("1PSs", session().alignment().said(), "the game said so and the game is right");
+    assertFalse(session().alignment().addressesFromTheOneFollowed());
 
     session().pointersFromTheMachine(true);
 
     assertTrue(session().pointersFromTheMachine());
-    assertTrue(session().alignment().said().contains("HL"), "and what the game asked for is still in there: "
-        + session().alignment().said());
-    assertTrue(session().alignment().said().startsWith("1PSs"));
+    assertTrue(session().alignment().addressesFromTheOneFollowed(), "it goes where the machine goes now");
+    assertEquals("1PSsT", session().alignment().said(), "and what the game asked for is still in there");
 
     session().pointersFromTheMachine(false);
     assertEquals("1PSs", session().alignment().said(), "back to the game's own word on it");
+    assertFalse(session().alignment().addressesFromTheOneFollowed());
   }
 
   @Test

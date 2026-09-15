@@ -172,6 +172,41 @@ class NineInStepTest {
     assertEquals(0, colourOf(TO, 7));
   }
 
+  /**
+   * The whole of T: a follower's own pointer carries a colour, so where it would have written is
+   * nowhere in particular; told to go where the machine goes, it writes where the machine wrote
+   * and the colour it was carrying arrives intact.
+   */
+  @Test
+  void toldToGoWhereTheMachineGoesAFollowerWritesWhereTheMachineWrote() {
+    code(CODE, 0x7e, 0x12);                          // LD A,(HL) ; LD (DE),A
+    colours(FROM, 200, 0, 0, 0, 0, 0, 0, 0);
+    alignment.says("1PSsT");
+    OOZ80 cpu = nine();
+    state.getRegister(RegisterName.HL).write(FROM);
+    state.getRegister(RegisterName.DE).write(TO);
+
+    run(cpu, 2);
+
+    assertEquals(200, colourOf(TO, 0), "the colour arrived where the machine put its byte");
+    assertEquals(0, colourOf(TO + 0x100, 0), "and nowhere else");
+  }
+
+  @Test
+  void aPointerToldToFollowTheMachineStillCarriesWhateverItWasCarrying() {
+    code(CODE, 0x7e, 0x12);                          // LD A,(HL) ; LD (DE),A
+    colours(FROM, 200, 0, 0, 0, 0, 0, 0, 0);
+    alignment.says("1PSsT");
+    OOZ80 cpu = nine();
+    state.getRegister(RegisterName.HL).write(FROM);
+    state.getRegister(RegisterName.DE).write(TO);
+    run(cpu, 2);
+
+    // A follower's own DE was never aligned, so it is still whatever it was: its own number.
+    assertEquals(TO, state.getRegister(RegisterName.DE).read(), "the machine's is the machine's");
+    assertEquals(200, colourOf(TO, 0), "and the colour is not the machine's byte");
+  }
+
   @Test
   void onlyTheMachineTalksToAPort() {
     code(CODE, 0xdb, 0xfe, 0xd3, 0xfe);              // IN A,(0xfe) ; OUT (0xfe),A

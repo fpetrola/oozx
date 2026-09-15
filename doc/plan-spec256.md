@@ -234,35 +234,6 @@ con `UseBrightInMix=0`, y lo único que queda es un tono de gris que es nuestro 
 
 ## Qué queda como pregunta
 
-- **El `T` de `zxpAlignRegs`, y la deriva de punteros que es lo que arregla.** Con `T`, que está
-  en el valor por omisión de ZX-Poly, un GPU usa para *direccionar* los punteros del CPU —HL, DE,
-  BC, IX, IY, SP— y conserva los suyos como *valor*: un HL que una suma de colores corrompió no lo
-  lleva a otra dirección, y `LD HL,(a); LD (b),HL` sigue moviendo dos bytes de color. Distinguir el
-  uso del valor sólo se puede dentro del procesador; ZX-Poly lo hace con ganchos del bus y un
-  `ctx`. Nuestro procesador arma las referencias `(HL)` en `OpcodeTargets`, que lo construye
-  `MultiOpcodeFetcher` adentro de `DefaultInstructionFetcher`, así que para llegar ahí haría falta
-  que la `InstructionFactory` pudiera dar también el decodificador. Ése es el asiento, y no está.
-
-  **La deriva existe y está medida.** En el Atom Ant 2 281 celdas y en el Bubbler 1 963, en 60
-  cuadros, cambian de color en direcciones que la máquina **nunca escribió** —lo único que puede
-  hacerlo es un seguidor escribiendo donde el CPU no—. Alineando los punteros como *valor*, las dos
-  cuentas dan cero. Eso confirma la causa; lo que no hace es decidir el valor por omisión, porque
-  alinearlos cuesta los colores que esos registros llevaban. Los quince juegos con captura, lo
-  mejor de tres momentos, tal cual contra alineados:
-
-  | | tal cual | alineados |
-  |---|---|---|
-  | Atic Atac, Phantis | 100,00 % | igual |
-  | Dizzy 1, Jetpac, Scooby Doo | 99,31 / 99,02 / 99,06 % | iguales |
-  | Cybernoid, Solomons Key, Knight Lore | 98,91 / 98,63 / 97,92 % | iguales |
-  | Army Moves 1, Sabre Woolf, Abu Simbel | 95,88 / 95,63 / 90,02 % | iguales |
-  | Bruce Lee, Underwurlde | 64,19 / 36,17 % | iguales |
-  | **Bubbler** | 67,24 % | **83,16 %** |
-  | **Cybernoid 2** | **81,18 %** | 79,65 % |
-
-  Trece de quince idénticos, uno mucho mejor, uno peor. Es por juego, que es justo lo que dice la
-  base de ZX-Poly con un `zxpAlignRegs` distinto para cada uno. Así que el valor por omisión no se
-  toca y la ventana trae el interruptor, para que quien tiene los juegos lo pruebe mirando.
 - **El brillo de la mezcla.** `UpMixChgBright=50` está en nueve `.CFG` y ningún oráculo abierto
   lo implementa. Ninguno de los juegos comparados arriba lo pide, así que todavía no se nota.
 - **Con qué dieciséis colores se mezcla.** Con los de esta máquina, que es con lo que la máquina
@@ -407,6 +378,47 @@ cuadros (17,8 contra 16,7) y el costo de pintar una pantalla entera con la máqu
 Lo que **no** conviene: leer los ocho planos de una celda de una sola pasada en vez de uno por
 pixel. Parece ocho veces menos memoria y es más lento (18,85 contra 17,82): los ocho bytes ya
 estaban en la caché y el arreglo intermedio cuesta más que releerlos. Probado y descartado.
+
+## El `T`, que era la pregunta abierta y ya no lo es
+
+Un seguidor escribe en su plano en la dirección que tiene en sus propios registros, y esos
+registros llevan colores: una suma sobre uno de ellos manda la escritura a cualquier lado. Medido
+con las escrituras a pantalla anotadas todas, cambien o no el byte, y las celdas cuyo color se
+movió clasificadas por lo que hizo la máquina ahí:
+
+| juego, 60 cuadros | la máquina nunca escribió ahí | escribió el mismo byte | la cambió |
+|---|---|---|---|
+| Atom Ant | **2 281** | 92 | 1 883 |
+| Bubbler | **1 961** | 1 439 | 1 179 |
+| Atic Atac | 0 | 124 | 0 |
+
+La primera columna sólo puede ser un seguidor escribiendo donde el CPU no escribió. La tercera es
+Spec256 normal, y la segunda también —el CPU escribe el mismo byte y los colores debajo cambian—,
+que es por qué la pantalla se pinta entera.
+
+**Alinear los punteros como valor lo arregla y rompe otra cosa.** Las dos cuentas dan cero, pero
+un registro alineado ya no lleva color: una rutina que mueve el sprite por B, C, D o E escribe el
+byte de la máquina, y un byte sin color sale 255 o 0 —blanco y negro— o, si cae en el rango que
+`UpColorsMixed` mezcla, pastel. Se vio jugando al Renegade y al Dizzy antes de que existiera `T`.
+
+**`T` hace lo que hay que hacer.** El asiento en el emulador es distinguir el registro del que una
+referencia toma *una dirección* del registro que una instrucción lee y escribe: `State.pointer`,
+que por omisión es `getRegister`, y que usan las referencias indirectas y los ocho bloques. Un
+seguidor lo redefine y devuelve un registro que **se lee** del de la máquina y **se escribe** como
+el suyo. Los resultados:
+
+| | sin `T` | con `T` |
+|---|---|---|
+| celdas que la máquina nunca escribió, Atom Ant | 2 281 | **0** |
+| ídem, Bubbler | 1 961 | **0** |
+| Bubbler contra su captura | 67,26 % | **83,16 %** |
+| Cybernoid 2 | 81,18 % | 81,18 % (alinear por valor lo bajaba a 79,65) |
+| los otros trece con captura | — | iguales |
+| ms por cuadro, Cybernoid | 8,42 | 8,38 |
+
+No empeora nada, arregla lo que había que arreglar y no cuesta nada medible, así que va por
+omisión: `1PSsT`, el mismo valor que ZX-Poly. La ventana lo deja apagar para mirar la diferencia,
+y el `.CFG` de un juego sigue mandando sobre los dos.
 
 ## Contra los juegos, el 14 de septiembre de 2026
 

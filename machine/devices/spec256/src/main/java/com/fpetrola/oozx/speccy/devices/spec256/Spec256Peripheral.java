@@ -51,15 +51,22 @@ import java.util.List;
 public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsOwn, Painting.PixelsOfItsOwn {
   private static final String COLOURS = ".gfx";
   private static final String SAYS = ".cfg";
-  /** A game that coloured the letters the machine draws with keeps them in a file of this name. */
-  private static final String ROM = "rom0.gfx";
   /**
-   * The registers a follower addresses memory with. Its own carry colours, so one addition on one
-   * of them is enough to send a write somewhere the machine never wrote - and a colour that lands
-   * where nothing asked for it stays there. Taking them from the machine costs the colours they
-   * were carrying, which some games want and others do not: it is a thing to try, not a default.
+   * Where a game keeps the colours of the letters and shapes the machine itself draws with.
+   * <p>
+   * Two spellings for the same thing. One game calls it after the ROM it belongs to, the way a
+   * 128K names its two - {@code .gfa} the first and {@code .gfb} the second, which is the one a
+   * 48K machine has and so the one to look for first. Another calls it {@code rom0.gfx} and does
+   * not put the game's name on it at all.
    */
-  private static final String POINTERS = "HLDEBCXxYy";
+  private static final String[] ROM_COLOURS = {".gfb", ".gfa"};
+  private static final String ANY_ROM = "rom0.gfx";
+  /**
+   * What a game's file calls going where the machine goes: a follower addresses memory with the
+   * machine's pointers and keeps its own as the colours they carry. Its own would do otherwise,
+   * and one addition on one of them is enough to send a write where nothing asked for it.
+   */
+  private static final String POINTERS = "T";
   /** A background is 320 by 200 of a colour each, laid under the screen and centred on it. */
   private static final int BACKGROUND_WIDTH = 320, BACKGROUND_HEIGHT = 200;
   private static final int BACKGROUND_SIZE = BACKGROUND_WIDTH * BACKGROUND_HEIGHT;
@@ -115,6 +122,7 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     romBeside(colours);
     backgroundsBeside(colours);
     rules.read(withTheSameName(url, SAYS));
+    pointersFromTheMachine = rules.registersTaken.contains(POINTERS);
     takeWhatTheGameAsksFor();
     if (wasOn == null) wasOn = processors.current();
     processors.use(Spec256Core.NAME);
@@ -232,16 +240,24 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
    * calls the file the same thing, because the ROM is the machine's and not the game's.
    */
   private void romBeside(File colours) {
+    for (String ending : ROM_COLOURS) {
+      if (takeTheRomFrom(withTheSameName(colours.getPath(), ending))) return;
+    }
     File[] beside = colours.getParentFile().listFiles();
     if (beside == null) return;
     for (File file : beside) {
-      if (!file.getName().equalsIgnoreCase(ROM)) continue;
-      try {
-        planes.takeTheRom(Files.readAllBytes(file.toPath()));
-      } catch (IOException | IllegalArgumentException notTheRomsColours) {
-        System.out.printf("oozx: %s is not this ROM's colours: %s%n", file, notTheRomsColours.getMessage());
-      }
-      return;
+      if (file.getName().equalsIgnoreCase(ANY_ROM) && takeTheRomFrom(file)) return;
+    }
+  }
+
+  private boolean takeTheRomFrom(File file) {
+    if (file == null) return false;
+    try {
+      planes.takeTheRom(Files.readAllBytes(file.toPath()));
+      return true;
+    } catch (IOException | IllegalArgumentException notTheRomsColours) {
+      System.out.printf("oozx: %s is not this ROM's colours: %s%n", file, notTheRomsColours.getMessage());
+      return false;
     }
   }
 
@@ -315,7 +331,8 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
   }
 
   private void takeWhatTheGameAsksFor() {
-    alignment.says(pointersFromTheMachine ? rules.registersTaken + POINTERS : rules.registersTaken);
+    String asked = rules.registersTaken.replace(POINTERS, "");
+    alignment.says(pointersFromTheMachine ? asked + POINTERS : asked);
   }
 
   @Override
@@ -342,6 +359,7 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     backgrounds.clear();
     planes.blank();
     rules.asTheyComeByDefault();
+    pointersFromTheMachine = rules.registersTaken.contains(POINTERS);
     takeWhatTheGameAsksFor();
     display.painting.pixelsOfItsOwn(null);
     display.picture().sinclairColours();

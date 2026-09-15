@@ -19,6 +19,7 @@
 package com.fpetrola.oozx.speccy.devices.spec256;
 
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.google.inject.Singleton;
 
@@ -36,11 +37,19 @@ import com.google.inject.Singleton;
  * pointer, {@code P} for the program counter that is taken anyway, {@code 1} and {@code 0} for
  * the flags and the alternate flags except the carry, and the same letters in lowercase for the
  * alternate set. The carry is never taken: it is the one thing a follower computes for itself.
+ * <p>
+ * And one letter that takes nothing: {@code T} says a follower <em>addresses</em> memory with the
+ * machine's pointers while keeping its own as numbers. Taking a pointer as a number instead is a
+ * blunt version of the same thing that works and costs the colours the register was carrying.
  */
 @Singleton
 public final class Alignment {
-  /** What is taken when a game says nothing: the stack pointer and every flag but the carry. */
-  public static final String BY_DEFAULT = "1PSs";
+  /**
+   * What is taken when a game says nothing: the stack pointer, every flag but the carry, and
+   * going where the machine goes. The last one costs nothing measurable and is what keeps a
+   * follower's colours from landing where nothing asked for them.
+   */
+  public static final String BY_DEFAULT = "1PSsT";
   private static final int CARRY = 0x01;
   private static final String LETTERS = "AFBCDEHLXxYy10PSsafbcdehl";
   private static final RegisterName[] MEANS = {
@@ -54,6 +63,7 @@ public final class Alignment {
   private RegisterName[] named;
   private boolean flags;
   private boolean alternateFlags;
+  private boolean addressesFromTheOneFollowed;
 
   public Alignment() {
     says(BY_DEFAULT);
@@ -63,9 +73,12 @@ public final class Alignment {
   public void says(String letters) {
     java.util.LinkedHashSet<RegisterName> wanted = new java.util.LinkedHashSet<>();
     wanted.add(RegisterName.PC);
-    flags = alternateFlags = false;
+    flags = alternateFlags = addressesFromTheOneFollowed = false;
     for (char letter : letters.toCharArray()) {
-      if (letter == 'T') continue;
+      if (letter == 'T') {
+        addressesFromTheOneFollowed = true;
+        continue;
+      }
       int at = LETTERS.indexOf(letter);
       if (at < 0) throw new IllegalArgumentException("A follower cannot be asked for '" + letter + "', only for one of " + LETTERS);
       if (letter == '1') flags = true;
@@ -79,6 +92,75 @@ public final class Alignment {
   /** The letters it was last told, for whoever shows them. */
   public String said() {
     return said;
+  }
+
+  /**
+   * Whether a follower goes where the machine goes: its own pointer registers carry colours, and
+   * one addition on one of them would send a write where nothing asked for it.
+   */
+  public boolean addressesFromTheOneFollowed() {
+    return addressesFromTheOneFollowed;
+  }
+
+  /**
+   * One register read for an address from the machine's and written to as its own, which is the
+   * whole of {@code T}: where a follower goes is the machine's business, what it carries is not.
+   * It asks on every address rather than once, so that turning it on and off is something a
+   * person can do while the game is running.
+   */
+  public Register addressing(Register machines, Register mine) {
+    if (mine instanceof com.fpetrola.z80.registers.RegisterPair pair) {
+      return new AddressingPair(machines, pair);
+    }
+    return new Addressing(machines, mine);
+  }
+
+  private class Addressing implements Register {
+    protected final Register machines;
+    protected final Register mine;
+
+    Addressing(Register machines, Register mine) {
+      this.machines = machines;
+      this.mine = mine;
+    }
+
+    public int read() {
+      return (addressesFromTheOneFollowed ? machines : mine).read();
+    }
+
+    public void write(int value) {
+      mine.write(value);
+    }
+
+    public void increment() {
+      mine.increment();
+    }
+
+    public void decrement() {
+      mine.decrement();
+    }
+
+    public int getLength() {
+      return mine.getLength();
+    }
+
+    public String getName() {
+      return mine.getName();
+    }
+  }
+
+  private final class AddressingPair extends Addressing implements com.fpetrola.z80.registers.RegisterPair {
+    AddressingPair(Register machines, com.fpetrola.z80.registers.RegisterPair mine) {
+      super(machines, mine);
+    }
+
+    public Register getHigh() {
+      return ((com.fpetrola.z80.registers.RegisterPair) mine).getHigh();
+    }
+
+    public Register getLow() {
+      return ((com.fpetrola.z80.registers.RegisterPair) mine).getLow();
+    }
   }
 
   public void from(State followed, State follower) {

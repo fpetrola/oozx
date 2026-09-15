@@ -36,6 +36,10 @@ public class DefaultInstructionFactory implements InstructionFactory {
   private RegisterPair bc;
   private Register de;
   private RegisterPair hl;
+  /** The same three where a block instruction walks memory with them rather than holding a number. */
+  private RegisterPair bcWalking;
+  private Register deWalking;
+  private RegisterPair hlWalking;
   protected Memory memory;
   private Register c;
   private Register _bc;
@@ -69,6 +73,9 @@ public class DefaultInstructionFactory implements InstructionFactory {
     bc = (RegisterPair) state.getRegister(BC);
     de = state.getRegister(DE);
     hl = (RegisterPair) state.getRegister(HL);
+    bcWalking = (RegisterPair) state.pointer(BC);
+    deWalking = state.pointer(DE);
+    hlWalking = (RegisterPair) state.pointer(HL);
     _bc = state.getRegister(BCx);
     _de = state.getRegister(DEx);
     _hl = state.getRegister(HLx);
@@ -110,7 +117,7 @@ public class DefaultInstructionFactory implements InstructionFactory {
 
   @Override
   public Cpd Cpd() {
-    return new Cpd(a, flag, bc, hl, memory, io);
+    return new Cpd(a, flag, bcWalking, hlWalking, memory, io);
   }
 
   @Override
@@ -120,7 +127,7 @@ public class DefaultInstructionFactory implements InstructionFactory {
 
   @Override
   public Cpi Cpi() {
-    return new Cpi(a, flag, bc, hl, memory, io);
+    return new Cpi(a, flag, bcWalking, hlWalking, memory, io);
   }
 
   @Override
@@ -230,17 +237,17 @@ public class DefaultInstructionFactory implements InstructionFactory {
 
   @Override
   public Ind Ind() {
-    return new Ind(bc, hl, flag, memory, io);
+    return new Ind(bcWalking, hlWalking, flag, memory, io);
   }
 
   @Override
   public Ini Ini() {
-    return new Ini(bc, hl, flag, memory, io);
+    return new Ini(bcWalking, hlWalking, flag, memory, io);
   }
 
   @Override
   public Outi Outi() {
-    return new Outi(bc, hl, flag, memory, io);
+    return new Outi(bcWalking, hlWalking, flag, memory, io);
   }
 
   @Override
@@ -325,12 +332,12 @@ public class DefaultInstructionFactory implements InstructionFactory {
 
   @Override
   public Ldd Ldd() {
-    return new Ldd(de, bc, hl, flag, memory, io, a);
+    return new Ldd(deWalking, bcWalking, hlWalking, flag, memory, io, a);
   }
 
   @Override
   public Ldi Ldi() {
-    return new Ldi(de, bc, hl, flag, memory, io, a);
+    return new Ldi(deWalking, bcWalking, hlWalking, flag, memory, io, a);
   }
 
   @Override
@@ -355,7 +362,7 @@ public class DefaultInstructionFactory implements InstructionFactory {
 
   @Override
   public Outd Outd() {
-    return new Outd(bc, hl, flag, memory, io);
+    return new Outd(bcWalking, hlWalking, flag, memory, io);
   }
 
   @Override

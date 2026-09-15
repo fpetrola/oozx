@@ -112,6 +112,15 @@ public class State {
     return this.registers.get(name);
   }
 
+  /**
+   * The register a reference takes an <em>address</em> from, which is the one the instruction
+   * holds unless something is following this processor and has to go where it goes rather than
+   * where its own registers point.
+   */
+  public Register pointer(RegisterName name) {
+    return getRegister(name);
+  }
+
   public Register getRegister(RegisterName name) {
     return this.registers.get(name);
   }
