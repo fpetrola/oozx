@@ -595,10 +595,27 @@ implementa en este árbol con dos interruptores que ya existen —`T` y los núm
 está medido: en los quince títulos con captura da idéntico a las tres reglas salvo Army Moves, que
 pierde diez puntos por los números (95,88 % contra 85,69 %); y jugando, el Renegade pierde el color
 de los sprites compuestos. O sea que **direcciones escalares más color al lado no alcanza para
-reproducir al original**: falta algo que todavía no sabemos. La hipótesis siguiente, sin medir aún,
-es que en ese modelo **leer de una dirección sin colores propios no pisa el color que el registro ya
-tenía** —se lleva la forma nueva y conserva el color viejo—, que es lo que haría que un sprite
-espejado por tabla salga con color sin ninguna línea por juego. Y la regla no cuesta tiempo: 19,95 ms por cuadro con ella y 19,95 sin ella, en la misma
+reproducir al original**: falta algo que todavía no sabemos. La hipótesis siguiente era que en ese modelo **leer de una dirección
+sin colores propios no pisa el color que el registro ya tenía** —se lleva la forma nueva y conserva
+el color viejo—, que es lo que haría que un sprite espejado por tabla salga con color sin ninguna
+línea por juego.
+
+**Medida y falsa.** Esa frase sólo tiene sentido si la forma y el color son dos canales, y para eso
+el pintor tendría que sacar la forma de la máquina y el color de los planos. Se probó en tres
+líneas: el Renegade se vuelve negro —el piso desaparece, el fondo se perfora— porque en un juego de
+Spec256 **el dibujo son los planos y nada más**; el bitmap de la máquina no dibuja. Sin canal de
+forma, "conservar el color y tomar la forma" no se puede traducir a este modelo: acá el color *es*
+la forma.
+
+**Y de paso quedó claro de dónde sale el color de los sprites del Renegade.** Son dos caminos
+distintos: el compositor de `9a20` lee la pareja máscara/dato con `POP HL` desde la pila, que está
+alineada, así que es una lectura escalar y funciona igual en los dos modelos; pero el de `9998`
+hace `LD L,C ; OR (HL)`, que es una dirección de verdad, distinta por plano. Con direcciones
+escalares (`T`) los ocho leen la misma entrada y **los sprites salen blancos** — lo que además
+prueba que esa página no tiene colores propios en el `.GFX`, porque si los tuviera, leerla escalar
+los devolvería. O sea: una lectura escalar de esa tabla no puede dar color, y el original **sí** da
+color. Algo por carril hace el original ahí también, y en este árbol eso es exactamente la
+indexación por plano que la tercera regla conserva. Y la regla no cuesta tiempo: 19,95 ms por cuadro con ella y 19,95 sin ella, en la misma
 máquina el mismo minuto.
 
 El asiento: `Core.wrapping`, una línea por omisión que devuelve la memoria tal cual y que el
