@@ -436,6 +436,43 @@ de la máquina cuestan diez puntos en el Army Moves y arreglan el marcador del R
 son reales, ninguna domina, y por eso las dos son un interruptor en la ventana y no una decisión
 escrita en el código. Lo que el juego diga en su `.CFG` manda sobre las dos.
 
+## Lo que ZX-Poly tiene y este árbol no: una base por juego
+
+La pregunta directa —¿qué se me está pasando respecto al otro emulador?— tiene una respuesta
+concreta, y no es una instrucción ni un caso de memoria: es `spec256appbase.txt`, **24 juegos con
+su `zxpAlignRegs` propio, indexados por el SHA-256 del snapshot**, que se aplica solo al cargar.
+Todo lo demás está comparado línea por línea y coincide: qué lee un GPU por debajo de 0x4000
+(la ROM, o sus colores si el juego los trajo; la página de ROM la elige el bit 4 de 7FFD, que en
+un 48K es la segunda, `.gfb`, la misma que `rom0.gfx`), cómo se cortan los planos, qué copia
+`fillByState` al arrancar (todo, MEMPTR incluido, como nuestro `takeFrom`), cómo se toma una
+interrupción, y que el vídeo se rearma entero cada cuadro.
+
+Lo que esa base dice de los juegos que hay en la copia del usuario, citado de ZX-Poly:
+
+| juego | `zxpAlignRegs` | |
+|---|---|---|
+| Renegade | `1DEPSs` | DE como valor, HL propio, sin `T` |
+| Dizzy 1 | `1HLPSs` | |
+| Atom Ant, Atic Atac, Army Moves 1, Bruce Lee, Jetpac | `1PSsT` | |
+| Cybernoid 2 | `1PSs` | y `Paper00InkFF=0` |
+| Phantis | `1XxYyHLDEPSs` | |
+| Scooby Doo | `1HLXxYyPSs` | |
+| Sabre Wulf | `1HhLlXxYyFfPSs` | |
+| Solomons Key | `1PSsXxYy` | |
+| Underwurlde | `1HLDEBPSsXxY` | |
+| Bubbler | `PSsXxYyHbcde` | sin la `1`: hasta las banderas son suyas |
+| Knight Lore | `1PSsHLhlXxYyEe` | |
+
+Nada de esto se lleva al árbol —es de ZX-Poly y es una tabla de ajustes de otro—, pero cada línea
+va en el `.CFG` del juego, que es el lugar que el formato ya tiene, o se escribe en la ventana.
+
+**Renegade con `1DEPSs`, comprobado acá**: caras y manos con tono de piel, sin manchas en el
+marcador, 4 741 escrituras a pantalla con color y cero sin color. Es exactamente lo que ninguno de
+los dos interruptores daba solo: la deriva era por DE —y DE alineado como valor la corta— mientras
+que el espejado de sprites indexa una tabla con HL, que tiene que seguir siendo el del seguidor.
+`T` tocaba las dos y por eso las caras salían blancas. Lo único que no cierra es un dígito del
+récord, "058100" contra "050000", que la captura del juego da a favor de `T`; queda anotado.
+
 ## Qué instrucción pierde el color, medido en vez de razonado
 
 La pregunta que el Renegade hizo inevitable: ¿hay instrucciones por las que el color no llega a
