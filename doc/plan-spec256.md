@@ -781,6 +781,27 @@ Y por eso mismo la regla simétrica tampoco sirve: recortar el color a la forma 
 pintar —probado— deja el piso negro, porque el piso de este juego existe **sólo** en los planos (su
 byte de máquina es `00`, papel).
 
+### Una pista del que juega: sólo falla el primer dibujo
+
+El que lo juega aportó el dato que más acota: **falla la primera vista de la pantalla, antes de que
+los hombres se muevan; después se ve bien**. Eso separa los dos blits del juego: el dibujo inicial
+usa el de la tabla (`9995`, con el índice por plano) y la animación usa el otro (`9a20`, con la
+pareja máscara/dato sacada de la pila), que ya se midió equivalente en los dos modelos. El artefacto
+vive sólo en el camino de la tabla.
+
+Y ahí encaja el número que se sacó de los archivos: el pack tiene **32 521 píxeles con color donde
+la máquina no tiene tinta**. Como dibujo eso es inofensivo —el pintor muestra el color igual—, pero
+**como índice de una tabla que mueve bits esos bits de más se vuelven forma de más**, y de ahí sale
+la franja.
+
+### Tercera regla probada: recortar el índice con los bits de la máquina
+
+Si los bits del índice que la máquina no tiene son color y no forma, recortarlos debería arreglarlo:
+`(ours & his)` en la parte baja de la dirección, sólo en las páginas que mueven bits. Medido: cambia
+622 a 656 píxeles por cuadro y **sale peor** — los torsos se vuelven negros, porque el índice *es* el
+color y recortarlo lo destruye. En este juego la rama de la tabla se toma 2 350 veces por corrida,
+contra 67 040 de la rama de dibujo y 227 466 lecturas sin divergencia.
+
 ### Lo que haría falta
 
 Esto es lo único que encontramos donde la transposición cuesta algo de verdad: el modelo de 64 bits
