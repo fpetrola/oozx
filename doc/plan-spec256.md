@@ -478,7 +478,7 @@ que el espejado de sprites indexa una tabla con HL, que tiene que seguir siendo 
 `T` tocaba las dos y por eso las caras salían blancas. Lo único que no cierra es un dígito del
 récord, "058100" contra "050000", que la captura del juego da a favor de `T`; queda anotado.
 
-## Las dos reglas que hacen falta una vez, en lugar de una línea por juego
+## Las reglas que hacen falta una vez, en lugar de una línea por juego
 
 La hipótesis, después de leer la base de ZX-Poly: **una dirección no es un color**. Lo que un
 seguidor hace con *datos* es suyo —ahí vive el color— pero una dirección la decide la máquina,
@@ -545,6 +545,46 @@ Knight Lore 97,92, Sabre Wulf 95,63, Scooby Doo 99,06, Solomons Key 98,63, Under
 mismos dígitos con las cuatro combinaciones. Lo que las reglas arreglan no se ve en una pantalla de
 título quieta —se ve jugando— y por eso el Renegade se mide contra el otro emulador y el Atom Ant
 con píxeles sobre nada.
+
+### Y una tercera: leer donde lee la máquina, salvo en una tabla
+
+Quedaba un tercer camino, el que ni la escritura ni la suma tocan: un puntero **cargado** desde un
+registro de datos. En el Renegade son tres instrucciones, encontradas buscando la primera
+instrucción en que dos configuraciones dejan de coincidir (1 532 327 instrucciones trazadas, se
+separan en la 1 160 501):
+
+| dónde | qué hace | qué corresponde |
+|---|---|---|
+| `979f` | `LD E,A` con un A que lleva color, y después `LD A,(DE)` | la dirección de la máquina: es deriva |
+| `9998` | `LD L,C` y `OR (HL)`, 2 350 veces en 60 cuadros | **la suya**: es la tabla de espejado indexada por el byte que espeja |
+| `a002` | `LD A,(HL) ; LD (DE),A ; INC D ; INC L`, el glifo del marcador | la de la máquina |
+
+Las tres son la misma forma de instrucción. Lo que las distingue no está en el código sino en
+**qué hay del otro lado**: ocho planos que dicen todos lo mismo son una tabla, y un seguidor que
+la consulta con un color suyo tiene razón en ir donde la máquina no fue; planos que difieren son
+un dibujo, y ahí un puntero con color adentro apunta a un pixel que no existe. `Planes` ya sabía
+contestar eso —`noColoursOfItsOwn`, que estaba para decir qué celda no tiene colores propios—.
+
+| | sin la regla | con la regla |
+|---|---|---|
+| Renegade contra el `1DEPSs` de ZX-Poly, cuadro 400 | 269 px | **126 px** |
+| Bubbler, color sobre nada | 1 | **0** |
+| Atom Ant | 22 | 22 |
+| Army Moves contra su captura | 95,88 % | 95,88 % |
+| los quince títulos con captura | — | los mismos dígitos, uno por uno |
+
+**Lo que no arregla, que es el canje:** esos 126 píxeles que quedan son los dígitos del récord del
+Renegade. El glifo se copia de una tabla de fuente, que no tiene colores propios, así que la regla
+le deja al seguidor su propio índice — y ese índice lleva color. Arreglarlo pide el índice de la
+máquina, que es lo que hace `1DEPSs` con DE y lo que hace también "números de la máquina", a diez
+puntos de Army Moves. Con la regla los sprites que se mueven salen bien solos y el marcador no; sin
+ella, al revés.
+
+**Medido y descartado por el camino:** todos los punteros de la máquina (`T`) da 1 839 píxeles de
+diferencia, mucho peor —la tabla de espejado es real y necesita el puntero propio—; los números de
+16 bits de la máquina (que son direcciones en todo menos en el nombre) no cambian nada en el
+Renegade. Y la regla no cuesta tiempo: 19,95 ms por cuadro con ella y 19,95 sin ella, en la misma
+máquina el mismo minuto.
 
 El asiento: `Core.wrapping`, una línea por omisión que devuelve la memoria tal cual y que el
 cableado le ofrece a cualquier núcleo antes de construirle el estado. El Spec256 la contesta con

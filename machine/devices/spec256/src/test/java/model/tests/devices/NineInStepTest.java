@@ -322,6 +322,7 @@ class NineInStepTest {
     assertEquals(0, colourOf(TO, 0), "nothing was left where the machine never wrote");
 
     fromScratch();
+    leftToThemselves();
     OOZ80 cpu = aPointerCarryingAColour();
     planes.writingWhereTheMachineWrote(false);
     run(cpu, 6);
@@ -348,7 +349,7 @@ class NineInStepTest {
 
     fromScratch();
     OOZ80 cpu = aColourAddedIntoAnAddress();
-    rules.addressesAddedUpByTheMachine = false;
+    leftToThemselves();
     run(cpu, 6);
     assertEquals(0, colourOf(TO, 0), "left to themselves, each follower read a byte of its own and the colour was lost");
   }
@@ -365,9 +366,40 @@ class NineInStepTest {
     return cpu;
   }
 
+  /** With nobody correcting where a follower goes: every rule about addresses turned off. */
+  private void leftToThemselves() {
+    rules.addressesAddedUpByTheMachine = false;
+    rules.readingWhereTheMachineReads = false;
+  }
+
   /** A second machine in the same fact starts on memory nobody has run on yet. */
   private void fromScratch() {
     java.util.Arrays.fill(ram, (byte) 0);
     painted.clear();
+  }
+
+  @Test
+  void aPointerCarryingAColourReadsWhereTheMachineReadsUnlessItIsATable() {
+    code(CODE, 0x7e, 0x6f, 0x7e, 0x12);               // LD A,(HL) ; LD L,A ; LD A,(HL) ; LD (DE),A
+    code(FROM, 0x01);
+    colours(FROM, 0, 0, 0, 0, 0, 0, 0, 5);            // the index: only the planes of colour 5 carry the 1
+    code(FROM + 1, 0x80);
+    colours(FROM + 1, 90, 0, 0, 0, 0, 0, 0, 0);       // and a picture is what it points at
+    OOZ80 cpu = nine();
+    state.getRegister(RegisterName.HL).write(FROM);
+    state.getRegister(RegisterName.DE).write(TO);
+    run(cpu, 4);
+    assertEquals(90, colourOf(TO, 0), "the ones whose index was empty read the pixel the machine read");
+
+    fromScratch();
+    code(CODE, 0x7e, 0x6f, 0x7e, 0x12);
+    code(FROM, 0x01);
+    colours(FROM, 0, 0, 0, 0, 0, 0, 0, 5);
+    code(FROM + 1, 0x80);                             // this time what it points at is a table: eight planes alike
+    cpu = nine();
+    state.getRegister(RegisterName.HL).write(FROM);
+    state.getRegister(RegisterName.DE).write(TO);
+    run(cpu, 4);
+    assertEquals(5, colourOf(TO, 0), "and in a table each one looked up its own colour, which is what comes back");
   }
 }

@@ -52,6 +52,14 @@ public final class Rules {
 
   /** Whether an address a follower works out by adding is taken from the machine, which just did. */
   public boolean addressesAddedUpByTheMachine = true;
+
+  /**
+   * Whether a follower reads where the machine reads. Only where a picture is: eight planes that
+   * all say the same thing are a table, and a follower that looks one up with a colour of its own
+   * is right to go where the machine did not - that is how a mirrored sprite keeps its colours.
+   */
+  public boolean readingWhereTheMachineReads = true;
+
   /** Which registers a follower takes from the machine before every instruction. */
   public String registersTaken = Alignment.BY_DEFAULT;
 
@@ -68,6 +76,7 @@ public final class Rules {
     brightInTheMix = false;
     levelledOr = levelledAnd = levelledXor = false;
     addressesAddedUpByTheMachine = true;
+    readingWhereTheMachineReads = true;
     registersTaken = Alignment.BY_DEFAULT;
   }
 

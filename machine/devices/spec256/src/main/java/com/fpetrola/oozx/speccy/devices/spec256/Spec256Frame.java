@@ -43,6 +43,7 @@ public class Spec256Frame extends MachineFrame {
   private final JCheckBox numbers = new JCheckBox("Take numbers from the machine");
   private final JCheckBox writes = new JCheckBox("Write where the machine writes");
   private final JCheckBox added = new JCheckBox("Add up as the machine does");
+  private final JCheckBox reads = new JCheckBox("Read where the machine reads");
   private final JTextField taken = new JTextField(12);
   private final JButton previous = new JButton("<");
   private final JButton next = new JButton(">");
@@ -51,7 +52,7 @@ public class Spec256Frame extends MachineFrame {
 
   public Spec256Frame() {
     super("Spec256");
-    setSize(760, 320);
+    setSize(860, 320);
 
     JPanel palette = new JPanel(new GridLayout(256 / ACROSS, ACROSS, 1, 1));
     for (int colour = 0; colour < swatches.length; colour++) {
@@ -102,6 +103,15 @@ public class Spec256Frame extends MachineFrame {
       if (game != null) game.addressesAddedUpByTheMachine(added.isSelected());
       refresh();
     });
+    reads.setToolTipText("<html>A follower reads where the machine reads, but only where a picture is: eight planes<br>"
+        + "that all say the same thing are a table, and a follower looking one up with a colour of<br>"
+        + "its own is right to go where the machine did not - that is a mirrored sprite keeping its<br>"
+        + "colours. Off, every pointer it carries reads wherever the colour in it points.</html>");
+    reads.addActionListener(e -> {
+      Spec256Peripheral game = game();
+      if (game != null) game.readsWhereTheMachineReads(reads.isSelected());
+      refresh();
+    });
     taken.setToolTipText("<html>What the followers take from the machine before every instruction, in the letters<br>"
         + "a game's own file uses: A F B C D E H L for registers, X x Y y for the index halves,<br>"
         + "1 for the flags but the carry, P and S for where it is, T to address with the machine's<br>"
@@ -125,7 +135,7 @@ public class Spec256Frame extends MachineFrame {
 
     JPanel switches = new JPanel(new GridLayout(2, 1));
     switches.add(inARow(colourful, pointers, numbers));
-    switches.add(inARow(writes, added, new JLabel("takes"), taken));
+    switches.add(inARow(writes, added, reads, new JLabel("takes"), taken));
 
     JPanel bottom = new JPanel(new BorderLayout());
     bottom.add(switches, BorderLayout.WEST);
@@ -192,6 +202,7 @@ public class Spec256Frame extends MachineFrame {
       numbers.setEnabled(false);
       writes.setEnabled(false);
       added.setEnabled(false);
+      reads.setEnabled(false);
       taken.setEnabled(false);
       previous.setEnabled(false);
       next.setEnabled(false);
@@ -216,6 +227,8 @@ public class Spec256Frame extends MachineFrame {
     writes.setSelected(game.writesWhereTheMachineWrites());
     added.setEnabled(true);
     added.setSelected(game.addressesAddedUpByTheMachine());
+    reads.setEnabled(true);
+    reads.setSelected(game.readsWhereTheMachineReads());
     taken.setEnabled(true);
     if (!taken.hasFocus()) taken.setText(game.alignment().said());
     previous.setEnabled(pictures > 1 && game.showing() > 0);

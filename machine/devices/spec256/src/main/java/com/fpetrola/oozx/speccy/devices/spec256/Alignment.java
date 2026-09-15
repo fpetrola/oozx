@@ -23,6 +23,8 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.google.inject.Singleton;
 
+import java.util.function.IntPredicate;
+
 /**
  * What a processor that follows another takes from it before every instruction, so that it can
  * never end up anywhere else.
@@ -44,6 +46,16 @@ import com.google.inject.Singleton;
  */
 @Singleton
 public final class Alignment {
+  public static int PC;
+  /** Whether what the machine is pointing at is a picture rather than a table every plane shares. */
+  private IntPredicate aPictureIsThere = address -> false;
+
+  public void aPictureIsThere(IntPredicate there) {
+    aPictureIsThere = there;
+  }
+
+  public static final java.util.Map<String, Long> DRIFT = new java.util.concurrent.ConcurrentHashMap<>();
+
   /**
    * What is taken when a game says nothing: the stack pointer and every flag but the carry, and
    * not {@code T}. A follower's pointer is not always drifting - a game that mirrors a sprite
@@ -146,8 +158,15 @@ public final class Alignment {
       this.mine = mine;
     }
 
+    /**
+     * Where this follower reads and writes: its own, which is where its colours are, unless it
+     * was told to go where the machine goes, or unless its own has wandered off the picture the
+     * machine is reading - a pointer that carries a colour points at a pixel that is not there.
+     */
     public int read() {
-      return (addressesFromTheOneFollowed ? machines : mine).read();
+      if (addressesFromTheOneFollowed) return machines.read();
+      int ours = mine.read(), his = machines.read();
+      return ours == his || !aPictureIsThere.test(his) ? ours : his;
     }
 
     public void write(int value) {

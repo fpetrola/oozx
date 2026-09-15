@@ -395,6 +395,16 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     display.refreshAll();
   }
 
+  /** Whether a follower reads where the machine reads, except from a table every plane shares. */
+  public boolean readsWhereTheMachineReads() {
+    return rules.readingWhereTheMachineReads;
+  }
+
+  public void readsWhereTheMachineReads(boolean whereTheMachineReads) {
+    rules.readingWhereTheMachineReads = whereTheMachineReads;
+    display.refreshAll();
+  }
+
   /** Whether what a follower writes lands where the machine wrote in the same instruction. */
   public boolean writesWhereTheMachineWrites() {
     return planes.writingWhereTheMachineWrote();

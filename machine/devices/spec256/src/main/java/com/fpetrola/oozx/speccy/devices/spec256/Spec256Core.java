@@ -63,6 +63,7 @@ public class Spec256Core implements Core {
     this.planes = planes;
     this.alignment = alignment;
     this.rules = rules;
+    alignment.aPictureIsThere(address -> rules.readingWhereTheMachineReads && !planes.noColoursOfItsOwn(address));
   }
 
   public String name() {
