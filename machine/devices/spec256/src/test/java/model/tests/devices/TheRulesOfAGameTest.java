@@ -127,9 +127,18 @@ class TheRulesOfAGameTest extends MachineTest {
   @Test
   void aGameCanSayHowManyOfThemAreMixed() throws IOException {
     colours(addressOf(LINE, COLUMN), 200, 0, 0, 0, 0, 0, 0, 0);
+    started("UpColorsMixed=1\n", null);
+
+    assertEquals(rgbOf(200), pixel(0), "only the last one, and colour 200 is its own");
+  }
+
+  @Test
+  void aGameSayingNoneIsAGameSayingNothing() throws IOException {
+    colours(addressOf(LINE, COLUMN), 200, 0, 0, 0, 0, 0, 0, 0);
     started("UpColorsMixed=0\n", null);
 
-    assertEquals(rgbOf(200), pixel(0), "none of them, and the colour is its own");
+    assertEquals(halfway(Picture.SINCLAIR[INK], rgbOf(200)), pixel(0),
+        "measured against the Renegade in the emulator these rules come from: a zero still mixes the top sixty-four");
   }
 
   @Test
@@ -186,8 +195,8 @@ class TheRulesOfAGameTest extends MachineTest {
     colours(addressOf(LINE, COLUMN), 255, 0, 0, 0, 0, 0, 0, 0);
     started("UpColorsMixed=0\n", background(77));
 
-    assertEquals(rgbOf(255), pixel(0));
-    assertEquals(rgbOf(77), pixel(1));
+    assertNotEquals(rgbOf(77), pixel(0), "the last colour covers the picture like any other");
+    assertEquals(rgbOf(77), pixel(1), "and beside it, where this game painted nothing, the picture shows");
   }
 
   @Test

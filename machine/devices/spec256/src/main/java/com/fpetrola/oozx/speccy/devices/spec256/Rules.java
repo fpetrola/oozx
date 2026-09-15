@@ -80,6 +80,16 @@ public final class Rules {
     registersTaken = Alignment.BY_DEFAULT;
   }
 
+  /**
+   * How many colours a game says are mixed. A game that says none says nothing: measured against
+   * the Renegade running in the emulator these rules come from, a file that says zero still has
+   * the top sixty-four mixed, so zero is the key not being said rather than the answer being none.
+   */
+  private int saying(String value, int byDefault) {
+    int said = number(value, byDefault);
+    return said == 0 ? byDefault : said;
+  }
+
   /** Whether a colour is one of those mixed with what the machine would have painted. */
   public boolean mixed(int colour) {
     return colour < mixedFromTheBottom || colour > 255 - mixedFromTheTop;
@@ -107,7 +117,7 @@ public final class Rules {
       case "bkoverff" -> backgroundOverTheLast = on(value);
       case "paper00inkff" -> paperForNoneInkForAll = on(value);
       case "hidesameinkpaper" -> hiddenWhereInkIsPaper = on(value);
-      case "upcolorsmixed" -> mixedFromTheTop = number(value, mixedFromTheTop);
+      case "upcolorsmixed" -> mixedFromTheTop = saying(value, mixedFromTheTop);
       case "downcolorsmixed" -> mixedFromTheBottom = number(value, mixedFromTheBottom);
       case "usebrightinmix" -> brightInTheMix = on(value);
       case "gfxleveledor" -> levelledOr = on(value);

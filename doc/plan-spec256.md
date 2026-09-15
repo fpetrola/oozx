@@ -827,6 +827,37 @@ se ve como papel; el nuestro los tiene en los mismos bits. Para cerrarlo haría 
 código del emulador original, o bien una captura del original **en el mismo cuadro** que la nuestra,
 que ninguna de las dos cosas tenemos. Lo demás ya está medido y anotado acá.
 
+## La mezcla con los atributos, y una clave que leíamos al revés
+
+El que juega lo dijo antes de que lo midiera: *lo que falta es la parte que mezcla los colores
+encontrados con los atributos que hay en esa zona de la pantalla*. Tenía razón, y ahora está medido
+contra el emulador que él usa.
+
+**El instrumento nuevo:** una captura de **EmuZWin** del mismo momento (`renegade1.png`), que es
+mejor oráculo que la captura del pack — mismo emulador, mismo cuadro, y se puede alinear. Alineada
+—nuestro recorte estaba un píxel más arriba, y corregirlo baja la diferencia de 19 873 a 666— las
+diferencias se agrupan solas:
+
+| lo que pinta EmuZWin | lo que pintábamos |
+|---|---|
+| `(0,0,71)` | `(0,0,143)` |
+| `(0,0,57)` | `(0,0,115)` |
+| `(113,0,0)` | `(227,0,0)` |
+| `(96,96,57)` | `(0,0,115)` |
+
+Las tres primeras son **la mitad exacta**: color mezclado a mitad de camino con el negro de la
+tinta. La cuarta es la misma mezcla con el papel amarillo de esa celda: `(0+192)/2, (0+192)/2,
+(115+0)/2`. Es exactamente la regla que ya teníamos escrita —`mixed(colour)` y `halfway`— pero
+apagada, porque el `.CFG` del Renegade dice `UpColorsMixed=0` y lo leíamos como «ninguno».
+
+**Medido:** mezclar los 64 de arriba **arregla 215 píxeles y no rompe ninguno**; mezclar 128 o 256
+empeora muchísimo (7 731 y 37 625). Y de los 18 packs, **sólo el Renegade dice 0**; nueve dicen 1 y
+ocho dicen 64. Así que un cero no es «ninguno», es **la clave no dicha**, y vale el valor por
+omisión. Una línea en `Rules`.
+
+Con eso, el Renegade queda a **451 píxeles de EmuZWin sobre 49 152: 99,08 % idéntico**, y lo único
+que se ve distinto es la franja al costado de los sprites que sigue abierta más arriba.
+
 ## Lo que del `.CFG` todavía no miramos
 
 Contando las claves de los 18 packs contra las que `Rules` entiende, **ignoramos nueve**:
