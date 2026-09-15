@@ -403,6 +403,30 @@ class NineInStepTest {
     return cpu;
   }
 
+  @Test
+  void aColourThatWalksIntoAnyPointerReadsWhereTheMachineReads() {
+    run(aColourWalkedIntoDE(), 7);
+    assertEquals(0xff, ram[TO] & 0xff, "the machine read the byte its own DE pointed at");
+    assertEquals(7, colourOf(TO, 0), "and so did every follower, though the colour had walked into their E");
+
+    fromScratch();
+    OOZ80 cpu = aColourWalkedIntoDE();
+    leftToThemselves();
+    run(cpu, 7);
+    assertEquals(5, colourOf(TO, 0), "left to themselves, what came out is the colour of the pointer and not of the byte");
+  }
+
+  /** LD A,(HL) ; LD E,A ; LD D,FROM>>8 ; LD H,TO>>8 ; LD L,TO ; LD A,(DE) ; LD (HL),A: the colour walks into DE. */
+  private OOZ80 aColourWalkedIntoDE() {
+    code(CODE, 0x7e, 0x5f, 0x16, FROM >> 8, 0x26, TO >> 8, 0x2e, TO & 0xff, 0x1a, 0x77);
+    code(FROM, 0x01, 0xff);
+    colours(FROM, 0, 0, 0, 0, 0, 0, 0, 5);            // the index: only the planes of colour 5 carry the 1
+    colours(FROM + 1, 7, 7, 7, 7, 7, 7, 7, 7);        // and one past it is the colour to be moved
+    OOZ80 cpu = nine();
+    state.getRegister(RegisterName.HL).write(FROM);
+    return cpu;
+  }
+
   /** A page that reverses the eight bits of whatever looks it up, which is what a game mirrors with. */
   private void mirroring(int page) {
     for (int index = 0; index < 0x100; index++) {

@@ -733,11 +733,12 @@ La lección repetida: el porcentaje contra una captura **baja** en el Abu Simbel
 puesto, y sin embargo el render es más correcto. Una pantalla que se mueve no se puede comparar por
 mejor-de-tres cuadros; hay que mirarla.
 
-## El borde de los sprites del Renegade, seguido hasta el fondo y sin arreglo
+## El borde de los sprites del Renegade, seguido hasta el fondo
 
-Queda un artefacto que **no se arregló**: al costado de cada hombre hay una franja de píxeles
-equivocados. Se siguió hasta la instrucción y se entiende del todo; lo que no hay es una regla que
-lo arregle sin romper otra cosa. Queda anotado con todo lo medido para que nadie lo empiece de cero.
+Al costado de cada hombre había una franja de píxeles equivocados. Todo lo que sigue es cómo se
+siguió hasta la instrucción y las reglas que se probaron y fallaron; **el arreglo está más abajo**,
+en *El borde era `(DE)`*, y no era ninguna de ellas: era que la regla de leer donde lee la máquina
+nunca llegaba a `(DE)`.
 
 ### Cómo se sigue un píxel hasta su instrucción
 
@@ -826,6 +827,48 @@ lleva la forma en el byte ordinario y el color en los carriles, separados, y ah�
 se ve como papel; el nuestro los tiene en los mismos bits. Para cerrarlo haría falta o bien el
 código del emulador original, o bien una captura del original **en el mismo cuadro** que la nuestra,
 que ninguna de las dos cosas tenemos. Lo demás ya está medido y anotado acá.
+
+## El borde era `(DE)`: sólo `(HL)` pasaba por la alineación
+
+La franja no era una regla que faltara sino una que no llegaba. Siguiendo el byte `fd1c` del buffer
+del Renegade hasta su última escritura, el compositor que lo deja como se ve es `9a20: POP HL / LD
+A,(DE) / AND L / OR H / LD (DE),A / INC E / DJNZ`. Ahí `AND`/`OR` entre registros son exactos: una
+operación de bits plano a plano es la misma operación carril a carril, porque transponer y hacer
+`AND` conmutan. Los operandos también estaban bien: `H: 03 03 03 03 03 00 00 00` (el dibujo) y
+`L: 00 00 00 00 00 00 ff ff` (la máscara, sin color, que manda conservar los dos últimos píxeles).
+Lo que estaba mal era lo leído: `LD A,(DE)` traía `be 02 03 03 03 03 33 03` cuando en `fd1c` había
+`ba ba bb bb bb bb bb bb`. Los ocho estaban leyendo en ocho direcciones distintas —
+`fd1c fd1c fd15 fd09 fd09 fd09 fd09 fd09`— porque el juego había hecho `LD E,A` con un `A` con
+color.
+
+Y eso es exactamente lo que la tercera regla prohíbe. No se aplicaba: `TableBasedOpCodeDecoder`
+arma **una** referencia `(HL)` con `instructionFactory.targets(...)` y se la pasa a las tablas, pero
+`TableOpCodeGenerator extends OpcodeTargets`, así que `iRR(BC)`, `iRR(DE)` y `iiRR(SP)` los resolvía
+la tabla con su propio `address(name)`, el heredado, que devuelve el registro pelado. Resultado: de
+los punteros del Z80, sólo `(HL)` seguía las reglas de alineación — ni `T`, ni la regla de las sumas,
+ni la de lectura tocaban `LD A,(DE)` ni `LD A,(BC)`.
+
+El arreglo son seis líneas en `TableOpCodeGenerator`: qué registro le da la dirección a una
+referencia lo dice la fábrica de instrucciones, no la tabla.
+
+```java
+@Override
+public Register address(RegisterName name) {
+  return addressing.address(name);
+}
+```
+
+Medido contra la pantalla del propio EmuZWin en el mismo cuadro: **451 píxeles distintos pasan a
+195** (99.08% → 99.60%), y las franjas desaparecen. Los quince títulos con captura no se mueven
+(Bubbler +0.01%, cinco píxeles). Lo que queda son tres manchas —una de 15×14 en el pecho de un
+hombre y dos de 14×9 en las caras del marcador— con pinta de fase de animación, no de color.
+
+El hecho que lo fija está en `NineInStepTest`: un color que se mete en `E` y se lee con `LD A,(DE)`
+sale 7 (el color del byte) con la regla puesta y 5 (el color del puntero) sin ella.
+
+**Y una trampa del banco de medición:** `now.sh` corría los quince con `-DW -DH -DR` apagados, o sea
+midiendo una configuración que ya no es la que se entrega. Con las reglas puestas —`gate.sh`— Atic
+Atac vuelve a 100.00% y Bubbler a 83.15%. Medir siempre con lo que se entrega.
 
 ## La mezcla con los atributos, y una clave que leíamos al revés
 

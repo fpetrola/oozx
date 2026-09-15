@@ -57,10 +57,12 @@ public abstract class TableOpCodeGenerator extends OpcodeTargets {
   protected RegisterName mainLow8BitRegister;
   protected RegisterName main16BitRegister;
   InstructionFactory i;
+  private final OpcodeTargets addressing;
 
   public TableOpCodeGenerator(State state, RegisterName main16BitRegister, RegisterName mainHigh8BitRegister, RegisterName mainLow8BitRegister, OpcodeReference main16BitRegisterReference, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory, Memory memoryForOpcodes) {
     super(state, memoryForOpcodes);
     this.i = instructionFactory;
+    this.addressing = instructionFactory.targets(state, memoryForOpcodes);
 
     this.main16BitRegister = main16BitRegister;
     this.mainHigh8BitRegister = mainHigh8BitRegister;
@@ -75,6 +77,12 @@ public abstract class TableOpCodeGenerator extends OpcodeTargets {
     createALUTable(state);
     createROTTable(state);
     createBLITable(state);
+  }
+
+  /** Which register a reference takes an address from is the instruction factory's to say, not a table's. */
+  @Override
+  public Register address(RegisterName name) {
+    return addressing.address(name);
   }
 
   protected void createBLITable(State state) {
