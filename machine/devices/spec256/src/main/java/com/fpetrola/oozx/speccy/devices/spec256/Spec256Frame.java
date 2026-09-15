@@ -34,16 +34,17 @@ import java.awt.*;
 public class Spec256Frame extends MachineFrame {
   private static final int REFRESH_MILLIS = 250;
   private static final int ACROSS = 32;
+  private static final int SWATCH = 12;
 
   private final JLabel playing = new JLabel();
   private final JLabel said = new JLabel();
   private final JLabel under = new JLabel();
-  private final JCheckBox colourful = new JCheckBox("In its own colours");
-  private final JCheckBox pointers = new JCheckBox("Address with the machine's pointers");
-  private final JCheckBox numbers = new JCheckBox("Take numbers from the machine");
-  private final JCheckBox writes = new JCheckBox("Write where the machine writes");
-  private final JCheckBox added = new JCheckBox("Add up as the machine does");
-  private final JCheckBox reads = new JCheckBox("Read where the machine reads");
+  private final JCheckBox colourful = new JCheckBox("Colours");
+  private final JCheckBox pointers = new JCheckBox("Pointers");
+  private final JCheckBox numbers = new JCheckBox("Numbers");
+  private final JCheckBox writes = new JCheckBox("Writes");
+  private final JCheckBox added = new JCheckBox("Sums");
+  private final JCheckBox reads = new JCheckBox("Reads");
   private final JTextField taken = new JTextField(12);
   private final JButton previous = new JButton("<");
   private final JButton next = new JButton(">");
@@ -52,23 +53,27 @@ public class Spec256Frame extends MachineFrame {
 
   public Spec256Frame() {
     super("Spec256");
-    setSize(860, 320);
+    setSize(480, 300);
 
     JPanel palette = new JPanel(new GridLayout(256 / ACROSS, ACROSS, 1, 1));
     for (int colour = 0; colour < swatches.length; colour++) {
       JLabel swatch = new JLabel();
       swatch.setOpaque(true);
+      swatch.setPreferredSize(new Dimension(SWATCH, SWATCH));
       swatch.setToolTipText("Colour " + colour);
       swatches[colour] = swatch;
       palette.add(swatch);
     }
 
+    colourful.setToolTipText("<html><b>In its own colours</b><br>"
+        + "The game's own two hundred and fifty-six, or the fifteen the machine it was<br>"
+        + "written for would show it in. Every emulator of this has the same switch.</html>");
     colourful.addActionListener(e -> {
       Spec256Peripheral game = game();
       if (game != null) game.inItsColours(colourful.isSelected());
       refresh();
     });
-    pointers.setToolTipText("<html>A follower's own pointer registers carry colours, and one addition on one of them<br>"
+    pointers.setToolTipText("<html><b>Address with the machine\'s pointers</b><br>A follower's own pointer registers carry colours, and one addition on one of them<br>"
         + "sends a write somewhere the machine never wrote. Taking them from the machine costs<br>"
         + "the colours they were carrying: some games want it and others look worse with it.</html>");
     pointers.addActionListener(e -> {
@@ -76,7 +81,7 @@ public class Spec256Frame extends MachineFrame {
       if (game != null) game.pointersFromTheMachine(pointers.isSelected());
       refresh();
     });
-    numbers.setToolTipText("<html>A number written into an instruction is read from this game's own colours,<br>"
+    numbers.setToolTipText("<html><b>Take numbers from the machine</b><br>A number written into an instruction is read from this game's own colours,<br>"
         + "so a game can paint one and have a follower write that colour. Taking them from the<br>"
         + "machine instead stops a painted number from sending a follower somewhere else.<br>"
         + "Games differ, and so do the two emulators this was read from.</html>");
@@ -85,7 +90,7 @@ public class Spec256Frame extends MachineFrame {
       if (game != null) game.numbersFromTheMachine(numbers.isSelected());
       refresh();
     });
-    writes.setToolTipText("<html>A follower's write lands where the machine wrote in that same instruction, whatever<br>"
+    writes.setToolTipText("<html><b>Write where the machine writes</b><br>A follower's write lands where the machine wrote in that same instruction, whatever<br>"
         + "its own pointers said, while what it reads still comes from where they point: a colour<br>"
         + "used as an index into a table keeps working, and a pointer that drifted no longer<br>"
         + "writes where the machine never did.</html>");
@@ -94,7 +99,7 @@ public class Spec256Frame extends MachineFrame {
       if (game != null) game.writesWhereTheMachineWrites(writes.isSelected());
       refresh();
     });
-    added.setToolTipText("<html>An address a follower works out by adding is taken from the machine, which has<br>"
+    added.setToolTipText("<html><b>Add up as the machine does</b><br>An address a follower works out by adding is taken from the machine, which has<br>"
         + "just added it up itself: a register that carried a colour into the addition would send<br>"
         + "this one to read and write somewhere the machine never went. A pointer it was given<br>"
         + "rather than worked out is still its own, so a table indexed by colour keeps working.</html>");
@@ -103,7 +108,7 @@ public class Spec256Frame extends MachineFrame {
       if (game != null) game.addressesAddedUpByTheMachine(added.isSelected());
       refresh();
     });
-    reads.setToolTipText("<html>A follower reads where the machine reads, but only where a picture is: eight planes<br>"
+    reads.setToolTipText("<html><b>Read where the machine reads</b><br>A follower reads where the machine reads, but only where a picture is: eight planes<br>"
         + "that all say the same thing are a table, and a follower looking one up with a colour of<br>"
         + "its own is right to go where the machine did not - that is a mirrored sprite keeping its<br>"
         + "colours. Off, every pointer it carries reads wherever the colour in it points.</html>");
@@ -133,17 +138,14 @@ public class Spec256Frame extends MachineFrame {
     top.add(playing);
     top.add(said);
 
-    JPanel switches = new JPanel(new GridLayout(2, 1));
-    switches.add(inARow(colourful, pointers, numbers));
-    switches.add(inARow(writes, added, reads, new JLabel("takes"), taken));
-
-    JPanel bottom = new JPanel(new BorderLayout());
-    bottom.add(switches, BorderLayout.WEST);
-    bottom.add(inARow(under, previous, next), BorderLayout.EAST);
+    JPanel bottom = new JPanel(new GridLayout(3, 1));
+    bottom.add(inARow(colourful, pointers, numbers));
+    bottom.add(inARow(writes, added, reads));
+    bottom.add(inARow(new JLabel("takes"), taken, under, previous, next));
 
     JPanel inside = new JPanel(new BorderLayout(0, 6));
     inside.add(top, BorderLayout.NORTH);
-    inside.add(palette, BorderLayout.CENTER);
+    inside.add(new JScrollPane(palette), BorderLayout.CENTER);
     inside.add(bottom, BorderLayout.SOUTH);
     assemble(inside);
 
@@ -189,14 +191,20 @@ public class Spec256Frame extends MachineFrame {
     refresh();
   }
 
+  /** A line that does not fit the window is still readable by resting on it. */
+  private static void say(JLabel label, String line) {
+    label.setText(line);
+    label.setToolTipText(line.isBlank() ? null : line);
+  }
+
   private void refresh() {
     Spec256Peripheral game = game();
     if (game == null || game.playing() == null) {
-      playing.setText(machine() == null
+      say(playing, machine() == null
           ? "Clip this onto a machine to watch a game in 256 colours"
           : "No game in 256 colours: load a snapshot with its colours in a file beside it");
-      said.setText(" ");
-      under.setText(" ");
+      say(said, " ");
+      say(under, " ");
       colourful.setEnabled(false);
       pointers.setEnabled(false);
       numbers.setEnabled(false);
@@ -209,13 +217,13 @@ public class Spec256Frame extends MachineFrame {
       for (JLabel swatch : swatches) swatch.setBackground(Color.DARK_GRAY);
       return;
     }
-    playing.setText(game.playing() + ", on eight processors following the machine's own");
+    say(playing, game.playing() + ", on eight processors following the machine's own");
     int without = game.cellsWithNoColours();
     int cells = 24 * 32;
-    said.setText(itsRules(game) + " | " + (without == 0 ? "every cell of the screen has colours of its own"
+    say(said, itsRules(game) + " | " + (without == 0 ? "every cell of the screen has colours of its own"
         : without + " of " + cells + " cells have no colours of their own"));
     int pictures = game.backgrounds();
-    under.setText(pictures == 0 ? "Nothing under the screen"
+    say(under, pictures == 0 ? "Nothing under the screen"
         : "Under the screen: " + (game.showing() + 1) + " of " + pictures);
     colourful.setEnabled(true);
     colourful.setSelected(game.inItsColours());
