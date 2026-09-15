@@ -44,7 +44,7 @@ public class OpcodeTargets {
   }
 
   public OpcodeReference iRR(RegisterName name) {
-    return iRR(r(name));
+    return iRR(state.pointer(name));
   }
 
   public OpcodeReference iRR(ImmutableOpcodeReference r) {
@@ -52,7 +52,7 @@ public class OpcodeTargets {
   }
 
   public OpcodeReference iRRn(RegisterName name, boolean rewindOnWrite, int valueDelta) {
-    return iRRn(valueDelta, r(name));
+    return iRRn(valueDelta, state.pointer(name));
   }
 
   public OpcodeReference iRRn(int valueDelta, ImmutableOpcodeReference r) {
@@ -60,8 +60,7 @@ public class OpcodeTargets {
   }
 
   public OpcodeReference iiRR(RegisterName name) {
-    Register r = r(name);
-    return iiRR(r);
+    return iiRR(state.pointer(name));
   }
 
   public OpcodeReference iiRR(ImmutableOpcodeReference r) {
