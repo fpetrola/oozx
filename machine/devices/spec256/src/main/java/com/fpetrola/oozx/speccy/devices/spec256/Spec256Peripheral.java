@@ -347,6 +347,16 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     return pointersFromTheMachine;
   }
 
+  /** Whether the numbers written into the instructions a follower runs come from the machine. */
+  public boolean numbersFromTheMachine() {
+    return alignment.numbersFromTheOneFollowed();
+  }
+
+  public void numbersFromTheMachine(boolean fromTheMachine) {
+    alignment.numbersFromTheOneFollowed(fromTheMachine);
+    display.refreshAll();
+  }
+
   public void pointersFromTheMachine(boolean fromTheMachine) {
     pointersFromTheMachine = fromTheMachine;
     takeWhatTheGameAsksFor();

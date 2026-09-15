@@ -132,9 +132,10 @@ public final class Planes {
   }
 
   /**
-   * One of the eight as a memory a processor runs on: whatever is read to be executed comes from
-   * the machine, so that the processor on this plane can never decode an instruction other than
-   * the one the machine is running, and everything else is this plane's own colours. Below the
+   * One of the eight as a memory a processor runs on: what is read to decide what to run comes
+   * from the machine, so the processor on this plane can never decode an instruction other than
+   * the one the machine is running, and everything else is this plane's own colours - a number
+   * written into an instruction included, because that is a colour a game can paint. Below the
    * RAM there are none unless the game brought them, and the machine's byte is already what eight
    * equal planes would say.
    */

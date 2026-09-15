@@ -379,46 +379,62 @@ Lo que **no** conviene: leer los ocho planos de una celda de una sola pasada en 
 pixel. Parece ocho veces menos memoria y es más lento (18,85 contra 17,82): los ocho bytes ya
 estaban en la caché y el arreglo intermedio cuesta más que releerlos. Probado y descartado.
 
-## El `T`, que era la pregunta abierta y ya no lo es
+## Los dos interruptores, y por qué son dos y no un valor por omisión
+
+Jugando aparecieron tres cosas que son la misma pregunta: **cuánto de lo que un seguidor hace lo
+decide él y cuánto lo decide la máquina**. Y la respuesta medida es que depende del juego, que es
+por qué el formato tiene un `zxpAlignRegs` por juego y por qué los dos emuladores abiertos no
+coinciden.
+
+### Ir donde va la máquina (`T`)
 
 Un seguidor escribe en su plano en la dirección que tiene en sus propios registros, y esos
-registros llevan colores: una suma sobre uno de ellos manda la escritura a cualquier lado. Medido
-con las escrituras a pantalla anotadas todas, cambien o no el byte, y las celdas cuyo color se
-movió clasificadas por lo que hizo la máquina ahí:
+registros llevan colores: una suma sobre uno manda la escritura a cualquier lado. Medido con todas
+las escrituras a pantalla anotadas, cambien o no el byte:
 
 | juego, 60 cuadros | la máquina nunca escribió ahí | escribió el mismo byte | la cambió |
 |---|---|---|---|
 | Atom Ant | **2 281** | 92 | 1 883 |
 | Bubbler | **1 961** | 1 439 | 1 179 |
-| Atic Atac | 0 | 124 | 0 |
+| Atic Atac, Renegade en juego | 0 | 124 / 2 | 0 / 28 |
 
-La primera columna sólo puede ser un seguidor escribiendo donde el CPU no escribió. La tercera es
-Spec256 normal, y la segunda también —el CPU escribe el mismo byte y los colores debajo cambian—,
-que es por qué la pantalla se pinta entera.
+Con `T` las dos primeras dan cero. **Pero `T` rompe otra cosa**: un juego que espeja un sprite lo
+hace con una tabla de inversión de bits **indexada por el byte que está espejando**, y ahí el
+seguidor tiene razón en ir donde la máquina no fue —su índice es su color—. Con `T` lee la entrada
+de la máquina y el sprite espejado sale sin color. Se vio en el Renegade.
 
-**Alinear los punteros como valor lo arregla y rompe otra cosa.** Las dos cuentas dan cero, pero
-un registro alineado ya no lleva color: una rutina que mueve el sprite por B, C, D o E escribe el
-byte de la máquina, y un byte sin color sale 255 o 0 —blanco y negro— o, si cae en el rango que
-`UpColorsMixed` mezcla, pastel. Se vio jugando al Renegade y al Dizzy antes de que existiera `T`.
+El asiento en el emulador es una distinción que faltaba: el registro del que una referencia toma
+*una dirección* no es siempre el que la instrucción lee y escribe. `State.pointer` lo dice, por
+omisión es `getRegister`, y lo usan las referencias indirectas y las ocho instrucciones de bloque.
+Un seguidor devuelve ahí un registro que **se lee** del de la máquina y **se escribe** como el
+suyo. No cuesta nada medible: 8,42 ms por cuadro contra 8,38.
 
-**`T` hace lo que hay que hacer.** El asiento en el emulador es distinguir el registro del que una
-referencia toma *una dirección* del registro que una instrucción lee y escribe: `State.pointer`,
-que por omisión es `getRegister`, y que usan las referencias indirectas y los ocho bloques. Un
-seguidor lo redefine y devuelve un registro que **se lee** del de la máquina y **se escribe** como
-el suyo. Los resultados:
+### De dónde salen los números escritos en las instrucciones
 
-| | sin `T` | con `T` |
+Un número metido en una instrucción —el `n` de `LD A,n`, el `nn` de `LD (nn),A`— es un color que
+un juego puede pintar. GZX lo lee del plano, y entonces un juego puede pintarlo y el seguidor
+escribe ese color. ZX-Poly lo lee de la máquina, y entonces un número pintado no puede mandar al
+seguidor a una dirección donde la máquina no fue. Los dos juegos que lo muestran:
+
+| | del plano | de la máquina |
 |---|---|---|
-| celdas que la máquina nunca escribió, Atom Ant | 2 281 | **0** |
-| ídem, Bubbler | 1 961 | **0** |
-| Bubbler contra su captura | 67,26 % | **83,16 %** |
-| Cybernoid 2 | 81,18 % | 81,18 % (alinear por valor lo bajaba a 79,65) |
-| los otros trece con captura | — | iguales |
-| ms por cuadro, Cybernoid | 8,42 | 8,38 |
+| Army Moves 1 contra su captura | **95,88 %** | 85,69 % |
+| Renegade en juego | figuras con color, basura en el marcador | figuras con color **y marcador limpio** |
 
-No empeora nada, arregla lo que había que arreglar y no cuesta nada medible, así que va por
-omisión: `1PSsT`, el mismo valor que ZX-Poly. La ventana lo deja apagar para mirar la diferencia,
-y el `.CFG` de un juego sigue mandando sobre los dos.
+Ninguna de las dos gana. Por omisión queda la del plano —la de GZX, que es la que el Army Moves
+necesita— y la otra es un interruptor. El asiento es `State.memoryForOpcodes`, que dice de dónde
+salen los bytes de una instrucción y por omisión es la memoria de siempre.
+
+Un hecho pagó su sueldo acá: los seguidores leyendo por la memoria de la máquina le **cobraban
+T-states al reloj**, 20 000 donde había 8 000, y `NineOnAMachineTest` lo dijo en la primera corrida.
+
+### Y por qué ninguno de los dos va por omisión
+
+Medidos los quince juegos con captura, `T` no empeora a ninguno y mejora a uno; pero lo que se ve
+jugando —los sprites espejados del Renegade— no aparece en una pantalla de título. Y los números
+de la máquina cuestan diez puntos en el Army Moves y arreglan el marcador del Renegade. Las dos
+son reales, ninguna domina, y por eso las dos son un interruptor en la ventana y no una decisión
+escrita en el código. Lo que el juego diga en su `.CFG` manda sobre las dos.
 
 ## Lo que parecía blanco y negro y no lo era
 

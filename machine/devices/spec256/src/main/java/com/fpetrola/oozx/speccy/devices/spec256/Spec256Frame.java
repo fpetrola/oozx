@@ -40,6 +40,7 @@ public class Spec256Frame extends MachineFrame {
   private final JLabel under = new JLabel();
   private final JCheckBox colourful = new JCheckBox("In its own colours");
   private final JCheckBox pointers = new JCheckBox("Address with the machine's pointers");
+  private final JCheckBox numbers = new JCheckBox("Take numbers from the machine");
   private final JButton previous = new JButton("<");
   private final JButton next = new JButton(">");
   private final JLabel[] swatches = new JLabel[256];
@@ -47,7 +48,7 @@ public class Spec256Frame extends MachineFrame {
 
   public Spec256Frame() {
     super("Spec256");
-    setSize(470, 290);
+    setSize(560, 300);
 
     JPanel palette = new JPanel(new GridLayout(256 / ACROSS, ACROSS, 1, 1));
     for (int colour = 0; colour < swatches.length; colour++) {
@@ -71,6 +72,15 @@ public class Spec256Frame extends MachineFrame {
       if (game != null) game.pointersFromTheMachine(pointers.isSelected());
       refresh();
     });
+    numbers.setToolTipText("<html>A number written into an instruction is read from this game's own colours,<br>"
+        + "so a game can paint one and have a follower write that colour. Taking them from the<br>"
+        + "machine instead stops a painted number from sending a follower somewhere else.<br>"
+        + "Games differ, and so do the two emulators this was read from.</html>");
+    numbers.addActionListener(e -> {
+      Spec256Peripheral game = game();
+      if (game != null) game.numbersFromTheMachine(numbers.isSelected());
+      refresh();
+    });
     previous.addActionListener(e -> show(-1));
     next.addActionListener(e -> show(1));
 
@@ -86,6 +96,7 @@ public class Spec256Frame extends MachineFrame {
     JPanel switches = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
     switches.add(colourful);
     switches.add(pointers);
+    switches.add(numbers);
 
     JPanel bottom = new JPanel(new BorderLayout());
     bottom.add(switches, BorderLayout.WEST);
@@ -143,6 +154,7 @@ public class Spec256Frame extends MachineFrame {
       under.setText(" ");
       colourful.setEnabled(false);
       pointers.setEnabled(false);
+      numbers.setEnabled(false);
       previous.setEnabled(false);
       next.setEnabled(false);
       for (JLabel swatch : swatches) swatch.setBackground(Color.DARK_GRAY);
@@ -160,6 +172,8 @@ public class Spec256Frame extends MachineFrame {
     colourful.setSelected(game.inItsColours());
     pointers.setEnabled(true);
     pointers.setSelected(game.pointersFromTheMachine());
+    numbers.setEnabled(true);
+    numbers.setSelected(game.numbersFromTheMachine());
     previous.setEnabled(pictures > 1 && game.showing() > 0);
     next.setEnabled(pictures > 1 && game.showing() < pictures - 1);
     int[] palette = machine().picture.palette;

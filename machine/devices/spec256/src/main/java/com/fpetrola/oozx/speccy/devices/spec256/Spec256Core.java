@@ -87,12 +87,33 @@ public class Spec256Core implements Core {
   }
 
   /**
-   * A follower's state, where every register a reference addresses through is read from the
-   * machine and written to as the follower's own. Whether it really is depends on what the game
-   * asked for, and the reference asks that once, when it is built, and again on every address.
+   * A follower's state: the plane it runs on, and the two things it can be told to take from the
+   * machine rather than work out itself - the addresses it reads and writes by, and the numbers
+   * written into the instructions it runs. Both are the game's business and both are asked every
+   * time, so that a person can turn them over while the game is running.
    */
   private State goingWhereItGoes(State followed, Memory plane) {
     return new State(DEAF, ordinary.bank(null, DEAF), plane) {
+      @Override
+      public Memory memoryForOpcodes() {
+        return new Memory() {
+          public int read(int address, int fetching) {
+            return alignment.numbersFromTheOneFollowed() ? followed.getMemory().peek(address) : plane.read(address, fetching);
+          }
+
+          public int peek(int address) {
+            return plane.peek(address);
+          }
+
+          public void write(int address, int value) {
+            plane.write(address, value);
+          }
+
+          public void reset() {
+          }
+        };
+      }
+
       @Override
       public Register pointer(RegisterName name) {
         return alignment.addressing(followed.getRegister(name), super.pointer(name));

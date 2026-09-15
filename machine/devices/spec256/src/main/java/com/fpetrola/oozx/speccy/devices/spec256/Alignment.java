@@ -45,11 +45,12 @@ import com.google.inject.Singleton;
 @Singleton
 public final class Alignment {
   /**
-   * What is taken when a game says nothing: the stack pointer, every flag but the carry, and
-   * going where the machine goes. The last one costs nothing measurable and is what keeps a
-   * follower's colours from landing where nothing asked for them.
+   * What is taken when a game says nothing: the stack pointer and every flag but the carry, and
+   * not {@code T}. A follower's pointer is not always drifting - a game that mirrors a sprite
+   * looks it up in a table indexed by the very byte it is mirroring, and there the follower is
+   * right to go somewhere the machine did not. Which of the two a game does is the game's to say.
    */
-  public static final String BY_DEFAULT = "1PSsT";
+  public static final String BY_DEFAULT = "1PSs";
   private static final int CARRY = 0x01;
   private static final String LETTERS = "AFBCDEHLXxYy10PSsafbcdehl";
   private static final RegisterName[] MEANS = {
@@ -64,6 +65,7 @@ public final class Alignment {
   private boolean flags;
   private boolean alternateFlags;
   private boolean addressesFromTheOneFollowed;
+  private boolean numbersFromTheOneFollowed;
 
   public Alignment() {
     says(BY_DEFAULT);
@@ -100,6 +102,23 @@ public final class Alignment {
    */
   public boolean addressesFromTheOneFollowed() {
     return addressesFromTheOneFollowed;
+  }
+
+  /**
+   * Whether the numbers written into instructions come from the machine as well.
+   * <p>
+   * The two emulators this was read from disagree here and so do the games. GZX takes them from
+   * the plane, which lets a game paint a colour into the number an instruction carries and have
+   * a follower write that colour; ZX-Poly takes them from the machine, which stops a painted
+   * number from sending a follower to an address the machine never went to. Army Moves wants the
+   * first and Renegade the second, so neither is the answer: it is a thing a game says.
+   */
+  public boolean numbersFromTheOneFollowed() {
+    return numbersFromTheOneFollowed;
+  }
+
+  public void numbersFromTheOneFollowed(boolean fromTheMachine) {
+    numbersFromTheOneFollowed = fromTheMachine;
   }
 
   /**

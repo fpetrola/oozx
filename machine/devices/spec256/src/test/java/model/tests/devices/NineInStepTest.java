@@ -207,6 +207,30 @@ class NineInStepTest {
     assertEquals(200, colourOf(TO, 0), "and the colour is not the machine's byte");
   }
 
+  /**
+   * A number written into an instruction is a colour a game can paint, and by default a follower
+   * reads it from its own plane so that it writes that colour. Told otherwise, it takes the
+   * machine's number, which is what stops a painted one from sending it somewhere else.
+   */
+  @Test
+  void aNumberWrittenIntoAnInstructionIsThisPlanesOwnUnlessTheGameSaysOtherwise() {
+    code(CODE, 0x3e, 0x00, 0x12);                    // LD A,n ; LD (DE),A
+    colours(CODE + 1, 90, 90, 90, 90, 90, 90, 90, 90);
+    OOZ80 cpu = nine();
+    state.getRegister(RegisterName.DE).write(TO);
+    run(cpu, 2);
+
+    assertEquals(90, colourOf(TO, 0), "the game painted the number, so that is what arrives");
+
+    alignment.numbersFromTheOneFollowed(true);
+    ram[TO] = 0;
+    for (int plane = 0; plane < Planes.PLANES; plane++) planes.plane(plane, memory).write(TO, 0);
+    state.getRegister(RegisterName.PC).write(CODE);
+    run(cpu, 2);
+
+    assertEquals(0, colourOf(TO, 0), "and told to take the machine's number, the colour is not there");
+  }
+
   @Test
   void onlyTheMachineTalksToAPort() {
     code(CODE, 0xdb, 0xfe, 0xd3, 0xfe);              // IN A,(0xfe) ; OUT (0xfe),A
