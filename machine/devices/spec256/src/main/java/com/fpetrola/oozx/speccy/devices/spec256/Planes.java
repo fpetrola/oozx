@@ -106,6 +106,20 @@ public final class Planes {
     return bytes;
   }
 
+  /**
+   * Whether the eight planes say the same thing at an address, which is how a byte that is no
+   * picture is written: its pixels come out the last colour where it is set and the first where
+   * it is not, and that is what somebody looking at a white shape wants to be able to ask.
+   */
+  public boolean noColoursOfItsOwn(int address) {
+    byte[][] planes = bytes();
+    byte first = planes[0][address];
+    for (int plane = 1; plane < PLANES; plane++) {
+      if (planes[plane][address] != first) return false;
+    }
+    return true;
+  }
+
   /** The colour of one pixel of the byte at an address, the leftmost being the first. */
   public int colourOf(int address, int pixel) {
     byte[][] planes = bytes();

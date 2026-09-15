@@ -160,6 +160,23 @@ class TheScreenOfAGameTest extends MachineTest {
     assertNotEquals(rgbOf(100), inTheBorder);
   }
 
+  /**
+   * A white shape is either a white shape the game drew or a shape whose colours never arrived,
+   * and they look the same. This is the question that tells them apart.
+   */
+  @Test
+  void theScreenSaysHowMuchOfItHasNoColoursOfItsOwn() throws IOException {
+    colours(addressOf(LINE, COLUMN), 1, 2, 3, 4, 5, 6, 7, 8);
+    started();
+
+    assertEquals(24 * 32 - 1, session().cellsWithNoColours(),
+        "one cell was painted and the rest of this game is blank, which has no colours either");
+
+    for (int within = 0; within < 8; within++) {
+      colours(addressOf(LINE - LINE % 8 + within, COLUMN), 0, 0, 0, 0, 0, 0, 0, 0);
+    }
+  }
+
   @Test
   void whenTheGameIsOverTheScreenIsTheMachinesAgain() throws IOException {
     colours(addressOf(LINE, COLUMN), 100, 100, 100, 100, 100, 100, 100, 100);

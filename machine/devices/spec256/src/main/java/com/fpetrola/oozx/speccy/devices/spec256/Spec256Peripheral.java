@@ -220,6 +220,28 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
         | ((one & 0xff) + (other & 0xff)) / 2;
   }
 
+  /**
+   * How many cells of the screen have no colours of their own, out of the 768 there are. A shape
+   * that looks white and black is either a white shape the game drew that way or a shape whose
+   * colours never arrived, and this is the difference.
+   */
+  public int cellsWithNoColours() {
+    int without = 0;
+    for (int line = 0; line < Display.HEIGHT; line += 8) {
+      for (int column = 0; column < Display.SCREEN_WIDTH_COLS - 2 * Display.BORDER_WIDTH_COLS; column++) {
+        if (noColoursAnywhereIn(line, column)) without++;
+      }
+    }
+    return without;
+  }
+
+  private boolean noColoursAnywhereIn(int line, int column) {
+    for (int within = 0; within < 8; within++) {
+      if (!planes.noColoursOfItsOwn(Planes.RAM + display.layout.pixelsAt(line + within, column))) return false;
+    }
+    return true;
+  }
+
   /** How many pictures lie under this game's screen, and which of them is showing. */
   public int backgrounds() {
     return backgrounds.size();

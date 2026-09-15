@@ -149,7 +149,10 @@ public class Spec256Frame extends MachineFrame {
       return;
     }
     playing.setText(game.playing() + ", on eight processors following the machine's own");
-    said.setText(itsRules(game));
+    int without = game.cellsWithNoColours();
+    int cells = 24 * 32;
+    said.setText(itsRules(game) + " | " + (without == 0 ? "every cell of the screen has colours of its own"
+        : without + " of " + cells + " cells have no colours of their own"));
     int pictures = game.backgrounds();
     under.setText(pictures == 0 ? "Nothing under the screen"
         : "Under the screen: " + (game.showing() + 1) + " of " + pictures);

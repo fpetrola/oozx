@@ -420,6 +420,21 @@ No empeora nada, arregla lo que había que arreglar y no cuesta nada medible, as
 omisión: `1PSsT`, el mismo valor que ZX-Poly. La ventana lo deja apagar para mirar la diferencia,
 y el `.CFG` de un juego sigue mandando sobre los dos.
 
+## Lo que parecía blanco y negro y no lo era
+
+El Renegade con `T` puesto: algunos personajes enteros de color y otros con el torso blanco y los
+pantalones azules. Suena a colores que no llegaron, y no lo es. Medido sobre los 49 152 pixeles de
+la pantalla, contando cuántos son exactamente el color 255 —que es el blanco que sale de un byte
+sin colorear—: **cero**, y 82 entradas de la paleta en uso. Y la captura que el propio juego trae
+muestra lo mismo: remeras blancas y vaqueros azules. Es el arte del juego.
+
+Sin `T`, en cambio, la misma pantalla usa 138 entradas. No es más color: es la deriva pintando
+donde nadie pidió, y en esa corrida el marcador sale corrompido.
+
+De ahí la línea que la ventana muestra ahora: cuántas de las 768 celdas de la pantalla no tienen
+colores propios. Una forma blanca es o una forma blanca, o una forma cuyos colores no llegaron, y
+se ven igual; esto las separa sin tener que medir nada a mano.
+
 ## Contra los juegos, el 14 de septiembre de 2026
 
 Los 29 del repositorio que traen `.SNA` y `.GFX`, 300 cuadros cada uno con todo por omisión, contra
