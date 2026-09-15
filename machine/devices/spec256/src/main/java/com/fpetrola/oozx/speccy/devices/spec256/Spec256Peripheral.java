@@ -185,7 +185,7 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     int colour = planes.colourOf(address, pixel);
     int rgb = display.picture().palette[colour];
     boolean underneath = !backgrounds.isEmpty();
-    boolean covered = rules.hiddenWhereInkIsPaper && ink == paper;
+    boolean covered = rules.hiddenWhereInkIsPaper && ink == paper && planes.noColoursOfItsOwn(address);
     boolean draw = true;
     if (!underneath) {
       if (covered) {

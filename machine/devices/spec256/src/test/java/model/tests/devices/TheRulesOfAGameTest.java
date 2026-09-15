@@ -133,12 +133,24 @@ class TheRulesOfAGameTest extends MachineTest {
   }
 
   @Test
-  void whereACellsInkAndItsPaperAreTheSameTheGameIsCoveredOver() throws IOException {
+  void whereACellsInkAndItsPaperAreTheSameWhatTheMachineDrewIsCoveredOver() throws IOException {
     attribute = 0x00;
-    colours(addressOf(LINE, COLUMN), 100, 100, 100, 100, 100, 100, 100, 100);
+    colours(addressOf(LINE, COLUMN), 255, 255, 255, 255, 255, 255, 255, 255);   // eight planes alike: nothing of its own
+
     started(null, null);
 
     assertEquals(Picture.SINCLAIR[0], pixel(0), "which is how a game clears a part of the screen");
+  }
+
+  @Test
+  void butWhatThisGamePaintedThereIsNotCoveredOver() throws IOException {
+    attribute = 0x00;
+    colours(addressOf(LINE, COLUMN), 100, 100, 100, 100, 100, 100, 100, 100);
+
+    started(null, null);
+
+    assertEquals(rgbOf(100), pixel(0),
+        "a game that marks a cell invisible and paints it in eight planes means the second thing");
   }
 
   @Test
