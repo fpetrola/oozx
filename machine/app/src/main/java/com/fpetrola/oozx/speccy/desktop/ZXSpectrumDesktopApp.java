@@ -907,6 +907,8 @@ class GameSearchResult {
   boolean onThisMachine;
   /** How many copies of this game were found, which for one on the net is the entry itself. */
   int copies = 1;
+  /** Whether the copy on this machine has Spec256's own colours beside it. */
+  boolean inColour;
   /** The year and publisher, or what the file is called when the catalogue did not know it. */
   String subtitle;
   /** Recordings of this game offered for playing, from both catalogues. */
