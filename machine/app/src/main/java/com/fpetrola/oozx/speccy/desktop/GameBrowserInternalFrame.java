@@ -37,6 +37,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 // --- NEW: Game Browser Internal Frame ---
 public class GameBrowserInternalFrame extends JInternalFrame {
@@ -407,27 +411,15 @@ public class GameBrowserInternalFrame extends JInternalFrame {
             screenshots.add(filename);
           }
         });
-        List<String> files = new ArrayList<>();
-
         // What the entry offers that cannot be loaded, so a refusal can say what it was rather
-        // than "no tape available", which is true and tells nobody anything.
-        java.util.Set<String> offered = new java.util.LinkedHashSet<>();
-        game.releases.forEach(s -> {
-          s.files.forEach(f -> {
-            if (f.format != null) {
-              // Asked of the one thing that knows, instead of a second list kept here. The two
-              // disagreed: this end accepted three formats and the scorer ranks seven, so an
-              // entry offered only as a TAP was dropped before the scorer ever saw it - and
-              // dropped silently, which is how it came to look like a download that refused.
-              String filename = getFileURL(f.path);
-              if (DownloadAndUnzip.loadable(filename)) {
-                files.add(filename);
-              } else {
-                offered.add(f.format);
-              }
-            }
-          });
-        });
+        // than "no tape available", which is true and tells nobody anything. Both lists come from
+        // the one place that knows: this end once accepted three formats while the scorer ranked
+        // seven, and an entry offered only as a TAP was dropped before the scorer ever saw it.
+        Map<String, String> offers = ZxInfoApiHandler.filesOf(game);
+        List<String> files = offers.keySet().stream().filter(DownloadAndUnzip::loadable).toList();
+        Set<String> offered = offers.entrySet().stream()
+            .filter(offer -> !DownloadAndUnzip.loadable(offer.getKey()))
+            .map(Map.Entry::getValue).collect(Collectors.toCollection(LinkedHashSet::new));
 
         String screenshot1 = getFileURL(screenshots, 0);
         String screenshot2 = getFileURL(screenshots, 1);
@@ -476,13 +468,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
   }
 
   public static String getFileURL(String f1) {
-    String result = "https://worldofspectrum.net" + f1;
-    if (f1.startsWith("/zxscreens"))
-      return "https://zxinfo.dk/media" + f1;
-    else if (f1.startsWith("/zxdb"))
-      return "https://spectrumcomputing.co.uk" + f1;
-
-    return result;
+    return ZxInfoApiHandler.mediaUrl(f1);
   }
 
   private String getFileURL(List<String> screenshots, int x) {

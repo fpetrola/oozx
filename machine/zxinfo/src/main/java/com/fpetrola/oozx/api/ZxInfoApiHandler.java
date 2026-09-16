@@ -22,9 +22,16 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class ZxInfoApiHandler {
+  private static final int FIRST_YEAR = 1980, MOST_AT_ONCE = 1000, RETRIES = 5;
+  private static final long BACKOFF = 2000, BETWEEN_PAGES = 150;
+
+  private Metadata metadata;
+
   private final String BASE_URL = "https://api.zxinfo.dk";
 
   public static void main(String[] args) {
@@ -67,24 +74,18 @@ public class ZxInfoApiHandler {
    * @return GameDetail with all available information from the API
    */
   public GameDetail fetchGameDetails(String gameId) {
-    Client client = null;
     try {
-      client = ClientBuilder.newClient();
-      ResteasyWebTarget target = (ResteasyWebTarget) client.target(BASE_URL);
-      ZxInfoClient zxClient = target.proxy(ZxInfoClient.class);
-      GameResponse response = zxClient.getGameDetails(gameId, ZxInfoClient.MODE_FULL);
-      GameEntry gameEntry = response.getGameEntry();
-
-      return convertGameEntryToDetail(gameEntry, gameId);
+      return convertGameEntryToDetail(game(gameId), gameId);
     } catch (Exception e) {
       System.err.println("Error fetching game details: " + e.getMessage());
       e.printStackTrace();
       return null;
-    } finally {
-      if (client != null) {
-        client.close();
-      }
     }
+  }
+
+  /** The whole entry, which is where the files it can be downloaded from are listed. */
+  public GameEntry game(String gameId) {
+    return withClient(zxClient -> zxClient.getGameDetails(gameId, ZxInfoClient.MODE_FULL)).getGameEntry();
   }
 
   /**
@@ -197,6 +198,92 @@ public class ZxInfoApiHandler {
   }
 
   /**
+   * The games most people voted for at World of Spectrum, which is the closest thing the catalogue
+   * has to "games somebody has heard of": a demo nobody saw has no votes at all.
+   * <p>
+   * The scan goes year by year because the search cannot sort by votes - its sort=score_desc
+   * actually orders by id - and because paging past ten thousand results is refused, which no
+   * single year reaches.
+   */
+  public List<GameSummary> mostVoted(int howMany) {
+    List<Hit> voted = new ArrayList<>();
+    for (int year = FIRST_YEAR; year <= java.time.Year.now().getValue(); year++) {
+      collect(year, null, null, voted);
+    }
+    return voted.stream()
+        .sorted(Comparator.comparingInt(ZxInfoApiHandler::votesOf).reversed())
+        .limit(howMany)
+        .map(ZxInfoApiHandler::summaryOf)
+        .toList();
+  }
+
+  /**
+   * Reads a slice of the catalogue, splitting it until it fits in one request.
+   * <p>
+   * There is no paging to lean on: the numeric offset answers 503 past a few hundred, and the
+   * cursor - the sort values of the last hit - cycles between two pages instead of advancing, so
+   * a walk with it reads the same two hundred entries forever. What does work is asking for a
+   * thousand at once, so the slice is narrowed by year, then by genre, then by machine until the
+   * count comes back under that.
+   */
+  private void collect(int year, String genre, String machine, List<Hit> voted) {
+    SearchResponse response = withClient(zxClient -> zxClient.searchGames("*", MOST_AT_ONCE, "0",
+        ZxInfoClient.MODE_COMPACT, null, null, "SOFTWARE", year, null, genre, null, machine,
+        null, null, null, null, null, null, null, null));
+    if (response.hits.total.value > MOST_AT_ONCE) {
+      for (String narrower : genre == null ? valuesOf(metadata().genretypes) : valuesOf(metadata().machinetypes)) {
+        collect(year, genre == null ? narrower : genre, genre == null ? null : narrower, voted);
+      }
+      return;
+    }
+    response.hits.hits.stream().filter(hit -> votesOf(hit) > 0).forEach(voted::add);
+    sleep(BETWEEN_PAGES);
+  }
+
+  private static List<String> valuesOf(Metadata.Facet facet) {
+    return facet.values.stream().map(Metadata.Value::name).toList();
+  }
+
+  private Metadata metadata() {
+    if (metadata == null) {
+      metadata = getMetadata();
+    }
+    return metadata;
+  }
+
+  private static int votesOf(Hit hit) {
+    GameEntry entry = hit.getSource();
+    return entry.score == null || entry.score.votes == null ? 0 : entry.score.votes;
+  }
+
+  /** Where ZXDB's own paths are actually served from, which is three different hosts. */
+  public static String mediaUrl(String path) {
+    if (path.startsWith("/zxscreens")) {
+      return "https://zxinfo.dk/media" + path;
+    }
+    return path.startsWith("/zxdb") ? "https://spectrumcomputing.co.uk" + path : "https://worldofspectrum.net" + path;
+  }
+
+  /** Every file the entry offers, as URLs, paired with the format each one is in. */
+  public static java.util.Map<String, String> filesOf(GameEntry game) {
+    java.util.Map<String, String> formatByUrl = new java.util.LinkedHashMap<>();
+    game.releases.forEach(release -> release.files.stream()
+        .filter(file -> file.format != null)
+        .forEach(file -> formatByUrl.put(mediaUrl(file.path), file.format)));
+    return formatByUrl;
+  }
+
+  public static GameSummary summaryOf(Hit hit) {
+    GameEntry entry = hit.getSource();
+    GameSummary summary = new GameSummary();
+    summary.id = hit.getId();
+    summary.title = entry.title;
+    summary.yearOfRelease = String.valueOf(entry.originalYearOfRelease);
+    summary.publisher = entry.publishers == null || entry.publishers.isEmpty() ? null : entry.publishers.get(0).name;
+    return summary;
+  }
+
+  /**
    * Identifies a tape/disk image by its MD5 (32 chars) or SHA512 (128 chars) hash.
    * Returns null when ZXInfo knows no entry for it.
    */
@@ -238,13 +325,32 @@ public class ZxInfoApiHandler {
   }
 
   /** Runs a call against a freshly built proxy and always closes the client. */
+  /**
+   * A 503 from this API means asked too fast, not gone: a few hundred requests in a row bring it
+   * on, and the same call answers when it is given a moment. Anything else is passed straight out.
+   */
   private <T> T withClient(java.util.function.Function<ZxInfoClient, T> call) {
-    Client client = ClientBuilder.newClient();
+    for (int attempt = 1; ; attempt++) {
+      Client client = ClientBuilder.newClient();
+      try {
+        ResteasyWebTarget target = (ResteasyWebTarget) client.target(BASE_URL);
+        return call.apply(target.proxy(ZxInfoClient.class));
+      } catch (jakarta.ws.rs.ServiceUnavailableException tooFast) {
+        if (attempt == RETRIES) {
+          throw tooFast;
+        }
+        sleep(attempt * BACKOFF);
+      } finally {
+        client.close();
+      }
+    }
+  }
+
+  private static void sleep(long millis) {
     try {
-      ResteasyWebTarget target = (ResteasyWebTarget) client.target(BASE_URL);
-      return call.apply(target.proxy(ZxInfoClient.class));
-    } finally {
-      client.close();
+      Thread.sleep(millis);
+    } catch (InterruptedException interrupted) {
+      Thread.currentThread().interrupt();
     }
   }
 
