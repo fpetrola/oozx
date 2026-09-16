@@ -19,7 +19,10 @@ package com.fpetrola.oozx.speccy.media;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fpetrola.emulation.helpers.snapshots.SnapshotFactory;
 import com.fpetrola.oozx.api.GameFingerprint;
+import com.fpetrola.oozx.api.AdditionalDownload;
+import com.fpetrola.oozx.api.GameEntry;
 import com.fpetrola.oozx.api.GameSummary;
+import com.fpetrola.oozx.api.Screen;
 import com.fpetrola.oozx.api.ZxInfoApiHandler;
 
 import java.io.IOException;
@@ -61,12 +64,14 @@ public class CatalogueBuilder {
         continue;
       }
       try {
-        Path image = imageOf(api, game, directory.resolve(game.id));
+        GameEntry entry = api.game(game.id);
+        Path image = imageOf(api, entry, directory.resolve(game.id));
         if (image == null) {
           failed++;
           continue;
         }
-        index.add(game, GameFingerprint.of(SnapshotFactory.payloadOf(image.toFile())));
+        index.add(new GameFingerprint.Known(game, screenshotOf(entry), hasMap(entry),
+            GameFingerprint.of(SnapshotFactory.payloadOf(image.toFile()))));
         index.save(catalogue);
         done++;
         System.out.println(done + "/" + wanted.size() + "  " + game + "  <- " + image.getFileName());
@@ -96,8 +101,31 @@ public class CatalogueBuilder {
     return voted;
   }
 
+  /** The loading screen, which is the picture a game is recognised by, or any screen it has. */
+  private static String screenshotOf(GameEntry entry) {
+    String any = null;
+    for (Object each : entry.screens == null ? List.of() : entry.screens) {
+      Screen screen = Screen.from(each);
+      if (screen != null && screen.url != null
+          && (any == null || screen.type == null || screen.type.toLowerCase().contains("loading"))) {
+        any = ZxInfoApiHandler.mediaUrl(screen.url);
+      }
+    }
+    return any;
+  }
+
+  private static boolean hasMap(GameEntry entry) {
+    for (AdditionalDownload download : entry.additionalDownloads == null
+        ? List.<AdditionalDownload>of() : entry.additionalDownloads) {
+      if (ZxInfoApiHandler.GAME_MAP_TYPE.equalsIgnoreCase(download.type)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /** The one already on disk from an earlier run, or the best download the entry offers. */
-  private static Path imageOf(ZxInfoApiHandler api, GameSummary game, Path directory) throws IOException {
+  private static Path imageOf(ZxInfoApiHandler api, GameEntry entry, Path directory) throws IOException {
     if (Files.isDirectory(directory)) {
       try (var kept = Files.walk(directory)) {
         Path already = DownloadAndUnzip.chooseLoadable(kept.filter(Files::isRegularFile).toList());
@@ -106,7 +134,7 @@ public class CatalogueBuilder {
         }
       }
     }
-    Map<String, String> offers = ZxInfoApiHandler.filesOf(api.game(game.id));
+    Map<String, String> offers = ZxInfoApiHandler.filesOf(entry);
     List<String> loadable = DownloadAndUnzip.byPreference(
         offers.keySet().stream().filter(DownloadAndUnzip::loadable).toList(), url -> url);
     for (String url : loadable) {

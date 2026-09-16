@@ -61,8 +61,15 @@ public class GameLibrary {
     this.payload = payload;
   }
 
-  /** One game as it sits on this machine. A null game is one the catalogue did not recognise. */
-  public record Copy(String path, long size, long modified, GameSummary game, double score) {
+  /**
+   * One game as it sits on this machine. A null game is one the catalogue did not recognise, and
+   * the stamp says which catalogue said so.
+   */
+  public record Copy(String path, long size, long modified, GameSummary game, double score, int catalogue) {
+    public Copy(String path, long size, long modified, GameSummary game, double score) {
+      this(path, size, modified, game, score, 0);
+    }
+
     public boolean identified() {
       return game != null;
     }
@@ -102,15 +109,23 @@ public class GameLibrary {
     long size = Files.size(file);
     long modified = Files.getLastModifiedTime(file).toMillis();
     Copy known = byPath.get(file.toString());
-    if (known != null && known.size() == size && known.modified() == modified) {
+    // The catalogue as well as the file: a game that was unknown, or was taken for another one,
+    // is asked again when a new catalogue ships rather than keeping the old answer for ever.
+    if (known != null && known.size() == size && known.modified() == modified
+        && known.catalogue() == catalogue.stamp()) {
       return known;
     }
     GameFingerprint.Match match = catalogue.identify(payload.of(file));
     boolean sure = match != null && match.score() >= certainty;
     Copy copy = new Copy(file.toString(), size, modified,
-        sure ? match.game() : null, match == null ? 0 : match.score());
+        sure ? match.game() : null, match == null ? 0 : match.score(), catalogue.stamp());
     byPath.put(file.toString(), copy);
     return copy;
+  }
+
+  /** The catalogue it identifies against, for asking what else is known about a game. */
+  public GameFingerprint.Index catalogue() {
+    return catalogue;
   }
 
   public List<Copy> games() {

@@ -127,8 +127,18 @@ public record GameFingerprint(Set<Integer> chunks) {
   public record Match(GameSummary game, double score) {
   }
 
-  /** One game of the catalogue: what it is, and what its image looks like. */
-  public record Known(GameSummary game, GameFingerprint fingerprint) {
+  /**
+   * One game of the catalogue: what it is, what it looks like, what the entry carries besides the
+   * game, and what its image fingerprints to.
+   * <p>
+   * The picture and the map are in here rather than being asked for when needed because the point
+   * of a catalogue that ships is that it answers with no network. A wall of tiles used to cost one
+   * request per game to find out what each one looked like.
+   */
+  public record Known(GameSummary game, String screenshot, boolean hasMap, GameFingerprint fingerprint) {
+    public Known(GameSummary game, GameFingerprint fingerprint) {
+      this(game, null, false, fingerprint);
+    }
   }
 
   /**
@@ -147,8 +157,33 @@ public record GameFingerprint(Set<Integer> chunks) {
     private final Map<String, Known> byId = new LinkedHashMap<>();
 
     public void add(GameSummary game, GameFingerprint fingerprint) {
-      byId.put(game.id, new Known(game, fingerprint));
-      fingerprint.chunks().forEach(chunk -> idsByChunk.computeIfAbsent(chunk, c -> new ArrayList<>()).add(game.id));
+      add(new Known(game, fingerprint));
+    }
+
+    public void add(Known known) {
+      byId.put(known.game().id, known);
+      known.fingerprint().chunks()
+          .forEach(chunk -> idsByChunk.computeIfAbsent(chunk, c -> new ArrayList<>()).add(known.game().id));
+    }
+
+    /**
+     * What this catalogue is, as one number, so that a library can tell it was identified against
+     * another one. Built from the games and the size of each fingerprint: what changes an answer
+     * is which games are in here and what their images look like.
+     */
+    public int stamp() {
+      return byId.entrySet().stream()
+          .mapToInt(entry -> entry.getKey().hashCode() * 31 + entry.getValue().fingerprint().chunks().size())
+          .sum();
+    }
+
+    /** Everything the catalogue holds about one game, or null if it holds none. */
+    public Known known(String id) {
+      return byId.get(id);
+    }
+
+    public List<Known> all() {
+      return List.copyOf(byId.values());
     }
 
     /** Every file in the directory tree, each one standing for a game named after it. */
@@ -201,7 +236,7 @@ public record GameFingerprint(Set<Integer> chunks) {
 
     public void load(InputStream json) throws IOException {
       for (Known known : JSON.readValue(json, Known[].class)) {
-        add(known.game(), known.fingerprint());
+        add(known);
       }
     }
 

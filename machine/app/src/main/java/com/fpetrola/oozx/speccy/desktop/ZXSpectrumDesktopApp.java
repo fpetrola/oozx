@@ -904,6 +904,8 @@ class GameSearchResult {
   String machine;
   /** Whether this is a file already on the disk rather than an entry to fetch. */
   boolean onThisMachine;
+  /** How many copies of this game were found, which for one on the net is the entry itself. */
+  int copies = 1;
   /** The year and publisher, or what the file is called when the catalogue did not know it. */
   String subtitle;
   /** Recordings of this game offered for playing, from both catalogues. */
