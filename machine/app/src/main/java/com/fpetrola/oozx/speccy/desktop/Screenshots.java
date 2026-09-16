@@ -48,6 +48,10 @@ public class Screenshots extends JComponent {
   private static final int SCREEN_WIDTH = 256;
   private static final int SCREEN_HEIGHT = 192;
   private static final int GAP = 10;
+  /** The stripes a tape's pilot tone puts in the border, which are red and cyan. */
+  private static final Color LOADING_RED = new Color(0xD8, 0x00, 0x00);
+  private static final Color LOADING_CYAN = new Color(0x00, 0xD8, 0xD8);
+  private static final byte[] CHARACTERS = charactersOfTheRom();
 
   private final BufferedImage[] shots;
   private final boolean[] coming;
@@ -132,15 +136,71 @@ public class Screenshots extends JComponent {
     g2.dispose();
   }
 
+  /**
+   * What the machine itself shows while a tape is going in: the border striping, a black screen,
+   * and the ROM's own line about what is loading, in the ROM's own letters. A game with no picture
+   * of its own is drawn as the one screen every Spectrum game has been seen on.
+   */
   private void paintPlaceholder(Graphics2D g2, int x, int width) {
     int height = heightOf(width);
-    g2.setColor(new Color(0, 0, 0, 20));
-    g2.fillRect(x, 0, width, height);
-    g2.setColor(Color.GRAY);
-    g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 11f));
-    // Saying "loading..." about a game nobody is fetching a picture for is a wait that never ends.
-    int slot = Math.min(coming.length - 1, x / Math.max(1, width + GAP));
-    String message = coming[slot] && !anyFailed ? "loading..." : "no screenshot";
-    g2.drawString(message, x + 8, height / 2);
+    int border = Math.max(3, width / 12);
+    int stripe = Math.max(2, width / 40);
+
+    for (int y = 0; y < height; y += stripe) {
+      g2.setColor((y / stripe) % 2 == 0 ? LOADING_RED : LOADING_CYAN);
+      g2.fillRect(x, y, width, Math.min(stripe, height - y));
+    }
+    g2.setColor(Color.BLACK);
+    g2.fillRect(x + border, border, width - border * 2, height - border * 2);
+
+    String message = coming[slotAt(x, width)] && !anyFailed ? "loading..." : "no screenshot";
+    int scale = Math.max(1, (width - border * 2) / (8 * ("Program: ".length() + message.length())));
+    // Top left of the paper, a character in from the edge, which is where the ROM puts it.
+    inTheRomsLetters(g2, "Program: " + message, x + border + scale * 8, border + scale * 8, scale);
+  }
+
+  private int slotAt(int x, int width) {
+    return Math.min(coming.length - 1, x / Math.max(1, width + GAP));
+  }
+
+  /**
+   * A string in the Spectrum's own characters, drawn from the 48K ROM's set at 0x3D00. Eight bytes
+   * each, one per row, from the space up; anything the machine has no letter for is skipped.
+   */
+  private static void inTheRomsLetters(Graphics2D g2, String text, int x, int y, int scale) {
+    if (CHARACTERS == null) {
+      g2.setColor(Color.WHITE);
+      g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 8 * scale));
+      g2.drawString(text, x, y + 7 * scale);
+      return;
+    }
+    g2.setColor(Color.WHITE);
+    for (int letter = 0; letter < text.length(); letter++) {
+      int character = text.charAt(letter) - ' ';
+      if (character < 0 || character >= 96) {
+        continue;
+      }
+      for (int row = 0; row < 8; row++) {
+        int bits = CHARACTERS[character * 8 + row] & 0xFF;
+        for (int column = 0; column < 8; column++) {
+          if ((bits & (0x80 >> column)) != 0) {
+            g2.fillRect(x + (letter * 8 + column) * scale, y + row * scale, scale, scale);
+          }
+        }
+      }
+    }
+  }
+
+  /** The character set of the 48K ROM, or null where that ROM is not on the classpath. */
+  private static byte[] charactersOfTheRom() {
+    try (java.io.InputStream rom = Screenshots.class.getResourceAsStream("/roms/48.rom")) {
+      if (rom == null) {
+        return null;
+      }
+      byte[] all = rom.readAllBytes();
+      return all.length < 0x3D00 + 96 * 8 ? null : java.util.Arrays.copyOfRange(all, 0x3D00, 0x3D00 + 96 * 8);
+    } catch (java.io.IOException withoutTheRom) {
+      return null;
+    }
   }
 }
