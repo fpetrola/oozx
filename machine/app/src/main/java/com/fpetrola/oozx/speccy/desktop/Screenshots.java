@@ -31,7 +31,8 @@ import java.awt.image.BufferedImage;
 import java.net.URL;
 
 /**
- * A game's two screenshots, drawn at whatever size the row is.
+ * A game's screenshots, drawn at whatever size the space allows: two side by side in a row of
+ * search results, one on its own in a tile of the gallery.
  * <p>
  * They used to be icons in labels, and an icon fixes a label's size at the pixels it happens to
  * have: widening the window moved the empty space around rather than the picture. This asks its
@@ -41,25 +42,33 @@ import java.net.URL;
  * the pixel art to mush; scaled hard they stay sharp, which is how a Spectrum screen is meant to
  * look enlarged.
  */
-public class ScreenshotPair extends JComponent {
+public class Screenshots extends JComponent {
 
   /** What a Spectrum screen is, and so the shape to reserve before an image has arrived. */
   private static final int SCREEN_WIDTH = 256;
   private static final int SCREEN_HEIGHT = 192;
   private static final int GAP = 10;
 
-  private final BufferedImage[] shots = new BufferedImage[2];
+  private final BufferedImage[] shots;
+  private final boolean[] coming;
   private boolean anyFailed;
 
-  public ScreenshotPair(String first, String second, MouseAdapter mouseAdapter) {
+  public Screenshots(MouseAdapter mouseAdapter, String... urls) {
     setOpaque(false);
+    shots = new BufferedImage[Math.max(1, urls.length)];
+    coming = new boolean[shots.length];
     if (mouseAdapter != null) addMouseListener(mouseAdapter);
-    load(0, first);
-    load(1, second);
+    for (int slot = 0; slot < urls.length; slot++) {
+      show(slot, urls[slot]);
+    }
   }
 
-  private void load(int slot, String url) {
-    if (url == null) return;
+  /** Puts a picture in one of the slots, which for a game found on disk arrives after the tile. */
+  public void show(int slot, String url) {
+    if (url == null) {
+      return;
+    }
+    coming[slot] = true;
     new SwingWorker<BufferedImage, Void>() {
       protected BufferedImage doInBackground() throws Exception {
         return ImageIO.read(new URL(url));
@@ -85,20 +94,27 @@ public class ScreenshotPair extends JComponent {
    */
   @Override
   public Dimension getPreferredSize() {
-    int available = getParent() == null ? SCREEN_WIDTH * 2 + GAP : getParent().getWidth();
-    int each = Math.max(1, (available - GAP) / 2);
-    return new Dimension(available, heightOf(each));
+    int available = getParent() == null
+        ? SCREEN_WIDTH * shots.length + GAP * (shots.length - 1) : getParent().getWidth();
+    return new Dimension(available, heightOf(widthOfEach(available)));
+  }
+
+  private int widthOfEach(int available) {
+    return Math.max(1, (available - GAP * (shots.length - 1)) / shots.length);
   }
 
   private int heightOf(int width) {
-    BufferedImage sample = shots[0] != null ? shots[0] : shots[1];
-    if (sample == null) return width * SCREEN_HEIGHT / SCREEN_WIDTH;
-    return width * sample.getHeight() / sample.getWidth();
+    for (BufferedImage sample : shots) {
+      if (sample != null) {
+        return width * sample.getHeight() / sample.getWidth();
+      }
+    }
+    return width * SCREEN_HEIGHT / SCREEN_WIDTH;
   }
 
   @Override
   protected void paintComponent(Graphics g) {
-    int each = Math.max(1, (getWidth() - GAP) / 2);
+    int each = widthOfEach(getWidth());
 
     Graphics2D g2 = (Graphics2D) g.create();
     g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
@@ -122,7 +138,9 @@ public class ScreenshotPair extends JComponent {
     g2.fillRect(x, 0, width, height);
     g2.setColor(Color.GRAY);
     g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 11f));
-    String message = anyFailed ? "no screenshot" : "loading...";
+    // Saying "loading..." about a game nobody is fetching a picture for is a wait that never ends.
+    int slot = Math.min(coming.length - 1, x / Math.max(1, width + GAP));
+    String message = coming[slot] && !anyFailed ? "loading..." : "no screenshot";
     g2.drawString(message, x + 8, height / 2);
   }
 }

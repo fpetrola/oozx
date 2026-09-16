@@ -35,7 +35,9 @@ import com.fpetrola.oozx.speccy.screen.ScreenSettings;
 import com.fpetrola.oozx.speccy.screen.SpeccyScreen;
 import com.fpetrola.oozx.speccy.screen.TvScreen;
 import com.fpetrola.oozx.api.Hit;
+import com.fpetrola.oozx.api.GameSummary;
 import com.fpetrola.oozx.api.ZxInfoApiHandler;
+import com.fpetrola.oozx.speccy.media.LocalGames;
 import com.fpetrola.oozx.speccy.config.OOZxConfiguration;
 import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
 import com.fpetrola.oozx.EmulatorListener;
@@ -582,11 +584,22 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     return keys;
   }
 
+  /**
+   * Which game is loaded, said by the catalogue rather than by the file's name. The name is what
+   * the pokes and the details used to be looked up by, and a file called RENE256.SNA matched no
+   * pokes and sent the details to whatever the search happened to return first.
+   */
+  private GameSummary loadedGame() {
+    String filename = emulatorCore.getFilename();
+    return filename == null || filename.isEmpty() ? null : LocalGames.whoIs(java.nio.file.Path.of(filename));
+  }
+
   private void openPokesDialog() {
     if (parentApp == null) return;
 
-    String gameName = emulatorCore.getFilename();
-    if (gameName != null) {
+    GameSummary identified = loadedGame();
+    String gameName = identified != null ? identified.title : emulatorCore.getFilename();
+    if (identified == null && gameName != null) {
       gameName = new java.io.File(gameName).getName().replace(".tap", "").replace(".tzx", "")
           .replace(".z80", "").replace(".sna", "").replace(".szx", "");
     }
@@ -633,17 +646,23 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     String gameId = null;
     String gameName = null;
     
-    // Try to get game ID from gameSearchResult first
+    // The entry the game was opened from, and failing that the one the catalogue recognises it as.
+    // Only when neither knows does it fall back to searching by a name taken off the file, which is
+    // a guess: the first hit of a search is not necessarily the game that is running.
     if (gameSearchResult != null) {
       gameId = gameSearchResult.id;
     } else {
-      // If no gameSearchResult, try to extract game name from filename
-      String filename = emulatorCore.getFilename();
-      if (filename != null && !filename.isEmpty()) {
-        gameName = new java.io.File(filename).getName()
-            .replace(".tap", "").replace(".tzx", "")
-            .replace(".z80", "").replace(".sna", "").replace(".szx", "")
-            .replace(".dsk", "").replace(".vg", "");
+      GameSummary identified = loadedGame();
+      if (identified != null) {
+        gameId = identified.id;
+      } else {
+        String filename = emulatorCore.getFilename();
+        if (filename != null && !filename.isEmpty()) {
+          gameName = new java.io.File(filename).getName()
+              .replace(".tap", "").replace(".tzx", "")
+              .replace(".z80", "").replace(".sna", "").replace(".szx", "")
+              .replace(".dsk", "").replace(".vg", "");
+        }
       }
     }
     
@@ -883,6 +902,10 @@ class GameSearchResult {
   boolean hasMap;
   /** The machine somebody picked for it, or null to let the file and its name decide. */
   String machine;
+  /** Whether this is a file already on the disk rather than an entry to fetch. */
+  boolean onThisMachine;
+  /** The year and publisher, or what the file is called when the catalogue did not know it. */
+  String subtitle;
   /** Recordings of this game offered for playing, from both catalogues. */
   java.util.List<RzxOption> recordings = java.util.List.of();
 

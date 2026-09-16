@@ -19,6 +19,7 @@ package com.fpetrola.oozx.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -140,6 +141,7 @@ public record GameFingerprint(Set<Integer> chunks) {
     /** Above this share of the catalogue, a chunk is something everybody has, and it only adds noise. */
     private static final double TOO_COMMON = 0.1;
     private static final ObjectMapper JSON = new ObjectMapper();
+    private static final String SHIPPED = "/catalogue.json";
 
     private final Map<Integer, List<String>> idsByChunk = new HashMap<>();
     private final Map<String, Known> byId = new LinkedHashMap<>();
@@ -192,9 +194,29 @@ public record GameFingerprint(Set<Integer> chunks) {
     }
 
     public void load(Path file) throws IOException {
-      for (Known known : JSON.readValue(file.toFile(), Known[].class)) {
+      try (InputStream json = Files.newInputStream(file)) {
+        load(json);
+      }
+    }
+
+    public void load(InputStream json) throws IOException {
+      for (Known known : JSON.readValue(json, Known[].class)) {
         add(known.game(), known.fingerprint());
       }
+    }
+
+    /** The catalogue that ships with the emulator, which is what identifies a game with no network. */
+    public static Index shipped() {
+      Index index = new Index();
+      try (InputStream json = Index.class.getResourceAsStream(SHIPPED)) {
+        if (json == null) {
+          throw new IOException(SHIPPED + " is not on the classpath");
+        }
+        index.load(json);
+      } catch (IOException notThere) {
+        throw new IllegalStateException("the shipped catalogue could not be read", notThere);
+      }
+      return index;
     }
   }
 

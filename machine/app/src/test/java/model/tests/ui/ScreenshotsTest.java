@@ -17,7 +17,7 @@
 
 package model.tests.ui;
 
-import com.fpetrola.oozx.speccy.desktop.ScreenshotPair;
+import com.fpetrola.oozx.speccy.desktop.Screenshots;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.JPanel;
@@ -34,11 +34,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * keeps the test off the network — the shape a Spectrum screen has is enough to measure with,
  * and it is what the component reserves before any picture arrives.
  */
-public class ScreenshotPairTest {
+public class ScreenshotsTest {
 
-  private ScreenshotPair inRowOfWidth(int width) {
+  private Screenshots inRowOfWidth(int width) {
     JPanel row = new JPanel();
-    ScreenshotPair shots = new ScreenshotPair(null, null, null);
+    Screenshots shots = new Screenshots(null, null, null);
     row.add(shots);
     row.setSize(width, 400);
     return shots;
@@ -66,6 +66,6 @@ public class ScreenshotPairTest {
 
   @Test
   public void withNoRowToMeasureItAsksForTwoScreensSideBySide() {
-    assertEquals(256 * 2 + 10, new ScreenshotPair(null, null, null).getPreferredSize().width);
+    assertEquals(256 * 2 + 10, new Screenshots(null, null, null).getPreferredSize().width);
   }
 }
