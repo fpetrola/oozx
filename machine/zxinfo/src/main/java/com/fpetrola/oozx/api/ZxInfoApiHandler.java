@@ -27,7 +27,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class ZxInfoApiHandler {
-  private static final int FIRST_YEAR = 1980, MOST_AT_ONCE = 1000, RETRIES = 5;
+  private static final int FIRST_YEAR = 1980, MOST_AT_ONCE = 1000, RETRIES = 5, AT_ONCE = 4;
   private static final long BACKOFF = 2000, BETWEEN_PAGES = 150;
 
   private Metadata metadata;
@@ -207,14 +207,52 @@ public class ZxInfoApiHandler {
    */
   public List<GameSummary> mostVoted(int howMany) {
     List<Hit> voted = new ArrayList<>();
-    for (int year = FIRST_YEAR; year <= java.time.Year.now().getValue(); year++) {
-      collect(year, null, null, voted);
-    }
+    walk(slice -> false, (slice, found) -> found.stream().filter(hit -> votesOf(hit) > 0).forEach(voted::add));
     return voted.stream()
         .sorted(Comparator.comparingInt(ZxInfoApiHandler::votesOf).reversed())
         .limit(howMany)
         .map(ZxInfoApiHandler::summaryOf)
         .toList();
+  }
+
+  /** One narrowing of the catalogue: a year, and the genre and machine it had to be cut down by. */
+  public record Slice(int year, String genre, String machine) {
+    public String key() {
+      return year + "|" + (genre == null ? "" : genre) + "|" + (machine == null ? "" : machine);
+    }
+  }
+
+  /**
+   * Every entry of the catalogue, handed over a slice at a time. The slice comes with them so that
+   * a walk of forty thousand entries can be written down as it goes and taken up where it stopped:
+   * {@code skip} is asked before each one, and a slice already done costs nothing.
+   * <p>
+   * Several slices are read at once, so {@code skip} and {@code found} are called from more than
+   * one thread and whatever they write to has to expect that.
+   */
+  public void walk(java.util.function.Predicate<Slice> skip,
+      java.util.function.BiConsumer<Slice, List<Hit>> found) {
+    // A handful of years at a time: each request takes a second or two and there are hundreds of
+    // slices, so the walk is nearly all waiting. Not many more than a handful, because this API
+    // answers 503 when it is asked too fast and then the retries eat what the threads won.
+    java.util.concurrent.ExecutorService pool =
+        java.util.concurrent.Executors.newFixedThreadPool(AT_ONCE);
+    try {
+      List<java.util.concurrent.Future<?>> years = new ArrayList<>();
+      for (int year = FIRST_YEAR; year <= java.time.Year.now().getValue(); year++) {
+        int reading = year;
+        years.add(pool.submit(() -> collect(new Slice(reading, null, null), skip, found)));
+      }
+      for (java.util.concurrent.Future<?> year : years) {
+        year.get();
+      }
+    } catch (InterruptedException stopped) {
+      Thread.currentThread().interrupt();
+    } catch (java.util.concurrent.ExecutionException failed) {
+      throw new IllegalStateException("the catalogue could not be read: " + failed.getCause(), failed.getCause());
+    } finally {
+      pool.shutdownNow();
+    }
   }
 
   /**
@@ -226,17 +264,25 @@ public class ZxInfoApiHandler {
    * thousand at once, so the slice is narrowed by year, then by genre, then by machine until the
    * count comes back under that.
    */
-  private void collect(int year, String genre, String machine, List<Hit> voted) {
+  private void collect(Slice slice, java.util.function.Predicate<Slice> skip,
+      java.util.function.BiConsumer<Slice, List<Hit>> found) {
+    if (skip.test(slice)) {
+      return;
+    }
     SearchResponse response = withClient(zxClient -> zxClient.searchGames("*", MOST_AT_ONCE, "0",
-        ZxInfoClient.MODE_COMPACT, null, null, "SOFTWARE", year, null, genre, null, machine,
-        null, null, null, null, null, null, null, null));
+        ZxInfoClient.MODE_COMPACT, null, null, "SOFTWARE", slice.year(), null, slice.genre(), null,
+        slice.machine(), null, null, null, null, null, null, null, null));
     if (response.hits.total.value > MOST_AT_ONCE) {
-      for (String narrower : genre == null ? valuesOf(metadata().genretypes) : valuesOf(metadata().machinetypes)) {
-        collect(year, genre == null ? narrower : genre, genre == null ? null : narrower, voted);
+      // A slice that does not fit is not done: it is cut finer and its pieces are what get written
+      // down, so taking the walk up again re-asks only this one question.
+      for (String narrower : slice.genre() == null
+          ? valuesOf(metadata().genretypes) : valuesOf(metadata().machinetypes)) {
+        collect(slice.genre() == null ? new Slice(slice.year(), narrower, null)
+            : new Slice(slice.year(), slice.genre(), narrower), skip, found);
       }
       return;
     }
-    response.hits.hits.stream().filter(hit -> votesOf(hit) > 0).forEach(voted::add);
+    found.accept(slice, response.hits.hits);
     sleep(BETWEEN_PAGES);
   }
 
@@ -244,7 +290,7 @@ public class ZxInfoApiHandler {
     return facet.values.stream().map(Metadata.Value::name).toList();
   }
 
-  private Metadata metadata() {
+  private synchronized Metadata metadata() {
     if (metadata == null) {
       metadata = getMetadata();
     }

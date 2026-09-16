@@ -609,8 +609,14 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
       return;
     }
 
+    // By the id when the catalogue knows the game, which is the join ZXDB itself makes between an
+    // entry and its .pok file. The name is what is left when it does not, and it is a guess: it
+    // found nothing for a file called RENE256.SNA and the wrong thing for a shared title.
     List<com.fpetrola.oozx.speccy.pokes.PokFile> availablePokes =
-        parentApp.pokesManager.findPokesForGame(gameName);
+        parentApp.pokesManager.findPokesForEntry(identified == null ? null : identified.id);
+    if (availablePokes.isEmpty()) {
+      availablePokes = parentApp.pokesManager.findPokesForGame(gameName);
+    }
 
     if (availablePokes.isEmpty()) {
       JOptionPane.showMessageDialog(this,

@@ -33,6 +33,12 @@ public class PokFile {
     this.filePath = filePath;
   }
 
+  /** One that was written down rather than read from a .pok, which is how they ship now. */
+  public PokFile(String name, List<PokeMod> mods) {
+    this.name = name;
+    this.mods = new ArrayList<>(mods);
+  }
+
   public void parseContent() throws IOException {
     rawContent = new String(Files.readAllBytes(filePath));
     String[] lines = rawContent.split("\n");

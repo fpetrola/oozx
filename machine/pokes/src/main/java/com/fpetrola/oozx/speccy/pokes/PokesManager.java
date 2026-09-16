@@ -24,11 +24,30 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
+/**
+ * Every poke there is, keyed by the game it is for.
+ * <p>
+ * They used to be 3683 .pok files under a folder of one letter each, indexed by the text before
+ * the first bracket of the file's name. That name is what a poke was found by, so a game loaded
+ * from RENE256.SNA had none, and two games that happen to share a title shared each other's -
+ * 3683 files went in and 3612 names came out, so seventy-odd were quietly eaten. They are now one
+ * file, and each game carries the id ZXInfo uses, which is what the emulator asks by.
+ */
 public class PokesManager {
-  private static final String POKES_RESOURCE_PATH = "/pokes";
-  
-  private Map<String, List<PokFile>> pokIndex = new ConcurrentHashMap<>();
+  private static final String POKES = "/pokes.json";
+
+  private final Map<String, List<PokFile>> byName = new ConcurrentHashMap<>();
+  private final Map<String, List<PokFile>> byEntry = new ConcurrentHashMap<>();
   private boolean initialized = false;
+
+  /** One game's pokes as they are written down, with the entry they were matched to. */
+  @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
+  public record Pokes(String id, String title, Integer year, String publisher, String file,
+                      List<Poke> pokes) {
+  }
+
+  public record Poke(String name, List<String> lines) {
+  }
 
   public PokesManager() {
     initializePokes();
@@ -36,91 +55,39 @@ public class PokesManager {
 
   public void initializePokes() {
     if (initialized) return;
-    
+
     new Thread(() -> {
-      try {
-        indexPokesFromResources();
+      try (java.io.InputStream json = PokesManager.class.getResourceAsStream(POKES)) {
+        if (json == null) {
+          System.err.println("Pokes resource not found: " + POKES);
+          return;
+        }
+        for (Pokes game : new com.fasterxml.jackson.databind.ObjectMapper()
+            .readValue(json, Pokes[].class)) {
+          PokFile pokes = new PokFile(game.file(), game.pokes().stream()
+              .flatMap(poke -> poke.lines().stream()
+                  .map(line -> new PokFile.PokeMod(poke.name(), line, game.file(), game.title())))
+              .toList());
+          byName.computeIfAbsent(game.title().toLowerCase(), title -> new ArrayList<>()).add(pokes);
+          if (game.id() != null) {
+            byEntry.computeIfAbsent(game.id(), id -> new ArrayList<>()).add(pokes);
+          }
+        }
         initialized = true;
-        System.out.println("Pokes initialized: " + pokIndex.size() + " games with pokes");
+        System.out.println("Pokes initialized: " + byName.size() + " games, " + byEntry.size()
+            + " of them by id");
       } catch (Exception e) {
         System.err.println("Error initializing pokes: " + e.getMessage());
-        e.printStackTrace();
       }
     }).start();
   }
 
-  private void indexPokesFromResources() throws Exception {
-    System.out.println("Loading pokes from resources...");
-
-    URL pokesUrl = getClass().getResource(POKES_RESOURCE_PATH);
-    if (pokesUrl == null) {
-      System.err.println("Pokes resource not found: " + POKES_RESOURCE_PATH);
-      return;
-    }
-    
-    Path pokesPath = pathOf(pokesUrl.toURI());
-    
-    if (pokesPath != null && Files.exists(pokesPath)) {
-      indexPokesDirectory(pokesPath);
-    } else {
-      System.err.println("Could not access pokes directory");
-    }
-  }
-
   /**
-   * A jar entry is not backed by the default filesystem, so a NIO Path into it needs its own
-   * FileSystem mounted first. Left mounted: each PokFile reads its content through this Path
-   * long after indexing runs.
+   * The pokes for a game the catalogue recognised. Nothing is guessed here: the id was matched to
+   * the .pok file when this file was built, against ZXDB, which is where both come from.
    */
-  private Path pathOf(java.net.URI uri) throws IOException {
-    if (!"jar".equals(uri.getScheme())) {
-      return Paths.get(uri);
-    }
-    try {
-      FileSystems.newFileSystem(uri, Map.of());
-    } catch (FileSystemAlreadyExistsException alreadyMounted) {
-    }
-    return FileSystems.getFileSystem(uri).getPath(POKES_RESOURCE_PATH);
-  }
-
-  private void indexPokesDirectory(Path pokesPath) throws Exception {
-    try (DirectoryStream<Path> directories = Files.newDirectoryStream(pokesPath)) {
-      for (Path dir : directories) {
-        if (Files.isDirectory(dir) && !dir.getFileName().toString().startsWith(".")) {
-          indexDirectory(dir);
-        }
-      }
-    }
-  }
-
-
-
-  private void indexDirectory(Path directory) throws Exception {
-    try (DirectoryStream<Path> files = Files.newDirectoryStream(directory, "*.pok")) {
-      for (Path pokPath : files) {
-        try {
-          String pokFileName = pokPath.getFileName().toString();
-          String pokName = pokFileName.replace(".pok", "");
-
-          PokFile pokFile = new PokFile(pokName, pokPath);
-          pokFile.parseContent();
-
-          String gameName = extractGameName(pokName);
-          
-          pokIndex.computeIfAbsent(gameName.toLowerCase(), k -> new ArrayList<>()).add(pokFile);
-        } catch (Exception e) {
-          System.err.println("Error parsing pok file: " + pokPath + " - " + e.getMessage());
-        }
-      }
-    }
-  }
-
-  private String extractGameName(String pokFileName) {
-    int parenIndex = pokFileName.indexOf('(');
-    if (parenIndex > 0) {
-      return pokFileName.substring(0, parenIndex).trim();
-    }
-    return pokFileName;
+  public List<PokFile> findPokesForEntry(String entryId) {
+    return entryId == null ? List.of() : byEntry.getOrDefault(entryId, List.of());
   }
 
   public List<PokFile> findPokesForGame(String gameName) {
@@ -131,12 +98,12 @@ public class PokesManager {
 
     String searchName = gameName.toLowerCase();
 
-    if (pokIndex.containsKey(searchName)) {
-      return pokIndex.get(searchName);
+    if (byName.containsKey(searchName)) {
+      return byName.get(searchName);
     }
 
     List<PokFile> results = new ArrayList<>();
-    for (Map.Entry<String, List<PokFile>> entry : pokIndex.entrySet()) {
+    for (Map.Entry<String, List<PokFile>> entry : byName.entrySet()) {
       if (isSimilar(searchName, entry.getKey())) {
         results.addAll(entry.getValue());
       }
@@ -154,7 +121,7 @@ public class PokesManager {
     List<PokFile> results = new ArrayList<>();
     String lowerSearch = searchTerm.toLowerCase();
 
-    for (Map.Entry<String, List<PokFile>> gameEntry : pokIndex.entrySet()) {
+    for (Map.Entry<String, List<PokFile>> gameEntry : byName.entrySet()) {
       for (PokFile pokFile : gameEntry.getValue()) {
         if (pokFile.getName().toLowerCase().contains(lowerSearch) ||
             gameEntry.getKey().toLowerCase().contains(lowerSearch) ||
@@ -200,11 +167,11 @@ public class PokesManager {
   }
 
   public Set<String> getAllGameNames() {
-    return pokIndex.keySet();
+    return byName.keySet();
   }
 
   public int getTotalGamesIndexed() {
-    return pokIndex.size();
+    return byName.size();
   }
 
   public boolean isInitialized() {
@@ -212,6 +179,6 @@ public class PokesManager {
   }
 
   public static String getPokesDirectory() {
-    return POKES_RESOURCE_PATH;
+    return POKES;
   }
 }
