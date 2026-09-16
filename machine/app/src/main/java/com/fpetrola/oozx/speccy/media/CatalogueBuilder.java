@@ -18,6 +18,7 @@
 package com.fpetrola.oozx.speccy.media;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fpetrola.emulation.helpers.snapshots.SnapshotFactory;
 import com.fpetrola.oozx.api.GameFingerprint;
 import com.fpetrola.oozx.api.GameSummary;
 import com.fpetrola.oozx.api.ZxInfoApiHandler;
@@ -66,7 +67,7 @@ public class CatalogueBuilder {
           failed++;
           continue;
         }
-        index.add(game, GameFingerprint.of(image));
+        index.add(game, GameFingerprint.of(SnapshotFactory.payloadOf(image.toFile())));
         index.save(catalogue);
         done++;
         System.out.println(done + "/" + wanted.size() + "  " + game + "  <- " + image.getFileName());

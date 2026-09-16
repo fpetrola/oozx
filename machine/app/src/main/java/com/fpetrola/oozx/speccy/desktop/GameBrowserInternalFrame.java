@@ -18,7 +18,9 @@
 
 package com.fpetrola.oozx.speccy.desktop;
 
+import com.fpetrola.oozx.api.GameLibrary;
 import com.fpetrola.oozx.speccy.media.DownloadAndUnzip;
+import com.fpetrola.oozx.speccy.media.LocalGames;
 import com.fpetrola.oozx.speccy.windows.LazyImageIconLoader;
 import com.fpetrola.oozx.api.*;
 import com.fpetrola.oozx.rzx.RzxArchive;
@@ -37,6 +39,8 @@ import java.awt.image.BufferedImage;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -52,6 +56,9 @@ public class GameBrowserInternalFrame extends JInternalFrame {
   private GameBrowserListener listener;
   private SwingWorker<List<GameSearchResult>, Void> runningSearch;
   private boolean loading;
+  private JComboBox<String> sourceFilter;
+  private JCheckBox unknownFilter;
+  private JLabel libraryLabel;
   private JComboBox<String> machineFilter;
   private JComboBox<String> genreFilter;
   private JCheckBox rzxFilter;
@@ -63,6 +70,14 @@ public class GameBrowserInternalFrame extends JInternalFrame {
    * filter so the bar needs no labels beside them, which is what makes it fit the window.
    */
   private static final String ANY_MACHINE = "Any machine";
+  private static final String EVERYWHERE = "Everywhere";
+  private static final String ON_THE_NET = "On the net";
+  private static final String ON_THIS_MACHINE = "On this machine";
+  /** The side of a tile, and so what decides how many columns fit. */
+  private static final int TILE = 230;
+  private static final int GAP = 10;
+  /** How many tiles are built at once, which is also how many pictures get asked for. */
+  private static final int AT_A_TIME = 60;
   private static final String ANY_GENRE = "Any genre";
   public static Gson gson = new Gson();
   private final RzxArchive archive = new RzxArchive();
@@ -82,43 +97,43 @@ public class GameBrowserInternalFrame extends JInternalFrame {
   public GameBrowserInternalFrame(GameBrowserListener listener) {
     super("Game Browser", true, true, true, true);
     this.listener = listener;
-    setSize(560, 600);
+    setSize(980, 640);
     setLocation(50, 50);
 
-    JPanel topPanel = new JPanel();
-    topPanel.setLayout(new BorderLayout());
-    topPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
     searchField = new JTextField();
-    searchField.setFont(new Font("Arial", Font.PLAIN, 16));
+    searchField.setFont(new Font("Arial", Font.PLAIN, 14));
     searchButton = new JButton("Search");
-    // Wide enough for the "Searching..." label it shows while a search is in flight.
     searchButton.setPreferredSize(new Dimension(130, 30));
 
-    topPanel.add(searchField, BorderLayout.CENTER);
-    topPanel.add(searchButton, BorderLayout.EAST);
-
-    topPanel.add(createFilterBar(), BorderLayout.NORTH);
-
-    // Indeterminate: the API gives no progress, this only says the search is running.
+    // Indeterminate: neither the API nor a scan of the disk says how far along it is, this only
+    // says that something is running.
     searchProgress = new JProgressBar();
     searchProgress.setIndeterminate(true);
     searchProgress.setPreferredSize(new Dimension(0, 4));
     searchProgress.setVisible(false);
-    topPanel.add(searchProgress, BorderLayout.SOUTH);
-
-    add(topPanel, BorderLayout.NORTH);
 
     resultsPanel = new ResultsPanel();
-    resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
-    Color color = UIManager.getColor("Panel.background");
-    resultsPanel.setBackground(color);
+    resultsPanel.setLayout(new GridLayout(0, 1, GAP, GAP));
+    resultsPanel.setBackground(UIManager.getColor("Panel.background"));
+    resultsPanel.setBorder(BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP));
 
-    JScrollPane scrollPane = new JScrollPane(resultsPanel);
-    scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-    scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-    add(scrollPane, BorderLayout.CENTER);
+    JScrollPane gallery = new JScrollPane(resultsPanel);
+    gallery.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+    gallery.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    gallery.getVerticalScrollBar().setUnitIncrement(16);
+    // The gallery wraps by being given the number of columns the width allows, which has to be
+    // worked out again every time the window or the divider moves.
+    gallery.addComponentListener(new java.awt.event.ComponentAdapter() {
+      @Override
+      public void componentResized(java.awt.event.ComponentEvent e) {
+        layOutInColumns(gallery.getViewport().getWidth());
+      }
+    });
+
+    JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, createFilterPanel(), gallery);
+    split.setDividerLocation(250);
+    split.setResizeWeight(0);
+    add(split, BorderLayout.CENTER);
 
     searchButton.addActionListener(e -> performSearch());
     searchField.addActionListener(e -> performSearch());
@@ -130,13 +145,44 @@ public class GameBrowserInternalFrame extends JInternalFrame {
    * to load at all is not something it can filter on - those live in additionalDownloads - so
    * they are applied to the results here.
    */
-  private JPanel createFilterBar() {
-    JPanel bar = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
+  /** As many columns of tiles as fit, so the gallery wraps instead of scrolling sideways. */
+  private void layOutInColumns(int width) {
+    // Rounded up, not down: a column more makes the tiles narrower than the ideal and so square,
+    // where a column less stretches them across the width and the picture goes tall with it.
+    int columns = Math.max(1, (int) Math.ceil((double) width / (TILE + GAP)));
+    GridLayout grid = (GridLayout) resultsPanel.getLayout();
+    if (grid.getColumns() != columns) {
+      grid.setColumns(columns);
+      grid.setRows(0);
+      resultsPanel.revalidate();
+    }
+  }
+
+  /**
+   * Everything that narrows what is shown, down the left side: what to search, where to look for
+   * it, and the filters over what comes back. They were a strip along the top, which had room for
+   * the four the server takes and none for the ones that are about this machine.
+   */
+  private JPanel createFilterPanel() {
+    JPanel bar = new JPanel();
+    bar.setLayout(new BoxLayout(bar, BoxLayout.Y_AXIS));
+    bar.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+
+    bar.add(labelled("Search", searchField));
+    bar.add(Box.createVerticalStrut(4));
+    bar.add(row(searchButton));
+    bar.add(Box.createVerticalStrut(4));
+    bar.add(searchProgress);
+    bar.add(Box.createVerticalStrut(12));
+
+    sourceFilter = new JComboBox<>(new String[]{EVERYWHERE, ON_THE_NET, ON_THIS_MACHINE});
+    sourceFilter.setToolTipText("Where to look: ZXInfo's catalogue, the games on this machine, or both");
+    bar.add(labelled("Where", sourceFilter));
+    bar.add(Box.createVerticalStrut(12));
 
     machineFilter = new JComboBox<>(new String[]{ANY_MACHINE});
     genreFilter = new JComboBox<>(new String[]{ANY_GENRE});
-    machineFilter.setPreferredSize(new Dimension(155, 24));
-    genreFilter.setPreferredSize(new Dimension(135, 24));
+
     machineFilter.setToolTipText("Narrow to one machine, applied by the server");
     genreFilter.setToolTipText("Narrow to one genre, applied by the server");
 
@@ -147,11 +193,20 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     loadableFilter = new JCheckBox("Loadable", true);
     loadableFilter.setToolTipText("Hide entries with nothing to download");
 
-    bar.add(machineFilter);
-    bar.add(genreFilter);
-    bar.add(rzxFilter);
-    bar.add(mapFilter);
-    bar.add(loadableFilter);
+    unknownFilter = new JCheckBox("Only unknown");
+    unknownFilter.setToolTipText("Games on this machine the catalogue could not name");
+
+    bar.add(labelled("Machine", machineFilter));
+    bar.add(Box.createVerticalStrut(6));
+    bar.add(labelled("Genre", genreFilter));
+    bar.add(Box.createVerticalStrut(8));
+    bar.add(row(rzxFilter));
+    bar.add(row(mapFilter));
+    bar.add(row(loadableFilter));
+    bar.add(row(unknownFilter));
+    bar.add(Box.createVerticalStrut(12));
+    bar.add(createLibraryPanel());
+    bar.add(Box.createVerticalGlue());
 
     // Machine and genre change the query, so they need the server asked again. The rest only
     // narrow what came back, but the results are not kept, so a search is the simplest honest
@@ -162,9 +217,134 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     rzxFilter.addActionListener(research);
     mapFilter.addActionListener(research);
     loadableFilter.addActionListener(research);
+    unknownFilter.addActionListener(research);
+    sourceFilter.addActionListener(research);
 
     loadFilterValues();
     return bar;
+  }
+
+
+  private static JPanel labelled(String text, JComponent field) {
+    JPanel panel = new JPanel(new BorderLayout(0, 2));
+    panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 48));
+    JLabel label = new JLabel(text);
+    label.setFont(label.getFont().deriveFont(Font.BOLD, 11f));
+    panel.add(label, BorderLayout.NORTH);
+    panel.add(field, BorderLayout.CENTER);
+    return panel;
+  }
+
+  private static JPanel row(JComponent field) {
+    JPanel panel = new JPanel(new BorderLayout());
+    panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 28));
+    panel.add(field, BorderLayout.WEST);
+    return panel;
+  }
+
+  /**
+   * What this machine has, and the way to add to it. Scanning is what turns a folder of files with
+   * names like RENE256.SNA into games with titles, and it is offered here rather than run by
+   * itself because reading every file of a collection is not something to do behind somebody's
+   * back.
+   */
+  private JPanel createLibraryPanel() {
+    JPanel panel = new JPanel();
+    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+    panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    libraryLabel = new JLabel();
+    libraryLabel.setFont(libraryLabel.getFont().deriveFont(Font.PLAIN, 11f));
+    JButton scan = new JButton("Add folder...");
+    scan.addActionListener(e -> scanFolder());
+
+    panel.add(labelled("This machine", libraryLabel));
+    panel.add(Box.createVerticalStrut(4));
+    panel.add(row(scan));
+    sayWhatIsOnThisMachine();
+    return panel;
+  }
+
+  private void sayWhatIsOnThisMachine() {
+    GameLibrary library = LocalGames.library();
+    long named = library.games().stream().filter(GameLibrary.Copy::identified).count();
+    libraryLabel.setText(library.games().size() + " games, " + named + " named");
+  }
+
+  private void scanFolder() {
+    JFileChooser chooser = new JFileChooser();
+    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    chooser.setDialogTitle("Folder to look for games in");
+    if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+      return;
+    }
+    java.nio.file.Path folder = chooser.getSelectedFile().toPath();
+    setSearching(true);
+    libraryLabel.setText("Looking through " + folder.getFileName() + "...");
+    new SwingWorker<Integer, Void>() {
+      @Override
+      protected Integer doInBackground() throws Exception {
+        int seen = LocalGames.library().scan(folder, LocalGames.CERTAINTY);
+        LocalGames.library().save(LocalGames.file());
+        return seen;
+      }
+
+      @Override
+      protected void done() {
+        setSearching(false);
+        try {
+          get();
+        } catch (Exception failed) {
+          showMessage("Could not read " + folder + ": " + rootCauseOf(failed));
+        }
+        sayWhatIsOnThisMachine();
+        performSearch();
+      }
+    }.execute();
+  }
+
+  /**
+   * A game of this machine said in the same terms as one from the catalogue, so that the gallery,
+   * the context menu and the loading path do not have to know where it came from. The picture is
+   * not known yet: it is asked for by entry id once the tile exists.
+   */
+  private GameSearchResult asResult(GameLibrary.Copy copy) {
+    GameSearchResult result = new GameSearchResult(copy.identified() ? copy.game().id : null,
+        copy.title(), null, null, null, copy.path());
+    result.available = true;
+    result.files = List.of(copy.path());
+    result.onThisMachine = true;
+    result.subtitle = copy.identified()
+        ? copy.game().yearOfRelease + "  -  " + copy.game().publisher
+        : "unknown  -  " + java.nio.file.Path.of(copy.path()).getFileName();
+    return result;
+  }
+
+  /**
+   * What this machine has, one tile per game rather than one per file. Six copies of Manic Miner
+   * in six folders are six files and one game, and knowing which game each file is is precisely
+   * what makes saying so possible; the copies are still all there, under Load Version.
+   */
+  private List<GameSearchResult> gamesOnThisMachine(String query, boolean onlyUnknown) {
+    Map<String, GameSearchResult> byGame = new LinkedHashMap<>();
+    LocalGames.library().games().stream()
+        .filter(copy -> !onlyUnknown || !copy.identified())
+        .filter(copy -> query.isEmpty() || copy.title().toLowerCase().contains(query.toLowerCase()))
+        .forEach(copy -> {
+          // Unidentified files are each their own game, because there is nothing to say they are not.
+          String key = copy.identified() ? copy.game().id : copy.path();
+          GameSearchResult already = byGame.get(key);
+          if (already == null) {
+            byGame.put(key, asResult(copy));
+          } else {
+            already.files = java.util.stream.Stream.concat(already.files.stream(), java.util.stream.Stream.of(copy.path())).toList();
+            already.subtitle = already.subtitle.replaceFirst("  -  \\d+ copies$", "")
+                + "  -  " + already.files.size() + " copies";
+          }
+        });
+    return new ArrayList<>(byGame.values());
   }
 
   /** Fills the combos from /metadata/, off the event thread, leaving them usable if it fails. */
@@ -205,7 +385,13 @@ public class GameBrowserInternalFrame extends JInternalFrame {
 
   private void performSearch() {
     String query = searchField.getText().trim();
-    if (query.isEmpty()) {
+    String where = String.valueOf(sourceFilter.getSelectedItem());
+    boolean net = !ON_THIS_MACHINE.equals(where);
+    boolean machine = !ON_THE_NET.equals(where);
+    boolean onlyUnknown = unknownFilter.isSelected();
+    // Asking the net for everything is not a search, but the games on this machine are a list
+    // that can simply be shown, so an empty box browses them instead of doing nothing.
+    if (query.isEmpty() && net && !machine) {
       return;
     }
 
@@ -214,22 +400,33 @@ public class GameBrowserInternalFrame extends JInternalFrame {
       runningSearch.cancel(true);
     }
 
-    String machine = selected(machineFilter);
+    String machineType = selected(machineFilter);
     String genre = selected(genreFilter);
+    boolean onTheNet = net;
+    boolean onThisMachine = machine;
     boolean onlyRzx = rzxFilter.isSelected();
     boolean onlyMap = mapFilter.isSelected();
     boolean onlyLoadable = loadableFilter.isSelected();
 
     setSearching(true);
-    showMessage("Searching for \"" + query + "\"...");
+    showMessage(query.isEmpty() ? "Reading what is on this machine..."
+        : "Searching for \"" + query + "\"...");
 
     SwingWorker<List<GameSearchResult>, Void> search = new SwingWorker<>() {
       @Override
       protected List<GameSearchResult> doInBackground() {
         // Off the EDT: this is a network round trip to ZXInfo, and running it on the event
         // thread froze the window until the results were ready, so nothing indicated that
-        // the search had even started.
-        return createMockResults(query, machine, genre);
+        // the search had even started. Reading the library is quick, but it goes the same way
+        // so that both sources arrive by the same door.
+        List<GameSearchResult> found = new ArrayList<>();
+        if (onThisMachine) {
+          found.addAll(gamesOnThisMachine(query, onlyUnknown));
+        }
+        if (onTheNet && !query.isEmpty()) {
+          found.addAll(createMockResults(query, machineType, genre));
+        }
+        return found;
       }
 
       @Override
@@ -249,26 +446,34 @@ public class GameBrowserInternalFrame extends JInternalFrame {
         }
 
         int found = results.size();
-        results.removeIf(result ->
+        // The extras and the availability are things a catalogue entry has; a file already on
+        // the disk is available by being there, so those filters are not asked of it.
+        results.removeIf(result -> !result.onThisMachine && (
             (onlyRzx && !result.hasRzx)
                 || (onlyMap && !result.hasMap)
                 // Not merely "has a file": one the archive will not hand over cannot be
                 // loaded either, and a filter for what can be loaded that still shows those is
                 // a filter that lies.
-                || (onlyLoadable && (result.filename == null || !result.available)));
+                || (onlyLoadable && (result.filename == null || !result.available))));
 
         if (results.isEmpty()) {
           showMessage(found == 0
-              ? "No games found for \"" + query + "\""
-              : "None of the " + found + " games found for \"" + query + "\" match the filters");
+              ? (query.isEmpty() ? "Nothing on this machine yet - add a folder to look in"
+                  : "No games found for \"" + query + "\"")
+              : "None of the " + found + " games found match the filters");
           return;
         }
 
         resultsPanel.removeAll();
-        for (GameSearchResult result : results) {
-          resultsPanel.add(createGameRow(result));
-          resultsPanel.add(Box.createVerticalStrut(10));
+        // A wall of tiles is a wall of pictures to fetch, so only a screenful's worth of them is
+        // built at a time. Everything found is still counted, and the search says so.
+        for (GameSearchResult result : results.subList(0, Math.min(results.size(), AT_A_TIME))) {
+          resultsPanel.add(createGameTile(result));
         }
+        // In the title bar, where it does not cost a widget and does not push the gallery down.
+        setTitle(results.size() > AT_A_TIME
+            ? "Game Browser - showing " + AT_A_TIME + " of " + results.size()
+            : "Game Browser - " + results.size() + (results.size() == 1 ? " game" : " games"));
         resultsPanel.revalidate();
         resultsPanel.repaint();
       }
@@ -514,8 +719,13 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     return new ImageIcon(img);
   }
 
-  private JPanel createGameRow(GameSearchResult result) {
+  /**
+   * One square of the gallery: the loading screen, and under it what the game is. Square because a
+   * wall of them is read by the picture, and a row as wide as the window let four games fill it.
+   */
+  private JPanel createGameTile(GameSearchResult result) {
     JPanel row = new JPanel();
+    row.setPreferredSize(new Dimension(TILE, TILE));
     Color color = UIManager.getColor("List.background");
     row.setLayout(new BoxLayout(row, BoxLayout.Y_AXIS));
     row.setBorder(BorderFactory.createCompoundBorder(
@@ -536,8 +746,11 @@ public class GameBrowserInternalFrame extends JInternalFrame {
 
     row.setBackground(color);
 
-    ScreenshotPair shots = new ScreenshotPair(result.screenshot1, result.screenshot2, l);
+    Screenshots shots = new Screenshots(l, result.screenshot1);
     shots.setAlignmentX(Component.LEFT_ALIGNMENT);
+    if (result.screenshot1 == null && result.id != null) {
+      lookUpScreenshot(result, shots);
+    }
 
     // Context menu
     JPopupMenu contextMenu = new JPopupMenu();
@@ -620,13 +833,40 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     favoriteItem.addActionListener(e -> listener.onAddToFavorites(result));
     downloadItem.addActionListener(e -> listener.onDownloadGame(result.url));
 
-    // The two screenshots already fill the width, so the caption goes above them rather than
-    // beside, where it fell outside the viewport and the horizontal scrollbar is disabled.
-    row.add(createRowCaption(result));
-    row.add(Box.createVerticalStrut(4));
+    // Picture first, caption under it: in a grid the eye finds the game by its loading screen,
+    // and the title is what confirms it.
     row.add(shots);
+    row.add(Box.createVerticalStrut(4));
+    row.add(createTileCaption(result));
 
     return row;
+  }
+
+  /**
+   * The picture of a game found on this machine, which the library does not keep: the catalogue
+   * says what the game is, and ZXInfo is asked what it looks like. Written back into the library,
+   * so a wall of tiles costs one request per game once and nothing afterwards.
+   */
+  private void lookUpScreenshot(GameSearchResult result, Screenshots shots) {
+    new SwingWorker<String, Void>() {
+      @Override
+      protected String doInBackground() {
+        return LocalGames.screenshotOf(result.id);
+      }
+
+      @Override
+      protected void done() {
+        try {
+          String url = get();
+          if (url != null) {
+            result.screenshot1 = url;
+            shots.show(0, url);
+          }
+        } catch (Exception withoutAPicture) {
+          // A tile with no picture is still a game that loads.
+        }
+      }
+    }.execute();
   }
 
   /**
@@ -634,15 +874,22 @@ public class GameBrowserInternalFrame extends JInternalFrame {
    * a row was, let alone that one of them had nothing to download. Entries without a file are
    * kept in the results now, so they have to say so here rather than only when clicked.
    */
-  private JPanel createRowCaption(GameSearchResult result) {
+  private JPanel createTileCaption(GameSearchResult result) {
     JPanel caption = new JPanel();
     caption.setOpaque(false);
-    caption.setLayout(new BoxLayout(caption, BoxLayout.X_AXIS));
     caption.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+    caption.setLayout(new BoxLayout(caption, BoxLayout.Y_AXIS));
     JLabel title = new JLabel(result.title);
-    title.setFont(title.getFont().deriveFont(Font.BOLD));
+    title.setFont(title.getFont().deriveFont(Font.BOLD, 12f));
+    title.setToolTipText(result.title);
     caption.add(title);
+    if (result.subtitle != null) {
+      JLabel subtitle = new JLabel(result.subtitle);
+      subtitle.setFont(subtitle.getFont().deriveFont(Font.PLAIN, 10f));
+      subtitle.setForeground(Color.GRAY);
+      caption.add(subtitle);
+    }
 
     if (result.filename == null || !result.available) {
       title.setForeground(Color.GRAY);
