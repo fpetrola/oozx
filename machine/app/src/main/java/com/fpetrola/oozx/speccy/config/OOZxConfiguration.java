@@ -56,6 +56,12 @@ public class OOZxConfiguration implements Configuration.Saves {
   private String lastSaveStateDirectory;
   private List<String> recentFiles = new ArrayList<>();
   private List<Favorite> favorites = new ArrayList<>();
+  /** The folders this machine's games are looked for in. */
+  @JsonProperty
+  private List<String> gameFolders = new ArrayList<>();
+  /** The ones inside those that are not being taken into account, which is usually none. */
+  @JsonProperty
+  private List<String> skippedFolders = new ArrayList<>();
   /** The theme chosen from the Look&Feel menu, by its name, or null for whatever starts up. */
   private String lookAndFeel;
   /**
@@ -197,6 +203,57 @@ public class OOZxConfiguration implements Configuration.Saves {
 
   public void setLookAndFeel(String lookAndFeel) {
     this.lookAndFeel = lookAndFeel;
+  }
+
+  public List<String> getGameFolders() {
+    return gameFolders;
+  }
+
+  public void setGameFolders(List<String> gameFolders) {
+    this.gameFolders = gameFolders;
+  }
+
+  /** Keeps one entry per folder, and drops one that is inside another already being looked at. */
+  public boolean addGameFolder(String folder) {
+    if (gameFolders.stream().anyMatch(kept -> folder.equals(kept) || folder.startsWith(kept + File.separator))) {
+      return false;
+    }
+    gameFolders.removeIf(kept -> kept.startsWith(folder + File.separator));
+    gameFolders.add(folder);
+    save();
+    return true;
+  }
+
+  public void removeGameFolder(String folder) {
+    if (gameFolders.remove(folder)) {
+      save();
+    }
+  }
+
+  public List<String> getSkippedFolders() {
+    return skippedFolders;
+  }
+
+  public void setSkippedFolders(List<String> skippedFolders) {
+    this.skippedFolders = skippedFolders;
+  }
+
+  /** Whether a folder counts, which it does unless it or one it is inside was turned off. */
+  public boolean takesIntoAccount(String folder) {
+    return skippedFolders.stream()
+        .noneMatch(skipped -> folder.equals(skipped) || folder.startsWith(skipped + File.separator));
+  }
+
+  public void takeIntoAccount(String folder, boolean taken) {
+    skippedFolders.remove(folder);
+    if (!taken) {
+      skippedFolders.add(folder);
+    } else {
+      // Turning a folder back on turns on whatever was turned off inside it, which is the only
+      // reading of the box that matches what it then shows.
+      skippedFolders.removeIf(skipped -> skipped.startsWith(folder + File.separator));
+    }
+    save();
   }
 
   public List<Favorite> getFavorites() {

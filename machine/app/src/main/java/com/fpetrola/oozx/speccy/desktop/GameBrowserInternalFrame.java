@@ -18,6 +18,7 @@
 
 package com.fpetrola.oozx.speccy.desktop;
 
+import com.fpetrola.oozx.api.GameFingerprint;
 import com.fpetrola.oozx.api.GameLibrary;
 import com.fpetrola.oozx.speccy.media.DownloadAndUnzip;
 import com.fpetrola.oozx.speccy.media.LocalGames;
@@ -39,6 +40,13 @@ import java.awt.image.BufferedImage;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import javax.swing.JToggleButton;
+import javax.swing.JTree;
+import javax.swing.SwingConstants;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeSelectionModel;
+import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.List;
@@ -59,6 +67,11 @@ public class GameBrowserInternalFrame extends JInternalFrame {
   private JComboBox<String> sourceFilter;
   private JCheckBox unknownFilter;
   private JLabel libraryLabel;
+  private JTree folderTree;
+  private JScrollPane folderView;
+  private JToggleButton folderExpander;
+  private JPanel rescanRow;
+  private String onlyInFolder;
   private JComboBox<String> machineFilter;
   private JComboBox<String> genreFilter;
   private JCheckBox rzxFilter;
@@ -76,11 +89,15 @@ public class GameBrowserInternalFrame extends JInternalFrame {
   /** The side of a tile, and so what decides how many columns fit. */
   private static final int TILE = 230;
   private static final int GAP = 10;
+  /** How far into a row of the folder tree the box reaches, which is where a click turns it off. */
+  private static final int BOX = 20;
   /** How many tiles are built at once, which is also how many pictures get asked for. */
   private static final int AT_A_TIME = 60;
   private static final String ANY_GENRE = "Any genre";
   public static Gson gson = new Gson();
   private final RzxArchive archive = new RzxArchive();
+  private final com.fpetrola.oozx.speccy.config.OOZxConfiguration config =
+      com.fpetrola.oozx.config.Configuration.shared().of(com.fpetrola.oozx.speccy.config.OOZxConfiguration.class);
 
   private static int idOf(String id) {
     try {
@@ -263,14 +280,213 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     panel.add(labelled("This machine", libraryLabel));
     panel.add(Box.createVerticalStrut(4));
     panel.add(row(scan));
+    panel.add(Box.createVerticalStrut(4));
+    panel.add(createFolderTree());
     sayWhatIsOnThisMachine();
     return panel;
+  }
+
+  /**
+   * The folders the games are being taken from, out of the way until asked for: most of the time
+   * the answer is "the ones I added" and the space belongs to the gallery. Each one says how many
+   * games are under it, counting what is in the folders below it too, and picking one narrows the
+   * gallery to it.
+   */
+  private JPanel createFolderTree() {
+    JPanel panel = new JPanel(new BorderLayout());
+    panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    folderTree = new JTree(new DefaultTreeModel(new DefaultMutableTreeNode("folders")));
+    folderTree.setRootVisible(false);
+    folderTree.setShowsRootHandles(true);
+    folderTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+    folderTree.setCellRenderer(new FolderRenderer());
+    folderTree.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mousePressed(MouseEvent clicked) {
+        java.nio.file.Path folder = folderAt(clicked);
+        if (folder == null) {
+          return;
+        }
+        // Only the box turns a folder off; clicking the name selects it, which narrows the
+        // gallery to it without changing what is being taken into account.
+        if (clicked.getX() - folderTree.getPathBounds(folderTree.getPathForLocation(
+            clicked.getX(), clicked.getY())).x < BOX) {
+          config.takeIntoAccount(folder.toString(), !config.takesIntoAccount(folder.toString()));
+          folderTree.repaint();
+          performSearch();
+        }
+      }
+    });
+    folderTree.addTreeSelectionListener(picked -> {
+      Object node = folderTree.getLastSelectedPathComponent();
+      onlyInFolder = node instanceof DefaultMutableTreeNode chosen
+          && chosen.getUserObject() instanceof Folder folder ? folder.path().toString() : null;
+      performSearch();
+    });
+
+    folderView = new JScrollPane(folderTree);
+    folderView.setPreferredSize(new Dimension(220, 180));
+    folderView.setVisible(false);
+
+    folderExpander = new JToggleButton(collapsedLabel());
+    folderExpander.setBorderPainted(false);
+    folderExpander.setContentAreaFilled(false);
+    folderExpander.setHorizontalAlignment(SwingConstants.LEFT);
+    folderExpander.addActionListener(e -> {
+      folderView.setVisible(folderExpander.isSelected());
+      rescanRow.setVisible(folderExpander.isSelected());
+      folderExpander.setText(folderExpander.isSelected() ? "\u25be  Folders" : collapsedLabel());
+      // Unfolding must not leave a folder chosen from last time narrowing an unseen gallery.
+      if (!folderExpander.isSelected() && onlyInFolder != null) {
+        folderTree.clearSelection();
+      }
+      panel.revalidate();
+    });
+
+    JButton rescan = new JButton("Rescan");
+    rescan.setToolTipText("Look through every folder again, for games added since");
+    rescan.addActionListener(e -> rescanEverything());
+    rescanRow = row(rescan);
+    rescanRow.setVisible(false);
+
+    panel.add(folderExpander, BorderLayout.NORTH);
+    panel.add(folderView, BorderLayout.CENTER);
+    panel.add(rescanRow, BorderLayout.SOUTH);
+    return panel;
+  }
+
+  private java.nio.file.Path folderAt(MouseEvent clicked) {
+    javax.swing.tree.TreePath path = folderTree.getPathForLocation(clicked.getX(), clicked.getY());
+    return path != null && path.getLastPathComponent() instanceof DefaultMutableTreeNode node
+        && node.getUserObject() instanceof Folder folder ? folder.path() : null;
+  }
+
+  /** A folder with a box saying whether it is being taken into account. */
+  private class FolderRenderer extends javax.swing.tree.DefaultTreeCellRenderer {
+    private final JCheckBox box = new JCheckBox();
+
+    @Override
+    public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected,
+        boolean expanded, boolean leaf, int row, boolean focused) {
+      super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, focused);
+      if (value instanceof DefaultMutableTreeNode node && node.getUserObject() instanceof Folder folder) {
+        box.setText(folder.toString());
+        box.setSelected(config.takesIntoAccount(folder.path().toString()));
+        box.setOpaque(false);
+        box.setEnabled(tree.isEnabled());
+        return box;
+      }
+      return this;
+    }
+  }
+
+  /**
+   * Every folder again, for games that were not there last time. A scan skips what has not changed
+   * in size or date, so this costs a listing of the folders and a fingerprint of what is new.
+   */
+  private void rescanEverything() {
+    setSearching(true);
+    libraryLabel.setText("Looking again...");
+    new SwingWorker<Integer, Void>() {
+      @Override
+      protected Integer doInBackground() throws Exception {
+        int gone = LocalGames.library().forgetMissing();
+        for (String folder : config.getGameFolders()) {
+          if (config.takesIntoAccount(folder) && Files.isDirectory(java.nio.file.Path.of(folder))) {
+            LocalGames.library().scan(java.nio.file.Path.of(folder), LocalGames.CERTAINTY);
+          }
+        }
+        LocalGames.library().save(LocalGames.file());
+        return gone;
+      }
+
+      @Override
+      protected void done() {
+        setSearching(false);
+        try {
+          get();
+        } catch (Exception failed) {
+          showMessage("Could not look again: " + rootCauseOf(failed));
+        }
+        sayWhatIsOnThisMachine();
+        performSearch();
+      }
+    }.execute();
+  }
+
+  private String collapsedLabel() {
+    return "\u25b8  Folders (" + config.getGameFolders().size() + ")";
+  }
+
+  /** A folder of the tree: where it is, and how many games are under it. */
+  private record Folder(java.nio.file.Path path, int games) {
+    @Override
+    public String toString() {
+      String name = path.getFileName() == null ? path.toString() : path.getFileName().toString();
+      return name + "  (" + games + ")";
+    }
+  }
+
+  /**
+   * The folders that hold games, each under the one it is in. Only folders with something in them
+   * are listed: walking a collection of a thousand games otherwise draws a tree of empty branches.
+   */
+  private void fillFolderTree() {
+    Map<java.nio.file.Path, Integer> directly = new LinkedHashMap<>();
+    for (GameLibrary.Copy copy : LocalGames.library().games()) {
+      directly.merge(java.nio.file.Path.of(copy.path()).getParent(), 1, Integer::sum);
+    }
+    DefaultMutableTreeNode root = new DefaultMutableTreeNode("folders");
+    for (String folder : config.getGameFolders()) {
+      java.nio.file.Path top = java.nio.file.Path.of(folder);
+      Map<java.nio.file.Path, DefaultMutableTreeNode> nodes = new LinkedHashMap<>();
+      directly.keySet().stream()
+          .filter(dir -> dir != null && dir.startsWith(top))
+          .sorted()
+          .forEach(dir -> nodeFor(dir, top, nodes, directly));
+      DefaultMutableTreeNode node = nodes.get(top);
+      root.add(node == null ? new DefaultMutableTreeNode(new Folder(top, 0)) : node);
+    }
+    folderTree.setModel(new DefaultTreeModel(root));
+    // Folded, showing the folders that were added and what each one holds in total; opening one is
+    // how somebody asks about what is inside it.
+    for (int row = folderTree.getRowCount() - 1; row >= 0; row--) {
+      folderTree.collapseRow(row);
+    }
+    folderTree.scrollRowToVisible(0);
+    folderExpander.setText(folderExpander.isSelected() ? "\u25be  Folders" : collapsedLabel());
+  }
+
+  /** The node for a folder, making the ones above it first, and counting it into all of them. */
+  private DefaultMutableTreeNode nodeFor(java.nio.file.Path dir, java.nio.file.Path top,
+      Map<java.nio.file.Path, DefaultMutableTreeNode> nodes, Map<java.nio.file.Path, Integer> directly) {
+    DefaultMutableTreeNode already = nodes.get(dir);
+    if (already != null) {
+      return already;
+    }
+    DefaultMutableTreeNode node = new DefaultMutableTreeNode(new Folder(dir, 0));
+    nodes.put(dir, node);
+    if (!dir.equals(top) && dir.getParent() != null) {
+      nodeFor(dir.getParent(), top, nodes, directly).add(node);
+    }
+    // Counted into this folder and into every one above it, so a top folder says what its whole
+    // tree holds rather than only what sits loose in it.
+    for (java.nio.file.Path at = dir; at != null && at.startsWith(top); at = at.getParent()) {
+      DefaultMutableTreeNode counted = nodes.get(at);
+      if (counted != null) {
+        Folder folder = (Folder) counted.getUserObject();
+        counted.setUserObject(new Folder(folder.path(), folder.games() + directly.getOrDefault(dir, 0)));
+      }
+    }
+    return node;
   }
 
   private void sayWhatIsOnThisMachine() {
     GameLibrary library = LocalGames.library();
     long named = library.games().stream().filter(GameLibrary.Copy::identified).count();
     libraryLabel.setText(library.games().size() + " games, " + named + " named");
+    fillFolderTree();
   }
 
   private void scanFolder() {
@@ -281,6 +497,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
       return;
     }
     java.nio.file.Path folder = chooser.getSelectedFile().toPath();
+    config.addGameFolder(folder.toString());
     setSearching(true);
     libraryLabel.setText("Looking through " + folder.getFileName() + "...");
     new SwingWorker<Integer, Void>() {
@@ -317,34 +534,89 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     result.files = List.of(copy.path());
     result.onThisMachine = true;
     result.subtitle = copy.identified()
-        ? copy.game().yearOfRelease + "  -  " + copy.game().publisher
-        : "unknown  -  " + java.nio.file.Path.of(copy.path()).getFileName();
+        ? copy.game().yearOfRelease + "  -  " + copy.game().publisher : "unknown";
+    // What the catalogue knows about the game beyond its name, so that the filters and the
+    // pictures work the same for a game on the disk as for one on the net, and with no network.
+    GameFingerprint.Known known = copy.identified()
+        ? LocalGames.library().catalogue().known(copy.game().id) : null;
+    if (known != null) {
+      result.screenshot1 = known.screenshot();
+      result.hasMap = known.hasMap();
+    }
+    result.hasRzx = copy.identified() && archive.hasRecordings(idOf(copy.game().id));
     return result;
   }
 
   /**
-   * What this machine has, one tile per game rather than one per file. Six copies of Manic Miner
-   * in six folders are six files and one game, and knowing which game each file is is precisely
-   * what makes saying so possible; the copies are still all there, under Load Version.
+   * What this machine has, one result per file; putting the copies of one game together is done
+   * afterwards, by the same merge that joins them to what the net has.
    */
   private List<GameSearchResult> gamesOnThisMachine(String query, boolean onlyUnknown) {
-    Map<String, GameSearchResult> byGame = new LinkedHashMap<>();
-    LocalGames.library().games().stream()
+    return LocalGames.library().games().stream()
+        .filter(copy -> onlyInFolder == null || copy.path().startsWith(onlyInFolder))
+        .filter(copy -> config.takesIntoAccount(java.nio.file.Path.of(copy.path()).getParent().toString()))
         .filter(copy -> !onlyUnknown || !copy.identified())
         .filter(copy -> query.isEmpty() || copy.title().toLowerCase().contains(query.toLowerCase()))
-        .forEach(copy -> {
-          // Unidentified files are each their own game, because there is nothing to say they are not.
-          String key = copy.identified() ? copy.game().id : copy.path();
-          GameSearchResult already = byGame.get(key);
-          if (already == null) {
-            byGame.put(key, asResult(copy));
-          } else {
-            already.files = java.util.stream.Stream.concat(already.files.stream(), java.util.stream.Stream.of(copy.path())).toList();
-            already.subtitle = already.subtitle.replaceFirst("  -  \\d+ copies$", "")
-                + "  -  " + already.files.size() + " copies";
-          }
-        });
+        .map(this::asResult)
+        .collect(java.util.stream.Collectors.toList());
+  }
+
+  /**
+   * One tile per game, whatever it was found as. Seven copies of Manic Miner in seven folders and
+   * the ZXInfo entry for it are eight things and one game; knowing which game each file is - which
+   * is what the fingerprint is for - is what makes saying so possible. Every copy stays reachable
+   * under Load Version, the one on this machine first, because it is already here.
+   * <p>
+   * What could not be identified is its own game, since there is nothing to say it is not.
+   */
+  private List<GameSearchResult> oneTilePerGame(List<GameSearchResult> found) {
+    Map<String, GameSearchResult> byGame = new LinkedHashMap<>();
+    for (GameSearchResult result : found) {
+      GameSearchResult already = byGame.get(keyOf(result));
+      if (already == null) {
+        byGame.put(keyOf(result), result);
+      } else {
+        join(already, result);
+      }
+    }
+    byGame.values().forEach(this::sayWhereItIs);
     return new ArrayList<>(byGame.values());
+  }
+
+  private static String keyOf(GameSearchResult result) {
+    return result.id != null ? result.id : result.filename;
+  }
+
+  /** Folds the second into the first, keeping whichever of the two knows more. */
+  private void join(GameSearchResult kept, GameSearchResult other) {
+    // Files from this machine go first, so the one a click loads is the copy already on the disk.
+    kept.files = kept.onThisMachine
+        ? concat(kept.files, other.files) : concat(other.files, kept.files);
+    kept.filename = kept.files.isEmpty() ? kept.filename : kept.files.get(0);
+    kept.copies = kept.copies + other.copies;
+    kept.onThisMachine |= other.onThisMachine;
+    kept.available |= other.available;
+    kept.hasRzx |= other.hasRzx;
+    kept.hasMap |= other.hasMap;
+    kept.screenshot1 = kept.screenshot1 != null ? kept.screenshot1 : other.screenshot1;
+    kept.screenshot2 = kept.screenshot2 != null ? kept.screenshot2 : other.screenshot2;
+    kept.title = kept.title.length() >= other.title.length() ? kept.title : other.title;
+    if (kept.recordings.isEmpty()) {
+      kept.recordings = other.recordings;
+    }
+    if (kept.url == null) {
+      kept.url = other.url;
+    }
+  }
+
+  private static List<String> concat(List<String> first, List<String> second) {
+    return java.util.stream.Stream.concat(first.stream(), second.stream()).distinct().toList();
+  }
+
+  private void sayWhereItIs(GameSearchResult result) {
+    String where = result.onThisMachine
+        ? (result.copies > 1 ? result.copies + " on disk" : "on disk") : "on the net";
+    result.subtitle = result.subtitle == null ? where : result.subtitle + "  -  " + where;
   }
 
   /** Fills the combos from /metadata/, off the event thread, leaving them usable if it fails. */
@@ -445,16 +717,21 @@ public class GameBrowserInternalFrame extends JInternalFrame {
           return;
         }
 
+        results = oneTilePerGame(results);
         int found = results.size();
         // The extras and the availability are things a catalogue entry has; a file already on
         // the disk is available by being there, so those filters are not asked of it.
-        results.removeIf(result -> !result.onThisMachine && (
+        // Asked of everything, wherever it came from. They used to be asked only of what came
+        // from the net, so ticking RZX left every game on the disk showing and the filter looked
+        // broken; what a game on the disk offers is known too, and offline: its recordings from
+        // the archive that ships, its map from the catalogue that ships.
+        results.removeIf(result ->
             (onlyRzx && !result.hasRzx)
                 || (onlyMap && !result.hasMap)
                 // Not merely "has a file": one the archive will not hand over cannot be
                 // loaded either, and a filter for what can be loaded that still shows those is
                 // a filter that lies.
-                || (onlyLoadable && (result.filename == null || !result.available))));
+                || (onlyLoadable && (result.filename == null || !result.available)));
 
         if (results.isEmpty()) {
           showMessage(found == 0
@@ -748,9 +1025,6 @@ public class GameBrowserInternalFrame extends JInternalFrame {
 
     Screenshots shots = new Screenshots(l, result.screenshot1);
     shots.setAlignmentX(Component.LEFT_ALIGNMENT);
-    if (result.screenshot1 == null && result.id != null) {
-      lookUpScreenshot(result, shots);
-    }
 
     // Context menu
     JPopupMenu contextMenu = new JPopupMenu();
@@ -842,38 +1116,6 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     return row;
   }
 
-  /**
-   * The picture of a game found on this machine, which the library does not keep: the catalogue
-   * says what the game is, and ZXInfo is asked what it looks like. Written back into the library,
-   * so a wall of tiles costs one request per game once and nothing afterwards.
-   */
-  private void lookUpScreenshot(GameSearchResult result, Screenshots shots) {
-    new SwingWorker<String, Void>() {
-      @Override
-      protected String doInBackground() {
-        return LocalGames.screenshotOf(result.id);
-      }
-
-      @Override
-      protected void done() {
-        try {
-          String url = get();
-          if (url != null) {
-            result.screenshot1 = url;
-            shots.show(0, url);
-          }
-        } catch (Exception withoutAPicture) {
-          // A tile with no picture is still a game that loads.
-        }
-      }
-    }.execute();
-  }
-
-  /**
-   * The rows used to be two screenshots and nothing else, so there was no way to tell which game
-   * a row was, let alone that one of them had nothing to download. Entries without a file are
-   * kept in the results now, so they have to say so here rather than only when clicked.
-   */
   private JPanel createTileCaption(GameSearchResult result) {
     JPanel caption = new JPanel();
     caption.setOpaque(false);
