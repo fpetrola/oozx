@@ -130,7 +130,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     searchProgress.setPreferredSize(new Dimension(0, 4));
     searchProgress.setVisible(false);
 
-    resultsPanel = new ResultsPanel();
+    resultsPanel = new FollowsViewportWidth();
     resultsPanel.setLayout(new GridLayout(0, 1, GAP, GAP));
     resultsPanel.setBackground(UIManager.getColor("Panel.background"));
     resultsPanel.setBorder(BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP));
@@ -181,8 +181,8 @@ public class GameBrowserInternalFrame extends JInternalFrame {
    * it, and the filters over what comes back. They were a strip along the top, which had room for
    * the four the server takes and none for the ones that are about this machine.
    */
-  private JPanel createFilterPanel() {
-    JPanel bar = new JPanel();
+  private JComponent createFilterPanel() {
+    JPanel bar = new FollowsViewportWidth();
     bar.setLayout(new BoxLayout(bar, BoxLayout.Y_AXIS));
     bar.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
@@ -224,7 +224,6 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     bar.add(row(unknownFilter));
     bar.add(Box.createVerticalStrut(12));
     bar.add(createLibraryPanel());
-    bar.add(Box.createVerticalGlue());
 
     // Machine and genre change the query, so they need the server asked again. The rest only
     // narrow what came back, but the results are not kept, so a search is the simplest honest
@@ -239,7 +238,13 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     sourceFilter.addActionListener(research);
 
     loadFilterValues();
-    return bar;
+
+    JScrollPane scrolling = new JScrollPane(bar);
+    scrolling.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+    scrolling.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    scrolling.setBorder(BorderFactory.createEmptyBorder());
+    scrolling.getVerticalScrollBar().setUnitIncrement(16);
+    return scrolling;
   }
 
 
@@ -1190,7 +1195,12 @@ public class GameBrowserInternalFrame extends JInternalFrame {
    * Tracking the viewport is what passes the new width down to the rows, and from them to the
    * screenshots.
    */
-  private static class ResultsPanel extends JPanel implements Scrollable {
+  /**
+   * A panel that is as wide as whatever is scrolling it and as tall as its contents. Both columns
+   * of the window use it: the gallery, so the tiles wrap into the width instead of scrolling
+   * sideways, and the filters, so the tree at the bottom can be reached when the window is short.
+   */
+  private static class FollowsViewportWidth extends JPanel implements Scrollable {
 
     public Dimension getPreferredScrollableViewportSize() {
       return getPreferredSize();
