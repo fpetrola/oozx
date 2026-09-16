@@ -174,47 +174,11 @@ class NineInStepTest {
   }
 
   /**
-   * The whole of T: a follower's own pointer carries a colour, so where it would have written is
-   * nowhere in particular; told to go where the machine goes, it writes where the machine wrote
-   * and the colour it was carrying arrives intact.
+   * A number written into an instruction is a colour a game can paint, and a follower reads it
+   * from its own plane so that it writes that colour.
    */
   @Test
-  void toldToGoWhereTheMachineGoesAFollowerWritesWhereTheMachineWrote() {
-    code(CODE, 0x7e, 0x12);                          // LD A,(HL) ; LD (DE),A
-    colours(FROM, 200, 0, 0, 0, 0, 0, 0, 0);
-    alignment.says("1PSsT");
-    OOZ80 cpu = nine();
-    state.getRegister(RegisterName.HL).write(FROM);
-    state.getRegister(RegisterName.DE).write(TO);
-
-    run(cpu, 2);
-
-    assertEquals(200, colourOf(TO, 0), "the colour arrived where the machine put its byte");
-    assertEquals(0, colourOf(TO + 0x100, 0), "and nowhere else");
-  }
-
-  @Test
-  void aPointerToldToFollowTheMachineStillCarriesWhateverItWasCarrying() {
-    code(CODE, 0x7e, 0x12);                          // LD A,(HL) ; LD (DE),A
-    colours(FROM, 200, 0, 0, 0, 0, 0, 0, 0);
-    alignment.says("1PSsT");
-    OOZ80 cpu = nine();
-    state.getRegister(RegisterName.HL).write(FROM);
-    state.getRegister(RegisterName.DE).write(TO);
-    run(cpu, 2);
-
-    // A follower's own DE was never aligned, so it is still whatever it was: its own number.
-    assertEquals(TO, state.getRegister(RegisterName.DE).read(), "the machine's is the machine's");
-    assertEquals(200, colourOf(TO, 0), "and the colour is not the machine's byte");
-  }
-
-  /**
-   * A number written into an instruction is a colour a game can paint, and by default a follower
-   * reads it from its own plane so that it writes that colour. Told otherwise, it takes the
-   * machine's number, which is what stops a painted one from sending it somewhere else.
-   */
-  @Test
-  void aNumberWrittenIntoAnInstructionIsThisPlanesOwnUnlessTheGameSaysOtherwise() {
+  void aNumberWrittenIntoAnInstructionIsThisPlanesOwn() {
     code(CODE, 0x3e, 0x00, 0x12);                    // LD A,n ; LD (DE),A
     colours(CODE + 1, 90, 90, 90, 90, 90, 90, 90, 90);
     OOZ80 cpu = nine();
@@ -222,14 +186,6 @@ class NineInStepTest {
     run(cpu, 2);
 
     assertEquals(90, colourOf(TO, 0), "the game painted the number, so that is what arrives");
-
-    alignment.numbersFromTheOneFollowed(true);
-    ram[TO] = 0;
-    for (int plane = 0; plane < Planes.PLANES; plane++) planes.plane(plane, memory).write(TO, 0);
-    state.getRegister(RegisterName.PC).write(CODE);
-    run(cpu, 2);
-
-    assertEquals(0, colourOf(TO, 0), "and told to take the machine's number, the colour is not there");
   }
 
   @Test
@@ -314,6 +270,7 @@ class NineInStepTest {
     assertEquals(77, colourOf(TO, 0), "they decoded what the machine decoded, not what their planes said");
   }
 
+  /** The rule is one rule: where a follower goes it goes to write as well as to read. */
   @Test
   void aWriteLandsWhereTheMachineWroteAndNotWhereAColourSentIt() {
     run(aPointerCarryingAColour(), 6);
@@ -324,7 +281,6 @@ class NineInStepTest {
     fromScratch();
     leftToThemselves();
     OOZ80 cpu = aPointerCarryingAColour();
-    planes.writingWhereTheMachineWrote(false);
     run(cpu, 6);
     assertEquals(0, colourOf(TO + 0x40, 0), "left to themselves, the followers whose pointer carried nothing");
     assertEquals(7, colourOf(TO, 0), "wrote the colour where the machine never went");
@@ -341,34 +297,8 @@ class NineInStepTest {
     return cpu;
   }
 
-  @Test
-  void anAddressAFollowerAddsUpIsTheMachinesAddition() {
-    run(aColourAddedIntoAnAddress(), 6);
-    assertEquals(0xff, ram[TO] & 0xff, "the machine read one past HL and moved that byte");
-    assertEquals(90, colourOf(TO, 0), "and every follower read where the machine's addition landed");
-
-    fromScratch();
-    OOZ80 cpu = aColourAddedIntoAnAddress();
-    leftToThemselves();
-    run(cpu, 6);
-    assertEquals(0, colourOf(TO, 0), "left to themselves, each follower read a byte of its own and the colour was lost");
-  }
-
-  /** LD A,(HL) ; LD C,A ; LD B,0 ; ADD HL,BC ; LD A,(HL) ; LD (DE),A, with the colour inside the addition. */
-  private OOZ80 aColourAddedIntoAnAddress() {
-    code(CODE, 0x7e, 0x4f, 0x06, 0x00, 0x09, 0x7e, 0x12);
-    code(FROM, 0x01, 0xff);
-    colours(FROM, 0, 0, 0, 0, 0, 0, 0, 5);            // the index: only the planes of colour 5 carry the 1
-    colours(FROM + 1, 90, 90, 90, 90, 90, 90, 90, 90);   // and one past it is the colour to be moved
-    OOZ80 cpu = nine();
-    state.getRegister(RegisterName.HL).write(FROM);
-    state.getRegister(RegisterName.DE).write(TO);
-    return cpu;
-  }
-
-  /** With nobody correcting where a follower goes: every rule about addresses turned off. */
+  /** With nobody correcting where a follower goes: the rule about addresses turned off. */
   private void leftToThemselves() {
-    rules.addressesAddedUpByTheMachine = false;
     rules.readingWhereTheMachineReads = false;
   }
 

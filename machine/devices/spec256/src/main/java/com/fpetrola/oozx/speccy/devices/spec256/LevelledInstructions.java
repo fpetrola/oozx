@@ -20,7 +20,6 @@ package com.fpetrola.oozx.speccy.devices.spec256;
 
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.instructions.impl.Add16;
 import com.fpetrola.z80.instructions.impl.And;
 import com.fpetrola.z80.instructions.impl.Cpd;
 import com.fpetrola.z80.instructions.impl.Cpi;
@@ -93,32 +92,6 @@ final class LevelledInstructions extends DefaultInstructionFactory {
     };
   }
 
-  /**
-   * The numbers written into the instructions this follower runs: its own plane, which is where
-   * its colours are, unless the game would rather it read what the machine is running - a number
-   * a game painted could otherwise send a follower somewhere nothing asked for.
-   */
-  @Override
-  public Memory memoryForOpcodes(State state) {
-    Memory plane = state.getMemory();
-    return new Memory() {
-      public int read(int address, int fetching) {
-        return alignment.numbersFromTheOneFollowed() ? followed.getMemory().peek(address) : plane.read(address, fetching);
-      }
-
-      public int peek(int address) {
-        return plane.peek(address);
-      }
-
-      public void write(int address, int value) {
-        plane.write(address, value);
-      }
-
-      public void reset() {
-      }
-    };
-  }
-
   @Override
   public Ldi Ldi() {
     return new Ldi(walking(DE), walkingPair(BC), walkingPair(HL), flag, memory, state.getIo(), state.getRegister(A));
@@ -160,17 +133,6 @@ final class LevelledInstructions extends DefaultInstructionFactory {
   }
 
   @Override
-  public Add16 Add16(OpcodeReference target, ImmutableOpcodeReference source) {
-    Register into = machines(target), what = machines(source);
-    return into == null || what == null ? super.Add16(target, source) : new AddedUp(target, source, flag, into, what, rules);
-  }
-
-  /** The machine's register of the same name, for a reference that is one. */
-  private Register machines(Object reference) {
-    return reference instanceof Register named ? followed.getRegister(RegisterName.valueOf(named.getName())) : null;
-  }
-
-  @Override
   public And And(ImmutableOpcodeReference source) {
     And ordinary = super.And(source);
     return rules.levelledAnd ? new Lower(ordinary.getTarget(), source, flag) : ordinary;
@@ -187,30 +149,6 @@ final class LevelledInstructions extends DefaultInstructionFactory {
     Xor ordinary = super.Xor(source);
     if (!rules.levelledXor || source == ordinary.getTarget()) return ordinary;
     return new HigherStill(ordinary.getTarget(), source, flag);
-  }
-
-  /**
-   * An address a follower worked out by adding: the sum is the one the machine is about to make
-   * with its own two registers, because a register that carried a colour into the addition would
-   * send this one to read and write where the machine never went. A pointer a follower was given
-   * rather than added up is still its own, so a table indexed by a colour keeps working.
-   */
-  private static final class AddedUp extends Add16 {
-    private final Register into, what;
-    private final Rules rules;
-
-    AddedUp(OpcodeReference target, ImmutableOpcodeReference source, Register flag, Register into, Register what, Rules rules) {
-      super(target, source, flag);
-      this.into = into;
-      this.what = what;
-      this.rules = rules;
-    }
-
-    @Override
-    protected int doExecute(int sourceValue, int targetValue) {
-      int sum = super.doExecute(sourceValue, targetValue);
-      return rules.addressesAddedUpByTheMachine ? (into.read() + what.read()) & 0xffff : sum;
-    }
   }
 
   private static final class Lower extends And {

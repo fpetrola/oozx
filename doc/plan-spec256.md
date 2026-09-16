@@ -870,6 +870,36 @@ sale 7 (el color del byte) con la regla puesta y 5 (el color del puntero) sin el
 midiendo una configuración que ya no es la que se entrega. Con las reglas puestas —`gate.sh`— Atic
 Atac vuelve a 100.00% y Bubbler a 83.15%. Medir siempre con lo que se entrega.
 
+## Cuatro interruptores menos: queda una sola regla
+
+Con `(DE)` arreglado había que preguntarse si los interruptores seguían haciendo falta. Medido:
+cada regla apagada por turno, los quince títulos con captura más Renegade contra la pantalla de
+EmuZWin (y verificado que el interruptor llega de verdad a la corrida, no que no se aplicara).
+
+| juego | todas | sin W | sin H | sin R | con N | con T |
+|---|---|---|---|---|---|---|
+| Army Moves 1 | 95.88% | 95.88% | 95.88% | 95.88% | **85.69%** | 95.88% |
+| Bubbler | 83.16% | 83.16% | 83.16% | 83.15% | 83.16% | 83.16% |
+| Renegade (EmuZWin) | 99.60% | 99.60% | 99.60% | **99.08%** | 99.60% | **95.94%** |
+| los otros trece | — | iguales | iguales | iguales | iguales | iguales |
+
+Ningún juego distingue ya **W** (escribir donde escribió la máquina) ni **H** (las sumas de la
+máquina), y **N** y **T** sólo empeoran cuando se ponen. La razón es que `Addressing.read()` da la
+dirección tanto de la lectura como de la escritura: al pasar `(DE)` y `(BC)` por la alineación, la
+regla de lectura se comió a las otras dos. El hecho de `NineInStepTest` que decía *una escritura
+cae donde escribió la máquina y no donde la mandó un color* sigue verde sin tocarlo, y ahora lo
+sostiene la regla de lectura: es la prueba de que se la comió.
+
+Así que se fueron: el `T` de las letras, los números de la máquina, las sumas de la máquina, y con
+W toda la maquinaria de **retener** cada escritura de los ocho para volcarla después
+(`machineIsWriting`/`machineHasWritten`, `held`, `heldAt`, `holding`, `wroteAt`). El seam
+`Core.wrapping(Memory)` se queda, pero por otra razón: es lo que le avisa a `Permutations` que una
+página cambió. Cuatro casillas menos en el panel. **398 líneas menos**, los dieciséis juegos
+idénticos al píxel, el reactor entero verde.
+
+Queda una regla y se dice en una línea: **un seguidor lee y escribe donde lo hace la máquina, salvo
+en una página que mueve bits**.
+
 ## La mezcla con los atributos, y una clave que leíamos al revés
 
 El que juega lo dijo antes de que lo midiera: *lo que falta es la parte que mezcla los colores

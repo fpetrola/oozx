@@ -128,11 +128,4 @@ class AlignmentTest {
     assertThrows(IllegalArgumentException.class, () -> alignment.says("1PSsQ"));
     assertEquals(Alignment.BY_DEFAULT, alignment.said(), "and what it was told before still stands");
   }
-
-  @Test
-  void theOneThatSaysWhereToPointIsNotOneOfTheseAndIsPassedOver() {
-    alignment.says("1PSsT");
-
-    assertEquals("1PSsT", alignment.said());
-  }
 }

@@ -40,10 +40,6 @@ public class Spec256Frame extends MachineFrame {
   private final JLabel said = new JLabel();
   private final JLabel under = new JLabel();
   private final JCheckBox colourful = new JCheckBox("Colours");
-  private final JCheckBox pointers = new JCheckBox("Pointers");
-  private final JCheckBox numbers = new JCheckBox("Numbers");
-  private final JCheckBox writes = new JCheckBox("Writes");
-  private final JCheckBox added = new JCheckBox("Sums");
   private final JCheckBox reads = new JCheckBox("Reads");
   private final JTextField taken = new JTextField(12);
   private final JButton previous = new JButton("<");
@@ -71,41 +67,6 @@ public class Spec256Frame extends MachineFrame {
     colourful.addActionListener(e -> {
       Spec256Peripheral game = game();
       if (game != null) game.inItsColours(colourful.isSelected());
-      refresh();
-    });
-    pointers.setToolTipText("<html><b>Address with the machine\'s pointers</b><br>A follower's own pointer registers carry colours, and one addition on one of them<br>"
-        + "sends a write somewhere the machine never wrote. Taking them from the machine costs<br>"
-        + "the colours they were carrying: some games want it and others look worse with it.</html>");
-    pointers.addActionListener(e -> {
-      Spec256Peripheral game = game();
-      if (game != null) game.pointersFromTheMachine(pointers.isSelected());
-      refresh();
-    });
-    numbers.setToolTipText("<html><b>Take numbers from the machine</b><br>A number written into an instruction is read from this game's own colours,<br>"
-        + "so a game can paint one and have a follower write that colour. Taking them from the<br>"
-        + "machine instead stops a painted number from sending a follower somewhere else.<br>"
-        + "Games differ, and so do the two emulators this was read from.</html>");
-    numbers.addActionListener(e -> {
-      Spec256Peripheral game = game();
-      if (game != null) game.numbersFromTheMachine(numbers.isSelected());
-      refresh();
-    });
-    writes.setToolTipText("<html><b>Write where the machine writes</b><br>A follower's write lands where the machine wrote in that same instruction, whatever<br>"
-        + "its own pointers said, while what it reads still comes from where they point: a colour<br>"
-        + "used as an index into a table keeps working, and a pointer that drifted no longer<br>"
-        + "writes where the machine never did.</html>");
-    writes.addActionListener(e -> {
-      Spec256Peripheral game = game();
-      if (game != null) game.writesWhereTheMachineWrites(writes.isSelected());
-      refresh();
-    });
-    added.setToolTipText("<html><b>Add up as the machine does</b><br>An address a follower works out by adding is taken from the machine, which has<br>"
-        + "just added it up itself: a register that carried a colour into the addition would send<br>"
-        + "this one to read and write somewhere the machine never went. A pointer it was given<br>"
-        + "rather than worked out is still its own, so a table indexed by colour keeps working.</html>");
-    added.addActionListener(e -> {
-      Spec256Peripheral game = game();
-      if (game != null) game.addressesAddedUpByTheMachine(added.isSelected());
       refresh();
     });
     reads.setToolTipText("<html><b>Read where the machine reads</b><br>A follower reads where the machine reads, but only where a picture is: eight planes<br>"
@@ -139,8 +100,8 @@ public class Spec256Frame extends MachineFrame {
     top.add(said);
 
     JPanel bottom = new JPanel(new GridLayout(3, 1));
-    bottom.add(inARow(colourful, pointers, numbers));
-    bottom.add(inARow(writes, added, reads));
+    bottom.add(inARow(colourful));
+    bottom.add(inARow(reads));
     bottom.add(inARow(new JLabel("takes"), taken, under, previous, next));
 
     JPanel inside = new JPanel(new BorderLayout(0, 6));
@@ -206,10 +167,6 @@ public class Spec256Frame extends MachineFrame {
       say(said, " ");
       say(under, " ");
       colourful.setEnabled(false);
-      pointers.setEnabled(false);
-      numbers.setEnabled(false);
-      writes.setEnabled(false);
-      added.setEnabled(false);
       reads.setEnabled(false);
       taken.setEnabled(false);
       previous.setEnabled(false);
@@ -227,14 +184,6 @@ public class Spec256Frame extends MachineFrame {
         : "Under the screen: " + (game.showing() + 1) + " of " + pictures);
     colourful.setEnabled(true);
     colourful.setSelected(game.inItsColours());
-    pointers.setEnabled(true);
-    pointers.setSelected(game.pointersFromTheMachine());
-    numbers.setEnabled(true);
-    numbers.setSelected(game.numbersFromTheMachine());
-    writes.setEnabled(true);
-    writes.setSelected(game.writesWhereTheMachineWrites());
-    added.setEnabled(true);
-    added.setSelected(game.addressesAddedUpByTheMachine());
     reads.setEnabled(true);
     reads.setSelected(game.readsWhereTheMachineReads());
     taken.setEnabled(true);

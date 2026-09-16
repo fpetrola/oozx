@@ -54,13 +54,13 @@ public final class Alignment {
   }
 
   /**
-   * What is taken when a game says nothing: the stack pointer and every flag but the carry, and
-   * not {@code T}. A follower's pointer is not always drifting - a game that mirrors a sprite
+   * What is taken when a game says nothing: the stack pointer and every flag but the carry. A
+   * follower's pointer is not always drifting - a game that mirrors a sprite
    * looks it up in a table indexed by the very byte it is mirroring, and there the follower is
-   * right to go somewhere the machine did not. Which of the two a game does is the game's to say,
-   * and most games need to say nothing: a colour that walks into an address is caught where it
-   * walks in, by {@link Planes#writingWhereTheMachineWrote} and by
-   * {@link Rules#addressesAddedUpByTheMachine}, without costing the register its colour.
+   * right to go somewhere the machine did not. Which of the two a page is, is read off the page
+   * itself, so most games need to say nothing: a colour that walks into an address is caught
+   * where it walks in, by {@link Rules#readingWhereTheMachineReads}, without costing the register
+   * its colour.
    */
   public static final String BY_DEFAULT = "1PSs";
   private static final int CARRY = 0x01;
@@ -76,8 +76,6 @@ public final class Alignment {
   private RegisterName[] named;
   private boolean flags;
   private boolean alternateFlags;
-  private boolean addressesFromTheOneFollowed;
-  private boolean numbersFromTheOneFollowed;
 
   public Alignment() {
     says(BY_DEFAULT);
@@ -87,12 +85,8 @@ public final class Alignment {
   public void says(String letters) {
     java.util.LinkedHashSet<RegisterName> wanted = new java.util.LinkedHashSet<>();
     wanted.add(RegisterName.PC);
-    flags = alternateFlags = addressesFromTheOneFollowed = false;
+    flags = alternateFlags = false;
     for (char letter : letters.toCharArray()) {
-      if (letter == 'T') {
-        addressesFromTheOneFollowed = true;
-        continue;
-      }
       int at = LETTERS.indexOf(letter);
       if (at < 0) throw new IllegalArgumentException("A follower cannot be asked for '" + letter + "', only for one of " + LETTERS);
       if (letter == '1') flags = true;
@@ -109,35 +103,10 @@ public final class Alignment {
   }
 
   /**
-   * Whether a follower goes where the machine goes: its own pointer registers carry colours, and
-   * one addition on one of them would send a write where nothing asked for it.
-   */
-  public boolean addressesFromTheOneFollowed() {
-    return addressesFromTheOneFollowed;
-  }
-
-  /**
-   * Whether the numbers written into instructions come from the machine as well.
-   * <p>
-   * The two emulators this was read from disagree here and so do the games. GZX takes them from
-   * the plane, which lets a game paint a colour into the number an instruction carries and have
-   * a follower write that colour; ZX-Poly takes them from the machine, which stops a painted
-   * number from sending a follower to an address the machine never went to. Army Moves wants the
-   * first and Renegade the second, so neither is the answer: it is a thing a game says.
-   */
-  public boolean numbersFromTheOneFollowed() {
-    return numbersFromTheOneFollowed;
-  }
-
-  public void numbersFromTheOneFollowed(boolean fromTheMachine) {
-    numbersFromTheOneFollowed = fromTheMachine;
-  }
-
-  /**
-   * One register read for an address from the machine's and written to as its own, which is the
-   * whole of {@code T}: where a follower goes is the machine's business, what it carries is not.
-   * It asks on every address rather than once, so that turning it on and off is something a
-   * person can do while the game is running.
+   * One register read for an address from the machine's and written to as its own: where a
+   * follower goes is the machine's business, what it carries is not. It asks on every address
+   * rather than once, so that turning the rule on and off is something a person can do while the
+   * game is running.
    */
   public Register addressing(Register machines, Register mine) {
     if (mine instanceof com.fpetrola.z80.registers.RegisterPair pair) {
@@ -161,7 +130,6 @@ public final class Alignment {
      * machine is reading - a pointer that carries a colour points at a pixel that is not there.
      */
     public int read() {
-      if (addressesFromTheOneFollowed) return machines.read();
       int ours = mine.read(), his = machines.read();
       return ours == his || !aPictureIsThere.test(his) ? ours : his;
     }

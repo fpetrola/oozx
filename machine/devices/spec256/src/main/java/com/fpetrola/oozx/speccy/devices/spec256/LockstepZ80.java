@@ -30,45 +30,36 @@ import com.fpetrola.z80.cpu.OOZ80;
  * port, and is invisible to everything that asks this processor about itself: the state handed
  * out here is the machine's.
  * <p>
- * The eight go first and the machine last, and the planes are told when its turn begins and ends,
- * because where it writes is where what they held back has to land.
+ * The eight go first and the machine last.
  */
 public final class LockstepZ80 extends OOZ80 {
   private final OOZ80[] followers;
   private final Alignment alignment;
-  private final Planes planes;
   private boolean following;
 
-  public LockstepZ80(OOZ80 one, OOZ80[] followers, Alignment alignment, Planes planes) {
+  public LockstepZ80(OOZ80 one, OOZ80[] followers, Alignment alignment) {
     super(one);
     this.followers = followers;
     this.alignment = alignment;
-    this.planes = planes;
   }
 
   @Override
   public void execute() {
     if (!following) startFollowing();
     takenByAll(OOZ80::execute);
-    planes.machineIsWriting();
     super.execute();
-    planes.machineHasWritten();
   }
 
   @Override
   public void interruption() {
     takenByAll(OOZ80::interruption);
-    planes.machineIsWriting();
     super.interruption();
-    planes.machineHasWritten();
   }
 
   @Override
   public void nmi() {
     takenByAll(OOZ80::nmi);
-    planes.machineIsWriting();
     super.nmi();
-    planes.machineHasWritten();
   }
 
   @Override

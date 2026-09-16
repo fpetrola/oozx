@@ -61,12 +61,6 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
    */
   private static final String[] ROM_COLOURS = {".gfb", ".gfa"};
   private static final String ANY_ROM = "rom0.gfx";
-  /**
-   * What a game's file calls going where the machine goes: a follower addresses memory with the
-   * machine's pointers and keeps its own as the colours they carry. Its own would do otherwise,
-   * and one addition on one of them is enough to send a write where nothing asked for it.
-   */
-  private static final String POINTERS = "T";
   /** A background is 320 by 200 of a colour each, laid under the screen and centred on it. */
   private static final int BACKGROUND_WIDTH = 320, BACKGROUND_HEIGHT = 200;
   private static final int BACKGROUND_SIZE = BACKGROUND_WIDTH * BACKGROUND_HEIGHT;
@@ -86,7 +80,6 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
   private int bitmap, ink, paper;
   private boolean flashedAway;
   private boolean inItsColours = true;
-  private boolean pointersFromTheMachine;
 
   @Inject
   public Spec256Peripheral(Planes planes, Processors processors, Display display, SpectrumMemory banks,
@@ -122,7 +115,6 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     romBeside(colours);
     backgroundsBeside(colours);
     rules.read(withTheSameName(url, SAYS));
-    pointersFromTheMachine = rules.registersTaken.contains(POINTERS);
     takeWhatTheGameAsksFor();
     if (wasOn == null) wasOn = processors.current();
     processors.use(Spec256Core.NAME);
@@ -348,16 +340,10 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     return alignment;
   }
 
-  /** Whether a follower addresses memory with the machine's pointers rather than its own. */
-  public boolean pointersFromTheMachine() {
-    return pointersFromTheMachine;
-  }
-
   /**
    * The letters a game's file gives for what its followers take, as they stand - a game that
    * brought no file says the default. Said again from a window they replace what the file said,
-   * the pointers switch on top of them either way, because most games need a line of their own
-   * and few bring one.
+   * because most games need a line of their own and few bring one.
    */
   public String registersTaken() {
     return rules.registersTaken;
@@ -366,33 +352,7 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
   public void registersTaken(String letters) {
     alignment.says(letters);
     rules.registersTaken = letters;
-    pointersFromTheMachine = letters.contains(POINTERS);
     takeWhatTheGameAsksFor();
-  }
-
-  /** Whether the numbers written into the instructions a follower runs come from the machine. */
-  public boolean numbersFromTheMachine() {
-    return alignment.numbersFromTheOneFollowed();
-  }
-
-  public void numbersFromTheMachine(boolean fromTheMachine) {
-    alignment.numbersFromTheOneFollowed(fromTheMachine);
-    display.refreshAll();
-  }
-
-  public void pointersFromTheMachine(boolean fromTheMachine) {
-    pointersFromTheMachine = fromTheMachine;
-    takeWhatTheGameAsksFor();
-  }
-
-  /** Whether an address a follower adds up is taken from the machine, which has already added it. */
-  public boolean addressesAddedUpByTheMachine() {
-    return rules.addressesAddedUpByTheMachine;
-  }
-
-  public void addressesAddedUpByTheMachine(boolean fromTheMachine) {
-    rules.addressesAddedUpByTheMachine = fromTheMachine;
-    display.refreshAll();
   }
 
   /** Whether a follower reads where the machine reads, except from a table every plane shares. */
@@ -405,19 +365,8 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     display.refreshAll();
   }
 
-  /** Whether what a follower writes lands where the machine wrote in the same instruction. */
-  public boolean writesWhereTheMachineWrites() {
-    return planes.writingWhereTheMachineWrote();
-  }
-
-  public void writesWhereTheMachineWrites(boolean whereTheMachineWrites) {
-    planes.writingWhereTheMachineWrote(whereTheMachineWrites);
-    display.refreshAll();
-  }
-
   private void takeWhatTheGameAsksFor() {
-    String asked = rules.registersTaken.replace(POINTERS, "");
-    alignment.says(pointersFromTheMachine ? asked + POINTERS : asked);
+    alignment.says(rules.registersTaken);
   }
 
   @Override
@@ -444,7 +393,6 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     backgrounds.clear();
     planes.blank();
     rules.asTheyComeByDefault();
-    pointersFromTheMachine = rules.registersTaken.contains(POINTERS);
     takeWhatTheGameAsksFor();
     display.painting.pixelsOfItsOwn(null);
     display.picture().sinclairColours();

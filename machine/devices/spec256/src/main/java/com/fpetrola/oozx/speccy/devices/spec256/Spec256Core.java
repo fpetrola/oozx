@@ -76,7 +76,7 @@ public class Spec256Core implements Core {
     return ordinary.countsItsOwnContention();
   }
 
-  /** The machine's memory, with the planes told where it writes: that is where what they write goes. */
+  /** The machine's memory, with what it writes told to whoever has an answer cached about that page. */
   public Memory wrapping(Memory memory) {
     return new Memory() {
       public int read(int address, int fetching) {
@@ -85,7 +85,6 @@ public class Spec256Core implements Core {
 
       public void write(int address, int value) {
         memory.write(address, value);
-        planes.machineWroteAt(address);
         permutations.written(address);
       }
 
@@ -111,7 +110,7 @@ public class Spec256Core implements Core {
       State own = new State(DEAF, ordinary.bank(null, DEAF), planes.plane(plane, state.getMemory()));
       followers[plane] = ordinary.cpu(own, null, new LevelledInstructions(own, rules, state, alignment));
     }
-    return new LockstepZ80(ordinary.cpu(state, contention), followers, alignment, planes);
+    return new LockstepZ80(ordinary.cpu(state, contention), followers, alignment);
   }
 
 }

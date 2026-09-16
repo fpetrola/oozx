@@ -208,29 +208,6 @@ class TheRulesOfAGameTest extends MachineTest {
   }
 
   /**
-   * A follower's own pointer registers carry colours, so one addition on one of them sends a write
-   * somewhere the machine never wrote. Taking them from the machine stops that and costs whatever
-   * colour they were carrying, which is why it is asked for rather than always done.
-   */
-  @Test
-  void aFollowerCanBeToldToAddressWithTheMachinesPointersInstead() throws IOException {
-    colours(addressOf(LINE, COLUMN), 0, 0, 0, 0, 0, 0, 0, 0);
-    started("zxpAlignRegs=1PSs\n", null);
-    assertEquals("1PSs", session().alignment().said(), "the game said so and the game is right");
-    assertFalse(session().alignment().addressesFromTheOneFollowed());
-
-    session().pointersFromTheMachine(true);
-
-    assertTrue(session().pointersFromTheMachine());
-    assertTrue(session().alignment().addressesFromTheOneFollowed(), "it goes where the machine goes now");
-    assertEquals("1PSsT", session().alignment().said(), "and what the game asked for is still in there");
-
-    session().pointersFromTheMachine(false);
-    assertEquals("1PSs", session().alignment().said(), "back to the game's own word on it");
-    assertFalse(session().alignment().addressesFromTheOneFollowed());
-  }
-
-  /**
    * Most games need a line of their own and few bring one - ZX-Poly keeps a base of them, one per
    * snapshot - so the letters can be said from a window as well as from the file, and they
    * replace what the file said rather than adding to it.
@@ -238,13 +215,12 @@ class TheRulesOfAGameTest extends MachineTest {
   @Test
   void whatTheFollowersTakeCanBeSaidFromAWindowInTheGamesOwnLetters() throws IOException {
     colours(addressOf(LINE, COLUMN), 0, 0, 0, 0, 0, 0, 0, 0);
-    started("zxpAlignRegs=1PSsT\n", null);
-    assertTrue(session().pointersFromTheMachine(), "the file said T");
+    started("zxpAlignRegs=1PSsHL\n", null);
+    assertEquals("1PSsHL", session().alignment().said(), "the file said so");
 
     session().registersTaken("1DEPSs");
 
     assertEquals("1DEPSs", session().alignment().said(), "what was said replaces what the file said");
-    assertFalse(session().pointersFromTheMachine(), "and the switch follows the letters, not the other way round");
     assertThrows(IllegalArgumentException.class, () -> session().registersTaken("1PSsQ"));
     assertEquals("1DEPSs", session().alignment().said(), "a letter nobody knows changes nothing");
   }

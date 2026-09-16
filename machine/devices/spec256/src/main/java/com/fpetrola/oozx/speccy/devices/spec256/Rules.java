@@ -50,9 +50,6 @@ public final class Rules {
   /** Whether the three logical instructions work on colours rather than on bits, in the followers. */
   public boolean levelledOr, levelledAnd, levelledXor;
 
-  /** Whether an address a follower works out by adding is taken from the machine, which just did. */
-  public boolean addressesAddedUpByTheMachine = true;
-
   /**
    * Whether a follower reads where the machine reads. Only where a picture is: eight planes that
    * all say the same thing are a table, and a follower that looks one up with a colour of its own
@@ -75,7 +72,6 @@ public final class Rules {
     mixedFromTheBottom = 0;
     brightInTheMix = false;
     levelledOr = levelledAnd = levelledXor = false;
-    addressesAddedUpByTheMachine = true;
     readingWhereTheMachineReads = true;
     registersTaken = Alignment.BY_DEFAULT;
   }
