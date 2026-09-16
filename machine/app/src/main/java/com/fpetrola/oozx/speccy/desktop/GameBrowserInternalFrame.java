@@ -40,6 +40,7 @@ import java.awt.image.BufferedImage;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import javax.swing.MenuSelectionManager;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
 import javax.swing.SwingConstants;
@@ -796,6 +797,16 @@ public class GameBrowserInternalFrame extends JInternalFrame {
    */
   private JMenu machineMenu(String label, GameSearchResult result, String file) {
     JMenu menu = new JMenu(label);
+    // Clicking the name loads it; hovering opens the machines for when the file is wrong about
+    // which one it wants. The entry that used to say "As the file says" was this same thing with
+    // a label instead of the name of what it would load.
+    menu.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mousePressed(MouseEvent clicked) {
+        MenuSelectionManager.defaultManager().clearSelectedPath();
+        load(result, file, null);
+      }
+    });
     fill(menu, result, file);
     return menu;
   }
@@ -809,12 +820,11 @@ public class GameBrowserInternalFrame extends JInternalFrame {
    */
   private void fill(JMenu menu, GameSearchResult result, String file) {
     menu.removeAll();
-    JMenuItem automatic = new JMenuItem("As the file says");
-    automatic.addActionListener(e -> load(result, file, null));
-    menu.add(automatic);
-
     List<String> machines = listener.machines();
     if (!machines.isEmpty()) {
+      JMenuItem heading = new JMenuItem("Or on a machine of your choosing:");
+      heading.setEnabled(false);
+      menu.add(heading);
       menu.addSeparator();
       for (String machine : machines) {
         JMenuItem item = new JMenuItem(machine);
