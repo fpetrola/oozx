@@ -26,7 +26,6 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -44,31 +43,36 @@ import java.util.stream.Stream;
  */
 public class GameLibrary {
   private static final ObjectMapper JSON = new ObjectMapper();
+  /** Bumped whenever a copy starts recording something new. */
+  private static final int FORMAT = 2;
 
   private final Map<String, Copy> byPath = new LinkedHashMap<>();
   private final GameFingerprint.Index catalogue;
-  private final Predicate<Path> loadable;
-  private final Payload payload;
+  private final Emulator emulator;
 
-  /** The bytes of the game inside a file, which for a snapshot is not the file itself. */
-  public interface Payload {
-    byte[] of(Path file) throws IOException;
+  /**
+   * What the emulator knows about a file and this end does not: whether it can open it, where the
+   * game's own bytes are inside it, and whether it has colours of its own beside it.
+   */
+  public interface Emulator {
+    boolean loadable(Path file);
+
+    byte[] payload(Path file) throws IOException;
+
+    boolean inColour(Path file);
   }
 
-  public GameLibrary(GameFingerprint.Index catalogue, Predicate<Path> loadable, Payload payload) {
+  public GameLibrary(GameFingerprint.Index catalogue, Emulator emulator) {
     this.catalogue = catalogue;
-    this.loadable = loadable;
-    this.payload = payload;
+    this.emulator = emulator;
   }
 
   /**
    * One game as it sits on this machine. A null game is one the catalogue did not recognise, and
    * the stamp says which catalogue said so.
    */
-  public record Copy(String path, long size, long modified, GameSummary game, double score, int catalogue) {
-    public Copy(String path, long size, long modified, GameSummary game, double score) {
-      this(path, size, modified, game, score, 0);
-    }
+  public record Copy(String path, long size, long modified, GameSummary game, double score,
+                     int stamp, boolean inColour) {
 
     public boolean identified() {
       return game != null;
@@ -92,7 +96,7 @@ public class GameLibrary {
   public int scan(Path directory, double certainty) throws IOException {
     List<Path> files;
     try (Stream<Path> walk = Files.walk(directory)) {
-      files = walk.filter(Files::isRegularFile).filter(loadable).toList();
+      files = walk.filter(Files::isRegularFile).filter(emulator::loadable).toList();
     }
     for (Path file : files) {
       identify(file, certainty);
@@ -112,15 +116,25 @@ public class GameLibrary {
     // The catalogue as well as the file: a game that was unknown, or was taken for another one,
     // is asked again when a new catalogue ships rather than keeping the old answer for ever.
     if (known != null && known.size() == size && known.modified() == modified
-        && known.catalogue() == catalogue.stamp()) {
+        && known.stamp() == stamp()) {
       return known;
     }
-    GameFingerprint.Match match = catalogue.identify(payload.of(file));
+    GameFingerprint.Match match = catalogue.identify(emulator.payload(file));
     boolean sure = match != null && match.score() >= certainty;
-    Copy copy = new Copy(file.toString(), size, modified,
-        sure ? match.game() : null, match == null ? 0 : match.score(), catalogue.stamp());
+    Copy copy = new Copy(file.toString(), size, modified, sure ? match.game() : null,
+        match == null ? 0 : match.score(), stamp(), emulator.inColour(file));
     byPath.put(file.toString(), copy);
     return copy;
+  }
+
+  /**
+   * What an answer was worked out from: the catalogue, and how much a copy records. Both change
+   * what is written down, so both have to make a library written earlier be asked again - adding a
+   * field and not bumping this is how a whole library keeps saying false about something nobody
+   * had thought to look at yet.
+   */
+  private int stamp() {
+    return catalogue.stamp() * 31 + FORMAT;
   }
 
   /** The catalogue it identifies against, for asking what else is known about a game. */

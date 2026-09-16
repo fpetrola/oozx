@@ -17,6 +17,7 @@
 package com.fpetrola.oozx.speccy.media;
 
 import com.fpetrola.emulation.helpers.snapshots.SnapshotFactory;
+import com.fpetrola.oozx.speccy.devices.spec256.Spec256Peripheral;
 import com.fpetrola.oozx.api.GameFingerprint;
 import com.fpetrola.oozx.api.GameLibrary;
 import com.fpetrola.oozx.api.GameSummary;
@@ -48,12 +49,24 @@ public class LocalGames {
   /** The one library of this machine, read from disk the first time somebody asks for it. */
   public static synchronized GameLibrary library() {
     if (library == null) {
-      library = new GameLibrary(GameFingerprint.Index.shipped(),
-          // What the emulator can open, less the recordings: an RZX is somebody playing a game,
-          // not a copy of one, and it belongs to the player rather than to this shelf.
-          file -> DownloadAndUnzip.loadable(file.getFileName().toString())
-              && !file.getFileName().toString().toLowerCase().endsWith(".rzx"),
-          file -> SnapshotFactory.payloadOf(file.toFile()));
+      library = new GameLibrary(GameFingerprint.Index.shipped(), new GameLibrary.Emulator() {
+        /**
+         * What the emulator can open, less the recordings: an RZX is somebody playing a game, not
+         * a copy of one, and it belongs to the player rather than to this shelf.
+         */
+        public boolean loadable(Path file) {
+          return DownloadAndUnzip.loadable(file.getFileName().toString())
+              && !file.getFileName().toString().toLowerCase().endsWith(".rzx");
+        }
+
+        public byte[] payload(Path file) throws IOException {
+          return SnapshotFactory.payloadOf(file.toFile());
+        }
+
+        public boolean inColour(Path file) {
+          return Spec256Peripheral.hasColours(file.toString());
+        }
+      });
       try {
         library.load(file());
       } catch (IOException unreadable) {

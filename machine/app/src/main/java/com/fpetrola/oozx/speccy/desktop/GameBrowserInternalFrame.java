@@ -19,6 +19,7 @@ package com.fpetrola.oozx.speccy.desktop;
 
 import com.fpetrola.oozx.api.GameFingerprint;
 import com.fpetrola.oozx.api.GameLibrary;
+import com.fpetrola.oozx.speccy.devices.spec256.Spec256Peripheral;
 import com.fpetrola.oozx.speccy.media.DownloadAndUnzip;
 import com.fpetrola.oozx.speccy.media.LocalGames;
 import com.fpetrola.oozx.speccy.windows.LazyImageIconLoader;
@@ -66,6 +67,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
   private boolean loading;
   private JComboBox<String> sourceFilter;
   private JCheckBox unknownFilter;
+  private JCheckBox colourFilter;
   private JLabel libraryLabel;
   private JTree folderTree;
   private JScrollPane folderView;
@@ -212,6 +214,8 @@ public class GameBrowserInternalFrame extends JInternalFrame {
 
     unknownFilter = new JCheckBox("Only unknown");
     unknownFilter.setToolTipText("Games on this machine the catalogue could not name");
+    colourFilter = new JCheckBox("256 colors");
+    colourFilter.setToolTipText("Games with Spec256 colours of their own beside them");
 
     bar.add(labelled("Machine", machineFilter));
     bar.add(Box.createVerticalStrut(6));
@@ -221,6 +225,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     bar.add(row(mapFilter));
     bar.add(row(loadableFilter));
     bar.add(row(unknownFilter));
+    bar.add(row(colourFilter));
     bar.add(Box.createVerticalStrut(12));
     bar.add(createLibraryPanel());
 
@@ -234,6 +239,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     mapFilter.addActionListener(research);
     loadableFilter.addActionListener(research);
     unknownFilter.addActionListener(research);
+    colourFilter.addActionListener(research);
     sourceFilter.addActionListener(research);
 
     loadFilterValues();
@@ -557,6 +563,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
       result.hasMap = known.hasMap();
     }
     result.hasRzx = copy.identified() && archive.hasRecordings(idOf(copy.game().id));
+    result.inColour = copy.inColour();
     return result;
   }
 
@@ -622,6 +629,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     kept.available |= other.available;
     kept.hasRzx |= other.hasRzx;
     kept.hasMap |= other.hasMap;
+    kept.inColour |= other.inColour;
     kept.screenshot1 = kept.screenshot1 != null ? kept.screenshot1 : other.screenshot1;
     kept.screenshot2 = kept.screenshot2 != null ? kept.screenshot2 : other.screenshot2;
     kept.title = kept.title.length() >= other.title.length() ? kept.title : other.title;
@@ -685,6 +693,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     boolean net = !ON_THIS_MACHINE.equals(where);
     boolean machine = !ON_THE_NET.equals(where);
     boolean onlyUnknown = unknownFilter.isSelected();
+    boolean onlyColour = colourFilter.isSelected();
     // Asking the net for everything is not a search, but the games on this machine are a list
     // that can simply be shown, so an empty box browses them instead of doing nothing.
     if (query.isEmpty() && net && !machine) {
@@ -750,7 +759,8 @@ public class GameBrowserInternalFrame extends JInternalFrame {
         // broken; what a game on the disk offers is known too, and offline: its recordings from
         // the archive that ships, its map from the catalogue that ships.
         results.removeIf(result ->
-            (onlyRzx && !result.hasRzx)
+            (onlyColour && !result.inColour)
+                || (onlyRzx && !result.hasRzx)
                 || (onlyMap && !result.hasMap)
                 // Not merely "has a file": one the archive will not hand over cannot be
                 // loaded either, and a filter for what can be loaded that still shows those is
@@ -1072,14 +1082,15 @@ public class GameBrowserInternalFrame extends JInternalFrame {
       contextMenu.addSeparator();
     }
     java.util.List<Runnable> refills = new ArrayList<>();
-    JMenu loadItem = machineMenu("Load Game", result, null);
+    JMenu loadItem = machineMenu(result.inColour ? "Load Game   -   256 colors" : "Load Game", result, null);
     refills.add(() -> fill(loadItem, result, null));
     // When there is more than one, the whole list, in the order the scorer would have taken
     // them, so what is picked by default is the one at the top.
     if (result.files.size() > 1) {
       JMenu versions = new JMenu("Load Version");
       for (String each : result.files) {
-        String shown = each.substring(each.lastIndexOf('/') + 1);
+        String shown = each.substring(each.lastIndexOf('/') + 1)
+            + (Spec256Peripheral.hasColours(each) ? "   -   256 colors" : "");
         JMenu item = machineMenu(
             DownloadAndUnzip.available(each) ? shown : shown + "  (not available)", result, each);
         item.setEnabled(DownloadAndUnzip.available(each));

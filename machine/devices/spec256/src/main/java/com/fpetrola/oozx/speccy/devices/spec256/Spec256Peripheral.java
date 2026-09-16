@@ -98,6 +98,16 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     return true;
   }
 
+  /**
+   * Whether a game has colours of its own beside it, which is the same question this peripheral
+   * asks before taking them: a file with the game's name and {@code .gfx} next to it. Anything
+   * that wants to say a game is in 256 colours - a filter, a menu - asks here rather than knowing
+   * what the file is called.
+   */
+  public static boolean hasColours(String url) {
+    return withTheSameName(url, COLOURS) != null;
+  }
+
   public void beside(String url) {
     File colours = withTheSameName(url, COLOURS);
     if (colours == null) {
