@@ -188,7 +188,18 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     bar.setLayout(new BoxLayout(bar, BoxLayout.Y_AXIS));
     bar.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-    bar.add(labelled("Search", searchField));
+    JButton clear = new JButton("\u2715");
+    clear.setToolTipText("Empty the search");
+    clear.setMargin(new java.awt.Insets(0, 4, 0, 4));
+    clear.addActionListener(e -> {
+      searchField.setText("");
+      performSearch();
+    });
+    JPanel searching = new JPanel(new BorderLayout(4, 0));
+    searching.setOpaque(false);
+    searching.add(searchField, BorderLayout.CENTER);
+    searching.add(clear, BorderLayout.EAST);
+    bar.add(labelled("Search", searching));
     bar.add(Box.createVerticalStrut(4));
     bar.add(row(searchButton));
     bar.add(Box.createVerticalStrut(4));
@@ -698,6 +709,10 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     // Asking the net for everything is not a search, but the games on this machine are a list
     // that can simply be shown, so an empty box browses them instead of doing nothing.
     if (query.isEmpty() && net && !machine) {
+      // Emptying the box with nothing but the net to look at leaves the last search's tiles on
+      // screen, which then say nothing about what is being asked.
+      showMessage("Type what to look for on the net, or look at what is on this machine");
+      setTitle("Game Browser");
       return;
     }
 
