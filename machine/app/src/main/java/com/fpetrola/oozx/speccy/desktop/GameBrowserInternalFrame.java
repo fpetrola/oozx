@@ -392,6 +392,10 @@ public class GameBrowserInternalFrame extends JInternalFrame {
       @Override
       protected Integer doInBackground() throws Exception {
         int gone = LocalGames.library().forgetMissing();
+        // Games under a folder nobody lists any more are dropped rather than lingering unseen.
+        LocalGames.library().games().stream().filter(copy -> config.getGameFolders().stream()
+                .noneMatch(folder -> copy.path().startsWith(folder + java.io.File.separator)))
+            .forEach(copy -> LocalGames.library().forget(java.nio.file.Path.of(copy.path())));
         for (String folder : config.getGameFolders()) {
           if (config.takesIntoAccount(folder) && Files.isDirectory(java.nio.file.Path.of(folder))) {
             LocalGames.library().scan(java.nio.file.Path.of(folder), LocalGames.CERTAINTY);
@@ -420,11 +424,11 @@ public class GameBrowserInternalFrame extends JInternalFrame {
   }
 
   /** A folder of the tree: where it is, and how many games are under it. */
-  private record Folder(java.nio.file.Path path, int games) {
+  private record Folder(java.nio.file.Path path, java.util.Set<String> games) {
     @Override
     public String toString() {
       String name = path.getFileName() == null ? path.toString() : path.getFileName().toString();
-      return name + "  (" + games + ")";
+      return name + "  (" + games.size() + ")";
     }
   }
 
@@ -433,9 +437,12 @@ public class GameBrowserInternalFrame extends JInternalFrame {
    * are listed: walking a collection of a thousand games otherwise draws a tree of empty branches.
    */
   private void fillFolderTree() {
-    Map<java.nio.file.Path, Integer> directly = new LinkedHashMap<>();
+    // Games, not files, so the tree and the gallery count the same things: two copies of one game
+    // in a folder are one game, which is what the gallery shows as one tile.
+    Map<java.nio.file.Path, java.util.Set<String>> directly = new LinkedHashMap<>();
     for (GameLibrary.Copy copy : LocalGames.library().games()) {
-      directly.merge(java.nio.file.Path.of(copy.path()).getParent(), 1, Integer::sum);
+      directly.computeIfAbsent(java.nio.file.Path.of(copy.path()).getParent(), dir -> new LinkedHashSet<>())
+          .add(copy.identified() ? copy.game().id : copy.path());
     }
     DefaultMutableTreeNode root = new DefaultMutableTreeNode("folders");
     for (String folder : config.getGameFolders()) {
@@ -446,7 +453,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
           .sorted()
           .forEach(dir -> nodeFor(dir, top, nodes, directly));
       DefaultMutableTreeNode node = nodes.get(top);
-      root.add(node == null ? new DefaultMutableTreeNode(new Folder(top, 0)) : node);
+      root.add(node == null ? new DefaultMutableTreeNode(new Folder(top, java.util.Set.of())) : node);
     }
     folderTree.setModel(new DefaultTreeModel(root));
     // Folded, showing the folders that were added and what each one holds in total; opening one is
@@ -460,23 +467,24 @@ public class GameBrowserInternalFrame extends JInternalFrame {
 
   /** The node for a folder, making the ones above it first, and counting it into all of them. */
   private DefaultMutableTreeNode nodeFor(java.nio.file.Path dir, java.nio.file.Path top,
-      Map<java.nio.file.Path, DefaultMutableTreeNode> nodes, Map<java.nio.file.Path, Integer> directly) {
+      Map<java.nio.file.Path, DefaultMutableTreeNode> nodes,
+      Map<java.nio.file.Path, java.util.Set<String>> directly) {
     DefaultMutableTreeNode already = nodes.get(dir);
     if (already != null) {
       return already;
     }
-    DefaultMutableTreeNode node = new DefaultMutableTreeNode(new Folder(dir, 0));
+    DefaultMutableTreeNode node = new DefaultMutableTreeNode(new Folder(dir, new LinkedHashSet<>()));
     nodes.put(dir, node);
     if (!dir.equals(top) && dir.getParent() != null) {
       nodeFor(dir.getParent(), top, nodes, directly).add(node);
     }
     // Counted into this folder and into every one above it, so a top folder says what its whole
-    // tree holds rather than only what sits loose in it.
+    // tree holds rather than only what sits loose in it. A set rather than a sum, because the same
+    // game in two of its folders is still one game.
     for (java.nio.file.Path at = dir; at != null && at.startsWith(top); at = at.getParent()) {
       DefaultMutableTreeNode counted = nodes.get(at);
       if (counted != null) {
-        Folder folder = (Folder) counted.getUserObject();
-        counted.setUserObject(new Folder(folder.path(), folder.games() + directly.getOrDefault(dir, 0)));
+        ((Folder) counted.getUserObject()).games().addAll(directly.getOrDefault(dir, java.util.Set.of()));
       }
     }
     return node;
@@ -548,13 +556,24 @@ public class GameBrowserInternalFrame extends JInternalFrame {
   }
 
   /**
+   * Whether a game is under one of the folders being taken into account. The library outlives the
+   * list of folders - a folder dropped from it leaves its games written down - and a gallery that
+   * showed them anyway would disagree with the tree that counts them.
+   */
+  private boolean takenIntoAccount(GameLibrary.Copy copy) {
+    return config.getGameFolders().stream()
+        .anyMatch(folder -> copy.path().startsWith(folder + java.io.File.separator))
+        && config.takesIntoAccount(java.nio.file.Path.of(copy.path()).getParent().toString());
+  }
+
+  /**
    * What this machine has, one result per file; putting the copies of one game together is done
    * afterwards, by the same merge that joins them to what the net has.
    */
   private List<GameSearchResult> gamesOnThisMachine(String query, boolean onlyUnknown) {
     return LocalGames.library().games().stream()
         .filter(copy -> onlyInFolder == null || copy.path().startsWith(onlyInFolder))
-        .filter(copy -> config.takesIntoAccount(java.nio.file.Path.of(copy.path()).getParent().toString()))
+        .filter(this::takenIntoAccount)
         .filter(copy -> !onlyUnknown || !copy.identified())
         .filter(copy -> query.isEmpty() || copy.title().toLowerCase().contains(query.toLowerCase()))
         .map(this::asResult)
