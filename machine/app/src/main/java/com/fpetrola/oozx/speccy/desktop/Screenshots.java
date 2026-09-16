@@ -17,6 +17,8 @@
 
 package com.fpetrola.oozx.speccy.desktop;
 
+import com.fpetrola.oozx.speccy.modules.display.Display;
+
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.SwingWorker;
@@ -44,9 +46,16 @@ import java.net.URL;
  */
 public class Screenshots extends JComponent {
 
-  /** What a Spectrum screen is, and so the shape to reserve before an image has arrived. */
-  private static final int SCREEN_WIDTH = 256;
-  private static final int SCREEN_HEIGHT = 192;
+  /**
+   * What a Spectrum screen is, and so the shape to reserve before an image has arrived. Taken from
+   * the display the emulator draws rather than written out again: the paper is 32 columns by 24
+   * rows of eight pixels, and the border around it is four columns at the sides and three at the
+   * top and bottom, which is why it is not the same thickness all the way round.
+   */
+  private static final int SCREEN_WIDTH = (Display.SCREEN_WIDTH_COLS - 2 * Display.BORDER_WIDTH_COLS) * 8;
+  private static final int SCREEN_HEIGHT = Display.HEIGHT;
+  private static final int FRAME_WIDTH = Display.SCREEN_WIDTH_COLS * 8;
+  private static final int FRAME_HEIGHT = Display.SCREEN_HEIGHT;
   private static final int GAP = 10;
   /** The stripes a tape's pilot tone puts in the border, which are red and cyan. */
   private static final Color LOADING_RED = new Color(0xD8, 0x00, 0x00);
@@ -144,26 +153,28 @@ public class Screenshots extends JComponent {
    * of its own is drawn as the one screen every Spectrum game has been seen on.
    * <p>
    * The letters are drawn at the size they are on the machine and never scaled: eight pixels is
-   * already small and a fraction of that is a smear. What gives way when the tile is narrow is the
-   * border, down to nothing, and then the line itself, which loses the word the ROM prints before
-   * a name.
+   * already small and a fraction of that is a smear. What gives way when the tile is too narrow for
+   * the line is the line itself, which loses the word the ROM prints before a name; the border
+   * keeps its proportions, which is what makes the thing look like a Spectrum and not like a frame.
    */
   private void paintPlaceholder(Graphics2D g2, int x, int width) {
     int height = heightOf(width);
     String message = "Program: " + (coming[slotAt(x, width)] && !anyFailed ? "loading..." : "no screenshot");
-    if (message.length() * 8 + 16 > width) {
+    if (message.length() * 8 + 8 > width * SCREEN_WIDTH / FRAME_WIDTH) {
       message = message.substring("Program: ".length());
     }
-    int border = Math.max(0, Math.min(width / 12, (width - message.length() * 8) / 2 - 4));
+    // The border of a Spectrum frame, which is wider at the sides than above and below.
+    int sides = width * Display.BORDER_WIDTH_COLS * 8 / FRAME_WIDTH;
+    int ends = height * Display.BORDER_HEIGHT / FRAME_HEIGHT;
 
     for (int y = 0; y < height; y += STRIPE) {
       g2.setColor((y / STRIPE) % 2 == 0 ? LOADING_RED : LOADING_CYAN);
       g2.fillRect(x, y, width, Math.min(STRIPE, height - y));
     }
     g2.setColor(Color.BLACK);
-    g2.fillRect(x + border, border, width - border * 2, height - border * 2);
-    if (message.length() * 8 <= width - border * 2) {
-      inTheRomsLetters(g2, message, x + border + 4, border + 4);
+    g2.fillRect(x + sides, ends, width - sides * 2, height - ends * 2);
+    if (message.length() * 8 <= width - sides * 2) {
+      inTheRomsLetters(g2, message, x + sides + 4, ends + 4);
     }
   }
 
