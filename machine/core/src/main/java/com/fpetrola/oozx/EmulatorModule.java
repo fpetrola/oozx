@@ -80,6 +80,10 @@ public class EmulatorModule extends AbstractModule {
         com.fpetrola.oozx.speccy.modules.machine.Machine.Unit.class, "lateTimings", "issue2");
     com.fpetrola.oozx.config.Settings.mirrorOfTheMachine(binder(), "sound",
         com.fpetrola.oozx.speccy.modules.sound.Sound.Output.class, "enabled", "device", "whileLoading");
+    // How loud it is belongs to the sound itself rather than to what it is played on, and it kept
+    // no memory of it between runs: a machine opened again came back at a hundred per cent.
+    com.fpetrola.oozx.config.Settings.mirrorOfTheMachine(binder(), "sound.volume",
+        com.fpetrola.oozx.speccy.modules.sound.Sound.class, "volume");
     bind(com.fpetrola.oozx.speccy.machine.Roms.class).to(com.fpetrola.oozx.config.RomFiles.class);
     // The bus as defined asks on every access; the one the machine runs on remembers.
     bind(MemoryBus.class).to(DecodedMemoryBus.class);

@@ -340,23 +340,22 @@ public abstract class AttachedFrame extends JInternalFrame {
     }
     Rectangle m = machineWindow.getBounds();
     int tall = compact ? compactHeight() : Math.max(compactHeight(), chosenHeight);
+    boolean flat = dock == Dock.TOP || dock == Dock.BOTTOM;
+    // Alone on that edge it keeps the size it has and is only moved: a window clipped to the side
+    // of a small machine was being cut down to the machine's height, which for one with tabs in it
+    // meant losing most of what it had to show. It is when a second one arrives that the edge has
+    // to be divided, and then they all take their share of it so that every one of them touches
+    // the machine.
     int[] mine = share(machineWindow, dock);
-    int along = mine[1] - mine[0];
+    boolean alone = sharing(machineWindow, dock).size() < 2;
+    int along = alone ? (flat ? getWidth() : getHeight()) : mine[1] - mine[0];
     switch (dock) {
-      // Along the top or the bottom it takes the machine's width, which is the whole point of
-      // putting it there: the controls for a picture, the width of the picture. Or the part of
-      // that width another window has not already taken.
       // Overlapped by the two borders that meet, or the frames sit a seam apart: each draws
       // its own edge and the gap between the picture and the buttons is the sum of the two.
       case BOTTOM -> setBounds(mine[0], m.y + m.height - seam(), along, tall);
       case TOP -> setBounds(mine[0], Math.max(0, m.y - tall + seam()), along, tall);
-      // Against a side it is moved, and only shortened when it does not fit what is left there.
-      // Stretching a toolbar to the machine's height turns it into a column of empty space, and
-      // a window that grows because it drifted near something else fights whoever is holding it.
-      case LEFT -> setBounds(Math.max(0, m.x - getWidth() + sideSeam()), mine[0],
-          getWidth(), Math.min(getHeight(), along));
-      case RIGHT -> setBounds(m.x + m.width - sideSeam(), mine[0],
-          getWidth(), Math.min(getHeight(), along));
+      case LEFT -> setBounds(Math.max(0, m.x - getWidth() + sideSeam()), mine[0], getWidth(), along);
+      case RIGHT -> setBounds(m.x + m.width - sideSeam(), mine[0], getWidth(), along);
       default -> { }
     }
     placedAt = getBounds();
