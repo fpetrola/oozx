@@ -18,8 +18,12 @@
 
 package com.fpetrola.oozx.speccy.media;
 
+import com.fpetrola.oozx.api.ZxInfoApiHandler;
+
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.*;
@@ -37,21 +41,20 @@ public class DownloadAndUnzip {
     new DownloadAndUnzip().unzip("https://zxinfo.dk/media/zxdb/sinclair/entries/0030743/BigBrother.z80.zip");
   }
 
-  public Path unzip(String zipUrl) {
-    String outputDirName = "zxinfo_extracted";
-
+  /**
+   * The file to load out of whatever is at a URL, brought down into the working directory. Not
+   * every one of them is a zip: ZXDB hands out .tzx.zip, the TOSEC set at archive.org hands out
+   * the .z80 itself, and reading the second as a zip finds nothing in it.
+   */
+  public Path unzip(String url) {
     try {
-//      File tempFile = File.createTempFile("zxinfo", "tmp");
-      Path extractDir = TMP_DIR.resolve(outputDirName);
-      Files.createDirectories(extractDir);
-
-      Path path = downloadAndUnzip(zipUrl, extractDir);
-      System.out.println("Descomprimido en: " + extractDir.toAbsolutePath());
-      return path;
-
-    } catch (Exception e) {
-      System.err.println("Error: " + e.getMessage());
-      throw new RuntimeException(e);
+      Path file = fetch(url, TMP_DIR.resolve("zxinfo_extracted"));
+      if (file == null) {
+        throw new IOException("nothing this emulator can open came down from " + url);
+      }
+      return file;
+    } catch (IOException failure) {
+      throw new RuntimeException(failure.getMessage(), failure);
     }
   }
 
@@ -61,8 +64,7 @@ public class DownloadAndUnzip {
    * offers both - 3188 recordings as plain files and 859 inside zips.
    */
   public static Path fetch(String url, Path directory) throws IOException {
-    List<Path> all = fetchAll(url, directory);
-    return all.isEmpty() ? null : chooseLoadable(all);
+    return chooseLoadable(fetchAll(url, directory));
   }
 
   /**
@@ -84,14 +86,10 @@ public class DownloadAndUnzip {
       entries.sort(Comparator.comparing(path -> path.getFileName().toString()));
       return entries;
     }
-    String name = url.substring(url.lastIndexOf('/') + 1);
+    String name = nameOf(url);
     Path file = directory.resolve(name.isEmpty() ? "download" : name);
     Files.write(file, downloadFile(new URL(url)));
     return List.of(file);
-  }
-
-  public static Path downloadAndUnzip(String zipUrl, Path extractTo) throws IOException {
-    return chooseLoadable(unzipAll(zipUrl, extractTo));
   }
 
   private static List<Path> unzipAll(String zipUrl, Path extractTo) throws IOException {
@@ -131,23 +129,16 @@ public class DownloadAndUnzip {
   }
 
   /**
-   * Picks the file to load out of a zip's entries. The first entry is not it: a zip often holds
-   * several variants, and which one comes first is whatever order the archive happens to have.
-   * Human Killing Machine lists its 128K tape first, so taking entry zero handed a 128K tape to
-   * an emulator that boots a 48K machine, and the load died with the machine back in the ROM.
-   * <p>
-   * Directories are skipped, anything that is not loadable is skipped, and between two variants
-   * of the same tape the 48K one wins, since that is the machine being emulated.
+   * Picks the file to load out of a zip's entries, or out of a folder left by an earlier run. The
+   * first entry is not it: a zip often holds several variants, and which one comes first is
+   * whatever order the archive happens to have. Human Killing Machine lists its 128K tape first,
+   * so taking entry zero handed a 128K tape to an emulator that boots a 48K machine, and the load
+   * died with the machine back in the ROM. Neither is the first entry the answer when none of them
+   * is loadable: Pac-Man Emulator is published as a zip of its own build, and its Makefile was
+   * being handed to the snapshot reader.
    */
   public static Path chooseLoadable(List<Path> entries) {
-    List<Path> files = new ArrayList<>();
-    for (Path entry : entries) {
-      if (!Files.isDirectory(entry)) {
-        files.add(entry);
-      }
-    }
-    Path best = preferred(files, entry -> entry.getFileName().toString());
-    return best != null ? best : entries.get(0);
+    return preferred(entries, entry -> entry.getFileName().toString());
   }
 
   /**
@@ -191,11 +182,12 @@ public class DownloadAndUnzip {
   private static final int UNLOADABLE = Integer.MIN_VALUE + 1;
 
   private static int scoreOf(String fileName) {
-    String path = fileName.toLowerCase();
+    // A URL carries TOSEC's brackets escaped, and the rules below read the name, not the escaping.
+    String path = fileName.toLowerCase().replace("%5b", "[");
     // ZXDB puts what it is not allowed to hand out under /denied/. Such a file is still the kind
     // of thing that could be loaded, so it is not rejected here - it is simply the last resort,
     // behind anything that will actually come down.
-    int denied = path.contains("/denied/") ? 50 : 0;
+    int denied = ZxInfoApiHandler.denied(path) ? 50 : 0;
     String name = path.substring(path.lastIndexOf('/') + 1);
     // ZXDB lists downloads as .tzx.zip while the entries inside them are plain .tzx, and the
     // same scoring serves both.
@@ -223,9 +215,11 @@ public class DownloadAndUnzip {
     if (name.contains("48")) {
       score += 5;
     }
-    // A plain release beats one marked as an alternate or a different dump.
-    if (name.contains("different") || name.contains("alternate")) {
-      score -= 2;
+    // Not the plain dump: ZXDB says so in words, TOSEC in brackets - [a2], [h Byte Rus], [tr ru],
+    // [m tzxtools]. What somebody translated or hung a trainer on is another program and not
+    // another file of the same one, so it outweighs any preference between formats.
+    if (name.contains("different") || name.contains("alternate") || name.contains("[")) {
+      score -= 25;
     }
     return score;
   }
@@ -297,14 +291,12 @@ public class DownloadAndUnzip {
   }
 
   /**
-   * Whether this one can be expected to come down at all.
-   * <p>
-   * ZXDB keeps what it may not distribute under /denied/, so this is known before anything is
-   * tried. An entry whose only file is one of those is not something the emulator can open, however
-   * loadable the format is, and saying so beforehand beats a refusal after a wait.
+   * Whether this one can be expected to come down at all. ZXDB keeps what it may not distribute
+   * under /denied/, so this is known before anything is tried; an entry left with only those is
+   * offered its TOSEC files instead.
    */
   public static boolean available(String fileName) {
-    return fileName != null && !fileName.toLowerCase().contains("/denied/");
+    return fileName != null && !ZxInfoApiHandler.denied(fileName);
   }
 
   private static String cannotReach(URL url, IOException failure) {
@@ -317,9 +309,24 @@ public class DownloadAndUnzip {
     return url.getHost() + " could not be reached: " + failure.getMessage();
   }
 
+  /**
+   * What the thing at a URL or a path is called, as it reads and not as a URL spells it: a TOSEC
+   * file arrives with its spaces and brackets escaped, and that escaping belongs neither in the
+   * name of a file kept on disk nor in a menu somebody reads.
+   */
+  public static String nameOf(String urlOrPath) {
+    String path = urlOrPath;
+    try {
+      String decoded = new URI(urlOrPath).getPath();
+      path = decoded == null ? urlOrPath : decoded;
+    } catch (URISyntaxException aPathAndNotAUrl) {
+      // A name with a space or a backslash in it is a path, and already reads as it is.
+    }
+    return path.substring(Math.max(path.lastIndexOf('/'), path.lastIndexOf(File.separatorChar)) + 1);
+  }
+
   private static String nameOf(URL url) {
-    String path = url.getPath();
-    String name = path.substring(path.lastIndexOf('/') + 1);
+    String name = nameOf(url.toString());
     return name.isEmpty() ? "the file" : name;
   }
 }

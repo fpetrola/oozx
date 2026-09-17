@@ -203,8 +203,8 @@ public class TzxLoadingTest {
         continue;
       }
       for (var file : release.files) {
-        // /denied/ holds entries withdrawn on copyright grounds; no mirror serves them,
-        // so a click on one in the browser can only ever 404.
+        // /denied/ holds entries withdrawn on copyright grounds; ZXDB does not serve those,
+        // and what stands in for them is a TOSEC file, which this walk of the releases misses.
         if ("Perfect tape (TZX)".equals(file.format) && !file.path.startsWith("/denied/")) {
           candidates.add(GameBrowserInternalFrame.getFileURL(file.path));
         }
@@ -227,7 +227,7 @@ public class TzxLoadingTest {
       }
     }
     Files.createDirectories(dir);
-    return DownloadAndUnzip.downloadAndUnzip(url, dir);
+    return DownloadAndUnzip.fetch(url, dir);
   }
 
   private Report runTape(String query, String title, File tapeFile) {

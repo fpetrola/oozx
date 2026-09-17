@@ -1011,7 +1011,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
    */
   public void open(String path) {
     if (RzxSession.isRecording(path)) {
-      playWhatever("Could not open " + nameOf(path) + ".",
+      playWhatever("Could not open " + DownloadAndUnzip.nameOf(path) + ".",
           () -> new Chosen(new java.io.File(path), null, null));
     } else {
       loadInNewEmulator(path);
@@ -2424,8 +2424,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
   public void loadInNewEmulator(String path) {
     // Downloading, unzipping and booting can take several seconds, and until now they took them
     // in silence: nothing appeared until the machine did, which reads as the click not working.
-    JDialog loading = showLoading(path.startsWith("http") ? "Fetching " + nameOf(path) + "..."
-        : "Loading " + nameOf(path) + "...");
+    String name = DownloadAndUnzip.nameOf(path);
+    JDialog loading = showLoading(path.startsWith("http") ? "Fetching " + name + "..." : "Loading " + name + "...");
 
     new SwingWorker<EmulatorCore, Void>() {
       @Override
@@ -2444,11 +2444,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
         }
       }
     }.execute();
-  }
-
-  private static String nameOf(String path) {
-    int slash = Math.max(path.lastIndexOf('/'), path.lastIndexOf(java.io.File.separatorChar));
-    return slash < 0 ? path : path.substring(slash + 1);
   }
 
   /**
