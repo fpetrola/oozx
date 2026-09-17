@@ -239,4 +239,30 @@ class ConfigurationTest {
     Files.writeString(file.toPath(), json);
     return file;
   }
+
+  /**
+   * There is one configuration for the whole program and every machine ever built registers with
+   * it to be saved. If it held those callbacks, it would hold the machine behind each of them: the
+   * suite that builds a machine per test ran out of two gigabytes of heap doing exactly that.
+   */
+  @Test
+  void aMachineNobodyHasAnyMoreIsNotKeptAliveByHavingAskedToBeSaved(@TempDir Path where) {
+    Configuration configuration = new Configuration(where.resolve("config.json").toFile());
+    java.util.List<String> ran = new java.util.ArrayList<>();
+
+    Runnable kept = () -> ran.add("kept");
+    configuration.beforeSave(kept);
+    Runnable dropped = () -> ran.add("dropped");
+    configuration.beforeSave(dropped);
+    java.lang.ref.WeakReference<Runnable> watching = new java.lang.ref.WeakReference<>(dropped);
+    dropped = null;
+
+    for (int tries = 0; tries < 100 && watching.get() != null; tries++) System.gc();
+    assertNull(watching.get(), "nothing but the configuration was holding it");
+
+    configuration.beforeSave(() -> {
+    });
+    configuration.save();
+    assertEquals(java.util.List.of("kept"), ran, "the one still held ran, the one let go did not");
+  }
 }

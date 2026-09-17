@@ -25,6 +25,7 @@ import com.google.inject.Binder;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
+import java.lang.ref.WeakReference;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -276,19 +277,36 @@ public class Configuration {
     return node;
   }
 
-  private final List<Runnable> beforeSaving = new ArrayList<>();
+  /**
+   * What to pull back into the sections before saving, held weakly on purpose.
+   * <p>
+   * There is one configuration for the whole program and every machine ever built registers with
+   * it, so holding these strongly would mean a machine nobody is using any more is kept alive by
+   * having once asked to be saved. Whoever registers one keeps it for as long as it wants it to
+   * run: {@link com.fpetrola.oozx.config.Settings} holds its own, and lives as long as its machine.
+   */
+  private final List<WeakReference<Runnable>> beforeSaving = new ArrayList<>();
 
   /** Registers a callback to pull a machine's live values back into its section just before {@link #save}. */
   public void beforeSave(Runnable gather) {
-    beforeSaving.add(gather);
+    letGoOfWhatIsGone();
+    beforeSaving.add(new WeakReference<>(gather));
   }
 
   public void notBeforeSave(Runnable gather) {
-    beforeSaving.remove(gather);
+    beforeSaving.removeIf(held -> held.get() == null || held.get() == gather);
+  }
+
+  private void letGoOfWhatIsGone() {
+    beforeSaving.removeIf(held -> held.get() == null);
   }
 
   public void save() {
-    beforeSaving.forEach(Runnable::run);
+    letGoOfWhatIsGone();
+    for (WeakReference<Runnable> held : List.copyOf(beforeSaving)) {
+      Runnable gather = held.get();
+      if (gather != null) gather.run();
+    }
     // Merged rather than overwritten, since a section (e.g. the machine's) can nest others inside it.
     sections.forEach((type, section) -> {
       ObjectNode written = (ObjectNode) json.valueToTree(section);
