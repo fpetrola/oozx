@@ -92,7 +92,7 @@ public final class Settings {
         return field.getType();
       }
       try {
-        return device.getMethod(property).getReturnType();
+        return Configuration.getter(device, property).getReturnType();
       } catch (NoSuchMethodException notThere) {
         throw new IllegalStateException(device.getName() + " has no " + property, notThere);
       }
