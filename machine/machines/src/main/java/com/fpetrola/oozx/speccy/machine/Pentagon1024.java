@@ -112,16 +112,8 @@ public class Pentagon1024 extends Pentagon512 {
    * from the two banks at once, each one a colour for its left pixel and another for its right,
    * so eight pixels are eight colours and nothing in memory is an attribute.
    */
-  /** Nothing in this picture is an attribute, so nothing in it can flash. */
-  private final Painting.Line sixteenColours = new Painting.Line() {
-    public void paint(int y, int bits) {
-      paintSixteenColours(y, bits);
-    }
-
-    public boolean cellsCanFlash() {
-      return false;
-    }
-  };
+  /** Both halves of the screen are bitmap here, read from two banks, so nothing is an attribute. */
+  private final Painting.WithoutAttributes sixteenColours = this::paintSixteenColours;
 
   private void paintSixteenColours(int y, int bits) {
     byte[] screen = banks.shown().bytes, other = banks.beside().bytes;

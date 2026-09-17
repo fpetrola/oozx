@@ -65,6 +65,18 @@ public final class Painting {
     }
   }
 
+  /**
+   * A picture whose colours are not attributes in memory: what lies where the attributes would be
+   * is more of somebody's bitmap, so there is nothing there to carry the bit that says a cell
+   * flashes. Every machine that makes a picture out of both halves of the screen is one of these.
+   */
+  public interface WithoutAttributes extends Line {
+    @Override
+    default boolean cellsCanFlash() {
+      return false;
+    }
+  }
+
   /** A bitmap byte and the two colours of its cell, which is how every Sinclair draws. */
   public final Line sinclair = this::plotSinclair;
 
