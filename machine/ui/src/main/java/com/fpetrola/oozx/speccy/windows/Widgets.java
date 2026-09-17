@@ -71,6 +71,25 @@ public class Widgets {
   }
 
   /** What to tell a person about a failure: the deepest message there is, or the kind of failure when there is none. */
+  /**
+   * Acts on what a person picked from a box, and not on the box being told what it already says.
+   * <p>
+   * A box that shows what something is and also changes it hears its own echo: the thing changes,
+   * says so, every box showing it is set to the new value, and each of those looks exactly like
+   * somebody picking it again. With two boxes on the same thing the echo goes round between them,
+   * which is why changing the machine from one of them flickered through the old model on its way
+   * to the new one. Asking what it is now before asking for it again is what breaks the round.
+   */
+  public static <T> void whenChosen(javax.swing.JComboBox<T> box, java.util.function.Supplier<T> nowIs,
+      java.util.function.Consumer<T> choose) {
+    box.addActionListener(e -> {
+      T chosen = box.getItemAt(box.getSelectedIndex());
+      if (chosen != null && !chosen.equals(nowIs.get())) {
+        choose.accept(chosen);
+      }
+    });
+  }
+
   public static String reason(Throwable failure) {
     Throwable deepest = failure;
     while (deepest.getCause() != null && deepest.getCause() != deepest) {
