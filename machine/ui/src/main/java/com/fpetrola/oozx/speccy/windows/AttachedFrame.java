@@ -63,6 +63,13 @@ public abstract class AttachedFrame extends JInternalFrame {
   private JComponent detail;
 
   private Dock dock = Dock.BOTTOM;
+  /**
+   * Whether, alone on an edge, it is stretched along it. A deck or a player is a row of controls
+   * for a picture and is as wide as the picture, which is the whole point of putting it there. A
+   * window with tabs in it is the size it is, and stretching it to a small machine's height cut
+   * off most of what it had to show.
+   */
+  private boolean stretchedAlongTheEdge = true;
   /** Which side to go back to when the attach button is pressed: where the window last sat. */
   private Dock preferred = Dock.BOTTOM;
   private boolean compact = true;
@@ -270,6 +277,11 @@ public abstract class AttachedFrame extends JInternalFrame {
    * which suits a row of controls and not a window with tabs in it; against a side it keeps its
    * own width.
    */
+  /** Said by a window that is not a row of controls: alone on an edge it is moved, not stretched. */
+  protected void keepsItsOwnSize() {
+    stretchedAlongTheEdge = false;
+  }
+
   protected void prefersDock(Dock side) {
     preferred = side;
     dock = side;
@@ -340,14 +352,12 @@ public abstract class AttachedFrame extends JInternalFrame {
     Rectangle m = machineWindow.getBounds();
     int tall = compact ? compactHeight() : Math.max(compactHeight(), chosenHeight);
     boolean flat = dock == Dock.TOP || dock == Dock.BOTTOM;
-    // Alone on that edge it keeps the size it has and is only moved: a window clipped to the side
-    // of a small machine was being cut down to the machine's height, which for one with tabs in it
-    // meant losing most of what it had to show. It is when a second one arrives that the edge has
-    // to be divided, and then they all take their share of it so that every one of them touches
-    // the machine.
+    // A second window on the same edge divides it, whatever either of them would rather be: they
+    // all take their share so that every one of them touches the machine. Alone, one that says it
+    // keeps its own size is only moved.
     int[] mine = share(machineWindow, dock);
     boolean alone = sharing(machineWindow, dock).size() < 2;
-    int along = alone ? (flat ? getWidth() : getHeight()) : mine[1] - mine[0];
+    int along = alone && !stretchedAlongTheEdge ? (flat ? getWidth() : getHeight()) : mine[1] - mine[0];
     switch (dock) {
       // Overlapped by the two borders that meet, or the frames sit a seam apart: each draws
       // its own edge and the gap between the picture and the buttons is the sum of the two.
