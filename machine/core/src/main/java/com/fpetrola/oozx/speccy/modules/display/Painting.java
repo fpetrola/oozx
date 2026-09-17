@@ -54,6 +54,15 @@ public final class Painting {
     default boolean allOfItEveryFrame() {
       return false;
     }
+
+    /**
+     * Whether a cell of this picture can flash at all. It takes an attribute in memory to carry
+     * the bit that says so, and a picture whose colours are not attributes has nothing there:
+     * what lies where the attributes would be is somebody's bitmap.
+     */
+    default boolean cellsCanFlash() {
+      return true;
+    }
   }
 
   /** A bitmap byte and the two colours of its cell, which is how every Sinclair draws. */
@@ -93,6 +102,11 @@ public final class Painting {
     }
     plotLine(y, plottedX, x);
     plottedX = x;
+  }
+
+  /** Whether it is worth looking for cells that flash, which the one painting is the one to say. */
+  public boolean cellsCanFlash() {
+    return line.cellsCanFlash();
   }
 
   public void startAgain() {

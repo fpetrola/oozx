@@ -186,6 +186,7 @@ public class Display {
   }
 
   private void dirtyEveryFlashingCell() {
+    if (!painting.cellsCanFlash()) return;
     for (int row = 0; row < HEIGHT_ROWS; row++) {
       for (int column = 0; column < WIDTH_COLS; column++) {
         if (Colouring.flashes((byte) attribute(row * 8, column))) {

@@ -1,4 +1,4 @@
-// Written by the build from the model, not by hand. Model: 42430039e355b571
+// Written by the build from the model, not by hand. Model: b885380a826dc9d8
 
 package com.fpetrola.oozx.generated;
 
