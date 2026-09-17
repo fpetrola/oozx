@@ -57,6 +57,11 @@ public class Speccy {
   public final com.fpetrola.oozx.config.Configuration configuration;
   /** The file's hold on this machine's values, let go of when the machine ends; null for one built without the file. */
   private Settings settings;
+
+  /** What this machine's settings are and where they came from, for whoever shows them to a person. */
+  public Settings settings() {
+    return settings;
+  }
   /** Where the ROMs come from, for whoever lets a person choose one: the machine itself only ever asks for bytes. */
   public final com.fpetrola.oozx.config.RomFiles roms;
   public final MemoryBus memory;

@@ -40,6 +40,12 @@ public class DefaultsCore extends MockEmulatorCore {
     this.config = config;
   }
 
+  /** Nothing is running, so the devices answer with what the file says they will start with. */
+  @Override
+  public java.util.List<com.fpetrola.oozx.config.Settings.Configurable> deviceSettings() {
+    return com.fpetrola.oozx.config.Settings.defaults();
+  }
+
   @Override
   public void setVideoOption(String option, Object value) {
     Map<String, String> screen = new LinkedHashMap<>(config.getScreenDefaults());

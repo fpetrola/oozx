@@ -80,7 +80,105 @@ public class SettingsPanel extends JPanel {
     tabbedPane.addTab("General", generalPanel);
 
     greyOutWhatGoesNowhere(tabbedPane);
+    // After the greying, because what a device declared does reach it and is built already marked.
+    // In one tab of its own rather than thirteen more along the top: "Peripherals" is the list of
+    // what can be fitted, which nothing reads yet, and this is what each fitted one can be told.
+    tabbedPane.addTab("Devices", whatEachDeviceDeclared());
     add(tabbedPane, BorderLayout.CENTER);
+  }
+
+  /**
+   * One tab for each device that said it has settings, built from what it said rather than from a
+   * list kept here: the device's own module names the properties, and the type of each one decides
+   * the control. A device nobody has declared settings for has no tab, and a property added to a
+   * declaration turns up here without anybody writing a control for it.
+   */
+  private JComponent whatEachDeviceDeclared() {
+    java.util.List<com.fpetrola.oozx.config.Settings.Configurable> devices = emulatorCore.deviceSettings();
+    if (devices.isEmpty()) {
+      return new JLabel("  No device has said what it can be told yet");
+    }
+    // Down the side: thirteen names along the top is a scrolling strip, and down a side they are
+    // a list of what this machine has.
+    JTabbedPane tabs = new JTabbedPane(JTabbedPane.LEFT);
+    for (com.fpetrola.oozx.config.Settings.Configurable device : devices) {
+      tabs.addTab(readably(lastPartOf(device.device().name())), deviceTab(device));
+    }
+    return tabs;
+  }
+
+  private JPanel deviceTab(com.fpetrola.oozx.config.Settings.Configurable device) {
+    JPanel panel = new JPanel(new java.awt.GridBagLayout());
+    java.awt.GridBagConstraints at = new java.awt.GridBagConstraints();
+    at.insets = new Insets(4, 8, 4, 8);
+    at.anchor = java.awt.GridBagConstraints.WEST;
+    at.gridy = 0;
+    for (String property : device.device().properties()) {
+      at.gridx = 0;
+      at.weightx = 0;
+      panel.add(new JLabel(readably(property) + ":"), at);
+      at.gridx = 1;
+      at.weightx = 1;
+      at.fill = java.awt.GridBagConstraints.HORIZONTAL;
+      panel.add(controlFor(device, property), at);
+      at.gridy++;
+    }
+    at.gridy++;
+    at.weighty = 1;
+    at.fill = java.awt.GridBagConstraints.BOTH;
+    panel.add(new JPanel(), at);
+    return panel;
+  }
+
+  /** The control a setting gets, which is decided by what kind of thing the device says it is. */
+  private JComponent controlFor(com.fpetrola.oozx.config.Settings.Configurable device, String property) {
+    Class<?> type = device.device().typeOf(property);
+    Object value = device.values().get(property);
+    if (type == boolean.class || type == Boolean.class) {
+      JCheckBox box = new JCheckBox();
+      box.setSelected(Boolean.TRUE.equals(value));
+      box.addActionListener(e -> device.values().set(property, box.isSelected()));
+      return reachesTheMachine(box);
+    }
+    if (type == int.class || type == Integer.class) {
+      int number = value instanceof Integer held ? held : 0;
+      JSpinner spinner = new JSpinner(new SpinnerNumberModel(number, 0, Integer.MAX_VALUE, 1));
+      spinner.addChangeListener(e -> device.values().set(property, spinner.getValue()));
+      return reachesTheMachine(spinner);
+    }
+    if (type.isEnum()) {
+      JComboBox<Object> choices = new JComboBox<>(type.getEnumConstants());
+      choices.setSelectedItem(value);
+      choices.addActionListener(e -> device.values().set(property, choices.getSelectedItem()));
+      return reachesTheMachine(choices);
+    }
+    if (type == String.class) {
+      JTextField text = new JTextField(value == null ? "" : String.valueOf(value), 16);
+      text.addActionListener(e -> device.values().set(property, text.getText()));
+      return reachesTheMachine(text);
+    }
+    // A setting that is a thing rather than a value - a pad, a key map - needs a control that
+    // knows what it is. Shown as what it is and not as a box: a box would offer to put a piece of
+    // text where the device wants an object of its own.
+    // Its own words if it has any: a thing that never learnt to say what it is prints as its
+    // class and a hash, which says less than the name of the kind of thing it is.
+    String said = value == null ? null : String.valueOf(value);
+    JLabel asItIs = new JLabel(said == null || said.matches(".*@[0-9a-f]+$") ? type.getSimpleName() : said);
+    asItIs.setEnabled(false);
+    asItIs.setToolTipText("A " + type.getSimpleName()
+        + ", which needs a control of its own before it can be set from here");
+    return asItIs;
+  }
+
+  /** "machine.plus3" is the +3's disk controller: the tab is named after the part, not the section. */
+  private static String lastPartOf(String name) {
+    return name.substring(name.lastIndexOf('.') + 1);
+  }
+
+  /** "writeProtect" as a person reads it, since the name is all the device said about it. */
+  private static String readably(String name) {
+    String spaced = name.replaceAll("([a-z0-9])([A-Z])", "$1 $2").replace('_', ' ');
+    return Character.toUpperCase(spaced.charAt(0)) + spaced.substring(1);
   }
 
   /** What a control that reaches the machine is marked with; everything else is shown but dead. */
