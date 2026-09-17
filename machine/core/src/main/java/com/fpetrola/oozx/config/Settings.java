@@ -37,30 +37,6 @@ import java.util.Set;
  * A field is null only when neither the file nor the shipped config.json set it.
  */
 public final class Settings {
-  @Section("speed")
-  public static class SpeedSection {
-    public Integer emulation;
-    public Boolean fastLoading;
-  }
-
-  @Section("memory")
-  public static class MemorySection {
-    public Boolean writableRoms;
-  }
-
-  @Section("machine")
-  public static class MachineSection {
-    public Boolean lateTimings;
-    public Boolean issue2;
-  }
-
-  @Section("sound")
-  public static class SoundSection {
-    public Boolean enabled;
-    public String device;
-    public Boolean whileLoading;
-  }
-
   /** Lets a device's own module contribute its settings sync, since Settings can't know about jars it never imports. */
   public interface Part {
     void into();
@@ -80,9 +56,11 @@ public final class Settings {
     private final List<String> properties;
     private final Provider<Configuration> configuration;
     private final Provider<?> held;
+    private final boolean ofTheMachine;
 
     private Mirror(String name, Class<?> device, List<String> properties,
-        Provider<Configuration> configuration, Provider<?> held) {
+        Provider<Configuration> configuration, Provider<?> held, boolean ofTheMachine) {
+      this.ofTheMachine = ofTheMachine;
       this.name = name;
       this.device = device;
       this.properties = properties;
@@ -109,11 +87,20 @@ public final class Settings {
 
     /** What kind of thing a setting is, which is what decides the control that shows it. */
     public Class<?> typeOf(String property) {
+      java.lang.reflect.Field field = Configuration.fieldOf(device, property);
+      if (field != null) {
+        return field.getType();
+      }
       try {
         return device.getMethod(property).getReturnType();
       } catch (NoSuchMethodException notThere) {
-        throw new IllegalStateException(device.getName() + " has no " + property + "()", notThere);
+        throw new IllegalStateException(device.getName() + " has no " + property, notThere);
       }
+    }
+
+    /** Whether this is the machine's own - its speed, its sound - rather than something plugged in. */
+    public boolean ofTheMachine() {
+      return ofTheMachine;
     }
 
     /** The settings of the device in this machine: changing one changes what is running. */
@@ -121,7 +108,7 @@ public final class Settings {
       return new Values() {
         public Object get(String property) {
           try {
-            return device.getMethod(property).invoke(held.get());
+            return Configuration.read(held.get(), property);
           } catch (ReflectiveOperationException cannot) {
             throw new IllegalStateException(name + "." + property + " cannot be read", cannot);
           }
@@ -183,8 +170,22 @@ public final class Settings {
 
   /** Binds a {@link Part} that syncs the named properties of {@code device} with the config file, so a module needn't write that out itself. */
   public static void mirror(Binder binder, String name, Class<?> device, String... properties) {
+    declare(binder, name, device, false, properties);
+  }
+
+  /**
+   * The same for a part of the machine itself rather than something plugged into it - the speed it
+   * runs at, whether its ROMs can be written - so that what the file holds is said once, where the
+   * part is bound, instead of being copied by hand in here.
+   */
+  public static void mirrorOfTheMachine(Binder binder, String name, Class<?> device, String... properties) {
+    declare(binder, name, device, true, properties);
+  }
+
+  private static void declare(Binder binder, String name, Class<?> device, boolean ofTheMachine,
+      String... properties) {
     Mirror mirror = new Mirror(name, device, List.of(properties),
-        binder.getProvider(Configuration.class), binder.getProvider(device));
+        binder.getProvider(Configuration.class), binder.getProvider(device), ofTheMachine);
     DECLARED.removeIf(declared -> declared.name().equals(name));
     DECLARED.add(mirror);
     Multibinder.newSetBinder(binder, Part.class).addBinding().toInstance(mirror);
@@ -193,17 +194,9 @@ public final class Settings {
   private static final Key<Set<Part>> PARTS = Key.get(new TypeLiteral<Set<Part>>() {});
 
   private final Configuration configuration;
-  private final SpeedSection speed;
-  private final MemorySection memory;
-  private final MachineSection machine;
-  private final SoundSection sound;
 
   private Settings(Configuration configuration) {
     this.configuration = configuration;
-    speed = configuration.of(SpeedSection.class);
-    memory = configuration.of(MemorySection.class);
-    machine = configuration.of(MachineSection.class);
-    sound = configuration.of(SoundSection.class);
   }
 
   public static Settings load(Configuration configuration) {
@@ -212,22 +205,6 @@ public final class Settings {
 
   /** Applies file values to the machine's parts (via the injector, so this needs no knowledge of which module holds which) and registers {@link #from} to run on every later save. */
   public void into(Injector injector) {
-    Speed s = injector.getInstance(Speed.class);
-    if (speed.emulation != null) s.emulation = speed.emulation;
-    if (speed.fastLoading != null) s.fastLoading = speed.fastLoading;
-
-    Rom.Protection protection = injector.getInstance(Rom.Protection.class);
-    if (memory.writableRoms != null) protection.writableRoms = memory.writableRoms;
-
-    Machine.Unit unit = injector.getInstance(Machine.Unit.class);
-    if (machine.lateTimings != null) unit.lateTimings = machine.lateTimings;
-    if (machine.issue2 != null) unit.issue2 = machine.issue2;
-
-    Sound.Output output = injector.getInstance(Sound.Output.class);
-    if (sound.enabled != null) output.enabled = sound.enabled;
-    if (sound.device != null) output.device = sound.device;
-    if (sound.whileLoading != null) output.whileLoading = sound.whileLoading;
-
     mirrors = injector.getInstance(PARTS).stream().filter(Mirror.class::isInstance)
         .map(Mirror.class::cast).sorted(java.util.Comparator.comparing(Mirror::name)).toList();
     injector.getInstance(PARTS).forEach(Part::into);
@@ -254,17 +231,6 @@ public final class Settings {
   }
 
   public void from(Injector injector) {
-    Speed s = injector.getInstance(Speed.class);
-    speed.emulation = s.emulation;
-    speed.fastLoading = s.fastLoading;
-    memory.writableRoms = injector.getInstance(Rom.Protection.class).writableRoms;
-    Machine.Unit unit = injector.getInstance(Machine.Unit.class);
-    machine.lateTimings = unit.lateTimings;
-    machine.issue2 = unit.issue2;
-    Sound.Output output = injector.getInstance(Sound.Output.class);
-    sound.enabled = output.enabled;
-    sound.device = output.device;
-    sound.whileLoading = output.whileLoading;
     injector.getInstance(PARTS).forEach(Part::from);
   }
 

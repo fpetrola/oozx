@@ -52,7 +52,7 @@ class SettingsReachTheMachineTest {
     Path file = Files.createTempFile("oozx", ".json");
     Files.writeString(file, "{}");
     Speccy speccy = machineWith(file.toFile());
-    assertEquals(Configuration.shipped().of(com.fpetrola.oozx.config.Settings.SpeedSection.class).emulation, speccy.speed.emulation, "the default is what shipped on the classpath, not the file's");
+    assertEquals(Configuration.shipped().valueOf("speed", "emulation", int.class), speccy.speed.emulation, "the default is what shipped on the classpath, not the file's");
   }
 
   @Test

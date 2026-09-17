@@ -69,6 +69,16 @@ public class EmulatorModule extends AbstractModule {
     // The ROMs come from outside the machine: it asks by page, and this is what knows the files.
     bind(Configuration.class).toInstance(Configuration.shared());
     Configuration.section(binder(), com.fpetrola.oozx.config.RomFiles.class);
+    // What the machine itself keeps in the file, said where the parts are bound rather than in a
+    // list inside Settings: the same declaration a device makes about itself.
+    com.fpetrola.oozx.config.Settings.mirrorOfTheMachine(binder(), "speed",
+        com.fpetrola.oozx.speccy.modules.timer.Speed.class, "emulation", "fastLoading");
+    com.fpetrola.oozx.config.Settings.mirrorOfTheMachine(binder(), "memory",
+        com.fpetrola.oozx.speccy.modules.memory.Rom.Protection.class, "writableRoms");
+    com.fpetrola.oozx.config.Settings.mirrorOfTheMachine(binder(), "machine",
+        com.fpetrola.oozx.speccy.modules.machine.Machine.Unit.class, "lateTimings", "issue2");
+    com.fpetrola.oozx.config.Settings.mirrorOfTheMachine(binder(), "sound",
+        com.fpetrola.oozx.speccy.modules.sound.Sound.Output.class, "enabled", "device", "whileLoading");
     bind(com.fpetrola.oozx.speccy.machine.Roms.class).to(com.fpetrola.oozx.config.RomFiles.class);
     // The bus as defined asks on every access; the one the machine runs on remembers.
     bind(MemoryBus.class).to(DecodedMemoryBus.class);

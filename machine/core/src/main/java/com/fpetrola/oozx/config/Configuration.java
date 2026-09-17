@@ -143,6 +143,15 @@ public class Configuration {
     for (String property : properties) {
       JsonNode node = saved.get(property);
       if (node == null) continue;
+      java.lang.reflect.Field field = fieldOf(value.getClass(), property);
+      if (field != null) {
+        try {
+          field.set(value, json.convertValue(node, field.getType()));
+        } catch (IllegalAccessException cannot) {
+          throw new IllegalStateException(name + "." + property + " cannot be set", cannot);
+        }
+        continue;
+      }
       Method setter = setter(value, property);
       try {
         setter.invoke(value, json.convertValue(node, setter.getParameterTypes()[0]));
@@ -156,7 +165,7 @@ public class Configuration {
     ObjectNode node = make(name);
     for (String property : properties)
       try {
-        node.set(property, json.valueToTree(value.getClass().getMethod(property).invoke(value)));
+        node.set(property, json.valueToTree(read(value, property)));
       } catch (ReflectiveOperationException cannot) {
         throw new IllegalStateException(name + "." + property + " cannot be read", cannot);
       }
@@ -180,12 +189,37 @@ public class Configuration {
     make(name).set(property, json.valueToTree(value));
   }
 
-  /** Sets one property on a device that is running, by the setter its name says it has. */
+  /** Reads one property of a part, whether it is written as a field or as a method. */
+  public static Object read(Object held, String property) throws ReflectiveOperationException {
+    java.lang.reflect.Field field = fieldOf(held.getClass(), property);
+    return field != null ? field.get(held) : held.getClass().getMethod(property).invoke(held);
+  }
+
+  /** Sets one property on a part that is running, by the field or the setter its name says it has. */
   public void set(Object held, String property, Object value) {
     try {
-      setter(held, property).invoke(held, value);
+      java.lang.reflect.Field field = fieldOf(held.getClass(), property);
+      if (field != null) {
+        field.set(held, value);
+      } else {
+        setter(held, property).invoke(held, value);
+      }
     } catch (ReflectiveOperationException cannot) {
       throw new IllegalStateException(property + " cannot be set on " + held.getClass().getName(), cannot);
+    }
+  }
+
+  /**
+   * The field a property is, for the parts that are written as plain fields rather than as a pair
+   * of accessors - which is most of the machine's own: {@code speed.emulation} is a field and
+   * {@code covox.volume()} is a method, and a setting is a setting either way.
+   */
+  static java.lang.reflect.Field fieldOf(Class<?> type, String property) {
+    try {
+      java.lang.reflect.Field field = type.getField(property);
+      return java.lang.reflect.Modifier.isStatic(field.getModifiers()) ? null : field;
+    } catch (NoSuchFieldException notAField) {
+      return null;
     }
   }
 

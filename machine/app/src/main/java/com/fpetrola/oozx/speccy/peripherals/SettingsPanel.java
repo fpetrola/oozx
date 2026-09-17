@@ -51,7 +51,7 @@ public class SettingsPanel extends JPanel {
     JTabbedPane tabbedPane = new JTabbedPane();
 
     // Video Tab
-    JPanel videoPanel = createVideoPanel();
+    JComponent videoPanel = createVideoPanel();
     tabbedPane.addTab("Video", videoPanel);
 
     // Audio Tab
@@ -67,7 +67,9 @@ public class SettingsPanel extends JPanel {
     tabbedPane.addTab("Storage", storagePanel);
 
     // Machine Tab
-    JPanel machinePanel = createMachinePanel();
+    JPanel machinePanel = new JPanel(new BorderLayout());
+    machinePanel.add(createMachinePanel(), BorderLayout.NORTH);
+    machinePanel.add(whatTheMachineDeclared(), BorderLayout.CENTER);
     tabbedPane.addTab("Machine", machinePanel);
 
     // Peripherals Tab
@@ -92,8 +94,29 @@ public class SettingsPanel extends JPanel {
    * the control. A device nobody has declared settings for has no tab, and a property added to a
    * declaration turns up here without anybody writing a control for it.
    */
+  /**
+   * The machine's own settings, declared where its parts are bound exactly as a device declares
+   * its own: its speed, whether its ROMs can be written, the late timings, the sound. They used to
+   * be copied into and out of the file by a list written inside Settings, and shown here by
+   * controls written by hand that mostly went nowhere.
+   */
+  private JComponent whatTheMachineDeclared() {
+    JPanel all = new JPanel();
+    all.setLayout(new BoxLayout(all, BoxLayout.Y_AXIS));
+    for (com.fpetrola.oozx.config.Settings.Configurable part : emulatorCore.deviceSettings()) {
+      if (part.device().ofTheMachine()) {
+        JPanel section = deviceTab(part);
+        section.setBorder(BorderFactory.createTitledBorder(readably(lastPartOf(part.device().name()))));
+        section.setAlignmentX(LEFT_ALIGNMENT);
+        all.add(section);
+      }
+    }
+    return new JScrollPane(all);
+  }
+
   private JComponent whatEachDeviceDeclared() {
-    java.util.List<com.fpetrola.oozx.config.Settings.Configurable> devices = emulatorCore.deviceSettings();
+    java.util.List<com.fpetrola.oozx.config.Settings.Configurable> devices = emulatorCore.deviceSettings()
+        .stream().filter(one -> !one.device().ofTheMachine()).toList();
     if (devices.isEmpty()) {
       return new JLabel("  No device has said what it can be told yet");
     }
@@ -195,6 +218,17 @@ public class SettingsPanel extends JPanel {
     return control;
   }
 
+  private static void allReachTheMachine(Container where) {
+    for (Component child : where.getComponents()) {
+      if (child instanceof JComponent control) {
+        reachesTheMachine(control);
+      }
+      if (child instanceof Container inside) {
+        allReachTheMachine(inside);
+      }
+    }
+  }
+
   private static void greyOutWhatGoesNowhere(Container where) {
     for (Component child : where.getComponents()) {
       if (child instanceof JComponent control && takesInput(control)
@@ -213,121 +247,27 @@ public class SettingsPanel extends JPanel {
         || control instanceof JSpinner || control instanceof JTextField;
   }
 
-  private JPanel createVideoPanel() {
-    JPanel panel = new JPanel();
-    GroupLayout layout = new GroupLayout(panel);
-    panel.setLayout(layout);
-    layout.setAutoCreateGaps(true);
-    layout.setAutoCreateContainerGaps(true);
-
-    JLabel borderLabel = new JLabel("Show Border:");
-    JCheckBox borderCheck = new JCheckBox();
+  /**
+   * The screen's own knobs, which are the controls that work: brightness, the phosphor, the
+   * scaler and the rest live on the screen and have had a window of their own for a while. This
+   * used to be nine controls of its own, of which two arrived anywhere.
+   */
+  private JComponent createVideoPanel() {
     if (emulatorCore.getPanel() instanceof com.fpetrola.oozx.speccy.screen.SpeccyScreen screen) {
-      borderCheck.setSelected(screen.getScreenSettings().isBorder());
+      com.fpetrola.oozx.speccy.screen.ScreenSettings settings = screen.getScreenSettings();
+      JPanel knobs = new com.fpetrola.oozx.speccy.windows.KnobRows(() -> { }).of(settings.settings());
+      // Every one of them arrives: a knob is wired to the screen by the knob itself, so the sweep
+      // that greys out what goes nowhere must not walk in here.
+      allReachTheMachine(knobs);
+      return new JScrollPane(knobs);
     }
-    reachesTheMachine(borderCheck).addActionListener(e -> emulatorCore.setVideoOption("border", borderCheck.isSelected()));
-
-    JLabel scanlinesLabel = new JLabel("Scanlines:");
-    JCheckBox scanlinesCheck = new JCheckBox();
-    reachesTheMachine(scanlinesCheck).addActionListener(e -> emulatorCore.setVideoOption("scanlines", scanlinesCheck.isSelected()));
-
-    JLabel brightnessLabel = new JLabel("Brightness:");
-    JSlider brightnessSlider = new JSlider(0, 100, 50);
-    brightnessSlider.addChangeListener(new ChangeListener() {
-      public void stateChanged(ChangeEvent e) {
-        if (!brightnessSlider.getValueIsAdjusting()) {
-          emulatorCore.setVideoOption("brightness", brightnessSlider.getValue());
-        }
-      }
-    });
-
-    JLabel contrastLabel = new JLabel("Contrast:");
-    JSlider contrastSlider = new JSlider(0, 100, 50);
-    contrastSlider.addChangeListener(new ChangeListener() {
-      public void stateChanged(ChangeEvent e) {
-        if (!contrastSlider.getValueIsAdjusting()) {
-          emulatorCore.setVideoOption("contrast", contrastSlider.getValue());
-        }
-      }
-    });
-
-    JLabel ulaTypeLabel = new JLabel("ULA Type:");
-    String[] ulaTypes = {"Standard", "Timex", "Pentagon"};
-    JComboBox<String> ulaTypeCombo = new JComboBox<>(ulaTypes);
-    ulaTypeCombo.addActionListener(e -> emulatorCore.setVideoOption("ula_type", ulaTypeCombo.getSelectedItem()));
-
-    JLabel filterLabel = new JLabel("Display Filter:");
-    String[] filters = {"None", "TV2x", "TV3x", "HQ2x", "HQ3x", "Dot Matrix", "PAL TV"};
-    JComboBox<String> filterCombo = new JComboBox<>(filters);
-    filterCombo.addActionListener(e -> emulatorCore.setVideoOption("filter", filterCombo.getSelectedItem()));
-
-    JLabel aspectLabel = new JLabel("Preserve Aspect Ratio:");
-    JCheckBox aspectCheck = new JCheckBox();
-    aspectCheck.addActionListener(e -> emulatorCore.setVideoOption("aspect_ratio", aspectCheck.isSelected()));
-
-    JLabel scalingLabel = new JLabel("Scaling Method:");
-    String[] scalings = {"Nearest Neighbor", "Bilinear", "Bicubic"};
-    JComboBox<String> scalingCombo = new JComboBox<>(scalings);
-    scalingCombo.addActionListener(e -> emulatorCore.setVideoOption("scaling", scalingCombo.getSelectedItem()));
-
-    JLabel snowLabel = new JLabel("Snow Effect:");
-    JCheckBox snowCheck = new JCheckBox();
-    snowCheck.addActionListener(e -> emulatorCore.setVideoOption("snow", snowCheck.isSelected()));
-
-    layout.setHorizontalGroup(layout.createSequentialGroup()
-        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addComponent(borderLabel)
-            .addComponent(scanlinesLabel)
-            .addComponent(brightnessLabel)
-            .addComponent(contrastLabel)
-            .addComponent(ulaTypeLabel)
-            .addComponent(filterLabel)
-            .addComponent(aspectLabel)
-            .addComponent(scalingLabel)
-            .addComponent(snowLabel))
-        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addComponent(borderCheck)
-            .addComponent(scanlinesCheck)
-            .addComponent(brightnessSlider)
-            .addComponent(contrastSlider)
-            .addComponent(ulaTypeCombo)
-            .addComponent(filterCombo)
-            .addComponent(aspectCheck)
-            .addComponent(scalingCombo)
-            .addComponent(snowCheck))
-    );
-
-    layout.setVerticalGroup(layout.createSequentialGroup()
-        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-            .addComponent(borderLabel)
-            .addComponent(borderCheck))
-        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-            .addComponent(scanlinesLabel)
-            .addComponent(scanlinesCheck))
-        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-            .addComponent(brightnessLabel)
-            .addComponent(brightnessSlider))
-        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-            .addComponent(contrastLabel)
-            .addComponent(contrastSlider))
-        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-            .addComponent(ulaTypeLabel)
-            .addComponent(ulaTypeCombo))
-        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-            .addComponent(filterLabel)
-            .addComponent(filterCombo))
-        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-            .addComponent(aspectLabel)
-            .addComponent(aspectCheck))
-        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-            .addComponent(scalingLabel)
-            .addComponent(scalingCombo))
-        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-            .addComponent(snowLabel)
-            .addComponent(snowCheck))
-    );
-
-    return panel;
+    // No screen to turn the knobs of: what a new one is opened with is kept by the screen itself,
+    // and is set from the window of a machine that has one.
+    JPanel none = new JPanel(new BorderLayout());
+    JLabel says = new JLabel("  The picture is set on a machine that has one, from its own screen knobs");
+    says.setEnabled(false);
+    none.add(says, BorderLayout.NORTH);
+    return none;
   }
 
   private JPanel createAudioPanel() {
@@ -598,7 +538,7 @@ public class SettingsPanel extends JPanel {
     JComboBox<String> modelCombo = new JComboBox<>(emulatorCore.getMachineModels().toArray(new String[0]));
     // Chosen before the listener is on, so opening the dialog is not a change of machine.
     modelCombo.setSelectedItem(emulatorCore.getCurrentModel());
-    modelCombo.addActionListener(e -> emulatorCore.setMachineModel((String) modelCombo.getSelectedItem()));
+    reachesTheMachine(modelCombo).addActionListener(e -> emulatorCore.setMachineModel((String) modelCombo.getSelectedItem()));
 
     // The same machine was sold with other ROMs in it: another language, a later revision. Empty
     // for a machine that only ever had one set, and then there is nothing to offer.
@@ -606,7 +546,7 @@ public class SettingsPanel extends JPanel {
     JComboBox<String> romSetCombo = new JComboBox<>(emulatorCore.getRomSets().toArray(new String[0]));
     romSetCombo.setEnabled(romSetCombo.getItemCount() > 1);
     romSetCombo.setSelectedItem(emulatorCore.getRomSet());
-    romSetCombo.addActionListener(e -> {
+    reachesTheMachine(romSetCombo).addActionListener(e -> {
       emulatorCore.setRomSet((String) romSetCombo.getSelectedItem());
       // What it is running now, which is not what was asked for when the ROMs did not arrive.
       romSetCombo.setSelectedItem(emulatorCore.getRomSet());
@@ -623,9 +563,8 @@ public class SettingsPanel extends JPanel {
       }
     });
 
-    JLabel lateTimingsLabel = new JLabel("Late Timings:");
-    JCheckBox lateTimingsCheck = new JCheckBox();
-    lateTimingsCheck.addActionListener(e -> emulatorCore.setGeneralOption("late_timings", lateTimingsCheck.isSelected()));
+    // Late timings were here too, going nowhere, while the machine's own declaration of them is
+    // below in this same tab and arrives. One of the two had to go and it was this one.
 
     JLabel contentionLabel = new JLabel("Memory Contention:");
     JCheckBox contentionCheck = new JCheckBox();
@@ -640,7 +579,6 @@ public class SettingsPanel extends JPanel {
             .addComponent(modelLabel)
             .addComponent(romSetLabel)
             .addComponent(romLabel)
-            .addComponent(lateTimingsLabel)
             .addComponent(contentionLabel)
             .addComponent(highResLabel))
         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
@@ -649,7 +587,6 @@ public class SettingsPanel extends JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(romField)
                 .addComponent(browseButton))
-            .addComponent(lateTimingsCheck)
             .addComponent(contentionCheck)
             .addComponent(highResCheck))
     );
@@ -665,9 +602,6 @@ public class SettingsPanel extends JPanel {
             .addComponent(romLabel)
             .addComponent(romField)
             .addComponent(browseButton))
-        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-            .addComponent(lateTimingsLabel)
-            .addComponent(lateTimingsCheck))
         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
             .addComponent(contentionLabel)
             .addComponent(contentionCheck))
