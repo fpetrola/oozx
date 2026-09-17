@@ -36,6 +36,7 @@ public class PokesDialog extends JDialog {
   private JPanel contentPanel;
   private JLabel countLabel;
   private List<PokFile.PokeMod> previouslyAppliedMods = new ArrayList<>();
+  private final JPanel appliedList = new JPanel();
   
   public interface OnPokesAppliedListener {
     void onPokesApplied(List<PokFile.PokeMod> selectedMods);
@@ -70,6 +71,7 @@ public class PokesDialog extends JDialog {
 
   public void setPreviouslyAppliedMods(List<PokFile.PokeMod> appliedMods) {
     this.previouslyAppliedMods = new ArrayList<>(appliedMods);
+    showWhatIsApplied();
   }
 
   private void initializeUI() {
@@ -114,7 +116,10 @@ public class PokesDialog extends JDialog {
     
     mainPanel.add(scrollPane, BorderLayout.CENTER);
     
-    mainPanel.add(createButtonPanel(), BorderLayout.SOUTH);
+    JPanel bottom = new JPanel(new BorderLayout());
+    bottom.add(applied(), BorderLayout.CENTER);
+    bottom.add(createButtonPanel(), BorderLayout.SOUTH);
+    mainPanel.add(bottom, BorderLayout.SOUTH);
     
     add(mainPanel);
   }
@@ -262,6 +267,45 @@ public class PokesDialog extends JDialog {
     return panel;
   }
 
+  /**
+   * What is applied right now, under the list of what there is to apply. It was a window of its
+   * own that came up over this one and had to be dismissed to carry on choosing, which for
+   * something you try, undo and try again is a door in the middle of the room.
+   */
+  private JComponent applied() {
+    appliedList.setLayout(new BoxLayout(appliedList, BoxLayout.Y_AXIS));
+    JScrollPane scroll = new JScrollPane(appliedList);
+    scroll.setPreferredSize(new Dimension(0, 110));
+    scroll.getVerticalScrollBar().setUnitIncrement(16);
+    scroll.setBorder(BorderFactory.createTitledBorder("Applied"));
+    showWhatIsApplied();
+    return scroll;
+  }
+
+  /** Redrawn from what is applied after every change, which is what keeps it true. */
+  private void showWhatIsApplied() {
+    appliedList.removeAll();
+    if (previouslyAppliedMods.isEmpty()) {
+      JLabel none = new JLabel("  Nothing applied");
+      none.setForeground(java.awt.Color.GRAY);
+      appliedList.add(none);
+    } else {
+      for (PokFile.PokeMod mod : previouslyAppliedMods) {
+        JPanel row = new JPanel(new BorderLayout(6, 0));
+        row.setAlignmentX(LEFT_ALIGNMENT);
+        JLabel what = new JLabel("\u2713  " + mod.getName());
+        what.setToolTipText(mod.getGameName() + "  -  " + mod.getRawInstruction());
+        row.add(what, BorderLayout.WEST);
+        JLabel where = new JLabel(mod.getRawInstruction() + "  ");
+        where.setForeground(java.awt.Color.GRAY);
+        row.add(where, BorderLayout.EAST);
+        appliedList.add(row);
+      }
+    }
+    appliedList.revalidate();
+    appliedList.repaint();
+  }
+
   private JPanel createButtonPanel() {
     JPanel panel = new JPanel();
     panel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
@@ -341,16 +385,11 @@ public class PokesDialog extends JDialog {
     if (onPokesAppliedListener != null) {
       onPokesAppliedListener.onPokesApplied(selectedMods);
     }
-    
-    if (!selectedMods.isEmpty()) {
-      PokesAppliedDialog appliedDialog = new PokesAppliedDialog(
-          (Frame) SwingUtilities.getWindowAncestor(this),
-          selectedMods
-      );
-      appliedDialog.setVisible(true);
-    }
-    
-    dispose();
+
+    // What is applied is now what was just chosen, and the window stays open saying so: applying
+    // is something you do again after seeing what it did, not once on the way out.
+    previouslyAppliedMods = new ArrayList<>(selectedMods);
+    showWhatIsApplied();
   }
 
   public void setOnPokesAppliedListener(OnPokesAppliedListener listener) {
