@@ -29,6 +29,7 @@ import java.util.List;
 public class ZxInfoApiHandler {
   private static final int FIRST_YEAR = 1980, MOST_AT_ONCE = 1000, RETRIES = 5, AT_ONCE = 4;
   private static final long BACKOFF = 2000, BETWEEN_PAGES = 150;
+  private static final int CONNECT_SECONDS = 20, READ_SECONDS = 60;
   private static final String TOSEC = "TOSEC", TOSEC_SET = "/download/zx_spectrum_tosec_set_september_2023/";
 
   private Metadata metadata;
@@ -56,17 +57,9 @@ public class ZxInfoApiHandler {
     return response.hits.hits;
   }
 
-  public List<Hit> search(String everyoneWally) {
-    Client client = null;
-    client = ClientBuilder.newClient();
-    ResteasyWebTarget target = (ResteasyWebTarget) client.target(BASE_URL);
-    ZxInfoClient zxClient = target.proxy(ZxInfoClient.class);
-    SearchResponse response = zxClient.searchGames(everyoneWally, 150, "0", ZxInfoClient.MODE_COMPACT,
-        null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
-
-    client.close();
-
-    return response.hits.hits;
+  /** The same search with no filter on it, which is what a plain box of text asks for. */
+  public List<Hit> search(String query) {
+    return search(query, null, null);
   }
 
   /**
@@ -433,7 +426,13 @@ public class ZxInfoApiHandler {
    */
   private <T> T withClient(java.util.function.Function<ZxInfoClient, T> call) {
     for (int attempt = 1; ; attempt++) {
-      Client client = ClientBuilder.newClient();
+      // Without a timeout a request nobody answers waits for ever, and that is not a worry but
+      // a measurement: a catalogue run stopped on its 494th game and was still in the same read
+      // four hours later. The numbers are the ones the downloads already use.
+      Client client = ClientBuilder.newBuilder()
+          .connectTimeout(CONNECT_SECONDS, java.util.concurrent.TimeUnit.SECONDS)
+          .readTimeout(READ_SECONDS, java.util.concurrent.TimeUnit.SECONDS)
+          .build();
       try {
         ResteasyWebTarget target = (ResteasyWebTarget) client.target(BASE_URL);
         return call.apply(target.proxy(ZxInfoClient.class));
