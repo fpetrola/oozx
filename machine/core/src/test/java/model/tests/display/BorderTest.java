@@ -45,6 +45,16 @@ class BorderTest {
     assertEquals(Picture.SINCLAIR[2], colourOfRow(Display.SCREEN_HEIGHT - 1, 0), "and bottom");
   }
 
+  /** With nothing being shown the border is not drawn, which is asked once a frame and not once a column. */
+  @Test
+  void aPictureNobodyIsLookingAtIsNotBordered() {
+    canvas.active = false;
+    border.becomes(2);
+    border.paintTheFrame();
+
+    assertEquals(0, colourOfRow(5, 10));
+  }
+
   @Test
   void aChangeMidFrameShowsFromWhereTheBeamWasAndNotBefore() {
     border.becomes(1);

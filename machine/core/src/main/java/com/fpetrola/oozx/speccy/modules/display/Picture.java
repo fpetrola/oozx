@@ -67,6 +67,11 @@ public class Picture {
   }
 
   public final int[] pixels = new int[STRIDE * HEIGHT];
+
+  /**
+   * Whether anything is being drawn at all. Honoured where the drawing starts - the screen once a
+   * line and the border once a frame - and not here, so that plotting a cell costs nothing to ask.
+   */
   public boolean active = true;
 
   /**
@@ -88,21 +93,23 @@ public class Picture {
     columnWidth = pixels;
   }
 
+  /**
+   * Eight pixels of a bitmap byte in two colours. Eight and not {@link #columnWidth}, because a
+   * machine that draws its columns wider draws them with {@link #plot16} and borders them with
+   * {@link #fillColumn}, and this is what is left: the way every Sinclair draws.
+   */
   public void plot8(int x, int y, byte data, byte ink, byte paper) {
-    if (!active) return;
-    int at = y * STRIDE + x * columnWidth;
+    int at = y * STRIDE + x * 8;
     int inkColour = palette[ink & 0xff], paperColour = palette[paper & 0xff];
-    if (columnWidth == 8) {
-      for (int i = 0; i < 8; i++) {
-        pixels[at + i] = (data & (0x80 >> i)) != 0 ? inkColour : paperColour;
-      }
-      return;
-    }
     for (int i = 0; i < 8; i++) {
-      int colour = (data & (0x80 >> i)) != 0 ? inkColour : paperColour;
-      pixels[at + 2 * i] = colour;
-      pixels[at + 2 * i + 1] = colour;
+      pixels[at + i] = (data & (0x80 >> i)) != 0 ? inkColour : paperColour;
     }
+  }
+
+  /** A whole column of the one colour, however wide a column is, which is what a border is made of. */
+  public void fillColumn(int x, int y, byte colour) {
+    int at = y * STRIDE + x * columnWidth;
+    java.util.Arrays.fill(pixels, at, at + columnWidth, palette[colour & 0xff]);
   }
 
   /** Two pixels of their own colours, one pair of the four a column is made of when a byte is a colour. */
@@ -112,15 +119,13 @@ public class Picture {
 
   /** The same two pixels in colours that are in no palette, for whoever worked them out itself. */
   public void paintPair(int x, int y, int pair, int left, int right) {
-    if (!active) return;
-    int at = y * STRIDE + x * columnWidth + pair * 2;
+    int at = y * STRIDE + x * 8 + pair * 2;
     pixels[at] = left;
     pixels[at + 1] = right;
   }
 
   /** Sixteen pixels of their own, from the two bytes a column is made of where one is not enough. */
   public void plot16(int x, int y, int data, byte ink, byte paper) {
-    if (!active) return;
     int at = y * STRIDE + (x << 4);
     int inkColour = palette[ink & 0xff], paperColour = palette[paper & 0xff];
     for (int i = 0; i < 16; i++) {

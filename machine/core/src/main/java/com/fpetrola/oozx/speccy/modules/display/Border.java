@@ -98,7 +98,7 @@ public final class Border {
   public void paint(int y, int start, int end, int colour) {
     byte paper = colouring.paper((byte) ((colour & 0x07) << 3));
     for (; start < end; start++) {
-      picture.plot8(start, y, (byte) 0, (byte) 0, paper);
+      picture.fillColumn(start, y, paper);
     }
   }
 
@@ -135,8 +135,10 @@ public final class Border {
 
   public void paintTheFrame() {
     addChange(SCREEN_WIDTH_COLS, SCREEN_HEIGHT - 1, 0);
-    for (int pos = 0; pos < used - 1; pos++) {
-      doChange(changes.get(pos), changes.get(pos + 1));
+    if (picture.active) {
+      for (int pos = 0; pos < used - 1; pos++) {
+        doChange(changes.get(pos), changes.get(pos + 1));
+      }
     }
     used = 0;
     addSentinel();

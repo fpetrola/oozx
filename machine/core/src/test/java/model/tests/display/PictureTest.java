@@ -71,10 +71,19 @@ class PictureTest {
     assertEquals(Picture.SINCLAIR[7], canvas.palette[Picture.COLOURS - 9], "the sixteen repeat to the end");
   }
 
+  /**
+   * A column of one colour is as wide as a column is, and that is the only thing here that asks:
+   * a byte of bitmap is eight pixels whatever the machine, and whoever draws them wider says so
+   * with sixteen of them at a time.
+   */
   @Test
-  void anInactiveCanvasIsNotPlottedOn() {
-    canvas.active = false;
-    canvas.plot8(3, 40, (byte) 0xff, (byte) 7, (byte) 0);
-    assertEquals(0, at(3 * 8, 40));
+  void aColumnOfOneColourIsAsWideAsAColumn() {
+    canvas.fillColumn(3, 40, (byte) 2);
+    assertEquals(Picture.SINCLAIR[2], at(3 * 8 + 7, 40), "eight while a column is eight");
+    assertEquals(0, at(4 * 8, 40), "and it touches no other");
+
+    canvas.columnWidth(16);
+    canvas.fillColumn(3, 40, (byte) 4);
+    assertEquals(Picture.SINCLAIR[4], at(3 * 16 + 15, 40), "sixteen when a column is sixteen");
   }
 }
