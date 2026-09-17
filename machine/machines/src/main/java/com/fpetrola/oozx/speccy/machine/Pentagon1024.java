@@ -102,7 +102,7 @@ public class Pentagon1024 extends Pentagon512 {
     if ((second & RAM_BELOW) != 0) memory.slot(0x0000, banks.ram(0));
     boolean sixteen = (second & SIXTEEN_COLOURS) != 0;
     banks.alongside(sixteen ? banks.ram(banks.shown().pageNum - 1) : null);
-    Painting.Line wanted = sixteen ? (Painting.Line) this::paintSixteenColours : display.painting.sinclair;
+    Painting.Line wanted = sixteen ? sixteenColours : display.painting.sinclair;
     if (display.painting.line(wanted) != wanted) display.refreshAll();
   }
 
@@ -111,6 +111,17 @@ public class Pentagon1024 extends Pentagon512 {
    * from the two banks at once, each one a colour for its left pixel and another for its right,
    * so eight pixels are eight colours and nothing in memory is an attribute.
    */
+  /** Nothing in this picture is an attribute, so nothing in it can flash. */
+  private final Painting.Line sixteenColours = new Painting.Line() {
+    public void paint(int y, int bits) {
+      paintSixteenColours(y, bits);
+    }
+
+    public boolean cellsCanFlash() {
+      return false;
+    }
+  };
+
   private void paintSixteenColours(int y, int bits) {
     byte[] screen = banks.shown().bytes, other = banks.beside().bytes;
     Picture canvas = display.picture();

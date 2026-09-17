@@ -74,6 +74,17 @@ public class ScldPortHandler extends DefaultPortHandler {
    * the same line, one from each display file, in the one pair of colours the register names, and
    * no attribute read from memory at all, so nothing can clash.
    */
+  /** A wide picture reads no attribute from memory, so nothing in it can flash. */
+  private final Painting.Line wide = new Painting.Line() {
+    public void paint(int y, int bits) {
+      paintHiRes(y, bits);
+    }
+
+    public boolean cellsCanFlash() {
+      return false;
+    }
+  };
+
   private void paintHiRes(int y, int bits) {
     byte[] screen = banks.shown().bytes;
     ScreenLayout layout = display.layout;
@@ -106,7 +117,7 @@ public class ScldPortHandler extends DefaultPortHandler {
         (value & COLOUR_PER_LINE) != 0);
     boolean hiRes = (value & HI_RES) != 0;
     pairOfColours = PAIRS[(value & COLOUR_PAIR) >> 3];
-    display.painting.line(hiRes ? (Painting.Line) this::paintHiRes : null);
+    display.painting.line(hiRes ? wide : null);
     display.picture().columnWidth(hiRes ? 16 : 8);
     display.refreshAll();
     whenWritten.forEach(Runnable::run);

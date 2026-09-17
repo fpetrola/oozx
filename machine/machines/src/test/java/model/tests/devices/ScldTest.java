@@ -130,6 +130,28 @@ class ScldTest extends MachineTest {
   }
 
   /**
+   * Every sixteen frames the flash turns and the screen looks for the cells that flash, which it
+   * does by reading their attributes. A wide picture has none: what lies where the attributes
+   * would be is the other half of its bitmap, and reading it as if it said something dirties
+   * cells that nobody wrote to and repaints them for nothing.
+   */
+  @Test
+  void aWidePictureHasNoAttributesToLookForFlashingCellsIn() {
+    speccy.picture.active = true;
+    on(Tc2048.class);
+    out(0xff, 0x04);
+    poke(ScreenLayout.ATTRIBUTES, 0x80);
+
+    for (int frame = 0; frame < 16; frame++) {
+      speccy.zxClock.setTStates(0);
+      speccy.display.frame();
+    }
+
+    assertEquals(0, speccy.display.dirty.between(0, 0, 32),
+        "the byte that looks like a flashing attribute is bitmap, and nothing was dirtied by it");
+  }
+
+  /**
    * The colours of a picture that has no attributes come from the register itself: three bits pick
    * one of eight pairs, each an ink against its own opposite, and every one of them bright.
    */
