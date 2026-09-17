@@ -62,10 +62,11 @@ public enum TvScreen implements com.fpetrola.oozx.speccy.screen.ScreenEffect {
    * <p>
    * The brightness spread was a pixel and a half, and a pixel and a half is a pixel and its
    * neighbours: the letters of a loading screen stopped having edges and what was left read as a
-   * blur rather than as a television. It is what carries the picture, so it stays under a pixel
-   * and the colour keeps the wide spread, which is what a tuner really costs you.
+   * blur rather than as a television. It is a pixel now, which is as sharp as it can be and still
+   * be softer than a composite lead - the rule the whole enum is ordered by, and one that a test
+   * holds. The colour keeps the wide spread, which is what a tuner really costs you.
    */
-  AERIAL("Aerial (RF)", 0.9, 6.5, 0.35, 3);
+  AERIAL("Aerial (RF)", 1.0, 6.5, 0.35, 3);
 
   private final String label;
   /** How far brightness spreads sideways, in pixels. */
