@@ -21,6 +21,7 @@ package model.tests.devices;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.machine.Spec48;
 import com.fpetrola.oozx.speccy.machine.Tc2048;
+import com.fpetrola.oozx.speccy.devices.scld.ScldPeripheral;
 import com.fpetrola.oozx.speccy.devices.scld.TimexMemoryPeripheral;
 import com.fpetrola.oozx.speccy.modules.display.ScreenLayout;
 import com.fpetrola.oozx.speccy.modules.memory.MemoryPart;
@@ -39,6 +40,10 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
  */
 class ScldTest extends MachineTest {
   private final Speccy speccy = silentMachine();
+
+  private byte pairOfColours() {
+    return ((ScldPeripheral) speccy.peripheralRegistry.find(ScldPeripheral.class)).pairOfColours();
+  }
 
   private void on(Class<?> model) {
     speccy.machine.select(speccy.machine.model((Class) model));
@@ -135,9 +140,9 @@ class ScldTest extends MachineTest {
     poke(ScreenLayout.ATTRIBUTES, 0x07);
 
     out(0xff, 0x04);
-    assertEquals(0x78, speccy.display.layout.pairOfColours & 0xff, "black on white, the first pair");
+    assertEquals(0x78, pairOfColours() & 0xff, "black on white, the first pair");
     out(0xff, 0x04 | 0x38);
-    assertEquals(0x47, speccy.display.layout.pairOfColours & 0xff, "white on black, the last");
+    assertEquals(0x47, pairOfColours() & 0xff, "white on black, the last");
     assertEquals(0x07, speccy.display.attribute(0, 0) & 0xff, "and what is in memory was never asked");
   }
 
