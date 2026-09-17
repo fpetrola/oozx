@@ -230,6 +230,12 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
     notifyStateChange("Reset");
   }
 
+  /** This machine's own devices, so a control changes what is running rather than a file. */
+  @Override
+  public java.util.List<com.fpetrola.oozx.config.Settings.Configurable> deviceSettings() {
+    return speccy.settings() == null ? java.util.List.of() : speccy.settings().devices();
+  }
+
   public void changeSpeed1(int emulationSpeed) {
     speccy.loop.later(() -> speccy.timer.changeSpeed(emulationSpeed));
     notifyTurboModeChange(turbo);

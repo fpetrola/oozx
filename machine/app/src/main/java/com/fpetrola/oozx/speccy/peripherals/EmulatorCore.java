@@ -27,6 +27,14 @@ import java.awt.event.KeyListener;
 public interface EmulatorCore extends EmulatorControl {
   JComponent getPanel();
 
+  /**
+   * The devices that said they have settings, with somewhere to read and write them. A machine
+   * answers with its own devices; what stands for the defaults answers with the file.
+   */
+  default java.util.List<com.fpetrola.oozx.config.Settings.Configurable> deviceSettings() {
+    return java.util.List.of();
+  }
+
   KeyListener getKeyListener();
 
   default void applyMod(PokFile.PokeMod mod) {

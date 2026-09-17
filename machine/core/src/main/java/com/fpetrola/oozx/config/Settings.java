@@ -28,6 +28,7 @@ import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -67,19 +68,126 @@ public final class Settings {
     void from();
   }
 
+  /**
+   * What a device said about itself: which section of the file it keeps, what holds it, and which
+   * of its properties are settings rather than workings. A {@link Part} that also answers what it
+   * is about, so that something wanting to show these to a person - rather than copy them - does
+   * not need a second list of the same thing.
+   */
+  public static final class Mirror implements Part {
+    private final String name;
+    private final Class<?> device;
+    private final List<String> properties;
+    private final Provider<Configuration> configuration;
+    private final Provider<?> held;
+
+    private Mirror(String name, Class<?> device, List<String> properties,
+        Provider<Configuration> configuration, Provider<?> held) {
+      this.name = name;
+      this.device = device;
+      this.properties = properties;
+      this.configuration = configuration;
+      this.held = held;
+    }
+
+    public String name() {
+      return name;
+    }
+
+    public Class<?> device() {
+      return device;
+    }
+
+    public List<String> properties() {
+      return properties;
+    }
+
+    /** The one in the machine this was built for, which is what a control has to change. */
+    public Object held() {
+      return held.get();
+    }
+
+    /** What kind of thing a setting is, which is what decides the control that shows it. */
+    public Class<?> typeOf(String property) {
+      try {
+        return device.getMethod(property).getReturnType();
+      } catch (NoSuchMethodException notThere) {
+        throw new IllegalStateException(device.getName() + " has no " + property + "()", notThere);
+      }
+    }
+
+    /** The settings of the device in this machine: changing one changes what is running. */
+    public Values live() {
+      return new Values() {
+        public Object get(String property) {
+          try {
+            return device.getMethod(property).invoke(held.get());
+          } catch (ReflectiveOperationException cannot) {
+            throw new IllegalStateException(name + "." + property + " cannot be read", cannot);
+          }
+        }
+
+        public void set(String property, Object value) {
+          configuration.get().set(held.get(), property, value);
+        }
+      };
+    }
+
+    /**
+     * The settings as the file has them, for when there is no machine: what one will start with.
+     * A property the file says nothing about answers null, and the control shows the default the
+     * device itself was written with.
+     */
+    public Values inTheFile() {
+      return new Values() {
+        public Object get(String property) {
+          return configuration.get().valueOf(name, property, typeOf(property));
+        }
+
+        public void set(String property, Object value) {
+          configuration.get().setValue(name, property, value);
+        }
+      };
+    }
+
+    public void into() {
+      configuration.get().fill(name, held.get(), properties.toArray(new String[0]));
+    }
+
+    public void from() {
+      configuration.get().put(name, held.get(), properties.toArray(new String[0]));
+    }
+  }
+
+  /** Where a device's settings sit: in the machine that is running, or in the file. */
+  public interface Values {
+    Object get(String property);
+
+    void set(String property, Object value);
+  }
+
+  /** A device's settings and where they are being read from, which is all a control needs. */
+  public record Configurable(Mirror device, Values values) {
+  }
+
+  /**
+   * Every device that said it has settings, whichever machine it is in. The declaration belongs to
+   * the build - the same modules make every machine - so it can be read with no machine at hand,
+   * which is what a window showing what a new machine will start with needs.
+   */
+  private static final java.util.List<Mirror> DECLARED = new java.util.concurrent.CopyOnWriteArrayList<>();
+
+  public static java.util.List<Mirror> declared() {
+    return java.util.List.copyOf(DECLARED);
+  }
+
   /** Binds a {@link Part} that syncs the named properties of {@code device} with the config file, so a module needn't write that out itself. */
   public static void mirror(Binder binder, String name, Class<?> device, String... properties) {
-    Provider<Configuration> configuration = binder.getProvider(Configuration.class);
-    Provider<?> held = binder.getProvider(device);
-    Multibinder.newSetBinder(binder, Part.class).addBinding().toInstance(new Part() {
-      public void into() {
-        configuration.get().fill(name, held.get(), properties);
-      }
-
-      public void from() {
-        configuration.get().put(name, held.get(), properties);
-      }
-    });
+    Mirror mirror = new Mirror(name, device, List.of(properties),
+        binder.getProvider(Configuration.class), binder.getProvider(device));
+    DECLARED.removeIf(declared -> declared.name().equals(name));
+    DECLARED.add(mirror);
+    Multibinder.newSetBinder(binder, Part.class).addBinding().toInstance(mirror);
   }
 
   private static final Key<Set<Part>> PARTS = Key.get(new TypeLiteral<Set<Part>>() {});
@@ -120,6 +228,8 @@ public final class Settings {
     if (sound.device != null) output.device = sound.device;
     if (sound.whileLoading != null) output.whileLoading = sound.whileLoading;
 
+    mirrors = injector.getInstance(PARTS).stream().filter(Mirror.class::isInstance)
+        .map(Mirror.class::cast).sorted(java.util.Comparator.comparing(Mirror::name)).toList();
     injector.getInstance(PARTS).forEach(Part::into);
 
     gather = () -> from(injector);
@@ -127,6 +237,17 @@ public final class Settings {
   }
 
   private Runnable gather;
+  private List<Mirror> mirrors = List.of();
+
+  /** The devices of this machine that have settings, with their own instances behind them. */
+  public List<Configurable> devices() {
+    return mirrors.stream().map(mirror -> new Configurable(mirror, mirror.live())).toList();
+  }
+
+  /** The same, as the file has them: what a machine that nobody has configured will start with. */
+  public static List<Configurable> defaults() {
+    return declared().stream().map(mirror -> new Configurable(mirror, mirror.inTheFile())).toList();
+  }
 
   public void letGo() {
     configuration.notBeforeSave(gather);

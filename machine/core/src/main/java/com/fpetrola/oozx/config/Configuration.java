@@ -162,6 +162,33 @@ public class Configuration {
       }
   }
 
+  /** One property of a section as the file has it, converted to what the device would hold. */
+  public Object valueOf(String name, String property, Class<?> type) {
+    JsonNode saved = at(name);
+    JsonNode node = saved == null ? null : saved.get(property);
+    try {
+      return node == null ? null : json.convertValue(node, type);
+    } catch (IllegalArgumentException notThatKind) {
+      // What the file has is not what the device holds any more. Answering nothing lets whoever
+      // asked show the device's own default rather than fail over a line somebody wrote by hand.
+      return null;
+    }
+  }
+
+  /** Writes one property of a section, for a setting being changed where no machine is running. */
+  public void setValue(String name, String property, Object value) {
+    make(name).set(property, json.valueToTree(value));
+  }
+
+  /** Sets one property on a device that is running, by the setter its name says it has. */
+  public void set(Object held, String property, Object value) {
+    try {
+      setter(held, property).invoke(held, value);
+    } catch (ReflectiveOperationException cannot) {
+      throw new IllegalStateException(property + " cannot be set on " + held.getClass().getName(), cannot);
+    }
+  }
+
   private static Method setter(Object value, String property) {
     String name = "set" + Character.toUpperCase(property.charAt(0)) + property.substring(1);
     return Arrays.stream(value.getClass().getMethods())
