@@ -28,16 +28,26 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 
-// Settings Dialog with tabs
-public class SettingsDialog extends JDialog {
+/**
+ * Everything there is to set, for whoever is being configured: a machine that is running, or what
+ * a machine starts with when nobody has configured it.
+ * <p>
+ * Who that is belongs to the window this sits in, not to here: it is handed a core and builds its
+ * controls against it, and is built again when the window is attached to another machine.
+ * <p>
+ * Most of these controls do nothing yet. They are shown disabled rather than removed, so that what
+ * the emulator cannot be told is as visible as what it can: of the 43 options this window used to
+ * send, the machine answered five and the screen two, and the rest were printed to the console by
+ * a stand-in core and forgotten.
+ */
+public class SettingsPanel extends JPanel {
   private EmulatorCore emulatorCore;
   private final OOZxConfiguration config;
 
-  public SettingsDialog(Frame owner, EmulatorCore core, OOZxConfiguration config) {
-    super(owner, "Settings", true);
+  public SettingsPanel(EmulatorCore core, OOZxConfiguration config) {
+    super(new BorderLayout());
     this.emulatorCore = core;
     this.config = config;
-    setSize(600, 400);
 
     JTabbedPane tabbedPane = new JTabbedPane();
 
@@ -69,28 +79,41 @@ public class SettingsDialog extends JDialog {
     JPanel generalPanel = createGeneralPanel();
     tabbedPane.addTab("General", generalPanel);
 
+    greyOutWhatGoesNowhere(tabbedPane);
     add(tabbedPane, BorderLayout.CENTER);
+  }
 
-    // OK/Cancel buttons
-    JPanel buttonPanel = new JPanel();
-    JButton okButton = new JButton("OK");
-    okButton.addActionListener(e -> dispose());
-    buttonPanel.add(okButton);
+  /** What a control that reaches the machine is marked with; everything else is shown but dead. */
+  private static final String REACHES_THE_MACHINE = "reachesTheMachine";
+  private static final String GOES_NOWHERE =
+      "The emulator cannot be told this yet: nothing reads it, so it is here to be seen and not used";
 
-    JButton cancelButton = new JButton("Cancel");
-    cancelButton.addActionListener(e -> dispose());
-    buttonPanel.add(cancelButton);
+  /**
+   * Marks a control as one that arrives somewhere. Marking is the way round it is, rather than
+   * listing what is dead, so that a control added later is dead until somebody says otherwise -
+   * which is what went wrong here in the first place.
+   */
+  private static <T extends JComponent> T reachesTheMachine(T control) {
+    control.putClientProperty(REACHES_THE_MACHINE, true);
+    return control;
+  }
 
-    add(buttonPanel, BorderLayout.SOUTH);
-    
-    KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
-    getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "closeDialog");
-    getRootPane().getActionMap().put("closeDialog", new AbstractAction() {
-      @Override
-      public void actionPerformed(java.awt.event.ActionEvent e) {
-        dispose();
+  private static void greyOutWhatGoesNowhere(Container where) {
+    for (Component child : where.getComponents()) {
+      if (child instanceof JComponent control && takesInput(control)
+          && control.getClientProperty(REACHES_THE_MACHINE) == null) {
+        control.setEnabled(false);
+        control.setToolTipText(GOES_NOWHERE);
       }
-    });
+      if (child instanceof Container inside) {
+        greyOutWhatGoesNowhere(inside);
+      }
+    }
+  }
+
+  private static boolean takesInput(JComponent control) {
+    return control instanceof JCheckBox || control instanceof JComboBox<?> || control instanceof JSlider
+        || control instanceof JSpinner || control instanceof JTextField;
   }
 
   private JPanel createVideoPanel() {
@@ -105,11 +128,11 @@ public class SettingsDialog extends JDialog {
     if (emulatorCore.getPanel() instanceof com.fpetrola.oozx.speccy.screen.SpeccyScreen screen) {
       borderCheck.setSelected(screen.getScreenSettings().isBorder());
     }
-    borderCheck.addActionListener(e -> emulatorCore.setVideoOption("border", borderCheck.isSelected()));
+    reachesTheMachine(borderCheck).addActionListener(e -> emulatorCore.setVideoOption("border", borderCheck.isSelected()));
 
     JLabel scanlinesLabel = new JLabel("Scanlines:");
     JCheckBox scanlinesCheck = new JCheckBox();
-    scanlinesCheck.addActionListener(e -> emulatorCore.setVideoOption("scanlines", scanlinesCheck.isSelected()));
+    reachesTheMachine(scanlinesCheck).addActionListener(e -> emulatorCore.setVideoOption("scanlines", scanlinesCheck.isSelected()));
 
     JLabel brightnessLabel = new JLabel("Brightness:");
     JSlider brightnessSlider = new JSlider(0, 100, 50);
@@ -219,7 +242,7 @@ public class SettingsDialog extends JDialog {
 
     JLabel volumeLabel = new JLabel("Master Volume:");
     JSlider volumeSlider = new JSlider(0, 100, 50);
-    volumeSlider.addChangeListener(new ChangeListener() {
+    reachesTheMachine(volumeSlider).addChangeListener(new ChangeListener() {
       public void stateChanged(ChangeEvent e) {
         if (!volumeSlider.getValueIsAdjusting()) {
           emulatorCore.setAudioOption("volume", volumeSlider.getValue());
@@ -650,7 +673,7 @@ public class SettingsDialog extends JDialog {
     JLabel turboLabel = new JLabel("Turbo Mode:");
     JCheckBox turboCheck = new JCheckBox("", config.isTurboByDefault());
     turboCheck.setToolTipText("For this machine, and for every one opened from now on");
-    turboCheck.addActionListener(e -> {
+    reachesTheMachine(turboCheck).addActionListener(e -> {
       config.setTurboByDefault(turboCheck.isSelected());
       config.save();
       emulatorCore.setGeneralOption("turbo", turboCheck.isSelected());

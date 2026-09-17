@@ -42,7 +42,7 @@ import com.fpetrola.oozx.speccy.media.LocalGames;
 import com.fpetrola.oozx.speccy.config.OOZxConfiguration;
 import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
 import com.fpetrola.oozx.EmulatorListener;
-import com.fpetrola.oozx.speccy.peripherals.SettingsDialog;
+import com.fpetrola.oozx.speccy.peripherals.DefaultsCore;
 import com.fpetrola.oozx.speccy.pokes.PokesManager;
 import com.fpetrola.oozx.speccy.pokes.PokesDialog;
 import com.fpetrola.emulation.helpers.snapshots.SnapshotSaver;
@@ -369,6 +369,14 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     showPlayPause(emulatorCore.isPaused());
     pauseButton.addActionListener(e -> emulatorCore.pauseEmulation());
     toolBar.add(pauseButton);
+
+    JButton settingsButton = iconButton("2699.svg", "Settings", "Settings of this machine, clipped onto it");
+    settingsButton.addActionListener(e -> {
+      if (parentApp != null) {
+        parentApp.openSettingsFor(this);
+      }
+    });
+    toolBar.add(settingsButton);
 
     JButton resetButton = iconButton("1F504.svg", "Reset", "Reset the machine, as if it had just been switched on");
     resetButton.addActionListener(e -> emulatorCore.resetEmulation());
@@ -1292,11 +1300,29 @@ public class ZXSpectrumDesktopApp extends JFrame {
     return menuBar;
   }
 
-  /** These settings are one machine's, so asking for them with none open opens one, as loading a state does. */
+  /**
+   * The settings of nobody in particular: asked for from the menu, with no machine named, they are
+   * what a machine starts with. Clipping the window onto a machine is how it comes to be that
+   * machine's, and the button on a machine's own toolbar opens it already clipped onto that one.
+   */
   private void openSettings() {
-    SettingsDialog settingsDialog = new SettingsDialog(this, getActiveEmulatorOrCreateNew().emulatorCore, config);
-    settingsDialog.setLocationRelativeTo(this);
-    settingsDialog.setVisible(true);
+    SettingsInternalFrame settings = new SettingsInternalFrame(this::coreOf, new DefaultsCore(config), config);
+    settings.setLocation(80, 80);
+    desktop.add(settings);
+    settings.setVisible(true);
+    settings.toFront();
+  }
+
+  /** The settings of one machine, clipped onto it, which is what says whose they are. */
+  public SettingsInternalFrame openSettingsFor(EmulatorInternalFrame machine) {
+    SettingsInternalFrame settings =
+        new SettingsInternalFrame(this::coreOf, new DefaultsCore(config), config);
+    settings.setLocation(80, 80);
+    desktop.add(settings);
+    settings.setVisible(true);
+    settings.setMachineWindow(machine);
+    settings.toFront();
+    return settings;
   }
 
   private void openReadme() {
@@ -2032,6 +2058,11 @@ public class ZXSpectrumDesktopApp extends JFrame {
   public com.fpetrola.oozx.Speccy machineOf(JInternalFrame window) {
     return window instanceof EmulatorInternalFrame emulator
         ? machinesByCore.get(emulator.emulatorCore) : null;
+  }
+
+  /** The core behind a machine's window, for a window that configures whichever it is clipped onto. */
+  public EmulatorCore coreOf(JInternalFrame window) {
+    return window instanceof EmulatorInternalFrame emulator ? emulator.emulatorCore : null;
   }
 
   public com.fpetrola.oozx.speccy.modules.tape.Tape deckOf(JInternalFrame machine) {
