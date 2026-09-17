@@ -144,8 +144,9 @@ public class Configuration {
     for (String property : properties) {
       JsonNode node = saved.get(property);
       if (node == null) continue;
-      java.lang.reflect.Field field = fieldOf(value.getClass(), property);
-      if (field != null) {
+      Method setter = setterOrNull(value, property);
+      if (setter == null) {
+        java.lang.reflect.Field field = fieldOf(value.getClass(), property);
         try {
           field.set(value, json.convertValue(node, field.getType()));
         } catch (IllegalAccessException cannot) {
@@ -153,7 +154,6 @@ public class Configuration {
         }
         continue;
       }
-      Method setter = setter(value, property);
       try {
         setter.invoke(value, json.convertValue(node, setter.getParameterTypes()[0]));
       } catch (ReflectiveOperationException cannot) {
@@ -192,8 +192,11 @@ public class Configuration {
 
   /** Reads one property of a part, whether it is written as a field or as any of the usual getters. */
   public static Object read(Object held, String property) throws ReflectiveOperationException {
-    java.lang.reflect.Field field = fieldOf(held.getClass(), property);
-    return field != null ? field.get(held) : getter(held.getClass(), property).invoke(held);
+    try {
+      return getter(held.getClass(), property).invoke(held);
+    } catch (NoSuchMethodException noWayToAsk) {
+      return fieldOf(held.getClass(), property).get(held);
+    }
   }
 
   /**
@@ -216,15 +219,23 @@ public class Configuration {
   /** Sets one property on a part that is running, by the field or the setter its name says it has. */
   public void set(Object held, String property, Object value) {
     try {
-      java.lang.reflect.Field field = fieldOf(held.getClass(), property);
-      if (field != null) {
-        field.set(held, value);
+      // What the part offers to be told comes first, and the field only when it offers nothing:
+      // a part that has a setter has it because being set means more than the value changing.
+      Method setter = setterOrNull(held, property);
+      if (setter != null) {
+        setter.invoke(held, value);
       } else {
-        setter(held, property).invoke(held, value);
+        fieldOf(held.getClass(), property).set(held, value);
       }
     } catch (ReflectiveOperationException cannot) {
       throw new IllegalStateException(property + " cannot be set on " + held.getClass().getName(), cannot);
     }
+  }
+
+  private static Method setterOrNull(Object value, String property) {
+    String name = "set" + Character.toUpperCase(property.charAt(0)) + property.substring(1);
+    return Arrays.stream(value.getClass().getMethods())
+        .filter(m -> m.getName().equals(name) && m.getParameterCount() == 1).findFirst().orElse(null);
   }
 
   /**
