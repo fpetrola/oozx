@@ -73,7 +73,26 @@ public class Scheduler {
 
   /** A frame went by: everything still due is that much closer, since the clock went back too. */
   public void frameEnded(int tstatesPerFrame) {
-    timetable.shiftAll(tstatesPerFrame);
+    clockWentBack(tstatesPerFrame);
+  }
+
+  /**
+   * The clock was moved back by this much, and everything still waiting moves with it. Anything
+   * that moves the clock without saying so leaves every task waiting for a T-state that is no
+   * longer the one it meant: they all fire at once, or a frame late.
+   */
+  public void clockWentBack(long tstates) {
+    timetable.shiftAll(tstates);
+  }
+
+  /**
+   * Puts the clock at this T-state and moves everything waiting by the same amount, which is the
+   * only way to move a clock that tasks are waiting on. Doing it in two steps is how a change of
+   * speed came to leave the tape's next edge waiting for a T-state that had already gone by.
+   */
+  public void moveClockTo(int tstates) {
+    clockWentBack(clock.getTStates() - tstates);
+    clock.setTStates(tstates);
   }
 
   /** Nothing is due any more. What is registered stays registered. */

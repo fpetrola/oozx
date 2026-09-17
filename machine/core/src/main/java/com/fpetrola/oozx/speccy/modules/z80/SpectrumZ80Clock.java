@@ -48,11 +48,6 @@ public class SpectrumZ80Clock extends DefaultZ80Clock {
     addTStates(tStates);
   }
 
-  /** Moves the clock without counting the move as time that has passed: a speed change repositions it. */
-  public void rebaseTStates(int newTStates) {
-    this.tStates = newTStates;
-  }
-
   public long getAbsTstates() {
     return tStates;
   }
