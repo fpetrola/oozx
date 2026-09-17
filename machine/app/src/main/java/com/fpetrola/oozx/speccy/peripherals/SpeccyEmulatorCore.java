@@ -324,10 +324,11 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
               // Whatever this machine needs is brought here and now, where a question can be asked:
               // by the time the emulator's own thread builds it, everything it reads is on this disk.
               if (!com.fpetrola.oozx.speccy.desktop.RomNotShippedDialog.readyFor(type)) return;
-              speccy.loop.later(() -> {
-                speccy.machine.selectDefault();
-                speccy.machine.select(type);
-              });
+              // Straight to the one asked for. Passing through the default first meant the
+              // machine became a 48K on the way, said so, and every box showing the model flicked
+              // to "Spectrum 48K" and back - and selecting a machine already clears the
+              // peripherals, the clock and the timetable, so the trip bought nothing.
+              speccy.loop.later(() -> speccy.machine.select(type));
             });
       }
 

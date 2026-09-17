@@ -23,10 +23,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * The machine is what takes up a change of speed: a frame ends, and the tick that ends it reads
- * what the speed is now. At nothing per cent a frame never ends, so the change that would undo it
- * is never read and the emulator does not come back - which is what happened when the spinner in
- * the settings was wound down to zero.
+ * Nought is not a speed. It is what pause is for, and as a number it puts the machine's clock at
+ * nothing a second, which is a division by nothing in everything that sizes itself by the clock.
+ * <p>
+ * What actually hung a slow machine was not this: it was a sound buffer fixed at a second, which a
+ * frame below about two per cent overran, taking the thread that runs the machine with it. That is
+ * fixed where it was, in Sound, and this is only the one value that is not a speed.
  */
 class ASpeedTheMachineCanComeBackFromTest {
   private final Speed speed = new Speed();
@@ -35,7 +37,7 @@ class ASpeedTheMachineCanComeBackFromTest {
   void nothingPerCentIsTheSlowestItWillGo() {
     speed.setEmulation(0);
 
-    assertEquals(Speed.SLOWEST, speed.emulation, "a speed it could not come back from");
+    assertEquals(Speed.SLOWEST, speed.emulation, "nought is not a speed");
   }
 
   @Test
@@ -43,6 +45,13 @@ class ASpeedTheMachineCanComeBackFromTest {
     speed.setEmulation(25);
 
     assertEquals(25, speed.emulation);
+  }
+
+  @Test
+  void onePerCentIsAllowed() {
+    speed.setEmulation(1);
+
+    assertEquals(1, speed.emulation, "a frame a second is slow, and slow is not broken");
   }
 
   @Test

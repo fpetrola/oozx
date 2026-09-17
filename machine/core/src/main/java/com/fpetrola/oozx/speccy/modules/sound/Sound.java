@@ -145,12 +145,12 @@ public class Sound implements AudioOutput {
    */
   @Override
   public BlipSynth newSynth(int volumePercent) {
-    return new BlipSynth(BlipBuffer.BLIP_HIGH_QUALITY, sampleRate, 1000, clock, speaker, loudness(volumePercent));
+    return new BlipSynth(BlipBuffer.BLIP_HIGH_QUALITY, sampleRate, holdsAFrame(), clock, speaker, loudness(volumePercent));
   }
 
   @Override
   public BlipSynth newFlatSynth(int volumePercent) {
-    return new BlipSynth(BlipBuffer.BLIP_HIGH_QUALITY, sampleRate, 1000, clock, speaker.flat(), loudness(volumePercent));
+    return new BlipSynth(BlipBuffer.BLIP_HIGH_QUALITY, sampleRate, holdsAFrame(), clock, speaker.flat(), loudness(volumePercent));
   }
 
   private static double loudness(int percent) {
@@ -184,6 +184,17 @@ public class Sound implements AudioOutput {
       for (int i = 0; i < count; i++) mix[i] = mix[i] * volume / 100;
     }
     if (output.enabled) card.play(mix, count);
+  }
+
+  /**
+   * How much a synth has to hold, in milliseconds. A frame is read out in one go, so the buffer
+   * has to have room for a whole one - and a frame is longer the slower the machine is asked to
+   * run: at one per cent it is a hundred frames' worth of samples. Fixed at a second, which is
+   * what this was, the read ran off the end below about two per cent and the thread running the
+   * machine died there, which is why the emulator did not come back.
+   */
+  private int holdsAFrame() {
+    return Math.max(1000, (int) Math.ceil(frameSize * 1000.0 / sampleRate) + 100);
   }
 
   /** The card is let go of: nothing plays until it is asked for again. */
