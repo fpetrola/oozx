@@ -1034,3 +1034,59 @@ ya decía o queda para después.
 | los GPUs leen los puertos reales con la dirección del CPU | `IO` que devuelve 0xff | igual: el `OUT` es lo que importa y ninguno lo deja pasar |
 | `fillByState` al entrar: el estado entero, MEMPTR incluido | `gpu_reset` de GZX | igual, y ya existe: `State.takeFrom` |
 | base de 24 juegos por SHA-256 con sus ajustes | nada | para después: cuando un juego del repositorio lo pida, el `.CFG` de al lado es el lugar |
+
+## Lo que costó, contado al final: 22 commits, y nueve de cada diez líneas son módulo nuevo
+
+Leído del historial el 16 de septiembre de 2026, sobre los 22 commits que tocan
+`machine/devices/spec256`, del 14 al 16. Esta sección no razona: cuenta lo que quedó, para que
+dentro de un año se pueda ver de un vistazo qué se agregó y qué hubo que abrirle al resto del árbol.
+
+### El módulo, que es casi todo
+
+Once clases, 1689 líneas, y nueve archivos de test con 1548. Sumando los 22 commits, adentro del
+módulo hubo **+3900 −633**: se escribió y se volvió a escribir, que es lo que pasa cuando se mide
+contra un juego.
+
+| clase | líneas | qué es |
+|---|---|---|
+| `Spec256Peripheral` | 429 | el periférico: toma el `.gfx` de al lado, prende el núcleo, pinta desde los planos |
+| `Spec256Frame` | 211 | la ventana del juego en 256 colores |
+| `Alignment` | 191 | qué registros del seguidor se alinean con los de la máquina, leído del `.CFG` |
+| `LevelledInstructions` | 190 | las instrucciones que un seguidor ejecuta distinto |
+| `Planes` | 171 | las ocho memorias, un bit de color por plano |
+| `Rules` | 140 | lo que el archivo del juego dice sobre cómo sus colores se encuentran con los de la máquina |
+| `Spec256Core` | 117 | el núcleo que corre los nueve procesadores en paso |
+| `LockstepZ80` | 88 | el procesador que va donde va la máquina |
+| `Permutations` | 86 | las tablas que mueven bits entre planos |
+| `Spec256Equipment`, `Spec256Devices` | 33 + 33 | el registro del dispositivo |
+
+### Lo que hubo que abrirle al resto del árbol: 258 líneas
+
+Sacando lo generado, los tests y esta documentación, **+258 −91 repartidas en 23 archivos**, y
+ningún archivo cambió más de 33 líneas. No hay un caso especial en ninguno: son seis asientos.
+
+| asiento | líneas | para qué |
+|---|---|---|
+| `Core.wrapping(Memory)` | +9 −1 | un núcleo puede envolver la memoria sobre la que va a correr el procesador, que es cómo el seguidor ve lo que la máquina escribe |
+| `FilesOfItsOwn` (archivo nuevo en `core`) y `Snapshots` | +33, +11 | "de dónde vino este snapshot", dicho una sola vez a quien quiera escucharlo. Es lo que deja al periférico buscar el `.gfx` al lado sin que nadie más sepa qué es un `.gfx` |
+| la fábrica de instrucciones: `InstructionFactory`, `InstructionFactoryDelegator`, `DefaultInstructionFactory`, `OpcodeTargets`, `MultiOpcodeFetcher`, `TableOpCodeGenerator` | +11, +10, +33 −23, +15 −8, +4 −4, +8 | que un procesador se construya con instrucciones que no son las comunes, y que diga de dónde lee los bytes de la instrucción misma. Es lo que deja a los ocho planos ejecutar en paso sin un segundo Z80 |
+| `Picture.paintPair` con colores sueltos | +7 −2 | pintar dos píxeles en colores que no están en ninguna paleta, para quien se los calculó él mismo |
+| `ContendedMemory.peek`/`poke` | +8 | leer y escribir sin contar t-estados, que es lo que necesita quien mira la memoria desde afuera del reloj |
+| `OOZ80(OOZ80)` | +5 | un constructor de copia, para envolver un procesador sin rearmarlo |
+
+`Ram` es el único que perdió algo: **−3**, un arreglo estático `WRITTEN_THIS_FRAME` que se borró
+cuando la regla de leer donde lee la máquina se comió a las otras tres.
+
+### Lo que el reparto quiere decir
+
+La condición que abre este plan —que el núcleo no sepa que Spec256 existe— se puede comprobar en
+vez de creer: **en `emulator/` y en `machine/core` la palabra "spec256" no aparece ni una vez**. Las
+cinco menciones que hay fuera del módulo están todas en la aplicación, y ninguna es de emulación:
+`LocalGames` y el navegador preguntan `Spec256Peripheral.hasColours(archivo)` para el filtro "256
+colors" y para que el menú de carga lo diga, y un test nombra el procesador en la lista de los tres.
+
+Dos cosas que no entran en la cuenta de arriba y conviene no confundir. `GeneratedSpectrumZ80`
+aparece en ocho de los 22 commits, pero es código generado: lo que se tocó es el generador. Y los
+cambios del 16 de septiembre en `GameLibrary`, `LocalGames` y `GameBrowserInternalFrame`, +65
+líneas, son el filtro de la galería y la etiqueta del menú: la biblioteca anota si un juego tiene
+sus colores al lado cuando ficha el archivo, y eso es interfaz, no hacer andar Spec256.
