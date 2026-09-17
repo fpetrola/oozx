@@ -74,16 +74,8 @@ public class ScldPortHandler extends DefaultPortHandler {
    * the same line, one from each display file, in the one pair of colours the register names, and
    * no attribute read from memory at all, so nothing can clash.
    */
-  /** A wide picture reads no attribute from memory, so nothing in it can flash. */
-  private final Painting.Line wide = new Painting.Line() {
-    public void paint(int y, int bits) {
-      paintHiRes(y, bits);
-    }
-
-    public boolean cellsCanFlash() {
-      return false;
-    }
-  };
+  /** A wide picture is drawn out of both halves of the screen, so it has no attributes at all. */
+  private final Painting.WithoutAttributes wide = this::paintHiRes;
 
   private void paintHiRes(int y, int bits) {
     byte[] screen = banks.shown().bytes;
