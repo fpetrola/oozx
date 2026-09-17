@@ -227,7 +227,16 @@ public class SettingsPanel extends JPanel {
       // A step that is worth something next to what is there: one at a time is right for forty-two
       // tracks and useless for a speed of a million per cent, where it is a hundred thousand.
       JSpinner spinner = new JSpinner(new SpinnerNumberModel(number, 0, Integer.MAX_VALUE, stepFor(number)));
-      spinner.addChangeListener(e -> device.values().set(property, spinner.getValue()));
+      spinner.addChangeListener(e -> {
+        device.values().set(property, spinner.getValue());
+        // What stuck, which is not always what was asked for: a part that knows what it can do
+        // with a number takes the nearest one it can, and the box has to say so rather than show
+        // something nothing is.
+        Object kept = device.values().get(property);
+        if (kept instanceof Integer held && !held.equals(spinner.getValue())) {
+          spinner.setValue(held);
+        }
+      });
       return spinner;
     }
     if (type.isEnum()) {

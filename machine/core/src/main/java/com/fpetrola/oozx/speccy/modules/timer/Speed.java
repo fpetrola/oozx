@@ -15,6 +15,19 @@ public class Speed {
     public static final int REAL_TIME = 100;
 
     /**
+     * The slowest it will be asked to go, because the machine is what takes up a change of speed:
+     * at nothing per cent a frame never ends, so the change that would undo it is never read and
+     * the emulator does not come back. A tenth of real time is slow enough to watch a frame happen
+     * and quick enough to answer.
+     */
+    public static final int SLOWEST = 10;
+
+    /** A speed the machine can be asked for: anything below the slowest is the slowest. */
+    public static int sensible(int perCent) {
+        return Math.max(SLOWEST, Math.min(UNLIMITED, perCent));
+    }
+
+    /**
      * Per cent of a real Spectrum. A hundred is real time; what ships is far above it, so that
      * anything headless runs flat out, and whoever is showing the machine to a person asks for
      * real time before init - the sound sizes a frame of audio by this, and at twenty thousand
@@ -36,7 +49,7 @@ public class Speed {
     }
 
     public void setEmulation(int perCent) {
-        emulation = perCent;
+        emulation = sensible(perCent);
         whenChanged.run();
     }
 
