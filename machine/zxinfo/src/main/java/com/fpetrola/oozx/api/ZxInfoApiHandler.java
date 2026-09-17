@@ -420,10 +420,22 @@ public class ZxInfoApiHandler {
   }
 
   /** Runs a call against a freshly built proxy and always closes the client. */
+  /** Runs a call against a freshly built proxy, retrying what is worth retrying, and always closes. */
   /**
-   * A 503 from this API means asked too fast, not gone: a few hundred requests in a row bring it
-   * on, and the same call answers when it is given a moment. Anything else is passed straight out.
+   * A 503 from this API means asked too fast, not gone: a few hundred requests in a row bring it on,
+   * and the same call answers when it is given a moment. A name that does not resolve or a
+   * connection that times out is the network of this minute and not an answer either: a catalogue
+   * run lost 524 of its 1020 games to `UnknownHostException: api.zxinfo.dk` while 291 others went
+   * through in between, so the resolver was blinking and the run had no patience for it.
+   * <p>
+   * Anything else is what the server actually said and goes straight out: a reply that cannot be
+   * read will not read better five times over.
    */
+  private static boolean worthAskingAgain(RuntimeException failure) {
+    return failure instanceof jakarta.ws.rs.ServiceUnavailableException
+        || failure.getCause() instanceof java.io.IOException;
+  }
+
   private <T> T withClient(java.util.function.Function<ZxInfoClient, T> call) {
     for (int attempt = 1; ; attempt++) {
       // Without a timeout a request nobody answers waits for ever, and that is not a worry but
@@ -436,9 +448,9 @@ public class ZxInfoApiHandler {
       try {
         ResteasyWebTarget target = (ResteasyWebTarget) client.target(BASE_URL);
         return call.apply(target.proxy(ZxInfoClient.class));
-      } catch (jakarta.ws.rs.ServiceUnavailableException tooFast) {
-        if (attempt == RETRIES) {
-          throw tooFast;
+      } catch (jakarta.ws.rs.ProcessingException | jakarta.ws.rs.ServiceUnavailableException again) {
+        if (attempt == RETRIES || !worthAskingAgain(again)) {
+          throw again;
         }
         sleep(attempt * BACKOFF);
       } finally {
