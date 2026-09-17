@@ -67,6 +67,11 @@ public class Timer {
       throw new IllegalStateException("the clock went backwards before the timer started");
     }
     tick = scheduler.register(new Tick());
+    // Whoever sets the speed - a control in a window, a file being read - is setting it on the
+    // machine's own Speed, and this is what has to happen next. Said here rather than expected of
+    // every caller: a speed that is written and not taken up leaves the machine pacing to the old
+    // one, which is what it did.
+    speed.whenChanged = this::takeUpTheNewSpeed;
     addEvent();
     estimateReset();
   }
@@ -206,6 +211,21 @@ public class Timer {
    */
   public void changeSpeed(int emulationSpeed) {
     speed.emulation = emulationSpeed;
+    takeUpTheNewSpeed();
+  }
+
+  /**
+   * What has to happen when the speed changes, whoever changed it: the pacing is worked out from a
+   * T-state count and an estimate of how long a frame takes, both of which a new speed makes
+   * meaningless, and a frame's worth of samples is sized for the speed it is played at.
+   */
+  private void takeUpTheNewSpeed() {
+    // Before there is a machine there is nothing to pace and no frame to size the sound by: the
+    // file is read into the parts before one is chosen, and the speed it says is simply what the
+    // first frame will run at.
+    if (machine.get() == null || machine.get().current == null) {
+      return;
+    }
     // Through the scheduler, because everything waiting has to move with the clock. Moving the
     // clock alone left a tape edge due in two hundred T-states due fifty thousand later, or already
     // past and fired at once, depending on where in the frame the speed was changed - and a loader

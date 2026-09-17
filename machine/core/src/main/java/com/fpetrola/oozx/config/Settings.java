@@ -87,14 +87,14 @@ public final class Settings {
 
     /** What kind of thing a setting is, which is what decides the control that shows it. */
     public Class<?> typeOf(String property) {
-      java.lang.reflect.Field field = Configuration.fieldOf(device, property);
-      if (field != null) {
-        return field.getType();
-      }
       try {
         return Configuration.getter(device, property).getReturnType();
-      } catch (NoSuchMethodException notThere) {
-        throw new IllegalStateException(device.getName() + " has no " + property, notThere);
+      } catch (NoSuchMethodException noWayToAsk) {
+        java.lang.reflect.Field field = Configuration.fieldOf(device, property);
+        if (field == null) {
+          throw new IllegalStateException(device.getName() + " has no " + property, noWayToAsk);
+        }
+        return field.getType();
       }
     }
 

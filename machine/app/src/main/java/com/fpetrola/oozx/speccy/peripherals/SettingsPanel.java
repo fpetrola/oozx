@@ -82,7 +82,8 @@ public class SettingsPanel extends JPanel {
     for (String[] tab : TABS) {
       List<String> sections = List.of(tab).subList(1, tab.length);
       placed.addAll(sections);
-      tabs.addTab(tab[0], sectionsOf(sections));
+      tabs.addTab(tab[0], "Audio".equals(tab[0])
+          ? withTheVolumeOnTop(sectionsOf(sections)) : sectionsOf(sections));
     }
     tabs.addTab("Machine", machineTab(placed));
     tabs.addTab("General", generalTab());
@@ -103,7 +104,7 @@ public class SettingsPanel extends JPanel {
   private JComponent theScreensOwnKnobs() {
     if (emulatorCore.getPanel() instanceof SpeccyScreen screen) {
       ScreenSettings settings = screen.getScreenSettings();
-      return new JScrollPane(new KnobRows(() -> { }).of(settings.settings()));
+      return scrolling(new KnobRows(() -> { }).of(settings.settings()));
     }
     // No screen to turn the knobs of: what a new one is opened with is kept by the screen itself,
     // and is set from the window of a machine that has one.
@@ -140,6 +141,26 @@ public class SettingsPanel extends JPanel {
     row(panel, at, "Machine model", model);
     row(panel, at, "ROMs", roms);
     return panel;
+  }
+
+  /**
+   * The volume above the sound settings. It is not one of the declared ones - it is asked of the
+   * machine and answered by it - but it belongs here as much as they do, and it works.
+   */
+  private JComponent withTheVolumeOnTop(JComponent sound) {
+    JPanel all = new JPanel(new BorderLayout());
+    JPanel top = new JPanel(new GridBagLayout());
+    GridBagConstraints at = at();
+    javax.swing.JSlider volume = new javax.swing.JSlider(0, 100, emulatorCore.getVolume());
+    volume.addChangeListener(e -> {
+      if (!volume.getValueIsAdjusting()) {
+        emulatorCore.setAudioOption("volume", volume.getValue());
+      }
+    });
+    row(top, at, "Volume", volume);
+    all.add(top, BorderLayout.NORTH);
+    all.add(sound, BorderLayout.CENTER);
+    return all;
   }
 
   /** What belongs to the program rather than to any machine: how fast it runs and what runs it. */
@@ -182,26 +203,23 @@ public class SettingsPanel extends JPanel {
     return mine.isEmpty() ? saying("Nothing here has said what it can be told") : blocksOf(mine);
   }
 
+  /**
+   * Every setting of every part, in one grid: the names in one column and the controls in another,
+   * with a line across for each part. Built as a panel per part - which is the obvious way - the
+   * columns were each part's own, so the controls of one started where the longest name of that
+   * part ended and nothing lined up with anything below it.
+   */
   private JComponent blocksOf(List<Settings.Configurable> parts) {
-    JPanel all = new JPanel();
-    all.setLayout(new BoxLayout(all, BoxLayout.Y_AXIS));
-    for (Settings.Configurable part : parts) {
-      JPanel block = settingsOf(part);
-      block.setBorder(BorderFactory.createTitledBorder(readably(lastPartOf(part.device().name()))));
-      block.setAlignmentX(LEFT_ALIGNMENT);
-      all.add(block);
-    }
-    return new JScrollPane(all);
-  }
-
-  /** One device's settings, a control each, chosen by the kind of thing the device says it is. */
-  private JPanel settingsOf(Settings.Configurable device) {
-    JPanel panel = new JPanel(new GridBagLayout());
+    JPanel all = new JPanel(new GridBagLayout());
     GridBagConstraints at = at();
-    for (String property : device.device().properties()) {
-      row(panel, at, readably(property), controlFor(device, property));
+    for (Settings.Configurable part : parts) {
+      heading(all, at, readably(lastPartOf(part.device().name())));
+      for (String property : part.device().properties()) {
+        row(all, at, readably(property), controlFor(part, property));
+      }
     }
-    return panel;
+    fillTheRest(all, at);
+    return scrolling(all);
   }
 
   private JComponent controlFor(Settings.Configurable device, String property) {
@@ -215,7 +233,9 @@ public class SettingsPanel extends JPanel {
     }
     if (type == int.class || type == Integer.class) {
       int number = value instanceof Integer held ? held : 0;
-      JSpinner spinner = new JSpinner(new SpinnerNumberModel(number, 0, Integer.MAX_VALUE, 1));
+      // A step that is worth something next to what is there: one at a time is right for forty-two
+      // tracks and useless for a speed of a million per cent, where it is a hundred thousand.
+      JSpinner spinner = new JSpinner(new SpinnerNumberModel(number, 0, Integer.MAX_VALUE, stepFor(number)));
       spinner.addChangeListener(e -> device.values().set(property, spinner.getValue()));
       return spinner;
     }
@@ -242,6 +262,15 @@ public class SettingsPanel extends JPanel {
     return asItIs;
   }
 
+  /** A tenth of the size of what is there, near enough: 1 for tens, 10 for hundreds, and so on. */
+  private static int stepFor(int value) {
+    int step = 1;
+    for (int digits = String.valueOf(Math.abs(value)).length(); digits > 2; digits--) {
+      step *= 10;
+    }
+    return step;
+  }
+
   private List<Settings.Configurable> declared() {
     return emulatorCore.deviceSettings();
   }
@@ -252,6 +281,38 @@ public class SettingsPanel extends JPanel {
     at.anchor = GridBagConstraints.WEST;
     at.gridy = 0;
     return at;
+  }
+
+  /** A line across with the part's name on it, which is what tells one part from the next. */
+  private static void heading(JPanel panel, GridBagConstraints at, String name) {
+    JLabel title = new JLabel(name);
+    title.setFont(title.getFont().deriveFont(java.awt.Font.BOLD));
+    at.gridx = 0;
+    at.gridwidth = 2;
+    at.weightx = 1;
+    at.fill = GridBagConstraints.HORIZONTAL;
+    at.insets = new Insets(at.gridy == 0 ? 6 : 16, 8, 2, 8);
+    panel.add(title, at);
+    at.insets = new Insets(3, 8, 3, 8);
+    at.gridwidth = 1;
+    at.gridy++;
+  }
+
+  /** Everything left over goes to the bottom, so the rows stay at the top and keep their heights. */
+  private static void fillTheRest(JPanel panel, GridBagConstraints at) {
+    at.gridx = 0;
+    at.gridwidth = 2;
+    at.weighty = 1;
+    at.fill = GridBagConstraints.BOTH;
+    panel.add(new JPanel(), at);
+  }
+
+  /** A scroll pane that moves by a line of settings at a time rather than by three pixels. */
+  private static JScrollPane scrolling(JComponent what) {
+    JScrollPane scroll = new JScrollPane(what);
+    scroll.getVerticalScrollBar().setUnitIncrement(24);
+    scroll.getHorizontalScrollBar().setUnitIncrement(24);
+    return scroll;
   }
 
   private static void row(JPanel panel, GridBagConstraints at, String label, JComponent control) {

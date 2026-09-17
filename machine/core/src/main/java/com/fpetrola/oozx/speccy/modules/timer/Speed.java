@@ -40,4 +40,28 @@ public class Speed {
     public int emulation;
     /** Whether a tape loads at whatever speed the machine can manage rather than at its own. */
     public boolean fastLoading;
+
+    /**
+     * Told when the speed is set from outside rather than read every frame. Whoever is pacing the
+     * machine has an estimate of how long a frame takes that a new speed makes meaningless, and
+     * setting the field alone left it pacing to the old one.
+     */
+    public Runnable whenChanged = () -> { };
+
+    public int emulation() {
+        return emulation;
+    }
+
+    public void setEmulation(int perCent) {
+        emulation = perCent;
+        whenChanged.run();
+    }
+
+    public boolean fastLoading() {
+        return fastLoading;
+    }
+
+    public void setFastLoading(boolean fast) {
+        fastLoading = fast;
+    }
 }
