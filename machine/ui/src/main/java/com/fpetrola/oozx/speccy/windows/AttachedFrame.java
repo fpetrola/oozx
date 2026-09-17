@@ -63,6 +63,8 @@ public abstract class AttachedFrame extends JInternalFrame {
   private JComponent detail;
 
   private Dock dock = Dock.BOTTOM;
+  /** Which side to go back to when the attach button is pressed: where the window last sat. */
+  private Dock preferred = Dock.BOTTOM;
   private boolean compact = true;
 
   /**
@@ -137,7 +139,7 @@ public abstract class AttachedFrame extends JInternalFrame {
     dockButton = Widgets.iconToggle("dock-bottom.svg", "Attach", attachTip());
     dockButton.setSelected(true);
     dockButton.addActionListener(e -> {
-      dock = dockButton.isSelected() ? Dock.BOTTOM : Dock.FREE;
+      dock = dockButton.isSelected() ? preferred : Dock.FREE;
       attachmentChanged();
       place();
     });
@@ -263,6 +265,17 @@ public abstract class AttachedFrame extends JInternalFrame {
   }
 
   /** The machine's window this is attached to, or null while there is none. */
+  /**
+   * The side this one would rather sit on. Along the bottom a window is as wide as the machine,
+   * which suits a row of controls and not a window with tabs in it; against a side it keeps its
+   * own width.
+   */
+  protected void prefersDock(Dock side) {
+    preferred = side;
+    dock = side;
+    place();
+  }
+
   public JInternalFrame getMachineWindow() {
     return machineWindow;
   }
@@ -419,6 +432,9 @@ public abstract class AttachedFrame extends JInternalFrame {
     }
     boolean was = dock != Dock.FREE;
     dock = nearest;
+    if (nearest != Dock.FREE) {
+      preferred = nearest;
+    }
     dockButton.setSelected(nearest != Dock.FREE);
     if (nearestMachine != null && nearestMachine != machineWindow) {
       // Carried from one computer to another: the lead comes out of the first and goes into
