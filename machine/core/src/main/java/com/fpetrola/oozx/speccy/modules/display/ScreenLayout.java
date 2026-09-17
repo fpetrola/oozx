@@ -32,33 +32,43 @@ public final class ScreenLayout {
   public final int[] lineStart = new int[LINES];
   public final int[] attrStart = new int[LINES];
 
+  /** Where each line's bytes and each line's colours are, as the machine is showing them now. */
+  private final int[] pixelStart = new int[LINES];
+  private final int[] colourStart = new int[LINES];
+
   public ScreenLayout() {
     for (int y = 0; y < LINES; y++) {
       lineStart[y] = 32 * ((y & 0xC0) | ((y & 7) << 3) | ((y & 0x38) >> 3));
       attrStart[y] = ATTRIBUTES + 32 * (y >> 3);
     }
+    showing(0, false);
   }
 
   /** Inverse of {@link #lineStart}: decodes a bitmap offset's (third, char-row, pixel-row) bit fields. */
   /** How far the second display file sits above the first. */
   public static final int SECOND_FILE = 0x2000;
 
-  /** Which display file is being shown: nought for the usual one, {@link #SECOND_FILE} for the other. */
-  public int file;
-
   /**
-   * Whether a colour covers one line of a cell instead of eight. When it does, the colour of a
-   * byte is at that byte's own address in the other file, which is what gives a Timex machine
-   * eight times the colour resolution down the screen for the same bitmap.
+   * Which of the two display files a machine is showing, and whether a colour covers one line of a
+   * cell instead of all eight - and then the colour of a byte is at that byte's own address in the
+   * other file, which is eight times the colour resolution down the screen for the same bitmap.
+   * <p>
+   * Asked when a machine says so and not when a byte is looked for, so that finding one is a
+   * look-up: what this answers changes on a port write and is read once a cell.
    */
-  public boolean colourPerLine;
+  public void showing(int file, boolean colourPerLine) {
+    for (int y = 0; y < LINES; y++) {
+      pixelStart[y] = file + lineStart[y];
+      colourStart[y] = colourPerLine ? SECOND_FILE + lineStart[y] : file + attrStart[y];
+    }
+  }
 
   public int pixelsAt(int line, int column) {
-    return file + lineStart[line] + column;
+    return pixelStart[line] + column;
   }
 
   public int colourAt(int line, int column) {
-    return colourPerLine ? SECOND_FILE + lineStart[line] + column : file + attrStart[line] + column;
+    return colourStart[line] + column;
   }
 
   public int secondByteAt(int line, int column) {

@@ -102,8 +102,8 @@ public class ScldPortHandler extends DefaultPortHandler {
     display.screenChanging();
     register = value;
     ScreenLayout layout = display.layout;
-    layout.file = (value & SECOND_FILE) != 0 ? ScreenLayout.SECOND_FILE : 0;
-    layout.colourPerLine = (value & COLOUR_PER_LINE) != 0;
+    layout.showing((value & SECOND_FILE) != 0 ? ScreenLayout.SECOND_FILE : 0,
+        (value & COLOUR_PER_LINE) != 0);
     boolean hiRes = (value & HI_RES) != 0;
     pairOfColours = PAIRS[(value & COLOUR_PAIR) >> 3];
     display.painting.line(hiRes ? (Painting.Line) this::paintHiRes : null);
