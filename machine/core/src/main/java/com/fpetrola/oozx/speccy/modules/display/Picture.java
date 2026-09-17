@@ -65,6 +65,7 @@ public class Picture {
     palette[index & (COLOURS - 1)] = rgb;
   }
 
+  /** The pixels themselves, for whoever draws a column in a way only its own machine draws it. */
   public final int[] pixels = new int[STRIDE * HEIGHT];
 
   /**
@@ -93,9 +94,9 @@ public class Picture {
   }
 
   /**
-   * Eight pixels of a bitmap byte in two colours. Eight and not {@link #columnWidth}, because a
-   * machine that draws its columns wider draws them with {@link #plot16} and borders them with
-   * {@link #fillColumn}, and this is what is left: the way every Sinclair draws.
+   * Eight pixels of a bitmap byte in two colours, which is the way every Sinclair draws and the
+   * only way this knows. Eight and not {@link #columnWidth}: a machine that makes a column out of
+   * something else makes it out of {@link #pixels} itself, where its own way belongs.
    */
   public void plot8(int x, int y, byte data, byte ink, byte paper) {
     int at = y * STRIDE + x * 8;
@@ -109,26 +110,5 @@ public class Picture {
   public void fillColumn(int x, int y, byte colour) {
     int at = y * STRIDE + x * columnWidth;
     java.util.Arrays.fill(pixels, at, at + columnWidth, palette[colour & 0xff]);
-  }
-
-  /** Two pixels of their own colours, one pair of the four a column is made of when a byte is a colour. */
-  public void plotPair(int x, int y, int pair, byte left, byte right) {
-    paintPair(x, y, pair, palette[left & 0xff], palette[right & 0xff]);
-  }
-
-  /** The same two pixels in colours that are in no palette, for whoever worked them out itself. */
-  public void paintPair(int x, int y, int pair, int left, int right) {
-    int at = y * STRIDE + x * 8 + pair * 2;
-    pixels[at] = left;
-    pixels[at + 1] = right;
-  }
-
-  /** Sixteen pixels of their own, from the two bytes a column is made of where one is not enough. */
-  public void plot16(int x, int y, int data, byte ink, byte paper) {
-    int at = y * STRIDE + (x << 4);
-    int inkColour = palette[ink & 0xff], paperColour = palette[paper & 0xff];
-    for (int i = 0; i < 16; i++) {
-      pixels[at + i] = (data & (0x8000 >> i)) != 0 ? inkColour : paperColour;
-    }
   }
 }

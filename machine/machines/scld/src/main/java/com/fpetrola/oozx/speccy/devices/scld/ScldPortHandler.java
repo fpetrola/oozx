@@ -19,6 +19,7 @@ package com.fpetrola.oozx.speccy.devices.scld;
 
 import com.fpetrola.oozx.speccy.modules.display.Display;
 import com.fpetrola.oozx.speccy.modules.display.Painting;
+import com.fpetrola.oozx.speccy.modules.display.Picture;
 import com.fpetrola.oozx.speccy.modules.display.ScreenLayout;
 import com.fpetrola.oozx.speccy.modules.memory.SpectrumMemory;
 import com.fpetrola.oozx.speccy.ports.BusAnswer;
@@ -76,11 +77,17 @@ public class ScldPortHandler extends DefaultPortHandler {
   private void paintHiRes(int y, int bits) {
     byte[] screen = banks.shown().bytes;
     ScreenLayout layout = display.layout;
-    byte ink = display.colouring.ink(pairOfColours), paper = display.colouring.paper(pairOfColours);
+    Picture canvas = display.picture();
+    int ink = canvas.palette[display.colouring.ink(pairOfColours) & 0xff];
+    int paper = canvas.palette[display.colouring.paper(pairOfColours) & 0xff];
+    int row = (y + Display.BORDER_HEIGHT) * Picture.STRIDE;
     for (; bits != 0; bits &= bits - 1) {
       int x = Integer.numberOfTrailingZeros(bits);
       int wide = ((screen[layout.pixelsAt(y, x)] & 0xff) << 8) | (screen[layout.secondByteAt(y, x)] & 0xff);
-      display.picture().plot16(x + Display.BORDER_WIDTH_COLS, y + Display.BORDER_HEIGHT, wide, ink, paper);
+      int at = row + (x + Display.BORDER_WIDTH_COLS) * 16;
+      for (int i = 0; i < 16; i++) {
+        canvas.pixels[at + i] = (wide & (0x8000 >> i)) != 0 ? ink : paper;
+      }
     }
   }
 

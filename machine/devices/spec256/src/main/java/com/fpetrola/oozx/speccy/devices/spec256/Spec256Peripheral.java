@@ -160,6 +160,7 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     byte[] shown = banks.shown().bytes;
     boolean reversed = display.colouring.reversed();
     Picture canvas = display.picture();
+    int row = (y + Display.BORDER_HEIGHT) * Picture.STRIDE;
     for (; bits != 0; bits &= bits - 1) {
       int x = Integer.numberOfTrailingZeros(bits);
       int at = display.layout.pixelsAt(y, x);
@@ -169,9 +170,9 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
       paper = attributeColour(attribute, (attribute >> 3) & 0x07);
       flashedAway = Colouring.flashes(attribute) && reversed;
       int address = Planes.RAM + at;
-      for (int pair = 0; pair < 4; pair++) {
-        canvas.paintPair(x + Display.BORDER_WIDTH_COLS, y + Display.BORDER_HEIGHT, pair,
-            rgbOf(address, x, y, pair * 2), rgbOf(address, x, y, pair * 2 + 1));
+      int pixel = row + (x + Display.BORDER_WIDTH_COLS) * 8;
+      for (int i = 0; i < 8; i++) {
+        canvas.pixels[pixel + i] = rgbOf(address, x, y, i);
       }
     }
   }

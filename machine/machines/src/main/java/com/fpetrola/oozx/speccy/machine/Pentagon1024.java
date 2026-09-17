@@ -21,6 +21,7 @@ package com.fpetrola.oozx.speccy.machine;
 import com.fpetrola.oozx.speccy.modules.display.Display;
 import com.fpetrola.oozx.speccy.modules.display.Colouring;
 import com.fpetrola.oozx.speccy.modules.display.Painting;
+import com.fpetrola.oozx.speccy.modules.display.Picture;
 import com.fpetrola.oozx.speccy.modules.memory.MemoryBus;
 import com.fpetrola.oozx.speccy.modules.memory.SpectrumMemory;
 import com.fpetrola.oozx.speccy.modules.scheduler.Scheduler;
@@ -112,20 +113,23 @@ public class Pentagon1024 extends Pentagon512 {
    */
   private void paintSixteenColours(int y, int bits) {
     byte[] screen = banks.shown().bytes, other = banks.beside().bytes;
+    Picture canvas = display.picture();
+    int row = (y + Display.BORDER_HEIGHT) * Picture.STRIDE;
     for (; bits != 0; bits &= bits - 1) {
       int x = Integer.numberOfTrailingZeros(bits);
       int at = display.layout.pixelsAt(y, x), above = display.layout.secondByteAt(y, x);
-      plotColours(x, y, 0, other[at]);
-      plotColours(x, y, 1, screen[at]);
-      plotColours(x, y, 2, other[above]);
-      plotColours(x, y, 3, screen[above]);
+      int pixel = row + (x + Display.BORDER_WIDTH_COLS) * 8;
+      plotColours(canvas, pixel, other[at]);
+      plotColours(canvas, pixel + 2, screen[at]);
+      plotColours(canvas, pixel + 4, other[above]);
+      plotColours(canvas, pixel + 6, screen[above]);
     }
   }
 
   /** A byte that is not a bitmap but two colours: the same bits an attribute puts its ink and paper in. */
-  private void plotColours(int x, int y, int pair, byte colours) {
-    display.picture().plotPair(x + Display.BORDER_WIDTH_COLS, y + Display.BORDER_HEIGHT, pair,
-        Colouring.inkBits(colours), Colouring.paperBits(colours));
+  private void plotColours(Picture canvas, int at, byte colours) {
+    canvas.pixels[at] = canvas.palette[Colouring.inkBits(colours) & 0xff];
+    canvas.pixels[at + 1] = canvas.palette[Colouring.paperBits(colours) & 0xff];
   }
 
   @Override
