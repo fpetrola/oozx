@@ -190,10 +190,27 @@ public class Configuration {
     make(name).set(property, json.valueToTree(value));
   }
 
-  /** Reads one property of a part, whether it is written as a field or as a method. */
+  /** Reads one property of a part, whether it is written as a field or as any of the usual getters. */
   public static Object read(Object held, String property) throws ReflectiveOperationException {
     java.lang.reflect.Field field = fieldOf(held.getClass(), property);
-    return field != null ? field.get(held) : held.getClass().getMethod(property).invoke(held);
+    return field != null ? field.get(held) : getter(held.getClass(), property).invoke(held);
+  }
+
+  /**
+   * The method a property is read by: its own name, or the is/get of a bean. Three spellings
+   * because the machine, the devices and the parts that came from a schema were each written in
+   * their own, and a setting is a setting in all three.
+   */
+  static Method getter(Class<?> type, String property) throws NoSuchMethodException {
+    String capitalised = Character.toUpperCase(property.charAt(0)) + property.substring(1);
+    for (String name : new String[] {property, "is" + capitalised, "get" + capitalised}) {
+      try {
+        return type.getMethod(name);
+      } catch (NoSuchMethodException next) {
+        // The next spelling.
+      }
+    }
+    throw new NoSuchMethodException(type.getName() + " has no " + property);
   }
 
   /** Sets one property on a part that is running, by the field or the setter its name says it has. */

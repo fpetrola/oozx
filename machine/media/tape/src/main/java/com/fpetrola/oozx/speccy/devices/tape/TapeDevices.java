@@ -26,5 +26,9 @@ import com.google.inject.multibindings.Multibinder;
 public class TapeDevices extends AbstractModule implements Extension {
   protected void configure() {
     Multibinder.newSetBinder(binder(), Peripheral.class).addBinding().to(Tape.class);
+    com.fpetrola.oozx.config.Settings.mirror(binder(), "tape",
+        com.fpetrola.oozx.speccy.modules.tape.TapeSettingsType.class,
+        "enableLoadTraps", "enableSaveTraps", "accelerateLoading", "flashLoad", "autoLoadTape",
+        "highSamplingFreq", "invertedEar");
   }
 }
