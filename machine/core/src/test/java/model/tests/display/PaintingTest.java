@@ -53,6 +53,10 @@ class PaintingTest {
     return canvas.pixels[(LINE + Display.BORDER_HEIGHT) * Picture.STRIDE + (COLUMN + Display.BORDER_WIDTH_COLS) * 8];
   }
 
+  private static void forEachColumn(int bits, java.util.function.IntConsumer column) {
+    for (; bits != 0; bits &= bits - 1) column.accept(Integer.numberOfTrailingZeros(bits));
+  }
+
   private void paint() {
     dirty.all();
     painting.startAgain();
@@ -69,10 +73,10 @@ class PaintingTest {
   @Test
   void whoeverSaysThePixelsAreTheirsPaintsThemInstead() {
     List<String> painted = new ArrayList<>();
-    painting.pixelsOfItsOwn((x, y) -> {
+    painting.line((y, bits) -> forEachColumn(bits, x -> {
       painted.add(x + "," + y);
       canvas.plot8(x + Display.BORDER_WIDTH_COLS, y + Display.BORDER_HEIGHT, (byte) 0xff, (byte) 2, (byte) 0);
-    });
+    }));
     paint();
 
     assertEquals(Picture.SINCLAIR[2], leftmostPixel(), "the colour is the one it painted, not the attribute's");
@@ -82,9 +86,10 @@ class PaintingTest {
 
   @Test
   void theSeatIsGivenUpAndTheThreeRulesAreBackAsTheyWere() {
-    painting.pixelsOfItsOwn((x, y) -> canvas.plot8(x + Display.BORDER_WIDTH_COLS, y + Display.BORDER_HEIGHT, (byte) 0xff, (byte) 2, (byte) 0));
+    painting.line((y, bits) -> forEachColumn(bits, x ->
+        canvas.plot8(x + Display.BORDER_WIDTH_COLS, y + Display.BORDER_HEIGHT, (byte) 0xff, (byte) 2, (byte) 0)));
     paint();
-    painting.pixelsOfItsOwn(null);
+    painting.line(null);
     paint();
 
     assertEquals(Picture.SINCLAIR[7], leftmostPixel());
@@ -99,7 +104,15 @@ class PaintingTest {
   @Test
   void whoeverHasThePixelsIsAskedForEveryColumnOfEveryFrame() {
     List<String> painted = new ArrayList<>();
-    painting.pixelsOfItsOwn((x, y) -> painted.add(x + "," + y));
+    painting.line(new Painting.Line() {
+      public void paint(int y, int bits) {
+        forEachColumn(bits, x -> painted.add(x + "," + y));
+      }
+
+      public boolean allOfItEveryFrame() {
+        return true;
+      }
+    });
     paint();
     painted.clear();
 

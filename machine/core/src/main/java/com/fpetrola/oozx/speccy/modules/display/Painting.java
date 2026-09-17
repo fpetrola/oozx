@@ -34,25 +34,46 @@ public final class Painting {
   private final DirtyCells dirty;
   private final Colouring colouring;
   private final Picture canvas;
-  private PixelsOfItsOwn ofItsOwn;
   private int plottedX;
   private int plottedY;
 
   /**
-   * Whoever paints a column of the screen where the machine's memory is not where its pixels are.
+   * Whoever paints the dirty columns of a line, given as a bit each.
    * <p>
-   * The three rules below read the bytes the machine is showing; something that keeps its pixels
-   * somewhere else cannot be one of them, and asking it is the only thing the screen has to know
-   * about it.
+   * There is one of these at a time and it is asked once a line, so what decides between them -
+   * a port written, a chip plugged in - is asked then and not once a cell.
    */
-  public interface PixelsOfItsOwn {
-    /** The eight pixels of column {@code x} of line {@code y} of the screen, painted on the canvas. */
-    void column(int x, int y);
+  public interface Line {
+    void paint(int y, int bits);
+
+    /**
+     * Whether its pixels change for reasons the writes this screen watches cannot see, so that a
+     * cell nobody wrote to would otherwise keep what it had for good.
+     */
+    default boolean allOfItEveryFrame() {
+      return false;
+    }
   }
 
-  /** Who paints the columns from now on, or nobody, which is the machine's own three rules. */
-  public void pixelsOfItsOwn(PixelsOfItsOwn another) {
-    ofItsOwn = another;
+  /** A bitmap byte and the two colours of its cell, which is how every Sinclair draws. */
+  public final Line sinclair = this::plotSinclair;
+
+  /**
+   * Two bytes of the same line from the two display files, sixteen pixels wide in the one pair of
+   * colours the whole picture is drawn in, with no attribute read at all.
+   */
+  public final Line twoBytesToAColumn = this::plotTwoBytes;
+
+  /** Four bytes from two banks at once, each one two colours, so eight pixels are eight colours. */
+  public final Line fourBytesToAColumn = this::plotFourBytes;
+
+  private Line line = sinclair;
+
+  /** Who paints the lines from now on, or nobody for the machine's own way, answering who did. */
+  public Line line(Line another) {
+    Line who = line;
+    line = another == null ? sinclair : another;
+    return who;
   }
 
   public Painting(SpectrumMemory banks, ScreenLayout layout, DirtyCells dirty, Colouring colouring, Picture canvas) {
@@ -82,14 +103,9 @@ public final class Painting {
     plottedX = x;
   }
 
-  /**
-   * A new frame from the top. Whoever has pixels of its own gets the whole screen: those pixels
-   * change for reasons written nowhere in the machine's memory, so the writes this screen watches
-   * cannot say which of them moved, and a cell nobody wrote to would keep what it had for good.
-   */
   public void startAgain() {
     plottedX = plottedY = 0;
-    if (ofItsOwn != null) dirty.all();
+    if (line.allOfItEveryFrame()) dirty.all();
   }
 
   /** A byte that is not a bitmap but two colours: the same bits an attribute puts its ink and paper in. */
@@ -98,38 +114,44 @@ public final class Painting {
         Colouring.inkBits(colours), Colouring.paperBits(colours));
   }
 
+  private void plotSinclair(int y, int bits) {
+    byte[] screen = banks.shown().bytes;
+    for (; bits != 0; bits &= bits - 1) {
+      int x = Integer.numberOfTrailingZeros(bits);
+      byte attribute = screen[layout.colourAt(y, x)];
+      canvas.plot8(x + BORDER_WIDTH_COLS, y + BORDER_HEIGHT, screen[layout.pixelsAt(y, x)],
+          colouring.ink(attribute), colouring.paper(attribute));
+    }
+  }
+
+  private void plotTwoBytes(int y, int bits) {
+    byte[] screen = banks.shown().bytes;
+    byte pair = layout.pairOfColours;
+    for (; bits != 0; bits &= bits - 1) {
+      int x = Integer.numberOfTrailingZeros(bits);
+      int wide = ((screen[layout.pixelsAt(y, x)] & 0xff) << 8) | (screen[layout.secondByteAt(y, x)] & 0xff);
+      canvas.plot16(x + BORDER_WIDTH_COLS, y + BORDER_HEIGHT, wide, colouring.ink(pair), colouring.paper(pair));
+    }
+  }
+
+  private void plotFourBytes(int y, int bits) {
+    byte[] screen = banks.shown().bytes, other = banks.beside().bytes;
+    for (; bits != 0; bits &= bits - 1) {
+      int x = Integer.numberOfTrailingZeros(bits);
+      int at = layout.pixelsAt(y, x), above = layout.secondByteAt(y, x);
+      plotColours(x, y, 0, other[at]);
+      plotColours(x, y, 1, screen[at]);
+      plotColours(x, y, 2, other[above]);
+      plotColours(x, y, 3, screen[above]);
+    }
+  }
+
   private void plotLine(int y, int from, int to) {
     int bits = dirty.between(y, from, to);
     if (bits == 0) {
       return;
     }
     dirty.plotted(y, bits);
-    byte[] screen = banks.shown().bytes;
-    for (; bits != 0; bits &= bits - 1) {
-      int x = Integer.numberOfTrailingZeros(bits);
-      if (ofItsOwn != null) {
-        ofItsOwn.column(x, y);
-        continue;
-      }
-      if (layout.fourBytesToAColumn) {
-        int at = layout.pixelsAt(y, x), above = layout.secondByteAt(y, x);
-        byte[] other = banks.beside().bytes;
-        plotColours(x, y, 0, other[at]);
-        plotColours(x, y, 1, screen[at]);
-        plotColours(x, y, 2, other[above]);
-        plotColours(x, y, 3, screen[above]);
-        continue;
-      }
-      if (layout.twoBytesToAColumn) {
-        byte pair = layout.pairOfColours;
-        int wide = ((screen[layout.pixelsAt(y, x)] & 0xff) << 8) | (screen[layout.secondByteAt(y, x)] & 0xff);
-        canvas.plot16(x + BORDER_WIDTH_COLS, y + BORDER_HEIGHT, wide,
-            colouring.ink(pair), colouring.paper(pair));
-        continue;
-      }
-      byte attribute = screen[layout.colourAt(y, x)];
-      canvas.plot8(x + BORDER_WIDTH_COLS, y + BORDER_HEIGHT, screen[layout.pixelsAt(y, x)],
-          colouring.ink(attribute), colouring.paper(attribute));
-    }
+    line.paint(y, bits);
   }
 }

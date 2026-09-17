@@ -48,7 +48,7 @@ import java.util.List;
  * in the machine's memory.
  */
 @Singleton
-public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsOwn, Painting.PixelsOfItsOwn {
+public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsOwn, Painting.Line {
   private static final String COLOURS = ".gfx";
   private static final String SAYS = ".cfg";
   /**
@@ -146,30 +146,40 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
   }
 
   private void paintFromThePlanes(boolean colourful) {
-    display.painting.pixelsOfItsOwn(colourful ? this : null);
+    display.painting.line(colourful ? this : null);
     if (colourful) theTwoHundredAndFiftySixColours();
     else display.picture().sinclairColours();
     display.refreshAll();
   }
 
   /**
-   * The eight pixels of a column, a colour each, taken one bit out of each of the eight planes,
-   * and then whatever the game's own rules have to say about how they meet the cell's attribute.
+   * The eight pixels of each dirty column, a colour each, taken one bit out of each of the eight
+   * planes, and then whatever the game's own rules have to say about how they meet the attribute.
    */
-  public void column(int x, int y) {
-    int at = display.layout.pixelsAt(y, x);
+  public void paint(int y, int bits) {
     byte[] shown = banks.shown().bytes;
-    byte attribute = shown[display.layout.colourAt(y, x)];
-    bitmap = shown[at] & 0xff;
-    ink = attributeColour(attribute, attribute & 0x07);
-    paper = attributeColour(attribute, (attribute >> 3) & 0x07);
-    flashedAway = Colouring.flashes(attribute) && display.colouring.reversed;
-    int address = Planes.RAM + at;
+    boolean reversed = display.colouring.reversed();
     Picture canvas = display.picture();
-    for (int pair = 0; pair < 4; pair++) {
-      canvas.paintPair(x + Display.BORDER_WIDTH_COLS, y + Display.BORDER_HEIGHT, pair,
-          rgbOf(address, x, y, pair * 2), rgbOf(address, x, y, pair * 2 + 1));
+    for (; bits != 0; bits &= bits - 1) {
+      int x = Integer.numberOfTrailingZeros(bits);
+      int at = display.layout.pixelsAt(y, x);
+      byte attribute = shown[display.layout.colourAt(y, x)];
+      bitmap = shown[at] & 0xff;
+      ink = attributeColour(attribute, attribute & 0x07);
+      paper = attributeColour(attribute, (attribute >> 3) & 0x07);
+      flashedAway = Colouring.flashes(attribute) && reversed;
+      int address = Planes.RAM + at;
+      for (int pair = 0; pair < 4; pair++) {
+        canvas.paintPair(x + Display.BORDER_WIDTH_COLS, y + Display.BORDER_HEIGHT, pair,
+            rgbOf(address, x, y, pair * 2), rgbOf(address, x, y, pair * 2 + 1));
+      }
     }
+  }
+
+  /** The planes move where the machine's memory does not, so no write says which pixel changed. */
+  @Override
+  public boolean allOfItEveryFrame() {
+    return true;
   }
 
   /** One of the machine's own sixteen, which is what the game's colours are mixed with. */
@@ -404,7 +414,7 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     planes.blank();
     rules.asTheyComeByDefault();
     takeWhatTheGameAsksFor();
-    display.painting.pixelsOfItsOwn(null);
+    display.painting.line(null);
     display.picture().sinclairColours();
     display.refreshAll();
   }

@@ -20,15 +20,19 @@ package com.fpetrola.oozx.speccy.modules.display;
 
 /**
  * Decodes an attribute byte: 3 ink bits, 3 paper bits, a bright bit lifting ink into the top 8 colours,
- * and a flash bit that swaps ink/paper while {@link #reversed}. Flash phase is global (all cells flash in sync),
+ * and a flash bit that swaps ink/paper while reversed. Flash phase is global (all cells flash in sync),
  * so it lives here instead of being passed per cell.
+ * <p>
+ * Both answers for all 256 bytes are worked out whenever the rule or the flash phase changes, which
+ * is a few times a second, so that painting a cell is a look-up and not a call.
  */
 public final class Colouring {
-  public boolean reversed;
-
   /**
    * How a byte says which two colours a cell is drawn in. The Sinclair way is one of these, and a
    * machine whose colours come out of a byte differently gives its own rather than being asked for.
+   * <p>
+   * Asked once per attribute when it is given and whenever the flash phase turns, never while
+   * painting: what it answers for all 256 bytes is kept in {@link #twoColours}.
    */
   public interface Reading {
     byte ink(byte attribute, boolean reversed);
@@ -48,17 +52,44 @@ public final class Colouring {
   };
 
   private Reading reading = SINCLAIR;
+  private boolean reversed;
+
+  /** Ink in the low byte and paper in the high one, for every byte an attribute can be. */
+  private final short[] twoColours = new short[256];
+
+  public Colouring() {
+    fillIn();
+  }
 
   public void reading(Reading another) {
     reading = another == null ? SINCLAIR : another;
+    fillIn();
+  }
+
+  /** Whether the flashing cells are showing their colours the other way round at the moment. */
+  public boolean reversed() {
+    return reversed;
+  }
+
+  public void reversed(boolean theOtherWayRound) {
+    reversed = theOtherWayRound;
+    fillIn();
+  }
+
+  private void fillIn() {
+    for (int byteItCouldBe = 0; byteItCouldBe < twoColours.length; byteItCouldBe++) {
+      byte attribute = (byte) byteItCouldBe;
+      twoColours[byteItCouldBe] = (short) (((reading.paper(attribute, reversed) & 0xff) << 8)
+          | (reading.ink(attribute, reversed) & 0xff));
+    }
   }
 
   public byte ink(byte attribute) {
-    return reading.ink(attribute, reversed);
+    return (byte) twoColours[attribute & 0xff];
   }
 
   public byte paper(byte attribute) {
-    return reading.paper(attribute, reversed);
+    return (byte) (twoColours[attribute & 0xff] >> 8);
   }
 
   public static boolean flashes(byte attribute) {

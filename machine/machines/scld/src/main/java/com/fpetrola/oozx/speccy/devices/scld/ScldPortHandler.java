@@ -74,9 +74,10 @@ public class ScldPortHandler extends DefaultPortHandler {
     ScreenLayout layout = display.layout;
     layout.file = (value & SECOND_FILE) != 0 ? ScreenLayout.SECOND_FILE : 0;
     layout.colourPerLine = (value & COLOUR_PER_LINE) != 0;
-    layout.twoBytesToAColumn = (value & HI_RES) != 0;
+    boolean hiRes = (value & HI_RES) != 0;
     layout.pairOfColours = PAIRS[(value & COLOUR_PAIR) >> 3];
-    display.picture().columnWidth(layout.twoBytesToAColumn ? 16 : 8);
+    display.painting.line(hiRes ? display.painting.twoBytesToAColumn : null);
+    display.picture().columnWidth(hiRes ? 16 : 8);
     display.refreshAll();
     whenWritten.forEach(Runnable::run);
   }

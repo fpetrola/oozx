@@ -132,7 +132,7 @@ class UlaPlusTest extends MachineTest {
   void nothingFlashesWhileItIsPainting() {
     modified(true);
     painting();
-    speccy.display.colouring.reversed = true;
+    speccy.display.colouring.reversed(true);
 
     assertEquals(32 + 1, ink((byte) 0x80 | 0x01), "the ink stayed the ink");
     assertEquals(32 + 8 + 2, paper((byte) 0x80 | (0x02 << 3)), "and the paper the paper");
