@@ -109,10 +109,6 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     }
   }
 
-  private static String nameOf(String path) {
-    return path.substring(path.lastIndexOf('/') + 1);
-  }
-
   public GameBrowserInternalFrame(GameBrowserListener listener) {
     super("Game Browser", true, true, true, true);
     this.listener = listener;
@@ -885,7 +881,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
       // Known beforehand, so there is no reason to spend a download finding out.
       JOptionPane.showMessageDialog(this,
           "\"" + result.title + "\" is not available: the archive holds it but is not allowed "
-              + "to hand it out.",
+              + "to hand it out, and no TOSEC set has a dump of it either.",
           "Not available", JOptionPane.INFORMATION_MESSAGE);
       return;
     }
@@ -935,12 +931,13 @@ public class GameBrowserInternalFrame extends JInternalFrame {
   }
 
   private List<GameSearchResult> createMockResults(String query, String machineType, String genreType) {
-    List<Hit> search = new ZxInfoApiHandler().search(query, machineType, genreType);
+    ZxInfoApiHandler api = new ZxInfoApiHandler();
+    List<Hit> search = api.search(query, machineType, genreType);
 
     List<GameSearchResult> results = new ArrayList<>();
 
     for (Hit hit : search) {
-      GameEntry game = hit._source;
+      GameEntry game = api.withTosecFiles(hit._id, hit._source);
       if (game.contentType.equals("SOFTWARE")) {
         List<String> screenshots = new ArrayList<>();
         game.screens.forEach(s1 -> {
@@ -974,7 +971,8 @@ public class GameBrowserInternalFrame extends JInternalFrame {
         for (AdditionalDownload download : game.additionalDownloads == null
             ? List.<AdditionalDownload>of() : game.additionalDownloads) {
           if ("RZX playback file".equals(download.type)) {
-            recordings.add(new RzxOption(nameOf(download.path) + "  (ZXDB)", getFileURL(download.path)));
+            recordings.add(new RzxOption(DownloadAndUnzip.nameOf(download.path) + "  (ZXDB)",
+                getFileURL(download.path)));
           }
           hasMap |= ZxInfoApiHandler.GAME_MAP_TYPE.equalsIgnoreCase(download.type);
         }
@@ -1104,7 +1102,10 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     if (result.files.size() > 1) {
       JMenu versions = new JMenu("Load Version");
       for (String each : result.files) {
-        String shown = each.substring(each.lastIndexOf('/') + 1)
+        // Which ones are ZXDB's own and which were found elsewhere, since a version that is
+        // only in TOSEC is a different thing to choose than one the archive itself hands out.
+        String shown = DownloadAndUnzip.nameOf(each)
+            + (ZxInfoApiHandler.fromTosec(each) ? "  (found)" : "")
             + (Spec256Peripheral.hasColours(each) ? "   -   256 colors" : "");
         JMenu item = machineMenu(
             DownloadAndUnzip.available(each) ? shown : shown + "  (not available)", result, each);

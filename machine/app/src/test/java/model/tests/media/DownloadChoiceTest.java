@@ -71,6 +71,36 @@ class DownloadChoiceTest {
   }
 
   @Test
+  void the_plain_tosec_dump_beats_the_ones_somebody_got_at() {
+    // TOSEC names one release many times over: hacked, cracked, translated, re-dumped. Any of
+    // them loads, but the fingerprint catalogue is built from whichever is chosen, so a game
+    // recorded from [h Byte Rus] is recorded as something nobody else has.
+    String plain = "https://archive.org/download/set/Games.zip/Games/1942/1942%20(1986)(Elite%20Systems).tap";
+    String hacked = "https://archive.org/download/set/Games.zip/Games/1942/1942%20(1986)(Elite%20Systems)%5Bh%20Byte%20Rus%5D.tap";
+    assertEquals(plain, DownloadAndUnzip.preferred(List.of(hacked, plain), WHOLE_URL),
+        "took the copy somebody else had already changed");
+    // And it outweighs the format: a snapshot loads without a tape's timing, but Commando as
+    // somebody else re-dumped it is not what a search for Commando is meant to find.
+    String alternate = "https://archive.org/download/set/Games.zip/Games/Commando/Commando%20(1985)(Elite%20Systems)%5Ba2%5D.z80";
+    String tape = "https://archive.org/download/set/Games.zip/Games/Commando/Commando%20(1985)(Elite%20Systems).tzx";
+    assertEquals(tape, DownloadAndUnzip.preferred(List.of(alternate, tape), WHOLE_URL),
+        "a marked snapshot beat the plain tape");
+  }
+
+  @Test
+  void a_file_is_named_the_way_it_reads_and_not_the_way_a_url_spells_it() {
+    // The menu that offers the versions of a game is built from these, and a TOSEC name arrives
+    // with every space and bracket escaped: "Knight%20Lore%20(1984)(Ricochet)%5Bre-release%5D.tzx".
+    assertEquals("Knight Lore (1984)(Ricochet)[re-release].tzx", DownloadAndUnzip.nameOf(
+        "https://archive.org/download/set/Games.zip/Games/Knight%20Lore/Knight%20Lore%20(1984)(Ricochet)%5Bre-release%5D.tzx"));
+    // A plus is a plus in a path, not a space: Pac-Man Emulator is published as _+2A_+3.tap.
+    assertEquals("Pac-ManEmulator_v1.6_+2A_+3.tap",
+        DownloadAndUnzip.nameOf("https://zxinfo.dk/media/pub/p/Pac-ManEmulator_v1.6_+2A_+3.tap"));
+    // And a name that never went through a URL comes back untouched, escaping or not.
+    assertEquals("Head Over Heels .tap", DownloadAndUnzip.nameOf("/tmp/games/Head Over Heels .tap"));
+  }
+
+  @Test
   void a_snapshot_beats_a_tape_and_48k_beats_128k() {
     String tape = "https://zxinfo.dk/media/pub/g/Game.tzx.zip";
     String snapshot = "https://zxinfo.dk/media/pub/g/Game.z80.zip";
@@ -115,5 +145,7 @@ class DownloadChoiceTest {
         List.of("https://zxinfo.dk/media/pub/g/Game.trd.zip",
             "https://zxinfo.dk/media/pub/g/Cover.jpg"), WHOLE_URL),
         "answered with something it cannot open");
+    assertNull(DownloadAndUnzip.chooseLoadable(List.of()),
+        "a folder with nothing in it was answered with its first file");
   }
 }

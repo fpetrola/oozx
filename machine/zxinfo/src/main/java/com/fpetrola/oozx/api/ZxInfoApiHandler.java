@@ -29,6 +29,7 @@ import java.util.List;
 public class ZxInfoApiHandler {
   private static final int FIRST_YEAR = 1980, MOST_AT_ONCE = 1000, RETRIES = 5, AT_ONCE = 4;
   private static final long BACKOFF = 2000, BETWEEN_PAGES = 150;
+  private static final String TOSEC = "TOSEC", TOSEC_SET = "/download/zx_spectrum_tosec_set_september_2023/";
 
   private Metadata metadata;
 
@@ -310,13 +311,68 @@ public class ZxInfoApiHandler {
     return path.startsWith("/zxdb") ? "https://spectrumcomputing.co.uk" + path : "https://worldofspectrum.net" + path;
   }
 
-  /** Every file the entry offers, as URLs, paired with the format each one is in. */
+  /** Whether ZXDB keeps this one where it may not hand it out, which is what /denied/ means. */
+  public static boolean denied(String path) {
+    return path != null && path.toLowerCase().contains("/denied/");
+  }
+
+  /**
+   * Where a TOSEC path is served from: archive.org keeps the set as one zip per category and hands
+   * out a single file from inside it. The path has to be the entry's own - TOSEC writes "(Ocean)"
+   * where ZXDB writes "Ocean Software", so a name built from the entry's fields does not exist.
+   */
+  public static String tosecUrl(String path) {
+    try {
+      return new java.net.URI("https", "archive.org",
+          TOSEC_SET + path.substring(1, path.indexOf('/', 1)) + ".zip" + path, null).toASCIIString();
+    } catch (java.net.URISyntaxException notAPath) {
+      throw new IllegalArgumentException(path, notAPath);
+    }
+  }
+
+   /**
+   * Every file the entry offers, as URLs, paired with the format each one is in. What it may not
+   * hand out ZXDB lists anyway, under /denied/, and the TOSEC set stands in for that: for Knight
+   * Lore or Dizzy Collection it is the only place left, and the entry names its TOSEC files whether
+   * or not it is allowed to serve its own. It takes one withheld file and not all of them: Enduro
+   * Racer lists two magazine scans it may serve beside the tape it may not.
+   */
   public static java.util.Map<String, String> filesOf(GameEntry game) {
     java.util.Map<String, String> formatByUrl = new java.util.LinkedHashMap<>();
     game.releases.forEach(release -> release.files.stream()
         .filter(file -> file.format != null)
         .forEach(file -> formatByUrl.put(mediaUrl(file.path), file.format)));
+    if (withheld(formatByUrl) && game.tosec != null) {
+      game.tosec.forEach(file -> formatByUrl.put(tosecUrl(file.path), TOSEC));
+    }
     return formatByUrl;
+  }
+
+  /** Whether this is one of the TOSEC files, which is not ZXDB's own copy but one found for it. */
+  public static boolean fromTosec(String url) {
+    return url != null && url.contains(TOSEC_SET);
+  }
+
+  /** Whether ZXDB is keeping any of what it lists for itself, which is what TOSEC stands in for. */
+  private static boolean withheld(java.util.Map<String, String> files) {
+    return files.keySet().stream().anyMatch(ZxInfoApiHandler::denied);
+  }
+
+  /**
+   * The entry with what a compact search leaves out. A search answers without the TOSEC paths, so
+   * an entry ZXDB withholds arrives looking like one with nothing to download at all, and stays
+   * that way until the whole entry is asked for. Only those are asked for: one call per hit would
+   * be 150 of them for a single search, and for "r-type" exactly one of the 138 needs it.
+   */
+  public GameEntry withTosecFiles(String id, GameEntry game) {
+    if (game.tosec != null || !withheld(filesOf(game))) {
+      return game;
+    }
+    try {
+      return game(id);
+    } catch (RuntimeException outOfReach) {
+      return game;
+    }
   }
 
   public static GameSummary summaryOf(Hit hit) {

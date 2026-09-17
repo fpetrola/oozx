@@ -137,9 +137,12 @@ public class CatalogueBuilder {
     Map<String, String> offers = ZxInfoApiHandler.filesOf(entry);
     List<String> loadable = DownloadAndUnzip.byPreference(
         offers.keySet().stream().filter(DownloadAndUnzip::loadable).toList(), url -> url);
+    // Down the list, not just its head: an entry offers several files and the first can come
+    // back with nothing to load in it, which is not the same as the game having no file.
     for (String url : loadable) {
-      if (DownloadAndUnzip.available(url)) {
-        return DownloadAndUnzip.downloadAndUnzip(url, directory);
+      Path image = DownloadAndUnzip.available(url) ? DownloadAndUnzip.fetch(url, directory) : null;
+      if (image != null) {
+        return image;
       }
     }
     return null;
