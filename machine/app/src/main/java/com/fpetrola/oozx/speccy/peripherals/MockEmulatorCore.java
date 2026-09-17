@@ -185,7 +185,7 @@ public class MockEmulatorCore implements EmulatorCore {
     return tapeStatus;
   }
 
-  private void notifyStateChange(String state) {
+  protected void notifyStateChange(String state) {
     // Simulate listener notification
     for (EmulatorListener listener : listeners) {
       listener.onEmulationStateChanged(state);

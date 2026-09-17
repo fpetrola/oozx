@@ -369,6 +369,10 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     pauseButton.addActionListener(e -> emulatorCore.pauseEmulation());
     toolBar.add(pauseButton);
 
+    JButton resetButton = iconButton("1F504.svg", "Reset", "Reset the machine, as if it had just been switched on");
+    resetButton.addActionListener(e -> emulatorCore.resetEmulation());
+    toolBar.add(resetButton);
+
     muteButton = new JButton(loadIcon("1F507.svg"));
     muteButton.setToolTipText("Mute/Unmute Sound - right-click for the volume");
     muteButton.addActionListener(e -> toggleMute());

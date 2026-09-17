@@ -219,6 +219,17 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
     }
   }
 
+  /**
+   * The machine from cold, as if it had just been switched on. On the emulation thread, like
+   * everything else that touches it: resetting from the event thread is a machine being taken
+   * apart while it is running an instruction.
+   */
+  @Override
+  public void resetEmulation() {
+    speccy.loop.later(() -> speccy.machine.reset(true));
+    notifyStateChange("Reset");
+  }
+
   public void changeSpeed1(int emulationSpeed) {
     speccy.loop.later(() -> speccy.timer.changeSpeed(emulationSpeed));
     notifyTurboModeChange(turbo);
