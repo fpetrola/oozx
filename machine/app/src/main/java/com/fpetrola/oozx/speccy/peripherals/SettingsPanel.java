@@ -132,14 +132,15 @@ public class SettingsPanel extends JPanel {
     JComboBox<String> model = new JComboBox<>(emulatorCore.getMachineModels().toArray(new String[0]));
     model.setToolTipText("Which Spectrum this is, changed under the game that is running");
     model.setSelectedItem(emulatorCore.getCurrentModel());
-    model.addActionListener(e -> emulatorCore.setMachineModel((String) model.getSelectedItem()));
+    com.fpetrola.oozx.speccy.windows.Widgets.whenChosen(model, emulatorCore::getCurrentModel,
+        emulatorCore::setMachineModel);
 
     JComboBox<String> roms = new JComboBox<>(emulatorCore.getRomSets().toArray(new String[0]));
     roms.setToolTipText("The set of ROMs this model can be run with, where it has more than one");
     roms.setSelectedItem(emulatorCore.getRomSet());
     roms.setEnabled(roms.getItemCount() > 1);
-    roms.addActionListener(e -> {
-      emulatorCore.setRomSet((String) roms.getSelectedItem());
+    com.fpetrola.oozx.speccy.windows.Widgets.whenChosen(roms, emulatorCore::getRomSet, set -> {
+      emulatorCore.setRomSet(set);
       // What it is running now, which is not what was asked for when the ROMs did not arrive.
       roms.setSelectedItem(emulatorCore.getRomSet());
     });
@@ -167,8 +168,7 @@ public class SettingsPanel extends JPanel {
         + " model, or the model itself, which is the one to debug");
     // Chosen before the listener is on, so opening this does not change the processor.
     processor.setSelectedItem(emulatorCore.getProcessor());
-    processor.addActionListener(e -> {
-      String chosen = (String) processor.getSelectedItem();
+    com.fpetrola.oozx.speccy.windows.Widgets.whenChosen(processor, emulatorCore::getProcessor, chosen -> {
       emulatorCore.setProcessor(chosen);
       config.setProcessor(chosen);
       config.save();

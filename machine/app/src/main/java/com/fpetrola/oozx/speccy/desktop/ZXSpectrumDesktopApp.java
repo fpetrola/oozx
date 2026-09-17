@@ -287,7 +287,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     // so selecting one of those found nothing in the box and left it naming the machine before.
     modelCombo = new JComboBox<>(emulatorCore.getMachineModels().toArray(new String[0]));
     modelCombo.setSelectedItem(emulatorCore.getCurrentModel());
-    modelCombo.addActionListener(e -> emulatorCore.setMachineModel((String) modelCombo.getSelectedItem()));
+    Widgets.whenChosen(modelCombo, emulatorCore::getCurrentModel, emulatorCore::setMachineModel);
     pauseIndicator = new JLabel();
     showPaused(emulatorCore.isPaused());
     turboIndicator = new JLabel(loadIcon("1F680.svg"));
