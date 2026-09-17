@@ -62,11 +62,9 @@ public class SettingsInternalFrame extends AttachedFrame {
     // After being assembled: laying it out compact and then opening it leaves the frame the size
     // of its buttons, and what it has to show is a tabbed pane.
     setSize(680, 520);
-    // Against the side: along the bottom it would be as wide as the machine, and seven tabs do
-    // not go in three hundred pixels. And its own size there, which a deck would not want: a deck
-    // is the width of the picture it belongs to, and this is a window with tabs in it.
+    // Against the side, where a window keeps its own height: along the bottom it would be as wide
+    // as the machine, and seven tabs do not go in three hundred pixels.
     prefersDock(Dock.RIGHT);
-    keepsItsOwnSize();
     showWhatIsBeingConfigured();
   }
 
