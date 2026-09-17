@@ -38,7 +38,11 @@ class TheLibraryOfWhatIsOnThisMachineTest {
   private static final Path MANIC_MINER = Path.of("../../doc/manicminer.z80");
 
   private static GameLibrary libraryOf() {
-    return new GameLibrary(GameFingerprint.Index.shipped(), new GameLibrary.Emulator() {
+    return libraryOf(GameFingerprint.Index.shipped());
+  }
+
+  private static GameLibrary libraryOf(GameFingerprint.Index catalogue) {
+    return new GameLibrary(catalogue, new GameLibrary.Emulator() {
       public boolean loadable(Path file) {
         return file.toString().toLowerCase().matches(".*\\.(tap|tzx|z80|sna|szx)$");
       }
@@ -108,6 +112,27 @@ class TheLibraryOfWhatIsOnThisMachineTest {
         java.nio.file.attribute.FileTime.fromMillis(reopened.of(directory.resolve("whatever.z80")).modified()));
     reopened.scan(directory, CERTAINTY);
     assertEquals("Manic Miner", reopened.of(directory.resolve("whatever.z80")).game().title);
+  }
+
+  @Test
+  void aLibraryWrittenAgainstAnOlderCatalogueIsAskedAgain(@TempDir Path directory) throws IOException {
+    Files.copy(MANIC_MINER, directory.resolve("whatever.z80"));
+    // Written when the catalogue knew nothing: the copy is written down, and written down unknown.
+    GameLibrary before = libraryOf(new GameFingerprint.Index());
+    before.scan(directory, CERTAINTY);
+    assertEquals(1, before.unknown().size());
+    before.save(directory.resolve("library.json"));
+
+    // Reopened once the catalogue that knows it has shipped. Reading the library does not ask
+    // anything - which is what left a game on the disk with no name and no picture after the
+    // catalogue grew - so it is asked, and then there is nothing left to ask.
+    GameLibrary reopened = libraryOf();
+    reopened.load(directory.resolve("library.json"));
+    assertEquals(1, reopened.unknown().size(), "what was written down cannot name it by itself");
+
+    assertEquals(1, reopened.askAgain(CERTAINTY));
+    assertEquals("Manic Miner", reopened.of(directory.resolve("whatever.z80")).game().title);
+    assertEquals(0, reopened.askAgain(CERTAINTY), "asked again about something already answered");
   }
 
   @Test

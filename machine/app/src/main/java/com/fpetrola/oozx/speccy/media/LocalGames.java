@@ -69,6 +69,12 @@ public class LocalGames {
       });
       try {
         library.load(file());
+        // A library written against an older catalogue is asked again here, once. Without it the
+        // gallery kept showing a game as unknown, with no picture and no map, until somebody
+        // happened to press Rescan - and that button says it is for games added since.
+        if (library.askAgain(CERTAINTY) > 0) {
+          library.save(file());
+        }
       } catch (IOException unreadable) {
         System.err.println("the library could not be read: " + unreadable.getMessage());
       }
