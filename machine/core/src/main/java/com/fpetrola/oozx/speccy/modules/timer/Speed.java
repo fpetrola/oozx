@@ -32,12 +32,13 @@ public class Speed {
     public static final int REAL_TIME = 100;
 
     /**
-     * The slowest it will be asked to go, because the machine is what takes up a change of speed:
-     * at nothing per cent a frame never ends, so the change that would undo it is never read and
-     * the emulator does not come back. A tenth of real time is slow enough to watch a frame happen
-     * and quick enough to answer.
+     * The slowest it will be asked to go. One per cent, not ten: what made a slow machine hang was
+     * a sound buffer fixed at a second, which a frame below about two per cent overran, and that is
+     * fixed where it was. Nought is not a speed - it is what pause is for - and it would have the
+     * machine's clock at nothing a second, which is a division by nothing in everything that sizes
+     * itself by it.
      */
-    public static final int SLOWEST = 10;
+    public static final int SLOWEST = 1;
 
     /** A speed the machine can be asked for: anything below the slowest is the slowest. */
     public static int sensible(int perCent) {
