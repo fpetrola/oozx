@@ -36,6 +36,11 @@ public class ScldPeripheral extends AbstractPeripheral {
     this.port = port;
   }
 
+  /** The pair its register names, which is what a wide picture is drawn in. */
+  public byte pairOfColours() {
+    return port.pairOfColours();
+  }
+
   @Override
   public void activate(SpectrumMachine machine) {
     port.reset();

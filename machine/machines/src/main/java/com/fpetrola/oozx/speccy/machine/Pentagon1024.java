@@ -19,6 +19,7 @@
 package com.fpetrola.oozx.speccy.machine;
 
 import com.fpetrola.oozx.speccy.modules.display.Display;
+import com.fpetrola.oozx.speccy.modules.display.Colouring;
 import com.fpetrola.oozx.speccy.modules.display.Painting;
 import com.fpetrola.oozx.speccy.modules.memory.MemoryBus;
 import com.fpetrola.oozx.speccy.modules.memory.SpectrumMemory;
@@ -100,8 +101,31 @@ public class Pentagon1024 extends Pentagon512 {
     if ((second & RAM_BELOW) != 0) memory.slot(0x0000, banks.ram(0));
     boolean sixteen = (second & SIXTEEN_COLOURS) != 0;
     banks.alongside(sixteen ? banks.ram(banks.shown().pageNum - 1) : null);
-    Painting.Line wanted = sixteen ? display.painting.fourBytesToAColumn : display.painting.sinclair;
+    Painting.Line wanted = sixteen ? (Painting.Line) this::paintSixteenColours : display.painting.sinclair;
     if (display.painting.line(wanted) != wanted) display.refreshAll();
+  }
+
+  /**
+   * How this machine paints while it is showing sixteen colours: four bytes of the column read
+   * from the two banks at once, each one a colour for its left pixel and another for its right,
+   * so eight pixels are eight colours and nothing in memory is an attribute.
+   */
+  private void paintSixteenColours(int y, int bits) {
+    byte[] screen = banks.shown().bytes, other = banks.beside().bytes;
+    for (; bits != 0; bits &= bits - 1) {
+      int x = Integer.numberOfTrailingZeros(bits);
+      int at = display.layout.pixelsAt(y, x), above = display.layout.secondByteAt(y, x);
+      plotColours(x, y, 0, other[at]);
+      plotColours(x, y, 1, screen[at]);
+      plotColours(x, y, 2, other[above]);
+      plotColours(x, y, 3, screen[above]);
+    }
+  }
+
+  /** A byte that is not a bitmap but two colours: the same bits an attribute puts its ink and paper in. */
+  private void plotColours(int x, int y, int pair, byte colours) {
+    display.picture().plotPair(x + Display.BORDER_WIDTH_COLS, y + Display.BORDER_HEIGHT, pair,
+        Colouring.inkBits(colours), Colouring.paperBits(colours));
   }
 
   @Override

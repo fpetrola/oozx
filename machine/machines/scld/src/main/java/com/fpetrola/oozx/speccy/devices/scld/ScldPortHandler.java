@@ -18,7 +18,9 @@
 package com.fpetrola.oozx.speccy.devices.scld;
 
 import com.fpetrola.oozx.speccy.modules.display.Display;
+import com.fpetrola.oozx.speccy.modules.display.Painting;
 import com.fpetrola.oozx.speccy.modules.display.ScreenLayout;
+import com.fpetrola.oozx.speccy.modules.memory.SpectrumMemory;
 import com.fpetrola.oozx.speccy.ports.BusAnswer;
 import com.fpetrola.oozx.speccy.ports.DefaultPortHandler;
 import com.google.inject.Inject;
@@ -52,13 +54,34 @@ public class ScldPortHandler extends DefaultPortHandler {
   };
 
   private final Display display;
+  private final SpectrumMemory banks;
   private final java.util.List<Runnable> whenWritten = new java.util.ArrayList<>();
   private byte register;
 
+  /** The one pair of colours the whole picture is drawn in while a column is two bytes wide. */
+  private byte pairOfColours;
+
   @Inject
-  public ScldPortHandler(Display display) {
+  public ScldPortHandler(Display display, SpectrumMemory banks) {
     super(true, true);
     this.display = display;
+    this.banks = banks;
+  }
+
+  /**
+   * How this chip paints when it is showing five hundred and twelve pixels across: two bytes of
+   * the same line, one from each display file, in the one pair of colours the register names, and
+   * no attribute read from memory at all, so nothing can clash.
+   */
+  private void paintHiRes(int y, int bits) {
+    byte[] screen = banks.shown().bytes;
+    ScreenLayout layout = display.layout;
+    byte ink = display.colouring.ink(pairOfColours), paper = display.colouring.paper(pairOfColours);
+    for (; bits != 0; bits &= bits - 1) {
+      int x = Integer.numberOfTrailingZeros(bits);
+      int wide = ((screen[layout.pixelsAt(y, x)] & 0xff) << 8) | (screen[layout.secondByteAt(y, x)] & 0xff);
+      display.picture().plot16(x + Display.BORDER_WIDTH_COLS, y + Display.BORDER_HEIGHT, wide, ink, paper);
+    }
   }
 
   @Override
@@ -75,8 +98,8 @@ public class ScldPortHandler extends DefaultPortHandler {
     layout.file = (value & SECOND_FILE) != 0 ? ScreenLayout.SECOND_FILE : 0;
     layout.colourPerLine = (value & COLOUR_PER_LINE) != 0;
     boolean hiRes = (value & HI_RES) != 0;
-    layout.pairOfColours = PAIRS[(value & COLOUR_PAIR) >> 3];
-    display.painting.line(hiRes ? display.painting.twoBytesToAColumn : null);
+    pairOfColours = PAIRS[(value & COLOUR_PAIR) >> 3];
+    display.painting.line(hiRes ? (Painting.Line) this::paintHiRes : null);
     display.picture().columnWidth(hiRes ? 16 : 8);
     display.refreshAll();
     whenWritten.forEach(Runnable::run);
@@ -89,6 +112,10 @@ public class ScldPortHandler extends DefaultPortHandler {
 
   public byte register() {
     return register;
+  }
+
+  public byte pairOfColours() {
+    return pairOfColours;
   }
 
   public void reset() {

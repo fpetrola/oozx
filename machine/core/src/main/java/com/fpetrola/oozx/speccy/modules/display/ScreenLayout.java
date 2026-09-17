@@ -61,9 +61,6 @@ public final class ScreenLayout {
     return colourPerLine ? SECOND_FILE + lineStart[line] + column : file + attrStart[line] + column;
   }
 
-  /** The one pair of colours the whole picture is drawn in where a column is two bytes wide. */
-  public byte pairOfColours;
-
   public int secondByteAt(int line, int column) {
     return SECOND_FILE + lineStart[line] + column;
   }
