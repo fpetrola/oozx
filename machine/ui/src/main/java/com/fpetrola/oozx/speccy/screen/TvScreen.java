@@ -60,8 +60,13 @@ public enum TvScreen implements com.fpetrola.oozx.speccy.screen.ScreenEffect {
   /**
    * Modulated up to a channel and demodulated back down by a 1980s tuner, which costs more
    * bandwidth again and adds what a tuner adds: overshoot at hard edges, and snow.
+   * <p>
+   * The brightness spread was a pixel and a half, and a pixel and a half is a pixel and its
+   * neighbours: the letters of a loading screen stopped having edges and what was left read as a
+   * blur rather than as a television. It is what carries the picture, so it stays under a pixel
+   * and the colour keeps the wide spread, which is what a tuner really costs you.
    */
-  AERIAL("Aerial (RF)", 1.5, 6.5, 0.5, 4);
+  AERIAL("Aerial (RF)", 0.9, 6.5, 0.35, 3);
 
   private final String label;
   /** How far brightness spreads sideways, in pixels. */
