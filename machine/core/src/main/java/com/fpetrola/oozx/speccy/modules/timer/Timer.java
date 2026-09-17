@@ -50,6 +50,8 @@ public class Timer {
   /** Whether the machine is loading, which is when it may run flat out: said by whoever is feeding it. */
   private java.util.function.BooleanSupplier loading = () -> false;
   private boolean changeRequested = false;
+  /** Set from whatever thread changed the speed; read by the tick, which is the machine's own. */
+  private volatile boolean speedWasSetElsewhere;
   private final SpectrumZ80Clock clock;
   private final Supplier<Machine> machine;
   private final java.util.List<java.util.function.DoubleConsumer> speedListeners = new java.util.concurrent.CopyOnWriteArrayList<>();
@@ -68,10 +70,13 @@ public class Timer {
     }
     tick = scheduler.register(new Tick());
     // Whoever sets the speed - a control in a window, a file being read - is setting it on the
-    // machine's own Speed, and this is what has to happen next. Said here rather than expected of
-    // every caller: a speed that is written and not taken up leaves the machine pacing to the old
-    // one, which is what it did.
-    speed.whenChanged = this::takeUpTheNewSpeed;
+    // machine's own Speed, and what has to happen next happens on the machine's own thread. Only a
+    // note is left here: doing it where the speed was set meant moving the clock and rebuilding the
+    // sound of a machine that is running, from the thread that draws the window, and the emulator
+    // stopped and did not come back.
+    // And nothing is noted before there is a machine: the file is read into the parts before one
+    // is chosen, and taking that up would move the clock of a machine that has not booted yet.
+    speed.whenChanged = () -> speedWasSetElsewhere = machine.get() != null && machine.get().current != null;
     addEvent();
     estimateReset();
   }
@@ -136,6 +141,10 @@ public class Timer {
 
   private final class Tick extends Task {
     public void run(long lastTstates) {
+      if (speedWasSetElsewhere) {
+        speedWasSetElsewhere = false;
+        takeUpTheNewSpeed();
+      }
       if (changeRequested) {
         changeRequested= false;
         estimateReset();
