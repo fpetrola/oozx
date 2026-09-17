@@ -70,6 +70,15 @@ class PaintingTest {
     assertEquals(Picture.SINCLAIR[7], leftmostPixel(), "the byte is all ink and the attribute says white");
   }
 
+  /** With nothing being shown the screen is not painted, which is asked once a line and not once a cell. */
+  @Test
+  void aPictureNobodyIsLookingAtIsNotPainted() {
+    canvas.active = false;
+    paint();
+
+    assertEquals(0, leftmostPixel());
+  }
+
   @Test
   void whoeverSaysThePixelsAreTheirsPaintsThemInstead() {
     List<String> painted = new ArrayList<>();

@@ -110,6 +110,7 @@ public final class Painting {
   }
 
   private void plotLine(int y, int from, int to) {
+    if (!canvas.active) return;
     int bits = dirty.between(y, from, to);
     if (bits == 0) {
       return;
