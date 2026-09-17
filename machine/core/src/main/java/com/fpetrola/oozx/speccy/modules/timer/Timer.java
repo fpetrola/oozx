@@ -219,7 +219,7 @@ public class Timer {
    * rebuilt because a frame's worth of samples is sized for the speed it is played at.
    */
   public void changeSpeed(int emulationSpeed) {
-    speed.emulation = emulationSpeed;
+    speed.emulation = Speed.sensible(emulationSpeed);
     takeUpTheNewSpeed();
   }
 

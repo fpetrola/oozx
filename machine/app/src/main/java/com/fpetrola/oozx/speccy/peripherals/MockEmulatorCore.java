@@ -84,9 +84,19 @@ public class MockEmulatorCore implements EmulatorCore {
     System.out.println("Mock: Loading state from " + filePath);
   }
 
+  /**
+   * Become this machine. Asking for the one it was already asked for does nothing.
+   * <p>
+   * Becoming it takes a moment - the machine is built on its own thread - and while that is in
+   * flight every box showing the model has already been set to the new name, which is
+   * indistinguishable from somebody asking for it again. Each of those asks starts the change
+   * over, and that is what made the model flicker back and forth on its way to the new one.
+   */
   @Override
   public void setMachineModel(String model) {
-    System.out.println("Mock: Setting machine model to " + model);
+    if (model == null || model.equals(currentModel)) {
+      return;
+    }
     currentModel = model;
     notifyModelChange(model);
   }
