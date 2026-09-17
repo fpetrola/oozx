@@ -21,7 +21,6 @@ import com.fpetrola.oozx.speccy.config.OOZxConfiguration;
 import com.fpetrola.oozx.speccy.modules.z80.Processors;
 import com.fpetrola.oozx.speccy.screen.ScreenSettings;
 import com.fpetrola.oozx.speccy.screen.SpeccyScreen;
-import com.fpetrola.oozx.speccy.windows.KnobRows;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -61,7 +60,7 @@ import java.util.Set;
 public class SettingsPanel extends JPanel {
   /** Which tab a declared section belongs to. What is not here shows up under Devices. */
   private static final String[][] TABS = {
-      {"Audio", "sound", "covox", "specdrum", "melodik"},
+      {"Audio", "sound", "volume", "covox", "specdrum", "melodik"},
       {"Input", "input"},
       {"Storage", "tape", "floppy", "plus3", "beta128", "divide", "divmmc", "zxatasp", "zxcf"},
       {"Peripherals", "interface1", "multiface"},
@@ -82,8 +81,7 @@ public class SettingsPanel extends JPanel {
     for (String[] tab : TABS) {
       List<String> sections = List.of(tab).subList(1, tab.length);
       placed.addAll(sections);
-      tabs.addTab(tab[0], "Audio".equals(tab[0])
-          ? withTheVolumeOnTop(sectionsOf(sections)) : sectionsOf(sections));
+      tabs.addTab(tab[0], sectionsOf(sections));
     }
     tabs.addTab("Machine", machineTab(placed));
     tabs.addTab("General", generalTab());
@@ -103,8 +101,13 @@ public class SettingsPanel extends JPanel {
    */
   private JComponent theScreensOwnKnobs() {
     if (emulatorCore.getPanel() instanceof SpeccyScreen screen) {
-      ScreenSettings settings = screen.getScreenSettings();
-      return scrolling(new KnobRows(() -> { }).of(settings.settings()));
+      // The same panel the screen's own window shows, looks and all: it is the same question -
+      // what this picture should be - asked from another place.
+      return new com.fpetrola.oozx.speccy.desktop.ScreenSettingsPanel(screen.getScreenSettings(),
+          kept -> {
+            config.setScreenDefaults(new java.util.LinkedHashMap<>(kept));
+            config.save();
+          }, () -> { });
     }
     // No screen to turn the knobs of: what a new one is opened with is kept by the screen itself,
     // and is set from the window of a machine that has one.
@@ -126,10 +129,12 @@ public class SettingsPanel extends JPanel {
     GridBagConstraints at = at();
 
     JComboBox<String> model = new JComboBox<>(emulatorCore.getMachineModels().toArray(new String[0]));
+    model.setToolTipText("Which Spectrum this is, changed under the game that is running");
     model.setSelectedItem(emulatorCore.getCurrentModel());
     model.addActionListener(e -> emulatorCore.setMachineModel((String) model.getSelectedItem()));
 
     JComboBox<String> roms = new JComboBox<>(emulatorCore.getRomSets().toArray(new String[0]));
+    roms.setToolTipText("The set of ROMs this model can be run with, where it has more than one");
     roms.setSelectedItem(emulatorCore.getRomSet());
     roms.setEnabled(roms.getItemCount() > 1);
     roms.addActionListener(e -> {
@@ -141,26 +146,6 @@ public class SettingsPanel extends JPanel {
     row(panel, at, "Machine model", model);
     row(panel, at, "ROMs", roms);
     return panel;
-  }
-
-  /**
-   * The volume above the sound settings. It is not one of the declared ones - it is asked of the
-   * machine and answered by it - but it belongs here as much as they do, and it works.
-   */
-  private JComponent withTheVolumeOnTop(JComponent sound) {
-    JPanel all = new JPanel(new BorderLayout());
-    JPanel top = new JPanel(new GridBagLayout());
-    GridBagConstraints at = at();
-    javax.swing.JSlider volume = new javax.swing.JSlider(0, 100, emulatorCore.getVolume());
-    volume.addChangeListener(e -> {
-      if (!volume.getValueIsAdjusting()) {
-        emulatorCore.setAudioOption("volume", volume.getValue());
-      }
-    });
-    row(top, at, "Volume", volume);
-    all.add(top, BorderLayout.NORTH);
-    all.add(sound, BorderLayout.CENTER);
-    return all;
   }
 
   /** What belongs to the program rather than to any machine: how fast it runs and what runs it. */
@@ -215,7 +200,12 @@ public class SettingsPanel extends JPanel {
     for (Settings.Configurable part : parts) {
       heading(all, at, readably(lastPartOf(part.device().name())));
       for (String property : part.device().properties()) {
-        row(all, at, readably(property), controlFor(part, property));
+        JComponent control = controlFor(part, property);
+        // What it is and where it goes, which is all anybody said about it: the declaration gives
+        // a name and a type and no words, and the name of the section is where the value lands.
+        control.setToolTipText(part.device().name() + "." + property
+            + "  (" + part.device().typeOf(property).getSimpleName() + ")");
+        row(all, at, readably(property), control);
       }
     }
     fillTheRest(all, at);
@@ -256,9 +246,9 @@ public class SettingsPanel extends JPanel {
     // that never learnt to say what it is prints as its class and a hash, which says less.
     String said = value == null ? null : String.valueOf(value);
     JLabel asItIs = new JLabel(said == null || said.matches(".*@[0-9a-f]+$") ? type.getSimpleName() : said);
-    asItIs.setEnabled(false);
-    asItIs.setToolTipText("A " + type.getSimpleName()
-        + ", which needs a control of its own before it can be set from here");
+    // Greyed rather than disabled: Swing does not show the tooltip of a disabled component, so
+    // saying why it cannot be changed and then disabling it says nothing to anybody.
+    asItIs.setForeground(java.awt.Color.GRAY);
     return asItIs;
   }
 
@@ -319,7 +309,11 @@ public class SettingsPanel extends JPanel {
     at.gridx = 0;
     at.weightx = 0;
     at.fill = GridBagConstraints.NONE;
-    panel.add(new JLabel(label + ":"), at);
+    JLabel name = new JLabel(label + ":");
+    // The name says what the control says: a tooltip is looked for where the pointer is, and it is
+    // as often on the name as on the box.
+    name.setToolTipText(control.getToolTipText());
+    panel.add(name, at);
     at.gridx = 1;
     at.weightx = 1;
     at.fill = GridBagConstraints.HORIZONTAL;
@@ -330,7 +324,7 @@ public class SettingsPanel extends JPanel {
   private static JComponent saying(String what) {
     JPanel panel = new JPanel(new BorderLayout());
     JLabel says = new JLabel("  " + what);
-    says.setEnabled(false);
+    says.setForeground(java.awt.Color.GRAY);
     panel.add(says, BorderLayout.NORTH);
     return panel;
   }
