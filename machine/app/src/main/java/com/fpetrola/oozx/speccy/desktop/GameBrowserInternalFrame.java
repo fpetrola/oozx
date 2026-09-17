@@ -953,7 +953,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
         // than "no tape available", which is true and tells nobody anything. Both lists come from
         // the one place that knows: this end once accepted three formats while the scorer ranked
         // seven, and an entry offered only as a TAP was dropped before the scorer ever saw it.
-        Map<String, String> offers = ZxInfoApiHandler.filesOf(game);
+        Map<String, String> offers = ZxInfoApiHandler.filesOf(game, DownloadAndUnzip::loadable);
         List<String> files = offers.keySet().stream().filter(DownloadAndUnzip::loadable).toList();
         Set<String> offered = offers.entrySet().stream()
             .filter(offer -> !DownloadAndUnzip.loadable(offer.getKey()))

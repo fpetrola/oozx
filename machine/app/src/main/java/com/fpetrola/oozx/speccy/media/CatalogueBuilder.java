@@ -134,7 +134,7 @@ public class CatalogueBuilder {
         }
       }
     }
-    Map<String, String> offers = ZxInfoApiHandler.filesOf(entry);
+    Map<String, String> offers = ZxInfoApiHandler.filesOf(entry, DownloadAndUnzip::loadable);
     List<String> loadable = DownloadAndUnzip.byPreference(
         offers.keySet().stream().filter(DownloadAndUnzip::loadable).toList(), url -> url);
     // Down the list, not just its head: an entry offers several files and the first can come

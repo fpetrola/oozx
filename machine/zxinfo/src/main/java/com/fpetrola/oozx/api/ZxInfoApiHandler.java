@@ -316,26 +316,32 @@ public class ZxInfoApiHandler {
    */
   public static String tosecUrl(String path) {
     try {
-      return new java.net.URI("https", "archive.org",
+      String url = new java.net.URI("https", "archive.org",
           TOSEC_SET + path.substring(1, path.indexOf('/', 1)) + ".zip" + path, null).toASCIIString();
+      // What reads a file out of the zip reads the rest of the URL as a query would: a plus is a
+      // space to it and an ampersand cuts the name short, so both have to travel escaped even
+      // though a path may hold them. "1942 + Batty" and "Olli & Lissa 3" answered 503 until they
+      // did. Escaping more than the server needs is harmless - it decodes whatever it is given.
+      return url.replace("+", "%2B").replace("&", "%26").replace("=", "%3D");
     } catch (java.net.URISyntaxException notAPath) {
       throw new IllegalArgumentException(path, notAPath);
     }
   }
 
    /**
-   * Every file the entry offers, as URLs, paired with the format each one is in. What it may not
-   * hand out ZXDB lists anyway, under /denied/, and the TOSEC set stands in for that: for Knight
-   * Lore or Dizzy Collection it is the only place left, and the entry names its TOSEC files whether
-   * or not it is allowed to serve its own. It takes one withheld file and not all of them: Enduro
-   * Racer lists two magazine scans it may serve beside the tape it may not.
+   * Every file the entry offers, as URLs, paired with the format each one is in. When none of them
+   * is one this machine could use, the TOSEC set stands in: for Knight Lore or Dizzy Collection it
+   * is the only place left, and the entry names its TOSEC files whether or not it is allowed to
+   * serve its own. Everything is returned, the unusable included, because a refusal that can name
+   * what the archive does have beats one that says "no tape".
    */
-  public static java.util.Map<String, String> filesOf(GameEntry game) {
+  public static java.util.Map<String, String> filesOf(GameEntry game,
+                                                     java.util.function.Predicate<String> usable) {
     java.util.Map<String, String> formatByUrl = new java.util.LinkedHashMap<>();
     game.releases.forEach(release -> release.files.stream()
         .filter(file -> file.format != null)
         .forEach(file -> formatByUrl.put(mediaUrl(file.path), file.format)));
-    if (withheld(formatByUrl) && game.tosec != null) {
+    if (nothingToUse(formatByUrl, usable) && game.tosec != null) {
       game.tosec.forEach(file -> formatByUrl.put(tosecUrl(file.path), TOSEC));
     }
     return formatByUrl;
@@ -346,19 +352,40 @@ public class ZxInfoApiHandler {
     return url != null && url.contains(TOSEC_SET);
   }
 
-  /** Whether ZXDB is keeping any of what it lists for itself, which is what TOSEC stands in for. */
-  private static boolean withheld(java.util.Map<String, String> files) {
-    return files.keySet().stream().anyMatch(ZxInfoApiHandler::denied);
+  /**
+   * Whether ZXDB has nothing here that this machine could use, which is when TOSEC has to stand in.
+   * There are three ways to have nothing and they are one question, not three: every file withheld
+   * (Knight Lore), no file listed at all (Soft Aid, They Sold a Million, 1942 + Batty), or files
+   * listed only in a format that cannot be loaded (Karlos and Myth II, TR-DOS disks). Asking
+   * instead whether anything had been withheld answered the first and missed the other two, which
+   * is 12 games of the 5000 most voted.
+   * <p>
+   * What can be used is the caller's to say: the database knows what exists, not what this
+   * emulator opens.
+   */
+  private static boolean nothingToUse(java.util.Map<String, String> files,
+                                      java.util.function.Predicate<String> usable) {
+    return files.keySet().stream().noneMatch(url -> usable.test(url) && !denied(url));
+  }
+
+  /** Whether the entry names a file ZXDB may not hand out, read straight off the paths it lists. */
+  private static boolean anythingWithheld(GameEntry game) {
+    return game.releases != null && game.releases.stream().anyMatch(release -> release.files != null
+        && release.files.stream().anyMatch(file -> denied(file.path)));
   }
 
   /**
    * The entry with what a compact search leaves out. A search answers without the TOSEC paths, so
    * an entry ZXDB withholds arrives looking like one with nothing to download at all, and stays
-   * that way until the whole entry is asked for. Only those are asked for: one call per hit would
-   * be 150 of them for a single search, and for "r-type" exactly one of the 138 needs it.
+   * that way until the whole entry is asked for.
+   * <p>
+   * This asks a cheaper question than {@link #filesOf} does, and on purpose. What deserves TOSEC is
+   * every entry with nothing usable here; what deserves a second call over the network is the
+   * narrower "something was withheld", because on a search for "r-type" the first is 42 of the 138
+   * hits and the second is one of them. The catalogue builder pays neither: it holds whole entries.
    */
   public GameEntry withTosecFiles(String id, GameEntry game) {
-    if (game.tosec != null || !withheld(filesOf(game))) {
+    if (game.tosec != null || !anythingWithheld(game)) {
       return game;
     }
     try {

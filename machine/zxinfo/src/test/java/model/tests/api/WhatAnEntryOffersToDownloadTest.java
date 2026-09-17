@@ -41,6 +41,10 @@ class WhatAnEntryOffersToDownloadTest {
   private static final String ENDURO = "/Games/Enduro Racer/Enduro Racer (1987)(Activision)(48K-128K).tzx";
   private static final String KNIGHT_LORE = "/Games/Knight Lore/Knight Lore (1984)(Ricochet)[re-release].tzx";
 
+  /** Standing in for the emulator: the formats it opens, which is not the database's business. */
+  private static final java.util.function.Predicate<String> LOADABLE =
+      url -> url.replace(".zip", "").matches("(?i).*\\.(tzx|tap|z80|sna|szx|csw)$");
+
   private static GameEntry entry(List<String> tosec, String... paths) {
     GameEntry entry = new GameEntry();
     Release release = new Release();
@@ -66,7 +70,7 @@ class WhatAnEntryOffersToDownloadTest {
     // Asking whether the whole list was withheld answered no, and left the game with no tape.
     Map<String, String> offers = ZxInfoApiHandler.filesOf(
         entry(List.of(ENDURO), "/denied/entries/0001628/EnduroRacer.tzx.zip",
-            "/pub/sinclair/magazines/snippets/ElTebeoInformatico/EnduroRacer-1.jpg"));
+            "/pub/sinclair/magazines/snippets/ElTebeoInformatico/EnduroRacer-1.jpg"), LOADABLE);
 
     assertEquals(3, offers.size(), "the denied file is kept, so a refusal can still explain itself");
     assertTrue(offers.containsKey(ZxInfoApiHandler.tosecUrl(ENDURO)),
@@ -74,11 +78,25 @@ class WhatAnEntryOffersToDownloadTest {
   }
 
   @Test
+  void anEntryWithNothingThisMachineCouldUseIsAlsoOfferedTosec() {
+    // Karlos is not withheld at all: ZXDB serves it, only as a TR-DOS disk this emulator cannot
+    // open. Soft Aid is withheld and does not even list a file to be withheld. Asking whether
+    // anything had been withheld said no to both, and that was twelve games of the 5000 most voted.
+    Map<String, String> onlyADisk = ZxInfoApiHandler.filesOf(
+        entry(List.of(ENDURO), "/pub/sinclair/trdos/games/k/Karlos.trd.zip"), LOADABLE);
+    assertTrue(onlyADisk.containsKey(ZxInfoApiHandler.tosecUrl(ENDURO)),
+        "a disk nothing here can read counts as having nothing");
+
+    Map<String, String> notEvenAFile = ZxInfoApiHandler.filesOf(entry(List.of(ENDURO)), LOADABLE);
+    assertEquals(1, notEvenAFile.size(), "an entry listing no file at all was left with none");
+  }
+
+  @Test
   void anEntryTheArchiveDoesServeIsNotFilledWithTosecVariants() {
     // TOSEC lists sixteen dumps of Knight Lore alone. They are a way out of a refusal, not a
     // longer menu for a game that already comes down.
     Map<String, String> offers = ZxInfoApiHandler.filesOf(
-        entry(List.of(ENDURO), "/zxdb/sinclair/entries/0002259/HeadOverHeels.tzx.zip"));
+        entry(List.of(ENDURO), "/zxdb/sinclair/entries/0002259/HeadOverHeels.tzx.zip"), LOADABLE);
 
     assertEquals(1, offers.size(), "the browser's list of files grew for no reason");
   }
@@ -113,5 +131,11 @@ class WhatAnEntryOffersToDownloadTest {
         ZxInfoApiHandler.tosecUrl(KNIGHT_LORE));
     assertTrue(ZxInfoApiHandler.tosecUrl("/Compilations/Games/Dizzy Collection, The/x.tzx")
         .contains("/Compilations.zip/Compilations/Games/Dizzy%20Collection,%20The/"));
+    // A plus and an ampersand are legal in a path and are not left in one: what serves a file out
+    // of the zip reads them as a query would, and answered 503 for both until they were escaped.
+    assertTrue(ZxInfoApiHandler.tosecUrl("/Games/Olli & Lissa 3/Olli & Lissa 3 (1989).tap")
+        .endsWith("/Games/Olli%20%26%20Lissa%203/Olli%20%26%20Lissa%203%20(1989).tap"));
+    assertTrue(ZxInfoApiHandler.tosecUrl("/Compilations/Games/1942 + Batty/1942 + Batty (1989).tzx")
+        .endsWith("/1942%20%2B%20Batty/1942%20%2B%20Batty%20(1989).tzx"));
   }
 }
