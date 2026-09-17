@@ -37,7 +37,7 @@ class ColouringTest {
     assertEquals(2, colouring.ink(flashing));
     assertEquals(1, colouring.paper(flashing));
 
-    colouring.reversed = true;
+    colouring.reversed(true);
     assertEquals(1, colouring.ink(flashing), "ink and paper change places");
     assertEquals(2, colouring.paper(flashing));
 

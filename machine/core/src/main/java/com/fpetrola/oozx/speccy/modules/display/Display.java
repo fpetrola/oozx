@@ -180,7 +180,7 @@ public class Display {
     border.paintTheFrame();
     framesIntoTheFlash = (framesIntoTheFlash + 1) & 31;
     if ((framesIntoTheFlash & 15) == 0) {
-      colouring.reversed = framesIntoTheFlash == 16;
+      colouring.reversed(framesIntoTheFlash == 16);
       dirtyEveryFlashingCell();
     }
   }

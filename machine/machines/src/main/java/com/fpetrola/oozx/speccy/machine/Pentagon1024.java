@@ -20,6 +20,7 @@
 package com.fpetrola.oozx.speccy.machine;
 
 import com.fpetrola.oozx.speccy.modules.display.Display;
+import com.fpetrola.oozx.speccy.modules.display.Painting;
 import com.fpetrola.oozx.speccy.modules.memory.MemoryBus;
 import com.fpetrola.oozx.speccy.modules.memory.SpectrumMemory;
 import com.fpetrola.oozx.speccy.modules.scheduler.Scheduler;
@@ -100,17 +101,15 @@ public class Pentagon1024 extends Pentagon512 {
     if ((second & RAM_BELOW) != 0) memory.slot(0x0000, banks.ram(0));
     boolean sixteen = (second & SIXTEEN_COLOURS) != 0;
     banks.alongside(sixteen ? banks.ram(banks.shown().pageNum - 1) : null);
-    if (display.layout.fourBytesToAColumn != sixteen) {
-      display.layout.fourBytesToAColumn = sixteen;
-      display.refreshAll();
-    }
+    Painting.Line wanted = sixteen ? display.painting.fourBytesToAColumn : display.painting.sinclair;
+    if (display.painting.line(wanted) != wanted) display.refreshAll();
   }
 
   @Override
   public int reset() {
     second = 0;
     locked = false;
-    display.layout.fourBytesToAColumn = false;
+    display.painting.line(null);
     return super.reset();
   }
 
