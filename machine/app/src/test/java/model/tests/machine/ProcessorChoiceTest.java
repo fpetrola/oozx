@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ProcessorChoiceTest extends MachineTest {
   @Test
   void theSettingsSeamOffersEveryProcessorAndMovesTheMachine() {
-    Processors.startsOn = null;
+    com.fpetrola.oozx.config.Configuration.shared().setValue("machine", "processor", null);
     Speccy speccy = silentMachine();
     EmulatorControl control = new SpeccyEmulatorCore(speccy);
 

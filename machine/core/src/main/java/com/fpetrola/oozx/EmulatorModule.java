@@ -31,6 +31,7 @@ import com.fpetrola.z80.cpu.Core;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.OopCore;
 import com.fpetrola.z80.cpu.Z80Clock;
+import com.google.inject.Inject;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
@@ -71,17 +72,17 @@ public class EmulatorModule extends AbstractModule {
     Configuration.section(binder(), com.fpetrola.oozx.config.RomFiles.class);
     // What the machine itself keeps in the file, said where the parts are bound rather than in a
     // list inside Settings: the same declaration a device makes about itself.
-    com.fpetrola.oozx.config.Settings.mirrorOfTheMachine(binder(), "speed",
+    com.fpetrola.oozx.config.Settings.mirror(binder(), "speed",
         com.fpetrola.oozx.speccy.modules.timer.Speed.class, "emulation", "fastLoading");
-    com.fpetrola.oozx.config.Settings.mirrorOfTheMachine(binder(), "memory",
+    com.fpetrola.oozx.config.Settings.mirror(binder(), "memory",
         com.fpetrola.oozx.speccy.modules.memory.Rom.Protection.class, "writableRoms");
-    com.fpetrola.oozx.config.Settings.mirrorOfTheMachine(binder(), "machine",
+    com.fpetrola.oozx.config.Settings.mirror(binder(), "machine",
         com.fpetrola.oozx.speccy.modules.machine.Machine.Unit.class, "lateTimings", "issue2");
-    com.fpetrola.oozx.config.Settings.mirrorOfTheMachine(binder(), "sound",
+    com.fpetrola.oozx.config.Settings.mirror(binder(), "sound",
         com.fpetrola.oozx.speccy.modules.sound.Sound.Output.class, "enabled", "device", "whileLoading");
     // How loud it is belongs to the sound itself rather than to what it is played on, and it kept
     // no memory of it between runs: a machine opened again came back at a hundred per cent.
-    com.fpetrola.oozx.config.Settings.mirrorOfTheMachine(binder(), "sound.volume",
+    com.fpetrola.oozx.config.Settings.mirror(binder(), "sound.volume",
         com.fpetrola.oozx.speccy.modules.sound.Sound.class, "volume");
     bind(com.fpetrola.oozx.speccy.machine.Roms.class).to(com.fpetrola.oozx.config.RomFiles.class);
     // The bus as defined asks on every access; the one the machine runs on remembers.
@@ -93,6 +94,8 @@ public class EmulatorModule extends AbstractModule {
     // What the processor runs on: the one a machine starts on, and every one it could be asked
     // to run on instead. The OOP core is always both; anything faster arrives on the classpath.
     OptionalBinder.newOptionalBinder(binder(), Core.class).setDefault().to(OopCore.class);
+    bind(Core.class).annotatedWith(com.fpetrola.oozx.speccy.modules.z80.Processors.StartsOn.class)
+        .toProvider(TheOneChosen.class);
     // The mix plays into silence unless a module brings a card, the way a machine with no chip has no chip.
     // How the processor is wired to this machine. A test that counts its own T-states binds
     // another over it; nothing in the model knows there is another.
@@ -120,8 +123,37 @@ public class EmulatorModule extends AbstractModule {
 
   }
 
-  /** A module that makes the machine run on this core instead of the default one. */
+  /**
+   * The processor a machine starts on: the one the file names under {@code machine.processor}, or
+   * whichever this build prefers when nothing names one or this build has no such thing.
+   * <p>
+   * A binding and not a field somebody sets before building a machine: what a machine starts on is
+   * a setting, and a setting is read where everything else a machine is made of is read.
+   */
+  static class TheOneChosen implements com.google.inject.Provider<Core> {
+    @Inject
+    private java.util.Set<Core> available;
+    @Inject
+    private com.fpetrola.oozx.config.Configuration configuration;
+    @Inject
+    private Core preferred;
+
+    public Core get() {
+      Object named = configuration.valueOf("machine", "processor", String.class);
+      return available.stream().filter(core -> core.name().equals(named)).findFirst().orElse(preferred);
+    }
+  }
+
+  /**
+   * A module that makes the machine run on this core instead of the one it would start on. Both
+   * keys, so that it beats what the file names as well: a machine built to be read by the
+   * generator has to be the one asked for, whatever the person chose for their own machines.
+   */
   public static com.google.inject.Module core(Class<? extends Core> core) {
-    return binder -> OptionalBinder.newOptionalBinder(binder, Core.class).setBinding().to(core);
+    return binder -> {
+      OptionalBinder.newOptionalBinder(binder, Core.class).setBinding().to(core);
+      binder.bind(Core.class)
+          .annotatedWith(com.fpetrola.oozx.speccy.modules.z80.Processors.StartsOn.class).to(core);
+    };
   }
 }

@@ -22,6 +22,7 @@ import com.fpetrola.oozx.speccy.peripherals.SettingsPanel;
 import com.fpetrola.oozx.speccy.windows.AttachedFrame;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -47,6 +48,14 @@ public class SettingsInternalFrame extends AttachedFrame {
   private final OOZxConfiguration config;
   private final JLabel whom = new JLabel();
   private final JPanel body = new JPanel(new BorderLayout());
+  private final JButton apply = new JButton("Apply");
+  /**
+   * The changes made in this window, which are its own and not any machine's until they are
+   * written. They survive being unclipped from one machine and clipped onto another, which is how
+   * this window gives a second machine the settings of the first.
+   */
+  private final com.fpetrola.oozx.config.Settings.Edits edits = new com.fpetrola.oozx.config.Settings.Edits();
+  private SettingsPanel panel;
 
   public SettingsInternalFrame(Function<JInternalFrame, EmulatorCore> coreOf, EmulatorCore defaults,
       OOZxConfiguration config) {
@@ -56,6 +65,8 @@ public class SettingsInternalFrame extends AttachedFrame {
     this.config = config;
     whom.setFont(whom.getFont().deriveFont(Font.BOLD));
     whom.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
+    apply.addActionListener(written -> apply());
+    controls.add(apply);
     controls.add(whom);
     assemble(body);
     setCompact(false);
@@ -68,6 +79,11 @@ public class SettingsInternalFrame extends AttachedFrame {
     showWhatIsBeingConfigured();
   }
 
+  /** Writes what is set here into whatever this window is on: a machine, or what machines start with. */
+  public void apply() {
+    panel.apply();
+  }
+
   /** Built again against whoever it is on now: every control reads the state of what it configures. */
   @Override
   protected void attachmentChanged() {
@@ -75,15 +91,23 @@ public class SettingsInternalFrame extends AttachedFrame {
   }
 
   private void showWhatIsBeingConfigured() {
-    EmulatorCore core = getMachineWindow() == null ? null : coreOf.apply(getMachineWindow());
+    // Clipped on, and not merely remembering which machine it was last clipped to: let go of one,
+    // this window configures what machines start with, and applying it has no business reaching
+    // back into the machine it came off.
+    EmulatorCore core = isAttached() ? coreOf.apply(getMachineWindow()) : null;
     boolean aMachine = core != null;
     whom.setText(aMachine ? "Configuring this machine: " + core.getCurrentModel()
         : "Defaults - what a machine opened from now on starts with");
     whom.setForeground(aMachine ? UIManagerForeground() : DEFAULTS);
     setTitle(aMachine ? "Settings - " + core.getCurrentModel() : "Settings - defaults");
 
+    apply.setToolTipText(aMachine
+        ? "Write what is set here into this machine, including what was set before it was clipped on"
+        : "Write what is set here into what every machine opened from now on starts with");
+
     body.removeAll();
-    body.add(new SettingsPanel(aMachine ? core : defaults, config), BorderLayout.CENTER);
+    panel = new SettingsPanel(aMachine ? core : defaults, config, edits, aMachine);
+    body.add(panel, BorderLayout.CENTER);
     body.revalidate();
     body.repaint();
   }

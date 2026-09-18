@@ -18,7 +18,6 @@
 package model.tests.media;
 
 import com.fpetrola.oozx.rzx.RzxSession;
-import com.fpetrola.oozx.speccy.modules.z80.Processors;
 import com.fpetrola.z80.minizx.RzxPlayback;
 import model.harness.MachineTest;
 import org.junit.jupiter.api.Test;
@@ -41,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 class WholeRecordingTime extends MachineTest {
   @Test
   void theWholeThing() throws Exception {
-    Processors.startsOn = "Generated";
+    com.fpetrola.oozx.config.Configuration.shared().setValue("machine", "processor", "Generated");
     RzxSession session = RzxSession.open(model.harness.TestFiles.testFile("/rzx/jsw-full.rzx"));
     session.getSpeccy().picture.active = false;
     session.getSpeccy().sound.output.enabled = false;
@@ -53,6 +52,6 @@ class WholeRecordingTime extends MachineTest {
     System.out.printf("TOTAL %d frames, %d instrucciones, %.2f s, %.1f MIPS%n",
         frames, playback.getInstructions(), seconds, playback.getInstructions() / seconds / 1e6);
     session.release();
-    Processors.startsOn = null;
+    com.fpetrola.oozx.config.Configuration.shared().setValue("machine", "processor", null);
   }
 }

@@ -16,7 +16,6 @@
  */
 package com.fpetrola.oozx.generated;
 
-import com.fpetrola.oozx.speccy.modules.z80.Processors;
 import com.fpetrola.oozx.EmulatorModule;
 import com.fpetrola.oozx.speccy.modules.memory.MemoryBus;
 import com.fpetrola.oozx.Speccy;
@@ -139,19 +138,13 @@ public class GeneratedCores implements Extension {
 
   /** The machine the generator reads: silent, and with the model's core laid out as the generated one will be. */
   public static Speccy model() {
-    // Nothing is chosen for this one. A machine started on the name of the generated core comes
-    // back here to make it, and this is the machine being built to make it; a machine started on
-    // the name of the OOP core would be read with the wrong bank. Put back afterwards, so the
-    // machine that asked for this still starts on what the person chose.
-    String chosen = Processors.startsOn;
-    Processors.startsOn = null;
-    try {
-      Speccy speccy = Speccy.create(new SpectrumZ80Clock(), binder -> binder.bind(SoundCard.class).to(SilentSoundDevice.class), EmulatorModule.core(ModelCore.class));
-      speccy.init();
-      return speccy;
-    } finally {
-      Processors.startsOn = chosen;
-    }
+    // The model's core and nothing else, whatever the person's machines start on: one started on
+    // the generated core comes back here to make it, and this is the machine being built to make
+    // it, while one started on the OOP core would be read with the wrong bank.
+    Speccy speccy = Speccy.create(new SpectrumZ80Clock(),
+        binder -> binder.bind(SoundCard.class).to(SilentSoundDevice.class), EmulatorModule.core(ModelCore.class));
+    speccy.init();
+    return speccy;
   }
 
   /** The source of the core generated against this machine: its memory and its contention inlined, the machine's objects held. */
@@ -202,7 +195,14 @@ public class GeneratedCores implements Extension {
     return loaded;
   }
 
-  /** The whole of the generated file: what it was made from, and the core itself. */
+  /**
+   * The whole of the generated file: what it was made from, and the core itself.
+   * <p>
+   * The first line is not part of the core and is not compared as if it were: the model is hashed
+   * whole, so anything in it changes the key, and most of it - the machine's settings, which tape
+   * it has - is nothing the generator reads. Comparing keys is how a build skips the work; comparing
+   * what came out is how the file stops being committed again for a hash and nothing else.
+   */
   public static String written() {
     return MADE_FROM + key() + "\n\n" + source(model());
   }
@@ -218,13 +218,33 @@ public class GeneratedCores implements Extension {
   public static void main(String[] args) throws IOException {
     Path source = Path.of(args[0]);
     Path classes = Path.of(args[1]);
+    // Not under the classes: this is the build's note to itself and has no business in the jar.
+    Path sameAnswer = classes.getParent().resolve("model-key");
     String key = key();
-    if (key.equals(madeFrom(source)))
+    if (key.equals(madeFrom(source)) || key.equals(readOrNothing(sameAnswer)))
       return;
+    String written = written();
+    if (theCore(written).equals(theCore(readOrNothing(source)))) {
+      // The model changed where the core does not show it - a part of the machine the generator
+      // never reads - so what is here is already what would be written. Left alone rather than
+      // committed again with nothing new in it but its first line, and the key kept beside the
+      // classes so the next build does not have to make the core again to find that out.
+      Files.writeString(sameAnswer, key);
+      return;
+    }
     Files.createDirectories(source.getParent());
-    Files.writeString(source, written());
+    Files.writeString(source, written);
     System.out.println("oozx: the model changed, so the fast core is written again from " + key);
     compile(source, classes);
+  }
+
+  /** What the generator wrote, without the line saying which model it came from. */
+  private static String theCore(String written) {
+    return written == null ? "" : written.substring(written.indexOf('\n') + 1);
+  }
+
+  private static String readOrNothing(Path file) throws IOException {
+    return Files.isRegularFile(file) ? Files.readString(file) : null;
   }
 
   /** Which model the core beside us was written from, or nothing when there is no core there. */

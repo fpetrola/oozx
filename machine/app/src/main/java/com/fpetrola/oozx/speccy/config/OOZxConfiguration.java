@@ -71,7 +71,6 @@ public class OOZxConfiguration implements Configuration.Saves {
   private Map<String, String> screenDefaults = new LinkedHashMap<>();
   private boolean turboByDefault;
   /** The processor a machine starts on, by name, or null for whichever one this build prefers. */
-  private String processor;
   /**
    * Looks someone saved, by name. A map of plain text rather than the profile objects
    * themselves, for the same reason the defaults are: the file is read by versions that did not
@@ -178,14 +177,6 @@ public class OOZxConfiguration implements Configuration.Saves {
 
   public void setTurboByDefault(boolean turboByDefault) {
     this.turboByDefault = turboByDefault;
-  }
-
-  public String getProcessor() {
-    return processor;
-  }
-
-  public void setProcessor(String processor) {
-    this.processor = processor;
   }
 
   public Map<String, Map<String, String>> getKeptScreenProfiles() {

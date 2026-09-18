@@ -17,7 +17,6 @@
 
 package model.tests.media;
 
-import com.fpetrola.oozx.speccy.modules.z80.Processors;
 import model.harness.MachineTest;
 import com.fpetrola.oozx.rzx.RzxSession;
 import com.fpetrola.z80.minizx.RzxPlayback;
@@ -30,7 +29,7 @@ class RzxCoreMeasurement extends MachineTest {
   @Test
   void framesAndInstructionsPerSecondOnEachCore() throws Exception {
     for (String processor : new String[]{"Generated", "OOP"}) {
-      Processors.startsOn = processor;
+      com.fpetrola.oozx.config.Configuration.shared().setValue("machine", "processor", processor);
       measure();
     }
   }

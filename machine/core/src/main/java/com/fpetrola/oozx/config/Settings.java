@@ -45,22 +45,47 @@ public final class Settings {
   }
 
   /**
+   * What something says about the settings it has: the name they are kept under, which they are,
+   * and what each one is. Said by a device about its own properties, and by anything else that has
+   * settings to show without being a device - the machine itself, whose model and processor are
+   * chosen the same way and are not fields of anything.
+   */
+  public interface Described {
+    String name();
+
+    List<String> properties();
+
+    Class<?> typeOf(String property);
+
+    /**
+     * The values one of these can take, where it is one of a few known ones: which Spectrum this
+     * is, which of its ROM sets. Empty where it is any value of its type, which is most of them.
+     */
+    default List<?> choicesFor(String property) {
+      return List.of();
+    }
+
+    /** Whatever was said about one of these in words, for whoever shows it to a person. */
+    default String saidAbout(String property) {
+      return "";
+    }
+  }
+
+  /**
    * What a device said about itself: which section of the file it keeps, what holds it, and which
    * of its properties are settings rather than workings. A {@link Part} that also answers what it
    * is about, so that something wanting to show these to a person - rather than copy them - does
    * not need a second list of the same thing.
    */
-  public static final class Mirror implements Part {
+  public static final class Mirror implements Part, Described {
     private final String name;
     private final Class<?> device;
     private final List<String> properties;
     private final Provider<Configuration> configuration;
     private final Provider<?> held;
-    private final boolean ofTheMachine;
 
     private Mirror(String name, Class<?> device, List<String> properties,
-        Provider<Configuration> configuration, Provider<?> held, boolean ofTheMachine) {
-      this.ofTheMachine = ofTheMachine;
+        Provider<Configuration> configuration, Provider<?> held) {
       this.name = name;
       this.device = device;
       this.properties = properties;
@@ -96,11 +121,6 @@ public final class Settings {
         }
         return field.getType();
       }
-    }
-
-    /** Whether this is the machine's own - its speed, its sound - rather than something plugged in. */
-    public boolean ofTheMachine() {
-      return ofTheMachine;
     }
 
     /** The settings of the device in this machine: changing one changes what is running. */
@@ -154,7 +174,73 @@ public final class Settings {
   }
 
   /** A device's settings and where they are being read from, which is all a control needs. */
-  public record Configurable(Mirror device, Values values) {
+  public record Configurable(Described device, Values values) {
+  }
+
+  /**
+   * Settings being edited away from whatever they will end up in: every change is kept under the
+   * name of the setting until somebody writes them.
+   * <p>
+   * Live, each change also goes straight into what is in front of it, which is what a window
+   * clipped onto a machine does. Written afterwards onto something else - the file, or another
+   * machine it was clipped onto since - the same changes land there, so the way to give one
+   * machine the settings of another is to carry the window across and write them.
+   */
+  public static final class Edits {
+    private final java.util.Map<String, Object> pending = new java.util.LinkedHashMap<>();
+
+    /** These settings seen through the changes so far, taking them as they are made. */
+    public List<Configurable> over(List<Configurable> targets, boolean live) {
+      return targets.stream().map(target -> new Configurable(target.device(), new Values() {
+        public Object get(String property) {
+          String key = key(target, property);
+          return pending.containsKey(key) ? pending.get(key) : target.values().get(property);
+        }
+
+        public void set(String property, Object value) {
+          pending.put(key(target, property), value);
+          if (live) {
+            target.values().set(property, value);
+            // What stuck rather than what was asked for: a part that takes the nearest value it
+            // can do something with would otherwise be written the original one next time.
+            pending.put(key(target, property), target.values().get(property));
+          }
+        }
+      })).toList();
+    }
+
+    /** Writes every change made so far into these settings, leaving the rest as they are. */
+    public void applyTo(List<Configurable> targets) {
+      for (Configurable target : targets) {
+        for (String property : target.device().properties()) {
+          String key = key(target, property);
+          if (pending.containsKey(key)) {
+            target.values().set(property, pending.get(key));
+          }
+        }
+      }
+    }
+
+    /**
+     * Takes these settings as the changes to be written elsewhere: the window opened on a machine
+     * holds that machine's settings, so unclipping it and writing them makes them the defaults,
+     * and clipping it onto another machine makes that one like the first.
+     */
+    public void copyFrom(List<Configurable> from) {
+      for (Configurable one : from) {
+        for (String property : one.device().properties()) {
+          pending.put(key(one, property), one.values().get(property));
+        }
+      }
+    }
+
+    public boolean isEmpty() {
+      return pending.isEmpty();
+    }
+
+    private static String key(Configurable of, String property) {
+      return of.device().name() + "." + property;
+    }
   }
 
   /**
@@ -168,24 +254,15 @@ public final class Settings {
     return java.util.List.copyOf(DECLARED);
   }
 
-  /** Binds a {@link Part} that syncs the named properties of {@code device} with the config file, so a module needn't write that out itself. */
-  public static void mirror(Binder binder, String name, Class<?> device, String... properties) {
-    declare(binder, name, device, false, properties);
-  }
-
   /**
-   * The same for a part of the machine itself rather than something plugged into it - the speed it
-   * runs at, whether its ROMs can be written - so that what the file holds is said once, where the
-   * part is bound, instead of being copied by hand in here.
+   * Binds a {@link Part} that syncs the named properties of {@code device} with the config file, so
+   * a module needn't write that out itself. The machine's own parts - the speed it runs at, whether
+   * its ROMs can be written - say it the same way as anything plugged into it: there used to be a
+   * second spelling of this for them, and nothing ever asked which of the two a setting came from.
    */
-  public static void mirrorOfTheMachine(Binder binder, String name, Class<?> device, String... properties) {
-    declare(binder, name, device, true, properties);
-  }
-
-  private static void declare(Binder binder, String name, Class<?> device, boolean ofTheMachine,
-      String... properties) {
+  public static void mirror(Binder binder, String name, Class<?> device, String... properties) {
     Mirror mirror = new Mirror(name, device, List.of(properties),
-        binder.getProvider(Configuration.class), binder.getProvider(device), ofTheMachine);
+        binder.getProvider(Configuration.class), binder.getProvider(device));
     DECLARED.removeIf(declared -> declared.name().equals(name));
     DECLARED.add(mirror);
     Multibinder.newSetBinder(binder, Part.class).addBinding().toInstance(mirror);

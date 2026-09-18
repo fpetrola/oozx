@@ -18,7 +18,6 @@ package com.fpetrola.oozx.speccy.peripherals;
 
 import com.fpetrola.oozx.config.Settings;
 import com.fpetrola.oozx.speccy.config.OOZxConfiguration;
-import com.fpetrola.oozx.speccy.modules.z80.Processors;
 import com.fpetrola.oozx.speccy.screen.ScreenSettings;
 import com.fpetrola.oozx.speccy.screen.SpeccyScreen;
 
@@ -39,7 +38,9 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.List;
 import java.util.Set;
 
@@ -68,11 +69,32 @@ public class SettingsPanel extends JPanel {
 
   private final EmulatorCore emulatorCore;
   private final OOZxConfiguration config;
+  /** Where the settings being shown will be written, which is not where they are being read from. */
+  private final List<Settings.Configurable> targets;
+  private final List<Settings.Configurable> shown;
+  private final Settings.Edits edits;
+  /** The picture being set when there is no machine whose picture it is: written out on apply. */
+  private final ScreenSettings pendingScreen;
+  private final boolean live;
 
-  public SettingsPanel(EmulatorCore core, OOZxConfiguration config) {
+  public SettingsPanel(EmulatorCore core, OOZxConfiguration config, Settings.Edits edits, boolean live) {
     super(new BorderLayout());
     this.emulatorCore = core;
     this.config = config;
+    this.edits = edits;
+    this.targets = java.util.stream.Stream.concat(java.util.stream.Stream.of(core.ownSettings()),
+        core.deviceSettings().stream()).toList();
+    // Nothing changed here yet and a machine in front of it: this window becomes that machine's
+    // settings, so unclipping it and applying them makes them what every machine starts with, and
+    // clipping it onto another machine makes that one like this one.
+    if (live && edits.isEmpty()) {
+      edits.copyFrom(targets);
+    }
+    this.shown = edits.over(targets, live);
+    this.live = live;
+    // Nothing whose picture it is - no machine, or one with no screen of its own - so the knobs
+    // are on a set of settings of this window's own.
+    this.pendingScreen = core.getPanel() instanceof SpeccyScreen ? null : screenOverTheDefaults();
 
     JTabbedPane tabs = new JTabbedPane();
     Set<String> placed = new LinkedHashSet<>();
@@ -84,7 +106,6 @@ public class SettingsPanel extends JPanel {
       tabs.addTab(tab[0], sectionsOf(sections));
     }
     tabs.addTab("Machine", machineTab(placed));
-    tabs.addTab("General", generalTab());
     List<Settings.Configurable> rest = declared().stream()
         .filter(one -> !placed.contains(lastPartOf(one.device().name()))).toList();
     if (!rest.isEmpty()) {
@@ -100,83 +121,28 @@ public class SettingsPanel extends JPanel {
    * used to be nine controls of its own, of which two arrived anywhere.
    */
   private JComponent theScreensOwnKnobs() {
-    if (emulatorCore.getPanel() instanceof SpeccyScreen screen) {
+    if (emulatorCore.getPanel() instanceof SpeccyScreen screen && pendingScreen == null) {
       // The same panel the screen's own window shows, looks and all: it is the same question -
       // what this picture should be - asked from another place.
       return new com.fpetrola.oozx.speccy.desktop.ScreenSettingsPanel(screen.getScreenSettings(),
           kept -> {
-            config.setScreenDefaults(new java.util.LinkedHashMap<>(kept));
+            config.setScreenDefaults(new LinkedHashMap<>(kept));
             config.save();
           }, () -> { });
     }
-    // No screen to turn the knobs of: what a new one is opened with is kept by the screen itself,
-    // and is set from the window of a machine that has one.
-    return saying("The picture is set on a machine that has one, from its own screen knobs");
+    // Its own, which becomes what a new screen is opened with when this is applied.
+    return new com.fpetrola.oozx.speccy.desktop.ScreenSettingsPanel(pendingScreen, kept -> {
+      ScreenSettings.setDefaults(new LinkedHashMap<>(kept));
+      config.setScreenDefaults(new LinkedHashMap<>(kept));
+      config.save();
+    }, () -> { });
   }
 
-  /** The machine's own settings, under what it is and which ROMs it runs, which it also answers. */
+  /** What the machine is, before how fast it runs and what it remembers: all of it declared. */
   private JComponent machineTab(Set<String> placed) {
-    JPanel all = new JPanel(new BorderLayout());
-    all.add(whatMachineAndWhichRoms(), BorderLayout.NORTH);
-    List<String> mine = List.of("speed", "memory", "machine");
+    List<String> mine = List.of("hardware", "speed", "memory", "machine");
     placed.addAll(mine);
-    all.add(sectionsOf(mine), BorderLayout.CENTER);
-    return all;
-  }
-
-  private JComponent whatMachineAndWhichRoms() {
-    JPanel panel = new JPanel(new GridBagLayout());
-    GridBagConstraints at = at();
-
-    JComboBox<String> model = new JComboBox<>(emulatorCore.getMachineModels().toArray(new String[0]));
-    model.setToolTipText("Which Spectrum this is, changed under the game that is running");
-    model.setSelectedItem(emulatorCore.getCurrentModel());
-    com.fpetrola.oozx.speccy.windows.Widgets.whenChosen(model, emulatorCore::getCurrentModel,
-        emulatorCore::setMachineModel);
-
-    JComboBox<String> roms = new JComboBox<>(emulatorCore.getRomSets().toArray(new String[0]));
-    roms.setToolTipText("The set of ROMs this model can be run with, where it has more than one");
-    roms.setSelectedItem(emulatorCore.getRomSet());
-    roms.setEnabled(roms.getItemCount() > 1);
-    com.fpetrola.oozx.speccy.windows.Widgets.whenChosen(roms, emulatorCore::getRomSet, set -> {
-      emulatorCore.setRomSet(set);
-      // What it is running now, which is not what was asked for when the ROMs did not arrive.
-      roms.setSelectedItem(emulatorCore.getRomSet());
-    });
-
-    row(panel, at, "Machine model", model);
-    row(panel, at, "ROMs", roms);
-    return panel;
-  }
-
-  /** What belongs to the program rather than to any machine: how fast it runs and what runs it. */
-  private JComponent generalTab() {
-    JPanel panel = new JPanel(new GridBagLayout());
-    GridBagConstraints at = at();
-
-    JCheckBox turbo = new JCheckBox("", config.isTurboByDefault());
-    turbo.setToolTipText("For this machine, and for every one opened from now on");
-    turbo.addActionListener(e -> {
-      config.setTurboByDefault(turbo.isSelected());
-      config.save();
-      emulatorCore.setGeneralOption("turbo", turbo.isSelected());
-    });
-
-    JComboBox<String> processor = new JComboBox<>(emulatorCore.getProcessors().toArray(new String[0]));
-    processor.setToolTipText("The implementation the machine runs on: the one generated from the"
-        + " model, or the model itself, which is the one to debug");
-    // Chosen before the listener is on, so opening this does not change the processor.
-    processor.setSelectedItem(emulatorCore.getProcessor());
-    com.fpetrola.oozx.speccy.windows.Widgets.whenChosen(processor, emulatorCore::getProcessor, chosen -> {
-      emulatorCore.setProcessor(chosen);
-      config.setProcessor(chosen);
-      config.save();
-      Processors.startsOn = chosen;
-    });
-
-    row(panel, at, "Turbo mode", turbo);
-    row(panel, at, "Processor", processor);
-    return panel;
+    return sectionsOf(mine);
   }
 
   /** The declared settings of these sections, in the order they are named, each under its name. */
@@ -203,8 +169,11 @@ public class SettingsPanel extends JPanel {
         JComponent control = controlFor(part, property);
         // What it is and where it goes, which is all anybody said about it: the declaration gives
         // a name and a type and no words, and the name of the section is where the value lands.
-        control.setToolTipText(part.device().name() + "." + property
-            + "  (" + part.device().typeOf(property).getSimpleName() + ")");
+        // Whatever was said about it, and where the value lands either way: most of them said
+        // nothing, and then the name and the type is all there is to tell anybody.
+        String said = part.device().saidAbout(property);
+        control.setToolTipText((said.isEmpty() ? "" : said + "  -  ") + part.device().name() + "."
+            + property + "  (" + part.device().typeOf(property).getSimpleName() + ")");
         row(all, at, readably(property), control);
       }
     }
@@ -215,6 +184,20 @@ public class SettingsPanel extends JPanel {
   private JComponent controlFor(Settings.Configurable device, String property) {
     Class<?> type = device.device().typeOf(property);
     Object value = device.values().get(property);
+    // An enum says what it can be by being one; anything else that is one of a few says so itself.
+    List<?> choices = type.isEnum() ? List.of(type.getEnumConstants()) : device.device().choicesFor(property);
+    if (!choices.isEmpty()) {
+      JComboBox<Object> offered = new JComboBox<>(choices.toArray());
+      offered.setSelectedItem(value);
+      offered.setEnabled(choices.size() > 1);
+      com.fpetrola.oozx.speccy.windows.Widgets.whenChosen(offered,
+          () -> device.values().get(property), chosen -> {
+            device.values().set(property, chosen);
+            // What it is now, which is not what was asked for when a machine's ROMs did not arrive.
+            offered.setSelectedItem(device.values().get(property));
+          });
+      return offered;
+    }
     if (type == boolean.class || type == Boolean.class) {
       JCheckBox box = new JCheckBox();
       box.setSelected(Boolean.TRUE.equals(value));
@@ -237,12 +220,6 @@ public class SettingsPanel extends JPanel {
         }
       });
       return spinner;
-    }
-    if (type.isEnum()) {
-      JComboBox<Object> choices = new JComboBox<>(type.getEnumConstants());
-      choices.setSelectedItem(value);
-      choices.addActionListener(e -> device.values().set(property, choices.getSelectedItem()));
-      return choices;
     }
     if (type == String.class) {
       JTextField text = new JTextField(value == null ? "" : String.valueOf(value), 16);
@@ -271,7 +248,30 @@ public class SettingsPanel extends JPanel {
   }
 
   private List<Settings.Configurable> declared() {
-    return emulatorCore.deviceSettings();
+    return shown;
+  }
+
+  /**
+   * Writes every change made here into whatever this window is on now: the machine it is clipped
+   * onto, or - clipped onto nothing - the file every machine opened from now on is built from.
+   * <p>
+   * This is also the only place the file is written from, which is why nothing else here saves it:
+   * what is set in this window is not written down until somebody says to write it.
+   */
+  public void apply() {
+    edits.applyTo(targets);
+    if (!live && pendingScreen != null) {
+      Map<String, String> picture = pendingScreen.values();
+      ScreenSettings.setDefaults(picture);
+      config.setScreenDefaults(new LinkedHashMap<>(picture));
+    }
+    config.save();
+  }
+
+  private static ScreenSettings screenOverTheDefaults() {
+    ScreenSettings starting = new ScreenSettings();
+    starting.apply(ScreenSettings.getDefaults());
+    return starting;
   }
 
   private static GridBagConstraints at() {

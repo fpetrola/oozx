@@ -17,7 +17,6 @@
 
 package com.fpetrola.oozx.speccy.desktop;
 
-import com.fpetrola.oozx.speccy.modules.z80.Processors;
 import com.fpetrola.oozx.speccy.devices.MachineFrame;
 import com.fpetrola.oozx.speccy.media.DownloadAndUnzip;
 import com.fpetrola.oozx.speccy.windows.Widgets;
@@ -1074,7 +1073,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
     this.mockCore = mockCore;
     this.mockCoreState = mockCoreState1;
     this.config = com.fpetrola.oozx.config.Configuration.shared().of(OOZxConfiguration.class);
-    Processors.startsOn = config.getProcessor();
     // One place for the keyboard, rather than one per emulator window: which machine is being
     // typed into is a question about this desktop, not about any one of the machines on it.
     KeyboardFocusManager.getCurrentKeyboardFocusManager()

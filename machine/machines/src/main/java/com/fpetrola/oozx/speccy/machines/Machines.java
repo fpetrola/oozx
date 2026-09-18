@@ -96,6 +96,31 @@ public class Machines extends AbstractModule implements Extension {
     models.addBinding().to(Chloe280Se.class);
     models.addBinding().to(Inves.class);
     models.addBinding().to(Chrome.class);
-    bind(Spectrum.class).annotatedWith(DefaultMachine.class).to(Spec48.class);
+    // Which machine that is, is a setting: the file names one and this build has it, or nothing
+    // named one and a Spectrum is a 48K. Bound rather than read as a machine starts, so what a new
+    // machine becomes is answered the one way everything else here is answered.
+    bind(Spectrum.class).annotatedWith(DefaultMachine.class).toProvider(TheOneChosen.class);
+  }
+
+  /**
+   * The machine named in the file under {@code machine.model}, which is what the settings write
+   * when nobody is being configured in particular, and the 48K when nothing names one.
+   * <p>
+   * The instance comes from the models bound above rather than being one of its own: switching
+   * machines compares the one asked for against those, and a second 48K is not among them.
+   */
+  static class TheOneChosen implements com.google.inject.Provider<Spectrum> {
+    @com.google.inject.Inject
+    private java.util.Set<Spectrum> models;
+    @com.google.inject.Inject
+    private com.fpetrola.oozx.config.Configuration configuration;
+    @com.google.inject.Inject
+    private Spec48 whatASpectrumIs;
+
+    public Spectrum get() {
+      Object named = configuration.valueOf("machine", "model", String.class);
+      return models.stream().filter(model -> model.getName().equals(named)).findFirst()
+          .orElse(whatASpectrumIs);
+    }
   }
 }

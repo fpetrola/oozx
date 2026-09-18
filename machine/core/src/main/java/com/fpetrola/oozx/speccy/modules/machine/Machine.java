@@ -112,6 +112,15 @@ public class Machine {
     return machineTypes.stream().filter(m -> m.shortName().equals(shortName)).findFirst();
   }
 
+  public Optional<Spectrum> forName(String name) {
+    return machineTypes.stream().filter(m -> m.getName().equals(name)).findFirst();
+  }
+
+  /** The machine a new one becomes: what is bound as the default, which the file can name. */
+  public String defaultModel() {
+    return defaultMachine.getName();
+  }
+
   public void selectDefault() {
     select(defaultMachine);
   }

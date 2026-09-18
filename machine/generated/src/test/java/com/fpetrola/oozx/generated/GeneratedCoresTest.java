@@ -16,7 +16,6 @@
  */
 package com.fpetrola.oozx.generated;
 
-import com.fpetrola.oozx.speccy.modules.z80.Processors;
 import com.fpetrola.oozx.speccy.modules.z80.Cpu;
 import com.fpetrola.oozx.Speccy;
 import org.junit.jupiter.api.Test;
@@ -39,14 +38,16 @@ class GeneratedCoresTest {
    */
   @Test
   void theMachineTheGeneratorReadsIsNotStartedOnWhatWasChosen() {
-    Processors.startsOn = GeneratedMachineCore.NAME;
+    com.fpetrola.oozx.config.Configuration.shared().setValue("machine", "processor", GeneratedMachineCore.NAME);
     try {
       Speccy model = GeneratedCores.model();
       assertEquals("OOP", model.processors.current(), "the model runs on the model's core");
       model.end();
-      assertEquals(GeneratedMachineCore.NAME, Processors.startsOn, "and the choice is left for the machine that asked");
+      assertEquals(GeneratedMachineCore.NAME,
+          com.fpetrola.oozx.config.Configuration.shared().valueOf("machine", "processor", String.class),
+          "and the choice is left for the machine that asked");
     } finally {
-      Processors.startsOn = null;
+      com.fpetrola.oozx.config.Configuration.shared().setValue("machine", "processor", null);
     }
   }
 }

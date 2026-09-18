@@ -43,11 +43,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Processors {
 
   /**
-   * The processor a machine starts on, by name, or null for whichever one this build prefers.
-   * Static because it is chosen before any machine is built - from the settings, or by a test -
-   * and read by every machine as it starts. A machine already running is moved with {@link #use}.
+   * The one of them a machine starts on: what the settings name, or whichever this build prefers.
+   * Nested here rather than a file of its own because it says nothing except which of these is
+   * meant, and this is the class they belong to.
    */
-  public static String startsOn;
+  @com.google.inject.BindingAnnotation
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+  public @interface StartsOn {
+  }
 
   private final Set<Core> available;
   private final SpectrumZ80Clock zxClock;
@@ -61,7 +64,7 @@ public class Processors {
   private final List<Runnable> listeners = new CopyOnWriteArrayList<>();
 
   @Inject
-  public Processors(SpectrumZ80Clock zxClock, IO io, Core core, Set<Core> available, MachineLoop loop, ProcessorWiring wiring) {
+  public Processors(SpectrumZ80Clock zxClock, IO io, @StartsOn Core core, Set<Core> available, MachineLoop loop, ProcessorWiring wiring) {
     this.zxClock = zxClock;
     this.io = io;
     this.core = core;
@@ -76,7 +79,7 @@ public class Processors {
    */
   public void startOn(Cpu cpu) {
     this.cpu = cpu;
-    runOn(startsOn == null ? core : forName(startsOn).orElse(core));
+    runOn(core);
   }
 
   /**
