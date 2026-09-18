@@ -199,6 +199,35 @@ class TheRulesOfAGameTest extends MachineTest {
     assertEquals(rgbOf(77), pixel(1), "and beside it, where this game painted nothing, the picture shows");
   }
 
+  /** The half of the flash where a flashing cell shows the other way round. */
+  private void intoTheFlash() {
+    speccy.display.colouring.reversed(true);
+    speccy.display.refreshAll();
+    speccy.zxClock.setTStates(0);
+    speccy.display.frame();
+  }
+
+  @Test
+  void aCellThatFlashesLetsThePictureThroughWhileItIsReversed() throws IOException {
+    attribute = (byte) (INK | (PAPER << 3) | 0x80);
+    colours(addressOf(LINE, COLUMN), 100, 0, 0, 0, 0, 0, 0, 0);
+    started("UpColorsMixed=0\n", background(77));
+    assertEquals(rgbOf(100), pixel(0), "before it flashes away, this game's colour is what is there");
+
+    intoTheFlash();
+    assertEquals(rgbOf(77), pixel(0), "and while it is reversed the picture underneath shows instead");
+  }
+
+  @Test
+  void aGameCanSayThatItsFlashingIsItsOwnAndNotAWayToShowThePicture() throws IOException {
+    attribute = (byte) (INK | (PAPER << 3) | 0x80);
+    colours(addressOf(LINE, COLUMN), 100, 0, 0, 0, 0, 0, 0, 0);
+    started("UpColorsMixed=0\nBkThroughFlash=0\n", background(77));
+
+    intoTheFlash();
+    assertEquals(rgbOf(100), pixel(0), "a game that flashes to say a thing kills keeps what it painted");
+  }
+
   @Test
   void aGameSaysWhichRegistersItsFollowersTakeInTheSameFile() throws IOException {
     colours(addressOf(LINE, COLUMN), 0, 0, 0, 0, 0, 0, 0, 0);

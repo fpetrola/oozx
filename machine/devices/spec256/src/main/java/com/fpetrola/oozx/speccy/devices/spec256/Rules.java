@@ -42,6 +42,12 @@ public final class Rules {
   public boolean paperForNoneInkForAll;
   /** Where a cell's ink and paper are the same, that colour covers it: it is how a game clears. */
   public boolean hiddenWhereInkIsPaper = true;
+  /**
+   * Whether a cell that flashes lets the picture underneath through while it is reversed, which is
+   * how a game with a picture reveals it. A game that flashes for its own reasons - to say that a
+   * thing kills - was not drawn for that, and against a picture its hazards read as blinking holes.
+   */
+  public boolean pictureThroughTheFlash = true;
   /** How many colours from the top, and from the bottom, are mixed half and half with the attribute's. */
   public int mixedFromTheTop = 64;
   public int mixedFromTheBottom;
@@ -68,6 +74,7 @@ public final class Rules {
     backgroundOverTheLast = false;
     paperForNoneInkForAll = false;
     hiddenWhereInkIsPaper = true;
+    pictureThroughTheFlash = true;
     mixedFromTheTop = 64;
     mixedFromTheBottom = 0;
     brightInTheMix = false;
@@ -113,6 +120,7 @@ public final class Rules {
       case "bkoverff" -> backgroundOverTheLast = on(value);
       case "paper00inkff" -> paperForNoneInkForAll = on(value);
       case "hidesameinkpaper" -> hiddenWhereInkIsPaper = on(value);
+      case "bkthroughflash" -> pictureThroughTheFlash = on(value);
       case "upcolorsmixed" -> mixedFromTheTop = saying(value, mixedFromTheTop);
       case "downcolorsmixed" -> mixedFromTheBottom = number(value, mixedFromTheBottom);
       case "usebrightinmix" -> brightInTheMix = on(value);

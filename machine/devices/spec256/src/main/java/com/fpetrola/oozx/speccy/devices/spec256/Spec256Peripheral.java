@@ -168,7 +168,7 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
       bitmap = shown[at] & 0xff;
       ink = attributeColour(attribute, attribute & 0x07);
       paper = attributeColour(attribute, (attribute >> 3) & 0x07);
-      flashedAway = Colouring.flashes(attribute) && reversed;
+      flashedAway = rules.pictureThroughTheFlash && Colouring.flashes(attribute) && reversed;
       int address = Planes.RAM + at;
       int pixel = row + (x + Display.BORDER_WIDTH_COLS) * 8;
       for (int i = 0; i < 8; i++) {
