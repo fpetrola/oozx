@@ -49,6 +49,11 @@ public class KeyMatrix {
     decode();
   }
 
+  /** Whether that key is held, which is what anything showing the keyboard asks. */
+  public boolean isDown(SpectrumKey key) {
+    return (halfRows[key.halfRow()] & key.bit()) == 0;
+  }
+
   public byte read(int high) {
     return byHighByte[high & 0xff];
   }
