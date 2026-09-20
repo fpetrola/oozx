@@ -59,6 +59,10 @@ public class Joystick {
 
   public final String[] JOYSTICK_CONNECTION = {"None", "Keyboard", "Joystick 1", "Joystick 2"};
 
+  /** How long after a read the joystick still counts as in use: a few frames. */
+  private static final long IN_USE_NANOS = 250_000_000L;
+
+  private long lastKempstonRead = Long.MIN_VALUE / 2;
   private final Keyboard keyboard;
   private final Input.Setup setup;
   /** One per kind, made once: what a Kempston reads is the same whichever socket it is in. */
@@ -101,8 +105,26 @@ public class Joystick {
     return kind != null && kind.push(Direction.values()[button.ordinal()], pushed);
   }
 
+  /** The machine reading its Kempston port, which is also what says the joystick is being used. */
   public BusAnswer kempstonRead(int port) {
-    return BusAnswer.of(kinds.get(JoystickType.JOYSTICK_TYPE_KEMPSTON).reads());
+    lastKempstonRead = System.nanoTime();
+    return BusAnswer.of(kempstonReads());
+  }
+
+  /** What that port answers, for anything showing the joystick rather than playing with it. */
+  public byte kempstonReads() {
+    return kinds.get(JoystickType.JOYSTICK_TYPE_KEMPSTON).reads();
+  }
+
+  /**
+   * Whether something on the machine has just read the Kempston port.
+   * <p>
+   * A game that reads it reads it every frame, whether or not anything is pushed, so this is on
+   * throughout a game that uses the joystick and off in one that does not - which is what tells
+   * the keys standing in for a pad whether the machine wants them as a joystick or as keys.
+   */
+  public boolean kempstonInUse() {
+    return System.nanoTime() - lastKempstonRead < IN_USE_NANOS;
   }
 
   /** The Timex has two ports; which one is asked for. */

@@ -51,6 +51,9 @@ import static com.fpetrola.oozx.speccy.modules.joystick.Joystick.JoystickButton.
  * keyboard follows it. Read through Jamepad, which brings SDL along for every desktop, so
  * nothing here knows which one it is running on. The d-pad or the left stick steer and any face
  * button fires; plugged in, it is the Kempston interface of the machine it drives.
+ * <p>
+ * The interface is fitted whether or not a pad is found, because with none the keys stand in for
+ * one, and something has to be there for them to hold.
  */
 public class Gamepad {
   private static final int FIRST_PHYSICAL_JOYSTICK = 0;
@@ -73,7 +76,7 @@ public class Gamepad {
 
   private void poll() {
     pad = controllers.getState(0);
-    Speccy machine = pad.isConnected ? machineInFront.get() : null;
+    Speccy machine = machineInFront.get();
     if (machine != driving) {
       move(driving, held, false);
       driving = machine;
@@ -83,6 +86,7 @@ public class Gamepad {
       }
       move(machine, held, true);
     }
+    if (machine != null) Input.of(machine).setup.keyboard.standInForAPad(!pad.isConnected);
     EnumSet<JoystickButton> now = pressed(pad);
     for (JoystickButton button : JoystickButton.values()) {
       if (now.contains(button) != held.contains(button)) move(machine, EnumSet.of(button), now.contains(button));

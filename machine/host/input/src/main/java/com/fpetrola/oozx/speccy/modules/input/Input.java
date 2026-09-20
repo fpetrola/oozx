@@ -316,20 +316,9 @@ public class Input extends AbstractPeripheral {
     }
   }
 
-  /**
-   * A key set as a direction of the keyboard joystick moves it, and does not reach the machine's
-   * own keyboard. A direction nobody set is null, and matches no key: a key left unset used to
-   * be zero, and so was every key the layout has nothing for, so those were swallowed.
-   *
-   * @return whether the key was the joystick's and the keyboard should not see it
-   */
+  /** @return whether the key was the joystick's and the machine's own keyboard should not see it */
   private boolean asJoystick(InputKey key, boolean press) {
-    Joystick.JoystickButton button = null;
-    if (key == setup.keyboard.up) button = Joystick.JoystickButton.JOYSTICK_BUTTON_UP;
-    else if (key == setup.keyboard.down) button = Joystick.JoystickButton.JOYSTICK_BUTTON_DOWN;
-    else if (key == setup.keyboard.left) button = Joystick.JoystickButton.JOYSTICK_BUTTON_LEFT;
-    else if (key == setup.keyboard.right) button = Joystick.JoystickButton.JOYSTICK_BUTTON_RIGHT;
-    else if (key == setup.keyboard.fire) button = Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE;
+    Joystick.JoystickButton button = setup.keyboard.pushes(key, !press || joystick.kempstonInUse());
     return button != null && joystick.press(joystick.JOYSTICK_KEYBOARD, button, press);
   }
 
@@ -474,6 +463,40 @@ public class Input extends AbstractPeripheral {
       public InputKey left;
       public InputKey right;
       public InputKey fire;
+      /** Nobody is holding a pad, so the arrows and space stand in for one. Not a setting. */
+      private transient boolean noPad;
+
+      /** Told from outside because who is holding what is not the file's to say. */
+      public void standInForAPad(boolean stand) {
+        noPad = stand;
+      }
+
+      /**
+       * Which way a key of the host pushes the stick, or null when it is not the joystick's and
+       * the machine's own keyboard should see it.
+       * <p>
+       * A direction nobody chose is the arrow that looks like it, and fire is space, while no pad
+       * is plugged in: with nothing else holding the Kempston, the keys are what is left to hold
+       * it. Space under fire is what Fuse does too.
+       * <p>
+       * Those stand-in keys are only taken while {@code standingIn} says they are wanted - the
+       * machine is reading its Kempston port - because space is a key of the Spectrum too, and a
+       * game that asks for it to start would never see it if the stand-in took it all the time.
+       * A key the file chose is the joystick's either way: that was somebody's decision.
+       */
+      public Joystick.JoystickButton pushes(InputKey key, boolean standingIn) {
+        if (key == null || key == InputKey.INPUT_KEY_NONE) return null;
+        if (key == orStandIn(up, InputKey.INPUT_KEY_Up, standingIn)) return Joystick.JoystickButton.JOYSTICK_BUTTON_UP;
+        if (key == orStandIn(down, InputKey.INPUT_KEY_Down, standingIn)) return Joystick.JoystickButton.JOYSTICK_BUTTON_DOWN;
+        if (key == orStandIn(left, InputKey.INPUT_KEY_Left, standingIn)) return Joystick.JoystickButton.JOYSTICK_BUTTON_LEFT;
+        if (key == orStandIn(right, InputKey.INPUT_KEY_Right, standingIn)) return Joystick.JoystickButton.JOYSTICK_BUTTON_RIGHT;
+        if (key == orStandIn(fire, InputKey.INPUT_KEY_space, standingIn)) return Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE;
+        return null;
+      }
+
+      private InputKey orStandIn(InputKey chosen, InputKey standIn, boolean standingIn) {
+        return chosen != null ? chosen : noPad && standingIn ? standIn : null;
+      }
 
       void take(Keys chosen) {
         super.take(chosen);

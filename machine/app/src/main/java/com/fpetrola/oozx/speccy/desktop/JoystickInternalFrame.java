@@ -101,7 +101,7 @@ public class JoystickInternalFrame extends AttachedFrame {
   /** What the machine's Kempston port answers right now, bit by bit. */
   int pressed() {
     Speccy machine = machine();
-    return machine == null ? 0 : Input.of(machine).joystick().kempstonRead(0x1f).value();
+    return machine == null ? 0 : Input.of(machine).joystick().kempstonReads() & 0xFF;
   }
 
   String reading() {

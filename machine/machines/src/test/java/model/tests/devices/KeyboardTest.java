@@ -225,6 +225,54 @@ class KeyboardTest extends MachineTest {
     assertEquals(KEYS & ~0x01, speccy.ports.read(0xFDFE) & KEYS, "A goes down while no direction is set to it");
   }
 
+  /** With no pad plugged in the arrows and space hold the Kempston, and the keyboard loses them. */
+  @Test
+  void theArrowsAndSpaceStandInForAPadThatIsNotThere() {
+    Speccy speccy = silentMachine();
+    Input.of(speccy).setup.keyboard.standInForAPad(true);
+    Input.of(speccy).joystick().kempstonRead(0x1F);
+
+    type(speccy, Input.InputKey.INPUT_KEY_Left, true);
+    type(speccy, Input.InputKey.INPUT_KEY_space, true);
+    assertEquals(0x12, Input.of(speccy).joystick().kempstonReads() & 0xFF, "left and fire on the Kempston");
+    assertEquals(KEYS, speccy.ports.read(0xF7FE) & KEYS, "and 5 never went down");
+    assertEquals(KEYS, speccy.ports.read(0x7FFE) & KEYS, "nor space");
+
+    Input.of(speccy).setup.keyboard.standInForAPad(false);
+    type(speccy, Input.InputKey.INPUT_KEY_space, true);
+    assertEquals(KEYS & ~0x01, speccy.ports.read(0x7FFE) & KEYS, "with a pad there, space is the machine's again");
+  }
+
+  /**
+   * The stand-in only takes space while the machine is reading its Kempston port. A game that
+   * asks for space to start never reads that port, and used to never see the key either.
+   */
+  @Test
+  void spaceIsTheMachinesUntilSomethingActuallyReadsTheKempston() {
+    Speccy speccy = silentMachine();
+    Input.of(speccy).setup.keyboard.standInForAPad(true);
+
+    type(speccy, Input.InputKey.INPUT_KEY_space, true);
+    assertEquals(KEYS & ~0x01, speccy.ports.read(0x7FFE) & KEYS, "nothing reads the joystick, so space is a key");
+    assertEquals(0, Input.of(speccy).joystick().kempstonReads() & 0xFF, "and fire was not pushed");
+    type(speccy, Input.InputKey.INPUT_KEY_space, false);
+
+    Input.of(speccy).joystick().kempstonRead(0x1F);
+    type(speccy, Input.InputKey.INPUT_KEY_space, true);
+    assertEquals(0x10, Input.of(speccy).joystick().kempstonReads() & 0xFF, "once a game reads it, space is fire");
+  }
+
+  /** A key the file gave the joystick is the joystick's whether or not the port is being read. */
+  @Test
+  void aKeySomebodyChoseIsTheJoysticksEvenWithNothingReadingThePort() {
+    Speccy speccy = silentMachine();
+    Input.of(speccy).setup.keyboard.fire = Input.InputKey.INPUT_KEY_a;
+
+    type(speccy, Input.InputKey.INPUT_KEY_a, true);
+    assertEquals(0x10, Input.of(speccy).joystick().kempstonReads() & 0xFF, "A was chosen as fire, so it fires");
+    assertEquals(KEYS, speccy.ports.read(0xFDFE) & KEYS, "and A itself never went down");
+  }
+
   private static void type(Speccy speccy, Input.InputKey key, boolean down) {
     Input.of(speccy).event(new Input.InputEvent(
         down ? Input.InputEventType.INPUT_EVENT_KEYPRESS : Input.InputEventType.INPUT_EVENT_KEYRELEASE,
