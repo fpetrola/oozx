@@ -21,15 +21,20 @@ package com.fpetrola.oozx.speccy.tools.calls;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.devices.MachineFrame;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JList;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.Timer;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.BorderFactory;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +49,8 @@ public class CallsFrame extends MachineFrame {
   private final DefaultMutableTreeNode program = new DefaultMutableTreeNode("Program");
   private final DefaultTreeModel model = new DefaultTreeModel(program);
   private final JTree tree = new JTree(model);
+  private final DefaultListModel<String> steps = new DefaultListModel<>();
+  private final JList<String> stack = new JList<>(steps);
   private CallTree watching;
   private long drawn = -1;
 
@@ -67,9 +74,15 @@ public class CallsFrame extends MachineFrame {
     });
     controls.add(forget);
 
-    JScrollPane pane = new JScrollPane(tree);
-    pane.setPreferredSize(new Dimension(400, 400));
-    assemble(pane);
+    JScrollPane whatItCalled = new JScrollPane(tree);
+    whatItCalled.setBorder(BorderFactory.createTitledBorder("What called what"));
+    JScrollPane whereItIs = new JScrollPane(stack);
+    whereItIs.setBorder(BorderFactory.createTitledBorder("Where it is now"));
+    whereItIs.setPreferredSize(new Dimension(400, 130));
+    JSplitPane both = new JSplitPane(JSplitPane.VERTICAL_SPLIT, whatItCalled, whereItIs);
+    both.setResizeWeight(0.7);
+    both.setPreferredSize(new Dimension(400, 460));
+    assemble(both);
     setCompact(false);
 
     Timer refresh = new Timer(REFRESH_MILLIS, e -> draw());
@@ -110,6 +123,7 @@ public class CallsFrame extends MachineFrame {
    * than mended, so whatever was open is opened again by the addresses down to it.
    */
   private void draw() {
+    drawStack();
     long counted = watching == null ? -1 : watching.counted();
     if (counted == drawn) {
       return;
@@ -126,6 +140,21 @@ public class CallsFrame extends MachineFrame {
       if (open.contains(pathOf(tree.getPathForRow(row)))) {
         tree.expandRow(row);
       }
+    }
+  }
+
+  /**
+   * The stack as it stands, the outermost call first. Drawn every time rather than only when it
+   * changed: it is a handful of rows, and it is the one thing here that is different every frame.
+   */
+  private void drawStack() {
+    steps.clear();
+    if (watching == null) {
+      return;
+    }
+    for (CallTree.Step step : watching.stack()) {
+      steps.addElement("%04X \u2192 back to %04X   (SP %04X)"
+          .formatted(step.address(), step.back(), step.sp()));
     }
   }
 

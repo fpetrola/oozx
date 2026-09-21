@@ -98,6 +98,27 @@ class CallTreeTest extends MachineTest {
   }
 
   @Test
+  void theStackSaysWhereItIsAndWhereItWillComeBackTo() {
+    // 8000: CALL 8010 / JP 8003    8010: CALL 8020 / RET    8020: RET
+    Speccy speccy = running(new int[]{0xcd, 0x10, 0x80, 0xc3, 0x03, 0x80},
+        new int[]{0xcd, 0x20, 0x80, 0xc9}, new int[]{0xc9});
+    CallTree tree = new CallTree(speccy);
+
+    steps(speccy, 3);
+
+    List<CallTree.Step> stack = tree.stack();
+    assertEquals(2, stack.size(), "it is two calls deep");
+    assertEquals(START + 0x10, stack.get(0).address(), "the outermost call comes first");
+    assertEquals(START + 3, stack.get(0).back());
+    assertEquals(START + 0x20, stack.get(1).address());
+    assertEquals(START + 0x13, stack.get(1).back());
+
+    steps(speccy, 3);
+
+    assertTrue(tree.stack().isEmpty(), "both returned, so it is back in the program");
+  }
+
+  @Test
   void lettingGoLeavesTheMachineAsItWas() {
     Speccy speccy = running(new int[]{0xcd, 0x10, 0x80, 0xc3, 0x03, 0x80}, new int[]{0xc9});
     CallTree tree = new CallTree(speccy);

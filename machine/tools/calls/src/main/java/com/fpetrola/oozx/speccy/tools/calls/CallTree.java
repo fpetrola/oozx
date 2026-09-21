@@ -23,6 +23,7 @@ import com.fpetrola.oozx.speccy.modules.z80.PcTraps;
 import com.fpetrola.z80.registers.RegisterName;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -76,7 +77,11 @@ public class CallTree {
   }
 
   /** A routine being run, and the stack as it was on the way in, which is how it is left. */
-  private record Frame(Call routine, int sp) {
+  private record Frame(Call routine, int sp, int back) {
+  }
+
+  /** One rung of the stack as it stands: what is running, and where it will come back to. */
+  public record Step(int address, int back, int sp) {
   }
 
   private final Speccy machine;
@@ -109,7 +114,7 @@ public class CallTree {
             .computeIfAbsent(wentTo, Call::new);
         routine.times++;
         routine.back.merge(comesBackTo, 1, Integer::sum);
-        frames.push(new Frame(routine, sp));
+        frames.push(new Frame(routine, sp, comesBackTo));
         counted++;
       }
       wentTo = -1;
@@ -131,6 +136,16 @@ public class CallTree {
   /** The tree as it stands, copied so that the machine can go on running into its own. */
   public synchronized List<Call> program() {
     return program.copy().made();
+  }
+
+  /**
+   * Where the machine is right now, the outermost call first: the same frames the tree is built
+   * from, said as a stack rather than as a history.
+   */
+  public synchronized List<Step> stack() {
+    List<Step> steps = new ArrayList<>();
+    frames.forEach(frame -> steps.add(0, new Step(frame.routine().address(), frame.back(), frame.sp())));
+    return steps;
   }
 
   /** How many calls have been counted: what tells a window the tree is not the one it drew. */
