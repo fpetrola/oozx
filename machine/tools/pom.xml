@@ -42,6 +42,7 @@
         <module>games</module>
         <module>calls</module>
         <module>heatmap</module>
+        <module>io</module>
     </modules>
 
     <dependencies>
