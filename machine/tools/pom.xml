@@ -37,6 +37,7 @@
     -->
     <modules>
         <module>keyboard</module>
+        <module>audio-in</module>
     </modules>
 
     <dependencies>

@@ -1200,9 +1200,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
     pluginsItem.addActionListener(e -> showPlugins());
     emulatorMenu.add(pluginsItem);
 
-    JMenuItem audioInItem = new JMenuItem("Real Cassette (audio in)...");
-    audioInItem.addActionListener(e -> showAudioIn());
-    emulatorMenu.add(audioInItem);
     JMenuItem gameBrowserMenuItem = new JMenuItem("Game Browser...");
     gameBrowserMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.CTRL_DOWN_MASK));
     gameBrowserMenuItem.addActionListener(e -> openGameBrowser());
@@ -1978,13 +1975,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private final java.util.Map<EmulatorCore, com.fpetrola.oozx.Speccy> machinesByCore =
       new java.util.HashMap<>();
 
-  private final java.util.Map<EmulatorCore, com.fpetrola.oozx.speccy.modules.tape.Tape> tapesByCore =
-      new java.util.WeakHashMap<>();
-
-  public void registerTape(EmulatorCore core, com.fpetrola.oozx.speccy.modules.tape.Tape tape) {
-    tapesByCore.put(core, tape);
-  }
-
   /** The deck inside a machine's window, or null when that window is not a machine. */
   /** The emulator behind a window, for a peripheral that has to reach the machine it is clipped to. */
   public void registerMachine(EmulatorCore core, com.fpetrola.oozx.Speccy speccy) {
@@ -2001,9 +1991,10 @@ public class ZXSpectrumDesktopApp extends JFrame {
     return window instanceof EmulatorInternalFrame emulator ? emulator.emulatorCore : null;
   }
 
+  /** The deck of the machine in that window. It belongs to the machine, so the machine is asked. */
   public com.fpetrola.oozx.speccy.modules.tape.Tape deckOf(JInternalFrame machine) {
-    return machine instanceof EmulatorInternalFrame emulator
-        ? tapesByCore.get(emulator.emulatorCore) : null;
+    com.fpetrola.oozx.Speccy speccy = machineOf(machine);
+    return speccy == null ? null : com.fpetrola.oozx.speccy.modules.tape.Tape.of(speccy);
   }
 
   /**
@@ -2660,11 +2651,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
     Component owner = focus.getFocusOwner();
     return owner instanceof javax.swing.text.JTextComponent
         || owner instanceof JComboBox<?> list && (list.isEditable() || list.isPopupVisible());
-  }
-
-  /** A window on what is coming in the sound card, for a cassette player with a real lead. */
-  public AudioInInternalFrame showAudioIn() {
-    return clipOntoTheMachineInFront(new AudioInInternalFrame(this::deckOf));
   }
 
   /** Placed, shown and clipped onto the machine in front, which is what wires it to that machine. */

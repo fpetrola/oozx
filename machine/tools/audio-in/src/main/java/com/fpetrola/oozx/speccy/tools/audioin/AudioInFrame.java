@@ -15,13 +15,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.fpetrola.oozx.speccy.desktop;
+package com.fpetrola.oozx.speccy.tools.audioin;
 
-import com.fpetrola.oozx.speccy.windows.AttachedFrame;
+import com.fpetrola.oozx.Speccy;
+import com.fpetrola.oozx.speccy.devices.MachineFrame;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.modules.sound.AudioIn;
-
-import java.util.function.Function;
+import com.fpetrola.oozx.speccy.windows.Widgets;
 
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
@@ -37,27 +37,23 @@ import java.awt.event.*;
  * not feed the machine yet; this is the eye on the signal that reading it will need, and
  * reading a tape you cannot see go wrong is guesswork.
  */
-public class AudioInInternalFrame extends AttachedFrame {
+public class AudioInFrame extends MachineFrame {
 
   /** Fast enough that a tape looks like it is moving rather than stepping. */
   private static final int REFRESH_MILLIS = 33;
-
-  /** The ear line of the machine this is clipped to, which is where the lead goes. */
-  private final Function<JInternalFrame, Tape> deckOf;
 
   private final AudioIn audio = new AudioIn();
   private final Waveform waveform = new Waveform();
   private final JComboBox<String> inputs = new JComboBox<>();
   private final JToggleButton listen =
-      EmulatorInternalFrame.iconToggle("25B6.svg", "Listen", "Listen to the input");
+      Widgets.iconToggle("25B6.svg", "Listen", "Listen to the input");
   private final JToggleButton followButton = new JToggleButton("Follow");
-  private final JToggleButton hear = EmulatorInternalFrame.iconToggle("1F509.svg", "Hear",
+  private final JToggleButton hear = Widgets.iconToggle("1F509.svg", "Hear",
       "Hear what is coming in - with a microphone this will howl");
   private final JLabel reading = new JLabel();
 
-  public AudioInInternalFrame(Function<JInternalFrame, Tape> deckOf) {
+  public AudioInFrame() {
     super("Audio in");
-    this.deckOf = deckOf;
     setSize(820, 360);
 
     for (String input : AudioIn.inputs()) {
@@ -116,8 +112,8 @@ public class AudioInInternalFrame extends AttachedFrame {
    * machine goes back to reading its own tape.
    */
   @Override
-  protected void attachmentChanged() {
-    Tape plugged = isAttached() ? deckOf.apply(getMachineWindow()) : null;
+  protected void machineChanged(Speccy was, Speccy now) {
+    Tape plugged = now == null ? null : Tape.of(now);
     if (plugged == wired) {
       return;
     }
