@@ -45,8 +45,6 @@ import com.fpetrola.oozx.speccy.pokes.PokesManager;
 import com.fpetrola.oozx.speccy.pokes.PokesDialog;
 import com.fpetrola.emulation.helpers.snapshots.SnapshotSaver;
 import com.fpetrola.z80.cpu.State;
-import com.github.weisj.darklaf.LafManager;
-import com.github.weisj.darklaf.theme.*;
 import com.fpetrola.emulation.helpers.snapshots.SpectrumState;
 
 import javax.swing.*;
@@ -1472,48 +1470,19 @@ public class ZXSpectrumDesktopApp extends JFrame {
         JOptionPane.INFORMATION_MESSAGE);
   }
 
-  private void addLaf(JMenu menu, final Theme theme) {
-    AbstractAction themeAction = new AbstractAction(theme.getName()) {
-      public void actionPerformed(ActionEvent e) {
-        LafManager.install(theme);
-        rememberLookAndFeel(theme.getName());
-      }
-    };
-    menu.add(themeAction);
-  }
-
-  /** The themes the menu offers, so a saved name can be turned back into one on the next run. */
-  private static final List<Theme> THEMES = List.of(new DarculaTheme(), new OneDarkTheme(),
-      new SolarizedLightTheme(), new SolarizedDarkTheme(), new IntelliJTheme());
-
-  private static final String METAL = "Metal";
-
   private void rememberLookAndFeel(String name) {
     config.setLookAndFeel(name);
     config.save();
   }
 
   /**
-   * Puts back the theme chosen last time. The launcher installs one before there is any
-   * configuration to read, so this runs afterwards and replaces it; picking a theme is a
+   * Puts back the look chosen last time. The launcher installs one before there is any
+   * configuration to read, so this runs afterwards and replaces it; picking a look is a
    * decision worth surviving the window closing.
    */
   private void applySavedLookAndFeel() {
     String saved = config.getLookAndFeel();
-    if (saved == null) return;
-
-    try {
-      if (METAL.equals(saved)) {
-        UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
-        LafManager.updateLaf();
-        return;
-      }
-      THEMES.stream().filter(t -> t.getName().equals(saved)).findFirst()
-          .ifPresent(LafManager::install);
-    } catch (Exception e) {
-      // A theme that no longer exists is not a reason to refuse to start.
-      System.err.println("could not restore the look and feel '" + saved + "': " + e);
-    }
+    if (saved != null) LookAndFeels.install(saved);
   }
 
   /**
@@ -1689,24 +1658,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
     JMenu lookAndFeelMenu = new JMenu("Look&Feel");
     lookAndFeelMenu.setMnemonic(KeyEvent.VK_L);
 
-    addLaf(lookAndFeelMenu, new DarculaTheme());
-    addLaf(lookAndFeelMenu, new OneDarkTheme());
-    addLaf(lookAndFeelMenu, new SolarizedLightTheme());
-    addLaf(lookAndFeelMenu, new SolarizedDarkTheme());
-    addLaf(lookAndFeelMenu, new IntelliJTheme());
-
-    AbstractAction metalAction = new AbstractAction("Metal") {
-      public void actionPerformed(ActionEvent e) {
-        try {
-          UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
-          LafManager.updateLaf();
-          rememberLookAndFeel(METAL);
-        } catch (Exception ex) {
-          throw new RuntimeException(ex);
-        }
-      }
-    };
-    lookAndFeelMenu.add(metalAction);
+    LookAndFeels.fillMenu(lookAndFeelMenu, this::rememberLookAndFeel);
 
     windowMenu.add(lookAndFeelMenu);
 

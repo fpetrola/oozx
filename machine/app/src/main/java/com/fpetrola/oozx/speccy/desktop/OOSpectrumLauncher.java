@@ -17,6 +17,8 @@
 
 package com.fpetrola.oozx.speccy.desktop;
 
+import javax.swing.SwingUtilities;
+
 import com.fpetrola.oozx.speccy.modules.snapshot.Snapshots;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.Speccy;
@@ -26,8 +28,6 @@ import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
 import com.fpetrola.oozx.speccy.modules.tape.TapeHardware;
 import com.fpetrola.oozx.speccy.media.DownloadAndUnzip;
 import com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp;
-import com.github.weisj.darklaf.LafManager;
-import com.github.weisj.darklaf.theme.SolarizedLightTheme;
 import com.fpetrola.emulation.helpers.snapshots.SpectrumState;
 
 import java.awt.*;
@@ -45,14 +45,16 @@ public class OOSpectrumLauncher {
   private TapeAutoLoader autoLoader;
 
   public static void main(String[] args) {
-    OOSpectrumLauncher ooSpectrumLauncher = new OOSpectrumLauncher();
-    ooSpectrumLauncher.init();
+    // Windows and everything in them are built on the event thread, which is where Swing says
+    // they belong: building them on this one worked by luck, and a look and feel that checks
+    // (Radiance does, and refuses) left the desktop with components that were never finished.
+    SwingUtilities.invokeLater(() -> new OOSpectrumLauncher().init());
   }
 
   public void init() {
     // The keys a Spectrum understands, written in this toolkit's key codes: the emulator has no
     // opinion about what a keyboard sends, so whoever has one says so before a machine is built.
-    LafManager.install(new SolarizedLightTheme());
+    LookAndFeels.install(LookAndFeels.DEFAULT);
 
     // Some machines need a ROM this build cannot ship. Nothing is fetched without a yes, and
     // whoever is in front of the machine is the only one who can give it.
