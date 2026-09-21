@@ -44,7 +44,7 @@ import java.util.ServiceLoader;
  */
 public final class Plugins {
 
-  private static ClassLoader loader;
+  private static Boards loader;
 
   private Plugins() {
   }
@@ -60,9 +60,35 @@ public final class Plugins {
    */
   public static synchronized ClassLoader loader() {
     if (loader == null) {
-      loader = new URLClassLoader("plugins", urlsOf(jars()), Plugins.class.getClassLoader());
+      loader = new Boards(urlsOf(jars()));
     }
     return loader;
+  }
+
+  /**
+   * One more jar, while the emulator is running. What it brings is in the Equipment menu at once
+   * and in every machine built from here on; a machine that was already made was made without it.
+   */
+  public static synchronized void add(Path jar) {
+    try {
+      ((Boards) loader()).take(jar.toUri().toURL());
+    } catch (MalformedURLException notAUrl) {
+      System.err.println("oozx: " + jar + " could not be read: " + notAUrl.getMessage());
+    }
+  }
+
+  /** A loader that can be given something after it was made, since a board can arrive at any time. */
+  private static final class Boards extends URLClassLoader {
+    Boards(URL[] jars) {
+      super("plugins", jars, Plugins.class.getClassLoader());
+    }
+
+    void take(URL jar) {
+      for (URL had : getURLs()) {
+        if (had.equals(jar)) return;
+      }
+      addURL(jar);
+    }
   }
 
   /** The jars themselves, for whoever wants to say what was found rather than use it. */

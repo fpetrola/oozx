@@ -1201,13 +1201,13 @@ public class ZXSpectrumDesktopApp extends JFrame {
     emulatorMenu.add(tapeBrowserItem);
 
     // What there is to plug in: every device jar on the classpath, and nothing named here.
-    JMenu equipmentMenu = new JMenu("Equipment");
-    for (Equipment kind : equipmentKinds) {
-      JMenuItem item = new JMenuItem(kind.name());
-      item.addActionListener(e -> show(kind));
-      equipmentMenu.add(item);
-    }
+    equipmentMenu = new JMenu("Equipment");
+    fillEquipmentMenu();
     emulatorMenu.add(equipmentMenu);
+
+    JMenuItem pluginsItem = new JMenuItem("Plugins...");
+    pluginsItem.addActionListener(e -> showPlugins());
+    emulatorMenu.add(pluginsItem);
 
     JMenuItem audioInItem = new JMenuItem("Real Cassette (audio in)...");
     audioInItem.addActionListener(e -> showAudioIn());
@@ -2438,12 +2438,50 @@ public class ZXSpectrumDesktopApp extends JFrame {
     return newCassette();
   }
 
-  /** The equipment this build offers, in the order the menu shows it. */
-  private final java.util.List<Equipment> equipmentKinds =
-      com.fpetrola.oozx.plugins.Plugins.found(Equipment.class).stream()
-      .map(ServiceLoader.Provider::get)
-      .sorted(java.util.Comparator.comparing(Equipment::name))
-      .toList();
+  /** The equipment this build offers, in the order the menu shows it. Asked again when one arrives. */
+  private java.util.List<Equipment> equipmentKinds = whatCanBePluggedIn();
+
+  private static java.util.List<Equipment> whatCanBePluggedIn() {
+    return com.fpetrola.oozx.plugins.Plugins.found(Equipment.class).stream()
+        .map(ServiceLoader.Provider::get)
+        .sorted(java.util.Comparator.comparing(Equipment::name))
+        .toList();
+  }
+
+  /** Where the Equipment menu is, so that a board which arrives while this runs can be added to it. */
+  private JMenu equipmentMenu;
+
+  /** Said once a plugin is here: the menu offers it without anybody starting the emulator again. */
+  public void somethingWasPluggedIn() {
+    equipmentKinds = whatCanBePluggedIn();
+    fillEquipmentMenu();
+  }
+
+  private void fillEquipmentMenu() {
+    equipmentMenu.removeAll();
+    for (Equipment kind : equipmentKinds) {
+      JMenuItem item = new JMenuItem(kind.name());
+      item.addActionListener(e -> show(kind));
+      equipmentMenu.add(item);
+    }
+  }
+
+  private PluginsInternalFrame plugins;
+
+  /** The window that says what is published and brings in what is ticked. */
+  public void showPlugins() {
+    if (plugins == null || plugins.isClosed()) {
+      plugins = new PluginsInternalFrame(nothing -> somethingWasPluggedIn());
+      desktop.add(plugins);
+    }
+    plugins.setVisible(true);
+    plugins.toFront();
+    try {
+      plugins.setSelected(true);
+    } catch (java.beans.PropertyVetoException itWouldNot) {
+      // The window is there either way.
+    }
+  }
 
   /** Every piece of equipment open at once, one per machine, clipped on the same way a deck is. */
   private final java.util.Map<Equipment, java.util.List<MachineFrame>> equipment = new java.util.HashMap<>();
