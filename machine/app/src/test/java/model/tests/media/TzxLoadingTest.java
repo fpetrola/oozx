@@ -27,7 +27,6 @@ import com.fpetrola.oozx.api.Hit;
 import com.fpetrola.oozx.api.ZxInfoApiHandler;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.media.DownloadAndUnzip;
-import com.fpetrola.oozx.speccy.desktop.GameBrowserInternalFrame;
 import com.fpetrola.oozx.speccy.modules.tape.TapeAutoLoader;
 import org.junit.jupiter.api.Test;
 
@@ -205,7 +204,7 @@ public class TzxLoadingTest {
         // /denied/ holds entries withdrawn on copyright grounds; ZXDB does not serve those,
         // and what stands in for them is a TOSEC file, which this walk of the releases misses.
         if ("Perfect tape (TZX)".equals(file.format) && !file.path.startsWith("/denied/")) {
-          candidates.add(GameBrowserInternalFrame.getFileURL(file.path));
+          candidates.add(com.fpetrola.oozx.api.ZxInfoApiHandler.mediaUrl(file.path));
         }
       }
     }

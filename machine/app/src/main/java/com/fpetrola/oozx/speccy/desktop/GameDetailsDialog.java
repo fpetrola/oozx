@@ -79,7 +79,7 @@ public class GameDetailsDialog extends JDialog {
     // Use the same logic as createMockResults:
     // Default to WorldOfSpectrum, but if path starts with /zxscreens use zxinfo.dk/media
 
-    return GameBrowserInternalFrame.getFileURL(imagePath);
+    return com.fpetrola.oozx.api.ZxInfoApiHandler.mediaUrl(imagePath);
   }
 
   private void initializeComponents() {
@@ -915,7 +915,7 @@ public class GameDetailsDialog extends JDialog {
           }
           
           // Convert relative paths to full URLs
-          String fullUrl = GameBrowserInternalFrame.getFileURL(downloadUrl);
+          String fullUrl = com.fpetrola.oozx.api.ZxInfoApiHandler.mediaUrl(downloadUrl);
           
           // Extract filename from URL
           String fileName = downloadUrl;

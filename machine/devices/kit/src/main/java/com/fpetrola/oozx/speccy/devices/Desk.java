@@ -33,12 +33,37 @@ import java.io.File;
  */
 public interface Desk {
 
+  /**
+   * A game as the desk opens it: which file to load, on which machine, and what the catalogue
+   * called it. The window that asks knows far more about it than this; this is the part the
+   * desk needs to open it and to be able to come back to it.
+   */
+  record Game(String file, String machine, String id, String title) {
+  }
+
   Desk NOBODY = new Desk() {
     public File choose(String what) {
       return null;
     }
 
     public void openMachineFor(File file, MachineFrame asking) {
+    }
+
+    public void open(Game game, Runnable whenDone) {
+      whenDone.run();
+    }
+
+    public void play(String url, String label) {
+    }
+
+    public void keep(Game game) {
+    }
+
+    public void showDetails(Game game) {
+    }
+
+    public java.util.List<String> machines() {
+      return java.util.List.of();
     }
   };
 
@@ -52,6 +77,26 @@ public interface Desk {
    * is asking for a computer for THAT deck, not for another one holding the same cassette.
    */
   void openMachineFor(File file, MachineFrame asking);
+
+  /**
+   * Opens a game: fetched if it has to be, on a machine of its own.
+   *
+   * @param whenDone run on the event thread once it is up or the attempt failed, so that whoever
+   *                 asked can stop saying it is working on it
+   */
+  void open(Game game, Runnable whenDone);
+
+  /** Plays a recording from wherever it lives, which is a machine driven by it. */
+  void play(String url, String label);
+
+  /** Keeps a game to come back to, which is what the desk's favourites are. */
+  void keep(Game game);
+
+  /** Shows what the catalogue knows about it, the same page the machine's own button opens. */
+  void showDetails(Game game);
+
+  /** The machines this build can open a game on, for offering them beside it. */
+  java.util.List<String> machines();
 
   static Desk theOne() {
     return Where.desk;

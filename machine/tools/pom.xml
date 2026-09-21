@@ -39,6 +39,7 @@
         <module>keyboard</module>
         <module>audio-in</module>
         <module>cassette</module>
+        <module>games</module>
     </modules>
 
     <dependencies>

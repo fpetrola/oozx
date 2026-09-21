@@ -15,13 +15,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.fpetrola.oozx.speccy.desktop;
+package com.fpetrola.oozx.speccy.tools.games;
 
 import com.fpetrola.oozx.api.GameFingerprint;
+import com.fpetrola.oozx.speccy.devices.Desk;
 import com.fpetrola.oozx.api.GameLibrary;
 import com.fpetrola.oozx.speccy.media.DownloadAndUnzip;
 import com.fpetrola.oozx.speccy.media.LocalGames;
 import com.fpetrola.oozx.speccy.windows.LazyImageIconLoader;
+import com.fpetrola.oozx.speccy.windows.Widgets;
 import com.fpetrola.oozx.api.*;
 import com.fpetrola.oozx.rzx.RzxArchive;
 import com.fpetrola.oozx.rzx.RzxOption;
@@ -56,12 +58,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 // --- NEW: Game Browser Internal Frame ---
-public class GameBrowserInternalFrame extends JInternalFrame {
+public class GamesFrame extends JInternalFrame implements com.fpetrola.oozx.speccy.devices.KeepsItsPlace {
   private JTextField searchField;
   private JButton searchButton;
   private JProgressBar searchProgress;
   private JPanel resultsPanel;
-  private GameBrowserListener listener;
   private SwingWorker<List<GameSearchResult>, Void> runningSearch;
   private boolean loading;
   private JComboBox<String> sourceFilter;
@@ -114,9 +115,13 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     }
   }
 
-  public GameBrowserInternalFrame(GameBrowserListener listener) {
+  /** A row of this list as the desk takes it: which file, which machine, and what it is. */
+  private static Desk.Game asAGame(GameSearchResult result) {
+    return new Desk.Game(result.filename, result.machine, result.id, result.title);
+  }
+
+  public GamesFrame() {
     super("Game Browser", true, true, true, true);
-    this.listener = listener;
     setSize(980, 640);
     setLocation(50, 50);
 
@@ -850,7 +855,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
    */
   private void fill(JMenu menu, GameSearchResult result, String file) {
     menu.removeAll();
-    List<String> machines = listener.machines();
+    List<String> machines = Desk.theOne().machines();
     if (!machines.isEmpty()) {
       JMenuItem heading = new JMenuItem("Or on a machine of your choosing:");
       heading.setEnabled(false);
@@ -895,7 +900,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     }
 
     setLoading(true, result.title);
-    listener.onGameSelected(result, () -> setLoading(false, null));
+    Desk.theOne().open(asAGame(result), () -> setLoading(false, null));
   }
 
   private void setLoading(boolean busy, String title) {
@@ -949,7 +954,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
           Screen screen = Screen.from(s1);
 
           if (screen != null) {
-            String filename = getFileURL(screen.url);
+            String filename = ZxInfoApiHandler.mediaUrl(screen.url);
 
             screenshots.add(filename);
           }
@@ -977,7 +982,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
             ? List.<AdditionalDownload>of() : game.additionalDownloads) {
           if ("RZX playback file".equals(download.type)) {
             recordings.add(new RzxOption(DownloadAndUnzip.nameOf(download.path) + "  (ZXDB)",
-                getFileURL(download.path)));
+                ZxInfoApiHandler.mediaUrl(download.path)));
           }
           hasMap |= ZxInfoApiHandler.GAME_MAP_TYPE.equalsIgnoreCase(download.type);
         }
@@ -1009,10 +1014,6 @@ public class GameBrowserInternalFrame extends JInternalFrame {
       }
     }
     return results;
-  }
-
-  public static String getFileURL(String f1) {
-    return ZxInfoApiHandler.mediaUrl(f1);
   }
 
   private String getFileURL(List<String> screenshots, int x) {
@@ -1093,7 +1094,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
       JMenu playRecording = new JMenu("Play Recording");
       for (RzxOption option : result.recordings) {
         JMenuItem item = new JMenuItem(option.label());
-        item.addActionListener(e -> listener.onPlayRecording(option));
+        item.addActionListener(e -> Desk.theOne().play(option.url(), option.label()));
         playRecording.add(item);
       }
       contextMenu.add(playRecording);
@@ -1168,9 +1169,11 @@ public class GameBrowserInternalFrame extends JInternalFrame {
 
     shots.addMouseListener(mouseAdapter);
 
-    detailsItem.addActionListener(e -> listener.onViewDetails(result));
-    favoriteItem.addActionListener(e -> listener.onAddToFavorites(result));
-    downloadItem.addActionListener(e -> listener.onDownloadGame(result.url));
+    detailsItem.addActionListener(e -> Desk.theOne().showDetails(asAGame(result)));
+    favoriteItem.addActionListener(e -> Desk.theOne().keep(asAGame(result)));
+    downloadItem.addActionListener(e -> JOptionPane.showMessageDialog(this,
+        "Downloading: " + result.url + "\n(Download feature coming soon)", "Download",
+        JOptionPane.INFORMATION_MESSAGE));
 
     // Picture first, caption under it: in a grid the eye finds the game by its loading screen,
     // and the title is what confirms it.
@@ -1264,14 +1267,16 @@ public class GameBrowserInternalFrame extends JInternalFrame {
     performSearch();
   }
 
+  @Override
   public OOZxConfiguration.WindowState saveWindowState() {
     OOZxConfiguration.WindowState state = new OOZxConfiguration.WindowState(
         "GAME_BROWSER", getX(), getY(), getWidth(), getHeight());
     state.setSearchQuery(searchField.getText());
-    state.setZOrder(ZXSpectrumDesktopApp.getComponentZOrder(this));
+    state.setZOrder(Widgets.zOrderOf(this));
     return state;
   }
 
+  @Override
   public void restoreWindowState(OOZxConfiguration.WindowState state) {
     if (state.getWidth() > 0 && state.getHeight() > 0) {
       setSize(state.getWidth(), state.getHeight());

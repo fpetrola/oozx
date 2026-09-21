@@ -24,6 +24,8 @@ import com.fpetrola.oozx.speccy.windows.AttachedFrame;
 import com.fpetrola.oozx.speccy.modules.z80.Cpu;
 import com.fpetrola.oozx.speccy.devices.DeviceFrame;
 import com.fpetrola.oozx.speccy.devices.EmulatorWindow;
+import com.fpetrola.oozx.speccy.devices.Desk;
+import com.fpetrola.oozx.speccy.devices.DeskEquipment;
 import com.fpetrola.oozx.speccy.devices.Equipment;
 import com.fpetrola.oozx.speccy.devices.Opens;
 import java.util.ServiceLoader;
@@ -98,7 +100,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
 
   public EmulatorCore emulatorCore;
   private ZXSpectrumDesktopApp parentApp;
-  private GameSearchResult gameSearchResult;
+  private Desk.Game game;
   //  private JLabel statusLabel;
   private JProgressBar speedBar;
   private JComboBox<String> modelCombo;
@@ -116,10 +118,10 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     this(core, x, y, parentApp, null);
   }
 
-  public EmulatorInternalFrame(EmulatorCore core, int x, int y, ZXSpectrumDesktopApp parentApp, GameSearchResult gameSearchResult) {
+  public EmulatorInternalFrame(EmulatorCore core, int x, int y, ZXSpectrumDesktopApp parentApp, Desk.Game game) {
      super("ZX Spectrum Emulator", true, true, true, true);
      this.parentApp = parentApp;
-     this.gameSearchResult = gameSearchResult;
+     this.game = game;
      this.emulatorCore = core;
      // Every emulator window is built here, so this is where the machines a build has become
      // known - the browser needs them before one is open and cannot make one to ask.
@@ -426,7 +428,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     JButton favoriteButton = new JButton(loadIcon("2B50.svg"));
     favoriteButton.setToolTipText("Keep this game in Favorites");
     favoriteButton.addActionListener(e -> {
-      if (parentApp != null) parentApp.keepAsFavorite(gameSearchResult, emulatorCore.getFilename());
+      if (parentApp != null) parentApp.keepAsFavorite(game, emulatorCore.getFilename());
     });
     toolBar.add(favoriteButton);
 
@@ -665,8 +667,8 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     // The entry the game was opened from, and failing that the one the catalogue recognises it as.
     // Only when neither knows does it fall back to searching by a name taken off the file, which is
     // a guess: the first hit of a search is not necessarily the game that is running.
-    if (gameSearchResult != null) {
-      gameId = gameSearchResult.id;
+    if (game != null) {
+      gameId = game.id();
     } else {
       GameSummary identified = loadedGame();
       if (identified != null) {
@@ -800,7 +802,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     OOZxConfiguration.WindowState state = new OOZxConfiguration.WindowState(
         "EMULATOR", getX(), getY(), getWidth(), getHeight());
     state.setFilePath(filePath);
-    state.setZOrder(ZXSpectrumDesktopApp.getComponentZOrder(this));
+    state.setZOrder(com.fpetrola.oozx.speccy.windows.Widgets.zOrderOf(this));
 
     if (filePath != null && !filePath.isEmpty()) {
       state.setSnapshotName(new java.io.File(filePath).getName());
@@ -899,66 +901,9 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
   }
 }
 
-// --- NEW: Game Search Result Model ---
-class GameSearchResult {
-  public String id;
-  String title;
-  String url;
-  String screenshot1;
-  String screenshot2;
-  String filename;
-  /** What the entry offers that cannot be loaded, for saying so instead of "no tape". */
-  String offers;
-  /** Whether the chosen file can be expected to come down; false for what the archive withholds. */
-  boolean available;
-  /** Every file the entry offers that could be loaded, best first, for choosing among them. */
-  java.util.List<String> files = java.util.List.of();
-  /** Extras the entry carries, for filters the server cannot apply itself. */
-  boolean hasRzx;
-  boolean hasMap;
-  /** The machine somebody picked for it, or null to let the file and its name decide. */
-  String machine;
-  /** Whether this is a file already on the disk rather than an entry to fetch. */
-  boolean onThisMachine;
-  /** How many copies of this game were found, which for one on the net is the entry itself. */
-  int copies = 1;
-  /** Whether the copy on this machine has Spec256's own colours beside it. */
-  boolean inColour;
-  /** The year and publisher, or what the file is called when the catalogue did not know it. */
-  String subtitle;
-  /** Recordings of this game offered for playing, from both catalogues. */
-  java.util.List<RzxOption> recordings = java.util.List.of();
-
-  public GameSearchResult(String _id, String title, String url, String screenshot1, String screenshot2, String filename) {
-    id = _id;
-    this.title = title;
-    this.url = url;
-    this.screenshot1 = screenshot1;
-    this.screenshot2 = screenshot2;
-    this.filename = filename;
-  }
-}
-
-// --- NEW: Game Browser Listener Interface ---
-interface GameBrowserListener {
-  /** @param whenDone run on the event thread once the game is up, or the attempt failed. */
-  void onGameSelected(GameSearchResult gameUrl, Runnable whenDone);
-
-  void onViewDetails(GameSearchResult gameSearchResult);
-
-  void onAddToFavorites(GameSearchResult game);
-
-  void onDownloadGame(String gameUrl);
-
-  /** Fetches a recording of the game and plays it. */
-  void onPlayRecording(RzxOption recording);
-
-  /** The machines a game can be started on, for offering them beside the file it lives in. */
-  java.util.List<String> machines();
-}
 
 // --- UPDATED: ZXSpectrumDesktopApp with Game Browser ---
-public class ZXSpectrumDesktopApp extends JFrame implements com.fpetrola.oozx.speccy.devices.Desk {
+public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   /** Builds a machine for a file; the second argument names the machine, or is null for automatic. */
   private final java.util.function.BiFunction<String, String, EmulatorCore> mockCore;
   /** The machines this build has, learnt from the last emulator made, for offering them. */
@@ -972,7 +917,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements com.fpetrola.oozx.sp
   private final Function<SpectrumState, EmulatorCore> mockCoreState;
   private JDesktopPane desktop;
   private int emulatorCount = 0;
-  private GameBrowserInternalFrame gameBrowser;
   private SnapshotHistoryInternalFrame snapshotHistory;
   private FavoritesInternalFrame favorites;
   private final JFileChooser fileChooser = new JFileChooser();
@@ -1199,10 +1143,13 @@ public class ZXSpectrumDesktopApp extends JFrame implements com.fpetrola.oozx.sp
     pluginsItem.addActionListener(e -> showPlugins());
     emulatorMenu.add(pluginsItem);
 
-    JMenuItem gameBrowserMenuItem = new JMenuItem("Game Browser...");
-    gameBrowserMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.CTRL_DOWN_MASK));
-    gameBrowserMenuItem.addActionListener(e -> openGameBrowser());
-    emulatorMenu.add(gameBrowserMenuItem);
+    // The windows of the desk itself - a browser, a library - are found the same way the boards
+    // are, so what the Emulator menu offers is what this build turns out to have.
+    for (DeskEquipment kind : deskKinds) {
+      JMenuItem item = new JMenuItem(kind.name() + "...");
+      item.addActionListener(e -> showOnTheDesk(kind));
+      emulatorMenu.add(item);
+    }
 
     emulatorMenu.addSeparator();
 
@@ -1681,7 +1628,12 @@ public class ZXSpectrumDesktopApp extends JFrame implements com.fpetrola.oozx.sp
 
     JButton gameBrowserBtn = new JButton(loadIcon("1F579.svg"));
     gameBrowserBtn.setToolTipText("Open Game Browser");
-    gameBrowserBtn.addActionListener(e -> openGameBrowser());
+    gameBrowserBtn.addActionListener(e -> {
+      DeskEquipment browser = deskKindThatKeeps("GAME_BROWSER");
+      if (browser != null) {
+        showOnTheDesk(browser);
+      }
+    });
     toolBar.add(gameBrowserBtn);
 
     JButton historyBtn = new JButton(loadIcon("E260.svg"));
@@ -1703,22 +1655,33 @@ public class ZXSpectrumDesktopApp extends JFrame implements com.fpetrola.oozx.sp
     return toolBar;
   }
 
-  private void openGameBrowser() {
-    if (gameBrowser == null || gameBrowser.isClosed()) {
-      gameBrowser = new GameBrowserInternalFrame(createGameBrowserListener());
-      desktop.add(gameBrowser);
-      gameBrowser.setVisible(true);
-      try {
-        gameBrowser.setSelected(true);
-      } catch (java.beans.PropertyVetoException ex) {
-      }
-    } else {
-      try {
-        gameBrowser.setSelected(true);
-        gameBrowser.toFront();
-      } catch (java.beans.PropertyVetoException ex) {
-      }
+  /** Every window of the desk that was found, and the one open of each kind. */
+  private final java.util.List<DeskEquipment> deskKinds =
+      com.fpetrola.oozx.plugins.Plugins.found(DeskEquipment.class);
+
+  private final java.util.Map<DeskEquipment, JInternalFrame> onTheDesk = new java.util.HashMap<>();
+
+  /** That window of the desk, opened once: asking again brings the one that is there to the front. */
+  public JInternalFrame showOnTheDesk(DeskEquipment kind) {
+    JInternalFrame window = onTheDesk.get(kind);
+    if (window == null || window.isClosed()) {
+      window = kind.open();
+      onTheDesk.put(kind, window);
+      desktop.add(window);
+      window.setVisible(true);
     }
+    window.toFront();
+    try {
+      window.setSelected(true);
+    } catch (java.beans.PropertyVetoException itWouldNot) {
+      // The window is there either way.
+    }
+    return window;
+  }
+
+  /** The kind of desk window a saved layout is about, or null if this build has none such. */
+  private DeskEquipment deskKindThatKeeps(String type) {
+    return deskKinds.stream().filter(kind -> kind.keeps().equals(type)).findFirst().orElse(null);
   }
 
   /**
@@ -1726,8 +1689,8 @@ public class ZXSpectrumDesktopApp extends JFrame implements com.fpetrola.oozx.sp
    * downloadable file or the path already loaded — and not the game's page, which would make an
    * entry that can be read and not played.
    */
-  void keepAsFavorite(GameSearchResult game, String loadedPath) {
-    String source = game != null && game.filename != null ? game.filename : loadedPath;
+  void keepAsFavorite(Desk.Game game, String loadedPath) {
+    String source = game != null && game.file() != null ? game.file() : loadedPath;
     // A machine started from a recording has neither: it was not opened from a search and it
     // has no file of its own, so the thing worth keeping is the recording driving it.
     RzxPlayerInternalFrame driving = playerDriving(getActiveEmulator());
@@ -1737,15 +1700,15 @@ public class ZXSpectrumDesktopApp extends JFrame implements com.fpetrola.oozx.sp
     }
     if (source == null) {
       JOptionPane.showMessageDialog(this,
-          (game != null ? game.title : "This game") + " has nothing to download, so there is "
+          (game != null ? game.title() : "This game") + " has nothing to download, so there is "
               + "nothing to come back to.", "Favorites", JOptionPane.INFORMATION_MESSAGE);
       return;
     }
 
-    String title = game != null && game.title != null ? game.title
+    String title = game != null && game.title() != null ? game.title()
         : new java.io.File(source).getName();
     boolean added = config.addFavorite(new OOZxConfiguration.Favorite(source, title, "GAME",
-        game == null ? null : game.id));
+        game == null ? null : game.id()));
     if (favorites != null && !favorites.isClosed()) favorites.refresh();
 
     JOptionPane.showMessageDialog(this, added ? title + " is now a favourite."
@@ -1941,11 +1904,49 @@ public class ZXSpectrumDesktopApp extends JFrame implements com.fpetrola.oozx.sp
         newName -> showGameDetailsFromHistory(newName));
   }
 
-  private void getActiveEmulatorOrCreateNew(GameSearchResult gameSearchResult, Runnable whenDone) {
+  /** What the catalogue knows about a game, fetched by its entry and shown on the desk. */
+  @Override
+  public void showDetails(Desk.Game game) {
+    JDialog loading = showLoading("Fetching game details from ZXInfo API...");
+    new SwingWorker<com.fpetrola.oozx.api.GameDetail, Void>() {
+      @Override
+      protected com.fpetrola.oozx.api.GameDetail doInBackground() {
+        return new ZxInfoApiHandler().fetchGameDetails(game.id());
+      }
+
+      @Override
+      protected void done() {
+        loading.dispose();
+        try {
+          com.fpetrola.oozx.api.GameDetail detail = get();
+          if (detail == null) {
+            detail = new com.fpetrola.oozx.api.GameDetail();
+            detail.id = game.id();
+            detail.title = game.title();
+            detail.screenshots = new ArrayList<>();
+            detail.description = "Game description not available";
+          }
+          new GameDetailsDialog(ZXSpectrumDesktopApp.this, detail).setVisible(true);
+        } catch (Exception itWouldNot) {
+          JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
+              "Error loading game details: " + reason(itWouldNot), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+      }
+    }.execute();
+  }
+
+  /** Keeps a game to come back to, asked by whoever is showing it. */
+  @Override
+  public void keep(Desk.Game game) {
+    keepAsFavorite(game, null);
+  }
+
+  @Override
+  public void open(Desk.Game game, Runnable whenDone) {
     new SwingWorker<EmulatorCore, Void>() {
       @Override
       protected EmulatorCore doInBackground() {
-        EmulatorCore core = mockCore.apply(gameSearchResult.filename, gameSearchResult.machine);
+        EmulatorCore core = mockCore.apply(game.file(), game.machine());
         knownMachines = core.getMachineModels();
         return core;
       }
@@ -1953,16 +1954,35 @@ public class ZXSpectrumDesktopApp extends JFrame implements com.fpetrola.oozx.sp
       @Override
       protected void done() {
         try {
-          createNewEmulator(get(), gameSearchResult);
+          createNewEmulator(get(), game);
         } catch (Exception e) {
           JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-              "Could not load \"" + gameSearchResult.title + "\".\n\n" + reason(e),
+              "Could not load \"" + game.title() + "\".\n\n" + reason(e),
               "Load failed", JOptionPane.ERROR_MESSAGE);
         } finally {
           whenDone.run();
         }
       }
     }.execute();
+  }
+
+  /**
+   * The machines this build can open a game on.
+   * <p>
+   * Learnt from a machine that exists, because the list belongs to the build and there is no
+   * copy of it to read; the first one made is remembered so a window can offer them without one
+   * having to be open, and what the module declares stands in until then.
+   */
+  @Override
+  public java.util.List<String> machines() {
+    return knownMachines.isEmpty()
+        ? com.fpetrola.oozx.speccy.machines.Machines.MODEL_NAMES : knownMachines;
+  }
+
+  /** A recording from wherever it lives, which is a machine driven by it. */
+  @Override
+  public void play(String url, String label) {
+    playRecording(new RzxOption(label, url));
   }
 
   // ... (rest of the methods: createNewEmulator, cascadeWindows, tileWindows remain unchanged)
@@ -2639,11 +2659,11 @@ public class ZXSpectrumDesktopApp extends JFrame implements com.fpetrola.oozx.sp
     return createNewEmulator(core1, filePath, null);
   }
 
-  public EmulatorInternalFrame createNewEmulator(EmulatorCore core1, GameSearchResult gameSearchResult) {
-    return createNewEmulator(core1, null, gameSearchResult);
+  public EmulatorInternalFrame createNewEmulator(EmulatorCore core1, Desk.Game game) {
+    return createNewEmulator(core1, null, game);
   }
 
-  public EmulatorInternalFrame createNewEmulator(EmulatorCore core1, String filePath, GameSearchResult gameSearchResult) {
+  public EmulatorInternalFrame createNewEmulator(EmulatorCore core1, String filePath, Desk.Game game) {
     EmulatorCore core = core1;
 
     if (filePath != null && !filePath.isEmpty()) {
@@ -2654,7 +2674,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements com.fpetrola.oozx.sp
     JComponent panel = core.getPanel();
     int x = (emulatorCount * 30) % 400;
     int y = (emulatorCount * 30) % 300;
-    EmulatorInternalFrame frame = new EmulatorInternalFrame(core, x, y, this, gameSearchResult);
+    EmulatorInternalFrame frame = new EmulatorInternalFrame(core, x, y, this, game);
     frame.addInternalFrameListener(new InternalFrameAdapter() {
       public void internalFrameClosed(InternalFrameEvent e) {
         core1.finishEmulation();
@@ -2732,9 +2752,8 @@ public class ZXSpectrumDesktopApp extends JFrame implements com.fpetrola.oozx.sp
         EmulatorInternalFrame eFrame = (EmulatorInternalFrame) frame;
         String filePath = eFrame.emulatorCore.getFilename();
         config.getOpenWindows().add(eFrame.saveWindowState(filePath));
-      } else if (frame instanceof GameBrowserInternalFrame) {
-        GameBrowserInternalFrame gFrame = (GameBrowserInternalFrame) frame;
-        config.getOpenWindows().add(gFrame.saveWindowState());
+      } else if (frame instanceof com.fpetrola.oozx.speccy.devices.KeepsItsPlace keeper) {
+        config.getOpenWindows().add(keeper.saveWindowState());
       } else if (frame instanceof SnapshotHistoryInternalFrame) {
         SnapshotHistoryInternalFrame hFrame = (SnapshotHistoryInternalFrame) frame;
         config.getOpenWindows().add(hFrame.saveWindowState());
@@ -2758,13 +2777,11 @@ public class ZXSpectrumDesktopApp extends JFrame implements com.fpetrola.oozx.sp
             System.err.println("Error restaurando snapshot desde configuración: " + e.getMessage());
           }
         }
-      } else if ("GAME_BROWSER".equals(windowState.getType())) {
-        if (gameBrowser == null || gameBrowser.isClosed()) {
-          gameBrowser = new GameBrowserInternalFrame(createGameBrowserListener());
-          desktop.add(gameBrowser);
-          gameBrowser.setVisible(true);
+      } else if (deskKindThatKeeps(windowState.getType()) != null) {
+        JInternalFrame window = showOnTheDesk(deskKindThatKeeps(windowState.getType()));
+        if (window instanceof com.fpetrola.oozx.speccy.devices.KeepsItsPlace keeper) {
+          keeper.restoreWindowState(windowState);
         }
-        gameBrowser.restoreWindowState(windowState);
       } else if ("SNAPSHOT_HISTORY".equals(windowState.getType())) {
         if (snapshotHistory == null || snapshotHistory.isClosed()) {
           openSnapshotHistory();
@@ -2784,112 +2801,12 @@ public class ZXSpectrumDesktopApp extends JFrame implements com.fpetrola.oozx.sp
         if (windowState.getSnapshotId() != null && eFrame.saveWindowState(eFrame.emulatorCore.getFilename()).getSnapshotId().equals(windowState.getSnapshotId())) {
           return frame;
         }
-      } else if ("GAME_BROWSER".equals(windowState.getType()) && frame instanceof GameBrowserInternalFrame) {
+      } else if (frame instanceof com.fpetrola.oozx.speccy.devices.KeepsItsPlace keeper
+          && keeper.saveWindowState().getType().equals(windowState.getType())) {
         return frame;
       }
     }
     return null;
-  }
-
-  private GameBrowserListener createGameBrowserListener() {
-    return new GameBrowserListener() {
-      @Override
-      public void onGameSelected(GameSearchResult gameSearchResult, Runnable whenDone) {
-        getActiveEmulatorOrCreateNew(gameSearchResult, whenDone);
-      }
-
-      @Override
-      public void onPlayRecording(RzxOption recording) {
-        playRecording(recording);
-      }
-
-      /**
-       * Learnt from a machine that exists, because the list belongs to the build and there is no
-       * copy of it to read. Any emulator can answer; the first one to be made is remembered so
-       * the browser can offer them without one having to be open.
-       */
-      @Override
-      public java.util.List<String> machines() {
-        // A running machine is the truth and is asked first, but the browser is usually opened
-        // before there is one, so what the module declares stands in until then.
-        return knownMachines.isEmpty()
-            ? com.fpetrola.oozx.speccy.machines.Machines.MODEL_NAMES : knownMachines;
-      }
-
-      @Override
-      public void onViewDetails(GameSearchResult gameSearchResult) {
-        // Show loading dialog while fetching from API
-        JDialog loadingDialog = new JDialog(ZXSpectrumDesktopApp.this, "Loading Game Details", true);
-        loadingDialog.setSize(300, 100);
-        loadingDialog.setLocationRelativeTo(ZXSpectrumDesktopApp.this);
-        JLabel loadingLabel = new JLabel("Fetching game details from ZXInfo API...");
-        loadingLabel.setHorizontalAlignment(JLabel.CENTER);
-        loadingDialog.add(loadingLabel);
-
-        // Fetch details in background thread
-        SwingWorker<com.fpetrola.oozx.api.GameDetail, Void> worker =
-            new SwingWorker<com.fpetrola.oozx.api.GameDetail, Void>() {
-              @Override
-              protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
-                // Extract ID from URL (e.g., "https://zxinfo.dk/games/xxxx")
-                String gameId = gameSearchResult.id;
-                // Fetch full details from API
-                ZxInfoApiHandler apiHandler = new ZxInfoApiHandler();
-                return apiHandler.fetchGameDetails(gameId);
-              }
-
-              @Override
-              protected void done() {
-                loadingDialog.dispose();
-                try {
-                  com.fpetrola.oozx.api.GameDetail gameDetail = get();
-
-                  if (gameDetail == null) {
-                    // Fallback to basic info if API call fails
-                    gameDetail = new com.fpetrola.oozx.api.GameDetail();
-                    gameDetail.id = gameSearchResult.url;
-                    gameDetail.title = gameSearchResult.title;
-                    gameDetail.yearOfRelease = "Unknown";
-                    gameDetail.publisher = "Unknown";
-                    gameDetail.genre = "Unknown";
-                    gameDetail.machineType = "Spectrum 48K";
-                    gameDetail.memoryRequired = "48K";
-                    gameDetail.screenshots = new ArrayList<>();
-                    if (gameSearchResult.screenshot1 != null && !gameSearchResult.screenshot1.isEmpty()) {
-                      gameDetail.screenshots.add(gameSearchResult.screenshot1);
-                    }
-                    if (gameSearchResult.screenshot2 != null && !gameSearchResult.screenshot2.isEmpty()) {
-                      gameDetail.screenshots.add(gameSearchResult.screenshot2);
-                    }
-                    gameDetail.description = "Game description not available";
-                  }
-
-                  GameDetailsDialog dialog = new GameDetailsDialog(ZXSpectrumDesktopApp.this, gameDetail);
-                  dialog.setVisible(true);
-                } catch (Exception e) {
-                  JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-                      "Error loading game details: " + e.getMessage(),
-                      "Error", JOptionPane.ERROR_MESSAGE);
-                }
-              }
-            };
-
-        worker.execute();
-        loadingDialog.setVisible(true);
-      }
-
-      @Override
-      public void onAddToFavorites(GameSearchResult game) {
-        keepAsFavorite(game, null);
-      }
-
-      @Override
-      public void onDownloadGame(String gameUrl) {
-        JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-            "Downloading: " + gameUrl + "n(Download feature coming soon)", "Download",
-            JOptionPane.INFORMATION_MESSAGE);
-      }
-    };
   }
 
   private void updateRecentFilesMenu() {
@@ -2984,18 +2901,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements com.fpetrola.oozx.sp
     }
   }
 
-  public static int getComponentZOrder(JInternalFrame component) {
-    Container parent = component.getParent();
-    if (parent != null) {
-      Component[] components = parent.getComponents();
-      for (int i = 0; i < components.length; i++) {
-        if (components[i] == component) {
-          return i;
-        }
-      }
-    }
-    return 0;
-  }
 
   public static void main(String[] args) {
   }

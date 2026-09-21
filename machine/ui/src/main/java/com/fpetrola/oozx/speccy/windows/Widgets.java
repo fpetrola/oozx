@@ -45,6 +45,21 @@ import java.awt.Insets;
 public class Widgets {
   public static final int TOOLBAR_ICON_SIZE = 20;
 
+  /** Where this window sits in the pile on its desktop, which is what a saved layout keeps. */
+  public static int zOrderOf(java.awt.Component window) {
+    Container parent = window.getParent();
+    if (parent == null) {
+      return 0;
+    }
+    java.awt.Component[] there = parent.getComponents();
+    for (int place = 0; place < there.length; place++) {
+      if (there[place] == window) {
+        return place;
+      }
+    }
+    return 0;
+  }
+
   public static ImageIcon loadIcon(String iconFile) {
     if (iconFile.endsWith(".png")) {
       URL file = Widgets.class.getResource("/icons/" + iconFile);

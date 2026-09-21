@@ -27,6 +27,17 @@
     </properties>
 
     <dependencies>
+        <!-- Fetching a game and reading what is on this machine needs the emulator's own files. -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>pokes</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>

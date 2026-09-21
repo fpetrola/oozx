@@ -15,9 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package model.tests.ui;
+package com.fpetrola.oozx.speccy.tools.games;
 
-import com.fpetrola.oozx.speccy.desktop.Screenshots;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.JPanel;

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.fpetrola.oozx.speccy.desktop;
+package com.fpetrola.oozx.speccy.tools.games;
 
 import com.fpetrola.oozx.speccy.modules.display.Display;
 
