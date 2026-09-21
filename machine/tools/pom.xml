@@ -41,6 +41,7 @@
         <module>cassette</module>
         <module>games</module>
         <module>calls</module>
+        <module>heatmap</module>
     </modules>
 
     <dependencies>

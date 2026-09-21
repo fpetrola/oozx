@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.fpetrola</groupId>
+        <artifactId>tools</artifactId>
+        <version>0.0.2-alu-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>tool-heatmap</artifactId>
+    <packaging>jar</packaging>
+    <name>tool-heatmap</name>
+    <!-- Dónde estuvo corriendo el código, dibujado sobre los 64K: la memoria como un mapa de calor. -->
+</project>
