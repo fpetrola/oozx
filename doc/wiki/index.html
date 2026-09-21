@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OOZX</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="OOZX — a ZX Spectrum emulation environment, object-oriented all the way down to the Z80">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    window.$docsify = {
+      name: 'OOZX',
+      repo: 'fpetrola/oozx',
+      homepage: 'Home.md',
+      loadSidebar: '_Sidebar.md',
+      subMaxLevel: 2,
+      auto2top: true,
+      search: { paths: 'auto', placeholder: 'Search' },
+      plugins: [
+        function (hook) {
+          hook.beforeEach(function (md) {
+            return md + '\n\n---\n\n[footer](_Footer.md ":include")';
+          });
+        }
+      ]
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/zoom-image.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-java.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+</body>
+</html>

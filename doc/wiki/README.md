@@ -15,6 +15,18 @@ rm /tmp/oozx.wiki/README.md
 cd /tmp/oozx.wiki && git add -A && git commit -m "Wiki" && git push
 ```
 
+## Publicándola como sitio (docsify)
+
+`index.html` sirve este mismo directorio con [docsify](https://docsify.js.org): no hay build ni copia, lee
+los `.md` tal cual, usa `Home.md` de portada y `_Sidebar.md` de navegación. Para verla en local:
+
+```bash
+python3 -m http.server -d doc/wiki 3000   # http://localhost:3000
+```
+
+`.github/workflows/wiki-pages.yml` la publica en GitHub Pages en cada push a `main` que toque `doc/wiki/`.
+Hay que habilitarlo una vez en *Settings → Pages → Source: GitHub Actions*.
+
 ## The pictures
 
 The pages point at images by raw URL on the `main` branch, so nothing is duplicated into the wiki
