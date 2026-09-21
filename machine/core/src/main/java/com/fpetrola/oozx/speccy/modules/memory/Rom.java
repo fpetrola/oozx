@@ -32,8 +32,14 @@ public final class Rom extends Storage {
     this.protection = protection;
   }
 
+  /** Real hardware ignores a write here, so one only lands if this build was told to allow it. */
+  @Override
+  public boolean takesWrites() {
+    return protection != null && protection.writableRoms;
+  }
+
   public void write(int offset, byte value) {
-    if (protection != null && protection.writableRoms) {
+    if (takesWrites()) {
       bytes[offset] = value;
     }
   }

@@ -31,4 +31,12 @@ public sealed abstract class MemoryPart permits Storage, Registers {
   public abstract int read(int offset);
 
   public abstract void write(int offset, byte value);
+
+  /**
+   * Whether a write here lands at all. Asked by whoever describes the memory rather than uses
+   * it: a write that goes nowhere is not something the bus knows, it is the part's own rule.
+   */
+  public boolean takesWrites() {
+    return true;
+  }
 }

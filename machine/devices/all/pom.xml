@@ -218,6 +218,11 @@
             <artifactId>tool-trace</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>tool-memory-map</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     <dependency>
         <groupId>org.junit.platform</groupId>
         <artifactId>junit-platform-suite</artifactId>
