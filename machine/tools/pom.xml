@@ -45,6 +45,7 @@
         <module>io</module>
         <module>trace</module>
         <module>memory-map</module>
+        <module>frames</module>
     </modules>
 
     <dependencies>
