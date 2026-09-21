@@ -18,13 +18,8 @@
 package com.fpetrola.oozx.speccy.devices.debugger;
 
 import com.fpetrola.oozx.Speccy;
+import com.fpetrola.oozx.speccy.modules.z80.Disassembly;
 import com.fpetrola.oozx.speccy.modules.z80.PcTraps;
-import com.fpetrola.z80.base.ToStringInstructionVisitor;
-import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
-import com.fpetrola.z80.cpu.ReadOnlyIOImplementation;
-import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.RegisterName;
 
 import java.util.ArrayList;
@@ -40,9 +35,6 @@ import java.util.concurrent.ConcurrentSkipListMap;
  */
 public class MachineDebugger {
 
-  public record Line(int address, String bytes, String instruction) {
-  }
-
   private final Speccy machine;
   private final Map<Integer, PcTraps.Watch> breakpoints = new LinkedHashMap<>();
   private final Map<Integer, Integer> routines = new ConcurrentSkipListMap<>();
@@ -50,25 +42,11 @@ public class MachineDebugger {
   private PcTraps.Watch until;
   private Runnable onStop = () -> { };
 
-  /** A separate decoding-only CPU state: the real one has no surviving Instruction objects to
-   * inspect, and decoding through it would bill T-states for every debugger read. */
-  private final State reading;
-  private final DefaultInstructionFetcher decoder;
+  private final Disassembly listing;
 
   public MachineDebugger(Speccy machine) {
     this.machine = machine;
-    reading = new State(new ReadOnlyIOImplementation(null), new Memory() {
-      public int read(int address, int fetching) {
-        return machine.memory.peek(address & 0xffff) & 0xff;
-      }
-
-      public void write(int address, int value) {
-      }
-
-      public void reset() {
-      }
-    });
-    decoder = new DefaultInstructionFetcher(reading, false, false);
+    listing = new Disassembly(machine);
     calls = machine.cpu.beforeFetch().watch(0x0000, 0xffff, pc -> {
       int target = callTarget(pc);
       if (target >= 0) {
@@ -125,7 +103,7 @@ public class MachineDebugger {
     if (callTarget(pc) < 0) {
       step();
     } else {
-      runTo(pc + at(pc).getLength() & 0xffff);
+      runTo(pc + listing.lengthAt(pc) & 0xffff);
     }
   }
 
@@ -154,34 +132,12 @@ public class MachineDebugger {
     }
   }
 
-  /** Decodes the instruction at an address using the read-only debugger memory view. */
-  private Instruction at(int address) {
-    reading.getPc().write(address & 0xffff);
-    return decoder.fetchNextInstruction();
-  }
-
   public String instructionAt(int address) {
-    return new ToStringInstructionVisitor().createToString(at(address));
+    return listing.instructionAt(address);
   }
 
-  private String bytesAt(int address, int length) {
-    StringBuilder bytes = new StringBuilder();
-    for (int i = 0; i < length; i++) {
-      bytes.append(i == 0 ? "" : " ").append("%02X".formatted(memory(address + i)));
-    }
-    return bytes.toString();
-  }
-
-  /** Decodes a run of consecutive instructions starting at an address. */
-  public List<Line> listingFrom(int address, int lines) {
-    List<Line> listing = new ArrayList<>();
-    for (int at = address & 0xffff; listing.size() < lines; ) {
-      Instruction instruction = at(at);
-      int length = Math.max(1, instruction.getLength());
-      listing.add(new Line(at, bytesAt(at, length), new ToStringInstructionVisitor().createToString(instruction)));
-      at = at + length & 0xffff;
-    }
-    return listing;
+  public List<Disassembly.Line> listingFrom(int address, int lines) {
+    return listing.from(address, lines);
   }
 
   public int register(RegisterName name) {

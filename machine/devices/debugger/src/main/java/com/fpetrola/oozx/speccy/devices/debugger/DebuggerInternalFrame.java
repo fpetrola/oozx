@@ -19,6 +19,7 @@ package com.fpetrola.oozx.speccy.devices.debugger;
 
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.devices.MachineFrame;
+import com.fpetrola.oozx.speccy.modules.z80.Disassembly;
 import com.fpetrola.oozx.speccy.windows.Widgets;
 import com.fpetrola.z80.registers.RegisterName;
 
@@ -78,7 +79,7 @@ public class DebuggerInternalFrame extends MachineFrame {
   private final JButton stop = Widgets.iconButton("stop.png", "Stop", "Stop it and forget every breakpoint");
   private final JLabel where = new JLabel();
 
-  private final List<MachineDebugger.Line> lines = new ArrayList<>();
+  private final List<Disassembly.Line> lines = new ArrayList<>();
   /** Manually chosen listing start address; -1 means follow the machine's PC instead. */
   private int showing = -1;
   private final DefaultMutableTreeNode program = new DefaultMutableTreeNode("Program");
@@ -346,7 +347,7 @@ public class DebuggerInternalFrame extends MachineFrame {
     }
 
     public Object getValueAt(int row, int column) {
-      MachineDebugger.Line at = lines.get(row);
+      Disassembly.Line at = lines.get(row);
       return switch (column) {
         case 0 -> debugger != null && debugger.isBreakpoint(at.address()) ? "●" : "";
         case 1 -> hex4(at.address());

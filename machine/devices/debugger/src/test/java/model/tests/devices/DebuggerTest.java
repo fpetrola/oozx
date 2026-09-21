@@ -19,6 +19,7 @@ package model.tests.devices;
 
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.devices.debugger.MachineDebugger;
+import com.fpetrola.oozx.speccy.modules.z80.Disassembly;
 import com.fpetrola.z80.registers.RegisterName;
 import model.harness.MachineTest;
 import org.junit.jupiter.api.Test;
@@ -106,9 +107,9 @@ class DebuggerTest extends MachineTest {
     MachineDebugger debugger = new MachineDebugger(loaded());
 
     assertEquals(List.of(
-            new MachineDebugger.Line(START, "3E 2A", "LD A, 0x2A"),
-            new MachineDebugger.Line(START + 2, "00", "NOP"),
-            new MachineDebugger.Line(START + 3, "C3 00 80", "JP 0x8000")),
+            new Disassembly.Line(START, "3E 2A", "LD A, 0x2A"),
+            new Disassembly.Line(START + 2, "00", "NOP"),
+            new Disassembly.Line(START + 3, "C3 00 80", "JP 0x8000")),
         debugger.listingFrom(START, 3));
   }
 
@@ -118,12 +119,12 @@ class DebuggerTest extends MachineTest {
     MachineDebugger debugger = new MachineDebugger(loaded());
 
     assertEquals(List.of(
-            new MachineDebugger.Line(0x0000, "F3", "DI"),
-            new MachineDebugger.Line(0x0001, "AF", "XOR A, A"),
-            new MachineDebugger.Line(0x0002, "11 FF FF", "LD DE, 0xFFFF"),
-            new MachineDebugger.Line(0x0005, "C3 CB 11", "JP 0x11CB"),
-            new MachineDebugger.Line(0x0008, "2A 5D 5C", "LD HL, (0x5C5D)"),
-            new MachineDebugger.Line(0x000B, "22 5F 5C", "LD (0x5C5F), HL")),
+            new Disassembly.Line(0x0000, "F3", "DI"),
+            new Disassembly.Line(0x0001, "AF", "XOR A, A"),
+            new Disassembly.Line(0x0002, "11 FF FF", "LD DE, 0xFFFF"),
+            new Disassembly.Line(0x0005, "C3 CB 11", "JP 0x11CB"),
+            new Disassembly.Line(0x0008, "2A 5D 5C", "LD HL, (0x5C5D)"),
+            new Disassembly.Line(0x000B, "22 5F 5C", "LD (0x5C5F), HL")),
         debugger.listingFrom(0x0000, 6));
   }
 
@@ -133,9 +134,9 @@ class DebuggerTest extends MachineTest {
     MachineDebugger debugger = new MachineDebugger(loaded());
 
     assertEquals(List.of(
-            new MachineDebugger.Line(0x10B8, "FD CB 01 AE", "RES 5, (IY+01)"),
-            new MachineDebugger.Line(0x10BC, "F5", "PUSH AF"),
-            new MachineDebugger.Line(0x10BD, "FD CB 02 6E", "BIT 5, (IY+02)")),
+            new Disassembly.Line(0x10B8, "FD CB 01 AE", "RES 5, (IY+01)"),
+            new Disassembly.Line(0x10BC, "F5", "PUSH AF"),
+            new Disassembly.Line(0x10BD, "FD CB 02 6E", "BIT 5, (IY+02)")),
         debugger.listingFrom(0x10B8, 3));
   }
 
