@@ -4,15 +4,16 @@ Twenty-four devices. Each one is a Maven module, a jar and two one-line service 
 on the desk; and **clipping that window onto a machine's window is what plugs the device in**. Unclip it and
 it is unplugged. Carry it to another machine and it is that machine's now.
 
+![Drawing in the Art Studio with the Kempston Mouse and printing it on the ZX Printer](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/multi-devices.gif)
+
+*Two boards on one machine, doing what they were for: the OCP Art Studio loaded, the Kempston Mouse clipped
+on — its label turns from "not plugged into a machine" to "over the machine's picture" — a drawing made with
+it, and then the ZX Printer clipped on as well, printing that drawing onto its paper.*
+
 ![Dragging the Kempston Mouse window onto a machine plugs it in](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/clipping.gif)
 
 *The Kempston Mouse, dragged across the desk and let go against the machine. Watch its label: "not plugged
 into a machine" becomes "over the machine's picture" the moment it snaps.*
-
-![A machine with the printer, the mouse and a Covox clipped onto it](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/peripherals-clipped.png)
-
-*Manic Miner running with three boards plugged in: the ZX Printer with its paper, the Kempston Mouse with
-its Hold and its sensitivity, and a Covox with its level meter.*
 
 The whole set is 8,305 lines of Java, licence headers not counted. The smallest, ZXMMC, is 44 lines in three
 files. Most of the historical expansion hardware landed in a single sweep of about two days.
@@ -48,11 +49,6 @@ files. Most of the historical expansion hardware landed in a single sweep of abo
 | **Covox** | A DAC on a port, with a level meter and volume |
 | **SpecDrum** | Cheetah's drum machine, the same way |
 
-![The ZX Printer printing a screen](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/printing.gif)
-
-*`PRINT "OOZX"`, `PLOT 0,0`, `DRAW 255,175`, `COPY` — typed into the machine, and the ZX Printer bringing it
-out a line at a time, drawn as a burn rather than as a bitmap.*
-
 ### Printers and pointers
 
 | | |
@@ -61,6 +57,11 @@ out a line at a time, drawn as a burn rather than as a bitmap.*
 | **Parallel printer** | Continuous paper, text out |
 | **Kempston Mouse** | Your desk mouse moves over the picture; *Hold* captures the pointer; sensitivity, swap, record |
 | **Joystick** | Cursor, Kempston, Sinclair 1/2, Timex 1/2 and Fuller, plus a physical gamepad |
+
+![The ZX Printer printing a screen](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/printing.gif)
+
+*`PRINT "OOZX"`, `PLOT 0,0`, `DRAW 255,175`, `COPY` — typed into the machine, and the ZX Printer bringing it
+out a line at a time, drawn as a burn rather than as a bitmap.*
 
 ### Cartridges, freezers and the rest
 
@@ -79,6 +80,11 @@ for the RS-232 and the network. The machine above it is at its boot screen becau
 brings a ROM resets it — as it would.*
 
 ## The front panels
+
+![A machine with the printer, the mouse and a Covox clipped onto it](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/peripherals-clipped.png)
+
+*Manic Miner running with three boards plugged in: the ZX Printer with its paper, the Kempston Mouse with
+its Hold and its sensitivity, and a Covox with its level meter.*
 
 A device window is not a settings dialog. It is the front of the thing:
 

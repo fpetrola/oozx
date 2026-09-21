@@ -63,6 +63,11 @@ Two dozen peripherals. Each one is a window with the front of the thing on it, a
 onto a machine is what plugs it in**. Unclip it to unplug it; carry it to another machine and it is that
 machine's now.
 
+![Drawing with the mouse in the Art Studio and printing it](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/multi-devices.gif)
+
+*The Art Studio, a Kempston Mouse and a ZX Printer on the same machine: draw with the mouse, then print what
+you drew. Two boards, plugged in by dragging their windows onto the Spectrum's.*
+
 | | |
 |---|---|
 | **Beta 128** — TR-DOS, four drives, the Boot button | ![Beta 128](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/device-beta128.png) |
