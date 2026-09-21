@@ -1,0 +1,132 @@
+# A release per peripheral, refreshed on every push to main.
+#
+# The list is not written here: every module under machine/devices whose artifactId starts with
+# "device-" is one, so a peripheral added tomorrow gets its release without this file changing.
+name: Devices
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'emulator/**'
+      - 'machine/**'
+      - 'pom.xml'
+      - '.github/workflows/devices.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: devices
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      devices: ${{ steps.list.outputs.devices }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      # The whole reactor once: a device jar is small, but it is compiled against the machine.
+      # Running the tests is the other workflow's job; this one only produces the artefacts.
+      - name: Build
+        run: mvn -B -DskipTests install
+
+      - name: Find the devices
+        id: list
+        run: |
+          python3 - <<'PY'
+          import json, os, re, glob, shutil, sys
+
+          def artifact_of(pom):
+              """The module's own artifactId, which is the one outside <parent>."""
+              text = re.sub(r'<parent>.*?</parent>', '', open(pom).read(), flags=re.S)
+              found = re.search(r'<artifactId>([^<]+)</artifactId>', text)
+              return found.group(1) if found else None
+
+          def called(module):
+              """What the board calls itself in the Equipment menu, for the release to be named after."""
+              for source in glob.glob(module + '/src/main/java/**/*Equipment.java', recursive=True):
+                  said = re.search(r'name\(\)\s*\{\s*return\s+"([^"]+)"', open(source).read())
+                  if said:
+                      return said.group(1)
+              return None
+
+          os.makedirs('jars', exist_ok=True)
+          devices = []
+          for pom in sorted(glob.glob('machine/devices/*/pom.xml')):
+              module = os.path.dirname(pom)
+              artifact = artifact_of(pom)
+              if not artifact or not artifact.startswith('device-'):
+                  continue                      # devices-all, devices-kit and devices-ide are not devices
+              jars = [j for j in glob.glob(module + '/target/' + artifact + '-*.jar')
+                      if not j.endswith(('-sources.jar', '-javadoc.jar'))]
+              if not jars:
+                  print('no jar for ' + artifact, file=sys.stderr)
+                  continue
+              shutil.copy(jars[0], 'jars/')
+              # Two of them have no window and so no name of their own: the module's will do.
+              devices.append({'artifact': artifact,
+                              'title': called(module) or os.path.basename(module).capitalize()})
+
+          for device in devices:
+              print(device['artifact'] + ' -> ' + device['title'], file=sys.stderr)
+          print(str(len(devices)) + ' devices', file=sys.stderr)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              out.write('devices=' + json.dumps(devices) + '\n')
+          PY
+
+      - name: Keep the jars
+        uses: actions/upload-artifact@v4
+        with:
+          name: device-jars
+          path: jars
+          retention-days: 1
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        device: ${{ fromJson(needs.build.outputs.devices) }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: device-jars
+
+      # Each board gets a release of its own, named after the board rather than after the module,
+      # and recreated rather than added to: what is published is always what main builds today.
+      - name: Publish ${{ matrix.device.artifact }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ matrix.device.artifact }}
+          TITLE: ${{ matrix.device.title }}
+        run: |
+          JAR=$(ls "$TAG"-*.jar | head -1)
+          echo "publishing $TAG from $JAR"
+          gh release delete "$TAG" --yes --cleanup-tag --repo "$GITHUB_REPOSITORY" || true
+          {
+            echo "**$TITLE** for [OOZX](https://github.com/$GITHUB_REPOSITORY), built from \`main\` at"
+            echo "[\`${GITHUB_SHA:0:9}\`](https://github.com/$GITHUB_REPOSITORY/commit/$GITHUB_SHA)."
+            echo
+            echo "A peripheral is a jar: drop it on the classpath beside the emulator and it appears in"
+            echo "the \`Emulator → Equipment\` menu with a window of its own. Clipping that window onto a"
+            echo "machine is what plugs the device in."
+            echo
+            echo "See [Peripherals](https://github.com/$GITHUB_REPOSITORY/wiki/Peripherals)."
+          } > notes.md
+          gh release create "$TAG" "$JAR" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "$TITLE" \
+            --notes-file notes.md
