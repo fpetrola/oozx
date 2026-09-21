@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.fpetrola.oozx.speccy.desktop;
+package com.fpetrola.oozx.speccy.tools.cassette;
 
 import com.fpetrola.oozx.speccy.windows.AttachedFrame;
 import org.junit.jupiter.api.Test;
@@ -29,14 +29,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * What every window clipped onto a machine does, tried on the cassette deck.
  * <p>
- * {@link RzxPlayerDockingTest} covers where such a window sits; this covers what becomes of it
+ * The application's RzxPlayerDockingTest covers where such a window sits; this covers what becomes of it
  * when the machine it was clipped to goes away, which is the part that leaves something behind
  * when it is wrong: controls for a picture that is not there any more.
  */
 class AttachedFrameTest {
 
-  private static TapeBrowserInternalFrame cassette() {
-    return new TapeBrowserInternalFrame();
+  private static CassetteFrame cassette() {
+    return new CassetteFrame();
   }
 
   private static JInternalFrame machine() {
@@ -47,7 +47,7 @@ class AttachedFrameTest {
 
   @Test
   void clipped_on_it_goes_when_the_machine_goes() {
-    TapeBrowserInternalFrame cassette = cassette();
+    CassetteFrame cassette = cassette();
     JInternalFrame machine = machine();
     cassette.setMachineWindow(machine);
     assertTrue(cassette.isAttached(), "should arrive clipped onto the machine");
@@ -59,7 +59,7 @@ class AttachedFrameTest {
 
   @Test
   void unplugged_it_stays_when_the_machine_goes() {
-    TapeBrowserInternalFrame cassette = cassette();
+    CassetteFrame cassette = cassette();
     JInternalFrame machine = machine();
     cassette.setMachineWindow(machine);
 
@@ -74,7 +74,7 @@ class AttachedFrameTest {
 
   @Test
   void being_clipped_on_is_what_plugs_it_in() {
-    TapeBrowserInternalFrame cassette = cassette();
+    CassetteFrame cassette = cassette();
     assertFalse(cassette.isAttached(), "starts loose, with its lead in nothing");
 
     cassette.setMachineWindow(machine());

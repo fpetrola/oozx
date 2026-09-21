@@ -15,12 +15,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.fpetrola.oozx.speccy.desktop;
+package com.fpetrola.oozx.speccy.tools.cassette;
 
 import com.fpetrola.oozx.speccy.modules.tape.TapeBlock;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.devices.Desk;
 import com.fpetrola.oozx.speccy.devices.MachineFrame;
+import com.fpetrola.oozx.speccy.devices.Opens;
 import com.fpetrola.oozx.speccy.windows.Widgets;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 
@@ -45,7 +46,7 @@ import java.util.List;
  * honoured here as it should be: the person watching is the one who decides when it starts again.
  * An automatic load runs through those instead, because there is nobody to press anything.
  */
-public class TapeBrowserInternalFrame extends MachineFrame {
+public class CassetteFrame extends MachineFrame implements Opens {
 
   /** How often the progress column is refreshed. The tape moves on the emulation thread. */
   private static final int REFRESH_MILLIS = 100;
@@ -72,9 +73,12 @@ public class TapeBrowserInternalFrame extends MachineFrame {
 
   /** The block the player last reported starting, which is the one being read. */
   private volatile int currentBlock = -1;
+
+  /** One listener, moved from deck to deck, so clipping this on twice does not count twice. */
+  private final com.fpetrola.oozx.speccy.modules.tape.TapeBlockListener watching = block -> currentBlock = block;
   private boolean paused;
 
-  public TapeBrowserInternalFrame() {
+  public CassetteFrame() {
     super("Cassette");
 
     setSize(720, 420);
@@ -139,8 +143,14 @@ public class TapeBrowserInternalFrame extends MachineFrame {
     }
     if (deck != null) {
       deck.stop();
+      deck.removeTapeBlockListener(watching);
     }
     deck = plugged;
+    // Clipped onto a machine that is already loading - a tape given on the command line, a game
+    // from the browser - this is what makes the table follow it without anybody pressing play.
+    if (deck != null) {
+      deck.addTapeBlockListener(watching);
+    }
     currentBlock = -1;
     paused = false;
     refresh();
@@ -179,7 +189,6 @@ public class TapeBrowserInternalFrame extends MachineFrame {
             "Play", JOptionPane.ERROR_MESSAGE);
         return;
       }
-      deck.addTapeBlockListener(block -> currentBlock = block);
       paused = false;
     }
 
@@ -209,32 +218,32 @@ public class TapeBrowserInternalFrame extends MachineFrame {
     currentBlock = -1;
   }
 
+  /** The deck this is plugged into, which is the machine's own. */
+  Tape deck() {
+    return deck;
+  }
+
   /** Whether there is a cassette in this deck, or it is an empty one waiting for one. */
   public boolean hasTape() {
     return tapeFile != null;
   }
 
-  /**
-   * Whether this is the deck already holding that machine's tape, waiting for its window.
-   * <p>
-   * Asked about the deck itself rather than about the file it came from: the same cassette
-   * reaches the two sides as two different path strings - one unzipped, one the address it was
-   * fetched from - and comparing those matched nothing.
-   */
-  public boolean waitingFor(Tape playing) {
-    return getMachineWindow() == null && deck == playing;
+  @Override
+  public boolean empty() {
+    return tapeFile == null;
   }
 
   /** A cassette from whoever is in front, which is the only thing this window asks of the desk. */
   private void chooseATape() {
     File chosen = Desk.theOne().choose("Open Tape");
     if (chosen != null) {
-      openTape(chosen);
+      open(chosen);
     }
   }
 
   /** Loads a cassette into this window. No emulator is needed to look at what is on it. */
-  public void openTape(File file) {
+  @Override
+  public void open(File file) {
     tapeFile = file;
     blocks = TapeBlock.read(file);
     currentBlock = -1;
@@ -243,18 +252,6 @@ public class TapeBrowserInternalFrame extends MachineFrame {
     refresh();
   }
 
-  /**
-   * Adopts a cassette already loaded and running in a machine, as the game browser does.
-   * <p>
-   * The lead is plugged in before the machine has a window to clip onto - it is being built -
-   * so the deck is taken directly here and the window follows when there is one.
-   */
-  public void adopt(File file, Tape playingDeck) {
-    openTape(file);
-    deck = playingDeck;
-    playingDeck.addTapeBlockListener(block -> currentBlock = block);
-    refresh();
-  }
 
   /**
    * The window's name doubles as its status line, the way the recording player's does.

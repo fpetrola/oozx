@@ -188,6 +188,11 @@
             <artifactId>tool-audio-in</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>tool-cassette</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     <dependency>
         <groupId>org.junit.platform</groupId>
         <artifactId>junit-platform-suite</artifactId>

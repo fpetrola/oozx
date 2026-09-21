@@ -17,23 +17,18 @@
 
 package com.fpetrola.oozx.speccy.devices;
 
+import java.io.File;
+
 /**
- * A piece of equipment this build offers, which is what the desk lists in its menu.
+ * A window that can be handed a file: a cassette deck given a tape, a player given a recording.
  * <p>
- * Found through META-INF/services, so the desk never names one: a device is a jar, and the jar
- * says what it is called and how to open it.
+ * Which files it takes is the {@link Equipment} offering it, because that is asked before there
+ * is a window to ask.
  */
-public interface Equipment {
-  String name();
+public interface Opens {
 
-  /** A window clipped to a machine; a device's window is one of these that has a device too. */
-  MachineFrame open();
+  void open(File file);
 
-  /**
-   * Whether a window of this kind can be handed that file, which is how the desk finds who opens
-   * a cassette or a recording. Nothing can, unless it says so and its window is an {@link Opens}.
-   */
-  default boolean opens(java.io.File file) {
-    return false;
-  }
+  /** Nothing in it yet, so the next file can go here rather than in a second window. */
+  boolean empty();
 }

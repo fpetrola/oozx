@@ -726,6 +726,15 @@ public class Tape extends AbstractPeripheral {
         return true;
     }
 
+    /** Whether this file is a cassette at all, which only the deck's own formats decide. */
+    public static boolean isATape(String filename) {
+        if (filename == null) {
+            return false;
+        }
+        String name = filename.toLowerCase();
+        return name.endsWith(".tap") || name.endsWith(".tzx") || name.endsWith(".csw");
+    }
+
     /** The deck of that emulator, which a window reaches the way it reaches any device. */
     public static Tape of(Speccy speccy) {
         return (Tape) speccy.peripheralRegistry.find(Tape.class);

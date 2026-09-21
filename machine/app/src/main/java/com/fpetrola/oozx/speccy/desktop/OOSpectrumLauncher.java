@@ -90,9 +90,6 @@ public class OOSpectrumLauncher {
       if (string != null) {
         mockCore.setFilename(string);
       }
-      if (string != null && isTape(string)) {
-        appHolder[0].showTapeBrowser(new File(string), Tape.of(speccy));
-      }
       return mockCore;
     }, mockCoreState);
 
@@ -136,7 +133,7 @@ public class OOSpectrumLauncher {
   public Speccy createSpeccy(String filename, String chosenMachine) {
     Speccy speccy = Speccy.create();
 
-    if (isTape(filename)) {
+    if (Tape.isATape(filename)) {
       speccy.init();
       becomeTheMachineTheTapeWants(speccy, filename, chosenMachine);
       autoLoader = new TapeAutoLoader(speccy, new File(filename));
@@ -195,14 +192,6 @@ public class OOSpectrumLauncher {
     extracted(speccy);
 
     return speccy;
-  }
-
-  private static boolean isTape(String filename) {
-    if (filename == null) {
-      return false;
-    }
-    String name = filename.toLowerCase();
-    return name.endsWith(".tzx") || name.endsWith(".tap") || name.endsWith(".csw");
   }
 
   private void extracted(Speccy speccy) {

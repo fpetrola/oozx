@@ -38,6 +38,7 @@
     <modules>
         <module>keyboard</module>
         <module>audio-in</module>
+        <module>cassette</module>
     </modules>
 
     <dependencies>
