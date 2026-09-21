@@ -1,4 +1,4 @@
-// Written by the build from the model, not by hand. Model: c8c6983d964e9ea2
+// Written by the build from the model, not by hand. Model: 229a98c72cbfbedd
 
 package com.fpetrola.oozx.generated;
 
@@ -124,7 +124,7 @@ static final int[] SZ53 = new int[0x100];
           clock.contend(Kind.WRITE, ula.contention.delay[(tStates_6406 > 0x45FFF ? 0x45FFF : tStates_6406)]);
       }
       if (covering_6405.memory instanceof Rom) {
-          if (((Rom) covering_6405.memory).protection != null && ((Rom) covering_6405.memory).protection.writableRoms) {
+          if ((((Rom) covering_6405.memory).protection != null && ((Rom) covering_6405.memory).protection.writableRoms)) {
               ((Rom) covering_6405.memory).bytes[(covering_6405.base + (address & 0x7FF))] = ((byte) (value & 0xff));
           }
       } else if (covering_6405.memory instanceof Ram) {
