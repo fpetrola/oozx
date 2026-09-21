@@ -1,0 +1,1 @@
+[OOZX](https://github.com/fpetrola/oozx) · GNU General Public License v3 or later · Credits: the [Fuse](https://fuse-emulator.sourceforge.net/) authors, [Cristian Dinu](http://www.z80.info/decoding.htm), [emuStudio](https://www.emustudio.net/), [ZXInfo.dk](https://zxinfo.dk/), the [RZX Archive](https://www.rzxarchive.co.uk/)
