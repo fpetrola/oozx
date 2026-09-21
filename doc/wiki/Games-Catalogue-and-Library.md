@@ -2,6 +2,9 @@
 
 ![The game browser](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/game-browser.png)
 
+*Searching ZXInfo from inside the emulator: what came back, each with its own loading screen, whether it
+has a recording, and the filters down the left.*
+
 ## The catalogue, inside the emulator
 
 `Emulator → Game Browser` (Ctrl+B) searches [ZXInfo.dk](https://zxinfo.dk) — the whole ZXDB, from the
@@ -20,8 +23,6 @@ name that says "alternate", a heavy one for anything under `/denied/`. The machi
 hardware block if it has one, else from the name, else it is a 48K. Titles the archive is not allowed to
 serve turned out to be in TOSEC all along, and the ZXInfo entry already said in which archive and with which
 MD5 — so those load too.
-
-![The game details window](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/game-details.png)
 
 **Details** is nine tabs: General, Technical, Publishers, Authors, Description, Screenshots, Game map,
 Releases, Downloads.
@@ -59,6 +60,9 @@ modification, *Apply* and *Clear*, and un-applying puts the original bytes back.
 remembered per machine and comes back with the session.
 
 ![The pokes window](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/pokes.png)
+
+*Manic Miner's cheats, each saying what it writes and where. What you switch on moves to the "Applied"
+section of the same window, and un-applying puts the original bytes back.*
 
 ## Favourites
 

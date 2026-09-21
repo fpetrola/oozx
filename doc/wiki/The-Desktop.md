@@ -3,8 +3,6 @@
 One window holds a desk. Everything on it — a Spectrum, a cassette deck, a disk interface, the settings —
 is a window on that desk, and where a window *is* means something.
 
-![The desktop: several machines, the browser, the snapshot history](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/zxenv1.gif)
-
 ![Three machines at once, at three different speeds](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/desk-tiled.png)
 
 *Three Spectrums tiled on one desk: a bare 48K at the BASIC prompt doing 100 %, Jet Set Willy in 256 colours

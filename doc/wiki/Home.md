@@ -2,7 +2,7 @@
 
 **A ZX Spectrum emulation environment, object-oriented all the way down to the Z80.**
 
-![Several Spectrums, the game browser and the snapshot history on one desktop](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/zxenv2.gif)
+![A desk filling up: two machines and the keyboard window](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/desk-now.gif)
 
 A desktop where you run as many Spectrums as you like, plug real hardware into them by hand, pull games
 straight from the catalogue, and run them at hundreds of times real time. Underneath, a machine model made

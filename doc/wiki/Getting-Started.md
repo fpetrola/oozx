@@ -23,7 +23,7 @@ it hashes the model in under a second and skips the work otherwise. See [The Gen
 
 ## The first minutes
 
-![The desktop with several machines, the game browser and the snapshot history](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/desktop-overview.png)
+![Three machines at three speeds](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/desk-tiled.png)
 
 1. **A machine.** `Emulator → New` (Ctrl+N) opens one. The combo in its status bar says which model it is;
    change it there and the machine becomes that machine. The window is the machine — not a picture of one:
