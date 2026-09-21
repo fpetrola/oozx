@@ -21,76 +21,119 @@ import com.fpetrola.oozx.plugins.PluginReleases;
 import com.fpetrola.oozx.plugins.PluginReleases.Board;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
-import javax.swing.table.AbstractTableModel;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * The boards that are published, and which of them this emulator has.
+ * What the environment is made of, as two lists: what is published on the left, what is in it on
+ * the right, and the boards moved from one side to the other.
  * <p>
- * Ticking one and pressing the button brings it in and plugs it in: it is in the Equipment menu
- * before the window closes. A machine that was already open was built without it, so it is the
- * machines opened from here on that have it - which the window says rather than leaves to be
- * discovered.
+ * Moving one to the right brings the jar in and plugs it in - it is in the Equipment menu before
+ * the window closes, and in every machine opened from then on. Moving one to the left takes the
+ * jar away, which the next run will not have: a class cannot be unloaded from a machine that is
+ * already using it, and the window says so rather than pretending otherwise.
  */
 public class PluginsInternalFrame extends JInternalFrame {
 
-  private final List<Board> boards = new ArrayList<>();
-  private final List<Boolean> wanted = new ArrayList<>();
-  private final Offer offer = new Offer();
-  private final JTable list = new JTable(offer);
+  private final DefaultListModel<Board> outside = new DefaultListModel<>();
+  private final DefaultListModel<Board> inside = new DefaultListModel<>();
+  private final JList<Board> published = new JList<>(outside);
+  private final JList<Board> included = new JList<>(inside);
+  private final JButton include = new JButton("→");
+  private final JButton leaveOut = new JButton("←");
+  private final JButton again = new JButton("Look again");
   private final JLabel saying = new JLabel(" ");
   private final JProgressBar bar = new JProgressBar();
-  private final JButton add = new JButton("Add the ticked ones");
-  private final JButton again = new JButton("Look again");
   private final Consumer<Void> arrived;
 
-  /** @param arrived told once something new is here, so the menus can say so */
+  /** @param arrived told once something new is in, so the menus can say so */
   public PluginsInternalFrame(Consumer<Void> arrived) {
     super("Plugins - " + PluginReleases.publishedAt(), true, true, true, true);
     this.arrived = arrived;
 
-    list.setRowHeight(22);
-    list.getColumnModel().getColumn(0).setMaxWidth(30);
-    list.getColumnModel().getColumn(2).setMaxWidth(90);
-    list.getColumnModel().getColumn(3).setMaxWidth(110);
+    for (JList<Board> side : List.of(published, included)) {
+      side.setCellRenderer(new AsABoard());
+      side.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+      side.setVisibleRowCount(12);
+    }
+    published.addMouseListener(doubleClick(this::includeTheChosen));
+    included.addMouseListener(doubleClick(this::leaveOutTheChosen));
 
-    JPanel top = new JPanel(new BorderLayout(6, 6));
-    top.setBorder(BorderFactory.createEmptyBorder(6, 8, 0, 8));
-    top.add(new JLabel("<html>Each board is a jar of its own, published where this build says. "
-        + "What you add is kept under your home directory and is in the Equipment menu at once.</html>"),
-        BorderLayout.CENTER);
+    // The two lists take the width; the middle is only as wide as its two buttons.
+    JPanel sides = new JPanel(new BorderLayout(6, 0));
+    sides.add(titled("Published", published), BorderLayout.WEST);
+    sides.add(inTheMiddle(), BorderLayout.CENTER);
+    sides.add(titled("In this emulator", included), BorderLayout.EAST);
+    sides.setBorder(BorderFactory.createEmptyBorder(8, 8, 4, 8));
 
-    JPanel bottom = new JPanel(new BorderLayout(6, 6));
+    JPanel bottom = new JPanel(new BorderLayout(6, 4));
     bottom.setBorder(BorderFactory.createEmptyBorder(0, 8, 8, 8));
     JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-    buttons.add(add);
     buttons.add(again);
     bottom.add(buttons, BorderLayout.WEST);
     bottom.add(saying, BorderLayout.CENTER);
     bar.setVisible(false);
     bottom.add(bar, BorderLayout.SOUTH);
 
-    add(top, BorderLayout.NORTH);
-    add(new JScrollPane(list), BorderLayout.CENTER);
+    add(sides, BorderLayout.CENTER);
     add(bottom, BorderLayout.SOUTH);
-    setBounds(60, 60, 680, 440);
+    setBounds(60, 60, 700, 420);
 
-    add.addActionListener(pressed -> bringTheTickedOnes());
+    include.addActionListener(pressed -> includeTheChosen());
+    leaveOut.addActionListener(pressed -> leaveOutTheChosen());
     again.addActionListener(pressed -> look());
     look();
+  }
+
+  private static JComponent titled(String title, JList<Board> side) {
+    JPanel panel = new JPanel(new BorderLayout(0, 4));
+    panel.add(new JLabel(title), BorderLayout.NORTH);
+    JScrollPane scroll = new JScrollPane(side);
+    scroll.setPreferredSize(new Dimension(280, 260));
+    panel.add(scroll, BorderLayout.CENTER);
+    return panel;
+  }
+
+  private JComponent inTheMiddle() {
+    JPanel middle = new JPanel();
+    middle.setLayout(new BoxLayout(middle, BoxLayout.Y_AXIS));
+    middle.add(Box.createVerticalGlue());
+    for (JButton button : List.of(include, leaveOut)) {
+      button.setAlignmentX(CENTER_ALIGNMENT);
+      button.setMaximumSize(new Dimension(64, 28));
+      middle.add(button);
+      middle.add(Box.createVerticalStrut(6));
+    }
+    middle.add(Box.createVerticalGlue());
+    return middle;
+  }
+
+  private static MouseAdapter doubleClick(Runnable what) {
+    return new MouseAdapter() {
+      public void mouseClicked(MouseEvent clicked) {
+        if (clicked.getClickCount() == 2) what.run();
+      }
+    };
   }
 
   private void look() {
@@ -102,14 +145,12 @@ public class PluginsInternalFrame extends JInternalFrame {
 
       protected void done() {
         try {
-          boards.clear();
-          wanted.clear();
+          outside.clear();
+          inside.clear();
           for (Board board : get()) {
-            boards.add(board);
-            wanted.add(false);
+            (PluginReleases.isHere(board) ? inside : outside).addElement(board);
           }
-          offer.fireTableDataChanged();
-          busy(boards.size() + " published, " + here() + " here", false);
+          busy(inside.size() + " in, " + outside.size() + " to be had", false);
         } catch (Exception noAnswer) {
           busy("They could not be asked for: " + reason(noAnswer), false);
         }
@@ -117,73 +158,90 @@ public class PluginsInternalFrame extends JInternalFrame {
     }.execute();
   }
 
-  private void bringTheTickedOnes() {
-    List<Board> taking = new ArrayList<>();
-    for (int row = 0; row < boards.size(); row++) {
-      if (wanted.get(row)) taking.add(boards.get(row));
-    }
-    if (taking.isEmpty()) {
-      busy("Tick the ones to add first", false);
+  private void includeTheChosen() {
+    List<Board> chosen = published.getSelectedValuesList();
+    if (chosen.isEmpty()) {
+      busy("Choose one on the left first", false);
       return;
     }
-    busy("Bringing " + taking.size() + "…", true);
+    busy("Bringing " + chosen.size() + "…", true);
     bar.setVisible(true);
     bar.setIndeterminate(false);
     bar.setMinimum(0);
-    bar.setMaximum(taking.size());
+    bar.setMaximum(chosen.size());
     bar.setValue(0);
 
-    new SwingWorker<Integer, Board>() {
-      protected Integer doInBackground() {
-        int brought = 0;
-        for (Board board : taking) {
+    new SwingWorker<Void, Board>() {
+      protected Void doInBackground() {
+        for (Board board : chosen) {
           try {
             PluginReleases.bring(board);
-            brought++;
+            publish(board);
           } catch (Exception didNotArrive) {
             System.err.println("oozx: " + board.name() + " did not arrive: " + didNotArrive);
           }
-          publish(board);
         }
-        return brought;
+        return null;
       }
 
-      protected void process(List<Board> done) {
-        bar.setValue(bar.getValue() + done.size());
-        saying.setText(done.get(done.size() - 1).name() + "…");
+      protected void process(List<Board> arrived) {
+        for (Board board : arrived) {
+          outside.removeElement(board);
+          inside.addElement(board);
+          bar.setValue(bar.getValue() + 1);
+          saying.setText(board.name() + " is in");
+        }
+        sort(inside);
       }
 
       protected void done() {
         bar.setVisible(false);
-        int brought;
-        try {
-          brought = get();
-        } catch (Exception broken) {
-          brought = 0;
-        }
-        for (int row = 0; row < wanted.size(); row++) wanted.set(row, false);
-        offer.fireTableDataChanged();
         if (arrived != null) arrived.accept(null);
-        busy(brought + " plugged in, and in the Equipment menu; a machine that was already open was built without them",
-            false);
+        busy(inside.size() + " in, " + outside.size() + " to be had  -  what you just added is in the"
+            + " Equipment menu and in the machines you open from now on", false);
       }
     }.execute();
   }
 
-  private int here() {
-    int here = 0;
-    for (Board board : boards) {
-      if (PluginReleases.isHere(board)) here++;
+  private void leaveOutTheChosen() {
+    List<Board> chosen = included.getSelectedValuesList();
+    if (chosen.isEmpty()) {
+      busy("Choose one on the right first", false);
+      return;
     }
-    return here;
+    int gone = 0;
+    for (Board board : chosen) {
+      try {
+        PluginReleases.takeOut(board);
+        inside.removeElement(board);
+        outside.addElement(board);
+        gone++;
+      } catch (Exception wouldNotGo) {
+        System.err.println("oozx: " + board.name() + " could not be taken out: " + wouldNotGo);
+      }
+    }
+    sort(outside);
+    busy(inside.size() + " in, " + outside.size() + " to be had  -  the " + gone + " taken out will be"
+        + " gone the next time the emulator starts", false);
+  }
+
+  private static void sort(DefaultListModel<Board> side) {
+    List<Board> boards = new ArrayList<>();
+    for (int row = 0; row < side.size(); row++) boards.add(side.get(row));
+    boards.sort(java.util.Comparator.comparing(Board::name));
+    side.clear();
+    boards.forEach(side::addElement);
   }
 
   private void busy(String what, boolean waiting) {
     saying.setText(what);
-    add.setEnabled(!waiting);
+    include.setEnabled(!waiting);
+    leaveOut.setEnabled(!waiting);
     again.setEnabled(!waiting);
-    bar.setVisible(waiting && bar.isIndeterminate());
-    if (waiting) bar.setIndeterminate(true);
+    if (waiting) {
+      bar.setIndeterminate(true);
+      bar.setVisible(true);
+    }
   }
 
   private static String reason(Exception broken) {
@@ -192,42 +250,16 @@ public class PluginsInternalFrame extends JInternalFrame {
     return deepest.getMessage() == null ? deepest.getClass().getSimpleName() : deepest.getMessage();
   }
 
-  /** What is published, whether it is here, and what was ticked. */
-  private class Offer extends AbstractTableModel {
-    private final String[] columns = {"", "Board", "Size", ""};
-
-    public int getRowCount() {
-      return boards.size();
-    }
-
-    public int getColumnCount() {
-      return columns.length;
-    }
-
-    public String getColumnName(int column) {
-      return columns[column];
-    }
-
-    public Class<?> getColumnClass(int column) {
-      return column == 0 ? Boolean.class : String.class;
-    }
-
-    public boolean isCellEditable(int row, int column) {
-      return column == 0;
-    }
-
-    public Object getValueAt(int row, int column) {
-      Board board = boards.get(row);
-      return switch (column) {
-        case 0 -> wanted.get(row);
-        case 1 -> board.name();
-        case 2 -> Math.max(1, board.size() / 1024) + " KB";
-        default -> PluginReleases.isHere(board) ? "here" : "";
-      };
-    }
-
-    public void setValueAt(Object value, int row, int column) {
-      if (column == 0) wanted.set(row, Boolean.TRUE.equals(value));
+  /** A board says its name and what it weighs, since that is all there is to know before taking it. */
+  private static class AsABoard extends javax.swing.DefaultListCellRenderer {
+    public java.awt.Component getListCellRendererComponent(JList<?> list, Object value, int index,
+        boolean chosen, boolean focused) {
+      super.getListCellRendererComponent(list, value, index, chosen, focused);
+      if (value instanceof Board board) {
+        setText("<html>" + board.name() + "  <font color='gray'>"
+            + Math.max(1, board.size() / 1024) + " KB</font></html>");
+      }
+      return this;
     }
   }
 }

@@ -139,6 +139,18 @@ public class PluginReleases implements Configuration.Saves {
     return here;
   }
 
+  /**
+   * Takes one out again: the jar goes, and so does the note that it was here. What was already
+   * loaded stays loaded - a class cannot be unloaded from a machine that is using it - so a board
+   * taken out now is one the next run does not have.
+   */
+  public static void takeOut(Board board) throws IOException {
+    Files.deleteIfExists(Plugins.folder().resolve(board.jar()));
+    PluginReleases them = theOne();
+    them.brought.remove(board.jar());
+    if (them.configuration != null) them.configuration.save();
+  }
+
   private static HttpClient client() {
     return HttpClient.newBuilder()
         .followRedirects(HttpClient.Redirect.NORMAL)
