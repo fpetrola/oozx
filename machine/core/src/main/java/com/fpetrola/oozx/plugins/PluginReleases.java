@@ -52,6 +52,13 @@ public class PluginReleases implements Configuration.Saves {
   /** Which asset each jar here came from, so that what is published again is seen to be newer. */
   public Map<String, Long> brought = new LinkedHashMap<>();
 
+  /**
+   * The ones taken out while the emulator was running. The file stays where it is until the next
+   * start, because the loader holds it open and a jar pulled out from under it makes every later
+   * look at the services throw; it simply stops counting from the moment it is listed here.
+   */
+  public java.util.Set<String> takenOut = new java.util.LinkedHashSet<>();
+
   /** What this emulator calls itself when it asks somebody for a file. */
   private static final String WHO_IS_ASKING = "oozx (ZX Spectrum emulator)";
 
@@ -83,7 +90,8 @@ public class PluginReleases implements Configuration.Saves {
   public static boolean isHere(Board board) {
     PluginReleases them = theOne();
     Long had = them.brought.get(board.jar());
-    return Files.exists(Plugins.folder().resolve(board.jar())) && had != null && had == board.asset();
+    return !them.takenOut.contains(board.jar())
+        && Files.exists(Plugins.folder().resolve(board.jar())) && had != null && had == board.asset();
   }
 
   /** The releases of the repository, reduced to the ones that are a device and carry a jar. */
@@ -132,6 +140,7 @@ public class PluginReleases implements Configuration.Saves {
     Files.move(half, here, StandardCopyOption.REPLACE_EXISTING);
 
     PluginReleases them = theOne();
+    them.takenOut.remove(board.jar());
     them.brought.put(board.jar(), board.asset());
     if (them.configuration != null) them.configuration.save();
 
@@ -140,15 +149,59 @@ public class PluginReleases implements Configuration.Saves {
   }
 
   /**
-   * Takes one out again: the jar goes, and so does the note that it was here. What was already
-   * loaded stays loaded - a class cannot be unloaded from a machine that is using it - so a board
-   * taken out now is one the next run does not have.
+   * Takes one out: written down as out rather than deleted, and deleted when the emulator starts
+   * again. The file has to stay where it is while this runs - the loader holds it open, and one
+   * pulled out from under it makes every later look at the services throw - so being out is a
+   * fact about the list and not about the disk.
+   * <p>
+   * What was already loaded stays loaded: a class cannot be unloaded from a machine that is using
+   * it, so a board taken out now is one that machine keeps until the emulator starts again.
    */
-  public static void takeOut(Board board) throws IOException {
-    Files.deleteIfExists(Plugins.folder().resolve(board.jar()));
+  public static void takeOut(Board board) {
     PluginReleases them = theOne();
     them.brought.remove(board.jar());
+    them.takenOut.add(board.jar());
     if (them.configuration != null) them.configuration.save();
+  }
+
+  /** Whether this jar was taken out and is only waiting for the next start to go. */
+  public static boolean isOut(String jar) {
+    return theOne().takenOut.contains(jar);
+  }
+
+  /** The ones taken out, thrown away now that nothing has them open. Called once, on the way up. */
+  public static void sweep() {
+    PluginReleases them = theOne();
+    if (them.takenOut.isEmpty()) return;
+    for (String jar : them.takenOut) {
+      try {
+        Files.deleteIfExists(Plugins.folder().resolve(jar));
+      } catch (IOException wouldNotGo) {
+        System.err.println("oozx: " + jar + " could not be thrown away: " + wouldNotGo.getMessage());
+      }
+    }
+    them.takenOut.clear();
+    if (them.configuration != null) them.configuration.save();
+  }
+
+  /**
+   * The other boards this one was built against, read from its own manifest: a board that uses
+   * another's code says so in the jar, so bringing one can bring what it cannot work without.
+   */
+  public static List<String> needs(Path jar) {
+    List<String> boards = new ArrayList<>();
+    try (java.util.jar.JarFile opened = new java.util.jar.JarFile(jar.toFile())) {
+      java.util.jar.Manifest manifest = opened.getManifest();
+      if (manifest == null) return boards;
+      String classpath = manifest.getMainAttributes().getValue("Class-Path");
+      if (classpath == null) return boards;
+      for (String named : classpath.split("\\s+")) {
+        if (named.startsWith(THE_TAGS_THAT_ARE_DEVICES) && named.endsWith(".jar")) boards.add(named);
+      }
+    } catch (IOException cannotBeRead) {
+      System.err.println("oozx: " + jar.getFileName() + " does not say what it needs: " + cannotBeRead.getMessage());
+    }
+    return boards;
   }
 
   private static HttpClient client() {

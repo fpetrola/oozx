@@ -2443,7 +2443,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
 
   private static java.util.List<Equipment> whatCanBePluggedIn() {
     return com.fpetrola.oozx.plugins.Plugins.found(Equipment.class).stream()
-        .map(ServiceLoader.Provider::get)
         .sorted(java.util.Comparator.comparing(Equipment::name))
         .toList();
   }
@@ -2451,7 +2450,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
   /** Where the Equipment menu is, so that a board which arrives while this runs can be added to it. */
   private JMenu equipmentMenu;
 
-  /** Said once a plugin is here: the menu offers it without anybody starting the emulator again. */
+  /** Said once the folder changed: the menu offers what is there now, and only that. */
   public void somethingWasPluggedIn() {
     equipmentKinds = whatCanBePluggedIn();
     fillEquipmentMenu();

@@ -22,11 +22,16 @@ import com.fpetrola.oozx.config.Configuration;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URISyntaxException;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
 /**
@@ -91,8 +96,18 @@ public final class Plugins {
     }
   }
 
+  /**
+   * Whether plugins are looked at at all. Off while the build specialises the model and while the
+   * tests run: what those two produce is this tree, never whatever somebody has installed.
+   */
+  public static boolean areRead() {
+    return !"off".equals(System.getProperty("oozx.plugins"));
+  }
+
   /** The jars themselves, for whoever wants to say what was found rather than use it. */
   public static List<File> jars() {
+    if (!areRead()) return List.of();
+    PluginReleases.sweep();
     File[] found = folder().toFile().listFiles(file -> file.getName().endsWith(".jar"));
     if (found == null) return List.of();
     List<File> jars = new ArrayList<>(Arrays.asList(found));
@@ -100,9 +115,44 @@ public final class Plugins {
     return jars;
   }
 
-  /** Whatever answers to this service, in the folder and on the classpath alike. */
-  public static <S> ServiceLoader<S> found(Class<S> service) {
-    return ServiceLoader.load(service, loader());
+  /**
+   * Whatever answers to this service, in the folder and on the classpath alike - less whatever
+   * came out of a jar that is not in the folder any more.
+   * <p>
+   * A jar taken out cannot be taken out of the loader: the classes it brought are in machines and
+   * on windows, and a loader made again would hand out second copies of them to whatever is built
+   * next. So it stays loaded and stops counting, which is the difference between what this build
+   * can do and what it happens to be holding.
+   */
+  public static <S> List<S> found(Class<S> service) {
+    List<S> answering = new ArrayList<>();
+    Iterator<ServiceLoader.Provider<S>> providers =
+        ServiceLoader.load(service, loader()).stream().iterator();
+    // A jar deleted by hand while this runs is still in the loader, and reading its service file
+    // throws: one that cannot be read is skipped rather than allowed to take everything with it.
+    for (int guard = 0; guard < 10_000; guard++) {
+      try {
+        if (!providers.hasNext()) break;
+        ServiceLoader.Provider<S> provider = providers.next();
+        if (stillHere(provider.type())) answering.add(provider.get());
+      } catch (ServiceConfigurationError cannotBeRead) {
+        System.err.println("oozx: a plugin could not be read: " + cannotBeRead.getMessage());
+      }
+    }
+    return answering;
+  }
+
+  /** Whether what this came from is still in the folder. Anything from elsewhere always counts. */
+  private static boolean stillHere(Class<?> type) {
+    try {
+      CodeSource source = type.getProtectionDomain().getCodeSource();
+      if (source == null || source.getLocation() == null) return true;
+      Path from = Path.of(source.getLocation().toURI());
+      if (!from.startsWith(folder())) return true;
+      return Files.exists(from) && !PluginReleases.isOut(from.getFileName().toString());
+    } catch (URISyntaxException | IllegalArgumentException notAFile) {
+      return true;
+    }
   }
 
   private static URL[] urlsOf(List<File> jars) {

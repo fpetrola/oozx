@@ -258,7 +258,8 @@
                          RAM is what a JVM takes by default, and on a small box that is under what
                          a run of this suite needs, so the same tree passed or failed by where it
                          was built. -->
-                    <argLine>-Xmx2g</argLine>
+                    <!-- oozx.plugins=off: what a test builds is this tree, never what somebody has in ~/.oozx/plugins. -->
+                    <argLine>-Xmx2g -Doozx.plugins=off</argLine>
                     <!-- A test's home is under target: whatever reads or saves ~/.oozx/config.json
                          gets a fresh one there, and the person's own is never read as a test's
                          settings nor written over by one. -->

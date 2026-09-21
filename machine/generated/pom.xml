@@ -184,6 +184,9 @@
                             <classpathScope>compile</classpathScope>
                             <arguments>
                                 <argument>-Xmx1g</argument>
+                                <!-- The model is specialised as this tree defines it, not as the
+                                     plugins somebody happens to have installed extend it. -->
+                                <argument>-Doozx.plugins=off</argument>
                                 <argument>-classpath</argument>
                                 <classpath/>
                                 <argument>com.fpetrola.oozx.generated.GeneratedCores</argument>

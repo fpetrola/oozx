@@ -59,6 +59,12 @@
             <artifactId>devices-kit</artifactId>
             <version>0.0.2-alu-SNAPSHOT</version>
         </dependency>
+        <!-- The ATA and MMC code six of the boards share, for the same reason the kit is here. -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>devices-ide</artifactId>
+            <version>0.0.2-alu-SNAPSHOT</version>
+        </dependency>
         <!--
           The boards themselves are NOT part of this: they arrive as jars in ~/.oozx/plugins, each
           published as a release of its own, and are found there rather than carried here. On the

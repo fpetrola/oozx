@@ -166,17 +166,26 @@ public class PluginsInternalFrame extends JInternalFrame {
     }
     busy("Bringing " + chosen.size() + "…", true);
     bar.setVisible(true);
-    bar.setIndeterminate(false);
-    bar.setMinimum(0);
-    bar.setMaximum(chosen.size());
-    bar.setValue(0);
+    bar.setIndeterminate(true);
 
     new SwingWorker<Void, Board>() {
       protected Void doInBackground() {
-        for (Board board : chosen) {
+        java.util.Deque<Board> taking = new java.util.ArrayDeque<>(chosen);
+        java.util.Set<String> asked = new java.util.HashSet<>();
+        while (!taking.isEmpty()) {
+          Board board = taking.poll();
+          if (!asked.add(board.jar())) continue;
           try {
-            PluginReleases.bring(board);
+            java.nio.file.Path jar = PluginReleases.bring(board);
             publish(board);
+            // What it was built against and is not here: a board that uses another's code is no
+            // use without it, so it arrives too rather than failing at the first missing class.
+            for (String needed : PluginReleases.needs(jar)) {
+              for (int row = 0; row < outside.size(); row++) {
+                Board other = outside.get(row);
+                if (other.jar().equals(needed) && !asked.contains(needed)) taking.add(other);
+              }
+            }
           } catch (Exception didNotArrive) {
             System.err.println("oozx: " + board.name() + " did not arrive: " + didNotArrive);
           }
@@ -188,7 +197,6 @@ public class PluginsInternalFrame extends JInternalFrame {
         for (Board board : arrived) {
           outside.removeElement(board);
           inside.addElement(board);
-          bar.setValue(bar.getValue() + 1);
           saying.setText(board.name() + " is in");
         }
         sort(inside);
@@ -221,8 +229,9 @@ public class PluginsInternalFrame extends JInternalFrame {
       }
     }
     sort(outside);
-    busy(inside.size() + " in, " + outside.size() + " to be had  -  the " + gone + " taken out will be"
-        + " gone the next time the emulator starts", false);
+    if (arrived != null) arrived.accept(null);
+    busy(inside.size() + " in, " + outside.size() + " to be had  -  the " + gone + " taken out is gone"
+        + " from the menu; a machine that already has it keeps it until the emulator starts again", false);
   }
 
   private static void sort(DefaultListModel<Board> side) {

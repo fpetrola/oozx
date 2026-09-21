@@ -56,6 +56,28 @@
         <module>all</module>
     </modules>
 
+    <!--
+      Every board's jar says in its manifest which jars it was built against. What a plugin needs
+      of another plugin is then in the plugin itself, so bringing one can bring what it cannot
+      work without instead of failing at the first class it cannot find.
+    -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.1</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
