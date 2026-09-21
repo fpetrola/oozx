@@ -15,6 +15,7 @@ fast: a second processor core is *generated* from the model and runs 4.3× the m
 
 | | |
 |---|---|
+| **[Everything it does](Features)** | **The whole thing in pictures: every feature, and what it looks like** |
 | [Getting Started](Getting-Started) | Build it, run it, load your first game |
 | [The Desktop](The-Desktop) | Many machines on one desk, windows you clip together, a session that comes back |
 | [Machines](Machines) | Twenty-four models, from a 16K to a Pentagon 1024 |
