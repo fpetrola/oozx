@@ -56,6 +56,12 @@ public class OOSpectrumLauncher {
     // opinion about what a keyboard sends, so whoever has one says so before a machine is built.
     LookAndFeels.install(LookAndFeels.DEFAULT);
 
+    // The boards are not in this jar: each is published as a release of its own and lives in
+    // ~/.oozx/plugins. Brought before anything is built, because a peripheral that arrives after
+    // a machine was made is a peripheral that machine will not have.
+    com.fpetrola.oozx.plugins.PluginReleases.askingFirst(PluginsDialog.asking());
+    PluginsDialog.bringThem();
+
     // Some machines need a ROM this build cannot ship. Nothing is fetched without a yes, and
     // whoever is in front of the machine is the only one who can give it.
     com.fpetrola.oozx.config.RomFiles.askingFirst(RomNotShippedDialog.asking());

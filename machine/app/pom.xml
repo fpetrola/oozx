@@ -50,10 +50,26 @@
             <version>0.0.2-alu-SNAPSHOT</version>
         </dependency>
         <!-- The peripherals this build offers. Nothing here names one; they arrive by service file. -->
+        <!--
+          The shapes a board's window is made of, and the interfaces the desktop plugs one into:
+          the contract stays here, because a plugin has to be able to name it.
+        -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>devices-kit</artifactId>
+            <version>0.0.2-alu-SNAPSHOT</version>
+        </dependency>
+        <!--
+          The boards themselves are NOT part of this: they arrive as jars in ~/.oozx/plugins, each
+          published as a release of its own, and are found there rather than carried here. On the
+          test classpath only, so what the tests exercise is the whole environment while what is
+          shipped is the emulator with nothing plugged into it.
+        -->
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>devices-all</artifactId>
             <version>0.0.2-alu-SNAPSHOT</version>
+            <scope>test</scope>
         </dependency>
         <!-- The fast core, which arrives the same way and makes itself on the first run. -->
         <dependency>

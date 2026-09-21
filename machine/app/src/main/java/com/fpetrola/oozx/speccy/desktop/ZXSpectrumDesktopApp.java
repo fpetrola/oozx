@@ -2439,7 +2439,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
   }
 
   /** The equipment this build offers, in the order the menu shows it. */
-  private final java.util.List<Equipment> equipmentKinds = ServiceLoader.load(Equipment.class).stream()
+  private final java.util.List<Equipment> equipmentKinds =
+      com.fpetrola.oozx.plugins.Plugins.found(Equipment.class).stream()
       .map(ServiceLoader.Provider::get)
       .sorted(java.util.Comparator.comparing(Equipment::name))
       .toList();

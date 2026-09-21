@@ -17,7 +17,6 @@
 package com.fpetrola.oozx.speccy.media;
 
 import com.fpetrola.emulation.helpers.snapshots.SnapshotFactory;
-import com.fpetrola.oozx.speccy.devices.spec256.Spec256Peripheral;
 import com.fpetrola.oozx.api.GameFingerprint;
 import com.fpetrola.oozx.api.GameLibrary;
 import com.fpetrola.oozx.api.GameSummary;
@@ -64,7 +63,7 @@ public class LocalGames {
         }
 
         public boolean inColour(Path file) {
-          return Spec256Peripheral.hasColours(file.toString());
+          return com.fpetrola.oozx.plugins.BesideTheGame.anythingBeside(file.toString());
         }
       });
       try {

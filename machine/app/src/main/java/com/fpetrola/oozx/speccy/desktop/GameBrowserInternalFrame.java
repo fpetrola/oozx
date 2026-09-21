@@ -19,7 +19,6 @@ package com.fpetrola.oozx.speccy.desktop;
 
 import com.fpetrola.oozx.api.GameFingerprint;
 import com.fpetrola.oozx.api.GameLibrary;
-import com.fpetrola.oozx.speccy.devices.spec256.Spec256Peripheral;
 import com.fpetrola.oozx.speccy.media.DownloadAndUnzip;
 import com.fpetrola.oozx.speccy.media.LocalGames;
 import com.fpetrola.oozx.speccy.windows.LazyImageIconLoader;
@@ -100,6 +99,12 @@ public class GameBrowserInternalFrame extends JInternalFrame {
   private final RzxArchive archive = new RzxArchive();
   private final com.fpetrola.oozx.speccy.config.OOZxConfiguration config =
       com.fpetrola.oozx.config.Configuration.shared().of(com.fpetrola.oozx.speccy.config.OOZxConfiguration.class);
+
+  /** What a file brings beside itself - colours, for one - said by whoever can recognise it. */
+  private static String besides(String file) {
+    String brings = com.fpetrola.oozx.plugins.BesideTheGame.whatIsBeside(file);
+    return brings == null ? "" : "   -   " + brings;
+  }
 
   private static int idOf(String id) {
     try {
@@ -1106,7 +1111,7 @@ public class GameBrowserInternalFrame extends JInternalFrame {
         // only in TOSEC is a different thing to choose than one the archive itself hands out.
         String shown = DownloadAndUnzip.nameOf(each)
             + (ZxInfoApiHandler.fromTosec(each) ? "  (found)" : "")
-            + (Spec256Peripheral.hasColours(each) ? "   -   256 colors" : "");
+            + besides(each);
         JMenu item = machineMenu(
             DownloadAndUnzip.available(each) ? shown : shown + "  (not available)", result, each);
         item.setEnabled(DownloadAndUnzip.available(each));

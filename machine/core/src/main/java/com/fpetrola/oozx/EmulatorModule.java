@@ -117,7 +117,7 @@ public class EmulatorModule extends AbstractModule {
     // rather than fail to resolve one.
     Multibinder.newSetBinder(binder(), Peripheral.class);
     Multibinder.newSetBinder(binder(), com.fpetrola.oozx.config.Settings.Part.class);
-    ServiceLoader.load(Extension.class).forEach(this::install);
+    com.fpetrola.oozx.plugins.Plugins.found(Extension.class).forEach(this::install);
 
     // The machines themselves arrive as extensions, bound into Set<Spectrum>; none is named here.
 
