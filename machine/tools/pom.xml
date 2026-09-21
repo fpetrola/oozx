@@ -40,6 +40,7 @@
         <module>audio-in</module>
         <module>cassette</module>
         <module>games</module>
+        <module>calls</module>
     </modules>
 
     <dependencies>
