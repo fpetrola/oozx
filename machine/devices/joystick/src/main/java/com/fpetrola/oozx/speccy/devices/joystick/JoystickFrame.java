@@ -32,14 +32,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.fpetrola.oozx.speccy.desktop;
+package com.fpetrola.oozx.speccy.devices.joystick;
 
-import com.fpetrola.oozx.speccy.windows.AttachedFrame;
+import com.fpetrola.oozx.speccy.devices.MachineFrame;
 import com.fpetrola.oozx.speccy.modules.input.Input;
 import com.fpetrola.oozx.Speccy;
 
 import javax.swing.JComponent;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.Timer;
 import javax.swing.event.InternalFrameAdapter;
@@ -48,7 +47,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -57,18 +55,22 @@ import java.util.function.Supplier;
  * when a game does not react: it says whether a pad was found at all, whether the machine has its
  * Kempston interface on, and whether what is pressed gets through.
  */
-public class JoystickInternalFrame extends AttachedFrame {
+public class JoystickFrame extends MachineFrame {
   private static final int REFRESH_MILLIS = 33;
   static final int RIGHT = 0x01, LEFT = 0x02, DOWN = 0x04, UP = 0x08, FIRE = 0x10;
-  private final Function<JInternalFrame, Speccy> machineOf;
   private final Supplier<String> gamepad;
   private final JLabel reading = new JLabel();
   private final Stick stick = new Stick();
 
-  public JoystickInternalFrame(Function<JInternalFrame, Speccy> machineOf, Supplier<String> gamepad) {
+  /** The window and the pad it reads: opening it is what turns the gamepad on. */
+  public JoystickFrame() {
+    this(null);
+  }
+
+  JoystickFrame(Supplier<String> insteadOfAPad) {
     super("Joystick");
-    this.machineOf = machineOf;
-    this.gamepad = gamepad;
+    Gamepad pad = insteadOfAPad != null ? null : Gamepad.drivingWhateverThisIsOn(this::machine);
+    this.gamepad = insteadOfAPad != null ? insteadOfAPad : () -> pad == null ? null : pad.controller();
     setSize(300, 220);
     controls.add(reading);
     assemble(stick);
@@ -79,6 +81,7 @@ public class JoystickInternalFrame extends AttachedFrame {
       @Override
       public void internalFrameClosed(InternalFrameEvent e) {
         refresh.stop();
+        if (pad != null) pad.stop();
       }
     });
     refresh();
@@ -92,10 +95,6 @@ public class JoystickInternalFrame extends AttachedFrame {
   @Override
   protected String attachTip() {
     return "Keep this under the machine's window, the same width as it";
-  }
-
-  private Speccy machine() {
-    return isAttached() ? machineOf.apply(getMachineWindow()) : null;
   }
 
   /** What the machine's Kempston port answers right now, bit by bit. */

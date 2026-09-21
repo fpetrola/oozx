@@ -32,7 +32,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.fpetrola.oozx.speccy.desktop;
+package com.fpetrola.oozx.speccy.devices.joystick;
 
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.modules.input.Input;
@@ -48,20 +48,35 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** The window shows what the machine's Kempston port reads, and names the gamepad doing it. */
-class JoystickInternalFrameTest {
+class JoystickFrameTest {
+
+  /** A machine's window, which is how a window clipped onto it finds the machine. */
+  private static JInternalFrame machineWindow(Speccy speccy) {
+    class Window extends JInternalFrame implements com.fpetrola.oozx.speccy.devices.EmulatorWindow {
+      public Speccy machine() {
+        return speccy;
+      }
+
+      public javax.swing.JComponent picture() {
+        return null;
+      }
+    }
+    return new Window();
+  }
+
   @Test
   void itShowsWhatTheMachineInFrontReadsAndWhoPressesIt() {
     Speccy speccy = Speccy.create(new SpectrumZ80Clock(),
         binder -> binder.bind(SoundCard.class).to(SilentSoundDevice.class));
     speccy.init();
     speccy.picture.active = false;
-    JInternalFrame machine = new JInternalFrame("machine");
-    JoystickInternalFrame window = new JoystickInternalFrame(w -> w == machine ? speccy : null, () -> "DualSense");
+    JInternalFrame machine = machineWindow(speccy);
+    JoystickFrame window = new JoystickFrame(() -> "DualSense");
     window.setMachineWindow(machine);
     Input.of(speccy).joystick().press(0, JoystickButton.JOYSTICK_BUTTON_UP, true);
     Input.of(speccy).joystick().press(0, JoystickButton.JOYSTICK_BUTTON_FIRE, true);
 
-    assertEquals(JoystickInternalFrame.UP | JoystickInternalFrame.FIRE, window.pressed(), "up and fire, as port 31 reads them");
+    assertEquals(JoystickFrame.UP | JoystickFrame.FIRE, window.pressed(), "up and fire, as port 31 reads them");
     window.setMachineWindow(null);
     assertEquals(0, window.pressed(), "with no machine there is nothing to read");
     window.setMachineWindow(machine);

@@ -125,11 +125,6 @@
             <artifactId>gson</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.badlogicgames.jamepad</groupId>
-            <artifactId>jamepad</artifactId>
-            <version>2.30.0.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-transcoder</artifactId>
             <version>1.17</version>

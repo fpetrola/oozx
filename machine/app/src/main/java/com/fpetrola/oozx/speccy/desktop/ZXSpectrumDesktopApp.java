@@ -977,7 +977,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
   private final JFileChooser fileChooser = new JFileChooser();
   protected OOZxConfiguration config;
   private JMenu recentFilesMenu;
-  private com.fpetrola.oozx.speccy.desktop.Gamepad gamepad;
   protected PokesManager pokesManager;
 
   {
@@ -1075,14 +1074,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
     // typed into is a question about this desktop, not about any one of the machines on it.
     KeyboardFocusManager.getCurrentKeyboardFocusManager()
         .addKeyEventDispatcher(this::typeIntoTheMachineInFront);
-    try {
-      gamepad = new com.fpetrola.oozx.speccy.desktop.Gamepad(() -> {
-        EmulatorInternalFrame machine = machineBeingUsed();
-        return machine == null ? null : machine.machine();
-      });
-    } catch (RuntimeException | LinkageError withoutGamepads) {
-      System.err.println("Gamepads are off: " + withoutGamepads.getMessage());
-    }
     applySavedLookAndFeel();
     // Emulators apply the defaults themselves as they are built, so putting the saved ones in
     // place here is all it takes for the next window to open configured.
@@ -1212,9 +1203,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
     JMenuItem audioInItem = new JMenuItem("Real Cassette (audio in)...");
     audioInItem.addActionListener(e -> showAudioIn());
     emulatorMenu.add(audioInItem);
-    JMenuItem joystickItem = new JMenuItem("Joystick...");
-    joystickItem.addActionListener(e -> showJoystick());
-    emulatorMenu.add(joystickItem);
     JMenuItem gameBrowserMenuItem = new JMenuItem("Game Browser...");
     gameBrowserMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.CTRL_DOWN_MASK));
     gameBrowserMenuItem.addActionListener(e -> openGameBrowser());
@@ -2678,13 +2666,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
   public AudioInInternalFrame showAudioIn() {
     return clipOntoTheMachineInFront(new AudioInInternalFrame(this::deckOf));
   }
-
-  /** A window on the joystick of the machine in front: what is pushed, and which gamepad does it. */
-  public JoystickInternalFrame showJoystick() {
-    return clipOntoTheMachineInFront(new JoystickInternalFrame(this::machineOf,
-        () -> gamepad == null ? null : gamepad.controller()));
-  }
-
 
   /** Placed, shown and clipped onto the machine in front, which is what wires it to that machine. */
   private <T extends AttachedFrame> T clipOntoTheMachineInFront(T window) {

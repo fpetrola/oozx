@@ -32,7 +32,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.fpetrola.oozx.speccy.desktop;
+package com.fpetrola.oozx.speccy.devices.joystick;
 
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.modules.input.Input;
@@ -47,8 +47,8 @@ import java.util.function.Supplier;
 import static com.fpetrola.oozx.speccy.modules.joystick.Joystick.JoystickButton.*;
 
 /**
- * A gamepad on the desktop, driving the joystick of whichever machine is in front the way the
- * keyboard follows it. Read through Jamepad, which brings SDL along for every desktop, so
+ * A gamepad driving the joystick of the machine its window is clipped to, the way the keyboard
+ * follows the machine in front. Read through Jamepad, which brings SDL along for every desktop, so
  * nothing here knows which one it is running on. The d-pad or the left stick steer and any face
  * button fires; plugged in, it is the Kempston interface of the machine it drives.
  * <p>
@@ -62,11 +62,29 @@ public class Gamepad {
   private EnumSet<JoystickButton> held = EnumSet.noneOf(JoystickButton.class);
   private ControllerState pad;
   private Speccy driving;
+  private final Timer polling = new Timer(10, e -> poll());
 
-  public Gamepad(Supplier<Speccy> machineInFront) {
+  /** None where SDL cannot be had: a desktop without it still has the keys standing in for a pad. */
+  static Gamepad drivingWhateverThisIsOn(Supplier<Speccy> machineInFront) {
+    try {
+      return new Gamepad(machineInFront);
+    } catch (RuntimeException | LinkageError withoutGamepads) {
+      System.err.println("Gamepads are off: " + withoutGamepads.getMessage());
+      return null;
+    }
+  }
+
+  private Gamepad(Supplier<Speccy> machineInFront) {
     this.machineInFront = machineInFront;
     controllers.initSDLGamepad();
-    new Timer(10, e -> poll()).start();
+    polling.start();
+  }
+
+  /** Let go of it: nothing is looking at the pad once the window that was showing it is gone. */
+  void stop() {
+    polling.stop();
+    move(driving, held, false);
+    controllers.quitSDLGamepad();
   }
 
   /** The gamepad in use, by the name SDL gives it, or null while there is none. */
