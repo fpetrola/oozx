@@ -8,6 +8,13 @@ renders around every page. This file is not a page; it is the note about the oth
 
 ## Publishing
 
+`.github/workflows/wiki-pages.yml` copia estas páginas a la wiki de GitHub
+(`oozx.wiki.git`, que es otro repositorio) en cada push a `main` que toque `doc/wiki/`. `README.md` queda
+fuera: es esta nota, no una página. Necesita un secret `WIKI_TOKEN` — un PAT con permiso de escritura sobre
+el repositorio, porque el `GITHUB_TOKEN` del workflow no alcanza para la wiki.
+
+A mano, si hiciera falta:
+
 ```bash
 git clone https://github.com/fpetrola/oozx.wiki.git /tmp/oozx.wiki
 cp doc/wiki/*.md /tmp/oozx.wiki/          # README.md excluded, it is this note

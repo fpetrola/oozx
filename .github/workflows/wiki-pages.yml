@@ -29,3 +29,22 @@ jobs:
           path: doc/wiki
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  wiki:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Push the pages to the GitHub wiki
+        env:
+          TOKEN: ${{ secrets.WIKI_TOKEN }}
+        run: |
+          git clone https://x-access-token:$TOKEN@github.com/${{ github.repository }}.wiki.git wiki
+          rm -f wiki/*.md
+          cp doc/wiki/*.md wiki/
+          rm -f wiki/README.md
+          cd wiki
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "Wiki: ${{ github.sha }}"
+          git push
