@@ -198,7 +198,7 @@ public class HeatmapFrame extends MachineFrame {
    * ran once and one that ran a thousand times, and on a straight scale the inner loop is the
    * only thing on the picture.
    */
-  private static int warmth(long times, long hottest) {
+  static int warmth(long times, long hottest) {
     if (times == 0) {
       return 0x101014;
     }
