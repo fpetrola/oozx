@@ -62,7 +62,12 @@ public class PluginReleases implements Configuration.Saves {
   /** What this emulator calls itself when it asks somebody for a file. */
   private static final String WHO_IS_ASKING = "oozx (ZX Spectrum emulator)";
 
-  private static final String THE_TAGS_THAT_ARE_DEVICES = "device-";
+  /** What a tag or a jar is called when it is something to plug in: a board, or a tool over one. */
+  private static final List<String> WHAT_PLUGS_IN = List.of("device-", "tool-");
+
+  private static boolean plugsIn(String named) {
+    return WHAT_PLUGS_IN.stream().anyMatch(named::startsWith);
+  }
 
   private static final Duration PATIENCE = Duration.ofSeconds(15);
 
@@ -107,7 +112,7 @@ public class PluginReleases implements Configuration.Saves {
     List<Board> boards = new ArrayList<>();
     for (JsonNode release : new ObjectMapper().readTree(answer.body())) {
       String tag = release.path("tag_name").asText("");
-      if (!tag.startsWith(THE_TAGS_THAT_ARE_DEVICES)) continue;
+      if (!plugsIn(tag)) continue;
       for (JsonNode asset : release.path("assets")) {
         String jar = asset.path("name").asText("");
         if (!jar.endsWith(".jar")) continue;
@@ -196,7 +201,7 @@ public class PluginReleases implements Configuration.Saves {
       String classpath = manifest.getMainAttributes().getValue("Class-Path");
       if (classpath == null) return boards;
       for (String named : classpath.split("\\s+")) {
-        if (named.startsWith(THE_TAGS_THAT_ARE_DEVICES) && named.endsWith(".jar")) boards.add(named);
+        if (plugsIn(named) && named.endsWith(".jar")) boards.add(named);
       }
     } catch (IOException cannotBeRead) {
       System.err.println("oozx: " + jar.getFileName() + " does not say what it needs: " + cannotBeRead.getMessage());

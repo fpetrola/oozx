@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.fpetrola.oozx.speccy.desktop;
+package com.fpetrola.oozx.speccy.tools.keyboard;
 
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.modules.input.Input;
@@ -25,6 +25,8 @@ import com.fpetrola.oozx.speccy.modules.sound.SoundCard;
 import com.fpetrola.oozx.speccy.modules.z80.SpectrumZ80Clock;
 import org.junit.jupiter.api.Test;
 
+import com.fpetrola.oozx.speccy.devices.EmulatorWindow;
+
 import javax.swing.JInternalFrame;
 import java.awt.Rectangle;
 import java.util.EnumSet;
@@ -33,15 +35,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** The window shows the keys the machine in front reads as held, and every key has a place on the picture. */
-class KeyboardInternalFrameTest {
+class KeyboardFrameTest {
+
+  /** A machine's window, which is how a window clipped onto it finds the machine. */
+  private static JInternalFrame machineWindow(Speccy speccy) {
+    class Window extends JInternalFrame implements EmulatorWindow {
+      Window() {
+        super("machine");
+      }
+
+      public Speccy machine() {
+        return speccy;
+      }
+
+      public javax.swing.JComponent picture() {
+        return null;
+      }
+    }
+    return new Window();
+  }
   @Test
   void itShowsTheKeysTheMachineInFrontHasDown() {
     Speccy speccy = Speccy.create(new SpectrumZ80Clock(),
         binder -> binder.bind(SoundCard.class).to(SilentSoundDevice.class));
     speccy.init();
     speccy.picture.active = false;
-    JInternalFrame machine = new JInternalFrame("machine");
-    KeyboardInternalFrame window = new KeyboardInternalFrame(w -> w == machine ? speccy : null);
+    JInternalFrame machine = machineWindow(speccy);
+    KeyboardFrame window = new KeyboardFrame();
     window.setMachineWindow(machine);
 
     Input.of(speccy).keyboard().press(SpectrumKey.CAPS_SHIFT);
@@ -64,8 +84,8 @@ class KeyboardInternalFrameTest {
         binder -> binder.bind(SoundCard.class).to(SilentSoundDevice.class));
     speccy.init();
     speccy.picture.active = false;
-    JInternalFrame machine = new JInternalFrame("machine");
-    KeyboardInternalFrame window = new KeyboardInternalFrame(w -> w == machine ? speccy : null);
+    JInternalFrame machine = machineWindow(speccy);
+    KeyboardFrame window = new KeyboardFrame();
     window.setMachineWindow(machine);
 
     window.type(SpectrumKey.Q, true);
@@ -78,11 +98,11 @@ class KeyboardInternalFrameTest {
   @Test
   void eachPlaceOnThePictureFindsItsOwnKey() {
     for (SpectrumKey key : SpectrumKey.values()) {
-      Rectangle place = KeyboardInternalFrame.placeOf(key);
-      assertEquals(key, KeyboardInternalFrame.at((int) place.getCenterX(), (int) place.getCenterY()),
+      Rectangle place = KeyboardFrame.placeOf(key);
+      assertEquals(key, KeyboardFrame.at((int) place.getCenterX(), (int) place.getCenterY()),
           "the middle of " + key);
     }
-    assertEquals(null, KeyboardInternalFrame.at(5, 5), "the corner of the case is no key");
+    assertEquals(null, KeyboardFrame.at(5, 5), "the corner of the case is no key");
   }
 
   /**
@@ -91,19 +111,19 @@ class KeyboardInternalFrameTest {
    */
   @Test
   void aKeyGoesDownTowardsTheCamerasAxis() {
-    Rectangle leftmost = KeyboardInternalFrame.placeOf(SpectrumKey.Q);
-    Rectangle rightmost = KeyboardInternalFrame.placeOf(SpectrumKey.P);
+    Rectangle leftmost = KeyboardFrame.placeOf(SpectrumKey.Q);
+    Rectangle rightmost = KeyboardFrame.placeOf(SpectrumKey.P);
 
-    assertTrue(KeyboardInternalFrame.sunk(leftmost).getCenterX() > leftmost.getCenterX(), "a key on the left goes right");
-    assertTrue(KeyboardInternalFrame.sunk(rightmost).getCenterX() < rightmost.getCenterX(), "and one on the right goes left");
-    assertEquals(leftmost.width, KeyboardInternalFrame.sunk(leftmost).width,
+    assertTrue(KeyboardFrame.sunk(leftmost).getCenterX() > leftmost.getCenterX(), "a key on the left goes right");
+    assertTrue(KeyboardFrame.sunk(rightmost).getCenterX() < rightmost.getCenterX(), "and one on the right goes left");
+    assertEquals(leftmost.width, KeyboardFrame.sunk(leftmost).width,
         "and the face keeps its size: it slides down its own wall, it does not shrink away");
 
     // what it must not do is slide: the picture shows a wall of five pixels at the edges and none
     // up or down, so a key that travelled any distance would read as moved rather than pressed
-    assertTrue(Math.abs(KeyboardInternalFrame.sunk(leftmost).getCenterX() - leftmost.getCenterX()) < 8,
+    assertTrue(Math.abs(KeyboardFrame.sunk(leftmost).getCenterX() - leftmost.getCenterX()) < 8,
         "and none of them travels far sideways");
-    assertTrue(Math.abs(KeyboardInternalFrame.sunk(leftmost).getCenterY() - leftmost.getCenterY()) < 3,
+    assertTrue(Math.abs(KeyboardFrame.sunk(leftmost).getCenterY() - leftmost.getCenterY()) < 3,
         "nor up the picture, which is what looked slid");
   }
 
@@ -114,8 +134,8 @@ class KeyboardInternalFrameTest {
         binder -> binder.bind(SoundCard.class).to(SilentSoundDevice.class));
     speccy.init();
     speccy.picture.active = false;
-    JInternalFrame machine = new JInternalFrame("machine");
-    KeyboardInternalFrame window = new KeyboardInternalFrame(w -> w == machine ? speccy : null);
+    JInternalFrame machine = machineWindow(speccy);
+    KeyboardFrame window = new KeyboardFrame();
     window.setMachineWindow(machine);
 
     window.clicked(SpectrumKey.SYMBOL_SHIFT, true);
@@ -143,12 +163,12 @@ class KeyboardInternalFrameTest {
   @Test
   void theHoleSwallowsMoreThanTheLitTopFace() {
     for (SpectrumKey key : SpectrumKey.values()) {
-      Rectangle place = KeyboardInternalFrame.placeOf(key);
-      Rectangle hole = KeyboardInternalFrame.holeFor(place);
-      Rectangle whole = KeyboardInternalFrame.keyOn(place);
+      Rectangle place = KeyboardFrame.placeOf(key);
+      Rectangle hole = KeyboardFrame.holeFor(place);
+      Rectangle whole = KeyboardFrame.keyOn(place);
       assertTrue(whole.contains(place), key + " is not bigger than its own lit top face");
       assertTrue(hole.contains(whole), key + " leaves its wall or its edge showing");
-      assertTrue(hole.contains(KeyboardInternalFrame.sunk(place)), key + " sinks outside its hole");
+      assertTrue(hole.contains(KeyboardFrame.sunk(place)), key + " sinks outside its hole");
       assertTrue(hole.y < place.y && hole.x < place.x, key + " leaves the walls of the key standing");
     }
   }
@@ -159,13 +179,13 @@ class KeyboardInternalFrameTest {
    */
   @Test
   void theHoleReachesFurtherOnTheSideTheWallIsOn() {
-    Rectangle onTheLeft = KeyboardInternalFrame.placeOf(SpectrumKey.Q);
-    Rectangle itsHole = KeyboardInternalFrame.holeFor(onTheLeft);
+    Rectangle onTheLeft = KeyboardFrame.placeOf(SpectrumKey.Q);
+    Rectangle itsHole = KeyboardFrame.holeFor(onTheLeft);
     assertTrue(onTheLeft.x - itsHole.x < itsHole.x + itsHole.width - (onTheLeft.x + onTheLeft.width),
         "a key on the left shows its right wall, so its hole reaches further to the right");
 
-    Rectangle onTheRight = KeyboardInternalFrame.placeOf(SpectrumKey.P);
-    Rectangle otherHole = KeyboardInternalFrame.holeFor(onTheRight);
+    Rectangle onTheRight = KeyboardFrame.placeOf(SpectrumKey.P);
+    Rectangle otherHole = KeyboardFrame.holeFor(onTheRight);
     assertTrue(onTheRight.x - otherHole.x > otherHole.x + otherHole.width - (onTheRight.x + onTheRight.width),
         "and one on the right reaches further to the left");
   }
@@ -174,10 +194,10 @@ class KeyboardInternalFrameTest {
   @Test
   void everyKeyOfTheMachineHasAPlaceOnThePicture() {
     JInternalFrame machine = new JInternalFrame("machine");
-    KeyboardInternalFrame window = new KeyboardInternalFrame(w -> null);
+    KeyboardFrame window = new KeyboardFrame();
     window.setMachineWindow(machine);
     for (SpectrumKey key : SpectrumKey.values()) {
-      assertTrue(KeyboardInternalFrame.placeOf(key) != null, key + " is not on the picture");
+      assertTrue(KeyboardFrame.placeOf(key) != null, key + " is not on the picture");
     }
   }
 }

@@ -20,6 +20,7 @@
         <module>media</module>
         <module>host</module>
         <module>devices</module>
+        <module>tools</module>
         <module>machines/ula</module>
         <module>machines/scld</module>
         <module>machines/ulaplus</module>

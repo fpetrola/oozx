@@ -1215,10 +1215,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
     JMenuItem joystickItem = new JMenuItem("Joystick...");
     joystickItem.addActionListener(e -> showJoystick());
     emulatorMenu.add(joystickItem);
-    JMenuItem keyboardItem = new JMenuItem("Keyboard...");
-    keyboardItem.addActionListener(e -> showKeyboard());
-    emulatorMenu.add(keyboardItem);
-
     JMenuItem gameBrowserMenuItem = new JMenuItem("Game Browser...");
     gameBrowserMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.CTRL_DOWN_MASK));
     gameBrowserMenuItem.addActionListener(e -> openGameBrowser());
@@ -2689,10 +2685,6 @@ public class ZXSpectrumDesktopApp extends JFrame {
         () -> gamepad == null ? null : gamepad.controller()));
   }
 
-  /** A window on the keyboard of the machine in front: its keys go down on the picture as they go down. */
-  public KeyboardInternalFrame showKeyboard() {
-    return clipOntoTheMachineInFront(new KeyboardInternalFrame(this::machineOf));
-  }
 
   /** Placed, shown and clipped onto the machine in front, which is what wires it to that machine. */
   private <T extends AttachedFrame> T clipOntoTheMachineInFront(T window) {

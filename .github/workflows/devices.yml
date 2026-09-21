@@ -1,7 +1,7 @@
 # A release per peripheral, refreshed on every push to main.
 #
-# The list is not written here: every module under machine/devices whose artifactId starts with
-# "device-" is one, so a peripheral added tomorrow gets its release without this file changing.
+# The list is not written here: every module whose artifactId starts with "device-" or "tool-" is
+# one, so a peripheral added tomorrow gets its release without this file changing.
 name: Devices
 
 on:
@@ -62,10 +62,10 @@ jobs:
 
           os.makedirs('jars', exist_ok=True)
           devices = []
-          for pom in sorted(glob.glob('machine/devices/*/pom.xml')):
+          for pom in sorted(glob.glob('machine/devices/*/pom.xml') + glob.glob('machine/tools/*/pom.xml')):
               module = os.path.dirname(pom)
               artifact = artifact_of(pom)
-              if not artifact or not artifact.startswith('device-'):
+              if not artifact or not artifact.startswith(('device-', 'tool-')):
                   continue                      # devices-all, devices-kit and devices-ide are not devices
               jars = [j for j in glob.glob(module + '/target/' + artifact + '-*.jar')
                       if not j.endswith(('-sources.jar', '-javadoc.jar'))]

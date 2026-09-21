@@ -15,13 +15,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.fpetrola.oozx.speccy.desktop;
+package com.fpetrola.oozx.speccy.tools.keyboard;
 
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.modules.input.Input;
 import com.fpetrola.oozx.speccy.modules.keyboard.KeyMatrix;
 import com.fpetrola.oozx.speccy.modules.keyboard.SpectrumKey;
-import com.fpetrola.oozx.speccy.windows.AttachedFrame;
+import com.fpetrola.oozx.speccy.devices.MachineFrame;
 
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
@@ -46,7 +46,6 @@ import java.io.InputStream;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
-import java.util.function.Function;
 
 import static com.fpetrola.oozx.speccy.modules.keyboard.SpectrumKey.*;
 
@@ -59,7 +58,7 @@ import static com.fpetrola.oozx.speccy.modules.keyboard.SpectrumKey.*;
  * host's key never getting this far. It is also the whole keyboard a Spectrum has when whoever is
  * at it has a PC keyboard instead - which key of the machine a shifted key of theirs turns into.
  */
-public class KeyboardInternalFrame extends AttachedFrame {
+public class KeyboardFrame extends MachineFrame {
   private static final int REFRESH_MILLIS = 33;
 
   /*
@@ -141,12 +140,10 @@ public class KeyboardInternalFrame extends AttachedFrame {
   private static final EnumSet<SpectrumKey> STICKY = EnumSet.of(CAPS_SHIFT, SYMBOL_SHIFT);
 
   private final EnumSet<SpectrumKey> stuck = EnumSet.noneOf(SpectrumKey.class);
-  private final Function<JInternalFrame, Speccy> machineOf;
   private final Keys keys = new Keys();
 
-  public KeyboardInternalFrame(Function<JInternalFrame, Speccy> machineOf) {
+  public KeyboardFrame() {
     super("Keyboard");
-    this.machineOf = machineOf;
     setSize(620, 420);
     prefersDock(Dock.BOTTOM);
     assemble(keys);
@@ -174,7 +171,7 @@ public class KeyboardInternalFrame extends AttachedFrame {
   }
 
   private static BufferedImage load() {
-    try (InputStream in = KeyboardInternalFrame.class.getResourceAsStream("/images/spectrum-front2.png")) {
+    try (InputStream in = KeyboardFrame.class.getResourceAsStream("/images/spectrum-front2.png")) {
       return ImageIO.read(in);
     } catch (Exception missing) {
       throw new IllegalStateException("the keyboard picture is not on the classpath", missing);
@@ -225,10 +222,6 @@ public class KeyboardInternalFrame extends AttachedFrame {
       }
     }
     return null;
-  }
-
-  private Speccy machine() {
-    return isAttached() ? machineOf.apply(getMachineWindow()) : null;
   }
 
   /** Which keys the machine reads as held right now. */
