@@ -1144,12 +1144,12 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     emulatorMenu.add(pluginsItem);
 
     // The windows of the desk itself - a browser, a library - are found the same way the boards
-    // are, so what the Emulator menu offers is what this build turns out to have.
-    for (DeskEquipment kind : deskKinds) {
-      JMenuItem item = new JMenuItem(kind.name() + "...");
-      item.addActionListener(e -> showOnTheDesk(kind));
-      emulatorMenu.add(item);
-    }
+    // are, so what the Emulator menu offers is what this build turns out to have. Where they go
+    // is remembered, because one that arrives while this runs is offered at once and belongs here
+    // rather than at the end of the menu.
+    theEmulatorMenu = emulatorMenu;
+    whereTheDeskWindowsGo = emulatorMenu.getItemCount();
+    fillTheDeskWindows();
 
     emulatorMenu.addSeparator();
 
@@ -1656,17 +1656,16 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   }
 
   /** Every window of the desk that was found, and the one open of each kind. */
-  private final java.util.List<DeskEquipment> deskKinds =
-      com.fpetrola.oozx.plugins.Plugins.found(DeskEquipment.class);
+  private java.util.List<DeskEquipment> deskKinds = java.util.List.of();
 
-  private final java.util.Map<DeskEquipment, JInternalFrame> onTheDesk = new java.util.HashMap<>();
+  private final java.util.Map<String, JInternalFrame> onTheDesk = new java.util.HashMap<>();
 
   /** That window of the desk, opened once: asking again brings the one that is there to the front. */
   public JInternalFrame showOnTheDesk(DeskEquipment kind) {
-    JInternalFrame window = onTheDesk.get(kind);
+    JInternalFrame window = onTheDesk.get(kind.name());
     if (window == null || window.isClosed()) {
       window = kind.open();
-      onTheDesk.put(kind, window);
+      onTheDesk.put(kind.name(), window);
       desktop.add(window);
       window.setVisible(true);
     }
@@ -2442,10 +2441,29 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   /** Where the Equipment menu is, so that a board which arrives while this runs can be added to it. */
   private JMenu equipmentMenu;
 
-  /** Said once the folder changed: the menu offers what is there now, and only that. */
+  /** The same for the windows of the desk, which are items of the Emulator menu itself. */
+  private JMenu theEmulatorMenu;
+  private int whereTheDeskWindowsGo;
+  private final java.util.List<JMenuItem> deskWindowItems = new java.util.ArrayList<>();
+
+  /** Said once the folder changed: the menus offer what is there now, and only that. */
   public void somethingWasPluggedIn() {
     equipmentKinds = whatCanBePluggedIn();
     fillEquipmentMenu();
+    fillTheDeskWindows();
+  }
+
+  private void fillTheDeskWindows() {
+    deskWindowItems.forEach(theEmulatorMenu::remove);
+    deskWindowItems.clear();
+    deskKinds = com.fpetrola.oozx.plugins.Plugins.found(DeskEquipment.class);
+    int place = whereTheDeskWindowsGo;
+    for (DeskEquipment kind : deskKinds) {
+      JMenuItem item = new JMenuItem(kind.name() + "...");
+      item.addActionListener(e -> showOnTheDesk(kind));
+      theEmulatorMenu.add(item, place++);
+      deskWindowItems.add(item);
+    }
   }
 
   private void fillEquipmentMenu() {
@@ -2474,8 +2492,13 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     }
   }
 
-  /** Every piece of equipment open at once, one per machine, clipped on the same way a deck is. */
-  private final java.util.Map<Equipment, java.util.List<MachineFrame>> equipment = new java.util.HashMap<>();
+  /**
+   * Every piece of equipment open at once, one per machine, clipped on the same way a deck is.
+   * <p>
+   * Kept under the name rather than the offer itself: what is offered is asked for again whenever
+   * the plugins change, and two offers of the same board are the same board as far as this goes.
+   */
+  private final java.util.Map<String, java.util.List<MachineFrame>> equipment = new java.util.HashMap<>();
 
   /**
    * That piece of equipment, clipped onto the machine in front - which is what plugs it in.
@@ -2490,7 +2513,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
    * @param reusable which of the ones already open counts as the same window being asked for
    */
   private MachineFrame show(Equipment kind, java.util.function.Predicate<MachineFrame> reusable) {
-    java.util.List<MachineFrame> open = equipment.computeIfAbsent(kind, k -> new java.util.ArrayList<>());
+    java.util.List<MachineFrame> open = equipment.computeIfAbsent(kind.name(), k -> new java.util.ArrayList<>());
     open.removeIf(JInternalFrame::isClosed);
     for (MachineFrame window : open) {
       if (reusable.test(window)) {
