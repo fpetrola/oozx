@@ -957,7 +957,7 @@ interface GameBrowserListener {
 }
 
 // --- UPDATED: ZXSpectrumDesktopApp with Game Browser ---
-public class ZXSpectrumDesktopApp extends JFrame {
+public class ZXSpectrumDesktopApp extends JFrame implements com.fpetrola.oozx.speccy.devices.Desk {
   /** Builds a machine for a file; the second argument names the machine, or is null for automatic. */
   private final java.util.function.BiFunction<String, String, EmulatorCore> mockCore;
   /** The machines this build has, learnt from the last emulator made, for offering them. */
@@ -1074,6 +1074,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
     // typed into is a question about this desktop, not about any one of the machines on it.
     KeyboardFocusManager.getCurrentKeyboardFocusManager()
         .addKeyEventDispatcher(this::typeIntoTheMachineInFront);
+    // What the windows that are found ask of whoever put them on the screen: this desk.
+    com.fpetrola.oozx.speccy.devices.Desk.isRunBy(this);
     applySavedLookAndFeel();
     // Emulators apply the defaults themselves as they are built, so putting the saved ones in
     // place here is all it takes for the next window to open configured.
@@ -2490,10 +2492,7 @@ public class ZXSpectrumDesktopApp extends JFrame {
   /** Another deck, whatever the open ones are doing. */
   public TapeBrowserInternalFrame newCassette() {
     cassettes.removeIf(JInternalFrame::isClosed);
-    TapeBrowserInternalFrame[] holder = new TapeBrowserInternalFrame[1];
-    TapeBrowserInternalFrame cassette = new TapeBrowserInternalFrame(this::deckOf,
-        this::chooseTapeForBrowser, file -> openMachineFor(holder[0], file));
-    holder[0] = cassette;
+    TapeBrowserInternalFrame cassette = new TapeBrowserInternalFrame();
     // Cascaded like the emulators, so the second one does not land exactly on the first.
     cassette.setLocation(80 + (cassettes.size() * 30) % 300, 80 + (cassettes.size() * 30) % 200);
     cassettes.add(cassette);
@@ -2508,18 +2507,32 @@ public class ZXSpectrumDesktopApp extends JFrame {
   }
 
   /**
-   * The deck that pressed play with its lead in nothing, while its computer is being built.
+   * The window that asked for a computer with nothing to play into, while that computer is being
+   * built.
    * <p>
    * Without it, the machine came up and the cassette that had asked for it was handed a second
    * deck holding the same tape: the one you pressed play on stayed where it was, unplugged, and
    * a new one appeared under the new machine.
    */
-  private TapeBrowserInternalFrame cassetteWantingAMachine;
+  private com.fpetrola.oozx.speccy.devices.MachineFrame windowWantingAMachine;
 
-  /** Opens a computer for a deck that has nothing to play into, and remembers which deck. */
-  private void openMachineFor(TapeBrowserInternalFrame cassette, java.io.File tape) {
-    cassetteWantingAMachine = cassette;
-    loadInNewEmulator(tape.getAbsolutePath());
+  /** Asked by a window with no machine to play into: one is built and that window gets it. */
+  @Override
+  public void openMachineFor(java.io.File file, com.fpetrola.oozx.speccy.devices.MachineFrame asking) {
+    windowWantingAMachine = asking;
+    loadInNewEmulator(file.getAbsolutePath());
+  }
+
+  /** A file from whoever is in front, remembering where they were looking. */
+  @Override
+  public java.io.File choose(String what) {
+    fileChooser.setDialogTitle(what);
+    fileChooser.setCurrentDirectory(new java.io.File(config.getLastOpenDirectory()));
+    if (fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+      return null;
+    }
+    config.setLastOpenDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
+    return fileChooser.getSelectedFile();
   }
 
   /** Opens a deck on a cassette already loaded and running, as a game from the browser is. */
@@ -2528,8 +2541,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
       // The deck that asked for this machine, if one did, rather than another holding the same
       // cassette: pressing play on a deck is asking for a computer for THAT deck.
       TapeBrowserInternalFrame cassette =
-          cassetteWantingAMachine != null && !cassetteWantingAMachine.isClosed()
-              ? cassetteWantingAMachine : showTapeBrowser();
+          windowWantingAMachine instanceof TapeBrowserInternalFrame waiting && !waiting.isClosed()
+              ? waiting : showTapeBrowser();
       cassette.adopt(tapeFile, deck);
       // Its machine may already be up - the two are built in either order. Only clipped on when
       // there is one: handing this a null window means UNPLUGGED, which would throw away the
@@ -2570,8 +2583,8 @@ public class ZXSpectrumDesktopApp extends JFrame {
    * anywhere yet.
    */
   private void clip(TapeBrowserInternalFrame cassette, EmulatorInternalFrame machine) {
-    if (cassette == cassetteWantingAMachine) {
-      cassetteWantingAMachine = null;
+    if (cassette == windowWantingAMachine) {
+      windowWantingAMachine = null;
       cassette.takeMachine(machine);
     } else {
       cassette.attachTo(machine);
@@ -2666,13 +2679,10 @@ public class ZXSpectrumDesktopApp extends JFrame {
 
   /** Asks for a tape file and loads it into the cassette browser. No emulator is needed. */
   public void chooseTapeForBrowser() {
-    fileChooser.setCurrentDirectory(new java.io.File(config.getLastOpenDirectory()));
-    if (fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
-      return;
+    java.io.File file = choose("Open Tape");
+    if (file != null) {
+      showTapeBrowser().openTape(file);
     }
-    java.io.File file = fileChooser.getSelectedFile();
-    config.setLastOpenDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
-    showTapeBrowser().openTape(file);
   }
 
   public EmulatorInternalFrame createNewEmulator(EmulatorCore core1) {

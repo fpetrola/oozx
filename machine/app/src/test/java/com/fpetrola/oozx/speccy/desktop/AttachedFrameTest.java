@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AttachedFrameTest {
 
   private static TapeBrowserInternalFrame cassette() {
-    return new TapeBrowserInternalFrame(machine -> null, () -> { }, file -> { });
+    return new TapeBrowserInternalFrame();
   }
 
   private static JInternalFrame machine() {

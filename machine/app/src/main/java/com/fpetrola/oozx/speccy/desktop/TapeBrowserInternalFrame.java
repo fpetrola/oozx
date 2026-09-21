@@ -18,7 +18,10 @@
 package com.fpetrola.oozx.speccy.desktop;
 
 import com.fpetrola.oozx.speccy.modules.tape.TapeBlock;
-import com.fpetrola.oozx.speccy.windows.AttachedFrame;
+import com.fpetrola.oozx.Speccy;
+import com.fpetrola.oozx.speccy.devices.Desk;
+import com.fpetrola.oozx.speccy.devices.MachineFrame;
+import com.fpetrola.oozx.speccy.windows.Widgets;
 import com.fpetrola.oozx.speccy.modules.tape.Tape;
 
 import javax.swing.*;
@@ -28,8 +31,6 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.io.File;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Shows what is on a tape and lets it be driven by hand: the blocks and their details, which one
@@ -44,15 +45,12 @@ import java.util.function.Function;
  * honoured here as it should be: the person watching is the one who decides when it starts again.
  * An automatic load runs through those instead, because there is nobody to press anything.
  */
-public class TapeBrowserInternalFrame extends AttachedFrame {
+public class TapeBrowserInternalFrame extends MachineFrame {
 
   /** How often the progress column is refreshed. The tape moves on the emulation thread. */
   private static final int REFRESH_MILLIS = 100;
 
   /** The deck inside a machine's window, which is what being attached to it gives this one. */
-  private final Function<JInternalFrame, Tape> deckOf;
-  private final Runnable openTapeChooser;
-  private final Consumer<File> loadInNewEmulator;
   private final BlockTableModel model;
   private final JTable table;
   private final JButton playPauseButton;
@@ -76,17 +74,8 @@ public class TapeBrowserInternalFrame extends AttachedFrame {
   private volatile int currentBlock = -1;
   private boolean paused;
 
-  /**
-   * @param deckOf            the deck belonging to a machine's window, or null if it has none
-   * @param openTapeChooser   asks the user for a tape file and calls back {@link #openTape}
-   * @param loadInNewEmulator opens a machine on a tape and lets it load itself from the start
-   */
-  public TapeBrowserInternalFrame(Function<JInternalFrame, Tape> deckOf, Runnable openTapeChooser,
-                                  Consumer<File> loadInNewEmulator) {
+  public TapeBrowserInternalFrame() {
     super("Cassette");
-    this.deckOf = deckOf;
-    this.openTapeChooser = openTapeChooser;
-    this.loadInNewEmulator = loadInNewEmulator;
 
     setSize(720, 420);
     setLocation(80, 80);
@@ -103,9 +92,9 @@ public class TapeBrowserInternalFrame extends AttachedFrame {
     table.getColumnModel().getColumn(4).setCellRenderer(new ProgressRenderer());
     table.setDefaultRenderer(Object.class, new CurrentBlockRenderer());
 
-    playPauseButton = EmulatorInternalFrame.iconButton("25B6.svg", "Play", "Play the tape");
-    stopButton = EmulatorInternalFrame.iconButton("23F9.svg", "Stop", "Stop the tape and rewind it");
-    insertButton = EmulatorInternalFrame.iconButton("1F4FC.svg", "Open Tape...", "Open a tape");
+    playPauseButton = Widgets.iconButton("25B6.svg", "Play", "Play the tape");
+    stopButton = Widgets.iconButton("23F9.svg", "Stop", "Stop the tape and rewind it");
+    insertButton = Widgets.iconButton("1F4FC.svg", "Open Tape...", "Open a tape");
     playPauseButton.addActionListener(e -> {
       if (deck != null && deck.isTapePlaying()) {
         pause();
@@ -115,7 +104,7 @@ public class TapeBrowserInternalFrame extends AttachedFrame {
       refresh();
     });
     stopButton.addActionListener(e -> stop());
-    insertButton.addActionListener(e -> openTapeChooser.run());
+    insertButton.addActionListener(e -> chooseATape());
 
     controls.add(playPauseButton);
     controls.add(stopButton);
@@ -143,8 +132,8 @@ public class TapeBrowserInternalFrame extends AttachedFrame {
    * loading it. Nothing is played by plugging in - that is what the play button is for.
    */
   @Override
-  protected void attachmentChanged() {
-    Tape plugged = isAttached() ? deckOf.apply(getMachineWindow()) : null;
+  protected void machineChanged(Speccy was, Speccy now) {
+    Tape plugged = now == null ? null : Tape.of(now);
     if (plugged == deck) {
       return;
     }
@@ -177,7 +166,7 @@ public class TapeBrowserInternalFrame extends AttachedFrame {
       // start, which is what clicking a game in the game browser does. This window is clipped
       // onto that machine as it comes up, so it goes on showing the load.
       setTitle(title("Opening an emulator..."));
-      loadInNewEmulator.accept(tapeFile);
+      Desk.theOne().openMachineFor(tapeFile, this);
       return;
     }
 
@@ -236,6 +225,14 @@ public class TapeBrowserInternalFrame extends AttachedFrame {
     return getMachineWindow() == null && deck == playing;
   }
 
+  /** A cassette from whoever is in front, which is the only thing this window asks of the desk. */
+  private void chooseATape() {
+    File chosen = Desk.theOne().choose("Open Tape");
+    if (chosen != null) {
+      openTape(chosen);
+    }
+  }
+
   /** Loads a cassette into this window. No emulator is needed to look at what is on it. */
   public void openTape(File file) {
     tapeFile = file;
@@ -275,7 +272,7 @@ public class TapeBrowserInternalFrame extends AttachedFrame {
   private void refresh() {
     boolean hasTape = !blocks.isEmpty();
     boolean playing = hasTape && deck != null && deck.isTapePlaying();
-    playPauseButton.setIcon(EmulatorInternalFrame.loadIcon(playing ? "23F8.svg" : "25B6.svg"));
+    playPauseButton.setIcon(Widgets.loadIcon(playing ? "23F8.svg" : "25B6.svg"));
     playPauseButton.setToolTipText(playing
         ? "Stops the tape where it is; playing again restarts the current block"
         : "Play the tape");
