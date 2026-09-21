@@ -53,12 +53,17 @@ jobs:
               return found.group(1) if found else None
 
           def called(module):
-              """What the board calls itself in the Equipment menu, for the release to be named after."""
-              for source in glob.glob(module + '/src/main/java/**/*Equipment.java', recursive=True):
+              """What the board calls itself in the Equipment menu, for the release to be named after.
+
+              All of them, because a jar with two windows in it is two things in the menu and the
+              release that brings it has to say so rather than name whichever file was read first.
+              """
+              names = []
+              for source in sorted(glob.glob(module + '/src/main/java/**/*Equipment.java', recursive=True)):
                   said = re.search(r'name\(\)\s*\{\s*return\s+"([^"]+)"', open(source).read())
-                  if said:
-                      return said.group(1)
-              return None
+                  if said and said.group(1) not in names:
+                      names.append(said.group(1))
+              return ' + '.join(names) or None
 
           os.makedirs('jars', exist_ok=True)
           devices = []
