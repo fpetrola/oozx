@@ -43,6 +43,7 @@
         <module>calls</module>
         <module>heatmap</module>
         <module>io</module>
+        <module>trace</module>
     </modules>
 
     <dependencies>
