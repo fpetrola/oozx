@@ -10,6 +10,12 @@
 
 TZX block `0x19` (generalized data) is listed and skipped. PZX and WAV are not read.
 
+![A tape loading](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/tape-loading.gif)
+
+*Opening a tape: a machine appears, `LOAD ""` types itself, the border stripes, and Dizzy's loading screen
+arrives a line at a time while the deck says which block it is on. Filmed at four times real speed; the
+auto-loader normally does it at twenty thousand.*
+
 ### The deck
 
 Each machine has a tape deck of its own — a window you clip onto it. It shows the blocks with progress and

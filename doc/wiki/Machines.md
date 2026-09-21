@@ -91,6 +91,13 @@ snapshot picks it correctly. That is `machine/machines`: 65 classes and 44 test 
 
 ## ROMs this build cannot ship
 
+![The emulator asking before fetching a ROM](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/rom-asking.png)
+
+![Switching to a Scorpion, which fetches its ROMs and boots on them](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/rom-fetch.gif)
+
+*Choosing the Scorpion in the model box: it says which three ROMs it needs and where they are published,
+fetches them once you say yes, and the machine comes up on its own ROM — "© 1992 Scorpion ZS 256".*
+
 Some machines' ROMs are not ours to distribute. For those the configuration declares **where the ROM is
 published, what its SHA-256 must be**, and, for archives that publish a whole chip image, where inside it
 the ROM starts. The emulator asks first, fetches from whoever publishes it, shows the download as it

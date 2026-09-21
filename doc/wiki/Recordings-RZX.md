@@ -12,6 +12,11 @@ it: the block table with progress, Play, Stop, Loop, Favorite.
 
 **Several at once.** Each recording is a machine, so a handful can play side by side, each at its own speed.
 
+![Taking over a recording of Exolon](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/rzx-takeover.gif)
+
+*Exolon replaying from somebody's RZX — and then the button: the player says "Taken over — the machine is
+yours, playing on from here", and the keys are ours from that frame on.*
+
 **Take Over.** The button that makes the feature: at any point during a replay, take the machine. The
 recording stops feeding it inputs, the keyboard becomes yours, and you carry on from exactly where the
 recording had got to.
