@@ -5,7 +5,6 @@
         <groupId>com.fpetrola</groupId>
         <artifactId>devices</artifactId>
         <version>0.0.2-alu-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>device-chrome</artifactId>
