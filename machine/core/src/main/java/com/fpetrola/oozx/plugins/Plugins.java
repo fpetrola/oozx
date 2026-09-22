@@ -96,7 +96,7 @@ public final class Plugins {
       ((Boards) loader()).take(jar.toUri().toURL());
       generation++;
     } catch (MalformedURLException notAUrl) {
-      TellsThePerson.that(jar + " could not be read: " + notAUrl.getMessage());
+      TellsThePerson.thisBuildCannot(jar + " could not be read: " + notAUrl.getMessage());
     }
   }
 
@@ -200,7 +200,7 @@ public final class Plugins {
         }
       }
     } catch (IOException cannotBeRead) {
-      TellsThePerson.that(where + " could not be read: " + cannotBeRead.getMessage());
+      TellsThePerson.thisBuildCannot(where + " could not be read: " + cannotBeRead.getMessage());
     }
     return inside;
   }
@@ -258,7 +258,7 @@ public final class Plugins {
         ServiceLoader.Provider<S> provider = providers.next();
         if (stillHere(provider.type())) answering.add(provider.get());
       } catch (ServiceConfigurationError cannotBeRead) {
-        TellsThePerson.that("a plugin could not be read: " + cannotBeRead.getMessage());
+        TellsThePerson.thisBuildCannot("a plugin could not be read: " + cannotBeRead.getMessage());
       }
     }
     return answering;
@@ -283,7 +283,7 @@ public final class Plugins {
       try {
         urls.add(jar.toURI().toURL());
       } catch (MalformedURLException notAUrl) {
-        TellsThePerson.that(jar + " could not be read: " + notAUrl.getMessage());
+        TellsThePerson.thisBuildCannot(jar + " could not be read: " + notAUrl.getMessage());
       }
     }
     return urls.toArray(new URL[0]);

@@ -65,6 +65,21 @@ jobs:
                       names.append(said.group(1))
               return ' + '.join(names) or None
 
+          def machines(module):
+              """Which machines a snapshot can ask for by name and find in this module.
+
+              Read from the sources rather than by running anything: a machine says which model
+              it is with a plain return, and this is the only place that can tell a person which
+              jar to bring when a snapshot names a machine nobody here has.
+              """
+              found = []
+              for source in sorted(glob.glob(module + '/src/main/java/**/*.java', recursive=True)):
+                  for model in re.findall(r'snapshotModel\(\)\s*\{\s*return\s+MachineTypes\.(\w+)',
+                                          open(source).read()):
+                      if model not in found:
+                          found.append(model)
+              return found
+
           os.makedirs('jars', exist_ok=True)
           devices = []
           # The two small jars somebody writing a plugin needs go up as well: one is the word a
@@ -83,7 +98,8 @@ jobs:
               shutil.copy(jars[0], 'jars/')
               # Two of them have no window and so no name of their own: the module's will do.
               devices.append({'artifact': artifact,
-                              'title': called(module) or os.path.basename(module).capitalize()})
+                              'title': called(module) or os.path.basename(module).capitalize(),
+                              'machines': ' '.join(machines(module))})
 
           for device in devices:
               print(device['artifact'] + ' -> ' + device['title'], file=sys.stderr)
@@ -119,6 +135,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ matrix.device.artifact }}
           TITLE: ${{ matrix.device.title }}
+          MACHINES: ${{ matrix.device.machines }}
         run: |
           JAR=$(ls "$TAG"-*.jar | head -1)
           echo "publishing $TAG from $JAR"
@@ -132,6 +149,9 @@ jobs:
             echo "[Extending OOZX](https://github.com/$GITHUB_REPOSITORY/wiki/Extending-OOZX)."
             echo
             echo "See [Peripherals](https://github.com/$GITHUB_REPOSITORY/wiki/Peripherals)."
+            # Read back by the emulator: a snapshot naming a machine nobody has is answered with
+            # the jars that bring it, picked out in the plugins window.
+            if [ -n "$MACHINES" ]; then echo; echo "oozx-machines: $MACHINES"; fi
           } > notes.md
           gh release create "$TAG" "$JAR" \
             --repo "$GITHUB_REPOSITORY" \

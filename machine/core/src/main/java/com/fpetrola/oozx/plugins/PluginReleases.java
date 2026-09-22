@@ -88,8 +88,30 @@ public class PluginReleases implements Configuration.Saves {
     return Configuration.shared().of(PluginReleases.class);
   }
 
-  /** One published board: what it is called, which file it is, where it is, and how big. */
-  public record Board(String name, String jar, String from, long asset, long size) {
+  /**
+   * One published board: what it is called, which file it is, where it is, how big, and which
+   * machines it brings - the ones a snapshot can ask for by name, so that a snapshot taken on a
+   * machine nobody here has can point straight at the jar that has it.
+   */
+  public record Board(String name, String jar, String from, long asset, long size, List<String> machines) {
+    public Board(String name, String jar, String from, long asset, long size) {
+      this(name, jar, from, asset, size, List.of());
+    }
+  }
+
+  /** The boards that bring a machine, named as a snapshot names it. */
+  public static List<Board> bringing(String machine, List<Board> published) {
+    return published.stream().filter(board -> board.machines().contains(machine)).toList();
+  }
+
+  /**
+   * The machines a release says it brings. Written by whoever published it, from the sources of
+   * the module, since a jar nobody has downloaded cannot be asked.
+   */
+  private static List<String> machinesIn(String notes) {
+    java.util.regex.Matcher said = java.util.regex.Pattern
+        .compile("(?m)^oozx-machines: (.*)$").matcher(notes == null ? "" : notes);
+    return said.find() ? List.of(said.group(1).trim().split("\\s+")) : List.of();
   }
 
   /** Where the boards come from, for a window to say so. */
@@ -175,7 +197,7 @@ public class PluginReleases implements Configuration.Saves {
         String named = release.path("name").asText("");
         boards.add(new Board(named.isBlank() ? tag : named, jar,
             asset.path("browser_download_url").asText(), asset.path("id").asLong(),
-            asset.path("size").asLong()));
+            asset.path("size").asLong(), machinesIn(release.path("body").asText(""))));
         break;
       }
     }
@@ -238,7 +260,7 @@ public class PluginReleases implements Configuration.Saves {
       try {
         Files.deleteIfExists(Plugins.folder().resolve(jar));
       } catch (IOException wouldNotGo) {
-        TellsThePerson.that(jar + " could not be thrown away: " + wouldNotGo.getMessage());
+        TellsThePerson.thisBuildCannot(jar + " could not be thrown away: " + wouldNotGo.getMessage());
       }
     }
     them.takenOut.clear();
@@ -260,7 +282,7 @@ public class PluginReleases implements Configuration.Saves {
         if (plugsIn(named) && named.endsWith(".jar")) boards.add(named);
       }
     } catch (IOException cannotBeRead) {
-      TellsThePerson.that(jar.getFileName() + " does not say what it needs: " + cannotBeRead.getMessage());
+      TellsThePerson.thisBuildCannot(jar.getFileName() + " does not say what it needs: " + cannotBeRead.getMessage());
     }
     return boards;
   }

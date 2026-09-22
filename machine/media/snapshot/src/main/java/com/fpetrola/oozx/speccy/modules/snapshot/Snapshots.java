@@ -187,7 +187,9 @@ public class Snapshots extends AbstractPeripheral {
     machine.forSnapshotModel(wanted).ifPresentOrElse(type -> {
       machine.selectDefault();
       machine.select(type);
-    }, () -> TellsThePerson.that("this build has no %s, so the snapshot is loaded into the machine already running".formatted(wanted)));
+    }, () -> TellsThePerson.thisBuildCannot(("This snapshot was taken on a %s, and this build carries no machine that runs its code. "
+        + "It was loaded into the %s that was already running, where it will most likely show nothing at all.").formatted(
+        wanted.getLongModelName(), machine.current == null ? "machine" : machine.current.getName()), wanted.name()));
   }
 
   /**

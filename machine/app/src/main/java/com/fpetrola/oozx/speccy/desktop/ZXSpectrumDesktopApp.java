@@ -1063,6 +1063,35 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     return frame;
   }
 
+  /**
+   * A snapshot on a machine this build does not carry, a plugin that could not be read: the
+   * emulator carries on, and what comes up is a screen that never starts, with nothing saying
+   * why. Those stop the person; a remark about how something was done does not, and goes to the
+   * status bar of each machine window instead.
+   * <p>
+   * The desk shows it rather than any one machine window, so there is one of these however many
+   * machines are open. Shown from the window's thread and never waited on, since what is telling
+   * us is usually the emulator's own thread, and it must not wait on a window.
+   */
+  private void stopsThePersonWhenSomethingIsMissing() {
+    TellsThePerson.listens(new TellsThePerson.Listening() {
+      public void about(String what) {
+      }
+
+      public void aboutNotDoingIt(String what, String thatNeeds) {
+        SwingUtilities.invokeLater(() -> {
+          if (thatNeeds == null) {
+            JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this, what,
+                "This build cannot do that", JOptionPane.WARNING_MESSAGE);
+            return;
+          }
+          showPlugins();
+          plugins.pickOutWhatBrings(thatNeeds, what);
+        });
+      }
+    });
+  }
+
   public ZXSpectrumDesktopApp(java.util.function.BiFunction<String, String, EmulatorCore> mockCore, Function<SpectrumState, EmulatorCore> mockCoreState1) {
     this.mockCore = mockCore;
     this.mockCoreState = mockCoreState1;
@@ -1073,6 +1102,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         .addKeyEventDispatcher(this::typeIntoTheMachineInFront);
     // What the windows that are found ask of whoever put them on the screen: this desk.
     com.fpetrola.oozx.speccy.devices.Desk.isRunBy(this);
+    stopsThePersonWhenSomethingIsMissing();
     whatThereIs();
     applySavedLookAndFeel();
     // Emulators apply the defaults themselves as they are built, so putting the saved ones in

@@ -30,6 +30,17 @@ public final class TellsThePerson {
 
   public interface Listening {
     void about(String what);
+
+    /**
+     * The same, for something the person asked for and did not get. Worth stopping them for.
+     * <p>
+     * What is named in {@code thatNeeds} is what would make it work - so far, the machine a
+     * snapshot was taken on - so that whoever shows this can offer to bring it rather than
+     * leave the person to find out which plugin that is.
+     */
+    default void aboutNotDoingIt(String what, String thatNeeds) {
+      about(what);
+    }
   }
 
   private static final java.util.List<Listening> who = new java.util.concurrent.CopyOnWriteArrayList<>();
@@ -42,9 +53,25 @@ public final class TellsThePerson {
     who.remove(one);
   }
 
+  /** A remark: the emulator did what was asked, and this is something about how. */
   public static void that(String what) {
     if (who.isEmpty()) System.out.println("oozx: " + what);
     else who.forEach(one -> one.about(what));
+  }
+
+  /**
+   * What was asked for did not happen, and the person is better off knowing now: a snapshot on a
+   * machine this build does not carry ends in a screen that never comes up, and nothing about it
+   * says why.
+   */
+  public static void thisBuildCannot(String what) {
+    thisBuildCannot(what, null);
+  }
+
+  /** The same, naming the machine that would make it work, for whoever can go and bring it. */
+  public static void thisBuildCannot(String what, String thatNeeds) {
+    if (who.isEmpty()) System.out.println("oozx: " + what);
+    else who.forEach(one -> one.aboutNotDoingIt(what, thatNeeds));
   }
 
   private TellsThePerson() {

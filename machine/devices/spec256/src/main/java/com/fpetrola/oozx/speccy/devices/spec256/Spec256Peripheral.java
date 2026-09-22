@@ -340,7 +340,7 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
             | (palette[colour * 3 + 1] & 0xff) << 8 | (palette[colour * 3 + 2] & 0xff));
       }
     } catch (IOException | NullPointerException itIsNotThere) {
-      TellsThePerson.that("the 256 colours of a Spec256 game are not in this build: %s".formatted(itIsNotThere));
+      TellsThePerson.thisBuildCannot("the 256 colours of a Spec256 game are not in this build: %s".formatted(itIsNotThere));
     }
   }
 

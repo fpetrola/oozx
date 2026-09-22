@@ -31,6 +31,7 @@ import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
@@ -73,6 +74,27 @@ public class PluginsInternalFrame extends JInternalFrame {
   /** The same list of what is plugged in, grouped two ways. */
   private final javax.swing.JTree byJar = new javax.swing.JTree(new DefaultMutableTreeNode());
   private final javax.swing.JTree byKind = new javax.swing.JTree(new DefaultMutableTreeNode());
+
+  /**
+   * A machine a snapshot asked for that nobody here has, and what to say if this cannot help
+   * after all. Kept until the published list is in, since the jars that bring it are in that.
+   */
+  private String wanted;
+  private String otherwise;
+
+  /**
+   * Comes up with the jars that bring this machine already picked out, so that adding them is
+   * one press rather than a hunt through the list. Nothing is brought without being asked for:
+   * picking them out is the offer, pressing the arrow is the answer.
+   *
+   * @param machine as a snapshot names it, e.g. SPECTRUMPLUS2A
+   * @param said    what to tell the person if nothing published brings it
+   */
+  public void pickOutWhatBrings(String machine, String said) {
+    wanted = machine;
+    otherwise = said;
+    look();
+  }
 
   /** @param arrived told once something new is in, so the menus can say so */
   public PluginsInternalFrame(Consumer<Void> arrived) {
@@ -212,11 +234,35 @@ public class PluginsInternalFrame extends JInternalFrame {
             if (!PluginReleases.isHere(board)) outside.addElement(board);
           }
           busy(inside.size() + " in, " + outside.size() + " to be had", false);
+          if (wanted != null) pickOut(published);
         } catch (Exception noAnswer) {
           busy("They could not be asked for: " + reason(noAnswer), false);
         }
       }
     }.execute();
+  }
+
+  /**
+   * Picks out the jars that bring the machine that was asked for. One that is already in means
+   * the machine is here and something else is the matter, which is worth saying too.
+   */
+  private void pickOut(List<Board> found) {
+    List<Board> brings = PluginReleases.bringing(wanted, found);
+    wanted = null;
+    int[] toBeHad = java.util.stream.IntStream.range(0, outside.size())
+        .filter(at -> brings.contains(outside.get(at))).toArray();
+    if (toBeHad.length == 0) {
+      JOptionPane.showMessageDialog(this, brings.isEmpty()
+          ? otherwise + "\n\nNothing published brings that machine either."
+          : "That machine is already in this emulator, so something else is the matter.",
+          "This build cannot do that", JOptionPane.WARNING_MESSAGE);
+      return;
+    }
+    published.setSelectedIndices(toBeHad);
+    published.ensureIndexIsVisible(toBeHad[0]);
+    saying.setText("That machine is in " + brings.stream().map(Board::name)
+        .collect(java.util.stream.Collectors.joining(", ")) + ": press → to bring "
+        + (toBeHad.length == 1 ? "it" : "them") + " in.");
   }
 
   private void includeTheChosen() {
@@ -248,7 +294,7 @@ public class PluginsInternalFrame extends JInternalFrame {
               }
             }
           } catch (Exception didNotArrive) {
-            TellsThePerson.that(board.name() + " did not arrive: " + didNotArrive);
+            TellsThePerson.thisBuildCannot(board.name() + " did not arrive: " + didNotArrive);
           }
         }
         return null;
@@ -287,7 +333,7 @@ public class PluginsInternalFrame extends JInternalFrame {
         outside.addElement(board);
         gone++;
       } catch (Exception wouldNotGo) {
-        TellsThePerson.that(board.name() + " could not be taken out: " + wouldNotGo);
+        TellsThePerson.thisBuildCannot(board.name() + " could not be taken out: " + wouldNotGo);
       }
     }
     sort(outside);
