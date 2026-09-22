@@ -99,6 +99,9 @@ public class ScreenSettings {
    */
   public List<Knob> settings() {
     List<Knob> all = new ArrayList<>();
+    // What a way of drawing brought with it, offered beside the knobs written here: an effect
+    // that arrived is built with nothing, so its knobs are the only way it is configured.
+    waysOfDrawing.stream().filter(way -> !(way instanceof Scaler)).forEach(way -> all.addAll(way.knobs()));
 
     all.add(Knob.choice("scaler", "Scaler",
         "How 256 by 192 becomes a windowful. Repeating pixels is exact and uneven at odd sizes; "

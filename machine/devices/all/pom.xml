@@ -205,6 +205,11 @@
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
+            <artifactId>tool-curvature</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
             <artifactId>tool-calls</artifactId>
             <version>${project.version}</version>
         </dependency>

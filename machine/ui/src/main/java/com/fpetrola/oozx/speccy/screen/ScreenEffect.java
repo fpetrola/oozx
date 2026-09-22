@@ -66,6 +66,17 @@ public interface ScreenEffect {
    */
   BufferedImage apply(BufferedImage picture, ScreenContext context);
 
+  /**
+   * The knobs this effect brings with it, which the settings window offers beside its own.
+   * <p>
+   * An effect that arrived is built with nothing, so this is how it is configured at all: what
+   * it reads and writes is its own, and being a knob is what makes it appear in the window, be
+   * written down with the rest and come back tomorrow.
+   */
+  default java.util.List<Knob> knobs() {
+    return java.util.List.of();
+  }
+
   /** Whether this is doing anything at all, so a pipeline can leave it out rather than run it. */
   default boolean isTransparent() {
     return false;
