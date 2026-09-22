@@ -104,10 +104,23 @@ public final class Plugins {
     return !"off".equals(System.getProperty("oozx.plugins"));
   }
 
-  /** The jars themselves, for whoever wants to say what was found rather than use it. */
+  /**
+   * The jars themselves, on the way up: what was taken out is thrown away first, so this is
+   * both what is installed and the moment the folder is tidied.
+   */
   public static List<File> jars() {
     if (!areRead()) return List.of();
     PluginReleases.sweep();
+    return inFolder();
+  }
+
+  /**
+   * What is in the folder, asked without tidying it. For whoever wants to say what this
+   * emulator has while it is running: sweeping then would delete a jar the loader still holds
+   * open, which is the one thing {@link PluginReleases#takeOut} exists to put off.
+   */
+  public static List<File> inFolder() {
+    if (!areRead()) return List.of();
     File[] found = folder().toFile().listFiles(file -> file.getName().endsWith(".jar"));
     if (found == null) return List.of();
     List<File> jars = new ArrayList<>(Arrays.asList(found));

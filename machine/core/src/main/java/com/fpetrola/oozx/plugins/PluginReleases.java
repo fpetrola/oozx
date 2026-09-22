@@ -49,7 +49,11 @@ public class PluginReleases implements Configuration.Saves {
   /** Where the boards are published: the releases of this repository whose tag names a device. */
   public String repository = "fpetrola/oozx";
 
-  /** Which asset each jar here came from, so that what is published again is seen to be newer. */
+  /**
+   * Which asset each jar here came from. Only says whether what is published is a different
+   * build from the copy here - whether a board is here at all is the folder's to say. Kept
+   * under this name because it is in the file: renaming it would quietly lose what it knows.
+   */
   public Map<String, Long> brought = new LinkedHashMap<>();
 
   /**
@@ -91,12 +95,62 @@ public class PluginReleases implements Configuration.Saves {
     return theOne().repository;
   }
 
-  /** Whether this board is already here, and the copy is the one that is published. */
+  /**
+   * Whether this board is here, which is a fact about the folder and nothing else.
+   * <p>
+   * It used to also ask whether the copy here came from the asset that is published now, and
+   * that made every installed board vanish from the list the moment anything was pushed: the
+   * build recreates every release on every push, so every asset gets a new number while the
+   * jars on the disk stay exactly as they were. Being here and being the newest are two
+   * questions, and only the folder answers the first one.
+   */
   public static boolean isHere(Board board) {
-    PluginReleases them = theOne();
-    Long had = them.brought.get(board.jar());
-    return !them.takenOut.contains(board.jar())
-        && Files.exists(Plugins.folder().resolve(board.jar())) && had != null && had == board.asset();
+    return isHere(board.jar());
+  }
+
+  /**
+   * Matched on which board a jar is rather than on its exact file name, because the file name
+   * carries the version: the day the project's version moves, every installed board would go
+   * missing again for the same reason it did the first time.
+   */
+  public static boolean isHere(String jar) {
+    if (theOne().takenOut.contains(jar)) return false;
+    String board = whichBoard(jar);
+    return Plugins.inFolder().stream().anyMatch(here -> whichBoard(here.getName()).equals(board));
+  }
+
+  /** Whether what is published came from a different build than the copy here. */
+  public static boolean isNewerThanHere(Board board) {
+    Long had = theOne().brought.get(board.jar());
+    return isHere(board) && (had == null || had != board.asset());
+  }
+
+  /**
+   * Every board this emulator actually has. The folder says which, so one built here or copied
+   * in by hand counts the same as one that was downloaded; one that matches something published
+   * carries that release's name, and one that matches nothing is called after its file.
+   */
+  public static List<Board> here(List<Board> published) {
+    Map<String, Board> byBoard = new LinkedHashMap<>();
+    published.forEach(board -> byBoard.put(whichBoard(board.jar()), board));
+    List<Board> here = new ArrayList<>();
+    for (java.io.File jar : Plugins.inFolder()) {
+      if (isOut(jar.getName())) continue;
+      Board known = byBoard.get(whichBoard(jar.getName()));
+      here.add(known != null ? known
+          : new Board(whichBoard(jar.getName()), jar.getName(), "", 0, jar.length()));
+    }
+    here.sort(java.util.Comparator.comparing(Board::name));
+    return here;
+  }
+
+  /**
+   * Which board a jar is, whatever version it happens to be: "tool-calls-0.0.2-SNAPSHOT.jar"
+   * and "tool-calls-0.0.3.jar" are both "tool-calls". A board nobody published is called this
+   * too, since its file is all there is to call it after.
+   */
+  static String whichBoard(String jar) {
+    return jar.replaceFirst("-\\d.*$", "").replaceFirst("\\.jar$", "");
   }
 
   /** The releases of the repository, reduced to the ones that are a device and carry a jar. */

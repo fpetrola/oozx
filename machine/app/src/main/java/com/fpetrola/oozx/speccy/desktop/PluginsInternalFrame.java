@@ -147,8 +147,12 @@ public class PluginsInternalFrame extends JInternalFrame {
         try {
           outside.clear();
           inside.clear();
-          for (Board board : get()) {
-            (PluginReleases.isHere(board) ? inside : outside).addElement(board);
+          List<Board> published = get();
+          // What is in is what is in the folder, not what was downloaded through this window:
+          // one built here or copied in by hand is just as plugged in as one that arrived.
+          PluginReleases.here(published).forEach(inside::addElement);
+          for (Board board : published) {
+            if (!PluginReleases.isHere(board)) outside.addElement(board);
           }
           busy(inside.size() + " in, " + outside.size() + " to be had", false);
         } catch (Exception noAnswer) {
@@ -266,7 +270,9 @@ public class PluginsInternalFrame extends JInternalFrame {
       super.getListCellRendererComponent(list, value, index, chosen, focused);
       if (value instanceof Board board) {
         setText("<html>" + board.name() + "  <font color='gray'>"
-            + Math.max(1, board.size() / 1024) + " KB</font></html>");
+            + Math.max(1, board.size() / 1024) + " KB</font>"
+            + (PluginReleases.isNewerThanHere(board)
+            ? "  <font color='#3070c0'>a newer one is published</font>" : "") + "</html>");
       }
       return this;
     }
