@@ -18,24 +18,9 @@
 package com.fpetrola.oozx.speccy.machines;
 
 import com.fpetrola.oozx.Extension;
-import com.fpetrola.oozx.speccy.machine.Pentagon;
-import com.fpetrola.oozx.speccy.machine.Pentagon512;
-import com.fpetrola.oozx.speccy.machine.Pentagon1024;
-import com.fpetrola.oozx.speccy.machine.Pentagon1024MemoryPeripheral;
 import com.fpetrola.oozx.speccy.machine.Spec16;
 import com.fpetrola.oozx.speccy.machine.Spec128;
 import com.fpetrola.oozx.speccy.machine.Spec48;
-import com.fpetrola.oozx.speccy.machine.SpecSe;
-import com.fpetrola.oozx.speccy.machine.Tc2048;
-import com.fpetrola.oozx.speccy.machine.Tc2068;
-import com.fpetrola.oozx.speccy.machine.Chrome;
-import com.fpetrola.oozx.speccy.machine.CzSpectrum;
-import com.fpetrola.oozx.speccy.machine.Inves;
-import com.fpetrola.oozx.speccy.machine.CzSpectrumPlus;
-import com.fpetrola.oozx.speccy.machine.Scorpion;
-import com.fpetrola.oozx.speccy.machine.Tk90x;
-import com.fpetrola.oozx.speccy.machine.Tk95;
-import com.fpetrola.oozx.speccy.machine.Ts2068;
 import com.fpetrola.oozx.speccy.machine.SpecPlus2;
 import com.fpetrola.oozx.speccy.machine.SpecPlus2A;
 import com.fpetrola.oozx.speccy.machine.SpecPlus3;
@@ -47,19 +32,15 @@ import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 
 /**
- * Every machine the emulator can be, found on the classpath like a device: the core is the
- * chassis and cannot start without one of these. Sinclair's, then the variants a snapshot never
- * names, then the clones.
+ * The machines this build carries: Sinclair's line and Amstrad's, which is what a Spectrum is
+ * to whoever asks for one. The core is the chassis and cannot start without one of these.
  * <p>
- * Not every machine there is: one can arrive in a jar and add itself to these, which is what
- * Chloe's two do. What is here is what this build was written with.
+ * Not every machine there is. Anything that is not Sinclair's arrives in a jar and adds itself
+ * to these the way a board does - the clones, the Timexes, Chloe's two - so a build that nobody
+ * added anything to is a Spectrum and not a museum.
  */
 public class Machines extends AbstractModule implements Extension {
   protected void configure() {
-    Multibinder.newSetBinder(binder(), com.fpetrola.oozx.speccy.peripherals.Peripheral.class)
-        .addBinding().to(Pentagon1024MemoryPeripheral.class);
-    Multibinder.newSetBinder(binder(), com.fpetrola.oozx.speccy.peripherals.Peripheral.class)
-        .addBinding().to(com.fpetrola.oozx.speccy.machine.InvesInterruptFault.class);
     Multibinder<Spectrum> models = Multibinder.newSetBinder(binder(), Spectrum.class);
     models.addBinding().to(Spec16.class);
     models.addBinding().to(Spec48.class);
@@ -69,20 +50,6 @@ public class Machines extends AbstractModule implements Extension {
     models.addBinding().to(SpecPlus2A.class);
     models.addBinding().to(Spec48Ntsc.class);
     models.addBinding().to(SpecPlus3E.class);
-    models.addBinding().to(Pentagon.class);
-    models.addBinding().to(Pentagon512.class);
-    models.addBinding().to(Pentagon1024.class);
-    models.addBinding().to(Tc2048.class);
-    models.addBinding().to(Tc2068.class);
-    models.addBinding().to(Ts2068.class);
-    models.addBinding().to(SpecSe.class);
-    models.addBinding().to(Scorpion.class);
-    models.addBinding().to(Tk90x.class);
-    models.addBinding().to(Tk95.class);
-    models.addBinding().to(CzSpectrum.class);
-    models.addBinding().to(CzSpectrumPlus.class);
-    models.addBinding().to(Inves.class);
-    models.addBinding().to(Chrome.class);
     // Which machine that is, is a setting: the file names one and this build has it, or nothing
     // named one and a Spectrum is a 48K. Bound rather than read as a machine starts, so what a new
     // machine becomes is answered the one way everything else here is answered.

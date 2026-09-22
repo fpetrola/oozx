@@ -30,6 +30,7 @@
         <module>ide</module>
         <module>ulaplus</module>
         <module>chloe</module>
+        <module>clones</module>
         <module>kit</module>
         <module>debugger</module>
         <module>printer</module>

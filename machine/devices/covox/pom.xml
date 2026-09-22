@@ -12,6 +12,13 @@
 
     <name>Covox</name>
     <dependencies>
+        <!-- Tried on the machine it was sold for, which is one that arrives in a jar. -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-clones</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>devices-kit</artifactId>
