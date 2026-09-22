@@ -225,6 +225,10 @@ public class PluginsInternalFrame extends JInternalFrame {
 
   private void look() {
     if (looking != null && !looking.isDone()) return;
+    // What is plugged in is a question about a folder on this machine, and it is answered before
+    // anybody is asked anything. It used to be answered out of the archive's reply, so the day
+    // the archive was down this window could not even say what the emulator already had.
+    whatIsHere(List.of());
     busy("Looking at what is published…", true);
     looking = new SwingWorker<List<Board>, Void>() {
       protected List<Board> doInBackground() throws Exception {
@@ -233,23 +237,41 @@ public class PluginsInternalFrame extends JInternalFrame {
 
       protected void done() {
         try {
-          outside.clear();
-          inside.clear();
           List<Board> published = get();
-          // What is in is what is in the folder, not what was downloaded through this window:
-          // one built here or copied in by hand is just as plugged in as one that arrived.
-          PluginReleases.here(published).forEach(inside::addElement);
+          whatIsHere(published);
+          outside.clear();
           for (Board board : published) {
             if (!PluginReleases.isHere(board)) outside.addElement(board);
           }
           busy(inside.size() + " in, " + outside.size() + " to be had", false);
           if (wanted != null) pickOut(published);
         } catch (Exception noAnswer) {
-          busy("They could not be asked for: " + reason(noAnswer), false);
+          busy(inside.size() + " in. What else is published could not be asked for: "
+              + reason(noAnswer), false);
+          if (wanted != null) nothingCanBeOffered();
         }
       }
     };
     looking.execute();
+  }
+
+  /**
+   * What is in the folder, named by what is published when that is known and by its own file
+   * when it is not: a jar built here or copied in by hand is just as plugged in as one that
+   * arrived through this window, and so is every one of them when nobody can be asked.
+   */
+  private void whatIsHere(List<Board> published) {
+    inside.clear();
+    PluginReleases.here(published).forEach(inside::addElement);
+  }
+
+  /** Asked to pick something out while what is published cannot be asked for. */
+  private void nothingCanBeOffered() {
+    String said = otherwise;
+    wanted = null;
+    JOptionPane.showMessageDialog(this, said + "\n\nWhat is published cannot be asked for just "
+        + "now, so there is nothing to offer. A jar dropped in the plugins folder works all the "
+        + "same.", "This build cannot do that", JOptionPane.WARNING_MESSAGE);
   }
 
   /**
