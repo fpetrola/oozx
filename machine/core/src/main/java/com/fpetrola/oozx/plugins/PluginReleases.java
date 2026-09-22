@@ -89,28 +89,31 @@ public class PluginReleases implements Configuration.Saves {
   }
 
   /**
-   * One published board: what it is called, which file it is, where it is, how big, and which
-   * machines it brings - the ones a snapshot can ask for by name, so that a snapshot taken on a
-   * machine nobody here has can point straight at the jar that has it.
+   * One published board: what it is called, which file it is, where it is, how big, and what it
+   * would answer for - the machines a snapshot can ask for by name, and the kinds of file it
+   * knows how to open. Both so that what this build cannot do can point at the jar that can.
    */
-  public record Board(String name, String jar, String from, long asset, long size, List<String> machines) {
+  public record Board(String name, String jar, String from, long asset, long size,
+                      List<String> machines, List<String> opens) {
     public Board(String name, String jar, String from, long asset, long size) {
-      this(name, jar, from, asset, size, List.of());
+      this(name, jar, from, asset, size, List.of(), List.of());
     }
   }
 
-  /** The boards that bring a machine, named as a snapshot names it. */
-  public static List<Board> bringing(String machine, List<Board> published) {
-    return published.stream().filter(board -> board.machines().contains(machine)).toList();
+  /** The boards that would answer for this: a machine as a snapshot names it, or a kind of file. */
+  public static List<Board> bringing(String wanted, List<Board> published) {
+    return published.stream()
+        .filter(board -> board.machines().contains(wanted) || board.opens().contains(wanted))
+        .toList();
   }
 
   /**
-   * The machines a release says it brings. Written by whoever published it, from the sources of
-   * the module, since a jar nobody has downloaded cannot be asked.
+   * What a release says it answers for. Written by whoever published it, from the sources of the
+   * module, since a jar nobody has downloaded cannot be asked.
    */
-  private static List<String> machinesIn(String notes) {
+  private static List<String> said(String notes, String about) {
     java.util.regex.Matcher said = java.util.regex.Pattern
-        .compile("(?m)^oozx-machines: (.*)$").matcher(notes == null ? "" : notes);
+        .compile("(?m)^oozx-" + about + ": (.*)$").matcher(notes == null ? "" : notes);
     return said.find() ? List.of(said.group(1).trim().split("\\s+")) : List.of();
   }
 
@@ -197,7 +200,8 @@ public class PluginReleases implements Configuration.Saves {
         String named = release.path("name").asText("");
         boards.add(new Board(named.isBlank() ? tag : named, jar,
             asset.path("browser_download_url").asText(), asset.path("id").asLong(),
-            asset.path("size").asLong(), machinesIn(release.path("body").asText(""))));
+            asset.path("size").asLong(), said(release.path("body").asText(""), "machines"),
+            said(release.path("body").asText(""), "opens")));
         break;
       }
     }

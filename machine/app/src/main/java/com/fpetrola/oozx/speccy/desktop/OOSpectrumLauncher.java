@@ -143,11 +143,25 @@ public class OOSpectrumLauncher {
 
     speccy.init();
     becomeTheMachineItWants(speccy, file, opener, chosenMachine);
+    if (opener == null) nothingHereOpensThat(file);
     going = opener == null ? null : opener.start(speccy, file);
 
     extracted(speccy);
 
     return speccy;
+  }
+
+  /**
+   * Says so, rather than coming up at the BASIC prompt as if nothing had been asked for. A
+   * build carries the reader for one kind of file and the rest arrive as plugins, so a tape or
+   * a snapshot opened without them did exactly that and said nothing at all.
+   */
+  private static void nothingHereOpensThat(File file) {
+    String kind = file.getName().replaceFirst("^.*\\.", "").toLowerCase();
+    com.fpetrola.oozx.TellsThePerson.thisBuildCannot(
+        ("Nothing in this build knows how to open %s, so what came up is a machine at the BASIC "
+            + "prompt with nothing loaded into it.\n\nReading that kind of file is what a plugin does.")
+            .formatted(file.getName()), kind);
   }
 
   /** The first that says it knows that kind of file, or none. */

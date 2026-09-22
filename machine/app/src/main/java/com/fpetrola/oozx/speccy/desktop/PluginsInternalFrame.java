@@ -76,22 +76,23 @@ public class PluginsInternalFrame extends JInternalFrame {
   private final javax.swing.JTree byKind = new javax.swing.JTree(new DefaultMutableTreeNode());
 
   /**
-   * A machine a snapshot asked for that nobody here has, and what to say if this cannot help
-   * after all. Kept until the published list is in, since the jars that bring it are in that.
+   * What this build could not do - a machine a snapshot asked for, a kind of file nothing here
+   * reads - and what to say if this cannot help after all. Kept until the published list is in,
+   * since which jars answer for it is in that.
    */
   private String wanted;
   private String otherwise;
 
   /**
-   * Comes up with the jars that bring this machine already picked out, so that adding them is
-   * one press rather than a hunt through the list. Nothing is brought without being asked for:
-   * picking them out is the offer, pressing the arrow is the answer.
+   * Comes up with the jars that would answer for this already picked out, so that adding them
+   * is one press rather than a hunt through the list. Nothing is brought without being asked
+   * for: picking them out is the offer, pressing the arrow is the answer.
    *
-   * @param machine as a snapshot names it, e.g. SPECTRUMPLUS2A
-   * @param said    what to tell the person if nothing published brings it
+   * @param what a machine as a snapshot names it (SPECTRUMPLUS2A), or a kind of file (sna)
+   * @param said what to tell the person if nothing published answers for it
    */
-  public void pickOutWhatBrings(String machine, String said) {
-    wanted = machine;
+  public void pickOutWhatBrings(String what, String said) {
+    wanted = what;
     otherwise = said;
     look();
   }
@@ -243,8 +244,8 @@ public class PluginsInternalFrame extends JInternalFrame {
   }
 
   /**
-   * Picks out the jars that bring the machine that was asked for. One that is already in means
-   * the machine is here and something else is the matter, which is worth saying too.
+   * Picks out the jars that answer for what was asked. One that is already in means what would
+   * bring it is here and something else is the matter, which is worth saying too.
    */
   private void pickOut(List<Board> found) {
     List<Board> brings = PluginReleases.bringing(wanted, found);
@@ -253,16 +254,16 @@ public class PluginsInternalFrame extends JInternalFrame {
         .filter(at -> brings.contains(outside.get(at))).toArray();
     if (toBeHad.length == 0) {
       JOptionPane.showMessageDialog(this, brings.isEmpty()
-          ? otherwise + "\n\nNothing published brings that machine either."
-          : "That machine is already in this emulator, so something else is the matter.",
+          ? otherwise + "\n\nNothing published brings it either."
+          : "What brings it is already in this emulator, so something else is the matter.",
           "This build cannot do that", JOptionPane.WARNING_MESSAGE);
       return;
     }
     published.setSelectedIndices(toBeHad);
     published.ensureIndexIsVisible(toBeHad[0]);
-    saying.setText("That machine is in " + brings.stream().map(Board::name)
-        .collect(java.util.stream.Collectors.joining(", ")) + ": press → to bring "
-        + (toBeHad.length == 1 ? "it" : "them") + " in.");
+    saying.setText(brings.stream().map(Board::name).collect(java.util.stream.Collectors.joining(", "))
+        + (toBeHad.length == 1 ? " brings it" : " bring it") + ": press → to add "
+        + (toBeHad.length == 1 ? "it." : "them."));
   }
 
   private void includeTheChosen() {

@@ -80,6 +80,22 @@ jobs:
                           found.append(model)
               return found
 
+          def opens(module):
+              """Which files this module knows how to open, as a format itself says so.
+
+              Read where a format answers whether a file is one of its own - handles, reads,
+              opens, isATape - and nowhere else, so that a name mentioned in passing elsewhere
+              does not make a jar claim a file it cannot read.
+              """
+              found = []
+              for source in sorted(glob.glob(module + '/src/main/java/**/*.java', recursive=True)):
+                  for body in re.findall(r'\b(?:handles|reads|opens|isATape)\s*\([^)]*\)\s*\{(.*?)\n\s{0,4}\}',
+                                         open(source).read(), re.S):
+                      for extension in re.findall(r'"\.(\w+)"', body):
+                          if extension not in found:
+                              found.append(extension)
+              return found
+
           os.makedirs('jars', exist_ok=True)
           devices = []
           # The two small jars somebody writing a plugin needs go up as well: one is the word a
@@ -99,7 +115,8 @@ jobs:
               # Two of them have no window and so no name of their own: the module's will do.
               devices.append({'artifact': artifact,
                               'title': called(module) or os.path.basename(module).capitalize(),
-                              'machines': ' '.join(machines(module))})
+                              'machines': ' '.join(machines(module)),
+                              'opens': ' '.join(opens(module))})
 
           for device in devices:
               print(device['artifact'] + ' -> ' + device['title'], file=sys.stderr)
@@ -136,6 +153,7 @@ jobs:
           TAG: ${{ matrix.device.artifact }}
           TITLE: ${{ matrix.device.title }}
           MACHINES: ${{ matrix.device.machines }}
+          OPENS: ${{ matrix.device.opens }}
         run: |
           JAR=$(ls "$TAG"-*.jar | head -1)
           echo "publishing $TAG from $JAR"
@@ -152,6 +170,7 @@ jobs:
             # Read back by the emulator: a snapshot naming a machine nobody has is answered with
             # the jars that bring it, picked out in the plugins window.
             if [ -n "$MACHINES" ]; then echo; echo "oozx-machines: $MACHINES"; fi
+            if [ -n "$OPENS" ]; then echo; echo "oozx-opens: $OPENS"; fi
           } > notes.md
           gh release create "$TAG" "$JAR" \
             --repo "$GITHUB_REPOSITORY" \
