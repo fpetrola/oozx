@@ -36,106 +36,13 @@
   },
   "roms" : {
     "files" : {
-      "Spec48" : [ "48.rom" ],
-      "Beta128Peripheral" : [ "trdos.rom" ],
-      "DidaktikPeripheral" : [ "didaktik80.rom" ],
-      "DisciplePeripheral" : [ "disciple.rom" ],
-      "OpusPeripheral" : [ "opus.rom" ],
-      "PlusDPeripheral" : [ "plusd.rom" ],
-      "Interface1Peripheral" : [ "if1-2.rom" ],
-      "MultifaceOnePeripheral" : [ "mf1.rom" ],
-      "Multiface128Peripheral" : [ "mf128.rom" ],
-      "Multiface3Peripheral" : [ "mf3.rom" ]
+      "Spec48" : [ "48.rom" ]
     },
     "sources" : {
       "48-spanish.rom" : {
         "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/48es.rom",
         "sha256" : "e56896c14377d17a736f7a6e6fef7180e67847ec253d9ecb5c73e4f3ffc4890c",
         "at" : 0,
-        "length" : 16384
-      },
-      "128-spanish-0.rom" : {
-        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/128s.rom",
-        "sha256" : "b6a34475bfd5d88d58b5a96f64d5c368d69e5c91a68e8f3c6b2b173b00e66565",
-        "at" : 0,
-        "length" : 16384
-      },
-      "128-spanish-1.rom" : {
-        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/128s.rom",
-        "sha256" : "88b351aea61427b105df32155704d176e09c36e19fe82106007987e654ec948b",
-        "at" : 16384,
-        "length" : 16384
-      },
-      "plus2-french-0.rom" : {
-        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/p2f.rom",
-        "sha256" : "71c4cf46a41d71df6bfc11acc28edfa234688067c69d85491455d2e293c8beac",
-        "at" : 0,
-        "length" : 16384
-      },
-      "plus2-french-1.rom" : {
-        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/p2f.rom",
-        "sha256" : "23dad83ea81d852b94bea4c8f2d3d7842ff24c1cb7371538a67be35302d0220a",
-        "at" : 16384,
-        "length" : 16384
-      },
-      "plus2-spanish-0.rom" : {
-        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/p2s.rom",
-        "sha256" : "85515a7d06b42c9fb10ed4ed0c6a15f75adbd883dc0192a8a6b77413ccf3360a",
-        "at" : 0,
-        "length" : 16384
-      },
-      "plus2-spanish-1.rom" : {
-        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/p2s.rom",
-        "sha256" : "ea1714ba42086a9753a4864b9fe03003c5134313f7230af7f3af356dcdee18bc",
-        "at" : 16384,
-        "length" : 16384
-      },
-      "plus3-41-0.rom" : {
-        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/p2a41.rom",
-        "sha256" : "5a15b395a60f6cae87c80d560265d7f5ce3bf99f5ee8c57598d32918c106696d",
-        "at" : 0,
-        "length" : 16384
-      },
-      "plus3-41-1.rom" : {
-        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/p2a41.rom",
-        "sha256" : "32e44e9c622a8e50f1c46e88a1008df7c7583244c3d3736c9d5e406b98c8ff04",
-        "at" : 16384,
-        "length" : 16384
-      },
-      "plus3-41-2.rom" : {
-        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/p2a41.rom",
-        "sha256" : "aa92f4e0c8ef1f324b9d565009d1f1b37079057ebc97c39a6def33209e29499e",
-        "at" : 32768,
-        "length" : 16384
-      },
-      "plus3-41-3.rom" : {
-        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/p2a41.rom",
-        "sha256" : "4ded16ccbcaf8043ed9acec49556dd04e79910d2e32e4bda6e5f4dbbd8c25a09",
-        "at" : 49152,
-        "length" : 16384
-      },
-      "plus3-spanish-0.rom" : {
-        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/p2as.rom",
-        "sha256" : "25e00cb18566d9886b5996eda55ab2983d1d917bc5f097b45e4dc82321b91480",
-        "at" : 0,
-        "length" : 16384
-      },
-      "plus3-spanish-1.rom" : {
-        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/p2as.rom",
-        "sha256" : "21389868b3762028d1f209d7ce8d26022288d41bb309b628a807ad1b5829995d",
-        "at" : 16384,
-        "length" : 16384
-      },
-      "plus3-spanish-2.rom" : {
-        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/p2as.rom",
-        "sha256" : "3e44807556d6acdfba231cd16e35524b72268f805f1a247dca3621c5f0c1a454",
-        "at" : 32768,
-        "length" : 16384
-      },
-      "plus3-spanish-3.rom" : {
-        "url" : "https://raw.githubusercontent.com/chernandezba/zesarux/da53a8d1755490a97fe6858866bc6eae7aead6f1/src/p2as.rom",
-        "sha256" : "24a9fff69995e0fe6397b6437e3e7ae60010b6ff65e1680087f578c27871a9ef",
-        "at" : 49152,
         "length" : 16384
       }
     },

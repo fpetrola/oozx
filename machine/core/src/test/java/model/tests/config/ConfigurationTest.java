@@ -228,13 +228,11 @@ class ConfigurationTest {
   @Test
   void aRomTheFileNamesGoesOverTheOneThatShippedAndTheRestStay(@TempDir Path dir) throws Exception {
     com.fpetrola.oozx.config.RomFiles roms = new Configuration(write(dir, """
-        { "roms": { "files": { "Spec48": ["/mine/48.rom"], "DivIdePeripheral": ["/mine/fatware.rom"] } } }""")).of(com.fpetrola.oozx.config.RomFiles.class);
-    assertEquals(List.of("/mine/48.rom"), roms.files.get("Spec48"));
+        { "roms": { "files": { "DivIdePeripheral": ["/mine/fatware.rom"] } } }""")).of(com.fpetrola.oozx.config.RomFiles.class);
     assertEquals(List.of("/mine/fatware.rom"), roms.files.get("DivIdePeripheral"), "one nothing shipped with");
-    // One this build carries and the file says nothing about. The 128's used to stand here and
-    // it went out with the machine: what a jar declares is the jar's, and this is the file
-    // against what shipped.
-    assertEquals(List.of("mf1.rom"), roms.files.get("MultifaceOnePeripheral"), "one the file did not name");
+    // What this build carries is the 48K and its ROM: every other machine and every board says
+    // what it is made with in its own jar, so this is the whole of what a file can leave alone.
+    assertEquals(List.of("48.rom"), roms.files.get("Spec48"), "the one the file did not name");
   }
 
   private static File write(Path dir, String json) throws Exception {
