@@ -18,22 +18,18 @@
 package com.fpetrola.oozx.speccy.machines;
 
 import com.fpetrola.oozx.Extension;
-import com.fpetrola.oozx.speccy.machine.Spec16;
-import com.fpetrola.oozx.speccy.machine.Spec128;
 import com.fpetrola.oozx.speccy.machine.Spec48;
-import com.fpetrola.oozx.speccy.machine.SpecPlus2;
-import com.fpetrola.oozx.speccy.machine.SpecPlus2A;
-import com.fpetrola.oozx.speccy.machine.SpecPlus3;
 import com.fpetrola.oozx.speccy.modules.machine.DefaultMachine;
-import com.fpetrola.oozx.speccy.machine.Spec48Ntsc;
-import com.fpetrola.oozx.speccy.machine.SpecPlus3E;
 import com.fpetrola.oozx.speccy.machine.Spectrum;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 
 /**
- * The machines this build carries: Sinclair's line and Amstrad's, which is what a Spectrum is
- * to whoever asks for one. The core is the chassis and cannot start without one of these.
+ * The machine this build carries, which is the 48K.
+ * <p>
+ * One has to be here: the core is the chassis and cannot start without a machine, and what a
+ * Spectrum is to whoever asks for one is the 48K. Every other machine - the 128, Amstrad's, the
+ * clones, the remakes - arrives in a jar and adds itself to this the way a board does.
  * <p>
  * Not every machine there is. Anything that is not Sinclair's arrives in a jar and adds itself
  * to these the way a board does - the clones, the Timexes, Chloe's two - so a build that nobody
@@ -42,14 +38,7 @@ import com.google.inject.multibindings.Multibinder;
 public class Machines extends AbstractModule implements Extension {
   protected void configure() {
     Multibinder<Spectrum> models = Multibinder.newSetBinder(binder(), Spectrum.class);
-    models.addBinding().to(Spec16.class);
     models.addBinding().to(Spec48.class);
-    models.addBinding().to(Spec128.class);
-    models.addBinding().to(SpecPlus3.class);
-    models.addBinding().to(SpecPlus2.class);
-    models.addBinding().to(SpecPlus2A.class);
-    models.addBinding().to(Spec48Ntsc.class);
-    models.addBinding().to(SpecPlus3E.class);
     // Which machine that is, is a setting: the file names one and this build has it, or nothing
     // named one and a Spectrum is a 48K. Bound rather than read as a machine starts, so what a new
     // machine becomes is answered the one way everything else here is answered.

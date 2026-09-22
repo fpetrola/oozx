@@ -12,6 +12,18 @@
 
     <name>DISCiPLE</name>
     <dependencies>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-spectrum128</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-amstrad</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- The DISCiPLE is the +D's design with more on the board: the same interface, the same bay. -->
         <dependency>
             <groupId>com.fpetrola</groupId>

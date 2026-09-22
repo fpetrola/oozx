@@ -231,7 +231,10 @@ class ConfigurationTest {
         { "roms": { "files": { "Spec48": ["/mine/48.rom"], "DivIdePeripheral": ["/mine/fatware.rom"] } } }""")).of(com.fpetrola.oozx.config.RomFiles.class);
     assertEquals(List.of("/mine/48.rom"), roms.files.get("Spec48"));
     assertEquals(List.of("/mine/fatware.rom"), roms.files.get("DivIdePeripheral"), "one nothing shipped with");
-    assertEquals(List.of("128-0.rom", "128-1.rom"), roms.files.get("Spec128"), "one the file did not name");
+    // One this build carries and the file says nothing about. The 128's used to stand here and
+    // it went out with the machine: what a jar declares is the jar's, and this is the file
+    // against what shipped.
+    assertEquals(List.of("mf1.rom"), roms.files.get("MultifaceOnePeripheral"), "one the file did not name");
   }
 
   private static File write(Path dir, String json) throws Exception {

@@ -15,6 +15,11 @@
     <dependencies>
         <dependency>
             <groupId>com.fpetrola</groupId>
+            <artifactId>device-amstrad</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
             <artifactId>machines</artifactId>
             <version>${project.version}</version>
         </dependency>

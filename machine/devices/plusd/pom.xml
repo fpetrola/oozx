@@ -12,6 +12,18 @@
 
     <name>+D</name>
     <dependencies>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-spectrum128</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-amstrad</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- Tried on the machine it was sold for, which is one that arrives in a jar. -->
         <dependency>
             <groupId>com.fpetrola</groupId>

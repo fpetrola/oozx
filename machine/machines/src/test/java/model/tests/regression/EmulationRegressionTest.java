@@ -160,10 +160,9 @@ public class EmulationRegressionTest extends MachineTest {
   public void switchingModelsFallsBackToThe48K() {
     Speccy speccy = silentMachine();
 
-    // Sinclair's line and Amstrad's, exactly: an unexplained change here means a model got
-    // registered or dropped silently. Everything else - the clones, the Timexes, Chloe's two -
-    // arrives in a jar and is not on this module's path.
-    assertEquals(8, speccy.machine.getMachineTypes().size(), "not every model was registered");
+    // One, and it is the 48K: this module is what a Spectrum is, and every other machine -
+    // the 128, Amstrad's, the clones, the remakes - arrives in a jar and is not on this path.
+    assertEquals(1, speccy.machine.getMachineTypes().size(), "this build is the 48K and nothing else");
     assertSame(speccy.machine.model(Spec48.class), speccy.machine.current,
         "the machine did not come up as the 48K; check the @DefaultMachine binding");
   }

@@ -15,6 +15,23 @@
     <dependencies>
         <dependency>
             <groupId>com.fpetrola</groupId>
+            <artifactId>device-spectrum-variants</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-amstrad</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-spectrum128</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
             <artifactId>machines</artifactId>
             <version>${project.version}</version>
         </dependency>

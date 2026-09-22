@@ -8,11 +8,12 @@
     <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>device-spectrum-se</artifactId>
+    <artifactId>device-amstrad</artifactId>
     <packaging>jar</packaging>
 
     <name>ULAplus: sixty-four colours a program picks itself</name>
     <dependencies>
+        <!-- Built on it, so taking this one brings that one. -->
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>device-spectrum128</artifactId>

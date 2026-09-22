@@ -30,6 +30,9 @@
         <module>ide</module>
         <module>ulaplus</module>
         <module>chloe</module>
+        <module>spectrum128</module>
+        <module>amstrad</module>
+        <module>spectrum-variants</module>
         <module>pentagon</module>
         <module>timex</module>
         <module>scorpion</module>
