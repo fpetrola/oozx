@@ -59,8 +59,10 @@ class AFormatThatArrivedTest {
 
   @Test
   void whatThisBuildWasBornKnowingIsStillRead() {
+    // The one it writes itself, and nothing else: SNA, SZX and SP arrive in a jar, and on this
+    // module's path there is no jar.
     assertTrue(SnapshotFactory.getSnapshot(new File("game.z80")) instanceof SnapshotZ80);
-    assertTrue(SnapshotFactory.getSnapshot(new File("GAME.SNA")) instanceof SnapshotSNA);
+    assertNull(SnapshotFactory.getSnapshot(new File("GAME.SNA")), "the SNA reader is not here");
     assertNull(SnapshotFactory.getSnapshot(new File("game.nobody")), "nobody reads that yet");
   }
 

@@ -2374,17 +2374,14 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   /**
    * What was found, handed to whoever cannot go looking for it.
    * <p>
-   * The screen and the snapshot formats are both under the emulator rather than over it - one
-   * knows about pictures and windows, the other is below the plugin mechanism itself - so they
-   * are told what there is instead of asking. Said again whenever that changes.
+   * The screen knows about pictures and windows and nothing about jars, so it is told what
+   * there is instead of asking. Said again whenever that changes. The snapshot formats are told
+   * by the module that loads snapshots, which is the one that owns the question.
    */
   private void whatThereIs() {
     com.fpetrola.oozx.speccy.screen.ScreenSettings.thereAre(
         com.fpetrola.oozx.plugins.Plugins.found(
             com.fpetrola.oozx.speccy.screen.ScreenEffect.class));
-    com.fpetrola.emulation.helpers.snapshots.SnapshotFactory.alsoRead(
-        com.fpetrola.oozx.plugins.Plugins.found(
-            com.fpetrola.emulation.helpers.snapshots.SnapshotFile.class));
   }
 
   private void fillTheDeskWindows() {

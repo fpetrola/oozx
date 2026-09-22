@@ -42,6 +42,7 @@
         <module>chrome</module>
         <module>spectrum-se</module>
         <module>tape</module>
+        <module>snapshots</module>
         <module>kit</module>
         <module>debugger</module>
         <module>printer</module>

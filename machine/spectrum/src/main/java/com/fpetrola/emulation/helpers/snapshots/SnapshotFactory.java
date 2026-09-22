@@ -33,9 +33,13 @@ import java.nio.file.Files;
  * @author jsanchez
  */
 public class SnapshotFactory {
-    /** The formats written here, which are the ones this build was born knowing. */
+    /**
+     * The format written here, which is the one the emulator itself writes: what it saves of a
+     * machine to put it back later is a .z80, so a build without it could not keep its own
+     * state. The rest - SNA, SZX, SP - arrive in a jar like everything else.
+     */
     private static final java.util.List<SnapshotFile> WRITTEN_HERE =
-            java.util.List.of(new SnapshotSNA(), new SnapshotZ80(), new SnapshotSZX(), new SnapshotSP());
+            java.util.List.of(new SnapshotZ80());
 
     /**
      * The formats that arrived, told from outside.
@@ -50,12 +54,37 @@ public class SnapshotFactory {
         arrived = formats == null ? java.util.List.of() : java.util.List.copyOf(formats);
     }
 
-    /** Every format there is: the ones written here and whatever arrived, which read the same. */
+    /**
+     * The readers on the path, found once. Plain ServiceLoader and not the plugin mechanism:
+     * this is under it and cannot see it, and a reader sitting on the path is a reader this
+     * build has whether or not anybody remembered to say so.
+     */
+    private static java.util.List<SnapshotFile> onThePath;
+
+    private static synchronized java.util.List<SnapshotFile> onThePath() {
+        if (onThePath == null) {
+            java.util.List<SnapshotFile> found = new java.util.ArrayList<>();
+            java.util.ServiceLoader.load(SnapshotFile.class).forEach(found::add);
+            onThePath = found;
+        }
+        return onThePath;
+    }
+
+    /** Every format there is: the one written here, the ones on the path, and whatever arrived. */
     public static java.util.List<SnapshotFile> formats() {
         java.util.List<SnapshotFile> all = new java.util.ArrayList<>(WRITTEN_HERE);
-        java.util.Set<Class<?>> written = new java.util.HashSet<>();
-        WRITTEN_HERE.forEach(one -> written.add(one.getClass()));
-        arrived.stream().filter(one -> !written.contains(one.getClass())).forEach(all::add);
+        java.util.Set<Class<?>> already = new java.util.HashSet<>();
+        WRITTEN_HERE.forEach(one -> already.add(one.getClass()));
+        for (SnapshotFile one : onThePath()) {
+            if (already.add(one.getClass())) {
+                all.add(one);
+            }
+        }
+        for (SnapshotFile one : arrived) {
+            if (already.add(one.getClass())) {
+                all.add(one);
+            }
+        }
         return all;
     }
 

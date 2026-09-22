@@ -1,39 +1,33 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>com.fpetrola</groupId>
         <artifactId>devices</artifactId>
         <version>0.0.2-alu-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>device-spec256</artifactId>
+    <artifactId>device-snapshots</artifactId>
     <packaging>jar</packaging>
-    <name>Spec256: a game in 256 colours, carried by eight processors in step with the one it was written for</name>
 
+    <name>ULAplus: sixty-four colours a program picks itself</name>
     <dependencies>
-        <!-- A Spec256 game is a .sna with its planes beside it, so it needs that reader. -->
-        <dependency>
-            <groupId>com.fpetrola</groupId>
-            <artifactId>device-snapshots</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>device-spectrum128</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
-            <artifactId>devices-kit</artifactId>
+            <artifactId>machines</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
-            <artifactId>media-snapshot</artifactId>
+            <artifactId>core</artifactId>
             <version>${project.version}</version>
+            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
     </dependencies>

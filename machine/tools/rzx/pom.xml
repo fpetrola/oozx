@@ -32,6 +32,16 @@
     <!-- A recording driven by hand: what is in it, how far along it is, and taking over. -->
 
     <dependencies>
+        <!--
+          A recording carries a snapshot inside it, of whatever kind it was made from, so the
+          readers come with the player: taking this brings them, and the emulator itself only
+          knows the one it writes.
+        -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-snapshots</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>rzx</artifactId>

@@ -25,6 +25,13 @@
       keeps the machine from carrying a hook whose only user is a test.
     -->
     <dependencies>
+        <!-- The corpus has snapshots of every kind, so every reader has to be here to read it. -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-snapshots</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>machines</artifactId>

@@ -12,6 +12,12 @@
 
     <name>every device this build offers</name>
     <dependencies>
+        <!-- A recording carries a snapshot of whatever kind inside it, so the readers come too. -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-snapshots</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
             <artifactId>machines</artifactId>
