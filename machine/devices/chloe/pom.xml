@@ -3,25 +3,26 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.fpetrola</groupId>
-        <artifactId>machine</artifactId>
+        <artifactId>devices</artifactId>
         <version>0.0.2-alu-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>device-ulaplus</artifactId>
+    <artifactId>device-chloe</artifactId>
     <packaging>jar</packaging>
 
     <name>ULAplus: sixty-four colours a program picks itself</name>
     <dependencies>
+        <!-- Two machines that have ULAplus soldered on, so they bring it with them. -->
         <dependency>
             <groupId>com.fpetrola</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>device-ulaplus</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>machines</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>

@@ -180,6 +180,16 @@
         <!-- A tool is Equipment too, so a test sees the whole desk the same way a person does. -->
         <dependency>
             <groupId>com.fpetrola</groupId>
+            <artifactId>device-ulaplus</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>device-chloe</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
             <artifactId>tool-keyboard</artifactId>
             <version>${project.version}</version>
         </dependency>

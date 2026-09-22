@@ -28,6 +28,8 @@
     -->
     <modules>
         <module>ide</module>
+        <module>ulaplus</module>
+        <module>chloe</module>
         <module>kit</module>
         <module>debugger</module>
         <module>printer</module>

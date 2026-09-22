@@ -28,8 +28,6 @@ import com.fpetrola.oozx.speccy.machine.Spec48;
 import com.fpetrola.oozx.speccy.machine.SpecSe;
 import com.fpetrola.oozx.speccy.machine.Tc2048;
 import com.fpetrola.oozx.speccy.machine.Tc2068;
-import com.fpetrola.oozx.speccy.machine.Chloe140Se;
-import com.fpetrola.oozx.speccy.machine.Chloe280Se;
 import com.fpetrola.oozx.speccy.machine.Chrome;
 import com.fpetrola.oozx.speccy.machine.CzSpectrum;
 import com.fpetrola.oozx.speccy.machine.Inves;
@@ -52,13 +50,14 @@ import com.google.inject.multibindings.Multibinder;
  * Every machine the emulator can be, found on the classpath like a device: the core is the
  * chassis and cannot start without one of these. Sinclair's, then the variants a snapshot never
  * names, then the clones.
+ * <p>
+ * Not every machine there is: one can arrive in a jar and add itself to these, which is what
+ * Chloe's two do. What is here is what this build was written with.
  */
 public class Machines extends AbstractModule implements Extension {
   protected void configure() {
     Multibinder.newSetBinder(binder(), com.fpetrola.oozx.speccy.peripherals.Peripheral.class)
         .addBinding().to(Pentagon1024MemoryPeripheral.class);
-    Multibinder.newSetBinder(binder(), com.fpetrola.oozx.speccy.peripherals.Peripheral.class)
-        .addBinding().to(com.fpetrola.oozx.speccy.machine.ChloeUla2Peripheral.class);
     Multibinder.newSetBinder(binder(), com.fpetrola.oozx.speccy.peripherals.Peripheral.class)
         .addBinding().to(com.fpetrola.oozx.speccy.machine.InvesInterruptFault.class);
     Multibinder<Spectrum> models = Multibinder.newSetBinder(binder(), Spectrum.class);
@@ -82,8 +81,6 @@ public class Machines extends AbstractModule implements Extension {
     models.addBinding().to(Tk95.class);
     models.addBinding().to(CzSpectrum.class);
     models.addBinding().to(CzSpectrumPlus.class);
-    models.addBinding().to(Chloe140Se.class);
-    models.addBinding().to(Chloe280Se.class);
     models.addBinding().to(Inves.class);
     models.addBinding().to(Chrome.class);
     // Which machine that is, is a setting: the file names one and this build has it, or nothing

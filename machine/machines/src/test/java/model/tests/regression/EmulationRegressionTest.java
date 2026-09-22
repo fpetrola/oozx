@@ -160,8 +160,10 @@ public class EmulationRegressionTest extends MachineTest {
   public void switchingModelsFallsBackToThe48K() {
     Speccy speccy = silentMachine();
 
-    // Exactly 8: an unexplained change here means a model got registered or dropped silently.
-    assertEquals(24, speccy.machine.getMachineTypes().size(), "not every model was registered");
+    // The ones this module binds, exactly: an unexplained change here means a model got
+    // registered or dropped silently. More can arrive in a jar - Chloe's two do - and those are
+    // not here, because nothing of theirs is on this module's path.
+    assertEquals(22, speccy.machine.getMachineTypes().size(), "not every model was registered");
     assertSame(speccy.machine.model(Spec48.class), speccy.machine.current,
         "the machine did not come up as the 48K; check the @DefaultMachine binding");
   }

@@ -15,9 +15,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.fpetrola.oozx.speccy.devices;
+package com.fpetrola.oozx.speccy.devices.ulaplus;
 
-import com.fpetrola.oozx.speccy.devices.ulaplus.UlaPlusPeripheral;
+import com.fpetrola.oozx.speccy.devices.DeviceFrame;
 import com.fpetrola.oozx.speccy.modules.display.Picture;
 
 import javax.swing.BorderFactory;

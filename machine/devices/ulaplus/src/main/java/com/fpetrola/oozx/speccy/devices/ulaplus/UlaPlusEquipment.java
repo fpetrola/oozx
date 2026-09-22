@@ -15,7 +15,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.fpetrola.oozx.speccy.devices;
+package com.fpetrola.oozx.speccy.devices.ulaplus;
+
+import com.fpetrola.oozx.speccy.devices.DeviceFrame;
+import com.fpetrola.oozx.speccy.devices.Equipment;
 
 /** The sixty-four colours, offered on the desk's own menu like anything else somebody fits. */
 public class UlaPlusEquipment implements Equipment {

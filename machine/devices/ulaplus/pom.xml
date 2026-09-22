@@ -5,27 +5,26 @@
         <groupId>com.fpetrola</groupId>
         <artifactId>devices</artifactId>
         <version>0.0.2-alu-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>devices-kit</artifactId>
+    <artifactId>device-ulaplus</artifactId>
     <packaging>jar</packaging>
 
-    <name>devices kit</name>
+    <name>ULAplus: sixty-four colours a program picks itself</name>
     <dependencies>
+        <!-- Its own window, which is equipment like any other board's. -->
         <dependency>
             <groupId>com.fpetrola</groupId>
-            <artifactId>host-sound</artifactId>
+            <artifactId>devices-kit</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
-            <artifactId>device-disk</artifactId>
+            <artifactId>core</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fpetrola</groupId>
-            <artifactId>devices-ide</artifactId>
-            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

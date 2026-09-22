@@ -42,7 +42,6 @@
         <module>tools</module>
         <module>machines/ula</module>
         <module>machines/scld</module>
-        <module>machines/ulaplus</module>
         <module>machines/ay</module>
         <module>machines/memory</module>
         <module>machines/disk</module>
