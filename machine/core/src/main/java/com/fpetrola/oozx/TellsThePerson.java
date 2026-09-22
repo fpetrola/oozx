@@ -68,10 +68,20 @@ public final class TellsThePerson {
     thisBuildCannot(what, null);
   }
 
-  /** The same, naming the machine that would make it work, for whoever can go and bring it. */
+  /** Said once each. A recording starts a segment over and over, and each start asks again. */
+  private static final java.util.Set<String> alreadySaid =
+      java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+  /** The same, naming what would make it work, for whoever can go and bring it. */
   public static void thisBuildCannot(String what, String thatNeeds) {
+    if (!alreadySaid.add(what)) return;
     if (who.isEmpty()) System.out.println("oozx: " + what);
     else who.forEach(one -> one.aboutNotDoingIt(what, thatNeeds));
+  }
+
+  /** Worth saying again: what this build can do has changed. */
+  public static void thatMayHaveChanged() {
+    alreadySaid.clear();
   }
 
   private TellsThePerson() {

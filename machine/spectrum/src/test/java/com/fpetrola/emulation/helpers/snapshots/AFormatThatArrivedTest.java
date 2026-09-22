@@ -54,7 +54,7 @@ class AFormatThatArrivedTest {
 
   @AfterEach
   void nothingArrivedAfterAll() {
-    SnapshotFactory.alsoRead(List.of());
+    SnapshotFactory.alsoRead(List::of);
   }
 
   @Test
@@ -69,7 +69,7 @@ class AFormatThatArrivedTest {
   @Test
   void oneThatArrivedReadsItsOwn() {
     FromAJar arrived = new FromAJar();
-    SnapshotFactory.alsoRead(List.of(arrived));
+    SnapshotFactory.alsoRead(() -> List.of(arrived));
 
     assertSame(arrived, SnapshotFactory.getSnapshot(new File("game.nobody")));
     assertTrue(SnapshotFactory.getSnapshot(new File("game.z80")) instanceof SnapshotZ80,
@@ -80,7 +80,7 @@ class AFormatThatArrivedTest {
   @Test
   void aFormatWrittenHereAndAlsoFoundIsOneFormat() {
     int written = SnapshotFactory.formats().size();
-    SnapshotFactory.alsoRead(List.of(new SnapshotZ80(), new FromAJar()));
+    SnapshotFactory.alsoRead(() -> List.of(new SnapshotZ80(), new FromAJar()));
 
     assertEquals(written + 1, SnapshotFactory.formats().size(),
         "the Z80 was counted twice: " + SnapshotFactory.formats());

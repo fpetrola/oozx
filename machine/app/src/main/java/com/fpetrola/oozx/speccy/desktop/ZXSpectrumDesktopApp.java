@@ -1003,8 +1003,11 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     }
     Opens player = opensFor(chosen.file());
     if (player == null) {
-      JOptionPane.showMessageDialog(this, "Nothing in this build plays "
-          + chosen.file().getName() + ".", "Play recording", JOptionPane.ERROR_MESSAGE);
+      // Said the same way as any other file nothing here can open, so that what plays it is
+      // offered and the recording is played once it is in, rather than asked for again.
+      OOSpectrumLauncher.couldNotBeOpened(chosen.file());
+      TellsThePerson.thisBuildCannot("Nothing in this build plays " + chosen.file().getName()
+          + ".\n\nPlaying a recording is what a plugin does.", OOSpectrumLauncher.kindOf(chosen.file()));
       return;
     }
     player.open(chosen.file(), chosen.source(), chosen.entry());
@@ -2429,6 +2432,19 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     fillEquipmentMenu();
     fillTheDeskWindows();
     whatThereIs();
+    // What could not be done before may be done now, so it is worth saying again if it is not.
+    TellsThePerson.thatMayHaveChanged();
+    openWhatWasWaitingForAReader();
+  }
+
+  /**
+   * A file asked for before its reader was here. Plugging the reader in is the answer to what
+   * the window said a moment ago, so it is opened rather than asked for a second time.
+   */
+  private void openWhatWasWaitingForAReader() {
+    java.io.File waiting = OOSpectrumLauncher.whatCanBeOpenedNow(
+        file -> equipmentKinds.stream().anyMatch(kind -> kind.opens(file)));
+    if (waiting != null) open(waiting.getPath());
   }
 
   /**

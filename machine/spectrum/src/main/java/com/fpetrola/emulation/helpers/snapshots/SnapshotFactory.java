@@ -42,17 +42,22 @@ public class SnapshotFactory {
             java.util.List.of(new SnapshotZ80());
 
     /**
-     * The formats that arrived, told from outside.
+     * Where the formats that arrived are asked for, told from outside.
      * <p>
      * This is under the emulator rather than over it, so it cannot go looking: whoever can look
-     * says what turned up, the way the screen is told what ways of drawing there are.
+     * says where to ask, the way the screen is told what ways of drawing there are. Asked each
+     * time rather than kept, because a reader plugged in while the emulator runs is a reader
+     * from that moment - keeping the answer is what made a snapshot need the emulator started
+     * again before its reader counted.
      */
-    private static volatile java.util.List<SnapshotFile> arrived = java.util.List.of();
+    private static volatile java.util.function.Supplier<java.util.List<SnapshotFile>> arrived =
+        java.util.List::of;
 
-    /** Said by whoever found them. What is here now is what there is, and nothing older. */
-    public static void alsoRead(java.util.List<SnapshotFile> formats) {
-        arrived = formats == null ? java.util.List.of() : java.util.List.copyOf(formats);
+    /** Said by whoever can go looking. Asked again whenever a file has to be read. */
+    public static void alsoRead(java.util.function.Supplier<java.util.List<SnapshotFile>> formats) {
+        arrived = formats == null ? java.util.List::of : formats;
     }
+
 
     /**
      * The readers on the path, found once. Plain ServiceLoader and not the plugin mechanism:
@@ -80,7 +85,7 @@ public class SnapshotFactory {
                 all.add(one);
             }
         }
-        for (SnapshotFile one : arrived) {
+        for (SnapshotFile one : arrived.get()) {
             if (already.add(one.getClass())) {
                 all.add(one);
             }
