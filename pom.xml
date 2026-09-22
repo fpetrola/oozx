@@ -28,6 +28,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>plugin-processor</module>
         <module>emulator</module>
         <module>zx-rzx</module>
         <module>machine</module>
@@ -247,6 +248,15 @@
                 <configuration>
                     <source>18</source>
                     <target>18</target>
+                    <compilerArgs>
+                        <!--
+                          Asked for on purpose: from JDK 23 javac ignores the processors it finds
+                          on the class path unless told, and what writes the META-INF/services of
+                          whatever answers to a way in is one of them. Needs JDK 21 or newer,
+                          which this build already does.
+                        -->
+                        <arg>-proc:full</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>

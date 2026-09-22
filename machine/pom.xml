@@ -11,6 +11,19 @@
     <packaging>pom</packaging>
 
     <name>ide</name>
+    <dependencies>
+        <!--
+          Writes the META-INF/services of whatever in these modules answers to a way in, while
+          each module is compiled. Provided: it works at compile time and ships with nothing.
+        -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>plugin-processor</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
     <modules>
         <module>spectrum</module>
         <module>ui</module>
