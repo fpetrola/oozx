@@ -216,9 +216,17 @@ public class PluginsInternalFrame extends JInternalFrame {
     };
   }
 
+  /**
+   * The one look that is going on, if any. Opening this window to pick something out asks for a
+   * look while the look it does on its way up is still running, and the second one emptied the
+   * lists again and with them the picking out. Whoever is already looking answers for both.
+   */
+  private SwingWorker<List<Board>, Void> looking;
+
   private void look() {
+    if (looking != null && !looking.isDone()) return;
     busy("Looking at what is published…", true);
-    new SwingWorker<List<Board>, Void>() {
+    looking = new SwingWorker<List<Board>, Void>() {
       protected List<Board> doInBackground() throws Exception {
         return PluginReleases.published();
       }
@@ -240,7 +248,8 @@ public class PluginsInternalFrame extends JInternalFrame {
           busy("They could not be asked for: " + reason(noAnswer), false);
         }
       }
-    }.execute();
+    };
+    looking.execute();
   }
 
   /**
