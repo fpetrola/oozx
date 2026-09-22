@@ -85,21 +85,6 @@ class MachineLabelTest {
     assertEquals(machines.size(), names.size(), "one name per machine");
   }
 
-  /**
-   * The module declares machine names as a static list, for UI built before any machine exists;
-   * this asserts that list stays in sync with the actual bindings, after a hand-maintained
-   * toolbar list once fell three models out of date.
-   */
-  @Test
-  void theNamesTheModuleDeclaresAreTheMachinesItBinds() {
-    Set<String> declared = new HashSet<>(com.fpetrola.oozx.speccy.machines.Machines.MODEL_NAMES);
-    Set<String> built = new HashSet<>();
-    speccy().machine.getMachineTypes().forEach(machine -> built.add(machine.getName()));
-
-    assertEquals(built, declared,
-        "the module's list of machine names is not the machines it binds");
-  }
-
   /** Every registered machine must be findable again by the exact name it reports. */
   @Test
   void aMachineCanBeFoundByTheNameTheBoxShows() {

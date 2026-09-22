@@ -54,16 +54,6 @@ import com.google.inject.multibindings.Multibinder;
  * names, then the clones.
  */
 public class Machines extends AbstractModule implements Extension {
-  /**
-   * What the machines call themselves, for anything that has to offer them before one has been
-   * built - a menu in the browser is drawn long before a machine exists. A copy, and copies go
-   * stale, so a test asserts it against the machines themselves.
-   */
-  public static final java.util.List<String> MODEL_NAMES = java.util.List.of(
-      "Spectrum 16K", "Spectrum 48K", "Spectrum 128K", "Spectrum Plus 3", "Spectrum Plus 2", "Spectrum Plus 2A",
-      "Sinclair Spectrum 48K (NTSC)", "Amstrad Spectrum +3e", "Pentagon", "Pentagon 512K", "Timex TC2048", "Timex TC2068", "Timex TS2068", "Spectrum SE", "Scorpion ZS 256",
-      "Microdigital TK90X", "Microdigital TK95", "Czerweny CZ Spectrum", "Czerweny CZ Spectrum Plus", "Chloe 140SE", "Chloe 280SE", "Inves Spectrum+", "Chrome", "Pentagon 1024K");
-
   protected void configure() {
     Multibinder.newSetBinder(binder(), com.fpetrola.oozx.speccy.peripherals.Peripheral.class)
         .addBinding().to(Pentagon1024MemoryPeripheral.class);
