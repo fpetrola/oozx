@@ -2029,12 +2029,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     return window instanceof EmulatorInternalFrame emulator ? emulator.emulatorCore : null;
   }
 
-  /** The deck of the machine in that window. It belongs to the machine, so the machine is asked. */
-  public com.fpetrola.oozx.speccy.modules.tape.Tape deckOf(JInternalFrame machine) {
-    com.fpetrola.oozx.Speccy speccy = machineOf(machine);
-    return speccy == null ? null : com.fpetrola.oozx.speccy.modules.tape.Tape.of(speccy);
-  }
-
   /**
    * Every cassette deck open at once, one per machine.
    * <p>
@@ -2593,11 +2587,8 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       asked.takeMachine(machine);
       return;
     }
-    if (!com.fpetrola.oozx.speccy.modules.tape.Tape.isATape(path)) {
-      return;
-    }
-    java.io.File file = new java.io.File(path);
-    if (!file.isFile()) {
+    java.io.File file = path == null ? null : new java.io.File(path);
+    if (file == null || !file.isFile()) {
       return;
     }
     MachineFrame window = openFor(file);

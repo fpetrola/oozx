@@ -38,6 +38,7 @@
         <module>inves</module>
         <module>chrome</module>
         <module>spectrum-se</module>
+        <module>tape</module>
         <module>kit</module>
         <module>debugger</module>
         <module>printer</module>

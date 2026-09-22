@@ -20,7 +20,7 @@ package com.fpetrola.oozx.speccy.devices.ula;
 import com.fpetrola.oozx.speccy.modules.sound.AudioOutput;
 import com.fpetrola.oozx.speccy.modules.sound.AudioSource;
 import com.fpetrola.oozx.speccy.modules.sound.Sound;
-import com.fpetrola.oozx.speccy.modules.tape.Tape;
+import com.fpetrola.oozx.speccy.modules.ula.EarLine;
 import com.fpetrola.oozx.speccy.modules.sound.blip.BlipSynth;
 
 /**
@@ -36,7 +36,7 @@ public class Beeper implements AudioSource {
   /** Lookup table indexed by the combined tape-bit/program-bit value. */
   private static final int[] LEVELS = {0, AMPL_TAPE, AMPL_BEEPER, AMPL_BEEPER + AMPL_TAPE};
 
-  private final Tape tape;
+  private final EarLine ear;
   private final Sound.Output soundOutput;
   private BlipSynth synth;
   private int[] scratch;
@@ -44,8 +44,8 @@ public class Beeper implements AudioSource {
   /** Output volume, owned entirely by this class. */
   private int volume = 100;
 
-  public Beeper(AudioOutput output, Tape tape, Sound.Output soundOutput) {
-    this.tape = tape;
+  public Beeper(AudioOutput output, EarLine ear, Sound.Output soundOutput) {
+    this.ear = ear;
     this.soundOutput = soundOutput;
     takeOutputFrom(output);
   }
@@ -61,7 +61,7 @@ public class Beeper implements AudioSource {
    * @param separateTapeBit whether this model's port keeps tape and speaker bits distinct
    */
   public void write(long tstates, int bits, boolean separateTapeBit) {
-    if (tape.isTapePlaying()) {
+    if (ear.playing()) {
       if (!soundOutput.whileLoading || !separateTapeBit) {
         bits &= 0x02;
       }

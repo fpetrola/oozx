@@ -25,6 +25,11 @@ import com.google.inject.multibindings.Multibinder;
 public class TapeDevices extends AbstractModule implements Extension {
   protected void configure() {
     Multibinder.newSetBinder(binder(), Peripheral.class).addBinding().to(Tape.class);
+    // What is in the socket, while this jar is here: the ULA reads the line and the deck drives
+    // it. With this jar gone the socket is empty, which is a machine with no lead in the back.
+    com.google.inject.multibindings.OptionalBinder
+        .newOptionalBinder(binder(), com.fpetrola.oozx.speccy.modules.ula.EarLine.class)
+        .setBinding().to(TapeInTheSocket.class);
     // Only these two: the type this comes from was generated from a schema and offers seven, and
     // the deck reads two of them. Declaring the other five would put five controls in front of
     // somebody that change a field nothing ever looks at - the very thing the settings window was

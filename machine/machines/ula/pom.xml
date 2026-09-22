@@ -30,10 +30,5 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.fpetrola</groupId>
-            <artifactId>media-tape</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 </project>

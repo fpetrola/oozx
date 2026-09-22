@@ -29,7 +29,7 @@
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
-            <artifactId>media-tape</artifactId>
+            <artifactId>device-tape</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

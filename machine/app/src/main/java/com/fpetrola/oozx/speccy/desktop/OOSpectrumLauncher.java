@@ -20,12 +20,10 @@ package com.fpetrola.oozx.speccy.desktop;
 import javax.swing.SwingUtilities;
 
 import com.fpetrola.oozx.speccy.modules.snapshot.Snapshots;
-import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.Speccy;
+import com.fpetrola.oozx.speccy.machine.StartsAMachineOn;
 import com.fpetrola.oozx.speccy.modules.timer.Speed;
-import com.fpetrola.oozx.speccy.modules.tape.TapeAutoLoader;
 import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
-import com.fpetrola.oozx.speccy.modules.tape.TapeHardware;
 import com.fpetrola.oozx.speccy.media.DownloadAndUnzip;
 import com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp;
 import com.fpetrola.emulation.helpers.snapshots.SpectrumState;
@@ -42,7 +40,8 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class OOSpectrumLauncher {
   private ScheduledExecutorService scheduledExecutorService = newScheduledThreadPool(10);
-  private TapeAutoLoader autoLoader;
+  /** What is still happening on the machine just started: a tape typing LOAD, or nothing. */
+  private StartsAMachineOn.Going going;
 
   public static void main(String[] args) {
     // Windows and everything in them are built on the event thread, which is where Swing says
@@ -130,23 +129,31 @@ public class OOSpectrumLauncher {
     return createSpeccy(filename, null);
   }
 
+  /**
+   * A machine for a file, started by whoever knows that kind of file.
+   * <p>
+   * Which kinds there are is what this build has: a deck and a snapshot reader are jars, and
+   * each says which files it starts a machine on and what to do with one. Nothing here knows
+   * what a tape is.
+   */
   public Speccy createSpeccy(String filename, String chosenMachine) {
     Speccy speccy = Speccy.create();
+    File file = new File(filename);
+    StartsAMachineOn opener = whoStartsOn(file);
 
-    if (Tape.isATape(filename)) {
-      speccy.init();
-      becomeTheMachineTheTapeWants(speccy, filename, chosenMachine);
-      autoLoader = new TapeAutoLoader(speccy, new File(filename));
-    } else {
-      speccy.speed.emulation = 10000;
-      speccy.init();
-      Snapshots.of(speccy).load(filename);
-//      speccy.timer.changeSpeed(100);
-    }
+    speccy.init();
+    becomeTheMachineItWants(speccy, file, opener, chosenMachine);
+    going = opener == null ? null : opener.start(speccy, file);
 
     extracted(speccy);
 
     return speccy;
+  }
+
+  /** The first that says it knows that kind of file, or none. */
+  private static StartsAMachineOn whoStartsOn(File file) {
+    return com.fpetrola.oozx.plugins.Plugins.found(StartsAMachineOn.class).stream()
+        .filter(one -> one.handles(file)).findFirst().orElse(null);
   }
 
   /**
@@ -165,11 +172,15 @@ public class OOSpectrumLauncher {
    * The same word the scorer reads when it puts one release ahead of the other, so the two
    * cannot come to different conclusions about which is which.
    */
-  private void becomeTheMachineTheTapeWants(Speccy speccy, String filename, String chosenMachine) {
-    File tape = new File(filename);
+  /**
+   * The machine somebody asked for, or the one the file says it was made for. Whether this build
+   * can be that machine at all is a question for whoever is watching, which is why it is asked
+   * here and not by the file.
+   */
+  private void becomeTheMachineItWants(Speccy speccy, File file, StartsAMachineOn opener,
+                                       String chosenMachine) {
     String wanted = chosenMachine != null ? chosenMachine
-        : TapeHardware.bestMachineFor(tape)
-            .orElseGet(() -> tape.getName().toLowerCase().contains("128") ? "Spectrum 128K" : null);
+        : opener == null ? null : opener.machineFor(file);
     if (wanted == null) {
       return;
     }
@@ -196,16 +207,16 @@ public class OOSpectrumLauncher {
 
   private void extracted(Speccy speccy) {
 
-    TapeAutoLoader tapeAutoLoader = autoLoader;
-    autoLoader = null;
+    StartsAMachineOn.Going stepping = going;
+    going = null;
 
     scheduledExecutorService.schedule(() -> {
       while (speccy.isAlive()) {
         // Stepped from this thread so the keystrokes cannot race the loop that reads them.
-        if (tapeAutoLoader != null && !tapeAutoLoader.isDone()) {
-          tapeAutoLoader.step();
-          if (tapeAutoLoader.isDone() && tapeAutoLoader.getError() != null) {
-            System.err.println("Auto load failed: " + tapeAutoLoader.getError());
+        if (stepping != null && !stepping.done()) {
+          stepping.step();
+          if (stepping.done() && stepping.wrong() != null) {
+            System.err.println("Auto load failed: " + stepping.wrong());
           }
         }
         speccy.loop.doOpcodes();

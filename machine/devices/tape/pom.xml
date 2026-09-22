@@ -3,12 +3,21 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.fpetrola</groupId>
-        <artifactId>media</artifactId>
+        <artifactId>devices</artifactId>
         <version>0.0.2-alu-SNAPSHOT</version>
     </parent>
 
-    <artifactId>media-tape</artifactId>
+    <artifactId>device-tape</artifactId>
     <packaging>jar</packaging>
 
     <name>The tape deck: TAP, TZX and CSW, the EAR line, and the loader that types LOAD</name>
+    <dependencies>
+        <!-- A machine to try the deck on, which is what a machine that arrives brings. -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>machines</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

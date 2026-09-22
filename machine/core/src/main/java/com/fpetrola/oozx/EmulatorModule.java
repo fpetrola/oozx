@@ -116,6 +116,11 @@ public class EmulatorModule extends AbstractModule {
     // says what it brings. The empty set binder is what lets a build have no devices at all
     // rather than fail to resolve one.
     Multibinder.newSetBinder(binder(), Peripheral.class);
+    // The tape socket, empty unless something says otherwise: a deck is a device that arrives,
+    // and the ULA reads what is in the socket rather than holding a deck of its own.
+    com.google.inject.multibindings.OptionalBinder
+        .newOptionalBinder(binder(), com.fpetrola.oozx.speccy.modules.ula.EarLine.class)
+        .setDefault().toInstance(com.fpetrola.oozx.speccy.modules.ula.EarLine.NOTHING_PLUGGED_IN);
     Multibinder.newSetBinder(binder(), com.fpetrola.oozx.config.Settings.Part.class);
     com.fpetrola.oozx.plugins.Plugins.found(Extension.class).forEach(this::install);
 

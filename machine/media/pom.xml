@@ -28,7 +28,6 @@
     -->
     <modules>
         <module>snapshot</module>
-        <module>tape</module>
         <module>rzx</module>
     </modules>
 

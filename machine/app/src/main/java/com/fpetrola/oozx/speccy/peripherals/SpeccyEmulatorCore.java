@@ -19,7 +19,6 @@ package com.fpetrola.oozx.speccy.peripherals;
 
 import com.fpetrola.oozx.speccy.modules.timer.Speed;
 import com.fpetrola.oozx.speccy.modules.snapshot.Snapshots;
-import com.fpetrola.oozx.speccy.modules.tape.Tape;
 import com.fpetrola.oozx.speccy.modules.input.Input;
 import com.fpetrola.oozx.EmulatorListener;
 import com.fpetrola.oozx.Speccy;
@@ -292,12 +291,7 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
     addEmulatorListener(new EmulatorListener() {
       @Override
       public void onEmulationStateChanged(String state) {
-        SwingUtilities.invokeLater(() -> {
-          if (state.equals("Reset")) {
-            Tape.of(speccy).insert(new File("/tmp/zxinfo_extracted/SOLARINV.TAP"));
-            Tape.of(speccy).play(true);
-          }
-        });
+        // Nothing. This used to put a tape somebody had in /tmp into the machine on every reset.
       }
 
       @Override

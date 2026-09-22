@@ -19,7 +19,7 @@ import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.modules.display.Display;
 import com.fpetrola.oozx.speccy.modules.keyboard.KeyMatrix;
 import com.fpetrola.oozx.speccy.modules.sound.Sound;
-import com.fpetrola.oozx.speccy.modules.tape.Tape;
+import com.fpetrola.oozx.speccy.modules.ula.EarLine;
 import com.fpetrola.oozx.speccy.modules.z80.SpectrumZ80Clock;
 import com.fpetrola.oozx.speccy.ports.BusAnswer;
 import com.fpetrola.oozx.speccy.ports.DefaultPortHandler;
@@ -34,7 +34,7 @@ public class UlaPortHandler extends DefaultPortHandler {
   private static final int EAR = 0x40;
 
   private final KeyMatrix keys;
-  private final Tape tape;
+  private final EarLine ear;
   private final Display display;
   private final SpectrumZ80Clock z80Clock;
   private final Sound sound;
@@ -44,10 +44,10 @@ public class UlaPortHandler extends DefaultPortHandler {
   private byte idleValue = (byte) 0xff;
 
   @Inject
-  public UlaPortHandler(KeyMatrix keys, Tape tape, Display display, SpectrumZ80Clock z80Clock, Sound sound, Sound.Output soundOutput) {
+  public UlaPortHandler(KeyMatrix keys, EarLine ear, Display display, SpectrumZ80Clock z80Clock, Sound sound, Sound.Output soundOutput) {
     super(true, true);
     this.keys = keys;
-    this.tape = tape;
+    this.ear = ear;
     this.display = display;
     this.z80Clock = z80Clock;
     this.sound = sound;
@@ -58,7 +58,7 @@ public class UlaPortHandler extends DefaultPortHandler {
    * the machine to have already declared its hardware. */
   public void on(SpectrumMachine machine) {
     this.machine = machine;
-    speaker = sound.add(new Beeper(sound, tape, soundOutput));
+    speaker = sound.add(new Beeper(sound, ear, soundOutput));
   }
 
   public void off() {
@@ -72,7 +72,7 @@ public class UlaPortHandler extends DefaultPortHandler {
     byte r = (byte) (idleValue & keys.read(port >> 8));
     // Only the tape bit is overlaid on the idle value; substituting the whole byte would
     // mask the keyboard for as long as a tape played.
-    if (tape.isEarHigh()) {
+    if (ear.high()) {
       r ^= EAR;
     }
     return BusAnswer.of(r);
@@ -83,7 +83,7 @@ public class UlaPortHandler extends DefaultPortHandler {
     display.border.becomes(b & 0x07);
     // Tape audio is mixed in on every border write, since a loader already toggles the
     // border once per tape edge anyway.
-    boolean earIn = tape.isTapePlaying() && tape.isEarHigh();
+    boolean earIn = ear.playing() && ear.high();
     if (speaker != null) {
       speaker.write(z80Clock.getTStates(),
           ((b & 0x10) != 0 ? 2 : 0) + ((b & 0x08) == 0 || earIn ? 1 : 0),
