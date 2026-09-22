@@ -39,7 +39,6 @@
       "Spec48" : [ "48.rom" ],
       "Spec128" : [ "128-0.rom", "128-1.rom" ],
       "SpecPlus2" : [ "plus2-0.rom", "plus2-1.rom" ],
-      "Pentagon" : [ "128-0.rom", "128-1.rom" ],
       "SpecPlus3" : [ "plus3-0.rom", "plus3-1.rom", "plus3-2.rom", "plus3-3.rom" ],
       "SpecPlus3E" : [ "plus3e-0.rom", "plus3e-1.rom", "plus3e-2.rom", "plus3e-3.rom" ],
       "Beta128Peripheral" : [ "trdos.rom" ],
@@ -50,19 +49,7 @@
       "Interface1Peripheral" : [ "if1-2.rom" ],
       "MultifaceOnePeripheral" : [ "mf1.rom" ],
       "Multiface128Peripheral" : [ "mf128.rom" ],
-      "Multiface3Peripheral" : [ "mf3.rom" ],
-      "Tc2048" : [ "tc2048.rom" ],
-      "SpecSe" : [ "se-0.rom", "se-1.rom" ],
-      "Pentagon1024" : [ "128-0.rom", "128-1.rom" ],
-      "Tc2068" : [ "tc2068-0.rom", "tc2068-1.rom" ],
-      "Ts2068" : [ "ts2068-0.rom", "ts2068-1.rom" ],
-      "Scorpion" : [ "scorpion-0.rom", "scorpion-1.rom", "scorpion-2.rom" ],
-      "Tk90x" : [ "tk90x.rom" ],
-      "Tk95" : [ "tk95.rom" ],
-      "CzSpectrum" : [ "48.rom" ],
-      "CzSpectrumPlus" : [ "inves.rom" ],
-      "Inves" : [ "inves.rom" ],
-      "Chrome" : [ "chrome-0.rom", "chrome-1.rom", "chrome-2.rom", "chrome-3.rom" ]
+      "Multiface3Peripheral" : [ "mf3.rom" ]
     },
     "sources" : {
       "scorpion-0.rom" : {
@@ -246,14 +233,6 @@
         "Version 4.0" : [ "plus3-0.rom", "plus3-1.rom", "plus3-2.rom", "plus3-3.rom" ],
         "Version 4.1" : [ "plus3-41-0.rom", "plus3-41-1.rom", "plus3-41-2.rom", "plus3-41-3.rom" ],
         "Spanish" : [ "plus3-spanish-0.rom", "plus3-spanish-1.rom", "plus3-spanish-2.rom", "plus3-spanish-3.rom" ]
-      },
-      "Tk90x" : {
-        "Portuguese" : [ "tk90x.rom" ],
-        "Spanish" : [ "tk90x-spanish.rom" ]
-      },
-      "Tk95" : {
-        "Portuguese" : [ "tk95.rom" ],
-        "Spanish" : [ "tk95-spanish.rom" ]
       }
     }
   },

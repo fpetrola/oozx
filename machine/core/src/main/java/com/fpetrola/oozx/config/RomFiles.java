@@ -92,9 +92,29 @@ public final class RomFiles implements Roms {
   /** This same section as the build carries it, with nobody's saved settings over it. */
   private static RomFiles ofTheBuild;
 
+  /** Which lot of plugins the one above was worked out from: a jar can arrive at any time. */
+  private static int workedOutFrom = -1;
+
   private static RomFiles theBuild() {
-    if (ofTheBuild == null) ofTheBuild = Configuration.shipped().of(RomFiles.class);
+    if (ofTheBuild == null || workedOutFrom != com.fpetrola.oozx.plugins.Plugins.generation()) {
+      workedOutFrom = com.fpetrola.oozx.plugins.Plugins.generation();
+      ofTheBuild = Configuration.shipped().of(RomFiles.class);
+      whatArrivedBrought(ofTheBuild);
+    }
     return ofTheBuild;
+  }
+
+  /**
+   * What the jars say their own machines and boards are made with, added to what the build
+   * knows. The build's own wins where both speak: what ships cannot be taken away, so a jar
+   * naming something already here is saying the same thing twice rather than overruling it.
+   */
+  private static void whatArrivedBrought(RomFiles known) {
+    for (RomsOfItsOwn arrived : com.fpetrola.oozx.plugins.Plugins.found(RomsOfItsOwn.class)) {
+      arrived.files().forEach(known.files::putIfAbsent);
+      arrived.sets().forEach(known.sets::putIfAbsent);
+      arrived.sources().forEach(known.sources::putIfAbsent);
+    }
   }
 
   /**
@@ -125,8 +145,11 @@ public final class RomFiles implements Roms {
   }
 
   /** The ROMs this machine is running, whether they came from a set or from somebody's own file. */
+  /** What it is running on: what somebody chose for it, or what is known about it if nobody did. */
   public List<String> running(Object device) {
-    return files.getOrDefault(keyOf(device), List.of());
+    String key = keyOf(device);
+    List<String> chosen = files.get(key);
+    return chosen != null ? chosen : theBuild().files.getOrDefault(key, List.of());
   }
 
   public void runOn(Object device, List<String> roms) {
@@ -175,10 +198,16 @@ public final class RomFiles implements Roms {
     return read(keyOf(device), 0, length);
   }
 
-  /** Walks up to the nearest superclass that has an entry, since a device may be held by its interface elsewhere. */
+  /**
+   * Walks up to the nearest superclass that has an entry, since a device may be held by its
+   * interface elsewhere. An entry anywhere: what somebody chose, and what is known - a machine
+   * that arrived in a jar is known by the jar and by nobody's settings, and taking it for its
+   * superclass is how a Timex came up asking for page two of a 48K's single ROM.
+   */
   private String keyOf(Object device) {
     for (Class<?> c = device.getClass(); c != null; c = c.getSuperclass())
-      if (files.containsKey(c.getSimpleName())) return c.getSimpleName();
+      if (files.containsKey(c.getSimpleName()) || theBuild().files.containsKey(c.getSimpleName()))
+        return c.getSimpleName();
     return device.getClass().getSimpleName();
   }
 
@@ -221,7 +250,7 @@ public final class RomFiles implements Roms {
   }
 
   private boolean here(String filename) {
-    return RomFiles.class.getResource("/roms/" + filename) != null
+    return com.fpetrola.oozx.plugins.Plugins.loader().getResource("roms/" + filename) != null
         || new File(filename).isFile() || keptIfItIsStillTheRightOne(filename) != null;
   }
 
@@ -245,8 +274,13 @@ public final class RomFiles implements Roms {
     return fetched(filename) != null;
   }
 
+  /**
+   * An image this build carries, or one a jar brought: read through the loader that knows about
+   * both, so a machine that arrives with its own ROM needs nothing of the emulator's.
+   */
   private static byte[] packaged(String filename) {
-    try (InputStream packaged = RomFiles.class.getResourceAsStream("/roms/" + filename)) {
+    try (InputStream packaged =
+             com.fpetrola.oozx.plugins.Plugins.loader().getResourceAsStream("roms/" + filename)) {
       return packaged == null ? null : packaged.readAllBytes();
     } catch (IOException cannot) {
       throw new RomNotLoadedException("ROM '" + filename + "' cannot be read: " + cannot, filename);

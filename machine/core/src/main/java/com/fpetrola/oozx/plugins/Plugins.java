@@ -55,6 +55,17 @@ public final class Plugins {
 
   private static Boards loader;
 
+  /**
+   * How many times the folder has grown. Whoever keeps something worked out from what is plugged
+   * in compares this against what it had, and works it out again when it moved.
+   */
+  private static volatile int generation;
+
+  /** Which lot of plugins this is: it changes when a jar arrives while the emulator runs. */
+  public static int generation() {
+    return generation;
+  }
+
   private Plugins() {
   }
 
@@ -81,6 +92,7 @@ public final class Plugins {
   public static synchronized void add(Path jar) {
     try {
       ((Boards) loader()).take(jar.toUri().toURL());
+      generation++;
     } catch (MalformedURLException notAUrl) {
       System.err.println("oozx: " + jar + " could not be read: " + notAUrl.getMessage());
     }
