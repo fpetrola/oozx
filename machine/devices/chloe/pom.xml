@@ -14,13 +14,13 @@
     <name>ULAplus: sixty-four colours a program picks itself</name>
     <dependencies>
         <!--
-          The 280SE is built on the Spectrum SE, which is one of the machines that arrive in the
-          clones jar: a plugin that needs another says so here, and the jar says it in its
-          manifest, so taking this one brings that one too.
+          The 280SE is built on the Spectrum SE, which arrives in its own jar: a plugin that
+          needs another says so here, and the jar says it in its manifest, so taking this one
+          brings that one too.
         -->
         <dependency>
             <groupId>com.fpetrola</groupId>
-            <artifactId>device-clones</artifactId>
+            <artifactId>device-spectrum-se</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- Two machines that have ULAplus soldered on, so they bring it with them. -->

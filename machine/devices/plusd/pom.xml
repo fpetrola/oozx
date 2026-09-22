@@ -15,7 +15,7 @@
         <!-- Tried on the machine it was sold for, which is one that arrives in a jar. -->
         <dependency>
             <groupId>com.fpetrola</groupId>
-            <artifactId>device-clones</artifactId>
+            <artifactId>device-pentagon</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

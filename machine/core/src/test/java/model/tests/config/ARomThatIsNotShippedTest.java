@@ -263,9 +263,11 @@ class ARomThatIsNotShippedTest {
     RomFiles.Source stale = new RomFiles.Source();
     stale.url = "https://somewhere.example/OLD.ROM";
     stale.sha256 = "0".repeat(64);
-    roms.sources.put("scorpion-0.rom", stale);
+    // One of this build's own: the Scorpion's used to stand here, and it moved out with the
+    // machine - what a jar declares is the jar's, and this is about what the emulator carries.
+    roms.sources.put("128-spanish-1.rom", stale);
 
-    RomFiles.Source known = roms.sourceFor("scorpion-0.rom");
+    RomFiles.Source known = roms.sourceFor("128-spanish-1.rom");
     assertNotEquals(stale.url, known.url, "the file's copy won over what this build carries");
     assertEquals(0x4000, known.length, "and this build says its ROMs come out of one image");
 
