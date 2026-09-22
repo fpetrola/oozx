@@ -38,7 +38,6 @@ import com.fpetrola.oozx.speccy.screen.SpeccyScreen;
 import com.fpetrola.oozx.speccy.screen.TvScreen;
 import com.fpetrola.oozx.api.Hit;
 import com.fpetrola.oozx.api.GameSummary;
-import com.fpetrola.oozx.api.ZxInfoApiHandler;
 import com.fpetrola.oozx.speccy.media.LocalGames;
 import com.fpetrola.oozx.speccy.config.OOZxConfiguration;
 import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
@@ -740,20 +739,17 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
           @Override
           protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
             try {
-              ZxInfoApiHandler apiHandler =
-                  new ZxInfoApiHandler();
-              
               // If we have gameId, use it directly
               if (finalGameId != null) {
-                return apiHandler.fetchGameDetails(finalGameId);
+                return com.fpetrola.oozx.api.Catalogues.details(finalGameId);
               } else {
                 // Otherwise search by game name and use the first result
-                List<Hit> results = apiHandler.search(finalGameName);
+                List<Hit> results = com.fpetrola.oozx.api.Catalogues.search(finalGameName, null, null);
                 if (results == null || results.isEmpty()) {
                   return null;
                 }
                 Hit bestMatch = results.get(0);
-                return apiHandler.fetchGameDetails(bestMatch._id);
+                return com.fpetrola.oozx.api.Catalogues.details(bestMatch._id);
               }
             } catch (Exception e) {
               System.err.println("Error fetching game details: " + e.getMessage());
@@ -1927,8 +1923,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
           protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
             try {
               // Search for the game by name (without file extension)
-              ZxInfoApiHandler apiHandler = new ZxInfoApiHandler();
-              List<Hit> results = apiHandler.search(cleanGameName);
+              List<Hit> results = com.fpetrola.oozx.api.Catalogues.search(cleanGameName, null, null);
 
               if (results == null || results.isEmpty()) {
                 return null;
@@ -1938,8 +1933,8 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
               Hit bestMatch = results.get(0);
               String gameId = bestMatch._id;
 
-              // Fetch full details from API
-              return apiHandler.fetchGameDetails(gameId);
+              // Fetch full details from whoever can answer
+              return com.fpetrola.oozx.api.Catalogues.details(gameId);
             } catch (Exception e) {
               System.err.println("Error searching for game: " + e.getMessage());
               return null;
@@ -1987,7 +1982,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     new SwingWorker<com.fpetrola.oozx.api.GameDetail, Void>() {
       @Override
       protected com.fpetrola.oozx.api.GameDetail doInBackground() {
-        return new ZxInfoApiHandler().fetchGameDetails(game.id());
+        return com.fpetrola.oozx.api.Catalogues.details(game.id());
       }
 
       @Override

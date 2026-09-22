@@ -155,9 +155,8 @@ public class GameDetailsDialog extends JDialog {
           @Override
           protected GameDetail doInBackground() throws Exception {
             try {
-              com.fpetrola.oozx.api.ZxInfoApiHandler apiHandler =
-                  new com.fpetrola.oozx.api.ZxInfoApiHandler();
-              List<com.fpetrola.oozx.api.Hit> results = apiHandler.search(gameName);
+              List<com.fpetrola.oozx.api.Hit> results =
+                  com.fpetrola.oozx.api.Catalogues.search(gameName, null, null);
 
               if (results == null || results.isEmpty()) {
                 return null;
@@ -166,7 +165,7 @@ public class GameDetailsDialog extends JDialog {
               com.fpetrola.oozx.api.Hit bestMatch = results.get(0);
               String gameId = bestMatch._id;
 
-              return apiHandler.fetchGameDetails(gameId);
+              return com.fpetrola.oozx.api.Catalogues.details(gameId);
             } catch (Exception e) {
               System.err.println("Error searching for game: " + e.getMessage());
               return null;

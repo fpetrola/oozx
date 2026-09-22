@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class ZxInfoApiHandler {
+public class ZxInfoApiHandler implements KnowsTheGames {
   private static final int FIRST_YEAR = 1980, MOST_AT_ONCE = 1000, RETRIES = 5, AT_ONCE = 4;
   private static final long BACKOFF = 2000, BETWEEN_PAGES = 150;
   private static final int CONNECT_SECONDS = 20, READ_SECONDS = 60;
@@ -35,6 +35,10 @@ public class ZxInfoApiHandler {
   private Metadata metadata;
 
   private final String BASE_URL = "https://api.zxinfo.dk";
+
+  public String where() {
+    return "zxinfo.dk";
+  }
 
   public static void main(String[] args) {
     new ZxInfoApiHandler().search("everyone wally");
@@ -69,7 +73,7 @@ public class ZxInfoApiHandler {
    */
   public GameDetail fetchGameDetails(String gameId) {
     try {
-      return convertGameEntryToDetail(game(gameId), gameId);
+      return GameDetail.of(game(gameId), gameId);
     } catch (Exception e) {
       System.err.println("Error fetching game details: " + e.getMessage());
       e.printStackTrace();
@@ -82,99 +86,6 @@ public class ZxInfoApiHandler {
     return withClient(zxClient -> zxClient.getGameDetails(gameId, ZxInfoClient.MODE_FULL)).getGameEntry();
   }
 
-  /**
-   * Converts GameEntry from API to GameDetail for UI display
-   */
-  private GameDetail convertGameEntryToDetail(GameEntry entry, String gameId) {
-    GameDetail detail = new GameDetail();
-
-    detail.id = gameId;
-    detail.title = entry.title;
-    detail.yearOfRelease = entry.originalYearOfRelease != null ? entry.originalYearOfRelease.toString() : null;
-    detail.originalMonthOfRelease = entry.originalMonthOfRelease;
-    detail.originalDayOfRelease = entry.originalDayOfRelease;
-    detail.machineType = entry.machineType;
-    detail.genre = entry.genre;
-    detail.genreType = entry.genreType;
-    detail.genreSubType = entry.genreSubType;
-    detail.availability = entry.availability;
-    detail.isbn = entry.isbn;
-    detail.xrated = entry.xrated;
-    detail.contentType = entry.contentType;
-    detail.zxinfoVersion = entry.zxinfoVersion;
-
-    // Handle score
-    if (entry.score != null) {
-      detail.score = entry.score.score != null ? entry.score.score.doubleValue() : null;
-    }
-
-    // Handle publishers
-    if (entry.publishers != null && !entry.publishers.isEmpty()) {
-      detail.publisher = entry.publishers.get(0).name;
-      detail.publishers = new java.util.ArrayList<>();
-      for (Publisher pub : entry.publishers) {
-        detail.publishers.add(pub.name);
-      }
-    }
-
-    // Handle authors
-    if (entry.authors != null && !entry.authors.isEmpty()) {
-      detail.authors = new java.util.ArrayList<>();
-      for (Author author : entry.authors) {
-        if (author.name != null) {
-          detail.authors.add(author.name);
-        }
-      }
-    }
-
-    // Handle screenshots
-    if (entry.screens != null && !entry.screens.isEmpty()) {
-      detail.screenshots = new java.util.ArrayList<>();
-      for (Object screenMap : entry.screens) {
-        Screen screen = Screen.from(screenMap);
-        if (screen != null) {
-          String screenshotUrl = null;
-          // Try to use URL if available
-          if (screen.url != null && !screen.url.isEmpty()) {
-            screenshotUrl = screen.url;
-          } else if (screen.scrUrl != null && !screen.scrUrl.isEmpty()) {
-            screenshotUrl = screen.scrUrl;
-          } else if (screen.filename != null && !screen.filename.isEmpty()) {
-            // Construct full URL from filename
-            screenshotUrl = "https://media.zxinfo.dk/media/" + screen.filename;
-          }
-          if (screenshotUrl != null) {
-            detail.screenshots.add(screenshotUrl);
-          }
-        }
-      }
-    }
-
-    // Handle additional downloads
-    if (entry.additionalDownloads != null && !entry.additionalDownloads.isEmpty()) {
-      detail.additionalDownloads = new java.util.ArrayList<>(entry.additionalDownloads);
-      detail.gameMaps = extractGameMaps(entry.additionalDownloads);
-    }
-
-    // Handle releases. LinkedHashMap keeps the column order stable across rows,
-    // which is what the details table relies on when it derives its columns from row 0.
-    if (entry.releases != null && !entry.releases.isEmpty()) {
-      detail.releases = new java.util.ArrayList<>();
-      for (Release release : entry.releases) {
-        java.util.Map<String, String> releaseMap = new java.util.LinkedHashMap<>();
-        releaseMap.put("Title", joinTitles(release.releaseTitles, entry.title));
-        releaseMap.put("Year", release.yearOfRelease != null ? release.yearOfRelease.toString() : "N/A");
-        releaseMap.put("Publisher", firstPublisherName(release.publishers));
-        releaseMap.put("Price", formatPrice(release.releasePrice));
-        releaseMap.put("Code", release.code != null ? release.code : "");
-        releaseMap.put("Barcode", release.barcode != null ? release.barcode : "");
-        releaseMap.put("Files", String.valueOf(release.files != null ? release.files.size() : 0));
-        detail.releases.add(releaseMap);
-      }
-    }
-
-    return detail;
-  }
 
   /**
    * Suggestions for a search box, covering titles, publishers and authors.
@@ -298,6 +209,11 @@ public class ZxInfoApiHandler {
 
   /** Where ZXDB's own paths are actually served from, which is three different hosts. */
   public static String mediaUrl(String path) {
+    // Whoever answered may have had the whole address already: the catalogue that ships here
+    // keeps its screenshots that way, and putting a host in front of one makes a link to nowhere.
+    if (path.startsWith("http")) {
+      return path;
+    }
     if (path.startsWith("/zxscreens")) {
       return "https://zxinfo.dk/media" + path;
     }
@@ -513,7 +429,7 @@ public class ZxInfoApiHandler {
     return maps;
   }
 
-  private static String firstPublisherName(List<Publisher> publishers) {
+  static String firstPublisherName(List<Publisher> publishers) {
     if (publishers != null) {
       for (Publisher publisher : publishers) {
         if (publisher != null && publisher.name != null) {
@@ -524,14 +440,14 @@ public class ZxInfoApiHandler {
     return "N/A";
   }
 
-  private static String joinTitles(List<String> titles, String fallback) {
+  static String joinTitles(List<String> titles, String fallback) {
     if (titles == null || titles.isEmpty()) {
       return fallback != null ? fallback : "N/A";
     }
     return String.join(" / ", titles);
   }
 
-  private static String formatPrice(GameEntry.Price price) {
+  static String formatPrice(GameEntry.Price price) {
     if (price == null || price.amount == null) {
       return "";
     }
