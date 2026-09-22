@@ -42,11 +42,21 @@ public final class Scalers {
   private Scalers() {
   }
 
-  /** Every scaler there is, in the order someone would meet them. */
+  /**
+   * Every scaler there is, in the order someone would meet them: the ones written here first,
+   * and then whatever else answers to a scaler, which is offered by being there and nothing else.
+   */
   public static List<Scaler> all() {
-    return List.of(new Nearest(), new Bilinear(), new SharpBilinear(),
-        new Scale2x(), new Scale3x(), new EdgeDirected(),
-        new XbrzScaler(2), new XbrzScaler(3), new XbrzScaler(4));
+    List<Scaler> all = new java.util.ArrayList<>(List.of(new Nearest(), new Bilinear(),
+        new SharpBilinear(), new Scale2x(), new Scale3x(), new EdgeDirected(),
+        new XbrzScaler(2), new XbrzScaler(3), new XbrzScaler(4)));
+    // One written here and also found is one scaler: what ships answers to the same way in as
+    // what arrives, and being on the classpath is not arriving twice.
+    java.util.Set<Class<?>> written = all.stream().map(Object::getClass)
+        .collect(java.util.stream.Collectors.toSet());
+    ScreenSettings.scalers().stream()
+        .filter(one -> !written.contains(one.getClass())).forEach(all::add);
+    return List.copyOf(all);
   }
 
   public static Scaler byName(String name) {

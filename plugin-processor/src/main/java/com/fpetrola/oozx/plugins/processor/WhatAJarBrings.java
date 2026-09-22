@@ -24,6 +24,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
@@ -63,14 +64,10 @@ public class WhatAJarBrings extends AbstractProcessor {
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment round) {
+    // Everything being compiled, including what is written inside something else: a way in can
+    // be answered by a nested class, and several of them are.
     for (Element root : round.getRootElements()) {
-      if (root instanceof TypeElement type && canBeInstantiated(type)) {
-        for (String wayIn : waysInOf(type)) {
-          // By name, so what a jar says it brings does not depend on the order javac read it in.
-          bringing.computeIfAbsent(wayIn, one -> new TreeSet<>())
-              .add(processingEnv.getElementUtils().getBinaryName(type).toString());
-        }
-      }
+      look(root);
     }
     if (round.processingOver()) {
       bringing.forEach(this::write);
@@ -78,8 +75,52 @@ public class WhatAJarBrings extends AbstractProcessor {
     return false;
   }
 
-  private static boolean canBeInstantiated(TypeElement type) {
-    return type.getKind() == ElementKind.CLASS && !type.getModifiers().contains(Modifier.ABSTRACT);
+  /** This and whatever is written inside it, each asked whether it answers to a way in. */
+  private void look(Element element) {
+    if (element instanceof TypeElement type) {
+      if (canBeInstantiated(type)) {
+        for (String wayIn : waysInOf(type)) {
+          // By name, so what a jar says it brings does not depend on the order javac read it in.
+          bringing.computeIfAbsent(wayIn, one -> new TreeSet<>())
+              .add(processingEnv.getElementUtils().getBinaryName(type).toString());
+        }
+      }
+      type.getEnclosedElements().forEach(this::look);
+    }
+  }
+
+  /**
+   * Whether whoever finds this could make one.
+   * <p>
+   * What lists a class nobody can build is worse than not listing it: a service file is read by
+   * being loaded, and one line that cannot be built makes the whole look throw. The built-in
+   * effects are exactly this case - a scanline is made from the knob that says how deep it is -
+   * and they belong to the build rather than arriving, so they are left out and said out loud.
+   */
+  private boolean canBeInstantiated(TypeElement type) {
+    if (type.getKind() != ElementKind.CLASS || type.getModifiers().contains(Modifier.ABSTRACT)) {
+      return false;
+    }
+    if (!type.getModifiers().contains(Modifier.PUBLIC)
+        || (type.getNestingKind().isNested() && !type.getModifiers().contains(Modifier.STATIC))) {
+      return sayNothingCanBuildIt(type, "it is not public, or it is nested inside an instance");
+    }
+    for (Element member : type.getEnclosedElements()) {
+      if (member.getKind() == ElementKind.CONSTRUCTOR
+          && member.getModifiers().contains(Modifier.PUBLIC)
+          && ((ExecutableElement) member).getParameters().isEmpty()) {
+        return true;
+      }
+    }
+    return sayNothingCanBuildIt(type, "it has no public constructor that takes nothing");
+  }
+
+  private boolean sayNothingCanBuildIt(TypeElement type, String why) {
+    if (!waysInOf(type).isEmpty()) {
+      processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING,
+          type.getSimpleName() + " answers to a way in but nothing can find it: " + why, type);
+    }
+    return false;
   }
 
   /** Every way in this answers to, however far up it was declared. */

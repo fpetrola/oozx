@@ -29,6 +29,7 @@ import java.awt.image.BufferedImage;
  * are their own. Which of those someone wants is a matter of taste, so all of them are here and
  * each one does its own thing behind the same call.
  */
+@com.fpetrola.oozx.plugins.Plugin("scaler")
 public interface Scaler extends ScreenEffect {
 
   /**

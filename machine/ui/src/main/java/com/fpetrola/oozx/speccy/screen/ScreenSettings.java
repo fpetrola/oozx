@@ -43,6 +43,32 @@ public class ScreenSettings {
   /** What a window that nobody has configured is opened with. */
   private static volatile Map<String, String> defaults = new LinkedHashMap<>();
 
+  /**
+   * Every way of drawing there is: the ones this build carries and the ones that arrived in a
+   * jar, which by then are the same kind of thing.
+   * <p>
+   * Told from outside, the way the defaults are: this module knows about pictures and windows
+   * and nothing about jars or where they were found. Whoever runs the desk says what there is,
+   * and says it again when that changes.
+   */
+  private static volatile List<ScreenEffect> waysOfDrawing = List.of();
+
+  /** Said by whoever found them. What is here now is what there is, and nothing older. */
+  public static void thereAre(List<ScreenEffect> ways) {
+    waysOfDrawing = ways == null ? List.of() : List.copyOf(ways);
+  }
+
+  /** The ones that are a whole way of making a windowful, which is picked rather than stacked. */
+  public static List<Scaler> scalers() {
+    return waysOfDrawing.stream().filter(Scaler.class::isInstance).map(Scaler.class::cast).toList();
+  }
+
+  /** The steps for that side of the scaler. A scaler is picked, so it is not one of these. */
+  private static List<ScreenEffect> steps(ScreenEffect.When when) {
+    return waysOfDrawing.stream()
+        .filter(step -> !(step instanceof Scaler) && step.when() == when).toList();
+  }
+
   private TvScreen tv = TvScreen.RGB_MONITOR;
   private Scaler scaler = new Scalers.Nearest();
   private double scanLines;
@@ -321,9 +347,15 @@ public class ScreenSettings {
     frame = run(new ScreenEffects.Phosphor(phosphor), frame, context);
     frame = run(tv, frame, context);
     frame = run(new ScreenEffects.Tint(shade, brightness, saturation), frame, context);
+    for (ScreenEffect step : steps(ScreenEffect.When.ON_THE_PICTURE)) {
+      frame = run(step, frame, context);
+    }
     frame = scaler.scale(frame, width, height, context);
     frame = run(new ScreenEffects.ShadowMask(mask, maskDepth), frame, context);
     frame = run(new ScreenEffects.Scanlines(scanLines, sourceHeight), frame, context);
+    for (ScreenEffect step : steps(ScreenEffect.When.ON_THE_SCREEN)) {
+      frame = run(step, frame, context);
+    }
     return frame;
   }
 

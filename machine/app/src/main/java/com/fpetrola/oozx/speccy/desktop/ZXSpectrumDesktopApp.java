@@ -1043,6 +1043,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         .addKeyEventDispatcher(this::typeIntoTheMachineInFront);
     // What the windows that are found ask of whoever put them on the screen: this desk.
     com.fpetrola.oozx.speccy.devices.Desk.isRunBy(this);
+    waysOfDrawingThereAre();
     applySavedLookAndFeel();
     // Emulators apply the defaults themselves as they are built, so putting the saved ones in
     // place here is all it takes for the next window to open configured.
@@ -2367,6 +2368,19 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     equipmentKinds = whatCanBePluggedIn();
     fillEquipmentMenu();
     fillTheDeskWindows();
+    waysOfDrawingThereAre();
+  }
+
+  /**
+   * Every way of drawing there is, handed to the screen settings.
+   * <p>
+   * They are told rather than found there: that module knows about pictures and windows and
+   * nothing about jars, which is why it does not do the asking itself.
+   */
+  private void waysOfDrawingThereAre() {
+    com.fpetrola.oozx.speccy.screen.ScreenSettings.thereAre(
+        com.fpetrola.oozx.plugins.Plugins.found(
+            com.fpetrola.oozx.speccy.screen.ScreenEffect.class));
   }
 
   private void fillTheDeskWindows() {

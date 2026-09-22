@@ -12,6 +12,12 @@
 
     <name>ide</name>
     <dependencies>
+        <!-- The word a way in is marked with, which every module here may need to say. -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>plugin-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!--
           Writes the META-INF/services of whatever in these modules answers to a way in, while
           each module is compiled. Provided: it works at compile time and ships with nothing.

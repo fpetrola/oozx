@@ -17,6 +17,8 @@
 
 package com.fpetrola.oozx.speccy.screen;
 
+import com.fpetrola.oozx.plugins.Plugin;
+
 import java.awt.image.BufferedImage;
 
 /**
@@ -30,8 +32,27 @@ import java.awt.image.BufferedImage;
  * An effect may hand back the image it was given, having changed it in place, or a different one
  * of a different size. Scalers do the second; most of the rest do the first, because a frame is a
  * quarter of a megabyte and there are fifty of them a second.
+ * <p>
+ * One that arrives in a jar is built with nothing - it is found, not configured - so whatever it
+ * needs to know it reads for itself, and it says with {@link #when} which side of the scaler it
+ * belongs on. The ones this build carries are made from the knobs instead.
  */
+@Plugin("effect")
 public interface ScreenEffect {
+
+  /**
+   * Which side of the scaler this belongs on, which is the only thing about the order that is
+   * the effect's own: what happens to the picture the machine drew, and what happens to the
+   * screen it lands on. A tint is the first, a shadow mask the second.
+   */
+  enum When {
+    ON_THE_PICTURE, ON_THE_SCREEN
+  }
+
+  /** Where this goes. On the screen, unless it is about the picture itself. */
+  default When when() {
+    return When.ON_THE_SCREEN;
+  }
 
   /** What this is called where someone picks it. */
   String label();

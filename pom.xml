@@ -28,6 +28,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>plugin-api</module>
         <module>plugin-processor</module>
         <module>emulator</module>
         <module>zx-rzx</module>
