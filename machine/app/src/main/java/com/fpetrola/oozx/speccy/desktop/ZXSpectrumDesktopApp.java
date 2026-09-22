@@ -924,9 +924,11 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   protected PokesManager pokesManager;
 
   {
+    // Everything this can be given, including the zips the archives serve: what to do with a
+    // file is decided from the file, so there is no reason to ask for one kind at a time.
     FileNameExtensionFilter filter = new FileNameExtensionFilter(
-        "ZX Spectrum files (*.tap, *.tzx, *.z80, *.sna, *.szx, *.rzx)",
-        "tap", "tzx", "z80", "sna", "szx", "rzx");
+        "ZX Spectrum files (*.tap, *.tzx, *.csw, *.z80, *.sna, *.szx, *.rzx, *.zip)",
+        "tap", "tzx", "csw", "z80", "sna", "szx", "rzx", "zip");
     fileChooser.setFileFilter(filter);
     fileChooser.setCurrentDirectory(new java.io.File(System.getProperty("user.home")));
   }
@@ -949,12 +951,33 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
    * whichever of them it came from.
    */
   public void open(String path) {
-    if (RzxSession.isRecording(path)) {
-      playWhatever("Could not open " + DownloadAndUnzip.nameOf(path) + ".",
-          () -> new Chosen(new java.io.File(path), null, null));
+    java.io.File file = new java.io.File(path);
+    // A zip is not a file anything opens: what is inside it is. Unpacking it and asking which
+    // part was meant takes seconds and a question, so it happens off the event thread, and what
+    // comes out is opened exactly as it would have been if it had been the file picked.
+    if (file.isFile() && file.getName().toLowerCase().endsWith(".zip")) {
+      decided("Could not open " + DownloadAndUnzip.nameOf(path) + ".",
+          () -> openableRecording(file), this::open);
+    } else if (RzxSession.isRecording(path)) {
+      open(new Chosen(file, null, null));
     } else {
       loadInNewEmulator(path);
     }
+  }
+
+  /** A recording goes into its own player, keeping where it came from; anything else is a machine's. */
+  private void open(Chosen chosen) {
+    if (!RzxSession.isRecording(chosen.file().getName())) {
+      loadInNewEmulator(chosen.file().getAbsolutePath());
+      return;
+    }
+    Opens player = opensFor(chosen.file());
+    if (player == null) {
+      JOptionPane.showMessageDialog(this, "Nothing in this build plays "
+          + chosen.file().getName() + ".", "Play recording", JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+    player.open(chosen.file(), chosen.source(), chosen.entry());
   }
 
   private void saveState() {
@@ -1124,15 +1147,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
     emulatorMenu.add(newEmulatorAction);
 
-    JMenuItem openTapeItem = new JMenuItem("Open Tape...");
-    openTapeItem.addActionListener(e -> chooseTapeForBrowser());
-    emulatorMenu.add(openTapeItem);
-
-    // Choosing a file, the way Open Tape is: the player itself is in the Equipment menu, offered
-    // by whatever build has it, and this is the way in for a recording that is already on the disk.
-    JMenuItem openRecordingItem = new JMenuItem("Open Recording...");
-    openRecordingItem.addActionListener(e -> openRecording(null));
-    emulatorMenu.add(openRecordingItem);
 
     // What there is to plug in: every device jar on the classpath, and nothing named here.
     equipmentMenu = new JMenu("Equipment");
@@ -2066,12 +2080,13 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   }
 
   /**
-   * @param asking the window the recording goes into, or null for whichever free one takes it
+   * Decides which file off the event thread - it may be fetched, unpacked and asked about - and
+   * then does something with it on the event thread.
    */
-  private void playInto(MachineFrame asking, String whenItFails,
-                        java.util.concurrent.Callable<Chosen> decide) {
-    // Deciding takes seconds - an archive is fetched and unpacked before there is anything to
-    // ask about - and nothing is on the desktop yet to say so. The pointer is what is left.
+  private void decided(String whenItFails, java.util.concurrent.Callable<Chosen> decide,
+                       java.util.function.Consumer<Chosen> then) {
+    // Deciding takes seconds and nothing is on the desktop yet to say so. The pointer is what
+    // is left.
     working(true);
     new SwingWorker<Chosen, Void>() {
       @Override
@@ -2082,27 +2097,31 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       @Override
       protected void done() {
         working(false);
-        Chosen chosen;
         try {
-          chosen = get();
-        } catch (Exception e) {
-          JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this, whenItFails + "" + reason(e),
-              "Play recording", JOptionPane.ERROR_MESSAGE);
-          return;
-        }
-        if (chosen == null) {
-          return;
-        }
-        Opens into = asking instanceof Opens takes ? takes : opensFor(chosen.file());
-        if (into == null) {
+          Chosen chosen = get();
+          if (chosen != null) {
+            then.accept(chosen);
+          }
+        } catch (Exception itWouldNot) {
           JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-              "Nothing in this build plays " + chosen.file().getName() + ".",
-              "Play recording", JOptionPane.ERROR_MESSAGE);
-          return;
+              whenItFails + "\n\n" + reason(itWouldNot), "Open", JOptionPane.ERROR_MESSAGE);
         }
-        into.open(chosen.file(), chosen.source(), chosen.entry());
       }
     }.execute();
+  }
+
+  /**
+   * @param asking the window the recording goes into, or null for whichever free one takes it
+   */
+  private void playInto(MachineFrame asking, String whenItFails,
+                        java.util.concurrent.Callable<Chosen> decide) {
+    decided(whenItFails, decide, chosen -> {
+      if (asking instanceof Opens itsOwn) {
+        itsOwn.open(chosen.file(), chosen.source(), chosen.entry());
+      } else {
+        open(chosen);
+      }
+    });
   }
 
   /** The wait pointer over the whole application, for work nobody can see yet. */
@@ -2535,14 +2554,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     window.setMachineWindow(getActiveEmulator());
     window.toFront();
     return window;
-  }
-
-  /** Asks for a tape file and loads it into the cassette browser. No emulator is needed. */
-  public void chooseTapeForBrowser() {
-    java.io.File file = choose("Open Tape");
-    if (file != null) {
-      openFor(file);
-    }
   }
 
   /**
