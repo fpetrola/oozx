@@ -35,6 +35,17 @@ import java.util.logging.Logger;
  * @author jsanchez
  */
 public class SnapshotZ80 implements SnapshotFile {
+
+    @Override
+    public boolean reads(File file) {
+        return SnapshotFile.named(file, ".z80");
+    }
+
+    @Override
+    public String label() {
+        return "Z80 snapshot";
+    }
+
   private BufferedInputStream fIn;
   private BufferedOutputStream fOut;
   private SpectrumState spectrum;

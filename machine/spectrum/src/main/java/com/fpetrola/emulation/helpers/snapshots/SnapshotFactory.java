@@ -33,20 +33,45 @@ import java.nio.file.Files;
  * @author jsanchez
  */
 public class SnapshotFactory {
+    /** The formats written here, which are the ones this build was born knowing. */
+    private static final java.util.List<SnapshotFile> WRITTEN_HERE =
+            java.util.List.of(new SnapshotSNA(), new SnapshotZ80(), new SnapshotSZX(), new SnapshotSP());
+
+    /**
+     * The formats that arrived, told from outside.
+     * <p>
+     * This is under the emulator rather than over it, so it cannot go looking: whoever can look
+     * says what turned up, the way the screen is told what ways of drawing there are.
+     */
+    private static volatile java.util.List<SnapshotFile> arrived = java.util.List.of();
+
+    /** Said by whoever found them. What is here now is what there is, and nothing older. */
+    public static void alsoRead(java.util.List<SnapshotFile> formats) {
+        arrived = formats == null ? java.util.List.of() : java.util.List.copyOf(formats);
+    }
+
+    /** Every format there is: the ones written here and whatever arrived, which read the same. */
+    public static java.util.List<SnapshotFile> formats() {
+        java.util.List<SnapshotFile> all = new java.util.ArrayList<>(WRITTEN_HERE);
+        java.util.Set<Class<?>> written = new java.util.HashSet<>();
+        WRITTEN_HERE.forEach(one -> written.add(one.getClass()));
+        arrived.stream().filter(one -> !written.contains(one.getClass())).forEach(all::add);
+        return all;
+    }
+
+    /**
+     * Which format reads that file, or null if none does.
+     * <p>
+     * Each one says whether the file is its own, rather than this knowing the extensions of all
+     * of them: a format that arrives in a jar brings the answer with it.
+     */
     public static SnapshotFile getSnapshot(File file) {
-        String name = file.getName().toLowerCase();
-        switch (name.substring(name.lastIndexOf("."))) {
-            case ".sna":
-                return new SnapshotSNA();
-            case ".z80":
-                return new SnapshotZ80();
-            case ".szx":
-                return new SnapshotSZX();
-            case ".sp":
-                return new SnapshotSP();
-            default:
-                return null;
+        for (SnapshotFile format : formats()) {
+            if (format.reads(file)) {
+                return format.fresh();
+            }
         }
+        return null;
     }
 
     /**

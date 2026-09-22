@@ -1043,7 +1043,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         .addKeyEventDispatcher(this::typeIntoTheMachineInFront);
     // What the windows that are found ask of whoever put them on the screen: this desk.
     com.fpetrola.oozx.speccy.devices.Desk.isRunBy(this);
-    waysOfDrawingThereAre();
+    whatThereIs();
     applySavedLookAndFeel();
     // Emulators apply the defaults themselves as they are built, so putting the saved ones in
     // place here is all it takes for the next window to open configured.
@@ -1984,12 +1984,18 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
    * <p>
    * Learnt from a machine that exists, because the list belongs to the build and there is no
    * copy of it to read; the first one made is remembered so a window can offer them without one
-   * having to be open, and what the module declares stands in until then.
+   * having to be open.
+   * <p>
+   * With none made yet, one is built and never started, which is what the settings already do to
+   * ask the same sort of question. A written-down list stood here before, and a machine that
+   * arrives in a jar is not on any list written down.
    */
   @Override
   public java.util.List<String> machines() {
-    return knownMachines.isEmpty()
-        ? com.fpetrola.oozx.speccy.machines.Machines.MODEL_NAMES : knownMachines;
+    if (knownMachines.isEmpty()) {
+      knownMachines = new DefaultsCore(config).getMachineModels();
+    }
+    return knownMachines;
   }
 
   /** A recording from wherever it lives, which is a machine driven by it. */
@@ -2368,19 +2374,23 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     equipmentKinds = whatCanBePluggedIn();
     fillEquipmentMenu();
     fillTheDeskWindows();
-    waysOfDrawingThereAre();
+    whatThereIs();
   }
 
   /**
-   * Every way of drawing there is, handed to the screen settings.
+   * What was found, handed to whoever cannot go looking for it.
    * <p>
-   * They are told rather than found there: that module knows about pictures and windows and
-   * nothing about jars, which is why it does not do the asking itself.
+   * The screen and the snapshot formats are both under the emulator rather than over it - one
+   * knows about pictures and windows, the other is below the plugin mechanism itself - so they
+   * are told what there is instead of asking. Said again whenever that changes.
    */
-  private void waysOfDrawingThereAre() {
+  private void whatThereIs() {
     com.fpetrola.oozx.speccy.screen.ScreenSettings.thereAre(
         com.fpetrola.oozx.plugins.Plugins.found(
             com.fpetrola.oozx.speccy.screen.ScreenEffect.class));
+    com.fpetrola.emulation.helpers.snapshots.SnapshotFactory.alsoRead(
+        com.fpetrola.oozx.plugins.Plugins.found(
+            com.fpetrola.emulation.helpers.snapshots.SnapshotFile.class));
   }
 
   private void fillTheDeskWindows() {

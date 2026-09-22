@@ -34,6 +34,17 @@ import java.util.logging.Logger;
  * @author jsanchez
  */
 public class SnapshotSNA implements SnapshotFile {
+
+    @Override
+    public boolean reads(File file) {
+        return SnapshotFile.named(file, ".sna");
+    }
+
+    @Override
+    public String label() {
+        return "SNA snapshot";
+    }
+
     private BufferedInputStream fIn;
     private BufferedOutputStream fOut;
     private SpectrumState spectrum;

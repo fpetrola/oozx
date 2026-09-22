@@ -32,6 +32,17 @@ import java.io.*;
  * @author jsanchez
  */
 public class SnapshotSP implements SnapshotFile {
+
+    @Override
+    public boolean reads(File file) {
+        return SnapshotFile.named(file, ".sp");
+    }
+
+    @Override
+    public String label() {
+        return "SP snapshot";
+    }
+
     private BufferedInputStream fIn;
     private SpectrumState spectrum;
     private Z80State z80;

@@ -38,6 +38,17 @@ import java.util.zip.InflaterInputStream;
  * @author jsanchez
  */
 public class SnapshotSZX implements SnapshotFile {
+
+    @Override
+    public boolean reads(File file) {
+        return SnapshotFile.named(file, ".szx");
+    }
+
+    @Override
+    public String label() {
+        return "SZX snapshot";
+    }
+
     private BufferedInputStream fIn;
     private BufferedOutputStream fOut;
     private SpectrumState spectrum;

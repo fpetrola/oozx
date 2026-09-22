@@ -43,6 +43,12 @@
         </dependency>
 
         <!-- compile -->
+        <!-- Nothing here was tried on its own before; the formats are worth trying. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
