@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.fpetrola.oozx.rzx;
+package com.fpetrola.oozx.speccy.tools.rzx;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.JDesktopPane;
@@ -45,8 +45,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class RzxPlayerDockingTest {
 
-  private static RzxPlayerInternalFrame player() {
-    return new RzxPlayerInternalFrame(1, one -> null, (one, session) -> { });
+  private static RzxFrame player() {
+    return new RzxFrame();
   }
 
   /**
@@ -69,11 +69,11 @@ class RzxPlayerDockingTest {
    * feel draws and the CONTRACT is that the two frames overlap by exactly the edges they both
    * draw - so the picture and the buttons touch instead of sitting a seam apart.
    */
-  private static int seam(JInternalFrame machine, RzxPlayerInternalFrame player) {
+  private static int seam(JInternalFrame machine, RzxFrame player) {
     return machine.getInsets().bottom + player.getInsets().top;
   }
 
-  private static int sideSeam(JInternalFrame machine, RzxPlayerInternalFrame player) {
+  private static int sideSeam(JInternalFrame machine, RzxFrame player) {
     return machine.getInsets().left + player.getInsets().right;
   }
 
@@ -85,7 +85,7 @@ class RzxPlayerDockingTest {
 
   @Test
   void it_sits_under_the_machine_at_the_machine_s_width() {
-    RzxPlayerInternalFrame player = player();
+    RzxFrame player = player();
     JInternalFrame machine = machine(60, 40, 520, 380);
     player.setMachineWindow(machine);
 
@@ -101,7 +101,7 @@ class RzxPlayerDockingTest {
 
   @Test
   void it_follows_the_machine_about() {
-    RzxPlayerInternalFrame player = player();
+    RzxFrame player = player();
     JInternalFrame machine = machine(60, 40, 520, 380);
     player.setMachineWindow(machine);
 
@@ -115,7 +115,7 @@ class RzxPlayerDockingTest {
 
   @Test
   void a_drag_that_ends_near_an_edge_attaches_to_that_edge() {
-    RzxPlayerInternalFrame player = player();
+    RzxFrame player = player();
     JInternalFrame machine = machine(100, 100, 400, 300);
     player.setMachineWindow(machine);
 
@@ -124,7 +124,7 @@ class RzxPlayerDockingTest {
     assertTrue(sideSeam(machine, player) < 40,
         "the reach has to cover the seam, or nothing on that side can ever attach");
     player.snapIfNear();
-    assertEquals(RzxPlayerInternalFrame.Dock.RIGHT, player.dockedTo(),
+    assertEquals(RzxFrame.Dock.RIGHT, player.dockedTo(),
         "did not attach to the side it was left against");
     assertEquals(500 - sideSeam(machine, player), player.getX(),
         "attached to the right edge but not flush with it");
@@ -138,13 +138,13 @@ class RzxPlayerDockingTest {
 
   @Test
   void a_drag_that_ends_well_away_lets_go() {
-    RzxPlayerInternalFrame player = player();
+    RzxFrame player = player();
     JInternalFrame machine = machine(100, 100, 400, 300);
     player.setMachineWindow(machine);
 
     player.setBounds(900, 700, 300, 120);
     player.snapIfNear();
-    assertEquals(RzxPlayerInternalFrame.Dock.FREE, player.dockedTo(),
+    assertEquals(RzxFrame.Dock.FREE, player.dockedTo(),
         "stayed attached to a window it is nowhere near");
 
     // And having let go, it stays where it was put when the machine moves.
@@ -162,24 +162,24 @@ class RzxPlayerDockingTest {
    */
   @Test
   void snapping_back_really_re_attaches() {
-    RzxPlayerInternalFrame player = player();
+    RzxFrame player = player();
     JInternalFrame machine = machine(100, 100, 400, 300);
     player.setMachineWindow(machine);
 
     player.setBounds(900, 700, 300, 120);
     player.snapIfNear();
-    assertEquals(RzxPlayerInternalFrame.Dock.FREE, player.dockedTo(), "did not let go");
+    assertEquals(RzxFrame.Dock.FREE, player.dockedTo(), "did not let go");
 
     // Dropped just under the machine again, a few pixels off, the way a hand leaves it.
     player.setBounds(104, 100 + 300 + 5, 300, 120);
     player.snapIfNear();
-    assertEquals(RzxPlayerInternalFrame.Dock.BOTTOM, player.dockedTo(), "did not take hold again");
+    assertEquals(RzxFrame.Dock.BOTTOM, player.dockedTo(), "did not take hold again");
 
     // And having taken hold, looking again must not undo it. This is what went wrong in the
     // running program: placing the window put it a seam inside the edge, the next look measured
     // that seam against the reach, and it let go of itself without anybody touching it.
     player.snapIfNear();
-    assertEquals(RzxPlayerInternalFrame.Dock.BOTTOM, player.dockedTo(),
+    assertEquals(RzxFrame.Dock.BOTTOM, player.dockedTo(),
         "let go of itself the second time it looked");
 
     machine.setBounds(250, 260, 400, 300);
@@ -199,7 +199,7 @@ class RzxPlayerDockingTest {
   @Test
   void attached_it_rides_directly_in_front_of_its_machine() {
     JDesktopPane desktop = new JDesktopPane();
-    RzxPlayerInternalFrame player = player();
+    RzxFrame player = player();
     JInternalFrame machine = machine(60, 40, 520, 380);
     JInternalFrame browser = machine(0, 0, 300, 300);
     desktop.add(machine);
@@ -220,7 +220,7 @@ class RzxPlayerDockingTest {
 
   @Test
   void expanding_keeps_it_attached_and_only_makes_it_taller() {
-    RzxPlayerInternalFrame player = player();
+    RzxFrame player = player();
     JInternalFrame machine = machine(60, 40, 520, 380);
     player.setMachineWindow(machine);
     int compact = player.getHeight();
@@ -243,33 +243,90 @@ class RzxPlayerDockingTest {
     File recording = model.harness.TestFiles.testFile("/rzx/jsw-full.rzx");
     JDesktopPane desktop = new JDesktopPane();
     List<JInternalFrame> machines = new ArrayList<>();
-    RzxPlayerInternalFrame player = new RzxPlayerInternalFrame(1, one -> null, (one, session) ->
-        SwingUtilities.invokeLater(() -> {
-          JInternalFrame machine = machine(60 + 200 * machines.size(), 40, 520, 380);
-          machines.add(machine);
-          desktop.add(machine);
-          one.setMachineWindow(machine);
-        }));
+    // The desk under it, which is what gives a recording's machine a window to be seen on.
+    com.fpetrola.oozx.speccy.devices.Desk.isRunBy(new DeskThatShowsMachines(desktop, machines));
+    RzxFrame player = new RzxFrame();
     desktop.add(player);
-    SwingUtilities.invokeAndWait(() -> player.openRecording(recording));
+    SwingUtilities.invokeAndWait(() -> player.open(recording));
     settle();
-    SwingUtilities.invokeAndWait(() -> player.openRecording(recording));
+    SwingUtilities.invokeAndWait(() -> player.open(recording));
     settle();
 
     assertEquals(2, machines.size(), "each recording brings its own machine");
     assertTrue(machines.get(0).isClosed(), "the previous machine's window was left behind");
     assertFalse(player.isClosed(), "the player closed itself");
     assertNotSame(machines.get(0), player.getMachineWindow(), "still holding the previous window");
-    assertEquals(260, player.getX(), "not lined up with the new machine's left edge");
-    assertEquals(40 + 380 - seam(machines.get(1), player), player.getY(), "not under the new machine");
+    // The controls stay where they were left and the picture is placed above them, which is what
+    // taking a machine means: what moves is the machine, not the window somebody put somewhere.
+    JInternalFrame second = machines.get(1);
+    assertEquals(player.getX(), second.getX(), "the new machine did not line up with the controls");
+    assertEquals(second.getY() + second.getHeight() - seam(second, player), player.getY(),
+        "the controls are not under the new machine");
     assertTrue(player.getTitle().contains("Playing"), "opened but not playing: " + player.getTitle());
     player.dispose();
+  }
+
+  /**
+   * A desk that does what the application's does with a machine a recording brought: a window
+   * for it, and the controls that asked clipped underneath.
+   */
+  private record DeskThatShowsMachines(JDesktopPane desktop, List<JInternalFrame> opened)
+      implements com.fpetrola.oozx.speccy.devices.Desk {
+
+    public com.fpetrola.oozx.speccy.devices.EmulatorWindow show(com.fpetrola.oozx.Speccy speccy,
+        String title, com.fpetrola.oozx.speccy.devices.MachineFrame asking) {
+      class Window extends JInternalFrame implements com.fpetrola.oozx.speccy.devices.EmulatorWindow {
+        public javax.swing.JComponent picture() {
+          return this;
+        }
+
+        public com.fpetrola.oozx.Speccy machine() {
+          return speccy;
+        }
+      }
+      Window window = new Window();
+      window.setBounds(60 + 200 * opened.size(), 40, 520, 380);
+      opened.add(window);
+      desktop.add(window);
+      asking.takeMachine(window);
+      return window;
+    }
+
+    public java.io.File choose(String what) {
+      return null;
+    }
+
+    public void openMachineFor(java.io.File file, com.fpetrola.oozx.speccy.devices.MachineFrame asking) {
+    }
+
+    public void open(Game game, Runnable whenDone) {
+      whenDone.run();
+    }
+
+    public void play(String url, String label) {
+    }
+
+    public void openRecording(com.fpetrola.oozx.speccy.devices.MachineFrame asking) {
+    }
+
+    public void keepRecording(String url, String entry, String title) {
+    }
+
+    public void keep(Game game) {
+    }
+
+    public void showDetails(Game game) {
+    }
+
+    public List<String> machines() {
+      return List.of();
+    }
   }
 
   @Test
   void nearingAMachineLightsBothWindowsUntilLetGo() throws Exception {
     JDesktopPane desktop = new JDesktopPane();
-    RzxPlayerInternalFrame player = player();
+    RzxFrame player = player();
     JInternalFrame machine = machine(100, 100, 400, 300);
     // Each step on the event thread, in the order a drag produces it, so the moves a step posts
     // are dealt with before the next step looks.
@@ -309,7 +366,7 @@ class RzxPlayerDockingTest {
   @Test
   void aDragThatPausesStaysLooseUntilTheButtonIsLetGo() throws Exception {
     JDesktopPane desktop = new JDesktopPane();
-    RzxPlayerInternalFrame player = player();
+    RzxFrame player = player();
     JInternalFrame machine = machine(100, 100, 400, 300);
     SwingUtilities.invokeAndWait(() -> {
       desktop.add(machine);
@@ -319,18 +376,18 @@ class RzxPlayerDockingTest {
       player.snapIfNear();
     });
     settle();
-    assertEquals(RzxPlayerInternalFrame.Dock.FREE, player.dockedTo(), "let go far away, it should be loose");
+    assertEquals(RzxFrame.Dock.FREE, player.dockedTo(), "let go far away, it should be loose");
     // Dragged back within reach and held there.
     SwingUtilities.invokeAndWait(() -> player.setBounds(104, 100 + 300 + 5, 300, 120));
     settle();
     Thread.sleep(300);
     settle();
-    assertEquals(RzxPlayerInternalFrame.Dock.FREE, player.dockedTo(), "attached itself while the button was still down");
+    assertEquals(RzxFrame.Dock.FREE, player.dockedTo(), "attached itself while the button was still down");
     SwingUtilities.invokeAndWait(() -> Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(
         new MouseEvent(player, MouseEvent.MOUSE_RELEASED, System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1)));
     settle();
     settle();
-    assertEquals(RzxPlayerInternalFrame.Dock.BOTTOM, player.dockedTo(), "letting go did not attach it");
+    assertEquals(RzxFrame.Dock.BOTTOM, player.dockedTo(), "letting go did not attach it");
   }
 
   /**
@@ -341,8 +398,8 @@ class RzxPlayerDockingTest {
   @Test
   void twoWindowsOnOneEdgeShareItAndStayPut() throws Exception {
     JDesktopPane desktop = new JDesktopPane();
-    RzxPlayerInternalFrame first = player();
-    RzxPlayerInternalFrame second = player();
+    RzxFrame first = player();
+    RzxFrame second = player();
     JInternalFrame machine = machine(100, 100, 400, 300);
     SwingUtilities.invokeAndWait(() -> {
       desktop.add(machine);
@@ -377,7 +434,7 @@ class RzxPlayerDockingTest {
       second.snapIfNear();
     });
     settle();
-    assertEquals(RzxPlayerInternalFrame.Dock.FREE, second.dockedTo(), "it did not let go");
+    assertEquals(RzxFrame.Dock.FREE, second.dockedTo(), "it did not let go");
     assertEquals(100, first.getX(), "the one left behind moved");
     assertEquals(400, first.getWidth(), "the one left behind did not take the whole edge back");
   }

@@ -62,6 +62,16 @@ public interface Desk {
     public void showDetails(Game game) {
     }
 
+    public EmulatorWindow show(com.fpetrola.oozx.Speccy machine, String title, MachineFrame asking) {
+      return null;
+    }
+
+    public void openRecording(MachineFrame asking) {
+    }
+
+    public void keepRecording(String url, String entry, String title) {
+    }
+
     public java.util.List<String> machines() {
       return java.util.List.of();
     }
@@ -88,6 +98,29 @@ public interface Desk {
 
   /** Plays a recording from wherever it lives, which is a machine driven by it. */
   void play(String url, String label);
+
+  /**
+   * A window for a machine that already exists, clipped to the one that asked.
+   * <p>
+   * Everything else here starts from a file and gets a machine built; a recording arrives with
+   * its own, already loaded to the frame it was saved at, and it only wants a picture.
+   *
+   * @return the window the machine is shown on, or null where there is no desk to show it
+   */
+  EmulatorWindow show(com.fpetrola.oozx.Speccy machine, String title, MachineFrame asking);
+
+  /**
+   * Asks for a recording and puts it into the window that asked, or into a free one when none
+   * did. Choosing it, fetching it and unpacking the archive it came in are the desk's work: what
+   * arrives here is one file that can be played.
+   */
+  void openRecording(MachineFrame asking);
+
+  /**
+   * Keeps a recording to come back to. The address alone comes back to an archive rather than to
+   * the recording that was being watched, so which file inside it was playing goes too.
+   */
+  void keepRecording(String url, String entry, String title);
 
   /** Keeps a game to come back to, which is what the desk's favourites are. */
   void keep(Game game);

@@ -17,7 +17,7 @@
 
 package com.fpetrola.oozx.speccy.desktop;
 
-import com.fpetrola.oozx.rzx.RzxPlayerInternalFrame;
+import com.fpetrola.oozx.speccy.tools.rzx.RzxFrame;
 import com.fpetrola.oozx.speccy.windows.AttachedFrame;
 import com.fpetrola.oozx.speccy.devices.printer.PrinterInternalFrame;
 
@@ -126,6 +126,6 @@ class CollapseSizesTheFrameTest {
   /** The same base class, so the same bug: worth saying out loud that it is fixed for all of them. */
   @Test
   void theRzxPlayerFolds() {
-    collapses(new RzxPlayerInternalFrame(1, one -> null, (one, session) -> { }));
+    collapses(new RzxFrame());
   }
 }

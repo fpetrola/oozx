@@ -15,9 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.fpetrola.oozx.rzx;
+package com.fpetrola.oozx.speccy.tools.rzx;
 
-import com.fpetrola.oozx.speccy.windows.AttachedFrame;
+import com.fpetrola.oozx.rzx.RzxSession;
+import com.fpetrola.oozx.speccy.devices.Desk;
+import com.fpetrola.oozx.speccy.devices.MachineFrame;
+import com.fpetrola.oozx.speccy.devices.Opens;
 import com.fpetrola.oozx.speccy.windows.Widgets;
 import com.fpetrola.z80.ide.rzx.CreatorInfo;
 import com.fpetrola.z80.ide.rzx.InputRecordingBlock;
@@ -35,8 +38,6 @@ import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 /**
  * Drives a recording: what is in the file, how far along it is, and play, pause and take over.
@@ -54,7 +55,7 @@ import java.util.function.Function;
  * How fast it plays comes from the machine's own speed setting, so the emulator window's speed
  * control works on a replay as it does on anything else.
  */
-public class RzxPlayerInternalFrame extends AttachedFrame {
+public class RzxFrame extends MachineFrame implements Opens {
 
   /** A Spectrum frame, so a paced replay runs at the speed it was recorded at. */
   private static final int FRAME_MILLIS = 20;
@@ -67,8 +68,6 @@ public class RzxPlayerInternalFrame extends AttachedFrame {
    * there can be several players open at once and the answer differs per player: which file this
    * one is opening, and which machine window belongs to this one rather than to its neighbour.
    */
-  private final Function<RzxPlayerInternalFrame, File> chooseRecording;
-  private final BiConsumer<RzxPlayerInternalFrame, RzxSession> showMachine;
 
   /**
    * Which player this is. It goes in this window's title and in its machine's, so that with four
@@ -83,7 +82,6 @@ public class RzxPlayerInternalFrame extends AttachedFrame {
   private String sourceEntry;
   private String pendingUrl;
   private String pendingEntry;
-  private Runnable onFavorite;
   private RzxSession session;
   private volatile Mode mode = Mode.EMPTY;
   private Thread thread;
@@ -105,12 +103,10 @@ public class RzxPlayerInternalFrame extends AttachedFrame {
   private final JScrollPane parts = new JScrollPane(table);
 
 
-  public RzxPlayerInternalFrame(int number, Function<RzxPlayerInternalFrame, File> chooseRecording,
-                                BiConsumer<RzxPlayerInternalFrame, RzxSession> showMachine) {
-    super("RZX #" + number);
-    this.number = number;
-    this.chooseRecording = chooseRecording;
-    this.showMachine = showMachine;
+  public RzxFrame() {
+    super("RZX #" + smallestFreeNumber());
+    this.number = Integer.parseInt(getTitle().substring("RZX #".length()));
+    numbersInUse.add(number);
     setSize(720, 300);
     setLocation(120, 60);
 
@@ -140,9 +136,7 @@ public class RzxPlayerInternalFrame extends AttachedFrame {
 
     JButton favoriteButton =
         Widgets.iconButton("2B50.svg", "Favorite", "Keep this recording");
-    favoriteButton.addActionListener(e -> {
-      if (onFavorite != null) onFavorite.run();
-    });
+    favoriteButton.addActionListener(e -> keep());
     controls.add(favoriteButton);
     fetching.setIndeterminate(true);
     fetching.setStringPainted(true);
@@ -165,6 +159,28 @@ public class RzxPlayerInternalFrame extends AttachedFrame {
       public void internalFrameClosed(javax.swing.event.InternalFrameEvent e) {
         refresh.stop();
         alive = false;
+        numbersInUse.remove(number);
+        // Closing the controls closes the picture they were driving. Leaving the machine behind
+        // would leave a window nobody can stop, still running and still making sound.
+        JInternalFrame machine = getMachineWindow();
+        if (machine != null && !machine.isClosed()) {
+          machine.dispose();
+        }
+      }
+
+      /**
+       * Brings the pair up together, this one on top. Raising the picture first and these
+       * controls second is what keeps clicking them from burying them under their own picture.
+       * The two are not dragged about together: with several recordings open the whole point is
+       * to put the pictures side by side and the controls where there is room.
+       */
+      @Override
+      public void internalFrameActivated(javax.swing.event.InternalFrameEvent e) {
+        JInternalFrame machine = getMachineWindow();
+        if (machine != null && !machine.isClosed() && machine.isVisible()) {
+          machine.toFront();
+          toFront();
+        }
       }
     });
     refresh();
@@ -233,8 +249,8 @@ public class RzxPlayerInternalFrame extends AttachedFrame {
   }
 
 
-  public void setOnFavorite(Runnable onFavorite) {
-    this.onFavorite = onFavorite;
+  private void keep() {
+    Desk.theOne().keepRecording(sourceUrl, sourceEntry, getRecordingName());
   }
 
   /**
@@ -258,6 +274,48 @@ public class RzxPlayerInternalFrame extends AttachedFrame {
 
   public String getRecordingName() {
     return file == null ? null : file.getName();
+  }
+
+  @Override
+  public void open(File file) {
+    openRecording(file);
+  }
+
+  @Override
+  public void open(File file, String from, String entry) {
+    setPendingSource(from, entry);
+    openRecording(file);
+  }
+
+  @Override
+  public boolean empty() {
+    return !hasRecording();
+  }
+
+  @Override
+  public String cameFrom() {
+    return sourceUrl;
+  }
+
+  @Override
+  public String entryInside() {
+    return sourceEntry;
+  }
+
+  @Override
+  public String label() {
+    return getRecordingName();
+  }
+
+  /** The numbers on the controls, so a closed #2 is given back rather than the count climbing. */
+  private static final java.util.Set<Integer> numbersInUse = new java.util.TreeSet<>();
+
+  private static synchronized int smallestFreeNumber() {
+    for (int candidate = 1; ; candidate++) {
+      if (!numbersInUse.contains(candidate)) {
+        return candidate;
+      }
+    }
   }
 
   public void openRecording(File recording) {
@@ -291,7 +349,12 @@ public class RzxPlayerInternalFrame extends AttachedFrame {
     JInternalFrame previous = getMachineWindow();
     setMachineWindow(null);
     if (previous != null && !previous.isClosed()) previous.dispose();
-    showMachine.accept(this, session);
+    // The recording brings its own machine; all it wants is a picture, and being clipped to it
+    // is what makes taking over mean something.
+    // The same number the controls carry, so it is possible to tell across a crowded desktop
+    // which picture belongs to which set of buttons.
+    Desk.theOne().show(session.getSpeccy(),
+        "Spectrum #" + number + (file == null ? "" : ": " + file.getName()), this);
     // Playing is set after the hand-over, not before it: letting go of the old window is an
     // unclipping like any other, and an unclipped recording holds where it is.
     mode = Mode.PLAYING;
@@ -308,10 +371,7 @@ public class RzxPlayerInternalFrame extends AttachedFrame {
     // Anything thrown inside a listener is printed to the console by Swing and nowhere else,
     // which looks exactly like the button doing nothing. Say so in front of the person instead.
     try {
-      File chosen = chooseRecording.apply(this);
-      if (chosen != null) {
-        openRecording(chosen);
-      }
+      Desk.theOne().openRecording(this);
     } catch (RuntimeException e) {
       setBusy(null);
       JOptionPane.showMessageDialog(this, "Could not open a recording.\n\n"
