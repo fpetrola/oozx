@@ -38,6 +38,8 @@ import javax.swing.SwingWorker;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import javax.swing.tree.DefaultMutableTreeNode;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -65,6 +67,10 @@ public class PluginsInternalFrame extends JInternalFrame {
   private final JLabel saying = new JLabel(" ");
   private final JProgressBar bar = new JProgressBar();
   private final Consumer<Void> arrived;
+
+  /** The same list of what is plugged in, grouped two ways. */
+  private final javax.swing.JTree byJar = new javax.swing.JTree(new DefaultMutableTreeNode());
+  private final javax.swing.JTree byKind = new javax.swing.JTree(new DefaultMutableTreeNode());
 
   /** @param arrived told once something new is in, so the menus can say so */
   public PluginsInternalFrame(Consumer<Void> arrived) {
@@ -95,14 +101,63 @@ public class PluginsInternalFrame extends JInternalFrame {
     bar.setVisible(false);
     bottom.add(bar, BorderLayout.SOUTH);
 
-    add(sides, BorderLayout.CENTER);
+    // Three ways of looking at the same thing: what can be had, what each jar put in, and what
+    // there is of each kind. The second and the third are read from what the jars say they
+    // bring, so they answer for what shipped as well as for what was brought.
+    javax.swing.JTabbedPane ways = new javax.swing.JTabbedPane();
+    ways.addTab("Published", sides);
+    ways.addTab("What each jar brought", new JScrollPane(byJar));
+    ways.addTab("What there is of each kind", new JScrollPane(byKind));
+    ways.addChangeListener(changed -> tellWhatIsIn());
+
+    add(ways, BorderLayout.CENTER);
     add(bottom, BorderLayout.SOUTH);
-    setBounds(60, 60, 700, 420);
+    setBounds(60, 60, 700, 460);
 
     include.addActionListener(pressed -> includeTheChosen());
     leaveOut.addActionListener(pressed -> leaveOutTheChosen());
     again.addActionListener(pressed -> look());
+    tellWhatIsIn();
     look();
+  }
+
+  /**
+   * What is plugged in, as two trees: one under the jar it came in, one under the kind of thing
+   * it is. Read whenever this is looked at, because a board brought a moment ago is in it.
+   */
+  private void tellWhatIsIn() {
+    java.util.List<com.fpetrola.oozx.plugins.Plugins.WhatIsIn> everything =
+        com.fpetrola.oozx.plugins.Plugins.everythingPluggedIn();
+    fill(byJar, everything, com.fpetrola.oozx.plugins.Plugins.WhatIsIn::from,
+        one -> one.kind() + ": " + shortly(one.implementation()));
+    fill(byKind, everything, one -> one.kind() + "  (" + shortly(one.wayIn()) + ")",
+        one -> shortly(one.implementation()) + "  -  " + one.from());
+  }
+
+  private static void fill(javax.swing.JTree tree,
+      java.util.List<com.fpetrola.oozx.plugins.Plugins.WhatIsIn> everything,
+      java.util.function.Function<com.fpetrola.oozx.plugins.Plugins.WhatIsIn, String> branch,
+      java.util.function.Function<com.fpetrola.oozx.plugins.Plugins.WhatIsIn, String> leaf) {
+    java.util.Map<String, java.util.List<String>> grouped = new java.util.TreeMap<>();
+    everything.forEach(one -> grouped.computeIfAbsent(branch.apply(one),
+        first -> new ArrayList<>()).add(leaf.apply(one)));
+    DefaultMutableTreeNode root = new DefaultMutableTreeNode(
+        grouped.size() + (grouped.size() == 1 ? " of them" : " of them"));
+    grouped.forEach((name, leaves) -> {
+      DefaultMutableTreeNode node = new DefaultMutableTreeNode(name + "  (" + leaves.size() + ")");
+      leaves.stream().sorted().forEach(one -> node.add(new DefaultMutableTreeNode(one)));
+      root.add(node);
+    });
+    tree.setModel(new javax.swing.tree.DefaultTreeModel(root));
+    for (int row = 0; row < tree.getRowCount(); row++) {
+      tree.expandRow(row);
+    }
+  }
+
+  /** A class by its own name, with the package as far as it is worth reading. */
+  private static String shortly(String className) {
+    int lastDot = className.lastIndexOf('.');
+    return lastDot < 0 ? className : className.substring(lastDot + 1);
   }
 
   private static JComponent titled(String title, JList<Board> side) {
@@ -208,6 +263,7 @@ public class PluginsInternalFrame extends JInternalFrame {
 
       protected void done() {
         bar.setVisible(false);
+        tellWhatIsIn();
         if (arrived != null) arrived.accept(null);
         busy(inside.size() + " in, " + outside.size() + " to be had  -  what you just added is in the"
             + " Equipment menu and in the machines you open from now on", false);
@@ -233,6 +289,7 @@ public class PluginsInternalFrame extends JInternalFrame {
       }
     }
     sort(outside);
+    tellWhatIsIn();
     if (arrived != null) arrived.accept(null);
     busy(inside.size() + " in, " + outside.size() + " to be had  -  the " + gone + " taken out is gone"
         + " from the menu; a machine that already has it keeps it until the emulator starts again", false);

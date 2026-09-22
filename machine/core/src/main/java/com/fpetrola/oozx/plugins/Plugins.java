@@ -20,6 +20,7 @@ package com.fpetrola.oozx.plugins;
 import com.fpetrola.oozx.config.Configuration;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URISyntaxException;
@@ -128,6 +129,91 @@ public final class Plugins {
     if (found == null) return List.of();
     List<File> jars = new ArrayList<>(Arrays.asList(found));
     jars.sort(File::compareTo);
+    return jars;
+  }
+
+  /**
+   * One thing that is plugged in: what it answers to, what that kind is called, which class it
+   * is, and which jar it came in.
+   */
+  public record WhatIsIn(String wayIn, String kind, String implementation, String from) {
+  }
+
+  /**
+   * Everything that is plugged in right now, read from what each jar says it brings rather than
+   * by loading any of it.
+   * <p>
+   * The service files are the answer: one per way in, naming what answers to it. Reading the
+   * names is enough to say what a jar brought, and nothing is built to find out - which matters,
+   * because half of what is listed would want a machine to be built with.
+   */
+  public static List<WhatIsIn> everythingPluggedIn() {
+    List<WhatIsIn> everything = new ArrayList<>();
+    for (File jar : inFolder()) {
+      everything.addAll(whatIsIn(jar));
+    }
+    for (File jar : whatThisBuildCarries()) {
+      everything.addAll(whatIsIn(jar));
+    }
+    return everything;
+  }
+
+  /** What one jar says it brings: its service files, read as names and not as classes. */
+  static List<WhatIsIn> whatIsIn(File jar) {
+    List<WhatIsIn> inside = new ArrayList<>();
+    String where = jar.getName();
+    try (java.util.jar.JarFile opened = new java.util.jar.JarFile(jar)) {
+      for (java.util.Enumeration<java.util.jar.JarEntry> entries = opened.entries();
+           entries.hasMoreElements(); ) {
+        java.util.jar.JarEntry entry = entries.nextElement();
+        String named = entry.getName();
+        if (!named.startsWith("META-INF/services/") || entry.isDirectory()) {
+          continue;
+        }
+        String wayIn = named.substring("META-INF/services/".length());
+        String kind = kindOf(wayIn);
+        if (kind == null) {
+          continue;
+        }
+        try (java.io.BufferedReader lines = new java.io.BufferedReader(
+            new java.io.InputStreamReader(opened.getInputStream(entry)))) {
+          for (String line = lines.readLine(); line != null; line = lines.readLine()) {
+            String answering = line.split("#")[0].trim();
+            if (!answering.isEmpty()) {
+              inside.add(new WhatIsIn(wayIn, kind, answering, where));
+            }
+          }
+        }
+      }
+    } catch (IOException cannotBeRead) {
+      System.err.println("oozx: " + where + " could not be read: " + cannotBeRead.getMessage());
+    }
+    return inside;
+  }
+
+  /**
+   * What this kind of thing is called, or null when the interface is not a way in at all - a
+   * jar may serve anything through META-INF/services, and only these are plugins.
+   */
+  private static String kindOf(String wayIn) {
+    try {
+      Class<?> type = Class.forName(wayIn, false, loader());
+      Plugin mark = type.getAnnotation(Plugin.class);
+      return mark == null ? null : mark.value();
+    } catch (ClassNotFoundException | LinkageError notHere) {
+      return null;
+    }
+  }
+
+  /** The jars this build was made of, which is where what ships rather than arrives comes from. */
+  private static List<File> whatThisBuildCarries() {
+    List<File> jars = new ArrayList<>();
+    for (String entry : System.getProperty("java.class.path", "").split(File.pathSeparator)) {
+      File file = new File(entry);
+      if (file.isFile() && entry.endsWith(".jar")) {
+        jars.add(file);
+      }
+    }
     return jars;
   }
 
