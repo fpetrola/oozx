@@ -1,9 +1,12 @@
 # Machines
 
-Twenty-four models. Not twenty-four special cases: a model is a handful of declarations — how it pages,
-which chip draws it, how its ULA measures a frame, which ROM it runs — and the machine is built from them.
-The Pentagon was added "mostly to see what adding a machine costs"; the clones came in a single night
-after that.
+Twenty-four models, of which the build carries one. A model is a handful of declarations — how it pages,
+which chip draws it, how its ULA measures a frame, which ROM it runs — and the machine is built from them;
+that is why there are twenty-four rather than a special case each. It is also why every one of them except
+the 48K is a jar you add: the 128 and the +2, Amstrad's three, the 16K and the American 48K, and each
+family of clones, with its ROMs inside. A machine that arrives that way runs on the generated core like any
+other, because the fast core is specialised over the model's structures and not over a list of machines.
+[Extending OOZX](Extending-OOZX) is how to write one.
 
 ![Manic Miner on a 48K, drawn as the beam passes](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/manic-miner.png)
 

@@ -69,7 +69,7 @@ out a line at a time, drawn as a burn rather than as a bitmap.*
 |---|---|
 | **Interface 2** | A cartridge takes the place of the ROM, and two joystick sockets |
 | **Multiface One / 128 / 3** | The red button, and what the processor needed for it to work. Three entries in the menu over one window |
-| **ULAplus** | Sixty-four colours a program picks for itself. Not a module of its own — it comes with the kit, and it is a machine's palette rather than a board, so plugging it in is what gives a machine those colours |
+| **ULAplus** | Sixty-four colours a program picks for itself. A machine's palette rather than a board, so plugging it in is what gives a machine those colours. Its own jar, which Chloe's machines bring with them because they have it soldered on |
 | **Spec256** | Nine processors in lockstep and 256 colours — [its own page](Spec256-256-Colours) |
 | **Debugger / Sprite viewer** | [Tools and Debugging](Tools-and-Debugging) |
 
@@ -106,7 +106,7 @@ Two independent `ServiceLoader`s, two one-line files in each jar:
 - `Equipment` — `name()` and `open()`. This is what puts it in the `Emulator → Equipment` menu and opens its
   window.
 
-`machine/devices/all` has no source at all: it depends on the twenty-four jars so that the classpath carries
+`machine/devices/all` has no source at all: it depends on every plugin jar so that the classpath carries
 every service file, and `machine/app` depends only on it. **The core never names a device.** A device, for
 its part, may use the ULA, the mixer and the clock, and nothing else.
 
@@ -136,4 +136,4 @@ Writing one is [Extending OOZX](Extending-OOZX).
 
 `machine/devices/<name>` — one module each. `machine/devices/kit` holds the window shapes
 (`DriveBayFrame`, `IdeBayFrame`, `DacFrame`) and `machine/devices/ide` the shared ATA code: 2,150 lines of
-infrastructure that the twenty-four share.
+infrastructure that the boards share.

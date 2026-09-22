@@ -67,10 +67,13 @@ jobs:
 
           os.makedirs('jars', exist_ok=True)
           devices = []
-          for pom in sorted(glob.glob('machine/devices/*/pom.xml') + glob.glob('machine/tools/*/pom.xml')):
+          # The two small jars somebody writing a plugin needs go up as well: one is the word a
+          # way in is marked with, the other is what writes the paperwork while their jar compiles.
+          for pom in sorted(glob.glob('machine/devices/*/pom.xml') + glob.glob('machine/tools/*/pom.xml')
+                            + ['plugin-api/pom.xml', 'plugin-processor/pom.xml']):
               module = os.path.dirname(pom)
               artifact = artifact_of(pom)
-              if not artifact or not artifact.startswith(('device-', 'tool-')):
+              if not artifact or not artifact.startswith(('device-', 'tool-', 'plugin-')):
                   continue                      # devices-all, devices-kit and devices-ide are not devices
               jars = [j for j in glob.glob(module + '/target/' + artifact + '-*.jar')
                       if not j.endswith(('-sources.jar', '-javadoc.jar'))]
@@ -124,9 +127,9 @@ jobs:
             echo "**$TITLE** for [OOZX](https://github.com/$GITHUB_REPOSITORY), built from \`main\` at"
             echo "[\`${GITHUB_SHA:0:9}\`](https://github.com/$GITHUB_REPOSITORY/commit/$GITHUB_SHA)."
             echo
-            echo "A peripheral is a jar: drop it on the classpath beside the emulator and it appears in"
-            echo "the \`Emulator → Equipment\` menu with a window of its own. Clipping that window onto a"
-            echo "machine is what plugs the device in."
+            echo "A plugin is a jar: drop it in \`~/.oozx/plugins\` and the emulator finds what it brings."
+            echo "How to write one, and every way in there is, are in"
+            echo "[Extending OOZX](https://github.com/$GITHUB_REPOSITORY/wiki/Extending-OOZX)."
             echo
             echo "See [Peripherals](https://github.com/$GITHUB_REPOSITORY/wiki/Peripherals)."
           } > notes.md

@@ -264,7 +264,7 @@ Two machines can be under two debuggers at once without sharing a thing.
 
 | | |
 |---|---|
-| Machines | 24 models, 8 of them Sinclair's and Amstrad's |
+| Machines | 24 models, 8 of them Sinclair's and Amstrad's. The build carries the 48K; the rest are jars you add |
 | Media | TAP, TZX, CSW, DSK, TRD, SCL, MGT, IMG, OPD, D40/D80, HDF, SD images, Microdrive and ROM cartridges, Z80, SNA, SZX, SP, RZX |
 | Video | contention per T-state, floating bus, Timex modes, ULAplus, Spec256 |
 | Sound | beeper, AY-3-8912, Melodik, Fuller, Covox, SpecDrum |

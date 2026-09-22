@@ -76,11 +76,11 @@ emulator  →  machine/core  →  machine/machines, machine/media, machine/host
 |---|---|---|
 | `emulator` | the Z80: instructions, registers, decoding, the visitor | 229 classes |
 | `machine/core` | the Spectrum: memory bus, ULA, display, ports, sound mixing, keyboard matrix, scheduler, configuration. No Swing in it | 88 |
-| `machine/machines` | the 24 models, plus `ay`, `disk`, `memory`, `scld`, `ula`, `ulaplus` | 65 |
+| `machine/machines` | the 48K and the parts every machine is made of: `ay`, `disk`, `memory`, `scld`, `ula` | 65 |
 | `machine/media` | tapes, snapshots, recordings as media | 16 |
 | `machine/host` | the other side of the glass: PC keyboard layouts, joysticks, the audio line | 18 |
 | `machine/ui` | windows and the screen. **Depends on nothing of the emulator** | 20 |
-| `machine/devices` | one module per peripheral, twenty-four of them | 133 |
+| `machine/devices` | one module per thing that plugs in: the boards, the machines that are not the 48K, the tape deck, the snapshot readers | 133 |
 | `machine/app` | the desktop | 34 |
 | `machine/generated` | the generated core | 11 |
 | `machine/bridge` | the reference emulator's real core behind the same interface | 31 |
