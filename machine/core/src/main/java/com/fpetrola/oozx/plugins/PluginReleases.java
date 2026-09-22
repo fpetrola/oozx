@@ -17,6 +17,8 @@
 
 package com.fpetrola.oozx.plugins;
 
+import com.fpetrola.oozx.TellsThePerson;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fpetrola.oozx.config.Configuration;
@@ -236,7 +238,7 @@ public class PluginReleases implements Configuration.Saves {
       try {
         Files.deleteIfExists(Plugins.folder().resolve(jar));
       } catch (IOException wouldNotGo) {
-        System.err.println("oozx: " + jar + " could not be thrown away: " + wouldNotGo.getMessage());
+        TellsThePerson.that(jar + " could not be thrown away: " + wouldNotGo.getMessage());
       }
     }
     them.takenOut.clear();
@@ -258,7 +260,7 @@ public class PluginReleases implements Configuration.Saves {
         if (plugsIn(named) && named.endsWith(".jar")) boards.add(named);
       }
     } catch (IOException cannotBeRead) {
-      System.err.println("oozx: " + jar.getFileName() + " does not say what it needs: " + cannotBeRead.getMessage());
+      TellsThePerson.that(jar.getFileName() + " does not say what it needs: " + cannotBeRead.getMessage());
     }
     return boards;
   }

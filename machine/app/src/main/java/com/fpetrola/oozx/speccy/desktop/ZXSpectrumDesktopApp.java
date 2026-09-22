@@ -43,6 +43,7 @@ import com.fpetrola.oozx.speccy.media.LocalGames;
 import com.fpetrola.oozx.speccy.config.OOZxConfiguration;
 import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
 import com.fpetrola.oozx.EmulatorListener;
+import com.fpetrola.oozx.TellsThePerson;
 import com.fpetrola.oozx.speccy.peripherals.DefaultsCore;
 import com.fpetrola.oozx.speccy.pokes.PokesManager;
 import com.fpetrola.oozx.speccy.pokes.PokesDialog;
@@ -106,6 +107,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
   private JLabel pauseIndicator;
   private JButton pauseButton;
   private JLabel turboIndicator;
+  private TellsThePerson.Listening listening;
   private JButton muteButton;
   private boolean isMuted = false;
   private JDialog fullscreen;
@@ -271,6 +273,33 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     pauseButton.setToolTipText(paused ? "Continue" : "Pause");
   }
 
+  /**
+   * The last thing the emulator had to say, beside the speed. A snapshot asking for a machine
+   * this build does not carry, a plugin that could not be read: the emulator carries on, and
+   * this is where the person is told what it did instead. It stays for a while and then goes;
+   * the tooltip keeps the last few, since they arrive faster than they can be read.
+   */
+  private JLabel whatTheEmulatorHasToSay() {
+    JLabel said = new JLabel();
+    said.setForeground(new Color(0x80, 0x60, 0x00));
+    List<String> lately = new ArrayList<>();
+    Timer clears = new Timer(12000, gone -> said.setText(""));
+    clears.setRepeats(false);
+    TellsThePerson.listens(listening = what -> SwingUtilities.invokeLater(() -> {
+      System.out.println("oozx: " + what);
+      if (lately.size() == 8) lately.remove(0);
+      lately.add(what);
+      said.setText(what.length() > 70 ? what.substring(0, 68) + "..." : what);
+      said.setToolTipText("<html>" + String.join("<br>", lately) + "</html>");
+      clears.restart();
+    }));
+    return said;
+  }
+
+  void stopsBeingTold() {
+    TellsThePerson.stops(listening);
+  }
+
   private JPanel createStatusBar() {
     JPanel statusBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
     // Full is the speed of the real machine, which is what the number beside it means: drawn
@@ -294,6 +323,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     statusBar.add(modelCombo);
     statusBar.add(pauseIndicator);
     statusBar.add(turboIndicator);
+    statusBar.add(whatTheEmulatorHasToSay());
     emulatorCore.addEmulatorListener(new EmulatorListener() {
       public void onEmulationStateChanged(String state) {
 //        statusLabel.setText("State: " + state);
@@ -2621,6 +2651,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     frame.addInternalFrameListener(new InternalFrameAdapter() {
       public void internalFrameClosed(InternalFrameEvent e) {
         core1.finishEmulation();
+        frame.stopsBeingTold();
       }
     });
 

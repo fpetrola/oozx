@@ -17,6 +17,8 @@
 
 package com.fpetrola.oozx.speccy.desktop;
 
+import com.fpetrola.oozx.TellsThePerson;
+
 import com.fpetrola.oozx.plugins.PluginReleases;
 import com.fpetrola.oozx.plugins.PluginReleases.Board;
 
@@ -246,7 +248,7 @@ public class PluginsInternalFrame extends JInternalFrame {
               }
             }
           } catch (Exception didNotArrive) {
-            System.err.println("oozx: " + board.name() + " did not arrive: " + didNotArrive);
+            TellsThePerson.that(board.name() + " did not arrive: " + didNotArrive);
           }
         }
         return null;
@@ -285,7 +287,7 @@ public class PluginsInternalFrame extends JInternalFrame {
         outside.addElement(board);
         gone++;
       } catch (Exception wouldNotGo) {
-        System.err.println("oozx: " + board.name() + " could not be taken out: " + wouldNotGo);
+        TellsThePerson.that(board.name() + " could not be taken out: " + wouldNotGo);
       }
     }
     sort(outside);

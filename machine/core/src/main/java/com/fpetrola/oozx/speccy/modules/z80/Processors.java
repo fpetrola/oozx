@@ -17,6 +17,8 @@
 
 package com.fpetrola.oozx.speccy.modules.z80;
 
+import com.fpetrola.oozx.TellsThePerson;
+
 import com.fpetrola.z80.cpu.Core;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.State;
@@ -133,7 +135,7 @@ public class Processors {
       try {
         cpu.setOoz80(wiring.build(candidate, this::createState));
       } catch (RuntimeException cannotRunHere) {
-        System.out.printf("oozx: the %s processor cannot run here, so another one does: %s%n", candidate.name(), cannotRunHere);
+        TellsThePerson.that("the %s processor cannot run here, so another one does: %s".formatted(candidate.name(), cannotRunHere));
         continue;
       }
       if (previous != null)

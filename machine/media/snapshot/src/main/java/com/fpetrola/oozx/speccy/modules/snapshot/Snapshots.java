@@ -17,6 +17,8 @@
 
 package com.fpetrola.oozx.speccy.modules.snapshot;
 
+import com.fpetrola.oozx.TellsThePerson;
+
 import com.fpetrola.emulation.helpers.machine.MachineTypes;
 import com.fpetrola.emulation.helpers.snapshots.AY8912State;
 import com.fpetrola.emulation.helpers.snapshots.SnapshotLoader;
@@ -185,7 +187,7 @@ public class Snapshots extends AbstractPeripheral {
     machine.forSnapshotModel(wanted).ifPresentOrElse(type -> {
       machine.selectDefault();
       machine.select(type);
-    }, () -> System.out.printf("oozx: this build has no %s, so the snapshot is loaded into the machine already running%n", wanted));
+    }, () -> TellsThePerson.that("this build has no %s, so the snapshot is loaded into the machine already running".formatted(wanted)));
   }
 
   /**

@@ -16,6 +16,8 @@
  */
 package com.fpetrola.oozx.generated;
 
+import com.fpetrola.oozx.TellsThePerson;
+
 import com.fpetrola.oozx.EmulatorModule;
 import com.fpetrola.oozx.speccy.modules.memory.MemoryBus;
 import com.fpetrola.oozx.Speccy;
@@ -188,7 +190,7 @@ public class GeneratedCores implements Extension {
       try {
         loaded = Optional.of(Class.forName(PACKAGE + "." + NAME));
       } catch (ClassNotFoundException notThere) {
-        System.out.println("oozx: this build carries no generated core, so the machine runs on the OOP core");
+        TellsThePerson.that("this build carries no generated core, so the machine runs on the OOP core");
         loaded = Optional.empty();
       }
     }
@@ -234,7 +236,7 @@ public class GeneratedCores implements Extension {
     }
     Files.createDirectories(source.getParent());
     Files.writeString(source, written);
-    System.out.println("oozx: the model changed, so the fast core is written again from " + key);
+    TellsThePerson.that("the model changed, so the fast core is written again from " + key);
     compile(source, classes);
   }
 

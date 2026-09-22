@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.speccy.devices.spec256;
 
+import com.fpetrola.oozx.TellsThePerson;
+
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.modules.display.Colouring;
 import com.fpetrola.oozx.speccy.modules.display.Display;
@@ -117,7 +119,7 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
     try {
       planes.take(Files.readAllBytes(colours.toPath()));
     } catch (IOException | IllegalArgumentException notColoursAfterAll) {
-      System.out.printf("oozx: %s is beside the snapshot but is not a game's colours: %s%n", colours, notColoursAfterAll.getMessage());
+      TellsThePerson.that("%s is beside the snapshot but is not a game's colours: %s".formatted(colours, notColoursAfterAll.getMessage()));
       over();
       return;
     }
@@ -297,7 +299,7 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
       planes.takeTheRom(Files.readAllBytes(file.toPath()));
       return true;
     } catch (IOException | IllegalArgumentException notTheRomsColours) {
-      System.out.printf("oozx: %s is not this ROM's colours: %s%n", file, notTheRomsColours.getMessage());
+      TellsThePerson.that("%s is not this ROM's colours: %s".formatted(file, notTheRomsColours.getMessage()));
       return false;
     }
   }
@@ -321,7 +323,7 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
         byte[] picture = Files.readAllBytes(file.toPath());
         if (picture.length == BACKGROUND_SIZE) backgrounds.add(picture);
       } catch (IOException unreadable) {
-        System.out.printf("oozx: %s looks like a background of this game but cannot be read: %s%n", file, unreadable.getMessage());
+        TellsThePerson.that("%s looks like a background of this game but cannot be read: %s".formatted(file, unreadable.getMessage()));
       }
     }
   }
@@ -338,7 +340,7 @@ public class Spec256Peripheral extends AbstractPeripheral implements FilesOfItsO
             | (palette[colour * 3 + 1] & 0xff) << 8 | (palette[colour * 3 + 2] & 0xff));
       }
     } catch (IOException | NullPointerException itIsNotThere) {
-      System.out.printf("oozx: the 256 colours of a Spec256 game are not in this build: %s%n", itIsNotThere);
+      TellsThePerson.that("the 256 colours of a Spec256 game are not in this build: %s".formatted(itIsNotThere));
     }
   }
 

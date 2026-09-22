@@ -17,6 +17,8 @@
 
 package com.fpetrola.oozx.plugins;
 
+import com.fpetrola.oozx.TellsThePerson;
+
 import com.fpetrola.oozx.config.Configuration;
 
 import java.io.File;
@@ -94,7 +96,7 @@ public final class Plugins {
       ((Boards) loader()).take(jar.toUri().toURL());
       generation++;
     } catch (MalformedURLException notAUrl) {
-      System.err.println("oozx: " + jar + " could not be read: " + notAUrl.getMessage());
+      TellsThePerson.that(jar + " could not be read: " + notAUrl.getMessage());
     }
   }
 
@@ -198,7 +200,7 @@ public final class Plugins {
         }
       }
     } catch (IOException cannotBeRead) {
-      System.err.println("oozx: " + where + " could not be read: " + cannotBeRead.getMessage());
+      TellsThePerson.that(where + " could not be read: " + cannotBeRead.getMessage());
     }
     return inside;
   }
@@ -256,7 +258,7 @@ public final class Plugins {
         ServiceLoader.Provider<S> provider = providers.next();
         if (stillHere(provider.type())) answering.add(provider.get());
       } catch (ServiceConfigurationError cannotBeRead) {
-        System.err.println("oozx: a plugin could not be read: " + cannotBeRead.getMessage());
+        TellsThePerson.that("a plugin could not be read: " + cannotBeRead.getMessage());
       }
     }
     return answering;
@@ -281,7 +283,7 @@ public final class Plugins {
       try {
         urls.add(jar.toURI().toURL());
       } catch (MalformedURLException notAUrl) {
-        System.err.println("oozx: " + jar + " could not be read: " + notAUrl.getMessage());
+        TellsThePerson.that(jar + " could not be read: " + notAUrl.getMessage());
       }
     }
     return urls.toArray(new URL[0]);

@@ -18,6 +18,8 @@
 
 package com.fpetrola.oozx.speccy.devices.spec256;
 
+import com.fpetrola.oozx.TellsThePerson;
+
 import com.google.inject.Singleton;
 
 import java.io.File;
@@ -111,7 +113,7 @@ public final class Rules {
         if (equals > 0) says(line.substring(0, equals).trim(), line.substring(equals + 1).trim());
       }
     } catch (IOException unreadable) {
-      System.out.printf("oozx: %s is this game's rules but cannot be read: %s%n", said, unreadable.getMessage());
+      TellsThePerson.that("%s is this game's rules but cannot be read: %s".formatted(said, unreadable.getMessage()));
     }
   }
 
