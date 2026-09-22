@@ -261,6 +261,11 @@ public class PluginsInternalFrame extends JInternalFrame {
    * arrived through this window, and so is every one of them when nobody can be asked.
    */
   private void whatIsHere(List<Board> published) {
+    // One copied into the folder by hand is read here, which is the moment somebody asks what is
+    // in: listed as in while nothing it brought was in any menu is the worst of both answers.
+    if (com.fpetrola.oozx.plugins.Plugins.readWhatArrived()) {
+      arrived.accept(null);
+    }
     inside.clear();
     PluginReleases.here(published).forEach(inside::addElement);
   }

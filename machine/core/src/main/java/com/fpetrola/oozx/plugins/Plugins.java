@@ -100,17 +100,41 @@ public final class Plugins {
     }
   }
 
+  /**
+   * Whatever turned up in the folder and nobody has read yet: a jar copied in by hand is plugged
+   * in the same as one brought through the window, and it used to sit there listed as being in
+   * while nothing it brought was in any menu until the emulator was started again.
+   *
+   * @return whether anything was read, so that whoever shows a menu can build it again
+   */
+  public static synchronized boolean readWhatArrived() {
+    boolean anythingNew = false;
+    for (File jar : inFolder()) {
+      try {
+        if (((Boards) loader()).take(jar.toURI().toURL())) {
+          generation++;
+          anythingNew = true;
+        }
+      } catch (MalformedURLException notAUrl) {
+        TellsThePerson.thisBuildCannot(jar + " could not be read: " + notAUrl.getMessage());
+      }
+    }
+    return anythingNew;
+  }
+
   /** A loader that can be given something after it was made, since a board can arrive at any time. */
   private static final class Boards extends URLClassLoader {
     Boards(URL[] jars) {
       super("plugins", jars, Plugins.class.getClassLoader());
     }
 
-    void take(URL jar) {
+    /** @return whether this one was not already here */
+    boolean take(URL jar) {
       for (URL had : getURLs()) {
-        if (had.equals(jar)) return;
+        if (had.equals(jar)) return false;
       }
       addURL(jar);
+      return true;
     }
   }
 
