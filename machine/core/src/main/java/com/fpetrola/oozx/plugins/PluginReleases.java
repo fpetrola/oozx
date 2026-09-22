@@ -300,9 +300,28 @@ public class PluginReleases implements Configuration.Saves {
   public static void takeOut(Board board) {
     PluginReleases them = theOne();
     them.brought.remove(board.jar());
-    them.takenOut.add(board.jar());
+    // Moved aside rather than written down: the folder is what says which boards there are, and
+    // a note beside it goes stale. One written down and then put back by hand - which is how
+    // anybody installs a plugin - stayed invisible, and the next start threw the new copy away.
+    if (!movedAside(board.jar())) {
+      them.takenOut.add(board.jar());
+    }
     if (them.configuration != null) them.configuration.save();
   }
+
+  /** Out of the way of the loader that is holding it open, for the next start to throw away. */
+  private static boolean movedAside(String jar) {
+    try {
+      Path here = Plugins.folder().resolve(jar);
+      Files.move(here, here.resolveSibling(jar + OUT), StandardCopyOption.REPLACE_EXISTING);
+      return true;
+    } catch (IOException itIsHeldOpen) {
+      return false;
+    }
+  }
+
+  /** What a board taken out is called until the next start throws it away. */
+  private static final String OUT = ".out";
 
   /** Whether this jar was taken out and is only waiting for the next start to go. */
   public static boolean isOut(String jar) {
@@ -311,15 +330,22 @@ public class PluginReleases implements Configuration.Saves {
 
   /** The ones taken out, thrown away now that nothing has them open. Called once, on the way up. */
   public static void sweep() {
+    try (java.util.stream.Stream<Path> aside = Files.list(Plugins.folder())) {
+      for (Path thrownAway : aside.filter(file -> file.getFileName().toString().endsWith(OUT)).toList()) {
+        try {
+          Files.delete(thrownAway);
+        } catch (IOException wouldNotGo) {
+          TellsThePerson.thisBuildCannot(thrownAway.getFileName()
+              + " could not be thrown away: " + wouldNotGo.getMessage());
+        }
+      }
+    } catch (IOException noFolder) {
+      // Nothing was ever put in it, so there is nothing to sweep.
+    }
     PluginReleases them = theOne();
     if (them.takenOut.isEmpty()) return;
-    for (String jar : them.takenOut) {
-      try {
-        Files.deleteIfExists(Plugins.folder().resolve(jar));
-      } catch (IOException wouldNotGo) {
-        TellsThePerson.thisBuildCannot(jar + " could not be thrown away: " + wouldNotGo.getMessage());
-      }
-    }
+    // What an older build wrote down. The file is not deleted on the strength of a note: one
+    // that is there now was put there on purpose, and taking somebody's file away is not this.
     them.takenOut.clear();
     if (them.configuration != null) them.configuration.save();
   }
