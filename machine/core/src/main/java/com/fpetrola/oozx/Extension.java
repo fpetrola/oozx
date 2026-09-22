@@ -17,12 +17,14 @@
 
 package com.fpetrola.oozx;
 
+import com.fpetrola.oozx.plugins.Plugin;
 import com.google.inject.Module;
 
 /**
  * A module the emulator finds rather than names: a jar on the classpath that brings what it
  * brings - devices, media, the host's own parts - by binding it here, and is installed by being
- * found. Registered under this name in META-INF/services.
+ * found.
  */
+@Plugin("device")
 public interface Extension extends Module {
 }

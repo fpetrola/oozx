@@ -17,6 +17,7 @@
 
 package com.fpetrola.oozx.speccy.devices;
 
+import com.fpetrola.oozx.plugins.Plugin;
 import javax.swing.JInternalFrame;
 
 /**
@@ -27,6 +28,7 @@ import javax.swing.JInternalFrame;
  * what turns up, not what the application was written knowing about. The difference is only that
  * this window is about the desk, so it has no machine and no clip.
  */
+@Plugin("tool")
 public interface DeskEquipment {
 
   String name();

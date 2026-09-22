@@ -17,12 +17,15 @@
 
 package com.fpetrola.oozx.speccy.devices;
 
+import com.fpetrola.oozx.plugins.Plugin;
+
 /**
  * A piece of equipment this build offers, which is what the desk lists in its menu.
  * <p>
  * Found through META-INF/services, so the desk never names one: a device is a jar, and the jar
  * says what it is called and how to open it.
  */
+@Plugin("device")
 public interface Equipment {
   String name();
 

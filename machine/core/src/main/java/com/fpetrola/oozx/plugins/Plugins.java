@@ -38,6 +38,9 @@ import java.util.ServiceLoader;
  * What this build can be beyond what it was compiled with: the jars in the plugin folder, read by
  * a loader of their own.
  * <p>
+ * What can arrive that way is whatever answers to an interface marked {@link Plugin}, and
+ * {@link #found} is the only way to ask for them.
+ * <p>
  * Everything the emulator finds rather than names - a device's {@code Extension}, its window's
  * {@code Equipment} - is looked up through here instead of through the application's own loader,
  * so a peripheral is something dropped in rather than something this jar carries. The parent is
@@ -138,6 +141,12 @@ public final class Plugins {
    * can do and what it happens to be holding.
    */
   public static <S> List<S> found(Class<S> service) {
+    // A way in says so. Asking for anything else is a mistake worth hearing about: the answer
+    // would be an empty list, which is also what a misspelt service file gives, and that was
+    // twenty minutes of looking for a board that was there all along.
+    if (!service.isAnnotationPresent(Plugin.class)) {
+      throw new IllegalArgumentException(service.getName() + " is not a way in: it is not @Plugin");
+    }
     List<S> answering = new ArrayList<>();
     Iterator<ServiceLoader.Provider<S>> providers =
         ServiceLoader.load(service, loader()).stream().iterator();
