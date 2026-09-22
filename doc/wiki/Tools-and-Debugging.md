@@ -75,5 +75,5 @@ the frame leaves the clock standing still, and that once hung a build for ten mi
 
 ## Where this lives
 
-`machine/devices/debugger` (debugger and sprite viewer), `machine/app/.../KeyboardInternalFrame` and
+`devices/debugger` (debugger and sprite viewer), `machine/app/.../KeyboardInternalFrame` and
 `AudioInInternalFrame`, `machine/bridge`, `model.harness.MachineTest` for the headless harness.

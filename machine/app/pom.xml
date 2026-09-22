@@ -65,18 +65,6 @@
             <artifactId>devices-ide</artifactId>
             <version>0.0.2-alu-SNAPSHOT</version>
         </dependency>
-        <!--
-          The boards themselves are NOT part of this: they arrive as jars in ~/.oozx/plugins, each
-          published as a release of its own, and are found there rather than carried here. On the
-          test classpath only, so what the tests exercise is the whole environment while what is
-          shipped is the emulator with nothing plugged into it.
-        -->
-        <dependency>
-            <groupId>com.fpetrola</groupId>
-            <artifactId>devices-all</artifactId>
-            <version>0.0.2-alu-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
         <!-- The fast core, which arrives the same way and makes itself on the first run. -->
         <dependency>
             <groupId>com.fpetrola</groupId>
@@ -180,6 +168,21 @@
          de todos los modulos se concatenan en vez de pisarse. -->
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <!--
+                      The harness travels: a test that clips a plugin's window onto a machine
+                      needs this desk, and the plugins are their own repository now.
+                    -->
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

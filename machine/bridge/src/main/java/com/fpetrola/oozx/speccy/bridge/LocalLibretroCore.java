@@ -217,8 +217,17 @@ public class LocalLibretroCore implements LibretroCore {
 //    getState().getIo().out(WordNumber.createValue(port), WordNumber.createValue(value));
   }
 
+  /**
+   * Says so when the machine asked for is not in this build, rather than quietly running the
+   * default: what comes out of a test then is the timings of another machine, compared against
+   * the reference's timings for the one that was asked for, and nothing says why they differ.
+   */
   public void retro_select_machine(String name) {
-    machine.forShortName(name).ifPresentOrElse(machine::select, machine::selectDefault);
+    machine.forShortName(name).ifPresentOrElse(machine::select, () -> {
+      com.fpetrola.oozx.TellsThePerson.thisBuildCannot(
+          "this build has no " + name + ", so the default machine runs instead", name);
+      machine.selectDefault();
+    });
   }
 
   public void retro_if1_page(boolean in) {

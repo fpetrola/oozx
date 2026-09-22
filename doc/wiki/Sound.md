@@ -38,4 +38,4 @@ one-second buffer is the limit, which is a thing that was found by hanging the e
 `machine/core/.../modules/sound` (`Sound`, `AudioSource`, `AudioOutput`, `blip/*`),
 `machine/machines/ay` (the chip), `machine/host/sound` (`JavaSoundDevice`, `Dac`, the line itself, and the
 `SilentSoundDevice` every test runs on so a crash inside the platform's audio server cannot take the build
-down). The devices are in `machine/devices/{melodik,fuller,covox,specdrum}`.
+down). The devices are in `devices/{melodik,fuller,covox,specdrum}`.

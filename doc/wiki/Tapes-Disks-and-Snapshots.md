@@ -85,4 +85,4 @@ is a job and not a patch.
 ## Where this lives
 
 `machine/media/tape`, `machine/media/snapshot`, `machine/media/rzx`, `machine/machines/disk`, and the disk
-interfaces under `machine/devices/*`. The working notes are `machine/doc/formatos.md`.
+interfaces under `devices/*`. The working notes are `machine/doc/formatos.md`.

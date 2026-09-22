@@ -28,12 +28,6 @@
         <!-- The corpus has snapshots of every kind, so every reader has to be here to read it. -->
         <dependency>
             <groupId>com.fpetrola</groupId>
-            <artifactId>device-snapshots</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fpetrola</groupId>
             <artifactId>machines</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -46,18 +40,6 @@
             <groupId>com.fpetrola</groupId>
             <artifactId>host-sound</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fpetrola</groupId>
-            <artifactId>device-tape</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fpetrola</groupId>
-            <artifactId>devices-all</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
@@ -102,6 +84,21 @@
             <!-- A machine per test class, on its own thread that is never told to stop: one JVM
                  each, so the thread dies with it. The fork timeout is the backstop for a spin that
                  cannot be interrupted from inside. -->
+            <!--
+              The harness travels: what stands a reader against libspectrum is here, and the
+              readers themselves are in the plugins repository, which builds against this.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

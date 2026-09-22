@@ -63,4 +63,4 @@ captures the pointer, and there are sensitivity, swap and record controls.
 
 `machine/core/.../modules/keyboard` (the machine's half), `machine/host/input` (the host's half: `Input`,
 `PcLayout`, `RecreatedLayout`, the joysticks), `machine/app/.../SwingKeyboard` (AWT codes and nothing else),
-`machine/devices/joystick`, `machine/devices/mouse`. The design notes are in `machine/doc/teclado.md`.
+`devices/joystick`, `devices/mouse`. The design notes are in `machine/doc/teclado.md`.

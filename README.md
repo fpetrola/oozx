@@ -99,9 +99,11 @@ mvn -DskipTests install
 java -jar machine/app/target/app-0.0.2-alu-SNAPSHOT.jar
 ```
 
-Where things live: `emulator` is the Z80; `machine/core` the Spectrum, with no Swing in it; `machine/devices`
-one module per peripheral; `machine/generated` the fast core; `machine/app` the desktop; `machine/bridge` the
-comparison with Fuse; `zx-rzx` the recordings; `translation/*` the translation of a game to Java.
+Where things live: `emulator` is the Z80; `machine/core` the Spectrum, with no Swing in it;
+`machine/generated` the fast core; `machine/app` the desktop; `machine/bridge` the comparison with Fuse;
+`zx-rzx` the recordings; `translation/*` the translation of a game to Java. What plugs into all this -
+the boards, the machines that are not the 48K, the windows, the readers for the other file formats - is
+[oozx-plugins](https://github.com/fpetrola/oozx-plugins), built against this and published a jar at a time.
 
 ## Credits and license
 

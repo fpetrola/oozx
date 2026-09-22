@@ -69,7 +69,7 @@ The rule the code is written to, and the compiler enforces it because the module
 
 ```
 emulator  →  machine/core  →  machine/machines, machine/media, machine/host
-                           →  machine/ui  →  machine/devices  →  machine/app
+                           →  machine/ui  →  machine/app
 ```
 
 | Module | Owns | Size |
@@ -80,7 +80,7 @@ emulator  →  machine/core  →  machine/machines, machine/media, machine/host
 | `machine/media` | tapes, snapshots, recordings as media | 16 |
 | `machine/host` | the other side of the glass: PC keyboard layouts, joysticks, the audio line | 18 |
 | `machine/ui` | windows and the screen. **Depends on nothing of the emulator** | 20 |
-| `machine/devices` | one module per thing that plugs in: the boards, the machines that are not the 48K, the tape deck, the snapshot readers | 133 |
+| `machine/devices` | the shapes a board's window takes (`kit`) and the shared ATA code (`ide`); what plugs in is not here | 12 |
 | `machine/app` | the desktop | 34 |
 | `machine/generated` | the generated core | 11 |
 | `machine/bridge` | the reference emulator's real core behind the same interface | 31 |

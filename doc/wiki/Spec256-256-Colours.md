@@ -133,5 +133,5 @@ Where this project's reading differed from ZX-Poly's, it was measured rather tha
 
 ## Where this lives
 
-`machine/devices/spec256`. The full working notes — every rule, every measurement, every hypothesis that
+`devices/spec256`. The full working notes — every rule, every measurement, every hypothesis that
 died — are in `doc/plan-spec256.md`.

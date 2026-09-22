@@ -48,8 +48,18 @@ import java.util.Map;
 @Section("plugins")
 public class PluginReleases implements Configuration.Saves {
 
+  private static final String WHERE_THEY_ARE = "fpetrola/oozx-plugins";
+
+  /**
+   * Where they used to be published, before they were a repository of their own. Somebody who
+   * ran this before that has it written down in their settings, and settings are read over the
+   * default: without this they would go on asking the emulator's own releases, which no longer
+   * carry any, and see an empty list with nothing saying why.
+   */
+  private static final String WHERE_THEY_USED_TO_BE = "fpetrola/oozx";
+
   /** Where the boards are published: the releases of this repository whose tag names a device. */
-  public String repository = "fpetrola/oozx";
+  public String repository = WHERE_THEY_ARE;
 
   /**
    * Which asset each jar here came from. Only says whether what is published is a different
@@ -82,6 +92,10 @@ public class PluginReleases implements Configuration.Saves {
   @Override
   public void savedBy(Configuration configuration) {
     this.configuration = configuration;
+    if (WHERE_THEY_USED_TO_BE.equals(repository)) {
+      repository = WHERE_THEY_ARE;
+      configuration.save();
+    }
   }
 
   private static PluginReleases theOne() {

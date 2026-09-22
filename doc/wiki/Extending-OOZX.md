@@ -639,6 +639,11 @@ so they can list seventy-odd devices without building seventy machines.
 
 ## Where this lives
 
-`plugin-api` for the annotation, `plugin-processor` for what writes the paperwork,
-`machine/core/src/main/java/com/fpetrola/oozx/plugins` for the loader and the discovery,
-`machine/devices/*` and `machine/tools/*` for sixty-odd worked examples.
+`plugin-api` for the annotation, `plugin-processor` for what writes the paperwork and
+`machine/core/src/main/java/com/fpetrola/oozx/plugins` for the loader and the discovery, all in
+this repository.
+
+The plugins themselves are not: they are [fpetrola/oozx-plugins](https://github.com/fpetrola/oozx-plugins),
+which is built against this one and holds sixty-odd worked examples under `devices/*` and
+`tools/*`. Yours does not belong there either - a plugin is a jar of your own, and the emulator
+finds it the same way it finds those.

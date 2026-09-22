@@ -179,5 +179,5 @@ class RzxPlaybackTest {
   }
 
   // Starting over when a recording ends is the player window's doing, so it is tried where that
-  // window lives: tool-rzx, ARecordingThatStartsOverTest.
+  // window lives: tool-rzx of oozx-plugins, ARecordingThatStartsOverTest.
 }

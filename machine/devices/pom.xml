@@ -13,69 +13,20 @@
     <name>devices</name>
 
     <!--
-      The peripherals somebody plugs in: a printer, a mouse, a sound box, a joystick interface -
-      each in a module of its own, with whatever it needs to work and whatever it needs to be
-      looked at. A device that connects to another one depends on that one, and on nothing else
-      here but the kit.
+      What a board is made of, not the boards. The window shapes a bay or a socket takes, and the
+      ATA code more than one of them talks: a plugin is built against these, so they are here and
+      not with the plugins.
 
-      What a machine comes with is NOT here. The 128's pager, the +3's drive, the ULA, the AY a
-      128K has on its board: that is the computer, and it lives with the emulator. This module is
-      for what somebody bought separately and cabled on.
-
-      The emulator does not depend on this and does not know these exist: it finds them through
-      META-INF/services, which is the whole point of the arrangement. The application depends on
-      `all`, which is every device this build offers and nothing else.
+      The plugins are fpetrola/oozx-plugins, a repository of its own built against this one. The
+      emulator does not depend on them and does not know which exist: it finds them through
+      META-INF/services, which is the whole point of the arrangement.
     -->
     <modules>
         <module>ide</module>
-        <module>ulaplus</module>
-        <module>chloe</module>
-        <module>spectrum128</module>
-        <module>amstrad</module>
-        <module>spectrum-variants</module>
-        <module>pentagon</module>
-        <module>timex</module>
-        <module>scorpion</module>
-        <module>microdigital</module>
-        <module>czerweny</module>
-        <module>inves</module>
-        <module>chrome</module>
-        <module>spectrum-se</module>
-        <module>tape</module>
-        <module>snapshots</module>
         <module>kit</module>
-        <module>debugger</module>
-        <module>printer</module>
-        <module>mouse</module>
-        <module>joystick</module>
-        <module>melodik</module>
-        <module>interface2</module>
-        <module>multiface</module>
-        <module>parallel-printer</module>
-        <module>plusd</module>
-        <module>disciple</module>
-        <module>beta128</module>
-        <module>covox</module>
-        <module>spec256</module>
-        <module>specdrum</module>
-        <module>fuller</module>
-        <module>opus</module>
-        <module>didaktik</module>
-        <module>interface1</module>
-        <module>divide</module>
-        <module>simpleide</module>
-        <module>zxatasp</module>
-        <module>zxcf</module>
-        <module>divmmc</module>
-        <module>zxmmc</module>
-        <module>all</module>
     </modules>
 
-    <!--
-      Every board's jar says in its manifest which jars it was built against. What a plugin needs
-      of another plugin is then in the plugin itself, so bringing one can bring what it cannot
-      work without instead of failing at the first class it cannot find.
-    -->
+    <!-- A jar says in its manifest which jars it was built against, the way a plugin's does. -->
     <build>
         <plugins>
             <plugin>

@@ -106,8 +106,8 @@ Two independent `ServiceLoader`s, two one-line files in each jar:
 - `Equipment` — `name()` and `open()`. This is what puts it in the `Emulator → Equipment` menu and opens its
   window.
 
-`machine/devices/all` has no source at all: it depends on every plugin jar so that the classpath carries
-every service file, and `machine/app` depends only on it. **The core never names a device.** A device, for
+`devices/all` has no source at all: it depends on every plugin jar so that the classpath carries
+every service file, and it is where the tests that need them all live. **The core never names a device.** A device, for
 its part, may use the ULA, the mixer and the clock, and nothing else.
 
 What a machine brings stock — the 128's pager, both ULAs, the +3's FDC, the 128's AY — stays in the core:
@@ -134,6 +134,7 @@ Writing one is [Extending OOZX](Extending-OOZX).
 
 ## Where this lives
 
-`machine/devices/<name>` — one module each. `machine/devices/kit` holds the window shapes
+`devices/<name>` in [oozx-plugins](https://github.com/fpetrola/oozx-plugins) — one module each.
+Here, `machine/devices/kit` holds the window shapes
 (`DriveBayFrame`, `IdeBayFrame`, `DacFrame`) and `machine/devices/ide` the shared ATA code: 2,150 lines of
 infrastructure that the boards share.
