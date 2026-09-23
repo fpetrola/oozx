@@ -283,12 +283,37 @@ public final class LookAndFeels {
    * was going to put the previous look back went down with it. Whoever is left standing has to
    * notice and go back, and it cannot be the event thread, which by then is gone.
    */
+  /**
+   * Whether this is the look failing rather than anything else that went wrong on the window's
+   * thread.
+   * <p>
+   * It used to be anything at all: a game that could not be opened, a dialog with a null in it,
+   * and two of those in a row took the look off and left Metal on, which says nothing to anybody
+   * about what actually happened. What a look failing looks like is a frame of its own classes
+   * or of painting, somewhere down the stack.
+   */
+  private static boolean aboutPainting(Throwable problem) {
+    for (Throwable each = problem; each != null; each = each.getCause()) {
+      for (StackTraceElement frame : each.getStackTrace()) {
+        String where = frame.getClassName();
+        if (where.startsWith("javax.swing.plaf") || where.startsWith("com.formdev.flatlaf")
+            || where.startsWith("com.bulenkov") || where.contains("LookAndFeel")
+            || frame.getMethodName().startsWith("paint")) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   private static void watchForALookThatCannotPaint() {
     Thread.UncaughtExceptionHandler others = Thread.getDefaultUncaughtExceptionHandler();
     Thread.setDefaultUncaughtExceptionHandler((thread, problem) -> {
       if (others != null) others.uncaughtException(thread, problem);
       else problem.printStackTrace();
-      if (goingBack || !thread.getName().startsWith("AWT-EventQueue")) return;
+      if (goingBack || !thread.getName().startsWith("AWT-EventQueue") || !aboutPainting(problem)) {
+        return;
+      }
       goingBack = true;
       // Leftovers of the look that was worn before are what usually fails, and putting the one
       // that is on over the windows again clears them. Only when that is not it does the look

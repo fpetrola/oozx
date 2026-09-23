@@ -71,6 +71,9 @@ public class PluginsInternalFrame extends JInternalFrame {
   private final JProgressBar bar = new JProgressBar();
   private final Consumer<Void> arrived;
 
+  /** The three ways of looking at the same thing, so that picking something out can show the one it is on. */
+  private javax.swing.JTabbedPane ways;
+
   /** The same list of what is plugged in, grouped two ways. */
   private final javax.swing.JTree byJar = new javax.swing.JTree(new DefaultMutableTreeNode());
   private final javax.swing.JTree byKind = new javax.swing.JTree(new DefaultMutableTreeNode());
@@ -129,7 +132,7 @@ public class PluginsInternalFrame extends JInternalFrame {
     // Three ways of looking at the same thing: what can be had, what each jar put in, and what
     // there is of each kind. The second and the third are read from what the jars say they
     // bring, so they answer for what shipped as well as for what was brought.
-    javax.swing.JTabbedPane ways = new javax.swing.JTabbedPane();
+    ways = new javax.swing.JTabbedPane();
     ways.addTab("Published", sides);
     ways.addTab("What each jar brought", new JScrollPane(byJar));
     ways.addTab("What there is of each kind", new JScrollPane(byKind));
@@ -295,8 +298,12 @@ public class PluginsInternalFrame extends JInternalFrame {
           "This build cannot do that", JOptionPane.WARNING_MESSAGE);
       return;
     }
+    // Shown rather than only set: picked out on a list that is behind another tab, or that
+    // nothing is looking at, is a selection nobody sees - and what it is for is being seen.
+    ways.setSelectedIndex(0);
     published.setSelectedIndices(toBeHad);
     published.ensureIndexIsVisible(toBeHad[0]);
+    published.requestFocusInWindow();
     saying.setText(brings.stream().map(Board::name).collect(java.util.stream.Collectors.joining(", "))
         + (toBeHad.length == 1 ? " brings it" : " bring it") + ": press → to add "
         + (toBeHad.length == 1 ? "it." : "them."));

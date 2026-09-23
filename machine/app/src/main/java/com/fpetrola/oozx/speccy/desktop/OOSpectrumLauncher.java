@@ -156,7 +156,12 @@ public class OOSpectrumLauncher {
    * build carries the reader for one kind of file and the rest arrive as plugins, so a tape or
    * a snapshot opened without them did exactly that and said nothing at all.
    */
-  private static void nothingHereOpensThat(File file) {
+  /** Whether anything in this build knows how to start a machine on that kind of file. */
+  public static boolean somethingOpens(File file) {
+    return whoStartsOn(file) != null;
+  }
+
+  static void nothingHereOpensThat(File file) {
     couldNotBeOpened(file);
     com.fpetrola.oozx.TellsThePerson.thisBuildCannot(
         ("Nothing in this build knows how to open %s, so what came up is a machine at the BASIC "

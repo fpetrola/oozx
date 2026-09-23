@@ -2330,6 +2330,14 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   }
 
   public void loadInNewEmulator(String path) {
+    // Asked before anything is built. It used to be found out inside, once the machine was made
+    // and there was nothing to put in it, and what came up was an emulator at the BASIC prompt
+    // beside a window offering the plugin - two answers to one click, one of them useless.
+    java.io.File asked = new java.io.File(path);
+    if (!path.startsWith("http") && asked.isFile() && !OOSpectrumLauncher.somethingOpens(asked)) {
+      OOSpectrumLauncher.nothingHereOpensThat(asked);
+      return;
+    }
     // Downloading, unzipping and booting can take several seconds, and until now they took them
     // in silence: nothing appeared until the machine did, which reads as the click not working.
     String name = DownloadAndUnzip.nameOf(path);
