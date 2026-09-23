@@ -264,22 +264,13 @@ public class PluginsInternalFrame extends JInternalFrame {
 
     new SwingWorker<Void, Board>() {
       protected Void doInBackground() {
-        java.util.Deque<Board> taking = new java.util.ArrayDeque<>(chosen);
-        java.util.Set<String> asked = new java.util.HashSet<>();
-        while (!taking.isEmpty()) {
-          Board board = taking.poll();
-          if (!asked.add(board.jar())) continue;
+        for (Board board : chosen) {
           try {
-            java.nio.file.Path jar = PluginReleases.bring(board);
+            // Uno por uno y por su nombre: quien los carga baja lo que haga falta, verifica el
+            // sha256 y trae de lo que dependa. Seguir las dependencias a mano instalaba sin
+            // ellas y hacia falta otra vuelta por cada pieza.
+            PluginReleases.bring(board);
             publish(board);
-            // What it was built against and is not here: a board that uses another's code is no
-            // use without it, so it arrives too rather than failing at the first missing class.
-            for (String needed : PluginReleases.needs(jar)) {
-              for (int row = 0; row < outside.size(); row++) {
-                Board other = outside.get(row);
-                if (other.jar().equals(needed) && !asked.contains(needed)) taking.add(other);
-              }
-            }
           } catch (Exception didNotArrive) {
             TellsThePerson.thisBuildCannot(board.name() + " did not arrive: " + didNotArrive);
           }

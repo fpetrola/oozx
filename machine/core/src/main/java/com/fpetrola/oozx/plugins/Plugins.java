@@ -103,7 +103,7 @@ public final class Plugins {
       jars();
       service = PluginService.builder()
           .cacheDirectory(Configuration.home().toPath().resolve("plugin-cache"))
-          .source(PluginSources.directory(folder()))
+          .source(new WhereAPluginComesFrom())
           .build();
       service.start();
       // Lo que se pidio sacar mientras una maquina lo tenia adentro: ahora no hay ninguna.
@@ -155,8 +155,8 @@ public final class Plugins {
    * One more jar, while the emulator is running. What it brings is in the Equipment menu at once
    * and in every machine built from here on; a machine that was already made was made without it.
    */
-  public static synchronized void add(Path jar) {
-    plugIn(idOf(jar.toFile()));
+  public static synchronized void add(String id) {
+    plugIn(id);
   }
 
   /** Como se llama un jar, que es por lo que se lo pide. */
@@ -186,8 +186,11 @@ public final class Plugins {
       // Una maquina abierta lo tiene adentro, y sacarselo dejaria su codigo corriendo desde algo
       // ya cerrado. Queda anotado y se saca al levantar, que es cuando no hay maquina que lo use.
       goesOnTheNextStart(id);
-      TellsThePerson.thisBuildCannot(nameOf(id) + " esta adentro de una maquina abierta, asi que"
-          + " se va cuando arranques de nuevo.");
+      // Una maquina de esta corrida lo uso, y eso no se suelta al cerrarla: sus clases estan en
+      // lo que se construyo con ella. Asi que la unica verdad es que se va en el proximo
+      // arranque del emulador.
+      TellsThePerson.thisBuildCannot(nameOf(id) + " lo esta usando una maquina de esta sesion, asi"
+          + " que se va cuando vuelvas a arrancar el emulador.");
       return false;
     }
   }

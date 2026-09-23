@@ -108,9 +108,9 @@ public class PluginReleases implements Configuration.Saves {
    * knows how to open. Both so that what this build cannot do can point at the jar that can.
    */
   public record Board(String name, String jar, String from, long asset, long size,
-                      List<String> machines, List<String> opens) {
+                      String sha256, List<String> machines, List<String> opens) {
     public Board(String name, String jar, String from, long asset, long size) {
-      this(name, jar, from, asset, size, List.of(), List.of());
+      this(name, jar, from, asset, size, null, List.of(), List.of());
     }
   }
 
@@ -233,9 +233,13 @@ public class PluginReleases implements Configuration.Saves {
         String jar = asset.path("name").asText("");
         if (!jar.endsWith(".jar")) continue;
         String named = release.path("name").asText("");
+        // El sha256 lo publica el archivo por cada asset, asi que verificar no cuesta una bajada.
+        String digest = asset.path("digest").asText("");
         boards.add(new Board(named.isBlank() ? tag : named, jar,
             asset.path("browser_download_url").asText(), asset.path("id").asLong(),
-            asset.path("size").asLong(), said(release.path("body").asText(""), "machines"),
+            asset.path("size").asLong(),
+            digest.startsWith("sha256:") ? digest.substring("sha256:".length()) : null,
+            said(release.path("body").asText(""), "machines"),
             said(release.path("body").asText(""), "opens")));
         break;
       }
@@ -273,26 +277,17 @@ public class PluginReleases implements Configuration.Saves {
    * in: from here on it is one more thing the machine can be built with.
    */
   public static Path bring(Board board) throws IOException, InterruptedException {
-    Files.createDirectories(Plugins.folder());
-    // Written beside itself and moved into place, so a download cut in half is never loaded.
-    Path half = Plugins.folder().resolve(board.jar() + ".part");
-    HttpResponse<Path> answer = client().send(asking(board.from()).build(),
-        HttpResponse.BodyHandlers.ofFile(half));
-    if (answer.statusCode() != 200) {
-      Files.deleteIfExists(half);
-      throw new IOException(board.from() + " answered " + answer.statusCode());
-    }
-    Path here = Plugins.folder().resolve(board.jar());
-    Files.move(half, here, StandardCopyOption.REPLACE_EXISTING);
-
+    String id = whichBoard(board.jar());
+    // Pedirlo por su nombre: quien los carga lo baja del catalogo, verifica el sha256 que el
+    // archivo publica, y trae lo que necesite. Bajarlo nosotros y despues mirar de que depende
+    // era instalar sin su dependencia, fallar, y hacer falta otra vuelta para cada pieza.
+    Plugins.add(id);
     PluginReleases them = theOne();
-    them.takenOut.remove(board.jar());
     them.brought.put(board.jar(), board.asset());
     if (them.configuration != null) them.configuration.save();
-
-    Plugins.add(here);
-    return here;
+    return Plugins.folder().resolve(board.jar());
   }
+
 
   /**
    * Takes one out: written down as out rather than deleted, and deleted when the emulator starts
