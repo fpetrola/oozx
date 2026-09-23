@@ -21,14 +21,25 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    # El framework de plugins contra el que se compila. No publica artefactos a ningun
+    # repositorio, asi que su arbol se construye aca, igual que hace el repo de plugins con este.
+    - uses: actions/checkout@v4
+      with:
+        repository: fpetrola/crystal-plugins
+        path: crystal-plugins
+
     - name: Set up JDK 18
       uses: actions/setup-java@v4
       with:
         java-version: '18'
         distribution: 'temurin'
         cache: maven
+    - name: Build the plugin framework
+      run: mvn -B -U -DskipTests install -f crystal-plugins/pom.xml
+
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: mvn -B -U package --file pom.xml
   
     
        
