@@ -2453,14 +2453,15 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     return null;
   }
 
-  /** The equipment this build offers, in the order the menu shows it. Asked again when one arrives. */
-  private java.util.List<Equipment> equipmentKinds = whatCanBePluggedIn();
+  /**
+   * Lo que hay para enchufar, recibido de un injector y no buscado. Es el unico lugar del
+   * escritorio que lo nombra: de aca para abajo son listas que ya estan al dia solas.
+   */
+  private final WhatIsPluggedIn has = com.google.inject.Guice
+      .createInjector(com.fpetrola.oozx.plugins.Plugins.asModule())
+      .getInstance(WhatIsPluggedIn.class);
 
-  private static java.util.List<Equipment> whatCanBePluggedIn() {
-    return com.fpetrola.oozx.plugins.Plugins.found(Equipment.class).stream()
-        .sorted(java.util.Comparator.comparing(Equipment::name))
-        .toList();
-  }
+  private java.util.List<Equipment> equipmentKinds = java.util.List.of();
 
   /** Where the Equipment menu is, so that a board which arrives while this runs can be added to it. */
   private JMenu equipmentMenu;
@@ -2472,7 +2473,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
 
   /** Said once the folder changed: the menus offer what is there now, and only that. */
   public void somethingWasPluggedIn() {
-    equipmentKinds = whatCanBePluggedIn();
+    equipmentKinds = has.equipment();
     fillEquipmentMenu();
     fillTheDeskWindows();
     whatThereIs();
@@ -2489,30 +2490,15 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
    * by the module that loads snapshots, which is the one that owns the question.
    */
   private void whatThereIs() {
-    com.fpetrola.oozx.speccy.screen.ScreenSettings.thereAre(
-        com.fpetrola.oozx.plugins.Plugins.found(
-            com.fpetrola.oozx.speccy.screen.ScreenEffect.class));
-    tellWhatCanBeRead();
+    com.fpetrola.oozx.speccy.screen.ScreenSettings.thereAre(has.effects());
+    com.fpetrola.emulation.helpers.snapshots.SnapshotFactory.alsoRead(has::formats);
   }
 
-  /**
-   * Where to ask which files can be read, said on the way up and again whenever a jar arrives.
-   * <p>
-   * It used to be said from inside the module that loads snapshots, which Guice installs when it
-   * builds a machine - so opening a file before any machine existed found only the reader this
-   * build carries, and bringing the one that reads it changed nothing, because nobody had told
-   * the factory where to look.
-   */
-  static void tellWhatCanBeRead() {
-    com.fpetrola.emulation.helpers.snapshots.SnapshotFactory.alsoRead(
-        () -> com.fpetrola.oozx.plugins.Plugins.found(
-            com.fpetrola.emulation.helpers.snapshots.SnapshotFile.class));
-  }
 
   private void fillTheDeskWindows() {
     deskWindowItems.forEach(theEmulatorMenu::remove);
     deskWindowItems.clear();
-    deskKinds = com.fpetrola.oozx.plugins.Plugins.found(DeskEquipment.class);
+    deskKinds = has.deskWindows();
     int place = whereTheDeskWindowsGo;
     for (DeskEquipment kind : deskKinds) {
       JMenuItem item = new JMenuItem(kind.name() + "...");
