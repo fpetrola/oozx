@@ -103,19 +103,18 @@ class WhatIsPluggedInTest {
     assertEquals("device-mouse", PluginReleases.whichBoard("device-mouse.jar"));
   }
 
-  /** A jar built here or copied in by hand is as plugged in as one that was downloaded. */
+  /**
+   * Estar en la carpeta no es estar enchufado: lo enchufado es lo que llego a cargarse, que es
+   * lo que la ventana tiene que decir. Un archivo que no es un plugin no lo es por estar ahi.
+   */
   @Test
-  void whatNobodyPublishedIsStillPluggedIn() throws IOException {
+  void aFileThatIsNotAPluginIsNotPluggedIn() throws IOException {
     lying("tool-calls-0.0.2-alu-SNAPSHOT.jar");
     lying("tool-something-of-my-own-0.1.jar");
 
-    List<Board> here = PluginReleases.here(
-        List.of(published("tool-calls-0.0.2-alu-SNAPSHOT.jar", 7)));
-
-    assertEquals(2, here.size(), "both are in the folder, so both are in");
-    assertEquals("Calls", here.get(0).name(), "the published one keeps its release's name");
-    assertEquals("tool-something-of-my-own", here.get(1).name(),
-        "and one nobody published is called after its file");
+    assertEquals(List.of(), PluginReleases.here(
+            List.of(published("tool-calls-0.0.2-alu-SNAPSHOT.jar", 7))),
+        "ninguno de los dos es un plugin, por mas que el nombre lo parezca");
   }
 
   @Test

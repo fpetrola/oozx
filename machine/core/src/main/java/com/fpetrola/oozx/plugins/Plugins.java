@@ -85,16 +85,49 @@ public final class Plugins {
     return Configuration.home().toPath().resolve("plugins");
   }
 
+  /** Para que carpeta se armo, porque uno armado para otra miente sobre lo que hay. */
+  private static Path servingFolder;
+
   private static synchronized PluginService service() {
+    if (service != null && !folder().equals(servingFolder)) {
+      // Cambio la casa: la de antes puede no existir mas, y lo que decia era de otro lugar.
+      try {
+        service.close();
+      } catch (RuntimeException wouldNotClose) {
+        TellsThePerson.that("lo anterior no se pudo cerrar: " + wouldNotClose.getMessage());
+      }
+      service = null;
+    }
     if (service == null) {
+      servingFolder = folder();
       jars();
       service = PluginService.builder()
           .cacheDirectory(Configuration.home().toPath().resolve("plugin-cache"))
           .source(PluginSources.directory(folder()))
           .build();
       service.start();
+      // Lo que se pidio sacar mientras una maquina lo tenia adentro: ahora no hay ninguna.
+      whatWasAskedToGo();
+      // Arrancar carga lo que ya estaba puesto y nada mas, a proposito: que un emulador recien
+      // instalado no se baje nada es del que lo carga. Lo que hay en la carpeta es una eleccion
+      // que ya se hizo, asi que eso si se enchufa.
+      whatIsInTheFolder();
     }
     return service;
+  }
+
+  /**
+   * Lo que esta cargado ahora mismo, dicho por quien los carga.
+   * <p>
+   * No es lo que hay en la carpeta: uno que arranco puede no estar mas ahi, porque quien lo
+   * carga se queda con su copia. La ventana decia lo de la carpeta, asi que mostraba una lista
+   * que no era la verdad - andaba lo que no figuraba.
+   */
+  public static java.util.List<String> pluggedIn() {
+    if (!areRead()) return java.util.List.of();
+    return service().plugins().stream()
+        .filter(one -> String.valueOf(one.status()).equals("STARTED"))
+        .map(dev.crystal.plugins.runtime.PluginInfo::id).toList();
   }
 
   /**
@@ -143,16 +176,71 @@ public final class Plugins {
    *
    * @return si se pudo, que es que no, cuando algo que corre lo esta reteniendo
    */
-  public static synchronized boolean takeOut(File jar) {
-    String id = idOf(jar);
+  public static synchronized boolean takeOut(String id) {
     if (id == null || !areRead()) return false;
     try {
       service().uninstall(id);
       generation++;
       return true;
-    } catch (RuntimeException wouldNotGo) {
-      TellsThePerson.thisBuildCannot(id + " no se puede sacar ahora: " + wouldNotGo.getMessage());
+    } catch (RuntimeException itIsInUse) {
+      // Una maquina abierta lo tiene adentro, y sacarselo dejaria su codigo corriendo desde algo
+      // ya cerrado. Queda anotado y se saca al levantar, que es cuando no hay maquina que lo use.
+      goesOnTheNextStart(id);
+      TellsThePerson.thisBuildCannot(nameOf(id) + " esta adentro de una maquina abierta, asi que"
+          + " se va cuando arranques de nuevo.");
       return false;
+    }
+  }
+
+  /** El archivo de la carpeta que trae ese plugin, si todavia esta ahi. */
+  public static File jarOf(String id) {
+    for (File jar : inFolder()) {
+      if (id.equals(idOf(jar))) return jar;
+    }
+    return null;
+  }
+
+  /** El id sin el prefijo con que se lo publica, que es como lo nombra una persona. */
+  private static String nameOf(String id) {
+    return id.replaceFirst("^(device|tool)-", "");
+  }
+
+  /**
+   * Lo que se pidio sacar y no se pudo, anotado al lado de la carpeta y no en la configuracion.
+   * <p>
+   * Leer la configuracion vuelve a pasar por aca - lo que un jar trae de ROMs es una seccion
+   * mas - asi que una nota ahi se leia vacia justo cuando hacia falta: al levantar.
+   */
+  private static Path pending() {
+    return folder().resolve(".going");
+  }
+
+  private static void goesOnTheNextStart(String id) {
+    try {
+      Files.createDirectories(folder());
+      Files.writeString(pending(), id + "\n", java.nio.file.StandardOpenOption.CREATE,
+          java.nio.file.StandardOpenOption.APPEND);
+    } catch (IOException cannotBeWritten) {
+      TellsThePerson.thisBuildCannot(id + " no se pudo anotar para sacar: " + cannotBeWritten.getMessage());
+    }
+  }
+
+  /** Lo que quedo pendiente de sacar, sacado ahora que nada lo esta usando. */
+  private static void whatWasAskedToGo() {
+    List<String> asked;
+    try {
+      asked = Files.exists(pending()) ? Files.readAllLines(pending()) : List.of();
+      Files.deleteIfExists(pending());
+    } catch (IOException cannotBeRead) {
+      return;
+    }
+    for (String id : asked) {
+      if (id.isBlank()) continue;
+      try {
+        service.uninstall(id);
+      } catch (RuntimeException wouldNotGo) {
+        TellsThePerson.thisBuildCannot(id + " no se pudo sacar: " + wouldNotGo.getMessage());
+      }
     }
   }
 
@@ -178,6 +266,12 @@ public final class Plugins {
    */
   public static synchronized boolean readWhatArrived() {
     if (!areRead()) return false;
+    service();
+    return whatIsInTheFolder();
+  }
+
+  /** @return si algo de la carpeta no estaba enchufado todavia */
+  private static boolean whatIsInTheFolder() {
     boolean anythingNew = false;
     for (File jar : inFolder()) {
       anythingNew |= plugIn(idOf(jar));

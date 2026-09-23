@@ -175,11 +175,17 @@ public class PluginReleases implements Configuration.Saves {
     Map<String, Board> byBoard = new LinkedHashMap<>();
     published.forEach(board -> byBoard.put(whichBoard(board.jar()), board));
     List<Board> here = new ArrayList<>();
-    for (java.io.File jar : Plugins.inFolder()) {
-      if (isOut(jar.getName())) continue;
-      Board known = byBoard.get(whichBoard(jar.getName()));
+    // El archivo que trajo cada uno, cuando todavia esta en la carpeta: el nombre importa, que
+    // inventarlo hacia que sacarlo buscara un archivo que no existe y fallara sin decir nada.
+    // Lo que esta cargado, y no lo que hay en la carpeta: uno que arranco puede no estar mas
+    // ahi, porque quien lo carga se queda con su copia, y la ventana mostraba una lista que no
+    // era la verdad - andaba lo que no figuraba.
+    for (String id : Plugins.pluggedIn()) {
+      Board known = byBoard.get(id);
+      java.io.File jar = Plugins.jarOf(id);
       here.add(known != null ? known
-          : new Board(whichBoard(jar.getName()), jar.getName(), "", 0, jar.length()));
+          : new Board(id, jar == null ? id + ".jar" : jar.getName(), "", 0,
+              jar == null ? 0 : jar.length()));
     }
     here.sort(java.util.Comparator.comparing(Board::name));
     return here;
@@ -302,12 +308,12 @@ public class PluginReleases implements Configuration.Saves {
     them.brought.remove(board.jar());
     // Primero deja de estar cargado, y recien despues se corre el archivo: al reves, el jar
     // desaparecia de la lista y lo que traia seguia en los menus y andando.
-    Plugins.takeOut(Plugins.folder().resolve(board.jar()).toFile());
-    // Corrido y no anotado: la carpeta es la que dice que hay, y una nota al lado envejece. Uno
-    // anotado y despues puesto a mano -que es como se instala un plugin- quedaba invisible, y el
-    // arranque siguiente se llevaba la copia nueva.
-    if (!movedAside(board.jar())) {
-      them.takenOut.add(board.jar());
+    String id = whichBoard(board.jar());
+    Plugins.takeOut(id);
+    // Y el archivo se corre de la carpeta, o al arrancar se volveria a enchufar solo.
+    java.io.File jar = Plugins.jarOf(id);
+    if (jar != null) {
+      movedAside(jar.getName());
     }
     if (them.configuration != null) them.configuration.save();
   }
@@ -327,6 +333,7 @@ public class PluginReleases implements Configuration.Saves {
   private static final String OUT = ".out";
 
   /** Whether this jar was taken out and is only waiting for the next start to go. */
+
   public static boolean isOut(String jar) {
     return theOne().takenOut.contains(jar);
   }
