@@ -99,14 +99,34 @@ final class WhatIsMissing {
     new SwingWorker<List<String>, Void>() {
       protected List<String> doInBackground() {
         List<String> didNotArrive = new ArrayList<>();
-        for (Board board : brings) {
+        java.util.Deque<Board> taking = new java.util.ArrayDeque<>(brings);
+        java.util.Set<String> already = new java.util.HashSet<>();
+        List<Board> published = published();
+        while (!taking.isEmpty()) {
+          Board board = taking.poll();
+          if (!already.add(board.jar())) {
+            continue;
+          }
           try {
-            PluginReleases.bring(board);
+            // What it was built against and is not here comes too: a board that uses another's
+            // code is no use without it, and failing at the first missing class says nothing.
+            for (String needed : PluginReleases.needs(PluginReleases.bring(board))) {
+              published.stream().filter(one -> one.jar().equals(needed)).forEach(taking::add);
+            }
           } catch (Exception wouldNot) {
             didNotArrive.add(board.name() + ": " + wouldNot.getMessage());
           }
         }
         return didNotArrive;
+      }
+
+      /** What else there is to be had, for finding whatever these were built against. */
+      private List<Board> published() {
+        try {
+          return PluginReleases.published();
+        } catch (Exception couldNotAsk) {
+          return List.of();
+        }
       }
 
       protected void done() {

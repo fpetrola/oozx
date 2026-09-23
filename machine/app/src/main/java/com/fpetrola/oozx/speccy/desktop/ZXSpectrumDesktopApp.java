@@ -2477,6 +2477,21 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     com.fpetrola.oozx.speccy.screen.ScreenSettings.thereAre(
         com.fpetrola.oozx.plugins.Plugins.found(
             com.fpetrola.oozx.speccy.screen.ScreenEffect.class));
+    tellWhatCanBeRead();
+  }
+
+  /**
+   * Where to ask which files can be read, said on the way up and again whenever a jar arrives.
+   * <p>
+   * It used to be said from inside the module that loads snapshots, which Guice installs when it
+   * builds a machine - so opening a file before any machine existed found only the reader this
+   * build carries, and bringing the one that reads it changed nothing, because nobody had told
+   * the factory where to look.
+   */
+  static void tellWhatCanBeRead() {
+    com.fpetrola.emulation.helpers.snapshots.SnapshotFactory.alsoRead(
+        () -> com.fpetrola.oozx.plugins.Plugins.found(
+            com.fpetrola.emulation.helpers.snapshots.SnapshotFile.class));
   }
 
   private void fillTheDeskWindows() {

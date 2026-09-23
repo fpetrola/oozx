@@ -25,11 +25,7 @@ import com.google.inject.multibindings.Multibinder;
 public class SnapshotMedia extends AbstractModule implements Extension {
   protected void configure() {
     Multibinder.newSetBinder(binder(), Peripheral.class).addBinding().to(Snapshots.class);
-    // Where to ask for the formats, said here because this is the module that can look: the
-    // readers live under the plugin mechanism and cannot go asking themselves. Where and not
-    // which, so that one plugged in after this machine was built counts from the moment it is.
-    com.fpetrola.emulation.helpers.snapshots.SnapshotFactory.alsoRead(
-        () -> com.fpetrola.oozx.plugins.Plugins.found(
-            com.fpetrola.emulation.helpers.snapshots.SnapshotFile.class));
+    // Which files can be read is not said here: this runs when a machine is built, and a file
+    // is opened before there is one. Whoever put this emulator on a screen says it, on the way up.
   }
 }

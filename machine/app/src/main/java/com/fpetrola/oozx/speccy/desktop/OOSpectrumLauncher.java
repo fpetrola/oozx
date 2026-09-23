@@ -165,7 +165,7 @@ public class OOSpectrumLauncher {
     com.fpetrola.oozx.TellsThePerson.thisBuildCannot(
         ("Nothing in this build knows how to open %s, so what came up is a machine at the BASIC "
             + "prompt with nothing loaded into it.\n\nReading that kind of file is what a plugin does.")
-            .formatted(file.getName()), kindOf(file));
+            .formatted(file.getName()));
   }
 
   /** What a file is, as a release says what it opens: the end of its name. */
