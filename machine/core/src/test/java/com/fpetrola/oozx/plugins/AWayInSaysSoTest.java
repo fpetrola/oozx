@@ -17,6 +17,8 @@
 
 package com.fpetrola.oozx.plugins;
 
+import dev.crystal.plugins.api.RoleInterface;
+
 import com.fpetrola.oozx.Extension;
 import org.junit.jupiter.api.Test;
 
@@ -35,13 +37,13 @@ class AWayInSaysSoTest {
   void anInterfaceThatIsNotAWayInIsRefusedRatherThanAnswered() {
     IllegalArgumentException refused =
         assertThrows(IllegalArgumentException.class, () -> Plugins.found(SomethingElse.class));
-    assertTrue(refused.getMessage().contains("@Plugin"), refused.getMessage());
+    assertTrue(refused.getMessage().contains("@RoleInterface"), refused.getMessage());
   }
 
   @Test
   void theWaysInThisBuildHasCanBeAskedFor() {
     for (Class<?> wayIn : new Class<?>[]{Extension.class, BesideTheGame.class}) {
-      assertTrue(wayIn.isAnnotationPresent(Plugin.class), wayIn + " should be a way in");
+      assertTrue(wayIn.isAnnotationPresent(RoleInterface.class), wayIn + " should be a way in");
       assertDoesNotThrow(() -> Plugins.found(wayIn), wayIn + " could not be asked for");
     }
   }

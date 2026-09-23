@@ -136,8 +136,8 @@ public class PluginsInternalFrame extends JInternalFrame {
     java.util.List<com.fpetrola.oozx.plugins.Plugins.WhatIsIn> everything =
         com.fpetrola.oozx.plugins.Plugins.everythingPluggedIn();
     fill(byJar, everything, com.fpetrola.oozx.plugins.Plugins.WhatIsIn::from,
-        one -> one.kind() + ": " + shortly(one.implementation()));
-    fill(byKind, everything, one -> one.kind() + "  (" + shortly(one.wayIn()) + ")",
+        one -> shortly(one.wayIn()) + ": " + shortly(one.implementation()));
+    fill(byKind, everything, one -> shortly(one.wayIn()),
         one -> shortly(one.implementation()) + "  -  " + one.from());
   }
 

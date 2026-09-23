@@ -14,29 +14,9 @@
     <dependencies>
         <!-- The word a way in is marked with, which every module here may need to say. -->
         <dependency>
-            <groupId>com.fpetrola</groupId>
-            <artifactId>plugin-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <!--
-          The other word for the same thing, while the two live side by side: the framework this
-          is moving to marks a way in with @RoleInterface, and its build plugin writes the same
-          META-INF/services our own processor does, so either one can be the one that writes them.
-        -->
-        <dependency>
             <groupId>dev.crystal.plugins</groupId>
             <artifactId>framework-api</artifactId>
             <version>0.1.0-SNAPSHOT</version>
-        </dependency>
-        <!--
-          Writes the META-INF/services of whatever in these modules answers to a way in, while
-          each module is compiled. Provided: it works at compile time and ships with nothing.
-        -->
-        <dependency>
-            <groupId>com.fpetrola</groupId>
-            <artifactId>plugin-processor</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 

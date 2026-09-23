@@ -16,8 +16,9 @@
  */
 package com.fpetrola.oozx.speccy.machine;
 
+import dev.crystal.plugins.api.RoleInterface;
+
 import com.fpetrola.oozx.Speccy;
-import com.fpetrola.oozx.plugins.Plugin;
 
 import java.io.File;
 
@@ -29,8 +30,7 @@ import java.io.File;
  * deck is a jar, and a build without it is a Spectrum that cannot be given a tape rather than
  * one that crashes when it is given one.
  */
-@Plugin("media")
-@dev.crystal.plugins.api.RoleInterface
+@RoleInterface
 public interface StartsAMachineOn {
 
   /** Whether a machine can be started on that file by this. */

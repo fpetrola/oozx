@@ -17,6 +17,8 @@
 
 package com.fpetrola.oozx.plugins;
 
+import dev.crystal.plugins.api.RoleInterface;
+
 /**
  * Something a game carries beside its own file, recognised by whoever can read it.
  * <p>
@@ -24,8 +26,7 @@ package com.fpetrola.oozx.plugins;
  * knows that a {@code .gfx} beside a snapshot is a set of colours is the board that paints them,
  * and that board is a jar that may not even be here.
  */
-@Plugin("extra")
-@dev.crystal.plugins.api.RoleInterface
+@RoleInterface
 public interface BesideTheGame {
 
   /** What it is, in the words the person reading it will see: "256 colors". */

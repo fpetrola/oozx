@@ -23,7 +23,8 @@
 
 package com.fpetrola.emulation.helpers.snapshots;
 
-import com.fpetrola.oozx.plugins.Plugin;
+import dev.crystal.plugins.api.RoleInterface;
+
 
 import java.io.File;
 
@@ -36,8 +37,7 @@ import java.io.File;
  *
  * @author jsanchez
  */
-@Plugin("format")
-@dev.crystal.plugins.api.RoleInterface
+@RoleInterface
 public interface SnapshotFile {
 
     /** Whether this is the format of that file. */

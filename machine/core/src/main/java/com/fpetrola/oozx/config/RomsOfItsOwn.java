@@ -17,7 +17,8 @@
 
 package com.fpetrola.oozx.config;
 
-import com.fpetrola.oozx.plugins.Plugin;
+import dev.crystal.plugins.api.RoleInterface;
+
 
 import java.util.List;
 import java.util.Map;
@@ -33,8 +34,7 @@ import java.util.Map;
  * The images themselves travel the same way when they may be given away: a jar's own
  * {@code /roms} is looked in like the build's.
  */
-@Plugin("roms")
-@dev.crystal.plugins.api.RoleInterface
+@RoleInterface
 public interface RomsOfItsOwn {
 
   /** Which files each machine or board is made with, under the name it is known by. */

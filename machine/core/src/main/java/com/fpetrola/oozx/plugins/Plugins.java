@@ -17,6 +17,8 @@
 
 package com.fpetrola.oozx.plugins;
 
+import dev.crystal.plugins.api.RoleInterface;
+
 import com.fpetrola.oozx.TellsThePerson;
 
 import com.fpetrola.oozx.config.Configuration;
@@ -174,7 +176,7 @@ public final class Plugins {
    * One thing that is plugged in: what it answers to, what that kind is called, which class it
    * is, and which jar it came in.
    */
-  public record WhatIsIn(String wayIn, String kind, String implementation, String from) {
+  public record WhatIsIn(String wayIn, String implementation, String from) {
   }
 
   /**
@@ -209,8 +211,7 @@ public final class Plugins {
           continue;
         }
         String wayIn = named.substring("META-INF/services/".length());
-        String kind = kindOf(wayIn);
-        if (kind == null) {
+        if (!isAWayIn(wayIn)) {
           continue;
         }
         try (java.io.BufferedReader lines = new java.io.BufferedReader(
@@ -218,7 +219,7 @@ public final class Plugins {
           for (String line = lines.readLine(); line != null; line = lines.readLine()) {
             String answering = line.split("#")[0].trim();
             if (!answering.isEmpty()) {
-              inside.add(new WhatIsIn(wayIn, kind, answering, where));
+              inside.add(new WhatIsIn(wayIn, answering, where));
             }
           }
         }
@@ -233,13 +234,11 @@ public final class Plugins {
    * What this kind of thing is called, or null when the interface is not a way in at all - a
    * jar may serve anything through META-INF/services, and only these are plugins.
    */
-  private static String kindOf(String wayIn) {
+  private static boolean isAWayIn(String wayIn) {
     try {
-      Class<?> type = Class.forName(wayIn, false, loader());
-      Plugin mark = type.getAnnotation(Plugin.class);
-      return mark == null ? null : mark.value();
+      return Class.forName(wayIn, false, loader()).isAnnotationPresent(RoleInterface.class);
     } catch (ClassNotFoundException | LinkageError notHere) {
-      return null;
+      return false;
     }
   }
 
@@ -268,8 +267,9 @@ public final class Plugins {
     // A way in says so. Asking for anything else is a mistake worth hearing about: the answer
     // would be an empty list, which is also what a misspelt service file gives, and that was
     // twenty minutes of looking for a board that was there all along.
-    if (!service.isAnnotationPresent(Plugin.class)) {
-      throw new IllegalArgumentException(service.getName() + " is not a way in: it is not @Plugin");
+    if (!service.isAnnotationPresent(RoleInterface.class)) {
+      throw new IllegalArgumentException(
+          service.getName() + " is not a way in: it is not @RoleInterface");
     }
     List<S> answering = new ArrayList<>();
     Iterator<ServiceLoader.Provider<S>> providers =

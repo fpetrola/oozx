@@ -17,7 +17,8 @@
 
 package com.fpetrola.oozx.api;
 
-import com.fpetrola.oozx.plugins.Plugin;
+import dev.crystal.plugins.api.RoleInterface;
+
 
 import java.util.List;
 
@@ -30,8 +31,7 @@ import java.util.List;
  * catalogue of five thousand games ships inside the emulator and the files of them were still
  * being served. This is the seam that lets the second one answer when the first cannot.
  */
-@Plugin("catalogue")
-@dev.crystal.plugins.api.RoleInterface
+@RoleInterface
 public interface KnowsTheGames {
 
   /** What to call this where somebody is told which one answered. */

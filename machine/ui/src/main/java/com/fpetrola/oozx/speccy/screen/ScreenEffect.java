@@ -17,7 +17,8 @@
 
 package com.fpetrola.oozx.speccy.screen;
 
-import com.fpetrola.oozx.plugins.Plugin;
+import dev.crystal.plugins.api.RoleInterface;
+
 
 import java.awt.image.BufferedImage;
 
@@ -37,8 +38,7 @@ import java.awt.image.BufferedImage;
  * needs to know it reads for itself, and it says with {@link #when} which side of the scaler it
  * belongs on. The ones this build carries are made from the knobs instead.
  */
-@Plugin("effect")
-@dev.crystal.plugins.api.RoleInterface
+@RoleInterface
 public interface ScreenEffect {
 
   /**

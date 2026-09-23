@@ -62,9 +62,9 @@ class WhatAJarSaysItBringsTest {
     assertTrue(inside.stream().allMatch(one -> one.from().equals("something.jar")));
     assertEquals(List.of("com.probe.Colours", "com.probe.Devices", "com.probe.More"),
         inside.stream().map(Plugins.WhatIsIn::implementation).sorted().toList());
-    assertEquals("extra", inside.stream()
+    assertEquals(BesideTheGame.class.getName(), inside.stream()
         .filter(one -> one.implementation().equals("com.probe.Colours"))
-        .findFirst().orElseThrow().kind(), "the kind comes from the way in itself");
+        .findFirst().orElseThrow().wayIn(), "each one says which way in it answers to");
   }
 
   /** A jar may serve anything at all through META-INF/services; only a way in is a plugin. */

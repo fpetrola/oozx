@@ -17,6 +17,8 @@
 
 package com.fpetrola.oozx.plugins;
 
+import dev.crystal.plugins.api.RoleInterface;
+
 import com.fpetrola.oozx.config.RomFiles;
 import com.fpetrola.oozx.config.RomsOfItsOwn;
 import org.junit.jupiter.api.Test;
@@ -36,8 +38,7 @@ class TheRomsAJarBringsTest {
 
   @Test
   void whatAJarSaysItsMachinesAreMadeWithIsAWayIn() {
-    assertTrue(RomsOfItsOwn.class.isAnnotationPresent(Plugin.class), "it should be a way in");
-    assertEquals("roms", RomsOfItsOwn.class.getAnnotation(Plugin.class).value());
+    assertTrue(RomsOfItsOwn.class.isAnnotationPresent(RoleInterface.class), "it should be a way in");
     assertEquals(List.of(), Plugins.found(RomsOfItsOwn.class).stream()
             .filter(one -> one.files().isEmpty()).toList(),
         "a jar that declares nothing at all has nothing to say and should not be one");

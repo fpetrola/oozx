@@ -17,7 +17,8 @@
 
 package com.fpetrola.oozx;
 
-import com.fpetrola.oozx.plugins.Plugin;
+import dev.crystal.plugins.api.RoleInterface;
+
 import com.google.inject.Module;
 
 /**
@@ -25,7 +26,6 @@ import com.google.inject.Module;
  * brings - devices, media, the host's own parts - by binding it here, and is installed by being
  * found.
  */
-@Plugin("device")
-@dev.crystal.plugins.api.RoleInterface
+@RoleInterface
 public interface Extension extends Module {
 }
