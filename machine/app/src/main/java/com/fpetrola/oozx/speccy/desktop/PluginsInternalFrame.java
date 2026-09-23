@@ -71,34 +71,13 @@ public class PluginsInternalFrame extends JInternalFrame {
   private final JProgressBar bar = new JProgressBar();
   private final Consumer<Void> arrived;
 
-  /** The three ways of looking at the same thing, so that picking something out can show the one it is on. */
   private javax.swing.JTabbedPane ways;
 
   /** The same list of what is plugged in, grouped two ways. */
   private final javax.swing.JTree byJar = new javax.swing.JTree(new DefaultMutableTreeNode());
   private final javax.swing.JTree byKind = new javax.swing.JTree(new DefaultMutableTreeNode());
 
-  /**
-   * What this build could not do - a machine a snapshot asked for, a kind of file nothing here
-   * reads - and what to say if this cannot help after all. Kept until the published list is in,
-   * since which jars answer for it is in that.
-   */
-  private String wanted;
-  private String otherwise;
 
-  /**
-   * Comes up with the jars that would answer for this already picked out, so that adding them
-   * is one press rather than a hunt through the list. Nothing is brought without being asked
-   * for: picking them out is the offer, pressing the arrow is the answer.
-   *
-   * @param what a machine as a snapshot names it (SPECTRUMPLUS2A), or a kind of file (sna)
-   * @param said what to tell the person if nothing published answers for it
-   */
-  public void pickOutWhatBrings(String what, String said) {
-    wanted = what;
-    otherwise = said;
-    look();
-  }
 
   /** @param arrived told once something new is in, so the menus can say so */
   public PluginsInternalFrame(Consumer<Void> arrived) {
@@ -247,11 +226,9 @@ public class PluginsInternalFrame extends JInternalFrame {
             if (!PluginReleases.isHere(board)) outside.addElement(board);
           }
           busy(inside.size() + " in, " + outside.size() + " to be had", false);
-          if (wanted != null) pickOut(published);
         } catch (Exception noAnswer) {
           busy(inside.size() + " in. What else is published could not be asked for: "
               + reason(noAnswer), false);
-          if (wanted != null) nothingCanBeOffered();
         }
       }
     };
@@ -273,41 +250,7 @@ public class PluginsInternalFrame extends JInternalFrame {
     PluginReleases.here(published).forEach(inside::addElement);
   }
 
-  /** Asked to pick something out while what is published cannot be asked for. */
-  private void nothingCanBeOffered() {
-    String said = otherwise;
-    wanted = null;
-    JOptionPane.showMessageDialog(this, said + "\n\nWhat is published cannot be asked for just "
-        + "now, so there is nothing to offer. A jar dropped in the plugins folder works all the "
-        + "same.", "This build cannot do that", JOptionPane.WARNING_MESSAGE);
-  }
 
-  /**
-   * Picks out the jars that answer for what was asked. One that is already in means what would
-   * bring it is here and something else is the matter, which is worth saying too.
-   */
-  private void pickOut(List<Board> found) {
-    List<Board> brings = PluginReleases.bringing(wanted, found);
-    wanted = null;
-    int[] toBeHad = java.util.stream.IntStream.range(0, outside.size())
-        .filter(at -> brings.contains(outside.get(at))).toArray();
-    if (toBeHad.length == 0) {
-      JOptionPane.showMessageDialog(this, brings.isEmpty()
-          ? otherwise + "\n\nNothing published brings it either."
-          : "What brings it is already in this emulator, so something else is the matter.",
-          "This build cannot do that", JOptionPane.WARNING_MESSAGE);
-      return;
-    }
-    // Shown rather than only set: picked out on a list that is behind another tab, or that
-    // nothing is looking at, is a selection nobody sees - and what it is for is being seen.
-    ways.setSelectedIndex(0);
-    published.setSelectedIndices(toBeHad);
-    published.ensureIndexIsVisible(toBeHad[0]);
-    published.requestFocusInWindow();
-    saying.setText(brings.stream().map(Board::name).collect(java.util.stream.Collectors.joining(", "))
-        + (toBeHad.length == 1 ? " brings it" : " bring it") + ": press → to add "
-        + (toBeHad.length == 1 ? "it." : "them."));
-  }
 
   private void includeTheChosen() {
     List<Board> chosen = published.getSelectedValuesList();
@@ -345,20 +288,19 @@ public class PluginsInternalFrame extends JInternalFrame {
       }
 
       protected void process(List<Board> arrived) {
-        for (Board board : arrived) {
-          outside.removeElement(board);
-          inside.addElement(board);
-          saying.setText(board.name() + " is in");
-        }
-        sort(inside);
+        arrived.forEach(board -> saying.setText(board.name() + " is in"));
       }
 
       protected void done() {
         bar.setVisible(false);
         tellWhatIsIn();
         if (arrived != null) arrived.accept(null);
-        busy(inside.size() + " in, " + outside.size() + " to be had  -  what you just added is in the"
-            + " Equipment menu and in the machines you open from now on", false);
+        // Asked again rather than moved by hand from one list to the other. A row moved because
+        // a download was started says it is in whatever happened next, and one that did not
+        // arrive stayed on the wrong side of the window looking installed.
+        look();
+        busy("What you just added is in the Equipment menu and in the machines you open from now on",
+            false);
       }
     }.execute();
   }
@@ -373,27 +315,18 @@ public class PluginsInternalFrame extends JInternalFrame {
     for (Board board : chosen) {
       try {
         PluginReleases.takeOut(board);
-        inside.removeElement(board);
-        outside.addElement(board);
         gone++;
       } catch (Exception wouldNotGo) {
         TellsThePerson.thisBuildCannot(board.name() + " could not be taken out: " + wouldNotGo);
       }
     }
-    sort(outside);
     tellWhatIsIn();
     if (arrived != null) arrived.accept(null);
-    busy(inside.size() + " in, " + outside.size() + " to be had  -  the " + gone + " taken out is gone"
-        + " from the menu; a machine that already has it keeps it until the emulator starts again", false);
+    look();
+    busy("The " + gone + " taken out is gone from the menu; a machine that already has it keeps it"
+        + " until the emulator starts again", false);
   }
 
-  private static void sort(DefaultListModel<Board> side) {
-    List<Board> boards = new ArrayList<>();
-    for (int row = 0; row < side.size(); row++) boards.add(side.get(row));
-    boards.sort(java.util.Comparator.comparing(Board::name));
-    side.clear();
-    boards.forEach(side::addElement);
-  }
 
   private void busy(String what, boolean waiting) {
     saying.setText(what);

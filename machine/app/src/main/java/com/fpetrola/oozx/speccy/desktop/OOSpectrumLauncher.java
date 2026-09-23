@@ -162,7 +162,6 @@ public class OOSpectrumLauncher {
   }
 
   static void nothingHereOpensThat(File file) {
-    couldNotBeOpened(file);
     com.fpetrola.oozx.TellsThePerson.thisBuildCannot(
         ("Nothing in this build knows how to open %s, so what came up is a machine at the BASIC "
             + "prompt with nothing loaded into it.\n\nReading that kind of file is what a plugin does.")
@@ -174,28 +173,6 @@ public class OOSpectrumLauncher {
     return file.getName().replaceFirst("^.*\\.", "").toLowerCase();
   }
 
-  /**
-   * The file nothing here could open, kept so that plugging in its reader can open it rather
-   * than leave the person to start the emulator again and ask for it a second time.
-   */
-  private static File waitingForAReader;
-
-  public static void couldNotBeOpened(File file) {
-    waitingForAReader = file;
-  }
-
-  /**
-   * That file, if what reads it has arrived since; forgotten once it is handed over.
-   *
-   * @param alsoOpenedBy what else counts as being able to open it - a recording is opened by a
-   *                     window rather than by whoever starts a machine
-   */
-  public static File whatCanBeOpenedNow(java.util.function.Predicate<File> alsoOpenedBy) {
-    File waiting = waitingForAReader;
-    if (waiting == null || (whoStartsOn(waiting) == null && !alsoOpenedBy.test(waiting))) return null;
-    waitingForAReader = null;
-    return waiting;
-  }
 
   /** The first that says it knows that kind of file, or none. */
   private static StartsAMachineOn whoStartsOn(File file) {

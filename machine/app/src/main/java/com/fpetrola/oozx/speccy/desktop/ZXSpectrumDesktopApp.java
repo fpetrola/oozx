@@ -993,17 +993,26 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
 
   /** A recording goes into its own player, keeping where it came from; anything else is a machine's. */
   private void open(Chosen chosen) {
+    open(chosen, true);
+  }
+
+  private void open(Chosen chosen, boolean mayAsk) {
     if (!RzxSession.isRecording(chosen.file().getName())) {
       loadInNewEmulator(chosen.file().getAbsolutePath());
       return;
     }
     Opens player = opensFor(chosen.file());
     if (player == null) {
-      // Said the same way as any other file nothing here can open, so that what plays it is
-      // offered and the recording is played once it is in, rather than asked for again.
-      OOSpectrumLauncher.couldNotBeOpened(chosen.file());
-      TellsThePerson.thisBuildCannot("Nothing in this build plays " + chosen.file().getName()
-          + ".\n\nPlaying a recording is what a plugin does.", OOSpectrumLauncher.kindOf(chosen.file()));
+      String saidIt = "Nothing in this build plays " + chosen.file().getName() + ".";
+      if (!mayAsk) {
+        JOptionPane.showMessageDialog(this, saidIt + "\n\nWhat was brought in did not change that.",
+            "This build cannot do that", JOptionPane.WARNING_MESSAGE);
+        return;
+      }
+      // The same question as for any other file nothing here can open, and the same answer:
+      // what plays it is brought and then this recording is played.
+      WhatIsMissing.bringWhatIsNeeded(this, OOSpectrumLauncher.kindOf(chosen.file()), saidIt,
+          () -> { somethingWasPluggedIn(); open(chosen, false); });
       return;
     }
     player.open(chosen.file(), chosen.source(), chosen.entry());
@@ -1082,10 +1091,9 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
           if (thatNeeds == null) {
             JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this, what,
                 "This build cannot do that", JOptionPane.WARNING_MESSAGE);
-            return;
+          } else {
+            WhatIsMissing.bringWhatIsNeeded(ZXSpectrumDesktopApp.this, thatNeeds, what);
           }
-          showPlugins();
-          plugins.pickOutWhatBrings(thatNeeds, what);
         });
       }
     });
@@ -2330,12 +2338,30 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   }
 
   public void loadInNewEmulator(String path) {
+    loadInNewEmulator(path, true);
+  }
+
+  /**
+   * @param mayAsk whether this is the first try. The second one is after bringing what was
+   *               missing, and it does not ask again: a reader that arrived and still does not
+   *               open the file is something else, and asking in a circle is not an answer.
+   */
+  private void loadInNewEmulator(String path, boolean mayAsk) {
     // Asked before anything is built. It used to be found out inside, once the machine was made
     // and there was nothing to put in it, and what came up was an emulator at the BASIC prompt
     // beside a window offering the plugin - two answers to one click, one of them useless.
     java.io.File asked = new java.io.File(path);
     if (!path.startsWith("http") && asked.isFile() && !OOSpectrumLauncher.somethingOpens(asked)) {
-      OOSpectrumLauncher.nothingHereOpensThat(asked);
+      String saidIt = "Nothing in this build knows how to open " + asked.getName() + ".";
+      if (!mayAsk) {
+        JOptionPane.showMessageDialog(this, saidIt + "\n\nWhat was brought in did not change that.",
+            "This build cannot do that", JOptionPane.WARNING_MESSAGE);
+        return;
+      }
+      // The question and what it was for, together: whatever brings the reader is brought and
+      // then this same file is opened. Nothing is remembered for later, so nothing happens later.
+      WhatIsMissing.bringWhatIsNeeded(this, OOSpectrumLauncher.kindOf(asked), saidIt,
+          () -> { somethingWasPluggedIn(); loadInNewEmulator(path, false); });
       return;
     }
     // Downloading, unzipping and booting can take several seconds, and until now they took them
@@ -2437,18 +2463,8 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     whatThereIs();
     // What could not be done before may be done now, so it is worth saying again if it is not.
     TellsThePerson.thatMayHaveChanged();
-    openWhatWasWaitingForAReader();
   }
 
-  /**
-   * A file asked for before its reader was here. Plugging the reader in is the answer to what
-   * the window said a moment ago, so it is opened rather than asked for a second time.
-   */
-  private void openWhatWasWaitingForAReader() {
-    java.io.File waiting = OOSpectrumLauncher.whatCanBeOpenedNow(
-        file -> equipmentKinds.stream().anyMatch(kind -> kind.opens(file)));
-    if (waiting != null) open(waiting.getPath());
-  }
 
   /**
    * What was found, handed to whoever cannot go looking for it.
