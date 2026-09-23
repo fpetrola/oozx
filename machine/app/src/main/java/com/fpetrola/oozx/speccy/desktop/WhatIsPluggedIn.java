@@ -20,6 +20,7 @@ package com.fpetrola.oozx.speccy.desktop;
 import com.fpetrola.emulation.helpers.snapshots.SnapshotFile;
 import com.fpetrola.oozx.speccy.devices.DeskEquipment;
 import com.fpetrola.oozx.speccy.devices.Equipment;
+import com.fpetrola.oozx.speccy.machine.StartsAMachineOn;
 import com.fpetrola.oozx.speccy.screen.ScreenEffect;
 import com.google.inject.Inject;
 
@@ -37,18 +38,39 @@ import java.util.Set;
  */
 public class WhatIsPluggedIn {
 
+  /**
+   * El unico del programa, armado una vez. Un segundo injector daria un segundo de cada cosa, y
+   * dos ventanas del mismo teclado sobre la misma maquina son dos juegos de teclas contestando.
+   */
+  private static WhatIsPluggedIn theOne;
+
+  public static synchronized WhatIsPluggedIn theOne() {
+    if (theOne == null) {
+      theOne = com.google.inject.Guice.createInjector(com.fpetrola.oozx.plugins.Plugins.asModule())
+          .getInstance(WhatIsPluggedIn.class);
+    }
+    return theOne;
+  }
+
   private final Set<Equipment> equipment;
   private final Set<DeskEquipment> deskWindows;
   private final Set<ScreenEffect> effects;
   private final Set<SnapshotFile> formats;
+  private final Set<StartsAMachineOn> starters;
 
   @Inject
   public WhatIsPluggedIn(Set<Equipment> equipment, Set<DeskEquipment> deskWindows,
-      Set<ScreenEffect> effects, Set<SnapshotFile> formats) {
+      Set<ScreenEffect> effects, Set<SnapshotFile> formats, Set<StartsAMachineOn> starters) {
     this.equipment = equipment;
     this.deskWindows = deskWindows;
     this.effects = effects;
     this.formats = formats;
+    this.starters = starters;
+  }
+
+  /** Quien sabe empezar una maquina sobre ese archivo, o nadie. */
+  public StartsAMachineOn whoStartsOn(java.io.File file) {
+    return starters.stream().filter(one -> one.handles(file)).findFirst().orElse(null);
   }
 
   /** En el orden en que el menu las muestra, que es el unico orden que alguien espera. */

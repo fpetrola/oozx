@@ -176,8 +176,7 @@ public class OOSpectrumLauncher {
 
   /** The first that says it knows that kind of file, or none. */
   private static StartsAMachineOn whoStartsOn(File file) {
-    return com.fpetrola.oozx.plugins.Plugins.found(StartsAMachineOn.class).stream()
-        .filter(one -> one.handles(file)).findFirst().orElse(null);
+    return WhatIsPluggedIn.theOne().whoStartsOn(file);
   }
 
   /**

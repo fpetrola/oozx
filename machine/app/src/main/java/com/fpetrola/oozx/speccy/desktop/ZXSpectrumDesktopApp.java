@@ -2457,9 +2457,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
    * Lo que hay para enchufar, recibido de un injector y no buscado. Es el unico lugar del
    * escritorio que lo nombra: de aca para abajo son listas que ya estan al dia solas.
    */
-  private final WhatIsPluggedIn has = com.google.inject.Guice
-      .createInjector(com.fpetrola.oozx.plugins.Plugins.asModule())
-      .getInstance(WhatIsPluggedIn.class);
+  private final WhatIsPluggedIn has = WhatIsPluggedIn.theOne();
 
   private java.util.List<Equipment> equipmentKinds = java.util.List.of();
 
