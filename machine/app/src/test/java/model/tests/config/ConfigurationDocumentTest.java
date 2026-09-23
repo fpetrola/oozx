@@ -55,7 +55,7 @@ class ConfigurationDocumentTest {
 
   /** Every section this build has, asked for from a machine that has every peripheral. */
   static String everything() throws Exception {
-    Injector injector = Guice.createInjector(Modules.override(new com.fpetrola.oozx.EmulatorModule(new SpectrumZ80Clock()))
+    Injector injector = Guice.createInjector(Modules.override(new com.fpetrola.oozx.EmulatorModule(new SpectrumZ80Clock(), whatThisBuildHas()))
         .with(binder -> binder.bind(SoundCard.class).to(SilentSoundDevice.class)));
     injector.getInstance(Speccy.class);
 
@@ -82,5 +82,10 @@ class ConfigurationDocumentTest {
   void theFileThatShowsTheConfigurationIsWhatTheClassesSay() throws Exception {
     assertEquals(Files.readString(REFERENCE), everything(),
         "doc/configuracion.json is stale: run mvn test -pl machine/app -Doozx.generate=true -Dtest=ConfigurationDocumentTest");
+  }
+
+  /** Lo que esta maquina es, que es lo que el modulo recibe en vez de ir a buscarlo. */
+  private static java.util.List<com.fpetrola.oozx.Extension> whatThisBuildHas() {
+    return com.fpetrola.oozx.plugins.Plugins.found(com.fpetrola.oozx.Extension.class);
   }
 }

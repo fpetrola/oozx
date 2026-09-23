@@ -52,8 +52,16 @@ public class EmulatorModule extends AbstractModule {
 
   private final SpectrumZ80Clock clock;
 
+  /** What arrives in a jar and is part of what this machine is made of, handed in from outside. */
+  private final java.util.List<Extension> arrived;
+
   public EmulatorModule(SpectrumZ80Clock clock) {
+    this(clock, java.util.List.of());
+  }
+
+  public EmulatorModule(SpectrumZ80Clock clock, java.util.List<Extension> arrived) {
     this.clock = clock;
+    this.arrived = arrived;
   }
 
   @Override
@@ -122,7 +130,7 @@ public class EmulatorModule extends AbstractModule {
         .newOptionalBinder(binder(), com.fpetrola.oozx.speccy.modules.ula.EarLine.class)
         .setDefault().toInstance(com.fpetrola.oozx.speccy.modules.ula.EarLine.NOTHING_PLUGGED_IN);
     Multibinder.newSetBinder(binder(), com.fpetrola.oozx.config.Settings.Part.class);
-    com.fpetrola.oozx.plugins.Plugins.found(Extension.class).forEach(this::install);
+    arrived.forEach(this::install);
 
     // The machines themselves arrive as extensions, bound into Set<Spectrum>; none is named here.
 

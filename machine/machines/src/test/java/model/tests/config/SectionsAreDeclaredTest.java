@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 class SectionsAreDeclaredTest {
   @Test
   void everySectionAMachineUsesComesFromItsConfiguration() {
-    Injector injector = Guice.createInjector(Modules.override(new com.fpetrola.oozx.EmulatorModule(new SpectrumZ80Clock()))
+    Injector injector = Guice.createInjector(Modules.override(new com.fpetrola.oozx.EmulatorModule(new SpectrumZ80Clock(), whatThisBuildHas()))
         .with(binder -> binder.bind(SoundCard.class).to(SilentSoundDevice.class)));
     injector.getInstance(Speccy.class);
     Configuration configuration = injector.getInstance(Configuration.class);
@@ -59,5 +59,10 @@ class SectionsAreDeclaredTest {
     for (Class<?> value : List.of(Speed.class, Rom.Protection.class, Machine.Unit.class, Sound.Output.class))
       assertSame(injector.getInstance(value), injector.getInstance(value),
           value.getName() + " is not a singleton, so everything that asks for it gets its own");
+  }
+
+  /** Lo que esta maquina es, que es lo que el modulo recibe en vez de ir a buscarlo. */
+  private static java.util.List<com.fpetrola.oozx.Extension> whatThisBuildHas() {
+    return com.fpetrola.oozx.plugins.Plugins.found(com.fpetrola.oozx.Extension.class);
   }
 }

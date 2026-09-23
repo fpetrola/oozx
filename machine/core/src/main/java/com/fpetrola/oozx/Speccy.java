@@ -90,7 +90,19 @@ public class Speccy {
   }
 
   public static Speccy create(SpectrumZ80Clock clock, com.google.inject.Module... overrides) {
-    Injector injector = Guice.createInjector(Modules.override(new EmulatorModule(clock)).with(overrides));
+    return com.fpetrola.oozx.plugins.Plugins.building(() -> madeWith(clock, overrides));
+  }
+
+  /**
+   * Armada con lo que haya llegado en un jar: las extensiones son parte de lo que la maquina es,
+   * asi que se piden antes de que el injector exista, y el resto de las formas de entrar quedan
+   * inyectables adentro sin que nadie las vaya a buscar.
+   */
+  private static Speccy madeWith(SpectrumZ80Clock clock, com.google.inject.Module... overrides) {
+    Injector injector = Guice.createInjector(Modules.override(
+        new EmulatorModule(clock, com.fpetrola.oozx.plugins.Plugins.found(
+            com.fpetrola.oozx.Extension.class)),
+        com.fpetrola.oozx.plugins.Plugins.asModule()).with(overrides));
     Speccy speccy = injector.getInstance(Speccy.class);
     // The file's values go into the machine here, from outside it: no part of the machine knows
     // there is a file, only that it has a speed, a set of ROMs, and so on.

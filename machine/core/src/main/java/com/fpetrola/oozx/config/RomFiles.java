@@ -250,7 +250,7 @@ public final class RomFiles implements Roms {
   }
 
   private boolean here(String filename) {
-    return com.fpetrola.oozx.plugins.Plugins.loader().getResource("roms/" + filename) != null
+    return packaged(filename) != null
         || new File(filename).isFile() || keptIfItIsStillTheRightOne(filename) != null;
   }
 
@@ -275,16 +275,29 @@ public final class RomFiles implements Roms {
   }
 
   /**
-   * An image this build carries, or one a jar brought: read through the loader that knows about
-   * both, so a machine that arrives with its own ROM needs nothing of the emulator's.
+   * An image this build carries, or one a jar brought: asked of whoever says it brings that file,
+   * because a jar loaded on its own is the only one that can read what is inside it.
    */
   private static byte[] packaged(String filename) {
-    try (InputStream packaged =
-             com.fpetrola.oozx.plugins.Plugins.loader().getResourceAsStream("roms/" + filename)) {
-      return packaged == null ? null : packaged.readAllBytes();
+    // Lo que el emulador trae adentro, que esta en su propio classpath y no lo declara nadie.
+    try (InputStream carried = RomFiles.class.getResourceAsStream("/roms/" + filename)) {
+      if (carried != null) return carried.readAllBytes();
     } catch (IOException cannot) {
       throw new RomNotLoadedException("ROM '" + filename + "' cannot be read: " + cannot, filename);
     }
+    for (RomsOfItsOwn brought : com.fpetrola.oozx.plugins.Plugins.found(RomsOfItsOwn.class)) {
+      if (brought.files().values().stream().noneMatch(named -> named.contains(filename))
+          && brought.sets().values().stream()
+              .noneMatch(set -> set.values().stream().anyMatch(named -> named.contains(filename)))) {
+        continue;
+      }
+      try (InputStream packaged = brought.open(filename)) {
+        if (packaged != null) return packaged.readAllBytes();
+      } catch (IOException cannot) {
+        throw new RomNotLoadedException("ROM '" + filename + "' cannot be read: " + cannot, filename);
+      }
+    }
+    return null;
   }
 
   private static byte[] bytesOf(File file) {

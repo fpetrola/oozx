@@ -18,6 +18,8 @@
 package com.fpetrola.oozx.plugins;
 
 import dev.crystal.plugins.api.RoleInterface;
+import dev.crystal.plugins.runtime.PluginService;
+import dev.crystal.plugins.runtime.PluginSources;
 
 import com.fpetrola.oozx.TellsThePerson;
 
@@ -57,7 +59,12 @@ import java.util.ServiceLoader;
  */
 public final class Plugins {
 
-  private static Boards loader;
+  /**
+   * Lo que los carga, que ya no es nuestro. Este es el unico lugar del programa que lo nombra:
+   * de aca para abajo, quien necesita algo que llego en un jar lo recibe inyectado y no sabe de
+   * donde salio.
+   */
+  private static PluginService service;
 
   /**
    * How many times the folder has grown. Whoever keeps something worked out from what is plugged
@@ -78,15 +85,37 @@ public final class Plugins {
     return Configuration.home().toPath().resolve("plugins");
   }
 
-  /**
-   * The loader over whatever is in the folder right now. Made once: the classes a plugin brings
-   * are bound into machines and hung on windows, and two loaders would make two of each.
-   */
-  public static synchronized ClassLoader loader() {
-    if (loader == null) {
-      loader = new Boards(urlsOf(jars()));
+  private static synchronized PluginService service() {
+    if (service == null) {
+      jars();
+      service = PluginService.builder()
+          .cacheDirectory(Configuration.home().toPath().resolve("plugin-cache"))
+          .source(PluginSources.directory(folder()))
+          .build();
+      service.start();
     }
-    return loader;
+    return service;
+  }
+
+  /**
+   * Lo que hay de esa clase ahora mismo, para quien esta armando un injector y no puede esperar.
+   * <p>
+   * Apagados, nada de esto llega a existir: lo que el build usa para especializar el modelo, y lo
+   * que corre en los tests, es este arbol y nunca lo que alguien tenga instalado.
+   */
+  public static <T> java.util.List<T> snapshot(Class<T> role) {
+    return areRead() ? service().snapshot(role) : java.util.List.of();
+  }
+
+  /** Lo que hace que un injector nuestro sepa de los roles sin que nadie los vaya a buscar. */
+  public static com.google.inject.Module asModule() {
+    return areRead() ? dev.crystal.plugins.guice.PluginsModule.of(service())
+        : binder -> { };
+  }
+
+  /** Arma algo que retiene plugins, para que no se los saque de abajo mientras corre. */
+  public static <T> T building(java.util.function.Supplier<T> build) {
+    return areRead() ? service().building(build) : build.get();
   }
 
   /**
@@ -94,11 +123,29 @@ public final class Plugins {
    * and in every machine built from here on; a machine that was already made was made without it.
    */
   public static synchronized void add(Path jar) {
+    plugIn(idOf(jar.toFile()));
+  }
+
+  /** Como se llama un jar, que es por lo que se lo pide. */
+  private static String idOf(File jar) {
+    try (java.util.jar.JarFile opened = new java.util.jar.JarFile(jar)) {
+      java.util.jar.Manifest manifest = opened.getManifest();
+      return manifest == null ? null : manifest.getMainAttributes().getValue("Plugin-Id");
+    } catch (IOException cannotBeRead) {
+      return null;
+    }
+  }
+
+  /** @return si no estaba ya puesto */
+  private static boolean plugIn(String id) {
+    if (id == null || !areRead()) return false;
     try {
-      ((Boards) loader()).take(jar.toUri().toURL());
+      if (service().install(id).isEmpty()) return false;
       generation++;
-    } catch (MalformedURLException notAUrl) {
-      TellsThePerson.thisBuildCannot(jar + " could not be read: " + notAUrl.getMessage());
+      return true;
+    } catch (RuntimeException wouldNotGo) {
+      TellsThePerson.thisBuildCannot(id + " could not be plugged in: " + wouldNotGo.getMessage());
+      return false;
     }
   }
 
@@ -110,34 +157,12 @@ public final class Plugins {
    * @return whether anything was read, so that whoever shows a menu can build it again
    */
   public static synchronized boolean readWhatArrived() {
+    if (!areRead()) return false;
     boolean anythingNew = false;
     for (File jar : inFolder()) {
-      try {
-        if (((Boards) loader()).take(jar.toURI().toURL())) {
-          generation++;
-          anythingNew = true;
-        }
-      } catch (MalformedURLException notAUrl) {
-        TellsThePerson.thisBuildCannot(jar + " could not be read: " + notAUrl.getMessage());
-      }
+      anythingNew |= plugIn(idOf(jar));
     }
     return anythingNew;
-  }
-
-  /** A loader that can be given something after it was made, since a board can arrive at any time. */
-  private static final class Boards extends URLClassLoader {
-    Boards(URL[] jars) {
-      super("plugins", jars, Plugins.class.getClassLoader());
-    }
-
-    /** @return whether this one was not already here */
-    boolean take(URL jar) {
-      for (URL had : getURLs()) {
-        if (had.equals(jar)) return false;
-      }
-      addURL(jar);
-      return true;
-    }
   }
 
   /**
@@ -236,7 +261,8 @@ public final class Plugins {
    */
   private static boolean isAWayIn(String wayIn) {
     try {
-      return Class.forName(wayIn, false, loader()).isAnnotationPresent(RoleInterface.class);
+      return Class.forName(wayIn, false, Plugins.class.getClassLoader())
+          .isAnnotationPresent(RoleInterface.class);
     } catch (ClassNotFoundException | LinkageError notHere) {
       return false;
     }
@@ -255,38 +281,28 @@ public final class Plugins {
   }
 
   /**
-   * Whatever answers to this service, in the folder and on the classpath alike - less whatever
-   * came out of a jar that is not in the folder any more.
-   * <p>
-   * A jar taken out cannot be taken out of the loader: the classes it brought are in machines and
-   * on windows, and a loader made again would hand out second copies of them to whatever is built
-   * next. So it stays loaded and stops counting, which is the difference between what this build
-   * can do and what it happens to be holding.
+   * Lo que responde a esa forma de entrar: lo que el build trae adentro y lo que trajeron los
+   * jars, que no son la misma fuente. Queda para lo que todavia no recibe por inyeccion.
    */
-  public static <S> List<S> found(Class<S> service) {
-    // A way in says so. Asking for anything else is a mistake worth hearing about: the answer
-    // would be an empty list, which is also what a misspelt service file gives, and that was
-    // twenty minutes of looking for a board that was there all along.
-    if (!service.isAnnotationPresent(RoleInterface.class)) {
+  public static <S> List<S> found(Class<S> wayIn) {
+    // Una forma de entrar lo dice. Pedir otra cosa es un error que conviene escuchar: la
+    // respuesta seria una lista vacia, que es lo mismo que da un service file mal escrito.
+    if (!wayIn.isAnnotationPresent(RoleInterface.class)) {
       throw new IllegalArgumentException(
-          service.getName() + " is not a way in: it is not @RoleInterface");
+          wayIn.getName() + " is not a way in: it is not @RoleInterface");
     }
     List<S> answering = new ArrayList<>();
-    Iterator<ServiceLoader.Provider<S>> providers =
-        ServiceLoader.load(service, loader()).stream().iterator();
-    // A jar deleted by hand while this runs is still in the loader, and reading its service file
-    // throws: one that cannot be read is skipped rather than allowed to take everything with it.
-    for (int guard = 0; guard < 10_000; guard++) {
-      try {
-        if (!providers.hasNext()) break;
-        ServiceLoader.Provider<S> provider = providers.next();
-        if (stillHere(provider.type())) answering.add(provider.get());
-      } catch (ServiceConfigurationError cannotBeRead) {
-        TellsThePerson.thisBuildCannot("a plugin could not be read: " + cannotBeRead.getMessage());
-      }
+    java.util.Set<Class<?>> already = new java.util.HashSet<>();
+    // Lo que viene adentro del emulador esta en su classpath y no en ningun jar enchufado.
+    for (S carried : ServiceLoader.load(wayIn, Plugins.class.getClassLoader())) {
+      if (already.add(carried.getClass())) answering.add(carried);
+    }
+    for (S pluggedIn : snapshot(wayIn)) {
+      if (already.add(pluggedIn.getClass())) answering.add(pluggedIn);
     }
     return answering;
   }
+
 
   /** Whether what this came from is still in the folder. Anything from elsewhere always counts. */
   private static boolean stillHere(Class<?> type) {

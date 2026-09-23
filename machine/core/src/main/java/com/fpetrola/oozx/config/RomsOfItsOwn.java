@@ -37,6 +37,17 @@ import java.util.Map;
 @RoleInterface
 public interface RomsOfItsOwn {
 
+  /**
+   * The bytes of one of the files this brings, out of the jar it came in.
+   * <p>
+   * Asked of whoever declares the ROM rather than of one loader over everything: each plugin is
+   * loaded on its own, and the only one that can read a file inside a jar is something that came
+   * in that jar. A build that carries its ROMs answers the same way.
+   */
+  default java.io.InputStream open(String rom) {
+    return getClass().getResourceAsStream("/roms/" + rom);
+  }
+
   /** Which files each machine or board is made with, under the name it is known by. */
   Map<String, List<String>> files();
 

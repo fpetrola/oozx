@@ -115,7 +115,7 @@ public class EmulationRegressionTest extends MachineTest {
 
   @Test
   public void theGraphHandsOutOneOfEachSharedPart() {
-    Injector injector = Guice.createInjector(new EmulatorModule(new SpectrumZ80Clock()));
+    Injector injector = Guice.createInjector(new EmulatorModule(new SpectrumZ80Clock(), whatThisBuildHas()));
 
     for (Class<?> shared : new Class<?>[]{
         Sound.class, MemoryBus.class, Ula.class,
@@ -135,7 +135,7 @@ public class EmulationRegressionTest extends MachineTest {
    */
   @Test
   public void everyPartSpeccyExposesCameFromTheGraph() throws Exception {
-    Injector injector = Guice.createInjector(new EmulatorModule(new SpectrumZ80Clock()));
+    Injector injector = Guice.createInjector(new EmulatorModule(new SpectrumZ80Clock(), whatThisBuildHas()));
     Speccy speccy = injector.getInstance(Speccy.class);
 
     for (Field field : Speccy.class.getFields()) {
@@ -246,5 +246,10 @@ public class EmulationRegressionTest extends MachineTest {
     File png = new File(dir, name + ".png");
     ImageIO.write(image, "png", png);
     return png;
+  }
+
+  /** Lo que esta maquina es, que es lo que el modulo recibe en vez de ir a buscarlo. */
+  private static java.util.List<com.fpetrola.oozx.Extension> whatThisBuildHas() {
+    return com.fpetrola.oozx.plugins.Plugins.found(com.fpetrola.oozx.Extension.class);
   }
 }
