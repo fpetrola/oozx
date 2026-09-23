@@ -82,6 +82,11 @@ final class WhereAPluginComesFrom implements PluginSource {
     return URI.create(board.from()).toURL().openStream();
   }
 
+  @Override
+  public String origin(PluginArtifact artifact) {
+    return here.containsKey(artifact.id()) ? "plugins folder" : "github release";
+  }
+
   /** Lo que un jar dice que es, o nada cuando no es un plugin. */
   private static PluginArtifact whatThisJarIs(File jar) {
     try (java.util.jar.JarFile opened = new java.util.jar.JarFile(jar)) {

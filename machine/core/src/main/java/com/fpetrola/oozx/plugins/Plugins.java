@@ -114,6 +114,11 @@ public final class Plugins {
     return service;
   }
 
+  /** Lo unico que se le da a la ventana que los muestra: quien los maneja. */
+  public static PluginService managing() {
+    return service();
+  }
+
   /**
    * Lo que esta cargado ahora mismo, dicho por quien los carga.
    * <p>
@@ -305,31 +310,6 @@ public final class Plugins {
    * One thing that is plugged in: what it answers to, what that kind is called, which class it
    * is, and which jar it came in.
    */
-  /** Una implementacion que llego en un jar: a que forma de entrar responde y de donde vino. */
-  public record WhatIsIn(String wayIn, String implementation, String from) {
-  }
-
-  /**
-   * Todo lo que hay enchufado, dicho por quien los carga.
-   * <p>
-   * Antes esto abria cada jar, listaba sus META-INF/services y resolvia las clases para saber
-   * cuales interfaces eran formas de entrar: era leerle los archivos por la espalda a quien ya
-   * lo sabe. Ahora se lo preguntamos.
-   */
-  public static List<WhatIsIn> everythingPluggedIn() {
-    if (!areRead()) {
-      return List.of();
-    }
-    List<WhatIsIn> inside = new ArrayList<>();
-    for (dev.crystal.plugins.runtime.PluginInfo plugin : service().plugins()) {
-      for (dev.crystal.plugins.runtime.PluginInfo.ExtensionInfo extension : plugin.extensions()) {
-        for (String role : extension.roles()) {
-          inside.add(new WhatIsIn(role, extension.className(), plugin.id()));
-        }
-      }
-    }
-    return inside;
-  }
 
 
 
