@@ -100,15 +100,14 @@ public final class Plugins {
     }
     if (service == null) {
       servingFolder = folder();
-      jars();
       service = PluginService.builder()
           .cacheDirectory(Configuration.home().toPath().resolve("plugin-cache"))
           .source(new WhereAPluginComesFrom())
+          .defaults(dev.crystal.plugins.runtime.PluginSources.bundled())
           .build();
       service.start();
-      // Arrancar carga lo que ya estaba puesto y nada mas, a proposito: que un emulador recien
-      // instalado no se baje nada es del que lo carga. Lo que hay en la carpeta es una eleccion
-      // que ya se hizo, asi que eso si se enchufa.
+      // Arrancar pone lo que el jar trae y lo que ya estaba puesto, sin red: los plugins viajan
+      // adentro. Lo que hay en la carpeta es una eleccion que alguien ya hizo, y tambien entra.
       whatIsInTheFolder();
     }
     return service;
@@ -283,16 +282,6 @@ public final class Plugins {
   }
 
   /**
-   * The jars themselves, on the way up: what was taken out is thrown away first, so this is
-   * both what is installed and the moment the folder is tidied.
-   */
-  public static List<File> jars() {
-    if (!areRead()) return List.of();
-    PluginReleases.sweep();
-    return inFolder();
-  }
-
-  /**
    * What is in the folder, asked without tidying it. For whoever wants to say what this
    * emulator has while it is running: sweeping then would delete a jar the loader still holds
    * open, which is the one thing {@link PluginReleases#takeOut} exists to put off.
@@ -358,7 +347,7 @@ public final class Plugins {
       if (source == null || source.getLocation() == null) return true;
       Path from = Path.of(source.getLocation().toURI());
       if (!from.startsWith(folder())) return true;
-      return Files.exists(from) && !PluginReleases.isOut(from.getFileName().toString());
+      return Files.exists(from);
     } catch (URISyntaxException | IllegalArgumentException notAFile) {
       return true;
     }

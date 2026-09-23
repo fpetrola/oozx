@@ -26,7 +26,6 @@ import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
 import java.awt.BorderLayout;
-import java.util.function.Consumer;
 
 /**
  * What the environment is made of, shown by whoever manages it: what each jar brought, what
@@ -39,20 +38,14 @@ public class PluginsInternalFrame extends JInternalFrame {
 
   private final PluginsPanel panel = new PluginsPanel(Plugins.managing());
 
-  /** @param arrived told when what is plugged in may have changed, so the menus can say so */
-  public PluginsInternalFrame(Consumer<Void> arrived) {
+  public PluginsInternalFrame() {
     super("Plugins", true, true, true, true);
     add(panel, BorderLayout.CENTER);
     setBounds(60, 60, 700, 460);
     addInternalFrameListener(new InternalFrameAdapter() {
+      /** Un jar dejado a mano en la carpeta se enchufa cuando alguien pregunta que hay. */
       public void internalFrameActivated(InternalFrameEvent shown) {
         Plugins.readWhatArrived();
-        panel.refresh();
-        arrived.accept(null);
-      }
-
-      public void internalFrameDeactivated(InternalFrameEvent left) {
-        arrived.accept(null);
       }
     });
   }

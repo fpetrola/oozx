@@ -61,20 +61,6 @@ public class PluginReleases implements Configuration.Saves {
   /** Where the boards are published: the releases of this repository whose tag names a device. */
   public String repository = WHERE_THEY_ARE;
 
-  /**
-   * Which asset each jar here came from. Only says whether what is published is a different
-   * build from the copy here - whether a board is here at all is the folder's to say. Kept
-   * under this name because it is in the file: renaming it would quietly lose what it knows.
-   */
-  public Map<String, Long> brought = new LinkedHashMap<>();
-
-  /**
-   * The ones taken out while the emulator was running. The file stays where it is until the next
-   * start, because the loader holds it open and a jar pulled out from under it makes every later
-   * look at the services throw; it simply stops counting from the moment it is listed here.
-   */
-  public java.util.Set<String> takenOut = new java.util.LinkedHashSet<>();
-
   /** What this emulator calls itself when it asks somebody for a file. */
   private static final String WHO_IS_ASKING = "oozx (ZX Spectrum emulator)";
 
@@ -131,65 +117,10 @@ public class PluginReleases implements Configuration.Saves {
     return said.find() ? List.of(said.group(1).trim().split("\\s+")) : List.of();
   }
 
-  /** Where the boards come from, for a window to say so. */
-  public static String publishedAt() {
-    return theOne().repository;
-  }
 
-  /**
-   * Whether this board is here, which is a fact about the folder and nothing else.
-   * <p>
-   * It used to also ask whether the copy here came from the asset that is published now, and
-   * that made every installed board vanish from the list the moment anything was pushed: the
-   * build recreates every release on every push, so every asset gets a new number while the
-   * jars on the disk stay exactly as they were. Being here and being the newest are two
-   * questions, and only the folder answers the first one.
-   */
-  public static boolean isHere(Board board) {
-    return isHere(board.jar());
-  }
 
-  /**
-   * Matched on which board a jar is rather than on its exact file name, because the file name
-   * carries the version: the day the project's version moves, every installed board would go
-   * missing again for the same reason it did the first time.
-   */
-  public static boolean isHere(String jar) {
-    if (theOne().takenOut.contains(jar)) return false;
-    String board = whichBoard(jar);
-    return Plugins.inFolder().stream().anyMatch(here -> whichBoard(here.getName()).equals(board));
-  }
 
-  /** Whether what is published came from a different build than the copy here. */
-  public static boolean isNewerThanHere(Board board) {
-    Long had = theOne().brought.get(board.jar());
-    return isHere(board) && (had == null || had != board.asset());
-  }
 
-  /**
-   * Every board this emulator actually has. The folder says which, so one built here or copied
-   * in by hand counts the same as one that was downloaded; one that matches something published
-   * carries that release's name, and one that matches nothing is called after its file.
-   */
-  public static List<Board> here(List<Board> published) {
-    Map<String, Board> byBoard = new LinkedHashMap<>();
-    published.forEach(board -> byBoard.put(whichBoard(board.jar()), board));
-    List<Board> here = new ArrayList<>();
-    // El archivo que trajo cada uno, cuando todavia esta en la carpeta: el nombre importa, que
-    // inventarlo hacia que sacarlo buscara un archivo que no existe y fallara sin decir nada.
-    // Lo que esta cargado, y no lo que hay en la carpeta: uno que arranco puede no estar mas
-    // ahi, porque quien lo carga se queda con su copia, y la ventana mostraba una lista que no
-    // era la verdad - andaba lo que no figuraba.
-    for (String id : Plugins.pluggedIn()) {
-      Board known = byBoard.get(id);
-      java.io.File jar = Plugins.jarOf(id);
-      here.add(known != null ? known
-          : new Board(id, jar == null ? id + ".jar" : jar.getName(), "", 0,
-              jar == null ? 0 : jar.length()));
-    }
-    here.sort(java.util.Comparator.comparing(Board::name));
-    return here;
-  }
 
   /**
    * Which board a jar is, whatever version it happens to be: "tool-calls-0.0.2-SNAPSHOT.jar"
@@ -282,78 +213,9 @@ public class PluginReleases implements Configuration.Saves {
     // archivo publica, y trae lo que necesite. Bajarlo nosotros y despues mirar de que depende
     // era instalar sin su dependencia, fallar, y hacer falta otra vuelta para cada pieza.
     Plugins.add(id);
-    PluginReleases them = theOne();
-    them.brought.put(board.jar(), board.asset());
-    if (them.configuration != null) them.configuration.save();
     return Plugins.folder().resolve(board.jar());
   }
 
-
-  /**
-   * Takes one out: written down as out rather than deleted, and deleted when the emulator starts
-   * again. The file has to stay where it is while this runs - the loader holds it open, and one
-   * pulled out from under it makes every later look at the services throw - so being out is a
-   * fact about the list and not about the disk.
-   * <p>
-   * What was already loaded stays loaded: a class cannot be unloaded from a machine that is using
-   * it, so a board taken out now is one that machine keeps until the emulator starts again.
-   */
-  public static void takeOut(Board board) {
-    PluginReleases them = theOne();
-    them.brought.remove(board.jar());
-    // Primero deja de estar cargado, y recien despues se corre el archivo: al reves, el jar
-    // desaparecia de la lista y lo que traia seguia en los menus y andando.
-    String id = whichBoard(board.jar());
-    Plugins.takeOut(id);
-    // Y el archivo se corre de la carpeta, o al arrancar se volveria a enchufar solo.
-    java.io.File jar = Plugins.jarOf(id);
-    if (jar != null) {
-      movedAside(jar.getName());
-    }
-    if (them.configuration != null) them.configuration.save();
-  }
-
-  /** Out of the way of the loader that is holding it open, for the next start to throw away. */
-  private static boolean movedAside(String jar) {
-    try {
-      Path here = Plugins.folder().resolve(jar);
-      Files.move(here, here.resolveSibling(jar + OUT), StandardCopyOption.REPLACE_EXISTING);
-      return true;
-    } catch (IOException itIsHeldOpen) {
-      return false;
-    }
-  }
-
-  /** What a board taken out is called until the next start throws it away. */
-  private static final String OUT = ".out";
-
-  /** Whether this jar was taken out and is only waiting for the next start to go. */
-
-  public static boolean isOut(String jar) {
-    return theOne().takenOut.contains(jar);
-  }
-
-  /** The ones taken out, thrown away now that nothing has them open. Called once, on the way up. */
-  public static void sweep() {
-    try (java.util.stream.Stream<Path> aside = Files.list(Plugins.folder())) {
-      for (Path thrownAway : aside.filter(file -> file.getFileName().toString().endsWith(OUT)).toList()) {
-        try {
-          Files.delete(thrownAway);
-        } catch (IOException wouldNotGo) {
-          TellsThePerson.thisBuildCannot(thrownAway.getFileName()
-              + " could not be thrown away: " + wouldNotGo.getMessage());
-        }
-      }
-    } catch (IOException noFolder) {
-      // Nothing was ever put in it, so there is nothing to sweep.
-    }
-    PluginReleases them = theOne();
-    if (them.takenOut.isEmpty()) return;
-    // What an older build wrote down. The file is not deleted on the strength of a note: one
-    // that is there now was put there on purpose, and taking somebody's file away is not this.
-    them.takenOut.clear();
-    if (them.configuration != null) them.configuration.save();
-  }
 
   /**
    * The other boards this one was built against, read from its own manifest: a board that uses

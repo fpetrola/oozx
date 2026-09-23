@@ -32,6 +32,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -64,53 +65,42 @@ class WhatTheDeskIsGivenTest {
     }
   }
 
+  /**
+   * El jar lleva los plugins adentro y el primer arranque los pone, asi que lo que el
+   * escritorio ofrece es lo que quedo puesto. Dicho asi y no contra una lista fija porque un
+   * build que no encontro ninguno para meter adentro tiene que dar lo mismo: nada puesto, nada
+   * que ofrecer.
+   */
   @Test
-  void withNothingPluggedInThereIsNothingToOffer() {
+  void theDeskIsGivenWhatTheJarBrought() {
     WhatIsPluggedIn has = Guice.createInjector(Plugins.asModule()).getInstance(WhatIsPluggedIn.class);
 
-    assertEquals(List.of(), has.equipment(), "no hay placas sin un jar que las traiga");
-    assertEquals(List.of(), has.deskWindows());
-    assertTrue(has.formats().isEmpty(), "el lector que trae el build no es un plugin");
-  }
-
-  /** Una vista viva: lo que llega aparece sin que nadie vuelva a preguntar. */
-  @Test
-  void whatArrivesIsThereWithoutAskingAgain() throws IOException {
-    WhatIsPluggedIn has = Guice.createInjector(Plugins.asModule()).getInstance(WhatIsPluggedIn.class);
-    assertEquals(List.of(), has.deskWindows());
-
-    Path jar = aRealPlugin();
-    Files.copy(jar, Plugins.folder().resolve(jar.getFileName()), StandardCopyOption.REPLACE_EXISTING);
-    Plugins.readWhatArrived();
-
-    assertEquals(List.of("Game Browser"),
-        has.deskWindows().stream().map(one -> one.name()).toList(),
-        "el mismo objeto de antes, sin volver a pedir nada");
+    assertEquals(Plugins.pluggedIn().isEmpty(), has.equipment().isEmpty(),
+        "lo que trajo el jar es lo que el escritorio ofrece");
   }
 
   /**
-   * Un plugin de verdad, construido. No hay ninguno en este arbol -los plugins son otro
-   * repositorio- asi que se usa el de al lado si esta construido, y si no el test se saltea
-   * diciendo por que: probar esto contra un jar inventado no probaria nada.
+   * Una vista viva: lo que se saca y lo que vuelve aparece sin que nadie vuelva a preguntarle
+   * al mismo objeto. Se hace sobre uno que el jar trae, asi que no hace falta red ni un jar
+   * construido al lado.
    */
-  private static Path aRealPlugin() throws IOException {
-    Path built = null;
-    for (Path up = Path.of(System.getProperty("user.dir")); up != null && built == null;
-         up = up.getParent()) {
-      Path beside = up.resolveSibling("oozx-plugins/tools/games/target");
-      if (Files.isDirectory(beside)) {
-        built = newest(beside);
-      }
-    }
-    org.junit.jupiter.api.Assumptions.assumeTrue(built != null,
-        "hace falta tool-games construido en el repositorio de plugins de al lado");
-    return built;
+  @Test
+  void whatComesAndGoesIsThereWithoutAskingAgain() {
+    WhatIsPluggedIn has = Guice.createInjector(Plugins.asModule()).getInstance(WhatIsPluggedIn.class);
+    org.junit.jupiter.api.Assumptions.assumeTrue(named(has).contains(GAMES),
+        "hace falta que el jar traiga tool-games adentro");
+
+    assertTrue(Plugins.takeOut("tool-games"), "nada lo esta usando todavia");
+    assertFalse(named(has).contains(GAMES), "se fue del escritorio");
+
+    Plugins.add("tool-games");
+    assertTrue(named(has).contains(GAMES), "el mismo objeto de antes, sin volver a pedir nada");
   }
 
-  private static Path newest(Path target) throws IOException {
-    try (java.util.stream.Stream<Path> jars = Files.list(target)) {
-      return jars.filter(one -> one.getFileName().toString().startsWith("tool-games-")
-              && one.getFileName().toString().endsWith(".jar")).findFirst().orElse(null);
-    }
+  private static final String GAMES = "Game Browser";
+
+  private static List<String> named(WhatIsPluggedIn has) {
+    return has.deskWindows().stream().map(one -> one.name()).toList();
   }
+
 }

@@ -2459,6 +2459,13 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
    */
   private final WhatIsPluggedIn has = WhatIsPluggedIn.theOne();
 
+  /**
+   * Los menus se rearman cuando cambia lo enchufado, lo diga la ventana de plugins o lo haga
+   * alguien por codigo: quien los maneja avisa, asi que no hay que preguntarle a cada rato.
+   */
+  private final AutoCloseable whileItChanges = com.fpetrola.oozx.plugins.Plugins.managing()
+      .onChange(() -> javax.swing.SwingUtilities.invokeLater(this::somethingWasPluggedIn));
+
   private java.util.List<Equipment> equipmentKinds = java.util.List.of();
 
   /** Where the Equipment menu is, so that a board which arrives while this runs can be added to it. */
@@ -2520,7 +2527,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   /** The window that says what is published and brings in what is ticked. */
   public void showPlugins() {
     if (plugins == null || plugins.isClosed()) {
-      plugins = new PluginsInternalFrame(nothing -> somethingWasPluggedIn());
+      plugins = new PluginsInternalFrame();
       desktop.add(plugins);
     }
     plugins.setVisible(true);
