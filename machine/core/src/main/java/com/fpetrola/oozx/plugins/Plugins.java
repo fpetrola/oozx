@@ -136,6 +136,26 @@ public final class Plugins {
     }
   }
 
+  /**
+   * Lo saca de verdad: deja de estar cargado y deja de contar en el acto, en vez de sacarlo de
+   * una lista y dejarlo corriendo. Renombrar el jar no alcanzaba - el que los carga ya lo tenia
+   * en su cache y arrancado, asi que el menu seguia teniendo lo que se acababa de sacar.
+   *
+   * @return si se pudo, que es que no, cuando algo que corre lo esta reteniendo
+   */
+  public static synchronized boolean takeOut(File jar) {
+    String id = idOf(jar);
+    if (id == null || !areRead()) return false;
+    try {
+      service().uninstall(id);
+      generation++;
+      return true;
+    } catch (RuntimeException wouldNotGo) {
+      TellsThePerson.thisBuildCannot(id + " no se puede sacar ahora: " + wouldNotGo.getMessage());
+      return false;
+    }
+  }
+
   /** @return si no estaba ya puesto */
   private static boolean plugIn(String id) {
     if (id == null || !areRead()) return false;

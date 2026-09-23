@@ -300,9 +300,12 @@ public class PluginReleases implements Configuration.Saves {
   public static void takeOut(Board board) {
     PluginReleases them = theOne();
     them.brought.remove(board.jar());
-    // Moved aside rather than written down: the folder is what says which boards there are, and
-    // a note beside it goes stale. One written down and then put back by hand - which is how
-    // anybody installs a plugin - stayed invisible, and the next start threw the new copy away.
+    // Primero deja de estar cargado, y recien despues se corre el archivo: al reves, el jar
+    // desaparecia de la lista y lo que traia seguia en los menus y andando.
+    Plugins.takeOut(Plugins.folder().resolve(board.jar()).toFile());
+    // Corrido y no anotado: la carpeta es la que dice que hay, y una nota al lado envejece. Uno
+    // anotado y despues puesto a mano -que es como se instala un plugin- quedaba invisible, y el
+    // arranque siguiente se llevaba la copia nueva.
     if (!movedAside(board.jar())) {
       them.takenOut.add(board.jar());
     }
