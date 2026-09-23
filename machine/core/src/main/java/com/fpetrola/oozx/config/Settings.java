@@ -263,8 +263,13 @@ public final class Settings {
   public static void mirror(Binder binder, String name, Class<?> device, String... properties) {
     Mirror mirror = new Mirror(name, device, List.of(properties),
         binder.getProvider(Configuration.class), binder.getProvider(device));
+    // Lo que queda anotado es la declaracion, no la maquina: guardar los providers de su injector
+    // dejaba viva para siempre a la ultima maquina construida, con todo lo que cuelga de ella -
+    // sus plugins y los cargadores de sus plugins entre otras cosas. Lo unico que se le pide a
+    // una declaracion son los valores del archivo, que es de todas y no de ninguna.
     DECLARED.removeIf(declared -> declared.name().equals(name));
-    DECLARED.add(mirror);
+    DECLARED.add(new Mirror(name, device, List.of(properties), Configuration::shared,
+        () -> { throw new IllegalStateException(name + " is a declaration, not a device"); }));
     Multibinder.newSetBinder(binder, Part.class).addBinding().toInstance(mirror);
   }
 

@@ -106,8 +106,6 @@ public final class Plugins {
           .source(new WhereAPluginComesFrom())
           .build();
       service.start();
-      // Lo que se pidio sacar mientras una maquina lo tenia adentro: ahora no hay ninguna.
-      whatWasAskedToGo();
       // Arrancar carga lo que ya estaba puesto y nada mas, a proposito: que un emulador recien
       // instalado no se baje nada es del que lo carga. Lo que hay en la carpeta es una eleccion
       // que ya se hizo, asi que eso si se enchufa.
@@ -178,22 +176,33 @@ public final class Plugins {
    */
   public static synchronized boolean takeOut(String id) {
     if (id == null || !areRead()) return false;
-    try {
+    // Se pregunta antes de intentar: quien lo carga sabe si algo lo esta reteniendo, y eso no es
+    // una excepcion que haya que atrapar sino una respuesta.
+    List<String> holding = service().heldBy(id);
+    if (holding.isEmpty()) {
       service().uninstall(id);
       generation++;
       return true;
-    } catch (RuntimeException itIsInUse) {
-      // Una maquina abierta lo tiene adentro, y sacarselo dejaria su codigo corriendo desde algo
-      // ya cerrado. Queda anotado y se saca al levantar, que es cuando no hay maquina que lo use.
-      goesOnTheNextStart(id);
-      // Una maquina de esta corrida lo uso, y eso no se suelta al cerrarla: sus clases estan en
-      // lo que se construyo con ella. Asi que la unica verdad es que se va en el proximo
-      // arranque del emulador.
-      TellsThePerson.thisBuildCannot(nameOf(id) + " lo esta usando una maquina de esta sesion, asi"
-          + " que se va cuando vuelvas a arrancar el emulador.");
-      return false;
     }
+    // Una maquina de esta corrida lo uso, y eso no se suelta al cerrarla: sus clases estan en lo
+    // que se construyo con ella. Se lo saca del conjunto instalado y sigue andando hasta que el
+    // emulador vuelva a arrancar, que es la unica verdad que se le puede decir a alguien.
+    service().uninstallOnNextStart(id);
+    TellsThePerson.thisBuildCannot(nameOf(id) + " lo esta usando una maquina de esta sesion, asi"
+        + " que se va cuando vuelvas a arrancar el emulador.");
+    return false;
   }
+
+  /** Si se puede sacar ahora mismo, para decirlo antes y no como el resultado de intentarlo. */
+  public static boolean canBeTakenOutNow(String id) {
+    return areRead() && service().heldBy(id).isEmpty();
+  }
+
+  /** Lo que ya no va a estar la proxima vez, aunque todavia ande. */
+  public static java.util.Set<String> goingOnTheNextStart() {
+    return areRead() ? service().pendingRemovals() : java.util.Set.of();
+  }
+
 
   /** El archivo de la carpeta que trae ese plugin, si todavia esta ahi. */
   public static File jarOf(String id) {
@@ -208,44 +217,6 @@ public final class Plugins {
     return id.replaceFirst("^(device|tool)-", "");
   }
 
-  /**
-   * Lo que se pidio sacar y no se pudo, anotado al lado de la carpeta y no en la configuracion.
-   * <p>
-   * Leer la configuracion vuelve a pasar por aca - lo que un jar trae de ROMs es una seccion
-   * mas - asi que una nota ahi se leia vacia justo cuando hacia falta: al levantar.
-   */
-  private static Path pending() {
-    return folder().resolve(".going");
-  }
-
-  private static void goesOnTheNextStart(String id) {
-    try {
-      Files.createDirectories(folder());
-      Files.writeString(pending(), id + "\n", java.nio.file.StandardOpenOption.CREATE,
-          java.nio.file.StandardOpenOption.APPEND);
-    } catch (IOException cannotBeWritten) {
-      TellsThePerson.thisBuildCannot(id + " no se pudo anotar para sacar: " + cannotBeWritten.getMessage());
-    }
-  }
-
-  /** Lo que quedo pendiente de sacar, sacado ahora que nada lo esta usando. */
-  private static void whatWasAskedToGo() {
-    List<String> asked;
-    try {
-      asked = Files.exists(pending()) ? Files.readAllLines(pending()) : List.of();
-      Files.deleteIfExists(pending());
-    } catch (IOException cannotBeRead) {
-      return;
-    }
-    for (String id : asked) {
-      if (id.isBlank()) continue;
-      try {
-        service.uninstall(id);
-      } catch (RuntimeException wouldNotGo) {
-        TellsThePerson.thisBuildCannot(id + " no se pudo sacar: " + wouldNotGo.getMessage());
-      }
-    }
-  }
 
   /** @return si no estaba ya puesto */
   private static boolean plugIn(String id) {
