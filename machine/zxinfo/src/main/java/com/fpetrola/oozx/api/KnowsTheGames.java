@@ -53,4 +53,9 @@ public interface KnowsTheGames {
     GameEntry entry = game(id);
     return entry == null ? null : GameDetail.of(entry, id);
   }
+
+  /** The values the search filters accept, with how many entries each one has. */
+  default Metadata metadata() {
+    return null;
+  }
 }

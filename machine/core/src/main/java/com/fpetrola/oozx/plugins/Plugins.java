@@ -178,7 +178,7 @@ public final class Plugins {
     if (id == null || !areRead()) return false;
     // Se pregunta antes de intentar: quien lo carga sabe si algo lo esta reteniendo, y eso no es
     // una excepcion que haya que atrapar sino una respuesta.
-    List<String> holding = service().heldBy(id);
+    List<String> holding = whoIsHolding(id);
     if (holding.isEmpty()) {
       service().uninstall(id);
       generation++;
@@ -195,7 +195,23 @@ public final class Plugins {
 
   /** Si se puede sacar ahora mismo, para decirlo antes y no como el resultado de intentarlo. */
   public static boolean canBeTakenOutNow(String id) {
-    return areRead() && service().heldBy(id).isEmpty();
+    return areRead() && whoIsHolding(id).isEmpty();
+  }
+
+  /**
+   * Quien lo retiene, sin contar lo que ya se cerro.
+   * <p>
+   * Una maquina cerrada deja de alcanzarse pero sigue existiendo hasta que la recolecten, y
+   * hasta entonces cuenta como que lo esta usando. Se le pide a la maquina virtual que limpie
+   * antes de contestar, asi cerrar una ventana alcanza para poder sacar lo que esa ventana usaba.
+   */
+  private static List<String> whoIsHolding(String id) {
+    List<String> holding = service().heldBy(id);
+    if (holding.isEmpty()) {
+      return holding;
+    }
+    System.gc();
+    return service().heldBy(id);
   }
 
   /** Lo que ya no va a estar la proxima vez, aunque todavia ande. */

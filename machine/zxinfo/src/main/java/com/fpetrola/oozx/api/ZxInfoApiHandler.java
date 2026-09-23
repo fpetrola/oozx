@@ -44,11 +44,6 @@ public class ZxInfoApiHandler implements KnowsTheGames {
     new ZxInfoApiHandler().search("everyone wally");
   }
 
-  /** The filter values the search endpoint accepts, for building a filter bar. */
-  public Metadata getMetadata() {
-    return withClient(ZxInfoClient::getMetadata);
-  }
-
   /**
    * Search narrowed by the filters the server can apply itself. Pass null for a filter to
    * leave it out; the ones the server cannot do, like whether an entry has an RZX recording,
@@ -64,21 +59,6 @@ public class ZxInfoApiHandler implements KnowsTheGames {
   /** The same search with no filter on it, which is what a plain box of text asks for. */
   public List<Hit> search(String query) {
     return search(query, null, null);
-  }
-
-  /**
-   * Fetches game details from the API by game ID and converts to GameDetail
-   * @param gameId the game ID to fetch
-   * @return GameDetail with all available information from the API
-   */
-  public GameDetail fetchGameDetails(String gameId) {
-    try {
-      return GameDetail.of(game(gameId), gameId);
-    } catch (Exception e) {
-      System.err.println("Error fetching game details: " + e.getMessage());
-      e.printStackTrace();
-      return null;
-    }
   }
 
   /** The whole entry, which is where the files it can be downloaded from are listed. */
@@ -195,9 +175,26 @@ public class ZxInfoApiHandler implements KnowsTheGames {
     return facet.values.stream().map(Metadata.Value::name).toList();
   }
 
-  private synchronized Metadata metadata() {
+  /**
+   * What the game browser already published asks for, since a plugin is a jar built against the
+   * emulator of its day. It is the same question {@link Catalogues#metadata()} answers, so it goes
+   * there and gets its answer from whoever can give one.
+   */
+  @Deprecated
+  public Metadata getMetadata() {
+    return Catalogues.metadata();
+  }
+
+  /** Likewise {@link Catalogues#withTosecFiles}, for the same published browser. */
+  @Deprecated
+  public GameEntry withTosecFiles(String id, GameEntry game) {
+    return Catalogues.withTosecFiles(id, game);
+  }
+
+  /** The filter values the search endpoint accepts, asked once and kept. */
+  public synchronized Metadata metadata() {
     if (metadata == null) {
-      metadata = getMetadata();
+      metadata = withClient(ZxInfoClient::getMetadata);
     }
     return metadata;
   }
@@ -209,8 +206,8 @@ public class ZxInfoApiHandler implements KnowsTheGames {
 
   /** Where ZXDB's own paths are actually served from, which is three different hosts. */
   public static String mediaUrl(String path) {
-    // Whoever answered may have had the whole address already: the catalogue that ships here
-    // keeps its screenshots that way, and putting a host in front of one makes a link to nowhere.
+    // ZXDB lists some files by their whole address already - the RZX Archive's recordings at
+    // archive.org - and putting a host in front of one makes a link to nowhere.
     if (path.startsWith("http")) {
       return path;
     }
@@ -282,33 +279,6 @@ public class ZxInfoApiHandler implements KnowsTheGames {
   private static boolean nothingToUse(java.util.Map<String, String> files,
                                       java.util.function.Predicate<String> usable) {
     return files.keySet().stream().noneMatch(url -> usable.test(url) && !denied(url));
-  }
-
-  /** Whether the entry names a file ZXDB may not hand out, read straight off the paths it lists. */
-  private static boolean anythingWithheld(GameEntry game) {
-    return game.releases != null && game.releases.stream().anyMatch(release -> release.files != null
-        && release.files.stream().anyMatch(file -> denied(file.path)));
-  }
-
-  /**
-   * The entry with what a compact search leaves out. A search answers without the TOSEC paths, so
-   * an entry ZXDB withholds arrives looking like one with nothing to download at all, and stays
-   * that way until the whole entry is asked for.
-   * <p>
-   * This asks a cheaper question than {@link #filesOf} does, and on purpose. What deserves TOSEC is
-   * every entry with nothing usable here; what deserves a second call over the network is the
-   * narrower "something was withheld", because on a search for "r-type" the first is 42 of the 138
-   * hits and the second is one of them. The catalogue builder pays neither: it holds whole entries.
-   */
-  public GameEntry withTosecFiles(String id, GameEntry game) {
-    if (game.tosec != null || !anythingWithheld(game)) {
-      return game;
-    }
-    try {
-      return game(id);
-    } catch (RuntimeException outOfReach) {
-      return game;
-    }
   }
 
   public static GameSummary summaryOf(Hit hit) {

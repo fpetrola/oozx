@@ -109,7 +109,8 @@ the boards, the machines that are not the 48K, the windows, the readers for the 
 
 The [Fuse](https://fuse-emulator.sourceforge.net/) authors, for the test vectors, the timing model and the core
 the bridge runs; Cristian Dinu, for the [decoding of the Z80 opcode byte](http://www.z80.info/decoding.htm);
-Peter Jakubčo's [emuStudio](https://www.emustudio.net/), for its Z80 test suite; [ZXInfo.dk](https://zxinfo.dk/)
-and the [RZX Archive](https://www.rzxarchive.co.uk/), for the catalogues.
+Peter Jakubčo's [emuStudio](https://www.emustudio.net/), for its Z80 test suite; [ZXInfo.dk](https://zxinfo.dk/),
+[ZXDB](https://github.com/zxdb/ZXDB) and the [RZX Archive](https://www.rzxarchive.co.uk/), for the catalogues. The part of
+ZXDB that ships with the emulator is a derived database, open under the same terms as ZXDB itself (ODbL 1.0).
 
 Licensed under the GNU General Public License, version 3 or later. See `LICENSE`.

@@ -10,6 +10,13 @@ has a recording, and the filters down the left.*
 `Emulator → Game Browser` (Ctrl+B) searches [ZXInfo.dk](https://zxinfo.dk) — the whole ZXDB, from the
 emulator, with no browser and no files.
 
+**When ZXInfo is down, [ZXDB](https://github.com/zxdb/ZXDB) answers from this machine** in the same shape:
+the same files to load, releases, maps, recordings, filters, and the TOSEC dumps of what ZXDB may not hand
+out. Nothing that asks can tell which one answered. The build ships the 5,000 most voted games; running
+`com.fpetrola.oozx.api.Zxdb` brings the whole of ZXDB (44,000 entries) into `~/.oozx/zxdb.sqlite`, and from
+then on that is what answers. Given a folder — `machine/zxinfo/src/main/resources` — it also rewrites the
+part that ships.
+
 - **Search** on Enter or the button; an X next to the box clears it, results and all.
 - **Filters**: machine and genre are asked of the server; RZX / Map / Loadable are applied here over what
   came back.
@@ -70,6 +77,7 @@ Games and recordings, remembering which entry inside a zip it was, in a window o
 
 ## Where this lives
 
-`machine/zxinfo` (the API client, `GameFingerprint`, `GameLibrary`, `catalogue.json`), `machine/pokes`
+`machine/zxinfo` (the API client, `Zxdb` and `zxdb.sqlite`, `Catalogues` choosing between them,
+`GameFingerprint`, `GameLibrary`, `catalogue.json`), `machine/pokes`
 (`pokes.json`), `machine/app/.../media` (`CatalogueBuilder`, `LocalGames`) and the browser windows in
 `machine/app/.../desktop`.

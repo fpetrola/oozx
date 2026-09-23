@@ -2085,6 +2085,21 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     machinesByCore.put(core, speccy);
   }
 
+  /**
+   * Lo que se cerro deja de estar anotado.
+   * <p>
+   * Una maquina cerrada seguia en este mapa, y una ventana de un plugin en el de lo que hay
+   * abierto, asi que nada de eso se moria: ni la maquina, ni sus perifericos, ni el plugin que
+   * trajo la ventana, ni el cargador de ese plugin. Sacar un plugin no podia funcionar porque
+   * algo cerrado seguia usandolo.
+   */
+  private void forgetWhatIsClosed(EmulatorCore closed) {
+    machinesByCore.remove(closed);
+    equipment.values().forEach(open -> open.removeIf(JInternalFrame::isClosed));
+    equipment.values().removeIf(java.util.List::isEmpty);
+    onTheDesk.values().removeIf(JInternalFrame::isClosed);
+  }
+
   public com.fpetrola.oozx.Speccy machineOf(JInternalFrame window) {
     return window instanceof EmulatorInternalFrame emulator
         ? machinesByCore.get(emulator.emulatorCore) : null;
@@ -2732,6 +2747,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       public void internalFrameClosed(InternalFrameEvent e) {
         core1.finishEmulation();
         frame.stopsBeingTold();
+        forgetWhatIsClosed(core1);
       }
     });
 

@@ -17,10 +17,12 @@
 
 package model.tests.api;
 
+import com.fpetrola.oozx.api.Catalogues;
 import com.fpetrola.oozx.api.GameEntry;
 import com.fpetrola.oozx.api.GameFile;
 import com.fpetrola.oozx.api.Release;
 import com.fpetrola.oozx.api.ZxInfoApiHandler;
+import com.fpetrola.oozx.api.Zxdb;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -106,12 +108,34 @@ class WhatAnEntryOffersToDownloadTest {
     // The whole entry is a call to somebody else's server, and a search is 150 hits: asking for
     // every one of them would trade a search for two and a half minutes of them. Both of these
     // answer from what the search already returned, without reaching for the network.
-    ZxInfoApiHandler api = new ZxInfoApiHandler();
     GameEntry served = entry(List.of(), "/zxdb/sinclair/entries/0002259/HeadOverHeels.tzx.zip");
-    assertSame(served, api.withTosecFiles("0002259", served), "asked again for an entry it can serve");
+    assertSame(served, Catalogues.withTosecFiles("0002259", served), "asked again for an entry it can serve");
 
     GameEntry complete = entry(List.of(ENDURO), "/denied/entries/0001628/EnduroRacer.tzx.zip");
-    assertSame(complete, api.withTosecFiles("0001628", complete), "asked again for what it already had");
+    assertSame(complete, Catalogues.withTosecFiles("0001628", complete), "asked again for what it already had");
+  }
+
+  @Test
+  void zxdbHereOffersAGameAsTheWebServiceDoes() {
+    // The part that ships, since tests never see a home with the whole of it. What the browser
+    // reads off an entry has to be there, or a day without ZXInfo is a list of games nobody can load.
+    Zxdb here = new Zxdb();
+    GameEntry manicMiner = here.game("0003012");
+
+    assertEquals("Perfect tape (TZX)", ZxInfoApiHandler.filesOf(manicMiner, LOADABLE)
+        .get("https://worldofspectrum.net/pub/sinclair/games/m/ManicMiner.tzx.zip"));
+    assertEquals("Bug-Byte Software Ltd", manicMiner.publishers.get(0).name);
+    assertTrue(manicMiner.additionalDownloads.stream()
+        .anyMatch(download -> ZxInfoApiHandler.GAME_MAP_TYPE.equals(download.type)), "its map went missing");
+    assertEquals("0003012", here.search("manic miner", null, null).get(0)._id);
+  }
+
+  @Test
+  void whatZxdbMayNotHandOutComesFromTosecHereToo() {
+    Map<String, String> offers = ZxInfoApiHandler.filesOf(new Zxdb().game("0009366"), LOADABLE);
+
+    assertTrue(offers.containsKey(ZxInfoApiHandler.tosecUrl(KNIGHT_LORE)),
+        "Knight Lore is withheld, and without its TOSEC dumps there is no way to load it here");
   }
 
   @Test

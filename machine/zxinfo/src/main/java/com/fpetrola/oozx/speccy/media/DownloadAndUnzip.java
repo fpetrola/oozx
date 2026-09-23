@@ -238,7 +238,7 @@ public class DownloadAndUnzip {
     }
   }
 
-  private static byte[] downloadFile(URL url) throws IOException {
+  public static byte[] downloadFile(URL url) throws IOException {
     URLConnection connection = url.openConnection();
     connection.setConnectTimeout(20_000);
     connection.setReadTimeout(60_000);

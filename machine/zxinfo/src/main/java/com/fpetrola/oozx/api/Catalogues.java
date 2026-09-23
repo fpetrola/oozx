@@ -26,10 +26,10 @@ import java.util.function.Function;
 /**
  * Asks whoever can answer about a game, in the order that gives the best answer first.
  * <p>
- * The web service knows everything and is asked first, because it is the only one that says
- * where the files of an entry are. When it cannot be reached the catalogue in this build
- * answers instead: less, but a name and a year and five thousand games beat a window that says
- * nothing at all because a host was down.
+ * The web service knows everything and is asked first. When it cannot be reached ZXDB answers
+ * from this machine instead, in the same shape and with the same files to download: fewer games
+ * until the whole of it has been brought down, but nobody reading the answer has to know which
+ * one gave it.
  * <p>
  * One that failed is not asked again for a while. A search that waits twenty seconds for a
  * connection nobody is going to accept, and does it on every keystroke, is a window that hangs.
@@ -45,7 +45,7 @@ public final class Catalogues {
   public static List<KnowsTheGames> all() {
     List<KnowsTheGames> asking = new ArrayList<>();
     asking.add(new ZxInfoApiHandler());
-    asking.add(new TheCatalogueThatShipped());
+    asking.add(new Zxdb());
     com.fpetrola.oozx.plugins.Plugins.found(KnowsTheGames.class).stream()
         .filter(one -> asking.stream().noneMatch(already -> already.getClass() == one.getClass()))
         .forEach(asking::add);
@@ -63,6 +63,35 @@ public final class Catalogues {
 
   public static GameDetail details(String id) {
     return ask(who -> who.details(id));
+  }
+
+  public static Metadata metadata() {
+    return ask(KnowsTheGames::metadata);
+  }
+
+  /**
+   * The entry with what a compact search leaves out. A search answers without the TOSEC paths, so
+   * an entry ZXDB withholds arrives looking like one with nothing to download at all, and stays
+   * that way until the whole entry is asked for.
+   * <p>
+   * This asks a cheaper question than {@link ZxInfoApiHandler#filesOf} does, and on purpose. What
+   * deserves TOSEC is every entry with nothing usable here; what deserves a second call over the
+   * network is the narrower "something was withheld", because on a search for "r-type" the first
+   * is 42 of the 138 hits and the second is one of them. The catalogue builder pays neither: it
+   * holds whole entries.
+   */
+  public static GameEntry withTosecFiles(String id, GameEntry game) {
+    if (game.tosec != null || !anythingWithheld(game)) {
+      return game;
+    }
+    GameEntry whole = game(id);
+    return whole == null ? game : whole;
+  }
+
+  /** Whether the entry names a file ZXDB may not hand out, read straight off the paths it lists. */
+  private static boolean anythingWithheld(GameEntry game) {
+    return game.releases != null && game.releases.stream().anyMatch(release -> release.files != null
+        && release.files.stream().anyMatch(file -> ZxInfoApiHandler.denied(file.path)));
   }
 
   /**
