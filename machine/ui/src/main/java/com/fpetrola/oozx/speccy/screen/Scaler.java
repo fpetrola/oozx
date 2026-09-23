@@ -30,6 +30,7 @@ import java.awt.image.BufferedImage;
  * each one does its own thing behind the same call.
  */
 @com.fpetrola.oozx.plugins.Plugin("scaler")
+@dev.crystal.plugins.api.RoleInterface
 public interface Scaler extends ScreenEffect {
 
   /**

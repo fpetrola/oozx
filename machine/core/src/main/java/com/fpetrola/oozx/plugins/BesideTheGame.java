@@ -25,6 +25,7 @@ package com.fpetrola.oozx.plugins;
  * and that board is a jar that may not even be here.
  */
 @Plugin("extra")
+@dev.crystal.plugins.api.RoleInterface
 public interface BesideTheGame {
 
   /** What it is, in the words the person reading it will see: "256 colors". */

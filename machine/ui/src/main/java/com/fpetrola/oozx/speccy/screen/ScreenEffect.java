@@ -38,6 +38,7 @@ import java.awt.image.BufferedImage;
  * belongs on. The ones this build carries are made from the knobs instead.
  */
 @Plugin("effect")
+@dev.crystal.plugins.api.RoleInterface
 public interface ScreenEffect {
 
   /**

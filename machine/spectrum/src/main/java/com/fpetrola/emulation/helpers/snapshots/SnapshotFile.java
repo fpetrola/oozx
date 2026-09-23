@@ -37,6 +37,7 @@ import java.io.File;
  * @author jsanchez
  */
 @Plugin("format")
+@dev.crystal.plugins.api.RoleInterface
 public interface SnapshotFile {
 
     /** Whether this is the format of that file. */

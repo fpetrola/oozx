@@ -26,6 +26,7 @@ import com.fpetrola.oozx.plugins.Plugin;
  * says what it is called and how to open it.
  */
 @Plugin("device")
+@dev.crystal.plugins.api.RoleInterface
 public interface Equipment {
   String name();
 

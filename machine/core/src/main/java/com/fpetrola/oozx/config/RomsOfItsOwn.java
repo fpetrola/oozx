@@ -34,6 +34,7 @@ import java.util.Map;
  * {@code /roms} is looked in like the build's.
  */
 @Plugin("roms")
+@dev.crystal.plugins.api.RoleInterface
 public interface RomsOfItsOwn {
 
   /** Which files each machine or board is made with, under the name it is known by. */

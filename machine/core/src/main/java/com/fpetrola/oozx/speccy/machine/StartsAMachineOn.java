@@ -30,6 +30,7 @@ import java.io.File;
  * one that crashes when it is given one.
  */
 @Plugin("media")
+@dev.crystal.plugins.api.RoleInterface
 public interface StartsAMachineOn {
 
   /** Whether a machine can be started on that file by this. */

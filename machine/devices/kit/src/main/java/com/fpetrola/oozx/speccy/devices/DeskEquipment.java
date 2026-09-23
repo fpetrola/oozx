@@ -29,6 +29,7 @@ import javax.swing.JInternalFrame;
  * this window is about the desk, so it has no machine and no clip.
  */
 @Plugin("tool")
+@dev.crystal.plugins.api.RoleInterface
 public interface DeskEquipment {
 
   String name();

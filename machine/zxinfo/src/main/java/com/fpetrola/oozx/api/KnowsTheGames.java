@@ -31,6 +31,7 @@ import java.util.List;
  * being served. This is the seam that lets the second one answer when the first cannot.
  */
 @Plugin("catalogue")
+@dev.crystal.plugins.api.RoleInterface
 public interface KnowsTheGames {
 
   /** What to call this where somebody is told which one answered. */

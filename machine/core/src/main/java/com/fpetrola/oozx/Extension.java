@@ -26,5 +26,6 @@ import com.google.inject.Module;
  * found.
  */
 @Plugin("device")
+@dev.crystal.plugins.api.RoleInterface
 public interface Extension extends Module {
 }
