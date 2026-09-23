@@ -18,6 +18,15 @@
             <artifactId>framework-api</artifactId>
             <version>0.1.0-SNAPSHOT</version>
         </dependency>
+        <!-- Quien escribe que formas de entrar define el modulo. Maven lo agrega solo; esta
+             dicho aca para que tambien lo encuentre un IDE que compile por su cuenta, porque
+             sin el archivo que escribe no se puede construir nada que las pida. -->
+        <dependency>
+            <groupId>dev.crystal.plugins</groupId>
+            <artifactId>framework-build-processor</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <modules>
