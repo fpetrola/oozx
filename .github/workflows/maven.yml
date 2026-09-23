@@ -24,9 +24,13 @@ jobs:
 
     # El framework de plugins contra el que se compila. No publica artefactos a ningun
     # repositorio, asi que su arbol se construye aca, igual que hace el repo de plugins con este.
+    #
+    # A un tag y no a su rama: lo que se empuje alla mientras se trabaja no tiene por que voltear
+    # el build de aca. El tag se mueve cuando este arbol esta listo para tomar una version nueva.
     - uses: actions/checkout@v4
       with:
         repository: fpetrola/crystal-plugins
+        ref: hito-5
         path: crystal-plugins
 
     - name: Set up JDK 18
