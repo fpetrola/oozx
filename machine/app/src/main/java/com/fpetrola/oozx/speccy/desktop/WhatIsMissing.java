@@ -19,6 +19,7 @@ package com.fpetrola.oozx.speccy.desktop;
 
 import com.fpetrola.oozx.TellsThePerson;
 import com.fpetrola.oozx.plugins.PluginReleases;
+import com.fpetrola.oozx.plugins.Plugins;
 import com.fpetrola.oozx.plugins.PluginReleases.Board;
 
 import javax.swing.JOptionPane;
@@ -48,7 +49,8 @@ final class WhatIsMissing {
       com.fpetrola.oozx.speccy.machine.StartsAMachineOn.class,
       com.fpetrola.emulation.helpers.snapshots.SnapshotFile.class,
       com.fpetrola.oozx.speccy.devices.Equipment.class,
-      com.fpetrola.oozx.Extension.class).map(Class::getName).toList();
+      com.fpetrola.oozx.Extension.class,
+      com.fpetrola.oozx.plugins.BesideTheGame.class).map(Class::getName).toList();
 
   /** Asked once each, since a recording asks for its machine at the start of every segment. */
   private static final java.util.Set<String> asked = java.util.concurrent.ConcurrentHashMap.newKeySet();
@@ -84,6 +86,30 @@ final class WhatIsMissing {
         }
       }
     }.execute();
+  }
+
+  /**
+   * Lo que un juego trae al lado y nada de lo que esta puesto responde, con quien lo traeria.
+   * Vacio cuando nadie publicado lo trae tampoco: un archivo que nadie usa no es una pregunta.
+   */
+  static List<Board> bringingBeside(List<String> kinds) {
+    java.util.Set<Board> brings = new java.util.LinkedHashSet<>();
+    for (String kind : kinds) {
+      if (ANSWERING.stream().allMatch(role -> Plugins.managing().answering(role, kind).isEmpty())) {
+        try {
+          brings.addAll(PluginReleases.bringing(kind, ANSWERING));
+        } catch (Exception cannotAsk) {
+          return List.of();
+        }
+      }
+    }
+    return List.copyOf(brings);
+  }
+
+  /** Ofrece traerlos: traidos, lo que se queria; dicho que no, lo mismo sin ellos. */
+  static void offer(Component over, List<Board> brings, String said, Runnable then, Runnable otherwise) {
+    if (agreed(over, said, brings)) bring(over, brings, then);
+    else otherwise.run();
   }
 
   /** The same, for what is asked for by something running rather than by somebody clicking. */

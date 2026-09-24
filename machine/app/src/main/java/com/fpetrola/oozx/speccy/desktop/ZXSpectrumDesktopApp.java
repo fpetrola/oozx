@@ -1449,11 +1449,18 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     String name = DownloadAndUnzip.nameOf(path);
     JDialog loading = showLoading(path.startsWith("http") ? "Fetching " + name + "..." : "Loading " + name + "...");
     new SwingWorker<Object, Void>() {
+      private String local;
+
       @Override
       protected Object doInBackground() {
-        String local = path.startsWith("http") ? new DownloadAndUnzip().unzip(path).toAbsolutePath().toString() : path;
+        local = path.startsWith("http") ? new DownloadAndUnzip().unzip(path).toAbsolutePath().toString() : path;
         java.io.File file = new java.io.File(local);
         if (file.isFile() && !OOSpectrumLauncher.somethingOpens(file)) return file;
+        if (mayAsk && file.isFile()) {
+          List<com.fpetrola.oozx.plugins.PluginReleases.Board> beside =
+              WhatIsMissing.bringingBeside(OOSpectrumLauncher.kindsBeside(file));
+          if (!beside.isEmpty()) return beside;
+        }
         EmulatorCore core = mockCore.apply(local, game == null ? null : game.machine());
         knownMachines = core.getMachineModels();
         return core;
@@ -1466,6 +1473,15 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
           Object got = get();
           if (got instanceof java.io.File nobodyOpens) {
             nothingOpens(nobodyOpens, game, whenDone, mayAsk);
+            return;
+          }
+          if (got instanceof List<?> brings) {
+            @SuppressWarnings("unchecked")
+            List<com.fpetrola.oozx.plugins.PluginReleases.Board> boards = (List<com.fpetrola.oozx.plugins.PluginReleases.Board>) brings;
+            WhatIsMissing.offer(ZXSpectrumDesktopApp.this, boards,
+                "Beside " + DownloadAndUnzip.nameOf(local) + " there is more of the game than this build uses.",
+                () -> { somethingWasPluggedIn(); load(local, game, whenDone, false); },
+                () -> load(local, game, whenDone, false));
             return;
           }
           if (game != null) createNewEmulator((EmulatorCore) got, game);
