@@ -67,7 +67,25 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     return emulatorCore.getPanel();
   }
 
+  /**
+   * This machine's keyboard, asked for once.
+   * <p>
+   * getKeyListener builds a new one on every call, which was harmless while it was called once
+   * per window and would be one keyboard per keystroke now that the keys are routed rather than
+   * bound to the panel.
+   */
+  KeyListener keys() {
+    if (keys == null) {
+      keys = emulatorCore.getKeyListener();
+    }
+    return keys;
+  }
+
   @Override
+  public Desk.Game game() {
+    return game;
+  }
+
   public com.fpetrola.oozx.Speccy machine() {
     return parentApp.machineOf(this);
   }
@@ -224,25 +242,8 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     toolBar.setFloatable(false);
 
 
-    // A toggle rather than a button: it stays down while the border is showing, the way the
-    // border either is there or is not. Up to start with - see SpeccyScreen.
-    JToggleButton borderButton = iconToggle("border-stripes.svg", "Border", "Show the Border");
-    // The border is a screen knob like the rest, so the button shows what this emulator has and
-    // writing it goes to the same place the window writes.
-    if (emulatorCore.getPanel() instanceof SpeccyScreen screen) {
-      borderButton.setSelected(screen.getScreenSettings().isBorder());
-    }
-    borderButton.addActionListener(e -> showBorder(borderButton.isSelected()));
-    toolBar.add(borderButton);
 
 
-    JButton settingsButton = iconButton("2699.svg", "Settings", "Settings of this machine, clipped onto it");
-    settingsButton.addActionListener(e -> {
-      if (parentApp != null) {
-        parentApp.openSettingsFor(this);
-      }
-    });
-    toolBar.add(settingsButton);
 
 
 
@@ -252,37 +253,15 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
         toolBar.add(tool.button(this));
       }
       
-      JButton viewDetailsButton = new JButton(loadIcon("E259.svg"));
-      viewDetailsButton.setToolTipText("View Game Details");
-      viewDetailsButton.addActionListener(e -> openGameDetails());
-      toolBar.add(viewDetailsButton);
     }
 
 
 
 
-    JButton screenButton = new JButton(loadIcon("1F39B.svg"));
-    screenButton.setToolTipText("Screen - scaling, television and colour");
-    screenButton.addActionListener(e -> {
-      if (parentApp != null) parentApp.openScreenSettings(emulatorCore, getTitle());
-    });
-    toolBar.add(screenButton);
 
-    JButton favoriteButton = new JButton(loadIcon("2B50.svg"));
-    favoriteButton.setToolTipText("Keep this game in Favorites");
-    favoriteButton.addActionListener(e -> {
-      if (parentApp != null) parentApp.keepAsFavorite(game, emulatorCore.getFilename());
-    });
-    toolBar.add(favoriteButton);
 
     tighten(toolBar, 1);
     return toolBar;
-  }
-
-  /** Whether the border is drawn, written where the window writes it so both ways of asking agree. */
-  private void showBorder(boolean on) {
-    emulatorCore.setGeneralOption("border", on);
-    if (parentApp != null) parentApp.setScreenDefault("border", String.valueOf(on));
   }
 
   /**
@@ -332,41 +311,11 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     }
 
     menu.addSeparator();
-    if (emulatorCore.getPanel() instanceof SpeccyScreen screen) {
-      JCheckBoxMenuItem border = new JCheckBoxMenuItem("Border", screen.getScreenSettings().isBorder());
-      border.addActionListener(e -> showBorder(border.isSelected()));
-      menu.add(border);
-    }
     return menu;
   }
 
   /** Every toolbar in the application draws its icons at this size. */
   public static final int TOOLBAR_ICON_SIZE = 19;
-
-  /**
-   * This machine's keyboard, asked for once.
-   * <p>
-   * getKeyListener builds a new one on every call, which was harmless while it was called once
-   * per window and would be one keyboard per keystroke now that the keys are routed rather than
-   * bound to the panel.
-   */
-  KeyListener keys() {
-    if (keys == null) {
-      keys = emulatorCore.getKeyListener();
-    }
-    return keys;
-  }
-  
-  /**
-   * Lo que se sabe del juego que esta corriendo. Que juego es lo dice quien sabe de juegos: aca
-   * solo se sabe que archivo se cargo, y de que archivo salio un .sna llamado RENE256 no se
-   * deduce nada sin un catalogo.
-   */
-  private void openGameDetails() {
-    if (parentApp == null) return;
-    parentApp.showDetails(game != null ? game
-        : new Desk.Game(emulatorCore.getFilename(), null, null, null));
-  }
 
   public OOZxConfiguration.WindowState saveWindowState(String filePath) {
     OOZxConfiguration.WindowState state = new OOZxConfiguration.WindowState(
@@ -1084,6 +1033,21 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
    * the saved defaults in its constructor and then had them overwritten by whatever the menu
    * happened to hold, which for scan lines nobody had touched was off. One place now.
    */
+  @Override
+  public void openSettingsFor(com.fpetrola.oozx.speccy.devices.EmulatorWindow machine) {
+    if (machine instanceof EmulatorInternalFrame frame) openSettingsFor(frame);
+  }
+
+  @Override
+  public void openScreenSettings(com.fpetrola.oozx.speccy.devices.EmulatorWindow machine) {
+    if (machine instanceof EmulatorInternalFrame frame) openScreenSettings(frame.emulatorCore, frame.getTitle());
+  }
+
+  @Override
+  public void rememberScreen(String setting, String value) {
+    setScreenDefault(setting, value);
+  }
+
   void setScreenDefault(String key, String value) {
     Map<String, String> defaults = new LinkedHashMap<>(config.getScreenDefaults());
     defaults.put(key, value);

@@ -23,4 +23,9 @@ import com.fpetrola.oozx.speccy.windows.MachineWindow;
 /** A machine's window says which machine it shows, for the equipment clipped onto it. */
 public interface EmulatorWindow extends MachineWindow {
   Speccy machine();
+
+  /** El juego de donde salio lo que corre, cuando se abrio desde uno; si no, nada. */
+  default Desk.Game game() {
+    return null;
+  }
 }

@@ -131,6 +131,18 @@ public interface Desk {
   /** The machines this build can open a game on, for offering them beside it. */
   java.util.List<String> machines();
 
+  /** Los ajustes de esa maquina, pegados a su ventana. */
+  default void openSettingsFor(EmulatorWindow machine) {
+  }
+
+  /** Como se ve la pantalla de esa maquina: escalado, television, color. */
+  default void openScreenSettings(EmulatorWindow machine) {
+  }
+
+  /** Un ajuste de pantalla que quedo elegido, para las maquinas que se abran despues. */
+  default void rememberScreen(String setting, String value) {
+  }
+
   static Desk theOne() {
     return Where.desk;
   }
