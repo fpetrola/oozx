@@ -38,6 +38,32 @@ public interface MachineTool {
 
   void use(EmulatorWindow window);
 
+  /** Donde va en la barra: las de la maquina primero, las de lo que se le hace despues. */
+  default int place() {
+    return 100;
+  }
+
+  /**
+   * Su boton en la barra de esa ventana. Por defecto uno que muestra su icono y la usa; una
+   * herramienta con estado -la pausa, el turbo- arma el suyo y lo mantiene al dia.
+   */
+  default javax.swing.AbstractButton button(EmulatorWindow window) {
+    javax.swing.JButton button = new javax.swing.JButton(icon());
+    button.setToolTipText(tooltip());
+    button.addActionListener(pressed -> use(window));
+    return button;
+  }
+
+  /** Lo que agrega al menu del clic derecho sobre la pantalla, o nada. */
+  default javax.swing.JMenuItem menuItem(EmulatorWindow window) {
+    return null;
+  }
+
+  /** Lo que muestra en la barra de estado de esa ventana, o nada. */
+  default javax.swing.JComponent status(EmulatorWindow window) {
+    return null;
+  }
+
   /** Lo que esta herramienta dejo hecho en esa ventana, escrito en lo que se guarda de ella. */
   default void remember(EmulatorWindow window, OOZxConfiguration.WindowState into) {
   }

@@ -97,14 +97,8 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
   private ZXSpectrumDesktopApp parentApp;
   private Desk.Game game;
   //  private JLabel statusLabel;
-  private JProgressBar speedBar;
   private JComboBox<String> modelCombo;
-  private JLabel pauseIndicator;
-  private JButton pauseButton;
-  private JLabel turboIndicator;
   private TellsThePerson.Listening listening;
-  private JButton muteButton;
-  private boolean isMuted = false;
   private JDialog fullscreen;
   private KeyListener keys;
   //  private JLabel tapeStatusLabel;
@@ -149,24 +143,9 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
       }
 
       @Override
-      public void onEmulationSpeedChanged(double speed) {
-        showSpeed(speed);
-      }
-
-      @Override
       public void onModelChanged(String model) {
         modelCombo.setSelectedItem(model);
         setTitle("ZX Spectrum Emulator - " + model);
-      }
-
-      @Override
-      public void onPauseStateChanged(boolean paused) {
-        showPaused(paused);
-      }
-
-      @Override
-      public void onTurboModeChanged(boolean turbo) {
-        updateTurboLabel(turbo);
       }
 
       @Override
@@ -175,97 +154,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     });
   }
 
-  private void updateTurboLabel(boolean turbo) {
-    turboIndicator.setEnabled(turbo);
-    turboIndicator.setToolTipText(turbo ? "Turbo: running at full speed" : "Turbo off");
-  }
-
-  /** The most the slider asks for, and what the rocket asks for when pressed. */
-  static final int TOP_SPEED = 40000;
-  /** Where the slider's two halves meet: the left half is the speeds one plays at, the right the rest. */
-  static final int KNEE_SPEED = 1000;
-  private static final int HALF = 500;
-  private final ImageIcon rocket = loadIcon("1F680.svg");
-  private JButton turboButton;
-  private JSlider speedSlider;
-  private boolean reflectingSpeed;
-
-  /** The slider and the rocket say what the speed is: the rocket greys as it nears the top. */
-  private void reflectSpeed(int speed) {
-    reflectingSpeed = true;
-    speedSlider.setValue(positionOf(speed));
-    reflectingSpeed = false;
-    turboButton.setIcon(Widgets.greyed(rocket, (speed - 100) / (float) (TOP_SPEED - 100)));
-  }
-
-  private void speedChosen(int speed) {
-    emulatorCore.setGeneralOption("speed", speed);
-    reflectSpeed(speed);
-  }
-
-  /** The speed at a position: the left half runs from a quarter to the knee, the right half from the knee to the top. */
-  static int speedAt(int position) {
-    if (position <= HALF) return 25 + Math.round((KNEE_SPEED - 25) * position / (float) HALF);
-    return KNEE_SPEED + Math.round((TOP_SPEED - KNEE_SPEED) * (position - HALF) / (float) HALF);
-  }
-
-  static int positionOf(double speed) {
-    if (speed <= KNEE_SPEED) return Math.max(0, Math.round((float) (speed - 25) * HALF / (KNEE_SPEED - 25)));
-    return Math.min(2 * HALF, HALF + Math.round((float) (speed - KNEE_SPEED) * HALF / (TOP_SPEED - KNEE_SPEED)));
-  }
-
-  /**
-   * A speed to run at, in two halves: the left from a quarter of real time to ten times it,
-   * where a game is played, the right from there to the top. Applied as the knob moves: above real
-   * time a change of speed no longer rebuilds the sound, so there is nothing to crackle.
-   */
-  private JComponent speedSlider() {
-    JSlider slider = speedSlider = new JSlider(0, 2 * HALF, positionOf(100));
-    java.util.Hashtable<Integer, JComponent> labels = new java.util.Hashtable<>();
-    for (int speed : new int[]{25, 500, KNEE_SPEED, 20000, TOP_SPEED}) {
-      labels.put(positionOf(speed), new JLabel(speed + "%"));
-    }
-    slider.setLabelTable(labels);
-    slider.setPaintLabels(true);
-    Widgets.upright(slider, 64, 220);
-    slider.addChangeListener(e -> {
-      if (!reflectingSpeed) speedChosen(speedAt(slider.getValue()));
-    });
-    return slider;
-  }
-
-  private JComponent volumeSlider() {
-    JSlider slider = new JSlider(0, 100, emulatorCore.getVolume());
-    Widgets.upright(slider, 24, 160);
-    slider.addChangeListener(e -> emulatorCore.setAudioOption("volume", slider.getValue()));
-    return slider;
-  }
-
-  private void toggleMute() {
-    emulatorCore.setGeneralOption("mute", !emulatorCore.isMuted());
-    muteButton.setIcon(loadIcon(!emulatorCore.isMuted() ? "1F507.svg" : "1F509.svg"));
-    muteButton.setToolTipText(emulatorCore.isMuted() ? "Unmute Sound" : "Mute Sound");
-  }
-
-  /** How fast it is going, against the speed of the real machine rather than against 7000. */
-  private void showSpeed(double speed) {
-    speedBar.setValue((int) Math.min(100, Math.round(speed)));
-    speedBar.setString(String.format("%.0f%%", speed));
-  }
-
-  /** Running or paused, as the same drawing the buttons use rather than a coloured box. */
-  private void showPaused(boolean paused) {
-    pauseIndicator.setIcon(loadIcon(paused ? "23F8.svg" : "25B6.svg"));
-    pauseIndicator.setToolTipText(paused ? "Paused" : "Running");
-    showPlayPause(paused);
-  }
-
-  /** One button showing the move it makes: the play arrow when stopped, the pause bars when running. */
-  private void showPlayPause(boolean paused) {
-    if (pauseButton == null) return;
-    pauseButton.setIcon(loadIcon(paused ? "25B6.svg" : "23F8.svg"));
-    pauseButton.setToolTipText(paused ? "Continue" : "Pause");
-  }
 
   /**
    * The last thing the emulator had to say, beside the speed. A snapshot asking for a machine
@@ -296,53 +184,21 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
 
   private JPanel createStatusBar() {
     JPanel statusBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
-    // Full is the speed of the real machine, which is what the number beside it means: drawn
-    // against 7000 before, so a machine running exactly right filled a fortieth of the bar and
-    // read as a stray line down its left edge. Turbo runs past the end and pins it full, which
-    // is what the turbo mark next to it is for.
-    speedBar = new JProgressBar(0, 100);
-    speedBar.setStringPainted(true);
-    showSpeed(emulatorCore.getEmulationSpeed());
-    speedBar.setPreferredSize(new Dimension(64, 20));
     // Asked for, not written out again: the hand-written list had no +2A, no +3e and no NTSC,
     // so selecting one of those found nothing in the box and left it naming the machine before.
     modelCombo = new JComboBox<>(emulatorCore.getMachineModels().toArray(new String[0]));
     modelCombo.setSelectedItem(emulatorCore.getCurrentModel());
     Widgets.whenChosen(modelCombo, emulatorCore::getCurrentModel, emulatorCore::setMachineModel);
-    pauseIndicator = new JLabel();
-    showPaused(emulatorCore.isPaused());
-    turboIndicator = new JLabel(loadIcon("1F680.svg"));
-    updateTurboLabel(emulatorCore.isTurboMode());
-    statusBar.add(speedBar);
     statusBar.add(modelCombo);
-    statusBar.add(pauseIndicator);
-    statusBar.add(turboIndicator);
+    // Lo que muestran las herramientas: la velocidad, la pausa, el turbo, si hay quien los traiga.
+    for (com.fpetrola.oozx.speccy.devices.MachineTool tool : WhatIsPluggedIn.theOne().tools()) {
+      JComponent shown = tool.status(this);
+      if (shown != null) statusBar.add(shown);
+    }
     statusBar.add(whatTheEmulatorHasToSay());
     emulatorCore.addEmulatorListener(new EmulatorListener() {
-      public void onEmulationStateChanged(String state) {
-//        statusLabel.setText("State: " + state);
-      }
-
-      public void onError(String message) {
-      }
-
-      public void onEmulationSpeedChanged(double speed) {
-        showSpeed(speed);
-      }
-
       public void onModelChanged(String model) {
         modelCombo.setSelectedItem(model);
-      }
-
-      public void onPauseStateChanged(boolean paused) {
-        showPaused(paused);
-      }
-
-      public void onTurboModeChanged(boolean turbo) {
-        updateTurboLabel(turbo);
-      }
-
-      public void onTapeStatusChanged(String status) {
       }
     });
 
@@ -368,13 +224,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     JToolBar toolBar = new JToolBar();
     toolBar.setFloatable(false);
 
-    //    Icon turboIcon = UIManager.getIcon("FileChooser.upFolderIcon");
-    turboButton = new JButton(rocket);
-    turboButton.setToolTipText("Full speed - right-click for a speed");
-    turboButton.addActionListener(e -> speedChosen(emulatorCore.getEmulationSpeed() >= TOP_SPEED ? 100 : TOP_SPEED));
-    Widgets.popUpOnRightClick(turboButton, speedSlider());
-    reflectSpeed((int) emulatorCore.getEmulationSpeed());
-    toolBar.add(turboButton);
 
     // A toggle rather than a button: it stays down while the border is showing, the way the
     // border either is there or is not. Up to start with - see SpeccyScreen.
@@ -387,10 +236,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     borderButton.addActionListener(e -> showBorder(borderButton.isSelected()));
     toolBar.add(borderButton);
 
-    pauseButton = new JButton();
-    showPlayPause(emulatorCore.isPaused());
-    pauseButton.addActionListener(e -> emulatorCore.pauseEmulation());
-    toolBar.add(pauseButton);
 
     JButton settingsButton = iconButton("2699.svg", "Settings", "Settings of this machine, clipped onto it");
     settingsButton.addActionListener(e -> {
@@ -400,23 +245,12 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     });
     toolBar.add(settingsButton);
 
-    JButton resetButton = iconButton("1F504.svg", "Reset", "Reset the machine, as if it had just been switched on");
-    resetButton.addActionListener(e -> emulatorCore.resetEmulation());
-    toolBar.add(resetButton);
 
-    muteButton = new JButton(loadIcon("1F507.svg"));
-    muteButton.setToolTipText("Mute/Unmute Sound - right-click for the volume");
-    muteButton.addActionListener(e -> toggleMute());
-    Widgets.popUpOnRightClick(muteButton, volumeSlider());
-    toolBar.add(muteButton);
 
     if (parentApp != null) {
       // Lo que traen los plugins: cada herramienta pone su boton, y sin plugins no hay ninguno.
       for (com.fpetrola.oozx.speccy.devices.MachineTool tool : WhatIsPluggedIn.theOne().tools()) {
-        JButton button = new JButton(tool.icon());
-        button.setToolTipText(tool.tooltip());
-        button.addActionListener(e -> tool.use(this));
-        toolBar.add(button);
+        toolBar.add(tool.button(this));
       }
       
       JButton viewDetailsButton = new JButton(loadIcon("E259.svg"));
@@ -509,35 +343,10 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
       menu.add(ZXSpectrumDesktopApp.radioMenu("Look", looks, current == null ? null : current.name()));
     }
 
-    // The machine and not the slider: the slider's positions are whole numbers over a range of
-    // forty thousand, so real time comes back from it as ninety-nine and nothing would ever tick.
-    int running = (int) Math.round(emulatorCore.getEmulationSpeed());
-    java.util.Map<String, Integer> speeds = new java.util.LinkedHashMap<>();
-    speeds.put("Half", 50);
-    speeds.put("Normal", 100);
-    speeds.put("Double", 200);
-    speeds.put("Full", TOP_SPEED);
-    java.util.Map<String, Runnable> speedItems = new java.util.LinkedHashMap<>();
-    String runningName = null;
-    for (java.util.Map.Entry<String, Integer> e : speeds.entrySet()) {
-      int wanted = e.getValue();
-      speedItems.put(e.getKey(), () -> speedChosen(wanted));
-      if (running == wanted) runningName = e.getKey();
+    for (com.fpetrola.oozx.speccy.devices.MachineTool tool : WhatIsPluggedIn.theOne().tools()) {
+      JMenuItem offered = tool.menuItem(this);
+      if (offered != null) menu.add(offered);
     }
-    menu.add(ZXSpectrumDesktopApp.radioMenu("Speed", speedItems, runningName));
-
-    JMenu volume = new JMenu("Volume (" + emulatorCore.getVolume() + "%)");
-    JMenuItem louder = new JMenuItem("Louder");
-    louder.addActionListener(e -> emulatorCore.setAudioOption("volume", Math.min(100, emulatorCore.getVolume() + 10)));
-    JMenuItem quieter = new JMenuItem("Quieter");
-    quieter.addActionListener(e -> emulatorCore.setAudioOption("volume", Math.max(0, emulatorCore.getVolume() - 10)));
-    JCheckBoxMenuItem mute = new JCheckBoxMenuItem("Mute", emulatorCore.isMuted());
-    mute.addActionListener(e -> toggleMute());
-    volume.add(louder);
-    volume.add(quieter);
-    volume.addSeparator();
-    volume.add(mute);
-    menu.add(volume);
 
     menu.addSeparator();
     if (emulatorCore.getPanel() instanceof SpeccyScreen screen) {
@@ -545,9 +354,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
       border.addActionListener(e -> showBorder(border.isSelected()));
       menu.add(border);
     }
-    JCheckBoxMenuItem paused = new JCheckBoxMenuItem("Pause", emulatorCore.isPaused());
-    paused.addActionListener(e -> emulatorCore.pauseEmulation());
-    menu.add(paused);
     JCheckBoxMenuItem whole = new JCheckBoxMenuItem("Full screen", fullscreen != null);
     whole.addActionListener(e -> toggleFullscreen());
     menu.add(whole);
@@ -676,17 +482,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     }
     if (state.getX() >= 0 && state.getY() >= 0) {
       setLocation(state.getX(), state.getY());
-    }
-
-    isMuted = state.isMuted();
-    if (isMuted) {
-      emulatorCore.setGeneralOption("mute", true);
-      muteButton.setIcon(loadIcon("1F509.svg"));
-      muteButton.setToolTipText("Unmute Sound");
-    } else {
-      emulatorCore.setGeneralOption("mute", false);
-      muteButton.setIcon(loadIcon("1F507.svg"));
-      muteButton.setToolTipText("Mute Sound");
     }
 
     emulatorCore.setGeneralOption("turbo", state.isTurboMode());

@@ -77,7 +77,8 @@ public class WhatIsPluggedIn {
 
   /** Lo que se pone en la barra de una ventana de maquina, en un orden que no cambia de vez en vez. */
   public List<MachineTool> tools() {
-    return tools.stream().sorted(Comparator.comparing(MachineTool::tooltip)).toList();
+    return tools.stream().sorted(Comparator.comparingInt(MachineTool::place)
+        .thenComparing(MachineTool::tooltip)).toList();
   }
 
   /** Quien sabe de juegos, o nadie: un catalogo es un jar y puede no estar puesto. */

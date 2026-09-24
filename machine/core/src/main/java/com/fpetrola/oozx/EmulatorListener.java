@@ -18,11 +18,25 @@
 package com.fpetrola.oozx;
 
 public interface EmulatorListener {
-  void onEmulationStateChanged(String state);
-  void onError(String message);
-  void onEmulationSpeedChanged(double speed);
-  void onModelChanged(String model);
-  void onPauseStateChanged(boolean paused);
-  void onTurboModeChanged(boolean turbo);
-  void onTapeStatusChanged(String status);
+  default void onEmulationStateChanged(String state) {
+  }
+
+  default void onError(String message) {
+  }
+
+  default void onEmulationSpeedChanged(double speed) {
+  }
+
+  default void onModelChanged(String model) {
+  }
+
+  default void onPauseStateChanged(boolean paused) {
+  }
+
+  default void onTurboModeChanged(boolean turbo) {
+  }
+
+  default void onTapeStatusChanged(String status) {
+  }
+
 }
