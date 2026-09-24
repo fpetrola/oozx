@@ -17,7 +17,6 @@
 
 package com.fpetrola.oozx.speccy.media;
 
-import com.fpetrola.oozx.api.ZxInfoApiHandler;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -35,6 +34,18 @@ import java.util.zip.*;
 public class DownloadAndUnzip {
 
   private static final Path TMP_DIR = Paths.get(System.getProperty("java.io.tmpdir"));
+
+  /**
+   * Which files an archive says it may not hand out. Nothing here knows that: whoever offers the
+   * downloads says it, the way {@code RomFiles.askingFirst} is told how to ask. Without anybody
+   * saying so, every file is taken at face value, which is right when the links did not come
+   * from an archive that keeps such a list.
+   */
+  private static java.util.function.Predicate<String> notHandedOut = path -> false;
+
+  public static void marking(java.util.function.Predicate<String> asNotHandedOut) {
+    notHandedOut = asNotHandedOut == null ? path -> false : asNotHandedOut;
+  }
 
   public static void main(String[] args) {
     new DownloadAndUnzip().unzip("https://zxinfo.dk/media/zxdb/sinclair/entries/0030743/BigBrother.z80.zip");
@@ -186,7 +197,7 @@ public class DownloadAndUnzip {
     // ZXDB puts what it is not allowed to hand out under /denied/. Such a file is still the kind
     // of thing that could be loaded, so it is not rejected here - it is simply the last resort,
     // behind anything that will actually come down.
-    int denied = ZxInfoApiHandler.denied(path) ? 50 : 0;
+    int denied = notHandedOut.test(path) ? 50 : 0;
     String name = path.substring(path.lastIndexOf('/') + 1);
     // ZXDB lists downloads as .tzx.zip while the entries inside them are plain .tzx, and the
     // same scoring serves both.
@@ -295,7 +306,7 @@ public class DownloadAndUnzip {
    * offered its TOSEC files instead.
    */
   public static boolean available(String fileName) {
-    return fileName != null && !ZxInfoApiHandler.denied(fileName);
+    return fileName != null && !notHandedOut.test(fileName);
   }
 
   private static String cannotReach(URL url, IOException failure) {

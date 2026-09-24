@@ -25,6 +25,7 @@ import com.fpetrola.oozx.speccy.modules.z80.Cpu;
 import com.fpetrola.oozx.speccy.devices.DeviceFrame;
 import com.fpetrola.oozx.speccy.devices.EmulatorWindow;
 import com.fpetrola.oozx.speccy.devices.Desk;
+import com.fpetrola.oozx.speccy.devices.WhatGameThisIs;
 import com.fpetrola.oozx.speccy.devices.DeskEquipment;
 import com.fpetrola.oozx.speccy.devices.Equipment;
 import com.fpetrola.oozx.speccy.devices.Opens;
@@ -36,9 +37,6 @@ import java.util.LinkedHashMap;
 import com.fpetrola.oozx.speccy.screen.ScreenSettings;
 import com.fpetrola.oozx.speccy.screen.SpeccyScreen;
 import com.fpetrola.oozx.speccy.screen.TvScreen;
-import com.fpetrola.oozx.api.Hit;
-import com.fpetrola.oozx.api.GameSummary;
-import com.fpetrola.oozx.speccy.media.LocalGames;
 import com.fpetrola.oozx.speccy.config.OOZxConfiguration;
 import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
 import com.fpetrola.oozx.EmulatorListener;
@@ -629,16 +627,18 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
    * the pokes and the details used to be looked up by, and a file called RENE256.SNA matched no
    * pokes and sent the details to whatever the search happened to return first.
    */
-  private GameSummary loadedGame() {
+  /** Que juego esta cargado, dicho por quien sepa de juegos, o nada. */
+  private Desk.Game loadedGame() {
+    WhatGameThisIs knows = WhatIsPluggedIn.theOne().aboutGames();
     String filename = emulatorCore.getFilename();
-    return filename == null || filename.isEmpty() ? null : LocalGames.whoIs(java.nio.file.Path.of(filename));
+    return knows == null || filename == null || filename.isEmpty() ? null : knows.gameIn(filename);
   }
 
   private void openPokesDialog() {
     if (parentApp == null) return;
 
-    GameSummary identified = loadedGame();
-    String gameName = identified != null ? identified.title : emulatorCore.getFilename();
+    Desk.Game identified = loadedGame();
+    String gameName = identified != null ? identified.title() : emulatorCore.getFilename();
     if (identified == null && gameName != null) {
       gameName = new java.io.File(gameName).getName().replace(".tap", "").replace(".tzx", "")
           .replace(".z80", "").replace(".sna", "").replace(".szx", "");
@@ -653,7 +653,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     // entry and its .pok file. The name is what is left when it does not, and it is a guess: it
     // found nothing for a file called RENE256.SNA and the wrong thing for a shared title.
     List<com.fpetrola.oozx.speccy.pokes.PokFile> availablePokes =
-        parentApp.pokesManager.findPokesForEntry(identified == null ? null : identified.id);
+        parentApp.pokesManager.findPokesForEntry(identified == null ? null : identified.id());
     if (availablePokes.isEmpty()) {
       availablePokes = parentApp.pokesManager.findPokesForGame(gameName);
     }
@@ -688,101 +688,15 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     pokesDialog.setVisible(true);
   }
   
+  /**
+   * Lo que se sabe del juego que esta corriendo. Que juego es lo dice quien sabe de juegos: aca
+   * solo se sabe que archivo se cargo, y de que archivo salio un .sna llamado RENE256 no se
+   * deduce nada sin un catalogo.
+   */
   private void openGameDetails() {
-    String gameId = null;
-    String gameName = null;
-    
-    // The entry the game was opened from, and failing that the one the catalogue recognises it as.
-    // Only when neither knows does it fall back to searching by a name taken off the file, which is
-    // a guess: the first hit of a search is not necessarily the game that is running.
-    if (game != null) {
-      gameId = game.id();
-    } else {
-      GameSummary identified = loadedGame();
-      if (identified != null) {
-        gameId = identified.id;
-      } else {
-        String filename = emulatorCore.getFilename();
-        if (filename != null && !filename.isEmpty()) {
-          gameName = new java.io.File(filename).getName()
-              .replace(".tap", "").replace(".tzx", "")
-              .replace(".z80", "").replace(".sna", "").replace(".szx", "")
-              .replace(".dsk", "").replace(".vg", "");
-        }
-      }
-    }
-    
-    // If we don't have either gameId or gameName, show error
-    if (gameId == null && (gameName == null || gameName.isEmpty())) {
-      JOptionPane.showMessageDialog(this, 
-          "No game information available", 
-          "Info", 
-          JOptionPane.INFORMATION_MESSAGE);
-      return;
-    }
-    
-    // Show loading dialog while fetching from API
-    JDialog loadingDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), 
-        "Loading Game Details", true);
-    loadingDialog.setSize(300, 100);
-    loadingDialog.setLocationRelativeTo(this);
-    JLabel loadingLabel = new JLabel("Fetching game details from ZXInfo API...");
-    loadingLabel.setHorizontalAlignment(JLabel.CENTER);
-    loadingDialog.add(loadingLabel);
-    
-    final String finalGameId = gameId;
-    final String finalGameName = gameName;
-    
-    // Fetch details in background thread
-    SwingWorker<com.fpetrola.oozx.api.GameDetail, Void> worker =
-        new SwingWorker<com.fpetrola.oozx.api.GameDetail, Void>() {
-          @Override
-          protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
-            try {
-              // If we have gameId, use it directly
-              if (finalGameId != null) {
-                return com.fpetrola.oozx.api.Catalogues.details(finalGameId);
-              } else {
-                // Otherwise search by game name and use the first result
-                List<Hit> results = com.fpetrola.oozx.api.Catalogues.search(finalGameName, null, null);
-                if (results == null || results.isEmpty()) {
-                  return null;
-                }
-                Hit bestMatch = results.get(0);
-                return com.fpetrola.oozx.api.Catalogues.details(bestMatch._id);
-              }
-            } catch (Exception e) {
-              System.err.println("Error fetching game details: " + e.getMessage());
-              e.printStackTrace();
-              return null;
-            }
-          }
-          
-          @Override
-          protected void done() {
-            loadingDialog.dispose();
-            try {
-              com.fpetrola.oozx.api.GameDetail detail = get();
-              if (detail != null) {
-                GameDetailsDialog dialog = new GameDetailsDialog(
-                    (Frame) SwingUtilities.getWindowAncestor(EmulatorInternalFrame.this), 
-                    detail);
-                dialog.setVisible(true);
-              } else {
-                String searchTerm = finalGameId != null ? "game ID" : ("\"" + finalGameName + "\"");
-                JOptionPane.showMessageDialog(EmulatorInternalFrame.this,
-                    "No game details found for " + searchTerm,
-                    "Game Not Found", JOptionPane.INFORMATION_MESSAGE);
-              }
-            } catch (Exception e) {
-              JOptionPane.showMessageDialog(EmulatorInternalFrame.this,
-                  "Error loading game details: " + e.getMessage(),
-                  "Error", JOptionPane.ERROR_MESSAGE);
-            }
-          }
-        };
-    worker.execute();
-    loadingDialog.setVisible(true);
+    if (parentApp == null) return;
+    parentApp.showDetails(game != null ? game
+        : new Desk.Game(emulatorCore.getFilename(), null, null, null));
   }
 
   private void applyPokes(List<com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod> mods) {
@@ -1915,108 +1829,26 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   /**
    * Search for game by name and show details dialog
    */
+  /** Lo que se sabe de un juego del historial, pedido por su nombre a quien sepa de juegos. */
   private void showGameDetailsFromHistory(String gameName) {
-    // Remove file extensions from game name
-    String cleanGameName = gameName
-        .replaceAll("\\.(z80|sna|tap|tzx|szx)$", "")
-        .trim();
-
-    // Show loading dialog
-    JDialog loadingDialog = new JDialog(this, "Loading Game Details", true);
-    loadingDialog.setSize(300, 100);
-    loadingDialog.setLocationRelativeTo(this);
-    JLabel loadingLabel = new JLabel("Searching for: " + cleanGameName);
-    loadingLabel.setHorizontalAlignment(JLabel.CENTER);
-    loadingDialog.add(loadingLabel);
-
-    // Search in background
-    SwingWorker<com.fpetrola.oozx.api.GameDetail, Void> worker =
-        new SwingWorker<com.fpetrola.oozx.api.GameDetail, Void>() {
-          @Override
-          protected com.fpetrola.oozx.api.GameDetail doInBackground() throws Exception {
-            try {
-              // Search for the game by name (without file extension)
-              List<Hit> results = com.fpetrola.oozx.api.Catalogues.search(cleanGameName, null, null);
-
-              if (results == null || results.isEmpty()) {
-                return null;
-              }
-
-              // Get the best matching result (first one)
-              Hit bestMatch = results.get(0);
-              String gameId = bestMatch._id;
-
-              // Fetch full details from whoever can answer
-              return com.fpetrola.oozx.api.Catalogues.details(gameId);
-            } catch (Exception e) {
-              System.err.println("Error searching for game: " + e.getMessage());
-              return null;
-            }
-          }
-
-          @Override
-          protected void done() {
-            loadingDialog.dispose();
-            try {
-              com.fpetrola.oozx.api.GameDetail gameDetail = get();
-
-              if (gameDetail == null) {
-                // Show dialog to allow user to search again
-                showGameNotFoundDialog(cleanGameName);
-                return;
-              }
-
-              GameDetailsDialog dialog = new GameDetailsDialog(ZXSpectrumDesktopApp.this, gameDetail);
-              dialog.setVisible(true);
-            } catch (Exception e) {
-              JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-                  "Error loading game details: " + e.getMessage(),
-                  "Error", JOptionPane.ERROR_MESSAGE);
-            }
-          }
-        };
-
-    worker.execute();
-    loadingDialog.setVisible(true);
+    showDetails(new Desk.Game(null, null, null,
+        gameName.replaceAll("\\.(z80|sna|tap|tzx|szx)$", "").trim()));
   }
 
   /**
-   * Show dialog when game not found, allowing user to search with different name
+   * Lo que se sabe de un juego, mostrado por quien sepa. El escritorio no: abre archivos y arma
+   * maquinas, y de un catalogo de juegos no sabe nada. Sigue estando el metodo porque un plugin
+   * ya publicado lo llama.
    */
-  private void showGameNotFoundDialog(String attemptedName) {
-    GameNotFoundDialog.showWithRetry(this, "Game not found: " + attemptedName,
-        newName -> showGameDetailsFromHistory(newName));
-  }
-
-  /** What the catalogue knows about a game, fetched by its entry and shown on the desk. */
   @Override
   public void showDetails(Desk.Game game) {
-    JDialog loading = showLoading("Fetching game details from ZXInfo API...");
-    new SwingWorker<com.fpetrola.oozx.api.GameDetail, Void>() {
-      @Override
-      protected com.fpetrola.oozx.api.GameDetail doInBackground() {
-        return com.fpetrola.oozx.api.Catalogues.details(game.id());
-      }
-
-      @Override
-      protected void done() {
-        loading.dispose();
-        try {
-          com.fpetrola.oozx.api.GameDetail detail = get();
-          if (detail == null) {
-            detail = new com.fpetrola.oozx.api.GameDetail();
-            detail.id = game.id();
-            detail.title = game.title();
-            detail.screenshots = new ArrayList<>();
-            detail.description = "Game description not available";
-          }
-          new GameDetailsDialog(ZXSpectrumDesktopApp.this, detail).setVisible(true);
-        } catch (Exception itWouldNot) {
-          JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-              "Error loading game details: " + reason(itWouldNot), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-      }
-    }.execute();
+    WhatGameThisIs knows = has.aboutGames();
+    if (knows == null) {
+      TellsThePerson.thisBuildCannot("nada en este emulador sabe de juegos, asi que no hay"
+          + " detalles que mostrar de " + game.title() + ".", "games");
+      return;
+    }
+    knows.show(game);
   }
 
   /** Keeps a game to come back to, asked by whoever is showing it. */

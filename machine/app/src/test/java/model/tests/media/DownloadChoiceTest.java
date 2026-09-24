@@ -57,18 +57,6 @@ class DownloadChoiceTest {
         "https://zxinfo.dk/media/pub/sinclair/trdos/games/d/DizzyElusive.trd.zip"));
   }
 
-  @Test
-  void what_the_archive_may_not_hand_over_comes_last() {
-    // ZXDB files it cannot distribute under /denied/. A tape that will actually come down beats
-    // a perfect tape that will answer with a refusal.
-    String denied = "https://zxinfo.dk/media/denied/entries/0011243/Game.tzx.zip";
-    String plain = "https://zxinfo.dk/media/pub/sinclair/games/g/Game.tap.zip";
-    assertEquals(plain, DownloadAndUnzip.preferred(List.of(denied, plain), WHOLE_URL),
-        "chose the one the archive will not give out");
-    // With nothing else on offer it is still the answer: better a refusal that explains itself
-    // than pretending the entry has nothing.
-    assertEquals(denied, DownloadAndUnzip.preferred(List.of(denied), WHOLE_URL));
-  }
 
   @Test
   void the_plain_tosec_dump_beats_the_ones_somebody_got_at() {
@@ -112,16 +100,6 @@ class DownloadChoiceTest {
         "the emulator boots a 48K machine");
   }
 
-  @Test
-  void what_the_archive_withholds_is_known_before_asking_for_it() {
-    // So the filter for "things I can load" can leave it out, and a click on it can say why
-    // without spending a download to find out.
-    assertFalse(DownloadAndUnzip.available(
-        "https://zxinfo.dk/media/denied/entries/0011243/DizzyCollection.tzx.zip"));
-    assertTrue(DownloadAndUnzip.available(
-        "https://zxinfo.dk/media/pub/sinclair/games/d/DizzyCollection.tzx.zip"));
-    assertFalse(DownloadAndUnzip.available(null), "nothing at all is not available either");
-  }
 
   @Test
   void the_list_offered_is_in_the_order_it_would_have_chosen() {

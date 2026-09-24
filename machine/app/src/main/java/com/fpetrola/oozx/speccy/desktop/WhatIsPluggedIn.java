@@ -20,6 +20,7 @@ package com.fpetrola.oozx.speccy.desktop;
 import com.fpetrola.emulation.helpers.snapshots.SnapshotFile;
 import com.fpetrola.oozx.speccy.devices.DeskEquipment;
 import com.fpetrola.oozx.speccy.devices.Equipment;
+import com.fpetrola.oozx.speccy.devices.WhatGameThisIs;
 import com.fpetrola.oozx.speccy.machine.StartsAMachineOn;
 import com.fpetrola.oozx.speccy.screen.ScreenEffect;
 import com.google.inject.Inject;
@@ -57,15 +58,23 @@ public class WhatIsPluggedIn {
   private final Set<ScreenEffect> effects;
   private final Set<SnapshotFile> formats;
   private final Set<StartsAMachineOn> starters;
+  private final Set<WhatGameThisIs> aboutGames;
 
   @Inject
   public WhatIsPluggedIn(Set<Equipment> equipment, Set<DeskEquipment> deskWindows,
-      Set<ScreenEffect> effects, Set<SnapshotFile> formats, Set<StartsAMachineOn> starters) {
+      Set<ScreenEffect> effects, Set<SnapshotFile> formats, Set<StartsAMachineOn> starters,
+      Set<WhatGameThisIs> aboutGames) {
     this.equipment = equipment;
     this.deskWindows = deskWindows;
     this.effects = effects;
     this.formats = formats;
     this.starters = starters;
+    this.aboutGames = aboutGames;
+  }
+
+  /** Quien sabe de juegos, o nadie: un catalogo es un jar y puede no estar puesto. */
+  public WhatGameThisIs aboutGames() {
+    return aboutGames.stream().findFirst().orElse(null);
   }
 
   /** Quien sabe empezar una maquina sobre ese archivo, o nadie. */

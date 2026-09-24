@@ -218,6 +218,13 @@ public class ZxInfoApiHandler implements KnowsTheGames {
   }
 
   /** Whether ZXDB keeps this one where it may not hand it out, which is what /denied/ means. */
+  static {
+    // Quien baja los archivos no sabe que es /denied/: se lo decimos desde aca, que es de donde
+    // salen esos enlaces. Cualquier url de este archivo pasa antes por esta clase, asi que para
+    // cuando haya que bajar algo, esto ya corrio.
+    com.fpetrola.oozx.speccy.media.DownloadAndUnzip.marking(ZxInfoApiHandler::denied);
+  }
+
   public static boolean denied(String path) {
     return path != null && path.toLowerCase().contains("/denied/");
   }
