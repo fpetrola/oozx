@@ -21,6 +21,11 @@
     -->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Los plugins viajan adentro del jar de un solo archivo y el primer arranque los pone
+             sin red. En todo build y no en un perfil: un jar armado sin ellos es igual de grande
+             y parece el bueno, asi que el dia que alguien olvide el perfil no se entera. -->
+        <crystal.bundleGroupId>com.fpetrola</crystal.bundleGroupId>
+        <crystal.bundleVersion>0.0.2-alu-SNAPSHOT</crystal.bundleVersion>
     </properties>
 
     <dependencies>
@@ -167,7 +172,7 @@
         </dependency>
     </dependencies>
 
-    <!-- Un solo jar ejecutable: mvn -o package -pl machine/app -am -DskipTests -Pdist
+    <!-- Un solo jar ejecutable: mvn -o package -pl machine/app -am -DskipTests
          y despues java -jar machine/app/target/app-<version>-all.jar
          Los perifericos llegan por service file, asi que las entradas de META-INF/services
          de todos los modulos se concatenan en vez de pisarse. -->
@@ -248,16 +253,6 @@
     <!-- The slow, networked and native-only tests never run in a normal build. Ask for them:
          mvn test -Pslow -pl machine/app -->
     <profiles>
-        <!-- El jar que se reparte, con los plugins adentro: mvn clean verify -Pdist
-             El primer arranque los instala sin red. Fuera de este perfil no se empaquetan,
-             porque un jar de 74 MB del que todos dependen no le sirve a nadie. -->
-        <profile>
-            <id>dist</id>
-            <properties>
-                <crystal.bundleGroupId>com.fpetrola</crystal.bundleGroupId>
-                <crystal.bundleVersion>0.0.2-alu-SNAPSHOT</crystal.bundleVersion>
-            </properties>
-        </profile>
         <profile>
             <id>slow</id>
             <build>

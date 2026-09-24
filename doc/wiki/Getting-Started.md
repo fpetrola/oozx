@@ -13,7 +13,7 @@
 ```bash
 git clone https://github.com/fpetrola/oozx.git
 cd oozx
-mvn -DskipTests install -Pdist
+mvn -DskipTests install
 java -jar machine/app/target/app-0.0.2-alu-SNAPSHOT-all.jar
 ```
 

@@ -237,9 +237,11 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.3.0</version>
                 <configuration>
+                    <!-- Sin clase principal: el jar de un modulo no arranca nada, y decir que
+                         si llevaba a que java -jar sobre el muriera buscando clases que estan en
+                         otro lado. El de un solo archivo la declara al armarse. -->
                     <archive>
                         <manifest>
-                            <mainClass>com.fpetrola.oozx.speccy.desktop.OOSpectrumLauncher</mainClass>
                             <addClasspath>true</addClasspath>
                         </manifest>
                     </archive>
