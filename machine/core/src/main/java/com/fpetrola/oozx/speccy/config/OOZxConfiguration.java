@@ -98,6 +98,7 @@ public class OOZxConfiguration implements Configuration.Saves {
           .FAIL_ON_UNKNOWN_PROPERTIES, false);
   
   private Runnable onHistoryChanged;
+  private Runnable onFavoritesChanged = () -> { };
 
   public OOZxConfiguration() {
   }
@@ -259,12 +260,14 @@ public class OOZxConfiguration implements Configuration.Saves {
     if (favorites.stream().anyMatch(f -> f.getSource().equals(favorite.getSource()))) return false;
     favorites.add(favorite);
     save();
+    onFavoritesChanged.run();
     return true;
   }
 
   public void removeFavorite(String source) {
     favorites.removeIf(f -> f.getSource().equals(source));
     save();
+    onFavoritesChanged.run();
   }
 
   public boolean isFavorite(String source) {
@@ -309,6 +312,10 @@ public class OOZxConfiguration implements Configuration.Saves {
 
   public void setSnapshotHistory(Map<String, SnapshotHistoryEntry> snapshotHistory) {
     this.snapshotHistory = snapshotHistory;
+  }
+
+  public void setOnFavoritesChanged(Runnable callback) {
+    this.onFavoritesChanged = callback == null ? () -> { } : callback;
   }
 
   public void setOnHistoryChanged(Runnable callback) {

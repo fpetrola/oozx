@@ -131,6 +131,25 @@ public interface Desk {
   /** The machines this build can open a game on, for offering them beside it. */
   java.util.List<String> machines();
 
+  /** Lo que el escritorio recuerda entre corridas: favoritos, historial, estados guardados. */
+  default com.fpetrola.oozx.speccy.config.OOZxConfiguration configuration() {
+    return null;
+  }
+
+  /** Abre lo que haya en ese camino como se abre desde el menu: una maquina, una grabacion, un zip. */
+  default void open(String path) {
+  }
+
+  /** Una maquina desde un estado guardado; si ya no esta, desde el archivo de donde salio. */
+  default void openSaved(String savedStateId, String file) {
+    open(file);
+  }
+
+  /** Una grabacion, eligiendo de entrada que parte de un zip, cuando ya se sabe. */
+  default void play(String url, String label, String entry) {
+    play(url, label);
+  }
+
   /** Los ajustes de esa maquina, pegados a su ventana. */
   default void openSettingsFor(EmulatorWindow machine) {
   }

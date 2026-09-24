@@ -385,8 +385,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   private final Function<SpectrumState, EmulatorCore> mockCoreState;
   private JDesktopPane desktop;
   private int emulatorCount = 0;
-  private SnapshotHistoryInternalFrame snapshotHistory;
-  private FavoritesInternalFrame favorites;
   private final JFileChooser fileChooser = new JFileChooser();
   protected OOZxConfiguration config;
   private JMenu recentFilesMenu;
@@ -1155,15 +1153,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     toolBar.add(deskWindowButtons);
     fillTheDeskWindowButtons();
 
-    JButton historyBtn = new JButton(loadIcon("E260.svg"));
-    historyBtn.setToolTipText("Snapshot History");
-    historyBtn.addActionListener(e -> openSnapshotHistory());
-    toolBar.add(historyBtn);
-
-    JButton favoritesBtn = new JButton(loadIcon("2B50.svg"));
-    favoritesBtn.setToolTipText("Favorites");
-    favoritesBtn.addActionListener(e -> openFavorites());
-    toolBar.add(favoritesBtn);
 
     JButton pluginsBtn = new JButton(loadIcon("1F9E9.svg"));
     pluginsBtn.setToolTipText("Plugins - what is in this emulator and what else can be had");
@@ -1232,7 +1221,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         : new java.io.File(source).getName();
     boolean added = config.addFavorite(new OOZxConfiguration.Favorite(source, title, "GAME",
         game == null ? null : game.id()));
-    if (favorites != null && !favorites.isClosed()) favorites.refresh();
 
     JOptionPane.showMessageDialog(this, added ? title + " is now a favourite."
         : title + " was already a favourite.", "Favorites", JOptionPane.INFORMATION_MESSAGE);
@@ -1259,103 +1247,30 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     return null;
   }
 
-  public void openFavorites() {
-    if (favorites == null || favorites.isClosed()) {
-      favorites = new FavoritesInternalFrame(config, favorite -> {
-        // Straight back through the paths the application already uses, so a favourite opens
-        // exactly the way it opened the first time.
-        if (favorite.isRecording()) {
-          // Fetching wants something it can open as a URL, and a favourite made from a file on
-          // the disk kept a plain path because that is what is worth reading in the list.
-          String from = favorite.getSource();
-          if (!from.startsWith("http") && !from.startsWith("file:")) {
-            from = new java.io.File(from).toURI().toString();
-          }
-          playRecording(favorite.getTitle(), from, favorite.getEntry());
-        } else {
-          loadInNewEmulator(favorite.getSource());
-        }
-      });
-      desktop.add(favorites);
-    }
-    favorites.setVisible(true);
-    favorites.toFront();
-    try {
-      favorites.setSelected(true);
-    } catch (java.beans.PropertyVetoException ignored) {
-    }
+  @Override
+  public OOZxConfiguration configuration() {
+    return config;
   }
 
-  private void openSnapshotHistory() {
-    if (snapshotHistory == null || snapshotHistory.isClosed()) {
-      snapshotHistory = new SnapshotHistoryInternalFrame(config);
-
-      snapshotHistory.setOnSnapshotSelectedListener(entry -> {
-        if (entry.getInitialStateId() != null && !entry.getInitialStateId().isEmpty()) {
-          try {
-            String snapshotData = config.getSnapshot(entry.getInitialStateId());
-            if (snapshotData != null && !snapshotData.isEmpty()) {
-              SpectrumState spectrumState = SnapshotSaver.loadSnapshotFromUnicodePacked(snapshotData);
-              EmulatorCore core = mockCoreState.apply(spectrumState);
-              createNewEmulator(core, entry.getFilePath());
-              return;
-            }
-          } catch (Exception ex) {
-            System.err.println("Error restaurando snapshot guardado: " + ex.getMessage());
-            // Fallback a cargar desde archivo
-          }
-        }
-
-        EmulatorCore core = mockCore.apply(entry.getFilePath(), null);
-        createNewEmulator(core, entry.getFilePath());
-      });
-
-      snapshotHistory.setOnSnapshotRemovedListener(entry -> {
-        if (entry == null) {
-          config.getSnapshotHistory().clear();
-        } else {
-          String key = new java.io.File(entry.getFilePath()).getAbsolutePath();
-          config.getSnapshotHistory().remove(key);
-        }
-        config.save();
-      });
-
-      snapshotHistory.setOnViewDetailsListener(gameName -> {
-        showGameDetailsFromHistory(gameName);
-      });
-
-      config.setOnHistoryChanged(() -> {
-        if (snapshotHistory != null && !snapshotHistory.isClosed()) {
-          snapshotHistory.refreshHistory(config);
-        }
-      });
-
-      snapshotHistory.setOnClosedListener(() -> {
-        config.save();
-      });
-
-      desktop.add(snapshotHistory);
-      snapshotHistory.setVisible(true);
+  @Override
+  public void openSaved(String savedStateId, String file) {
+    if (savedStateId != null && !savedStateId.isEmpty()) {
       try {
-        snapshotHistory.setSelected(true);
-      } catch (java.beans.PropertyVetoException ex) {
-      }
-    } else {
-      try {
-        snapshotHistory.setSelected(true);
-        snapshotHistory.toFront();
-      } catch (java.beans.PropertyVetoException ex) {
+        String snapshotData = config.getSnapshot(savedStateId);
+        if (snapshotData != null && !snapshotData.isEmpty()) {
+          createNewEmulator(mockCoreState.apply(SnapshotSaver.loadSnapshotFromUnicodePacked(snapshotData)), file);
+          return;
+        }
+      } catch (Exception ex) {
+        System.err.println("Error restaurando snapshot guardado: " + ex.getMessage());
       }
     }
+    createNewEmulator(mockCore.apply(file, null), file);
   }
 
-  /**
-   * Search for game by name and show details dialog
-   */
-  /** Lo que se sabe de un juego del historial, pedido por su nombre a quien sepa de juegos. */
-  private void showGameDetailsFromHistory(String gameName) {
-    showDetails(new Desk.Game(null, null, null,
-        gameName.replaceAll("\\.(z80|sna|tap|tzx|szx)$", "").trim()));
+  @Override
+  public void play(String url, String label, String entry) {
+    playRecording(label, url, entry);
   }
 
   /**
@@ -1611,7 +1526,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     String name = title == null ? url : title;
     boolean added = config.addFavorite(new OOZxConfiguration.Favorite(url, name, "RECORDING",
         null, entry));
-    if (favorites != null && !favorites.isClosed()) favorites.refresh();
     JOptionPane.showMessageDialog(this, added ? name + " is now a favourite."
         : name + " was already a favourite.", "Favorites", JOptionPane.INFORMATION_MESSAGE);
   }
@@ -2173,9 +2087,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         config.getOpenWindows().add(eFrame.saveWindowState(filePath));
       } else if (frame instanceof com.fpetrola.oozx.speccy.devices.KeepsItsPlace keeper) {
         config.getOpenWindows().add(keeper.saveWindowState());
-      } else if (frame instanceof SnapshotHistoryInternalFrame) {
-        SnapshotHistoryInternalFrame hFrame = (SnapshotHistoryInternalFrame) frame;
-        config.getOpenWindows().add(hFrame.saveWindowState());
       }
     }
   }
@@ -2200,13 +2111,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         JInternalFrame window = showOnTheDesk(deskKindThatKeeps(windowState.getType()));
         if (window instanceof com.fpetrola.oozx.speccy.devices.KeepsItsPlace keeper) {
           keeper.restoreWindowState(windowState);
-        }
-      } else if ("SNAPSHOT_HISTORY".equals(windowState.getType())) {
-        if (snapshotHistory == null || snapshotHistory.isClosed()) {
-          openSnapshotHistory();
-        }
-        if (snapshotHistory != null && !snapshotHistory.isClosed()) {
-          snapshotHistory.restoreWindowState(windowState);
         }
       }
     }
