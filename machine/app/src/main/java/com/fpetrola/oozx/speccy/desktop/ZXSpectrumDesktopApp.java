@@ -693,13 +693,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     JMenu helpMenu = new JMenu("Help");
     helpMenu.setMnemonic(KeyEvent.VK_H);
 
-    JMenuItem readmeItem = new JMenuItem("View README");
-    readmeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
-    readmeItem.addActionListener(e -> openReadme());
-    helpMenu.add(readmeItem);
-
-    helpMenu.addSeparator();
-
     JMenuItem aboutItem = new JMenuItem("About");
     aboutItem.addActionListener(e -> showAboutDialog());
     helpMenu.add(aboutItem);
@@ -707,98 +700,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     menuBar.add(helpMenu);
 
     return menuBar;
-  }
-
-  private void openReadme() {
-    SwingUtilities.invokeLater(() -> {
-      try {
-        String readmeContent = loadReadmeFromResources();
-
-        if (readmeContent != null && !readmeContent.isEmpty()) {
-          String html = markdownToHtml(readmeContent);
-
-          showReadmeWindow(html);
-        } else {
-          JOptionPane.showMessageDialog(this,
-              "Could not load README",
-              "Error", JOptionPane.ERROR_MESSAGE);
-        }
-      } catch (Exception e) {
-        JOptionPane.showMessageDialog(this,
-            "Error loading README:n" + e.getMessage(),
-            "Error", JOptionPane.ERROR_MESSAGE);
-      }
-    });
-  }
-
-  private String loadReadmeFromResources() throws Exception {
-    try (java.io.InputStream in = getClass().getClassLoader().getResourceAsStream("README.md")) {
-      if (in == null) {
-        throw new Exception("README.md not found in resources");
-      }
-      return new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
-    }
-  }
-
-  private String markdownToHtml(String markdown) {
-    org.commonmark.parser.Parser parser = org.commonmark.parser.Parser.builder()
-        .extensions(List.of(
-            org.commonmark.ext.gfm.tables.TablesExtension.create()
-        ))
-        .build();
-    org.commonmark.node.Node document = parser.parse(markdown);
-    org.commonmark.renderer.html.HtmlRenderer renderer = org.commonmark.renderer.html.HtmlRenderer.builder()
-        .extensions(List.of(
-            org.commonmark.ext.gfm.tables.TablesExtension.create()
-        ))
-        .build();
-    String html = renderer.render(document);
-
-    String styledHtml = "<html><head><style>" +
-                        "body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; color: #333; }" +
-                        "h1 { color: #1f77b4; border-bottom: 2px solid #1f77b4; padding-bottom: 10px; }" +
-                        "h2 { color: #ff7f0e; margin-top: 20px; }" +
-                        "h3 { color: #2ca02c; }" +
-                        "code { background-color: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New'; }" +
-                        "pre { background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow-x: auto; }" +
-                        "pre code { background-color: transparent; padding: 0; }" +
-                        "a { color: #1f77b4; text-decoration: none; }" +
-                        "a:hover { text-decoration: underline; }" +
-                        "blockquote { border-left: 4px solid #ddd; padding-left: 15px; color: #666; margin-left: 0; }" +
-                        "img { max-width: 100%; height: auto; }" +
-                        "table { border-collapse: collapse; width: 100%; }" +
-                        "th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }" +
-                        "th { background-color: #f5f5f5; }" +
-                        "</style></head><body>" +
-                        html +
-                        "</body></html>";
-
-    return styledHtml;
-  }
-
-  private void showReadmeWindow(String html) {
-    JInternalFrame readmeFrame = new JInternalFrame("README - OOZX", true, true, true, true);
-    readmeFrame.setSize(800, 600);
-    readmeFrame.setLocation(50, 50);
-
-    JEditorPane editorPane = new JEditorPane();
-    editorPane.setContentType("text/html");
-    editorPane.setText(html);
-    editorPane.setEditable(false);
-    editorPane.setCaretPosition(0);
-
-    JScrollPane scrollPane = new JScrollPane(editorPane);
-    scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-
-    readmeFrame.add(scrollPane, BorderLayout.CENTER);
-    desktop.add(readmeFrame);
-    readmeFrame.setVisible(true);
-
-    try {
-      readmeFrame.setSelected(true);
-    } catch (java.beans.PropertyVetoException e) {
-      // Ignore
-    }
   }
 
   private void showAboutDialog() {

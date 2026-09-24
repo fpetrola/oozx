@@ -126,17 +126,6 @@
             <artifactId>batik-transcoder</artifactId>
             <version>1.17</version>
         </dependency>
-        <!-- The markdown a game's notes are written in. Los looks de terceros los trae un plugin. -->
-        <dependency>
-            <groupId>org.commonmark</groupId>
-            <artifactId>commonmark</artifactId>
-            <version>0.21.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.commonmark</groupId>
-            <artifactId>commonmark-ext-gfm-tables</artifactId>
-            <version>0.21.0</version>
-        </dependency>
     </dependencies>
 
     <!-- Un solo jar ejecutable: mvn -o package -pl machine/app -am -DskipTests
