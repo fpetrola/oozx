@@ -150,12 +150,13 @@ public interface Desk {
     play(url, label);
   }
 
-  /** Los ajustes de esa maquina, pegados a su ventana. */
-  default void openSettingsFor(EmulatorWindow machine) {
+  /** La maquina detras de esa ventana, o null si no es la de una maquina. */
+  default com.fpetrola.oozx.speccy.peripherals.EmulatorCore coreOf(java.awt.Component window) {
+    return null;
   }
 
-  /** Como se ve la pantalla de esa maquina: escalado, television, color. */
-  default void openScreenSettings(EmulatorWindow machine) {
+  /** Pone la ventana en el escritorio, adelante. */
+  default void place(javax.swing.JInternalFrame window) {
   }
 
   /** Un ajuste de pantalla que quedo elegido, para las maquinas que se abran despues. */

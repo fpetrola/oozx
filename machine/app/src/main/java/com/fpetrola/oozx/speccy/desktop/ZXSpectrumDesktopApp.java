@@ -683,13 +683,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     JMenu optionsMenu = new JMenu("Options");
     optionsMenu.setMnemonic(KeyEvent.VK_O);
 
-    AbstractAction settingsAction = new AbstractAction("Settings...") {
-      public void actionPerformed(ActionEvent e) {
-        openSettings();
-      }
-    };
-    optionsMenu.add(settingsAction);
-    optionsMenu.addSeparator();
     optionsMenu.add(createTvMenu());
     menuBar.add(optionsMenu);
 
@@ -714,31 +707,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     menuBar.add(helpMenu);
 
     return menuBar;
-  }
-
-  /**
-   * The settings of nobody in particular: asked for from the menu, with no machine named, they are
-   * what a machine starts with. Clipping the window onto a machine is how it comes to be that
-   * machine's, and the button on a machine's own toolbar opens it already clipped onto that one.
-   */
-  private void openSettings() {
-    SettingsInternalFrame settings = new SettingsInternalFrame(this::coreOf, new DefaultsCore(config), config);
-    settings.setLocation(80, 80);
-    desktop.add(settings);
-    settings.setVisible(true);
-    settings.toFront();
-  }
-
-  /** The settings of one machine, clipped onto it, which is what says whose they are. */
-  public SettingsInternalFrame openSettingsFor(EmulatorInternalFrame machine) {
-    SettingsInternalFrame settings =
-        new SettingsInternalFrame(this::coreOf, new DefaultsCore(config), config);
-    settings.setLocation(80, 80);
-    desktop.add(settings);
-    settings.setVisible(true);
-    settings.setMachineWindow(machine);
-    settings.toFront();
-    return settings;
   }
 
   private void openReadme() {
@@ -917,38 +885,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     ScreenSettings.setKeptProfiles(kept);
   }
 
-  /** Writes back whatever the engine now holds, after one was saved or forgotten. */
-  void rememberKeptProfiles() {
-    Map<String, Map<String, String>> kept = new LinkedHashMap<>();
-    for (ScreenProfile profile : ScreenSettings.getKeptProfiles()) {
-      kept.put(profile.name(), new LinkedHashMap<>(profile.values()));
-    }
-    config.setKeptScreenProfiles(kept);
-    config.save();
-  }
-
-  /** The screen knobs of one emulator, in a window of their own. */
-  void openScreenSettings(EmulatorCore core, String machineName) {
-    if (!(core.getPanel() instanceof SpeccyScreen screen)) {
-      JOptionPane.showMessageDialog(this, "This emulator has no adjustable screen.",
-          "Screen", JOptionPane.INFORMATION_MESSAGE);
-      return;
-    }
-
-    ScreenSettingsInternalFrame window = new ScreenSettingsInternalFrame(machineName,
-        screen.getScreenSettings(), kept -> {
-      config.setScreenDefaults(new LinkedHashMap<>(kept));
-      config.save();
-    }, this::rememberKeptProfiles);
-    desktop.add(window);
-    window.setVisible(true);
-    window.toFront();
-    try {
-      window.setSelected(true);
-    } catch (java.beans.PropertyVetoException ignored) {
-    }
-  }
-
   /** One choice among several: the group is what makes the previous tick go out when a new one lights. */
   static JMenu radioMenu(String title, java.util.Map<String, Runnable> options, String chosen) {
     JMenu menu = new JMenu(title);
@@ -999,16 +935,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
    * the saved defaults in its constructor and then had them overwritten by whatever the menu
    * happened to hold, which for scan lines nobody had touched was off. One place now.
    */
-  @Override
-  public void openSettingsFor(com.fpetrola.oozx.speccy.devices.EmulatorWindow machine) {
-    if (machine instanceof EmulatorInternalFrame frame) openSettingsFor(frame);
-  }
-
-  @Override
-  public void openScreenSettings(com.fpetrola.oozx.speccy.devices.EmulatorWindow machine) {
-    if (machine instanceof EmulatorInternalFrame frame) openScreenSettings(frame.emulatorCore, frame.getTitle());
-  }
-
   @Override
   public void rememberScreen(String setting, String value) {
     setScreenDefault(setting, value);
@@ -1159,10 +1085,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     pluginsBtn.addActionListener(e -> showPlugins());
     toolBar.add(pluginsBtn);
 
-    JButton settingsBtn = new JButton(loadIcon("2699.svg"));
-    settingsBtn.setToolTipText("Settings");
-    settingsBtn.addActionListener(e -> openSettings());
-    toolBar.add(settingsBtn);
 
     EmulatorInternalFrame.tighten(toolBar);
     return toolBar;
@@ -1179,16 +1101,21 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     if (window == null || window.isClosed()) {
       window = kind.open();
       onTheDesk.put(kind.name(), window);
-      desktop.add(window);
-      window.setVisible(true);
     }
+    place(window);
+    return window;
+  }
+
+  @Override
+  public void place(JInternalFrame window) {
+    if (window.getParent() == null) desktop.add(window);
+    window.setVisible(true);
     window.toFront();
     try {
       window.setSelected(true);
     } catch (java.beans.PropertyVetoException itWouldNot) {
       // The window is there either way.
     }
-    return window;
   }
 
   /** The kind of desk window a saved layout is about, or null if this build has none such. */
@@ -1381,7 +1308,8 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   }
 
   /** The core behind a machine's window, for a window that configures whichever it is clipped onto. */
-  public EmulatorCore coreOf(JInternalFrame window) {
+  @Override
+  public EmulatorCore coreOf(java.awt.Component window) {
     return window instanceof EmulatorInternalFrame emulator ? emulator.emulatorCore : null;
   }
 

@@ -18,7 +18,6 @@
 package com.fpetrola.oozx.speccy.peripherals;
 
 import com.fpetrola.oozx.EmulatorListener;
-import com.fpetrola.oozx.speccy.desktop.SwingKeyboard;
 
 import javax.swing.*;
 import java.awt.event.KeyListener;
