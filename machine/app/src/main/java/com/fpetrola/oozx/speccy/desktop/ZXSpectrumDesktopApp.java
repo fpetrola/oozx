@@ -1307,6 +1307,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     com.fpetrola.oozx.speccy.peripherals.SpeccyEmulatorCore core =
         new com.fpetrola.oozx.speccy.peripherals.SpeccyEmulatorCore(machine);
     machine.control = core;
+    registerMachine(core, machine);
     EmulatorInternalFrame window = createNewEmulator(core);
     window.setTitle(title);
     // Put the picture straight above the controls that were already on screen, so the pair comes
@@ -1493,7 +1494,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
           somethingWasPluggedIn();
           // Lo que llego puede ser una ventana que lo abre, como el reproductor de grabaciones,
           // y no una maquina que arranca con el: se lo vuelve a abrir por donde entra todo.
-          if (equipmentKinds.stream().anyMatch(kind -> kind.opens(file))) {
+          if (has.equipment().stream().anyMatch(kind -> kind.opens(file))) {
             open(new Chosen(file, null, null));
             whenDone.run();
           } else {
@@ -1532,7 +1533,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
    */
   /** Whoever opens this kind of file, opened but not yet given it. */
   private Opens opensFor(java.io.File file) {
-    for (Equipment kind : equipmentKinds) {
+    for (Equipment kind : has.equipment()) {
       if (kind.opens(file)) {
         MachineFrame window = show(kind, open -> open instanceof Opens holds && holds.empty());
         return window instanceof Opens holds ? holds : null;
@@ -1542,7 +1543,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   }
 
   public MachineFrame openFor(java.io.File file) {
-    for (Equipment kind : equipmentKinds) {
+    for (Equipment kind : has.equipment()) {
       if (kind.opens(file)) {
         MachineFrame window = show(kind, open -> open instanceof Opens holds && holds.empty());
         ((Opens) window).open(file);
@@ -1565,7 +1566,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   private final AutoCloseable whileItChanges = com.fpetrola.oozx.plugins.Plugins.managing()
       .onChange(() -> javax.swing.SwingUtilities.invokeLater(this::somethingWasPluggedIn));
 
-  private java.util.List<Equipment> equipmentKinds = java.util.List.of();
 
   /** Where the Equipment menu is, so that a board which arrives while this runs can be added to it. */
   private JMenu equipmentMenu;
@@ -1579,7 +1579,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
 
   /** Said once the folder changed: the menus offer what is there now, and only that. */
   public void somethingWasPluggedIn() {
-    equipmentKinds = has.equipment();
     fillEquipmentMenu();
     fillTheDeskWindows();
     fillTheDeskWindowButtons();
@@ -1618,7 +1617,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
 
   private void fillEquipmentMenu() {
     equipmentMenu.removeAll();
-    for (Equipment kind : equipmentKinds) {
+    for (Equipment kind : has.equipment()) {
       JMenuItem item = new JMenuItem(kind.name());
       item.addActionListener(e -> show(kind));
       equipmentMenu.add(item);
