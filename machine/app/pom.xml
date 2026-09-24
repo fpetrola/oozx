@@ -71,11 +71,6 @@
             <version>0.0.2-alu-SNAPSHOT</version>
         </dependency>
         <!-- The ATA and MMC code six of the boards share, for the same reason the kit is here. -->
-        <dependency>
-            <groupId>com.fpetrola</groupId>
-            <artifactId>devices-ide</artifactId>
-            <version>0.0.2-alu-SNAPSHOT</version>
-        </dependency>
         <!-- The fast core, which arrives the same way and makes itself on the first run. -->
         <dependency>
             <groupId>com.fpetrola</groupId>

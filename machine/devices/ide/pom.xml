@@ -16,4 +16,12 @@
       what the six that ARE devices - DivIDE, DivMMC, Simple 8-bit IDE, ZXATASP, ZXCF, ZXMMC -
       are built out of, the way the kit is what their windows are built out of.
     -->
+    <dependencies>
+        <!-- La ventana de las bahias IDE es de las bahias. -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>devices-kit</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>
