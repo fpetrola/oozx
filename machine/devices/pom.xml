@@ -22,7 +22,6 @@
       META-INF/services, which is the whole point of the arrangement.
     -->
     <modules>
-        <module>ide</module>
         <module>kit</module>
     </modules>
 
