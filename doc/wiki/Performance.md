@@ -102,7 +102,7 @@ still the reference, still switchable at runtime.
 
 ```bash
 mvn -o -q -DskipTests install
-taskset -c 2,3 java -jar machine/app/target/app-0.0.2-alu-SNAPSHOT.jar
+taskset -c 2,3 java -jar machine/app/target/app-0.0.2-alu-SNAPSHOT-all.jar
 ```
 
 Load a game, set the speed dial to its maximum, and read the percentage in the machine's status bar. For the

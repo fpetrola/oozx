@@ -44,10 +44,9 @@ jobs:
     - name: Build the plugin framework
       run: mvn -B -U -DskipTests install -f crystal-plugins/pom.xml
 
-    # Sin los plugins adentro: son otro repositorio y aca no estan, y este build no publica
-    # nada - el jar que se reparte se arma donde si estan.
+    # Sin -Pdist: los plugins son otro repositorio y aca no estan, y este build no publica nada.
     - name: Build with Maven
-      run: mvn -B -U verify --file pom.xml -Dcrystal.bundleGroupId=
+      run: mvn -B -U verify --file pom.xml
   
     
        

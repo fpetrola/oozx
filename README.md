@@ -95,8 +95,8 @@ JDK 21 or newer and Maven. A JDK, not a JRE: the fast core is compiled on the fi
 ```bash
 git clone https://github.com/fpetrola/oozx.git
 cd oozx
-mvn -DskipTests install
-java -jar machine/app/target/app-0.0.2-alu-SNAPSHOT.jar
+mvn -DskipTests install -Pdist
+java -jar machine/app/target/app-0.0.2-alu-SNAPSHOT-all.jar
 ```
 
 Where things live: `emulator` is the Z80; `machine/core` the Spectrum, with no Swing in it;

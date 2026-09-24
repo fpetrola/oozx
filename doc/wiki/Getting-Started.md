@@ -13,8 +13,8 @@
 ```bash
 git clone https://github.com/fpetrola/oozx.git
 cd oozx
-mvn -DskipTests install
-java -jar machine/app/target/app-0.0.2-alu-SNAPSHOT.jar
+mvn -DskipTests install -Pdist
+java -jar machine/app/target/app-0.0.2-alu-SNAPSHOT-all.jar
 ```
 
 The first build takes a while because it writes the generated core (about 11 s) and compiles it (about 2 s)

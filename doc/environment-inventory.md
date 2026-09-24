@@ -470,7 +470,7 @@ From the old README, without backing in the code (union of the "Claimed but not 
   the reference emulator's real core through JNA: that is the way to measure it.
 - Everything in §4 was excluded. The Settings dialog was left out as a feature.
 - The general list compressed into "The usual, in one screen"; the distinctive things in detailed paragraphs.
-- Hero: `doc/zxenv2.gif`. Build: JDK 21+, `mvn -DskipTests install`, `java -jar machine/app/target/app-0.0.2-alu-SNAPSHOT.jar`.
+- Hero: `doc/zxenv2.gif`. Build: JDK 21+, `mvn -DskipTests install`, `java -jar machine/app/target/app-0.0.2-alu-SNAPSHOT-all.jar`.
 - Credits: the reference emulator, Cristian Dinu, emuStudio (Peter Jakubčo), ZXInfo.dk, RZX Archive. GNU General Public License v3.
 - Corrections spotted on re-reading, still pending: "the twenty-two devices" in the Equipment menu (§5) and
   "a screenshot per title" (§5).
