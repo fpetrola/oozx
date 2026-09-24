@@ -169,13 +169,16 @@ public final class LookAndFeels {
   private static boolean confirmed(Laf laf) {
     Window owner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow();
     boolean[] keep = {false};
+    JDialog[] question = new JDialog[1];
+    JButton yes = new JButton("Keep it");
     try {
       UIManager.setLookAndFeel(new javax.swing.plaf.metal.MetalLookAndFeel());
     } catch (Exception withoutMetal) {
       System.err.println("the question goes up in '" + laf.name + "': " + withoutMetal);
     }
+    JPanel body;
     try {
-      asking = question(owner, laf.name, keep);
+      body = questionBody(laf.name, yes, keep, () -> question[0].dispose());
     } finally {
       try {
         laf.install.apply();
@@ -183,49 +186,53 @@ public final class LookAndFeels {
         System.err.println("could not put '" + laf.name + "' back: " + itStays);
       }
     }
+    // La ventana recien ahora: un look repinta al ponerse todas las que hay, y esta pregunta
+    // tiene que seguir en Metal.
+    asking = question[0] = around(owner, body, yes);
     asking.setVisible(true);
     asking = null;
     return keep[0];
   }
 
-  private static JDialog question(Window owner, String name, boolean[] keep) {
-    JDialog question = new JDialog(owner, "Keep this look?", Dialog.ModalityType.APPLICATION_MODAL);
+  private static JPanel questionBody(String name, JButton yes, boolean[] keep, Runnable close) {
     JLabel counting = new JLabel("", SwingConstants.CENTER);
-    JButton yes = new JButton("Keep it");
     JButton no = new JButton("Go back");
     JPanel buttons = new JPanel();
     JPanel body = new JPanel(new BorderLayout(8, 8));
 
     yes.addActionListener(e -> {
       keep[0] = true;
-      question.dispose();
+      close.run();
     });
-    no.addActionListener(e -> question.dispose());
+    no.addActionListener(e -> close.run());
     buttons.add(yes);
     buttons.add(no);
     body.setBorder(BorderFactory.createEmptyBorder(12, 16, 12, 16));
     body.add(new JLabel(name, SwingConstants.CENTER), BorderLayout.NORTH);
     body.add(counting, BorderLayout.CENTER);
     body.add(buttons, BorderLayout.SOUTH);
-    question.setContentPane(body);
-    question.getRootPane().setDefaultButton(yes);
-    question.getRootPane().registerKeyboardAction(e -> question.dispose(),
-        KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
     Timer countdown = new Timer(1000, null);
     int[] left = {SECONDS_TO_CONFIRM};
     countdown.addActionListener(e -> {
       counting.setText("going back in " + --left[0] + "s unless kept (Enter)");
-      if (left[0] <= 0) question.dispose();
+      if (left[0] <= 0) close.run();
     });
     counting.setText("going back in " + SECONDS_TO_CONFIRM + "s unless kept (Enter)");
     countdown.start();
-    question.addWindowListener(new java.awt.event.WindowAdapter() {
-      public void windowClosed(java.awt.event.WindowEvent e) {
-        countdown.stop();
-      }
+    body.addHierarchyListener(e -> {
+      if ((e.getChangeFlags() & java.awt.event.HierarchyEvent.DISPLAYABILITY_CHANGED) != 0
+          && !body.isDisplayable()) countdown.stop();
     });
+    return body;
+  }
 
+  private static JDialog around(Window owner, JPanel body, JButton yes) {
+    JDialog question = new JDialog(owner, "Keep this look?", Dialog.ModalityType.APPLICATION_MODAL);
+    question.setContentPane(body);
+    question.getRootPane().setDefaultButton(yes);
+    question.getRootPane().registerKeyboardAction(e -> question.dispose(),
+        KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
     question.pack();
     question.setSize(Math.max(WIDE_ENOUGH, question.getWidth()), question.getHeight());
     question.setLocationRelativeTo(owner);
