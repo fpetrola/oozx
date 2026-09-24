@@ -36,6 +36,11 @@ public interface DeskEquipment {
 
   JInternalFrame open();
 
+  /** Su boton en la barra del escritorio, o nada si se abre solo desde el menu. */
+  default javax.swing.Icon icon() {
+    return null;
+  }
+
   /**
    * What the saved layout calls this window, when it keeps its place. The name it is offered
    * under, unless a layout already written says something else.

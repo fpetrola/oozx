@@ -667,38 +667,17 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
 
     emulatorMenu.addSeparator();
 
-    // ---- Pause/Resume ----
-    JMenuItem pauseResumeItem = new JMenuItem("Pause/Resume");
-    pauseResumeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_DOWN_MASK));
-    pauseResumeItem.addActionListener(e -> {
-      EmulatorInternalFrame active = getActiveEmulator();
-      if (active != null) {
-        active.emulatorCore.pauseEmulation();
-      }
-    });
-    emulatorMenu.add(pauseResumeItem);
-
-    // ---- Turbo Mode ----
-    JMenuItem turboModeItem = new JMenuItem("Toggle Turbo Mode");
-    turboModeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK));
-    turboModeItem.addActionListener(e -> {
-      EmulatorInternalFrame active = getActiveEmulator();
-      if (active != null) {
-        active.emulatorCore.setGeneralOption("turbo", !active.emulatorCore.isTurboMode());
-      }
-    });
-    emulatorMenu.add(turboModeItem);
-
-    // ---- Mute/Unmute ----
-    JMenuItem muteItem = new JMenuItem("Toggle Mute");
-    muteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_DOWN_MASK));
-    muteItem.addActionListener(e -> {
-      EmulatorInternalFrame active = getActiveEmulator();
-      if (active != null) {
-        active.emulatorCore.setGeneralOption("mute", !active.emulatorCore.isMuted());
-      }
-    });
-    emulatorMenu.add(muteItem);
+    // Lo que las herramientas de maquina ofrecen con un atajo, sobre la maquina activa.
+    for (com.fpetrola.oozx.speccy.devices.MachineTool tool : has.tools()) {
+      if (tool.key() == null) continue;
+      JMenuItem item = new JMenuItem(tool.tooltip());
+      item.setAccelerator(tool.key());
+      item.addActionListener(e -> {
+        EmulatorInternalFrame active = getActiveEmulator();
+        if (active != null) tool.use(active);
+      });
+      emulatorMenu.add(item);
+    }
 
     menuBar.add(emulatorMenu);
 
@@ -1143,6 +1122,24 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     }
   }
 
+  /** Los botones de las ventanas de escritorio que traen los plugins: el navegador de juegos, si esta. */
+  private final JPanel deskWindowButtons = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
+
+  private void fillTheDeskWindowButtons() {
+    deskWindowButtons.removeAll();
+    deskWindowButtons.setOpaque(false);
+    for (DeskEquipment window : has.deskWindows()) {
+      if (window.icon() == null) continue;
+      JButton button = new JButton(window.icon());
+      button.setToolTipText(window.name());
+      button.addActionListener(e -> showOnTheDesk(window));
+      deskWindowButtons.add(button);
+    }
+    EmulatorInternalFrame.tighten(deskWindowButtons);
+    deskWindowButtons.revalidate();
+    deskWindowButtons.repaint();
+  }
+
   private JToolBar createMainToolBar() {
     JToolBar toolBar = new JToolBar();
     toolBar.setFloatable(false);
@@ -1155,15 +1152,8 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     });
     toolBar.add(newEmulatorBtn);
 
-    JButton gameBrowserBtn = new JButton(loadIcon("1F579.svg"));
-    gameBrowserBtn.setToolTipText("Open Game Browser");
-    gameBrowserBtn.addActionListener(e -> {
-      DeskEquipment browser = deskKindThatKeeps("GAME_BROWSER");
-      if (browser != null) {
-        showOnTheDesk(browser);
-      }
-    });
-    toolBar.add(gameBrowserBtn);
+    toolBar.add(deskWindowButtons);
+    fillTheDeskWindowButtons();
 
     JButton historyBtn = new JButton(loadIcon("E260.svg"));
     historyBtn.setToolTipText("Snapshot History");
@@ -1848,6 +1838,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     equipmentKinds = has.equipment();
     fillEquipmentMenu();
     fillTheDeskWindows();
+    fillTheDeskWindowButtons();
     whatThereIs();
     // What could not be done before may be done now, so it is worth saying again if it is not.
     TellsThePerson.thatMayHaveChanged();

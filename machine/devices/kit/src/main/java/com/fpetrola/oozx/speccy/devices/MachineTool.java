@@ -54,6 +54,13 @@ public interface MachineTool {
     return button;
   }
 
+  /**
+   * El atajo de teclado que la usa sobre la maquina activa, desde el menu del escritorio, o nada.
+   */
+  default javax.swing.KeyStroke key() {
+    return null;
+  }
+
   /** Lo que agrega al menu del clic derecho sobre la pantalla, o nada. */
   default javax.swing.JMenuItem menuItem(EmulatorWindow window) {
     return null;
