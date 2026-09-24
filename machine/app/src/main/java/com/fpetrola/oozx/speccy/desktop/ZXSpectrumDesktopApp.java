@@ -1583,6 +1583,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     fillTheDeskWindows();
     fillTheDeskWindowButtons();
     whatThereIs();
+    LookAndFeels.wearAgainIfFromAPlugin();
     // What could not be done before may be done now, so it is worth saying again if it is not.
     TellsThePerson.thatMayHaveChanged();
   }

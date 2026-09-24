@@ -55,8 +55,8 @@
             <groupId>com.fpetrola</groupId>
             <artifactId>rzx</artifactId>
             <version>${project.version}</version>
-            <!-- Solo lo usa un test: el escritorio ya no sabe que es una grabacion. -->
-            <scope>test</scope>
+            <!-- El escritorio no lo nombra, pero es de la base: los plugins de grabaciones y juegos lo esperan. -->
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>

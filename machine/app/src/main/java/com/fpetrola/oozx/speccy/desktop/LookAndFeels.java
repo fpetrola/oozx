@@ -75,6 +75,11 @@ public final class LookAndFeels {
         .ifPresent(LookAndFeels::wear);
   }
 
+  /** Un plugin de looks que se reinicia deja lo puesto pintando con clases de un cargador cerrado. */
+  public static void wearAgainIfFromAPlugin() {
+    if (worn != null && !"System".equals(worn.family)) install(worn.id());
+  }
+
   /** The families as submenus, each item telling the caller which name to remember. */
   public static void fillMenu(JMenu menu, Consumer<String> chosen) {
     Map<String, JMenu> families = new LinkedHashMap<>();
