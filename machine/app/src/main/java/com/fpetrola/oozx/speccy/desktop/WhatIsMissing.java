@@ -43,6 +43,13 @@ import java.util.function.Consumer;
  */
 final class WhatIsMissing {
 
+  /** Lo que se le puede pedir a un plugin que falta: abrir un archivo, o ser la maquina de un snapshot. */
+  private static final List<String> ANSWERING = java.util.stream.Stream.of(
+      com.fpetrola.oozx.speccy.machine.StartsAMachineOn.class,
+      com.fpetrola.emulation.helpers.snapshots.SnapshotFile.class,
+      com.fpetrola.oozx.speccy.devices.Equipment.class,
+      com.fpetrola.oozx.Extension.class).map(Class::getName).toList();
+
   /** Asked once each, since a recording asks for its machine at the start of every segment. */
   private static final java.util.Set<String> asked = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
@@ -56,7 +63,7 @@ final class WhatIsMissing {
   static void bringWhatIsNeeded(Component over, String what, String said, Runnable then) {
     new SwingWorker<List<Board>, Void>() {
       protected List<Board> doInBackground() throws Exception {
-        return PluginReleases.bringing(what, PluginReleases.published());
+        return PluginReleases.bringing(what, ANSWERING);
       }
 
       protected void done() {

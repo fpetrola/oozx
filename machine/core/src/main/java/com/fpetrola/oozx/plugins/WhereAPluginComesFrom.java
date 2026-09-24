@@ -87,6 +87,30 @@ final class WhereAPluginComesFrom implements PluginSource {
     return here.containsKey(artifact.id()) ? "plugins folder" : "github release";
   }
 
+  /** Lo que responde, leido del jar de la carpeta o de lo que el archivo publica al lado del suyo. */
+  @Override
+  public java.util.Optional<dev.crystal.plugins.api.PluginDescription> describe(PluginArtifact artifact) {
+    try {
+      File jar = here.get(artifact.id());
+      if (jar != null) {
+        try (java.util.jar.JarFile opened = new java.util.jar.JarFile(jar)) {
+          java.util.zip.ZipEntry metadata = opened.getEntry(PluginSources.METADATA);
+          if (metadata == null) return java.util.Optional.empty();
+          try (InputStream in = opened.getInputStream(metadata)) {
+            return java.util.Optional.of(PluginSources.description(in));
+          }
+        }
+      }
+      PluginReleases.Board board = published.get(artifact.id());
+      if (board == null || board.metadata() == null) return java.util.Optional.empty();
+      try (InputStream in = URI.create(board.metadata()).toURL().openStream()) {
+        return java.util.Optional.of(PluginSources.description(in));
+      }
+    } catch (IOException cannotBeRead) {
+      return java.util.Optional.empty();
+    }
+  }
+
   /** Lo que un jar dice que es, o nada cuando no es un plugin. */
   private static PluginArtifact whatThisJarIs(File jar) {
     try (java.util.jar.JarFile opened = new java.util.jar.JarFile(jar)) {

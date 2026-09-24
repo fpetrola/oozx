@@ -89,38 +89,27 @@ public class PluginReleases implements Configuration.Saves {
   }
 
   /**
-   * One published board: what it is called, which file it is, where it is, how big, and what it
-   * would answer for - the machines a snapshot can ask for by name, and the kinds of file it
-   * knows how to open. Both so that what this build cannot do can point at the jar that can.
+   * One published board: what it is called, which file it is, where it is, how big, and where
+   * what it answers for is published, so that it can be asked without bringing the jar.
    */
   public record Board(String name, String jar, String from, long asset, long size,
-                      String sha256, List<String> machines, List<String> opens) {
+                      String sha256, String metadata) {
     public Board(String name, String jar, String from, long asset, long size) {
-      this(name, jar, from, asset, size, null, List.of(), List.of());
+      this(name, jar, from, asset, size, null, null);
     }
   }
 
-  /** The boards that would answer for this: a machine as a snapshot names it, or a kind of file. */
-  public static List<Board> bringing(String wanted, List<Board> published) {
-    return published.stream()
-        .filter(board -> board.machines().contains(wanted) || board.opens().contains(wanted))
-        .toList();
-  }
-
   /**
-   * What a release says it answers for. Written by whoever published it, from the sources of the
-   * module, since a jar nobody has downloaded cannot be asked.
+   * The boards that would answer for this under any of these roles: a machine as a snapshot
+   * names it, or a kind of file. Each board says it itself, in what it was compiled with.
    */
-  private static List<String> said(String notes, String about) {
-    java.util.regex.Matcher said = java.util.regex.Pattern
-        .compile("(?m)^oozx-" + about + ": (.*)$").matcher(notes == null ? "" : notes);
-    return said.find() ? List.of(said.group(1).trim().split("\\s+")) : List.of();
+  public static List<Board> bringing(String wanted, List<String> roles) throws IOException, InterruptedException {
+    java.util.Set<String> ids = new java.util.HashSet<>();
+    for (String role : roles) {
+      Plugins.managing().availableAnswering(role, wanted).forEach(artifact -> ids.add(artifact.id()));
+    }
+    return published().stream().filter(board -> ids.contains(whichBoard(board.jar()))).toList();
   }
-
-
-
-
-
 
   /**
    * Which board a jar is, whatever version it happens to be: "tool-calls-0.0.2-SNAPSHOT.jar"
@@ -160,6 +149,12 @@ public class PluginReleases implements Configuration.Saves {
     for (JsonNode release : new ObjectMapper().readTree(answer.body())) {
       String tag = release.path("tag_name").asText("");
       if (!plugsIn(tag)) continue;
+      String metadata = null;
+      for (JsonNode asset : release.path("assets")) {
+        if (asset.path("name").asText("").endsWith("plugin-metadata.json")) {
+          metadata = asset.path("browser_download_url").asText();
+        }
+      }
       for (JsonNode asset : release.path("assets")) {
         String jar = asset.path("name").asText("");
         if (!jar.endsWith(".jar")) continue;
@@ -169,9 +164,7 @@ public class PluginReleases implements Configuration.Saves {
         boards.add(new Board(named.isBlank() ? tag : named, jar,
             asset.path("browser_download_url").asText(), asset.path("id").asLong(),
             asset.path("size").asLong(),
-            digest.startsWith("sha256:") ? digest.substring("sha256:".length()) : null,
-            said(release.path("body").asText(""), "machines"),
-            said(release.path("body").asText(""), "opens")));
+            digest.startsWith("sha256:") ? digest.substring("sha256:".length()) : null, metadata));
         break;
       }
     }
