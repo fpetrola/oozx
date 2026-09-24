@@ -39,7 +39,6 @@
         <module>host</module>
         <module>devices</module>
         <module>machines/ula</module>
-        <module>machines/scld</module>
         <module>machines/ay</module>
         <module>machines/memory</module>
         <module>machines/disk</module>
