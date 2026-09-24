@@ -82,22 +82,18 @@ public final class LookAndFeels {
   /** El look que se saco porque su plugin se iba, para volver a ponerlo si el plugin vuelve. */
   private static String wornBeforeItsPluginLeft;
 
+  /** El plugin del look puesto, sabido al ponerlo: cuando el plugin se va ya no se puede preguntar. */
+  private static String wornFromPlugin;
+
   static {
-    com.fpetrola.oozx.plugins.Plugins.managing().beforeUnload(LookAndFeels::pluginLeaving);
+    com.fpetrola.oozx.plugins.Plugins.beforeTakingOut(LookAndFeels::pluginLeaving);
   }
 
   /** Con el cargador del plugin todavia abierto: despues, sacarse el look ya no puede cargar sus clases. */
   private static void pluginLeaving(String pluginId) {
-    if (worn == null || worn.from == null || !brought(pluginId, worn.from)) return;
+    if (worn == null || !pluginId.equals(wornFromPlugin)) return;
     wornBeforeItsPluginLeft = worn.id();
     onTheEventThread(() -> wear(METAL));
-  }
-
-  private static boolean brought(String pluginId, Object look) {
-    return com.fpetrola.oozx.plugins.Plugins.managing().plugins().stream()
-        .filter(plugin -> plugin.id().equals(pluginId))
-        .flatMap(plugin -> plugin.extensions().stream())
-        .anyMatch(extension -> extension.className().equals(look.getClass().getName()));
   }
 
   private static void onTheEventThread(Runnable doIt) {
@@ -253,6 +249,7 @@ public final class LookAndFeels {
       laf.install.apply();
       if (worn != laf) wornBefore = worn;
       worn = laf;
+      wornFromPlugin = laf.from == null ? null : com.fpetrola.oozx.plugins.Plugins.whoBrought(laf.from);
     } catch (Exception | LinkageError notThisOne) {
       System.err.println("could not wear the look '" + laf.name + "': " + notThisOne);
     }

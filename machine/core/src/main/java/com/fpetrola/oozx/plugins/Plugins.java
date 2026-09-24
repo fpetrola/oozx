@@ -88,6 +88,27 @@ public final class Plugins {
   /** Para que carpeta se armo, porque uno armado para otra miente sobre lo que hay. */
   private static Path servingFolder;
 
+  private static final List<java.util.function.Consumer<String>> beforeTakingOut =
+      new java.util.concurrent.CopyOnWriteArrayList<>();
+
+  /**
+   * Avisado con el id de cada plugin que se va, mientras sus clases todavia cargan. Sobrevive a
+   * que se arme otro servicio para otra casa, y quien escucha no puede volver a preguntarle nada
+   * a esta clase: quien descarga la tiene tomada.
+   */
+  public static void beforeTakingOut(java.util.function.Consumer<String> leaving) {
+    beforeTakingOut.add(leaving);
+  }
+
+  /** El plugin que trajo esa extension, o null si la trajo la base. */
+  public static String whoBrought(Object extension) {
+    if (!areRead()) return null;
+    String name = extension.getClass().getName();
+    return service().plugins().stream()
+        .filter(plugin -> plugin.extensions().stream().anyMatch(one -> one.className().equals(name)))
+        .map(dev.crystal.plugins.runtime.PluginInfo::id).findFirst().orElse(null);
+  }
+
   private static synchronized PluginService service() {
     if (service != null && !folder().equals(servingFolder)) {
       // Cambio la casa: la de antes puede no existir mas, y lo que decia era de otro lugar.
@@ -105,6 +126,7 @@ public final class Plugins {
           .source(new WhereAPluginComesFrom())
           .defaults(dev.crystal.plugins.runtime.PluginSources.bundled())
           .build();
+      service.beforeUnload(id -> beforeTakingOut.forEach(listener -> listener.accept(id)));
       service.start();
       // Arrancar pone lo que el jar trae y lo que ya estaba puesto, sin red: los plugins viajan
       // adentro. Lo que hay en la carpeta es una eleccion que alguien ya hizo, y tambien entra.
