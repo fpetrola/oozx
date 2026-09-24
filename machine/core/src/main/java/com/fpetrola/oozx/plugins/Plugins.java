@@ -126,7 +126,10 @@ public final class Plugins {
           .source(new WhereAPluginComesFrom())
           .defaults(dev.crystal.plugins.runtime.PluginSources.bundled())
           .build();
-      service.beforeUnload(id -> beforeTakingOut.forEach(listener -> listener.accept(id)));
+      service.beforeUnload(id -> {
+        System.err.println("plugin going away: " + id);
+        beforeTakingOut.forEach(listener -> listener.accept(id));
+      });
       service.start();
       // Arrancar pone lo que el jar trae y lo que ya estaba puesto, sin red: los plugins viajan
       // adentro. Lo que hay en la carpeta es una eleccion que alguien ya hizo, y tambien entra.
