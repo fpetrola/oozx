@@ -63,9 +63,16 @@ final class WhatIsMissing {
    * @param then what to do once it is in, which is the thing that was asked for in the first place
    */
   static void bringWhatIsNeeded(Component over, String what, String said, Runnable then) {
+    bringWhatIsNeeded(over, List.of(what), said, then);
+  }
+
+  /** Lo mismo para varias cosas a la vez, para que una sola pregunta traiga todo lo que falta. */
+  static void bringWhatIsNeeded(Component over, List<String> wanted, String said, Runnable then) {
     new SwingWorker<List<Board>, Void>() {
       protected List<Board> doInBackground() throws Exception {
-        return PluginReleases.bringing(what, ANSWERING);
+        java.util.Set<Board> brings = new java.util.LinkedHashSet<>();
+        for (String what : wanted) brings.addAll(PluginReleases.bringing(what, ANSWERING));
+        return List.copyOf(brings);
       }
 
       protected void done() {
@@ -94,16 +101,20 @@ final class WhatIsMissing {
    */
   static List<Board> bringingBeside(List<String> kinds) {
     java.util.Set<Board> brings = new java.util.LinkedHashSet<>();
-    for (String kind : kinds) {
-      if (ANSWERING.stream().allMatch(role -> Plugins.managing().answering(role, kind).isEmpty())) {
-        try {
-          brings.addAll(PluginReleases.bringing(kind, ANSWERING));
-        } catch (Exception cannotAsk) {
-          return List.of();
-        }
+    for (String kind : nobodyHereAnswers(kinds)) {
+      try {
+        brings.addAll(PluginReleases.bringing(kind, ANSWERING));
+      } catch (Exception cannotAsk) {
+        return List.of();
       }
     }
     return List.copyOf(brings);
+  }
+
+  /** Las que nada de lo que esta puesto responde. */
+  static List<String> nobodyHereAnswers(List<String> kinds) {
+    return kinds.stream().filter(kind ->
+        ANSWERING.stream().allMatch(role -> Plugins.managing().answering(role, kind).isEmpty())).toList();
   }
 
   /** Ofrece traerlos: traidos, lo que se queria; dicho que no, lo mismo sin ellos. */

@@ -1505,7 +1505,9 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       whenDone.run();
       return;
     }
-    WhatIsMissing.bringWhatIsNeeded(this, OOSpectrumLauncher.kindOf(file), saidIt,
+    List<String> wanted = new java.util.ArrayList<>(List.of(OOSpectrumLauncher.kindOf(file)));
+    wanted.addAll(WhatIsMissing.nobodyHereAnswers(com.fpetrola.oozx.plugins.BesideTheGame.kindsBeside(file)));
+    WhatIsMissing.bringWhatIsNeeded(this, wanted, saidIt,
         () -> {
           somethingWasPluggedIn();
           // Lo que llego puede ser una ventana que lo abre, como el reproductor de grabaciones,
