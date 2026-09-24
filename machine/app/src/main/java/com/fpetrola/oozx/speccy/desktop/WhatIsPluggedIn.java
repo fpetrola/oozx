@@ -20,6 +20,7 @@ package com.fpetrola.oozx.speccy.desktop;
 import com.fpetrola.emulation.helpers.snapshots.SnapshotFile;
 import com.fpetrola.oozx.speccy.devices.DeskEquipment;
 import com.fpetrola.oozx.speccy.devices.Equipment;
+import com.fpetrola.oozx.speccy.devices.Look;
 import com.fpetrola.oozx.speccy.devices.MachineTool;
 import com.fpetrola.oozx.speccy.devices.WhatGameThisIs;
 import com.fpetrola.oozx.speccy.machine.StartsAMachineOn;
@@ -61,11 +62,12 @@ public class WhatIsPluggedIn {
   private final Set<StartsAMachineOn> starters;
   private final Set<WhatGameThisIs> aboutGames;
   private final Set<MachineTool> tools;
+  private final Set<Look> looks;
 
   @Inject
   public WhatIsPluggedIn(Set<Equipment> equipment, Set<DeskEquipment> deskWindows,
       Set<ScreenEffect> effects, Set<SnapshotFile> formats, Set<StartsAMachineOn> starters,
-      Set<WhatGameThisIs> aboutGames, Set<MachineTool> tools) {
+      Set<WhatGameThisIs> aboutGames, Set<MachineTool> tools, Set<Look> looks) {
     this.equipment = equipment;
     this.deskWindows = deskWindows;
     this.effects = effects;
@@ -73,12 +75,18 @@ public class WhatIsPluggedIn {
     this.starters = starters;
     this.aboutGames = aboutGames;
     this.tools = tools;
+    this.looks = looks;
   }
 
   /** Lo que se pone en la barra de una ventana de maquina, en un orden que no cambia de vez en vez. */
   public List<MachineTool> tools() {
     return tools.stream().sorted(Comparator.comparingInt(MachineTool::place)
         .thenComparing(MachineTool::tooltip)).toList();
+  }
+
+  /** Los looks que traen los plugins; los de Java los sabe el escritorio. */
+  public List<Look> looks() {
+    return List.copyOf(looks);
   }
 
   /** Quien sabe de juegos, o nadie: un catalogo es un jar y puede no estar puesto. */

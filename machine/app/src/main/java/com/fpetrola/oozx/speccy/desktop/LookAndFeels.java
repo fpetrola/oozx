@@ -17,9 +17,6 @@
 
 package com.fpetrola.oozx.speccy.desktop;
 
-import com.github.weisj.darklaf.LafManager;
-import com.github.weisj.darklaf.theme.*;
-import org.pushingpixels.radiance.theming.api.RadianceThemingCortex;
 
 import javax.swing.*;
 import javax.swing.plaf.UIResource;
@@ -54,7 +51,6 @@ public final class LookAndFeels {
   private static final Laf METAL = new Laf("System", "Metal",
       () -> UIManager.setLookAndFeel(new javax.swing.plaf.metal.MetalLookAndFeel()));
 
-  private static final List<Laf> ALL = all();
 
   /** What is being worn, and the one before it: the way back when a look cannot paint. */
   private static Laf worn;
@@ -72,6 +68,7 @@ public final class LookAndFeels {
 
   /** Wears the look saved under this name, or the default one when it is unknown or gone. */
   public static void install(String name) {
+    List<Laf> ALL = all();
     ALL.stream().filter(laf -> laf.id().equals(name)).findFirst()
         .or(() -> ALL.stream().filter(laf -> laf.name.equals(name)).findFirst())
         .or(() -> ALL.stream().filter(laf -> laf.name.equals(DEFAULT)).findFirst())
@@ -81,7 +78,7 @@ public final class LookAndFeels {
   /** The families as submenus, each item telling the caller which name to remember. */
   public static void fillMenu(JMenu menu, Consumer<String> chosen) {
     Map<String, JMenu> families = new LinkedHashMap<>();
-    for (Laf laf : ALL) {
+    for (Laf laf : all()) {
       families.computeIfAbsent(laf.family, family -> {
         JMenu submenu = new JMenu(family);
         menu.add(submenu);
@@ -336,39 +333,15 @@ public final class LookAndFeels {
     });
   }
 
+  /**
+   * Los looks de los plugins primero, despues los que vienen con Java. Preguntado cada vez: un
+   * plugin de looks que llega o se va cambia la lista sin que nadie la vuelva a armar.
+   */
   private static List<Laf> all() {
     List<Laf> all = new ArrayList<>();
-    for (Theme theme : new Theme[]{new DarculaTheme(), new OneDarkTheme(), new SolarizedLightTheme(),
-        new SolarizedDarkTheme(), new IntelliJTheme(), new HighContrastLightTheme(), new HighContrastDarkTheme()}) {
-      all.add(new Laf("Darklaf", theme.getName(), () -> LafManager.install(theme)));
+    for (com.fpetrola.oozx.speccy.devices.Look family : WhatIsPluggedIn.theOne().looks()) {
+      for (String name : family.names()) all.add(new Laf(family.family(), name, () -> family.wear(name)));
     }
-
-    byClass(all, "FlatLaf", "com.formdev.flatlaf.Flat%sLaf", "Light", "Dark", "IntelliJ", "Darcula");
-    byClass(all, "FlatLaf themes", "com.formdev.flatlaf.intellijthemes.Flat%sIJTheme",
-        "Arc", "ArcDark", "ArcOrange", "ArcDarkOrange", "Carbon", "Cobalt2", "CyanLight", "DarkFlat",
-        "DarkPurple", "Dracula", "Gray", "GradiantoDeepOcean", "GradiantoMidnightBlue",
-        "GradiantoNatureGreen", "GruvboxDarkHard", "HiberbeeDark", "HighContrast", "LightFlat",
-        "MaterialDesignDark", "Monocai", "MonokaiPro", "Nord", "OneDark", "SolarizedDark",
-        "SolarizedLight", "Spacegray", "Vuesion", "XcodeDark");
-    byClass(all, "Material theme UI", "com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatMT%sIJTheme",
-        "ArcDark", "AtomOneDark", "AtomOneLight", "Dracula", "GitHub", "GitHubDark", "LightOwl",
-        "MaterialDarker", "MaterialDeepOcean", "MaterialLighter", "MaterialOceanic",
-        "MaterialPalenight", "MonokaiPro", "Moonlight", "NightOwl", "SolarizedDark", "SolarizedLight");
-    byClass(all, "JGoodies", "com.jgoodies.looks.plastic.%sLookAndFeel", "Plastic", "Plastic3D", "PlasticXP");
-
-    // Radiance says which skins it has and installs them itself: putting its look and feel on by
-    // class leaves it without a skin, and everything it paints afterwards fails on that.
-    RadianceThemingCortex.GlobalScope.getAllSkins().values().forEach(skin ->
-        all.add(new Laf("Radiance", skin.getDisplayName(),
-            () -> RadianceThemingCortex.GlobalScope.setSkin(skin.getClassName()))));
-
-    for (String theme : new String[]{"MaterialLite", "MaterialOceanic", "JMarsDark"}) {
-      String className = "mdlaf.themes." + theme + "Theme";
-      all.add(new Laf("Material", theme, () -> UIManager.setLookAndFeel(
-          new mdlaf.MaterialLookAndFeel((mdlaf.themes.MaterialTheme) Class.forName(className)
-              .getDeclaredConstructor().newInstance()))));
-    }
-
     all.add(METAL);
     all.add(new Laf("System", "Nimbus", () -> UIManager.setLookAndFeel(
         "javax.swing.plaf.nimbus.NimbusLookAndFeel")));
@@ -376,15 +349,4 @@ public final class LookAndFeels {
     return all;
   }
 
-  private static void byClass(List<Laf> all, String family, String classPattern, String... names) {
-    for (String name : names) {
-      String className = classPattern.formatted(name);
-      all.add(new Laf(family, spaced(name), () -> UIManager.setLookAndFeel(className)));
-    }
-  }
-
-  /** "GraphiteAqua" reads as "Graphite Aqua" in a menu; the class name stays as it is. */
-  private static String spaced(String name) {
-    return name.replaceAll("(?<=[a-z0-9])(?=[A-Z])", " ");
-  }
 }

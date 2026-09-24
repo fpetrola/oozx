@@ -118,39 +118,7 @@
             <artifactId>batik-transcoder</artifactId>
             <version>1.17</version>
         </dependency>
-        <!-- The look and feel, and the markdown a game's notes are written in: both are the
-             desktop's own, and both used to arrive through core because the windows started there. -->
-        <dependency>
-            <groupId>com.github.weisj</groupId>
-            <artifactId>darklaf-core</artifactId>
-            <version>3.0.2</version>
-        </dependency>
-        <!-- The other look and feel families the Look&Feel menu offers. -->
-        <dependency>
-            <groupId>com.formdev</groupId>
-            <artifactId>flatlaf</artifactId>
-            <version>3.6</version>
-        </dependency>
-        <dependency>
-            <groupId>com.formdev</groupId>
-            <artifactId>flatlaf-intellij-themes</artifactId>
-            <version>3.6</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jgoodies</groupId>
-            <artifactId>jgoodies-looks</artifactId>
-            <version>2.7.0</version>
-        </dependency>
-        <dependency>
-            <groupId>io.github.vincenzopalazzo</groupId>
-            <artifactId>material-ui-swing</artifactId>
-            <version>1.1.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.pushing-pixels</groupId>
-            <artifactId>radiance-theming</artifactId>
-            <version>7.5.0</version>
-        </dependency>
+        <!-- The markdown a game's notes are written in. Los looks de terceros los trae un plugin. -->
         <dependency>
             <groupId>org.commonmark</groupId>
             <artifactId>commonmark</artifactId>
