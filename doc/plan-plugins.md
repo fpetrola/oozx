@@ -82,6 +82,11 @@ prototipos del modelo; ningún módulo del emulador depende de ellos.
 - **`ui` y `devices/kit`** son contra lo que compilan los plugins: el panel, los widgets, `Equipment`,
   `Desk`, `DeviceFrame`. Moverlos haría que la base dependa de un plugin.
 - **`bridge`** es el oráculo de los tests contra Fuse. No lo ve nadie que use el emulador.
+- **RZX** (formato y sesión): `RzxOracleTest` y la medición A/B del núcleo (`RzxCoreMeasurement`)
+  corren grabaciones en la base. El escritorio ya no lo nombra: lo abre quien diga que abre ese
+  archivo (`opensFor`).
+- **`host-sound`**: `bridge` reproduce el audio de Fuse con él, y sin sonido la base no es un
+  emulador que se pueda usar.
 - **La 48K de referencia** (decisión 1): es la máquina con que corren los tests de la base y la
   que arma el generador en su paso de build.
 
@@ -315,6 +320,10 @@ enseña cómo es la costura, al final lo que toca la ventana que la persona mira
 | 3 | la ventana de máquina: `tool-controls`, `tool-view`, `tool-snapshots`, `tool-model` | usa la costura de la etapa 0 y deja la ventana pelada | grande |
 | 4 | el escritorio: menús y barra por la misma costura, ventanas propias como `DeskEquipment` | lo último que la persona ve cambiar | grande |
 | 5 | `host-input` según la decisión 3; revisar si los formatos de snapshot que no usan los tests se van a `media-snapshot` | depende de decisiones y de medir `SwingKeyboard` | chico |
+
+Hecho hasta la etapa 4. Lo que cambió respecto del plan: RZX y `host-sound` quedaron (ver arriba);
+historial y favoritos fueron a `tool-games` y no a un `tool-snapshots` propio, porque ya tenía el
+favorito; la galería se borró porque nadie la usaba.
 
 En cada etapa, antes de mover algo:
 
