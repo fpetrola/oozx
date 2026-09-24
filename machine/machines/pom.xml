@@ -26,12 +26,13 @@
     <dependencies>
         <dependency>
             <groupId>com.fpetrola</groupId>
-            <artifactId>device-ula</artifactId>
+            <artifactId>host-input</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
-            <artifactId>device-disk</artifactId>
+            <artifactId>device-ula</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

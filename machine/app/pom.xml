@@ -29,6 +29,12 @@
     </properties>
 
     <dependencies>
+        <!-- El teclado de la PC llega a la Spectrum por aca: sin esto no se puede tipear. -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>host-input</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>dev.crystal.plugins</groupId>
             <artifactId>framework-swing</artifactId>

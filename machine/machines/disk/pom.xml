@@ -35,5 +35,11 @@
             <artifactId>host-input</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- La ventana de las disqueteras es de las disqueteras. -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>devices-kit</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
