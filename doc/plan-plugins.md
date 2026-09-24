@@ -87,6 +87,13 @@ prototipos del modelo; ningún módulo del emulador depende de ellos.
   archivo (`opensFor`).
 - **`host-sound`**: `bridge` reproduce el audio de Fuse con él, y sin sonido la base no es un
   emulador que se pueda usar.
+- **`host-input`** (etapa 5, medido): lo que ya podía irse se fue antes, en `device-joystick`
+  (gamepads, Kempston estricto). Lo que queda es la tecla de la PC llevada a la matriz y los
+  joysticks que la Spectrum lee por esa misma matriz (Sinclair, cursor): `Input` los mezcla en
+  55 lugares, el archivo de configuración y el Z80 guardan qué joystick había, y `JoystickTest`
+  y `KeyboardTest` de la base los usan. Cortarlo sería partir la matriz en dos.
+- **Los formatos de snapshot** (etapa 5, medido): en `machine/spectrum` queda sólo el Z80, que
+  usan los tests de la base; los demás ya llegan por plugin (`has::formats`).
 - **La 48K de referencia** (decisión 1): es la máquina con que corren los tests de la base y la
   que arma el generador en su paso de build.
 
@@ -321,7 +328,7 @@ enseña cómo es la costura, al final lo que toca la ventana que la persona mira
 | 4 | el escritorio: menús y barra por la misma costura, ventanas propias como `DeskEquipment` | lo último que la persona ve cambiar | grande |
 | 5 | `host-input` según la decisión 3; revisar si los formatos de snapshot que no usan los tests se van a `media-snapshot` | depende de decisiones y de medir `SwingKeyboard` | chico |
 
-Hecho hasta la etapa 4. Lo que cambió respecto del plan: RZX y `host-sound` quedaron (ver arriba);
+Hecho hasta la etapa 5. Lo que cambió respecto del plan: RZX y `host-sound` quedaron (ver arriba);
 historial y favoritos fueron a `tool-games` y no a un `tool-snapshots` propio, porque ya tenía el
 favorito; la galería se borró porque nadie la usaba.
 
