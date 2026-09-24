@@ -68,6 +68,24 @@ Spectrum and clone ROMs
     from whoever publishes it, and keeps the copy under the home directory rather than in this
     tree.
 
+The ZX Spectrum logotype
+
+    machine/ui/src/main/resources/icons/Sinclair_ZX_Spectrum-02b.svg
+
+    The Sinclair ZX Spectrum logo, by Sinclair Research. Public domain where
+    a logo of plain lettering and coloured bars is held to be below the
+    threshold of originality, which is how Wikimedia Commons carries it
+    (PD-textlogo). That is about copyright and not about trademark: the name
+    and the mark may still be somebody's in some places, and whoever ships
+    this is the one who has to be sure they may.
+
+    Taken from <https://commons.wikimedia.org/wiki/File:Sinclair_ZX_Spectrum-02b.svg>,
+    vectorised there by Dan Patrick and simplified by a later contributor.
+    The copy here is that file with Unix line endings and is otherwise
+    identical to it.
+
+    It is the picture on the button that opens a new machine.
+
 Emoji icons
 
     machine/ui/src/main/resources/icons/1F308.svg, 1F3F3-FE0F-200D-1F308.svg,
