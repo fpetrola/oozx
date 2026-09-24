@@ -165,14 +165,6 @@ public class OOSpectrumLauncher {
             .formatted(file.getName()));
   }
 
-  /** Lo que trae un juego ademas de si mismo: la clase de cada archivo con su nombre al lado. */
-  public static java.util.List<String> kindsBeside(File file) {
-    String name = file.getName().replaceFirst("\\.[^.]*$", "");
-    File[] beside = file.getAbsoluteFile().getParentFile().listFiles((folder, other) ->
-        !other.equals(file.getName()) && other.replaceFirst("\\.[^.]*$", "").equalsIgnoreCase(name));
-    return beside == null ? java.util.List.of() : java.util.Arrays.stream(beside).map(OOSpectrumLauncher::kindOf).distinct().toList();
-  }
-
   /** What a file is, as a release says what it opens: the end of its name. */
   public static String kindOf(File file) {
     return file.getName().replaceFirst("^.*\\.", "").toLowerCase();

@@ -40,7 +40,35 @@ public interface BesideTheGame {
     for (BesideTheGame kind : Plugins.found(BesideTheGame.class)) {
       if (kind.isBeside(game)) return kind.what();
     }
+    return whoWouldSay(game);
+  }
+
+  /**
+   * Quien lo diria si estuviera puesto: un plugin publicado que declara responder a lo que el
+   * juego tiene al lado. Asi un juego no pierde lo que es porque falte quien lo reconoce.
+   */
+  private static String whoWouldSay(String game) {
+    java.io.File file = new java.io.File(game);
+    if (!file.isFile()) return null;
+    for (String kind : kindsBeside(file)) {
+      try {
+        for (PluginReleases.Board board : PluginReleases.bringing(kind, java.util.List.of(BesideTheGame.class.getName()))) {
+          return board.name() + " (not installed)";
+        }
+      } catch (Exception cannotAsk) {
+        return null;
+      }
+    }
     return null;
+  }
+
+  /** Lo que trae un juego ademas de si mismo: la clase de cada archivo con su nombre al lado. */
+  static java.util.List<String> kindsBeside(java.io.File file) {
+    String name = file.getName().replaceFirst("\\.[^.]*$", "");
+    java.io.File[] beside = file.getAbsoluteFile().getParentFile().listFiles((folder, other) ->
+        !other.equals(file.getName()) && other.replaceFirst("\\.[^.]*$", "").equalsIgnoreCase(name));
+    return beside == null ? java.util.List.of() : java.util.Arrays.stream(beside)
+        .map(other -> other.getName().replaceFirst("^.*\\.", "").toLowerCase()).distinct().toList();
   }
 
   static boolean anythingBeside(String game) {

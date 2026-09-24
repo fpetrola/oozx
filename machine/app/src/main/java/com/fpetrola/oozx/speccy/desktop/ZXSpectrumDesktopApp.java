@@ -1458,7 +1458,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         if (file.isFile() && !OOSpectrumLauncher.somethingOpens(file)) return file;
         if (mayAsk && file.isFile()) {
           List<com.fpetrola.oozx.plugins.PluginReleases.Board> beside =
-              WhatIsMissing.bringingBeside(OOSpectrumLauncher.kindsBeside(file));
+              WhatIsMissing.bringingBeside(com.fpetrola.oozx.plugins.BesideTheGame.kindsBeside(file));
           if (!beside.isEmpty()) return beside;
         }
         EmulatorCore core = mockCore.apply(local, game == null ? null : game.machine());
