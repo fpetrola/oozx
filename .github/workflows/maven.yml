@@ -30,13 +30,15 @@ jobs:
     - uses: actions/checkout@v4
       with:
         repository: fpetrola/crystal-plugins
-        ref: application-1
+        ref: bundled-3
         path: crystal-plugins
 
-    - name: Set up JDK 18
+    # 21 y no 18: el framework se compila con release 21, y modulos de aca tambien. El pom
+    # raiz sigue pidiendo 18 de lenguaje, que un javac 21 compila sin problema.
+    - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
-        java-version: '18'
+        java-version: '21'
         distribution: 'temurin'
         cache: maven
     - name: Build the plugin framework
