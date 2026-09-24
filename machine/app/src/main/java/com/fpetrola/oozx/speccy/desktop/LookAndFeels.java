@@ -245,14 +245,17 @@ public final class LookAndFeels {
     // Putting the same look on again is a way of clearing what an earlier one left behind, and
     // there is nothing to undress for that.
     if (worn != laf) for (Window window : Window.getWindows()) undecorate(window);
+    // Donde buscar las piezas, dicho antes de ponerlo: el look repinta todo al ponerse, y una
+    // ventana de un plugin busca con el cargador de su propia clase, que no ve el del look.
+    UIManager.put("ClassLoader", laf.from == null ? null : laf.from.getClass().getClassLoader());
     try {
       laf.install.apply();
-      if (worn != laf) wornBefore = worn;
-      worn = laf;
-      wornFromPlugin = laf.from == null ? null : com.fpetrola.oozx.plugins.Plugins.whoBrought(laf.from);
-    } catch (Exception | LinkageError notThisOne) {
+    } catch (Exception | Error notThisOne) {
       System.err.println("could not wear the look '" + laf.name + "': " + notThisOne);
     }
+    if (worn != laf) wornBefore = worn;
+    worn = laf;
+    wornFromPlugin = laf.from == null ? null : com.fpetrola.oozx.plugins.Plugins.whoBrought(laf.from);
     for (Window window : Window.getWindows()) {
       redress(window);
       window.invalidate();
