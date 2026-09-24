@@ -149,6 +149,20 @@ public final class LookAndFeels {
     else if (worn == laf) wear(asked);
   }
 
+  private static final List<String> DIALOG_TEXTS = java.util.stream.Stream.of(
+      "OptionPane.yesButtonText", "OptionPane.noButtonText", "OptionPane.okButtonText",
+      "OptionPane.cancelButtonText", "OptionPane.yesButtonMnemonic", "OptionPane.noButtonMnemonic",
+      "OptionPane.okButtonMnemonic", "OptionPane.cancelButtonMnemonic", "OptionPane.titleText",
+      "OptionPane.messageDialogTitle", "OptionPane.inputDialogTitle",
+      "FileChooser.openButtonText", "FileChooser.saveButtonText", "FileChooser.cancelButtonText",
+      "FileChooser.updateButtonText", "FileChooser.helpButtonText", "FileChooser.directoryOpenButtonText",
+      "FileChooser.lookInLabelText", "FileChooser.saveInLabelText", "FileChooser.fileNameLabelText",
+      "FileChooser.filesOfTypeLabelText", "FileChooser.acceptAllFileFilterText",
+      "FileChooser.openDialogTitleText", "FileChooser.saveDialogTitleText",
+      "FileChooser.upFolderToolTipText", "FileChooser.homeFolderToolTipText",
+      "FileChooser.newFolderToolTipText", "FileChooser.listViewButtonToolTipText",
+      "FileChooser.detailsViewButtonToolTipText").toList();
+
   /** A look that has painted for this long is taken to be one that works. */
   private static final long TRUSTED_AFTER = 30_000;
 
@@ -265,6 +279,12 @@ public final class LookAndFeels {
       laf.install.apply();
     } catch (Exception | Error notThisOne) {
       System.err.println("could not wear the look '" + laf.name + "': " + notThisOne);
+    }
+    // Un look de un plugin trae sus textos en su propio jar, donde Swing no los busca: los botones
+    // de cada pregunta quedaban en blanco. Faltando, van los de Java.
+    if (UIManager.getString("OptionPane.yesButtonText") == null) {
+      UIDefaults metal = new javax.swing.plaf.metal.MetalLookAndFeel().getDefaults();
+      for (String text : DIALOG_TEXTS) UIManager.getLookAndFeelDefaults().put(text, metal.get(text));
     }
     if (worn != laf) wornBefore = worn;
     worn = laf;

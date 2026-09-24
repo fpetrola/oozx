@@ -100,6 +100,27 @@ public final class Plugins {
     beforeTakingOut.add(leaving);
   }
 
+  /**
+   * Un plugin puede dejar algo en lo que es de toda la maquina virtual, como el formato del log, y
+   * eso sigue pidiendole clases a su cargador despues de que se cerro.
+   */
+  private static void forgetWhatClosedLoadersLeft() {
+    java.util.logging.LogManager logs = java.util.logging.LogManager.getLogManager();
+    for (String name : java.util.Collections.list(logs.getLoggerNames())) {
+      java.util.logging.Logger logger = logs.getLogger(name);
+      if (logger == null) continue;
+      for (java.util.logging.Handler handler : logger.getHandlers()) {
+        if (closed(handler)) logger.removeHandler(handler);
+        else if (closed(handler.getFormatter())) handler.setFormatter(new java.util.logging.SimpleFormatter());
+      }
+    }
+  }
+
+  private static boolean closed(Object made) {
+    return made != null && made.getClass().getClassLoader() instanceof org.pf4j.PluginClassLoader loader
+        && loader.isClosed();
+  }
+
   /** El plugin que trajo esa extension, o null si la trajo la base. */
   public static String whoBrought(Object extension) {
     if (!areRead()) return null;
@@ -126,6 +147,7 @@ public final class Plugins {
           .source(new WhereAPluginComesFrom())
           .defaults(dev.crystal.plugins.runtime.PluginSources.bundled())
           .build();
+      service.onChange(Plugins::forgetWhatClosedLoadersLeft);
       service.beforeUnload(id -> {
         System.err.println("plugin going away: " + id);
         beforeTakingOut.forEach(listener -> listener.accept(id));
