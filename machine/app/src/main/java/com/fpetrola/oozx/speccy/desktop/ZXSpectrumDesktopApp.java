@@ -1728,6 +1728,11 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     favoritesBtn.addActionListener(e -> openFavorites());
     toolBar.add(favoritesBtn);
 
+    JButton pluginsBtn = new JButton(loadIcon("1F9E9.svg"));
+    pluginsBtn.setToolTipText("Plugins - what is in this emulator and what else can be had");
+    pluginsBtn.addActionListener(e -> showPlugins());
+    toolBar.add(pluginsBtn);
+
     JButton settingsBtn = new JButton(loadIcon("2699.svg"));
     settingsBtn.setToolTipText("Settings");
     settingsBtn.addActionListener(e -> openSettings());
