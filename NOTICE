@@ -68,6 +68,27 @@ Spectrum and clone ROMs
     from whoever publishes it, and keeps the copy under the home directory rather than in this
     tree.
 
+Emoji icons
+
+    machine/ui/src/main/resources/icons/1F308.svg, 1F3F3-FE0F-200D-1F308.svg,
+    1F4FA.svg, 1F507.svg, 1F509.svg, 1F513.svg, 1F579.svg, 1F680.svg,
+    23EF.svg, 2699.svg, 2B21-FE0F-200D-1F308.svg, E243.svg, E259.svg and
+    E260.svg
+
+    Copyright OpenMoji <https://openmoji.org/>, the open-source emoji and icon
+    project, licensed under CC BY-SA 4.0
+    <https://creativecommons.org/licenses/by-sa/4.0/>. Anyone who passes these
+    on has to credit OpenMoji and keep them under those same terms.
+
+    Copied unchanged from the colour set of
+    <https://github.com/hfg-gmuend/openmoji>, and named there as here by the
+    codepoints of the emoji each one draws. Fourteen of the twenty-nine files
+    in that directory are theirs, byte for byte; the rest are not, and this
+    entry does not claim otherwise.
+
+    The buttons and the menus of the desk are drawn with them. Nothing here is
+    derived from them: they are read at run time and painted.
+
 POKE listings
 
     machine/pokes/src/main/resources/pokes/<letter or digit>/*.pok
