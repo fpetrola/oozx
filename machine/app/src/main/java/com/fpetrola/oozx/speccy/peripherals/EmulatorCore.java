@@ -19,7 +19,6 @@ package com.fpetrola.oozx.speccy.peripherals;
 
 import com.fpetrola.oozx.EmulatorControl;
 import com.fpetrola.oozx.config.Settings;
-import com.fpetrola.oozx.speccy.pokes.PokFile;
 
 import javax.swing.JComponent;
 import java.awt.event.KeyListener;
@@ -104,10 +103,4 @@ public interface EmulatorCore extends EmulatorControl {
   }
 
   KeyListener getKeyListener();
-
-  default void applyMod(PokFile.PokeMod mod) {
-  }
-
-  default void revertMod(PokFile.PokeMod mod) {
-  }
 }

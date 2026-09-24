@@ -24,11 +24,9 @@ import com.fpetrola.oozx.EmulatorListener;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.screen.SpeccyScreen;
 import com.fpetrola.oozx.speccy.desktop.SwingKeyboard;
-import com.fpetrola.oozx.speccy.pokes.PokFile;
 
 import java.awt.event.KeyListener;
 
-import com.fpetrola.oozx.speccy.pokes.PokInstruction;
 import javax.swing.SwingUtilities;
 import java.io.File;
 
@@ -134,32 +132,6 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
   }
 
 
-
-  public void applyMod(PokFile.PokeMod mod) {
-    PokInstruction parsedInstruction = mod.getParsedInstruction();
-    parsedInstruction.apply(new PokInstruction.EmulatorMemoryWriter() {
-      public void writeMemory(int bank, int address, int value) {
-        speccy.cpu.getOoz80().getState().getMemory().write(address, value);
-      }
-
-      public int readMemory(int bank, int address) {
-        return speccy.cpu.getOoz80().getState().getMemory().read(address);
-      }
-    });
-  }
-
-  public void revertMod(PokFile.PokeMod mod) {
-    PokInstruction parsedInstruction = mod.getParsedInstruction();
-    parsedInstruction.revert(new PokInstruction.EmulatorMemoryWriter() {
-      public void writeMemory(int bank, int address, int value) {
-        speccy.cpu.getOoz80().getState().getMemory().write(address, value);
-      }
-
-      public int readMemory(int bank, int address) {
-        return speccy.cpu.getOoz80().getState().getMemory().read(address);
-      }
-    });
-  }
 
   public void setFilename(String filename) {
     this.filename = filename;

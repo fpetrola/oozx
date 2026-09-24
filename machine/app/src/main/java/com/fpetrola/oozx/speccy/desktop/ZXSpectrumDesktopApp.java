@@ -42,8 +42,6 @@ import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
 import com.fpetrola.oozx.EmulatorListener;
 import com.fpetrola.oozx.TellsThePerson;
 import com.fpetrola.oozx.speccy.peripherals.DefaultsCore;
-import com.fpetrola.oozx.speccy.pokes.PokesManager;
-import com.fpetrola.oozx.speccy.pokes.PokesDialog;
 import com.fpetrola.emulation.helpers.snapshots.SnapshotSaver;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.emulation.helpers.snapshots.SpectrumState;
@@ -110,7 +108,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
   private JDialog fullscreen;
   private KeyListener keys;
   //  private JLabel tapeStatusLabel;
-  private List<com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod> appliedPokes = new ArrayList<>();
 
   public EmulatorInternalFrame(EmulatorCore core, int x, int y, ZXSpectrumDesktopApp parentApp) {
     this(core, x, y, parentApp, null);
@@ -414,10 +411,13 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     toolBar.add(muteButton);
 
     if (parentApp != null) {
-      JButton pokesButton = new JButton(loadIcon("1F513.svg"));
-      pokesButton.setToolTipText("Cheats/Pokes");
-      pokesButton.addActionListener(e -> openPokesDialog());
-      toolBar.add(pokesButton);
+      // Lo que traen los plugins: cada herramienta pone su boton, y sin plugins no hay ninguno.
+      for (com.fpetrola.oozx.speccy.devices.MachineTool tool : WhatIsPluggedIn.theOne().tools()) {
+        JButton button = new JButton(tool.icon());
+        button.setToolTipText(tool.tooltip());
+        button.addActionListener(e -> tool.use(this));
+        toolBar.add(button);
+      }
       
       JButton viewDetailsButton = new JButton(loadIcon("E259.svg"));
       viewDetailsButton.setToolTipText("View Game Details");
@@ -621,72 +621,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     }
     return keys;
   }
-
-  /**
-   * Which game is loaded, said by the catalogue rather than by the file's name. The name is what
-   * the pokes and the details used to be looked up by, and a file called RENE256.SNA matched no
-   * pokes and sent the details to whatever the search happened to return first.
-   */
-  /** Que juego esta cargado, dicho por quien sepa de juegos, o nada. */
-  private Desk.Game loadedGame() {
-    WhatGameThisIs knows = WhatIsPluggedIn.theOne().aboutGames();
-    String filename = emulatorCore.getFilename();
-    return knows == null || filename == null || filename.isEmpty() ? null : knows.gameIn(filename);
-  }
-
-  private void openPokesDialog() {
-    if (parentApp == null) return;
-
-    Desk.Game identified = loadedGame();
-    String gameName = identified != null ? identified.title() : emulatorCore.getFilename();
-    if (identified == null && gameName != null) {
-      gameName = new java.io.File(gameName).getName().replace(".tap", "").replace(".tzx", "")
-          .replace(".z80", "").replace(".sna", "").replace(".szx", "");
-    }
-
-    if (gameName == null || gameName.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "No game loaded", "Info", JOptionPane.INFORMATION_MESSAGE);
-      return;
-    }
-
-    // By the id when the catalogue knows the game, which is the join ZXDB itself makes between an
-    // entry and its .pok file. The name is what is left when it does not, and it is a guess: it
-    // found nothing for a file called RENE256.SNA and the wrong thing for a shared title.
-    List<com.fpetrola.oozx.speccy.pokes.PokFile> availablePokes =
-        parentApp.pokesManager.findPokesForEntry(identified == null ? null : identified.id());
-    if (availablePokes.isEmpty()) {
-      availablePokes = parentApp.pokesManager.findPokesForGame(gameName);
-    }
-
-    if (availablePokes.isEmpty()) {
-      JOptionPane.showMessageDialog(this,
-          "No pokes found for: " + gameName,
-          "Pokes Not Found",
-          JOptionPane.INFORMATION_MESSAGE);
-      return;
-    }
-
-    PokesDialog pokesDialog = new PokesDialog(
-        (Frame) SwingUtilities.getWindowAncestor(this),
-        gameName,
-        availablePokes,
-        parentApp.pokesManager,
-        new ArrayList<>(appliedPokes));
-
-    pokesDialog.setOnPokesAppliedListener(selectedMods -> {
-      if (!selectedMods.isEmpty()) {
-        applyPokes(selectedMods);
-      }
-    });
-
-    pokesDialog.setOnPokesChangedListener(removedMods -> {
-      if (!removedMods.isEmpty()) {
-        revertPokes(removedMods);
-      }
-    });
-
-    pokesDialog.setVisible(true);
-  }
   
   /**
    * Lo que se sabe del juego que esta corriendo. Que juego es lo dice quien sabe de juegos: aca
@@ -697,44 +631,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     if (parentApp == null) return;
     parentApp.showDetails(game != null ? game
         : new Desk.Game(emulatorCore.getFilename(), null, null, null));
-  }
-
-  private void applyPokes(List<com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod> mods) {
-    System.out.println("Aplicando " + mods.size() + " pokes:");
-
-    List<com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod> newMods = new ArrayList<>();
-    for (com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod mod : mods) {
-      boolean wasAlreadyApplied = appliedPokes.stream()
-          .anyMatch(p -> p.getName().equals(mod.getName()) &&
-                         p.getRawInstruction().equals(mod.getRawInstruction()));
-      if (!wasAlreadyApplied) {
-        newMods.add(mod);
-      }
-    }
-
-    appliedPokes.clear();
-    appliedPokes.addAll(mods);
-
-    for (com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod mod : newMods) {
-      System.out.println("  - " + mod.getName() + ": " + mod.getDescription());
-      System.out.println("    Type: " + mod.getInstructionType() + ", Raw: " + mod.getRawInstruction());
-      emulatorCore.applyMod(mod);
-    }
-
-    if (newMods.isEmpty()) {
-      System.out.println("  (No nuevos pokes para aplicar)");
-    }
-  }
-
-  private void revertPokes(List<com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod> mods) {
-    System.out.println("Revertiendo " + mods.size() + " pokes:");
-    for (com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod mod : mods) {
-      System.out.println("  - " + mod.getName() + ": " + mod.getDescription());
-      appliedPokes.removeIf(p -> p.getName().equals(mod.getName()) &&
-                                 p.getRawInstruction().equals(mod.getRawInstruction()));
-      // The reverted value lives on the mod's PokInstruction, saved when it was applied.
-      emulatorCore.revertMod(mod);
-    }
   }
 
   public OOZxConfiguration.WindowState saveWindowState(String filePath) {
@@ -751,23 +647,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     state.setMuted(emulatorCore.isMuted());
     state.setPaused(emulatorCore.isPaused());
 
-    List<OOZxConfiguration.PokModState> pokModStates = new ArrayList<>();
-    for (com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod mod : appliedPokes) {
-      com.fpetrola.oozx.speccy.pokes.PokInstruction instruction = mod.getParsedInstruction();
-      OOZxConfiguration.PokModState pokState = new OOZxConfiguration.PokModState(
-          mod.getName(),
-          mod.getRawInstruction(),
-          mod.getPokFileName(),
-          mod.getGameName(),
-          mod.getInstructionType(),
-          mod.getDescription(),
-          instruction.getPreviousValue(),
-          instruction.getPreviousBank(),
-          instruction.getPreviousAddress()
-      );
-      pokModStates.add(pokState);
-    }
-    state.setAppliedPokes(pokModStates);
+    WhatIsPluggedIn.theOne().tools().forEach(tool -> tool.remember(this, state));
 
     try {
       String unicodePackedSnapshot = emulatorCore.packedState();
@@ -814,29 +694,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
 
     emulatorCore.setFilename(state.getFilePath());
 
-    if (state.getAppliedPokes() != null && !state.getAppliedPokes().isEmpty()) {
-      appliedPokes.clear();
-      List<com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod> mods = new ArrayList<>();
-      for (OOZxConfiguration.PokModState pokState : state.getAppliedPokes()) {
-        com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod mod = new com.fpetrola.oozx.speccy.pokes.PokFile.PokeMod(
-            pokState.getName(),
-            pokState.getRawInstruction(),
-            pokState.getPokFileName(),
-            pokState.getGameName()
-        );
-        com.fpetrola.oozx.speccy.pokes.PokInstruction instruction = mod.getParsedInstruction();
-        if (instruction != null) {
-          instruction.setPreviousValue(pokState.getPreviousValue());
-          instruction.setPreviousBank(pokState.getPreviousBank());
-          instruction.setPreviousAddress(pokState.getPreviousAddress());
-        }
-        mods.add(mod);
-        appliedPokes.add(mod);
-      }
-      if (!mods.isEmpty()) {
-        applyPokes(mods);
-      }
-    }
+    WhatIsPluggedIn.theOne().tools().forEach(tool -> tool.restore(this, state));
   }
 }
 
@@ -861,7 +719,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   private final JFileChooser fileChooser = new JFileChooser();
   protected OOZxConfiguration config;
   private JMenu recentFilesMenu;
-  protected PokesManager pokesManager;
 
   {
     // Everything this can be given, including the zips the archives serve: what to do with a
@@ -1032,7 +889,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       ScreenSettings.setDefaults(config.getScreenDefaults());
     }
     restoreKeptProfiles();
-    this.pokesManager = new PokesManager();
 
     setTitle("ZX Spectrum Multi-Emulator");
     setSize(1200, 800);
