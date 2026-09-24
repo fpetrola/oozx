@@ -41,7 +41,11 @@ public final class LookAndFeels {
     void apply() throws Exception;
   }
 
-  private record Laf(String family, String name, Install install) {
+  private record Laf(String family, String name, Install install, Object from) {
+    Laf(String family, String name, Install install) {
+      this(family, name, install, null);
+    }
+
     String id() {
       return family + " / " + name;
     }
@@ -75,15 +79,47 @@ public final class LookAndFeels {
         .ifPresent(LookAndFeels::wear);
   }
 
-  /**
-   * Un plugin de looks que se va o se reinicia deja lo puesto pintando con clases de un cargador
-   * cerrado: se vuelve a poner con el que llego, o Metal si ya no hay quien lo traiga.
-   */
+  /** El look que se saco porque su plugin se iba, para volver a ponerlo si el plugin vuelve. */
+  private static String wornBeforeItsPluginLeft;
+
+  static {
+    com.fpetrola.oozx.plugins.Plugins.managing().beforeUnload(LookAndFeels::pluginLeaving);
+  }
+
+  /** Con el cargador del plugin todavia abierto: despues, sacarse el look ya no puede cargar sus clases. */
+  private static void pluginLeaving(String pluginId) {
+    if (worn == null || worn.from == null || !brought(pluginId, worn.from)) return;
+    wornBeforeItsPluginLeft = worn.id();
+    onTheEventThread(() -> wear(METAL));
+  }
+
+  private static boolean brought(String pluginId, Object look) {
+    return com.fpetrola.oozx.plugins.Plugins.managing().plugins().stream()
+        .filter(plugin -> plugin.id().equals(pluginId))
+        .flatMap(plugin -> plugin.extensions().stream())
+        .anyMatch(extension -> extension.className().equals(look.getClass().getName()));
+  }
+
+  private static void onTheEventThread(Runnable doIt) {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      doIt.run();
+      return;
+    }
+    try {
+      javax.swing.SwingUtilities.invokeAndWait(doIt);
+    } catch (Exception interrupted) {
+      System.err.println("could not take the look off: " + interrupted);
+    }
+  }
+
+  /** Lo que ofrece el menu cambia con los plugins, y un look que se fue con el suyo vuelve con el. */
   public static void lookPluginsChanged(JMenu menu, Consumer<String> chosen) {
     if (menu != null) fillMenu(menu, chosen);
-    if (worn == null || "System".equals(worn.family)) return;
-    String id = worn.id();
-    wear(all().stream().filter(laf -> laf.id().equals(id)).findFirst().orElse(METAL));
+    String back = wornBeforeItsPluginLeft;
+    all().stream().filter(laf -> laf.id().equals(back)).findFirst().ifPresent(laf -> {
+      wornBeforeItsPluginLeft = null;
+      wear(laf);
+    });
   }
 
   /** The families as submenus, each item telling the caller which name to remember. */
@@ -352,7 +388,7 @@ public final class LookAndFeels {
   private static List<Laf> all() {
     List<Laf> all = new ArrayList<>();
     for (com.fpetrola.oozx.speccy.devices.Look family : WhatIsPluggedIn.theOne().looks()) {
-      for (String name : family.names()) all.add(new Laf(family.family(), name, () -> family.wear(name)));
+      for (String name : family.names()) all.add(new Laf(family.family(), name, () -> family.wear(name), family));
     }
     all.add(METAL);
     all.add(new Laf("System", "Nimbus", () -> UIManager.setLookAndFeel(
