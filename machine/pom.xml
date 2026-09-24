@@ -39,7 +39,6 @@
         <module>host</module>
         <module>devices</module>
         <module>machines/ula</module>
-        <module>machines/disk</module>
         <module>machines</module>
         <module>pokes</module>
         <module>app</module>
