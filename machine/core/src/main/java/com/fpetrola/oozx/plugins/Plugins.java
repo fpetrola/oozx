@@ -145,7 +145,46 @@ public final class Plugins {
   /** Lo que hace que un injector nuestro sepa de los roles sin que nadie los vaya a buscar. */
   public static com.google.inject.Module asModule() {
     return areRead() ? dev.crystal.plugins.guice.PluginsModule.of(service())
-        : binder -> { };
+        : whatThisBuildBrings();
+  }
+
+  /**
+   * Con los plugins apagados contesta igual, con lo que el emulador trae adentro: apagarlos es
+   * correr sin jars, no correr sin lo de uno. Sin esto, pedir cualquier forma de entrar no se
+   * podia responder y no se armaba nada que las pidiera.
+   */
+  private static com.google.inject.Module whatThisBuildBrings() {
+    return binder -> waysIn().forEach(wayIn -> bindEverythingOf(binder, wayIn));
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private static void bindEverythingOf(com.google.inject.Binder binder, Class wayIn) {
+    binder.bind((com.google.inject.Key) com.google.inject.Key.get(
+        com.google.inject.util.Types.setOf(wayIn))).toProvider(() -> java.util.Set.copyOf(found(wayIn)));
+  }
+
+  /** Las formas de entrar que este build declara, dichas por cada modulo en su propio indice. */
+  private static List<Class<?>> waysIn() {
+    List<Class<?>> declared = new ArrayList<>();
+    try {
+      java.util.Enumeration<URL> indexes = Plugins.class.getClassLoader()
+          .getResources("META-INF/crystal/roles.idx");
+      while (indexes.hasMoreElements()) {
+        for (String line : new String(indexes.nextElement().openStream().readAllBytes(),
+            java.nio.charset.StandardCharsets.UTF_8).split("\n")) {
+          String named = line.trim();
+          if (named.isEmpty() || named.startsWith("#")) continue;
+          try {
+            declared.add(Class.forName(named, false, Plugins.class.getClassLoader()));
+          } catch (ClassNotFoundException notHere) {
+            // Lo declaro otro modulo que este build no tiene: no es una forma de entrar de aca.
+          }
+        }
+      }
+    } catch (IOException cannotBeRead) {
+      TellsThePerson.thisBuildCannot("no se pudo leer que formas de entrar hay: " + cannotBeRead);
+    }
+    return declared;
   }
 
   /** Arma algo que retiene plugins, para que no se los saque de abajo mientras corre. */
