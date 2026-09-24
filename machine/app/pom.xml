@@ -47,11 +47,6 @@
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
-            <artifactId>pokes</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fpetrola</groupId>
             <artifactId>rzx</artifactId>
             <version>${project.version}</version>
         </dependency>
