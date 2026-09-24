@@ -27,6 +27,21 @@ import java.awt.image.DirectColorModel;
 import java.awt.image.Raster;
 
 public class SpeccyScreen extends JPanel {
+  /** Repinta mientras la pantalla esta en una ventana: andando sin ella, retenia la maquina cerrada. */
+  private final Timer repainting = new Timer(30, e -> repaint());
+
+  @Override
+  public void addNotify() {
+    super.addNotify();
+    repainting.start();
+  }
+
+  @Override
+  public void removeNotify() {
+    repainting.stop();
+    super.removeNotify();
+  }
+
   private final int[] pixels;
   private final BufferedImage screenBuffer;
   private double zoom = 1;
@@ -103,7 +118,6 @@ public class SpeccyScreen extends JPanel {
     preferNativeSize();
     screen.onChange(this::repaint);
 
-    new Timer(30, e -> SwingUtilities.invokeLater(this::repaint)).start();
   }
 
   /**

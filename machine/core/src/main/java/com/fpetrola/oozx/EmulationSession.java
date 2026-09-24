@@ -39,4 +39,30 @@ public class EmulationSession {
   public void finish() {
     alive = false;
   }
+
+  private final java.util.concurrent.CountDownLatch out = new java.util.concurrent.CountDownLatch(1);
+  private volatile boolean looping;
+
+  /** Dicho por quien la va a correr en un bucle, antes de arrancarlo. */
+  public void looping() {
+    looping = true;
+  }
+
+  /** Dicho por el bucle al salir: ya no queda nada suyo corriendo en ese hilo. */
+  public void outOfTheLoop() {
+    out.countDown();
+  }
+
+  /**
+   * Espera a que el bucle que la corre salga, si hay uno. Hasta entonces ese hilo tiene la maquina
+   * en su pila, y lo que la armo no se puede soltar.
+   */
+  public void awaitOutOfTheLoop() {
+    if (!looping) return;
+    try {
+      out.await(1, java.util.concurrent.TimeUnit.SECONDS);
+    } catch (InterruptedException interrupted) {
+      Thread.currentThread().interrupt();
+    }
+  }
 }

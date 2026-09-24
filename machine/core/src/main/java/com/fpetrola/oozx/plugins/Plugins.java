@@ -100,6 +100,17 @@ public final class Plugins {
     beforeTakingOut.add(leaving);
   }
 
+  private static final List<java.util.function.Function<java.util.Set<String>, Runnable>> whenHeld =
+      new java.util.concurrent.CopyOnWriteArrayList<>();
+
+  /**
+   * Preguntado cuando lo que se quiere sacar esta retenido, con todo lo que se iria: quien lo
+   * retiene lo suelta y devuelve que hacer cuando se fue, o null.
+   */
+  public static void whenHeld(java.util.function.Function<java.util.Set<String>, Runnable> release) {
+    whenHeld.add(release);
+  }
+
   /**
    * Un plugin puede dejar algo en lo que es de toda la maquina virtual, como el formato del log, y
    * eso sigue pidiendole clases a su cargador despues de que se cerro.
@@ -148,6 +159,11 @@ public final class Plugins {
           .defaults(dev.crystal.plugins.runtime.PluginSources.bundled())
           .build();
       service.onChange(Plugins::forgetWhatClosedLoadersLeft);
+      service.whenHeld(leaving -> {
+        List<Runnable> afterwards = whenHeld.stream().map(release -> release.apply(leaving))
+            .filter(java.util.Objects::nonNull).toList();
+        return () -> afterwards.forEach(Runnable::run);
+      });
       service.beforeUnload(id -> {
         System.err.println("plugin going away: " + id);
         beforeTakingOut.forEach(listener -> listener.accept(id));
@@ -255,53 +271,6 @@ public final class Plugins {
     } catch (IOException cannotBeRead) {
       return null;
     }
-  }
-
-  /**
-   * Lo saca de verdad: deja de estar cargado y deja de contar en el acto, en vez de sacarlo de
-   * una lista y dejarlo corriendo. Renombrar el jar no alcanzaba - el que los carga ya lo tenia
-   * en su cache y arrancado, asi que el menu seguia teniendo lo que se acababa de sacar.
-   *
-   * @return si se pudo, que es que no, cuando algo que corre lo esta reteniendo
-   */
-  public static synchronized boolean takeOut(String id) {
-    if (id == null || !areRead()) return false;
-    // Se pregunta antes de intentar: quien lo carga sabe si algo lo esta reteniendo, y eso no es
-    // una excepcion que haya que atrapar sino una respuesta.
-    List<String> holding = whoIsHolding(id);
-    if (holding.isEmpty()) {
-      service().uninstall(id);
-      generation++;
-      return true;
-    }
-    // Una maquina de esta corrida lo uso, y eso no se suelta al cerrarla: sus clases estan en lo
-    // que se construyo con ella. Se lo saca del conjunto instalado y sigue andando hasta que el
-    // emulador vuelva a arrancar, que es la unica verdad que se le puede decir a alguien.
-    service().uninstallOnNextStart(id);
-    TellsThePerson.thisBuildCannot(nameOf(id) + " lo esta usando una maquina de esta sesion, asi"
-        + " que se va cuando vuelvas a arrancar el emulador.");
-    return false;
-  }
-
-  /** Si se puede sacar ahora mismo, para decirlo antes y no como el resultado de intentarlo. */
-  public static boolean canBeTakenOutNow(String id) {
-    return areRead() && whoIsHolding(id).isEmpty();
-  }
-
-  /**
-   * Quien lo retiene, sin contar lo que ya se cerro.
-   * <p>
-   * Una maquina cerrada deja de alcanzarse pero sigue existiendo hasta que la recolecten, y
-   * hasta entonces cuenta como que lo esta usando. Se le pide a la maquina virtual que limpie
-   * antes de contestar, asi cerrar una ventana alcanza para poder sacar lo que esa ventana usaba.
-   */
-  private static List<String> whoIsHolding(String id) {
-    List<String> holding = service().heldBy(id);
-    if (holding.isEmpty()) {
-      return holding;
-    }
-    System.gc();
-    return service().heldBy(id);
   }
 
   /** Lo que ya no va a estar la proxima vez, aunque todavia ande. */

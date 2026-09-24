@@ -1584,6 +1584,10 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   private final AutoCloseable whileItChanges = com.fpetrola.oozx.plugins.Plugins.managing()
       .onChange(() -> javax.swing.SwingUtilities.invokeLater(this::somethingWasPluggedIn));
 
+  {
+    com.fpetrola.oozx.plugins.Plugins.whenHeld(leaving -> putMachinesAway());
+  }
+
 
   /** Where the Equipment menu is, so that a board which arrives while this runs can be added to it. */
   private JMenu equipmentMenu;
@@ -1859,6 +1863,11 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         core1.finishEmulation();
         frame.stopsBeingTold();
         forgetWhatIsClosed(core1);
+        // Swing guarda en una cache suya, blanda, piezas pintadas de la ventana como la barra, y
+        // desde sus botones se llegaba a la maquina: el plugin con que se armo seguia retenido.
+        emptied(frame.getContentPane());
+        frame.emulatorCore = null;
+        frame.removeInternalFrameListener(this);
       }
     });
 
@@ -1942,19 +1951,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   private void restoreOpenWindows() {
     for (OOZxConfiguration.WindowState windowState : config.getOpenWindows()) {
       if ("EMULATOR".equals(windowState.getType())) {
-        if (windowState.getSnapshotId() != null && !windowState.getSnapshotId().isEmpty()) {
-          try {
-            String snapshotData = config.getSnapshot(windowState.getSnapshotId());
-            if (snapshotData != null && !snapshotData.isEmpty()) {
-              SpectrumState spectrumState = SnapshotSaver.loadSnapshotFromUnicodePacked(snapshotData);
-              EmulatorCore core = mockCoreState.apply(spectrumState);
-              EmulatorInternalFrame frame = createNewEmulator(core);
-              frame.restoreWindowState(windowState);
-            }
-          } catch (Exception e) {
-            System.err.println("Error restaurando snapshot desde configuración: " + e.getMessage());
-          }
-        }
+        reopen(windowState);
       } else if (deskKindThatKeeps(windowState.getType()) != null) {
         JInternalFrame window = showOnTheDesk(deskKindThatKeeps(windowState.getType()));
         if (window instanceof com.fpetrola.oozx.speccy.devices.KeepsItsPlace keeper) {
@@ -1963,6 +1960,49 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       }
     }
 
+  }
+
+  private static void emptied(java.awt.Container container) {
+    for (java.awt.Component part : container.getComponents()) {
+      if (part instanceof java.awt.Container inside) emptied(inside);
+    }
+    container.removeAll();
+  }
+
+  /** Una maquina desde el estado que se guardo de ella, donde estaba su ventana. */
+  private void reopen(OOZxConfiguration.WindowState windowState) {
+    if (windowState.getSnapshotId() == null || windowState.getSnapshotId().isEmpty()) return;
+    try {
+      String snapshotData = config.getSnapshot(windowState.getSnapshotId());
+      if (snapshotData != null && !snapshotData.isEmpty()) {
+        SpectrumState spectrumState = SnapshotSaver.loadSnapshotFromUnicodePacked(snapshotData);
+        createNewEmulator(mockCoreState.apply(spectrumState)).restoreWindowState(windowState);
+      }
+    } catch (Exception e) {
+      System.err.println("Error restaurando snapshot desde configuración: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Guarda el estado de cada maquina abierta y la cierra; lo devuelto las vuelve a abrir desde ahi.
+   * Una maquina retiene los plugins con que se armo, y esto es lo que la deja rearmarse sin uno.
+   */
+  Runnable putMachinesAway() {
+    List<OOZxConfiguration.WindowState> were = new java.util.ArrayList<>();
+    for (JInternalFrame frame : desktop.getAllFrames()) {
+      if (frame instanceof EmulatorInternalFrame machine) {
+        were.add(machine.saveWindowState(machine.emulatorCore.getFilename()));
+        machine.dispose();
+      }
+    }
+    // Lo que las maquinas dejaron encolado para este hilo las nombra: se atiende antes de volver,
+    // sin salir del evento que pregunto, como hace un dialogo modal.
+    if (SwingUtilities.isEventDispatchThread()) {
+      java.awt.SecondaryLoop pending = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
+      SwingUtilities.invokeLater(pending::exit);
+      pending.enter();
+    }
+    return () -> were.forEach(this::reopen);
   }
 
   private JInternalFrame findFrameByWindowState(OOZxConfiguration.WindowState windowState) {

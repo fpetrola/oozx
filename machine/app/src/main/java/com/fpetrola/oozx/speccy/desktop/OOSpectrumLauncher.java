@@ -230,6 +230,7 @@ public class OOSpectrumLauncher {
     StartsAMachineOn.Going stepping = going;
     going = null;
 
+    speccy.session.looping();
     scheduledExecutorService.schedule(() -> {
       while (speccy.isAlive()) {
         // Stepped from this thread so the keystrokes cannot race the loop that reads them.
@@ -244,6 +245,7 @@ public class OOSpectrumLauncher {
       }
       // On this thread, once the loop is out: nothing is still stepping what is let go of.
       speccy.end();
+      speccy.session.outOfTheLoop();
     }, 0, MILLISECONDS);
   }
 

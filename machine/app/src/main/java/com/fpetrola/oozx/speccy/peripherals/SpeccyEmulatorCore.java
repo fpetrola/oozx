@@ -47,13 +47,7 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
     // Clicking the picture puts the keyboard on the machine. Without it, whatever was clicked last
     // keeps the focus - a toolbar button, usually - and then Enter presses that button instead of
     // reaching the Spectrum.
-    getPanel().setFocusable(true);
-    getPanel().addMouseListener(new java.awt.event.MouseAdapter() {
-      @Override
-      public void mousePressed(java.awt.event.MouseEvent clicked) {
-        getPanel().requestFocusInWindow();
-      }
-    });
+    focusOnClick(getPanel());
     // Whatever changes the machine - a tape named for a 128K, a snapshot, the box itself - says so
     // once, here, instead of each caller remembering to announce it.
     speccy.machine.addMachineChangeListener(newMachine -> announceMachine(newMachine.getName()));
@@ -145,8 +139,20 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
     return new SwingKeyboard(Input.of(speccy).keyboard(), Input.of(speccy));
   }
 
+  /** Estatico para no llevarse al core: la pantalla sobrevive en caches de Swing y retenia la maquina. */
+  private static void focusOnClick(javax.swing.JComponent panel) {
+    panel.setFocusable(true);
+    panel.addMouseListener(new java.awt.event.MouseAdapter() {
+      @Override
+      public void mousePressed(java.awt.event.MouseEvent clicked) {
+        panel.requestFocusInWindow();
+      }
+    });
+  }
+
   public void finishEmulation() {
     speccy.session.finish();
+    speccy.session.awaitOutOfTheLoop();
   }
 
   public boolean isPaused() {

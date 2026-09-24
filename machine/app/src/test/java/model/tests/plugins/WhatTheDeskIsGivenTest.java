@@ -90,7 +90,7 @@ class WhatTheDeskIsGivenTest {
     org.junit.jupiter.api.Assumptions.assumeTrue(named(has).contains(GAMES),
         "hace falta que el jar traiga tool-games adentro");
 
-    assertTrue(Plugins.takeOut("tool-games"), "nada lo esta usando todavia");
+    assertTrue(Plugins.managing().remove("tool-games").now().contains("tool-games"), "nada lo esta usando todavia");
     assertFalse(named(has).contains(GAMES), "se fue del escritorio");
 
     Plugins.add("tool-games");
