@@ -40,7 +40,6 @@
         <module>devices</module>
         <module>machines/ula</module>
         <module>machines/ay</module>
-        <module>machines/memory</module>
         <module>machines/disk</module>
         <module>machines</module>
         <module>pokes</module>
