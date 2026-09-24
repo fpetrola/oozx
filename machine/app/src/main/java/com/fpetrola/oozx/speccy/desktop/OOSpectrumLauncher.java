@@ -24,7 +24,6 @@ import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.machine.StartsAMachineOn;
 import com.fpetrola.oozx.speccy.modules.timer.Speed;
 import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
-import com.fpetrola.oozx.speccy.media.DownloadAndUnzip;
 import com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp;
 import com.fpetrola.emulation.helpers.snapshots.SpectrumState;
 
@@ -79,9 +78,7 @@ public class OOSpectrumLauncher {
         // Nothing asked for: a machine at the BASIC prompt, which is what "New Emulator" means.
         speccy = createBareSpeccy();
       } else {
-        string = filename.contains("http")
-            ? new DownloadAndUnzip().unzip(filename).toAbsolutePath().toString()
-            : filename;
+        string = filename;
         speccy = createSpeccy(string, chosenMachine);
       }
 

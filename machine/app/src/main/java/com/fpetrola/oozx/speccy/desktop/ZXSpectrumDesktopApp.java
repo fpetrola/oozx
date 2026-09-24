@@ -1125,27 +1125,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
 
   @Override
   public void open(Desk.Game game, Runnable whenDone) {
-    new SwingWorker<EmulatorCore, Void>() {
-      @Override
-      protected EmulatorCore doInBackground() {
-        EmulatorCore core = mockCore.apply(game.file(), game.machine());
-        knownMachines = core.getMachineModels();
-        return core;
-      }
-
-      @Override
-      protected void done() {
-        try {
-          createNewEmulator(get(), game);
-        } catch (Exception e) {
-          JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-              "Could not load \"" + game.title() + "\".\n\n" + reason(e),
-              "Load failed", JOptionPane.ERROR_MESSAGE);
-        } finally {
-          whenDone.run();
-        }
-      }
-    }.execute();
+    load(game.file(), game, whenDone, true);
   }
 
   /**
@@ -1453,54 +1433,63 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   }
 
   public void loadInNewEmulator(String path) {
-    loadInNewEmulator(path, true);
+    load(path, null, () -> { }, true);
   }
 
   /**
-   * @param mayAsk whether this is the first try. The second one is after bringing what was
-   *               missing, and it does not ask again: a reader that arrived and still does not
-   *               open the file is something else, and asking in a circle is not an answer.
+   * El unico camino de un archivo a una maquina: se baja si esta lejos, se pregunta si algo lo
+   * abre y recien entonces se arma la maquina. Preguntar despues de armarla dejaba un emulador en
+   * el BASIC al lado de la oferta del plugin; preguntar antes de bajarlo no sabia que habia en el zip.
+   *
+   * @param game   lo que el catalogo sabe de el, o null si llego como archivo
+   * @param mayAsk si es el primer intento: despues de traer lo que faltaba no se vuelve a preguntar
    */
-  private void loadInNewEmulator(String path, boolean mayAsk) {
-    // Asked before anything is built. It used to be found out inside, once the machine was made
-    // and there was nothing to put in it, and what came up was an emulator at the BASIC prompt
-    // beside a window offering the plugin - two answers to one click, one of them useless.
-    java.io.File asked = new java.io.File(path);
-    if (!path.startsWith("http") && asked.isFile() && !OOSpectrumLauncher.somethingOpens(asked)) {
-      String saidIt = "Nothing in this build knows how to open " + asked.getName() + ".";
-      if (!mayAsk) {
-        JOptionPane.showMessageDialog(this, saidIt + "\n\nWhat was brought in did not change that.",
-            "This build cannot do that", JOptionPane.WARNING_MESSAGE);
-        return;
-      }
-      // The question and what it was for, together: whatever brings the reader is brought and
-      // then this same file is opened. Nothing is remembered for later, so nothing happens later.
-      WhatIsMissing.bringWhatIsNeeded(this, OOSpectrumLauncher.kindOf(asked), saidIt,
-          () -> { somethingWasPluggedIn(); loadInNewEmulator(path, false); });
-      return;
-    }
-    // Downloading, unzipping and booting can take several seconds, and until now they took them
-    // in silence: nothing appeared until the machine did, which reads as the click not working.
+  private void load(String path, Desk.Game game, Runnable whenDone, boolean mayAsk) {
     String name = DownloadAndUnzip.nameOf(path);
     JDialog loading = showLoading(path.startsWith("http") ? "Fetching " + name + "..." : "Loading " + name + "...");
-
-    new SwingWorker<EmulatorCore, Void>() {
+    new SwingWorker<Object, Void>() {
       @Override
-      protected EmulatorCore doInBackground() {
-        return mockCore.apply(path, null);
+      protected Object doInBackground() {
+        String local = path.startsWith("http") ? new DownloadAndUnzip().unzip(path).toAbsolutePath().toString() : path;
+        java.io.File file = new java.io.File(local);
+        if (file.isFile() && !OOSpectrumLauncher.somethingOpens(file)) return file;
+        EmulatorCore core = mockCore.apply(local, game == null ? null : game.machine());
+        knownMachines = core.getMachineModels();
+        return core;
       }
 
       @Override
       protected void done() {
         loading.dispose();
         try {
-          createNewEmulator(get(), path);
+          Object got = get();
+          if (got instanceof java.io.File nobodyOpens) {
+            nothingOpens(nobodyOpens, game, whenDone, mayAsk);
+            return;
+          }
+          if (game != null) createNewEmulator((EmulatorCore) got, game);
+          else createNewEmulator((EmulatorCore) got, path);
         } catch (Exception e) {
-          JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this,
-              "Could not load " + path + ".\n\n" + reason(e), "Load failed", JOptionPane.ERROR_MESSAGE);
+          JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this, "Could not load "
+              + (game != null ? "\"" + game.title() + "\"" : path) + ".\n\n" + reason(e),
+              "Load failed", JOptionPane.ERROR_MESSAGE);
         }
+        whenDone.run();
       }
     }.execute();
+  }
+
+  /** Lo que falta se ofrece junto con lo que se queria: traido, se abre ese mismo archivo. */
+  private void nothingOpens(java.io.File file, Desk.Game game, Runnable whenDone, boolean mayAsk) {
+    String saidIt = "Nothing in this build knows how to open " + file.getName() + ".";
+    if (!mayAsk) {
+      JOptionPane.showMessageDialog(this, saidIt + "\n\nWhat was brought in did not change that.",
+          "This build cannot do that", JOptionPane.WARNING_MESSAGE);
+      whenDone.run();
+      return;
+    }
+    WhatIsMissing.bringWhatIsNeeded(this, OOSpectrumLauncher.kindOf(file), saidIt,
+        () -> { somethingWasPluggedIn(); load(file.getAbsolutePath(), game, whenDone, false); });
   }
 
   /**
