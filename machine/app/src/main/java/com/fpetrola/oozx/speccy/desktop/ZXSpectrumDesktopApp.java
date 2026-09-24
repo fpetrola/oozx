@@ -1489,7 +1489,17 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       return;
     }
     WhatIsMissing.bringWhatIsNeeded(this, OOSpectrumLauncher.kindOf(file), saidIt,
-        () -> { somethingWasPluggedIn(); load(file.getAbsolutePath(), game, whenDone, false); });
+        () -> {
+          somethingWasPluggedIn();
+          // Lo que llego puede ser una ventana que lo abre, como el reproductor de grabaciones,
+          // y no una maquina que arranca con el: se lo vuelve a abrir por donde entra todo.
+          if (equipmentKinds.stream().anyMatch(kind -> kind.opens(file))) {
+            open(new Chosen(file, null, null));
+            whenDone.run();
+          } else {
+            load(file.getAbsolutePath(), game, whenDone, false);
+          }
+        });
   }
 
   /**
