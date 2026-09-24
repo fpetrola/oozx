@@ -31,11 +31,6 @@
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
-            <artifactId>device-ay</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fpetrola</groupId>
             <artifactId>device-disk</artifactId>
             <version>${project.version}</version>
         </dependency>

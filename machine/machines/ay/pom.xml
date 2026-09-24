@@ -18,6 +18,12 @@
             <artifactId>core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- Restaura su estado cuando se abre un snapshot. -->
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>media-snapshot</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

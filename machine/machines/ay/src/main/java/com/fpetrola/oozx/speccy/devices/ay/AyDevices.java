@@ -32,6 +32,9 @@ public class AyDevices extends AbstractModule implements Extension {
     devices.addBinding().to(AyPeripheral.class);
     devices.addBinding().to(AyPlus3Peripheral.class);
     devices.addBinding().to(AyTimexPeripheral.class);
+    Multibinder.newSetBinder(binder(),
+        com.fpetrola.oozx.speccy.modules.snapshot.RestoredFromASnapshot.class)
+        .addBinding().to(AyFromASnapshot.class);
   }
 
 }
