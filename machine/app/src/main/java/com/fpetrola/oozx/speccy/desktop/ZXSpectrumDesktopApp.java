@@ -56,8 +56,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-import com.fpetrola.oozx.rzx.RzxOption;
-import com.fpetrola.oozx.rzx.RzxSession;
 import static com.fpetrola.oozx.speccy.desktop.EmulatorInternalFrame.loadIcon;
 
 // Emulator Internal Frame
@@ -428,7 +426,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     if (file.isFile() && file.getName().toLowerCase().endsWith(".zip")) {
       decided("Could not open " + DownloadAndUnzip.nameOf(path) + ".",
           () -> openableRecording(file), this::open);
-    } else if (RzxSession.isRecording(path)) {
+    } else if (opensFor(file) != null) {
       open(new Chosen(file, null, null));
     } else {
       loadInNewEmulator(path);
@@ -440,23 +438,14 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     open(chosen, true);
   }
 
+  /**
+   * Lo abre quien diga que lo abre -un reproductor de grabaciones, una casetera- y si nadie lo
+   * abre es de una maquina, que cuando tampoco sabe abrirlo ofrece traer lo que falta.
+   */
   private void open(Chosen chosen, boolean mayAsk) {
-    if (!RzxSession.isRecording(chosen.file().getName())) {
-      loadInNewEmulator(chosen.file().getAbsolutePath());
-      return;
-    }
     Opens player = opensFor(chosen.file());
     if (player == null) {
-      String saidIt = "Nothing in this build plays " + chosen.file().getName() + ".";
-      if (!mayAsk) {
-        JOptionPane.showMessageDialog(this, saidIt + "\n\nWhat was brought in did not change that.",
-            "This build cannot do that", JOptionPane.WARNING_MESSAGE);
-        return;
-      }
-      // The same question as for any other file nothing here can open, and the same answer:
-      // what plays it is brought and then this recording is played.
-      WhatIsMissing.bringWhatIsNeeded(this, OOSpectrumLauncher.kindOf(chosen.file()), saidIt,
-          () -> { somethingWasPluggedIn(); open(chosen, false); });
+      loadInNewEmulator(chosen.file().getAbsolutePath());
       return;
     }
     player.open(chosen.file(), chosen.source(), chosen.entry());
@@ -1292,7 +1281,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
           if (!from.startsWith("http") && !from.startsWith("file:")) {
             from = new java.io.File(from).toURI().toString();
           }
-          playRecording(new RzxOption(favorite.getTitle(), from), favorite.getEntry());
+          playRecording(favorite.getTitle(), from, favorite.getEntry());
         } else {
           loadInNewEmulator(favorite.getSource());
         }
@@ -1448,7 +1437,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   /** A recording from wherever it lives, which is a machine driven by it. */
   @Override
   public void play(String url, String label) {
-    playRecording(new RzxOption(label, url));
+    playRecording(label, url, null);
   }
 
   // ... (rest of the methods: createNewEmulator, cascadeWindows, tileWindows remain unchanged)
@@ -1503,31 +1492,28 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   /**
    * Every player open at once. There used to be one, kept in a field and reused, so a second
    * recording took the first one's window and its machine: watching two was watching the later
-   * one. A recording already builds its own machine - {@link RzxSession#open} makes its own
+   * one. A recording already builds its own machine - its session makes its own
    * injector and its own Speccy - so nothing below the window ever required there to be one.
    */
   /**
    * Fetches a recording and plays it. The fetching is off the event thread, and a recording may
    * arrive on its own or inside a zip, which is the same choice a game download already makes.
    */
-  public void playRecording(RzxOption option) {
-    playRecording(option, null);
-  }
 
   /**
    * @param preferredEntry the file inside the archive to open, when one was chosen before and
    *                       kept. With it a favourite comes back to the same recording instead of
    *                       asking again which part was meant.
    */
-  public void playRecording(RzxOption option, String preferredEntry) {
-    playWhatever("Could not fetch " + option.label() + ".", () -> {
-      java.util.List<java.nio.file.Path> parts = DownloadAndUnzip.fetchAll(option.url(),
+  public void playRecording(String label, String url, String preferredEntry) {
+    playWhatever("Could not fetch " + label + ".", () -> {
+      java.util.List<java.nio.file.Path> parts = DownloadAndUnzip.fetchAll(url,
           java.nio.file.Path.of(System.getProperty("java.io.tmpdir"), "rzx-downloads"));
       if (parts.isEmpty()) {
         throw new java.io.IOException("nothing playable came out of it");
       }
-      java.io.File part = choosePart(option, parts, preferredEntry).toFile();
-      return new Chosen(part, option.url(), part.getName());
+      java.io.File part = choosePart(label, parts, preferredEntry).toFile();
+      return new Chosen(part, url, part.getName());
     });
   }
 
@@ -1645,7 +1631,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
    * Rick Dangerous 2 comes as five - and playing whichever one happened to be picked shows a
    * fifth of the game and looks like a fault, so the choice is the person's.
    */
-  private java.nio.file.Path choosePart(RzxOption option, java.util.List<java.nio.file.Path> parts,
+  private java.nio.file.Path choosePart(String label, java.util.List<java.nio.file.Path> parts,
                                         String preferredEntry) {
     if (parts.size() == 1) {
       return parts.get(0);
@@ -1657,7 +1643,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     }
     Object[] names = parts.stream().map(part -> part.getFileName().toString()).toArray();
     Object chosen = JOptionPane.showInputDialog(this,
-        option.label() + " was recorded in " + parts.size() + " parts. Which one?",
+        label + " was recorded in " + parts.size() + " parts. Which one?",
         "Play recording", JOptionPane.QUESTION_MESSAGE, null, names, names[0]);
     return parts.stream()
         .filter(part -> part.getFileName().toString().equals(chosen))
@@ -1711,7 +1697,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       throw new IllegalArgumentException("there is nothing playable inside it");
     }
     java.io.File part =
-        choosePart(new RzxOption(chosen.getName(), chosen.toURI().toString()), parts, null).toFile();
+        choosePart(chosen.getName(), parts, null).toFile();
     // The unpacked entry lives in a temporary directory that will not be there tomorrow. What
     // lasts is the zip the person picked plus which recording inside it this was, so a
     // favourite made from here can unpack the same one again.

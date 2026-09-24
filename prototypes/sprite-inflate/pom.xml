@@ -27,6 +27,12 @@
   </properties>
 
   <dependencies>
+    <!-- Lee grabaciones: antes le llegaban por la app, que ya no sabe que es una. -->
+    <dependency>
+      <groupId>com.fpetrola</groupId>
+      <artifactId>rzx</artifactId>
+      <version>0.0.2-alu-SNAPSHOT</version>
+    </dependency>
     <!--
       The scaler. GPL-3 with a linking exception - see the NOTICE at the root of the project.
       Worth knowing before any of this is carried into something with another licence.
