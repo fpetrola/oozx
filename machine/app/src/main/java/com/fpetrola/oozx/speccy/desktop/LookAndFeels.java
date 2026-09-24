@@ -75,13 +75,20 @@ public final class LookAndFeels {
         .ifPresent(LookAndFeels::wear);
   }
 
-  /** Un plugin de looks que se reinicia deja lo puesto pintando con clases de un cargador cerrado. */
-  public static void wearAgainIfFromAPlugin() {
-    if (worn != null && !"System".equals(worn.family)) install(worn.id());
+  /**
+   * Un plugin de looks que se va o se reinicia deja lo puesto pintando con clases de un cargador
+   * cerrado: se vuelve a poner con el que llego, o Metal si ya no hay quien lo traiga.
+   */
+  public static void lookPluginsChanged(JMenu menu, Consumer<String> chosen) {
+    if (menu != null) fillMenu(menu, chosen);
+    if (worn == null || "System".equals(worn.family)) return;
+    String id = worn.id();
+    wear(all().stream().filter(laf -> laf.id().equals(id)).findFirst().orElse(METAL));
   }
 
   /** The families as submenus, each item telling the caller which name to remember. */
   public static void fillMenu(JMenu menu, Consumer<String> chosen) {
+    menu.removeAll();
     Map<String, JMenu> families = new LinkedHashMap<>();
     for (Laf laf : all()) {
       families.computeIfAbsent(laf.family, family -> {

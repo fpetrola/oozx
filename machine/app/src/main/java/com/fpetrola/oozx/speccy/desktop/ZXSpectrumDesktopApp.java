@@ -915,7 +915,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     windowMenu.addSeparator();
 
     // ---- Look&Feel Submenu ----
-    JMenu lookAndFeelMenu = new JMenu("Look&Feel");
+    lookAndFeelMenu = new JMenu("Look&Feel");
     lookAndFeelMenu.setMnemonic(KeyEvent.VK_L);
 
     LookAndFeels.fillMenu(lookAndFeelMenu, this::rememberLookAndFeel);
@@ -1571,6 +1571,8 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   /** Where the Equipment menu is, so that a board which arrives while this runs can be added to it. */
   private JMenu equipmentMenu;
 
+  private JMenu lookAndFeelMenu;
+
   /** The same for the windows of the desk, which are items of the Emulator menu itself. */
   private JMenu theEmulatorMenu;
   private int whereTheDeskWindowsGo;
@@ -1583,7 +1585,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     fillTheDeskWindows();
     fillTheDeskWindowButtons();
     whatThereIs();
-    LookAndFeels.wearAgainIfFromAPlugin();
+    LookAndFeels.lookPluginsChanged(lookAndFeelMenu, this::rememberLookAndFeel);
     // What could not be done before may be done now, so it is worth saying again if it is not.
     TellsThePerson.thatMayHaveChanged();
   }
