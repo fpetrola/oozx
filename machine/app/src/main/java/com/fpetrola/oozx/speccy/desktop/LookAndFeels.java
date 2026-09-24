@@ -255,6 +255,12 @@ public final class LookAndFeels {
     // Donde buscar las piezas, dicho antes de ponerlo: el look repinta todo al ponerse, y una
     // ventana de un plugin busca con el cargador de su propia clase, que no ve el del look.
     UIManager.put("ClassLoader", laf.from == null ? null : laf.from.getClass().getClassLoader());
+    // Swing guarda cada clase de pieza que carga con su nombre como clave, en una tabla que
+    // sobrevive al cambio de look: un plugin que se fue y volvio encontraria las del cargador viejo.
+    UIDefaults cached = UIManager.getDefaults();
+    for (Object key : java.util.List.copyOf(cached.keySet())) {
+      if (cached.get(key) instanceof Class<?> piece && piece.getName().equals(key)) cached.remove(key);
+    }
     try {
       laf.install.apply();
     } catch (Exception | Error notThisOne) {
