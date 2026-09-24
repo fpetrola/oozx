@@ -99,7 +99,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
   //  private JLabel statusLabel;
   private JComboBox<String> modelCombo;
   private TellsThePerson.Listening listening;
-  private JDialog fullscreen;
   private KeyListener keys;
   //  private JLabel tapeStatusLabel;
 
@@ -259,24 +258,8 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
       toolBar.add(viewDetailsButton);
     }
 
-    JButton fullscreenButton = iconButton("1F4FA.svg", "Fullscreen", "Fullscreen (Escape to leave)");
-    fullscreenButton.addActionListener(e -> toggleFullscreen());
-    toolBar.add(fullscreenButton);
 
-    JButton changeSize = new JButton(loadIcon("E243.svg"));
-    changeSize.setToolTipText("Zoom: 1x, 2x, 3x");
-    changeSize.addActionListener(e -> {
-      if (emulatorCore.getPanel() instanceof SpeccyScreen screen) {
-        screen.setZoom(screen.getZoom() >= 3 ? 1 : screen.getZoom() + 1);
-        pack();
-      }
-    });
-    toolBar.add(changeSize);
 
-    JButton snapshotButton = iconButton("E260.svg", "Snapshot",
-        "Save this machine exactly as it is, to open again later");
-    snapshotButton.addActionListener(e -> saveSnapshot());
-    toolBar.add(snapshotButton);
 
     JButton screenButton = new JButton(loadIcon("1F39B.svg"));
     screenButton.setToolTipText("Screen - scaling, television and colour");
@@ -354,61 +337,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
       border.addActionListener(e -> showBorder(border.isSelected()));
       menu.add(border);
     }
-    JCheckBoxMenuItem whole = new JCheckBoxMenuItem("Full screen", fullscreen != null);
-    whole.addActionListener(e -> toggleFullscreen());
-    menu.add(whole);
     return menu;
-  }
-
-  /**
-   * The screen alone, filling the display. The panel moves into an undecorated window and back,
-   * rather than being redrawn somewhere else, so the emulator goes on running and the keyboard
-   * goes on working: the keys follow the panel's focus, see createNewEmulator.
-   */
-  private void toggleFullscreen() {
-    JComponent panel = emulatorCore.getPanel();
-    if (fullscreen != null) {
-      fullscreen.dispose();
-      fullscreen = null;
-      add(panel, BorderLayout.CENTER);
-    } else {
-      Window owner = SwingUtilities.getWindowAncestor(this);
-      fullscreen = new JDialog(owner);
-      fullscreen.setUndecorated(true);
-      fullscreen.getContentPane().setBackground(Color.BLACK);
-      fullscreen.getRootPane().registerKeyboardAction(e -> toggleFullscreen(),
-          KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
-      fullscreen.add(panel);
-      fullscreen.setBounds(owner.getGraphicsConfiguration().getBounds());
-      fullscreen.setVisible(true);
-    }
-    revalidate();
-    repaint();
-    panel.requestFocusInWindow();
-  }
-
-  /**
-   * Writes this machine to a file exactly as it stands, so getting back here is opening it.
-   * <p>
-   * Reaching an interesting state can be most of the work - a program loaded from tape, set up,
-   * and left on the screen worth looking at - and until now that state could only be reached
-   * again by doing all of it over. The file opens like any other: the machine it describes is
-   * built from it.
-   */
-  private void saveSnapshot() {
-    JFileChooser chooser = new JFileChooser();
-    String name = emulatorCore.getFilename();
-    name = name == null ? "snapshot" : new java.io.File(name).getName().replaceAll("\\.[^.]*$", "");
-    chooser.setSelectedFile(new java.io.File(name + ".z80"));
-    if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
-      return;
-    }
-    java.io.File file = chooser.getSelectedFile();
-    emulatorCore.saveState(file.getAbsolutePath());
-    setTitle(getTitle() + "");
-    JOptionPane.showMessageDialog(this, file.getName() + " written.\n\n"
-        + "Open it the way you would open a tape and the machine comes back as it is now.",
-        "Snapshot", JOptionPane.INFORMATION_MESSAGE);
   }
 
   /** Every toolbar in the application draws its icons at this size. */
