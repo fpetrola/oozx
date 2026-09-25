@@ -499,6 +499,22 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     }
   }
 
+  /**
+   * Hace lo que ofrece una extension puesta, segun lo que sea: una ventana del escritorio, un
+   * equipo, una herramienta de la maquina de adelante, o un look.
+   */
+  void doWhatIsOffered(dev.crystal.plugins.api.Offer offer) {
+    java.util.function.Predicate<Object> offering = one -> one.getClass().getName().equals(offer.extension());
+    has.deskWindows().stream().filter(offering).findFirst().ifPresent(this::showOnTheDesk);
+    has.equipment().stream().filter(offering).findFirst().ifPresent(this::show);
+    has.tools().stream().filter(offering).findFirst().ifPresent(tool -> {
+      EmulatorInternalFrame machine = getActiveEmulator();
+      if (machine != null) tool.use(machine);
+    });
+    has.looks().stream().filter(offering).findFirst()
+        .ifPresent(look -> LookAndFeels.install(look.family() + " / " + look.names().get(0)));
+  }
+
   private EmulatorInternalFrame getActiveEmulator() {
     JInternalFrame selected = desktop.getSelectedFrame();
     if (selected instanceof EmulatorInternalFrame) {
@@ -678,6 +694,10 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     JMenuItem pluginsItem = new JMenuItem("Plugins...");
     pluginsItem.addActionListener(e -> showPlugins());
     emulatorMenu.add(pluginsItem);
+    JMenuItem paletteItem = new JMenuItem("What do you want to do?");
+    paletteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+    paletteItem.addActionListener(e -> new ActionPalette(this).setVisible(true));
+    emulatorMenu.add(paletteItem);
 
     // The windows of the desk itself - a browser, a library - are found the same way the boards
     // are, so what the Emulator menu offers is what this build turns out to have. Where they go
