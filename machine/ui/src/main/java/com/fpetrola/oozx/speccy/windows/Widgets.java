@@ -259,25 +259,55 @@ public class Widgets {
     return new ImageIcon(image);
   }
 
-  /** Lo mas alto que se deja crecer un menu antes de ponerle una barra para recorrerlo. */
-  private static final int TALLEST_MENU = 420;
+  /** Cuantos items muestra un menu largo a la vez. */
+  private static final int ITEMS_AT_ONCE = 18;
 
   /**
-   * Un menu con mas de lo que entra deja de llenar la pantalla: lo que tiene pasa a una lista con
-   * barra de desplazamiento, del alto de una buena porcion de pantalla. Llamar despues de llenarlo.
+   * Un menu con mas de lo que entra deja de llenar la pantalla: muestra unos cuantos items y dos
+   * flechas que lo recorren al dejarles el mouse encima, y la rueda tambien. Los items siguen siendo
+   * del menu: puestos en un panel con barra, Swing no los reconocia como suyos y cerraba el menu en
+   * cuanto el mouse pasaba por uno. Llamar despues de llenarlo.
    */
   public static void scrollingWhenLong(javax.swing.JPopupMenu menu) {
-    if (menu.getPreferredSize().height <= TALLEST_MENU) return;
-    JPanel items = new JPanel();
-    items.setLayout(new javax.swing.BoxLayout(items, javax.swing.BoxLayout.Y_AXIS));
-    for (java.awt.Component item : menu.getComponents()) items.add(item);
-    menu.removeAll();
-    javax.swing.JScrollPane scroll = new javax.swing.JScrollPane(items,
-        javax.swing.JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    scroll.setBorder(null);
-    scroll.getVerticalScrollBar().setUnitIncrement(16);
-    scroll.setPreferredSize(new java.awt.Dimension(items.getPreferredSize().width
-        + scroll.getVerticalScrollBar().getPreferredSize().width, TALLEST_MENU));
-    menu.add(scroll);
+    java.awt.Component[] all = menu.getComponents();
+    if (all.length <= ITEMS_AT_ONCE) return;
+    int[] first = {0};
+    javax.swing.JMenuItem up = new javax.swing.JMenuItem("\u25B2");
+    javax.swing.JMenuItem down = new javax.swing.JMenuItem("\u25BC");
+    Runnable show = () -> {
+      menu.removeAll();
+      menu.add(up);
+      for (int i = first[0]; i < Math.min(all.length, first[0] + ITEMS_AT_ONCE); i++) menu.add(all[i]);
+      menu.add(down);
+      up.setEnabled(first[0] > 0);
+      down.setEnabled(first[0] + ITEMS_AT_ONCE < all.length);
+      menu.pack();
+      menu.revalidate();
+      menu.repaint();
+    };
+    java.util.function.IntConsumer move = step -> {
+      int moved = Math.max(0, Math.min(all.length - ITEMS_AT_ONCE, first[0] + step));
+      if (moved != first[0]) {
+        first[0] = moved;
+        show.run();
+      }
+    };
+    for (javax.swing.JMenuItem arrow : java.util.List.of(up, down)) {
+      arrow.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+      int step = arrow == up ? -1 : 1;
+      javax.swing.Timer going = new javax.swing.Timer(90, e -> move.accept(step));
+      arrow.getModel().addChangeListener(e -> {
+        if (arrow.isArmed() && arrow.isEnabled()) going.start();
+        else going.stop();
+      });
+      // Una flecha no es una eleccion: tocarla no cierra el menu.
+      arrow.setUI(new javax.swing.plaf.basic.BasicMenuItemUI() {
+        @Override
+        protected void doClick(javax.swing.MenuSelectionManager manager) {
+        }
+      });
+    }
+    menu.addMouseWheelListener(wheel -> move.accept(wheel.getWheelRotation()));
+    show.run();
   }
 }
