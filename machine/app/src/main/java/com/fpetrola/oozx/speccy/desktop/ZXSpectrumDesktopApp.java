@@ -735,11 +735,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     menuBar.add(emulatorMenu);
 
     // ====================== MENU OPTIONS ======================
-    JMenu optionsMenu = new JMenu("Options");
-    optionsMenu.setMnemonic(KeyEvent.VK_O);
-
-    optionsMenu.add(createTvMenu());
-    menuBar.add(optionsMenu);
 
     // Window menu (includes Look&Feel submenu)
     addWindowMenu(menuBar);
@@ -976,6 +971,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     LookAndFeels.fillMenu(lookAndFeelMenu, this::rememberLookAndFeel);
 
     windowMenu.add(lookAndFeelMenu);
+    windowMenu.add(createTvMenu());
 
     menuBar.add(windowMenu);
   }
