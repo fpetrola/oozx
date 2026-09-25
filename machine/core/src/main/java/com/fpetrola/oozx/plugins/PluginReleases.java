@@ -230,6 +230,34 @@ public class PluginReleases implements Configuration.Saves {
     return boards;
   }
 
+  /** Lo que dice cada release, pedido una vez y todos a la vez: el panel describe cada uno que ofrece. */
+  private static final java.util.Map<String, java.util.concurrent.CompletableFuture<java.util.Optional<dev.crystal.plugins.api.PluginDescription>>> DESCRIBED =
+      new java.util.concurrent.ConcurrentHashMap<>();
+
+  static java.util.concurrent.CompletableFuture<java.util.Optional<dev.crystal.plugins.api.PluginDescription>> describing(String metadata) {
+    return DESCRIBED.computeIfAbsent(metadata, url -> client()
+        .sendAsync(asking(url).build(), HttpResponse.BodyHandlers.ofInputStream())
+        .thenApply(answer -> {
+          try (java.io.InputStream in = answer.body()) {
+            return answer.statusCode() == 200
+                ? java.util.Optional.of(dev.crystal.plugins.runtime.PluginSources.description(in))
+                : java.util.Optional.<dev.crystal.plugins.api.PluginDescription>empty();
+          } catch (IOException unreadable) {
+            return java.util.Optional.<dev.crystal.plugins.api.PluginDescription>empty();
+          }
+        })
+        .exceptionally(couldNotAsk -> java.util.Optional.empty()));
+  }
+
+  /** La descripcion de un release, esperada lo que se espera cualquier respuesta del archivo. */
+  static java.util.Optional<dev.crystal.plugins.api.PluginDescription> described(String metadata) {
+    try {
+      return describing(metadata).get(PATIENCE.toMillis(), java.util.concurrent.TimeUnit.MILLISECONDS);
+    } catch (Exception tooSlow) {
+      return java.util.Optional.empty();
+    }
+  }
+
   private static HttpClient client() {
     return HttpClient.newBuilder()
         .followRedirects(HttpClient.Redirect.NORMAL)

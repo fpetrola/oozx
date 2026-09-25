@@ -65,6 +65,7 @@ final class WhereAPluginComesFrom implements PluginSource {
       }
       published.put(id, board);
       offered.add(new PluginArtifact(id, versionOf(board.jar(), id), board.sha256()));
+      if (board.metadata() != null) PluginReleases.describing(board.metadata());
     }
     return offered;
   }
@@ -103,19 +104,7 @@ final class WhereAPluginComesFrom implements PluginSource {
       }
       PluginReleases.Board board = published.get(artifact.id());
       if (board == null || board.metadata() == null) return java.util.Optional.empty();
-      return DESCRIBED.computeIfAbsent(board.metadata(), WhereAPluginComesFrom::described);
-    } catch (IOException cannotBeRead) {
-      return java.util.Optional.empty();
-    }
-  }
-
-  /** Lo que dice cada release, pedido una vez: la galeria pregunta por cada juego que muestra. */
-  private static final Map<String, java.util.Optional<dev.crystal.plugins.api.PluginDescription>> DESCRIBED =
-      new java.util.concurrent.ConcurrentHashMap<>();
-
-  private static java.util.Optional<dev.crystal.plugins.api.PluginDescription> described(String metadata) {
-    try (InputStream in = URI.create(metadata).toURL().openStream()) {
-      return java.util.Optional.of(PluginSources.description(in));
+      return PluginReleases.described(board.metadata());
     } catch (IOException cannotBeRead) {
       return java.util.Optional.empty();
     }
