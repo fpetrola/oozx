@@ -285,6 +285,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
         more.addActionListener(e -> {
           javax.swing.JPopupMenu offered = new javax.swing.JPopupMenu();
           holes.forEach(offered::add);
+          Widgets.scrollingWhenLong(offered);
           offered.show(more, 0, more.getHeight());
         });
         toolBar.add(more);
@@ -1021,6 +1022,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       more.addActionListener(e -> {
         javax.swing.JPopupMenu everything = new javax.swing.JPopupMenu();
         couldBring.forEach((artifact, offers) -> offers.forEach(offer -> everything.add(hole(artifact, offer))));
+        com.fpetrola.oozx.speccy.windows.Widgets.scrollingWhenLong(everything);
         everything.show(more, 0, more.getHeight());
       });
       deskWindowButtons.add(more);
@@ -1672,6 +1674,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     whatThereIs();
     LookAndFeels.lookPluginsChanged(lookAndFeelMenu, this::rememberLookAndFeel);
     addHoles(lookAndFeelMenu, com.fpetrola.oozx.speccy.devices.Look.class);
+    com.fpetrola.oozx.speccy.windows.Widgets.scrollingWhenLong(lookAndFeelMenu.getPopupMenu());
     refillMachineToolBars();
     // What could not be done before may be done now, so it is worth saying again if it is not.
     TellsThePerson.thatMayHaveChanged();
@@ -1699,6 +1702,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         fillTheDeskWindowButtons();
         LookAndFeels.fillMenu(lookAndFeelMenu, ZXSpectrumDesktopApp.this::rememberLookAndFeel);
         addHoles(lookAndFeelMenu, com.fpetrola.oozx.speccy.devices.Look.class);
+    com.fpetrola.oozx.speccy.windows.Widgets.scrollingWhenLong(lookAndFeelMenu.getPopupMenu());
         refillMachineToolBars();
       }
     }.execute();
@@ -1787,6 +1791,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       equipmentMenu.add(item);
     }
     addHoles(equipmentMenu, Equipment.class);
+    com.fpetrola.oozx.speccy.windows.Widgets.scrollingWhenLong(equipmentMenu.getPopupMenu());
   }
 
   private PluginsInternalFrame plugins;

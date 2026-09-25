@@ -258,4 +258,26 @@ public class Widgets {
     g.dispose();
     return new ImageIcon(image);
   }
+
+  /** Lo mas alto que se deja crecer un menu antes de ponerle una barra para recorrerlo. */
+  private static final int TALLEST_MENU = 420;
+
+  /**
+   * Un menu con mas de lo que entra deja de llenar la pantalla: lo que tiene pasa a una lista con
+   * barra de desplazamiento, del alto de una buena porcion de pantalla. Llamar despues de llenarlo.
+   */
+  public static void scrollingWhenLong(javax.swing.JPopupMenu menu) {
+    if (menu.getPreferredSize().height <= TALLEST_MENU) return;
+    JPanel items = new JPanel();
+    items.setLayout(new javax.swing.BoxLayout(items, javax.swing.BoxLayout.Y_AXIS));
+    for (java.awt.Component item : menu.getComponents()) items.add(item);
+    menu.removeAll();
+    javax.swing.JScrollPane scroll = new javax.swing.JScrollPane(items,
+        javax.swing.JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    scroll.setBorder(null);
+    scroll.getVerticalScrollBar().setUnitIncrement(16);
+    scroll.setPreferredSize(new java.awt.Dimension(items.getPreferredSize().width
+        + scroll.getVerticalScrollBar().getPreferredSize().width, TALLEST_MENU));
+    menu.add(scroll);
+  }
 }

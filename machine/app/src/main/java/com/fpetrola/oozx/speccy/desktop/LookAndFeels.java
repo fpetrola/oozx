@@ -133,6 +133,7 @@ public final class LookAndFeels {
         }
       });
     }
+    families.values().forEach(family -> com.fpetrola.oozx.speccy.windows.Widgets.scrollingWhenLong(family.getPopupMenu()));
   }
 
   /** Wears a look and asks whether to keep it, going back on its own if nobody says yes. */
