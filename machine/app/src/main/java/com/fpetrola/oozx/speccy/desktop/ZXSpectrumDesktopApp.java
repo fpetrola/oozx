@@ -737,7 +737,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     // Window menu (includes Look&Feel submenu)
     addWindowMenu(menuBar);
 
-    whatToDo = new JMenu("What do you want to do?");
+    whatToDo = new JMenu("Discover");
     menuBar.add(whatToDo);
     fillWhatToDo();
 
@@ -1685,7 +1685,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   private void fillWhatToDo() {
     if (whatToDo == null) return;
     whatToDo.removeAll();
-    JMenuItem ask = new JMenuItem("Ask...");
+    JMenuItem ask = new JMenuItem("What do you want to do?...");
     ask.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
     ask.addActionListener(e -> new ActionPalette(this).setVisible(true));
     whatToDo.add(ask);
