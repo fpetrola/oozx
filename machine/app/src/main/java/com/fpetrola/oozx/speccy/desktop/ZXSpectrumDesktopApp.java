@@ -197,6 +197,27 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     TellsThePerson.stops(listening);
   }
 
+  /**
+   * Cerrada, suelta todo lo que llega a su maquina. Swing y los looks guardan en caches suyas
+   * piezas de la ventana - la barra pintada, quien tuvo el foco - y desde cualquiera se llegaba a
+   * la maquina: el plugin con que se armo seguia retenido y no se podia sacar.
+   */
+  void letGoOfTheMachine() {
+    emptied(getContentPane());
+    emulatorCore = null;
+    modelCombo = null;
+    keys = null;
+    listening = null;
+  }
+
+  private static void emptied(java.awt.Container container) {
+    for (java.awt.Component part : container.getComponents()) {
+      if (part instanceof java.awt.Container inside) emptied(inside);
+    }
+    container.removeAll();
+  }
+
+
   private JPanel createStatusBar() {
     JPanel statusBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
     // Asked for, not written out again: the hand-written list had no +2A, no +3e and no NTSC,
@@ -1863,10 +1884,8 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         core1.finishEmulation();
         frame.stopsBeingTold();
         forgetWhatIsClosed(core1);
-        // Swing guarda en una cache suya, blanda, piezas pintadas de la ventana como la barra, y
-        // desde sus botones se llegaba a la maquina: el plugin con que se armo seguia retenido.
-        emptied(frame.getContentPane());
-        frame.emulatorCore = null;
+        WhatIsPluggedIn.theOne().tools().forEach(tool -> tool.closed(frame));
+        frame.letGoOfTheMachine();
         frame.removeInternalFrameListener(this);
       }
     });
@@ -1960,13 +1979,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       }
     }
 
-  }
-
-  private static void emptied(java.awt.Container container) {
-    for (java.awt.Component part : container.getComponents()) {
-      if (part instanceof java.awt.Container inside) emptied(inside);
-    }
-    container.removeAll();
   }
 
   /** Una maquina desde el estado que se guardo de ella, donde estaba su ventana. */

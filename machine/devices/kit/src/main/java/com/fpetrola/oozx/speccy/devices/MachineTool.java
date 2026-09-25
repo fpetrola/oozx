@@ -71,6 +71,10 @@ public interface MachineTool {
     return null;
   }
 
+  /** La ventana se cerro: lo que se guardaba de ella la mantenia viva, y con ella a su maquina. */
+  default void closed(EmulatorWindow window) {
+  }
+
   /** Lo que esta herramienta dejo hecho en esa ventana, escrito en lo que se guarda de ella. */
   default void remember(EmulatorWindow window, OOZxConfiguration.WindowState into) {
   }
