@@ -259,32 +259,42 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
    * cannot make one and the border button was the last unguarded drawing in this toolbar.
    */
 
+  private JToolBar toolBar;
+
   private JToolBar createToolBar() {
-    JToolBar toolBar = new JToolBar();
+    toolBar = new JToolBar();
     toolBar.setFloatable(false);
+    refillTools();
+    return toolBar;
+  }
 
-
-
-
-
-
-
+  /**
+   * Lo que traen los plugins: cada herramienta pone su boton, y al final un + con las que se
+   * podrian traer. Rearmada cuando cambia lo enchufado, asi que lo que llega aparece aca tambien.
+   */
+  void refillTools() {
+    toolBar.removeAll();
     if (parentApp != null) {
-      // Lo que traen los plugins: cada herramienta pone su boton, y sin plugins no hay ninguno.
       for (com.fpetrola.oozx.speccy.devices.MachineTool tool : WhatIsPluggedIn.theOne().tools()) {
         toolBar.add(tool.button(this));
       }
-      
+      List<JMenuItem> holes = parentApp.holes(com.fpetrola.oozx.speccy.devices.MachineTool.class);
+      if (!holes.isEmpty()) {
+        JButton more = new JButton("+");
+        more.setToolTipText("More for this machine: choosing one brings its plugin");
+        more.addActionListener(e -> {
+          javax.swing.JPopupMenu offered = new javax.swing.JPopupMenu();
+          holes.forEach(offered::add);
+          offered.show(more, 0, more.getHeight());
+        });
+        toolBar.add(more);
+      }
     }
-
-
-
-
-
-
     tighten(toolBar, 1);
-    return toolBar;
+    toolBar.revalidate();
+    toolBar.repaint();
   }
+
 
   /**
    * A right click on the picture opens the few things a person changes while playing.
@@ -1662,6 +1672,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     whatThereIs();
     LookAndFeels.lookPluginsChanged(lookAndFeelMenu, this::rememberLookAndFeel);
     addHoles(lookAndFeelMenu, com.fpetrola.oozx.speccy.devices.Look.class);
+    refillMachineToolBars();
     // What could not be done before may be done now, so it is worth saying again if it is not.
     TellsThePerson.thatMayHaveChanged();
     lookForWhatCouldBeBrought();
@@ -1688,8 +1699,15 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         fillTheDeskWindowButtons();
         LookAndFeels.fillMenu(lookAndFeelMenu, ZXSpectrumDesktopApp.this::rememberLookAndFeel);
         addHoles(lookAndFeelMenu, com.fpetrola.oozx.speccy.devices.Look.class);
+        refillMachineToolBars();
       }
     }.execute();
+  }
+
+  private void refillMachineToolBars() {
+    for (JInternalFrame frame : desktop.getAllFrames()) {
+      if (frame instanceof EmulatorInternalFrame machine) machine.refillTools();
+    }
   }
 
   /** Lo que falta de ese rol, en gris al final del menu: elegido, trae el plugin y lo hace. */
@@ -1700,7 +1718,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     holes.forEach(menu::add);
   }
 
-  private List<JMenuItem> holes(Class<?> role) {
+  List<JMenuItem> holes(Class<?> role) {
     List<JMenuItem> holes = new java.util.ArrayList<>();
     couldBring.forEach((artifact, offers) -> offers.stream().filter(offer -> offer.is(role))
         .forEach(offer -> holes.add(hole(artifact, offer))));
