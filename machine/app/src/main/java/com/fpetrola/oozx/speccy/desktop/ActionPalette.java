@@ -135,16 +135,6 @@ final class ActionPalette extends JDialog {
       desk.doWhatIsOffered(row.offer());
       return;
     }
-    new SwingWorker<Void, Void>() {
-      protected Void doInBackground() {
-        Plugins.add(row.toBring().id());
-        return null;
-      }
-
-      protected void done() {
-        desk.somethingWasPluggedIn();
-        desk.doWhatIsOffered(row.offer());
-      }
-    }.execute();
+    desk.bringAndDo(row.toBring(), row.offer());
   }
 }

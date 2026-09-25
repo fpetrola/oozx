@@ -580,6 +580,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         .addKeyEventDispatcher(this::typeIntoTheMachineInFront);
     // What the windows that are found ask of whoever put them on the screen: this desk.
     com.fpetrola.oozx.speccy.devices.Desk.isRunBy(this);
+    SwingUtilities.invokeLater(this::lookForWhatCouldBeBrought);
     stopsThePersonWhenSomethingIsMissing();
     whatThereIs();
     applySavedLookAndFeel();
@@ -1003,6 +1004,16 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       button.setToolTipText(window.name());
       button.addActionListener(e -> showOnTheDesk(window));
       deskWindowButtons.add(button);
+    }
+    if (!couldBring.isEmpty()) {
+      JButton more = new JButton("+");
+      more.setToolTipText("More that can be had: choosing one brings its plugin");
+      more.addActionListener(e -> {
+        javax.swing.JPopupMenu everything = new javax.swing.JPopupMenu();
+        couldBring.forEach((artifact, offers) -> offers.forEach(offer -> everything.add(hole(artifact, offer))));
+        everything.show(more, 0, more.getHeight());
+      });
+      deskWindowButtons.add(more);
     }
     EmulatorInternalFrame.tighten(deskWindowButtons);
     deskWindowButtons.revalidate();
@@ -1650,8 +1661,73 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     fillTheDeskWindowButtons();
     whatThereIs();
     LookAndFeels.lookPluginsChanged(lookAndFeelMenu, this::rememberLookAndFeel);
+    addHoles(lookAndFeelMenu, com.fpetrola.oozx.speccy.devices.Look.class);
     // What could not be done before may be done now, so it is worth saying again if it is not.
     TellsThePerson.thatMayHaveChanged();
+    lookForWhatCouldBeBrought();
+  }
+
+  /** Lo que se podria hacer trayendo un plugin, por el plugin que habria que traer. */
+  private java.util.Map<dev.crystal.plugins.api.PluginArtifact, List<dev.crystal.plugins.api.Offer>> couldBring = java.util.Map.of();
+
+  /** Pregunta al archivo lo que se podria traer, y cuando contesta pone los huecos en su lugar. */
+  private void lookForWhatCouldBeBrought() {
+    new SwingWorker<java.util.Map<dev.crystal.plugins.api.PluginArtifact, List<dev.crystal.plugins.api.Offer>>, Void>() {
+      protected java.util.Map<dev.crystal.plugins.api.PluginArtifact, List<dev.crystal.plugins.api.Offer>> doInBackground() {
+        return com.fpetrola.oozx.plugins.Plugins.managing().availableOffering();
+      }
+
+      protected void done() {
+        try {
+          couldBring = get();
+        } catch (Exception cannotAsk) {
+          return;
+        }
+        fillEquipmentMenu();
+        fillTheDeskWindows();
+        fillTheDeskWindowButtons();
+        LookAndFeels.fillMenu(lookAndFeelMenu, ZXSpectrumDesktopApp.this::rememberLookAndFeel);
+        addHoles(lookAndFeelMenu, com.fpetrola.oozx.speccy.devices.Look.class);
+      }
+    }.execute();
+  }
+
+  /** Lo que falta de ese rol, en gris al final del menu: elegido, trae el plugin y lo hace. */
+  private void addHoles(JMenu menu, Class<?> role) {
+    List<JMenuItem> holes = holes(role);
+    if (holes.isEmpty() || menu == null) return;
+    menu.addSeparator();
+    holes.forEach(menu::add);
+  }
+
+  private List<JMenuItem> holes(Class<?> role) {
+    List<JMenuItem> holes = new java.util.ArrayList<>();
+    couldBring.forEach((artifact, offers) -> offers.stream().filter(offer -> offer.is(role))
+        .forEach(offer -> holes.add(hole(artifact, offer))));
+    return holes;
+  }
+
+  private JMenuItem hole(dev.crystal.plugins.api.PluginArtifact artifact, dev.crystal.plugins.api.Offer offer) {
+    JMenuItem item = new JMenuItem(offer.text() + "  (+)");
+    item.setForeground(java.awt.Color.GRAY);
+    item.setToolTipText("Needs " + artifact.id() + ": choosing it brings it");
+    item.addActionListener(e -> bringAndDo(artifact, offer));
+    return item;
+  }
+
+  /** Trae el plugin y hace lo que se habia elegido: el mismo camino para la paleta y los huecos. */
+  void bringAndDo(dev.crystal.plugins.api.PluginArtifact artifact, dev.crystal.plugins.api.Offer offer) {
+    new SwingWorker<Void, Void>() {
+      protected Void doInBackground() {
+        com.fpetrola.oozx.plugins.Plugins.add(artifact.id());
+        return null;
+      }
+
+      protected void done() {
+        somethingWasPluggedIn();
+        doWhatIsOffered(offer);
+      }
+    }.execute();
   }
 
 
@@ -1679,6 +1755,10 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       theEmulatorMenu.add(item, place++);
       deskWindowItems.add(item);
     }
+    for (JMenuItem hole : holes(DeskEquipment.class)) {
+      theEmulatorMenu.add(hole, place++);
+      deskWindowItems.add(hole);
+    }
   }
 
   private void fillEquipmentMenu() {
@@ -1688,6 +1768,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       item.addActionListener(e -> show(kind));
       equipmentMenu.add(item);
     }
+    addHoles(equipmentMenu, Equipment.class);
   }
 
   private PluginsInternalFrame plugins;
