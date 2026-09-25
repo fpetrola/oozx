@@ -274,6 +274,10 @@ public class Widgets {
     int[] first = {0};
     javax.swing.JMenuItem up = new javax.swing.JMenuItem("\u25B2");
     javax.swing.JMenuItem down = new javax.swing.JMenuItem("\u25BC");
+    // Del ancho del mas ancho de todos, visible o no: si no, cambiaba al recorrerlo.
+    java.awt.Insets border = menu.getInsets();
+    int widest = java.util.Arrays.stream(all).mapToInt(item -> item.getPreferredSize().width).max().orElse(0)
+        + border.left + border.right;
     Runnable show = () -> {
       menu.removeAll();
       menu.add(up);
@@ -281,6 +285,8 @@ public class Widgets {
       menu.add(down);
       up.setEnabled(first[0] > 0);
       down.setEnabled(first[0] + ITEMS_AT_ONCE < all.length);
+      menu.setPreferredSize(null);
+      menu.setPreferredSize(new java.awt.Dimension(widest, menu.getPreferredSize().height));
       menu.pack();
       menu.revalidate();
       menu.repaint();
