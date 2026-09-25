@@ -740,15 +740,12 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     whatToDo = new JMenu("Discover");
     menuBar.add(whatToDo);
     fillWhatToDo();
+    fillHelpMenu();
 
     // ====================== MENU HELP ======================
-    JMenu helpMenu = new JMenu("Help");
+    helpMenu = new JMenu("Help");
     helpMenu.setMnemonic(KeyEvent.VK_H);
-
-    JMenuItem aboutItem = new JMenuItem("About");
-    aboutItem.addActionListener(e -> showAboutDialog());
-    helpMenu.add(aboutItem);
-
+    fillHelpMenu();
     menuBar.add(helpMenu);
 
     return menuBar;
@@ -1674,9 +1671,29 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     com.fpetrola.oozx.speccy.windows.Widgets.scrollingWhenLong(lookAndFeelMenu.getPopupMenu());
     refillMachineToolBars();
     fillWhatToDo();
+    fillHelpMenu();
     // What could not be done before may be done now, so it is worth saying again if it is not.
     TellsThePerson.thatMayHaveChanged();
     lookForWhatCouldBeBrought();
+  }
+
+  private JMenu helpMenu;
+
+  /** Lo que explica algo, puesto o para traer, y el About, que es de la base. */
+  private void fillHelpMenu() {
+    if (helpMenu == null) return;
+    helpMenu.removeAll();
+    for (DeskEquipment kind : has.deskWindows()) {
+      if (!(kind instanceof com.fpetrola.oozx.speccy.devices.Explains)) continue;
+      JMenuItem item = new JMenuItem(kind.name() + "...");
+      item.addActionListener(e -> showOnTheDesk(kind));
+      helpMenu.add(item);
+    }
+    holes(com.fpetrola.oozx.speccy.devices.Explains.class).forEach(helpMenu::add);
+    if (helpMenu.getMenuComponentCount() > 0) helpMenu.addSeparator();
+    JMenuItem aboutItem = new JMenuItem("About");
+    aboutItem.addActionListener(e -> showAboutDialog());
+    helpMenu.add(aboutItem);
   }
 
   /** Lo que se puede hacer: preguntar, y en gris lo que ofrecen los plugins que no estan puestos. */
@@ -1718,6 +1735,8 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     com.fpetrola.oozx.speccy.windows.Widgets.scrollingWhenLong(lookAndFeelMenu.getPopupMenu());
         refillMachineToolBars();
         fillWhatToDo();
+        fillHelpMenu();
+    fillHelpMenu();
       }
     }.execute();
   }
@@ -1737,8 +1756,13 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   }
 
   List<JMenuItem> holes(Class<?> role) {
+    return holes(role, Void.class);
+  }
+
+  /** Los de ese rol que no son de otro, que tiene su propio lugar. */
+  List<JMenuItem> holes(Class<?> role, Class<?> placedElsewhere) {
     List<JMenuItem> holes = new java.util.ArrayList<>();
-    couldBring.forEach((artifact, offers) -> offers.stream().filter(offer -> offer.is(role))
+    couldBring.forEach((artifact, offers) -> offers.stream().filter(offer -> offer.is(role) && !offer.is(placedElsewhere))
         .forEach(offer -> holes.add(hole(artifact, offer))));
     return holes;
   }
@@ -1786,12 +1810,13 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     deskKinds = has.deskWindows();
     int place = whereTheDeskWindowsGo;
     for (DeskEquipment kind : deskKinds) {
+      if (kind instanceof com.fpetrola.oozx.speccy.devices.Explains) continue;
       JMenuItem item = new JMenuItem(kind.name() + "...");
       item.addActionListener(e -> showOnTheDesk(kind));
       theEmulatorMenu.add(item, place++);
       deskWindowItems.add(item);
     }
-    for (JMenuItem hole : holes(DeskEquipment.class)) {
+    for (JMenuItem hole : holes(DeskEquipment.class, com.fpetrola.oozx.speccy.devices.Explains.class)) {
       theEmulatorMenu.add(hole, place++);
       deskWindowItems.add(hole);
     }
