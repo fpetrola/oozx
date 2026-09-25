@@ -269,17 +269,24 @@ public class Widgets {
    * cuanto el mouse pasaba por uno. Llamar despues de llenarlo.
    */
   public static void scrollingWhenLong(javax.swing.JPopupMenu menu) {
-    java.awt.Component[] all = menu.getComponents();
+    scrollingWhenLong(menu, 0);
+  }
+
+  /** Lo mismo, dejando fijos arriba los primeros: lo que tiene que estar siempre a mano. */
+  public static void scrollingWhenLong(javax.swing.JPopupMenu menu, int fixedOnTop) {
+    java.awt.Component[] fixed = java.util.Arrays.copyOf(menu.getComponents(), fixedOnTop);
+    java.awt.Component[] all = java.util.Arrays.copyOfRange(menu.getComponents(), fixedOnTop, menu.getComponentCount());
     if (all.length <= ITEMS_AT_ONCE) return;
     int[] first = {0};
     javax.swing.JMenuItem up = new javax.swing.JMenuItem("\u25B2");
     javax.swing.JMenuItem down = new javax.swing.JMenuItem("\u25BC");
     // Del ancho del mas ancho de todos, visible o no: si no, cambiaba al recorrerlo.
     java.awt.Insets border = menu.getInsets();
-    int widest = java.util.Arrays.stream(all).mapToInt(item -> item.getPreferredSize().width).max().orElse(0)
+    int widest = java.util.Arrays.stream(menu.getComponents()).mapToInt(item -> item.getPreferredSize().width).max().orElse(0)
         + border.left + border.right;
     Runnable show = () -> {
       menu.removeAll();
+      for (java.awt.Component kept : fixed) menu.add(kept);
       menu.add(up);
       for (int i = first[0]; i < Math.min(all.length, first[0] + ITEMS_AT_ONCE); i++) menu.add(all[i]);
       menu.add(down);

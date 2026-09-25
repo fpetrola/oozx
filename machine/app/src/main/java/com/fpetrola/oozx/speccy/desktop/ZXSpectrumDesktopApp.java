@@ -706,10 +706,9 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     JMenuItem pluginsItem = new JMenuItem("Plugins...");
     pluginsItem.addActionListener(e -> showPlugins());
     emulatorMenu.add(pluginsItem);
-    JMenuItem paletteItem = new JMenuItem("What do you want to do?");
-    paletteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
-    paletteItem.addActionListener(e -> new ActionPalette(this).setVisible(true));
-    emulatorMenu.add(paletteItem);
+    whatToDo = new JMenu("What do you want to do?");
+    emulatorMenu.add(whatToDo);
+    fillWhatToDo();
 
     // The windows of the desk itself - a browser, a library - are found the same way the boards
     // are, so what the Emulator menu offers is what this build turns out to have. Where they go
@@ -1676,9 +1675,30 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     addHoles(lookAndFeelMenu, com.fpetrola.oozx.speccy.devices.Look.class);
     com.fpetrola.oozx.speccy.windows.Widgets.scrollingWhenLong(lookAndFeelMenu.getPopupMenu());
     refillMachineToolBars();
+    fillWhatToDo();
     // What could not be done before may be done now, so it is worth saying again if it is not.
     TellsThePerson.thatMayHaveChanged();
     lookForWhatCouldBeBrought();
+  }
+
+  /** Lo que se puede hacer: preguntar, lo que ofrece lo que esta puesto, y en gris lo que se podria traer. */
+  private JMenu whatToDo;
+
+  private void fillWhatToDo() {
+    if (whatToDo == null) return;
+    whatToDo.removeAll();
+    JMenuItem ask = new JMenuItem("Ask...");
+    ask.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+    ask.addActionListener(e -> new ActionPalette(this).setVisible(true));
+    whatToDo.add(ask);
+    whatToDo.addSeparator();
+    for (dev.crystal.plugins.api.Offer offer : com.fpetrola.oozx.plugins.Plugins.managing().offering()) {
+      JMenuItem item = new JMenuItem(offer.text());
+      item.addActionListener(e -> doWhatIsOffered(offer));
+      whatToDo.add(item);
+    }
+    couldBring.forEach((artifact, offers) -> offers.forEach(offer -> whatToDo.add(hole(artifact, offer))));
+    com.fpetrola.oozx.speccy.windows.Widgets.scrollingWhenLong(whatToDo.getPopupMenu(), 2);
   }
 
   /** Lo que se podria hacer trayendo un plugin, por el plugin que habria que traer. */
