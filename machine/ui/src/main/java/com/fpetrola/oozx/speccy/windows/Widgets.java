@@ -311,6 +311,20 @@ public class Widgets {
         @Override
         protected void doClick(javax.swing.MenuSelectionManager manager) {
         }
+
+        /** Centrada en si misma: el lugar que Swing le da depende de los items de al lado, que cambian. */
+        @Override
+        public void paint(java.awt.Graphics g, javax.swing.JComponent c) {
+          if (arrow.isArmed() && arrow.isEnabled()) {
+            g.setColor(javax.swing.UIManager.getColor("MenuItem.selectionBackground"));
+            g.fillRect(0, 0, c.getWidth(), c.getHeight());
+          }
+          g.setColor(arrow.isEnabled() ? arrow.getForeground() : javax.swing.UIManager.getColor("MenuItem.disabledForeground"));
+          g.setFont(arrow.getFont());
+          java.awt.FontMetrics metrics = g.getFontMetrics();
+          g.drawString(arrow.getText(), (c.getWidth() - metrics.stringWidth(arrow.getText())) / 2,
+              (c.getHeight() - metrics.getHeight()) / 2 + metrics.getAscent());
+        }
       });
     }
     menu.addMouseWheelListener(wheel -> move.accept(wheel.getWheelRotation()));
