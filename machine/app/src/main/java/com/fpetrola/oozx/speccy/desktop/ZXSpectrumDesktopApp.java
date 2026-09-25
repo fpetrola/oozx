@@ -706,9 +706,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     JMenuItem pluginsItem = new JMenuItem("Plugins...");
     pluginsItem.addActionListener(e -> showPlugins());
     emulatorMenu.add(pluginsItem);
-    whatToDo = new JMenu("What do you want to do?");
-    emulatorMenu.add(whatToDo);
-    fillWhatToDo();
+
 
     // The windows of the desk itself - a browser, a library - are found the same way the boards
     // are, so what the Emulator menu offers is what this build turns out to have. Where they go
@@ -738,6 +736,10 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
 
     // Window menu (includes Look&Feel submenu)
     addWindowMenu(menuBar);
+
+    whatToDo = new JMenu("What do you want to do?");
+    menuBar.add(whatToDo);
+    fillWhatToDo();
 
     // ====================== MENU HELP ======================
     JMenu helpMenu = new JMenu("Help");
@@ -1677,7 +1679,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     lookForWhatCouldBeBrought();
   }
 
-  /** Lo que se puede hacer: preguntar, lo que ofrece lo que esta puesto, y en gris lo que se podria traer. */
+  /** Lo que se puede hacer: preguntar, y en gris lo que ofrecen los plugins que no estan puestos. */
   private JMenu whatToDo;
 
   private void fillWhatToDo() {
@@ -1688,11 +1690,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     ask.addActionListener(e -> new ActionPalette(this).setVisible(true));
     whatToDo.add(ask);
     whatToDo.addSeparator();
-    for (dev.crystal.plugins.api.Offer offer : com.fpetrola.oozx.plugins.Plugins.managing().offering()) {
-      JMenuItem item = new JMenuItem(offer.text());
-      item.addActionListener(e -> doWhatIsOffered(offer));
-      whatToDo.add(item);
-    }
     couldBring.forEach((artifact, offers) -> offers.forEach(offer -> whatToDo.add(hole(artifact, offer))));
     com.fpetrola.oozx.speccy.windows.Widgets.scrollingWhenLong(whatToDo.getPopupMenu(), 2);
   }
@@ -1720,6 +1717,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         addHoles(lookAndFeelMenu, com.fpetrola.oozx.speccy.devices.Look.class);
     com.fpetrola.oozx.speccy.windows.Widgets.scrollingWhenLong(lookAndFeelMenu.getPopupMenu());
         refillMachineToolBars();
+        fillWhatToDo();
       }
     }.execute();
   }
