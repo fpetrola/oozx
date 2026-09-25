@@ -133,6 +133,27 @@ public class PluginReleases implements Configuration.Saves {
   private static long lastAsked;
   private static final long WORTH_ASKING_AGAIN = java.time.Duration.ofMinutes(5).toMillis();
 
+  private static java.util.concurrent.CompletableFuture<List<Board>> asking;
+
+  /**
+   * Lo publicado si ya se sabe, o nada todavia: la pregunta sale en segundo plano y quien espera se
+   * entera cuando llega. Asi lo que esta en la maquina se muestra sin esperar a la red.
+   */
+  static synchronized List<Board> publishedIfKnown() {
+    if (lastAnswer != null && System.currentTimeMillis() - lastAsked < WORTH_ASKING_AGAIN) return lastAnswer;
+    if (asking == null || asking.isDone()) {
+      asking = java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+        try {
+          return published();
+        } catch (IOException | InterruptedException | RuntimeException couldNotAsk) {
+          return List.<Board>of();
+        }
+      });
+      asking.thenRun(Plugins::catalogArrived);
+    }
+    return lastAnswer == null ? List.of() : lastAnswer;
+  }
+
   public static List<Board> published() throws IOException, InterruptedException {
     if (lastAnswer != null && System.currentTimeMillis() - lastAsked < WORTH_ASKING_AGAIN) {
       return lastAnswer;
@@ -230,33 +251,18 @@ public class PluginReleases implements Configuration.Saves {
     return boards;
   }
 
-  /** Lo que dice cada release, pedido una vez y todos a la vez: el panel describe cada uno que ofrece. */
-  private static final java.util.Map<String, java.util.concurrent.CompletableFuture<java.util.Optional<dev.crystal.plugins.api.PluginDescription>>> DESCRIBED =
-      new java.util.concurrent.ConcurrentHashMap<>();
-
-  static java.util.concurrent.CompletableFuture<java.util.Optional<dev.crystal.plugins.api.PluginDescription>> describing(String metadata) {
-    return DESCRIBED.computeIfAbsent(metadata, url -> client()
-        .sendAsync(asking(url).build(), HttpResponse.BodyHandlers.ofInputStream())
-        .thenApply(answer -> {
-          try (java.io.InputStream in = answer.body()) {
-            return answer.statusCode() == 200
-                ? java.util.Optional.of(dev.crystal.plugins.runtime.PluginSources.description(in))
-                : java.util.Optional.<dev.crystal.plugins.api.PluginDescription>empty();
-          } catch (IOException unreadable) {
-            return java.util.Optional.<dev.crystal.plugins.api.PluginDescription>empty();
-          }
-        })
-        .exceptionally(couldNotAsk -> java.util.Optional.empty()));
-  }
-
   /** La descripcion de un release, esperada lo que se espera cualquier respuesta del archivo. */
   static java.util.Optional<dev.crystal.plugins.api.PluginDescription> described(String metadata) {
-    try {
-      return describing(metadata).get(PATIENCE.toMillis(), java.util.concurrent.TimeUnit.MILLISECONDS);
-    } catch (Exception tooSlow) {
+    try (java.io.InputStream in = client().send(asking(metadata).build(), HttpResponse.BodyHandlers.ofInputStream()).body()) {
+      return java.util.Optional.of(dev.crystal.plugins.runtime.PluginSources.description(in));
+    } catch (IOException | RuntimeException couldNotAsk) {
+      return java.util.Optional.empty();
+    } catch (InterruptedException interrupted) {
+      Thread.currentThread().interrupt();
       return java.util.Optional.empty();
     }
   }
+
 
   private static HttpClient client() {
     return HttpClient.newBuilder()

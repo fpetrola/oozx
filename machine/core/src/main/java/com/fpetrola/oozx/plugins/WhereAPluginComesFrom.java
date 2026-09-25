@@ -65,7 +65,6 @@ final class WhereAPluginComesFrom implements PluginSource {
       }
       published.put(id, board);
       offered.add(new PluginArtifact(id, versionOf(board.jar(), id), board.sha256()));
-      if (board.metadata() != null) PluginReleases.describing(board.metadata());
     }
     return offered;
   }
@@ -130,15 +129,9 @@ final class WhereAPluginComesFrom implements PluginSource {
 
   /** Lo que el archivo publica, o nada cuando no se lo puede preguntar: la carpeta alcanza. */
   private static List<PluginReleases.Board> whatIsPublished() {
-    try {
-      return PluginReleases.published();
-    } catch (IOException | InterruptedException | RuntimeException couldNotAsk) {
-      if (couldNotAsk instanceof InterruptedException) {
-        Thread.currentThread().interrupt();
-      }
-      return List.of();
-    }
+    return PluginReleases.publishedIfKnown();
   }
+
 
   private static String versionOf(String jar, String id) {
     return jar.replaceFirst("^" + java.util.regex.Pattern.quote(id) + "-", "")

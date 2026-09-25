@@ -1647,6 +1647,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
 
   {
     com.fpetrola.oozx.plugins.Plugins.whenHeld(leaving -> putMachinesAway());
+    com.fpetrola.oozx.plugins.Plugins.whenCatalogArrives(() -> SwingUtilities.invokeLater(this::lookForWhatCouldBeBrought));
   }
 
 

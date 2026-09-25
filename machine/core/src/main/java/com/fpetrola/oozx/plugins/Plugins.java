@@ -100,6 +100,17 @@ public final class Plugins {
     beforeTakingOut.add(leaving);
   }
 
+  private static final List<Runnable> whenCatalogArrives = new java.util.concurrent.CopyOnWriteArrayList<>();
+
+  /** Avisado cuando llega lo que el archivo publica, que se pide sin hacer esperar a nadie. */
+  public static void whenCatalogArrives(Runnable arrived) {
+    whenCatalogArrives.add(arrived);
+  }
+
+  static void catalogArrived() {
+    whenCatalogArrives.forEach(Runnable::run);
+  }
+
   private static final List<java.util.function.Function<java.util.Set<String>, Runnable>> whenHeld =
       new java.util.concurrent.CopyOnWriteArrayList<>();
 
