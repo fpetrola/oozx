@@ -224,7 +224,10 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     // so selecting one of those found nothing in the box and left it naming the machine before.
     modelCombo = new JComboBox<>(emulatorCore.getMachineModels().toArray(new String[0]));
     modelCombo.setSelectedItem(emulatorCore.getCurrentModel());
-    Widgets.whenChosen(modelCombo, emulatorCore::getCurrentModel, emulatorCore::setMachineModel);
+    // Por el campo y no con el core adentro: cerrada la ventana, el combo sobrevive en caches de
+    // Swing y no tiene que llegar a la maquina.
+    Widgets.whenChosen(modelCombo, () -> emulatorCore == null ? null : emulatorCore.getCurrentModel(),
+        model -> { if (emulatorCore != null) emulatorCore.setMachineModel(model); });
     statusBar.add(modelCombo);
     // Lo que muestran las herramientas: la velocidad, la pausa, el turbo, si hay quien los traiga.
     for (com.fpetrola.oozx.speccy.devices.MachineTool tool : WhatIsPluggedIn.theOne().tools()) {
