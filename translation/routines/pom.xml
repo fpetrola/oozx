@@ -57,15 +57,6 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.vlsi.mxgraph</groupId>
-            <artifactId>jgraphx</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fifesoft</groupId>
-            <artifactId>rsyntaxtextarea</artifactId>
-            <version>3.1.1</version>
-        </dependency>
-        <dependency>
             <groupId>blue.endless</groupId>
             <artifactId>jankson</artifactId>
             <version>1.2.3</version>
