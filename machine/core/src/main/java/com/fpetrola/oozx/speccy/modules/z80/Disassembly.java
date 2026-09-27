@@ -28,6 +28,7 @@ import com.fpetrola.z80.memory.Memory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiPredicate;
 
 /**
  * Reading a machine's memory as instructions, without the machine noticing.
@@ -99,8 +100,17 @@ public final class Disassembly {
 
   /** A run of consecutive instructions from an address. */
   public List<Line> from(int address, int lines) {
+    return listing(address, (listing, at) -> listing.size() < lines);
+  }
+
+  /** The instructions from one address up to another, the one that starts at or before it last. */
+  public List<Line> between(int first, int last) {
+    return listing(first, (listing, at) -> at <= last && listing.size() <= (last - first & 0xffff));
+  }
+
+  private List<Line> listing(int address, BiPredicate<List<Line>, Integer> goesOn) {
     List<Line> listing = new ArrayList<>();
-    for (int at = address & 0xffff; listing.size() < lines; ) {
+    for (int at = address & 0xffff; goesOn.test(listing, at); ) {
       Line line = lineAt(at);
       listing.add(line);
       at = at + Math.max(1, lengthAt(at)) & 0xffff;
