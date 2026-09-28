@@ -192,6 +192,24 @@ public class SnapshotSaver {
     }
   }
 
+  /** Any bytes, gzipped and packed into text short enough for a settings file: what a session is kept as. */
+  public static String packed(byte[] bytes) {
+    try {
+      return SnapshotUnicodePacker.packToUnicodeString(gzipCompress(bytes));
+    } catch (Exception e) {
+      throw new RuntimeException("Error compressing snapshot: " + e.getMessage());
+    }
+  }
+
+  /** The bytes that text was packed from. */
+  public static byte[] unpacked(String text) {
+    try {
+      return gzipDecompress(SnapshotUnicodePacker.unpackFromUnicodeString(text));
+    } catch (Exception e) {
+      throw new RuntimeException("Error decompressing snapshot: " + e.getMessage());
+    }
+  }
+
   public static SpectrumState loadSnapshotFromUnicodePacked(String unicodePacked)  {
     try {
       if (unicodePacked == null || unicodePacked.isEmpty()) {

@@ -113,9 +113,49 @@ public class Snapshots extends AbstractPeripheral {
     SnapshotSaver.setupSnapshotWithState(registersOf(state()), fileName, state());
   }
 
-  /** The same, packed into text short enough for a settings file to carry. */
+  /** Sessions kept as an SZX say so at the start; the ones without it are the .z80 they were kept as before. */
+  private static final String SZX = "szx:";
+
+  /**
+   * The machine packed into text short enough for a settings file to carry: as an SZX, which keeps
+   * the banks, the paging, the AY and whatever else a format walking the machine knows; as the
+   * .z80 of before only when no SZX format is here.
+   */
   public String packed() {
+    java.util.Optional<com.fpetrola.oozx.formats.SnapshotFormat> szx = szx();
+    if (szx.isPresent()) {
+      try {
+        return SZX + SnapshotSaver.packed(szx.get().write(speccy.get(), note -> { }));
+      } catch (com.fpetrola.emulation.helpers.snapshots.SnapshotException cannotBeWritten) {
+        // falls to the .z80 of before
+      }
+    }
     return SnapshotSaver.getSnapshotAsUnicodePacked(registersOf(state()), state());
+  }
+
+  /** A session kept by {@link #packed()}, put back: an SZX, or a .z80 kept before sessions were SZX. */
+  public void loadPacked(String packed) {
+    if (packed.startsWith(SZX)) {
+      com.fpetrola.oozx.formats.SnapshotFormat szx = szx()
+          .orElseThrow(() -> new IllegalStateException("a session kept as an SZX, and no SZX format here to read it"));
+      byte[] bytes = SnapshotSaver.unpacked(packed.substring(SZX.length()));
+      java.util.List<String> said = new java.util.ArrayList<>();
+      try {
+        keys.releaseAll();
+        szx.read(bytes, speccy.get(), said::add);
+      } catch (com.fpetrola.emulation.helpers.snapshots.SnapshotException cannotBeRead) {
+        throw new RuntimeException(cannotBeRead);
+      }
+      notes = java.util.List.copyOf(said);
+      display.refreshAll();
+      return;
+    }
+    load(SnapshotSaver.loadSnapshotFromUnicodePacked(packed));
+  }
+
+  private static java.util.Optional<com.fpetrola.oozx.formats.SnapshotFormat> szx() {
+    java.io.File name = new java.io.File("session.szx");
+    return formats().stream().filter(one -> one.writes(name)).findFirst();
   }
 
   public void load(String url) {

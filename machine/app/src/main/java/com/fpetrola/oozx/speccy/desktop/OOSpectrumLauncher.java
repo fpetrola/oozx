@@ -25,7 +25,6 @@ import com.fpetrola.oozx.speccy.machine.StartsAMachineOn;
 import com.fpetrola.oozx.speccy.modules.timer.Speed;
 import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
 import com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp;
-import com.fpetrola.emulation.helpers.snapshots.SpectrumState;
 
 import java.awt.*;
 import java.io.File;
@@ -68,8 +67,8 @@ public class OOSpectrumLauncher {
       return core;
     };
 
-    Function<SpectrumState, EmulatorCore> mockCoreState =
-        spectrumState -> known.apply(createSpeccy2(spectrumState));
+    Function<String, EmulatorCore> mockCoreState =
+        session -> known.apply(createSpeccy2(session));
     ZXSpectrumDesktopApp zxSpectrumDesktopApp = new ZXSpectrumDesktopApp((filename, chosenMachine) -> {
       Speccy speccy;
       String string = null;
@@ -213,11 +212,12 @@ public class OOSpectrumLauncher {
         });
   }
 
-  private Speccy createSpeccy2(SpectrumState spectrumState) {
+  /** A machine from a session kept in the settings, however it was kept. */
+  private Speccy createSpeccy2(String session) {
     Speccy speccy = Speccy.create();
     speccy.speed.emulation = Speed.REAL_TIME;
     speccy.init();
-    Snapshots.of(speccy).load(spectrumState);
+    Snapshots.of(speccy).loadPacked(session);
     speccy.timer.changeSpeed(100);
 
     extracted(speccy);

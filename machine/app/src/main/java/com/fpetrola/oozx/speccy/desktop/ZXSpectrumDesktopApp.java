@@ -42,9 +42,7 @@ import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
 import com.fpetrola.oozx.EmulatorListener;
 import com.fpetrola.oozx.TellsThePerson;
 import com.fpetrola.oozx.speccy.peripherals.DefaultsCore;
-import com.fpetrola.emulation.helpers.snapshots.SnapshotSaver;
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.emulation.helpers.snapshots.SpectrumState;
 
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
@@ -417,7 +415,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       knownMachines = core.getMachineModels();
     }
   }
-  private final Function<SpectrumState, EmulatorCore> mockCoreState;
+  private final Function<String, EmulatorCore> mockCoreState;
   private JDesktopPane desktop;
   private int emulatorCount = 0;
   private final JFileChooser fileChooser = new JFileChooser();
@@ -581,7 +579,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     });
   }
 
-  public ZXSpectrumDesktopApp(java.util.function.BiFunction<String, String, EmulatorCore> mockCore, Function<SpectrumState, EmulatorCore> mockCoreState1) {
+  public ZXSpectrumDesktopApp(java.util.function.BiFunction<String, String, EmulatorCore> mockCore, Function<String, EmulatorCore> mockCoreState1) {
     this.mockCore = mockCore;
     this.mockCoreState = mockCoreState1;
     this.config = com.fpetrola.oozx.config.Configuration.shared().of(OOZxConfiguration.class);
@@ -1147,7 +1145,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       try {
         String snapshotData = config.getSnapshot(savedStateId);
         if (snapshotData != null && !snapshotData.isEmpty()) {
-          createNewEmulator(mockCoreState.apply(SnapshotSaver.loadSnapshotFromUnicodePacked(snapshotData)), file);
+          createNewEmulator(mockCoreState.apply(snapshotData), file);
           return;
         }
       } catch (Exception ex) {
@@ -2154,8 +2152,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     try {
       String snapshotData = config.getSnapshot(windowState.getSnapshotId());
       if (snapshotData != null && !snapshotData.isEmpty()) {
-        SpectrumState spectrumState = SnapshotSaver.loadSnapshotFromUnicodePacked(snapshotData);
-        createNewEmulator(mockCoreState.apply(spectrumState)).restoreWindowState(windowState);
+        createNewEmulator(mockCoreState.apply(snapshotData)).restoreWindowState(windowState);
       }
     } catch (Exception e) {
       System.err.println("Error restaurando snapshot desde configuración: " + e.getMessage());
