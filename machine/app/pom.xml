@@ -53,13 +53,6 @@
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
-            <artifactId>rzx</artifactId>
-            <version>${project.version}</version>
-            <!-- El escritorio no lo nombra, pero es de la base: los plugins de grabaciones y juegos lo esperan. -->
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fpetrola</groupId>
             <artifactId>ui</artifactId>
             <version>0.0.2-alu-SNAPSHOT</version>
         </dependency>

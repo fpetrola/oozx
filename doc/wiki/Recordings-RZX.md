@@ -50,5 +50,7 @@ refactor and 20,773 % after, which is how "did this cost anything" gets answered
 
 ## Where this lives
 
-`machine/media/rzx` and `zx-rzx` (`RzxParser`, `RzxPlayback`, `RzxWriter`, `RZXPlayerIO`, `RzxSession`,
-`RzxArchive`), with the player window in `machine/media/rzx`.
+oozx-plugins' `libs/zx-rzx` (the format: `RzxParser`, `RzxPlayback`, `RzxWriter`, `RZXPlayerIO`) and
+`libs/rzx` (`RzxSession`, `RzxArchive`, with the archive's catalogue), with the player window in the
+`tool-rzx` plugin. The emulator depends on neither; the plugins that use them carry them, and other
+projects take `com.fpetrola:zx-rzx` from `~/.m2` as before.

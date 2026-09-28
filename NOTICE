@@ -128,24 +128,6 @@ POKE listings
     is derived from them: they are read at run time and applied to whatever
     game is loaded.
 
-RZX Archive catalogue
-
-    machine/core/src/main/resources/rzx/rzx-archive.json
-
-    Copyright the RZX Archive <https://www.rzxarchive.co.uk> and the people
-    who submitted the recordings it lists, whose names it records.
-
-    Four thousand two hundred and ninety-one entries describing recorded
-    playthroughs: a title, a note, the submitter, the archive's own page, the
-    Spectrum Computing id of the game, and where the file can be had. It is
-    the catalogue and not the recordings - no RZX file is here - and the two
-    hundred and forty-three entries the archive marks as distribution denied
-    are recorded as such rather than dropped. Gathered from the archive's
-    browse pages, one a second, because it offers no interface to ask.
-
-    Read to answer whether a game the browser found has anyone's playthrough
-    against it, by an id the two sites share.
-
 Spec256 palette
 
     machine/devices/spec256/src/main/resources/spec256/spec256.pal

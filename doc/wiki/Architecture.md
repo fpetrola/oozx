@@ -85,7 +85,6 @@ emulator  →  machine/core  →  machine/machines, machine/media, machine/host
 | `machine/generated` | the generated core | 11 |
 | `machine/bridge` | the reference emulator's real core behind the same interface | 31 |
 | `machine/zxinfo`, `machine/pokes` | the catalogue, the fingerprints, the cheats | 28 |
-| `zx-rzx` | recordings | 18 |
 | `translation/*` | a game turned into Java | 199 |
 
 Concretely, "one owner" means: everything that depends on a tape format lives in `Tape` and nowhere else —

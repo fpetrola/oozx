@@ -65,4 +65,4 @@ inside the platform's audio server takes the JVM with it.
 ## Where this lives
 
 `emulator/src/test` (the batteries), `machine/*/src/test` (the machine), `machine/bridge` (the comparison),
-`zx-rzx` (determinism), `doc/TABLA_ALU_TESTS.md` (what the ALU sweep found).
+oozx-plugins' `libs/zx-rzx` (determinism), `doc/TABLA_ALU_TESTS.md` (what the ALU sweep found).

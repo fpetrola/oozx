@@ -73,5 +73,6 @@ mvn -o -pl machine/generated test      # the generated core against the same bat
 ```
 
 The reactor is 63 `pom.xml` files: `emulator` (the Z80), `machine/*` (the Spectrum, the devices, the
-desktop), `zx-rzx` (recordings), `translation/*` (a game turned into Java), `prototypes/*`. What each one
+desktop), `translation/*` (a game turned into Java), `prototypes/*`. Recordings (`zx-rzx`, `rzx`) live in
+oozx-plugins' `libs/`. What each one
 owns is in [Architecture](Architecture).
