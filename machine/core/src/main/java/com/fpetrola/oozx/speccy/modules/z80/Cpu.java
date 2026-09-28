@@ -39,7 +39,7 @@ import static com.fpetrola.z80.registers.RegisterName.*;
  * had the same shape and only this one ever implemented it.
  */
 @Singleton
-public class Cpu {
+public class Cpu implements com.fpetrola.oozx.speccy.parts.Visitable {
     private final Scheduler scheduler;
     private OOZ80 ooz80;
     private final MachineLoop loop;
@@ -256,4 +256,10 @@ public class Cpu {
             takeInterruptIfTheLineIsStillDown();
         }
     }
+
+  /** Presents itself when the machine is walked. */
+  @Override
+  public void accept(com.fpetrola.oozx.speccy.parts.PartVisitor visitor) {
+    visitor.visit(this);
+  }
 }

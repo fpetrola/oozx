@@ -45,7 +45,7 @@ import java.util.Set;
 import com.google.inject.Singleton;
 
 @Singleton
-public class Machine {
+public class Machine implements com.fpetrola.oozx.speccy.parts.Visitable {
   private final Scheduler scheduler;
   private final MemoryBus memory;
   private final SpectrumMemory banks;
@@ -212,5 +212,11 @@ public class Machine {
     public boolean lateTimings;
     /** A 48K issue 2 reads the two spare keyboard bits differently from an issue 3. */
     public boolean issue2;
+  }
+
+  /** Presents itself when the machine is walked. */
+  @Override
+  public void accept(com.fpetrola.oozx.speccy.parts.PartVisitor visitor) {
+    visitor.visit(this);
   }
 }

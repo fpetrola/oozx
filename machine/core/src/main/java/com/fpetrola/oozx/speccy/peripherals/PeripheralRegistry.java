@@ -26,7 +26,7 @@ import com.fpetrola.oozx.speccy.ports.Backplane;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -49,7 +49,7 @@ public class PeripheralRegistry {
     }
   }
 
-  private final Map<Class<? extends Peripheral>, Registration> registry = new HashMap<>();
+  private final Map<Class<? extends Peripheral>, Registration> registry = new LinkedHashMap<>();
   private final Backplane backplane;
   private final MemoryBus memory;
   private final Supplier<Machine> machine;
@@ -80,6 +80,12 @@ public class PeripheralRegistry {
       if (kind.isInstance(device.peripheral)) return kind.cast(device.peripheral);
     }
     return null;
+  }
+
+  /** The ones switched on, each presenting itself, in the order they were registered. */
+  public void accept(com.fpetrola.oozx.speccy.parts.PartVisitor visitor) {
+    registry.values().stream().filter(device -> device.active).toList()
+        .forEach(device -> device.peripheral.accept(visitor));
   }
 
   public boolean isActive(Class<? extends Peripheral> type) {

@@ -142,6 +142,22 @@ public class Speccy {
     timer.onSpeed(managed -> { if (control != null) control.notifySpeed((float) managed); });
   }
 
+  /**
+   * The machine walked part by part: the machine chosen, the processor, the memory, the paging,
+   * the border and the clock, always in that order, and then every peripheral that is switched on,
+   * in the order they were registered. What walks it - a file format reading a snapshot in or
+   * writing one out, a description - meets each part as what it is.
+   */
+  public void accept(com.fpetrola.oozx.speccy.parts.PartVisitor visitor) {
+    machine.accept(visitor);
+    cpu.accept(visitor);
+    banks.accept(visitor);
+    machine.current.paging().accept(visitor);
+    display.border.accept(visitor);
+    zxClock.accept(visitor);
+    peripheralRegistry.accept(visitor);
+  }
+
   public boolean isAlive() {
     return session.isAlive();
   }

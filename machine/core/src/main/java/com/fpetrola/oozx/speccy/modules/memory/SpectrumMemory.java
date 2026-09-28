@@ -28,7 +28,7 @@ import java.util.function.IntConsumer;
  * models are just configurations that page the same chips differently, so neither a Machine nor a MemoryBus owns them.
  */
 @Singleton
-public class SpectrumMemory {
+public class SpectrumMemory implements com.fpetrola.oozx.speccy.parts.Visitable {
   /** 1040 KB, enough for a Pentagon 1024. */
   public static final int SPECTRUM_RAM_PAGES = 65;
   public static final int SPECTRUM_ROM_PAGES = 4;
@@ -104,5 +104,11 @@ public class SpectrumMemory {
     alongside(null);
     shown = bank;
     bank.shownTo = screen;
+  }
+
+  /** Presents itself when the machine is walked. */
+  @Override
+  public void accept(com.fpetrola.oozx.speccy.parts.PartVisitor visitor) {
+    visitor.visit(this);
   }
 }

@@ -20,7 +20,7 @@ package com.fpetrola.oozx.speccy.peripherals;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.ports.Wired;
 
-public interface Peripheral {
+public interface Peripheral extends com.fpetrola.oozx.speccy.parts.Visitable {
   /** Switched on for the machine that is running, which is the only one it will answer for. */
   void activate(SpectrumMachine machine);
 
@@ -55,5 +55,11 @@ public interface Peripheral {
    * default.
    */
   default void machineWasReset(boolean hard) {
+  }
+
+  /** Presents itself when the machine is walked; a device with parts of its own presents them after itself. */
+  @Override
+  default void accept(com.fpetrola.oozx.speccy.parts.PartVisitor visitor) {
+    visitor.visit(this);
   }
 }

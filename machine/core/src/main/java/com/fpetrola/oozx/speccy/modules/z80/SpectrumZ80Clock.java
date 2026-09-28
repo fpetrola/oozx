@@ -26,7 +26,7 @@ import com.fpetrola.z80.tstates.Contention.Kind;
  * clock here, the tape, waits on an event now, the way everything else that wants a future
  * T-state does.
  */
-public class SpectrumZ80Clock extends DefaultZ80Clock {
+public class SpectrumZ80Clock extends DefaultZ80Clock implements com.fpetrola.oozx.speccy.parts.Visitable {
 
   /**
    * Time the ULA adds to that bus cycle: wait states while it owns the bus, and the port cycles
@@ -49,5 +49,11 @@ public class SpectrumZ80Clock extends DefaultZ80Clock {
 
   public long getAbsTstates() {
     return tStates;
+  }
+
+  /** Presents itself when the machine is walked. */
+  @Override
+  public void accept(com.fpetrola.oozx.speccy.parts.PartVisitor visitor) {
+    visitor.visit(this);
   }
 }

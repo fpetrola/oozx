@@ -33,7 +33,7 @@ import static com.fpetrola.oozx.speccy.modules.display.Display.WIDTH_COLS;
  * The single-colour border, changed by port writes at arbitrary beam positions (stripe effects).
  * Records each change and the beam position when it happened, then paints the bands between changes at frame end.
  */
-public final class Border {
+public final class Border implements com.fpetrola.oozx.speccy.parts.Visitable {
   private final Picture picture;
   private final BeamAt beam;
   private byte colour;
@@ -79,6 +79,11 @@ public final class Border {
   private void pushChange(int colour) {
     if (beam.row() >= SCREEN_HEIGHT) return;
     addChange(Math.max(0, Math.min(beam.column(), SCREEN_WIDTH_COLS)), Math.max(0, beam.row()), colour);
+  }
+
+  /** The colour it is now: the last one a port write made it. */
+  public int colour() {
+    return colour;
   }
 
   public void becomes(int wanted) {
@@ -147,5 +152,11 @@ public final class Border {
 
   public void refreshAll() {
     Arrays.fill(rowPlotted, -1);
+  }
+
+  /** Presents itself when the machine is walked. */
+  @Override
+  public void accept(com.fpetrola.oozx.speccy.parts.PartVisitor visitor) {
+    visitor.visit(this);
   }
 }

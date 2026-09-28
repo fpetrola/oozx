@@ -63,8 +63,10 @@ public class Snapshots extends AbstractPeripheral {
   public Snapshots(Machine machine, MemoryBus memory, SpectrumMemory banks, IO io, Display display, Cpu cpu,
                    com.fpetrola.oozx.speccy.modules.keyboard.KeyMatrix keys,
                    com.fpetrola.oozx.speccy.peripherals.PeripheralRegistry peripherals,
-                   java.util.Set<RestoredFromASnapshot> parts) {
+                   java.util.Set<RestoredFromASnapshot> parts,
+                   com.google.inject.Provider<Speccy> speccy) {
     super(java.util.List.of());
+    this.speccy = speccy;
     this.peripherals = peripherals;
     this.banks = banks;
     this.machine = machine;
@@ -75,6 +77,12 @@ public class Snapshots extends AbstractPeripheral {
     this.keys = keys;
     this.parts = parts;
   }
+
+  /** The machine this is part of, for a format that walks it. Asked for late: it is built with this inside. */
+  private final com.google.inject.Provider<Speccy> speccy;
+
+  /** What the last snapshot read or written with a format left out, said by the format. */
+  private java.util.List<String> notes = java.util.List.of();
 
   /** Las partes que se llevan algo propio adentro del snapshot, sean de la base o de un plugin. */
   private final java.util.Set<RestoredFromASnapshot> parts;
@@ -90,6 +98,18 @@ public class Snapshots extends AbstractPeripheral {
   }
 
   public void save(String fileName) {
+    java.io.File file = new java.io.File(fileName);
+    java.util.Optional<com.fpetrola.oozx.formats.SnapshotFormat> format = formats().stream().filter(one -> one.writes(file)).findFirst();
+    if (format.isPresent()) {
+      java.util.List<String> said = new java.util.ArrayList<>();
+      try {
+        java.nio.file.Files.write(file.toPath(), format.get().write(speccy.get(), said::add));
+      } catch (java.io.IOException | com.fpetrola.emulation.helpers.snapshots.SnapshotException cannot) {
+        throw new RuntimeException(cannot);
+      }
+      notes = java.util.List.copyOf(said);
+      return;
+    }
     SnapshotSaver.setupSnapshotWithState(registersOf(state()), fileName, state());
   }
 
@@ -99,6 +119,13 @@ public class Snapshots extends AbstractPeripheral {
   }
 
   public void load(String url) {
+    java.io.File file = new java.io.File(url);
+    java.util.Optional<com.fpetrola.oozx.formats.SnapshotFormat> format = formats().stream().filter(one -> one.reads(file)).findFirst();
+    if (format.isPresent()) {
+      loadWith(format.get(), file);
+      whateverKeepsFilesBesideIt(url);
+      return;
+    }
     SpectrumState snapshot = SnapshotLoader.readSnapshot(url);
     if (snapshot == null) {
       return;
@@ -106,6 +133,30 @@ public class Snapshots extends AbstractPeripheral {
     load(snapshot);
     state().clock.setTStates(snapshot.getTstates());
     whateverKeepsFilesBesideIt(url);
+  }
+
+  /** The formats that walk the machine, asked each time: one plugged in while running counts from then. */
+  private static java.util.List<com.fpetrola.oozx.formats.SnapshotFormat> formats() {
+    return com.fpetrola.oozx.plugins.Plugins.found(com.fpetrola.oozx.formats.SnapshotFormat.class);
+  }
+
+  /** What the last snapshot read or written with a format left out. */
+  public java.util.List<String> notes() {
+    return notes;
+  }
+
+  /** A file read by a format that walks the machine: the keys let go first, the screen drawn again after. */
+  private void loadWith(com.fpetrola.oozx.formats.SnapshotFormat format, java.io.File file) {
+    java.util.List<String> said = new java.util.ArrayList<>();
+    try {
+      byte[] bytes = java.nio.file.Files.readAllBytes(file.toPath());
+      keys.releaseAll();
+      format.read(bytes, speccy.get(), said::add);
+    } catch (java.io.IOException | com.fpetrola.emulation.helpers.snapshots.SnapshotException cannot) {
+      throw new RuntimeException(cannot);
+    }
+    notes = java.util.List.copyOf(said);
+    display.refreshAll();
   }
 
   /**
