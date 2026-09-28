@@ -24,7 +24,7 @@ package com.fpetrola.oozx.speccy.machine;
  * A program's write goes through the lock; a latch does not. The latch is for what is not a
  * program writing the port: the Beta putting the 48 ROM at the bottom.
  */
-public final class Paging implements com.fpetrola.oozx.speccy.parts.Visitable {
+public final class Paging {
   /** The +3's all-RAM maps, chosen by bits 1 and 2 of 0x1ffd. */
   private static final int[][] ALL_RAM = {{0, 1, 2, 3}, {4, 5, 6, 7}, {4, 5, 6, 3}, {4, 7, 6, 3}};
 
@@ -84,11 +84,5 @@ public final class Paging implements com.fpetrola.oozx.speccy.parts.Visitable {
   /** The +3's all-RAM configurations, bit 0 of its own port. */
   public boolean special() {
     return (port1ffd & 0x01) != 0;
-  }
-
-  /** Presents itself when the machine is walked. */
-  @Override
-  public void accept(com.fpetrola.oozx.speccy.parts.PartVisitor visitor) {
-    visitor.visit(this);
   }
 }

@@ -18,7 +18,7 @@
 package model.tests.machine;
 
 import com.fpetrola.oozx.Speccy;
-import com.fpetrola.oozx.speccy.machine.Paging;
+import com.fpetrola.oozx.speccy.machine.Spec48;
 import com.fpetrola.oozx.speccy.modules.display.Border;
 import com.fpetrola.oozx.speccy.modules.machine.Machine;
 import com.fpetrola.oozx.speccy.modules.memory.SpectrumMemory;
@@ -72,12 +72,12 @@ class TheMachineIsWalkedPartByPartTest {
   void theCoreComesFirstAndAlwaysInTheSameOrder() {
     List<Visitable> parts = walked();
     assertSame(speccy.machine, parts.get(0));
-    assertSame(speccy.cpu, parts.get(1));
-    assertSame(speccy.banks, parts.get(2));
-    assertSame(speccy.machine.current.paging(), parts.get(3));
+    assertSame(speccy.machine.current, parts.get(1));
+    assertSame(speccy.cpu, parts.get(2));
+    assertSame(speccy.banks, parts.get(3));
     assertSame(speccy.display.border, parts.get(4));
     assertSame(speccy.zxClock, parts.get(5));
-    assertEquals(List.of(Machine.class, Cpu.class, SpectrumMemory.class, Paging.class, Border.class, SpectrumZ80Clock.class),
+    assertEquals(List.of(Machine.class, Spec48.class, Cpu.class, SpectrumMemory.class, Border.class, SpectrumZ80Clock.class),
         parts.subList(0, 6).stream().map(Object::getClass).toList());
   }
 

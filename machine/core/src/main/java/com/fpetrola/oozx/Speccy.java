@@ -143,16 +143,16 @@ public class Speccy {
   }
 
   /**
-   * The machine walked part by part: the machine chosen, the processor, the memory, the paging,
-   * the border and the clock, always in that order, and then every peripheral that is switched on,
+   * The machine walked part by part: the machine, the model chosen (which pages the memory
+   * through its ports, when it does), the processor, the memory, the border and the clock, always in that order, and then every peripheral that is switched on,
    * in the order they were registered. What walks it - a file format reading a snapshot in or
    * writing one out, a description - meets each part as what it is.
    */
   public void accept(com.fpetrola.oozx.speccy.parts.PartVisitor visitor) {
     machine.accept(visitor);
+    machine.current.accept(visitor);
     cpu.accept(visitor);
     banks.accept(visitor);
-    machine.current.paging().accept(visitor);
     display.border.accept(visitor);
     zxClock.accept(visitor);
     peripheralRegistry.accept(visitor);

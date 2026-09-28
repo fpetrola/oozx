@@ -22,7 +22,7 @@ import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 
 import java.util.Set;
 
-public interface SpectrumMachine {
+public interface SpectrumMachine extends com.fpetrola.oozx.speccy.parts.Visitable {
   int reset();
 
   void memoryMap();
@@ -118,5 +118,11 @@ public interface SpectrumMachine {
 
   default boolean separatesTapeFromSpeaker() {
     return true;
+  }
+
+  /** Presents itself when the machine is walked: the model chosen, with the ports it pages through. */
+  @Override
+  default void accept(com.fpetrola.oozx.speccy.parts.PartVisitor visitor) {
+    visitor.visit(this);
   }
 }
