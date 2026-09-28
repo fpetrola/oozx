@@ -51,6 +51,14 @@ public interface SnapshotFormat {
     throw new SnapshotException(label() + " is not written");
   }
 
+  /**
+   * The RAM a file holds, bank after bank, understood without a machine: what a game is recognised
+   * by. Nothing if the format cannot say, or the file is not one of it.
+   */
+  default java.util.Optional<byte[]> ram(byte[] file) {
+    return java.util.Optional.empty();
+  }
+
   /** What the format is called, for saying which one a file is. */
   default String label() {
     return getClass().getSimpleName();
