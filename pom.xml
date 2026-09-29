@@ -31,7 +31,6 @@
         <module>emulator</module>
         <module>machine</module>
         <module>translation</module>
-        <module>prototypes/tdd</module>
     </modules>
 
     <properties>
