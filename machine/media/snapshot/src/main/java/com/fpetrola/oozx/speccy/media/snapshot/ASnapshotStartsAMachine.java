@@ -30,7 +30,9 @@ public class ASnapshotStartsAMachine implements StartsAMachineOn {
 
   @Override
   public boolean handles(File file) {
-    return com.fpetrola.emulation.helpers.snapshots.SnapshotFactory.getSnapshot(file) != null;
+    return com.fpetrola.oozx.plugins.Plugins.found(com.fpetrola.oozx.formats.SnapshotFormat.class).stream()
+        .anyMatch(format -> format.reads(file))
+        || com.fpetrola.emulation.helpers.snapshots.SnapshotFactory.getSnapshot(file) != null;
   }
 
   @Override

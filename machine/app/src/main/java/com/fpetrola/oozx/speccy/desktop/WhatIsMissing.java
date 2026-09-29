@@ -48,6 +48,7 @@ final class WhatIsMissing {
   private static final List<String> ANSWERING = java.util.stream.Stream.of(
       com.fpetrola.oozx.speccy.machine.StartsAMachineOn.class,
       com.fpetrola.emulation.helpers.snapshots.SnapshotFile.class,
+      com.fpetrola.oozx.formats.SnapshotFormat.class,
       com.fpetrola.oozx.speccy.devices.Equipment.class,
       com.fpetrola.oozx.Extension.class,
       com.fpetrola.oozx.plugins.BesideTheGame.class).map(Class::getName).toList();
