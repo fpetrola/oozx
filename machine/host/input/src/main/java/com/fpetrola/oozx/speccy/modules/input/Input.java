@@ -318,7 +318,7 @@ public class Input extends AbstractPeripheral {
 
   /** @return whether the key was the joystick's and the machine's own keyboard should not see it */
   private boolean asJoystick(InputKey key, boolean press) {
-    Joystick.JoystickButton button = setup.keyboard.pushes(key, !press || joystick.kempstonInUse());
+    Joystick.JoystickButton button = setup.keyboard.pushes(key, !press || joystick.inUse() != null);
     return button != null && joystick.press(joystick.JOYSTICK_KEYBOARD, button, press);
   }
 

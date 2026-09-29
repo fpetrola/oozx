@@ -62,7 +62,8 @@ public class Joystick {
   /** How long after a read the joystick still counts as in use: a few frames. */
   private static final long IN_USE_NANOS = 250_000_000L;
 
-  private long lastKempstonRead = Long.MIN_VALUE / 2;
+  /** When the machine last read each joystick that has a port of its own. */
+  private final Map<JoystickType, Long> lastRead = new java.util.concurrent.ConcurrentHashMap<>();
   private final Keyboard keyboard;
   private final Input.Setup setup;
   /** One per kind, made once: what a Kempston reads is the same whichever socket it is in. */
@@ -85,7 +86,7 @@ public class Joystick {
         SpectrumKey.ONE, SpectrumKey.TWO, SpectrumKey.FOUR, SpectrumKey.THREE, SpectrumKey.FIVE));
   }
 
-  /** What is plugged into that socket, which is a setting; a pad with nothing chosen is a Kempston. */
+  /** What is plugged into that socket, which is a setting; a pad with nothing chosen is the one the game reads. */
   private JoystickKind in(int socket) {
     JoystickType type = switch (socket) {
       case 0 -> setup.joystick1.output;
@@ -94,7 +95,7 @@ public class Joystick {
       default -> null;
     };
     if (type == null) {
-      type = JoystickType.JOYSTICK_TYPE_KEMPSTON;
+      type = inUse() != null ? inUse() : JoystickType.JOYSTICK_TYPE_KEMPSTON;
     }
     return kinds.get(type);
   }
@@ -107,32 +108,48 @@ public class Joystick {
 
   /** The machine reading its Kempston port, which is also what says the joystick is being used. */
   public BusAnswer kempstonRead(int port) {
-    lastKempstonRead = System.nanoTime();
-    return BusAnswer.of(kempstonReads());
+    return BusAnswer.of(read(JoystickType.JOYSTICK_TYPE_KEMPSTON));
   }
 
   /** What that port answers, for anything showing the joystick rather than playing with it. */
   public byte kempstonReads() {
-    return kinds.get(JoystickType.JOYSTICK_TYPE_KEMPSTON).reads();
+    return reads(JoystickType.JOYSTICK_TYPE_KEMPSTON);
+  }
+
+  public byte reads(JoystickType type) {
+    return kinds.get(type).reads();
+  }
+
+  private byte read(JoystickType type) {
+    lastRead.put(type, System.nanoTime());
+    return reads(type);
+  }
+
+  /** @deprecated what {@link #inUse()} says for the Kempston alone; kept for plugins built against it. */
+  @Deprecated
+  public boolean kempstonInUse() {
+    return inUse() == JoystickType.JOYSTICK_TYPE_KEMPSTON;
   }
 
   /**
-   * Whether something on the machine has just read the Kempston port.
+   * The joystick with a port of its own that the machine has just read, or null.
    * <p>
-   * A game that reads it reads it every frame, whether or not anything is pushed, so this is on
-   * throughout a game that uses the joystick and off in one that does not - which is what tells
-   * the keys standing in for a pad whether the machine wants them as a joystick or as keys.
+   * A game that reads one reads it every frame, whether or not anything is pushed, so this names
+   * it throughout a game that uses it and is null in one that does not - which is what tells the
+   * keys standing in for a pad whether the machine wants them as a joystick or as keys.
    */
-  public boolean kempstonInUse() {
-    return System.nanoTime() - lastKempstonRead < IN_USE_NANOS;
+  public JoystickType inUse() {
+    long now = System.nanoTime();
+    return lastRead.entrySet().stream().filter(read -> now - read.getValue() < IN_USE_NANOS)
+        .map(Map.Entry::getKey).findFirst().orElse(null);
   }
 
   /** The Timex has two ports; which one is asked for. */
   public byte timexRead(int port, int which) {
-    return kinds.get(which != 0 ? JoystickType.JOYSTICK_TYPE_TIMEX_2 : JoystickType.JOYSTICK_TYPE_TIMEX_1).reads();
+    return read(which != 0 ? JoystickType.JOYSTICK_TYPE_TIMEX_2 : JoystickType.JOYSTICK_TYPE_TIMEX_1);
   }
 
   public BusAnswer fullerRead(int port) {
-    return BusAnswer.of(kinds.get(JoystickType.JOYSTICK_TYPE_FULLER).reads());
+    return BusAnswer.of(read(JoystickType.JOYSTICK_TYPE_FULLER));
   }
 }

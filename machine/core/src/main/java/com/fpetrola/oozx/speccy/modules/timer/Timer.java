@@ -47,8 +47,6 @@ public class Timer {
   private static final int TEN_MS = 10;
   private final Sound.Output soundOutput;
   private final Speed speed;
-  /** Whether the machine is loading, which is when it may run flat out: said by whoever is feeding it. */
-  private java.util.function.BooleanSupplier loading = () -> false;
   private boolean changeRequested = false;
   /** Set from whatever thread changed the speed; read by the tick, which is the machine's own. */
   private volatile boolean speedWasSetElsewhere;
@@ -135,8 +133,9 @@ public class Timer {
     return 0;
   }
 
+  /** @deprecated the tape now takes the speed up itself; kept for plugins built against it. */
+  @Deprecated
   public void loading(java.util.function.BooleanSupplier loading) {
-    this.loading = loading;
   }
 
   private final class Tick extends Task {
@@ -157,35 +156,30 @@ public class Timer {
         return;
       }
 
-      if (speed.fastLoading && loading.getAsBoolean()) {
-        long nextCheckTime = lastTstates + machine.get().current.getTimings().tstatesPerFrame();
-        scheduler.schedule(this, nextCheckTime);
-      } else {
-        float factor = Math.max(speed.emulation, 1) / 100.0f;
-        while (true) {
-          double currentTime = getTime();
-          if (currentTime < 0) {
-            return;
-          }
-          double difference = currentTime - startTime;
-          if (difference < 0) {
-            sleep(TEN_MS);
-          } else {
-            break;
-          }
-        }
-
+      float factor = Math.max(speed.emulation, 1) / 100.0f;
+      while (true) {
         double currentTime = getTime();
         if (currentTime < 0) {
           return;
         }
         double difference = currentTime - startTime;
-        // Clamped: at an unlimited speed the grant for one tick overflowed an int and came out
-        // negative, which fired the timer at once and again, and the machine stood still.
-        int tstates = (int) Math.min(((difference + TEN_MS / 1000.0) * machine.get().current.getTimings().processorSpeed()) * factor + 0.5, Integer.MAX_VALUE / 2);
-        scheduler.schedule(this, lastTstates + tstates);
-        startTime = currentTime + TEN_MS / 1000.0;
+        if (difference < 0) {
+          sleep(TEN_MS);
+        } else {
+          break;
+        }
       }
+
+      double currentTime = getTime();
+      if (currentTime < 0) {
+        return;
+      }
+      double difference = currentTime - startTime;
+      // Clamped: at an unlimited speed the grant for one tick overflowed an int and came out
+      // negative, which fired the timer at once and again, and the machine stood still.
+      int tstates = (int) Math.min(((difference + TEN_MS / 1000.0) * machine.get().current.getTimings().processorSpeed()) * factor + 0.5, Integer.MAX_VALUE / 2);
+      scheduler.schedule(this, lastTstates + tstates);
+      startTime = currentTime + TEN_MS / 1000.0;
     }
   }
 

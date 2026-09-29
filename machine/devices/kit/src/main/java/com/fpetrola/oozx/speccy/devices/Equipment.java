@@ -40,4 +40,9 @@ public interface Equipment {
   default boolean opens(java.io.File file) {
     return false;
   }
+
+  /** Whether that machine has started using this, so its window opens clipped to it by itself. */
+  default boolean usedBy(com.fpetrola.oozx.Speccy machine) {
+    return false;
+  }
 }

@@ -606,6 +606,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
 
     desktop = new JDesktopPane();
     add(desktop, BorderLayout.CENTER);
+    new Timer(1000, e -> openWhatTheMachineUses()).start();
 
     // Menu Bar
     JMenuBar menuBar = createMenuBar();
@@ -1956,6 +1957,21 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       default -> { }
     }
     return false;
+  }
+
+  /** Which machine windows already had each kind opened for them, so closing it keeps it closed. */
+  private final java.util.Map<JInternalFrame, java.util.Set<String>> openedFor = new java.util.WeakHashMap<>();
+
+  private void openWhatTheMachineUses() {
+    EmulatorInternalFrame front = machineBeingUsed();
+    if (front == null || front.machine() == null) return;
+    for (Equipment kind : has.equipment()) {
+      if (kind.usedBy(front.machine()) && openedFor.computeIfAbsent(front, k -> new java.util.HashSet<>()).add(kind.name())) {
+        MachineFrame window = show(kind);
+        window.setSize(Math.max(front.getWidth() / 3, 280), front.getHeight() / 2);
+        window.attachTo(front, com.fpetrola.oozx.speccy.windows.AttachedFrame.Dock.RIGHT);
+      }
+    }
   }
 
   /** The machine in front, or the machine whatever is in front is clipped onto. */

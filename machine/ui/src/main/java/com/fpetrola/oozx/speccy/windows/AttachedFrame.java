@@ -708,9 +708,15 @@ public abstract class AttachedFrame extends JInternalFrame {
    * play into. Asking for a machine is asking to be plugged into it.
    */
   public void attachTo(JInternalFrame machine) {
-    dock = Dock.BOTTOM;
+    attachTo(machine, Dock.BOTTOM);
+  }
+
+  /** The same, against that side of the machine, and put there now rather than when it next moves. */
+  public void attachTo(JInternalFrame machine, Dock side) {
+    dock = side;
     dockButton.setSelected(true);
     setMachineWindow(machine);
+    place();
   }
 
   /**

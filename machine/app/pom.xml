@@ -126,6 +126,15 @@
          Los perifericos llegan por service file, asi que las entradas de META-INF/services
          de todos los modulos se concatenan en vez de pisarse. -->
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/crystal</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

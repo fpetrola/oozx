@@ -153,6 +153,10 @@ public final class Settings {
 
         public void set(String property, Object value) {
           configuration.get().setValue(name, property, value);
+          if (value == null) return;
+          // Each open machine writes what it holds into the file before it is saved, so it has to hold this too.
+          List.copyOf(OPEN.keySet()).forEach(open -> open.mirrors.stream()
+              .filter(mirror -> mirror.name.equals(name)).forEach(mirror -> mirror.live().set(property, value)));
         }
       };
     }
@@ -293,10 +297,14 @@ public final class Settings {
 
     gather = () -> from(injector);
     configuration.beforeSave(gather);
+    OPEN.put(this, true);
   }
 
   private Runnable gather;
   private List<Mirror> mirrors = List.of();
+  /** The settings of every machine that is open, held weakly like the file holds their gathering. */
+  private static final java.util.Map<Settings, Boolean> OPEN =
+      java.util.Collections.synchronizedMap(new java.util.WeakHashMap<>());
 
   /** The devices of this machine that have settings, with their own instances behind them. */
   public List<Configurable> devices() {
@@ -310,6 +318,7 @@ public final class Settings {
 
   public void letGo() {
     configuration.notBeforeSave(gather);
+    OPEN.remove(this);
   }
 
   public void from(Injector injector) {

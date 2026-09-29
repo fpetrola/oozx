@@ -101,14 +101,15 @@ public class PluginReleases implements Configuration.Saves {
 
   /**
    * The boards that would answer for this under any of these roles: a machine as a snapshot
-   * names it, or a kind of file. Each board says it itself, in what it was compiled with.
+   * names it, or a kind of file. Each board says it itself, in what it was compiled with, and
+   * comes from wherever the plugins are offered: the ones the app carries count as much as the
+   * published ones.
    */
-  public static List<Board> bringing(String wanted, List<String> roles) throws IOException, InterruptedException {
-    java.util.Set<String> ids = new java.util.HashSet<>();
-    for (String role : roles) {
-      Plugins.managing().availableAnswering(role, wanted).forEach(artifact -> ids.add(artifact.id()));
-    }
-    return published().stream().filter(board -> ids.contains(whichBoard(board.jar()))).toList();
+  public static List<Board> bringing(String wanted, List<String> roles) {
+    return roles.stream()
+        .flatMap(role -> Plugins.managing().availableAnswering(role, wanted).stream())
+        .map(artifact -> new Board(artifact.id(), artifact.id() + "-" + artifact.version() + ".jar", null, 0, 0))
+        .distinct().toList();
   }
 
   /**
