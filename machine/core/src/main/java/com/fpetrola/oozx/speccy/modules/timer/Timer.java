@@ -204,13 +204,9 @@ public class Timer {
     }
   }
 
-  /** Where the clock is put when the speed changes, which is near the end of a frame. */
-  private static final int REBASED_TO = 60000;
-
   /**
-   * How fast the machine is asked to run from now on. The clock is rebased because the pacing is
-   * worked out from a T-state count that a speed change makes meaningless, and the sound is
-   * rebuilt because a frame's worth of samples is sized for the speed it is played at.
+   * How fast the machine is asked to run from now on. The pacing starts measuring again, and the
+   * sound is rebuilt because a frame's worth of samples is sized for the speed it is played at.
    */
   public void changeSpeed(int emulationSpeed) {
     speed.emulation = Speed.sensible(emulationSpeed);
@@ -229,13 +225,11 @@ public class Timer {
     if (machine.get() == null || machine.get().current == null) {
       return;
     }
-    // Through the scheduler, because everything waiting has to move with the clock. Moving the
-    // clock alone left a tape edge due in two hundred T-states due fifty thousand later, or already
-    // past and fired at once, depending on where in the frame the speed was changed - and a loader
-    // told that a pulse lasted a frame stops loading.
-    scheduler.moveClockTo(REBASED_TO);
+    // The clock is left where it is: a speed is how fast T-states pass in real time, not where the
+    // machine is in its frame. Moving it to a fixed T-state jumped the frame and brought the next
+    // interrupt early, which crashed a loader or a game caught at that moment.
     this.changeRequested = true;
-    scheduler.schedule(tick, REBASED_TO + 10000);
+    scheduler.schedule(tick, clock.getTStates() + 10000);
     sound.rebuildOutput();
   }
 
