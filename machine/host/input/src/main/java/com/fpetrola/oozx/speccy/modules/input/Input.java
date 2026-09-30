@@ -477,7 +477,8 @@ public class Input extends AbstractPeripheral {
        * <p>
        * A direction nobody chose is the arrow that looks like it, and fire is space, while no pad
        * is plugged in: with nothing else holding the Kempston, the keys are what is left to hold
-       * it. Space under fire is what Fuse does too.
+       * it. Space under fire is what Fuse does too, and Ctrl fires as well: many keyboards cannot
+       * report space with two arrows held, and a modifier is wired apart from the rest.
        * <p>
        * Those stand-in keys are only taken while {@code standingIn} says they are wanted - the
        * machine is reading its Kempston port - because space is a key of the Spectrum too, and a
@@ -490,7 +491,8 @@ public class Input extends AbstractPeripheral {
         if (key == orStandIn(down, InputKey.INPUT_KEY_Down, standingIn)) return Joystick.JoystickButton.JOYSTICK_BUTTON_DOWN;
         if (key == orStandIn(left, InputKey.INPUT_KEY_Left, standingIn)) return Joystick.JoystickButton.JOYSTICK_BUTTON_LEFT;
         if (key == orStandIn(right, InputKey.INPUT_KEY_Right, standingIn)) return Joystick.JoystickButton.JOYSTICK_BUTTON_RIGHT;
-        if (key == orStandIn(fire, InputKey.INPUT_KEY_space, standingIn)) return Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE;
+        if (key == orStandIn(fire, InputKey.INPUT_KEY_space, standingIn)
+            || key == orStandIn(fire, InputKey.INPUT_KEY_Control_L, standingIn)) return Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE;
         return null;
       }
 
