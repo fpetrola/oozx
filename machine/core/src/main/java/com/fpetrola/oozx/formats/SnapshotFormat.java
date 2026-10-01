@@ -63,4 +63,26 @@ public interface SnapshotFormat {
   default String label() {
     return getClass().getSimpleName();
   }
+
+  /**
+   * What the file carries that a game otherwise keeps in files beside it, each under the ending
+   * such a file would have - "gfx", "cfg" - so that whoever uses them needs to know nothing of
+   * the format.
+   */
+  default java.util.Map<String, byte[]> carried(byte[] file) {
+    return java.util.Map.of();
+  }
+
+  /** The same for a file on the disk, asked of whichever format reads it. */
+  static java.util.Map<String, byte[]> carriedBy(File file) {
+    for (SnapshotFormat format : com.fpetrola.oozx.plugins.Plugins.found(SnapshotFormat.class)) {
+      if (!format.reads(file)) continue;
+      try {
+        return format.carried(java.nio.file.Files.readAllBytes(file.toPath()));
+      } catch (java.io.IOException | RuntimeException unreadable) {
+        return java.util.Map.of();
+      }
+    }
+    return java.util.Map.of();
+  }
 }

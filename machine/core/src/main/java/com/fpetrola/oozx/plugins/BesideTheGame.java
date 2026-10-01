@@ -51,15 +51,25 @@ public interface BesideTheGame {
     java.io.File file = new java.io.File(game);
     if (!file.isFile()) return null;
     for (String kind : kindsBeside(file)) {
-      try {
-        for (PluginReleases.Board board : PluginReleases.bringing(kind, java.util.List.of(BesideTheGame.class.getName()))) {
-          return board.name() + " (not installed)";
-        }
-      } catch (Exception cannotAsk) {
-        return null;
-      }
+      String says = WHO_WOULD_SAY.computeIfAbsent(kind, BesideTheGame::askedOfWhatIsOffered);
+      if (!says.isEmpty()) return says;
     }
     return null;
+  }
+
+  /**
+   * Who would say it, kept by the kind of file: the offer is the same for every game, and asking it
+   * once per game beside which a .tap had its .tzx took seconds out of every search of the disk.
+   */
+  java.util.Map<String, String> WHO_WOULD_SAY = new java.util.concurrent.ConcurrentHashMap<>();
+
+  private static String askedOfWhatIsOffered(String kind) {
+    try {
+      return PluginReleases.bringing(kind, java.util.List.of(BesideTheGame.class.getName())).stream()
+          .findFirst().map(board -> board.name() + " (not installed)").orElse("");
+    } catch (Exception cannotAsk) {
+      return "";
+    }
   }
 
   /** Lo que trae un juego ademas de si mismo: la clase de cada archivo con su nombre al lado. */
