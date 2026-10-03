@@ -47,23 +47,7 @@ public class MachinePortBus implements PortBus {
   public byte read(int port) {
     byte value = bus.read(port);
     z80Clock.addTStates(1);
-    for (ReadListener listener : readListeners) listener.read(port, value & 0xff);
     return value;
-  }
-
-  /** Told what a read of a port answered, which is what a recording of the machine being played keeps. */
-  public interface ReadListener {
-    void read(int port, int value);
-  }
-
-  private final java.util.List<ReadListener> readListeners = new java.util.concurrent.CopyOnWriteArrayList<>();
-
-  public void whenRead(ReadListener listener) {
-    readListeners.add(listener);
-  }
-
-  public void stopTellingAboutReads(ReadListener listener) {
-    readListeners.remove(listener);
   }
 
   public void write(int port, byte b) {

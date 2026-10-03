@@ -64,11 +64,35 @@ public class Processors {
   private final MachineLoop loop;
   private Cpu cpu;
   private final List<Runnable> listeners = new CopyOnWriteArrayList<>();
+  private final List<ReadListener> readListeners = new CopyOnWriteArrayList<>();
+
+  /** Told what every port read answered, whoever answered it: the hardware, or a recording being replayed. */
+  public interface ReadListener {
+    void read(int port, int value);
+  }
+
+  public void whenRead(ReadListener listener) {
+    readListeners.add(listener);
+  }
+
+  public void stopTellingAboutReads(ReadListener listener) {
+    readListeners.remove(listener);
+  }
 
   @Inject
   public Processors(SpectrumZ80Clock zxClock, IO io, @StartsOn Core core, Set<Core> available, MachineLoop loop, ProcessorWiring wiring) {
     this.zxClock = zxClock;
-    this.io = io;
+    this.io = new IO() {
+      public int in(int port) {
+        int value = io.in(port);
+        for (ReadListener listener : readListeners) listener.read(port, value);
+        return value;
+      }
+
+      public void out(int port, int value) {
+        io.out(port, value);
+      }
+    };
     this.core = core;
     this.available = available;
     this.loop = loop;
