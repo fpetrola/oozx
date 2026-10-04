@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2025 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2024 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,33 +18,28 @@
 
 package com.fpetrola.z80.se;
 
-import com.fpetrola.z80.blocks.Block;
-import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
+import com.fpetrola.z80.cpu.CachedInstructionFetcher;
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
-import com.fpetrola.z80.instructions.impl.DJNZ;
-import com.fpetrola.z80.instructions.impl.Push;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.Routine;
+import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
-import com.fpetrola.z80.se.actions.AddressAction;
-import com.fpetrola.z80.se.actions.ExecutionStackStorage;
-import com.fpetrola.z80.se.actions.JPRegisterAddressAction;
+import com.fpetrola.z80.se.actions.*;
 import com.fpetrola.z80.se.instructions.SEInstructionFactory;
 import com.fpetrola.z80.spy.ExecutionListener;
-import com.fpetrola.z80.spy.InstructionSpy;
-import com.fpetrola.z80.spy.MemorySpy;
 import com.fpetrola.z80.spy.WriteMemoryReference;
 import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
+import com.fpetrola.z80.transformations.StackAnalyzer;
 
 import java.util.*;
 
@@ -58,33 +53,64 @@ public class SymbolicExecutionAdapter {
   private int nextSP;
   private Z80InstructionDriver z80InstructionDriver;
   private int minimalValidCodeAddress;
-  private Set<java.lang.Integer> mutantAddress = new HashSet<>();
+  private Set<Integer> mutantAddress = new HashSet<>();
   private Register pc;
   private DataflowService dataflowService;
   private SEInstructionFactory sEInstructionFactory;
-  /**
-   * Which stack slot holds a return address, and whose.
-   * <p>
-   * An int carries no identity, so what used to be answered by asking an object what it was has
-   * to be written down beside the stack instead.
-   */
-  private final Map<java.lang.Integer, ReturnAddressWordNumber> returnAddressesInStack = new HashMap<>();
 
-  /** Writes down that a return address was pushed at this slot. */
-  public void markReturnAddress(int stackAddress, ReturnAddressWordNumber returnAddress) {
-    returnAddressesInStack.put(stackAddress, returnAddress);
+  public StackAnalyzer getStackAnalyzer() {
+    return stackAnalyzer;
   }
 
-  /**
-   * Takes the mark back, and only if the slot still holds what was pushed there: a program that
-   * has written over it left an address behind, not a return.
-   */
-  public ReturnAddressWordNumber takeReturnAddress(int stackAddress, int currentValue) {
-    ReturnAddressWordNumber returnAddress = returnAddressesInStack.get(stackAddress);
-    if (returnAddress == null || returnAddress.value != (currentValue & 0xFFFF))
-      return null;
-    returnAddressesInStack.remove(stackAddress);
-    return returnAddress;
+  private StackAnalyzer stackAnalyzer;
+  private final RoutineFinder routineFinder;
+  private final InstructionExecutor instructionExecutor;
+
+  public SymbolicExecutionAdapter(State state, RoutineManager routineManager, RoutineFinderInstructionSpy spy, DataflowService dataflowService1, StackAnalyzer stackAnalyzer, RoutineFinder routineFinder, InstructionExecutor instructionExecutor) {
+    this.state = state;
+    this.routineManager = routineManager;
+    this.spy = spy;
+    this.stackAnalyzer = stackAnalyzer;
+    this.routineFinder = routineFinder;
+    this.instructionExecutor = instructionExecutor;
+    mutantAddress.clear();
+    dataflowService = dataflowService1;
+    routineExecutorHandler = new RoutineExecutorHandler(state, new ExecutionStackStorage(state, stackAnalyzer), dataflowService, stackAnalyzer);
+    this.stackAnalyzer.addEventListener(new StackListener() {
+      public boolean jumpUsingRet(int pcValue, Set<Integer> jumpAddresses) {
+        AddressAction addressAction = routineExecutorHandler.getCurrentRoutineExecution().getAddressAction(pcValue);
+        if (!(addressAction instanceof JumpUsingRetAddressAction))
+          routineExecutorHandler.getCurrentRoutineExecution().replaceAddressAction(new JumpUsingRetAddressAction(pcValue, jumpAddresses, routineExecutorHandler));
+        return StackListener.super.jumpUsingRet(pcValue, jumpAddresses);
+      }
+    });
+
+    instructionExecutor.addTopExecutionListener(new ExecutionListener() {
+      public void beforeExecution(Instruction instruction) {
+        int pcValue = state.getPc().read();
+
+        RoutineExecution currentRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
+        AddressAction addressAction = currentRoutineExecution.getAddressAction(pcValue);
+        if (addressAction == null) {
+          RoutineExecution routineExecution = routineExecutorHandler.getCurrentRoutineExecution();
+          if (instruction instanceof ConditionalInstruction<?> conditionalInstruction) {
+            addressAction = routineExecution.replaceIfAbsent(getPcValue(), routineExecution.createAddressAction(instruction, conditionalInstruction.getCondition() instanceof ConditionAlwaysTrue, getPcValue()));
+          } else
+            addressAction = routineExecution.createAndAddGenericAction(pcValue);
+        }
+
+        if (instruction instanceof ConditionalInstruction<?>) {
+          ExecutionStackStorage executionStackStorage = addressAction.getExecutionStackStorage();
+          if (executionStackStorage.isSaved())
+            executionStackStorage.restore();
+          else
+            executionStackStorage.save();
+        }
+      }
+
+      public void afterExecution(Instruction instruction) {
+      }
+    });
   }
 
   public int getPcValue() {
@@ -98,52 +124,27 @@ public class SymbolicExecutionAdapter {
     spy.reset(state);
     nextSP = 0;
     lastPc = 0;
-    returnAddressesInStack.clear();
     sEInstructionFactory.reset();
+    routineFinder.reset();
   }
 
-  public SymbolicExecutionAdapter(State state, RoutineManager routineManager, RoutineFinderInstructionSpy spy, DataflowService dataflowService1) {
-    this.state = state;
-    this.routineManager = routineManager;
-    this.spy = spy;
-    this.spy.addExecutionListener(new ExecutionListener() {
-      public void beforeExecution(Instruction instruction) {
-//        System.out.println(instruction);
-      }
-
-      public void afterExecution(Instruction instruction) {
-//        System.out.println(instruction);
-
-      }
-    });
-    mutantAddress.clear();
-    dataflowService = dataflowService1;
-    routineExecutorHandler = new RoutineExecutorHandler(state, new ExecutionStackStorage(state), dataflowService);
-  }
-
-  public InstructionFetcher createInstructionFetcher(InstructionSpy spy, State state, InstructionExecutor instructionExecutor, OpcodeConditions opcodeConditions) {
-    return new DefaultInstructionFetcher(state, opcodeConditions, createInstructionFactory(state), true, true);
+  public InstructionFetcher createInstructionFetcher(State state, OpcodeConditions opcodeConditions) {
+    return new CachedInstructionFetcher(state, opcodeConditions, createInstructionFactory(state), true);
   }
 
   public InstructionFactory createInstructionFactory(final State state) {
-    return sEInstructionFactory= new SEInstructionFactory(this, state, dataflowService);
+    return sEInstructionFactory = new SEInstructionFactory(this, state, dataflowService);
   }
 
   public  MutableOpcodeConditions createOpcodeConditions(State state) {
     return new MutableOpcodeConditions(state, (instruction, alwaysTrue, doBranch) -> {
-      System.out.printf("pc: %s -> %s%n", Helper.formatAddress(getPcValue()), instruction);
-
-      if (instruction instanceof DJNZ)
-        System.out.println("dsagsdgsdag");
-      RoutineExecution routineExecution = routineExecutorHandler.getCurrentRoutineExecution();
-      AddressAction addressAction = routineExecution.replaceIfAbsent(getPcValue(), routineExecution.createAddressAction(instruction, alwaysTrue, getPcValue()));
-      return addressAction.processBranch(instruction);
+//      System.out.printf("pc: %s -> %s%n", Helper.formatAddress(getPcValue()), instruction);
+      return routineExecutorHandler.getCurrentRoutineExecution().getAddressAction(getPcValue()).processBranch(instruction);
     });
   }
 
   public void stepUntilComplete(Z80InstructionDriver z80InstructionDriver, State state, int firstAddress, int minimalValidCodeAddress) {
     stepAllAndProcessPending(z80InstructionDriver, state, firstAddress, minimalValidCodeAddress);
-    processPending();
     routineManager.createVirtualRoutines();
   }
 
@@ -160,91 +161,22 @@ public class SymbolicExecutionAdapter {
 
     executeAllCode(z80InstructionDriver, pc);
 
+//    processPending();
+    checkPending();
     List<WriteMemoryReference> writeMemoryReferences = spy.getWriteMemoryReferences();
 
-    SEInstructionFactory.dynamicJP.forEach((pc, dj) -> {
-      for (int j = 0; j < writeMemoryReferences.size(); j++) {
-        WriteMemoryReference w = writeMemoryReferences.get(j);
-        if (w.address == dj.pointerAddress()) {
-          WriteMemoryReference w2 = writeMemoryReferences.get(j + 1);
-          if (w2.address == dj.pointerAddress() + 1) {
-            int value = w2.value * 256 + w.value;
-            dj.addCase(value);
-          }
-        }
-      }
-    });
+    findMutantCode(writeMemoryReferences);
+  }
+
+  private void findMutantCode(List<WriteMemoryReference> writeMemoryReferences) {
     writeMemoryReferences.forEach(wmr -> {
       Routine routineAt = routineManager.findRoutineAt(wmr.address);
       if (routineAt != null) {
+        if (wmr.address == 0xb894)
+          System.out.println("asasgsag");
         mutantAddress.add(wmr.address);
       }
     });
-  }
-
-  private void processPending() {
-    Map<java.lang.Integer, RoutineExecution> routineExecutions1 = routineExecutorHandler.getCopyListOfRoutineExecutions();
-    routineExecutions1.entrySet().forEach(e -> {
-      if (e.getValue().hasPendingPoints()) {
-        executingPending(e.getValue().getNextPending().address);
-        System.err.println("pending action: " + e.getValue());
-      }
-      Optional<AddressAction> foundAction = e.getValue().findActionOfType(JPRegisterAddressAction.class);
-      if (foundAction.isPresent()) {
-        JPRegisterAddressAction jpRegisterAddressAction = (JPRegisterAddressAction) foundAction.get();
-        if (jpRegisterAddressAction.dynamicJPData == null) {
-          JPRegisterAddressAction.DynamicJPData dynamicJPData = SEInstructionFactory.dynamicJP.get(jpRegisterAddressAction.address);
-          jpRegisterAddressAction.setDynamicJPData(dynamicJPData);
-          List<java.lang.Integer> integers = routineManager.callers2.get(e.getValue().getStart());
-          if (!integers.isEmpty()) {
-            java.lang.Integer first1 = integers.get(0);
-            int startAddress = first1;
-            pushAddress(startAddress); //FiXME: calculate minimal ret to run
-            pushAddress(startAddress);
-            pushAddress(startAddress);
-            pushAddress(startAddress);
-            executingPending(jpRegisterAddressAction.address);
-//          stepAllAndProcessPending(z80InstructionDriver, (State) state, first1, minimalValidCodeAddress);
-          } else {
-            solveUntrackedCases(dynamicJPData, jpRegisterAddressAction, dynamicJPData.pointer());
-          }
-        }
-      }
-    });
-  }
-
-  private void solveUntrackedCases(JPRegisterAddressAction.DynamicJPData dynamicJPData, JPRegisterAddressAction jpRegisterAddressAction, int pointer) {
-
-    dynamicJPData.cases.clear();
-    dynamicJPData.addCase(pointer);
-    jpRegisterAddressAction.setDynamicJPData(dynamicJPData);
-    int address = jpRegisterAddressAction.address;
-    routineExecutorHandler.createRoutineExecution(pointer);
-    pc.write(pointer);
-    executeAllCode(z80InstructionDriver, pc);
-    Routine routineAt = routineManager.findRoutineAt(pointer);
-    if (routineAt != null) {
-      Block blockOf = routineAt.findBlockOf(pointer);
-      int endAddress = blockOf.getRangeHandler().getEndAddress();
-      int pointer1 = endAddress + 1;
-      Routine routineAt1 = routineManager.findRoutineAt(pointer1);
-      if (routineAt1 == null) {
-        solveUntrackedCases(dynamicJPData, jpRegisterAddressAction, pointer1);
-      }
-    }
-  }
-
-  private void executingPending(int address) {
-    RoutineExecution routineExecutionAt = routineExecutorHandler.findRoutineExecutionContaining(address);
-    routineExecutorHandler.pushRoutineExecution(routineExecutionAt);
-    pc.write(address);
-    executeAllCode(z80InstructionDriver, pc);
-  }
-
-  private void pushAddress(int startAddress) {
-    Register registerSP1 =  state.getRegisterSP();
-    Memory memory =  state.getMemory();
-    Push.doPush(startAddress, registerSP1, memory);
   }
 
   private void executeAllCode(Z80InstructionDriver z80InstructionDriver, Register pc) {
@@ -255,6 +187,8 @@ public class SymbolicExecutionAdapter {
       var pcValue = pc.read();
       ready = isReady(pcValue);
 
+      if (pcValue == 34493)
+        System.out.println("aca!");
       if (!ready) {
         var routineExecution = routineExecutorHandler.getCurrentRoutineExecution();
 
@@ -262,16 +196,15 @@ public class SymbolicExecutionAdapter {
         if (addressAction != null)
           pcValue = updatePcRegister(addressAction.getNextPC());
 
-        routineExecutorHandler.getExecutionStackStorage().printStack();
+//        routineExecutorHandler.getExecutionStackStorage().printStack();
 
         if (pcValue == -1)
           ready = true;
         else {
           z80InstructionDriver.step();
-          routineExecutorHandler.getExecutionStackStorage().printStack();
+          this.stackAnalyzer.listenEvents(new SEStackListener(this));
 
-          if (!routineExecution.hasActionAt(pcValue))
-            routineExecution.createAndAddGenericAction(pcValue);
+//          routineExecutorHandler.getExecutionStackStorage().printStack();
 
           updatePcRegister(routineExecution.getAddressAction(pcValue).getNext(pcValue, pc.read()));
 
@@ -289,16 +222,11 @@ public class SymbolicExecutionAdapter {
   }
 
   private void logPC(int pcValue) {
-    if (pcValue == 0xED09)
-      System.out.println("epa!");
-    System.out.println("PC: " + Helper.formatAddress(pcValue));
-//        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read().intValue()));
+//    System.out.println("PC: " + Helper.formatAddress(pcValue));
+//        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read()));
   }
 
   private boolean isReady(int pcValue) {
-    if (pcValue == 38243)
-      System.out.print("");
-
     if (pcValue < minimalValidCodeAddress)
       return true;
     return false;
@@ -310,13 +238,114 @@ public class SymbolicExecutionAdapter {
     }
   }
 
+  private void executingPending(int address) {
+    RoutineExecution routineExecutionAt = routineExecutorHandler.findRoutineExecutionContaining(address);
+    routineExecutorHandler.pushRoutineExecution(routineExecutionAt);
+    pc.write(address);
+    executeAllCode(z80InstructionDriver, pc);
+  }
+
+  private void processPending() {
+    Map<Integer, RoutineExecution> routineExecutions1 = routineExecutorHandler.getCopyListOfRoutineExecutions();
+    routineExecutions1.entrySet().forEach(e -> {
+      if (e.getValue().hasPendingPoints()) {
+        executingPending(e.getValue().getStart());
+      }
+    });
+  }
+
+  private void checkPending() {
+    Map<Integer, RoutineExecution> routineExecutions1 = routineExecutorHandler.getCopyListOfRoutineExecutions();
+    routineExecutions1.entrySet().forEach(e -> {
+      if (e.getValue().hasPendingPoints()) {
+        System.err.println("pending action: " + e.getValue());
+      }
+    });
+  }
+
   protected void memoryReadOnly(boolean readOnly, State state) {
-    MockedMemory memory = (MockedMemory) ((MemorySpy) state.getMemory()).getMemory();
+    MockedMemory memory = (MockedMemory) state.getMemory();
     memory.enableReadyOnly(readOnly);
   }
 
-  public Set<java.lang.Integer> getMutantAddress() {
+  public Set<Integer> getMutantAddress() {
     return mutantAddress;
+  }
+
+  private static class SEStackListener implements StackListener {
+    private final SymbolicExecutionAdapter symbolicExecutionAdapter;
+
+    private SEStackListener(SymbolicExecutionAdapter symbolicExecutionAdapter) {
+      this.symbolicExecutionAdapter = symbolicExecutionAdapter;
+    }
+
+    public boolean returnAddressPopped(int pcValue, int returnAddress, int callAddress) {
+      RoutineExecutorHandler routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
+
+      var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
+      var callerRoutineExecution = routineExecutorHandler.getCallerRoutineExecution();
+
+      callerRoutineExecution.replaceAddressAction(new AddressActionDelegate(pcValue + 1, routineExecutorHandler));
+      callerRoutineExecution.replaceAddressAction(new AddressActionDelegate(returnAddress, routineExecutorHandler));
+      lastRoutineExecution.replaceAddressAction(new BasicAddressAction(pcValue, routineExecutorHandler, false));
+      callerRoutineExecution.replaceAddressAction(new PopReturnCallAddressAction(routineExecutorHandler, lastRoutineExecution, callAddress));
+
+      routineExecutorHandler.popRoutineExecution();
+      if (!lastRoutineExecution.hasRetInstruction())
+        lastRoutineExecution.setRetInstruction(pcValue);
+      return true;
+    }
+
+    public boolean beginUsingStackAsRepository(int pcValue, int newSpAddress, int oldSpAddress) {
+      symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().disable();
+      return StackListener.super.beginUsingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
+    }
+
+    @Override
+    public boolean endUsingStackAsRepository(int pcValue, int newSpAddress, int oldSpAddress) {
+      symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().enable();
+      return StackListener.super.endUsingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
+    }
+
+    @Override
+    public boolean droppingReturnValues(int pcValue, int newSpAddress, int oldSpAddress, StackAnalyzer.Entry lastReturnAddress) {
+      RoutineExecutorHandler routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
+
+      if (lastReturnAddress != null) {
+        var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
+        var callerRoutineExecution = routineExecutorHandler.findRoutineExecutionContaining(lastReturnAddress.pc());
+
+
+        RoutineExecution popRoutine = lastRoutineExecution;
+        List<RoutineExecution> stackedRoutines = new ArrayList<>();
+        while (popRoutine != callerRoutineExecution) {
+          stackedRoutines.add(popRoutine);
+          int start = routineExecutorHandler.popRoutineExecution();
+          popRoutine = routineExecutorHandler.getCurrentRoutineExecution();
+        }
+
+        callerRoutineExecution.replaceAddressAction(new AddressActionDelegate(symbolicExecutionAdapter.routineManager.addressAfter(pcValue), routineExecutorHandler));
+        callerRoutineExecution.replaceAddressAction(new AddressActionDelegate(lastReturnAddress.value(), routineExecutorHandler));
+        lastRoutineExecution.replaceAddressAction(new BasicAddressAction(pcValue, routineExecutorHandler, false));
+//        if (callerRoutineExecution.getAddressAction(lastReturnAddress.pc) instanceof ChangeStackCallAddressAction changeStackCallAddressAction) {
+//          changeStackCallAddressAction.getLastRoutineExecutions().addAll(stackedRoutines);
+//        } else
+        callerRoutineExecution.replaceAddressAction(new ChangeStackCallAddressAction(routineExecutorHandler, stackedRoutines, lastReturnAddress.pc()));
+
+        if (!lastRoutineExecution.hasRetInstruction())
+          lastRoutineExecution.setRetInstruction(pcValue);
+        return true;
+      } else
+        return StackListener.super.droppingReturnValues(pcValue, newSpAddress, oldSpAddress, lastReturnAddress);
+    }
+
+    public boolean jumpUsingRet(int pcValue, Set<Integer> jumpAddresses) {
+      return StackListener.super.jumpUsingRet(pcValue, jumpAddresses);
+    }
+
+    public boolean simulatedCall(int pcValue, int jumpAddress, Set<Integer> jumpAddresses, int returnAddress) {
+      return StackListener.super.simulatedCall(pcValue, jumpAddress, jumpAddresses, returnAddress);
+    }
   }
 
   public abstract class SymbolicInstructionFactoryDelegator implements InstructionFactoryDelegator {
@@ -331,7 +360,6 @@ public class SymbolicExecutionAdapter {
       return instructionFactory;
     }
   }
-
 }
 
 

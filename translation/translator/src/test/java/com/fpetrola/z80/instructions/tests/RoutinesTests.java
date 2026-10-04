@@ -187,12 +187,12 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               this.$5();
            }
         
-           public void $7() {
-              super.E = 5;
-           }
-        
            public void $5() {
               super.D = 4;
+           }
+        
+           public void $7() {
+              super.E = 5;
            }
         }
         """, resultingJava);
@@ -402,7 +402,6 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     assertBlockAddresses(routines.get(1).getBlocks().get(0), 8, 9);
   }
 
-  @Ignore
   @Test
   public void recursiveRoutineTest() {
     setUpMemory();
@@ -421,20 +420,21 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     String resultingJava = generateAndDecompile();
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
-        
+
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 2;
               this.$1();
            }
-        
+
            public void $1() {
-              int var1 = super.A - 1 & 255;
+              int var1 = this.dec(super.A);
               super.A = var1;
-              if (super.A != 0) {
+              super.F = var1;
+              if(super.F != 0) {
                  this.$1();
               }
-        
+
            }
         }
         """, resultingJava);
@@ -443,9 +443,8 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     List<Routine> routines = getRoutineManager().getRoutines();
     Assert.assertEquals(2, routines.size());
 
-    Routine routine0 = routines.get(0);
-    assertBlockAddresses(routine0.getBlocks().get(0), 0, 0);
-    assertBlockAddresses(routine0.getBlocks().get(1), 1, 3);
+    assertBlockAddresses(routines.get(0).getBlocks().get(0), 0, 0);
+    assertBlockAddresses(routines.get(1).getBlocks().get(0), 1, 3);
 
   }
 
@@ -540,31 +539,30 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
         import com.fpetrola.z80.minizx.StackException;
-        
+
         public class JSW extends SpectrumApplication {
            public void $0() {
-              while(true) {
+              super.A = 2;
+
+              label19: {
                  try {
-                    if(!this.isNextPC(11)) {
-                       super.A = 2;
-                       this.$6();
-                       super.C = 3;
-                       super.C = 4;
-                    } else {
-                       super.A = 6;
+                    this.$6();
+                 } catch (StackException var2) {
+                    if(var2.getNextPC() != 11) {
+                       throw var2;
                     }
-        
-                    super.C = 5;
-                    return;
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{11};
-                    if(!this.isOwnAddress(var3, var2)) {
-                       throw var3;
-                    }
+
+                    super.A = 6;
+                    break label19;
                  }
+
+                 super.C = 3;
+                 super.C = 4;
               }
+
+              super.C = 5;
            }
-        
+
            public void $6() {
               super.D = 4;
               throw new StackException(11);
@@ -624,53 +622,48 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
         import com.fpetrola.z80.minizx.StackException;
-        
+
         public class JSW extends SpectrumApplication {
            public void $0() {
-              while(true) {
+              super.A = 2;
+
+              label19: {
                  try {
-                    if(!this.isNextPC(17)) {
-                       super.A = 2;
-                       this.$6();
-                       super.C = 3;
-                       super.C = 4;
-                    } else {
-                       super.A = 61;
-                       super.B = 62;
+                    this.$6();
+                 } catch (StackException var2) {
+                    if(var2.getNextPC() != 17) {
+                       throw var2;
                     }
-        
-                    super.C = 5;
-                    return;
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{17};
-                    if(!this.isOwnAddress(var3, var2)) {
-                       throw var3;
-                    }
+
+                    super.A = 61;
+                    super.B = 62;
+                    break label19;
                  }
+
+                 super.C = 3;
+                 super.C = 4;
               }
+
+              super.C = 5;
            }
-        
+
            public void $6() {
-              while(true) {
-                 try {
-                    if(this.isNextPC(16)) {
-                       throw new StackException(17);
-                    }
-        
-                    super.D = 4;
-                    this.$11();
-                    return;
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{16};
-                    if(!this.isOwnAddress(var3, var2)) {
-                       throw var3;
-                    }
+              super.D = 4;
+
+              try {
+                 this.$11();
+              } catch (StackException var2) {
+                 if(var2.getNextPC() == 16) {
+                    var2.setNextPC(17);
+                    throw var2;
+                 } else {
+                    throw var2;
                  }
               }
            }
-        
+
            public void $11() {
-              int var1 = super.A - 1 & 255;
+              int var1 = this.dec(super.A);
               super.A = var1;
               super.F = var1;
               if(super.F != 0) {
@@ -744,63 +737,68 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
         import com.fpetrola.z80.minizx.StackException;
-        
+
         public class JSW extends SpectrumApplication {
            public void $0() {
-              while(true) {
-                 try {
-                    if(!this.isNextPC(19)) {
-                       super.A = 2;
+              super.A = 2;
+
+              label29: {
+                 label33: {
+                    try {
                        this.$7();
-                       super.C = 2;
-                       this.$22();
-                    } else {
-                       super.A = 61;
-                       super.B = 62;
-                    }
-        
-                    super.C = 3;
-                    super.C = 5;
-                    return;
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{19, 19};
-                    if(!this.isOwnAddress(var3, var2)) {
-                       throw var3;
-                    }
-                 }
-              }
-           }
-        
-           public void $7() {
-              while(true) {
-                 try {
-                    if(!this.isNextPC(17)) {
-                       super.D = 4;
-                       int var3 = super.A - 3;
-                       super.F = var3;
-                       if(super.F == 0) {
-                          this.$13();
+                    } catch (StackException var4) {
+                       if(var4.getNextPC() == 19) {
+                          break label33;
                        }
-        
-                       return;
-                    }
-        
-                    super.E = 71;
-                    throw new StackException(19);
-                 } catch (StackException var4) {
-                    int[] var2 = new int[]{17};
-                    if(!this.isOwnAddress(var4, var2)) {
+
                        throw var4;
                     }
+
+                    super.C = 2;
+
+                    try {
+                       this.$22();
+                       break label29;
+                    } catch (StackException var3) {
+                       if(var3.getNextPC() != 19) {
+                          throw var3;
+                       }
+                    }
+                 }
+
+                 super.A = 61;
+                 super.B = 62;
+              }
+
+              super.C = 3;
+              super.C = 5;
+           }
+
+           public void $7() {
+              super.D = 4;
+              int var1 = this.cp(super.A, 3);
+              super.F = var1;
+
+              try {
+                 if(super.F == 0) {
+                    this.$13();
+                 }
+
+              } catch (StackException var3) {
+                 if(var3.getNextPC() != 17) {
+                    throw var3;
+                 } else {
+                    super.E = 71;
+                    throw new StackException(19);
                  }
               }
            }
-        
+
            public void $13() {
               super.C = 40;
               throw new StackException(17);
            }
-        
+
            public void $22() {
               super.D = 41;
               super.E = 51;
@@ -869,42 +867,41 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
         import com.fpetrola.z80.minizx.StackException;
-        
+
         public class JSW extends SpectrumApplication {
            public void $0() {
-              while(true) {
+              super.H = 1;
+              super.A = 2;
+
+              label19: {
                  try {
-                    if(!this.isNextPC(17)) {
-                       super.H = 1;
-                       super.A = 2;
-                       this.$7();
-                       super.C = 3;
-                       super.C = 4;
-                    } else {
-                       super.A = 6;
+                    this.$7();
+                 } catch (StackException var2) {
+                    if(var2.getNextPC() != 17) {
+                       throw var2;
                     }
-        
-                    super.C = 5;
-                    return;
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{17};
-                    if(!this.isOwnAddress(var3, var2)) {
-                       throw var3;
-                    }
+
+                    super.A = 6;
+                    break label19;
                  }
+
+                 super.C = 3;
+                 super.C = 4;
               }
+
+              super.C = 5;
            }
-        
+
            public void $7() {
               super.D = 4;
-              int var1 = super.A - 3;
+              int var1 = this.cp(super.A, 3);
               super.F = var1;
               if(super.F == 0) {
                  super.H = 2;
               } else {
                  super.A = 61;
               }
-        
+
               super.D = super.H;
               throw new StackException(17);
            }
@@ -954,7 +951,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
-        
+
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 2;
@@ -964,11 +961,13 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               this.$8();
               super.B = 4;
            }
-        
+
            public void $8() {
               super.D = 5;
-              int var1 = super.A << 1;
-              super.F = var1;
+              int var1 = super.A | super.A;
+              super.A = var1;
+              int var2 = this.flagZ(super.A);
+              super.F = var2;
               if(super.F != 0) {
                  super.D = 6;
               }
@@ -1011,24 +1010,24 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
-        
+
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 2;
               this.$5();
               super.B = 3;
            }
-        
+
            public void $5() {
               while(true) {
                  super.D = 5;
-                 int var1 = super.A - 1 & 255;
+                 int var1 = this.dec(super.A);
                  super.A = var1;
                  super.F = var1;
                  if(super.F == 0) {
                     return;
                  }
-        
+
                  super.D = 6;
               }
            }
@@ -1069,34 +1068,34 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     String resultingJava = generateAndDecompile();
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
-        
+
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 10;
               super.B = 2;
-        
+
               do {
                  int var1 = this.BC();
                  this.push(var1);
                  this.$11();
                  super.B = 3;
-        
+
                  do {
-                    int var2 = super.A + 1 & 255;
+                    int var2 = this.inc(super.A);
                     super.A = var2;
                     super.F = var2;
                     int var3 = super.B - 1 & 255;
                     super.B = var3;
                  } while(super.B != 0);
-        
+
                  int var4 = this.pop();
                  this.BC(var4);
                  int var5 = super.B - 1 & 255;
                  super.B = var5;
               } while(super.B != 0);
-        
+
            }
-        
+
            public void $11() {
               super.D = super.A;
            }
@@ -1140,17 +1139,19 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
-        
+
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 2;
               this.$5();
               super.B = 3;
            }
-        
+
            public void $5() {
-              int var1 = super.A << 1;
-              super.F = var1;
+              int var1 = super.A & super.A;
+              super.A = var1;
+              int var2 = this.flagZ(super.A);
+              super.F = var2;
               if(super.F != 0) {
                  super.D = 6;
               }
@@ -1217,7 +1218,6 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     assertBlockAddresses(routine0.getBlocks().get(0), 0, 3);
   }
 
-  @Ignore
   @Test
   public void callingInnerRoutineOfOther() {
     setUpMemory();
@@ -1246,31 +1246,40 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     String resultingJava = generateAndDecompile();
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
-        
+
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.B = 2;
-              this.$5();
-              super.B = 3;
               this.$7();
-           }
-        
-           public void $5() {
+              super.B = 3;
               this.$5();
            }
-        
-           public void $7() {
+
+           public void $5() {
+              super.A = 1;
+              this.$8();
            }
-        } 
+
+           public void $7() {
+              super.A = 2;
+              this.$8();
+           }
+
+           public void $8() {
+              super.A = 3;
+              super.A = 4;
+           }
+        }
         """, resultingJava);
 
 
-    Assert.assertEquals(2, routines.size());
+    Assert.assertEquals(4, routines.size());
 
     Routine routine0 = routines.get(0);
     Assert.assertEquals(1, routine0.getBlocks().size());
 
-    assertBlockAddresses(routine0.getBlocks().get(0), 0, 2);
+    assertBlockAddresses(routine0.getBlocks().get(0), 0, 4);
+    assertBlockAddresses(routines.get(3).getBlocks().get(0), 8, 10);
   }
 
 
@@ -1320,21 +1329,21 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               super.C = 8;
            }
         
-           public void $10() {
-              super.C = 1;
-              if(super.F != 0) {
-                 this.$14();
-              } else {
-                 super.C = 2;
-              }
-           }
-        
            public void $6() {
               super.B = 1;
               if(super.F != 0) {
                  this.$14();
               } else {
                  super.B = 2;
+              }
+           }
+        
+           public void $10() {
+              super.C = 1;
+              if(super.F != 0) {
+                 this.$14();
+              } else {
+                 super.C = 2;
               }
            }
         
@@ -1395,15 +1404,6 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               super.C = 8;
            }
         
-           public void $10() {
-              super.C = 1;
-              if(super.F != 0) {
-                 this.$7();
-              } else {
-                 super.C = 2;
-              }
-           }
-        
            public void $6() {
               super.B = 1;
               this.$7();
@@ -1412,6 +1412,15 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            public void $7() {
               super.C = 2;
               super.D = 3;
+           }
+        
+           public void $10() {
+              super.C = 1;
+              if(super.F != 0) {
+                 this.$7();
+              } else {
+                 super.C = 2;
+              }
            }
         }
         """, resultingJava);
@@ -1462,10 +1471,10 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     String resultingJava = generateAndDecompile();
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
-        
+
         public class JSW extends SpectrumApplication {
            public void $0() {
-              int var1 = super.A - 1;
+              int var1 = this.cp(super.A, 1);
               super.F = var1;
               if(super.F != 0) {
                  this.$6();
@@ -1475,37 +1484,37 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  this.$3();
               }
            }
-        
-           public void $12() {
-              super.C = 2;
-              this.$4();
-           }
-        
-           public void $4() {
-              super.B = 3;
-           }
-        
-           public void $6() {
-              super.B = 1;
-              this.$10();
-           }
-        
-           public void $8() {
-              super.B = 2;
-              this.$10();
-           }
-        
+
            public void $3() {
               if(super.F != 0) {
                  this.$12();
               }
-        
+
               this.$4();
            }
-        
+
+           public void $4() {
+              super.B = 3;
+           }
+
+           public void $6() {
+              super.B = 1;
+              this.$10();
+           }
+
+           public void $8() {
+              super.B = 2;
+              this.$10();
+           }
+
            public void $10() {
               super.C = 1;
               this.$3();
+           }
+
+           public void $12() {
+              super.C = 2;
+              this.$4();
            }
         }
         """, resultingJava);
@@ -1546,21 +1555,21 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
-        
+
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 2;
               this.$5();
               super.B = 3;
            }
-        
+
            public void $5() {
               this.HL(10);
               int var1 = this.HL();
               int var2 = this.mem(var1, 6);
               int var3 = super.A & var2;
               super.A = var3;
-              int var4 = super.A << 1;
+              int var4 = this.flagZ(super.A);
               super.F = var4;
               if(super.F != 0) {
                  super.D = 6;
@@ -1576,7 +1585,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     assertBlockAddresses(routines.get(1).getBlocks().get(0), 5, 9);
   }
 
-  @Ignore
+  @Ignore("after LD SP drops every frame, the code that runs next (the main loop at 2..7) is attributed to the outermost routine and the loop is not rebuilt; the expected text is also from before delta was added")
   @Test
   public void resetStackInSharedCodeFromDifferentRoutines() {
     setUpMemory();
@@ -1663,6 +1672,77 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     assertBlockAddresses(routines.get(1).getBlocks().get(0), firstRoutine, 9);
     assertBlockAddresses(routines.get(2).getBlocks().get(0), secondRoutine, 13);
     assertBlockAddresses(routines.get(3).getBlocks().get(0), resetSPLabel, 15);
+  }
+
+
+  @Test
+  public void droppingReturnAddresses() {
+    setUpMemory();
+
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
+      {
+        add(DI());
+        add(Ld(r(SP), c(0xFC00)));
+        add(Ld(r(B), c(5)));
+        add(Call(t(), c(7)));
+        add(Call(t(), c(9)));
+        add(Ld(r(B), c(3)));
+        add(Ret(t()));
+
+        add(Ld(r(D), r(B)));
+        add(JP(c(1), nz()));
+        add(Ld(r(B), c(4)));
+        add(Ret(t()));
+      }
+    };
+
+    stepUntilComplete();
+
+    String resultingJava = generateAndDecompile();
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+        import com.fpetrola.z80.minizx.StackException;
+
+        public class JSW extends SpectrumApplication {
+           public void $0() {
+              while(true) {
+                 try {
+                    this.$1();
+                    return;
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{2};
+                    if(!this.isOwnAddress(var3, var2)) {
+                       throw var3;
+                    }
+                 }
+              }
+           }
+
+           public void $1() {
+              this.SP('\\ufc00');
+              super.B = 5;
+              this.$7();
+              this.$9();
+              super.B = 3;
+           }
+
+           public void $7() {
+              super.D = super.B;
+              if(super.F != 0) {
+                 throw new StackException(2);
+              } else {
+                 this.$9();
+              }
+           }
+
+           public void $9() {
+              super.B = 4;
+           }
+        }
+        """, resultingJava);
+
+    List<Routine> routines = getRoutineManager().getRoutines();
+    Assert.assertEquals(4, routines.size());
   }
 
 }

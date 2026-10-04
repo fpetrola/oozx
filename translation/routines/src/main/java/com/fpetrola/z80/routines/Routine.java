@@ -22,8 +22,9 @@ import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.CodeBlockType;
 import com.fpetrola.z80.blocks.UnknownBlockType;
-import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.google.common.collect.Maps;
+import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
@@ -43,10 +44,16 @@ public class Routine {
   private int entryPoint;
   public RoutineManager routineManager;
   private MultiValuedMap<Integer, Integer> returnPoints = new HashSetValuedHashMap<>();
+
+  private MultiValuedMap<Integer, Integer> returnPointsDropped = new HashSetValuedHashMap<>();
+
   public Set<String> parameters = new HashSet<>();
   public Set<String> returnValues = new HashSet<>();
   private boolean callable = true;
 
+  public MultiValuedMap<Integer, Integer> getReturnPointsDropped() {
+    return returnPointsDropped;
+  }
 
   public Routine(boolean virtual) {
     this.virtual = virtual;
@@ -60,8 +67,6 @@ public class Routine {
     this.virtual = virtual;
     this.blocks = blocks;
     this.setEntryPoint(entryPoint);
-    if (blocks.get(0).getRangeHandler().getStartAddress() == 38555)
-      System.out.println("dsagsdgdg");
   }
 
   public List<Routine> getAllRoutines() {
@@ -83,8 +88,9 @@ public class Routine {
   }
 
   public boolean contains(int address) {
-    Helper.breakInStackOverflow();
-    boolean b1 = blocks.stream().anyMatch(b -> b.contains(address));
+//    Helper.breakInStackOverflow();
+    ArrayList<Block> blocks1 = new ArrayList<>(blocks);
+    boolean b1 = blocks1.stream().anyMatch(b -> b != null && b.contains(address));
     return b1;
   }
 
@@ -140,7 +146,7 @@ public class Routine {
   }
 
   private List<Block> getAllBlocksInDepth(List<Routine> routine) {
-    return routine.stream().map(r -> r.getBlocks()).flatMap(List::stream).collect(Collectors.toList());
+    return routine.stream().map(r -> new ArrayList<>(r.getBlocks())).flatMap(List::stream).collect(Collectors.toList());
   }
 
   public void growTo(int address, int length) {
@@ -154,7 +160,7 @@ public class Routine {
 
   @Override
   public String toString() {
-    return "{" + formatAddress(getStartAddress()) + ":" + formatAddress(getEndAddress()) + "} -> " + blocks.toString();
+    return "{" + formatAddress(getStartAddress()) + ":" + formatAddress(getEndAddress()) + "} -> " + new ArrayList<>(blocks).toString();
   }
 
   public void addBlock(Block block) {
@@ -165,29 +171,70 @@ public class Routine {
       blocks.add(block);
   }
 
-  private static boolean splitBlocksIfRequired(Routine routineAt, Block block, int startAddress1, int startAddress2, Map<Integer, Integer> virtualPop1) {
+  private static boolean splitBlocksIfRequired(Routine routineAt, Block block, int startAddress1, int startAddress2, Map<Integer, Integer> virtualPop1, MultiValuedMap<Integer, Integer> returnPointsDropped) {
     if (startAddress1 != startAddress2) {
       Block split = block.split(startAddress1 - 1);
-      if (startAddress2 != routineAt.entryPoint)
-        routineAt.setEntryPoint(startAddress1 - 1);
-      return createRoutineFromSplit(routineAt, startAddress1, virtualPop1, split);
+//      if (startAddress2 != routineAt.entryPoint)
+//        routineAt.setEntryPoint(startAddress1 - 1);
+      return createRoutineFromSplit(routineAt, startAddress1, virtualPop1, split, returnPointsDropped);
     } else {
       if (routineAt.getBlocks().size() > 1) {
         routineAt.removeBlock(block);
         if (block.getRangeHandler().getStartAddress() == routineAt.entryPoint) {
           routineAt.setEntryPoint(routineAt.getBlocks().get(0).getRangeHandler().getStartAddress());
         }
-        return createRoutineFromSplit(routineAt, startAddress1, virtualPop1, block);
+        return createRoutineFromSplit(routineAt, startAddress1, virtualPop1, block, returnPointsDropped);
       }
     }
     return false;
   }
 
-  private static boolean createRoutineFromSplit(Routine routineAt, int startAddress1, Map<Integer, Integer> virtualPop1, Block split) {
+  private static boolean createRoutineFromSplit(Routine routineAt, int startAddress1, Map<Integer, Integer> virtualPop1, Block split, MultiValuedMap<Integer, Integer> returnPointsDropped) {
     Routine routine = new Routine(split, startAddress1, true);
-    routine.getVirtualPop().putAll(virtualPop1);
+
+    updateVirtualPops(routineAt, virtualPop1, routine);
+    updateReturnPointsDropped(routineAt, returnPointsDropped, routine);
+    updateReturnPoints(routineAt, routine);
+
     routineAt.routineManager.addRoutine(routine);
     return true;
+  }
+
+  private static void updateVirtualPops(Routine routineAt, Map<Integer, Integer> virtualPops1, Routine routine) {
+    routine.getVirtualPop().putAll(virtualPops1);
+    Map<Integer, Integer> returnPoints1 = new HashMap<>(routine.getVirtualPop());
+    returnPoints1.entrySet().forEach(e -> {
+      if (!routineAt.contains(e.getKey())) {
+        routineAt.getVirtualPop().remove(e.getKey(), e.getValue());
+      }
+
+      if (!routine.contains(e.getKey())) {
+        routine.getVirtualPop().remove(e.getKey(), e.getValue());
+      }
+    });
+  }
+
+  private static void updateReturnPoints(Routine routineAt, Routine routine) {
+    routine.getReturnPoints().putAll(routineAt.getReturnPoints());
+    new ArrayList<>(routineAt.getReturnPoints().entries()).forEach(e -> {
+      if (!routineAt.contains(e.getKey()))
+        routineAt.getReturnPoints().removeMapping(e.getKey(), e.getValue());
+      if (!routine.contains(e.getKey()))
+        routine.getReturnPoints().removeMapping(e.getKey(), e.getValue());
+    });
+  }
+
+  private static void updateReturnPointsDropped(Routine routineAt, MultiValuedMap<Integer, Integer> returnPointsDropped, Routine routine) {
+    routine.getReturnPointsDropped().putAll(returnPointsDropped);
+    returnPointsDropped.entries().forEach(e -> {
+      if (!routineAt.contains(e.getValue())) {
+        routineAt.getReturnPointsDropped().removeMapping(e.getKey(), e.getValue());
+      }
+
+      if (!routine.contains(e.getValue())) {
+        routine.getReturnPointsDropped().removeMapping(e.getKey(), e.getValue());
+      }
+    });
   }
 
   public void optimize() {
@@ -215,22 +262,24 @@ public class Routine {
 
   public boolean splitVirtualRoutines() {
     final boolean[] changes = {false};
+    RoutineManager routineManager1 = routineManager;
+    ListValuedMap<Integer, Integer> callers = routineManager1.callers;
+    ListValuedMap<Integer, Integer> callees1 = routineManager1.callees;
 
     for (int i2 = 0; i2 < blocks.size(); i2++) {
       Block block2 = blocks.get(i2);
 
       int startAddress = block2.getRangeHandler().getStartAddress();
-      RoutineManager routineManager1 = routineManager;
 
       for (int address = startAddress; address <= block2.getRangeHandler().getEndAddress(); address++) {
-        List<Integer> integers = routineManager1.callers.get(address);
+        List<Integer> integers = new ArrayList<>(callers.get(address));
 
         int finalAddress = address;
         if (integers.stream().anyMatch(call -> routineManager1.findRoutineAt(call) != routineManager1.findRoutineAt(finalAddress))) {
-          changes[0] |= splitBlocksIfRequired(this, block2, address, startAddress, getVirtualPop());
+          changes[0] |= splitBlocksIfRequired(this, block2, address, startAddress, getVirtualPop(), getReturnPointsDropped());
         }
 
-        List<Integer> callees = routineManager1.callees.get(address);
+        List<Integer> callees = callees1.get(address);
         for (int i = 0; i < callees.size(); i++) {
           int finalI1 = callees.get(i);
           Routine routineAt = routineManager1.findRoutineAt(finalI1);
@@ -238,7 +287,7 @@ public class Routine {
             new ArrayList<Block>(routineAt.getBlocks()).forEach(block1 -> {
               if (block1.contains(finalI1)) {
                 int startAddress2 = block1.getRangeHandler().getStartAddress();
-                changes[0] |= splitBlocksIfRequired(routineAt, block1, finalI1, startAddress2, getVirtualPop());
+                changes[0] |= splitBlocksIfRequired(routineAt, block1, finalI1, startAddress2, getVirtualPop(), getReturnPointsDropped());
               }
             });
           }
@@ -280,6 +329,10 @@ public class Routine {
   }
 
   void addInstructionAt(Instruction instruction, int pcValue) {
+    if (getStartAddress() == 0xeb55)
+      System.out.println("eb55");
+
+    instructions.add(instruction);
     if (!finished) {
       Block currentBlock = routineManager.blocksManager.findBlockAt(pcValue);
       if (currentBlock.getBlockType() instanceof UnknownBlockType) {
@@ -323,6 +376,11 @@ public class Routine {
     returnPoints.put(returnAddress, pc);
   }
 
+  public void addReturnPointDropped(int returnAddress, int pc) {
+    returnPointsDropped.put(returnAddress, pc);
+  }
+
+
   public void finish() {
     optimize();
     finished = true;
@@ -348,7 +406,7 @@ public class Routine {
     Instruction[] lastInstruction = {null};
 
     for (int i = getStartAddress(); i <= getEndAddress(); i++) {
-      Instruction instruction = routineManager.getRandomAccessInstructionFetcher().getInstructionAt(i);
+      Instruction instruction = routineManager.getInstructionAt(i);
       if (instruction != null) {
         if (instruction != lastInstruction[0]) {
           routineVisitor.visitInstruction(i, instruction);
@@ -397,7 +455,7 @@ public class Routine {
   }
 
   public Routine findRoutineAt(int address) {
-    Optional<Block> b1 = getBlocks().stream().filter(i -> i != null && i.contains(address)).findFirst();
+    Optional<Block> b1 = new ArrayList<>(getBlocks()).stream().filter(i -> i != null && i.contains(address)).findFirst();
 
     if (b1.isPresent())
       return this;
@@ -441,7 +499,7 @@ public class Routine {
   }
 
   public void setEntryPoint(int entryPoint) {
-    if (entryPoint == 0xDDFF)
+    if (entryPoint == 0xEBC0)
       System.out.println("sdfadadgaffff");
     this.entryPoint = entryPoint;
   }

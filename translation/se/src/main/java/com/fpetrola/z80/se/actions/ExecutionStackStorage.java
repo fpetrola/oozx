@@ -21,24 +21,33 @@ package com.fpetrola.z80.se.actions;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.memory.Memory;
+import com.fpetrola.z80.transformations.StackAnalyzer;
 
 import java.util.Arrays;
 
 public class ExecutionStackStorage {
   private int[] savedStack;
+  private StackAnalyzer.Entry[] savedEntries;
+  private final StackAnalyzer stackAnalyzer;
   private final State state;
   private int savedSP;
   private boolean enabled = true;
   private int lastSP = 123;
 
-  public ExecutionStackStorage(State state) {
+  public ExecutionStackStorage(State state, StackAnalyzer stackAnalyzer) {
     this.state = state;
+    this.stackAnalyzer = stackAnalyzer;
   }
 
-  void save() {
+  public boolean isSaved() {
+    return savedStack != null;
+  }
+
+  public void save() {
     if (savedStack == null && enabled) {
       savedStack = createStackCopy();
-      printStack(savedSP, savedStack, "saving ");
+      savedEntries = stackAnalyzer.copyEntries(savedSP, savedStack.length);
+//      printStack(savedSP, savedStack, "saving ");
     }
 //    else
 //      throw new RuntimeException("already stored");
@@ -49,7 +58,12 @@ public class ExecutionStackStorage {
   }
 
   public void printStack() {
-    printStack(state.getRegisterSP().read(), createStackCopy(), "PC: %s ".formatted(Helper.formatAddress(state.getPc().read())));
+    int savedSP1 = state.getRegisterSP().read();
+    printStack(savedSP1);
+  }
+
+  public void printStack(int spValue) {
+    printStack(spValue, createStackCopy(), "PC: %s ".formatted(Helper.formatAddress(state.getPc().read())));
   }
 
   public void restore() {
@@ -66,19 +80,22 @@ public class ExecutionStackStorage {
           memory.getData()[savedSP + i] = savedStack[i];
       }
 
-      printStack(savedSP, savedStack, "restoring ");
+//      printStack(savedSP, savedStack, "restoring ");
 
 //      T[] savedStack3 = Arrays.copyOfRange(memory.getData(), savedSP, savedSP + 40);
 
+      stackAnalyzer.restoreEntries(savedSP, savedEntries);
       state.getRegisterSP().write(savedSP);
     }
   }
 
   public int[] createStackCopy() {
-    Memory memory = state.getMemory();
     savedSP = state.getRegisterSP().read();
-    int i = savedSP + 40;
-    return Arrays.copyOfRange(memory.getData(), savedSP, Math.min(i, 65536));
+    return createStackCopy(savedSP);
+  }
+
+  public int[] createStackCopy(int spValue) {
+    return Arrays.copyOfRange(state.getMemory().getData(), spValue, Math.min(spValue + 40, 65536));
   }
 
   private String printStack(int[] savedStack1) {
@@ -97,7 +114,7 @@ public class ExecutionStackStorage {
   }
 
   public ExecutionStackStorage create() {
-    return new ExecutionStackStorage(state);
+    return new ExecutionStackStorage(state, stackAnalyzer);
   }
 
   public void disable() {
@@ -109,7 +126,7 @@ public class ExecutionStackStorage {
     lastSP = state.getRegisterSP().read();
   }
 
-  private void enable() {
+  public void enable() {
     enabled = true;
   }
 

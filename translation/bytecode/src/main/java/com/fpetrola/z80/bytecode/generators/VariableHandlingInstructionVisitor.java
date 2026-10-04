@@ -81,8 +81,9 @@ public class VariableHandlingInstructionVisitor implements InstructionVisitor<In
 
   @Override
   public boolean visitingBitOperation(BitOperation tBitOperation) {
+    visitingTarget(tBitOperation.getTarget(), tBitOperation);
     variableAction.accept(sourceVariable, targetVariable);
-    return false;
+    return true;
   }
 
   private void createResult() {

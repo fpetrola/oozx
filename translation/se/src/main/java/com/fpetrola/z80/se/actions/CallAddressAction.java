@@ -25,6 +25,9 @@ import com.fpetrola.z80.se.RoutineExecutorHandler;
 
 public class CallAddressAction extends AddressAction {
   private final Call call;
+  private int calleeAddress;
+  private RoutineExecution calleeRoutineExecution;
+  private boolean calleePending= true;
 
   public CallAddressAction(int pcValue, Call call, boolean alwaysTrue, RoutineExecutorHandler routineExecutorHandler) {
     super(pcValue, true, call, alwaysTrue, routineExecutorHandler);
@@ -35,17 +38,31 @@ public class CallAddressAction extends AddressAction {
   public boolean processBranch(Instruction instruction) {
     boolean doBranch = getDoBranch();
     if (doBranch) {
-      int jumpAddress = call.getJumpAddress();
-      RoutineExecution routineExecutionAt = routineExecutionHandler.findRoutineExecutionAt(jumpAddress);
-      if (routineExecutionAt != null)
-        return false;
-      routineExecutionHandler.createRoutineExecution(jumpAddress);
+      calleeAddress = call.getJumpAddress();
+      calleeRoutineExecution = routineExecutionHandler.findRoutineExecutionAt(calleeAddress);
+      if (calleeRoutineExecution != null) {
+        calleePending = calleeRoutineExecution.isPending();
+        if (calleePending)
+          routineExecutionHandler.pushRoutineExecution(calleeRoutineExecution);
+        return calleePending;
+      } else {
+        calleeRoutineExecution = routineExecutionHandler.createRoutineExecution(calleeAddress);
+      }
     }
     return doBranch;
   }
 
   public int getNextPC() {
     return getNextPC(address);
+  }
+
+  @Override
+  public boolean isPending() {
+    RoutineExecution currentRoutineExecution = routineExecutionHandler.getCurrentRoutineExecution();
+    if (currentRoutineExecution == null)
+      return false;
+    else
+      return pending || calleeRoutineExecution.isPending();
   }
 
   @Override

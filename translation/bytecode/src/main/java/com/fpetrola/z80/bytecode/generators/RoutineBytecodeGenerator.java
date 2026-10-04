@@ -20,6 +20,7 @@ package com.fpetrola.z80.bytecode.generators;
 
 import com.fpetrola.z80.bytecode.generators.helpers.*;
 import com.fpetrola.z80.helpers.Helper;
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
@@ -29,6 +30,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineVisitor;
+import org.apache.commons.collections4.MultiSet;
 import org.cojen.maker.Field;
 import org.cojen.maker.Label;
 import org.cojen.maker.MethodMaker;
@@ -114,7 +116,7 @@ public class RoutineBytecodeGenerator {
             Runnable instructionGenerator = () -> {
               context.pc.write(address);
 
-              if (address == 37527)
+              if (address == 0xB94E)
                 System.out.print("");
 
               currentInstruction = instruction;
@@ -149,13 +151,22 @@ public class RoutineBytecodeGenerator {
         if (mutantCodeInInstruction(instruction, address)) {
           mm.invoke("executeMutantCode", address);
         } else {
+          if (context.pc.read() == 35278)
+            System.out.println("agasgasg");
+          if (instruction instanceof AbstractInstruction abstractInstruction) {
+            int rDelta = abstractInstruction.getRDelta();
+//            if (rDelta < 0)
+//              System.out.println("adgagadg");
+            if (!context.direct)
+              mm.invoke("pc", context.pc.read(), rDelta);
+          } else
+            System.out.println("dsggag");
           InstructionsBytecodeGenerator instructionsBytecodeGenerator = new InstructionsBytecodeGenerator(mm, label, RoutineBytecodeGenerator.this, address, pendingFlag);
           instruction.accept(instructionsBytecodeGenerator);
           pendingFlag = instructionsBytecodeGenerator.pendingFlag;
 
           if (!instructionsBytecodeGenerator.incPopsAdded && routine.getVirtualPop().containsKey(address)) {
-            int nextAddress = routine.getVirtualPop().get(address) + 1;
-            throwStackException(nextAddress, StackException.class);
+            throwStackException(continuationAfterVirtualPop(address), StackException.class);
 //            getField("nextAddress").set(nextAddress);
             returnFromMethod();
           }
@@ -192,19 +203,70 @@ public class RoutineBytecodeGenerator {
     Label label2 = mm.label();
     label2.here();
 
-    List<java.lang.Integer> integers = routine.getReturnPoints().values().stream().toList();
-    if (!integers.isEmpty())
-      mm.catch_(label1, StackException.class, (Variable exception) -> {
-        Variable value = mm.new_(int[].class, integers.size());
-        for (int i = 0; i < integers.size(); i++) {
-          value.aset(i, integers.get(i));
-        }
-        mm.invoke("isOwnAddress", exception, value).ifTrue(label1::goto_);
-        exception.throw_();
+    List<Integer> returnPoints = routine.getReturnPoints().values().stream().toList();
+    List<Integer> returnPointsDropped = routine.getReturnPointsDropped().values().stream().toList();
+
+    if (!returnPoints.isEmpty() || !returnPointsDropped.isEmpty()) {
+//      returnPoints = returnPoints.stream().filter(i -> routine.contains(i)).toList();
+
+      Set<Integer> keys = new HashSet<>(routine.getReturnPoints().keys());
+      keys.forEach(entry -> {
+        Integer key = entry;
+        Label tryStart = getLabel(key);
+        Label tryEnd = getLabel(context.routineManager.addressAfter(key));
+        var e = mm.catch_(tryStart, tryEnd, StackException.class);
+        Variable nextAddress = e.invoke("getNextPC");
+
+        Collection<Integer> integers = routine.getReturnPoints().get(key);
+        integers.forEach(i -> {
+          nextAddress.ifEq(i, () -> {
+            Label label3 = getLabel(i);
+            if (label3 != null)
+              label3.goto_();
+            else {
+              e.invoke("setNextPC", context.routineManager.addressAfter(i));
+              e.throw_();
+            }
+          });
+        });
+        e.throw_();
       });
 
-    invokeReturnPoints();
+      List<Integer> droppedPoints = new ArrayList<>(new HashSet<>(returnPointsDropped));
+      if (!droppedPoints.isEmpty()) {
+        mm.catch_(label1, StackException.class, (Variable exception) -> {
+          Variable points = mm.new_(int[].class, droppedPoints.size());
+          for (int i = 0; i < droppedPoints.size(); i++)
+            points.aset(i, droppedPoints.get(i));
+          mm.invoke("isOwnAddress", exception, points).ifTrue(label1::goto_);
+          exception.throw_();
+        });
+        label1.insert(() -> droppedPoints.forEach(point -> {
+          Label target = getLabel(point);
+          if (target != null)
+            mm.invoke("isNextPC", point).ifTrue(target::goto_);
+        }));
+      }
 
+
+//      mm.catch_(label10, StackException.class, (Variable exception) -> {
+//        ArrayList<Integer> points = new ArrayList<>(returnPoints);
+//        points.addAll(returnPointsDropped);
+//        int size = points.size();
+//        Variable value = mm.new_(int[].class, size);
+//
+//        for (int i = 0; i < size; i++) {
+//          value.aset(i, points.get(i));
+//        }
+//        mm.invoke("isOwnAddress", exception, value).ifTrue(() -> {
+////          label1.goto_();
+//          mm.invoke("DE");
+//        });
+//        exception.throw_();
+//      });
+    }
+
+//    invokeReturnPoints(labels.get(routine.getEntryPoint()));
   }
 
   private boolean mutantCodeInInstruction(Instruction instruction, int address) {
@@ -217,7 +279,7 @@ public class RoutineBytecodeGenerator {
     Variable field = mm.field(name);
     registers.put(name, field);
 
-    if (name.length() == 2 || name.equals("R")) field = new Composed16BitRegisterVariable(mm, name);
+    if (name.length() == 2 || name.equals("R") || true) field = new Composed16BitRegisterVariable(mm, name, context);
 
     variables.put(name, field);
   }
@@ -359,9 +421,13 @@ public class RoutineBytecodeGenerator {
     try {
       invoke = mm.invoke(labelName);
     } catch (Exception e) {
-      System.out.println("not found: "+ labelName);
+      System.out.println("not found: " + labelName);
     }
     return invoke;
+  }
+
+  public int continuationAfterVirtualPop(int address) {
+    return context.routineManager.addressAfter(routine.getVirtualPop().get(address));
   }
 
   public void throwStackException(Object nextAddress, Class<? extends Exception> type) {
@@ -373,10 +439,9 @@ public class RoutineBytecodeGenerator {
     mm.return_();
   }
 
-  void invokeReturnPoints() {
-    Label label2 = labels.get(routine.getEntryPoint());
-    List<java.lang.Integer> i = routine.getReturnPoints().values().stream().toList();
-    List<java.lang.Integer> integers = new ArrayList<>(new HashSet<>(i));
+  void invokeReturnPoints(Label label2) {
+    List<Integer> i = routine.getReturnPoints().values().stream().toList();
+    List<Integer> integers = new ArrayList<>(new HashSet<>(i));
 //    label2.insert(() -> {
 //      Variable nextAddress = getField("nextAddress").get();
 //      nextAddress.ifNe(0, () -> throwStackException(nextAddress, NotSolvedStackException.class));

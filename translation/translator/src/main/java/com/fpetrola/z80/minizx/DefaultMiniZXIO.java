@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2025 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2024 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,44 +18,48 @@
 
 package com.fpetrola.z80.minizx;
 
-import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.registers.Register;
 
 import java.awt.event.KeyEvent;
 import java.util.*;
 
-public class MiniZXIO implements IO {
+public class DefaultMiniZXIO implements MiniZXIO {
   private final int[] ports = initPorts();
   private final List<PortInput> inputs = Collections.synchronizedList(new ArrayList<>());
+
+  @Override
+  public MiniZXKeyboard getMiniZXKeyboard() {
+    return miniZXKeyboard;
+  }
+
   public MiniZXKeyboard miniZXKeyboard;
-  public int javaPC;
   private Register pc;
 
-  public MiniZXIO() {
+  public DefaultMiniZXIO() {
     miniZXKeyboard = new MiniZXKeyboard();
   }
 
-  private Integer in0(Integer port) {
-    Integer value = performIn(port);
+  private Integer in0(int port) {
+    int value = performIn(port);
     return value;
-//      int portNumber = port.intValue();
+//      int portNumber = port;
 //      //  portNumber = portNumber & 0xff;
 //      int port1 = ports[portNumber];
-//      WordNumber value = WordNumber.createValue(port1);
+//      int value = port1;
 //
-////      if (portNumber == 31 && value.intValue() != 0)
+////      if (portNumber == 31 && value != 0)
 ////        ports[31] = 0;
 //
 //      return value;
 
 //      if (port1 != 0) {
 //        //      System.out.println(port1);
-//        return WordNumber.createValue(port1);
+//        return port1;
 //      } else {
 //        if (portNumber == 31)
-//          return WordNumber.createValue(0);
+//          return 0;
 //        else
-//          return WordNumber.createValue(191);
+//          return 191;
 //      }
   }
 
@@ -124,11 +128,12 @@ public class MiniZXIO implements IO {
     portInput.resultEmu = null;
     removeIfReady(portInput);
 
-//    System.out.printf("emu IN: %d -> %d= %d%n", pc.read().intValue(), port.intValue(), resultEmu.intValue());
+//    System.out.printf("emu IN: %d -> %d= %d%n", pc.read(), port, resultEmu);
+
     return resultEmu;
   }
 
-  public synchronized Integer in2(Integer port) {
+  public synchronized int in2(int port) {
     PortInput portInput = processLastInputs(port, inputs.stream().allMatch(i -> i.resultJava == null));
     Integer resultJava = portInput.resultJava;
 
@@ -136,13 +141,13 @@ public class MiniZXIO implements IO {
 
     removeIfReady(portInput);
 
-//    System.out.printf("java IN: %d -> %d= %d%n", javaPC, port.intValue(), resultJava.intValue());
+//    System.out.printf("java IN: %d -> %d= %d%n", javaPC, port, resultJava);
 
-//    System.out.println("java IN: " + port.intValue() + "= " + resultJava);
+//    System.out.println("java IN: " + port + "= " + resultJava);
     return resultJava;
   }
 
-  private synchronized PortInput processLastInputs(Integer port, boolean readNew) {
+  private synchronized PortInput processLastInputs(int port, boolean readNew) {
     if (readNew) {
       Integer in = in0(port);
       if (in == null)
@@ -152,7 +157,7 @@ public class MiniZXIO implements IO {
       return e;
     } else {
       PortInput pop = inputs.get(0);
-//        if (pop.port.intValue() != port.intValue())
+//        if (pop.port != port)
 //          System.out.println("port!");
 
       if (pop == null)
@@ -185,9 +190,9 @@ public class MiniZXIO implements IO {
   public static class PortInput {
     public Integer resultJava;
     public Integer resultEmu;
-    public Integer port;
+    public int port;
 
-    public PortInput(Integer port, Integer in) {
+    public PortInput(int port, Integer in) {
       this.port = port;
       this.resultJava = in;
       this.resultEmu = in;

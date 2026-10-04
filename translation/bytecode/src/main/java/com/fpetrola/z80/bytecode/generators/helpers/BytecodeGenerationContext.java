@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.bytecode.generators.helpers;
 
+import com.fpetrola.z80.minizx.emulation.GameData;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
@@ -34,14 +35,18 @@ public class BytecodeGenerationContext {
   public Map<String, MethodMaker> methods;
   public Register pc;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
+  public GameData gameData;
   public boolean syncEnabled;
+  public final boolean direct;
 
-  public BytecodeGenerationContext(RoutineManager routineManager, ClassMaker classMaker, Register pc1, SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  public BytecodeGenerationContext(RoutineManager routineManager, ClassMaker classMaker, Register pc1, SymbolicExecutionAdapter symbolicExecutionAdapter, GameData gameData, boolean direct) {
     this.routineManager = routineManager;
     this.cm = classMaker;
     this.pc = pc1;
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
+    this.gameData = gameData;
     this.methods = new HashMap<>();
     this.syncEnabled = true;
+    this.direct = direct;
   }
 }

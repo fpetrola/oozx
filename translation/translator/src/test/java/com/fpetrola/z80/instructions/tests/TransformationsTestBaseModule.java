@@ -18,10 +18,9 @@
 
 package com.fpetrola.z80.instructions.tests;
 
-import com.fpetrola.z80.cpu.SpyInstructionExecutor;
+import com.fpetrola.z80.cpu.DefaultInstructionExecutor;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.transformations.InstructionTransformer;
-import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
 import com.fpetrola.z80.transformations.TransformerInstructionExecutor;
 import com.google.inject.Inject;
 import com.google.inject.Provides;
@@ -31,13 +30,13 @@ public class TransformationsTestBaseModule extends BaseModule {
   @Provides
   @Inject
   @Singleton
-  private SpyInstructionExecutor getInstructionExecutor(RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state) {
-    return new SpyInstructionExecutor(routineFinderInstructionSpy1, state);
+  private DefaultInstructionExecutor getInstructionExecutor(State state) {
+    return new DefaultInstructionExecutor(state, false);
   }
 
   @Provides
   @Inject
-  private TransformerInstructionExecutor getTransformerInstructionExecutor(State state1, SpyInstructionExecutor tInstructionExecutor, InstructionTransformer instructionTransformer) {
+  private TransformerInstructionExecutor getTransformerInstructionExecutor(State state1, DefaultInstructionExecutor tInstructionExecutor, InstructionTransformer instructionTransformer) {
     return new TransformerInstructionExecutor(state1.getPc(), tInstructionExecutor, true, instructionTransformer);
   }
 }

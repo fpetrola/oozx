@@ -21,6 +21,7 @@ package com.fpetrola.z80.se;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.actions.ExecutionStackStorage;
+import com.fpetrola.z80.transformations.StackAnalyzer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,11 +40,18 @@ public class RoutineExecutorHandler {
 
   private final DataflowService dataflowService;
 
-  public RoutineExecutorHandler(State state, ExecutionStackStorage executionStackStorage, DataflowService dataflowService) {
+  public StackAnalyzer getStackAnalyzer() {
+    return stackAnalyzer;
+  }
+
+  private final StackAnalyzer stackAnalyzer;
+
+  public RoutineExecutorHandler(State state, ExecutionStackStorage executionStackStorage, DataflowService dataflowService, StackAnalyzer stackAnalyzer) {
     this.pc = state.getPc();
     this.state = state;
     this.executionStackStorage = executionStackStorage;
     this.dataflowService = dataflowService;
+    this.stackAnalyzer = stackAnalyzer;
   }
 
   public State getState() {
@@ -62,10 +70,8 @@ public class RoutineExecutorHandler {
     return routineExecutions.values().stream().filter(r -> r.contains(address)).findFirst().get();
   }
 
-  public void createRoutineExecution(int jumpAddress) {
-    // if (jumpAddress == 35211) System.out.println("start routine: " + jumpAddress);
-    if (jumpAddress == 0xCFD9)
-      System.out.println("");
+  public RoutineExecution createRoutineExecution(int jumpAddress) {
+    RoutineExecution currentRoutineExecution = getCurrentRoutineExecution();
 
     System.out.println("Push frame: " + formatAddress(jumpAddress));
 
@@ -75,9 +81,18 @@ public class RoutineExecutorHandler {
       routineExecutions.put(jumpAddress, routineExecution = new RoutineExecution(this, jumpAddress));
     } else
       System.err.print("");
+
+    if (currentRoutineExecution != null)
+      currentRoutineExecution.addCallee(routineExecution);
+
+    return routineExecution;
   }
 
-  public Object popRoutineExecution() {
+  public Stack<Integer> getStackFrames() {
+    return stackFrames;
+  }
+
+  public int popRoutineExecution() {
     int t = state.getMemory().read16Bits(state.getRegisterSP().read());
     java.lang.Integer pop = stackFrames.pop();
     System.out.printf("Pop frame: %s, ret: %s%n", formatAddress(pop), formatAddress(t));
@@ -90,11 +105,17 @@ public class RoutineExecutorHandler {
   }
 
   public boolean isEmpty() {
-    return stackFrames.isEmpty();
+    boolean empty = stackFrames.isEmpty();
+    if (empty)
+      System.out.println("empty");
+    return empty;
   }
 
   public RoutineExecution getCurrentRoutineExecution() {
-    return routineExecutions.get(stackFrames.peek());
+    if (stackFrames.isEmpty())
+      return null;
+    else
+      return routineExecutions.get(stackFrames.peek());
   }
 
   public RoutineExecution getCallerRoutineExecution() {

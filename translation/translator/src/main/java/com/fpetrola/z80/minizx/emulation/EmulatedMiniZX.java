@@ -25,9 +25,20 @@ import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.bytecode.RegistersBase;
 import com.fpetrola.emulation.helpers.snapshots.SnapshotLoader;
 import com.fpetrola.z80.minizx.MiniZX;
+import com.fpetrola.z80.minizx.DefaultMiniZXIO;
 import com.fpetrola.z80.minizx.MiniZXIO;
+import com.fpetrola.z80.minizx.MiniZXScreen;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.spy.NullInstructionSpy;
+import com.fpetrola.z80.transformations.StackAnalyzer;
+import com.fpetrola.z80.ide.rzx.RzxFile;
+import com.fpetrola.z80.ide.rzx.RzxParser;
+import com.fpetrola.z80.ide.rzx.SnapshotBlock;
+import com.fpetrola.z80.minizx.RZXPlayerIO;
+import com.fpetrola.z80.minizx.RzxPlayback;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import java.util.function.Function;
 
@@ -39,6 +50,9 @@ public class EmulatedMiniZX {
   private boolean showScreen;
   private final int emulateUntil;
   private boolean inThread;
+  private StackAnalyzer stackAnalyzer;
+  private String rzxFile;
+  private RzxPlayback playback;
 
   public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread) {
     this.pause = pause;
@@ -47,6 +61,17 @@ public class EmulatedMiniZX {
     this.showScreen = showScreen;
     this.emulateUntil = emulateUntil;
     this.inThread = inThread;
+  }
+
+  public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread, StackAnalyzer stackAnalyzer) {
+    this(url, pause, showScreen, emulateUntil, inThread);
+    this.stackAnalyzer = stackAnalyzer;
+  }
+
+  public static EmulatedMiniZX ofRecording(String rzxFile, int frames, StackAnalyzer stackAnalyzer) {
+    EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX(null, 1, false, frames, false, stackAnalyzer);
+    emulatedMiniZX.rzxFile = rzxFile;
+    return emulatedMiniZX;
   }
 
   public static void main(String[] args) {
@@ -66,18 +91,28 @@ public class EmulatedMiniZX {
   }
 
   public void start() {
-    MiniZXIO io = new MiniZXIO();
+    MiniZXIO io = rzxFile == null ? new DefaultMiniZXIO() : new RZXPlayerIO();
     ooz80 = createOOZ80(io);
+    if (stackAnalyzer != null) {
+      stackAnalyzer.reset(ooz80.getState());
+      stackAnalyzer.addExecutionListener(ooz80.getInstructionExecutor());
+    }
     if (showScreen)
-      MiniZX.createScreen(io.miniZXKeyboard, this.getMemFunction(ooz80));
+      MiniZX.createScreen(io.getMiniZXKeyboard(), new MiniZXScreen(getMemFunction(ooz80)));
 
     RegistersBase registersBase = new RegistersBase(ooz80.getState());
 
-    String first = com.fpetrola.z80.helpers.Helper.getSnapshotFile(url);
     State state = ooz80.getState();
-    SnapshotLoader.setupStateWithSnapshot(registersBase, first, state);
+    if (rzxFile == null)
+      SnapshotLoader.setupStateWithSnapshot(registersBase, com.fpetrola.z80.helpers.Helper.getSnapshotFile(url), state);
+    else {
+      RzxFile recording = new RzxParser().parseFile(rzxFile);
+      SnapshotLoader.setupStateWithSnapshot(registersBase, snapshotFileOf(recording), state);
+      playback = new RzxPlayback(ooz80, (RZXPlayerIO) io, recording, tstates -> {
+      }, ooz80::execute);
+    }
 
-//    PhaseProcessor phaseProcessor = new PhaseProcessor<>(ooz80);
+//    PhaseProcessor phaseProcessor = new PhaseProcessor(ooz80);
 //    Memory memory = state.getMemory();
 //    memory.addMemoryReadListener(new AddStatesMemoryReadListener<>(phaseProcessor));
 //    memory.addMemoryWriteListener(new AddStatesMemoryWriteListener<>(phaseProcessor));
@@ -88,15 +123,28 @@ public class EmulatedMiniZX {
       emulate();
   }
 
-  public void emulate() {
-    int i = 0;
-    while (true) {
-      if (!(ooz80.getState().getPc().read() != emulateUntil)) break;
-      if (i++ % (pause * 1000) == 0) this.ooz80.getState().setINTLine(true);
-      else {
-        if (i % pause == 0)
-          this.ooz80.execute();
-      }
+  private static String snapshotFileOf(RzxFile recording) {
+    SnapshotBlock block = recording.getSnapshotBlock();
+    try {
+      Path file = Files.createTempFile("rzx-snapshot", "." + block.getSnapshotExtension());
+      Files.write(file, block.getSnapshotData());
+      return file.toString();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
+
+  public void emulate() {
+    if (playback != null) {
+      playback.playFrames(emulateUntil < 0 ? Integer.MAX_VALUE : emulateUntil);
+      return;
+    }
+    for (int i = 0; emulateUntil < 0 || i < emulateUntil; i++) {
+      if (emulateUntil < 0 && i % (pause * 1000) == 0)
+        ooz80.getState().setINTLine(true);
+      else if (emulateUntil >= 0 || i % pause == 0)
+        ooz80.execute();
+    }
+  }
+
 }

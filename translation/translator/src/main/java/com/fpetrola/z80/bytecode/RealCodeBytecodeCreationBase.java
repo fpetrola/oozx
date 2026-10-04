@@ -20,6 +20,7 @@ package com.fpetrola.z80.bytecode;
 
 import com.fpetrola.z80.base.CPUExecutionContext;
 import com.fpetrola.z80.cpu.*;
+import com.fpetrola.z80.minizx.emulation.GameData;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.routines.Routine;
@@ -34,25 +35,32 @@ import static java.util.Comparator.comparingInt;
 public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements BytecodeGeneration {
   public RoutineManager routineManager;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
+  private final InstructionExecutor instructionExecutor;
+  private GameData gameData;
+
+  public StackAnalyzer getStackAnalyzer() {
+    return stackAnalyzer;
+  }
+
+  private final StackAnalyzer stackAnalyzer;
   private RegistersSetter registersSetter;
-  private RandomAccessInstructionFetcher randomAccessInstructionFetcher;
 
   public RealCodeBytecodeCreationBase(RoutineFinderInstructionSpy routineFinderInstructionSpy1, RoutineManager routineManager1,
                                       InstructionExecutor instructionExecutor1,
                                       SymbolicExecutionAdapter executionAdapter, InstructionTransformer instructionCloner1,
-                                      InstructionExecutor transformerInstructionExecutor1, OOZ80 z80, OpcodeConditions opcodeConditions, RegistersSetter registersSetter1) {
+                                      InstructionExecutor instructionExecutor, OOZ80 z80, OpcodeConditions opcodeConditions,
+                                      RegistersSetter registersSetter1, StackAnalyzer stackAnalyzer) {
     super(routineFinderInstructionSpy1, z80, opcodeConditions);
     routineManager = routineManager1;
 
     symbolicExecutionAdapter = executionAdapter;
-    RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> transformerInstructionExecutor1.getInstructionAt(address);
-    routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
+    this.instructionExecutor = instructionExecutor;
+    this.stackAnalyzer = stackAnalyzer;
     registersSetter = registersSetter1;
   }
 
   public void reset() {
     super.reset();
-    routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
   }
 
   public List<Routine> getRoutines() {
@@ -80,15 +88,19 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
 
   @Override
   public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className, SymbolicExecutionAdapter symbolicExecutionAdapter) {
-    return getDecompiledSource(className, targetFolder, getState(), !base64Memory.isBlank(), this.symbolicExecutionAdapter, base64Memory);
+    return getDecompiledSource(className, targetFolder, getState(), !base64Memory.isBlank(), this.symbolicExecutionAdapter, base64Memory, gameData);
   }
 
 
   public void translateToJava(String className, String memoryInBase64, String startMethod) {
-    BytecodeGeneration.super.translateToJava(className, startMethod, getState(), !memoryInBase64.isBlank(), symbolicExecutionAdapter, memoryInBase64);
+    BytecodeGeneration.super.translateToJava(className, startMethod, getState(), !memoryInBase64.isBlank(), symbolicExecutionAdapter, memoryInBase64, gameData);
   }
 
   public RegistersSetter getRegistersSetter() {
     return registersSetter;
+  }
+
+  public void setGameData(GameData gameData) {
+    this.gameData = gameData;
   }
 }

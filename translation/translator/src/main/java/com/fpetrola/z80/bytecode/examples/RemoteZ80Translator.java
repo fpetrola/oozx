@@ -79,8 +79,15 @@ public class RemoteZ80Translator {
     remoteZ80Translator.translate(action, gameName, url, startRoutineAddress, screenURL, emulateUntil);
   }
 
-  public static  String emulateUntil(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, int address, String url) {
-    EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX(url, 1, false, address, false);
+  public static String emulateUntil(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, int emulateUntil, String url) {
+    return emulate(realCodeBytecodeCreationBase, new EmulatedMiniZX(url, 1, false, emulateUntil, false, realCodeBytecodeCreationBase.getStackAnalyzer()));
+  }
+
+  public static String emulateRecording(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, String rzxFile, int frames) {
+    return emulate(realCodeBytecodeCreationBase, EmulatedMiniZX.ofRecording(rzxFile, frames, realCodeBytecodeCreationBase.getStackAnalyzer()));
+  }
+
+  private static String emulate(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, EmulatedMiniZX emulatedMiniZX) {
     emulatedMiniZX.start();
 
     State state = emulatedMiniZX.ooz80.getState();

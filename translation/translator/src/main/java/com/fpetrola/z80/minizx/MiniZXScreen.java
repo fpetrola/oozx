@@ -18,12 +18,12 @@
 
 package com.fpetrola.z80.minizx;
 
+import com.fpetrola.z80.memory.MemoryWriteListener;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.AffineTransform;
-import java.util.Arrays;
 import java.util.function.Function;
 
 public class MiniZXScreen extends JPanel {
@@ -32,21 +32,20 @@ public class MiniZXScreen extends JPanel {
   protected final byte[] newScreen;
   protected boolean flashState = false;
   private double zoom = 2;
-  Color[] colors = {Color.BLACK, Color.BLUE, Color.RED, Color.MAGENTA, Color.GREEN, Color.CYAN, Color.YELLOW, Color.WHITE};
 
   public MiniZXScreen(Function<Integer, Integer> screenMemory) {
     this.screenMemory = screenMemory;
     this.newScreen = new byte[256 * 192];
     setPreferredSize(new Dimension((int) (256 * zoom), (int) (192 * zoom)));
 
-    new Timer(10, e -> {
+    new Timer(5, e -> {
       convertScreen();
       repaint();
     }).start();
 
-//    new Timer(500, e -> {
-//      flashState = !flashState;
-//    }).start();
+    new Timer(300, e -> {
+      flashState = !flashState;
+    }).start();
 
     this.addComponentListener(new ComponentAdapter() {
       @Override
@@ -83,14 +82,14 @@ public class MiniZXScreen extends JPanel {
       double y = i / 256;
 
       int zxColorCode = newScreen[i];
-      g2d.setColor(zxColorCode >= 8 ? colors[zxColorCode - 8] : colors[zxColorCode].darker());
+      g2d.setColor(zxColorCode >= 8 ? ZxColor.colors[zxColorCode - 8] : ZxColor.colors[zxColorCode].darker());
       g2d.fillRect((int) x, (int) y, 1, 1);
     }
     g2d.dispose();
   }
 
   protected void convertScreen() {
-    Arrays.fill(newScreen, (byte) 0);
+//    Arrays.fill(newScreen, (byte) 0);
 
     for (int block = 0; block < 3; block++) {
       int blockAddrOffset = block * 2048;
@@ -122,13 +121,14 @@ public class MiniZXScreen extends JPanel {
   }
 
   protected void writeColourPixelToNewScreen(byte pixel, int newScreenAddress) {
-    Colour colour = Colour.colourFromAttribute((byte) screenMemory.apply(22528 + (newScreenAddress / 2048) * 32 + (newScreenAddress / 8) % 32).intValue());
+    ZxColor zxColor = new ZxColor((byte) (int) screenMemory.apply(22528 + (newScreenAddress / 2048) * 32 + (newScreenAddress / 8) % 32));
 //    Colour colour = Colour.colourFromAttribute((byte) 2);
+//    zxColor = new ZxColor(7);
 
-    byte paperColour = colour.PAPER;
-    byte inkColour = colour.INK;
+    byte paperColour = zxColor.PAPER;
+    byte inkColour = zxColor.INK;
 
-    if (colour.FLASH && flashState) {
+    if (zxColor.FLASH && flashState) {
       byte newINK = paperColour;
       paperColour = inkColour;
       inkColour = newINK;
@@ -139,7 +139,7 @@ public class MiniZXScreen extends JPanel {
       colourID = inkColour;
     }
 
-    if (colour.BRIGHT) {
+    if (zxColor.BRIGHT) {
       colourID += 8;
     }
 
@@ -156,21 +156,46 @@ public class MiniZXScreen extends JPanel {
     return bits;
   }
 
-  protected static class Colour {
-    boolean FLASH;
-    boolean BRIGHT;
-    byte PAPER;
-    byte INK;
+  public MemoryWriteListener getMemoryListener() {
+    return (MemoryWriteListener) (address, value) -> {
+      int address1 = address;
+      if (address1 >= 16384 && address1 <= 16384 + 6912) {
 
-    protected static Colour colourFromAttribute(byte attribute) {
-      Colour colour = new Colour();
+        int[] ints = memoryToCartesian(address1);
 
-      colour.FLASH = (attribute & 0x80) != 0;
-      colour.BRIGHT = (attribute & 0x40) != 0;
-      colour.PAPER = (byte) ((attribute >> 3) & 0x07);
-      colour.INK = (byte) (attribute & 0x07);
+        byte[] pixels = byteToBits((byte) value);
+        for (int pixel = 7; pixel >= 0; pixel--) {
+          int blockAddrOffset = ints[0];
+          writeColourPixelToNewScreen(pixels[pixel], blockAddrOffset + pixel);
+        }
+//        convertScreen();
 
-      return colour;
-    }
+//        System.out.println("sdgdag");
+      }
+    };
+
   }
+
+  public int[] memoryToCartesian(int address) {
+    // Check if the address is within the valid range
+    if (address < 0x4000 || address > 0x57FF) {
+      throw new IllegalArgumentException("Address out of screen memory range (0x4000 to 0x57FF)");
+    }
+
+    // Calculate the base address relative to 0x4000
+    int baseAddress = address - 0x4000;
+
+    // Calculate the logical row based on ZX Spectrum screen layout
+    int rowWithinSection = (baseAddress % 0x800) / 32; // Row within 8-row block
+    int section = baseAddress / 0x800; // Determine the section (0, 1, 2)
+    int logicalRow = (rowWithinSection & 0b111)         // Bottom 3 bits (row within the block)
+        + ((rowWithinSection >> 3) * 8)      // Combine middle bits for block offset
+        + section * 64;                     // Add section offset
+
+    // Calculate the column (x-coordinate)
+    int column = (baseAddress % 32) * 8; // Each byte contains 8 pixels
+
+    return new int[]{column, logicalRow};
+  }
+
 }

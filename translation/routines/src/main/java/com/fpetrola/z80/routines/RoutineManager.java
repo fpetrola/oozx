@@ -18,16 +18,18 @@
 
 package com.fpetrola.z80.routines;
 
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.CodeBlockType;
 import com.fpetrola.z80.blocks.NullBlockChangesListener;
-import com.fpetrola.z80.cpu.RandomAccessInstructionFetcher;
-import com.fpetrola.z80.se.DataflowService;
+import com.fpetrola.z80.ide.RoutineHandlingListener;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,25 +37,35 @@ import java.util.Optional;
 import static java.util.Comparator.comparingInt;
 
 public class RoutineManager {
+  public void setRoutineHandlingListener(RoutineHandlingListener routineHandlingListener) {
+    this.routineHandlingListener = routineHandlingListener;
+  }
+
+  private RoutineHandlingListener routineHandlingListener = new RoutineHandlingListener() {
+  };
   public ListValuedMap<Integer, Integer> callers = new ArrayListValuedHashMap<>();
   public ListValuedMap<Integer, Integer> callees = new ArrayListValuedHashMap<>();
   public ListValuedMap<Integer, Integer> callers2 = new ArrayListValuedHashMap<>();
   public BlocksManager blocksManager;
   private List<Routine> routines = new ArrayList<>();
 
-  public RandomAccessInstructionFetcher getRandomAccessInstructionFetcher() {
-    return randomAccessInstructionFetcher;
+  public RoutineManager(BlocksManager blocksManager, RoutineHandlingListener routineHandlingListener) {
+    this(blocksManager);
+    this.routineHandlingListener = routineHandlingListener;
   }
 
-  private RandomAccessInstructionFetcher randomAccessInstructionFetcher;
+  private final Map<Integer, Instruction> instructions = new HashMap<>();
 
   public RoutineManager() {
-    BlocksManager blocksManager1 = new BlocksManager(new NullBlockChangesListener(), true);
-    this.blocksManager = blocksManager1;
+    this(new BlocksManager(new NullBlockChangesListener(), true));
+  }
+
+  public RoutineManager(BlocksManager blocksManager) {
+    this.blocksManager = blocksManager;
   }
 
   public Routine findRoutineAt(int address) {
-    Optional<Routine> first = routines.stream().filter(r -> r.contains(address)).findFirst();
+    Optional<Routine> first = new ArrayList<>(routines).stream().filter(r -> r != null && r.contains(address)).findFirst();
     if (first.isPresent()) {
       return first.get().findRoutineAt(address);
     } else
@@ -65,6 +77,7 @@ public class RoutineManager {
       System.out.println("dfasfasf!!!!");
     routines.add(routine);
     routine.setRoutineManager(this);
+    routineHandlingListener.routineAdded(routine);
     return routine;
   }
 
@@ -83,7 +96,9 @@ public class RoutineManager {
 
     do {
       changes = false;
-      for (Routine routine : new ArrayList<>(routines))
+      ArrayList<Routine> routines1 = new ArrayList<>(routines);
+      Collections.reverse(routines1);
+      for (Routine routine : routines1)
         changes |= routine.splitVirtualRoutines();
     } while (changes);
   }
@@ -97,11 +112,20 @@ public class RoutineManager {
     return addRoutine(new Routine(foundBlock, startAddress, false));
   }
 
-  public void setRandomAccessInstructionFetcher(RandomAccessInstructionFetcher randomAccessInstructionFetcher) {
-    this.randomAccessInstructionFetcher = randomAccessInstructionFetcher;
+  public void recordInstruction(int address, Instruction instruction) {
+    instructions.put(address, instruction);
+  }
+
+  public Instruction getInstructionAt(int address) {
+    return instructions.get(address);
+  }
+
+  public int addressAfter(int address) {
+    return address + instructions.get(address).getLength();
   }
 
   public void reset() {
+    instructions.clear();
     blocksManager.clear();
     routines.clear();
     callees.clear();
@@ -111,6 +135,7 @@ public class RoutineManager {
 
   public void removeRoutine(Routine routine) {
     routines.remove(routine);
+    routineHandlingListener.routineRemoved(routine);
   }
 
   public List<Routine> getRoutinesInDepth() {

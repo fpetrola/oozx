@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2025 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2024 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -16,21 +16,8 @@
  *
  */
 
-package com.fpetrola.z80.se;
+package com.fpetrola.z80.bytecode.generators;
 
-
-public class ReturnAddressWordNumber  {
-  public final int value;
-  /** PC of the call that pushed this: the identity WordNumber used to provide. */
-  public final int pc;
-
-  public ReturnAddressWordNumber(int value, int pc) {
-    this.value = value & 0xFFFF;
-    this.pc = pc;
-  }
-
-
-  public ReturnAddressWordNumber createInstance(int value) {
-    return new ReturnAddressWordNumber(value & 0xFFFF, pc);
-  }
+public enum MemoryType {
+  Sprite, Sound, Structure, Attribute
 }

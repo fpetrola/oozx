@@ -76,6 +76,9 @@ public class DefaultInstructionExecutor implements InstructionExecutor {
   }
 
   public void addTopExecutionListener(ExecutionListener executionListener) {
+    this.executionListener = this.executionListener == dummyExecutionListener
+        ? executionListener
+        : new ExecutionListeners(executionListener, this.executionListener);
   }
 
   public boolean isExecuting(Instruction instruction) {

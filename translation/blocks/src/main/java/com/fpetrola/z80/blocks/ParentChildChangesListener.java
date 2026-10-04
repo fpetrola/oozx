@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2025 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2024 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -16,12 +16,18 @@
  *
  */
 
-package com.fpetrola.z80.se;
+package com.fpetrola.z80.blocks;
 
-public interface IPopReturnAddress  {
-  ReturnAddressWordNumber getReturnAddress();
+public interface ParentChildChangesListener<T> {
+  void removingKnownBlock(T block, T calledBlock);
 
-  int getPreviousPc();
+  void addingKnownBLock(T block, T calledBlock, int from);
 
-  int getPopAddress();
+  void removingBlock(T block);
+
+  void addingBlock(T block);
+
+  void blockChanged(T block);
+
+  void replaceBlock(T oldBlock, T newBlock);
 }

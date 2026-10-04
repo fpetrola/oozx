@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright (c) 2023-2025 Fernando Damian Petrola
+ *  * Copyright (c) 2023-2024 Fernando Damian Petrola
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -19,30 +19,21 @@
 package com.fpetrola.z80.se.instructions;
 
 import com.fpetrola.z80.cpu.State;
-import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
-import com.fpetrola.z80.instructions.impl.*;
+import com.fpetrola.z80.instructions.impl.JP;
+import com.fpetrola.z80.instructions.impl.Ld;
+import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.RegisterName;
-import com.fpetrola.z80.se.ReturnAddressWordNumber;
 import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
-import com.fpetrola.z80.se.actions.JPRegisterAddressAction;
-import com.fpetrola.z80.se.actions.SePop;
 import com.fpetrola.z80.se.actions.PushReturnAddress;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class SEInstructionFactory extends DefaultInstructionFactory {
   private final SymbolicExecutionAdapter symbolicExecutionAdapter;
-  public static Map<java.lang.Integer, JPRegisterAddressAction.DynamicJPData> dynamicJP = new HashMap<>();
   private final DataflowService dataflowService;
 
   public void reset() {
-    dynamicJP.clear();
-    SeJP.lastData = null;
   }
 
   public SEInstructionFactory(SymbolicExecutionAdapter symbolicExecutionAdapter, State state, DataflowService dataflowService1) {
@@ -54,38 +45,11 @@ public class SEInstructionFactory extends DefaultInstructionFactory {
   public Ld Ld(OpcodeReference target, ImmutableOpcodeReference source) {
     return new Ld(target, source, flag) {
       public void execute() {
-//        if (target instanceof Register register) {
-//          if (register.getName().equals(RegisterName.SP.name())) {
-//            symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().printStack();
-//            return 0;
-//          }
-//        }
-
-        if (target instanceof Register register) {
-          if (register.getName().equals(RegisterName.SP.name())) {
-            System.out.println("LD SP at: " + Helper.formatAddress(pc.read()));
-            if (pc.read() != 0x8185) {
-              int i = source.read();
-              if (source instanceof IndirectMemory16BitReference indirectMemory16BitReference) {
-                symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().restoringSP(i);
-              } else
-                symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().changingSP(i);
-            }
-          }
-        }
-
-        if (source instanceof IndirectMemory16BitReference indirectMemory16BitReference) {
-          int value = source.read();
-          int address = indirectMemory16BitReference.address;
-          int aLU8Assign = value;
-//          target.write( new DirectAccessWordNumber(aLU8Assign, pc.read(), address));
-        } else if (source instanceof IndirectMemory8BitReference indirectMemory8BitReference) {
-          int value = source.read();
-          int address = indirectMemory8BitReference.address;
-          int aLU8Assign = value;
-//          target.write((T) new DirectAccessWordNumber(aLU8Assign, pc.read(), address));
-
-        } else
+        boolean storesThroughRegister = target instanceof MemoryPlusRegister8BitReference
+            || target instanceof IndirectMemory8BitReference indirect && indirect.getTarget() instanceof Register;
+        if (storesThroughRegister)
+          source.read();
+        else
           super.execute();
       }
 
@@ -95,139 +59,31 @@ public class SEInstructionFactory extends DefaultInstructionFactory {
     };
   }
 
-  public Ret Ret(Condition condition) {
-    return new Ret(condition, sp, memory, pc) {
+  @Override
+  public JP JP(ImmutableOpcodeReference target, Condition condition) {
+    return new JP(target, condition, pc) {
       public void execute() {
-//            if (!getRoutineExecution().hasActionAt(getPcValue()))
-//              getRoutineExecution().replaceAddressAction(new RetAddressAction(getRoutineExecution(), getPcValue()));
-//            addressAction = getRoutineExecution().getActionInAddress(getPcValue());
-
-        super.execute();
+        if (positionOpcodeReference instanceof Register) {
+          if (condition.conditionMet(this)) {
+            int address = calculateJumpAddress();
+            setJumpAddress(address);
+            setNextPC(address);
+          } else
+            setNextPC(-1);
+        } else
+          super.execute();
       }
 
-      protected String getName() {
-        return "Ret_";
+      public int calculateJumpAddress() {
+        int wordNumber = super.calculateJumpAddress();
+        if (wordNumber == 40838)
+          wordNumber= 34463;
+        return wordNumber;
       }
     };
-  }
-
-  public Pop Pop(OpcodeReference target) {
-    return new SePop(symbolicExecutionAdapter, target, sp, memory, flag);
   }
 
   public Push Push(OpcodeReference target) {
     return new PushReturnAddress(symbolicExecutionAdapter, target, sp, memory);
-  }
-
-  @Override
-  public JP JP(ImmutableOpcodeReference target, Condition condition) {
-    return new SeJP(target, condition);
-  }
-
-  private com.fpetrola.z80.registers.RegisterPair bcPair() {
-    return (com.fpetrola.z80.registers.RegisterPair) state.getRegister(com.fpetrola.z80.registers.RegisterName.BC);
-  }
-
-  /*
-   * A block instruction runs once here. It becomes one call in the code that comes out, and an
-   * address is explored once, so looping would arrive back where it started and read as ground
-   * already covered.
-   */
-  @Override
-  public Ldir Ldir() {
-    return new Ldir(pc, bcPair(), Ldi()) {
-      protected boolean checkLoopCondition() {
-        return false;
-      }
-    };
-  }
-
-  @Override
-  public Lddr Lddr() {
-    return new Lddr(pc, bcPair(), Ldd()) {
-      protected boolean checkLoopCondition() {
-        return false;
-      }
-    };
-  }
-
-  @Override
-  public Cpir Cpir() {
-    return new Cpir(state.getFlag(), bcPair(), pc, Cpi()) {
-      protected boolean checkLoopCondition() {
-        return false;
-      }
-    };
-  }
-
-  @Override
-  public Cpdr Cpdr() {
-    return new Cpdr(pc, bcPair(), state.getFlag(), Cpd()) {
-      protected boolean checkLoopCondition() {
-        return false;
-      }
-    };
-  }
-
-  public Call Call(Condition condition, ImmutableOpcodeReference positionOpcodeReference) {
-    return new Call(positionOpcodeReference, condition, pc, sp, this.state.getMemory()) {
-      public int beforeJump(int jumpAddress) {
-        int callPc = pc.read();
-        int value = (callPc + length) & 0xFFFF;
-        Push.doPush(value, sp, memory);
-        symbolicExecutionAdapter.markReturnAddress(sp.read(), new ReturnAddressWordNumber(value, callPc));
-        return jumpAddress;
-      }
-
-      protected String getName() {
-        return "Call_";
-      }
-    };
-  }
-
-  public class SeJP extends JP {
-
-    public static Integer lastData;
-
-    public SeJP(ImmutableOpcodeReference target, Condition condition) {
-      super(target, condition, SEInstructionFactory.this.pc);
-    }
-
-//    @Override
-//    public int calculateJumpAddress() {
-//      int t = super.calculateJumpAddress();
-//      if (pc.read().intValue() > 16384 && t.intValue() < 16384) {
-//        return jumpAddress = WordNumber.createValue(pc.read().intValue() + 3);
-//      } else {
-//        return t;
-//      }
-//    }
-
-    @Override
-    public void execute() {
-      if (positionOpcodeReference instanceof Register register) {
-        boolean b = condition.conditionMet(this);
-
-        int pcValue = pc.read();
-        int pointerAddress = dataflowService.findValueOrigin(register);
-        if (dynamicJP.get(pcValue) == null) {
-          dynamicJP.put(pcValue, new JPRegisterAddressAction.DynamicJPData(pcValue, register.read(), pointerAddress));
-        }
-        System.out.println("JP (HL): PC: %H, HL: %H".formatted(pcValue, register.read()));
-//              Pop.doPop(memory, sp);
-//              setNextPC(createValue(pc.read().intValue() + 1));
-        if (lastData == null)
-          super.execute();
-        else {
-          setNextPC(lastData);
-        }
-      } else
-        super.execute();
-    }
-
-    protected String getName() {
-      return "JP_";
-    }
-
   }
 }

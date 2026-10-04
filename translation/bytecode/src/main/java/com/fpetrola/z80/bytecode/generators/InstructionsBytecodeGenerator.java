@@ -18,7 +18,9 @@
 
 package com.fpetrola.z80.bytecode.generators;
 
+import com.fpetrola.z80.bytecode.generators.helpers.Composed16BitRegisterVariable;
 import com.fpetrola.z80.bytecode.generators.helpers.PendingFlagUpdate;
+import com.fpetrola.z80.bytecode.generators.helpers.VariableDelegator;
 import com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.helpers.Helper;
@@ -28,13 +30,12 @@ import com.fpetrola.z80.minizx.StackException;
 import com.fpetrola.z80.opcodes.references.ConditionFlag;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.se.instructions.SEInstructionFactory;
-import com.fpetrola.z80.se.actions.JPRegisterAddressAction;
+import com.fpetrola.z80.transformations.StackAnalyzer;
 import org.cojen.maker.Label;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
-import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 @SuppressWarnings("ALL")
@@ -127,7 +128,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
   protected void invokeRlc(Variable t, Variable variable, String functionName) {
     Variable f = getF();
-    Variable invoke = methodMaker.invoke(functionName, variable, f);
+    Variable invoke = methodMaker.invoke(functionName, variable, f.get());
     t.set(invoke.aget(0));
     f.set(invoke.aget(1));
   }
@@ -255,7 +256,9 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   @Override
   public boolean visitingSra(SRA sra) {
     sra.accept(new VariableHandlingInstructionVisitor((s, t) -> {
-      t.set(t.shr(1).or(t.and(0x80)));
+     // t.set(t.shr(1).or(t.and(0x80)));
+      Variable sra1 = methodMaker.invoke("sra", t.get());
+      t.set(sra1);
     }, routineByteCodeGenerator));
     return true;
   }
@@ -279,7 +282,8 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   public boolean visitingInc(Inc inc) {
     final Variable[] and = new Variable[1];
     VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> {
-      and[0] = t.add(1).and(0xff);
+      // and[0] = t.add(1).and(0xff);
+      and[0] = methodMaker.invoke("inc", t.get());
       t.set(and[0]);
     }, routineByteCodeGenerator);
     inc.accept(visitor);
@@ -290,7 +294,13 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   public void visitingXor(Xor xor) {
     VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> xorAndSet(s, t), routineByteCodeGenerator);
     xor.accept(visitor);
-    processFlag(xor, () -> visitor.targetVariable.shl(1));
+    processFlag(xor, () -> getShl(visitor));
+  }
+
+  private Variable getShl(VariableHandlingInstructionVisitor visitor) {
+//    return visitor.targetVariable.shl(1);
+    return methodMaker.invoke("flagZ", visitor.targetVariable.get());
+//    return visitor.targetVariable;
   }
 
   public boolean visitingCpl(CPL cpl) {
@@ -304,20 +314,23 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   public void visitingOr(Or or) {
     VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> orAndSet(s, t), routineByteCodeGenerator);
     or.accept(visitor);
-    processFlag(or, () -> visitor.targetVariable.shl(1));
+    processFlag(or, () -> getShl(visitor));
   }
 
   @Override
   public void visitingAnd(And and) {
     VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> andAndSet(s, t), routineByteCodeGenerator);
     and.accept(visitor);
-    processFlag(and, () -> visitor.targetVariable.shl(1));
+    processFlag(and, () -> getShl(visitor));
   }
 
   public boolean visitingAdd16(Add16 add16) {
-//    if (add16.getSource() instanceof Register<?> register && register.getName().equals("SP"))
+//    if (add16.getSource() instanceof Register register && register.getName().equals("SP"))
 //      return false;
-    add16.accept(new VariableHandlingInstructionVisitor((s, t) -> getSet(s, t, 0xffff), routineByteCodeGenerator));
+    add16.accept(new VariableHandlingInstructionVisitor((s, t) -> {
+//      getSet(s, t, 0xffff);
+      t.set(methodMaker.invoke("add16", t.get(), s));
+    }, routineByteCodeGenerator));
     return false;
   }
 
@@ -348,21 +361,28 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   }
 
   public void visitingInc16(Inc16 inc16) {
-    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.add(1).and(0xffff)), routineByteCodeGenerator);
+    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> {
+//      t.set(t.add(1).and(0xffff));
+      t.set(methodMaker.invoke("inc16", t.get()));
+    }, routineByteCodeGenerator);
     inc16.accept(visitor);
   }
 
   @Override
   public void visitingDec16(Dec16 dec16) {
-    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.sub(1).and(0xffff)), routineByteCodeGenerator);
+    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> {
+//      t.set(t.sub(1).and(0xffff));
+      t.set(methodMaker.invoke("dec16", t.get()));
+    }, routineByteCodeGenerator);
     dec16.accept(visitor);
   }
 
   public boolean visitingAdd(Add add) {
     Variable[] add1 = new Variable[1];
     VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> {
-      add1[0] = t.add(s);
-      t.set(add1[0].and(0xFF));
+//      add1[0] = t.add(s);
+      add1[0] = methodMaker.invoke("add", t.get(), s);
+      t.set(add1[0]);
     }, routineByteCodeGenerator);
     add.accept(visitor);
     processFlag(add, () -> add1[0]);
@@ -371,12 +391,14 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
   @Override
   public void visitingAdc(Adc adc) { //TODO: revisar
-    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.add(s).add(methodMaker.invoke("carry", getF()).and(255))), routineByteCodeGenerator);
+    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.add(s).add(methodMaker.invoke("carry", getF().get()).and(0xff))), routineByteCodeGenerator);
     adc.accept(visitor);
     processFlag(adc, () -> visitor.targetVariable);
   }
 
   private Variable getF() {
+//    Variable variable1 = routineByteCodeGenerator.variables.get("F");
+//    return variable1;
     return routineByteCodeGenerator.getExistingVariable("F");
   }
 
@@ -392,28 +414,33 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
   @Override
   public void visitingSbc(Sbc sbc) { //TODO: revisar
-    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.sub(s).and(0xff)), routineByteCodeGenerator);
+    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.sub(s).sub(methodMaker.invoke("carry", getF()).and(0xff))), routineByteCodeGenerator);
     sbc.accept(visitor);
     processFlag(sbc, () -> visitor.targetVariable);
   }
 
   @Override
   public boolean visitingSbc16(Sbc16 sbc16) {
-    sbc16.accept(new VariableHandlingInstructionVisitor((s, t) -> t.set(t.sub(s).and(0xffff)), routineByteCodeGenerator));
+    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.sub(s).sub(methodMaker.invoke("carry", getF().get())).and(0xffff)), routineByteCodeGenerator);
+    sbc16.accept(visitor);
+    processFlag(sbc16, () -> visitor.targetVariable);
     return false;
   }
 
 
   @Override
   public boolean visitingAdc16(Adc16 adc16) {
-    adc16.accept(new VariableHandlingInstructionVisitor((s, t) -> getSet(s, t, 0xffff), routineByteCodeGenerator));
+    VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> t.set(t.add(s).add(methodMaker.invoke("carry", getF().get()).and(0xffff))), routineByteCodeGenerator);
+    adc16.accept(visitor);
+    processFlag(adc16, () -> visitor.targetVariable);
     return false;
   }
 
   public boolean visitingDec(Dec dec) {
     final Variable[] and = new Variable[1];
     VariableHandlingInstructionVisitor visitor = new VariableHandlingInstructionVisitor((s, t) -> {
-      and[0] = t.sub(1).and(0xff);
+//      and[0] = t.sub(1).and(0xff);
+      and[0] = methodMaker.invoke("dec", t.get());
       t.set(and[0]);
     }, routineByteCodeGenerator);
     dec.accept(visitor);
@@ -428,7 +455,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
   private void processFlag(DefaultTargetFlagInstruction targetFlagInstruction, Supplier<Variable> targetVariable) {
     Variable value = targetVariable.get();
-    setFlagPreservingCarry(value);
+    setFlagPreservingCarry(RoutineBytecodeGenerator.getRealVariable(value));
 
     routineByteCodeGenerator.lastTargetFlagInstruction = targetFlagInstruction;
 
@@ -454,10 +481,10 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   }
 
   public void visitingLd(Ld ld) {
-//    if (ld.getTarget() instanceof Register<?> register && register.getName().equals("SP"))
+//    if (ld.getTarget() instanceof Register register && register.getName().equals("SP"))
 //      return;
 //
-//    if (ld.getSource() instanceof Register<?> register && register.getName().equals("SP"))
+//    if (ld.getSource() instanceof Register register && register.getName().equals("SP"))
 //      return;
 
     ld.accept(new VariableHandlingInstructionVisitor((s, t) -> t.set(s), routineByteCodeGenerator));
@@ -465,11 +492,22 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
 
   public void visitingCp(Cp cp) {
-    cp.accept(new VariableHandlingInstructionVisitor((s, t) -> processFlag(cp, () -> t.sub(s), () -> s), routineByteCodeGenerator));
+    cp.accept(new VariableHandlingInstructionVisitor((s, t) -> processFlag(cp, () -> {
+      return methodMaker.invoke("cp", t.get(), s);
+    }, () -> s), routineByteCodeGenerator));
   }
 
   public boolean visitingRet(Ret ret) {
-    createIfs(ret, () -> routineByteCodeGenerator.returnFromMethod());
+    StackAnalyzer stackAnalyzer = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer();
+    int pcValue = routineByteCodeGenerator.context.pc.read();
+
+    Set invocationsSet = stackAnalyzer.getInvocationsSet(pcValue);
+    if (invocationsSet.isEmpty())
+      createIfs(ret, () -> routineByteCodeGenerator.returnFromMethod());
+    else {
+      Variable poppedValue = methodMaker.invoke("pop");
+      invokeDynamicCall(invocationsSet, poppedValue);
+    }
     return true;
   }
 
@@ -485,6 +523,8 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   }
 
   private void createIfs(Instruction instruction, Runnable runnable) {
+    if (routineByteCodeGenerator.context.pc.read() == 0xF2DD)
+      System.out.println("aegassg");
     OpcodeReferenceVisitor opcodeReferenceVisitor = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
     if (instruction instanceof DJNZ djnz) {
       processDjnz(runnable, djnz, opcodeReferenceVisitor);
@@ -506,8 +546,8 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   }
 
   private void processExistingCondition(Runnable runnable, ConditionalInstruction conditionalInstruction, ConditionFlag conditionFlag, OpcodeReferenceVisitor opcodeReferenceVisitor) {
-    if (routineByteCodeGenerator.context.pc.read() == 0xD9AC)
-      System.out.println("break");
+//    if (routineByteCodeGenerator.context.pc.read() == 0xBA12)
+//      System.out.println("break");
     Variable f = opcodeReferenceVisitor.process((Register) conditionFlag.getRegister());
     String string = conditionalInstruction.getCondition().toString();
     Object source;
@@ -543,6 +583,8 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
             else if (string.equals("C")) targetVariable.ifNe(source, runnable);
             else if (string.equals("NS")) targetVariable.ifGe(source, runnable);
             else if (string.equals("S")) targetVariable.ifLt(source, runnable);
+            else if (string.equals("P")) targetVariable.ifGe(source, runnable);
+            else if (string.equals("NP")) targetVariable.ifLt(source, runnable);
             return;
           }
       }
@@ -560,6 +602,8 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
           else if (string.equals("C")) invoke.ifNe(source, runnable);
           else if (string.equals("NS")) invoke.ifGe(source, runnable);
           else if (string.equals("S")) invoke.ifLt(source, runnable);
+          else if (string.equals("P")) invoke.ifGe(source, runnable);
+          else if (string.equals("NP")) invoke.ifLt(source, runnable);
           return;
         }
 
@@ -569,26 +613,28 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
   private boolean isRotationInstruction(FlagInstruction targetFlagInstruction) {
     return targetFlagInstruction instanceof RR ||
-        targetFlagInstruction instanceof RRA ||
-        targetFlagInstruction instanceof RRC ||
-        targetFlagInstruction instanceof RRCA ||
-        targetFlagInstruction instanceof RL ||
-        targetFlagInstruction instanceof RLA ||
-        targetFlagInstruction instanceof RLC ||
-        targetFlagInstruction instanceof RLCA ||
-        targetFlagInstruction instanceof SLA ||
-        targetFlagInstruction instanceof SLL ||
-        targetFlagInstruction instanceof SRA ||
-        targetFlagInstruction instanceof SRL;
+           targetFlagInstruction instanceof RRA ||
+           targetFlagInstruction instanceof RRC ||
+           targetFlagInstruction instanceof RRCA ||
+           targetFlagInstruction instanceof RL ||
+           targetFlagInstruction instanceof RLA ||
+           targetFlagInstruction instanceof RLC ||
+           targetFlagInstruction instanceof RLCA ||
+           targetFlagInstruction instanceof SLA ||
+           targetFlagInstruction instanceof SLL ||
+           targetFlagInstruction instanceof SRA ||
+           targetFlagInstruction instanceof SRL;
   }
 
   private void executeCondition(Runnable runnable, String conditionString, Variable target, Object source) {
     if (conditionString.equals("NZ")) target.ifNe(source, runnable);
     else if (conditionString.equals("Z")) target.ifEq(source, runnable);
     else if (conditionString.equals("NC")) target.ifGe(source, runnable);
-    else if (conditionString.equals("C")) target.ifLt(source, runnable);
+    else if (conditionString.equals("C")) target.ifLe(source, runnable);
     else if (conditionString.equals("NS")) target.ifGe(source, runnable);
     else if (conditionString.equals("S")) target.ifLt(source, runnable);
+    else if (conditionString.equals("P")) target.ifGe(source, runnable);
+    else if (conditionString.equals("NP")) target.ifLt(source, runnable);
   }
 
   @Override
@@ -604,8 +650,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 //      createIfs(conditionalInstruction, () -> methodMaker.invoke(ByteCodeGenerator.createLabelName(i)));
       createIfs(conditionalInstruction, () -> {
         if (routineByteCodeGenerator.routine.getVirtualPop().containsKey(address)) {
-          int nextAddress = routineByteCodeGenerator.routine.getVirtualPop().get(address) + 1;
-          routineByteCodeGenerator.throwStackException(nextAddress, StackException.class);
+          routineByteCodeGenerator.throwStackException(routineByteCodeGenerator.continuationAfterVirtualPop(address), StackException.class);
 //          routineByteCodeGenerator.getField("nextAddress").set(nextAddress);
           incPopsAdded = true;
         } else {
@@ -623,6 +668,26 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
   public void visitExx(Exx exx) {
     methodMaker.invoke("exx");
+  }
+
+  public boolean visitLdi(Ldi tLdi) {
+    methodMaker.invoke("ldi");
+    return true;
+  }
+
+  public boolean visitLdd(Ldd ldd) {
+    methodMaker.invoke("ldi");
+    return true;
+  }
+
+  public boolean visitCpd(Cpd cpd) {
+    methodMaker.invoke("cpd");
+    return true;
+  }
+
+  public boolean visitCpi(Cpi cpi) {
+    methodMaker.invoke("cpi");
+    return true;
   }
 
   @Override
@@ -666,27 +731,34 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
   @Override
   public boolean visitingJP(JP jp) {
+    StackAnalyzer stackAnalyzer = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer();
     if (jp.getPositionOpcodeReference() instanceof Register register) {
-      Map<java.lang.Integer, JPRegisterAddressAction.DynamicJPData> dynamicJP = SEInstructionFactory.dynamicJP;
-      dynamicJP.forEach((djpc, dj) -> {
-        if (djpc == routineByteCodeGenerator.context.pc.read()) {
-          dj.cases.forEach(c -> {
-            Variable existingVariable = routineByteCodeGenerator.getExistingVariable(register);
-            existingVariable.ifEq(c, () -> {
-              Label label = routineByteCodeGenerator.getLabel(c);
-              if (label != null) {
-                methodMaker.goto_(label);
-              } else {
-                routineByteCodeGenerator.invokeTransformedMethod(c);
-                methodMaker.return_();
-              }
-            });
-          });
-        }
-      });
+      int pcValue1 = routineByteCodeGenerator.context.pc.read();
+      Set<Integer> invocationsSet = stackAnalyzer.getInvocationsSet(pcValue1);
+      invokeDynamicCall(invocationsSet, routineByteCodeGenerator.getExistingVariable(register));
       return true;
     } else
       return false;
+  }
+
+  private void invokeDynamicCall(Set<Integer> invocationsSet, Variable existingVariable) {
+    int pcValue1 = routineByteCodeGenerator.context.pc.read();
+    boolean isSimulatedCall = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().getSimulatedCallsPcs().contains(pcValue1);
+    if (isSimulatedCall)
+      methodMaker.invoke("pop");
+
+    invocationsSet.forEach(c -> {
+      existingVariable.ifEq(c, () -> {
+        Label label = routineByteCodeGenerator.getLabel(c);
+        if (label != null) {
+          methodMaker.goto_(label);
+        } else {
+          routineByteCodeGenerator.invokeTransformedMethod(c);
+          if (!isSimulatedCall)
+            methodMaker.return_();
+        }
+      });
+    });
   }
 
   public boolean visitLdAR(LdAR tLdAR) {

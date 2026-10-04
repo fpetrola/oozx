@@ -21,9 +21,13 @@ package com.fpetrola.z80.se;
 import com.fpetrola.z80.registers.Register;
 
 public interface DataflowService {
-  int findValueOrigin(Register register);
+  default int findValueOrigin(Register register) {
+    return 0;
+  }
 
   Integer findCurrentReturnAddress();
 
-  boolean isSyntheticReturnAddress();
+  default boolean isSyntheticReturnAddress() {
+    return false;
+  }
 }

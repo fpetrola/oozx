@@ -26,22 +26,29 @@ import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.transformations.InstructionTransformer;
 import com.fpetrola.z80.transformations.RoutineFinderInstructionSpy;
+import com.fpetrola.z80.transformations.StackAnalyzer;
 import com.google.inject.Inject;
 
 public class RoutinesDriverConfigurator extends DriverConfigurator {
 
+  private final StackAnalyzer stackAnalyzer;
   private OOZ80 z80;
 
   @Inject
-  public RoutinesDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state2, InstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter1, InstructionTransformer instructionCloner2, InstructionExecutor transformerInstructionExecutor, RegistersSetter registersSetter1, CPUExecutionContext secondContext2) {
+  public RoutinesDriverConfigurator(RoutineManager routineManager, RoutineFinderInstructionSpy routineFinderInstructionSpy1,
+                                    State state2, InstructionExecutor instructionExecutor2, SymbolicExecutionAdapter symbolicExecutionAdapter1,
+                                    InstructionTransformer instructionCloner2, InstructionExecutor transformerInstructionExecutor,
+                                    RegistersSetter registersSetter1, CPUExecutionContext secondContext2, StackAnalyzer stackAnalyzer) {
     super(routineManager, routineFinderInstructionSpy1, state2, instructionExecutor2,
         symbolicExecutionAdapter1, instructionCloner2, transformerInstructionExecutor,
         symbolicExecutionAdapter1.createOpcodeConditions(state2), registersSetter1, secondContext2);
+    this.stackAnalyzer = stackAnalyzer;
   }
 
   public RealCodeBytecodeCreationBase getRealCodeBytecodeCreationBase() {
-    OOZ80 z80 = new OOZ80(state1, symbolicExecutionAdapter.createInstructionFetcher(spy, state1, transformerInstructionExecutor, opcodeConditions), transformerInstructionExecutor);
-    return new RealCodeBytecodeCreationBase(spy, routineManager, instructionExecutor1, symbolicExecutionAdapter, instructionTransformer, transformerInstructionExecutor, z80, this.opcodeConditions, registersSetter);
+    OOZ80 z80 = new OOZ80(state1, symbolicExecutionAdapter.createInstructionFetcher(state1, opcodeConditions), transformerInstructionExecutor);
+    return new RealCodeBytecodeCreationBase(spy, routineManager, instructionExecutor1, symbolicExecutionAdapter, instructionTransformer,
+        transformerInstructionExecutor, z80, this.opcodeConditions, registersSetter, stackAnalyzer);
   }
 
   @Override
