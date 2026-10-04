@@ -125,7 +125,7 @@ public class RoutineBytecodeGenerator {
 
               int nextAddress = address + instruction.getLength();
               Routine continuationOwner = context.routineManager.findRoutineAt(nextAddress);
-              if (fallsThrough(instruction) && !routine.contains(nextAddress) && continuationOwner != null && isEnteredFromOutside(continuationOwner, nextAddress)) {
+              if (fallsThrough(instruction) && !routine.contains(nextAddress) && continuationOwner != null && (continuationOwner.getEntryPoint() == nextAddress ? !continuationOwner.isVirtual() : isEnteredFromOutside(continuationOwner, nextAddress))) {
                 jumpInto(nextAddress);
                 returnFromMethod();
               }

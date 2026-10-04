@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.minizx;
 
+import java.util.function.IntConsumer;
 import java.util.Map;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.Plain16BitRegister;
@@ -66,7 +67,6 @@ public abstract class SpectrumApplication {
 
   public int[] mem = new int[0x10000];
   static public IO io;
-  private final Stack<Integer> stack = new Stack<>();
 
   public boolean isOwnAddress(StackException stackException, int... integers) {
     nextAddress = stackException.getNextPC();
@@ -74,29 +74,51 @@ public abstract class SpectrumApplication {
   }
 
   public void executeMutantCode(int address) {
-    if (mem[address] == 0x77) {
-      int address1 = HL();
-      mem[address1] = A;
-    } else if (mem[address] == 0x7E) {
-      int address1 = HL();
-      A(mem[address1]);
-    } else if (mem[address] == 0x12) {
-      int address1 = DE();
-      mem[address1] = A;
-    } else if (mem[address] == 0x16) {
-      D(mem[address + 1]);
-    }
+    int opcode = mem[address], n = mem[address + 1 & 0xffff], nn = n | mem[address + 2 & 0xffff] << 8;
+    if ((opcode & 0xc7) == 0x06)
+      write8((opcode >> 3) & 7, n);
+    else if ((opcode & 0xcf) == 0x01)
+      new IntConsumer[]{this::BC, this::DE, this::HL, this::SP}[opcode >> 4].accept(nn);
+    else if (opcode == 0xcd)
+      invokeMethod(nn);
+    else if (opcode == 0x77)
+      mem[HL()] = A;
+    else if (opcode == 0x7e)
+      A(mem[HL()]);
+    else if (opcode == 0x12)
+      mem[DE()] = A;
+    else
+      throw new IllegalStateException("self-modified opcode %02X at %04X".formatted(opcode, address));
+  }
 
-//    System.out.println("mutant at: " + address);
+  private void write8(int register, int value) {
+    switch (register) {
+      case 0 -> B(value);
+      case 1 -> C(value);
+      case 2 -> D(value);
+      case 3 -> E(value);
+      case 4 -> H(value);
+      case 5 -> L(value);
+      case 6 -> mem[HL()] = value;
+      default -> A(value);
+    }
   }
 
   private void invokeMethod(int address) {
     try {
-      String formatted = "$%04X".formatted(address);
-      Method method = getClass().getMethod(formatted);
+      Method method;
+      try {
+        method = getClass().getMethod("$" + Integer.toHexString(address).toUpperCase());
+      } catch (NoSuchMethodException decimalNamed) {
+        method = getClass().getMethod("$" + address);
+      }
       method.invoke(this);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+    } catch (java.lang.reflect.InvocationTargetException e) {
+      if (e.getCause() instanceof RuntimeException runtime)
+        throw runtime;
+      throw new RuntimeException(e.getCause());
+    } catch (ReflectiveOperationException e) {
+      throw new IllegalStateException("no translated routine at %04X".formatted(address), e);
     }
   }
 
@@ -209,11 +231,15 @@ public abstract class SpectrumApplication {
   }
 
   public void push(int value) {
-    stack.push(value);
+    SP = SP - 2 & 0xffff;
+    mem[SP] = value & 0xff;
+    mem[SP + 1 & 0xffff] = value >> 8 & 0xff;
   }
 
   public int pop() {
-    return stack.pop();
+    int value = mem[SP] | mem[SP + 1 & 0xffff] << 8;
+    SP = SP + 2 & 0xffff;
+    return value;
   }
 
 

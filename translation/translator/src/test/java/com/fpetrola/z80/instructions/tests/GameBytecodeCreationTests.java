@@ -124,9 +124,9 @@ public class GameBytecodeCreationTests {
 //    StackAnalyzer.collecting= false;
 
     StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
-    addDynamicInvocations(stackAnalyzer, "{60160=[60161, 60835, 60870, 60919, 60840, 60281, 60604, 60175], 60130=[60386, 60851, 60356, 60468, 60309, 60459, 60397, 60414], 61170=[62723, 63302, 62473, 62217, 62027, 62379, 63212, 62799, 62961, 62834, 62675, 63347, 60691, 62260, 63092, 62198, 62524, 62621, 62333], 43400=[43872, 43698, 43843, 43814, 43785, 43931, 43741]}");
+    addDynamicInvocations(stackAnalyzer, "{60160=[60161, 60835, 60870, 60919, 60840, 60281, 60604, 60175, 61383], 60130=[60386, 60851, 60356, 60468, 60309, 60459, 60397, 60414], 61170=[62723, 63302, 62473, 62217, 62027, 62379, 63212, 62799, 62961, 62834, 62675, 63347, 60691, 62260, 63092, 62198, 62524, 62621, 62333], 43400=[43872, 43698, 43843, 43814, 43785, 43931, 43741]}");
     stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());
-    testTranslateGame(memoryInBase64FromFile, 0x8185);
+    testTranslateGame(memoryInBase64FromFile, 0x8185, 0xB7F9, 0xEFC7, 0xF057, 0xF0AE, 0xF0C0, 0xF526);
     Assert.assertEquals("""
         {80E5:8183} -> [80E5 : 8139, 8155 : 8183]
         {813B:8154} -> [813B : 8154]
@@ -177,7 +177,7 @@ public class GameBytecodeCreationTests {
         {B2F1:B34A} -> [B2F1 : B34A]
         {B34C:B3AA} -> [B34C : B3AA]
         {B3AB:B3BD} -> [B3AB : B3BD]
-        {B3C3:EE9B} -> [B3C3 : B450, EABF : EB53, EB79 : EC0E, EC2B : EC3C, EC4A : EC5B, ECBC : ECF4, EDA3 : EDAB, EDB3 : EDBD, EDC6 : EE9B]
+        {B3C3:EE8C} -> [B3C3 : B450, EABF : EB53, EB79 : EC0E, EC2B : EC3C, EC4A : EC5B, ECBC : ECF4, EDA3 : EDAB, EDB3 : EDBD, EDC6 : EE8C]
         {B451:B470} -> [B451 : B470]
         {B471:B481} -> [B471 : B481]
         {B482:B4E6} -> [B482 : B4E6]
@@ -186,13 +186,15 @@ public class GameBytecodeCreationTests {
         {B715:B77A} -> [B715 : B77A]
         {B77B:B7B9} -> [B77B : B7B9]
         {B7BA:B7F8} -> [B7BA : B7F8]
+        {B7F9:B82A} -> [B7F9 : B82A]
         {B82B:B84A} -> [B82B : B84A]
         {B84B:B8C3} -> [B84B : B8C3]
         {B8C4:B8EC} -> [B8C4 : B8EC]
         {B8ED:B901} -> [B8ED : B901]
         {B902:B92C} -> [B902 : B92C]
         {B92D:B950} -> [B92D : B950]
-        {B952:B9AB} -> [B952 : B9AB]
+        {B952:B968} -> [B952 : B968]
+        {B969:B9AB} -> [B969 : B9AB]
         {B9AC:B9D5} -> [B9AC : B9D5]
         {B9D6:B9FA} -> [B9D6 : B9FA]
         {B9FB:BA24} -> [B9FB : BA24]
@@ -220,13 +222,25 @@ public class GameBytecodeCreationTests {
         {ED13:F7DD} -> [ED13 : ED29, EEC1 : EEF2, F24B : F26D, F2F6 : F2F6, F309 : F326, F334 : F374, F37D : F39F, F3AB : F3FC, F409 : F490, F49D : F4D1, F4D3 : F4FE, F503 : F525, F543 : F56D, F572 : F577, F5F1 : F64A, F674 : F6D0, F6EC : F739, F746 : F7DD]
         {ED2A:ED89} -> [ED2A : ED89]
         {ED8A:EDA2} -> [ED8A : EDA2]
+        {EE8D:EE9B} -> [EE8D : EE9B]
+        {EE9C:EE9E} -> [EE9C : EE9E]
         {EEA2:EEC0} -> [EEA2 : EEC0]
         {EF35:EF87} -> [EF35 : EF87]
         {EF88:EF90} -> [EF88 : EF90]
         {EF91:EFC6} -> [EF91 : EFC6]
+        {EFC7:F045} -> [EFC7 : F045]
         {F047:F056} -> [F047 : F056]
+        {F057:F0AD} -> [F057 : F0AD]
+        {F0AE:F0B1} -> [F0AE : F0B1]
+        {F0B2:F0B2} -> [F0B2 : F0B2]
+        {F0B3:F0B6} -> [F0B3 : F0B6]
+        {F0C0:F0EF} -> [F0C0 : F0EF]
+        {F0F0:F0FA} -> [F0F0 : F0FA]
+        {F0FB:F0FF} -> [F0FB : F0FF]
+        {F100:F103} -> [F100 : F103]
         {F10E:F157} -> [F10E : F157]
         {F277:F2F5} -> [F277 : F2F5]
+        {F526:F542} -> [F526 : F542]
         {F578:F5BD} -> [F578 : F5BD]
         {F814:F878} -> [F814 : F878]
         {F8B9:F939} -> [F8B9 : F939]
@@ -302,10 +316,12 @@ public class GameBytecodeCreationTests {
 //    testTranslateGame(getMemoryInBase64FromFile("file:////home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80"), 0xb542);
   }
 
-  private void testTranslateGame(String MemoryInBase64FromFile, int startAddress) {
+  private void testTranslateGame(String MemoryInBase64FromFile, int startAddress, int... reachedByTheRecording) {
     Helper.hex = true;
     String base64Memory = MemoryInBase64FromFile;
     stepUntilComplete(startAddress);
+    for (int address : reachedByTheRecording)
+      stepUntilComplete(address);
 //    translateToJava("ZxGame1", base64Memory, "$61483");
 
     List<Routine> routines = getRoutineManager().getRoutines();

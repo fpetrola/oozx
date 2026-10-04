@@ -152,6 +152,7 @@ public class SymbolicExecutionAdapter {
   private void stepAllAndProcessPending(Z80InstructionDriver z80InstructionDriver, State state, int firstAddress, int minimalValidCodeAddress) {
     this.z80InstructionDriver = z80InstructionDriver;
     this.minimalValidCodeAddress = minimalValidCodeAddress;
+    routineFinder.reset();
     memoryReadOnly(false, state);
 
     registerSP = state.getRegisterSP().read();
