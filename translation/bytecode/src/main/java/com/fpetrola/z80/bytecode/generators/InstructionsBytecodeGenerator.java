@@ -654,11 +654,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 //          routineByteCodeGenerator.getField("nextAddress").set(nextAddress);
           incPopsAdded = true;
         } else {
-          try {
-            routineByteCodeGenerator.invokeTransformedMethod(i);
-          } catch (Exception e) {
-            System.out.println("not defined: " + Helper.formatAddress(i));
-          }
+          routineByteCodeGenerator.jumpInto(i);
           methodMaker.return_();
         }
         routineByteCodeGenerator.returnFromMethod();

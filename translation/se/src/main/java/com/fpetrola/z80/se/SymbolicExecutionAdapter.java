@@ -145,6 +145,7 @@ public class SymbolicExecutionAdapter {
 
   public void stepUntilComplete(Z80InstructionDriver z80InstructionDriver, State state, int firstAddress, int minimalValidCodeAddress) {
     stepAllAndProcessPending(z80InstructionDriver, state, firstAddress, minimalValidCodeAddress);
+    routineFinder.attributeUnclaimedCode();
     routineManager.createVirtualRoutines();
   }
 

@@ -46,6 +46,7 @@ public class RoutineManager {
   public ListValuedMap<Integer, Integer> callers = new ArrayListValuedHashMap<>();
   public ListValuedMap<Integer, Integer> callees = new ArrayListValuedHashMap<>();
   public ListValuedMap<Integer, Integer> callers2 = new ArrayListValuedHashMap<>();
+  public ListValuedMap<Integer, Integer> jumpsAfterStackReset = new ArrayListValuedHashMap<>();
   public BlocksManager blocksManager;
   private List<Routine> routines = new ArrayList<>();
 
@@ -131,6 +132,7 @@ public class RoutineManager {
     callees.clear();
     callers.clear();
     callers2.clear();
+    jumpsAfterStackReset.clear();
   }
 
   public void removeRoutine(Routine routine) {

@@ -28,7 +28,9 @@ import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.opcodes.references.ConditionAlwaysTrue;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.StackListener;
@@ -37,6 +39,8 @@ import com.fpetrola.z80.transformations.StackAnalyzer;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static com.fpetrola.z80.registers.RegisterName.SP;
 
@@ -50,6 +54,10 @@ public class RoutineFinder {
   private Set<Integer> processedPcs = new HashSet<>();
   private final State state;
   private Integer lastSimulatedCallJump;
+  private boolean afterStackReset;
+  private boolean detached;
+  private Routine jumper;
+  private final Map<Integer, Routine> unowned = new LinkedHashMap<>();
 
   public RoutineFinder(RoutineManager routineManager, StackAnalyzer stackAnalyzer1, State state) {
     this.routineManager = routineManager;
@@ -102,6 +110,25 @@ public class RoutineFinder {
 
         if (currentRoutine == null)
           createOrUpdateCurrentRoutine(pcValue, instruction.getLength());
+        else
+          followOwnerOf(pcValue);
+
+        if (afterStackReset && lastInstruction instanceof ConditionalInstruction<?> transfer && transfer.getNextPC() == pcValue) {
+          detached = transfer instanceof JP && routineManager.findRoutineAt(pcValue) == null;
+          if (detached)
+            jumper = currentRoutine;
+          afterStackReset = false;
+        }
+        if (detached) {
+          Routine owner = routineManager.findRoutineAt(pcValue);
+          if (owner != null) {
+            currentRoutine = owner;
+            detached = false;
+          } else {
+            processedPcs.remove(pcValue);
+            unowned.put(pcValue, jumper);
+          }
+        }
 
         if (lastSimulatedCallJump != null) {
           createOrUpdateCurrentRoutine(lastSimulatedCallJump, instruction.getLength());
@@ -173,10 +200,12 @@ public class RoutineFinder {
 //
 //            returnRoutine.addReturnPoint(callAddress, pcValue + instructionLength);
 
-            Routine returnRoutine = routineManager.findRoutineAt(lastReturnAddress.pc());
+            Routine continuationOwner = routineManager.findRoutineAt(routineManager.addressAfter(pcValue));
+            Routine returnRoutine = continuationOwner != null ? continuationOwner : routineManager.findRoutineAt(lastReturnAddress.pc());
             if (lastPc != -1)
               currentRoutine.getVirtualPop().put(lastPc, pcValue);
 
+            afterStackReset = true;
             returnRoutine.addReturnPointDropped(lastReturnAddress.value(), routineManager.addressAfter(pcValue));
             currentRoutine = returnRoutine;
 
@@ -184,8 +213,9 @@ public class RoutineFinder {
           }
         });
 
-        if (!listened) {
+        if (!listened && !detached) {
           currentRoutine.addInstructionAt(instruction, pcValue);
+          claimFallThrough(currentRoutine, pcValue);
           if (instruction instanceof Ret ret) {
             processRetInstruction(ret);
           }
@@ -196,6 +226,38 @@ public class RoutineFinder {
         lastPc = pcValue;
       }
     }
+  }
+
+  private boolean jumpsToNewCodeAfterStackReset(Instruction instruction) {
+    return afterStackReset && instruction instanceof JP jp && jp.getNextPC() != -1 && routineManager.findRoutineAt(jp.getNextPC()) == null;
+  }
+
+  public void attributeUnclaimedCode() {
+    unowned.forEach((address, routine) -> routine.addInstructionAt(routineManager.getInstructionAt(address), address));
+    unowned.clear();
+  }
+
+  private void claimFallThrough(Routine routine, int address) {
+    Instruction instruction = routineManager.getInstructionAt(address);
+    while (!(instruction instanceof ConditionalInstruction<?> conditional && conditional.getCondition() instanceof ConditionAlwaysTrue) && unowned.remove(address = routineManager.addressAfter(address)) != null) {
+      instruction = routineManager.getInstructionAt(address);
+      routine.addInstructionAt(instruction, address);
+    }
+  }
+
+  private void followOwnerOf(int pcValue) {
+    if (resumedElsewhere(pcValue) && !currentRoutine.contains(pcValue)) {
+      Routine owner = routineManager.findRoutineAt(pcValue);
+      if (owner != null)
+        currentRoutine = owner;
+    }
+  }
+
+  private boolean resumedElsewhere(int pcValue) {
+    if (lastInstruction == null || lastPc == -1)
+      return false;
+    int jumpedTo = ((AbstractInstruction) lastInstruction).getNextPC();
+    return pcValue != (jumpedTo != -1 ? jumpedTo : routineManager.addressAfter(lastPc));
   }
 
   private void processCallInstruction(Instruction instruction) {
@@ -246,6 +308,8 @@ public class RoutineFinder {
       if (conditionalInstruction.getNextPC() != -1)
         if (instruction instanceof Call) {
           routineManager.callers2.put(conditionalInstruction.getNextPC(), pcValue);
+        } else if (jumpsToNewCodeAfterStackReset(instruction)) {
+          routineManager.jumpsAfterStackReset.put(conditionalInstruction.getNextPC(), pcValue);
         } else if (!(instruction instanceof Ret)) {
 //          routineManager.callees.put(35211, 34762);
 //          routineManager.callers.put(34762, 35211);
@@ -264,6 +328,9 @@ public class RoutineFinder {
     lastInstruction = null;
     lastPc = -1;
     currentRoutine = null;
+    afterStackReset = false;
+    detached = false;
+    unowned.clear();
   }
 
   public  boolean alreadyProcessed(Instruction instruction, int pcValue) {

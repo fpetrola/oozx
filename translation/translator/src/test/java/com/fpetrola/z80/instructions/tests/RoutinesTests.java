@@ -1585,7 +1585,6 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     assertBlockAddresses(routines.get(1).getBlocks().get(0), 5, 9);
   }
 
-  @Ignore("after LD SP drops every frame, the code that runs next (the main loop at 2..7) is attributed to the outermost routine and the loop is not rebuilt; the expected text is also from before delta was added")
   @Test
   public void resetStackInSharedCodeFromDifferentRoutines() {
     setUpMemory();
@@ -1632,46 +1631,78 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
-        
+        import com.fpetrola.z80.minizx.StackException;
+
         public class JSW extends SpectrumApplication {
            public void $0() {
-              super.A = 1;
-              this.$6();
-              super.B = 8;
-              this.$10();
-              super.C = 8;
-           }
-        
-           public void $10() {
-              super.C = 1;
-              if(super.F != 0) {
-                 this.$14();
-              } else {
-                 super.C = 2;
+              while(true) {
+                 try {
+                    if(!this.isNextPC(18)) {
+                       this.$2();
+                       return;
+                    }
+
+                    super.C = 20;
+                    super.D = 30;
+                    this.setNextAddress(7);
+                    this.$2();
+                    return;
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{18};
+                    if(!this.isOwnAddress(var3, var2)) {
+                       throw var3;
+                    }
+                 }
               }
            }
-        
-           public void $6() {
+
+           public void $2() {
+              if(!this.isNextPC(7)) {
+                 ;
+              }
+
+              while(true) {
+                 super.A = 1;
+                 this.$8();
+                 super.B = 8;
+                 this.$12();
+                 super.C = 8;
+              }
+           }
+
+           public void $8() {
               super.B = 1;
               if(super.F != 0) {
-                 this.$14();
+                 this.$16();
               } else {
                  super.B = 2;
               }
            }
-        
-           public void $14() {
+
+           public void $12() {
+              super.C = 1;
+              if(super.F != 0) {
+                 this.$16();
+              } else {
+                 super.C = 2;
+              }
+           }
+
+           public void $16() {
               super.H = 1;
+              throw new StackException(18);
            }
         }
         """, resultingJava);
 
-    Assert.assertEquals(4, routines.size());
+    Assert.assertEquals(5, routines.size());
     Routine routine0 = routines.get(0);
-    assertBlockAddresses(routine0.getBlocks().get(0), 0, 5);
-    assertBlockAddresses(routines.get(1).getBlocks().get(0), firstRoutine, 9);
-    assertBlockAddresses(routines.get(2).getBlocks().get(0), secondRoutine, 13);
-    assertBlockAddresses(routines.get(3).getBlocks().get(0), resetSPLabel, 15);
+    assertBlockAddresses(routine0.getBlocks().get(0), 0, 1);
+    assertBlockAddresses(routine0.getBlocks().get(1), resetSPLabel + 2, resetSPLabel + 4);
+    assertBlockAddresses(routines.get(1).getBlocks().get(0), delta, 5 + delta);
+    assertBlockAddresses(routines.get(2).getBlocks().get(0), firstRoutine, firstRoutine + 3);
+    assertBlockAddresses(routines.get(3).getBlocks().get(0), secondRoutine, secondRoutine + 3);
+    assertBlockAddresses(routines.get(4).getBlocks().get(0), resetSPLabel, resetSPLabel);
   }
 
 

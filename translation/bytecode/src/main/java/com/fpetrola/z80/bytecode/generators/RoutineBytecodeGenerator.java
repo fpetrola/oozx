@@ -194,6 +194,8 @@ public class RoutineBytecodeGenerator {
     generators.forEach(g -> g.scopeAdjuster().run());
     generators.forEach(g -> g.labelGenerator().run());
 
+    context.routineManager.jumpsAfterStackReset.keySet().stream().filter(address -> routine.contains(address) && isEnteredFromOutside(routine, address) && getLabel(address) != null).forEach(address -> mm.invoke("isNextPC", address).ifTrue(getLabel(address)::goto_));
+
     Label label = getLabel(routine.getEntryPoint());
     if (label != null)
       label.goto_();
@@ -413,6 +415,19 @@ public class RoutineBytecodeGenerator {
 
   public Variable getExistingVariable(String hl) {
     return getRealVariable(variables.get(hl));
+  }
+
+  public void jumpInto(int address) {
+    Routine owner = context.routineManager.findRoutineAt(address);
+    if (owner != null && isEnteredFromOutside(owner, address)) {
+      mm.invoke("setNextAddress", address);
+      invokeTransformedMethod(owner.getEntryPoint());
+    } else
+      invokeTransformedMethod(address);
+  }
+
+  private boolean isEnteredFromOutside(Routine owner, int address) {
+    return owner.getEntryPoint() != address && context.routineManager.jumpsAfterStackReset.get(address).stream().anyMatch(caller -> !owner.contains(caller));
   }
 
   public Variable invokeTransformedMethod(int jumpLabel) {
