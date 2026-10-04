@@ -53,6 +53,7 @@ public class EmulatedMiniZX {
   private StackAnalyzer stackAnalyzer;
   private String rzxFile;
   private RzxPlayback playback;
+  private int stopAt = -1;
 
   public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread) {
     this.pause = pause;
@@ -66,6 +67,14 @@ public class EmulatedMiniZX {
   public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread, StackAnalyzer stackAnalyzer) {
     this(url, pause, showScreen, emulateUntil, inThread);
     this.stackAnalyzer = stackAnalyzer;
+  }
+
+  public EmulatedMiniZX stoppingAt(int address) {
+    stopAt = address;
+    return this;
+  }
+
+  private static class Reached extends RuntimeException {
   }
 
   public static EmulatedMiniZX ofRecording(String rzxFile, int frames, StackAnalyzer stackAnalyzer) {
@@ -109,7 +118,11 @@ public class EmulatedMiniZX {
       RzxFile recording = new RzxParser().parseFile(rzxFile);
       SnapshotLoader.setupStateWithSnapshot(registersBase, snapshotFileOf(recording), state);
       playback = new RzxPlayback(ooz80, (RZXPlayerIO) io, recording, tstates -> {
-      }, ooz80::execute);
+      }, () -> {
+        if (state.getPc().read() == stopAt)
+          throw new Reached();
+        ooz80.execute();
+      });
     }
 
 //    PhaseProcessor phaseProcessor = new PhaseProcessor(ooz80);
@@ -136,7 +149,10 @@ public class EmulatedMiniZX {
 
   public void emulate() {
     if (playback != null) {
-      playback.playFrames(emulateUntil < 0 ? Integer.MAX_VALUE : emulateUntil);
+      try {
+        playback.playFrames(emulateUntil < 0 ? Integer.MAX_VALUE : emulateUntil);
+      } catch (Reached reached) {
+      }
       return;
     }
     for (int i = 0; emulateUntil < 0 || i < emulateUntil; i++) {

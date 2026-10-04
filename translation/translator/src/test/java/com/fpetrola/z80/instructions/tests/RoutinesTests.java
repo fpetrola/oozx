@@ -428,10 +428,9 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            }
 
            public void $1() {
-              int var1 = this.dec(super.A);
+              int var1 = this.alu("dec", super.A);
               super.A = var1;
-              super.F = var1;
-              if(super.F != 0) {
+              if(this.flag(64, true)) {
                  this.$1();
               }
 
@@ -663,10 +662,9 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            }
 
            public void $11() {
-              int var1 = this.dec(super.A);
+              int var1 = this.alu("dec", super.A);
               super.A = var1;
-              super.F = var1;
-              if(super.F != 0) {
+              if(this.flag(64, true)) {
                  throw new StackException(16);
               } else {
                  super.E = 8;
@@ -776,17 +774,16 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
            public void $7() {
               super.D = 4;
-              int var1 = this.cp(super.A, 3);
-              super.F = var1;
+              this.alu("cp", super.A, 3);
 
               try {
-                 if(super.F == 0) {
+                 if(this.flag(64, false)) {
                     this.$13();
                  }
 
-              } catch (StackException var3) {
-                 if(var3.getNextPC() != 17) {
-                    throw var3;
+              } catch (StackException var2) {
+                 if(var2.getNextPC() != 17) {
+                    throw var2;
                  } else {
                     super.E = 71;
                     throw new StackException(19);
@@ -894,9 +891,8 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
            public void $7() {
               super.D = 4;
-              int var1 = this.cp(super.A, 3);
-              super.F = var1;
-              if(super.F == 0) {
+              this.alu("cp", super.A, 3);
+              if(!this.flag(64, true)) {
                  super.H = 2;
               } else {
                  super.A = 61;
@@ -964,11 +960,9 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
            public void $8() {
               super.D = 5;
-              int var1 = super.A | super.A;
+              int var1 = this.alu("or", super.A, super.A);
               super.A = var1;
-              int var2 = this.flagZ(super.A);
-              super.F = var2;
-              if(super.F != 0) {
+              if(!this.flag(64, false)) {
                  super.D = 6;
               }
            }
@@ -1021,10 +1015,9 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            public void $5() {
               while(true) {
                  super.D = 5;
-                 int var1 = this.dec(super.A);
+                 int var1 = this.alu("dec", super.A);
                  super.A = var1;
-                 super.F = var1;
-                 if(super.F == 0) {
+                 if(this.flag(64, false)) {
                     return;
                  }
 
@@ -1081,9 +1074,8 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  super.B = 3;
 
                  do {
-                    int var2 = this.inc(super.A);
+                    int var2 = this.alu("inc", super.A);
                     super.A = var2;
-                    super.F = var2;
                     int var3 = super.B - 1 & 255;
                     super.B = var3;
                  } while(super.B != 0);
@@ -1148,11 +1140,9 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            }
 
            public void $5() {
-              int var1 = super.A & super.A;
+              int var1 = this.alu("and", super.A, super.A);
               super.A = var1;
-              int var2 = this.flagZ(super.A);
-              super.F = var2;
-              if(super.F != 0) {
+              if(!this.flag(64, false)) {
                  super.D = 6;
               }
            }
@@ -1189,17 +1179,17 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     String resultingJava = generateAndDecompile();
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
-        
+
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.B = 2;
               this.$4();
               super.B = 3;
            }
-        
+
            public void $4() {
               super.D = super.B;
-              if(super.F == 0) {
+              if(!this.flag(64, true)) {
                  super.B = 4;
               }
            }
@@ -1319,7 +1309,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
-        
+
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 1;
@@ -1328,25 +1318,25 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               this.$10();
               super.C = 8;
            }
-        
+
            public void $6() {
               super.B = 1;
-              if(super.F != 0) {
+              if(this.flag(64, true)) {
                  this.$14();
               } else {
                  super.B = 2;
               }
            }
-        
+
            public void $10() {
               super.C = 1;
-              if(super.F != 0) {
+              if(this.flag(64, true)) {
                  this.$14();
               } else {
                  super.C = 2;
               }
            }
-        
+
            public void $14() {
               super.H = 1;
            }
@@ -1394,7 +1384,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     String resultingJava = generateAndDecompile();
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
-        
+
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 1;
@@ -1403,20 +1393,20 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               this.$10();
               super.C = 8;
            }
-        
+
            public void $6() {
               super.B = 1;
               this.$7();
            }
-        
+
            public void $7() {
               super.C = 2;
               super.D = 3;
            }
-        
+
            public void $10() {
               super.C = 1;
-              if(super.F != 0) {
+              if(this.flag(64, true)) {
                  this.$7();
               } else {
                  super.C = 2;
@@ -1474,11 +1464,10 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
         public class JSW extends SpectrumApplication {
            public void $0() {
-              int var1 = this.cp(super.A, 1);
-              super.F = var1;
-              if(super.F != 0) {
+              this.alu("cp", super.A, 1);
+              if(this.flag(64, true)) {
                  this.$6();
-              } else if(super.F != 0) {
+              } else if(this.flag(64, true)) {
                  this.$8();
               } else {
                  this.$3();
@@ -1486,7 +1475,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            }
 
            public void $3() {
-              if(super.F != 0) {
+              if(this.flag(64, true)) {
                  this.$12();
               }
 
@@ -1567,11 +1556,9 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               this.HL(10);
               int var1 = this.HL();
               int var2 = this.mem(var1, 6);
-              int var3 = super.A & var2;
+              int var3 = this.alu("and", super.A, var2);
               super.A = var3;
-              int var4 = this.flagZ(super.A);
-              super.F = var4;
-              if(super.F != 0) {
+              if(!this.flag(64, false)) {
                  super.D = 6;
               }
            }
@@ -1672,7 +1659,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
            public void $8() {
               super.B = 1;
-              if(super.F != 0) {
+              if(this.flag(64, true)) {
                  this.$16();
               } else {
                  super.B = 2;
@@ -1681,7 +1668,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
            public void $12() {
               super.C = 1;
-              if(super.F != 0) {
+              if(this.flag(64, true)) {
                  this.$16();
               } else {
                  super.C = 2;
@@ -1759,7 +1746,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
            public void $7() {
               super.D = super.B;
-              if(super.F != 0) {
+              if(this.flag(64, true)) {
                  throw new StackException(2);
               } else {
                  this.$9();

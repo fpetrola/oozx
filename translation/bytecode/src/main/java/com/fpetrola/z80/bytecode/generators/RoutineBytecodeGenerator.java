@@ -18,6 +18,9 @@
 
 package com.fpetrola.z80.bytecode.generators;
 
+import com.fpetrola.z80.opcodes.references.ConditionAlwaysTrue;
+import com.fpetrola.z80.instructions.impl.Ret;
+import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.bytecode.generators.helpers.*;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
@@ -53,8 +56,6 @@ public class RoutineBytecodeGenerator {
   public Map<String, Register> registerByVariable = new HashMap<>();
   public Map<Register, Variable> variablesByRegister = new HashMap<>();
   protected final Map<java.lang.Integer, Label> insertLabels = new HashMap<>();
-  public DefaultTargetFlagInstruction lastTargetFlagInstruction;
-  private PendingFlagUpdate pendingFlag;
   public Instruction currentInstruction;
   public Register currentRegister;
 
@@ -123,6 +124,11 @@ public class RoutineBytecodeGenerator {
               generateInstruction(address, instruction, firstAddress);
 
               int nextAddress = address + instruction.getLength();
+              Routine continuationOwner = context.routineManager.findRoutineAt(nextAddress);
+              if (fallsThrough(instruction) && !routine.contains(nextAddress) && continuationOwner != null && isEnteredFromOutside(continuationOwner, nextAddress)) {
+                jumpInto(nextAddress);
+                returnFromMethod();
+              }
               List<Routine> list2 = routines.stream().filter(routine1 -> routine1.isVirtual() && routine1 != routine && routine1.getEntryPoint() == nextAddress).toList();
               if (!list2.isEmpty())
                 invokeInnerIfAvailable(nextAddress, list2);
@@ -137,36 +143,21 @@ public class RoutineBytecodeGenerator {
       private void generateInstruction(int address, Instruction instruction, int firstAddress) {
         lastMemPc.write(address);
 
-        if (!(instruction instanceof ConditionalInstruction<?>) && pendingFlag != null) {
-          if (!pendingFlag.processed)
-            pendingFlag.update(false);
-        }
-
         int label = -1;
         if (getLabel(address) != null) {
           label = firstAddress;
           hereLabel(label);
         }
 
+        invokePc(address);
         if (mutantCodeInInstruction(instruction, address)) {
           mm.invoke("executeMutantCode", address);
         } else {
-          if (context.pc.read() == 35278)
-            System.out.println("agasgasg");
-          if (instruction instanceof AbstractInstruction abstractInstruction) {
-            int rDelta = abstractInstruction.getRDelta();
-//            if (rDelta < 0)
-//              System.out.println("adgagadg");
-            if (!context.direct)
-              mm.invoke("pc", context.pc.read(), rDelta);
-          } else
-            System.out.println("dsggag");
-          InstructionsBytecodeGenerator instructionsBytecodeGenerator = new InstructionsBytecodeGenerator(mm, label, RoutineBytecodeGenerator.this, address, pendingFlag);
+          InstructionsBytecodeGenerator instructionsBytecodeGenerator = new InstructionsBytecodeGenerator(mm, RoutineBytecodeGenerator.this, address);
           instruction.accept(instructionsBytecodeGenerator);
-          pendingFlag = instructionsBytecodeGenerator.pendingFlag;
 
           if (!instructionsBytecodeGenerator.incPopsAdded && routine.getVirtualPop().containsKey(address)) {
-            throwStackException(continuationAfterVirtualPop(address), StackException.class);
+            throwAfterVirtualPop(address);
 //            getField("nextAddress").set(nextAddress);
             returnFromMethod();
           }
@@ -194,7 +185,7 @@ public class RoutineBytecodeGenerator {
     generators.forEach(g -> g.scopeAdjuster().run());
     generators.forEach(g -> g.labelGenerator().run());
 
-    context.routineManager.jumpsAfterStackReset.keySet().stream().filter(address -> routine.contains(address) && isEnteredFromOutside(routine, address) && getLabel(address) != null).forEach(address -> mm.invoke("isNextPC", address).ifTrue(getLabel(address)::goto_));
+    new ArrayList<>(labels.keySet()).stream().filter(address -> routine.contains(address) && isEnteredFromOutside(routine, address)).forEach(address -> mm.invoke("isNextPC", address).ifTrue(getLabel(address)::goto_));
 
     Label label = getLabel(routine.getEntryPoint());
     if (label != null)
@@ -225,6 +216,10 @@ public class RoutineBytecodeGenerator {
             Label label3 = getLabel(i);
             if (label3 != null)
               label3.goto_();
+            else if (context.routineManager.getInstructionAt(i) instanceof Ret ret && ret.getCondition() instanceof ConditionAlwaysTrue) {
+              invokePc(i);
+              returnFromMethod();
+            }
             else {
               e.invoke("setNextPC", context.routineManager.addressAfter(i));
               e.throw_();
@@ -414,7 +409,7 @@ public class RoutineBytecodeGenerator {
   }
 
   public Variable getExistingVariable(String hl) {
-    return getRealVariable(variables.get(hl));
+    return variables.get(hl);
   }
 
   public void jumpInto(int address) {
@@ -427,7 +422,23 @@ public class RoutineBytecodeGenerator {
   }
 
   private boolean isEnteredFromOutside(Routine owner, int address) {
-    return owner.getEntryPoint() != address && context.routineManager.jumpsAfterStackReset.get(address).stream().anyMatch(caller -> !owner.contains(caller));
+    return owner.getEntryPoint() != address && (context.routineManager.jumpsAfterStackReset.get(address).stream().anyMatch(caller -> !owner.contains(caller)) || isFallenIntoFromOutside(owner, address));
+  }
+
+  private boolean isFallenIntoFromOutside(Routine owner, int address) {
+    for (int length = 1; length <= 4; length++) {
+      Instruction previous = context.routineManager.getInstructionAt(address - length);
+      Routine previousOwner = context.routineManager.findRoutineAt(address - length);
+      if (previous != null && previous.getLength() == length && fallsThrough(previous) && previousOwner != null && previousOwner != owner)
+        return true;
+    }
+    return false;
+  }
+
+  private static boolean fallsThrough(Instruction instruction) {
+    if (instruction instanceof Call)
+      return true;
+    return !(instruction instanceof ConditionalInstruction<?> conditional && conditional.getCondition() instanceof ConditionAlwaysTrue);
   }
 
   public Variable invokeTransformedMethod(int jumpLabel) {
@@ -441,8 +452,15 @@ public class RoutineBytecodeGenerator {
     return invoke;
   }
 
-  public int continuationAfterVirtualPop(int address) {
-    return context.routineManager.addressAfter(routine.getVirtualPop().get(address));
+  private void invokePc(int address) {
+    if (!context.direct && context.routineManager.getInstructionAt(address) instanceof AbstractInstruction instruction)
+      mm.invoke("pc", address, instruction.getRDelta());
+  }
+
+  public void throwAfterVirtualPop(int address) {
+    int pop = routine.getVirtualPop().get(address);
+    invokePc(pop);
+    throwStackException(context.routineManager.addressAfter(pop), StackException.class);
   }
 
   public void throwStackException(Object nextAddress, Class<? extends Exception> type) {

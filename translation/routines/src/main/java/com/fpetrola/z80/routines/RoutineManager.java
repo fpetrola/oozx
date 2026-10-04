@@ -19,12 +19,16 @@
 package com.fpetrola.z80.routines;
 
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
+import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.CodeBlockType;
 import com.fpetrola.z80.blocks.NullBlockChangesListener;
 import com.fpetrola.z80.ide.RoutineHandlingListener;
 import org.apache.commons.collections4.ListValuedMap;
+import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
+import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
 import java.util.ArrayList;
@@ -47,6 +51,7 @@ public class RoutineManager {
   public ListValuedMap<Integer, Integer> callees = new ArrayListValuedHashMap<>();
   public ListValuedMap<Integer, Integer> callers2 = new ArrayListValuedHashMap<>();
   public ListValuedMap<Integer, Integer> jumpsAfterStackReset = new ArrayListValuedHashMap<>();
+  public final MultiValuedMap<Integer, Integer> returnPoints = new HashSetValuedHashMap<>();
   public BlocksManager blocksManager;
   private List<Routine> routines = new ArrayList<>();
 
@@ -117,6 +122,19 @@ public class RoutineManager {
     instructions.put(address, instruction);
   }
 
+  public void addReturnPoint(int callSite, int point) {
+    returnPoints.put(((ConditionalInstruction<?>) instructions.get(callSite)).getJumpAddress(), point);
+  }
+
+  public MultiValuedMap<Integer, Integer> returnPointsOfCallsIn(Routine routine) {
+    MultiValuedMap<Integer, Integer> points = new HashSetValuedHashMap<>();
+    instructions.forEach((address, instruction) -> {
+      if (instruction instanceof Call call && routine.contains(address))
+        points.putAll(address, returnPoints.get(call.getJumpAddress()));
+    });
+    return points;
+  }
+
   public Instruction getInstructionAt(int address) {
     return instructions.get(address);
   }
@@ -133,6 +151,7 @@ public class RoutineManager {
     callers.clear();
     callers2.clear();
     jumpsAfterStackReset.clear();
+    returnPoints.clear();
   }
 
   public void removeRoutine(Routine routine) {

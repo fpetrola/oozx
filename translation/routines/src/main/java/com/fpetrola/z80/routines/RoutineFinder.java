@@ -143,7 +143,7 @@ public class RoutineFinder {
           public boolean returnAddressPopped(int pcValue, int returnAddress, int callAddress) {
             Routine returnRoutine = routineManager.findRoutineAt(callAddress);
             if (lastPc != -1)
-              currentRoutine.getVirtualPop().put(lastPc, pcValue);
+              currentRoutine.getVirtualPop().put(instructionBefore(pcValue), pcValue);
 
             returnRoutine.addReturnPoint(callAddress, routineManager.addressAfter(pcValue));
             currentRoutine = returnRoutine;
@@ -196,14 +196,14 @@ public class RoutineFinder {
 //              currentRoutine = routineManager.findRoutineAt(lastReturnAddress.pc());
 //
 //            if (lastPc != -1)
-//              currentRoutine.getVirtualPop().put(lastPc, pcValue);
+//              currentRoutine.getVirtualPop().put(instructionBefore(pcValue), pcValue);
 //
 //            returnRoutine.addReturnPoint(callAddress, pcValue + instructionLength);
 
             Routine continuationOwner = routineManager.findRoutineAt(routineManager.addressAfter(pcValue));
             Routine returnRoutine = continuationOwner != null ? continuationOwner : routineManager.findRoutineAt(lastReturnAddress.pc());
             if (lastPc != -1)
-              currentRoutine.getVirtualPop().put(lastPc, pcValue);
+              currentRoutine.getVirtualPop().put(instructionBefore(pcValue), pcValue);
 
             afterStackReset = true;
             returnRoutine.addReturnPointDropped(lastReturnAddress.value(), routineManager.addressAfter(pcValue));
@@ -243,6 +243,14 @@ public class RoutineFinder {
       instruction = routineManager.getInstructionAt(address);
       routine.addInstructionAt(instruction, address);
     }
+  }
+
+  private int instructionBefore(int pcValue) {
+    if (lastInstruction instanceof Ret)
+      for (int length = 1; length <= 4; length++)
+        if (routineManager.getInstructionAt(pcValue - length) instanceof Call call && call.getLength() == length)
+          return pcValue - length;
+    return lastPc;
   }
 
   private void followOwnerOf(int pcValue) {

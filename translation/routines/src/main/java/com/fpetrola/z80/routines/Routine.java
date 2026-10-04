@@ -43,7 +43,6 @@ public class Routine {
   private List<Instruction> instructions = new ArrayList<>();
   private int entryPoint;
   public RoutineManager routineManager;
-  private MultiValuedMap<Integer, Integer> returnPoints = new HashSetValuedHashMap<>();
 
   private MultiValuedMap<Integer, Integer> returnPointsDropped = new HashSetValuedHashMap<>();
 
@@ -194,7 +193,6 @@ public class Routine {
 
     updateVirtualPops(routineAt, virtualPop1, routine);
     updateReturnPointsDropped(routineAt, returnPointsDropped, routine);
-    updateReturnPoints(routineAt, routine);
 
     routineAt.routineManager.addRoutine(routine);
     return true;
@@ -214,15 +212,6 @@ public class Routine {
     });
   }
 
-  private static void updateReturnPoints(Routine routineAt, Routine routine) {
-    routine.getReturnPoints().putAll(routineAt.getReturnPoints());
-    new ArrayList<>(routineAt.getReturnPoints().entries()).forEach(e -> {
-      if (!routineAt.contains(e.getKey()))
-        routineAt.getReturnPoints().removeMapping(e.getKey(), e.getValue());
-      if (!routine.contains(e.getKey()))
-        routine.getReturnPoints().removeMapping(e.getKey(), e.getValue());
-    });
-  }
 
   private static void updateReturnPointsDropped(Routine routineAt, MultiValuedMap<Integer, Integer> returnPointsDropped, Routine routine) {
     routine.getReturnPointsDropped().putAll(returnPointsDropped);
@@ -373,7 +362,7 @@ public class Routine {
   }
 
   public void addReturnPoint(int returnAddress, int pc) {
-    returnPoints.put(returnAddress, pc);
+    routineManager.addReturnPoint(returnAddress, pc);
   }
 
   public void addReturnPointDropped(int returnAddress, int pc) {
@@ -479,7 +468,7 @@ public class Routine {
   }
 
   public MultiValuedMap<Integer, Integer> getReturnPoints() {
-    return returnPoints;
+    return routineManager.returnPointsOfCallsIn(this);
   }
 
   public Set<String> getParameters() {

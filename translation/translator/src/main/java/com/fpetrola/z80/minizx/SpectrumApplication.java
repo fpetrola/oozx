@@ -18,6 +18,14 @@
 
 package com.fpetrola.z80.minizx;
 
+import java.util.Map;
+import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.Plain16BitRegister;
+import com.fpetrola.z80.registers.Plain8BitRegister;
+import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.instructions.impl.*;
+import com.fpetrola.z80.registers.RegisterName;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.minizx.sync.SyncChecker;
 import java.lang.reflect.Method;
@@ -71,7 +79,7 @@ public abstract class SpectrumApplication {
       mem[address1] = A;
     } else if (mem[address] == 0x7E) {
       int address1 = HL();
-      A = mem[address1];
+      A(mem[address1]);
     } else if (mem[address] == 0x12) {
       int address1 = DE();
       mem[address1] = A;
@@ -92,41 +100,70 @@ public abstract class SpectrumApplication {
     }
   }
 
-  public int cp(int value1, int value2) {
-    return value1 - value2;
+
+
+  private final Register aluTarget = new Plain8BitRegister("target");
+  private final Register aluSource = new Plain8BitRegister("source");
+  private final Register aluFlag = new Plain8BitRegister("F");
+  private final Register wideTarget = new Plain16BitRegister("wideTarget");
+  private final Register wideSource = new Plain16BitRegister("wideSource");
+  private final Map<String, Instruction> alu = Map.ofEntries(
+      Map.entry("add", new Add(aluTarget, aluSource, aluFlag)), Map.entry("adc", new Adc(aluTarget, aluSource, aluFlag)),
+      Map.entry("sub", new Sub(aluTarget, aluSource, aluFlag)), Map.entry("sbc", new Sbc(aluTarget, aluSource, aluFlag)),
+      Map.entry("and", new And(aluTarget, aluSource, aluFlag)), Map.entry("or", new Or(aluTarget, aluSource, aluFlag)),
+      Map.entry("xor", new Xor(aluTarget, aluSource, aluFlag)), Map.entry("cp", new Cp(aluTarget, aluSource, aluFlag)),
+      Map.entry("inc", new Inc(aluTarget, aluFlag)), Map.entry("dec", new Dec(aluTarget, aluFlag)),
+      Map.entry("neg", new Neg(aluTarget, aluFlag)), Map.entry("cpl", new CPL(aluTarget, aluFlag)), Map.entry("daa", new DAA(aluTarget, aluFlag)),
+      Map.entry("scf", new SCF(aluFlag, aluTarget)), Map.entry("ccf", new CCF(aluFlag, aluTarget)),
+      Map.entry("rlca", new RLCA(aluTarget, aluFlag)), Map.entry("rrca", new RRCA(aluTarget, aluFlag)),
+      Map.entry("rla", new RLA(aluTarget, aluFlag)), Map.entry("rra", new RRA(aluTarget, aluFlag)),
+      Map.entry("rlc", new RLC(aluTarget, aluFlag)), Map.entry("rrc", new RRC(aluTarget, aluFlag)),
+      Map.entry("rl", new RL(aluTarget, aluFlag)), Map.entry("rr", new RR(aluTarget, aluFlag)),
+      Map.entry("sla", new SLA(aluTarget, aluFlag)), Map.entry("sra", new SRA(aluTarget, aluFlag)),
+      Map.entry("srl", new SRL(aluTarget, aluFlag)), Map.entry("sll", new SLL(aluTarget, aluFlag)),
+      Map.entry("add16", new Add16(wideTarget, wideSource, aluFlag)), Map.entry("adc16", new Adc16(wideTarget, wideSource, aluFlag)),
+      Map.entry("sbc16", new Sbc16(wideTarget, wideSource, aluFlag)));
+
+  public int alu(String operation, int target, int source) {
+    Instruction instruction = alu.get(operation);
+    boolean wide = operation.endsWith("16");
+    Register result = wide ? wideTarget : aluTarget;
+    result.write(target);
+    (wide ? wideSource : aluSource).write(source);
+    aluFlag.write(F);
+    instruction.execute();
+    F(aluFlag.read());
+    return result.read();
   }
 
-  public int inc(int value1) {
-    return (value1 + 1) & 0xff;
+  public int alu(String operation, int target) {
+    return alu(operation, target, 0);
+  }
+
+  public void bit(int n, int value) {
+    BIT bit = new BIT(aluTarget, n, aluFlag, new Plain16BitRegister("memptr"));
+    aluTarget.write(value);
+    aluFlag.write(F);
+    bit.execute();
+    F(aluFlag.read());
+  }
+
+  public boolean flag(int mask, boolean negate) {
+    return ((F & mask) == mask) != negate;
   }
 
   public int inc16(int value1) {
     return (value1 + 1) & 0xffff;
   }
 
-  public int dec(int value1) {
-    return (value1 - 1) & 0xff;
-  }
 
   public int dec16(int value1) {
     return (value1 - 1) & 0xffff;
   }
 
-  public int add(int value1, int value2) {
-    return (value1 + value2) & 0xff;
-  }
 
-  public int add16(int value1, int value2) {
-    return (value1 + value2) & 0xffff;
-  }
 
-  public int flagZ(int value1) {
-    return value1 << 1;
-  }
 
-  public int sra(int value1) {
-    return (value1 >> 1) | (value1 & 0x80);
-  }
 
 
   public void SP(int value) {
@@ -179,17 +216,8 @@ public abstract class SpectrumApplication {
     return stack.pop();
   }
 
-  public int carry(int f) {
-    return f & 1;
-  }
 
-  public int getCarry() {
-    return F & 1;
-  }
 
-  public void ccf() {
-    F ^= 1;
-  }
 
   public boolean isNextPC(int nextPC) {
     boolean matches = nextAddress == nextPC;
@@ -242,67 +270,84 @@ public abstract class SpectrumApplication {
   }
 
   public void ldir() {
-    int bc = BC();
-    int de = DE();
-    int hl = HL();
-    while (bc-- != 0) {
-      pc(-1, 16);
-      int address = de++;
-      int address1 = hl++;
-      int value = mem[address1];
-      mem[address] = value;
+    ldi();
+    while (BC() != 0) {
+      pc(-1, 2);
+      ldi();
     }
-    BC(bc);
-    HL(hl);
-    DE(de);
   }
 
   public void ldi() {
-    int de = DE();
-    int hl = HL();
-      pc(-1, 16);
-      int address = de++;
-      int address1 = hl++;
-      int value = mem[address1];
-      mem[address] = value;
-    HL(hl);
-    DE(de);
+    blockStep(1, true);
   }
 
   public void lddr() {
+    ldd();
     while (BC() != 0) {
-      int address = DE();
-      int address1 = HL();
-      int value = mem[address1];
-      mem[address] = value;
-      BC(BC() - 1);
-      HL(HL() - 1);
-      DE(DE() - 1);
+      pc(-1, 2);
+      ldd();
     }
   }
 
-  public int[] cpir(int HL, int BC, int A) {
-    int result = -1;
-    while (BC != 0 && result != A) {
-      result = mem[HL];
-      BC--;
-      HL++;
-    }
-    return new int[]{HL, BC};
+  public void ldd() {
+    blockStep(-1, true);
   }
 
   public void cpir() {
-    int result = -1;
-    while (BC() != 0 && result != A) {
-      int address = HL();
-      result = mem[address];
-      BC(BC() - 1);
-      HL(HL() + 1);
+    cpi();
+    while (BC() != 0 && (F & 0x40) == 0) {
+      pc(-1, 2);
+      cpi();
     }
   }
 
-  public void cpdr() {
+  public void cpi() {
+    blockStep(1, false);
+  }
 
+  public void cpdr() {
+    cpd();
+    while (BC() != 0 && (F & 0x40) == 0) {
+      pc(-1, 2);
+      cpd();
+    }
+  }
+
+  public void cpd() {
+    blockStep(-1, false);
+  }
+
+  private void blockStep(int direction, boolean copy) {
+    int hl = HL();
+    if (copy) {
+      int de = DE();
+      mem[de] = mem[hl];
+      DE(de + direction & 0xffff);
+    }
+    HL(hl + direction & 0xffff);
+    BC(BC() - 1 & 0xffff);
+    int carry = F & 0x01;
+    if (!copy)
+      alu("cp", A, mem[hl]);
+    F(F & (copy ? ~0x16 : ~0x05) | (copy ? 0 : carry) | (BC() != 0 ? 0x04 : 0));
+  }
+
+
+  public void loadState(State state) {
+    System.arraycopy(state.getMemory().getData(), 0, mem, 0, mem.length);
+    AF(state.getRegister(RegisterName.AF).read());
+    BC(state.getRegister(RegisterName.BC).read());
+    DE(state.getRegister(RegisterName.DE).read());
+    HL(state.getRegister(RegisterName.HL).read());
+    AFx(state.getRegister(RegisterName.AFx).read());
+    BCx(state.getRegister(RegisterName.BCx).read());
+    DEx(state.getRegister(RegisterName.DEx).read());
+    HLx(state.getRegister(RegisterName.HLx).read());
+    IX(state.getRegister(RegisterName.IX).read());
+    IY(state.getRegister(RegisterName.IY).read());
+    SP(state.getRegisterSP().read());
+    R(state.getRegisterR().read());
+    I = state.getRegI().read();
   }
 
   public void AF(int value) {
@@ -343,38 +388,11 @@ public abstract class SpectrumApplication {
     return ((a & 0xFF) << 8) | (f & 0xFF);
   }
 
-  public int rrc(int a) {
-    F = a & 1;
-    return ((a & 0xff) >> 1) | ((a & 0x01) << 7) & 0xff;
-  }
 
-  public int rr(int a) {
-    int lastCarry = (carry(F) & 0x01) << 7;
-    F = a & 1;
-    return ((a & 0xff) >> 1) | lastCarry;
-  }
 
-  public int rlc(int a) {
-    F = (a & 128) >> 7;
-    return ((a << 1) & 0xfe) | (a & 0xFF) >> 7;
-  }
 
-  public int rl(int a) {
-    int lastCarry = carry(F) & 0x01;
-    F = (a & 128) >> 7;
-    return ((a << 1) & 0xfe) | lastCarry;
-  }
 
-  public int sl(int a) {
-    int lastCarry = 0;
-    F = (a & 128) >> 7;
-    return ((a << 1) & 0xfe) | lastCarry;
-  }
 
-  public int sr(int a) {
-    F = (a & 1) >> 7;
-    return ((a & 0xff) >> 1);
-  }
 
   public int AF;
   public int BC;
@@ -399,6 +417,11 @@ public abstract class SpectrumApplication {
   protected int I;
 
   public int R() {
+    return R;
+  }
+
+  public int ldAR() {
+    F(F & 0x01 | R & 0xa8 | (R == 0 ? 0x40 : 0));
     return R;
   }
 

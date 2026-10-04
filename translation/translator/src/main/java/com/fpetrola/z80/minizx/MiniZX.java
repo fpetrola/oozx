@@ -63,8 +63,10 @@ public abstract class MiniZX extends SpectrumApplication {
 //        System.out.println(address);
 //    }
 
+    PC = address;
     if (interruptionCondition != null)
       interruptionCondition.test(fetchCounter);
+    R = R & 0x80 | R + rdelta & 0x7f;
     fetchCounter += rdelta;
   }
 
