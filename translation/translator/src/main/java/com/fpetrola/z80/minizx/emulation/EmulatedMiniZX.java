@@ -88,6 +88,10 @@ public class EmulatedMiniZX {
     return this;
   }
 
+  public int playbackFetches() {
+    return playback.getFetchCounter();
+  }
+
   private static class Reached extends RuntimeException {
   }
 

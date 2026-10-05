@@ -35,24 +35,22 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public interface BytecodeGeneration {
-  default  String getDecompiledSource(String className, String targetFolder, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory, GameData gameData) {
-    try {
+  Pattern UNDECOMPILED_METHOD = Pattern.compile("void \\$([0-9A-F]+)\\(\\) \\{\\s*// \\$FF: Couldn't be decompiled");
+
+  default String getDecompiledSource(String className, String targetFolder, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory, GameData gameData) {
+    for (int attempt = 0; ; attempt++) {
       StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation, symbolicExecutionAdapter, base64Memory, gameData);
-      Map<String, byte[]> bytecode = bytecodeGenerator.getBytecode();
-
       Decompiler decompiler = new Decompiler();
-
-      bytecode.forEach((key, value) -> {
-        File source = createFile(key, targetFolder, value);
-        //      bytecode = optimize(className, "target/translation/", source, bytecode);
-        decompiler.addClass(value, source);
-      });
-
-      return Boolean.getBoolean("translation.skipDecompile") ? "" : decompiler.decompile();
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+      bytecodeGenerator.getBytecode().forEach((key, value) -> decompiler.addClass(value, createFile(key, targetFolder, value)));
+      if (Boolean.getBoolean("translation.skipDecompile"))
+        return "";
+      String source = decompiler.decompile();
+      List<Integer> undecompiled = UNDECOMPILED_METHOD.matcher(source).results().map(m -> Integer.parseInt(m.group(1), 16)).toList();
+      if (undecompiled.isEmpty() || attempt == 5 || !undecompiled.stream().allMatch(bytecodeGenerator::splitRoutineAt))
+        return source.replace("// $FF: Couldn't be decompiled", "throw new IllegalStateException(\"not decompiled\");");
     }
   }
 

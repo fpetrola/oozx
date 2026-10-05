@@ -131,16 +131,23 @@ public class StateBytecodeGenerator {
   private static final int MAX_ROUTINE_BYTES = 1500;
 
   private void splitIfTooLargeForOneMethod(Routine routine) {
-    if (size(routine) <= MAX_ROUTINE_BYTES)
-      return;
+    if (size(routine) > MAX_ROUTINE_BYTES)
+      split(routine).forEach(this::splitIfTooLargeForOneMethod);
+  }
+
+  public boolean splitRoutineAt(int entryPoint) {
+    Routine routine = routineManager.findRoutineAt(entryPoint);
+    return routine != null && !split(routine).isEmpty();
+  }
+
+  private List<Routine> split(Routine routine) {
     List<Block> blocks = routine.getBlocks().stream().sorted(Comparator.comparingInt(b -> b.getRangeHandler().getStartAddress())).toList();
-    if (blocks.size() > 1)
-      blocks.subList(1, blocks.size()).forEach(block -> splitIfTooLargeForOneMethod(routine.split(block.getRangeHandler().getStartAddress())));
-    else
-      jumpTargetNearestToMiddleOf(blocks.get(0)).ifPresent(target -> {
-        splitIfTooLargeForOneMethod(routine.split(target));
-        splitIfTooLargeForOneMethod(routine);
-      });
+    if (blocks.size() > 1) {
+      List<Routine> pieces = new ArrayList<>(List.of(routine));
+      blocks.subList(1, blocks.size()).forEach(block -> pieces.add(routine.split(block.getRangeHandler().getStartAddress())));
+      return pieces;
+    }
+    return jumpTargetNearestToMiddleOf(blocks.get(0)).map(target -> List.of(routine.split(target), routine)).orElse(List.of());
   }
 
   private Optional<Integer> jumpTargetNearestToMiddleOf(Block block) {
