@@ -9,14 +9,12 @@ import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 public class PlayTranslatedGame {
-  private static final long FETCHES_PER_FRAME = 70800, NANOS_PER_FRAME = 20_000_000;
+  private static final long FETCHES_PER_FRAME = 8000, NANOS_PER_FRAME = 20_000_000;
 
   public static void main(String[] args) throws Exception {
     boolean replaying = args.length > 0;
     int entry = 0xFE65;
-    MiniZX game = replaying ? replaying(args[0], entry, Emlyn.class) : new Emlyn();
-    if (!replaying)
-      game.setInterruptionCondition(atSpectrumSpeed());
+    MiniZX game = replaying ? replaying(args[0], entry, Emlyn.class) : playing("/home/fernando/detodo/spectrum/emlyn_r3.rzx", entry, Emlyn.class);
     try {
       game.run(entry);
     } catch (RuntimeException e) {
@@ -28,15 +26,27 @@ public class PlayTranslatedGame {
 
   private static Predicate<Integer> atSpectrumSpeed() {
     long start = System.nanoTime();
-    long[] firstFetches = {-1};
+    long[] firstFetches = {-1}, nextFrame = {0};
     return fetches -> {
       if (firstFetches[0] < 0)
-        firstFetches[0] = fetches;
+        nextFrame[0] = (firstFetches[0] = fetches) + FETCHES_PER_FRAME;
       long ahead = start + (fetches - firstFetches[0]) * NANOS_PER_FRAME / FETCHES_PER_FRAME - System.nanoTime();
       if (ahead > 1_000_000)
         LockSupport.parkNanos(ahead);
-      return false;
+      boolean frameEnded = fetches >= nextFrame[0];
+      if (frameEnded)
+        nextFrame[0] = fetches + FETCHES_PER_FRAME;
+      return frameEnded;
     };
+  }
+
+  private static MiniZX playing(String recording, int entry, Class<?> type) throws Exception {
+    EmulatedMiniZX emulator = EmulatedMiniZX.ofRecording(recording, -1, null).stoppingAt(entry);
+    emulator.start();
+    MiniZX game = (MiniZX) type.getConstructor().newInstance();
+    game.loadState(emulator.ooz80.getState());
+    game.setInterruptionCondition(atSpectrumSpeed());
+    return game;
   }
 
   private static MiniZX replaying(String recording, int entry, Class<?> type) throws Exception {
