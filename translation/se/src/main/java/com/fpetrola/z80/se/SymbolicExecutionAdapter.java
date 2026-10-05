@@ -26,6 +26,7 @@ import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.impl.JP;
+import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.MutableOpcodeConditions;
@@ -95,11 +96,16 @@ public class SymbolicExecutionAdapter {
     dataflowService = dataflowService1;
     routineExecutorHandler = new RoutineExecutorHandler(state, routineManager, new ExecutionStackStorage(state, stackAnalyzer), dataflowService, stackAnalyzer);
     this.stackAnalyzer.addEventListener(new StackListener() {
-      public boolean jumpUsingRet(int pcValue, Set<Integer> jumpAddresses) {
+      public boolean jumpUsingRet(Ret ret, int pcValue, Set<Integer> jumpAddresses) {
         AddressAction addressAction = routineExecutorHandler.getCurrentRoutineExecution().getAddressAction(pcValue);
         if (!(addressAction instanceof JumpUsingRetAddressAction))
-          routineExecutorHandler.getCurrentRoutineExecution().replaceAddressAction(new JumpUsingRetAddressAction(routineManager.getInstructionAt(pcValue), pcValue, jumpAddresses, routineExecutorHandler));
-        return StackListener.super.jumpUsingRet(pcValue, jumpAddresses);
+          routineExecutorHandler.getCurrentRoutineExecution().replaceAddressAction(new JumpUsingRetAddressAction(ret, pcValue, jumpAddresses, routineExecutorHandler));
+        return StackListener.super.jumpUsingRet(ret, pcValue, jumpAddresses);
+      }
+
+      public boolean returnShifted(int pcValue, int returnAddress, int callSite) {
+        state.getMemory().write16Bits(returnAddress, state.getRegisterSP().read());
+        return StackListener.super.returnShifted(pcValue, returnAddress, callSite);
       }
     });
 
@@ -325,6 +331,8 @@ public class SymbolicExecutionAdapter {
     public boolean returnAddressPopped(int pcValue, int returnAddress, int callAddress) {
       RoutineExecutorHandler routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
       RoutineManager routineManager = symbolicExecutionAdapter.routineManager;
+      if (symbolicExecutionAdapter.stackAnalyzer.returnShifts.containsKey(routineExecutorHandler.getCurrentRoutineExecution().getStart()))
+        return false;
       if (routineExecutorHandler.getStackFrames().size() < 2 || !routineManager.isCalledFrom(routineManager.findRoutineAt(routineExecutorHandler.getCurrentRoutineExecution().getStart()), callAddress))
         return false;
 
@@ -332,7 +340,8 @@ public class SymbolicExecutionAdapter {
       var callerRoutineExecution = routineExecutorHandler.getCallerRoutineExecution();
 
       callerRoutineExecution.replaceAddressAction(new AddressActionDelegate(pcValue + 1, routineExecutorHandler));
-      callerRoutineExecution.replaceAddressAction(new AddressActionDelegate(returnAddress, routineExecutorHandler));
+      if (symbolicExecutionAdapter.routineManager.isCode(returnAddress))
+        callerRoutineExecution.replaceAddressAction(new AddressActionDelegate(returnAddress, routineExecutorHandler));
       lastRoutineExecution.replaceAddressAction(new BasicAddressAction(pcValue, routineExecutorHandler, false));
       callerRoutineExecution.replaceAddressAction(new PopReturnCallAddressAction(routineExecutorHandler, lastRoutineExecution, callAddress));
 
@@ -385,10 +394,6 @@ public class SymbolicExecutionAdapter {
         return true;
       } else
         return StackListener.super.droppingReturnValues(pcValue, newSpAddress, oldSpAddress, lastReturnAddress);
-    }
-
-    public boolean jumpUsingRet(int pcValue, Set<Integer> jumpAddresses) {
-      return StackListener.super.jumpUsingRet(pcValue, jumpAddresses);
     }
 
     public boolean simulatedCall(int pcValue, int jumpAddress, Set<Integer> jumpAddresses, int returnAddress) {

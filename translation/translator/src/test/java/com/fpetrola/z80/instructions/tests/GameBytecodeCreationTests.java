@@ -263,6 +263,7 @@ public class GameBytecodeCreationTests {
     StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
     RemoteZ80Translator.Footprint footprint = RemoteZ80Translator.footprint("/home/fernando/detodo/spectrum/emlyn_r3.rzx", 0xB542);
     stackAnalyzer.dynamicInvocation.putAll(footprint.dynamicInvocation());
+    stackAnalyzer.returnShifts.putAll(footprint.returnShifts());
     stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());
     getRoutineManager().setReachable(footprint.executed());
     realCodeBytecodeCreationBase.symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());

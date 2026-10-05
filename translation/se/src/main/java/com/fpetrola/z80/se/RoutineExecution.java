@@ -82,7 +82,9 @@ public class RoutineExecution {
   }
 
   public void replaceAddressAction(AddressAction addressAction) {
-    actions.put(addressAction.address, addressAction);
+    AddressAction replaced = actions.put(addressAction.address, addressAction);
+    if (replaced != null)
+      addressAction.keepStackStorageOf(replaced);
   }
 
 

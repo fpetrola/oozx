@@ -14,10 +14,10 @@ public class PlayTranslatedGame {
   private static final long FETCHES_PER_FRAME = 7800, NANOS_PER_FRAME = 20_000_000;
 
   public static void main(String[] args) throws Exception {
-    MiniZX game = new DD();
+    MiniZX game = new Emlyn();
     game.setInterruptionCondition(atSpectrumSpeed());
     try {
-      DD.class.getMethod("$C804").invoke(game);
+      Emlyn.class.getMethod("$94AA").invoke(game);
     } catch (java.lang.reflect.InvocationTargetException e) {
       String detail = e.getCause() instanceof com.fpetrola.z80.minizx.StackException stack ? " to $" + Integer.toHexString(stack.getNextPC()) : "";
       System.out.println("ended at $" + Integer.toHexString(game.PC) + ": " + e.getCause() + detail);

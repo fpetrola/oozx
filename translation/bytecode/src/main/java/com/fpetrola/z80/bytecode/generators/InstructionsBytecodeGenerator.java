@@ -343,25 +343,27 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     int pcValue = routineByteCodeGenerator.context.pc.read();
 
     Set invocationsSet = stackAnalyzer.getInvocationsSet(pcValue);
-    if (invocationsSet.isEmpty())
-      createIfs(ret, () -> routineByteCodeGenerator.returnFromMethod());
-    else {
+    createIfs(ret, () -> {
       Variable poppedValue = methodMaker.invoke("pop");
       invokeDynamicCall(invocationsSet, poppedValue);
-    }
+      routineByteCodeGenerator.returnFromMethod();
+    });
     return true;
   }
 
   public boolean visitingCall(Call call) {
     int jumpLabel = call.getJumpAddress();
     RegisterName trampoline = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().trampolineRegister(jumpLabel);
-    if (routineByteCodeGenerator.context.routineManager.findRoutineAt(jumpLabel) != null)
-      createIfs(call, () -> routineByteCodeGenerator.invokeTransformedMethod(jumpLabel));
-    else if (trampoline != null)
-      createIfs(call, () -> methodMaker.invoke("callThrough", methodMaker.invoke(trampoline.name()), trampoline == RegisterName.HL ? 1 : 2));
-    else
-      createIfs(call, () -> methodMaker.invoke("untranslated", jumpLabel));
-
+    int returnAddress = routineByteCodeGenerator.context.routineManager.addressAfter(routineByteCodeGenerator.context.pc.read());
+    createIfs(call, () -> {
+      methodMaker.invoke("push", returnAddress);
+      if (routineByteCodeGenerator.context.routineManager.findRoutineAt(jumpLabel) != null)
+        routineByteCodeGenerator.invokeTransformedMethod(jumpLabel);
+      else if (trampoline != null)
+        methodMaker.invoke("callThrough", methodMaker.invoke(trampoline.name()), trampoline == RegisterName.HL ? 1 : 2);
+      else
+        methodMaker.invoke("untranslated", jumpLabel);
+    });
     return true;
   }
 
@@ -510,9 +512,6 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   private void invokeDynamicCall(Set<Integer> invocationsSet, Variable existingVariable) {
     int pcValue1 = routineByteCodeGenerator.context.pc.read();
     boolean isSimulatedCall = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().getSimulatedCallsPcs().contains(pcValue1);
-    if (isSimulatedCall)
-      methodMaker.invoke("pop");
-
     invocationsSet.forEach(c -> {
       existingVariable.ifEq(c, () -> {
         Label label = routineByteCodeGenerator.getLabel(c);

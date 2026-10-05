@@ -56,7 +56,7 @@ public class JumpUsingRetAddressAction extends AddressAction {
     if (currentCase != null)
       return currentCase;
     else if (!cases.isEmpty())
-      return executedInstructionAddress;
+      return currentPc;
     else
       return super.getNext(executedInstructionAddress, currentPc);
   }

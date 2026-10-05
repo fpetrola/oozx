@@ -271,6 +271,7 @@ public class RoutineManager {
     returnPoints.clear();
     codeVariants.clear();
     externalEntries.clear();
+    reachable = null;
   }
 
   public void removeRoutine(Routine routine) {

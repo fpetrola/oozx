@@ -37,6 +37,10 @@ public class AddressAction {
     return executionStackStorage;
   }
 
+  public void keepStackStorageOf(AddressAction replaced) {
+    executionStackStorage = replaced.executionStackStorage;
+  }
+
   private ExecutionStackStorage executionStackStorage;
 
   public AddressAction(int pcValue, RoutineExecutorHandler routineExecutorHandler) {

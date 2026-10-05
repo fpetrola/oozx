@@ -25,6 +25,7 @@ import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
 import com.fpetrola.z80.instructions.types.TargetInstruction;
 import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.impl.JP;
+import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Pop;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.instructions.impl.Call;
@@ -139,9 +140,10 @@ public class RoutineBytecodeGenerator {
                 jumpInto(nextAddress);
                 returnFromMethod();
               }
-              List<Routine> list2 = routines.stream().filter(routine1 -> routine1.isVirtual() && routine1 != routine && routine1.getEntryPoint() == nextAddress).toList();
-              if (!list2.isEmpty())
-                invokeInnerIfAvailable(nextAddress, list2);
+              if (RoutineManager.fallsThrough(instruction) && routines.stream().anyMatch(routine1 -> routine1.isVirtual() && routine1 != routine && routine1.getEntryPoint() == nextAddress)) {
+                invokeTransformedMethod(nextAddress);
+                returnFromMethod();
+              }
 
             };
 
@@ -168,29 +170,24 @@ public class RoutineBytecodeGenerator {
           }));
           mm.invoke("unknownCodeVariant", address);
         }
-        invokePc(address);
         if (mutantCodeInInstruction(instruction, address)) {
+          invokePc(address);
           mm.invoke("executeMutantCode", address);
         } else if (routine.getVirtualPop().containsKey(address) && routine.getVirtualPop().get(address) == address) {
-          throwStackException(context.routineManager.addressAfter(address), StackException.class);
+          throwAtVirtualPop(address);
           returnFromMethod();
         } else {
+          invokePc(address);
           InstructionsBytecodeGenerator instructionsBytecodeGenerator = new InstructionsBytecodeGenerator(mm, RoutineBytecodeGenerator.this, address);
           instruction.accept(instructionsBytecodeGenerator);
 
           if (!instructionsBytecodeGenerator.incPopsAdded && routine.getVirtualPop().containsKey(address)) {
             throwAfterVirtualPop(address);
-//            getField("nextAddress").set(nextAddress);
             returnFromMethod();
           }
         }
       }
 
-      private void invokeInnerIfAvailable(int address, List<Routine> list) {
-        invokeTransformedMethod(address);
-        if (list.get(0).isCallable())
-          returnFromMethod();
-      }
     });
 
     Label label1 = mm.label();
@@ -227,13 +224,13 @@ public class RoutineBytecodeGenerator {
         Collection<Integer> integers = routine.getReturnPoints().get(key);
         integers.forEach(i -> {
           nextAddress.ifEq(i, () -> {
-            loadPoppedReturnAddress(i, key);
+            loadPoppedReturnAddress(i);
             Label label3 = getLabel(i);
             if (label3 != null)
               label3.goto_();
             else if (context.routineManager.getInstructionAt(i) instanceof Ret ret && ret.getCondition() instanceof ConditionAlwaysTrue) {
               invokePc(i);
-              returnFromMethod();
+              returnFromRoutine();
             } else if (context.routineManager.getInstructionAt(i) instanceof JP jp && jp.getCondition() instanceof ConditionAlwaysTrue && getLabel(RoutineManager.fixedJumpTarget(jp)) != null) {
               invokePc(i);
               getLabel(RoutineManager.fixedJumpTarget(jp)).goto_();
@@ -496,7 +493,7 @@ public class RoutineBytecodeGenerator {
     try {
       invoke = mm.invoke(labelName);
     } catch (Exception e) {
-      System.out.println("not found: " + labelName + " from " + routine + " at " + Helper.formatAddress(context.pc.read()));
+      System.out.println("not found: " + labelName + " from " + routine + " at " + Helper.formatAddress(context.pc.read()) + " callers " + context.routineManager.callers.get(jumpLabel) + " owner " + context.routineManager.findRoutineAt(jumpLabel));
     }
     return invoke;
   }
@@ -511,15 +508,22 @@ public class RoutineBytecodeGenerator {
     return pop != null && pop != context.routineManager.addressAfter(address);
   }
 
-  private void loadPoppedReturnAddress(int returnPoint, int callSite) {
+  private void loadPoppedReturnAddress(int returnPoint) {
     for (int length = 1; length <= 2; length++)
       if (context.routineManager.getInstructionAt(returnPoint - length) instanceof Pop pop && pop.getLength() == length)
-        getExistingVariable((Register) pop.getTarget()).set(context.routineManager.addressAfter(callSite));
+        getExistingVariable((Register) pop.getTarget()).set(mm.invoke("pop"));
   }
 
   public void throwAfterVirtualPop(int address) {
-    int pop = routine.getVirtualPop().get(address);
+    throwAtVirtualPop(routine.getVirtualPop().get(address));
+  }
+
+  private void throwAtVirtualPop(int pop) {
     invokePc(pop);
+    if (context.routineManager.getInstructionAt(pop) instanceof Ld stackReset) {
+      context.pc.write(pop);
+      stackReset.accept(new InstructionsBytecodeGenerator(mm, this, pop));
+    }
     throwStackException(context.routineManager.addressAfter(pop), StackException.class);
   }
 
@@ -529,6 +533,11 @@ public class RoutineBytecodeGenerator {
   }
 
   protected void returnFromMethod() {
+    mm.return_();
+  }
+
+  protected void returnFromRoutine() {
+    mm.invoke("pop");
     mm.return_();
   }
 

@@ -19,6 +19,7 @@
 package com.fpetrola.z80.se;
 
 import com.fpetrola.z80.helpers.Helper;
+import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 
 import java.util.List;
@@ -34,8 +35,13 @@ public interface StackListener {
     return false;
   }
 
-  default boolean jumpUsingRet(int pcValue, Set<Integer> jumpAddresses) {
+  default boolean jumpUsingRet(Ret ret, int pcValue, Set<Integer> jumpAddresses) {
     System.out.println("jumpUsingRet: %s %s".formatted(Helper.formatAddress(pcValue), formatHex(jumpAddresses)));
+    return false;
+  }
+
+  default boolean returnShifted(int pcValue, int returnAddress, int callSite) {
+    System.out.println("returnShifted: %s %s %s".formatted(Helper.formatAddress(pcValue), Helper.formatAddress(returnAddress), Helper.formatAddress(callSite)));
     return false;
   }
 

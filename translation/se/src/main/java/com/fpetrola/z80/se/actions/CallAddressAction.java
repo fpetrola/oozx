@@ -84,6 +84,8 @@ public class CallAddressAction extends AddressAction {
       return currentPc;
     if (throughRegister != null && currentPc == call.getJumpAddress())
       currentPc = routineExecutionHandler.getState().getRegister(throughRegister).read();
+    if (currentPc == routineExecutionHandler.getRoutineManager().addressAfter(address))
+      currentPc = currentPc + routineExecutionHandler.getStackAnalyzer().returnShifts.getOrDefault(call.getJumpAddress(), 0) & 0xffff;
     return super.getNext(executedInstructionAddress, currentPc);
   }
 }

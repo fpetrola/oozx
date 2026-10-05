@@ -48,7 +48,6 @@ public class Routine {
 
   public Set<String> parameters = new HashSet<>();
   public Set<String> returnValues = new HashSet<>();
-  private boolean callable = true;
 
   public MultiValuedMap<Integer, Integer> getReturnPointsDropped() {
     return returnPointsDropped;
@@ -76,10 +75,6 @@ public class Routine {
 
   public List<Block> getBlocks() {
     return blocks;
-  }
-
-  public void setCallable(boolean callable) {
-    this.callable = callable;
   }
 
   public void addInstruction(Instruction instruction) {
@@ -404,10 +399,6 @@ public class Routine {
       lastInstruction[0] = instruction;
     }
     return routineVisitor.getResult();
-  }
-
-  public boolean isCallable() {
-    return callable;
   }
 
   public Routine createInnerRoutineBetween(int startAddress, int endAddress) {

@@ -43,6 +43,7 @@ import com.fpetrola.z80.transformations.StackAnalyzer;
 import org.apache.commons.collections4.MultiValuedMap;
 import com.fpetrola.z80.instructions.types.Instruction;
 import java.util.List;
+import java.util.Map;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -93,7 +94,7 @@ public class RemoteZ80Translator {
     return emulate(realCodeBytecodeCreationBase, EmulatedMiniZX.ofRecording(rzxFile, frames, realCodeBytecodeCreationBase.getStackAnalyzer()));
   }
 
-  public record Footprint(Set<Integer> executed, Set<Integer> modifiedCode, MultiValuedMap<Integer, Integer> dynamicInvocation) {
+  public record Footprint(Set<Integer> executed, Set<Integer> modifiedCode, MultiValuedMap<Integer, Integer> dynamicInvocation, Map<Integer, Integer> returnShifts) {
   }
 
   public static Footprint footprint(String rzxFile, int from) {
@@ -119,7 +120,7 @@ public class RemoteZ80Translator {
     }
     StackAnalyzer.collecting = false;
     written.retainAll(covered);
-    return new Footprint(executed, written, stackAnalyzer.dynamicInvocation);
+    return new Footprint(executed, written, stackAnalyzer.dynamicInvocation, stackAnalyzer.returnShifts);
   }
 
   public static String emulateRecordingUntil(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, String rzxFile, int address) {

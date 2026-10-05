@@ -65,15 +65,9 @@ public abstract class MiniZX extends SpectrumApplication {
 //    }
 
     PC = address;
-    for (boolean accepting = iff && !interruptsDelayed; interruptionCondition != null && interruptionCondition.test(fetchCounter) && accepting; accepting = iff) {
-      iff = false;
-      int vector = I << 8 | 0xff;
-      int handler = interruptMode == 2 ? mem[vector] | mem[vector + 1 & 0xffff] << 8 : 0x38;
-      for (fetchCounter++, R = R & 0x80 | R + 1 & 0x7f; mem[handler] == 0xc3; fetchCounter++, R = R & 0x80 | R + 1 & 0x7f)
-        handler = mem[handler + 1 & 0xffff] | mem[handler + 2 & 0xffff] << 8;
-      invokeMethod(handler);
+    for (boolean accepting = iff && !interruptsDelayed; interruptPending() && accepting; accepting = iff) {
+      interrupt();
       PC = address;
-      interrupts++;
     }
     interruptsDelayed = false;
     R = R & 0x80 | R + rdelta & 0x7f;
@@ -81,8 +75,31 @@ public abstract class MiniZX extends SpectrumApplication {
   }
 
   public void halt(int address) {
-    for (long accepted = interrupts; interrupts == accepted; )
-      pc(address, 1);
+    for (long accepted = interrupts; interrupts == accepted; interruptsDelayed = false) {
+      PC = address;
+      if (interruptPending() && iff && !interruptsDelayed) {
+        PC = address + 1;
+        interrupt();
+      } else {
+        R = R & 0x80 | R + 1 & 0x7f;
+        fetchCounter++;
+      }
+    }
+  }
+
+  private boolean interruptPending() {
+    return interruptionCondition != null && interruptionCondition.test(fetchCounter);
+  }
+
+  private void interrupt() {
+    iff = false;
+    int vector = I << 8 | 0xff;
+    int handler = interruptMode == 2 ? mem[vector] | mem[vector + 1 & 0xffff] << 8 : 0x38;
+    for (fetchCounter++, R = R & 0x80 | R + 1 & 0x7f; mem[handler] == 0xc3; fetchCounter++, R = R & 0x80 | R + 1 & 0x7f)
+      handler = mem[handler + 1 & 0xffff] | mem[handler + 2 & 0xffff] << 8;
+    push(PC);
+    invokeMethod(handler);
+    interrupts++;
   }
 
   public void callThrough(int target, int trampolineFetches) {

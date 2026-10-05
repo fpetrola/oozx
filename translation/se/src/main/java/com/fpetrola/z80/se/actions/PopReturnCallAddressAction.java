@@ -44,6 +44,10 @@ public class PopReturnCallAddressAction extends BasicAddressAction {
     }
   }
 
+  public boolean isPending() {
+    return pending && lastRoutineExecution.hasPendingPoints();
+  }
+
   public int getNext(int executedInstructionAddress, int currentPc) {
     pending = branch;
     if (lastRoutineExecution.hasPendingPoints())

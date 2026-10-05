@@ -80,9 +80,10 @@ public abstract class SpectrumApplication {
       return address + 2;
     } else if ((opcode & 0xcf) == 0x01)
       new IntConsumer[]{this::BC, this::DE, this::HL, this::SP}[opcode >> 4].accept(nn);
-    else if (opcode == 0xcd)
+    else if (opcode == 0xcd) {
+      push(address + 3 & 0xffff);
       invokeMethod(nn);
-    else if ((opcode & 0xc0) == 0x40 && opcode != 0x76) {
+    } else if ((opcode & 0xc0) == 0x40 && opcode != 0x76) {
       write8(opcode >> 3 & 7, read8(opcode & 7));
       return address + 1;
     } else if ((opcode & 0xe7) == 0x07) {

@@ -146,7 +146,7 @@ public class RoutineFinder {
 
         boolean listened = this.stackAnalyzer.listenEvents(new StackListener() {
           public boolean returnAddressPopped(int pcValue, int returnAddress, int callAddress) {
-            if (!routineManager.isCalledFrom(currentRoutine, callAddress))
+            if (stackAnalyzer.returnShifts.containsKey(currentRoutine.getEntryPoint()) || !routineManager.isCalledFrom(currentRoutine, callAddress))
               return false;
             Routine returnRoutine = routineManager.findRoutineAt(callAddress);
             if (lastPc != -1) {
@@ -159,20 +159,19 @@ public class RoutineFinder {
             return true;
           }
 
-          public boolean jumpUsingRet(int pcValue, Set<Integer> jumpAddresses) {
-            if (instruction instanceof Ret ret) {
-              int nextPC = ret.getNextPC();
-              if (nextPC != -1) {
-//                int spValue = state.getRegisterSP().read();
-//                var read = state.getMemory().read16Bits(spValue.plus(-2));
-                routineManager.callers.put(nextPC, pcValue);
-                routineManager.callees.put(pcValue, nextPC);
-                currentRoutine.addInstructionAt(instruction, pcValue);
-//                if (ret.getNextPC() != -1) {
-//                  RoutineFinder.this.currentRoutine = routineManager.findRoutineAt(ret.getNextPC());
-//                }
-              }
-            }
+          public boolean returnShifted(int pcValue, int returnAddress, int callSite) {
+            currentRoutine.addInstructionAt(instruction, pcValue);
+            currentRoutine = routineManager.findRoutineAt(callSite);
+            return true;
+          }
+
+          public boolean jumpUsingRet(Ret ret, int pcValue, Set<Integer> jumpAddresses) {
+            jumpAddresses.forEach(target -> {
+              routineManager.callers.put(target, pcValue);
+              routineManager.callees.put(pcValue, target);
+            });
+            if (ret.getNextPC() != -1)
+              currentRoutine.addInstructionAt(ret, pcValue);
             return true;
           }
 
