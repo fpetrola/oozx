@@ -19,6 +19,7 @@
 package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.instructions.impl.Call;
+import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.se.RoutineExecution;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
@@ -28,6 +29,8 @@ public class CallAddressAction extends AddressAction {
   private int calleeAddress;
   private RoutineExecution calleeRoutineExecution;
   private boolean calleePending= true;
+  private boolean steppedOver;
+  private RegisterName throughRegister;
 
   public CallAddressAction(int pcValue, Call call, boolean alwaysTrue, RoutineExecutorHandler routineExecutorHandler) {
     super(pcValue, true, call, alwaysTrue, routineExecutorHandler);
@@ -36,12 +39,21 @@ public class CallAddressAction extends AddressAction {
   }
 
   public boolean processBranch(Instruction instruction) {
+    int target = call.getJumpAddress();
+    if (!routineExecutionHandler.getRoutineManager().isCode(target)) {
+      throughRegister = routineExecutionHandler.getStackAnalyzer().trampolineRegister(target);
+      target = throughRegister == null ? -1 : routineExecutionHandler.getState().getRegister(throughRegister).read();
+      if (!routineExecutionHandler.getRoutineManager().isCode(target)) {
+        steppedOver = true;
+        return false;
+      }
+    }
     boolean doBranch = getDoBranch();
     if (doBranch) {
-      calleeAddress = call.getJumpAddress();
+      calleeAddress = target;
       calleeRoutineExecution = routineExecutionHandler.findRoutineExecutionAt(calleeAddress);
       if (calleeRoutineExecution != null) {
-        calleePending = calleeRoutineExecution.isPending();
+        calleePending = !routineExecutionHandler.getStackFrames().contains(calleeAddress) && calleeRoutineExecution.isPending();
         if (calleePending)
           routineExecutionHandler.pushRoutineExecution(calleeRoutineExecution);
         return calleePending;
@@ -62,12 +74,16 @@ public class CallAddressAction extends AddressAction {
     if (currentRoutineExecution == null)
       return false;
     else
-      return pending || calleeRoutineExecution.isPending();
+      return pending || !steppedOver && calleeRoutineExecution != null && !routineExecutionHandler.getStackFrames().contains(calleeRoutineExecution.getStart()) && calleeRoutineExecution.isPending();
   }
 
   @Override
   public int getNext(int executedInstructionAddress, int currentPc) {
-    pending = branch;
+    pending = branch && !steppedOver;
+    if (steppedOver)
+      return currentPc;
+    if (throughRegister != null && currentPc == call.getJumpAddress())
+      currentPc = routineExecutionHandler.getState().getRegister(throughRegister).read();
     return super.getNext(executedInstructionAddress, currentPc);
   }
 }

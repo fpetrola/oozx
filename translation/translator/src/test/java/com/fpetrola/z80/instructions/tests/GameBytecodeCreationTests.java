@@ -53,6 +53,7 @@ import com.fpetrola.z80.minizx.SpectrumApplication;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Stream;
 import java.util.Map;
 
 import static com.fpetrola.z80.helpers.Helper.createMD5;
@@ -177,7 +178,7 @@ public class GameBytecodeCreationTests {
         {B2F1:B34A} -> [B2F1 : B34A]
         {B34C:B3AA} -> [B34C : B3AA]
         {B3AB:B3BD} -> [B3AB : B3BD]
-        {B3C3:EE8C} -> [B3C3 : B450, EABF : EB53, EB79 : EC0E, EC2B : EC3C, EC4A : EC5B, ECBC : ECF4, EDA3 : EDAB, EDB3 : EDBD, EDC6 : EE8C]
+        {B3C3:F045} -> [B3C3 : B450, EABF : EB53, EB79 : EC0E, EC2B : EC3C, EC4A : EC5B, ECBC : ECF4, EDA3 : EDAB, EDB3 : EDBD, EDC6 : EE9E, EFC7 : F045]
         {B451:B470} -> [B451 : B470]
         {B471:B481} -> [B471 : B481]
         {B482:B4E6} -> [B482 : B4E6]
@@ -222,22 +223,13 @@ public class GameBytecodeCreationTests {
         {ED13:F7DD} -> [ED13 : ED29, EEC1 : EEF2, F24B : F26D, F2F6 : F2F6, F309 : F326, F334 : F374, F37D : F39F, F3AB : F3FC, F409 : F490, F49D : F4D1, F4D3 : F4FE, F503 : F525, F543 : F56D, F572 : F577, F5F1 : F64A, F674 : F6D0, F6EC : F739, F746 : F7DD]
         {ED2A:ED89} -> [ED2A : ED89]
         {ED8A:EDA2} -> [ED8A : EDA2]
-        {EE8D:EE9B} -> [EE8D : EE9B]
-        {EE9C:EE9E} -> [EE9C : EE9E]
         {EEA2:EEC0} -> [EEA2 : EEC0]
         {EF35:EF87} -> [EF35 : EF87]
         {EF88:EF90} -> [EF88 : EF90]
         {EF91:EFC6} -> [EF91 : EFC6]
-        {EFC7:F045} -> [EFC7 : F045]
         {F047:F056} -> [F047 : F056]
-        {F057:F0AD} -> [F057 : F0AD]
-        {F0AE:F0B1} -> [F0AE : F0B1]
-        {F0B2:F0B2} -> [F0B2 : F0B2]
-        {F0B3:F0B6} -> [F0B3 : F0B6]
-        {F0C0:F0EF} -> [F0C0 : F0EF]
-        {F0F0:F0FA} -> [F0F0 : F0FA]
-        {F0FB:F0FF} -> [F0FB : F0FF]
-        {F100:F103} -> [F100 : F103]
+        {F057:F0B6} -> [F057 : F0B6]
+        {F0C0:F103} -> [F0C0 : F103]
         {F10E:F157} -> [F10E : F157]
         {F277:F2F5} -> [F277 : F2F5]
         {F526:F542} -> [F526 : F542]
@@ -265,76 +257,61 @@ public class GameBytecodeCreationTests {
     testTranslateGame(getMemoryInBase64FromFile("file:///home/fernando/Downloads/samcruise.z80"), 61483);
   }
 
-  @Ignore("emlyn.z80 lives outside the repo")
   @Test
   public void testTranslateEmlynToJava() {
-    Helper.hex = true;
+    String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, "/home/fernando/detodo/spectrum/emlyn_r3.rzx", 0xB542);
     StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
-    addDynamicInvocations(stackAnalyzer, "{24992=[26125], 29217=[27660, 25762, 27675], 23942=[25378], 25606=[26550], 26662=[23744], 46923=[47657, 38058, 47475, 47047], 5676=[23744, 25251, 25238, 32759, 28122, 25372, 25468, 26685], 38222=[28174], 38257=[38282, 38323, 38307, 38332, 38316], 24979=[26125], 1012=[26457, 26498, 28515, 25532, 26509, 28037], 23893=[26125], 51063=[51648, 51840, 51265, 52417, 55011, 52211, 51653, 51878, 51705, 52332], 25080=[26125], 23801=[26125], 29212=[26141, 25278, 25302], 24988=[26125], 38110=[56880, 44643, 46020, 45288, 43866, 48939, 43964, 49758]}");
-
-    String base64Memory = getMemoryInBase64FromFile("file:////home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
-    stepUntilComplete(0xb542);
-
-    List<Routine> routines = getRoutineManager().getRoutines();
-    String actual = generateAndDecompile(base64Memory, routines, ".", "ZxGame1");
-
-    Assert.assertEquals("""
-        """, actual);
-    translateToJava("emlyn", base64Memory, "$b542");
-//    testTranslateGame(getMemoryInBase64FromFile("file:////home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80"), 0xb542);
-  }
-
-  @Ignore("needs RZX replay on the oozx machine")
-  @Test
-  public void testTranslateEmlynToJava2() {
-    int emulateUntil = 0xC804;
-    StackAnalyzer.collecting = true;
-    emulateUntil = 23451;
-    String base64Memory = RemoteZ80Translator.emulateUntil(realCodeBytecodeCreationBase, emulateUntil, "file:////home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
-    StackAnalyzer.collecting = false;
-
-    StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
-
-    addDynamicInvocations(stackAnalyzer, "{52931=[52961, 53111], 55965=[56008, 55966, 56058], 111=[51200], 59839=[59867]}");
-
+    RemoteZ80Translator.Footprint footprint = RemoteZ80Translator.footprint("/home/fernando/detodo/spectrum/emlyn_r3.rzx", 0xB542);
+    stackAnalyzer.dynamicInvocation.putAll(footprint.dynamicInvocation());
     stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());
-    stepUntilComplete(0xC804);
-
-
-    Helper.hex = true;
-    addDynamicInvocations(stackAnalyzer, "{38257=[38282, 38307, 38323, 38332, 38316], 51063=[51648, 52056, 51265, 52417, 55011, 51653], 46923=[47657, 38058, 47475, 47047], 38110=[56880, 44643, 46020, 45288, 43866, 48939, 43964, 49758], 38222=[56880]}");
-
-    base64Memory = getMemoryInBase64FromFile("file:////home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80");
-    stepUntilComplete(0xb542);
-
-    List<Routine> routines = getRoutineManager().getRoutines();
-//    String actual = generateAndDecompile(base64Memory, routines, ".", "ZxGame1");
-
-//    Assert.assertEquals("""
-//        """, actual);
-    translateToJava("emlyn", base64Memory, "$b542");
-//    testTranslateGame(getMemoryInBase64FromFile("file:////home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80"), 0xb542);
+    getRoutineManager().setReachable(footprint.executed());
+    realCodeBytecodeCreationBase.symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
+    exploreGame(0xB542, Stream.concat(Stream.of(0x963E), stackAnalyzer.dynamicInvocation.values().stream()).mapToInt(Integer::intValue).toArray());
+    realCodeBytecodeCreationBase.translateRomRoutines(0x0038, 0x22B0, 0x0E44);
+    realCodeBytecodeCreationBase.translateCodeVariants(0x9BBF, 0x9C1D, 0x9BDA, 0xE000,
+        "79c3df9b79652e001fcb1ccb1dc38f9c08e378c3f19b78652e001fcb1ccb1dc3979c",
+        "26fd7e696e652e001fcb1ccb1dc38f9c08e326fd7e686e652e001fcb1ccb1dc3979c",
+        "79c3df9b79673e00291729172917291708e378c3f19b78673e002917291729172917",
+        "26fd7e696e652e00c3ea9b00cb0ecb0608e326fd7e686e652e00c3fc9b00cb0ecb06",
+        "79c3df9b79652e00c3ea9b00cb0ecb0608e378c3f19b78652e00c3fc9b00cb0ecb06",
+        "79c3df9b79673e0029172917c3ea9b0008e378c3f19b78673e0029172917c3fc9b00",
+        "26fd7e696e673e00291729172917291708e326fd7e686e673e002917291729172917",
+        "26fd7e696e673e0029172917c3ea9b0008e326fd7e686e673e0029172917c3fc9b00");
+    realCodeBytecodeCreationBase.translateCodeVariants(0x9AF7, 0x9B1C, 0x9AFB, 0xE300,
+        "2d3601243602243604243608243610243620",
+        "3640243680242d3601243602243604243608",
+        "3610243620243640243680242d3601243602",
+        "36042436082436102436202436402436802d",
+        "3608243604243602243601242c3680243640",
+        "2c3680243640243620243610243608243604",
+        "36202436102436082436042436022436012c",
+        "3602243601242c3680243640243620243610");
+    writeTranslation(base64Memory);
   }
 
   private void testTranslateGame(String MemoryInBase64FromFile, int startAddress, int... reachedByTheRecording) {
+    exploreGame(startAddress, reachedByTheRecording);
+    writeTranslation(MemoryInBase64FromFile);
+  }
+
+  private void exploreGame(int startAddress, int... reachedByTheRecording) {
     Helper.hex = true;
-    String base64Memory = MemoryInBase64FromFile;
+    getRoutineManager().externalEntries.add(startAddress);
     stepUntilComplete(startAddress);
     for (int address : reachedByTheRecording)
       stepUntilComplete(address);
-//    translateToJava("ZxGame1", base64Memory, "$61483");
+  }
 
+  private void writeTranslation(String base64Memory) {
     List<Routine> routines = getRoutineManager().getRoutines();
-    String actual = generateAndDecompile(base64Memory, routines, ".", "ZxGame1");
-
-    String routinesString = getRoutinesString(routines);
     try {
-      Files.writeString(Path.of("target/game-routines.txt"), routinesString);
-      Files.writeString(Path.of("target/Game.java"), actual);
+      Files.writeString(Path.of("target/game-routines.txt"), getRoutinesString(routines));
+      Files.writeString(Path.of("target/Game.java"), String.valueOf(generateAndDecompile(base64Memory, routines, ".", "ZxGame1")));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
+
 
   @Test
   public void testTranslateDynamite() throws Exception {

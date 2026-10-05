@@ -38,7 +38,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.fpetrola.z80.cpu.FetchListener;
+import com.fpetrola.z80.transformations.StackAnalyzer;
+import org.apache.commons.collections4.MultiValuedMap;
+import com.fpetrola.z80.instructions.types.Instruction;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import static java.net.URI.create;
@@ -87,11 +93,45 @@ public class RemoteZ80Translator {
     return emulate(realCodeBytecodeCreationBase, EmulatedMiniZX.ofRecording(rzxFile, frames, realCodeBytecodeCreationBase.getStackAnalyzer()));
   }
 
+  public record Footprint(Set<Integer> executed, Set<Integer> modifiedCode, MultiValuedMap<Integer, Integer> dynamicInvocation) {
+  }
+
+  public static Footprint footprint(String rzxFile, int from) {
+    Set<Integer> executed = new HashSet<>(), covered = new HashSet<>(), written = new HashSet<>();
+    boolean[] started = {false};
+    StackAnalyzer stackAnalyzer = new StackAnalyzer(null);
+    try {
+      EmulatedMiniZX.ofRecording(rzxFile, -1, stackAnalyzer).listening(new FetchListener() {
+        public void instructionFetchedAt(int address, Instruction instruction) {
+          started[0] |= address == from;
+          StackAnalyzer.collecting = started[0];
+          if (started[0]) {
+            executed.add(address);
+            for (int i = 0; i < instruction.getLength(); i++)
+              covered.add(address + i & 0xffff);
+          }
+        }
+      }).listening((address, value) -> {
+        if (started[0])
+          written.add(address);
+      }).start();
+    } catch (RuntimeException finished) {
+    }
+    StackAnalyzer.collecting = false;
+    written.retainAll(covered);
+    return new Footprint(executed, written, stackAnalyzer.dynamicInvocation);
+  }
+
+  public static String emulateRecordingUntil(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, String rzxFile, int address) {
+    return emulate(realCodeBytecodeCreationBase, EmulatedMiniZX.ofRecording(rzxFile, -1, null).stoppingAt(address));
+  }
+
   private static String emulate(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, EmulatedMiniZX emulatedMiniZX) {
     emulatedMiniZX.start();
 
     State state = emulatedMiniZX.ooz80.getState();
     String base64Memory = SnapshotHelper.getBase64Memory(state);
+    realCodeBytecodeCreationBase.setProgramImage(((int[]) state.getMemory().getData()).clone());
     realCodeBytecodeCreationBase.getState().getMemory().copyFrom(state.getMemory());
     realCodeBytecodeCreationBase.getState().setRegisters(state);
     return base64Memory;

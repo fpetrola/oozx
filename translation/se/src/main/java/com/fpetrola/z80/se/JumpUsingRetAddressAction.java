@@ -21,6 +21,7 @@ package com.fpetrola.z80.se;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.opcodes.references.ConditionAlwaysTrue;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.se.actions.AddressAction;
 
@@ -32,8 +33,8 @@ public class JumpUsingRetAddressAction extends AddressAction {
   private final LinkedList<Integer> cases;
   private Integer currentCase;
 
-  public JumpUsingRetAddressAction(int pcValue, Set<Integer> jumpAddresses, RoutineExecutorHandler routineExecutorHandler) {
-    super(pcValue, routineExecutorHandler);
+  public JumpUsingRetAddressAction(Instruction instruction, int pcValue, Set<Integer> jumpAddresses, RoutineExecutorHandler routineExecutorHandler) {
+    super(pcValue, true, instruction, instruction instanceof ConditionalInstruction<?> conditional && conditional.getCondition() instanceof ConditionAlwaysTrue, routineExecutorHandler);
     this.jumpAddresses = jumpAddresses;
     this.cases = new LinkedList<>(jumpAddresses);
   }
@@ -44,7 +45,8 @@ public class JumpUsingRetAddressAction extends AddressAction {
     if (doBranch) {
       State state = routineExecutionHandler.getState();
       pollNextCase();
-      state.getMemory().write16Bits(currentCase, state.getRegisterSP().read());
+      if (currentCase != null)
+        state.getMemory().write16Bits(currentCase, state.getRegisterSP().read());
     }
     return doBranch;
   }

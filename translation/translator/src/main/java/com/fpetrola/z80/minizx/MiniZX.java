@@ -30,6 +30,7 @@ import java.util.function.Predicate;
 public abstract class MiniZX extends SpectrumApplication {
   private Predicate<Integer> interruptionCondition;
   public int fetchCounter;
+  private long interrupts;
 
   public MiniZX() {
     init();
@@ -64,10 +65,30 @@ public abstract class MiniZX extends SpectrumApplication {
 //    }
 
     PC = address;
-    if (interruptionCondition != null)
-      interruptionCondition.test(fetchCounter);
+    for (boolean accepting = iff && !interruptsDelayed; interruptionCondition != null && interruptionCondition.test(fetchCounter) && accepting; accepting = iff) {
+      iff = false;
+      int vector = I << 8 | 0xff;
+      int handler = interruptMode == 2 ? mem[vector] | mem[vector + 1 & 0xffff] << 8 : 0x38;
+      for (fetchCounter++, R = R & 0x80 | R + 1 & 0x7f; mem[handler] == 0xc3; fetchCounter++, R = R & 0x80 | R + 1 & 0x7f)
+        handler = mem[handler + 1 & 0xffff] | mem[handler + 2 & 0xffff] << 8;
+      invokeMethod(handler);
+      PC = address;
+      interrupts++;
+    }
+    interruptsDelayed = false;
     R = R & 0x80 | R + rdelta & 0x7f;
     fetchCounter += rdelta;
+  }
+
+  public void halt(int address) {
+    for (long accepted = interrupts; interrupts == accepted; )
+      pc(address, 1);
+  }
+
+  public void callThrough(int target, int trampolineFetches) {
+    R = R & 0x80 | R + trampolineFetches & 0x7f;
+    fetchCounter += trampolineFetches;
+    invokeMethod(target);
   }
 
   public void init() {
@@ -82,6 +103,7 @@ public abstract class MiniZX extends SpectrumApplication {
       mem[i] = ((i < 16384) ? rom[i] : bytes[i]) & 0xff;
     }
 
+    IY(0x5c3a);
     customizeMemory();
 
     syncChecker.init(this);

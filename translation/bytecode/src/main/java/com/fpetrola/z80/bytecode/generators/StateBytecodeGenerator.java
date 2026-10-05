@@ -93,6 +93,7 @@ public class StateBytecodeGenerator {
 //    routineManager.addRoutine(new Routine(block, 34463, true));
 ////    routine1.split(34762);
 
+    new ArrayList<>(routineManager.getRoutines()).forEach(this::splitIfTooLargeForOneMethod);
     List<Routine> routines = routineManager.getRoutinesInDepth();
 
     RoutineBytecodeGenerator routineBytecodeGenerator1 = new RoutineBytecodeGenerator(bytecodeGenerationContext, null);
@@ -114,7 +115,41 @@ public class StateBytecodeGenerator {
       }
     });
 
+    routineManager.externalEntries.forEach(entry -> {
+      Routine owner = routineManager.findRoutineAt(entry);
+      if (owner != null && owner.getEntryPoint() != entry) {
+        MethodMaker entryMethod = new RoutineBytecodeGenerator(bytecodeGenerationContext, owner).getMethod(entry);
+        entryMethod.invoke("setNextAddress", entry);
+        entryMethod.invoke(RoutineBytecodeGenerator.createLabelName(owner.getEntryPoint()));
+        entryMethod.return_();
+      }
+    });
+
     return classMaker;
+  }
+
+  private static final int MAX_ROUTINE_BYTES = 1500;
+
+  private void splitIfTooLargeForOneMethod(Routine routine) {
+    if (size(routine) <= MAX_ROUTINE_BYTES)
+      return;
+    List<Block> blocks = routine.getBlocks().stream().sorted(Comparator.comparingInt(b -> b.getRangeHandler().getStartAddress())).toList();
+    if (blocks.size() > 1)
+      blocks.subList(1, blocks.size()).forEach(block -> splitIfTooLargeForOneMethod(routine.split(block.getRangeHandler().getStartAddress())));
+    else
+      jumpTargetNearestToMiddleOf(blocks.get(0)).ifPresent(target -> {
+        splitIfTooLargeForOneMethod(routine.split(target));
+        splitIfTooLargeForOneMethod(routine);
+      });
+  }
+
+  private Optional<Integer> jumpTargetNearestToMiddleOf(Block block) {
+    int start = block.getRangeHandler().getStartAddress(), end = block.getRangeHandler().getEndAddress(), middle = (start + end) / 2;
+    return routineManager.callers.keySet().stream().filter(target -> target > start && target <= end).min(Comparator.comparingInt(target -> Math.abs(target - middle)));
+  }
+
+  private static int size(Routine routine) {
+    return routine.getBlocks().stream().mapToInt(b -> b.getRangeHandler().getEndAddress() - b.getRangeHandler().getStartAddress() + 1).sum();
   }
 
   private void enhanceGameData(GameData gameData) {

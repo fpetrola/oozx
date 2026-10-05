@@ -37,6 +37,11 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
   private final InstructionExecutor instructionExecutor;
   private GameData gameData;
+  private int[] programImage;
+
+  public void setProgramImage(int[] programImage) {
+    this.programImage = programImage;
+  }
 
   public StackAnalyzer getStackAnalyzer() {
     return stackAnalyzer;
@@ -77,6 +82,48 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     symbolicExecutionAdapter.stepUntilComplete(this, this.getState(), startAddress, 16384 + 4096);
   }
 
+  public void translateRomRoutines(int... entries) {
+    for (int entry : entries)
+      symbolicExecutionAdapter.stepUntilComplete(this, this.getState(), entry, 0);
+  }
+
+  public void translateCodeVariants(int start, int end, int variableStart, int relocationBase, String... variants) {
+    OOZ80 decoder = com.fpetrola.z80.minizx.emulation.EmulatedMiniZX.createOOZ80(new com.fpetrola.z80.minizx.DefaultMiniZXIO());
+    routineManager.forgetCode(relocationBase, relocationBase + variants.length * (end - start + 1));
+    symbolicExecutionAdapter.getMutantAddress().removeIf(address -> address >= variableStart && address < variableStart + variants[0].length() / 2);
+    symbolicExecutionAdapter.routineExecutorHandler.forgetExecutions(relocationBase, relocationBase + variants.length * (end - start + 1));
+    int[] decoderMemory = (int[]) decoder.getState().getMemory().getData();
+    int size = end - start;
+    List<RoutineManager.CodeVariant> copies = new java.util.ArrayList<>();
+    for (int k = 0; k < variants.length; k++) {
+      String hex = variants[k];
+      int[] variable = java.util.stream.IntStream.range(0, hex.length() / 2).map(i -> Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16)).toArray();
+      int[] code = java.util.Arrays.copyOfRange(programImage, start, end);
+      System.arraycopy(variable, 0, code, variableStart - start, variable.length);
+      int at = relocationBase + k * (size + 1);
+      System.arraycopy(code, 0, decoderMemory, start, size);
+      for (int address = start; address < end; ) {
+        decoder.getState().getPc().write(address);
+        int length = decoder.getInstructionFetcher().fetchNextInstruction().getLength();
+        int opcode = code[address - start], target = length == 3 ? code[address - start + 1] | code[address - start + 2] << 8 : -1;
+        if ((opcode == 0xc3 || opcode == 0xcd || (opcode & 0xc7) == 0xc4 || (opcode & 0xc7) == 0xc2) && target >= start && target < end) {
+          code[address - start + 1] = target - start + at & 0xff;
+          code[address - start + 2] = target - start + at >> 8;
+        }
+        address += length;
+      }
+      for (int i = 0; i < size; i++)
+        getState().getMemory().write(at + i, code[i]);
+      copies.add(new RoutineManager.CodeVariant(start, end, variableStart, variable, at, code));
+    }
+    routineManager.codeVariants.addAll(copies);
+    getState().getMemory().protect(relocationBase, relocationBase + variants.length * (size + 1));
+    java.util.Set<Integer> explored = new java.util.HashSet<>();
+    for (java.util.Set<Integer> entries; !explored.containsAll(entries = routineManager.entriesInto(start, end)); )
+      entries.stream().filter(explored::add).toList().forEach(entry -> copies.forEach(v -> stepUntilComplete(v.relocated(entry))));
+    explored.forEach(entry -> copies.forEach(v -> routineManager.externalEntries.add(v.relocated(entry))));
+  }
+
   @Override
   public RoutineManager getRoutineManager() {
     return routineManager;
@@ -88,7 +135,18 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
 
   @Override
   public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className, SymbolicExecutionAdapter symbolicExecutionAdapter) {
-    return getDecompiledSource(className, targetFolder, getState(), !base64Memory.isBlank(), this.symbolicExecutionAdapter, base64Memory, gameData);
+    return getDecompiledSource(className, targetFolder, getState(), !base64Memory.isBlank(), this.symbolicExecutionAdapter, withCodeVariants(base64Memory), gameData);
+  }
+
+  private String withCodeVariants(String base64Memory) {
+    if (base64Memory.isBlank() || routineManager.codeVariants.isEmpty())
+      return base64Memory;
+    byte[] image = Base64Utils.gzipDecompressFromBase64(base64Memory);
+    routineManager.codeVariants.forEach(v -> {
+      for (int i = 0; i < v.code().length; i++)
+        image[v.relocatedAt() + i] = (byte) v.code()[i];
+    });
+    return Base64Utils.gzipArrayCompressToBase64(image);
   }
 
 

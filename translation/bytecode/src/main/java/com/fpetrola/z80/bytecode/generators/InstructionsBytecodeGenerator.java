@@ -29,6 +29,7 @@ import com.fpetrola.z80.minizx.StackException;
 import com.fpetrola.z80.opcodes.references.ConditionFlag;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 import org.cojen.maker.Label;
 import org.cojen.maker.MethodMaker;
@@ -132,10 +133,11 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   public void visitIn(In in) {
     in.accept(new VariableHandlingInstructionVisitor((s, t) -> {
       Object realVariable = RoutineBytecodeGenerator.getRealVariable(s);
+      String operation = realVariable instanceof java.lang.Integer ? "in" : "inC";
       if (realVariable instanceof java.lang.Integer integer)
         realVariable = routineByteCodeGenerator.variables.get("A").shl(8).or(integer);
 
-      t.set(methodMaker.invoke("in", realVariable, routineByteCodeGenerator.context.pc.read()));
+      t.set(methodMaker.invoke(operation, realVariable, routineByteCodeGenerator.context.pc.read()));
     }, routineByteCodeGenerator));
   }
 
@@ -352,11 +354,13 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
   public boolean visitingCall(Call call) {
     int jumpLabel = call.getJumpAddress();
-    if (routineByteCodeGenerator.getMethod(jumpLabel) != null)
-      createIfs(call, () -> {
-        routineByteCodeGenerator.invokeTransformedMethod(jumpLabel);
-//        routineByteCodeGenerator.invokeReturnPoints();
-      });
+    RegisterName trampoline = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().trampolineRegister(jumpLabel);
+    if (routineByteCodeGenerator.context.routineManager.findRoutineAt(jumpLabel) != null)
+      createIfs(call, () -> routineByteCodeGenerator.invokeTransformedMethod(jumpLabel));
+    else if (trampoline != null)
+      createIfs(call, () -> methodMaker.invoke("callThrough", methodMaker.invoke(trampoline.name()), trampoline == RegisterName.HL ? 1 : 2));
+    else
+      createIfs(call, () -> methodMaker.invoke("untranslated", jumpLabel));
 
     return true;
   }
@@ -399,7 +403,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 //      byteCodeGenerator.getMethod(i);
 //      createIfs(conditionalInstruction, () -> methodMaker.invoke(ByteCodeGenerator.createLabelName(i)));
       createIfs(conditionalInstruction, () -> {
-        if (routineByteCodeGenerator.routine.getVirtualPop().containsKey(address)) {
+        if (routineByteCodeGenerator.virtualPopOnBranch(address)) {
           routineByteCodeGenerator.throwAfterVirtualPop(address);
 //          routineByteCodeGenerator.getField("nextAddress").set(nextAddress);
           incPopsAdded = true;
@@ -410,6 +414,22 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
         routineByteCodeGenerator.returnFromMethod();
       });
     }
+  }
+
+  public void visitingIm(IM im) {
+    methodMaker.invoke("im", im.getMode());
+  }
+
+  public void visitingHalt(Halt halt) {
+    methodMaker.invoke("halt", address);
+  }
+
+  public void visitEI(EI ei) {
+    methodMaker.invoke("ei");
+  }
+
+  public void visitDI(DI di) {
+    methodMaker.invoke("di");
   }
 
   public void visitExx(Exx exx) {
@@ -444,7 +464,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   }
 
   protected void invokeLdir(String methodName) {
-    methodMaker.invoke(methodName);
+    methodMaker.invoke(methodName, address);
   }
 
   @Override
@@ -461,7 +481,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   }
 
   protected void invokeCpir(String methodName) {
-    methodMaker.invoke(methodName);
+    methodMaker.invoke(methodName, address);
   }
 
   @Override
@@ -472,7 +492,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
   private void callRepeatingInstruction(RepeatingInstruction repeatingInstruction) {
     String methodName = repeatingInstruction.getClass().getSimpleName().toLowerCase();
-    methodMaker.invoke(methodName);
+    methodMaker.invoke(methodName, address);
   }
 
   @Override
@@ -499,7 +519,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
         if (label != null) {
           methodMaker.goto_(label);
         } else {
-          routineByteCodeGenerator.invokeTransformedMethod(c);
+          routineByteCodeGenerator.jumpInto(c);
           if (!isSimulatedCall)
             methodMaker.return_();
         }

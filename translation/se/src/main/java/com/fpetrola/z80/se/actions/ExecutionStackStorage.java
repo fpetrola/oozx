@@ -32,19 +32,36 @@ public class ExecutionStackStorage {
   private final State state;
   private int savedSP;
   private boolean enabled = true;
+  private final ExecutionStackStorage prototype;
+  private int exploration;
+  private int savedIn;
   private int lastSP = 123;
 
   public ExecutionStackStorage(State state, StackAnalyzer stackAnalyzer) {
+    this(state, stackAnalyzer, null);
+  }
+
+  private ExecutionStackStorage(State state, StackAnalyzer stackAnalyzer, ExecutionStackStorage prototype) {
     this.state = state;
     this.stackAnalyzer = stackAnalyzer;
+    this.prototype = prototype;
+  }
+
+  public void newExploration() {
+    exploration++;
+  }
+
+  private int currentExploration() {
+    return prototype == null ? exploration : prototype.exploration;
   }
 
   public boolean isSaved() {
-    return savedStack != null;
+    return savedStack != null && savedIn == currentExploration();
   }
 
   public void save() {
-    if (savedStack == null && enabled) {
+    if (!isSaved() && enabled) {
+      savedIn = currentExploration();
       savedStack = createStackCopy();
       savedEntries = stackAnalyzer.copyEntries(savedSP, savedStack.length);
 //      printStack(savedSP, savedStack, "saving ");
@@ -68,7 +85,7 @@ public class ExecutionStackStorage {
 
   public void restore() {
     Memory memory = state.getMemory();
-    if (savedStack != null && enabled) {
+    if (isSaved() && enabled) {
 //      WordNumber[] currentStack = createStackCopy();
 
 //      if (Arrays.compare(savedStack, currentStack) != 0) {
@@ -76,7 +93,7 @@ public class ExecutionStackStorage {
 //      }
 
       for (int i = 0; i < savedStack.length; i++) {
-        if ((savedSP + i) <= 65535)
+        if ((savedSP + i) <= 65535 && !memory.isProtected(savedSP + i))
           memory.getData()[savedSP + i] = savedStack[i];
       }
 
@@ -114,7 +131,7 @@ public class ExecutionStackStorage {
   }
 
   public ExecutionStackStorage create() {
-    return new ExecutionStackStorage(state, stackAnalyzer);
+    return new ExecutionStackStorage(state, stackAnalyzer, this);
   }
 
   public void disable() {

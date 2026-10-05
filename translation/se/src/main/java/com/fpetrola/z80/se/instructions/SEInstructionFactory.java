@@ -20,14 +20,13 @@ package com.fpetrola.z80.se.instructions;
 
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
+import com.fpetrola.z80.instructions.impl.Halt;
 import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ld;
-import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
-import com.fpetrola.z80.se.actions.PushReturnAddress;
 
 public class SEInstructionFactory extends DefaultInstructionFactory {
   private final SymbolicExecutionAdapter symbolicExecutionAdapter;
@@ -83,7 +82,10 @@ public class SEInstructionFactory extends DefaultInstructionFactory {
     };
   }
 
-  public Push Push(OpcodeReference target) {
-    return new PushReturnAddress(symbolicExecutionAdapter, target, sp, memory);
+  public Halt Halt() {
+    return new Halt(state) {
+      public void execute() {
+      }
+    };
   }
 }

@@ -30,6 +30,8 @@ public class AddressAction {
   public int address;
   protected boolean pending;
   private int count;
+  private int visitedIn;
+  private boolean resuming;
 
   public ExecutionStackStorage getExecutionStackStorage() {
     return executionStackStorage;
@@ -40,6 +42,7 @@ public class AddressAction {
   public AddressAction(int pcValue, RoutineExecutorHandler routineExecutorHandler) {
     this.address = pcValue;
     this.routineExecutionHandler = routineExecutorHandler;
+    visitedIn = routineExecutorHandler.exploration();
     executionStackStorage = routineExecutionHandler.getExecutionStackStorage().create();
   }
 
@@ -79,12 +82,24 @@ public class AddressAction {
 
   @Override
   public String toString() {
-    return "AddressAction{address=%s, instruction=%s, pending=%s}".formatted(Helper.formatAddress(address), instruction, pending);
+    return "%s{address=%s, instruction=%s, pending=%s}".formatted(getClass().getSimpleName(), Helper.formatAddress(address), instruction, pending);
+  }
+
+  public void resume() {
+    resuming = true;
+  }
+
+  public boolean takeResuming() {
+    boolean result = resuming;
+    resuming = false;
+    return result;
   }
 
   protected int getNextPC(int address1) {
-    if (pending) {
+    if (pending || visitedIn != routineExecutionHandler.exploration()) {
+      resuming |= pending;
       pending = false;
+      visitedIn = routineExecutionHandler.exploration();
       return address1;
     } else {
       return routineExecutionHandler.getCurrentRoutineExecution().getNextPending().address;

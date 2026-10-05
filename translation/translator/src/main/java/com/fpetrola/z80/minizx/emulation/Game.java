@@ -2389,7 +2389,7 @@ public class Game extends MiniZX {
 
          do {
             this.pc('\uac76', 2);
-            this.cpir();
+            this.cpir(-1);
             this.pc('\uac78', 1);
             int var7 = this.E();
             int var8 = this.alu("dec", var7);
@@ -6433,14 +6433,14 @@ public class Game extends MiniZX {
       this.pc('\ub8f5', 1);
       this.BC(6144);
       this.pc('\ub8f8', 2);
-      this.ldir();
+      this.ldir(-1);
       this.pc('\ub8fa', 1);
       int var2 = this.HL();
       this.wMem(var2, 70, '\ub8fa');
       this.pc('\ub8fc', 1);
       this.BC(767);
       this.pc('\ub8ff', 2);
-      this.ldir();
+      this.ldir(-1);
       this.pc('\ub901', 1);
    }
 
@@ -7248,7 +7248,7 @@ public class Game extends MiniZX {
       this.pc('\ubb00', 1);
       this.DE('\ubc30');
       this.pc('\ubb03', 2);
-      this.ldir();
+      this.ldir(-1);
       this.pc('\ubb05', 1);
       int var12 = this.A();
       int var13 = this.A();
@@ -7988,7 +7988,7 @@ public class Game extends MiniZX {
             int var11 = this.B();
             this.A(var11);
             this.pc('\ue47e', 2);
-            this.cpir();
+            this.cpir(-1);
             this.pc('\ue480', 1);
             int var12 = this.pop();
             this.BC(var12);
@@ -8597,7 +8597,7 @@ public class Game extends MiniZX {
                               this.pc('\uee1c', 1);
                               this.BC(60);
                               this.pc('\uee1f', 2);
-                              this.ldir();
+                              this.ldir(-1);
                               this.pc('\uee21', 1);
                               this.$B902();
                               this.pc('\uee24', 1);

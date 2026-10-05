@@ -33,25 +33,23 @@ import java.util.Set;
 
 public class JPRegisterAddressAction extends AddressAction {
   private final Set<Integer> invocations;
-  private LinkedList<Integer> cases = new LinkedList<>();
+  private final LinkedList<Integer> cases;
   private Integer currentCase;
 
   public JPRegisterAddressAction(Instruction instruction, int pcValue, boolean alwaysTrue, RoutineExecutorHandler routineExecutorHandler, Set<Integer> invocations) {
     super(pcValue, true, instruction, alwaysTrue, routineExecutorHandler);
     this.invocations = invocations;
-    cases.addAll(invocations);
+    cases = routineExecutorHandler.unexploredJumpTargets(pcValue, invocations);
   }
 
   public boolean processBranch(Instruction instruction) {
     ConditionalInstruction conditionalInstruction = (ConditionalInstruction) instruction;
     boolean doBranch = getDoBranch();
 
-    if (doBranch) {
+    if (doBranch && !cases.isEmpty()) {
       State state = routineExecutionHandler.getState();
       pollNextCase();
 
-      Register hlRegister = (Register) conditionalInstruction.getPositionOpcodeReference();
-      hlRegister.write(currentCase);
       routineExecutionHandler.getStackAnalyzer().listenEvents(new StackListener() {
         public boolean simulatedCall(int pcValue, int jumpAddress, Set<Integer> jumpAddresses, int returnAddress) {
           routineExecutionHandler.createRoutineExecution(currentCase);
@@ -60,15 +58,17 @@ public class JPRegisterAddressAction extends AddressAction {
         }
       });
     }
-    return doBranch;
+    if (currentCase != null)
+      ((Register) conditionalInstruction.getPositionOpcodeReference()).write(currentCase);
+    return doBranch && currentCase != null;
   }
 
   public int getNext(int executedInstructionAddress, int currentPc) {
     pending = false;
-    if (currentCase!= null)
+    if (currentCase != null)
       return currentCase;
     else
-      return super.getNext(executedInstructionAddress, currentPc);
+      return routineExecutionHandler.getCurrentRoutineExecution().getNextPending().address;
   }
 
   private void pollNextCase() {

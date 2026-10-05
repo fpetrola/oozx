@@ -19,6 +19,8 @@
 package com.fpetrola.z80.minizx.emulation;
 
 import com.fpetrola.z80.cpu.DefaultInstructionExecutor;
+import com.fpetrola.z80.cpu.FetchListener;
+import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
@@ -54,6 +56,18 @@ public class EmulatedMiniZX {
   private String rzxFile;
   private RzxPlayback playback;
   private int stopAt = -1;
+  private FetchListener fetchListener;
+  private MemoryWriteListener memoryWriteListener;
+
+  public EmulatedMiniZX listening(FetchListener fetchListener) {
+    this.fetchListener = fetchListener;
+    return this;
+  }
+
+  public EmulatedMiniZX listening(MemoryWriteListener memoryWriteListener) {
+    this.memoryWriteListener = memoryWriteListener;
+    return this;
+  }
 
   public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread) {
     this.pause = pause;
@@ -102,6 +116,10 @@ public class EmulatedMiniZX {
   public void start() {
     MiniZXIO io = rzxFile == null ? new DefaultMiniZXIO() : new RZXPlayerIO();
     ooz80 = createOOZ80(io);
+    if (fetchListener != null)
+      ooz80.getInstructionFetcher().addFetchListener(fetchListener);
+    if (memoryWriteListener != null)
+      ooz80.getState().getMemory().addMemoryWriteListener(memoryWriteListener);
     if (stackAnalyzer != null) {
       stackAnalyzer.reset(ooz80.getState());
       stackAnalyzer.addExecutionListener(ooz80.getInstructionExecutor());

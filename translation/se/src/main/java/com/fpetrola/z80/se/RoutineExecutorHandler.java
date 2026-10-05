@@ -20,10 +20,13 @@ package com.fpetrola.z80.se;
 
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.actions.ExecutionStackStorage;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Set;
 import java.util.Map;
 import java.util.Stack;
 
@@ -33,8 +36,11 @@ public class RoutineExecutorHandler {
   private final Register pc;
   private Stack<java.lang.Integer> stackFrames = new Stack<>();
   private Map<java.lang.Integer, RoutineExecution> routineExecutions = new HashMap<>();
+  private final Map<java.lang.Integer, LinkedList<java.lang.Integer>> unexploredJumpTargets = new HashMap<>();
 
   private final State state;
+  private final RoutineManager routineManager;
+  private int exploration;
 
   private ExecutionStackStorage executionStackStorage;
 
@@ -46,7 +52,8 @@ public class RoutineExecutorHandler {
 
   private final StackAnalyzer stackAnalyzer;
 
-  public RoutineExecutorHandler(State state, ExecutionStackStorage executionStackStorage, DataflowService dataflowService, StackAnalyzer stackAnalyzer) {
+  public RoutineExecutorHandler(State state, RoutineManager routineManager, ExecutionStackStorage executionStackStorage, DataflowService dataflowService, StackAnalyzer stackAnalyzer) {
+    this.routineManager = routineManager;
     this.pc = state.getPc();
     this.state = state;
     this.executionStackStorage = executionStackStorage;
@@ -58,6 +65,11 @@ public class RoutineExecutorHandler {
     return state;
   }
 
+  public RoutineManager getRoutineManager() {
+    return routineManager;
+  }
+
+
   public DataflowService getDataflowService() {
     return dataflowService;
   }
@@ -68,6 +80,10 @@ public class RoutineExecutorHandler {
 
   public RoutineExecution findRoutineExecutionContaining(int address) {
     return routineExecutions.values().stream().filter(r -> r.contains(address)).findFirst().get();
+  }
+
+  public LinkedList<java.lang.Integer> unexploredJumpTargets(int address, Set<java.lang.Integer> targets) {
+    return unexploredJumpTargets.computeIfAbsent(address, a -> new LinkedList<>(targets));
   }
 
   public RoutineExecution createRoutineExecution(int jumpAddress) {
@@ -99,9 +115,22 @@ public class RoutineExecutorHandler {
     return pop;
   }
 
+  public void newExploration() {
+    exploration++;
+  }
+
+  public int exploration() {
+    return exploration;
+  }
+
+  public void forgetExecutions(int from, int to) {
+    routineExecutions.keySet().removeIf(start -> start >= from && start < to);
+  }
+
   public void reset() {
     stackFrames.clear();
     routineExecutions.clear();
+    unexploredJumpTargets.clear();
   }
 
   public boolean isEmpty() {

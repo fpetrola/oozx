@@ -21,6 +21,8 @@ package com.fpetrola.z80.routines;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.impl.Call;
+import com.fpetrola.z80.instructions.impl.Ret;
+import com.fpetrola.z80.opcodes.references.ConditionAlwaysTrue;
 import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.CodeBlockType;
@@ -34,6 +36,7 @@ import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -49,7 +52,6 @@ public class RoutineManager {
   };
   public ListValuedMap<Integer, Integer> callers = new ArrayListValuedHashMap<>();
   public ListValuedMap<Integer, Integer> callees = new ArrayListValuedHashMap<>();
-  public ListValuedMap<Integer, Integer> callers2 = new ArrayListValuedHashMap<>();
   public ListValuedMap<Integer, Integer> jumpsAfterStackReset = new ArrayListValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> returnPoints = new HashSetValuedHashMap<>();
   public BlocksManager blocksManager;
@@ -76,6 +78,15 @@ public class RoutineManager {
       return first.get().findRoutineAt(address);
     } else
       return first.orElse(null);
+  }
+
+  public void forgetCode(int from, int to) {
+    instructions.keySet().removeIf(address -> address >= from && address < to);
+    new ArrayList<>(routines).forEach(routine -> {
+      routine.removeBlocks(routine.getBlocks().stream().filter(block -> block.getRangeHandler().getStartAddress() >= from && block.getRangeHandler().getEndAddress() < to).toList());
+      if (routine.getBlocks().isEmpty())
+        removeRoutine(routine);
+    });
   }
 
   public Routine addRoutine(Routine routine) {
@@ -135,6 +146,113 @@ public class RoutineManager {
     return points;
   }
 
+  public record CodeVariant(int start, int end, int variableStart, int[] variableBytes, int relocatedAt, int[] code) {
+    public int hash() {
+      return java.util.Arrays.hashCode(variableBytes);
+    }
+
+    public java.util.Set<Integer> entries(RoutineManager routineManager) {
+      return routineManager.entriesInto(start, end);
+    }
+
+    public int relocated(int address) {
+      return relocatedAt + address - start;
+    }
+  }
+
+  public final List<CodeVariant> codeVariants = new ArrayList<>();
+  public final java.util.Set<Integer> externalEntries = new java.util.TreeSet<>();
+  private int codeStart;
+  private java.util.Set<Integer> reachable;
+
+  public List<CodeVariant> codeVariantsAt(int address) {
+    return codeVariants.stream().filter(v -> v.entries(this).contains(address)).toList();
+  }
+
+  public java.util.Set<Integer> entriesInto(int start, int end) {
+    java.util.Set<Integer> entries = new java.util.TreeSet<>(List.of(start));
+    instructions.forEach((address, instruction) -> {
+      if ((address < start || address >= end) && fixedJumpTarget(instruction) >= start && fixedJumpTarget(instruction) < end) {
+        entries.add(fixedJumpTarget(instruction));
+      }
+    });
+    return entries;
+  }
+
+  public int originalAddress(int address) {
+    return codeVariants.stream().filter(v -> address >= v.relocatedAt() && address <= v.relocatedAt() + v.end() - v.start())
+        .findFirst().map(v -> v.start() + address - v.relocatedAt()).orElse(address);
+  }
+
+  public java.util.Set<Routine> routinesInJumpCycles(java.util.function.IntFunction<java.util.Set<Integer>> dynamicTargets) {
+    Map<Routine, java.util.Set<Routine>> next = new HashMap<>();
+    instructions.forEach((address, instruction) -> {
+      Routine from = findRoutineAt(address);
+      if (from == null)
+        return;
+      java.util.Set<Integer> targets = new java.util.HashSet<>();
+      if (instruction instanceof Ret)
+        targets.addAll(dynamicTargets.apply(address));
+      else if (instruction instanceof ConditionalInstruction<?> jump && !(jump instanceof Call))
+        if (jump.getPositionOpcodeReference() instanceof com.fpetrola.z80.registers.Register)
+          targets.addAll(dynamicTargets.apply(address));
+        else
+          targets.add(jump.getJumpAddress());
+      if (fallsThrough(instruction))
+        targets.add(address + instruction.getLength());
+      targets.stream().map(this::findRoutineAt).filter(to -> to != null && to != from).forEach(to -> next.computeIfAbsent(from, k -> new java.util.HashSet<>()).add(to));
+    });
+    return next.keySet().stream().filter(routine -> reaches(next, routine, routine, new java.util.HashSet<>())).collect(java.util.stream.Collectors.toSet());
+  }
+
+  private static boolean reaches(Map<Routine, java.util.Set<Routine>> next, Routine from, Routine target, java.util.Set<Routine> visited) {
+    return next.getOrDefault(from, java.util.Set.of()).stream().anyMatch(to -> to == target || visited.add(to) && reaches(next, to, target, visited));
+  }
+
+  public void setCodeStart(int codeStart) {
+    this.codeStart = codeStart;
+  }
+
+  public void setReachable(java.util.Set<Integer> reachable) {
+    this.reachable = reachable;
+  }
+
+  public boolean isRestrictedToRecording() {
+    return reachable != null;
+  }
+
+  public boolean isCode(int address) {
+    return address >= codeStart && (reachable == null || reachable.contains(address) || originalAddress(address) != address);
+  }
+
+  public boolean isCalledFrom(Routine routine, int callAddress) {
+    return !(getInstructionAt(callAddress) instanceof Call call && isCode(call.getJumpAddress()) && !routine.contains(call.getJumpAddress()));
+  }
+
+  public boolean isJumpedIntoFromOtherRoutine(Routine routine) {
+    return isJumpedIntoFromOtherRoutine(routine, routine.getEntryPoint());
+  }
+
+  public boolean isJumpedIntoFromOtherRoutine(Routine routine, int entry) {
+    Stream<Integer> staticJumps = instructions.entrySet().stream().filter(e -> jumpsTo(e.getValue(), entry)).map(Map.Entry::getKey);
+    return Stream.concat(staticJumps, callers.get(entry).stream()).anyMatch(pc -> !routine.contains(pc) && findRoutineAt(pc) != null);
+  }
+
+  private static boolean jumpsTo(Instruction instruction, int target) {
+    return !(instruction instanceof Call) && fixedJumpTarget(instruction) == target;
+  }
+
+  public static int fixedJumpTarget(Instruction instruction) {
+    return instruction instanceof ConditionalInstruction<?> jump && !(jump instanceof Ret) && !(jump.getPositionOpcodeReference() instanceof com.fpetrola.z80.registers.Register) ? jump.getJumpAddress() : -1;
+  }
+
+  public static boolean fallsThrough(Instruction instruction) {
+    if (instruction instanceof Call)
+      return true;
+    return !(instruction instanceof ConditionalInstruction<?> conditional && conditional.getCondition() instanceof ConditionAlwaysTrue);
+  }
+
+
   public Instruction getInstructionAt(int address) {
     return instructions.get(address);
   }
@@ -149,9 +267,10 @@ public class RoutineManager {
     routines.clear();
     callees.clear();
     callers.clear();
-    callers2.clear();
     jumpsAfterStackReset.clear();
     returnPoints.clear();
+    codeVariants.clear();
+    externalEntries.clear();
   }
 
   public void removeRoutine(Routine routine) {

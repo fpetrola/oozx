@@ -30,6 +30,10 @@ public interface StackListener {
     return false;
   }
 
+  default boolean returningToUnknownAddress(int pcValue) {
+    return false;
+  }
+
   default boolean jumpUsingRet(int pcValue, Set<Integer> jumpAddresses) {
     System.out.println("jumpUsingRet: %s %s".formatted(Helper.formatAddress(pcValue), formatHex(jumpAddresses)));
     return false;

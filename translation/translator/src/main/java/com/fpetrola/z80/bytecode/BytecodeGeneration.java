@@ -50,7 +50,7 @@ public interface BytecodeGeneration {
         decompiler.addClass(value, source);
       });
 
-      return decompiler.decompile();
+      return Boolean.getBoolean("translation.skipDecompile") ? "" : decompiler.decompile();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

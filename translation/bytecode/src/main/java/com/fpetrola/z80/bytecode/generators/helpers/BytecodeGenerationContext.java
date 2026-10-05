@@ -38,6 +38,13 @@ public class BytecodeGenerationContext {
   public GameData gameData;
   public boolean syncEnabled;
   public final boolean direct;
+  private java.util.Set<com.fpetrola.z80.routines.Routine> routinesInJumpCycles;
+
+  public java.util.Set<com.fpetrola.z80.routines.Routine> routinesInJumpCycles() {
+    if (routinesInJumpCycles == null)
+      routinesInJumpCycles = routineManager.routinesInJumpCycles(pc -> symbolicExecutionAdapter.getStackAnalyzer().getInvocationsSet(pc));
+    return routinesInJumpCycles;
+  }
 
   public BytecodeGenerationContext(RoutineManager routineManager, ClassMaker classMaker, Register pc1, SymbolicExecutionAdapter symbolicExecutionAdapter, GameData gameData, boolean direct) {
     this.routineManager = routineManager;

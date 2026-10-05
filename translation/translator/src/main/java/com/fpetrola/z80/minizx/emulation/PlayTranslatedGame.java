@@ -14,20 +14,15 @@ public class PlayTranslatedGame {
   private static final long FETCHES_PER_FRAME = 7800, NANOS_PER_FRAME = 20_000_000;
 
   public static void main(String[] args) throws Exception {
-    MiniZX game = new Game();
+    MiniZX game = new DD();
+    game.setInterruptionCondition(atSpectrumSpeed());
     try {
-      Game.class.getMethod("$8185").invoke(game);
+      DD.class.getMethod("$C804").invoke(game);
     } catch (java.lang.reflect.InvocationTargetException e) {
       String detail = e.getCause() instanceof com.fpetrola.z80.minizx.StackException stack ? " to $" + Integer.toHexString(stack.getNextPC()) : "";
       System.out.println("ended at $" + Integer.toHexString(game.PC) + ": " + e.getCause() + detail);
       e.getCause().printStackTrace(System.out);
     }
-  }
-
-  private static MiniZX live(Class<?> type) throws Exception {
-    MiniZX game = (MiniZX) type.getConstructor().newInstance();
-    game.setInterruptionCondition(atSpectrumSpeed());
-    return game;
   }
 
   private static Predicate<Integer> atSpectrumSpeed() {

@@ -543,16 +543,17 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            public void $0() {
               super.A = 2;
 
-              label19: {
+              label20: {
                  try {
                     this.$6();
                  } catch (StackException var2) {
-                    if(var2.getNextPC() != 11) {
-                       throw var2;
+                    if(var2.getNextPC() == 11) {
+                       this.HL(2);
+                       super.A = 6;
+                       break label20;
                     }
 
-                    super.A = 6;
-                    break label19;
+                    throw var2;
                  }
 
                  super.C = 3;
@@ -626,17 +627,18 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            public void $0() {
               super.A = 2;
 
-              label19: {
+              label20: {
                  try {
                     this.$6();
                  } catch (StackException var2) {
-                    if(var2.getNextPC() != 17) {
-                       throw var2;
+                    if(var2.getNextPC() == 17) {
+                       this.HL(2);
+                       super.A = 61;
+                       super.B = 62;
+                       break label20;
                     }
 
-                    super.A = 61;
-                    super.B = 62;
-                    break label19;
+                    throw var2;
                  }
 
                  super.C = 3;
@@ -653,8 +655,8 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  this.$11();
               } catch (StackException var2) {
                  if(var2.getNextPC() == 16) {
-                    var2.setNextPC(17);
-                    throw var2;
+                    this.HL(8);
+                    this.untranslated(16);
                  } else {
                     throw var2;
                  }
@@ -740,13 +742,14 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            public void $0() {
               super.A = 2;
 
-              label29: {
-                 label33: {
+              label33: {
+                 label37: {
                     try {
                        this.$7();
                     } catch (StackException var4) {
                        if(var4.getNextPC() == 19) {
-                          break label33;
+                          this.HL(2);
+                          break label37;
                        }
 
                        throw var4;
@@ -756,11 +759,13 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
                     try {
                        this.$22();
-                       break label29;
+                       break label33;
                     } catch (StackException var3) {
                        if(var3.getNextPC() != 19) {
                           throw var3;
                        }
+
+                       this.HL(4);
                     }
                  }
 
@@ -782,11 +787,12 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  }
 
               } catch (StackException var2) {
-                 if(var2.getNextPC() != 17) {
-                    throw var2;
-                 } else {
+                 if(var2.getNextPC() == 17) {
+                    this.HL(10);
                     super.E = 71;
                     throw new StackException(19);
+                 } else {
+                    throw var2;
                  }
               }
            }
@@ -870,16 +876,17 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               super.H = 1;
               super.A = 2;
 
-              label19: {
+              label20: {
                  try {
                     this.$7();
                  } catch (StackException var2) {
-                    if(var2.getNextPC() != 17) {
-                       throw var2;
+                    if(var2.getNextPC() == 17) {
+                       this.HL(3);
+                       super.A = 6;
+                       break label20;
                     }
 
-                    super.A = 6;
-                    break label19;
+                    throw var2;
                  }
 
                  super.C = 3;
@@ -1725,6 +1732,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            public void $0() {
               while(true) {
                  try {
+                    this.di();
                     this.$1();
                     return;
                  } catch (StackException var3) {

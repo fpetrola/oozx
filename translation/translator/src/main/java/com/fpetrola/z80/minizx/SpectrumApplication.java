@@ -73,22 +73,41 @@ public abstract class SpectrumApplication {
     return Arrays.stream(integers).anyMatch(a -> a == nextAddress);
   }
 
-  public void executeMutantCode(int address) {
+  public int executeMutantCode(int address) {
     int opcode = mem[address], n = mem[address + 1 & 0xffff], nn = n | mem[address + 2 & 0xffff] << 8;
-    if ((opcode & 0xc7) == 0x06)
+    if ((opcode & 0xc7) == 0x06) {
       write8((opcode >> 3) & 7, n);
-    else if ((opcode & 0xcf) == 0x01)
+      return address + 2;
+    } else if ((opcode & 0xcf) == 0x01)
       new IntConsumer[]{this::BC, this::DE, this::HL, this::SP}[opcode >> 4].accept(nn);
     else if (opcode == 0xcd)
       invokeMethod(nn);
-    else if (opcode == 0x77)
-      mem[HL()] = A;
-    else if (opcode == 0x7e)
-      A(mem[HL()]);
-    else if (opcode == 0x12)
+    else if ((opcode & 0xc0) == 0x40 && opcode != 0x76) {
+      write8(opcode >> 3 & 7, read8(opcode & 7));
+      return address + 1;
+    } else if ((opcode & 0xe7) == 0x07) {
+      A(alu(new String[]{"rlca", "rrca", "rla", "rra"}[opcode >> 3], A));
+      return address + 1;
+    } else if (opcode == 0x12) {
       mem[DE()] = A;
-    else
+      return address + 1;
+    } else
       throw new IllegalStateException("self-modified opcode %02X at %04X".formatted(opcode, address));
+    return address + 3;
+  }
+
+
+  private int read8(int register) {
+    return switch (register) {
+      case 0 -> B();
+      case 1 -> C();
+      case 2 -> D();
+      case 3 -> E();
+      case 4 -> H();
+      case 5 -> L();
+      case 6 -> mem[HL()];
+      default -> A();
+    };
   }
 
   private void write8(int register, int value) {
@@ -104,7 +123,26 @@ public abstract class SpectrumApplication {
     }
   }
 
-  private void invokeMethod(int address) {
+  public int codeHash(int start, int length) {
+    return Arrays.hashCode(Arrays.copyOfRange(mem, start, start + length));
+  }
+
+  public void unknownCodeVariant(int address) {
+    throw new IllegalStateException("code at %04X was rewritten into a shape that was not translated".formatted(address));
+  }
+
+  public void untranslated(int address) {
+    throw new IllegalStateException("no translated routine at %04X".formatted(address));
+  }
+
+  public void jump(int address) {
+    String name = "$" + Integer.toHexString(address).toUpperCase();
+    if (StackWalker.getInstance().walk(frames -> frames.anyMatch(frame -> frame.getMethodName().equals(name))))
+      throw new StackException(address);
+    invokeMethod(address);
+  }
+
+  protected void invokeMethod(int address) {
     try {
       Method method;
       try {
@@ -261,6 +299,14 @@ public abstract class SpectrumApplication {
     return io.in(port);
   }
 
+  public int inC(int port, int pc) {
+    int value = in(port, pc);
+    aluFlag.write(F);
+    new In.InAluOperation().execute2ValuesAndCarry(value, F, aluFlag);
+    F(aluFlag.read());
+    return value;
+  }
+
   public int mem(int address, int pc) {
     return mem[address];
   }
@@ -295,10 +341,13 @@ public abstract class SpectrumApplication {
     PC = address;
   }
 
-  public void ldir() {
+  public void halt(int address) {
+  }
+
+  public void ldir(int address) {
     ldi();
     while (BC() != 0) {
-      pc(-1, 2);
+      pc(address, 2);
       ldi();
     }
   }
@@ -307,10 +356,10 @@ public abstract class SpectrumApplication {
     blockStep(1, true);
   }
 
-  public void lddr() {
+  public void lddr(int address) {
     ldd();
     while (BC() != 0) {
-      pc(-1, 2);
+      pc(address, 2);
       ldd();
     }
   }
@@ -319,10 +368,10 @@ public abstract class SpectrumApplication {
     blockStep(-1, true);
   }
 
-  public void cpir() {
+  public void cpir(int address) {
     cpi();
     while (BC() != 0 && (F & 0x40) == 0) {
-      pc(-1, 2);
+      pc(address, 2);
       cpi();
     }
   }
@@ -331,10 +380,10 @@ public abstract class SpectrumApplication {
     blockStep(1, false);
   }
 
-  public void cpdr() {
+  public void cpdr(int address) {
     cpd();
     while (BC() != 0 && (F & 0x40) == 0) {
-      pc(-1, 2);
+      pc(address, 2);
       cpd();
     }
   }
@@ -374,7 +423,28 @@ public abstract class SpectrumApplication {
     SP(state.getRegisterSP().read());
     R(state.getRegisterR().read());
     I = state.getRegI().read();
+    iff = state.isIff1();
+    interruptMode = state.getInterruptionMode().ordinal();
   }
+
+  public void im(int mode) {
+    interruptMode = mode;
+  }
+
+  public void ei() {
+    iff = true;
+    interruptsDelayed = true;
+  }
+
+  public void di() {
+    iff = false;
+  }
+
+  public boolean isIff() {
+    return iff;
+  }
+
+
 
   public void AF(int value) {
     AF = value & 0xffff;
@@ -441,13 +511,16 @@ public abstract class SpectrumApplication {
   public int PC;
   public int SP = INITIAL_SP_VALUE;
   protected int I;
+  protected boolean iff;
+  protected boolean interruptsDelayed;
+  protected int interruptMode = 1;
 
   public int R() {
     return R;
   }
 
   public int ldAR() {
-    F(F & 0x01 | R & 0xa8 | (R == 0 ? 0x40 : 0));
+    F(F & 0x01 | R & 0xa8 | (R == 0 ? 0x40 : 0) | (iff ? 0x04 : 0));
     return R;
   }
 

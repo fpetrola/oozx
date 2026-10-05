@@ -484,7 +484,7 @@ public class Routine {
   }
 
   public int getEntryPoint() {
-    return entryPoint;
+    return contains(entryPoint) ? entryPoint : getStartAddress();
   }
 
   public void setEntryPoint(int entryPoint) {

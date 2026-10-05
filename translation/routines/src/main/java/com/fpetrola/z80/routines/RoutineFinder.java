@@ -24,6 +24,8 @@ import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.impl.Call;
+import static com.fpetrola.z80.helpers.Helper.formatAddress;
+import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Ret;
@@ -38,6 +40,7 @@ import com.fpetrola.z80.spy.ExecutionListener;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -58,6 +61,7 @@ public class RoutineFinder {
   private boolean detached;
   private Routine jumper;
   private final Map<Integer, Routine> unowned = new LinkedHashMap<>();
+  private int lastCallee = -1;
 
   public RoutineFinder(RoutineManager routineManager, StackAnalyzer stackAnalyzer1, State state) {
     this.routineManager = routineManager;
@@ -109,7 +113,7 @@ public class RoutineFinder {
         updateCallers(instruction, pcValue);
 
         if (currentRoutine == null)
-          createOrUpdateCurrentRoutine(pcValue, instruction.getLength());
+          currentRoutine = Optional.ofNullable(routineManager.findRoutineAt(pcValue)).orElseGet(() -> routineManager.createRoutine(pcValue, instruction.getLength()));
         else
           followOwnerOf(pcValue);
 
@@ -135,15 +139,20 @@ public class RoutineFinder {
           lastSimulatedCallJump = null;
         }
 
-        if (lastInstruction instanceof Call) {
-          processCallInstruction(instruction);
+        if (lastCallee != -1) {
+          createOrUpdateCurrentRoutine(lastCallee, instruction.getLength());
+          lastCallee = -1;
         }
 
         boolean listened = this.stackAnalyzer.listenEvents(new StackListener() {
           public boolean returnAddressPopped(int pcValue, int returnAddress, int callAddress) {
+            if (!routineManager.isCalledFrom(currentRoutine, callAddress))
+              return false;
             Routine returnRoutine = routineManager.findRoutineAt(callAddress);
-            if (lastPc != -1)
-              currentRoutine.getVirtualPop().put(instructionBefore(pcValue), pcValue);
+            if (lastPc != -1) {
+              int before = instructionBefore(pcValue);
+              currentRoutine.getVirtualPop().put(currentRoutine.contains(before) ? before : pcValue, pcValue);
+            }
 
             returnRoutine.addReturnPoint(callAddress, routineManager.addressAfter(pcValue));
             currentRoutine = returnRoutine;
@@ -224,8 +233,15 @@ public class RoutineFinder {
         routineManager.optimizeAll();
         lastInstruction = instruction;
         lastPc = pcValue;
+        if (instruction instanceof Call call && call.getNextPC() != -1)
+          lastCallee = calleeOf(call.getNextPC());
       }
     }
+  }
+
+  private int calleeOf(int target) {
+    RegisterName trampoline = routineManager.isCode(target) ? null : stackAnalyzer.trampolineRegister(target);
+    return trampoline == null ? target : state.getRegister(trampoline).read();
   }
 
   private boolean jumpsToNewCodeAfterStackReset(Instruction instruction) {
@@ -236,6 +252,7 @@ public class RoutineFinder {
     unowned.forEach((address, routine) -> routine.addInstructionAt(routineManager.getInstructionAt(address), address));
     unowned.clear();
   }
+
 
   private void claimFallThrough(Routine routine, int address) {
     Instruction instruction = routineManager.getInstructionAt(address);
@@ -268,18 +285,13 @@ public class RoutineFinder {
     return pcValue != (jumpedTo != -1 ? jumpedTo : routineManager.addressAfter(lastPc));
   }
 
-  private void processCallInstruction(Instruction instruction) {
-    int nextPC = ((ConditionalInstruction) lastInstruction).getNextPC();
-    if (nextPC != -1) {
-//      System.out.printf("CALL: %H%n", nextPC);
-      createOrUpdateCurrentRoutine(nextPC, instruction.getLength());
-    }
+  private void processRetInstruction(Ret ret) {
+    if (ret.getNextPC() != -1)
+      returnedTo(ret.getNextPC());
   }
 
-  private void processRetInstruction(Ret ret) {
-    if (ret.getNextPC() != -1) {
-      this.currentRoutine = routineManager.findRoutineAt(ret.getNextPC() - 1);
-    }
+  public void returnedTo(int returnAddress) {
+    currentRoutine = routineManager.findRoutineAt(returnAddress - 1);
   }
 
   private Routine createOrUpdateCurrentRoutine(int startAddress, int length) {
@@ -313,10 +325,8 @@ public class RoutineFinder {
 
   private void updateCallers(Instruction instruction, int pcValue) {
     if (instruction instanceof ConditionalInstruction<?> conditionalInstruction) {
-      if (conditionalInstruction.getNextPC() != -1)
-        if (instruction instanceof Call) {
-          routineManager.callers2.put(conditionalInstruction.getNextPC(), pcValue);
-        } else if (jumpsToNewCodeAfterStackReset(instruction)) {
+      if (conditionalInstruction.getNextPC() != -1 && !(instruction instanceof Call))
+        if (jumpsToNewCodeAfterStackReset(instruction)) {
           routineManager.jumpsAfterStackReset.put(conditionalInstruction.getNextPC(), pcValue);
         } else if (!(instruction instanceof Ret)) {
 //          routineManager.callees.put(35211, 34762);
@@ -335,6 +345,7 @@ public class RoutineFinder {
   public void reset() {
     lastInstruction = null;
     lastPc = -1;
+    lastCallee = -1;
     currentRoutine = null;
     afterStackReset = false;
     detached = false;

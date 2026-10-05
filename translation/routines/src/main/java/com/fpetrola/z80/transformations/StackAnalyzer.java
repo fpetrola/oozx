@@ -28,6 +28,7 @@ import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.se.StackListener;
 import com.fpetrola.z80.spy.ExecutionListener;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -75,13 +76,29 @@ public class StackAnalyzer {
     if (this.state != null)
       this.state.getMemory().removeMemoryWriteListener(forgetOverwritten);
     this.state = state;
-    state.getMemory().addMemoryWriteListener(forgetOverwritten);
+    if (state != null)
+      state.getMemory().addMemoryWriteListener(forgetOverwritten);
     entries.clear();
     lastEvent = null;
     stackAsRepository = new StackAsRepositoryState();
     stackInitialized = false;
     pcValue = -1;
     initialized = false;
+  }
+
+  public RegisterName trampolineRegister(int address) {
+    int opcode = state.getMemory().read(address, 0);
+    if (opcode == 0xE9)
+      return RegisterName.HL;
+    if ((opcode == 0xDD || opcode == 0xFD) && state.getMemory().read(address + 1 & 0xffff, 0) == 0xE9)
+      return opcode == 0xDD ? RegisterName.IX : RegisterName.IY;
+    return null;
+  }
+
+  public void forgetStack() {
+    entries.clear();
+    lastEvent = null;
+    stackAsRepository = new StackAsRepositoryState();
   }
 
   public void init() {
@@ -190,16 +207,23 @@ public class StackAnalyzer {
         if (ret instanceof RetN)
           return false;
         Entry entry = entryAtSp();
-        if (entry != null && !entry.returnAddress() && !simulatedRets.contains(entry.value())) {
-          addDynamicInvocationData(entry.value());
-          lastEvent = l -> l.jumpUsingRet(pcValue, getInvocationsSet(pcValue));
-        }
+        if (entry == null)
+          lastEvent = l -> l.returningToUnknownAddress(pcValue);
+        else if (!entry.returnAddress() && !simulatedRets.contains(entry.value()))
+          jumpingUsingRet(entry.value());
         return true;
       }
     });
 
     if (lastEvent != null && stackListener != null)
       lastEvent.apply(stackListener);
+  }
+
+  private void jumpingUsingRet(int target) {
+    addDynamicInvocationData(target);
+    Set<Integer> targets = getInvocationsSet(pcValue);
+    if (!targets.isEmpty())
+      lastEvent = l -> l.jumpUsingRet(pcValue, targets);
   }
 
   private void addDynamicInvocationData(int address) {
@@ -223,19 +247,31 @@ public class StackAnalyzer {
         remember(false);
       }
 
+      public void visitEx(Ex ex) {
+        if (!(ex.getTarget() instanceof Register))
+          remember(false);
+      }
+
       public boolean visitingRet(Ret ret) {
         int nextPC = ret.getNextPC();
         if (ret instanceof RetN || nextPC == -1)
           return false;
-        Entry entry = entries.get((state.getRegisterSP().read() - 2) & 0xFFFF);
-        if (entry != null && !entry.returnAddress() && !simulatedRets.contains(nextPC)) {
-          addDynamicInvocationData(nextPC);
-          lastEvent = l -> l.jumpUsingRet(pcValue, getInvocationsSet(pcValue));
-        }
+        Entry entry = forgetPopped();
+        if (entry != null && !entry.returnAddress() && !simulatedRets.contains(nextPC))
+          jumpingUsingRet(nextPC);
         return true;
+      }
+
+      public void visitingPop(Pop pop) {
+        forgetPopped();
+      }
+
+      private Entry forgetPopped() {
+        return entries.remove((state.getRegisterSP().read() - 2) & 0xFFFF);
       }
     });
   }
+
 
   private void remember(boolean returnAddress) {
     int sp = state.getRegisterSP().read();
