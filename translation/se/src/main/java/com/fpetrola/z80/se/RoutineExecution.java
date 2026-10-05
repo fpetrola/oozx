@@ -49,9 +49,13 @@ public class RoutineExecution {
   }
 
   public AddressAction getNextPending() {
-    AddressAction next = actions.values().stream().filter(AddressAction::isPending).findFirst().orElse(getActionOrCreateInAddress(retInstruction));
+    AddressAction next = actions.values().stream().filter(AddressAction::isPending).findFirst().orElseGet(this::retInstructionAction);
     next.resume();
     return next;
+  }
+
+  private AddressAction retInstructionAction() {
+    return getAddressAction(retInstruction) instanceof BasicAddressAction ? getActionOrCreateInAddress(-1) : getActionOrCreateInAddress(retInstruction);
   }
 
   public List<AddressAction> getAllPending() {

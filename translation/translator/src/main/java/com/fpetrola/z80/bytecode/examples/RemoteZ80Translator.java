@@ -42,6 +42,8 @@ import com.fpetrola.z80.cpu.FetchListener;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 import org.apache.commons.collections4.MultiValuedMap;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.memory.Memory;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.HashSet;
@@ -94,33 +96,57 @@ public class RemoteZ80Translator {
     return emulate(realCodeBytecodeCreationBase, EmulatedMiniZX.ofRecording(rzxFile, frames, realCodeBytecodeCreationBase.getStackAnalyzer()));
   }
 
-  public record Footprint(Set<Integer> executed, Set<Integer> modifiedCode, MultiValuedMap<Integer, Integer> dynamicInvocation, Map<Integer, Integer> returnShifts) {
+  public record Footprint(Map<Integer, int[]> codeBytes, Set<Integer> modifiedCode, MultiValuedMap<Integer, Integer> dynamicInvocation, Map<Integer, Integer> callContinuations, Set<Integer> returnAddressesOnStack) {
+    public Set<Integer> executed() {
+      return codeBytes.keySet();
+    }
+
+    public void install(Memory memory) {
+      codeBytes.forEach((address, bytes) -> {
+        for (int i = 0; i < bytes.length; i++) {
+          int at = address + i & 0xffff;
+          memory.write(at, bytes[i]);
+          if (!modifiedCode.contains(at))
+            memory.protect(at, at + 1);
+        }
+      });
+    }
   }
 
   public static Footprint footprint(String rzxFile, int from) {
-    Set<Integer> executed = new HashSet<>(), covered = new HashSet<>(), written = new HashSet<>();
+    Map<Integer, int[]> codeBytes = new HashMap<>();
+    Set<Integer> modifiedCode = new HashSet<>(), returnAddressesOnStack = new HashSet<>();
     boolean[] started = {false};
     StackAnalyzer stackAnalyzer = new StackAnalyzer(null);
+    EmulatedMiniZX[] emulator = {null};
     try {
-      EmulatedMiniZX.ofRecording(rzxFile, -1, stackAnalyzer).listening(new FetchListener() {
+      emulator[0] = EmulatedMiniZX.ofRecording(rzxFile, -1, stackAnalyzer).listening(new FetchListener() {
         public void instructionFetchedAt(int address, Instruction instruction) {
-          started[0] |= address == from;
+          boolean starting = !started[0] && address == from;
+          started[0] |= starting;
           StackAnalyzer.collecting = started[0];
-          if (started[0]) {
-            executed.add(address);
-            for (int i = 0; i < instruction.getLength(); i++)
-              covered.add(address + i & 0xffff);
-          }
+          if (!started[0])
+            return;
+          int[] memory = emulator[0].ooz80.getState().getMemory().getData();
+          for (int slot = emulator[0].ooz80.getState().getRegisterSP().read(); starting && slot < 0x10000 - 1 && returnAddressesOnStack.size() < 10; slot += 2)
+            returnAddressesOnStack.add(memory[slot] | memory[slot + 1] << 8);
+          int[] bytes = new int[instruction.getLength()];
+          for (int i = 0; i < bytes.length; i++)
+            bytes[i] = memory[address + i & 0xffff];
+          int[] seen = codeBytes.putIfAbsent(address, bytes);
+          for (int i = 0; seen != null && i < Math.max(seen.length, bytes.length); i++)
+            if (i >= seen.length || i >= bytes.length || seen[i] != bytes[i])
+              modifiedCode.add(address + i & 0xffff);
         }
-      }).listening((address, value) -> {
-        if (started[0])
-          written.add(address);
-      }).start();
+      });
+      emulator[0].start();
     } catch (RuntimeException finished) {
+      if (!"rzx finished".equals(finished.getMessage()))
+        throw finished;
     }
     StackAnalyzer.collecting = false;
-    written.retainAll(covered);
-    return new Footprint(executed, written, stackAnalyzer.dynamicInvocation, stackAnalyzer.returnShifts);
+    returnAddressesOnStack.retainAll(codeBytes.keySet());
+    return new Footprint(codeBytes, modifiedCode, stackAnalyzer.dynamicInvocation, stackAnalyzer.callContinuations, returnAddressesOnStack);
   }
 
   public static String emulateRecordingUntil(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, String rzxFile, int address) {

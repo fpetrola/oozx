@@ -476,13 +476,9 @@ public class RoutineBytecodeGenerator {
   }
 
   private boolean isFallenIntoFromOutside(Routine owner, int address) {
-    for (int length = 1; length <= 4; length++) {
-      Instruction previous = context.routineManager.getInstructionAt(address - length);
-      Routine previousOwner = context.routineManager.findRoutineAt(address - length);
-      if (previous != null && previous.getLength() == length && RoutineManager.fallsThrough(previous) && previousOwner != null && previousOwner != owner)
-        return true;
-    }
-    return false;
+    int before = context.routineManager.addressBefore(address);
+    Routine previousOwner = before == -1 ? null : context.routineManager.findRoutineAt(before);
+    return previousOwner != null && previousOwner != owner && RoutineManager.fallsThrough(context.routineManager.getInstructionAt(before));
   }
 
 
@@ -537,7 +533,7 @@ public class RoutineBytecodeGenerator {
   }
 
   protected void returnFromRoutine() {
-    mm.invoke("pop");
+    mm.invoke("ret");
     mm.return_();
   }
 

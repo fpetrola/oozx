@@ -9,20 +9,20 @@ import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 public class PlayTranslatedGame {
-  private static final long FETCHES_PER_FRAME = 7800, NANOS_PER_FRAME = 20_000_000;
+  private static final long FETCHES_PER_FRAME = 70800, NANOS_PER_FRAME = 20_000_000;
 
   public static void main(String[] args) throws Exception {
     boolean replaying = args.length > 0;
-    int entry = replaying ? 0xB542 : 0x94AA;
+    int entry = 0xFE65;
     MiniZX game = replaying ? replaying(args[0], entry, Emlyn.class) : new Emlyn();
     if (!replaying)
       game.setInterruptionCondition(atSpectrumSpeed());
     try {
-      Emlyn.class.getMethod("$" + Integer.toHexString(entry).toUpperCase()).invoke(game);
-    } catch (java.lang.reflect.InvocationTargetException e) {
-      String detail = e.getCause() instanceof com.fpetrola.z80.minizx.StackException stack ? " to $" + Integer.toHexString(stack.getNextPC()) : "";
-      System.out.println("ended at $" + Integer.toHexString(game.PC) + ": " + e.getCause() + detail);
-      e.getCause().printStackTrace(System.out);
+      game.run(entry);
+    } catch (RuntimeException e) {
+      String detail = e instanceof com.fpetrola.z80.minizx.StackException stack ? " to $" + Integer.toHexString(stack.getNextPC()) : "";
+      System.out.println("ended at $" + Integer.toHexString(game.PC) + ": " + e + detail);
+      e.printStackTrace(System.out);
     }
   }
 

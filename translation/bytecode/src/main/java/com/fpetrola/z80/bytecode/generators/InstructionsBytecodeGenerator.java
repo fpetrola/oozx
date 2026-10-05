@@ -324,6 +324,10 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
 
   public void visitingLd(Ld ld) {
+    if (ld.getSource() instanceof Register source && source.getName().equals(RegisterName.I.name())) {
+      routineByteCodeGenerator.getExistingVariable("A").set(methodMaker.invoke("ldAI"));
+      return;
+    }
 //    if (ld.getTarget() instanceof Register register && register.getName().equals("SP"))
 //      return;
 //
@@ -344,7 +348,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
     Set invocationsSet = stackAnalyzer.getInvocationsSet(pcValue);
     createIfs(ret, () -> {
-      Variable poppedValue = methodMaker.invoke("pop");
+      Variable poppedValue = methodMaker.invoke("ret");
       invokeDynamicCall(invocationsSet, poppedValue);
       routineByteCodeGenerator.returnFromMethod();
     });
@@ -356,7 +360,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     RegisterName trampoline = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().trampolineRegister(jumpLabel);
     int returnAddress = routineByteCodeGenerator.context.routineManager.addressAfter(routineByteCodeGenerator.context.pc.read());
     createIfs(call, () -> {
-      methodMaker.invoke("push", returnAddress);
+      methodMaker.invoke("call", returnAddress);
       if (routineByteCodeGenerator.context.routineManager.findRoutineAt(jumpLabel) != null)
         routineByteCodeGenerator.invokeTransformedMethod(jumpLabel);
       else if (trampoline != null)
@@ -503,13 +507,14 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     if (jp.getPositionOpcodeReference() instanceof Register register) {
       int pcValue1 = routineByteCodeGenerator.context.pc.read();
       Set<Integer> invocationsSet = stackAnalyzer.getInvocationsSet(pcValue1);
-      invokeDynamicCall(invocationsSet, routineByteCodeGenerator.getExistingVariable(register));
+      if (!invokeDynamicCall(invocationsSet, routineByteCodeGenerator.getExistingVariable(register)))
+        routineByteCodeGenerator.returnFromMethod();
       return true;
     } else
       return false;
   }
 
-  private void invokeDynamicCall(Set<Integer> invocationsSet, Variable existingVariable) {
+  private boolean invokeDynamicCall(Set<Integer> invocationsSet, Variable existingVariable) {
     int pcValue1 = routineByteCodeGenerator.context.pc.read();
     boolean isSimulatedCall = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().getSimulatedCallsPcs().contains(pcValue1);
     invocationsSet.forEach(c -> {
@@ -524,6 +529,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
         }
       });
     });
+    return isSimulatedCall;
   }
 
   public boolean visitLdAR(LdAR tLdAR) {

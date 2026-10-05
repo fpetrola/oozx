@@ -81,7 +81,7 @@ public abstract class SpectrumApplication {
     } else if ((opcode & 0xcf) == 0x01)
       new IntConsumer[]{this::BC, this::DE, this::HL, this::SP}[opcode >> 4].accept(nn);
     else if (opcode == 0xcd) {
-      push(address + 3 & 0xffff);
+      call(address + 3 & 0xffff);
       invokeMethod(nn);
     } else if ((opcode & 0xc0) == 0x40 && opcode != 0x76) {
       write8(opcode >> 3 & 7, read8(opcode & 7));
@@ -229,6 +229,7 @@ public abstract class SpectrumApplication {
 
   public void SP(int value) {
     SP = value;
+    calls = 0;
   }
 
   public int SP() {
@@ -276,9 +277,24 @@ public abstract class SpectrumApplication {
   }
 
   public int pop() {
+    if (calls > 0 && callSlots[calls - 1] == SP)
+      calls--;
     int value = mem[SP] | mem[SP + 1 & 0xffff] << 8;
     SP = SP + 2 & 0xffff;
     return value;
+  }
+
+  public void call(int returnAddress) {
+    push(returnAddress);
+    if (calls == callSlots.length)
+      callSlots = Arrays.copyOf(callSlots, calls * 2);
+    callSlots[calls++] = SP;
+  }
+
+  public int ret() {
+    boolean toCaller = calls > 0 && callSlots[calls - 1] == SP;
+    int address = pop();
+    return toCaller ? -1 : address;
   }
 
 
@@ -511,6 +527,8 @@ public abstract class SpectrumApplication {
   public int IY;
   public int PC;
   public int SP = INITIAL_SP_VALUE;
+  private int[] callSlots = new int[256];
+  private int calls;
   protected int I;
   protected boolean iff;
   protected boolean interruptsDelayed;
@@ -521,8 +539,16 @@ public abstract class SpectrumApplication {
   }
 
   public int ldAR() {
-    F(F & 0x01 | R & 0xa8 | (R == 0 ? 0x40 : 0) | (iff ? 0x04 : 0));
-    return R;
+    return ldInterruptRegister(R);
+  }
+
+  public int ldAI() {
+    return ldInterruptRegister(I);
+  }
+
+  private int ldInterruptRegister(int value) {
+    F(F & 0x01 | value & 0xa8 | (value == 0 ? 0x40 : 0) | (iff ? 0x04 : 0));
+    return value;
   }
 
   public void R(int r) {

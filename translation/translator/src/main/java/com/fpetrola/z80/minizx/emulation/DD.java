@@ -26,7 +26,7 @@ public class DD extends MiniZX {
       alu("cp", var3, 80);
       pc(25263, 1);
       if(flag(64, false)) {
-         pop();
+         ret();
       } else {
          pc(25264, 1);
          int var4 = HL();
@@ -89,7 +89,7 @@ public class DD extends MiniZX {
                int var20 = mem(var19, 25294);
                A(var20);
                pc(25295, 1);
-               push(25298);
+               call(25298);
                $F3D3();
                pc(25298, 1);
                int var21 = pop();
@@ -105,29 +105,29 @@ public class DD extends MiniZX {
       label89:
       while(true) {
          pc(51204, 1);
-         push(51207);
+         call(51207);
          $CA5B();
          pc(51207, 1);
-         push(51210);
+         call(51210);
          $C881();
 
          do {
             pc(51210, 1);
-            push(51213);
+            call(51213);
             $D9EC();
             pc(51213, 1);
-            push(51216);
+            call(51216);
             $E592();
             pc(51216, 1);
-            push(51219);
+            call(51219);
             $E93F();
 
             try {
                pc(51219, 1);
-               push(51222);
+               call(51222);
                $CFD9();
-            } catch (StackException var75) {
-               int var2 = var75.getNextPC();
+            } catch (StackException var74) {
+               int var2 = var74.getNextPC();
                if(var2 == 52693) {
                   int var35 = pop();
                   HL(var35);
@@ -140,7 +140,7 @@ public class DD extends MiniZX {
                   wMem(var38, var37, 52696);
                } else {
                   if(var2 != 56386) {
-                     throw var75;
+                     throw var74;
                   }
 
                   int var3 = pop();
@@ -149,7 +149,7 @@ public class DD extends MiniZX {
                }
 
                pc(52698, 1);
-               push(52701);
+               call(52701);
                $E820();
                pc(52701, 1);
                HL(59392);
@@ -174,7 +174,7 @@ public class DD extends MiniZX {
                pc(52715, 1);
                HL(52840);
                pc(52718, 1);
-               push(52721);
+               call(52721);
                $ED06();
                pc(52721, 1);
                HL(59097);
@@ -193,7 +193,7 @@ public class DD extends MiniZX {
 
                do {
                   pc(52733, 1);
-                  push(52736);
+                  call(52736);
                   $E6F6();
                   pc(52736, 1);
                   HL(55946);
@@ -203,16 +203,16 @@ public class DD extends MiniZX {
                   int var17 = HL();
                   wMem(var17, var16, 52739);
                   pc(52741, 1);
-                  push(52744);
+                  call(52744);
                   $DA8D();
                   pc(52744, 1);
                   int var18 = mem(59098, 52744);
                   A(var18);
                   pc(52747, 1);
-                  push(52750);
+                  call(52750);
                   $F021();
                   pc(52750, 1);
-                  push(52753);
+                  call(52753);
                   $C92A();
                   pc(52753, 1);
                   int var19 = mem(59098, 52753);
@@ -233,21 +233,21 @@ public class DD extends MiniZX {
                   int var23 = AF();
                   push(var23);
                   pc(52762, 1);
-                  push(52765);
+                  call(52765);
                   $F3D3();
                   pc(52765, 1);
                   DE(521);
                   pc(52768, 1);
-                  push(52771);
+                  call(52771);
                   $E84E();
                   pc(52771, 1);
-                  push(52774);
+                  call(52774);
                   $DAFA();
                   pc(52774, 1);
-                  push(52777);
+                  call(52777);
                   $C92A();
                   pc(52777, 1);
-                  push(52780);
+                  call(52780);
                   $DA8D();
                   pc(52780, 1);
                   int var24 = pop();
@@ -264,13 +264,13 @@ public class DD extends MiniZX {
 
                do {
                   pc(52786, 1);
-                  push(52789);
+                  call(52789);
                   $C92A();
                   pc(52789, 1);
-                  push(52792);
+                  call(52792);
                   $DA8D();
                   pc(52792, 1);
-                  push(52795);
+                  call(52795);
                   $DAFA();
                   pc(52795, 1);
                   int var28 = mem(51307, 52795);
@@ -286,7 +286,7 @@ public class DD extends MiniZX {
                pc(52801, 1);
                HL(52819);
                pc(52804, 1);
-               push(52807);
+               call(52807);
                $DDE0();
                pc(52807, 1);
                B(50);
@@ -296,7 +296,7 @@ public class DD extends MiniZX {
                   int var32 = BC();
                   push(var32);
                   pc(52810, 1);
-                  push(52813);
+                  call(52813);
                   $DAFA();
                   pc(52813, 1);
                   int var33 = pop();
@@ -311,52 +311,52 @@ public class DD extends MiniZX {
             }
 
             pc(51222, 1);
-            push(51225);
+            call(51225);
             $EF7C();
             pc(51225, 1);
-            push(51228);
+            call(51228);
             $CC89();
             pc(51228, 1);
-            push(51231);
+            call(51231);
             $C92A();
             pc(51231, 1);
-            push(51234);
+            call(51234);
             $DA8D();
             pc(51234, 1);
-            push(51237);
+            call(51237);
             $CC5F();
 
             try {
                pc(51237, 1);
-               push(51240);
+               call(51240);
                $E5E8();
-            } catch (StackException var74) {
-               if(var74.getNextPC() == 58945) {
+            } catch (StackException var75) {
+               if(var75.getNextPC() == 58945) {
                   int var40 = pop();
                   HL(var40);
                   pc(58945, 1);
                   continue label89;
                }
 
-               throw var74;
+               throw var75;
             }
 
             pc(51240, 1);
-            push(51243);
+            call(51243);
             $E663();
             pc(51243, 1);
-            push(51246);
+            call(51246);
             $E6DC();
             pc(51246, 1);
-            push(51249);
+            call(51249);
             $CEAD();
             pc(51249, 1);
-            push(51252);
+            call(51252);
             $DE52();
             pc(51252, 1);
             BC(1024);
             pc(51255, 1);
-            push(51258);
+            call(51258);
             $D4AF();
             pc(51258, 1);
             A(223);
@@ -453,7 +453,7 @@ public class DD extends MiniZX {
 
    public void $C881() {
       pc(51329, 1);
-      push(51332);
+      call(51332);
       $E801();
       pc(51332, 1);
       HL(27114);
@@ -479,10 +479,10 @@ public class DD extends MiniZX {
       } while(B() != 0);
 
       pc(51345, 1);
-      push(51348);
+      call(51348);
       $EF1E();
       pc(51348, 1);
-      push(51351);
+      call(51351);
       $F345();
       pc(51351, 1);
       HL(51302);
@@ -539,7 +539,7 @@ public class DD extends MiniZX {
       }
 
       pc(51382, 1);
-      push(51385);
+      call(51385);
       $D378();
       pc(51385, 1);
       HL(52822);
@@ -564,10 +564,10 @@ public class DD extends MiniZX {
       pc(51404, 1);
       A(43);
       pc(51406, 1);
-      push(51409);
+      call(51409);
       $CBBD();
       pc(51409, 1);
-      pop();
+      ret();
    }
 
    public void $C8FF() {
@@ -587,7 +587,7 @@ public class DD extends MiniZX {
          int var3 = DE();
          push(var3);
          pc(51466, 1);
-         push(51469);
+         call(51469);
          $E8D2();
          pc(51469, 1);
          C(2);
@@ -657,7 +657,7 @@ public class DD extends MiniZX {
       } while(flag(64, true));
 
       pc(51492, 1);
-      pop();
+      ret();
    }
 
    public void $C92A() {
@@ -725,7 +725,7 @@ public class DD extends MiniZX {
                   pc(51534, 1);
                   A(46);
                   pc(51536, 1);
-                  push(51539);
+                  call(51539);
                   $DB01();
                   pc(51539, 1);
                   int var146 = A();
@@ -755,7 +755,7 @@ public class DD extends MiniZX {
          int var16 = alu("xor", var15, var14);
          A(var16);
          pc(51552, 1);
-         push(51555);
+         call(51555);
          $DB01();
          pc(51555, 1);
          HL(51309);
@@ -896,7 +896,7 @@ public class DD extends MiniZX {
             int var110 = HL();
             wMem(var110, 0, 51628);
             pc(51630, 1);
-            push(51633);
+            call(51633);
             $CD8A();
             pc(51633, 1);
          }
@@ -967,7 +967,7 @@ public class DD extends MiniZX {
       pc(51656, 1);
       DE(20912);
       pc(51659, 1);
-      push(51662);
+      call(51662);
       $EEF9();
       pc(51662, 1);
       int var46 = mem(23271, 51662);
@@ -1127,7 +1127,7 @@ public class DD extends MiniZX {
                C(var96);
                pc(51734, 1);
                if(flag(64, false)) {
-                  pop();
+                  ret();
                   return;
                }
 
@@ -1145,17 +1145,17 @@ public class DD extends MiniZX {
       label86:
       while(true) {
          pc(51803, 1);
-         push(51806);
+         call(51806);
          $E801();
          pc(51806, 1);
          HL(61372);
          pc(51809, 1);
-         push(51812);
+         call(51812);
          $ED06();
          pc(51812, 1);
          HL(60454);
          pc(51815, 1);
-         push(51818);
+         call(51818);
          $EEF1();
          pc(51818, 1);
          DE(2567);
@@ -1172,7 +1172,7 @@ public class DD extends MiniZX {
             pc(51825, 1);
             BC(3585);
             pc(51828, 1);
-            push(51831);
+            call(51831);
             $E8BA();
             pc(51831, 1);
             int var3 = pop();
@@ -1214,7 +1214,7 @@ public class DD extends MiniZX {
          pc(51856, 2);
          IY(51773);
          pc(51860, 1);
-         push(51863);
+         call(51863);
          $E54D();
          pc(51863, 1);
          HL(59097);
@@ -1260,7 +1260,7 @@ public class DD extends MiniZX {
             int var26 = A();
             L(var26);
             pc(51889, 1);
-            push(51892);
+            call(51892);
             $DB0B();
 
             while(true) {
@@ -1277,17 +1277,17 @@ public class DD extends MiniZX {
                   pc(51898, 1);
                   if(flag(64, false)) {
                      pc(56163, 1);
-                     push(56166);
+                     call(56166);
                      $E801();
                      pc(56166, 1);
                      HL(64915);
                      pc(56169, 1);
-                     push(56172);
+                     call(56172);
                      $EEF1();
                      pc(56172, 1);
                      HL(56157);
                      pc(56175, 1);
-                     push(56178);
+                     call(56178);
                      $F470();
                      pc(56178, 1);
                      HL(55946);
@@ -1295,24 +1295,24 @@ public class DD extends MiniZX {
                      int var30 = HL();
                      wMem(var30, 0, 56181);
                      pc(56183, 1);
-                     push(56186);
+                     call(56186);
                      $DD8D();
                      pc(56186, 1);
                      HL(56146);
                      pc(56189, 1);
-                     push(56192);
+                     call(56192);
                      $DDE0();
                      pc(56192, 1);
                      pc(62142, 1);
-                     push(62145);
+                     call(62145);
                      $F2F4();
                      pc(62145, 1);
                      HL(62117);
                      pc(62148, 1);
-                     push(62151);
+                     call(62151);
                      $EEF1();
                      pc(62151, 1);
-                     push(62154);
+                     call(62154);
                      $F300();
                      pc(62154, 1);
                      int var31 = D();
@@ -1321,15 +1321,15 @@ public class DD extends MiniZX {
                      int var32 = A();
                      wMem(62062, var32, 62155);
                      pc(62158, 1);
-                     push(62161);
+                     call(62161);
                      $F2F4();
                      pc(62161, 1);
                      HL(62125);
                      pc(62164, 1);
-                     push(62167);
+                     call(62167);
                      $EEF1();
                      pc(62167, 1);
-                     push(62170);
+                     call(62170);
                      $F300();
                      pc(62170, 1);
                      int var33 = D();
@@ -1338,15 +1338,15 @@ public class DD extends MiniZX {
                      int var34 = A();
                      wMem(62063, var34, 62171);
                      pc(62174, 1);
-                     push(62177);
+                     call(62177);
                      $F2F4();
                      pc(62177, 1);
                      HL(62134);
                      pc(62180, 1);
-                     push(62183);
+                     call(62183);
                      $EEF1();
                      pc(62183, 1);
-                     push(62186);
+                     call(62186);
                      $F300();
                      pc(62186, 1);
                      int var35 = D();
@@ -1355,7 +1355,7 @@ public class DD extends MiniZX {
                      int var36 = A();
                      wMem(62064, var36, 62187);
                      pc(62190, 1);
-                     push(62193);
+                     call(62193);
                      $F2F4();
                      pc(62193, 1);
                      pc(51798, 1);
@@ -1372,16 +1372,16 @@ public class DD extends MiniZX {
                   pc(51901, 2);
                   IY(51779);
                   pc(51905, 1);
-                  push(51908);
+                  call(51908);
                   $E59F();
                   pc(51908, 1);
-                  push(51911);
+                  call(51911);
                   $EDA2();
                   pc(51911, 1);
-                  push(51914);
+                  call(51914);
                   $DA8D();
                   pc(51914, 1);
-                  push(51917);
+                  call(51917);
                   $DAFA();
                   pc(51917, 1);
                   int var39 = mem16(55944, 51917);
@@ -1445,7 +1445,7 @@ public class DD extends MiniZX {
                   pc(51954, 1);
                   D(10);
                   pc(51956, 1);
-                  push(51959);
+                  call(51959);
                   $E8E3();
                   pc(51959, 1);
                   exHLDE();
@@ -1488,7 +1488,7 @@ public class DD extends MiniZX {
                      pc(51980, 1);
                      if(!flag(64, false)) {
                         pc(51982, 1);
-                        push(51985);
+                        call(51985);
                         $CB8D();
                         pc(51985, 1);
                         HL(59867);
@@ -1524,7 +1524,7 @@ public class DD extends MiniZX {
                         pc(52012, 1);
                         if(!flag(64, false)) {
                            pc(52014, 1);
-                           push(52017);
+                           call(52017);
                            $CB8D();
                            pc(52017, 1);
                            HL(62065);
@@ -1555,7 +1555,7 @@ public class DD extends MiniZX {
                            pc(52037, 1);
                            if(!flag(64, false)) {
                               pc(52040, 1);
-                              push(52043);
+                              call(52043);
                               $CB8D();
                               pc(52043, 1);
                               HL(59840);
@@ -1587,59 +1587,59 @@ public class DD extends MiniZX {
                               int var68 = HL();
                               wMem(var68, var67, 56569);
                               pc(56571, 1);
-                              push(56574);
+                              call(56574);
                               $E801();
                               pc(56574, 1);
                               HL(63687);
                               pc(56577, 1);
-                              push(56580);
+                              call(56580);
                               $EEF1();
                               pc(56580, 1);
                               HL(62757);
                               pc(56583, 1);
-                              push(56586);
+                              call(56586);
                               $F470();
                               pc(56586, 1);
-                              push(56589);
+                              call(56589);
                               $DD8D();
                               pc(56589, 1);
                               HL(62880);
                               pc(56592, 1);
-                              push(56595);
+                              call(56595);
                               $DDE0();
                               pc(56595, 1);
-                              push(56598);
+                              call(56598);
                               $E801();
                               pc(56598, 1);
                               HL(64358);
                               pc(56601, 1);
-                              push(56604);
+                              call(56604);
                               $EEF1();
                               pc(56604, 1);
                               HL(62818);
                               pc(56607, 1);
-                              push(56610);
+                              call(56610);
                               $F470();
                               pc(56610, 1);
-                              push(56613);
+                              call(56613);
                               $DD8D();
                               pc(56613, 1);
                               HL(62893);
                               pc(56616, 1);
-                              push(56619);
+                              call(56619);
                               $DDE0();
                               pc(56619, 1);
-                              push(56622);
+                              call(56622);
                               $E801();
                               pc(56622, 1);
                               HL(64682);
                               pc(56625, 1);
-                              push(56628);
+                              call(56628);
                               $EEF1();
                               pc(56628, 1);
                               HL(62839);
                               pc(56631, 1);
-                              push(56634);
+                              call(56634);
                               $F470();
                               pc(56634, 2);
                               IX(62725);
@@ -1654,7 +1654,7 @@ public class DD extends MiniZX {
                                  int var72 = AF();
                                  push(var72);
                                  pc(56640, 1);
-                                 push(56643);
+                                 call(56643);
                                  $DCCC();
                                  pc(56643, 2);
                                  int var73 = IX();
@@ -1678,25 +1678,25 @@ public class DD extends MiniZX {
                               } while(flag(64, true));
 
                               pc(56653, 1);
-                              push(56656);
+                              call(56656);
                               $DD8D();
                               pc(56656, 1);
                               HL(62921);
                               pc(56659, 1);
-                              push(56662);
+                              call(56662);
                               $DDE0();
                               pc(56662, 1);
-                              push(56665);
+                              call(56665);
                               $E801();
                               pc(56665, 1);
                               HL(64797);
                               pc(56668, 1);
-                              push(56671);
+                              call(56671);
                               $EEF1();
                               pc(56671, 1);
                               HL(62855);
                               pc(56674, 1);
-                              push(56677);
+                              call(56677);
                               $F470();
                               pc(56677, 1);
                               A(1);
@@ -1708,22 +1708,22 @@ public class DD extends MiniZX {
                               pc(56686, 1);
                               HL(62866);
                               pc(56689, 1);
-                              push(56692);
+                              call(56692);
                               $ED06();
                               pc(56692, 1);
                               HL(60297);
                               pc(56695, 1);
                               DE(1556);
                               pc(56698, 1);
-                              push(56701);
+                              call(56701);
                               $E84E();
                               pc(56701, 1);
-                              push(56704);
+                              call(56704);
                               $DD8D();
                               pc(56704, 1);
                               HL(62933);
                               pc(56707, 1);
-                              push(56710);
+                              call(56710);
                               $DDE0();
                               pc(56710, 1);
                               int var82 = A();
@@ -1738,7 +1738,7 @@ public class DD extends MiniZX {
                            }
 
                            pc(52062, 1);
-                           push(52065);
+                           call(52065);
                            $CB9C();
                            pc(52065, 1);
                            if(!flag(64, true)) {
@@ -1754,21 +1754,21 @@ public class DD extends MiniZX {
                                  pc(52073, 2);
                                  IY(51795);
                                  pc(52077, 1);
-                                 push(52080);
+                                 call(52080);
                                  $E6F6();
                                  pc(52080, 1);
-                                 push(52083);
+                                 call(52083);
                                  $DA8D();
                                  pc(52083, 1);
-                                 push(52086);
+                                 call(52086);
                                  $DAFA();
                                  pc(52086, 1);
-                                 push(52089);
+                                 call(52089);
                                  $EDA2();
                                  pc(52089, 2);
                                  IY(51779);
                                  pc(52093, 1);
-                                 push(52096);
+                                 call(52096);
                                  $E59F();
                                  pc(52096, 1);
                                  int var89 = mem(59098, 52096);
@@ -1784,10 +1784,10 @@ public class DD extends MiniZX {
                               pc(52102, 1);
                               HL(51742);
                               pc(52105, 1);
-                              push(52108);
+                              call(52108);
                               $DDE0();
                               pc(52108, 1);
-                              pop();
+                              ret();
                               return;
                            }
                         }
@@ -1811,7 +1811,7 @@ public class DD extends MiniZX {
       pc(52110, 1);
       D(10);
       pc(52112, 1);
-      push(52115);
+      call(52115);
       $E8E3();
       pc(52115, 1);
       exHLDE();
@@ -1834,7 +1834,7 @@ public class DD extends MiniZX {
       } while(B() != 0);
 
       pc(52123, 1);
-      pop();
+      ret();
    }
 
    public void $CB9C() {
@@ -1859,7 +1859,7 @@ public class DD extends MiniZX {
          bit(4, var14);
          pc(52136, 1);
          if(flag(64, false)) {
-            pop();
+            ret();
             return;
          }
 
@@ -1881,7 +1881,7 @@ public class DD extends MiniZX {
             bit(0, var9);
             pc(52149, 1);
             if(flag(64, false)) {
-               pop();
+               ret();
                return;
             }
          }
@@ -1897,7 +1897,7 @@ public class DD extends MiniZX {
       int var6 = A();
       bit(0, var6);
       pc(52156, 1);
-      pop();
+      ret();
    }
 
    public void $CBBD() {
@@ -1998,22 +1998,22 @@ public class DD extends MiniZX {
       pc(52201, 1);
       exx();
       pc(52202, 1);
-      push(52205);
+      call(52205);
       $E820();
       pc(52205, 1);
-      push(52208);
+      call(52208);
       $ED00();
       pc(52208, 1);
-      push(52211);
+      call(52211);
       $DCC1();
       pc(52211, 1);
-      push(52214);
+      call(52214);
       $CC36();
       pc(52214, 1);
-      push(52217);
+      call(52217);
       $E544();
       pc(52217, 1);
-      push(52220);
+      call(52220);
       $CE76();
       pc(52220, 1);
       int var39 = mem(53194, 52220);
@@ -2022,10 +2022,10 @@ public class DD extends MiniZX {
       int var40 = A();
       B(var40);
       pc(52224, 1);
-      push(52227);
+      call(52227);
       $F3EC();
       pc(52227, 1);
-      push(52230);
+      call(52230);
       $C8FF();
       pc(52230, 1);
       HL(51324);
@@ -2115,7 +2115,7 @@ public class DD extends MiniZX {
       pc(52276, 1);
       exx();
       pc(52277, 1);
-      pop();
+      ret();
    }
 
    public void $CC36() {
@@ -2127,7 +2127,7 @@ public class DD extends MiniZX {
       alu("cp", var2, 8);
       pc(52283, 1);
       if(flag(1, true)) {
-         pop();
+         ret();
       } else {
          pc(52284, 1);
          HL(27013);
@@ -2201,7 +2201,7 @@ public class DD extends MiniZX {
          } while(B() != 0);
 
          pc(52317, 1);
-         pop();
+         ret();
       }
    }
 
@@ -2214,7 +2214,7 @@ public class DD extends MiniZX {
       alu("cp", var2, 8);
       pc(52324, 1);
       if(flag(1, true)) {
-         pop();
+         ret();
       } else {
          pc(52325, 1);
          HL(52318);
@@ -2227,7 +2227,7 @@ public class DD extends MiniZX {
          pc(52329, 1);
          if(!flag(64, false)) {
             pc(52331, 1);
-            pop();
+            ret();
          } else {
             pc(52332, 1);
             int var7 = HL();
@@ -2307,7 +2307,7 @@ public class DD extends MiniZX {
             } while(flag(64, true));
 
             pc(52360, 1);
-            pop();
+            ret();
          }
       }
    }
@@ -2315,7 +2315,7 @@ public class DD extends MiniZX {
    public void $CC89() {
       label54: {
          pc(52361, 1);
-         push(52364);
+         call(52364);
          $DC71();
          pc(52364, 2);
          int var1 = mem16(51322, 52364);
@@ -2415,7 +2415,7 @@ public class DD extends MiniZX {
                      }
 
                      pc(52421, 1);
-                     push(52424);
+                     call(52424);
                      $D1B2();
                      pc(52424, 1);
                      int var46 = D();
@@ -2448,10 +2448,10 @@ public class DD extends MiniZX {
                      }
 
                      pc(52439, 1);
-                     push(52442);
+                     call(52442);
                      $CD2B();
                      pc(52442, 1);
-                     push(52445);
+                     call(52445);
                      $CD5C();
                      pc(52445, 1);
                      int var49 = E();
@@ -2467,7 +2467,7 @@ public class DD extends MiniZX {
                   }
 
                   pc(52448, 1);
-                  push(52451);
+                  call(52451);
                   $CD24();
                   pc(52451, 1);
                } else {
@@ -2520,7 +2520,7 @@ public class DD extends MiniZX {
                      }
 
                      pc(52477, 1);
-                     push(52480);
+                     call(52480);
                      $D1B2();
                      pc(52480, 1);
                      int var19 = H();
@@ -2553,10 +2553,10 @@ public class DD extends MiniZX {
                      }
 
                      pc(52495, 1);
-                     push(52498);
+                     call(52498);
                      $CD2B();
                      pc(52498, 1);
-                     push(52501);
+                     call(52501);
                      $CD5C();
                      pc(52501, 1);
                      int var22 = E();
@@ -2572,7 +2572,7 @@ public class DD extends MiniZX {
                   }
 
                   pc(52504, 1);
-                  push(52507);
+                  call(52507);
                   $CD24();
                }
                break label54;
@@ -2580,7 +2580,7 @@ public class DD extends MiniZX {
          }
 
          pc(52386, 1);
-         push(52389);
+         call(52389);
          $CD2B();
          pc(52389, 1);
       }
@@ -2592,7 +2592,7 @@ public class DD extends MiniZX {
       int var11 = BC();
       wMem16(51322, var11, 52511);
       pc(52515, 1);
-      pop();
+      ret();
    }
 
    public void $CD24() {
@@ -2612,7 +2612,7 @@ public class DD extends MiniZX {
       pc(52531, 1);
       C(2);
       pc(52533, 1);
-      push(52536);
+      call(52536);
       $E8D2();
 
       do {
@@ -2670,21 +2670,21 @@ public class DD extends MiniZX {
       A(var19);
       pc(52553, 1);
       if(flag(64, true)) {
-         pop();
+         ret();
       } else {
          pc(52554, 2);
          int var20 = B();
          bit(1, var20);
          pc(52556, 1);
          if(flag(64, true)) {
-            pop();
+            ret();
          } else {
             pc(52557, 2);
             int var21 = E();
             bit(1, var21);
             pc(52559, 1);
             if(flag(64, true)) {
-               pop();
+               ret();
             } else {
                pc(52560, 1);
                int var22 = E();
@@ -2705,13 +2705,13 @@ public class DD extends MiniZX {
                int var29 = HL();
                push(var29);
                pc(52567, 1);
-               push(52570);
+               call(52570);
                $DB01();
                pc(52570, 1);
                int var30 = pop();
                HL(var30);
                pc(52571, 1);
-               pop();
+               ret();
             }
          }
       }
@@ -2747,7 +2747,7 @@ public class DD extends MiniZX {
       A(var6);
       pc(52576, 1);
       if(flag(64, true)) {
-         pop();
+         ret();
       } else {
          pc(52577, 1);
          int var7 = E();
@@ -2760,7 +2760,7 @@ public class DD extends MiniZX {
          pc(52580, 1);
          D(14);
          pc(52582, 1);
-         push(52585);
+         call(52585);
          $E909();
          pc(52585, 1);
          int var9 = DE();
@@ -2795,21 +2795,21 @@ public class DD extends MiniZX {
          pc(52593, 1);
          E(4);
          pc(52595, 1);
-         push(52598);
+         call(52598);
          $D9AA();
          pc(52598, 1);
          if(!flag(64, false)) {
             pc(52600, 1);
             exx();
             pc(52601, 1);
-            pop();
+            ret();
          } else {
             pc(52602, 1);
             exx();
             pc(52603, 1);
             C(100);
             pc(52605, 1);
-            pop();
+            ret();
          }
       }
    }
@@ -2835,7 +2835,7 @@ public class DD extends MiniZX {
       int var7 = HL();
       wMem(var7, var6, 52631);
       pc(52633, 1);
-      pop();
+      ret();
    }
 
    public void $CD9A() {
@@ -2859,7 +2859,7 @@ public class DD extends MiniZX {
          int var38 = HL();
          wMem(var38, var37, 52641);
          pc(52642, 1);
-         pop();
+         ret();
       } else {
          pc(52643, 1);
          HL(55946);
@@ -2894,10 +2894,10 @@ public class DD extends MiniZX {
             int var34 = alu("sla", var33);
             A(var34);
             pc(52661, 1);
-            push(52664);
+            call(52664);
             $DB01();
             pc(52664, 1);
-            pop();
+            ret();
          } else {
             pc(52665, 1);
             HL(51308);
@@ -2942,10 +2942,10 @@ public class DD extends MiniZX {
                   pc(52684, 1);
                   HL(61064);
                   pc(52687, 1);
-                  push(52690);
+                  call(52690);
                   $DB0B();
                   pc(52690, 1);
-                  pop();
+                  ret();
                }
             }
          }
@@ -2961,7 +2961,7 @@ public class DD extends MiniZX {
       alu("cp", var2, 27);
       pc(52859, 1);
       if(flag(64, true)) {
-         pop();
+         ret();
       } else {
          pc(52860, 1);
          int var3 = mem(51326, 52860);
@@ -2976,7 +2976,7 @@ public class DD extends MiniZX {
             pc(52870, 1);
             HL(60380);
             pc(52873, 1);
-            push(52876);
+            call(52876);
             $E84E();
          }
 
@@ -2988,14 +2988,14 @@ public class DD extends MiniZX {
          bit(1, var6);
          pc(52881, 1);
          if(flag(64, true)) {
-            pop();
+            ret();
          } else {
             pc(52882, 1);
             DE(1286);
             pc(52885, 1);
             HL(60297);
             pc(52888, 1);
-            push(52891);
+            call(52891);
             $E84E();
             pc(52891, 1);
             int var7 = mem(51308, 52891);
@@ -3008,7 +3008,7 @@ public class DD extends MiniZX {
                untranslated(0);
             } else {
                pc(52899, 1);
-               pop();
+               ret();
             }
          }
       }
@@ -3051,8 +3051,12 @@ public class DD extends MiniZX {
             int var13 = A();
             L(var13);
             pc(52931, 1);
-            if(HL() != 52961 && HL() == 53111) {
-               $CF77();
+            if(HL() != 52961) {
+               if(HL() == 53111) {
+                  $CF77();
+                  return;
+               }
+
                return;
             }
 
@@ -3081,7 +3085,7 @@ public class DD extends MiniZX {
       } while(B() != 0);
 
       pc(52925, 1);
-      pop();
+      ret();
    }
 
    public void $CEF0() {
@@ -3241,7 +3245,7 @@ public class DD extends MiniZX {
       bit(7, var34);
       pc(53056, 1);
       if(flag(64, true)) {
-         pop();
+         ret();
       } else {
          pc(53057, 1);
          int var35 = HL();
@@ -3285,7 +3289,7 @@ public class DD extends MiniZX {
          int var55 = alu("and", var54, 46);
          A(var55);
          pc(53071, 1);
-         push(53074);
+         call(53074);
          $DB01();
          pc(53074, 2);
          int var56 = mem16(51314, 53074);
@@ -3302,7 +3306,7 @@ public class DD extends MiniZX {
          alu("cp", var60, var59);
          pc(53083, 1);
          if(flag(64, true)) {
-            pop();
+            ret();
          } else {
             pc(53084, 1);
             int var61 = D();
@@ -3325,7 +3329,7 @@ public class DD extends MiniZX {
             alu("cp", var69, var68);
             pc(53089, 1);
             if(flag(1, false)) {
-               pop();
+               ret();
             } else {
                pc(53090, 1);
                int var70 = HL();
@@ -3341,7 +3345,7 @@ public class DD extends MiniZX {
                alu("cp", var75, var74);
                pc(53093, 1);
                if(flag(1, true)) {
-                  pop();
+                  ret();
                } else {
                   pc(53094, 1);
                   int var76 = mem(51318, 53094);
@@ -3353,7 +3357,7 @@ public class DD extends MiniZX {
                   A(var79);
                   pc(53098, 1);
                   if(flag(64, true)) {
-                     pop();
+                     ret();
                   } else {
                      pc(53099, 1);
                      int var80 = mem(51316, 53099);
@@ -3363,7 +3367,7 @@ public class DD extends MiniZX {
                      bit(5, var81);
                      pc(53104, 1);
                      if(flag(64, true)) {
-                        pop();
+                        ret();
                      } else {
                         pc(53105, 1);
                         HL(51327);
@@ -3373,7 +3377,7 @@ public class DD extends MiniZX {
                         int var84 = HL();
                         wMem(var84, var83, 53108);
                         pc(53110, 1);
-                        pop();
+                        ret();
                      }
                   }
                }
@@ -3386,10 +3390,10 @@ public class DD extends MiniZX {
       pc(53111, 1);
       HL(52948);
       pc(53114, 1);
-      push(53117);
+      call(53117);
       $CEF0();
       pc(53117, 1);
-      push(53120);
+      call(53120);
       $62A3();
       pc(53120, 1);
       int var1 = mem(25250, 53120);
@@ -3407,7 +3411,7 @@ public class DD extends MiniZX {
          alu("cp", var9, 62);
          pc(53132, 1);
          if(flag(64, true)) {
-            pop();
+            ret();
          } else {
             pc(53133, 1);
             int var10 = mem(51315, 53133);
@@ -3417,7 +3421,7 @@ public class DD extends MiniZX {
             alu("cp", var11, 21);
             pc(53138, 1);
             if(flag(64, true)) {
-               pop();
+               ret();
             } else {
                pc(53139, 1);
                int var12 = mem(51317, 53139);
@@ -3427,7 +3431,7 @@ public class DD extends MiniZX {
                alu("cp", var13, 5);
                pc(53144, 1);
                if(flag(64, true)) {
-                  pop();
+                  ret();
                } else {
                   pc(53145, 1);
                   int var14 = mem(51326, 53145);
@@ -3437,7 +3441,7 @@ public class DD extends MiniZX {
                   bit(0, var15);
                   pc(53150, 1);
                   if(flag(64, true)) {
-                     pop();
+                     ret();
                   } else {
                      pc(53151, 1);
                      int var16 = mem(51320, 53151);
@@ -3447,7 +3451,7 @@ public class DD extends MiniZX {
                      alu("cp", var17, 8);
                      pc(53156, 1);
                      if(flag(64, true)) {
-                        pop();
+                        ret();
                      } else {
                         pc(53157, 1);
                         int var18 = A();
@@ -3467,10 +3471,10 @@ public class DD extends MiniZX {
                         pc(53166, 1);
                         HL(28174);
                         pc(53169, 1);
-                        push(53172);
+                        call(53172);
                         $DB0B();
                         pc(53172, 1);
-                        pop();
+                        ret();
                      }
                   }
                }
@@ -3482,7 +3486,7 @@ public class DD extends MiniZX {
          alu("cp", var3, 64);
          pc(53175, 1);
          if(flag(64, true)) {
-            pop();
+            ret();
          } else {
             pc(53176, 1);
             int var4 = mem(51308, 53176);
@@ -3502,7 +3506,7 @@ public class DD extends MiniZX {
                alu("cp", var7, 23);
                pc(53189, 1);
                if(flag(1, true)) {
-                  pop();
+                  ret();
                } else {
                   pc(53190, 1);
                   $CD8A();
@@ -3521,7 +3525,7 @@ public class DD extends MiniZX {
       bit(7, var2);
       pc(53214, 1);
       if(flag(64, true)) {
-         pop();
+         ret();
       } else {
          pc(53215, 1);
          int var3 = mem(51316, 53215);
@@ -3538,18 +3542,18 @@ public class DD extends MiniZX {
             try {
                pc(53225, 1);
                if(flag(64, true)) {
-                  push(53228);
+                  call(53228);
                   $CD9A();
                }
-            } catch (StackException var217) {
-               if(var217.getNextPC() == 52692) {
+            } catch (StackException var218) {
+               if(var218.getNextPC() == 52692) {
                   int var64 = pop();
                   HL(var64);
                   untranslated(52692);
                   return;
                }
 
-               throw var217;
+               throw var218;
             }
 
             pc(53228, 1);
@@ -3588,7 +3592,7 @@ public class DD extends MiniZX {
                      }
 
                      pc(53403, 1);
-                     push(53406);
+                     call(53406);
                      $D567();
                      pc(53406, 1);
                      int var72 = mem(52967, 53406);
@@ -3638,7 +3642,7 @@ public class DD extends MiniZX {
                      pc(53431, 1);
                      if(!flag(1, false)) {
                         pc(53433, 1);
-                        push(53436);
+                        call(53436);
                         $D3EC();
                         pc(53436, 1);
                         $D1CE();
@@ -3646,7 +3650,7 @@ public class DD extends MiniZX {
                      }
 
                      pc(53439, 1);
-                     push(53442);
+                     call(53442);
                      $D4B5();
                      pc(53442, 1);
                      $D1CE();
@@ -3697,15 +3701,15 @@ public class DD extends MiniZX {
             }
 
             pc(53236, 1);
-            push(53239);
+            call(53239);
             $DC71();
 
             try {
                pc(53239, 1);
-               push(53242);
+               call(53242);
                $D895();
-            } catch (StackException var218) {
-               if(var218.getNextPC() == 54038) {
+            } catch (StackException var217) {
+               if(var217.getNextPC() == 54038) {
                   int var104 = pop();
                   DE(var104);
                   pc(54038, 1);
@@ -3713,7 +3717,7 @@ public class DD extends MiniZX {
                   return;
                }
 
-               throw var218;
+               throw var217;
             }
 
             pc(53242, 1);
@@ -3743,12 +3747,12 @@ public class DD extends MiniZX {
                   pc(53620, 1);
                   if(!flag(64, false)) {
                      pc(53622, 1);
-                     push(53625);
+                     call(53625);
                      $D607();
                      pc(53625, 1);
                   } else {
                      pc(53627, 1);
-                     push(53630);
+                     call(53630);
                      $D567();
                   }
 
@@ -3756,10 +3760,10 @@ public class DD extends MiniZX {
                   int var204 = mem(51324, 53630);
                   A(var204);
                   pc(53633, 1);
-                  push(53636);
+                  call(53636);
                   $CD24();
                   pc(53636, 1);
-                  push(53639);
+                  call(53639);
                   $D1CE();
                   pc(53639, 2);
                   int var205 = mem16(51314, 53639);
@@ -3784,7 +3788,7 @@ public class DD extends MiniZX {
                   int var212 = A();
                   wMem(51325, var212, 53653);
                   pc(53656, 1);
-                  push(53659);
+                  call(53659);
                   $CD2B();
                   pc(53659, 2);
                   int var213 = mem16(51324, 53659);
@@ -3793,10 +3797,10 @@ public class DD extends MiniZX {
                   int var214 = mem16(51322, 53663);
                   BC(var214);
                   pc(53667, 1);
-                  push(53670);
+                  call(53670);
                   $CD5C();
                   pc(53670, 1);
-                  push(53673);
+                  call(53673);
                   $D1B2();
                   pc(53673, 2);
                   int var215 = DE();
@@ -3805,7 +3809,7 @@ public class DD extends MiniZX {
                   int var216 = BC();
                   wMem16(51322, var216, 53677);
                   pc(53681, 1);
-                  pop();
+                  ret();
                   return;
                }
             }
@@ -3852,7 +3856,7 @@ public class DD extends MiniZX {
                      pc(53490, 1);
                   } else {
                      pc(53492, 1);
-                     push(53495);
+                     call(53495);
                      $D567();
                      pc(53495, 1);
                      int var133 = L();
@@ -3880,7 +3884,7 @@ public class DD extends MiniZX {
                   }
 
                   pc(53508, 1);
-                  push(53511);
+                  call(53511);
                   $D607();
                   pc(53511, 1);
                   int var121 = L();
@@ -3899,12 +3903,12 @@ public class DD extends MiniZX {
                   pc(53518, 1);
                   if(!flag(64, true)) {
                      pc(53520, 1);
-                     push(53523);
+                     call(53523);
                      $D3EC();
                      pc(53523, 1);
                   } else {
                      pc(53525, 1);
-                     push(53528);
+                     call(53528);
                      $D4B5();
                   }
                }
@@ -3966,7 +3970,7 @@ public class DD extends MiniZX {
                            int var173 = HL();
                            wMem(var173, var172, 53379);
                            pc(53380, 1);
-                           push(53383);
+                           call(53383);
                            $D607();
                            pc(53383, 1);
                            $D1CE();
@@ -3974,7 +3978,7 @@ public class DD extends MiniZX {
                         }
 
                         pc(53278, 1);
-                        push(53281);
+                        call(53281);
                         $E9BC();
                         pc(53281, 1);
                         int var175 = C();
@@ -4131,7 +4135,7 @@ public class DD extends MiniZX {
                            int var164 = mem(53195, 53564);
                            A(var164);
                            pc(53567, 1);
-                           push(53570);
+                           call(53570);
                            $DB01();
                            pc(53570, 1);
                            int var165 = pop();
@@ -4143,7 +4147,7 @@ public class DD extends MiniZX {
                            int var161 = alu("inc", var160);
                            L(var161);
                            pc(53574, 1);
-                           push(53577);
+                           call(53577);
                            $D567();
                            pc(53577, 1);
                         }
@@ -4153,7 +4157,7 @@ public class DD extends MiniZX {
                         int var146 = alu("inc", var145);
                         L(var146);
                         pc(53580, 1);
-                        push(53583);
+                        call(53583);
                         $D607();
                         pc(53583, 1);
                         int var147 = L();
@@ -4181,12 +4185,12 @@ public class DD extends MiniZX {
                         pc(53595, 1);
                         if(!flag(64, false)) {
                            pc(53597, 1);
-                           push(53600);
+                           call(53600);
                            $D4B5();
                            pc(53600, 1);
                         } else {
                            pc(53602, 1);
-                           push(53605);
+                           call(53605);
                            $D3EC();
                         }
                      }
@@ -4209,7 +4213,7 @@ public class DD extends MiniZX {
                   }
 
                   pc(53310, 1);
-                  push(53313);
+                  call(53313);
                   $D3EC();
                   pc(53313, 1);
                   $D1CE();
@@ -4217,7 +4221,7 @@ public class DD extends MiniZX {
                }
 
                pc(53304, 1);
-               push(53307);
+               call(53307);
                $D4B5();
                pc(53307, 1);
                $D1CE();
@@ -4260,7 +4264,7 @@ public class DD extends MiniZX {
             pc(56322, 1);
             HL(61027);
             pc(56325, 1);
-            push(56328);
+            call(56328);
             $DB0B();
             pc(56328, 1);
          } else {
@@ -4277,7 +4281,7 @@ public class DD extends MiniZX {
                int var61 = mem(51314, 56335);
                A(var61);
                pc(56338, 1);
-               push(56341);
+               call(56341);
                $D61E();
                pc(56341, 1);
                $D1CE();
@@ -4342,10 +4346,10 @@ public class DD extends MiniZX {
                   pc(56379, 1);
                   A(43);
                   pc(56381, 1);
-                  push(56384);
+                  call(56384);
                   $CBBD();
                   pc(56384, 1);
-                  pop();
+                  ret();
                }
             }
          } else {
@@ -4411,10 +4415,10 @@ public class DD extends MiniZX {
             pc(56418, 1);
             BC(257);
             pc(56421, 1);
-            push(56424);
+            call(56424);
             $E87A();
             pc(56424, 1);
-            pop();
+            ret();
          }
       }
    }
@@ -4450,7 +4454,7 @@ public class DD extends MiniZX {
          alu("cp", var4, 45);
          pc(53697, 1);
          if(flag(64, true)) {
-            pop();
+            ret();
             return;
          }
 
@@ -4462,7 +4466,7 @@ public class DD extends MiniZX {
          alu("cp", var6, 64);
          pc(53701, 1);
          if(flag(64, true)) {
-            pop();
+            ret();
             return;
          }
       }
@@ -4480,7 +4484,7 @@ public class DD extends MiniZX {
       int var10 = A();
       B(var10);
       pc(53708, 1);
-      pop();
+      ret();
    }
 
    public void $D1CE() {
@@ -4552,13 +4556,13 @@ public class DD extends MiniZX {
          int var21 = DE();
          push(var21);
          pc(53750, 1);
-         push(53753);
+         call(53753);
          $E8D2();
          pc(53753, 1);
          int var22 = DE();
          push(var22);
          pc(53754, 1);
-         push(53757);
+         call(53757);
          $E90C();
          pc(53757, 1);
          exHLDE();
@@ -4799,7 +4803,7 @@ public class DD extends MiniZX {
       bit(7, var66);
       pc(53844, 1);
       if(flag(64, false)) {
-         pop();
+         ret();
       } else {
          pc(53845, 2);
          int var67 = HL();
@@ -4860,7 +4864,7 @@ public class DD extends MiniZX {
                pc(53879, 1);
                HL(65137);
                pc(53882, 1);
-               push(53885);
+               call(53885);
                $DB0B();
                pc(53885, 1);
                A(20);
@@ -4879,7 +4883,7 @@ public class DD extends MiniZX {
                pc(53892, 1);
             } else {
                pc(53894, 1);
-               push(53897);
+               call(53897);
                $CD8A();
             }
 
@@ -4913,18 +4917,18 @@ public class DD extends MiniZX {
 
             try {
                pc(53917, 1);
-               push(53920);
+               call(53920);
                $D2BF();
-            } catch (StackException var151) {
-               if(var151.getNextPC() == 53999) {
+            } catch (StackException var152) {
+               if(var152.getNextPC() == 53999) {
                   int var91 = pop();
                   HL(var91);
                   pc(53999, 1);
-                  pop();
+                  ret();
                   return;
                }
 
-               throw var151;
+               throw var152;
             }
 
             pc(53920, 2);
@@ -4936,18 +4940,18 @@ public class DD extends MiniZX {
 
             try {
                pc(53927, 1);
-               push(53930);
+               call(53930);
                $D2BF();
-            } catch (StackException var152) {
-               if(var152.getNextPC() == 53999) {
+            } catch (StackException var153) {
+               if(var153.getNextPC() == 53999) {
                   int var95 = pop();
                   HL(var95);
                   pc(53999, 1);
-                  pop();
+                  ret();
                   return;
                }
 
-               throw var152;
+               throw var153;
             }
 
             pc(53930, 2);
@@ -4959,18 +4963,18 @@ public class DD extends MiniZX {
 
             try {
                pc(53937, 1);
-               push(53940);
+               call(53940);
                $D2BF();
-            } catch (StackException var153) {
-               if(var153.getNextPC() == 53999) {
+            } catch (StackException var150) {
+               if(var150.getNextPC() == 53999) {
                   int var99 = pop();
                   HL(var99);
                   pc(53999, 1);
-                  pop();
+                  ret();
                   return;
                }
 
-               throw var153;
+               throw var150;
             }
 
             pc(53940, 2);
@@ -4982,22 +4986,22 @@ public class DD extends MiniZX {
 
             try {
                pc(53947, 1);
-               push(53950);
+               call(53950);
                $D2BF();
-            } catch (StackException var150) {
-               if(var150.getNextPC() == 53999) {
+            } catch (StackException var151) {
+               if(var151.getNextPC() == 53999) {
                   int var103 = pop();
                   HL(var103);
                   pc(53999, 1);
-                  pop();
+                  ret();
                   return;
                }
 
-               throw var150;
+               throw var151;
             }
 
             pc(53950, 1);
-            pop();
+            ret();
          }
       }
    }
@@ -5010,7 +5014,7 @@ public class DD extends MiniZX {
       A(var3);
       pc(53952, 1);
       if(flag(64, false)) {
-         pop();
+         ret();
       } else {
          pc(53953, 1);
          int var4 = A();
@@ -5036,7 +5040,7 @@ public class DD extends MiniZX {
                int var17 = mem(var16, 53965);
                D(var17);
                pc(53968, 1);
-               push(53971);
+               call(53971);
                $DB38();
                pc(53971, 1);
                if(flag(1, false)) {
@@ -5065,7 +5069,7 @@ public class DD extends MiniZX {
                   int var29 = mem(var28, 53991) | 64;
                   wMem(var28, var29, 53991);
                   pc(53995, 1);
-                  push(53998);
+                  call(53998);
                   $E897();
                   pc(53998, 1);
                   throw new StackException(53999);
@@ -5087,7 +5091,7 @@ public class DD extends MiniZX {
          } while(flag(64, true));
 
          pc(53981, 1);
-         pop();
+         ret();
       }
    }
 
@@ -5095,12 +5099,12 @@ public class DD extends MiniZX {
       pc(54136, 1);
       HL(54188);
       pc(54139, 1);
-      push(54142);
+      call(54142);
       $ED06();
       pc(54142, 1);
       HL(54228);
       pc(54145, 1);
-      push(54148);
+      call(54148);
       $EEF1();
       pc(54148, 1);
       A(79);
@@ -5109,14 +5113,14 @@ public class DD extends MiniZX {
       pc(54153, 1);
       DE(22);
       pc(54156, 1);
-      push(54159);
+      call(54159);
       $E8BA();
       pc(54159, 1);
       BC(2562);
       pc(54162, 1);
       DE(2582);
       pc(54165, 1);
-      push(54168);
+      call(54168);
       $E8BA();
       pc(54168, 1);
       HL(23264);
@@ -5146,10 +5150,10 @@ public class DD extends MiniZX {
       pc(54181, 1);
       DE(20944);
       pc(54184, 1);
-      push(54187);
+      call(54187);
       $EEF9();
       pc(54187, 1);
-      pop();
+      ret();
    }
 
    public void $D3EC() {
@@ -5243,7 +5247,7 @@ public class DD extends MiniZX {
                      int var71 = L();
                      D(var71);
                      pc(54302, 1);
-                     push(54305);
+                     call(54305);
                      $D951();
                      pc(54305, 1);
                      int var72 = pop();
@@ -5340,7 +5344,7 @@ public class DD extends MiniZX {
                int var34 = alu("dec", var33);
                D(var34);
                pc(54433, 1);
-               push(54436);
+               call(54436);
                $D550();
                pc(54436, 1);
                int var35 = pop();
@@ -5355,7 +5359,7 @@ public class DD extends MiniZX {
             pc(54403, 1);
             BC(239);
             pc(54406, 1);
-            push(54409);
+            call(54409);
             $D4AF();
             pc(54409, 1);
          }
@@ -5375,7 +5379,7 @@ public class DD extends MiniZX {
          pc(54445, 1);
          exx();
          pc(54446, 1);
-         pop();
+         ret();
          return;
       }
 
@@ -5426,7 +5430,7 @@ public class DD extends MiniZX {
       int var46 = AF();
       push(var46);
       pc(54358, 1);
-      push(54361);
+      call(54361);
       $CBBD();
       pc(54361, 1);
       int var47 = mem(55786, 54361);
@@ -5490,12 +5494,12 @@ public class DD extends MiniZX {
       int var54 = A();
       wMem(55787, var54, 54394);
       pc(54397, 1);
-      push(54400);
+      call(54400);
       $D9EC();
       pc(54400, 1);
       exx();
       pc(54401, 1);
-      pop();
+      ret();
    }
 
    public void $D4AF() {
@@ -5516,7 +5520,7 @@ public class DD extends MiniZX {
       } while(flag(64, true));
 
       pc(54452, 1);
-      pop();
+      ret();
    }
 
    public void $D4B5() {
@@ -5618,7 +5622,7 @@ public class DD extends MiniZX {
                      int var57 = HL();
                      push(var57);
                      pc(54504, 1);
-                     push(54507);
+                     call(54507);
                      $D951();
                      pc(54507, 1);
                      int var58 = pop();
@@ -5722,7 +5726,7 @@ public class DD extends MiniZX {
                int var35 = alu("inc", var34);
                D(var35);
                pc(54594, 1);
-               push(54597);
+               call(54597);
                $D550();
                pc(54597, 1);
                int var36 = pop();
@@ -5737,7 +5741,7 @@ public class DD extends MiniZX {
             pc(54561, 1);
             BC(239);
             pc(54564, 1);
-            push(54567);
+            call(54567);
             $D4AF();
             pc(54567, 1);
             break label48;
@@ -5785,12 +5789,12 @@ public class DD extends MiniZX {
          }
 
          pc(54555, 1);
-         push(54558);
+         call(54558);
          $CBBD();
          pc(54558, 1);
          exx();
          pc(54559, 1);
-         pop();
+         ret();
          return;
       }
 
@@ -5809,7 +5813,7 @@ public class DD extends MiniZX {
       pc(54606, 1);
       exx();
       pc(54607, 1);
-      pop();
+      ret();
    }
 
    public void $D550() {
@@ -5821,7 +5825,7 @@ public class DD extends MiniZX {
          int var1 = DE();
          push(var1);
          pc(54611, 1);
-         push(54614);
+         call(54614);
          $E8D2();
          pc(54614, 1);
          B(2);
@@ -5875,7 +5879,7 @@ public class DD extends MiniZX {
       } while(flag(64, true));
 
       pc(54630, 1);
-      pop();
+      ret();
    }
 
    public void $D567() {
@@ -5885,7 +5889,7 @@ public class DD extends MiniZX {
       int var1 = mem16(51314, 54632);
       DE(var1);
       pc(54636, 1);
-      push(54639);
+      call(54639);
       $E909();
       pc(54639, 1);
       int var2 = mem(51317, 54639);
@@ -5969,7 +5973,7 @@ public class DD extends MiniZX {
                int var27 = mem(var26, 54680);
                E(var27);
                pc(54681, 1);
-               push(54684);
+               call(54684);
                $D9AA();
                pc(54684, 1);
                if(!flag(64, false)) {
@@ -6009,12 +6013,12 @@ public class DD extends MiniZX {
                      int var70 = alu("add", var69, 8);
                      A(var70);
                      pc(54706, 1);
-                     push(54709);
+                     call(54709);
                      $CBBD();
                      pc(54709, 1);
                      exx();
                      pc(54710, 1);
-                     pop();
+                     ret();
                      return;
                   }
 
@@ -6065,7 +6069,7 @@ public class DD extends MiniZX {
                         int var66 = A();
                         wMem(53195, var66, 54740);
                         pc(54743, 1);
-                        push(54746);
+                        call(54746);
                         $DB01();
                      }
                   }
@@ -6109,7 +6113,7 @@ public class DD extends MiniZX {
                   int var59 = inc16(var58);
                   HL(var59);
                   pc(54771, 1);
-                  push(54774);
+                  call(54774);
                   $D655();
                   pc(54774, 1);
                   break;
@@ -6138,7 +6142,7 @@ public class DD extends MiniZX {
             pc(54789, 1);
             exx();
             pc(54790, 1);
-            pop();
+            ret();
             return;
          }
       }
@@ -6148,7 +6152,7 @@ public class DD extends MiniZX {
       pc(56823, 1);
       BC(771);
       pc(56826, 1);
-      push(56829);
+      call(56829);
       $E897();
       pc(56829, 1);
       A(200);
@@ -6174,7 +6178,7 @@ public class DD extends MiniZX {
       pc(56841, 1);
       exx();
       pc(56842, 1);
-      pop();
+      ret();
    }
 
    public void $D607() {
@@ -6203,12 +6207,12 @@ public class DD extends MiniZX {
          int var6 = alu("sub", var5, 8);
          A(var6);
          pc(54809, 1);
-         push(54812);
+         call(54812);
          $CBBD();
          pc(54812, 1);
          exx();
          pc(54813, 1);
-         pop();
+         ret();
       }
    }
 
@@ -6254,7 +6258,7 @@ public class DD extends MiniZX {
          int var24 = A();
          wMem(53195, var24, 54835);
          pc(54838, 1);
-         push(54841);
+         call(54841);
          $DB01();
       }
 
@@ -6293,17 +6297,17 @@ public class DD extends MiniZX {
       int var17 = A();
       E(var17);
       pc(54864, 1);
-      push(54867);
+      call(54867);
       $D655();
       pc(54867, 1);
       exx();
       pc(54868, 1);
-      pop();
+      ret();
    }
 
    public void $D655() {
       pc(54869, 1);
-      push(54872);
+      call(54872);
       $E8D2();
       pc(54872, 1);
       C(2);
@@ -6352,7 +6356,7 @@ public class DD extends MiniZX {
       } while(flag(64, true));
 
       pc(54888, 1);
-      pop();
+      ret();
    }
 
    public void $D669() {
@@ -6386,7 +6390,7 @@ public class DD extends MiniZX {
       int var13 = mem(var12, 54899);
       D(var13);
       pc(54900, 1);
-      pop();
+      ret();
    }
 
    public void $D677() {
@@ -6546,7 +6550,7 @@ public class DD extends MiniZX {
       pc(54968, 2);
       ldir(54968);
       pc(54970, 1);
-      pop();
+      ret();
    }
 
    public void $D6BF() {
@@ -6557,7 +6561,7 @@ public class DD extends MiniZX {
       A(var3);
       pc(54976, 1);
       if(flag(64, false)) {
-         pop();
+         ret();
       } else {
          pc(54977, 1);
          int var4 = A();
@@ -6643,7 +6647,7 @@ public class DD extends MiniZX {
                         int var62 = A();
                         E(var62);
                         pc(55025, 1);
-                        push(55028);
+                        call(55028);
                         $D7D6();
                         pc(55028, 1);
                         int var63 = pop();
@@ -6694,7 +6698,7 @@ public class DD extends MiniZX {
                         int var42 = DE();
                         push(var42);
                         pc(55055, 1);
-                        push(55058);
+                        call(55058);
                         $D7D6();
                         pc(55058, 1);
                         int var43 = pop();
@@ -6732,7 +6736,7 @@ public class DD extends MiniZX {
             int var23 = A();
             wMem(var22, var23, 55071);
             pc(55074, 1);
-            push(55077);
+            call(55077);
             $D7E7();
             pc(55077, 1);
             int var24 = pop();
@@ -6750,7 +6754,7 @@ public class DD extends MiniZX {
          } while(B() != 0);
 
          pc(55085, 1);
-         pop();
+         ret();
       }
    }
 
@@ -6762,7 +6766,7 @@ public class DD extends MiniZX {
       A(var3);
       pc(55091, 1);
       if(flag(64, false)) {
-         pop();
+         ret();
       } else {
          pc(55092, 1);
          int var4 = A();
@@ -6851,7 +6855,7 @@ public class DD extends MiniZX {
                         int var63 = A();
                         D(var63);
                         pc(55142, 1);
-                        push(55145);
+                        call(55145);
                         $D7A2();
                         pc(55145, 1);
                         int var64 = pop();
@@ -6898,7 +6902,7 @@ public class DD extends MiniZX {
                         int var42 = DE();
                         push(var42);
                         pc(55171, 1);
-                        push(55174);
+                        call(55174);
                         $D7A2();
                         pc(55174, 1);
                         int var43 = pop();
@@ -6936,7 +6940,7 @@ public class DD extends MiniZX {
             int var23 = A();
             wMem(var22, var23, 55187);
             pc(55190, 1);
-            push(55193);
+            call(55193);
             $D7B7();
             pc(55193, 1);
             int var24 = pop();
@@ -6954,7 +6958,7 @@ public class DD extends MiniZX {
          } while(B() != 0);
 
          pc(55201, 1);
-         pop();
+         ret();
       }
    }
 
@@ -6964,7 +6968,7 @@ public class DD extends MiniZX {
       int var2 = mem(var1, 55202);
       E(var2);
       pc(55205, 1);
-      push(55208);
+      call(55208);
       $E8E3();
       pc(55208, 1);
       exHLDE();
@@ -6995,7 +6999,7 @@ public class DD extends MiniZX {
       } while(B() != 0);
 
       pc(55222, 1);
-      pop();
+      ret();
    }
 
    public void $D7B7() {
@@ -7068,10 +7072,10 @@ public class DD extends MiniZX {
       int var34 = mem16(55086, 55246);
       BC(var34);
       pc(55250, 1);
-      push(55253);
+      call(55253);
       $E96B();
       pc(55253, 1);
-      pop();
+      ret();
    }
 
    public void $D7D6() {
@@ -7080,7 +7084,7 @@ public class DD extends MiniZX {
       int var2 = mem(var1, 55254);
       D(var2);
       pc(55257, 1);
-      push(55260);
+      call(55260);
       $E8E3();
       pc(55260, 1);
       int var3 = mem(54972, 55260);
@@ -7106,7 +7110,7 @@ public class DD extends MiniZX {
       } while(B() != 0);
 
       pc(55270, 1);
-      pop();
+      ret();
    }
 
    public void $D7E7() {
@@ -7201,10 +7205,10 @@ public class DD extends MiniZX {
       int var29 = mem16(54971, 55307);
       BC(var29);
       pc(55311, 1);
-      push(55314);
+      call(55314);
       $E96B();
       pc(55314, 1);
-      pop();
+      ret();
    }
 
    public void $D815() {
@@ -7354,7 +7358,7 @@ public class DD extends MiniZX {
          int var59 = HL();
          push(var59);
          pc(55378, 1);
-         push(55381);
+         call(55381);
          $DB83();
          pc(55381, 1);
          int var60 = pop();
@@ -7396,7 +7400,7 @@ public class DD extends MiniZX {
          int var71 = HL();
          push(var71);
          pc(55399, 1);
-         push(55402);
+         call(55402);
          $DB9B();
          pc(55402, 1);
          int var72 = pop();
@@ -7457,7 +7461,7 @@ public class DD extends MiniZX {
          int var90 = HL();
          push(var90);
          pc(55430, 1);
-         push(55433);
+         call(55433);
          $D9B0();
          pc(55433, 1);
          int var91 = pop();
@@ -7493,7 +7497,7 @@ public class DD extends MiniZX {
       } while(flag(64, true));
 
       pc(55444, 1);
-      pop();
+      ret();
    }
 
    public void $D895() {
@@ -7522,7 +7526,7 @@ public class DD extends MiniZX {
                   int var17 = A();
                   E(var17);
                   pc(55461, 1);
-                  push(55464);
+                  call(55464);
                   $E909();
                   pc(55464, 1);
                   int var18 = mem(51317, 55464);
@@ -7573,7 +7577,7 @@ public class DD extends MiniZX {
                      int var29 = mem(var28, 55486);
                      E(var29);
                      pc(55487, 1);
-                     push(55490);
+                     call(55490);
                      $D9AA();
                      pc(55490, 1);
                      if(flag(64, false)) {
@@ -7599,7 +7603,7 @@ public class DD extends MiniZX {
                         int var43 = A();
                         E(var43);
                         pc(55500, 1);
-                        push(55503);
+                        call(55503);
                         $D9AA();
                         pc(55503, 1);
                         if(flag(64, false)) {
@@ -7610,7 +7614,7 @@ public class DD extends MiniZX {
                         pc(55506, 1);
                         E(56);
                         pc(55508, 1);
-                        push(55511);
+                        call(55511);
                         $D9AA();
                         pc(55511, 1);
                         if(flag(64, false)) {
@@ -7621,7 +7625,7 @@ public class DD extends MiniZX {
                         pc(55514, 1);
                         E(104);
                         pc(55516, 1);
-                        push(55519);
+                        call(55519);
                         $D9AA();
                         pc(55519, 1);
                         if(flag(64, false)) {
@@ -7632,7 +7636,7 @@ public class DD extends MiniZX {
                         pc(55522, 1);
                         E(96);
                         pc(55524, 1);
-                        push(55527);
+                        call(55527);
                         $D9AA();
                         pc(55527, 1);
                         if(flag(64, false)) {
@@ -7643,14 +7647,14 @@ public class DD extends MiniZX {
                         pc(55530, 1);
                         E(2);
                         pc(55532, 1);
-                        push(55535);
+                        call(55535);
                         $D9AA();
                         pc(55535, 1);
                         if(flag(64, true)) {
                            pc(55550, 1);
                            E(79);
                            pc(55552, 1);
-                           push(55555);
+                           call(55555);
                            $D9AA();
                            pc(55555, 1);
                            if(!flag(64, false)) {
@@ -7758,7 +7762,7 @@ public class DD extends MiniZX {
                                  int var117 = A();
                                  wMem(51318, var117, 54031);
                                  pc(54034, 1);
-                                 push(54037);
+                                 call(54037);
                                  $D567();
                                  pc(54037, 1);
                                  throw new StackException(54038);
@@ -7774,7 +7778,7 @@ public class DD extends MiniZX {
                               int var70 = BC();
                               push(var70);
                               pc(54044, 1);
-                              push(54047);
+                              call(54047);
                               $E9BC();
                               pc(54047, 1);
                               int var71 = C();
@@ -7849,7 +7853,7 @@ public class DD extends MiniZX {
                                        pc(54083, 1);
                                        if(!flag(64, true)) {
                                           pc(54085, 1);
-                                          push(54088);
+                                          call(54088);
                                           $D4B5();
                                           pc(54088, 1);
                                           break label66;
@@ -7861,7 +7865,7 @@ public class DD extends MiniZX {
                                        pc(54092, 1);
                                        if(!flag(64, false)) {
                                           pc(54094, 1);
-                                          push(54097);
+                                          call(54097);
                                           $D3EC();
                                           break label66;
                                        }
@@ -7899,7 +7903,7 @@ public class DD extends MiniZX {
                                  int var95 = A();
                                  wMem(56301, var95, 54132);
                                  pc(54135, 1);
-                                 pop();
+                                 ret();
                                  return;
                               }
 
@@ -7972,7 +7976,7 @@ public class DD extends MiniZX {
                pc(55601, 1);
                if(!flag(1, false)) {
                   pc(55603, 1);
-                  push(55606);
+                  call(55606);
                   $CD8A();
                   pc(55606, 1);
                }
@@ -8001,7 +8005,7 @@ public class DD extends MiniZX {
       }
 
       pc(55632, 1);
-      pop();
+      ret();
    }
 
    public void $D951() {
@@ -8020,7 +8024,7 @@ public class DD extends MiniZX {
       int var6 = alu("inc", var5);
       E(var6);
       pc(55639, 1);
-      push(55642);
+      call(55642);
       $E909();
       pc(55642, 1);
       exHLDE();
@@ -8090,11 +8094,11 @@ public class DD extends MiniZX {
          int var23 = mem(var22, 55674);
          E(var23);
          pc(55675, 1);
-         push(55678);
+         call(55678);
          $D9A7();
          pc(55678, 1);
          if(flag(64, false)) {
-            pop();
+            ret();
             return;
          }
 
@@ -8115,7 +8119,7 @@ public class DD extends MiniZX {
       pc(55684, 1);
       E(56);
       pc(55686, 1);
-      push(55689);
+      call(55689);
       $D9A7();
       pc(55689, 1);
       if(flag(64, false)) {
@@ -8124,7 +8128,7 @@ public class DD extends MiniZX {
          pc(55692, 1);
          E(104);
          pc(55694, 1);
-         push(55697);
+         call(55697);
          $D9A7();
          pc(55697, 1);
          if(flag(64, false)) {
@@ -8133,7 +8137,7 @@ public class DD extends MiniZX {
             pc(55700, 1);
             E(96);
             pc(55702, 1);
-            push(55705);
+            call(55705);
             $D9A7();
             pc(55705, 1);
             if(flag(64, false)) {
@@ -8146,14 +8150,14 @@ public class DD extends MiniZX {
                int var30 = A();
                E(var30);
                pc(55712, 1);
-               push(55715);
+               call(55715);
                $D9A7();
                pc(55715, 1);
                if(flag(64, false)) {
                   $DBB8();
                } else {
                   pc(55718, 1);
-                  pop();
+                  ret();
                }
             }
          }
@@ -8170,7 +8174,7 @@ public class DD extends MiniZX {
       alu("cp", var3, var2);
       pc(55721, 1);
       if(flag(64, false)) {
-         pop();
+         ret();
       } else {
          $D9AA();
       }
@@ -8186,7 +8190,7 @@ public class DD extends MiniZX {
       alu("cp", var3, var2);
       pc(55724, 1);
       if(flag(64, false)) {
-         pop();
+         ret();
       } else {
          pc(55725, 1);
          int var4 = B();
@@ -8196,7 +8200,7 @@ public class DD extends MiniZX {
          int var6 = A();
          alu("cp", var6, var5);
          pc(55727, 1);
-         pop();
+         ret();
       }
    }
 
@@ -8350,7 +8354,7 @@ public class DD extends MiniZX {
       } while(flag(64, true));
 
       pc(55783, 1);
-      pop();
+      ret();
    }
 
    public void $D9EC() {
@@ -8529,7 +8533,7 @@ public class DD extends MiniZX {
       alu("cp", var17, var16);
       pc(55869, 1);
       if(flag(64, true)) {
-         pop();
+         ret();
       } else {
          pc(55870, 1);
          int var18 = E();
@@ -8692,7 +8696,7 @@ public class DD extends MiniZX {
          alu("cp", var64, 32);
          pc(55936, 1);
          if(flag(1, true)) {
-            pop();
+            ret();
          } else {
             pc(55937, 1);
             H(90);
@@ -8703,7 +8707,7 @@ public class DD extends MiniZX {
             int var66 = HL();
             wMem(var66, var65, 55941);
             pc(55942, 1);
-            pop();
+            ret();
          }
       }
    }
@@ -8737,22 +8741,22 @@ public class DD extends MiniZX {
                pc(56017, 1);
                B(30);
                pc(56019, 1);
-               push(56022);
+               call(56022);
                $DAB2();
                pc(56022, 1);
                BC(1856);
                pc(56025, 1);
-               push(56028);
+               call(56028);
                $D4AF();
                pc(56028, 1);
                DE(20);
                pc(56031, 1);
                B(20);
                pc(56033, 1);
-               push(56036);
+               call(56036);
                $DAB2();
                pc(56036, 1);
-               pop();
+               ret();
                return;
             }
 
@@ -8762,7 +8766,7 @@ public class DD extends MiniZX {
             }
 
             if(HL() != 55966) {
-               ;
+               return;
             }
 
             pc(55966, 1);
@@ -8808,7 +8812,7 @@ public class DD extends MiniZX {
                int var27 = A();
                wMem(55946, var27, 56116);
                pc(56119, 1);
-               pop();
+               ret();
                return;
             }
 
@@ -8884,7 +8888,7 @@ public class DD extends MiniZX {
             int var10 = BC();
             push(var10);
             pc(56049, 1);
-            push(56052);
+            call(56052);
             $DAB2();
             pc(56052, 1);
             int var11 = pop();
@@ -8902,7 +8906,7 @@ public class DD extends MiniZX {
          } while(B() != 0);
 
          pc(56057, 1);
-         pop();
+         ret();
       }
    }
 
@@ -8955,17 +8959,17 @@ public class DD extends MiniZX {
       int var15 = A();
       wMem(59392, var15, 56004);
       pc(56007, 1);
-      pop();
+      ret();
    }
 
    public void $DAFA() {
       pc(56058, 1);
       BC(2692);
       pc(56061, 1);
-      push(56064);
+      call(56064);
       $D4AF();
       pc(56064, 1);
-      pop();
+      ret();
    }
 
    public void $DB01() {
@@ -8978,7 +8982,7 @@ public class DD extends MiniZX {
       int var2 = HL();
       wMem16(55947, var2, 56071);
       pc(56074, 1);
-      pop();
+      ret();
    }
 
    public void $DB0B() {
@@ -8995,7 +8999,7 @@ public class DD extends MiniZX {
       int var4 = A();
       wMem(55946, var4, 56083);
       pc(56086, 1);
-      pop();
+      ret();
    }
 
    public void $DB38() {
@@ -9055,7 +9059,7 @@ public class DD extends MiniZX {
       int var10 = pop();
       HL(var10);
       pc(56145, 1);
-      pop();
+      ret();
    }
 
    public void $DB83() {
@@ -9127,7 +9131,7 @@ public class DD extends MiniZX {
       } while(flag(64, true));
 
       pc(56218, 1);
-      pop();
+      ret();
    }
 
    public void $DB9B() {
@@ -9208,7 +9212,7 @@ public class DD extends MiniZX {
       } while(flag(64, true));
 
       pc(56247, 1);
-      pop();
+      ret();
    }
 
    public void $DBB8() {
@@ -9236,7 +9240,7 @@ public class DD extends MiniZX {
       int var11 = AF();
       push(var11);
       pc(56264, 1);
-      push(56267);
+      call(56267);
       $DCE8();
       pc(56267, 1);
       int var12 = HL();
@@ -9251,7 +9255,7 @@ public class DD extends MiniZX {
       int var17 = mem(var16, 56269);
       C(var17);
       pc(56270, 1);
-      push(56273);
+      call(56273);
       $E897();
       pc(56273, 1);
       int var18 = pop();
@@ -9293,7 +9297,7 @@ public class DD extends MiniZX {
       pc(56284, 1);
       HL(60998);
       pc(56287, 1);
-      push(56290);
+      call(56290);
       $DB0B();
       pc(56290, 1);
       A(8);
@@ -9306,7 +9310,7 @@ public class DD extends MiniZX {
       int var38 = A();
       wMem(51311, var38, 56297);
       pc(56300, 1);
-      pop();
+      ret();
    }
 
    public void $DC71() {
@@ -9442,7 +9446,7 @@ public class DD extends MiniZX {
       int var11 = A();
       wMem(51323, var11, 56509);
       pc(56512, 1);
-      pop();
+      ret();
    }
 
    public void $DCC1() {
@@ -9473,7 +9477,7 @@ public class DD extends MiniZX {
       int var3 = AF();
       push(var3);
       pc(56527, 1);
-      push(56530);
+      call(56530);
       $DCE8();
       pc(56530, 2);
       int var4 = IX() + 5;
@@ -9484,7 +9488,7 @@ public class DD extends MiniZX {
       int var7 = mem(var6, 56533);
       D(var7);
       pc(56536, 1);
-      push(56539);
+      call(56539);
       $E84E();
       pc(56539, 1);
       int var8 = pop();
@@ -9513,7 +9517,7 @@ public class DD extends MiniZX {
       int var1 = A();
       wMem(53193, var1, 56548);
       pc(56551, 1);
-      pop();
+      ret();
    }
 
    public void $DCE8() {
@@ -9550,19 +9554,19 @@ public class DD extends MiniZX {
       int var14 = A();
       L(var14);
       pc(56564, 1);
-      pop();
+      ret();
    }
 
    public void $DD8D() {
       pc(56717, 1);
       HL(62693);
       pc(56720, 1);
-      push(56723);
+      call(56723);
       $EEF1();
       pc(56723, 1);
       HL(62718);
       pc(56726, 1);
-      push(56729);
+      call(56729);
       $ED06();
       pc(56729, 1);
       BC(5633);
@@ -9571,7 +9575,7 @@ public class DD extends MiniZX {
       pc(56735, 1);
       A(176);
       pc(56737, 1);
-      push(56740);
+      call(56740);
       $E8BA();
       pc(56740, 1);
       HL(59097);
@@ -9600,31 +9604,31 @@ public class DD extends MiniZX {
          pc(56756, 1);
          if(!flag(64, false)) {
             pc(56758, 1);
-            push(56761);
+            call(56761);
             $EF7C();
             pc(56761, 1);
-            push(56764);
+            call(56764);
             $DAFA();
             pc(56764, 1);
-            push(56767);
+            call(56767);
             $E93F();
          }
 
          pc(56767, 1);
-         push(56770);
+         call(56770);
          $CB9C();
          pc(56770, 1);
       } while(flag(64, true));
 
       do {
          pc(56772, 1);
-         push(56775);
+         call(56775);
          $E6F6();
          pc(56775, 1);
-         push(56778);
+         call(56778);
          $DA8D();
          pc(56778, 1);
-         push(56781);
+         call(56781);
          $DAFA();
          pc(56781, 1);
          int var9 = mem(56565, 56781);
@@ -9637,10 +9641,10 @@ public class DD extends MiniZX {
          pc(56785, 1);
          if(!flag(64, false)) {
             pc(56787, 1);
-            push(56790);
+            call(56790);
             $E93F();
             pc(56790, 1);
-            push(56793);
+            call(56793);
             $EF7C();
          }
 
@@ -9656,29 +9660,29 @@ public class DD extends MiniZX {
       } while(flag(64, true));
 
       pc(56799, 1);
-      pop();
+      ret();
    }
 
    public void $DDE0() {
       pc(56800, 1);
-      push(56803);
+      call(56803);
       $EEF1();
       pc(56803, 1);
       DE(255);
       pc(56806, 1);
       B(170);
       pc(56808, 1);
-      push(56811);
+      call(56811);
       $DAB2();
       pc(56811, 1);
       DE(255);
       pc(56814, 1);
       B(255);
       pc(56816, 1);
-      push(56819);
+      call(56819);
       $DAB2();
       pc(56819, 1);
-      pop();
+      ret();
    }
 
    public void $DE0B() {
@@ -9762,18 +9766,18 @@ public class DD extends MiniZX {
       pc(56895, 1);
       exHLDE();
       pc(56896, 1);
-      push(56899);
+      call(56899);
       $DB0B();
       pc(56899, 1);
       int var7 = mem(53194, 56899);
       A(var7);
       pc(56902, 1);
-      push(56905);
+      call(56905);
       $F3E0();
       pc(56905, 1);
       BC(514);
       pc(56908, 1);
-      push(56911);
+      call(56911);
       $E897();
       pc(56911, 1);
       int var8 = A();
@@ -9781,7 +9785,7 @@ public class DD extends MiniZX {
       int var10 = alu("or", var9, var8);
       A(var10);
       pc(56912, 1);
-      pop();
+      ret();
    }
 
    public void $DE52() {
@@ -9793,7 +9797,7 @@ public class DD extends MiniZX {
       bit(5, var2);
       pc(56919, 1);
       if(flag(64, false)) {
-         pop();
+         ret();
       } else {
          pc(56920, 2);
          int var3 = HL();
@@ -9801,7 +9805,7 @@ public class DD extends MiniZX {
          bit(7, var4);
          pc(56922, 1);
          if(flag(64, true)) {
-            pop();
+            ret();
          } else {
             pc(56923, 1);
             exHLDE();
@@ -9872,10 +9876,10 @@ public class DD extends MiniZX {
             int var30 = alu("add", var29, 5);
             A(var30);
             pc(56955, 1);
-            push(56958);
+            call(56958);
             $DB01();
             pc(56958, 1);
-            pop();
+            ret();
          }
       }
    }
@@ -9898,7 +9902,7 @@ public class DD extends MiniZX {
       int var8 = alu("dec", var7);
       E(var8);
       pc(56975, 1);
-      push(56978);
+      call(56978);
       $DB38();
       pc(56978, 1);
       if(!flag(1, true)) {
@@ -9917,7 +9921,7 @@ public class DD extends MiniZX {
          pc(56986, 1);
          BC(513);
          pc(56989, 1);
-         push(56992);
+         call(56992);
          $E897();
          pc(56992, 1);
          HL(51320);
@@ -9941,7 +9945,7 @@ public class DD extends MiniZX {
          pc(57003, 1);
          HL(56959);
          pc(57006, 1);
-         push(57009);
+         call(57009);
          $E87A();
          pc(57009, 1);
          A(100);
@@ -9960,7 +9964,7 @@ public class DD extends MiniZX {
          pc(57022, 1);
          BC(258);
          pc(57025, 1);
-         push(57028);
+         call(57028);
          $E897();
          pc(57028, 2);
          int var13 = IX() + 4;
@@ -9984,10 +9988,10 @@ public class DD extends MiniZX {
       int var19 = A();
       wMem(51307, var19, 57041);
       pc(57044, 1);
-      push(57047);
+      call(57047);
       $DB0B();
       pc(57047, 1);
-      pop();
+      ret();
    }
 
    public void $E544() {
@@ -10014,55 +10018,55 @@ public class DD extends MiniZX {
       int var2 = mem(var1, 58701);
       A(var2);
       pc(58704, 1);
-      push(58707);
+      call(58707);
       $D669();
       pc(58707, 1);
       HL(57048);
       pc(58710, 1);
-      push(58713);
+      call(58713);
       $D677();
       pc(58713, 2);
       int var3 = IY() + 1;
       int var4 = mem(var3, 58713);
       A(var4);
       pc(58716, 1);
-      push(58719);
+      call(58719);
       $D669();
       pc(58719, 1);
       HL(57290);
       pc(58722, 1);
-      push(58725);
+      call(58725);
       $D677();
       pc(58725, 2);
       int var5 = IY() + 2;
       int var6 = mem(var5, 58725);
       A(var6);
       pc(58728, 1);
-      push(58731);
+      call(58731);
       $D669();
       pc(58731, 1);
       HL(57532);
       pc(58734, 1);
-      push(58737);
+      call(58737);
       $D815();
       pc(58737, 2);
       int var7 = IY() + 3;
       int var8 = mem(var7, 58737);
       A(var8);
       pc(58740, 1);
-      push(58743);
+      call(58743);
       $D669();
       pc(58743, 1);
       HL(58110);
       pc(58746, 1);
-      push(58749);
+      call(58749);
       $D815();
       pc(58749, 2);
       int var9 = IY() + 4;
       int var10 = mem(var9, 58749);
       A(var10);
       pc(58752, 1);
-      push(58755);
+      call(58755);
       $E9F8();
       pc(58755, 2);
       int var11 = BC();
@@ -10072,13 +10076,13 @@ public class DD extends MiniZX {
       int var13 = mem(var12, 58759);
       A(var13);
       pc(58762, 1);
-      push(58765);
+      call(58765);
       $E9F8();
       pc(58765, 2);
       int var14 = BC();
       wMem16(58690, var14, 58765);
       pc(58769, 1);
-      pop();
+      ret();
    }
 
    public void $E592() {
@@ -10122,7 +10126,7 @@ public class DD extends MiniZX {
       int var4 = mem(58688, 58795);
       A(var4);
       pc(58798, 1);
-      push(58801);
+      call(58801);
       $D6BF();
       pc(58801, 1);
       int var5 = mem16(57290, 58801);
@@ -10139,7 +10143,7 @@ public class DD extends MiniZX {
       int var8 = mem(58689, 58813);
       A(var8);
       pc(58816, 1);
-      push(58819);
+      call(58819);
       $D6BF();
       pc(58819, 1);
       int var9 = mem16(57532, 58819);
@@ -10156,7 +10160,7 @@ public class DD extends MiniZX {
       int var12 = mem(58690, 58831);
       A(var12);
       pc(58834, 1);
-      push(58837);
+      call(58837);
       $D732();
       pc(58837, 1);
       int var13 = mem16(58110, 58837);
@@ -10173,10 +10177,10 @@ public class DD extends MiniZX {
       int var16 = mem(58691, 58849);
       A(var16);
       pc(58852, 1);
-      push(58855);
+      call(58855);
       $D732();
       pc(58855, 1);
-      pop();
+      ret();
    }
 
    public void $E5E8() {
@@ -10201,21 +10205,21 @@ public class DD extends MiniZX {
          pc(58930, 1);
          if(!flag(64, false)) {
             pc(58932, 1);
-            push(58935);
+            call(58935);
             $E801();
             pc(58935, 1);
             HL(65143);
             pc(58938, 1);
-            push(58941);
+            call(58941);
             $EEF1();
             pc(58941, 1);
-            push(58944);
+            call(58944);
             $DD8D();
             pc(58944, 1);
             throw new StackException(58945);
          } else {
             pc(58948, 1);
-            push(58951);
+            call(58951);
             $E916();
             pc(58951, 1);
             int var9 = mem(51326, 58951);
@@ -10226,7 +10230,7 @@ public class DD extends MiniZX {
             A(var11);
             pc(58956, 1);
             if(flag(64, true)) {
-               pop();
+               ret();
             } else {
                pc(58957, 1);
                HL(22560);
@@ -10250,7 +10254,7 @@ public class DD extends MiniZX {
                   untranslated(0);
                } else {
                   pc(58977, 1);
-                  pop();
+                  ret();
                }
             }
          }
@@ -10263,7 +10267,7 @@ public class DD extends MiniZX {
          alu("cp", var16, 43);
          pc(58868, 1);
          if(flag(64, true)) {
-            pop();
+            ret();
          } else {
             pc(58869, 1);
             A(2);
@@ -10278,7 +10282,7 @@ public class DD extends MiniZX {
             alu("cp", var19, 22);
             pc(58879, 1);
             if(flag(64, true)) {
-               pop();
+               ret();
             } else {
                pc(58880, 1);
                int var20 = mem(51315, 58880);
@@ -10292,7 +10296,7 @@ public class DD extends MiniZX {
                alu("cp", var23, 8);
                pc(58887, 1);
                if(flag(1, true)) {
-                  pop();
+                  ret();
                } else {
                   pc(58888, 2);
                   int var24 = HL();
@@ -10300,7 +10304,7 @@ public class DD extends MiniZX {
                   bit(1, var25);
                   pc(58890, 1);
                   if(flag(64, false)) {
-                     pop();
+                     ret();
                   } else {
                      pc(58891, 1);
                      int var26 = HL();
@@ -10360,10 +10364,10 @@ public class DD extends MiniZX {
                      pc(58921, 1);
                      A(5);
                      pc(58923, 1);
-                     push(58926);
+                     call(58926);
                      $E8BA();
                      pc(58926, 1);
-                     pop();
+                     ret();
                   }
                }
             }
@@ -10456,7 +10460,7 @@ public class DD extends MiniZX {
             alu("cp", var28, 200);
             pc(59031, 1);
             if(flag(1, false)) {
-               pop();
+               ret();
                return;
             } else {
                pc(59032, 2);
@@ -10486,7 +10490,7 @@ public class DD extends MiniZX {
                }
 
                pc(59044, 1);
-               push(59047);
+               call(59047);
                $ECA4();
                pc(59047, 1);
                int var37 = A();
@@ -10496,13 +10500,13 @@ public class DD extends MiniZX {
                int var39 = alu("rrca", var38);
                A(var39);
                pc(59049, 1);
-               push(59052);
+               call(59052);
                $DB01();
                pc(59052, 2);
                int var40 = mem16(51314, 59052);
                DE(var40);
                pc(59056, 1);
-               push(59059);
+               call(59059);
                $E909();
                pc(59059, 1);
                exHLDE();
@@ -10525,7 +10529,7 @@ public class DD extends MiniZX {
                alu("cp", var47, 255);
                pc(59070, 1);
                if(flag(64, true)) {
-                  pop();
+                  ret();
                   return;
                } else {
                   pc(59071, 1);
@@ -10562,10 +10566,10 @@ public class DD extends MiniZX {
                      int var59 = mem(var58, 59090);
                      A(var59);
                      pc(59093, 1);
-                     push(59096);
+                     call(59096);
                      $CBBD();
                      pc(59096, 1);
-                     pop();
+                     ret();
                      return;
                   }
                }
@@ -10585,7 +10589,7 @@ public class DD extends MiniZX {
       } while(B() != 0);
 
       pc(59000, 1);
-      pop();
+      ret();
    }
 
    public void $E6DC() {
@@ -10707,67 +10711,67 @@ public class DD extends MiniZX {
          pc(59164, 1);
          if(!flag(64, false)) {
             pc(59166, 1);
-            int var46 = HL();
-            int var47 = mem(var46, 59166);
-            int var48 = alu("dec", var47);
-            int var49 = HL();
-            wMem(var49, var48, 59166);
+            int var112 = HL();
+            int var113 = mem(var112, 59166);
+            int var114 = alu("dec", var113);
+            int var115 = HL();
+            wMem(var115, var114, 59166);
             pc(59167, 1);
-            push(59170);
+            call(59170);
             $ECF4();
             pc(59170, 1);
-            push(59173);
+            call(59173);
             $E775();
             pc(59173, 1);
-            int var50 = HL();
-            int var51 = mem(var50, 59173);
-            A(var51);
+            int var116 = HL();
+            int var117 = mem(var116, 59173);
+            A(var117);
             pc(59174, 1);
-            int var52 = A();
-            int var53 = alu("and", var52, 63);
-            A(var53);
+            int var118 = A();
+            int var119 = alu("and", var118, 63);
+            A(var119);
             pc(59176, 1);
             if(!flag(64, true)) {
                pc(59178, 1);
-               int var54 = A();
-               int var55 = A();
-               int var56 = alu("xor", var55, var54);
-               A(var56);
+               int var120 = A();
+               int var121 = A();
+               int var122 = alu("xor", var121, var120);
+               A(var122);
                pc(59179, 1);
-               int var57 = A();
-               int var58 = HL();
-               wMem(var58, var57, 59179);
+               int var123 = A();
+               int var124 = HL();
+               wMem(var124, var123, 59179);
                pc(59180, 1);
-               int var59 = HL();
-               int var60 = dec16(var59);
-               HL(var60);
+               int var125 = HL();
+               int var126 = dec16(var125);
+               HL(var126);
                pc(59181, 1);
-               int var61 = A();
-               int var62 = HL();
-               wMem(var62, var61, 59181);
+               int var127 = A();
+               int var128 = HL();
+               wMem(var128, var127, 59181);
                pc(59182, 2);
-               int var63 = IY() + 1;
-               int var64 = mem(var63, 59182);
-               L(var64);
+               int var129 = IY() + 1;
+               int var130 = mem(var129, 59182);
+               L(var130);
                pc(59185, 2);
-               int var65 = IY() + 2;
-               int var66 = mem(var65, 59185);
-               H(var66);
+               int var131 = IY() + 2;
+               int var132 = mem(var131, 59185);
+               H(var132);
                pc(59188, 1);
-               push(59191);
+               call(59191);
                $E76C();
                pc(59191, 1);
                $E7D7();
-            } else {
-               pc(59194, 1);
-               push(59197);
-               $E756();
-               pc(59197, 1);
-               push(59200);
-               $E76C();
-               pc(59200, 1);
-               $E782();
+               return;
             }
+
+            pc(59194, 1);
+            call(59197);
+            $E756();
+            pc(59197, 1);
+            call(59200);
+            $E76C();
+            pc(59200, 1);
          } else {
             pc(59202, 1);
             int var33 = HL();
@@ -10776,10 +10780,10 @@ public class DD extends MiniZX {
             int var36 = HL();
             wMem(var36, var35, 59202);
             pc(59203, 1);
-            push(59206);
+            call(59206);
             $ECF4();
             pc(59206, 1);
-            push(59209);
+            call(59209);
             $E775();
             pc(59209, 1);
             int var37 = HL();
@@ -10796,17 +10800,207 @@ public class DD extends MiniZX {
             pc(59213, 1);
             if(!flag(64, true)) {
                pc(59215, 2);
-               int var43 = HL();
-               int var44 = mem(var43, 59215) | 128;
-               int var45 = HL();
-               wMem(var45, var44, 59215);
+               int var109 = HL();
+               int var110 = mem(var109, 59215) | 128;
+               int var111 = HL();
+               wMem(var111, var110, 59215);
             }
 
             pc(59217, 1);
-            push(59220);
+            call(59220);
             $E756();
             pc(59220, 1);
-            $E782();
+         }
+
+         pc(59266, 1);
+         int var43 = mem(51327, 59266);
+         A(var43);
+         pc(59269, 2);
+         int var44 = A();
+         bit(7, var44);
+         pc(59271, 1);
+         if(flag(64, true)) {
+            ret();
+         } else {
+            pc(59272, 2);
+            int var45 = IY() + 1;
+            int var46 = mem(var45, 59272);
+            A(var46);
+            pc(59275, 1);
+            int var47 = A();
+            int var48 = alu("and", var47, 31);
+            A(var48);
+            pc(59277, 1);
+            int var49 = A();
+            int var50 = alu("dec", var49);
+            A(var50);
+            pc(59278, 1);
+            int var51 = A();
+            B(var51);
+            pc(59279, 1);
+            int var52 = mem(59098, 59279);
+            A(var52);
+            pc(59282, 1);
+            int var53 = A();
+            int var54 = alu("and", var53, 63);
+            A(var54);
+            pc(59284, 1);
+            int var55 = B();
+            int var56 = A();
+            int var57 = alu("add", var56, var55);
+            A(var57);
+            pc(59285, 1);
+            int var58 = A();
+            L(var58);
+            pc(59286, 1);
+            int var59 = mem(51315, 59286);
+            A(var59);
+            pc(59289, 1);
+            int var60 = A();
+            H(var60);
+            pc(59290, 1);
+            int var61 = L();
+            int var62 = A();
+            alu("cp", var62, var61);
+            pc(59291, 1);
+            if(flag(64, false)) {
+               $E7D7();
+            } else {
+               pc(59293, 1);
+               int var63 = B();
+               A(var63);
+               pc(59294, 1);
+               int var64 = A();
+               int var65 = alu("dec", var64);
+               A(var65);
+               pc(59295, 1);
+               int var66 = H();
+               int var67 = A();
+               alu("cp", var67, var66);
+               pc(59296, 1);
+               if(flag(1, true)) {
+                  $E7D7();
+               } else {
+                  pc(59298, 1);
+                  int var68 = L();
+                  A(var68);
+                  pc(59299, 1);
+                  int var69 = H();
+                  int var70 = A();
+                  alu("cp", var70, var69);
+                  pc(59300, 1);
+                  if(flag(1, false)) {
+                     $E7D7();
+                  } else {
+                     pc(59302, 1);
+                     int var71 = C();
+                     A(var71);
+                     pc(59303, 1);
+                     int var72 = H();
+                     int var73 = A();
+                     alu("cp", var73, var72);
+                     pc(59304, 1);
+                     if(flag(64, false)) {
+                        $E7D7();
+                     } else {
+                        pc(59306, 2);
+                        int var74 = IY() + 2;
+                        int var75 = mem(var74, 59306);
+                        A(var75);
+                        pc(59309, 1);
+                        int var76 = A();
+                        int var77 = alu("and", var76, 3);
+                        A(var77);
+                        pc(59311, 1);
+                        int var78 = A();
+                        int var79 = alu("rrca", var78);
+                        A(var79);
+                        pc(59312, 1);
+                        int var80 = A();
+                        int var81 = alu("rrca", var80);
+                        A(var81);
+                        pc(59313, 1);
+                        int var82 = A();
+                        B(var82);
+                        pc(59314, 2);
+                        int var83 = IY() + 1;
+                        int var84 = mem(var83, 59314);
+                        A(var84);
+                        pc(59317, 1);
+                        int var85 = A();
+                        int var86 = alu("and", var85, 224);
+                        A(var86);
+                        pc(59319, 1);
+                        int var87 = A();
+                        int var88 = alu("rrca", var87);
+                        A(var88);
+                        pc(59320, 1);
+                        int var89 = A();
+                        int var90 = alu("rrca", var89);
+                        A(var90);
+                        pc(59321, 1);
+                        int var91 = B();
+                        int var92 = A();
+                        int var93 = alu("add", var92, var91);
+                        A(var93);
+                        pc(59322, 1);
+                        int var94 = A();
+                        B(var94);
+                        pc(59323, 1);
+                        int var95 = mem(51314, 59323);
+                        A(var95);
+                        pc(59326, 1);
+                        int var96 = A();
+                        int var97 = alu("add", var96, 26);
+                        A(var97);
+                        pc(59328, 1);
+                        int var98 = B();
+                        int var99 = A();
+                        alu("cp", var99, var98);
+                        pc(59329, 1);
+                        if(flag(1, false)) {
+                           $E7D7();
+                        } else {
+                           pc(59331, 1);
+                           int var100 = A();
+                           int var101 = alu("sub", var100, 32);
+                           A(var101);
+                           pc(59333, 1);
+                           int var102 = B();
+                           int var103 = A();
+                           alu("cp", var103, var102);
+                           pc(59334, 1);
+                           if(flag(1, true)) {
+                              $E7D7();
+                           } else {
+                              pc(59336, 1);
+                              HL(51316);
+                              pc(59339, 2);
+                              int var104 = HL();
+                              int var105 = mem(var104, 59339);
+                              bit(5, var105);
+                              pc(59341, 1);
+                              if(flag(64, true)) {
+                                 $E7D7();
+                              } else {
+                                 pc(59343, 1);
+                                 call(59346);
+                                 $CD8A();
+                                 pc(59346, 1);
+                                 HL(59098);
+                                 pc(59349, 2);
+                                 int var106 = HL();
+                                 int var107 = mem(var106, 59349) | 128;
+                                 int var108 = HL();
+                                 wMem(var108, var107, 59349);
+                                 $E7D7();
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
          }
       }
    }
@@ -10843,7 +11037,7 @@ public class DD extends MiniZX {
          int var12 = mem(59099, 59233);
          A(var12);
          pc(59236, 1);
-         push(59239);
+         call(59239);
          $ECDD();
          pc(59239, 1);
          int var13 = L();
@@ -10858,7 +11052,7 @@ public class DD extends MiniZX {
       } while(B() != 0);
 
       pc(59243, 1);
-      pop();
+      ret();
    }
 
    public void $E76C() {
@@ -10867,10 +11061,10 @@ public class DD extends MiniZX {
       pc(59246, 1);
       DE(15616);
       pc(59249, 1);
-      push(59252);
+      call(59252);
       $ECDD();
       pc(59252, 1);
-      pop();
+      ret();
    }
 
    public void $E775() {
@@ -10895,206 +11089,13 @@ public class DD extends MiniZX {
       int var10 = HL();
       push(var10);
       pc(59261, 1);
-      push(59264);
+      call(59264);
       $DB01();
       pc(59264, 1);
       int var11 = pop();
       HL(var11);
       pc(59265, 1);
-      pop();
-   }
-
-   public void $E782() {
-      pc(59266, 1);
-      int var1 = mem(51327, 59266);
-      A(var1);
-      pc(59269, 2);
-      int var2 = A();
-      bit(7, var2);
-      pc(59271, 1);
-      if(flag(64, true)) {
-         pop();
-      } else {
-         pc(59272, 2);
-         int var3 = IY() + 1;
-         int var4 = mem(var3, 59272);
-         A(var4);
-         pc(59275, 1);
-         int var5 = A();
-         int var6 = alu("and", var5, 31);
-         A(var6);
-         pc(59277, 1);
-         int var7 = A();
-         int var8 = alu("dec", var7);
-         A(var8);
-         pc(59278, 1);
-         int var9 = A();
-         B(var9);
-         pc(59279, 1);
-         int var10 = mem(59098, 59279);
-         A(var10);
-         pc(59282, 1);
-         int var11 = A();
-         int var12 = alu("and", var11, 63);
-         A(var12);
-         pc(59284, 1);
-         int var13 = B();
-         int var14 = A();
-         int var15 = alu("add", var14, var13);
-         A(var15);
-         pc(59285, 1);
-         int var16 = A();
-         L(var16);
-         pc(59286, 1);
-         int var17 = mem(51315, 59286);
-         A(var17);
-         pc(59289, 1);
-         int var18 = A();
-         H(var18);
-         pc(59290, 1);
-         int var19 = L();
-         int var20 = A();
-         alu("cp", var20, var19);
-         pc(59291, 1);
-         if(flag(64, false)) {
-            $E7D7();
-         } else {
-            pc(59293, 1);
-            int var21 = B();
-            A(var21);
-            pc(59294, 1);
-            int var22 = A();
-            int var23 = alu("dec", var22);
-            A(var23);
-            pc(59295, 1);
-            int var24 = H();
-            int var25 = A();
-            alu("cp", var25, var24);
-            pc(59296, 1);
-            if(flag(1, true)) {
-               $E7D7();
-            } else {
-               pc(59298, 1);
-               int var26 = L();
-               A(var26);
-               pc(59299, 1);
-               int var27 = H();
-               int var28 = A();
-               alu("cp", var28, var27);
-               pc(59300, 1);
-               if(flag(1, false)) {
-                  $E7D7();
-               } else {
-                  pc(59302, 1);
-                  int var29 = C();
-                  A(var29);
-                  pc(59303, 1);
-                  int var30 = H();
-                  int var31 = A();
-                  alu("cp", var31, var30);
-                  pc(59304, 1);
-                  if(flag(64, false)) {
-                     $E7D7();
-                  } else {
-                     pc(59306, 2);
-                     int var32 = IY() + 2;
-                     int var33 = mem(var32, 59306);
-                     A(var33);
-                     pc(59309, 1);
-                     int var34 = A();
-                     int var35 = alu("and", var34, 3);
-                     A(var35);
-                     pc(59311, 1);
-                     int var36 = A();
-                     int var37 = alu("rrca", var36);
-                     A(var37);
-                     pc(59312, 1);
-                     int var38 = A();
-                     int var39 = alu("rrca", var38);
-                     A(var39);
-                     pc(59313, 1);
-                     int var40 = A();
-                     B(var40);
-                     pc(59314, 2);
-                     int var41 = IY() + 1;
-                     int var42 = mem(var41, 59314);
-                     A(var42);
-                     pc(59317, 1);
-                     int var43 = A();
-                     int var44 = alu("and", var43, 224);
-                     A(var44);
-                     pc(59319, 1);
-                     int var45 = A();
-                     int var46 = alu("rrca", var45);
-                     A(var46);
-                     pc(59320, 1);
-                     int var47 = A();
-                     int var48 = alu("rrca", var47);
-                     A(var48);
-                     pc(59321, 1);
-                     int var49 = B();
-                     int var50 = A();
-                     int var51 = alu("add", var50, var49);
-                     A(var51);
-                     pc(59322, 1);
-                     int var52 = A();
-                     B(var52);
-                     pc(59323, 1);
-                     int var53 = mem(51314, 59323);
-                     A(var53);
-                     pc(59326, 1);
-                     int var54 = A();
-                     int var55 = alu("add", var54, 26);
-                     A(var55);
-                     pc(59328, 1);
-                     int var56 = B();
-                     int var57 = A();
-                     alu("cp", var57, var56);
-                     pc(59329, 1);
-                     if(flag(1, false)) {
-                        $E7D7();
-                     } else {
-                        pc(59331, 1);
-                        int var58 = A();
-                        int var59 = alu("sub", var58, 32);
-                        A(var59);
-                        pc(59333, 1);
-                        int var60 = B();
-                        int var61 = A();
-                        alu("cp", var61, var60);
-                        pc(59334, 1);
-                        if(flag(1, true)) {
-                           $E7D7();
-                        } else {
-                           pc(59336, 1);
-                           HL(51316);
-                           pc(59339, 2);
-                           int var62 = HL();
-                           int var63 = mem(var62, 59339);
-                           bit(5, var63);
-                           pc(59341, 1);
-                           if(flag(64, true)) {
-                              $E7D7();
-                           } else {
-                              pc(59343, 1);
-                              push(59346);
-                              $CD8A();
-                              pc(59346, 1);
-                              HL(59098);
-                              pc(59349, 2);
-                              int var64 = HL();
-                              int var65 = mem(var64, 59349) | 128;
-                              int var66 = HL();
-                              wMem(var66, var65, 59349);
-                              $E7D7();
-                           }
-                        }
-                     }
-                  }
-               }
-            }
-         }
-      }
+      ret();
    }
 
    public void $E7D7() {
@@ -11109,7 +11110,7 @@ public class DD extends MiniZX {
          A(var4);
          pc(59353, 1);
          if(flag(64, false)) {
-            pop();
+            ret();
             return;
          }
 
@@ -11130,7 +11131,7 @@ public class DD extends MiniZX {
       } while(flag(64, true));
 
       pc(59361, 1);
-      pop();
+      ret();
    }
 
    public void $E801() {
@@ -11171,7 +11172,7 @@ public class DD extends MiniZX {
       int var9 = A();
       wMem(59392, var9, 59420);
       pc(59423, 1);
-      pop();
+      ret();
    }
 
    public void $E820() {
@@ -11256,7 +11257,7 @@ public class DD extends MiniZX {
       pc(59467, 2);
       ldir(59467);
       pc(59469, 1);
-      pop();
+      ret();
    }
 
    public void $E84E() {
@@ -11283,7 +11284,7 @@ public class DD extends MiniZX {
       int var10 = DE();
       push(var10);
       pc(59476, 1);
-      push(59479);
+      call(59479);
       $E87A();
       pc(59479, 1);
       int var11 = pop();
@@ -11314,7 +11315,7 @@ public class DD extends MiniZX {
          $E8BA();
       } else {
          pc(59490, 1);
-         push(59493);
+         call(59493);
          $E8E3();
          pc(59493, 1);
          exHLDE();
@@ -11375,7 +11376,7 @@ public class DD extends MiniZX {
          } while(flag(64, true));
 
          pc(59513, 1);
-         pop();
+         ret();
       }
    }
 
@@ -11394,7 +11395,7 @@ public class DD extends MiniZX {
          int var3 = DE();
          push(var3);
          pc(59519, 1);
-         push(59522);
+         call(59522);
          $E8F1();
 
          do {
@@ -11462,7 +11463,7 @@ public class DD extends MiniZX {
       } while(flag(64, true));
 
       pc(59542, 1);
-      pop();
+      ret();
    }
 
    public void $E897() {
@@ -11481,7 +11482,7 @@ public class DD extends MiniZX {
          int var4 = DE();
          push(var4);
          pc(59547, 1);
-         push(59550);
+         call(59550);
          $E8F1();
          pc(59550, 1);
          C(8);
@@ -11553,10 +11554,10 @@ public class DD extends MiniZX {
       pc(59572, 1);
       A(69);
       pc(59574, 1);
-      push(59577);
+      call(59577);
       $E8BA();
       pc(59577, 1);
-      pop();
+      ret();
    }
 
    public void $E8BA() {
@@ -11564,7 +11565,7 @@ public class DD extends MiniZX {
       int var1 = A();
       L(var1);
       pc(59579, 1);
-      push(59582);
+      call(59582);
       $E8E3();
       pc(59582, 1);
       int var2 = L();
@@ -11620,7 +11621,7 @@ public class DD extends MiniZX {
       } while(flag(64, true));
 
       pc(59601, 1);
-      pop();
+      ret();
    }
 
    public void $E8D2() {
@@ -11647,7 +11648,7 @@ public class DD extends MiniZX {
       int var10 = alu("srl", var9);
       E(var10);
       pc(59612, 1);
-      push(59615);
+      call(59615);
       $E8F1();
       pc(59615, 1);
       int var11 = B();
@@ -11661,7 +11662,7 @@ public class DD extends MiniZX {
       int var15 = A();
       D(var15);
       pc(59618, 1);
-      pop();
+      ret();
    }
 
    public void $E8E3() {
@@ -11756,12 +11757,12 @@ public class DD extends MiniZX {
       int var19 = A();
       D(var19);
       pc(59656, 1);
-      pop();
+      ret();
    }
 
    public void $E909() {
       pc(59657, 1);
-      push(59660);
+      call(59660);
       $E8D2();
       $E90C();
    }
@@ -11794,7 +11795,7 @@ public class DD extends MiniZX {
       int var12 = A();
       D(var12);
       pc(59669, 1);
-      pop();
+      ret();
    }
 
    public void $E916() {
@@ -11859,7 +11860,7 @@ public class DD extends MiniZX {
          B(var15);
          pc(59697, 1);
          if(flag(64, false)) {
-            pop();
+            ret();
             return;
          }
 
@@ -11904,7 +11905,7 @@ public class DD extends MiniZX {
          int var25 = mem(var24, 59720);
          D(var25);
          pc(59723, 1);
-         push(59726);
+         call(59726);
          $E8E3();
          pc(59726, 1);
          int var26 = A();
@@ -11931,7 +11932,7 @@ public class DD extends MiniZX {
       bit(4, var4);
       pc(59734, 1);
       if(flag(64, false)) {
-         pop();
+         ret();
       } else {
          pc(59735, 2);
          int var5 = IX() + 2;
@@ -11942,7 +11943,7 @@ public class DD extends MiniZX {
          int var8 = mem(var7, 59738);
          D(var8);
          pc(59741, 1);
-         push(59744);
+         call(59744);
          $E8E3();
          pc(59744, 1);
          exHLDE();
@@ -11972,7 +11973,7 @@ public class DD extends MiniZX {
          int var21 = HL();
          wMem(var21, var20, 59753);
          pc(59754, 1);
-         pop();
+         ret();
       }
    }
 
@@ -12027,7 +12028,7 @@ public class DD extends MiniZX {
          int var13 = DE();
          push(var13);
          pc(59784, 1);
-         push(59787);
+         call(59787);
          $E8F1();
          pc(59787, 1);
          C(8);
@@ -12101,7 +12102,7 @@ public class DD extends MiniZX {
       int var36 = pop();
       DE(var36);
       pc(59811, 1);
-      push(59814);
+      call(59814);
       $E8E3();
       pc(59814, 1);
       exHLDE();
@@ -12151,7 +12152,7 @@ public class DD extends MiniZX {
       } while(flag(64, true));
 
       pc(59833, 1);
-      pop();
+      ret();
    }
 
    public void $E9BC() {
@@ -12159,79 +12160,77 @@ public class DD extends MiniZX {
       int var1 = mem16(59834, 59836);
       HL(var1);
       pc(59839, 1);
-      if(HL() != 59867) {
-         ;
-      }
-
-      pc(59867, 1);
-      A(239);
-      pc(59869, 1);
-      int var2 = A() << 8 | 254;
-      int var3 = in(var2, 59869);
-      A(var3);
-      pc(59871, 1);
-      int var4 = A();
-      int var5 = alu("and", var4, 31);
-      A(var5);
-      pc(59873, 1);
-      C(0);
-      pc(59875, 1);
-      int var6 = A();
-      alu("cp", var6, 22);
-      pc(59877, 1);
-      if(flag(64, false)) {
-         pop();
-      } else {
-         pc(59878, 1);
-         int var7 = C();
-         int var8 = alu("inc", var7);
-         C(var8);
-         pc(59879, 1);
-         int var9 = A();
-         alu("cp", var9, 23);
-         pc(59881, 1);
+      if(HL() == 59867) {
+         pc(59867, 1);
+         A(239);
+         pc(59869, 1);
+         int var2 = A() << 8 | 254;
+         int var3 = in(var2, 59869);
+         A(var3);
+         pc(59871, 1);
+         int var4 = A();
+         int var5 = alu("and", var4, 31);
+         A(var5);
+         pc(59873, 1);
+         C(0);
+         pc(59875, 1);
+         int var6 = A();
+         alu("cp", var6, 22);
+         pc(59877, 1);
          if(flag(64, false)) {
-            pop();
+            ret();
          } else {
-            pc(59882, 1);
-            int var10 = C();
-            int var11 = alu("inc", var10);
-            C(var11);
-            pc(59883, 1);
-            int var12 = A();
-            alu("cp", var12, 14);
-            pc(59885, 1);
+            pc(59878, 1);
+            int var7 = C();
+            int var8 = alu("inc", var7);
+            C(var8);
+            pc(59879, 1);
+            int var9 = A();
+            alu("cp", var9, 23);
+            pc(59881, 1);
             if(flag(64, false)) {
-               pop();
+               ret();
             } else {
-               pc(59886, 1);
-               int var13 = C();
-               int var14 = alu("inc", var13);
-               C(var14);
-               pc(59887, 1);
-               int var15 = A();
-               alu("cp", var15, 15);
-               pc(59889, 1);
+               pc(59882, 1);
+               int var10 = C();
+               int var11 = alu("inc", var10);
+               C(var11);
+               pc(59883, 1);
+               int var12 = A();
+               alu("cp", var12, 14);
+               pc(59885, 1);
                if(flag(64, false)) {
-                  pop();
+                  ret();
                } else {
-                  pc(59890, 1);
-                  int var16 = C();
-                  int var17 = alu("inc", var16);
-                  C(var17);
-                  pc(59891, 1);
-                  int var18 = A();
-                  alu("cp", var18, 30);
-                  pc(59893, 1);
+                  pc(59886, 1);
+                  int var13 = C();
+                  int var14 = alu("inc", var13);
+                  C(var14);
+                  pc(59887, 1);
+                  int var15 = A();
+                  alu("cp", var15, 15);
+                  pc(59889, 1);
                   if(flag(64, false)) {
-                     pop();
+                     ret();
                   } else {
-                     pc(59894, 1);
-                     int var19 = C();
-                     int var20 = alu("inc", var19);
-                     C(var20);
-                     pc(59895, 1);
-                     pop();
+                     pc(59890, 1);
+                     int var16 = C();
+                     int var17 = alu("inc", var16);
+                     C(var17);
+                     pc(59891, 1);
+                     int var18 = A();
+                     alu("cp", var18, 30);
+                     pc(59893, 1);
+                     if(flag(64, false)) {
+                        ret();
+                     } else {
+                        pc(59894, 1);
+                        int var19 = C();
+                        int var20 = alu("inc", var19);
+                        C(var20);
+                        pc(59895, 1);
+                        ret();
+                     }
                   }
                }
             }
@@ -12277,7 +12276,7 @@ public class DD extends MiniZX {
       int var16 = A();
       C(var16);
       pc(59908, 1);
-      pop();
+      ret();
    }
 
    public void $ECA4() {
@@ -12336,7 +12335,7 @@ public class DD extends MiniZX {
       } while(flag(64, true));
 
       pc(60604, 1);
-      pop();
+      ret();
    }
 
    public void $ECDD() {
@@ -12408,7 +12407,7 @@ public class DD extends MiniZX {
       int var27 = pop();
       HL(var27);
       pc(60659, 1);
-      pop();
+      ret();
    }
 
    public void $ECF4() {
@@ -12432,7 +12431,7 @@ public class DD extends MiniZX {
       alu("cp", var8, var7);
       pc(60666, 1);
       if(flag(1, true)) {
-         pop();
+         ret();
       } else {
          pc(60667, 1);
          int var9 = A();
@@ -12446,7 +12445,7 @@ public class DD extends MiniZX {
          int var13 = HL();
          wMem(var13, var12, 60670);
          pc(60671, 1);
-         pop();
+         ret();
       }
    }
 
@@ -12473,7 +12472,7 @@ public class DD extends MiniZX {
          alu("cp", var3, 255);
          pc(60681, 1);
          if(flag(64, false)) {
-            pop();
+            ret();
             return;
          }
 
@@ -12566,7 +12565,7 @@ public class DD extends MiniZX {
                      int var153 = B();
                      H(var153);
                      pc(60720, 1);
-                     push(60723);
+                     call(60723);
                      $E84E();
                      pc(60723, 1);
                      int var154 = pop();
@@ -12610,7 +12609,7 @@ public class DD extends MiniZX {
                         int var134 = HL();
                         push(var134);
                         pc(60815, 1);
-                        push(60818);
+                        call(60818);
                         $E84E();
                         pc(60818, 1);
                         int var135 = pop();
@@ -12692,7 +12691,7 @@ public class DD extends MiniZX {
                      int var103 = HL();
                      push(var103);
                      pc(60788, 1);
-                     push(60791);
+                     call(60791);
                      $E84E();
                      pc(60791, 1);
                      int var104 = pop();
@@ -12774,7 +12773,7 @@ public class DD extends MiniZX {
                   int var74 = HL();
                   push(var74);
                   pc(60762, 1);
-                  push(60765);
+                  call(60765);
                   $E84E();
                   pc(60765, 1);
                   int var75 = pop();
@@ -12852,7 +12851,7 @@ public class DD extends MiniZX {
                int var45 = HL();
                push(var45);
                pc(60736, 1);
-               push(60739);
+               call(60739);
                $E84E();
                pc(60739, 1);
                int var46 = pop();
@@ -12917,7 +12916,7 @@ public class DD extends MiniZX {
       alu("cp", var9, 3);
       pc(60843, 1);
       if(flag(64, true)) {
-         pop();
+         ret();
       } else {
          pc(60844, 1);
          int var10 = mem(22648, 60844);
@@ -12952,7 +12951,7 @@ public class DD extends MiniZX {
          } while(B() != 0);
 
          pc(60859, 1);
-         pop();
+         ret();
       }
    }
 
@@ -12976,7 +12975,7 @@ public class DD extends MiniZX {
             int var6 = mem(var5, 61171);
             D(var6);
             pc(61172, 1);
-            push(61175);
+            call(61175);
             $E8F1();
             pc(61175, 1);
             int var7 = D();
@@ -13025,7 +13024,7 @@ public class DD extends MiniZX {
       alu("cp", var3, 255);
       pc(61180, 1);
       if(flag(64, false)) {
-         pop();
+         ret();
       } else {
          pc(61181, 1);
          int var4 = A();
@@ -13148,7 +13147,7 @@ public class DD extends MiniZX {
          int var12 = mem(var11, 61224);
          A(var12);
          pc(61225, 1);
-         push(61228);
+         call(61228);
          $E9F8();
          pc(61228, 1);
          int var13 = B();
@@ -13170,7 +13169,7 @@ public class DD extends MiniZX {
          int var21 = mem(var20, 61232);
          A(var21);
          pc(61233, 1);
-         push(61236);
+         call(61236);
          $E9F8();
          pc(61236, 1);
          int var22 = B();
@@ -13223,7 +13222,7 @@ public class DD extends MiniZX {
       } while(B() != 0);
 
       pc(61255, 1);
-      pop();
+      ret();
    }
 
    public void $EF7C() {
@@ -13241,7 +13240,7 @@ public class DD extends MiniZX {
       bit(0, var6);
       pc(61314, 1);
       if(flag(64, false)) {
-         pop();
+         ret();
       } else {
          pc(61315, 1);
          int var7 = mem16(61306, 61315);
@@ -13289,7 +13288,7 @@ public class DD extends MiniZX {
             pc(61348, 1);
             HL(61257);
             pc(61351, 1);
-            push(61354);
+            call(61354);
             $E84E();
          }
 
@@ -13299,7 +13298,7 @@ public class DD extends MiniZX {
          bit(4, var19);
          pc(61358, 1);
          if(flag(64, false)) {
-            pop();
+            ret();
          } else {
             pc(61359, 2);
             int var20 = IX() + 2;
@@ -13312,10 +13311,10 @@ public class DD extends MiniZX {
             pc(61365, 1);
             HL(61277);
             pc(61368, 1);
-            push(61371);
+            call(61371);
             $E84E();
             pc(61371, 1);
-            pop();
+            ret();
          }
       }
    }
@@ -13422,15 +13421,15 @@ public class DD extends MiniZX {
       pc(61515, 1);
       DE(6923);
       pc(61518, 1);
-      push(61521);
+      call(61521);
       $E87A();
       pc(61521, 1);
-      pop();
+      ret();
    }
 
    public void $F2F4() {
       pc(62196, 1);
-      push(62199);
+      call(62199);
       $E801();
 
       do {
@@ -13455,13 +13454,13 @@ public class DD extends MiniZX {
       } while(flag(64, true));
 
       pc(62207, 1);
-      pop();
+      ret();
    }
 
    public void $F300() {
       while(true) {
          pc(62208, 1);
-         push(62211);
+         call(62211);
          $F30A();
          pc(62211, 1);
          if(!flag(64, true)) {
@@ -13476,7 +13475,7 @@ public class DD extends MiniZX {
                int var4 = alu("dec", var3);
                D(var4);
                pc(62217, 1);
-               pop();
+               ret();
                return;
             }
          }
@@ -13510,7 +13509,7 @@ public class DD extends MiniZX {
             D(var39);
             pc(62232, 1);
             if(flag(64, true)) {
-               pop();
+               ret();
                return;
             }
 
@@ -13535,7 +13534,7 @@ public class DD extends MiniZX {
 
             pc(62241, 1);
             if(flag(64, true)) {
-               pop();
+               ret();
                return;
             }
 
@@ -13561,7 +13560,7 @@ public class DD extends MiniZX {
       alu("cp", var12, var11);
       pc(62249, 1);
       if(flag(64, false)) {
-         pop();
+         ret();
       } else {
          pc(62250, 1);
          int var13 = A();
@@ -13630,7 +13629,7 @@ public class DD extends MiniZX {
          } while(flag(64, true));
 
          pc(62276, 1);
-         pop();
+         ret();
       }
    }
 
@@ -13695,7 +13694,7 @@ public class DD extends MiniZX {
       pc(62313, 1);
       B(8);
       pc(62315, 1);
-      push(62318);
+      call(62318);
       $F3A4();
       pc(62318, 1);
       A(16);
@@ -13705,7 +13704,7 @@ public class DD extends MiniZX {
       pc(62323, 1);
       B(15);
       pc(62325, 1);
-      push(62328);
+      call(62328);
       $F3A4();
       pc(62328, 1);
       HL(62368);
@@ -13727,7 +13726,7 @@ public class DD extends MiniZX {
       pc(62342, 1);
       B(2);
       pc(62344, 1);
-      push(62347);
+      call(62347);
       $F3A4();
       pc(62347, 1);
       A(2);
@@ -13737,7 +13736,7 @@ public class DD extends MiniZX {
       pc(62352, 1);
       B(8);
       pc(62354, 1);
-      push(62357);
+      call(62357);
       $F3A4();
       pc(62357, 1);
       A(4);
@@ -13747,10 +13746,10 @@ public class DD extends MiniZX {
       pc(62362, 1);
       B(4);
       pc(62364, 1);
-      push(62367);
+      call(62367);
       $F3A4();
       pc(62367, 1);
-      pop();
+      ret();
    }
 
    public void $F3A4() {
@@ -13865,7 +13864,7 @@ public class DD extends MiniZX {
             B(var43);
             if(B() == 0) {
                pc(62418, 1);
-               pop();
+               ret();
                return;
             }
          }
@@ -13906,7 +13905,7 @@ public class DD extends MiniZX {
       int var14 = A();
       L(var14);
       pc(62431, 1);
-      pop();
+      ret();
    }
 
    public void $F3E0() {
@@ -13940,7 +13939,7 @@ public class DD extends MiniZX {
       int var13 = mem(var12, 62442);
       D(var13);
       pc(62443, 1);
-      pop();
+      ret();
    }
 
    public void $F3EC() {
@@ -13971,7 +13970,7 @@ public class DD extends MiniZX {
             bit(2, var5);
             pc(62465, 1);
             if(flag(64, false)) {
-               pop();
+               ret();
                return;
             }
 
@@ -13984,19 +13983,19 @@ public class DD extends MiniZX {
       int var6 = B();
       A(var6);
       pc(62469, 1);
-      push(62472);
+      call(62472);
       $F3E0();
       pc(62472, 1);
       int var7 = C();
       A(var7);
       pc(62473, 1);
-      push(62476);
+      call(62476);
       $F3D3();
       pc(62476, 1);
-      push(62479);
+      call(62479);
       $E84E();
       pc(62479, 1);
-      pop();
+      ret();
    }
 
    public void $F470() {
@@ -14053,7 +14052,7 @@ public class DD extends MiniZX {
          int var24 = HL();
          push(var24);
          pc(62589, 1);
-         push(62592);
+         call(62592);
          $E8BA();
          pc(62592, 1);
          int var25 = pop();
@@ -14067,6 +14066,6 @@ public class DD extends MiniZX {
       } while(B() != 0);
 
       pc(62596, 1);
-      pop();
+      ret();
    }
 }

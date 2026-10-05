@@ -76,15 +76,15 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 2;
-              this.push(2);
+              this.call(2);
               this.$5();
               super.B = 3;
-              this.pop();
+              this.ret();
            }
 
            public void $5() {
               super.D = 5;
-              this.pop();
+              this.ret();
            }
         }
         """, resultingJava);
@@ -132,7 +132,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.B = 2;
-              this.push(2);
+              this.call(2);
               this.$3();
               super.B = 3;
               this.$3();
@@ -140,7 +140,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
            public void $3() {
               super.D = super.B;
-              this.pop();
+              this.ret();
            }
         }
         """, resultingJava);
@@ -185,10 +185,10 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 1;
-              this.push(2);
+              this.call(2);
               this.$5();
               super.B = 2;
-              this.push(4);
+              this.call(4);
               this.$7();
               super.C = 3;
               this.$5();
@@ -196,12 +196,12 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
            public void $5() {
               super.D = 4;
-              this.pop();
+              this.ret();
            }
 
            public void $7() {
               super.E = 5;
-              this.pop();
+              this.ret();
            }
         }
         """, resultingJava);
@@ -248,16 +248,16 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 1;
-              this.push(2);
+              this.call(2);
               this.$5();
               super.B = 2;
               super.E = 5;
-              this.pop();
+              this.ret();
            }
 
            public void $5() {
               super.D = 4;
-              this.pop();
+              this.ret();
            }
         }
         """, resultingJava);
@@ -301,18 +301,18 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 1;
-              this.push(2);
+              this.call(2);
               this.$5();
               super.B = 2;
               super.C = 3;
-              this.push(5);
+              this.call(5);
               this.$5();
               this.$5();
            }
 
            public void $5() {
               super.D = 6;
-              this.pop();
+              this.ret();
            }
         }
         """, resultingJava);
@@ -351,7 +351,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            public void $0() {
               super.A = 10;
               super.B = 20;
-              this.pop();
+              this.ret();
            }
         }
         """, resultingJava);
@@ -397,15 +397,15 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               super.A = 1;
               super.E = 5;
               super.A = 3;
-              this.push(5);
+              this.call(5);
               this.$8();
               super.B = 2;
-              this.pop();
+              this.ret();
            }
 
            public void $8() {
               super.D = 4;
-              this.pop();
+              this.ret();
            }
         }
         """, resultingJava);
@@ -450,11 +450,11 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               int var1 = this.alu("dec", super.A);
               super.A = var1;
               if(this.flag(64, true)) {
-                 this.push(3);
+                 this.call(3);
                  this.$1();
               }
 
-              this.pop();
+              this.ret();
            }
         }
         """, resultingJava);
@@ -501,23 +501,23 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 50;
-              this.push(2);
+              this.call(2);
               this.$6();
               super.B = 60;
-              this.push(4);
+              this.call(4);
               this.$8();
               super.C = 70;
-              this.pop();
+              this.ret();
            }
 
            public void $6() {
               super.D = 80;
-              this.pop();
+              this.ret();
            }
 
            public void $8() {
               super.E = 90;
-              this.pop();
+              this.ret();
            }
         }
         """, resultingJava);
@@ -571,7 +571,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
               label20: {
                  try {
-                    this.push(2);
+                    this.call(2);
                     this.$6();
                  } catch (StackException var3) {
                     if(var3.getNextPC() == 11) {
@@ -589,7 +589,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               }
 
               super.C = 5;
-              this.pop();
+              this.ret();
            }
 
            public void $6() {
@@ -658,7 +658,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
               label20: {
                  try {
-                    this.push(2);
+                    this.call(2);
                     this.$6();
                  } catch (StackException var3) {
                     if(var3.getNextPC() == 17) {
@@ -677,14 +677,14 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               }
 
               super.C = 5;
-              this.pop();
+              this.ret();
            }
 
            public void $6() {
               super.D = 4;
 
               try {
-                 this.push(8);
+                 this.call(8);
                  this.$11();
               } catch (StackException var3) {
                  if(var3.getNextPC() == 16) {
@@ -697,7 +697,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  throw var3;
               }
 
-              this.pop();
+              this.ret();
            }
 
            public void $11() {
@@ -707,7 +707,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  throw new StackException(16);
               } else {
                  super.E = 8;
-                 this.pop();
+                 this.ret();
               }
            }
         }
@@ -783,7 +783,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               label33: {
                  label37: {
                     try {
-                       this.push(2);
+                       this.call(2);
                        this.$7();
                     } catch (StackException var6) {
                        if(var6.getNextPC() == 19) {
@@ -798,7 +798,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                     super.C = 2;
 
                     try {
-                       this.push(4);
+                       this.call(4);
                        this.$22();
                        break label33;
                     } catch (StackException var5) {
@@ -817,7 +817,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
               super.C = 3;
               super.C = 5;
-              this.pop();
+              this.ret();
            }
 
            public void $7() {
@@ -826,7 +826,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
               try {
                  if(this.flag(64, false)) {
-                    this.push(10);
+                    this.call(10);
                     this.$13();
                  }
               } catch (StackException var3) {
@@ -840,7 +840,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  throw var3;
               }
 
-              this.pop();
+              this.ret();
            }
 
            public void $13() {
@@ -924,7 +924,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
               label20: {
                  try {
-                    this.push(3);
+                    this.call(3);
                     this.$7();
                  } catch (StackException var3) {
                     if(var3.getNextPC() == 17) {
@@ -942,7 +942,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               }
 
               super.C = 5;
-              this.pop();
+              this.ret();
            }
 
            public void $7() {
@@ -1007,14 +1007,14 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 2;
-              this.push(2);
+              this.call(2);
               this.$8();
               super.B = 3;
               super.A = 0;
-              this.push(5);
+              this.call(5);
               this.$8();
               super.B = 4;
-              this.pop();
+              this.ret();
            }
 
            public void $8() {
@@ -1022,10 +1022,10 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               int var1 = this.alu("or", super.A, super.A);
               super.A = var1;
               if(this.flag(64, false)) {
-                 this.pop();
+                 this.ret();
               } else {
                  super.D = 6;
-                 this.pop();
+                 this.ret();
               }
            }
         }
@@ -1070,10 +1070,10 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 2;
-              this.push(2);
+              this.call(2);
               this.$5();
               super.B = 3;
-              this.pop();
+              this.ret();
            }
 
            public void $5() {
@@ -1082,7 +1082,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  int var1 = this.alu("dec", super.A);
                  super.A = var1;
                  if(this.flag(64, false)) {
-                    this.pop();
+                    this.ret();
                     return;
                  }
 
@@ -1135,7 +1135,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               do {
                  int var1 = this.BC();
                  this.push(var1);
-                 this.push(4);
+                 this.call(4);
                  this.$11();
                  super.B = 3;
 
@@ -1152,12 +1152,12 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  super.B = var5;
               } while(super.B != 0);
 
-              this.pop();
+              this.ret();
            }
 
            public void $11() {
               super.D = super.A;
-              this.pop();
+              this.ret();
            }
         }
         """, resultingJava);
@@ -1203,20 +1203,20 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 2;
-              this.push(2);
+              this.call(2);
               this.$5();
               super.B = 3;
-              this.pop();
+              this.ret();
            }
 
            public void $5() {
               int var1 = this.alu("and", super.A, super.A);
               super.A = var1;
               if(this.flag(64, false)) {
-                 this.pop();
+                 this.ret();
               } else {
                  super.D = 6;
-                 this.pop();
+                 this.ret();
               }
            }
         }
@@ -1256,19 +1256,19 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.B = 2;
-              this.push(2);
+              this.call(2);
               this.$4();
               super.B = 3;
-              this.pop();
+              this.ret();
            }
 
            public void $4() {
               super.D = super.B;
               if(this.flag(64, true)) {
-                 this.pop();
+                 this.ret();
               } else {
                  super.B = 4;
-                 this.pop();
+                 this.ret();
               }
            }
         }
@@ -1318,12 +1318,12 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.B = 2;
-              this.push(2);
+              this.call(2);
               this.$7();
               super.B = 3;
-              this.push(4);
+              this.call(4);
               this.$5();
-              this.pop();
+              this.ret();
            }
 
            public void $5() {
@@ -1339,7 +1339,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            public void $8() {
               super.A = 3;
               super.A = 4;
-              this.pop();
+              this.ret();
            }
         }
         """, resultingJava);
@@ -1395,13 +1395,13 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 1;
-              this.push(2);
+              this.call(2);
               this.$6();
               super.B = 8;
-              this.push(4);
+              this.call(4);
               this.$10();
               super.C = 8;
-              this.pop();
+              this.ret();
            }
 
            public void $6() {
@@ -1410,7 +1410,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  this.$14();
               } else {
                  super.B = 2;
-                 this.pop();
+                 this.ret();
               }
            }
 
@@ -1420,13 +1420,13 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  this.$14();
               } else {
                  super.C = 2;
-                 this.pop();
+                 this.ret();
               }
            }
 
            public void $14() {
               super.H = 1;
-              this.pop();
+              this.ret();
            }
         }
         """, resultingJava);
@@ -1476,13 +1476,13 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 1;
-              this.push(2);
+              this.call(2);
               this.$6();
               super.B = 8;
-              this.push(4);
+              this.call(4);
               this.$10();
               super.C = 8;
-              this.pop();
+              this.ret();
            }
 
            public void $6() {
@@ -1493,7 +1493,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            public void $7() {
               super.C = 2;
               super.D = 3;
-              this.pop();
+              this.ret();
            }
 
            public void $10() {
@@ -1502,7 +1502,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  this.$7();
               } else {
                  super.C = 2;
-                 this.pop();
+                 this.ret();
               }
            }
         }
@@ -1569,7 +1569,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
            public void $3() {
               if(this.flag(64, true)) {
-                 this.push(4);
+                 this.call(4);
                  this.$12();
               }
 
@@ -1578,7 +1578,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
            public void $4() {
               super.B = 3;
-              this.pop();
+              this.ret();
            }
 
            public void $6() {
@@ -1643,10 +1643,10 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 2;
-              this.push(2);
+              this.call(2);
               this.$5();
               super.B = 3;
-              this.pop();
+              this.ret();
            }
 
            public void $5() {
@@ -1656,10 +1656,10 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               int var3 = this.alu("and", super.A, var2);
               super.A = var3;
               if(this.flag(64, false)) {
-                 this.pop();
+                 this.ret();
               } else {
                  super.D = 6;
-                 this.pop();
+                 this.ret();
               }
            }
         }
@@ -1725,9 +1725,9 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               while(true) {
                  try {
                     if(!this.isNextPC(18)) {
-                       this.push(1);
+                       this.call(1);
                        this.$2();
-                       this.pop();
+                       this.ret();
                        return;
                     }
 
@@ -1752,10 +1752,10 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
               while(true) {
                  super.A = 1;
-                 this.push(4);
+                 this.call(4);
                  this.$8();
                  super.B = 8;
-                 this.push(6);
+                 this.call(6);
                  this.$12();
                  super.C = 8;
               }
@@ -1767,7 +1767,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  this.$16();
               } else {
                  super.B = 2;
-                 this.pop();
+                 this.ret();
               }
            }
 
@@ -1777,7 +1777,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  this.$16();
               } else {
                  super.C = 2;
-                 this.pop();
+                 this.ret();
               }
            }
 
@@ -1847,12 +1847,12 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            public void $1() {
               this.SP('\\ufc00');
               super.B = 5;
-              this.push(4);
+              this.call(4);
               this.$7();
-              this.push(5);
+              this.call(5);
               this.$9();
               super.B = 3;
-              this.pop();
+              this.ret();
            }
 
            public void $7() {
@@ -1867,7 +1867,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
            public void $9() {
               super.B = 4;
-              this.pop();
+              this.ret();
            }
         }
         """, resultingJava);

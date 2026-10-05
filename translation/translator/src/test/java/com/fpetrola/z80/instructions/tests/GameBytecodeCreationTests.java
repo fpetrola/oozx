@@ -170,8 +170,8 @@ public class GameBytecodeCreationTests {
         {B0E6:B196} -> [B0E6 : B196]
         {B197:B1A5} -> [B197 : B1A5]
         {B1A6:B1B8} -> [B1A6 : B1B8]
-        {B1B9:B263} -> [B1B9 : B263]
-        {B288:B2DA} -> [B288 : B2DA]
+        {B1B9:E328} -> [B1B9 : B263, E315 : E328]
+        {B288:E314} -> [B288 : B2DA, E2FC : E314]
         {B2DC:B2E1} -> [B2DC : B2E1]
         {B2E2:B2E7} -> [B2E2 : B2E7]
         {B2E8:B2EC} -> [B2E8 : B2EC]
@@ -204,8 +204,6 @@ public class GameBytecodeCreationTests {
         {BAB4:BACD} -> [BAB4 : BACD]
         {BACE:BAD7} -> [BACE : BAD7]
         {BAD8:BB3D} -> [BAD8 : BB3D]
-        {E2FC:E314} -> [E2FC : E314]
-        {E315:E328} -> [E315 : E328]
         {E329:E33E} -> [E329 : E33E]
         {E33F:E36C} -> [E33F : E36C]
         {E36D:E3D2} -> [E36D : E3D2]
@@ -259,16 +257,18 @@ public class GameBytecodeCreationTests {
 
   @Test
   public void testTranslateEmlynToJava() {
-    String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, "/home/fernando/detodo/spectrum/emlyn_r3.rzx", 0xB542);
+    String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, "/home/fernando/detodo/spectrum/emlyn_r3.rzx", 0xFE65);
     StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
-    RemoteZ80Translator.Footprint footprint = RemoteZ80Translator.footprint("/home/fernando/detodo/spectrum/emlyn_r3.rzx", 0xB542);
+    RemoteZ80Translator.Footprint footprint = RemoteZ80Translator.footprint("/home/fernando/detodo/spectrum/emlyn_r3.rzx", 0xFE65);
+    footprint.install(realCodeBytecodeCreationBase.getState().getMemory());
     stackAnalyzer.dynamicInvocation.putAll(footprint.dynamicInvocation());
-    stackAnalyzer.returnShifts.putAll(footprint.returnShifts());
+    stackAnalyzer.callContinuations.putAll(footprint.callContinuations());
     stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());
     getRoutineManager().setReachable(footprint.executed());
     realCodeBytecodeCreationBase.symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
-    exploreGame(0xB542, Stream.concat(Stream.of(0x963E), stackAnalyzer.dynamicInvocation.values().stream()).mapToInt(Integer::intValue).toArray());
-    realCodeBytecodeCreationBase.translateRomRoutines(0x0038, 0x22B0, 0x0E44);
+    getRoutineManager().externalEntries.addAll(footprint.returnAddressesOnStack());
+    exploreGame(0xFE65, Stream.of(Stream.of(0x963E), footprint.returnAddressesOnStack().stream(), stackAnalyzer.dynamicInvocation.values().stream()).flatMap(s -> s).mapToInt(Integer::intValue).toArray());
+    realCodeBytecodeCreationBase.translateRomRoutines(0x0038, 0x22B0, 0x0E44, 0x03F4, 0x2C8D);
     realCodeBytecodeCreationBase.translateCodeVariants(0x9BBF, 0x9C1D, 0x9BDA, 0xE000,
         "79c3df9b79652e001fcb1ccb1dc38f9c08e378c3f19b78652e001fcb1ccb1dc3979c",
         "26fd7e696e652e001fcb1ccb1dc38f9c08e326fd7e686e652e001fcb1ccb1dc3979c",
@@ -280,6 +280,7 @@ public class GameBytecodeCreationTests {
         "26fd7e696e673e0029172917c3ea9b0008e326fd7e686e673e0029172917c3fc9b00");
     realCodeBytecodeCreationBase.translateCodeVariants(0x9AF7, 0x9B1C, 0x9AFB, 0xE300,
         "2d3601243602243604243608243610243620",
+        "36102436202436402436802d243601243602",
         "3640243680242d3601243602243604243608",
         "3610243620243640243680242d3601243602",
         "36042436082436102436202436402436802d",
@@ -413,11 +414,10 @@ public class GameBytecodeCreationTests {
         {E5E8:E661} -> [E5E8 : E63F, E644 : E661]
         {E663:E6D8} -> [E663 : E6D8]
         {E6DC:E6F5} -> [E6DC : E6F5]
-        {E6F6:E755} -> [E6F6 : E755]
+        {E6F6:E7D6} -> [E6F6 : E755, E782 : E7D6]
         {E756:E76B} -> [E756 : E76B]
         {E76C:E774} -> [E76C : E774]
         {E775:E781} -> [E775 : E781]
-        {E782:E7D6} -> [E782 : E7D6]
         {E7D7:E7E1} -> [E7D7 : E7E1]
         {E801:E81F} -> [E801 : E81F]
         {E820:E84D} -> [E820 : E84D]

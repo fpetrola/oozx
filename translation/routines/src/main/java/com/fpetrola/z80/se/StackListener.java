@@ -20,6 +20,7 @@ package com.fpetrola.z80.se;
 
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.impl.Ret;
+import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 
 import java.util.List;
@@ -40,7 +41,7 @@ public interface StackListener {
     return false;
   }
 
-  default boolean returnShifted(int pcValue, int returnAddress, int callSite) {
+  default boolean returnShifted(Instruction instruction, int pcValue, int returnAddress, int callSite) {
     System.out.println("returnShifted: %s %s %s".formatted(Helper.formatAddress(pcValue), Helper.formatAddress(returnAddress), Helper.formatAddress(callSite)));
     return false;
   }

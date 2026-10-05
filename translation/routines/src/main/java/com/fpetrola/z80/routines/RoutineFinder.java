@@ -40,6 +40,7 @@ import com.fpetrola.z80.spy.ExecutionListener;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.LinkedHashMap;
@@ -146,7 +147,7 @@ public class RoutineFinder {
 
         boolean listened = this.stackAnalyzer.listenEvents(new StackListener() {
           public boolean returnAddressPopped(int pcValue, int returnAddress, int callAddress) {
-            if (stackAnalyzer.returnShifts.containsKey(currentRoutine.getEntryPoint()) || !routineManager.isCalledFrom(currentRoutine, callAddress))
+            if (stackAnalyzer.callContinuations.containsKey(callAddress) || !routineManager.isCalledFrom(currentRoutine, callAddress))
               return false;
             Routine returnRoutine = routineManager.findRoutineAt(callAddress);
             if (lastPc != -1) {
@@ -159,8 +160,10 @@ public class RoutineFinder {
             return true;
           }
 
-          public boolean returnShifted(int pcValue, int returnAddress, int callSite) {
+          public boolean returnShifted(Instruction instruction, int pcValue, int returnAddress, int callSite) {
             currentRoutine.addInstructionAt(instruction, pcValue);
+            routineManager.callers.removeMapping(returnAddress, pcValue);
+            routineManager.callees.removeMapping(pcValue, returnAddress);
             currentRoutine = routineManager.findRoutineAt(callSite);
             return true;
           }
@@ -262,19 +265,24 @@ public class RoutineFinder {
   }
 
   private int instructionBefore(int pcValue) {
-    if (lastInstruction instanceof Ret)
-      for (int length = 1; length <= 4; length++)
-        if (routineManager.getInstructionAt(pcValue - length) instanceof Call call && call.getLength() == length)
-          return pcValue - length;
-    return lastPc;
+    int before = routineManager.addressBefore(pcValue);
+    return lastInstruction instanceof Ret && routineManager.getInstructionAt(before) instanceof Call ? before : lastPc;
   }
 
   private void followOwnerOf(int pcValue) {
     if (resumedElsewhere(pcValue) && !currentRoutine.contains(pcValue)) {
       Routine owner = routineManager.findRoutineAt(pcValue);
+      if (owner == null)
+        owner = ownerFlowingInto(pcValue);
       if (owner != null)
         currentRoutine = owner;
     }
+  }
+
+  private Routine ownerFlowingInto(int pcValue) {
+    int before = routineManager.addressBefore(pcValue);
+    Routine owner = before != -1 && RoutineManager.fallsThrough(routineManager.getInstructionAt(before)) ? routineManager.findRoutineAt(before) : null;
+    return owner != null ? owner : routineManager.callers.get(pcValue).stream().map(routineManager::findRoutineAt).filter(Objects::nonNull).findFirst().orElse(null);
   }
 
   private boolean resumedElsewhere(int pcValue) {

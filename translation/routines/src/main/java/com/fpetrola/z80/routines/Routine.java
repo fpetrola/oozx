@@ -259,7 +259,7 @@ public class Routine {
         List<Integer> integers = new ArrayList<>(callers.get(address));
 
         int finalAddress = address;
-        if (integers.stream().anyMatch(call -> routineManager1.findRoutineAt(call) != routineManager1.findRoutineAt(finalAddress))) {
+        if (address != entryPoint && integers.stream().anyMatch(call -> routineManager1.findRoutineAt(call) != routineManager1.findRoutineAt(finalAddress))) {
           changes[0] |= splitBlocksIfRequired(this, block2, address, startAddress, getVirtualPop(), getReturnPointsDropped());
         }
 
@@ -267,7 +267,7 @@ public class Routine {
         for (int i = 0; i < callees.size(); i++) {
           int finalI1 = callees.get(i);
           Routine routineAt = routineManager1.findRoutineAt(finalI1);
-          if (routineAt != null && routineAt != routineManager1.findRoutineAt(address)) {
+          if (routineAt != null && routineAt != routineManager1.findRoutineAt(address) && finalI1 != routineAt.entryPoint) {
             new ArrayList<Block>(routineAt.getBlocks()).forEach(block1 -> {
               if (block1.contains(finalI1)) {
                 int startAddress2 = block1.getRangeHandler().getStartAddress();

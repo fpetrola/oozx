@@ -257,6 +257,13 @@ public class RoutineManager {
     return instructions.get(address);
   }
 
+  public int addressBefore(int address) {
+    for (int length = 1; length <= 4; length++)
+      if (getInstructionAt(address - length) != null && getInstructionAt(address - length).getLength() == length)
+        return address - length;
+    return -1;
+  }
+
   public int addressAfter(int address) {
     return address + instructions.get(address).getLength();
   }

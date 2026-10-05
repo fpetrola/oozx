@@ -26,6 +26,7 @@ import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.impl.JP;
+import com.fpetrola.z80.se.actions.RetAddressAction;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
@@ -103,9 +104,13 @@ public class SymbolicExecutionAdapter {
         return StackListener.super.jumpUsingRet(ret, pcValue, jumpAddresses);
       }
 
-      public boolean returnShifted(int pcValue, int returnAddress, int callSite) {
-        state.getMemory().write16Bits(returnAddress, state.getRegisterSP().read());
-        return StackListener.super.returnShifted(pcValue, returnAddress, callSite);
+      public boolean returnShifted(Instruction instruction, int pcValue, int returnAddress, int callSite) {
+        if (instruction instanceof JP jp) {
+          ((Register) jp.getPositionOpcodeReference()).write(returnAddress);
+          routineExecutorHandler.getCurrentRoutineExecution().replaceAddressAction(new RetAddressAction(instruction, pcValue, true, routineExecutorHandler));
+        } else
+          state.getMemory().write16Bits(returnAddress, state.getRegisterSP().read());
+        return StackListener.super.returnShifted(instruction, pcValue, returnAddress, callSite);
       }
     });
 
@@ -331,7 +336,7 @@ public class SymbolicExecutionAdapter {
     public boolean returnAddressPopped(int pcValue, int returnAddress, int callAddress) {
       RoutineExecutorHandler routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
       RoutineManager routineManager = symbolicExecutionAdapter.routineManager;
-      if (symbolicExecutionAdapter.stackAnalyzer.returnShifts.containsKey(routineExecutorHandler.getCurrentRoutineExecution().getStart()))
+      if (symbolicExecutionAdapter.stackAnalyzer.callContinuations.containsKey(callAddress))
         return false;
       if (routineExecutorHandler.getStackFrames().size() < 2 || !routineManager.isCalledFrom(routineManager.findRoutineAt(routineExecutorHandler.getCurrentRoutineExecution().getStart()), callAddress))
         return false;
@@ -352,8 +357,10 @@ public class SymbolicExecutionAdapter {
     }
 
     public boolean beginUsingStackAsRepository(int pcValue, int newSpAddress, int oldSpAddress) {
-      symbolicExecutionAdapter.protectCallerStack(oldSpAddress);
-      symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().disable();
+      if ((newSpAddress - 2 - oldSpAddress & 0xffff) >= CALLER_STACK) {
+        symbolicExecutionAdapter.protectCallerStack(oldSpAddress);
+        symbolicExecutionAdapter.routineExecutorHandler.getExecutionStackStorage().disable();
+      }
       return StackListener.super.beginUsingStackAsRepository(pcValue, newSpAddress, oldSpAddress);
     }
 
