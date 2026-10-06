@@ -261,18 +261,14 @@ public class GameBytecodeCreationTests {
   public void testTranslateEmlynToJava() {
     String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, "/home/fernando/detodo/spectrum/emlyn_r4.rzx", 0xFE65);
     StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
-    java.util.Set<Integer> executed = new java.util.HashSet<>(), returnAddressesOnStack = new java.util.HashSet<>();
-    Stream.of("emlyn_r3.rzx", "emlyn_r4.rzx").map(recording -> RemoteZ80Translator.footprint("/home/fernando/detodo/spectrum/" + recording, 0xFE65)).forEach(footprint -> {
-      footprint.install(realCodeBytecodeCreationBase.getState().getMemory(), realCodeBytecodeCreationBase.getState().getRegisterSP().read());
-      stackAnalyzer.learnFrom(footprint.learned());
-      executed.addAll(footprint.executed());
-      realCodeBytecodeCreationBase.symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
-      returnAddressesOnStack.addAll(footprint.returnAddressesOnStack());
-    });
+    RemoteZ80Translator.Footprint footprint = RemoteZ80Translator.Footprint.combine(Stream.of("emlyn_r3.rzx", "emlyn_r4.rzx").map(recording -> RemoteZ80Translator.footprint("/home/fernando/detodo/spectrum/" + recording, 0xFE65)).toList());
+    footprint.install(realCodeBytecodeCreationBase.getState().getMemory(), realCodeBytecodeCreationBase.getState().getRegisterSP().read());
+    stackAnalyzer.learnFrom(footprint.learned());
     stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());
-    getRoutineManager().setReachable(executed);
-    getRoutineManager().externalEntries.addAll(returnAddressesOnStack);
-    exploreGame(0xFE65, Stream.of(Stream.of(0x963E), returnAddressesOnStack.stream(), stackAnalyzer.dynamicInvocation.values().stream()).flatMap(s -> s).mapToInt(Integer::intValue).toArray());
+    getRoutineManager().setReachable(footprint.executed());
+    realCodeBytecodeCreationBase.symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
+    getRoutineManager().externalEntries.addAll(footprint.returnAddressesOnStack());
+    exploreGame(0xFE65, Stream.of(Stream.of(0x963E), footprint.returnAddressesOnStack().stream(), stackAnalyzer.dynamicInvocation.values().stream()).flatMap(s -> s).mapToInt(Integer::intValue).toArray());
     realCodeBytecodeCreationBase.translateRomRoutines(0x0038, 0x22B0, 0x0E44, 0x03F4, 0x2C8D);
     realCodeBytecodeCreationBase.translateCodeVariants(0x9BBF, 0x9C1D, 0x9BDA, 0xE000,
         "79c3df9b79652e001fcb1ccb1dc38f9c08e378c3f19b78652e001fcb1ccb1dc3979c",

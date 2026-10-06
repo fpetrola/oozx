@@ -103,16 +103,46 @@ public class RemoteZ80Translator {
     return emulate(realCodeBytecodeCreationBase, EmulatedMiniZX.ofRecording(rzxFile, frames, realCodeBytecodeCreationBase.getStackAnalyzer()));
   }
 
-  public record Footprint(Map<Integer, int[]> codeBytes, Set<Integer> modifiedCode, StackAnalyzer learned, Set<Integer> returnAddressesOnStack, int[] finalMemory) {
-    public Set<Integer> executed() {
-      return codeBytes.keySet();
+  public record Footprint(Map<Integer, int[]> codeBytes, Map<Integer, int[]> explored, Set<Integer> modifiedCode, StackAnalyzer learned, Set<Integer> returnAddressesOnStack, int[] finalMemory) {
+    public Map<Integer, Integer> executed() {
+      Map<Integer, Integer> lengths = new HashMap<>();
+      code().forEach((address, bytes) -> lengths.put(address, bytes.length));
+      return lengths;
+    }
+
+    private Map<Integer, int[]> code() {
+      Set<Integer> recordedInteriors = new HashSet<>();
+      codeBytes.forEach((address, bytes) -> {
+        for (int i = 1; i < bytes.length; i++)
+          recordedInteriors.add(address + i & 0xffff);
+      });
+      Map<Integer, int[]> code = new HashMap<>(codeBytes);
+      explored.forEach((address, bytes) -> {
+        if (!recordedInteriors.contains(address) && java.util.stream.IntStream.range(1, bytes.length).noneMatch(i -> codeBytes.containsKey(address + i & 0xffff)))
+          code.putIfAbsent(address, bytes);
+      });
+      return code;
+    }
+
+    public static Footprint combine(List<Footprint> footprints) {
+      Map<Integer, int[]> codeBytes = new HashMap<>(), explored = new HashMap<>();
+      Set<Integer> modifiedCode = new HashSet<>(), returnAddressesOnStack = new HashSet<>();
+      StackAnalyzer learned = new StackAnalyzer(null);
+      footprints.forEach(footprint -> {
+        footprint.codeBytes.forEach(codeBytes::putIfAbsent);
+        footprint.explored.forEach(explored::putIfAbsent);
+        modifiedCode.addAll(footprint.modifiedCode);
+        returnAddressesOnStack.addAll(footprint.returnAddressesOnStack);
+        learned.learnFrom(footprint.learned);
+      });
+      return new Footprint(codeBytes, explored, modifiedCode, learned, returnAddressesOnStack, footprints.get(footprints.size() - 1).finalMemory);
     }
 
     public void install(Memory memory, int stackPointer) {
       for (int address = 0x4000; address < 0x10000; address++)
         if (address < stackPointer || address >= stackPointer + 128)
           memory.write(address, finalMemory[address]);
-      codeBytes.forEach((address, bytes) -> {
+      code().forEach((address, bytes) -> {
         for (int i = 0; i < bytes.length; i++) {
           int at = address + i & 0xffff;
           memory.write(at, bytes[i]);
@@ -142,8 +172,8 @@ public class RemoteZ80Translator {
           if (!started[0])
             return;
           if (pending[0] != null)
-            exploreUntakenBranch(emulator[0].ooz80, pending[0], pendingAddress[0], address, codeBytes, explored, forked, stackAnalyzer);
-          boolean conditional = instruction instanceof ConditionalInstruction<?> branch && !(branch.getCondition() instanceof ConditionAlwaysTrue) && !(branch.getPositionOpcodeReference() instanceof Register);
+            exploreUntakenBranch(emulator[0].ooz80, pending[0], pendingAddress[0], address, codeBytes, explored, forked, stackAnalyzer, BRANCH_BUDGET);
+          boolean conditional = isUntakenBranchCandidate(instruction);
           pending[0] = conditional ? (ConditionalInstruction<?>) instruction : null;
           pendingAddress[0] = address;
           int[] memory = emulator[0].ooz80.getState().getMemory().getData();
@@ -164,17 +194,18 @@ public class RemoteZ80Translator {
         throw finished;
     }
     StackAnalyzer.collecting = false;
-    explored.forEach(codeBytes::putIfAbsent);
     returnAddressesOnStack.retainAll(codeBytes.keySet());
-    return new Footprint(codeBytes, modifiedCode, stackAnalyzer, returnAddressesOnStack, emulator[0].ooz80.getState().getMemory().getData().clone());
+    return new Footprint(codeBytes, explored, modifiedCode, stackAnalyzer, returnAddressesOnStack, emulator[0].ooz80.getState().getMemory().getData().clone());
   }
 
   private static final int BRANCH_BUDGET = 500;
 
-  private static void exploreUntakenBranch(OOZ80 main, ConditionalInstruction<?> branch, int site, int taken, Map<Integer, int[]> codeBytes, Map<Integer, int[]> explored, Set<Integer> forked, StackAnalyzer learned) {
+  private static void exploreUntakenBranch(OOZ80 main, ConditionalInstruction<?> branch, int site, int taken, Map<Integer, int[]> codeBytes, Map<Integer, int[]> explored, Set<Integer> forked, StackAnalyzer learned, int budget) {
     State state = main.getState();
     int fallThrough = site + branch.getLength() & 0xffff, sp = state.getRegisterSP().read();
-    int target = branch instanceof Ret ? state.getMemory().read16Bits(taken == fallThrough ? sp : sp - 2 & 0xffff) : branch.getJumpAddress();
+    int[] memory = state.getMemory().getData();
+    int target = branch instanceof Ret ? state.getMemory().read16Bits(taken == fallThrough ? sp : sp - 2 & 0xffff)
+        : branch.getLength() == 2 ? site + 2 + (byte) memory[site + 1 & 0xffff] & 0xffff : memory[site + 1 & 0xffff] | memory[site + 2 & 0xffff] << 8;
     int alternative = taken == fallThrough ? target : fallThrough;
     if (taken != fallThrough && taken != target || codeBytes.containsKey(alternative) || explored.containsKey(alternative) || !forked.add(site))
       return;
@@ -194,22 +225,34 @@ public class RemoteZ80Translator {
     StackAnalyzer analyzer = new StackAnalyzer(forkState);
     analyzer.addExecutionListener(fork.getInstructionExecutor());
     int startSp = forkState.getRegisterSP().read();
+    Set<Integer> known = new HashSet<>(explored.keySet());
     try {
-      for (int step = 0; step < BRANCH_BUDGET; step++) {
+      Set<Integer> own = new HashSet<>();
+      for (int fresh = 0, step = 0; fresh < budget && step < 100 * budget; step++) {
         int pc = forkState.getPc().read(), depth = startSp - forkState.getRegisterSP().read() & 0xffff;
-        if (step > 0 && (depth == 0 || depth >= 0x8000) && (codeBytes.containsKey(pc) || explored.containsKey(pc)))
+        if (step > 0 && (depth == 0 || depth >= 0x8000) && (codeBytes.containsKey(pc) || known.contains(pc)))
           break;
+        if (pc == 0 || pc >= 0x4000 && pc < 0x5B00 && !codeBytes.containsKey(pc))
+          break;
+        if (own.add(pc))
+          fresh++;
         int[] bytes = java.util.Arrays.copyOfRange(forkState.getMemory().getData(), pc, Math.min(pc + 4, 0x10000));
         Instruction executed = fork.execute(1);
         if (executed == null)
           break;
         explored.put(pc, java.util.Arrays.copyOf(bytes, executed.getLength()));
+        if (budget > BRANCH_BUDGET / 16 && isUntakenBranchCandidate(executed))
+          exploreUntakenBranch(fork, (ConditionalInstruction<?>) executed, pc, forkState.getPc().read(), codeBytes, explored, forked, analyzer, budget / 2);
         if (executed instanceof Halt || executed instanceof Ret && (forkState.getRegisterSP().read() - startSp & 0xffff) > 0 && (forkState.getRegisterSP().read() - startSp & 0xffff) < 0x8000)
           break;
       }
     } catch (RuntimeException deadEnd) {
     }
     learned.learnFrom(analyzer);
+  }
+
+  private static boolean isUntakenBranchCandidate(Instruction instruction) {
+    return instruction instanceof ConditionalInstruction<?> branch && !(branch.getCondition() instanceof ConditionAlwaysTrue) && (branch instanceof Ret || !(branch.getPositionOpcodeReference() instanceof Register));
   }
 
   private static int push(State state, int value) {

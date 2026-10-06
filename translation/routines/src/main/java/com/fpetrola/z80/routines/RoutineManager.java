@@ -164,6 +164,7 @@ public class RoutineManager {
   public final java.util.Set<Integer> externalEntries = new java.util.TreeSet<>();
   private int codeStart;
   private java.util.Set<Integer> reachable;
+  private final java.util.Set<Integer> insideReachable = new java.util.HashSet<>();
 
   public List<CodeVariant> codeVariantsAt(int address) {
     return codeVariants.stream().filter(v -> v.entries(this).contains(address)).toList();
@@ -213,8 +214,12 @@ public class RoutineManager {
     this.codeStart = codeStart;
   }
 
-  public void setReachable(java.util.Set<Integer> reachable) {
-    this.reachable = new java.util.HashSet<>(reachable);
+  public void setReachable(Map<Integer, Integer> instructionLengths) {
+    this.reachable = new java.util.HashSet<>(instructionLengths.keySet());
+    instructionLengths.forEach((address, length) -> {
+      for (int i = 1; i < length; i++)
+        insideReachable.add(address + i & 0xffff);
+    });
   }
 
   public boolean isRestrictedToRecording() {
@@ -222,7 +227,7 @@ public class RoutineManager {
   }
 
   public void admitAsCode(int address) {
-    if (reachable != null)
+    if (reachable != null && !insideReachable.contains(address))
       reachable.add(address);
   }
 
@@ -331,6 +336,7 @@ public class RoutineManager {
     codeVariants.clear();
     externalEntries.clear();
     reachable = null;
+    insideReachable.clear();
   }
 
   public void removeRoutine(Routine routine) {
