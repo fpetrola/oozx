@@ -30,6 +30,7 @@ import com.fpetrola.z80.opcodes.references.ConditionFlag;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
+import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 import org.cojen.maker.Label;
 import org.cojen.maker.MethodMaker;
@@ -368,7 +369,8 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
   public boolean visitingCall(Call call) {
     int jumpLabel = call.getJumpAddress();
-    RegisterName trampoline = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().trampolineRegister(jumpLabel);
+    StackAnalyzer stackAnalyzer = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer();
+    RegisterName trampoline = stackAnalyzer.trampolineRegister(jumpLabel);
     int callSite = routineByteCodeGenerator.context.pc.read();
     int returnAddress = routineByteCodeGenerator.context.routineManager.addressAfter(callSite);
     createIfs(call, () -> {
@@ -376,8 +378,20 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
         methodMaker.invoke("push", returnAddress);
       if (routineByteCodeGenerator.context.routineManager.findRoutineAt(jumpLabel) != null)
         routineByteCodeGenerator.invokeTransformedMethod(jumpLabel);
-      else if (trampoline != null)
-        methodMaker.invoke("callThrough", methodMaker.invoke(trampoline.name()), trampoline == RegisterName.HL ? 1 : 2);
+      else if (trampoline != null) {
+        routineByteCodeGenerator.invokePc(jumpLabel, trampoline == RegisterName.HL ? 1 : 2);
+        Variable target = methodMaker.invoke(trampoline.name());
+        Label called = methodMaker.label();
+        stackAnalyzer.calledThrough.get(callSite).stream().sorted().filter(c -> {
+          Routine callee = routineByteCodeGenerator.context.routineManager.findRoutineAt(c);
+          return callee != null && callee.getEntryPoint() == c;
+        }).forEach(c -> target.ifEq(c, () -> {
+          routineByteCodeGenerator.invokeTransformedMethod(c);
+          methodMaker.goto_(called);
+        }));
+        methodMaker.invoke("jump", target);
+        called.here();
+      }
       else
         methodMaker.invoke("untranslated", jumpLabel);
     });

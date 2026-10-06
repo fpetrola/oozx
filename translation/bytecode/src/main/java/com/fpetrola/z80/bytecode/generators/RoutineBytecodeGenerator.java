@@ -493,8 +493,13 @@ public class RoutineBytecodeGenerator {
   }
 
   private void invokePc(int address) {
-    if (!context.direct && context.routineManager.getInstructionAt(address) instanceof AbstractInstruction instruction)
-      mm.invoke("pc", address, instruction.getRDelta());
+    if (context.routineManager.getInstructionAt(address) instanceof AbstractInstruction instruction)
+      invokePc(address, instruction.getRDelta());
+  }
+
+  public void invokePc(int address, int rDelta) {
+    if (!context.direct)
+      mm.invoke("pc", address, rDelta);
   }
 
   public boolean virtualPopOnBranch(int address) {

@@ -56,6 +56,7 @@ public class StackAnalyzer {
   public final Set<Integer> poppedCallSites = new HashSet<>();
   public final Set<Integer> returnsConsumedBy = new HashSet<>();
   public final MultiValuedMap<Integer, Integer> pushedValues = new HashSetValuedHashMap<>();
+  public final MultiValuedMap<Integer, Integer> calledThrough = new HashSetValuedHashMap<>();
   public static boolean collecting;
   private int pcValue;
   private final List<Integer> simulatedRets = new ArrayList<>();
@@ -163,6 +164,9 @@ public class StackAnalyzer {
             return true;
           }
           addDynamicInvocationData(jumpAddress);
+          Entry caller = entryAtSp();
+          if (collecting && caller != null && caller.returnAddress() && state.getMemory().read16Bits(caller.pc() + 1 & 0xffff) == pcValue)
+            calledThrough.put(caller.pc(), jumpAddress);
           int sp = state.getRegisterSP().read();
           if (sp >= 16384) {
             Entry entry = entries.get(sp);
@@ -332,6 +336,7 @@ public class StackAnalyzer {
     poppedCallSites.clear();
     returnsConsumedBy.clear();
     pushedValues.clear();
+    calledThrough.clear();
   }
 
   public void learnFrom(StackAnalyzer recorded) {
@@ -343,6 +348,7 @@ public class StackAnalyzer {
     poppedCallSites.addAll(recorded.poppedCallSites);
     returnsConsumedBy.addAll(recorded.returnsConsumedBy);
     pushedValues.putAll(recorded.pushedValues);
+    calledThrough.putAll(recorded.calledThrough);
   }
 
   public Set<Integer> getInvocationsSet(int pcValue1) {

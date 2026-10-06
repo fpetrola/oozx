@@ -106,12 +106,6 @@ public abstract class MiniZX extends SpectrumApplication {
     interrupts++;
   }
 
-  public void callThrough(int target, int trampolineFetches) {
-    R = R & 0x80 | R + trampolineFetches & 0x7f;
-    fetchCounter += trampolineFetches;
-    invokeMethod(target);
-  }
-
   public void init() {
     this.mem = new int[65536];
     // -Dminizx.headless=true: analysis runs must not open the live screen — its frame

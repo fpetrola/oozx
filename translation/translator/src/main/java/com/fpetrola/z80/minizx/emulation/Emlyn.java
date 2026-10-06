@@ -2962,8 +2962,14 @@ public class Emlyn extends MiniZX {
       int var1 = this.mem16(23596, 24558);
       this.HL(var1);
       this.pc(24561, 1);
+      this.pc(5676, 1);
       int var2 = this.HL();
-      this.callThrough(var2, 1);
+      if(var2 == 23744) {
+         this.$5CC0();
+      } else {
+         this.jump(var2);
+      }
+
       this.pc(24564, 1);
       this.$5FF9();
       this.pc(24567, 1);
@@ -3102,8 +3108,20 @@ public class Emlyn extends MiniZX {
                this.pc(24692, 1);
                this.exHLDE();
                this.pc(24693, 1);
+               this.pc(5676, 1);
                int var16 = this.HL();
-               this.callThrough(var16, 1);
+               if(var16 == 25251) {
+                  this.$62A3();
+               } else if(var16 == 26685) {
+                  this.$683D();
+               } else if(var16 == 28122) {
+                  this.$6DDA();
+               } else if(var16 == 28908) {
+                  this.$70EC();
+               } else {
+                  this.jump(var16);
+               }
+
                this.pc(24696, 1);
                int var17 = this.mem16(23592, 24696);
                this.HL(var17);
@@ -4226,8 +4244,16 @@ public class Emlyn extends MiniZX {
       int var1 = this.D();
       this.A(var1);
       this.pc(25391, 1);
+      this.pc(5676, 1);
       int var2 = this.HL();
-      this.callThrough(var2, 1);
+      if(var2 == 25372) {
+         this.$631C();
+      } else if(var2 == 25468) {
+         this.$637C();
+      } else {
+         this.jump(var2);
+      }
+
       this.pc(25394, 1);
       int var3 = this.A();
       this.D(var3);
@@ -4235,8 +4261,16 @@ public class Emlyn extends MiniZX {
       int var4 = this.E();
       this.A(var4);
       this.pc(25396, 1);
+      this.pc(5676, 1);
       int var5 = this.HL();
-      this.callThrough(var5, 1);
+      if(var5 == 25372) {
+         this.$631C();
+      } else if(var5 == 25468) {
+         this.$637C();
+      } else {
+         this.jump(var5);
+      }
+
       this.pc(25399, 1);
       int var6 = this.A();
       this.E(var6);
@@ -4244,8 +4278,16 @@ public class Emlyn extends MiniZX {
       int var7 = this.C();
       this.A(var7);
       this.pc(25401, 1);
+      this.pc(5676, 1);
       int var8 = this.HL();
-      this.callThrough(var8, 1);
+      if(var8 == 25372) {
+         this.$631C();
+      } else if(var8 == 25468) {
+         this.$637C();
+      } else {
+         this.jump(var8);
+      }
+
       this.pc(25404, 1);
       int var9 = this.A();
       this.C(var9);
@@ -6855,8 +6897,16 @@ public class Emlyn extends MiniZX {
 
          this.pc(28171, 1);
          this.push(28174);
+         this.pc(5676, 1);
          int var3 = this.HL();
-         this.callThrough(var3, 1);
+         if(var3 == 32759) {
+            this.$7FF7();
+         } else if(var3 == 32762) {
+            this.$7FFA();
+         } else {
+            this.jump(var3);
+         }
+
          this.$6E0E();
       }
    }
@@ -30441,13 +30491,13 @@ public class Emlyn extends MiniZX {
                try {
                   this.pc('\ubde7', 1);
                   this.$BDCA();
-               } catch (StackException var58) {
-                  if(var58.getNextPC() == '\ubdd0') {
+               } catch (StackException var59) {
+                  if(var59.getNextPC() == '\ubdd0') {
                      this.HL('\ubdea');
                      break label64;
                   }
 
-                  throw var58;
+                  throw var59;
                }
 
                this.pc('\ubdea', 1);
@@ -30457,13 +30507,13 @@ public class Emlyn extends MiniZX {
                try {
                   this.pc('\ubded', 1);
                   this.$BDC6();
-               } catch (StackException var59) {
-                  if(var59.getNextPC() == '\ubdd0') {
+               } catch (StackException var57) {
+                  if(var57.getNextPC() == '\ubdd0') {
                      this.HL('\ubdf0');
                      break label64;
                   }
 
-                  throw var59;
+                  throw var57;
                }
 
                this.pc('\ubdf0', 1);
@@ -30490,13 +30540,13 @@ public class Emlyn extends MiniZX {
                try {
                   this.pc('\ubdf6', 1);
                   this.$BDC6();
-               } catch (StackException var57) {
-                  if(var57.getNextPC() == '\ubdd0') {
+               } catch (StackException var58) {
+                  if(var58.getNextPC() == '\ubdd0') {
                      this.HL('\ubdf9');
                      break label64;
                   }
 
-                  throw var57;
+                  throw var58;
                }
 
                this.pc('\ubdf9', 1);
