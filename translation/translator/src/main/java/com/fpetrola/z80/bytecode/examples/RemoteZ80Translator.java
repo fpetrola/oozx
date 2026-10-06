@@ -42,6 +42,7 @@ import com.fpetrola.z80.cpu.FetchListener;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.Halt;
+import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.minizx.DefaultMiniZXIO;
@@ -160,7 +161,7 @@ public class RemoteZ80Translator {
     StackAnalyzer stackAnalyzer = new StackAnalyzer(null);
     EmulatedMiniZX[] emulator = {null};
     Map<Integer, int[]> explored = new HashMap<>();
-    Set<Integer> forked = new HashSet<>();
+    Forks forks = new Forks(codeBytes, new HashSet<>(), explored, new HashMap<>(), new HashSet<>());
     ConditionalInstruction<?>[] pending = {null};
     int[] pendingAddress = {-1};
     try {
@@ -172,7 +173,9 @@ public class RemoteZ80Translator {
           if (!started[0])
             return;
           if (pending[0] != null)
-            exploreUntakenBranch(emulator[0].ooz80, pending[0], pendingAddress[0], address, codeBytes, explored, forked, stackAnalyzer, BRANCH_BUDGET);
+            forks.exploreUntakenBranch(emulator[0].ooz80, pending[0], pendingAddress[0], address, stackAnalyzer, BRANCH_BUDGET);
+          if (pendingAddress[0] != -1 && address != (pendingAddress[0] + codeBytes.get(pendingAddress[0]).length & 0xffff))
+            forks.landings().add(address);
           boolean conditional = isUntakenBranchCandidate(instruction);
           pending[0] = conditional ? (ConditionalInstruction<?>) instruction : null;
           pendingAddress[0] = address;
@@ -200,55 +203,68 @@ public class RemoteZ80Translator {
 
   private static final int BRANCH_BUDGET = 500;
 
-  private static void exploreUntakenBranch(OOZ80 main, ConditionalInstruction<?> branch, int site, int taken, Map<Integer, int[]> codeBytes, Map<Integer, int[]> explored, Set<Integer> forked, StackAnalyzer learned, int budget) {
-    State state = main.getState();
-    int fallThrough = site + branch.getLength() & 0xffff, sp = state.getRegisterSP().read();
-    int[] memory = state.getMemory().getData();
-    int target = branch instanceof Ret ? state.getMemory().read16Bits(taken == fallThrough ? sp : sp - 2 & 0xffff)
-        : branch.getLength() == 2 ? site + 2 + (byte) memory[site + 1 & 0xffff] & 0xffff : memory[site + 1 & 0xffff] | memory[site + 2 & 0xffff] << 8;
-    int alternative = taken == fallThrough ? target : fallThrough;
-    if (taken != fallThrough && taken != target || codeBytes.containsKey(alternative) || explored.containsKey(alternative) || !forked.add(site))
-      return;
-    OOZ80 fork = EmulatedMiniZX.createOOZ80(new DefaultMiniZXIO() {
-      public int in(int port) {
-        return 0xff;
-      }
-    });
-    State forkState = fork.getState();
-    System.arraycopy(state.getMemory().getData(), 0, forkState.getMemory().getData(), 0, 0x10000);
-    forkState.takeFrom(state);
-    if (branch instanceof Call)
-      forkState.getRegisterSP().write(taken == fallThrough ? push(forkState, fallThrough) : sp + 2 & 0xffff);
-    else if (branch instanceof Ret)
-      forkState.getRegisterSP().write(taken == fallThrough ? sp + 2 & 0xffff : sp - 2 & 0xffff);
-    forkState.getPc().write(alternative);
-    StackAnalyzer analyzer = new StackAnalyzer(forkState);
-    analyzer.addExecutionListener(fork.getInstructionExecutor());
-    int startSp = forkState.getRegisterSP().read();
-    Set<Integer> known = new HashSet<>(explored.keySet());
-    try {
+  private record Forks(Map<Integer, int[]> codeBytes, Set<Integer> landings, Map<Integer, int[]> explored, Map<Integer, Integer> forked, Set<Integer> unfinished) {
+    private void exploreUntakenBranch(OOZ80 main, ConditionalInstruction<?> branch, int site, int taken, StackAnalyzer learned, int budget) {
+      State state = main.getState();
+      int fallThrough = site + branch.getLength() & 0xffff, sp = state.getRegisterSP().read();
+      int[] memory = state.getMemory().getData();
+      int target = branch instanceof Ret ? state.getMemory().read16Bits(taken == fallThrough ? sp : sp - 2 & 0xffff)
+          : branch.getLength() == 2 ? site + 2 + (byte) memory[site + 1 & 0xffff] & 0xffff : memory[site + 1 & 0xffff] | memory[site + 2 & 0xffff] << 8;
+      int alternative = taken == fallThrough ? target : fallThrough;
+      if (taken != fallThrough && taken != target || codeBytes.containsKey(alternative) || explored.containsKey(alternative) && !unfinished.contains(alternative) || forked.getOrDefault(site, 0) >= budget)
+        return;
+      forked.put(site, budget);
+      OOZ80 fork = EmulatedMiniZX.createOOZ80(new DefaultMiniZXIO() {
+        public int in(int port) {
+          return 0xff;
+        }
+      });
+      State forkState = fork.getState();
+      System.arraycopy(state.getMemory().getData(), 0, forkState.getMemory().getData(), 0, 0x10000);
+      forkState.takeFrom(state);
+      if (branch instanceof Call)
+        forkState.getRegisterSP().write(taken == fallThrough ? push(forkState, fallThrough) : sp + 2 & 0xffff);
+      else if (branch instanceof Ret)
+        forkState.getRegisterSP().write(taken == fallThrough ? sp + 2 & 0xffff : sp - 2 & 0xffff);
+      forkState.getPc().write(alternative);
+      StackAnalyzer analyzer = new StackAnalyzer(forkState);
+      analyzer.addExecutionListener(fork.getInstructionExecutor());
+      int startSp = forkState.getRegisterSP().read();
+      Set<Integer> known = new HashSet<>(explored.keySet());
+      known.removeAll(unfinished);
       Set<Integer> own = new HashSet<>();
-      for (int fresh = 0, step = 0; fresh < budget && step < 100 * budget; step++) {
-        int pc = forkState.getPc().read(), depth = startSp - forkState.getRegisterSP().read() & 0xffff;
-        if (step > 0 && (depth == 0 || depth >= 0x8000) && (codeBytes.containsKey(pc) || known.contains(pc)))
-          break;
-        if (pc == 0 || pc >= 0x4000 && pc < 0x5B00 && !codeBytes.containsKey(pc))
-          break;
-        if (own.add(pc))
-          fresh++;
-        int[] bytes = java.util.Arrays.copyOfRange(forkState.getMemory().getData(), pc, Math.min(pc + 4, 0x10000));
-        Instruction executed = fork.execute(1);
-        if (executed == null)
-          break;
-        explored.put(pc, java.util.Arrays.copyOf(bytes, executed.getLength()));
-        if (budget > BRANCH_BUDGET / 16 && isUntakenBranchCandidate(executed))
-          exploreUntakenBranch(fork, (ConditionalInstruction<?>) executed, pc, forkState.getPc().read(), codeBytes, explored, forked, analyzer, budget / 2);
-        if (executed instanceof Halt || executed instanceof Ret && (forkState.getRegisterSP().read() - startSp & 0xffff) > 0 && (forkState.getRegisterSP().read() - startSp & 0xffff) < 0x8000)
-          break;
+      try {
+        Instruction executed = null;
+        for (int fresh = 0, step = 0; ; step++) {
+          if (fresh >= budget && executed instanceof ConditionalInstruction || step == 100 * budget) {
+            unfinished.addAll(own);
+            own.clear();
+            break;
+          }
+          int pc = forkState.getPc().read(), depth = startSp - forkState.getRegisterSP().read() & 0xffff;
+          if (step > 0 && (depth == 0 || depth >= 0x8000) && (codeBytes.containsKey(pc) || known.contains(pc)))
+            break;
+          if (pc == 0 || pc >= 0x4000 && pc < 0x5B00 && !codeBytes.containsKey(pc))
+            break;
+          if (own.add(pc) && !codeBytes.containsKey(pc) && !known.contains(pc))
+            fresh++;
+          int[] bytes = java.util.Arrays.copyOfRange(forkState.getMemory().getData(), pc, Math.min(pc + 4, 0x10000));
+          executed = fork.execute(1);
+          if (executed == null)
+            break;
+          explored.put(pc, java.util.Arrays.copyOf(bytes, executed.getLength()));
+          if (budget > BRANCH_BUDGET / 32 && isUntakenBranchCandidate(executed))
+            exploreUntakenBranch(fork, (ConditionalInstruction<?>) executed, pc, forkState.getPc().read(), analyzer, budget / 2);
+          if (executed instanceof JP jump && jump.getPositionOpcodeReference() instanceof Register && codeBytes.containsKey(forkState.getPc().read()) && !landings.contains(forkState.getPc().read()))
+            return;
+          if (executed instanceof Halt || executed instanceof Ret && (forkState.getRegisterSP().read() - startSp & 0xffff) > 0 && (forkState.getRegisterSP().read() - startSp & 0xffff) < 0x8000)
+            break;
+        }
+      } catch (RuntimeException deadEnd) {
       }
-    } catch (RuntimeException deadEnd) {
+      unfinished.removeAll(own);
+      learned.learnFrom(analyzer);
     }
-    learned.learnFrom(analyzer);
   }
 
   private static boolean isUntakenBranchCandidate(Instruction instruction) {
