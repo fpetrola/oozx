@@ -65,7 +65,7 @@ public abstract class MiniZX extends SpectrumApplication {
 //    }
 
     PC = address;
-    for (boolean accepting = iff && !interruptsDelayed; interruptPending() && accepting; accepting = iff) {
+    for (boolean accepting = acceptsInterrupt(); interruptPending() && accepting; accepting = iff) {
       interrupt();
       PC = address;
     }
@@ -82,7 +82,7 @@ public abstract class MiniZX extends SpectrumApplication {
   public void halt(int address) {
     for (long accepted = interrupts; interrupts == accepted; interruptsDelayed = false) {
       PC = address;
-      if (interruptPending() && iff && !interruptsDelayed) {
+      if (interruptPending() && acceptsInterrupt()) {
         PC = address + 1;
         interrupt();
       } else {

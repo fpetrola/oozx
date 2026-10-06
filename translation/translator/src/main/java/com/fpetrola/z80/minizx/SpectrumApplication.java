@@ -442,6 +442,10 @@ public abstract class SpectrumApplication {
     return iff;
   }
 
+  public boolean acceptsInterrupt() {
+    return iff && !interruptsDelayed;
+  }
+
 
 
   public void AF(int value) {

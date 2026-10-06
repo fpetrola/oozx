@@ -324,6 +324,8 @@ public class StackAnalyzer {
   }
 
   public void forgetLearned() {
+    dynamicInvocation.clear();
+    callContinuations.clear();
     shiftedReturns.clear();
     dataConsumedBy.clear();
     dataOnTopAt.clear();

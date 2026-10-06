@@ -148,6 +148,7 @@ public class SymbolicExecutionAdapter {
 
   public void reset() {
     mutantAddress.clear();
+    state.getMemory().unprotect(0, 0x10000);
     stackAnalyzer.forgetLearned();
     explorationSP = -1;
     routineExecutorHandler.reset();

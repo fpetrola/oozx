@@ -9,12 +9,12 @@ import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 public class PlayTranslatedGame {
-  private static final long FETCHES_PER_FRAME = 8000, NANOS_PER_FRAME = 20_000_000;
+  private static final long FETCHES_PER_FRAME = 80000, NANOS_PER_FRAME = 20_000_000;
 
   public static void main(String[] args) throws Exception {
     boolean replaying = args.length > 0;
     int entry = 0xFE65;
-    MiniZX game = replaying ? replaying(args[0], entry, Emlyn.class) : playing("/home/fernando/detodo/spectrum/emlyn_r3.rzx", entry, Emlyn.class);
+    MiniZX game = replaying ? replaying(args[0], entry, Emlyn.class) : playing("/home/fernando/detodo/spectrum/emlyn_r4.rzx", entry, Emlyn.class);
     try {
       game.run(entry);
     } catch (RuntimeException e) {
@@ -59,7 +59,7 @@ public class PlayTranslatedGame {
     game.loadState(emulator.ooz80.getState());
     game.fetchCounter = emulator.playbackFetches();
     SpectrumApplication.io = player;
-    player.setAcceptsInterrupt(game::isIff);
+    player.setAcceptsInterrupt(game::acceptsInterrupt);
     IntPredicate endOfFrame = player.getInterruptionCondition();
     Predicate<Integer> pace = atSpectrumSpeed();
     game.setInterruptionCondition(fetches -> {
