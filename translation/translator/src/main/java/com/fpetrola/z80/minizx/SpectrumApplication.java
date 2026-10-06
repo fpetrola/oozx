@@ -126,8 +126,11 @@ public abstract class SpectrumApplication {
     return Arrays.hashCode(Arrays.copyOfRange(mem, start, start + length));
   }
 
-  public void unknownCodeVariant(int address) {
-    throw new IllegalStateException("code at %04X was rewritten into a shape that was not translated".formatted(address));
+  public void unknownCodeVariant(int address, int variableStart, int length) {
+    StringBuilder bytes = new StringBuilder();
+    for (int i = variableStart; i < variableStart + length; i++)
+      bytes.append("%02x".formatted(mem[i]));
+    throw new IllegalStateException("code at %04X was rewritten into a shape that was not translated: %04X = %s".formatted(address, variableStart, bytes));
   }
 
   public void untranslated(int address) {

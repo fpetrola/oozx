@@ -50,7 +50,7 @@ public class StackAnalyzer {
   private StackListener stackListener;
   public MultiValuedMap<Integer, Integer> dynamicInvocation = new HashSetValuedHashMap<>();
   public final Map<Integer, Integer> callContinuations = new HashMap<>();
-  public final Set<Integer> shiftedReturns = new HashSet<>();
+  public final MultiValuedMap<Integer, Integer> shiftedReturns = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> dataConsumedBy = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> dataOnTopAt = new HashSetValuedHashMap<>();
   public final Set<Integer> poppedCallSites = new HashSet<>();
@@ -253,7 +253,7 @@ public class StackAnalyzer {
     if (continuation == null)
       return false;
     callContinuations.put(consumedReturn.pc(), continuation);
-    shiftedReturns.add(pcValue);
+    shiftedReturns.put(pcValue, consumedReturn.pc());
     lastEvent = l -> l.returnShifted(instruction, pcValue, continuation, consumedReturn.pc());
     return true;
   }
@@ -342,7 +342,7 @@ public class StackAnalyzer {
   public void learnFrom(StackAnalyzer recorded) {
     dynamicInvocation.putAll(recorded.dynamicInvocation);
     callContinuations.putAll(recorded.callContinuations);
-    shiftedReturns.addAll(recorded.shiftedReturns);
+    shiftedReturns.putAll(recorded.shiftedReturns);
     dataConsumedBy.putAll(recorded.dataConsumedBy);
     dataOnTopAt.putAll(recorded.dataOnTopAt);
     poppedCallSites.addAll(recorded.poppedCallSites);

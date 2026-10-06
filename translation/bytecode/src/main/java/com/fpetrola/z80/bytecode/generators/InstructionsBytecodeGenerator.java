@@ -357,7 +357,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
         routineByteCodeGenerator.invokeTransformedMethod(continuation);
       else if (consumesData) {
         Variable poppedValue = methodMaker.invoke("pop");
-        if (!stackAnalyzer.shiftedReturns.contains(pcValue)) {
+        if (!stackAnalyzer.shiftedReturns.containsKey(pcValue)) {
           invokeDynamicCall(invocationsSet, poppedValue);
           methodMaker.invoke("jump", poppedValue);
         }
@@ -533,8 +533,9 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
       int pcValue1 = routineByteCodeGenerator.context.pc.read();
       Set<Integer> invocationsSet = stackAnalyzer.getInvocationsSet(pcValue1);
       Variable target = routineByteCodeGenerator.getExistingVariable(register);
+      routineByteCodeGenerator.context.routineManager.nonLocalReturns.get(pcValue1).forEach(continuation -> target.ifEq(continuation, () -> routineByteCodeGenerator.throwStackException(continuation, StackException.class)));
       if (!invokeDynamicCall(invocationsSet, target)) {
-        if (!stackAnalyzer.shiftedReturns.contains(pcValue1))
+        if (!stackAnalyzer.shiftedReturns.containsKey(pcValue1))
           methodMaker.invoke("jump", methodMaker.invoke(register.getName()));
         routineByteCodeGenerator.returnFromMethod();
       }

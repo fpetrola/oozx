@@ -28,6 +28,7 @@ import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.CodeBlockType;
 import com.fpetrola.z80.blocks.NullBlockChangesListener;
 import com.fpetrola.z80.ide.RoutineHandlingListener;
+import com.fpetrola.z80.transformations.StackAnalyzer;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -54,6 +55,8 @@ public class RoutineManager {
   public ListValuedMap<Integer, Integer> callees = new ArrayListValuedHashMap<>();
   public ListValuedMap<Integer, Integer> jumpsAfterStackReset = new ArrayListValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> returnPoints = new HashSetValuedHashMap<>();
+  public final MultiValuedMap<Integer, Integer> nonLocalReturns = new HashSetValuedHashMap<>();
+  public final MultiValuedMap<Integer, Integer> nonLocalReturnPoints = new HashSetValuedHashMap<>();
   public BlocksManager blocksManager;
   private List<Routine> routines = new ArrayList<>();
 
@@ -135,6 +138,24 @@ public class RoutineManager {
 
   public void addReturnPoint(int callSite, int point) {
     returnPoints.put(((ConditionalInstruction<?>) instructions.get(callSite)).getJumpAddress(), point);
+  }
+
+  public void planNonLocalReturns(StackAnalyzer stackAnalyzer, java.util.Set<Routine> jumpMembers) {
+    stackAnalyzer.shiftedReturns.entries().forEach(e -> {
+      Routine owner = findRoutineAt(e.getKey());
+      Integer continuation = stackAnalyzer.callContinuations.get(e.getValue());
+      if (owner != null && continuation != null && !(instructions.get(e.getKey()) instanceof Ret) && instructions.get(e.getValue()) instanceof Call call && !jumpMembers.contains(findRoutineAt(e.getValue()))
+          && !(isCode(call.getJumpAddress()) ? List.of(call.getJumpAddress()) : stackAnalyzer.calledThrough.get(e.getValue())).contains(owner.getEntryPoint())) {
+        nonLocalReturns.put(e.getKey(), continuation);
+        nonLocalReturnPoints.put(e.getValue(), continuation);
+      }
+    });
+  }
+
+  public MultiValuedMap<Integer, Integer> catchPointsOfCallsIn(Routine routine) {
+    MultiValuedMap<Integer, Integer> points = returnPointsOfCallsIn(routine);
+    nonLocalReturnPoints.entries().stream().filter(e -> routine.contains(e.getKey())).forEach(e -> points.put(e.getKey(), e.getValue()));
+    return points;
   }
 
   public MultiValuedMap<Integer, Integer> returnPointsOfCallsIn(Routine routine) {
@@ -333,6 +354,8 @@ public class RoutineManager {
     callers.clear();
     jumpsAfterStackReset.clear();
     returnPoints.clear();
+    nonLocalReturns.clear();
+    nonLocalReturnPoints.clear();
     codeVariants.clear();
     externalEntries.clear();
     reachable = null;

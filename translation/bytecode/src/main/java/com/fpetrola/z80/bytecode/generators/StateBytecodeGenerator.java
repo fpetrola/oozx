@@ -97,6 +97,7 @@ public class StateBytecodeGenerator {
 
     routineManager.splitAtEntriesFromOutside();
     new ArrayList<>(routineManager.getRoutines()).forEach(this::splitIfTooLargeForOneMethod);
+    routineManager.planNonLocalReturns(symbolicExecutionAdapter.getStackAnalyzer(), bytecodeGenerationContext.routinesInJumpCycles());
     List<Routine> routines = routineManager.getRoutinesInDepth();
 
     RoutineBytecodeGenerator routineBytecodeGenerator1 = new RoutineBytecodeGenerator(bytecodeGenerationContext, null);

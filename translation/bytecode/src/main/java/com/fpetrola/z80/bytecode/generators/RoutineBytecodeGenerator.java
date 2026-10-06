@@ -43,6 +43,7 @@ import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineVisitor;
+import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.MultiSet;
 import org.cojen.maker.Field;
 import org.cojen.maker.Label;
@@ -135,7 +136,7 @@ public class RoutineBytecodeGenerator {
               generateInstruction(address, instruction, firstAddress);
 
               int nextAddress = address + instruction.getLength();
-              if (!routine.contains(nextAddress) && routine.getReturnPoints().containsKey(address))
+              if (!routine.contains(nextAddress) && catchPoints().containsKey(address))
                 labelsAfterLeavingCalls.put(address, mm.label().here());
               Routine continuationOwner = context.routineManager.findRoutineAt(nextAddress);
               if (RoutineManager.fallsThrough(instruction) && !routine.contains(nextAddress) && continuationOwner != null && (continuationOwner.getEntryPoint() == nextAddress ? !continuationOwner.isVirtual() : context.routineManager.isEnteredFromOutside(continuationOwner, nextAddress)))
@@ -167,7 +168,7 @@ public class RoutineBytecodeGenerator {
         if (!variants.isEmpty()) {
           Variable hash = mm.invoke("codeHash", variants.get(0).variableStart(), variants.get(0).variableBytes().length);
           variants.forEach(v -> hash.ifEq(v.hash(), () -> tailJump(v.relocated(address), -1)));
-          mm.invoke("unknownCodeVariant", address);
+          mm.invoke("unknownCodeVariant", address, variants.get(0).variableStart(), variants.get(0).variableBytes().length);
         }
         if (mutantCodeInInstruction(instruction, address)) {
           invokePc(address);
@@ -205,13 +206,14 @@ public class RoutineBytecodeGenerator {
     positionedLabels.forEach(l -> labels.get(l).here());
     returnFromMethod();
 
-    List<Integer> returnPoints = routine.getReturnPoints().values().stream().toList();
+    MultiValuedMap<Integer, Integer> catchPoints = catchPoints();
+    List<Integer> returnPoints = catchPoints.values().stream().toList();
     List<Integer> returnPointsDropped = routine.getReturnPointsDropped().values().stream().toList();
 
     if (!returnPoints.isEmpty() || !returnPointsDropped.isEmpty()) {
 //      returnPoints = returnPoints.stream().filter(i -> routine.contains(i)).toList();
 
-      Set<Integer> keys = new HashSet<>(routine.getReturnPoints().keys());
+      Set<Integer> keys = new HashSet<>(catchPoints.keys());
       keys.forEach(entry -> {
         Integer key = entry;
         Label tryStart = getLabel(key);
@@ -219,7 +221,7 @@ public class RoutineBytecodeGenerator {
         var e = mm.catch_(tryStart, tryEnd, StackException.class);
         Variable nextAddress = e.invoke("getNextPC");
 
-        Collection<Integer> integers = routine.getReturnPoints().get(key);
+        Collection<Integer> integers = catchPoints.get(key);
         integers.forEach(i -> {
           nextAddress.ifEq(i, () -> {
             loadPoppedReturnAddress(i, key);
@@ -538,6 +540,10 @@ public class RoutineBytecodeGenerator {
       mm.return_();
   }
 
+  private MultiValuedMap<Integer, Integer> catchPoints() {
+    return context.routineManager.catchPointsOfCallsIn(routine);
+  }
+
   private StackAnalyzer stackAnalyzer() {
     return context.symbolicExecutionAdapter.getStackAnalyzer();
   }
@@ -572,7 +578,7 @@ public class RoutineBytecodeGenerator {
         invokeTransformedMethod(continuation);
       else {
         Variable value = mm.invoke("pop");
-        if (!stackAnalyzer().dataConsumedBy.entries().stream().allMatch(e -> e.getValue() != push || stackAnalyzer().shiftedReturns.contains(e.getKey())))
+        if (!stackAnalyzer().dataConsumedBy.entries().stream().allMatch(e -> e.getValue() != push || stackAnalyzer().shiftedReturns.containsKey(e.getKey())))
           mm.invoke("jump", value);
       }
     });
