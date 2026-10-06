@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 public interface BytecodeGeneration {
-  Pattern UNDECOMPILED_METHOD = Pattern.compile("void \\$([0-9A-F]+)\\(\\) \\{\\s*// \\$FF: Couldn't be decompiled");
+  Pattern UNDECOMPILED_METHOD = Pattern.compile("(?:void|int) \\$([0-9A-F]+)\\(\\) \\{\\s*// \\$FF: Couldn't be decompiled");
 
   default String getDecompiledSource(String className, String targetFolder, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory, GameData gameData) {
     for (int attempt = 0; ; attempt++) {

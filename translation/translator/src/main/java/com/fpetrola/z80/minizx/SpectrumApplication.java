@@ -135,9 +135,6 @@ public abstract class SpectrumApplication {
   }
 
   public void jump(int address) {
-    String name = "$" + Integer.toHexString(address).toUpperCase();
-    if (StackWalker.getInstance().walk(frames -> frames.anyMatch(frame -> frame.getMethodName().equals(name))))
-      throw new StackException(address);
     invokeMethod(address);
   }
 
@@ -149,7 +146,8 @@ public abstract class SpectrumApplication {
       } catch (NoSuchMethodException decimalNamed) {
         method = getClass().getMethod("$" + address);
       }
-      method.invoke(this);
+      if (method.invoke(this) instanceof Integer next && next != -1)
+        getClass().getMethod("runJumps", int.class).invoke(this, next);
     } catch (java.lang.reflect.InvocationTargetException e) {
       if (e.getCause() instanceof RuntimeException runtime)
         throw runtime;

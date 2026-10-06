@@ -263,3 +263,25 @@ Las componentes fuertemente conexas del grafo de saltos entre rutinas de Emlyn:
 Fusionar cada componente en un método (lo que pedía la fase) no funciona: la grande no entra en un método de la JVM (64 KB de bytecode) ni la estructura Fernflower, y las de la ISR son justamente los cortes que hizo `splitIfTooLargeForOneMethod`. Además, una componente fusionada con varias entradas desde afuera vuelve a necesitar `isNextPC`: fusionar cambia `jump` por despacho de entrada, no lo elimina. Los `jump(` de Emlyn tienen 148 destinos distintos (`94AA` 22, `B42A` 17, `B113` 6...), así que no hay un patrón único que reconocer.
 
 Propuesta para reemplazar la fase 4: trampolín por componente. Cada rutina de una componente de saltos devuelve un `int` con la dirección a la que salta (o un marcador de salida si ejecuta un `RET` que sale de la componente), y un único bucle por componente las encadena: `for (int next = entrada; next != SALIDA; ) next = switch (next) { case 0x94AA -> $94AA(); ... };`. Los saltos dentro de la componente pasan a ser `return destino`; las llamadas desde afuera llaman al bucle; dentro de la componente ya no hace falta `StackWalker` ni excepciones, y las entradas a mitad de rutina se resuelven partiendo (el corte de la fase 3 sin la restricción de ciclos, porque el trampolín ya no crea ciclos de llamadas). Es un cambio de forma de los métodos generados (devuelven `int`) y toca el generador, el runtime (`jump`, `isOwnAddress`, `nextAddress`) y las expectativas de `RoutinesTests`.
+
+### Fase 4 implementada como trampolín (2026-10-06)
+
+- `StateBytecodeGenerator` declara `runJumps(int)` antes de generar las rutinas y lo llena después: un `while (true) switch (next)` sobre las entradas de las rutinas que están en ciclos de saltos (`BytecodeGenerationContext.routinesInJumpCycles()`, que ya existía); cada caso hace `next = $X();` y el valor por defecto sale.
+- `RoutineBytecodeGenerator`: los métodos de esas rutinas devuelven `int` (`createMethod`); `returnFromMethod` devuelve `-1` (salida, un `RET`); `tailJump(destino, sitio)` reemplaza los "`jumpInto` + `return`": entre miembros devuelve el destino (con `setNextAddress` si entra a la mitad), y si hay que correr un epílogo de datos propios (`leaveWithOwnData`) o el destino no es miembro, invoca y retorna. `invokeTransformedMethod` llama a `runJumps(X)` cuando X es miembro. Se eliminaron el `jump()` hacia rutinas en ciclos y los `catch` de reentrada que lo recibían.
+- `SpectrumApplication.invokeMethod` sigue el trampolín cuando una invocación reflexiva devuelve una dirección; `jump()` ya no usa `StackWalker` ni lanza excepciones: invoca.
+- El corte de la fase 3 ya no excluye rutinas en ciclos (el trampolín no crea ciclos de llamadas).
+- Arreglos del camino: la detección de métodos sin descompilar aceptaba solo `void` (ahora `void|int`); el reintento de descompilación también corta en destinos de saltos dentro del bloque, no solo de `CALL` (`$9869` de Emlyn no se descompilaba con la forma nueva); las caídas a direcciones sin rutina emiten `untranslated(destino)` en vez de `jump`.
+
+Resultado (fuentes regeneradas, reproducción completa de las tres grabaciones, suite 83/0):
+
+| Fuente | `jump(` | `setNextAddress(` | `isNextPC(` | `catch (StackException` | métodos `int` |
+|---|---|---|---|---|---|
+| Emlyn | 7 (antes 257) | 83 (189) | 41 (174) | 5 (92) | 136 |
+| Game (Wally) | 3 (3) | 1 (3) | 3 (5) | 1 (1) | 0 |
+| DD | 3 (5) | 0 (1) | 0 (3) | 8 (10) | 3 |
+
+Lo que queda:
+
+- Los `jump(` restantes son despachos dinámicos sin caso conocido (`JP (HL)` o `RET` con valor no visto en la grabación): son dinámicos de verdad.
+- `setNextAddress`/`isNextPC` restantes: entradas a mitad de una rutina cuyo tramo vuelve hacia atrás (un bucle que cruza la entrada). Sacarlas requiere duplicar el tramo por entrada o reestructurar el bucle; no se hizo.
+- Los `catch (StackException` restantes son los pops virtuales (rutinas que tiran su dirección de retorno), un mecanismo anterior a este plan.

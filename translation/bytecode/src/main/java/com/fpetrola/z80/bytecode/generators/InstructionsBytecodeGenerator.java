@@ -426,11 +426,8 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
           routineByteCodeGenerator.throwAfterVirtualPop(address);
 //          routineByteCodeGenerator.getField("nextAddress").set(nextAddress);
           incPopsAdded = true;
-        } else {
-          routineByteCodeGenerator.jumpInto(i);
-          routineByteCodeGenerator.leaveWithOwnData(address);
-          methodMaker.return_();
-        }
+        } else
+          routineByteCodeGenerator.tailJump(i, address);
         routineByteCodeGenerator.returnFromMethod();
       });
     }
@@ -543,9 +540,10 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
         if (label != null) {
           methodMaker.goto_(label);
         } else {
-          routineByteCodeGenerator.jumpInto(c);
-          if (!isSimulatedCall)
-            methodMaker.return_();
+          if (isSimulatedCall)
+            routineByteCodeGenerator.jumpInto(c);
+          else
+            routineByteCodeGenerator.tailJump(c, -1);
         }
       });
     });

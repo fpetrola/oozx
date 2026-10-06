@@ -245,8 +245,7 @@ public class RoutineManager {
     return previousOwner != null && previousOwner != owner && fallsThrough(getInstructionAt(before));
   }
 
-  public void splitAtEntriesFromOutside(java.util.function.IntFunction<java.util.Set<Integer>> dynamicTargets) {
-    java.util.Set<Routine> inJumpCycles = routinesInJumpCycles(dynamicTargets);
+  public void splitAtEntriesFromOutside() {
     java.util.Set<Integer> candidates = new java.util.TreeSet<>(externalEntries);
     candidates.addAll(callers.keySet());
     candidates.addAll(jumpsAfterStackReset.keySet());
@@ -256,7 +255,7 @@ public class RoutineManager {
       changed = false;
       for (int address : candidates) {
         Routine owner = findRoutineAt(address);
-        if (owner != null && !inJumpCycles.contains(owner) && isEnteredFromOutside(owner, address) && reachesOnlyItsOwnTail(owner, address))
+        if (owner != null && isEnteredFromOutside(owner, address) && reachesOnlyItsOwnTail(owner, address))
           changed |= owner.splitAt(address);
       }
     }

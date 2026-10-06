@@ -138,18 +138,12 @@ public class RoutineBytecodeGenerator {
               if (!routine.contains(nextAddress) && routine.getReturnPoints().containsKey(address))
                 labelsAfterLeavingCalls.put(address, mm.label().here());
               Routine continuationOwner = context.routineManager.findRoutineAt(nextAddress);
-              if (RoutineManager.fallsThrough(instruction) && !routine.contains(nextAddress) && continuationOwner != null && (continuationOwner.getEntryPoint() == nextAddress ? !continuationOwner.isVirtual() : context.routineManager.isEnteredFromOutside(continuationOwner, nextAddress))) {
-                jumpInto(nextAddress);
-                leaveWithOwnData(address);
-                returnFromMethod();
-              }
-              if (RoutineManager.fallsThrough(instruction) && routines.stream().anyMatch(routine1 -> routine1.isVirtual() && routine1 != routine && routine1.getEntryPoint() == nextAddress)) {
-                invokeTransformedMethod(nextAddress);
-                leaveWithOwnData(address);
-                returnFromMethod();
-              }
+              if (RoutineManager.fallsThrough(instruction) && !routine.contains(nextAddress) && continuationOwner != null && (continuationOwner.getEntryPoint() == nextAddress ? !continuationOwner.isVirtual() : context.routineManager.isEnteredFromOutside(continuationOwner, nextAddress)))
+                tailJump(nextAddress, address);
+              if (RoutineManager.fallsThrough(instruction) && routines.stream().anyMatch(routine1 -> routine1.isVirtual() && routine1 != routine && routine1.getEntryPoint() == nextAddress))
+                tailJump(nextAddress, address);
               if (RoutineManager.fallsThrough(instruction) && !(instruction instanceof Call) && !routine.contains(nextAddress) && continuationOwner == null) {
-                mm.invoke("jump", nextAddress);
+                mm.invoke("untranslated", nextAddress);
                 returnFromMethod();
               }
 
@@ -172,10 +166,7 @@ public class RoutineBytecodeGenerator {
         List<RoutineManager.CodeVariant> variants = context.routineManager.codeVariantsAt(address);
         if (!variants.isEmpty()) {
           Variable hash = mm.invoke("codeHash", variants.get(0).variableStart(), variants.get(0).variableBytes().length);
-          variants.forEach(v -> hash.ifEq(v.hash(), () -> {
-            jumpInto(v.relocated(address));
-            returnFromMethod();
-          }));
+          variants.forEach(v -> hash.ifEq(v.hash(), () -> tailJump(v.relocated(address), -1)));
           mm.invoke("unknownCodeVariant", address);
         }
         if (mutantCodeInInstruction(instruction, address)) {
@@ -212,13 +203,12 @@ public class RoutineBytecodeGenerator {
     generators.forEach(g -> g.instructionGenerator().run());
 
     positionedLabels.forEach(l -> labels.get(l).here());
-    mm.return_();
+    returnFromMethod();
 
     List<Integer> returnPoints = routine.getReturnPoints().values().stream().toList();
     List<Integer> returnPointsDropped = routine.getReturnPointsDropped().values().stream().toList();
 
-    boolean jumpedInto = context.routinesInJumpCycles().contains(routine) && context.routineManager.isJumpedIntoFromOtherRoutine(routine);
-    if (!returnPoints.isEmpty() || !returnPointsDropped.isEmpty() || jumpedInto) {
+    if (!returnPoints.isEmpty() || !returnPointsDropped.isEmpty()) {
 //      returnPoints = returnPoints.stream().filter(i -> routine.contains(i)).toList();
 
       Set<Integer> keys = new HashSet<>(routine.getReturnPoints().keys());
@@ -242,19 +232,14 @@ public class RoutineBytecodeGenerator {
             } else if (context.routineManager.getInstructionAt(i) instanceof JP jp && jp.getCondition() instanceof ConditionAlwaysTrue && getLabel(RoutineManager.fixedJumpTarget(jp)) != null) {
               invokePc(i);
               getLabel(RoutineManager.fixedJumpTarget(jp)).goto_();
-            } else {
-              jumpInto(i);
-              returnFromMethod();
-            }
+            } else
+              tailJump(i, -1);
           });
         });
         e.throw_();
       });
 
-      Set<Integer> restartPoints = new HashSet<>(returnPointsDropped);
-      if (jumpedInto)
-        restartPoints.add(routine.getEntryPoint());
-      List<Integer> droppedPoints = new ArrayList<>(restartPoints);
+      List<Integer> droppedPoints = new ArrayList<>(new HashSet<>(returnPointsDropped));
       if (!droppedPoints.isEmpty()) {
         mm.catch_(label1, StackException.class, (Variable exception) -> {
           Variable points = mm.new_(int[].class, droppedPoints.size());
@@ -389,7 +374,8 @@ public class RoutineBytecodeGenerator {
   }
 
   protected MethodMaker createMethod(int address, String methodName) {
-    return context.cm.addMethod(void.class, methodName).public_();
+    Routine owner = context.routineManager.findRoutineAt(address);
+    return context.cm.addMethod(isJumpMember(owner) && owner.getEntryPoint() == address ? int.class : void.class, methodName).public_();
   }
 
   public  Variable getField(String name) {
@@ -470,19 +456,36 @@ public class RoutineBytecodeGenerator {
     if (owner != null && context.routineManager.isEnteredFromOutside(owner, address)) {
       mm.invoke("setNextAddress", address);
       invokeTransformedMethod(owner.getEntryPoint());
-    } else if (owner != null && owner != routine && owner.getEntryPoint() == address && context.routinesInJumpCycles().contains(owner))
-      mm.invoke("jump", address);
-    else if (owner != null)
+    } else if (owner != null)
       invokeTransformedMethod(address);
     else
       mm.invoke("untranslated", address);
+  }
+
+  public void tailJump(int address, int site) {
+    Routine owner = context.routineManager.findRoutineAt(address);
+    if (isJumpMember(routine) && isJumpMember(owner) && (site == -1 || ownDataLeftForOthers(site).isEmpty())) {
+      if (owner.getEntryPoint() != address)
+        mm.invoke("setNextAddress", address);
+      mm.return_(owner.getEntryPoint());
+    } else {
+      jumpInto(address);
+      if (site != -1)
+        leaveWithOwnData(site);
+      returnFromMethod();
+    }
+  }
+
+  private boolean isJumpMember(Routine candidate) {
+    return candidate != null && context.routinesInJumpCycles().contains(candidate);
   }
 
   public Variable invokeTransformedMethod(int jumpLabel) {
     String labelName = createLabelName(jumpLabel);
     Variable invoke = null;
     try {
-      invoke = mm.invoke(labelName);
+      Routine target = context.routineManager.findRoutineAt(jumpLabel);
+      invoke = isJumpMember(target) && target.getEntryPoint() == jumpLabel ? mm.invoke("runJumps", jumpLabel) : mm.invoke(labelName);
     } catch (Exception e) {
       System.out.println("not found: " + labelName + " from " + routine + " at " + Helper.formatAddress(context.pc.read()) + " callers " + context.routineManager.callers.get(jumpLabel) + " owner " + context.routineManager.findRoutineAt(jumpLabel));
     }
@@ -524,7 +527,10 @@ public class RoutineBytecodeGenerator {
   }
 
   protected void returnFromMethod() {
-    mm.return_();
+    if (isJumpMember(routine))
+      mm.return_(-1);
+    else
+      mm.return_();
   }
 
   private StackAnalyzer stackAnalyzer() {
@@ -550,8 +556,12 @@ public class RoutineBytecodeGenerator {
     return stackAnalyzer().poppedCallSites.contains(callSite) && !routine.getReturnPoints().containsKey(callSite);
   }
 
+  private List<Integer> ownDataLeftForOthers(int site) {
+    return stackAnalyzer().dataOnTopAt.get(site).stream().filter(push -> routine.contains(push) && consumedOutside(push)).toList();
+  }
+
   public void leaveWithOwnData(int site) {
-    stackAnalyzer().dataOnTopAt.get(site).stream().filter(push -> routine.contains(push) && consumedOutside(push)).forEach(push -> {
+    ownDataLeftForOthers(site).forEach(push -> {
       Integer continuation = plantedContinuation(push);
       if (continuation != null)
         invokeTransformedMethod(continuation);

@@ -29,7 +29,9 @@ import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.cojen.maker.ClassMaker;
 import org.cojen.maker.ClassMaker2;
+import org.cojen.maker.Label;
 import org.cojen.maker.MethodMaker;
+import org.cojen.maker.Variable;
 
 import java.util.*;
 
@@ -93,7 +95,7 @@ public class StateBytecodeGenerator {
 //    routineManager.addRoutine(new Routine(block, 34463, true));
 ////    routine1.split(34762);
 
-    routineManager.splitAtEntriesFromOutside(pc -> symbolicExecutionAdapter.getStackAnalyzer().getInvocationsSet(pc));
+    routineManager.splitAtEntriesFromOutside();
     new ArrayList<>(routineManager.getRoutines()).forEach(this::splitIfTooLargeForOneMethod);
     List<Routine> routines = routineManager.getRoutinesInDepth();
 
@@ -101,6 +103,9 @@ public class StateBytecodeGenerator {
     routineBytecodeGenerator1.createMethod(0);
 
     routines.sort(Comparator.comparingInt(Routine::getEntryPoint));
+
+    int[] jumpMembers = bytecodeGenerationContext.routinesInJumpCycles().stream().mapToInt(Routine::getEntryPoint).sorted().toArray();
+    MethodMaker runJumps = jumpMembers.length > 0 ? classMaker.addMethod(void.class, "runJumps", int.class).public_() : null;
 
     routines.forEach(routine -> {
       routine.optimize();
@@ -121,10 +126,26 @@ public class StateBytecodeGenerator {
       if (owner != null && owner.getEntryPoint() != entry) {
         MethodMaker entryMethod = new RoutineBytecodeGenerator(bytecodeGenerationContext, owner).getMethod(entry);
         entryMethod.invoke("setNextAddress", entry);
-        entryMethod.invoke(RoutineBytecodeGenerator.createLabelName(owner.getEntryPoint()));
+        if (bytecodeGenerationContext.routinesInJumpCycles().contains(owner))
+          entryMethod.invoke("runJumps", owner.getEntryPoint());
+        else
+          entryMethod.invoke(RoutineBytecodeGenerator.createLabelName(owner.getEntryPoint()));
         entryMethod.return_();
       }
     });
+
+    if (jumpMembers.length > 0) {
+      Variable next = runJumps.var(int.class).set(runJumps.param(0));
+      Label loop = runJumps.label().here(), exit = runJumps.label();
+      Label[] members = java.util.stream.IntStream.range(0, jumpMembers.length).mapToObj(i -> runJumps.label()).toArray(Label[]::new);
+      next.switch_(exit, jumpMembers, members);
+      for (int i = 0; i < jumpMembers.length; i++) {
+        members[i].here();
+        next.set(runJumps.invoke(RoutineBytecodeGenerator.createLabelName(jumpMembers[i])));
+        loop.goto_();
+      }
+      exit.here();
+    }
 
     return classMaker;
   }
@@ -153,7 +174,8 @@ public class StateBytecodeGenerator {
 
   private Optional<Integer> jumpTargetNearestToMiddleOf(Block block) {
     int start = block.getRangeHandler().getStartAddress(), end = block.getRangeHandler().getEndAddress(), middle = (start + end) / 2;
-    return routineManager.callers.keySet().stream().filter(target -> target > start && target <= end).min(Comparator.comparingInt(target -> Math.abs(target - middle)));
+    return java.util.stream.Stream.concat(routineManager.callers.keySet().stream(), java.util.stream.IntStream.rangeClosed(start, end).map(address -> RoutineManager.fixedJumpTarget(routineManager.getInstructionAt(address))).boxed())
+        .filter(target -> target > start && target <= end).min(Comparator.comparingInt(target -> Math.abs(target - middle)));
   }
 
   private static int size(Routine routine) {

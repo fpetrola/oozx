@@ -71,7 +71,7 @@ public class VariableHandlingInstructionVisitor implements InstructionVisitor<In
       Variable executedUpTo = routineByteCodeGenerator.mm.invoke("executeMutantCode", i);
       executedUpTo.ifNe(next, () -> {
         routineByteCodeGenerator.mm.invoke("jump", executedUpTo);
-        routineByteCodeGenerator.mm.return_();
+        routineByteCodeGenerator.returnFromMethod();
       });
 //      sourceVariable = routineByteCodeGenerator.getField("mem").aget(mutantCode.get());
     }
