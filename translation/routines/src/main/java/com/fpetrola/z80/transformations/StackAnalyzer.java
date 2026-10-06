@@ -59,7 +59,8 @@ public class StackAnalyzer {
   public final MultiValuedMap<Integer, Integer> pushedValues = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> calledThrough = new HashSetValuedHashMap<>();
   public final Set<Integer> jumpTableSites = new HashSet<>();
-  public final Set<Integer> nonLocalRets = new HashSet<>();
+  public final MultiValuedMap<Integer, Integer> nonLocalRets = new HashSetValuedHashMap<>();
+  public final MultiValuedMap<Integer, Integer> returnSlots = new HashSetValuedHashMap<>();
   public static boolean collecting;
   private int pcValue;
   private int stackResetTo = -1;
@@ -244,7 +245,7 @@ public class StackAnalyzer {
         boolean afterStackReset = state.getRegisterSP().read() == stackResetTo;
         stackResetTo = -1;
         if (afterStackReset && collecting && (returnsDropped ? entry != null && entry.returnAddress() : entry == null && knowsWholeStack))
-          nonLocalRets.add(pcValue);
+          nonLocalRets.put(pcValue, state.getRegisterSP().read());
         if (entry == null && afterStackReset && knowsWholeStack)
           jumpingUsingRet(ret, state.getMemory().read16Bits(state.getRegisterSP().read()), null);
         else if (entry == null)
@@ -363,6 +364,8 @@ public class StackAnalyzer {
     int sp = state.getRegisterSP().read();
     Entry entry = new Entry(state.getMemory().read16Bits(sp), state.getPc().read(), returnAddress);
     entries.put(sp, entry);
+    if (returnAddress && collecting)
+      returnSlots.put(sp, entry.pc());
     if (!returnAddress)
       pushedValues.put(entry.pc(), entry.value());
   }
@@ -379,6 +382,7 @@ public class StackAnalyzer {
     calledThrough.clear();
     jumpTableSites.clear();
     nonLocalRets.clear();
+    returnSlots.clear();
   }
 
   public void learnFrom(StackAnalyzer recorded) {
@@ -391,7 +395,8 @@ public class StackAnalyzer {
     returnsConsumedBy.putAll(recorded.returnsConsumedBy);
     pushedValues.putAll(recorded.pushedValues);
     calledThrough.putAll(recorded.calledThrough);
-    nonLocalRets.addAll(recorded.nonLocalRets);
+    nonLocalRets.putAll(recorded.nonLocalRets);
+    returnSlots.putAll(recorded.returnSlots);
   }
 
   public Set<Integer> getInvocationsSet(int pcValue1) {

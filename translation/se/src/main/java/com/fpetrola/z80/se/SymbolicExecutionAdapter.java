@@ -148,6 +148,7 @@ public class SymbolicExecutionAdapter {
 
   public void reset() {
     mutantAddress.clear();
+    continuationRuns.clear();
     state.getMemory().unprotect(0, 0x10000);
     stackAnalyzer.forgetLearned();
     explorationSP = -1;
@@ -259,9 +260,16 @@ public class SymbolicExecutionAdapter {
   }
 
   private boolean isStaticSuccessor(int pcValue, int next) {
+    Instruction executed = routineManager.getInstructionAt(pcValue);
+    boolean callContinuation = executed instanceof Ret && routineManager.getInstructionAt(next - 3 & 0xffff) instanceof Call;
+    boolean straightAfterContinuation = continuationRuns.contains(pcValue) && !(executed instanceof ConditionalInstruction<?>) && next == routineManager.addressAfter(pcValue);
+    if (callContinuation || straightAfterContinuation)
+      return continuationRuns.add(next) || true;
     return routineManager.getInstructionAt(pcValue) instanceof ConditionalInstruction<?> conditional && !(conditional instanceof Call) && !(conditional.getCondition() instanceof ConditionAlwaysTrue)
         && (next == routineManager.addressAfter(pcValue) || conditional.getJumpAddress() == next);
   }
+
+  private final Set<Integer> continuationRuns = new HashSet<>();
 
   private boolean isTailCallToRom(int pcValue) {
     return routineManager.getInstructionAt(pcValue) instanceof JP jp && jp.getCondition() instanceof ConditionAlwaysTrue && !routineManager.isCode(jp.getJumpAddress());

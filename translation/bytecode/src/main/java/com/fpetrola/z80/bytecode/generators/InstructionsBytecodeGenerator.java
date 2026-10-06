@@ -378,8 +378,11 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     createIfs(call, () -> {
       if (routineByteCodeGenerator.pushesReturnAddress(callSite))
         methodMaker.invoke("push", returnAddress);
-      if (routineByteCodeGenerator.context.routineManager.findRoutineAt(jumpLabel) != null)
+      if (routineByteCodeGenerator.context.routineManager.findRoutineAt(jumpLabel) != null) {
         routineByteCodeGenerator.invokeTransformedMethod(jumpLabel);
+        if (routineByteCodeGenerator.context.routineManager.pushedReturnSites.contains(callSite))
+          methodMaker.invoke("pop");
+      }
       else if (trampoline != null) {
         routineByteCodeGenerator.invokePc(jumpLabel, trampoline == RegisterName.HL ? 1 : 2);
         Variable target = methodMaker.invoke(trampoline.name());

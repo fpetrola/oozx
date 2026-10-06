@@ -305,7 +305,7 @@ public class GameBytecodeCreationTests {
     getRoutineManager().setReachable(footprint.executed());
     realCodeBytecodeCreationBase.symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
     getRoutineManager().externalEntries.addAll(footprint.returnAddressesOnStack());
-    stackAnalyzer.nonLocalRets.forEach(ret -> getRoutineManager().externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(ret)));
+    stackAnalyzer.nonLocalRets.keySet().forEach(ret -> getRoutineManager().externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(ret)));
     getRoutineManager().externalEntries.addAll(stackAnalyzer.calledThrough.values());
     exploreGame(start, Stream.of(Stream.of(0xF85A), footprint.returnAddressesOnStack().stream(), stackAnalyzer.dynamicInvocation.values().stream(), stackAnalyzer.calledThrough.values().stream()).flatMap(s -> s).mapToInt(Integer::intValue).toArray());
     realCodeBytecodeCreationBase.translateRomRoutines(0x0038);

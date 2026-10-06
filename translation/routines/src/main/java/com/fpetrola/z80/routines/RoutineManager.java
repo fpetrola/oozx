@@ -151,11 +151,12 @@ public class RoutineManager {
         nonLocalReturnPoints.put(e.getValue(), continuation);
       }
     });
-    stackAnalyzer.nonLocalRets.forEach(ret -> stackAnalyzer.returnsConsumedBy.get(ret).stream().filter(callSite -> instructions.get(callSite) instanceof Call).forEach(callSite -> {
-      nonLocalReturns.put(ret, addressAfter(callSite));
-      nonLocalReturnPoints.put(callSite, addressAfter(callSite));
-      pushedReturnSites.add(callSite);
-    }));
+    stackAnalyzer.nonLocalRets.entries().forEach(ret -> Stream.concat(stackAnalyzer.returnsConsumedBy.get(ret.getKey()).stream(), stackAnalyzer.returnSlots.get(ret.getValue()).stream())
+        .filter(callSite -> instructions.get(callSite) instanceof Call).forEach(callSite -> {
+          nonLocalReturns.put(ret.getKey(), addressAfter(callSite));
+          nonLocalReturnPoints.put(callSite, addressAfter(callSite));
+          pushedReturnSites.add(callSite);
+        }));
   }
 
   public MultiValuedMap<Integer, Integer> catchPointsOfCallsIn(Routine routine) {
