@@ -27,6 +27,8 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Pop;
+import com.fpetrola.z80.instructions.impl.Push;
+import com.fpetrola.z80.transformations.StackAnalyzer;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.bytecode.generators.helpers.*;
@@ -138,10 +140,12 @@ public class RoutineBytecodeGenerator {
               Routine continuationOwner = context.routineManager.findRoutineAt(nextAddress);
               if (RoutineManager.fallsThrough(instruction) && !routine.contains(nextAddress) && continuationOwner != null && (continuationOwner.getEntryPoint() == nextAddress ? !continuationOwner.isVirtual() : isEnteredFromOutside(continuationOwner, nextAddress))) {
                 jumpInto(nextAddress);
+                leaveWithOwnData(address);
                 returnFromMethod();
               }
               if (RoutineManager.fallsThrough(instruction) && routines.stream().anyMatch(routine1 -> routine1.isVirtual() && routine1 != routine && routine1.getEntryPoint() == nextAddress)) {
                 invokeTransformedMethod(nextAddress);
+                leaveWithOwnData(address);
                 returnFromMethod();
               }
               if (RoutineManager.fallsThrough(instruction) && !(instruction instanceof Call) && !routine.contains(nextAddress) && continuationOwner == null) {
@@ -228,13 +232,13 @@ public class RoutineBytecodeGenerator {
         Collection<Integer> integers = routine.getReturnPoints().get(key);
         integers.forEach(i -> {
           nextAddress.ifEq(i, () -> {
-            loadPoppedReturnAddress(i);
+            loadPoppedReturnAddress(i, key);
             Label label3 = getLabel(i);
             if (label3 != null)
               label3.goto_();
             else if (context.routineManager.getInstructionAt(i) instanceof Ret ret && ret.getCondition() instanceof ConditionAlwaysTrue) {
               invokePc(i);
-              returnFromRoutine();
+              returnFromMethod();
             } else if (context.routineManager.getInstructionAt(i) instanceof JP jp && jp.getCondition() instanceof ConditionAlwaysTrue && getLabel(RoutineManager.fixedJumpTarget(jp)) != null) {
               invokePc(i);
               getLabel(RoutineManager.fixedJumpTarget(jp)).goto_();
@@ -508,10 +512,10 @@ public class RoutineBytecodeGenerator {
     return pop != null && pop != context.routineManager.addressAfter(address);
   }
 
-  private void loadPoppedReturnAddress(int returnPoint) {
+  private void loadPoppedReturnAddress(int returnPoint, int callSite) {
     for (int length = 1; length <= 2; length++)
       if (context.routineManager.getInstructionAt(returnPoint - length) instanceof Pop pop && pop.getLength() == length)
-        getExistingVariable((Register) pop.getTarget()).set(mm.invoke("pop"));
+        getExistingVariable((Register) pop.getTarget()).set(context.routineManager.addressAfter(callSite));
   }
 
   public void throwAfterVirtualPop(int address) {
@@ -536,9 +540,44 @@ public class RoutineBytecodeGenerator {
     mm.return_();
   }
 
-  protected void returnFromRoutine() {
-    mm.invoke("ret");
-    mm.return_();
+  private StackAnalyzer stackAnalyzer() {
+    return context.symbolicExecutionAdapter.getStackAnalyzer();
+  }
+
+  public Integer plantedContinuation(int push) {
+    Collection<Integer> values = stackAnalyzer().pushedValues.get(push);
+    if (values.size() != 1 || !stackAnalyzer().dataConsumedBy.containsValue(push) || !(context.routineManager.getInstructionAt(push) instanceof Push pushInstruction))
+      return null;
+    int value = values.iterator().next();
+    Routine target = context.routineManager.findRoutineAt(value);
+    boolean loadedRightBefore = context.routineManager.getInstructionAt(context.routineManager.addressBefore(push)) instanceof Ld ld && ld.getSource() instanceof Memory16BitReference
+        && ld.getTarget() instanceof Register loaded && pushInstruction.getTarget() instanceof Register pushed && loaded.getName().equals(pushed.getName());
+    return loadedRightBefore && target != null && target.getEntryPoint() == value ? value : null;
+  }
+
+  public List<Integer> ownPushesConsumedAt(int ret) {
+    return stackAnalyzer().dataConsumedBy.get(ret).stream().filter(routine::contains).toList();
+  }
+
+  public boolean pushesReturnAddress(int callSite) {
+    return stackAnalyzer().poppedCallSites.contains(callSite) && !routine.getReturnPoints().containsKey(callSite);
+  }
+
+  public void leaveWithOwnData(int site) {
+    stackAnalyzer().dataOnTopAt.get(site).stream().filter(push -> routine.contains(push) && consumedOutside(push)).forEach(push -> {
+      Integer continuation = plantedContinuation(push);
+      if (continuation != null)
+        invokeTransformedMethod(continuation);
+      else {
+        Variable value = mm.invoke("pop");
+        if (!stackAnalyzer().dataConsumedBy.entries().stream().allMatch(e -> e.getValue() != push || stackAnalyzer().shiftedReturns.contains(e.getKey())))
+          mm.invoke("jump", value);
+      }
+    });
+  }
+
+  private boolean consumedOutside(int push) {
+    return stackAnalyzer().dataConsumedBy.entries().stream().anyMatch(e -> e.getValue() == push && !routine.contains(e.getKey()));
   }
 
   void invokeReturnPoints(Label label2) {

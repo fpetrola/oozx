@@ -51,7 +51,6 @@ public class Emlyn extends MiniZX {
       int var12 = this.DE();
       this.push(var12);
       this.pc(74, 1);
-      this.call(77);
       this.$2BF();
       this.pc(77, 1);
       int var13 = this.pop();
@@ -68,7 +67,6 @@ public class Emlyn extends MiniZX {
       this.pc(81, 1);
       this.ei();
       this.pc(82, 1);
-      this.ret();
    }
 
    public void $28E() {
@@ -108,7 +106,6 @@ public class Emlyn extends MiniZX {
                this.D(var23);
                this.pc(672, 1);
                if(this.flag(64, true)) {
-                  this.ret();
                   return;
                }
 
@@ -153,23 +150,17 @@ public class Emlyn extends MiniZX {
       int var13 = this.alu("inc", var12);
       this.A(var13);
       this.pc(690, 1);
-      if(this.flag(64, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, false)) {
          this.pc(691, 1);
          int var14 = this.A();
          this.alu("cp", var14, 40);
          this.pc(693, 1);
-         if(this.flag(64, false)) {
-            this.ret();
-         } else {
+         if(!this.flag(64, false)) {
             this.pc(694, 1);
             int var15 = this.A();
             this.alu("cp", var15, 25);
             this.pc(696, 1);
-            if(this.flag(64, false)) {
-               this.ret();
-            } else {
+            if(!this.flag(64, false)) {
                this.pc(697, 1);
                int var16 = this.E();
                this.A(var16);
@@ -183,7 +174,6 @@ public class Emlyn extends MiniZX {
                int var19 = this.A();
                this.alu("cp", var19, 24);
                this.pc(702, 1);
-               this.ret();
             }
          }
       }
@@ -191,12 +181,9 @@ public class Emlyn extends MiniZX {
 
    public void $2BF() {
       this.pc(703, 1);
-      this.call(706);
       this.$28E();
       this.pc(706, 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          this.pc(707, 1);
          this.HL(23552);
 
@@ -242,12 +229,9 @@ public class Emlyn extends MiniZX {
          } while(this.flag(64, true));
 
          this.pc(728, 1);
-         this.call(731);
          this.$31E();
          this.pc(731, 1);
-         if(this.flag(1, true)) {
-            this.ret();
-         } else {
+         if(!this.flag(1, true)) {
             label46: {
                this.pc(732, 1);
                this.HL(23552);
@@ -283,7 +267,6 @@ public class Emlyn extends MiniZX {
                         this.bit(7, var55);
                         this.pc(752, 1);
                         if(this.flag(64, false)) {
-                           this.ret();
                            return;
                         }
                      }
@@ -329,7 +312,6 @@ public class Emlyn extends MiniZX {
                      int var50 = this.HL();
                      this.push(var50);
                      this.pc(771, 1);
-                     this.call(774);
                      this.$333();
                      this.pc(774, 1);
                      int var51 = this.pop();
@@ -361,7 +343,6 @@ public class Emlyn extends MiniZX {
                this.wMem(var17, var16, 788);
                this.pc(789, 1);
                if(this.flag(64, true)) {
-                  this.ret();
                   return;
                }
 
@@ -391,7 +372,6 @@ public class Emlyn extends MiniZX {
             int var27 = this.mem(var26, 779) | 32;
             this.wMem(var26, var27, 779);
             this.pc(783, 1);
-            this.ret();
          }
       }
    }
@@ -409,9 +389,7 @@ public class Emlyn extends MiniZX {
       int var3 = this.A();
       this.alu("cp", var3, 39);
       this.pc(804, 1);
-      if(this.flag(1, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(1, true)) {
          this.pc(805, 1);
          int var4 = this.A();
          this.alu("cp", var4, 24);
@@ -437,7 +415,6 @@ public class Emlyn extends MiniZX {
             int var10 = this.A();
             this.alu("scf", var10);
             this.pc(818, 1);
-            this.ret();
          }
       }
    }
@@ -487,23 +464,18 @@ public class Emlyn extends MiniZX {
                   int var13 = this.mem(var12, 858);
                   this.bit(3, var13);
                   this.pc(862, 1);
-                  if(this.flag(64, true)) {
-                     this.ret();
-                  } else {
+                  if(!this.flag(64, true)) {
                      this.pc(863, 1);
                      int var14 = this.B();
                      int var15 = this.alu("inc", var14);
                      this.B(var15);
                      this.pc(864, 1);
-                     if(this.flag(64, true)) {
-                        this.ret();
-                     } else {
+                     if(!this.flag(64, true)) {
                         this.pc(865, 1);
                         int var16 = this.A();
                         int var17 = this.alu("add", var16, 32);
                         this.A(var17);
                         this.pc(867, 1);
-                        this.ret();
                      }
                   }
                } else {
@@ -524,9 +496,7 @@ public class Emlyn extends MiniZX {
          int var3 = this.A();
          this.alu("cp", var3, 48);
          this.pc(873, 1);
-         if(this.flag(1, false)) {
-            this.ret();
-         } else {
+         if(!this.flag(1, false)) {
             this.pc(874, 1);
             int var4 = this.C();
             int var5 = this.alu("dec", var4);
@@ -565,7 +535,6 @@ public class Emlyn extends MiniZX {
       int var1 = this.BC();
       this.push(var1);
       this.pc(3653, 1);
-      this.call(3656);
       this.$E9B();
       this.pc(3656, 1);
       this.C(8);
@@ -664,7 +633,6 @@ public class Emlyn extends MiniZX {
       } while(this.flag(64, true));
 
       this.pc(3694, 1);
-      this.call(3697);
       this.$E88();
       this.pc(3697, 1);
       int var36 = this.D();
@@ -706,7 +674,6 @@ public class Emlyn extends MiniZX {
       this.pc(3717, 1);
       this.C(33);
       this.pc(3719, 1);
-      this.ret();
    }
 
    public void $E88() {
@@ -776,7 +743,6 @@ public class Emlyn extends MiniZX {
       int var31 = this.L();
       this.C(var31);
       this.pc(3738, 1);
-      this.ret();
    }
 
    public void $E9B() {
@@ -824,7 +790,6 @@ public class Emlyn extends MiniZX {
       int var19 = this.A();
       this.H(var19);
       this.pc(3755, 1);
-      this.ret();
    }
 
    public void $22B0() {
@@ -921,7 +886,6 @@ public class Emlyn extends MiniZX {
       int var46 = this.alu("and", var45, 7);
       this.A(var46);
       this.pc(8906, 1);
-      this.ret();
    }
 
    public void $2C8D() {
@@ -932,16 +896,12 @@ public class Emlyn extends MiniZX {
       int var2 = this.A();
       this.alu("ccf", var2);
       this.pc(11408, 1);
-      if(this.flag(1, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(1, true)) {
          this.pc(11409, 1);
          int var3 = this.A();
          this.alu("cp", var3, 91);
          this.pc(11411, 1);
-         if(this.flag(1, false)) {
-            this.ret();
-         } else {
+         if(!this.flag(1, false)) {
             this.pc(11412, 1);
             int var4 = this.A();
             this.alu("cp", var4, 97);
@@ -972,12 +932,10 @@ public class Emlyn extends MiniZX {
       int var12 = this.alu("add", var11, var10);
       this.A(var12);
       this.pc(23649, 1);
-      this.ret();
    }
 
    public void $5CC0() {
       this.pc(23744, 1);
-      this.call(23747);
       this.$5CD0();
       this.pc(23747, 1);
       this.A(7);
@@ -1017,7 +975,6 @@ public class Emlyn extends MiniZX {
       int var2 = this.mem(var1, 23768) & -2;
       this.wMem(var1, var2, 23768);
       this.pc(23772, 1);
-      this.ret();
    }
 
    public void $5CDD() {
@@ -1080,7 +1037,6 @@ public class Emlyn extends MiniZX {
       int var22 = this.pop();
       this.HL(var22);
       this.pc(23796, 1);
-      this.ret();
    }
 
    public void $5CF5() {
@@ -1105,11 +1061,6 @@ public class Emlyn extends MiniZX {
          this.BC(var6);
          this.pc(23801, 1);
          if(this.flag(64, false)) {
-            if(this.ret() == 26125) {
-               this.$660D();
-               return;
-            }
-
             return;
          }
 
@@ -1122,7 +1073,6 @@ public class Emlyn extends MiniZX {
          int var10 = this.inc16(var9);
          this.DE(var10);
          this.pc(23804, 1);
-         this.call(23807);
          this.$5D24();
          this.pc(23807, 1);
       }
@@ -1152,7 +1102,6 @@ public class Emlyn extends MiniZX {
       int var7 = this.A();
       this.D(var7);
       this.pc(23819, 1);
-      this.ret();
    }
 
    public void $5D0C() {
@@ -1172,7 +1121,6 @@ public class Emlyn extends MiniZX {
       int var5 = this.mem(23560, 23830);
       this.A(var5);
       this.pc(23833, 1);
-      this.ret();
    }
 
    public void $5D1A() {
@@ -1190,57 +1138,33 @@ public class Emlyn extends MiniZX {
    }
 
    public void $5D24() {
-      label32: {
-         this.pc(23844, 1);
-         int var1 = this.BC();
-         this.push(var1);
-         this.pc(23845, 1);
-         int var2 = this.DE();
-         this.push(var2);
-         this.pc(23846, 1);
-         int var3 = this.HL();
-         this.push(var3);
-         this.pc(23847, 2);
-         int var4 = this.IX();
-         this.push(var4);
-         this.pc(23849, 2);
-         int var5 = this.mem16(23582, 23849);
-         this.BC(var5);
-         this.pc(23853, 1);
-         int var6 = this.A();
-         this.alu("cp", var6, 13);
-         this.pc(23855, 1);
-         if(!this.flag(64, false)) {
-            label31: {
+      label23: {
+         label22: {
+            this.pc(23844, 1);
+            int var1 = this.BC();
+            this.push(var1);
+            this.pc(23845, 1);
+            int var2 = this.DE();
+            this.push(var2);
+            this.pc(23846, 1);
+            int var3 = this.HL();
+            this.push(var3);
+            this.pc(23847, 2);
+            int var4 = this.IX();
+            this.push(var4);
+            this.pc(23849, 2);
+            int var5 = this.mem16(23582, 23849);
+            this.BC(var5);
+            this.pc(23853, 1);
+            int var6 = this.A();
+            this.alu("cp", var6, 13);
+            this.pc(23855, 1);
+            if(!this.flag(64, false)) {
                this.pc(23857, 1);
                int var17 = this.A();
                this.alu("cp", var17, 8);
                this.pc(23859, 1);
-               if(!this.flag(64, false)) {
-                  this.pc(23861, 1);
-                  int var22 = this.BC();
-                  this.push(var22);
-                  this.pc(23862, 1);
-                  this.call(23865);
-                  this.$5DAD();
-                  this.pc(23865, 1);
-                  int var23 = this.pop();
-                  this.BC(var23);
-                  this.pc(23866, 1);
-                  int var24 = this.C();
-                  int var25 = this.alu("inc", var24);
-                  this.C(var25);
-                  this.pc(23867, 1);
-                  int var26 = this.C();
-                  this.A(var26);
-                  this.pc(23868, 1);
-                  int var27 = this.A();
-                  this.alu("cp", var27, 42);
-                  this.pc(23870, 1);
-                  if(!this.flag(1, false)) {
-                     break label31;
-                  }
-               } else {
+               if(this.flag(64, false)) {
                   this.pc(23894, 1);
                   int var18 = this.C();
                   this.A(var18);
@@ -1251,36 +1175,60 @@ public class Emlyn extends MiniZX {
                   this.pc(23897, 1);
                   if(!this.flag(1, true)) {
                      this.pc(23899, 1);
-                     break label32;
+                     break label23;
                   }
+                  break label22;
                }
 
-               this.pc(23883, 1);
-               int var21 = this.A();
-               this.C(var21);
-               break label32;
+               this.pc(23861, 1);
+               int var22 = this.BC();
+               this.push(var22);
+               this.pc(23862, 1);
+               this.$5DAD();
+               this.pc(23865, 1);
+               int var23 = this.pop();
+               this.BC(var23);
+               this.pc(23866, 1);
+               int var24 = this.C();
+               int var25 = this.alu("inc", var24);
+               this.C(var25);
+               this.pc(23867, 1);
+               int var26 = this.C();
+               this.A(var26);
+               this.pc(23868, 1);
+               int var27 = this.A();
+               this.alu("cp", var27, 42);
+               this.pc(23870, 1);
+               if(this.flag(1, false)) {
+                  break label22;
+               }
             }
+
+            this.pc(23872, 1);
+            this.C(0);
+            this.pc(23874, 1);
+            int var7 = this.B();
+            this.A(var7);
+            this.pc(23875, 1);
+            int var8 = this.A();
+            int var9 = this.alu("inc", var8);
+            this.A(var9);
+            this.pc(23876, 1);
+            int var10 = this.A();
+            this.alu("cp", var10, 24);
+            this.pc(23878, 1);
+            if(!this.flag(1, true)) {
+               this.pc(23880, 1);
+               int var16 = this.A();
+               this.B(var16);
+               this.pc(23881, 1);
+            }
+            break label23;
          }
 
-         this.pc(23872, 1);
-         this.C(0);
-         this.pc(23874, 1);
-         int var7 = this.B();
-         this.A(var7);
-         this.pc(23875, 1);
-         int var8 = this.A();
-         int var9 = this.alu("inc", var8);
-         this.A(var9);
-         this.pc(23876, 1);
-         int var10 = this.A();
-         this.alu("cp", var10, 24);
-         this.pc(23878, 1);
-         if(!this.flag(1, true)) {
-            this.pc(23880, 1);
-            int var16 = this.A();
-            this.B(var16);
-            this.pc(23881, 1);
-         }
+         this.pc(23883, 1);
+         int var21 = this.A();
+         this.C(var21);
       }
 
       this.pc(23884, 2);
@@ -1299,14 +1247,10 @@ public class Emlyn extends MiniZX {
       int var15 = this.pop();
       this.BC(var15);
       this.pc(23893, 1);
-      if(this.ret() == 26125) {
-         this.$660D();
-      }
    }
 
    public void $5D5D() {
       this.pc(23901, 1);
-      this.call(23904);
       this.$5D01();
       this.pc(23904, 1);
       int var1 = this.E();
@@ -1315,13 +1259,10 @@ public class Emlyn extends MiniZX {
       int var2 = this.A();
       this.alu("cp", var2, 48);
       this.pc(23907, 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          this.pc(23908, 1);
          this.E(32);
          this.pc(23910, 1);
-         this.ret();
       }
    }
 
@@ -1343,7 +1284,6 @@ public class Emlyn extends MiniZX {
 
    public void $5D6D() {
       this.pc(23917, 1);
-      this.call(23920);
       this.$5D5D();
       this.$5D70();
    }
@@ -1353,7 +1293,6 @@ public class Emlyn extends MiniZX {
       int var1 = this.E();
       this.A(var1);
       this.pc(23921, 1);
-      this.call(23924);
       this.$5D24();
       this.pc(23924, 1);
       int var2 = this.D();
@@ -1370,7 +1309,6 @@ public class Emlyn extends MiniZX {
       int var2 = this.DE();
       this.push(var2);
       this.pc(23930, 1);
-      this.call(23933);
       this.$5D9E();
       this.pc(23933, 1);
       int var3 = this.HL();
@@ -1379,6 +1317,7 @@ public class Emlyn extends MiniZX {
       this.pc(23934, 1);
       this.exHLDE();
       this.$5D7F();
+      this.pop();
    }
 
    public void $5D7F() {
@@ -1403,19 +1342,16 @@ public class Emlyn extends MiniZX {
       int var8 = this.pop();
       this.DE(var8);
       this.pc(23942, 1);
-      this.ret();
    }
 
    public void $5D87() {
       this.pc(23943, 1);
-      this.call(23946);
       this.$5D8A();
       this.$5D8A();
    }
 
    public void $5D8A() {
       this.pc(23946, 1);
-      this.call(23949);
       this.$5D8D();
       this.$5D8D();
    }
@@ -1448,7 +1384,6 @@ public class Emlyn extends MiniZX {
       } while(this.B() != 0);
 
       this.pc(23960, 1);
-      this.ret();
    }
 
    public void $5D99() {
@@ -1488,7 +1423,6 @@ public class Emlyn extends MiniZX {
       int var8 = this.inc16(var7);
       this.HL(var8);
       this.pc(23970, 1);
-      this.ret();
    }
 
    public void $5DA3() {
@@ -1509,7 +1443,6 @@ public class Emlyn extends MiniZX {
       int var8 = this.dec16(var7);
       this.HL(var8);
       this.pc(23975, 1);
-      this.ret();
    }
 
    public void $5DA8() {
@@ -1517,7 +1450,6 @@ public class Emlyn extends MiniZX {
       int var1 = this.DE();
       this.wMem16(23582, var1, 23976);
       this.pc(23980, 1);
-      this.ret();
    }
 
    public void $5DAD() {
@@ -1607,7 +1539,6 @@ public class Emlyn extends MiniZX {
       int var29 = this.A();
       this.wMem('\udb67', var29, 24022);
       this.pc(24025, 1);
-      this.call(24028);
       this.$5E1C();
       this.pc(24028, 1);
       int var30 = this.A();
@@ -1624,7 +1555,6 @@ public class Emlyn extends MiniZX {
          this.bit(1, var74);
          this.pc(24034, 1);
          if(this.flag(64, true)) {
-            this.call(24037);
             this.$5D8A();
          }
 
@@ -1633,7 +1563,6 @@ public class Emlyn extends MiniZX {
          this.bit(2, var75);
          this.pc(24039, 1);
          if(this.flag(64, true)) {
-            this.call(24042);
             this.$5D87();
          }
 
@@ -1648,7 +1577,6 @@ public class Emlyn extends MiniZX {
       this.bit(0, var34);
       this.pc(24047, 1);
       if(this.flag(64, false)) {
-         this.call(24050);
          this.$5CDD();
       }
 
@@ -1731,7 +1659,6 @@ public class Emlyn extends MiniZX {
          int var68 = this.pop();
          this.HL(var68);
          this.pc(24084, 1);
-         this.call(24087);
          this.$5DA3();
          this.pc(24087, 1);
          int var69 = this.H();
@@ -1746,7 +1673,6 @@ public class Emlyn extends MiniZX {
       } while(this.B() != 0);
 
       this.pc(24091, 1);
-      this.ret();
    }
 
    public void $5E1C() {
@@ -1827,7 +1753,6 @@ public class Emlyn extends MiniZX {
       int var12 = this.alu("add16", var11, var10);
       this.HL(var12);
       this.pc(24110, 1);
-      this.ret();
    }
 
    public void $5E2F() {
@@ -1877,10 +1802,8 @@ public class Emlyn extends MiniZX {
       int var7 = this.mem16(23585, 24132);
       this.BC(var7);
       this.pc(24136, 1);
-      this.call(24139);
       this.$5E60();
       this.pc(24139, 1);
-      this.call(24142);
       this.$5E5C();
       this.pc(24142, 1);
       int var8 = this.mem(24143, 24142);
@@ -1900,9 +1823,7 @@ public class Emlyn extends MiniZX {
       int var14 = this.alu("and", var13, var12);
       this.A(var14);
       this.pc(24150, 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          this.pc(24151, 1);
          this.B(6);
          this.pc(24153, 1);
@@ -1916,7 +1837,6 @@ public class Emlyn extends MiniZX {
          } while(this.B() != 0);
 
          this.pc(23640, 1);
-         this.ret();
       }
    }
 
@@ -1976,7 +1896,6 @@ public class Emlyn extends MiniZX {
          int var10 = this.A();
          this.C(var10);
          this.pc(24199, 1);
-         this.call(24202);
          this.$5D87();
          this.pc(24202, 1);
          int var11 = this.C();
@@ -2021,14 +1940,12 @@ public class Emlyn extends MiniZX {
 
    public void $5EA6() {
       this.pc(24230, 1);
-      this.call(24233);
       this.$5D8D();
       this.$5EA9();
    }
 
    public void $5EA9() {
       this.pc(24233, 1);
-      this.call(24236);
       this.$5D8D();
       this.$5EAC();
    }
@@ -2060,7 +1977,6 @@ public class Emlyn extends MiniZX {
          int var7 = this.alu("sub", var6, var5);
          this.A(var7);
          this.pc(24248, 1);
-         this.call(24251);
          this.$22B0();
          this.pc(24251, 1);
          int var8 = this.pop();
@@ -2117,7 +2033,6 @@ public class Emlyn extends MiniZX {
       int var28 = this.pop();
       this.HL(var28);
       this.pc(24268, 1);
-      this.ret();
    }
 
    public void $5ECD() {
@@ -2126,7 +2041,6 @@ public class Emlyn extends MiniZX {
       this.pc(24273, 1);
       this.HL(32714);
       this.pc(24276, 1);
-      this.call(24279);
       this.$7FF4();
       this.pc(24279, 1);
       int var1 = this.A();
@@ -2138,7 +2052,6 @@ public class Emlyn extends MiniZX {
          this.pc(24282, 1);
          this.HL(32724);
          this.pc(24285, 1);
-         this.call(24288);
          this.$7FF4();
       }
 
@@ -2294,7 +2207,6 @@ public class Emlyn extends MiniZX {
       int var1 = this.HL();
       this.wMem16(23670, var1, 24366);
       this.pc(24369, 1);
-      this.ret();
    }
 
    public void $5F32() {
@@ -2324,7 +2236,6 @@ public class Emlyn extends MiniZX {
       int var1 = this.C();
       this.A(var1);
       this.pc(24399, 1);
-      this.call(24402);
       this.$7222();
       this.pc(24402, 1);
       int var2 = this.A();
@@ -2337,7 +2248,6 @@ public class Emlyn extends MiniZX {
       this.pc(24406, 1);
       this.B(88);
       this.pc(24408, 1);
-      this.call(24411);
       this.$5E29();
       this.pc(24411, 1);
       int var4 = this.BC();
@@ -2363,7 +2273,6 @@ public class Emlyn extends MiniZX {
       } while(this.B() != 0);
 
       this.pc(24417, 1);
-      this.ret();
    }
 
    public void $5F62() {
@@ -2413,7 +2322,6 @@ public class Emlyn extends MiniZX {
          this.A(var18);
          this.pc(24437, 1);
          if(this.flag(1, false)) {
-            this.ret();
             return;
          }
 
@@ -2452,12 +2360,10 @@ public class Emlyn extends MiniZX {
       int var11 = this.A();
       this.alu("cp", var11, 1);
       this.pc(24451, 1);
-      this.ret();
    }
 
    public void $5F84() {
       this.pc(24452, 1);
-      this.call(24455);
       this.$5F37();
       this.pc(24455, 1);
       this.jump(24558);
@@ -2465,13 +2371,10 @@ public class Emlyn extends MiniZX {
 
    public void $5F89() {
       this.pc(24457, 1);
-      this.call(24460);
       this.$5ECD();
       this.pc(24460, 1);
-      this.call(24463);
       this.$5E2F();
       this.pc(24463, 1);
-      this.call(24466);
       this.$5F62();
       this.pc(24466, 2);
       int var1 = this.mem16(23615, 24466);
@@ -2491,7 +2394,6 @@ public class Emlyn extends MiniZX {
       int var7 = this.alu("xor", var6, var5);
       this.A(var7);
       this.pc(24477, 1);
-      this.ret();
    }
 
    public void $5F9E() {
@@ -2503,7 +2405,6 @@ public class Emlyn extends MiniZX {
 
             do {
                this.pc(24478, 1);
-               this.call(24481);
                this.$5F89();
                this.pc(24481, 1);
                int var1 = this.D();
@@ -2523,7 +2424,6 @@ public class Emlyn extends MiniZX {
             } while(this.flag(64, true));
 
             this.pc(24487, 1);
-            this.call(24490);
             this.$5E5C();
             this.$5FAA();
             return;
@@ -2544,15 +2444,12 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc(24490, 1);
-            this.call(24493);
             this.$5CCC();
             this.pc(24493, 1);
             this.HL(24583);
             this.pc(24496, 1);
-            this.call(24499);
             this.$63DC();
             this.pc(24499, 1);
-            this.call(24502);
             this.$5E5C();
             this.pc(24502, 1);
             this.jump(24478);
@@ -2577,7 +2474,6 @@ public class Emlyn extends MiniZX {
             int var1 = this.L();
             this.A(var1);
             this.pc(24505, 1);
-            this.call(24508);
             this.$5D01();
             this.pc(24508, 1);
             int var2 = this.E();
@@ -2624,7 +2520,6 @@ public class Emlyn extends MiniZX {
                int var13 = this.E();
                this.B(var13);
                this.pc(24529, 1);
-               this.call(24532);
                this.$5D99();
                this.pc(24532, 1);
                int var14 = this.E();
@@ -2635,7 +2530,6 @@ public class Emlyn extends MiniZX {
                this.pc(24534, 1);
                this.B(0);
                this.pc(24536, 1);
-               this.call(24539);
                this.$5F4E();
                this.pc(24539, 1);
                int var16 = this.pop();
@@ -2649,7 +2543,6 @@ public class Emlyn extends MiniZX {
             } while(this.B() != 0);
 
             this.pc(24543, 1);
-            this.call(24546);
             this.$5F79();
             this.pc(24546, 1);
             if(this.flag(64, true)) {
@@ -2664,10 +2557,8 @@ public class Emlyn extends MiniZX {
             int var20 = this.A();
             this.wMem(23592, var20, 24549);
             this.pc(24552, 1);
-            this.call(24555);
             this.$6031();
             this.pc(24555, 1);
-            this.call(24558);
             this.$5E5C();
             this.$5FEE();
             return;
@@ -2691,11 +2582,9 @@ public class Emlyn extends MiniZX {
             int var1 = this.mem16(23596, 24558);
             this.HL(var1);
             this.pc(24561, 1);
-            this.call(24564);
             int var2 = this.HL();
             this.callThrough(var2, 1);
             this.pc(24564, 1);
-            this.call(24567);
             this.$5FF9();
             this.pc(24567, 1);
             this.jump(24490);
@@ -2725,7 +2614,6 @@ public class Emlyn extends MiniZX {
       int var2 = this.DE();
       this.wMem16(23565, var2, 24578);
       this.pc(24582, 1);
-      this.ret();
    }
 
    public void $6027() {
@@ -2739,12 +2627,10 @@ public class Emlyn extends MiniZX {
          this.alu("cp", var3, var2);
          this.pc(24619, 1);
          if(this.flag(1, true)) {
-            this.ret();
             return;
          }
 
          this.pc(24620, 1);
-         this.call(24623);
          this.$5D1A();
          this.pc(24623, 1);
       }
@@ -2755,21 +2641,17 @@ public class Emlyn extends MiniZX {
       int var1 = this.AF();
       this.push(var1);
       this.pc(24626, 1);
-      this.call(24629);
       this.$5E5C();
       this.pc(24629, 1);
       int var2 = this.pop();
       this.AF(var2);
       this.pc(24630, 1);
-      this.call(24633);
       this.$608A();
       this.pc(24633, 1);
-      this.call(24636);
       this.$5E5C();
 
       while(true) {
          this.pc(24636, 1);
-         this.call(24639);
          this.$5F89();
          this.pc(24639, 1);
          int var3 = this.D();
@@ -2786,7 +2668,6 @@ public class Emlyn extends MiniZX {
             this.pc(24644, 1);
             this.A(15);
             this.pc(24646, 1);
-            this.call(24649);
             this.$6101();
             this.pc(24649, 1);
             int var23 = this.D();
@@ -2794,7 +2675,6 @@ public class Emlyn extends MiniZX {
             this.pc(24650, 1);
             this.A(57);
             this.pc(24652, 1);
-            this.call(24655);
             this.$6101();
          }
 
@@ -2809,23 +2689,19 @@ public class Emlyn extends MiniZX {
          this.pc(24657, 1);
          if(!this.flag(64, true)) {
             this.pc(24659, 1);
-            this.call(24662);
             this.$5F79();
             this.pc(24662, 1);
             if(this.flag(64, false)) {
-               this.ret();
                return;
             }
 
             this.pc(24663, 1);
          } else {
             this.pc(24665, 1);
-            this.call(24668);
             this.$5F79();
             this.pc(24668, 1);
             if(!this.flag(64, true)) {
                this.pc(24670, 1);
-               this.call(24673);
                this.$660F();
                this.pc(24673, 1);
                int var10 = this.D();
@@ -2836,7 +2712,6 @@ public class Emlyn extends MiniZX {
                this.pc(24677, 1);
                this.HL(23710);
                this.pc(24680, 1);
-               this.call(24683);
                this.$5D99();
                this.pc(24683, 1);
                this.exHLDE();
@@ -2851,12 +2726,10 @@ public class Emlyn extends MiniZX {
                int var15 = this.alu("dec", var14);
                this.A(var15);
                this.pc(24689, 1);
-               this.call(24692);
                this.$5D99();
                this.pc(24692, 1);
                this.exHLDE();
                this.pc(24693, 1);
-               this.call(24696);
                int var16 = this.HL();
                this.callThrough(var16, 1);
                this.pc(24696, 1);
@@ -2871,12 +2744,10 @@ public class Emlyn extends MiniZX {
                this.H(var20);
                this.pc(24701, 1);
                if(this.flag(64, false)) {
-                  this.call(24704);
                   this.$608A();
                }
 
                this.pc(24704, 1);
-               this.call(24707);
                this.$5E5C();
                this.pc(24707, 2);
                int var21 = this.IY() + -17;
@@ -2891,10 +2762,8 @@ public class Emlyn extends MiniZX {
       this.pc(24714, 1);
       this.HL(23702);
       this.pc(24717, 1);
-      this.call(24720);
       this.$5D99();
       this.pc(24720, 1);
-      this.call(24723);
       this.$5CCC();
       this.pc(24723, 1);
       this.exHLDE();
@@ -2936,18 +2805,14 @@ public class Emlyn extends MiniZX {
          int var15 = this.C();
          this.D(var15);
          this.pc(24735, 1);
-         this.call(24738);
          this.$5DA8();
          this.pc(24738, 1);
          this.A(37);
          this.pc(24740, 1);
-         this.call(24743);
          this.$5D24();
          this.pc(24743, 1);
-         this.call(24746);
          this.$5D1A();
          this.pc(24746, 1);
-         this.call(24749);
          this.$63E2();
          this.pc(24749, 1);
          int var16 = this.pop();
@@ -2956,18 +2821,14 @@ public class Emlyn extends MiniZX {
          int var17 = this.pop();
          this.BC(var17);
          this.pc(24751, 1);
-         this.call(24754);
          this.$6027();
          this.pc(24754, 1);
          this.A(34);
          this.pc(24756, 1);
-         this.call(24759);
          this.$5D24();
          this.pc(24759, 1);
-         this.call(24762);
          this.$616E();
          this.pc(24762, 1);
-         this.call(24765);
          this.$5CD8();
          this.pc(24765, 1);
          int var18 = this.C();
@@ -2985,12 +2846,10 @@ public class Emlyn extends MiniZX {
       int var22 = this.C();
       this.D(var22);
       this.pc(24770, 1);
-      this.call(24773);
       this.$5DA8();
       this.pc(24773, 1);
       this.A(59);
       this.pc(24775, 1);
-      this.call(24778);
       this.$5D24();
       this.pc(24778, 1);
       int var23 = this.B();
@@ -3018,7 +2877,6 @@ public class Emlyn extends MiniZX {
          this.pc(24784, 1);
          this.A(91);
          this.pc(24786, 1);
-         this.call(24789);
          this.$5D24();
          this.pc(24789, 1);
          int var32 = this.B() - 1 & 255;
@@ -3028,7 +2886,6 @@ public class Emlyn extends MiniZX {
       this.pc(24791, 1);
       this.A(64);
       this.pc(24793, 1);
-      this.call(24796);
       this.$5D24();
       this.pc(24796, 1);
       int var33 = this.mem16(23670, 24796);
@@ -3101,7 +2958,6 @@ public class Emlyn extends MiniZX {
       int var58 = this.DE();
       this.wMem16(24835, var58, 24828);
       this.pc(24832, 1);
-      this.ret();
    }
 
    public void $6101() {
@@ -3128,7 +2984,6 @@ public class Emlyn extends MiniZX {
       int var8 = this.D();
       this.A(var8);
       this.pc(24842, 1);
-      this.call(24845);
       this.$7222();
       this.pc(24845, 1);
       int var9 = this.A();
@@ -3143,7 +2998,6 @@ public class Emlyn extends MiniZX {
       this.A(var13);
       this.pc(24848, 1);
       if(this.flag(64, true)) {
-         this.call(24851);
          this.$5F4E();
       }
 
@@ -3151,7 +3005,6 @@ public class Emlyn extends MiniZX {
       int var14 = this.pop();
       this.DE(var14);
       this.pc(24852, 1);
-      this.ret();
    }
 
    public void $6140() {
@@ -3165,7 +3018,7 @@ public class Emlyn extends MiniZX {
       int var3 = this.mem(23592, 24898);
       this.A(var3);
       this.pc(24901, 1);
-      this.call(24904);
+      this.push(24904);
       this.$5D78();
       this.pc(24906, 1);
       int var4 = this.A();
@@ -3182,199 +3035,183 @@ public class Emlyn extends MiniZX {
       int var8 = this.mem(var7, 23587) | 1;
       this.wMem(var7, var8, 23587);
       this.pc(23591, 1);
-      this.ret();
    }
 
    public void $616E() {
       this.pc(24942, 1);
       this.exx();
       this.pc(24943, 1);
-      this.call(24946);
       this.$6140();
       this.pc(24946, 1);
       this.HL(26125);
       this.pc(24949, 1);
-      int var1 = this.HL();
-      this.push(var1);
       this.pc(24950, 2);
-      int var2 = this.IY() + -27;
-      int var3 = this.mem(var2, 24950);
-      this.B(var3);
+      int var1 = this.IY() + -27;
+      int var2 = this.mem(var1, 24950);
+      this.B(var2);
       this.pc(24953, 1);
-      int var4 = this.mem(23592, 24953);
-      this.A(var4);
+      int var3 = this.mem(23592, 24953);
+      this.A(var3);
       this.pc(24956, 1);
+      int var4 = this.A();
       int var5 = this.A();
-      int var6 = this.A();
-      int var7 = this.alu("and", var6, var5);
-      this.A(var7);
+      int var6 = this.alu("and", var5, var4);
+      this.A(var6);
       this.pc(24957, 1);
       if(this.flag(64, false)) {
          this.pc(25077, 1);
-         int var8 = this.B();
-         this.A(var8);
+         int var7 = this.B();
+         this.A(var7);
          this.pc(25078, 1);
-         int var9 = this.A();
-         this.alu("cp", var9, 15);
+         int var8 = this.A();
+         this.alu("cp", var8, 15);
          this.pc(25080, 1);
          if(this.flag(64, false)) {
-            if(this.ret() == 26125) {
-               this.$660D();
-            }
+            this.$660D();
          } else {
             this.pc(25081, 1);
-            this.call(25084);
             this.$6246();
             this.pc(25084, 1);
-            int var10 = this.A();
-            this.alu("cp", var10, 66);
+            int var9 = this.A();
+            this.alu("cp", var9, 66);
             this.pc(25086, 1);
             if(!this.flag(64, false)) {
                this.pc(25088, 1);
                if(this.flag(1, false)) {
                   this.pc(25133, 1);
-                  int var12 = this.HL();
-                  int var13 = this.mem(var12, 25133);
-                  this.A(var13);
+                  int var11 = this.HL();
+                  int var12 = this.mem(var11, 25133);
+                  this.A(var12);
                   this.pc(25134, 2);
-                  int var14 = this.A();
-                  int var15 = this.alu("neg", var14);
-                  this.A(var15);
+                  int var13 = this.A();
+                  int var14 = this.alu("neg", var13);
+                  this.A(var14);
                   this.pc(25136, 1);
-                  int var16 = this.A();
-                  int var17 = this.alu("add", var16, 92);
-                  this.A(var17);
+                  int var15 = this.A();
+                  int var16 = this.alu("add", var15, 92);
+                  this.A(var16);
                   this.pc(25138, 1);
-                  int var18 = this.AF();
-                  this.push(var18);
+                  int var17 = this.AF();
+                  this.push(var17);
                   this.pc(25139, 1);
-                  this.call(25142);
                   this.$6140();
                   this.pc(25142, 1);
-                  this.call(25145);
                   this.$5D1A();
                   this.pc(25145, 1);
-                  int var19 = this.pop();
-                  this.AF(var19);
+                  int var18 = this.pop();
+                  this.AF(var18);
                   this.pc(25146, 1);
                   this.$5D24();
+                  this.$660D();
                   return;
                }
 
                this.pc(25090, 1);
-               int var20 = this.A();
-               this.alu("cp", var20, 113);
+               int var19 = this.A();
+               this.alu("cp", var19, 113);
                this.pc(25092, 1);
                if(!this.flag(64, true)) {
                   this.pc(25094, 1);
-                  int var23 = this.mem(32075, 25094);
-                  this.A(var23);
+                  int var22 = this.mem(32075, 25094);
+                  this.A(var22);
                   this.pc(25097, 1);
+                  int var23 = this.A();
                   int var24 = this.A();
-                  int var25 = this.A();
-                  int var26 = this.alu("add", var25, var24);
-                  this.A(var26);
+                  int var25 = this.alu("add", var24, var23);
+                  this.A(var25);
                   this.pc(25098, 1);
-                  int var27 = this.A();
-                  int var28 = this.alu("dec", var27);
-                  this.A(var28);
+                  int var26 = this.A();
+                  int var27 = this.alu("dec", var26);
+                  this.A(var27);
                   this.pc(25099, 1);
                } else {
                   this.pc(25154, 1);
-                  int var21 = this.HL();
-                  int var22 = this.mem(var21, 25154);
-                  this.A(var22);
+                  int var20 = this.HL();
+                  int var21 = this.mem(var20, 25154);
+                  this.A(var21);
                }
             } else {
                this.pc(25101, 1);
-               int var11 = this.mem(32076, 25101);
-               this.A(var11);
+               int var10 = this.mem(32076, 25101);
+               this.A(var10);
                this.pc(25104, 1);
-               this.call(25107);
                this.$6215();
                this.pc(25107, 1);
             }
 
             this.pc(25155, 1);
             this.$5D6D();
+            this.$660D();
          }
       } else {
          this.pc(24959, 1);
-         int var29 = this.A();
-         this.alu("cp", var29, 1);
+         int var28 = this.A();
+         this.alu("cp", var28, 1);
          this.pc(24961, 1);
          if(this.flag(64, false)) {
             this.pc(25032, 1);
-            int var30 = this.mem16(32080, 25032);
-            this.HL(var30);
+            int var29 = this.mem16(32080, 25032);
+            this.HL(var29);
             this.jump(25035);
          } else {
             this.pc(24963, 1);
-            int var31 = this.A();
-            this.alu("cp", var31, 2);
+            int var30 = this.A();
+            this.alu("cp", var30, 2);
             this.pc(24965, 1);
             if(this.flag(64, true)) {
                this.pc(24995, 1);
-               int var32 = this.B();
-               this.A(var32);
+               int var31 = this.B();
+               this.A(var31);
                this.jump(24996);
             } else {
                this.pc(24967, 1);
-               int var33 = this.B();
-               this.A(var33);
+               int var32 = this.B();
+               this.A(var32);
                this.pc(24968, 1);
-               int var34 = this.A();
-               this.alu("cp", var34, 9);
+               int var33 = this.A();
+               this.alu("cp", var33, 9);
                this.pc(24970, 1);
                if(!this.flag(64, false)) {
                   this.pc(24972, 1);
-                  int var36 = this.A();
-                  this.alu("cp", var36, 1);
+                  int var35 = this.A();
+                  this.alu("cp", var35, 1);
                   this.pc(24974, 1);
                   if(!this.flag(64, true)) {
                      this.pc(24976, 1);
-                     this.call(24979);
                      this.$6224();
                      this.pc(24979, 1);
                      if(this.flag(64, true)) {
-                        if(this.ret() == 26125) {
-                           this.$660D();
-                        }
+                        this.$660D();
                      } else {
                         this.pc(24980, 1);
                         this.untranslated(24914);
+                        this.$660D();
                      }
                   } else {
                      this.pc(24982, 1);
-                     int var37 = this.A();
-                     this.alu("cp", var37, 8);
+                     int var36 = this.A();
+                     this.alu("cp", var36, 8);
                      this.pc(24984, 1);
                      if(!this.flag(64, false)) {
                         this.pc(24986, 1);
-                        int var38 = this.A();
-                        this.alu("cp", var38, 10);
+                        int var37 = this.A();
+                        this.alu("cp", var37, 10);
                         this.pc(24988, 1);
                         if(this.flag(64, true)) {
-                           if(this.ret() == 26125) {
-                              this.$660D();
-                              return;
-                           }
-
+                           this.$660D();
                            return;
                         }
                      }
 
                      this.pc(24989, 1);
-                     this.call(24992);
                      this.$71B6();
                      this.pc(24992, 1);
                      if(this.flag(1, false)) {
-                        if(this.ret() == 26125) {
-                           this.$660D();
-                        }
+                        this.$660D();
                      } else {
                         this.pc(24993, 1);
                         this.untranslated(24914);
+                        this.$660D();
                      }
                   }
                } else {
@@ -3383,18 +3220,17 @@ public class Emlyn extends MiniZX {
 
                   do {
                      this.pc(25066, 1);
-                     this.call(25069);
                      this.$5D1E();
                      this.pc(25069, 1);
-                     int var35 = this.B() - 1 & 255;
-                     this.B(var35);
+                     int var34 = this.B() - 1 & 255;
+                     this.B(var34);
                   } while(this.B() != 0);
 
                   this.pc(25071, 1);
-                  this.call(25074);
                   this.$6256();
                   this.pc(25074, 1);
                   this.$63B9();
+                  this.$660D();
                }
             }
          }
@@ -3413,7 +3249,6 @@ public class Emlyn extends MiniZX {
          int var6 = this.alu("add", var5, var4);
          this.A(var6);
          this.pc(25114, 1);
-         this.ret();
       } else {
          this.pc(25115, 1);
          int var2 = this.A();
@@ -3425,12 +3260,9 @@ public class Emlyn extends MiniZX {
 
    public void $6224() {
       this.pc(25124, 1);
-      this.call(25127);
       this.$6B2E();
       this.pc(25127, 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          this.$6228();
       }
    }
@@ -3445,7 +3277,6 @@ public class Emlyn extends MiniZX {
       int var4 = this.alu("and", var3, var2);
       this.A(var4);
       this.pc(25132, 1);
-      this.ret();
    }
 
    public void $6246() {
@@ -3454,7 +3285,7 @@ public class Emlyn extends MiniZX {
       int var2 = this.alu("dec", var1);
       this.A(var2);
       this.pc(25159, 1);
-      this.call(25162);
+      this.push(25162);
       this.$5D78();
       this.pc(25164, 1);
       int var3 = this.AF();
@@ -3464,13 +3295,12 @@ public class Emlyn extends MiniZX {
       int var5 = this.alu("and", var4, 15);
       this.A(var5);
       this.pc(25167, 1);
-      this.call(25170);
+      this.push(25170);
       this.$5D78();
       this.pc(25172, 1);
       int var6 = this.pop();
       this.AF(var6);
       this.pc(25173, 1);
-      this.ret();
    }
 
    public void $6256() {
@@ -3505,9 +3335,7 @@ public class Emlyn extends MiniZX {
       int var4 = this.alu("and", var3, var2);
       this.A(var4);
       this.pc(25193, 1);
-      if(this.flag(64, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, false)) {
          this.pc(25194, 1);
          int var5 = this.DE();
          this.push(var5);
@@ -3531,7 +3359,6 @@ public class Emlyn extends MiniZX {
          int var11 = this.pop();
          this.DE(var11);
          this.pc(25203, 1);
-         this.ret();
       }
    }
 
@@ -3540,13 +3367,12 @@ public class Emlyn extends MiniZX {
       int var1 = this.HL();
       this.push(var1);
       this.pc(25373, 1);
-      this.call(25376);
+      this.push(25376);
       this.$5D78();
       this.pc(25378, 1);
       int var2 = this.pop();
       this.HL(var2);
       this.pc(25379, 1);
-      this.ret();
    }
 
    public void $6324() {
@@ -3563,7 +3389,6 @@ public class Emlyn extends MiniZX {
       int var1 = this.D();
       this.A(var1);
       this.pc(25391, 1);
-      this.call(25394);
       int var2 = this.HL();
       this.callThrough(var2, 1);
       this.pc(25394, 1);
@@ -3573,7 +3398,6 @@ public class Emlyn extends MiniZX {
       int var4 = this.E();
       this.A(var4);
       this.pc(25396, 1);
-      this.call(25399);
       int var5 = this.HL();
       this.callThrough(var5, 1);
       this.pc(25399, 1);
@@ -3583,7 +3407,6 @@ public class Emlyn extends MiniZX {
       int var7 = this.C();
       this.A(var7);
       this.pc(25401, 1);
-      this.call(25404);
       int var8 = this.HL();
       this.callThrough(var8, 1);
       this.pc(25404, 1);
@@ -3593,7 +3416,6 @@ public class Emlyn extends MiniZX {
       int var10 = this.pop();
       this.HL(var10);
       this.pc(25406, 1);
-      this.ret();
    }
 
    public void $632A() {
@@ -3613,7 +3435,6 @@ public class Emlyn extends MiniZX {
       int var1 = this.DE();
       this.push(var1);
       this.pc(25411, 1);
-      this.call(25414);
       this.$634E();
       this.pc(25414, 1);
       this.A(32);
@@ -3633,7 +3454,6 @@ public class Emlyn extends MiniZX {
       int var8 = this.pop();
       this.DE(var8);
       this.pc(25420, 1);
-      this.ret();
    }
 
    public void $634D() {
@@ -3652,7 +3472,6 @@ public class Emlyn extends MiniZX {
          int var2 = this.DE();
          this.push(var2);
          this.pc(25424, 1);
-         this.call(25427);
          this.$5D9E();
          this.pc(25427, 1);
          int var3 = this.E();
@@ -3693,7 +3512,6 @@ public class Emlyn extends MiniZX {
          int var20 = this.alu("srl", var19);
          this.E(var20);
          this.pc(25445, 1);
-         this.call(25448);
          this.$6324();
          this.pc(25448, 1);
          int var21 = this.pop();
@@ -3751,7 +3569,6 @@ public class Emlyn extends MiniZX {
          this.alu("cp", var44, 33);
          this.pc(25464, 1);
          if(this.flag(64, false)) {
-            this.ret();
             return;
          }
 
@@ -3761,7 +3578,6 @@ public class Emlyn extends MiniZX {
       } while(this.B() != 0);
 
       this.pc(25467, 1);
-      this.ret();
    }
 
    public void $637C() {
@@ -3810,7 +3626,6 @@ public class Emlyn extends MiniZX {
       int var12 = this.pop();
       this.HL(var12);
       this.pc(25486, 1);
-      this.ret();
    }
 
    public void $638F() {
@@ -3833,10 +3648,8 @@ public class Emlyn extends MiniZX {
          int var6 = this.DE();
          this.push(var6);
          this.pc(25494, 1);
-         this.call(25497);
          this.$5D9E();
          this.pc(25497, 1);
-         this.call(25500);
          this.$632A();
          this.pc(25500, 1);
          int var7 = this.C();
@@ -3863,7 +3676,6 @@ public class Emlyn extends MiniZX {
          int var18 = this.E();
          this.H(var18);
          this.pc(25506, 1);
-         this.call(25509);
          this.$5E2A();
          this.pc(25509, 2);
          int var19 = this.D();
@@ -3927,7 +3739,6 @@ public class Emlyn extends MiniZX {
       } while(this.B() != 0);
 
       this.pc(25528, 1);
-      this.ret();
    }
 
    public void $63B9() {
@@ -3938,7 +3749,6 @@ public class Emlyn extends MiniZX {
 
    public void $63BC() {
       this.pc(25532, 1);
-      this.call(25535);
       this.$63C2();
       this.$63BF();
    }
@@ -3956,18 +3766,15 @@ public class Emlyn extends MiniZX {
       int var2 = this.C();
       this.B(var2);
       this.pc(25540, 1);
-      this.call(25543);
       this.$633F();
       this.pc(25543, 1);
       int var3 = this.pop();
       this.BC(var3);
       this.pc(25544, 1);
-      this.ret();
    }
 
    public void $63C9() {
       this.pc(25545, 1);
-      this.call(25548);
       this.$63C2();
       this.pc(25548, 1);
       this.HL('\udb96');
@@ -3987,7 +3794,6 @@ public class Emlyn extends MiniZX {
          }
 
          this.pc(25556, 1);
-         this.call(25559);
          this.$5D1A();
          this.pc(25559, 1);
          int var4 = this.HL();
@@ -4001,15 +3807,12 @@ public class Emlyn extends MiniZX {
       } while(this.flag(64, true));
 
       this.pc(25563, 1);
-      this.ret();
    }
 
    public void $63DC() {
       this.pc(25564, 1);
-      this.call(25567);
       this.$5D9E();
       this.pc(25567, 1);
-      this.call(25570);
       this.$5DA8();
       this.$63E2();
    }
@@ -4018,7 +3821,6 @@ public class Emlyn extends MiniZX {
       this.pc(25570, 1);
       this.C(60);
       this.pc(25572, 1);
-      this.call(25575);
       this.$63C2();
       this.pc(25575, 1);
       this.exHLDE();
@@ -4040,12 +3842,10 @@ public class Emlyn extends MiniZX {
             int var5 = this.pop();
             this.HL(var5);
             this.pc(25593, 1);
-            this.call(25596);
             this.$720A();
             this.pc(25596, 1);
             this.exHLDE();
             this.pc(25597, 1);
-            this.ret();
             return;
          }
 
@@ -4089,51 +3889,40 @@ public class Emlyn extends MiniZX {
 
    public void $640A() {
       this.pc(25610, 1);
-      this.call(25613);
       this.$5CC0();
       this.pc(25613, 1);
-      this.call(25616);
       this.$6262();
       this.pc(25616, 1);
       this.DE(1280);
       this.pc(25619, 1);
       this.BC(4108);
       this.pc(25622, 1);
-      this.call(25625);
       this.$6459();
       this.pc(25625, 2);
       int var1 = this.IY() + -27;
       this.wMem(var1, 2, 25625);
       this.pc(25629, 1);
-      this.call(25632);
       this.$6256();
       this.pc(25632, 1);
-      this.call(25635);
       this.$63BC();
       this.pc(25635, 1);
-      this.call(25638);
       this.$643A();
       this.pc(25638, 1);
       int var2 = this.mem(23599, 25638);
       this.A(var2);
       this.pc(25641, 1);
-      this.call(25644);
       this.$6431();
       this.pc(25644, 1);
-      this.call(25647);
       this.$63B9();
       this.pc(25647, 1);
       this.pc(25742, 1);
-      this.call(25745);
+      this.push(25745);
       this.$721D();
       this.pc(25762, 1);
-      this.call(25765);
       this.$6CBC();
       this.pc(25765, 1);
-      this.call(25768);
       this.$64AE();
       this.pc(25768, 1);
-      this.call(25771);
       this.$64B9();
       this.pc(25771, 1);
       this.$5CCC();
@@ -4180,7 +3969,6 @@ public class Emlyn extends MiniZX {
 
    public void $645D() {
       this.pc(25693, 1);
-      this.call(25696);
       this.$5DA8();
 
       do {
@@ -4190,7 +3978,6 @@ public class Emlyn extends MiniZX {
          this.pc(25697, 1);
          this.B(0);
          this.pc(25699, 1);
-         this.call(25702);
          this.$3F4();
          this.pc(25702, 1);
          int var2 = this.pop();
@@ -4217,7 +4004,6 @@ public class Emlyn extends MiniZX {
       } while(this.B() != 0);
 
       this.pc(25715, 1);
-      this.ret();
    }
 
    public void $64AE() {
@@ -4225,12 +4011,9 @@ public class Emlyn extends MiniZX {
       int var1 = this.mem16(29987, 25774);
       this.HL(var1);
       this.pc(25777, 1);
-      this.call(25780);
       this.$6B2E();
       this.pc(25780, 1);
-      if(this.flag(64, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, false)) {
          this.pc(25781, 1);
          this.HL(23603);
          this.jump(25784);
@@ -4254,17 +4037,14 @@ public class Emlyn extends MiniZX {
       this.wMem(var6, 0, 25790);
       this.pc(25794, 1);
       if(this.flag(64, true)) {
-         this.call(25797);
          this.$65D3();
       }
 
       this.pc(25797, 1);
-      this.ret();
    }
 
    public void $650F() {
       this.pc(25871, 1);
-      this.call(25874);
       this.$5C5D();
       this.pc(25874, 1);
       this.$5D7F();
@@ -4292,7 +4072,6 @@ public class Emlyn extends MiniZX {
       int var10 = this.alu("and", var9, 15);
       this.A(var10);
       this.pc(25883, 1);
-      this.ret();
    }
 
    public void $65D3() {
@@ -4308,27 +4087,23 @@ public class Emlyn extends MiniZX {
       this.pc(26125, 1);
       this.exx();
       this.pc(26126, 1);
-      this.ret();
    }
 
    public void $660F() {
       this.pc(26127, 1);
       this.exx();
       this.pc(26128, 1);
-      this.call(26131);
       this.$5E5C();
       this.pc(26131, 1);
       this.exx();
       this.pc(26132, 1);
-      this.ret();
    }
 
    public void $6615() {
       this.pc(26133, 1);
-      this.call(26136);
+      this.push(26136);
       this.$7218();
       this.pc(26141, 1);
-      this.ret();
    }
 
    public void $6743() {
@@ -4377,7 +4152,6 @@ public class Emlyn extends MiniZX {
          int var20 = this.alu("sbc", var19, 0);
          this.A(var20);
          this.pc(26449, 1);
-         this.call(26452);
          this.$5D24();
          this.pc(26452, 1);
          int var21 = this.pop();
@@ -4393,7 +4167,6 @@ public class Emlyn extends MiniZX {
       } while(this.B() != 0);
 
       this.pc(26456, 1);
-      this.ret();
    }
 
    public void $6759() {
@@ -4402,14 +4175,12 @@ public class Emlyn extends MiniZX {
       int var2 = this.mem(var1, 26457);
       this.C(var2);
       this.pc(26460, 1);
-      this.call(26463);
       this.$6743();
       this.pc(26463, 1);
       int var3 = this.HL();
       int var4 = this.inc16(var3);
       this.HL(var4);
       this.pc(26464, 1);
-      this.ret();
    }
 
    public void $6761() {
@@ -4439,12 +4210,10 @@ public class Emlyn extends MiniZX {
 
    public void $6775() {
       this.pc(26485, 1);
-      this.call(26488);
       this.$6265();
       this.pc(26488, 1);
       this.C(3);
       this.pc(26490, 1);
-      this.call(26493);
       this.$645D();
       this.pc(26493, 1);
       int var1 = this.E();
@@ -4463,12 +4232,10 @@ public class Emlyn extends MiniZX {
       int var8 = this.alu("inc", var7);
       this.E(var8);
       this.pc(26497, 1);
-      this.ret();
    }
 
    public void $6782() {
       this.pc(26498, 1);
-      this.call(26501);
       this.$5D1A();
       this.pc(26501, 1);
       int var1 = this.HL();
@@ -4478,7 +4245,6 @@ public class Emlyn extends MiniZX {
       int var3 = this.DE();
       this.push(var3);
       this.pc(26503, 1);
-      this.call(26506);
       this.$5D6D();
       this.$678A();
    }
@@ -4492,12 +4258,10 @@ public class Emlyn extends MiniZX {
       int var3 = this.inc16(var2);
       this.HL(var3);
       this.pc(26508, 1);
-      this.ret();
    }
 
    public void $678D() {
       this.pc(26509, 1);
-      this.call(26512);
       this.$5D1A();
       this.pc(26512, 1);
       int var1 = this.HL();
@@ -4507,7 +4271,6 @@ public class Emlyn extends MiniZX {
       int var3 = this.DE();
       this.push(var3);
       this.pc(26514, 1);
-      this.call(26517);
       this.$5D67();
       this.pc(26517, 1);
       this.$678A();
@@ -4515,25 +4278,21 @@ public class Emlyn extends MiniZX {
 
    public void $67B3() {
       this.pc(26547, 1);
-      this.call(26550);
+      this.push(26550);
       this.$63FE();
       this.$67B6();
    }
 
    public void $67B6() {
       this.pc(26550, 1);
-      this.call(26553);
       this.$640A();
       this.pc(26553, 1);
-      this.call(26556);
       this.$5CD0();
       this.pc(26556, 1);
       this.HL(26519);
       this.pc(26559, 1);
-      this.call(26562);
       this.$63DC();
       this.pc(26562, 1);
-      this.call(26565);
       this.$63DC();
       this.pc(26565, 1);
       this.BC(832);
@@ -4545,7 +4304,6 @@ public class Emlyn extends MiniZX {
          int var1 = this.BC();
          this.push(var1);
          this.pc(26571, 1);
-         this.call(26574);
          this.$6767();
          this.pc(26574, 1);
          int var2 = this.pop();
@@ -4568,17 +4326,14 @@ public class Emlyn extends MiniZX {
       this.pc(26585, 1);
       this.HL(30554);
       this.pc(26588, 1);
-      this.call(26591);
       this.$6761();
       this.pc(26591, 1);
       this.HL(30570);
       this.pc(26594, 1);
-      this.call(26597);
       this.$6761();
       this.pc(26597, 1);
       this.HL(30586);
       this.pc(26600, 1);
-      this.call(26603);
       this.$6761();
       this.pc(26603, 1);
       this.HL(30602);
@@ -4592,7 +4347,6 @@ public class Emlyn extends MiniZX {
 
    public void $6827() {
       this.pc(26663, 1);
-      this.call(26666);
       this.$6262();
       this.pc(26666, 1);
       this.$6832();
@@ -4610,17 +4364,13 @@ public class Emlyn extends MiniZX {
       this.pc(26674, 1);
       this.BC(208);
       this.pc(26677, 1);
-      this.ret();
    }
 
    public void $683D() {
       this.pc(26685, 1);
-      this.call(26688);
       this.$71B6();
       this.pc(26688, 1);
-      if(this.flag(1, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(1, true)) {
          this.pc(26689, 1);
          int var1 = this.A();
          int var2 = this.A();
@@ -4631,15 +4381,12 @@ public class Emlyn extends MiniZX {
          int var4 = this.A();
          this.wMem(27175, var4, 26697);
          this.pc(26700, 1);
-         this.call(26703);
          this.$67B3();
          this.pc(26703, 1);
-         this.call(26706);
          this.$682C();
          this.pc(26706, 2);
          this.ldir(26706);
          this.pc(26708, 1);
-         this.call(26711);
          this.$6827();
          this.pc(26711, 2);
          this.ldir(26711);
@@ -4648,20 +4395,16 @@ public class Emlyn extends MiniZX {
          this.pc(26716, 1);
          this.DE(2562);
          this.pc(26719, 1);
-         this.call(26722);
          this.$5FFF();
 
          while(true) {
             this.pc(26722, 1);
-            this.call(26725);
             this.$5E5C();
 
             do {
                this.pc(26725, 1);
-               this.call(26728);
                this.$5F89();
                this.pc(26728, 1);
-               this.call(26731);
                this.$5F79();
                this.pc(26731, 1);
             } while(this.flag(64, true));
@@ -4677,22 +4420,18 @@ public class Emlyn extends MiniZX {
             this.pc(26735, 1);
             if(this.flag(64, false)) {
                this.pc(26615, 1);
-               this.call(26618);
                this.$5E5C();
                this.pc(26618, 1);
-               this.call(26621);
                this.$6C27();
                this.pc(26621, 1);
                if(!this.flag(1, true)) {
                   this.pc(26623, 1);
-                  this.call(26626);
                   this.$67B6();
                }
 
                this.pc(26628, 1);
                if(!this.flag(64, true)) {
                   this.pc(26630, 1);
-                  this.call(26633);
                   this.$682C();
                }
 
@@ -4700,7 +4439,6 @@ public class Emlyn extends MiniZX {
                int var9 = this.IY() + -17;
                this.wMem(var9, 255, 26649);
                this.pc(26653, 1);
-               this.call(26656);
                this.$5F37();
                this.pc(26656, 1);
                this.HL(23744);
@@ -4729,7 +4467,6 @@ public class Emlyn extends MiniZX {
             this.pc(26741, 1);
             if(this.flag(64, true)) {
                this.pc(27018, 1);
-               this.call(27021);
                this.untranslated(26678);
                return;
             }
@@ -4743,7 +4480,6 @@ public class Emlyn extends MiniZX {
             this.pc(26747, 1);
             if(!this.flag(64, false)) {
                this.pc(26749, 1);
-               this.call(26752);
                this.untranslated(26678);
             } else {
                this.pc(26848, 1);
@@ -4755,7 +4491,6 @@ public class Emlyn extends MiniZX {
                this.pc(26851, 1);
                if(!this.flag(1, true)) {
                   this.pc(26853, 1);
-                  this.call(26856);
                   this.$6256();
                }
 
@@ -4763,17 +4498,14 @@ public class Emlyn extends MiniZX {
                int var20 = this.mem(23599, 26862);
                this.A(var20);
                this.pc(26865, 1);
-               this.call(26868);
                this.$6431();
                this.pc(26868, 1);
                this.DE(539);
                this.pc(26871, 1);
                this.B(12);
                this.pc(26873, 1);
-               this.call(26876);
                this.$660F();
                this.pc(26876, 1);
-               this.call(26879);
                this.$5DA8();
                this.pc(26879, 1);
                int var21 = this.HL();
@@ -4782,13 +4514,11 @@ public class Emlyn extends MiniZX {
                int var22 = this.BC();
                this.push(var22);
                this.pc(26881, 1);
-               this.call(26884);
                this.$633F();
                this.pc(26884, 1);
                int var23 = this.pop();
                this.BC(var23);
                this.pc(26885, 1);
-               this.call(26888);
                this.$693C();
                this.pc(26888, 1);
                int var24 = this.pop();
@@ -4799,7 +4529,6 @@ public class Emlyn extends MiniZX {
                int var25 = this.C();
                this.B(var25);
                this.pc(26891, 1);
-               this.call(26894);
                this.$638F();
                this.pc(26894, 1);
             }
@@ -4817,7 +4546,6 @@ public class Emlyn extends MiniZX {
       this.pc(26900, 1);
       this.A(95);
       this.pc(26902, 1);
-      this.call(26905);
       this.$5D24();
       this.pc(26905, 2);
       int var3 = this.IY() + 87;
@@ -4836,10 +4564,8 @@ public class Emlyn extends MiniZX {
       int var10 = this.dec16(var9);
       this.HL(var10);
       this.pc(26912, 1);
-      this.call(26915);
       this.$5D24();
       this.pc(26915, 1);
-      this.call(26918);
       this.$5D1E();
       this.pc(26918, 1);
       this.$5D1E();
@@ -4847,13 +4573,11 @@ public class Emlyn extends MiniZX {
 
    public void $6929() {
       this.pc(26921, 1);
-      this.call(26924);
       this.$5D0C();
       this.pc(26924, 1);
       int var1 = this.A();
       this.alu("cp", var1, 12);
       this.pc(26926, 1);
-      this.ret();
    }
 
    public void $692F() {
@@ -4861,18 +4585,13 @@ public class Emlyn extends MiniZX {
       int var1 = this.A();
       this.alu("cp", var1, 32);
       this.pc(26929, 1);
-      if(this.flag(64, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, false)) {
          this.pc(26930, 1);
          int var2 = this.A();
          this.alu("cp", var2, 39);
          this.pc(26932, 1);
-         if(this.flag(64, false)) {
-            this.ret();
-         } else {
+         if(!this.flag(64, false)) {
             this.pc(26933, 1);
-            this.call(26936);
             this.$2C8D();
             this.pc(26936, 1);
             int var3 = this.A();
@@ -4881,7 +4600,6 @@ public class Emlyn extends MiniZX {
             int var4 = this.A() & -33;
             this.A(var4);
             this.pc(26939, 1);
-            this.ret();
          }
       }
    }
@@ -4900,12 +4618,10 @@ public class Emlyn extends MiniZX {
       label24:
       while(true) {
          this.pc(26948, 1);
-         this.call(26951);
          this.$6910();
 
          do {
             this.pc(26951, 1);
-            this.call(26954);
             this.$6929();
             this.pc(26954, 1);
             if(this.flag(64, false)) {
@@ -4922,7 +4638,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc(26960, 1);
-            this.call(26963);
             this.$692F();
             this.pc(26963, 1);
          } while(this.flag(1, false));
@@ -4932,7 +4647,6 @@ public class Emlyn extends MiniZX {
          int var7 = this.HL();
          this.wMem(var7, var6, 26965);
          this.pc(26966, 1);
-         this.call(26969);
          this.$5D24();
          this.pc(26969, 1);
          int var8 = this.HL();
@@ -4943,7 +4657,6 @@ public class Emlyn extends MiniZX {
          this.B(var10);
          if(this.B() == 0) {
             this.pc(26972, 1);
-            this.call(26975);
             this.$6910();
             break;
          }
@@ -4961,25 +4674,22 @@ public class Emlyn extends MiniZX {
       int var2 = this.mem(var1, 27438);
       this.bit(0, var2);
       this.pc(27442, 1);
-      this.ret();
    }
 
    public void $6BF8() {
       this.pc(27640, 1);
       this.A(39);
       this.pc(27642, 1);
-      this.call(27645);
       this.$5CD2();
       this.pc(27645, 1);
-      this.call(27648);
+      this.push(27648);
       this.$721D();
       this.pc(27660, 1);
-      this.call(27663);
+      this.push(27663);
       this.$721D();
       this.pc(27675, 1);
       this.DE(3344);
       this.pc(27678, 1);
-      this.call(27681);
       this.$5DA8();
       this.pc(27681, 1);
       this.HL(27650);
@@ -4989,20 +4699,16 @@ public class Emlyn extends MiniZX {
 
    public void $6C27() {
       this.pc(27687, 1);
-      this.call(27690);
       this.$6BF8();
       this.pc(27690, 1);
       this.HL(19854);
       this.pc(27693, 1);
-      this.call(27696);
       this.$5F3A();
       this.pc(27696, 1);
       this.DE(19303);
       this.pc(27699, 1);
-      this.call(27702);
       this.$5FFF();
       this.pc(27702, 1);
-      this.call(27705);
       this.$5E5C();
       this.pc(27705, 2);
       int var1 = this.IY() + -17;
@@ -5010,10 +4716,8 @@ public class Emlyn extends MiniZX {
 
       do {
          this.pc(27709, 1);
-         this.call(27712);
          this.$5F89();
          this.pc(27712, 1);
-         this.call(27715);
          this.$5F79();
          this.pc(27715, 1);
       } while(this.flag(64, true));
@@ -5025,13 +4729,9 @@ public class Emlyn extends MiniZX {
       int var3 = this.A();
       this.alu("cp", var3, 19);
       this.pc(27720, 1);
-      if(this.flag(1, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(1, false)) {
          this.pc(27721, 1);
-         if(this.flag(64, false)) {
-            this.ret();
-         } else {
+         if(!this.flag(64, false)) {
             this.pc(27722, 1);
             int var4 = this.A();
             int var5 = this.alu("rra", var4);
@@ -5041,7 +4741,6 @@ public class Emlyn extends MiniZX {
             int var7 = this.alu("sub", var6, 10);
             this.A(var7);
             this.pc(27725, 1);
-            this.ret();
          }
       }
    }
@@ -5050,23 +4749,20 @@ public class Emlyn extends MiniZX {
       this.pc(27802, 1);
       this.exx();
       this.pc(27803, 1);
-      this.call(27806);
+      this.push(27806);
       this.$5D78();
       this.pc(27808, 1);
-      this.call(27811);
+      this.push(27811);
       this.$5D78();
       this.pc(27813, 1);
-      this.call(27816);
       this.$720A();
       this.pc(27816, 1);
       this.exx();
       this.pc(27817, 1);
-      this.ret();
    }
 
    public void $6CBC() {
       this.pc(27836, 1);
-      this.call(27839);
       this.$6B2E();
       this.pc(27839, 1);
       this.A(4);
@@ -5081,7 +4777,6 @@ public class Emlyn extends MiniZX {
          int var2 = this.A();
          this.C(var2);
          this.pc(27847, 1);
-         this.call(27850);
          this.$6228();
          this.pc(27850, 1);
          if(this.flag(64, false)) {
@@ -5093,7 +4788,6 @@ public class Emlyn extends MiniZX {
             this.pc(27853, 1);
             this.A(1);
             this.pc(27855, 1);
-            this.call(27858);
             this.$6C9A();
             this.pc(27858, 2);
             int var4 = this.L();
@@ -5103,7 +4797,6 @@ public class Emlyn extends MiniZX {
                this.pc(27862, 1);
                this.A(3);
                this.pc(27864, 1);
-               this.call(27867);
                this.$6C9A();
                this.pc(27867, 1);
                int var5 = this.C();
@@ -5123,26 +4816,21 @@ public class Emlyn extends MiniZX {
       this.pc(27897, 1);
       this.exx();
       this.pc(27898, 1);
-      this.call(27901);
       this.$6431();
       this.pc(27901, 1);
       this.DE(23660);
       this.pc(27904, 1);
       this.B(8);
       this.pc(27906, 1);
-      this.call(27909);
       this.$7414();
       this.pc(27909, 1);
       this.exx();
       this.pc(27910, 1);
-      if(this.flag(64, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, false)) {
          this.pc(27911, 1);
          int var1 = this.A();
          this.alu("scf", var1);
          this.pc(27912, 1);
-         this.ret();
       }
    }
 
@@ -5178,7 +4866,6 @@ public class Emlyn extends MiniZX {
             int var10 = this.pop();
             this.HL(var10);
             this.pc(27931, 1);
-            this.ret();
             return;
          }
 
@@ -5203,7 +4890,6 @@ public class Emlyn extends MiniZX {
          int var1 = this.BC();
          this.push(var1);
          this.pc(27935, 1);
-         this.call(27938);
          this.$6D09();
          this.pc(27938, 1);
          int var2 = this.AF();
@@ -5215,12 +4901,10 @@ public class Emlyn extends MiniZX {
          int var4 = this.mem16(27161, 27940);
          this.HL(var4);
          this.pc(27943, 1);
-         this.call(27946);
          this.$6434();
          this.pc(27946, 1);
          this.B(12);
          this.pc(27948, 1);
-         this.call(27951);
          this.$633F();
          this.pc(27951, 1);
          int var5 = this.pop();
@@ -5242,12 +4926,10 @@ public class Emlyn extends MiniZX {
          int var7 = this.mem16(27163, 27961);
          this.HL(var7);
          this.pc(27964, 1);
-         this.call(27967);
          this.$5D7F();
          this.pc(27967, 1);
          this.exx();
          this.pc(27968, 1);
-         this.call(27971);
          this.$6D8E();
          this.pc(27971, 1);
          if(!this.flag(64, true)) {
@@ -5275,7 +4957,6 @@ public class Emlyn extends MiniZX {
       } while(this.B() != 0);
 
       this.pc(27979, 1);
-      this.ret();
    }
 
    public void $6D4C() {
@@ -5298,7 +4979,6 @@ public class Emlyn extends MiniZX {
          int var2 = this.BC();
          this.push(var2);
          this.pc(28009, 1);
-         this.call(28012);
          this.$6D09();
          this.pc(28012, 1);
          this.exHLDE();
@@ -5307,12 +4987,10 @@ public class Emlyn extends MiniZX {
          int var4 = this.mem16(var3, 28013);
          this.HL(var4);
          this.pc(28016, 1);
-         this.call(28019);
          this.$5D7F();
          this.pc(28019, 1);
          this.exHLDE();
          this.pc(28020, 1);
-         this.call(28023);
          this.$3F4();
          this.pc(28023, 1);
          int var5 = this.HL();
@@ -5327,7 +5005,6 @@ public class Emlyn extends MiniZX {
       } while(this.B() != 0);
 
       this.pc(28027, 1);
-      this.ret();
    }
 
    public void $6D55() {
@@ -5353,7 +5030,6 @@ public class Emlyn extends MiniZX {
       int var4 = this.DE();
       this.wMem(var4, var3, 28029);
       this.pc(28030, 1);
-      this.ret();
    }
 
    public void $6D7F() {
@@ -5381,12 +5057,10 @@ public class Emlyn extends MiniZX {
       int var13 = this.HL();
       this.wMem(var13, var12, 28035);
       this.pc(28036, 1);
-      this.ret();
    }
 
    public void $6D85() {
       this.pc(28037, 1);
-      this.call(28040);
       this.$6D8E();
       this.pc(28040, 1);
       if(!this.flag(64, true)) {
@@ -5399,7 +5073,6 @@ public class Emlyn extends MiniZX {
       int var2 = this.HL();
       this.wMem(var2, var1, 28044);
       this.pc(28045, 1);
-      this.ret();
    }
 
    public void $6D8E() {
@@ -5416,7 +5089,6 @@ public class Emlyn extends MiniZX {
       int var4 = this.pop();
       this.HL(var4);
       this.pc(28053, 1);
-      this.ret();
    }
 
    public void $6D96() {
@@ -5426,7 +5098,6 @@ public class Emlyn extends MiniZX {
       this.pc(28057, 1);
       this.exx();
       this.pc(28058, 1);
-      this.call(28061);
       this.$6262();
       this.pc(28061, 1);
       int var2 = this.HL();
@@ -5434,7 +5105,6 @@ public class Emlyn extends MiniZX {
       this.pc(28064, 1);
       this.HL(30538);
       this.pc(28067, 1);
-      this.call(28070);
       this.$6265();
       this.pc(28070, 1);
       this.DE(27163);
@@ -5448,7 +5118,6 @@ public class Emlyn extends MiniZX {
          int var3 = this.BC();
          this.push(var3);
          this.pc(28078, 1);
-         this.call(28081);
          this.$5DA3();
          this.pc(28081, 1);
          int var4 = this.HL();
@@ -5478,7 +5147,6 @@ public class Emlyn extends MiniZX {
       this.pc(28090, 1);
       this.exx();
       this.pc(28091, 1);
-      this.ret();
    }
 
    public void $6DBC() {
@@ -5493,7 +5161,6 @@ public class Emlyn extends MiniZX {
       this.pc(28097, 1);
       this.DE(32692);
       this.pc(28100, 1);
-      this.call(28103);
       this.$6DCF();
       this.pc(28103, 1);
       int var3 = this.pop();
@@ -5510,13 +5177,11 @@ public class Emlyn extends MiniZX {
 
    public void $6DCF() {
       this.pc(28111, 1);
-      this.call(28114);
       this.$6D96();
       this.pc(28114, 1);
       int var1 = this.DE();
       this.push(var1);
       this.pc(28115, 1);
-      this.call(28118);
       this.$6D1C();
       this.pc(28118, 1);
       int var2 = this.pop();
@@ -5530,14 +5195,10 @@ public class Emlyn extends MiniZX {
 
    public void $6DDA() {
       this.pc(28122, 1);
-      this.call(28125);
       this.$6224();
       this.pc(28125, 1);
-      if(this.flag(64, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, false)) {
          this.pc(28126, 1);
-         this.call(28129);
          this.$6E5C();
          this.pc(28129, 2);
          int var1 = this.IY() + -9;
@@ -5548,7 +5209,6 @@ public class Emlyn extends MiniZX {
          this.pc(28136, 1);
          if(!this.flag(64, true)) {
             this.pc(28138, 1);
-            this.call(28141);
             this.$6F24();
             this.pc(28141, 1);
             int var4 = this.mem(23567, 28141);
@@ -5564,12 +5224,10 @@ public class Emlyn extends MiniZX {
             this.pc(28146, 1);
             if(!this.flag(64, false)) {
                this.pc(28148, 1);
-               this.call(28151);
                this.$7174();
                this.pc(28151, 1);
             } else {
                this.pc(28153, 1);
-               this.call(28156);
                this.$72AC();
             }
 
@@ -5594,7 +5252,7 @@ public class Emlyn extends MiniZX {
          }
 
          this.pc(28171, 1);
-         this.call(28174);
+         this.push(28174);
          int var3 = this.HL();
          this.callThrough(var3, 1);
          this.$6E0E();
@@ -5628,26 +5286,21 @@ public class Emlyn extends MiniZX {
          int var9 = this.BC();
          this.push(var9);
          this.pc(28186, 1);
-         this.call(28189);
          this.$6B2E();
          this.pc(28189, 1);
          if(!this.flag(64, true)) {
             this.pc(28191, 1);
-            this.call(28194);
             this.$6D8E();
             this.pc(28194, 1);
             if(this.flag(64, true)) {
-               this.call(28197);
                this.$6FF8();
             }
 
             this.pc(28197, 1);
-            this.call(28200);
             this.$7006();
             this.pc(28200, 1);
             this.DE(28866);
             this.pc(28203, 1);
-            this.call(28206);
             this.$700C();
          }
 
@@ -5667,7 +5320,6 @@ public class Emlyn extends MiniZX {
             this.$6E59();
          } else {
             this.pc(28216, 1);
-            this.call(28219);
             this.$6B2E();
          }
       }
@@ -5686,7 +5338,6 @@ public class Emlyn extends MiniZX {
 
    public void $6E5C() {
       this.pc(28252, 1);
-      this.call(28255);
       this.$64AE();
       this.pc(28255, 1);
       int var1 = this.HL();
@@ -5704,7 +5355,6 @@ public class Emlyn extends MiniZX {
       int var7 = this.mem(var6, 28259);
       this.A(var7);
       this.pc(28260, 1);
-      this.call(28263);
       this.$6515();
       this.pc(28263, 1);
       this.E(0);
@@ -5712,7 +5362,6 @@ public class Emlyn extends MiniZX {
       int var8 = this.A();
       this.B(var8);
       this.pc(28266, 1);
-      this.call(28269);
       this.$6CF9();
       this.pc(28269, 2);
       int var9 = this.E();
@@ -5722,7 +5371,6 @@ public class Emlyn extends MiniZX {
       int var11 = this.C();
       this.A(var11);
       this.pc(28272, 1);
-      this.call(28275);
       this.$6CF9();
       this.pc(28275, 2);
       int var12 = this.E();
@@ -5761,7 +5409,6 @@ public class Emlyn extends MiniZX {
       int var18 = this.BC();
       this.wMem16(27173, var18, 28293);
       this.pc(28297, 1);
-      this.call(28300);
       this.$6EDD();
       this.pc(28300, 1);
       this.DE(32128);
@@ -5772,10 +5419,8 @@ public class Emlyn extends MiniZX {
       int var20 = this.C();
       this.A(var20);
       this.pc(28305, 1);
-      this.call(28308);
       this.$6259();
       this.pc(28308, 1);
-      this.call(28311);
       this.$634D();
       this.pc(28311, 1);
       int var21 = this.pop();
@@ -5784,10 +5429,8 @@ public class Emlyn extends MiniZX {
       int var22 = this.AF();
       this.push(var22);
       this.pc(28313, 1);
-      this.call(28316);
       this.$6259();
       this.pc(28316, 1);
-      this.call(28319);
       this.$634D();
       this.pc(28319, 1);
       this.DE(32735);
@@ -5810,7 +5453,6 @@ public class Emlyn extends MiniZX {
       int var28 = this.alu("cpl", var27);
       this.A(var28);
       this.pc(28333, 1);
-      this.call(28336);
       this.$6B2E();
       this.pc(28336, 1);
       if(!this.flag(64, false)) {
@@ -5829,7 +5471,6 @@ public class Emlyn extends MiniZX {
       int var31 = this.pop();
       this.BC(var31);
       this.pc(28341, 1);
-      this.call(28344);
       this.$6DBC();
       this.pc(28344, 1);
       this.HL(32736);
@@ -5860,7 +5501,6 @@ public class Emlyn extends MiniZX {
       int var47 = this.mem(var46, 28353);
       this.A(var47);
       this.pc(28354, 1);
-      this.call(28357);
       this.$6215();
       this.pc(28357, 1);
       int var48 = this.A();
@@ -5889,9 +5529,7 @@ public class Emlyn extends MiniZX {
       int var56 = this.mem(var55, 28369);
       this.bit(0, var56);
       this.pc(28373, 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          this.pc(28374, 1);
          int var57 = this.mem(32089, 28374);
          this.A(var57);
@@ -5899,7 +5537,6 @@ public class Emlyn extends MiniZX {
          int var58 = this.A();
          this.wMem(23602, var58, 28377);
          this.pc(28380, 1);
-         this.ret();
       }
    }
 
@@ -5913,7 +5550,6 @@ public class Emlyn extends MiniZX {
       int var4 = this.alu("and", var3, var2);
       this.A(var4);
       this.pc(28385, 1);
-      this.call(28388);
       this.$5D7F();
       this.pc(28388, 1);
       int var5 = this.A();
@@ -5934,21 +5570,17 @@ public class Emlyn extends MiniZX {
       int var6 = this.A();
       this.wMem(32734, var6, 28396);
       this.pc(28399, 1);
-      this.ret();
    }
 
    public void $6F24() {
       if(!this.isNextPC(26068)) {
          this.pc(28452, 1);
-         this.call(28455);
          this.$5CC0();
          this.pc(28455, 1);
          this.DE(520);
          this.pc(28458, 1);
-         this.call(28461);
          this.$5DA8();
          this.pc(28461, 1);
-         this.call(28464);
          this.$6CBC();
          this.pc(28464, 1);
          this.B(4);
@@ -5960,7 +5592,6 @@ public class Emlyn extends MiniZX {
          int var12 = this.DE();
          this.push(var12);
          this.pc(28473, 1);
-         this.call(28476);
          this.$6F56();
          this.pc(28476, 1);
          int var13 = this.pop();
@@ -5968,10 +5599,8 @@ public class Emlyn extends MiniZX {
          this.pc(28477, 1);
          this.B(23);
          this.pc(28479, 1);
-         this.call(28482);
          this.$6F56();
          this.pc(28482, 1);
-         this.call(28485);
          this.$64AE();
          this.pc(28485, 1);
          int var14 = this.HL();
@@ -6007,7 +5636,6 @@ public class Emlyn extends MiniZX {
       }
 
       this.pc(26068, 1);
-      this.call(26071);
       this.$5DA8();
       this.pc(26071, 1);
       int var1 = this.A();
@@ -6015,16 +5643,12 @@ public class Emlyn extends MiniZX {
       int var3 = this.alu("and", var2, var1);
       this.A(var3);
       this.pc(26072, 1);
-      if(this.flag(64, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, false)) {
          this.pc(26073, 1);
          int var4 = this.A();
          this.alu("cp", var4, 224);
          this.pc(26075, 1);
-         if(this.flag(1, true)) {
-            this.ret();
-         } else {
+         if(!this.flag(1, true)) {
             this.pc(26076, 1);
             this.exx();
             this.pc(26077, 1);
@@ -6035,10 +5659,8 @@ public class Emlyn extends MiniZX {
             int var7 = this.alu("and", var6, 15);
             this.A(var7);
             this.pc(26080, 1);
-            this.call(26083);
             this.$6259();
             this.pc(26083, 1);
-            this.call(26086);
             this.$63C9();
             this.pc(26086, 2);
             int var8 = this.IY() + -12;
@@ -6047,14 +5669,12 @@ public class Emlyn extends MiniZX {
             this.pc(26090, 1);
             if(!this.flag(64, true)) {
                this.pc(26092, 1);
-               this.call(26095);
                this.$6615();
                this.pc(26095, 1);
                this.pc(26111, 1);
                int var10 = this.pop();
                this.AF(var10);
                this.pc(26112, 1);
-               this.call(26115);
                this.$6515();
                this.pc(26115, 1);
                int var11 = this.A();
@@ -6064,10 +5684,8 @@ public class Emlyn extends MiniZX {
                   this.$660D();
                } else {
                   this.pc(26119, 1);
-                  this.call(26122);
                   this.$6259();
                   this.pc(26122, 1);
-                  this.call(26125);
                   this.$63BC();
                   this.$660D();
                }
@@ -6096,7 +5714,6 @@ public class Emlyn extends MiniZX {
 
    public void $6F63() {
       this.pc(28515, 1);
-      this.call(28518);
       this.$5CF5();
       this.pc(28518, 1);
       this.exHLDE();
@@ -6105,7 +5722,6 @@ public class Emlyn extends MiniZX {
       int var2 = this.inc16(var1);
       this.HL(var2);
       this.pc(28520, 1);
-      this.ret();
    }
 
    public void $6FF8() {
@@ -6142,7 +5758,6 @@ public class Emlyn extends MiniZX {
       int var2 = this.C();
       this.A(var2);
       this.pc(28689, 1);
-      this.call(28692);
       this.$6D96();
       this.pc(28692, 1);
       int var3 = this.BC();
@@ -6151,7 +5766,6 @@ public class Emlyn extends MiniZX {
       int var4 = this.DE();
       this.push(var4);
       this.pc(28694, 1);
-      this.call(28697);
       this.$701F();
       this.pc(28697, 1);
       int var5 = this.pop();
@@ -6163,7 +5777,6 @@ public class Emlyn extends MiniZX {
       int var7 = this.B();
       this.A(var7);
       this.pc(28700, 1);
-      this.call(28703);
       this.$6D96();
       this.$701F();
    }
@@ -6173,13 +5786,15 @@ public class Emlyn extends MiniZX {
       int var1 = this.DE();
       this.push(var1);
       this.pc(28704, 1);
-      int var2 = this.ret();
+      int var2 = this.pop();
       if(var2 == 28866) {
          this.$70C2();
       } else if(var2 == 27989) {
          this.$6D55();
       } else if(var2 == 27980) {
          this.$6D4C();
+      } else {
+         this.jump(var2);
       }
    }
 
@@ -6195,7 +5810,6 @@ public class Emlyn extends MiniZX {
          this.alu("cp", var3, var2);
          this.pc(28854, 1);
          if(this.flag(64, false)) {
-            this.ret();
             return;
          }
 
@@ -6224,7 +5838,6 @@ public class Emlyn extends MiniZX {
       this.pc(28870, 1);
       this.A(12);
       this.pc(28872, 1);
-      this.call(28875);
       this.$70B3();
       this.pc(28875, 1);
       int var3 = this.pop();
@@ -6273,21 +5886,18 @@ public class Emlyn extends MiniZX {
       } while(this.B() != 0);
 
       this.pc(29025, 1);
-      this.ret();
    }
 
    public void $7174() {
       this.pc(29044, 1);
       this.HL(29026);
       this.pc(29047, 1);
-      this.call(29050);
       this.$63DC();
 
       while(true) {
          this.pc(29050, 1);
          this.DE(5892);
          this.pc(29053, 1);
-         this.call(29056);
          this.$5DA8();
          this.pc(29056, 1);
          this.DE(32108);
@@ -6297,7 +5907,6 @@ public class Emlyn extends MiniZX {
          int var1 = this.BC();
          this.push(var1);
          this.pc(29063, 1);
-         this.call(29066);
          this.$5CF6();
          this.pc(29066, 2);
          int var2 = this.IY() + -28;
@@ -6306,7 +5915,6 @@ public class Emlyn extends MiniZX {
          int var3 = this.pop();
          this.BC(var3);
          this.pc(29071, 1);
-         this.call(29074);
          this.$5CF6();
 
          while(true) {
@@ -6329,25 +5937,21 @@ public class Emlyn extends MiniZX {
                this.pc(29093, 1);
                this.DE(32724);
                this.pc(29096, 1);
-               this.call(29099);
                this.$7156();
                this.pc(29099, 1);
                this.HL(32108);
                this.pc(29102, 1);
                this.DE(32118);
                this.pc(29105, 1);
-               this.call(29108);
                this.$7156();
                this.pc(29108, 1);
                break;
             }
 
             this.pc(29084, 1);
-            this.call(29087);
             this.$72AC();
             this.pc(29087, 1);
             if(this.flag(64, true)) {
-               this.ret();
                return;
             }
 
@@ -6372,9 +5976,7 @@ public class Emlyn extends MiniZX {
       int var6 = this.A();
       this.alu("cp", var6, 2);
       this.pc(29117, 1);
-      if(this.flag(1, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(1, false)) {
          this.pc(29118, 1);
          int var7 = this.mem(32095, 29118);
          this.A(var7);
@@ -6384,10 +5986,8 @@ public class Emlyn extends MiniZX {
 
    public void $7204() {
       this.pc(29188, 1);
-      this.call(29191);
       this.$5D9E();
       this.pc(29191, 1);
-      this.call(29194);
       this.$5DA8();
       this.$720A();
    }
@@ -6410,12 +6010,10 @@ public class Emlyn extends MiniZX {
          this.alu("cp", var5, 33);
          this.pc(29200, 1);
          if(this.flag(64, false)) {
-            this.ret();
             return;
          }
 
          this.pc(29201, 1);
-         this.call(29204);
          this.$5D24();
          this.pc(29204, 1);
          int var6 = this.C();
@@ -6423,7 +6021,6 @@ public class Emlyn extends MiniZX {
          this.C(var7);
          this.pc(29205, 1);
          if(this.flag(64, false)) {
-            this.ret();
             return;
          }
 
@@ -6436,7 +6033,6 @@ public class Emlyn extends MiniZX {
       int var1 = this.pop();
       this.HL(var1);
       this.pc(29209, 1);
-      this.call(29212);
       this.$720A();
       this.pc(29212, 1);
    }
@@ -6446,7 +6042,6 @@ public class Emlyn extends MiniZX {
       int var1 = this.pop();
       this.HL(var1);
       this.pc(29214, 1);
-      this.call(29217);
       this.$7204();
       this.pc(29217, 1);
    }
@@ -6480,15 +6075,12 @@ public class Emlyn extends MiniZX {
       int var13 = this.pop();
       this.BC(var13);
       this.pc(29227, 1);
-      this.ret();
    }
 
    public void $72AC() {
       this.pc(29356, 1);
-      this.call(29359);
       this.$5ECD();
       this.pc(29359, 1);
-      this.call(29362);
       this.$5F32();
       this.pc(29362, 1);
       int var1 = this.A();
@@ -6496,7 +6088,6 @@ public class Emlyn extends MiniZX {
       int var3 = this.alu("and", var2, var1);
       this.A(var3);
       this.pc(29363, 1);
-      this.ret();
    }
 
    public void $7414() {
@@ -6512,7 +6103,6 @@ public class Emlyn extends MiniZX {
          this.alu("cp", var5, var4);
          this.pc(29718, 1);
          if(this.flag(64, true)) {
-            this.ret();
             return;
          }
 
@@ -6530,7 +6120,6 @@ public class Emlyn extends MiniZX {
       } while(this.B() != 0);
 
       this.pc(29723, 1);
-      this.ret();
    }
 
    public void $7D60() {
@@ -6558,7 +6147,6 @@ public class Emlyn extends MiniZX {
       int var8 = this.alu("add", var7, 58);
       this.A(var8);
       this.pc(32106, 1);
-      this.ret();
    }
 
    public void $7D9E() {
@@ -6587,7 +6175,6 @@ public class Emlyn extends MiniZX {
             this.pc(32166, 1);
             this.E(16);
             this.pc(32168, 1);
-            this.call(32171);
             this.$BF0D();
             this.pc(32171, 1);
             if(this.flag(64, true)) {
@@ -6621,12 +6208,10 @@ public class Emlyn extends MiniZX {
                   int var1 = this.A();
                   this.wMem('\u9276', var1, 32186);
                   this.pc(32189, 1);
-                  this.call(32192);
                   this.$7E4A();
                   this.pc(32192, 1);
                   this.A(1);
                   this.pc(32194, 1);
-                  this.call(32197);
                   this.$7E4A();
                   this.pc(32197, 1);
                   int var2 = this.mem('\u9276', 32197);
@@ -6645,7 +6230,6 @@ public class Emlyn extends MiniZX {
                      this.pc(32208, 1);
                      this.DE('\uc201');
                      this.pc(32211, 1);
-                     this.call(32214);
                      this.$C1CD();
                   }
 
@@ -6751,7 +6335,6 @@ public class Emlyn extends MiniZX {
                      int var46 = this.A();
                      this.wMem('\u92a3', var46, 32269);
                      this.pc(32272, 1);
-                     this.call(32275);
                      this.$BF11();
                   }
                }
@@ -6760,7 +6343,6 @@ public class Emlyn extends MiniZX {
                int var8 = this.mem('\u92a3', 32275);
                this.A(var8);
                this.pc(32278, 1);
-               this.call(32281);
                this.$7D60();
                this.pc(32281, 1);
                int var9 = this.A();
@@ -6784,7 +6366,6 @@ public class Emlyn extends MiniZX {
                int var13 = this.mem('\u92a4', 32294);
                this.A(var13);
                this.pc(32297, 1);
-               this.call(32300);
                this.$7D60();
                this.pc(32300, 1);
                int var14 = this.A();
@@ -6817,7 +6398,6 @@ public class Emlyn extends MiniZX {
                this.pc(32321, 1);
                this.HL(16513);
                this.pc(32324, 1);
-               this.call(32327);
                this.$C1CD();
             }
 
@@ -6873,9 +6453,7 @@ public class Emlyn extends MiniZX {
       int var14 = this.A();
       this.alu("cp", var14, var13);
       this.pc(32343, 1);
-      if(this.flag(64, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, false)) {
          this.pc(32344, 1);
          int var15 = this.A();
          int var16 = this.HL();
@@ -6916,7 +6494,6 @@ public class Emlyn extends MiniZX {
          int var29 = this.pop();
          this.AF(var29);
          this.pc(32362, 1);
-         this.call(32365);
          this.$7D60();
          this.pc(32365, 1);
          int var30 = this.A();
@@ -6950,7 +6527,6 @@ public class Emlyn extends MiniZX {
                int var46 = this.HL();
                this.wMem(var46, var45, 32382);
                this.pc(32383, 1);
-               this.ret();
                return;
             }
          }
@@ -6968,7 +6544,6 @@ public class Emlyn extends MiniZX {
          int var40 = this.HL();
          this.wMem(var40, var39, 32373);
          this.pc(32374, 1);
-         this.ret();
       }
    }
 
@@ -7068,10 +6643,8 @@ public class Emlyn extends MiniZX {
       this.pc('\u9407', 1);
       this.HL('\uddc9');
       this.pc('\u940a', 1);
-      this.call('\u940d');
       this.$DD52();
       this.pc('\u940d', 1);
-      this.call('\u9410');
       this.$DD72();
       this.pc('\u9410', 1);
       this.HL(16482);
@@ -7080,7 +6653,6 @@ public class Emlyn extends MiniZX {
       this.pc('\u9416', 1);
       this.B(4);
       this.pc('\u9418', 1);
-      this.call('\u941b');
       this.$C1CD();
       this.pc('\u941b', 1);
       this.HL(16538);
@@ -7089,10 +6661,8 @@ public class Emlyn extends MiniZX {
       this.pc('\u9421', 1);
       this.B(4);
       this.pc('\u9423', 1);
-      this.call('\u9426');
       this.$C1CD();
       this.pc('\u9426', 1);
-      this.call('\u9429');
       this.$C156();
       this.pc('\u9429', 1);
       this.A(0);
@@ -7219,7 +6789,6 @@ public class Emlyn extends MiniZX {
          int var53 = this.A();
          this.wMem('\u9296', var53, '\u947f');
          this.pc('\u9482', 1);
-         this.call('\u9485');
          this.$BA49();
          this.pc('\u9485', 1);
          int var54 = this.mem(32737, '\u9485');
@@ -7257,7 +6826,6 @@ public class Emlyn extends MiniZX {
       }
 
       this.pc('\u949c', 1);
-      this.call('\u949f');
       this.$C186();
       this.pc('\u949f', 1);
       this.A(0);
@@ -7468,7 +7036,6 @@ public class Emlyn extends MiniZX {
       int var2 = this.BC();
       this.push(var2);
       this.pc('\u9537', 1);
-      this.call('\u953a');
       this.$C156();
       this.pc('\u953a', 1);
       int var3 = this.pop();
@@ -7563,9 +7130,7 @@ public class Emlyn extends MiniZX {
       int var14 = this.alu("or", var13, var12);
       this.A(var14);
       this.pc('\u9567', 1);
-      if(this.flag(64, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, false)) {
          this.pc('\u9568', 1);
          this.A(6);
          this.pc('\u956a', 1);
@@ -7576,7 +7141,6 @@ public class Emlyn extends MiniZX {
          this.pc('\u956b', 1);
          this.HL('\u9572');
          this.pc('\u956e', 1);
-         this.call('\u9571');
          this.$95F4();
          this.pc('\u9571', 1);
          if(this.HL() != '\u95b3') {
@@ -7589,11 +7153,9 @@ public class Emlyn extends MiniZX {
                   }
 
                   this.pc('\u95bc', 1);
-                  this.call('\u95bf');
                   this.$95DA();
                   this.pc('\u95bf', 1);
                   if(this.flag(1, true)) {
-                     this.ret();
                      return;
                   }
 
@@ -7602,10 +7164,8 @@ public class Emlyn extends MiniZX {
 
                   do {
                      this.pc('\u95c2', 1);
-                     this.call('\u95c5');
                      this.$9603();
                      this.pc('\u95c5', 1);
-                     this.call('\u95c8');
                      this.$962A();
                      this.pc('\u95c8', 1);
                      int var25 = this.B() - 1 & 255;
@@ -7613,7 +7173,6 @@ public class Emlyn extends MiniZX {
                   } while(this.B() != 0);
 
                   this.pc('\u95ca', 1);
-                  this.ret();
                   return;
                }
 
@@ -7629,7 +7188,6 @@ public class Emlyn extends MiniZX {
                this.alu("cp", var24, 2);
                this.pc('\u95a6', 1);
                if(this.flag(64, true)) {
-                  this.ret();
                   return;
                }
 
@@ -7639,11 +7197,9 @@ public class Emlyn extends MiniZX {
             }
          } else {
             this.pc('\u95b3', 1);
-            this.call('\u95b6');
             this.$95DA();
             this.pc('\u95b6', 1);
             if(this.flag(1, true)) {
-               this.ret();
                return;
             }
 
@@ -7660,13 +7216,11 @@ public class Emlyn extends MiniZX {
 
          do {
             this.pc('\u95ce', 1);
-            this.call('\u95d1');
             this.$961F();
             this.pc('\u95d1', 1);
             int var19 = this.BC();
             this.push(var19);
             this.pc('\u95d2', 1);
-            this.call('\u95d5');
             this.$9638();
             this.pc('\u95d5', 1);
             int var20 = this.pop();
@@ -7679,7 +7233,6 @@ public class Emlyn extends MiniZX {
          } while(this.flag(64, true));
 
          this.pc('\u95d9', 1);
-         this.ret();
       }
    }
 
@@ -7697,9 +7250,7 @@ public class Emlyn extends MiniZX {
       int var6 = this.alu("srl", var5);
       this.D(var6);
       this.pc('\u95e0', 1);
-      if(this.flag(1, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(1, true)) {
          this.pc('\u95e1', 1);
          this.HL('\u95f2');
          this.pc('\u95e4', 1);
@@ -7745,7 +7296,6 @@ public class Emlyn extends MiniZX {
          } while(this.B() != 0);
 
          this.pc('\u95f1', 1);
-         this.ret();
       }
    }
 
@@ -7756,7 +7306,6 @@ public class Emlyn extends MiniZX {
       int var3 = this.alu("add", var2, var1);
       this.A(var3);
       this.pc('\u95f5', 1);
-      this.call('\u95f8');
       this.$95FD();
       this.pc('\u95f8', 1);
       int var4 = this.HL();
@@ -7774,7 +7323,6 @@ public class Emlyn extends MiniZX {
       int var10 = this.A();
       this.L(var10);
       this.pc('\u95fc', 1);
-      this.ret();
    }
 
    public void $95FD() {
@@ -7800,7 +7348,6 @@ public class Emlyn extends MiniZX {
       int var11 = this.A();
       this.H(var11);
       this.pc('\u9602', 1);
-      this.ret();
    }
 
    public void $9603() {
@@ -7862,7 +7409,6 @@ public class Emlyn extends MiniZX {
       int var31 = this.HL();
       this.wMem(var31, var30, '\u9618');
       this.pc('\u961a', 1);
-      this.ret();
    }
 
    public void $961F() {
@@ -7878,7 +7424,6 @@ public class Emlyn extends MiniZX {
       int var4 = this.A();
       this.wMem('\u9247', var4, '\u9626');
       this.pc('\u9629', 1);
-      this.ret();
    }
 
    public void $962A() {
@@ -7901,7 +7446,6 @@ public class Emlyn extends MiniZX {
 
       this.pc('\u9635', 1);
       this.pc('\u9637', 1);
-      this.ret();
    }
 
    public void $9638() {
@@ -7922,7 +7466,6 @@ public class Emlyn extends MiniZX {
       } while(this.flag(64, true));
 
       this.pc('\u963d', 1);
-      this.ret();
    }
 
    public void $963E() {
@@ -8006,7 +7549,6 @@ public class Emlyn extends MiniZX {
          this.pc('\u9672', 1);
          this.E(255);
          this.pc('\u9674', 1);
-         this.call('\u9677');
          this.$9B1C();
          this.pc('\u9677', 1);
          int var19 = this.mem('\u9248', '\u9677');
@@ -9117,7 +8659,6 @@ public class Emlyn extends MiniZX {
                   int var257 = this.A();
                   this.L(var257);
                   this.pc('\u984a', 1);
-                  this.call('\u984d');
                   this.$9AF3();
                }
 
@@ -9594,7 +9135,6 @@ public class Emlyn extends MiniZX {
                                        this.executeMutantCode('\u9ace');
                                        this.pc('\u9acf', 1);
                                        if(this.flag(1, false)) {
-                                          this.call('\u9ad2');
                                           this.$9ADF();
                                        }
 
@@ -9622,7 +9162,6 @@ public class Emlyn extends MiniZX {
                                           this.executeMutantCode('\u9ad8');
                                           this.pc('\u9ad9', 1);
                                           if(this.flag(1, false)) {
-                                             this.call('\u9adc');
                                              this.$9ADF();
                                           }
 
@@ -10374,7 +9913,6 @@ public class Emlyn extends MiniZX {
                            var172 = this.mem16('\u9251', '\u9a19');
                            this.SP(var172);
                            this.pc('\u9a1d', 1);
-                           this.call('\u9a20');
                            this.$A939();
                            this.pc('\u9a20', 1);
                            var173 = this.A();
@@ -10382,7 +9920,6 @@ public class Emlyn extends MiniZX {
                            this.pc('\u9a23', 1);
                            this.HL(32724);
                            this.pc('\u9a26', 1);
-                           this.call('\u9a29');
                            this.$A939();
                            this.pc('\u9a29', 1);
                            var174 = this.A();
@@ -10531,7 +10068,6 @@ public class Emlyn extends MiniZX {
                            var172 = this.mem16('\u9251', '\u9a19');
                            this.SP(var172);
                            this.pc('\u9a1d', 1);
-                           this.call('\u9a20');
                            this.$A939();
                            this.pc('\u9a20', 1);
                            var173 = this.A();
@@ -10539,7 +10075,6 @@ public class Emlyn extends MiniZX {
                            this.pc('\u9a23', 1);
                            this.HL(32724);
                            this.pc('\u9a26', 1);
-                           this.call('\u9a29');
                            this.$A939();
                            this.pc('\u9a29', 1);
                            var174 = this.A();
@@ -10655,7 +10190,6 @@ public class Emlyn extends MiniZX {
                            }
 
                            this.pc('\u9891', 1);
-                           this.call('\u9894');
                            this.$9AF3();
                         }
                      } else {
@@ -10712,7 +10246,6 @@ public class Emlyn extends MiniZX {
                         }
 
                         this.pc('\u9891', 1);
-                        this.call('\u9894');
                         this.$9AF3();
                      }
 
@@ -11548,7 +11081,6 @@ public class Emlyn extends MiniZX {
                      var172 = this.mem16('\u9251', '\u9a19');
                      this.SP(var172);
                      this.pc('\u9a1d', 1);
-                     this.call('\u9a20');
                      this.$A939();
                      this.pc('\u9a20', 1);
                      var173 = this.A();
@@ -11556,7 +11088,6 @@ public class Emlyn extends MiniZX {
                      this.pc('\u9a23', 1);
                      this.HL(32724);
                      this.pc('\u9a26', 1);
-                     this.call('\u9a29');
                      this.$A939();
                      this.pc('\u9a29', 1);
                      var174 = this.A();
@@ -11576,7 +11107,6 @@ public class Emlyn extends MiniZX {
             this.A(var178);
             this.pc('\u9a30', 1);
             if(this.flag(64, false)) {
-               this.call('\u9a33');
                this.$954F();
             }
 
@@ -11604,7 +11134,6 @@ public class Emlyn extends MiniZX {
             this.pc('\u9a3f', 1);
             this.ei();
             this.pc('\u9a40', 2);
-            this.ret();
             return;
          } catch (StackException var438) {
             int[] var339 = new int[]{'\u9869'};
@@ -11625,7 +11154,6 @@ public class Emlyn extends MiniZX {
       int var4 = this.inc16(var3);
       this.HL(var4);
       this.pc('\u9ae2', 1);
-      this.ret();
    }
 
    public void $9AF3() {
@@ -11762,7 +11290,6 @@ public class Emlyn extends MiniZX {
             this.B(var39);
             if(this.B() == 0) {
                this.pc('\u9b16', 1);
-               this.ret();
                return;
             }
          } else {
@@ -11778,7 +11305,6 @@ public class Emlyn extends MiniZX {
             this.B(var37);
             if(this.B() == 0) {
                this.pc('\u9b1b', 1);
-               this.ret();
                return;
             }
          }
@@ -12392,7 +11918,6 @@ public class Emlyn extends MiniZX {
                   int var27 = this.mem16('\u9c1a', '\u9c19');
                   this.SP(var27);
                   this.pc('\u9c1c', 1);
-                  this.ret();
                }
             }
          }
@@ -14027,7 +13552,6 @@ public class Emlyn extends MiniZX {
                }
 
                this.pc('\ua048', 1);
-               this.call('\ua04b');
                this.$A682();
             }
 
@@ -14861,7 +14385,6 @@ public class Emlyn extends MiniZX {
       int var9 = this.mem(var8, '\ua229');
       this.A(var9);
       this.pc('\ua22a', 1);
-      this.ret();
    }
 
    public void $A234() {
@@ -14916,7 +14439,6 @@ public class Emlyn extends MiniZX {
       int var1 = this.AF();
       this.push(var1);
       this.pc('\ua251', 1);
-      this.call('\ua254');
       this.$A802();
       this.pc('\ua254', 1);
       int var2 = this.pop();
@@ -14988,7 +14510,6 @@ public class Emlyn extends MiniZX {
    public void $A27D() {
       if(!this.isNextPC('\ua2a4')) {
          this.pc('\ua27d', 1);
-         this.call('\ua280');
          this.$A20B();
          this.pc('\ua280', 1);
          int var9 = this.A();
@@ -15725,7 +15246,6 @@ public class Emlyn extends MiniZX {
                      this.pc('\ua570', 1);
                      if(!this.flag(128, false)) {
                         this.pc('\ua573', 1);
-                        this.call('\ua576');
                         this.$BADC();
                         this.pc('\ua576', 2);
                         int var76 = this.IX() + -37;
@@ -15752,7 +15272,6 @@ public class Emlyn extends MiniZX {
                      this.A(var31);
                      this.pc('\ua582', 1);
                      if(this.flag(1, false)) {
-                        this.call('\ua585');
                         this.$A962();
                      }
 
@@ -15763,7 +15282,6 @@ public class Emlyn extends MiniZX {
                      this.A(var34);
                      this.pc('\ua586', 1);
                      if(this.flag(1, false)) {
-                        this.call('\ua589');
                         this.$A962();
                      }
 
@@ -15783,7 +15301,6 @@ public class Emlyn extends MiniZX {
                      this.wMem('\u934c', var40, '\ua58e');
                      this.pc('\ua591', 1);
                      if(this.flag(1, false)) {
-                        this.call('\ua594');
                         this.$A962();
                      }
                   }
@@ -16214,7 +15731,6 @@ public class Emlyn extends MiniZX {
       this.pc('\ua67a', 1);
       this.E(0);
       this.pc('\ua67c', 1);
-      this.call('\ua67f');
       this.$9B1C();
       this.pc('\ua67f', 1);
       this.setNextAddress('\u9a42');
@@ -16275,7 +15791,6 @@ public class Emlyn extends MiniZX {
             int var145 = this.A();
             this.wMem(var144, var145, '\ua69e');
             this.pc('\ua6a1', 1);
-            this.ret();
             return;
          }
 
@@ -16349,7 +15864,6 @@ public class Emlyn extends MiniZX {
                int var79 = this.A();
                this.wMem(var78, var79, '\ua747');
                this.pc('\ua74a', 1);
-               this.ret();
                return;
             }
 
@@ -16421,7 +15935,6 @@ public class Emlyn extends MiniZX {
                int var136 = this.A();
                this.wMem(var135, var136, '\ua701');
                this.pc('\ua704', 1);
-               this.ret();
                return;
             }
 
@@ -16628,7 +16141,6 @@ public class Emlyn extends MiniZX {
       int var42 = this.A();
       this.wMem(var41, var42, '\ua7ab');
       this.pc('\ua7ae', 1);
-      this.ret();
    }
 
    public void $A802() {
@@ -16818,7 +16330,6 @@ public class Emlyn extends MiniZX {
                this.pc('\ua87b', 1);
                if(!this.flag(64, false)) {
                   this.pc('\ua87d', 1);
-                  this.ret();
                   return;
                }
             } else {
@@ -16827,7 +16338,6 @@ public class Emlyn extends MiniZX {
                this.alu("cp", var51, 8);
                this.pc('\ua880', 1);
                if(this.flag(64, false)) {
-                  this.ret();
                   return;
                }
 
@@ -16884,7 +16394,6 @@ public class Emlyn extends MiniZX {
                   this.alu("cp", var66, 10);
                   this.pc('\ua8a2', 1);
                   if(this.flag(1, false)) {
-                     this.ret();
                      return;
                   }
                }
@@ -16916,7 +16425,6 @@ public class Emlyn extends MiniZX {
       int var58 = this.A();
       this.wMem('\u9386', var58, '\ua8b7');
       this.pc('\ua8ba', 1);
-      this.ret();
    }
 
    public void $A939() {
@@ -16986,7 +16494,6 @@ public class Emlyn extends MiniZX {
          int var23 = this.alu("and", var22, 31);
          this.A(var23);
          this.pc('\ua961', 1);
-         this.ret();
       }
    }
 
@@ -17017,7 +16524,6 @@ public class Emlyn extends MiniZX {
       int var7 = this.D();
       this.A(var7);
       this.pc('\ua971', 1);
-      this.ret();
    }
 
    public void $AB5A() {
@@ -17085,7 +16591,6 @@ public class Emlyn extends MiniZX {
                               this.pc('\uabd9', 1);
                               if(!this.flag(1, true)) {
                                  this.pc('\uabdb', 1);
-                                 this.call('\uabde');
                                  this.$B69F();
                                  this.pc('\uabde', 1);
                                  if(this.flag(1, false)) {
@@ -17095,7 +16600,6 @@ public class Emlyn extends MiniZX {
                               }
                            } else {
                               this.pc('\uabdb', 1);
-                              this.call('\uabde');
                               this.$B69F();
                               this.pc('\uabde', 1);
                               if(this.flag(1, false)) {
@@ -17230,7 +16734,6 @@ public class Emlyn extends MiniZX {
                                  }
 
                                  this.pc('\uac34', 1);
-                                 this.call('\uac37');
                                  this.$B69F();
                                  this.pc('\uac37', 1);
                                  if(!this.flag(1, true)) {
@@ -17295,7 +16798,6 @@ public class Emlyn extends MiniZX {
                               this.pc('\uabd9', 1);
                               if(!this.flag(1, true)) {
                                  this.pc('\uabdb', 1);
-                                 this.call('\uabde');
                                  this.$B69F();
                                  this.pc('\uabde', 1);
                                  if(this.flag(1, false)) {
@@ -17305,7 +16807,6 @@ public class Emlyn extends MiniZX {
                               }
                            } else {
                               this.pc('\uabdb', 1);
-                              this.call('\uabde');
                               this.$B69F();
                               this.pc('\uabde', 1);
                               if(this.flag(1, false)) {
@@ -17632,7 +17133,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\uace7', 1);
-            this.call('\uacea');
             this.$ADF0();
             this.pc('\uacea', 1);
             if(this.flag(64, true)) {
@@ -17884,7 +17384,6 @@ public class Emlyn extends MiniZX {
             int var62 = this.A();
             this.wMem(var61, var62, '\uad6c');
             this.pc('\uad6f', 1);
-            this.call('\uad72');
             this.$B641();
             this.pc('\uad72', 1);
             int var63 = this.mem16('\u9266', '\uad72');
@@ -18116,7 +17615,6 @@ public class Emlyn extends MiniZX {
             int var88 = this.A();
             this.wMem(var87, var88, '\uade7');
             this.pc('\uadea', 1);
-            this.call('\uaded');
             this.$BAEA();
             this.pc('\uaded', 1);
             this.jump('\u94aa');
@@ -18308,7 +17806,6 @@ public class Emlyn extends MiniZX {
          int var52 = this.alu("and", var51, var50);
          this.A(var52);
          this.pc('\uae4e', 1);
-         this.ret();
       }
    }
 
@@ -18587,7 +18084,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\uaef5', 1);
-            this.call('\uaef8');
             this.$B04B();
             this.pc('\uaef8', 1);
             if(this.flag(1, true)) {
@@ -18625,7 +18121,6 @@ public class Emlyn extends MiniZX {
             this.pc('\uaf33', 1);
             this.A(16);
             this.pc('\uaf35', 1);
-            this.call('\uaf38');
             this.$B051();
             this.pc('\uaf38', 1);
             if(!this.flag(1, false)) {
@@ -18636,7 +18131,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\uaf3d', 1);
-            this.call('\uaf40');
             this.$BBA8();
             return;
          } catch (StackException var3) {
@@ -18655,7 +18149,6 @@ public class Emlyn extends MiniZX {
                if(this.isNextPC('\uaf67') || !this.isNextPC('\uaf81')) {
                   label78: {
                      this.pc('\uaf67', 1);
-                     this.call('\uaf6a');
                      this.$B04F();
                      this.pc('\uaf6a', 1);
                      if(this.flag(1, true)) {
@@ -18679,15 +18172,13 @@ public class Emlyn extends MiniZX {
 
                      try {
                         this.pc('\uaf74', 1);
-                        this.call('\uaf77');
                         this.$B09A();
-                     } catch (StackException var63) {
-                        if(var63.getNextPC() != '\ub0a8') {
-                           throw var63;
+                     } catch (StackException var62) {
+                        if(var62.getNextPC() != '\ub0a8') {
+                           throw var62;
                         }
 
-                        int var4 = this.pop();
-                        this.HL(var4);
+                        this.HL('\uaf77');
                         this.pc('\ub0a8', 1);
                         break label78;
                      }
@@ -18695,11 +18186,11 @@ public class Emlyn extends MiniZX {
                      this.pc('\uaf77', 1);
                      if(!this.flag(1, false)) {
                         this.pc('\uaf79', 2);
-                        int var59 = this.IY();
-                        this.push(var59);
+                        int var58 = this.IY();
+                        this.push(var58);
                         this.pc('\uaf7b', 2);
-                        int var60 = this.pop();
-                        this.IX(var60);
+                        int var59 = this.pop();
+                        this.IX(var59);
                      }
 
                      this.pc('\uaf7d', 1);
@@ -18714,13 +18205,13 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\uaf83', 1);
-            int var5 = this.mem('\u929e', '\uaf83');
-            this.A(var5);
+            int var4 = this.mem('\u929e', '\uaf83');
+            this.A(var4);
             this.pc('\uaf86', 1);
+            int var5 = this.A();
             int var6 = this.A();
-            int var7 = this.A();
-            int var8 = this.alu("and", var7, var6);
-            this.A(var8);
+            int var7 = this.alu("and", var6, var5);
+            this.A(var7);
             this.pc('\uaf87', 1);
             if(this.flag(64, true)) {
                this.setNextAddress('\uafe7');
@@ -18729,88 +18220,88 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\uaf89', 1);
-            int var9 = this.E();
-            this.A(var9);
+            int var8 = this.E();
+            this.A(var8);
             this.pc('\uaf8a', 1);
-            int var10 = this.A();
-            this.wMem('\u929e', var10, '\uaf8a');
+            int var9 = this.A();
+            this.wMem('\u929e', var9, '\uaf8a');
             this.pc('\uaf8d', 2);
-            int var11 = this.IX();
-            this.push(var11);
+            int var10 = this.IX();
+            this.push(var10);
             this.pc('\uaf8f', 1);
-            int var12 = this.pop();
-            this.HL(var12);
+            int var11 = this.pop();
+            this.HL(var11);
             this.pc('\uaf90', 1);
             this.BC('\u935b');
             this.pc('\uaf93', 1);
+            int var12 = this.A();
             int var13 = this.A();
-            int var14 = this.A();
-            int var15 = this.alu("and", var14, var13);
-            this.A(var15);
+            int var14 = this.alu("and", var13, var12);
+            this.A(var14);
             this.pc('\uaf94', 2);
-            int var16 = this.BC();
-            int var17 = this.HL();
-            int var18 = this.alu("sbc16", var17, var16);
-            this.HL(var18);
+            int var15 = this.BC();
+            int var16 = this.HL();
+            int var17 = this.alu("sbc16", var16, var15);
+            this.HL(var17);
             this.pc('\uaf96', 1);
-            int var19 = this.mem('\u9296', '\uaf96');
-            this.A(var19);
+            int var18 = this.mem('\u9296', '\uaf96');
+            this.A(var18);
             this.pc('\uaf99', 1);
-            int var20 = this.L();
-            int var21 = this.A();
-            this.alu("cp", var21, var20);
+            int var19 = this.L();
+            int var20 = this.A();
+            this.alu("cp", var20, var19);
             this.pc('\uaf9a', 1);
-            int var22 = this.L();
-            this.A(var22);
+            int var21 = this.L();
+            this.A(var21);
             this.pc('\uaf9b', 1);
-            int var23 = this.A();
-            this.wMem('\u9296', var23, '\uaf9b');
+            int var22 = this.A();
+            this.wMem('\u9296', var22, '\uaf9b');
             this.pc('\uaf9e', 1);
             if(!this.flag(64, false)) {
                this.pc('\uafa0', 1);
-               int var52 = this.mem('\u92a0', '\uafa0');
-               this.A(var52);
+               int var51 = this.mem('\u92a0', '\uafa0');
+               this.A(var51);
                this.pc('\uafa3', 1);
-               int var53 = this.A();
-               this.alu("cp", var53, 204);
+               int var52 = this.A();
+               this.alu("cp", var52, 204);
                this.pc('\uafa5', 1);
                this.A(0);
                this.pc('\uafa7', 1);
                if(!this.flag(64, false)) {
                   this.pc('\uafa9', 1);
-                  int var58 = this.A();
-                  this.wMem('\u9299', var58, '\uafa9');
+                  int var57 = this.A();
+                  this.wMem('\u9299', var57, '\uafa9');
                }
 
                this.pc('\uafac', 1);
-               int var54 = this.A();
-               this.wMem('\u929c', var54, '\uafac');
+               int var53 = this.A();
+               this.wMem('\u929c', var53, '\uafac');
                this.pc('\uafaf', 2);
-               int var55 = this.IX() + -74;
-               int var56 = this.A();
-               this.wMem(var55, var56, '\uafaf');
+               int var54 = this.IX() + -74;
+               int var55 = this.A();
+               this.wMem(var54, var55, '\uafaf');
                this.pc('\uafb2', 1);
-               int var57 = this.A();
-               this.wMem('\u92cd', var57, '\uafb2');
+               int var56 = this.A();
+               this.wMem('\u92cd', var56, '\uafb2');
             }
 
             this.pc('\uafb5', 2);
-            int var24 = this.IX() + -67;
-            int var25 = this.mem(var24, '\uafb5');
-            this.A(var25);
+            int var23 = this.IX() + -67;
+            int var24 = this.mem(var23, '\uafb5');
+            this.A(var24);
             this.pc('\uafb8', 1);
-            int var26 = this.A();
-            this.wMem('\u92c8', var26, '\uafb8');
+            int var25 = this.A();
+            this.wMem('\u92c8', var25, '\uafb8');
             this.pc('\uafbb', 1);
-            int var27 = this.A();
-            this.E(var27);
+            int var26 = this.A();
+            this.E(var26);
             this.pc('\uafbc', 1);
-            int var28 = this.mem('\u92a8', '\uafbc');
-            this.A(var28);
+            int var27 = this.mem('\u92a8', '\uafbc');
+            this.A(var27);
             this.pc('\uafbf', 1);
-            int var29 = this.A();
-            int var30 = this.alu("rlca", var29);
-            this.A(var30);
+            int var28 = this.A();
+            int var29 = this.alu("rlca", var28);
+            this.A(var29);
             this.pc('\uafc0', 1);
             if(this.flag(1, false)) {
                this.setNextAddress('\uafe7');
@@ -18819,21 +18310,21 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\uafc2', 1);
-            int var31 = this.mem('\u924e', '\uafc2');
-            this.A(var31);
+            int var30 = this.mem('\u924e', '\uafc2');
+            this.A(var30);
             this.pc('\uafc5', 1);
-            int var32 = this.A();
-            this.alu("cp", var32, 1);
+            int var31 = this.A();
+            this.alu("cp", var31, 1);
             this.pc('\uafc7', 1);
-            int var33 = this.A();
-            int var34 = this.alu("rra", var33);
-            this.A(var34);
+            int var32 = this.A();
+            int var33 = this.alu("rra", var32);
+            this.A(var33);
             this.pc('\uafc8', 2);
-            int var35 = this.IX() + -67;
-            int var36 = this.mem(var35, '\uafc8');
-            int var37 = this.A();
-            int var38 = this.alu("xor", var37, var36);
-            this.A(var38);
+            int var34 = this.IX() + -67;
+            int var35 = this.mem(var34, '\uafc8');
+            int var36 = this.A();
+            int var37 = this.alu("xor", var36, var35);
+            this.A(var37);
             this.pc('\uafcb', 1);
             if(this.flag(128, true)) {
                this.jump('\uafe3');
@@ -18841,30 +18332,30 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\uafce', 2);
-            int var39 = this.IX();
-            this.push(var39);
+            int var38 = this.IX();
+            this.push(var38);
             this.pc('\uafd0', 1);
-            int var40 = this.pop();
-            this.HL(var40);
+            int var39 = this.pop();
+            this.HL(var39);
             this.pc('\uafd1', 1);
             this.BC('\u935b');
             this.pc('\uafd4', 1);
+            int var40 = this.A();
             int var41 = this.A();
-            int var42 = this.A();
-            int var43 = this.alu("and", var42, var41);
-            this.A(var43);
+            int var42 = this.alu("and", var41, var40);
+            this.A(var42);
             this.pc('\uafd5', 2);
-            int var44 = this.BC();
-            int var45 = this.HL();
-            int var46 = this.alu("sbc16", var45, var44);
-            this.HL(var46);
+            int var43 = this.BC();
+            int var44 = this.HL();
+            int var45 = this.alu("sbc16", var44, var43);
+            this.HL(var45);
             this.pc('\uafd7', 1);
-            int var47 = this.mem('\u9296', '\uafd7');
-            this.A(var47);
+            int var46 = this.mem('\u9296', '\uafd7');
+            this.A(var46);
             this.pc('\uafda', 1);
-            int var48 = this.L();
-            int var49 = this.A();
-            this.alu("cp", var49, var48);
+            int var47 = this.L();
+            int var48 = this.A();
+            this.alu("cp", var48, var47);
             this.pc('\uafdb', 1);
             if(this.flag(64, false)) {
                this.jump('\uafe3');
@@ -18872,15 +18363,15 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\uafdd', 2);
-            int var50 = this.IX() + -29;
-            int var51 = this.mem(var50, '\uafdd');
-            this.A(var51);
+            int var49 = this.IX() + -29;
+            int var50 = this.mem(var49, '\uafdd');
+            this.A(var50);
             this.jump('\uafe0');
             return;
-         } catch (StackException var64) {
-            int[] var62 = new int[]{'\uaf67'};
-            if(!this.isOwnAddress(var64, var62)) {
-               throw var64;
+         } catch (StackException var63) {
+            int[] var61 = new int[]{'\uaf67'};
+            if(!this.isOwnAddress(var63, var61)) {
+               throw var63;
             }
          }
       }
@@ -18971,10 +18462,8 @@ public class Emlyn extends MiniZX {
       this.pc('\ub054', 2);
       this.IY('\u9362');
       this.pc('\ub058', 1);
-      this.call('\ub05b');
       this.$B2E0();
       this.pc('\ub05b', 1);
-      this.call('\ub05e');
       this.$B2FE();
       this.pc('\ub05e', 2);
       int var2 = this.IX() + -82;
@@ -19102,7 +18591,6 @@ public class Emlyn extends MiniZX {
             int var57 = this.A();
             this.alu("cp", var57, 4);
             this.pc('\ub097', 1);
-            this.ret();
             return;
          }
       }
@@ -19113,7 +18601,6 @@ public class Emlyn extends MiniZX {
       int var32 = this.alu("and", var31, var30);
       this.A(var32);
       this.pc('\ub099', 1);
-      this.ret();
    }
 
    public void $B09A() {
@@ -19121,7 +18608,6 @@ public class Emlyn extends MiniZX {
       int var1 = this.mem('\u9296', '\ub09a');
       this.A(var1);
       this.pc('\ub09d', 1);
-      this.call('\ub0a0');
       this.$BACE();
       this.pc('\ub0a0', 1);
       int var2 = this.mem('\u9296', '\ub0a0');
@@ -19153,14 +18639,12 @@ public class Emlyn extends MiniZX {
          int var2 = this.mem(var1, '\ub0ab');
          this.A(var2);
          this.pc('\ub0ae', 1);
-         this.call('\ub0b1');
          this.$BB79();
          this.pc('\ub0b1', 2);
          int var3 = this.IX() + -67;
          int var4 = this.mem(var3, '\ub0b1');
          this.A(var4);
          this.pc('\ub0b4', 1);
-         this.call('\ub0b7');
          this.$BB79();
          this.pc('\ub0b7', 2);
          int var5 = this.IY() + -53;
@@ -19250,7 +18734,6 @@ public class Emlyn extends MiniZX {
          int var8 = this.A();
          this.alu("scf", var8);
          this.pc('\ub0e7', 1);
-         this.ret();
          return;
       }
 
@@ -19260,7 +18743,6 @@ public class Emlyn extends MiniZX {
       int var14 = this.alu("and", var13, var12);
       this.A(var14);
       this.pc('\ub0e5', 1);
-      this.ret();
    }
 
    public void $B0E8() {
@@ -19305,7 +18787,6 @@ public class Emlyn extends MiniZX {
             this.pc('\ub102', 2);
             this.IX('\u9362');
             this.pc('\ub106', 1);
-            this.call('\ub109');
             this.$B2FE();
             this.pc('\ub109', 2);
             int var10 = this.IY() + 0;
@@ -19385,7 +18866,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\ub129', 1);
-            this.call('\ub12c');
             this.$BADC();
             this.pc('\ub12c', 2);
             int var13 = this.IX();
@@ -19394,7 +18874,6 @@ public class Emlyn extends MiniZX {
             int var14 = this.pop();
             this.IY(var14);
             this.pc('\ub130', 1);
-            this.call('\ub133');
             this.$B24A();
             this.pc('\ub133', 1);
             if(this.flag(1, false)) {
@@ -19500,13 +18979,10 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\ub17f', 1);
-            this.call('\ub182');
             this.$B2E0();
             this.pc('\ub182', 1);
-            this.call('\ub185');
             this.$B31C();
             this.pc('\ub185', 1);
-            this.call('\ub188');
             this.$B6C0();
             this.pc('\ub188', 1);
             int var20 = this.mem('\u9262', '\ub188');
@@ -19553,7 +19029,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\ub19b', 1);
-            this.call('\ub19e');
             this.$BD9E();
             this.pc('\ub19e', 1);
             if(this.flag(128, false)) {
@@ -19701,10 +19176,8 @@ public class Emlyn extends MiniZX {
                                  int var27 = this.alu("dec", var26);
                                  this.A(var27);
                                  this.pc('\ub1ef', 1);
-                                 this.call('\ub1f2');
                                  this.$BADC();
                                  this.pc('\ub1f2', 1);
-                                 this.call('\ub1f5');
                                  this.$B24A();
                                  this.pc('\ub1f5', 1);
                                  if(this.flag(1, true)) {
@@ -19718,7 +19191,6 @@ public class Emlyn extends MiniZX {
                                     int var30 = this.pop();
                                     this.IY(var30);
                                     this.pc('\ub204', 1);
-                                    this.call('\ub207');
                                     this.$B69F();
                                     this.pc('\ub207', 2);
                                     int var31 = this.mem16('\u9276', '\ub207');
@@ -19727,13 +19199,10 @@ public class Emlyn extends MiniZX {
                                     if(!this.flag(1, false)) {
                                        label72: {
                                           this.pc('\ub20d', 1);
-                                          this.call('\ub210');
                                           this.$B2FE();
                                           this.pc('\ub210', 1);
-                                          this.call('\ub213');
                                           this.$B2E0();
                                           this.pc('\ub213', 1);
-                                          this.call('\ub216');
                                           this.$B35B();
                                           this.pc('\ub216', 1);
                                           int var32 = this.mem('\u9275', '\ub216');
@@ -19808,7 +19277,6 @@ public class Emlyn extends MiniZX {
                                           }
 
                                           this.pc('\ub23d', 1);
-                                          this.call('\ub240');
                                           this.$B6C0();
                                           this.pc('\ub240', 1);
                                           if(!this.flag(1, false)) {
@@ -19964,7 +19432,6 @@ public class Emlyn extends MiniZX {
                      int var27 = this.alu("and", var26, var25);
                      this.A(var27);
                      this.pc('\ub27a', 1);
-                     this.ret();
                      return;
                   }
                }
@@ -19976,7 +19443,6 @@ public class Emlyn extends MiniZX {
       int var10 = this.A();
       this.alu("scf", var10);
       this.pc('\ub27c', 1);
-      this.ret();
    }
 
    public void $B27D() {
@@ -20004,7 +19470,6 @@ public class Emlyn extends MiniZX {
                         }
 
                         this.pc('\ub2a4', 1);
-                        this.call('\ub2a7');
                         this.$B69F();
                         this.pc('\ub2a7', 1);
                         if(this.flag(1, true)) {
@@ -20031,7 +19496,6 @@ public class Emlyn extends MiniZX {
                            this.pc('\ub2b4', 1);
                            if(!this.flag(64, false)) {
                               this.pc('\ub2b6', 1);
-                              this.call('\ub2b9');
                               this.$B24A();
                               this.pc('\ub2b9', 1);
                               if(!this.flag(1, false)) {
@@ -20045,7 +19509,6 @@ public class Emlyn extends MiniZX {
                                  int var33 = this.pop();
                                  this.IY(var33);
                                  this.pc('\ub2c3', 1);
-                                 this.call('\ub2c6');
                                  this.$B69F();
                                  this.pc('\ub2c6', 2);
                                  int var34 = this.mem16('\u9276', '\ub2c6');
@@ -20053,10 +19516,8 @@ public class Emlyn extends MiniZX {
                                  this.pc('\ub2ca', 1);
                                  if(!this.flag(1, false)) {
                                     this.pc('\ub2cc', 1);
-                                    this.call('\ub2cf');
                                     this.$B31C();
                                     this.pc('\ub2cf', 1);
-                                    this.call('\ub2d2');
                                     this.$B6C0();
                                     this.pc('\ub2d2', 1);
                                     if(!this.flag(1, false)) {
@@ -20103,7 +19564,6 @@ public class Emlyn extends MiniZX {
                   }
 
                   this.pc('\ub284', 1);
-                  this.call('\ub287');
                   this.$BADC();
                }
 
@@ -20201,7 +19661,6 @@ public class Emlyn extends MiniZX {
       int var19 = this.pop();
       this.HL(var19);
       this.pc('\ub2fd', 1);
-      this.ret();
    }
 
    public void $B2FE() {
@@ -20258,7 +19717,6 @@ public class Emlyn extends MiniZX {
       int var19 = this.pop();
       this.HL(var19);
       this.pc('\ub31b', 1);
-      this.ret();
    }
 
    public void $B31C() {
@@ -20373,7 +19831,6 @@ public class Emlyn extends MiniZX {
       int var22 = this.pop();
       this.HL(var22);
       this.pc('\ub35a', 1);
-      this.ret();
    }
 
    public void $B35B() {
@@ -20381,7 +19838,6 @@ public class Emlyn extends MiniZX {
          label27: {
             label26: {
                this.pc('\ub35b', 1);
-               this.call('\ub35e');
                this.$B31C();
                this.pc('\ub35e', 1);
                int var1 = this.HL();
@@ -20556,7 +20012,6 @@ public class Emlyn extends MiniZX {
       int var31 = this.pop();
       this.HL(var31);
       this.pc('\ub3b7', 1);
-      this.ret();
    }
 
    public void $B3C4() {
@@ -20570,7 +20025,6 @@ public class Emlyn extends MiniZX {
             int var1 = this.mem('\u92a7', '\ub3c4');
             this.A(var1);
             this.pc('\ub3c7', 1);
-            this.call('\ub3ca');
             this.$BACE();
             this.pc('\ub3ca', 2);
             int var2 = this.IY() + -122;
@@ -20785,12 +20239,10 @@ public class Emlyn extends MiniZX {
                      }
 
                      this.pc('\ub4ac', 1);
-                     this.call('\ub4af');
                      this.$B641();
                   }
 
                   this.pc('\ub4af', 1);
-                  this.call('\ub4b2');
                   this.$B2E0();
                }
 
@@ -20802,7 +20254,6 @@ public class Emlyn extends MiniZX {
                int var3 = this.A();
                this.wMem('\u9275', var3, '\ub4b5');
                this.pc('\ub4b8', 1);
-               this.call('\ub4bb');
                this.$B35B();
             }
 
@@ -20817,7 +20268,6 @@ public class Emlyn extends MiniZX {
             if(!this.flag(64, false)) {
                label83: {
                   this.pc('\ub4c2', 1);
-                  this.call('\ub4c5');
                   this.$B6C0();
                   this.pc('\ub4c5', 1);
                   int var32 = this.mem('\u9262', '\ub4c5');
@@ -21087,7 +20537,6 @@ public class Emlyn extends MiniZX {
                            int var109 = this.alu("xor", var108, 64);
                            this.A(var109);
                            this.pc('\ub54e', 1);
-                           this.call('\ub551');
                            this.$D11B();
                            this.pc('\ub551', 1);
                         } else {
@@ -21132,10 +20581,8 @@ public class Emlyn extends MiniZX {
                                              this.pc('\ub575', 2);
                                              this.IX('\u9362');
                                              this.pc('\ub579', 1);
-                                             this.call('\ub57c');
                                              this.$B2FE();
                                              this.pc('\ub57c', 1);
-                                             this.call('\ub57f');
                                              this.$B35B();
                                              this.pc('\ub57f', 1);
                                              break label112;
@@ -21401,7 +20848,6 @@ public class Emlyn extends MiniZX {
                }
 
                this.pc('\ub604', 1);
-               this.call('\ub607');
                this.$D11B();
                this.pc('\ub607', 2);
                int var9 = this.IY() + -74;
@@ -21418,7 +20864,6 @@ public class Emlyn extends MiniZX {
                this.pc('\ub60f', 1);
                if(!this.flag(64, false)) {
                   this.pc('\ub612', 1);
-                  this.call('\ub615');
                   this.$B69F();
                   this.pc('\ub615', 1);
                   if(!this.flag(1, true)) {
@@ -21637,13 +21082,11 @@ public class Emlyn extends MiniZX {
       int var33 = this.pop();
       this.HL(var33);
       this.pc('\ub69e', 1);
-      this.ret();
    }
 
    public void $B69F() {
       do {
          this.pc('\ub69f', 1);
-         this.call('\ub6a2');
          this.$B2E0();
          this.pc('\ub6a2', 1);
          int var1 = this.A();
@@ -21691,7 +21134,6 @@ public class Emlyn extends MiniZX {
             int var19 = this.alu("and", var18, var17);
             this.A(var19);
             this.pc('\ub6bd', 1);
-            this.ret();
             return;
          }
       }
@@ -21700,7 +21142,6 @@ public class Emlyn extends MiniZX {
       int var13 = this.A();
       this.alu("scf", var13);
       this.pc('\ub6bf', 1);
-      this.ret();
    }
 
    public void $B6C0() {
@@ -21780,7 +21221,6 @@ public class Emlyn extends MiniZX {
       }
 
       this.pc('\ub6ee', 1);
-      this.ret();
    }
 
    public void $B6EF() {
@@ -21804,7 +21244,6 @@ public class Emlyn extends MiniZX {
       int var5 = this.A();
       this.wMem('\u92c4', var5, '\ub6f6');
       this.pc('\ub6f9', 1);
-      this.ret();
    }
 
    public void $B6FA() {
@@ -21853,7 +21292,6 @@ public class Emlyn extends MiniZX {
       int var12 = this.A();
       this.alu("ccf", var12);
       this.pc('\ub70f', 1);
-      this.ret();
    }
 
    public void $B710() {
@@ -22016,7 +21454,6 @@ public class Emlyn extends MiniZX {
                this.pc('\ub7cf', 1);
                this.E(1);
                this.pc('\ub7d1', 1);
-               this.call('\ub7d4');
                this.$BF0D();
                this.pc('\ub7d4', 1);
                if(this.flag(64, false)) {
@@ -22095,10 +21532,8 @@ public class Emlyn extends MiniZX {
                      this.pc('\ub7fe', 1);
                      if(!this.flag(64, true)) {
                         this.pc('\ub800', 1);
-                        this.call('\ub803');
                         this.$B809();
                         this.pc('\ub803', 1);
-                        this.call('\ub806');
                         this.$B6EF();
                      }
                      break;
@@ -22150,7 +21585,6 @@ public class Emlyn extends MiniZX {
             this.pc('\ub821', 1);
             this.A(50);
             this.pc('\ub823', 1);
-            this.call('\ub826');
             this.$B6FA();
             this.pc('\ub826', 1);
             if(!this.flag(64, false)) {
@@ -22197,7 +21631,6 @@ public class Emlyn extends MiniZX {
             do {
                label45: {
                   this.pc('\ub847', 1);
-                  this.call('\ub84a');
                   this.$BAEA();
                   this.pc('\ub84a', 1);
                   int var3 = this.mem(32734, '\ub84a');
@@ -22564,7 +21997,6 @@ public class Emlyn extends MiniZX {
          int var13 = this.A();
          this.wMem('\u92a8', var13, '\uba91');
          this.pc('\uba94', 1);
-         this.ret();
       }
    }
 
@@ -22598,7 +22030,6 @@ public class Emlyn extends MiniZX {
       int var8 = this.pop();
       this.IY(var8);
       this.pc('\ubadb', 1);
-      this.ret();
    }
 
    public void $BADC() {
@@ -22631,7 +22062,6 @@ public class Emlyn extends MiniZX {
       int var8 = this.pop();
       this.IX(var8);
       this.pc('\ubae9', 1);
-      this.ret();
    }
 
    public void $BAEA() {
@@ -22643,7 +22073,6 @@ public class Emlyn extends MiniZX {
       int var3 = this.mem(var2, '\ubaeb');
       this.A(var3);
       this.pc('\ubaee', 1);
-      this.call('\ubaf1');
       this.$BB2A();
       this.pc('\ubaf1', 1);
       this.DE(12);
@@ -22710,21 +22139,18 @@ public class Emlyn extends MiniZX {
       } while(this.flag(1, true));
 
       this.pc('\ubb11', 1);
-      this.call('\ubb14');
       this.$BB45();
       this.pc('\ubb14', 2);
       int var27 = this.IY() + 58;
       int var28 = this.A();
       this.wMem(var27, var28, '\ubb14');
       this.pc('\ubb17', 1);
-      this.call('\ubb1a');
       this.$BB45();
       this.pc('\ubb1a', 2);
       int var29 = this.IY() + 21;
       int var30 = this.A();
       this.wMem(var29, var30, '\ubb1a');
       this.pc('\ubb1d', 1);
-      this.call('\ubb20');
       this.$BB45();
       this.pc('\ubb20', 1);
       this.DE(6);
@@ -22745,7 +22171,6 @@ public class Emlyn extends MiniZX {
       int var38 = this.pop();
       this.BC(var38);
       this.pc('\ubb29', 1);
-      this.ret();
    }
 
    public void $BB2A() {
@@ -22818,7 +22243,6 @@ public class Emlyn extends MiniZX {
       int var28 = this.alu("add16", var27, var26);
       this.HL(var28);
       this.pc('\ubb44', 1);
-      this.ret();
    }
 
    public void $BB45() {
@@ -22895,7 +22319,6 @@ public class Emlyn extends MiniZX {
       int var24 = this.mem(var23, '\ubb66');
       this.A(var24);
       this.pc('\ubb67', 1);
-      this.ret();
    }
 
    public void $BB79() {
@@ -22998,7 +22421,6 @@ public class Emlyn extends MiniZX {
       int var34 = this.pop();
       this.AF(var34);
       this.pc('\ubba7', 1);
-      this.ret();
    }
 
    public void $BBA8() {
@@ -23040,7 +22462,6 @@ public class Emlyn extends MiniZX {
       int var15 = this.alu("and", var14, 120);
       this.A(var15);
       this.pc('\ubbbb', 1);
-      this.ret();
    }
 
    public void $BBBC() {
@@ -23073,7 +22494,6 @@ public class Emlyn extends MiniZX {
             this.pc('\ubbd3', 2);
             this.IX('\u9362');
             this.pc('\ubbd7', 1);
-            this.call('\ubbda');
             this.$B2FE();
             this.pc('\ubbda', 2);
             int var9 = this.IY() + -29;
@@ -23084,7 +22504,6 @@ public class Emlyn extends MiniZX {
             this.alu("cp", var11, 2);
             this.pc('\ubbdf', 1);
             if(this.flag(1, false)) {
-               this.ret();
                return;
             } else {
                this.pc('\ubbe0', 1);
@@ -23129,7 +22548,6 @@ public class Emlyn extends MiniZX {
                this.alu("cp", var27, var26);
                this.pc('\ubbf5', 1);
                if(this.flag(1, true)) {
-                  this.ret();
                   return;
                } else {
                   label65: {
@@ -23155,7 +22573,6 @@ public class Emlyn extends MiniZX {
                         int var66 = this.A();
                         this.wMem('\u9271', var66, '\ubc03');
                         this.pc('\ubc06', 1);
-                        this.call('\ubc09');
                         this.$BCAE();
                         this.pc('\ubc09', 1);
                         if(this.flag(1, true)) {
@@ -23211,7 +22628,6 @@ public class Emlyn extends MiniZX {
                         this.alu("cp", var80, 10);
                         this.pc('\ubc10', 1);
                         if(this.flag(64, false)) {
-                           this.ret();
                            return;
                         }
 
@@ -23220,7 +22636,6 @@ public class Emlyn extends MiniZX {
                         this.alu("cp", var81, 6);
                         this.pc('\ubc13', 1);
                         if(this.flag(1, false)) {
-                           this.ret();
                            return;
                         }
 
@@ -23272,17 +22687,14 @@ public class Emlyn extends MiniZX {
                      int var50 = this.A();
                      this.wMem('\u9271', var50, '\ubc79');
                      this.pc('\ubc7c', 1);
-                     this.call('\ubc7f');
                      this.$BCAE();
                      this.pc('\ubc7f', 1);
                      if(this.flag(1, false)) {
-                        this.ret();
                         return;
                      }
 
                      label45: {
                         this.pc('\ubc80', 1);
-                        this.call('\ubc83');
                         this.$BBA8();
                         this.pc('\ubc83', 1);
                         int var51 = this.A();
@@ -23341,7 +22753,6 @@ public class Emlyn extends MiniZX {
                   int var63 = this.A();
                   this.wMem('\u92d5', var63, '\ubcaa');
                   this.pc('\ubcad', 1);
-                  this.ret();
                   return;
                }
             }
@@ -23357,12 +22768,10 @@ public class Emlyn extends MiniZX {
       } while(this.B() != 0);
 
       this.pc('\ubbcd', 1);
-      this.ret();
    }
 
    public void $BCAE() {
       this.pc('\ubcae', 1);
-      this.call('\ubcb1');
       this.$B2E0();
       this.pc('\ubcb1', 2);
       int var1 = this.IY() + -29;
@@ -23570,7 +22979,6 @@ public class Emlyn extends MiniZX {
                int var84 = this.alu("and", var83, var82);
                this.A(var84);
                this.pc('\ubd11', 1);
-               this.ret();
                return;
             }
          }
@@ -23580,7 +22988,6 @@ public class Emlyn extends MiniZX {
       int var62 = this.A();
       this.alu("scf", var62);
       this.pc('\ubd13', 1);
-      this.ret();
    }
 
    public void $BD9E() {
@@ -23639,7 +23046,6 @@ public class Emlyn extends MiniZX {
             int var11 = this.alu("and", var10, var9);
             this.A(var11);
             this.pc('\ubdc5', 1);
-            this.ret();
             return;
          }
 
@@ -23651,7 +23057,6 @@ public class Emlyn extends MiniZX {
          int var7 = this.alu("and", var6, var5);
          this.A(var7);
          this.pc('\ubdc1', 1);
-         this.ret();
          return;
       }
 
@@ -23663,7 +23068,6 @@ public class Emlyn extends MiniZX {
       int var14 = this.alu("and", var13, var12);
       this.A(var14);
       this.pc('\ubdbd', 1);
-      this.ret();
    }
 
    public void $BDC6() {
@@ -23691,9 +23095,7 @@ public class Emlyn extends MiniZX {
       int var8 = this.alu("sbc16", var7, var6);
       this.HL(var8);
       this.pc('\ubdce', 1);
-      if(this.flag(1, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(1, true)) {
          this.pc('\ubdcf', 1);
          throw new StackException('\ubdd0');
       }
@@ -23707,7 +23109,6 @@ public class Emlyn extends MiniZX {
       int var2 = this.DE();
       this.push(var2);
       this.pc('\ubdd5', 1);
-      this.call('\ubdd8');
       this.$B31C();
       this.pc('\ubdd8', 1);
       int var3 = this.mem16('\u926d', '\ubdd8');
@@ -23736,102 +23137,94 @@ public class Emlyn extends MiniZX {
             label64: {
                try {
                   this.pc('\ubde7', 1);
-                  this.call('\ubdea');
                   this.$BDCA();
-               } catch (StackException var62) {
-                  if(var62.getNextPC() == '\ubdd0') {
-                     int var13 = this.pop();
-                     this.HL(var13);
+               } catch (StackException var59) {
+                  if(var59.getNextPC() == '\ubdd0') {
+                     this.HL('\ubdea');
                      break label64;
                   }
 
-                  throw var62;
+                  throw var59;
                }
 
                this.pc('\ubdea', 1);
-               int var31 = this.mem16('\u926f', '\ubdea');
-               this.HL(var31);
+               int var30 = this.mem16('\u926f', '\ubdea');
+               this.HL(var30);
 
                try {
                   this.pc('\ubded', 1);
-                  this.call('\ubdf0');
                   this.$BDC6();
-               } catch (StackException var61) {
-                  if(var61.getNextPC() == '\ubdd0') {
-                     int var33 = this.pop();
-                     this.HL(var33);
+               } catch (StackException var57) {
+                  if(var57.getNextPC() == '\ubdd0') {
+                     this.HL('\ubdf0');
                      break label64;
                   }
 
-                  throw var61;
+                  throw var57;
                }
 
                this.pc('\ubdf0', 1);
-               int var34 = this.D();
-               this.H(var34);
+               int var32 = this.D();
+               this.H(var32);
                this.pc('\ubdf1', 1);
-               int var35 = this.E();
-               this.L(var35);
+               int var33 = this.E();
+               this.L(var33);
                this.pc('\ubdf2', 1);
-               int var36 = this.DE();
-               int var37 = this.HL();
-               int var38 = this.alu("add16", var37, var36);
-               this.HL(var38);
+               int var34 = this.DE();
+               int var35 = this.HL();
+               int var36 = this.alu("add16", var35, var34);
+               this.HL(var36);
                this.pc('\ubdf3', 2);
-               int var39 = this.E();
-               int var40 = this.alu("srl", var39);
-               this.E(var40);
+               int var37 = this.E();
+               int var38 = this.alu("srl", var37);
+               this.E(var38);
                this.pc('\ubdf5', 1);
-               int var41 = this.DE();
-               int var42 = this.HL();
-               int var43 = this.alu("add16", var42, var41);
-               this.HL(var43);
+               int var39 = this.DE();
+               int var40 = this.HL();
+               int var41 = this.alu("add16", var40, var39);
+               this.HL(var41);
 
                try {
                   this.pc('\ubdf6', 1);
-                  this.call('\ubdf9');
                   this.$BDC6();
-               } catch (StackException var63) {
-                  if(var63.getNextPC() == '\ubdd0') {
-                     int var45 = this.pop();
-                     this.HL(var45);
+               } catch (StackException var58) {
+                  if(var58.getNextPC() == '\ubdd0') {
+                     this.HL('\ubdf9');
                      break label64;
                   }
 
-                  throw var63;
+                  throw var58;
                }
 
                this.pc('\ubdf9', 1);
-               int var46 = this.mem16('\u926f', '\ubdf9');
-               this.HL(var46);
+               int var43 = this.mem16('\u926f', '\ubdf9');
+               this.HL(var43);
                this.pc('\ubdfc', 1);
+               int var44 = this.HL();
+               int var45 = this.HL();
+               int var46 = this.alu("add16", var45, var44);
+               this.HL(var46);
+               this.pc('\ubdfd', 1);
                int var47 = this.HL();
                int var48 = this.HL();
                int var49 = this.alu("add16", var48, var47);
                this.HL(var49);
-               this.pc('\ubdfd', 1);
+               this.pc('\ubdfe', 1);
                int var50 = this.HL();
                int var51 = this.HL();
                int var52 = this.alu("add16", var51, var50);
                this.HL(var52);
-               this.pc('\ubdfe', 1);
-               int var53 = this.HL();
-               int var54 = this.HL();
-               int var55 = this.alu("add16", var54, var53);
-               this.HL(var55);
 
                try {
                   this.pc('\ubdff', 1);
-                  this.call('\ube02');
                   this.$BDC6();
                   break label59;
-               } catch (StackException var60) {
-                  if(var60.getNextPC() != '\ubdd0') {
-                     throw var60;
+               } catch (StackException var56) {
+                  if(var56.getNextPC() != '\ubdd0') {
+                     throw var56;
                   }
 
-                  int var57 = this.pop();
-                  this.HL(var57);
+                  this.HL('\ube02');
                }
             }
 
@@ -23840,54 +23233,53 @@ public class Emlyn extends MiniZX {
          }
 
          this.pc('\ube02', 1);
-         int var58 = this.A();
-         int var59 = this.alu("inc", var58);
-         this.A(var59);
+         int var54 = this.A();
+         int var55 = this.alu("inc", var54);
+         this.A(var55);
       }
 
       this.pc('\ube03', 1);
-      int var14 = this.A();
-      int var15 = this.alu("rlca", var14);
-      this.A(var15);
+      int var13 = this.A();
+      int var14 = this.alu("rlca", var13);
+      this.A(var14);
       this.pc('\ube04', 1);
-      int var16 = this.A();
-      int var17 = this.alu("rlca", var16);
-      this.A(var17);
+      int var15 = this.A();
+      int var16 = this.alu("rlca", var15);
+      this.A(var16);
       this.pc('\ube05', 1);
-      int var18 = this.A();
-      this.E(var18);
+      int var17 = this.A();
+      this.E(var17);
       this.pc('\ube06', 1);
-      int var19 = this.mem('\u9271', '\ube06');
-      this.A(var19);
+      int var18 = this.mem('\u9271', '\ube06');
+      this.A(var18);
       this.pc('\ube09', 1);
-      int var20 = this.E();
-      int var21 = this.A();
-      int var22 = this.alu("add", var21, var20);
-      this.A(var22);
+      int var19 = this.E();
+      int var20 = this.A();
+      int var21 = this.alu("add", var20, var19);
+      this.A(var21);
       this.pc('\ube0a', 1);
-      int var23 = this.A();
-      this.E(var23);
+      int var22 = this.A();
+      this.E(var22);
       this.pc('\ube0b', 1);
       this.D(0);
       this.pc('\ube0d', 1);
       this.HL('\ube15');
       this.pc('\ube10', 1);
-      int var24 = this.DE();
-      int var25 = this.HL();
-      int var26 = this.alu("add16", var25, var24);
-      this.HL(var26);
+      int var23 = this.DE();
+      int var24 = this.HL();
+      int var25 = this.alu("add16", var24, var23);
+      this.HL(var25);
       this.pc('\ube11', 1);
-      int var27 = this.HL();
-      int var28 = this.mem(var27, '\ube11');
-      this.A(var28);
+      int var26 = this.HL();
+      int var27 = this.mem(var26, '\ube11');
+      this.A(var27);
       this.pc('\ube12', 1);
-      int var29 = this.pop();
-      this.DE(var29);
+      int var28 = this.pop();
+      this.DE(var28);
       this.pc('\ube13', 1);
-      int var30 = this.pop();
-      this.HL(var30);
+      int var29 = this.pop();
+      this.HL(var29);
       this.pc('\ube14', 1);
-      this.ret();
    }
 
    public void $BE29() {
@@ -24032,9 +23424,7 @@ public class Emlyn extends MiniZX {
       int var23 = this.alu("and", var22, var21);
       this.A(var23);
       this.pc('\ube74', 1);
-      if(this.flag(64, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, false)) {
          this.pc('\ube75', 1);
          this.DE(64);
          this.pc('\ube78', 1);
@@ -24053,9 +23443,7 @@ public class Emlyn extends MiniZX {
          int var30 = this.mem16('\u9266', '\ube7c');
          this.HL(var30);
          this.pc('\ube7f', 1);
-         if(this.flag(64, false)) {
-            this.ret();
-         } else {
+         if(!this.flag(64, false)) {
             this.pc('\ube80', 1);
             if(!this.flag(1, true)) {
                this.pc('\ube82', 1);
@@ -24067,7 +23455,6 @@ public class Emlyn extends MiniZX {
                int var38 = this.HL();
                this.wMem16('\u9266', var38, '\ube83');
                this.pc('\ube86', 1);
-               this.ret();
             } else {
                this.pc('\ube87', 2);
                int var31 = this.DE();
@@ -24078,7 +23465,6 @@ public class Emlyn extends MiniZX {
                int var34 = this.HL();
                this.wMem16('\u9266', var34, '\ube89');
                this.pc('\ube8c', 1);
-               this.ret();
             }
          }
       }
@@ -24095,7 +23481,6 @@ public class Emlyn extends MiniZX {
       int var5 = this.alu("and", var4, var3);
       this.A(var5);
       this.pc('\ubf10', 1);
-      this.ret();
    }
 
    public void $BF11() {
@@ -24114,7 +23499,6 @@ public class Emlyn extends MiniZX {
          this.alu("cp", var11, 30);
          this.pc('\ubf19', 1);
          if(this.flag(64, true)) {
-            this.ret();
             return;
          }
       }
@@ -24124,14 +23508,12 @@ public class Emlyn extends MiniZX {
 
       do {
          this.pc('\ubf1c', 1);
-         this.call('\ubf1f');
          this.$BB79();
          this.pc('\ubf1f', 1);
          int var5 = this.A();
          int var6 = this.alu("or", var5, 128);
          this.A(var6);
          this.pc('\ubf21', 1);
-         this.call('\ubf24');
          this.$BB79();
          this.pc('\ubf24', 1);
          int var7 = this.A();
@@ -24145,7 +23527,6 @@ public class Emlyn extends MiniZX {
       } while(this.flag(128, true));
 
       this.pc('\ubf2a', 1);
-      this.ret();
    }
 
    public void $BF2B() {
@@ -24188,7 +23569,6 @@ public class Emlyn extends MiniZX {
                int var8 = this.alu("inc", var7);
                this.B(var8);
                this.pc('\ubf40', 1);
-               this.call('\ubf43');
                this.$BADC();
 
                do {
@@ -24402,7 +23782,6 @@ public class Emlyn extends MiniZX {
                }
 
                this.pc('\uc022', 1);
-               this.call('\uc025');
                this.$C0E6();
             }
 
@@ -24414,7 +23793,6 @@ public class Emlyn extends MiniZX {
                int var7 = this.A();
                this.C(var7);
                this.pc('\uc029', 1);
-               this.call('\uc02c');
                this.$B2FE();
                this.pc('\uc02c', 2);
                int var8 = this.IX() + -82;
@@ -24424,7 +23802,6 @@ public class Emlyn extends MiniZX {
                int var10 = this.A();
                this.wMem('\u926a', var10, '\uc02f');
                this.pc('\uc032', 1);
-               this.call('\uc035');
                this.$B2E0();
                this.pc('\uc035', 2);
                int var11 = this.IY() + -82;
@@ -24444,7 +23821,6 @@ public class Emlyn extends MiniZX {
             } while(this.flag(64, true));
 
             this.pc('\uc041', 1);
-            this.call('\uc044');
             this.$B35B();
             this.pc('\uc044', 1);
             this.HL('\u9275');
@@ -24501,12 +23877,10 @@ public class Emlyn extends MiniZX {
             if(!this.flag(1, true)) {
                label64: {
                   this.pc('\uc063', 1);
-                  this.call('\uc066');
                   this.$C124();
                   this.pc('\uc066', 1);
                   if(!this.flag(64, false)) {
                      this.pc('\uc068', 1);
-                     this.call('\uc06b');
                      this.$C120();
                      this.pc('\uc06b', 1);
                      if(this.flag(64, true)) {
@@ -24571,7 +23945,6 @@ public class Emlyn extends MiniZX {
                         }
 
                         this.pc('\uc08b', 1);
-                        this.call('\uc08e');
                         this.$B0AB();
                         this.pc('\uc08e', 1);
                         if(!this.flag(1, false)) {
@@ -24799,7 +24172,6 @@ public class Emlyn extends MiniZX {
       int var4 = this.pop();
       this.IY(var4);
       this.pc('\uc0ee', 1);
-      this.ret();
    }
 
    public void $C0EF() {
@@ -24866,7 +24238,6 @@ public class Emlyn extends MiniZX {
             this.pc('\uc109', 1);
             this.A(1);
             this.pc('\uc10b', 1);
-            this.call('\uc10e');
             this.$BE29();
             this.pc('\uc10e', 1);
             int var1 = this.mem16('\u9266', '\uc10e');
@@ -24937,7 +24308,6 @@ public class Emlyn extends MiniZX {
       int var10 = this.A();
       this.alu("cp", var10, var9);
       this.pc('\uc131', 1);
-      this.ret();
    }
 
    public void $C156() {
@@ -24946,7 +24316,6 @@ public class Emlyn extends MiniZX {
       this.pc('\uc159', 1);
       this.DE('\udcf2');
       this.pc('\uc15c', 1);
-      this.call('\uc15f');
       this.$C165();
       this.pc('\uc15f', 1);
       this.HL(16409);
@@ -24989,7 +24358,6 @@ public class Emlyn extends MiniZX {
                int var8 = this.HL();
                this.wMem(var8, var7, '\uc171');
                this.pc('\uc172', 1);
-               this.call('\uc175');
                this.$C1F2();
                this.pc('\uc175', 1);
                int var9 = this.C();
@@ -25019,7 +24387,6 @@ public class Emlyn extends MiniZX {
          this.A(var17);
          this.pc('\uc17e', 1);
          if(this.flag(64, false)) {
-            this.ret();
             return;
          }
 
@@ -25066,7 +24433,6 @@ public class Emlyn extends MiniZX {
       this.pc('\uc197', 1);
       this.B(15);
       this.pc('\uc199', 1);
-      this.call('\uc19c');
       this.$C1CD();
       this.pc('\uc19c', 1);
       int var5 = this.pop();
@@ -25130,7 +24496,6 @@ public class Emlyn extends MiniZX {
       this.pc('\uc1b1', 1);
       this.HL(16521);
       this.pc('\uc1b4', 1);
-      this.call('\uc1b7');
       this.$C1CD();
       this.pc('\uc1b7', 1);
       int var20 = this.pop();
@@ -25139,7 +24504,6 @@ public class Emlyn extends MiniZX {
       int var21 = this.pop();
       this.DE(var21);
       this.pc('\uc1b9', 1);
-      this.call('\uc1bc');
       this.$C1CD();
       this.pc('\uc1bc', 1);
       this.HL(16506);
@@ -25176,7 +24540,6 @@ public class Emlyn extends MiniZX {
          this.A(var4);
          this.pc('\uc1cf', 1);
          if(this.flag(64, false)) {
-            this.ret();
             return;
          }
 
@@ -25242,7 +24605,6 @@ public class Emlyn extends MiniZX {
             int var29 = this.inc16(var28);
             this.DE(var29);
             this.pc('\uc1e5', 1);
-            this.call('\uc1e8');
             this.$C1F2();
             this.pc('\uc1e8', 1);
             int var30 = this.C();
@@ -25286,9 +24648,7 @@ public class Emlyn extends MiniZX {
       int var5 = this.alu("and", var4, 7);
       this.A(var5);
       this.pc('\uc1f6', 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          this.pc('\uc1f7', 1);
          int var6 = this.L();
          this.A(var6);
@@ -25300,9 +24660,7 @@ public class Emlyn extends MiniZX {
          int var9 = this.A();
          this.L(var9);
          this.pc('\uc1fb', 1);
-         if(this.flag(1, false)) {
-            this.ret();
-         } else {
+         if(!this.flag(1, false)) {
             this.pc('\uc1fc', 1);
             int var10 = this.H();
             this.A(var10);
@@ -25314,7 +24672,6 @@ public class Emlyn extends MiniZX {
             int var13 = this.A();
             this.H(var13);
             this.pc('\uc200', 1);
-            this.ret();
          }
       }
    }
@@ -25376,12 +24733,10 @@ public class Emlyn extends MiniZX {
             int var13 = this.A();
             this.wMem('\u92d4', var13, '\uc275');
             this.pc('\uc278', 1);
-            this.call('\uc27b');
             this.$C283();
             this.pc('\uc27b', 1);
             this.A(1);
             this.pc('\uc27d', 1);
-            this.call('\uc280');
             this.$C283();
             this.pc('\uc280', 1);
             this.jump('\u94aa');
@@ -25458,7 +24813,6 @@ public class Emlyn extends MiniZX {
                this.alu("cp", var21, var20);
                this.pc('\uc2ab', 1);
                if(this.flag(64, false)) {
-                  this.ret();
                   return;
                }
 
@@ -25471,12 +24825,10 @@ public class Emlyn extends MiniZX {
                int var25 = this.mem(var24, '\uc2ad');
                this.A(var25);
                this.pc('\uc2b0', 1);
-               this.call('\uc2b3');
                this.$BB2A();
                this.pc('\uc2b3', 1);
                this.exHLDE();
                this.pc('\uc2b4', 1);
-               this.call('\uc2b7');
                this.$C317();
                this.pc('\uc2b7', 1);
                this.B(12);
@@ -25496,7 +24848,6 @@ public class Emlyn extends MiniZX {
       } while(this.B() != 0);
 
       this.pc('\uc29d', 1);
-      this.ret();
    }
 
    public void $C2BC() {
@@ -25658,7 +25009,6 @@ public class Emlyn extends MiniZX {
                int var58 = this.DE();
                this.wMem(var58, var57, '\uc304');
                this.pc('\uc305', 1);
-               this.call('\uc308');
                this.$C317();
                this.pc('\uc308', 1);
                int var59 = this.pop();
@@ -25666,7 +25016,6 @@ public class Emlyn extends MiniZX {
                this.pc('\uc309', 1);
                this.B(12);
                this.pc('\uc30b', 1);
-               this.call('\uc30e');
                this.$C1CD();
             }
 
@@ -25674,7 +25023,6 @@ public class Emlyn extends MiniZX {
             int var54 = this.mem('\u9277', '\uc30e');
             this.A(var54);
             this.pc('\uc311', 1);
-            this.call('\uc314');
             this.$C283();
             this.pc('\uc314', 1);
             this.jump('\u94aa');
@@ -25707,13 +25055,10 @@ public class Emlyn extends MiniZX {
       this.pc('\uc31f', 1);
       this.HL(18338);
       this.pc('\uc322', 1);
-      if(this.flag(64, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, false)) {
          this.pc('\uc323', 1);
          this.L(178);
          this.pc('\uc325', 1);
-         this.ret();
       }
    }
 
@@ -25777,7 +25122,6 @@ public class Emlyn extends MiniZX {
             this.pc('\uc34a', 1);
             this.B(16);
             this.pc('\uc34c', 1);
-            this.call('\uc34f');
             this.$C1CD();
             this.pc('\uc34f', 1);
             this.HL(18354);
@@ -25825,7 +25169,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\uc36f', 1);
-            this.call('\uc372');
             this.$C1CD();
             this.pc('\uc372', 1);
             this.jump('\u94aa');
@@ -25871,7 +25214,6 @@ public class Emlyn extends MiniZX {
                this.alu("cp", var48, 192);
                this.pc('\uc427', 1);
                if(this.flag(64, false)) {
-                  this.call('\uc42a');
                   this.$BBBC();
                }
             }
@@ -26171,7 +25513,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\uc4ca', 1);
-            this.call('\uc4cd');
             this.$B6EF();
             this.pc('\uc4cd', 2);
             this.IY('\u9361');
@@ -26193,7 +25534,6 @@ public class Emlyn extends MiniZX {
                   int var5 = this.IY() + -37;
                   this.wMem(var5, 8, '\uc4e1');
                   this.pc('\uc4e5', 1);
-                  this.call('\uc4e8');
                   this.$D3CD();
                   this.pc('\uc4e8', 1);
                   this.HL('\ucc7e');
@@ -26271,7 +25611,6 @@ public class Emlyn extends MiniZX {
                if(!this.isNextPC('\uc530')) {
                   if(this.isNextPC('\uc59a')) {
                      this.pc('\uc59a', 1);
-                     this.call('\uc59d');
                      this.$B6EF();
                      return;
                   }
@@ -26304,7 +25643,6 @@ public class Emlyn extends MiniZX {
                int var4 = this.A();
                this.wMem('\u92ab', var4, '\uc540');
                this.pc('\uc543', 1);
-               this.call('\uc546');
                this.$CDCA();
                this.pc('\uc546', 2);
                this.IY('\u9361');
@@ -26459,7 +25797,6 @@ public class Emlyn extends MiniZX {
                      this.pc('\uc614', 2);
                      this.IX('\u9362');
                      this.pc('\uc618', 1);
-                     this.call('\uc61b');
                      this.$B2FE();
                      this.pc('\uc61b', 1);
                      int var1 = this.mem('\u932d', '\uc61b');
@@ -26481,10 +25818,8 @@ public class Emlyn extends MiniZX {
                      int var9 = this.alu("srl", var8);
                      this.A(var9);
                      this.pc('\uc626', 1);
-                     this.call('\uc629');
                      this.$BE3B();
                      this.pc('\uc629', 1);
-                     this.call('\uc62c');
                      this.$D46B();
                      this.pc('\uc62c', 1);
                      int var10 = this.mem('\u9269', '\uc62c');
@@ -26493,7 +25828,6 @@ public class Emlyn extends MiniZX {
                      int var11 = this.A();
                      this.wMem('\u929b', var11, '\uc62f');
                      this.pc('\uc632', 1);
-                     this.call('\uc635');
                      this.$D5AD();
                      this.pc('\uc635', 1);
                      int var12 = this.A();
@@ -26502,7 +25836,6 @@ public class Emlyn extends MiniZX {
                      int var13 = this.IX() + -37;
                      this.wMem(var13, 2, '\uc638');
                      this.pc('\uc63c', 1);
-                     this.call('\uc63f');
                      this.$D5AD();
                      this.pc('\uc63f', 1);
                      int var14 = this.A();
@@ -26511,7 +25844,6 @@ public class Emlyn extends MiniZX {
                      int var15 = this.IX() + -37;
                      this.wMem(var15, 3, '\uc642');
                      this.pc('\uc646', 1);
-                     this.call('\uc649');
                      this.$D5AD();
                      this.pc('\uc649', 1);
                      int var16 = this.A();
@@ -26530,41 +25862,33 @@ public class Emlyn extends MiniZX {
                      int var21 = this.A();
                      this.wMem('\u9272', var21, '\uc655');
                      this.pc('\uc658', 1);
-                     this.call('\uc65b');
                      this.$D46B();
                      this.pc('\uc65b', 1);
-                     this.call('\uc65e');
                      this.$D5AD();
                      this.pc('\uc65e', 1);
                      int var22 = this.mem('\uc65f', '\uc65e');
                      this.A(var22);
                      this.pc('\uc660', 1);
-                     this.call('\uc663');
                      this.$C6C1();
                      this.pc('\uc663', 1);
-                     this.call('\uc666');
                      this.$D5AD();
                      this.pc('\uc666', 1);
                      int var23 = this.mem('\uc667', '\uc666');
                      this.A(var23);
                      this.pc('\uc668', 1);
-                     this.call('\uc66b');
                      this.$C6C1();
                      this.pc('\uc66b', 1);
-                     this.call('\uc66e');
                      this.$D5AD();
                      this.pc('\uc66e', 1);
                      int var24 = this.mem('\uc66f', '\uc66e');
                      this.A(var24);
                      this.pc('\uc670', 1);
-                     this.call('\uc673');
                      this.$C6C1();
                   }
 
                   this.pc('\uc673', 2);
                   this.IX('\u9362');
                   this.pc('\uc677', 1);
-                  this.call('\uc67a');
                   this.$B2FE();
                }
 
@@ -26572,7 +25896,6 @@ public class Emlyn extends MiniZX {
                int var25 = this.mem('\u92a7', '\uc67a');
                this.A(var25);
                this.pc('\uc67d', 1);
-               this.call('\uc680');
                this.$BACE();
                this.pc('\uc680', 2);
                int var26 = this.IY() + -60;
@@ -26772,7 +26095,6 @@ public class Emlyn extends MiniZX {
       int var5 = this.A();
       this.wMem(var4, var5, '\uc6ee');
       this.pc('\uc6f1', 1);
-      this.ret();
    }
 
    public void $C6F2() {
@@ -26817,7 +26139,6 @@ public class Emlyn extends MiniZX {
                            this.pc('\uc708', 1);
                            if(!this.flag(64, true)) {
                               this.pc('\uc70a', 1);
-                              this.call('\uc70d');
                               this.$D60A();
                               this.pc('\uc70d', 1);
                               if(this.flag(128, true)) {
@@ -26890,7 +26211,6 @@ public class Emlyn extends MiniZX {
                               this.pc('\uc730', 1);
                               this.HL('\ufb2a');
                               this.pc('\uc733', 1);
-                              this.call('\uc736');
                               this.$D61F();
                               this.pc('\uc736', 1);
                               int var69 = this.E();
@@ -26905,7 +26225,6 @@ public class Emlyn extends MiniZX {
                         int var27 = this.A();
                         this.wMem('\uc743', var27, '\uc739');
                         this.pc('\uc73c', 1);
-                        this.call('\uc73f');
                         this.$ADF0();
                         this.pc('\uc73f', 1);
                         if(this.flag(64, true)) {
@@ -27145,7 +26464,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\uc7af', 1);
-            this.call('\uc7b2');
             this.$D61F();
             return;
          } catch (StackException var7) {
@@ -27165,7 +26483,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\uc7be', 1);
-            this.call('\uc7c1');
             this.$ADF0();
             this.pc('\uc7c1', 1);
             if(this.flag(64, false)) {
@@ -27194,13 +26511,11 @@ public class Emlyn extends MiniZX {
                this.pc('\uc7d9', 1);
                if(!this.flag(1, false)) {
                   this.pc('\uc7db', 1);
-                  this.call('\uc7de');
                   this.$B2E0();
                   return;
                }
 
                this.pc('\uc7c6', 1);
-               this.call('\uc7c9');
                this.$C93C();
                this.pc('\uc7c9', 1);
                if(!this.flag(64, true)) {
@@ -27238,7 +26553,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\uc7e8', 1);
-            this.call('\uc7eb');
             this.$B2E0();
             return;
          } catch (StackException var4) {
@@ -27264,10 +26578,8 @@ public class Emlyn extends MiniZX {
             int var2 = this.IY();
             this.push(var2);
             this.pc('\uc7f2', 1);
-            this.call('\uc7f5');
             this.$BACE();
             this.pc('\uc7f5', 1);
-            this.call('\uc7f8');
             this.$B2E0();
             this.pc('\uc7f8', 2);
             int var3 = this.pop();
@@ -27283,12 +26595,10 @@ public class Emlyn extends MiniZX {
             this.pc('\uc7fe', 1);
             if(!this.flag(64, true)) {
                this.pc('\uc800', 1);
-               this.call('\uc803');
                this.$D403();
             }
 
             this.pc('\uc803', 1);
-            this.call('\uc806');
             this.$B35B();
             this.pc('\uc806', 1);
             int var8 = this.mem('\u9271', '\uc806');
@@ -27393,7 +26703,6 @@ public class Emlyn extends MiniZX {
                }
 
                this.pc('\uc83b', 1);
-               this.call('\uc83e');
                this.$B641();
                this.pc('\uc83e', 1);
                this.setNextAddress('\ub4af');
@@ -27442,7 +26751,6 @@ public class Emlyn extends MiniZX {
          try {
             if(this.isNextPC('\uc857') || !this.isNextPC('\uc865')) {
                this.pc('\uc857', 1);
-               this.call('\uc85a');
                this.$B2E0();
                this.pc('\uc85a', 1);
                int var1 = this.mem('\u92a0', '\uc85a');
@@ -27516,7 +26824,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\uc87f', 1);
-            this.call('\uc882');
             this.untranslated('\ud67a');
             return;
          } catch (StackException var6) {
@@ -27533,7 +26840,6 @@ public class Emlyn extends MiniZX {
          try {
             if(!this.isNextPC('\uc885') && this.isNextPC('\uc911')) {
                this.pc('\uc911', 1);
-               this.call('\uc914');
                this.$D67E();
                this.pc('\uc914', 1);
                if(!this.flag(1, true)) {
@@ -27562,7 +26868,6 @@ public class Emlyn extends MiniZX {
                   int var62 = this.HL();
                   this.wMem16('\u9266', var62, '\uc926');
                   this.pc('\uc929', 1);
-                  this.call('\uc92c');
                   this.$C944();
                   this.pc('\uc92c', 1);
                   this.setNextAddress('\ub4b2');
@@ -27577,12 +26882,10 @@ public class Emlyn extends MiniZX {
                int var2 = this.pop();
                this.IX(var2);
                this.pc('\uc889', 1);
-               this.call('\uc88c');
                this.$B2FE();
                this.pc('\uc88c', 1);
                this.A(19);
                this.pc('\uc88e', 1);
-               this.call('\uc891');
                this.$CC8E();
                this.pc('\uc891', 1);
                if(!this.flag(1, true)) {
@@ -27680,10 +26983,8 @@ public class Emlyn extends MiniZX {
                int var3 = this.mem('\u929b', '\uc8cb');
                this.A(var3);
                this.pc('\uc8ce', 1);
-               this.call('\uc8d1');
                this.$BADC();
                this.pc('\uc8d1', 1);
-               this.call('\uc8d4');
                this.$B2FE();
                this.pc('\uc8d4', 1);
                this.D(0);
@@ -27811,23 +27112,18 @@ public class Emlyn extends MiniZX {
       int var5 = this.A();
       this.alu("cp", var5, 128);
       this.pc('\uc943', 1);
-      this.ret();
    }
 
    public void $C944() {
       this.pc('\uc944', 1);
-      this.call('\uc947');
       this.$C93C();
       this.pc('\uc947', 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          this.pc('\uc948', 2);
          int var1 = this.IY() + 51;
          int var2 = this.A();
          this.wMem(var1, var2, '\uc948');
          this.pc('\uc94b', 1);
-         this.ret();
       }
    }
 
@@ -27838,19 +27134,15 @@ public class Emlyn extends MiniZX {
                label72: {
                   if(this.isNextPC('\uc9c5')) {
                      this.pc('\uc9c5', 1);
-                     this.call('\uc9c8');
                      this.$B2E0();
                      this.pc('\uc9c8', 1);
                      int var3 = this.mem('\u929b', '\uc9c8');
                      this.A(var3);
                      this.pc('\uc9cb', 1);
-                     this.call('\uc9ce');
                      this.$BADC();
                      this.pc('\uc9ce', 1);
-                     this.call('\uc9d1');
                      this.$B2FE();
                      this.pc('\uc9d1', 1);
-                     this.call('\uc9d4');
                      this.$B31C();
                      this.pc('\uc9d4', 1);
                      int var4 = this.mem('\u926f', '\uc9d4');
@@ -27951,7 +27243,6 @@ public class Emlyn extends MiniZX {
                         this.pc('\uca03', 1);
                         this.A(7);
                         this.pc('\uca05', 1);
-                        this.call('\uca08');
                         this.$BADC();
                         this.pc('\uca08', 1);
                         this.setNextAddress('\ub4af');
@@ -27971,7 +27262,6 @@ public class Emlyn extends MiniZX {
                      this.pc('\uca0f', 1);
                      if(!this.flag(64, true)) {
                         this.pc('\uca11', 1);
-                        this.call('\uca14');
                         this.$D3E0();
                         this.pc('\uca14', 1);
                         if(!this.flag(64, false)) {
@@ -27983,7 +27273,6 @@ public class Emlyn extends MiniZX {
                      }
 
                      this.pc('\uca19', 1);
-                     this.call('\uca1c');
                      this.$B2E0();
                      this.pc('\uca1c', 2);
                      int var38 = this.IY() + -82;
@@ -27993,16 +27282,12 @@ public class Emlyn extends MiniZX {
                      int var40 = this.A();
                      this.wMem('\u9275', var40, '\uca1f');
                      this.pc('\uca22', 1);
-                     this.call('\uca25');
                      this.$CDF9();
                      this.pc('\uca25', 1);
-                     this.call('\uca28');
                      this.$B35B();
                      this.pc('\uca28', 1);
-                     this.call('\uca2b');
                      this.$CAF0();
                      this.pc('\uca2b', 1);
-                     this.call('\uca2e');
                      this.$D3CD();
                      this.pc('\uca2e', 1);
                      int var41 = this.A();
@@ -28013,10 +27298,8 @@ public class Emlyn extends MiniZX {
                      int var44 = this.alu("and", var43, 2);
                      this.A(var44);
                      this.pc('\uca31', 1);
-                     this.call('\uca34');
                      this.$D422();
                      this.pc('\uca34', 1);
-                     this.call('\uca37');
                      this.$CAD5();
                      this.pc('\uca37', 1);
                      int var45 = this.mem('\u92ab', '\uca37');
@@ -28165,16 +27448,12 @@ public class Emlyn extends MiniZX {
       int var4 = this.alu("and", var3, var2);
       this.A(var4);
       this.pc('\ucad9', 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          this.pc('\ucada', 1);
-         this.call('\ucadd');
          this.$D6B8();
          this.pc('\ucadd', 1);
          if(!this.flag(128, true)) {
             this.pc('\ucae0', 1);
-            this.call('\ucae3');
             this.$D3AE();
             this.pc('\ucae3', 1);
             if(!this.flag(1, false)) {
@@ -28186,7 +27465,6 @@ public class Emlyn extends MiniZX {
                int var11 = this.alu("and", var10, var9);
                this.A(var11);
                this.pc('\ucae8', 1);
-               this.ret();
                return;
             }
          }
@@ -28202,7 +27480,6 @@ public class Emlyn extends MiniZX {
          int var8 = this.alu("and", var7, var6);
          this.A(var8);
          this.pc('\ucaef', 1);
-         this.ret();
       }
    }
 
@@ -28228,21 +27505,17 @@ public class Emlyn extends MiniZX {
       int var10 = this.alu("srl", var9);
       this.A(var10);
       this.pc('\ucafb', 1);
-      this.call('\ucafe');
       this.$CB05();
       this.pc('\ucafe', 1);
-      this.call('\ucb01');
       this.$CFB3();
       this.pc('\ucb01', 1);
       int var11 = this.A();
       this.wMem('\u92cf', var11, '\ucb01');
       this.pc('\ucb04', 1);
-      this.ret();
    }
 
    public void $CB05() {
       this.pc('\ucb05', 1);
-      this.call('\ucb08');
       this.$BE3B();
       this.$CB08();
    }
@@ -28250,13 +27523,11 @@ public class Emlyn extends MiniZX {
    public void $CB08() {
       label33: {
          this.pc('\ucb08', 1);
-         this.call('\ucb0b');
          this.$BDD3();
          this.pc('\ucb0b', 1);
          int var1 = this.A();
          this.wMem('\u92ce', var1, '\ucb0b');
          this.pc('\ucb0e', 1);
-         this.call('\ucb11');
          this.$B6C0();
          this.pc('\ucb11', 1);
          int var2 = this.mem('\u9262', '\ucb11');
@@ -28366,7 +27637,6 @@ public class Emlyn extends MiniZX {
       int var12 = this.A();
       this.wMem('\u92cf', var12, '\ucb4c');
       this.pc('\ucb4f', 1);
-      this.ret();
    }
 
    public void $CBF3() {
@@ -28413,7 +27683,6 @@ public class Emlyn extends MiniZX {
                   this.pc('\ucc09', 1);
                   this.A(100);
                   this.pc('\ucc0b', 1);
-                  this.call('\ucc0e');
                   this.$B6FA();
                   this.pc('\ucc0e', 1);
                   if(!this.flag(1, false)) {
@@ -28424,7 +27693,6 @@ public class Emlyn extends MiniZX {
                      int var44 = this.pop();
                      this.IX(var44);
                      this.pc('\ucc14', 1);
-                     this.call('\ucc17');
                      this.$B2FE();
                      this.pc('\ucc17', 1);
                      this.setNextAddress('\ub4af');
@@ -28499,7 +27767,6 @@ public class Emlyn extends MiniZX {
                int var14 = this.A();
                this.wMem('\u92a8', var14, '\ucc4e');
                this.pc('\ucc51', 1);
-               this.call('\ucc54');
                this.$D3CD();
                this.pc('\ucc54', 1);
                this.HL('\ucc8a');
@@ -28516,7 +27783,6 @@ public class Emlyn extends MiniZX {
                int var20 = this.A();
                this.wMem('\u92a9', var20, '\ucc59');
                this.pc('\ucc5c', 1);
-               this.call('\ucc5f');
                this.$D3E0();
                this.pc('\ucc5f', 1);
                if(this.flag(64, true)) {
@@ -28541,10 +27807,8 @@ public class Emlyn extends MiniZX {
             this.pc('\ucc6c', 1);
             this.A(7);
             this.pc('\ucc6e', 1);
-            this.call('\ucc71');
             this.$BADC();
             this.pc('\ucc71', 1);
-            this.call('\ucc74');
             this.$B2FE();
             this.pc('\ucc74', 1);
             int var24 = this.mem('\u932d', '\ucc74');
@@ -28646,7 +27910,6 @@ public class Emlyn extends MiniZX {
       int var10 = this.A();
       this.alu("ccf", var10);
       this.pc('\uccac', 1);
-      this.ret();
    }
 
    public void $CCAD() {
@@ -28679,13 +27942,11 @@ public class Emlyn extends MiniZX {
       int var12 = this.alu("sbc16", var11, var10);
       this.HL(var12);
       this.pc('\uccbc', 1);
-      this.call('\uccbf');
       this.$CCA2();
       this.pc('\uccbf', 1);
       int var13 = this.A();
       this.alu("ccf", var13);
       this.pc('\uccc0', 1);
-      this.ret();
    }
 
    public void $CCC1() {
@@ -28710,7 +27971,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\uccc7', 1);
-            this.call('\uccca');
             this.$D61F();
             return;
          } catch (StackException var7) {
@@ -28777,7 +28037,6 @@ public class Emlyn extends MiniZX {
             int var12 = this.A();
             this.E(var12);
             this.pc('\ucce5', 1);
-            this.call('\ucce8');
             this.$B2E0();
             this.pc('\ucce8', 1);
             int var13 = this.E();
@@ -28808,7 +28067,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\uccf6', 1);
-            this.call('\uccf9');
             this.untranslated('\ud67a');
             return;
          } catch (StackException var19) {
@@ -28898,7 +28156,6 @@ public class Emlyn extends MiniZX {
                      }
 
                      this.pc('\ucd24', 1);
-                     this.call('\ucd27');
                      this.$ADF0();
                      this.pc('\ucd27', 1);
                      int var13 = this.mem('\u9273', '\ucd27');
@@ -28997,7 +28254,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\ucd44', 1);
-            this.call('\ucd47');
             this.$CDCA();
             this.pc('\ucd47', 1);
             this.setNextAddress('\ucd31');
@@ -29108,7 +28364,6 @@ public class Emlyn extends MiniZX {
             int var30 = this.HL();
             this.wMem16('\u9266', var30, '\ucd8c');
             this.pc('\ucd8f', 1);
-            this.call('\ucd92');
             this.$D3EC();
             this.pc('\ucd92', 1);
             if(this.flag(64, true)) {
@@ -29118,7 +28373,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\ucd95', 1);
-            this.call('\ucd98');
             this.untranslated('\ud635');
             return;
          } catch (StackException var39) {
@@ -29132,7 +28386,6 @@ public class Emlyn extends MiniZX {
 
    public void $CDA0() {
       this.pc('\ucda0', 1);
-      this.call('\ucda3');
       this.$D40B();
    }
 
@@ -29162,7 +28415,6 @@ public class Emlyn extends MiniZX {
       int var8 = this.A();
       this.wMem('\u92cc', var8, '\ucdd5');
       this.pc('\ucdd8', 1);
-      this.ret();
    }
 
    public void $CDF9() {
@@ -29264,16 +28516,13 @@ public class Emlyn extends MiniZX {
                   int var15 = this.A();
                   this.wMem('\u9275', var15, '\uce37');
                   this.pc('\uce3a', 1);
-                  this.call('\uce3d');
                   this.$B2E0();
                   this.pc('\uce3d', 1);
-                  this.call('\uce40');
                   this.$B35B();
                   this.pc('\uce40', 1);
                   int var16 = this.A();
                   this.wMem('\ucf19', var16, '\uce40');
                   this.pc('\uce43', 1);
-                  this.call('\uce46');
                   this.$B6C0();
                   this.pc('\uce46', 1);
                   this.E(15);
@@ -29360,7 +28609,6 @@ public class Emlyn extends MiniZX {
                   this.pc('\uce74', 2);
                   this.IX('\u9362');
                   this.pc('\uce78', 1);
-                  this.call('\uce7b');
                   this.$BE3B();
                   this.pc('\uce7b', 1);
                   int var21 = this.mem('\u9262', '\uce7b');
@@ -29373,7 +28621,6 @@ public class Emlyn extends MiniZX {
                   this.pc('\uce7f', 1);
                   if(!this.flag(64, true)) {
                      this.pc('\uce81', 1);
-                     this.call('\uce84');
                      this.$BD9E();
                      this.pc('\uce84', 1);
                      int var25 = this.A();
@@ -29397,7 +28644,6 @@ public class Emlyn extends MiniZX {
                         int var28 = this.A();
                         this.wMem('\u9276', var28, '\uce91');
                         this.pc('\uce94', 1);
-                        this.call('\uce97');
                         this.$B35B();
                         this.pc('\uce97', 1);
                         int var29 = this.A();
@@ -29417,7 +28663,6 @@ public class Emlyn extends MiniZX {
                         }
 
                         this.pc('\uce9f', 1);
-                        this.call('\ucea2');
                         this.$B6C0();
                         this.pc('\ucea2', 1);
                         int var33 = this.mem('\u9276', '\ucea2');
@@ -29531,7 +28776,6 @@ public class Emlyn extends MiniZX {
                   }
 
                   this.pc('\ucee1', 1);
-                  this.call('\ucee4');
                   this.$B35B();
                }
 
@@ -29546,7 +28790,6 @@ public class Emlyn extends MiniZX {
             int var7 = this.mem(var6, '\uce28');
             this.A(var7);
             this.pc('\uce2b', 1);
-            this.call('\uce2e');
             this.$D11B();
             this.pc('\uce2e', 2);
             int var8 = this.IY() + -74;
@@ -29712,7 +28955,6 @@ public class Emlyn extends MiniZX {
                                  this.pc('\ucf65', 1);
                                  if(!this.flag(64, true)) {
                                     this.pc('\ucf67', 1);
-                                    this.call('\ucf6a');
                                     this.$ADF0();
                                     this.pc('\ucf6a', 1);
                                     int var50 = this.mem('\u9273', '\ucf6a');
@@ -29732,7 +28974,6 @@ public class Emlyn extends MiniZX {
                                        int var56 = this.A();
                                        this.wMem('\u9275', var56, '\ucf97');
                                        this.pc('\ucf9a', 1);
-                                       this.call('\ucf9d');
                                        this.$B2E0();
                                        this.pc('\ucf9d', 1);
                                        int var57 = this.mem('\u9273', '\ucf9d');
@@ -29747,13 +28988,10 @@ public class Emlyn extends MiniZX {
                                        }
 
                                        this.pc('\ucfa4', 1);
-                                       this.call('\ucfa7');
                                        this.$D40B();
                                        this.pc('\ucfa7', 1);
-                                       this.call('\ucfaa');
                                        this.$CB08();
                                        this.pc('\ucfaa', 1);
-                                       this.call('\ucfad');
                                        this.$CFB3();
                                        this.pc('\ucfad', 1);
                                        int var59 = this.A();
@@ -29867,7 +29105,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\ucf8e', 1);
-            this.call('\ucf91');
             this.$D40B();
             this.pc('\ucf91', 1);
             this.setNextAddress('\ub4af');
@@ -29891,13 +29128,10 @@ public class Emlyn extends MiniZX {
       int var3 = this.A();
       this.alu("cp", var3, 29);
       this.pc('\ucfb7', 1);
-      if(this.flag(1, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(1, false)) {
          this.pc('\ucfb8', 1);
          this.A(28);
          this.pc('\ucfba', 1);
-         this.ret();
       }
    }
 
@@ -29929,7 +29163,6 @@ public class Emlyn extends MiniZX {
                      this.pc('\ud001', 1);
                      this.A(2);
                      this.pc('\ud003', 1);
-                     this.call('\ud006');
                      this.$D03F();
                      this.pc('\ud006', 1);
                      if(this.flag(128, false)) {
@@ -29938,7 +29171,6 @@ public class Emlyn extends MiniZX {
                      }
 
                      this.pc('\ud009', 1);
-                     this.call('\ud00c');
                      this.$B2FE();
                      this.pc('\ud00c', 1);
                      int var5 = this.mem16('\u9263', '\ud00c');
@@ -29986,16 +29218,12 @@ public class Emlyn extends MiniZX {
                   int var19 = this.alu("and", var18, 7);
                   this.A(var19);
                   this.pc('\ucfc4', 1);
-                  this.call('\ucfc7');
                   this.$BADC();
                   this.pc('\ucfc7', 1);
-                  this.call('\ucfca');
                   this.$B2FE();
                   this.pc('\ucfca', 1);
-                  this.call('\ucfcd');
                   this.$B31C();
                   this.pc('\ucfcd', 1);
-                  this.call('\ucfd0');
                   this.$B6C0();
                   this.pc('\ucfd0', 1);
                   int var20 = this.mem('\u9262', '\ucfd0');
@@ -30040,7 +29268,6 @@ public class Emlyn extends MiniZX {
                }
 
                this.pc('\ucfe7', 1);
-               this.call('\ucfea');
                this.$CB05();
             }
 
@@ -30107,7 +29334,6 @@ public class Emlyn extends MiniZX {
                }
 
                this.pc('\ud025', 1);
-               this.call('\ud028');
                this.$D164();
                this.pc('\ud028', 1);
                if(this.flag(1, false)) {
@@ -30129,7 +29355,6 @@ public class Emlyn extends MiniZX {
                }
 
                this.pc('\ud02f', 1);
-               this.call('\ud032');
                this.$D639();
                this.pc('\ud032', 1);
                if(this.flag(64, true)) {
@@ -30195,7 +29420,6 @@ public class Emlyn extends MiniZX {
             int var16 = this.alu("and", var15, 128);
             this.A(var16);
             this.pc('\ud056', 1);
-            this.ret();
             return;
          }
 
@@ -30211,7 +29435,6 @@ public class Emlyn extends MiniZX {
       } while(this.flag(128, true));
 
       this.pc('\ud05d', 1);
-      this.ret();
    }
 
    public void $D05E() {
@@ -30244,10 +29467,8 @@ public class Emlyn extends MiniZX {
                   this.pc('\ud072', 1);
                   if(!this.flag(128, true)) {
                      this.pc('\ud075', 1);
-                     this.call('\ud078');
                      this.$B2FE();
                      this.pc('\ud078', 1);
-                     this.call('\ud07b');
                      this.$B35B();
                      this.pc('\ud07b', 1);
                      int var21 = this.A();
@@ -30287,7 +29508,6 @@ public class Emlyn extends MiniZX {
                               this.pc('\ud094', 1);
                               if(!this.flag(1, true)) {
                                  this.pc('\ud096', 1);
-                                 this.call('\ud099');
                                  this.$B6C0();
                                  this.pc('\ud099', 1);
                                  if(!this.flag(1, false)) {
@@ -30417,7 +29637,6 @@ public class Emlyn extends MiniZX {
          this.$CF03();
       } else {
          this.pc('\ud0d8', 1);
-         this.call('\ud0db');
          this.$D164();
          this.pc('\ud0db', 1);
          if(this.flag(1, false)) {
@@ -30435,7 +29654,6 @@ public class Emlyn extends MiniZX {
                this.jump('\ud132');
             } else {
                this.pc('\ud0e4', 1);
-               this.call('\ud0e7');
                this.$B31C();
                this.pc('\ud0e7', 2);
                int var4 = this.IY() + -82;
@@ -30529,7 +29747,6 @@ public class Emlyn extends MiniZX {
       int var16 = this.mem(var15, '\ud128');
       this.A(var16);
       this.pc('\ud129', 1);
-      this.ret();
    }
 
    public void $D132() {
@@ -30540,7 +29757,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\ud132', 1);
-            this.call('\ud135');
             this.$D164();
             this.pc('\ud135', 1);
             if(this.flag(1, false)) {
@@ -30552,7 +29768,6 @@ public class Emlyn extends MiniZX {
             this.pc('\ud137', 1);
             this.A(2);
             this.pc('\ud139', 1);
-            this.call('\ud13c');
             this.$D03F();
             this.pc('\ud13c', 1);
             if(this.flag(128, false)) {
@@ -30562,7 +29777,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\ud13f', 1);
-            this.call('\ud142');
             this.$D639();
             this.pc('\ud142', 1);
             if(this.flag(64, false)) {
@@ -30573,7 +29787,6 @@ public class Emlyn extends MiniZX {
             this.pc('\ud144', 1);
             this.A(3);
             this.pc('\ud146', 1);
-            this.call('\ud149');
             this.$D03F();
             this.pc('\ud149', 1);
             if(this.flag(128, false)) {
@@ -30583,7 +29796,6 @@ public class Emlyn extends MiniZX {
             }
 
             this.pc('\ud14c', 1);
-            this.call('\ud14f');
             this.$D639();
             return;
          } catch (StackException var3) {
@@ -30657,7 +29869,6 @@ public class Emlyn extends MiniZX {
          int var9 = this.alu("and", var8, var7);
          this.A(var9);
          this.pc('\ud177', 1);
-         this.ret();
          return;
       }
 
@@ -30665,7 +29876,6 @@ public class Emlyn extends MiniZX {
       int var11 = this.A();
       this.alu("scf", var11);
       this.pc('\ud175', 1);
-      this.ret();
    }
 
    public void $D244() {
@@ -30744,7 +29954,6 @@ public class Emlyn extends MiniZX {
                         int var36 = this.A();
                         this.wMem('\u92a1', var36, '\ud267');
                         this.pc('\ud26a', 1);
-                        this.call('\ud26d');
                         this.$B6EF();
                      }
 
@@ -30782,7 +29991,6 @@ public class Emlyn extends MiniZX {
                      this.pc('\ud280', 1);
                      this.A(100);
                      this.pc('\ud282', 1);
-                     this.call('\ud285');
                      this.$B6FA();
                      this.pc('\ud285', 1);
                      if(this.flag(1, true)) {
@@ -30816,7 +30024,6 @@ public class Emlyn extends MiniZX {
                   }
 
                   this.pc('\ud297', 1);
-                  this.call('\ud29a');
                   this.$D40B();
                   this.pc('\ud29a', 1);
                   this.setNextAddress('\ub4af');
@@ -31009,7 +30216,6 @@ public class Emlyn extends MiniZX {
             int var11 = this.A();
             this.wMem('\u92cb', var11, '\ud3c1');
             this.pc('\ud3c4', 1);
-            this.call('\ud3c7');
             this.$B6EF();
          }
 
@@ -31059,7 +30265,6 @@ public class Emlyn extends MiniZX {
       this.pc('\ud3dd', 1);
       this.D(0);
       this.pc('\ud3df', 1);
-      this.ret();
    }
 
    public void $D3E0() {
@@ -31080,7 +30285,6 @@ public class Emlyn extends MiniZX {
 
    public void $D3EC() {
       this.pc('\ud3ec', 1);
-      this.call('\ud3ef');
       this.$B2E0();
       this.pc('\ud3ef', 2);
       int var1 = this.IY() + -53;
@@ -31091,11 +30295,8 @@ public class Emlyn extends MiniZX {
       int var4 = this.alu("and", var3, 240);
       this.A(var4);
       this.pc('\ud3f4', 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          this.pc('\ud3f5', 1);
-         this.call('\ud3f8');
          this.$B31C();
          this.pc('\ud3f8', 1);
          int var5 = this.mem16('\u926d', '\ud3f8');
@@ -31109,9 +30310,7 @@ public class Emlyn extends MiniZX {
          int var9 = this.alu("or", var8, var7);
          this.A(var9);
          this.pc('\ud3fd', 1);
-         if(this.flag(64, true)) {
-            this.ret();
-         } else {
+         if(!this.flag(64, true)) {
             this.pc('\ud3fe', 1);
             int var10 = this.mem('\u926f', '\ud3fe');
             this.A(var10);
@@ -31121,7 +30320,6 @@ public class Emlyn extends MiniZX {
             int var13 = this.alu("and", var12, var11);
             this.A(var13);
             this.pc('\ud402', 1);
-            this.ret();
          }
       }
    }
@@ -31177,7 +30375,6 @@ public class Emlyn extends MiniZX {
       int var2 = this.A();
       this.wMem('\u9268', var2, '\ud419');
       this.pc('\ud41c', 1);
-      this.ret();
    }
 
    public void $D41D() {
@@ -31195,12 +30392,9 @@ public class Emlyn extends MiniZX {
       int var2 = this.mem('\u92ce', '\ud423');
       this.A(var2);
       this.pc('\ud426', 1);
-      this.call('\ud429');
       this.$D42B();
       this.pc('\ud429', 1);
-      if(this.flag(1, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(1, false)) {
          this.pc('\ud42a', 1);
          int var3 = this.E();
          int var4 = this.alu("inc", var3);
@@ -31236,7 +30430,6 @@ public class Emlyn extends MiniZX {
          int var9 = this.alu("and", var8, var7);
          this.A(var9);
          this.pc('\ud446', 1);
-         this.ret();
       }
    }
 
@@ -31260,7 +30453,6 @@ public class Emlyn extends MiniZX {
       this.pc('\ud477', 1);
       if(!this.flag(128, false)) {
          this.pc('\ud47a', 1);
-         this.call('\ud47d');
          this.$BACE();
          this.pc('\ud47d', 1);
          int var118 = this.mem('\u9272', '\ud47d');
@@ -31273,7 +30465,7 @@ public class Emlyn extends MiniZX {
          this.A(var122);
          this.pc('\ud483', 1);
          if(!this.flag(128, false)) {
-            label136: {
+            label137: {
                this.pc('\ud486', 2);
                int var123 = this.IY() + -37;
                int var124 = this.mem(var123, '\ud486');
@@ -31285,7 +30477,7 @@ public class Emlyn extends MiniZX {
                if(!this.flag(64, false)) {
                   this.pc('\ud48d', 1);
                   if(this.flag(1, true)) {
-                     break label136;
+                     break label137;
                   }
 
                   this.pc('\ud48f', 2);
@@ -31359,7 +30551,6 @@ public class Emlyn extends MiniZX {
                int var127 = this.A();
                this.wMem('\u9269', var127, '\ud4b7');
                this.pc('\ud4ba', 1);
-               this.ret();
                return;
             }
          }
@@ -31462,7 +30653,7 @@ public class Emlyn extends MiniZX {
                this.A(var97);
                this.pc('\ud506', 1);
                if(!this.flag(64, true)) {
-                  label138: {
+                  label139: {
                      this.pc('\ud508', 1);
                      int var98 = this.mem('\u92c8', '\ud508');
                      this.A(var98);
@@ -31482,7 +30673,7 @@ public class Emlyn extends MiniZX {
                         this.A(var112);
                         this.pc('\ud514', 1);
                         if(this.flag(1, false)) {
-                           break label138;
+                           break label139;
                         }
                      }
 
@@ -31497,13 +30688,10 @@ public class Emlyn extends MiniZX {
                      this.pc('\ud51b', 1);
                      if(!this.flag(64, false)) {
                         this.pc('\ud51d', 1);
-                        this.call('\ud520');
                         this.$B2E0();
                         this.pc('\ud520', 1);
-                        this.call('\ud523');
                         this.$B31C();
                         this.pc('\ud523', 1);
-                        this.call('\ud526');
                         this.$B6C0();
                         this.pc('\ud526', 1);
                         if(!this.flag(1, false)) {
@@ -31543,7 +30731,6 @@ public class Emlyn extends MiniZX {
          this.pc('\ud535', 1);
          if(!this.flag(128, false)) {
             this.pc('\ud538', 1);
-            this.call('\ud53b');
             this.$BADC();
             this.pc('\ud53b', 2);
             int var30 = this.IX() + -37;
@@ -31569,7 +30756,6 @@ public class Emlyn extends MiniZX {
             this.A(var36);
             this.pc('\ud54b', 1);
             if(this.flag(64, true)) {
-               this.ret();
                return;
             }
 
@@ -31602,71 +30788,67 @@ public class Emlyn extends MiniZX {
             this.A(var45);
             this.pc('\ud558', 1);
             if(this.flag(64, true)) {
-               this.ret();
                return;
             }
 
-            label86: {
-               label85: {
-                  this.pc('\ud559', 1);
-                  int var46 = this.HL();
-                  this.wMem(var46, 40, '\ud559');
-                  this.pc('\ud55b', 1);
-                  int var47 = this.mem(32734, '\ud55b');
-                  this.A(var47);
-                  this.pc('\ud55e', 1);
-                  int var48 = this.A();
-                  this.alu("cp", var48, 3);
-                  this.pc('\ud560', 1);
-                  if(!this.flag(64, false)) {
+            label144: {
+               this.pc('\ud559', 1);
+               int var46 = this.HL();
+               this.wMem(var46, 40, '\ud559');
+               this.pc('\ud55b', 1);
+               int var47 = this.mem(32734, '\ud55b');
+               this.A(var47);
+               this.pc('\ud55e', 1);
+               int var48 = this.A();
+               this.alu("cp", var48, 3);
+               this.pc('\ud560', 1);
+               if(!this.flag(64, false)) {
+                  label140: {
                      this.pc('\ud562', 1);
                      int var73 = this.A();
                      this.alu("cp", var73, 1);
                      this.pc('\ud564', 1);
-                     if(this.flag(64, false)) {
-                        break label85;
+                     if(!this.flag(64, false)) {
+                        this.pc('\ud566', 1);
+                        int var78 = this.mem('\u9272', '\ud566');
+                        this.A(var78);
+                        this.pc('\ud569', 1);
+                        int var79 = this.A();
+                        this.E(var79);
+                        this.pc('\ud56a', 1);
+                        int var80 = this.mem('\u9283', '\ud56a');
+                        this.A(var80);
+                        this.pc('\ud56d', 1);
+                        int var81 = this.E();
+                        int var82 = this.A();
+                        int var83 = this.alu("xor", var82, var81);
+                        this.A(var83);
+                        this.pc('\ud56e', 1);
+                        if(!this.flag(128, true)) {
+                           break label140;
+                        }
                      }
 
-                     this.pc('\ud566', 1);
-                     int var78 = this.mem('\u9272', '\ud566');
-                     this.A(var78);
-                     this.pc('\ud569', 1);
-                     int var79 = this.A();
-                     this.E(var79);
-                     this.pc('\ud56a', 1);
-                     int var80 = this.mem('\u9283', '\ud56a');
-                     this.A(var80);
-                     this.pc('\ud56d', 1);
-                     int var81 = this.E();
-                     int var82 = this.A();
-                     int var83 = this.alu("xor", var82, var81);
-                     this.A(var83);
-                     this.pc('\ud56e', 1);
-                     if(this.flag(128, true)) {
-                        break label85;
+                     this.pc('\ud5a6', 1);
+                     int var74 = this.mem(32739, '\ud5a6');
+                     this.A(var74);
+                     this.pc('\ud5a9', 1);
+                     int var75 = this.A();
+                     int var76 = this.A();
+                     int var77 = this.alu("and", var76, var75);
+                     this.A(var77);
+                     this.pc('\ud5aa', 1);
+                     if(!this.flag(64, true)) {
+                        this.pc('\ud5ac', 1);
+                        return;
                      }
+                     break label144;
                   }
-
-                  this.pc('\ud571', 1);
-                  int var49 = this.HL();
-                  this.wMem(var49, 8, '\ud571');
-                  break label86;
                }
 
-               this.pc('\ud5a6', 1);
-               int var74 = this.mem(32739, '\ud5a6');
-               this.A(var74);
-               this.pc('\ud5a9', 1);
-               int var75 = this.A();
-               int var76 = this.A();
-               int var77 = this.alu("and", var76, var75);
-               this.A(var77);
-               this.pc('\ud5aa', 1);
-               if(!this.flag(64, true)) {
-                  this.pc('\ud5ac', 1);
-                  this.ret();
-                  return;
-               }
+               this.pc('\ud571', 1);
+               int var49 = this.HL();
+               this.wMem(var49, 8, '\ud571');
             }
 
             this.pc('\ud573', 2);
@@ -31713,7 +30895,6 @@ public class Emlyn extends MiniZX {
                         int var67 = this.mem('\u9269', '\ud590');
                         this.A(var67);
                         this.pc('\ud593', 1);
-                        this.call('\ud596');
                         this.$BADC();
                         this.pc('\ud596', 2);
                         int var68 = this.IY() + -60;
@@ -31727,7 +30908,6 @@ public class Emlyn extends MiniZX {
                         int var72 = this.IY() + -60;
                         this.wMem(var72, 0, '\ud59c');
                         this.pc('\ud5a0', 1);
-                        this.ret();
                         return;
                      }
                   }
@@ -31743,7 +30923,6 @@ public class Emlyn extends MiniZX {
             } while(this.B() != 0);
 
             this.pc('\ud5a5', 1);
-            this.ret();
             return;
          }
       }
@@ -31755,7 +30934,6 @@ public class Emlyn extends MiniZX {
       int var29 = this.A();
       this.wMem('\u9269', var29, '\ud4d4');
       this.pc('\ud4d7', 1);
-      this.ret();
    }
 
    public void $D5AD() {
@@ -31814,7 +30992,6 @@ public class Emlyn extends MiniZX {
                if(!this.flag(64, false)) {
                   label35: {
                      this.pc('\ud5d5', 1);
-                     this.call('\ud5d8');
                      this.$B2E0();
                      this.pc('\ud5d8', 1);
                      int var25 = this.mem16('\u9263', '\ud5d8');
@@ -31897,13 +31074,11 @@ public class Emlyn extends MiniZX {
       int var16 = this.mem('\u9269', '\ud600');
       this.A(var16);
       this.pc('\ud603', 1);
-      this.call('\ud606');
       this.$BADC();
       this.pc('\ud606', 1);
       int var17 = this.mem('\u9269', '\ud606');
       this.A(var17);
       this.pc('\ud609', 1);
-      this.ret();
    }
 
    public void $D60A() {
@@ -31920,7 +31095,6 @@ public class Emlyn extends MiniZX {
          this.alu("cp", var6, 1);
          this.pc('\ud613', 1);
          if(this.flag(64, false)) {
-            this.ret();
             return;
          }
 
@@ -31935,7 +31109,6 @@ public class Emlyn extends MiniZX {
          this.A(var11);
          this.pc('\ud61a', 1);
          if(this.flag(128, true)) {
-            this.ret();
             return;
          }
       }
@@ -31948,7 +31121,6 @@ public class Emlyn extends MiniZX {
       int var5 = this.alu("and", var4, var3);
       this.A(var5);
       this.pc('\ud61e', 1);
-      this.ret();
    }
 
    public void $D61F() {
@@ -31970,30 +31142,24 @@ public class Emlyn extends MiniZX {
       int var9 = this.alu("and", var8, 1);
       this.A(var9);
       this.pc('\ud628', 1);
-      if(this.flag(64, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, false)) {
          this.pc('\ud629', 1);
          int var10 = this.HL();
          int var11 = this.inc16(var10);
          this.HL(var11);
          this.pc('\ud62a', 1);
-         this.ret();
       }
    }
 
    public void $D639() {
       this.pc('\ud639', 1);
-      this.call('\ud63c');
       this.$B2FE();
       this.pc('\ud63c', 1);
-      this.call('\ud63f');
       this.$B35B();
       this.pc('\ud63f', 1);
       int var1 = this.A();
       this.wMem('\ud663', var1, '\ud63f');
       this.pc('\ud642', 1);
-      this.call('\ud645');
       this.$B6C0();
       this.pc('\ud645', 1);
       int var2 = this.mem16('\u9261', '\ud645');
@@ -32022,10 +31188,8 @@ public class Emlyn extends MiniZX {
          this.pc('\ud659', 1);
          if(!this.flag(128, true)) {
             this.pc('\ud65c', 1);
-            this.call('\ud65f');
             this.$B2FE();
             this.pc('\ud65f', 1);
-            this.call('\ud662');
             this.$B35B();
             this.pc('\ud662', 1);
             int var15 = this.mem('\ud663', '\ud662');
@@ -32034,7 +31198,6 @@ public class Emlyn extends MiniZX {
             this.pc('\ud664', 1);
             if(!this.flag(64, true)) {
                this.pc('\ud666', 1);
-               this.call('\ud669');
                this.$B6C0();
                this.pc('\ud669', 1);
                if(!this.flag(1, false)) {
@@ -32067,7 +31230,6 @@ public class Emlyn extends MiniZX {
       int var14 = this.A();
       this.alu("cp", var14, 0);
       this.pc('\ud679', 1);
-      this.ret();
    }
 
    public void $D67E() {
@@ -32083,7 +31245,6 @@ public class Emlyn extends MiniZX {
       int var3 = this.pop();
       this.IX(var3);
       this.pc('\ud687', 1);
-      this.call('\ud68a');
       this.$B2FE();
       this.pc('\ud68a', 1);
       int var4 = this.mem('\u9268', '\ud68a');
@@ -32101,7 +31262,6 @@ public class Emlyn extends MiniZX {
             this.pc('\ud695', 1);
             this.A(76);
             this.pc('\ud697', 1);
-            this.call('\ud69a');
             this.$CC8E();
             this.pc('\ud69a', 1);
             if(this.flag(1, false)) {
@@ -32109,7 +31269,6 @@ public class Emlyn extends MiniZX {
                int var10 = this.A();
                this.alu("scf", var10);
                this.pc('\ud6b5', 1);
-               this.ret();
                return;
             }
 
@@ -32137,7 +31296,6 @@ public class Emlyn extends MiniZX {
       int var8 = this.alu("and", var7, var6);
       this.A(var8);
       this.pc('\ud6b7', 1);
-      this.ret();
    }
 
    public void $D6B8() {
@@ -32205,7 +31363,6 @@ public class Emlyn extends MiniZX {
       int var11 = this.alu("and", var10, var9);
       this.A(var11);
       this.pc('\ud6de', 1);
-      this.ret();
    }
 
    public void $D6E3() {
@@ -32475,7 +31632,6 @@ public class Emlyn extends MiniZX {
                            }
 
                            this.pc('\ud786', 1);
-                           this.call('\ud789');
                            this.$D60A();
                            this.pc('\ud789', 1);
                            if(this.flag(128, false)) {
@@ -32527,18 +31683,14 @@ public class Emlyn extends MiniZX {
          try {
             if(!this.isNextPC('\ud7b4') && this.isNextPC('\ud7b7')) {
                this.pc('\ud7b7', 1);
-               this.call('\ud7ba');
                this.$B2E0();
                this.pc('\ud7ba', 2);
                this.IX('\u9362');
                this.pc('\ud7be', 1);
-               this.call('\ud7c1');
                this.$B2FE();
                this.pc('\ud7c1', 1);
-               this.call('\ud7c4');
                this.$B31C();
                this.pc('\ud7c4', 1);
-               this.call('\ud7c7');
                this.$B6C0();
                this.pc('\ud7c7', 1);
                int var3 = this.mem('\u9262', '\ud7c7');
@@ -32562,7 +31714,6 @@ public class Emlyn extends MiniZX {
                      int var9 = this.IY() + -74;
                      this.wMem(var9, 0, '\ud7d4');
                      this.pc('\ud7d8', 1);
-                     this.call('\ud7db');
                      this.$BDD3();
                      this.pc('\ud7db', 1);
                      int var10 = this.A();
@@ -32927,24 +32078,19 @@ public class Emlyn extends MiniZX {
                   if(this.isNextPC('\ud8ba')) {
                      label55: {
                         this.pc('\ud8ba', 1);
-                        this.call('\ud8bd');
                         this.$D403();
                         this.pc('\ud8bd', 1);
                         this.A(7);
                         this.pc('\ud8bf', 1);
-                        this.call('\ud8c2');
                         this.$BACE();
                         this.pc('\ud8c2', 1);
-                        this.call('\ud8c5');
                         this.$B2E0();
                         this.pc('\ud8c5', 1);
                         int var40 = this.mem('\u92a7', '\ud8c5');
                         this.A(var40);
                         this.pc('\ud8c8', 1);
-                        this.call('\ud8cb');
                         this.$BACE();
                         this.pc('\ud8cb', 1);
-                        this.call('\ud8ce');
                         this.$B31C();
                         this.pc('\ud8ce', 1);
                         int var41 = this.mem('\u9296', '\ud8ce');
@@ -33145,10 +32291,8 @@ public class Emlyn extends MiniZX {
                      int var94 = this.A();
                      this.wMem('\u9275', var94, '\ud930');
                      this.pc('\ud933', 1);
-                     this.call('\ud936');
                      this.$B2E0();
                      this.pc('\ud936', 1);
-                     this.call('\ud939');
                      this.$B35B();
                      this.pc('\ud939', 1);
                      int var95 = this.mem('\u926e', '\ud939');
@@ -33305,7 +32449,6 @@ public class Emlyn extends MiniZX {
          this.alu("cp", var5, 255);
          this.pc('\udd56', 1);
          if(this.flag(64, false)) {
-            this.ret();
             return;
          }
 
@@ -33407,7 +32550,6 @@ public class Emlyn extends MiniZX {
          this.alu("cp", var5, 255);
          this.pc('\udd76', 1);
          if(this.flag(64, false)) {
-            this.ret();
             return;
          }
 
@@ -33433,7 +32575,6 @@ public class Emlyn extends MiniZX {
          this.pc('\udd7c', 1);
          this.A(240);
          this.pc('\udd7e', 1);
-         this.call('\udd81');
          this.$DDA3();
          this.pc('\udd81', 1);
          int var15 = this.E();
@@ -33469,7 +32610,6 @@ public class Emlyn extends MiniZX {
          this.pc('\udd8c', 1);
          this.A(15);
          this.pc('\udd8e', 1);
-         this.call('\udd91');
          this.$DDA3();
          this.pc('\udd91', 1);
          int var28 = this.pop();
@@ -33496,7 +32636,6 @@ public class Emlyn extends MiniZX {
             int var35 = this.DE();
             this.push(var35);
             this.pc('\udd9a', 1);
-            this.call('\udd9d');
             this.$DDA3();
             this.pc('\udd9d', 1);
             int var36 = this.pop();
@@ -33522,7 +32661,6 @@ public class Emlyn extends MiniZX {
          int var3 = this.AF();
          this.push(var3);
          this.pc('\udda5', 1);
-         this.call('\udda8');
          this.$DDAC();
          this.pc('\udda8', 1);
          int var4 = this.pop();
@@ -33533,7 +32671,6 @@ public class Emlyn extends MiniZX {
       } while(this.B() != 0);
 
       this.pc('\uddab', 1);
-      this.ret();
    }
 
    public void $DDAC() {
@@ -33587,9 +32724,7 @@ public class Emlyn extends MiniZX {
       int var21 = this.alu("and", var20, 7);
       this.A(var21);
       this.pc('\uddc1', 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          this.pc('\uddc2', 1);
          this.D(64);
          this.pc('\uddc4', 1);
@@ -33603,7 +32738,6 @@ public class Emlyn extends MiniZX {
          int var25 = this.A();
          this.E(var25);
          this.pc('\uddc8', 1);
-         this.ret();
       }
    }
 
@@ -33640,7 +32774,6 @@ public class Emlyn extends MiniZX {
             this.pc('\ude39', 1);
             this.E(16);
             this.pc('\ude3b', 1);
-            this.call('\ude3e');
             this.$BF0D();
             this.pc('\ude3e', 1);
             if(this.flag(64, true)) {
@@ -33927,7 +33060,6 @@ public class Emlyn extends MiniZX {
                int var26 = this.mem16('\u9c1a', '\ue05a');
                this.SP(var26);
                this.pc('\ue05d', 1);
-               this.ret();
             }
          }
       }
@@ -34190,7 +33322,6 @@ public class Emlyn extends MiniZX {
                int var26 = this.mem16('\u9c1a', '\ue0b9');
                this.SP(var26);
                this.pc('\ue0bc', 1);
-               this.ret();
             }
          }
       }
@@ -34326,7 +33457,6 @@ public class Emlyn extends MiniZX {
                   var120 = this.mem16('\u9c1a', '\ue118');
                   this.SP(var120);
                   this.pc('\ue11b', 1);
-                  this.ret();
                   return;
                }
             }
@@ -34460,7 +33590,6 @@ public class Emlyn extends MiniZX {
                var120 = this.mem16('\u9c1a', '\ue118');
                this.SP(var120);
                this.pc('\ue11b', 1);
-               this.ret();
                return;
             }
          }
@@ -34741,7 +33870,6 @@ public class Emlyn extends MiniZX {
                var120 = this.mem16('\u9c1a', '\ue118');
                this.SP(var120);
                this.pc('\ue11b', 1);
-               this.ret();
                return;
             }
          }
@@ -35066,7 +34194,6 @@ public class Emlyn extends MiniZX {
                int var88 = this.mem16('\u9c1a', '\ue177');
                this.SP(var88);
                this.pc('\ue17a', 1);
-               this.ret();
                return;
             }
          }
@@ -35503,7 +34630,6 @@ public class Emlyn extends MiniZX {
                int var80 = this.mem16('\u9c1a', '\ue1d6');
                this.SP(var80);
                this.pc('\ue1d9', 1);
-               this.ret();
                return;
             }
          }
@@ -35759,7 +34885,6 @@ public class Emlyn extends MiniZX {
                   var100 = this.mem16('\u9c1a', '\ue235');
                   this.SP(var100);
                   this.pc('\ue238', 1);
-                  this.ret();
                   return;
                }
             }
@@ -35876,7 +35001,6 @@ public class Emlyn extends MiniZX {
                var100 = this.mem16('\u9c1a', '\ue235');
                this.SP(var100);
                this.pc('\ue238', 1);
-               this.ret();
                return;
             }
          }
@@ -36123,7 +35247,6 @@ public class Emlyn extends MiniZX {
                var100 = this.mem16('\u9c1a', '\ue235');
                this.SP(var100);
                this.pc('\ue238', 1);
-               this.ret();
                return;
             }
          }
@@ -36264,7 +35387,6 @@ public class Emlyn extends MiniZX {
                   var128 = this.mem16('\u9c1a', '\ue294');
                   this.SP(var128);
                   this.pc('\ue297', 1);
-                  this.ret();
                   return;
                }
             }
@@ -36407,7 +35529,6 @@ public class Emlyn extends MiniZX {
                var128 = this.mem16('\u9c1a', '\ue294');
                this.SP(var128);
                this.pc('\ue297', 1);
-               this.ret();
                return;
             }
          }
@@ -36706,7 +35827,6 @@ public class Emlyn extends MiniZX {
                var128 = this.mem16('\u9c1a', '\ue294');
                this.SP(var128);
                this.pc('\ue297', 1);
-               this.ret();
                return;
             }
          }
@@ -36837,7 +35957,6 @@ public class Emlyn extends MiniZX {
                   var108 = this.mem16('\u9c1a', '\ue2f3');
                   this.SP(var108);
                   this.pc('\ue2f6', 1);
-                  this.ret();
                   return;
                }
             }
@@ -36963,7 +36082,6 @@ public class Emlyn extends MiniZX {
                var108 = this.mem16('\u9c1a', '\ue2f3');
                this.SP(var108);
                this.pc('\ue2f6', 1);
-               this.ret();
                return;
             }
          }
@@ -37228,7 +36346,6 @@ public class Emlyn extends MiniZX {
                var108 = this.mem16('\u9c1a', '\ue2f3');
                this.SP(var108);
                this.pc('\ue2f6', 1);
-               this.ret();
                return;
             }
          }
@@ -37315,7 +36432,6 @@ public class Emlyn extends MiniZX {
             this.B(var36);
             if(this.B() == 0) {
                this.pc('\ue31f', 1);
-               this.ret();
                return;
             }
          } else {
@@ -37331,7 +36447,6 @@ public class Emlyn extends MiniZX {
             this.B(var34);
             if(this.B() == 0) {
                this.pc('\ue324', 1);
-               this.ret();
                return;
             }
          }
@@ -37418,7 +36533,6 @@ public class Emlyn extends MiniZX {
             this.B(var36);
             if(this.B() == 0) {
                this.pc('\ue345', 1);
-               this.ret();
                return;
             }
          } else {
@@ -37434,7 +36548,6 @@ public class Emlyn extends MiniZX {
             this.B(var34);
             if(this.B() == 0) {
                this.pc('\ue34a', 1);
-               this.ret();
                return;
             }
          }
@@ -37521,7 +36634,6 @@ public class Emlyn extends MiniZX {
             this.B(var36);
             if(this.B() == 0) {
                this.pc('\ue36b', 1);
-               this.ret();
                return;
             }
          } else {
@@ -37537,7 +36649,6 @@ public class Emlyn extends MiniZX {
             this.B(var34);
             if(this.B() == 0) {
                this.pc('\ue370', 1);
-               this.ret();
                return;
             }
          }
@@ -37624,7 +36735,6 @@ public class Emlyn extends MiniZX {
             this.B(var36);
             if(this.B() == 0) {
                this.pc('\ue391', 1);
-               this.ret();
                return;
             }
          } else {
@@ -37640,7 +36750,6 @@ public class Emlyn extends MiniZX {
             this.B(var34);
             if(this.B() == 0) {
                this.pc('\ue396', 1);
-               this.ret();
                return;
             }
          }
@@ -37727,7 +36836,6 @@ public class Emlyn extends MiniZX {
             this.B(var36);
             if(this.B() == 0) {
                this.pc('\ue3b7', 1);
-               this.ret();
                return;
             }
          } else {
@@ -37743,7 +36851,6 @@ public class Emlyn extends MiniZX {
             this.B(var34);
             if(this.B() == 0) {
                this.pc('\ue3bc', 1);
-               this.ret();
                return;
             }
          }
@@ -37830,7 +36937,6 @@ public class Emlyn extends MiniZX {
             this.B(var36);
             if(this.B() == 0) {
                this.pc('\ue3dd', 1);
-               this.ret();
                return;
             }
          } else {
@@ -37846,7 +36952,6 @@ public class Emlyn extends MiniZX {
             this.B(var34);
             if(this.B() == 0) {
                this.pc('\ue3e2', 1);
-               this.ret();
                return;
             }
          }
@@ -37933,7 +37038,6 @@ public class Emlyn extends MiniZX {
             this.B(var36);
             if(this.B() == 0) {
                this.pc('\ue403', 1);
-               this.ret();
                return;
             }
          } else {
@@ -37949,7 +37053,6 @@ public class Emlyn extends MiniZX {
             this.B(var34);
             if(this.B() == 0) {
                this.pc('\ue408', 1);
-               this.ret();
                return;
             }
          }
@@ -38036,7 +37139,6 @@ public class Emlyn extends MiniZX {
             this.B(var36);
             if(this.B() == 0) {
                this.pc('\ue429', 1);
-               this.ret();
                return;
             }
          } else {
@@ -38052,7 +37154,6 @@ public class Emlyn extends MiniZX {
             this.B(var34);
             if(this.B() == 0) {
                this.pc('\ue42e', 1);
-               this.ret();
                return;
             }
          }
@@ -38139,7 +37240,6 @@ public class Emlyn extends MiniZX {
             this.B(var36);
             if(this.B() == 0) {
                this.pc('\ue44f', 1);
-               this.ret();
                return;
             }
          } else {
@@ -38155,7 +37255,6 @@ public class Emlyn extends MiniZX {
             this.B(var34);
             if(this.B() == 0) {
                this.pc('\ue454', 1);
-               this.ret();
                return;
             }
          }
@@ -38170,7 +37269,6 @@ public class Emlyn extends MiniZX {
    public void $FD37() {
       while(true) {
          this.pc('\ufd37', 1);
-         this.call('\ufd3a');
          this.$FE77();
          this.pc('\ufd3a', 1);
          int var1 = this.A();
@@ -38184,18 +37282,14 @@ public class Emlyn extends MiniZX {
             this.pc('\ufd43', 1);
             this.HL(16576);
             this.pc('\ufd46', 1);
-            this.call('\ufd49');
             this.$C1CD();
             this.pc('\ufd49', 1);
             this.DE(19283);
             this.pc('\ufd4c', 1);
-            this.call('\ufd4f');
             this.$FE58();
             this.pc('\ufd4f', 1);
-            this.call('\ufd52');
             this.$FE77();
             this.pc('\ufd52', 1);
-            this.call('\ufd55');
             this.$FE8A();
             this.pc('\ufd55', 1);
             int var29 = this.HL();
@@ -38252,27 +37346,22 @@ public class Emlyn extends MiniZX {
             this.pc('\ufd7b', 1);
             this.HL(18445);
             this.pc('\ufd7e', 1);
-            this.call('\ufd81');
             this.$FEA8();
             this.pc('\ufd81', 1);
             this.L(77);
             this.pc('\ufd83', 1);
-            this.call('\ufd86');
             this.$FEA8();
             this.pc('\ufd86', 1);
             this.L(141);
             this.pc('\ufd88', 1);
-            this.call('\ufd8b');
             this.$FEA8();
             this.pc('\ufd8b', 1);
             this.L(205);
             this.pc('\ufd8d', 1);
-            this.call('\ufd90');
             this.$FEA8();
             this.pc('\ufd90', 1);
             this.HL(20493);
             this.pc('\ufd93', 1);
-            this.call('\ufd96');
             this.$FEA8();
          }
 
@@ -38283,12 +37372,10 @@ public class Emlyn extends MiniZX {
          this.pc('\ufd9b', 1);
          this.HL(20704);
          this.pc('\ufd9e', 1);
-         this.call('\ufda1');
          this.$C1CD();
          this.pc('\ufda1', 1);
          this.DE(22862);
          this.pc('\ufda4', 1);
-         this.call('\ufda7');
          this.$FE58();
          this.pc('\ufda7', 1);
          int var2 = this.A();
@@ -38397,7 +37484,6 @@ public class Emlyn extends MiniZX {
          this.pc('\ufd10', 1);
          this.HL('\uff1e');
          this.pc('\ufd13', 1);
-         this.call('\ufd16');
          this.$DD52();
          this.pc('\ufd16', 1);
          this.ei();
@@ -38408,7 +37494,6 @@ public class Emlyn extends MiniZX {
          this.pc('\ufd1d', 1);
          this.B(43);
          this.pc('\ufd1f', 1);
-         this.call('\ufd22');
          this.$C1CD();
          this.pc('\ufd22', 1);
          this.DE('\ufde7');
@@ -38417,7 +37502,6 @@ public class Emlyn extends MiniZX {
          this.pc('\ufd27', 1);
          this.B(27);
          this.pc('\ufd29', 1);
-         this.call('\ufd2c');
          this.$C1CD();
          this.pc('\ufd2c', 1);
          this.A(32);
@@ -38427,7 +37511,6 @@ public class Emlyn extends MiniZX {
          this.pc('\ufd31', 1);
          this.DE(19274);
          this.pc('\ufd34', 1);
-         this.call('\ufd37');
          this.$FE58();
       }
    }
@@ -38435,7 +37518,6 @@ public class Emlyn extends MiniZX {
    public void $FE58() {
       if(!this.isNextPC('\ufe5b')) {
          this.pc('\ufe58', 1);
-         this.call('\ufe5b');
          this.$FE61();
       }
 
@@ -38446,7 +37528,6 @@ public class Emlyn extends MiniZX {
          this.alu("cp", var2, var1);
          this.pc('\ufe5c', 1);
          if(this.flag(64, false)) {
-            this.ret();
             return;
          }
 
@@ -38457,12 +37538,10 @@ public class Emlyn extends MiniZX {
          this.pc('\ufe5e', 1);
          if(!this.flag(64, true)) {
             this.pc('\ufe60', 1);
-            this.ret();
             return;
          }
 
          this.pc('\ufe58', 1);
-         this.call('\ufe5b');
          this.$FE61();
       }
    }
@@ -38492,7 +37571,6 @@ public class Emlyn extends MiniZX {
             this.alu("cp", var6, 97);
             this.pc('\ufe70', 1);
             if(this.flag(1, false)) {
-               this.ret();
                return;
             }
 
@@ -38501,7 +37579,6 @@ public class Emlyn extends MiniZX {
             this.alu("cp", var7, 123);
             this.pc('\ufe73', 1);
             if(this.flag(1, true)) {
-               this.ret();
                return;
             }
 
@@ -38510,7 +37587,6 @@ public class Emlyn extends MiniZX {
             int var9 = this.alu("sub", var8, 32);
             this.A(var9);
             this.pc('\ufe76', 1);
-            this.ret();
             return;
          }
 
@@ -38545,13 +37621,11 @@ public class Emlyn extends MiniZX {
       int var8 = this.A();
       this.L(var8);
       this.pc('\ufe83', 1);
-      this.call('\ufe86');
       this.$C1CD();
       this.pc('\ufe86', 1);
       int var9 = this.mem('\ufe4c', '\ufe86');
       this.A(var9);
       this.pc('\ufe89', 1);
-      this.ret();
    }
 
    public void $FE8A() {
@@ -38595,14 +37669,12 @@ public class Emlyn extends MiniZX {
       int var11 = this.alu("add16", var10, var9);
       this.HL(var11);
       this.pc('\ufea7', 1);
-      this.ret();
    }
 
    public void $FEA8() {
       this.pc('\ufea8', 1);
       this.B(5);
       this.pc('\ufeaa', 1);
-      this.call('\ufead');
       this.$C1CD();
       this.pc('\ufead', 1);
       int var1 = this.DE();
@@ -38614,7 +37686,6 @@ public class Emlyn extends MiniZX {
       while(true) {
          label35: {
             this.pc('\ufeaf', 1);
-            this.call('\ufeb2');
             this.$FE61();
             this.pc('\ufeb2', 1);
             int var3 = this.A();
@@ -38632,7 +37703,6 @@ public class Emlyn extends MiniZX {
 
             this.pc('\ufeba', 1);
             if(this.flag(128, false)) {
-               this.call('\ufebd');
                this.$FCFC();
             }
          }
@@ -38701,7 +37771,6 @@ public class Emlyn extends MiniZX {
                      if(this.B() == 0) {
                         this.pc('\ufef8', 1);
                         if(this.flag(128, false)) {
-                           this.call('\ufefb');
                            this.$FCFC();
                         }
                         break;
@@ -38726,10 +37795,8 @@ public class Emlyn extends MiniZX {
                   int var23 = this.mem('\ufe4c', '\uff00');
                   this.A(var23);
                   this.pc('\uff03', 1);
-                  this.call('\uff06');
                   this.$FE77();
                   this.pc('\uff06', 1);
-                  this.call('\uff09');
                   this.$FE8A();
                   this.pc('\uff09', 1);
                   int var24 = this.mem('\ufe4c', '\uff09');
@@ -38785,7 +37852,6 @@ public class Emlyn extends MiniZX {
                   int var48 = this.pop();
                   this.DE(var48);
                   this.pc('\uff1d', 1);
-                  this.ret();
                   return;
                }
             }

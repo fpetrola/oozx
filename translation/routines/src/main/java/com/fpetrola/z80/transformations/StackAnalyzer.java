@@ -51,6 +51,11 @@ public class StackAnalyzer {
   public MultiValuedMap<Integer, Integer> dynamicInvocation = new HashSetValuedHashMap<>();
   public final Map<Integer, Integer> callContinuations = new HashMap<>();
   public final Set<Integer> shiftedReturns = new HashSet<>();
+  public final MultiValuedMap<Integer, Integer> dataConsumedBy = new HashSetValuedHashMap<>();
+  public final MultiValuedMap<Integer, Integer> dataOnTopAt = new HashSetValuedHashMap<>();
+  public final Set<Integer> poppedCallSites = new HashSet<>();
+  public final Set<Integer> returnsConsumedBy = new HashSet<>();
+  public final MultiValuedMap<Integer, Integer> pushedValues = new HashSetValuedHashMap<>();
   public static boolean collecting;
   private int pcValue;
   private final List<Integer> simulatedRets = new ArrayList<>();
@@ -139,6 +144,9 @@ public class StackAnalyzer {
     if (!initialized)
       init();
     lastEvent = null;
+    Entry top = entryAtSp();
+    if (top != null && !top.returnAddress() && top.pc() != -1)
+      dataOnTopAt.put(pcValue, top.pc());
     instruction.accept(new InstructionVisitor<>() {
       public void visitingPop(Pop pop) {
         Entry entry = entryAtSp();
@@ -278,7 +286,11 @@ public class StackAnalyzer {
           return false;
         Entry consumedReturn = consumedReturns.get(poppedSlot());
         Entry entry = entries.remove(poppedSlot());
+        if (entry != null && entry.returnAddress())
+          returnsConsumedBy.add(pcValue);
         if (entry != null && !entry.returnAddress()) {
+          if (entry.pc() != -1)
+            dataConsumedBy.put(pcValue, entry.pc());
           consumedReturns.remove(poppedSlot());
           if (!simulatedRets.contains(nextPC))
             jumpingUsingRet(ret, nextPC, consumedReturn);
@@ -289,8 +301,11 @@ public class StackAnalyzer {
       public void visitingPop(Pop pop) {
         int slot = poppedSlot();
         Entry entry = entries.remove(slot);
-        if (entry != null && entry.returnAddress())
+        if (entry != null && entry.returnAddress()) {
           consumedReturns.put(slot, entry);
+          if (entry.pc() != -1)
+            poppedCallSites.add(entry.pc());
+        }
       }
 
       private int poppedSlot() {
@@ -302,7 +317,30 @@ public class StackAnalyzer {
 
   private void remember(boolean returnAddress) {
     int sp = state.getRegisterSP().read();
-    entries.put(sp, new Entry(state.getMemory().read16Bits(sp), state.getPc().read(), returnAddress));
+    Entry entry = new Entry(state.getMemory().read16Bits(sp), state.getPc().read(), returnAddress);
+    entries.put(sp, entry);
+    if (!returnAddress)
+      pushedValues.put(entry.pc(), entry.value());
+  }
+
+  public void forgetLearned() {
+    shiftedReturns.clear();
+    dataConsumedBy.clear();
+    dataOnTopAt.clear();
+    poppedCallSites.clear();
+    returnsConsumedBy.clear();
+    pushedValues.clear();
+  }
+
+  public void learnFrom(StackAnalyzer recorded) {
+    dynamicInvocation.putAll(recorded.dynamicInvocation);
+    callContinuations.putAll(recorded.callContinuations);
+    shiftedReturns.addAll(recorded.shiftedReturns);
+    dataConsumedBy.putAll(recorded.dataConsumedBy);
+    dataOnTopAt.putAll(recorded.dataOnTopAt);
+    poppedCallSites.addAll(recorded.poppedCallSites);
+    returnsConsumedBy.addAll(recorded.returnsConsumedBy);
+    pushedValues.putAll(recorded.pushedValues);
   }
 
   public Set<Integer> getInvocationsSet(int pcValue1) {

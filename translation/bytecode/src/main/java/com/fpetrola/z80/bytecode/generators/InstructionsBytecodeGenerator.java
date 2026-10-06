@@ -35,6 +35,7 @@ import org.cojen.maker.Label;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -54,7 +55,8 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   @Override
   public void visitPush(Push push) {
     Register target = (Register) push.getTarget();
-    methodMaker.invoke("push", routineByteCodeGenerator.getExistingVariable(target).get());
+    if (routineByteCodeGenerator.plantedContinuation(address) == null)
+      methodMaker.invoke("push", routineByteCodeGenerator.getExistingVariable(target).get());
   }
 
   @Override
@@ -345,11 +347,20 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   public boolean visitingRet(Ret ret) {
     StackAnalyzer stackAnalyzer = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer();
     int pcValue = routineByteCodeGenerator.context.pc.read();
-
-    Set invocationsSet = stackAnalyzer.getInvocationsSet(pcValue);
+    List<Integer> ownPushes = routineByteCodeGenerator.ownPushesConsumedAt(pcValue);
+    Set<Integer> invocationsSet = stackAnalyzer.getInvocationsSet(pcValue);
+    boolean consumesData = stackAnalyzer.dataConsumedBy.containsKey(pcValue) ? !ownPushes.isEmpty() && !stackAnalyzer.returnsConsumedBy.contains(pcValue) : !invocationsSet.isEmpty();
+    Integer continuation = ownPushes.size() == 1 ? routineByteCodeGenerator.plantedContinuation(ownPushes.get(0)) : null;
     createIfs(ret, () -> {
-      Variable poppedValue = methodMaker.invoke("ret");
-      invokeDynamicCall(invocationsSet, poppedValue);
+      if (continuation != null)
+        routineByteCodeGenerator.invokeTransformedMethod(continuation);
+      else if (consumesData) {
+        Variable poppedValue = methodMaker.invoke("pop");
+        if (!stackAnalyzer.shiftedReturns.contains(pcValue)) {
+          invokeDynamicCall(invocationsSet, poppedValue);
+          methodMaker.invoke("jump", poppedValue);
+        }
+      }
       routineByteCodeGenerator.returnFromMethod();
     });
     return true;
@@ -358,9 +369,11 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   public boolean visitingCall(Call call) {
     int jumpLabel = call.getJumpAddress();
     RegisterName trampoline = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().trampolineRegister(jumpLabel);
-    int returnAddress = routineByteCodeGenerator.context.routineManager.addressAfter(routineByteCodeGenerator.context.pc.read());
+    int callSite = routineByteCodeGenerator.context.pc.read();
+    int returnAddress = routineByteCodeGenerator.context.routineManager.addressAfter(callSite);
     createIfs(call, () -> {
-      methodMaker.invoke("call", returnAddress);
+      if (routineByteCodeGenerator.pushesReturnAddress(callSite))
+        methodMaker.invoke("push", returnAddress);
       if (routineByteCodeGenerator.context.routineManager.findRoutineAt(jumpLabel) != null)
         routineByteCodeGenerator.invokeTransformedMethod(jumpLabel);
       else if (trampoline != null)
@@ -415,6 +428,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
           incPopsAdded = true;
         } else {
           routineByteCodeGenerator.jumpInto(i);
+          routineByteCodeGenerator.leaveWithOwnData(address);
           methodMaker.return_();
         }
         routineByteCodeGenerator.returnFromMethod();
@@ -521,6 +535,8 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   private boolean invokeDynamicCall(Set<Integer> invocationsSet, Variable existingVariable) {
     int pcValue1 = routineByteCodeGenerator.context.pc.read();
     boolean isSimulatedCall = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().getSimulatedCallsPcs().contains(pcValue1);
+    if (isSimulatedCall)
+      methodMaker.invoke("pop");
     invocationsSet.forEach(c -> {
       existingVariable.ifEq(c, () -> {
         Label label = routineByteCodeGenerator.getLabel(c);

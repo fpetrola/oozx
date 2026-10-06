@@ -14,10 +14,8 @@ public class Game extends MiniZX {
       label43:
       while(true) {
          this.pc('\u80e5', 1);
-         this.call('\u80e8');
          this.$B8ED();
          this.pc('\u80e8', 1);
-         this.call('\u80eb');
          this.$B471();
 
          while(true) {
@@ -28,7 +26,6 @@ public class Game extends MiniZX {
                this.pc('\u80ee', 1);
                this.DE(3);
                this.pc('\u80f1', 1);
-               this.call('\u80f4');
                this.$B8C4();
                this.pc('\u80f4', 1);
                this.HL(32311);
@@ -74,7 +71,6 @@ public class Game extends MiniZX {
                this.pc('\u8104', 1);
                this.E(3);
                this.pc('\u8106', 1);
-               this.call('\u8109');
                this.$B8C4();
 
                do {
@@ -84,7 +80,6 @@ public class Game extends MiniZX {
                   int var20 = this.A();
                   this.wMem('\ub4e9', var20, '\u810b');
                   this.pc('\u810e', 1);
-                  this.call('\u8111');
                   this.$B482();
                   this.pc('\u8111', 1);
                   int var21 = this.mem('\ub55f', '\u8111');
@@ -97,16 +92,12 @@ public class Game extends MiniZX {
                   this.pc('\u8115', 1);
                   if(this.flag(64, true)) {
                      this.pc('\u8155', 1);
-                     this.call('\u8158');
                      this.$BAD8();
                      this.pc('\u8158', 1);
-                     this.call('\u815b');
                      this.$B8ED();
                      this.pc('\u815b', 1);
-                     this.call('\u815e');
                      this.$E3FD();
                      this.pc('\u815e', 1);
-                     this.call('\u8161');
                      this.$813B();
                      this.pc('\u8161', 1);
                      int var25 = this.A();
@@ -131,12 +122,10 @@ public class Game extends MiniZX {
                            int var40 = this.A();
                            this.wMem('\u813a', var40, '\u816f');
                            this.pc('\u8172', 1);
-                           this.call('\u8175');
                            this.$B952();
                         }
 
                         this.pc('\u8175', 1);
-                        this.call('\u8178');
                         this.$81AE();
                         this.pc('\u8178', 1);
                         int var30 = this.A();
@@ -172,7 +161,6 @@ public class Game extends MiniZX {
                   this.pc('\u811c', 1);
                   if(!this.flag(64, true)) {
                      this.pc('\u811e', 1);
-                     this.call('\u8121');
                      this.$B2DC();
                      this.pc('\u8121', 1);
                      continue label39;
@@ -184,7 +172,6 @@ public class Game extends MiniZX {
                   this.pc('\u8125', 1);
                   if(!this.flag(64, true)) {
                      this.pc('\u8127', 1);
-                     this.call('\u812a');
                      this.$B2E2();
                      this.pc('\u812a', 1);
                      continue label39;
@@ -196,7 +183,6 @@ public class Game extends MiniZX {
                   this.pc('\u812e', 1);
                   if(!this.flag(64, true)) {
                      this.pc('\u8130', 1);
-                     this.call('\u8133');
                      this.$B2E8();
                      this.pc('\u8133', 1);
                      continue label39;
@@ -209,7 +195,6 @@ public class Game extends MiniZX {
                } while(this.flag(64, true));
 
                this.pc('\u8139', 1);
-               this.ret();
                return;
             }
          }
@@ -218,7 +203,6 @@ public class Game extends MiniZX {
 
    public void $813B() {
       this.pc('\u813b', 1);
-      this.call('\u813e');
       this.$B952();
       this.pc('\u813e', 1);
       this.BC(20);
@@ -228,16 +212,12 @@ public class Game extends MiniZX {
          int var1 = this.BC();
          this.push(var1);
          this.pc('\u8142', 1);
-         this.call('\u8145');
          this.$EEA2();
          this.pc('\u8145', 1);
-         this.call('\u8148');
          this.$F578();
          this.pc('\u8148', 1);
-         this.call('\u814b');
          this.$B9D6();
          this.pc('\u814b', 1);
-         this.call('\u814e');
          this.$B9FB();
          this.pc('\u814e', 1);
          int var2 = this.pop();
@@ -258,7 +238,6 @@ public class Game extends MiniZX {
       } while(this.flag(64, true));
 
       this.pc('\u8154', 1);
-      this.ret();
    }
 
    public void $8184() {
@@ -284,43 +263,31 @@ public class Game extends MiniZX {
                }
 
                this.pc('\u8188', 1);
-               this.call('\u818b');
                this.$80E5();
                this.pc('\u818b', 1);
-               this.call('\u818e');
                this.$BAD8();
                this.pc('\u818e', 1);
-               this.call('\u8191');
                this.$E3FD();
                this.pc('\u8191', 1);
-               this.call('\u8194');
                this.$813B();
             }
 
             while(true) {
                this.pc('\u8194', 1);
-               this.call('\u8197');
                this.$EB55();
                this.pc('\u8197', 1);
-               this.call('\u819a');
                this.$EABF();
                this.pc('\u819a', 1);
-               this.call('\u819d');
                this.$AC06();
                this.pc('\u819d', 1);
-               this.call('\u81a0');
                this.$E79B();
                this.pc('\u81a0', 1);
-               this.call('\u81a3');
                this.$B09F();
                this.pc('\u81a3', 1);
-               this.call('\u81a6');
                this.$81AE();
                this.pc('\u81a6', 1);
-               this.call('\u81a9');
                this.$81C4();
                this.pc('\u81a9', 1);
-               this.call('\u81ac');
                this.$ED2A();
                this.pc('\u81ac', 1);
             }
@@ -335,28 +302,20 @@ public class Game extends MiniZX {
 
    public void $81AE() {
       this.pc('\u81ae', 1);
-      this.call('\u81b1');
       this.$BAB4();
       this.pc('\u81b1', 1);
-      this.call('\u81b4');
       this.$A92C();
       this.pc('\u81b4', 1);
-      this.call('\u81b7');
       this.$EEC1();
       this.pc('\u81b7', 1);
-      this.call('\u81ba');
       this.$F10E();
       this.pc('\u81ba', 1);
-      this.call('\u81bd');
       this.$F814();
       this.pc('\u81bd', 1);
-      this.call('\u81c0');
       this.$F277();
       this.pc('\u81c0', 1);
-      this.call('\u81c3');
       this.$B9D6();
       this.pc('\u81c3', 1);
-      this.ret();
    }
 
    public void $81C4() {
@@ -386,7 +345,6 @@ public class Game extends MiniZX {
          this.bit(0, var9);
          this.pc('\u81d0', 1);
          if(this.flag(64, true)) {
-            this.ret();
             return;
          }
 
@@ -462,7 +420,6 @@ public class Game extends MiniZX {
       this.pc('\u81f6', 1);
       this.exx();
       this.pc('\u81f7', 1);
-      this.ret();
    }
 
    public void $A83D() {
@@ -614,107 +571,107 @@ public class Game extends MiniZX {
          int var65 = this.pop();
          this.DE(var65);
          this.pc('\ua87a', 1);
-         this.B(0);
+         int var66 = this.mem('\ua87b', '\ua87a');
+         this.B(var66);
          this.pc('\ua87c', 1);
-         int var66 = this.B();
-         int var67 = this.alu("dec", var66);
-         this.B(var67);
+         int var67 = this.B();
+         int var68 = this.alu("dec", var67);
+         this.B(var68);
          this.pc('\ua87d', 1);
          if(!this.flag(64, false)) {
             this.pc('\ua87f', 1);
-            int var93 = this.A();
             int var94 = this.A();
-            int var95 = this.alu("xor", var94, var93);
-            this.A(var95);
+            int var95 = this.A();
+            int var96 = this.alu("xor", var95, var94);
+            this.A(var96);
 
             do {
                this.pc('\ua880', 2);
-               int var96 = this.E();
-               int var97 = this.alu("srl", var96);
-               this.E(var97);
+               int var97 = this.E();
+               int var98 = this.alu("srl", var97);
+               this.E(var98);
                this.pc('\ua882', 2);
-               int var98 = this.D();
-               int var99 = this.alu("rr", var98);
-               this.D(var99);
+               int var99 = this.D();
+               int var100 = this.alu("rr", var99);
+               this.D(var100);
                this.pc('\ua884', 1);
-               int var100 = this.A();
-               int var101 = this.alu("rra", var100);
-               this.A(var101);
+               int var101 = this.A();
+               int var102 = this.alu("rra", var101);
+               this.A(var102);
                this.pc('\ua885', 1);
-               int var102 = this.B() - 1 & 255;
-               this.B(var102);
+               int var103 = this.B() - 1 & 255;
+               this.B(var103);
             } while(this.B() != 0);
 
             this.pc('\ua887', 1);
-            int var103 = this.HL();
-            int var104 = this.mem(var103, '\ua887');
-            int var105 = this.A();
-            int var106 = this.alu("or", var105, var104);
-            this.A(var106);
+            int var104 = this.HL();
+            int var105 = this.mem(var104, '\ua887');
+            int var106 = this.A();
+            int var107 = this.alu("or", var106, var105);
+            this.A(var107);
             this.pc('\ua888', 1);
-            int var107 = this.A();
-            int var108 = this.HL();
-            this.wMem(var108, var107, '\ua888');
+            int var108 = this.A();
+            int var109 = this.HL();
+            this.wMem(var109, var108, '\ua888');
          }
 
          this.pc('\ua889', 1);
-         int var68 = this.HL();
-         int var69 = this.dec16(var68);
-         this.HL(var69);
+         int var69 = this.HL();
+         int var70 = this.dec16(var69);
+         this.HL(var70);
          this.pc('\ua88a', 1);
-         int var70 = this.HL();
-         int var71 = this.mem(var70, '\ua88a');
-         this.A(var71);
+         int var71 = this.HL();
+         int var72 = this.mem(var71, '\ua88a');
+         this.A(var72);
          this.pc('\ua88b', 1);
-         int var72 = this.D();
-         int var73 = this.A();
-         int var74 = this.alu("or", var73, var72);
-         this.A(var74);
+         int var73 = this.D();
+         int var74 = this.A();
+         int var75 = this.alu("or", var74, var73);
+         this.A(var75);
          this.pc('\ua88c', 1);
-         int var75 = this.A();
-         int var76 = this.HL();
-         this.wMem(var76, var75, '\ua88c');
-         this.pc('\ua88d', 1);
+         int var76 = this.A();
          int var77 = this.HL();
-         int var78 = this.dec16(var77);
-         this.HL(var78);
+         this.wMem(var77, var76, '\ua88c');
+         this.pc('\ua88d', 1);
+         int var78 = this.HL();
+         int var79 = this.dec16(var78);
+         this.HL(var79);
          this.pc('\ua88e', 1);
-         int var79 = this.HL();
-         int var80 = this.mem(var79, '\ua88e');
-         this.A(var80);
+         int var80 = this.HL();
+         int var81 = this.mem(var80, '\ua88e');
+         this.A(var81);
          this.pc('\ua88f', 1);
-         int var81 = this.E();
-         int var82 = this.A();
-         int var83 = this.alu("or", var82, var81);
-         this.A(var83);
+         int var82 = this.E();
+         int var83 = this.A();
+         int var84 = this.alu("or", var83, var82);
+         this.A(var84);
          this.pc('\ua890', 1);
-         int var84 = this.A();
-         int var85 = this.HL();
-         this.wMem(var85, var84, '\ua890');
+         int var85 = this.A();
+         int var86 = this.HL();
+         this.wMem(var86, var85, '\ua890');
          this.pc('\ua891', 1);
          this.DE(34);
          this.pc('\ua894', 1);
-         int var86 = this.DE();
-         int var87 = this.HL();
-         int var88 = this.alu("add16", var87, var86);
-         this.HL(var88);
+         int var87 = this.DE();
+         int var88 = this.HL();
+         int var89 = this.alu("add16", var88, var87);
+         this.HL(var89);
          this.pc('\ua895', 1);
-         int var89 = this.C();
-         int var90 = this.alu("dec", var89);
-         this.C(var90);
+         int var90 = this.C();
+         int var91 = this.alu("dec", var90);
+         this.C(var91);
          this.pc('\ua896', 1);
       } while(this.flag(64, true));
 
       this.pc('\ua899', 2);
-      int var91 = this.mem16('\ua83b', '\ua899');
-      this.SP(var91);
+      int var92 = this.mem16('\ua83b', '\ua899');
+      this.SP(var92);
       this.pc('\ua89d', 1);
-      int var92 = this.pop();
-      this.AF(var92);
+      int var93 = this.pop();
+      this.AF(var93);
       this.pc('\ua89e', 1);
       this.exx();
       this.pc('\ua89f', 1);
-      this.ret();
    }
 
    public void $A8A0() {
@@ -1058,7 +1015,6 @@ public class Game extends MiniZX {
       int var120 = this.pop();
       this.AF(var120);
       this.pc('\ua920', 1);
-      this.ret();
    }
 
    public void $A921() {
@@ -1082,7 +1038,6 @@ public class Game extends MiniZX {
       int var9 = this.alu("sbc16", var8, var7);
       this.HL(var9);
       this.pc('\ua92b', 1);
-      this.ret();
    }
 
    public void $A92C() {
@@ -1124,7 +1079,6 @@ public class Game extends MiniZX {
          this.pc('\ua943', 1);
          if(!this.flag(64, true)) {
             this.pc('\ua945', 1);
-            this.call('\ua948');
             this.$A921();
             this.pc('\ua948', 1);
             if(!this.flag(64, true)) {
@@ -1159,7 +1113,6 @@ public class Game extends MiniZX {
                this.pc('\ua958', 1);
                if(this.flag(64, true)) {
                   this.pc('\ua991', 1);
-                  this.call('\ua994');
                   this.$AFC4();
                   this.pc('\ua994', 2);
                   int var55 = this.IY() + 70;
@@ -1173,7 +1126,6 @@ public class Game extends MiniZX {
                   this.pc('\ua998', 1);
                   if(!this.flag(64, false)) {
                      this.pc('\ua99a', 1);
-                     this.call('\ua99d');
                      this.$B1B9();
                      this.pc('\ua99d', 1);
                      break label89;
@@ -1191,7 +1143,6 @@ public class Game extends MiniZX {
                   this.pc('\ua9a4', 1);
                   if(!this.flag(64, false)) {
                      this.pc('\ua9a6', 1);
-                     this.call('\ua9a9');
                      this.$B197();
                      this.pc('\ua9a9', 1);
                      break label89;
@@ -1226,7 +1177,6 @@ public class Game extends MiniZX {
                      }
 
                      this.pc('\ua9be', 1);
-                     this.call('\ua9c1');
                      this.$B288();
                      this.pc('\ua9c1', 1);
                      break label89;
@@ -1237,7 +1187,6 @@ public class Game extends MiniZX {
                   int var69 = this.mem(var68, '\ua9ca');
                   this.B(var69);
                   this.pc('\ua9cd', 1);
-                  this.call('\ua9d0');
                   this.$AA8C();
                   this.pc('\ua9d0', 1);
                   int var70 = this.HL();
@@ -1272,7 +1221,6 @@ public class Game extends MiniZX {
                   }
 
                   this.pc('\ua9e3', 1);
-                  this.call('\ua9e6');
                   this.$B288();
                   this.pc('\ua9e6', 1);
                   int var81 = this.pop();
@@ -1292,7 +1240,6 @@ public class Game extends MiniZX {
                   int var86 = this.mem(var85, '\ua9ed');
                   this.B(var86);
                   this.pc('\ua9f0', 1);
-                  this.call('\ua9f3');
                   this.$AA30();
                   this.pc('\ua9f3', 2);
                   int var87 = this.IY() + -20;
@@ -1342,7 +1289,6 @@ public class Game extends MiniZX {
                   int var104 = this.mem(var103, '\uaa10');
                   this.E(var104);
                   this.pc('\uaa11', 1);
-                  this.call('\uaa14');
                   this.$AE8A();
                   this.pc('\uaa14', 1);
                   int var105 = this.B();
@@ -1356,7 +1302,6 @@ public class Game extends MiniZX {
                   if(!this.flag(64, true)) {
                      do {
                         this.pc('\uaa18', 1);
-                        this.call('\uaa1b');
                         this.$AED7();
                         this.pc('\uaa1b', 1);
                         this.C(0);
@@ -1384,7 +1329,6 @@ public class Game extends MiniZX {
                   int var112 = this.C();
                   this.wMem(var111, var112, '\uaa27');
                   this.pc('\uaa2a', 1);
-                  this.call('\uaa2d');
                   this.$ADBA();
                   this.pc('\uaa2d', 1);
                   break label89;
@@ -1392,7 +1336,6 @@ public class Game extends MiniZX {
             }
 
             this.pc('\ua95b', 1);
-            this.call('\ua95e');
             this.$AFC4();
             this.pc('\ua95e', 2);
             int var19 = this.IY() + 70;
@@ -1406,7 +1349,6 @@ public class Game extends MiniZX {
             this.pc('\ua962', 1);
             if(!this.flag(64, false)) {
                this.pc('\ua964', 1);
-               this.call('\ua967');
                this.$B1B9();
                this.pc('\ua967', 1);
             } else {
@@ -1422,7 +1364,6 @@ public class Game extends MiniZX {
                this.pc('\ua96e', 1);
                if(!this.flag(64, false)) {
                   this.pc('\ua970', 1);
-                  this.call('\ua973');
                   this.$B197();
                   this.pc('\ua973', 1);
                } else {
@@ -1467,6 +1408,7 @@ public class Game extends MiniZX {
                   int var44 = this.DE();
                   this.push(var44);
                   this.pc('\ua988', 1);
+                  this.pop();
                   if(this.HL() == '\uab60') {
                      this.$AB60();
                   }
@@ -1514,7 +1456,6 @@ public class Game extends MiniZX {
       int var49 = this.pop();
       this.IY(var49);
       this.pc('\ua990', 1);
-      this.ret();
    }
 
    public void $AA30() {
@@ -1522,7 +1463,6 @@ public class Game extends MiniZX {
       int var1 = this.HL();
       this.push(var1);
       this.pc('\uaa31', 1);
-      this.call('\uaa34');
       this.$AA8C();
       this.pc('\uaa34', 1);
       int var2 = this.HL();
@@ -1563,7 +1503,6 @@ public class Game extends MiniZX {
                int var61 = this.HL();
                this.push(var61);
                this.pc('\uaa43', 1);
-               this.call('\uaa46');
                this.$A921();
                this.pc('\uaa46', 1);
                int var62 = this.pop();
@@ -1651,11 +1590,9 @@ public class Game extends MiniZX {
             int var60 = this.E();
             this.wMem(var59, var60, '\uaa6b');
             this.pc('\uaa6e', 1);
-            this.call('\uaa71');
             this.$A921();
             this.pc('\uaa71', 1);
             if(this.flag(64, false)) {
-               this.call('\uaa74');
                this.$E41D();
             }
          }
@@ -1671,7 +1608,6 @@ public class Game extends MiniZX {
       this.alu("cp", var17, var16);
       this.pc('\uaa7a', 1);
       if(this.flag(64, false)) {
-         this.call('\uaa7d');
          this.$AA7F();
       }
 
@@ -1679,7 +1615,6 @@ public class Game extends MiniZX {
       int var18 = this.pop();
       this.HL(var18);
       this.pc('\uaa7e', 1);
-      this.ret();
    }
 
    public void $AA7F() {
@@ -1690,10 +1625,8 @@ public class Game extends MiniZX {
       this.pc('\uaa85', 1);
       this.HL(5121);
       this.pc('\uaa88', 1);
-      this.call('\uaa8b');
       this.$E3D3();
       this.pc('\uaa8b', 1);
-      this.ret();
    }
 
    public void $AA8C() {
@@ -1704,7 +1637,6 @@ public class Game extends MiniZX {
       this.pc('\uaa8f', 1);
       this.HL('\ubce9');
       this.pc('\uaa92', 1);
-      this.call('\uaa95');
       this.$AC6C();
       this.pc('\uaa95', 1);
       int var3 = this.B();
@@ -1740,7 +1672,6 @@ public class Game extends MiniZX {
       }
 
       this.pc('\uaa9f', 1);
-      this.ret();
    }
 
    public void $AAB2() {
@@ -1785,7 +1716,6 @@ public class Game extends MiniZX {
       int var4 = this.IY() + 60;
       this.wMem(var4, 255, '\uaace');
       this.pc('\uaad2', 1);
-      this.call('\uaad5');
       this.$B288();
       this.pc('\uaad5', 2);
       int var5 = this.IY() + 5;
@@ -1801,7 +1731,6 @@ public class Game extends MiniZX {
          this.$AE5D();
       } else {
          this.pc('\uaadc', 1);
-         this.ret();
       }
    }
 
@@ -1847,7 +1776,6 @@ public class Game extends MiniZX {
       int var4 = this.IY() + 60;
       this.wMem(var4, 1, '\uaaf9');
       this.pc('\uaafd', 1);
-      this.call('\uab00');
       this.$B288();
       this.pc('\uab00', 2);
       int var5 = this.IY() + 5;
@@ -1861,7 +1789,6 @@ public class Game extends MiniZX {
          this.$AE5D();
       } else {
          this.pc('\uab08', 1);
-         this.ret();
       }
    }
 
@@ -1886,7 +1813,6 @@ public class Game extends MiniZX {
       }
 
       this.pc('\uab1a', 1);
-      this.call('\uab1d');
       this.$B288();
       this.pc('\uab1d', 2);
       int var5 = this.IY() + 5;
@@ -1900,7 +1826,6 @@ public class Game extends MiniZX {
          this.$AE5D();
       } else {
          this.pc('\uab25', 1);
-         this.ret();
       }
    }
 
@@ -1925,7 +1850,6 @@ public class Game extends MiniZX {
       }
 
       this.pc('\uab37', 1);
-      this.call('\uab3a');
       this.$B288();
       this.pc('\uab3a', 2);
       int var5 = this.IY() + 5;
@@ -1939,7 +1863,6 @@ public class Game extends MiniZX {
          this.$AE5D();
       } else {
          this.pc('\uab42', 1);
-         this.ret();
       }
    }
 
@@ -1964,7 +1887,6 @@ public class Game extends MiniZX {
       }
 
       this.pc('\uab54', 1);
-      this.call('\uab57');
       this.$B288();
       this.pc('\uab57', 2);
       int var5 = this.IY() + 5;
@@ -1978,7 +1900,6 @@ public class Game extends MiniZX {
          this.$AE5D();
       } else {
          this.pc('\uab5f', 1);
-         this.ret();
       }
    }
 
@@ -2012,7 +1933,6 @@ public class Game extends MiniZX {
          }
 
          this.pc('\uab78', 1);
-         this.call('\uab7b');
          this.$B288();
          this.pc('\uab7b', 2);
          int var16 = this.IY() + 5;
@@ -2023,7 +1943,6 @@ public class Game extends MiniZX {
          this.alu("cp", var18, 102);
          this.pc('\uab80', 1);
          if(this.flag(64, true)) {
-            this.ret();
             return;
          }
       } else {
@@ -2036,7 +1955,6 @@ public class Game extends MiniZX {
             int var6 = this.IY() + 60;
             this.wMem(var6, 255, '\uab8c');
             this.pc('\uab90', 1);
-            this.call('\uab93');
             this.$B288();
             this.pc('\uab93', 2);
             int var7 = this.IY() + 5;
@@ -2054,7 +1972,6 @@ public class Game extends MiniZX {
             }
 
             this.pc('\uab9a', 1);
-            this.ret();
             return;
          }
       }
@@ -2096,7 +2013,6 @@ public class Game extends MiniZX {
          }
 
          this.pc('\uabb3', 1);
-         this.call('\uabb6');
          this.$B288();
          this.pc('\uabb6', 2);
          int var14 = this.IY() + 5;
@@ -2107,7 +2023,6 @@ public class Game extends MiniZX {
          this.alu("cp", var16, 138);
          this.pc('\uabbb', 1);
          if(this.flag(64, true)) {
-            this.ret();
             return;
          }
       } else {
@@ -2120,7 +2035,6 @@ public class Game extends MiniZX {
             int var6 = this.IY() + 60;
             this.wMem(var6, 1, '\uabc7');
             this.pc('\uabcb', 1);
-            this.call('\uabce');
             this.$B288();
             this.pc('\uabce', 2);
             int var7 = this.IY() + 5;
@@ -2136,7 +2050,6 @@ public class Game extends MiniZX {
             }
 
             this.pc('\uabd6', 1);
-            this.ret();
             return;
          }
       }
@@ -2233,14 +2146,12 @@ public class Game extends MiniZX {
          int var18 = this.alu("xor", var17, var16);
          this.A(var18);
          this.pc('\uac05', 1);
-         this.ret();
          return;
       }
 
       this.pc('\uabe7', 1);
       this.A(1);
       this.pc('\uabe9', 1);
-      this.ret();
    }
 
    public void $AC06() {
@@ -2261,7 +2172,6 @@ public class Game extends MiniZX {
          this.pc('\uac0e', 1);
          if(!this.flag(64, false)) {
             this.pc('\uac10', 1);
-            this.call('\uac13');
             this.$ABD7();
             this.pc('\uac13', 1);
             int var60 = this.A();
@@ -2270,7 +2180,6 @@ public class Game extends MiniZX {
             this.A(var62);
             this.pc('\uac14', 1);
             if(this.flag(64, false)) {
-               this.ret();
                return;
             }
          }
@@ -2281,7 +2190,6 @@ public class Game extends MiniZX {
       int var7 = this.mem(var6, '\uac15');
       this.A(var7);
       this.pc('\uac18', 1);
-      this.call('\uac1b');
       this.$AC69();
       this.pc('\uac1b', 1);
       this.exHLDE();
@@ -2296,7 +2204,6 @@ public class Game extends MiniZX {
          this.alu("cp", var10, 255);
          this.pc('\uac1f', 1);
          if(this.flag(64, false)) {
-            this.ret();
             return;
          }
 
@@ -2320,7 +2227,6 @@ public class Game extends MiniZX {
          int var19 = this.inc16(var18);
          this.DE(var19);
          this.pc('\uac25', 1);
-         this.call('\uac28');
          this.$AC5F();
          this.pc('\uac28', 1);
          int var20 = this.HL();
@@ -2369,7 +2275,6 @@ public class Game extends MiniZX {
                int var41 = this.mem(var40, '\uac3d');
                this.A(var41);
                this.pc('\uac3e', 1);
-               this.call('\uac41');
                this.$AC5F();
                this.pc('\uac41', 1);
                int var42 = this.HL();
@@ -2412,12 +2317,10 @@ public class Game extends MiniZX {
                int var55 = this.A();
                this.wMem(var54, var55, '\uac52');
                this.pc('\uac55', 1);
-               this.call('\uac58');
                this.$B952();
 
                do {
                   this.pc('\uac58', 1);
-                  this.call('\uac5b');
                   this.$ABD7();
                   this.pc('\uac5b', 1);
                   int var56 = this.A();
@@ -2428,7 +2331,6 @@ public class Game extends MiniZX {
                } while(this.flag(64, true));
 
                this.pc('\uac5e', 1);
-               this.ret();
                return;
             }
          }
@@ -2460,7 +2362,6 @@ public class Game extends MiniZX {
       int var7 = this.A();
       this.L(var7);
       this.pc('\uac68', 1);
-      this.ret();
    }
 
    public void $AC69() {
@@ -2476,9 +2377,7 @@ public class Game extends MiniZX {
       int var3 = this.alu("or", var2, var1);
       this.A(var3);
       this.pc('\uac6d', 1);
-      if(this.flag(64, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, false)) {
          this.pc('\uac6e', 1);
          int var4 = this.BC();
          this.push(var4);
@@ -2510,7 +2409,6 @@ public class Game extends MiniZX {
          int var10 = this.pop();
          this.BC(var10);
          this.pc('\uac7e', 1);
-         this.ret();
       }
    }
 
@@ -2530,19 +2428,16 @@ public class Game extends MiniZX {
          int var95 = this.IY() + -20;
          this.wMem(var95, 1, '\uadc2');
          this.pc('\uadc6', 1);
-         this.ret();
       } else {
          this.pc('\uadc7', 1);
          this.D(255);
          this.pc('\uadc9', 1);
-         this.call('\uadcc');
          this.$AC69();
          this.pc('\uadcc', 2);
          int var6 = this.IY() + 15;
          int var7 = this.mem(var6, '\uadcc');
          this.A(var7);
          this.pc('\uadcf', 1);
-         this.call('\uadd2');
          this.$AE30();
          this.pc('\uadd2', 1);
          int var8 = this.A();
@@ -2619,12 +2514,10 @@ public class Game extends MiniZX {
                   int var32 = this.E();
                   this.wMem(var31, var32, '\uae2c');
                   this.pc('\uae2f', 1);
-                  this.ret();
                   return;
                }
 
                this.pc('\uadda', 1);
-               this.call('\uaddd');
                this.$AE30();
                this.pc('\uaddd', 1);
                int var33 = this.A();
@@ -2912,7 +2805,6 @@ public class Game extends MiniZX {
       this.pc('\uae3a', 1);
       this.exx();
       this.pc('\uae3b', 1);
-      this.ret();
    }
 
    public void $AE5D() {
@@ -2937,7 +2829,6 @@ public class Game extends MiniZX {
       int var10 = this.mem(var9, '\uae69');
       this.A(var10);
       this.pc('\uae6c', 1);
-      this.call('\uae6f');
       this.$AC5F();
       this.pc('\uae6f', 1);
       int var11 = this.HL();
@@ -2969,7 +2860,6 @@ public class Game extends MiniZX {
       int var25 = this.A();
       this.wMem(var24, var25, '\uae79');
       this.pc('\uae7c', 1);
-      this.call('\uae7f');
       this.$ADBA();
       this.pc('\uae7f', 1);
       int var26 = this.A();
@@ -2989,7 +2879,6 @@ public class Game extends MiniZX {
       int var34 = this.A();
       this.wMem(var33, var34, '\uae86');
       this.pc('\uae89', 1);
-      this.ret();
    }
 
    public void $AE8A() {
@@ -3056,12 +2945,10 @@ public class Game extends MiniZX {
          } while(this.B() != 0);
 
          this.pc('\uaea6', 1);
-         this.ret();
          return;
       } while(this.flag(64, true));
 
       this.pc('\uae9f', 1);
-      this.ret();
    }
 
    public void $AED7() {
@@ -3099,7 +2986,6 @@ public class Game extends MiniZX {
       int var9 = this.pop();
       this.HL(var9);
       this.pc('\uaee9', 1);
-      this.ret();
    }
 
    public void $AF01() {
@@ -3130,7 +3016,6 @@ public class Game extends MiniZX {
       int var7 = this.alu("xor", var6, 21);
       this.A(var7);
       this.pc('\uaf0f', 1);
-      this.ret();
    }
 
    public void $AFC4() {
@@ -3213,7 +3098,6 @@ public class Game extends MiniZX {
             this.alu("cp", var32, 255);
             this.pc('\uafea', 1);
             if(this.flag(64, false)) {
-               this.ret();
                return;
             }
 
@@ -3295,7 +3179,6 @@ public class Game extends MiniZX {
       int var26 = this.IY() + 55;
       this.wMem(var26, 0, '\ub006');
       this.pc('\ub00a', 1);
-      this.ret();
    }
 
    public void $B00B() {
@@ -3387,14 +3270,12 @@ public class Game extends MiniZX {
          int var20 = this.alu("xor", var19, var18);
          this.A(var20);
          this.pc('\ub03b', 1);
-         this.ret();
          return;
       }
 
       this.pc('\ub025', 1);
       this.A(1);
       this.pc('\ub027', 1);
-      this.ret();
    }
 
    public void $B03C() {
@@ -3486,14 +3367,12 @@ public class Game extends MiniZX {
          int var20 = this.alu("xor", var19, var18);
          this.A(var20);
          this.pc('\ub06c', 1);
-         this.ret();
          return;
       }
 
       this.pc('\ub056', 1);
       this.A(1);
       this.pc('\ub058', 1);
-      this.ret();
    }
 
    public void $B06D() {
@@ -3581,14 +3460,12 @@ public class Game extends MiniZX {
          int var18 = this.alu("xor", var17, var16);
          this.A(var18);
          this.pc('\ub09c', 1);
-         this.ret();
          return;
       }
 
       this.pc('\ub07d', 1);
       this.A(1);
       this.pc('\ub07f', 1);
-      this.ret();
    }
 
    public void $B09F() {
@@ -3603,7 +3480,6 @@ public class Game extends MiniZX {
       int var4 = this.A();
       this.wMem('\ub951', var4, '\ub0a6');
       this.pc('\ub0a9', 1);
-      this.call('\ub0ac');
       this.$AFC4();
       this.pc('\ub0ac', 2);
       int var5 = this.IY() + 70;
@@ -3632,7 +3508,6 @@ public class Game extends MiniZX {
             this.$B197();
          } else {
             this.pc('\ub0ba', 1);
-            this.call('\ub0bd');
             this.$B06D();
             this.pc('\ub0bd', 1);
             int var15 = this.A();
@@ -3647,7 +3522,6 @@ public class Game extends MiniZX {
                int var18 = this.IY() + 60;
                this.wMem(var18, 0, '\ub0c1');
                this.pc('\ub0c5', 1);
-               this.call('\ub0c8');
                this.$B00B();
                this.pc('\ub0c8', 1);
                int var19 = this.A();
@@ -3666,7 +3540,6 @@ public class Game extends MiniZX {
                   this.$B288();
                } else {
                   this.pc('\ub0d6', 1);
-                  this.call('\ub0d9');
                   this.$B03C();
                   this.pc('\ub0d9', 1);
                   int var22 = this.A();
@@ -3674,9 +3547,7 @@ public class Game extends MiniZX {
                   int var24 = this.alu("or", var23, var22);
                   this.A(var24);
                   this.pc('\ub0da', 1);
-                  if(this.flag(64, false)) {
-                     this.ret();
-                  } else {
+                  if(!this.flag(64, false)) {
                      this.pc('\ub0db', 2);
                      int var25 = this.IY() + 60;
                      this.wMem(var25, 255, '\ub0db');
@@ -3827,194 +3698,196 @@ public class Game extends MiniZX {
          int var59 = this.pop();
          this.DE(var59);
          this.pc('\ub128', 1);
-         this.B(0);
+         int var60 = this.mem('\ub129', '\ub128');
+         this.B(var60);
          this.pc('\ub12a', 1);
-         int var60 = this.B();
-         int var61 = this.alu("dec", var60);
-         this.B(var61);
+         int var61 = this.B();
+         int var62 = this.alu("dec", var61);
+         this.B(var62);
          this.pc('\ub12b', 1);
          if(!this.flag(64, false)) {
             this.pc('\ub12d', 1);
-            int var164 = this.A();
-            this.alu("scf", var164);
+            int var168 = this.A();
+            this.alu("scf", var168);
             this.pc('\ub12e', 1);
             this.A(255);
 
             do {
                this.pc('\ub130', 2);
-               int var165 = this.E();
-               int var166 = this.alu("rr", var165);
-               this.E(var166);
+               int var169 = this.E();
+               int var170 = this.alu("rr", var169);
+               this.E(var170);
                this.pc('\ub132', 2);
-               int var167 = this.D();
-               int var168 = this.alu("rr", var167);
-               this.D(var168);
+               int var171 = this.D();
+               int var172 = this.alu("rr", var171);
+               this.D(var172);
                this.pc('\ub134', 1);
-               int var169 = this.A();
-               int var170 = this.alu("rra", var169);
-               this.A(var170);
+               int var173 = this.A();
+               int var174 = this.alu("rra", var173);
+               this.A(var174);
                this.pc('\ub135', 1);
-               int var171 = this.B() - 1 & 255;
-               this.B(var171);
+               int var175 = this.B() - 1 & 255;
+               this.B(var175);
             } while(this.B() != 0);
 
             this.pc('\ub137', 1);
-            int var172 = this.HL();
-            int var173 = this.mem(var172, '\ub137');
-            int var174 = this.A();
-            int var175 = this.alu("and", var174, var173);
-            this.A(var175);
+            int var176 = this.HL();
+            int var177 = this.mem(var176, '\ub137');
+            int var178 = this.A();
+            int var179 = this.alu("and", var178, var177);
+            this.A(var179);
             this.pc('\ub138', 1);
-            int var176 = this.A();
-            int var177 = this.HL();
-            this.wMem(var177, var176, '\ub138');
+            int var180 = this.A();
+            int var181 = this.HL();
+            this.wMem(var181, var180, '\ub138');
          }
 
          this.pc('\ub139', 1);
-         int var62 = this.HL();
-         int var63 = this.dec16(var62);
-         this.HL(var63);
+         int var63 = this.HL();
+         int var64 = this.dec16(var63);
+         this.HL(var64);
          this.pc('\ub13a', 1);
-         int var64 = this.HL();
-         int var65 = this.mem(var64, '\ub13a');
-         this.A(var65);
+         int var65 = this.HL();
+         int var66 = this.mem(var65, '\ub13a');
+         this.A(var66);
          this.pc('\ub13b', 1);
-         int var66 = this.D();
-         int var67 = this.A();
-         int var68 = this.alu("and", var67, var66);
-         this.A(var68);
+         int var67 = this.D();
+         int var68 = this.A();
+         int var69 = this.alu("and", var68, var67);
+         this.A(var69);
          this.pc('\ub13c', 1);
-         int var69 = this.A();
-         int var70 = this.HL();
-         this.wMem(var70, var69, '\ub13c');
-         this.pc('\ub13d', 1);
+         int var70 = this.A();
          int var71 = this.HL();
-         int var72 = this.dec16(var71);
-         this.HL(var72);
+         this.wMem(var71, var70, '\ub13c');
+         this.pc('\ub13d', 1);
+         int var72 = this.HL();
+         int var73 = this.dec16(var72);
+         this.HL(var73);
          this.pc('\ub13e', 1);
-         int var73 = this.HL();
-         int var74 = this.mem(var73, '\ub13e');
-         this.A(var74);
+         int var74 = this.HL();
+         int var75 = this.mem(var74, '\ub13e');
+         this.A(var75);
          this.pc('\ub13f', 1);
-         int var75 = this.E();
-         int var76 = this.A();
-         int var77 = this.alu("and", var76, var75);
-         this.A(var77);
+         int var76 = this.E();
+         int var77 = this.A();
+         int var78 = this.alu("and", var77, var76);
+         this.A(var78);
          this.pc('\ub140', 1);
-         int var78 = this.A();
-         int var79 = this.HL();
-         this.wMem(var79, var78, '\ub140');
-         this.pc('\ub141', 1);
+         int var79 = this.A();
          int var80 = this.HL();
-         int var81 = this.inc16(var80);
-         this.HL(var81);
+         this.wMem(var80, var79, '\ub140');
+         this.pc('\ub141', 1);
+         int var81 = this.HL();
+         int var82 = this.inc16(var81);
+         this.HL(var82);
          this.pc('\ub142', 1);
-         int var82 = this.HL();
-         int var83 = this.inc16(var82);
-         this.HL(var83);
+         int var83 = this.HL();
+         int var84 = this.inc16(var83);
+         this.HL(var84);
          this.pc('\ub143', 1);
-         int var84 = this.pop();
-         this.DE(var84);
+         int var85 = this.pop();
+         this.DE(var85);
          this.pc('\ub144', 1);
-         this.B(0);
-         this.pc('\ub146', 1);
-         int var85 = this.B();
-         int var86 = this.alu("dec", var85);
+         int var86 = this.mem('\ub145', '\ub144');
          this.B(var86);
+         this.pc('\ub146', 1);
+         int var87 = this.B();
+         int var88 = this.alu("dec", var87);
+         this.B(var88);
          this.pc('\ub147', 1);
          if(!this.flag(64, false)) {
             this.pc('\ub149', 1);
-            int var148 = this.A();
-            int var149 = this.A();
-            int var150 = this.alu("xor", var149, var148);
-            this.A(var150);
+            int var152 = this.A();
+            int var153 = this.A();
+            int var154 = this.alu("xor", var153, var152);
+            this.A(var154);
 
             do {
                this.pc('\ub14a', 2);
-               int var151 = this.E();
-               int var152 = this.alu("srl", var151);
-               this.E(var152);
+               int var155 = this.E();
+               int var156 = this.alu("srl", var155);
+               this.E(var156);
                this.pc('\ub14c', 2);
-               int var153 = this.D();
-               int var154 = this.alu("rr", var153);
-               this.D(var154);
+               int var157 = this.D();
+               int var158 = this.alu("rr", var157);
+               this.D(var158);
                this.pc('\ub14e', 1);
-               int var155 = this.A();
-               int var156 = this.alu("rra", var155);
-               this.A(var156);
+               int var159 = this.A();
+               int var160 = this.alu("rra", var159);
+               this.A(var160);
                this.pc('\ub14f', 1);
-               int var157 = this.B() - 1 & 255;
-               this.B(var157);
+               int var161 = this.B() - 1 & 255;
+               this.B(var161);
             } while(this.B() != 0);
 
             this.pc('\ub151', 1);
-            int var158 = this.HL();
-            int var159 = this.mem(var158, '\ub151');
-            int var160 = this.A();
-            int var161 = this.alu("or", var160, var159);
-            this.A(var161);
+            int var162 = this.HL();
+            int var163 = this.mem(var162, '\ub151');
+            int var164 = this.A();
+            int var165 = this.alu("or", var164, var163);
+            this.A(var165);
             this.pc('\ub152', 1);
-            int var162 = this.A();
-            int var163 = this.HL();
-            this.wMem(var163, var162, '\ub152');
+            int var166 = this.A();
+            int var167 = this.HL();
+            this.wMem(var167, var166, '\ub152');
          }
 
          this.pc('\ub153', 1);
-         int var87 = this.HL();
-         int var88 = this.dec16(var87);
-         this.HL(var88);
-         this.pc('\ub154', 1);
          int var89 = this.HL();
-         int var90 = this.mem(var89, '\ub154');
-         this.A(var90);
+         int var90 = this.dec16(var89);
+         this.HL(var90);
+         this.pc('\ub154', 1);
+         int var91 = this.HL();
+         int var92 = this.mem(var91, '\ub154');
+         this.A(var92);
          this.pc('\ub155', 1);
-         int var91 = this.D();
-         int var92 = this.A();
-         int var93 = this.alu("or", var92, var91);
-         this.A(var93);
-         this.pc('\ub156', 1);
+         int var93 = this.D();
          int var94 = this.A();
-         int var95 = this.HL();
-         this.wMem(var95, var94, '\ub156');
+         int var95 = this.alu("or", var94, var93);
+         this.A(var95);
+         this.pc('\ub156', 1);
+         int var96 = this.A();
+         int var97 = this.HL();
+         this.wMem(var97, var96, '\ub156');
          this.pc('\ub157', 1);
-         int var96 = this.HL();
-         int var97 = this.dec16(var96);
-         this.HL(var97);
-         this.pc('\ub158', 1);
          int var98 = this.HL();
-         int var99 = this.mem(var98, '\ub158');
-         this.A(var99);
+         int var99 = this.dec16(var98);
+         this.HL(var99);
+         this.pc('\ub158', 1);
+         int var100 = this.HL();
+         int var101 = this.mem(var100, '\ub158');
+         this.A(var101);
          this.pc('\ub159', 1);
-         int var100 = this.E();
-         int var101 = this.A();
-         int var102 = this.alu("or", var101, var100);
-         this.A(var102);
-         this.pc('\ub15a', 1);
+         int var102 = this.E();
          int var103 = this.A();
-         int var104 = this.HL();
-         this.wMem(var104, var103, '\ub15a');
+         int var104 = this.alu("or", var103, var102);
+         this.A(var104);
+         this.pc('\ub15a', 1);
+         int var105 = this.A();
+         int var106 = this.HL();
+         this.wMem(var106, var105, '\ub15a');
          this.pc('\ub15b', 1);
          this.DE(34);
          this.pc('\ub15e', 1);
-         int var105 = this.DE();
-         int var106 = this.HL();
-         int var107 = this.alu("add16", var106, var105);
-         this.HL(var107);
+         int var107 = this.DE();
+         int var108 = this.HL();
+         int var109 = this.alu("add16", var108, var107);
+         this.HL(var109);
          this.pc('\ub15f', 1);
-         int var108 = this.C();
-         int var109 = this.alu("dec", var108);
-         this.C(var109);
+         int var110 = this.C();
+         int var111 = this.alu("dec", var110);
+         this.C(var111);
          this.pc('\ub160', 1);
       } while(this.flag(64, true));
 
       this.pc('\ub163', 2);
-      int var110 = this.IY() + 10;
-      int var111 = this.mem(var110, '\ub163');
-      this.A(var111);
-      this.pc('\ub166', 1);
-      int var112 = this.A();
-      int var113 = this.alu("and", var112, 7);
+      int var112 = this.IY() + 10;
+      int var113 = this.mem(var112, '\ub163');
       this.A(var113);
+      this.pc('\ub166', 1);
+      int var114 = this.A();
+      int var115 = this.alu("and", var114, 7);
+      this.A(var115);
       this.pc('\ub168', 1);
       if(!this.flag(64, false)) {
          this.pc('\ub16a', 1);
@@ -4026,91 +3899,92 @@ public class Game extends MiniZX {
       }
 
       this.pc('\ub170', 2);
-      int var114 = this.IY() + 10;
-      int var115 = this.mem(var114, '\ub170');
-      this.A(var115);
-      this.pc('\ub173', 1);
-      int var116 = this.A();
-      int var117 = this.alu("and", var116, 248);
+      int var116 = this.IY() + 10;
+      int var117 = this.mem(var116, '\ub170');
       this.A(var117);
+      this.pc('\ub173', 1);
+      int var118 = this.A();
+      int var119 = this.alu("and", var118, 248);
+      this.A(var119);
       this.pc('\ub175', 1);
       this.H(0);
       this.pc('\ub177', 1);
-      int var118 = this.A();
-      this.L(var118);
+      int var120 = this.A();
+      this.L(var120);
       this.pc('\ub178', 1);
-      int var119 = this.HL();
-      int var120 = this.HL();
-      int var121 = this.alu("add16", var120, var119);
-      this.HL(var121);
-      this.pc('\ub179', 1);
+      int var121 = this.HL();
       int var122 = this.HL();
-      int var123 = this.HL();
-      int var124 = this.alu("add16", var123, var122);
-      this.HL(var124);
+      int var123 = this.alu("add16", var122, var121);
+      this.HL(var123);
+      this.pc('\ub179', 1);
+      int var124 = this.HL();
+      int var125 = this.HL();
+      int var126 = this.alu("add16", var125, var124);
+      this.HL(var126);
       this.pc('\ub17a', 1);
-      this.DE('\ufb00');
+      int var127 = this.mem16('\ub17b', '\ub17a');
+      this.DE(var127);
       this.pc('\ub17d', 1);
-      int var125 = this.DE();
-      int var126 = this.HL();
-      int var127 = this.alu("add16", var126, var125);
-      this.HL(var127);
+      int var128 = this.DE();
+      int var129 = this.HL();
+      int var130 = this.alu("add16", var129, var128);
+      this.HL(var130);
       this.pc('\ub17e', 1);
       this.DE(30);
       this.pc('\ub181', 2);
-      int var128 = this.IY() + 30;
-      int var129 = this.mem(var128, '\ub181');
-      this.C(var129);
+      int var131 = this.IY() + 30;
+      int var132 = this.mem(var131, '\ub181');
+      this.C(var132);
 
       do {
          this.pc('\ub184', 1);
-         int var130 = this.C();
-         int var131 = this.HL();
-         this.wMem(var131, var130, '\ub184');
+         int var133 = this.C();
+         int var134 = this.HL();
+         this.wMem(var134, var133, '\ub184');
          this.pc('\ub185', 1);
-         int var132 = this.HL();
-         int var133 = this.inc16(var132);
-         this.HL(var133);
-         this.pc('\ub186', 1);
-         int var134 = this.C();
          int var135 = this.HL();
-         this.wMem(var135, var134, '\ub186');
+         int var136 = this.inc16(var135);
+         this.HL(var136);
+         this.pc('\ub186', 1);
+         int var137 = this.C();
+         int var138 = this.HL();
+         this.wMem(var138, var137, '\ub186');
          this.pc('\ub187', 1);
-         int var136 = this.HL();
-         int var137 = this.inc16(var136);
-         this.HL(var137);
+         int var139 = this.HL();
+         int var140 = this.inc16(var139);
+         this.HL(var140);
          this.pc('\ub188', 1);
-         this.A(255);
+         int var141 = this.mem('\ub189', '\ub188');
+         this.A(var141);
          this.pc('\ub18a', 1);
-         int var138 = this.A();
-         int var139 = this.A();
-         int var140 = this.alu("or", var139, var138);
-         this.A(var140);
+         int var142 = this.A();
+         int var143 = this.A();
+         int var144 = this.alu("or", var143, var142);
+         this.A(var144);
          this.pc('\ub18b', 1);
          if(!this.flag(64, false)) {
             this.pc('\ub18d', 1);
-            int var146 = this.C();
-            int var147 = this.HL();
-            this.wMem(var147, var146, '\ub18d');
+            int var150 = this.C();
+            int var151 = this.HL();
+            this.wMem(var151, var150, '\ub18d');
          }
 
          this.pc('\ub18e', 1);
-         int var141 = this.DE();
-         int var142 = this.HL();
-         int var143 = this.alu("add16", var142, var141);
-         this.HL(var143);
+         int var145 = this.DE();
+         int var146 = this.HL();
+         int var147 = this.alu("add16", var146, var145);
+         this.HL(var147);
          this.pc('\ub18f', 1);
-         int var144 = this.B() - 1 & 255;
-         this.B(var144);
+         int var148 = this.B() - 1 & 255;
+         this.B(var148);
       } while(this.B() != 0);
 
       this.pc('\ub191', 1);
       this.exx();
       this.pc('\ub192', 2);
-      int var145 = this.mem16('\ua83b', '\ub192');
-      this.SP(var145);
+      int var149 = this.mem16('\ua83b', '\ub192');
+      this.SP(var149);
       this.pc('\ub196', 1);
-      this.ret();
    }
 
    public void $B197() {
@@ -4136,7 +4010,6 @@ public class Game extends MiniZX {
       int var7 = this.A();
       this.wMem(var6, var7, '\ub1a2');
       this.pc('\ub1a5', 1);
-      this.ret();
    }
 
    public void $B1A6() {
@@ -4287,7 +4160,6 @@ public class Game extends MiniZX {
                this.A(var106);
                this.pc('\ub1f1', 1);
                if(this.flag(64, true)) {
-                  this.call('\ub1f4');
                   this.$81D4();
                }
 
@@ -4426,7 +4298,6 @@ public class Game extends MiniZX {
                this.A(var39);
                this.pc('\ub24d', 1);
                if(this.flag(64, false)) {
-                  this.call('\ub250');
                   this.$81D4();
                }
 
@@ -4487,7 +4358,6 @@ public class Game extends MiniZX {
          this.alu("cp", var62, 12);
          this.pc('\ub210', 1);
          if(this.flag(64, true)) {
-            this.ret();
             return;
          }
 
@@ -4509,9 +4379,7 @@ public class Game extends MiniZX {
       int var4 = this.A();
       this.alu("cp", var4, var3);
       this.pc('\ue31b', 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          this.pc('\ue31c', 1);
          this.BC(1793);
          this.pc('\ue31f', 1);
@@ -4519,16 +4387,13 @@ public class Game extends MiniZX {
          this.pc('\ue322', 1);
          this.HL(1028);
          this.pc('\ue325', 1);
-         this.call('\ue328');
          this.$E3D3();
          this.pc('\ue328', 1);
-         this.ret();
       }
    }
 
    public void $B288() {
       this.pc('\ub288', 1);
-      this.call('\ub28b');
       this.$A921();
       this.pc('\ub28b', 1);
       if(!this.flag(64, false)) {
@@ -4556,7 +4421,6 @@ public class Game extends MiniZX {
             this.wMem(var64, var65, '\ub29a');
             this.pc('\ub29d', 1);
             if(this.flag(64, false)) {
-               this.ret();
                return;
             }
          }
@@ -4606,7 +4470,6 @@ public class Game extends MiniZX {
          this.A(var47);
          this.pc('\ub2b5', 1);
          if(this.flag(64, false)) {
-            this.call('\ub2b8');
             this.$81D4();
          }
 
@@ -4639,7 +4502,6 @@ public class Game extends MiniZX {
          this.A(var15);
          this.pc('\ub2ca', 1);
          if(this.flag(64, true)) {
-            this.call('\ub2cd');
             this.$81D4();
          }
 
@@ -4692,7 +4554,6 @@ public class Game extends MiniZX {
             int var39 = this.A();
             this.wMem(var38, var39, '\ue307');
             this.pc('\ue30a', 1);
-            this.ret();
             return;
          }
       }
@@ -4707,9 +4568,7 @@ public class Game extends MiniZX {
       int var31 = this.alu("or", var30, var29);
       this.A(var31);
       this.pc('\ue30f', 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          this.pc('\ue310', 1);
          this.A(1);
          this.pc('\ue312', 2);
@@ -4728,7 +4587,6 @@ public class Game extends MiniZX {
       int var1 = this.A();
       this.wMem('\ub2db', var1, '\ub2de');
       this.pc('\ub2e1', 1);
-      this.ret();
    }
 
    public void $B2E2() {
@@ -4738,7 +4596,6 @@ public class Game extends MiniZX {
       int var1 = this.A();
       this.wMem('\ub2db', var1, '\ub2e4');
       this.pc('\ub2e7', 1);
-      this.ret();
    }
 
    public void $B2E8() {
@@ -4751,19 +4608,16 @@ public class Game extends MiniZX {
       int var4 = this.A();
       this.wMem('\ub2db', var4, '\ub2e9');
       this.pc('\ub2ec', 1);
-      this.ret();
    }
 
    public void $B2F1() {
       this.pc('\ub2f1', 1);
-      this.call('\ub2f4');
       this.$B8ED();
       this.pc('\ub2f4', 1);
       this.DE(266);
       this.pc('\ub2f7', 1);
       this.HL(31771);
       this.pc('\ub2fa', 1);
-      this.call('\ub2fd');
       this.$B8C4();
       this.pc('\ub2fd', 2);
       int var1 = this.IY();
@@ -4831,7 +4685,6 @@ public class Game extends MiniZX {
          int var27 = this.A();
          this.wMem(var26, var27, '\ub32f');
          this.pc('\ub332', 1);
-         this.call('\ub335');
          this.$B34C();
          this.pc('\ub335', 1);
          int var28 = this.D();
@@ -4864,7 +4717,6 @@ public class Game extends MiniZX {
       this.pc('\ub343', 1);
       this.E(17);
       this.pc('\ub345', 1);
-      this.call('\ub348');
       this.$B34C();
       this.pc('\ub348', 1);
       this.$B3AB();
@@ -4883,7 +4735,6 @@ public class Game extends MiniZX {
       this.pc('\ub34f', 1);
       this.A(61);
       this.pc('\ub351', 1);
-      this.call('\ub354');
       this.$B715();
       this.pc('\ub354', 1);
       int var4 = this.E();
@@ -4894,7 +4745,6 @@ public class Game extends MiniZX {
       this.pc('\ub357', 1);
       this.A(38);
       this.pc('\ub359', 1);
-      this.call('\ub35c');
       this.$B715();
       this.pc('\ub35c', 1);
       int var6 = this.E();
@@ -4962,7 +4812,6 @@ public class Game extends MiniZX {
             }
 
             this.pc('\ub37c', 1);
-            this.call('\ub37f');
             this.$B715();
             this.pc('\ub37f', 1);
             this.A(1);
@@ -5020,7 +4869,6 @@ public class Game extends MiniZX {
             }
 
             this.pc('\ub39b', 1);
-            this.call('\ub39e');
             this.$B715();
             this.pc('\ub39e', 1);
             this.A(1);
@@ -5052,7 +4900,6 @@ public class Game extends MiniZX {
       int var43 = this.pop();
       this.HL(var43);
       this.pc('\ub3aa', 1);
-      this.ret();
    }
 
    public void $B3AB() {
@@ -5097,12 +4944,10 @@ public class Game extends MiniZX {
       } while(this.flag(64, false));
 
       this.pc('\ub3bd', 1);
-      this.ret();
    }
 
    public void $B451() {
       this.pc('\ub451', 1);
-      this.call('\ub454');
       this.$B8ED();
       this.pc('\ub454', 1);
       this.HL('\uecfe');
@@ -5111,20 +4956,16 @@ public class Game extends MiniZX {
       this.pc('\ub45a', 1);
       this.C(0);
       this.pc('\ub45c', 1);
-      this.call('\ub45f');
       this.$B34C();
       this.pc('\ub45f', 1);
       this.HL(32072);
       this.pc('\ub462', 1);
       this.DE(1284);
       this.pc('\ub465', 1);
-      this.call('\ub468');
       this.$B8C4();
       this.pc('\ub468', 1);
-      this.call('\ub46b');
       this.$B3AB();
       this.pc('\ub46b', 1);
-      this.call('\ub46e');
       this.$B2F1();
       this.pc('\ub46e', 1);
       this.$8184();
@@ -5151,7 +4992,6 @@ public class Game extends MiniZX {
       int var5 = this.A();
       this.wMem('\ub55f', var5, '\ub47e');
       this.pc('\ub481', 1);
-      this.ret();
    }
 
    public void $B482() {
@@ -5181,7 +5021,6 @@ public class Game extends MiniZX {
             int var51 = this.A();
             this.wMem('\ub4e9', var51, '\ub490');
             this.pc('\ub493', 1);
-            this.ret();
             return;
          }
 
@@ -5282,7 +5121,6 @@ public class Game extends MiniZX {
                   this.pc('\ub4c9', 1);
                   this.exHLDE();
                   this.pc('\ub4ca', 1);
-                  this.call('\ub4cd');
                   this.$B505();
                   this.pc('\ub4cd', 1);
                   int var43 = this.mem('\ub4e9', '\ub4cd');
@@ -5292,7 +5130,6 @@ public class Game extends MiniZX {
                   this.alu("cp", var44, 255);
                   this.pc('\ub4d2', 1);
                   if(this.flag(64, true)) {
-                     this.ret();
                      return;
                   }
                } else {
@@ -5304,7 +5141,6 @@ public class Game extends MiniZX {
 
                   do {
                      this.pc('\ub4df', 1);
-                     this.call('\ub4e2');
                      this.$B4EB();
                      this.pc('\ub4e2', 1);
                      int var21 = this.A();
@@ -5319,7 +5155,6 @@ public class Game extends MiniZX {
                this.pc('\ub4d3', 1);
                this.BC(800);
                this.pc('\ub4d6', 1);
-               this.call('\ub4d9');
                this.$B4EB();
                this.pc('\ub4d9', 1);
                continue;
@@ -5401,7 +5236,6 @@ public class Game extends MiniZX {
       int var22 = this.pop();
       this.AF(var22);
       this.pc('\ub504', 1);
-      this.ret();
    }
 
    public void $B505() {
@@ -5475,7 +5309,6 @@ public class Game extends MiniZX {
          this.A(16);
          this.pc('\ub522', 1);
          this.pc('\ub524', 1);
-         this.call('\ub527');
          this.$B4EB();
          this.pc('\ub527', 1);
          int var28 = this.A();
@@ -5493,7 +5326,6 @@ public class Game extends MiniZX {
          int var33 = this.L();
          this.C(var33);
          this.pc('\ub52d', 1);
-         this.call('\ub530');
          this.$B4EB();
          this.pc('\ub530', 1);
          int var34 = this.pop();
@@ -5514,7 +5346,6 @@ public class Game extends MiniZX {
       } while(this.flag(64, true));
 
       this.pc('\ub536', 1);
-      this.ret();
    }
 
    public void $B715() {
@@ -5771,7 +5602,6 @@ public class Game extends MiniZX {
       int var105 = this.pop();
       this.AF(var105);
       this.pc('\ub77a', 1);
-      this.ret();
    }
 
    public void $B77B() {
@@ -5934,7 +5764,6 @@ public class Game extends MiniZX {
       int var65 = this.pop();
       this.AF(var65);
       this.pc('\ub7b9', 1);
-      this.ret();
    }
 
    public void $B7BA() {
@@ -6085,51 +5914,51 @@ public class Game extends MiniZX {
       int var66 = this.alu("add16", var65, var64);
       this.HL(var66);
       this.pc('\ub7e8', 1);
-      this.BC('\udfdc');
+      int var67 = this.mem16('\ub7e9', '\ub7e8');
+      this.BC(var67);
       this.pc('\ub7eb', 1);
-      int var67 = this.BC();
-      int var68 = this.HL();
-      int var69 = this.alu("add16", var68, var67);
-      this.HL(var69);
+      int var68 = this.BC();
+      int var69 = this.HL();
+      int var70 = this.alu("add16", var69, var68);
+      this.HL(var70);
       this.pc('\ub7ec', 1);
       this.B(8);
 
       do {
          this.pc('\ub7ee', 1);
-         int var70 = this.HL();
-         int var71 = this.mem(var70, '\ub7ee');
-         this.A(var71);
+         int var71 = this.HL();
+         int var72 = this.mem(var71, '\ub7ee');
+         this.A(var72);
          this.pc('\ub7ef', 1);
-         int var72 = this.A();
-         int var73 = this.DE();
-         this.wMem(var73, var72, '\ub7ef');
+         int var73 = this.A();
+         int var74 = this.DE();
+         this.wMem(var74, var73, '\ub7ef');
          this.pc('\ub7f0', 1);
-         int var74 = this.HL();
-         int var75 = this.inc16(var74);
-         this.HL(var75);
+         int var75 = this.HL();
+         int var76 = this.inc16(var75);
+         this.HL(var76);
          this.pc('\ub7f1', 1);
-         int var76 = this.D();
-         int var77 = this.alu("inc", var76);
-         this.D(var77);
+         int var77 = this.D();
+         int var78 = this.alu("inc", var77);
+         this.D(var78);
          this.pc('\ub7f2', 1);
-         int var78 = this.B() - 1 & 255;
-         this.B(var78);
+         int var79 = this.B() - 1 & 255;
+         this.B(var79);
       } while(this.B() != 0);
 
       this.pc('\ub7f4', 1);
-      int var79 = this.pop();
-      this.DE(var79);
-      this.pc('\ub7f5', 1);
       int var80 = this.pop();
-      this.BC(var80);
-      this.pc('\ub7f6', 1);
+      this.DE(var80);
+      this.pc('\ub7f5', 1);
       int var81 = this.pop();
-      this.HL(var81);
-      this.pc('\ub7f7', 1);
+      this.BC(var81);
+      this.pc('\ub7f6', 1);
       int var82 = this.pop();
-      this.AF(var82);
+      this.HL(var82);
+      this.pc('\ub7f7', 1);
+      int var83 = this.pop();
+      this.AF(var83);
       this.pc('\ub7f8', 1);
-      this.ret();
    }
 
    public void $B7F9() {
@@ -6268,7 +6097,6 @@ public class Game extends MiniZX {
       int var55 = this.pop();
       this.AF(var55);
       this.pc('\ub82a', 1);
-      this.ret();
    }
 
    public void $B82B() {
@@ -6290,7 +6118,6 @@ public class Game extends MiniZX {
       int var5 = this.pop();
       this.HL(var5);
       this.pc('\ub839', 1);
-      this.call('\ub83c');
       this.$B84B();
       this.pc('\ub83c', 1);
       int var6 = this.HL();
@@ -6310,7 +6137,6 @@ public class Game extends MiniZX {
       int var10 = this.pop();
       this.HL(var10);
       this.pc('\ub84a', 1);
-      this.ret();
    }
 
    public void $B84B() {
@@ -6334,7 +6160,6 @@ public class Game extends MiniZX {
                this.alu("cp", var8, 255);
                this.pc('\ub853', 1);
                if(this.flag(64, false)) {
-                  this.ret();
                   return;
                }
 
@@ -6481,8 +6306,7 @@ public class Game extends MiniZX {
 
                         do {
                            this.pc('\ub894', 1);
-                           this.call('\ub897');
-                           this.$B7BA();
+                           this.executeMutantCode('\ub894');
                            this.pc('\ub897', 1);
                            int var49 = this.D();
                            int var50 = this.alu("inc", var49);
@@ -6511,7 +6335,6 @@ public class Game extends MiniZX {
                            int var31 = this.inc16(var30);
                            this.HL(var31);
                            this.pc('\ub8a2', 1);
-                           this.call('\ub8a5');
                            this.$B7BA();
                            this.pc('\ub8a5', 1);
                            int var32 = this.HL();
@@ -6522,7 +6345,6 @@ public class Game extends MiniZX {
                            int var35 = this.alu("inc", var34);
                            this.E(var35);
                            this.pc('\ub8a7', 1);
-                           this.call('\ub8aa');
                            this.$B7BA();
                            this.pc('\ub8aa', 1);
                            int var36 = this.E();
@@ -6560,8 +6382,7 @@ public class Game extends MiniZX {
 
                      do {
                         this.pc('\ub8b4', 1);
-                        this.call('\ub8b7');
-                        this.$B7BA();
+                        this.executeMutantCode('\ub8b4');
                         this.pc('\ub8b7', 1);
                         int var25 = this.E();
                         int var26 = this.alu("inc", var25);
@@ -6611,7 +6432,6 @@ public class Game extends MiniZX {
             this.alu("cp", var8, 255);
             this.pc('\ub8cc', 1);
             if(this.flag(64, false)) {
-               this.ret();
                return;
             }
 
@@ -6677,7 +6497,6 @@ public class Game extends MiniZX {
          }
 
          this.pc('\ub8e7', 1);
-         this.call('\ub8ea');
          this.$B715();
          this.pc('\ub8ea', 1);
          int var6 = this.E();
@@ -6707,7 +6526,6 @@ public class Game extends MiniZX {
       this.pc('\ub8ff', 2);
       this.ldir('\ub8ff');
       this.pc('\ub901', 1);
-      this.ret();
    }
 
    public void $B902() {
@@ -6866,7 +6684,6 @@ public class Game extends MiniZX {
       int var3 = this.pop();
       this.HL(var3);
       this.pc('\ub930', 1);
-      this.ret();
    }
 
    public void $B952() {
@@ -6876,7 +6693,6 @@ public class Game extends MiniZX {
       int var1 = this.A();
       this.wMem('\uaf88', var1, '\ub954');
       this.pc('\ub957', 1);
-      this.call('\ub95a');
       this.$B902();
       this.pc('\ub95a', 2);
       int var2 = this.IY() + 15;
@@ -6947,10 +6763,8 @@ public class Game extends MiniZX {
          this.pc('\ub972', 1);
          if(this.flag(64, false)) {
             this.pc('\ub9a8', 1);
-            this.call('\ub9ab');
             this.$B9AC();
             this.pc('\ub9ab', 1);
-            this.ret();
             return;
          }
 
@@ -6963,7 +6777,6 @@ public class Game extends MiniZX {
             int var52 = this.E();
             this.A(var52);
             this.pc('\ub979', 1);
-            this.call('\ub97c');
             this.$EC1D();
             this.pc('\ub97c', 1);
             if(!this.flag(64, true)) {
@@ -7064,7 +6877,6 @@ public class Game extends MiniZX {
             int var50 = this.A();
             this.L(var50);
             this.pc('\ub9a2', 1);
-            this.call('\ub9a5');
             this.$B84B();
             this.pc('\ub9a5', 1);
             int var51 = this.pop();
@@ -7100,7 +6912,6 @@ public class Game extends MiniZX {
          int var8 = this.inc16(var7);
          this.IX(var8);
          this.pc('\ub9c0', 1);
-         this.call('\ub9c3');
          this.$BA25();
          this.pc('\ub9c3', 1);
       } while(this.flag(4, false));
@@ -7114,13 +6925,11 @@ public class Game extends MiniZX {
 
       do {
          this.pc('\ub9cf', 1);
-         this.call('\ub9d2');
          this.$BA25();
          this.pc('\ub9d2', 1);
       } while(this.flag(4, false));
 
       this.pc('\ub9d5', 1);
-      this.ret();
    }
 
    public void $B9D6() {
@@ -7154,7 +6963,6 @@ public class Game extends MiniZX {
          this.pc('\ub9eb', 1);
          if(!this.flag(64, true)) {
             this.pc('\ub9ed', 1);
-            this.call('\ub9f0');
             this.$B0E6();
          }
 
@@ -7174,10 +6982,8 @@ public class Game extends MiniZX {
       int var14 = this.pop();
       this.IY(var14);
       this.pc('\ub9f7', 1);
-      this.call('\ub9fa');
       this.$B9FB();
       this.pc('\ub9fa', 1);
-      this.ret();
    }
 
    public void $B9FB() {
@@ -7206,7 +7012,6 @@ public class Game extends MiniZX {
          int var8 = this.inc16(var7);
          this.IX(var8);
          this.pc('\uba0f', 1);
-         this.call('\uba12');
          this.$BA25();
          this.pc('\uba12', 1);
       } while(this.flag(4, false));
@@ -7220,13 +7025,11 @@ public class Game extends MiniZX {
 
       do {
          this.pc('\uba1e', 1);
-         this.call('\uba21');
          this.$BA25();
          this.pc('\uba21', 1);
       } while(this.flag(4, false));
 
       this.pc('\uba24', 1);
-      this.ret();
    }
 
    public void $BA25() {
@@ -7295,7 +7098,6 @@ public class Game extends MiniZX {
       this.pc('\uba63', 2);
       this.ldi();
       this.pc('\uba65', 1);
-      this.ret();
    }
 
    public void $BA6E() {
@@ -7308,9 +7110,7 @@ public class Game extends MiniZX {
       int var4 = this.alu("or", var3, var2);
       this.A(var4);
       this.pc('\uba72', 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          this.pc('\uba73', 1);
          this.HL('\udfdc');
          this.pc('\uba76', 1);
@@ -7323,13 +7123,11 @@ public class Game extends MiniZX {
          this.pc('\uba7c', 1);
          this.HL(32543);
          this.pc('\uba7f', 1);
-         this.call('\uba82');
          this.$AC6C();
          this.pc('\uba82', 1);
          int var8 = this.HL();
          this.push(var8);
          this.pc('\uba83', 1);
-         this.call('\uba86');
          this.$BACE();
          this.pc('\uba86', 1);
          int var9 = this.B();
@@ -7344,7 +7142,6 @@ public class Game extends MiniZX {
          int var12 = this.HL();
          this.push(var12);
          this.pc('\uba8d', 1);
-         this.call('\uba90');
          this.$BACE();
          this.pc('\uba90', 1);
          this.A(7);
@@ -7383,18 +7180,15 @@ public class Game extends MiniZX {
          this.pc('\uba9e', 1);
          this.C(78);
          this.pc('\ubaa0', 1);
-         this.call('\ubaa3');
          this.$B84B();
          this.pc('\ubaa3', 1);
          this.HL('\uba66');
          this.pc('\ubaa6', 1);
-         this.call('\ubaa9');
          this.$B84B();
          this.pc('\ubaa9', 1);
          int var27 = this.pop();
          this.HL(var27);
          this.pc('\ubaaa', 1);
-         this.call('\ubaad');
          this.$B84B();
          this.pc('\ubaad', 1);
          this.A(30);
@@ -7402,7 +7196,6 @@ public class Game extends MiniZX {
          int var28 = this.A();
          this.wMem('\ubab3', var28, '\ubaaf');
          this.pc('\ubab2', 1);
-         this.ret();
       }
    }
 
@@ -7419,9 +7212,7 @@ public class Game extends MiniZX {
       int var5 = this.alu("or", var4, var3);
       this.A(var5);
       this.pc('\ubab9', 1);
-      if(this.flag(64, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, false)) {
          this.pc('\ubaba', 1);
          int var6 = this.HL();
          int var7 = this.mem(var6, '\ubaba');
@@ -7429,9 +7220,7 @@ public class Game extends MiniZX {
          int var9 = this.HL();
          this.wMem(var9, var8, '\ubaba');
          this.pc('\ubabb', 1);
-         if(this.flag(64, true)) {
-            this.ret();
-         } else {
+         if(!this.flag(64, true)) {
             this.pc('\ubabc', 1);
             this.C(66);
             this.pc('\ubabe', 1);
@@ -7444,10 +7233,8 @@ public class Game extends MiniZX {
             this.pc('\ubac7', 1);
             this.HL(32360);
             this.pc('\ubaca', 1);
-            this.call('\ubacd');
             this.$B84B();
             this.pc('\ubacd', 1);
-            this.ret();
          }
       }
    }
@@ -7466,7 +7253,6 @@ public class Game extends MiniZX {
          this.alu("cp", var3, 255);
          this.pc('\ubad3', 1);
          if(this.flag(64, false)) {
-            this.ret();
             return;
          }
 
@@ -7633,7 +7419,6 @@ public class Game extends MiniZX {
       } while(this.B() != 0);
 
       this.pc('\ubb3d', 1);
-      this.ret();
    }
 
    public void $E329() {
@@ -7654,9 +7439,7 @@ public class Game extends MiniZX {
       int var8 = this.A();
       this.alu("cp", var8, 230);
       this.pc('\ue333', 1);
-      if(this.flag(1, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(1, false)) {
          this.pc('\ue334', 1);
          int var9 = this.mem('\ua839', '\ue334');
          this.A(var9);
@@ -7674,9 +7457,7 @@ public class Game extends MiniZX {
          int var16 = this.A();
          this.alu("cp", var16, 214);
          this.pc('\ue33e', 1);
-         if(this.flag(1, false)) {
-            this.ret();
-         } else {
+         if(!this.flag(1, false)) {
             this.$E33F();
          }
       }
@@ -7692,9 +7473,7 @@ public class Game extends MiniZX {
       int var4 = this.alu("or", var3, var2);
       this.A(var4);
       this.pc('\ue343', 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          label18: {
             this.pc('\ue344', 1);
             this.exx();
@@ -7705,7 +7484,6 @@ public class Game extends MiniZX {
             this.pc('\ue34b', 1);
             this.HL(25601);
             this.pc('\ue34e', 1);
-            this.call('\ue351');
             this.$E3D3();
             this.pc('\ue351', 1);
             int var5 = this.mem('\uf26e', '\ue351');
@@ -7799,7 +7577,6 @@ public class Game extends MiniZX {
          }
 
          this.pc('\ue386', 1);
-         this.call('\ue389');
          this.$B7BA();
          this.pc('\ue389', 1);
          int var10 = this.E();
@@ -7879,7 +7656,6 @@ public class Game extends MiniZX {
             int var30 = this.alu("add", var29, var28);
             this.A(var30);
             this.pc('\ue3cd', 1);
-            this.call('\ue3d0');
             this.$B7BA();
             this.pc('\ue3d0', 1);
             int var31 = this.E();
@@ -7896,7 +7672,6 @@ public class Game extends MiniZX {
          int var37 = this.L();
          this.A(var37);
          this.pc('\ue3a3', 1);
-         this.call('\ue3a6');
          this.$B7BA();
          this.pc('\ue3a6', 1);
          int var38 = this.A();
@@ -7929,14 +7704,12 @@ public class Game extends MiniZX {
             this.pc('\ue3b2', 1);
             this.exx();
             this.pc('\ue3b3', 1);
-            this.ret();
             return;
          }
 
          this.pc('\ue3b4', 1);
          this.A(32);
          this.pc('\ue3b6', 1);
-         this.call('\ue3b9');
          this.$B7BA();
          this.pc('\ue3b9', 1);
          int var34 = this.E();
@@ -7960,7 +7733,6 @@ public class Game extends MiniZX {
          int var5 = this.A();
          this.B(var5);
          this.pc('\ue3d6', 1);
-         this.call('\ue3d9');
          this.$E3EC();
          this.pc('\ue3d9', 1);
          int var6 = this.C();
@@ -7971,7 +7743,6 @@ public class Game extends MiniZX {
 
       do {
          this.pc('\ue3dc', 1);
-         this.call('\ue3df');
          this.$E3EC();
          this.pc('\ue3df', 1);
          int var8 = this.D();
@@ -7993,7 +7764,6 @@ public class Game extends MiniZX {
          int var14 = this.A();
          this.B(var14);
          this.pc('\ue3e5', 1);
-         this.call('\ue3e8');
          this.$E3EC();
          this.pc('\ue3e8', 1);
          int var15 = this.E();
@@ -8003,7 +7773,6 @@ public class Game extends MiniZX {
       } while(this.flag(64, true));
 
       this.pc('\ue3eb', 1);
-      this.ret();
    }
 
    public void $E3EC() {
@@ -8040,19 +7809,16 @@ public class Game extends MiniZX {
       int var6 = this.pop();
       this.BC(var6);
       this.pc('\ue3fc', 1);
-      this.ret();
    }
 
    public void $E3FD() {
       this.pc('\ue3fd', 1);
-      this.call('\ue400');
       this.$B931();
       this.pc('\ue400', 1);
       this.HL(32319);
       this.pc('\ue403', 1);
       this.DE(16);
       this.pc('\ue406', 1);
-      this.call('\ue409');
       this.$B84B();
       this.pc('\ue409', 1);
       this.H(124);
@@ -8065,21 +7831,16 @@ public class Game extends MiniZX {
       this.pc('\ue410', 1);
       this.DE(27);
       this.pc('\ue413', 1);
-      this.call('\ue416');
       this.$B84B();
       this.pc('\ue416', 1);
-      this.call('\ue419');
       this.$E36D();
       this.pc('\ue419', 1);
-      this.call('\ue41c');
       this.$E420();
       this.pc('\ue41c', 1);
-      this.ret();
    }
 
    public void $E41D() {
       this.pc('\ue41d', 1);
-      this.call('\ue420');
       this.$E77A();
       this.$E420();
    }
@@ -8166,7 +7927,6 @@ public class Game extends MiniZX {
       this.pc('\ue448', 1);
       this.C(67);
       this.pc('\ue44a', 1);
-      this.call('\ue44d');
       this.$E468();
       this.pc('\ue44d', 1);
       int var33 = this.pop();
@@ -8176,7 +7936,6 @@ public class Game extends MiniZX {
       this.pc('\ue451', 1);
       this.C(69);
       this.pc('\ue453', 1);
-      this.call('\ue456');
       this.$E468();
       this.pc('\ue456', 2);
       int var34 = this.IY() + 80;
@@ -8185,7 +7944,6 @@ public class Game extends MiniZX {
       this.pc('\ue459', 1);
       this.DE(0);
       this.pc('\ue45c', 1);
-      this.call('\ue45f');
       this.$B77B();
       this.pc('\ue45f', 2);
       int var36 = this.IY() + 85;
@@ -8194,15 +7952,12 @@ public class Game extends MiniZX {
       this.pc('\ue462', 1);
       this.D(2);
       this.pc('\ue464', 1);
-      this.call('\ue467');
       this.$B77B();
       this.pc('\ue467', 1);
-      this.ret();
    }
 
    public void $E468() {
       this.pc('\ue468', 1);
-      this.call('\ue46b');
       this.$B84B();
       this.pc('\ue46b', 1);
       this.C(7);
@@ -8214,9 +7969,7 @@ public class Game extends MiniZX {
       int var3 = this.A();
       this.alu("cp", var3, 244);
       this.pc('\ue470', 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          this.pc('\ue471', 1);
          int var4 = this.HL();
          int var5 = this.inc16(var4);
@@ -8230,7 +7983,6 @@ public class Game extends MiniZX {
          int var9 = this.inc16(var8);
          this.HL(var9);
          this.pc('\ue474', 1);
-         this.call('\ue477');
          this.$EC1D();
          this.pc('\ue477', 1);
          if(this.flag(64, true)) {
@@ -8320,7 +8072,6 @@ public class Game extends MiniZX {
       int var20 = this.pop();
       this.HL(var20);
       this.pc('\ue79a', 1);
-      this.ret();
    }
 
    public void $E79B() {
@@ -8339,9 +8090,7 @@ public class Game extends MiniZX {
       int var6 = this.alu("xor", var5, 255);
       this.A(var6);
       this.pc('\ue7a3', 1);
-      if(this.flag(64, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, false)) {
          this.pc('\ue7a4', 2);
          int var7 = this.IY() + 15;
          int var8 = this.mem(var7, '\ue7a4');
@@ -8370,11 +8119,9 @@ public class Game extends MiniZX {
                this.pc('\ue7b8', 1);
                if(!this.flag(64, false)) {
                   this.pc('\ue7ba', 1);
-                  this.call('\ue7bd');
                   this.$BA6E();
                } else {
                   this.pc('\ue7c0', 1);
-                  this.call('\ue7c3');
                   this.$A921();
                   this.pc('\ue7c3', 1);
                   if(!this.flag(64, false)) {
@@ -8388,7 +8135,6 @@ public class Game extends MiniZX {
                      int var19 = this.B();
                      this.A(var19);
                      this.pc('\ue7cc', 1);
-                     this.call('\ue7cf');
                      this.$AC69();
                      this.pc('\ue7cf', 1);
                      int var20 = this.HL();
@@ -8429,10 +8175,8 @@ public class Game extends MiniZX {
                      int var37 = this.mem16('\ub09d', '\ue7e1');
                      this.IY(var37);
                      this.pc('\ue7e5', 1);
-                     this.call('\ue7e8');
                      this.$E3FD();
                      this.pc('\ue7e8', 1);
-                     this.ret();
                      return;
                   }
                }
@@ -8441,7 +8185,6 @@ public class Game extends MiniZX {
                int var16 = this.pop();
                this.IY(var16);
                this.pc('\ue7bf', 1);
-               this.ret();
                return;
             }
 
@@ -8465,7 +8208,6 @@ public class Game extends MiniZX {
       this.pc('\ueac5', 1);
       this.HL('\ue80f');
       this.pc('\ueac8', 1);
-      this.call('\ueacb');
       this.$AC6C();
 
       label245:
@@ -8485,7 +8227,6 @@ public class Game extends MiniZX {
             this.alu("cp", var8, 255);
             this.pc('\ueacf', 1);
             if(this.flag(64, false)) {
-               this.ret();
                return;
             }
 
@@ -8552,7 +8293,7 @@ public class Game extends MiniZX {
                         int var30 = this.DE();
                         this.push(var30);
                         this.pc('\ueb00', 1);
-                        int var31 = this.ret();
+                        int var31 = this.pop();
                         if(var31 != '\ueb01') {
                            if(var31 != '\ueda3') {
                               if(var31 == '\uedc6') {
@@ -8610,7 +8351,6 @@ public class Game extends MiniZX {
                                           this.pc('\ub3c6', 1);
                                           this.HL('\uccf2');
                                           this.pc('\ub3c9', 1);
-                                          this.call('\ub3cc');
                                           this.$B82B();
 
                                           while(true) {
@@ -8685,26 +8425,20 @@ public class Game extends MiniZX {
                                                          this.pc('\ub433', 1);
                                                          this.HL(32360);
                                                          this.pc('\ub436', 1);
-                                                         this.call('\ub439');
                                                          this.$B84B();
                                                          this.pc('\ub439', 1);
-                                                         this.call('\ub43c');
                                                          this.$B3AB();
                                                          this.pc('\ub43c', 1);
-                                                         this.call('\ub43f');
                                                          this.$B8ED();
                                                          this.pc('\ub43f', 1);
                                                          this.DE(2);
                                                          this.pc('\ub442', 1);
                                                          this.HL(31862);
                                                          this.pc('\ub445', 1);
-                                                         this.call('\ub448');
                                                          this.$B8C4();
                                                          this.pc('\ub448', 1);
-                                                         this.call('\ub44b');
                                                          this.$B3AB();
                                                          this.pc('\ub44b', 1);
-                                                         this.call('\ub44e');
                                                          this.$B2F1();
                                                          this.pc('\ub44e', 1);
                                                          this.$8184();
@@ -8758,7 +8492,6 @@ public class Game extends MiniZX {
                                                    int var96 = this.IY() + 65;
                                                    this.wMem(var96, 1, '\ub3fb');
                                                    this.pc('\ub3ff', 1);
-                                                   this.call('\ub402');
                                                    this.$B288();
                                                    this.pc('\ub402', 1);
                                                 } else {
@@ -8769,7 +8502,6 @@ public class Game extends MiniZX {
                                                    int var92 = this.IY() + 65;
                                                    this.wMem(var92, 255, '\ub408');
                                                    this.pc('\ub40c', 1);
-                                                   this.call('\ub40f');
                                                    this.$B288();
                                                 }
 
@@ -8784,10 +8516,8 @@ public class Game extends MiniZX {
                                              this.pc('\ub411', 2);
                                              this.IY('\ubc67');
                                              this.pc('\ub415', 1);
-                                             this.call('\ub418');
                                              this.$EEC1();
                                              this.pc('\ub418', 1);
-                                             this.call('\ub41b');
                                              this.$B9D6();
                                              this.pc('\ub41b', 1);
                                           }
@@ -8873,7 +8603,6 @@ public class Game extends MiniZX {
                                  this.pc('\uee1f', 2);
                                  this.ldir('\uee1f');
                                  this.pc('\uee21', 1);
-                                 this.call('\uee24');
                                  this.$B902();
                                  this.pc('\uee24', 1);
                                  this.HL(18432);
@@ -8914,37 +8643,27 @@ public class Game extends MiniZX {
                                  this.pc('\uee3b', 1);
                                  this.DE(3844);
                                  this.pc('\uee3e', 1);
-                                 this.call('\uee41');
                                  this.$B84B();
                                  this.pc('\uee41', 1);
-                                 this.call('\uee44');
                                  this.$B9AC();
 
                                  do {
                                     do {
                                        this.pc('\uee44', 1);
-                                       this.call('\uee47');
                                        this.$BAB4();
                                        this.pc('\uee47', 1);
-                                       this.call('\uee4a');
                                        this.$EEA2();
                                        this.pc('\uee4a', 1);
-                                       this.call('\uee4d');
                                        this.$F93A();
                                        this.pc('\uee4d', 1);
-                                       this.call('\uee50');
                                        this.$F9F5();
                                        this.pc('\uee50', 1);
-                                       this.call('\uee53');
                                        this.$F9F5();
                                        this.pc('\uee53', 1);
-                                       this.call('\uee56');
                                        this.$F9F5();
                                        this.pc('\uee56', 1);
-                                       this.call('\uee59');
                                        this.$F8B9();
                                        this.pc('\uee59', 1);
-                                       this.call('\uee5c');
                                        this.$B9FB();
                                        this.pc('\uee5c', 2);
                                        int var134 = this.IY() + 5;
@@ -9056,7 +8775,6 @@ public class Game extends MiniZX {
                                  this.pc('\uefdb', 1);
                                  this.HL(32534);
                                  this.pc('\uefde', 1);
-                                 this.call('\uefe1');
                                  this.$B82B();
 
                                  do {
@@ -9082,7 +8800,6 @@ public class Game extends MiniZX {
                                     int var177 = this.A();
                                     this.wMem(var176, var177, '\uefec');
                                     this.pc('\uefef', 1);
-                                    this.call('\ueff2');
                                     this.$81AE();
                                     this.pc('\ueff2', 2);
                                     int var178 = this.IY() + 10;
@@ -9108,7 +8825,6 @@ public class Game extends MiniZX {
                                  this.A(var186);
                                  this.pc('\uf001', 1);
                                  if(this.flag(64, true)) {
-                                    this.call('\uf004');
                                     this.$81D4();
                                  }
 
@@ -9120,10 +8836,8 @@ public class Game extends MiniZX {
                                  this.pc('\uf009', 1);
                                  this.HL('\uf0b7');
                                  this.pc('\uf00c', 1);
-                                 this.call('\uf00f');
                                  this.$B902();
                                  this.pc('\uf00f', 1);
-                                 this.call('\uf012');
                                  this.$B969();
                                  this.pc('\uf012', 2);
                                  int var188 = this.IY() + 5;
@@ -9153,19 +8867,14 @@ public class Game extends MiniZX {
                                     }
 
                                     this.pc('\uf026', 1);
-                                    this.call('\uf029');
                                     this.$EEA2();
                                     this.pc('\uf029', 1);
-                                    this.call('\uf02c');
                                     this.$F057();
                                     this.pc('\uf02c', 1);
-                                    this.call('\uf02f');
                                     this.$F0C0();
                                     this.pc('\uf02f', 1);
-                                    this.call('\uf032');
                                     this.$B0E6();
                                     this.pc('\uf032', 1);
-                                    this.call('\uf035');
                                     this.$B9FB();
                                     this.pc('\uf035', 2);
                                     int var193 = this.IY() + 5;
@@ -9193,6 +8902,7 @@ public class Game extends MiniZX {
                                  if(var31 != '\ueb79') {
                                     if(var31 != '\uecbc') {
                                        if(var31 != '\ueb0f') {
+                                          this.jump(var31);
                                           return;
                                        }
 
@@ -9220,7 +8930,6 @@ public class Game extends MiniZX {
                                        int var309 = this.IY();
                                        this.push(var309);
                                        this.pc('\ueb1c', 1);
-                                       this.call('\ueb1f');
                                        this.$AA8C();
                                        this.pc('\ueb1f', 2);
                                        int var310 = this.IY() + 80;
@@ -9318,10 +9027,8 @@ public class Game extends MiniZX {
                                        int var344 = this.pop();
                                        this.IY(var344);
                                        this.pc('\ueb4a', 1);
-                                       this.call('\ueb4d');
                                        this.$E41D();
                                        this.pc('\ueb4d', 1);
-                                       this.call('\ueb50');
                                        this.$AA7F();
                                        this.pc('\ueb50', 1);
                                        int var345 = this.pop();
@@ -9529,7 +9236,6 @@ public class Game extends MiniZX {
                                     int var234 = this.pop();
                                     this.DE(var234);
                                     this.pc('\ueb8e', 1);
-                                    this.call('\ueb91');
                                     this.$B82B();
                                     this.pc('\ueb91', 1);
                                     int var235 = this.pop();
@@ -9582,7 +9288,6 @@ public class Game extends MiniZX {
                            this.wMem(var47, var46, '\uec54');
                            this.pc('\uec55', 1);
                            if(this.flag(64, true)) {
-                              this.call('\uec58');
                               this.$E41D();
                            }
 
@@ -9601,7 +9306,6 @@ public class Game extends MiniZX {
                            int var34 = this.mem(var33, '\ueb06');
                            this.B(var34);
                            this.pc('\ueb09', 1);
-                           this.call('\ueb0c');
                            this.$AA30();
                            this.pc('\ueb0c', 1);
                         }
@@ -9648,7 +9352,7 @@ public class Game extends MiniZX {
                int var371 = this.DE();
                this.push(var371);
                this.pc('\ueae2', 1);
-               int var372 = this.ret();
+               int var372 = this.pop();
                if(var372 != '\uebe2') {
                   if(var372 != '\uedb3') {
                      if(var372 != '\uebc4') {
@@ -9657,6 +9361,7 @@ public class Game extends MiniZX {
                               if(var372 != '\uec2b') {
                                  if(var372 != '\uebed') {
                                     if(var372 != '\uebfe') {
+                                       this.jump(var372);
                                        return;
                                     }
 
@@ -9719,7 +9424,6 @@ public class Game extends MiniZX {
                                  }
                               } else {
                                  this.pc('\uec2b', 1);
-                                 this.call('\uec2e');
                                  this.$EC3D();
                                  this.pc('\uec2e', 1);
                                  if(this.flag(64, false)) {
@@ -9755,7 +9459,6 @@ public class Game extends MiniZX {
                                  int var426 = this.B();
                                  this.wMem(var425, var426, '\ueb9e');
                                  this.pc('\ueba1', 1);
-                                 this.call('\ueba4');
                                  this.$AA8C();
                                  this.pc('\ueba4', 2);
                                  int var427 = this.IY() + 5;
@@ -9823,7 +9526,6 @@ public class Game extends MiniZX {
                            }
                         } else {
                            this.pc('\uec34', 1);
-                           this.call('\uec37');
                            this.$EC3D();
                            this.pc('\uec37', 1);
                            if(this.flag(64, true)) {
@@ -9905,7 +9607,6 @@ public class Game extends MiniZX {
                      int var388 = this.inc16(var387);
                      this.HL(var388);
                      this.pc('\uedb5', 1);
-                     this.call('\uedb8');
                      this.$EC1D();
                      this.pc('\uedb8', 1);
                      if(!this.flag(64, false)) {
@@ -9959,7 +9660,6 @@ public class Game extends MiniZX {
       }
 
       this.pc('\uee8d', 1);
-      this.call('\uee90');
       this.$B952();
       this.pc('\uee90', 2);
       int var149 = this.IY() + 10;
@@ -9979,7 +9679,6 @@ public class Game extends MiniZX {
       this.pc('\ueb55', 1);
       this.BC(0);
       this.pc('\ueb58', 1);
-      this.call('\ueb5b');
       this.$AA8C();
 
       while(true) {
@@ -10002,7 +9701,6 @@ public class Game extends MiniZX {
             this.A(var7);
             this.pc('\ueb74', 1);
             if(this.flag(64, true)) {
-               this.ret();
                return;
             }
 
@@ -10010,7 +9708,6 @@ public class Game extends MiniZX {
             int var8 = this.A();
             this.wMem('\ueb54', var8, '\ueb75');
             this.pc('\ueb78', 1);
-            this.ret();
             return;
          }
 
@@ -10091,7 +9788,6 @@ public class Game extends MiniZX {
       int var13 = this.alu("or", var12, var11);
       this.A(var13);
       this.pc('\uec2a', 1);
-      this.ret();
    }
 
    public void $EC3D() {
@@ -10118,7 +9814,6 @@ public class Game extends MiniZX {
       int var10 = this.AF();
       this.push(var10);
       this.pc('\uec43', 1);
-      this.call('\uec46');
       this.$AA8C();
       this.pc('\uec46', 1);
       int var11 = this.pop();
@@ -10132,7 +9827,6 @@ public class Game extends MiniZX {
       int var15 = this.pop();
       this.HL(var15);
       this.pc('\uec49', 1);
-      this.ret();
    }
 
    public void $ED2A() {
@@ -10179,9 +9873,7 @@ public class Game extends MiniZX {
       int var20 = this.alu("sbc", var19, var18);
       this.A(var20);
       this.pc('\ued3e', 1);
-      if(this.flag(1, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(1, false)) {
          this.pc('\ued3f', 1);
          this.BC(0);
 
@@ -10204,7 +9896,6 @@ public class Game extends MiniZX {
          } while(this.flag(64, true));
 
          this.pc('\ued49', 1);
-         this.call('\ued4c');
          this.$B902();
          this.pc('\ued4c', 1);
          this.HL('\ued00');
@@ -10230,15 +9921,12 @@ public class Game extends MiniZX {
          this.pc('\ued54', 1);
          this.DE(0);
          this.pc('\ued57', 1);
-         this.call('\ued5a');
          this.$B8C4();
          this.pc('\ued5a', 1);
-         this.call('\ued5d');
          this.$B9AC();
 
          do {
             this.pc('\ued5d', 1);
-            this.call('\ued60');
             this.$EEA2();
             this.pc('\ued60', 1);
             int var36 = this.mem('\uecf5', '\ued60');
@@ -10264,10 +9952,8 @@ public class Game extends MiniZX {
                this.pc('\ued6d', 1);
                this.BC('\uf5ca');
                this.pc('\ued70', 1);
-               this.call('\ued73');
                this.$EF35();
                this.pc('\ued73', 1);
-               this.call('\ued76');
                this.$A8A0();
                this.pc('\ued76', 1);
                int var43 = this.pop();
@@ -10278,10 +9964,8 @@ public class Game extends MiniZX {
             } while(this.B() != 0);
 
             this.pc('\ued79', 1);
-            this.call('\ued7c');
             this.$B9FB();
             this.pc('\ued7c', 1);
-            this.call('\ued7f');
             this.$ABD7();
             this.pc('\ued7f', 1);
             int var45 = this.A();
@@ -10300,10 +9984,8 @@ public class Game extends MiniZX {
          int var51 = this.HL();
          this.wMem(var51, var50, '\ued85');
          this.pc('\ued86', 1);
-         this.call('\ued89');
          this.$B952();
          this.pc('\ued89', 1);
-         this.ret();
       }
    }
 
@@ -10320,16 +10002,13 @@ public class Game extends MiniZX {
          this.pc('\ued91', 1);
          this.BC('\uf5ca');
          this.pc('\ued94', 1);
-         this.call('\ued97');
          this.$EF35();
          this.pc('\ued97', 1);
-         this.call('\ued9a');
          this.$A8A0();
          this.pc('\ued9a', 1);
          int var2 = this.AF();
          this.push(var2);
          this.pc('\ued9b', 1);
-         this.call('\ued9e');
          this.$E329();
          this.pc('\ued9e', 1);
          int var3 = this.pop();
@@ -10343,7 +10022,6 @@ public class Game extends MiniZX {
       } while(this.B() != 0);
 
       this.pc('\ueda2', 1);
-      this.ret();
    }
 
    public void $EEA2() {
@@ -10356,7 +10034,6 @@ public class Game extends MiniZX {
 
       do {
          this.pc('\ueeab', 1);
-         this.call('\ueeae');
          this.$BA25();
          this.pc('\ueeae', 1);
       } while(this.flag(4, false));
@@ -10370,20 +10047,17 @@ public class Game extends MiniZX {
 
       do {
          this.pc('\ueeba', 1);
-         this.call('\ueebd');
          this.$BA25();
          this.pc('\ueebd', 1);
       } while(this.flag(4, false));
 
       this.pc('\ueec0', 1);
-      this.ret();
    }
 
    public void $EEC1() {
       label325: {
          if(!this.isNextPC('\uf2f6')) {
             this.pc('\ueec1', 1);
-            this.call('\ueec4');
             this.$EEA2();
             this.pc('\ueec4', 2);
             int var1 = this.IY() + 15;
@@ -10395,7 +10069,6 @@ public class Game extends MiniZX {
             this.pc('\ueeca', 1);
             this.B(0);
             this.pc('\ueecc', 1);
-            this.call('\ueecf');
             this.$AA8C();
 
             while(true) {
@@ -10449,7 +10122,6 @@ public class Game extends MiniZX {
                      this.pc('\uf508', 1);
                      this.A(12);
                      this.pc('\uf50a', 1);
-                     this.call('\uf50d');
                      this.$EC1D();
                      this.pc('\uf50d', 1);
                      if(!this.flag(64, false)) {
@@ -10463,15 +10135,12 @@ public class Game extends MiniZX {
                         this.pc('\uf518', 1);
                         this.BC('\uf2f7');
                         this.pc('\uf51b', 1);
-                        this.call('\uf51e');
                         this.$EF35();
                         this.pc('\uf51e', 1);
                         this.A(54);
                         this.pc('\uf520', 1);
-                        this.call('\uf523');
                         this.$A8A0();
                         this.pc('\uf523', 1);
-                        this.call('\uf526');
                         this.$E329();
                         this.$F526();
                         return;
@@ -10485,10 +10154,8 @@ public class Game extends MiniZX {
                      this.pc('\uf549', 1);
                      this.A(54);
                      this.pc('\uf54b', 1);
-                     this.call('\uf54e');
                      this.$A8A0();
                      this.pc('\uf54e', 1);
-                     this.ret();
                      return;
                   }
 
@@ -10510,7 +10177,6 @@ public class Game extends MiniZX {
                         this.pc('\uf752', 1);
                         this.BC('\uf2f7');
                         this.pc('\uf755', 1);
-                        this.call('\uf758');
                         this.$EF35();
                         this.pc('\uf758', 2);
                         int var25 = this.IX() + -1;
@@ -10532,10 +10198,8 @@ public class Game extends MiniZX {
                         this.pc('\uf767', 1);
                         this.A(86);
                         this.pc('\uf769', 1);
-                        this.call('\uf76c');
                         this.$A83D();
                         this.pc('\uf76c', 1);
-                        this.call('\uf76f');
                         this.$E329();
                         this.pc('\uf76f', 1);
                         int var28 = this.pop();
@@ -10546,7 +10210,6 @@ public class Game extends MiniZX {
                      } while(this.B() != 0);
 
                      this.pc('\uf772', 1);
-                     this.ret();
                      return;
                   }
 
@@ -10568,7 +10231,6 @@ public class Game extends MiniZX {
                         this.pc('\uf415', 1);
                         this.BC('\uf3fd');
                         this.pc('\uf418', 1);
-                        this.call('\uf41b');
                         this.$EF35();
                         this.pc('\uf41b', 1);
                         int var34 = this.E();
@@ -10595,10 +10257,8 @@ public class Game extends MiniZX {
                         this.pc('\uf430', 1);
                         this.A(50);
                         this.pc('\uf432', 1);
-                        this.call('\uf435');
                         this.$A8A0();
                         this.pc('\uf435', 1);
-                        this.call('\uf438');
                         this.$E329();
                         this.pc('\uf438', 1);
                         int var36 = this.pop();
@@ -10609,7 +10269,6 @@ public class Game extends MiniZX {
                      } while(this.B() != 0);
 
                      this.pc('\uf43b', 1);
-                     this.ret();
                      return;
                   }
 
@@ -10633,13 +10292,10 @@ public class Game extends MiniZX {
                         this.pc('\uf317', 1);
                         this.BC('\uf2fb');
                         this.pc('\uf31a', 1);
-                        this.call('\uf31d');
                         this.$EF35();
                         this.pc('\uf31d', 1);
-                        this.call('\uf320');
                         this.$A8A0();
                         this.pc('\uf320', 1);
-                        this.call('\uf323');
                         this.$E329();
                         this.pc('\uf323', 1);
                         int var44 = this.pop();
@@ -10650,7 +10306,6 @@ public class Game extends MiniZX {
                      } while(this.B() != 0);
 
                      this.pc('\uf326', 1);
-                     this.ret();
                      return;
                   }
 
@@ -10665,29 +10320,22 @@ public class Game extends MiniZX {
                      this.pc('\uf254', 1);
                      this.BC('\uf2f7');
                      this.pc('\uf257', 1);
-                     this.call('\uf25a');
                      this.$EF35();
                      this.pc('\uf25a', 1);
                      this.A(122);
                      this.pc('\uf25c', 1);
-                     this.call('\uf25f');
                      this.$A8A0();
                      this.pc('\uf25f', 1);
-                     this.call('\uf262');
                      this.$E329();
                      this.pc('\uf262', 1);
                      this.A(122);
                      this.pc('\uf264', 1);
-                     this.call('\uf267');
                      this.$EF35();
                      this.pc('\uf267', 1);
-                     this.call('\uf26a');
                      this.$A8A0();
                      this.pc('\uf26a', 1);
-                     this.call('\uf26d');
                      this.$E329();
                      this.pc('\uf26d', 1);
-                     this.ret();
                      return;
                   }
 
@@ -10718,7 +10366,6 @@ public class Game extends MiniZX {
                         this.A(var73);
                         this.pc('\uf3bf', 1);
                         if(this.flag(64, true)) {
-                           this.call('\uf3c2');
                            this.$F047();
                         }
 
@@ -10731,7 +10378,6 @@ public class Game extends MiniZX {
                         this.A(var54);
                         this.pc('\uf3c5', 1);
                         if(this.flag(64, false)) {
-                           this.call('\uf3c8');
                            this.$F047();
                         }
                      }
@@ -10741,10 +10387,8 @@ public class Game extends MiniZX {
                      this.pc('\uf3ca', 1);
                      this.BC('\uf3a1');
                      this.pc('\uf3cd', 1);
-                     this.call('\uf3d0');
                      this.$EF35();
                      this.pc('\uf3d0', 1);
-                     this.call('\uf3d3');
                      this.$A8A0();
                      this.pc('\uf3d3', 1);
                      int var55 = this.mem('\uf3a0', '\uf3d3');
@@ -10757,10 +10401,8 @@ public class Game extends MiniZX {
                      int var58 = this.A();
                      this.wMem('\uf3a0', var58, '\uf3d8');
                      this.pc('\uf3db', 1);
-                     this.call('\uf3de');
                      this.$EF35();
                      this.pc('\uf3de', 1);
-                     this.call('\uf3e1');
                      this.$A8A0();
                      this.pc('\uf3e1', 1);
                      int var59 = this.mem('\ubd78', '\uf3e1');
@@ -10770,7 +10412,6 @@ public class Game extends MiniZX {
                      this.alu("cp", var60, 23);
                      this.pc('\uf3e6', 1);
                      if(this.flag(64, false)) {
-                        this.ret();
                         return;
                      }
 
@@ -10783,7 +10424,6 @@ public class Game extends MiniZX {
                      this.alu("cp", var63, var62);
                      this.pc('\uf3ec', 1);
                      if(this.flag(64, false)) {
-                        this.ret();
                         return;
                      }
 
@@ -10794,7 +10434,6 @@ public class Game extends MiniZX {
                      this.alu("cp", var66, var65);
                      this.pc('\uf3f0', 1);
                      if(this.flag(64, false)) {
-                        this.ret();
                         return;
                      }
 
@@ -10809,10 +10448,8 @@ public class Game extends MiniZX {
                      int var70 = this.A();
                      this.wMem('\ua839', var70, '\uf3f6');
                      this.pc('\uf3f9', 1);
-                     this.call('\uf3fc');
                      this.$E329();
                      this.pc('\uf3fc', 1);
-                     this.ret();
                      return;
                   }
 
@@ -10880,7 +10517,6 @@ public class Game extends MiniZX {
                               int var93 = this.inc16(var92);
                               this.HL(var93);
                               this.pc('\uf711', 1);
-                              this.call('\uf714');
                               this.$A83D();
                               this.pc('\uf714', 1);
                               int var94 = this.B() - 1 & 255;
@@ -10897,7 +10533,6 @@ public class Game extends MiniZX {
                      this.alu("cp", var79, 6);
                      this.pc('\uf71b', 1);
                      if(this.flag(64, false)) {
-                        this.ret();
                         return;
                      }
 
@@ -10918,15 +10553,12 @@ public class Game extends MiniZX {
                         this.pc('\uf728', 1);
                         this.BC('\uf2f7');
                         this.pc('\uf72b', 1);
-                        this.call('\uf72e');
                         this.$EF35();
                         this.pc('\uf72e', 1);
                         this.A(118);
                         this.pc('\uf730', 1);
-                        this.call('\uf733');
                         this.$A8A0();
                         this.pc('\uf733', 1);
-                        this.call('\uf736');
                         this.$E329();
                         this.pc('\uf736', 1);
                         int var82 = this.pop();
@@ -10937,7 +10569,6 @@ public class Game extends MiniZX {
                      } while(this.B() != 0);
 
                      this.pc('\uf739', 1);
-                     this.ret();
                      return;
                   }
 
@@ -10953,11 +10584,9 @@ public class Game extends MiniZX {
                         this.pc('\uf556', 1);
                         this.A(5);
                         this.pc('\uf558', 1);
-                        this.call('\uf55b');
                         this.$EC1D();
                         this.pc('\uf55b', 1);
                         if(this.flag(64, true)) {
-                           this.ret();
                            return;
                         }
                      }
@@ -10971,7 +10600,6 @@ public class Game extends MiniZX {
                      this.alu("cp", var103, var102);
                      this.pc('\uf561', 1);
                      if(this.flag(64, false)) {
-                        this.ret();
                         return;
                      }
 
@@ -10982,7 +10610,6 @@ public class Game extends MiniZX {
                      this.alu("cp", var106, var105);
                      this.pc('\uf565', 1);
                      if(this.flag(64, false)) {
-                        this.ret();
                         return;
                      }
 
@@ -10992,7 +10619,6 @@ public class Game extends MiniZX {
                      int var107 = this.A();
                      this.wMem('\uf26e', var107, '\uf568');
                      this.pc('\uf56b', 1);
-                     this.call('\uf56e');
                      this.$E33F();
                      break label325;
                   }
@@ -11070,7 +10696,6 @@ public class Game extends MiniZX {
                               this.pc('\uf629', 1);
                               this.A(13);
                               this.pc('\uf62b', 1);
-                              this.call('\uf62e');
                               this.$EC1D();
                               this.pc('\uf62e', 1);
                               this.BC('\uf5ca');
@@ -11081,7 +10706,6 @@ public class Game extends MiniZX {
                               }
 
                               this.pc('\uf636', 1);
-                              this.call('\uf639');
                               this.$EF35();
                               this.pc('\uf639', 1);
                               int var133 = this.mem('\uf5d2', '\uf639');
@@ -11094,10 +10718,8 @@ public class Game extends MiniZX {
                               int var136 = this.A();
                               this.wMem('\uf5d2', var136, '\uf63e');
                               this.pc('\uf641', 1);
-                              this.call('\uf644');
                               this.$A8A0();
                               this.pc('\uf644', 1);
-                              this.call('\uf647');
                               this.$E329();
                               this.pc('\uf647', 1);
                               int var137 = this.pop();
@@ -11108,7 +10730,6 @@ public class Game extends MiniZX {
                            } while(this.B() != 0);
 
                            this.pc('\uf64a', 1);
-                           this.ret();
                            return;
                         }
 
@@ -11168,11 +10789,9 @@ public class Game extends MiniZX {
                         this.pc('\uf4da', 1);
                         this.A(5);
                         this.pc('\uf4dc', 1);
-                        this.call('\uf4df');
                         this.$EC1D();
                         this.pc('\uf4df', 1);
                         if(this.flag(64, true)) {
-                           this.ret();
                            return;
                         }
                      }
@@ -11207,13 +10826,10 @@ public class Game extends MiniZX {
                      int var162 = this.A();
                      this.wMem('\uf4d2', var162, '\uf4f5');
                      this.pc('\uf4f8', 1);
-                     this.call('\uf4fb');
                      this.$A83D();
                      this.pc('\uf4fb', 1);
-                     this.call('\uf4fe');
                      this.$E329();
                      this.pc('\uf4fe', 1);
-                     this.ret();
                      return;
                   }
 
@@ -11247,7 +10863,6 @@ public class Game extends MiniZX {
                            this.pc('\uf788', 1);
                            if(!this.flag(1, true)) {
                               this.pc('\uf78a', 1);
-                              this.call('\uf78d');
                               this.$E33F();
                            }
                         }
@@ -11372,7 +10987,6 @@ public class Game extends MiniZX {
                         }
 
                         this.pc('\uf7d8', 1);
-                        this.call('\uf7db');
                         this.$A83D();
                         this.pc('\uf7db', 1);
                         int var186 = this.B() - 1 & 255;
@@ -11380,7 +10994,6 @@ public class Game extends MiniZX {
                      } while(this.B() != 0);
 
                      this.pc('\uf7dd', 1);
-                     this.ret();
                      return;
                   }
 
@@ -11394,7 +11007,6 @@ public class Game extends MiniZX {
                      int var212 = this.mem('\ued12', '\ued18');
                      this.A(var212);
                      this.pc('\ued1b', 1);
-                     this.call('\ued1e');
                      this.$ED8A();
                      this.pc('\ued1e', 1);
                      int var213 = this.A();
@@ -11413,7 +11025,6 @@ public class Game extends MiniZX {
                      int var216 = this.A();
                      this.wMem('\ued12', var216, '\ued26');
                      this.pc('\ued29', 1);
-                     this.ret();
                      return;
                   }
 
@@ -11428,7 +11039,6 @@ public class Game extends MiniZX {
                      this.pc('\uf33d', 1);
                      this.BC('\uf330');
                      this.pc('\uf340', 1);
-                     this.call('\uf343');
                      this.$EF35();
                      this.pc('\uf343', 2);
                      int var218 = this.IX() + 0;
@@ -11452,22 +11062,18 @@ public class Game extends MiniZX {
                      int var224 = this.A();
                      this.wMem(var223, var224, '\uf34d');
                      this.pc('\uf350', 1);
-                     this.call('\uf353');
                      this.$A83D();
                      this.pc('\uf353', 2);
                      int var225 = this.IX();
                      int var226 = this.inc16(var225);
                      this.IX(var226);
                      this.pc('\uf355', 1);
-                     this.call('\uf358');
                      this.$EF35();
                      this.pc('\uf358', 1);
                      this.A(100);
                      this.pc('\uf35a', 1);
-                     this.call('\uf35d');
                      this.$A83D();
                      this.pc('\uf35d', 1);
-                     this.call('\uf360');
                      this.$E329();
                      this.pc('\uf360', 2);
                      int var227 = this.IX() + -1;
@@ -11478,7 +11084,6 @@ public class Game extends MiniZX {
                      this.alu("cp", var229, 254);
                      this.pc('\uf365', 1);
                      if(this.flag(64, true)) {
-                        this.ret();
                         return;
                      }
 
@@ -11497,7 +11102,6 @@ public class Game extends MiniZX {
                      int var235 = this.A();
                      this.wMem(var234, var235, '\uf371');
                      this.pc('\uf374', 1);
-                     this.ret();
                      return;
                   }
 
@@ -11519,7 +11123,6 @@ public class Game extends MiniZX {
                         this.pc('\uf680', 1);
                         this.BC('\uf5ca');
                         this.pc('\uf683', 1);
-                        this.call('\uf686');
                         this.$EF35();
                         this.pc('\uf686', 2);
                         int var238 = this.IX() + 0;
@@ -11629,10 +11232,8 @@ public class Game extends MiniZX {
                         int var244 = this.A();
                         this.wMem('\uf671', var244, '\uf6c0');
                         this.pc('\uf6c3', 1);
-                        this.call('\uf6c6');
                         this.$A8A0();
                         this.pc('\uf6c6', 1);
-                        this.call('\uf6c9');
                         this.$E329();
                         this.pc('\uf6c9', 2);
                         int var245 = this.IX();
@@ -11651,7 +11252,6 @@ public class Game extends MiniZX {
                      } while(this.B() != 0);
 
                      this.pc('\uf6d0', 1);
-                     this.ret();
                      return;
                   }
 
@@ -11660,14 +11260,12 @@ public class Game extends MiniZX {
                         this.pc('\uf43c', 1);
                         this.A(9);
                         this.pc('\uf43e', 1);
-                        this.call('\uf441');
                         this.$EC1D();
                         this.pc('\uf441', 1);
                         if(!this.flag(64, false)) {
                            this.pc('\uf443', 1);
                            this.A(6);
                            this.pc('\uf445', 1);
-                           this.call('\uf448');
                            this.$EC1D();
                            this.pc('\uf448', 1);
                            if(!this.flag(64, false)) {
@@ -11773,15 +11371,15 @@ public class Game extends MiniZX {
                         this.pc('\uf48b', 1);
                         this.A(43);
                         this.pc('\uf48d', 1);
-                        this.call('\uf490');
                         this.$A83D();
                         this.pc('\uf490', 1);
-                        this.ret();
                         return;
                      }
 
                      if(this.HL() != '\uf49d') {
                         if(this.HL() != '\uf37d') {
+                           int var338 = this.HL();
+                           this.jump(var338);
                            return;
                         }
 
@@ -11795,29 +11393,22 @@ public class Game extends MiniZX {
                         this.pc('\uf386', 1);
                         this.BC('\uf2f7');
                         this.pc('\uf389', 1);
-                        this.call('\uf38c');
                         this.$EF35();
                         this.pc('\uf38c', 1);
                         this.A(120);
                         this.pc('\uf38e', 1);
-                        this.call('\uf391');
                         this.$A8A0();
                         this.pc('\uf391', 1);
-                        this.call('\uf394');
                         this.$E329();
                         this.pc('\uf394', 1);
-                        this.call('\uf397');
                         this.$EF35();
                         this.pc('\uf397', 1);
                         this.A(120);
                         this.pc('\uf399', 1);
-                        this.call('\uf39c');
                         this.$A8A0();
                         this.pc('\uf39c', 1);
-                        this.call('\uf39f');
                         this.$E329();
                         this.pc('\uf39f', 1);
-                        this.ret();
                         return;
                      }
 
@@ -11838,7 +11429,6 @@ public class Game extends MiniZX {
                         this.pc('\uf4a9', 1);
                         this.BC('\uf2f7');
                         this.pc('\uf4ac', 1);
-                        this.call('\uf4af');
                         this.$EF35();
                         this.pc('\uf4af', 1);
                         int var321 = this.D();
@@ -11879,10 +11469,8 @@ public class Game extends MiniZX {
                         this.pc('\uf4c6', 1);
                         this.A(52);
                         this.pc('\uf4c8', 1);
-                        this.call('\uf4cb');
                         this.$A8A0();
                         this.pc('\uf4cb', 1);
-                        this.call('\uf4ce');
                         this.$E329();
                         this.pc('\uf4ce', 1);
                         int var323 = this.pop();
@@ -11893,60 +11481,54 @@ public class Game extends MiniZX {
                      } while(this.B() != 0);
 
                      this.pc('\uf4d1', 1);
-                     this.ret();
                      return;
                   }
                   break;
                }
 
                this.pc('\ueed4', 1);
-               int var338 = this.HL();
-               int var339 = this.inc16(var338);
-               this.HL(var339);
+               int var339 = this.HL();
+               int var340 = this.inc16(var339);
+               this.HL(var340);
                this.pc('\ueed5', 1);
-               int var340 = this.HL();
-               int var341 = this.mem(var340, '\ueed5');
-               this.E(var341);
+               int var341 = this.HL();
+               int var342 = this.mem(var341, '\ueed5');
+               this.E(var342);
                this.pc('\ueed6', 1);
-               int var342 = this.HL();
-               int var343 = this.inc16(var342);
-               this.HL(var343);
+               int var343 = this.HL();
+               int var344 = this.inc16(var343);
+               this.HL(var344);
                this.pc('\ueed7', 1);
-               int var344 = this.HL();
-               int var345 = this.mem(var344, '\ueed7');
-               this.D(var345);
+               int var345 = this.HL();
+               int var346 = this.mem(var345, '\ueed7');
+               this.D(var346);
                this.pc('\ueed8', 1);
-               int var346 = this.HL();
-               int var347 = this.inc16(var346);
-               this.HL(var347);
+               int var347 = this.HL();
+               int var348 = this.inc16(var347);
+               this.HL(var348);
                this.pc('\ueed9', 1);
-               int var348 = this.HL();
-               int var349 = this.inc16(var348);
-               this.HL(var349);
+               int var349 = this.HL();
+               int var350 = this.inc16(var349);
+               this.HL(var350);
                this.pc('\ueeda', 2);
-               int var350 = this.DE();
-               this.wMem16('\ua838', var350, '\ueeda');
+               int var351 = this.DE();
+               this.wMem16('\ua838', var351, '\ueeda');
                this.pc('\ueede', 1);
-               this.call('\ueee1');
                this.$A83D();
                this.pc('\ueee1', 1);
             }
          }
 
          this.pc('\uf2f6', 1);
-         this.ret();
          return;
       }
 
       this.pc('\uf572', 1);
       this.A(8);
       this.pc('\uf574', 1);
-      this.call('\uf577');
       this.$EC1D();
       this.pc('\uf577', 1);
-      if(this.flag(64, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, false)) {
          this.$F578();
       }
    }
@@ -12145,7 +11727,6 @@ public class Game extends MiniZX {
       int var8 = this.inc16(var7);
       this.IX(var8);
       this.pc('\uef90', 1);
-      this.ret();
    }
 
    public void $EF91() {
@@ -12258,7 +11839,6 @@ public class Game extends MiniZX {
       int var36 = this.pop();
       this.AF(var36);
       this.pc('\uefc6', 1);
-      this.ret();
    }
 
    public void $F047() {
@@ -12276,10 +11856,8 @@ public class Game extends MiniZX {
       this.pc('\uf050', 1);
       this.BC(192);
       this.pc('\uf053', 1);
-      this.call('\uf056');
       this.$81E3();
       this.pc('\uf056', 1);
-      this.ret();
    }
 
    public void $F057() {
@@ -12293,7 +11871,6 @@ public class Game extends MiniZX {
       this.A(var4);
       this.pc('\uf05b', 1);
       if(this.flag(64, true)) {
-         this.call('\uf05e');
          this.$F047();
       }
 
@@ -12308,7 +11885,6 @@ public class Game extends MiniZX {
       int var6 = this.HL();
       this.wMem16('\ua838', var6, '\uf065');
       this.pc('\uf068', 1);
-      this.call('\uf06b');
       this.$A8A0();
       this.pc('\uf06b', 1);
       this.H(168);
@@ -12326,7 +11902,6 @@ public class Game extends MiniZX {
       int var11 = this.A();
       this.wMem('\uf3a0', var11, '\uf075');
       this.pc('\uf078', 1);
-      this.call('\uf07b');
       this.$A8A0();
       this.pc('\uf07b', 1);
       this.A(12);
@@ -12334,7 +11909,6 @@ public class Game extends MiniZX {
       int var12 = this.A();
       this.wMem('\uf26e', var12, '\uf07d');
       this.pc('\uf080', 1);
-      this.call('\uf083');
       this.$E329();
       this.pc('\uf083', 2);
       int var13 = this.IY() + 10;
@@ -12344,9 +11918,7 @@ public class Game extends MiniZX {
       int var15 = this.A();
       this.alu("cp", var15, 152);
       this.pc('\uf088', 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          this.pc('\uf089', 1);
          this.HL('\uf0bd');
          this.pc('\uf08c', 1);
@@ -12419,7 +11991,6 @@ public class Game extends MiniZX {
             this.alu("cp", var45, 5);
             this.pc('\uf0ab', 1);
             if(this.flag(64, false)) {
-               this.ret();
                return;
             }
 
@@ -12434,7 +12005,6 @@ public class Game extends MiniZX {
             this.A(var36);
             this.pc('\uf0b2', 1);
             if(this.flag(64, false)) {
-               this.ret();
                return;
             }
          }
@@ -12443,7 +12013,6 @@ public class Game extends MiniZX {
          int var37 = this.A();
          this.wMem('\uf0e4', var37, '\uf0b3');
          this.pc('\uf0b6', 1);
-         this.ret();
       }
    }
 
@@ -12456,19 +12025,15 @@ public class Game extends MiniZX {
       int var3 = this.A();
       this.alu("cp", var3, 152);
       this.pc('\uf0c5', 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          label34: {
             label29: {
                this.pc('\uf0c6', 1);
-               this.call('\uf0c9');
                this.$B03C();
                this.pc('\uf0c9', 1);
                int var4 = this.A();
                this.C(var4);
                this.pc('\uf0ca', 1);
-               this.call('\uf0cd');
                this.$B00B();
                this.pc('\uf0cd', 1);
                int var5 = this.A();
@@ -12559,7 +12124,6 @@ public class Game extends MiniZX {
             this.A(var18);
             this.pc('\uf100', 1);
             if(this.flag(64, false)) {
-               this.ret();
                return;
             }
 
@@ -12594,7 +12158,6 @@ public class Game extends MiniZX {
       this.pc('\uf117', 1);
       this.BC('\uf10a');
       this.pc('\uf11a', 1);
-      this.call('\uf11d');
       this.$EF35();
       this.pc('\uf11d', 2);
       int var2 = this.IX() + -4;
@@ -12627,14 +12190,12 @@ public class Game extends MiniZX {
             int var21 = this.IX() + -1;
             this.wMem(var21, 254, '\uf134');
             this.pc('\uf138', 1);
-            this.call('\uf13b');
             this.$AF01();
             this.pc('\uf13b', 2);
             int var22 = this.IX() + 0;
             int var23 = this.A();
             this.wMem(var22, var23, '\uf13b');
             this.pc('\uf13e', 1);
-            this.ret();
             return;
          }
       }
@@ -12649,9 +12210,7 @@ public class Game extends MiniZX {
       int var11 = this.A();
       this.alu("cp", var11, var10);
       this.pc('\uf145', 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          this.pc('\uf146', 2);
          int var12 = this.IX() + -3;
          int var13 = this.mem(var12, '\uf146');
@@ -12668,13 +12227,10 @@ public class Game extends MiniZX {
          }
 
          this.pc('\uf151', 1);
-         this.call('\uf154');
          this.$A8A0();
          this.pc('\uf154', 1);
-         this.call('\uf157');
          this.$E329();
          this.pc('\uf157', 1);
-         this.ret();
       }
    }
 
@@ -12689,14 +12245,12 @@ public class Game extends MiniZX {
       this.pc('\uf280', 1);
       this.BC('\uf2f7');
       this.pc('\uf283', 1);
-      this.call('\uf286');
       this.$EF35();
       this.pc('\uf286', 2);
       int var2 = this.IX() + 0;
       int var3 = this.mem(var2, '\uf286');
       this.A(var3);
       this.pc('\uf289', 1);
-      this.call('\uf28c');
       this.$AC69();
       this.pc('\uf28c', 1);
       int var4 = this.HL();
@@ -12707,7 +12261,6 @@ public class Game extends MiniZX {
       int var7 = this.mem(var6, '\uf28d');
       this.A(var7);
       this.pc('\uf28e', 1);
-      this.call('\uf291');
       this.$AC5F();
       this.pc('\uf291', 1);
       int var8 = this.HL();
@@ -12745,7 +12298,6 @@ public class Game extends MiniZX {
 
             do {
                this.pc('\uf2a5', 1);
-               this.call('\uf2a8');
                this.$AF01();
                this.pc('\uf2a8', 1);
                int var43 = this.A();
@@ -12758,7 +12310,6 @@ public class Game extends MiniZX {
             int var45 = this.A();
             this.wMem(var44, var45, '\uf2ac');
             this.pc('\uf2af', 1);
-            this.call('\uf2b2');
             this.$AC69();
             this.pc('\uf2b2', 1);
             int var46 = this.HL();
@@ -12769,7 +12320,6 @@ public class Game extends MiniZX {
             int var49 = this.mem(var48, '\uf2b3');
             this.A(var49);
             this.pc('\uf2b4', 1);
-            this.call('\uf2b7');
             this.$AC5F();
             this.pc('\uf2b7', 1);
             int var50 = this.HL();
@@ -12805,9 +12355,7 @@ public class Game extends MiniZX {
       int var17 = this.A();
       this.alu("cp", var17, var16);
       this.pc('\uf2c9', 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          this.pc('\uf2ca', 2);
          int var18 = this.IX() + -2;
          int var19 = this.mem(var18, '\uf2ca');
@@ -12859,7 +12407,6 @@ public class Game extends MiniZX {
          int var31 = this.A();
          this.wMem(var30, var31, '\uf2e5');
          this.pc('\uf2e8', 1);
-         this.call('\uf2eb');
          this.$A8A0();
          this.pc('\uf2eb', 1);
          this.A(70);
@@ -12867,10 +12414,8 @@ public class Game extends MiniZX {
          int var32 = this.A();
          this.wMem('\uf26f', var32, '\uf2ed');
          this.pc('\uf2f0', 1);
-         this.call('\uf2f3');
          this.$EF91();
          this.pc('\uf2f3', 1);
-         this.call('\uf2f6');
          this.$E329();
          this.setNextAddress('\uf2f6');
          this.$EEC1();
@@ -12886,9 +12431,7 @@ public class Game extends MiniZX {
       int var3 = this.A();
       this.alu("cp", var3, 136);
       this.pc('\uf52b', 1);
-      if(this.flag(64, true)) {
-         this.ret();
-      } else {
+      if(!this.flag(64, true)) {
          this.pc('\uf52c', 2);
          int var4 = this.IY() + 5;
          int var5 = this.mem(var4, '\uf52c');
@@ -12907,9 +12450,7 @@ public class Game extends MiniZX {
          int var12 = this.A();
          this.alu("cp", var12, 248);
          this.pc('\uf536', 1);
-         if(this.flag(1, false)) {
-            this.ret();
-         } else {
+         if(!this.flag(1, false)) {
             this.pc('\uf537', 2);
             int var13 = this.IX() + -4;
             int var14 = this.mem(var13, '\uf537');
@@ -12924,7 +12465,6 @@ public class Game extends MiniZX {
             int var17 = this.A();
             this.wMem('\uaf80', var17, '\uf53f');
             this.pc('\uf542', 1);
-            this.ret();
          }
       }
    }
@@ -12944,10 +12484,8 @@ public class Game extends MiniZX {
       int var3 = this.mem('\uf571', '\uf583');
       this.A(var3);
       this.pc('\uf586', 1);
-      this.call('\uf589');
       this.$A83D();
       this.pc('\uf589', 1);
-      this.call('\uf58c');
       this.$EF91();
       this.pc('\uf58c', 1);
       this.HL('\u8868');
@@ -12955,10 +12493,8 @@ public class Game extends MiniZX {
       int var4 = this.HL();
       this.wMem16('\ua838', var4, '\uf58f');
       this.pc('\uf592', 1);
-      this.call('\uf595');
       this.$A83D();
       this.pc('\uf595', 1);
-      this.call('\uf598');
       this.$EF91();
       this.pc('\uf598', 1);
       this.HL('\u9818');
@@ -12970,10 +12506,8 @@ public class Game extends MiniZX {
       int var7 = this.alu("add", var6, 3);
       this.A(var7);
       this.pc('\uf5a0', 1);
-      this.call('\uf5a3');
       this.$A83D();
       this.pc('\uf5a3', 1);
-      this.call('\uf5a6');
       this.$EF91();
       this.pc('\uf5a6', 1);
       this.HL('\u8828');
@@ -12981,10 +12515,8 @@ public class Game extends MiniZX {
       int var8 = this.HL();
       this.wMem16('\ua838', var8, '\uf5a9');
       this.pc('\uf5ac', 1);
-      this.call('\uf5af');
       this.$A83D();
       this.pc('\uf5af', 1);
-      this.call('\uf5b2');
       this.$EF91();
       this.pc('\uf5b2', 1);
       int var9 = this.A();
@@ -13003,7 +12535,6 @@ public class Game extends MiniZX {
       int var12 = this.A();
       this.wMem('\uf571', var12, '\uf5ba');
       this.pc('\uf5bd', 1);
-      this.ret();
    }
 
    public void $F814() {
@@ -13035,7 +12566,6 @@ public class Game extends MiniZX {
          this.alu("cp", var66, var65);
          this.pc('\uf822', 1);
          if(this.flag(64, true)) {
-            this.ret();
             return;
          }
       }
@@ -13071,7 +12601,6 @@ public class Game extends MiniZX {
       int var20 = this.DE();
       this.wMem16('\ua838', var20, '\uf82a');
       this.pc('\uf82e', 1);
-      this.call('\uf831');
       this.$A83D();
       this.pc('\uf831', 2);
       int var21 = this.IY() + 5;
@@ -13090,9 +12619,7 @@ public class Game extends MiniZX {
       int var28 = this.A();
       this.alu("cp", var28, 248);
       this.pc('\uf839', 1);
-      if(this.flag(1, false)) {
-         this.ret();
-      } else {
+      if(!this.flag(1, false)) {
          this.pc('\uf83a', 2);
          int var29 = this.IY() + 10;
          int var30 = this.mem(var29, '\uf83a');
@@ -13110,9 +12637,7 @@ public class Game extends MiniZX {
          int var36 = this.A();
          this.alu("cp", var36, 248);
          this.pc('\uf842', 1);
-         if(this.flag(1, false)) {
-            this.ret();
-         } else {
+         if(!this.flag(1, false)) {
             this.pc('\uf843', 1);
             int var37 = this.mem16('\uf812', '\uf843');
             this.HL(var37);
@@ -13185,7 +12710,6 @@ public class Game extends MiniZX {
             int var55 = this.A();
             this.wMem(var54, var55, '\uf866');
             this.pc('\uf869', 1);
-            this.call('\uf86c');
             this.$E36D();
             this.pc('\uf86c', 1);
             this.BC(25660);
@@ -13194,10 +12718,8 @@ public class Game extends MiniZX {
             this.pc('\uf872', 1);
             this.HL(259);
             this.pc('\uf875', 1);
-            this.call('\uf878');
             this.$E3D3();
             this.pc('\uf878', 1);
-            this.ret();
          }
       }
    }
@@ -13229,7 +12751,6 @@ public class Game extends MiniZX {
          this.pc('\uf8cd', 1);
          if(!this.flag(64, true)) {
             this.pc('\uf8cf', 1);
-            this.call('\uf8d2');
             this.$EF88();
             this.pc('\uf8d2', 2);
             int var60 = this.IX();
@@ -13238,14 +12759,12 @@ public class Game extends MiniZX {
             this.pc('\uf8d4', 1);
          } else {
             this.pc('\uf8d6', 1);
-            this.call('\uf8d9');
             this.$EF35();
             this.pc('\uf8d9', 2);
             int var6 = this.IX() + 0;
             int var7 = this.mem(var6, '\uf8d9');
             this.A(var7);
             this.pc('\uf8dc', 1);
-            this.call('\uf8df');
             this.$A8A0();
             this.pc('\uf8df', 2);
             int var8 = this.IX();
@@ -13289,7 +12808,6 @@ public class Game extends MiniZX {
                this.alu("cp", var59, 240);
                this.pc('\uf8f7', 1);
                if(this.flag(1, true)) {
-                  this.call('\uf8fa');
                   this.$E33F();
                }
             }
@@ -13394,12 +12912,10 @@ public class Game extends MiniZX {
       } while(this.B() != 0);
 
       this.pc('\uf939', 1);
-      this.ret();
    }
 
    public void $F93A() {
       this.pc('\uf93a', 1);
-      this.call('\uf93d');
       this.$B03C();
       this.pc('\uf93d', 1);
       int var1 = this.A();
@@ -13429,7 +12945,6 @@ public class Game extends MiniZX {
       }
 
       this.pc('\uf94e', 1);
-      this.call('\uf951');
       this.$B00B();
       this.pc('\uf951', 1);
       int var4 = this.A();
@@ -13459,7 +12974,6 @@ public class Game extends MiniZX {
       }
 
       this.pc('\uf962', 1);
-      this.call('\uf965');
       this.$ABD7();
       this.pc('\uf965', 1);
       int var7 = this.A();
@@ -13469,7 +12983,6 @@ public class Game extends MiniZX {
       this.pc('\uf966', 1);
       if(!this.flag(64, false)) {
          this.pc('\uf968', 1);
-         this.call('\uf96b');
          this.$F9A4();
          this.pc('\uf96b', 2);
          int var17 = this.IY() + 5;
@@ -13556,10 +13069,8 @@ public class Game extends MiniZX {
       int var16 = this.mem(var15, '\uf99d');
       this.A(var16);
       this.pc('\uf9a0', 1);
-      this.call('\uf9a3');
       this.$A83D();
       this.pc('\uf9a3', 1);
-      this.ret();
    }
 
    public void $F9A4() {
@@ -13589,7 +13100,6 @@ public class Game extends MiniZX {
       int var11 = this.alu("add16", var10, var9);
       this.HL(var11);
       this.pc('\uf9b1', 1);
-      this.ret();
    }
 
    public void $F9C4() {
@@ -13687,7 +13197,6 @@ public class Game extends MiniZX {
       int var25 = this.pop();
       this.AF(var25);
       this.pc('\uf9ef', 1);
-      this.ret();
    }
 
    public void $F9F5() {
@@ -13703,7 +13212,6 @@ public class Game extends MiniZX {
       this.pc('\uf9fe', 1);
       if(!this.flag(64, true)) {
          this.pc('\ufa00', 1);
-         this.call('\ufa03');
          this.$B06D();
          this.pc('\ufa03', 1);
          int var93 = this.A();
@@ -13711,9 +13219,7 @@ public class Game extends MiniZX {
          int var95 = this.alu("or", var94, var93);
          this.A(var95);
          this.pc('\ufa04', 1);
-         if(this.flag(64, false)) {
-            this.ret();
-         } else {
+         if(!this.flag(64, false)) {
             this.pc('\ufa05', 2);
             int var96 = this.IY() + 5;
             int var97 = this.mem(var96, '\ufa05');
@@ -13729,7 +13235,6 @@ public class Game extends MiniZX {
             int var101 = this.A();
             this.wMem('\uf9f1', var101, '\ufa0e');
             this.pc('\ufa11', 1);
-            this.call('\ufa14');
             this.$F9A4();
             this.pc('\ufa14', 1);
             int var102 = this.HL();
@@ -13756,21 +13261,17 @@ public class Game extends MiniZX {
             this.pc('\ufa23', 1);
             this.HL(5121);
             this.pc('\ufa26', 1);
-            this.call('\ufa29');
             this.$E3D3();
             this.pc('\ufa29', 1);
-            this.ret();
          }
       } else {
          this.pc('\ufa2a', 1);
          this.BC('\uf8b5');
          this.pc('\ufa2d', 1);
-         this.call('\ufa30');
          this.$EF35();
          this.pc('\ufa30', 1);
          this.A(109);
          this.pc('\ufa32', 1);
-         this.call('\ufa35');
          this.$A83D();
          this.pc('\ufa35', 1);
          int var4 = this.mem('\uf672', '\ufa35');
@@ -13792,7 +13293,6 @@ public class Game extends MiniZX {
             int var92 = this.IX() + -4;
             this.wMem(var92, 255, '\ufa3f');
             this.pc('\ufa43', 1);
-            this.ret();
          } else {
             this.pc('\ufa44', 1);
             this.B(12);
@@ -13894,10 +13394,8 @@ public class Game extends MiniZX {
                            this.pc('\ufa7c', 1);
                            this.A(107);
                            this.pc('\ufa7e', 1);
-                           this.call('\ufa81');
                            this.$FAF0();
                            this.pc('\ufa81', 1);
-                           this.call('\ufa84');
                            this.$FAF0();
                            this.pc('\ufa84', 1);
                         } else {
@@ -13931,7 +13429,6 @@ public class Game extends MiniZX {
                               this.pc('\ufa9c', 1);
                               this.A(56);
                               this.pc('\ufa9e', 1);
-                              this.call('\ufaa1');
                               this.$FAF0();
                               this.pc('\ufaa1', 1);
                               this.HL('\uf9f4');
@@ -13999,22 +13496,18 @@ public class Game extends MiniZX {
                                     this.pc('\ufacb', 1);
                                     this.DE(2570);
                                     this.pc('\uface', 1);
-                                    this.call('\ufad1');
                                     this.$FAE7();
                                     this.pc('\ufad1', 1);
                                     this.BC('\u9664');
                                     this.pc('\ufad4', 1);
-                                    this.call('\ufad7');
                                     this.$FAE7();
                                     this.pc('\ufad7', 1);
                                     this.BC('\ua532');
                                     this.pc('\ufada', 1);
-                                    this.call('\ufadd');
                                     this.$FAE7();
                                     this.pc('\ufadd', 1);
                                     this.BC(32120);
                                     this.pc('\ufae0', 1);
-                                    this.call('\ufae3');
                                     this.$FAE7();
                                  }
                               }
@@ -14022,10 +13515,8 @@ public class Game extends MiniZX {
                         }
 
                         this.pc('\ufae3', 1);
-                        this.call('\ufae6');
                         this.$F9C4();
                         this.pc('\ufae6', 1);
-                        this.ret();
                         return;
                      }
                   }
@@ -14057,7 +13548,6 @@ public class Game extends MiniZX {
             } while(this.B() != 0);
 
             this.pc('\ufa55', 1);
-            this.ret();
          }
       }
    }
@@ -14070,7 +13560,6 @@ public class Game extends MiniZX {
       int var2 = this.DE();
       this.push(var2);
       this.pc('\ufae9', 1);
-      this.call('\ufaec');
       this.$E3D3();
       this.pc('\ufaec', 1);
       int var3 = this.pop();
@@ -14079,7 +13568,6 @@ public class Game extends MiniZX {
       int var4 = this.pop();
       this.HL(var4);
       this.pc('\ufaee', 1);
-      this.ret();
    }
 
    public void $FAF0() {
@@ -14176,12 +13664,10 @@ public class Game extends MiniZX {
             int var40 = this.pop();
             this.IX(var40);
             this.pc('\ufb29', 1);
-            this.ret();
             return;
          }
 
          this.pc('\ufafe', 1);
-         this.call('\ufb01');
          this.$EF88();
          this.pc('\ufb01', 2);
          int var41 = this.IX();

@@ -40,7 +40,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import com.fpetrola.z80.cpu.FetchListener;
 import com.fpetrola.z80.transformations.StackAnalyzer;
-import org.apache.commons.collections4.MultiValuedMap;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import java.util.HashMap;
@@ -96,7 +95,7 @@ public class RemoteZ80Translator {
     return emulate(realCodeBytecodeCreationBase, EmulatedMiniZX.ofRecording(rzxFile, frames, realCodeBytecodeCreationBase.getStackAnalyzer()));
   }
 
-  public record Footprint(Map<Integer, int[]> codeBytes, Set<Integer> modifiedCode, MultiValuedMap<Integer, Integer> dynamicInvocation, Map<Integer, Integer> callContinuations, Set<Integer> returnAddressesOnStack, int[] finalMemory) {
+  public record Footprint(Map<Integer, int[]> codeBytes, Set<Integer> modifiedCode, StackAnalyzer learned, Set<Integer> returnAddressesOnStack, int[] finalMemory) {
     public Set<Integer> executed() {
       return codeBytes.keySet();
     }
@@ -149,7 +148,7 @@ public class RemoteZ80Translator {
     }
     StackAnalyzer.collecting = false;
     returnAddressesOnStack.retainAll(codeBytes.keySet());
-    return new Footprint(codeBytes, modifiedCode, stackAnalyzer.dynamicInvocation, stackAnalyzer.callContinuations, returnAddressesOnStack, emulator[0].ooz80.getState().getMemory().getData().clone());
+    return new Footprint(codeBytes, modifiedCode, stackAnalyzer, returnAddressesOnStack, emulator[0].ooz80.getState().getMemory().getData().clone());
   }
 
   public static String emulateRecordingUntil(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, String rzxFile, int address) {

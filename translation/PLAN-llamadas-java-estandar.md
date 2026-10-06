@@ -215,3 +215,29 @@ Una JVM a la vez. Las corridas de Emlyn tardan: traducción con descompilación 
 4. Fase 2 con las cuatro grabaciones y `RoutinesTests`.
 5. Fases 3 y 4 midiendo los conteos después de cada una.
 6. Commitear por fase, cuando el usuario lo pida, con el neto de líneas en el mensaje.
+
+## 9. Avance de la ejecución
+
+### Fases 1 y 2 (hechas juntas, 2026-10-06)
+
+Desviación del plan: la fase 1 se hizo junto con la 2. Con la pila exacta activa, un salto de cola con continuación plantada necesita `call(continuación)` para que el `RET` del destino vuelva bien, que es justo lo que la fase 2 borra; aislarla no daba seguridad y duplicaba trabajo.
+
+Qué quedó, por dueño:
+
+- `StackAnalyzer` registra, en la grabación y en la exploración, qué `PUSH` puso cada dato que consume un `RET` (`dataConsumedBy`), qué dato hay arriba de la pila en cada instrucción (`dataOnTopAt`), qué `RET` sacaron alguna vez una dirección de retorno real (`returnsConsumedBy`), qué sitios de llamada tienen su dirección de retorno leída por un `POP` (`poppedCallSites`), los valores empujados por cada `PUSH` (`pushedValues`) y los retornos desplazados (`shiftedReturns`). `learnFrom` copia todo desde el analizador de la grabación (el `Footprint` ahora lleva el analizador entero) y `forgetLearned` lo limpia en `SymbolicExecutionAdapter.reset()`.
+- `RoutineBytecodeGenerator.plantedContinuation(push)`: un `PUSH` es una continuación plantada si siempre empujó el mismo valor, ese valor es la entrada de una rutina, la instrucción anterior es `LD rr,nn` inmediato al mismo registro y algún `RET` lo consume. El `PUSH` no se emite; un `RET` propio que lo consume emite `$continuación(); return`; una salida de la rutina (salto o caída a otra) con ese dato arriba emite `$destino(); $continuación(); return` (`leaveWithOwnData`).
+- `leaveWithOwnData` también cubre el dato propio no plantado que consume un `RET` de otra rutina (Emlyn `5D78`: `EX (SP),HL` deja la dirección desplazada y cae en `5D7F`, cuyo `RET` la saca): después de invocar el destino emite `pop()`, y `jump(valor)` si el consumidor no es un retorno desplazado.
+- `RET`: si consume datos propios y nunca sacó una dirección de retorno real, `pop()` y despacho (o solo `pop()` si es retorno desplazado); si consume datos de otra rutina, `return` común (lo resuelve la salida del que empujó); sin datos registrados, el despacho por `dynamicInvocation` de siempre.
+- `CALL`: `push(retorno)` antes de invocar si el llamado lee su dirección de retorno con `POP` y la rutina no lo resuelve con pop virtual (`pushesReturnAddress`). Es pasar un dato, no reconstruir la pila.
+- Se recuperó lo que `0df5d9eb2` había quitado: el `pop()` de la continuación empujada en las llamadas simuladas (`LD DE,A989; PUSH DE; JP (HL)` de Wally) y la constante del pop virtual (`HL = sitio + 3`).
+- Runtime: sin `call`, `ret`, `callSlots`; `MiniZX.run` sigue con `pop()` cuando el método de entrada retorna; la interrupción ya no empuja PC.
+- Lockstep: ahora también compara IX e IY (la divergencia de Wally apareció primero en IY). Sin `-DexactSP`.
+
+Resultado: Emlyn, Wally y Dynamite Dan en "rzx finished" por lockstep y por reproducción del fuente recompilado; suite 83/0; las expectativas de `RoutinesTests` quedaron idénticas a las de antes de la pila exacta salvo espacios. Conteos:
+
+| Fuente | `call(` | `ret()` | `jump(` | `setNextAddress(` | `isNextPC(` | `catch (StackException` |
+|---|---|---|---|---|---|---|
+| Emlyn | 0 | 0 | 257 | 189 | 174 | 92 |
+| Game (Wally) | 0 | 0 | 3 | 3 | 5 | 1 |
+| DD | 0 | 0 | 5 | 1 | 3 | 10 |
+
