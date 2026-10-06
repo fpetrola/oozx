@@ -25,6 +25,7 @@ import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
+import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.se.actions.RetAddressAction;
 import com.fpetrola.z80.instructions.impl.Ret;
@@ -35,7 +36,6 @@ import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.actions.*;
@@ -248,10 +248,17 @@ public class SymbolicExecutionAdapter {
           routineExecution.setRetInstruction(pcValue);
           next = routineExecution.hasPendingPoints() ? routineExecution.getNextPending().address : returnFromRom();
         }
+        if (isStaticSuccessor(pcValue, next))
+          routineManager.admitAsCode(next);
         updatePcRegister(next);
         lastPc = pcValue;
       }
     }
+  }
+
+  private boolean isStaticSuccessor(int pcValue, int next) {
+    return routineManager.getInstructionAt(pcValue) instanceof ConditionalInstruction<?> conditional && !(conditional instanceof Call) && !(conditional.getCondition() instanceof ConditionAlwaysTrue)
+        && (next == routineManager.addressAfter(pcValue) || conditional.getJumpAddress() == next);
   }
 
   private boolean isTailCallToRom(int pcValue) {

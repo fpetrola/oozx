@@ -214,11 +214,16 @@ public class RoutineManager {
   }
 
   public void setReachable(java.util.Set<Integer> reachable) {
-    this.reachable = reachable;
+    this.reachable = new java.util.HashSet<>(reachable);
   }
 
   public boolean isRestrictedToRecording() {
     return reachable != null;
+  }
+
+  public void admitAsCode(int address) {
+    if (reachable != null)
+      reachable.add(address);
   }
 
   public boolean isCode(int address) {

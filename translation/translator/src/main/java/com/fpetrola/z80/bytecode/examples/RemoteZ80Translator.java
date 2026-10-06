@@ -96,12 +96,15 @@ public class RemoteZ80Translator {
     return emulate(realCodeBytecodeCreationBase, EmulatedMiniZX.ofRecording(rzxFile, frames, realCodeBytecodeCreationBase.getStackAnalyzer()));
   }
 
-  public record Footprint(Map<Integer, int[]> codeBytes, Set<Integer> modifiedCode, MultiValuedMap<Integer, Integer> dynamicInvocation, Map<Integer, Integer> callContinuations, Set<Integer> returnAddressesOnStack) {
+  public record Footprint(Map<Integer, int[]> codeBytes, Set<Integer> modifiedCode, MultiValuedMap<Integer, Integer> dynamicInvocation, Map<Integer, Integer> callContinuations, Set<Integer> returnAddressesOnStack, int[] finalMemory) {
     public Set<Integer> executed() {
       return codeBytes.keySet();
     }
 
-    public void install(Memory memory) {
+    public void install(Memory memory, int stackPointer) {
+      for (int address = 0x4000; address < 0x10000; address++)
+        if (address < stackPointer || address >= stackPointer + 128)
+          memory.write(address, finalMemory[address]);
       codeBytes.forEach((address, bytes) -> {
         for (int i = 0; i < bytes.length; i++) {
           int at = address + i & 0xffff;
@@ -146,7 +149,7 @@ public class RemoteZ80Translator {
     }
     StackAnalyzer.collecting = false;
     returnAddressesOnStack.retainAll(codeBytes.keySet());
-    return new Footprint(codeBytes, modifiedCode, stackAnalyzer.dynamicInvocation, stackAnalyzer.callContinuations, returnAddressesOnStack);
+    return new Footprint(codeBytes, modifiedCode, stackAnalyzer.dynamicInvocation, stackAnalyzer.callContinuations, returnAddressesOnStack, emulator[0].ooz80.getState().getMemory().getData().clone());
   }
 
   public static String emulateRecordingUntil(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, String rzxFile, int address) {

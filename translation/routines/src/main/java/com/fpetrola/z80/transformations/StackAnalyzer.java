@@ -50,6 +50,7 @@ public class StackAnalyzer {
   private StackListener stackListener;
   public MultiValuedMap<Integer, Integer> dynamicInvocation = new HashSetValuedHashMap<>();
   public final Map<Integer, Integer> callContinuations = new HashMap<>();
+  public final Set<Integer> shiftedReturns = new HashSet<>();
   public static boolean collecting;
   private int pcValue;
   private final List<Integer> simulatedRets = new ArrayList<>();
@@ -240,6 +241,7 @@ public class StackAnalyzer {
     if (continuation == null)
       return false;
     callContinuations.put(consumedReturn.pc(), continuation);
+    shiftedReturns.add(pcValue);
     lastEvent = l -> l.returnShifted(instruction, pcValue, continuation, consumedReturn.pc());
     return true;
   }

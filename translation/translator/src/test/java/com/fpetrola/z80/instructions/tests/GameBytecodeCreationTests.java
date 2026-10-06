@@ -260,7 +260,7 @@ public class GameBytecodeCreationTests {
     String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, "/home/fernando/detodo/spectrum/emlyn_r3.rzx", 0xFE65);
     StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
     RemoteZ80Translator.Footprint footprint = RemoteZ80Translator.footprint("/home/fernando/detodo/spectrum/emlyn_r3.rzx", 0xFE65);
-    footprint.install(realCodeBytecodeCreationBase.getState().getMemory());
+    footprint.install(realCodeBytecodeCreationBase.getState().getMemory(), realCodeBytecodeCreationBase.getState().getRegisterSP().read());
     stackAnalyzer.dynamicInvocation.putAll(footprint.dynamicInvocation());
     stackAnalyzer.callContinuations.putAll(footprint.callContinuations());
     stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());

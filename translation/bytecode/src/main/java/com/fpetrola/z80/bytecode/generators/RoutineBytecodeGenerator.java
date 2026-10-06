@@ -144,6 +144,10 @@ public class RoutineBytecodeGenerator {
                 invokeTransformedMethod(nextAddress);
                 returnFromMethod();
               }
+              if (RoutineManager.fallsThrough(instruction) && !(instruction instanceof Call) && !routine.contains(nextAddress) && continuationOwner == null) {
+                mm.invoke("jump", nextAddress);
+                returnFromMethod();
+              }
 
             };
 

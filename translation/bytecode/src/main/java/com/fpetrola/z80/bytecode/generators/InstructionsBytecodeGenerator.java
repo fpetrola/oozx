@@ -507,8 +507,12 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     if (jp.getPositionOpcodeReference() instanceof Register register) {
       int pcValue1 = routineByteCodeGenerator.context.pc.read();
       Set<Integer> invocationsSet = stackAnalyzer.getInvocationsSet(pcValue1);
-      if (!invokeDynamicCall(invocationsSet, routineByteCodeGenerator.getExistingVariable(register)))
+      Variable target = routineByteCodeGenerator.getExistingVariable(register);
+      if (!invokeDynamicCall(invocationsSet, target)) {
+        if (!stackAnalyzer.shiftedReturns.contains(pcValue1))
+          methodMaker.invoke("jump", methodMaker.invoke(register.getName()));
         routineByteCodeGenerator.returnFromMethod();
+      }
       return true;
     } else
       return false;
