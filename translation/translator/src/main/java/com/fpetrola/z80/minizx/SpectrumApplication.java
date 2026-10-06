@@ -90,6 +90,33 @@ public abstract class SpectrumApplication {
     } else if (opcode == 0x12) {
       mem[DE()] = A;
       return address + 1;
+    } else if ((opcode & 0xc0) == 0x80) {
+      String operation = new String[]{"add", "adc", "sub", "sbc", "and", "xor", "or", "cp"}[opcode >> 3 & 7];
+      int result = alu(operation, A, read8(opcode & 7));
+      if (!operation.equals("cp"))
+        A(result);
+      return address + 1;
+    } else if (opcode == 0)
+      return address + 1;
+    else if (opcode == 0xcb || (opcode == 0xdd || opcode == 0xfd) && n == 0xcb) {
+      boolean indexed = opcode != 0xcb;
+      int operation = mem[address + (indexed ? 3 : 1) & 0xffff], bitNumber = operation >> 3 & 7;
+      int target = indexed ? (opcode == 0xdd ? IX() : IY()) + (byte) mem[address + 2 & 0xffff] & 0xffff : -1;
+      int value = indexed ? mem[target] : read8(operation & 7);
+      int result = switch (operation >> 6) {
+        case 0 -> alu(new String[]{"rlc", "rrc", "rl", "rr", "sla", "sra", "sll", "srl"}[bitNumber], value);
+        case 1 -> {
+          bit(bitNumber, value);
+          yield value;
+        }
+        case 2 -> value & ~(1 << bitNumber);
+        default -> value | 1 << bitNumber;
+      };
+      if (indexed)
+        mem[target] = result;
+      else
+        write8(operation & 7, result);
+      return address + (indexed ? 4 : 2);
     } else
       throw new IllegalStateException("self-modified opcode %02X at %04X".formatted(opcode, address));
     return address + 3;

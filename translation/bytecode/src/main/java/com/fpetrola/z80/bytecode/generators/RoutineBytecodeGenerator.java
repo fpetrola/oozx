@@ -564,7 +564,7 @@ public class RoutineBytecodeGenerator {
   }
 
   public boolean pushesReturnAddress(int callSite) {
-    return stackAnalyzer().poppedCallSites.contains(callSite) && !routine.getReturnPoints().containsKey(callSite);
+    return stackAnalyzer().poppedCallSites.contains(callSite) && !routine.getReturnPoints().containsKey(callSite) || context.routineManager.pushedReturnSites.contains(callSite);
   }
 
   private List<Integer> ownDataLeftForOthers(int site) {

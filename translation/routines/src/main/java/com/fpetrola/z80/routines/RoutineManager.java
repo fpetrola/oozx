@@ -57,6 +57,7 @@ public class RoutineManager {
   public final MultiValuedMap<Integer, Integer> returnPoints = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> nonLocalReturns = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> nonLocalReturnPoints = new HashSetValuedHashMap<>();
+  public final java.util.Set<Integer> pushedReturnSites = new java.util.HashSet<>();
   public BlocksManager blocksManager;
   private List<Routine> routines = new ArrayList<>();
 
@@ -150,6 +151,11 @@ public class RoutineManager {
         nonLocalReturnPoints.put(e.getValue(), continuation);
       }
     });
+    stackAnalyzer.nonLocalRets.forEach(ret -> stackAnalyzer.returnsConsumedBy.get(ret).stream().filter(callSite -> instructions.get(callSite) instanceof Call).forEach(callSite -> {
+      nonLocalReturns.put(ret, addressAfter(callSite));
+      nonLocalReturnPoints.put(callSite, addressAfter(callSite));
+      pushedReturnSites.add(callSite);
+    }));
   }
 
   public MultiValuedMap<Integer, Integer> catchPointsOfCallsIn(Routine routine) {
@@ -262,7 +268,12 @@ public class RoutineManager {
 
   public boolean isEnteredFromOutside(Routine owner, int address) {
     return owner.getEntryPoint() != address && (jumpsAfterStackReset.get(address).stream().anyMatch(caller -> !owner.contains(caller)) || isFallenIntoFromOutside(owner, address)
-        || externalEntries.contains(address) || isJumpedIntoFromOtherRoutine(owner, address));
+        || externalEntries.contains(address) || isJumpedIntoFromOtherRoutine(owner, address) || isReturnPointOfCallFromOutside(owner, address));
+  }
+
+  private boolean isReturnPointOfCallFromOutside(Routine owner, int address) {
+    return returnPoints.entries().stream().anyMatch(point -> point.getValue() == address
+        && instructions.entrySet().stream().anyMatch(e -> e.getValue() instanceof Call call && call.getJumpAddress() == point.getKey() && !owner.contains(e.getKey())));
   }
 
   private boolean isFallenIntoFromOutside(Routine owner, int address) {
@@ -356,6 +367,7 @@ public class RoutineManager {
     returnPoints.clear();
     nonLocalReturns.clear();
     nonLocalReturnPoints.clear();
+    pushedReturnSites.clear();
     codeVariants.clear();
     externalEntries.clear();
     reachable = null;

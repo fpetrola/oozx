@@ -189,6 +189,10 @@ public class RemoteZ80Translator {
           for (int i = 0; seen != null && i < Math.max(seen.length, bytes.length); i++)
             if (i >= seen.length || i >= bytes.length || seen[i] != bytes[i])
               modifiedCode.add(address + i & 0xffff);
+          if (instruction instanceof Call && (modifiedCode.contains(address + 1 & 0xffff) || modifiedCode.contains(address + 2 & 0xffff))) {
+            stackAnalyzer.calledThrough.put(address, seen[1] | seen[2] << 8);
+            stackAnalyzer.calledThrough.put(address, bytes[1] | bytes[2] << 8);
+          }
         }
       });
       emulator[0].start();
@@ -228,6 +232,7 @@ public class RemoteZ80Translator {
         forkState.getRegisterSP().write(taken == fallThrough ? sp + 2 & 0xffff : sp - 2 & 0xffff);
       forkState.getPc().write(alternative);
       StackAnalyzer analyzer = new StackAnalyzer(forkState);
+      analyzer.knowsWholeStack = false;
       analyzer.addExecutionListener(fork.getInstructionExecutor());
       int startSp = forkState.getRegisterSP().read();
       Set<Integer> known = new HashSet<>(explored.keySet());

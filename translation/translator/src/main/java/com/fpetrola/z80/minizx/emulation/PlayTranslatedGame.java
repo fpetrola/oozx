@@ -11,10 +11,17 @@ import java.util.function.Predicate;
 public class PlayTranslatedGame {
   private static final long FETCHES_PER_FRAME = 80000, NANOS_PER_FRAME = 20_000_000;
 
+  private record Translated(Class<?> type, String recording, int entry) {
+  }
+
+  private static final java.util.Map<String, Translated> GAMES = java.util.Map.of(
+      "emlyn", new Translated(Emlyn.class, "/home/fernando/detodo/spectrum/emlyn_r4.rzx", 0xFE65),
+      "dizzy", new Translated(Dizzy.class, "/home/fernando/detodo/spectrum/dizzy/Dizzy RZX - The Long Way.rzx", 0xF85B));
+
   public static void main(String[] args) throws Exception {
-    boolean replaying = args.length > 0;
-    int entry = 0xFE65;
-    MiniZX game = replaying ? replaying(args[0], entry, Emlyn.class) : playing("/home/fernando/detodo/spectrum/emlyn_r4.rzx", entry, Emlyn.class);
+    Translated translated = GAMES.get(System.getProperty("game", "emlyn"));
+    int entry = translated.entry();
+    MiniZX game = args.length > 0 ? replaying(args[0], entry, translated.type()) : playing(translated.recording(), entry, translated.type());
     try {
       game.run(entry);
     } catch (RuntimeException e) {

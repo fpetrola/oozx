@@ -292,6 +292,26 @@ public class GameBytecodeCreationTests {
     writeTranslation(base64Memory);
   }
 
+  @Test
+  public void testTranslateDizzyToJava() {
+    String recording = "/home/fernando/detodo/spectrum/dizzy/Dizzy RZX - The Long Way.rzx";
+    int start = 0xF85B;
+    String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, recording, start);
+    StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
+    RemoteZ80Translator.Footprint footprint = RemoteZ80Translator.footprint(recording, start);
+    footprint.install(realCodeBytecodeCreationBase.getState().getMemory(), realCodeBytecodeCreationBase.getState().getRegisterSP().read());
+    stackAnalyzer.learnFrom(footprint.learned());
+    stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());
+    getRoutineManager().setReachable(footprint.executed());
+    realCodeBytecodeCreationBase.symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
+    getRoutineManager().externalEntries.addAll(footprint.returnAddressesOnStack());
+    stackAnalyzer.nonLocalRets.forEach(ret -> getRoutineManager().externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(ret)));
+    getRoutineManager().externalEntries.addAll(stackAnalyzer.calledThrough.values());
+    exploreGame(start, Stream.of(Stream.of(0xF85A), footprint.returnAddressesOnStack().stream(), stackAnalyzer.dynamicInvocation.values().stream(), stackAnalyzer.calledThrough.values().stream()).flatMap(s -> s).mapToInt(Integer::intValue).toArray());
+    realCodeBytecodeCreationBase.translateRomRoutines(0x0038);
+    writeTranslation(base64Memory);
+  }
+
   private void testTranslateGame(String MemoryInBase64FromFile, int startAddress, int... reachedByTheRecording) {
     exploreGame(startAddress, reachedByTheRecording);
     writeTranslation(MemoryInBase64FromFile);
@@ -359,10 +379,11 @@ public class GameBytecodeCreationTests {
         {CEAD:CEE5} -> [CEAD : CEC3, CEE1 : CEE5]
         {CEF0:CF76} -> [CEF0 : CF76]
         {CF77:CFC8} -> [CF77 : CFC8]
-        {CFD9:DC68} -> [CFD9 : D1B1, D2EF : D2EF, D316 : D318, DBEE : DC40, DC45 : DC68]
+        {CFD9:DC68} -> [CFD9 : D1B1, D316 : D318, DBEE : DC40, DC45 : DC68]
         {D1B2:D1CC} -> [D1B2 : D1CC]
         {D1CE:D2BE} -> [D1CE : D2BE]
         {D2BF:D2ED} -> [D2BF : D2ED]
+        {D2EF:D2EF} -> [D2EF : D2EF]
         {D2F0:D950} -> [D2F0 : D314, D319 : D377, D895 : D950]
         {D378:D3AB} -> [D378 : D3AB]
         {D3EC:D4AE} -> [D3EC : D4AE]

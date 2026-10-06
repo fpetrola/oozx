@@ -350,10 +350,12 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     int pcValue = routineByteCodeGenerator.context.pc.read();
     List<Integer> ownPushes = routineByteCodeGenerator.ownPushesConsumedAt(pcValue);
     Set<Integer> invocationsSet = stackAnalyzer.getInvocationsSet(pcValue);
-    boolean consumesData = stackAnalyzer.dataConsumedBy.containsKey(pcValue) ? !ownPushes.isEmpty() && !stackAnalyzer.returnsConsumedBy.contains(pcValue) : !invocationsSet.isEmpty();
+    boolean consumesData = stackAnalyzer.dataConsumedBy.containsKey(pcValue) ? !ownPushes.isEmpty() && !stackAnalyzer.returnsConsumedBy.containsKey(pcValue) : !invocationsSet.isEmpty();
     Integer continuation = ownPushes.size() == 1 ? routineByteCodeGenerator.plantedContinuation(ownPushes.get(0)) : null;
     createIfs(ret, () -> {
-      if (continuation != null)
+      if (routineByteCodeGenerator.context.routineManager.nonLocalReturns.containsKey(pcValue))
+        routineByteCodeGenerator.throwStackException(methodMaker.invoke("pop"), StackException.class);
+      else if (continuation != null)
         routineByteCodeGenerator.invokeTransformedMethod(continuation);
       else if (consumesData) {
         Variable poppedValue = methodMaker.invoke("pop");

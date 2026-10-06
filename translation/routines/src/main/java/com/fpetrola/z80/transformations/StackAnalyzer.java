@@ -26,6 +26,7 @@ import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
+import com.fpetrola.z80.opcodes.references.Memory16BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
@@ -54,11 +55,16 @@ public class StackAnalyzer {
   public final MultiValuedMap<Integer, Integer> dataConsumedBy = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> dataOnTopAt = new HashSetValuedHashMap<>();
   public final Set<Integer> poppedCallSites = new HashSet<>();
-  public final Set<Integer> returnsConsumedBy = new HashSet<>();
+  public final MultiValuedMap<Integer, Integer> returnsConsumedBy = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> pushedValues = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> calledThrough = new HashSetValuedHashMap<>();
+  public final Set<Integer> jumpTableSites = new HashSet<>();
+  public final Set<Integer> nonLocalRets = new HashSet<>();
   public static boolean collecting;
   private int pcValue;
+  private int stackResetTo = -1;
+  private boolean returnsDropped;
+  public boolean knowsWholeStack = true;
   private final List<Integer> simulatedRets = new ArrayList<>();
   private final List<Integer> simulatedCallsPcs = new ArrayList<>();
   private final Map<Integer, Entry> entries = new HashMap<>();
@@ -194,6 +200,10 @@ public class StackAnalyzer {
           if (distance(oldSpAddress, newSpAddress) > 2000) {
             if (distance(stackAsRepository.spReadAt, pcValue) < 2000)
               usingStackAsRepository(newSpAddress, oldSpAddress);
+            else if (source instanceof Memory16BitReference) {
+              stackResetTo = newSpAddress;
+              returnsDropped = false;
+            }
           } else if (distance(oldSpAddress, newSpAddress) < 200)
             droppingReturnAddresses(oldSpAddress, newSpAddress);
         }
@@ -207,6 +217,10 @@ public class StackAnalyzer {
             outermost = entry;
         }
         Entry dropped = outermost;
+        if (dropped != null) {
+          stackResetTo = newSpAddress;
+          returnsDropped = true;
+        }
         if (dropped != null)
           lastEvent = l -> l.droppingReturnValues(pcValue, newSpAddress, oldSpAddress, dropped);
       }
@@ -227,7 +241,13 @@ public class StackAnalyzer {
         if (ret instanceof RetN)
           return false;
         Entry entry = entryAtSp();
-        if (entry == null)
+        boolean afterStackReset = state.getRegisterSP().read() == stackResetTo;
+        stackResetTo = -1;
+        if (afterStackReset && collecting && (returnsDropped ? entry != null && entry.returnAddress() : entry == null && knowsWholeStack))
+          nonLocalRets.add(pcValue);
+        if (entry == null && afterStackReset && knowsWholeStack)
+          jumpingUsingRet(ret, state.getMemory().read16Bits(state.getRegisterSP().read()), null);
+        else if (entry == null)
           lastEvent = l -> l.returningToUnknownAddress(pcValue);
         else if (!entry.returnAddress() && !simulatedRets.contains(entry.value()))
           jumpingUsingRet(ret, entry.value(), consumedReturns.get(state.getRegisterSP().read()));
@@ -250,12 +270,32 @@ public class StackAnalyzer {
 
   private boolean returningShifted(Instruction instruction, int target, Entry consumedReturn) {
     Integer continuation = collecting ? ((target - consumedReturn.value() & 0xffff) < 256 ? target : null) : callContinuations.get(consumedReturn.pc());
-    if (continuation == null)
+    if (continuation == null || !learnContinuation(pcValue, consumedReturn.pc(), continuation))
       return false;
-    callContinuations.put(consumedReturn.pc(), continuation);
-    shiftedReturns.put(pcValue, consumedReturn.pc());
     lastEvent = l -> l.returnShifted(instruction, pcValue, continuation, consumedReturn.pc());
     return true;
+  }
+
+  private boolean learnContinuation(int returnPc, int callSite, int continuation) {
+    Integer known = callContinuations.get(callSite);
+    if (known != null && known != continuation)
+      jumpTableAt(callSite);
+    if (jumpTableSites.contains(callSite))
+      return false;
+    callContinuations.put(callSite, continuation);
+    shiftedReturns.put(returnPc, callSite);
+    return true;
+  }
+
+  private void jumpTableAt(int callSite) {
+    if (!jumpTableSites.add(callSite))
+      return;
+    Integer known = callContinuations.remove(callSite);
+    shiftedReturns.entries().stream().filter(e -> e.getValue() == callSite).toList().forEach(e -> {
+      shiftedReturns.removeMapping(e.getKey(), e.getValue());
+      if (known != null)
+        dynamicInvocation.put(e.getKey(), known);
+    });
   }
 
   private void addDynamicInvocationData(int address) {
@@ -264,7 +304,7 @@ public class StackAnalyzer {
   }
 
   private int distance(int oldSpAddress, int newSpAddress) {
-    return Math.abs(oldSpAddress - newSpAddress) & 0xffff;
+    return Math.abs(oldSpAddress - newSpAddress);
   }
 
   public void afterExecution(Instruction instruction) {
@@ -291,7 +331,7 @@ public class StackAnalyzer {
         Entry consumedReturn = consumedReturns.get(poppedSlot());
         Entry entry = entries.remove(poppedSlot());
         if (entry != null && entry.returnAddress())
-          returnsConsumedBy.add(pcValue);
+          returnsConsumedBy.put(pcValue, entry.pc());
         if (entry != null && !entry.returnAddress()) {
           if (entry.pc() != -1)
             dataConsumedBy.put(pcValue, entry.pc());
@@ -337,18 +377,21 @@ public class StackAnalyzer {
     returnsConsumedBy.clear();
     pushedValues.clear();
     calledThrough.clear();
+    jumpTableSites.clear();
+    nonLocalRets.clear();
   }
 
   public void learnFrom(StackAnalyzer recorded) {
     dynamicInvocation.putAll(recorded.dynamicInvocation);
-    callContinuations.putAll(recorded.callContinuations);
-    shiftedReturns.putAll(recorded.shiftedReturns);
+    recorded.jumpTableSites.forEach(this::jumpTableAt);
+    recorded.shiftedReturns.entries().forEach(e -> learnContinuation(e.getKey(), e.getValue(), recorded.callContinuations.get(e.getValue())));
     dataConsumedBy.putAll(recorded.dataConsumedBy);
     dataOnTopAt.putAll(recorded.dataOnTopAt);
     poppedCallSites.addAll(recorded.poppedCallSites);
-    returnsConsumedBy.addAll(recorded.returnsConsumedBy);
+    returnsConsumedBy.putAll(recorded.returnsConsumedBy);
     pushedValues.putAll(recorded.pushedValues);
     calledThrough.putAll(recorded.calledThrough);
+    nonLocalRets.addAll(recorded.nonLocalRets);
   }
 
   public Set<Integer> getInvocationsSet(int pcValue1) {
