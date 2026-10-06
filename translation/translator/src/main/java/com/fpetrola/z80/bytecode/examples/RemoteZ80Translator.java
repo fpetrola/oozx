@@ -39,6 +39,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import com.fpetrola.z80.cpu.FetchListener;
+import com.fpetrola.z80.cpu.OOZ80;
+import com.fpetrola.z80.instructions.impl.Call;
+import com.fpetrola.z80.instructions.impl.Halt;
+import com.fpetrola.z80.instructions.impl.Ret;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
+import com.fpetrola.z80.minizx.DefaultMiniZXIO;
+import com.fpetrola.z80.opcodes.references.ConditionAlwaysTrue;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
@@ -121,6 +129,10 @@ public class RemoteZ80Translator {
     boolean[] started = {false};
     StackAnalyzer stackAnalyzer = new StackAnalyzer(null);
     EmulatedMiniZX[] emulator = {null};
+    Map<Integer, int[]> explored = new HashMap<>();
+    Set<Integer> forked = new HashSet<>();
+    ConditionalInstruction<?>[] pending = {null};
+    int[] pendingAddress = {-1};
     try {
       emulator[0] = EmulatedMiniZX.ofRecording(rzxFile, -1, stackAnalyzer).listening(new FetchListener() {
         public void instructionFetchedAt(int address, Instruction instruction) {
@@ -129,6 +141,11 @@ public class RemoteZ80Translator {
           StackAnalyzer.collecting = started[0];
           if (!started[0])
             return;
+          if (pending[0] != null)
+            exploreUntakenBranch(emulator[0].ooz80, pending[0], pendingAddress[0], address, codeBytes, explored, forked, stackAnalyzer);
+          boolean conditional = instruction instanceof ConditionalInstruction<?> branch && !(branch.getCondition() instanceof ConditionAlwaysTrue) && !(branch.getPositionOpcodeReference() instanceof Register);
+          pending[0] = conditional ? (ConditionalInstruction<?>) instruction : null;
+          pendingAddress[0] = address;
           int[] memory = emulator[0].ooz80.getState().getMemory().getData();
           for (int slot = emulator[0].ooz80.getState().getRegisterSP().read(); starting && slot < 0x10000 - 1 && returnAddressesOnStack.size() < 10; slot += 2)
             returnAddressesOnStack.add(memory[slot] | memory[slot + 1] << 8);
@@ -147,8 +164,58 @@ public class RemoteZ80Translator {
         throw finished;
     }
     StackAnalyzer.collecting = false;
+    explored.forEach(codeBytes::putIfAbsent);
     returnAddressesOnStack.retainAll(codeBytes.keySet());
     return new Footprint(codeBytes, modifiedCode, stackAnalyzer, returnAddressesOnStack, emulator[0].ooz80.getState().getMemory().getData().clone());
+  }
+
+  private static final int BRANCH_BUDGET = 500;
+
+  private static void exploreUntakenBranch(OOZ80 main, ConditionalInstruction<?> branch, int site, int taken, Map<Integer, int[]> codeBytes, Map<Integer, int[]> explored, Set<Integer> forked, StackAnalyzer learned) {
+    State state = main.getState();
+    int fallThrough = site + branch.getLength() & 0xffff, sp = state.getRegisterSP().read();
+    int target = branch instanceof Ret ? state.getMemory().read16Bits(taken == fallThrough ? sp : sp - 2 & 0xffff) : branch.getJumpAddress();
+    int alternative = taken == fallThrough ? target : fallThrough;
+    if (taken != fallThrough && taken != target || codeBytes.containsKey(alternative) || explored.containsKey(alternative) || !forked.add(site))
+      return;
+    OOZ80 fork = EmulatedMiniZX.createOOZ80(new DefaultMiniZXIO() {
+      public int in(int port) {
+        return 0xff;
+      }
+    });
+    State forkState = fork.getState();
+    System.arraycopy(state.getMemory().getData(), 0, forkState.getMemory().getData(), 0, 0x10000);
+    forkState.takeFrom(state);
+    if (branch instanceof Call)
+      forkState.getRegisterSP().write(taken == fallThrough ? push(forkState, fallThrough) : sp + 2 & 0xffff);
+    else if (branch instanceof Ret)
+      forkState.getRegisterSP().write(taken == fallThrough ? sp + 2 & 0xffff : sp - 2 & 0xffff);
+    forkState.getPc().write(alternative);
+    StackAnalyzer analyzer = new StackAnalyzer(forkState);
+    analyzer.addExecutionListener(fork.getInstructionExecutor());
+    int startSp = forkState.getRegisterSP().read();
+    try {
+      for (int step = 0; step < BRANCH_BUDGET; step++) {
+        int pc = forkState.getPc().read(), depth = startSp - forkState.getRegisterSP().read() & 0xffff;
+        if (step > 0 && (depth == 0 || depth >= 0x8000) && (codeBytes.containsKey(pc) || explored.containsKey(pc)))
+          break;
+        int[] bytes = java.util.Arrays.copyOfRange(forkState.getMemory().getData(), pc, Math.min(pc + 4, 0x10000));
+        Instruction executed = fork.execute(1);
+        if (executed == null)
+          break;
+        explored.put(pc, java.util.Arrays.copyOf(bytes, executed.getLength()));
+        if (executed instanceof Halt || executed instanceof Ret && (forkState.getRegisterSP().read() - startSp & 0xffff) > 0 && (forkState.getRegisterSP().read() - startSp & 0xffff) < 0x8000)
+          break;
+      }
+    } catch (RuntimeException deadEnd) {
+    }
+    learned.learnFrom(analyzer);
+  }
+
+  private static int push(State state, int value) {
+    int sp = state.getRegisterSP().read() - 2 & 0xffff;
+    state.getMemory().write16Bits(value, sp);
+    return sp;
   }
 
   public static String emulateRecordingUntil(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, String rzxFile, int address) {
