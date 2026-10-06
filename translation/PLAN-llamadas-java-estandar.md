@@ -241,3 +241,25 @@ Resultado: Emlyn, Wally y Dynamite Dan en "rzx finished" por lockstep y por repr
 | Game (Wally) | 0 | 0 | 3 | 3 | 5 | 1 |
 | DD | 0 | 0 | 5 | 1 | 3 | 10 |
 
+
+### Fase 3 (2026-10-06)
+
+- `RoutineManager.isEnteredFromOutside` (movido desde el generador, que era quien lo calculaba) y `RoutineManager.splitAtEntriesFromOutside`, llamado por `StateBytecodeGenerator` antes del corte por tamaño: parte una rutina en una entrada desde afuera con `Routine.splitAt` (el `splitBlocksIfRequired` de siempre, que mueve pops virtuales y puntos de retorno) cuando el tramo desde la entrada solo alcanza su propio bloque y nadie de la rutina salta a su mitad, y solo si la rutina no está en un ciclo de saltos.
+- La restricción a rutinas fuera de ciclos es necesaria: sin ella Emlyn bajaba `setNextAddress` de 189 a 78 pero subía `jump(` de 257 a 347 y los `catch (StackException` de 92 a 141, porque la entrada a la mitad de una rutina en un ciclo pasaba de `setNextAddress` + llamada a `jump()`.
+- Resultado: Emlyn `setNextAddress` 189 → 177, `isNextPC` 174 → 166; Wally 3 → 1 y 5 → 3; Dynamite Dan 1 → 0 y 3 → 2. Lockstep y reproducción del fuente completos en los tres; suite 83/0; las particiones de Wally y Dynamite Dan en `GameBytecodeCreationTests` cambian en tres rutinas (bloques a los que se entra desde afuera pasan a ser rutinas).
+
+### Fase 4: análisis (no implementada como estaba escrita)
+
+Las componentes fuertemente conexas del grafo de saltos entre rutinas de Emlyn:
+
+| Componente | Rutinas | Bytes Z80 | Qué es |
+|---|---|---|---|
+| `7D9E`, `94AA`, `AB5A`, `AE63`, `B0E8`... | 79 | 5948 | El planificador del partido y sus 8 tareas, que vuelven con `JP 94AA` y comparten código con saltos |
+| `9869`, `9C9F`, `9DA2` | 3 | 858 | Mitad de dibujo de la ISR, cortada por el límite de 1500 bytes por método |
+| `9E2F`, `A0AD`, `A12B` | 3 | 843 | Mitad de física de la ISR, mismo motivo |
+| `A527`, `A5EC` | 2 | 288 | Final de la ISR |
+| `5F9E`, `5FAA`, `5FB8`, `5FEE` | 4 | 91 | Bucle de selección del menú |
+
+Fusionar cada componente en un método (lo que pedía la fase) no funciona: la grande no entra en un método de la JVM (64 KB de bytecode) ni la estructura Fernflower, y las de la ISR son justamente los cortes que hizo `splitIfTooLargeForOneMethod`. Además, una componente fusionada con varias entradas desde afuera vuelve a necesitar `isNextPC`: fusionar cambia `jump` por despacho de entrada, no lo elimina. Los `jump(` de Emlyn tienen 148 destinos distintos (`94AA` 22, `B42A` 17, `B113` 6...), así que no hay un patrón único que reconocer.
+
+Propuesta para reemplazar la fase 4: trampolín por componente. Cada rutina de una componente de saltos devuelve un `int` con la dirección a la que salta (o un marcador de salida si ejecuta un `RET` que sale de la componente), y un único bucle por componente las encadena: `for (int next = entrada; next != SALIDA; ) next = switch (next) { case 0x94AA -> $94AA(); ... };`. Los saltos dentro de la componente pasan a ser `return destino`; las llamadas desde afuera llaman al bucle; dentro de la componente ya no hace falta `StackWalker` ni excepciones, y las entradas a mitad de rutina se resuelven partiendo (el corte de la fase 3 sin la restricción de ciclos, porque el trampolín ya no crea ciclos de llamadas). Es un cambio de forma de los métodos generados (devuelven `int`) y toca el generador, el runtime (`jump`, `isOwnAddress`, `nextAddress`) y las expectativas de `RoutinesTests`.

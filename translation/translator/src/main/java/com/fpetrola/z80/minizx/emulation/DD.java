@@ -2452,17 +2452,32 @@ public class DD extends MiniZX {
    }
 
    public void $CD24() {
-      if(!isNextPC(52529)) {
-         pc(52516, 1);
-         exx();
-         pc(52517, 1);
-         int var31 = A();
-         E(var31);
-         pc(52518, 1);
-         HL(52606);
-         pc(52521, 1);
-      }
+      pc(52516, 1);
+      exx();
+      pc(52517, 1);
+      int var1 = A();
+      E(var1);
+      pc(52518, 1);
+      HL(52606);
+      pc(52521, 1);
+      $CD31();
+   }
 
+   public void $CD2B() {
+      pc(52523, 1);
+      int var1 = E();
+      A(var1);
+      pc(52524, 1);
+      exx();
+      pc(52525, 1);
+      int var2 = A();
+      E(var2);
+      pc(52526, 1);
+      HL(52612);
+      $CD31();
+   }
+
+   public void $CD31() {
       pc(52529, 1);
       D(15);
       pc(52531, 1);
@@ -2562,21 +2577,6 @@ public class DD extends MiniZX {
             }
          }
       }
-   }
-
-   public void $CD2B() {
-      pc(52523, 1);
-      int var1 = E();
-      A(var1);
-      pc(52524, 1);
-      exx();
-      pc(52525, 1);
-      int var2 = A();
-      E(var2);
-      pc(52526, 1);
-      HL(52612);
-      setNextAddress(52529);
-      $CD24();
    }
 
    public void $CD5C() {
@@ -4689,14 +4689,14 @@ public class DD extends MiniZX {
             try {
                pc(53927, 1);
                $D2BF();
-            } catch (StackException var148) {
-               if(var148.getNextPC() == 53999) {
+            } catch (StackException var146) {
+               if(var146.getNextPC() == 53999) {
                   HL(53930);
                   pc(53999, 1);
                   return;
                }
 
-               throw var148;
+               throw var146;
             }
 
             pc(53930, 2);
@@ -4709,14 +4709,14 @@ public class DD extends MiniZX {
             try {
                pc(53937, 1);
                $D2BF();
-            } catch (StackException var146) {
-               if(var146.getNextPC() == 53999) {
+            } catch (StackException var148) {
+               if(var148.getNextPC() == 53999) {
                   HL(53940);
                   pc(53999, 1);
                   return;
                }
 
-               throw var146;
+               throw var148;
             }
 
             pc(53940, 2);

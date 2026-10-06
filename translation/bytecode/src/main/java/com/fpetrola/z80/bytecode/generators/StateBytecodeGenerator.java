@@ -93,6 +93,7 @@ public class StateBytecodeGenerator {
 //    routineManager.addRoutine(new Routine(block, 34463, true));
 ////    routine1.split(34762);
 
+    routineManager.splitAtEntriesFromOutside(pc -> symbolicExecutionAdapter.getStackAnalyzer().getInvocationsSet(pc));
     new ArrayList<>(routineManager.getRoutines()).forEach(this::splitIfTooLargeForOneMethod);
     List<Routine> routines = routineManager.getRoutinesInDepth();
 

@@ -138,7 +138,7 @@ public class RoutineBytecodeGenerator {
               if (!routine.contains(nextAddress) && routine.getReturnPoints().containsKey(address))
                 labelsAfterLeavingCalls.put(address, mm.label().here());
               Routine continuationOwner = context.routineManager.findRoutineAt(nextAddress);
-              if (RoutineManager.fallsThrough(instruction) && !routine.contains(nextAddress) && continuationOwner != null && (continuationOwner.getEntryPoint() == nextAddress ? !continuationOwner.isVirtual() : isEnteredFromOutside(continuationOwner, nextAddress))) {
+              if (RoutineManager.fallsThrough(instruction) && !routine.contains(nextAddress) && continuationOwner != null && (continuationOwner.getEntryPoint() == nextAddress ? !continuationOwner.isVirtual() : context.routineManager.isEnteredFromOutside(continuationOwner, nextAddress))) {
                 jumpInto(nextAddress);
                 leaveWithOwnData(address);
                 returnFromMethod();
@@ -204,7 +204,7 @@ public class RoutineBytecodeGenerator {
     generators.forEach(g -> g.scopeAdjuster().run());
     generators.forEach(g -> g.labelGenerator().run());
 
-    new ArrayList<>(labels.keySet()).stream().filter(address -> routine.contains(address) && isEnteredFromOutside(routine, address)).forEach(address -> mm.invoke("isNextPC", address).ifTrue(getLabel(address)::goto_));
+    new ArrayList<>(labels.keySet()).stream().filter(address -> routine.contains(address) && context.routineManager.isEnteredFromOutside(routine, address)).forEach(address -> mm.invoke("isNextPC", address).ifTrue(getLabel(address)::goto_));
 
     Label label = getLabel(routine.getEntryPoint());
     if (label != null)
@@ -467,7 +467,7 @@ public class RoutineBytecodeGenerator {
 
   public void jumpInto(int address) {
     Routine owner = context.routineManager.findRoutineAt(address);
-    if (owner != null && isEnteredFromOutside(owner, address)) {
+    if (owner != null && context.routineManager.isEnteredFromOutside(owner, address)) {
       mm.invoke("setNextAddress", address);
       invokeTransformedMethod(owner.getEntryPoint());
     } else if (owner != null && owner != routine && owner.getEntryPoint() == address && context.routinesInJumpCycles().contains(owner))
@@ -477,19 +477,6 @@ public class RoutineBytecodeGenerator {
     else
       mm.invoke("untranslated", address);
   }
-
-  private boolean isEnteredFromOutside(Routine owner, int address) {
-    return owner.getEntryPoint() != address && (context.routineManager.jumpsAfterStackReset.get(address).stream().anyMatch(caller -> !owner.contains(caller)) || isFallenIntoFromOutside(owner, address)
-        || context.routineManager.externalEntries.contains(address) || context.routineManager.isJumpedIntoFromOtherRoutine(owner, address));
-  }
-
-  private boolean isFallenIntoFromOutside(Routine owner, int address) {
-    int before = context.routineManager.addressBefore(address);
-    Routine previousOwner = before == -1 ? null : context.routineManager.findRoutineAt(before);
-    return previousOwner != null && previousOwner != owner && RoutineManager.fallsThrough(context.routineManager.getInstructionAt(before));
-  }
-
-
 
   public Variable invokeTransformedMethod(int jumpLabel) {
     String labelName = createLabelName(jumpLabel);

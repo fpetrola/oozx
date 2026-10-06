@@ -165,6 +165,11 @@ public class Routine {
       blocks.add(block);
   }
 
+  public boolean splitAt(int address) {
+    Block block = findBlockOf(address);
+    return splitBlocksIfRequired(this, block, address, block.getRangeHandler().getStartAddress(), getVirtualPop(), getReturnPointsDropped());
+  }
+
   private static boolean splitBlocksIfRequired(Routine routineAt, Block block, int startAddress1, int startAddress2, Map<Integer, Integer> virtualPop1, MultiValuedMap<Integer, Integer> returnPointsDropped) {
     if (startAddress1 != startAddress2) {
       Block split = block.split(startAddress1 - 1);

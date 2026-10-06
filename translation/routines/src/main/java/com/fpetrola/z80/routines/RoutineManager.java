@@ -234,6 +234,54 @@ public class RoutineManager {
     return !(getInstructionAt(callAddress) instanceof Call call && isCode(call.getJumpAddress()) && !routine.contains(call.getJumpAddress()));
   }
 
+  public boolean isEnteredFromOutside(Routine owner, int address) {
+    return owner.getEntryPoint() != address && (jumpsAfterStackReset.get(address).stream().anyMatch(caller -> !owner.contains(caller)) || isFallenIntoFromOutside(owner, address)
+        || externalEntries.contains(address) || isJumpedIntoFromOtherRoutine(owner, address));
+  }
+
+  private boolean isFallenIntoFromOutside(Routine owner, int address) {
+    int before = addressBefore(address);
+    Routine previousOwner = before == -1 ? null : findRoutineAt(before);
+    return previousOwner != null && previousOwner != owner && fallsThrough(getInstructionAt(before));
+  }
+
+  public void splitAtEntriesFromOutside(java.util.function.IntFunction<java.util.Set<Integer>> dynamicTargets) {
+    java.util.Set<Routine> inJumpCycles = routinesInJumpCycles(dynamicTargets);
+    java.util.Set<Integer> candidates = new java.util.TreeSet<>(externalEntries);
+    candidates.addAll(callers.keySet());
+    candidates.addAll(jumpsAfterStackReset.keySet());
+    instructions.values().forEach(instruction -> candidates.add(fixedJumpTarget(instruction)));
+    routines.forEach(routine -> routine.getBlocks().forEach(block -> candidates.add(block.getRangeHandler().getStartAddress())));
+    for (boolean changed = true; changed; ) {
+      changed = false;
+      for (int address : candidates) {
+        Routine owner = findRoutineAt(address);
+        if (owner != null && !inJumpCycles.contains(owner) && isEnteredFromOutside(owner, address) && reachesOnlyItsOwnTail(owner, address))
+          changed |= owner.splitAt(address);
+      }
+    }
+  }
+
+  private boolean reachesOnlyItsOwnTail(Routine owner, int entry) {
+    int end = owner.findBlockOf(entry).getRangeHandler().getEndAddress();
+    boolean enteredMidTail = instructions.entrySet().stream().anyMatch(e -> owner.contains(e.getKey()) && (e.getKey() < entry || e.getKey() > end) && fixedJumpTarget(e.getValue()) > entry && fixedJumpTarget(e.getValue()) <= end);
+    java.util.Deque<Integer> pending = new java.util.ArrayDeque<>(List.of(entry));
+    java.util.Set<Integer> seen = new java.util.HashSet<>();
+    while (!enteredMidTail && !pending.isEmpty()) {
+      int address = pending.pop();
+      if (!seen.add(address) || !owner.contains(address))
+        continue;
+      if (address < entry || address > end)
+        return false;
+      Instruction instruction = instructions.get(address);
+      if (instruction != null && fixedJumpTarget(instruction) != -1)
+        pending.push(fixedJumpTarget(instruction));
+      if (instruction != null && fallsThrough(instruction))
+        pending.push(addressAfter(address));
+    }
+    return !enteredMidTail;
+  }
+
   public boolean isJumpedIntoFromOtherRoutine(Routine routine) {
     return isJumpedIntoFromOtherRoutine(routine, routine.getEntryPoint());
   }
