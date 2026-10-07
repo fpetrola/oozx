@@ -288,7 +288,8 @@ public class RoutineManager {
 
   private boolean isReturnPointOfCallFromOutside(Routine owner, int address) {
     return returnPoints.entries().stream().anyMatch(point -> point.getValue() == address
-        && instructions.entrySet().stream().anyMatch(e -> e.getValue() instanceof Call call && call.getJumpAddress() == point.getKey() && !owner.contains(e.getKey())));
+        && instructions.entrySet().stream().anyMatch(e -> e.getValue() instanceof Call call && call.getJumpAddress() == point.getKey() && !owner.contains(e.getKey())))
+        || siteReturnPoints.entries().stream().anyMatch(point -> point.getValue() == address && !owner.contains(point.getKey()));
   }
 
   private boolean isFallenIntoFromOutside(Routine owner, int address) {

@@ -699,4 +699,98 @@ public class RecordedProgramTests {
     Assert.assertTrue(java, java.contains("public void $8030() {\n      super.B = 1;\n   }"));
     Assert.assertFalse(java, java.contains("this.push('\\u8015')"));
   }
+
+  @Test
+  public void theCodeAfterAPoppedReturnRunsWhenThePoppingTargetComesAfterTheCallIsVersioned() {
+    // Equinox D015 -> D08E with the popping target recorded after the CALL already has two versions
+    String java = translate(
+        at(0x8000, 0x21, 0x28, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x21, 0x20, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76),
+        at(0x8018, 0xCD, 0x00, 0x00, 0x06, 0x05, 0xC9),
+        at(0x8020, 0xF1, 0x0E, 0x01, 0xC9),
+        at(0x8028, 0x16, 0x02, 0xC9));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+        import com.fpetrola.z80.minizx.StackException;
+
+        public class Program extends SpectrumApplication {
+           public void $0() {
+           }
+
+           public void $8000() {
+              this.HL('\\u8028');
+              int var1 = this.HL();
+              this.wMem16('\\u8019', var1, '\\u8003');
+
+              try {
+                 this.push('\\u8009');
+                 this.$8018();
+                 this.pop();
+              } catch (StackException var6) {
+                 if(var6.getNextPC() != '\\u8009') {
+                    throw var6;
+                 }
+              }
+
+              this.HL('\\u8020');
+              int var3 = this.HL();
+              this.wMem16('\\u8019', var3, '\\u800c');
+
+              try {
+                 this.push('\\u8012');
+                 this.$8018();
+                 this.pop();
+              } catch (StackException var5) {
+                 if(var5.getNextPC() != '\\u8012') {
+                    throw var5;
+                 }
+              }
+
+              this.halt('\\u8012');
+              this.untranslated('\\u8013');
+           }
+
+           public void $8018() {
+              try {
+                 int var2 = this.codeHash('\\u8018', 3);
+                 if(var2 == 228164) {
+                    this.$8028();
+                 } else if(var2 == 227916) {
+                    this.$8020();
+                 } else {
+                    int var3 = this.executeMutantCode('\\u8018');
+                    if(var3 != '\\u801b') {
+                       this.jump(var3);
+                       return;
+                    }
+                 }
+              } catch (StackException var4) {
+                 if(var4.getNextPC() == '\\u8021') {
+                    this.AF('\\u801b');
+                    this.setNextAddress('\\u8021');
+                    this.$8020();
+                    return;
+                 }
+
+                 throw var4;
+              }
+
+              super.B = 5;
+           }
+
+           public void $8020() {
+              if(!this.isNextPC('\\u8021')) {
+                 throw new StackException('\\u8021');
+              } else {
+                 super.C = 1;
+                 int var1 = this.pop();
+                 throw new StackException(var1);
+              }
+           }
+
+           public void $8028() {
+              super.D = 2;
+           }
+        }
+        """, java);
+  }
 }
