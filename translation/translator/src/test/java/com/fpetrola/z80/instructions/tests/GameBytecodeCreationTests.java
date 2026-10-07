@@ -312,9 +312,40 @@ public class GameBytecodeCreationTests {
     writeTranslation(base64Memory);
   }
 
+  @Test
+  public void testTranslateEquinoxToJava() {
+    String recording = "/home/fernando/detodo/spectrum/equinox/equinox.rzx";
+    int start = 0x5B8D;
+    String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, recording, start);
+    StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
+    RemoteZ80Translator.Footprint footprint = RemoteZ80Translator.footprint(recording, start);
+    footprint.install(realCodeBytecodeCreationBase.getState().getMemory(), realCodeBytecodeCreationBase.getState().getRegisterSP().read());
+    stackAnalyzer.learnFrom(footprint.learned());
+    stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());
+    getRoutineManager().setReachable(footprint.executed());
+    realCodeBytecodeCreationBase.symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
+    getRoutineManager().externalEntries.addAll(footprint.returnAddressesOnStack());
+    stackAnalyzer.nonLocalRets.keySet().forEach(ret -> getRoutineManager().externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(ret)));
+    getRoutineManager().externalEntries.addAll(stackAnalyzer.calledThrough.values());
+    exploreGame(start, Stream.of(footprint.returnAddressesOnStack().stream(), stackAnalyzer.dynamicInvocation.values().stream(), stackAnalyzer.calledThrough.values().stream()).flatMap(s -> s).mapToInt(Integer::intValue).toArray());
+    exploreOrphanContinuations(footprint);
+    writeTranslation(base64Memory);
+  }
+
   private void testTranslateGame(String MemoryInBase64FromFile, int startAddress, int... reachedByTheRecording) {
     exploreGame(startAddress, reachedByTheRecording);
     writeTranslation(MemoryInBase64FromFile);
+  }
+
+  private void exploreOrphanContinuations(RemoteZ80Translator.Footprint footprint) {
+    footprint.codeBytes().forEach((site, bytes) -> {
+      int continuation = site + 3 & 0xffff;
+      boolean call = bytes.length == 3 && (bytes[0] == 0xCD || (bytes[0] & 0xC7) == 0xC4);
+      if (call && footprint.codeBytes().containsKey(continuation) && getRoutineManager().findRoutineAt(continuation) == null) {
+        getRoutineManager().externalEntries.add(continuation);
+        stepUntilComplete(continuation);
+      }
+    });
   }
 
   private void exploreGame(int startAddress, int... reachedByTheRecording) {

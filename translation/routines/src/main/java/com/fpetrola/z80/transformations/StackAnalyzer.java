@@ -54,7 +54,7 @@ public class StackAnalyzer {
   public final MultiValuedMap<Integer, Integer> shiftedReturns = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> dataConsumedBy = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> dataOnTopAt = new HashSetValuedHashMap<>();
-  public final Set<Integer> poppedCallSites = new HashSet<>();
+  public final MultiValuedMap<Integer, Integer> poppedCallSites = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> returnsConsumedBy = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> pushedValues = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> calledThrough = new HashSetValuedHashMap<>();
@@ -62,6 +62,7 @@ public class StackAnalyzer {
   public final MultiValuedMap<Integer, Integer> nonLocalRets = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> returnSlots = new HashSetValuedHashMap<>();
   public static boolean collecting;
+  private boolean learnedFromRecording;
   private int pcValue;
   private int stackResetTo = -1;
   private boolean returnsDropped;
@@ -244,7 +245,9 @@ public class StackAnalyzer {
         Entry entry = entryAtSp();
         boolean afterStackReset = state.getRegisterSP().read() == stackResetTo;
         stackResetTo = -1;
-        if (afterStackReset && collecting && (returnsDropped ? entry != null && entry.returnAddress() : entry == null && knowsWholeStack))
+        Entry popped = consumedReturns.get(state.getRegisterSP().read() - 2 & 0xffff);
+        boolean pastPoppedReturn = entry != null && entry.returnAddress() && popped != null && calledThrough.get(popped.pc()).size() > 1;
+        if (collecting && (pastPoppedReturn || afterStackReset && (returnsDropped ? entry != null && entry.returnAddress() : entry == null && knowsWholeStack)))
           nonLocalRets.put(pcValue, state.getRegisterSP().read());
         if (entry == null && afterStackReset && knowsWholeStack)
           jumpingUsingRet(ret, state.getMemory().read16Bits(state.getRegisterSP().read()), null);
@@ -334,7 +337,7 @@ public class StackAnalyzer {
         if (entry != null && entry.returnAddress())
           returnsConsumedBy.put(pcValue, entry.pc());
         if (entry != null && !entry.returnAddress()) {
-          if (entry.pc() != -1)
+          if (entry.pc() != -1 && (collecting || !learnedFromRecording))
             dataConsumedBy.put(pcValue, entry.pc());
           consumedReturns.remove(poppedSlot());
           if (!simulatedRets.contains(nextPC))
@@ -349,7 +352,7 @@ public class StackAnalyzer {
         if (entry != null && entry.returnAddress()) {
           consumedReturns.put(slot, entry);
           if (entry.pc() != -1)
-            poppedCallSites.add(entry.pc());
+            poppedCallSites.put(entry.pc(), pcValue);
         }
       }
 
@@ -383,15 +386,17 @@ public class StackAnalyzer {
     jumpTableSites.clear();
     nonLocalRets.clear();
     returnSlots.clear();
+    learnedFromRecording = false;
   }
 
   public void learnFrom(StackAnalyzer recorded) {
+    learnedFromRecording = true;
     dynamicInvocation.putAll(recorded.dynamicInvocation);
     recorded.jumpTableSites.forEach(this::jumpTableAt);
     recorded.shiftedReturns.entries().forEach(e -> learnContinuation(e.getKey(), e.getValue(), recorded.callContinuations.get(e.getValue())));
     dataConsumedBy.putAll(recorded.dataConsumedBy);
     dataOnTopAt.putAll(recorded.dataOnTopAt);
-    poppedCallSites.addAll(recorded.poppedCallSites);
+    poppedCallSites.putAll(recorded.poppedCallSites);
     returnsConsumedBy.putAll(recorded.returnsConsumedBy);
     pushedValues.putAll(recorded.pushedValues);
     calledThrough.putAll(recorded.calledThrough);

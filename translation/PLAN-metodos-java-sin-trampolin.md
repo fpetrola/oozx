@@ -211,3 +211,73 @@ Hay que cargar `~/detodo/spectrum/investigacion/tools/traduccion/run/env.sh`. Su
 | base | DD | 3 | ? | 0 | completo / completo / — | d5be2f045 |
 | base | Dizzy | 48 | ? (fase 0) | 0 | completo / completo / semillas 1 y 2 | d5be2f045 |
 | base | Emlyn | 67 | ? (fase 0) | 0 | r3 y r4 completos / completos / semillas 2 y 4 | d5be2f045 |
+
+## 10. Segunda parte: dejar de depender de la pila y de SP
+
+La dirección de retorno no le sirve a Java: lo que hay que conservar es a qué nivel vuelve el control y los datos que el juego lee de la pila. Cada uso raro de la pila que el `StackAnalyzer` ya detecta se reemplaza por su equivalente en el dominio Java; donde el uso no se reconoce con seguridad se mantiene la pila exacta, así se migra un idiom por vez.
+
+| Uso en el Z80 | Detección actual | Equivalente Java |
+|---|---|---|
+| `LD SP,pantalla` + ráfaga de `PUSH` | `pushedValues`, `LD SP` | `ScreenWriter` / copia de arreglo |
+| `LD SP,tabla` + `POP` | `dataConsumedBy` | iterador o arreglo |
+| Parámetros a continuación del `CALL` | `shiftedReturns`, `returnsConsumedBy` | argumentos y `return` |
+| `PUSH dir; RET`, tablas por dirección de retorno | `calledThrough`, `jumpingUsingRet` | `switch` o llamada directa |
+| Descartar el retorno y salir varios niveles | `nonLocalRets`, `poppedCallSites` | `return` con resultado o excepción tipada |
+| `LD SP,tope` (volver al menú) | `afterStackReset` | salida hasta el bucle principal |
+| `PUSH`/`POP` de registros | ejecución simbólica | variables locales |
+
+Etapas, cada una verificada en Emlyn, Dizzy, Equinox, JSW, Wally y DD:
+
+1. Lockstep que compara todo menos SP y la zona de pila (la conoce el `StackAnalyzer`); compara registros, RAM restante, pantalla y puertos.
+2. `PUSH`/`POP` de registros a variables locales.
+3. Parámetros a continuación del `CALL` y saltos por dirección de retorno a argumentos y `switch`.
+4. Retornos no locales y reinicios de pila a excepciones o retornos tipados.
+5. Volcados con `PUSH` y lecturas de tablas con `POP` a `ScreenWriter` e iteradores.
+
+Riesgos: solo se ve lo grabado (la huella con forks amplía, la pila exacta queda como respaldo); la ISR apila donde esté SP, así que un volcado con `PUSH` solo se convierte si el tramo es atómico (`DI` o tolerado); cuando la RAM del Java deja de ser igual a la del Z80, la verificación pasa a ser por lo observable.
+
+## 11. Tercera parte: código versionado (código que se automodifica)
+
+Va antes que las otras dos: sus saltos dinámicos alimentan `runJumps` y sus reglas de pila son las que más se rompen.
+
+### Diagnóstico
+
+Hoy cada etapa trata el código automodificado por su cuenta:
+
+1. La huella guarda solo la primera versión de cada instrucción y una marca por byte (`modifiedCode`); para `CALL`/`JP` reescritos anota destinos en `calledThrough`. El resto de las versiones que vio la grabación se pierde.
+2. El modelo es una instrucción por dirección (rutinas, ejecución simbólica, `StackAnalyzer`, generador). Lo que no entra se resuelve en ejecución: `executeMutantCode` y un `jump` dinámico.
+3. `executeMutantCode` es un segundo Z80 escrito a mano que crece con cada juego (Dizzy: CB; Equinox: `JP cc`, `INC`/`DEC`).
+4. `calledThrough` mezcla los trampolines de la ROM con los `CALL`/`JP` de operando reescrito; se distinguen con `size() > 1`, y las reglas de pila (`pastPoppedReturn`, `planPoppedReturnsOfRewrittenCalls`, `consumedReturns`) dependen de esa señal. De ahí salieron D015 de Equinox, la regresión de Dizzy en el frame 172, el cuelgue de Emlyn y el C608 de Equinox.
+5. La ejecución simbólica decodifica una sola versión y, como los bytes mutantes quedan sin proteger, sus propias escrituras cambian lo que decodifica después: la versión traducida depende del orden de exploración. Los sucesores de las otras versiones solo se exploran si cada test los agrega a mano.
+6. Hay tres detectores con criterios distintos (huella, `findMutantCode`, `AbstractInstructionSpy`) y dos sitios que emiten `executeMutantCode`.
+7. No hay noción de longitud ni de bloque: cuando una versión cambia de longitud o de límites, el modelo por dirección se rompe (el log de 185 GB). `CodeVariant` lo resuelve, pero con 17 cadenas hex pegadas a mano y `-Dcopies` en el lockstep.
+8. Cada test repite el armado con sus propios parches.
+
+### Principio
+
+La grabación ya vio todas las versiones que importan: se guardan todas y un solo dueño las clasifica. Cada versión se traduce con el decodificador y el generador normales; no hay intérprete propio.
+
+| Tipo | Criterio | Traducción | Ejemplos |
+|---|---|---|---|
+| Operando de datos | mismo opcode, varía un inmediato, no salta | leer el operando de memoria (ya existe) | Emlyn AB94 `CP n`, 989B; Dizzy FDFD |
+| Versiones de instrucción | misma longitud, cambia opcode o destino | `switch` sobre las versiones grabadas; la ejecución simbólica ve la unión de sucesores | Dizzy E2DF, E4F8, E299; Equinox CEC1, D035, D015; Emlyn 9ACE |
+| Versiones de bloque | cambian longitudes o límites | `CodeVariant` alimentado desde la grabación, con el mapa de relocación exportado | Emlyn 9AF3, 9BBF |
+| Una sola versión ejecutada | se escribe pero no cambia lo ejecutado | código normal | Emlyn 94DD, 961A |
+
+Una versión no grabada falla con `unknownCodeVersion`, como `unknownCodeVariant`. Si después se quiere tolerar, el respaldo es la implementación de instrucciones del emulador, nunca una escrita a mano.
+
+### Pasos
+
+0. **Inventario, sin cambiar comportamiento.** La huella guarda las versiones de cada dirección; un reporte por juego (Emlyn, Dizzy, Equinox) da la cantidad de sitios por tipo y tres ejemplos de cada uno. Se compara con el catálogo conocido antes de tocar el generador.
+1. **Versiones como dato único.** Las versiones reemplazan a `modifiedCode` y al registro de `calledThrough` en la huella; todo el código queda protegido durante la ejecución simbólica; un solo método traduce desde la grabación y los tres tests lo usan.
+2. **Versiones de instrucción.** Cada versión se decodifica; la ejecución simbólica sigue la unión de sucesores; el generador emite el `switch`. Se borran `executeMutantCode`, sus dos emisiones, la rama `rewritten` y el caso de `CALL` en `mutantCodeInInstruction`. `calledThrough` queda solo para trampolines y las reglas de pila preguntan al clasificador.
+3. **Versiones de bloque.** `CodeVariant` sale de la grabación; se borran las cadenas hex de Emlyn y `-Dcopies`.
+4. **Limpieza.** Se borran los detectores viejos y lo que haya quedado sin uso (por ejemplo `exploreOrphanContinuations`).
+
+Cada paso se verifica con los comandos de la sección 7: lockstep y reproducción desde el fuente de Emlyn, Dizzy y Equinox, lockstep con teclas al azar, Wally y DD idénticos, suite.
+
+### Riesgos
+
+- Una versión que la grabación no vio aparece jugando: el lockstep con teclas al azar lo detecta, y la huella con forks amplía lo explorado.
+- La ejecución simbólica es por dirección: la unión de sucesores sirve mientras las versiones compartan longitud; si no, el sitio es de bloque.
+- Las reglas de pila de D015 hay que rehacerlas sobre el clasificador; el estado al empezar está en el commit de arranque.

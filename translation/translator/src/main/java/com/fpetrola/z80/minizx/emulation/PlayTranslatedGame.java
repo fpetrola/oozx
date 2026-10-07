@@ -9,14 +9,15 @@ import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 public class PlayTranslatedGame {
-  private static final long FETCHES_PER_FRAME = 80000, NANOS_PER_FRAME = 20_000_000;
+  private static final long FETCHES_PER_FRAME = 8000, NANOS_PER_FRAME = 20_000_000;
 
   private record Translated(Class<?> type, String recording, int entry) {
   }
 
   private static final java.util.Map<String, Translated> GAMES = java.util.Map.of(
       "emlyn", new Translated(Emlyn.class, "/home/fernando/detodo/spectrum/emlyn_r4.rzx", 0xFE65),
-      "dizzy", new Translated(Dizzy.class, "/home/fernando/detodo/spectrum/dizzy/Dizzy RZX - The Long Way.rzx", 0xF85B));
+      "dizzy", new Translated(Dizzy.class, "/home/fernando/detodo/spectrum/dizzy/Dizzy RZX - The Long Way.rzx", 0xF85B),
+      "equinox", new Translated(Equinox.class, "/home/fernando/detodo/spectrum/equinox/equinox.rzx", 0x5B8D));
 
   public static void main(String[] args) throws Exception {
     Translated translated = GAMES.get(System.getProperty("game", "emlyn"));

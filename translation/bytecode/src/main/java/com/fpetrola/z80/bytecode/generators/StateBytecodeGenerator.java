@@ -81,7 +81,10 @@ public class StateBytecodeGenerator {
 
     if (translation) {
       MethodMaker getProgramBytesMaker = classMaker.addMethod(String.class, "getProgramBytes").public_();
-      getProgramBytesMaker.return_(base64Memory);
+      Variable bytes = getProgramBytesMaker.var(String.class).set(base64Memory.substring(0, Math.min(60000, base64Memory.length())));
+      for (int from = 60000; from < base64Memory.length(); from += 60000)
+        bytes = bytes.invoke("concat", base64Memory.substring(from, Math.min(from + 60000, base64Memory.length())));
+      getProgramBytesMaker.return_(bytes);
     }
 
 //    enhanceGameData(gameData);
@@ -95,6 +98,7 @@ public class StateBytecodeGenerator {
 //    routineManager.addRoutine(new Routine(block, 34463, true));
 ////    routine1.split(34762);
 
+    routineManager.planPoppedReturnsOfRewrittenCalls(symbolicExecutionAdapter.getStackAnalyzer());
     routineManager.splitAtEntriesFromOutside();
     new ArrayList<>(routineManager.getRoutines()).forEach(this::splitIfTooLargeForOneMethod);
     routineManager.planNonLocalReturns(symbolicExecutionAdapter.getStackAnalyzer(), bytecodeGenerationContext.routinesInJumpCycles());

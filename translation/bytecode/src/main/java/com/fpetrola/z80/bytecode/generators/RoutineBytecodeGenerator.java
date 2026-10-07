@@ -172,7 +172,11 @@ public class RoutineBytecodeGenerator {
         }
         if (mutantCodeInInstruction(instruction, address)) {
           invokePc(address);
-          mm.invoke("executeMutantCode", address);
+          Variable executedUpTo = mm.invoke("executeMutantCode", address);
+          executedUpTo.ifNe(address + instruction.getLength(), () -> {
+            mm.invoke("jump", executedUpTo);
+            returnFromMethod();
+          });
         } else if (routine.getVirtualPop().containsKey(address) && routine.getVirtualPop().get(address) == address) {
           throwAtVirtualPop(address);
           returnFromMethod();
@@ -308,6 +312,8 @@ public class RoutineBytecodeGenerator {
         indirectMemory16BitReference.getTarget().accept(this);
       }
     });
+    if (instruction instanceof Call && stackAnalyzer().calledThrough.containsKey(address))
+      operands.addAll(List.of(address + 1, address + 2));
     return mutantAddress.stream().anyMatch(a1 -> a1 >= address && a1 < address + instruction.getLength() && !operands.contains(a1));
   }
 
@@ -564,7 +570,7 @@ public class RoutineBytecodeGenerator {
   }
 
   public boolean pushesReturnAddress(int callSite) {
-    return stackAnalyzer().poppedCallSites.contains(callSite) && !routine.getReturnPoints().containsKey(callSite) || context.routineManager.pushedReturnSites.contains(callSite);
+    return stackAnalyzer().poppedCallSites.containsKey(callSite) && !routine.getReturnPoints().containsKey(callSite) || context.routineManager.pushedReturnSites.contains(callSite);
   }
 
   private List<Integer> ownDataLeftForOthers(int site) {

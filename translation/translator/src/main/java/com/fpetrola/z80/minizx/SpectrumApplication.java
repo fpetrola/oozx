@@ -98,6 +98,15 @@ public abstract class SpectrumApplication {
       return address + 1;
     } else if (opcode == 0)
       return address + 1;
+    else if ((opcode & 0xc6) == 0x04) {
+      write8(opcode >> 3 & 7, alu((opcode & 1) == 0 ? "inc" : "dec", read8(opcode >> 3 & 7)));
+      return address + 1;
+    }
+    else if (opcode == 0xc3 || (opcode & 0xc7) == 0xc2) {
+      int flag = new int[]{0x40, 0x01, 0x04, 0x80}[opcode >> 4 & 3];
+      boolean taken = opcode == 0xc3 || ((F & flag) != 0) == ((opcode & 0x08) != 0);
+      return taken ? nn : address + 3;
+    }
     else if (opcode == 0xcb || (opcode == 0xdd || opcode == 0xfd) && n == 0xcb) {
       boolean indexed = opcode != 0xcb;
       int operation = mem[address + (indexed ? 3 : 1) & 0xffff], bitNumber = operation >> 3 & 7;
@@ -452,6 +461,7 @@ public abstract class SpectrumApplication {
     R(state.getRegisterR().read());
     I = state.getRegI().read();
     iff = state.isIff1();
+    iff2 = state.isIff2();
     interruptMode = state.getInterruptionMode().ordinal();
   }
 
@@ -460,12 +470,12 @@ public abstract class SpectrumApplication {
   }
 
   public void ei() {
-    iff = true;
+    iff = iff2 = true;
     interruptsDelayed = true;
   }
 
   public void di() {
-    iff = false;
+    iff = iff2 = false;
   }
 
   public boolean isIff() {
@@ -543,7 +553,7 @@ public abstract class SpectrumApplication {
   public int PC;
   public int SP = INITIAL_SP_VALUE;
   protected int I;
-  protected boolean iff;
+  protected boolean iff, iff2;
   protected boolean interruptsDelayed;
   protected int interruptMode = 1;
 
@@ -560,7 +570,7 @@ public abstract class SpectrumApplication {
   }
 
   private int ldInterruptRegister(int value) {
-    F(F & 0x01 | value & 0xa8 | (value == 0 ? 0x40 : 0) | (iff ? 0x04 : 0));
+    F(F & 0x01 | value & 0xa8 | (value == 0 ? 0x40 : 0) | (iff2 ? 0x04 : 0));
     return value;
   }
 

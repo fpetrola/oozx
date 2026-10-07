@@ -189,7 +189,7 @@ public class RemoteZ80Translator {
           for (int i = 0; seen != null && i < Math.max(seen.length, bytes.length); i++)
             if (i >= seen.length || i >= bytes.length || seen[i] != bytes[i])
               modifiedCode.add(address + i & 0xffff);
-          if (instruction instanceof Call && (modifiedCode.contains(address + 1 & 0xffff) || modifiedCode.contains(address + 2 & 0xffff))) {
+          if ((instruction instanceof Call || instruction instanceof JP) && bytes.length == 3 && seen != null && seen.length == 3 && (modifiedCode.contains(address + 1 & 0xffff) || modifiedCode.contains(address + 2 & 0xffff))) {
             stackAnalyzer.calledThrough.put(address, seen[1] | seen[2] << 8);
             stackAnalyzer.calledThrough.put(address, bytes[1] | bytes[2] << 8);
           }

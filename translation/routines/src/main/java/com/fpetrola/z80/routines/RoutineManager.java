@@ -55,6 +55,7 @@ public class RoutineManager {
   public ListValuedMap<Integer, Integer> callees = new ArrayListValuedHashMap<>();
   public ListValuedMap<Integer, Integer> jumpsAfterStackReset = new ArrayListValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> returnPoints = new HashSetValuedHashMap<>();
+  private final MultiValuedMap<Integer, Integer> siteReturnPoints = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> nonLocalReturns = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> nonLocalReturnPoints = new HashSetValuedHashMap<>();
   public final java.util.Set<Integer> pushedReturnSites = new java.util.HashSet<>();
@@ -139,6 +140,7 @@ public class RoutineManager {
 
   public void addReturnPoint(int callSite, int point) {
     returnPoints.put(((ConditionalInstruction<?>) instructions.get(callSite)).getJumpAddress(), point);
+    siteReturnPoints.put(callSite, point);
   }
 
   public void planNonLocalReturns(StackAnalyzer stackAnalyzer, java.util.Set<Routine> jumpMembers) {
@@ -151,12 +153,22 @@ public class RoutineManager {
         nonLocalReturnPoints.put(e.getValue(), continuation);
       }
     });
-    stackAnalyzer.nonLocalRets.entries().forEach(ret -> Stream.concat(stackAnalyzer.returnsConsumedBy.get(ret.getKey()).stream(), stackAnalyzer.returnSlots.get(ret.getValue()).stream())
+    stackAnalyzer.nonLocalRets.entries().stream().filter(ret -> !returnPoints.containsValue(ret.getKey()) && !siteReturnPoints.containsValue(ret.getKey())).forEach(ret -> Stream.concat(stackAnalyzer.returnsConsumedBy.get(ret.getKey()).stream(), stackAnalyzer.returnSlots.get(ret.getValue()).stream())
         .filter(callSite -> instructions.get(callSite) instanceof Call).forEach(callSite -> {
           nonLocalReturns.put(ret.getKey(), addressAfter(callSite));
           nonLocalReturnPoints.put(callSite, addressAfter(callSite));
           pushedReturnSites.add(callSite);
         }));
+  }
+
+  public void planPoppedReturnsOfRewrittenCalls(StackAnalyzer stackAnalyzer) {
+    stackAnalyzer.poppedCallSites.entries().stream().filter(e -> stackAnalyzer.calledThrough.get(e.getKey()).size() > 1 && instructions.get(e.getKey()) instanceof Call).forEach(e -> {
+      Routine popper = findRoutineAt(e.getValue());
+      if (popper != null && instructions.containsKey(e.getValue())) {
+        popper.getVirtualPop().put(e.getValue(), e.getValue());
+        addReturnPoint(e.getKey(), addressAfter(e.getValue()));
+      }
+    });
   }
 
   public MultiValuedMap<Integer, Integer> catchPointsOfCallsIn(Routine routine) {
@@ -170,6 +182,8 @@ public class RoutineManager {
     instructions.forEach((address, instruction) -> {
       if (instruction instanceof Call call && routine.contains(address))
         points.putAll(address, returnPoints.get(call.getJumpAddress()));
+      if (instruction instanceof Call && routine.contains(address))
+        points.putAll(address, siteReturnPoints.get(address));
     });
     return points;
   }
@@ -366,6 +380,7 @@ public class RoutineManager {
     callers.clear();
     jumpsAfterStackReset.clear();
     returnPoints.clear();
+    siteReturnPoints.clear();
     nonLocalReturns.clear();
     nonLocalReturnPoints.clear();
     pushedReturnSites.clear();
