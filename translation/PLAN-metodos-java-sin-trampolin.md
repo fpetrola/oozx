@@ -296,6 +296,7 @@ Cada paso se verifica con los comandos de la sección 7: lockstep y reproducció
 - Respaldo para una forma de bloque no grabada (hoy falla con `unknownCodeVariant`): ejecutar la región con el emulador como `executeMutantCode`.
 - Sin datos de grabación (traducción estática), un `CALL` a un `JP (HL)` que es código hace fallar la ejecución simbólica con NullPointerException en `executeAllCode`; con grabación anda (test en `RecordedProgramTests`).
 - Equinox conserva `untranslated(31006)` y `untranslated(32456)`, nunca alcanzados por la grabación.
+- Lockstep con teclas al azar: Equinox (desde el frame 3000, semilla 1) diverge en el frame 13520 porque el `CALL 9E80` de 8684 nunca volvió en la grabación, su continuación 8687 no está traducida y `$8681` termina en silencio; Emlyn r4 (desde 9000) llega a 6A89, sin traducir. Son huecos de cobertura de la grabación, no de las transformaciones. Después de un `CALL` cuya continuación no es código el generador no emite `untranslated` (sí lo hace después de otras instrucciones); hacerlo fallar en voz alta pide revisar antes los `CALL` cuyo destino descarta el retorno.
 
 ### Tests
 
