@@ -133,7 +133,7 @@ public class RoutineBytecodeGenerator {
               currentInstruction = instruction;
               generateInstruction(address, instruction, firstAddress);
 
-              int nextAddress = address + instruction.getLength();
+              int nextAddress = instruction instanceof Call ? stackAnalyzer().callContinuations.getOrDefault(address, address + instruction.getLength()) : address + instruction.getLength();
               if (!routine.contains(nextAddress) && catchPoints().containsKey(address))
                 labelsAfterLeavingCalls.put(address, mm.label().here());
               Routine continuationOwner = context.routineManager.findRoutineAt(nextAddress);

@@ -803,4 +803,15 @@ public class RecordedProgramTests {
     Assert.assertTrue(java, java.contains("this.halt('\\u8007')"));
     Assert.assertFalse(java, java.contains("this.halt('\\u8005')"));
   }
+
+  @Test
+  public void theContinuationAfterTheDataOfACallRunsEvenWhenItStartsAnotherRoutine() {
+    // Emlyn 648E: CALL 721D with text after it; the continuation 64A2 ended in another routine once the fence was gone
+    String java = translate(
+        at(0x8000, 0xCD, 0x08, 0x80, 0xCD, 0x0C, 0x80, 0x76),
+        at(0x8008, 0xCD, 0x20, 0x80, 0x2A, 0x06, 0x01, 0xC9),
+        at(0x8020, 0xE1, 0x23, 0xE9));
+    int call = java.indexOf("public void $8008()");
+    Assert.assertTrue(java, call >= 0 && java.indexOf("this.$800C();", call) > call);
+  }
 }
