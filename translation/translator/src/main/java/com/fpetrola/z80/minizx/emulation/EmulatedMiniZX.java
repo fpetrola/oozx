@@ -58,6 +58,8 @@ public class EmulatedMiniZX {
   private int stopAt = -1;
   private FetchListener fetchListener;
   private MemoryWriteListener memoryWriteListener;
+  private int[] program;
+  private int programEntry, programStack;
 
   public EmulatedMiniZX listening(FetchListener fetchListener) {
     this.fetchListener = fetchListener;
@@ -93,6 +95,14 @@ public class EmulatedMiniZX {
   }
 
   private static class Reached extends RuntimeException {
+  }
+
+  public static EmulatedMiniZX ofProgram(int[] memory, int entry, int stack, int instructions, StackAnalyzer stackAnalyzer) {
+    EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX(null, 1, false, instructions, false, stackAnalyzer);
+    emulatedMiniZX.program = memory;
+    emulatedMiniZX.programEntry = entry;
+    emulatedMiniZX.programStack = stack;
+    return emulatedMiniZX;
   }
 
   public static EmulatedMiniZX ofRecording(String rzxFile, int frames, StackAnalyzer stackAnalyzer) {
@@ -134,7 +144,11 @@ public class EmulatedMiniZX {
     RegistersBase registersBase = new RegistersBase(ooz80.getState());
 
     State state = ooz80.getState();
-    if (rzxFile == null)
+    if (program != null) {
+      System.arraycopy(program, 0, state.getMemory().getData(), 0, program.length);
+      state.getPc().write(programEntry);
+      state.getRegisterSP().write(programStack);
+    } else if (rzxFile == null)
       SnapshotLoader.setupStateWithSnapshot(registersBase, com.fpetrola.z80.helpers.Helper.getSnapshotFile(url), state);
     else {
       RzxFile recording = new RzxParser().parseFile(rzxFile);

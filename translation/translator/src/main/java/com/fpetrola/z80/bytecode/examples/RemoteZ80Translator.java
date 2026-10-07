@@ -165,6 +165,14 @@ public class RemoteZ80Translator {
   }
 
   public static Footprint footprint(String rzxFile, int from) {
+    return footprint(stackAnalyzer -> EmulatedMiniZX.ofRecording(rzxFile, -1, stackAnalyzer), from);
+  }
+
+  public static String emulateProgram(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, int[] memory, int entry, int stack) {
+    return emulate(realCodeBytecodeCreationBase, EmulatedMiniZX.ofProgram(memory, entry, stack, 0, null));
+  }
+
+  public static Footprint footprint(java.util.function.Function<StackAnalyzer, EmulatedMiniZX> emulatorFor, int from) {
     Map<Integer, int[]> codeBytes = new HashMap<>();
     Set<Integer> returnAddressesOnStack = new HashSet<>();
     CodeVersions versions = new CodeVersions();
@@ -177,7 +185,7 @@ public class RemoteZ80Translator {
     ConditionalInstruction<?>[] pending = {null};
     int[] pendingAddress = {-1};
     try {
-      emulator[0] = EmulatedMiniZX.ofRecording(rzxFile, -1, stackAnalyzer).listening(new FetchListener() {
+      emulator[0] = emulatorFor.apply(stackAnalyzer).listening(new FetchListener() {
         public void instructionFetchedAt(int address, Instruction instruction) {
           boolean starting = !started[0] && address == from;
           started[0] |= starting;
