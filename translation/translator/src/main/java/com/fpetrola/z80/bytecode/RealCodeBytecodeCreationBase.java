@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.bytecode;
 
+import com.fpetrola.z80.routines.CodeVersions;
 import com.fpetrola.z80.base.CPUExecutionContext;
 import com.fpetrola.z80.cpu.*;
 import com.fpetrola.z80.minizx.emulation.GameData;
@@ -87,17 +88,18 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
       symbolicExecutionAdapter.stepUntilComplete(this, this.getState(), entry, 0);
   }
 
-  public void translateCodeVariants(int start, int end, int variableStart, int relocationBase, String... variants) {
+  public void translateCodeVariants(int start, int end, int relocationBase, CodeVersions versions) {
+    int variableStart = versions.blockRegions().stream().filter(region -> region[0] >= start && region[1] <= end).findFirst().orElseThrow()[0];
+    List<int[]> variants = versions.blockContents(variableStart);
     OOZ80 decoder = com.fpetrola.z80.minizx.emulation.EmulatedMiniZX.createOOZ80(new com.fpetrola.z80.minizx.DefaultMiniZXIO());
-    routineManager.forgetCode(relocationBase, relocationBase + variants.length * (end - start + 1));
-    symbolicExecutionAdapter.getMutantAddress().removeIf(address -> address >= variableStart && address < variableStart + variants[0].length() / 2);
-    symbolicExecutionAdapter.routineExecutorHandler.forgetExecutions(relocationBase, relocationBase + variants.length * (end - start + 1));
+    routineManager.forgetCode(relocationBase, relocationBase + variants.size() * (end - start + 1));
+    symbolicExecutionAdapter.getMutantAddress().removeIf(address -> address >= variableStart && address < variableStart + variants.get(0).length);
+    symbolicExecutionAdapter.routineExecutorHandler.forgetExecutions(relocationBase, relocationBase + variants.size() * (end - start + 1));
     int[] decoderMemory = (int[]) decoder.getState().getMemory().getData();
     int size = end - start;
     List<RoutineManager.CodeVariant> copies = new java.util.ArrayList<>();
-    for (int k = 0; k < variants.length; k++) {
-      String hex = variants[k];
-      int[] variable = java.util.stream.IntStream.range(0, hex.length() / 2).map(i -> Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16)).toArray();
+    for (int k = 0; k < variants.size(); k++) {
+      int[] variable = variants.get(k);
       int[] code = java.util.Arrays.copyOfRange(programImage, start, end);
       System.arraycopy(variable, 0, code, variableStart - start, variable.length);
       int at = relocationBase + k * (size + 1);
@@ -117,7 +119,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
       copies.add(new RoutineManager.CodeVariant(start, end, variableStart, variable, at, code));
     }
     routineManager.codeVariants.addAll(copies);
-    getState().getMemory().protect(relocationBase, relocationBase + variants.length * (size + 1));
+    getState().getMemory().protect(relocationBase, relocationBase + variants.size() * (size + 1));
     java.util.Set<Integer> explored = new java.util.HashSet<>();
     for (java.util.Set<Integer> entries; !explored.containsAll(entries = routineManager.entriesInto(start, end)); )
       entries.stream().filter(explored::add).toList().forEach(entry -> copies.forEach(v -> stepUntilComplete(v.relocated(entry))));

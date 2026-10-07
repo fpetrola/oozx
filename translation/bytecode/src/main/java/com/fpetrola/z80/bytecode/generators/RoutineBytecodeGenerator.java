@@ -500,7 +500,7 @@ public class RoutineBytecodeGenerator {
 
   public void invokePc(int address, int rDelta) {
     if (!context.direct)
-      mm.invoke("pc", address, rDelta);
+      mm.invoke("pc", context.routineManager.originalAddress(address), rDelta);
   }
 
   public boolean virtualPopOnBranch(int address) {

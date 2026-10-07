@@ -36,6 +36,8 @@ public class CodeVersions {
 
   private final Map<Integer, List<int[]>> versions = new TreeMap<>();
   private final Map<Integer, Kind> kinds = new TreeMap<>();
+  private final List<int[]> blockRegions = new ArrayList<>();
+  private final Map<Integer, List<int[]>> blockContents = new TreeMap<>();
   private BiFunction<Integer, int[], Instruction> decoder;
 
   public void record(int address, int[] first, int[] other) {
@@ -91,23 +93,52 @@ public class CodeVersions {
     return successors;
   }
 
+  public List<int[]> blockRegions() {
+    return blockRegions;
+  }
+
+  public void mergeBlockRegions(int start, int end) {
+    List<int[]> inside = blockRegions.stream().filter(region -> region[0] >= start && region[1] <= end).toList();
+    if (inside.size() > 1) {
+      blockRegions.removeAll(inside);
+      blockRegions.add(new int[]{inside.get(0)[0], inside.get(inside.size() - 1)[1]});
+    }
+  }
+
+  public List<int[]> blockContents(int regionStart) {
+    return blockContents.getOrDefault(regionStart, List.of());
+  }
+
+  public void recordBlockContent(int address, int[] memory) {
+    blockRegions.stream().filter(region -> address >= region[0] && address < region[1]).forEach(region -> {
+      int[] content = Arrays.copyOfRange(memory, region[0], region[1]);
+      List<int[]> known = blockContents.computeIfAbsent(region[0], start -> new ArrayList<>());
+      if (known.stream().noneMatch(c -> Arrays.equals(c, content)))
+        known.add(content);
+    });
+  }
+
   public void decodeWith(BiFunction<Integer, int[], Instruction> decoder) {
     this.decoder = decoder;
+    blockRegions.clear();
     versions.forEach((address, known) -> kinds.put(address, kindOf(address, known)));
     List<Integer> region = new ArrayList<>();
     int end = -1;
     for (int address : versions.keySet()) {
-      if (address > end)
-        blockIfAnyIs(kinds, region);
+      if (address > end && !region.isEmpty())
+        blockIfAnyIs(region, end);
       region.add(address);
       end = Math.max(end, address + versions.get(address).stream().mapToInt(v -> v.length).max().orElse(1));
     }
-    blockIfAnyIs(kinds, region);
+    if (!region.isEmpty())
+      blockIfAnyIs(region, end);
   }
 
-  private static void blockIfAnyIs(Map<Integer, Kind> kinds, List<Integer> region) {
-    if (region.stream().anyMatch(address -> kinds.get(address) == Kind.BLOCK))
+  private void blockIfAnyIs(List<Integer> region, int end) {
+    if (region.stream().anyMatch(address -> kinds.get(address) == Kind.BLOCK)) {
       region.forEach(address -> kinds.put(address, Kind.BLOCK));
+      blockRegions.add(new int[]{region.get(0), end});
+    }
     region.clear();
   }
 

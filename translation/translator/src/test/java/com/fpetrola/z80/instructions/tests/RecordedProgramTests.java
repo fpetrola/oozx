@@ -40,6 +40,10 @@ public class RecordedProgramTests {
   }
 
   private String translate(int[]... chunks) {
+    return translateWithBlock(null, chunks);
+  }
+
+  private String translateWithBlock(int[] block, int[]... chunks) {
     int[] memory = new int[0x10000];
     for (int[] chunk : chunks)
       for (int i = 1; i < chunk.length; i++)
@@ -58,6 +62,10 @@ public class RecordedProgramTests {
     Stream.of(stackAnalyzer.calledThrough.values(), stackAnalyzer.codeVersions.successors()).forEach(routineManager.externalEntries::addAll);
     base.stepUntilComplete(START);
     Stream.of(stackAnalyzer.calledThrough.values(), stackAnalyzer.codeVersions.successors()).flatMap(c -> c.stream()).forEach(base::stepUntilComplete);
+    if (block != null) {
+      RemoteZ80Translator.recordBlockContents(EmulatedMiniZX.ofProgram(memory, START, STACK, 1000, null), START, stackAnalyzer.codeVersions);
+      base.translateCodeVariants(block[0], block[1], 0xE000, stackAnalyzer.codeVersions);
+    }
     return base.generateAndDecompile("", routineManager.getRoutines(), ".", "Program", base.symbolicExecutionAdapter);
   }
 
@@ -596,6 +604,65 @@ public class RecordedProgramTests {
 
            public void $8028() {
               super.D = 2;
+           }
+        }
+        """, java);
+  }
+
+  @Test
+  public void aBlockRewrittenWithInstructionsOfOtherLengthsRunsFromACopyPerRecordedShape() {
+    // Emlyn 9AF7 line drawer and 9BBF template
+    String java = translateWithBlock(new int[]{0x8018, 0x801C},
+        at(0x8000, 0x21, 0x3C, 0x3C, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x21, 0xC6, 0x05, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76),
+        at(0x8018, 0x47, 0x00, 0x00, 0xC9));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+
+        public class Program extends SpectrumApplication {
+           public void $0() {
+           }
+
+           public void $8000() {
+              this.HL(15420);
+              int var1 = this.HL();
+              this.wMem16('\\u8019', var1, '\\u8003');
+              this.$8018();
+              this.HL(1478);
+              int var2 = this.HL();
+              this.wMem16('\\u8019', var2, '\\u800c');
+              this.$8018();
+              this.halt('\\u8012');
+              this.untranslated('\\u8013');
+           }
+
+           public void $8018() {
+              int var1 = this.codeHash('\\u8019', 2);
+              if(var1 == 2881) {
+                 this.$E000();
+              } else if(var1 == 7104) {
+                 this.$E005();
+              } else {
+                 this.unknownCodeVariant('\\u8018', '\\u8019', 2);
+                 super.B = super.A;
+                 int var2 = this.alu("inc", super.A);
+                 super.A = var2;
+                 int var3 = this.alu("inc", super.A);
+                 super.A = var3;
+              }
+           }
+
+           public void $E000() {
+              super.B = super.A;
+              int var1 = this.alu("inc", super.A);
+              super.A = var1;
+              int var2 = this.alu("inc", super.A);
+              super.A = var2;
+           }
+
+           public void $E005() {
+              super.B = super.A;
+              int var1 = this.alu("add", super.A, 5);
+              super.A = var1;
            }
         }
         """, java);

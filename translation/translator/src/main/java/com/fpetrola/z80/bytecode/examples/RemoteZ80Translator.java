@@ -184,35 +184,30 @@ public class RemoteZ80Translator {
     Forks forks = new Forks(codeBytes, new HashSet<>(), explored, new HashMap<>(), new HashSet<>());
     ConditionalInstruction<?>[] pending = {null};
     int[] pendingAddress = {-1};
-    try {
-      emulator[0] = emulatorFor.apply(stackAnalyzer).listening(new FetchListener() {
-        public void instructionFetchedAt(int address, Instruction instruction) {
-          boolean starting = !started[0] && address == from;
-          started[0] |= starting;
-          StackAnalyzer.collecting = started[0];
-          if (!started[0])
-            return;
-          if (pending[0] != null)
-            forks.exploreUntakenBranch(emulator[0].ooz80, pending[0], pendingAddress[0], address, stackAnalyzer, BRANCH_BUDGET);
-          if (pendingAddress[0] != -1 && address != (pendingAddress[0] + codeBytes.get(pendingAddress[0]).length & 0xffff))
-            forks.landings().add(address);
-          boolean conditional = isUntakenBranchCandidate(instruction);
-          pending[0] = conditional ? (ConditionalInstruction<?>) instruction : null;
-          pendingAddress[0] = address;
-          int[] memory = emulator[0].ooz80.getState().getMemory().getData();
-          for (int slot = emulator[0].ooz80.getState().getRegisterSP().read(); starting && slot < 0x10000 - 1 && returnAddressesOnStack.size() < 10; slot += 2)
-            returnAddressesOnStack.add(memory[slot] | memory[slot + 1] << 8);
-          int[] bytes = new int[instruction.getLength()];
-          for (int i = 0; i < bytes.length; i++)
-            bytes[i] = memory[address + i & 0xffff];
-          recordVersion(codeBytes, versions, address, bytes);
-        }
-      });
-      emulator[0].start();
-    } catch (RuntimeException finished) {
-      if (!"rzx finished".equals(finished.getMessage()))
-        throw finished;
-    }
+    emulator[0] = emulatorFor.apply(stackAnalyzer).listening(new FetchListener() {
+      public void instructionFetchedAt(int address, Instruction instruction) {
+        boolean starting = !started[0] && address == from;
+        started[0] |= starting;
+        StackAnalyzer.collecting = started[0];
+        if (!started[0])
+          return;
+        if (pending[0] != null)
+          forks.exploreUntakenBranch(emulator[0].ooz80, pending[0], pendingAddress[0], address, stackAnalyzer, BRANCH_BUDGET);
+        if (pendingAddress[0] != -1 && address != (pendingAddress[0] + codeBytes.get(pendingAddress[0]).length & 0xffff))
+          forks.landings().add(address);
+        boolean conditional = isUntakenBranchCandidate(instruction);
+        pending[0] = conditional ? (ConditionalInstruction<?>) instruction : null;
+        pendingAddress[0] = address;
+        int[] memory = emulator[0].ooz80.getState().getMemory().getData();
+        for (int slot = emulator[0].ooz80.getState().getRegisterSP().read(); starting && slot < 0x10000 - 1 && returnAddressesOnStack.size() < 10; slot += 2)
+          returnAddressesOnStack.add(memory[slot] | memory[slot + 1] << 8);
+        int[] bytes = new int[instruction.getLength()];
+        for (int i = 0; i < bytes.length; i++)
+          bytes[i] = memory[address + i & 0xffff];
+        recordVersion(codeBytes, versions, address, bytes);
+      }
+    });
+    play(emulator[0]);
     StackAnalyzer.collecting = false;
     returnAddressesOnStack.retainAll(codeBytes.keySet());
     return new Footprint(codeBytes, explored, stackAnalyzer, returnAddressesOnStack, emulator[0].ooz80.getState().getMemory().getData().clone(), versions);
@@ -234,6 +229,27 @@ public class RemoteZ80Translator {
       decoder.getState().getPc().write(address);
       return decoder.getInstructionFetcher().fetchNextInstruction();
     };
+  }
+
+  public static void recordBlockContents(EmulatedMiniZX emulator, int from, CodeVersions versions) {
+    boolean[] started = {false};
+    emulator.listening(new FetchListener() {
+      public void instructionFetchedAt(int address, Instruction instruction) {
+        started[0] |= address == from;
+        if (started[0])
+          versions.recordBlockContent(address, emulator.ooz80.getState().getMemory().getData());
+      }
+    });
+    play(emulator);
+  }
+
+  private static void play(EmulatedMiniZX emulator) {
+    try {
+      emulator.start();
+    } catch (RuntimeException finished) {
+      if (!"rzx finished".equals(finished.getMessage()))
+        throw finished;
+    }
   }
 
   private static final int BRANCH_BUDGET = 500;

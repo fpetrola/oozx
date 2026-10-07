@@ -101,4 +101,42 @@ public class CodeVersionsTest {
     translation.learnFrom(recorded);
     assertTrue(translation.codeVersions.isVersioned(0xD015));
   }
+
+  @Test
+  public void aBlockRegionSpansItsSitesUpToTheirLongestVersion() {
+    site(0x9BE2, b(0xC3, 0xEA, 0x9B), b(0x29));
+    site(0x9BE3, b(0x17), b(0x29));
+    site(0xA000, b(0x1C), b(0x14));
+    kind(0x9BE2);
+    assertEquals(1, versions.blockRegions().size());
+    assertArrayEquals(b(0x9BE2, 0x9BE5), versions.blockRegions().get(0));
+  }
+
+  @Test
+  public void theContentOfABlockIsRecordedEachTimeItsCodeRunsWithANewShape() {
+    site(0x9BE2, b(0xC3, 0xEA, 0x9B), b(0x29));
+    kind(0x9BE2);
+    int[] memory = new int[0x10000];
+    memory[0x9BE2] = 0xC3;
+    versions.recordBlockContent(0x9BE2, memory);
+    versions.recordBlockContent(0x9BE3, memory);
+    versions.recordBlockContent(0xA000, memory);
+    assertEquals(1, versions.blockContents(0x9BE2).size());
+    memory[0x9BE2] = 0x29;
+    versions.recordBlockContent(0x9BE2, memory);
+    assertEquals(2, versions.blockContents(0x9BE2).size());
+    assertArrayEquals(b(0x29, 0, 0), versions.blockContents(0x9BE2).get(1));
+  }
+
+  @Test
+  public void theBlockRegionsOfOneTemplateMergeSoTheirContentsAreRecordedTogether() {
+    site(0x9BDA, b(0x79), b(0x26, 0xFD));
+    site(0x9BE2, b(0xC3, 0xEA, 0x9B), b(0x29));
+    site(0xA000, b(0x1C), b(0x14), b(0x00, 0x00));
+    kind(0x9BDA);
+    assertEquals(3, versions.blockRegions().size());
+    versions.mergeBlockRegions(0x9BBF, 0x9C1D);
+    assertEquals(2, versions.blockRegions().size());
+    assertTrue(versions.blockRegions().stream().anyMatch(region -> region[0] == 0x9BDA && region[1] == 0x9BE5));
+  }
 }

@@ -271,25 +271,10 @@ public class GameBytecodeCreationTests {
     getRoutineManager().externalEntries.addAll(footprint.returnAddressesOnStack());
     exploreGame(0xFE65, Stream.of(Stream.of(0x963E), footprint.returnAddressesOnStack().stream(), stackAnalyzer.dynamicInvocation.values().stream()).flatMap(s -> s).mapToInt(Integer::intValue).toArray());
     realCodeBytecodeCreationBase.translateRomRoutines(0x0038, 0x22B0, 0x0E44, 0x03F4, 0x2C8D);
-    realCodeBytecodeCreationBase.translateCodeVariants(0x9BBF, 0x9C1D, 0x9BDA, 0xE000,
-        "79c3df9b79652e001fcb1ccb1dc38f9c08e378c3f19b78652e001fcb1ccb1dc3979c",
-        "26fd7e696e652e001fcb1ccb1dc38f9c08e326fd7e686e652e001fcb1ccb1dc3979c",
-        "79c3df9b79673e00291729172917291708e378c3f19b78673e002917291729172917",
-        "26fd7e696e652e00c3ea9b00cb0ecb0608e326fd7e686e652e00c3fc9b00cb0ecb06",
-        "79c3df9b79652e00c3ea9b00cb0ecb0608e378c3f19b78652e00c3fc9b00cb0ecb06",
-        "79c3df9b79673e0029172917c3ea9b0008e378c3f19b78673e0029172917c3fc9b00",
-        "26fd7e696e673e00291729172917291708e326fd7e686e673e002917291729172917",
-        "26fd7e696e673e0029172917c3ea9b0008e326fd7e686e673e0029172917c3fc9b00");
-    realCodeBytecodeCreationBase.translateCodeVariants(0x9AF7, 0x9B1C, 0x9AFB, 0xE300,
-        "2d3601243602243604243608243610243620",
-        "36102436202436402436802d243601243602",
-        "3640243680242d3601243602243604243608",
-        "3610243620243640243680242d3601243602",
-        "36042436082436102436202436402436802d",
-        "3608243604243602243601242c3680243640",
-        "2c3680243640243620243610243608243604",
-        "36202436102436082436042436022436012c",
-        "3602243601242c3680243640243620243610");
+    int[][] templates = {{0x9BBF, 0x9C1D, 0xE000}, {0x9AF7, 0x9B1C, 0xE300}};
+    Stream.of(templates).forEach(template -> stackAnalyzer.codeVersions.mergeBlockRegions(template[0], template[1]));
+    Stream.of("emlyn_r3.rzx", "emlyn_r4.rzx").forEach(recording -> RemoteZ80Translator.recordBlockContents(EmulatedMiniZX.ofRecording("/home/fernando/detodo/spectrum/" + recording, -1, null), 0xFE65, stackAnalyzer.codeVersions));
+    Stream.of(templates).forEach(template -> realCodeBytecodeCreationBase.translateCodeVariants(template[0], template[1], template[2], stackAnalyzer.codeVersions));
     writeTranslation(base64Memory);
   }
 
