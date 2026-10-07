@@ -201,6 +201,8 @@ public class RemoteZ80Translator {
     Forks forks = new Forks(codeBytes, new HashSet<>(), explored, new HashMap<>(), new HashSet<>());
     ConditionalInstruction<?>[] pending = {null};
     int[] pendingAddress = {-1};
+    boolean[] storingAtFixedAddress = {false};
+    Set<Integer> patched = new HashSet<>();
     emulator[0] = emulatorFor.apply(stackAnalyzer).listening(new FetchListener() {
       public void instructionFetchedAt(int address, Instruction instruction) {
         boolean starting = !started[0] && address == from;
@@ -222,10 +224,19 @@ public class RemoteZ80Translator {
         for (int i = 0; i < bytes.length; i++)
           bytes[i] = memory[address + i & 0xffff];
         recordVersion(codeBytes, versions, address, bytes);
+        storingAtFixedAddress[0] = CodeVersions.storesAtFixedAddress(instruction);
       }
+    }).listening((address, value) -> {
+      if (storingAtFixedAddress[0] && address >= 0x4000)
+        patched.add(address & 0xffff);
     });
     play(emulator[0]);
     StackAnalyzer.collecting = false;
+    codeBytes.forEach((site, bytes) -> {
+      Set<Integer> offsets = java.util.stream.IntStream.range(0, bytes.length).filter(i -> patched.contains(site + i & 0xffff)).boxed().collect(java.util.stream.Collectors.toSet());
+      if (!offsets.isEmpty())
+        versions.patched(site, bytes, offsets);
+    });
     returnAddressesOnStack.retainAll(codeBytes.keySet());
     return new Footprint(codeBytes, explored, stackAnalyzer, returnAddressesOnStack, emulator[0].ooz80.getState().getMemory().getData().clone(), versions).forgettingJumpsIntoData();
   }

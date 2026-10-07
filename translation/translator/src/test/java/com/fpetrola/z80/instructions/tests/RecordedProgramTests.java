@@ -901,4 +901,61 @@ public class RecordedProgramTests {
         }
         """, java);
   }
+
+  @Test
+  public void aCallPatchedAtAFixedAddressSwitchesWithAFallbackEvenIfTheRecordingSawOneTarget() {
+    // Equinox 7879: LD (787A),HL at 7CD5 always wrote 7D10 in the recording, with other keys it writes 7C00
+    String java = translate(
+        at(0x8000, 0x21, 0x20, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x21, 0x20, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76),
+        at(0x8018, 0xCD, 0x00, 0x00, 0xC9),
+        at(0x8020, 0x06, 0x01, 0xC9));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+
+        public class Program extends SpectrumApplication {
+           public void $0() {
+           }
+
+           public void $8000() {
+              this.HL('\\u8020');
+              int var1 = this.HL();
+              this.wMem16('\\u8019', var1, '\\u8003');
+              this.$8018();
+              this.HL('\\u8020');
+              int var2 = this.HL();
+              this.wMem16('\\u8019', var2, '\\u800c');
+              this.$8018();
+              this.halt('\\u8012');
+              this.untranslated('\\u8013');
+           }
+
+           public void $8018() {
+              if(this.codeHash('\\u8018', 3) == 227916) {
+                 this.$8020();
+              } else {
+                 int var1 = this.executeMutantCode('\\u8018');
+                 if(var1 != '\\u801b') {
+                    this.jump(var1);
+                    return;
+                 }
+              }
+
+           }
+
+           public void $8020() {
+              super.B = 1;
+           }
+        }
+        """, java);
+  }
+
+  @Test
+  public void copyingCodeOntoItselfDoesNotMakeItMutant() {
+    // Equinox 9E80 waits with LD HL,0 / LD DE,0 / LDIR, rewriting every byte with its own value
+    String java = translate(
+        at(0x8000, 0xCD, 0x20, 0x80, 0x21, 0x00, 0x80, 0x54, 0x5D, 0x01, 0x30, 0x00, 0xED, 0xB0, 0xCD, 0x20, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8020, 0xCD, 0x28, 0x80, 0xC9),
+        at(0x8028, 0x06, 0x01, 0xC9));
+    Assert.assertTrue(java, java.contains("public void $8020() {\n      this.$8028();\n   }"));
+  }
 }

@@ -19,6 +19,7 @@
 package com.fpetrola.z80.routines;
 
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
@@ -38,6 +39,7 @@ public class CodeVersions {
   private final Map<Integer, Kind> kinds = new TreeMap<>();
   private final List<int[]> blockRegions = new ArrayList<>();
   private final Map<Integer, List<int[]>> blockContents = new TreeMap<>();
+  private final Map<Integer, Set<Integer>> patched = new TreeMap<>();
   private BiFunction<Integer, int[], Instruction> decoder;
 
   public void record(int address, int[] first, int[] other) {
@@ -46,8 +48,14 @@ public class CodeVersions {
       known.add(other);
   }
 
+  public void patched(int address, int[] bytes, Set<Integer> offsets) {
+    record(address, bytes, bytes);
+    patched.computeIfAbsent(address, a -> new HashSet<>()).addAll(offsets);
+  }
+
   public void addAll(CodeVersions other) {
     other.versions.forEach((address, known) -> known.forEach(v -> record(address, known.get(0), v)));
+    other.patched.forEach((address, offsets) -> patched.computeIfAbsent(address, a -> new HashSet<>()).addAll(offsets));
   }
 
   public Map<Integer, List<int[]>> versions() {
@@ -80,6 +88,7 @@ public class CodeVersions {
         if (i >= v.length || i >= known.get(0).length || v[i] != known.get(0)[i])
           modified.add(address + i & 0xffff);
     }));
+    patched.forEach((address, offsets) -> offsets.forEach(offset -> modified.add(address + offset & 0xffff)));
     return modified;
   }
 
@@ -148,8 +157,12 @@ public class CodeVersions {
       return Kind.BLOCK;
     Instruction instruction = decode(address, first);
     Set<Integer> operands = operandOffsets(instruction);
-    boolean operandsOnly = known.stream().allMatch(v -> IntStream.range(0, v.length).allMatch(i -> v[i] == first[i] || operands.contains(i)));
+    boolean operandsOnly = known.stream().allMatch(v -> IntStream.range(0, v.length).allMatch(i -> v[i] == first[i] || operands.contains(i))) && operands.containsAll(patched.getOrDefault(address, Set.of()));
     return operandsOnly && !(instruction instanceof JumpInstruction) ? Kind.OPERAND : Kind.INSTRUCTION;
+  }
+
+  public static boolean storesAtFixedAddress(Instruction instruction) {
+    return instruction instanceof Ld ld && (ld.getTarget() instanceof IndirectMemory8BitReference target ? target.getTarget() : ld.getTarget() instanceof IndirectMemory16BitReference target ? target.getTarget() : null) instanceof Memory16BitReference;
   }
 
   public static Set<Integer> operandOffsets(Instruction instruction) {

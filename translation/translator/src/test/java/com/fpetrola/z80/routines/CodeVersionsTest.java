@@ -35,6 +35,20 @@ public class CodeVersionsTest {
   }
 
   @Test
+  public void anImmediatePatchedAtAFixedAddressIsAnOperand() {
+    versions.patched(0x838E, b(0xFE, 0x49), Set.of(1));
+    assertEquals(OPERAND, kind(0x838E));
+    assertEquals(Set.of(0x838F), versions.modifiedBytes());
+  }
+
+  @Test
+  public void anOpcodePatchedAtAFixedAddressIsAnInstructionSite() {
+    versions.patched(0xD035, b(0x1C), Set.of(0));
+    assertEquals(INSTRUCTION, kind(0xD035));
+    assertEquals(1, versions.instructionVersions(0xD035).size());
+  }
+
+  @Test
   public void anOpcodeSwapIsAnInstructionSite() {
     site(0xD035, b(0x1C), b(0x14));
     assertEquals(INSTRUCTION, kind(0xD035));
