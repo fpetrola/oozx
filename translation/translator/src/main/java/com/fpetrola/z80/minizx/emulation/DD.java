@@ -137,8 +137,8 @@ public class DD extends MiniZX {
             try {
                pc(51219, 1);
                $CFD9();
-            } catch (StackException var72) {
-               int var2 = var72.getNextPC();
+            } catch (StackException var71) {
+               int var2 = var71.getNextPC();
                if(var2 == 52693) {
                   HL(51222);
                   pc(52693, 1);
@@ -150,7 +150,7 @@ public class DD extends MiniZX {
                   wMem(var36, var35, 52696);
                } else {
                   if(var2 != 56386) {
-                     throw var72;
+                     throw var71;
                   }
 
                   HL(51222);
@@ -317,14 +317,14 @@ public class DD extends MiniZX {
             try {
                pc(51237, 1);
                $E5E8();
-            } catch (StackException var71) {
-               if(var71.getNextPC() == 58945) {
+            } catch (StackException var72) {
+               if(var72.getNextPC() == 58945) {
                   HL(51240);
                   pc(58945, 1);
                   continue label89;
                }
 
-               throw var71;
+               throw var72;
             }
 
             pc(51240, 1);
@@ -3369,14 +3369,14 @@ public class DD extends MiniZX {
                if(flag(64, true)) {
                   $CD9A();
                }
-            } catch (StackException var215) {
-               if(var215.getNextPC() == 52692) {
+            } catch (StackException var216) {
+               if(var216.getNextPC() == 52692) {
                   HL(53228);
-                  untranslated(52692);
-                  return;
+                  pc(52692, 1);
+                  throw new StackException(52693);
                }
 
-               throw var215;
+               throw var216;
             }
 
             pc(53228, 1);
@@ -3526,15 +3526,15 @@ public class DD extends MiniZX {
             try {
                pc(53239, 1);
                $D895();
-            } catch (StackException var216) {
-               if(var216.getNextPC() == 54038) {
+            } catch (StackException var215) {
+               if(var215.getNextPC() == 54038) {
                   DE(53242);
                   pc(54038, 1);
                   $D1CE();
                   return;
                }
 
-               throw var216;
+               throw var215;
             }
 
             pc(53242, 1);
@@ -4699,14 +4699,14 @@ public class DD extends MiniZX {
             try {
                pc(53917, 1);
                $D2BF();
-            } catch (StackException var147) {
-               if(var147.getNextPC() == 53999) {
+            } catch (StackException var148) {
+               if(var148.getNextPC() == 53999) {
                   HL(53920);
                   pc(53999, 1);
                   return;
                }
 
-               throw var147;
+               throw var148;
             }
 
             pc(53920, 2);
@@ -4739,14 +4739,14 @@ public class DD extends MiniZX {
             try {
                pc(53937, 1);
                $D2BF();
-            } catch (StackException var148) {
-               if(var148.getNextPC() == 53999) {
+            } catch (StackException var146) {
+               if(var146.getNextPC() == 53999) {
                   HL(53940);
                   pc(53999, 1);
                   return;
                }
 
-               throw var148;
+               throw var146;
             }
 
             pc(53940, 2);
@@ -4759,14 +4759,14 @@ public class DD extends MiniZX {
             try {
                pc(53947, 1);
                $D2BF();
-            } catch (StackException var146) {
-               if(var146.getNextPC() == 53999) {
+            } catch (StackException var147) {
+               if(var147.getNextPC() == 53999) {
                   HL(53950);
                   pc(53999, 1);
                   return;
                }
 
-               throw var146;
+               throw var147;
             }
 
             pc(53950, 1);

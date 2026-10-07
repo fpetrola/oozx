@@ -656,7 +656,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               } catch (StackException var2) {
                  if(var2.getNextPC() == 16) {
                     this.HL(8);
-                    this.untranslated(16);
+                    throw new StackException(17);
                  } else {
                     throw var2;
                  }

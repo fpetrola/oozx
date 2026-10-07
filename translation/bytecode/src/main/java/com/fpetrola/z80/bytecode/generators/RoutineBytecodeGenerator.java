@@ -236,6 +236,9 @@ public class RoutineBytecodeGenerator {
             } else if (context.routineManager.getInstructionAt(i) instanceof JP jp && jp.getCondition() instanceof ConditionAlwaysTrue && getLabel(RoutineManager.fixedJumpTarget(jp)) != null) {
               invokePc(i);
               getLabel(RoutineManager.fixedJumpTarget(jp)).goto_();
+            } else if (context.routineManager.getInstructionAt(i) instanceof Pop && context.routineManager.findRoutineAt(i) == null) {
+              invokePc(i);
+              throwStackException(context.routineManager.addressAfter(i), StackException.class);
             } else
               tailJump(i, -1);
           });
