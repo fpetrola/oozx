@@ -657,4 +657,41 @@ public class RecordedProgramTests {
         }
         """, java);
   }
+
+  @Test
+  public void aCallToAJumpThroughHlInTheGameCallsTheTarget() {
+    // like Emlyn's CALL 162C, but with the JP (HL) in the game's own code
+    String java = translate(
+        at(0x8000, 0x21, 0x08, 0x80, 0xCD, 0x30, 0x80, 0x76),
+        at(0x8008, 0x06, 0x01, 0xC9),
+        at(0x8030, 0xE9));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+
+        public class Program extends SpectrumApplication {
+           public void $0() {
+           }
+
+           public void $8000() {
+              this.HL('\\u8008');
+              this.$8030();
+              this.halt('\\u8006');
+              this.$8008();
+           }
+
+           public void $8008() {
+              super.B = 1;
+           }
+
+           public void $8030() {
+              if(this.HL() == '\\u8008') {
+                 this.$8008();
+              } else {
+                 int var1 = this.HL();
+                 this.jump(var1);
+              }
+           }
+        }
+        """, java);
+  }
 }

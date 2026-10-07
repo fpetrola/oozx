@@ -294,7 +294,7 @@ Cada paso se verifica con los comandos de la sección 7: lockstep y reproducció
 ### Pendiente
 
 - Respaldo para una forma de bloque no grabada (hoy falla con `unknownCodeVariant`): ejecutar la región con el emulador como `executeMutantCode`.
-- Un `CALL` a un `JP (HL)` que es código (no ROM) hace fallar la ejecución simbólica con NullPointerException en `executeAllCode`.
+- Sin datos de grabación (traducción estática), un `CALL` a un `JP (HL)` que es código hace fallar la ejecución simbólica con NullPointerException en `executeAllCode`; con grabación anda (test en `RecordedProgramTests`).
 - Equinox conserva `untranslated(31006)` y `untranslated(32456)`, nunca alcanzados por la grabación.
 
 ### Tests
