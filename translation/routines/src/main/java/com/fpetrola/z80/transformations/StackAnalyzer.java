@@ -369,6 +369,7 @@ public class StackAnalyzer {
     int sp = state.getRegisterSP().read();
     Entry entry = new Entry(state.getMemory().read16Bits(sp), state.getPc().read(), returnAddress);
     entries.put(sp, entry);
+    consumedReturns.remove(sp - 2 & 0xffff);
     if (returnAddress && collecting)
       returnSlots.put(sp, entry.pc());
     if (!returnAddress)

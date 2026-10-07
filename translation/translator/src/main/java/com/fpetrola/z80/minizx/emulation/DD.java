@@ -4394,14 +4394,14 @@ public class DD extends MiniZX {
             try {
                pc(53917, 1);
                $D2BF();
-            } catch (StackException var146) {
-               if(var146.getNextPC() == 53999) {
+            } catch (StackException var148) {
+               if(var148.getNextPC() == 53999) {
                   HL(53920);
                   pc(53999, 1);
                   return;
                }
 
-               throw var146;
+               throw var148;
             }
 
             pc(53920, 2);
@@ -4414,14 +4414,14 @@ public class DD extends MiniZX {
             try {
                pc(53927, 1);
                $D2BF();
-            } catch (StackException var148) {
-               if(var148.getNextPC() == 53999) {
+            } catch (StackException var147) {
+               if(var147.getNextPC() == 53999) {
                   HL(53930);
                   pc(53999, 1);
                   return;
                }
 
-               throw var148;
+               throw var147;
             }
 
             pc(53930, 2);
@@ -4434,14 +4434,14 @@ public class DD extends MiniZX {
             try {
                pc(53937, 1);
                $D2BF();
-            } catch (StackException var149) {
-               if(var149.getNextPC() == 53999) {
+            } catch (StackException var146) {
+               if(var146.getNextPC() == 53999) {
                   HL(53940);
                   pc(53999, 1);
                   return;
                }
 
-               throw var149;
+               throw var146;
             }
 
             pc(53940, 2);
@@ -4454,14 +4454,14 @@ public class DD extends MiniZX {
             try {
                pc(53947, 1);
                $D2BF();
-            } catch (StackException var147) {
-               if(var147.getNextPC() == 53999) {
+            } catch (StackException var149) {
+               if(var149.getNextPC() == 53999) {
                   HL(53950);
                   pc(53999, 1);
                   return;
                }
 
-               throw var147;
+               throw var149;
             }
 
             pc(53950, 1);

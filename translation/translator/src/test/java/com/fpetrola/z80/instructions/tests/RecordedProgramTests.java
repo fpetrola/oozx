@@ -526,31 +526,11 @@ public class RecordedProgramTests {
               this.HL('\\u8020');
               int var1 = this.HL();
               this.wMem16('\\u8019', var1, '\\u8003');
-
-              try {
-                 this.push('\\u8009');
-                 this.$8018();
-                 this.pop();
-              } catch (StackException var6) {
-                 if(var6.getNextPC() != '\\u8009') {
-                    throw var6;
-                 }
-              }
-
+              this.$8018();
               this.HL('\\u8028');
-              int var3 = this.HL();
-              this.wMem16('\\u8019', var3, '\\u800c');
-
-              try {
-                 this.push('\\u8012');
-                 this.$8018();
-                 this.pop();
-              } catch (StackException var5) {
-                 if(var5.getNextPC() != '\\u8012') {
-                    throw var5;
-                 }
-              }
-
+              int var2 = this.HL();
+              this.wMem16('\\u8019', var2, '\\u800c');
+              this.$8018();
               this.halt('\\u8012');
               this.untranslated('\\u8013');
            }
@@ -569,19 +549,17 @@ public class RecordedProgramTests {
                        return;
                     }
                  }
-              } catch (StackException var5) {
-                 if(var5.getNextPC() == '\\u8021') {
+              } catch (StackException var4) {
+                 if(var4.getNextPC() == '\\u8021') {
                     this.AF('\\u801b');
                     this.$8021();
                     return;
                  }
 
-                 throw var5;
+                 throw var4;
               }
 
               super.B = 5;
-              int var4 = this.pop();
-              throw new StackException(var4);
            }
 
            public void $8020() {
@@ -707,5 +685,18 @@ public class RecordedProgramTests {
     chunks[levels] = at(START + 8 * levels, 0xC9);
     String java = translate(chunks);
     Assert.assertEquals(levels + 2, java.split("public void \\$").length - 1);
+  }
+
+  @Test
+  public void aPlainRoutineCalledWhereARewrittenCallOnceDiscardedItsReturnStillReturnsNormally() {
+    // Equinox CFC8: its RET was taken as non-local because D015's callee had popped a return address at the slot below
+    String java = translate(
+        at(0x8000, 0x21, 0x20, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x21, 0x28, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0xCD, 0x30, 0x80, 0x76),
+        at(0x8018, 0xCD, 0x00, 0x00, 0xC9),
+        at(0x8020, 0xF1, 0xC9),
+        at(0x8028, 0xC9),
+        at(0x8030, 0x06, 0x01, 0xC9));
+    Assert.assertTrue(java, java.contains("public void $8030() {\n      super.B = 1;\n   }"));
+    Assert.assertFalse(java, java.contains("this.push('\\u8015')"));
   }
 }
