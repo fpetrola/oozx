@@ -39,7 +39,7 @@ public class CodeVersions {
   private final Map<Integer, Kind> kinds = new TreeMap<>();
   private final List<int[]> blockRegions = new ArrayList<>();
   private final Map<Integer, List<int[]>> blockContents = new TreeMap<>();
-  private final Map<Integer, Set<Integer>> patched = new TreeMap<>();
+  private final Set<Integer> patched = new TreeSet<>();
   private BiFunction<Integer, int[], Instruction> decoder;
 
   public void record(int address, int[] first, int[] other) {
@@ -48,14 +48,17 @@ public class CodeVersions {
       known.add(other);
   }
 
-  public void patched(int address, int[] bytes, Set<Integer> offsets) {
-    record(address, bytes, bytes);
-    patched.computeIfAbsent(address, a -> new HashSet<>()).addAll(offsets);
+  public void patched(Set<Integer> addresses, Map<Integer, int[]> executed) {
+    patched.addAll(addresses);
+    executed.forEach((address, bytes) -> {
+      if (IntStream.range(0, bytes.length).anyMatch(i -> patched.contains(address + i & 0xffff)))
+        record(address, bytes, bytes);
+    });
   }
 
   public void addAll(CodeVersions other) {
     other.versions.forEach((address, known) -> known.forEach(v -> record(address, known.get(0), v)));
-    other.patched.forEach((address, offsets) -> patched.computeIfAbsent(address, a -> new HashSet<>()).addAll(offsets));
+    patched.addAll(other.patched);
   }
 
   public Map<Integer, List<int[]>> versions() {
@@ -88,7 +91,7 @@ public class CodeVersions {
         if (i >= v.length || i >= known.get(0).length || v[i] != known.get(0)[i])
           modified.add(address + i & 0xffff);
     }));
-    patched.forEach((address, offsets) -> offsets.forEach(offset -> modified.add(address + offset & 0xffff)));
+    modified.addAll(patched);
     return modified;
   }
 
@@ -104,6 +107,10 @@ public class CodeVersions {
 
   public List<int[]> blockRegions() {
     return blockRegions;
+  }
+
+  public boolean inBlock(int address) {
+    return blockRegions.stream().anyMatch(region -> address >= region[0] && address < region[1]);
   }
 
   public void mergeBlockRegions(int start, int end) {
@@ -157,12 +164,15 @@ public class CodeVersions {
       return Kind.BLOCK;
     Instruction instruction = decode(address, first);
     Set<Integer> operands = operandOffsets(instruction);
-    boolean operandsOnly = known.stream().allMatch(v -> IntStream.range(0, v.length).allMatch(i -> v[i] == first[i] || operands.contains(i))) && operands.containsAll(patched.getOrDefault(address, Set.of()));
+    boolean operandsOnly = known.stream().allMatch(v -> IntStream.range(0, v.length).allMatch(i -> v[i] == first[i] || operands.contains(i))) && IntStream.range(0, first.length).filter(i -> patched.contains(address + i & 0xffff)).allMatch(operands::contains);
     return operandsOnly && !(instruction instanceof JumpInstruction) ? Kind.OPERAND : Kind.INSTRUCTION;
   }
 
-  public static boolean storesAtFixedAddress(Instruction instruction) {
-    return instruction instanceof Ld ld && (ld.getTarget() instanceof IndirectMemory8BitReference target ? target.getTarget() : ld.getTarget() instanceof IndirectMemory16BitReference target ? target.getTarget() : null) instanceof Memory16BitReference;
+  public static List<Integer> fixedStoreTargets(int address, Instruction instruction, int[] memory) {
+    if (!(instruction instanceof Ld ld && (ld.getTarget() instanceof IndirectMemory8BitReference target ? target.getTarget() : ld.getTarget() instanceof IndirectMemory16BitReference target ? target.getTarget() : null) instanceof Memory16BitReference operand))
+      return List.of();
+    int at = address + operand.getDelta(), stored = memory[at & 0xffff] | memory[at + 1 & 0xffff] << 8;
+    return ld.getTarget() instanceof IndirectMemory16BitReference ? List.of(stored, stored + 1 & 0xffff) : List.of(stored);
   }
 
   public static Set<Integer> operandOffsets(Instruction instruction) {

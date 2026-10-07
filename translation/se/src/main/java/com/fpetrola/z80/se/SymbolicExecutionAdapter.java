@@ -210,10 +210,9 @@ public class SymbolicExecutionAdapter {
   }
 
   private void findMutantCode(List<WriteMemoryReference> writeMemoryReferences) {
-    if (routineManager.isRestrictedToRecording())
-      return;
-    writeMemoryReferences.stream().map(wmr -> wmr.address).distinct()
-        .filter(address -> !mutantAddress.contains(address) && routineManager.originalAddress(address) == address && routineManager.findRoutineAt(address) != null)
+    java.util.stream.Stream<Integer> written = routineManager.isRestrictedToRecording() ? java.util.stream.Stream.empty() : writeMemoryReferences.stream().map(wmr -> wmr.address);
+    java.util.stream.Stream.concat(written, routineManager.fixedStoreTargets(state.getMemory().getData())).distinct()
+        .filter(address -> !mutantAddress.contains(address) && !stackAnalyzer.codeVersions.inBlock(address) && routineManager.originalAddress(address) == address && routineManager.findRoutineAt(address) != null)
         .forEach(mutantAddress::add);
   }
 

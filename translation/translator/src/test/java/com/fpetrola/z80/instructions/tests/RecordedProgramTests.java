@@ -958,4 +958,36 @@ public class RecordedProgramTests {
         at(0x8028, 0x06, 0x01, 0xC9));
     Assert.assertTrue(java, java.contains("public void $8020() {\n      this.$8028();\n   }"));
   }
+
+  @Test
+  public void aSharedCallWithDataAfterItContinuesPastTheData() {
+    // Emlyn 648E without the fence: reached by jumps from several routines, its CALL 721D lost the continuation 64A2
+    base.getRoutineManager().setFenced(false);
+    String java = translate(
+        at(0x8000, 0xCD, 0x20, 0x80, 0xCD, 0x28, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8020, 0x06, 0x01, 0xC3, 0x30, 0x80),
+        at(0x8028, 0x0E, 0x02, 0xC3, 0x30, 0x80),
+        at(0x8030, 0xCD, 0x40, 0x80, 0x41, 0xFF, 0x16, 0x03, 0xC9),
+        at(0x8040, 0xE1, 0x7E, 0x23, 0xFE, 0xFF, 0x20, 0xFA, 0xE9));
+    Assert.assertTrue(java, java.contains("public void $8030() {\n      this.push('\\u8033');\n      this.$8040();\n      super.D = 3;\n   }"));
+  }
+
+  @Test
+  public void anOperandPatchedAtAFixedAddressIsReadFromMemoryWhereTheRecordingNeverRanIt() {
+    // Equinox 7C08: LD (7C09),A at 7D06 patches LD C,n, which only runs once fuzzing reaches 7C00
+    String java = translate(
+        at(0x8000, 0x3E, 0x04, 0x32, 0x21, 0x80, 0xAF, 0x20, 0x18, 0x76, 0x18, 0xFD),
+        at(0x8020, 0x0E, 0x01, 0x76, 0x18, 0xFD));
+    Assert.assertTrue(java, java.contains("int var2 = this.mem('\\u8021', '\\u8020');\n         super.C = var2;"));
+  }
+
+  @Test
+  public void anOperandPatchedByAStoreThatOnlyAForkRanIsReadFromMemory() {
+    // Equinox 7C08: its writers LD (7C09),A at 7D06 and 7E26 never ran in the recording
+    String java = translate(
+        at(0x8000, 0xAF, 0x20, 0x0D, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x3E, 0x04, 0x32, 0x21, 0x80, 0xC3, 0x20, 0x80),
+        at(0x8020, 0x0E, 0x01, 0x76, 0x18, 0xFD));
+    Assert.assertTrue(java, java.contains("this.mem('\\u8021', '\\u8020')"));
+  }
 }

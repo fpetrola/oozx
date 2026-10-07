@@ -325,7 +325,7 @@ public class Routine {
     if (!finished) {
       Block currentBlock = routineManager.blocksManager.findBlockAt(pcValue);
       if (currentBlock.getBlockType() instanceof UnknownBlockType) {
-        currentBlock.split(pcValue + instruction.getLength() - 1);
+        currentBlock.split(pcValue + routineManager.spanOf(pcValue, instruction) - 1);
         Block blockAt2 = currentBlock.split(pcValue - 1);
         blockAt2.setType(new CodeBlockType());
         addBlock(blockAt2);

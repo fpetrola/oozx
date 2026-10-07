@@ -926,84 +926,94 @@ public class Equinox extends MiniZX {
       this.pc(31747, 1);
       this.HL(31823);
       this.pc(31750, 1);
-      this.A(251);
+      int var1 = this.mem(31751, 31750);
+      this.A(var1);
       this.pc(31752, 1);
-      this.C(1);
+      int var2 = this.mem(31753, 31752);
+      this.C(var2);
       this.pc(31754, 1);
       this.$7BF9();
       this.pc(31757, 1);
       if(!this.flag(1, false)) {
          this.pc(31759, 1);
-         int var13 = this.HL();
-         this.wMem(var13, 1, 31759);
+         int var23 = this.HL();
+         this.wMem(var23, 1, 31759);
       }
 
       this.pc(31761, 1);
-      int var1 = this.HL();
-      int var2 = this.inc16(var1);
-      this.HL(var2);
+      int var3 = this.HL();
+      int var4 = this.inc16(var3);
+      this.HL(var4);
       this.pc(31762, 1);
-      this.A(253);
+      int var5 = this.mem(31763, 31762);
+      this.A(var5);
       this.pc(31764, 1);
-      this.C(1);
+      int var6 = this.mem(31765, 31764);
+      this.C(var6);
       this.pc(31766, 1);
       this.$7BF9();
       this.pc(31769, 1);
       if(!this.flag(1, false)) {
          this.pc(31771, 1);
-         int var12 = this.HL();
-         this.wMem(var12, 1, 31771);
+         int var22 = this.HL();
+         this.wMem(var22, 1, 31771);
       }
 
       this.pc(31773, 1);
-      int var3 = this.HL();
-      int var4 = this.inc16(var3);
-      this.HL(var4);
+      int var7 = this.HL();
+      int var8 = this.inc16(var7);
+      this.HL(var8);
       this.pc(31774, 1);
-      this.A(223);
+      int var9 = this.mem(31775, 31774);
+      this.A(var9);
       this.pc(31776, 1);
-      this.C(1);
+      int var10 = this.mem(31777, 31776);
+      this.C(var10);
       this.pc(31778, 1);
       this.$7BF9();
       this.pc(31781, 1);
       if(!this.flag(1, false)) {
          this.pc(31783, 1);
-         int var11 = this.HL();
-         this.wMem(var11, 1, 31783);
+         int var21 = this.HL();
+         this.wMem(var21, 1, 31783);
       }
 
       this.pc(31785, 1);
-      int var5 = this.HL();
-      int var6 = this.inc16(var5);
-      this.HL(var6);
+      int var11 = this.HL();
+      int var12 = this.inc16(var11);
+      this.HL(var12);
       this.pc(31786, 1);
-      this.A(223);
+      int var13 = this.mem(31787, 31786);
+      this.A(var13);
       this.pc(31788, 1);
-      this.C(2);
+      int var14 = this.mem(31789, 31788);
+      this.C(var14);
       this.pc(31790, 1);
       this.$7BF9();
       this.pc(31793, 1);
       if(!this.flag(1, false)) {
          this.pc(31795, 1);
-         int var10 = this.HL();
-         this.wMem(var10, 1, 31795);
+         int var20 = this.HL();
+         this.wMem(var20, 1, 31795);
       }
 
       this.pc(31797, 1);
-      int var7 = this.HL();
-      int var8 = this.inc16(var7);
-      this.HL(var8);
+      int var15 = this.HL();
+      int var16 = this.inc16(var15);
+      this.HL(var16);
       this.pc(31798, 1);
-      this.A(127);
+      int var17 = this.mem(31799, 31798);
+      this.A(var17);
       this.pc(31800, 1);
-      this.C(3);
+      int var18 = this.mem(31801, 31800);
+      this.C(var18);
       this.pc(31802, 1);
       this.$7BF9();
       this.pc(31805, 1);
       if(!this.flag(1, false)) {
          this.pc(31806, 1);
-         int var9 = this.HL();
-         this.wMem(var9, 1, 31806);
+         int var19 = this.HL();
+         this.wMem(var19, 1, 31806);
          this.pc(31808, 1);
       }
    }

@@ -4,6 +4,7 @@ import com.fpetrola.z80.bytecode.examples.RemoteZ80Translator;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 import org.junit.Test;
 
+import java.util.Map;
 import java.util.Set;
 
 import static com.fpetrola.z80.routines.CodeVersions.Kind.*;
@@ -36,14 +37,14 @@ public class CodeVersionsTest {
 
   @Test
   public void anImmediatePatchedAtAFixedAddressIsAnOperand() {
-    versions.patched(0x838E, b(0xFE, 0x49), Set.of(1));
+    versions.patched(Set.of(0x838F), Map.of(0x838E, b(0xFE, 0x49)));
     assertEquals(OPERAND, kind(0x838E));
     assertEquals(Set.of(0x838F), versions.modifiedBytes());
   }
 
   @Test
   public void anOpcodePatchedAtAFixedAddressIsAnInstructionSite() {
-    versions.patched(0xD035, b(0x1C), Set.of(0));
+    versions.patched(Set.of(0xD035), Map.of(0xD035, b(0x1C)));
     assertEquals(INSTRUCTION, kind(0xD035));
     assertEquals(1, versions.instructionVersions(0xD035).size());
   }

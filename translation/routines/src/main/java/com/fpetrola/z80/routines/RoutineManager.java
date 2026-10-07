@@ -206,6 +206,7 @@ public class RoutineManager {
   public final java.util.Set<Integer> externalEntries = new java.util.TreeSet<>();
   private int codeStart;
   private java.util.Set<Integer> reachable;
+  private Map<Integer, Integer> spans = Map.of();
   private boolean fenced = true;
   private final java.util.Set<Integer> insideReachable = new java.util.HashSet<>();
 
@@ -263,6 +264,7 @@ public class RoutineManager {
 
   public void setReachable(Map<Integer, Integer> instructionLengths) {
     this.reachable = fenced ? new java.util.HashSet<>(instructionLengths.keySet()) : null;
+    spans = instructionLengths;
     instructionLengths.forEach((address, length) -> {
       for (int i = 1; i < length; i++)
         insideReachable.add(address + i & 0xffff);
@@ -375,6 +377,14 @@ public class RoutineManager {
     return -1;
   }
 
+  public Stream<Integer> fixedStoreTargets(int[] memory) {
+    return instructions.entrySet().stream().flatMap(e -> CodeVersions.fixedStoreTargets(e.getKey(), e.getValue(), memory).stream());
+  }
+
+  public int spanOf(int address, Instruction instruction) {
+    return instruction instanceof Call ? spans.getOrDefault(address, instruction.getLength()) : instruction.getLength();
+  }
+
   public int addressAfter(int address) {
     return address + instructions.get(address).getLength();
   }
@@ -394,6 +404,7 @@ public class RoutineManager {
     codeVariants.clear();
     externalEntries.clear();
     reachable = null;
+    spans = Map.of();
     insideReachable.clear();
   }
 
