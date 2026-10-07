@@ -990,4 +990,41 @@ public class RecordedProgramTests {
         at(0x8020, 0x0E, 0x01, 0x76, 0x18, 0xFD));
     Assert.assertTrue(java, java.contains("this.mem('\\u8021', '\\u8020')"));
   }
+
+  @Test
+  public void aForkThatJumpsThroughARegisterIntoScreenMemoryTeachesNoTarget() {
+    // Emlyn 6075: a fork reached CALL 162C with HL=57CB, and without the fence the zeros of the screen became $57CB
+    base.getRoutineManager().setFenced(false);
+    String java = translate(
+        at(0x8000, 0x21, 0x20, 0x80, 0xAF, 0x28, 0x02, 0x26, 0x50, 0xE9),
+        at(0x8020, 0x06, 0x01, 0x76, 0x18, 0xFD));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+
+        public class Program extends SpectrumApplication {
+           public void $0() {
+           }
+
+           public void $8000() {
+              this.HL('\\u8020');
+              int var1 = this.alu("xor", super.A, super.A);
+              super.A = var1;
+              if(!this.flag(64, false)) {
+                 super.H = 80;
+              }
+
+              if(this.HL() == '\\u8020') {
+                 super.B = 1;
+
+                 while(true) {
+                    this.halt('\\u8022');
+                 }
+              }
+
+              int var2 = this.HL();
+              this.jump(var2);
+           }
+        }
+        """, java);
+  }
 }

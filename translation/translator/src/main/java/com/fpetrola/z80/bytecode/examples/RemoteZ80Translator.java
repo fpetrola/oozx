@@ -316,7 +316,7 @@ public class RemoteZ80Translator {
           int pc = forkState.getPc().read(), depth = startSp - forkState.getRegisterSP().read() & 0xffff;
           if (step > 0 && (depth == 0 && !analyzer.returnPoppedBelow(forkState.getRegisterSP().read()) || depth >= 0x8000) && (codeBytes.containsKey(pc) || known.contains(pc)))
             break;
-          if (pc == 0 || pc >= 0x4000 && pc < 0x5B00 && !codeBytes.containsKey(pc))
+          if (deadEnd(pc))
             break;
           if (own.add(pc) && !codeBytes.containsKey(pc) && !known.contains(pc))
             fresh++;
@@ -327,7 +327,8 @@ public class RemoteZ80Translator {
           explored.put(pc, java.util.Arrays.copyOf(bytes, executed.getLength()));
           if (budget > BRANCH_BUDGET / 32 && isUntakenBranchCandidate(executed))
             exploreUntakenBranch(fork, (ConditionalInstruction<?>) executed, pc, forkState.getPc().read(), analyzer, budget / 2);
-          if (executed instanceof JP jump && jump.getPositionOpcodeReference() instanceof Register && codeBytes.containsKey(forkState.getPc().read()) && !landings.contains(forkState.getPc().read()))
+          int landing = forkState.getPc().read();
+          if (executed instanceof JP jump && jump.getPositionOpcodeReference() instanceof Register && (codeBytes.containsKey(landing) ? !landings.contains(landing) : deadEnd(landing)))
             return;
           if (executed instanceof Halt || executed instanceof Ret && (forkState.getRegisterSP().read() - startSp & 0xffff) > 0 && (forkState.getRegisterSP().read() - startSp & 0xffff) < 0x8000)
             break;
@@ -336,6 +337,10 @@ public class RemoteZ80Translator {
       }
       unfinished.removeAll(own);
       learned.learnFrom(analyzer);
+    }
+
+    private boolean deadEnd(int pc) {
+      return pc == 0 || pc >= 0x4000 && pc < 0x5B00 && !codeBytes.containsKey(pc);
     }
   }
 
