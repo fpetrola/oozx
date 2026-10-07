@@ -26,7 +26,6 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.se.actions.*;
 
-import java.util.function.BooleanSupplier;
 import java.util.*;
 
 import static com.fpetrola.z80.helpers.Helper.formatAddress;
@@ -37,7 +36,6 @@ public class RoutineExecution {
   private int start;
   private Map<Integer, AddressAction> actions = new HashMap<>();
   private List<RoutineExecution> callees = new ArrayList<>();
-  private boolean evaluating;
 
   public RoutineExecution(RoutineExecutorHandler routineExecutorHandler, int start) {
     this.routineExecutorHandler = routineExecutorHandler;
@@ -45,7 +43,15 @@ public class RoutineExecution {
   }
 
   public boolean hasPendingPoints() {
-    return unlessAlreadyEvaluating(() -> actions.values().stream().anyMatch(AddressAction::isPending));
+    return hasPendingPoints(new java.util.HashSet<>());
+  }
+
+  public boolean hasPendingPoints(java.util.Set<RoutineExecution> visited) {
+    return visited.add(this) && pendingAction(visited);
+  }
+
+  private boolean pendingAction(java.util.Set<RoutineExecution> visited) {
+    return actions.values().stream().anyMatch(action -> action.isPending(visited));
   }
 
   public AddressAction getNextPending() {
@@ -148,17 +154,10 @@ public class RoutineExecution {
   }
 
   public boolean isPending() {
-    return unlessAlreadyEvaluating(() -> actions.values().stream().anyMatch(AddressAction::isPending) || callees.stream().anyMatch(RoutineExecution::isPending));
+    return isPending(new java.util.HashSet<>());
   }
 
-  private boolean unlessAlreadyEvaluating(BooleanSupplier question) {
-    if (evaluating)
-      return false;
-    evaluating = true;
-    try {
-      return question.getAsBoolean();
-    } finally {
-      evaluating = false;
-    }
+  public boolean isPending(java.util.Set<RoutineExecution> visited) {
+    return visited.add(this) && (pendingAction(visited) || callees.stream().anyMatch(callee -> callee.isPending(visited)));
   }
 }

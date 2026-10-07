@@ -70,11 +70,14 @@ public class CallAddressAction extends AddressAction {
 
   @Override
   public boolean isPending() {
-    RoutineExecution currentRoutineExecution = routineExecutionHandler.getCurrentRoutineExecution();
-    if (currentRoutineExecution == null)
+    return isPending(new java.util.HashSet<>());
+  }
+
+  @Override
+  public boolean isPending(java.util.Set<RoutineExecution> visited) {
+    if (routineExecutionHandler.getCurrentRoutineExecution() == null)
       return false;
-    else
-      return pending || !steppedOver && calleeRoutineExecution != null && !routineExecutionHandler.getStackFrames().contains(calleeRoutineExecution.getStart()) && calleeRoutineExecution.isPending();
+    return pending || !steppedOver && calleeRoutineExecution != null && !routineExecutionHandler.getStackFrames().contains(calleeRoutineExecution.getStart()) && calleeRoutineExecution.isPending(visited);
   }
 
   @Override

@@ -20,6 +20,7 @@ package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.se.RoutineExecution;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 
 public class AddressAction {
@@ -78,6 +79,10 @@ public class AddressAction {
 
   public boolean isPending() {
     return pending;
+  }
+
+  public boolean isPending(java.util.Set<RoutineExecution> visited) {
+    return isPending();
   }
 
   public void setPending(boolean pending) {

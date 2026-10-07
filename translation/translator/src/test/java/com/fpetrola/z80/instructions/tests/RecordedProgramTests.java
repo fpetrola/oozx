@@ -694,4 +694,18 @@ public class RecordedProgramTests {
         }
         """, java);
   }
+
+  @Test(timeout = 60000)
+  public void aDeepChainOfRoutinesThatCallTheNextOneTwiceIsExploredInLinearTime() {
+    // without the recording fence the SE reaches many shared routines; isPending must not walk every path
+    int levels = 24;
+    int[][] chunks = new int[levels + 1][];
+    for (int level = 0; level < levels; level++) {
+      int next = START + 8 * (level + 1);
+      chunks[level] = at(START + 8 * level, 0xCD, next & 0xFF, next >> 8, 0xCD, next & 0xFF, next >> 8, 0xC9);
+    }
+    chunks[levels] = at(START + 8 * levels, 0xC9);
+    String java = translate(chunks);
+    Assert.assertEquals(levels + 2, java.split("public void \\$").length - 1);
+  }
 }
