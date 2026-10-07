@@ -19,6 +19,8 @@
 package com.fpetrola.z80.instructions.tests;
 
 import com.fpetrola.z80.base.ManualBytecodeGenerationTest;
+import com.fpetrola.z80.bytecode.examples.RemoteZ80Translator;
+import com.fpetrola.z80.routines.CodeVersions;
 import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
@@ -1771,6 +1773,122 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
     List<Routine> routines = getRoutineManager().getRoutines();
     Assert.assertEquals(4, routines.size());
+  }
+
+
+  @Test
+  public void aSiteWithRecordedVersionsSwitchesOverThem() {
+    setUpMemory();
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
+      {
+        add(Ld(r(A), c(2)));
+        add(Inc(r(E)));
+        add(Ret(t()));
+      }
+    };
+    CodeVersions versions = getSymbolicExecutionAdapter().getStackAnalyzer().codeVersions;
+    versions.record(1, new int[]{0x1C}, new int[]{0x14});
+    versions.decodeWith(RemoteZ80Translator.decoder());
+
+    stepUntilComplete();
+
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+
+        public class JSW extends SpectrumApplication {
+           public void $0() {
+              super.A = 2;
+              int var1 = this.codeHash(1, 1);
+              if(var1 == 59) {
+                 int var4 = this.alu("inc", super.E);
+                 super.E = var4;
+              } else if(var1 == 51) {
+                 int var3 = this.alu("inc", super.D);
+                 super.D = var3;
+              } else {
+                 int var2 = this.executeMutantCode(1);
+                 if(var2 != 2) {
+                    this.jump(var2);
+                    return;
+                 }
+              }
+
+           }
+        }
+        """, generateAndDecompile());
+  }
+
+  @Test
+  public void aMutantOpcodeWithoutVersionsRunsInTheEmulator() {
+    setUpMemory();
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
+      {
+        add(Ld(r(A), c(2)));
+        add(Inc(r(E)));
+        add(Ret(t()));
+      }
+    };
+    getSymbolicExecutionAdapter().getMutantAddress().add(1);
+
+    stepUntilComplete();
+
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+
+        public class JSW extends SpectrumApplication {
+           public void $0() {
+              super.A = 2;
+              int var1 = this.executeMutantCode(1);
+              if(var1 != 2) {
+                 this.jump(var1);
+              }
+           }
+        }
+        """, generateAndDecompile());
+  }
+
+  @Test
+  public void aPushedCodeAddressIsAPlantedContinuation() {
+    setUpMemory();
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
+      {
+        add(Call(t(), c(2)));
+        add(Ret(t()));
+        add(Ld(r(HL), c(6)));  // 2
+        add(Push(r(HL)));
+        add(JP(c(8), t()));
+        add(Nop());
+        add(Ld(r(B), c(1)));  // 6
+        add(Ret(t()));
+        add(Ld(r(C), c(2)));  // 8
+        add(Ret(t()));
+      }
+    };
+
+    stepUntilComplete();
+
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+
+        public class JSW extends SpectrumApplication {
+           public void $0() {
+              this.$2();
+           }
+
+           public void $2() {
+              this.HL(6);
+              int var1 = this.HL();
+              this.push(var1);
+              super.C = 2;
+              int var2 = this.pop();
+              this.jump(var2);
+           }
+
+           public void $6() {
+              super.B = 1;
+           }
+        }
+        """, generateAndDecompile());
   }
 
 }

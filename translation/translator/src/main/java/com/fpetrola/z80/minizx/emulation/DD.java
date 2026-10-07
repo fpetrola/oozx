@@ -137,8 +137,8 @@ public class DD extends MiniZX {
             try {
                pc(51219, 1);
                $CFD9();
-            } catch (StackException var71) {
-               int var2 = var71.getNextPC();
+            } catch (StackException var72) {
+               int var2 = var72.getNextPC();
                if(var2 == 52693) {
                   HL(51222);
                   pc(52693, 1);
@@ -150,7 +150,7 @@ public class DD extends MiniZX {
                   wMem(var36, var35, 52696);
                } else {
                   if(var2 != 56386) {
-                     throw var71;
+                     throw var72;
                   }
 
                   HL(51222);
@@ -317,14 +317,14 @@ public class DD extends MiniZX {
             try {
                pc(51237, 1);
                $E5E8();
-            } catch (StackException var72) {
-               if(var72.getNextPC() == 58945) {
+            } catch (StackException var71) {
+               if(var71.getNextPC() == 58945) {
                   HL(51240);
                   pc(58945, 1);
                   continue label89;
                }
 
-               throw var72;
+               throw var71;
             }
 
             pc(51240, 1);
@@ -3369,14 +3369,14 @@ public class DD extends MiniZX {
                if(flag(64, true)) {
                   $CD9A();
                }
-            } catch (StackException var216) {
-               if(var216.getNextPC() == 52692) {
+            } catch (StackException var215) {
+               if(var215.getNextPC() == 52692) {
                   HL(53228);
                   pc(52692, 1);
                   throw new StackException(52693);
                }
 
-               throw var216;
+               throw var215;
             }
 
             pc(53228, 1);
@@ -3526,15 +3526,15 @@ public class DD extends MiniZX {
             try {
                pc(53239, 1);
                $D895();
-            } catch (StackException var215) {
-               if(var215.getNextPC() == 54038) {
+            } catch (StackException var216) {
+               if(var216.getNextPC() == 54038) {
                   DE(53242);
                   pc(54038, 1);
                   $D1CE();
                   return;
                }
 
-               throw var215;
+               throw var216;
             }
 
             pc(53242, 1);

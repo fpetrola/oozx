@@ -30,6 +30,7 @@ import com.fpetrola.z80.opcodes.references.Memory16BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
+import com.fpetrola.z80.routines.CodeVersions;
 import com.fpetrola.z80.se.StackListener;
 import com.fpetrola.z80.spy.ExecutionListener;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -63,6 +64,7 @@ public class StackAnalyzer {
   public final MultiValuedMap<Integer, Integer> returnSlots = new HashSetValuedHashMap<>();
   public static boolean collecting;
   private boolean learnedFromRecording;
+  public CodeVersions codeVersions = new CodeVersions();
   private int pcValue;
   private int stackResetTo = -1;
   private boolean returnsDropped;
@@ -246,7 +248,7 @@ public class StackAnalyzer {
         boolean afterStackReset = state.getRegisterSP().read() == stackResetTo;
         stackResetTo = -1;
         Entry popped = consumedReturns.get(state.getRegisterSP().read() - 2 & 0xffff);
-        boolean pastPoppedReturn = entry != null && entry.returnAddress() && popped != null && calledThrough.get(popped.pc()).size() > 1;
+        boolean pastPoppedReturn = entry != null && entry.returnAddress() && popped != null && codeVersions.isVersioned(popped.pc());
         if (collecting && (pastPoppedReturn || afterStackReset && (returnsDropped ? entry != null && entry.returnAddress() : entry == null && knowsWholeStack)))
           nonLocalRets.put(pcValue, state.getRegisterSP().read());
         if (entry == null && afterStackReset && knowsWholeStack)
@@ -387,10 +389,12 @@ public class StackAnalyzer {
     nonLocalRets.clear();
     returnSlots.clear();
     learnedFromRecording = false;
+    codeVersions = new CodeVersions();
   }
 
   public void learnFrom(StackAnalyzer recorded) {
     learnedFromRecording = true;
+    codeVersions.addAll(recorded.codeVersions);
     dynamicInvocation.putAll(recorded.dynamicInvocation);
     recorded.jumpTableSites.forEach(this::jumpTableAt);
     recorded.shiftedReturns.entries().forEach(e -> learnContinuation(e.getKey(), e.getValue(), recorded.callContinuations.get(e.getValue())));

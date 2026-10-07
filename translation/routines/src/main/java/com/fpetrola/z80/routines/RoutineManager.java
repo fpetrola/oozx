@@ -162,7 +162,7 @@ public class RoutineManager {
   }
 
   public void planPoppedReturnsOfRewrittenCalls(StackAnalyzer stackAnalyzer) {
-    stackAnalyzer.poppedCallSites.entries().stream().filter(e -> stackAnalyzer.calledThrough.get(e.getKey()).size() > 1 && instructions.get(e.getKey()) instanceof Call).forEach(e -> {
+    stackAnalyzer.poppedCallSites.entries().stream().filter(e -> stackAnalyzer.codeVersions.isVersioned(e.getKey()) && instructions.get(e.getKey()) instanceof Call).forEach(e -> {
       Routine popper = findRoutineAt(e.getValue());
       if (popper != null && instructions.containsKey(e.getValue())) {
         popper.getVirtualPop().put(e.getValue(), e.getValue());

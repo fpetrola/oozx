@@ -168,13 +168,22 @@ public class RoutineBytecodeGenerator {
           variants.forEach(v -> hash.ifEq(v.hash(), () -> tailJump(v.relocated(address), -1)));
           mm.invoke("unknownCodeVariant", address, variants.get(0).variableStart(), variants.get(0).variableBytes().length);
         }
-        if (mutantCodeInInstruction(instruction, address)) {
+        List<int[]> versions = codeVersions().instructionVersions(address);
+        if (!versions.isEmpty()) {
           invokePc(address);
-          Variable executedUpTo = mm.invoke("executeMutantCode", address);
-          executedUpTo.ifNe(address + instruction.getLength(), () -> {
-            mm.invoke("jump", executedUpTo);
-            returnFromMethod();
-          });
+          Variable hash = mm.invoke("codeHash", address, instruction.getLength());
+          Label done = mm.label();
+          versions.forEach(bytes -> hash.ifEq(Arrays.hashCode(bytes), () -> {
+            Instruction version = codeVersions().decode(address, bytes);
+            version.accept(new InstructionsBytecodeGenerator(mm, RoutineBytecodeGenerator.this, address));
+            if (RoutineManager.fallsThrough(version))
+              done.goto_();
+          }));
+          executeMutantCode(address, instruction);
+          done.here();
+        } else if (mutantCodeInInstruction(instruction, address)) {
+          invokePc(address);
+          executeMutantCode(address, instruction);
         } else if (routine.getVirtualPop().containsKey(address) && routine.getVirtualPop().get(address) == address) {
           throwAtVirtualPop(address);
           returnFromMethod();
@@ -285,11 +294,20 @@ public class RoutineBytecodeGenerator {
 
   private boolean mutantCodeInInstruction(Instruction instruction, int address) {
     Set<java.lang.Integer> mutantAddress = (Set<java.lang.Integer>) context.symbolicExecutionAdapter.getMutantAddress();
-    Set<java.lang.Integer> operands = new HashSet<>();
-    CodeVersions.operandOffsets(instruction).forEach(delta -> operands.add(address + delta));
-    if (instruction instanceof Call && stackAnalyzer().calledThrough.containsKey(address))
-      operands.addAll(List.of(address + 1, address + 2));
-    return mutantAddress.stream().anyMatch(a1 -> a1 >= address && a1 < address + instruction.getLength() && !operands.contains(a1));
+    Set<java.lang.Integer> operands = CodeVersions.operandOffsets(instruction);
+    return mutantAddress.stream().anyMatch(a1 -> a1 >= address && a1 < address + instruction.getLength() && !operands.contains(a1 - address));
+  }
+
+  private void executeMutantCode(int address, Instruction instruction) {
+    Variable executedUpTo = mm.invoke("executeMutantCode", address);
+    executedUpTo.ifNe(address + instruction.getLength(), () -> {
+      mm.invoke("jump", executedUpTo);
+      returnFromMethod();
+    });
+  }
+
+  private CodeVersions codeVersions() {
+    return stackAnalyzer().codeVersions;
   }
 
   protected void addField(String name) {
@@ -493,7 +511,7 @@ public class RoutineBytecodeGenerator {
   private void loadPoppedReturnAddress(int returnPoint, int callSite) {
     for (int length = 1; length <= 2; length++)
       if (context.routineManager.getInstructionAt(returnPoint - length) instanceof Pop pop && pop.getLength() == length)
-        getExistingVariable((Register) pop.getTarget()).set(context.routineManager.addressAfter(callSite));
+        getExistingVariable((Register) pop.getTarget()).set(pushesReturnAddress(callSite) ? mm.invoke("pop") : context.routineManager.addressAfter(callSite));
   }
 
   public void throwAfterVirtualPop(int address) {

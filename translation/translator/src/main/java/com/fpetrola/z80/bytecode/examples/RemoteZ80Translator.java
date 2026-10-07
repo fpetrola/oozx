@@ -58,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.regex.Pattern;
 
 import static java.net.URI.create;
@@ -106,7 +107,11 @@ public class RemoteZ80Translator {
     return emulate(realCodeBytecodeCreationBase, EmulatedMiniZX.ofRecording(rzxFile, frames, realCodeBytecodeCreationBase.getStackAnalyzer()));
   }
 
-  public record Footprint(Map<Integer, int[]> codeBytes, Map<Integer, int[]> explored, Set<Integer> modifiedCode, StackAnalyzer learned, Set<Integer> returnAddressesOnStack, int[] finalMemory, CodeVersions versions) {
+  public record Footprint(Map<Integer, int[]> codeBytes, Map<Integer, int[]> explored, StackAnalyzer learned, Set<Integer> returnAddressesOnStack, int[] finalMemory, CodeVersions versions) {
+    public Set<Integer> modifiedCode() {
+      return versions.modifiedBytes();
+    }
+
     public Map<Integer, Integer> executed() {
       Map<Integer, Integer> lengths = new HashMap<>();
       code().forEach((address, bytes) -> lengths.put(address, bytes.length));
@@ -129,29 +134,30 @@ public class RemoteZ80Translator {
 
     public static Footprint combine(List<Footprint> footprints) {
       Map<Integer, int[]> codeBytes = new HashMap<>(), explored = new HashMap<>();
-      Set<Integer> modifiedCode = new HashSet<>(), returnAddressesOnStack = new HashSet<>();
+      Set<Integer> returnAddressesOnStack = new HashSet<>();
       StackAnalyzer learned = new StackAnalyzer(null);
       CodeVersions versions = new CodeVersions();
       footprints.forEach(footprint -> {
         footprint.codeBytes.forEach((address, bytes) -> recordVersion(codeBytes, versions, address, bytes));
         versions.addAll(footprint.versions);
         footprint.explored.forEach(explored::putIfAbsent);
-        modifiedCode.addAll(footprint.modifiedCode);
         returnAddressesOnStack.addAll(footprint.returnAddressesOnStack);
         learned.learnFrom(footprint.learned);
       });
-      return new Footprint(codeBytes, explored, modifiedCode, learned, returnAddressesOnStack, footprints.get(footprints.size() - 1).finalMemory, versions);
+      learned.codeVersions = versions;
+      return new Footprint(codeBytes, explored, learned, returnAddressesOnStack, footprints.get(footprints.size() - 1).finalMemory, versions);
     }
 
     public void install(Memory memory, int stackPointer) {
       for (int address = 0x4000; address < 0x10000; address++)
         if (address < stackPointer || address >= stackPointer + 128)
           memory.write(address, finalMemory[address]);
+      Set<Integer> modified = modifiedCode();
       code().forEach((address, bytes) -> {
         for (int i = 0; i < bytes.length; i++) {
           int at = address + i & 0xffff;
           memory.write(at, bytes[i]);
-          if (!modifiedCode.contains(at))
+          if (!modified.contains(at))
             memory.protect(at, at + 1);
         }
       });
@@ -160,10 +166,11 @@ public class RemoteZ80Translator {
 
   public static Footprint footprint(String rzxFile, int from) {
     Map<Integer, int[]> codeBytes = new HashMap<>();
-    Set<Integer> modifiedCode = new HashSet<>(), returnAddressesOnStack = new HashSet<>();
+    Set<Integer> returnAddressesOnStack = new HashSet<>();
     CodeVersions versions = new CodeVersions();
     boolean[] started = {false};
     StackAnalyzer stackAnalyzer = new StackAnalyzer(null);
+    stackAnalyzer.codeVersions = versions;
     EmulatedMiniZX[] emulator = {null};
     Map<Integer, int[]> explored = new HashMap<>();
     Forks forks = new Forks(codeBytes, new HashSet<>(), explored, new HashMap<>(), new HashSet<>());
@@ -190,14 +197,7 @@ public class RemoteZ80Translator {
           int[] bytes = new int[instruction.getLength()];
           for (int i = 0; i < bytes.length; i++)
             bytes[i] = memory[address + i & 0xffff];
-          int[] seen = recordVersion(codeBytes, versions, address, bytes);
-          for (int i = 0; seen != null && i < Math.max(seen.length, bytes.length); i++)
-            if (i >= seen.length || i >= bytes.length || seen[i] != bytes[i])
-              modifiedCode.add(address + i & 0xffff);
-          if ((instruction instanceof Call || instruction instanceof JP) && bytes.length == 3 && seen != null && seen.length == 3 && (modifiedCode.contains(address + 1 & 0xffff) || modifiedCode.contains(address + 2 & 0xffff))) {
-            stackAnalyzer.calledThrough.put(address, seen[1] | seen[2] << 8);
-            stackAnalyzer.calledThrough.put(address, bytes[1] | bytes[2] << 8);
-          }
+          recordVersion(codeBytes, versions, address, bytes);
         }
       });
       emulator[0].start();
@@ -207,7 +207,7 @@ public class RemoteZ80Translator {
     }
     StackAnalyzer.collecting = false;
     returnAddressesOnStack.retainAll(codeBytes.keySet());
-    return new Footprint(codeBytes, explored, modifiedCode, stackAnalyzer, returnAddressesOnStack, emulator[0].ooz80.getState().getMemory().getData().clone(), versions);
+    return new Footprint(codeBytes, explored, stackAnalyzer, returnAddressesOnStack, emulator[0].ooz80.getState().getMemory().getData().clone(), versions);
   }
 
   private static int[] recordVersion(Map<Integer, int[]> codeBytes, CodeVersions versions, int address, int[] bytes) {
@@ -215,6 +215,17 @@ public class RemoteZ80Translator {
     if (seen != null && !Arrays.equals(seen, bytes))
       versions.record(address, seen, bytes);
     return seen;
+  }
+
+  public static BiFunction<Integer, int[], Instruction> decoder() {
+    OOZ80 decoder = EmulatedMiniZX.createOOZ80(new DefaultMiniZXIO());
+    int[] memory = decoder.getState().getMemory().getData();
+    return (address, bytes) -> {
+      for (int i = 0; i < bytes.length; i++)
+        memory[address + i & 0xffff] = bytes[i];
+      decoder.getState().getPc().write(address);
+      return decoder.getInstructionFetcher().fetchNextInstruction();
+    };
   }
 
   private static final int BRANCH_BUDGET = 500;

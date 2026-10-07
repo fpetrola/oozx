@@ -281,3 +281,18 @@ Cada paso se verifica con los comandos de la sección 7: lockstep y reproducció
 - Una versión que la grabación no vio aparece jugando: el lockstep con teclas al azar lo detecta, y la huella con forks amplía lo explorado.
 - La ejecución simbólica es por dirección: la unión de sucesores sirve mientras las versiones compartan longitud; si no, el sitio es de bloque.
 - Las reglas de pila de D015 hay que rehacerlas sobre el clasificador; el estado al empezar está en el commit de arranque.
+
+### Avance
+
+- **Paso 0** (ffdda0492): la huella guarda las versiones y `CodeVersions` las clasifica. Equinox 16 sitios, Dizzy 30, Emlyn 54; coinciden con el catálogo.
+- **Pasos 1 y 2**: `calledThrough` queda solo para los trampolines; el generador emite `switch` sobre `codeHash` con cada versión generada por `InstructionsBytecodeGenerator`; `executeMutantCode` ejecuta la instrucción con el propio emulador (comparte `mem`) en lugar del intérprete escrito a mano, y queda como respaldo para versiones no grabadas y para los juegos sin grabación (Wally, DD). La divergencia de Equinox en el frame 1139 era que el CALL de D015 apilaba su retorno y el catch del pop virtual no lo desapilaba.
+- **Protección**: no se protege todo el código durante la ejecución simbólica. Necesita ver los datos que el juego escribe en operandos, por ejemplo el SP que Emlyn guarda en el `LD SP,nn` de 9C19; con todo protegido, Emlyn diverge en el frame 5669.
+
+### Tests
+
+- `CodeVersionsTest`: clasificación, sucesores, bloques, versiones que sobreviven a `learnFrom`.
+- `SpectrumApplicationTest`: el respaldo con el emulador (cambios de opcode, operandos, flags, saltos, `BIT`/`SET` indexados, `CALL` como llamada Java) y `LD A,R` con IFF2.
+- `RoutinesTests`: `switch` sobre versiones, respaldo sin versiones, continuación plantada.
+- `RecordedProgramTests`: programas chicos en bytes que pasan por el mismo camino que los juegos grabados (huella, ejecución simbólica, generación). Un test por truco: CALL y JP C reescritos, cambio de opcode, operando reescrito, los dos POP de JSW, datos después del CALL (Emlyn 721D), RET como salto (Dizzy), CALL al JP (HL) de la ROM (Emlyn 162C), continuación plantada (Emlyn 616E), reinicio de pila (Dizzy F877) y el patrón de D015.
+
+Cada truco nuevo que aparezca en un juego entra primero como test en rojo en `RecordedProgramTests` o `RoutinesTests`.

@@ -19,6 +19,8 @@
 package com.fpetrola.z80.routines;
 
 import com.fpetrola.z80.base.InstructionVisitor;
+import com.fpetrola.z80.instructions.impl.Ret;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.JumpInstruction;
 import com.fpetrola.z80.instructions.types.TargetInstruction;
@@ -33,6 +35,8 @@ public class CodeVersions {
   public enum Kind {OPERAND, INSTRUCTION, BLOCK}
 
   private final Map<Integer, List<int[]>> versions = new TreeMap<>();
+  private final Map<Integer, Kind> kinds = new TreeMap<>();
+  private BiFunction<Integer, int[], Instruction> decoder;
 
   public void record(int address, int[] first, int[] other) {
     List<int[]> known = versions.computeIfAbsent(address, a -> new ArrayList<>(List.of(first)));
@@ -48,9 +52,48 @@ public class CodeVersions {
     return versions;
   }
 
-  public Map<Integer, Kind> classify(BiFunction<Integer, int[], Instruction> decoder) {
-    Map<Integer, Kind> kinds = new TreeMap<>();
-    versions.forEach((address, known) -> kinds.put(address, kindOf(address, known, decoder)));
+  public boolean isVersioned(int address) {
+    return versions.containsKey(address);
+  }
+
+  public Map<Integer, Kind> kinds() {
+    return kinds;
+  }
+
+  public List<int[]> instructionVersions(int address) {
+    return kinds.get(address) == Kind.INSTRUCTION ? versions.get(address) : List.of();
+  }
+
+  public Instruction decode(int address, int[] bytes) {
+    Instruction instruction = decoder.apply(address, bytes);
+    if (instruction instanceof ConditionalInstruction<?> jump && !(jump instanceof Ret))
+      jump.calculateJumpAddress();
+    return instruction;
+  }
+
+  public Set<Integer> modifiedBytes() {
+    Set<Integer> modified = new HashSet<>();
+    versions.forEach((address, known) -> known.forEach(v -> {
+      for (int i = 0; i < Math.max(v.length, known.get(0).length); i++)
+        if (i >= v.length || i >= known.get(0).length || v[i] != known.get(0)[i])
+          modified.add(address + i & 0xffff);
+    }));
+    return modified;
+  }
+
+  public Set<Integer> successors() {
+    Set<Integer> successors = new TreeSet<>();
+    kinds.forEach((address, kind) -> instructionVersions(address).forEach(bytes -> {
+      Instruction instruction = decode(address, bytes);
+      if (RoutineManager.fixedJumpTarget(instruction) != -1)
+        successors.add(RoutineManager.fixedJumpTarget(instruction));
+    }));
+    return successors;
+  }
+
+  public void decodeWith(BiFunction<Integer, int[], Instruction> decoder) {
+    this.decoder = decoder;
+    versions.forEach((address, known) -> kinds.put(address, kindOf(address, known)));
     List<Integer> region = new ArrayList<>();
     int end = -1;
     for (int address : versions.keySet()) {
@@ -60,7 +103,6 @@ public class CodeVersions {
       end = Math.max(end, address + versions.get(address).stream().mapToInt(v -> v.length).max().orElse(1));
     }
     blockIfAnyIs(kinds, region);
-    return kinds;
   }
 
   private static void blockIfAnyIs(Map<Integer, Kind> kinds, List<Integer> region) {
@@ -69,11 +111,11 @@ public class CodeVersions {
     region.clear();
   }
 
-  private static Kind kindOf(int address, List<int[]> known, BiFunction<Integer, int[], Instruction> decoder) {
+  private Kind kindOf(int address, List<int[]> known) {
     int[] first = known.get(0);
     if (known.stream().anyMatch(v -> v.length != first.length))
       return Kind.BLOCK;
-    Instruction instruction = decoder.apply(address, first);
+    Instruction instruction = decode(address, first);
     Set<Integer> operands = operandOffsets(instruction);
     boolean operandsOnly = known.stream().allMatch(v -> IntStream.range(0, v.length).allMatch(i -> v[i] == first[i] || operands.contains(i)));
     return operandsOnly && !(instruction instanceof JumpInstruction) ? Kind.OPERAND : Kind.INSTRUCTION;

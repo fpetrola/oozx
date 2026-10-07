@@ -18,7 +18,9 @@
 
 package com.fpetrola.z80.minizx;
 
-import java.util.function.IntConsumer;
+import com.fpetrola.z80.cpu.OOZ80;
+import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
+import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import java.util.Map;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.Plain16BitRegister;
@@ -56,7 +58,6 @@ public abstract class SpectrumApplication {
   public int IYH;
 
   private int lastStackDepth;
-  private Map<String, Boolean> lastUpdateFrom8 = new HashMap<>();
 
   public void setNextAddress(int nextAddress) {
     this.nextAddress = nextAddress;
@@ -73,89 +74,45 @@ public abstract class SpectrumApplication {
     return Arrays.stream(integers).anyMatch(a -> a == nextAddress);
   }
 
+  private OOZ80 mutantExecutor;
+
   public int executeMutantCode(int address) {
-    int opcode = mem[address], n = mem[address + 1 & 0xffff], nn = n | mem[address + 2 & 0xffff] << 8;
-    if ((opcode & 0xc7) == 0x06) {
-      write8((opcode >> 3) & 7, n);
-      return address + 2;
-    } else if ((opcode & 0xcf) == 0x01)
-      new IntConsumer[]{this::BC, this::DE, this::HL, this::SP}[opcode >> 4].accept(nn);
-    else if (opcode == 0xcd)
-      invokeMethod(nn); else if ((opcode & 0xc0) == 0x40 && opcode != 0x76) {
-      write8(opcode >> 3 & 7, read8(opcode & 7));
-      return address + 1;
-    } else if ((opcode & 0xe7) == 0x07) {
-      A(alu(new String[]{"rlca", "rrca", "rla", "rra"}[opcode >> 3], A));
-      return address + 1;
-    } else if (opcode == 0x12) {
-      mem[DE()] = A;
-      return address + 1;
-    } else if ((opcode & 0xc0) == 0x80) {
-      String operation = new String[]{"add", "adc", "sub", "sbc", "and", "xor", "or", "cp"}[opcode >> 3 & 7];
-      int result = alu(operation, A, read8(opcode & 7));
-      if (!operation.equals("cp"))
-        A(result);
-      return address + 1;
-    } else if (opcode == 0)
-      return address + 1;
-    else if ((opcode & 0xc6) == 0x04) {
-      write8(opcode >> 3 & 7, alu((opcode & 1) == 0 ? "inc" : "dec", read8(opcode >> 3 & 7)));
-      return address + 1;
+    if (mutantExecutor == null)
+      mutantExecutor = EmulatedMiniZX.createOOZ80(new DefaultMiniZXIO());
+    ((MockedMemory) mutantExecutor.getState().getMemory()).init(() -> mem);
+    State state = mutantExecutor.getState();
+    storeRegisters(state);
+    state.getPc().write(address);
+    Instruction instruction = mutantExecutor.getInstructionFetcher().fetchNextInstruction();
+    if (instruction instanceof Call call) {
+      if (call.getCondition().conditionMet(call))
+        invokeMethod(call.calculateJumpAddress());
+      return address + call.getLength();
     }
-    else if (opcode == 0xc3 || (opcode & 0xc7) == 0xc2) {
-      int flag = new int[]{0x40, 0x01, 0x04, 0x80}[opcode >> 4 & 3];
-      boolean taken = opcode == 0xc3 || ((F & flag) != 0) == ((opcode & 0x08) != 0);
-      return taken ? nn : address + 3;
-    }
-    else if (opcode == 0xcb || (opcode == 0xdd || opcode == 0xfd) && n == 0xcb) {
-      boolean indexed = opcode != 0xcb;
-      int operation = mem[address + (indexed ? 3 : 1) & 0xffff], bitNumber = operation >> 3 & 7;
-      int target = indexed ? (opcode == 0xdd ? IX() : IY()) + (byte) mem[address + 2 & 0xffff] & 0xffff : -1;
-      int value = indexed ? mem[target] : read8(operation & 7);
-      int result = switch (operation >> 6) {
-        case 0 -> alu(new String[]{"rlc", "rrc", "rl", "rr", "sla", "sra", "sll", "srl"}[bitNumber], value);
-        case 1 -> {
-          bit(bitNumber, value);
-          yield value;
-        }
-        case 2 -> value & ~(1 << bitNumber);
-        default -> value | 1 << bitNumber;
-      };
-      if (indexed)
-        mem[target] = result;
-      else
-        write8(operation & 7, result);
-      return address + (indexed ? 4 : 2);
-    } else
-      throw new IllegalStateException("self-modified opcode %02X at %04X".formatted(opcode, address));
-    return address + 3;
+    int r = R;
+    mutantExecutor.getInstructionExecutor().execute(instruction);
+    loadRegisters(state);
+    R = r;
+    return state.getPc().read();
   }
 
-
-  private int read8(int register) {
-    return switch (register) {
-      case 0 -> B();
-      case 1 -> C();
-      case 2 -> D();
-      case 3 -> E();
-      case 4 -> H();
-      case 5 -> L();
-      case 6 -> mem[HL()];
-      default -> A();
-    };
-  }
-
-  private void write8(int register, int value) {
-    switch (register) {
-      case 0 -> B(value);
-      case 1 -> C(value);
-      case 2 -> D(value);
-      case 3 -> E(value);
-      case 4 -> H(value);
-      case 5 -> L(value);
-      case 6 -> mem[HL()] = value;
-      default -> A(value);
-    }
+  private void storeRegisters(State state) {
+    state.getRegister(RegisterName.AF).write(AF());
+    state.getRegister(RegisterName.BC).write(BC());
+    state.getRegister(RegisterName.DE).write(DE());
+    state.getRegister(RegisterName.HL).write(HL());
+    state.getRegister(RegisterName.AFx).write(AFx());
+    state.getRegister(RegisterName.BCx).write(BCx());
+    state.getRegister(RegisterName.DEx).write(DEx());
+    state.getRegister(RegisterName.HLx).write(HLx());
+    state.getRegister(RegisterName.IX).write(IX());
+    state.getRegister(RegisterName.IY).write(IY());
+    state.getRegisterSP().write(SP);
+    state.getRegisterR().write(R);
+    state.getRegI().write(I);
+    state.setIff1(iff);
+    state.setIff2(iff2);
+    state.setIntMode(State.InterruptionMode.values()[interruptMode]);
   }
 
   public int codeHash(int start, int length) {
@@ -447,6 +404,10 @@ public abstract class SpectrumApplication {
 
   public void loadState(State state) {
     System.arraycopy(state.getMemory().getData(), 0, mem, 0, mem.length);
+    loadRegisters(state);
+  }
+
+  private void loadRegisters(State state) {
     AF(state.getRegister(RegisterName.AF).read());
     BC(state.getRegister(RegisterName.BC).read());
     DE(state.getRegister(RegisterName.DE).read());
@@ -496,8 +457,6 @@ public abstract class SpectrumApplication {
 
   public void BC(int value) {
     BC = value & 0xffff;
-    lastUpdateFrom8.put("B", false);
-
     B = BC >> 8;
     C = BC & 0xFF;
   }
@@ -612,10 +571,6 @@ public abstract class SpectrumApplication {
   }
 
   public int BC() {
-    boolean l = lastUpdateFrom8.get("B");
-//    if (l) {
-//      System.out.println("asfsaf");
-//    }
     return BC;
   }
 
@@ -742,22 +697,16 @@ public abstract class SpectrumApplication {
   }
 
   public int B() {
-    boolean l = lastUpdateFrom8.get("B");
-//    if (!l) {
-//      System.out.println("asfsaf");
-//    }
     return B;
   }
 
   public void B(int b) {
     B = b & 0xff;
-    lastUpdateFrom8.put("B", true);
     BC = B << 8 | BC & 0xff;
   }
 
   public void B_16(int b) {
     BC = BC & 0xff | ((b & 0xff) << 8);
-    lastUpdateFrom8.put("B", false);
   }
 
   public int C() {

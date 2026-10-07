@@ -378,16 +378,14 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     createIfs(call, () -> {
       if (routineByteCodeGenerator.pushesReturnAddress(callSite))
         methodMaker.invoke("push", returnAddress);
-      boolean rewritten = trampoline == null && stackAnalyzer.calledThrough.get(callSite).size() > 1;
-      if (!rewritten && routineByteCodeGenerator.context.routineManager.findRoutineAt(jumpLabel) != null) {
+      if (routineByteCodeGenerator.context.routineManager.findRoutineAt(jumpLabel) != null) {
         routineByteCodeGenerator.invokeTransformedMethod(jumpLabel);
         if (routineByteCodeGenerator.context.routineManager.pushedReturnSites.contains(callSite))
           methodMaker.invoke("pop");
       }
-      else if (trampoline != null || rewritten) {
-        if (trampoline != null)
-          routineByteCodeGenerator.invokePc(jumpLabel, trampoline == RegisterName.HL ? 1 : 2);
-        Variable target = rewritten ? methodMaker.invoke("mem16", callSite + 1, callSite) : methodMaker.invoke(trampoline.name());
+      else if (trampoline != null) {
+        routineByteCodeGenerator.invokePc(jumpLabel, trampoline == RegisterName.HL ? 1 : 2);
+        Variable target = methodMaker.invoke(trampoline.name());
         Label called = methodMaker.label();
         stackAnalyzer.calledThrough.get(callSite).stream().sorted().filter(c -> {
           Routine callee = routineByteCodeGenerator.context.routineManager.findRoutineAt(c);

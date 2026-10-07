@@ -264,6 +264,7 @@ public class GameBytecodeCreationTests {
     RemoteZ80Translator.Footprint footprint = RemoteZ80Translator.Footprint.combine(Stream.of("emlyn_r3.rzx", "emlyn_r4.rzx").map(recording -> RemoteZ80Translator.footprint("/home/fernando/detodo/spectrum/" + recording, 0xFE65)).toList());
     footprint.install(realCodeBytecodeCreationBase.getState().getMemory(), realCodeBytecodeCreationBase.getState().getRegisterSP().read());
     stackAnalyzer.learnFrom(footprint.learned());
+    stackAnalyzer.codeVersions.decodeWith(RemoteZ80Translator.decoder());
     stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());
     getRoutineManager().setReachable(footprint.executed());
     realCodeBytecodeCreationBase.symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
@@ -301,13 +302,15 @@ public class GameBytecodeCreationTests {
     RemoteZ80Translator.Footprint footprint = RemoteZ80Translator.footprint(recording, start);
     footprint.install(realCodeBytecodeCreationBase.getState().getMemory(), realCodeBytecodeCreationBase.getState().getRegisterSP().read());
     stackAnalyzer.learnFrom(footprint.learned());
+    stackAnalyzer.codeVersions.decodeWith(RemoteZ80Translator.decoder());
     stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());
     getRoutineManager().setReachable(footprint.executed());
     realCodeBytecodeCreationBase.symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
     getRoutineManager().externalEntries.addAll(footprint.returnAddressesOnStack());
     stackAnalyzer.nonLocalRets.keySet().forEach(ret -> getRoutineManager().externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(ret)));
     getRoutineManager().externalEntries.addAll(stackAnalyzer.calledThrough.values());
-    exploreGame(start, Stream.of(Stream.of(0xF85A), footprint.returnAddressesOnStack().stream(), stackAnalyzer.dynamicInvocation.values().stream(), stackAnalyzer.calledThrough.values().stream()).flatMap(s -> s).mapToInt(Integer::intValue).toArray());
+    getRoutineManager().externalEntries.addAll(stackAnalyzer.codeVersions.successors());
+    exploreGame(start, Stream.of(Stream.of(0xF85A), footprint.returnAddressesOnStack().stream(), stackAnalyzer.dynamicInvocation.values().stream(), stackAnalyzer.calledThrough.values().stream(), stackAnalyzer.codeVersions.successors().stream()).flatMap(s -> s).mapToInt(Integer::intValue).toArray());
     realCodeBytecodeCreationBase.translateRomRoutines(0x0038);
     writeTranslation(base64Memory);
   }
@@ -321,13 +324,15 @@ public class GameBytecodeCreationTests {
     RemoteZ80Translator.Footprint footprint = RemoteZ80Translator.footprint(recording, start);
     footprint.install(realCodeBytecodeCreationBase.getState().getMemory(), realCodeBytecodeCreationBase.getState().getRegisterSP().read());
     stackAnalyzer.learnFrom(footprint.learned());
+    stackAnalyzer.codeVersions.decodeWith(RemoteZ80Translator.decoder());
     stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());
     getRoutineManager().setReachable(footprint.executed());
     realCodeBytecodeCreationBase.symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
     getRoutineManager().externalEntries.addAll(footprint.returnAddressesOnStack());
     stackAnalyzer.nonLocalRets.keySet().forEach(ret -> getRoutineManager().externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(ret)));
     getRoutineManager().externalEntries.addAll(stackAnalyzer.calledThrough.values());
-    exploreGame(start, Stream.of(footprint.returnAddressesOnStack().stream(), stackAnalyzer.dynamicInvocation.values().stream(), stackAnalyzer.calledThrough.values().stream()).flatMap(s -> s).mapToInt(Integer::intValue).toArray());
+    getRoutineManager().externalEntries.addAll(stackAnalyzer.codeVersions.successors());
+    exploreGame(start, Stream.of(footprint.returnAddressesOnStack().stream(), stackAnalyzer.dynamicInvocation.values().stream(), stackAnalyzer.calledThrough.values().stream(), stackAnalyzer.codeVersions.successors().stream()).flatMap(s -> s).mapToInt(Integer::intValue).toArray());
     exploreOrphanContinuations(footprint);
     writeTranslation(base64Memory);
   }
@@ -528,23 +533,27 @@ public class GameBytecodeCreationTests {
   }
 
   @Test
-  public void testWillyCheckingRoutines() throws Exception {
+  public void testTranslateWillyFromSnapshot() throws Exception {
+    String snapshot = System.getenv("JSW_SNAPSHOT");
+    Assume.assumeNotNull(snapshot);
+    translateWilly(snapshot);
+  }
+
+  private String translateWilly(String snapshot) throws Exception {
     Helper.hex = false;
-//    String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
-    String base64Memory = getMemoryInBase64FromFile(Path.of("../../doc/jsw/jsw.z80").toUri().toString());
-
+    String base64Memory = getMemoryInBase64FromFile(Path.of(snapshot).toUri().toString());
     stepUntilComplete(34463);
-
-    String actual = generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "JetSetWilly");
-    actual = RemoteZ80Translator.improveSource(actual);
-
-    List<Routine> routines = driverConfigurator.getRoutineManager().getRoutines();
-
-
-    String routinesString = getRoutinesString(routines);
+    String actual = RemoteZ80Translator.improveSource(generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "JetSetWilly"));
+    String routinesString = getRoutinesString(driverConfigurator.getRoutineManager().getRoutines());
     Files.writeString(Path.of("target/jsw-routines.txt"), routinesString);
     Files.writeString(Path.of("target/JetSetWilly.java"), actual);
     assertRunsHeadless("JetSetWilly", "$34463");
+    return routinesString;
+  }
+
+  @Test
+  public void testWillyCheckingRoutines() throws Exception {
+    String routinesString = translateWilly("../../doc/jsw/jsw.z80");
 
     Assert.assertEquals("""
         {34463:38136} -> [34463 : 34498, 34762 : 35210, 35245 : 35562, 35591 : 36146, 37048 : 37055, 38043 : 38045, 38061 : 38063, 38095 : 38097, 38134 : 38136]
