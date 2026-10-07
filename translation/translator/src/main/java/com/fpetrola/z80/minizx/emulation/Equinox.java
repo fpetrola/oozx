@@ -9355,9 +9355,9 @@ public class Equinox extends MiniZX {
    }
 
    public void $BA46() {
-      label653: {
+      label656: {
          if(!this.isNextPC('\ubb64')) {
-            label654: {
+            label682: {
                this.pc('\uba46', 1);
                int var1 = this.mem('\ua12c', '\uba46');
                this.A(var1);
@@ -9756,7 +9756,7 @@ public class Equinox extends MiniZX {
                   }
 
                   this.BC('\uba94');
-                  break label654;
+                  break label682;
                }
 
                this.pc('\uba94', 1);
@@ -9769,7 +9769,7 @@ public class Equinox extends MiniZX {
                this.A(var26);
                this.pc('\uba98', 1);
                if(this.flag(64, false)) {
-                  break label653;
+                  break label656;
                }
 
                this.pc('\uba9b', 1);
@@ -9936,7 +9936,7 @@ public class Equinox extends MiniZX {
                      this.pc('\ubaf3', 1);
                      return;
                   }
-                  break label653;
+                  break label656;
                }
 
                try {
@@ -9945,7 +9945,7 @@ public class Equinox extends MiniZX {
                } catch (StackException var537) {
                   if(var537.getNextPC() == '\ubb64') {
                      this.BC('\ubaf7');
-                     break label654;
+                     break label682;
                   }
 
                   throw var537;
@@ -10164,8 +10164,8 @@ public class Equinox extends MiniZX {
                this.wMem('\uc65b', var52, '\ubbd1');
                this.pc('\ubbd4', 1);
             } else {
-               label652: {
-                  label656: {
+               label655: {
+                  label659: {
                      this.pc('\ubb7d', 1);
                      int var53 = this.A();
                      this.alu("cp", var53, 41);
@@ -10374,7 +10374,7 @@ public class Equinox extends MiniZX {
                                        this.A(var264);
                                        this.pc('\ubdf8', 1);
                                        if(!this.flag(64, false)) {
-                                          label650: {
+                                          label653: {
                                              this.pc('\ubdfb', 2);
                                              int var265 = this.mem16('\uc13c', '\ubdfb');
                                              this.BC(var265);
@@ -10406,7 +10406,7 @@ public class Equinox extends MiniZX {
                                                 this.A(var306);
                                                 this.pc('\ube0d', 1);
                                                 if(this.flag(64, false)) {
-                                                   break label650;
+                                                   break label653;
                                                 }
                                              }
 
@@ -10902,7 +10902,7 @@ public class Equinox extends MiniZX {
                                        this.pc('\ubd09', 1);
                                        int var221 = this.HL();
                                        this.wMem16('\ua242', var221, '\ubd09');
-                                       break label652;
+                                       break label655;
                                     }
                                  }
                               }
@@ -10917,7 +10917,7 @@ public class Equinox extends MiniZX {
                               this.A(var125);
                               this.pc('\ubc56', 1);
                               if(!this.flag(64, false)) {
-                                 label651: {
+                                 label654: {
                                     this.pc('\ubc59', 2);
                                     int var126 = this.mem16('\uc155', '\ubc59');
                                     this.BC(var126);
@@ -10949,7 +10949,7 @@ public class Equinox extends MiniZX {
                                        this.A(var156);
                                        this.pc('\ubc6b', 1);
                                        if(this.flag(64, false)) {
-                                          break label651;
+                                          break label654;
                                        }
                                     }
 
@@ -11025,7 +11025,7 @@ public class Equinox extends MiniZX {
                                     int var149 = this.HL();
                                     this.wMem(var149, var148, '\ubc9b');
                                     this.pc('\ubc9d', 1);
-                                    break label652;
+                                    break label655;
                                  }
                               }
                            }
@@ -11052,7 +11052,7 @@ public class Equinox extends MiniZX {
                               this.A(var93);
                               this.pc('\ubc13', 1);
                               if(this.flag(64, true)) {
-                                 break label656;
+                                 break label659;
                               }
 
                               this.pc('\ubc15', 1);
@@ -11074,7 +11074,7 @@ public class Equinox extends MiniZX {
                               this.A(var120);
                               this.pc('\ubc1d', 1);
                               if(!this.flag(64, false)) {
-                                 break label656;
+                                 break label659;
                               }
                            }
                         }
@@ -11147,7 +11147,7 @@ public class Equinox extends MiniZX {
                                  int var84 = this.A();
                                  this.wMem(var83, var84, '\ubbfe');
                                  this.pc('\ubc01', 1);
-                                 break label652;
+                                 break label655;
                               }
                            }
                         }

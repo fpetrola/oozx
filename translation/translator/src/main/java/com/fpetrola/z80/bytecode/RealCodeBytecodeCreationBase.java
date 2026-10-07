@@ -29,6 +29,10 @@ import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.transformations.*;
 
 import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import com.fpetrola.z80.bytecode.examples.RemoteZ80Translator;
+import com.fpetrola.z80.instructions.impl.Call;
 
 import static java.util.Comparator.comparingInt;
 
@@ -81,6 +85,31 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
 
   public void stepUntilComplete(int startAddress) {
     symbolicExecutionAdapter.stepUntilComplete(this, this.getState(), startAddress, 16384 + 4096);
+  }
+
+  public void exploreRecording(RemoteZ80Translator.Footprint footprint, int start, int... entries) {
+    StackAnalyzer stackAnalyzer = getStackAnalyzer();
+    footprint.install(getState().getMemory(), getState().getRegisterSP().read());
+    stackAnalyzer.learnFrom(footprint.learned());
+    stackAnalyzer.codeVersions.decodeWith(RemoteZ80Translator.decoder());
+    stackAnalyzer.reset(getState());
+    routineManager.setReachable(footprint.executed());
+    symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
+    routineManager.externalEntries.addAll(footprint.returnAddressesOnStack());
+    stackAnalyzer.nonLocalRets.keySet().forEach(ret -> routineManager.externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(ret)));
+    routineManager.externalEntries.addAll(stackAnalyzer.calledThrough.values());
+    routineManager.externalEntries.addAll(stackAnalyzer.codeVersions.successors());
+    routineManager.externalEntries.add(start);
+    stepUntilComplete(start);
+    Stream.of(IntStream.of(entries).boxed(), footprint.returnAddressesOnStack().stream(), stackAnalyzer.dynamicInvocation.values().stream(), stackAnalyzer.calledThrough.values().stream(), stackAnalyzer.codeVersions.successors().stream())
+        .flatMap(addresses -> addresses).forEach(this::stepUntilComplete);
+    footprint.codeBytes().forEach((site, bytes) -> {
+      int continuation = site + bytes.length & 0xffff;
+      if (stackAnalyzer.codeVersions.decode(site, bytes) instanceof Call && footprint.codeBytes().containsKey(continuation) && routineManager.findRoutineAt(continuation) == null) {
+        routineManager.externalEntries.add(continuation);
+        stepUntilComplete(continuation);
+      }
+    });
   }
 
   public void translateRomRoutines(int... entries) {

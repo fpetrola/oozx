@@ -288,6 +288,15 @@ Cada paso se verifica con los comandos de la sección 7: lockstep y reproducció
 - **Pasos 1 y 2**: `calledThrough` queda solo para los trampolines; el generador emite `switch` sobre `codeHash` con cada versión generada por `InstructionsBytecodeGenerator`; `executeMutantCode` ejecuta la instrucción con el propio emulador (comparte `mem`) en lugar del intérprete escrito a mano, y queda como respaldo para versiones no grabadas y para los juegos sin grabación (Wally, DD). La divergencia de Equinox en el frame 1139 era que el CALL de D015 apilaba su retorno y el catch del pop virtual no lo desapilaba.
 - **Protección**: no se protege todo el código durante la ejecución simbólica. Necesita ver los datos que el juego escribe en operandos, por ejemplo el SP que Emlyn guarda en el `LD SP,nn` de 9C19; con todo protegido, Emlyn diverge en el frame 5669.
 
+- **Paso 3** (5dc5f81bc): las variantes de bloque salen de la grabación (`blockRegions`, `recordBlockContent`, `mergeBlockRegions` para las subregiones de una plantilla) y se borran las 17 cadenas hex de Emlyn. `pc()` reporta la dirección original dentro de las copias relocadas, así que el lockstep ya no necesita `-Dcopies`. 9AF7 graba 8 de las 9 variantes que había a mano; la novena nunca corre en r3 ni en r4 y, si aparece jugando, falla con `unknownCodeVariant`.
+- **Paso 4**: `RealCodeBytecodeCreationBase.exploreRecording` es el único armado de una traducción desde grabación (Emlyn, Dizzy, Equinox y `RecordedProgramTests`). Las continuaciones huérfanas se detectan con el decodificador. El detector de `AbstractInstructionSpy` se fue en el paso 2.
+
+### Pendiente
+
+- Respaldo para una forma de bloque no grabada (hoy falla con `unknownCodeVariant`): ejecutar la región con el emulador como `executeMutantCode`.
+- Un `CALL` a un `JP (HL)` que es código (no ROM) hace fallar la ejecución simbólica con NullPointerException en `executeAllCode`.
+- Equinox conserva `untranslated(31006)` y `untranslated(32456)`, nunca alcanzados por la grabación.
+
 ### Tests
 
 - `CodeVersionsTest`: clasificación, sucesores, bloques, versiones que sobreviven a `learnFrom`.

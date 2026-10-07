@@ -49,19 +49,9 @@ public class RecordedProgramTests {
       for (int i = 1; i < chunk.length; i++)
         memory[chunk[0] + i - 1] = chunk[i];
     RemoteZ80Translator.emulateProgram(base, memory, START, STACK);
-    RemoteZ80Translator.Footprint footprint = RemoteZ80Translator.footprint(stackAnalyzer -> EmulatedMiniZX.ofProgram(memory, START, STACK, 1000, stackAnalyzer), START);
-    footprint.install(base.getState().getMemory(), STACK);
+    base.exploreRecording(RemoteZ80Translator.footprint(stackAnalyzer -> EmulatedMiniZX.ofProgram(memory, START, STACK, 1000, stackAnalyzer), START), START);
     StackAnalyzer stackAnalyzer = base.getStackAnalyzer();
-    stackAnalyzer.learnFrom(footprint.learned());
-    stackAnalyzer.codeVersions.decodeWith(RemoteZ80Translator.decoder());
-    stackAnalyzer.reset(base.getState());
     RoutineManager routineManager = base.getRoutineManager();
-    routineManager.setReachable(footprint.executed());
-    base.symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
-    routineManager.externalEntries.add(START);
-    Stream.of(stackAnalyzer.calledThrough.values(), stackAnalyzer.codeVersions.successors()).forEach(routineManager.externalEntries::addAll);
-    base.stepUntilComplete(START);
-    Stream.of(stackAnalyzer.calledThrough.values(), stackAnalyzer.codeVersions.successors()).flatMap(c -> c.stream()).forEach(base::stepUntilComplete);
     if (block != null) {
       RemoteZ80Translator.recordBlockContents(EmulatedMiniZX.ofProgram(memory, START, STACK, 1000, null), START, stackAnalyzer.codeVersions);
       base.translateCodeVariants(block[0], block[1], 0xE000, stackAnalyzer.codeVersions);

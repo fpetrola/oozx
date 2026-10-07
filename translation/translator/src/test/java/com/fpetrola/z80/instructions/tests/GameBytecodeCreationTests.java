@@ -29,6 +29,7 @@ import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.minizx.emulation.GameData;
 import com.fpetrola.z80.minizx.emulation.finders.MemoryRangesFinder;
 import com.fpetrola.z80.minizx.emulation.finders.MultimapAdapter;
+import com.fpetrola.z80.routines.CodeVersions;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.transformations.Base64Utils;
@@ -260,21 +261,14 @@ public class GameBytecodeCreationTests {
   @Test
   public void testTranslateEmlynToJava() {
     String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, "/home/fernando/detodo/spectrum/emlyn_r4.rzx", 0xFE65);
-    StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
-    RemoteZ80Translator.Footprint footprint = RemoteZ80Translator.Footprint.combine(Stream.of("emlyn_r3.rzx", "emlyn_r4.rzx").map(recording -> RemoteZ80Translator.footprint("/home/fernando/detodo/spectrum/" + recording, 0xFE65)).toList());
-    footprint.install(realCodeBytecodeCreationBase.getState().getMemory(), realCodeBytecodeCreationBase.getState().getRegisterSP().read());
-    stackAnalyzer.learnFrom(footprint.learned());
-    stackAnalyzer.codeVersions.decodeWith(RemoteZ80Translator.decoder());
-    stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());
-    getRoutineManager().setReachable(footprint.executed());
-    realCodeBytecodeCreationBase.symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
-    getRoutineManager().externalEntries.addAll(footprint.returnAddressesOnStack());
-    exploreGame(0xFE65, Stream.of(Stream.of(0x963E), footprint.returnAddressesOnStack().stream(), stackAnalyzer.dynamicInvocation.values().stream()).flatMap(s -> s).mapToInt(Integer::intValue).toArray());
+    List<String> recordings = Stream.of("emlyn_r3.rzx", "emlyn_r4.rzx").map(recording -> "/home/fernando/detodo/spectrum/" + recording).toList();
+    realCodeBytecodeCreationBase.exploreRecording(RemoteZ80Translator.Footprint.combine(recordings.stream().map(recording -> RemoteZ80Translator.footprint(recording, 0xFE65)).toList()), 0xFE65, 0x963E);
     realCodeBytecodeCreationBase.translateRomRoutines(0x0038, 0x22B0, 0x0E44, 0x03F4, 0x2C8D);
+    CodeVersions versions = realCodeBytecodeCreationBase.getStackAnalyzer().codeVersions;
     int[][] templates = {{0x9BBF, 0x9C1D, 0xE000}, {0x9AF7, 0x9B1C, 0xE300}};
-    Stream.of(templates).forEach(template -> stackAnalyzer.codeVersions.mergeBlockRegions(template[0], template[1]));
-    Stream.of("emlyn_r3.rzx", "emlyn_r4.rzx").forEach(recording -> RemoteZ80Translator.recordBlockContents(EmulatedMiniZX.ofRecording("/home/fernando/detodo/spectrum/" + recording, -1, null), 0xFE65, stackAnalyzer.codeVersions));
-    Stream.of(templates).forEach(template -> realCodeBytecodeCreationBase.translateCodeVariants(template[0], template[1], template[2], stackAnalyzer.codeVersions));
+    Stream.of(templates).forEach(template -> versions.mergeBlockRegions(template[0], template[1]));
+    recordings.forEach(recording -> RemoteZ80Translator.recordBlockContents(EmulatedMiniZX.ofRecording(recording, -1, null), 0xFE65, versions));
+    Stream.of(templates).forEach(template -> realCodeBytecodeCreationBase.translateCodeVariants(template[0], template[1], template[2], versions));
     writeTranslation(base64Memory);
   }
 
@@ -283,19 +277,7 @@ public class GameBytecodeCreationTests {
     String recording = "/home/fernando/detodo/spectrum/dizzy/Dizzy RZX - The Long Way.rzx";
     int start = 0xF85B;
     String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, recording, start);
-    StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
-    RemoteZ80Translator.Footprint footprint = RemoteZ80Translator.footprint(recording, start);
-    footprint.install(realCodeBytecodeCreationBase.getState().getMemory(), realCodeBytecodeCreationBase.getState().getRegisterSP().read());
-    stackAnalyzer.learnFrom(footprint.learned());
-    stackAnalyzer.codeVersions.decodeWith(RemoteZ80Translator.decoder());
-    stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());
-    getRoutineManager().setReachable(footprint.executed());
-    realCodeBytecodeCreationBase.symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
-    getRoutineManager().externalEntries.addAll(footprint.returnAddressesOnStack());
-    stackAnalyzer.nonLocalRets.keySet().forEach(ret -> getRoutineManager().externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(ret)));
-    getRoutineManager().externalEntries.addAll(stackAnalyzer.calledThrough.values());
-    getRoutineManager().externalEntries.addAll(stackAnalyzer.codeVersions.successors());
-    exploreGame(start, Stream.of(Stream.of(0xF85A), footprint.returnAddressesOnStack().stream(), stackAnalyzer.dynamicInvocation.values().stream(), stackAnalyzer.calledThrough.values().stream(), stackAnalyzer.codeVersions.successors().stream()).flatMap(s -> s).mapToInt(Integer::intValue).toArray());
+    realCodeBytecodeCreationBase.exploreRecording(RemoteZ80Translator.footprint(recording, start), start, 0xF85A);
     realCodeBytecodeCreationBase.translateRomRoutines(0x0038);
     writeTranslation(base64Memory);
   }
@@ -305,37 +287,13 @@ public class GameBytecodeCreationTests {
     String recording = "/home/fernando/detodo/spectrum/equinox/equinox.rzx";
     int start = 0x5B8D;
     String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, recording, start);
-    StackAnalyzer stackAnalyzer = realCodeBytecodeCreationBase.getStackAnalyzer();
-    RemoteZ80Translator.Footprint footprint = RemoteZ80Translator.footprint(recording, start);
-    footprint.install(realCodeBytecodeCreationBase.getState().getMemory(), realCodeBytecodeCreationBase.getState().getRegisterSP().read());
-    stackAnalyzer.learnFrom(footprint.learned());
-    stackAnalyzer.codeVersions.decodeWith(RemoteZ80Translator.decoder());
-    stackAnalyzer.reset(realCodeBytecodeCreationBase.getState());
-    getRoutineManager().setReachable(footprint.executed());
-    realCodeBytecodeCreationBase.symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
-    getRoutineManager().externalEntries.addAll(footprint.returnAddressesOnStack());
-    stackAnalyzer.nonLocalRets.keySet().forEach(ret -> getRoutineManager().externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(ret)));
-    getRoutineManager().externalEntries.addAll(stackAnalyzer.calledThrough.values());
-    getRoutineManager().externalEntries.addAll(stackAnalyzer.codeVersions.successors());
-    exploreGame(start, Stream.of(footprint.returnAddressesOnStack().stream(), stackAnalyzer.dynamicInvocation.values().stream(), stackAnalyzer.calledThrough.values().stream(), stackAnalyzer.codeVersions.successors().stream()).flatMap(s -> s).mapToInt(Integer::intValue).toArray());
-    exploreOrphanContinuations(footprint);
+    realCodeBytecodeCreationBase.exploreRecording(RemoteZ80Translator.footprint(recording, start), start);
     writeTranslation(base64Memory);
   }
 
   private void testTranslateGame(String MemoryInBase64FromFile, int startAddress, int... reachedByTheRecording) {
     exploreGame(startAddress, reachedByTheRecording);
     writeTranslation(MemoryInBase64FromFile);
-  }
-
-  private void exploreOrphanContinuations(RemoteZ80Translator.Footprint footprint) {
-    footprint.codeBytes().forEach((site, bytes) -> {
-      int continuation = site + 3 & 0xffff;
-      boolean call = bytes.length == 3 && (bytes[0] == 0xCD || (bytes[0] & 0xC7) == 0xC4);
-      if (call && footprint.codeBytes().containsKey(continuation) && getRoutineManager().findRoutineAt(continuation) == null) {
-        getRoutineManager().externalEntries.add(continuation);
-        stepUntilComplete(continuation);
-      }
-    });
   }
 
   private void exploreGame(int startAddress, int... reachedByTheRecording) {
