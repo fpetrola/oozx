@@ -114,22 +114,39 @@ public class RemoteZ80Translator {
 
     public Map<Integer, Integer> executed() {
       Map<Integer, Integer> lengths = new HashMap<>();
-      code().forEach((address, bytes) -> lengths.put(address, bytes.length));
+      code().forEach((address, bytes) -> lengths.put(address, span(address, bytes)));
       return lengths;
     }
 
     private Map<Integer, int[]> code() {
-      Set<Integer> recordedInteriors = new HashSet<>();
-      codeBytes.forEach((address, bytes) -> {
-        for (int i = 1; i < bytes.length; i++)
-          recordedInteriors.add(address + i & 0xffff);
-      });
+      Set<Integer> recordedInteriors = interiors(codeBytes);
       Map<Integer, int[]> code = new HashMap<>(codeBytes);
       explored.forEach((address, bytes) -> {
         if (!recordedInteriors.contains(address) && java.util.stream.IntStream.range(1, bytes.length).noneMatch(i -> codeBytes.containsKey(address + i & 0xffff)))
           code.putIfAbsent(address, bytes);
       });
       return code;
+    }
+
+    private Set<Integer> interiors(Map<Integer, int[]> instructions) {
+      Set<Integer> interiors = new HashSet<>();
+      instructions.forEach((address, bytes) -> {
+        for (int i = 1; i < span(address, bytes); i++)
+          interiors.add(address + i & 0xffff);
+      });
+      interiors.removeAll(codeBytes.keySet());
+      return interiors;
+    }
+
+    private int span(int address, int[] bytes) {
+      int data = learned.callContinuations.getOrDefault(address, address + bytes.length) - address - bytes.length & 0xffff;
+      return data < 256 && java.util.stream.IntStream.range(bytes.length, bytes.length + data).noneMatch(i -> codeBytes.containsKey(address + i & 0xffff)) ? bytes.length + data : bytes.length;
+    }
+
+    private Footprint forgettingJumpsIntoData() {
+      Set<Integer> interiors = interiors(code());
+      learned.dynamicInvocation.entries().stream().filter(jump -> interiors.contains(jump.getValue())).toList().forEach(jump -> learned.dynamicInvocation.removeMapping(jump.getKey(), jump.getValue()));
+      return this;
     }
 
     public static Footprint combine(List<Footprint> footprints) {
@@ -210,7 +227,7 @@ public class RemoteZ80Translator {
     play(emulator[0]);
     StackAnalyzer.collecting = false;
     returnAddressesOnStack.retainAll(codeBytes.keySet());
-    return new Footprint(codeBytes, explored, stackAnalyzer, returnAddressesOnStack, emulator[0].ooz80.getState().getMemory().getData().clone(), versions);
+    return new Footprint(codeBytes, explored, stackAnalyzer, returnAddressesOnStack, emulator[0].ooz80.getState().getMemory().getData().clone(), versions).forgettingJumpsIntoData();
   }
 
   private static int[] recordVersion(Map<Integer, int[]> codeBytes, CodeVersions versions, int address, int[] bytes) {
@@ -294,7 +311,7 @@ public class RemoteZ80Translator {
             break;
           }
           int pc = forkState.getPc().read(), depth = startSp - forkState.getRegisterSP().read() & 0xffff;
-          if (step > 0 && (depth == 0 || depth >= 0x8000) && (codeBytes.containsKey(pc) || known.contains(pc)))
+          if (step > 0 && (depth == 0 && !analyzer.returnPoppedBelow(forkState.getRegisterSP().read()) || depth >= 0x8000) && (codeBytes.containsKey(pc) || known.contains(pc)))
             break;
           if (pc == 0 || pc >= 0x4000 && pc < 0x5B00 && !codeBytes.containsKey(pc))
             break;

@@ -814,4 +814,91 @@ public class RecordedProgramTests {
     int call = java.indexOf("public void $8008()");
     Assert.assertTrue(java, call >= 0 && java.indexOf("this.$800C();", call) > call);
   }
+
+  @Test
+  public void aCallerThatTheRecordingNeverRanContinuesPastItsOwnData() {
+    // Emlyn 7218/721D/5D78 print the text after each CALL: an unrecorded caller learns its continuation by forking, not from the recorded caller
+    base.getRoutineManager().setFenced(false);
+    String java = translate(
+        at(0x8000, 0xCD, 0x30, 0x80, 0x41, 0xFF, 0xAF, 0x20, 0x08, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0xCD, 0x30, 0x80, 0x42, 0x43, 0xFF, 0x0E, 0x02, 0x76, 0x18, 0xFD),
+        at(0x8030, 0xE1, 0x7E, 0x23, 0xFE, 0xFF, 0x20, 0xFA, 0xE9));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+
+        public class Program extends SpectrumApplication {
+           public void $0() {
+           }
+
+           public void $8000() {
+              this.push('\\u8003');
+              this.$8030();
+              int var1 = this.alu("xor", super.A, super.A);
+              super.A = var1;
+              if(!this.flag(64, true)) {
+                 super.B = 1;
+
+                 while(true) {
+                    this.halt('\\u800a');
+                 }
+              }
+
+              this.push('\\u8013');
+              this.$8030();
+              super.C = 2;
+
+              while(true) {
+                 this.halt('\\u8018');
+              }
+           }
+
+           public void $8030() {
+              int var1 = this.pop();
+              this.HL(var1);
+
+              do {
+                 int var2 = this.HL();
+                 int var3 = this.mem(var2, '\\u8031');
+                 super.A = var3;
+                 int var4 = this.HL();
+                 int var5 = this.inc16(var4);
+                 this.HL(var5);
+                 this.alu("cp", super.A, 255);
+              } while(this.flag(64, true));
+
+           }
+        }
+        """, java);
+  }
+
+  @Test
+  public void withoutTheFenceARecordedEntryInsideAnotherRecordedInstructionIsDecoded() {
+    // the operand of LD A,0AFh is also XOR A, entered by the DJNZ
+    base.getRoutineManager().setFenced(false);
+    String java = translate(at(0x8000, 0x06, 0x02, 0x3E, 0xAF, 0x10, 0xFD, 0x76, 0x18, 0xFD));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+
+        public class Program extends SpectrumApplication {
+           public void $0() {
+           }
+
+           public void $8000() {
+              super.B = 2;
+              super.A = 175;
+
+              do {
+                 int var1 = this.alu("xor", super.A, super.A);
+                 super.A = var1;
+                 int var2 = super.B - 1 & 255;
+                 super.B = var2;
+              } while(super.B != 0);
+
+              while(true) {
+                 this.halt('\\u8006');
+              }
+           }
+        }
+        """, java);
+  }
 }

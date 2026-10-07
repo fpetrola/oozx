@@ -131,19 +131,24 @@ public class StackAnalyzer {
     initialized = true;
   }
 
-  public Entry[] copyEntries(int from, int length) {
+  public record Saved(Entry[] window, Map<Integer, Entry> consumedReturns) {
+  }
+
+  public Saved copyEntries(int from, int length) {
     Entry[] copy = new Entry[length];
     for (int i = 0; i < length; i++)
       copy[i] = entries.get(from + i);
-    return copy;
+    return new Saved(copy, new HashMap<>(consumedReturns));
   }
 
-  public void restoreEntries(int from, Entry[] saved) {
-    for (int i = 0; i < saved.length; i++)
-      if (saved[i] == null)
+  public void restoreEntries(int from, Saved saved) {
+    for (int i = 0; i < saved.window().length; i++)
+      if (saved.window()[i] == null)
         entries.remove(from + i);
       else
-        entries.put(from + i, saved[i]);
+        entries.put(from + i, saved.window()[i]);
+    consumedReturns.clear();
+    consumedReturns.putAll(saved.consumedReturns());
   }
 
   private Entry entryAtSp() {
@@ -374,6 +379,10 @@ public class StackAnalyzer {
       returnSlots.put(sp, entry.pc());
     if (!returnAddress)
       pushedValues.put(entry.pc(), entry.value());
+  }
+
+  public boolean returnPoppedBelow(int sp) {
+    return consumedReturns.containsKey(sp - 2 & 0xffff);
   }
 
   public void forgetLearned() {

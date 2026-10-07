@@ -27,7 +27,7 @@ import java.util.Arrays;
 
 public class ExecutionStackStorage {
   private int[] savedStack;
-  private StackAnalyzer.Entry[] savedEntries;
+  private StackAnalyzer.Saved savedEntries;
   private final StackAnalyzer stackAnalyzer;
   private final State state;
   private int savedSP;

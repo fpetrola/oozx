@@ -267,6 +267,7 @@ public class RoutineManager {
       for (int i = 1; i < length; i++)
         insideReachable.add(address + i & 0xffff);
     });
+    insideReachable.removeAll(instructionLengths.keySet());
   }
 
   public boolean isRestrictedToRecording() {
