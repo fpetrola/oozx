@@ -206,6 +206,7 @@ public class RoutineManager {
   public final java.util.Set<Integer> externalEntries = new java.util.TreeSet<>();
   private int codeStart;
   private java.util.Set<Integer> reachable;
+  private boolean fenced = true;
   private final java.util.Set<Integer> insideReachable = new java.util.HashSet<>();
 
   public List<CodeVariant> codeVariantsAt(int address) {
@@ -256,8 +257,12 @@ public class RoutineManager {
     this.codeStart = codeStart;
   }
 
+  public void setFenced(boolean fenced) {
+    this.fenced = fenced;
+  }
+
   public void setReachable(Map<Integer, Integer> instructionLengths) {
-    this.reachable = new java.util.HashSet<>(instructionLengths.keySet());
+    this.reachable = fenced ? new java.util.HashSet<>(instructionLengths.keySet()) : null;
     instructionLengths.forEach((address, length) -> {
       for (int i = 1; i < length; i++)
         insideReachable.add(address + i & 0xffff);
@@ -274,7 +279,7 @@ public class RoutineManager {
   }
 
   public boolean isCode(int address) {
-    return address >= codeStart && (reachable == null || reachable.contains(address) || originalAddress(address) != address);
+    return address >= codeStart && (originalAddress(address) != address || (reachable == null ? !insideReachable.contains(address) : reachable.contains(address)));
   }
 
   public boolean isCalledFrom(Routine routine, int callAddress) {

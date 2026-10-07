@@ -37,6 +37,7 @@ public class RecordedProgramTests {
   @After
   public void tearDown() {
     Helper.hex = false;
+    base.getRoutineManager().setFenced(true);
   }
 
   private String translate(int[]... chunks) {
@@ -792,5 +793,14 @@ public class RecordedProgramTests {
            }
         }
         """, java);
+  }
+
+  @Test
+  public void withoutTheFenceAJumpIntoTheMiddleOfARecordedInstructionIsNotDecoded() {
+    // Emlyn FD20: the middle of the CALL C1CD at FD1F, read as CALL 11C1 once the recording stopped fencing the exploration
+    base.getRoutineManager().setFenced(false);
+    String java = translate(at(0x8000, 0xAF, 0xC2, 0x05, 0x80, 0x21, 0x76, 0x00, 0x76));
+    Assert.assertTrue(java, java.contains("this.halt('\\u8007')"));
+    Assert.assertFalse(java, java.contains("this.halt('\\u8005')"));
   }
 }
