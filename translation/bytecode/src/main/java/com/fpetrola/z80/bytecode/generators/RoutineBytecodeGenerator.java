@@ -18,12 +18,10 @@
 
 package com.fpetrola.z80.bytecode.generators;
 
+import com.fpetrola.z80.routines.CodeVersions;
 import com.fpetrola.z80.routines.RoutineManager;
 
 import com.fpetrola.z80.opcodes.references.*;
-import com.fpetrola.z80.instructions.types.TargetSourceInstruction;
-import com.fpetrola.z80.instructions.types.TargetInstruction;
-import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ld;
 import com.fpetrola.z80.instructions.impl.Pop;
@@ -285,33 +283,7 @@ public class RoutineBytecodeGenerator {
   private boolean mutantCodeInInstruction(Instruction instruction, int address) {
     Set<java.lang.Integer> mutantAddress = (Set<java.lang.Integer>) context.symbolicExecutionAdapter.getMutantAddress();
     Set<java.lang.Integer> operands = new HashSet<>();
-    instruction.accept(new InstructionVisitor<>() {
-      public void visitingSource(ImmutableOpcodeReference source, TargetSourceInstruction targetSourceInstruction) {
-        source.accept(this);
-      }
-
-      public void visitingTarget(OpcodeReference target, TargetInstruction targetInstruction) {
-        target.accept(this);
-      }
-
-      public boolean visitMemory8BitReference(Memory8BitReference operand) {
-        operands.add(address + operand.getDelta());
-        return true;
-      }
-
-      public boolean visitMemory16BitReference(Memory16BitReference operand) {
-        operands.addAll(List.of(address + operand.getDelta(), address + operand.getDelta() + 1));
-        return true;
-      }
-
-      public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
-        indirectMemory8BitReference.getTarget().accept(this);
-      }
-
-      public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
-        indirectMemory16BitReference.getTarget().accept(this);
-      }
-    });
+    CodeVersions.operandOffsets(instruction).forEach(delta -> operands.add(address + delta));
     if (instruction instanceof Call && stackAnalyzer().calledThrough.containsKey(address))
       operands.addAll(List.of(address + 1, address + 2));
     return mutantAddress.stream().anyMatch(a1 -> a1 >= address && a1 < address + instruction.getLength() && !operands.contains(a1));
