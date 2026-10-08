@@ -186,7 +186,7 @@ public class StackAnalyzer implements java.io.Serializable {
           if (sp >= 16384) {
             Entry entry = entries.get(sp);
             int top = state.getMemory().read16Bits(sp);
-            if ((entry == null || !entry.returnAddress()) && Math.abs(top - pcValue) < 20) {
+            if (entry != null && !entry.returnAddress() && Math.abs(top - pcValue) < 20) {
               lastEvent = l -> l.simulatedCall(pcValue, jumpAddress, getInvocationsSet(pcValue), top);
               simulatedCallsPcs.add(pcValue);
               simulatedRets.add(top);

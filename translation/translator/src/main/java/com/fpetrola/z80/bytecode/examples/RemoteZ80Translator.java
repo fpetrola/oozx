@@ -258,11 +258,10 @@ public class RemoteZ80Translator {
           return;
         if (pending[0] != null)
           forks.exploreUntakenBranch(emulator[0].ooz80, pending[0], pendingAddress[0], address, stackAnalyzer, BRANCH_BUDGET);
-        if (pendingAddress[0] != -1 && address != (pendingAddress[0] + codeBytes.get(pendingAddress[0]).length & 0xffff)) {
+        if (pendingAddress[0] != -1 && address != (pendingAddress[0] + codeBytes.get(pendingAddress[0]).length & 0xffff))
           forks.landings().add(address);
-          if (address < 0x4000 && (pendingAddress[0] >= 0x4000 && !(previous[0] instanceof Ret) || previous[0] instanceof JP jump && jump.getPositionOpcodeReference() instanceof Register))
-            romEntries.add(address);
-        }
+        if (address < 0x4000 && (pendingAddress[0] >= 0x4000 && !(previous[0] instanceof Ret) || previous[0] instanceof JP jump && jump.getPositionOpcodeReference() instanceof Register))
+          romEntries.add(address);
         previous[0] = instruction;
         boolean conditional = isUntakenBranchCandidate(instruction);
         pending[0] = conditional ? (ConditionalInstruction<?>) instruction : null;
@@ -466,7 +465,7 @@ public class RemoteZ80Translator {
         throw new RuntimeException(e);
       }
     } else
-      translateToJava(gameName, base64Memory, "$" + startRoutineAddress);
+      realCodeBytecodeCreationBase.translatedProgram(gameName, base64Memory).run(startRoutineAddress);
   }
 
   public static String improveSource(String sourceCode) {
@@ -501,10 +500,6 @@ public class RemoteZ80Translator {
 
   public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className, SymbolicExecutionAdapter symbolicExecutionAdapter) {
     return realCodeBytecodeCreationBase.generateAndDecompile(base64Memory, routines, targetFolder, className, symbolicExecutionAdapter);
-  }
-
-  public void translateToJava(String className, String memoryInBase64, String startMethod) {
-    realCodeBytecodeCreationBase.translateToJava(className, memoryInBase64, startMethod);
   }
 
   public RegistersSetter getDefaultRegistersSetter() {

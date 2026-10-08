@@ -27,14 +27,10 @@ import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import org.apache.commons.io.FileUtils;
-import org.cojen.maker.ClassMaker2;
-import org.cojen.maker.MethodMaker;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 public interface BytecodeGeneration {
@@ -67,54 +63,24 @@ public interface BytecodeGeneration {
 
   RoutineManager getRoutineManager();
 
-  private void createMainMethod(ClassMaker2 classMaker) {
-    MethodMaker mainMethod = classMaker.addMethod(void.class, "main", String[].class);
-    mainMethod.public_();
-//    Variable jetSetWilly = mainMethod.new_("JetSetWilly");
-//    jetSetWilly.invoke("$34762");
-//    mainMethod.return_();
-  }
-
-
   String generateAndDecompile();
 
   String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className1, SymbolicExecutionAdapter symbolicExecutionAdapter);
 
-  default void translateToJava(String className, String startMethod, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory, GameData gameData) {
+  default MiniZX translatedProgram(String className, State state, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory, GameData gameData) {
+    byte[] bytecode = getBytecodeGenerator(className, state, true, symbolicExecutionAdapter, base64Memory, gameData).getBytecode().get(className);
     try {
-      boolean useFields = true;
-      writeClassFile(className, state, translation, symbolicExecutionAdapter, base64Memory, gameData);
-
-      StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation, symbolicExecutionAdapter, base64Memory, gameData);
-      Class<?> finish = bytecodeGenerator.getNewClass().get(0);
-
-      Object o = finish.getConstructors()[0].newInstance();
-      if (useFields) {
-        Method method = o.getClass().getMethod(startMethod);
-        method.invoke(o);
-      } else {
-        Method method = o.getClass().getMethod(startMethod, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class, int.class);
-        method.invoke(o, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-      }
-      writeClassFile(className, state, translation, symbolicExecutionAdapter, base64Memory, gameData);
-    } catch (Exception e) {
-      //throw new RuntimeException(e);
+      return (MiniZX) new ClassLoader(MiniZX.class.getClassLoader()) {
+        Class<?> define() {
+          return defineClass(className, bytecode, 0, bytecode.length);
+        }
+      }.define().getConstructor().newInstance();
+    } catch (ReflectiveOperationException e) {
+      throw new RuntimeException(e);
     }
   }
 
   private StateBytecodeGenerator getBytecodeGenerator(String className, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory, GameData gameData) {
     return new StateBytecodeGenerator(className, this.getRoutineManager(), state, translation, MiniZX.class, SpectrumApplication.class, symbolicExecutionAdapter, base64Memory, gameData);
-  }
-
-  private void writeClassFile(String className, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory, GameData gameData) throws IOException {
-    StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation, symbolicExecutionAdapter, base64Memory, gameData);
-    byte[] bytecode = bytecodeGenerator.getBytecode().get("emlyn");
-    String classFile = className + "1.class";
-    File source = new File(classFile);
-    try {
-      FileUtils.writeByteArrayToFile(source, bytecode);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
   }
 }

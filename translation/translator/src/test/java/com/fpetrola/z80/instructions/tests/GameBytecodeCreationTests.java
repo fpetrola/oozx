@@ -198,7 +198,7 @@ public class GameBytecodeCreationTests {
     Helper.hex = false;
     String base64Memory = getMemoryInBase64FromFile("http://torinak.com/qaop/bin/jetsetwilly");
     stepUntilComplete(34762);
-    translateToJava("JetSetWilly", base64Memory, "$34762");
+    realCodeBytecodeCreationBase.translatedProgram("JetSetWilly", base64Memory).run(34762);
 
   }
 
@@ -335,10 +335,6 @@ public class GameBytecodeCreationTests {
 
   public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className) {
     return realCodeBytecodeCreationBase.generateAndDecompile(base64Memory, routines, targetFolder, className, realCodeBytecodeCreationBase.symbolicExecutionAdapter);
-  }
-
-  public void translateToJava(String className, String memoryInBase64, String startMethod) {
-    realCodeBytecodeCreationBase.translateToJava(className, memoryInBase64, startMethod);
   }
 
   protected RegistersSetter getDefaultRegistersSetter() {

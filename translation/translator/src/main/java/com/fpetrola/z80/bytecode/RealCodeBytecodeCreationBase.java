@@ -21,6 +21,7 @@ package com.fpetrola.z80.bytecode;
 import com.fpetrola.z80.routines.CodeVersions;
 import com.fpetrola.z80.base.CPUExecutionContext;
 import com.fpetrola.z80.cpu.*;
+import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.emulation.GameData;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
@@ -182,8 +183,8 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
   }
 
 
-  public void translateToJava(String className, String memoryInBase64, String startMethod) {
-    BytecodeGeneration.super.translateToJava(className, startMethod, getState(), !memoryInBase64.isBlank(), symbolicExecutionAdapter, memoryInBase64, gameData);
+  public MiniZX translatedProgram(String className, String memoryInBase64) {
+    return translatedProgram(className, getState(), symbolicExecutionAdapter, withCodeVariants(memoryInBase64), gameData);
   }
 
   public RegistersSetter getRegistersSetter() {

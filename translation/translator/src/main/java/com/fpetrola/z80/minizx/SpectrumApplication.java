@@ -98,7 +98,7 @@ public abstract class SpectrumApplication {
     return state.getPc().read();
   }
 
-  private void storeRegisters(State state) {
+  public void storeRegisters(State state) {
     state.getRegister(RegisterName.AF).write(AF());
     state.getRegister(RegisterName.BC).write(BC());
     state.getRegister(RegisterName.DE).write(DE());

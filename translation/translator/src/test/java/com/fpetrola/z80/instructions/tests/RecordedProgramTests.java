@@ -3,7 +3,11 @@ package com.fpetrola.z80.instructions.tests;
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
 import com.fpetrola.z80.bytecode.examples.RemoteZ80Translator;
 import com.fpetrola.z80.helpers.Helper;
+import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.minizx.DefaultMiniZXIO;
+import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
+import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 import io.exemplary.guice.Modules;
@@ -15,6 +19,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @SuppressWarnings("ALL")
@@ -32,6 +38,7 @@ public class RecordedProgramTests {
   @Before
   public void setUp() {
     Helper.hex = true;
+    System.setProperty("minizx.headless", "true");
   }
 
   @After
@@ -48,7 +55,7 @@ public class RecordedProgramTests {
     for (int[] chunk : chunks)
       for (int i = 1; i < chunk.length; i++)
         memory[chunk[0] + i - 1] = chunk[i];
-    RemoteZ80Translator.emulateProgram(base, memory, START, STACK);
+    String image = RemoteZ80Translator.emulateProgram(base, memory, START, STACK);
     base.exploreRecording(RemoteZ80Translator.footprint(stackAnalyzer -> EmulatedMiniZX.ofProgram(memory, START, STACK, 1000, stackAnalyzer), START), START);
     StackAnalyzer stackAnalyzer = base.getStackAnalyzer();
     RoutineManager routineManager = base.getRoutineManager();
@@ -56,7 +63,47 @@ public class RecordedProgramTests {
       RemoteZ80Translator.recordBlockContents(EmulatedMiniZX.ofProgram(memory, START, STACK, 1000, null), START, stackAnalyzer.codeVersions);
       base.translateCodeVariants(block[0], block[1], 0xE000, stackAnalyzer.codeVersions);
     }
-    return base.generateAndDecompile("", routineManager.getRoutines(), ".", "Program", base.symbolicExecutionAdapter);
+    String java = base.generateAndDecompile("", routineManager.getRoutines(), ".", "Program", base.symbolicExecutionAdapter);
+    assertRunsLikeTheEmulator(base.translatedProgram("Program", image), memory);
+    return java;
+  }
+
+  private static class Finished extends RuntimeException {
+  }
+
+  private static void assertRunsLikeTheEmulator(MiniZX program, int[] memory) {
+    EmulatedMiniZX emulator = EmulatedMiniZX.ofProgram(memory, START, STACK, 0, null);
+    emulator.start();
+    State z80 = emulator.ooz80.getState(), translated = EmulatedMiniZX.createOOZ80(new DefaultMiniZXIO()).getState();
+    program.loadState(z80);
+    int[] previous = {-1}, steps = {0};
+    program.setInterruptionCondition(fetches -> {
+      if (previous[0] >= 0) {
+        emulator.ooz80.execute();
+        for (int k = 0; k < 0x10000 && z80.getPc().read() == previous[0] && program.PC != previous[0]; k++)
+          emulator.ooz80.execute();
+      }
+      program.storeRegisters(translated);
+      translated.getPc().write(program.PC);
+      if (!registers(z80).equals(registers(translated)))
+        throw new IllegalStateException("after $%04X\n z80  %s\n java %s".formatted(previous[0], registers(z80), registers(translated)));
+      if (z80.getMemory().getData()[z80.getPc().read()] == 0x76 || ++steps[0] == 1000)
+        throw new Finished();
+      previous[0] = program.PC;
+      return false;
+    });
+    try {
+      program.run(START);
+    } catch (Finished finished) {
+    }
+    int[] expected = z80.getMemory().getData();
+    Assert.assertEquals("", IntStream.range(0, 0x10000).filter(a -> (a < STACK - 0x100 || a >= STACK) && program.mem[a] != expected[a]).limit(8).mapToObj(a -> "%04X z80 %02X java %02X ".formatted(a, expected[a], program.mem[a])).collect(Collectors.joining()));
+  }
+
+  private static String registers(State state) {
+    return "PC=%04X".formatted(state.getPc().read()) + Stream.of("AF", "BC", "DE", "HL", "AFx", "BCx", "DEx", "HLx", "IX", "IY", "R")
+        .map(name -> " %s=%04X".formatted(name, state.getRegister(RegisterName.valueOf(name)).read() & (name.startsWith("AF") ? 0xffd7 : 0xffff)))
+        .collect(Collectors.joining());
   }
 
   private static int[] at(int address, int... bytes) {
@@ -836,7 +883,7 @@ public class RecordedProgramTests {
   @Test
   public void withoutTheFenceAJumpIntoTheMiddleOfARecordedInstructionIsNotDecoded() {
     // Emlyn FD20: the middle of the CALL C1CD at FD1F, read as CALL 11C1 once the recording stopped fencing the exploration
-    String java = translate(at(0x8000, 0xAF, 0xC2, 0x05, 0x80, 0x21, 0x76, 0x00, 0x76));
+    String java = translate(at(0x8000, 0xAF, 0xC2, 0x05, 0x80, 0x21, 0x76, 0x00, 0x76, 0x18, 0xFD));
     Assert.assertTrue(java, java.contains("this.halt('\\u8007')"));
     Assert.assertFalse(java, java.contains("this.halt('\\u8005')"));
   }
@@ -922,15 +969,17 @@ public class RecordedProgramTests {
               super.B = 2;
               super.A = 175;
 
-              do {
-                 int var1 = this.alu("xor", super.A, super.A);
-                 super.A = var1;
-                 int var2 = super.B - 1 & 255;
-                 super.B = var2;
-              } while(super.B != 0);
-
               while(true) {
-                 this.halt('\\u8006');
+                 int var1 = super.B - 1 & 255;
+                 super.B = var1;
+                 if(super.B == 0) {
+                    while(true) {
+                       this.halt('\\u8006');
+                    }
+                 }
+
+                 int var2 = this.alu("xor", super.A, super.A);
+                 super.A = var2;
               }
            }
         }
@@ -1111,7 +1160,7 @@ public class RecordedProgramTests {
         at(0x0000, 0x34, 0x12, 0xC9),
         at(0x8000, 0xCD, 0xFF, 0xFF, 0x76, 0x18, 0xFD),
         at(0xFFFF, 0x01));
-    Assert.assertTrue(java, java.contains("this.BC(4660);\n      this.untranslated(2);"));
+    Assert.assertFalse(java, java.contains("untranslated"));
   }
 
   @Test

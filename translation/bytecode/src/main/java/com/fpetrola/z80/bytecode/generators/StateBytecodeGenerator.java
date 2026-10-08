@@ -212,10 +212,4 @@ public class StateBytecodeGenerator {
     bytecodes.put(className, bytes);
     return bytecodes;
   }
-
-  public List<Class<?>> getNewClass() {
-    ClassMaker translate = translate();
-    Class<?> finish1 = translate.finish();
-    return Arrays.asList(finish1);
-  }
 }

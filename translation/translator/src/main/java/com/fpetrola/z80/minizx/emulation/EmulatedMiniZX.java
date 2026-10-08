@@ -148,6 +148,7 @@ public class EmulatedMiniZX {
       System.arraycopy(program, 0, state.getMemory().getData(), 0, program.length);
       state.getPc().write(programEntry);
       state.getRegisterSP().write(programStack);
+      state.setIntMode(State.InterruptionMode.IM0);
     } else if (rzxFile == null)
       SnapshotLoader.setupStateWithSnapshot(registersBase, com.fpetrola.z80.helpers.Helper.getSnapshotFile(url), state);
     else {
