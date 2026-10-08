@@ -59,7 +59,7 @@ public class StackAnalyzer implements java.io.Serializable {
   public final MultiValuedMap<Integer, Integer> returnsConsumedBy = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> pushedValues = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> calledThrough = new HashSetValuedHashMap<>();
-  public final Set<Integer> jumpTableSites = new HashSet<>();
+  public final Set<Integer> jumpTableSites = new HashSet<>(), recordedPops = new HashSet<>();
   public final MultiValuedMap<Integer, Integer> nonLocalRets = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> returnSlots = new HashSetValuedHashMap<>();
   public static boolean collecting;
@@ -162,7 +162,9 @@ public class StackAnalyzer implements java.io.Serializable {
     instruction.accept(new InstructionVisitor<>() {
       public void visitingPop(Pop pop) {
         Entry entry = entryAtSp();
-        if (entry != null && entry.returnAddress() && entry.pc() != -1)
+        if (collecting)
+          recordedPops.add(pcValue);
+        if (entry != null && entry.returnAddress() && entry.pc() != -1 && (!recordedPops.contains(pcValue) || poppedCallSites.containsValue(pcValue)))
           lastEvent = l -> l.returnAddressPopped(pcValue, entry.value(), entry.pc());
       }
 
@@ -403,6 +405,7 @@ public class StackAnalyzer implements java.io.Serializable {
     dynamicInvocation.putAll(recorded.dynamicInvocation);
     recorded.jumpTableSites.forEach(this::jumpTableAt);
     recorded.shiftedReturns.entries().forEach(e -> learnContinuation(e.getKey(), e.getValue(), recorded.callContinuations.get(e.getValue())));
+    recordedPops.addAll(recorded.recordedPops);
     dataConsumedBy.putAll(recorded.dataConsumedBy);
     dataOnTopAt.putAll(recorded.dataOnTopAt);
     poppedCallSites.putAll(recorded.poppedCallSites);

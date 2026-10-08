@@ -129,6 +129,11 @@ public class GameBytecodeCreationTests {
   }
 
   @Test
+  public void testTranslateZynapsToJava() {
+    translateRecording("Zynaps", "/home/fernando/detodo/spectrum/rzx-top/5890/zynaps.rzx", 0xA9E4);
+  }
+
+  @Test
   public void testTranslateDynamiteDan2ToJava() {
     translateRecording("DynamiteDan2", "/home/fernando/detodo/spectrum/rzx-top/1553/dynamitedan2.rzx", 0x6B94);
   }
