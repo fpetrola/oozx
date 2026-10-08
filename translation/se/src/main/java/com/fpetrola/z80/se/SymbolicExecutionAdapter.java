@@ -213,11 +213,14 @@ public class SymbolicExecutionAdapter {
         .forEach(mutantAddress::add);
   }
 
+  public int abandonedExplorations;
+
   private void executeAllCode(Z80InstructionDriver z80InstructionDriver, Register pc) {
 
     for (long steps = 0; !routineExecutorHandler.isEmpty(); steps++) {
       if (steps == 1_000_000) {
         System.out.println("exploration abandoned at " + Helper.formatAddress(pc.read()) + " after " + steps + " steps");
+        abandonedExplorations++;
         routineExecutorHandler.getStackFrames().clear();
         return;
       }

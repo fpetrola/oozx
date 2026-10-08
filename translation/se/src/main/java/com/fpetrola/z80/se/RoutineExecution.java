@@ -158,6 +158,6 @@ public class RoutineExecution {
   }
 
   public boolean isPending(java.util.Set<RoutineExecution> visited) {
-    return visited.add(this) && (pendingAction(visited) || callees.stream().anyMatch(callee -> callee.isPending(visited)));
+    return visited.add(this) && (pendingAction(visited) || callees.stream().anyMatch(callee -> !routineExecutorHandler.getStackFrames().contains(callee.start) && callee.isPending(visited)));
   }
 }
