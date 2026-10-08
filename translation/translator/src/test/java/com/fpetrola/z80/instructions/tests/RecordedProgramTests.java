@@ -979,4 +979,16 @@ public class RecordedProgramTests {
     Assert.assertEquals(Set.of(0x8040, 0x8044), Set.copyOf(stackAnalyzer.dynamicInvocation.get(0x8028)));
     Assert.assertEquals(Set.of(0x800F), Set.copyOf(stackAnalyzer.dynamicInvocation.get(0x8031)));
   }
+
+  @Test
+  public void aReturnThroughAStackPointerRestoredFromWhereItWasSavedLeavesTheRoutineNotTheStack() {
+    // Zynaps 8846/8880: LD (8881),SP patches the operand of LD SP,nn at 8880; its RET drops the frames pushed since, within the same stack
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0xED, 0x73, 0x21, 0x80, 0xCD, 0x30, 0x80, 0x0E, 0x09, 0xC9),
+        at(0x8020, 0x31, 0x00, 0x00, 0xC9),
+        at(0x8030, 0x16, 0x02, 0xC3, 0x20, 0x80));
+    Assert.assertTrue(stackAnalyzer.stackSwitches.isEmpty());
+    Assert.assertTrue(routineManager.nonLocalReturns.toString(), routineManager.nonLocalReturns.containsKey(0x8023));
+  }
 }

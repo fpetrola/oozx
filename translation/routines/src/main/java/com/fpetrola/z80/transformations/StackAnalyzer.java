@@ -26,6 +26,7 @@ import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
+import com.fpetrola.z80.opcodes.references.IndirectMemory16BitReference;
 import com.fpetrola.z80.opcodes.references.Memory16BitReference;
 import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
@@ -63,7 +64,8 @@ public class StackAnalyzer implements java.io.Serializable {
   public final Map<Integer, Integer> stackSwitches = new HashMap<>();
   private transient int[] leaving;
   private final transient Map<Integer, int[]> leftStacks = new HashMap<>();
-  private transient int switchHomeSp = -1;
+  private transient int switchHomeSp = -1, lastStorePlace = -1;
+  private transient boolean callSinceLoad;
   public final MultiValuedMap<Integer, Integer> nonLocalRets = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> returnSlots = new HashSetValuedHashMap<>();
   public static boolean collecting;
@@ -105,13 +107,13 @@ public class StackAnalyzer implements java.io.Serializable {
   }
 
 
-  private boolean foreign(int oldSp, int newSp) {
-    if (newSp < oldSp || newSp - oldSp > 128)
-      return true;
-    for (int slot = oldSp; slot < newSp; slot += 2)
-      if (!entries.containsKey(slot))
-        return true;
-    return false;
+  private int placeOf(Object reference) {
+    int[] memory = state.getMemory().getData();
+    if (reference instanceof IndirectMemory16BitReference indirect && indirect.getTarget() instanceof Memory16BitReference operand)
+      return memory[pcValue + operand.getDelta() & 0xffff] | memory[pcValue + operand.getDelta() + 1 & 0xffff] << 8;
+    if (reference instanceof Memory16BitReference operand)
+      return pcValue + operand.getDelta() & 0xffff;
+    return -1;
   }
 
   private void confirmSwitch(int[] left) {
@@ -226,18 +228,20 @@ public class StackAnalyzer implements java.io.Serializable {
       public void visitingLd(Ld ld) {
         ImmutableOpcodeReference source = ld.getSource();
         OpcodeReference target = ld.getTarget();
-        if (source instanceof Register register && register.getName().equals(SP.name()))
+        if (source instanceof Register register && register.getName().equals(SP.name())) {
           stackAsRepository.spReadAt = pcValue;
+          lastStorePlace = placeOf(target);
+        }
 
         if (target instanceof Register register && register.getName().equals(SP.name())) {
           int newSpAddress = source.read();
           int oldSpAddress = register.read();
-          if (foreign(oldSpAddress, newSpAddress)) {
-            int[] left = leftStacks.remove(newSpAddress);
-            if (left != null && left[3] != -1)
-              confirmSwitch(left);
-            leaving = leaving != null && leaving[1] == newSpAddress ? null : new int[]{pcValue, oldSpAddress, newSpAddress, -1, -1};
-          }
+          int place = placeOf(source);
+          int[] left = place == -1 ? null : leftStacks.remove(place);
+          if (left != null && left[3] != -1)
+            confirmSwitch(left);
+          leaving = lastStorePlace != -1 && place != lastStorePlace ? new int[]{pcValue, lastStorePlace, newSpAddress, -1, -1} : null;
+          callSinceLoad = false;
           if (stackSwitches.containsValue(pcValue)) {
             switchHomeSp = oldSpAddress;
             return;
@@ -285,7 +289,7 @@ public class StackAnalyzer implements java.io.Serializable {
       public boolean visitingRet(Ret ret) {
         if (ret instanceof RetN)
           return false;
-        if (leaving != null && leaving[3] == -1 && state.getRegisterSP().read() == leaving[2]) {
+        if (leaving != null && leaving[3] == -1 && !callSinceLoad && state.getRegisterSP().read() >= leaving[2]) {
           int[] memory = state.getMemory().getData();
           leaving[3] = pcValue;
           leaving[4] = memory[leaving[2]] | memory[leaving[2] + 1 & 0xffff] << 8;
@@ -415,6 +419,7 @@ public class StackAnalyzer implements java.io.Serializable {
   }
 
   private void remember(boolean returnAddress) {
+    callSinceLoad |= returnAddress;
     int sp = state.getRegisterSP().read();
     Entry entry = new Entry(state.getMemory().read16Bits(sp), state.getPc().read(), returnAddress);
     entries.put(sp, entry);
@@ -434,6 +439,7 @@ public class StackAnalyzer implements java.io.Serializable {
     stackSwitches.clear();
     leftStacks.clear();
     leaving = null;
+    lastStorePlace = -1;
     callContinuations.clear();
     shiftedReturns.clear();
     dataConsumedBy.clear();
