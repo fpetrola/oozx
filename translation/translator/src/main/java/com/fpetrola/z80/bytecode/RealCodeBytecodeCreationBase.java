@@ -93,7 +93,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     stackAnalyzer.learnFrom(footprint.learned());
     stackAnalyzer.codeVersions.decodeWith(RemoteZ80Translator.decoder());
     stackAnalyzer.reset(getState());
-    routineManager.setReachable(footprint.executed());
+    routineManager.setSpans(footprint.executed());
     symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
     routineManager.externalEntries.addAll(footprint.returnAddressesOnStack());
     stackAnalyzer.nonLocalRets.keySet().forEach(ret -> routineManager.externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(ret)));

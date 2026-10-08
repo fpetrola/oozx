@@ -25,7 +25,6 @@ import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
-import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.se.actions.RetAddressAction;
 import com.fpetrola.z80.instructions.impl.Ret;
@@ -148,7 +147,6 @@ public class SymbolicExecutionAdapter {
 
   public void reset() {
     mutantAddress.clear();
-    continuationRuns.clear();
     state.getMemory().unprotect(0, 0x10000);
     stackAnalyzer.forgetLearned();
     explorationSP = -1;
@@ -210,8 +208,7 @@ public class SymbolicExecutionAdapter {
   }
 
   private void findMutantCode(List<WriteMemoryReference> writeMemoryReferences) {
-    java.util.stream.Stream<Integer> written = routineManager.isRestrictedToRecording() ? java.util.stream.Stream.empty() : writeMemoryReferences.stream().map(wmr -> wmr.address);
-    java.util.stream.Stream.concat(written, routineManager.fixedStoreTargets(state.getMemory().getData())).distinct()
+    java.util.stream.Stream.concat(writeMemoryReferences.stream().map(wmr -> wmr.address), routineManager.fixedStoreTargets(state.getMemory().getData())).distinct()
         .filter(address -> !mutantAddress.contains(address) && !stackAnalyzer.codeVersions.inBlock(address) && routineManager.originalAddress(address) == address && routineManager.findRoutineAt(address) != null)
         .forEach(mutantAddress::add);
   }
@@ -250,25 +247,12 @@ public class SymbolicExecutionAdapter {
           routineExecution.setRetInstruction(pcValue);
           next = routineExecution.hasPendingPoints() ? routineExecution.getNextPending().address : returnFromRom();
         }
-        if (isStaticSuccessor(pcValue, next))
-          routineManager.admitAsCode(next);
         updatePcRegister(next);
         lastPc = pcValue;
       }
     }
   }
 
-  private boolean isStaticSuccessor(int pcValue, int next) {
-    Instruction executed = routineManager.getInstructionAt(pcValue);
-    boolean callContinuation = executed instanceof Ret && routineManager.getInstructionAt(next - 3 & 0xffff) instanceof Call;
-    boolean straightAfterContinuation = continuationRuns.contains(pcValue) && !(executed instanceof ConditionalInstruction<?>) && next == routineManager.addressAfter(pcValue);
-    if (callContinuation || straightAfterContinuation)
-      return continuationRuns.add(next) || true;
-    return routineManager.getInstructionAt(pcValue) instanceof ConditionalInstruction<?> conditional && !(conditional instanceof Call) && !(conditional.getCondition() instanceof ConditionAlwaysTrue)
-        && (next == routineManager.addressAfter(pcValue) || conditional.getJumpAddress() == next);
-  }
-
-  private final Set<Integer> continuationRuns = new HashSet<>();
 
   private boolean isTailCallToRom(int pcValue) {
     return routineManager.getInstructionAt(pcValue) instanceof JP jp && jp.getCondition() instanceof ConditionAlwaysTrue && !routineManager.isCode(jp.getJumpAddress());

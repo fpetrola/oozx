@@ -24,11 +24,11 @@ public class Dizzy extends MiniZX {
          case 53905:
             var2 = this.$D291();
             break;
-         case 53969:
-            var2 = this.$D2D1();
+         case 53943:
+            var2 = this.$D2B7();
             break;
-         case 54165:
-            var2 = this.$D395();
+         case 54404:
+            var2 = this.$D484();
             break;
          case 54627:
             var2 = this.$D563();
@@ -858,13 +858,13 @@ public class Dizzy extends MiniZX {
       this.pc('\u9655', 1);
       if(!this.flag(64, false)) {
          this.pc('\u9658', 1);
-         int var4 = this.D();
-         this.C(var4);
+         int var6 = this.D();
+         this.C(var6);
          this.pc('\u9659', 1);
          this.BC(17);
          this.pc('\u965c', 1);
-         int var5 = this.D();
-         this.H(var5);
+         int var7 = this.D();
+         this.H(var7);
          this.pc('\u965d', 1);
          this.pc('\u9662', 1);
          this.untranslated('\u9663');
@@ -874,7 +874,12 @@ public class Dizzy extends MiniZX {
          int var2 = this.A();
          int var3 = this.alu("add", var2, var1);
          this.A(var3);
-         this.untranslated(25109);
+         this.pc(25109, 1);
+         int var4 = this.A();
+         int var5 = this.alu("rlca", var4);
+         this.A(var5);
+         this.pc(25110, 1);
+         this.untranslated(25111);
       }
    }
 
@@ -1063,9 +1068,9 @@ public class Dizzy extends MiniZX {
          this.push('\ud294');
          this.$D48E();
          this.pop();
-      } catch (StackException var34) {
-         if(var34.getNextPC() != '\ud294') {
-            throw var34;
+      } catch (StackException var23) {
+         if(var23.getNextPC() != '\ud294') {
+            throw var23;
          }
       }
 
@@ -1074,9 +1079,9 @@ public class Dizzy extends MiniZX {
          this.push('\ud297');
          this.$D3CD();
          this.pop();
-      } catch (StackException var33) {
-         if(var33.getNextPC() != '\ud297') {
-            throw var33;
+      } catch (StackException var22) {
+         if(var22.getNextPC() != '\ud297') {
+            throw var22;
          }
       }
 
@@ -1085,9 +1090,9 @@ public class Dizzy extends MiniZX {
          this.push('\ud29a');
          this.$EC2B();
          this.pop();
-      } catch (StackException var32) {
-         if(var32.getNextPC() != '\ud29a') {
-            throw var32;
+      } catch (StackException var21) {
+         if(var21.getNextPC() != '\ud29a') {
+            throw var21;
          }
       }
 
@@ -1134,9 +1139,9 @@ public class Dizzy extends MiniZX {
          this.push('\ud2b4');
          this.$F46D();
          this.pop();
-      } catch (StackException var31) {
-         if(var31.getNextPC() != '\ud2b4') {
-            throw var31;
+      } catch (StackException var20) {
+         if(var20.getNextPC() != '\ud2b4') {
+            throw var20;
          }
       }
 
@@ -1145,528 +1150,533 @@ public class Dizzy extends MiniZX {
          this.push('\ud2b7');
          this.$F521();
          this.pop();
-      } catch (StackException var30) {
-         if(var30.getNextPC() != '\ud2b7') {
-            throw var30;
-         }
-      }
-
-      try {
-         this.pc('\ud2b7', 1);
-         this.push('\ud2ba');
-         this.$E45C();
-         this.pop();
-      } catch (StackException var29) {
-         if(var29.getNextPC() != '\ud2ba') {
-            throw var29;
-         }
-      }
-
-      try {
-         this.pc('\ud2ba', 1);
-         this.push('\ud2bd');
-         this.$D513();
-         this.pop();
-      } catch (StackException var28) {
-         if(var28.getNextPC() != '\ud2bd') {
-            throw var28;
-         }
-      }
-
-      this.pc('\ud2bd', 1);
-      int var21 = this.mem('\ud483', '\ud2bd');
-      this.A(var21);
-      this.pc('\ud2c0', 1);
-      int var22 = this.A();
-      this.alu("cp", var22, 0);
-      this.pc('\ud2c2', 1);
-      if(!this.flag(64, true)) {
-         this.pc('\ud2c4', 1);
-         this.A(1);
-
-         try {
-            this.pc('\ud2c6', 1);
-            this.push('\ud2c9');
-            this.$F740();
-            this.pop();
-         } catch (StackException var27) {
-            if(var27.getNextPC() != '\ud2c9') {
-               throw var27;
-            }
-         }
-
-         this.pc('\ud2c9', 1);
-         this.A(1);
-         this.pc('\ud2cb', 1);
-         int var25 = this.A();
-         this.wMem('\ud483', var25, '\ud2cb');
-      }
-
-      try {
-         this.pc('\ud2ce', 1);
-         this.push('\ud2d1');
-         this.$EC3D();
-         this.pop();
-         return '\ud2d1';
-      } catch (StackException var26) {
-         if(var26.getNextPC() == '\ud2d1') {
-            return '\ud2d1';
+         return '\ud2b7';
+      } catch (StackException var19) {
+         if(var19.getNextPC() == '\ud2b7') {
+            return '\ud2b7';
          } else {
-            throw var26;
+            throw var19;
          }
       }
    }
 
-   public int $D2D1() {
-      this.pc('\ud2d1', 1);
-      int var1 = this.mem('\ue77e', '\ud2d1');
-      this.A(var1);
-      this.pc('\ud2d4', 1);
-      int var2 = this.A();
-      this.alu("cp", var2, 0);
-      this.pc('\ud2d6', 1);
-      if(!this.flag(64, true)) {
+   public int $D2B7() {
+      while(true) {
          try {
-            this.pc('\ud2d8', 1);
-            this.push('\ud2db');
-            this.$E8F3();
+            this.pc('\ud2b7', 1);
+            this.push('\ud2ba');
+            this.$E45C();
             this.pop();
-         } catch (StackException var74) {
-            if(var74.getNextPC() != '\ud2db') {
-               throw var74;
+         } catch (StackException var86) {
+            if(var86.getNextPC() != '\ud2ba') {
+               throw var86;
             }
          }
 
-         this.pc('\ud2db', 1);
-      } else {
-         this.pc('\ud2dd', 1);
-         int var3 = this.mem('\ue77e', '\ud2dd');
+         try {
+            this.pc('\ud2ba', 1);
+            this.push('\ud2bd');
+            this.$D513();
+            this.pop();
+         } catch (StackException var87) {
+            if(var87.getNextPC() != '\ud2bd') {
+               throw var87;
+            }
+         }
+
+         this.pc('\ud2bd', 1);
+         int var3 = this.mem('\ud483', '\ud2bd');
          this.A(var3);
-         this.pc('\ud2e0', 1);
+         this.pc('\ud2c0', 1);
          int var4 = this.A();
-         this.alu("cp", var4, 128);
-         this.pc('\ud2e2', 1);
-         if(!this.flag(1, true)) {
+         this.alu("cp", var4, 0);
+         this.pc('\ud2c2', 1);
+         if(!this.flag(64, true)) {
+            this.pc('\ud2c4', 1);
+            this.A(1);
+
             try {
-               this.pc('\ud2e4', 1);
-               this.push('\ud2e7');
-               this.$EC5A();
+               this.pc('\ud2c6', 1);
+               this.push('\ud2c9');
+               this.$F740();
                this.pop();
-            } catch (StackException var75) {
-               if(var75.getNextPC() != '\ud2e7') {
-                  throw var75;
+            } catch (StackException var88) {
+               if(var88.getNextPC() != '\ud2c9') {
+                  throw var88;
                }
             }
 
-            this.pc('\ud2e7', 1);
-         } else {
-            try {
-               this.pc('\ud2e9', 1);
-               this.push('\ud2ec');
-               this.$EC73();
-               this.pop();
-            } catch (StackException var73) {
-               if(var73.getNextPC() != '\ud2ec') {
-                  throw var73;
-               }
+            this.pc('\ud2c9', 1);
+            this.A(1);
+            this.pc('\ud2cb', 1);
+            int var83 = this.A();
+            this.wMem('\ud483', var83, '\ud2cb');
+         }
+
+         try {
+            this.pc('\ud2ce', 1);
+            this.push('\ud2d1');
+            this.$EC3D();
+            this.pop();
+         } catch (StackException var89) {
+            if(var89.getNextPC() != '\ud2d1') {
+               throw var89;
             }
          }
-      }
 
-      this.pc('\ud2ec', 1);
-      int var6 = this.mem('\ue79f', '\ud2ec');
-      this.A(var6);
-      this.pc('\ud2ef', 1);
-      int var7 = this.A();
-      this.alu("cp", var7, 1);
-      this.pc('\ud2f1', 1);
-      if(!this.flag(64, true)) {
-         this.pc('\ud2f3', 1);
-         int var34 = this.mem('\ue775', '\ud2f3');
-         this.A(var34);
-         this.pc('\ud2f6', 1);
-         int var35 = this.A();
-         this.alu("cp", var35, 0);
-         this.pc('\ud2f8', 1);
-         if(!this.flag(64, false)) {
-            try {
-               this.pc('\ud2fa', 1);
-               this.push('\ud2fd');
-               this.$ED69();
-               this.pop();
-            } catch (StackException var72) {
-               if(var72.getNextPC() != '\ud2fd') {
-                  throw var72;
-               }
-            }
-
-            try {
-               this.pc('\ud2fd', 1);
-               this.push('\ud300');
-               this.$F580();
-               this.pop();
-            } catch (StackException var71) {
-               if(var71.getNextPC() != '\ud300') {
-                  throw var71;
-               }
-            }
-
-            this.pc('\ud300', 1);
-            this.A(255);
-            this.pc('\ud302', 1);
-            int var38 = this.A();
-            this.wMem('\ue79f', var38, '\ud302');
-            this.pc('\ud305', 1);
-            int var39 = this.mem16('\ue776', '\ud305');
-            this.HL(var39);
-            this.pc('\ud308', 1);
-            int var40 = this.HL();
-            this.push(var40);
-            this.pc('\ud309', 2);
-            int var41 = this.pop();
-            this.IX(var41);
-            this.pc('\ud30b', 1);
-            int var42 = this.mem('\ud1ec', '\ud30b');
-            this.A(var42);
-            this.pc('\ud30e', 2);
-            int var43 = this.A() | 128;
-            this.A(var43);
-            this.pc('\ud310', 2);
-            int var44 = this.IX() + 0;
-            int var45 = this.A();
-            this.wMem(var44, var45, '\ud310');
-            this.pc('\ud313', 1);
-            int var46 = this.mem('\ue76d', '\ud313');
-            this.A(var46);
-            this.pc('\ud316', 1);
-            int var47 = this.A();
-            int var48 = this.alu("add", var47, 2);
-            this.A(var48);
-            this.pc('\ud318', 2);
-            int var49 = this.IX() + 1;
-            int var50 = this.A();
-            this.wMem(var49, var50, '\ud318');
-            this.pc('\ud31b', 1);
-            int var51 = this.mem('\ue76f', '\ud31b');
-            this.A(var51);
-            this.pc('\ud31e', 2);
-            int var52 = this.IX() + 2;
-            int var53 = this.A();
-            this.wMem(var52, var53, '\ud31e');
-
-            try {
-               this.pc('\ud321', 1);
-               this.push('\ud324');
-               this.$D5EE();
-               this.pop();
-            } catch (StackException var70) {
-               if(var70.getNextPC() != '\ud324') {
-                  throw var70;
-               }
-            }
-
-            this.pc('\ud324', 1);
-            int var55 = this.A();
-            int var56 = this.A();
-            int var57 = this.alu("xor", var56, var55);
-            this.A(var57);
-            this.pc('\ud325', 1);
-            int var58 = this.A();
-            this.wMem('\ue775', var58, '\ud325');
-         }
-      }
-
-      this.pc('\ud328', 1);
-      this.A(27);
-
-      try {
-         this.pc('\ud32a', 1);
-         this.push('\ud32d');
-         this.$E55D();
-         this.pop();
-      } catch (StackException var69) {
-         if(var69.getNextPC() != '\ud32d') {
-            throw var69;
-         }
-      }
-
-      this.pc('\ud32d', 1);
-      if(!this.flag(64, false)) {
-         label164:
          while(true) {
-            this.pc('\ud32f', 1);
+            this.pc('\ud2d1', 1);
+            int var6 = this.mem('\ue77e', '\ud2d1');
+            this.A(var6);
+            this.pc('\ud2d4', 1);
+            int var7 = this.A();
+            this.alu("cp", var7, 0);
+            this.pc('\ud2d6', 1);
+            if(!this.flag(64, true)) {
+               try {
+                  this.pc('\ud2d8', 1);
+                  this.push('\ud2db');
+                  this.$E8F3();
+                  this.pop();
+               } catch (StackException var91) {
+                  if(var91.getNextPC() != '\ud2db') {
+                     throw var91;
+                  }
+               }
+
+               this.pc('\ud2db', 1);
+            } else {
+               this.pc('\ud2dd', 1);
+               int var8 = this.mem('\ue77e', '\ud2dd');
+               this.A(var8);
+               this.pc('\ud2e0', 1);
+               int var9 = this.A();
+               this.alu("cp", var9, 128);
+               this.pc('\ud2e2', 1);
+               if(!this.flag(1, true)) {
+                  try {
+                     this.pc('\ud2e4', 1);
+                     this.push('\ud2e7');
+                     this.$EC5A();
+                     this.pop();
+                  } catch (StackException var92) {
+                     if(var92.getNextPC() != '\ud2e7') {
+                        throw var92;
+                     }
+                  }
+
+                  this.pc('\ud2e7', 1);
+               } else {
+                  try {
+                     this.pc('\ud2e9', 1);
+                     this.push('\ud2ec');
+                     this.$EC73();
+                     this.pop();
+                  } catch (StackException var90) {
+                     if(var90.getNextPC() != '\ud2ec') {
+                        throw var90;
+                     }
+                  }
+               }
+            }
+
+            this.pc('\ud2ec', 1);
+            int var11 = this.mem('\ue79f', '\ud2ec');
+            this.A(var11);
+            this.pc('\ud2ef', 1);
+            int var12 = this.A();
+            this.alu("cp", var12, 1);
+            this.pc('\ud2f1', 1);
+            if(!this.flag(64, true)) {
+               this.pc('\ud2f3', 1);
+               int var55 = this.mem('\ue775', '\ud2f3');
+               this.A(var55);
+               this.pc('\ud2f6', 1);
+               int var56 = this.A();
+               this.alu("cp", var56, 0);
+               this.pc('\ud2f8', 1);
+               if(!this.flag(64, false)) {
+                  try {
+                     this.pc('\ud2fa', 1);
+                     this.push('\ud2fd');
+                     this.$ED69();
+                     this.pop();
+                  } catch (StackException var95) {
+                     if(var95.getNextPC() != '\ud2fd') {
+                        throw var95;
+                     }
+                  }
+
+                  try {
+                     this.pc('\ud2fd', 1);
+                     this.push('\ud300');
+                     this.$F580();
+                     this.pop();
+                  } catch (StackException var94) {
+                     if(var94.getNextPC() != '\ud300') {
+                        throw var94;
+                     }
+                  }
+
+                  this.pc('\ud300', 1);
+                  this.A(255);
+                  this.pc('\ud302', 1);
+                  int var59 = this.A();
+                  this.wMem('\ue79f', var59, '\ud302');
+                  this.pc('\ud305', 1);
+                  int var60 = this.mem16('\ue776', '\ud305');
+                  this.HL(var60);
+                  this.pc('\ud308', 1);
+                  int var61 = this.HL();
+                  this.push(var61);
+                  this.pc('\ud309', 2);
+                  int var62 = this.pop();
+                  this.IX(var62);
+                  this.pc('\ud30b', 1);
+                  int var63 = this.mem('\ud1ec', '\ud30b');
+                  this.A(var63);
+                  this.pc('\ud30e', 2);
+                  int var64 = this.A() | 128;
+                  this.A(var64);
+                  this.pc('\ud310', 2);
+                  int var65 = this.IX() + 0;
+                  int var66 = this.A();
+                  this.wMem(var65, var66, '\ud310');
+                  this.pc('\ud313', 1);
+                  int var67 = this.mem('\ue76d', '\ud313');
+                  this.A(var67);
+                  this.pc('\ud316', 1);
+                  int var68 = this.A();
+                  int var69 = this.alu("add", var68, 2);
+                  this.A(var69);
+                  this.pc('\ud318', 2);
+                  int var70 = this.IX() + 1;
+                  int var71 = this.A();
+                  this.wMem(var70, var71, '\ud318');
+                  this.pc('\ud31b', 1);
+                  int var72 = this.mem('\ue76f', '\ud31b');
+                  this.A(var72);
+                  this.pc('\ud31e', 2);
+                  int var73 = this.IX() + 2;
+                  int var74 = this.A();
+                  this.wMem(var73, var74, '\ud31e');
+
+                  try {
+                     this.pc('\ud321', 1);
+                     this.push('\ud324');
+                     this.$D5EE();
+                     this.pop();
+                  } catch (StackException var93) {
+                     if(var93.getNextPC() != '\ud324') {
+                        throw var93;
+                     }
+                  }
+
+                  this.pc('\ud324', 1);
+                  int var76 = this.A();
+                  int var77 = this.A();
+                  int var78 = this.alu("xor", var77, var76);
+                  this.A(var78);
+                  this.pc('\ud325', 1);
+                  int var79 = this.A();
+                  this.wMem('\ue775', var79, '\ud325');
+               }
+            }
+
+            this.pc('\ud328', 1);
             this.A(27);
 
             try {
-               this.pc('\ud331', 1);
-               this.push('\ud334');
+               this.pc('\ud32a', 1);
+               this.push('\ud32d');
                this.$E55D();
                this.pop();
-            } catch (StackException var68) {
-               if(var68.getNextPC() != '\ud334') {
-                  throw var68;
+            } catch (StackException var96) {
+               if(var96.getNextPC() != '\ud32d') {
+                  throw var96;
                }
             }
 
-            this.pc('\ud334', 1);
-            if(!this.flag(64, true)) {
-               this.pc('\ud336', 2);
-               this.IX('\ud44d');
-
+            this.pc('\ud32d', 1);
+            if(!this.flag(64, false)) {
+               label274:
                while(true) {
-                  this.pc('\ud33a', 1);
+                  this.pc('\ud32f', 1);
                   this.A(27);
 
                   try {
-                     this.pc('\ud33c', 1);
-                     this.push('\ud33f');
+                     this.pc('\ud331', 1);
+                     this.push('\ud334');
                      this.$E55D();
                      this.pop();
-                  } catch (StackException var65) {
-                     if(var65.getNextPC() != '\ud33f') {
-                        throw var65;
+                  } catch (StackException var101) {
+                     if(var101.getNextPC() != '\ud334') {
+                        throw var101;
                      }
                   }
 
-                  this.pc('\ud33f', 1);
-                  if(this.flag(64, true)) {
+                  this.pc('\ud334', 1);
+                  if(!this.flag(64, true)) {
+                     this.pc('\ud336', 2);
+                     this.IX('\ud44d');
+
                      while(true) {
-                        this.pc('\ud355', 1);
+                        this.pc('\ud33a', 1);
                         this.A(27);
 
                         try {
-                           this.pc('\ud357', 1);
-                           this.push('\ud35a');
+                           this.pc('\ud33c', 1);
+                           this.push('\ud33f');
                            this.$E55D();
                            this.pop();
-                        } catch (StackException var64) {
-                           if(var64.getNextPC() != '\ud35a') {
-                              throw var64;
+                        } catch (StackException var98) {
+                           if(var98.getNextPC() != '\ud33f') {
+                              throw var98;
                            }
                         }
 
-                        this.pc('\ud35a', 1);
-                        if(!this.flag(64, true)) {
-                           break label164;
+                        this.pc('\ud33f', 1);
+                        if(this.flag(64, true)) {
+                           while(true) {
+                              this.pc('\ud355', 1);
+                              this.A(27);
+
+                              try {
+                                 this.pc('\ud357', 1);
+                                 this.push('\ud35a');
+                                 this.$E55D();
+                                 this.pop();
+                              } catch (StackException var97) {
+                                 if(var97.getNextPC() != '\ud35a') {
+                                    throw var97;
+                                 }
+                              }
+
+                              this.pc('\ud35a', 1);
+                              if(!this.flag(64, true)) {
+                                 break label274;
+                              }
+                           }
                         }
+
+                        this.pc('\ud341', 2);
+                        int var46 = this.IX() + 0;
+                        int var47 = this.mem(var46, '\ud341');
+                        this.A(var47);
+                        this.pc('\ud344', 1);
+                        int var48 = this.A();
+                        this.alu("cp", var48, 255);
+
+                        try {
+                           this.pc('\ud346', 1);
+                           if(this.flag(64, false)) {
+                              this.$D3E1();
+                           }
+                        } catch (StackException var100) {
+                           if(var100.getNextPC() == '\ud3e5') {
+                              this.HL('\ud349');
+                              this.$D3E5();
+                              return -1;
+                           }
+
+                           throw var100;
+                        }
+
+                        this.pc('\ud349', 2);
+                        int var50 = this.IX() + 0;
+                        int var51 = this.mem(var50, '\ud349');
+                        this.A(var51);
+
+                        try {
+                           this.pc('\ud34c', 1);
+                           this.push('\ud34f');
+                           this.$E55D();
+                           this.pop();
+                        } catch (StackException var99) {
+                           if(var99.getNextPC() != '\ud34f') {
+                              throw var99;
+                           }
+                        }
+
+                        this.pc('\ud34f', 1);
+                        if(!this.flag(64, false)) {
+                           this.pc('\ud351', 2);
+                           int var53 = this.IX();
+                           int var54 = this.inc16(var53);
+                           this.IX(var54);
+                        }
+
+                        this.pc('\ud353', 1);
                      }
                   }
-
-                  this.pc('\ud341', 2);
-                  int var25 = this.IX() + 0;
-                  int var26 = this.mem(var25, '\ud341');
-                  this.A(var26);
-                  this.pc('\ud344', 1);
-                  int var27 = this.A();
-                  this.alu("cp", var27, 255);
-
-                  try {
-                     this.pc('\ud346', 1);
-                     if(this.flag(64, false)) {
-                        this.$D3E1();
-                     }
-                  } catch (StackException var67) {
-                     if(var67.getNextPC() == '\ud3e5') {
-                        this.HL('\ud349');
-                        this.$D3E5();
-                        return -1;
-                     }
-
-                     throw var67;
-                  }
-
-                  this.pc('\ud349', 2);
-                  int var29 = this.IX() + 0;
-                  int var30 = this.mem(var29, '\ud349');
-                  this.A(var30);
-
-                  try {
-                     this.pc('\ud34c', 1);
-                     this.push('\ud34f');
-                     this.$E55D();
-                     this.pop();
-                  } catch (StackException var66) {
-                     if(var66.getNextPC() != '\ud34f') {
-                        throw var66;
-                     }
-                  }
-
-                  this.pc('\ud34f', 1);
-                  if(!this.flag(64, false)) {
-                     this.pc('\ud351', 2);
-                     int var32 = this.IX();
-                     int var33 = this.inc16(var32);
-                     this.IX(var33);
-                  }
-
-                  this.pc('\ud353', 1);
                }
             }
-         }
-      }
-
-      try {
-         this.pc('\ud35c', 1);
-         this.push('\ud35f');
-         this.runJumps('\ud563');
-         this.pop();
-      } catch (StackException var63) {
-         if(var63.getNextPC() != '\ud35f') {
-            throw var63;
-         }
-      }
-
-      this.pc('\ud35f', 1);
-      this.A(67);
-
-      try {
-         this.pc('\ud361', 1);
-         this.push('\ud364');
-         this.$E55D();
-         this.pop();
-      } catch (StackException var62) {
-         if(var62.getNextPC() != '\ud364') {
-            throw var62;
-         }
-      }
-
-      this.pc('\ud364', 1);
-      if(this.flag(64, true)) {
-         return '\ud238';
-      } else {
-         this.pc('\ud367', 1);
-         int var11 = this.mem('\ue77e', '\ud367');
-         this.A(var11);
-         this.pc('\ud36a', 1);
-         int var12 = this.A();
-         this.alu("cp", var12, 16);
-         this.pc('\ud36c', 1);
-         if(this.flag(64, true)) {
-            return '\ud395';
-         } else {
-            this.pc('\ud36f', 1);
-            int var13 = this.mem('\ue789', '\ud36f');
-            this.A(var13);
-            this.pc('\ud372', 1);
-            int var14 = this.A();
-            this.wMem('\ue76d', var14, '\ud372');
-            this.pc('\ud375', 1);
-            int var15 = this.mem('\ue78a', '\ud375');
-            this.A(var15);
-            this.pc('\ud378', 1);
-            int var16 = this.A();
-            this.wMem('\ue76f', var16, '\ud378');
-            this.pc('\ud37b', 1);
-            int var17 = this.mem('\ue78b', '\ud37b');
-            this.A(var17);
-            this.pc('\ud37e', 1);
-            int var18 = this.A();
-            this.wMem('\ue76e', var18, '\ud37e');
-            this.pc('\ud381', 1);
-            int var19 = this.mem('\ue78c', '\ud381');
-            this.A(var19);
-            this.pc('\ud384', 1);
-            int var20 = this.A();
-            this.wMem('\ue770', var20, '\ud384');
-            this.pc('\ud387', 1);
-            this.A(2);
 
             try {
-               this.pc('\ud389', 1);
-               this.push('\ud38c');
-               this.$F740();
+               this.pc('\ud35c', 1);
+               this.push('\ud35f');
+               this.runJumps('\ud563');
                this.pop();
-               return -1;
-            } catch (StackException var61) {
-               if(var61.getNextPC() == '\ud38c') {
-                  this.untranslated('\ud38c');
-                  return -1;
-               } else {
-                  throw var61;
+            } catch (StackException var102) {
+               if(var102.getNextPC() != '\ud35f') {
+                  throw var102;
                }
             }
-         }
-      }
-   }
 
-   public int $D395() {
-      this.pc('\ud395', 1);
-      int var1 = this.mem('\ud482', '\ud395');
-      this.A(var1);
-      this.pc('\ud398', 1);
-      int var2 = this.A();
-      int var3 = this.alu("inc", var2);
-      this.A(var3);
-      this.pc('\ud399', 1);
-      int var4 = this.A();
-      int var5 = this.alu("and", var4, 7);
-      this.A(var5);
-      this.pc('\ud39b', 1);
-      int var6 = this.A();
-      this.wMem('\ud482', var6, '\ud39b');
-      this.pc('\ud39e', 1);
-      int var7 = this.A();
-      this.alu("cp", var7, 0);
-      this.pc('\ud3a0', 1);
-      if(!this.flag(64, true)) {
-         this.pc('\ud3a2', 1);
-         int var8 = this.mem('\ue16c', '\ud3a2');
-         this.A(var8);
-         this.pc('\ud3a5', 1);
-         int var9 = this.A();
-         this.alu("cp", var9, 0);
-         this.pc('\ud3a7', 1);
-         if(!this.flag(64, false)) {
-            this.pc('\ud3a9', 1);
-            int var10 = this.A();
-            int var11 = this.alu("dec", var10);
-            this.A(var11);
-            this.pc('\ud3aa', 1);
-            int var12 = this.A();
-            this.alu("cp", var12, 0);
-            this.pc('\ud3ac', 1);
-            if(!this.flag(64, true)) {
-               this.pc('\ud3ae', 1);
-               int var14 = this.A();
-               this.wMem('\ue16c', var14, '\ud3ae');
+            this.pc('\ud35f', 1);
+            this.A(67);
 
-               try {
-                  this.pc('\ud3b1', 1);
-                  this.push('\ud3b4');
-                  this.$E159();
-                  this.pop();
-               } catch (StackException var18) {
-                  if(var18.getNextPC() != '\ud3b4') {
-                     throw var18;
-                  }
+            try {
+               this.pc('\ud361', 1);
+               this.push('\ud364');
+               this.$E55D();
+               this.pop();
+            } catch (StackException var103) {
+               if(var103.getNextPC() != '\ud364') {
+                  throw var103;
                }
+            }
 
-               this.pc('\ud3b4', 1);
-               this.A(4);
-
-               try {
-                  this.pc('\ud3b6', 1);
-                  this.push('\ud3b9');
-                  this.$F740();
-                  this.pop();
-               } catch (StackException var17) {
-                  if(var17.getNextPC() != '\ud3b9') {
-                     throw var17;
-                  }
-               }
-
-               this.pc('\ud3b9', 1);
+            this.pc('\ud364', 1);
+            if(this.flag(64, true)) {
                return '\ud238';
             }
 
-            this.pc('\ud3bc', 1);
-            int var13 = this.A();
-            this.wMem('\ue16c', var13, '\ud3bc');
+            this.pc('\ud367', 1);
+            int var16 = this.mem('\ue77e', '\ud367');
+            this.A(var16);
+            this.pc('\ud36a', 1);
+            int var17 = this.A();
+            this.alu("cp", var17, 16);
+            this.pc('\ud36c', 1);
+            if(!this.flag(64, true)) {
+               this.pc('\ud36f', 1);
+               int var34 = this.mem('\ue789', '\ud36f');
+               this.A(var34);
+               this.pc('\ud372', 1);
+               int var35 = this.A();
+               this.wMem('\ue76d', var35, '\ud372');
+               this.pc('\ud375', 1);
+               int var36 = this.mem('\ue78a', '\ud375');
+               this.A(var36);
+               this.pc('\ud378', 1);
+               int var37 = this.A();
+               this.wMem('\ue76f', var37, '\ud378');
+               this.pc('\ud37b', 1);
+               int var38 = this.mem('\ue78b', '\ud37b');
+               this.A(var38);
+               this.pc('\ud37e', 1);
+               int var39 = this.A();
+               this.wMem('\ue76e', var39, '\ud37e');
+               this.pc('\ud381', 1);
+               int var40 = this.mem('\ue78c', '\ud381');
+               this.A(var40);
+               this.pc('\ud384', 1);
+               int var41 = this.A();
+               this.wMem('\ue770', var41, '\ud384');
+               this.pc('\ud387', 1);
+               this.A(2);
+
+               try {
+                  this.pc('\ud389', 1);
+                  this.push('\ud38c');
+                  this.$F740();
+                  this.pop();
+               } catch (StackException var104) {
+                  if(var104.getNextPC() != '\ud38c') {
+                     throw var104;
+                  }
+               }
+
+               this.pc('\ud38c', 1);
+               this.$F514();
+               this.pc('\ud38f', 1);
+               if(this.flag(64, false)) {
+                  return '\ud484';
+               }
+
+               this.pc('\ud392', 1);
+               break;
+            }
+
+            this.pc('\ud395', 1);
+            int var18 = this.mem('\ud482', '\ud395');
+            this.A(var18);
+            this.pc('\ud398', 1);
+            int var19 = this.A();
+            int var20 = this.alu("inc", var19);
+            this.A(var20);
+            this.pc('\ud399', 1);
+            int var21 = this.A();
+            int var22 = this.alu("and", var21, 7);
+            this.A(var22);
+            this.pc('\ud39b', 1);
+            int var23 = this.A();
+            this.wMem('\ud482', var23, '\ud39b');
+            this.pc('\ud39e', 1);
+            int var24 = this.A();
+            this.alu("cp", var24, 0);
+            this.pc('\ud3a0', 1);
+            if(!this.flag(64, true)) {
+               this.pc('\ud3a2', 1);
+               int var25 = this.mem('\ue16c', '\ud3a2');
+               this.A(var25);
+               this.pc('\ud3a5', 1);
+               int var26 = this.A();
+               this.alu("cp", var26, 0);
+               this.pc('\ud3a7', 1);
+               if(!this.flag(64, false)) {
+                  this.pc('\ud3a9', 1);
+                  int var27 = this.A();
+                  int var28 = this.alu("dec", var27);
+                  this.A(var28);
+                  this.pc('\ud3aa', 1);
+                  int var29 = this.A();
+                  this.alu("cp", var29, 0);
+                  this.pc('\ud3ac', 1);
+                  if(!this.flag(64, true)) {
+                     this.pc('\ud3ae', 1);
+                     int var31 = this.A();
+                     this.wMem('\ue16c', var31, '\ud3ae');
+
+                     try {
+                        this.pc('\ud3b1', 1);
+                        this.push('\ud3b4');
+                        this.$E159();
+                        this.pop();
+                     } catch (StackException var85) {
+                        if(var85.getNextPC() != '\ud3b4') {
+                           throw var85;
+                        }
+                     }
+
+                     this.pc('\ud3b4', 1);
+                     this.A(4);
+
+                     try {
+                        this.pc('\ud3b6', 1);
+                        this.push('\ud3b9');
+                        this.$F740();
+                        this.pop();
+                     } catch (StackException var84) {
+                        if(var84.getNextPC() != '\ud3b9') {
+                           throw var84;
+                        }
+                     }
+
+                     this.pc('\ud3b9', 1);
+                     return '\ud238';
+                  }
+
+                  this.pc('\ud3bc', 1);
+                  int var30 = this.A();
+                  this.wMem('\ue16c', var30, '\ud3bc');
+               }
+            }
+
+            this.pc('\ud3bf', 1);
          }
       }
-
-      this.pc('\ud3bf', 1);
-      return '\ud2d1';
    }
 
    public void $D3C2() {
@@ -1727,25 +1737,156 @@ public class Dizzy extends MiniZX {
 
    public void $D3E5() {
       this.pc('\ud3e5', 1);
-      this.$D3EA();
+
+      while(true) {
+         while(true) {
+            this.pc('\ud3ea', 1);
+            this.A(18);
+
+            try {
+               this.pc('\ud3ec', 1);
+               this.push('\ud3ef');
+               this.$E55D();
+               this.pop();
+            } catch (StackException var26) {
+               if(var26.getNextPC() != '\ud3ef') {
+                  throw var26;
+               }
+            }
+
+            this.pc('\ud3ef', 1);
+            if(!this.flag(64, false)) {
+               this.pc('\ud3f1', 1);
+               this.$F4ED();
+
+               do {
+                  this.pc('\ud3f4', 1);
+                  this.A(18);
+                  this.pc('\ud3f6', 1);
+                  this.$E55D();
+                  this.pc('\ud3f9', 1);
+               } while(this.flag(64, true));
+            }
+
+            this.pc('\ud3fb', 1);
+            this.A(47);
+            this.pc('\ud3fd', 1);
+            this.$E55D();
+            this.pc('\ud400', 1);
+            if(this.flag(64, true)) {
+               this.runJumps('\ud2b7');
+               return;
+            }
+
+            this.pc('\ud403', 1);
+            this.A(63);
+            this.pc('\ud405', 1);
+            this.$E55D();
+            this.pc('\ud408', 1);
+            if(!this.flag(64, false)) {
+               this.pc('\ud40a', 1);
+               int var20 = this.mem('\ud1ec', '\ud40a');
+               this.A(var20);
+               this.pc('\ud40d', 1);
+               int var21 = this.A();
+               int var22 = this.alu("inc", var21);
+               this.A(var22);
+               this.pc('\ud40e', 1);
+               int var23 = this.A();
+               int var24 = this.alu("and", var23, 127);
+               this.A(var24);
+               this.pc('\ud410', 1);
+               int var25 = this.A();
+               this.wMem('\ud1ec', var25, '\ud410');
+               this.pc('\ud413', 1);
+               break;
+            }
+
+            this.pc('\ud415', 1);
+            this.A(71);
+            this.pc('\ud417', 1);
+            this.$E55D();
+            this.pc('\ud41a', 1);
+            if(!this.flag(64, false)) {
+               this.pc('\ud41c', 1);
+               int var14 = this.mem('\ud1ec', '\ud41c');
+               this.A(var14);
+               this.pc('\ud41f', 1);
+               int var15 = this.A();
+               int var16 = this.alu("dec", var15);
+               this.A(var16);
+               this.pc('\ud420', 1);
+               int var17 = this.A();
+               int var18 = this.alu("and", var17, 127);
+               this.A(var18);
+               this.pc('\ud422', 1);
+               int var19 = this.A();
+               this.wMem('\ud1ec', var19, '\ud422');
+               this.pc('\ud425', 1);
+               break;
+            }
+
+            this.pc('\ud427', 1);
+            this.A(38);
+            this.pc('\ud429', 1);
+            this.$E55D();
+            this.pc('\ud42c', 1);
+            if(!this.flag(64, false)) {
+               this.pc('\ud42e', 1);
+               int var8 = this.mem('\ud1ec', '\ud42e');
+               this.A(var8);
+               this.pc('\ud431', 1);
+               int var9 = this.A();
+               int var10 = this.alu("sub", var9, 22);
+               this.A(var10);
+               this.pc('\ud433', 1);
+               int var11 = this.A();
+               int var12 = this.alu("and", var11, 127);
+               this.A(var12);
+               this.pc('\ud435', 1);
+               int var13 = this.A();
+               this.wMem('\ud1ec', var13, '\ud435');
+               this.pc('\ud438', 1);
+               break;
+            }
+
+            this.pc('\ud43a', 1);
+            this.A(37);
+            this.pc('\ud43c', 1);
+            this.$E55D();
+            this.pc('\ud43f', 1);
+            if(!this.flag(64, false)) {
+               this.pc('\ud441', 1);
+               int var2 = this.mem('\ud1ec', '\ud441');
+               this.A(var2);
+               this.pc('\ud444', 1);
+               int var3 = this.A();
+               int var4 = this.alu("add", var3, 22);
+               this.A(var4);
+               this.pc('\ud446', 1);
+               int var5 = this.A();
+               int var6 = this.alu("and", var5, 127);
+               this.A(var6);
+               this.pc('\ud448', 1);
+               int var7 = this.A();
+               this.wMem('\ud1ec', var7, '\ud448');
+               this.pc('\ud44b', 1);
+               break;
+            }
+         }
+
+         this.pc('\ud3e7', 1);
+         this.$E45C();
+      }
    }
 
-   public void $D3EA() {
-      this.pc('\ud3ea', 1);
-      this.A(18);
-
-      try {
-         this.pc('\ud3ec', 1);
-         this.push('\ud3ef');
-         this.$E55D();
-         this.pop();
-      } catch (StackException var2) {
-         if(var2.getNextPC() == '\ud3ef') {
-            this.untranslated('\ud3ef');
-         } else {
-            throw var2;
-         }
-      }
+   public int $D484() {
+      this.pc('\ud484', 1);
+      this.A(3);
+      this.pc('\ud486', 1);
+      this.$F740();
+      this.pc('\ud489', 1);
+      return '\ud238';
    }
 
    public void $D48E() {
@@ -11674,6 +11815,25 @@ public class Dizzy extends MiniZX {
          this.$E27F();
          this.pc('\uf513', 1);
       }
+   }
+
+   public void $F514() {
+      this.pc('\uf514', 1);
+      this.$F4F8();
+      this.pc('\uf517', 1);
+      int var1 = this.mem('\uf4ec', '\uf517');
+      this.A(var1);
+      this.pc('\uf51a', 1);
+      int var2 = this.A();
+      int var3 = this.alu("dec", var2);
+      this.A(var3);
+      this.pc('\uf51b', 1);
+      int var4 = this.A();
+      this.wMem('\uf4ec', var4, '\uf51b');
+      this.pc('\uf51e', 1);
+      int var5 = this.A();
+      this.alu("cp", var5, 255);
+      this.pc('\uf520', 1);
    }
 
    public void $F521() {

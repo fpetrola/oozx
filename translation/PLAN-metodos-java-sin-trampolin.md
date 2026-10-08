@@ -306,3 +306,17 @@ Cada paso se verifica con los comandos de la sección 7: lockstep y reproducció
 - `RecordedProgramTests`: programas chicos en bytes que pasan por el mismo camino que los juegos grabados (huella, ejecución simbólica, generación). Un test por truco: CALL y JP C reescritos, cambio de opcode, operando reescrito, los dos POP de JSW, datos después del CALL (Emlyn 721D), RET como salto (Dizzy), CALL al JP (HL) de la ROM (Emlyn 162C), continuación plantada (Emlyn 616E), reinicio de pila (Dizzy F877) y el patrón de D015.
 
 Cada truco nuevo que aparezca en un juego entra primero como test en rojo en `RecordedProgramTests` o `RoutinesTests`.
+
+## 12. Cuarta parte: sin la cerca
+
+La cerca limitaba la ejecución simbólica a las direcciones que la grabación o las ramas bifurcadas habían ejecutado, más los sucesores estáticos de los saltos condicionales. Evitaba decodificar datos como código, pero también dejaba sin traducir los caminos que la grabación no recorrió. Se reemplazó por detecciones, cada una con su test en `RecordedProgramTests`:
+
+- **Interior de una instrucción**: no se decodifica desde adentro de una instrucción grabada (Emlyn FD20), salvo que esa dirección también sea el comienzo de una instrucción grabada (`LD A,n` cuyo operando es otra entrada).
+- **Datos después de un `CALL`**: los bytes que saltea un `CALL` con continuación aprendida, si nunca corrieron, son parte del `CALL` (`Footprint.span`); su bloque los incluye, así que `split` no deja la continuación del otro lado (Emlyn 648E).
+- **Código parcheado**: todo `LD (nn)` que la huella ejecutó o que quedó traducido marca como mutante la instrucción que escribe, aunque la grabación haya visto una sola versión (Equinox 7879, 7C08).
+- **Ramas bifurcadas imposibles**: una rama que vuelve a su nivel de pila con un `POP` del retorno no se reúne todavía con la grabación; una que salta por registro a un callejón sin salida (pantalla nunca ejecutada, 0000) no enseña nada (Emlyn 6075 → 57CB).
+- **Ejecución simbólica**: al volver a la otra rama de un condicional restaura también los retornos sacados con `POP`.
+
+Resultado: los cinco juegos pasan el lockstep completo y la reproducción de las fuentes; con teclas al azar Equinox llega al frame 24077 (13520 con cerca) y Emlyn igual que con cerca. Se fueron `fenced`, `reachable`, `admitAsCode`, `isRestrictedToRecording` e `isStaticSuccessor` (−32 líneas).
+
+Pendiente: lo que con teclas al azar todavía no se traduce es código al que solo se llega por destinos que dependen de datos y que las grabaciones nunca ejercitaron (la tabla del menú de Emlyn en 5C9E, el código de Equinox cerca de 7E00 que parchea por punteros).

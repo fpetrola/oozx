@@ -205,10 +205,8 @@ public class RoutineManager {
   public final List<CodeVariant> codeVariants = new ArrayList<>();
   public final java.util.Set<Integer> externalEntries = new java.util.TreeSet<>();
   private int codeStart;
-  private java.util.Set<Integer> reachable;
   private Map<Integer, Integer> spans = Map.of();
-  private boolean fenced = true;
-  private final java.util.Set<Integer> insideReachable = new java.util.HashSet<>();
+  private final java.util.Set<Integer> interiors = new java.util.HashSet<>();
 
   public List<CodeVariant> codeVariantsAt(int address) {
     return codeVariants.stream().filter(v -> v.entries(this).contains(address)).toList();
@@ -258,31 +256,17 @@ public class RoutineManager {
     this.codeStart = codeStart;
   }
 
-  public void setFenced(boolean fenced) {
-    this.fenced = fenced;
-  }
-
-  public void setReachable(Map<Integer, Integer> instructionLengths) {
-    this.reachable = fenced ? new java.util.HashSet<>(instructionLengths.keySet()) : null;
-    spans = instructionLengths;
-    instructionLengths.forEach((address, length) -> {
+  public void setSpans(Map<Integer, Integer> spans) {
+    this.spans = spans;
+    spans.forEach((address, length) -> {
       for (int i = 1; i < length; i++)
-        insideReachable.add(address + i & 0xffff);
+        interiors.add(address + i & 0xffff);
     });
-    insideReachable.removeAll(instructionLengths.keySet());
-  }
-
-  public boolean isRestrictedToRecording() {
-    return reachable != null;
-  }
-
-  public void admitAsCode(int address) {
-    if (reachable != null && !insideReachable.contains(address))
-      reachable.add(address);
+    interiors.removeAll(spans.keySet());
   }
 
   public boolean isCode(int address) {
-    return address >= codeStart && (originalAddress(address) != address || (reachable == null ? !insideReachable.contains(address) : reachable.contains(address)));
+    return address >= codeStart && (originalAddress(address) != address || !interiors.contains(address));
   }
 
   public boolean isCalledFrom(Routine routine, int callAddress) {
@@ -403,9 +387,8 @@ public class RoutineManager {
     pushedReturnSites.clear();
     codeVariants.clear();
     externalEntries.clear();
-    reachable = null;
     spans = Map.of();
-    insideReachable.clear();
+    interiors.clear();
   }
 
   public void removeRoutine(Routine routine) {

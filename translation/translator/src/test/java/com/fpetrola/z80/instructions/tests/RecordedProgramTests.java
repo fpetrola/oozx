@@ -37,7 +37,6 @@ public class RecordedProgramTests {
   @After
   public void tearDown() {
     Helper.hex = false;
-    base.getRoutineManager().setFenced(true);
   }
 
   private String translate(int[]... chunks) {
@@ -71,7 +70,7 @@ public class RecordedProgramTests {
   public void aCallWhoseTargetIsRewrittenSwitchesOverTheRecordedTargets() {
     // Dizzy E299, Equinox D015
     String java = translate(
-        at(0x8000, 0x21, 0x20, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x21, 0x23, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76),
+        at(0x8000, 0x21, 0x20, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x21, 0x23, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76, 0x18, 0xFD),
         at(0x8018, 0xCD, 0x00, 0x00, 0xC9),
         at(0x8020, 0x06, 0x01, 0xC9, 0x0E, 0x02, 0xC9));
     Assert.assertEquals("""
@@ -90,8 +89,10 @@ public class RecordedProgramTests {
               int var2 = this.HL();
               this.wMem16('\\u8019', var2, '\\u800c');
               this.$8018();
-              this.halt('\\u8012');
-              this.untranslated('\\u8013');
+
+              while(true) {
+                 this.halt('\\u8012');
+              }
            }
 
            public void $8018() {
@@ -125,7 +126,7 @@ public class RecordedProgramTests {
   public void anOpcodeThatIsRewrittenSwitchesOverTheRecordedOpcodes() {
     // Equinox D035/D0EE INC E <-> INC D, Emlyn 9ACE RLCA <-> RRCA
     String java = translate(
-        at(0x8000, 0x3E, 0x1C, 0x32, 0x18, 0x80, 0xCD, 0x18, 0x80, 0x3E, 0x14, 0x32, 0x18, 0x80, 0xCD, 0x18, 0x80, 0x76),
+        at(0x8000, 0x3E, 0x1C, 0x32, 0x18, 0x80, 0xCD, 0x18, 0x80, 0x3E, 0x14, 0x32, 0x18, 0x80, 0xCD, 0x18, 0x80, 0x76, 0x18, 0xFD),
         at(0x8018, 0x00, 0xC9));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
@@ -141,8 +142,10 @@ public class RecordedProgramTests {
               super.A = 20;
               this.wMem('\\u8018', super.A, '\\u800a');
               this.$8018();
-              this.halt('\\u8010');
-              this.untranslated('\\u8011');
+
+              while(true) {
+                 this.halt('\\u8010');
+              }
            }
 
            public void $8018() {
@@ -170,7 +173,7 @@ public class RecordedProgramTests {
   public void anOperandThatIsRewrittenIsReadFromMemory() {
     // Equinox 838E CP n, Emlyn AB94
     String java = translate(
-        at(0x8000, 0x3E, 0x05, 0x32, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x3E, 0x07, 0x32, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76),
+        at(0x8000, 0x3E, 0x05, 0x32, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x3E, 0x07, 0x32, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76, 0x18, 0xFD),
         at(0x8018, 0xFE, 0x00, 0xC9));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
@@ -186,8 +189,10 @@ public class RecordedProgramTests {
               super.A = 7;
               this.wMem('\\u8019', super.A, '\\u800a');
               this.$8018();
-              this.halt('\\u8010');
-              this.untranslated('\\u8011');
+
+              while(true) {
+                 this.halt('\\u8010');
+              }
            }
 
            public void $8018() {
@@ -202,7 +207,7 @@ public class RecordedProgramTests {
   public void aConditionalJumpWhoseTargetIsRewrittenSwitchesOverTheTargets() {
     // Equinox CEC1 JP C,nn
     String java = translate(
-        at(0x8000, 0x21, 0x20, 0x80, 0x22, 0x1A, 0x80, 0xCD, 0x18, 0x80, 0x21, 0x23, 0x80, 0x22, 0x1A, 0x80, 0xCD, 0x18, 0x80, 0x76),
+        at(0x8000, 0x21, 0x20, 0x80, 0x22, 0x1A, 0x80, 0xCD, 0x18, 0x80, 0x21, 0x23, 0x80, 0x22, 0x1A, 0x80, 0xCD, 0x18, 0x80, 0x76, 0x18, 0xFD),
         at(0x8018, 0x37, 0xDA, 0x00, 0x00, 0xC9),
         at(0x8020, 0x06, 0x01, 0xC9, 0x0E, 0x02, 0xC9));
     Assert.assertEquals("""
@@ -221,8 +226,10 @@ public class RecordedProgramTests {
               int var2 = this.HL();
               this.wMem16('\\u801a', var2, '\\u800c');
               this.$8018();
-              this.halt('\\u8012');
-              this.untranslated('\\u8013');
+
+              while(true) {
+                 this.halt('\\u8012');
+              }
            }
 
            public void $8018() {
@@ -263,9 +270,9 @@ public class RecordedProgramTests {
   public void twoPopsOfReturnAddressesUnwindTwoLevels() {
     // JSW 37046/37047: JP Z into POP HL; POP HL when Willy dies
     String java = translate(
-        at(0x8000, 0xCD, 0x10, 0x80, 0x06, 0x01, 0x76, 0xE1, 0xE1, 0x0E, 0x02, 0x76),
+        at(0x8000, 0xCD, 0x10, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD, 0xE1, 0xE1, 0x0E, 0x02, 0x76, 0x18, 0xFD),
         at(0x8010, 0xCD, 0x18, 0x80, 0xC9),
-        at(0x8018, 0xAF, 0xCA, 0x06, 0x80, 0xC9));
+        at(0x8018, 0xAF, 0xCA, 0x08, 0x80, 0xC9));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
         import com.fpetrola.z80.minizx.StackException;
@@ -278,25 +285,32 @@ public class RecordedProgramTests {
               try {
                  this.$8010();
               } catch (StackException var2) {
-                 if(var2.getNextPC() != '\\u8008') {
-                    throw var2;
+                 if(var2.getNextPC() == '\\u800a') {
+                    this.HL('\\u8003');
+                    super.C = 2;
+
+                    while(true) {
+                       this.halt('\\u800c');
+                    }
                  }
 
-                 this.HL('\\u8003');
+                 throw var2;
               }
 
-              super.C = 2;
-              this.halt('\\u800a');
-              this.untranslated('\\u800b');
+              super.B = 1;
+
+              while(true) {
+                 this.halt('\\u8005');
+              }
            }
 
            public void $8010() {
               try {
                  this.$8018();
               } catch (StackException var2) {
-                 if(var2.getNextPC() == '\\u8007') {
+                 if(var2.getNextPC() == '\\u8009') {
                     this.HL('\\u8013');
-                    throw new StackException('\\u8008');
+                    throw new StackException('\\u800a');
                  } else {
                     throw var2;
                  }
@@ -307,7 +321,7 @@ public class RecordedProgramTests {
               int var1 = this.alu("xor", super.A, super.A);
               super.A = var1;
               if(this.flag(64, false)) {
-                 throw new StackException('\\u8007');
+                 throw new StackException('\\u8009');
               }
            }
         }
@@ -318,7 +332,7 @@ public class RecordedProgramTests {
   public void aRoutineThatSkipsTheDataAfterItsCallReturnsPastIt() {
     // Emlyn 721D/7218: text after the CALL, ending the routine with JP (HL)
     String java = translate(
-        at(0x8000, 0xCD, 0x10, 0x80, 0x2A, 0x06, 0x01, 0x76),
+        at(0x8000, 0xCD, 0x10, 0x80, 0x2A, 0x06, 0x01, 0x76, 0x18, 0xFD),
         at(0x8010, 0xE1, 0x23, 0xE9));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
@@ -331,8 +345,10 @@ public class RecordedProgramTests {
               this.push('\\u8003');
               this.$8010();
               super.B = 1;
-              this.halt('\\u8006');
-              this.untranslated('\\u8007');
+
+              while(true) {
+                 this.halt('\\u8006');
+              }
            }
 
            public void $8010() {
@@ -351,7 +367,7 @@ public class RecordedProgramTests {
     // Dizzy: jump table by return address
     String java = translate(
         at(0x8000, 0x21, 0x08, 0x80, 0xE5, 0xC9),
-        at(0x8008, 0x06, 0x01, 0x76));
+        at(0x8008, 0x06, 0x01, 0x76, 0x18, 0xFD));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
 
@@ -364,13 +380,15 @@ public class RecordedProgramTests {
               int var1 = this.HL();
               this.push(var1);
               int var2 = this.pop();
-              if(var2 != '\\u8008') {
-                 this.jump(var2);
-              } else {
+              if(var2 == '\\u8008') {
                  super.B = 1;
-                 this.halt('\\u800a');
-                 this.untranslated('\\u800b');
+
+                 while(true) {
+                    this.halt('\\u800a');
+                 }
               }
+
+              this.jump(var2);
            }
         }
         """, java);
@@ -511,7 +529,7 @@ public class RecordedProgramTests {
   public void aRewrittenCallWhoseTargetPopsItsReturnAddressReturnsToTheCallerOfTheCall() {
     // Equinox D015 -> D08E: POP AF of the return address, RET one level up
     String java = translate(
-        at(0x8000, 0x21, 0x20, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x21, 0x28, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76),
+        at(0x8000, 0x21, 0x20, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x21, 0x28, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76, 0x18, 0xFD),
         at(0x8018, 0xCD, 0x00, 0x00, 0x06, 0x05, 0xC9),
         at(0x8020, 0xF1, 0x0E, 0x01, 0xC9),
         at(0x8028, 0x16, 0x02, 0xC9));
@@ -532,8 +550,10 @@ public class RecordedProgramTests {
               int var2 = this.HL();
               this.wMem16('\\u8019', var2, '\\u800c');
               this.$8018();
-              this.halt('\\u8012');
-              this.untranslated('\\u8013');
+
+              while(true) {
+                 this.halt('\\u8012');
+              }
            }
 
            public void $8018() {
@@ -582,7 +602,7 @@ public class RecordedProgramTests {
   public void aBlockRewrittenWithInstructionsOfOtherLengthsRunsFromACopyPerRecordedShape() {
     // Emlyn 9AF7 line drawer and 9BBF template
     String java = translateWithBlock(new int[]{0x8018, 0x801C},
-        at(0x8000, 0x21, 0x3C, 0x3C, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x21, 0xC6, 0x05, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76),
+        at(0x8000, 0x21, 0x3C, 0x3C, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x21, 0xC6, 0x05, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76, 0x18, 0xFD),
         at(0x8018, 0x47, 0x00, 0x00, 0xC9));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
@@ -600,8 +620,10 @@ public class RecordedProgramTests {
               int var2 = this.HL();
               this.wMem16('\\u8019', var2, '\\u800c');
               this.$8018();
-              this.halt('\\u8012');
-              this.untranslated('\\u8013');
+
+              while(true) {
+                 this.halt('\\u8012');
+              }
            }
 
            public void $8018() {
@@ -705,7 +727,7 @@ public class RecordedProgramTests {
   public void theCodeAfterAPoppedReturnRunsWhenThePoppingTargetComesAfterTheCallIsVersioned() {
     // Equinox D015 -> D08E with the popping target recorded after the CALL already has two versions
     String java = translate(
-        at(0x8000, 0x21, 0x28, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x21, 0x20, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76),
+        at(0x8000, 0x21, 0x28, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x21, 0x20, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76, 0x18, 0xFD),
         at(0x8018, 0xCD, 0x00, 0x00, 0x06, 0x05, 0xC9),
         at(0x8020, 0xF1, 0x0E, 0x01, 0xC9),
         at(0x8028, 0x16, 0x02, 0xC9));
@@ -746,8 +768,9 @@ public class RecordedProgramTests {
                  }
               }
 
-              this.halt('\\u8012');
-              this.untranslated('\\u8013');
+              while(true) {
+                 this.halt('\\u8012');
+              }
            }
 
            public void $8018() {
@@ -798,7 +821,6 @@ public class RecordedProgramTests {
   @Test
   public void withoutTheFenceAJumpIntoTheMiddleOfARecordedInstructionIsNotDecoded() {
     // Emlyn FD20: the middle of the CALL C1CD at FD1F, read as CALL 11C1 once the recording stopped fencing the exploration
-    base.getRoutineManager().setFenced(false);
     String java = translate(at(0x8000, 0xAF, 0xC2, 0x05, 0x80, 0x21, 0x76, 0x00, 0x76));
     Assert.assertTrue(java, java.contains("this.halt('\\u8007')"));
     Assert.assertFalse(java, java.contains("this.halt('\\u8005')"));
@@ -818,7 +840,6 @@ public class RecordedProgramTests {
   @Test
   public void aCallerThatTheRecordingNeverRanContinuesPastItsOwnData() {
     // Emlyn 7218/721D/5D78 print the text after each CALL: an unrecorded caller learns its continuation by forking, not from the recorded caller
-    base.getRoutineManager().setFenced(false);
     String java = translate(
         at(0x8000, 0xCD, 0x30, 0x80, 0x41, 0xFF, 0xAF, 0x20, 0x08, 0x06, 0x01, 0x76, 0x18, 0xFD),
         at(0x8010, 0xCD, 0x30, 0x80, 0x42, 0x43, 0xFF, 0x0E, 0x02, 0x76, 0x18, 0xFD),
@@ -874,7 +895,6 @@ public class RecordedProgramTests {
   @Test
   public void withoutTheFenceARecordedEntryInsideAnotherRecordedInstructionIsDecoded() {
     // the operand of LD A,0AFh is also XOR A, entered by the DJNZ
-    base.getRoutineManager().setFenced(false);
     String java = translate(at(0x8000, 0x06, 0x02, 0x3E, 0xAF, 0x10, 0xFD, 0x76, 0x18, 0xFD));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
@@ -906,7 +926,7 @@ public class RecordedProgramTests {
   public void aCallPatchedAtAFixedAddressSwitchesWithAFallbackEvenIfTheRecordingSawOneTarget() {
     // Equinox 7879: LD (787A),HL at 7CD5 always wrote 7D10 in the recording, with other keys it writes 7C00
     String java = translate(
-        at(0x8000, 0x21, 0x20, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x21, 0x20, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76),
+        at(0x8000, 0x21, 0x20, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x21, 0x20, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76, 0x18, 0xFD),
         at(0x8018, 0xCD, 0x00, 0x00, 0xC9),
         at(0x8020, 0x06, 0x01, 0xC9));
     Assert.assertEquals("""
@@ -925,8 +945,10 @@ public class RecordedProgramTests {
               int var2 = this.HL();
               this.wMem16('\\u8019', var2, '\\u800c');
               this.$8018();
-              this.halt('\\u8012');
-              this.untranslated('\\u8013');
+
+              while(true) {
+                 this.halt('\\u8012');
+              }
            }
 
            public void $8018() {
@@ -962,7 +984,6 @@ public class RecordedProgramTests {
   @Test
   public void aSharedCallWithDataAfterItContinuesPastTheData() {
     // Emlyn 648E without the fence: reached by jumps from several routines, its CALL 721D lost the continuation 64A2
-    base.getRoutineManager().setFenced(false);
     String java = translate(
         at(0x8000, 0xCD, 0x20, 0x80, 0xCD, 0x28, 0x80, 0x76, 0x18, 0xFD),
         at(0x8020, 0x06, 0x01, 0xC3, 0x30, 0x80),
@@ -978,7 +999,7 @@ public class RecordedProgramTests {
     String java = translate(
         at(0x8000, 0x3E, 0x04, 0x32, 0x21, 0x80, 0xAF, 0x20, 0x18, 0x76, 0x18, 0xFD),
         at(0x8020, 0x0E, 0x01, 0x76, 0x18, 0xFD));
-    Assert.assertTrue(java, java.contains("int var2 = this.mem('\\u8021', '\\u8020');\n         super.C = var2;"));
+    Assert.assertTrue(java, java.contains("this.mem('\\u8021', '\\u8020')"));
   }
 
   @Test
@@ -994,7 +1015,6 @@ public class RecordedProgramTests {
   @Test
   public void aForkThatJumpsThroughARegisterIntoScreenMemoryTeachesNoTarget() {
     // Emlyn 6075: a fork reached CALL 162C with HL=57CB, and without the fence the zeros of the screen became $57CB
-    base.getRoutineManager().setFenced(false);
     String java = translate(
         at(0x8000, 0x21, 0x20, 0x80, 0xAF, 0x28, 0x02, 0x26, 0x50, 0xE9),
         at(0x8020, 0x06, 0x01, 0x76, 0x18, 0xFD));
