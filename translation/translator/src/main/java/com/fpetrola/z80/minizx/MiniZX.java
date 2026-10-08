@@ -146,10 +146,9 @@ public abstract class MiniZX extends SpectrumApplication {
   private void interrupt() {
     iff = iff2 = false;
     int vector = I << 8 | 0xff;
-    int handler = interruptMode == 2 ? mem[vector] | mem[vector + 1 & 0xffff] << 8 : 0x38;
-    for (fetchCounter++, R = R & 0x80 | R + 1 & 0x7f; mem[handler] == 0xc3; fetchCounter++, R = R & 0x80 | R + 1 & 0x7f)
-      handler = mem[handler + 1 & 0xffff] | mem[handler + 2 & 0xffff] << 8;
-    invokeMethod(handler);
+    fetchCounter++;
+    R = R & 0x80 | R + 1 & 0x7f;
+    invokeMethod(interruptMode == 2 ? mem[vector] | mem[vector + 1 & 0xffff] << 8 : 0x38);
     interrupts++;
   }
 

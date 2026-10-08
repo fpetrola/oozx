@@ -96,13 +96,13 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     stackAnalyzer.reset(getState());
     routineManager.setSpans(footprint.executed());
     symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
-    routineManager.externalEntries.addAll(footprint.returnAddressesOnStack());
+    routineManager.externalEntries.addAll(footprint.externalEntries());
     stackAnalyzer.nonLocalRets.keySet().forEach(ret -> routineManager.externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(ret)));
     routineManager.externalEntries.addAll(stackAnalyzer.calledThrough.values());
     routineManager.externalEntries.addAll(stackAnalyzer.codeVersions.successors());
     routineManager.externalEntries.add(start);
     stepUntilComplete(start);
-    Stream.of(IntStream.of(entries).boxed(), footprint.returnAddressesOnStack().stream(), stackAnalyzer.dynamicInvocation.values().stream(), stackAnalyzer.calledThrough.values().stream(), stackAnalyzer.codeVersions.successors().stream())
+    Stream.of(IntStream.of(entries).boxed(), footprint.externalEntries().stream(), stackAnalyzer.dynamicInvocation.values().stream(), stackAnalyzer.calledThrough.values().stream(), stackAnalyzer.codeVersions.successors().stream())
         .flatMap(addresses -> addresses).forEach(this::stepUntilComplete);
     footprint.codeBytes().forEach((site, bytes) -> {
       int continuation = site + bytes.length & 0xffff;

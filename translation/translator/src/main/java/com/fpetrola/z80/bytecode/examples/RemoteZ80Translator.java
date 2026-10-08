@@ -101,7 +101,7 @@ public class RemoteZ80Translator {
     return emulate(realCodeBytecodeCreationBase, EmulatedMiniZX.ofRecording(rzxFile, frames, realCodeBytecodeCreationBase.getStackAnalyzer()));
   }
 
-  public record Footprint(Map<Integer, int[]> codeBytes, Map<Integer, int[]> explored, StackAnalyzer learned, Set<Integer> returnAddressesOnStack, int[] finalMemory, CodeVersions versions, Set<Integer> romEntries) implements java.io.Serializable {
+  public record Footprint(Map<Integer, int[]> codeBytes, Map<Integer, int[]> explored, StackAnalyzer learned, Set<Integer> externalEntries, int[] finalMemory, CodeVersions versions, Set<Integer> romEntries) implements java.io.Serializable {
     public Set<Integer> modifiedCode() {
       return versions.modifiedBytes();
     }
@@ -145,19 +145,19 @@ public class RemoteZ80Translator {
 
     public static Footprint combine(List<Footprint> footprints) {
       Map<Integer, int[]> codeBytes = new HashMap<>(), explored = new HashMap<>();
-      Set<Integer> returnAddressesOnStack = new HashSet<>(), romEntries = new HashSet<>();
+      Set<Integer> externalEntries = new HashSet<>(), romEntries = new HashSet<>();
       StackAnalyzer learned = new StackAnalyzer(null);
       CodeVersions versions = new CodeVersions();
       footprints.forEach(footprint -> {
         footprint.codeBytes.forEach((address, bytes) -> recordVersion(codeBytes, versions, address, bytes));
         versions.addAll(footprint.versions);
         footprint.explored.forEach(explored::putIfAbsent);
-        returnAddressesOnStack.addAll(footprint.returnAddressesOnStack);
+        externalEntries.addAll(footprint.externalEntries);
         romEntries.addAll(footprint.romEntries);
         learned.learnFrom(footprint.learned);
       });
       learned.codeVersions = versions;
-      return new Footprint(codeBytes, explored, learned, returnAddressesOnStack, footprints.get(footprints.size() - 1).finalMemory, versions, romEntries);
+      return new Footprint(codeBytes, explored, learned, externalEntries, footprints.get(footprints.size() - 1).finalMemory, versions, romEntries);
     }
 
     public void install(Memory memory, int stackPointer) {
@@ -231,7 +231,7 @@ public class RemoteZ80Translator {
 
   public static Footprint footprint(java.util.function.Function<StackAnalyzer, EmulatedMiniZX> emulatorFor, int from) {
     Map<Integer, int[]> codeBytes = new HashMap<>();
-    Set<Integer> returnAddressesOnStack = new HashSet<>();
+    Set<Integer> externalEntries = new HashSet<>();
     CodeVersions versions = new CodeVersions();
     boolean[] started = {false};
     StackAnalyzer stackAnalyzer = new StackAnalyzer(null);
@@ -261,20 +261,25 @@ public class RemoteZ80Translator {
         pending[0] = conditional ? (ConditionalInstruction<?>) instruction : null;
         pendingAddress[0] = address;
         int[] memory = emulator[0].ooz80.getState().getMemory().getData();
-        for (int slot = emulator[0].ooz80.getState().getRegisterSP().read(); starting && slot < 0x10000 - 1 && returnAddressesOnStack.size() < 10; slot += 2)
-          returnAddressesOnStack.add(memory[slot] | memory[slot + 1] << 8);
+        for (int slot = emulator[0].ooz80.getState().getRegisterSP().read(); starting && slot < 0x10000 - 1 && externalEntries.size() < 10; slot += 2)
+          externalEntries.add(memory[slot] | memory[slot + 1] << 8);
         int[] bytes = new int[instruction.getLength()];
         for (int i = 0; i < bytes.length; i++)
           bytes[i] = memory[address + i & 0xffff];
         recordVersion(codeBytes, versions, address, bytes);
         patched.addAll(CodeVersions.fixedStoreTargets(address, instruction, memory));
       }
+
+      public void interruptedTo(int vector) {
+        if (started[0])
+          (vector < 0x4000 ? romEntries : externalEntries).add(vector);
+      }
     });
     play(emulator[0]);
     StackAnalyzer.collecting = false;
     versions.patched(patched, codeBytes);
-    returnAddressesOnStack.retainAll(codeBytes.keySet());
-    return new Footprint(codeBytes, explored, stackAnalyzer, returnAddressesOnStack, emulator[0].ooz80.getState().getMemory().getData().clone(), versions, romEntries).forgettingJumpsIntoData();
+    externalEntries.retainAll(codeBytes.keySet());
+    return new Footprint(codeBytes, explored, stackAnalyzer, externalEntries, emulator[0].ooz80.getState().getMemory().getData().clone(), versions, romEntries).forgettingJumpsIntoData();
   }
 
   private static int[] recordVersion(Map<Integer, int[]> codeBytes, CodeVersions versions, int address, int[] bytes) {

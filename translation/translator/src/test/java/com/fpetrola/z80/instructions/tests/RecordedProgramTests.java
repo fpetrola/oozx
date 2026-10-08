@@ -919,6 +919,21 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void anInterruptVectorInRamIsTranslatedAndTheInterruptEntersThroughIt() {
+    // R-Type: IM 2, the vector 8383 holds JP BE23 and nothing else reaches the handler
+    interruptEvery = 300;
+    int[] table = new int[1 + 257];
+    table[0] = 0x9000;
+    Arrays.fill(table, 1, table.length, 0x80);
+    translate(
+        at(0x8000, 0x3E, 0x90, 0xED, 0x47, 0xED, 0x5E, 0xFB, 0x3C, 0x18, 0xFD),
+        at(0x8080, 0xC3, 0x90, 0x80),
+        at(0x8090, 0x0C, 0xFB, 0xC9),
+        table);
+    Assert.assertTrue(routines(), routines().contains("8080"));
+  }
+
+  @Test
   public void aConditionalJumpIntoTheScreenIsNotExploredAsCode() {
     // the symbolic execution used to walk the zeros of the screen as NOPs up to the game's code, in sixteen routines
     translate(at(0x8000, 0xAF, 0xC2, 0x00, 0x50, 0x06, 0x01, 0x76, 0x18, 0xFD));
