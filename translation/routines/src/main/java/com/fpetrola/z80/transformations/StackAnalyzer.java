@@ -241,6 +241,7 @@ public class StackAnalyzer implements java.io.Serializable {
           if (left != null && left[3] != -1)
             confirmSwitch(left);
           leaving = lastStorePlace != -1 && place != lastStorePlace ? new int[]{pcValue, lastStorePlace, newSpAddress, -1, -1} : null;
+          lastStorePlace = -1;
           callSinceLoad = false;
           if (stackSwitches.containsValue(pcValue)) {
             switchHomeSp = oldSpAddress;
@@ -289,6 +290,7 @@ public class StackAnalyzer implements java.io.Serializable {
       public boolean visitingRet(Ret ret) {
         if (ret instanceof RetN)
           return false;
+        lastStorePlace = -1;
         if (leaving != null && leaving[3] == -1 && !callSinceLoad && state.getRegisterSP().read() >= leaving[2]) {
           int[] memory = state.getMemory().getData();
           leaving[3] = pcValue;
