@@ -273,7 +273,6 @@ public class RoutineBytecodeGenerator {
         }));
       }
 
-
 //      mm.catch_(label10, StackException.class, (Variable exception) -> {
 //        ArrayList<Integer> points = new ArrayList<>(returnPoints);
 //        points.addAll(returnPointsDropped);
@@ -291,7 +290,6 @@ public class RoutineBytecodeGenerator {
 //      });
     }
 
-//    invokeReturnPoints(labels.get(routine.getEntryPoint()));
   }
 
   private boolean mutantCodeInInstruction(Instruction instruction, int address) {
@@ -587,36 +585,6 @@ public class RoutineBytecodeGenerator {
 
   private boolean consumedOutside(int push) {
     return stackAnalyzer().dataConsumedBy.entries().stream().anyMatch(e -> e.getValue() == push && !routine.contains(e.getKey()));
-  }
-
-  void invokeReturnPoints(Label label2) {
-    List<Integer> i = routine.getReturnPoints().values().stream().toList();
-    List<Integer> integers = new ArrayList<>(new HashSet<>(i));
-//    label2.insert(() -> {
-//      Variable nextAddress = getField("nextAddress").get();
-//      nextAddress.ifNe(0, () -> throwStackException(nextAddress, NotSolvedStackException.class));
-//    });
-    if (!integers.isEmpty()) {
-      List<java.lang.Integer> integers1 = integers.subList(0, Math.min(1, integers.size() - 1));
-      integers.forEach(ga -> insertIfNextPc(ga, label2));
-    }
-  }
-
-  private void insertIfNextPc(java.lang.Integer ga, Label label2) {
-    label2.insert(() -> {
-      Variable isNextPC = mm.invoke("isNextPC", ga);
-      isNextPC.ifTrue(() -> {
-        Label label1 = getLabel(ga);
-        if (label1 != null) {
-          label1.goto_();
-        } else {
-          throwStackException(ga + 1, StackException.class);
-//              Variable nextAddress = routineByteCodeGenerator.getField("nextAddress");
-//              nextAddress.set(ga + 1);
-//              routineByteCodeGenerator.returnFromMethod();
-        }
-      });
-    });
   }
 
   public static class RoutineRegisterAccumulator<S> implements RoutineVisitor<List<S>> {

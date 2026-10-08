@@ -103,21 +103,6 @@ public class Routine {
   private boolean overlap(Routine routine) {
 //    return Block.testOverlap(getStartAddress(), getEndAddress(), routine.getStartAddress(), routine.getEndAddress());
     return overlapByBlocks(routine);
-//    return overlapByRecursive(routine);
-  }
-
-  private boolean overlapByRecursive(Routine routine) {
-    boolean overlap = false;
-    for (int i = 0; i < routine.getBlocks().size(); i++) {
-      for (int j = 0; j < getBlocks().size(); j++) {
-        Block block = routine.getBlocks().get(i);
-        Block block1 = getBlocks().get(j);
-        if (block.overlap(block1))
-          overlap = true;
-      }
-    }
-
-    return overlap;
   }
 
   private boolean overlapByBlocks(Routine routine) {
@@ -141,11 +126,6 @@ public class Routine {
 
   private List<Block> getAllBlocksInDepth(List<Routine> routine) {
     return routine.stream().map(r -> new ArrayList<>(r.getBlocks())).flatMap(List::stream).collect(Collectors.toList());
-  }
-
-  public void growTo(int address, int length) {
-    Block nearestBlock = findNearestBlock(address);
-    nearestBlock.growBlockTo(address + length - 1);
   }
 
   public Block findNearestBlock(int address) {
@@ -211,7 +191,6 @@ public class Routine {
       }
     });
   }
-
 
   private static void updateReturnPointsDropped(Routine routineAt, MultiValuedMap<Integer, Integer> returnPointsDropped, Routine routine) {
     routine.getReturnPointsDropped().putAll(returnPointsDropped);
@@ -369,7 +348,6 @@ public class Routine {
     returnPointsDropped.put(returnAddress, pc);
   }
 
-
   public void finish() {
     optimize();
     finished = true;
@@ -381,7 +359,6 @@ public class Routine {
     List<String> allRegisters = asList("AF", "BC", "DE", "HL", "IX", "IY", "A", "F", "B", "C", "D", "E", "H", "L", "IXL", "IXH", "IYL", "IYH");
     allRegisters.forEach(routineVisitor::visitParameter);
 //    parameters.stream().filter(p -> !p.contains("x")).forEach(routineVisitor::visitParameter);
-
 
 //    allRegisters.forEach(routineVisitor::visitReturnValue);
 
@@ -404,35 +381,6 @@ public class Routine {
       lastInstruction[0] = instruction;
     }
     return routineVisitor.getResult();
-  }
-
-  public Routine createInnerRoutineBetween(int startAddress, int endAddress) {
-    Routine[] result = new Routine[1];
-    Optional<Block> first = blocks.stream().filter(b -> b.contains(startAddress)).findFirst();
-    if (first.isEmpty())
-      System.out.println("wow");
-    else {
-      Block block = first.get();
-      BlocksManager blocksManager = block.getBlocksManager();
-      if (block.getRangeHandler().getStartAddress() <= startAddress && block.getRangeHandler().getEndAddress() >= endAddress) {
-        List<Block> blocksBetween = blocksManager.getBlocksBetween(startAddress, endAddress);
-        Block split = blocksBetween.get(blocksBetween.size() - 1).split(endAddress);
-        Block split3 = blocksBetween.get(0).split(startAddress - 1);
-        List<Block> blocksBetween2 = blocksManager.getBlocksBetween(startAddress, endAddress);
-
-        if (blocksBetween2.size() > 2)
-          System.out.println("dddddddddddddd");
-        Routine routine = new Routine(blocksBetween2, entryPoint, true);
-        addInnerRoutine(routine);
-        result[0] = routine;
-        routineManager.addRoutine(result[0]);
-
-      } else {
-        System.out.println("multiple routines inside");
-//      throw new RuntimeException("block is smaller");
-      }
-    }
-    return result[0];
   }
 
   public boolean contains(Routine routine) {

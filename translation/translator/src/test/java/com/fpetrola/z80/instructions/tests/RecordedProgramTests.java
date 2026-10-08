@@ -10,6 +10,7 @@ import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.minizx.DefaultMiniZXIO;
 import com.fpetrola.z80.minizx.MiniZX;
+import com.fpetrola.z80.minizx.SpectrumApplication;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.routines.RoutineManager;
@@ -26,8 +27,10 @@ import org.junit.runner.RunWith;
 import javax.tools.ToolProvider;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +44,7 @@ import java.util.stream.Stream;
 public class RecordedProgramTests {
   private static final int START = 0x8000, STACK = 0xFF00;
   private final RealCodeBytecodeCreationBase base;
+  private final Set<Integer> stackPointerSnapshots = new java.util.HashSet<>();
   private RoutineManager routineManager;
   private StackAnalyzer stackAnalyzer;
   private CodeVersions versions;
@@ -123,7 +127,11 @@ public class RecordedProgramTests {
   private static class Finished extends RuntimeException {
   }
 
-  private static void assertRunsLikeTheEmulator(MiniZX program, int[] memory) {
+  private void savesStackPointerAt(int address) {
+    stackPointerSnapshots.addAll(List.of(address, address + 1));
+  }
+
+  private void assertRunsLikeTheEmulator(MiniZX program, int[] memory) {
     EmulatedMiniZX emulator = EmulatedMiniZX.ofProgram(memory, START, STACK, 0, null);
     emulator.start();
     State z80 = emulator.ooz80.getState(), translated = EmulatedMiniZX.createOOZ80(new DefaultMiniZXIO()).getState();
@@ -148,8 +156,19 @@ public class RecordedProgramTests {
       program.run(START);
     } catch (Finished finished) {
     }
+    Assert.assertNull("the recorded path never falls back to the emulator", mutantExecutorOf(program));
     int[] expected = z80.getMemory().getData();
-    Assert.assertEquals("", IntStream.range(0, 0x10000).filter(a -> (a < STACK - 0x100 || a >= STACK) && program.mem[a] != expected[a]).limit(8).mapToObj(a -> "%04X z80 %02X java %02X ".formatted(a, expected[a], program.mem[a])).collect(Collectors.joining()));
+    Assert.assertEquals("", IntStream.range(0, 0x10000).filter(a -> (a < STACK - 0x100 || a >= STACK) && !stackPointerSnapshots.contains(a) && program.mem[a] != expected[a]).limit(8).mapToObj(a -> "%04X z80 %02X java %02X ".formatted(a, expected[a], program.mem[a])).collect(Collectors.joining()));
+  }
+
+  private static Object mutantExecutorOf(MiniZX program) {
+    try {
+      Field field = SpectrumApplication.class.getDeclaredField("mutantExecutor");
+      field.setAccessible(true);
+      return field.get(program);
+    } catch (ReflectiveOperationException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private static String registers(State state) {
@@ -524,5 +543,146 @@ public class RecordedProgramTests {
     Assert.assertEquals(footprint.learned().callContinuations, read.learned().callContinuations);
     Assert.assertEquals(footprint.learned().shiftedReturns, read.learned().shiftedReturns);
     Assert.assertEquals(footprint.romEntries(), read.romEntries());
+  }
+
+  @Test
+  public void aRoutineThatUsesTheStackAsADataPointerStillReturnsToItsCaller() {
+    // Emlyn: LD (nn),SP / LD SP,data / POPs / LD SP,(nn), the pops are reads of a table, not returns
+    savesStackPointerAt(0x9020);
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0xED, 0x73, 0x20, 0x90, 0x31, 0x00, 0x90, 0xE1, 0xD1, 0xED, 0x7B, 0x20, 0x90, 0xC9),
+        at(0x9000, 0x34, 0x12, 0x78, 0x56));
+    Assert.assertEquals("8000 8010", routines());
+    Assert.assertTrue(stackAnalyzer.poppedCallSites.isEmpty());
+    Assert.assertFalse(stackAnalyzer.callContinuations.containsKey(0x8000));
+  }
+
+  @Test
+  public void aCallSiteWhoseContinuationDependsOnARegisterIsAJumpTable() {
+    // Dizzy: CALL dispatcher, which pops the return address, adds an index and jumps there
+    translate(
+        at(0x8000, 0x3E, 0x00, 0xCD, 0x20, 0x80, 0x3E, 0x05, 0xC3, 0x02, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8020, 0xE1, 0x5F, 0x16, 0x00, 0x19, 0xE9));
+    Assert.assertTrue(stackAnalyzer.jumpTableSites.contains(0x8002));
+    Assert.assertEquals(Set.of(0x8005, 0x800A), Set.copyOf(stackAnalyzer.dynamicInvocation.get(0x8025)));
+    Assert.assertFalse(stackAnalyzer.callContinuations.containsKey(0x8002));
+  }
+
+  @Test
+  public void aJumpIntoTheRomReturnsToTheCallerOfTheRoutine() {
+    // a routine that ends with JP into a ROM routine: the ROM's RET returns to the routine's caller
+    translate(
+        at(0x0020, 0x16, 0x03, 0xC9),
+        at(0x8000, 0xCD, 0x10, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x0E, 0x02, 0xC3, 0x20, 0x00));
+    Assert.assertEquals("20 8000 8010", routines());
+  }
+
+  @Test
+  public void aCallNotTakenInTheRecordingIsExploredByAFork() {
+    translate(
+        at(0x8000, 0xAF, 0xC4, 0x20, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8020, 0x21, 0x34, 0x12, 0xC9));
+    Assert.assertEquals("8000 8020", routines());
+  }
+
+  @Test
+  public void aConditionalReturnTakenInTheRecordingHasItsOtherSideExploredByAFork() {
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0xCD, 0x20, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x3C, 0xC0, 0x3E, 0x04, 0x32, 0x21, 0x80, 0xC9),
+        at(0x8020, 0x0E, 0x01, 0xC9));
+    Assert.assertTrue(base.symbolicExecutionAdapter.getMutantAddress().contains(0x8021));
+  }
+
+  @Test
+  public void aForkThatLoopsForeverStopsAtItsBudget() {
+    translate(
+        at(0x8000, 0xAF, 0xC2, 0x10, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x18, 0xFE));
+    Assert.assertEquals("8000", routines());
+  }
+
+  @Test
+  public void aRoutineLeavesAPlantedContinuationForTheRoutineItJumpsTo() {
+    // Emlyn 616E: pushes 660D and jumps to a routine others call too; that routine's RET lands on the planted address
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0xCD, 0x20, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x21, 0x18, 0x80, 0xE5, 0xC3, 0x20, 0x80),
+        at(0x8018, 0x16, 0x03, 0xC9),
+        at(0x8020, 0x0E, 0x02, 0xC9));
+    Assert.assertEquals(Set.of(0x8013), Set.copyOf(stackAnalyzer.dataConsumedBy.get(0x8022)));
+    Assert.assertEquals(Set.of(0x8013), Set.copyOf(stackAnalyzer.dataOnTopAt.get(0x8014)));
+    Assert.assertEquals("8000 8010 8018 8020", routines());
+  }
+
+  @Test
+  public void twoRoutinesThatJumpToEachOtherRunThroughATrampoline() {
+    translate(
+        at(0x8000, 0x3E, 0x03, 0xCD, 0x10, 0x80, 0x3E, 0x02, 0xCD, 0x20, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x3D, 0xC8, 0xC3, 0x20, 0x80),
+        at(0x8020, 0x0C, 0xC3, 0x10, 0x80));
+    Assert.assertEquals(Set.of(0x8010, 0x8020), routineManager.routinesInJumpCycles(address -> Set.copyOf(stackAnalyzer.dynamicInvocation.get(address))).stream().map(Routine::getEntryPoint).collect(Collectors.toSet()));
+  }
+
+  @Test
+  public void aRoutineEnteredInTheMiddleFromAnotherRoutineIsSplitThere() {
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0xCD, 0x20, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x0E, 0x01, 0x16, 0x02, 0xC9),
+        at(0x8020, 0x1E, 0x03, 0xC3, 0x12, 0x80));
+    Assert.assertEquals("8000 8010 8012 8020", routines());
+  }
+
+  @Test
+  public void aRomEntryThatIsATrampolineThroughIxIsNotARoutine() {
+    translate(
+        at(0x0020, 0xDD, 0xE9),
+        at(0x8000, 0xDD, 0x21, 0x10, 0x80, 0xCD, 0x20, 0x00, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x0E, 0x02, 0xC9));
+    Assert.assertEquals("8000 8010", routines());
+    Assert.assertEquals(Set.of(0x8010), Set.copyOf(stackAnalyzer.calledThrough.get(0x8004)));
+  }
+
+  @Test
+  public void aReturnAfterPointingTheStackAtATableIsAJump() {
+    translate(
+        at(0x8000, 0x31, 0x00, 0x90, 0xC9),
+        at(0x8010, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x9000, 0x10, 0x80));
+    Assert.assertEquals(Set.of(0x8010), Set.copyOf(stackAnalyzer.dynamicInvocation.get(0x8003)));
+  }
+
+  @Test
+  public void exchangesBlockInstructionsAndSixteenBitDecrementsRunLikeTheEmulator() {
+    translate(
+        at(0x8000, 0x21, 0x34, 0x12, 0x01, 0x78, 0x56, 0xC5, 0xE3, 0xD1, 0x08, 0x3E, 0x07, 0x08, 0xD9, 0x0B, 0xD9, 0x21, 0x00, 0x90, 0x01, 0x10, 0x00, 0x3E, 0x03, 0xED, 0xB1,
+            0x11, 0x0F, 0x90, 0x21, 0x0E, 0x90, 0x01, 0x05, 0x00, 0xED, 0xB8, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x9000, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F));
+    Assert.assertEquals("8000", routines());
+  }
+
+  @Test
+  public void aRoutineTooLargeForOneJavaMethodIsSplit() {
+    int[] program = new int[4000 + 6];
+    program[0] = START;
+    Arrays.fill(program, 1, 4001, 0x3C);
+    System.arraycopy(new int[]{0x06, 0x01, 0x76, 0x18, 0xFD}, 0, program, 4001, 5);
+    translate(program);
+    Assert.assertTrue(routines(), routineManager.getRoutines().size() > 1);
+  }
+
+  @Test
+  public void theFootprintsOfTwoRecordingsCombineIntoOne() {
+    int[] first = new int[0x10000], second = new int[0x10000];
+    System.arraycopy(new int[]{0x06, 0x01, 0x76, 0x18, 0xFD}, 0, first, 0x8000, 5);
+    System.arraycopy(new int[]{0xC3, 0x10, 0x81}, 0, second, 0x8100, 3);
+    System.arraycopy(new int[]{0x0E, 0x02, 0x76, 0x18, 0xFD}, 0, second, 0x8110, 5);
+    RemoteZ80Translator.Footprint a = RemoteZ80Translator.footprint(stackAnalyzer -> EmulatedMiniZX.ofProgram(first, 0x8000, STACK, 1000, stackAnalyzer), 0x8000);
+    RemoteZ80Translator.Footprint b = RemoteZ80Translator.footprint(stackAnalyzer -> EmulatedMiniZX.ofProgram(second, 0x8100, STACK, 1000, stackAnalyzer), 0x8100);
+    Set<Integer> both = new java.util.TreeSet<>(a.codeBytes().keySet());
+    both.addAll(b.codeBytes().keySet());
+    Assert.assertEquals(both, new java.util.TreeSet<>(RemoteZ80Translator.Footprint.combine(List.of(a, b)).codeBytes().keySet()));
   }
 }

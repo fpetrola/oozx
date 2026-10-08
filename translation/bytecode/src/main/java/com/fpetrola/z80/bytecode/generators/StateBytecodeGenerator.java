@@ -87,8 +87,6 @@ public class StateBytecodeGenerator {
       getProgramBytesMaker.return_(bytes);
     }
 
-//    enhanceGameData(gameData);
-
     BytecodeGenerationContext bytecodeGenerationContext = new BytecodeGenerationContext(routineManager, classMaker, state.getPc(), symbolicExecutionAdapter, gameData, !translation);
 
 //    Routine routine1 = routineManager.getRoutines().stream().filter(r -> r.getEntryPoint() == 34463).findFirst().get();
@@ -174,36 +172,19 @@ public class StateBytecodeGenerator {
       blocks.subList(1, blocks.size()).forEach(block -> pieces.add(routine.split(block.getRangeHandler().getStartAddress())));
       return pieces;
     }
-    return jumpTargetNearestToMiddleOf(blocks.get(0)).map(target -> List.of(routine.split(target), routine)).orElse(List.of());
+    return cutNearestToMiddleOf(blocks.get(0)).map(target -> List.of(routine.split(target), routine)).orElse(List.of());
   }
 
-  private Optional<Integer> jumpTargetNearestToMiddleOf(Block block) {
+  private Optional<Integer> cutNearestToMiddleOf(Block block) {
     int start = block.getRangeHandler().getStartAddress(), end = block.getRangeHandler().getEndAddress(), middle = (start + end) / 2;
+    Comparator<Integer> nearestToMiddle = Comparator.comparingInt(target -> Math.abs(target - middle));
     return java.util.stream.Stream.concat(routineManager.callers.keySet().stream(), java.util.stream.IntStream.rangeClosed(start, end).map(address -> RoutineManager.fixedJumpTarget(routineManager.getInstructionAt(address))).boxed())
-        .filter(target -> target > start && target <= end).min(Comparator.comparingInt(target -> Math.abs(target - middle)));
+        .filter(target -> target > start && target <= end).min(nearestToMiddle)
+        .or(() -> java.util.stream.IntStream.range(start + 1, end).filter(address -> routineManager.getInstructionAt(address) != null && routineManager.getInstructionAt(address) != routineManager.getInstructionAt(address - 1)).boxed().min(nearestToMiddle));
   }
 
   private static int size(Routine routine) {
     return routine.getBlocks().stream().mapToInt(b -> b.getRangeHandler().getEndAddress() - b.getRangeHandler().getStartAddress() + 1).sum();
-  }
-
-  private void enhanceGameData(GameData gameData) {
-    for (LocalMemory localMemory : gameData.localMemoryList) {
-      Collection<Integer> isSpriteLocalMemory1 = CollectionUtils.intersection(gameData.spriteAddresses, localMemory.addresses);
-      if (!isSpriteLocalMemory1.isEmpty())
-        System.out.println("dsgdasg020224");
-
-      checkType(localMemory, Sprite, gameData.spriteAddresses);
-      checkType(localMemory, Sound, gameData.soundAddresses);
-      checkType(localMemory, Attribute, gameData.attributesAddresses);
-    }
-
-  }
-
-  private void checkType(LocalMemory localMemory, MemoryType memoryType, TreeSet<Integer> spriteAddresses) {
-    boolean typeMatches = spriteAddresses.containsAll(localMemory.addresses);
-    if (typeMatches)
-      localMemory.setType(memoryType);
   }
 
   public Map<String, byte[]> getBytecode() {

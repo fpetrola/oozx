@@ -26,14 +26,9 @@ import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.routines.CodeVersions;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
-import io.korhner.asciimg.image.AsciiImgCache;
-import io.korhner.asciimg.image.character_fit_strategy.StructuralSimilarityFitStrategy;
-import io.korhner.asciimg.image.converter.AsciiToStringConverter;
 import org.apache.commons.text.CaseUtils;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -83,7 +78,6 @@ public class RemoteZ80Translator {
     int startRoutineAddress = 34762;
     String screenURL = "https://tcrf.net/images/3/3a/Jet_Set_Willy-ZX_Spectrum-title.png";
     int emulateUntil = -1;
-
 
     if (args.length >= 4) {
       action = args[0];
@@ -419,21 +413,7 @@ public class RemoteZ80Translator {
     return base64Memory;
   }
 
-  private void drawPicture(String url) {
-    try {
-      File input = getRemoteFile(url, "", "/tmp/" + "screen");
-
-      AsciiImgCache cache = AsciiImgCache.create(new Font("Courier", Font.PLAIN, 2));
-      BufferedImage portraitImage = ImageIO.read(input);
-      AsciiToStringConverter stringConverter = new AsciiToStringConverter(cache, new StructuralSimilarityFitStrategy());
-      System.out.println(stringConverter.convertImage(portraitImage));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   public void translate(String action, String gameName, String url, int startRoutineAddress, String screeenURL, int emulateUntil) {
-    //  drawPicture(screeenURL);
     int firstAddress = startRoutineAddress;
     String base64Memory;
     if (emulateUntil > 0) {

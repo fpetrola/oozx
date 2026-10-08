@@ -201,7 +201,6 @@ public class SymbolicExecutionAdapter {
 
     executeAllCode(z80InstructionDriver, pc);
 
-//    processPending();
     checkPending();
     List<WriteMemoryReference> writeMemoryReferences = spy.getWriteMemoryReferences();
 
@@ -213,7 +212,6 @@ public class SymbolicExecutionAdapter {
         .filter(address -> !mutantAddress.contains(address) && !stackAnalyzer.codeVersions.inBlock(address) && routineManager.originalAddress(address) == address && routineManager.findRoutineAt(address) != null)
         .forEach(mutantAddress::add);
   }
-
 
   private void executeAllCode(Z80InstructionDriver z80InstructionDriver, Register pc) {
 
@@ -255,7 +253,6 @@ public class SymbolicExecutionAdapter {
     }
   }
 
-
   private boolean isTailCallToRom(int pcValue) {
     return routineManager.getInstructionAt(pcValue) instanceof JP jp && jp.getCondition() instanceof ConditionAlwaysTrue && !routineManager.isCode(jp.getJumpAddress());
   }
@@ -280,7 +277,6 @@ public class SymbolicExecutionAdapter {
       updatePcRegister(routineExecutorHandler.getCurrentRoutineExecution().getNextPending().address);
   }
 
-
   private int updatePcRegister(int pcValue) {
     logPC(pcValue);
     pc.write(pcValue);
@@ -290,24 +286,6 @@ public class SymbolicExecutionAdapter {
   private void logPC(int pcValue) {
 //    System.out.println("PC: " + Helper.formatAddress(pcValue));
 //        System.out.println("BC: " + Helper.formatAddress(state.getRegister(RegisterName.BC).read()));
-  }
-
-
-
-  private void executingPending(int address) {
-    RoutineExecution routineExecutionAt = routineExecutorHandler.findRoutineExecutionContaining(address);
-    routineExecutorHandler.pushRoutineExecution(routineExecutionAt);
-    pc.write(address);
-    executeAllCode(z80InstructionDriver, pc);
-  }
-
-  private void processPending() {
-    Map<Integer, RoutineExecution> routineExecutions1 = routineExecutorHandler.getCopyListOfRoutineExecutions();
-    routineExecutions1.entrySet().forEach(e -> {
-      if (e.getValue().hasPendingPoints()) {
-        executingPending(e.getValue().getStart());
-      }
-    });
   }
 
   private void checkPending() {
@@ -386,7 +364,6 @@ public class SymbolicExecutionAdapter {
         var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
         var callerRoutineExecution = routineExecutorHandler.findRoutineExecutionContaining(lastReturnAddress.pc());
 
-
         RoutineExecution popRoutine = lastRoutineExecution;
         List<RoutineExecution> stackedRoutines = new ArrayList<>();
         while (popRoutine != callerRoutineExecution) {
@@ -428,33 +405,4 @@ public class SymbolicExecutionAdapter {
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
