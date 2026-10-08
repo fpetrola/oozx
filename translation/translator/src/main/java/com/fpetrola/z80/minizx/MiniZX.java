@@ -23,6 +23,9 @@ import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulationBase;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyListener;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.locks.LockSupport;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -82,6 +85,37 @@ public abstract class MiniZX extends SpectrumApplication {
       } catch (StackException unwound) {
         address = unwound.getNextPC();
       }
+  }
+
+  private final Map<Integer, Thread> stacks = new HashMap<>();
+  private volatile int runningStack, leavingSp;
+  private volatile RuntimeException failure;
+
+  public void leavingStack() {
+    leavingSp = SP;
+  }
+
+  public void switchStack() {
+    int mine = leavingSp;
+    stacks.put(mine, Thread.currentThread());
+    runningStack = SP;
+    Thread other = stacks.get(SP);
+    if (other == null)
+      stacks.put(SP, Thread.ofVirtual().start(() -> {
+        try {
+          run(pop());
+        } catch (RuntimeException e) {
+          failure = e;
+        }
+        runningStack = mine;
+        LockSupport.unpark(stacks.get(mine));
+      }));
+    else
+      LockSupport.unpark(other);
+    while (runningStack != mine)
+      LockSupport.park();
+    if (failure != null)
+      throw failure;
   }
 
   public void halt(int address) {

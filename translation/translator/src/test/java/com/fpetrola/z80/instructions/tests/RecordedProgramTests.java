@@ -47,7 +47,7 @@ import java.util.stream.Stream;
 public class RecordedProgramTests {
   private static final int START = 0x8000, STACK = 0xFF00;
   private RealCodeBytecodeCreationBase base;
-  private final Set<Integer> stackPointerSnapshots = new java.util.HashSet<>();
+  private final Set<Integer> ignoredMemory = new java.util.HashSet<>();
   private int interruptEvery, start = START;
   private RoutineManager routineManager;
   private StackAnalyzer stackAnalyzer;
@@ -138,7 +138,11 @@ public class RecordedProgramTests {
   }
 
   private void savesStackPointerAt(int address) {
-    stackPointerSnapshots.addAll(List.of(address, address + 1));
+    ignoresMemory(address, address + 1);
+  }
+
+  private void ignoresMemory(int from, int to) {
+    IntStream.rangeClosed(from, to).forEach(ignoredMemory::add);
   }
 
   private void assertRunsLikeTheEmulator(MiniZX program, int[] memory) {
@@ -174,7 +178,7 @@ public class RecordedProgramTests {
     }
     Assert.assertNull("the recorded path never falls back to the emulator", mutantExecutorOf(program));
     int[] expected = z80.getMemory().getData();
-    Assert.assertEquals("", IntStream.range(0, 0x10000).filter(a -> (a < STACK - 0x100 || a >= STACK + 0x10) && !stackPointerSnapshots.contains(a) && program.mem[a] != expected[a]).limit(8).mapToObj(a -> "%04X z80 %02X java %02X ".formatted(a, expected[a], program.mem[a])).collect(Collectors.joining()));
+    Assert.assertEquals("", IntStream.range(0, 0x10000).filter(a -> (a < STACK - 0x100 || a >= STACK + 0x10) && !ignoredMemory.contains(a) && program.mem[a] != expected[a]).limit(8).mapToObj(a -> "%04X z80 %02X java %02X ".formatted(a, expected[a], program.mem[a])).collect(Collectors.joining()));
   }
 
   private static Object mutantExecutorOf(MiniZX program) {
@@ -754,7 +758,7 @@ public class RecordedProgramTests {
   public void programsCombiningTheKnownTricksAtRandomRunLikeTheEmulator() {
     for (int seed = 1; seed <= 24; seed++) {
       Random random = new Random(seed);
-      stackPointerSnapshots.clear();
+      ignoredMemory.clear();
       int[] data = {0x9000};
       List<int[]> chunks = new ArrayList<>();
       int count = 2 + random.nextInt(4);
@@ -962,5 +966,17 @@ public class RecordedProgramTests {
         at(STACK - 2, 0x10, 0x80, 0x00, 0x80));
     Assert.assertEquals(Set.of(-1), Set.copyOf(stackAnalyzer.returnsConsumedBy.get(0x802B)));
     Assert.assertEquals(Set.of(0x8026), Set.copyOf(stackAnalyzer.dataConsumedBy.get(0x802B)));
+  }
+
+  @Test
+  public void twoStacksThatHandControlToEachOtherRunAsCoroutines() {
+    // Zynaps 8D60/8D69: LD (a),SP; LD SP,(b); RET resumes the other stack where it last gave control away
+    ignoresMemory(0x9018, 0x901F);
+    translate(
+        at(0x8000, 0x21, 0x40, 0x80, 0x22, 0x1E, 0x90, 0x21, 0x1E, 0x90, 0x22, 0x1A, 0x90, 0xCD, 0x20, 0x80, 0x04, 0xCD, 0x20, 0x80, 0x04, 0x76, 0x18, 0xFD),
+        at(0x8020, 0xED, 0x73, 0x18, 0x90, 0xED, 0x7B, 0x1A, 0x90, 0xC9, 0xED, 0x73, 0x1A, 0x90, 0xED, 0x7B, 0x18, 0x90, 0xC9),
+        at(0x8040, 0x0C, 0xCD, 0x29, 0x80, 0x14, 0xCD, 0x29, 0x80, 0x18, 0xF6));
+    Assert.assertEquals(Set.of(0x8040, 0x8044), Set.copyOf(stackAnalyzer.dynamicInvocation.get(0x8028)));
+    Assert.assertEquals(Set.of(0x800F), Set.copyOf(stackAnalyzer.dynamicInvocation.get(0x8031)));
   }
 }

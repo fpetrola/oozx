@@ -60,6 +60,10 @@ public class StackAnalyzer implements java.io.Serializable {
   public final MultiValuedMap<Integer, Integer> pushedValues = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> calledThrough = new HashSetValuedHashMap<>();
   public final Set<Integer> jumpTableSites = new HashSet<>(), recordedPops = new HashSet<>();
+  public final Map<Integer, Integer> stackSwitches = new HashMap<>();
+  private transient int[] leaving;
+  private final transient Map<Integer, int[]> leftStacks = new HashMap<>();
+  private transient int switchHomeSp = -1;
   public final MultiValuedMap<Integer, Integer> nonLocalRets = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> returnSlots = new HashSetValuedHashMap<>();
   public static boolean collecting;
@@ -98,6 +102,30 @@ public class StackAnalyzer implements java.io.Serializable {
     stackAsRepository = new StackAsRepositoryState();
     pcValue = -1;
     initialized = false;
+  }
+
+
+  private boolean foreign(int oldSp, int newSp) {
+    if (newSp < oldSp || newSp - oldSp > 128)
+      return true;
+    for (int slot = oldSp; slot < newSp; slot += 2)
+      if (!entries.containsKey(slot))
+        return true;
+    return false;
+  }
+
+  private void confirmSwitch(int[] left) {
+    stackSwitches.put(left[3], left[0]);
+    nonLocalRets.remove(left[3]);
+    shiftedReturns.remove(left[3]);
+    returnsConsumedBy.remove(left[3]);
+    dataConsumedBy.remove(left[3]);
+    if (collecting)
+      dynamicInvocation.put(left[3], left[4]);
+  }
+
+  public int homeStackPointer() {
+    return switchHomeSp;
   }
 
   public RegisterName trampolineRegister(int address) {
@@ -204,6 +232,16 @@ public class StackAnalyzer implements java.io.Serializable {
         if (target instanceof Register register && register.getName().equals(SP.name())) {
           int newSpAddress = source.read();
           int oldSpAddress = register.read();
+          if (foreign(oldSpAddress, newSpAddress)) {
+            int[] left = leftStacks.remove(newSpAddress);
+            if (left != null && left[3] != -1)
+              confirmSwitch(left);
+            leaving = leaving != null && leaving[1] == newSpAddress ? null : new int[]{pcValue, oldSpAddress, newSpAddress, -1, -1};
+          }
+          if (stackSwitches.containsValue(pcValue)) {
+            switchHomeSp = oldSpAddress;
+            return;
+          }
           if (distance(oldSpAddress, newSpAddress) > 2000) {
             if (distance(stackAsRepository.spReadAt, pcValue) < 2000)
               usingStackAsRepository(newSpAddress, oldSpAddress);
@@ -247,6 +285,15 @@ public class StackAnalyzer implements java.io.Serializable {
       public boolean visitingRet(Ret ret) {
         if (ret instanceof RetN)
           return false;
+        if (leaving != null && leaving[3] == -1 && state.getRegisterSP().read() == leaving[2]) {
+          int[] memory = state.getMemory().getData();
+          leaving[3] = pcValue;
+          leaving[4] = memory[leaving[2]] | memory[leaving[2] + 1 & 0xffff] << 8;
+          leftStacks.put(leaving[1], leaving);
+          leaving = null;
+        }
+        if (stackSwitches.containsKey(pcValue))
+          return true;
         Entry entry = entryAtSp();
         boolean afterStackReset = state.getRegisterSP().read() == stackResetTo;
         stackResetTo = -1;
@@ -335,7 +382,7 @@ public class StackAnalyzer implements java.io.Serializable {
 
       public boolean visitingRet(Ret ret) {
         int nextPC = ret.getNextPC();
-        if (ret instanceof RetN || nextPC == -1)
+        if (ret instanceof RetN || nextPC == -1 || stackSwitches.containsKey(pcValue))
           return false;
         Entry consumedReturn = consumedReturns.get(poppedSlot());
         Entry entry = entries.remove(poppedSlot());
@@ -384,6 +431,9 @@ public class StackAnalyzer implements java.io.Serializable {
 
   public void forgetLearned() {
     dynamicInvocation.clear();
+    stackSwitches.clear();
+    leftStacks.clear();
+    leaving = null;
     callContinuations.clear();
     shiftedReturns.clear();
     dataConsumedBy.clear();
@@ -406,6 +456,7 @@ public class StackAnalyzer implements java.io.Serializable {
     recorded.jumpTableSites.forEach(this::jumpTableAt);
     recorded.shiftedReturns.entries().forEach(e -> learnContinuation(e.getKey(), e.getValue(), recorded.callContinuations.get(e.getValue())));
     recordedPops.addAll(recorded.recordedPops);
+    stackSwitches.putAll(recorded.stackSwitches);
     dataConsumedBy.putAll(recorded.dataConsumedBy);
     dataOnTopAt.putAll(recorded.dataOnTopAt);
     poppedCallSites.putAll(recorded.poppedCallSites);

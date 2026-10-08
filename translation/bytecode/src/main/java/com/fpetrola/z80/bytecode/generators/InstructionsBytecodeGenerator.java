@@ -334,6 +334,8 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
 
   public void visitingLd(Ld ld) {
+    if (routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().stackSwitches.containsValue(routineByteCodeGenerator.context.pc.read()))
+      methodMaker.invoke("leavingStack");
     if (ld.getSource() instanceof Register source && source.getName().equals(RegisterName.I.name())) {
       routineByteCodeGenerator.getExistingVariable("A").set(methodMaker.invoke("ldAI"));
       return;
@@ -361,7 +363,9 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     boolean consumesData = stackAnalyzer.dataConsumedBy.containsKey(pcValue) ? !ownPushes.isEmpty() && !returnsToACaller : !invocationsSet.isEmpty();
     Integer continuation = ownPushes.size() == 1 ? routineByteCodeGenerator.plantedContinuation(ownPushes.get(0)) : null;
     createIfs(ret, () -> {
-      if (routineByteCodeGenerator.context.routineManager.nonLocalReturns.containsKey(pcValue))
+      if (stackAnalyzer.stackSwitches.containsKey(pcValue))
+        methodMaker.invoke("switchStack");
+      else if (routineByteCodeGenerator.context.routineManager.nonLocalReturns.containsKey(pcValue))
         routineByteCodeGenerator.throwStackException(methodMaker.invoke("pop"), StackException.class);
       else if (continuation != null)
         routineByteCodeGenerator.invokeTransformedMethod(continuation);

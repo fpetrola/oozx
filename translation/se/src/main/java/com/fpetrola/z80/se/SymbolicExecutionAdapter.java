@@ -245,6 +245,12 @@ public class SymbolicExecutionAdapter {
         if (isTailCallToRom(pcValue)) {
           routineExecution.setRetInstruction(pcValue);
           next = routineExecution.hasPendingPoints() ? routineExecution.getNextPending().address : returnFromRom();
+        } else if (stackAnalyzer.stackSwitches.containsKey(pcValue)) {
+          state.getRegisterSP().write(stackAnalyzer.homeStackPointer());
+          if (routineExecution.hasPendingPoints())
+            next = routineExecution.getNextPending().address;
+          else
+            routineFinder.returnedTo(next = popReturnAddress());
         } else if (routineManager.getInstructionAt(pcValue) instanceof RST rst && !routineManager.isCode(rst.getP()) && routineManager.wasExecuted(pcValue + 1 & 0xffff))
           next = popReturnAddress();
         updatePcRegister(next);
