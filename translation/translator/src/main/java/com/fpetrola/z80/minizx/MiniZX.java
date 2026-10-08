@@ -87,9 +87,11 @@ public abstract class MiniZX extends SpectrumApplication {
       }
   }
 
-  private final Map<Integer, Thread> stacks = new HashMap<>();
+  private record Parked(Thread thread, int top) {}
+
+  private final Map<Integer, Parked> stacks = new HashMap<>();
   private volatile int runningStack, leavingSp;
-  private volatile RuntimeException failure;
+  private volatile Throwable failure;
 
   public void leavingStack() {
     leavingSp = SP;
@@ -97,25 +99,31 @@ public abstract class MiniZX extends SpectrumApplication {
 
   public void switchStack() {
     int mine = leavingSp;
-    stacks.put(mine, Thread.currentThread());
+    stacks.values().removeIf(parked -> parked.thread() == Thread.currentThread());
+    stacks.put(mine, new Parked(Thread.currentThread(), mem16(mine, -1)));
     runningStack = SP;
-    Thread other = stacks.get(SP);
-    if (other == null)
-      stacks.put(SP, Thread.ofVirtual().start(() -> {
+    Parked other = stacks.get(SP);
+    if (other == null || other.top() != mem16(SP, -1))
+      stacks.put(SP, new Parked(Thread.ofVirtual().start(() -> {
         try {
           run(pop());
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
           failure = e;
         }
         runningStack = mine;
-        LockSupport.unpark(stacks.get(mine));
-      }));
+        LockSupport.unpark(stacks.get(mine).thread());
+      }), mem16(SP, -1)));
     else
-      LockSupport.unpark(other);
+      LockSupport.unpark(other.thread());
     while (runningStack != mine)
       LockSupport.park();
     if (failure != null)
-      throw failure;
+      throw MiniZX.<RuntimeException>sneaky(failure);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T extends Throwable> T sneaky(Throwable failure) throws T {
+    throw (T) failure;
   }
 
   public void halt(int address) {
