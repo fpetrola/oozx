@@ -317,6 +317,7 @@ public class RemoteZ80Translator {
   }
 
   private static final int BRANCH_BUDGET = 500;
+  public static final int SCREEN_END = 0x5B00;
 
   private record Forks(Map<Integer, int[]> codeBytes, Set<Integer> landings, Map<Integer, int[]> explored, Map<Integer, Integer> forked, Set<Integer> unfinished) {
     private void exploreUntakenBranch(OOZ80 main, ConditionalInstruction<?> branch, int site, int taken, StackAnalyzer learned, int budget) {
@@ -384,7 +385,7 @@ public class RemoteZ80Translator {
     }
 
     private boolean deadEnd(int pc) {
-      return pc == 0 || pc >= 0x4000 && pc < 0x5B00 && !codeBytes.containsKey(pc);
+      return pc == 0 || pc >= 0x4000 && pc < SCREEN_END && !codeBytes.containsKey(pc);
     }
   }
 

@@ -757,7 +757,7 @@ public class RecordedProgramTests {
       for (int i = 0; i < count; i++) {
         int routine = 0x8100 + i * 0x40;
         System.arraycopy(new int[]{0xCD, lo(routine), hi(routine)}, 0, main, i * 3, 3);
-        chunks.addAll(trick(random.nextInt(13), routine, data, random));
+        chunks.addAll(trick(random.nextInt(15), routine, data, random));
       }
       System.arraycopy(new int[]{0x76, 0x18, 0xFD}, 0, main, count * 3, 3);
       chunks.add(0, at(START, main));
@@ -790,6 +790,8 @@ public class RecordedProgramTests {
       case 9 -> List.of(at(base, 0xD7, 0x06, 0x01, 0xC9), at(0x0010, 0xAF, 0xC9));
       case 10 -> List.of(at(base, 0x3E, 0x03, 0xCD, lo(planted), hi(planted), 0x3E, 0x02, 0xCD, lo(sub), hi(sub), 0xC9), at(planted, 0x3D, 0xC8, 0xC3, lo(sub), hi(sub)), at(sub, 0x0C, 0xC3, lo(planted), hi(planted)));
       case 11 -> List.of(at(base, 0x0E, 0x02, 0xC3, 0x20, 0x00), at(0x0020, 0x16, 0x03, 0xC9));
+      case 12 -> List.of(at(base, 0xCD, lo(sub), hi(sub), 0x06, 0x09, 0xC9), at(sub, 0x31, lo(STACK - 2), hi(STACK - 2), 0xC9));
+      case 13 -> List.of(at(base, 0xAF, 0xC4, lo(sub), hi(sub), 0x3C, 0xC0, 0x0E, 0x02, 0xC9), at(sub, 0x0E, 0x05, 0xC9));
       default -> List.of(at(base, 0x3E, 0x1C, 0x32, lo(sub), hi(sub), 0xCD, lo(sub), hi(sub), 0x3E, 0x14, 0x32, lo(sub), hi(sub), 0xCD, lo(sub), hi(sub), 0xC9), at(sub, 0x00, 0xC9));
     };
   }
@@ -905,5 +907,33 @@ public class RecordedProgramTests {
         at(0x0038, 0x0C, 0xFB, 0xC9),
         at(0x8000, 0xED, 0x56, 0xFB, 0x3C, 0x18, 0xFD));
     Assert.assertEquals("38 8000", routines());
+  }
+
+  @Test
+  public void aConditionalJumpIntoTheScreenIsNotExploredAsCode() {
+    // the symbolic execution used to walk the zeros of the screen as NOPs up to the game's code, in sixteen routines
+    translate(at(0x8000, 0xAF, 0xC2, 0x00, 0x50, 0x06, 0x01, 0x76, 0x18, 0xFD));
+    Assert.assertEquals("8000", routines());
+  }
+
+  @Test
+  public void aRoutineTooLargeForOneJavaMethodIsSplitAtItsBlocks() {
+    int[] first = new int[1 + 2000 + 3], second = new int[1 + 2000 + 5];
+    first[0] = START;
+    Arrays.fill(first, 1, 2001, 0x3C);
+    System.arraycopy(new int[]{0xC3, 0x00, 0x88}, 0, first, 2001, 3);
+    second[0] = 0x8800;
+    Arrays.fill(second, 1, 2001, 0x3C);
+    System.arraycopy(new int[]{0x06, 0x01, 0x76, 0x18, 0xFD}, 0, second, 2001, 5);
+    translate(first, second);
+    Assert.assertTrue(routines(), routineManager.getRoutines().size() >= 2 && routines().contains("8800"));
+  }
+
+  @Test
+  public void aRecursiveRoutineIsTranslatedAsARecursiveMethod() {
+    translate(
+        at(0x8000, 0x3E, 0x03, 0xCD, 0x10, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x3D, 0xC8, 0xCD, 0x10, 0x80, 0xC9));
+    Assert.assertEquals("8000 8010", routines());
   }
 }

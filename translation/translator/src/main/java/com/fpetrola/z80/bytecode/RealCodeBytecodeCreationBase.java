@@ -85,7 +85,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
   }
 
   public void stepUntilComplete(int startAddress) {
-    symbolicExecutionAdapter.stepUntilComplete(this, this.getState(), startAddress, 16384 + 4096, 0x10000);
+    symbolicExecutionAdapter.stepUntilComplete(this, this.getState(), startAddress, RemoteZ80Translator.SCREEN_END, 0x10000);
   }
 
   public void exploreRecording(RemoteZ80Translator.Footprint footprint, int start, int... entries) {
