@@ -136,7 +136,11 @@ public class RoutineBytecodeGenerator {
               int nextAddress = instruction instanceof Call ? stackAnalyzer().callContinuations.getOrDefault(address, address + instruction.getLength() & 0xffff) : address + instruction.getLength() & 0xffff;
               if (!routine.contains(nextAddress) && catchPoints().containsKey(address))
                 labelsAfterLeavingCalls.put(address, mm.label().here());
-              if (fallsThrough(address, instruction) && routine.contains(nextAddress) && (nextAddress <= address || java.util.stream.IntStream.range(address + 1, nextAddress).anyMatch(a -> routine.contains(a) && context.routineManager.getInstructionAt(a) != null && context.routineManager.getInstructionAt(a) != instruction)))
+              if (fallsThrough(address, instruction) && routine.contains(nextAddress) && getLabel(nextAddress) == null) {
+                mm.invoke("untranslated", nextAddress);
+                returnFromMethod();
+              }
+              if (fallsThrough(address, instruction) && routine.contains(nextAddress) && getLabel(nextAddress) != null && (nextAddress <= address || java.util.stream.IntStream.range(address + 1, nextAddress).anyMatch(a -> routine.contains(a) && context.routineManager.getInstructionAt(a) != null && context.routineManager.getInstructionAt(a) != instruction)))
                 mm.goto_(getLabel(nextAddress));
               Routine continuationOwner = context.routineManager.findRoutineAt(nextAddress);
               if (fallsThrough(address, instruction) && !routine.contains(nextAddress) && continuationOwner != null && (continuationOwner.getEntryPoint() == nextAddress ? !continuationOwner.isVirtual() : context.routineManager.isEnteredFromOutside(continuationOwner, nextAddress)))
@@ -302,6 +306,11 @@ public class RoutineBytecodeGenerator {
   private void executeMutantCode(int address, Instruction instruction) {
     Variable executedUpTo = mm.invoke("executeMutantCode", address);
     executedUpTo.ifNe(address + instruction.getLength() & 0xffff, () -> {
+      for (int inside = address + 1; inside < address + instruction.getLength(); inside++)
+        if (getLabel(inside) != null) {
+          Label overlapping = getLabel(inside);
+          executedUpTo.ifEq(inside, overlapping::goto_);
+        }
       executedUpTo.ifNe(-1, () -> mm.invoke("jump", executedUpTo));
       returnFromMethod();
     });
