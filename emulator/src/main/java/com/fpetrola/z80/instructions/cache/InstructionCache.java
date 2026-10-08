@@ -73,14 +73,14 @@ public class InstructionCache {
 
     public void run() {
       for (int j = 0; j < length; j++) {
-        opcodesCache.set(pcValue + j, mutableOpcode);
-        cacheInvalidators[pcValue + j] = null;
+        opcodesCache.set(pcValue + j & 0xffff, mutableOpcode);
+        cacheInvalidators[pcValue + j & 0xffff] = null;
       }
     }
 
     public void set() {
       for (int j = 0; j < length; j++) {
-        cacheInvalidators[pcValue + j] = this;
+        cacheInvalidators[pcValue + j & 0xffff] = this;
       }
     }
   }

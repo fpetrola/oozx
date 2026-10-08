@@ -403,6 +403,13 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     return true;
   }
 
+  public void visitingRst(RST rst) {
+    if (routineByteCodeGenerator.context.routineManager.findRoutineAt(rst.getP()) != null)
+      routineByteCodeGenerator.invokeTransformedMethod(rst.getP());
+    else
+      methodMaker.invoke("untranslated", rst.getP());
+  }
+
   private void createIfs(Instruction instruction, Runnable runnable) {
     if (routineByteCodeGenerator.context.pc.read() == 0xF2DD)
       System.out.println("aegassg");

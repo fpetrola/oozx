@@ -166,7 +166,7 @@ public class StackAnalyzer {
     instruction.accept(new InstructionVisitor<>() {
       public void visitingPop(Pop pop) {
         Entry entry = entryAtSp();
-        if (entry != null && entry.returnAddress())
+        if (entry != null && entry.returnAddress() && entry.pc() != -1)
           lastEvent = l -> l.returnAddressPopped(pcValue, entry.value(), entry.pc());
       }
 

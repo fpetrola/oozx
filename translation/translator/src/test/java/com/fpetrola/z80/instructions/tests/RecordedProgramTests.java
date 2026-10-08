@@ -104,7 +104,10 @@ public class RecordedProgramTests {
               } else {
                  int var2 = this.executeMutantCode('\\u8018');
                  if(var2 != '\\u801b') {
-                    this.jump(var2);
+                    if(var2 != -1) {
+                       this.jump(var2);
+                    }
+
                     return;
                  }
               }
@@ -159,7 +162,10 @@ public class RecordedProgramTests {
               } else {
                  int var2 = this.executeMutantCode('\\u8018');
                  if(var2 != '\\u8019') {
-                    this.jump(var2);
+                    if(var2 != -1) {
+                       this.jump(var2);
+                    }
+
                     return;
                  }
               }
@@ -248,7 +254,10 @@ public class RecordedProgramTests {
               } else {
                  int var2 = this.executeMutantCode('\\u8019');
                  if(var2 != '\\u801c') {
-                    this.jump(var2);
+                    if(var2 != -1) {
+                       this.jump(var2);
+                    }
+
                     return;
                  }
               }
@@ -566,7 +575,10 @@ public class RecordedProgramTests {
                  } else {
                     int var3 = this.executeMutantCode('\\u8018');
                     if(var3 != '\\u801b') {
-                       this.jump(var3);
+                       if(var3 != -1) {
+                          this.jump(var3);
+                       }
+
                        return;
                     }
                  }
@@ -783,7 +795,10 @@ public class RecordedProgramTests {
                  } else {
                     int var3 = this.executeMutantCode('\\u8018');
                     if(var3 != '\\u801b') {
-                       this.jump(var3);
+                       if(var3 != -1) {
+                          this.jump(var3);
+                       }
+
                        return;
                     }
                  }
@@ -957,7 +972,10 @@ public class RecordedProgramTests {
               } else {
                  int var1 = this.executeMutantCode('\\u8018');
                  if(var1 != '\\u801b') {
-                    this.jump(var1);
+                    if(var1 != -1) {
+                       this.jump(var1);
+                    }
+
                     return;
                  }
               }
@@ -1046,5 +1064,81 @@ public class RecordedProgramTests {
            }
         }
         """, java);
+  }
+
+  @Test
+  public void aRestartIsACallToTheRomThatReturnsToTheNextInstruction() {
+    // Monty on the Run E500: its IM 2 handler starts with RST 38 and goes on at E501
+    String java = translate(
+        at(0x0038, 0xC9),
+        at(0x8000, 0xFF, 0x06, 0x01, 0x76, 0x18, 0xFD));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.SpectrumApplication;
+
+        public class Program extends SpectrumApplication {
+           public void $0() {
+           }
+
+           public void $38() {
+           }
+
+           public void $8000() {
+              this.$38();
+              super.B = 1;
+
+              while(true) {
+                 this.halt('\\u8003');
+              }
+           }
+        }
+        """, java);
+  }
+
+  @Test
+  public void aRomRoutineIsTranslatedWithoutWanderingIntoRam() {
+    // Dizzy jumps to 0000: from there the boot reached the BASIC interpreter, which decoded RAM as code
+    String java = translate(
+        at(0x0010, 0xAF, 0xC2, 0x00, 0x90, 0xC9),
+        at(0x8000, 0xD7, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x9000, 0x06, 0x07, 0xC9));
+    Assert.assertTrue(java, java.contains("public void $10()") && !java.contains("super.B = 7"));
+  }
+
+  @Test
+  public void anInstructionAtTheLastAddressWrapsAroundTheMemory() {
+    // Sir Fred: an instruction at FFFF whose operand is at 0000 broke the instruction cache
+    String java = translate(
+        at(0x0000, 0x34, 0x12, 0xC9),
+        at(0x8000, 0xCD, 0xFF, 0xFF, 0x76, 0x18, 0xFD),
+        at(0xFFFF, 0x01));
+    Assert.assertTrue(java, java.contains("this.BC(4660);\n      this.untranslated(2);"));
+  }
+
+  @Test
+  public void aRestartGoesOnOnlyWhereTheRecordingSawItReturn() {
+    // Dizzy: RST 0 resets and RST 8 or RST 28 carry inline data; the bytes after a restart nobody returned from are not code
+    String java = translate(
+        at(0x8000, 0xAF, 0x20, 0x0D, 0x76, 0x18, 0xFD),
+        at(0x8010, 0xC7, 0x06, 0x07, 0xC9));
+    Assert.assertFalse(java, java.contains("super.B = 7"));
+  }
+
+  @Test
+  public void aRomRoutineReachedThroughARegisterJumpIsTranslated() {
+    // Sir Fred prints with RST 10, and the ROM reaches PRINT-OUT at 09F4 through JP (HL) from the channel table
+    String java = translate(
+        at(0x0010, 0x21, 0x20, 0x00, 0xE9),
+        at(0x0020, 0x06, 0x01, 0xC9),
+        at(0x8000, 0xD7, 0x76, 0x18, 0xFD));
+    Assert.assertTrue(java, java.contains("public void $20()"));
+  }
+
+  @Test
+  public void poppingAReturnAddressThatWasOnTheStackBeforeTheRecordingIsNotAReturn() {
+    // Bruce Lee 9633: POP of a return address from the snapshot's stack, whose CALL is unknown
+    String java = translate(
+        at(0x8000, 0xE1, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0xFF00, 0x10, 0x80));
+    Assert.assertTrue(java, java.contains("super.B = 1;"));
   }
 }

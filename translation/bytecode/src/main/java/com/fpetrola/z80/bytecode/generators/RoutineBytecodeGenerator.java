@@ -133,7 +133,7 @@ public class RoutineBytecodeGenerator {
               currentInstruction = instruction;
               generateInstruction(address, instruction, firstAddress);
 
-              int nextAddress = instruction instanceof Call ? stackAnalyzer().callContinuations.getOrDefault(address, address + instruction.getLength()) : address + instruction.getLength();
+              int nextAddress = instruction instanceof Call ? stackAnalyzer().callContinuations.getOrDefault(address, address + instruction.getLength() & 0xffff) : address + instruction.getLength() & 0xffff;
               if (!routine.contains(nextAddress) && catchPoints().containsKey(address))
                 labelsAfterLeavingCalls.put(address, mm.label().here());
               Routine continuationOwner = context.routineManager.findRoutineAt(nextAddress);
@@ -300,8 +300,8 @@ public class RoutineBytecodeGenerator {
 
   private void executeMutantCode(int address, Instruction instruction) {
     Variable executedUpTo = mm.invoke("executeMutantCode", address);
-    executedUpTo.ifNe(address + instruction.getLength(), () -> {
-      mm.invoke("jump", executedUpTo);
+    executedUpTo.ifNe(address + instruction.getLength() & 0xffff, () -> {
+      executedUpTo.ifNe(-1, () -> mm.invoke("jump", executedUpTo));
       returnFromMethod();
     });
   }

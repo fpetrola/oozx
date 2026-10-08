@@ -89,6 +89,8 @@ public abstract class SpectrumApplication {
         invokeMethod(call.calculateJumpAddress());
       return address + call.getLength();
     }
+    if (instruction instanceof Ret ret)
+      return ret.getCondition().conditionMet(ret) ? -1 : address + ret.getLength();
     int r = R;
     mutantExecutor.getInstructionExecutor().execute(instruction);
     loadRegisters(state);

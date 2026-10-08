@@ -51,6 +51,17 @@ public class SpectrumApplicationTest {
   }
 
   @Test
+  public void aTakenReturnLeavesTheJavaMethodWithoutPopping() {
+    // Monty on the Run AE02: the game patches RET Z over LD A,(AE26) to switch a routine off
+    game.SP(0xF000);
+    game.F(0x40);
+    assertEquals(-1, execute(0xC8));
+    assertEquals(0xF000, game.SP());
+    game.F(0x00);
+    assertEquals(0x8001, execute(0xC8));
+  }
+
+  @Test
   public void aConditionalJumpReturnsWhereItGoes() {
     game.F(0x01);
     assertEquals(0xCEFC, execute(0xDA, 0xFC, 0xCE));

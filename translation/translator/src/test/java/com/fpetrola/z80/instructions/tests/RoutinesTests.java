@@ -98,7 +98,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
   }
 
   protected void stepUntilComplete() {
-    getSymbolicExecutionAdapter().stepUntilComplete(this, getState(), 0, 0);
+    getSymbolicExecutionAdapter().stepUntilComplete(this, getState(), 0, 0, 0x10000);
   }
 
   private void assertBlockAddresses(Block block, int start, int end) {
@@ -1808,7 +1808,10 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               } else {
                  int var2 = this.executeMutantCode(1);
                  if(var2 != 2) {
-                    this.jump(var2);
+                    if(var2 != -1) {
+                       this.jump(var2);
+                    }
+
                     return;
                  }
               }
@@ -1840,7 +1843,10 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               super.A = 2;
               int var1 = this.executeMutantCode(1);
               if(var1 != 2) {
-                 this.jump(var1);
+                 if(var1 != -1) {
+                    this.jump(var1);
+                 }
+
               }
            }
         }

@@ -27,6 +27,7 @@ import com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.se.actions.RetAddressAction;
+import com.fpetrola.z80.instructions.impl.RST;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
@@ -172,15 +173,15 @@ public class SymbolicExecutionAdapter {
     });
   }
 
-  public void stepUntilComplete(Z80InstructionDriver z80InstructionDriver, State state, int firstAddress, int minimalValidCodeAddress) {
-    stepAllAndProcessPending(z80InstructionDriver, state, firstAddress, minimalValidCodeAddress);
+  public void stepUntilComplete(Z80InstructionDriver z80InstructionDriver, State state, int firstAddress, int codeStart, int codeEnd) {
+    routineManager.setCodeRange(codeStart, codeEnd);
+    stepAllAndProcessPending(z80InstructionDriver, state, firstAddress);
     routineFinder.attributeUnclaimedCode();
     routineManager.createVirtualRoutines();
   }
 
-  private void stepAllAndProcessPending(Z80InstructionDriver z80InstructionDriver, State state, int firstAddress, int minimalValidCodeAddress) {
+  private void stepAllAndProcessPending(Z80InstructionDriver z80InstructionDriver, State state, int firstAddress) {
     this.z80InstructionDriver = z80InstructionDriver;
-    routineManager.setCodeStart(minimalValidCodeAddress);
     routineFinder.reset();
     memoryReadOnly(false, state);
 
@@ -246,7 +247,8 @@ public class SymbolicExecutionAdapter {
         if (isTailCallToRom(pcValue)) {
           routineExecution.setRetInstruction(pcValue);
           next = routineExecution.hasPendingPoints() ? routineExecution.getNextPending().address : returnFromRom();
-        }
+        } else if (routineManager.getInstructionAt(pcValue) instanceof RST rst && !routineManager.isCode(rst.getP()) && routineManager.wasExecuted(pcValue + 1 & 0xffff))
+          next = popReturnAddress();
         updatePcRegister(next);
         lastPc = pcValue;
       }
@@ -259,11 +261,16 @@ public class SymbolicExecutionAdapter {
   }
 
   private int returnFromRom() {
+    int returnAddress = popReturnAddress();
+    routineExecutorHandler.popRoutineExecution();
+    routineFinder.returnedTo(returnAddress);
+    return returnAddress;
+  }
+
+  private int popReturnAddress() {
     Register sp = state.getRegisterSP();
     int returnAddress = state.getMemory().read16Bits(sp.read());
     sp.write(sp.read() + 2 & 0xffff);
-    routineExecutorHandler.popRoutineExecution();
-    routineFinder.returnedTo(returnAddress);
     return returnAddress;
   }
 

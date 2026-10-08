@@ -115,11 +115,12 @@ public class GameBytecodeCreationTests {
 
   @Test
   public void testTranslateWallyToJava() {
-    String recording = "/home/fernando/detodo/spectrum/eawally/eawallyCsabaComplete.rzx";
-    int start = 0x8185;
-    String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, recording, start);
-    realCodeBytecodeCreationBase.exploreRecording(RemoteZ80Translator.footprint(recording, start), start);
-    writeTranslation(base64Memory);
+    translateRecording("/home/fernando/detodo/spectrum/eawally/eawallyCsabaComplete.rzx", 0x8185);
+  }
+
+  @Test
+  public void testTranslateMontyToJava() {
+    translateRecording("/home/fernando/detodo/spectrum/montyontherun.rzx", 0xAAC5);
   }
 
   @Ignore
@@ -133,7 +134,6 @@ public class GameBytecodeCreationTests {
     String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, "/home/fernando/detodo/spectrum/emlyn_r4.rzx", 0xFE65);
     List<String> recordings = Stream.of("emlyn_r3.rzx", "emlyn_r4.rzx").map(recording -> "/home/fernando/detodo/spectrum/" + recording).toList();
     realCodeBytecodeCreationBase.exploreRecording(RemoteZ80Translator.Footprint.combine(recordings.stream().map(recording -> RemoteZ80Translator.footprint(recording, 0xFE65)).toList()), 0xFE65, 0x963E);
-    realCodeBytecodeCreationBase.translateRomRoutines(0x0038, 0x22B0, 0x0E44, 0x03F4, 0x2C8D);
     CodeVersions versions = realCodeBytecodeCreationBase.getStackAnalyzer().codeVersions;
     int[][] templates = {{0x9BBF, 0x9C1D, 0xE000}, {0x9AF7, 0x9B1C, 0xE300}};
     Stream.of(templates).forEach(template -> versions.mergeBlockRegions(template[0], template[1]));
@@ -144,20 +144,17 @@ public class GameBytecodeCreationTests {
 
   @Test
   public void testTranslateDizzyToJava() {
-    String recording = "/home/fernando/detodo/spectrum/dizzy/Dizzy RZX - The Long Way.rzx";
-    int start = 0xF85B;
-    String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, recording, start);
-    realCodeBytecodeCreationBase.exploreRecording(RemoteZ80Translator.footprint(recording, start), start, 0xF85A);
-    realCodeBytecodeCreationBase.translateRomRoutines(0x0038);
-    writeTranslation(base64Memory);
+    translateRecording("/home/fernando/detodo/spectrum/dizzy/Dizzy RZX - The Long Way.rzx", 0xF85B, 0xF85A);
   }
 
   @Test
   public void testTranslateEquinoxToJava() {
-    String recording = "/home/fernando/detodo/spectrum/equinox/equinox.rzx";
-    int start = 0x5B8D;
+    translateRecording("/home/fernando/detodo/spectrum/equinox/equinox.rzx", 0x5B8D);
+  }
+
+  private void translateRecording(String recording, int start, int... entries) {
     String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, recording, start);
-    realCodeBytecodeCreationBase.exploreRecording(RemoteZ80Translator.footprint(recording, start), start);
+    realCodeBytecodeCreationBase.exploreRecording(RemoteZ80Translator.footprint(recording, start), start, entries);
     writeTranslation(base64Memory);
   }
 

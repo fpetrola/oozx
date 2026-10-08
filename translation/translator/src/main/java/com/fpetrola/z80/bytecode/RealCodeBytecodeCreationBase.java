@@ -84,7 +84,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
   }
 
   public void stepUntilComplete(int startAddress) {
-    symbolicExecutionAdapter.stepUntilComplete(this, this.getState(), startAddress, 16384 + 4096);
+    symbolicExecutionAdapter.stepUntilComplete(this, this.getState(), startAddress, 16384 + 4096, 0x10000);
   }
 
   public void exploreRecording(RemoteZ80Translator.Footprint footprint, int start, int... entries) {
@@ -110,11 +110,12 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
         stepUntilComplete(continuation);
       }
     });
+    translateRomRoutines(footprint.romEntries().stream().filter(entry -> stackAnalyzer.trampolineRegister(entry) == null).mapToInt(Integer::intValue).toArray());
   }
 
   public void translateRomRoutines(int... entries) {
     for (int entry : entries)
-      symbolicExecutionAdapter.stepUntilComplete(this, this.getState(), entry, 0);
+      symbolicExecutionAdapter.stepUntilComplete(this, this.getState(), entry, 0, 0x4000);
   }
 
   public void translateCodeVariants(int start, int end, int relocationBase, CodeVersions versions) {

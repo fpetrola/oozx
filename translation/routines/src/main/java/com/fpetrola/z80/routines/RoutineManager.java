@@ -123,6 +123,7 @@ public class RoutineManager {
       for (Routine routine : routines1)
         changes |= routine.splitVirtualRoutines();
     } while (changes);
+    routines.removeIf(routine -> routine.getBlocks().isEmpty());
   }
 
   public Routine createRoutine(int startAddress, int length) {
@@ -204,7 +205,7 @@ public class RoutineManager {
 
   public final List<CodeVariant> codeVariants = new ArrayList<>();
   public final java.util.Set<Integer> externalEntries = new java.util.TreeSet<>();
-  private int codeStart;
+  private int codeStart, codeEnd = 0x10000;
   private Map<Integer, Integer> spans = Map.of();
   private final java.util.Set<Integer> interiors = new java.util.HashSet<>();
 
@@ -252,8 +253,9 @@ public class RoutineManager {
     return next.getOrDefault(from, java.util.Set.of()).stream().anyMatch(to -> to == target || visited.add(to) && reaches(next, to, target, visited));
   }
 
-  public void setCodeStart(int codeStart) {
+  public void setCodeRange(int codeStart, int codeEnd) {
     this.codeStart = codeStart;
+    this.codeEnd = codeEnd;
   }
 
   public void setSpans(Map<Integer, Integer> spans) {
@@ -265,8 +267,12 @@ public class RoutineManager {
     interiors.removeAll(spans.keySet());
   }
 
+  public boolean wasExecuted(int address) {
+    return spans.containsKey(address);
+  }
+
   public boolean isCode(int address) {
-    return address >= codeStart && (originalAddress(address) != address || !interiors.contains(address));
+    return address >= codeStart && address < codeEnd && (originalAddress(address) != address || !interiors.contains(address));
   }
 
   public boolean isCalledFrom(Routine routine, int callAddress) {

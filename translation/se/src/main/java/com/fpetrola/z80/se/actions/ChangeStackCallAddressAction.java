@@ -51,7 +51,11 @@ public class ChangeStackCallAddressAction extends BasicAddressAction {
   }
 
   private boolean hasPendingInStack() {
-    return lastRoutineExecutions.stream().anyMatch(r -> r.hasPendingPoints());
+    return hasPendingInStack(new java.util.HashSet<>());
+  }
+
+  private boolean hasPendingInStack(java.util.Set<RoutineExecution> visited) {
+    return lastRoutineExecutions.stream().anyMatch(r -> r.hasPendingPoints(visited));
   }
 
   public int getNext(int executedInstructionAddress, int currentPc) {
@@ -63,7 +67,11 @@ public class ChangeStackCallAddressAction extends BasicAddressAction {
   }
 
   public boolean isPending() {
-    return pending || hasPendingInStack();
+    return isPending(new java.util.HashSet<>());
+  }
+
+  public boolean isPending(java.util.Set<RoutineExecution> visited) {
+    return pending || hasPendingInStack(visited);
   }
 
 }

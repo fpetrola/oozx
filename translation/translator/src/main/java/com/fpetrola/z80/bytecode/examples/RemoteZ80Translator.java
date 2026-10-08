@@ -107,7 +107,7 @@ public class RemoteZ80Translator {
     return emulate(realCodeBytecodeCreationBase, EmulatedMiniZX.ofRecording(rzxFile, frames, realCodeBytecodeCreationBase.getStackAnalyzer()));
   }
 
-  public record Footprint(Map<Integer, int[]> codeBytes, Map<Integer, int[]> explored, StackAnalyzer learned, Set<Integer> returnAddressesOnStack, int[] finalMemory, CodeVersions versions) {
+  public record Footprint(Map<Integer, int[]> codeBytes, Map<Integer, int[]> explored, StackAnalyzer learned, Set<Integer> returnAddressesOnStack, int[] finalMemory, CodeVersions versions, Set<Integer> romEntries) {
     public Set<Integer> modifiedCode() {
       return versions.modifiedBytes();
     }
@@ -151,7 +151,7 @@ public class RemoteZ80Translator {
 
     public static Footprint combine(List<Footprint> footprints) {
       Map<Integer, int[]> codeBytes = new HashMap<>(), explored = new HashMap<>();
-      Set<Integer> returnAddressesOnStack = new HashSet<>();
+      Set<Integer> returnAddressesOnStack = new HashSet<>(), romEntries = new HashSet<>();
       StackAnalyzer learned = new StackAnalyzer(null);
       CodeVersions versions = new CodeVersions();
       footprints.forEach(footprint -> {
@@ -159,10 +159,11 @@ public class RemoteZ80Translator {
         versions.addAll(footprint.versions);
         footprint.explored.forEach(explored::putIfAbsent);
         returnAddressesOnStack.addAll(footprint.returnAddressesOnStack);
+        romEntries.addAll(footprint.romEntries);
         learned.learnFrom(footprint.learned);
       });
       learned.codeVersions = versions;
-      return new Footprint(codeBytes, explored, learned, returnAddressesOnStack, footprints.get(footprints.size() - 1).finalMemory, versions);
+      return new Footprint(codeBytes, explored, learned, returnAddressesOnStack, footprints.get(footprints.size() - 1).finalMemory, versions, romEntries);
     }
 
     public void install(Memory memory, int stackPointer) {
@@ -201,7 +202,8 @@ public class RemoteZ80Translator {
     Forks forks = new Forks(codeBytes, new HashSet<>(), explored, new HashMap<>(), new HashSet<>());
     ConditionalInstruction<?>[] pending = {null};
     int[] pendingAddress = {-1};
-    Set<Integer> patched = new HashSet<>();
+    Set<Integer> patched = new HashSet<>(), romEntries = new HashSet<>();
+    Instruction[] previous = {null};
     emulator[0] = emulatorFor.apply(stackAnalyzer).listening(new FetchListener() {
       public void instructionFetchedAt(int address, Instruction instruction) {
         boolean starting = !started[0] && address == from;
@@ -211,8 +213,12 @@ public class RemoteZ80Translator {
           return;
         if (pending[0] != null)
           forks.exploreUntakenBranch(emulator[0].ooz80, pending[0], pendingAddress[0], address, stackAnalyzer, BRANCH_BUDGET);
-        if (pendingAddress[0] != -1 && address != (pendingAddress[0] + codeBytes.get(pendingAddress[0]).length & 0xffff))
+        if (pendingAddress[0] != -1 && address != (pendingAddress[0] + codeBytes.get(pendingAddress[0]).length & 0xffff)) {
           forks.landings().add(address);
+          if (address < 0x4000 && (pendingAddress[0] >= 0x4000 && !(previous[0] instanceof Ret) || previous[0] instanceof JP jump && jump.getPositionOpcodeReference() instanceof Register))
+            romEntries.add(address);
+        }
+        previous[0] = instruction;
         boolean conditional = isUntakenBranchCandidate(instruction);
         pending[0] = conditional ? (ConditionalInstruction<?>) instruction : null;
         pendingAddress[0] = address;
@@ -230,7 +236,7 @@ public class RemoteZ80Translator {
     StackAnalyzer.collecting = false;
     versions.patched(patched, codeBytes);
     returnAddressesOnStack.retainAll(codeBytes.keySet());
-    return new Footprint(codeBytes, explored, stackAnalyzer, returnAddressesOnStack, emulator[0].ooz80.getState().getMemory().getData().clone(), versions).forgettingJumpsIntoData();
+    return new Footprint(codeBytes, explored, stackAnalyzer, returnAddressesOnStack, emulator[0].ooz80.getState().getMemory().getData().clone(), versions, romEntries).forgettingJumpsIntoData();
   }
 
   private static int[] recordVersion(Map<Integer, int[]> codeBytes, CodeVersions versions, int address, int[] bytes) {
