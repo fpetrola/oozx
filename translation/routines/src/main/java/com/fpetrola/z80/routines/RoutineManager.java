@@ -27,7 +27,6 @@ import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.CodeBlockType;
 import com.fpetrola.z80.blocks.NullBlockChangesListener;
-import com.fpetrola.z80.ide.RoutineHandlingListener;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
@@ -45,12 +44,7 @@ import java.util.Optional;
 import static java.util.Comparator.comparingInt;
 
 public class RoutineManager {
-  public void setRoutineHandlingListener(RoutineHandlingListener routineHandlingListener) {
-    this.routineHandlingListener = routineHandlingListener;
-  }
 
-  private RoutineHandlingListener routineHandlingListener = new RoutineHandlingListener() {
-  };
   public ListValuedMap<Integer, Integer> callers = new ArrayListValuedHashMap<>();
   public ListValuedMap<Integer, Integer> callees = new ArrayListValuedHashMap<>();
   public ListValuedMap<Integer, Integer> jumpsAfterStackReset = new ArrayListValuedHashMap<>();
@@ -61,11 +55,6 @@ public class RoutineManager {
   public final java.util.Set<Integer> pushedReturnSites = new java.util.HashSet<>();
   public BlocksManager blocksManager;
   private List<Routine> routines = new ArrayList<>();
-
-  public RoutineManager(BlocksManager blocksManager, RoutineHandlingListener routineHandlingListener) {
-    this(blocksManager);
-    this.routineHandlingListener = routineHandlingListener;
-  }
 
   private final Map<Integer, Instruction> instructions = new HashMap<>();
 
@@ -99,7 +88,6 @@ public class RoutineManager {
       System.out.println("dfasfasf!!!!");
     routines.add(routine);
     routine.setRoutineManager(this);
-    routineHandlingListener.routineAdded(routine);
     return routine;
   }
 
@@ -355,7 +343,6 @@ public class RoutineManager {
     return !(instruction instanceof ConditionalInstruction<?> conditional && conditional.getCondition() instanceof ConditionAlwaysTrue);
   }
 
-
   public Instruction getInstructionAt(int address) {
     return instructions.get(address);
   }
@@ -399,7 +386,6 @@ public class RoutineManager {
 
   public void removeRoutine(Routine routine) {
     routines.remove(routine);
-    routineHandlingListener.routineRemoved(routine);
   }
 
   public List<Routine> getRoutinesInDepth() {

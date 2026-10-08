@@ -86,10 +86,6 @@ public class StackAnalyzer implements java.io.Serializable {
     return simulatedCallsPcs;
   }
 
-  public void setCollecting(boolean collecting) {
-    StackAnalyzer.collecting = collecting;
-  }
-
   public void reset(State state) {
     if (this.state != null)
       this.state.getMemory().removeMemoryWriteListener(forgetOverwritten);
@@ -368,7 +364,6 @@ public class StackAnalyzer implements java.io.Serializable {
       }
     });
   }
-
 
   private void remember(boolean returnAddress) {
     int sp = state.getRegisterSP().read();

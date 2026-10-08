@@ -59,7 +59,7 @@ public class EmulatedMiniZX {
   private FetchListener fetchListener;
   private MemoryWriteListener memoryWriteListener;
   private int[] program;
-  private int programEntry, programStack;
+  private int programEntry, programStack, interruptEvery;
 
   public EmulatedMiniZX listening(FetchListener fetchListener) {
     this.fetchListener = fetchListener;
@@ -83,6 +83,11 @@ public class EmulatedMiniZX {
   public EmulatedMiniZX(String url, int pause, boolean showScreen, int emulateUntil, boolean inThread, StackAnalyzer stackAnalyzer) {
     this(url, pause, showScreen, emulateUntil, inThread);
     this.stackAnalyzer = stackAnalyzer;
+  }
+
+  public EmulatedMiniZX interruptingEvery(int instructions) {
+    interruptEvery = instructions;
+    return this;
   }
 
   public EmulatedMiniZX stoppingAt(int address) {
@@ -192,8 +197,9 @@ public class EmulatedMiniZX {
       }
       return;
     }
+    int every = emulateUntil < 0 ? pause * 1000 : interruptEvery;
     for (int i = 0; emulateUntil < 0 || i < emulateUntil; i++) {
-      if (emulateUntil < 0 && i % (pause * 1000) == 0)
+      if (every > 0 && i % every == 0)
         ooz80.getState().setINTLine(true);
       else if (emulateUntil >= 0 || i % pause == 0)
         ooz80.execute();

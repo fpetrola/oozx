@@ -53,10 +53,6 @@ public class Routine {
     return returnPointsDropped;
   }
 
-  public Routine(boolean virtual) {
-    this.virtual = virtual;
-  }
-
   public Routine(Block block, int entryPoint, boolean virtual) {
     this(new ArrayList<>(asList(block)), entryPoint, virtual);
   }
@@ -75,10 +71,6 @@ public class Routine {
 
   public List<Block> getBlocks() {
     return blocks;
-  }
-
-  public void addInstruction(Instruction instruction) {
-    instructions.add(instruction);
   }
 
   public boolean contains(int address) {
@@ -346,11 +338,6 @@ public class Routine {
 
   public void addReturnPointDropped(int returnAddress, int pc) {
     returnPointsDropped.put(returnAddress, pc);
-  }
-
-  public void finish() {
-    optimize();
-    finished = true;
   }
 
   public <R> R accept(RoutineVisitor<R> routineVisitor) {

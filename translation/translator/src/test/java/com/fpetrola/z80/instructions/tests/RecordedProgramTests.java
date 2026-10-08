@@ -48,6 +48,7 @@ public class RecordedProgramTests {
   private static final int START = 0x8000, STACK = 0xFF00;
   private RealCodeBytecodeCreationBase base;
   private final Set<Integer> stackPointerSnapshots = new java.util.HashSet<>();
+  private int interruptEvery;
   private RoutineManager routineManager;
   private StackAnalyzer stackAnalyzer;
   private CodeVersions versions;
@@ -79,7 +80,7 @@ public class RecordedProgramTests {
       for (int i = 1; i < chunk.length; i++)
         memory[chunk[0] + i - 1] = chunk[i];
     String image = RemoteZ80Translator.emulateProgram(base, memory, START, STACK);
-    base.exploreRecording(RemoteZ80Translator.footprint(stackAnalyzer -> EmulatedMiniZX.ofProgram(memory, START, STACK, 1000, stackAnalyzer), START), START);
+    base.exploreRecording(RemoteZ80Translator.footprint(stackAnalyzer -> EmulatedMiniZX.ofProgram(memory, START, STACK, 1000, stackAnalyzer).interruptingEvery(interruptEvery), START), START);
     stackAnalyzer = base.getStackAnalyzer();
     routineManager = base.getRoutineManager();
     versions = stackAnalyzer.codeVersions;
@@ -140,7 +141,7 @@ public class RecordedProgramTests {
     emulator.start();
     State z80 = emulator.ooz80.getState(), translated = EmulatedMiniZX.createOOZ80(new DefaultMiniZXIO()).getState();
     program.loadState(z80);
-    int[] previous = {-1}, steps = {0};
+    int[] previous = {-1}, steps = {0}, nextInterrupt = {interruptEvery};
     program.setInterruptionCondition(fetches -> {
       if (previous[0] >= 0) {
         emulator.ooz80.execute();
@@ -154,6 +155,12 @@ public class RecordedProgramTests {
       if (z80.getMemory().getData()[z80.getPc().read()] == 0x76 || ++steps[0] == 1000)
         throw new Finished();
       previous[0] = program.PC;
+      if (interruptEvery > 0 && fetches >= nextInterrupt[0] && program.acceptsInterrupt()) {
+        nextInterrupt[0] = fetches + interruptEvery;
+        emulator.ooz80.interruption();
+        previous[0] = -1;
+        return true;
+      }
       return false;
     });
     try {
@@ -799,5 +806,104 @@ public class RecordedProgramTests {
 
   private static int hi(int address) {
     return address >> 8;
+  }
+
+  @Test
+  public void aLoopEnteredInItsMiddleIsDecompiledAndRunsLikeTheEmulator() {
+    // Fernflower empties methods with loops that have two entries; the generator then splits the routine and retries
+    translate(at(0x8000, 0x06, 0x05, 0x18, 0x02, 0x3C, 0x0C, 0x10, 0xFC, 0x76, 0x18, 0xFD));
+    Assert.assertTrue(routines(), routines().startsWith("8000"));
+  }
+
+  @Test
+  public void aRomEntryThatIsATrampolineThroughIyIsNotARoutine() {
+    translate(
+        at(0x0020, 0xFD, 0xE9),
+        at(0x8000, 0xFD, 0x21, 0x10, 0x80, 0xCD, 0x20, 0x00, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x0E, 0x02, 0xC9));
+    Assert.assertEquals("8000 8010", routines());
+    Assert.assertEquals(Set.of(0x8010), Set.copyOf(stackAnalyzer.calledThrough.get(0x8004)));
+  }
+
+  @Test
+  public void aForkThatKeepsFindingFreshConditionalCodeStopsAtItsBudget() {
+    int[] branches = new int[1 + 700 * 2 + 1];
+    branches[0] = 0x8010;
+    for (int i = 0; i < 700; i++) {
+      branches[1 + i * 2] = 0x28;
+      branches[2 + i * 2] = 0x00;
+    }
+    branches[branches.length - 1] = 0xC9;
+    translate(at(0x8000, 0xAF, 0xC2, 0x10, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD), branches);
+    Assert.assertEquals("8000", routines());
+  }
+
+  @Test
+  public void aConditionalReturnNotTakenInTheRecordingHasItsReturnExploredByAFork() {
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0xAF, 0xC0, 0x0E, 0x02, 0xC9));
+    Assert.assertEquals("8000 8010", routines());
+  }
+
+  @Test
+  public void aPushedAddressComputedAfterLoadingItIsNotAPlantedContinuation() {
+    // the value is loaded and then incremented before the push, so the RET that lands on it is a jump through the popped value
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x21, 0x17, 0x80, 0x23, 0xE5, 0xC3, 0x20, 0x80),
+        at(0x8018, 0x16, 0x03, 0xC9),
+        at(0x8020, 0x0E, 0x02, 0xC9));
+    Assert.assertEquals(Set.of(0x8014), Set.copyOf(stackAnalyzer.dataConsumedBy.get(0x8022)));
+    Assert.assertEquals("Ld", instructionAt(0x8018));
+  }
+
+  @Test
+  public void interruptModeRefreshAndSearchInstructionsRunLikeTheEmulator() {
+    translate(
+        at(0x8000, 0xED, 0x56, 0xFB, 0xF3, 0xED, 0x5F, 0xED, 0x57, 0x06, 0x81, 0xCB, 0x30, 0x21, 0x00, 0x90, 0x11, 0x10, 0x90, 0x01, 0x03, 0x00, 0xED, 0xA0, 0xED, 0xA8,
+            0x3E, 0x02, 0x01, 0x08, 0x00, 0xED, 0xA1, 0xED, 0xA9, 0x21, 0x07, 0x90, 0xED, 0xB9, 0xEB, 0xDD, 0x21, 0x34, 0x12, 0xDD, 0xE5, 0xDD, 0xE3, 0xDD, 0xE1, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x9000, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09));
+    Assert.assertEquals("8000", routines());
+  }
+
+  @Test
+  public void aJumpThroughHlRightAfterPushingTheNextAddressIsACall() {
+    // Emlyn: PUSH of the address right after the JP (HL), so the callee's RET comes back as if it had been called
+    translate(
+        at(0x8000, 0x21, 0x08, 0x80, 0xE5, 0x21, 0x20, 0x80, 0xE9, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8020, 0x0E, 0x02, 0xC9));
+    Assert.assertTrue(stackAnalyzer.getSimulatedCallsPcs().contains(0x8007));
+    Assert.assertEquals("8000 8020", routines());
+  }
+
+  @Test
+  public void aReturnToAnAddressThatWasOnTheStackBeforeTheRecordingContinuesThere() {
+    // Dizzy: the recording starts inside the interrupt handler, whose RET goes back to the game through the snapshot's stack
+    translate(
+        at(0x8000, 0x0E, 0x02, 0xC9),
+        at(0x8010, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(STACK, 0x10, 0x80));
+    Assert.assertEquals("8000 8010", routines());
+  }
+
+  @Test
+  public void aProgramImageLongerThanOneStringConstantIsCarriedInChunks() {
+    int[] noise = new int[1 + 0x6000];
+    noise[0] = 0x9000;
+    Random random = new Random(1);
+    for (int i = 1; i < noise.length; i++)
+      noise[i] = random.nextInt(256);
+    translate(at(0x8000, 0x06, 0x01, 0x76, 0x18, 0xFD), noise);
+    Assert.assertEquals("8000", routines());
+  }
+
+  @Test
+  public void anInterruptHandlerRecordedBetweenInstructionsIsTranslatedAndInterruptsTheJavaCode() {
+    interruptEvery = 300;
+    translate(
+        at(0x0038, 0x0C, 0xFB, 0xC9),
+        at(0x8000, 0xED, 0x56, 0xFB, 0x3C, 0x18, 0xFD));
+    Assert.assertEquals("38 8000", routines());
   }
 }
