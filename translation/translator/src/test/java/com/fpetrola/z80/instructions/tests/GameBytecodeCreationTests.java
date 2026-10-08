@@ -124,6 +124,11 @@ public class GameBytecodeCreationTests {
   }
 
   @Test
+  public void testTranslateDynamiteDan2ToJava() {
+    translateRecording("DynamiteDan2", "/home/fernando/detodo/spectrum/rzx-top/1553/dynamitedan2.rzx", 0x6B94);
+  }
+
+  @Test
   public void testTranslateManicMinerToJava() {
     translateRecording("ManicMiner", "/home/fernando/detodo/spectrum/rzx-top/3012/manicnoliveslost.rzx", 0x92FB);
   }

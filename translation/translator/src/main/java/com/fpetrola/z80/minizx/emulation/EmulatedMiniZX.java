@@ -30,6 +30,7 @@ import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.DefaultMiniZXIO;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.MiniZXScreen;
+import com.fpetrola.z80.minizx.SpectrumApplication;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 import com.fpetrola.z80.transformations.StackAnalyzer;
@@ -122,6 +123,7 @@ public class EmulatedMiniZX {
 
   public static  OOZ80 createOOZ80(MiniZXIO io) {
     var state = new State(io, new DefaultRegisterBankFactory().createBank(), new MockedMemory(true));
+    state.getMemory().protect(0, SpectrumApplication.ROM_END);
     io.setPc(state.getPc());
     return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory(state)), new DefaultInstructionExecutor(state, false));
   }

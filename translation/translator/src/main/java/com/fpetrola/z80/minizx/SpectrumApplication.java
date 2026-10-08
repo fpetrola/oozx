@@ -41,7 +41,7 @@ public abstract class SpectrumApplication {
     }
   };
 
-  public static final int INITIAL_SP_VALUE = 1234;
+  public static final int INITIAL_SP_VALUE = 1234, ROM_END = 0x4000;
   public Deque<Integer> methodStack = new ArrayDeque<>();
   protected int A;
   protected int F;
@@ -283,8 +283,8 @@ public abstract class SpectrumApplication {
 
   public void push(int value) {
     SP = SP - 2 & 0xffff;
-    mem[SP] = value & 0xff;
-    mem[SP + 1 & 0xffff] = value >> 8 & 0xff;
+    wMem(SP, value & 0xff);
+    wMem(SP + 1 & 0xffff, value >> 8 & 0xff);
   }
 
   public int pop() {
@@ -326,12 +326,12 @@ public abstract class SpectrumApplication {
   }
 
   public void wMem(int address, int value, int pc) {
-    mem[address] = value;
+    wMem(address, value);
   }
 
   public void wMem16(int address, int value, int pc) {
-    mem[address] = value & 0xFF;
-    mem[address + 1] = value >>> 8;
+    wMem(address, value & 0xFF);
+    wMem(address + 1 & 0xffff, value >>> 8);
   }
 
   public int mem16(int address, int pc) {
@@ -343,7 +343,8 @@ public abstract class SpectrumApplication {
   }
 
   public void wMem(int address, int value) {
-    mem[address] = value;
+    if (address >= ROM_END)
+      mem[address] = value;
   }
 
   public static void waitNanos(int i) {
@@ -410,7 +411,7 @@ public abstract class SpectrumApplication {
     int hl = HL();
     if (copy) {
       int de = DE();
-      mem[de] = mem[hl];
+      wMem(de, mem[hl]);
       DE(de + direction & 0xffff);
     }
     HL(hl + direction & 0xffff);

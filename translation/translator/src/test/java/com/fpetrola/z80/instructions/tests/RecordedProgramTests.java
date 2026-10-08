@@ -936,4 +936,13 @@ public class RecordedProgramTests {
         at(0x8010, 0x3D, 0xC8, 0xCD, 0x10, 0x80, 0xC9));
     Assert.assertEquals("8000 8010", routines());
   }
+
+  @Test
+  public void aStoreIntoTheRomDoesNotMakeRomCodeMutant() {
+    // Dynamite Dan II: a store through HL lands on the ROM BEEPER, which can never change
+    translate(
+        at(0x0020, 0x06, 0x01, 0xC9),
+        at(0x8000, 0xCD, 0x20, 0x00, 0x21, 0x21, 0x00, 0x36, 0x05, 0xCD, 0x20, 0x00, 0x76, 0x18, 0xFD));
+    Assert.assertEquals(Set.of(), versions.modifiedBytes());
+  }
 }
