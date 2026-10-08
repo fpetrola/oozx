@@ -582,7 +582,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
           if (isSimulatedCall)
             routineByteCodeGenerator.jumpInto(c);
           else
-            routineByteCodeGenerator.tailJump(c, -1);
+            routineByteCodeGenerator.tailJump(c, pcValue1);
         }
       });
     });

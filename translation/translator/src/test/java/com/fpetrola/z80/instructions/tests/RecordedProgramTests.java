@@ -1002,4 +1002,15 @@ public class RecordedProgramTests {
         at(0x9000, 0x10, 0x80));
     Assert.assertEquals(Set.of(0x8010), Set.copyOf(stackAnalyzer.dynamicInvocation.get(0x8026)));
   }
+
+  @Test
+  public void aContinuationPlantedBeforeAJumpThroughARegisterRunsAfterTheRoutineJumpedTo() {
+    // Zynaps AAE5: LD DE,AAFF; PUSH DE; JP (HL); the handler's RET lands on AAFF
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x21, 0x40, 0x80, 0x11, 0x30, 0x80, 0xD5, 0xE9),
+        at(0x8030, 0x16, 0x03, 0xC9),
+        at(0x8040, 0x0E, 0x02, 0xC9));
+    Assert.assertEquals(Set.of(0x8016), Set.copyOf(stackAnalyzer.dataConsumedBy.get(0x8042)));
+  }
 }
