@@ -125,4 +125,19 @@ public class SpectrumApplicationTest {
     game.ldAR();
     assertFalse(game.flag(0x04, false));
   }
+
+  @Test
+  public void rldAndRrdRotateTheNibblesBetweenTheAccumulatorAndMemory() {
+    game.HL(0x9000);
+    game.mem[0x9000] = 0x3C;
+    game.A(0x8F);
+    game.F(0x01);
+    game.rld();
+    assertEquals(0x83, game.A());
+    assertEquals(0xCF, game.mem[0x9000]);
+    assertEquals(1, game.F() & 1);
+    game.rrd();
+    assertEquals(0x8F, game.A());
+    assertEquals(0x3C, game.mem[0x9000]);
+  }
 }

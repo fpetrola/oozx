@@ -195,6 +195,24 @@ public abstract class SpectrumApplication {
     return alu(operation, target, 0);
   }
 
+  public void rld() {
+    int memory = mem[HL()];
+    wMem(HL(), (memory << 4 | A & 0x0f) & 0xff);
+    nibblesRotated(A & 0xf0 | memory >> 4);
+  }
+
+  public void rrd() {
+    int memory = mem[HL()];
+    wMem(HL(), (A & 0x0f) << 4 | memory >> 4);
+    nibblesRotated(A & 0xf0 | memory & 0x0f);
+  }
+
+  private void nibblesRotated(int a) {
+    int carry = F & 1;
+    A(alu("or", a, 0));
+    F(F & ~1 | carry);
+  }
+
   public void bit(int n, int value) {
     BIT bit = new BIT(aluTarget, n, aluFlag, new Plain16BitRegister("memptr"));
     aluTarget.write(value);

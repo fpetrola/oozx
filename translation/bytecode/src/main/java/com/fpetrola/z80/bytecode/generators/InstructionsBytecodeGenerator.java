@@ -177,7 +177,14 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
   @Override
   public boolean visitRLD(RLD rld) {
-    throw new RuntimeException("Not implemented");
+    methodMaker.invoke("rld");
+    return true;
+  }
+
+  @Override
+  public boolean visitRRD(RRD rrd) {
+    methodMaker.invoke("rrd");
+    return true;
   }
 
   @Override

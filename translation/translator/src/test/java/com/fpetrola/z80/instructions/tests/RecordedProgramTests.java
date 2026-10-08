@@ -30,7 +30,10 @@ import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.google.inject.Guice;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,7 +46,7 @@ import java.util.stream.Stream;
 @Modules(RoutinesModule.class)
 public class RecordedProgramTests {
   private static final int START = 0x8000, STACK = 0xFF00;
-  private final RealCodeBytecodeCreationBase base;
+  private RealCodeBytecodeCreationBase base;
   private final Set<Integer> stackPointerSnapshots = new java.util.HashSet<>();
   private RoutineManager routineManager;
   private StackAnalyzer stackAnalyzer;
@@ -58,6 +61,7 @@ public class RecordedProgramTests {
   public void setUp() {
     Helper.hex = true;
     System.setProperty("minizx.headless", "true");
+    SpectrumApplication.io = new DefaultMiniZXIO();
   }
 
   @After
@@ -655,10 +659,10 @@ public class RecordedProgramTests {
   }
 
   @Test
-  public void exchangesBlockInstructionsAndSixteenBitDecrementsRunLikeTheEmulator() {
+  public void exchangesBlockInstructionsPortReadsAndSixteenBitDecrementsRunLikeTheEmulator() {
     translate(
         at(0x8000, 0x21, 0x34, 0x12, 0x01, 0x78, 0x56, 0xC5, 0xE3, 0xD1, 0x08, 0x3E, 0x07, 0x08, 0xD9, 0x0B, 0xD9, 0x21, 0x00, 0x90, 0x01, 0x10, 0x00, 0x3E, 0x03, 0xED, 0xB1,
-            0x11, 0x0F, 0x90, 0x21, 0x0E, 0x90, 0x01, 0x05, 0x00, 0xED, 0xB8, 0x06, 0x01, 0x76, 0x18, 0xFD),
+            0x11, 0x0F, 0x90, 0x21, 0x0E, 0x90, 0x01, 0x05, 0x00, 0xED, 0xB8, 0xDB, 0xFE, 0x06, 0x01, 0x76, 0x18, 0xFD),
         at(0x9000, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F));
     Assert.assertEquals("8000", routines());
   }
@@ -684,5 +688,116 @@ public class RecordedProgramTests {
     Set<Integer> both = new java.util.TreeSet<>(a.codeBytes().keySet());
     both.addAll(b.codeBytes().keySet());
     Assert.assertEquals(both, new java.util.TreeSet<>(RemoteZ80Translator.Footprint.combine(List.of(a, b)).codeBytes().keySet()));
+  }
+
+  @Test
+  public void aRoutineEnteredInItsMiddleWhoseTailLoopsBackToItsHeadBecomesAJumpCycle() {
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0xCD, 0x20, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x3C, 0x16, 0x02, 0xFE, 0x03, 0x20, 0xF9, 0xC9),
+        at(0x8020, 0x1E, 0x03, 0xC3, 0x11, 0x80));
+    Assert.assertEquals("8000 8010 8011 8020", routines());
+    Assert.assertEquals(Set.of(0x8010, 0x8011), routineManager.routinesInJumpCycles(address -> Set.copyOf(stackAnalyzer.dynamicInvocation.get(address))).stream().map(Routine::getEntryPoint).collect(Collectors.toSet()));
+  }
+
+  @Test
+  public void aRoutineEnteredInItsMiddleWhoseHeadJumpsPastTheEntryIsSplitAtBothPlaces() {
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0xCD, 0x20, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x0E, 0x01, 0x18, 0x02, 0x16, 0x02, 0x1E, 0x03, 0xC9),
+        at(0x8020, 0xC3, 0x14, 0x80));
+    Assert.assertEquals("8000 8010 8016 8020", routines());
+  }
+
+  @Test
+  public void discardingPushedDataByResettingTheStackPointerIsNotAReturn() {
+    translate(at(0x8000, 0x21, 0x34, 0x12, 0xE5, 0x31, 0x00, 0xFF, 0x06, 0x01, 0x76, 0x18, 0xFD));
+    Assert.assertEquals("8000", routines());
+    Assert.assertTrue(routineManager.nonLocalReturns.isEmpty());
+  }
+
+  @Test
+  public void aRoutineThatPointsTheStackAtATableThroughHlStillReturnsToItsCaller() {
+    savesStackPointerAt(0x9020);
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0xED, 0x73, 0x20, 0x90, 0x21, 0x00, 0x90, 0xF9, 0xE1, 0xD1, 0xED, 0x7B, 0x20, 0x90, 0xC9),
+        at(0x9000, 0x34, 0x12, 0x78, 0x56));
+    Assert.assertEquals("8000 8010", routines());
+    Assert.assertTrue(stackAnalyzer.poppedCallSites.isEmpty());
+  }
+
+  @Test
+  public void arithmeticRotatesAndBitOperationsRunLikeTheEmulator() {
+    translate(
+        at(0x8000, 0x3E, 0x95, 0x27, 0x07, 0x0F, 0x17, 0x1F, 0x2F, 0x37, 0x3F, 0xED, 0x44, 0x06, 0x03, 0xCB, 0x20, 0xCB, 0x28, 0xCB, 0x38, 0x0E, 0x81, 0xCB, 0x01, 0xCB, 0x09,
+            0x16, 0x42, 0xCB, 0x12, 0x1E, 0x24, 0xCB, 0x1B, 0xCB, 0x5F, 0xCB, 0xD7, 0xCB, 0x87, 0x80, 0x89, 0x92, 0x9B, 0x26, 0xF0, 0xA4, 0x2E, 0x0F, 0xAD, 0xB0, 0xB9, 0x24, 0x2D,
+            0x09, 0xED, 0x5A, 0xED, 0x42, 0x21, 0x00, 0x90, 0xED, 0x6F, 0xED, 0x67, 0x7E, 0x34, 0x35, 0xDD, 0x21, 0x00, 0x90, 0xDD, 0x36, 0x01, 0x05, 0xDD, 0x34, 0x01,
+            0xDD, 0xCB, 0x01, 0x46, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x9000, 0x3C, 0x00));
+    Assert.assertEquals("8000", routines());
+  }
+
+  @Test
+  public void programsCombiningTheKnownTricksAtRandomRunLikeTheEmulator() {
+    for (int seed = 1; seed <= 24; seed++) {
+      Random random = new Random(seed);
+      stackPointerSnapshots.clear();
+      int[] data = {0x9000};
+      List<int[]> chunks = new ArrayList<>();
+      int count = 2 + random.nextInt(4);
+      int[] main = new int[count * 3 + 3];
+      for (int i = 0; i < count; i++) {
+        int routine = 0x8100 + i * 0x40;
+        System.arraycopy(new int[]{0xCD, lo(routine), hi(routine)}, 0, main, i * 3, 3);
+        chunks.addAll(trick(random.nextInt(13), routine, data, random));
+      }
+      System.arraycopy(new int[]{0x76, 0x18, 0xFD}, 0, main, count * 3, 3);
+      chunks.add(0, at(START, main));
+      base = Guice.createInjector(new RoutinesModule()).getInstance(RoutinesDriverConfigurator.class).getRealCodeBytecodeCreationBase();
+      try {
+        translate(chunks.toArray(new int[0][]));
+      } catch (AssertionError | RuntimeException e) {
+        throw new AssertionError("seed " + seed + ": " + chunks.stream().map(chunk -> "%04X:%s".formatted(chunk[0], Arrays.stream(chunk, 1, chunk.length).mapToObj("%02X"::formatted).collect(Collectors.joining(" ")))).collect(Collectors.joining(" | ")), e);
+      }
+    }
+  }
+
+  private List<int[]> trick(int kind, int base, int[] data, Random random) {
+    int sub = base + 0x20, first = base + 0x28, second = base + 0x2B, planted = base + 0x10;
+    return switch (kind) {
+      case 0 -> List.of(at(base, 0x06, random.nextInt(256), 0x0E, random.nextInt(256), 0xC9));
+      case 1 -> List.of(at(base, 0xCD, lo(sub), hi(sub), 0x41, 0x42, 0xFF, 0x06, 0x01, 0xC9), at(sub, 0xE1, 0x7E, 0x23, 0xFE, 0xFF, 0x20, 0xFA, 0xE9));
+      case 2 -> List.of(at(base, 0x21, lo(first), hi(first), 0x22, lo(sub + 1), hi(sub + 1), 0xCD, lo(sub), hi(sub), 0x21, lo(second), hi(second), 0x22, lo(sub + 1), hi(sub + 1), 0xCD, lo(sub), hi(sub), 0xC9),
+          at(sub, 0xCD, 0x00, 0x00, 0xC9), at(first, 0x06, 0x01, 0xC9), at(second, 0x0E, 0x02, 0xC9));
+      case 3 -> List.of(at(base, 0x3E, 0x05, 0x32, lo(sub + 1), hi(sub + 1), 0xCD, lo(sub), hi(sub), 0x3E, 0x07, 0x32, lo(sub + 1), hi(sub + 1), 0xCD, lo(sub), hi(sub), 0xC9), at(sub, 0xFE, 0x00, 0xC9));
+      case 4 -> List.of(at(base, 0x3E, random.nextInt(2), 0xFE, 0x01, 0x28, 0x02, 0x06, 0x01, 0x0E, 0x02, 0xC9));
+      case 5 -> List.of(at(base, 0x06, 1 + random.nextInt(20), 0x3C, 0x10, 0xFD, 0xC9));
+      case 6 -> List.of(at(base, 0x21, lo(planted), hi(planted), 0xE5, 0xC9), at(planted, 0x06, 0x01, 0xC9));
+      case 7 -> List.of(at(base, 0x21, lo(sub), hi(sub), 0xE5, 0xC3, lo(planted), hi(planted)), at(planted, 0x0E, 0x02, 0xC9), at(sub, 0x16, 0x03, 0xC9));
+      case 8 -> {
+        int saved = allocate(data, 2), table = allocate(data, 4);
+        savesStackPointerAt(saved);
+        yield List.of(at(base, 0xED, 0x73, lo(saved), hi(saved), 0x31, lo(table), hi(table), 0xE1, 0xD1, 0xED, 0x7B, lo(saved), hi(saved), 0xC9), at(table, 0x34, 0x12, 0x78, 0x56));
+      }
+      case 9 -> List.of(at(base, 0xD7, 0x06, 0x01, 0xC9), at(0x0010, 0xAF, 0xC9));
+      case 10 -> List.of(at(base, 0x3E, 0x03, 0xCD, lo(planted), hi(planted), 0x3E, 0x02, 0xCD, lo(sub), hi(sub), 0xC9), at(planted, 0x3D, 0xC8, 0xC3, lo(sub), hi(sub)), at(sub, 0x0C, 0xC3, lo(planted), hi(planted)));
+      case 11 -> List.of(at(base, 0x0E, 0x02, 0xC3, 0x20, 0x00), at(0x0020, 0x16, 0x03, 0xC9));
+      default -> List.of(at(base, 0x3E, 0x1C, 0x32, lo(sub), hi(sub), 0xCD, lo(sub), hi(sub), 0x3E, 0x14, 0x32, lo(sub), hi(sub), 0xCD, lo(sub), hi(sub), 0xC9), at(sub, 0x00, 0xC9));
+    };
+  }
+
+  private static int allocate(int[] data, int size) {
+    int address = data[0];
+    data[0] += size;
+    return address;
+  }
+
+  private static int lo(int address) {
+    return address & 0xff;
+  }
+
+  private static int hi(int address) {
+    return address >> 8;
   }
 }

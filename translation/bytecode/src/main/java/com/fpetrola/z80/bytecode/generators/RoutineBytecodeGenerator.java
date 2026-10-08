@@ -230,7 +230,8 @@ public class RoutineBytecodeGenerator {
       keys.forEach(entry -> {
         Integer key = entry;
         Label tryStart = getLabel(key);
-        Label tryEnd = routine.contains(context.routineManager.addressAfter(key)) ? getLabel(context.routineManager.addressAfter(key)) : labelsAfterLeavingCalls.get(key);
+        int continuation = stackAnalyzer().callContinuations.getOrDefault(key, context.routineManager.addressAfter(key));
+        Label tryEnd = routine.contains(continuation) ? getLabel(continuation) : labelsAfterLeavingCalls.get(key);
         var e = mm.catch_(tryStart, tryEnd, StackException.class);
         Variable nextAddress = e.invoke("getNextPC");
 
