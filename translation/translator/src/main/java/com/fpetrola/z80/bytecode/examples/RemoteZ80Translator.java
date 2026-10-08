@@ -107,7 +107,7 @@ public class RemoteZ80Translator {
     return emulate(realCodeBytecodeCreationBase, EmulatedMiniZX.ofRecording(rzxFile, frames, realCodeBytecodeCreationBase.getStackAnalyzer()));
   }
 
-  public record Footprint(Map<Integer, int[]> codeBytes, Map<Integer, int[]> explored, StackAnalyzer learned, Set<Integer> returnAddressesOnStack, int[] finalMemory, CodeVersions versions, Set<Integer> romEntries) {
+  public record Footprint(Map<Integer, int[]> codeBytes, Map<Integer, int[]> explored, StackAnalyzer learned, Set<Integer> returnAddressesOnStack, int[] finalMemory, CodeVersions versions, Set<Integer> romEntries) implements java.io.Serializable {
     public Set<Integer> modifiedCode() {
       return versions.modifiedBytes();
     }
@@ -183,7 +183,52 @@ public class RemoteZ80Translator {
   }
 
   public static Footprint footprint(String rzxFile, int from) {
-    return footprint(stackAnalyzer -> EmulatedMiniZX.ofRecording(rzxFile, -1, stackAnalyzer), from);
+    try {
+      Path saved = Path.of("target", "footprints", footprintKey(rzxFile, from) + ".ser");
+      if (Files.exists(saved))
+        try (java.io.ObjectInputStream in = new java.io.ObjectInputStream(new java.io.BufferedInputStream(Files.newInputStream(saved)))) {
+          return (Footprint) in.readObject();
+        }
+      Footprint footprint = footprint(stackAnalyzer -> EmulatedMiniZX.ofRecording(rzxFile, -1, stackAnalyzer), from);
+      Files.createDirectories(saved.getParent());
+      try (java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(new java.io.BufferedOutputStream(Files.newOutputStream(saved)))) {
+        out.writeObject(footprint);
+      }
+      return footprint;
+    } catch (IOException | ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static String footprintKey(String rzxFile, int from) throws IOException {
+    java.security.MessageDigest digest = sha256();
+    digest.update(Files.readAllBytes(Path.of(rzxFile)));
+    digest.update(Integer.toString(from).getBytes());
+    for (Class<?> type : List.of(com.fpetrola.z80.cpu.OOZ80.class, StackAnalyzer.class, RemoteZ80Translator.class))
+      digestCode(digest, Path.of(type.getProtectionDomain().getCodeSource().getLocation().getPath()), type == RemoteZ80Translator.class);
+    return java.util.HexFormat.of().formatHex(digest.digest());
+  }
+
+  private static void digestCode(java.security.MessageDigest digest, Path location, boolean onlyTheFootprint) throws IOException {
+    java.util.function.Predicate<String> part = name -> name.endsWith(".class") && (!onlyTheFootprint || name.contains("RemoteZ80Translator") || name.contains("/minizx/"));
+    if (Files.isDirectory(location))
+      try (java.util.stream.Stream<Path> files = Files.walk(location)) {
+        for (Path file : files.filter(f -> part.test(f.toString())).sorted().toList())
+          digest.update(Files.readAllBytes(file));
+      }
+    else
+      try (java.util.jar.JarFile jar = new java.util.jar.JarFile(location.toFile())) {
+        for (java.util.jar.JarEntry entry : jar.stream().filter(e -> part.test(e.getName())).sorted(java.util.Comparator.comparing(java.util.jar.JarEntry::getName)).toList())
+          digest.update(jar.getInputStream(entry).readAllBytes());
+      }
+  }
+
+  private static java.security.MessageDigest sha256() {
+    try {
+      return java.security.MessageDigest.getInstance("SHA-256");
+    } catch (java.security.NoSuchAlgorithmException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   public static String emulateProgram(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, int[] memory, int entry, int stack) {

@@ -41,15 +41,15 @@ import java.util.function.Function;
 
 import static com.fpetrola.z80.registers.RegisterName.SP;
 
-public class StackAnalyzer {
+public class StackAnalyzer implements java.io.Serializable {
   public record Entry(int value, int pc, boolean returnAddress) {
   }
 
-  private State state;
-  private Function<StackListener, Boolean> lastEvent;
+  private transient State state;
+  private transient Function<StackListener, Boolean> lastEvent;
   private boolean initialized;
-  private StackAsRepositoryState stackAsRepository = new StackAsRepositoryState();
-  private StackListener stackListener;
+  private transient StackAsRepositoryState stackAsRepository = new StackAsRepositoryState();
+  private transient StackListener stackListener;
   public MultiValuedMap<Integer, Integer> dynamicInvocation = new HashSetValuedHashMap<>();
   public final Map<Integer, Integer> callContinuations = new HashMap<>();
   public final MultiValuedMap<Integer, Integer> shiftedReturns = new HashSetValuedHashMap<>();
@@ -69,11 +69,11 @@ public class StackAnalyzer {
   private int stackResetTo = -1;
   private boolean returnsDropped;
   public boolean knowsWholeStack = true;
-  private final List<Integer> simulatedRets = new ArrayList<>();
-  private final List<Integer> simulatedCallsPcs = new ArrayList<>();
-  private final Map<Integer, Entry> entries = new HashMap<>();
-  private final Map<Integer, Entry> consumedReturns = new HashMap<>();
-  private final MemoryWriteListener forgetOverwritten = (address, value) -> {
+  private final transient List<Integer> simulatedRets = new ArrayList<>();
+  private final transient List<Integer> simulatedCallsPcs = new ArrayList<>();
+  private final transient Map<Integer, Entry> entries = new HashMap<>();
+  private final transient Map<Integer, Entry> consumedReturns = new HashMap<>();
+  private final transient MemoryWriteListener forgetOverwritten = (address, value) -> {
     entries.remove(address);
     entries.remove((address - 1) & 0xFFFF);
   };

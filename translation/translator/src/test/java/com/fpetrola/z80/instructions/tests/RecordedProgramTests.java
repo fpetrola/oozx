@@ -1141,4 +1141,23 @@ public class RecordedProgramTests {
         at(0xFF00, 0x10, 0x80));
     Assert.assertTrue(java, java.contains("super.B = 1;"));
   }
+
+  @Test
+  public void aFootprintSurvivesBeingSavedAndReadBack() throws Exception {
+    // the footprint of a recording is saved to disk so that changes to the exploration or the generator do not replay the RZX
+    int[] memory = new int[0x10000];
+    int[][] chunks = {at(0x8000, 0xCD, 0x10, 0x80, 0x2A, 0x06, 0x01, 0x76, 0x18, 0xFD), at(0x8010, 0xE1, 0x23, 0xE9)};
+    for (int[] chunk : chunks)
+      System.arraycopy(chunk, 1, memory, chunk[0], chunk.length - 1);
+    RemoteZ80Translator.Footprint footprint = RemoteZ80Translator.footprint(stackAnalyzer -> EmulatedMiniZX.ofProgram(memory, START, STACK, 1000, stackAnalyzer), START);
+    java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
+    try (java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(bytes)) {
+      out.writeObject(footprint);
+    }
+    RemoteZ80Translator.Footprint read = (RemoteZ80Translator.Footprint) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(bytes.toByteArray())).readObject();
+    Assert.assertEquals(footprint.executed(), read.executed());
+    Assert.assertEquals(footprint.learned().callContinuations, read.learned().callContinuations);
+    Assert.assertEquals(footprint.learned().shiftedReturns, read.learned().shiftedReturns);
+    Assert.assertEquals(footprint.romEntries(), read.romEntries());
+  }
 }

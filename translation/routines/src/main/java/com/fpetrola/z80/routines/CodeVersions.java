@@ -32,7 +32,7 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 
-public class CodeVersions {
+public class CodeVersions implements java.io.Serializable {
   public enum Kind {OPERAND, INSTRUCTION, BLOCK}
 
   private final Map<Integer, List<int[]>> versions = new TreeMap<>();
@@ -40,7 +40,7 @@ public class CodeVersions {
   private final List<int[]> blockRegions = new ArrayList<>();
   private final Map<Integer, List<int[]>> blockContents = new TreeMap<>();
   private final Set<Integer> patched = new TreeSet<>();
-  private BiFunction<Integer, int[], Instruction> decoder;
+  private transient BiFunction<Integer, int[], Instruction> decoder;
 
   public void record(int address, int[] first, int[] other) {
     List<int[]> known = versions.computeIfAbsent(address, a -> new ArrayList<>(List.of(first)));
