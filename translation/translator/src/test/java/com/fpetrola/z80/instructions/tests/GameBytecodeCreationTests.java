@@ -123,6 +123,11 @@ public class GameBytecodeCreationTests {
     translateRecording("MontyOnTheRun", "/home/fernando/detodo/spectrum/montyontherun.rzx", 0xAAC5);
   }
 
+  @Test
+  public void testTranslateManicMinerToJava() {
+    translateRecording("ManicMiner", "/home/fernando/detodo/spectrum/rzx-top/3012/manicnoliveslost.rzx", 0x92FB);
+  }
+
   @Ignore
   @Test
   public void testTranslateSamCruiseToJava() {
