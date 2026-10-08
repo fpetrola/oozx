@@ -49,6 +49,7 @@ public class RecordedProgramTests {
   private RealCodeBytecodeCreationBase base;
   private final Set<Integer> ignoredMemory = new java.util.HashSet<>();
   private int interruptEvery, start = START;
+  private boolean fallsBackToTheEmulator;
   private RoutineManager routineManager;
   private StackAnalyzer stackAnalyzer;
   private CodeVersions versions;
@@ -176,7 +177,7 @@ public class RecordedProgramTests {
       program.run(start);
     } catch (Finished finished) {
     }
-    Assert.assertNull("the recorded path never falls back to the emulator", mutantExecutorOf(program));
+    Assert.assertEquals("the recorded path falls back to the emulator", fallsBackToTheEmulator, mutantExecutorOf(program) != null);
     int[] expected = z80.getMemory().getData();
     Assert.assertEquals("", IntStream.range(0, 0x10000).filter(a -> (a < STACK - 0x100 || a >= STACK + 0x10) && !ignoredMemory.contains(a) && program.mem[a] != expected[a]).limit(8).mapToObj(a -> "%04X z80 %02X java %02X ".formatted(a, expected[a], program.mem[a])).collect(Collectors.joining()));
   }
@@ -1060,6 +1061,18 @@ public class RecordedProgramTests {
         at(0x8030, 0x16, 0x03, 0xC9),
         at(0x8040, 0x0E, 0x02, 0xC9));
     Assert.assertEquals(Set.of(0x8016), Set.copyOf(stackAnalyzer.dataConsumedBy.get(0x8042)));
+  }
+
+  @Test
+  public void aPatchThatTurnsOneInstructionIntoTwoShorterOnesReachesTheSecondOne() {
+    // R-Type 73C5/73D8: BF24-BF25 alternate between LD A,02 and EX AF,AF'; LD (HL),A; the second byte is an instruction only in one mode
+    fallsBackToTheEmulator = true;
+    translate(
+        at(0x8000, 0x21, 0x00, 0x90, 0xCD, 0x30, 0x80, 0xCD, 0x20, 0x80, 0xCD, 0x40, 0x80, 0xCD, 0x20, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8020, 0x3E, 0x02, 0xC9),
+        at(0x8030, 0x21, 0x20, 0x80, 0x36, 0x3E, 0x23, 0x36, 0x02, 0xC9),
+        at(0x8040, 0x21, 0x20, 0x80, 0x36, 0x08, 0x23, 0x36, 0x77, 0xC9));
+    Assert.assertNotNull(routineManager.getInstructionAt(0x8021));
   }
 
   @Test

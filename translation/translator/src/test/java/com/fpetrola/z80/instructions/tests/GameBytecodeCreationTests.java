@@ -143,6 +143,11 @@ public class GameBytecodeCreationTests {
     translateRecording("ManicMiner", "/home/fernando/detodo/spectrum/rzx-top/3012/manicnoliveslost.rzx", 0x92FB);
   }
 
+  @Test
+  public void testTranslateRTypeToJava() {
+    translateRecording("RType", "/home/fernando/detodo/spectrum/rzx-top/4256/rtype-random.rzx", 0xBF60);
+  }
+
   @Ignore
   @Test
   public void testTranslateSamCruiseToJava() {

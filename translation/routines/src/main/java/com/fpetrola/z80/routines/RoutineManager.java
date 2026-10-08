@@ -279,16 +279,18 @@ public class RoutineManager {
   }
 
   private boolean isFallenIntoFromOutside(Routine owner, int address) {
-    int before = addressBefore(address);
-    Routine previousOwner = before == -1 ? null : findRoutineAt(before);
-    return previousOwner != null && previousOwner != owner && fallsThrough(getInstructionAt(before));
+    return instructions.entrySet().stream().anyMatch(e -> fallsThrough(e.getValue()) && (e.getKey() + e.getValue().getLength() & 0xffff) == address && !owner.contains(e.getKey()) && findRoutineAt(e.getKey()) != null);
   }
 
   public void splitAtEntriesFromOutside() {
     java.util.Set<Integer> candidates = new java.util.TreeSet<>(externalEntries);
     candidates.addAll(callers.keySet());
     candidates.addAll(jumpsAfterStackReset.keySet());
-    instructions.values().forEach(instruction -> candidates.add(fixedJumpTarget(instruction)));
+    instructions.forEach((address, instruction) -> {
+      candidates.add(fixedJumpTarget(instruction));
+      if (fallsThrough(instruction))
+        candidates.add(address + instruction.getLength() & 0xffff);
+    });
     routines.forEach(routine -> routine.getBlocks().forEach(block -> candidates.add(block.getRangeHandler().getStartAddress())));
     for (boolean changed = true; changed; ) {
       changed = false;

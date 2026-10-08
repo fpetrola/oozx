@@ -104,12 +104,9 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     stepUntilComplete(start);
     Stream.of(IntStream.of(entries).boxed(), footprint.externalEntries().stream(), stackAnalyzer.dynamicInvocation.values().stream(), stackAnalyzer.calledThrough.values().stream(), stackAnalyzer.codeVersions.successors().stream())
         .flatMap(addresses -> addresses).forEach(this::stepUntilComplete);
-    footprint.codeBytes().forEach((site, bytes) -> {
-      int continuation = site + bytes.length & 0xffff;
-      if (stackAnalyzer.codeVersions.decode(site, bytes) instanceof Call && footprint.codeBytes().containsKey(continuation) && routineManager.findRoutineAt(continuation) == null) {
-        routineManager.externalEntries.add(continuation);
-        stepUntilComplete(continuation);
-      }
+    footprint.codeBytes().keySet().stream().sorted().filter(site -> site >= 0x4000 && routineManager.getInstructionAt(site) == null).forEach(site -> {
+      routineManager.externalEntries.add(site);
+      stepUntilComplete(site);
     });
     translateRomRoutines(footprint.romEntries().stream().filter(entry -> stackAnalyzer.trampolineRegister(entry) == null).mapToInt(Integer::intValue).toArray());
   }
