@@ -410,40 +410,20 @@ public class RoutineBytecodeGenerator {
   }
 
   public Variable getVariableFromMemory(Object variable, String bits) {
-    Object variable1 = getRealVariable(variable);
-    if (context.syncEnabled) {
-      List<Object> params = new ArrayList<>();
-      params.add(variable1);
-      params.add(lastMemPc.read());
-      addOtherMemSyncParameters(params);
-      return mm.invoke("mem" + bits, params.toArray());
-    } else {
-      if (bits.equals("16"))
-        return mm.invoke("mem" + bits, variable1);
-      else
-        return memory.aget(variable1);
-    }
+    List<Object> params = new ArrayList<>();
+    params.add(getRealVariable(variable));
+    params.add(lastMemPc.read());
+    addOtherMemSyncParameters(params);
+    return mm.invoke("mem" + bits, params.toArray());
   }
 
   public void writeVariableToMemory(Object o, Object variable, String bits) {
-    Object variable1 = getRealVariable(variable);
-    Object o1 = getRealVariable(o);
-    if (context.syncEnabled) {
-      List<Object> params = new ArrayList<>();
-      params.add(variable1);
-      params.add(o1);
-      params.add(lastMemPc.read());
-      addOtherMemSyncParameters(params);
-
-      mm.invoke("wMem" + bits, params.toArray());
-    } else {
-      if (bits.equals("16"))
-        mm.invoke("wMem" + bits, variable1, o1);
-      else {
-//        memory.aset(variable1, o1);
-        memory.aset(variable1, o1 instanceof Variable variable2 ? variable2 : (java.lang.Integer) o1 & 0xff);
-      }
-    }
+    List<Object> params = new ArrayList<>();
+    params.add(getRealVariable(variable));
+    params.add(getRealVariable(o));
+    params.add(lastMemPc.read());
+    addOtherMemSyncParameters(params);
+    mm.invoke("wMem" + bits, params.toArray());
   }
 
   protected void addOtherMemSyncParameters(List<Object> params) {

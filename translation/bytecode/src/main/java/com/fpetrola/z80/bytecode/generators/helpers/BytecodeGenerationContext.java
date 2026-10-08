@@ -36,7 +36,6 @@ public class BytecodeGenerationContext {
   public Register pc;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
   public GameData gameData;
-  public boolean syncEnabled;
   public final boolean direct;
   private java.util.Set<com.fpetrola.z80.routines.Routine> routinesInJumpCycles;
 
@@ -53,7 +52,6 @@ public class BytecodeGenerationContext {
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
     this.gameData = gameData;
     this.methods = new HashMap<>();
-    this.syncEnabled = true;
     this.direct = direct;
   }
 }
