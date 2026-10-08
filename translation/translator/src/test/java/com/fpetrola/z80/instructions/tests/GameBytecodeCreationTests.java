@@ -124,6 +124,11 @@ public class GameBytecodeCreationTests {
   }
 
   @Test
+  public void testTranslateGreatEscapeToJava() {
+    translateRecording("GreatEscape", "/home/fernando/detodo/spectrum/rzx-top/2125/greatescape_moneybagending.rzx", 0xF510);
+  }
+
+  @Test
   public void testTranslateDynamiteDan2ToJava() {
     translateRecording("DynamiteDan2", "/home/fernando/detodo/spectrum/rzx-top/1553/dynamitedan2.rzx", 0x6B94);
   }

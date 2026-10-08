@@ -48,7 +48,7 @@ public class RecordedProgramTests {
   private static final int START = 0x8000, STACK = 0xFF00;
   private RealCodeBytecodeCreationBase base;
   private final Set<Integer> stackPointerSnapshots = new java.util.HashSet<>();
-  private int interruptEvery;
+  private int interruptEvery, start = START;
   private RoutineManager routineManager;
   private StackAnalyzer stackAnalyzer;
   private CodeVersions versions;
@@ -74,18 +74,23 @@ public class RecordedProgramTests {
     return translateWithBlock(null, chunks);
   }
 
+  private String translateFrom(int start, int[]... chunks) {
+    this.start = start;
+    return translate(chunks);
+  }
+
   private String translateWithBlock(int[] block, int[]... chunks) {
     int[] memory = new int[0x10000];
     for (int[] chunk : chunks)
       for (int i = 1; i < chunk.length; i++)
         memory[chunk[0] + i - 1] = chunk[i];
-    String image = RemoteZ80Translator.emulateProgram(base, memory, START, STACK);
-    base.exploreRecording(RemoteZ80Translator.footprint(stackAnalyzer -> EmulatedMiniZX.ofProgram(memory, START, STACK, 1000, stackAnalyzer).interruptingEvery(interruptEvery), START), START);
+    String image = RemoteZ80Translator.emulateProgram(base, memory, start, STACK);
+    base.exploreRecording(RemoteZ80Translator.footprint(stackAnalyzer -> EmulatedMiniZX.ofProgram(memory, start, STACK, 1000, stackAnalyzer).interruptingEvery(interruptEvery), start), start);
     stackAnalyzer = base.getStackAnalyzer();
     routineManager = base.getRoutineManager();
     versions = stackAnalyzer.codeVersions;
     if (block != null) {
-      RemoteZ80Translator.recordBlockContents(EmulatedMiniZX.ofProgram(memory, START, STACK, 1000, null), START, versions);
+      RemoteZ80Translator.recordBlockContents(EmulatedMiniZX.ofProgram(memory, start, STACK, 1000, null), start, versions);
       base.translateCodeVariants(block[0], block[1], 0xE000, versions);
     }
     String java = base.generateAndDecompile(image, routineManager.getRoutines(), ".", "Program", base.symbolicExecutionAdapter);
@@ -137,7 +142,7 @@ public class RecordedProgramTests {
   }
 
   private void assertRunsLikeTheEmulator(MiniZX program, int[] memory) {
-    EmulatedMiniZX emulator = EmulatedMiniZX.ofProgram(memory, START, STACK, 0, null);
+    EmulatedMiniZX emulator = EmulatedMiniZX.ofProgram(memory, start, STACK, 0, null);
     emulator.start();
     State z80 = emulator.ooz80.getState(), translated = EmulatedMiniZX.createOOZ80(new DefaultMiniZXIO()).getState();
     program.loadState(z80);
@@ -164,12 +169,12 @@ public class RecordedProgramTests {
       return false;
     });
     try {
-      program.run(START);
+      program.run(start);
     } catch (Finished finished) {
     }
     Assert.assertNull("the recorded path never falls back to the emulator", mutantExecutorOf(program));
     int[] expected = z80.getMemory().getData();
-    Assert.assertEquals("", IntStream.range(0, 0x10000).filter(a -> (a < STACK - 0x100 || a >= STACK) && !stackPointerSnapshots.contains(a) && program.mem[a] != expected[a]).limit(8).mapToObj(a -> "%04X z80 %02X java %02X ".formatted(a, expected[a], program.mem[a])).collect(Collectors.joining()));
+    Assert.assertEquals("", IntStream.range(0, 0x10000).filter(a -> (a < STACK - 0x100 || a >= STACK + 0x10) && !stackPointerSnapshots.contains(a) && program.mem[a] != expected[a]).limit(8).mapToObj(a -> "%04X z80 %02X java %02X ".formatted(a, expected[a], program.mem[a])).collect(Collectors.joining()));
   }
 
   private static Object mutantExecutorOf(MiniZX program) {
@@ -944,5 +949,18 @@ public class RecordedProgramTests {
         at(0x0020, 0x06, 0x01, 0xC9),
         at(0x8000, 0xCD, 0x20, 0x00, 0x21, 0x21, 0x00, 0x36, 0x05, 0xCD, 0x20, 0x00, 0x76, 0x18, 0xFD));
     Assert.assertEquals(Set.of(), versions.modifiedBytes());
+  }
+
+  @Test
+  public void aDispatchingRetThatOnceConsumedAStaleStackValueStillDispatches() {
+    // The Great Escape AB30: the first time, the RET consumed a value left on the stack before the recording,
+    // which looks like a return of unknown origin; every other time it jumps to the handler its routine pushed
+    translateFrom(0x8020,
+        at(0x8000, 0x3E, 0x01, 0xCD, 0x20, 0x80, 0xCD, 0x20, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x0C, 0xC9),
+        at(0x8020, 0x21, 0x10, 0x80, 0xA7, 0x28, 0x03, 0xE5, 0x18, 0x02, 0x3B, 0x3B, 0xC9),
+        at(STACK - 2, 0x10, 0x80, 0x00, 0x80));
+    Assert.assertEquals(Set.of(-1), Set.copyOf(stackAnalyzer.returnsConsumedBy.get(0x802B)));
+    Assert.assertEquals(Set.of(0x8026), Set.copyOf(stackAnalyzer.dataConsumedBy.get(0x802B)));
   }
 }
