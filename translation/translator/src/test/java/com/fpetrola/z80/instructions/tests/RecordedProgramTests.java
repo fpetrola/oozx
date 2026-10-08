@@ -911,6 +911,14 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aRecordingIsEmulatedWithTheRomInPlace() {
+    // Dynamite Dan II: its snapshot sits in the ROM interrupt routine; with the ROM protected before the snapshot loader filled it, the emulator walked zeros up to the screen
+    EmulatedMiniZX emulator = EmulatedMiniZX.ofRecording("/home/fernando/detodo/spectrum/jsw/jsw-full.rzx", 1, null);
+    emulator.start();
+    Assert.assertEquals(0xF5, emulator.ooz80.getState().getMemory().read(0x0038, 0));
+  }
+
+  @Test
   public void anInterruptHandlerRecordedBetweenInstructionsIsTranslatedAndInterruptsTheJavaCode() {
     interruptEvery = 300;
     translate(

@@ -123,7 +123,6 @@ public class EmulatedMiniZX {
 
   public static  OOZ80 createOOZ80(MiniZXIO io) {
     var state = new State(io, new DefaultRegisterBankFactory().createBank(), new MockedMemory(true));
-    state.getMemory().protect(0, SpectrumApplication.ROM_END);
     io.setPc(state.getPc());
     return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory(state)), new DefaultInstructionExecutor(state, false));
   }
@@ -168,6 +167,7 @@ public class EmulatedMiniZX {
         ooz80.execute();
       });
     }
+    state.getMemory().protect(0, SpectrumApplication.ROM_END);
 
 //    PhaseProcessor phaseProcessor = new PhaseProcessor(ooz80);
 //    Memory memory = state.getMemory();
