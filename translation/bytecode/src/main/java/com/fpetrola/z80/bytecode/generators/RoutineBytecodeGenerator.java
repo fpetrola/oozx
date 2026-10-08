@@ -136,14 +136,14 @@ public class RoutineBytecodeGenerator {
               int nextAddress = instruction instanceof Call ? stackAnalyzer().callContinuations.getOrDefault(address, address + instruction.getLength() & 0xffff) : address + instruction.getLength() & 0xffff;
               if (!routine.contains(nextAddress) && catchPoints().containsKey(address))
                 labelsAfterLeavingCalls.put(address, mm.label().here());
-              if (RoutineManager.fallsThrough(instruction) && routine.contains(nextAddress) && (nextAddress <= address || java.util.stream.IntStream.range(address + 1, nextAddress).anyMatch(a -> routine.contains(a) && context.routineManager.getInstructionAt(a) != null && context.routineManager.getInstructionAt(a) != instruction)))
+              if (fallsThrough(address, instruction) && routine.contains(nextAddress) && (nextAddress <= address || java.util.stream.IntStream.range(address + 1, nextAddress).anyMatch(a -> routine.contains(a) && context.routineManager.getInstructionAt(a) != null && context.routineManager.getInstructionAt(a) != instruction)))
                 mm.goto_(getLabel(nextAddress));
               Routine continuationOwner = context.routineManager.findRoutineAt(nextAddress);
-              if (RoutineManager.fallsThrough(instruction) && !routine.contains(nextAddress) && continuationOwner != null && (continuationOwner.getEntryPoint() == nextAddress ? !continuationOwner.isVirtual() : context.routineManager.isEnteredFromOutside(continuationOwner, nextAddress)))
+              if (fallsThrough(address, instruction) && !routine.contains(nextAddress) && continuationOwner != null && (continuationOwner.getEntryPoint() == nextAddress ? !continuationOwner.isVirtual() : context.routineManager.isEnteredFromOutside(continuationOwner, nextAddress)))
                 tailJump(nextAddress, address);
-              if (RoutineManager.fallsThrough(instruction) && routines.stream().anyMatch(routine1 -> routine1.isVirtual() && routine1 != routine && routine1.getEntryPoint() == nextAddress))
+              if (fallsThrough(address, instruction) && routines.stream().anyMatch(routine1 -> routine1.isVirtual() && routine1 != routine && routine1.getEntryPoint() == nextAddress))
                 tailJump(nextAddress, address);
-              if (RoutineManager.fallsThrough(instruction) && !(instruction instanceof Call) && !routine.contains(nextAddress) && continuationOwner == null) {
+              if (fallsThrough(address, instruction) && !(instruction instanceof Call) && !routine.contains(nextAddress) && continuationOwner == null) {
                 mm.invoke("untranslated", nextAddress);
                 returnFromMethod();
               }
@@ -472,6 +472,10 @@ public class RoutineBytecodeGenerator {
       System.out.println("not found: " + labelName + " from " + routine + " at " + Helper.formatAddress(context.pc.read()) + " callers " + context.routineManager.callers.get(jumpLabel) + " owner " + context.routineManager.findRoutineAt(jumpLabel));
     }
     return invoke;
+  }
+
+  private boolean fallsThrough(int address, Instruction instruction) {
+    return RoutineManager.fallsThrough(instruction) || codeVersions().instructionVersions(address).stream().anyMatch(bytes -> RoutineManager.fallsThrough(codeVersions().decode(address, bytes)));
   }
 
   private void invokePc(int address) {
