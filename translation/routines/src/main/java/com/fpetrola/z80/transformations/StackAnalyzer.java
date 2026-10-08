@@ -240,7 +240,7 @@ public class StackAnalyzer implements java.io.Serializable {
           int[] left = place == -1 ? null : leftStacks.remove(place);
           if (left != null && left[3] != -1)
             confirmSwitch(left);
-          leaving = lastStorePlace != -1 && place != lastStorePlace ? new int[]{pcValue, lastStorePlace, newSpAddress, -1, -1} : null;
+          leaving = collecting && lastStorePlace != -1 && place != lastStorePlace ? new int[]{pcValue, lastStorePlace, newSpAddress, -1, -1} : null;
           lastStorePlace = -1;
           callSinceLoad = false;
           if (stackSwitches.containsValue(pcValue)) {

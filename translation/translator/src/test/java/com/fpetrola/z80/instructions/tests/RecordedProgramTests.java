@@ -1008,6 +1008,17 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aStackSwitchIsLearnedFromTheRecordingNotFromTheExplorationOfUntakenPaths() {
+    // R-Type FAEF: LD (FBC9),SP; LD SP,F87A reads a table; the exploration reached an unrelated RET before the restore and took the pair for a coroutine
+    ignoresMemory(0x9000, 0x9001);
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0xED, 0x73, 0x00, 0x90, 0x31, 0x00, 0x91, 0xE1, 0x3A, 0x00, 0x92, 0xB7, 0x28, 0x02, 0xC9, 0x00, 0xED, 0x7B, 0x00, 0x90, 0xC9),
+        at(0x9100, 0x34, 0x12, 0x03, 0x80));
+    Assert.assertTrue(stackAnalyzer.stackSwitches.toString(), stackAnalyzer.stackSwitches.isEmpty());
+  }
+
+  @Test
   public void aReturnThroughAStackPointerRestoredFromWhereItWasSavedLeavesTheRoutineNotTheStack() {
     // Zynaps 8846/8880: LD (8881),SP patches the operand of LD SP,nn at 8880; its RET drops the frames pushed since, within the same stack
     translate(
