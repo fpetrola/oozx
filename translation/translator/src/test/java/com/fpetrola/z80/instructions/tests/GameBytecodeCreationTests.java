@@ -115,18 +115,18 @@ public class GameBytecodeCreationTests {
 
   @Test
   public void testTranslateWallyToJava() {
-    translateRecording("/home/fernando/detodo/spectrum/eawally/eawallyCsabaComplete.rzx", 0x8185);
+    translateRecording("Wally", "/home/fernando/detodo/spectrum/eawally/eawallyCsabaComplete.rzx", 0x8185);
   }
 
   @Test
   public void testTranslateMontyToJava() {
-    translateRecording("/home/fernando/detodo/spectrum/montyontherun.rzx", 0xAAC5);
+    translateRecording("MontyOnTheRun", "/home/fernando/detodo/spectrum/montyontherun.rzx", 0xAAC5);
   }
 
   @Ignore
   @Test
   public void testTranslateSamCruiseToJava() {
-    testTranslateGame(getMemoryInBase64FromFile("file:///home/fernando/Downloads/samcruise.z80"), 61483);
+    testTranslateGame("SamCruise", getMemoryInBase64FromFile("file:///home/fernando/Downloads/samcruise.z80"), 61483);
   }
 
   @Test
@@ -139,28 +139,28 @@ public class GameBytecodeCreationTests {
     Stream.of(templates).forEach(template -> versions.mergeBlockRegions(template[0], template[1]));
     recordings.forEach(recording -> RemoteZ80Translator.recordBlockContents(EmulatedMiniZX.ofRecording(recording, -1, null), 0xFE65, versions));
     Stream.of(templates).forEach(template -> realCodeBytecodeCreationBase.translateCodeVariants(template[0], template[1], template[2], versions));
-    writeTranslation(base64Memory);
+    writeTranslation("Emlyn", base64Memory);
   }
 
   @Test
   public void testTranslateDizzyToJava() {
-    translateRecording("/home/fernando/detodo/spectrum/dizzy/Dizzy RZX - The Long Way.rzx", 0xF85B, 0xF85A);
+    translateRecording("Dizzy", "/home/fernando/detodo/spectrum/dizzy/Dizzy RZX - The Long Way.rzx", 0xF85B, 0xF85A);
   }
 
   @Test
   public void testTranslateEquinoxToJava() {
-    translateRecording("/home/fernando/detodo/spectrum/equinox/equinox.rzx", 0x5B8D);
+    translateRecording("Equinox", "/home/fernando/detodo/spectrum/equinox/equinox.rzx", 0x5B8D);
   }
 
-  private void translateRecording(String recording, int start, int... entries) {
+  private void translateRecording(String name, String recording, int start, int... entries) {
     String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, recording, start);
     realCodeBytecodeCreationBase.exploreRecording(RemoteZ80Translator.footprint(recording, start), start, entries);
-    writeTranslation(base64Memory);
+    writeTranslation(name, base64Memory);
   }
 
-  private void testTranslateGame(String MemoryInBase64FromFile, int startAddress, int... reachedByTheRecording) {
+  private void testTranslateGame(String name, String MemoryInBase64FromFile, int startAddress, int... reachedByTheRecording) {
     exploreGame(startAddress, reachedByTheRecording);
-    writeTranslation(MemoryInBase64FromFile);
+    writeTranslation(name, MemoryInBase64FromFile);
   }
 
   private void exploreGame(int startAddress, int... reachedByTheRecording) {
@@ -171,11 +171,11 @@ public class GameBytecodeCreationTests {
       stepUntilComplete(address);
   }
 
-  private void writeTranslation(String base64Memory) {
+  private void writeTranslation(String name, String base64Memory) {
     List<Routine> routines = getRoutineManager().getRoutines();
     try {
       Files.writeString(Path.of("target/game-routines.txt"), getRoutinesString(routines));
-      Files.writeString(Path.of("target/Game.java"), String.valueOf(generateAndDecompile(base64Memory, routines, ".", "ZxGame1")));
+      Files.writeString(Path.of("target/" + name + ".java"), String.valueOf(generateAndDecompile(base64Memory, routines, ".", name)));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -189,7 +189,7 @@ public class GameBytecodeCreationTests {
     String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, recording, start);
     realCodeBytecodeCreationBase.exploreRecording(RemoteZ80Translator.footprint(recording, start), start);
     Files.writeString(Path.of("target/dd-routines.txt"), getRoutinesString(getRoutineManager().getRoutines()));
-    Files.writeString(Path.of("target/DD.java"), RemoteZ80Translator.improveSource(generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "ZxGame1")));
+    Files.writeString(Path.of("target/DynamiteDan.java"), RemoteZ80Translator.improveSource(generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "DynamiteDan")));
   }
 
   @Ignore
