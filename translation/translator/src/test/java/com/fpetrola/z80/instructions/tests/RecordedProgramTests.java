@@ -1019,6 +1019,16 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aTwoBytePopOfTheReturnAddressContinuesAfterBothBytes() {
+    // R-Type FA08: POP IX takes the return address, PUSHes write a table through the stack, JP (IX) goes back; the byte after the pop's prefix is not an instruction
+    ignoresMemory(0x9000, 0x9001);
+    translate(
+        at(0x8000, 0xED, 0x73, 0x00, 0x90, 0x31, 0x00, 0x91, 0xCD, 0x20, 0x80, 0xED, 0x7B, 0x00, 0x90, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8020, 0xDD, 0xE1, 0x11, 0x34, 0x12, 0xD5, 0xDD, 0xE9));
+    Assert.assertNull(routineManager.getInstructionAt(0x8021));
+  }
+
+  @Test
   public void aReturnThroughAStackPointerRestoredFromWhereItWasSavedLeavesTheRoutineNotTheStack() {
     // Zynaps 8846/8880: LD (8881),SP patches the operand of LD SP,nn at 8880; its RET drops the frames pushed since, within the same stack
     translate(

@@ -338,7 +338,7 @@ public class SymbolicExecutionAdapter {
       var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
       var callerRoutineExecution = routineExecutorHandler.getCallerRoutineExecution();
 
-      callerRoutineExecution.replaceAddressAction(new AddressActionDelegate(pcValue + 1, routineExecutorHandler));
+      callerRoutineExecution.replaceAddressAction(new AddressActionDelegate(routineManager.addressAfter(pcValue), routineExecutorHandler));
       if (symbolicExecutionAdapter.routineManager.isCode(returnAddress))
         callerRoutineExecution.replaceAddressAction(new AddressActionDelegate(returnAddress, routineExecutorHandler));
       lastRoutineExecution.replaceAddressAction(new BasicAddressAction(pcValue, routineExecutorHandler, false));
