@@ -250,10 +250,8 @@ public class StackAnalyzer implements java.io.Serializable {
           if (distance(oldSpAddress, newSpAddress) > 2000) {
             if (distance(stackAsRepository.spReadAt, pcValue) < 2000)
               usingStackAsRepository(newSpAddress, oldSpAddress);
-            else if (source instanceof Memory16BitReference) {
-              stackResetTo = newSpAddress;
-              returnsDropped = false;
-            }
+            stackResetTo = newSpAddress;
+            returnsDropped = false;
           } else if (distance(oldSpAddress, newSpAddress) < 200)
             droppingReturnAddresses(oldSpAddress, newSpAddress);
         }

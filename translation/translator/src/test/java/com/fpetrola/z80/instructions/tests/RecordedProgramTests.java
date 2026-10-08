@@ -991,4 +991,15 @@ public class RecordedProgramTests {
     Assert.assertTrue(stackAnalyzer.stackSwitches.isEmpty());
     Assert.assertTrue(routineManager.nonLocalReturns.toString(), routineManager.nonLocalReturns.containsKey(0x8023));
   }
+
+  @Test
+  public void aReturnAfterPointingTheStackAtARecordThroughARegisterIsAJump() {
+    // Zynaps 873B: LD SP,IY; RET continues at the code address stored in the record IY points to
+    translate(
+        at(0x8000, 0xCD, 0x20, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x0E, 0x02, 0xC3, 0x03, 0x80),
+        at(0x8020, 0xFD, 0x21, 0x00, 0x90, 0xFD, 0xF9, 0xC9),
+        at(0x9000, 0x10, 0x80));
+    Assert.assertEquals(Set.of(0x8010), Set.copyOf(stackAnalyzer.dynamicInvocation.get(0x8026)));
+  }
 }
