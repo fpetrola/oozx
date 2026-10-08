@@ -1,6 +1,10 @@
 package com.fpetrola.z80.instructions.tests;
 
+import com.fpetrola.z80.bytecode.BytecodeGeneration;
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
+import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.routines.CodeVersions;
+import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.bytecode.examples.RemoteZ80Translator;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.cpu.State;
@@ -19,6 +23,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.tools.ToolProvider;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -29,6 +41,9 @@ import java.util.stream.Stream;
 public class RecordedProgramTests {
   private static final int START = 0x8000, STACK = 0xFF00;
   private final RealCodeBytecodeCreationBase base;
+  private RoutineManager routineManager;
+  private StackAnalyzer stackAnalyzer;
+  private CodeVersions versions;
 
   @Inject
   public RecordedProgramTests(RoutinesDriverConfigurator configurator) {
@@ -57,15 +72,52 @@ public class RecordedProgramTests {
         memory[chunk[0] + i - 1] = chunk[i];
     String image = RemoteZ80Translator.emulateProgram(base, memory, START, STACK);
     base.exploreRecording(RemoteZ80Translator.footprint(stackAnalyzer -> EmulatedMiniZX.ofProgram(memory, START, STACK, 1000, stackAnalyzer), START), START);
-    StackAnalyzer stackAnalyzer = base.getStackAnalyzer();
-    RoutineManager routineManager = base.getRoutineManager();
+    stackAnalyzer = base.getStackAnalyzer();
+    routineManager = base.getRoutineManager();
+    versions = stackAnalyzer.codeVersions;
     if (block != null) {
-      RemoteZ80Translator.recordBlockContents(EmulatedMiniZX.ofProgram(memory, START, STACK, 1000, null), START, stackAnalyzer.codeVersions);
-      base.translateCodeVariants(block[0], block[1], 0xE000, stackAnalyzer.codeVersions);
+      RemoteZ80Translator.recordBlockContents(EmulatedMiniZX.ofProgram(memory, START, STACK, 1000, null), START, versions);
+      base.translateCodeVariants(block[0], block[1], 0xE000, versions);
     }
-    String java = base.generateAndDecompile("", routineManager.getRoutines(), ".", "Program", base.symbolicExecutionAdapter);
-    assertRunsLikeTheEmulator(base.translatedProgram("Program", image), memory);
+    String java = base.generateAndDecompile(image, routineManager.getRoutines(), ".", "Program", base.symbolicExecutionAdapter);
+    assertRunsLikeTheEmulator(BytecodeGeneration.translatedProgram("Program", read(Path.of("Program.class"))), memory);
+    assertRunsLikeTheEmulator(compiled(java), memory);
     return java;
+  }
+
+  private static MiniZX compiled(String java) {
+    try {
+      Path dir = Files.createTempDirectory("recorded-program");
+      Path source = Files.writeString(dir.resolve("Program.java"), java);
+      Assert.assertEquals("the decompiled source compiles", 0, ToolProvider.getSystemJavaCompiler().run(null, null, null, "-cp", System.getProperty("java.class.path"), "-d", dir.toString(), source.toString()));
+      byte[] bytecode = read(dir.resolve("Program.class"));
+      Files.delete(dir.resolve("Program.class"));
+      Files.delete(source);
+      Files.delete(dir);
+      return BytecodeGeneration.translatedProgram("Program", bytecode);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  private static byte[] read(Path path) {
+    try {
+      return Files.readAllBytes(path);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  private String routines() {
+    return routineManager.getRoutines().stream().map(Routine::getEntryPoint).sorted().map(Integer::toHexString).map(String::toUpperCase).collect(Collectors.joining(" "));
+  }
+
+  private String instructionAt(int address) {
+    Instruction instruction = routineManager.getInstructionAt(address);
+    Class<?> type = instruction == null ? null : instruction.getClass();
+    while (type != null && type.getSimpleName().isEmpty())
+      type = type.getSuperclass();
+    return type == null ? null : type.getSimpleName();
   }
 
   private static class Finished extends RuntimeException {
@@ -120,56 +172,9 @@ public class RecordedProgramTests {
         at(0x8000, 0x21, 0x20, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x21, 0x23, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76, 0x18, 0xFD),
         at(0x8018, 0xCD, 0x00, 0x00, 0xC9),
         at(0x8020, 0x06, 0x01, 0xC9, 0x0E, 0x02, 0xC9));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $8000() {
-              this.HL('\\u8020');
-              int var1 = this.HL();
-              this.wMem16('\\u8019', var1, '\\u8003');
-              this.$8018();
-              this.HL('\\u8023');
-              int var2 = this.HL();
-              this.wMem16('\\u8019', var2, '\\u800c');
-              this.$8018();
-
-              while(true) {
-                 this.halt('\\u8012');
-              }
-           }
-
-           public void $8018() {
-              int var1 = this.codeHash('\\u8018', 3);
-              if(var1 == 227916) {
-                 this.$8020();
-              } else if(var1 == 228009) {
-                 this.$8023();
-              } else {
-                 int var2 = this.executeMutantCode('\\u8018');
-                 if(var2 != '\\u801b') {
-                    if(var2 != -1) {
-                       this.jump(var2);
-                    }
-
-                    return;
-                 }
-              }
-
-           }
-
-           public void $8020() {
-              super.B = 1;
-           }
-
-           public void $8023() {
-              super.C = 2;
-           }
-        }
-        """, java);
+    Assert.assertEquals("8000 8018 8020 8023", routines());
+    Assert.assertEquals(CodeVersions.Kind.INSTRUCTION, versions.kinds().get(0x8018));
+    Assert.assertEquals(2, versions.instructionVersions(0x8018).size());
   }
 
   @Test
@@ -178,48 +183,9 @@ public class RecordedProgramTests {
     String java = translate(
         at(0x8000, 0x3E, 0x1C, 0x32, 0x18, 0x80, 0xCD, 0x18, 0x80, 0x3E, 0x14, 0x32, 0x18, 0x80, 0xCD, 0x18, 0x80, 0x76, 0x18, 0xFD),
         at(0x8018, 0x00, 0xC9));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $8000() {
-              super.A = 28;
-              this.wMem('\\u8018', super.A, '\\u8002');
-              this.$8018();
-              super.A = 20;
-              this.wMem('\\u8018', super.A, '\\u800a');
-              this.$8018();
-
-              while(true) {
-                 this.halt('\\u8010');
-              }
-           }
-
-           public void $8018() {
-              int var1 = this.codeHash('\\u8018', 1);
-              if(var1 == 59) {
-                 int var4 = this.alu("inc", super.E);
-                 super.E = var4;
-              } else if(var1 == 51) {
-                 int var3 = this.alu("inc", super.D);
-                 super.D = var3;
-              } else {
-                 int var2 = this.executeMutantCode('\\u8018');
-                 if(var2 != '\\u8019') {
-                    if(var2 != -1) {
-                       this.jump(var2);
-                    }
-
-                    return;
-                 }
-              }
-
-           }
-        }
-        """, java);
+    Assert.assertEquals("8000 8018", routines());
+    Assert.assertEquals(CodeVersions.Kind.INSTRUCTION, versions.kinds().get(0x8018));
+    Assert.assertEquals(2, versions.instructionVersions(0x8018).size());
   }
 
   @Test
@@ -228,32 +194,8 @@ public class RecordedProgramTests {
     String java = translate(
         at(0x8000, 0x3E, 0x05, 0x32, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x3E, 0x07, 0x32, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76, 0x18, 0xFD),
         at(0x8018, 0xFE, 0x00, 0xC9));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $8000() {
-              super.A = 5;
-              this.wMem('\\u8019', super.A, '\\u8002');
-              this.$8018();
-              super.A = 7;
-              this.wMem('\\u8019', super.A, '\\u800a');
-              this.$8018();
-
-              while(true) {
-                 this.halt('\\u8010');
-              }
-           }
-
-           public void $8018() {
-              int var1 = this.mem('\\u8019', '\\u8018');
-              this.alu("cp", super.A, var1);
-           }
-        }
-        """, java);
+    Assert.assertEquals("8000 8018", routines());
+    Assert.assertEquals(CodeVersions.Kind.OPERAND, versions.kinds().get(0x8018));
   }
 
   @Test
@@ -263,63 +205,9 @@ public class RecordedProgramTests {
         at(0x8000, 0x21, 0x20, 0x80, 0x22, 0x1A, 0x80, 0xCD, 0x18, 0x80, 0x21, 0x23, 0x80, 0x22, 0x1A, 0x80, 0xCD, 0x18, 0x80, 0x76, 0x18, 0xFD),
         at(0x8018, 0x37, 0xDA, 0x00, 0x00, 0xC9),
         at(0x8020, 0x06, 0x01, 0xC9, 0x0E, 0x02, 0xC9));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $8000() {
-              this.HL('\\u8020');
-              int var1 = this.HL();
-              this.wMem16('\\u801a', var1, '\\u8003');
-              this.$8018();
-              this.HL('\\u8023');
-              int var2 = this.HL();
-              this.wMem16('\\u801a', var2, '\\u800c');
-              this.$8018();
-
-              while(true) {
-                 this.halt('\\u8012');
-              }
-           }
-
-           public void $8018() {
-              this.alu("scf", super.A);
-              int var1 = this.codeHash('\\u8019', 3);
-              if(var1 == 240409) {
-                 if(this.flag(1, false)) {
-                    this.$8020();
-                    return;
-                 }
-              } else if(var1 == 240502) {
-                 if(this.flag(1, false)) {
-                    this.$8023();
-                    return;
-                 }
-              } else {
-                 int var2 = this.executeMutantCode('\\u8019');
-                 if(var2 != '\\u801c') {
-                    if(var2 != -1) {
-                       this.jump(var2);
-                    }
-
-                    return;
-                 }
-              }
-
-           }
-
-           public void $8020() {
-              super.B = 1;
-           }
-
-           public void $8023() {
-              super.C = 2;
-           }
-        }
-        """, java);
+    Assert.assertEquals("8000 8018 8020 8023", routines());
+    Assert.assertEquals(CodeVersions.Kind.INSTRUCTION, versions.kinds().get(0x8019));
+    Assert.assertEquals(2, versions.instructionVersions(0x8019).size());
   }
 
   @Test
@@ -329,59 +217,8 @@ public class RecordedProgramTests {
         at(0x8000, 0xCD, 0x10, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD, 0xE1, 0xE1, 0x0E, 0x02, 0x76, 0x18, 0xFD),
         at(0x8010, 0xCD, 0x18, 0x80, 0xC9),
         at(0x8018, 0xAF, 0xCA, 0x08, 0x80, 0xC9));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-        import com.fpetrola.z80.minizx.StackException;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $8000() {
-              try {
-                 this.$8010();
-              } catch (StackException var2) {
-                 if(var2.getNextPC() == '\\u800a') {
-                    this.HL('\\u8003');
-                    super.C = 2;
-
-                    while(true) {
-                       this.halt('\\u800c');
-                    }
-                 }
-
-                 throw var2;
-              }
-
-              super.B = 1;
-
-              while(true) {
-                 this.halt('\\u8005');
-              }
-           }
-
-           public void $8010() {
-              try {
-                 this.$8018();
-              } catch (StackException var2) {
-                 if(var2.getNextPC() == '\\u8009') {
-                    this.HL('\\u8013');
-                    throw new StackException('\\u800a');
-                 } else {
-                    throw var2;
-                 }
-              }
-           }
-
-           public void $8018() {
-              int var1 = this.alu("xor", super.A, super.A);
-              super.A = var1;
-              if(this.flag(64, false)) {
-                 throw new StackException('\\u8009');
-              }
-           }
-        }
-        """, java);
+    Assert.assertEquals(Set.of(0x8008), Set.copyOf(stackAnalyzer.poppedCallSites.get(0x8010)));
+    Assert.assertEquals(Set.of(0x8009), Set.copyOf(stackAnalyzer.poppedCallSites.get(0x8000)));
   }
 
   @Test
@@ -390,32 +227,8 @@ public class RecordedProgramTests {
     String java = translate(
         at(0x8000, 0xCD, 0x10, 0x80, 0x2A, 0x06, 0x01, 0x76, 0x18, 0xFD),
         at(0x8010, 0xE1, 0x23, 0xE9));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $8000() {
-              this.push('\\u8003');
-              this.$8010();
-              super.B = 1;
-
-              while(true) {
-                 this.halt('\\u8006');
-              }
-           }
-
-           public void $8010() {
-              int var1 = this.pop();
-              this.HL(var1);
-              int var2 = this.HL();
-              int var3 = this.inc16(var2);
-              this.HL(var3);
-           }
-        }
-        """, java);
+    Assert.assertEquals("8000 8010", routines());
+    Assert.assertEquals(Integer.valueOf(0x8004), stackAnalyzer.callContinuations.get(0x8000));
   }
 
   @Test
@@ -424,30 +237,8 @@ public class RecordedProgramTests {
     String java = translate(
         at(0x8000, 0x21, 0x08, 0x80, 0xE5, 0xC9),
         at(0x8008, 0x06, 0x01, 0x76, 0x18, 0xFD));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $8000() {
-              this.HL('\\u8008');
-              int var1 = this.HL();
-              this.push(var1);
-              int var2 = this.pop();
-              if(var2 == '\\u8008') {
-                 super.B = 1;
-
-                 while(true) {
-                    this.halt('\\u800a');
-                 }
-              }
-
-              this.jump(var2);
-           }
-        }
-        """, java);
+    Assert.assertEquals(Set.of(0x8008), Set.copyOf(stackAnalyzer.pushedValues.get(0x8003)));
+    Assert.assertEquals(Set.of(0x8008), Set.copyOf(stackAnalyzer.dynamicInvocation.get(0x8004)));
   }
 
   @Test
@@ -457,31 +248,8 @@ public class RecordedProgramTests {
         at(0x8000, 0x21, 0x08, 0x80, 0xCD, 0x00, 0x4F, 0x76),
         at(0x8008, 0x06, 0x01, 0xC9),
         at(0x4F00, 0xE9));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $8000() {
-              this.HL('\\u8008');
-              int var1 = this.HL();
-              if(var1 == '\\u8008') {
-                 this.$8008();
-              } else {
-                 this.jump(var1);
-              }
-
-              this.halt('\\u8006');
-              this.$8008();
-           }
-
-           public void $8008() {
-              super.B = 1;
-           }
-        }
-        """, java);
+    Assert.assertEquals("8000 8008", routines());
+    Assert.assertEquals(Set.of(0x8008), Set.copyOf(stackAnalyzer.calledThrough.get(0x8003)));
   }
 
   @Test
@@ -492,33 +260,8 @@ public class RecordedProgramTests {
         at(0x8010, 0x21, 0x18, 0x80, 0xE5, 0xC3, 0x1C, 0x80),
         at(0x8018, 0x06, 0x01, 0xC9),
         at(0x801C, 0x0E, 0x02, 0xC9));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $8000() {
-              this.$8010();
-              this.halt('\\u8003');
-              this.$8010();
-           }
-
-           public void $8010() {
-              this.HL('\\u8018');
-              int var1 = this.HL();
-              this.push(var1);
-              super.C = 2;
-              int var2 = this.pop();
-              if(var2 != '\\u8018') {
-                 this.jump(var2);
-              } else {
-                 super.B = 1;
-              }
-           }
-        }
-        """, java);
+    Assert.assertEquals("8000 8010", routines());
+    Assert.assertEquals(Set.of(0x8018), Set.copyOf(stackAnalyzer.pushedValues.get(0x8013)));
   }
 
   @Test
@@ -528,57 +271,7 @@ public class RecordedProgramTests {
         at(0x8000, 0xCD, 0x10, 0x80, 0x76),
         at(0x8010, 0xCD, 0x18, 0x80, 0xC9),
         at(0x8018, 0x31, 0xFE, 0xFE, 0xC9));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-        import com.fpetrola.z80.minizx.StackException;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $8000() {
-              try {
-                 this.push('\\u8003');
-                 this.$8010();
-                 this.pop();
-              } catch (StackException var2) {
-                 if(var2.getNextPC() != '\\u8003') {
-                    throw var2;
-                 }
-              }
-
-              this.halt('\\u8003');
-              this.$8010();
-           }
-
-           public void $8010() {
-              this.$8018();
-           }
-
-           public void $8018() {
-              this.SP('\\ufefe');
-              this.$801B();
-           }
-
-           public void $801B() {
-              while(true) {
-                 try {
-                    if(!this.isNextPC('\\u801b')) {
-                       ;
-                    }
-
-                    int var1 = this.pop();
-                    throw new StackException(var1);
-                 } catch (StackException var4) {
-                    int[] var3 = new int[]{'\\u801b'};
-                    if(!this.isOwnAddress(var4, var3)) {
-                       throw var4;
-                    }
-                 }
-              }
-           }
-        }
-        """, java);
+    Assert.assertEquals(Set.of(0x8003), Set.copyOf(routineManager.nonLocalReturns.get(0x801B)));
   }
 
   @Test
@@ -589,72 +282,8 @@ public class RecordedProgramTests {
         at(0x8018, 0xCD, 0x00, 0x00, 0x06, 0x05, 0xC9),
         at(0x8020, 0xF1, 0x0E, 0x01, 0xC9),
         at(0x8028, 0x16, 0x02, 0xC9));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-        import com.fpetrola.z80.minizx.StackException;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $8000() {
-              this.HL('\\u8020');
-              int var1 = this.HL();
-              this.wMem16('\\u8019', var1, '\\u8003');
-              this.$8018();
-              this.HL('\\u8028');
-              int var2 = this.HL();
-              this.wMem16('\\u8019', var2, '\\u800c');
-              this.$8018();
-
-              while(true) {
-                 this.halt('\\u8012');
-              }
-           }
-
-           public void $8018() {
-              try {
-                 int var2 = this.codeHash('\\u8018', 3);
-                 if(var2 == 227916) {
-                    this.$8020();
-                 } else if(var2 == 228164) {
-                    this.$8028();
-                 } else {
-                    int var3 = this.executeMutantCode('\\u8018');
-                    if(var3 != '\\u801b') {
-                       if(var3 != -1) {
-                          this.jump(var3);
-                       }
-
-                       return;
-                    }
-                 }
-              } catch (StackException var4) {
-                 if(var4.getNextPC() == '\\u8021') {
-                    this.AF('\\u801b');
-                    this.$8021();
-                    return;
-                 }
-
-                 throw var4;
-              }
-
-              super.B = 5;
-           }
-
-           public void $8020() {
-              throw new StackException('\\u8021');
-           }
-
-           public void $8021() {
-              super.C = 1;
-           }
-
-           public void $8028() {
-              super.D = 2;
-           }
-        }
-        """, java);
+    Assert.assertEquals(2, versions.instructionVersions(0x8018).size());
+    Assert.assertEquals(Set.of(0x8020), Set.copyOf(stackAnalyzer.poppedCallSites.get(0x8018)));
   }
 
   @Test
@@ -663,59 +292,8 @@ public class RecordedProgramTests {
     String java = translateWithBlock(new int[]{0x8018, 0x801C},
         at(0x8000, 0x21, 0x3C, 0x3C, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x21, 0xC6, 0x05, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76, 0x18, 0xFD),
         at(0x8018, 0x47, 0x00, 0x00, 0xC9));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $8000() {
-              this.HL(15420);
-              int var1 = this.HL();
-              this.wMem16('\\u8019', var1, '\\u8003');
-              this.$8018();
-              this.HL(1478);
-              int var2 = this.HL();
-              this.wMem16('\\u8019', var2, '\\u800c');
-              this.$8018();
-
-              while(true) {
-                 this.halt('\\u8012');
-              }
-           }
-
-           public void $8018() {
-              int var1 = this.codeHash('\\u8019', 2);
-              if(var1 == 2881) {
-                 this.$E000();
-              } else if(var1 == 7104) {
-                 this.$E005();
-              } else {
-                 this.unknownCodeVariant('\\u8018', '\\u8019', 2);
-                 super.B = super.A;
-                 int var2 = this.alu("inc", super.A);
-                 super.A = var2;
-                 int var3 = this.alu("inc", super.A);
-                 super.A = var3;
-              }
-           }
-
-           public void $E000() {
-              super.B = super.A;
-              int var1 = this.alu("inc", super.A);
-              super.A = var1;
-              int var2 = this.alu("inc", super.A);
-              super.A = var2;
-           }
-
-           public void $E005() {
-              super.B = super.A;
-              int var1 = this.alu("add", super.A, 5);
-              super.A = var1;
-           }
-        }
-        """, java);
+    Assert.assertEquals(CodeVersions.Kind.BLOCK, versions.kinds().get(0x8019));
+    Assert.assertEquals(List.of(0xE000, 0xE005), routineManager.codeVariants.stream().map(RoutineManager.CodeVariant::relocatedAt).sorted().toList());
   }
 
   @Test
@@ -725,34 +303,8 @@ public class RecordedProgramTests {
         at(0x8000, 0x21, 0x08, 0x80, 0xCD, 0x30, 0x80, 0x76),
         at(0x8008, 0x06, 0x01, 0xC9),
         at(0x8030, 0xE9));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $8000() {
-              this.HL('\\u8008');
-              this.$8030();
-              this.halt('\\u8006');
-              this.$8008();
-           }
-
-           public void $8008() {
-              super.B = 1;
-           }
-
-           public void $8030() {
-              if(this.HL() == '\\u8008') {
-                 this.$8008();
-              } else {
-                 int var1 = this.HL();
-                 this.jump(var1);
-              }
-           }
-        }
-        """, java);
+    Assert.assertEquals("8000 8008 8030", routines());
+    Assert.assertEquals(Set.of(0x8008), Set.copyOf(stackAnalyzer.calledThrough.get(0x8003)));
   }
 
   @Test(timeout = 60000)
@@ -766,7 +318,7 @@ public class RecordedProgramTests {
     }
     chunks[levels] = at(START + 8 * levels, 0xC9);
     String java = translate(chunks);
-    Assert.assertEquals(levels + 2, java.split("public void \\$").length - 1);
+    Assert.assertEquals(levels + 1, routineManager.getRoutines().size());
   }
 
   @Test
@@ -778,8 +330,9 @@ public class RecordedProgramTests {
         at(0x8020, 0xF1, 0xC9),
         at(0x8028, 0xC9),
         at(0x8030, 0x06, 0x01, 0xC9));
-    Assert.assertTrue(java, java.contains("public void $8030() {\n      super.B = 1;\n   }"));
-    Assert.assertFalse(java, java.contains("this.push('\\u8015')"));
+    Assert.assertEquals("8000 8018 8020 8021 8028 8030", routines());
+    Assert.assertFalse(routineManager.pushedReturnSites.contains(0x8012));
+    Assert.assertFalse(routineManager.nonLocalReturns.containsKey(0x8032));
   }
 
   @Test
@@ -790,102 +343,17 @@ public class RecordedProgramTests {
         at(0x8018, 0xCD, 0x00, 0x00, 0x06, 0x05, 0xC9),
         at(0x8020, 0xF1, 0x0E, 0x01, 0xC9),
         at(0x8028, 0x16, 0x02, 0xC9));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-        import com.fpetrola.z80.minizx.StackException;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $8000() {
-              this.HL('\\u8028');
-              int var1 = this.HL();
-              this.wMem16('\\u8019', var1, '\\u8003');
-
-              try {
-                 this.push('\\u8009');
-                 this.$8018();
-                 this.pop();
-              } catch (StackException var6) {
-                 if(var6.getNextPC() != '\\u8009') {
-                    throw var6;
-                 }
-              }
-
-              this.HL('\\u8020');
-              int var3 = this.HL();
-              this.wMem16('\\u8019', var3, '\\u800c');
-
-              try {
-                 this.push('\\u8012');
-                 this.$8018();
-                 this.pop();
-              } catch (StackException var5) {
-                 if(var5.getNextPC() != '\\u8012') {
-                    throw var5;
-                 }
-              }
-
-              while(true) {
-                 this.halt('\\u8012');
-              }
-           }
-
-           public void $8018() {
-              try {
-                 int var2 = this.codeHash('\\u8018', 3);
-                 if(var2 == 228164) {
-                    this.$8028();
-                 } else if(var2 == 227916) {
-                    this.$8020();
-                 } else {
-                    int var3 = this.executeMutantCode('\\u8018');
-                    if(var3 != '\\u801b') {
-                       if(var3 != -1) {
-                          this.jump(var3);
-                       }
-
-                       return;
-                    }
-                 }
-              } catch (StackException var4) {
-                 if(var4.getNextPC() == '\\u8021') {
-                    this.AF('\\u801b');
-                    this.setNextAddress('\\u8021');
-                    this.$8020();
-                    return;
-                 }
-
-                 throw var4;
-              }
-
-              super.B = 5;
-           }
-
-           public void $8020() {
-              if(!this.isNextPC('\\u8021')) {
-                 throw new StackException('\\u8021');
-              } else {
-                 super.C = 1;
-                 int var1 = this.pop();
-                 throw new StackException(var1);
-              }
-           }
-
-           public void $8028() {
-              super.D = 2;
-           }
-        }
-        """, java);
+    Assert.assertEquals(2, versions.instructionVersions(0x8018).size());
+    Assert.assertEquals(Set.of(0x8020), Set.copyOf(stackAnalyzer.poppedCallSites.get(0x8018)));
+    Assert.assertTrue(routines(), routines().contains("8020"));
   }
 
   @Test
   public void withoutTheFenceAJumpIntoTheMiddleOfARecordedInstructionIsNotDecoded() {
     // Emlyn FD20: the middle of the CALL C1CD at FD1F, read as CALL 11C1 once the recording stopped fencing the exploration
     String java = translate(at(0x8000, 0xAF, 0xC2, 0x05, 0x80, 0x21, 0x76, 0x00, 0x76, 0x18, 0xFD));
-    Assert.assertTrue(java, java.contains("this.halt('\\u8007')"));
-    Assert.assertFalse(java, java.contains("this.halt('\\u8005')"));
+    Assert.assertEquals("Halt", instructionAt(0x8007));
+    Assert.assertNotEquals("Halt", instructionAt(0x8005));
   }
 
   @Test
@@ -895,8 +363,7 @@ public class RecordedProgramTests {
         at(0x8000, 0xCD, 0x08, 0x80, 0xCD, 0x0C, 0x80, 0x76),
         at(0x8008, 0xCD, 0x20, 0x80, 0x2A, 0x06, 0x01, 0xC9),
         at(0x8020, 0xE1, 0x23, 0xE9));
-    int call = java.indexOf("public void $8008()");
-    Assert.assertTrue(java, call >= 0 && java.indexOf("this.$800C();", call) > call);
+    Assert.assertEquals(Integer.valueOf(0x800C), stackAnalyzer.callContinuations.get(0x8008));
   }
 
   @Test
@@ -906,84 +373,16 @@ public class RecordedProgramTests {
         at(0x8000, 0xCD, 0x30, 0x80, 0x41, 0xFF, 0xAF, 0x20, 0x08, 0x06, 0x01, 0x76, 0x18, 0xFD),
         at(0x8010, 0xCD, 0x30, 0x80, 0x42, 0x43, 0xFF, 0x0E, 0x02, 0x76, 0x18, 0xFD),
         at(0x8030, 0xE1, 0x7E, 0x23, 0xFE, 0xFF, 0x20, 0xFA, 0xE9));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $8000() {
-              this.push('\\u8003');
-              this.$8030();
-              int var1 = this.alu("xor", super.A, super.A);
-              super.A = var1;
-              if(!this.flag(64, true)) {
-                 super.B = 1;
-
-                 while(true) {
-                    this.halt('\\u800a');
-                 }
-              }
-
-              this.push('\\u8013');
-              this.$8030();
-              super.C = 2;
-
-              while(true) {
-                 this.halt('\\u8018');
-              }
-           }
-
-           public void $8030() {
-              int var1 = this.pop();
-              this.HL(var1);
-
-              do {
-                 int var2 = this.HL();
-                 int var3 = this.mem(var2, '\\u8031');
-                 super.A = var3;
-                 int var4 = this.HL();
-                 int var5 = this.inc16(var4);
-                 this.HL(var5);
-                 this.alu("cp", super.A, 255);
-              } while(this.flag(64, true));
-
-           }
-        }
-        """, java);
+    Assert.assertEquals(Integer.valueOf(0x8005), stackAnalyzer.callContinuations.get(0x8000));
+    Assert.assertEquals(Integer.valueOf(0x8016), stackAnalyzer.callContinuations.get(0x8010));
   }
 
   @Test
   public void withoutTheFenceARecordedEntryInsideAnotherRecordedInstructionIsDecoded() {
     // the operand of LD A,0AFh is also XOR A, entered by the DJNZ
     String java = translate(at(0x8000, 0x06, 0x02, 0x3E, 0xAF, 0x10, 0xFD, 0x76, 0x18, 0xFD));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $8000() {
-              super.B = 2;
-              super.A = 175;
-
-              while(true) {
-                 int var1 = super.B - 1 & 255;
-                 super.B = var1;
-                 if(super.B == 0) {
-                    while(true) {
-                       this.halt('\\u8006');
-                    }
-                 }
-
-                 int var2 = this.alu("xor", super.A, super.A);
-                 super.A = var2;
-              }
-           }
-        }
-        """, java);
+    Assert.assertEquals("Ld", instructionAt(0x8002));
+    Assert.assertEquals("Xor", instructionAt(0x8003));
   }
 
   @Test
@@ -993,49 +392,8 @@ public class RecordedProgramTests {
         at(0x8000, 0x21, 0x20, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x21, 0x20, 0x80, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76, 0x18, 0xFD),
         at(0x8018, 0xCD, 0x00, 0x00, 0xC9),
         at(0x8020, 0x06, 0x01, 0xC9));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $8000() {
-              this.HL('\\u8020');
-              int var1 = this.HL();
-              this.wMem16('\\u8019', var1, '\\u8003');
-              this.$8018();
-              this.HL('\\u8020');
-              int var2 = this.HL();
-              this.wMem16('\\u8019', var2, '\\u800c');
-              this.$8018();
-
-              while(true) {
-                 this.halt('\\u8012');
-              }
-           }
-
-           public void $8018() {
-              if(this.codeHash('\\u8018', 3) == 227916) {
-                 this.$8020();
-              } else {
-                 int var1 = this.executeMutantCode('\\u8018');
-                 if(var1 != '\\u801b') {
-                    if(var1 != -1) {
-                       this.jump(var1);
-                    }
-
-                    return;
-                 }
-              }
-
-           }
-
-           public void $8020() {
-              super.B = 1;
-           }
-        }
-        """, java);
+    Assert.assertEquals(CodeVersions.Kind.INSTRUCTION, versions.kinds().get(0x8018));
+    Assert.assertEquals(1, versions.instructionVersions(0x8018).size());
   }
 
   @Test
@@ -1045,7 +403,7 @@ public class RecordedProgramTests {
         at(0x8000, 0xCD, 0x20, 0x80, 0x21, 0x00, 0x80, 0x54, 0x5D, 0x01, 0x30, 0x00, 0xED, 0xB0, 0xCD, 0x20, 0x80, 0x76, 0x18, 0xFD),
         at(0x8020, 0xCD, 0x28, 0x80, 0xC9),
         at(0x8028, 0x06, 0x01, 0xC9));
-    Assert.assertTrue(java, java.contains("public void $8020() {\n      this.$8028();\n   }"));
+    Assert.assertEquals(Map.of(), versions.kinds());
   }
 
   @Test
@@ -1057,7 +415,8 @@ public class RecordedProgramTests {
         at(0x8028, 0x0E, 0x02, 0xC3, 0x30, 0x80),
         at(0x8030, 0xCD, 0x40, 0x80, 0x41, 0xFF, 0x16, 0x03, 0xC9),
         at(0x8040, 0xE1, 0x7E, 0x23, 0xFE, 0xFF, 0x20, 0xFA, 0xE9));
-    Assert.assertTrue(java, java.contains("public void $8030() {\n      this.push('\\u8033');\n      this.$8040();\n      super.D = 3;\n   }"));
+    Assert.assertTrue(routines(), routines().contains("8030"));
+    Assert.assertEquals(Integer.valueOf(0x8035), stackAnalyzer.callContinuations.get(0x8030));
   }
 
   @Test
@@ -1066,7 +425,7 @@ public class RecordedProgramTests {
     String java = translate(
         at(0x8000, 0x3E, 0x04, 0x32, 0x21, 0x80, 0xAF, 0x20, 0x18, 0x76, 0x18, 0xFD),
         at(0x8020, 0x0E, 0x01, 0x76, 0x18, 0xFD));
-    Assert.assertTrue(java, java.contains("this.mem('\\u8021', '\\u8020')"));
+    Assert.assertTrue(base.symbolicExecutionAdapter.getMutantAddress().contains(0x8021));
   }
 
   @Test
@@ -1076,7 +435,7 @@ public class RecordedProgramTests {
         at(0x8000, 0xAF, 0x20, 0x0D, 0x76, 0x18, 0xFD),
         at(0x8010, 0x3E, 0x04, 0x32, 0x21, 0x80, 0xC3, 0x20, 0x80),
         at(0x8020, 0x0E, 0x01, 0x76, 0x18, 0xFD));
-    Assert.assertTrue(java, java.contains("this.mem('\\u8021', '\\u8020')"));
+    Assert.assertTrue(base.symbolicExecutionAdapter.getMutantAddress().contains(0x8021));
   }
 
   @Test
@@ -1085,34 +444,7 @@ public class RecordedProgramTests {
     String java = translate(
         at(0x8000, 0x21, 0x20, 0x80, 0xAF, 0x28, 0x02, 0x26, 0x50, 0xE9),
         at(0x8020, 0x06, 0x01, 0x76, 0x18, 0xFD));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $8000() {
-              this.HL('\\u8020');
-              int var1 = this.alu("xor", super.A, super.A);
-              super.A = var1;
-              if(!this.flag(64, false)) {
-                 super.H = 80;
-              }
-
-              if(this.HL() == '\\u8020') {
-                 super.B = 1;
-
-                 while(true) {
-                    this.halt('\\u8022');
-                 }
-              }
-
-              int var2 = this.HL();
-              this.jump(var2);
-           }
-        }
-        """, java);
+    Assert.assertEquals(Set.of(0x8020), Set.copyOf(stackAnalyzer.dynamicInvocation.get(0x8008)));
   }
 
   @Test
@@ -1121,26 +453,7 @@ public class RecordedProgramTests {
     String java = translate(
         at(0x0038, 0xC9),
         at(0x8000, 0xFF, 0x06, 0x01, 0x76, 0x18, 0xFD));
-    Assert.assertEquals("""
-        import com.fpetrola.z80.minizx.SpectrumApplication;
-
-        public class Program extends SpectrumApplication {
-           public void $0() {
-           }
-
-           public void $38() {
-           }
-
-           public void $8000() {
-              this.$38();
-              super.B = 1;
-
-              while(true) {
-                 this.halt('\\u8003');
-              }
-           }
-        }
-        """, java);
+    Assert.assertEquals("38 8000", routines());
   }
 
   @Test
@@ -1150,7 +463,7 @@ public class RecordedProgramTests {
         at(0x0010, 0xAF, 0xC2, 0x00, 0x90, 0xC9),
         at(0x8000, 0xD7, 0x06, 0x01, 0x76, 0x18, 0xFD),
         at(0x9000, 0x06, 0x07, 0xC9));
-    Assert.assertTrue(java, java.contains("public void $10()") && !java.contains("super.B = 7"));
+    Assert.assertEquals("10 8000", routines());
   }
 
   @Test
@@ -1160,7 +473,8 @@ public class RecordedProgramTests {
         at(0x0000, 0x34, 0x12, 0xC9),
         at(0x8000, 0xCD, 0xFF, 0xFF, 0x76, 0x18, 0xFD),
         at(0xFFFF, 0x01));
-    Assert.assertFalse(java, java.contains("untranslated"));
+    Assert.assertTrue(routines(), routines().contains("FFFF"));
+    Assert.assertEquals("Ret", instructionAt(0x0002));
   }
 
   @Test
@@ -1169,7 +483,8 @@ public class RecordedProgramTests {
     String java = translate(
         at(0x8000, 0xAF, 0x20, 0x0D, 0x76, 0x18, 0xFD),
         at(0x8010, 0xC7, 0x06, 0x07, 0xC9));
-    Assert.assertFalse(java, java.contains("super.B = 7"));
+    Assert.assertEquals("8000", routines());
+    Assert.assertNull(instructionAt(0x8011));
   }
 
   @Test
@@ -1179,7 +494,7 @@ public class RecordedProgramTests {
         at(0x0010, 0x21, 0x20, 0x00, 0xE9),
         at(0x0020, 0x06, 0x01, 0xC9),
         at(0x8000, 0xD7, 0x76, 0x18, 0xFD));
-    Assert.assertTrue(java, java.contains("public void $20()"));
+    Assert.assertEquals("10 20 8000", routines());
   }
 
   @Test
@@ -1188,7 +503,8 @@ public class RecordedProgramTests {
     String java = translate(
         at(0x8000, 0xE1, 0x06, 0x01, 0x76, 0x18, 0xFD),
         at(0xFF00, 0x10, 0x80));
-    Assert.assertTrue(java, java.contains("super.B = 1;"));
+    Assert.assertEquals("Ld", instructionAt(0x8001));
+    Assert.assertTrue(stackAnalyzer.poppedCallSites.isEmpty());
   }
 
   @Test

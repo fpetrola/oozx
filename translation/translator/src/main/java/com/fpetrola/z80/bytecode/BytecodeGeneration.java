@@ -68,7 +68,10 @@ public interface BytecodeGeneration {
   String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className1, SymbolicExecutionAdapter symbolicExecutionAdapter);
 
   default MiniZX translatedProgram(String className, State state, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory, GameData gameData) {
-    byte[] bytecode = getBytecodeGenerator(className, state, true, symbolicExecutionAdapter, base64Memory, gameData).getBytecode().get(className);
+    return translatedProgram(className, getBytecodeGenerator(className, state, true, symbolicExecutionAdapter, base64Memory, gameData).getBytecode().get(className));
+  }
+
+  static MiniZX translatedProgram(String className, byte[] bytecode) {
     try {
       return (MiniZX) new ClassLoader(MiniZX.class.getClassLoader()) {
         Class<?> define() {
