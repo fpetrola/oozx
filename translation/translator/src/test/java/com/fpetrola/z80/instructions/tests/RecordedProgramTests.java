@@ -620,6 +620,19 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void anOutToPort7FFDRunByTheEmulatorFallbackPagesTheTranslatedProgramsMemory() {
+    // Renegade 128K: code patched by its own stores runs through the emulator fallback, and an OUT there must page the Java side too
+    banked = true;
+    fallsBackToTheEmulator = true;
+    ignoresMemory(0x8F00, 0x9000);
+    translate(
+        at(0x8000, 0x31, 0x00, 0x90, 0xCD, 0x20, 0x80, 0xCD, 0x40, 0x80, 0x3E, 0x11, 0xCD, 0x20, 0x80, 0x3A, 0x00, 0xC0, 0x76, 0x18, 0xFD),
+        at(0x8020, 0x3A, 0x00, 0x00, 0xC9),
+        at(0x8040, 0x21, 0x20, 0x80, 0x36, 0xD3, 0x23, 0x36, 0xFD, 0xC9),
+        at(0xC000, 0x42));
+  }
+
+  @Test
   public void anOutThroughCGoesToThePortInBCWhateverAHolds() {
     // Renegade 128K 9FF3: OUT (C),A with BC=7FFD; only OUT (n),A puts A on the high byte of the port
     banked = true;

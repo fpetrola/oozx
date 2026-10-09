@@ -80,7 +80,15 @@ public abstract class SpectrumApplication {
 
   public int executeMutantCode(int address) {
     if (mutantExecutor == null)
-      mutantExecutor = EmulatedMiniZX.createTimedOOZ80(new DefaultMiniZXIO());
+      mutantExecutor = EmulatedMiniZX.createTimedOOZ80(new DefaultMiniZXIO() {
+        public int in(int port) {
+          return SpectrumApplication.this.in(port);
+        }
+
+        public void out(int port, int value) {
+          SpectrumApplication.this.out(port, value);
+        }
+      });
     ((MockedMemory) mutantExecutor.getState().getMemory()).init(() -> mem);
     State state = mutantExecutor.getState();
     storeRegisters(state);
