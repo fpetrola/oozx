@@ -513,6 +513,16 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     return true;
   }
 
+  public boolean visitOuti(Outi outi) {
+    methodMaker.invoke("outi");
+    return true;
+  }
+
+  public boolean visitOutd(Outd outd) {
+    methodMaker.invoke("outd");
+    return true;
+  }
+
   public boolean visitLdd(Ldd ldd) {
     methodMaker.invoke("ldd");
     return true;

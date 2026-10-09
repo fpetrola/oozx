@@ -454,6 +454,23 @@ public abstract class SpectrumApplication {
     blockStep(-1, false);
   }
 
+  public void outi() {
+    outStep(1);
+  }
+
+  public void outd() {
+    outStep(-1);
+  }
+
+  private void outStep(int direction) {
+    int value = mem[HL()];
+    B(B() - 1 & 0xff);
+    out(BC(), value);
+    HL(HL() + direction & 0xffff);
+    int sum = value + L();
+    F(((value & 0x80) != 0 ? 0x02 : 0) | (sum > 0xff ? 0x11 : 0) | (Integer.bitCount(sum & 7 ^ B()) % 2 == 0 ? 0x04 : 0) | B() & 0xa8 | (B() == 0 ? 0x40 : 0));
+  }
+
   private void blockStep(int direction, boolean copy) {
     int hl = HL();
     if (copy) {

@@ -682,6 +682,14 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void outdAndOutiSendTheByteAtHlAndStepBAndHl() {
+    // Batman The Movie C177: LD B,BF; OUTD writes the AY registers from a table
+    translate(
+        at(0x8000, 0x21, 0x01, 0x90, 0x01, 0xFE, 0x11, 0xED, 0xAB, 0xED, 0xAB, 0xED, 0xA3, 0x76, 0x18, 0xFD),
+        at(0x9000, 0x80, 0xFF));
+  }
+
+  @Test
   public void anOutThroughCGoesToThePortInBCWhateverAHolds() {
     // Renegade 128K 9FF3: OUT (C),A with BC=7FFD; only OUT (n),A puts A on the high byte of the port
     banked = true;
