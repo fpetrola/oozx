@@ -609,6 +609,15 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void anOutThroughCGoesToThePortInBCWhateverAHolds() {
+    // Renegade 128K 9FF3: OUT (C),A with BC=7FFD; only OUT (n),A puts A on the high byte of the port
+    banked = true;
+    translate(
+        at(0x8000, 0x01, 0xFD, 0x7F, 0x3E, 0x91, 0xED, 0x79, 0x3A, 0x00, 0xC0, 0x76, 0x18, 0xFD),
+        at(0xC000, 0x42));
+  }
+
+  @Test
   public void poppingAReturnAddressThatWasOnTheStackBeforeTheRecordingIsNotAReturn() {
     // Bruce Lee 9633: POP of a return address from the snapshot's stack, whose CALL is unknown
     String java = translate(

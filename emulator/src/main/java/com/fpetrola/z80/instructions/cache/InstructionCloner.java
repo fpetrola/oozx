@@ -314,7 +314,7 @@ public class InstructionCloner implements InstructionVisitor<Object> {
 
   @Override
   public void visitOut(Out tOut) {
-    setCloned(instructionFactory.Out(tOut.getTarget(), clone(tOut.getSource())), tOut);
+    setCloned(instructionFactory.Out(clone(((Out.OutPortOpcodeReference) tOut.getTarget()).target), clone(tOut.getSource())), tOut);
   }
 
   public void setCloned(AbstractInstruction cloned, AbstractInstruction instruction) {
