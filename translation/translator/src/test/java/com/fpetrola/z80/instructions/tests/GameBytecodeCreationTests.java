@@ -154,6 +154,11 @@ public class GameBytecodeCreationTests {
   }
 
   @Test
+  public void testTranslateRenegade128ToJava() {
+    translateRecording("Renegade128", "/home/fernando/detodo/spectrum/rzx-top/renegade.rzx", 0x6004);
+  }
+
+  @Test
   public void testTranslateRTypeToJava() {
     translateRecording("RType", "/home/fernando/detodo/spectrum/rzx-top/4256/rtype-random.rzx", 0xBF60);
   }

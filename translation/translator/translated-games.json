@@ -15,6 +15,12 @@
       "recording": "/home/fernando/detodo/spectrum/rzx-top/4082/renegade48-random.rzx",
       "entry": "F280"
     },
+    "renegade128": {
+      "title": "Renegade (128K)",
+      "type": "Renegade128",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/renegade.rzx",
+      "entry": "6004"
+    },
     "rtype": {
       "title": "R-Type",
       "type": "RType",
