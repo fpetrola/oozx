@@ -144,6 +144,11 @@ public class GameBytecodeCreationTests {
   }
 
   @Test
+  public void testTranslateExolonToJava() {
+    translateRecording("Exolon", "/home/fernando/detodo/spectrum/rzx-top/1686/exolon.rzx", 0x8057);
+  }
+
+  @Test
   public void testTranslateRenegadeToJava() {
     translateRecording("Renegade", "/home/fernando/detodo/spectrum/rzx-top/4082/renegade48-random.rzx", 0xF280);
   }

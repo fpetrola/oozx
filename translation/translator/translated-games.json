@@ -3,6 +3,12 @@
   "mode": "replay",
   "recording": null,
   "games": {
+    "exolon": {
+      "title": "Exolon",
+      "type": "Exolon",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/1686/exolon.rzx",
+      "entry": "8057"
+    },
     "renegade": {
       "title": "Renegade",
       "type": "Renegade",
