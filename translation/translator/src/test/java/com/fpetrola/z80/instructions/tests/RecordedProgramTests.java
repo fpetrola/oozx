@@ -651,6 +651,16 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aPatchedJumpToTheNextAddressGoesOnInTheRoutineThere() {
+    // Target: Renegade BFBF: JP BFC2 is a store target, so it runs through the emulator fallback; BFC2 starts another routine
+    fallsBackToTheEmulator = true;
+    translate(
+        at(0x8000, 0xC3, 0x03, 0x80, 0x04, 0xC9),
+        at(0x8020, 0x3A, 0x00, 0x90, 0xB7, 0x28, 0x03, 0x32, 0x00, 0x80, 0xCD, 0x03, 0x80, 0x76, 0x18, 0xFD),
+        at(STACK, 0x20, 0x80));
+  }
+
+  @Test
   public void anOutThroughCGoesToThePortInBCWhateverAHolds() {
     // Renegade 128K 9FF3: OUT (C),A with BC=7FFD; only OUT (n),A puts A on the high byte of the port
     banked = true;

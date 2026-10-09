@@ -308,7 +308,8 @@ public class RoutineBytecodeGenerator {
 
   private void executeMutantCode(int address, Instruction instruction) {
     Variable executedUpTo = mm.invoke("executeMutantCode", address);
-    executedUpTo.ifNe(address + instruction.getLength() & 0xffff, () -> {
+    int next = address + instruction.getLength() & 0xffff;
+    Runnable leave = () -> {
       for (int inside = address + 1; inside < address + instruction.getLength(); inside++)
         if (getLabel(inside) != null) {
           Label overlapping = getLabel(inside);
@@ -316,7 +317,14 @@ public class RoutineBytecodeGenerator {
         }
       executedUpTo.ifNe(-1, () -> mm.invoke("jump", executedUpTo));
       returnFromMethod();
-    });
+    };
+    if (fallsThrough(address, instruction))
+      executedUpTo.ifNe(next, leave);
+    else {
+      if (getLabel(next) != null)
+        executedUpTo.ifEq(next, getLabel(next)::goto_);
+      leave.run();
+    }
   }
 
   private CodeVersions codeVersions() {
