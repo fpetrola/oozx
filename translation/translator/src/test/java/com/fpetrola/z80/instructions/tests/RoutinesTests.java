@@ -1797,6 +1797,27 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
   }
 
   @Test
+  public void splittingAtTheStartOfTheBlockThatHoldsTheEntryLeavesTheEntryInTheRoutine() {
+    // Renegade 128K 8313: the code below the entry joined its block, and splitting at 8309 took 8313 from its CALL
+    setUpMemory();
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
+      {
+        add(Ld(r(A), c(2)));
+        add(Inc(r(E)));
+        add(JP(c(4), t()));
+        add(Nop());
+        add(Ret(t()));
+      }
+    };
+    stepUntilComplete();
+    Routine routine = getRoutineManager().findRoutineAt(0);
+    routine.setEntryPoint(1);
+    routine.splitAt(0);
+    Assert.assertEquals(1, getRoutineManager().findRoutineAt(1).getEntryPoint());
+    Assert.assertEquals(0, getRoutineManager().findRoutineAt(0).getEntryPoint());
+  }
+
+  @Test
   public void aSiteWithRecordedVersionsSwitchesOverThem() {
     setUpMemory();
     getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {

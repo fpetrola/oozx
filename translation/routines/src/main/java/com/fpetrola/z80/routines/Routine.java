@@ -143,6 +143,8 @@ public class Routine {
   }
 
   private static boolean splitBlocksIfRequired(Routine routineAt, Block block, int startAddress1, int startAddress2, Map<Integer, Integer> virtualPop1, MultiValuedMap<Integer, Integer> returnPointsDropped) {
+    if (block.contains(routineAt.entryPoint) && routineAt.entryPoint > startAddress1)
+      routineAt.addBlock(block.split(routineAt.entryPoint - 1));
     if (startAddress1 != startAddress2) {
       Block split = block.split(startAddress1 - 1);
 //      if (startAddress2 != routineAt.entryPoint)
